@@ -83,9 +83,10 @@ const BANK_ACCOUNT_VERIFIED_COMMAND = new CommandDefinition<{
 export class ProviderPaymentDetailsComponent implements OnInit, OnDestroy {
   private viewState$ = new BehaviorSubject<View | null>(null);
 
-  private provider$ = this.activatedRoute.params.pipe(
-    switchMap(({ providerId }) => this.providerService.get$(providerId)),
-  );
+  private provider$ = combineLatest([
+    this.activatedRoute.params,
+    this.accountService.activeAccount$.pipe(getUserId),
+  ]).pipe(switchMap(([{ providerId }, userId]) => this.providerService.get$(providerId, userId)));
 
   private load$: Observable<View> = this.provider$.pipe(
     switchMap((provider) =>
@@ -156,6 +157,7 @@ export class ProviderPaymentDetailsComponent implements OnInit, OnDestroy {
     private providerWarningsService: ProviderWarningsService,
     private router: Router,
     private subscriberBillingClient: SubscriberBillingClient,
+    private accountService: AccountService,
   ) {}
 
   async ngOnInit() {

@@ -3,7 +3,7 @@ import { Component } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
 import { ActivatedRoute, Router, RouterModule } from "@angular/router";
-import { firstValueFrom, from, map, Observable, switchMap } from "rxjs";
+import { combineLatest, firstValueFrom, from, map, Observable, switchMap } from "rxjs";
 import { debounceTime, first } from "rxjs/operators";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -65,9 +65,10 @@ export class ClientsComponent {
     this.activatedRoute.parent?.params.pipe(map((params) => params.providerId as string)) ??
     new Observable();
 
-  protected provider$ = this.providerId$.pipe(
-    switchMap((providerId) => this.providerService.get$(providerId)),
-  );
+  protected provider$ = combineLatest([
+    this.providerId$,
+    this.accountService.activeAccount$.pipe(getUserId),
+  ]).pipe(switchMap(([providerId, userId]) => this.providerService.get$(providerId, userId)));
 
   protected isAdminOrServiceUser$ = this.provider$.pipe(
     map(
