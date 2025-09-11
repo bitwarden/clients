@@ -125,9 +125,8 @@ export class CriticalApplicationsComponent implements OnInit {
     }
 
     this.toastService.showToast({
-      message: this.i18nService.t("criticalApplicationSuccessfullyUnmarked"),
+      message: this.i18nService.t("criticalApplicationUnmarkedSuccessfully"),
       variant: "success",
-      title: this.i18nService.t("success"),
     });
     this.dataSource.data = this.dataSource.data.filter((app) => app.applicationName !== hostname);
   };

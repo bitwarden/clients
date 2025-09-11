@@ -314,12 +314,18 @@ export class TokenService implements TokenServiceAbstraction {
       );
     }
 
-    const decryptedAccessToken = await this.encryptService.decryptString(
-      encryptedAccessToken,
-      accessTokenKey,
-    );
+    try {
+      const decryptedAccessToken = await this.encryptService.decryptString(
+        encryptedAccessToken,
+        accessTokenKey,
+      );
+      return decryptedAccessToken;
+    } catch (e) {
+      // Note: This should be replaced by the owning team with appropriate, domain-specific behavior.
 
-    return decryptedAccessToken;
+      this.logService.error("[TokenService] Error decrypting access token", e);
+      throw e;
+    }
   }
 
   /**
