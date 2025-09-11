@@ -206,9 +206,7 @@ describe("VaultPopupAutofillService", () => {
       it("should return true if autofill is successful", async () => {
         mockCipher.id = "test-cipher-id";
         mockAutofillService.doAutoFill.mockResolvedValue(null);
-
         const result = await service.doAutofill(mockCipher);
-
         expect(result).toBe(true);
         expect(mockAutofillService.doAutoFill).toHaveBeenCalledWith(expectedAutofillArgs);
         expect(mockMessagingService.send).toHaveBeenCalledWith("vaultAutofillSuggestionUsed", {
