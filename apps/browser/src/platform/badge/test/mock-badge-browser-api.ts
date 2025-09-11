@@ -5,6 +5,7 @@ import { BadgeBrowserApi, RawBadgeState, Tab } from "../badge-browser-api";
 export class MockBadgeBrowserApi implements BadgeBrowserApi {
   private _activeTabsUpdated$ = new BehaviorSubject<Tab[]>([]);
   activeTabsUpdated$ = this._activeTabsUpdated$.asObservable();
+  activeTabs$ = this._activeTabsUpdated$.asObservable();
 
   specificStates: Record<number, RawBadgeState> = {};
   generalState?: RawBadgeState;

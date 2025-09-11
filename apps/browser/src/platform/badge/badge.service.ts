@@ -2,7 +2,6 @@ import {
   BehaviorSubject,
   combineLatest,
   concatMap,
-  filter,
   Observable,
   Subscription,
   switchMap,
@@ -22,24 +21,16 @@ import { DefaultBadgeState } from "./consts";
 import { BadgeStatePriority } from "./priority";
 import { BadgeState, Unset } from "./state";
 
-interface StateSetting {
+export interface StateSetting {
   priority: BadgeStatePriority;
   state: BadgeState;
   tabId?: number;
 }
 
-// interface StateCalculators {
-//   [name: string]: (tab: chrome.tabs.Tab) => Observable<StateSetting>;
-// }
-
-/**
- * A function that takes an observable of active tab updates and returns an observable of state settings.
- * This can be used to create dynamic badge states that react to tab changes.
- * The returned observable should emit a new state setting whenever the badge state should be updated.
- *
- * @param activeTabsUpdated$ An observable that emits whenever one or multiple tabs are updated and might need its state updated.
- */
-export type StateCalculator = (activeTabsUpdated$: Observable<Tab[]>) => Observable<StateSetting[]>;
+export type StateCalculator = (
+  activeTabs$: Observable<Tab[]>,
+  activeTabsUpdated$: Observable<Tab[]>,
+) => Observable<StateSetting[]>;
 
 const BADGE_STATES = new KeyDefinition(BADGE_MEMORY, "badgeStates", {
   deserializer: (value: Record<string, StateSetting>) => value ?? {},
@@ -74,42 +65,28 @@ export class BadgeService {
    * Without this the service will not be able to update the badge state.
    */
   startListening(): Subscription {
-    // React to tab changes
-    this.badgeApi.activeTabsUpdated$
+    return this.stateCalculators
       .pipe(
+        switchMap((calculators) => {
+          const calculatorObservables = Object.values(calculators).map((calculator) =>
+            calculator(this.badgeApi.activeTabs$, this.badgeApi.activeTabsUpdated$),
+          );
+
+          return combineLatest(calculatorObservables);
+        }),
         withLatestFrom(this.serviceState.state$),
-        filter(([activeTabs]) => activeTabs.length > 0),
-        concatMap(async ([activeTabs, serviceState]) => {
-          await Promise.all(activeTabs.map((tab) => this.updateBadge(serviceState, tab.tabId)));
+        concatMap(async ([dynamicStates, staticStates]) => {
+          const allStates = [...Object.values(staticStates ?? {}), ...dynamicStates.flat()];
+          const updatedTabs = new Set<number>(
+            allStates.map((s) => s.tabId).filter((id): id is number => id !== undefined),
+          );
+
+          for (const tabId of updatedTabs) {
+            await this.updateBadge(allStates, tabId);
+          }
         }),
       )
-      .subscribe({
-        error: (error: unknown) => {
-          this.logService.error(
-            "Fatal error in badge service observable, badge will fail to update",
-            error,
-          );
-        },
-      });
-
-    return this.stateCalculators.pipe(
-      switchMap((calculators) => {
-        const calculatorObservables = Object.values(calculators).map((calculator) =>
-          calculator(this.activeTabsUpdated$),
-        );
-
-        return combineLatest(calculatorObservables);
-      }),
-      withLatestFrom(this.serviceState.state$),
-      concatMap(async ([dynamicStates, staticStates]) => {
-        const allStates = [...Object.values(staticStates ?? {}), ...dynamicStates];
-        // await this.updateBadge(
-        //   { tabId: activeTab.id ?? 0, windowId: activeTab.windowId },
-        //   allStates,
-        //   activeTab?.id,
-        // );
-      }),
-    );
+      .subscribe();
   }
 
   /**
@@ -135,6 +112,17 @@ export class BadgeService {
     await this.updateBadge(newServiceState, tabId);
   }
 
+  /**
+   * Register a function that takes an observable of active tab updates and returns an observable of state settings.
+   * This can be used to create dynamic badge states that react to tab changes.
+   * The returned observable should emit a new state setting whenever the badge state should be updated.
+   *
+   * Note: `activeTabsUpdated$` is preferred over `activeTabs$` for performance reasons.
+   *        Only use `activeTabs$` if you need the full list of active tabs, e.g. if an external state has changed and all tabs need to be updated.
+   *
+   * @param calculator.activeTabs$ An observable that emits all currently active tabs whenever one or more active tabs change.
+   * @param calculator.activeTabsUpdated$ An observable that emits whenever one or multiple tabs are updated and might need its state updated.
+   */
   setDynamicState(name: string, calculator: StateCalculator) {
     this.stateCalculators.next({
       ...this.stateCalculators.value,
@@ -210,7 +198,7 @@ export class BadgeService {
    * @param tabId Tab id for which the the latest state change applied to. Set this to activeTab.tabId to force an update.
    */
   private async updateBadge(
-    serviceState: Record<string, StateSetting> | null | undefined,
+    serviceState: Record<string, StateSetting> | StateSetting[] | null | undefined,
     tabId: number | undefined,
   ) {
     const activeTabs = await this.badgeApi.getActiveTabs();
