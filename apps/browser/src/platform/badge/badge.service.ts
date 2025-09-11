@@ -1,4 +1,13 @@
-import { concatMap, filter, Subscription, withLatestFrom } from "rxjs";
+import {
+  BehaviorSubject,
+  combineLatest,
+  concatMap,
+  filter,
+  Observable,
+  Subscription,
+  switchMap,
+  withLatestFrom,
+} from "rxjs";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import {
@@ -19,6 +28,19 @@ interface StateSetting {
   tabId?: number;
 }
 
+// interface StateCalculators {
+//   [name: string]: (tab: chrome.tabs.Tab) => Observable<StateSetting>;
+// }
+
+/**
+ * A function that takes an observable of active tab updates and returns an observable of state settings.
+ * This can be used to create dynamic badge states that react to tab changes.
+ * The returned observable should emit a new state setting whenever the badge state should be updated.
+ *
+ * @param activeTabsUpdated$ An observable that emits whenever one or multiple tabs are updated and might need its state updated.
+ */
+export type StateCalculator = (activeTabsUpdated$: Observable<Tab[]>) => Observable<StateSetting[]>;
+
 const BADGE_STATES = new KeyDefinition(BADGE_MEMORY, "badgeStates", {
   deserializer: (value: Record<string, StateSetting>) => value ?? {},
   cleanupDelayMs: 0,
@@ -26,6 +48,7 @@ const BADGE_STATES = new KeyDefinition(BADGE_MEMORY, "badgeStates", {
 
 export class BadgeService {
   private serviceState: GlobalState<Record<string, StateSetting>>;
+  private stateCalculators = new BehaviorSubject<Record<string, StateCalculator>>({});
 
   /**
    * An observable that emits whenever one or multiple tabs are updated and might need its state updated.
@@ -52,7 +75,7 @@ export class BadgeService {
    */
   startListening(): Subscription {
     // React to tab changes
-    return this.badgeApi.activeTabsUpdated$
+    this.badgeApi.activeTabsUpdated$
       .pipe(
         withLatestFrom(this.serviceState.state$),
         filter(([activeTabs]) => activeTabs.length > 0),
@@ -68,6 +91,25 @@ export class BadgeService {
           );
         },
       });
+
+    return this.stateCalculators.pipe(
+      switchMap((calculators) => {
+        const calculatorObservables = Object.values(calculators).map((calculator) =>
+          calculator(this.activeTabsUpdated$),
+        );
+
+        return combineLatest(calculatorObservables);
+      }),
+      withLatestFrom(this.serviceState.state$),
+      concatMap(async ([dynamicStates, staticStates]) => {
+        const allStates = [...Object.values(staticStates ?? {}), ...dynamicStates];
+        // await this.updateBadge(
+        //   { tabId: activeTab.id ?? 0, windowId: activeTab.windowId },
+        //   allStates,
+        //   activeTab?.id,
+        // );
+      }),
+    );
   }
 
   /**
@@ -91,6 +133,13 @@ export class BadgeService {
       [name]: { priority, state, tabId },
     }));
     await this.updateBadge(newServiceState, tabId);
+  }
+
+  setDynamicState(name: string, calculator: StateCalculator) {
+    this.stateCalculators.next({
+      ...this.stateCalculators.value,
+      [name]: calculator,
+    });
   }
 
   /**

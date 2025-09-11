@@ -26,6 +26,8 @@ export class AutofillBadgeUpdaterService {
       switchMap((account) => (account?.id ? this.cipherService.ciphers$(account?.id) : of([]))),
     );
 
+    this.badgeService.setDynamicState("autofill-badge-updater", (activeTabsUpdated$) => {});
+
     // Recalculate badges for all active tabs when ciphers or active account changes
     combineLatest({
       account: this.accountService.activeAccount$,
