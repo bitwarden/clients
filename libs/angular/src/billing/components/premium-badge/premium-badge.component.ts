@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { Component, input, output } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -15,14 +15,15 @@ import { BadgeModule } from "@bitwarden/components";
   imports: [BadgeModule, JslibModule],
 })
 export class PremiumBadgeComponent {
-  @Input() skipMessaging = false;
-  @Output() onClick: EventEmitter<void> = new EventEmitter<void>();
+  /** Skip sending the premiumRequired message (default: false). */
+  skipMessaging = input(false);
+  onClick = output();
 
   constructor(private messagingService: MessagingService) {}
 
   async promptForPremium() {
     this.onClick.emit();
-    if (this.skipMessaging) {
+    if (this.skipMessaging()) {
       return;
     }
     this.messagingService.send("premiumRequired");
