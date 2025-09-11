@@ -169,7 +169,7 @@ describe("RiskInsightsApiService", () => {
     service.getRiskInsightsSummary(orgId, minDate, maxDate).subscribe((result) => {
       expect(mockApiService.send).toHaveBeenCalledWith(
         "GET",
-        `/reports/organizations/${orgId.toString()}/data/summary?startDate=${minDate}&endDate=${maxDate}`,
+        `/reports/organizations/${orgId.toString()}/data/summary?startDate=${minDate.toISOString().split("T")[0]}&endDate=${maxDate.toISOString().split("T")[0]}`,
         null,
         true,
         true,
