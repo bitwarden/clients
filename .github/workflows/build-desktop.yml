@@ -244,6 +244,17 @@ jobs:
       - name: Build application
         run: npm run dist:lin
 
+      - name: Pack .tar.gz
+        run: |
+          tar -czf apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-amd64.tar.gz -C apps/desktop/dist .
+
+      - name: Upload .tar.gz artifact
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        with:
+          name: Bitwarden-${{ env._PACKAGE_VERSION }}-amd64.tar.gz
+          path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-amd64.tar.gz
+          if-no-files-found: error
+
       - name: Upload .deb artifact
         uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
