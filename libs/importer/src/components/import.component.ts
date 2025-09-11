@@ -259,7 +259,7 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
 
           // when an importer is defined, the loader needs to be set to a value from
           // its list.
-          const loader = importer.loaders.includes(Loader.chromium)
+          const loader = importer.loaders?.includes(Loader.chromium)
             ? Loader.chromium
             : importer.loaders?.[0];
           this.formGroup.controls.chromiumLoader.setValue(loader ?? Loader.file);

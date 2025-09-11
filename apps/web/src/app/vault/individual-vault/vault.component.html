@@ -66,25 +66,25 @@
       ></i>
       <span class="tw-sr-only">{{ "loading" | i18n }}</span>
     </div>
-    <div
-      *ngIf="isEmpty && !performingInitialLoad"
-      class="tw-mt-6 tw-flex tw-h-full tw-flex-col tw-items-center tw-justify-start"
-    >
-      <bit-icon [icon]="noItemIcon" aria-hidden="true"></bit-icon>
-      @if (filter.type === "archive") {
-        <div bitTypography="h4" class="tw-mt-4">{{ "noItemsInArchive" | i18n }}</div>
-        <p class="tw-text-center tw-max-w-md">
+    <div class="tw-mt-6 tw-flex tw-h-full tw-flex-col tw-items-center tw-justify-start">
+      <bit-no-items [icon]="noItemIcon" *ngIf="isEmpty && !performingInitialLoad">
+        <div slot="title" *ngIf="filter.type === 'archive'">{{ "noItemsInArchive" | i18n }}</div>
+        <p slot="description" class="tw-text-center tw-max-w-md" *ngIf="filter.type === 'archive'">
           {{ "archivedItemsDescription" | i18n }}
         </p>
-      } @else {
-        <p>{{ "noItemsInList" | i18n }}</p>
-        @if (filter.type !== "trash") {
-          <button type="button" buttonType="primary" bitButton (click)="addCipher()">
-            <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i>
-            {{ "newItem" | i18n }}
-          </button>
-        }
-      }
+        <div slot="title" *ngIf="filter.type !== 'archive'">{{ "noItemsInList" | i18n }}</div>
+        <button
+          type="button"
+          buttonType="primary"
+          bitButton
+          (click)="addCipher()"
+          slot="button"
+          *ngIf="filter.type !== 'trash' && filter.type !== 'archive'"
+        >
+          <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i>
+          {{ "newItem" | i18n }}
+        </button>
+      </bit-no-items>
     </div>
   </div>
 </div>

@@ -36,7 +36,7 @@ import {
   Unassigned,
 } from "@bitwarden/admin-console/common";
 import { SearchPipe } from "@bitwarden/angular/pipes/search.pipe";
-import { Search } from "@bitwarden/assets/svg";
+import { NoResults } from "@bitwarden/assets/svg";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
@@ -183,7 +183,7 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
   activeFilter: VaultFilter = new VaultFilter();
 
   protected showAddAccessToggle = false;
-  protected noItemIcon = Search;
+  protected noItemIcon = NoResults;
   protected loading$: Observable<boolean>;
   protected processingEvent$ = new BehaviorSubject<boolean>(false);
   protected organization$: Observable<Organization>;
@@ -1462,7 +1462,7 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
         ciphers: items,
         organizationId: organization.id,
         availableCollections,
-        activeCollection: this.activeFilter.selectedCollectionNode.node,
+        activeCollection: this.activeFilter?.selectedCollectionNode?.node,
         isSingleCipherAdmin:
           items.length === 1 && (organization.canEditAllCiphers || items[0].isUnassigned),
       },
