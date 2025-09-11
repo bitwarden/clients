@@ -1033,6 +1033,12 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
       this.refresh();
     }
 
+    // When the dialog is closed for a premium upgrade, return early as the user
+    // should be navigated to the subscription settings elsewhere
+    if (result === VaultItemDialogResult.PremiumUpgrade) {
+      return;
+    }
+
     // Clear the query params when the dialog closes
     await this.go({ cipherId: null, itemId: null, action: null });
   }
