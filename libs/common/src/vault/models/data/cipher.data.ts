@@ -39,8 +39,8 @@ export class CipherData {
   passwordHistory?: PasswordHistoryData[];
   collectionIds?: string[];
   creationDate: string;
-  deletedDate: string | null;
-  archivedDate: string | null;
+  deletedDate: string | undefined;
+  archivedDate: string | undefined;
   reprompt: CipherRepromptType;
   key: string;
 

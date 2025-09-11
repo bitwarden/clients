@@ -56,8 +56,8 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
   passwordHistory: Password[];
   collectionIds: string[];
   creationDate: Date;
-  deletedDate: Date | null;
-  archivedDate: Date | null;
+  deletedDate: Date | undefined;
+  archivedDate: Date | undefined;
   reprompt: CipherRepromptType;
   key: EncString;
 
@@ -95,8 +95,8 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     this.collectionIds = obj.collectionIds;
     this.localData = localData;
     this.creationDate = obj.creationDate != null ? new Date(obj.creationDate) : null;
-    this.deletedDate = obj.deletedDate != null ? new Date(obj.deletedDate) : null;
-    this.archivedDate = obj.archivedDate != null ? new Date(obj.archivedDate) : null;
+    this.deletedDate = obj.deletedDate != null ? new Date(obj.deletedDate) : undefined;
+    this.archivedDate = obj.archivedDate != null ? new Date(obj.archivedDate) : undefined;
     this.reprompt = obj.reprompt;
 
     switch (this.type) {
@@ -246,11 +246,11 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     c.type = this.type;
     c.collectionIds = this.collectionIds;
     c.creationDate = this.creationDate != null ? this.creationDate.toISOString() : null;
-    c.deletedDate = this.deletedDate != null ? this.deletedDate.toISOString() : null;
+    c.deletedDate = this.deletedDate != null ? this.deletedDate.toISOString() : undefined;
     c.reprompt = this.reprompt;
     c.key = this.key?.encryptedString;
     c.permissions = this.permissions;
-    c.archivedDate = this.archivedDate != null ? this.archivedDate.toISOString() : null;
+    c.archivedDate = this.archivedDate != null ? this.archivedDate.toISOString() : undefined;
 
     this.buildDataModel(this, c, {
       name: null,
@@ -299,12 +299,12 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     const notes = EncString.fromJSON(obj.notes);
     const creationDate = obj.creationDate == null ? null : new Date(obj.creationDate);
     const revisionDate = obj.revisionDate == null ? null : new Date(obj.revisionDate);
-    const deletedDate = obj.deletedDate == null ? null : new Date(obj.deletedDate);
+    const deletedDate = obj.deletedDate == null ? undefined : new Date(obj.deletedDate);
     const attachments = obj.attachments?.map((a: any) => Attachment.fromJSON(a));
     const fields = obj.fields?.map((f: any) => Field.fromJSON(f));
     const passwordHistory = obj.passwordHistory?.map((ph: any) => Password.fromJSON(ph));
     const key = EncString.fromJSON(obj.key);
-    const archivedDate = obj.archivedDate == null ? null : new Date(obj.archivedDate);
+    const archivedDate = obj.archivedDate == null ? undefined : new Date(obj.archivedDate);
 
     Object.assign(domain, obj, {
       name,
@@ -440,8 +440,8 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
       sdkCipher.passwordHistory?.map((ph) => Password.fromSdkPasswordHistory(ph)) ?? [];
     cipher.creationDate = new Date(sdkCipher.creationDate);
     cipher.revisionDate = new Date(sdkCipher.revisionDate);
-    cipher.deletedDate = sdkCipher.deletedDate ? new Date(sdkCipher.deletedDate) : null;
-    cipher.archivedDate = sdkCipher.archivedDate ? new Date(sdkCipher.archivedDate) : null;
+    cipher.deletedDate = sdkCipher.deletedDate ? new Date(sdkCipher.deletedDate) : undefined;
+    cipher.archivedDate = sdkCipher.archivedDate ? new Date(sdkCipher.archivedDate) : undefined;
     cipher.reprompt = sdkCipher.reprompt;
 
     // Cipher type specific properties
