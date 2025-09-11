@@ -23,6 +23,33 @@
   "reviewAtRiskPasswords": {
     "message": "Review at-risk passwords (weak, exposed, or reused) across applications. Select your most critical applications to prioritize security actions for your users to address at-risk passwords."
   },
+  "riskInsightsInitPromptWelcomeTitle": {
+    "message": "Welcome to Risk insights"
+  },
+  "riskInsightsInitPromptGetStartedMessage": {
+    "message": "To get started, follow these steps to find potential security risks."
+  },
+  "riskInsightsInitPromptStep1Title": {
+    "message": "1. Enforce organization data ownership"
+  },
+  "riskInsightsInitPromptStep1Description": {
+    "message": "Turn on the"
+  },
+  "riskInsightsInitPromptEnforceDataOwnershipPolicyLink": {
+    "message": "enforce organization data ownership policy"
+  },
+  "riskInsightsInitPromptStep1DescriptionContinued": {
+    "message": "to get complete visibility of all organization vault data. This setting can be enabled at any time."
+  },
+  "riskInsightsInitPromptStep2Title": {
+    "message": "2. Run the report"
+  },
+  "riskInsightsInitPromptStep2Description": {
+    "message": "Run the report to see a detailed view of potential at-risk passwords across your most critical applications."
+  },
+  "riskInsightsInitPromptRunReport": {
+    "message": "Run Report"
+  },
   "dataLastUpdated": {
     "message": "Data last updated: $DATE$",
     "placeholders": {
