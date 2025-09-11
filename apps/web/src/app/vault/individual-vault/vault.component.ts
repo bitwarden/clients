@@ -67,6 +67,7 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { SearchTextDebounceInterval } from "@bitwarden/common/vault/services/search.service";
@@ -176,6 +177,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   protected allOrganizations: Organization[] = [];
   protected ciphers: C[];
   protected collections: CollectionView[];
+  protected folders: FolderView[];
   protected isEmpty: boolean;
   protected selectedCollection: TreeNode<CollectionView> | undefined;
   protected canCreateCollections = false;
@@ -401,6 +403,48 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
 
+    const folders$ = combineLatest([
+      this.vaultFilterService.filteredFolders$,
+      filter$,
+      this.currentSearchText$,
+    ]).pipe(
+      filter(([folders, filter]) => folders != undefined && filter != undefined),
+      concatMap(async ([folders, filter, searchText]) => {
+        // Only show child folders when we are viewing a specific folder
+        if (filter.folderId === undefined) {
+          // If no folder is selected (at root level), don't show any folder rows
+          // Items without folders are shown directly as cipher rows
+          return [];
+        }
+
+        // Get the current folder
+        const currentFolder = folders.find((f) => f.id === filter.folderId);
+        if (!currentFolder || !currentFolder.name) {
+          return [];
+        }
+
+        // Find child folders (folders that start with currentFolder.name + '/')
+        const currentFolderPath = currentFolder.name + "/";
+        const childFolders = folders.filter((folder) => {
+          if (!folder.name || folder.id === currentFolder.id) {
+            return false;
+          }
+          if (!folder.name.startsWith(currentFolderPath)) {
+            return false;
+          }
+
+          // Only direct children (no additional '/' after removing the parent path)
+          const remainingPath = folder.name.substring(currentFolderPath.length);
+          return !remainingPath.includes("/");
+        });
+
+        if (await this.searchService.isSearchable(activeUserId, searchText)) {
+          return this.searchPipe.transform(childFolders, searchText, (folder) => folder.name);
+        }
+        return childFolders;
+      }),
+    );
+
     const collections$ = combineLatest([nestedCollections$, filter$, this.currentSearchText$]).pipe(
       filter(([collections, filter]) => collections != undefined && filter != undefined),
       concatMap(async ([collections, filter, searchText]) => {
@@ -534,6 +578,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
             this.organizations$,
             ciphers$,
             collections$,
+            folders$,
             selectedCollection$,
           ]),
         ),
@@ -547,6 +592,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
           allOrganizations,
           ciphers,
           collections,
+          folders,
           selectedCollection,
         ]) => {
           this.filter = filter;
@@ -555,6 +601,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
           this.allOrganizations = allOrganizations;
           this.ciphers = ciphers;
           this.collections = collections;
+          this.folders = folders;
           this.selectedCollection = selectedCollection;
 
           this.canCreateCollections = allOrganizations?.some(
@@ -562,7 +609,8 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
           );
 
           this.showBulkMove = filter.type !== "trash";
-          this.isEmpty = collections?.length === 0 && ciphers?.length === 0;
+          this.isEmpty =
+            collections?.length === 0 && ciphers?.length === 0 && folders?.length === 0;
           this.performingInitialLoad = false;
           this.refreshing = false;
 
@@ -614,6 +662,13 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
           break;
         case "assignToCollections":
           await this.bulkAssignToCollections(event.items);
+          break;
+        case "editFolder":
+          await this.editFolder({
+            ...event.item,
+            icon: "bwi-folder",
+            fullName: event.item.name,
+          } as FolderFilter);
           break;
       }
     } finally {
