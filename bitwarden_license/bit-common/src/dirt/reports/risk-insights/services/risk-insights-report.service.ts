@@ -277,7 +277,7 @@ export class RiskInsightsReportService {
     };
 
     const response = await firstValueFrom(
-      this.riskInsightsApiService.saveRiskInsightsReport(saveRequest),
+      this.riskInsightsApiService.saveRiskInsightsReport(saveRequest, organizationId),
     );
 
     if (response && response.id) {
