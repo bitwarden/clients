@@ -60,14 +60,45 @@ export class RiskInsightsApiService {
   }
 
   updateRiskInsightsSummary(
-    data: EncryptedDataModel,
+    summaryData: EncryptedDataModel,
     organizationId: OrganizationId,
     reportId: OrganizationReportId,
   ): Observable<void> {
     const dbResponse = this.apiService.send(
       "PATCH",
       `/reports/organizations/${organizationId.toString()}/data/summary/${reportId.toString()}`,
-      data,
+      summaryData,
+      true,
+      true,
+    );
+
+    return from(dbResponse as Promise<void>);
+  }
+
+  getOrganizationReportApplicationData(
+    orgId: OrganizationId,
+    reportId: OrganizationReportId,
+  ): Observable<EncryptedDataModel | null> {
+    const dbResponse = this.apiService.send(
+      "GET",
+      `/reports/organizations/${orgId.toString()}/data/application/${reportId.toString()}`,
+      null,
+      true,
+      true,
+    );
+
+    return from(dbResponse as Promise<EncryptedDataModel | null>);
+  }
+
+  updateOrganizationReportApplicationData(
+    applicationData: EncryptedDataModel,
+    orgId: OrganizationId,
+    reportId: OrganizationReportId,
+  ): Observable<void> {
+    const dbResponse = this.apiService.send(
+      "PATCH",
+      `/reports/organizations/${orgId.toString()}/data/application/${reportId.toString()}`,
+      applicationData,
       true,
       true,
     );

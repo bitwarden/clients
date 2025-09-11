@@ -44,7 +44,7 @@ describe("RiskInsightsApiService", () => {
     expect(service).toBeTruthy();
   });
 
-  it("should call apiService.send with correct parameters and return the response for getRiskInsightsReport ", (done) => {
+  it("Get Report: should call apiService.send with correct parameters and return the response for getRiskInsightsReport ", (done) => {
     mockApiService.send.mockReturnValue(Promise.resolve(getRiskInsightsReportResponse));
 
     service.getRiskInsightsReport(orgId).subscribe((result) => {
@@ -60,7 +60,7 @@ describe("RiskInsightsApiService", () => {
     });
   });
 
-  it("should return null if apiService.send rejects with 404 error for getRiskInsightsReport", (done) => {
+  it("Get Report: should return null if apiService.send rejects with 404 error for getRiskInsightsReport", (done) => {
     const error = { statusCode: 404 };
     mockApiService.send.mockReturnValue(Promise.reject(error));
 
@@ -70,7 +70,7 @@ describe("RiskInsightsApiService", () => {
     });
   });
 
-  it("should throw error if apiService.send rejects with non-404 error for getRiskInsightsReport", (done) => {
+  it("Get Report: should throw error if apiService.send rejects with non-404 error for getRiskInsightsReport", (done) => {
     const error = { statusCode: 500, message: "Server error" };
     mockApiService.send.mockReturnValue(Promise.reject(error));
 
@@ -95,7 +95,7 @@ describe("RiskInsightsApiService", () => {
     });
   });
 
-  it("should call apiService.send with correct parameters for saveRiskInsightsReport", (done) => {
+  it("Save Report: should call apiService.send with correct parameters for saveRiskInsightsReport", (done) => {
     mockApiService.send.mockReturnValue(Promise.resolve(saveRiskInsightsReportResponse));
 
     service.saveRiskInsightsReport(saveRiskInsightsReportRequest, orgId).subscribe((result) => {
@@ -111,7 +111,7 @@ describe("RiskInsightsApiService", () => {
     });
   });
 
-  it("should propagate errors from apiService.send for saveRiskInsightsReport - 1", (done) => {
+  it("Save Report: should propagate errors from apiService.send for saveRiskInsightsReport - 1", (done) => {
     const error = { statusCode: 500, message: "Internal Server Error" };
     mockApiService.send.mockReturnValue(Promise.reject(error));
 
@@ -135,7 +135,7 @@ describe("RiskInsightsApiService", () => {
     });
   });
 
-  it("should propagate network errors from apiService.send for saveRiskInsightsReport - 2", (done) => {
+  it("Save Report: should propagate network errors from apiService.send for saveRiskInsightsReport - 2", (done) => {
     const error = new Error("Network error");
     mockApiService.send.mockReturnValue(Promise.reject(error));
 
@@ -159,7 +159,7 @@ describe("RiskInsightsApiService", () => {
     });
   });
 
-  it("should call apiService.send with correct parameters and return an Observable", (done) => {
+  it("Get Summary: should call apiService.send with correct parameters and return an Observable", (done) => {
     const minDate = new Date("2024-01-01");
     const maxDate = new Date("2024-01-31");
     const mockResponse: EncryptedDataModel[] = [{ encryptedData: "abc" } as EncryptedDataModel];
@@ -179,7 +179,7 @@ describe("RiskInsightsApiService", () => {
     });
   });
 
-  it("should call apiService.send with correct parameters and return an Observable", (done) => {
+  it("Update Summary: should call apiService.send with correct parameters and return an Observable", (done) => {
     const data: EncryptedDataModel = { encryptedData: "xyz" } as EncryptedDataModel;
     const reportId = "report123" as OrganizationReportId;
 
@@ -196,5 +196,45 @@ describe("RiskInsightsApiService", () => {
       expect(result).toBeUndefined();
       done();
     });
+  });
+
+  it("Get Applications: should call apiService.send with correct parameters and return an Observable", (done) => {
+    const reportId = "report123" as OrganizationReportId;
+    const mockResponse: EncryptedDataModel | null = { encryptedData: "abc" } as EncryptedDataModel;
+
+    mockApiService.send.mockResolvedValueOnce(mockResponse);
+
+    service.getOrganizationReportApplicationData(orgId, reportId).subscribe((result) => {
+      expect(mockApiService.send).toHaveBeenCalledWith(
+        "GET",
+        `/reports/organizations/${orgId.toString()}/data/application/${reportId.toString()}`,
+        null,
+        true,
+        true,
+      );
+      expect(result).toEqual(mockResponse);
+      done();
+    });
+  });
+
+  it("Update Applications: should call apiService.send with correct parameters and return an Observable", (done) => {
+    const applicationData: EncryptedDataModel = { encryptedData: "xyz" } as EncryptedDataModel;
+    const reportId = "report123" as OrganizationReportId;
+
+    mockApiService.send.mockResolvedValueOnce(undefined);
+
+    service
+      .updateOrganizationReportApplicationData(applicationData, orgId, reportId)
+      .subscribe((result) => {
+        expect(mockApiService.send).toHaveBeenCalledWith(
+          "PATCH",
+          `/reports/organizations/${orgId.toString()}/data/application/${reportId.toString()}`,
+          applicationData,
+          true,
+          true,
+        );
+        expect(result).toBeUndefined();
+        done();
+      });
   });
 });
