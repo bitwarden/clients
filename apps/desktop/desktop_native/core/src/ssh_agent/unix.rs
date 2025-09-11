@@ -14,7 +14,8 @@ const ENV_BITWARDEN_SSH_AUTH_SOCK: &str = "BITWARDEN_SSH_AUTH_SOCK";
 
 const FLATPACK_DATA_DIR: &str = ".var/app/com.bitwarden.desktop/data";
 
-const SOCKFILE_NAME: &str = ".bitwarden-ssh-agent.sock";
+const LEGACY_SOCKFILE_NAME: &str = ".bitwarden-ssh-agent.sock";
+const SOCKFILE_NAME: &str = "ssh-agent.sock";
 
 impl BitwardenDesktopAgent {
     /// Starts the Bitwarden Desktop SSH Agent server.
@@ -27,50 +28,52 @@ impl BitwardenDesktopAgent {
     ) -> Result<Self, anyhow::Error> {
         let agent_state = BitwardenDesktopAgent::new(auth_request_tx, auth_response_rx);
 
-        let socket_path = get_socket_path()?;
+        let socket_paths = get_socket_paths()?;
 
-        // if the socket is already present and wasn't cleanly removed during a previous
-        // runtime, remove it before beginning anew.
-        remove_path(&socket_path)?;
+        for socket_path in &socket_paths {
+            // if the socket is already present and wasn't cleanly removed during a previous
+            // runtime, remove it before beginning anew.
+            remove_path(socket_path)?;
 
-        println!("[SSH Agent Native Module] Starting SSH Agent server {socket_path:?}");
+            println!("[SSH Agent Native Module] Starting SSH Agent server {socket_path:?}");
 
-        match UnixListener::bind(socket_path.clone()) {
-            Ok(listener) => {
-                // Only the current user should be able to access the socket
-                set_user_permissions(&socket_path)?;
+            match UnixListener::bind(socket_path) {
+                Ok(listener) => {
+                    // Only the current user should be able to access the socket
+                    set_user_permissions(socket_path)?;
 
-                let stream = PeercredUnixListenerStream::new(listener);
+                    let stream = PeercredUnixListenerStream::new(listener);
 
-                let cloned_agent_state = agent_state.clone();
-                let cloned_keystore = cloned_agent_state.keystore.clone();
-                let cloned_cancellation_token = cloned_agent_state.cancellation_token.clone();
+                    let cloned_agent_state = agent_state.clone();
+                    let cloned_keystore = cloned_agent_state.keystore.clone();
+                    let cloned_cancellation_token = cloned_agent_state.cancellation_token.clone();
 
-                tokio::spawn(async move {
-                    let _ = ssh_agent::serve(
-                        stream,
-                        cloned_agent_state.clone(),
-                        cloned_keystore,
-                        cloned_cancellation_token,
-                    )
-                    .await;
+                    tokio::spawn(async move {
+                        let _ = ssh_agent::serve(
+                            stream,
+                            cloned_agent_state.clone(),
+                            cloned_keystore,
+                            cloned_cancellation_token,
+                        )
+                        .await;
 
-                    cloned_agent_state
+                        cloned_agent_state
+                            .is_running
+                            .store(false, std::sync::atomic::Ordering::Relaxed);
+
+                        println!("[SSH Agent Native Module] SSH Agent server exited");
+                    });
+
+                    agent_state
                         .is_running
-                        .store(false, std::sync::atomic::Ordering::Relaxed);
+                        .store(true, std::sync::atomic::Ordering::Relaxed);
 
-                    println!("[SSH Agent Native Module] SSH Agent server exited");
-                });
-
-                agent_state
-                    .is_running
-                    .store(true, std::sync::atomic::Ordering::Relaxed);
-
-                println!("[SSH Agent Native Module] SSH Agent is running: {socket_path:?}");
-            }
-            Err(e) => {
-                eprintln!("[SSH Agent Native Module] Error while starting agent server: {e}");
-                return Err(e.into());
+                    println!("[SSH Agent Native Module] SSH Agent is running: {socket_path:?}");
+                }
+                Err(e) => {
+                    eprintln!("[SSH Agent Native Module] Error while starting agent server: {e}");
+                    return Err(e.into());
+                }
             }
         }
 
@@ -81,14 +84,30 @@ impl BitwardenDesktopAgent {
 // one of the following:
 //   - only the env var socket path if it is defined
 //   - the $HOME path and our well known extension
-fn get_socket_path() -> Result<PathBuf, anyhow::Error> {
+fn get_socket_paths() -> Result<Vec<PathBuf>, anyhow::Error> {
     if let Ok(path) = std::env::var(ENV_BITWARDEN_SSH_AUTH_SOCK) {
-        Ok(PathBuf::from(path))
+        Ok(vec![PathBuf::from(path)])
     } else {
         println!(
             "[SSH Agent Native Module] {ENV_BITWARDEN_SSH_AUTH_SOCK} not set, using default path"
         );
-        get_default_socket_path()
+
+        let mut paths = vec![get_legacy_default_socket_path()?];
+
+        let basedir = get_socket_basedir()?;
+        let socket_path = get_default_socket_path(basedir);
+
+        // create the bitwarden subdir if needed
+        fs::create_dir_all(
+            socket_path
+                .parent()
+                .ok_or(anyhow!("Malformed default socket path."))?,
+        )
+        .map_err(|e| anyhow!(format!("Error creating {socket_path:?}: {e}")))?;
+
+        paths.push(socket_path);
+
+        Ok(paths)
     }
 }
 
@@ -97,7 +116,7 @@ fn is_flatpak() -> bool {
 }
 
 // use the $HOME directory
-fn get_default_socket_path() -> Result<PathBuf, anyhow::Error> {
+fn get_legacy_default_socket_path() -> Result<PathBuf, anyhow::Error> {
     let Ok(Some(mut ssh_agent_directory)) = my_home() else {
         println!("[SSH Agent Native Module] Could not determine home directory");
         return Err(anyhow!("Could not determine home directory."));
@@ -107,9 +126,35 @@ fn get_default_socket_path() -> Result<PathBuf, anyhow::Error> {
         ssh_agent_directory = ssh_agent_directory.join(FLATPACK_DATA_DIR);
     }
 
-    ssh_agent_directory = ssh_agent_directory.join(SOCKFILE_NAME);
+    ssh_agent_directory = ssh_agent_directory.join(LEGACY_SOCKFILE_NAME);
 
     Ok(ssh_agent_directory)
+}
+
+// use the platform's base dir
+fn get_default_socket_path(mut path: PathBuf) -> PathBuf {
+    path.push("bitwarden");
+    path.push(SOCKFILE_NAME);
+    path
+}
+
+fn get_socket_basedir() -> Result<PathBuf, anyhow::Error> {
+    // currently the only delineation between mac and linux is this logic.
+    // if we need to expand that, we can make unix.rs the platform agnostic shared logic,
+    // and separate out into linux.rs and macos.rs
+    cfg_if::cfg_if! {
+        if #[cfg(target_os = "linux")] {
+            std::env::var("XDG_RUNTIME_DIR")
+                .map(PathBuf::from)
+                .map_err(|_| { anyhow!("$XDG_RUNTIME_DIR is not defined.") })
+
+        } else if #[cfg(target_os = "macos")]{
+            Ok(std::env::temp_dir())
+
+        } else {
+            anyhow!("Unsupported platform");
+        }
+    }
 }
 
 fn set_user_permissions(path: &PathBuf) -> Result<(), anyhow::Error> {
@@ -132,12 +177,23 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_default_socket_path_success() {
-        let path = get_default_socket_path().unwrap();
+    fn test_default_legacy_socket_path_success() {
+        let path = get_legacy_default_socket_path().unwrap();
         let expected = PathBuf::from_iter([
             std::env::var("HOME").unwrap(),
             ".bitwarden-ssh-agent.sock".to_string(),
         ]);
+        assert_eq!(path, expected);
+    }
+
+    #[test]
+    fn test_default_socket_path_success() {
+        let mut expected = PathBuf::from("/");
+        expected.push("bitwarden");
+        expected.push("ssh-agent.sock");
+
+        let path = get_default_socket_path(PathBuf::from("/"));
+
         assert_eq!(path, expected);
     }
 
