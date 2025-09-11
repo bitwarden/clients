@@ -149,6 +149,7 @@ export type OverlayBackgroundExtensionMessage = {
   isOpeningFullInlineMenu?: boolean;
   styles?: Partial<CSSStyleDeclaration>;
   data?: LockedVaultPendingNotificationsData;
+  cipherId?: string;
 } & OverlayAddNewItemMessage &
   CloseInlineMenuMessage &
   ToggleInlineMenuHiddenMessage &
@@ -243,6 +244,7 @@ export type OverlayBackgroundExtensionMessageHandlers = {
   addedCipher: () => void;
   addEditCipherSubmitted: () => void;
   editedCipher: () => void;
+  vaultAutofillSuggestionUsed: ({ message }: BackgroundMessageParam) => void;
   deletedCipher: () => void;
   bgSaveCipher: () => void;
   updateOverlayCiphers: () => void;
@@ -285,4 +287,5 @@ export interface OverlayBackground {
   init(): Promise<void>;
   removePageDetails(tabId: number): void;
   updateOverlayCiphers(updateAllCipherTypes?: boolean): Promise<void>;
+  handleVaultAutofillSuggestionUsed(cipherId: string): Promise<void>;
 }
