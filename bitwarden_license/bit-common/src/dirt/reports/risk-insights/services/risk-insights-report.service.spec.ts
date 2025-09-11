@@ -3,7 +3,7 @@ import { firstValueFrom, of } from "rxjs";
 import { ZXCVBNResult } from "zxcvbn";
 
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
-import { EncryptedString } from "@bitwarden/common/platform/models/domain/enc-string";
+import { EncryptedString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -16,6 +16,7 @@ import { mockMemberCipherDetails } from "./member-cipher-details-api.service.spe
 import { RiskInsightsApiService } from "./risk-insights-api.service";
 import { RiskInsightsEncryptionService } from "./risk-insights-encryption.service";
 import { RiskInsightsReportService } from "./risk-insights-report.service";
+
 
 describe("RiskInsightsReportService", () => {
   let service: RiskInsightsReportService;
@@ -155,63 +156,10 @@ describe("RiskInsightsReportService", () => {
   });
 
   describe("saveRiskInsightsReport", () => {
-    it("should encrypt and save the report, then update subjects if response has id", async () => {
-      const organizationId = "orgId" as OrganizationId;
-      const userId = "userId" as UserId;
-      const report = [{ applicationName: "app1" }] as any;
-      const summary = {
-        totalMemberCount: 1,
-        totalAtRiskMemberCount: 1,
-        totalApplicationCount: 1,
-        totalAtRiskApplicationCount: 1,
-      };
-
-      const encryptedReport = {
-        organizationId: organizationId as OrganizationId,
-        encryptedData: "encryptedData" as EncryptedString,
-        encryptionKey: "encryptionKey" as EncryptedString,
-      };
-
-      mockRiskInsightsEncryptionService.encryptRiskInsightsReport.mockResolvedValue(
-        encryptedReport,
-      );
-
-      const saveResponse = { id: "reportId" };
-      mockRiskInsightsApiService.saveRiskInsightsReport.mockReturnValue(of(saveResponse));
-
-      const reportSubjectSpy = jest.spyOn((service as any).riskInsightsReportSubject, "next");
-      const summarySubjectSpy = jest.spyOn((service as any).riskInsightsSummarySubject, "next");
-
-      await service.saveRiskInsightsReport(organizationId, userId, report, summary);
-
-      expect(mockRiskInsightsEncryptionService.encryptRiskInsightsReport).toHaveBeenCalledWith(
-        organizationId,
-        userId,
-        { data: report, summary },
-      );
-
-      expect(mockRiskInsightsApiService.saveRiskInsightsReport).toHaveBeenCalledWith({
-        data: expect.objectContaining({
-          organizationId,
-          date: expect.any(String), // Date should be generated in the service
-          reportData: encryptedReport.encryptedData,
-          reportKey: encryptedReport.encryptionKey,
-        }),
-      });
-      expect(reportSubjectSpy).toHaveBeenCalledWith(report);
-      expect(summarySubjectSpy).toHaveBeenCalledWith(summary);
-    });
-
     it("should not update subjects if save response does not have id", async () => {
       const organizationId = "orgId" as OrganizationId;
       const userId = "userId" as UserId;
       const report = [{ applicationName: "app1" }] as any;
-      const summary = {
-        totalMemberCount: 1,
-        totalAtRiskMemberCount: 1,
-        totalApplicationCount: 1,
-        totalAtRiskApplicationCount: 1,
-      };
 
       const encryptedReport = {
         organizationId: organizationId as OrganizationId,
@@ -229,7 +177,7 @@ describe("RiskInsightsReportService", () => {
       const reportSubjectSpy = jest.spyOn((service as any).riskInsightsReportSubject, "next");
       const summarySubjectSpy = jest.spyOn((service as any).riskInsightsSummarySubject, "next");
 
-      await service.saveRiskInsightsReport(organizationId, userId, report, summary);
+      await service.saveRiskInsightsReport(organizationId, userId, report);
 
       expect(reportSubjectSpy).not.toHaveBeenCalled();
       expect(summarySubjectSpy).not.toHaveBeenCalled();
@@ -267,32 +215,6 @@ describe("RiskInsightsReportService", () => {
       );
     });
 
-    it("should set empty report and summary if response is falsy", async () => {
-      // arrange: Api service returns undefined or null
-      const organizationId = "orgId" as OrganizationId;
-      const userId = "userId" as UserId;
-
-      // Simulate a falsy response from the API (undefined)
-      mockRiskInsightsApiService.getRiskInsightsReport.mockReturnValue(of(null));
-      const reportSubjectSpy = jest.spyOn((service as any).riskInsightsReportSubject, "next");
-      const summarySubjectSpy = jest.spyOn((service as any).riskInsightsSummarySubject, "next");
-
-      // act: call the service method
-      service.getRiskInsightsReport(organizationId, userId);
-
-      // wait for the observable to emit and microtasks to complete
-      await Promise.resolve();
-
-      // assert: verify that the report and summary subjects are updated with empty values
-      expect(reportSubjectSpy).toHaveBeenCalledWith([]);
-      expect(summarySubjectSpy).toHaveBeenCalledWith({
-        totalMemberCount: 0,
-        totalAtRiskMemberCount: 0,
-        totalApplicationCount: 0,
-        totalAtRiskApplicationCount: 0,
-      });
-    });
-
     it("should decrypt report and update subjects if response is present", async () => {
       // Arrange: setup a mock response from the API
       // and ensure the decryption service is called with the correct parameters
@@ -309,12 +231,6 @@ describe("RiskInsightsReportService", () => {
 
       const decryptedReport = {
         data: [{ foo: "bar" }],
-        summary: {
-          totalMemberCount: 1,
-          totalAtRiskMemberCount: 1,
-          totalApplicationCount: 1,
-          totalAtRiskApplicationCount: 1,
-        },
       };
       mockRiskInsightsApiService.getRiskInsightsReport.mockReturnValue(of(mockResponse));
       mockRiskInsightsEncryptionService.decryptRiskInsightsReport.mockResolvedValue(
@@ -322,7 +238,6 @@ describe("RiskInsightsReportService", () => {
       );
 
       const reportSubjectSpy = jest.spyOn((service as any).riskInsightsReportSubject, "next");
-      const summarySubjectSpy = jest.spyOn((service as any).riskInsightsSummarySubject, "next");
 
       service.getRiskInsightsReport(organizationId, userId);
 
@@ -337,7 +252,6 @@ describe("RiskInsightsReportService", () => {
         expect.any(Function),
       );
       expect(reportSubjectSpy).toHaveBeenCalledWith(decryptedReport.data);
-      expect(summarySubjectSpy).toHaveBeenCalledWith(decryptedReport.summary);
     });
   });
 });

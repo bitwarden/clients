@@ -254,17 +254,15 @@ export class RiskInsightsReportService {
     organizationId: OrganizationId,
     userId: UserId,
     report: ApplicationHealthReportDetail[],
-    summary: ApplicationHealthReportSummary,
   ): Promise<void> {
-    const reportWithSummary = {
+    const riskReport = {
       data: report,
-      summary: summary,
     };
 
     const encryptedReport = await this.riskInsightsEncryptionService.encryptRiskInsightsReport(
       organizationId,
       userId,
-      reportWithSummary,
+      riskReport,
     );
 
     const saveRequest = {
@@ -282,7 +280,6 @@ export class RiskInsightsReportService {
 
     if (response && response.id) {
       this.riskInsightsReportSubject.next(report);
-      this.riskInsightsSummarySubject.next(summary);
     }
   }
 
