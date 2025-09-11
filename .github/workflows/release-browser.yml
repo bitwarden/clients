@@ -107,7 +107,12 @@ jobs:
                       dist-chrome-*.zip,
                       dist-opera-*.zip,
                       dist-firefox-*.zip,
-                      dist-edge-*.zip'
+                      dist-edge-*.zip,
+                      bit-browser-source-*.zip,
+                      bit-dist-chrome-*.zip,
+                      bit-dist-opera-*.zip,
+                      bit-dist-firefox-*.zip,
+                      bit-dist-edge-*.zip'
 
       - name: Dry Run - Download latest build artifacts
         if: ${{ github.event.inputs.release_type == 'Dry Run' }}
@@ -120,7 +125,12 @@ jobs:
                       dist-chrome-*.zip,
                       dist-opera-*.zip,
                       dist-firefox-*.zip,
-                      dist-edge-*.zip'
+                      dist-edge-*.zip,
+                      bit-browser-source-*.zip,
+                      bit-dist-chrome-*.zip,
+                      bit-dist-opera-*.zip,
+                      bit-dist-firefox-*.zip,
+                      bit-dist-edge-*.zip'
 
       - name: Rename build artifacts
         env:
@@ -131,6 +141,11 @@ jobs:
           mv dist-opera.zip dist-opera-$PACKAGE_VERSION.zip
           mv dist-firefox.zip dist-firefox-$PACKAGE_VERSION.zip
           mv dist-edge.zip dist-edge-$PACKAGE_VERSION.zip
+          mv bit-browser-source.zip bit-browser-source-$PACKAGE_VERSION.zip
+          mv bit-dist-chrome.zip bit-dist-chrome-$PACKAGE_VERSION.zip
+          mv bit-dist-opera.zip bit-dist-opera-$PACKAGE_VERSION.zip
+          mv bit-dist-firefox.zip bit-dist-firefox-$PACKAGE_VERSION.zip
+          mv bit-dist-edge.zip bit-dist-edge-$PACKAGE_VERSION.zip
 
       - name: Create release
         if: ${{ github.event.inputs.release_type != 'Dry Run' }}
@@ -140,7 +155,12 @@ jobs:
                       dist-chrome-${{ needs.setup.outputs.release_version }}.zip,
                       dist-opera-${{ needs.setup.outputs.release_version }}.zip,
                       dist-firefox-${{ needs.setup.outputs.release_version }}.zip,
-                      dist-edge-${{ needs.setup.outputs.release_version }}.zip'
+                      dist-edge-${{ needs.setup.outputs.release_version }}.zip,
+                      bit-browser-source-${{ needs.setup.outputs.release_version }}.zip,
+                      bit-dist-chrome-${{ needs.setup.outputs.release_version }}.zip,
+                      bit-dist-opera-${{ needs.setup.outputs.release_version }}.zip,
+                      bit-dist-firefox-${{ needs.setup.outputs.release_version }}.zip,
+                      bit-dist-edge-${{ needs.setup.outputs.release_version }}.zip'
           commit: ${{ github.sha }}
           tag: "browser-v${{ needs.setup.outputs.release_version }}"
           name: "Browser v${{ needs.setup.outputs.release_version }}"
