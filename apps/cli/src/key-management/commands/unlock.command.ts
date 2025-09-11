@@ -57,7 +57,7 @@ export class UnlockCommand {
     if (activeAccount == null) {
       return Response.error("No active account found");
     }
-    const [userId, email] = [activeAccount.id, activeAccount.email];
+    const userId = activeAccount.id;
 
     if (
       await firstValueFrom(
@@ -67,14 +67,15 @@ export class UnlockCommand {
       try {
         const userKey = await this.masterPasswordUnlockService.unlockWithMasterPassword(
           password,
-          activeAccount.id,
+          userId,
         );
 
-        await this.keyService.setUserKey(userKey, activeAccount.id);
+        await this.keyService.setUserKey(userKey, userId);
       } catch (e) {
         return Response.error(e.message);
       }
     } else {
+      const email = activeAccount.email;
       const verification = {
         type: VerificationType.MasterPassword,
         secret: password,

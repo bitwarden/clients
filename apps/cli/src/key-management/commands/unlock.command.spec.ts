@@ -164,46 +164,6 @@ describe("UnlockCommand", () => {
         );
         expect(keyService.setUserKey).not.toHaveBeenCalled();
       });
-
-      it("calls convertToKeyConnectorCommand if required and returns failure", async () => {
-        masterPasswordUnlockService.unlockWithMasterPassword.mockResolvedValue(mockUserKey);
-        keyConnectorService.convertAccountRequired$ = of(true);
-
-        // Mock the ConvertToKeyConnectorCommand
-        const mockRun = jest.fn().mockResolvedValue({ success: false, message: "convert failed" });
-        jest.spyOn(ConvertToKeyConnectorCommand.prototype, "run").mockImplementation(mockRun);
-
-        const response = await command.run(mockMasterPassword, {});
-
-        expect(response).not.toBeNull();
-        expect(response.success).toEqual(false);
-        expect(response.message).toEqual("convert failed");
-        expect(masterPasswordUnlockService.unlockWithMasterPassword).toHaveBeenCalledWith(
-          mockMasterPassword,
-          activeAccount.id,
-        );
-        expect(keyService.setUserKey).toHaveBeenCalledWith(mockUserKey, activeAccount.id);
-      });
-
-      it("calls convertToKeyConnectorCommand if required and returns expected success", async () => {
-        masterPasswordUnlockService.unlockWithMasterPassword.mockResolvedValue(mockUserKey);
-        keyConnectorService.convertAccountRequired$ = of(true);
-
-        // Mock the ConvertToKeyConnectorCommand
-        const mockRun = jest.fn().mockResolvedValue({ success: true });
-        jest.spyOn(ConvertToKeyConnectorCommand.prototype, "run").mockImplementation(mockRun);
-
-        const response = await command.run(mockMasterPassword, {});
-
-        expect(response).not.toBeNull();
-        expect(response.success).toEqual(true);
-        expect(response.data).toEqual(expectedSuccessMessage);
-        expect(masterPasswordUnlockService.unlockWithMasterPassword).toHaveBeenCalledWith(
-          mockMasterPassword,
-          activeAccount.id,
-        );
-        expect(keyService.setUserKey).toHaveBeenCalledWith(mockUserKey, activeAccount.id);
-      });
     });
 
     describe("unlock with feature flag off", () => {
@@ -212,7 +172,6 @@ describe("UnlockCommand", () => {
       });
 
       it("calls decryptUserKeyWithMasterKey successfully", async () => {
-        masterPasswordUnlockService.unlockWithMasterPassword.mockResolvedValue(mockUserKey);
         userVerificationService.verifyUserByMasterPassword.mockResolvedValue({
           masterKey: mockMasterKey,
         } as MasterPasswordVerificationResponse);
@@ -239,7 +198,6 @@ describe("UnlockCommand", () => {
       });
 
       it("returns error response when verifyUserByMasterPassword throws", async () => {
-        masterPasswordUnlockService.unlockWithMasterPassword.mockResolvedValue(mockUserKey);
         userVerificationService.verifyUserByMasterPassword.mockRejectedValue(
           new Error("Verification failed"),
         );
@@ -260,6 +218,101 @@ describe("UnlockCommand", () => {
         expect(masterPasswordService.decryptUserKeyWithMasterKey).not.toHaveBeenCalled();
         expect(keyService.setUserKey).not.toHaveBeenCalled();
       });
+    });
+
+    describe("calls convertToKeyConnectorCommand if required", () => {
+      let convertToKeyConnectorSpy: jest.SpyInstance;
+      beforeEach(() => {
+        keyConnectorService.convertAccountRequired$ = of(true);
+
+        // Feature flag on
+        masterPasswordUnlockService.unlockWithMasterPassword.mockResolvedValue(mockUserKey);
+
+        // Feature flag off
+        userVerificationService.verifyUserByMasterPassword.mockResolvedValue({
+          masterKey: mockMasterKey,
+        } as MasterPasswordVerificationResponse);
+        masterPasswordService.decryptUserKeyWithMasterKey.mockResolvedValue(mockUserKey);
+      });
+
+      test.each([true, false])("returns failure when feature flag is %s", async (flagValue) => {
+        configService.getFeatureFlag$.mockReturnValue(of(flagValue));
+
+        // Mock the ConvertToKeyConnectorCommand
+        const mockRun = jest.fn().mockResolvedValue({ success: false, message: "convert failed" });
+        convertToKeyConnectorSpy = jest
+          .spyOn(ConvertToKeyConnectorCommand.prototype, "run")
+          .mockImplementation(mockRun);
+
+        const response = await command.run(mockMasterPassword, {});
+
+        expect(response).not.toBeNull();
+        expect(response.success).toEqual(false);
+        expect(response.message).toEqual("convert failed");
+        expect(keyService.setUserKey).toHaveBeenCalledWith(mockUserKey, activeAccount.id);
+        expect(convertToKeyConnectorSpy).toHaveBeenCalled();
+
+        if (flagValue === true) {
+          expect(masterPasswordUnlockService.unlockWithMasterPassword).toHaveBeenCalledWith(
+            mockMasterPassword,
+            activeAccount.id,
+          );
+        } else {
+          expect(userVerificationService.verifyUserByMasterPassword).toHaveBeenCalledWith(
+            {
+              type: VerificationType.MasterPassword,
+              secret: mockMasterPassword,
+            },
+            activeAccount.id,
+            activeAccount.email,
+          );
+          expect(masterPasswordService.decryptUserKeyWithMasterKey).toHaveBeenCalledWith(
+            mockMasterKey,
+            activeAccount.id,
+          );
+        }
+      });
+
+      test.each([true, false])(
+        "returns expected success when feature flag is %s",
+        async (flagValue) => {
+          configService.getFeatureFlag$.mockReturnValue(of(flagValue));
+
+          // Mock the ConvertToKeyConnectorCommand
+          const mockRun = jest.fn().mockResolvedValue({ success: true });
+          const convertToKeyConnectorSpy = jest
+            .spyOn(ConvertToKeyConnectorCommand.prototype, "run")
+            .mockImplementation(mockRun);
+
+          const response = await command.run(mockMasterPassword, {});
+
+          expect(response).not.toBeNull();
+          expect(response.success).toEqual(true);
+          expect(response.data).toEqual(expectedSuccessMessage);
+          expect(keyService.setUserKey).toHaveBeenCalledWith(mockUserKey, activeAccount.id);
+          expect(convertToKeyConnectorSpy).toHaveBeenCalled();
+
+          if (flagValue === true) {
+            expect(masterPasswordUnlockService.unlockWithMasterPassword).toHaveBeenCalledWith(
+              mockMasterPassword,
+              activeAccount.id,
+            );
+          } else {
+            expect(userVerificationService.verifyUserByMasterPassword).toHaveBeenCalledWith(
+              {
+                type: VerificationType.MasterPassword,
+                secret: mockMasterPassword,
+              },
+              activeAccount.id,
+              activeAccount.email,
+            );
+            expect(masterPasswordService.decryptUserKeyWithMasterKey).toHaveBeenCalledWith(
+              mockMasterKey,
+              activeAccount.id,
+            );
+          }
+        },
+      );
     });
   });
 });
