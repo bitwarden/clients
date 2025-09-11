@@ -216,7 +216,7 @@ export class RiskInsightsReportService {
 
   getRiskInsightsReport(organizationId: OrganizationId, userId: UserId): void {
     this.riskInsightsApiService
-      .getRiskInsightsReport(organizationId)
+      .getRiskInsightsReport$(organizationId)
       .pipe(
         switchMap((response) => {
           if (!response) {
@@ -275,7 +275,7 @@ export class RiskInsightsReportService {
     };
 
     const response = await firstValueFrom(
-      this.riskInsightsApiService.saveRiskInsightsReport(saveRequest, organizationId),
+      this.riskInsightsApiService.saveRiskInsightsReport$(saveRequest, organizationId),
     );
 
     if (response && response.id) {
