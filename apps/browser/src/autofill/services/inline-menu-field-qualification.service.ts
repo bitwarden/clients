@@ -1,5 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { AutofillFieldQualifier } from "../enums/autofill-field.enums";
 import AutofillField from "../models/autofill-field";
 import AutofillPageDetails from "../models/autofill-page-details";
 import { getSubmitButtonKeywordsSet, sendExtensionMessage } from "../utils";
@@ -240,14 +241,13 @@ export class InlineMenuFieldQualificationService
 
     const isCurrentPasswordField = this.isCurrentPasswordField(field);
     if (isCurrentPasswordField) {
-      return this.isPasswordFieldForLoginForm(field, pageDetails);
+      return this.isPasswordFieldForLoginForm(field, pageDetails).result;
     }
 
     const isUsernameField = this.isUsernameField(field);
     if (!isUsernameField) {
       return false;
     }
-
     return this.isUsernameFieldForLoginForm(field, pageDetails);
   }
 
@@ -374,23 +374,34 @@ export class InlineMenuFieldQualificationService
   private isPasswordFieldForLoginForm(
     field: AutofillField,
     pageDetails: AutofillPageDetails,
-  ): boolean {
+  ): { result: boolean; message: string } {
+    const ns = "isPasswordFieldForLoginForm //";
+
+    if (field.domainMatch && field.domainMatch.fieldType === AutofillFieldQualifier.password) {
+      return { result: true, message: `${ns} Matched domain specific setting.` };
+    }
+
     const parentForm = pageDetails.forms[field.form];
 
     // If the provided field is set with an autocomplete value of "current-password", we should assume that
     // the page developer intends for this field to be interpreted as a password field for a login form.
     if (this.fieldContainsAutocompleteValues(field, this.currentPasswordAutocompleteValue)) {
       if (!parentForm) {
-        return (
-          pageDetails.fields.filter(this.isNewPasswordField).filter((f) => f.viewable).length === 0
-        );
+        const result =
+          pageDetails.fields.filter(this.isNewPasswordField).filter((f) => f.viewable).length === 0;
+        return {
+          result,
+          message: `${ns} Field had current password autocomplete value, result = 1+ viewable new password fields`,
+        };
       }
 
-      return (
-        pageDetails.fields
-          .filter(this.isNewPasswordField)
-          .filter((f) => f.viewable && f.form === field.form).length === 0
-      );
+      return {
+        result:
+          pageDetails.fields
+            .filter(this.isNewPasswordField)
+            .filter((f) => f.viewable && f.form === field.form).length === 0,
+        message: `${ns} Field had current password autocomplete value, result = 1+ viewable new password fields in form`,
+      };
     }
 
     const usernameFieldsInPageDetails = pageDetails.fields.filter(this.isUsernameField);
@@ -399,7 +410,7 @@ export class InlineMenuFieldQualificationService
     // If a single username and a single password field exists on the page, we
     // should assume that this field is part of a login form.
     if (usernameFieldsInPageDetails.length === 1 && passwordFieldsInPageDetails.length === 1) {
-      return true;
+      return { result: true, message: `${ns} single username and single password found` };
     }
 
     // If the field is not structured within a form, we need to identify if the field is present on
@@ -408,21 +419,27 @@ export class InlineMenuFieldQualificationService
       // If no parent form is found, and multiple password fields are present, we should assume that
       // the passed field belongs to a user account creation form.
       if (passwordFieldsInPageDetails.length > 1) {
-        return false;
+        return {
+          result: false,
+          message: `${ns} no parent form and multiple password fields present`,
+        };
       }
 
       // If multiple username fields exist on the page, we should assume that
       // the provided field is part of an account creation form.
       const visibleUsernameFields = usernameFieldsInPageDetails.filter((f) => f.viewable);
       if (visibleUsernameFields.length > 1) {
-        return false;
+        return {
+          result: false,
+          message: `${ns} no parent form and multiple username fields found`,
+        };
       }
 
       // If a single username field or less is present on the page, then we can assume that the
       // provided field is for a login form. This will only be the case if the field does not
       // explicitly have its autocomplete attribute set to "off" or "false".
-
-      return !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues);
+      const result = !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues);
+      return { result, message: `${ns} this field contains disabled values: ${result}` };
     }
 
     // If the field has a form parent and there are multiple visible password fields
@@ -431,7 +448,10 @@ export class InlineMenuFieldQualificationService
       (f) => f.form === field.form && f.viewable,
     );
     if (visiblePasswordFieldsInPageDetails.length > 1) {
-      return false;
+      return {
+        result: false,
+        message: `${ns} Field has form parent and multiple password fields present`,
+      };
     }
 
     // If the form has any visible username fields, we should treat the field as part of a login form
@@ -439,12 +459,16 @@ export class InlineMenuFieldQualificationService
       (f) => f.form === field.form && f.viewable,
     );
     if (visibleUsernameFields.length > 0) {
-      return true;
+      return { result: true, message: `${ns} Form has visible username fields` };
     }
 
     // If the field has a form parent and no username field exists and the field has an
     // autocomplete attribute set to "off" or "false", this is not a password field
-    return !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues);
+    const result = !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues);
+    return {
+      result,
+      message: `${ns} Field has form parent, no username, and contains disabled autocomplete values`,
+    };
   }
 
   /**
@@ -457,6 +481,10 @@ export class InlineMenuFieldQualificationService
     field: AutofillField,
     pageDetails: AutofillPageDetails,
   ): boolean {
+    if (field.domainMatch && field.domainMatch.fieldType === "identityEmail") {
+      return true;
+    }
+
     // If the provided field is set with an autocomplete of "username", we should assume that
     // the page developer intends for this field to be interpreted as a username field.
 

@@ -199,18 +199,22 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     autofillFieldData: AutofillField,
     pageDetails: AutofillPageDetails,
   ) {
+    // eslint-disable-next-line no-console
+    console.log("Field", formFieldElement, this.isIgnoredField(autofillFieldData, pageDetails));
     if (
       currentlyInSandboxedIframe() ||
       this.formFieldElements.has(formFieldElement) ||
-      this.isIgnoredField(autofillFieldData, pageDetails)
+      this.isIgnoredField(autofillFieldData, pageDetails).result
     ) {
       return;
     }
-
+    // eslint-disable-next-line no-console
+    console.log("Field Was not ignored.");
     if (this.isHiddenField(formFieldElement, autofillFieldData)) {
       return;
     }
-
+    // eslint-disable-next-line no-console
+    console.log("Field was not hidden.");
     await this.setupOverlayListenersOnQualifiedField(formFieldElement, autofillFieldData);
   }
 
@@ -1055,16 +1059,29 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   private isIgnoredField(
     autofillFieldData: AutofillField,
     pageDetails: AutofillPageDetails,
-  ): boolean {
-    if (this.ignoredFieldTypes.has(autofillFieldData.type)) {
-      return true;
+  ): { result: boolean; message: string } {
+    const ns = "isIgnoredField";
+
+    const field = autofillFieldData;
+    if (field.domainMatch && field.domainMatch.fieldType === AutofillFieldQualifier.password) {
+      return { result: false, message: `${ns} Matched domain specific setting.` };
+    }
+
+    const ignoredTypeResult = Array.from(this.ignoredFieldTypes).find(
+      (v) => v === autofillFieldData.type,
+    );
+    if (ignoredTypeResult) {
+      return {
+        result: true,
+        message: `${ns} // field type is ignored type: ${ignoredTypeResult}`,
+      };
     }
 
     if (
       this.inlineMenuFieldQualificationService.isFieldForLoginForm(autofillFieldData, pageDetails)
     ) {
       void this.setQualifiedLoginFillType(autofillFieldData);
-      return false;
+      return { result: false, message: `${ns} // field is for login form` };
     }
 
     if (
@@ -1075,7 +1092,10 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       )
     ) {
       autofillFieldData.inlineMenuFillType = CipherType.Card;
-      return false;
+      return {
+        result: false,
+        message: `${ns} // field is for credit card form & inline menu cards shown`,
+      };
     }
 
     if (
@@ -1085,7 +1105,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       )
     ) {
       this.setQualifiedAccountCreationFillType(autofillFieldData);
-      return false;
+      return { result: false, message: `${ns} // field is for account creation form` };
     }
 
     if (
@@ -1096,10 +1116,16 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       )
     ) {
       autofillFieldData.inlineMenuFillType = CipherType.Identity;
-      return false;
+      return {
+        result: false,
+        message: `${ns} // field is for identity form & inline menu identities shown`,
+      };
     }
 
-    return true;
+    return {
+      result: true,
+      message: `${ns} // field ignored by default — not in any unignorable condition`,
+    };
   }
 
   /**
