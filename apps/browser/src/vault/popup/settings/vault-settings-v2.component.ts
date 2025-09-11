@@ -1,5 +1,6 @@
 import { CommonModule } from "@angular/common";
-import { Component, OnDestroy, OnInit, signal } from "@angular/core";
+import { Component, OnDestroy, OnInit } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { Router, RouterModule } from "@angular/router";
 import { firstValueFrom, switchMap } from "rxjs";
 
@@ -33,12 +34,17 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
 })
 export class VaultSettingsV2Component implements OnInit, OnDestroy {
   lastSync = "--";
+  private userId$ = this.accountService.activeAccount$.pipe(getUserId);
 
   // Check if user is premium user, they will be able to archive items
-  protected userCanArchive = signal<boolean>(false);
+  protected userCanArchive = toSignal(
+    this.userId$.pipe(switchMap((userId) => this.cipherArchiveService.userCanArchive$(userId))),
+  );
 
   // Check if user has archived items (does not check if user is premium)
-  protected showArchiveFilter = signal<boolean>(false);
+  protected showArchiveFilter = toSignal(
+    this.userId$.pipe(switchMap((userId) => this.cipherArchiveService.showArchiveVault$(userId))),
+  );
 
   protected emptyVaultImportBadge$ = this.accountService.activeAccount$.pipe(
     getUserId,
@@ -59,25 +65,12 @@ export class VaultSettingsV2Component implements OnInit, OnDestroy {
 
   async ngOnInit() {
     await this.setLastSync();
-    await this.checkCanArchiveStatus();
   }
 
   async ngOnDestroy(): Promise<void> {
     // When a user navigates away from the page, dismiss the empty vault import nudge
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     await this.nudgeService.dismissNudge(NudgeType.VaultSettingsImportNudge, userId);
-  }
-
-  private async checkCanArchiveStatus() {
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    const userArchiveStatus = await firstValueFrom(
-      this.cipherArchiveService.userCanArchive$(userId),
-    );
-    const showArchiveFilter = await firstValueFrom(
-      this.cipherArchiveService.showArchiveVault$(userId),
-    );
-    this.userCanArchive.set(userArchiveStatus);
-    this.showArchiveFilter.set(showArchiveFilter);
   }
 
   async import() {

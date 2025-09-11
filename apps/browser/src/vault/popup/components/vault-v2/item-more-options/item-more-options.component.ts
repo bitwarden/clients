@@ -108,17 +108,14 @@ export class ItemMoreOptionsComponent {
   /** Observable Boolean checking if item can show Archive menu option */
   protected canArchive$ = combineLatest([
     this._cipher$,
-    this.accountService.activeAccount$.pipe(getUserId),
+    this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) => this.cipherArchiveService.userCanArchive$(userId)),
+    ),
   ]).pipe(
     filter(([cipher, userId]) => cipher != null && userId != null),
-    switchMap(([cipher, userId]) => {
-      return this.cipherArchiveService.userCanArchive$(userId).pipe(
-        map((canArchive) => {
-          return (
-            canArchive && !CipherViewLikeUtils.isArchived(cipher) && cipher.organizationId == null
-          );
-        }),
-      );
+    map(([cipher, canArchive]) => {
+      return canArchive && !CipherViewLikeUtils.isArchived(cipher) && cipher.organizationId == null;
     }),
   );
 
