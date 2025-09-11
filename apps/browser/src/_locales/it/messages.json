@@ -548,13 +548,16 @@
     "message": "Cerca nella cassaforte"
   },
   "resetSearch": {
-    "message": "Reset search"
+    "message": "Svuota ricerca"
   },
   "edit": {
     "message": "Modifica"
   },
   "view": {
     "message": "Visualizza"
+  },
+  "viewLogin": {
+    "message": "View login"
   },
   "noItemsInList": {
     "message": "Non ci sono elementi da mostrare."
@@ -1177,10 +1180,10 @@
     "description": "Detailed error message shown when saving login details fails."
   },
   "changePasswordWarning": {
-    "message": "After changing your password, you will need to log in with your new password. Active sessions on other devices will be logged out within one hour."
+    "message": "Dopo aver cambiato la password, dovrai accedere con quella nuova. Le sessioni attive su altri dispositivi saranno disconnesse entro un'ora."
   },
   "accountRecoveryUpdateMasterPasswordSubtitle": {
-    "message": "Change your master password to complete account recovery."
+    "message": "Cambia la password principale per completare il recupero dell'account."
   },
   "enableChangedPasswordNotification": {
     "message": "Chiedi di aggiornare il login esistente"
@@ -1761,13 +1764,13 @@
     "message": "Questo browser non può elaborare richieste U2F in questo pop-up. Aprire questo pop-up in una nuova finestra per accedere usando U2F?"
   },
   "enableFavicon": {
-    "message": "Mostra icone dei siti"
+    "message": "Show website icons"
   },
   "faviconDesc": {
-    "message": "Mostra un piccolo logo riconoscibile accanto a ogni login."
+    "message": "Show a recognizable image next to each login."
   },
   "faviconDescAlt": {
-    "message": "Mostra un piccolo logo riconoscibile accanto a ogni login. Si applica a tutti gli account connessi."
+    "message": "Show a recognizable image next to each login. Applies to all logged in accounts."
   },
   "enableBadgeCounter": {
     "message": "Mostra badge contatore"
@@ -1833,7 +1836,7 @@
     "message": "Codice di sicurezza"
   },
   "cardNumber": {
-    "message": "card number"
+    "message": "numero carta"
   },
   "ex": {
     "message": "es."
@@ -2932,7 +2935,7 @@
     "message": "Devi verificare la tua email per usare questa funzionalità. Puoi verificare la tua email nella cassaforte web."
   },
   "masterPasswordSuccessfullySet": {
-    "message": "Master password successfully set"
+    "message": "Password principale impostata correttamente"
   },
   "updatedMasterPassword": {
     "message": "Password principale aggiornata"
@@ -3467,7 +3470,7 @@
     "message": "Richiesta inviata"
   },
   "loginRequestApprovedForEmailOnDevice": {
-    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "message": "Richiesta di accesso approvata per $EMAIL$ su $DEVICE$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3480,16 +3483,16 @@
     }
   },
   "youDeniedLoginAttemptFromAnotherDevice": {
-    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
+    "message": "Hai negato un tentativo di accesso da un altro dispositivo. Se eri davvero tu, prova di nuovo ad accedere con il dispositivo."
   },
   "device": {
-    "message": "Device"
+    "message": "Dispositivo"
   },
   "loginStatus": {
-    "message": "Login status"
+    "message": "Stato login"
   },
   "masterPasswordChanged": {
-    "message": "Master password saved"
+    "message": "Password principale salvata"
   },
   "exposedMasterPassword": {
     "message": "Password principale violata"
@@ -3585,17 +3588,17 @@
     "message": "Ricorda questo dispositivo per rendere immediati i futuri accessi"
   },
   "manageDevices": {
-    "message": "Manage devices"
+    "message": "Gestisci dispositivi"
   },
   "currentSession": {
-    "message": "Current session"
+    "message": "Sessione in corso"
   },
   "mobile": {
     "message": "Mobile",
     "description": "Mobile app"
   },
   "extension": {
-    "message": "Extension",
+    "message": "Estensione",
     "description": "Browser extension/addon"
   },
   "desktop": {
@@ -3603,35 +3606,35 @@
     "description": "Desktop app"
   },
   "webVault": {
-    "message": "Web vault"
+    "message": "Cassaforte Web"
   },
   "webApp": {
-    "message": "Web app"
+    "message": "Bitwarden Web"
   },
   "cli": {
-    "message": "CLI"
+    "message": "Linea di comando"
   },
   "sdk": {
     "message": "SDK",
     "description": "Software Development Kit"
   },
   "requestPending": {
-    "message": "Request pending"
+    "message": "Richiesta in attesa"
   },
   "firstLogin": {
-    "message": "First login"
+    "message": "Primo accesso"
   },
   "trusted": {
-    "message": "Trusted"
+    "message": "Attendibile"
   },
   "needsApproval": {
-    "message": "Needs approval"
+    "message": "In attesa di approvazione"
   },
   "devices": {
-    "message": "Devices"
+    "message": "Dispositivi"
   },
   "accessAttemptBy": {
-    "message": "Access attempt by $EMAIL$",
+    "message": "Tentativo di accesso da $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3640,50 +3643,31 @@
     }
   },
   "confirmAccess": {
-    "message": "Confirm access"
+    "message": "Conferma l'accesso"
   },
   "denyAccess": {
-    "message": "Deny access"
+    "message": "Nega l'accesso"
   },
   "time": {
-    "message": "Time"
+    "message": "Ora"
   },
   "deviceType": {
-    "message": "Device Type"
+    "message": "Tipo di dispositivo"
   },
   "loginRequest": {
-    "message": "Login request"
+    "message": "Richiesta di accesso"
   },
   "thisRequestIsNoLongerValid": {
-    "message": "This request is no longer valid."
-  },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Are you trying to access your account?"
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Login confirmed for $EMAIL$ on $DEVICE$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "You denied a login attempt from another device. If this really was you, try to log in with the device again."
+    "message": "Questa richiesta non è più valida."
   },
   "loginRequestHasAlreadyExpired": {
-    "message": "Login request has already expired."
+    "message": "La richiesta di accesso è scaduta."
   },
   "justNow": {
-    "message": "Just now"
+    "message": "Pochi secondi fa"
   },
   "requestedXMinutesAgo": {
-    "message": "Requested $MINUTES$ minutes ago",
+    "message": "Richiesta: $MINUTES$ minuti fa",
     "placeholders": {
       "minutes": {
         "content": "$1",
@@ -3713,10 +3697,10 @@
     "message": "Richiedi approvazione dell'amministratore"
   },
   "unableToCompleteLogin": {
-    "message": "Unable to complete login"
+    "message": "Impossibile completare l'accesso"
   },
   "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
-    "message": "You need to log in on a trusted device or ask your administrator to assign you a password."
+    "message": "È necessario accedere da un dispositivo attendibile oppure chiedere all'amministratore l'assegnazione di una password."
   },
   "ssoIdentifierRequired": {
     "message": "Identificatore SSO dell'organizzazione obbligatorio."
@@ -4150,15 +4134,11 @@
   "selectImportCollection": {
     "message": "Seleziona una raccolta"
   },
-  "importTargetHint": {
-    "message": "Seleziona questa opzione se vuoi che i contenuti del file di importazione siano spostati in una $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Seleziona questa opzione se vuoi che i contenuti dell'importazione siano salvati in una raccolta"
+  },
+  "importTargetHintFolder": {
+    "message": "Seleziona questa opzione se vuoi che i contenuti dell'importazione siano salvati in una cartella"
   },
   "importUnassignedItemsError": {
     "message": "Il file contiene elementi non assegnati."
@@ -4398,23 +4378,23 @@
     "description": "Label indicating the most common import formats"
   },
   "uriMatchDefaultStrategyHint": {
-    "message": "URI match detection is how Bitwarden identifies autofill suggestions.",
+    "message": "La corrispondenza URL è il metodo predefinito per identificare i suggerimenti di riempimento automatico.",
     "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
   },
   "regExAdvancedOptionWarning": {
-    "message": "\"Regular expression\" is an advanced option with increased risk of exposing credentials.",
+    "message": "'Espressione regolare' è un'opzione avanzata con un maggior rischio di esporre le credenziali.",
     "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
   },
   "startsWithAdvancedOptionWarning": {
-    "message": "\"Starts with\" is an advanced option with increased risk of exposing credentials.",
+    "message": "'Inizia con' è un'opzione con un maggior rischio di esporre le credenziali.",
     "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
   },
   "uriMatchWarningDialogLink": {
-    "message": "More about match detection",
+    "message": "Ulteriori informazioni sulla corrispondenza degli URL",
     "description": "Link to match detection docs on warning dialog for advance match strategy"
   },
   "uriAdvancedOption": {
-    "message": "Advanced options",
+    "message": "Opzioni avanzate",
     "description": "Advanced option placeholder for uri option component"
   },
   "confirmContinueToBrowserSettingsTitle": {
@@ -4601,7 +4581,7 @@
     }
   },
   "copyFieldCipherName": {
-    "message": "Copy $FIELD$, $CIPHERNAME$",
+    "message": "Copia $FIELD$, $CIPHERNAME$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
@@ -5136,6 +5116,18 @@
   "showNumberOfAutofillSuggestions": {
     "message": "Mostra il numero di suggerimenti di riempimento automatico sull'icona dell'estensione"
   },
+  "accountAccessRequested": {
+    "message": "Accesso all'account richiesto"
+  },
+  "confirmAccessAttempt": {
+    "message": "Conferma il tentativo di accesso per $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "showQuickCopyActions": {
     "message": "Mostra azioni di copia rapida nella Cassaforte"
   },
@@ -5463,6 +5455,12 @@
   "changeAtRiskPassword": {
     "message": "Cambia parola d'accesso a rischio"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
+  },
   "settingsVaultOptions": {
     "message": "Opzioni cassaforte"
   },
@@ -5592,5 +5590,21 @@
   "wasmNotSupported": {
     "message": "WebAssembly non è supportato dal browser o non è abilitato. WebAssembly è richiesto per utilizzare l'app Bitwarden.",
     "description": "'WebAssembly' is a technical term and should not be translated."
+  },
+  "showMore": {
+    "message": "Mostra di più"
+  },
+  "showLess": {
+    "message": "Mostra di meno"
+  },
+  "next": {
+    "message": "Avanti"
+  },
+  "moreBreadcrumbs": {
+    "message": "Ulteriori segmenti",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Conferma dominio Key Connector"
   }
 }

@@ -13,6 +13,17 @@ import {
 import { ChangePasswordComponent } from "@bitwarden/angular/auth/password-management/change-password";
 import { SetInitialPasswordComponent } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.component";
 import {
+  DevicesIcon,
+  RegistrationUserAddIcon,
+  TwoFactorTimeoutIcon,
+  TwoFactorAuthEmailIcon,
+  UserLockIcon,
+  VaultIcon,
+  SsoKeyIcon,
+  LockIcon,
+  BrowserExtensionIcon,
+} from "@bitwarden/assets/svg";
+import {
   PasswordHintComponent,
   RegistrationFinishComponent,
   RegistrationStartComponent,
@@ -21,25 +32,15 @@ import {
   RegistrationLinkExpiredComponent,
   LoginComponent,
   LoginSecondaryContentComponent,
-  TwoFactorTimeoutIcon,
-  UserLockIcon,
-  SsoKeyIcon,
   LoginViaAuthRequestComponent,
-  DevicesIcon,
-  RegistrationUserAddIcon,
-  RegistrationLockAltIcon,
-  RegistrationExpiredLinkIcon,
   SsoComponent,
-  VaultIcon,
   LoginDecryptionOptionsComponent,
   TwoFactorAuthComponent,
   TwoFactorAuthGuard,
   NewDeviceVerificationComponent,
-  DeviceVerificationIcon,
 } from "@bitwarden/auth/angular";
-import { AnonLayoutWrapperComponent, AnonLayoutWrapperData, Icons } from "@bitwarden/components";
+import { AnonLayoutWrapperComponent, AnonLayoutWrapperData } from "@bitwarden/components";
 import { LockComponent } from "@bitwarden/key-management-ui";
-import { VaultIcons } from "@bitwarden/vault";
 
 import { flagEnabled, Flags } from "../utils/flags";
 
@@ -64,6 +65,7 @@ import { freeTrialTextResolver } from "./billing/trial-initiation/complete-trial
 import { EnvironmentSelectorComponent } from "./components/environment-selector/environment-selector.component";
 import { RouteDataProperties } from "./core";
 import { ReportsModule } from "./dirt/reports";
+import { ConfirmKeyConnectorDomainComponent } from "./key-management/key-connector/confirm-key-connector-domain.component";
 import { RemovePasswordComponent } from "./key-management/key-connector/remove-password.component";
 import { FrontendLayoutComponent } from "./layouts/frontend-layout.component";
 import { UserLayoutComponent } from "./layouts/user-layout.component";
@@ -167,7 +169,7 @@ const routes: Routes = [
         path: "finish-signup",
         canActivate: [unauthGuardFn()],
         data: {
-          pageIcon: RegistrationLockAltIcon,
+          pageIcon: LockIcon,
           titleId: "setAStrongPassword",
         } satisfies RouteDataProperties & AnonLayoutWrapperData,
         children: [
@@ -300,7 +302,7 @@ const routes: Routes = [
         path: "signup-link-expired",
         canActivate: [unauthGuardFn()],
         data: {
-          pageIcon: RegistrationExpiredLinkIcon,
+          pageIcon: TwoFactorTimeoutIcon,
           pageTitle: {
             key: "expiredLink",
           },
@@ -374,7 +376,7 @@ const routes: Routes = [
           pageTitle: {
             key: "yourVaultIsLockedV2",
           },
-          pageIcon: Icons.LockIcon,
+          pageIcon: LockIcon,
           showReadonlyHostname: true,
         } satisfies AnonLayoutWrapperData,
       },
@@ -431,7 +433,7 @@ const routes: Routes = [
           },
         ],
         data: {
-          pageIcon: DeviceVerificationIcon,
+          pageIcon: TwoFactorAuthEmailIcon,
           pageTitle: {
             key: "verifyYourIdentity",
           },
@@ -509,6 +511,17 @@ const routes: Routes = [
         } satisfies RouteDataProperties & AnonLayoutWrapperData,
       },
       {
+        path: "confirm-key-connector-domain",
+        component: ConfirmKeyConnectorDomainComponent,
+        canActivate: [],
+        data: {
+          pageTitle: {
+            key: "confirmKeyConnectorDomain",
+          },
+          titleId: "confirmKeyConnectorDomain",
+        } satisfies RouteDataProperties & AnonLayoutWrapperData,
+      },
+      {
         path: "trial-initiation",
         canActivate: [unauthGuardFn()],
         component: CompleteTrialInitiationComponent,
@@ -533,7 +546,7 @@ const routes: Routes = [
       {
         path: "browser-extension-prompt",
         data: {
-          pageIcon: VaultIcons.BrowserExtensionIcon,
+          pageIcon: BrowserExtensionIcon,
         } satisfies AnonLayoutWrapperData,
         children: [
           {

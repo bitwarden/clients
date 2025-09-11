@@ -3,15 +3,18 @@
 import { CommonModule, DatePipe } from "@angular/common";
 import {
   Component,
+  ElementRef,
   EventEmitter,
   inject,
   Input,
   OnChanges,
   Output,
   SimpleChanges,
+  ViewChild,
 } from "@angular/core";
 import { Observable, switchMap } from "rxjs";
 
+import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -54,6 +57,7 @@ type TotpCodeValues = {
     BitTotpCountdownComponent,
     ReadOnlyCipherCardComponent,
     LinkModule,
+    PremiumBadgeComponent,
   ],
 })
 export class LoginCredentialsViewComponent implements OnChanges {
@@ -61,6 +65,8 @@ export class LoginCredentialsViewComponent implements OnChanges {
   @Input() activeUserId: UserId;
   @Input() hadPendingChangePasswordTask: boolean;
   @Output() handleChangePassword = new EventEmitter<void>();
+  @ViewChild("passwordInput")
+  private passwordInput!: ElementRef<HTMLInputElement>;
 
   isPremium$: Observable<boolean> = this.accountService.activeAccount$.pipe(
     switchMap((account) =>
@@ -92,6 +98,10 @@ export class LoginCredentialsViewComponent implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes["cipher"]) {
+      if (this.passwordInput?.nativeElement) {
+        // Reset password input type in case it's been toggled
+        this.passwordInput.nativeElement.type = "password";
+      }
       this.passwordRevealed = false;
       this.showPasswordCount = false;
     }

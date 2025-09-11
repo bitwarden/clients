@@ -1,4 +1,6 @@
-import { ClientLocations, StateDefinition } from "./state-definition";
+import { ClientLocations } from "@bitwarden/storage-core";
+
+import { StateDefinition } from "./state-definition";
 import * as stateDefinitionsRecord from "./state-definitions";
 
 describe.each(["web", "cli", "desktop", "browser"])(

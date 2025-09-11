@@ -1,6 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-
 import { NgClass } from "@angular/common";
 import {
   AfterContentChecked,
@@ -8,8 +5,8 @@ import {
   Component,
   ElementRef,
   signal,
-  ViewChild,
   input,
+  viewChild,
 } from "@angular/core";
 
 import { TypographyModule } from "../typography";
@@ -30,7 +27,7 @@ import { TypographyModule } from "../typography";
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ItemContentComponent implements AfterContentChecked {
-  @ViewChild("endSlot") endSlot: ElementRef<HTMLDivElement>;
+  readonly endSlot = viewChild<ElementRef<HTMLDivElement>>("endSlot");
 
   protected endSlotHasChildren = signal(false);
 
@@ -42,6 +39,6 @@ export class ItemContentComponent implements AfterContentChecked {
   readonly truncate = input(true);
 
   ngAfterContentChecked(): void {
-    this.endSlotHasChildren.set(this.endSlot?.nativeElement.childElementCount > 0);
+    this.endSlotHasChildren.set((this.endSlot()?.nativeElement.childElementCount ?? 0) > 0);
   }
 }

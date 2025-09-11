@@ -5,13 +5,12 @@ import { Jsonify } from "type-fest";
 import { EncString as SdkEncString } from "@bitwarden/sdk-internal";
 
 import { EncryptionType, EXPECTED_NUM_PARTS_BY_ENCRYPTION_TYPE } from "../../../platform/enums";
-import { Encrypted } from "../../../platform/interfaces/encrypted";
 import { Utils } from "../../../platform/misc/utils";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 
 export const DECRYPT_ERROR = "[error: cannot decrypt]";
 
-export class EncString implements Encrypted {
+export class EncString {
   encryptedString?: SdkEncString;
   encryptionType?: EncryptionType;
   decryptedValue?: string;
@@ -181,9 +180,13 @@ export class EncString implements Encrypted {
 
       const encryptService = Utils.getContainerService().getEncryptService();
       this.decryptedValue = await encryptService.decryptString(this, key);
-      // FIXME: Remove when updating file. Eslint update
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error(
+        "[EncString Generic Decrypt] failed to decrypt encstring. Context: " +
+          (context ?? "No context"),
+        e,
+      );
       this.decryptedValue = DECRYPT_ERROR;
     }
     return this.decryptedValue;

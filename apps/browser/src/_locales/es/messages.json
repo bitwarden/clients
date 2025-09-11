@@ -197,7 +197,7 @@
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
   "autoFill": {
-    "message": "Autorrellenar"
+    "message": "Autocompletar"
   },
   "autoFillLogin": {
     "message": "Autocompletar inicio de sesión"
@@ -548,13 +548,16 @@
     "message": "Buscar en caja fuerte"
   },
   "resetSearch": {
-    "message": "Reset search"
+    "message": "Restablecer búsqueda"
   },
   "edit": {
     "message": "Editar"
   },
   "view": {
     "message": "Ver"
+  },
+  "viewLogin": {
+    "message": "View login"
   },
   "noItemsInList": {
     "message": "No hay elementos que listar."
@@ -1456,7 +1459,7 @@
     "message": "Copiar TOTP automáticamente"
   },
   "disableAutoTotpCopyDesc": {
-    "message": "Si tu entrada tiene una clave de autenticación adjunta, el código de verificación TOTP es copiado automáticamente al portapapeles cuando autorellenas una entrada."
+    "message": "Si tu entrada tiene una clave de autenticación, copiar el código de verificación TOTP a tu portapapeles cuando autocompletes el inicio de sesión."
   },
   "enableAutoBiometricsPrompt": {
     "message": "Pedir datos biométricos al ejecutar"
@@ -1663,25 +1666,25 @@
     "message": "Autocompletar al cargar la página"
   },
   "enableAutoFillOnPageLoad": {
-    "message": "Habilitar autorrellenar al cargar la página"
+    "message": "Autocompletar al cargar la página"
   },
   "enableAutoFillOnPageLoadDesc": {
-    "message": "Si se detecta un formulario, realizar automáticamente un autorellenado cuando la web cargue."
+    "message": "Si se detecta un formulario de inicio de sesión, autocompletar cuando cargue la página web."
   },
   "experimentalFeature": {
-    "message": "Los sitios web vulnerados o no confiables pueden explotar el autorelleno al cargar la página."
+    "message": "Los sitios web vulnerados o no confiables pueden explotar el autocompletado al cargar la página."
   },
   "learnMoreAboutAutofillOnPageLoadLinkText": {
     "message": "Más información sobre riesgos"
   },
   "learnMoreAboutAutofill": {
-    "message": "Más información sobre el relleno automático"
+    "message": "Más información sobre el autocompletado"
   },
   "defaultAutoFillOnPageLoad": {
     "message": "Configuración de autorrelleno por defecto para elementos de inicio de sesión"
   },
   "defaultAutoFillOnPageLoadDesc": {
-    "message": "Después de activar el autorelleno en Carga de página, puede activar o desactivar la función para entradas individuales. Esta es la configuración predeterminada para elementos de inicio de sesión que no están configurados por separado."
+    "message": "Puedes desactivar el autocompletado al cargar la página para elementos individuales de inicio de sesión desde la vista de Edición del elemento."
   },
   "itemAutoFillOnPageLoad": {
     "message": "Auto-relleno en carga de página (si está habilitado en opciones)"
@@ -1761,13 +1764,13 @@
     "message": "Este navegador no puede procesar las peticiones U2F en esta ventana emergente. ¿Desea abrir esta ventana emergente en una nueva ventana para que pueda iniciar sesión usando U2F?"
   },
   "enableFavicon": {
-    "message": "Mostrar los iconos del sitio web"
+    "message": "Show website icons"
   },
   "faviconDesc": {
-    "message": "Mostrar una imagen reconocible junto a cada inicio de sesión."
+    "message": "Show a recognizable image next to each login."
   },
   "faviconDescAlt": {
-    "message": "Mostrar una imagen reconocible junto a cada inicio de sesión. Se aplica a todas las cuentas conectadas."
+    "message": "Show a recognizable image next to each login. Applies to all logged in accounts."
   },
   "enableBadgeCounter": {
     "message": "Mostrar el contador numérico"
@@ -2281,16 +2284,16 @@
     "message": "Confirmación de la acción del tiempo de espera"
   },
   "autoFillAndSave": {
-    "message": "Autorellenar y guardar"
+    "message": "Autocompletar y guardar"
   },
   "fillAndSave": {
     "message": "Rellenar y guardar"
   },
   "autoFillSuccessAndSavedUri": {
-    "message": "Objeto autorellenado y URI guardada"
+    "message": "Elemento autocompletado y URI guardada"
   },
   "autoFillSuccess": {
-    "message": "Objeto autorellenado"
+    "message": "Elemento autocompletado "
   },
   "insecurePageWarning": {
     "message": "Atención: Esta es una página HTTP no segura, y cualquier información que envíes puede ser vista y cambiada por otros. Este inicio de sesión fue guardado originalmente en una página segura (HTTPS)."
@@ -2528,7 +2531,7 @@
     "message": "El autorrelleno y otras funcionalidades relacionadas no se ofrecerán para estos sitios web. Debe actualizar la página para que los cambios surtan efecto."
   },
   "autofillBlockedNoticeV2": {
-    "message": "Autorelleno está desactivado para este sitio web."
+    "message": "Autocompletado está bloqueado para este sitio web."
   },
   "autofillBlockedNoticeGuidance": {
     "message": "Cambia esto en los ajustes"
@@ -2709,7 +2712,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendDetails": {
-    "message": "Send details",
+    "message": "Detalles del Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendTypeText": {
@@ -2932,7 +2935,7 @@
     "message": "Debes verificar tu correo electrónico para usar esta función. Puedes verificar tu correo electrónico en la caja fuerte web."
   },
   "masterPasswordSuccessfullySet": {
-    "message": "Master password successfully set"
+    "message": "Contraseña maestra establecida correctamente"
   },
   "updatedMasterPassword": {
     "message": "Contraseña maestra actualizada"
@@ -3106,7 +3109,7 @@
     "message": "Exportando caja fuerte personal"
   },
   "exportingIndividualVaultDescription": {
-    "message": "Solo se exportarán los elementos individuales de la caja fuerte asociados con $EMAIL$. Los elementos de la bóveda de la organización no se incluirán. Solo se exportará la información de los elementos individuales y no incluirá adjuntos asociados.",
+    "message": "Solo se exportarán los elementos individuales de la caja fuerte asociados a $EMAIL$. Los elementos de la caja fuerte de la organización no se incluirán. Solo se exportará la información de los elementos de la caja fuerte y no se incluirá adjuntos asociados.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3483,13 +3486,13 @@
     "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
   },
   "device": {
-    "message": "Device"
+    "message": "Dispositivo"
   },
   "loginStatus": {
     "message": "Login status"
   },
   "masterPasswordChanged": {
-    "message": "Master password saved"
+    "message": "Contraseña maestra guardada"
   },
   "exposedMasterPassword": {
     "message": "Contraseña maestra comprometida"
@@ -3525,7 +3528,7 @@
     "message": "Las políticas de su organización han activado autocompletar al cargar la página."
   },
   "howToAutofill": {
-    "message": "Cómo autorellenar"
+    "message": "Cómo autocompletar"
   },
   "autofillSelectInfoWithCommand": {
     "message": "Selecciona un elemento de esta pantalla, usa el acceso directo $COMMAND$ o explora otras opciones en ajustes.",
@@ -3585,28 +3588,28 @@
     "message": "Remember this device to make future logins seamless"
   },
   "manageDevices": {
-    "message": "Manage devices"
+    "message": "Gestionar dispositivos"
   },
   "currentSession": {
-    "message": "Current session"
+    "message": "Sesión actual"
   },
   "mobile": {
-    "message": "Mobile",
+    "message": "Móvil",
     "description": "Mobile app"
   },
   "extension": {
-    "message": "Extension",
+    "message": "Extensión",
     "description": "Browser extension/addon"
   },
   "desktop": {
-    "message": "Desktop",
+    "message": "Escritorio",
     "description": "Desktop app"
   },
   "webVault": {
-    "message": "Web vault"
+    "message": "Caja fuerte Web"
   },
   "webApp": {
-    "message": "Web app"
+    "message": "Aplicación Web"
   },
   "cli": {
     "message": "CLI"
@@ -3616,22 +3619,22 @@
     "description": "Software Development Kit"
   },
   "requestPending": {
-    "message": "Request pending"
+    "message": "Solicitud pendiente"
   },
   "firstLogin": {
-    "message": "First login"
+    "message": "Primer inicio de sesión"
   },
   "trusted": {
-    "message": "Trusted"
+    "message": "De confianza"
   },
   "needsApproval": {
-    "message": "Needs approval"
+    "message": "Necesita aprobación"
   },
   "devices": {
-    "message": "Devices"
+    "message": "Dispositivos"
   },
   "accessAttemptBy": {
-    "message": "Access attempt by $EMAIL$",
+    "message": "Intento de acceso de $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3640,41 +3643,22 @@
     }
   },
   "confirmAccess": {
-    "message": "Confirm access"
+    "message": "Confirmar acceso"
   },
   "denyAccess": {
-    "message": "Deny access"
+    "message": "Denegar acceso"
   },
   "time": {
     "message": "Time"
   },
   "deviceType": {
-    "message": "Device Type"
+    "message": "Tipo de Dispositivo"
   },
   "loginRequest": {
     "message": "Login request"
   },
   "thisRequestIsNoLongerValid": {
     "message": "This request is no longer valid."
-  },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Are you trying to access your account?"
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Login confirmed for $EMAIL$ on $DEVICE$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "You denied a login attempt from another device. If this really was you, try to log in with the device again."
   },
   "loginRequestHasAlreadyExpired": {
     "message": "Login request has already expired."
@@ -4150,15 +4134,11 @@
   "selectImportCollection": {
     "message": "Selecciona una colección"
   },
-  "importTargetHint": {
-    "message": "Selecciona esta opción si deseas que el contenido del archivo importado se mueva a $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Select this option if you want the imported file contents moved to a collection"
+  },
+  "importTargetHintFolder": {
+    "message": "Select this option if you want the imported file contents moved to a folder"
   },
   "importUnassignedItemsError": {
     "message": "El archivo contiene elementos no asignados."
@@ -5136,6 +5116,18 @@
   "showNumberOfAutofillSuggestions": {
     "message": "Mostrar número de sugerencias de autocompletado de inicios de sesión en el icono de la extensión"
   },
+  "accountAccessRequested": {
+    "message": "Account access requested"
+  },
+  "confirmAccessAttempt": {
+    "message": "Confirm access attempt for $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "showQuickCopyActions": {
     "message": "Show quick copy actions on Vault"
   },
@@ -5463,6 +5455,12 @@
   "changeAtRiskPassword": {
     "message": "Cambiar contraseña de riesgo"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
+  },
   "settingsVaultOptions": {
     "message": "Opciones de la caja fuerte"
   },
@@ -5583,14 +5581,30 @@
     "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
   },
   "generatorNudgeBodyAria": {
-    "message": "Easily create strong and unique passwords by clicking on the Generate password button to help you keep your logins secure.",
+    "message": "Crea fácilmente contraseñas seguras y únicas haciendo clic en el botón Generar contraseña para ayudarte a mantener tus inicios de sesión seguros.",
     "description": "Aria label for the body content of the generator nudge"
   },
   "noPermissionsViewPage": {
     "message": "No tienes permisos para ver esta página. Intenta iniciar sesión con otra cuenta."
   },
   "wasmNotSupported": {
-    "message": "WebAssembly is not supported on your browser or is not enabled. WebAssembly is required to use the Bitwarden app.",
+    "message": "WebAssembly no está soportado por tu navegador o no está habilitado. WebAssembly es necesario para usar la aplicación de Bitwarden.",
     "description": "'WebAssembly' is a technical term and should not be translated."
+  },
+  "showMore": {
+    "message": "Show more"
+  },
+  "showLess": {
+    "message": "Show less"
+  },
+  "next": {
+    "message": "Next"
+  },
+  "moreBreadcrumbs": {
+    "message": "More breadcrumbs",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Confirm Key Connector domain"
   }
 }
