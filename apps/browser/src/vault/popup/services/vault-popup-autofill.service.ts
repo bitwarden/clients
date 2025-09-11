@@ -268,6 +268,8 @@ export class VaultPopupAutofillService {
       });
       return false;
     }
+    // notify overlay background that a cipher was used from vault popup
+    this.messagingService.send("vaultAutofillSuggestionUsed", { cipherId: cipher.id });
 
     return true;
   }
