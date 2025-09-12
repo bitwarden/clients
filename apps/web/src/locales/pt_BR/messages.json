@@ -6,7 +6,7 @@
     "message": "Bitwarden logo"
   },
   "criticalApplications": {
-    "message": "Aplicações críticas"
+    "message": "Aplicativos críticos"
   },
   "noCriticalAppsAtRisk": {
     "message": "Nenhum aplicativo crítico em risco"
@@ -21,7 +21,7 @@
     "message": "Risco de senha"
   },
   "reviewAtRiskPasswords": {
-    "message": "Revise as senhas de risco (fracas, expostas ou reutilizadas) em todos os aplicativos. Selecione suas aplicações mais críticas para priorizar ações de segurança para seus usuários resolverem senhas de risco."
+    "message": "Revise as senhas de risco (fracas, expostas ou reutilizadas) em todos os aplicativos. Selecione seus aplicativos mais críticos para priorizar ações de segurança para seus usuários resolverem senhas de risco."
   },
   "dataLastUpdated": {
     "message": "Dados atualizados pela última vez: $DATE$",
@@ -57,7 +57,7 @@
     "message": "Criar item de \"login\""
   },
   "criticalApplicationsWithCount": {
-    "message": "Aplicações críticas ($COUNT$)",
+    "message": "Aplicativos críticos ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -86,20 +86,20 @@
   "noAppsInOrgDescription": {
     "message": "Como os usuários salvam as credenciais, os aplicativos aparecem aqui, mostrando qualquer senha de risco. Marque aplicativos críticos e notifique os usuários a atualizar senhas."
   },
-  "noCriticalAppsTitle": {
-    "message": "Você não marcou nenhum aplicativo como Crítico"
+  "noCriticalApplicationsTitle": {
+    "message": "You haven’t marked any applications as critical"
   },
-  "noCriticalAppsDescription": {
-    "message": "Selecione suas aplicações mais críticas para descobrir senhas de risco e notifique os usuários a alterar essas senhas."
+  "noCriticalApplicationsDescription": {
+    "message": "Select your most critical applications to prioritize security actions for your users to address at-risk passwords."
   },
-  "markCriticalApps": {
-    "message": "Marcar aplicativos críticos"
+  "markCriticalApplications": {
+    "message": "Select critical applications"
   },
   "markAppAsCritical": {
     "message": "Marcar aplicativo como crítico"
   },
   "applicationsMarkedAsCriticalSuccess": {
-    "message": "Applications marked as critical"
+    "message": "Aplicações marcadas como críticas"
   },
   "application": {
     "message": "Aplicativo"
@@ -147,7 +147,7 @@
     "message": "Esses aplicativos têm senhas fracas, expostas ou reutilizadas."
   },
   "atRiskApplicationsDescriptionNone": {
-    "message": "These are no applications with weak, exposed, or reused passwords."
+    "message": "Não há aplicativos com senhas fracas, expostas ou reutilizadas."
   },
   "atRiskMembersDescriptionWithApp": {
     "message": "Esses membros estão logando no $APPNAME$ com senhas fracas, expostas ou reutilizadas.",
@@ -159,7 +159,7 @@
     }
   },
   "atRiskMembersDescriptionWithAppNone": {
-    "message": "There are no at risk members for $APPNAME$.",
+    "message": "Não há membros em risco para $APPNAME$.",
     "placeholders": {
       "appname": {
         "content": "$1",
@@ -177,10 +177,10 @@
     "message": "Todos os aplicativos"
   },
   "unmarkAsCritical": {
-    "message": "Unmark as critical"
+    "message": "Desmarcar como crítico"
   },
-  "criticalApplicationSuccessfullyUnmarked": {
-    "message": "Aplicação crítica desmarcada com sucesso"
+  "criticalApplicationUnmarkedSuccessfully": {
+    "message": "Successfully unmarked application as critical"
   },
   "whatTypeOfItem": {
     "message": "Que tipo de item é este?"
@@ -569,7 +569,7 @@
     "message": "Cancelar"
   },
   "later": {
-    "message": "Later"
+    "message": "Depois"
   },
   "canceled": {
     "message": "Cancelado"
@@ -630,7 +630,7 @@
     "message": "Buscar grupos"
   },
   "resetSearch": {
-    "message": "Reset search"
+    "message": "Redefinir busca"
   },
   "allItems": {
     "message": "Todos os Itens"
@@ -654,7 +654,7 @@
     "message": "Nota Segura"
   },
   "typeNote": {
-    "message": "Note"
+    "message": "Nota"
   },
   "typeSshKey": {
     "message": "Chave SSH"
@@ -868,22 +868,22 @@
     "message": "Copiar número da CNH"
   },
   "copyPrivateKey": {
-    "message": "Copy private key"
+    "message": "Copiar chave privada"
   },
   "copyPublicKey": {
-    "message": "Copy public key"
+    "message": "Copiar chave pública"
   },
   "copyFingerprint": {
-    "message": "Copy fingerprint"
+    "message": "Copiar impressão digital"
   },
   "copyName": {
     "message": "Copiar nome"
   },
   "cardNumber": {
-    "message": "card number"
+    "message": "número do cartão"
   },
   "copyFieldCipherName": {
-    "message": "Copy $FIELD$, $CIPHERNAME$",
+    "message": "Copiar $FIELD$, $CIPHERNAME$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
@@ -900,7 +900,7 @@
     "message": "Eu"
   },
   "myItems": {
-    "message": "My Items"
+    "message": "Meus itens"
   },
   "myVault": {
     "message": "Meu Cofre"
@@ -1517,7 +1517,7 @@
     "message": "Código de recuperação"
   },
   "invalidRecoveryCode": {
-    "message": "Invalid recovery code"
+    "message": "Chave de recuperação inválida"
   },
   "authenticatorAppTitle": {
     "message": "Aplicativo de autenticação"
@@ -7430,6 +7430,9 @@
   "off": {
     "message": "Desligado"
   },
+  "connected": {
+    "message": "Connected"
+  },
   "members": {
     "message": "Membros"
   },
@@ -9031,6 +9034,78 @@
       }
     }
   },
+  "limitCollectionCreationEnabled": {
+    "message": "Turned on Restrict collection creation setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationDisabled": {
+    "message": "Turned off Restrict collection creation setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionEnabled": {
+    "message": "Turned on Restrict collection deletion setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionDisabled": {
+    "message": "Turned off Restrict collection deletion setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionEnabled": {
+    "message": "Turned on Restrict item deletion setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionDisabled": {
+    "message": "Turned off Restrict item deletion setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsEnabled": {
+    "message": "Turned on Allow owners and admins to manage all collections and items setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsDisabled": {
+    "message": "Turned off Allow owners and admins to manage all collections and items setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "seeDetailedInstructions": {
     "message": "Veja instruções detalhadas no nosso site de ajuda em",
     "description": "This is followed a by a hyperlink to the help website."
@@ -9608,6 +9683,15 @@
   },
   "connectIntegrationButtonDesc": {
     "message": "Connect $INTEGRATION$",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
+  },
+  "updateIntegrationButtonDesc": {
+    "message": "Update $INTEGRATION$",
     "placeholders": {
       "integration": {
         "content": "$1",
@@ -10821,6 +10905,12 @@
   "changeAtRiskPassword": {
     "message": "Alterar senhas vulneráveis"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
+  },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Remover desbloqueio com o PIN"
   },
@@ -11165,6 +11255,14 @@
   },
   "confirmKeyConnectorDomain": {
     "message": "Confirm Key Connector domain"
+  },
+  "requiredToVerifyBankAccountWithStripe": {
+    "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
+  },
+  "verifyBankAccountWithStripe": {
+    "message": "We have made a micro-deposit to your bank account. This may take 1-2 business days. When you see the deposit in your account, you can verify your bank account. Failure to verify your bank account will result in a missed payment and your subscription will be suspended."
+  },
+  "verifyNow": {
+    "message": "Verify now."
   }
 }
-

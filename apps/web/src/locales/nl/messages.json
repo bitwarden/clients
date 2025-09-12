@@ -86,14 +86,14 @@
   "noAppsInOrgDescription": {
     "message": "Als gebruikers inloggegevens opslaan, verschijnen hier applicaties met wachtwoorden die risico lopen. Markeer belangrijke applicaties en attendeer gebruikers op het bijwerken van wachtwoorden."
   },
-  "noCriticalAppsTitle": {
+  "noCriticalApplicationsTitle": {
     "message": "Je hebt nog geen applicaties als belangrijk aangewezen"
   },
-  "noCriticalAppsDescription": {
-    "message": "Wijs je meest belangrijke applicaties aan om risicovolle wachtwoorden te ontdekken en gebruikers te attenderen deze te wijzigen."
+  "noCriticalApplicationsDescription": {
+    "message": "Selecteer je meest belangrijke applicaties om prioriteit te geven aan beveiligingsacties voor je gebruikers om risico-wachtwoorden aan te pakken."
   },
-  "markCriticalApps": {
-    "message": "Markeer belangrijke apps"
+  "markCriticalApplications": {
+    "message": "Belangrijke applicaties selecteren"
   },
   "markAppAsCritical": {
     "message": "App aanwijzen als belangrijk"
@@ -179,8 +179,8 @@
   "unmarkAsCritical": {
     "message": "Markeren als belangrijk ongedaan maken"
   },
-  "criticalApplicationSuccessfullyUnmarked": {
-    "message": "Markeren als belangrijke app ongedaan gemaakt"
+  "criticalApplicationUnmarkedSuccessfully": {
+    "message": "Toepassing niet meer gemarkeerd als belangrijk"
   },
   "whatTypeOfItem": {
     "message": "Van welke categorie is dit item?"
@@ -2115,7 +2115,7 @@
     "message": "De taal van de webkluis aanpassen."
   },
   "showIconsChangePasswordUrls": {
-    "message": "Pictogrammen van de website weergeven URL's voor wachtwoordwijzigingen ophalen"
+    "message": "Websitepictogrammen weergeven en URL's voor wachtwoordwijzigingen ophalen"
   },
   "default": {
     "message": "Standaard"
@@ -7430,6 +7430,9 @@
   "off": {
     "message": "Uit"
   },
+  "connected": {
+    "message": "Verbonden"
+  },
   "members": {
     "message": "Leden"
   },
@@ -8556,7 +8559,7 @@
     }
   },
   "masterPasswordMinimumlength": {
-    "message": "Hoofdwachtwoord moet minstens $LENGTH$ karakters lang zijn.",
+    "message": "Hoofdwachtwoord moet minstens $LENGTH$ tekens lang zijn.",
     "placeholders": {
       "length": {
         "content": "$1",
@@ -9024,6 +9027,78 @@
   },
   "modifiedCollectionManagement": {
     "message": "Gewijzigde collectiebeheerinstelling $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationEnabled": {
+    "message": "Instelling Collecties aanmaken beperken $ID$ ingeschakeld.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationDisabled": {
+    "message": "Instelling Collecties aanmaken beperken $ID$ uitgeschakeld.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionEnabled": {
+    "message": "Instelling Collecties verwijderen beperken $ID$ ingeschakeld.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionDisabled": {
+    "message": "Instelling Collecties verwijderen beperken $ID$ uitgeschakeld.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionEnabled": {
+    "message": "Instelling Items verwijderen beperken $ID$ ingeschakeld.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionDisabled": {
+    "message": "Instelling Items verwijderen beperken $ID$ uitgeschakeld.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsEnabled": {
+    "message": "Instelling Eigenaren en beheerders beheren alle collecties en items toestaan $ID$ ingeschakeld.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsDisabled": {
+    "message": "Instelling Eigenaren en beheerders beheren alle collecties en items toestaan $ID$ uitgeschakeld.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -9608,6 +9683,15 @@
   },
   "connectIntegrationButtonDesc": {
     "message": "$INTEGRATION$ verbinden",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
+  },
+  "updateIntegrationButtonDesc": {
+    "message": "$INTEGRATION$ bijwerken",
     "placeholders": {
       "integration": {
         "content": "$1",
@@ -10821,6 +10905,12 @@
   "changeAtRiskPassword": {
     "message": "Risicovol wachtwoord wijzigen"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Deze login is in gevaar en mist een website. Voeg een website toe en verander het wachtwoord voor een sterkere beveiliging."
+  },
+  "missingWebsite": {
+    "message": "Ontbrekende website"
+  },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Ontgrendelen met PIN verwijderen"
   },
@@ -11165,6 +11255,14 @@
   },
   "confirmKeyConnectorDomain": {
     "message": "Key Connector-domein bevestigen"
+  },
+  "requiredToVerifyBankAccountWithStripe": {
+    "message": "Betaling met een bankrekening is alleen beschikbaar voor klanten in de Verenigde Staten. Je moet je bankrekening verifiëren. We zullen binnen 1-2 werkdagen een microbetaling uitvoeren. Als de bankrekening niet wordt geverifieerd, wordt er een betaling gemist en wordt je abonnement opgeschort."
+  },
+  "verifyBankAccountWithStripe": {
+    "message": "We hebben een microbetaling op je bankrekening gedaan. Dit kan 1-2 werkdagen duren. Als je de betaling op je rekening ziet, kun je je bannkrekening verifiëren. Als de bankrekening niet wordt geverifieerd, wordt er een betaling gemist en wordt je abonnement opgeschort."
+  },
+  "verifyNow": {
+    "message": "Nu verifiëren."
   }
 }
-

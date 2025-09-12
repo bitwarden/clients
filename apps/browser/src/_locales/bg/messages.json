@@ -557,7 +557,7 @@
     "message": "Преглед"
   },
   "viewLogin": {
-    "message": "View login"
+    "message": "Преглед на елемента за вписване"
   },
   "noItemsInList": {
     "message": "Няма елементи за показване."
@@ -5450,10 +5450,10 @@
     "message": "Промяна на парола в риск"
   },
   "changeAtRiskPasswordAndAddWebsite": {
-    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+    "message": "Този елемент за вписване е в риск и в него липсва уеб сайт. Добавете уеб сайт и сменете паролата, за по-добра сигурност."
   },
   "missingWebsite": {
-    "message": "Missing website"
+    "message": "Липсващ уеб сайт"
   },
   "settingsVaultOptions": {
     "message": "Настройки на трезора"

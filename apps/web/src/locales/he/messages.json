@@ -86,14 +86,14 @@
   "noAppsInOrgDescription": {
     "message": "ככל שמשתמשים שומרים כניסות, יישומים מופיעים כאן, ומוצגות כל הסיסמאות בסיכון. סמן יישומים קריטיים והודע למשתמשים לעדכן סיסמאות."
   },
-  "noCriticalAppsTitle": {
-    "message": "לא סימנת אף יישום כקריטי"
+  "noCriticalApplicationsTitle": {
+    "message": "You haven’t marked any applications as critical"
   },
-  "noCriticalAppsDescription": {
-    "message": "בחר את היישומים הכי קריטיים שלך כדי לגלות סיסמאות בסיכון, ולהודיע למשתמשים לשנות את הסיסמאות הללו."
+  "noCriticalApplicationsDescription": {
+    "message": "Select your most critical applications to prioritize security actions for your users to address at-risk passwords."
   },
-  "markCriticalApps": {
-    "message": "סמן יישומים קריטיים"
+  "markCriticalApplications": {
+    "message": "Select critical applications"
   },
   "markAppAsCritical": {
     "message": "סמן יישום כקריטי"
@@ -179,8 +179,8 @@
   "unmarkAsCritical": {
     "message": "בטל סימון כקריטי"
   },
-  "criticalApplicationSuccessfullyUnmarked": {
-    "message": "בוטל סימון יישום קריטי בהצלחה"
+  "criticalApplicationUnmarkedSuccessfully": {
+    "message": "Successfully unmarked application as critical"
   },
   "whatTypeOfItem": {
     "message": "מאיזה סוג פריט זה?"
@@ -2115,7 +2115,7 @@
     "message": "שנה את השפה של כספת הרשת."
   },
   "showIconsChangePasswordUrls": {
-    "message": "הצג סמלי אתרי אינטרנט ואחזר כתובות URL לשינוי סיסמה"
+    "message": "Show website icons and retrieve change password URLs"
   },
   "default": {
     "message": "ברירת מחדל"
@@ -7430,6 +7430,9 @@
   "off": {
     "message": "כבוי"
   },
+  "connected": {
+    "message": "Connected"
+  },
   "members": {
     "message": "חברים"
   },
@@ -8936,16 +8939,16 @@
     "message": "ניהול אוספים"
   },
   "collectionManagementDescription": {
-    "message": "Configure the collection behavior for the organization"
+    "message": "הגדר את התנהגות האוספים עבור הארגון"
   },
   "allowAdminAccessToAllCollectionItemsDescription": {
-    "message": "Allow owners and admins to manage all collections and items from the Admin Console"
+    "message": "אפשר לבעלים ומנהלים לנהל את כל האוספים והפריטים ממסוף המנהל"
   },
   "restrictCollectionCreationDescription": {
-    "message": "Restrict collection creation to owners and admins"
+    "message": "הגבל יצירת אוספים לבעלים ומנהלים"
   },
   "restrictCollectionDeletionDescription": {
-    "message": "Restrict collection deletion to owners and admins"
+    "message": "הגבל מחיקת אוספים לבעלים ומנהלים"
   },
   "restrictItemDeletionDescriptionStart": {
     "message": "Restrict item deletion to members with the ",
@@ -9024,6 +9027,78 @@
   },
   "modifiedCollectionManagement": {
     "message": "שונתה הגדרת ניהול אוספים $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationEnabled": {
+    "message": "הופעלה הגדרת הגבלת יצירת אוספים $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationDisabled": {
+    "message": "כובתה הגדרת הגבלת יצירת אוספים $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionEnabled": {
+    "message": "הופעלה הגדרת הגבלת מחיקת אוספים $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionDisabled": {
+    "message": "כובתה הגדרת הגבלת מחיקת אוספים $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionEnabled": {
+    "message": "הופעלה הגדרת הגבלת מחיקת פריטים $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionDisabled": {
+    "message": "כובתה הגדרת הגבלת מחיקת פריטים $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsEnabled": {
+    "message": "הופעלה הגדרת הרשה לבעלים ומנהלים לנהל את כל האוספים והפריטים $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsDisabled": {
+    "message": "כובתה הגדרת הרשה לבעלים ומנהלים לנהל את כל האוספים והפריטים $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -9608,6 +9683,15 @@
   },
   "connectIntegrationButtonDesc": {
     "message": "חבר את $INTEGRATION$",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
+  },
+  "updateIntegrationButtonDesc": {
+    "message": "Update $INTEGRATION$",
     "placeholders": {
       "integration": {
         "content": "$1",
@@ -10821,6 +10905,12 @@
   "changeAtRiskPassword": {
     "message": "שנה סיסמה בסיכון"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
+  },
   "removeUnlockWithPinPolicyTitle": {
     "message": "הסר ביטול נעילה עם PIN"
   },
@@ -10997,10 +11087,10 @@
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   },
   "aboutThisSetting": {
-    "message": "אודות הגדרה זו"
+    "message": "About this setting"
   },
   "permitCipherDetailsDescription": {
-    "message": "Bitwarden ישתמש בכתובות URI של כניסות שמורות כדי לזהות באיזה סמל או URL לשינוי סיסמה יש להשתמש על מנת לשפר את החוויה שלך. לא נאסף או נשמר מידע כלשהו כאשר אתה משתמש בשירות זה."
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
   },
   "billingAddress": {
     "message": "כתובת לחיוב"
@@ -11164,7 +11254,15 @@
     }
   },
   "confirmKeyConnectorDomain": {
-    "message": "Confirm Key Connector domain"
+    "message": "אשר דומיין של Key Connector"
+  },
+  "requiredToVerifyBankAccountWithStripe": {
+    "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
+  },
+  "verifyBankAccountWithStripe": {
+    "message": "We have made a micro-deposit to your bank account. This may take 1-2 business days. When you see the deposit in your account, you can verify your bank account. Failure to verify your bank account will result in a missed payment and your subscription will be suspended."
+  },
+  "verifyNow": {
+    "message": "Verify now."
   }
 }
-

@@ -3836,6 +3836,12 @@
   "changeAtRiskPassword": {
     "message": "Alterar palavra-passe em risco"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Esta credencial está em risco e não tem um site. Adicione um site e altere a palavra-passe para uma segurança mais forte."
+  },
+  "missingWebsite": {
+    "message": "Site em falta"
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "Não é possível remover coleções com permissões de Apenas visualização: $COLLECTIONS$",
     "placeholders": {

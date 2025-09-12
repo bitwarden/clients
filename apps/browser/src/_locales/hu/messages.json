@@ -557,7 +557,7 @@
     "message": "Nézet"
   },
   "viewLogin": {
-    "message": "View login"
+    "message": "Bejelentkezés megtekintése"
   },
   "noItemsInList": {
     "message": "Nincsenek megjeleníthető tételek."
@@ -5450,10 +5450,10 @@
     "message": "Kockázatos jelszó megváltoztatása"
   },
   "changeAtRiskPasswordAndAddWebsite": {
-    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+    "message": "Ez a bejelentkezés veszélyben van és hiányzik egy webhely. Adjunk hozzá egy webhelyet és módosítsuk a jelszót az erősebb biztonság érdekében."
   },
   "missingWebsite": {
-    "message": "Missing website"
+    "message": "Hiányzó webhely"
   },
   "settingsVaultOptions": {
     "message": "Széf opciók"

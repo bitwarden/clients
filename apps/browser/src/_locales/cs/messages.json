@@ -557,7 +557,7 @@
     "message": "Zobrazit"
   },
   "viewLogin": {
-    "message": "View login"
+    "message": "Zobrazit přihlašovací údaje"
   },
   "noItemsInList": {
     "message": "Žádné položky k zobrazení."
@@ -5450,10 +5450,10 @@
     "message": "Změnit ohrožené heslo"
   },
   "changeAtRiskPasswordAndAddWebsite": {
-    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+    "message": "Tyto přihlašovací údaje jsou ohrožené a chybí jim webová stránka. Přidejte webovou stránku a změňte heslo pro větší bezpečnost."
   },
   "missingWebsite": {
-    "message": "Missing website"
+    "message": "Chybějící webová stránka"
   },
   "settingsVaultOptions": {
     "message": "Volby trezoru"

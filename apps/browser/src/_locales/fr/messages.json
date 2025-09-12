@@ -5601,10 +5601,10 @@
     "message": "Next"
   },
   "moreBreadcrumbs": {
-    "message": "More breadcrumbs",
+    "message": "Plus de fil d'Ariane",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   },
   "confirmKeyConnectorDomain": {
-    "message": "Confirm Key Connector domain"
+    "message": "Confirmez le domaine de Key Connector"
   }
 }

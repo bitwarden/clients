@@ -86,14 +86,14 @@
   "noAppsInOrgDescription": {
     "message": "Kako korisnici spremaju podatke za prijavu, ovdje se pojavljuju aplikacije koje prikazuju sve rizične lozinke. Označi kritične aplikacije i obavijesti korisnike da ažuriraju lozinke."
   },
-  "noCriticalAppsTitle": {
+  "noCriticalApplicationsTitle": {
     "message": "Niti jedna aplikacija nije označena kao kritična"
   },
-  "noCriticalAppsDescription": {
-    "message": "Odaberi svoje najkritičnije aplikacije za otkrivanje rizičnih lozinki i obavijesti korisnike da promijene te lozinke."
+  "noCriticalApplicationsDescription": {
+    "message": "Odaberite svoje kritične aplikacije kako bi se odredio prioritet sigurnosnih radnji za tvoje korisnike i riješili problemi s lozinkama koje su u riziku."
   },
-  "markCriticalApps": {
-    "message": "Označi kritične aplikacije"
+  "markCriticalApplications": {
+    "message": "Odaberi kritične aplikacije"
   },
   "markAppAsCritical": {
     "message": "Označi aplikacije kao kritične"
@@ -179,8 +179,8 @@
   "unmarkAsCritical": {
     "message": "Odznači kao kritično"
   },
-  "criticalApplicationSuccessfullyUnmarked": {
-    "message": "Kritična aplikacija uspješno odznačena"
+  "criticalApplicationUnmarkedSuccessfully": {
+    "message": "Aplikacije uspješno odznačene kao kritične"
   },
   "whatTypeOfItem": {
     "message": "Koja je ovo vrsta stavke?"
@@ -2115,7 +2115,7 @@
     "message": "Promijeni jezik web trezora."
   },
   "showIconsChangePasswordUrls": {
-    "message": "Prikaži ikonu web mjesta i dohvati URL za promjenu lozinke"
+    "message": "Show website icons and retrieve change password URLs"
   },
   "default": {
     "message": "Zadano"
@@ -7430,6 +7430,9 @@
   "off": {
     "message": "Isključeno"
   },
+  "connected": {
+    "message": "Connected"
+  },
   "members": {
     "message": "Članovi"
   },
@@ -9031,6 +9034,78 @@
       }
     }
   },
+  "limitCollectionCreationEnabled": {
+    "message": "Uključena postavka Zabrane stvaranja zbirki $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationDisabled": {
+    "message": "Isključena postavka Zabrane stvaranja zbirki $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionEnabled": {
+    "message": "Uključena postavka Zabrane brisanja zbirki $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionDisabled": {
+    "message": "Isključena postavka Zabrane brisanja zbirki $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionEnabled": {
+    "message": "Uključena postavka Zabrane brisanja stavki $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionDisabled": {
+    "message": "Isključena postavka Zabrane brisanja stavki $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsEnabled": {
+    "message": "Uključena postavka Odobrenje vlasnicima i adminima za upravljanje svim zbirkama i postavkama stavki $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsDisabled": {
+    "message": "Isključena postavka Odobrenje vlasnicima i adminima za upravljanje svim zbirkama i postavkama stavki $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "seeDetailedInstructions": {
     "message": "Detaljne upute za pomoć pronađi na našoj stranici za pomoć na",
     "description": "This is followed a by a hyperlink to the help website."
@@ -9608,6 +9683,15 @@
   },
   "connectIntegrationButtonDesc": {
     "message": "Spoji $INTEGRATION$",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
+  },
+  "updateIntegrationButtonDesc": {
+    "message": "Update $INTEGRATION$",
     "placeholders": {
       "integration": {
         "content": "$1",
@@ -10821,6 +10905,12 @@
   "changeAtRiskPassword": {
     "message": "Promijeni rizičnu lozinku"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Ova prijava je ugrožena i nedostaje joj web-stranica. Dodaj web-stranicu i promijeni lozinku za veću sigurnost."
+  },
+  "missingWebsite": {
+    "message": "Nedostaje web-stranica"
+  },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Ukloni otključavanje PIN-om"
   },
@@ -10997,10 +11087,10 @@
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   },
   "aboutThisSetting": {
-    "message": "O ovoj postavci"
+    "message": "About this setting"
   },
   "permitCipherDetailsDescription": {
-    "message": "Bitwarden će koristiti spremljene URI-je za prijavu kako bi identificirao ikonu ili URL za promjenu lozinke koji treba koristiti za poboljšanje tvojeg iskustva. Nikakvi podaci se ne prikupljaju, niti spremaju kada koristiš ovu uslugu."
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
   },
   "billingAddress": {
     "message": "Adresa za naplatu"
@@ -11165,6 +11255,14 @@
   },
   "confirmKeyConnectorDomain": {
     "message": "Potvrdi domenu kontektora ključa"
+  },
+  "requiredToVerifyBankAccountWithStripe": {
+    "message": "Plaćanje putem bankovnog računa dostupno je samo kupcima u SAD-u. Bit će potrebno potvrditi bankovni račun. Izvršit ćemo mikrodepozit u roku od sljedećih 1 - 2 radna dana. Ako ne potvrdiš bankovni račun, to će rezultirati propuštenom uplatom i obustavom tvoje pretplate."
+  },
+  "verifyBankAccountWithStripe": {
+    "message": "Izvršili smo mikrodepozit na tvoj bankovni račun. To može potrajati 1 - 2 radna dana. Kada vidiš uplatu na svom računu, možeš ga potvrditi. Ako ne potvrdiš svoj bankovni račun, propuštena uplata će biti izvršena, a tvoja pretplata će biti obustavljena."
+  },
+  "verifyNow": {
+    "message": "Potvrdi sada."
   }
 }
-
