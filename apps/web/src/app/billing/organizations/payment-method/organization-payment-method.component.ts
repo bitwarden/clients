@@ -6,8 +6,8 @@ import { combineLatest, firstValueFrom, from, lastValueFrom, map, switchMap } fr
 
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import {
-  getOrganizationById,
   OrganizationService,
+  getOrganizationById,
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -25,7 +25,6 @@ import { SyncService } from "@bitwarden/common/platform/sync";
 import { DialogService, ToastService } from "@bitwarden/components";
 
 import { BillingNotificationService } from "../../services/billing-notification.service";
-import { TrialFlowService } from "../../services/trial-flow.service";
 import {
   AddCreditDialogResult,
   openAddCreditDialog,
@@ -38,7 +37,6 @@ import {
   TRIAL_PAYMENT_METHOD_DIALOG_RESULT_TYPE,
   TrialPaymentDialogComponent,
 } from "../../shared/trial-payment-dialog/trial-payment-dialog.component";
-import { FreeTrial } from "../../types/free-trial";
 
 @Component({
   templateUrl: "./organization-payment-method.component.html",
@@ -50,7 +48,6 @@ export class OrganizationPaymentMethodComponent implements OnDestroy {
   accountCredit?: number;
   paymentSource?: PaymentSourceResponse;
   subscriptionStatus?: string;
-  protected freeTrialData?: FreeTrial;
   organization?: Organization;
   organizationSubscriptionResponse?: OrganizationSubscriptionResponse;
 
@@ -71,7 +68,6 @@ export class OrganizationPaymentMethodComponent implements OnDestroy {
     private router: Router,
     private toastService: ToastService,
     private location: Location,
-    private trialFlowService: TrialFlowService,
     private organizationService: OrganizationService,
     private accountService: AccountService,
     protected syncService: SyncService,
@@ -183,12 +179,6 @@ export class OrganizationPaymentMethodComponent implements OnDestroy {
         if (!this.paymentSource) {
           throw new Error("Payment source is not found");
         }
-
-        this.freeTrialData = this.trialFlowService.checkForOrgsWithUpcomingPaymentIssues(
-          this.organization,
-          this.organizationSubscriptionResponse,
-          this.paymentSource,
-        );
       }
       // If the flag `launchPaymentModalAutomatically` is set to true,
       // we schedule a timeout (delay of 800ms) to automatically launch the payment modal.

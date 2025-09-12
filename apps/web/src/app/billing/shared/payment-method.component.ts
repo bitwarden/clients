@@ -7,8 +7,8 @@ import { firstValueFrom, lastValueFrom, map } from "rxjs";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import {
-  getOrganizationById,
   OrganizationService,
+  getOrganizationById,
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -23,9 +23,6 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { DialogService, ToastService } from "@bitwarden/components";
-
-import { TrialFlowService } from "../services/trial-flow.service";
-import { FreeTrial } from "../types/free-trial";
 
 import { AddCreditDialogResult, openAddCreditDialog } from "./add-credit-dialog.component";
 import {
@@ -62,8 +59,6 @@ export class PaymentMethodComponent implements OnInit, OnDestroy {
   });
 
   launchPaymentModalAutomatically = false;
-  protected freeTrialData?: FreeTrial;
-
   constructor(
     protected apiService: ApiService,
     protected organizationApiService: OrganizationApiServiceAbstraction,
@@ -75,7 +70,6 @@ export class PaymentMethodComponent implements OnInit, OnDestroy {
     private formBuilder: FormBuilder,
     private dialogService: DialogService,
     private toastService: ToastService,
-    private trialFlowService: TrialFlowService,
     private organizationService: OrganizationService,
     private accountService: AccountService,
     protected syncService: SyncService,
@@ -151,7 +145,6 @@ export class PaymentMethodComponent implements OnInit, OnDestroy {
         organizationSubscriptionPromise,
         organizationPromise,
       ]);
-      this.determineOrgsWithUpcomingPaymentIssues();
     } else {
       const billingPromise = this.apiService.getUserBillingPayment();
       const subPromise = this.apiService.getUserSubscription();
@@ -224,18 +217,6 @@ export class PaymentMethodComponent implements OnInit, OnDestroy {
     });
     await this.load();
   };
-
-  determineOrgsWithUpcomingPaymentIssues() {
-    if (!this.organization || !this.org || !this.billing) {
-      throw new Error("Organization, organization subscription, or billing is not defined");
-    }
-
-    this.freeTrialData = this.trialFlowService.checkForOrgsWithUpcomingPaymentIssues(
-      this.organization,
-      this.org,
-      this.billing?.paymentSource,
-    );
-  }
 
   get isCreditBalance() {
     return this.billing == null || this.billing.balance <= 0;
