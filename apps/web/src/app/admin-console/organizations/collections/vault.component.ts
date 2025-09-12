@@ -66,6 +66,7 @@ import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-repromp
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
+import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import {
   CipherViewLike,
   CipherViewLikeUtils,
@@ -288,6 +289,7 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
     private billingNotificationService: BillingNotificationService,
     private organizationWarningsService: OrganizationWarningsService,
     private collectionService: CollectionService,
+    private restrictedItemTypesService: RestrictedItemTypesService,
   ) {
     this.userId$ = this.accountService.activeAccount$.pipe(getUserId);
     this.filter$ = this.routedVaultFilterService.filter$;
@@ -357,9 +359,10 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
     this.allCiphers$ = combineLatest([
       this.organization$,
       this.userId$,
+      this.restrictedItemTypesService.restricted$,
       this.refreshingSubject$,
     ]).pipe(
-      switchMap(async ([organization, userId]) => {
+      switchMap(async ([organization, userId, restricted]) => {
         // If user swaps organization reset the addAccessToggle
         if (!this.showAddAccessToggle || organization) {
           this.addAccessToggle(0);
@@ -380,6 +383,11 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
           // Otherwise, only fetch ciphers they have access to (includes unassigned for admins).
           ciphers = await this.cipherService.getManyFromApiForOrganization(organization.id);
         }
+
+        // Filter out restricted ciphers before indexing
+        ciphers = ciphers.filter(
+          (cipher) => !this.restrictedItemTypesService.isCipherRestricted(cipher, restricted),
+        );
 
         await this.searchService.indexCiphers(userId, ciphers, organization.id);
         return ciphers;
