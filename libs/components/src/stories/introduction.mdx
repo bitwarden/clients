@@ -4,6 +4,11 @@ import { Meta } from "@storybook/addon-docs";
 
 <style>
   {`
+  /* undo global app style for ol */
+  ol {
+    list-style: revert;
+  }
+
   .subheading {
     --mediumdark: '#999999';
     font-weight: 900;
@@ -170,6 +175,11 @@ what would be helpful to you if you were consuming this component for the first 
      - Is there a loading state?
    - You'll need to mock any services required for the component (team-owned components often have
      more of this mocking to do)
+
+### Running Storybook locally
+
+To view your changes locally, cd into `/clients`, run `npm ci` if you haven't already, and run
+`npm run storybook`.
 
 ---
 
