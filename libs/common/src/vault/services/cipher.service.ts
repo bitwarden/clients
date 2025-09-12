@@ -158,11 +158,9 @@ export class CipherService implements CipherServiceAbstraction {
             ),
           ),
           switchMap(async (ciphers) => {
-            // TODO: remove this once failed decrypted ciphers are handled in the SDK
-            await this.setFailedDecryptedCiphers([], userId);
-            return this.cipherEncryptionService
-              .decryptMany(ciphers, userId)
-              .then((ciphers) => ciphers.sort(this.getLocaleSortingFunction()));
+            const [decrypted, failures] = await this.decryptCiphersWithSdk(ciphers, userId);
+            await this.setFailedDecryptedCiphers(failures, userId);
+            return decrypted.sort(this.getLocaleSortingFunction());
           }),
         );
       }),
