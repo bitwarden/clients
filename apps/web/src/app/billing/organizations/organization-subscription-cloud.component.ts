@@ -5,7 +5,7 @@ import { ActivatedRoute } from "@angular/router";
 import { firstValueFrom, lastValueFrom, Subject } from "rxjs";
 
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
-import { SubscriptionHiddenIcon } from "@bitwarden/assets/svg";
+import { GearIcon } from "@bitwarden/assets/svg";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import {
@@ -66,7 +66,7 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
   organizationIsManagedByConsolidatedBillingMSP = false;
   resellerSeatsRemainingMessage: string;
 
-  protected readonly subscriptionHiddenIcon = SubscriptionHiddenIcon;
+  protected readonly gearIcon = GearIcon;
   protected readonly teamsStarter = ProductTierType.TeamsStarter;
 
   private destroy$ = new Subject<void>();

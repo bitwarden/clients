@@ -14,7 +14,7 @@
     <bit-table>
       <ng-template body>
         @for (p of policies; track p.name) {
-          @if (p.display(organization, configService) | async) {
+          @if (p.display$(organization, configService) | async) {
             <tr bitRow>
               <td bitCell ngPreserveWhitespaces>
                 <button type="button" bitLink (click)="edit(p)">{{ p.name | i18n }}</button>

@@ -86,14 +86,14 @@
   "noAppsInOrgDescription": {
     "message": "ככל שמשתמשים שומרים כניסות, יישומים מופיעים כאן, ומוצגות כל הסיסמאות בסיכון. סמן יישומים קריטיים והודע למשתמשים לעדכן סיסמאות."
   },
-  "noCriticalAppsTitle": {
-    "message": "לא סימנת אף יישום כקריטי"
+  "noCriticalApplicationsTitle": {
+    "message": "You haven’t marked any applications as critical"
   },
-  "noCriticalAppsDescription": {
-    "message": "בחר את היישומים הכי קריטיים שלך כדי לגלות סיסמאות בסיכון, ולהודיע למשתמשים לשנות את הסיסמאות הללו."
+  "noCriticalApplicationsDescription": {
+    "message": "Select your most critical applications to prioritize security actions for your users to address at-risk passwords."
   },
-  "markCriticalApps": {
-    "message": "סמן יישומים קריטיים"
+  "markCriticalApplications": {
+    "message": "Select critical applications"
   },
   "markAppAsCritical": {
     "message": "סמן יישום כקריטי"
@@ -179,8 +179,8 @@
   "unmarkAsCritical": {
     "message": "בטל סימון כקריטי"
   },
-  "criticalApplicationSuccessfullyUnmarked": {
-    "message": "בוטל סימון יישום קריטי בהצלחה"
+  "criticalApplicationUnmarkedSuccessfully": {
+    "message": "Successfully unmarked application as critical"
   },
   "whatTypeOfItem": {
     "message": "מאיזה סוג פריט זה?"
@@ -2114,11 +2114,8 @@
   "languageDesc": {
     "message": "שנה את השפה של כספת הרשת."
   },
-  "enableFavicon": {
-    "message": "הצג סמלי אתר אינטרנט"
-  },
-  "faviconDesc": {
-    "message": "הצג תמונה מוכרת ליד כל כניסה."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "default": {
     "message": "ברירת מחדל"
@@ -7433,6 +7430,9 @@
   "off": {
     "message": "כבוי"
   },
+  "connected": {
+    "message": "Connected"
+  },
   "members": {
     "message": "חברים"
   },
@@ -9690,6 +9690,15 @@
       }
     }
   },
+  "updateIntegrationButtonDesc": {
+    "message": "Update $INTEGRATION$",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
+  },
   "integrationCardTooltip": {
     "message": "פתח מדריך יישום $INTEGRATION$.",
     "placeholders": {
@@ -10896,6 +10905,12 @@
   "changeAtRiskPassword": {
     "message": "שנה סיסמה בסיכון"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
+  },
   "removeUnlockWithPinPolicyTitle": {
     "message": "הסר ביטול נעילה עם PIN"
   },
@@ -11071,6 +11086,12 @@
     "message": "נדרשת כתובת לחיוב כדי להוסיף אשראי.",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+  },
   "billingAddress": {
     "message": "כתובת לחיוב"
   },
@@ -11234,6 +11255,14 @@
   },
   "confirmKeyConnectorDomain": {
     "message": "אשר דומיין של Key Connector"
+  },
+  "requiredToVerifyBankAccountWithStripe": {
+    "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
+  },
+  "verifyBankAccountWithStripe": {
+    "message": "We have made a micro-deposit to your bank account. This may take 1-2 business days. When you see the deposit in your account, you can verify your bank account. Failure to verify your bank account will result in a missed payment and your subscription will be suspended."
+  },
+  "verifyNow": {
+    "message": "Verify now."
   }
 }
-

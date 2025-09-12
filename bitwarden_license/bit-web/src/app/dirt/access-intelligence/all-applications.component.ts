@@ -16,6 +16,7 @@ import {
   ApplicationHealthReportDetailWithCriticalFlagAndCipher,
   ApplicationHealthReportSummary,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/password-health";
+import { RiskInsightsEncryptionService } from "@bitwarden/bit-common/dirt/reports/risk-insights/services/risk-insights-encryption.service";
 import {
   getOrganizationById,
   OrganizationService,
@@ -108,7 +109,7 @@ export class AllApplicationsComponent implements OnInit {
             if (data && organization) {
               const dataWithCiphers = await this.reportService.identifyCiphers(
                 data,
-                organization.id,
+                organization.id as OrganizationId,
               );
 
               return {
@@ -145,6 +146,7 @@ export class AllApplicationsComponent implements OnInit {
     protected reportService: RiskInsightsReportService,
     private accountService: AccountService,
     protected criticalAppsService: CriticalAppsService,
+    protected riskInsightsEncryptionService: RiskInsightsEncryptionService,
   ) {
     this.searchControl.valueChanges
       .pipe(debounceTime(200), takeUntilDestroyed())
