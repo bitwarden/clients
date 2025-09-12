@@ -22,7 +22,6 @@ import {
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { UserNotificationSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/user-notification-settings.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums/product-tier-type.enum";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { NeverDomains } from "@bitwarden/common/models/domain/domain-service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { ServerConfig } from "@bitwarden/common/platform/abstractions/config/server-config";
@@ -67,7 +66,6 @@ import { TemporaryNotificationChangeLoginService } from "../services/notificatio
 import {
   AddChangePasswordNotificationQueueMessage,
   AddLoginQueueMessage,
-  AddUnlockVaultQueueMessage,
   AddLoginMessageData,
   NotificationQueueMessageItem,
   LockedVaultPendingNotificationsData,
@@ -116,12 +114,10 @@ export default class NotificationBackground {
     bgSaveCipher: ({ message, sender }) => this.handleSaveCipherMessage(message, sender),
     bgHandleReprompt: ({ message, sender }: any) =>
       this.handleCipherUpdateRepromptResponse(message),
-    bgUnlockPopoutOpened: ({ message, sender }) => this.unlockVault(message, sender.tab),
     checkNotificationQueue: ({ sender }) => this.checkNotificationQueue(sender.tab),
     collectPageDetailsResponse: ({ message }) =>
       this.handleCollectPageDetailsResponseMessage(message),
     getWebVaultUrlForNotification: () => this.getWebVaultUrl(),
-    notificationRefreshFlagValue: () => this.getNotificationFlag(),
     unlockCompleted: ({ message, sender }) => this.handleUnlockCompleted(message, sender),
   };
 
@@ -352,15 +348,6 @@ export default class NotificationBackground {
   }
 
   /**
-   * Gets the current value of the notification refresh feature flag
-   * @returns Promise<boolean> indicating if the feature is enabled
-   */
-  async getNotificationFlag(): Promise<boolean> {
-    const flagValue = await this.configService.getFeatureFlag(FeatureFlag.NotificationRefresh);
-    return flagValue;
-  }
-
-  /**
    * Gets the current authentication status of the user.
    * @returns Promise<AuthenticationStatus> - The current authentication status of the user.
    */
@@ -465,11 +452,6 @@ export default class NotificationBackground {
     data: ModifyLoginCipherFormData,
     tab: chrome.tabs.Tab,
   ): Promise<boolean> {
-    const flag = await this.getNotificationFlag();
-    if (!flag) {
-      return false;
-    }
-
     const activeUserId = await firstValueFrom(
       this.accountService.activeAccount$.pipe(getOptionalUserId),
     );
@@ -683,34 +665,6 @@ export default class NotificationBackground {
     });
   }
 
-  /**
-   * Sets up a notification to unlock the vault when the user
-   * attempts to autofill a cipher while the vault is locked.
-   *
-   * @param message - Extension message, determines if the notification should be skipped
-   * @param tab - The tab that the message was sent from
-   */
-  private async unlockVault(message: NotificationBackgroundExtensionMessage, tab: chrome.tabs.Tab) {
-    const notificationRefreshFlagEnabled = await this.getNotificationFlag();
-    if (message.data?.skipNotification) {
-      return;
-    }
-
-    if (notificationRefreshFlagEnabled) {
-      return;
-    }
-
-    const currentAuthStatus = await this.getAuthStatus();
-    if (currentAuthStatus !== AuthenticationStatus.Locked || this.notificationQueue.length) {
-      return;
-    }
-
-    const loginDomain = Utils.getDomain(tab.url);
-    if (loginDomain) {
-      await this.pushUnlockVaultToQueue(loginDomain, tab);
-    }
-  }
-
   private async pushChangePasswordToQueue(
     cipherId: string,
     loginDomain: string,
@@ -732,20 +686,6 @@ export default class NotificationBackground {
     };
     this.notificationQueue.push(message);
     await this.checkNotificationQueue(tab);
-  }
-
-  private async pushUnlockVaultToQueue(loginDomain: string, tab: chrome.tabs.Tab) {
-    this.removeTabFromNotificationQueue(tab);
-    const launchTimestamp = new Date().getTime();
-    const message: AddUnlockVaultQueueMessage = {
-      type: NotificationType.UnlockVault,
-      domain: loginDomain,
-      tab: tab,
-      launchTimestamp,
-      expires: new Date(launchTimestamp + 0.5 * 60000), // 30 seconds
-      wasVaultLocked: true,
-    };
-    await this.sendNotificationQueueMessage(tab, message);
   }
 
   /**
@@ -906,12 +846,11 @@ export default class NotificationBackground {
     }
     const cipher = await this.cipherService.encrypt(cipherView, userId);
 
-    const shouldGetTasks = await this.getNotificationFlag();
     try {
       if (!cipherView.edit) {
         throw new Error("You do not have permission to edit this cipher.");
       }
-      const tasks = shouldGetTasks ? await this.getSecurityTasks(userId) : [];
+      const tasks = await this.getSecurityTasks(userId);
       const updatedCipherTask = tasks.find((task) => task.cipherId === cipherView?.id);
       const cipherHasTask = !!updatedCipherTask?.id;
 
