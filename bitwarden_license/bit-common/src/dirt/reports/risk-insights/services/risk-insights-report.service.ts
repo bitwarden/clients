@@ -23,9 +23,9 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import {
-  createApplicationReportDetail,
-  createFlattenedCipherDetails,
-  createMemberDetailsFlat,
+  getApplicationReportDetail,
+  getFlattenedCipherDetails,
+  getMemberDetailsFlat,
   getTrimmedCipherUris,
   getUniqueMembers,
 } from "../helpers/risk-insights-data-mappers";
@@ -85,9 +85,7 @@ export class RiskInsightsReportService {
     const results$ = zip(allCiphers$, memberCiphers$).pipe(
       map(([allCiphers, memberCiphers]) => {
         const details: MemberDetailsFlat[] = memberCiphers.flatMap((dtl) =>
-          dtl.cipherIds.map((c) =>
-            createMemberDetailsFlat(dtl.userGuid, dtl.userName, dtl.email, c),
-          ),
+          dtl.cipherIds.map((c) => getMemberDetailsFlat(dtl.userGuid, dtl.userName, dtl.email, c)),
         );
         return [allCiphers, details] as const;
       }),
@@ -353,7 +351,7 @@ export class RiskInsightsReportService {
     cipherHealthReport: CipherHealthReportDetail[],
   ): CipherHealthReportUriDetail[] {
     return cipherHealthReport.flatMap((rpt) =>
-      rpt.trimmedUris.map((u) => createFlattenedCipherDetails(rpt, u)),
+      rpt.trimmedUris.map((u) => getFlattenedCipherDetails(rpt, u)),
     );
   }
 
@@ -376,9 +374,9 @@ export class RiskInsightsReportService {
       }
 
       if (index === -1) {
-        appReports.push(createApplicationReportDetail(uri, atRisk));
+        appReports.push(getApplicationReportDetail(uri, atRisk));
       } else {
-        appReports[index] = createApplicationReportDetail(uri, atRisk, appReports[index]);
+        appReports[index] = getApplicationReportDetail(uri, atRisk, appReports[index]);
       }
     });
     return appReports;

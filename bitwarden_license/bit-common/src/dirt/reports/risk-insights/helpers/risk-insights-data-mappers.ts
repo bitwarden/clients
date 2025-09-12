@@ -2,7 +2,7 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import {
-  MemberDetailsFlat as MemberDetails,
+  MemberDetailsFlat,
   CipherHealthReportDetail,
   CipherHealthReportUriDetail,
   ApplicationHealthReportDetail,
@@ -11,7 +11,7 @@ import { MemberCipherDetailsResponse } from "../response/member-cipher-details.r
 
 export function flattenMemberDetails(
   memberCiphers: MemberCipherDetailsResponse[],
-): MemberDetails[] {
+): MemberDetailsFlat[] {
   return memberCiphers.flatMap((member) =>
     member.cipherIds.map((cipherId) => ({
       userGuid: member.userGuid,
@@ -44,7 +44,7 @@ export function getTrimmedCipherUris(cipher: CipherView): string[] {
 }
 
 // Returns a deduplicated array of members by email
-export function getUniqueMembers(orgMembers: MemberDetails[]): MemberDetails[] {
+export function getUniqueMembers(orgMembers: MemberDetailsFlat[]): MemberDetailsFlat[] {
   const existingEmails = new Set<string>();
   return orgMembers.filter((member) => {
     if (existingEmails.has(member.email)) {
@@ -63,12 +63,12 @@ export function getUniqueMembers(orgMembers: MemberDetails[]): MemberDetails[] {
  * @param cipherId Cipher ID
  * @returns Flattened member details
  */
-export function createMemberDetailsFlat(
+export function getMemberDetailsFlat(
   userGuid: string,
   userName: string,
   email: string,
   cipherId: string,
-): MemberDetails {
+): MemberDetailsFlat {
   return {
     userGuid: userGuid,
     userName: userName,
@@ -83,7 +83,7 @@ export function createMemberDetailsFlat(
  * @param uri Trimmed URI
  * @returns Flattened cipher health details to URI
  */
-export function createFlattenedCipherDetails(
+export function getFlattenedCipherDetails(
   detail: CipherHealthReportDetail,
   uri: string,
 ): CipherHealthReportUriDetail {
@@ -106,7 +106,7 @@ export function createFlattenedCipherDetails(
  * @param existingUriDetail The previously processed Uri item
  * @returns The new or updated application health report detail
  */
-export function createApplicationReportDetail(
+export function getApplicationReportDetail(
   newUriDetail: CipherHealthReportUriDetail,
   isAtRisk: boolean,
   existingUriDetail?: ApplicationHealthReportDetail,
