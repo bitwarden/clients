@@ -296,6 +296,7 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
 
           try {
             using ref = sdk.take();
+
             const migratedSdkCiphers = ref.value
               .vault()
               .ciphers()
@@ -305,7 +306,7 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
               (sdkCipher) => Cipher.fromSdkCipher(sdkCipher)!,
             );
 
-            this.logService.info(`Successfully migrated ${ciphers.length} ciphers`);
+            this.logService.info(`Successfully migrated ${migratedCiphers.length} ciphers`);
             return migratedCiphers;
           } catch (error) {
             this.logService.error(`Cipher migration failed: ${error}`);

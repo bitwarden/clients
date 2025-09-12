@@ -100,6 +100,7 @@ export class Login extends Domain {
 
   toLoginData(): LoginData {
     const l = new LoginData();
+
     l.passwordRevisionDate =
       this.passwordRevisionDate != null ? this.passwordRevisionDate.toISOString() : null;
     l.autofillOnPageLoad = this.autofillOnPageLoad;
