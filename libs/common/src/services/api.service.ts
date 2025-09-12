@@ -1433,7 +1433,8 @@ export class ApiService implements ApiServiceAbstraction {
   // HIBP APIs
 
   async getHibpBreach(username: string): Promise<BreachAccountResponse[]> {
-    const r = await this.send("GET", "/hibp/breach?username=" + username, null, true, true);
+    const encodedUsername = encodeURIComponent(username);
+    const r = await this.send("GET", "/hibp/breach?username=" + encodedUsername, null, true, true);
     return r.map((a: any) => new BreachAccountResponse(a));
   }
 

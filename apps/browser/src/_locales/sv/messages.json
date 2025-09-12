@@ -557,7 +557,7 @@
     "message": "Visa"
   },
   "viewLogin": {
-    "message": "View login"
+    "message": "Visa inloggning"
   },
   "noItemsInList": {
     "message": "Det finns inga objekt att visa."
@@ -1764,7 +1764,7 @@
     "message": "Den här webbläsaren kan inte bearbeta U2F-förfrågningar i detta popup-fönster. Vill du öppna ett nytt fönster så att du kan logga in med U2F?"
   },
   "showIconsChangePasswordUrls": {
-    "message": "Visa webbplatsikoner och hämta URL-adresser för att ändra lösenord"
+    "message": "Show website icons and retrieve change password URLs"
   },
   "enableBadgeCounter": {
     "message": "Visa aktivitetsräknaren"
@@ -5450,10 +5450,10 @@
     "message": "Ändra lösenord för riskgrupper"
   },
   "changeAtRiskPasswordAndAddWebsite": {
-    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+    "message": "Denna inloggning är utsatt för risk och saknar en webbplats. Lägg till en webbplats och ändra lösenordet för ökad säkerhet."
   },
   "missingWebsite": {
-    "message": "Missing website"
+    "message": "Saknar webbplats"
   },
   "settingsVaultOptions": {
     "message": "Alternativ för valv"
@@ -5579,10 +5579,10 @@
     "description": "Aria label for the body content of the generator nudge"
   },
   "aboutThisSetting": {
-    "message": "Om denna inställning"
+    "message": "About this setting"
   },
   "permitCipherDetailsDescription": {
-    "message": "Bitwarden använder sparade inloggnings-URI: er för att identifiera vilken ikon eller URL för lösenordsändring som ska användas för att förbättra din upplevelse. Ingen information samlas in eller sparas när du använder denna tjänst."
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
   },
   "noPermissionsViewPage": {
     "message": "Du har inte behörighet att visa den här sidan. Försök att logga in med ett annat konto."

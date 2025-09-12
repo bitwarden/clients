@@ -56,15 +56,18 @@ export class CriticalApplicationsComponent implements OnInit {
   protected searchControl = new FormControl("", { nonNullable: true });
   private destroyRef = inject(DestroyRef);
   protected loading = false;
-  protected organizationId: string;
+  protected organizationId: OrganizationId;
   protected applicationSummary = {} as ApplicationHealthReportSummary;
   noItemsIcon = Security;
   enableRequestPasswordChange = false;
 
   async ngOnInit() {
-    this.organizationId = this.activatedRoute.snapshot.paramMap.get("organizationId") ?? "";
+    this.organizationId = this.activatedRoute.snapshot.paramMap.get(
+      "organizationId",
+    ) as OrganizationId;
     const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     this.criticalAppsService.setOrganizationId(this.organizationId as OrganizationId, userId);
+    // this.criticalAppsService.setOrganizationId(this.organizationId as OrganizationId);
     combineLatest([
       this.dataService.applications$,
       this.criticalAppsService.getAppsListForOrg(this.organizationId as OrganizationId),
@@ -125,9 +128,8 @@ export class CriticalApplicationsComponent implements OnInit {
     }
 
     this.toastService.showToast({
-      message: this.i18nService.t("criticalApplicationSuccessfullyUnmarked"),
+      message: this.i18nService.t("criticalApplicationUnmarkedSuccessfully"),
       variant: "success",
-      title: this.i18nService.t("success"),
     });
     this.dataSource.data = this.dataSource.data.filter((app) => app.applicationName !== hostname);
   };

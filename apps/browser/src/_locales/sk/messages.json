@@ -557,7 +557,7 @@
     "message": "Zobraziť"
   },
   "viewLogin": {
-    "message": "View login"
+    "message": "Zobraziť prihlásenie"
   },
   "noItemsInList": {
     "message": "Neexistujú žiadne položky na zobrazenie."
@@ -5450,10 +5450,10 @@
     "message": "Zmeniť rizikové heslá"
   },
   "changeAtRiskPasswordAndAddWebsite": {
-    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+    "message": "Toto prihlásenie je v ohrození a chýba mu webová stránka. Pridajte webovú stránku a zmeňte heslo na silnejšie zabezpečenie."
   },
   "missingWebsite": {
-    "message": "Missing website"
+    "message": "Chýbajúca webová stránka"
   },
   "settingsVaultOptions": {
     "message": "Možnosti trezoru"

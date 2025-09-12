@@ -557,7 +557,7 @@
     "message": "Ver"
   },
   "viewLogin": {
-    "message": "View login"
+    "message": "Ver credencial"
   },
   "noItemsInList": {
     "message": "Não existem itens para listar."
@@ -5450,10 +5450,10 @@
     "message": "Alterar palavra-passe em risco"
   },
   "changeAtRiskPasswordAndAddWebsite": {
-    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+    "message": "Esta credencial está em risco e não tem um site. Adicione um site e altere a palavra-passe para uma segurança mais forte."
   },
   "missingWebsite": {
-    "message": "Missing website"
+    "message": "Site em falta"
   },
   "settingsVaultOptions": {
     "message": "Opções do cofre"

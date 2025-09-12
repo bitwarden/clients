@@ -36,7 +36,7 @@ import {
   Unassigned,
 } from "@bitwarden/admin-console/common";
 import { SearchPipe } from "@bitwarden/angular/pipes/search.pipe";
-import { Search } from "@bitwarden/assets/svg";
+import { NoResults } from "@bitwarden/assets/svg";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
@@ -125,6 +125,7 @@ import { VaultFilter } from "../../../vault/individual-vault/vault-filter/shared
 import { AdminConsoleCipherFormConfigService } from "../../../vault/org-vault/services/admin-console-cipher-form-config.service";
 import { GroupApiService, GroupView } from "../core";
 import { openEntityEventsDialog } from "../manage/entity-events.component";
+import { CollectionPermission } from "../shared/components/access-selector";
 import {
   CollectionDialogAction,
   CollectionDialogTabType,
@@ -182,7 +183,7 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
   activeFilter: VaultFilter = new VaultFilter();
 
   protected showAddAccessToggle = false;
-  protected noItemIcon = Search;
+  protected noItemIcon = NoResults;
   protected loading$: Observable<boolean>;
   protected processingEvent$ = new BehaviorSubject<boolean>(false);
   protected organization$: Observable<Organization>;
@@ -879,6 +880,7 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
             event.item as CollectionAdminView,
             CollectionDialogTabType.Access,
             event.readonly,
+            event.initialPermission,
           );
           break;
         case "bulkEditCollectionAccess":
@@ -1029,6 +1031,12 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
     // If the dialog was closed by deleting the cipher, refresh the vault.
     if (result === VaultItemDialogResult.Deleted || result === VaultItemDialogResult.Saved) {
       this.refresh();
+    }
+
+    // When the dialog is closed for a premium upgrade, return early as the user
+    // should be navigated to the subscription settings elsewhere
+    if (result === VaultItemDialogResult.PremiumUpgrade) {
+      return;
     }
 
     // Clear the query params when the dialog closes
@@ -1372,6 +1380,7 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
     c: CollectionAdminView,
     tab: CollectionDialogTabType,
     readonly: boolean,
+    initialPermission?: CollectionPermission,
   ): Promise<void> {
     const organization = await firstValueFrom(this.organization$);
     const dialog = openCollectionDialog(this.dialogService, {
@@ -1383,6 +1392,7 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
         isAddAccessCollection: c.unmanaged,
         limitNestedCollections: !organization.canEditAnyCollection,
         isAdminConsoleActive: true,
+        initialPermission,
       },
     });
 
@@ -1458,7 +1468,7 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
         ciphers: items,
         organizationId: organization.id,
         availableCollections,
-        activeCollection: this.activeFilter.selectedCollectionNode.node,
+        activeCollection: this.activeFilter?.selectedCollectionNode?.node,
         isSingleCipherAdmin:
           items.length === 1 && (organization.canEditAllCiphers || items[0].isUnassigned),
       },

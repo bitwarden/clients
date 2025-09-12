@@ -1,10 +1,23 @@
 // FIXME: Update this file to be type safe
 // @ts-strict-ignore
-import { concatMap, first, from, map, Observable, zip } from "rxjs";
+import {
+  BehaviorSubject,
+  concatMap,
+  first,
+  firstValueFrom,
+  from,
+  map,
+  Observable,
+  of,
+  switchMap,
+  zip,
+} from "rxjs";
 
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
+import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -21,9 +34,12 @@ import {
   WeakPasswordDetail,
   WeakPasswordScore,
   ApplicationHealthReportDetailWithCriticalFlagAndCipher,
+  ReportInsightsReportData,
 } from "../models/password-health";
 
 import { MemberCipherDetailsApiService } from "./member-cipher-details-api.service";
+import { RiskInsightsApiService } from "./risk-insights-api.service";
+import { RiskInsightsEncryptionService } from "./risk-insights-encryption.service";
 
 export class RiskInsightsReportService {
   constructor(
@@ -31,7 +47,20 @@ export class RiskInsightsReportService {
     private auditService: AuditService,
     private cipherService: CipherService,
     private memberCipherDetailsApiService: MemberCipherDetailsApiService,
+    private riskInsightsApiService: RiskInsightsApiService,
+    private riskInsightsEncryptionService: RiskInsightsEncryptionService,
   ) {}
+
+  private riskInsightsReportSubject = new BehaviorSubject<ApplicationHealthReportDetail[]>([]);
+  riskInsightsReport$ = this.riskInsightsReportSubject.asObservable();
+
+  private riskInsightsSummarySubject = new BehaviorSubject<ApplicationHealthReportSummary>({
+    totalMemberCount: 0,
+    totalAtRiskMemberCount: 0,
+    totalApplicationCount: 0,
+    totalAtRiskApplicationCount: 0,
+  });
+  riskInsightsSummary$ = this.riskInsightsSummarySubject.asObservable();
 
   /**
    * Report data from raw cipher health data.
@@ -40,7 +69,7 @@ export class RiskInsightsReportService {
    * @param organizationId
    * @returns Cipher health report data with members and trimmed uris
    */
-  generateRawDataReport$(organizationId: string): Observable<CipherHealthReportDetail[]> {
+  generateRawDataReport$(organizationId: OrganizationId): Observable<CipherHealthReportDetail[]> {
     const allCiphers$ = from(this.cipherService.getAllFromApiForOrganization(organizationId));
     const memberCiphers$ = from(
       this.memberCipherDetailsApiService.getMemberCipherDetails(organizationId),
@@ -68,7 +97,9 @@ export class RiskInsightsReportService {
    * @param organizationId Id of the organization
    * @returns Cipher health report data flattened to the uris
    */
-  generateRawDataUriReport$(organizationId: string): Observable<CipherHealthReportUriDetail[]> {
+  generateRawDataUriReport$(
+    organizationId: OrganizationId,
+  ): Observable<CipherHealthReportUriDetail[]> {
     const cipherHealthDetails$ = this.generateRawDataReport$(organizationId);
     const results$ = cipherHealthDetails$.pipe(
       map((healthDetails) => this.getCipherUriDetails(healthDetails)),
@@ -84,7 +115,9 @@ export class RiskInsightsReportService {
    * @param organizationId Id of the organization
    * @returns The all applications health report data
    */
-  generateApplicationsReport$(organizationId: string): Observable<ApplicationHealthReportDetail[]> {
+  generateApplicationsReport$(
+    organizationId: OrganizationId,
+  ): Observable<ApplicationHealthReportDetail[]> {
     const cipherHealthUriReport$ = this.generateRawDataUriReport$(organizationId);
     const results$ = cipherHealthUriReport$.pipe(
       map((uriDetails) => this.getApplicationHealthReport(uriDetails)),
@@ -167,7 +200,7 @@ export class RiskInsightsReportService {
 
   async identifyCiphers(
     data: ApplicationHealthReportDetail[],
-    organizationId: string,
+    organizationId: OrganizationId,
   ): Promise<ApplicationHealthReportDetailWithCriticalFlagAndCipher[]> {
     const cipherViews = await this.cipherService.getAllFromApiForOrganization(organizationId);
 
@@ -179,6 +212,75 @@ export class RiskInsightsReportService {
         }) as ApplicationHealthReportDetailWithCriticalFlagAndCipher,
     );
     return dataWithCiphers;
+  }
+
+  getRiskInsightsReport(organizationId: OrganizationId, userId: UserId): void {
+    this.riskInsightsApiService
+      .getRiskInsightsReport(organizationId)
+      .pipe(
+        switchMap((response) => {
+          if (!response) {
+            // Return an empty report and summary if response is falsy
+            return of<ReportInsightsReportData>({
+              data: [],
+              summary: {
+                totalMemberCount: 0,
+                totalAtRiskMemberCount: 0,
+                totalApplicationCount: 0,
+                totalAtRiskApplicationCount: 0,
+              },
+            });
+          }
+          return from(
+            this.riskInsightsEncryptionService.decryptRiskInsightsReport<ReportInsightsReportData>(
+              organizationId,
+              userId,
+              new EncString(response.reportData),
+              new EncString(response.reportKey),
+              (data) => data as ReportInsightsReportData,
+            ),
+          );
+        }),
+      )
+      .subscribe({
+        next: (decryptRiskInsightsReport) => {
+          this.riskInsightsReportSubject.next(decryptRiskInsightsReport.data);
+          this.riskInsightsSummarySubject.next(decryptRiskInsightsReport.summary);
+        },
+      });
+  }
+
+  async saveRiskInsightsReport(
+    organizationId: OrganizationId,
+    userId: UserId,
+    report: ApplicationHealthReportDetail[],
+  ): Promise<void> {
+    const riskReport = {
+      data: report,
+    };
+
+    const encryptedReport = await this.riskInsightsEncryptionService.encryptRiskInsightsReport(
+      organizationId,
+      userId,
+      riskReport,
+    );
+
+    const saveRequest = {
+      data: {
+        organizationId: organizationId,
+        date: new Date().toISOString(),
+        reportData: encryptedReport.encryptedData,
+        reportKey: encryptedReport.encryptionKey,
+      },
+    };
+
+    const response = await firstValueFrom(
+      this.riskInsightsApiService.saveRiskInsightsReport(saveRequest, organizationId),
+    );
+
+    if (response && response.id) {
+      this.riskInsightsReportSubject.next(report);
+    }
   }
 
   /**

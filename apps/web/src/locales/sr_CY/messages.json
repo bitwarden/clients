@@ -86,14 +86,14 @@
   "noAppsInOrgDescription": {
     "message": "Док корисници чувају пријаве, апликације се појављују овде, приказујући све ризичне лозинке. Означите критичне апликације и обавестите кориснике да ажурирају лозинке."
   },
-  "noCriticalAppsTitle": {
-    "message": "Нисте означили ниједну апликацију као критичну"
+  "noCriticalApplicationsTitle": {
+    "message": "You haven’t marked any applications as critical"
   },
-  "noCriticalAppsDescription": {
-    "message": "Изаберите своје најкритичније апликације да бисте открили ризичне лозинке и обавестите кориснике да промене те лозинке."
+  "noCriticalApplicationsDescription": {
+    "message": "Select your most critical applications to prioritize security actions for your users to address at-risk passwords."
   },
-  "markCriticalApps": {
-    "message": "Означите критичне апликације"
+  "markCriticalApplications": {
+    "message": "Select critical applications"
   },
   "markAppAsCritical": {
     "message": "Означите апликацију као критичну"
@@ -159,7 +159,7 @@
     }
   },
   "atRiskMembersDescriptionWithAppNone": {
-    "message": "There are no at risk members for $APPNAME$.",
+    "message": "Не постоје припадници ризика за $APPNAME$.",
     "placeholders": {
       "appname": {
         "content": "$1",
@@ -177,10 +177,10 @@
     "message": "Укупно апликација"
   },
   "unmarkAsCritical": {
-    "message": "Unmark as critical"
+    "message": "Уклони као критично"
   },
-  "criticalApplicationSuccessfullyUnmarked": {
-    "message": "Успешно уклоњена ознака са критичне апликације"
+  "criticalApplicationUnmarkedSuccessfully": {
+    "message": "Successfully unmarked application as critical"
   },
   "whatTypeOfItem": {
     "message": "Који је ово тип елемента?"
@@ -868,13 +868,13 @@
     "message": "Копирати број лиценце"
   },
   "copyPrivateKey": {
-    "message": "Copy private key"
+    "message": "Копирај приватни кључ"
   },
   "copyPublicKey": {
-    "message": "Copy public key"
+    "message": "Копирај јавни кључ"
   },
   "copyFingerprint": {
-    "message": "Copy fingerprint"
+    "message": "Копирај отисак прста"
   },
   "copyName": {
     "message": "Копирати име"
@@ -1517,7 +1517,7 @@
     "message": "Шифра за опоравак"
   },
   "invalidRecoveryCode": {
-    "message": "Invalid recovery code"
+    "message": "Неважећи кôд за опоравак"
   },
   "authenticatorAppTitle": {
     "message": "Апликација Аутентификатор"
@@ -2063,10 +2063,10 @@
     "message": "Изабери колекцију"
   },
   "importTargetHintCollection": {
-    "message": "Select this option if you want the imported file contents moved to a collection"
+    "message": "Изаберите ову опцију ако желите да се садржај увезене датотеке пребацио у колекцију"
   },
   "importTargetHintFolder": {
-    "message": "Select this option if you want the imported file contents moved to a folder"
+    "message": "Изаберите ову опцију ако желите да се садржај увезене датотеке пребацио у фасцикли"
   },
   "importUnassignedItemsError": {
     "message": "Датотека садржи недодељене ставке."
@@ -2827,10 +2827,10 @@
     }
   },
   "showPricingSummary": {
-    "message": "Show pricing summary"
+    "message": "Прикажи резиме цена"
   },
   "hidePricingSummary": {
-    "message": "Hide pricing summary"
+    "message": "Сакриј резиме цена"
   },
   "summary": {
     "message": "Резиме"
@@ -5107,13 +5107,13 @@
     "message": "Ограничите корисницима могућност придруживања било којој другој организацији."
   },
   "singleOrgPolicyDesc": {
-    "message": "Restrict members from joining other organizations. This policy is required for organizations that have enabled domain verification."
+    "message": "Ограничите чланове да се придруже другим организацијама. Ова смерница је неопходна за организације које су омогућиле верификацију домена."
   },
   "singleOrgBlockCreateMessage": {
     "message": "Ваша тренутна организација има смернице које не дозвољавају да се придружите више организација. Молимо контактирајте администраторе своје организације или се пријавите са другим Bitwarden налога."
   },
   "singleOrgPolicyMemberWarning": {
-    "message": "Non-compliant members will be placed in revoked status until they leave all other organizations. Administrators are exempt and can restore members once compliance is met."
+    "message": "Чланови који не испуњавају услове биће стављени у статус опозива док не напусте све друге организације. Администратори су изузети и могу да поврате чланове када се испоштује усаглашеност."
   },
   "requireSso": {
     "message": "Аутентификација једнократном пријавом"
@@ -5274,11 +5274,11 @@
     "message": "Преузмите прилоге"
   },
   "sendAccessPasswordTitle": {
-    "message": "Enter the password to view this Send",
+    "message": "Унети лозинку за преглед Send-а",
     "description": "Title of the Send password authentication screen."
   },
   "sendAccessContentTitle": {
-    "message": "View Send",
+    "message": "Видети Send",
     "description": "Title of the Send view content screen."
   },
   "sendAccessUnavailable": {
@@ -5442,7 +5442,7 @@
     "message": "Спровести власништво података о организацији"
   },
   "organizationDataOwnershipDesc": {
-    "message": "Require all items to be owned by an organization, removing the option to store items at the account level.",
+    "message": "Захтевајте све ставке да буду у власништву организације, уклањајући опцију за чување предмета на нивоу рачуна.",
     "description": "This is the policy description shown in the policy list."
   },
   "organizationDataOwnershipContent": {
@@ -5454,22 +5454,22 @@
     "description": "This will be used as a hyperlink"
   },
   "organizationDataOwnershipWarningTitle": {
-    "message": "Are you sure you want to proceed?"
+    "message": "Да ли сте сигурни да желите да наставите?"
   },
   "organizationDataOwnershipWarning1": {
-    "message": "will remain accessible to members"
+    "message": "остаће доступно члановима"
   },
   "organizationDataOwnershipWarning2": {
-    "message": "will not be automatically selected when creating new items"
+    "message": "неће се аутоматски одабрати приликом креирања нових ставки"
   },
   "organizationDataOwnershipWarning3": {
-    "message": "cannot be managed from the Admin Console until the user is offboarded"
+    "message": "не може се управљати од администраторске конзоле док се корисник не налази изванредни"
   },
   "organizationDataOwnershipWarningContentTop": {
-    "message": "By turning this policy off, the default collection: "
+    "message": "Окретањем ове политике искључено, подразумевана колекција: "
   },
   "organizationDataOwnershipWarningContentBottom": {
-    "message": "Learn more about the ",
+    "message": "Сазнајте више о ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about the credential lifecycle.'"
   },
   "personalOwnership": {
@@ -5774,10 +5774,10 @@
     "message": "WebAutn аутентификација"
   },
   "readSecurityKey": {
-    "message": "Read security key"
+    "message": "Читај сигурносни кључ"
   },
   "awaitingSecurityKeyInteraction": {
-    "message": "Awaiting security key interaction..."
+    "message": "Чека се интеракција сигурносног кључа..."
   },
   "webAuthnNotSupported": {
     "message": "WebAuthn није подржано у овом прегледачу."
@@ -5786,7 +5786,7 @@
     "message": "<strong>Успешна провера WebAuthn-а!</strong><br>Можете да затворите овај језичак."
   },
   "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
-    "message": "Your new password cannot be the same as your current password."
+    "message": "Ваша нова лозинка не може бити иста као тренутна лозинка."
   },
   "hintEqualsPassword": {
     "message": "Ваша помоћ за лозинку не може да буде иста као лозинка."
@@ -5987,7 +5987,7 @@
     "message": "Искључено, није применљиво за ову акцију."
   },
   "nonCompliantMembersTitle": {
-    "message": "Non-compliant members"
+    "message": "Чланови који нису у складу"
   },
   "nonCompliantMembersError": {
     "message": "Members that are non-compliant with the Single organization or Two-step login policy cannot be restored until they adhere to the policy requirements"
@@ -5996,7 +5996,7 @@
     "message": "Отисак прста"
   },
   "fingerprintPhrase": {
-    "message": "Fingerprint phrase:"
+    "message": "Сигурносна Фраза:"
   },
   "error": {
     "message": "Грешка"
@@ -6352,7 +6352,7 @@
     "message": "SAML 2.0 metadata URL"
   },
   "spAcsUrl": {
-    "message": "Assertion consumer service (ACS) URL"
+    "message": "УРЛ Assertion consumer service (ACS)"
   },
   "spNameIdFormat": {
     "message": "Формат ИД назива"
@@ -6403,16 +6403,16 @@
     "message": "Дозволи одлазне захтеве за одјављивањем"
   },
   "idpSignAuthenticationRequests": {
-    "message": "Sign authentication requests"
+    "message": "Потпишите захтеве за аутентификацију"
   },
   "ssoSettingsSaved": {
-    "message": "Single sign-on configuration saved"
+    "message": "Сачувана је конфигурација појединачних пријава"
   },
   "sponsoredFamilies": {
     "message": "Бесплатно Bitwarden Families"
   },
   "sponsoredBitwardenFamilies": {
-    "message": "Sponsored families"
+    "message": "Спонзорисане породице"
   },
   "noSponsoredFamiliesMessage": {
     "message": "Нема спонзорисаних породица"
@@ -6424,7 +6424,7 @@
     "message": "Чланови ваше организације су прихватљиви за Free Bitwarden Families. Можете спонзорисати Free Bitwarden Families за запослене који нису члан ваше Bitwarden организације. За спонзорисање не-члана потребно је доступно седиште у вашој организацији."
   },
   "sponsoredFamiliesRemoveActiveSponsorship": {
-    "message": "When you remove an active sponsorship, a seat within your organization will be available after the renewal date of the sponsored organization."
+    "message": "Када уклоните активно спонзорство, седиште у вашој организацији биће доступно након датума обнове спонзориране организације."
   },
   "sponsoredFamiliesEligible": {
     "message": "Ви и ваша породица испуњавате услове за бесплатне Bitwarden Families. Искористите својом личном е-поштом да бисте заштитили своје податке чак и када нисте на послу."
@@ -6442,10 +6442,10 @@
     "message": "Дељене колекције за чланове породице"
   },
   "memberFamilies": {
-    "message": "Member families"
+    "message": "Породице чланова"
   },
   "noMemberFamilies": {
-    "message": "No member families"
+    "message": "Нема породице чланова"
   },
   "noMemberFamiliesDescription": {
     "message": "Members who have redeemed family plans will display here"
@@ -7429,6 +7429,9 @@
   },
   "off": {
     "message": "Искључено"
+  },
+  "connected": {
+    "message": "Connected"
   },
   "members": {
     "message": "Чланови"
@@ -8935,20 +8938,25 @@
   "collectionManagement": {
     "message": "Управљање збирке"
   },
-  "collectionManagementDesc": {
-    "message": "Управљајте понашањем збирке за организацију"
+  "collectionManagementDescription": {
+    "message": "Configure the collection behavior for the organization"
   },
-  "limitCollectionCreationDesc": {
-    "message": "Ограничите креирање збирке на власнике и администраторе"
+  "allowAdminAccessToAllCollectionItemsDescription": {
+    "message": "Allow owners and admins to manage all collections and items from the Admin Console"
   },
-  "limitCollectionDeletionDesc": {
-    "message": "Ограничите брисање збирке на власнике и администраторе"
+  "restrictCollectionCreationDescription": {
+    "message": "Restrict collection creation to owners and admins"
   },
-  "limitItemDeletionDescription": {
-    "message": "Limit item deletion to members with the Manage collection permissions"
+  "restrictCollectionDeletionDescription": {
+    "message": "Restrict collection deletion to owners and admins"
   },
-  "allowAdminAccessToAllCollectionItemsDesc": {
-    "message": "Власници и администратори могу да управљају свим колекцијама и ставкама"
+  "restrictItemDeletionDescriptionStart": {
+    "message": "Restrict item deletion to members with the ",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
+  },
+  "restrictItemDeletionDescriptionEnd": {
+    "message": " permission",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
   },
   "updatedCollectionManagement": {
     "message": "Ажурирано подешавање управљања колекцијом"
@@ -9019,6 +9027,78 @@
   },
   "modifiedCollectionManagement": {
     "message": "Измењено подешавање управљања колекцијом $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationEnabled": {
+    "message": "Turned on Restrict collection creation setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationDisabled": {
+    "message": "Turned off Restrict collection creation setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionEnabled": {
+    "message": "Turned on Restrict collection deletion setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionDisabled": {
+    "message": "Turned off Restrict collection deletion setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionEnabled": {
+    "message": "Turned on Restrict item deletion setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionDisabled": {
+    "message": "Turned off Restrict item deletion setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsEnabled": {
+    "message": "Turned on Allow owners and admins to manage all collections and items setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsDisabled": {
+    "message": "Turned off Allow owners and admins to manage all collections and items setting $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -9603,6 +9683,15 @@
   },
   "connectIntegrationButtonDesc": {
     "message": "Повезати $INTEGRATION$",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
+  },
+  "updateIntegrationButtonDesc": {
+    "message": "Update $INTEGRATION$",
     "placeholders": {
       "integration": {
         "content": "$1",
@@ -10816,6 +10905,12 @@
   "changeAtRiskPassword": {
     "message": "Променити ризичну лозинку"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
+  },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Remove Unlock with PIN"
   },
@@ -11103,10 +11198,10 @@
     "message": "To resubscribe, contact Bitwarden Customer Support."
   },
   "showMore": {
-    "message": "Show more"
+    "message": "Прикажи више"
   },
   "showLess": {
-    "message": "Show less"
+    "message": "Прикажи мање"
   },
   "missingTaxId": {
     "message": "Missing Tax ID"
@@ -11140,7 +11235,7 @@
     "message": "Check your Tax ID to verify the format is correct and there are no typos."
   },
   "pendingVerification": {
-    "message": "Pending verification"
+    "message": "На чекању за верификацију"
   },
   "checkInputFormat": {
     "message": "Check input format for typos."
@@ -11157,6 +11252,17 @@
         "example": "92873837267"
       }
     }
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Confirm Key Connector domain"
+  },
+  "requiredToVerifyBankAccountWithStripe": {
+    "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
+  },
+  "verifyBankAccountWithStripe": {
+    "message": "We have made a micro-deposit to your bank account. This may take 1-2 business days. When you see the deposit in your account, you can verify your bank account. Failure to verify your bank account will result in a missed payment and your subscription will be suspended."
+  },
+  "verifyNow": {
+    "message": "Verify now."
   }
 }
-
