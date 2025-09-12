@@ -219,29 +219,6 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
     );
   }
 
-  async decryptMany(ciphers: Cipher[], userId: UserId): Promise<CipherListView[]> {
-    return firstValueFrom(
-      this.sdkService.userClient$(userId).pipe(
-        map((sdk) => {
-          if (!sdk) {
-            throw new Error("SDK is undefined");
-          }
-
-          using ref = sdk.take();
-
-          return ref.value
-            .vault()
-            .ciphers()
-            .decrypt_list(ciphers.map((cipher) => cipher.toSdkCipher()));
-        }),
-        catchError((error: unknown) => {
-          this.logService.error(`Failed to decrypt cipher list: ${error}`);
-          return EMPTY;
-        }),
-      ),
-    );
-  }
-
   async decryptManyWithFailures(
     ciphers: Cipher[],
     userId: UserId,
