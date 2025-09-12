@@ -44,6 +44,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { pin } from "@bitwarden/common/tools/rx";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   AsyncActionsModule,
   BitSubmitDirective,
@@ -84,9 +85,9 @@ import { ExportScopeCalloutComponent } from "./export-scope-callout.component";
   ],
 })
 export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
-  private _organizationId: string;
+  private _organizationId: OrganizationId | undefined;
 
-  get organizationId(): string {
+  get organizationId(): OrganizationId | undefined {
     return this._organizationId;
   }
 
@@ -94,8 +95,8 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
    * Enables the hosting control to pass in an organizationId
    * If a organizationId is provided, the organization selection is disabled.
    */
-  @Input() set organizationId(value: string) {
-    this._organizationId = value;
+  @Input() set organizationId(value: OrganizationId | string | undefined) {
+    this._organizationId = value as OrganizationId;
     getUserId(this.accountService.activeAccount$)
       .pipe(
         switchMap((userId) =>
@@ -106,7 +107,7 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
       )
       .pipe(takeUntil(this.destroy$))
       .subscribe((organization) => {
-        this._organizationId = organization?.id;
+        this._organizationId = organization?.id as OrganizationId;
       });
   }
 
@@ -133,11 +134,11 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
 
   /**
    * Emits when the creation and download of the export-file have succeeded
-   * - Emits an null/empty string when exporting from an individual vault
+   * - Emits an undefined when exporting from an individual vault
    * - Emits the organizationId when exporting from an organizationl vault
    * */
   @Output()
-  onSuccessfulExport = new EventEmitter<string>();
+  onSuccessfulExport = new EventEmitter<OrganizationId | undefined>();
 
   @ViewChild(PasswordStrengthV2Component) passwordStrengthComponent: PasswordStrengthV2Component;
 
