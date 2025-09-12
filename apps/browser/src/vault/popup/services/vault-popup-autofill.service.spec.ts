@@ -204,16 +204,21 @@ describe("VaultPopupAutofillService", () => {
 
     describe("doAutofill()", () => {
       it("should return true if autofill is successful", async () => {
+        mockCipher.id = "test-cipher-id";
         mockAutofillService.doAutoFill.mockResolvedValue(null);
         const result = await service.doAutofill(mockCipher);
         expect(result).toBe(true);
         expect(mockAutofillService.doAutoFill).toHaveBeenCalledWith(expectedAutofillArgs);
+        expect(mockMessagingService.send).toHaveBeenCalledWith("vaultAutofillSuggestionUsed", {
+          cipherId: "test-cipher-id",
+        });
       });
 
       it("should return false if autofill is not successful", async () => {
         mockAutofillService.doAutoFill.mockRejectedValue(null);
         const result = await service.doAutofill(mockCipher);
         expect(result).toBe(false);
+        expect(mockMessagingService.send).not.toHaveBeenCalledWith("vaultPopupAutofillUsedCipher");
         expect(mockToastService.showToast).toHaveBeenCalledWith({
           variant: "error",
           title: null,
@@ -225,6 +230,7 @@ describe("VaultPopupAutofillService", () => {
         jest.spyOn(BrowserApi, "getTabFromCurrentWindow").mockResolvedValue(null);
         const result = await service.doAutofill(mockCipher);
         expect(result).toBe(false);
+        expect(mockMessagingService.send).not.toHaveBeenCalledWith("vaultPopupAutofillUsedCipher");
         expect(mockToastService.showToast).toHaveBeenCalledWith({
           variant: "error",
           title: null,
@@ -236,6 +242,7 @@ describe("VaultPopupAutofillService", () => {
         mockPageDetails$.next([]);
         const result = await service.doAutofill(mockCipher);
         expect(result).toBe(false);
+        expect(mockMessagingService.send).not.toHaveBeenCalledWith("vaultPopupAutofillUsedCipher");
         expect(mockToastService.showToast).toHaveBeenCalledWith({
           variant: "error",
           title: null,
@@ -248,9 +255,11 @@ describe("VaultPopupAutofillService", () => {
         mockPasswordRepromptService.showPasswordPrompt.mockResolvedValue(false);
         const result = await service.doAutofill(mockCipher);
         expect(result).toBe(false);
+        expect(mockMessagingService.send).not.toHaveBeenCalledWith("vaultPopupAutofillUsedCipher");
       });
 
       it("should copy TOTP code to clipboard if available", async () => {
+        mockCipher.id = "test-cipher-id-with-totp";
         const totpCode = "123456";
         mockAutofillService.doAutoFill.mockResolvedValue(totpCode);
         await service.doAutofill(mockCipher);
@@ -258,6 +267,9 @@ describe("VaultPopupAutofillService", () => {
           totpCode,
           expect.anything(),
         );
+        expect(mockMessagingService.send).toHaveBeenCalledWith("vaultAutofillSuggestionUsed", {
+          cipherId: "test-cipher-id-with-totp",
+        });
       });
 
       describe("closePopup", () => {
