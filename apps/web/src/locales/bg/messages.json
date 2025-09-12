@@ -86,14 +86,14 @@
   "noAppsInOrgDescription": {
     "message": "Когато потребителите запазват данните си за вписване, тук ще се появяват приложения, а също и ще се показват паролите в риск. Можете да отбелязвате важните приложения и да напомняте на потребителите да сменят паролите си."
   },
-  "noCriticalAppsTitle": {
+  "noCriticalApplicationsTitle": {
     "message": "Не сте отбелязали нито едно приложение като важно"
   },
-  "noCriticalAppsDescription": {
-    "message": "Изберете най-важните си приложения, за да откриете паролите, които може да са в риск, и да известите потребителите да ги сменят."
+  "noCriticalApplicationsDescription": {
+    "message": "Изберете най важните си приложения, за да приоритизирате действията по сигурността за своите потребители, както и да адресирате паролите в риск."
   },
-  "markCriticalApps": {
-    "message": "Отбележете важните приложения"
+  "markCriticalApplications": {
+    "message": "Изберете важните приложения"
   },
   "markAppAsCritical": {
     "message": "Отбелязване на приложението като важно"
@@ -179,8 +179,8 @@
   "unmarkAsCritical": {
     "message": "Премахване от важните"
   },
-  "criticalApplicationSuccessfullyUnmarked": {
-    "message": "Приложението е премахнато от важните"
+  "criticalApplicationUnmarkedSuccessfully": {
+    "message": "Успешно премахване на приложението от важните"
   },
   "whatTypeOfItem": {
     "message": "Вид на елемента"
@@ -2114,11 +2114,8 @@
   "languageDesc": {
     "message": "Смяна на езика на интерфейса. Ще трябва да пуснете програмата повторно."
   },
-  "enableFavicon": {
-    "message": "Показване на иконките на уеб сайтовете"
-  },
-  "faviconDesc": {
-    "message": "Показване на разпознаваемо изображение до всеки запис."
+  "showIconsChangePasswordUrls": {
+    "message": "Показване на иконките на уеб сайтовете и извличане на адресите за смяна на паролата"
   },
   "default": {
     "message": "Стандартно"
@@ -7433,6 +7430,9 @@
   "off": {
     "message": "Изключено"
   },
+  "connected": {
+    "message": "Свързано"
+  },
   "members": {
     "message": "Членове"
   },
@@ -9690,6 +9690,15 @@
       }
     }
   },
+  "updateIntegrationButtonDesc": {
+    "message": "Обновяване на $INTEGRATION$",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
+  },
   "integrationCardTooltip": {
     "message": "Стартиране на ръководството за внедряване за $INTEGRATION$.",
     "placeholders": {
@@ -10896,6 +10905,12 @@
   "changeAtRiskPassword": {
     "message": "Промяна на парола в риск"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Този елемент за вписване е в риск и в него липсва уеб сайт. Добавете уеб сайт и сменете паролата, за по-добра сигурност."
+  },
+  "missingWebsite": {
+    "message": "Липсващ уеб сайт"
+  },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Премахване на отключването чрез ПИН"
   },
@@ -11071,6 +11086,12 @@
     "message": "Адресът за таксуване е задължителен за добавянето на средства.",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   },
+  "aboutThisSetting": {
+    "message": "Относно тази настройка"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Битуорден ще използва запазените адреси за вписване, за да определи коя иконка или адрес за смяна на паролата да се ползва, за да улесни работата Ви. Никакви данни не се събират или съхраняват, когато използвате тази услуга."
+  },
   "billingAddress": {
     "message": "Адрес за фактуриране"
   },
@@ -11234,6 +11255,14 @@
   },
   "confirmKeyConnectorDomain": {
     "message": "Потвърждаване на домейна на конектора за ключове"
+  },
+  "requiredToVerifyBankAccountWithStripe": {
+    "message": "Плащането чрез банкова сметка е налично само за клиенти от САЩ. Ще трябва да потвърдите банковата си сметка. В следващите 1-2 работни дни ще направим малък депозит. Ако не потвърдите банковата сметка, може да пропуснете плащането и абонаментът Ви да бъде спрян."
+  },
+  "verifyBankAccountWithStripe": {
+    "message": "Направихме малък депозит по банковата Ви сметка. Може да отнеме 1-2 работни дни преди да го видите. Когато видите депозита, ще можете да потвърдите банковата си сметка. Ако не потвърдите банковата сметка, може да пропуснете плащането и абонаментът Ви да бъде спрян."
+  },
+  "verifyNow": {
+    "message": "Потвърдете сега."
   }
 }
-

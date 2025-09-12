@@ -61,7 +61,7 @@
         >
           <b>{{ "premiumPurchase" | i18n }}</b>
         </button>
-        <button type="button" bitDialogClose>{{ "close" | i18n }}</button>
+        <button type="button" data-dismiss="modal">{{ "close" | i18n }}</button>
         <div class="right" *ngIf="!(isPremium$ | async)">
           <button
             #refreshBtn

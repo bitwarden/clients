@@ -1763,14 +1763,8 @@
   "popupU2fCloseMessage": {
     "message": "דפדפן זה לא יכול לעבד בקשות U2F בחלון צף זה. האם ברצונך לפתוח את החלון הצף כחלון חדש רגיל כדי שתוכל להכנס באמצעות U2F?"
   },
-  "enableFavicon": {
-    "message": "הצג סמלי אתר אינטרנט"
-  },
-  "faviconDesc": {
-    "message": "הצג תמונה מוכרת ליד כל כניסה."
-  },
-  "faviconDescAlt": {
-    "message": "הצג תמונה מוכרת ליד כל כניסה. חל על כל החשבונות המחוברים."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "enableBadgeCounter": {
     "message": "הצג מונה סמל"
@@ -5583,6 +5577,12 @@
   "generatorNudgeBodyAria": {
     "message": "צור בקלות סיסמאות חזקות וייחודיות על ידי לחיצה על הלחצן 'צור סיסמה' כדי לעזור לך לשמור את הכניסות שלך מאובטחות.",
     "description": "Aria label for the body content of the generator nudge"
+  },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
   },
   "noPermissionsViewPage": {
     "message": "אין לך הרשאות כדי לראות עמוד זה. נסה להיכנס עם חשבון אחר."
