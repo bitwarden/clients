@@ -102,7 +102,7 @@ export class ArchiveComponent {
       return;
     }
 
-    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    const activeUserId = await firstValueFrom(this.userId$);
 
     try {
       await this.cipherService.softDeleteWithServer(cipher.id, activeUserId);
@@ -121,7 +121,7 @@ export class ArchiveComponent {
     if (!(await this.cipherArchiveService.canInteract(cipher))) {
       return;
     }
-    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    const activeUserId = await firstValueFrom(this.userId$);
 
     await this.cipherArchiveService.unarchiveWithServer(cipher.id as CipherId, activeUserId);
 
