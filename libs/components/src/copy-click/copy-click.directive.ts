@@ -1,11 +1,11 @@
 import {
   Directive,
   HostListener,
-  Input,
   InjectionToken,
   Inject,
   Optional,
   input,
+  computed,
 } from "@angular/core";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -26,8 +26,19 @@ export const COPY_CLICK_LISTENER = new InjectionToken<CopyClickListener>("CopyCl
   selector: "[appCopyClick]",
 })
 export class CopyClickDirective {
-  private _showToast = false;
-  private toastVariant: ToastVariant = "success";
+  private _showToast = computed(() => {
+    return this.showToast() !== undefined;
+  });
+
+  private toastVariant = computed(() => {
+    const showToast = this.showToast();
+    // When the `showToast` is set without a value, an empty string will be passed
+    if (showToast === "" || showToast === undefined) {
+      return "success";
+    } else {
+      return showToast;
+    }
+  });
 
   constructor(
     private platformUtilsService: PlatformUtilsService,
@@ -57,17 +68,7 @@ export class CopyClickDirective {
    *  <app-component [appCopyClick]="value to copy" showToast="info"/></app-component>
    * ```
    */
-  // TODO: Skipped for signal migration because:
-  //  Accessor inputs cannot be migrated as they are too complex.
-  @Input() set showToast(value: ToastVariant | "") {
-    // When the `showToast` is set without a value, an empty string will be passed
-    if (value === "") {
-      this._showToast = true;
-    } else {
-      this._showToast = true;
-      this.toastVariant = value;
-    }
-  }
+  showToast = input<ToastVariant | "">();
 
   @HostListener("click") onClick() {
     const valueToCopy = this.valueToCopy();
@@ -77,14 +78,14 @@ export class CopyClickDirective {
       this.copyListener.onCopy(valueToCopy);
     }
 
-    if (this._showToast) {
+    if (this._showToast()) {
       const valueLabel = this.valueLabel();
       const message = valueLabel
         ? this.i18nService.t("valueCopied", valueLabel)
         : this.i18nService.t("copySuccessful");
 
       this.toastService.showToast({
-        variant: this.toastVariant,
+        variant: this.toastVariant(),
         message,
       });
     }
