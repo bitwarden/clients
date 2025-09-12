@@ -33,7 +33,6 @@ import {
   OrganizationConnectionConfigApis,
   OrganizationConnectionResponse,
 } from "../admin-console/models/response/organization-connection.response";
-import { OrganizationExportResponse } from "../admin-console/models/response/organization-export.response";
 import { OrganizationSponsorshipSyncStatusResponse } from "../admin-console/models/response/organization-sponsorship-sync-status.response";
 import { PreValidateSponsorshipResponse } from "../admin-console/models/response/pre-validate-sponsorship.response";
 import {
@@ -1526,17 +1525,6 @@ export class ApiService implements ApiServiceAbstraction {
       const error = await this.handleError(response, false, true);
       return Promise.reject(error);
     }
-  }
-
-  async getOrganizationExport(organizationId: string): Promise<OrganizationExportResponse> {
-    const r = await this.send(
-      "GET",
-      "/organizations/" + organizationId + "/export",
-      null,
-      true,
-      true,
-    );
-    return new OrganizationExportResponse(r);
   }
 
   // Helpers
