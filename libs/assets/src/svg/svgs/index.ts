@@ -24,7 +24,6 @@ export * from "./no-results";
 export * from "./no-send.icon";
 export * from "./party";
 export { default as PasswordManagerLogo } from "./password-manager";
-export * from "./phishing-landing-icon";
 export { default as ProviderPortalLogo } from "./provider-portal";
 export * from "./registration-check-email.icon";
 export * from "./registration-user-add.icon";

@@ -23,7 +23,7 @@ import {
   UserLockIcon,
   VaultIcon,
   LockIcon,
-  PhishingLandingIcon,
+  DeactivatedOrg,
 } from "@bitwarden/assets/svg";
 import {
   LoginComponent,
@@ -693,7 +693,7 @@ const routes: Routes = [
           },
         ],
         data: {
-          pageIcon: PhishingLandingIcon,
+          pageIcon: DeactivatedOrg,
           pageTitle: "Bitwarden blocked it!",
           pageSubtitle: "Bitwarden blocked a known phishing site from loading.",
           showReadonlyHostname: true,
