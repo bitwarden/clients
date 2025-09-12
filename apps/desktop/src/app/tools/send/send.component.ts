@@ -25,13 +25,13 @@ import { SearchBarService } from "../../layout/search/search-bar.service";
 
 import { AddEditComponent } from "./add-edit.component";
 
-// FIXME: update to use a const object instead of a typescript enum
-// eslint-disable-next-line @bitwarden/platform/no-enums
-enum Action {
-  None = "",
-  Add = "add",
-  Edit = "edit",
-}
+export const Action = Object.freeze({
+  None: "",
+  Add: "add",
+  Edit: "edit",
+} as const);
+
+export type Action = (typeof Action)[keyof typeof Action];
 
 const BroadcasterSubscriptionId = "SendComponent";
 

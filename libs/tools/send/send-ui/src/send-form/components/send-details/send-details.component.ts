@@ -29,18 +29,17 @@ import { SendOptionsComponent } from "../options/send-options.component";
 import { SendFileDetailsComponent } from "./send-file-details.component";
 import { SendTextDetailsComponent } from "./send-text-details.component";
 
-// Value = hours
-// FIXME: update to use a const object instead of a typescript enum
-// eslint-disable-next-line @bitwarden/platform/no-enums
-export enum DatePreset {
-  OneHour = 1,
-  OneDay = 24,
-  TwoDays = 48,
-  ThreeDays = 72,
-  SevenDays = 168,
-  FourteenDays = 336,
-  ThirtyDays = 720,
-}
+export const DatePreset = Object.freeze({
+  OneHour: 1,
+  OneDay: 24,
+  TwoDays: 48,
+  ThreeDays: 72,
+  SevenDays: 168,
+  FourteenDays: 336,
+  ThirtyDays: 720,
+} as const);
+
+export type DatePreset = (typeof DatePreset)[keyof typeof DatePreset];
 
 export interface DatePresetSelectOption {
   name: string;

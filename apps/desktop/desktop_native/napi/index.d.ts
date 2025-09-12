@@ -228,8 +228,8 @@ export declare namespace chromium_importer {
     login?: Login
     failure?: LoginImportFailure
   }
-  export function getInstalledBrowsers(): Promise<Array<string>>
-  export function getAvailableProfiles(browser: string): Promise<Array<ProfileInfo>>
+  export function getInstalledBrowsers(): Array<string>
+  export function getAvailableProfiles(browser: string): Array<ProfileInfo>
   export function importLogins(browser: string, profileId: string): Promise<Array<LoginImportResult>>
 }
 export declare namespace autotype {

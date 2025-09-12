@@ -41,7 +41,7 @@ import { SendFilePopoutDialogContainerComponent } from "../send-file-popout-dial
 class QueryParams {
   constructor(params: Params) {
     this.sendId = params.sendId;
-    this.type = parseInt(params.type, 10);
+    this.type = parseInt(params.type, 10) as SendType;
   }
 
   /**

@@ -1,6 +1,6 @@
-// FIXME: update to use a const object instead of a typescript enum
-// eslint-disable-next-line @bitwarden/platform/no-enums
-export enum EncryptedExportType {
-  AccountEncrypted = 0,
-  FileEncrypted = 1,
-}
+export const EncryptedExportType = Object.freeze({
+  AccountEncrypted: 0,
+  FileEncrypted: 1,
+} as const);
+
+export type EncryptedExportType = (typeof EncryptedExportType)[keyof typeof EncryptedExportType];
