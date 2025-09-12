@@ -446,19 +446,17 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     await this.stateProvider.setUserState(USER_ENCRYPTED_PROVIDER_KEYS, null, userId);
   }
 
-  // TODO: Make userId required
-  async makeOrgKey<T extends OrgKey | ProviderKey>(userId?: UserId): Promise<[EncString, T]> {
-    const shareKey = await this.keyGenerationService.createKey(512);
-    userId ??= await firstValueFrom(this.stateProvider.activeUserId$);
+  async makeOrgKey<T extends OrgKey | ProviderKey>(userId: UserId): Promise<[EncString, T]> {
     if (userId == null) {
-      throw new Error("No active user found.");
+      throw new Error("UserId is required");
     }
 
     const publicKey = await firstValueFrom(this.userPublicKey$(userId));
     if (publicKey == null) {
-      throw new Error("No public key found.");
+      throw new Error("No public key found for user " + userId);
     }
 
+    const shareKey = await this.keyGenerationService.createKey(512);
     const encShareKey = await this.encryptService.encapsulateKeyUnsigned(shareKey, publicKey);
     return [encShareKey, shareKey as T];
   }
@@ -829,10 +827,14 @@ export class DefaultKeyService implements KeyServiceAbstraction {
         }
 
         return this.stateProvider.getUser(userId, USER_ENCRYPTED_PRIVATE_KEY).state$.pipe(
-          switchMap(
-            async (encryptedPrivateKey) =>
-              await this.decryptPrivateKey(encryptedPrivateKey, userKey),
-          ),
+          switchMap(async (encryptedPrivateKey) => {
+            try {
+              return await this.decryptPrivateKey(encryptedPrivateKey, userKey);
+            } catch (e) {
+              this.logService.error("Failed to decrypt private key for user ", userId, e);
+              throw e;
+            }
+          }),
           // Combine outerscope info with user private key
           map((userPrivateKey) => ({
             userKey,
