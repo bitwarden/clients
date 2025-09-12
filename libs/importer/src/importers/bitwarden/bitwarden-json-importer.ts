@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { concatMap, firstValueFrom, map } from "rxjs";
+import { concatMap, filter, firstValueFrom, map, take } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -15,7 +15,7 @@ import {
 } from "@bitwarden/common/models/export";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { OrganizationId } from "@bitwarden/common/types/guid";
+import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { KeyService } from "@bitwarden/key-management";
@@ -61,15 +61,31 @@ export class BitwardenJsonImporter extends BaseImporter implements Importer {
     return this.result;
   }
 
+  private async getActiveUserId(): Promise<UserId> {
+    const userId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(
+        map((a) => (a?.id as UserId) ?? null),
+        filter((id): id is UserId => id != null),
+        take(1),
+      ),
+    );
+    return userId;
+  }
+
   private async parseEncrypted(
     results: BitwardenEncryptedIndividualJsonExport | BitwardenEncryptedOrgJsonExport,
   ) {
+    const userId = await this.getActiveUserId();
+    if (!userId) {
+      this.result.success = false;
+      this.result.errorMessage = this.i18nService.t("userIdNotFound");
+      return;
+    }
     if (results.encKeyValidation_DO_NOT_EDIT != null) {
-      let keyForDecryption: SymmetricCryptoKey = await this.keyService.getOrgKey(
-        this.organizationId,
-      );
+      const orgKeys = await firstValueFrom(this.keyService.orgKeys$(userId));
+      let keyForDecryption: SymmetricCryptoKey = orgKeys?.[this.organizationId];
       if (keyForDecryption == null) {
-        keyForDecryption = await this.keyService.getUserKey();
+        keyForDecryption = await firstValueFrom(this.keyService.userKey$(userId));
       }
       const encKeyValidation = new EncString(results.encKeyValidation_DO_NOT_EDIT);
       try {
@@ -113,9 +129,7 @@ export class BitwardenJsonImporter extends BaseImporter implements Importer {
         });
       }
 
-      const activeUserId = await firstValueFrom(
-        this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-      );
+      const activeUserId = await this.getActiveUserId();
       const view = await this.cipherService.decrypt(cipher, activeUserId);
       this.cleanupCipher(view);
       this.result.ciphers.push(view);

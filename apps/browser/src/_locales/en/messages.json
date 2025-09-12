@@ -5606,5 +5606,8 @@
   },
   "confirmKeyConnectorDomain": {
     "message": "Confirm Key Connector domain"
+  },
+  "userIdNotFound": {
+    "message": "User ID must not be null or empty"
   }
 }
