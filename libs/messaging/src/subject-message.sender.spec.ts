@@ -1,8 +1,7 @@
 import { bufferCount, firstValueFrom, Subject } from "rxjs";
 
-import { CommandDefinition, Message } from "@bitwarden/messaging";
-
 import { SubjectMessageSender } from "./subject-message.sender";
+import { CommandDefinition, Message } from "./types";
 
 describe("SubjectMessageSender", () => {
   const subject = new Subject<Message<{ test: number }>>();
