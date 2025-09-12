@@ -25,7 +25,6 @@ export interface AutoFillOptions {
   tab: chrome.tabs.Tab;
   skipUsernameOnlyFill?: boolean;
   onlyEmptyFields?: boolean;
-  onlyVisibleFields?: boolean;
   fillNewPassword?: boolean;
   skipLastUsed?: boolean;
   allowUntrustedIframe?: boolean;
@@ -43,7 +42,6 @@ export interface FormData {
 export interface GenerateFillScriptOptions {
   skipUsernameOnlyFill: boolean;
   onlyEmptyFields: boolean;
-  onlyVisibleFields: boolean;
   fillNewPassword: boolean;
   allowTotpAutofill: boolean;
   autoSubmitLogin: boolean;

@@ -437,7 +437,6 @@ export default class AutofillService implements AutofillServiceInterface {
         const fillScript = await this.generateFillScript(pd.details, {
           skipUsernameOnlyFill: options.skipUsernameOnlyFill || false,
           onlyEmptyFields: options.onlyEmptyFields || false,
-          onlyVisibleFields: options.onlyVisibleFields || false,
           fillNewPassword: options.fillNewPassword || false,
           allowTotpAutofill: options.allowTotpAutofill || false,
           autoSubmitLogin: options.autoSubmitLogin || false,
@@ -571,7 +570,6 @@ export default class AutofillService implements AutofillServiceInterface {
       skipLastUsed: !fromCommand,
       skipUsernameOnlyFill: !fromCommand,
       onlyEmptyFields: !fromCommand,
-      onlyVisibleFields: !fromCommand,
       fillNewPassword: fromCommand,
       allowUntrustedIframe: fromCommand,
       allowTotpAutofill: fromCommand,
@@ -676,7 +674,6 @@ export default class AutofillService implements AutofillServiceInterface {
       skipLastUsed: !fromCommand,
       skipUsernameOnlyFill: !fromCommand,
       onlyEmptyFields: !fromCommand,
-      onlyVisibleFields: !fromCommand,
       fillNewPassword: false,
       allowUntrustedIframe: fromCommand,
       allowTotpAutofill: false,
@@ -843,23 +840,13 @@ export default class AutofillService implements AutofillServiceInterface {
 
     fillScript.untrustedIframe = await this.inUntrustedIframe(pageDetails.url, options);
 
-    let passwordFields = AutofillService.loadPasswordFields(
+    const passwordFields = AutofillService.loadPasswordFields(
       pageDetails,
       false,
       false,
       options.onlyEmptyFields,
       options.fillNewPassword,
     );
-    if (!passwordFields.length && !options.onlyVisibleFields) {
-      // not able to find any viewable password fields. maybe there are some "hidden" ones?
-      passwordFields = AutofillService.loadPasswordFields(
-        pageDetails,
-        true,
-        true,
-        options.onlyEmptyFields,
-        options.fillNewPassword,
-      );
-    }
 
     for (const formKey in pageDetails.forms) {
       // eslint-disable-next-line
@@ -874,11 +861,6 @@ export default class AutofillService implements AutofillServiceInterface {
         if (login.username) {
           username = this.findUsernameField(pageDetails, pf, false, false, false);
 
-          if (!username && !options.onlyVisibleFields) {
-            // not able to find any viewable username fields. maybe there are some "hidden" ones?
-            username = this.findUsernameField(pageDetails, pf, true, true, false);
-          }
-
           if (username) {
             usernames.push(username);
           }
@@ -886,11 +868,6 @@ export default class AutofillService implements AutofillServiceInterface {
 
         if (options.allowTotpAutofill && login.totp) {
           totp = this.findTotpField(pageDetails, pf, false, false, false);
-
-          if (!totp && !options.onlyVisibleFields) {
-            // not able to find any viewable totp fields. maybe there are some "hidden" ones?
-            totp = this.findTotpField(pageDetails, pf, true, true, false);
-          }
 
           if (totp) {
             totps.push(totp);
@@ -909,11 +886,6 @@ export default class AutofillService implements AutofillServiceInterface {
       if (login.username && pf.elementNumber > 0) {
         username = this.findUsernameField(pageDetails, pf, false, false, true);
 
-        if (!username && !options.onlyVisibleFields) {
-          // not able to find any viewable username fields. maybe there are some "hidden" ones?
-          username = this.findUsernameField(pageDetails, pf, true, true, true);
-        }
-
         if (username) {
           usernames.push(username);
         }
@@ -921,11 +893,6 @@ export default class AutofillService implements AutofillServiceInterface {
 
       if (options.allowTotpAutofill && login.totp && pf.elementNumber > 0) {
         totp = this.findTotpField(pageDetails, pf, false, false, true);
-
-        if (!totp && !options.onlyVisibleFields) {
-          // not able to find any viewable username fields. maybe there are some "hidden" ones?
-          totp = this.findTotpField(pageDetails, pf, true, true, true);
-        }
 
         if (totp) {
           totps.push(totp);
