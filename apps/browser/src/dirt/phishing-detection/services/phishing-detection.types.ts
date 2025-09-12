@@ -27,3 +27,9 @@ export type CaughtPhishingDomain = {
   warningPageUrl: URL;
   requestedContinue: boolean;
 };
+
+export type PhishingDetectionNavigationEvent = {
+  tabId: number;
+  changeInfo: chrome.tabs.TabChangeInfo;
+  tab: chrome.tabs.Tab;
+};

@@ -1,4 +1,4 @@
-import { concatMap, Subscription } from "rxjs";
+import { concatMap, delay, Subject, Subscription } from "rxjs";
 
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
@@ -16,6 +16,7 @@ import {
   CaughtPhishingDomain,
   isPhishingDetectionMessage,
   PhishingDetectionMessage,
+  PhishingDetectionNavigationEvent,
   PhishingDetectionTabId,
 } from "./phishing-detection.types";
 
@@ -30,8 +31,11 @@ export class PhishingDetectionService {
   private static _taskSchedulerService: TaskSchedulerService;
   private static _updateCacheSubscription: Subscription | null = null;
   private static _retrySubscription: Subscription | null = null;
+  private static _navigationEventsSubject = new Subject<PhishingDetectionNavigationEvent>();
+  private static _navigationEvents: Subscription | null = null;
   private static _knownPhishingDomains = new Set<string>();
   private static _caughtTabs: Map<PhishingDetectionTabId, CaughtPhishingDomain> = new Map();
+  private static _isInitialized = false;
   private static _isUpdating = false;
   private static _retryCount = 0;
   private static _lastUpdateTime: number = 0;
@@ -126,6 +130,12 @@ export class PhishingDetectionService {
    * Initializes the phishing detection service, setting up listeners and registering tasks
    */
   private static async _setup(): Promise<void> {
+    if (this._isInitialized) {
+      this._logService.info("[PhishingDetectionService] Already initialized, skipping setup.");
+      return;
+    }
+
+    this._isInitialized = true;
     this._setupListeners();
 
     // Register the update task
@@ -148,7 +158,6 @@ export class PhishingDetectionService {
 
     // Set up periodic updates every 24 hours
     this._setupPeriodicUpdates();
-
     this._logService.debug("[PhishingDetectionService] Phishing detection feature is initialized.");
   }
 
@@ -158,10 +167,18 @@ export class PhishingDetectionService {
   private static _setupListeners(): void {
     // Setup listeners from web page/content script
     BrowserApi.addListener(chrome.runtime.onMessage, this._handleExtensionMessage.bind(this));
-    BrowserApi.addListener(
-      chrome.webNavigation.onCompleted,
-      this._handleNavigationEvent.bind(this),
-    );
+    BrowserApi.addListener(chrome.tabs.onReplaced, this._handleReplacementEvent.bind(this));
+    BrowserApi.addListener(chrome.tabs.onUpdated, this._handleNavigationEvent.bind(this));
+
+    // When a navigation event occurs, check if a replace event for the same tabId exists,
+    // and call the replace handler before handling navigation.
+    this._navigationEvents = this._navigationEventsSubject
+      .pipe(
+        delay(100), // Delay slightly to allow replace events to be caught
+      )
+      .subscribe(({ tabId, changeInfo, tab }) => {
+        void this._processNavigation(tabId, changeInfo, tab);
+      });
   }
 
   private static _handleExtensionMessage(message: unknown, sender: chrome.runtime.MessageSender) {
@@ -199,15 +216,62 @@ export class PhishingDetectionService {
     }
   }
 
-  private static _handleNavigationEvent(
-    details: chrome.webNavigation.WebNavigationFramedCallbackDetails,
-  ): void {
-    const currentUrl = new URL(details.url);
+  /**
+   * Filter out navigation events that are to warning pages or not complete, check for phishing domains,
+   * then handle the navigation appropriately.
+   */
+  private static async _processNavigation(
+    tabId: number,
+    changeInfo: chrome.tabs.TabChangeInfo,
+    tab: chrome.tabs.Tab,
+  ): Promise<void> {
+    if (changeInfo.status !== "complete" || !tab.url) {
+      // Not a complete navigation or no URL to check
+      return;
+    }
+    // Check if navigating to a warning page to ignore
+    const isWarningPage = this._isWarningPage(tabId, tab.url);
+    if (isWarningPage) {
+      this._logService.debug(
+        `[PhishingDetectionService] Ignoring navigation to warning page for tab ${tabId}: ${tab.url}`,
+      );
+      return;
+    }
 
-    this._checkTabForPhishing(details.tabId, currentUrl);
-    this._handleTabNavigation(details.tabId);
+    // Check if tab is navigating to a phishing url and handle navigation
+    this._checkTabForPhishing(tabId, new URL(tab.url));
+    await this._handleTabNavigation(tabId);
   }
 
+  private static _handleNavigationEvent(
+    tabId: number,
+    changeInfo: chrome.tabs.TabChangeInfo,
+    tab: chrome.tabs.Tab,
+  ) {
+    this._navigationEventsSubject.next({ tabId, changeInfo, tab });
+  }
+
+  /**
+   * Handles a replace event in Safari when redirecting to a warning page
+   */
+  private static _handleReplacementEvent(newTabId: number, originalTabId: number) {
+    if (this._caughtTabs.has(originalTabId)) {
+      this._logService.debug(
+        `[PhishingDetectionService] Handling original tab ${originalTabId} changing to new tab ${newTabId}`,
+      );
+
+      // Handle replacement
+      const originalCaughtTab = this._caughtTabs.get(originalTabId);
+      if (originalCaughtTab) {
+        this._caughtTabs.set(newTabId, originalCaughtTab);
+        this._caughtTabs.delete(originalTabId);
+      } else {
+        this._logService.debug(
+          `[PhishingDetectionService] Original caught tab not found, ignoring replacement.`,
+        );
+      }
+    }
+  }
   /**
    * Adds a tab to the caught tabs map with the requested continue status set to false
    *
@@ -218,9 +282,9 @@ export class PhishingDetectionService {
   private static _addCaughtTab(tabId: PhishingDetectionTabId, url: URL) {
     const redirectedTo = this._createWarningPageUrl(url);
     const newTab = { url, warningPageUrl: redirectedTo, requestedContinue: false };
-    this._logService.debug("[PhishingDetectionService] Tracking new tab:", newTab);
 
     this._caughtTabs.set(tabId, newTab);
+    this._logService.debug("[PhishingDetectionService] Tracking new tab:", tabId, newTab);
   }
 
   /**
@@ -268,13 +332,10 @@ export class PhishingDetectionService {
     // Check if the tab already being tracked
     const caughtTab = this._caughtTabs.get(tabId);
 
-    // Do nothing if the tab is going to the phishing warning page
-    if (caughtTab && caughtTab.warningPageUrl.href === url.href) {
-      return;
-    }
-
-    this._logService.debug("[PhishingDetectionService] Checking for phishing url on tab:", tabId);
     const isPhishing = this.isPhishingDomain(url);
+    this._logService.debug(
+      `[PhishingDetectionService] Checking for phishing url. Result: ${isPhishing} on ${url}`,
+    );
 
     // Add a new caught tab
     if (!caughtTab && isPhishing) {
@@ -307,12 +368,17 @@ export class PhishingDetectionService {
    * @param tabId Tab to handle
    * @param url URL of the tab
    */
-  private static _handleTabNavigation(tabId: PhishingDetectionTabId): void {
+  private static async _handleTabNavigation(tabId: PhishingDetectionTabId) {
     const caughtTab = this._caughtTabs.get(tabId);
 
     if (caughtTab && !this._continueToCaughtDomain(tabId)) {
-      this._redirectToWarningPage(tabId);
+      await this._redirectToWarningPage(tabId);
     }
+  }
+
+  private static _isWarningPage(tabId: number, url: string): boolean {
+    const caughtTab = this._caughtTabs.get(tabId);
+    return caughtTab && caughtTab.warningPageUrl.href === url;
   }
 
   /**
@@ -338,12 +404,12 @@ export class PhishingDetectionService {
    *
    * @param tabId The ID of the tab to redirect
    */
-  private static _redirectToWarningPage(tabId: number) {
+  private static async _redirectToWarningPage(tabId: number) {
     const tabToRedirect = this._caughtTabs.get(tabId);
 
     if (tabToRedirect) {
       this._logService.info("[PhishingDetectionService] Redirecting to warning page");
-      void BrowserApi.navigateTabToUrl(tabId, tabToRedirect.warningPageUrl);
+      await BrowserApi.navigateTabToUrl(tabId, tabToRedirect.warningPageUrl);
     } else {
       this._logService.warning("[PhishingDetectionService] No caught tab found for redirection");
     }
@@ -570,16 +636,19 @@ export class PhishingDetectionService {
       this._retrySubscription.unsubscribe();
       this._retrySubscription = null;
     }
+    if (this._navigationEvents) {
+      this._navigationEvents.unsubscribe();
+      this._navigationEvents = null;
+    }
     this._knownPhishingDomains.clear();
     this._caughtTabs.clear();
     this._lastUpdateTime = 0;
     this._isUpdating = false;
+    this._isInitialized = false;
     this._retryCount = 0;
-    // [FIXME] BrowserApi remove listeners when enabled
+
     BrowserApi.removeListener(chrome.runtime.onMessage, this._handleExtensionMessage.bind(this));
-    BrowserApi.removeListener(
-      chrome.webNavigation.onCompleted,
-      this._handleNavigationEvent.bind(this),
-    );
+    BrowserApi.removeListener(chrome.tabs.onReplaced, this._handleReplacementEvent.bind(this));
+    BrowserApi.removeListener(chrome.tabs.onUpdated, this._handleNavigationEvent.bind(this));
   }
 }
