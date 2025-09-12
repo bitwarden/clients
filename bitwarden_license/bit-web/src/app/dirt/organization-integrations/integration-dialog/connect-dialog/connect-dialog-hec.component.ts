@@ -75,6 +75,10 @@ export class ConnectHecDialogComponent implements OnInit {
   }
 
   submit = async (): Promise<void> => {
+    if (this.formGroup.invalid) {
+      this.formGroup.markAllAsTouched();
+      return;
+    }
     const result = this.getHecConnectDialogResult(HecConnectDialogResultStatus.Edited);
 
     this.dialogRef.close(result);
