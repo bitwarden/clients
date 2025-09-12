@@ -1,8 +1,14 @@
 import { svgIcon } from "../icon-service";
 
 export const TwoFactorTimeoutIcon = svgIcon`
-<svg viewBox="0 0 120 101" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <path class="tw-fill-primary-600" d="M36.1675 38.8485C40.71 28.9376 50.8182 22.0428 62.554 22.0428C78.5399 22.0428 91.499 34.8328 91.499 50.6101C91.499 66.3874 78.5399 79.1774 62.554 79.1774C50.5663 79.1774 40.2756 71.9847 35.8807 61.7246C35.3972 60.5957 34.0779 60.0675 32.9341 60.5447C31.7903 61.022 31.255 62.324 31.7386 63.4529C36.8123 75.2975 48.6962 83.6158 62.554 83.6158C81.0235 83.6158 95.9961 68.8387 95.9961 50.6101C95.9961 32.3816 81.0235 17.6044 62.554 17.6044C48.3746 17.6044 36.2605 26.3121 31.3944 38.6029L27.8472 32.2954C27.2902 31.305 26.0358 30.9537 25.0454 31.5107C24.055 32.0676 23.7036 33.3221 24.2606 34.3125L30.0681 44.6391C30.6251 45.6295 31.8795 45.9809 32.8699 45.4239L43.1965 39.6164C44.187 39.0594 44.5383 37.805 43.9813 36.8146C43.4243 35.8242 42.1699 35.4728 41.1795 36.0298L36.1675 38.8485Z" />
-  <path class="tw-fill-primary-600" d="M72.2625 60.9479C71.8946 61.1944 71.4577 61.3265 71.0118 61.3265C70.4411 61.3265 69.8927 61.1086 69.4781 60.7189L60.6723 52.4767C60.4538 52.272 60.2799 52.0232 60.1595 51.7502C60.0391 51.4772 59.9767 51.1822 59.9767 50.8828V30.3303C59.9767 29.7469 60.2108 29.1877 60.6299 28.7739C61.049 28.36 61.6153 28.1288 62.206 28.1288C62.7968 28.1288 63.363 28.3622 63.7822 28.7739C64.2013 29.1855 64.4353 29.7469 64.4353 30.3303V49.9318L72.5456 57.5268C72.8688 57.8306 73.094 58.2225 73.1899 58.6518C73.2857 59.081 73.2478 59.5301 73.0829 59.9396C72.9179 60.3491 72.6303 60.7013 72.2625 60.9479Z" />
-</svg>
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="5 4 87 87">
+    <circle cx="48" cy="48" r="42" class="tw-fill-illustration-bg-primary tw-stroke-illustration-outline" stroke-width="2"/>
+    <rect width="18" height="14" x="12" y="70" class="tw-fill-illustration-bg-secondary tw-stroke-illustration-outline" stroke-width="2" rx="2"/>
+    <rect width="2" height="6" x="20" y="74" class="tw-fill-illustration-outline" rx="1"/>
+    <path class="tw-stroke-illustration-outline" stroke-width="2" d="M25 69v-1a4 4 0 0 0-8 0v1"/>
+    <circle cx="80" cy="16" r="11" class="tw-fill-illustration-tertiary tw-stroke-illustration-outline" stroke-width="2"/>
+    <path class="tw-stroke-illustration-outline" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m76.673 19.495 3.5-3.5m3.5-3.5-3.5 3.5m0 0-3.5-3.5 7 7"/>
+    <circle cx="48" cy="48" r="15.5" class="tw-fill-illustration-bg-tertiary tw-stroke-illustration-outline" stroke-width="2"/>
+    <path class="tw-stroke-illustration-outline" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M52.95 52.243 48 48.707v-9.9"/>
+  </svg>
 `;
