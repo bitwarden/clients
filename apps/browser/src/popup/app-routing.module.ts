@@ -45,6 +45,7 @@ import { LockComponent, ConfirmKeyConnectorDomainComponent } from "@bitwarden/ke
 
 import { AccountSwitcherComponent } from "../auth/popup/account-switching/account-switcher.component";
 import { fido2AuthGuard } from "../auth/popup/guards/fido2-auth.guard";
+import { LoginViaWebAuthnComponent } from "../auth/popup/login/login-via-webauthn/login-via-webauthn.component";
 import { AccountSecurityComponent } from "../auth/popup/settings/account-security.component";
 import { ExtensionDeviceManagementComponent } from "../auth/popup/settings/extension-device-management.component";
 import { Fido2Component } from "../autofill/popup/fido2/fido2.component";
@@ -394,6 +395,29 @@ const routes: Routes = [
         children: [
           { path: "", component: LoginComponent },
           { path: "", component: LoginSecondaryContentComponent, outlet: "secondary" },
+          {
+            path: "",
+            component: EnvironmentSelectorComponent,
+            outlet: "environment-selector",
+          },
+        ],
+      },
+      {
+        path: "login-with-passkey",
+        canActivate: [unauthGuardFn(unauthRouteOverrides)],
+        data: {
+          pageIcon: VaultIcon,
+          pageTitle: {
+            key: "logInWithPasskey",
+          },
+          pageSubtitle: {
+            key: "readingPasskeyLoadingInfo",
+          },
+          elevation: 1,
+          showBackButton: true,
+        } satisfies RouteDataProperties & ExtensionAnonLayoutWrapperData,
+        children: [
+          { path: "", component: LoginViaWebAuthnComponent },
           {
             path: "",
             component: EnvironmentSelectorComponent,

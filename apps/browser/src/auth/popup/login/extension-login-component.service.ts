@@ -68,4 +68,12 @@ export class ExtensionLoginComponentService
   showBackButton(showBackButton: boolean): void {
     this.extensionAnonLayoutWrapperDataService.setAnonLayoutWrapperData({ showBackButton });
   }
+
+  /**
+   * Enable passkey login support for chromium-based browsers only.
+   * Neither Firefox nor safari support overriding the relying party ID in an extension.
+   */
+  isLoginWithPasskeySupported(): boolean {
+    return !this.platformUtilsService.isFirefox() && !this.platformUtilsService.isSafari();
+  }
 }
