@@ -46,7 +46,7 @@ export class BrowserSystemNotificationService implements SystemNotificationsServ
     return new Promise<string>((resolve) => {
       const deviceType: DeviceType = this.platformUtilsService.getDevice();
 
-      const options: chrome.notifications.NotificationOptions<true> = {
+      const options: chrome.notifications.NotificationCreateOptions = {
         iconUrl: chrome.runtime.getURL("images/icon128.png"),
         message: createInfo.body,
         type: "basic",
@@ -70,6 +70,7 @@ export class BrowserSystemNotificationService implements SystemNotificationsServ
   }
 
   async clear(clearInfo: SystemNotificationClearInfo): Promise<undefined> {
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     chrome.notifications.clear(clearInfo.id);
   }
 
