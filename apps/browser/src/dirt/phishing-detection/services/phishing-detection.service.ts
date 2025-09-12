@@ -93,8 +93,6 @@ export class PhishingDetectionService {
    * Sends a message to the phishing detection service to close the warning page
    */
   static requestClosePhishingWarningPage(): void {
-    // [FIXME] User BrowserApi to handle memory leaks in safari but currently causes error
-    // await BrowserApi.sendMessage(PhishingDetectionMessage.Close);
     void chrome.runtime.sendMessage({ command: PhishingDetectionMessage.Close });
   }
 
@@ -102,8 +100,6 @@ export class PhishingDetectionService {
    * Sends a message to the phishing detection service to continue to the caught url
    */
   static async requestContinueToDangerousUrl() {
-    // [FIXME] User BrowserApi to handle memory leaks in safari but currently causes error
-    // await BrowserApi.sendMessage(PhishingDetectionMessage.Continue);
     void chrome.runtime.sendMessage({ command: PhishingDetectionMessage.Continue });
   }
 
@@ -181,16 +177,24 @@ export class PhishingDetectionService {
       });
   }
 
-  private static _handleExtensionMessage(message: unknown, sender: chrome.runtime.MessageSender) {
+  /**
+   * Handles messages from the phishing warning page
+   *
+   * @returns true if the message was handled, false otherwise
+   */
+  private static _handleExtensionMessage(
+    message: unknown,
+    sender: chrome.runtime.MessageSender,
+  ): boolean {
     if (!isPhishingDetectionMessage(message)) {
-      return;
+      return false;
     }
     const isValidSender = sender && sender.tab && sender.tab.id;
-    const senderTabId = isValidSender ? sender.tab.id : null;
+    const senderTabId = isValidSender ? sender?.tab?.id : null;
 
     // Only process messages from tab navigation
     if (senderTabId == null) {
-      return;
+      return false;
     }
 
     // Handle Dangerous Continue to Phishing Domain
@@ -202,6 +206,7 @@ export class PhishingDetectionService {
 
       this._setCaughtTabContinue(senderTabId);
       void this._continueToDangerousUrl(senderTabId);
+      return true;
     }
 
     // Handle Close Phishing Warning Page
@@ -213,7 +218,10 @@ export class PhishingDetectionService {
 
       void BrowserApi.closeTab(senderTabId);
       this._removeCaughtTab(senderTabId);
+      return true;
     }
+
+    return false;
   }
 
   /**
@@ -247,14 +255,19 @@ export class PhishingDetectionService {
     tabId: number,
     changeInfo: chrome.tabs.TabChangeInfo,
     tab: chrome.tabs.Tab,
-  ) {
+  ): boolean {
     this._navigationEventsSubject.next({ tabId, changeInfo, tab });
+
+    // Return value for supporting BrowserApi event listener signature
+    return true;
   }
 
   /**
    * Handles a replace event in Safari when redirecting to a warning page
+   *
+   * @returns true if the replacement was handled, false otherwise
    */
-  private static _handleReplacementEvent(newTabId: number, originalTabId: number) {
+  private static _handleReplacementEvent(newTabId: number, originalTabId: number): boolean {
     if (this._caughtTabs.has(originalTabId)) {
       this._logService.debug(
         `[PhishingDetectionService] Handling original tab ${originalTabId} changing to new tab ${newTabId}`,
@@ -270,8 +283,11 @@ export class PhishingDetectionService {
           `[PhishingDetectionService] Original caught tab not found, ignoring replacement.`,
         );
       }
+      return true;
     }
+    return false;
   }
+
   /**
    * Adds a tab to the caught tabs map with the requested continue status set to false
    *
@@ -304,10 +320,13 @@ export class PhishingDetectionService {
    */
   private static _setCaughtTabContinue(tabId: PhishingDetectionTabId) {
     const caughtTab = this._caughtTabs.get(tabId);
-    this._caughtTabs.set(tabId, {
-      ...caughtTab,
-      requestedContinue: true,
-    });
+    if (caughtTab) {
+      this._caughtTabs.set(tabId, {
+        url: caughtTab.url,
+        warningPageUrl: caughtTab.warningPageUrl,
+        requestedContinue: true,
+      });
+    }
   }
 
   /**
@@ -378,7 +397,7 @@ export class PhishingDetectionService {
 
   private static _isWarningPage(tabId: number, url: string): boolean {
     const caughtTab = this._caughtTabs.get(tabId);
-    return caughtTab && caughtTab.warningPageUrl.href === url;
+    return !!caughtTab && caughtTab.warningPageUrl.href === url;
   }
 
   /**
@@ -551,8 +570,8 @@ export class PhishingDetectionService {
       this._logService.info("[PhishingDetectionService] Successfully fetched domains");
     } catch (error) {
       this._logService.error(
-        "[PhishingDetectionService] Failed to fetch known phishing domains",
-        error.message,
+        "[PhishingDetectionService] Failed to fetch known phishing domains.",
+        error,
       );
 
       this._scheduleRetry();
@@ -578,8 +597,8 @@ export class PhishingDetectionService {
       );
     } catch (error) {
       this._logService.error(
-        "[PhishingDetectionService] Failed to save known phishing domains",
-        error.message,
+        "[PhishingDetectionService] Failed to save known phishing domains.",
+        error,
       );
       this._scheduleRetry();
       throw error;
@@ -647,8 +666,20 @@ export class PhishingDetectionService {
     this._isInitialized = false;
     this._retryCount = 0;
 
-    BrowserApi.removeListener(chrome.runtime.onMessage, this._handleExtensionMessage.bind(this));
-    BrowserApi.removeListener(chrome.tabs.onReplaced, this._handleReplacementEvent.bind(this));
-    BrowserApi.removeListener(chrome.tabs.onUpdated, this._handleNavigationEvent.bind(this));
+    // Manually type cast to satisfy the listener signature due to the mixture
+    // of static and instance methods in this class. To be fixed when refactoring
+    // this class to be instance-based while providing a singleton instance in usage
+    BrowserApi.removeListener(
+      chrome.runtime.onMessage,
+      PhishingDetectionService._handleExtensionMessage as (...args: readonly unknown[]) => unknown,
+    );
+    BrowserApi.removeListener(
+      chrome.tabs.onReplaced,
+      PhishingDetectionService._handleReplacementEvent as (...args: readonly unknown[]) => unknown,
+    );
+    BrowserApi.removeListener(
+      chrome.tabs.onUpdated,
+      PhishingDetectionService._handleNavigationEvent as (...args: readonly unknown[]) => unknown,
+    );
   }
 }

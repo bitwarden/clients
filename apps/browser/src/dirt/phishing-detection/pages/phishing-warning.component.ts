@@ -40,7 +40,7 @@ export class PhishingWarning implements OnDestroy {
 
   constructor(private activatedRoute: ActivatedRoute) {
     this.activatedRoute.queryParamMap.pipe(takeUntil(this.destroy$)).subscribe((params) => {
-      this.phishingHost = params.get("phishingHost");
+      this.phishingHost = params.get("phishingHost") || "";
     });
   }
 
