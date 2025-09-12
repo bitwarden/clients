@@ -34,6 +34,14 @@
         <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
       </a>
     </bit-item>
+    @if (userCanArchive() || showArchiveFilter()) {
+      <bit-item>
+        <a bit-item-content routerLink="/archive">
+          {{ "archive" | i18n }}
+          <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
+        </a>
+      </bit-item>
+    }
     <bit-item>
       <a bit-item-content routerLink="/trash">
         {{ "trash" | i18n }}

@@ -51,7 +51,6 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { EventType } from "@bitwarden/common/enums";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -83,6 +82,7 @@ import {
   AttachmentDialogCloseResult,
   AttachmentDialogResult,
   AttachmentsV2Component,
+  CipherArchiveService,
   CipherFormConfig,
   CollectionAssignmentResult,
   DecryptionFailureDialogComponent,
@@ -248,6 +248,13 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     shareReplay({ refCount: false, bufferSize: 1 }),
   );
 
+  private userCanArchive$ = this.accountService.activeAccount$.pipe(
+    getUserId,
+    switchMap((userId) => {
+      return this.cipherArchiveService.userCanArchive$(userId);
+    }),
+  );
+
   constructor(
     private syncService: SyncService,
     private route: ActivatedRoute,
@@ -281,8 +288,8 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     private trialFlowService: TrialFlowService,
     private organizationBillingService: OrganizationBillingServiceAbstraction,
     private billingNotificationService: BillingNotificationService,
-    private configService: ConfigService,
     private restrictedItemTypesService: RestrictedItemTypesService,
+    private cipherArchiveService: CipherArchiveService,
   ) {}
 
   async ngOnInit() {
@@ -378,12 +385,17 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       ),
     );
 
-    const ciphers$ = combineLatest([allowedCiphers$, filter$, this.currentSearchText$]).pipe(
+    const ciphers$ = combineLatest([
+      allowedCiphers$,
+      filter$,
+      this.currentSearchText$,
+      this.userCanArchive$,
+    ]).pipe(
       filter(([ciphers, filter]) => ciphers != undefined && filter != undefined),
-      concatMap(async ([ciphers, filter, searchText]) => {
+      concatMap(async ([ciphers, filter, searchText, archiveEnabled]) => {
         const failedCiphers =
           (await firstValueFrom(this.cipherService.failedToDecryptCiphers$(activeUserId))) ?? [];
-        const filterFunction = createFilterFunction(filter);
+        const filterFunction = createFilterFunction(filter, archiveEnabled);
         // Append any failed to decrypt ciphers to the top of the cipher list
         const allCiphers = [...failedCiphers, ...ciphers];
 

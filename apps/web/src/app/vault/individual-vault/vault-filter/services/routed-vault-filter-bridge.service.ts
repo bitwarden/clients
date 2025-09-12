@@ -174,6 +174,11 @@ function createLegacyFilterForEndUser(
       { id: "trash", name: "", type: "trash", icon: "" },
       null,
     );
+  } else if (filter.type !== undefined && filter.type === "archive") {
+    legacyFilter.selectedCipherTypeNode = new TreeNode<CipherTypeFilter>(
+      { id: "archive", name: "", type: "archive", icon: "" },
+      null,
+    );
   } else if (filter.type !== undefined && filter.type !== "trash") {
     legacyFilter.selectedCipherTypeNode = ServiceUtils.getTreeNodeObject(
       cipherTypeTree,
