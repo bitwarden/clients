@@ -4,6 +4,7 @@ import {
   CODE_VERIFIER,
   GLOBAL_ORGANIZATION_SSO_IDENTIFIER,
   SSO_EMAIL,
+  SSO_REQUIRED_CACHE,
   SSO_STATE,
   SsoLoginService,
   USER_ORGANIZATION_SSO_IDENTIFIER,
@@ -18,7 +19,7 @@ describe("SSOLoginService ", () => {
   let sut: SsoLoginService;
 
   let accountService: FakeAccountService;
-  let mockSingleUserStateProvider: FakeStateProvider;
+  let mockStateProvider: FakeStateProvider;
   let mockLogService: MockProxy<LogService>;
   let userId: UserId;
 
@@ -27,10 +28,10 @@ describe("SSOLoginService ", () => {
 
     userId = Utils.newGuid() as UserId;
     accountService = mockAccountServiceWith(userId);
-    mockSingleUserStateProvider = new FakeStateProvider(accountService);
+    mockStateProvider = new FakeStateProvider(accountService);
     mockLogService = mock<LogService>();
 
-    sut = new SsoLoginService(mockSingleUserStateProvider, mockLogService);
+    sut = new SsoLoginService(mockStateProvider, mockLogService);
   });
 
   it("instantiates", () => {
@@ -40,7 +41,7 @@ describe("SSOLoginService ", () => {
   it("gets and sets code verifier", async () => {
     const codeVerifier = "test-code-verifier";
     await sut.setCodeVerifier(codeVerifier);
-    mockSingleUserStateProvider.getGlobal(CODE_VERIFIER);
+    mockStateProvider.getGlobal(CODE_VERIFIER);
 
     const result = await sut.getCodeVerifier();
     expect(result).toBe(codeVerifier);
@@ -49,7 +50,7 @@ describe("SSOLoginService ", () => {
   it("gets and sets SSO state", async () => {
     const ssoState = "test-sso-state";
     await sut.setSsoState(ssoState);
-    mockSingleUserStateProvider.getGlobal(SSO_STATE);
+    mockStateProvider.getGlobal(SSO_STATE);
 
     const result = await sut.getSsoState();
     expect(result).toBe(ssoState);
@@ -58,7 +59,7 @@ describe("SSOLoginService ", () => {
   it("gets and sets organization SSO identifier", async () => {
     const orgIdentifier = "test-org-identifier";
     await sut.setOrganizationSsoIdentifier(orgIdentifier);
-    mockSingleUserStateProvider.getGlobal(GLOBAL_ORGANIZATION_SSO_IDENTIFIER);
+    mockStateProvider.getGlobal(GLOBAL_ORGANIZATION_SSO_IDENTIFIER);
 
     const result = await sut.getOrganizationSsoIdentifier();
     expect(result).toBe(orgIdentifier);
@@ -67,7 +68,7 @@ describe("SSOLoginService ", () => {
   it("gets and sets SSO email", async () => {
     const email = "test@example.com";
     await sut.setSsoEmail(email);
-    mockSingleUserStateProvider.getGlobal(SSO_EMAIL);
+    mockStateProvider.getGlobal(SSO_EMAIL);
 
     const result = await sut.getSsoEmail();
     expect(result).toBe(email);
@@ -77,7 +78,7 @@ describe("SSOLoginService ", () => {
     const userId = Utils.newGuid() as UserId;
     const orgIdentifier = "test-active-org-identifier";
     await sut.setActiveUserOrganizationSsoIdentifier(orgIdentifier, userId);
-    mockSingleUserStateProvider.getUser(userId, USER_ORGANIZATION_SSO_IDENTIFIER);
+    mockStateProvider.getUser(userId, USER_ORGANIZATION_SSO_IDENTIFIER);
 
     const result = await sut.getActiveUserOrganizationSsoIdentifier(userId);
     expect(result).toBe(orgIdentifier);
@@ -90,5 +91,101 @@ describe("SSOLoginService ", () => {
     expect(mockLogService.error).toHaveBeenCalledWith(
       "Tried to set a user organization sso identifier with an undefined user id.",
     );
+  });
+
+  describe("addToSsoRequiredCache()", () => {
+    it("should add an email to an empty cache", async () => {
+      const email = "test@example.com";
+      mockStateProvider.global.getFake(SSO_REQUIRED_CACHE).stateSubject.next([]);
+
+      await sut.addToSsoRequiredCache(email);
+
+      const cacheState = mockStateProvider.global.getFake(SSO_REQUIRED_CACHE);
+      expect(cacheState.nextMock).toHaveBeenCalledWith([email]);
+    });
+
+    it("should add an email to an existing cache when that email is not already present", async () => {
+      const existingEmail = "existing@example.com";
+      const newEmail = "new@example.com";
+
+      mockStateProvider.global.getFake(SSO_REQUIRED_CACHE).stateSubject.next([existingEmail]);
+
+      await sut.addToSsoRequiredCache(newEmail);
+
+      const cacheState = mockStateProvider.global.getFake(SSO_REQUIRED_CACHE);
+      expect(cacheState.nextMock).toHaveBeenCalledWith([existingEmail, newEmail]);
+    });
+
+    it("should not add a duplicate email to cache", async () => {
+      const duplicateEmail = "duplicate@example.com";
+
+      mockStateProvider.global.getFake(SSO_REQUIRED_CACHE).stateSubject.next([duplicateEmail]);
+
+      await sut.addToSsoRequiredCache(duplicateEmail);
+
+      const cacheState = mockStateProvider.global.getFake(SSO_REQUIRED_CACHE);
+      expect(cacheState.nextMock).not.toHaveBeenCalled();
+    });
+
+    it("should initialize a new cache with an email when no cache exists", async () => {
+      const email = "test@example.com";
+
+      mockStateProvider.global.getFake(SSO_REQUIRED_CACHE).stateSubject.next(null);
+
+      await sut.addToSsoRequiredCache(email);
+
+      const cacheState = mockStateProvider.global.getFake(SSO_REQUIRED_CACHE);
+      expect(cacheState.nextMock).toHaveBeenCalledWith([email]);
+    });
+  });
+
+  describe("removeFromSsoRequiredCacheIfPresent()", () => {
+    it("should remove email from cache when present", async () => {
+      const emailToRemove = "remove@example.com";
+      const remainingEmail = "keep@example.com";
+
+      mockStateProvider.global
+        .getFake(SSO_REQUIRED_CACHE)
+        .stateSubject.next([emailToRemove, remainingEmail]);
+
+      await sut.removeFromSsoRequiredCacheIfPresent(emailToRemove);
+
+      const cacheState = mockStateProvider.global.getFake(SSO_REQUIRED_CACHE);
+      expect(cacheState.nextMock).toHaveBeenCalledWith([remainingEmail]);
+    });
+
+    it("should not update cache when email is not present", async () => {
+      const existingEmail = "existing@example.com";
+      const nonExistentEmail = "nonexistent@example.com";
+
+      mockStateProvider.global.getFake(SSO_REQUIRED_CACHE).stateSubject.next([existingEmail]);
+
+      await sut.removeFromSsoRequiredCacheIfPresent(nonExistentEmail);
+
+      const cacheState = mockStateProvider.global.getFake(SSO_REQUIRED_CACHE);
+      expect(cacheState.nextMock).not.toHaveBeenCalled();
+    });
+
+    it("should not update cache when cache is already null", async () => {
+      const email = "test@example.com";
+
+      mockStateProvider.global.getFake(SSO_REQUIRED_CACHE).stateSubject.next(null);
+
+      await sut.removeFromSsoRequiredCacheIfPresent(email);
+
+      const cacheState = mockStateProvider.global.getFake(SSO_REQUIRED_CACHE);
+      expect(cacheState.nextMock).not.toHaveBeenCalled();
+    });
+
+    it("should result in an empty array when removing last email", async () => {
+      const email = "test@example.com";
+
+      mockStateProvider.global.getFake(SSO_REQUIRED_CACHE).stateSubject.next([email]);
+
+      await sut.removeFromSsoRequiredCacheIfPresent(email);
+
+      const cacheState = mockStateProvider.global.getFake(SSO_REQUIRED_CACHE);
+      expect(cacheState.nextMock).toHaveBeenCalledWith([]);
+    });
   });
 });

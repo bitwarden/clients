@@ -38,7 +38,14 @@
 
     <div class="tw-grid tw-gap-3">
       <!-- Continue button -->
-      <button type="button" bitButton block buttonType="primary" (click)="continuePressed()">
+      <button
+        type="button"
+        bitButton
+        block
+        buttonType="primary"
+        (click)="continuePressed()"
+        [disabled]="ssoRequired"
+      >
         {{ "continue" | i18n }}
       </button>
 
@@ -52,6 +59,7 @@
           block
           buttonType="secondary"
           (click)="handleLoginWithPasskeyClick()"
+          [disabled]="ssoRequired"
         >
           <i class="bwi bwi-passkey tw-mr-1" aria-hidden="true"></i>
           {{ "logInWithPasskey" | i18n }}

@@ -1,3 +1,5 @@
+import { Observable } from "rxjs";
+
 import { UserId } from "@bitwarden/common/types/guid";
 
 export abstract class SsoLoginServiceAbstraction {
@@ -86,4 +88,20 @@ export abstract class SsoLoginServiceAbstraction {
     organizationIdentifier: string,
     userId: UserId | undefined,
   ) => Promise<void>;
+
+  /**
+   * A cache list of user emails for whom the `PolicyType.RequireSso` policy is applied (that is, a list
+   * of users who are required to authenticate via SSO only). The cache lives on the current device only.
+   */
+  abstract ssoRequiredCache$: Observable<string[] | null>;
+
+  /**
+   * Add an email to the cached list of emails that must authenticate via SSO.
+   */
+  abstract addToSsoRequiredCache: (email: string) => Promise<void>;
+
+  /**
+   * Remove an email from the cached list of emails that must authenticate via SSO.
+   */
+  abstract removeFromSsoRequiredCacheIfPresent: (email: string) => Promise<void>;
 }
