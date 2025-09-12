@@ -12,7 +12,8 @@
         "outputPath": "dist/libs/storage-core",
         "main": "libs/storage-core/src/index.ts",
         "tsConfig": "libs/storage-core/tsconfig.lib.json",
-        "assets": ["libs/storage-core/*.md"]
+        "assets": ["libs/storage-core/*.md"],
+        "rootDir": "libs/storage-core/src"
       }
     },
     "lint": {

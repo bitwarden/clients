@@ -4,8 +4,8 @@
   "description": "Custom Nx tools like generators and executors for Bitwarden projects",
   "private": true,
   "type": "commonjs",
-  "main": "./src/index.js",
-  "types": "./src/index.d.ts",
+  "main": "index.js",
+  "types": "index.d.ts",
   "license": "GPL-3.0",
   "author": "Platform",
   "generators": "./generators.json"

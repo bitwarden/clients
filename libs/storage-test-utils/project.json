@@ -12,7 +12,8 @@
         "outputPath": "dist/libs/storage-test-utils",
         "main": "libs/storage-test-utils/src/index.ts",
         "tsConfig": "libs/storage-test-utils/tsconfig.lib.json",
-        "assets": ["libs/storage-test-utils/*.md"]
+        "assets": ["libs/storage-test-utils/*.md"],
+        "rootDir": "libs/storage-test-utils/src"
       }
     },
     "lint": {

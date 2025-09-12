@@ -12,7 +12,8 @@
         "outputPath": "dist/libs/state",
         "main": "libs/state/src/index.ts",
         "tsConfig": "libs/state/tsconfig.lib.json",
-        "assets": ["libs/state/*.md"]
+        "assets": ["libs/state/*.md"],
+        "rootDir": "libs/state/src"
       }
     },
     "lint": {
