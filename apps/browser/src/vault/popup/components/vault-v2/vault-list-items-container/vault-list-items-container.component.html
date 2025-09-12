@@ -106,19 +106,21 @@
               <app-vault-icon [cipher]="cipher"></app-vault-icon>
             </div>
             <span data-testid="item-name">{{ cipher.name }}</span>
-            <i
-              *ngIf="cipher.organizationId"
-              slot="default-trailing"
-              appOrgIcon
-              [tierType]="cipher.organization!.productTierType"
-              [size]="'small'"
-              [appA11yTitle]="orgIconTooltip(cipher)"
-            ></i>
-            <i
-              *ngIf="CipherViewLikeUtils.hasAttachments(cipher)"
-              class="bwi bwi-paperclip bwi-sm"
-              [appA11yTitle]="'attachments' | i18n"
-            ></i>
+            <div slot="default-trailing" class="tw-flex tw-gap-1.5">
+              <i
+                *ngIf="cipher.organizationId"
+                slot="default-trailing"
+                appOrgIcon
+                [tierType]="cipher.organization!.productTierType"
+                [size]="'small'"
+                [appA11yTitle]="orgIconTooltip(cipher)"
+              ></i>
+              <i
+                *ngIf="CipherViewLikeUtils.hasAttachments(cipher)"
+                class="bwi bwi-paperclip bwi-sm"
+                [appA11yTitle]="'attachments' | i18n"
+              ></i>
+            </div>
             <span slot="secondary">{{ CipherViewLikeUtils.subtitle(cipher) }}</span>
           </button>
 
