@@ -141,7 +141,7 @@ export class OrganizationVaultExportService
       this.vaultExportApiService
         .getOrganizationExport(organizationId as OrganizationId)
         .then((exportData) => {
-          const exportPromises: any = [];
+          const exportPromises: Promise<void>[] = [];
           if (exportData != null) {
             if (exportData.collections != null && exportData.collections.length > 0) {
               exportData.collections.forEach((c) => {
