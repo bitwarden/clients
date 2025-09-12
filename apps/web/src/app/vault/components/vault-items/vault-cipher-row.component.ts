@@ -146,6 +146,45 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
       !CipherViewLikeUtils.isDeleted(this.cipher)
     );
   }
+  protected get isNotDeletedCardCipher() {
+    return (
+      CipherViewLikeUtils.getType(this.cipher) === this.CipherType.Card &&
+      !CipherViewLikeUtils.isDeleted(this.cipher)
+    );
+  }
+
+  protected get isNotDeletedIdentityCipher() {
+    return (
+      CipherViewLikeUtils.getType(this.cipher) === this.CipherType.Identity &&
+      !CipherViewLikeUtils.isDeleted(this.cipher)
+    );
+  }
+
+  protected get hasNumberToCopy() {
+    return (
+      CipherViewLikeUtils.getType(this.cipher) === this.CipherType.Card &&
+      !!(this.cipher as any).card?.number
+    );
+  }
+
+  protected get hasCodeToCopy() {
+    return (
+      CipherViewLikeUtils.getType(this.cipher) === this.CipherType.Card &&
+      !!(this.cipher as any).card?.code
+    );
+  }
+
+  protected get hasPhoneToCopy() {
+    return CipherViewLikeUtils.hasCopyableValue(this.cipher, "phone");
+  }
+
+  protected get hasAddressToCopy() {
+    return CipherViewLikeUtils.hasCopyableValue(this.cipher, "address");
+  }
+
+  protected get hasEmailToCopy() {
+    return CipherViewLikeUtils.hasCopyableValue(this.cipher, "email");
+  }
 
   protected get hasPasswordToCopy() {
     return CipherViewLikeUtils.hasCopyableValue(this.cipher, "password");
@@ -153,6 +192,10 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
 
   protected get hasUsernameToCopy() {
     return CipherViewLikeUtils.hasCopyableValue(this.cipher, "username");
+  }
+
+  protected get hasNoteToCopy() {
+    return CipherViewLikeUtils.hasCopyableValue(this.cipher, "secureNote");
   }
 
   protected get permissionText() {
@@ -224,7 +267,18 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     );
   }
 
-  protected copy(field: "username" | "password" | "totp") {
+  protected copy(
+    field:
+      | "username"
+      | "password"
+      | "totp"
+      | "cardNumber"
+      | "securityCode"
+      | "email"
+      | "phone"
+      | "address"
+      | "notes",
+  ) {
     this.onEvent.emit({ type: "copyField", item: this.cipher, field });
   }
 
@@ -244,12 +298,20 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     this.onEvent.emit({ type: "delete", items: [{ cipher: this.cipher }] });
   }
 
+  protected edit() {
+    this.onEvent.emit({ type: "edit", item: this.cipher });
+  }
+
   protected attachments() {
     this.onEvent.emit({ type: "viewAttachments", item: this.cipher });
   }
 
   protected assignToCollections() {
     this.onEvent.emit({ type: "assignToCollections", items: [this.cipher] });
+  }
+
+  protected toggleFavorite() {
+    this.onEvent.emit({ type: "toggleFavorite", item: this.cipher });
   }
 
   protected get showCheckbox() {

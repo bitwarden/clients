@@ -1300,7 +1300,19 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
     }
   }
 
-  async copy(cipher: CipherView, field: "username" | "password" | "totp") {
+  async copy(
+    cipher: CipherView,
+    field:
+      | "username"
+      | "password"
+      | "totp"
+      | "cardNumber"
+      | "securityCode"
+      | "email"
+      | "phone"
+      | "address"
+      | "notes",
+  ) {
     let aType;
     let value;
     let typeI18nKey;
@@ -1318,10 +1330,41 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
       const totpResponse = await firstValueFrom(this.totpService.getCode$(cipher.login.totp));
       value = totpResponse.code;
       typeI18nKey = "verificationCodeTotp";
+    } else if (field === "cardNumber") {
+      aType = "CardNumber";
+      value = cipher.card?.number;
+      typeI18nKey = "cardNumber";
+    } else if (field === "securityCode") {
+      aType = "SecurityCode";
+      value = cipher.card?.code;
+      typeI18nKey = "securityCode";
+    } else if (field === "email") {
+      aType = "Email";
+      value = cipher.identity?.email;
+      typeI18nKey = "email";
+    } else if (field === "phone") {
+      aType = "Phone";
+      value = cipher.identity?.phone;
+      typeI18nKey = "phone";
+    } else if (field === "address") {
+      aType = "Address";
+      value = cipher.identity?.address1;
+      typeI18nKey = "address";
+    } else if (field === "notes") {
+      aType = "Notes";
+      value = cipher?.notes;
+      typeI18nKey = "notes";
     } else {
       this.toastService.showToast({
         variant: "error",
+        message: this.i18nService.t("unexpectedError"),
+      });
+      return;
+    }
 
+    if (!value) {
+      this.toastService.showToast({
+        variant: "error",
         message: this.i18nService.t("unexpectedError"),
       });
       return;
@@ -1341,7 +1384,6 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
     this.platformUtilsService.copyToClipboard(value, { window: window });
     this.toastService.showToast({
       variant: "info",
-
       message: this.i18nService.t("valueCopied", this.i18nService.t(typeI18nKey)),
     });
 

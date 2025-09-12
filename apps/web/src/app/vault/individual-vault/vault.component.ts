@@ -49,7 +49,6 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { OrganizationBillingServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
-import { EventType } from "@bitwarden/common/enums";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -614,6 +613,12 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
           break;
         case "assignToCollections":
           await this.bulkAssignToCollections(event.items);
+          break;
+        case "toggleFavorite":
+          await this.toggleFavorite(event.item);
+          break;
+        case "edit":
+          await this.editCipher(event.item);
           break;
       }
     } finally {
@@ -1206,24 +1211,26 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     }
   }
 
-  async copy(cipher: C, field: "username" | "password" | "totp") {
+  async copy(
+    cipher: C,
+    field:
+      | "username"
+      | "password"
+      | "totp"
+      | "cardNumber"
+      | "securityCode"
+      | "email"
+      | "phone"
+      | "address"
+      | "notes",
+  ) {
     let aType;
     let value;
     let typeI18nKey;
 
-    const login = CipherViewLikeUtils.getLogin(cipher);
-
-    if (!login) {
-      this.toastService.showToast({
-        variant: "error",
-        title: null,
-        message: this.i18nService.t("unexpectedError"),
-      });
-    }
-
     if (field === "username") {
       aType = "Username";
-      value = login.username;
+      value = CipherViewLikeUtils.getLogin(cipher)?.username;
       typeI18nKey = "username";
     } else if (field === "password") {
       aType = "Password";
@@ -1231,9 +1238,43 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       typeI18nKey = "password";
     } else if (field === "totp") {
       aType = "TOTP";
-      const totpResponse = await firstValueFrom(this.totpService.getCode$(login.totp));
+      const login = CipherViewLikeUtils.getLogin(cipher);
+      const totpResponse = await firstValueFrom(this.totpService.getCode$(login?.totp));
       value = totpResponse.code;
       typeI18nKey = "verificationCodeTotp";
+    } else if (field === "cardNumber") {
+      aType = "CardNumber";
+      value = (cipher as any).card?.number;
+      typeI18nKey = "cardNumber";
+    } else if (field === "securityCode") {
+      aType = "SecurityCode";
+      value = (cipher as any).card?.code;
+      typeI18nKey = "securityCode";
+    } else if (field === "email") {
+      aType = "Email";
+      value = (cipher as any).identity?.email;
+      typeI18nKey = "email";
+    } else if (field === "phone") {
+      aType = "Phone";
+      value = (cipher as any).identity?.phone;
+      typeI18nKey = "phone";
+    } else if (field === "address") {
+      aType = "Address";
+      value = (cipher as any).identity?.address1;
+      typeI18nKey = "address";
+    } else if (field === "notes") {
+      aType = "Note";
+      if (CipherViewLikeUtils.isCipherListView(cipher)) {
+        const activeUserId = await firstValueFrom(
+          this.accountService.activeAccount$.pipe(getUserId),
+        );
+        const _cipher = await this.cipherService.get(uuidAsString(cipher.id), activeUserId);
+        const cipherView = await this.cipherService.decrypt(_cipher, activeUserId);
+        value = cipherView.notes;
+      } else {
+        value = cipher.notes;
+      }
+      typeI18nKey = "notes";
     } else {
       this.toastService.showToast({
         variant: "error",
@@ -1243,7 +1284,16 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       return;
     }
 
-    if (
+    if (!value) {
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: this.i18nService.t("unexpectedError"),
+      });
+      return;
+    }
+
+        if (
       this.passwordRepromptService.protectedFields().includes(aType) &&
       !(await this.repromptCipher([cipher]))
     ) {
@@ -1253,25 +1303,13 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     if (!cipher.viewPassword) {
       return;
     }
-
+    
     this.platformUtilsService.copyToClipboard(value, { window: window });
     this.toastService.showToast({
       variant: "info",
       title: null,
       message: this.i18nService.t("valueCopied", this.i18nService.t(typeI18nKey)),
     });
-
-    if (field === "password") {
-      await this.eventCollectionService.collect(
-        EventType.Cipher_ClientCopiedPassword,
-        uuidAsString(cipher.id),
-      );
-    } else if (field === "totp") {
-      await this.eventCollectionService.collect(
-        EventType.Cipher_ClientCopiedHiddenField,
-        uuidAsString(cipher.id),
-      );
-    }
   }
 
   protected deleteCipherWithServer(id: string, userId: UserId, permanent: boolean) {
@@ -1331,6 +1369,16 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     const _cipher = await this.cipherService.get(uuidAsString(cipher.id), activeUserId);
     const cipherView = await this.cipherService.decrypt(_cipher, activeUserId);
     return cipherView.login?.password;
+  }
+
+  async toggleFavorite(cipher: C) {
+    // Toggle the favorite property and persist the change
+    cipher.favorite = !cipher.favorite;
+    await this.cipherService.updateFavorite(uuidAsString(cipher.id), cipher.favorite);
+    this.toastService.showToast({
+      variant: "info",
+      message: this.i18nService.t(cipher.favorite ? "addedToFavorites" : "removedFromFavorites"),
+    });
   }
 }
 

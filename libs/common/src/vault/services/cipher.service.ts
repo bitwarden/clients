@@ -2052,4 +2052,22 @@ export class CipherService implements CipherServiceAbstraction {
 
     return Promise.resolve(c);
   }
+
+  /**
+   * Updates the favorite status of a cipher and persists it to the server.
+   * @param id The cipher ID.
+   * @param favorite The new favorite status.
+   */
+  async updateFavorite(id: string, favorite: boolean): Promise<void> {
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
+    const cipher = await this.get(id, userId);
+    if (!cipher) {
+      throw new Error("Cipher not found");
+    }
+    const cipherView = await this.decrypt(cipher, userId);
+    cipherView.favorite = favorite;
+
+    const encrypted = await this.encrypt(cipherView, userId, null, null, cipher);
+    await this.updateWithServer(encrypted);
+  }
 }
