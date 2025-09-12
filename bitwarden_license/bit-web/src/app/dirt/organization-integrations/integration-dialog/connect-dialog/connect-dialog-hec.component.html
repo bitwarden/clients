@@ -37,6 +37,19 @@
       <button type="button" bitButton bitDialogClose buttonType="secondary" [disabled]="loading">
         {{ "cancel" | i18n }}
       </button>
+
+      @if (canDelete) {
+        <div class="tw-ml-auto">
+          <button
+            bitIconButton="bwi-trash"
+            type="button"
+            buttonType="danger"
+            label="'delete' | i18n"
+            [appA11yTitle]="'delete' | i18n"
+            [bitAction]="delete"
+          ></button>
+        </div>
+      }
     </ng-container>
   </bit-dialog>
 </form>

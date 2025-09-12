@@ -20,7 +20,6 @@ export type Integration = {
    */
   newBadgeExpiration?: string;
   description?: string;
-  isConnected?: boolean;
   canSetupConnection?: boolean;
   configuration?: string;
   template?: string;

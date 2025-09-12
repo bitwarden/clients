@@ -14,6 +14,7 @@ import {
   ConnectHecDialogComponent,
   HecConnectDialogParams,
   HecConnectDialogResult,
+  HecConnectDialogResultStatus,
   openHecConnectDialog,
 } from "./connect-dialog-hec.component";
 
@@ -65,7 +66,6 @@ describe("ConnectDialogHecComponent", () => {
     imageDarkMode: "test-image-dark.png",
     newBadgeExpiration: "2024-12-31",
     description: "Test Description",
-    isConnected: false,
     canSetupConnection: true,
     type: IntegrationType.EVENT,
   } as Integration;
@@ -155,8 +155,7 @@ describe("ConnectDialogHecComponent", () => {
       bearerToken: "token",
       index: "1",
       service: "Test Service",
-      success: true,
-      error: null,
+      success: HecConnectDialogResultStatus.Edited,
     });
   });
 });
