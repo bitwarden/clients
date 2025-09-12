@@ -1095,7 +1095,6 @@ export default class MainBackground {
       this.encryptService,
       this.cryptoFunctionService,
       this.kdfConfigService,
-      this.accountService,
       this.apiService,
       this.restrictedItemTypesService,
     );
@@ -1109,7 +1108,6 @@ export default class MainBackground {
       this.cryptoFunctionService,
       this.collectionService,
       this.kdfConfigService,
-      this.accountService,
       this.restrictedItemTypesService,
     );
 
