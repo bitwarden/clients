@@ -1763,14 +1763,8 @@
   "popupU2fCloseMessage": {
     "message": "Šis pārlūks nevar apstrādāt U2F pieprasījumus šajā uznirstošajā logā. Vai atvērt to atsevišķā logā, lai varētu pieteikties, izmantojot U2F?"
   },
-  "enableFavicon": {
-    "message": "Rādīt tīmekļvietņu ikonas"
-  },
-  "faviconDesc": {
-    "message": "Attēlot atpazīstamu attēlu pie katra pieteikšanās vienuma."
-  },
-  "faviconDescAlt": {
-    "message": "Parādīt atpazīstamu attēlu pie katra pieteikšanās vienuma. Attiecas uz visiem kontiem, kuros ir notikusi pieteikšanās."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "enableBadgeCounter": {
     "message": "Rādīt skaita nozīmīti"
@@ -5583,6 +5577,12 @@
   "generatorNudgeBodyAria": {
     "message": "Vienkārša spēcīgu un neatkārtojamu paroļu izveidošana ar pogu \"Izveidot paroli\", lai palīdzētu uzturēt pieteikšanās vienumus drošus.",
     "description": "Aria label for the body content of the generator nudge"
+  },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
   },
   "noPermissionsViewPage": {
     "message": "Nav atļaujas apskatīt šo lapu. Jāmēģina pieteikties ar citu kontu."

@@ -1763,14 +1763,8 @@
   "popupU2fCloseMessage": {
     "message": "Den här webbläsaren kan inte bearbeta U2F-förfrågningar i detta popup-fönster. Vill du öppna ett nytt fönster så att du kan logga in med U2F?"
   },
-  "enableFavicon": {
-    "message": "Visa webbplatsikoner"
-  },
-  "faviconDesc": {
-    "message": "Visa en igenkännbar bild bredvid varje inloggning."
-  },
-  "faviconDescAlt": {
-    "message": "Visa en igenkännbar bild bredvid varje inloggning. Gäller för alla inloggade konton."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "enableBadgeCounter": {
     "message": "Visa aktivitetsräknaren"
@@ -5583,6 +5577,12 @@
   "generatorNudgeBodyAria": {
     "message": "Skapa enkelt starka och unika lösenord genom att klicka på knappen Generera lösenord så att du kan hålla dina inloggningar säkra.",
     "description": "Aria label for the body content of the generator nudge"
+  },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
   },
   "noPermissionsViewPage": {
     "message": "Du har inte behörighet att visa den här sidan. Försök att logga in med ett annat konto."
