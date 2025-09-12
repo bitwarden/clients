@@ -1763,14 +1763,8 @@
   "popupU2fCloseMessage": {
     "message": "Este navegador não pode processar pedidos U2F nesta janela pop-up. Pretende abrir este pop-up numa nova janela para poder iniciar sessão utilizando o U2F?"
   },
-  "enableFavicon": {
-    "message": "Mostrar ícones do site"
-  },
-  "faviconDesc": {
-    "message": "Mostrar uma imagem reconhecível junto a cada credencial."
-  },
-  "faviconDescAlt": {
-    "message": "Mostrar uma imagem reconhecível junto a cada credencial. Aplica-se a todas as contas com sessão iniciada."
+  "showIconsChangePasswordUrls": {
+    "message": "Mostrar ícones de sites e recuperar URLs de alteração de palavra-passe"
   },
   "enableBadgeCounter": {
     "message": "Mostrar distintivo de contador"
@@ -5583,6 +5577,12 @@
   "generatorNudgeBodyAria": {
     "message": "Crie facilmente palavras-passe fortes e únicas clicando no botão Gerar palavra-passe para o ajudar a manter as suas credenciais seguras.",
     "description": "Aria label for the body content of the generator nudge"
+  },
+  "aboutThisSetting": {
+    "message": "Acerca desta definição"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "O Bitwarden utilizará os URIs de credenciais guardadas para identificar qual o ícone ou URL de alteração de palavra-passe que deve ser utilizado para melhorar a sua experiência. Nenhuma informação é recolhida ou guardada quando utiliza este serviço."
   },
   "noPermissionsViewPage": {
     "message": "Não tem permissões para ver esta página. Tente iniciar sessão com uma conta diferente."

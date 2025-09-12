@@ -1,8 +1,8 @@
 import { Subject } from "rxjs";
 
-import { CommandDefinition, Message, MessageSender } from "@bitwarden/messaging";
-
 import { getCommand } from "./helpers";
+import { MessageSender } from "./message.sender";
+import { CommandDefinition, Message } from "./types";
 
 export class SubjectMessageSender implements MessageSender {
   constructor(private readonly messagesSubject: Subject<Message<Record<string, unknown>>>) {}
