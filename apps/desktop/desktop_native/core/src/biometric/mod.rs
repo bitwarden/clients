@@ -1,3 +1,5 @@
+//! Note: This module is deprecated and will be deleted after the v2 module is tested and rolled out.
+
 use aes::cipher::generic_array::GenericArray;
 use anyhow::{anyhow, Result};
 

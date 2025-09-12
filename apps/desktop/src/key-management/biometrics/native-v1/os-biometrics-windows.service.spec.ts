@@ -13,9 +13,9 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { biometrics, passwords } from "@bitwarden/desktop-napi";
 import { BiometricsStatus, BiometricStateService } from "@bitwarden/key-management";
 
-import { WindowMain } from "../../main/window.main";
+import { WindowMain } from "../../../main/window.main";
 
-import OsBiometricsServiceWindows from "./os-biometrics-windows.service";
+import { default as OsBiometricsServiceWindows } from "./os-biometrics-windows.service";
 
 import OsDerivedKey = biometrics.OsDerivedKey;
 

@@ -7,7 +7,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { passwords } from "@bitwarden/desktop-napi";
 import { BiometricsStatus } from "@bitwarden/key-management";
 
-import { OsBiometricService } from "./os-biometrics.service";
+import { OsBiometricService } from "../native-v2/os-biometrics.service";
 
 const SERVICE = "Bitwarden_biometric";
 function getLookupKeyForUser(userId: UserId): string {
@@ -19,6 +19,19 @@ export default class OsBiometricsServiceMac implements OsBiometricService {
     private i18nservice: I18nService,
     private logService: LogService,
   ) {}
+
+  async enrollPersistent(userId: UserId, key: SymmetricCryptoKey): Promise<void> {
+    await this.setBiometricKey(userId, key);
+  }
+
+  async hasPersistentKey(userId: UserId): Promise<boolean> {
+    try {
+      await passwords.getPassword(SERVICE, getLookupKeyForUser(userId));
+      return true;
+    } catch {
+      return false;
+    }
+  }
 
   async supportsBiometrics(): Promise<boolean> {
     return systemPreferences.canPromptTouchID();

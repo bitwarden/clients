@@ -68,4 +68,20 @@ export class RendererBiometricsService extends DesktopBiometricsService {
       BiometricsStatus.ManualSetupNeeded,
     ].includes(biometricStatus);
   }
+
+  async enrollPersistent(userId: UserId, key: SymmetricCryptoKey): Promise<void> {
+    return await ipc.keyManagement.biometric.enrollPersistent(userId, key.toBase64());
+  }
+
+  async hasPersistentKey(userId: UserId): Promise<boolean> {
+    return await ipc.keyManagement.biometric.hasPersistentKey(userId);
+  }
+
+  async enableV2BiometricsBackend(): Promise<void> {
+    return await ipc.keyManagement.biometric.enableBiometricsV2();
+  }
+
+  async isV2BiometricsBackendEnabled(): Promise<boolean> {
+    return await ipc.keyManagement.biometric.isBiometricsV2Enabled();
+  }
 }

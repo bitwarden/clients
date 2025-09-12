@@ -10,9 +10,8 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { biometrics, passwords } from "@bitwarden/desktop-napi";
 import { BiometricsStatus, BiometricStateService } from "@bitwarden/key-management";
 
-import { isFlatpak, isLinux, isSnapStore } from "../../utils";
-
-import { OsBiometricService } from "./os-biometrics.service";
+import { isFlatpak, isLinux, isSnapStore } from "../../../utils";
+import { OsBiometricService } from "../native-v2/os-biometrics.service";
 
 const polkitPolicy = `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE policyconfig PUBLIC
@@ -46,6 +45,12 @@ export default class OsBiometricsServiceLinux implements OsBiometricService {
     private cryptoFunctionService: CryptoFunctionService,
     private logService: LogService,
   ) {}
+
+  async enrollPersistent(userId: UserId, key: SymmetricCryptoKey): Promise<void> {}
+
+  async hasPersistentKey(userId: UserId): Promise<boolean> {
+    return false;
+  }
 
   private _iv: string | null = null;
   // Use getKeyMaterial helper instead of direct access

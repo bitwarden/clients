@@ -1,16 +1,14 @@
 import { mock } from "jest-mock-extended";
 
-import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { passwords } from "@bitwarden/desktop-napi";
-import { BiometricStateService } from "@bitwarden/key-management";
 
-import OsBiometricsServiceLinux from "./os-biometrics-linux.service";
+import OsBiometricsServiceMac from "./os-biometrics-mac.service";
 
 jest.mock("@bitwarden/desktop-napi", () => ({
-  biometrics: {
+  biometrics_v2: {
     setBiometricSecret: jest.fn(),
     getBiometricSecret: jest.fn(),
     deleteBiometricSecret: jest.fn(),
@@ -26,23 +24,17 @@ jest.mock("@bitwarden/desktop-napi", () => ({
   },
 }));
 
-describe("OsBiometricsServiceLinux", () => {
-  let service: OsBiometricsServiceLinux;
+describe("OsBiometricsServiceMac", () => {
+  let service: OsBiometricsServiceMac;
+  let i18nService: I18nService;
   let logService: LogService;
 
   const mockUserId = "test-user-id" as UserId;
 
   beforeEach(() => {
-    const biometricStateService = mock<BiometricStateService>();
-    const encryptService = mock<EncryptService>();
-    const cryptoFunctionService = mock<CryptoFunctionService>();
+    i18nService = mock<I18nService>();
     logService = mock<LogService>();
-    service = new OsBiometricsServiceLinux(
-      biometricStateService,
-      encryptService,
-      cryptoFunctionService,
-      logService,
-    );
+    service = new OsBiometricsServiceMac(i18nService, logService);
   });
 
   afterEach(() => {
