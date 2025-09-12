@@ -9,7 +9,6 @@ import { TaskSchedulerService } from "@bitwarden/common/platform/scheduling/task
 
 import { PhishingDetectionService } from "./phishing-detection.service";
 
-
 describe("PhishingDetectionService", () => {
   let auditService: AuditService;
   let logService: LogService;
