@@ -12,7 +12,6 @@
 <ng-container *ngIf="freeTrialWhenWarningsServiceDisabled$ | async as freeTrial">
   <bit-banner
     id="free-trial-banner"
-    class="-tw-m-6 tw-flex tw-flex-col tw-pb-6"
     icon="bwi-billing"
     bannerType="premium"
     [showClose]="false"
@@ -33,7 +32,6 @@
 <ng-container *ngIf="resellerWarningWhenWarningsServiceDisabled$ | async as resellerWarning">
   <bit-banner
     id="reseller-warning-banner"
-    class="-tw-m-6 tw-flex tw-flex-col tw-pb-6"
     icon="bwi-billing"
     bannerType="info"
     [showClose]="false"

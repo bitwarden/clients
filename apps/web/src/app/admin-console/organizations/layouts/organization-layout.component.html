@@ -140,11 +140,7 @@
   </app-side-nav>
 
   <ng-container *ngIf="organization$ | async as organization">
-    <bit-banner
-      *ngIf="organization.isProviderUser"
-      [showClose]="false"
-      class="-tw-m-6 tw-flex tw-flex-col tw-pb-6"
-    >
+    <bit-banner *ngIf="organization.isProviderUser" [showClose]="false">
       {{ "accessingUsingProvider" | i18n: organization.providerName }}
     </bit-banner>
     <app-tax-id-warning

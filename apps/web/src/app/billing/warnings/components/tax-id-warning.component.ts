@@ -90,12 +90,7 @@ type GetWarning$ = () => Observable<TaxIdWarningType | null>;
       @let view = view$ | async;
 
       @if (view) {
-        <bit-banner
-          id="tax-id-warning-banner"
-          class="-tw-m-6 tw-flex tw-flex-col tw-pb-6"
-          bannerType="warning"
-          (onClose)="trackDismissal()"
-        >
+        <bit-banner id="tax-id-warning-banner" bannerType="warning" (onClose)="trackDismissal()">
           {{ view.message }}
           <a
             bitLink

@@ -16,7 +16,6 @@ import { OrganizationFreeTrialWarning } from "../types";
     @if (warning) {
       <bit-banner
         id="free-trial-banner"
-        class="-tw-m-6 tw-flex tw-flex-col tw-pb-6"
         icon="bwi-billing"
         bannerType="premium"
         [showClose]="false"
