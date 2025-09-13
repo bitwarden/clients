@@ -6,7 +6,7 @@ import { firstValueFrom, map } from "rxjs";
 
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { BreachAccountResponse } from "@bitwarden/common/models/response/breach-account.response";
+import { BreachAccountResponse } from "@bitwarden/common/dirt/models/response/breach-account.response";
 
 @Component({
   selector: "app-breach-report",

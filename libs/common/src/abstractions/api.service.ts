@@ -98,7 +98,6 @@ import { UpdateAvatarRequest } from "../models/request/update-avatar.request";
 import { UpdateDomainsRequest } from "../models/request/update-domains.request";
 import { VerifyDeleteRecoverRequest } from "../models/request/verify-delete-recover.request";
 import { VerifyEmailRequest } from "../models/request/verify-email.request";
-import { BreachAccountResponse } from "../models/response/breach-account.response";
 import { DomainsResponse } from "../models/response/domains.response";
 import { EventResponse } from "../models/response/event.response";
 import { ListResponse } from "../models/response/list.response";
@@ -516,8 +515,6 @@ export abstract class ApiService {
   abstract getSsoUserIdentifier(): Promise<string>;
 
   abstract getUserPublicKey(id: string): Promise<UserKeyResponse>;
-
-  abstract getHibpBreach(username: string): Promise<BreachAccountResponse[]>;
 
   abstract postBitPayInvoice(request: BitPayInvoiceRequest): Promise<string>;
   abstract postSetupPayment(): Promise<string>;

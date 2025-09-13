@@ -114,7 +114,6 @@ import { UpdateAvatarRequest } from "../models/request/update-avatar.request";
 import { UpdateDomainsRequest } from "../models/request/update-domains.request";
 import { VerifyDeleteRecoverRequest } from "../models/request/verify-delete-recover.request";
 import { VerifyEmailRequest } from "../models/request/verify-email.request";
-import { BreachAccountResponse } from "../models/response/breach-account.response";
 import { DomainsResponse } from "../models/response/domains.response";
 import { ErrorResponse } from "../models/response/error.response";
 import { EventResponse } from "../models/response/event.response";
@@ -1429,14 +1428,6 @@ export class ApiService implements ApiServiceAbstraction {
   async getUserPublicKey(id: string): Promise<UserKeyResponse> {
     const r = await this.send("GET", "/users/" + id + "/public-key", null, true, true);
     return new UserKeyResponse(r);
-  }
-
-  // HIBP APIs
-
-  async getHibpBreach(username: string): Promise<BreachAccountResponse[]> {
-    const encodedUsername = encodeURIComponent(username);
-    const r = await this.send("GET", "/hibp/breach?username=" + encodedUsername, null, true, true);
-    return r.map((a: any) => new BreachAccountResponse(a));
   }
 
   // Misc
