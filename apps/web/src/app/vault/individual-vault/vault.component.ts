@@ -42,7 +42,6 @@ import {
   FavoritesIcon,
   EmptyVaultIcon,
   EmptySearchIcon,
-  Icon,
 } from "@bitwarden/assets/svg";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
@@ -193,7 +192,9 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   protected isEmpty: boolean;
   protected selectedCollection: TreeNode<CollectionView> | undefined;
   protected canCreateCollections = false;
-  protected currentSearchText$: Observable<string>;
+  protected currentSearchText$: Observable<string> = this.route.queryParams.pipe(
+    map((queryParams) => queryParams.search),
+  );
   private searchText$ = new Subject<string>();
   private refresh$ = new BehaviorSubject<void>(null);
   private destroy$ = new Subject<void>();
@@ -261,7 +262,46 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     map((results) => results.filter((result) => result !== null && result.shownBanner)),
     shareReplay({ refCount: false, bufferSize: 1 }),
   );
-  emptyState$: Observable<{ title: string; description: string; icon: Icon }>;
+  emptyState$ = combineLatest([this.currentSearchText$]).pipe(
+    map(([searchText]) => {
+      if (this.isSelectedOrgDisabled()) {
+        return {
+          title: "organizationIsSuspended",
+          description: "organizationIsSuspendedDesc",
+          icon: this.orgIcon,
+        };
+      }
+
+      if (searchText) {
+        return {
+          title: "noSearchResults",
+          description: "clearFiltersOrTryAnother",
+          icon: this.emptySearchResultIcon,
+        };
+      }
+
+      switch (this.filter?.type) {
+        case "trash":
+          return {
+            title: "noItemsInTrash",
+            description: "noItemsInTrashDesc",
+            icon: this.trashIcon,
+          };
+        case "favorites":
+          return {
+            title: "emptyFavorites",
+            description: "emptyFavoritesDesc",
+            icon: this.favoritesIcon,
+          };
+        default:
+          return {
+            title: "noItemsInVault",
+            description: "emptyVaultDescription",
+            icon: this.emptyVaultIcon,
+          };
+      }
+    }),
+  );
 
   constructor(
     private syncService: SyncService,
@@ -586,8 +626,6 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
           this.changeDetectorRef.markForCheck();
         },
       );
-
-    this.emptyState$ = this.showEmptyState();
   }
 
   ngOnDestroy() {
@@ -1330,48 +1368,6 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   isSelectedOrgDisabled(): boolean {
     return !!this.allOrganizations?.find(
       (o) => o.id === this.activeFilter.selectedOrganizationNode?.node.id && o.enabled === false,
-    );
-  }
-  showEmptyState(): Observable<{ title: string; description: string; icon: Icon }> {
-    return combineLatest([this.currentSearchText$]).pipe(
-      map(([searchText]) => {
-        if (this.isSelectedOrgDisabled()) {
-          return {
-            title: "organizationIsSuspended",
-            description: "organizationIsSuspendedDesc",
-            icon: this.orgIcon,
-          };
-        }
-
-        if (searchText) {
-          return {
-            title: "noSearchResults",
-            description: "clearFiltersOrTryAnother",
-            icon: this.emptySearchResultIcon,
-          };
-        }
-
-        switch (this.filter?.type) {
-          case "trash":
-            return {
-              title: "noItemsInTrash",
-              description: "noItemsInTrashDesc",
-              icon: this.trashIcon,
-            };
-          case "favorites":
-            return {
-              title: "emptyFavorites",
-              description: "emptyFavoritesDesc",
-              icon: this.favoritesIcon,
-            };
-          default:
-            return {
-              title: "noItemsInVault",
-              description: "emptyVaultDescription",
-              icon: this.emptyVaultIcon,
-            };
-        }
-      }),
     );
   }
 
