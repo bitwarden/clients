@@ -90,14 +90,15 @@ export class BitwardenPasswordProtectedImporter extends BitwardenJsonImporter im
 
     const encKeyValidation = new EncString(jdoc.encKeyValidation_DO_NOT_EDIT);
 
-    const encKeyValidationDecrypt = await this.encryptService.decryptString(
-      encKeyValidation,
-      this.key,
-    );
-    if (encKeyValidationDecrypt === null) {
+    try {
+      const encKeyValidationDecrypt = await this.encryptService.decryptString(
+        encKeyValidation,
+        this.key,
+      );
+      return encKeyValidationDecrypt != null;
+    } catch {
       return false;
     }
-    return true;
   }
 
   private cannotParseFile(jdoc: BitwardenPasswordProtectedFileFormat): boolean {
