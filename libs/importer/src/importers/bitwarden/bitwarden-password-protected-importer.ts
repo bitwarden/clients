@@ -97,6 +97,7 @@ export class BitwardenPasswordProtectedImporter extends BitwardenJsonImporter im
       );
       return encKeyValidationDecrypt != null;
     } catch {
+      // sdk call throws if password is incorrect
       return false;
     }
   }
