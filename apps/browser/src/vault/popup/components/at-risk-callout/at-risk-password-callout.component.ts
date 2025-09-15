@@ -50,22 +50,15 @@ export class AtRiskPasswordCalloutComponent {
 
   dismissedClicked: WritableSignal<boolean> = signal(false);
 
-  showTasksResolvedBanner = computed(() => {
+  showTasksCompleteBanner = computed(() => {
     if (this.dismissedClicked()) {
       return false;
     }
 
-    if (
-      (this.atRiskPasswordStateSignal()?.showTasksCompleteBanner &&
-        this.currentPendingTasks()?.length === 0 &&
-        !this.atRiskPasswordStateSignal()?.hadPendingTasks) ||
-      (this.atRiskPasswordStateSignal()?.hadPendingTasks &&
-        this.currentPendingTasks()?.length === 0)
-    ) {
-      return true;
-    } else {
-      return false;
-    }
+    const { showTasksCompleteBanner, hadPendingTasks } = this.atRiskPasswordStateSignal() ?? {};
+    const hasPendingTasks = (this.currentPendingTasks()?.length ?? 0) > 0;
+
+    return !hasPendingTasks && (showTasksCompleteBanner || hadPendingTasks);
   });
 
   constructor() {

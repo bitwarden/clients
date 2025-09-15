@@ -32,7 +32,7 @@ export class BannerComponent implements OnInit {
   readonly bannerType = input<BannerType>("info");
 
   // passing `null` will remove the icon from element from the banner
-  readonly icon = model<string>();
+  readonly icon = model<string | null>();
   readonly useAlertRole = input(true);
   readonly showClose = input(true);
 
