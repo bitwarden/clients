@@ -189,8 +189,6 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     addedCipher: () => this.updateOverlayCiphers(),
     addEditCipherSubmitted: () => this.updateOverlayCiphers(),
     editedCipher: () => this.updateOverlayCiphers(),
-    vaultAutofillSuggestionUsed: ({ message }) =>
-      this.handleVaultAutofillSuggestionUsed(message.cipherId),
     deletedCipher: () => this.updateOverlayCiphers(),
     bgSaveCipher: () => this.updateOverlayCiphers(),
     updateOverlayCiphers: () => this.updateOverlayCiphers(),
@@ -1257,29 +1255,6 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    */
   private updateLastUsedInlineMenuCipher(inlineMenuCipherId: string, cipher: CipherView) {
     this.inlineMenuCiphers = new Map([[inlineMenuCipherId, cipher], ...this.inlineMenuCiphers]);
-  }
-
-  /**
-   * Syncs inline menu ordering when a cipher is used from the vault popup.
-   * @param cipherId - ID of the cipher that was autofilled from the vault
-   */
-  async handleVaultAutofillSuggestionUsed(cipherId: string) {
-    if (!cipherId || this.inlineMenuCiphers.size === 0) {
-      return;
-    }
-
-    for (const [inlineMenuCipherId, cipher] of this.inlineMenuCiphers) {
-      if (cipher.id === cipherId) {
-        this.updateLastUsedInlineMenuCipher(inlineMenuCipherId, cipher);
-        const activeUserId = await firstValueFrom(
-          this.accountService.activeAccount$.pipe(getOptionalUserId),
-        );
-        if (activeUserId) {
-          await this.cipherService.updateLastUsedDate(cipherId, activeUserId);
-        }
-        break;
-      }
-    }
   }
 
   /**
