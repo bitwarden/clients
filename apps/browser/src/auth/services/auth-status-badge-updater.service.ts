@@ -17,7 +17,7 @@ export class AuthStatusBadgeUpdaterService {
     private accountService: AccountService,
     private authService: AuthService,
   ) {
-    this.badgeService.setDynamicState(StateName, (_tab) =>
+    this.badgeService.setState(StateName, (_tab) =>
       this.accountService.activeAccount$.pipe(
         switchMap((account) =>
           account

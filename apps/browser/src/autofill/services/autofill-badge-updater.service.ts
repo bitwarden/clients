@@ -37,7 +37,7 @@ export class AutofillBadgeUpdaterService {
       switchMap((account) => (account?.id ? this.cipherService.ciphers$(account?.id) : of([]))),
     );
 
-    this.badgeService.setDynamicState(StateName, (tab) => {
+    this.badgeService.setState(StateName, (tab) => {
       const stateChangedObservable$: Observable<BadgeStateSetting | undefined> = combineLatest({
         account: this.accountService.activeAccount$,
         enableBadgeCounter:

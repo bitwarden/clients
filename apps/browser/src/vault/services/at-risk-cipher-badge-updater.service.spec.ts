@@ -5,7 +5,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { SecurityTask, SecurityTaskType, TaskService } from "@bitwarden/common/vault/tasks";
 
 import { Tab } from "../../platform/badge/badge-browser-api";
-import { BadgeService, DynamicStateFunction } from "../../platform/badge/badge.service";
+import { BadgeService, BadgeStateFunction } from "../../platform/badge/badge.service";
 import { BadgeIcon } from "../../platform/badge/icon";
 import { BadgeStatePriority } from "../../platform/badge/priority";
 import { Unset } from "../../platform/badge/state";
@@ -67,7 +67,7 @@ describe("AtRiskCipherBadgeUpdaterService", () => {
 
   it("sets state when there are pending tasks for the tab", async () => {
     const tab: Tab = { tabId: 3, url: "https://bitwarden.com" };
-    const stateFunction: DynamicStateFunction = setDynamicState.mock.calls[0][1];
+    const stateFunction: BadgeStateFunction = setDynamicState.mock.calls[0][1];
     const pendingTasks: SecurityTask[] = [
       {
         id: "task1",

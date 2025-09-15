@@ -2,10 +2,9 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { EMPTY, of, Subscription } from "rxjs";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { FakeAccountService, FakeStateProvider } from "@bitwarden/common/spec";
 
 import { RawBadgeState } from "./badge-browser-api";
-import { BadgeService, DynamicStateFunction } from "./badge.service";
+import { BadgeService, BadgeStateFunction } from "./badge.service";
 import { DefaultBadgeState } from "./consts";
 import { BadgeIcon } from "./icon";
 import { BadgeStatePriority } from "./priority";
@@ -14,7 +13,6 @@ import { MockBadgeBrowserApi } from "./test/mock-badge-browser-api";
 
 describe("BadgeService", () => {
   let badgeApi: MockBadgeBrowserApi;
-  let stateProvider: FakeStateProvider;
   let logService!: MockProxy<LogService>;
   let badgeService!: BadgeService;
 
@@ -22,10 +20,9 @@ describe("BadgeService", () => {
 
   beforeEach(() => {
     badgeApi = new MockBadgeBrowserApi();
-    stateProvider = new FakeStateProvider(new FakeAccountService({}));
     logService = mock<LogService>();
 
-    badgeService = new BadgeService(stateProvider, badgeApi, logService);
+    badgeService = new BadgeService(badgeApi, logService);
   });
 
   afterEach(() => {
@@ -50,7 +47,7 @@ describe("BadgeService", () => {
             icon: BadgeIcon.Locked,
           };
 
-          await badgeService.setDynamicState(
+          await badgeService.setState(
             "state-name",
             GeneralStateFunction(BadgeStatePriority.Default, state),
           );
@@ -63,7 +60,7 @@ describe("BadgeService", () => {
           // This is a bit of a weird thing to do, but I don't think it's something we need to prohibit
           const state: BadgeState = {};
 
-          await badgeService.setDynamicState(
+          await badgeService.setState(
             "state-name",
             GeneralStateFunction(BadgeStatePriority.Default, state),
           );
@@ -73,17 +70,17 @@ describe("BadgeService", () => {
         });
 
         it("merges states when multiple same-priority states have been set", async () => {
-          await badgeService.setDynamicState(
+          await badgeService.setState(
             "state-1",
             GeneralStateFunction(BadgeStatePriority.Default, { text: "text" }),
           );
-          await badgeService.setDynamicState(
+          await badgeService.setState(
             "state-2",
             GeneralStateFunction(BadgeStatePriority.Default, {
               backgroundColor: "#fff",
             }),
           );
-          await badgeService.setDynamicState(
+          await badgeService.setState(
             "state-3",
             GeneralStateFunction(BadgeStatePriority.Default, {
               icon: BadgeIcon.Locked,
@@ -100,7 +97,7 @@ describe("BadgeService", () => {
         });
 
         it("overrides previous lower-priority state when higher-priority state is set", async () => {
-          await badgeService.setDynamicState(
+          await badgeService.setState(
             "state-1",
             GeneralStateFunction(BadgeStatePriority.Low, {
               text: "text",
@@ -108,13 +105,13 @@ describe("BadgeService", () => {
               icon: BadgeIcon.Locked,
             }),
           );
-          await badgeService.setDynamicState(
+          await badgeService.setState(
             "state-2",
             GeneralStateFunction(BadgeStatePriority.Default, {
               text: "override",
             }),
           );
-          await badgeService.setDynamicState(
+          await badgeService.setState(
             "state-3",
             GeneralStateFunction(BadgeStatePriority.High, {
               backgroundColor: "#aaa",
@@ -131,7 +128,7 @@ describe("BadgeService", () => {
         });
 
         it("removes override when a previously high-priority state is cleared", async () => {
-          await badgeService.setDynamicState(
+          await badgeService.setState(
             "state-1",
             GeneralStateFunction(BadgeStatePriority.Low, {
               text: "text",
@@ -139,13 +136,13 @@ describe("BadgeService", () => {
               icon: BadgeIcon.Locked,
             }),
           );
-          await badgeService.setDynamicState(
+          await badgeService.setState(
             "state-2",
             GeneralStateFunction(BadgeStatePriority.Default, {
               text: "override",
             }),
           );
-          await badgeService.clearDynamicState("state-2");
+          await badgeService.clearState("state-2");
 
           await new Promise((resolve) => setTimeout(resolve, 0));
           const expectedState: RawBadgeState = {
@@ -157,7 +154,7 @@ describe("BadgeService", () => {
         });
 
         it("sets default values when all states have been cleared", async () => {
-          await badgeService.setDynamicState(
+          await badgeService.setState(
             "state-1",
             GeneralStateFunction(BadgeStatePriority.Low, {
               text: "text",
@@ -165,28 +162,28 @@ describe("BadgeService", () => {
               icon: BadgeIcon.Locked,
             }),
           );
-          await badgeService.setDynamicState(
+          await badgeService.setState(
             "state-2",
             GeneralStateFunction(BadgeStatePriority.Default, {
               text: "override",
             }),
           );
-          await badgeService.setDynamicState(
+          await badgeService.setState(
             "state-3",
             GeneralStateFunction(BadgeStatePriority.High, {
               backgroundColor: "#aaa",
             }),
           );
-          await badgeService.clearDynamicState("state-1");
-          await badgeService.clearDynamicState("state-2");
-          await badgeService.clearDynamicState("state-3");
+          await badgeService.clearState("state-1");
+          await badgeService.clearState("state-2");
+          await badgeService.clearState("state-3");
 
           await new Promise((resolve) => setTimeout(resolve, 0));
           expect(badgeApi.specificStates[tabId]).toEqual(DefaultBadgeState);
         });
 
         it("sets default value high-priority state contains Unset", async () => {
-          await badgeService.setDynamicState(
+          await badgeService.setState(
             "state-1",
             GeneralStateFunction(BadgeStatePriority.Low, {
               text: "text",
@@ -194,7 +191,7 @@ describe("BadgeService", () => {
               icon: BadgeIcon.Locked,
             }),
           );
-          await badgeService.setDynamicState(
+          await badgeService.setState(
             "state-3",
             GeneralStateFunction(BadgeStatePriority.High, {
               icon: Unset,
@@ -211,7 +208,7 @@ describe("BadgeService", () => {
         });
 
         it("ignores medium-priority Unset when high-priority contains a value", async () => {
-          await badgeService.setDynamicState(
+          await badgeService.setState(
             "state-1",
             GeneralStateFunction(BadgeStatePriority.Low, {
               text: "text",
@@ -219,13 +216,13 @@ describe("BadgeService", () => {
               icon: BadgeIcon.Locked,
             }),
           );
-          await badgeService.setDynamicState(
+          await badgeService.setState(
             "state-3",
             GeneralStateFunction(BadgeStatePriority.Default, {
               icon: Unset,
             }),
           );
-          await badgeService.setDynamicState(
+          await badgeService.setState(
             "state-3",
             GeneralStateFunction(BadgeStatePriority.High, {
               icon: BadgeIcon.Unlocked,
@@ -259,7 +256,7 @@ describe("BadgeService", () => {
             icon: BadgeIcon.Locked,
           };
 
-          await badgeService.setDynamicState(
+          await badgeService.setState(
             "state-name",
             GeneralStateFunction(BadgeStatePriority.Default, state),
           );
@@ -280,9 +277,18 @@ describe("BadgeService", () => {
           };
           badgeApi.setState.mockReset();
 
-          await badgeService.setState("state-1", BadgeStatePriority.Default, state, tabId);
-          await badgeService.setState("state-2", BadgeStatePriority.Default, state, 2);
-          await badgeService.setState("state-2", BadgeStatePriority.Default, state, 2);
+          await badgeService.setState(
+            "state-1",
+            TabSpecificStateFunction(BadgeStatePriority.Default, state, tabId),
+          );
+          await badgeService.setState(
+            "state-2",
+            TabSpecificStateFunction(BadgeStatePriority.Default, state, 2),
+          );
+          await badgeService.setState(
+            "state-2",
+            TabSpecificStateFunction(BadgeStatePriority.Default, state, 2),
+          );
 
           await new Promise((resolve) => setTimeout(resolve, 0));
           expect(badgeApi.setState).toHaveBeenCalledTimes(1);
@@ -306,7 +312,7 @@ describe("BadgeService", () => {
             icon: BadgeIcon.Locked,
           };
 
-          await badgeService.setDynamicState(
+          await badgeService.setState(
             "state-name",
             GeneralStateFunction(BadgeStatePriority.Default, state),
           );
@@ -327,9 +333,18 @@ describe("BadgeService", () => {
           };
           badgeApi.setState.mockReset();
 
-          await badgeService.setState("state-1", BadgeStatePriority.Default, state, 1);
-          await badgeService.setState("state-2", BadgeStatePriority.Default, state, 2);
-          await badgeService.setState("state-3", BadgeStatePriority.Default, state, 3);
+          await badgeService.setState(
+            "state-1",
+            TabSpecificStateFunction(BadgeStatePriority.Default, state, 1),
+          );
+          await badgeService.setState(
+            "state-2",
+            TabSpecificStateFunction(BadgeStatePriority.Default, state, 2),
+          );
+          await badgeService.setState(
+            "state-3",
+            TabSpecificStateFunction(BadgeStatePriority.Default, state, 3),
+          );
 
           await new Promise((resolve) => setTimeout(resolve, 0));
           expect(badgeApi.setState).toHaveBeenCalledTimes(2);
@@ -354,7 +369,7 @@ describe("BadgeService", () => {
             icon: BadgeIcon.Locked,
           };
 
-          await badgeService.setDynamicState(
+          await badgeService.setState(
             "state-name",
             TabSpecificStateFunction(BadgeStatePriority.Default, state, tabId),
           );
@@ -367,7 +382,7 @@ describe("BadgeService", () => {
           // This is a bit of a weird thing to do, but I don't think it's something we need to prohibit
           const state: BadgeState = {};
 
-          await badgeService.setDynamicState(
+          await badgeService.setState(
             "state-name",
             TabSpecificStateFunction(BadgeStatePriority.Default, state, tabId),
           );
@@ -377,7 +392,7 @@ describe("BadgeService", () => {
         });
 
         it("merges tabId specific state with general states", async () => {
-          await badgeService.setDynamicState(
+          await badgeService.setState(
             "general-state",
             TabSpecificStateFunction(
               BadgeStatePriority.Default,
@@ -387,7 +402,7 @@ describe("BadgeService", () => {
               tabId,
             ),
           );
-          await badgeService.setDynamicState(
+          await badgeService.setState(
             "specific-state",
             TabSpecificStateFunction(
               BadgeStatePriority.Default,
@@ -397,7 +412,7 @@ describe("BadgeService", () => {
               tabId,
             ),
           );
-          await badgeService.setDynamicState(
+          await badgeService.setState(
             "general-state-2",
             GeneralStateFunction(BadgeStatePriority.Default, {
               icon: BadgeIcon.Locked,
@@ -413,11 +428,11 @@ describe("BadgeService", () => {
         });
 
         it("merges states when multiple same-priority states with the same tabId have been set", async () => {
-          await badgeService.setDynamicState(
+          await badgeService.setState(
             "state-1",
             TabSpecificStateFunction(BadgeStatePriority.Default, { text: "text" }, tabId),
           );
-          await badgeService.setDynamicState(
+          await badgeService.setState(
             "state-2",
             TabSpecificStateFunction(
               BadgeStatePriority.Default,
@@ -427,7 +442,7 @@ describe("BadgeService", () => {
               tabId,
             ),
           );
-          await badgeService.setDynamicState(
+          await badgeService.setState(
             "state-3",
             TabSpecificStateFunction(
               BadgeStatePriority.Default,
@@ -448,7 +463,7 @@ describe("BadgeService", () => {
         });
 
         it("overrides previous lower-priority state when higher-priority state with the same tabId is set", async () => {
-          await badgeService.setDynamicState(
+          await badgeService.setState(
             "state-1",
             TabSpecificStateFunction(
               BadgeStatePriority.Low,
@@ -460,7 +475,7 @@ describe("BadgeService", () => {
               tabId,
             ),
           );
-          await badgeService.setDynamicState(
+          await badgeService.setState(
             "state-2",
             TabSpecificStateFunction(
               BadgeStatePriority.Default,
@@ -470,7 +485,7 @@ describe("BadgeService", () => {
               tabId,
             ),
           );
-          await badgeService.setDynamicState(
+          await badgeService.setState(
             "state-3",
             TabSpecificStateFunction(
               BadgeStatePriority.High,
@@ -491,7 +506,7 @@ describe("BadgeService", () => {
         });
 
         it("overrides lower-priority tab-specific state when higher-priority general state is set", async () => {
-          await badgeService.setDynamicState(
+          await badgeService.setState(
             "state-1",
             TabSpecificStateFunction(
               BadgeStatePriority.Low,
@@ -503,13 +518,13 @@ describe("BadgeService", () => {
               tabId,
             ),
           );
-          await badgeService.setDynamicState(
+          await badgeService.setState(
             "state-2",
             GeneralStateFunction(BadgeStatePriority.Default, {
               text: "override",
             }),
           );
-          await badgeService.setDynamicState(
+          await badgeService.setState(
             "state-3",
             GeneralStateFunction(BadgeStatePriority.High, {
               backgroundColor: "#aaa",
@@ -525,7 +540,7 @@ describe("BadgeService", () => {
         });
 
         it("removes override when a previously high-priority state with the same tabId is cleared", async () => {
-          await badgeService.setDynamicState(
+          await badgeService.setState(
             "state-1",
             TabSpecificStateFunction(
               BadgeStatePriority.Low,
@@ -537,7 +552,7 @@ describe("BadgeService", () => {
               tabId,
             ),
           );
-          await badgeService.setDynamicState(
+          await badgeService.setState(
             "state-2",
             TabSpecificStateFunction(
               BadgeStatePriority.Default,
@@ -547,7 +562,7 @@ describe("BadgeService", () => {
               tabId,
             ),
           );
-          await badgeService.clearDynamicState("state-2");
+          await badgeService.clearState("state-2");
 
           await new Promise((resolve) => setTimeout(resolve, 0));
           expect(badgeApi.specificStates[tabId]).toEqual({
@@ -558,7 +573,7 @@ describe("BadgeService", () => {
         });
 
         it("sets default state when all states with the same tabId have been cleared", async () => {
-          await badgeService.setDynamicState(
+          await badgeService.setState(
             "state-1",
             TabSpecificStateFunction(
               BadgeStatePriority.Low,
@@ -570,7 +585,7 @@ describe("BadgeService", () => {
               tabId,
             ),
           );
-          await badgeService.setDynamicState(
+          await badgeService.setState(
             "state-2",
             TabSpecificStateFunction(
               BadgeStatePriority.Default,
@@ -580,7 +595,7 @@ describe("BadgeService", () => {
               tabId,
             ),
           );
-          await badgeService.setDynamicState(
+          await badgeService.setState(
             "state-3",
             TabSpecificStateFunction(
               BadgeStatePriority.High,
@@ -590,16 +605,16 @@ describe("BadgeService", () => {
               tabId,
             ),
           );
-          await badgeService.clearDynamicState("state-1");
-          await badgeService.clearDynamicState("state-2");
-          await badgeService.clearDynamicState("state-3");
+          await badgeService.clearState("state-1");
+          await badgeService.clearState("state-2");
+          await badgeService.clearState("state-3");
 
           await new Promise((resolve) => setTimeout(resolve, 0));
           expect(badgeApi.specificStates[tabId]).toEqual(DefaultBadgeState);
         });
 
         it("sets default value when high-priority state contains Unset", async () => {
-          await badgeService.setDynamicState(
+          await badgeService.setState(
             "state-1",
             TabSpecificStateFunction(
               BadgeStatePriority.Low,
@@ -611,7 +626,7 @@ describe("BadgeService", () => {
               tabId,
             ),
           );
-          await badgeService.setDynamicState(
+          await badgeService.setState(
             "state-3",
             TabSpecificStateFunction(
               BadgeStatePriority.High,
@@ -631,7 +646,7 @@ describe("BadgeService", () => {
         });
 
         it("ignores medium-priority Unset when high-priority contains a value", async () => {
-          await badgeService.setDynamicState(
+          await badgeService.setState(
             "state-1",
             TabSpecificStateFunction(
               BadgeStatePriority.Low,
@@ -643,7 +658,7 @@ describe("BadgeService", () => {
               tabId,
             ),
           );
-          await badgeService.setDynamicState(
+          await badgeService.setState(
             "state-3",
             TabSpecificStateFunction(
               BadgeStatePriority.Default,
@@ -653,7 +668,7 @@ describe("BadgeService", () => {
               tabId,
             ),
           );
-          await badgeService.setDynamicState(
+          await badgeService.setState(
             "state-3",
             TabSpecificStateFunction(
               BadgeStatePriority.High,
@@ -694,11 +709,11 @@ describe("BadgeService", () => {
             icon: BadgeIcon.Locked,
           };
 
-          await badgeService.setDynamicState(
+          await badgeService.setState(
             "general-state",
             GeneralStateFunction(BadgeStatePriority.Default, generalState),
           );
-          await badgeService.setDynamicState(
+          await badgeService.setState(
             "tab-state",
             TabSpecificStateFunction(BadgeStatePriority.Default, specificState, tabIds[0]),
           );
@@ -729,7 +744,7 @@ describe("BadgeService", () => {
             icon: BadgeIcon.Unlocked,
           };
 
-          await badgeService.setDynamicState(
+          await badgeService.setState(
             "general-state",
             GeneralStateFunction(BadgeStatePriority.Default, generalState),
           );
@@ -753,11 +768,11 @@ describe("BadgeService", () => {
             icon: BadgeIcon.Locked,
           };
 
-          await badgeService.setDynamicState(
+          await badgeService.setState(
             "general-state",
             GeneralStateFunction(BadgeStatePriority.Default, generalState),
           );
-          await badgeService.setDynamicState(
+          await badgeService.setState(
             "tab-state",
             TabSpecificStateFunction(BadgeStatePriority.Default, specificState, tabIds[0]),
           );
@@ -781,7 +796,7 @@ function TabSpecificStateFunction(
   priority: BadgeStatePriority,
   state: BadgeState,
   tabId: number,
-): DynamicStateFunction {
+): BadgeStateFunction {
   return (tab) => {
     if (tab.tabId === tabId) {
       return of({
@@ -797,10 +812,7 @@ function TabSpecificStateFunction(
 /**
  * Creates a dynamic state function that provides the same state for all tabs.
  */
-function GeneralStateFunction(
-  priority: BadgeStatePriority,
-  state: BadgeState,
-): DynamicStateFunction {
+function GeneralStateFunction(priority: BadgeStatePriority, state: BadgeState): BadgeStateFunction {
   return (_tab) =>
     of({
       priority,

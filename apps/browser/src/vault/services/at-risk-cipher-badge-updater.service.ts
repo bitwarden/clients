@@ -36,7 +36,7 @@ export class AtRiskCipherBadgeUpdaterService {
   ) {}
 
   init() {
-    this.badgeService.setDynamicState(StateName, (tab) => {
+    this.badgeService.setState(StateName, (tab) => {
       return this.activeUserData$.pipe(
         concatMap(async ([userId, pendingTasks]) => {
           const ciphers = tab.url
