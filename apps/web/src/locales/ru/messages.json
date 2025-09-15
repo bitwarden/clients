@@ -86,14 +86,14 @@
   "noAppsInOrgDescription": {
     "message": "По мере сохранения пользователями логинов, здесь отображаются приложения, с подверженными риску паролями. Отметьте критичные приложения и уведомите пользователей об необходимости обновления пароля."
   },
-  "noCriticalAppsTitle": {
+  "noCriticalApplicationsTitle": {
     "message": "Вы не отметили ни одного приложения в качестве критичного"
   },
-  "noCriticalAppsDescription": {
-    "message": "Выберите наиболее важные приложения, чтобы обнаружить пароли, подверженные риску, и уведомить пользователей о необходимости сменить эти пароли."
+  "noCriticalApplicationsDescription": {
+    "message": "Выберите наиболее критичные приложения, чтобы определить приоритетность действий по обеспечению безопасности для ваших пользователей при обработке паролей, подверженных риску."
   },
-  "markCriticalApps": {
-    "message": "Отметить критичные приложения"
+  "markCriticalApplications": {
+    "message": "Выбрать критичные приложения"
   },
   "markAppAsCritical": {
     "message": "Пометить приложение как критическое"
@@ -176,11 +176,11 @@
   "totalApplications": {
     "message": "Всего приложений"
   },
-  "unmarkAsCriticalApp": {
-    "message": "Снять отметку критического приложения"
+  "unmarkAsCritical": {
+    "message": "Снять отметку критического"
   },
-  "criticalApplicationSuccessfullyUnmarked": {
-    "message": "Отметка критического приложения успешно снята"
+  "criticalApplicationUnmarkedSuccessfully": {
+    "message": "Приложение больше не является критичным"
   },
   "whatTypeOfItem": {
     "message": "Выберите тип элемента"
@@ -867,6 +867,15 @@
   "copyLicenseNumber": {
     "message": "Скопировать номер лицензии"
   },
+  "copyPrivateKey": {
+    "message": "Скопировать приватный ключ"
+  },
+  "copyPublicKey": {
+    "message": "Скопировать публичный ключ"
+  },
+  "copyFingerprint": {
+    "message": "Скопировать отпечаток"
+  },
   "copyName": {
     "message": "Скопировать имя"
   },
@@ -1507,6 +1516,9 @@
   "recoveryCodeTitle": {
     "message": "Код восстановления"
   },
+  "invalidRecoveryCode": {
+    "message": "Неверный код восстановления"
+  },
   "authenticatorAppTitle": {
     "message": "Приложение-аутентификатор"
   },
@@ -2102,11 +2114,8 @@
   "languageDesc": {
     "message": "Изменение языка, используемого веб-хранилищем."
   },
-  "enableFavicon": {
-    "message": "Показать значки сайтов"
-  },
-  "faviconDesc": {
-    "message": "Отображать узнаваемое изображение рядом с каждым логином."
+  "showIconsChangePasswordUrls": {
+    "message": "Показывать значки сайтов и извлекать URL изменения пароля"
   },
   "default": {
     "message": "По умолчанию"
@@ -7421,6 +7430,9 @@
   "off": {
     "message": "Выкл"
   },
+  "connected": {
+    "message": "Подключено"
+  },
   "members": {
     "message": "Участники"
   },
@@ -8926,20 +8938,25 @@
   "collectionManagement": {
     "message": "Управление коллекцией"
   },
-  "collectionManagementDesc": {
-    "message": "Управление настройками коллекций для организации"
+  "collectionManagementDescription": {
+    "message": "Конфигурация коллекций для организации"
   },
-  "limitCollectionCreationDesc": {
-    "message": "Ограничить создание коллекций владельцам и администраторам"
+  "allowAdminAccessToAllCollectionItemsDescription": {
+    "message": "Разрешить владельцам и администраторам управлять всеми коллекциями и элементами из консоли администратора"
   },
-  "limitCollectionDeletionDesc": {
-    "message": "Ограничить удаление коллекций владельцам и администраторам"
+  "restrictCollectionCreationDescription": {
+    "message": "Ограничить создание коллекций владельцами и администраторами"
   },
-  "limitItemDeletionDescription": {
-    "message": "Ограничить удаление элементов для пользователей с правами на управление коллекцией"
+  "restrictCollectionDeletionDescription": {
+    "message": "Ограничить удаление коллекций владельцами и администраторами"
   },
-  "allowAdminAccessToAllCollectionItemsDesc": {
-    "message": "Владельцы и администраторы могут управлять всеми коллекциями и элементами"
+  "restrictItemDeletionDescriptionStart": {
+    "message": "Ограничить удаление элемента пользователями с ",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
+  },
+  "restrictItemDeletionDescriptionEnd": {
+    "message": " разрешением",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
   },
   "updatedCollectionManagement": {
     "message": "Настройки управления коллекцией обновлены"
@@ -9010,6 +9027,78 @@
   },
   "modifiedCollectionManagement": {
     "message": "Изменена настройка управления коллекцией $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationEnabled": {
+    "message": "Включен параметр ограничения создания коллекции $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationDisabled": {
+    "message": "Отключен параметр ограничения создания коллекции $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionEnabled": {
+    "message": "Включен параметр ограничения удаления коллекции $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionDisabled": {
+    "message": "Отключен параметр ограничения удаления коллекции $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionEnabled": {
+    "message": "Включен параметр ограничения удаления элемента $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionDisabled": {
+    "message": "Отключен параметр ограничения удаления элемента $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsEnabled": {
+    "message": "Включен параметр Разрешить владельцам и администраторам управлять всеми настройками коллекций и элементов $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsDisabled": {
+    "message": "Отключен параметр Разрешить владельцам и администраторам управлять всеми настройками коллекций и элементов $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -9594,6 +9683,15 @@
   },
   "connectIntegrationButtonDesc": {
     "message": "Подключить $INTEGRATION$",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
+  },
+  "updateIntegrationButtonDesc": {
+    "message": "Обновить $INTEGRATION$",
     "placeholders": {
       "integration": {
         "content": "$1",
@@ -10807,6 +10905,12 @@
   "changeAtRiskPassword": {
     "message": "Изменить пароль, подверженный риску"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
+  },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Отключить разблокировку PIN-кодом"
   },
@@ -10982,6 +11086,12 @@
     "message": "Для пополнения счета необходим платежный адрес.",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   },
+  "aboutThisSetting": {
+    "message": "Об этой настройке"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden будет использовать сохраненные URI логинов, чтобы определить, какой значок или URL для смены пароля следует использовать для улучшения вашего взаимодействия. При использовании этого сервиса никакая информация не собирается и не сохраняется."
+  },
   "billingAddress": {
     "message": "Платежный адрес"
   },
@@ -11142,6 +11252,17 @@
         "example": "92873837267"
       }
     }
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Подтвердите домен соединителя ключей"
+  },
+  "requiredToVerifyBankAccountWithStripe": {
+    "message": "Оплата с помощью банковского счета доступна только для клиентов в США. Вам потребуется подтвердить свой банковский счет. Мы сделаем микродепозит в течение следующих 1-2 рабочих дней. Неподтверждение банковского счета приведет к пропуску платежа и приостановке подписки."
+  },
+  "verifyBankAccountWithStripe": {
+    "message": "Мы перевели микродепозит на ваш банковский счет. Это может занять 1-2 рабочих дня. Когда увидите пополнение вашего счета, вы сможете подтвердить его. Если вы не подтвердите банковский счет, это приведет к пропуску платежа и приостановке подписки."
+  },
+  "verifyNow": {
+    "message": "Подтвердить сейчас."
   }
 }
-

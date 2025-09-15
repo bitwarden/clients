@@ -16,6 +16,7 @@ import {
   ApplicationHealthReportDetailWithCriticalFlagAndCipher,
   ApplicationHealthReportSummary,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/password-health";
+import { RiskInsightsEncryptionService } from "@bitwarden/bit-common/dirt/reports/risk-insights/services/risk-insights-encryption.service";
 import {
   getOrganizationById,
   OrganizationService,
@@ -25,6 +26,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import {
   IconButtonModule,
@@ -86,7 +88,7 @@ export class AllApplicationsComponent implements OnInit {
 
       combineLatest([
         this.dataService.applications$,
-        this.criticalAppsService.getAppsListForOrg(organizationId),
+        this.criticalAppsService.getAppsListForOrg(organizationId as OrganizationId),
         organization$,
       ])
         .pipe(
@@ -107,7 +109,7 @@ export class AllApplicationsComponent implements OnInit {
             if (data && organization) {
               const dataWithCiphers = await this.reportService.identifyCiphers(
                 data,
-                organization.id,
+                organization.id as OrganizationId,
               );
 
               return {
@@ -144,6 +146,7 @@ export class AllApplicationsComponent implements OnInit {
     protected reportService: RiskInsightsReportService,
     private accountService: AccountService,
     protected criticalAppsService: CriticalAppsService,
+    protected riskInsightsEncryptionService: RiskInsightsEncryptionService,
   ) {
     this.searchControl.valueChanges
       .pipe(debounceTime(200), takeUntilDestroyed())
@@ -168,7 +171,7 @@ export class AllApplicationsComponent implements OnInit {
 
     try {
       await this.criticalAppsService.setCriticalApps(
-        this.organization.id,
+        this.organization.id as OrganizationId,
         Array.from(this.selectedUrls),
       );
 

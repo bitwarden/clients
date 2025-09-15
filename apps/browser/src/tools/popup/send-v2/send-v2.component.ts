@@ -10,7 +10,12 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
-import { ButtonModule, CalloutModule, NoItemsModule } from "@bitwarden/components";
+import {
+  ButtonModule,
+  CalloutModule,
+  NoItemsModule,
+  TypographyModule,
+} from "@bitwarden/components";
 import {
   NewSendDropdownComponent,
   SendItemsService,
@@ -48,6 +53,7 @@ export enum SendState {
     SendListItemsContainerComponent,
     SendListFiltersComponent,
     SendSearchComponent,
+    TypographyModule,
   ],
 })
 export class SendV2Component implements OnDestroy {

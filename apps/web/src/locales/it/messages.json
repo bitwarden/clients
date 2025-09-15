@@ -86,14 +86,14 @@
   "noAppsInOrgDescription": {
     "message": "Quando gli utenti salvano i login, i relativi dati e le password a rischio sono mostrati qui. Contrassegna le applicazioni critiche e notifica agli utenti di aggiornare le password."
   },
-  "noCriticalAppsTitle": {
-    "message": "Non hai contrassegnato nessuna applicazione come critica"
+  "noCriticalApplicationsTitle": {
+    "message": "You haven’t marked any applications as critical"
   },
-  "noCriticalAppsDescription": {
-    "message": "Seleziona le applicazioni critiche per scoprire le password a rischio e invitare gli utenti a modificarle."
+  "noCriticalApplicationsDescription": {
+    "message": "Select your most critical applications to prioritize security actions for your users to address at-risk passwords."
   },
-  "markCriticalApps": {
-    "message": "Seleziona le applicazioni critiche"
+  "markCriticalApplications": {
+    "message": "Select critical applications"
   },
   "markAppAsCritical": {
     "message": "Contrassegna l'applicazione come critica"
@@ -176,11 +176,11 @@
   "totalApplications": {
     "message": "Applicazioni totali"
   },
-  "unmarkAsCriticalApp": {
-    "message": "Contrassegna l'applicazione come non critica"
+  "unmarkAsCritical": {
+    "message": "Contrassegna l'elemento come non critico"
   },
-  "criticalApplicationSuccessfullyUnmarked": {
-    "message": "Applicazione contrassegnata come non critica"
+  "criticalApplicationUnmarkedSuccessfully": {
+    "message": "Successfully unmarked application as critical"
   },
   "whatTypeOfItem": {
     "message": "Che tipo di elemento è questo?"
@@ -867,6 +867,15 @@
   "copyLicenseNumber": {
     "message": "Copia numero patente"
   },
+  "copyPrivateKey": {
+    "message": "Copia chiave privata"
+  },
+  "copyPublicKey": {
+    "message": "Copia chiave pubblica"
+  },
+  "copyFingerprint": {
+    "message": "Copia frase impronta"
+  },
   "copyName": {
     "message": "Copia nome"
   },
@@ -1507,6 +1516,9 @@
   "recoveryCodeTitle": {
     "message": "Codice di recupero"
   },
+  "invalidRecoveryCode": {
+    "message": "Codice di recupero non valido"
+  },
   "authenticatorAppTitle": {
     "message": "App di autenticazione"
   },
@@ -2102,11 +2114,8 @@
   "languageDesc": {
     "message": "Cambia la lingua utilizzata dalla cassaforte web."
   },
-  "enableFavicon": {
-    "message": "Mostra icone dei siti"
-  },
-  "faviconDesc": {
-    "message": "Mostra un piccolo logo riconoscibile accanto a ogni login."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "default": {
     "message": "Predefinito"
@@ -7421,6 +7430,9 @@
   "off": {
     "message": "No"
   },
+  "connected": {
+    "message": "Connected"
+  },
   "members": {
     "message": "Membri"
   },
@@ -8926,20 +8938,25 @@
   "collectionManagement": {
     "message": "Gestione della raccolta"
   },
-  "collectionManagementDesc": {
-    "message": "Gestisci il comportamento delle raccolte per l'organizzazione"
+  "collectionManagementDescription": {
+    "message": "Configura il comportamento delle raccolte per l'organizzazione"
   },
-  "limitCollectionCreationDesc": {
+  "allowAdminAccessToAllCollectionItemsDescription": {
+    "message": "Consenti ai proprietari e agli amministratori di gestire tutti gli elementi e le raccolte dalla console di amministrazione"
+  },
+  "restrictCollectionCreationDescription": {
     "message": "Limita la creazione di raccolte ai proprietari e agli amministratori"
   },
-  "limitCollectionDeletionDesc": {
+  "restrictCollectionDeletionDescription": {
     "message": "Limita l'eliminazione delle raccolte ai proprietari e agli amministratori"
   },
-  "limitItemDeletionDescription": {
-    "message": "Consenti l'eliminazione solo ai membri con i permessi di gestione raccolte"
+  "restrictItemDeletionDescriptionStart": {
+    "message": "Limita la cancellazione di elementi ai membri con il ",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
   },
-  "allowAdminAccessToAllCollectionItemsDesc": {
-    "message": "Proprietari e amministratori possono gestire tutte le raccolte e gli elementi"
+  "restrictItemDeletionDescriptionEnd": {
+    "message": " permesso",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
   },
   "updatedCollectionManagement": {
     "message": "Impostazione di gestione della raccolta aggiornata"
@@ -9010,6 +9027,78 @@
   },
   "modifiedCollectionManagement": {
     "message": "Modificata l'impostazione di gestione della raccolta $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationEnabled": {
+    "message": "Turned on Restrict collection creation setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationDisabled": {
+    "message": "Turned off Restrict collection creation setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionEnabled": {
+    "message": "Turned on Restrict collection deletion setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionDisabled": {
+    "message": "Turned off Restrict collection deletion setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionEnabled": {
+    "message": "Turned on Restrict item deletion setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionDisabled": {
+    "message": "Turned off Restrict item deletion setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsEnabled": {
+    "message": "Turned on Allow owners and admins to manage all collections and items setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsDisabled": {
+    "message": "Turned off Allow owners and admins to manage all collections and items setting $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -9594,6 +9683,15 @@
   },
   "connectIntegrationButtonDesc": {
     "message": "Collega $INTEGRATION$",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
+  },
+  "updateIntegrationButtonDesc": {
+    "message": "Update $INTEGRATION$",
     "placeholders": {
       "integration": {
         "content": "$1",
@@ -10807,6 +10905,12 @@
   "changeAtRiskPassword": {
     "message": "Cambia parola d'accesso a rischio"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
+  },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Rimuovi sblocco con PIN"
   },
@@ -10982,6 +11086,12 @@
     "message": "Indirizzo di fatturazione richiesto per aggiungere credito.",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+  },
   "billingAddress": {
     "message": "Indirizzo di fatturazione"
   },
@@ -11142,6 +11252,17 @@
         "example": "92873837267"
       }
     }
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Conferma dominio Key Connector"
+  },
+  "requiredToVerifyBankAccountWithStripe": {
+    "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
+  },
+  "verifyBankAccountWithStripe": {
+    "message": "We have made a micro-deposit to your bank account. This may take 1-2 business days. When you see the deposit in your account, you can verify your bank account. Failure to verify your bank account will result in a missed payment and your subscription will be suspended."
+  },
+  "verifyNow": {
+    "message": "Verify now."
   }
 }
-

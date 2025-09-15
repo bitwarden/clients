@@ -86,14 +86,14 @@
   "noAppsInOrgDescription": {
     "message": "Keď používatelia uložia prihlasovacie údaje, tu sa zobrazia aplikácie a ohrozené heslá. Označte kritické aplikácie a upozornite používateľov, aby si aktualizovali heslá."
   },
-  "noCriticalAppsTitle": {
+  "noCriticalApplicationsTitle": {
     "message": "Neoznačili ste žiadne aplikácie ako kritické"
   },
-  "noCriticalAppsDescription": {
-    "message": "Pre odhalenie ohrozených hesiel a upozornenie používateľov aby si ich zmenili vyberte vaše najkritickejšie aplikácie."
+  "noCriticalApplicationsDescription": {
+    "message": "Vyberte najviac kritické aplikácie aby ste uprednostnili bezpečnostné aktivity vašich používateľov pri riešení ohrozených hesiel."
   },
-  "markCriticalApps": {
-    "message": "Označiť kritické aplikácie"
+  "markCriticalApplications": {
+    "message": "Vybrať kritické aplikácie"
   },
   "markAppAsCritical": {
     "message": "Označiť aplikáciu ako kritickú"
@@ -176,11 +176,11 @@
   "totalApplications": {
     "message": "Všetkých aplikácii"
   },
-  "unmarkAsCriticalApp": {
-    "message": "Zrušiť označenie aplikácie za kritickú"
+  "unmarkAsCritical": {
+    "message": "Zrušiť označenie za kritické"
   },
-  "criticalApplicationSuccessfullyUnmarked": {
-    "message": "Označenie aplikácie za kritickú úspešne zrušené"
+  "criticalApplicationUnmarkedSuccessfully": {
+    "message": "Úspešne zrušené onačenie aplikácie za kritickú"
   },
   "whatTypeOfItem": {
     "message": "Aký typ položky to je?"
@@ -867,6 +867,15 @@
   "copyLicenseNumber": {
     "message": "Kopírovať číslo licencie"
   },
+  "copyPrivateKey": {
+    "message": "Kopírovať súkromný kľúč"
+  },
+  "copyPublicKey": {
+    "message": "Kopírovať verejný kľúč"
+  },
+  "copyFingerprint": {
+    "message": "Kopírovať odtlačok"
+  },
   "copyName": {
     "message": "Kopírovať meno"
   },
@@ -1507,6 +1516,9 @@
   "recoveryCodeTitle": {
     "message": "Záchranný kód"
   },
+  "invalidRecoveryCode": {
+    "message": "Neplatný kód na obnovenie"
+  },
   "authenticatorAppTitle": {
     "message": "Overovacia aplikácia"
   },
@@ -2102,11 +2114,8 @@
   "languageDesc": {
     "message": "Zmeňte východzí jazyk pre webový trezor."
   },
-  "enableFavicon": {
-    "message": "Zobraziť favikony"
-  },
-  "faviconDesc": {
-    "message": "Pri každom prihlásení zobraziť rozpoznateľný obrázok."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "default": {
     "message": "Predvolené"
@@ -7421,6 +7430,9 @@
   "off": {
     "message": "Vypnuté"
   },
+  "connected": {
+    "message": "Connected"
+  },
   "members": {
     "message": "Členovia"
   },
@@ -8926,20 +8938,25 @@
   "collectionManagement": {
     "message": "Správa zbierky"
   },
-  "collectionManagementDesc": {
-    "message": "Spravovať správanie zbierky pre organizáciu"
+  "collectionManagementDescription": {
+    "message": "Nastaviť správanie zbierky pre organizáciu"
   },
-  "limitCollectionCreationDesc": {
+  "allowAdminAccessToAllCollectionItemsDescription": {
+    "message": "Povoliť majiteľom a správcom spravovať všetky zbierky prostredníctvom správcovskej konzoly"
+  },
+  "restrictCollectionCreationDescription": {
     "message": "Obmedziť vytváranie zbierky len pre vlastníkov a administrátorov"
   },
-  "limitCollectionDeletionDesc": {
+  "restrictCollectionDeletionDescription": {
     "message": "Obmedziť vymazávanie zbierky len pre vlastníkov a administrátorov"
   },
-  "limitItemDeletionDescription": {
-    "message": "Obmedziť vymazávanie položiek na členov s oprávnením na správu zbierky"
+  "restrictItemDeletionDescriptionStart": {
+    "message": "Restrict item deletion to members with the ",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
   },
-  "allowAdminAccessToAllCollectionItemsDesc": {
-    "message": "Vlastníci a správcovia môžu spravovať všetky zbierky a položky"
+  "restrictItemDeletionDescriptionEnd": {
+    "message": " permission",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
   },
   "updatedCollectionManagement": {
     "message": "Aktualizované nastavenia zbierky"
@@ -9010,6 +9027,78 @@
   },
   "modifiedCollectionManagement": {
     "message": "Modified collection management setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationEnabled": {
+    "message": "Zapnuté nastavenie obmedzenia vytvárania zbierky $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationDisabled": {
+    "message": "Vypnuté nastavenie obmedzenia vytvárania zbierky $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionEnabled": {
+    "message": "Zapnuté nastavenie obmedzenia vymazávania zbierky $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionDisabled": {
+    "message": "Vypnuté nastavenie obmedzenia vymazávania zbierky $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionEnabled": {
+    "message": "Zapnuté nastavenie obmedzenia vymazávania položky $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionDisabled": {
+    "message": "Vypnuté nastavenie obmedzenia vymazávania položky $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsEnabled": {
+    "message": "Zapnuté povolenie vlastníkov a správcov spravovať všetky položky a zbierky $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsDisabled": {
+    "message": "Vypnuté povolenie vlastníkov a správcov spravovať všetky položky a zbierky $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -9594,6 +9683,15 @@
   },
   "connectIntegrationButtonDesc": {
     "message": "Prepojiť $INTEGRATION$",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
+  },
+  "updateIntegrationButtonDesc": {
+    "message": "Update $INTEGRATION$",
     "placeholders": {
       "integration": {
         "content": "$1",
@@ -10807,6 +10905,12 @@
   "changeAtRiskPassword": {
     "message": "Zmeniť ohrozené heslo"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Toto prihlásenie je v ohrození a chýba mu webová stránka. Pridajte webovú stránku a zmeňte heslo na silnejšie zabezpečenie."
+  },
+  "missingWebsite": {
+    "message": "Chýbajúca webová stránka"
+  },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Odstrániť odomknutie PIN kódom"
   },
@@ -10982,6 +11086,12 @@
     "message": "Na pridanie kreditu je potrebná fakturačná adresa.",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+  },
   "billingAddress": {
     "message": "Fakturačná adresa"
   },
@@ -11142,6 +11252,17 @@
         "example": "92873837267"
       }
     }
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Potvrdiť doménu Key Connectora"
+  },
+  "requiredToVerifyBankAccountWithStripe": {
+    "message": "Platba prostredníctvom bankového účtu je dostupná len pre zákazníkov v Spojených Štátoch. Budete musieť overiť svoj bankový účet. V priebehu nasledujúcich 1-2 pracovných dní vykonáme mikro vklad. Neoverenie bankového účtu bude mať za následok neuskutočnenie platby a pozastavenie vášho predplatného."
+  },
+  "verifyBankAccountWithStripe": {
+    "message": "Na váš bankový účet sme vykonali mikro vklad. Môže to trvať 1-2 pracovné dni. Keď uvidíte vklad na vašom účte, môžete váš účet overiť. Neoverenie bankového účtu bude mať za následok neuskutočnenie platby a pozastavenie vášho predplatného."
+  },
+  "verifyNow": {
+    "message": "Overiť teraz."
   }
 }
-

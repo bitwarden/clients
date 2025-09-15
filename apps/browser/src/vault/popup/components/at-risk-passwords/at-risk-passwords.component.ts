@@ -253,6 +253,10 @@ export class AtRiskPasswordsComponent implements OnInit {
     await this.atRiskPasswordPageService.dismissCallout(userId);
   }
 
+  protected hasLoginUri(cipher: CipherView) {
+    return cipher.login?.hasUris;
+  }
+
   launchChangePassword = async (cipher: CipherView) => {
     try {
       this.launchingCipher.set(cipher);
@@ -273,7 +277,7 @@ export class AtRiskPasswordsComponent implements OnInit {
    * which can conflict with the `PopupRouterCacheService`. This replaces the
    * built-in back button behavior so the user always navigates to the vault.
    */
-  protected async navigateToVault() {
+  protected navigateToVault = async () => {
     await this.router.navigate(["/tabs/vault"]);
-  }
+  };
 }

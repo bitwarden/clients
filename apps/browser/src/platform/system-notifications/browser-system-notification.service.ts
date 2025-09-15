@@ -1,6 +1,6 @@
 import { map, merge, Observable } from "rxjs";
 
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { DeviceType } from "@bitwarden/common/enums";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import {
   ButtonLocation,
@@ -12,13 +12,20 @@ import {
 
 import { fromChromeEvent } from "../browser/from-chrome-event";
 
+/**
+ * A check to see if the current browser has the needed API to support the `BrowserSystemNotificationService`.
+ *
+ * This check should only be called during dependency creation, if consumers need to know if
+ * system notifications can be used they should use {@link SystemNotificationsService.isSupported}.
+ */
+export function isNotificationsSupported() {
+  return "notifications" in chrome && chrome.notifications != null;
+}
+
 export class BrowserSystemNotificationService implements SystemNotificationsService {
   notificationClicked$: Observable<SystemNotificationEvent>;
 
-  constructor(
-    private logService: LogService,
-    private platformUtilsService: PlatformUtilsService,
-  ) {
+  constructor(private readonly platformUtilsService: PlatformUtilsService) {
     this.notificationClicked$ = merge(
       fromChromeEvent(chrome.notifications.onButtonClicked).pipe(
         map(([notificationId, buttonIndex]) => ({
@@ -37,16 +44,28 @@ export class BrowserSystemNotificationService implements SystemNotificationsServ
 
   async create(createInfo: SystemNotificationCreateInfo): Promise<string> {
     return new Promise<string>((resolve) => {
-      chrome.notifications.create(
-        {
-          iconUrl: chrome.runtime.getURL("images/icon128.png"),
-          message: createInfo.body,
-          type: "basic",
-          title: createInfo.title,
-          buttons: createInfo.buttons.map((value) => ({ title: value.title })),
-        },
-        (notificationId) => resolve(notificationId),
-      );
+      const deviceType: DeviceType = this.platformUtilsService.getDevice();
+
+      const options: chrome.notifications.NotificationOptions<true> = {
+        iconUrl: chrome.runtime.getURL("images/icon128.png"),
+        message: createInfo.body,
+        type: "basic",
+        title: createInfo.title,
+        buttons: createInfo.buttons.map((value) => ({ title: value.title })),
+      };
+
+      // Firefox notification api does not support buttons.
+      if (deviceType === DeviceType.FirefoxExtension) {
+        delete options.buttons;
+      }
+
+      if (createInfo.id != null) {
+        chrome.notifications.create(createInfo.id, options, (notificationId) =>
+          resolve(notificationId),
+        );
+      } else {
+        chrome.notifications.create(options, (notificationId) => resolve(notificationId));
+      }
     });
   }
 

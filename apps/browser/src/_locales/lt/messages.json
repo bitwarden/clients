@@ -556,6 +556,9 @@
   "view": {
     "message": "Peržiūrėti"
   },
+  "viewLogin": {
+    "message": "View login"
+  },
   "noItemsInList": {
     "message": "Nėra rodytinų elementų."
   },
@@ -1760,14 +1763,8 @@
   "popupU2fCloseMessage": {
     "message": "Ši naršyklė negali apdoroti U2F prašymų šiame iššokančiame lange. Ar nori atidaryti šį iššokantį langą naujame lange, kad galėtum prisijungti naudodamas (-a) U2F?"
   },
-  "enableFavicon": {
-    "message": "Rodyti tinklalapių ikonėles"
-  },
-  "faviconDesc": {
-    "message": "Rodyti atpažįstamą vaizdą šalia kiekvieno prisijungimo."
-  },
-  "faviconDescAlt": {
-    "message": "Rodyti atpažįstamą vaizdą šalia kiekvieno prisijungimo. Taikoma visoms prisijungusioms paskyroms."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "enableBadgeCounter": {
     "message": "Rodyti ženkliukų skaitiklį"
@@ -5113,6 +5110,18 @@
   "showNumberOfAutofillSuggestions": {
     "message": "Show number of login autofill suggestions on extension icon"
   },
+  "accountAccessRequested": {
+    "message": "Account access requested"
+  },
+  "confirmAccessAttempt": {
+    "message": "Confirm access attempt for $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "showQuickCopyActions": {
     "message": "Show quick copy actions on Vault"
   },
@@ -5440,6 +5449,12 @@
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
+  },
   "settingsVaultOptions": {
     "message": "Vault options"
   },
@@ -5563,6 +5578,12 @@
     "message": "Easily create strong and unique passwords by clicking on the Generate password button to help you keep your logins secure.",
     "description": "Aria label for the body content of the generator nudge"
   },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+  },
   "noPermissionsViewPage": {
     "message": "You do not have permissions to view this page. Try logging in with a different account."
   },
@@ -5576,8 +5597,14 @@
   "showLess": {
     "message": "Show less"
   },
+  "next": {
+    "message": "Next"
+  },
   "moreBreadcrumbs": {
     "message": "More breadcrumbs",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Confirm Key Connector domain"
   }
 }

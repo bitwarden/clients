@@ -703,10 +703,10 @@
     "message": "Đã lưu tệp đính kèm"
   },
   "addAttachment": {
-    "message": "Add attachment"
+    "message": "Thêm tệp đính kèm"
   },
   "maxFileSizeSansPunctuation": {
-    "message": "Maximum file size is 500 MB"
+    "message": "Kích thước tối đa của tập tin là 500MB"
   },
   "file": {
     "message": "Tệp"
@@ -1305,11 +1305,8 @@
     "message": "Tự động xóa mọi thứ đã sao chép khỏi bảng nhớ tạm.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
-  "enableFavicon": {
-    "message": "Hiện biểu tượng trang web"
-  },
-  "faviconDesc": {
-    "message": "Hiện logo trang web bên cạnh mỗi đăng nhập."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "enableMinToTray": {
     "message": "Thu nhỏ vào khay hệ thống"
@@ -3492,10 +3489,10 @@
     "message": "Chọn bộ sưu tập"
   },
   "importTargetHintCollection": {
-    "message": "Select this option if you want the imported file contents moved to a collection"
+    "message": "Chọn tùy chọn này nếu bạn muốn nội dung tệp đã nhập được chuyển vào một bộ sưu tập"
   },
   "importTargetHintFolder": {
-    "message": "Select this option if you want the imported file contents moved to a folder"
+    "message": "Chọn tùy chọn này nếu bạn muốn nội dung tệp đã nhập được chuyển vào một thư mục"
   },
   "importUnassignedItemsError": {
     "message": "Tập tin chứa các mục không xác định."
@@ -3590,6 +3587,12 @@
   },
   "awaitingSSODesc": {
     "message": "Vui lòng tiếp tục đăng nhập bằng thông tin đăng nhập của công ty bạn."
+  },
+  "importDirectlyFromBrowser": {
+    "message": "Nhập trực tiếp từ trình duyệt"
+  },
+  "browserProfile": {
+    "message": "Hồ sơ trình duyệt"
   },
   "seeDetailedInstructions": {
     "message": "Xem hướng dẫn chi tiết trên trang trợ giúp của chúng tôi tại",
@@ -3833,6 +3836,12 @@
   "changeAtRiskPassword": {
     "message": "Thay đổi mật khẩu có rủi ro"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Thông tin đăng nhập này có rủi ro và thiếu một trang web. Hãy thêm trang web và đổi mật khẩu để tăng cường bảo mật."
+  },
+  "missingWebsite": {
+    "message": "Thiếu trang web"
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "Bạn không thể xóa các bộ sưu tập với quyền chỉ xem: $COLLECTIONS$",
     "placeholders": {
@@ -3927,6 +3936,12 @@
     "message": "Tìm hiểu thêm về SSH agent",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
   },
   "assignToCollections": {
     "message": "Gán vào bộ sưu tập"
@@ -4077,5 +4092,23 @@
   "moreBreadcrumbs": {
     "message": "Thêm mục điều hướng",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "next": {
+    "message": "Tiếp theo"
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Xác nhận tên miền Key Connector"
+  },
+  "confirm": {
+    "message": "Xác nhận"
+  },
+  "enableAutotypeTransitionKey": {
+    "message": "Bật phím tắt tự động điền"
+  },
+  "enableAutotypeDescriptionTransitionKey": {
+    "message": "Hãy đảm bảo bạn đang ở đúng trường trước khi sử dụng phím tắt để tránh điền dữ liệu vào chỗ không đúng."
+  },
+  "editShortcut": {
+    "message": "Chỉnh sửa phím tắt"
   }
 }

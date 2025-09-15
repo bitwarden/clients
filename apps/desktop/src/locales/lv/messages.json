@@ -1305,11 +1305,8 @@
     "message": "Automātiski noņemt starpliktuvē ievietotās vērtības.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
-  "enableFavicon": {
-    "message": "Rādīt tīmekļvietņu ikonas"
-  },
-  "faviconDesc": {
-    "message": "Attēlot atpazīstamu attēlu pie katra pieteikšanās vienuma."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "enableMinToTray": {
     "message": "Samazināt ikonjoslā"
@@ -3591,6 +3588,12 @@
   "awaitingSSODesc": {
     "message": "Lūgums turpināt pieteikšanos ar savas apvienības pieteikšanās datiem."
   },
+  "importDirectlyFromBrowser": {
+    "message": "Ievietot tieši no pārlūka"
+  },
+  "browserProfile": {
+    "message": "Pārlūka profils"
+  },
   "seeDetailedInstructions": {
     "message": "Izvērstas norādes ir aplūkojamas mūsu palīdzības vietnē",
     "description": "This is followed a by a hyperlink to the help website."
@@ -3833,6 +3836,12 @@
   "changeAtRiskPassword": {
     "message": "Mainīt riskam pakļautu paroli"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Šis pieteikšanās vienums ir pakļauts riskam, un tam nav norādīta tīmekļvietne. Lielākai drošībai jāpievieno tīmekļvietne un jānomaina parole."
+  },
+  "missingWebsite": {
+    "message": "Nav norādīta tīmekļvietne"
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "Nevar noņemt krājumus ar tiesībām \"Tikai skatīt\": $COLLECTIONS$",
     "placeholders": {
@@ -3927,6 +3936,12 @@
     "message": "Uzzināt vairāk par SSH aģentu",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
   },
   "assignToCollections": {
     "message": "Piešķirt krājumiem"
@@ -4077,5 +4092,23 @@
   "moreBreadcrumbs": {
     "message": "Vairāk norāžu",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "next": {
+    "message": "Nākamais"
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Apstiprināt Key Connector domēnu"
+  },
+  "confirm": {
+    "message": "Apstiprināt"
+  },
+  "enableAutotypeTransitionKey": {
+    "message": "Iespējot automātiskās ievades saīsni"
+  },
+  "enableAutotypeDescriptionTransitionKey": {
+    "message": "Jāpārliecinās, ka pirms saīsnes izmantošanas kursors ir pareizajā laukā, lai izvairītos no datu ievadīšanas nepareizā vietā."
+  },
+  "editShortcut": {
+    "message": "Labot saīsni"
   }
 }

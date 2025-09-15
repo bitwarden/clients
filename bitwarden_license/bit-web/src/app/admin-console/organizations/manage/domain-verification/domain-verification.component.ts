@@ -13,6 +13,7 @@ import {
   takeUntil,
 } from "rxjs";
 
+import { DomainIcon } from "@bitwarden/assets/svg";
 import { OrgDomainApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization-domain/org-domain-api.service.abstraction";
 import { OrgDomainServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization-domain/org-domain.service.abstraction";
 import { OrganizationDomainResponse } from "@bitwarden/common/admin-console/abstractions/organization-domain/responses/organization-domain.response";
@@ -40,6 +41,7 @@ import {
 export class DomainVerificationComponent implements OnInit, OnDestroy {
   private componentDestroyed$ = new Subject<void>();
   private singleOrgPolicyEnabled = false;
+  protected domainIcon = DomainIcon;
 
   loading = true;
 

@@ -556,6 +556,9 @@
   "view": {
     "message": "Visualizza"
   },
+  "viewLogin": {
+    "message": "View login"
+  },
   "noItemsInList": {
     "message": "Non ci sono elementi da mostrare."
   },
@@ -1760,14 +1763,8 @@
   "popupU2fCloseMessage": {
     "message": "Questo browser non può elaborare richieste U2F in questo pop-up. Aprire questo pop-up in una nuova finestra per accedere usando U2F?"
   },
-  "enableFavicon": {
-    "message": "Mostra icone dei siti"
-  },
-  "faviconDesc": {
-    "message": "Mostra un piccolo logo riconoscibile accanto a ogni login."
-  },
-  "faviconDescAlt": {
-    "message": "Mostra un piccolo logo riconoscibile accanto a ogni login. Si applica a tutti gli account connessi."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "enableBadgeCounter": {
     "message": "Mostra badge contatore"
@@ -5113,6 +5110,18 @@
   "showNumberOfAutofillSuggestions": {
     "message": "Mostra il numero di suggerimenti di riempimento automatico sull'icona dell'estensione"
   },
+  "accountAccessRequested": {
+    "message": "Accesso all'account richiesto"
+  },
+  "confirmAccessAttempt": {
+    "message": "Conferma il tentativo di accesso per $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "showQuickCopyActions": {
     "message": "Mostra azioni di copia rapida nella Cassaforte"
   },
@@ -5440,6 +5449,12 @@
   "changeAtRiskPassword": {
     "message": "Cambia parola d'accesso a rischio"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
+  },
   "settingsVaultOptions": {
     "message": "Opzioni cassaforte"
   },
@@ -5563,6 +5578,12 @@
     "message": "Crea facilmente password forti e uniche cliccando sul pulsante 'Genera password' per aiutarti a mantenere al sicuro i tuoi login.",
     "description": "Aria label for the body content of the generator nudge"
   },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+  },
   "noPermissionsViewPage": {
     "message": "Non hai i permessi per visualizzare questa pagina. Prova ad accedere con un altro account."
   },
@@ -5576,8 +5597,14 @@
   "showLess": {
     "message": "Mostra di meno"
   },
+  "next": {
+    "message": "Avanti"
+  },
   "moreBreadcrumbs": {
     "message": "Ulteriori segmenti",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Conferma dominio Key Connector"
   }
 }
