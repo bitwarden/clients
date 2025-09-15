@@ -1,5 +1,5 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { EMPTY, of, Subscription } from "rxjs";
+import { EMPTY, Observable, of, Subscription } from "rxjs";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
@@ -22,7 +22,7 @@ describe("BadgeService", () => {
     badgeApi = new MockBadgeBrowserApi();
     logService = mock<LogService>();
 
-    badgeService = new BadgeService(badgeApi, logService);
+    badgeService = new BadgeService(badgeApi, logService, 0);
   });
 
   afterEach(() => {
@@ -269,14 +269,12 @@ describe("BadgeService", () => {
           });
         });
 
-        it.skip("only updates the active tab when setting state", async () => {
+        it("only updates the active tab when setting state", async () => {
           const state: BadgeState = {
             text: "text",
             backgroundColor: "color",
             icon: BadgeIcon.Locked,
           };
-          badgeApi.setState.mockReset();
-
           await badgeService.setState(
             "state-1",
             TabSpecificStateFunction(BadgeStatePriority.Default, state, tabId),
@@ -289,6 +287,10 @@ describe("BadgeService", () => {
             "state-2",
             TabSpecificStateFunction(BadgeStatePriority.Default, state, 2),
           );
+          await new Promise((resolve) => setTimeout(resolve, 0));
+
+          badgeApi.setState.mockReset();
+          badgeApi.updateTab(tabId);
 
           await new Promise((resolve) => setTimeout(resolve, 0));
           expect(badgeApi.setState).toHaveBeenCalledTimes(1);
@@ -325,13 +327,12 @@ describe("BadgeService", () => {
           });
         });
 
-        it.skip("only updates the active tabs when setting general state", async () => {
+        it("only updates the active tabs when setting general state", async () => {
           const state: BadgeState = {
             text: "text",
             backgroundColor: "color",
             icon: BadgeIcon.Locked,
           };
-          badgeApi.setState.mockReset();
 
           await badgeService.setState(
             "state-1",
@@ -345,6 +346,11 @@ describe("BadgeService", () => {
             "state-3",
             TabSpecificStateFunction(BadgeStatePriority.Default, state, 3),
           );
+          await new Promise((resolve) => setTimeout(resolve, 0));
+
+          badgeApi.setState.mockReset();
+          badgeApi.updateTab(activeTabIds[0]);
+          badgeApi.updateTab(activeTabIds[1]);
 
           await new Promise((resolve) => setTimeout(resolve, 0));
           expect(badgeApi.setState).toHaveBeenCalledTimes(2);
@@ -783,6 +789,25 @@ describe("BadgeService", () => {
             [tabIds[1]]: generalState,
             [tabIds[2]]: undefined,
           });
+        });
+
+        it("unsubscribes from state function when tab is deactivated", async () => {
+          let subscriptions = 0;
+          badgeService.setState("state", (tab) => {
+            return new Observable(() => {
+              subscriptions++;
+              return () => {
+                subscriptions--;
+              };
+            });
+          });
+
+          await new Promise((resolve) => setTimeout(resolve, 0));
+          expect(subscriptions).toBe(activeTabIds.length);
+
+          badgeApi.deactivateTab(activeTabIds[0]);
+          await new Promise((resolve) => setTimeout(resolve, 0));
+          expect(subscriptions).toBe(activeTabIds.length - 1);
         });
       });
     });

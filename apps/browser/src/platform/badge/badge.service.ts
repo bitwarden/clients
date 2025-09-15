@@ -1,15 +1,19 @@
 import {
   BehaviorSubject,
   combineLatest,
+  combineLatestWith,
   concatMap,
   debounceTime,
+  filter,
+  groupBy,
   map,
-  merge,
+  mergeMap,
   Observable,
   of,
   startWith,
   Subscription,
   switchMap,
+  takeUntil,
 } from "rxjs";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -42,6 +46,7 @@ export class BadgeService {
   constructor(
     private badgeApi: BadgeBrowserApi,
     private logService: LogService,
+    private debounceTimeMs: number = BADGE_UPDATE_DEBOUNCE_MS,
   ) {}
 
   /**
@@ -58,26 +63,34 @@ export class BadgeService {
         state: {},
       });
 
-    return combineLatest({
-      activeTabs: this.badgeApi.activeTabs$,
-      dynamicStateFunctions: this.stateFunctions,
-    })
+    return this.badgeApi.tabEvents$
       .pipe(
-        switchMap(({ activeTabs, dynamicStateFunctions }) => {
-          const functions = [...Object.values(dynamicStateFunctions), defaultTabStateFunction];
-
-          const tabObservables = activeTabs.map((tab) =>
-            combineLatest(functions.map((f) => f(tab).pipe(startWith(undefined)))).pipe(
-              map((states) => ({
-                states: states.filter((s): s is BadgeStateSetting => s !== undefined),
-                tab,
-              })),
-              debounceTime(BADGE_UPDATE_DEBOUNCE_MS),
-            ),
-          );
-
-          return merge(...tabObservables);
+        groupBy((event) => (event.type === "deactivated" ? event.tabId : event.tab.tabId), {
+          duration: (group$) =>
+            // Allow clean up of group when deactivated event arrives for this tabId
+            group$.pipe(filter((evt) => evt.type === "deactivated")),
         }),
+        mergeMap((group$) =>
+          group$.pipe(
+            // ignore deactivation events, only handle updates/activations
+            filter((evt) => evt.type !== "deactivated"),
+            map((evt) => evt.tab),
+            combineLatestWith(this.stateFunctions),
+            switchMap(([tab, dynamicStateFunctions]) => {
+              const functions = [...Object.values(dynamicStateFunctions), defaultTabStateFunction];
+
+              return combineLatest(functions.map((f) => f(tab).pipe(startWith(undefined)))).pipe(
+                map((states) => ({
+                  tab,
+                  states: states.filter((s): s is BadgeStateSetting => s !== undefined),
+                })),
+                debounceTime(this.debounceTimeMs),
+              );
+            }),
+            takeUntil(group$.pipe(filter((evt) => evt.type === "deactivated"))),
+          ),
+        ),
+
         concatMap(async (tabUpdate) => {
           await this.updateBadge(tabUpdate.states, tabUpdate.tab.tabId);
         }),
@@ -90,6 +103,37 @@ export class BadgeService {
           );
         },
       });
+    //   activeTabs: this.badgeApi.activeTabs$,
+    //   dynamicStateFunctions: this.stateFunctions,
+    // })
+    //   .pipe(
+    //     switchMap(({ activeTabs, dynamicStateFunctions }) => {
+    //       const functions = [...Object.values(dynamicStateFunctions), defaultTabStateFunction];
+
+    //       const tabObservables = activeTabs.map((tab) =>
+    //         combineLatest(functions.map((f) => f(tab).pipe(startWith(undefined)))).pipe(
+    //           map((states) => ({
+    //             states: states.filter((s): s is BadgeStateSetting => s !== undefined),
+    //             tab,
+    //           })),
+    //           debounceTime(BADGE_UPDATE_DEBOUNCE_MS),
+    //         ),
+    //       );
+
+    //       return merge(...tabObservables);
+    //     }),
+    //     concatMap(async (tabUpdate) => {
+    //       await this.updateBadge(tabUpdate.states, tabUpdate.tab.tabId);
+    //     }),
+    //   )
+    //   .subscribe({
+    //     error: (error: unknown) => {
+    //       this.logService.error(
+    //         "BadgeService: Fatal error updating badge state. Badge will no longer be updated.",
+    //         error,
+    //       );
+    //     },
+    //   });
   }
 
   /**
