@@ -2,6 +2,7 @@ import {
   BehaviorSubject,
   combineLatest,
   concatMap,
+  debounceTime,
   map,
   merge,
   Observable,
@@ -17,6 +18,8 @@ import { BadgeBrowserApi, RawBadgeState, Tab } from "./badge-browser-api";
 import { DefaultBadgeState } from "./consts";
 import { BadgeStatePriority } from "./priority";
 import { BadgeState, Unset } from "./state";
+
+const BADGE_UPDATE_DEBOUNCE_MS = 100;
 
 export interface BadgeStateSetting {
   priority: BadgeStatePriority;
@@ -69,6 +72,7 @@ export class BadgeService {
                 states: states.filter((s): s is BadgeStateSetting => s !== undefined),
                 tab,
               })),
+              debounceTime(BADGE_UPDATE_DEBOUNCE_MS),
             ),
           );
 
