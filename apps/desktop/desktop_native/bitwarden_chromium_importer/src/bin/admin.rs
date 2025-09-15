@@ -2,7 +2,7 @@ use anyhow::{anyhow, Result};
 use base64::{engine::general_purpose, Engine as _};
 use clap::Parser;
 use env_logger::Target;
-use log::{debug, error};
+use log::debug;
 use std::{
     ffi::{OsStr, OsString},
     fs::OpenOptions,
@@ -325,7 +325,6 @@ macro_rules! debug_and_send_error {
             let error_message = format!($($arg)*);
             debug!("{}", error_message);
             send_error_to_user(&error_message).await;
-            return;
         }
     };
 }
@@ -351,11 +350,12 @@ async fn main() {
         Ok(args) => args,
         Err(e) => {
             debug_and_send_error!("Failed to parse command line arguments: {}", e);
+            return;
         }
     };
 
     if !is_admin() {
-        error!("Expected to run with admin privileges");
+        debug_and_send_error!("Expected to run with admin privileges");
         return;
     }
 
@@ -363,36 +363,23 @@ async fn main() {
 
     // Impersonate a SYSTEM process to be able to decrypt data encrypted for the machine
     let system_decrypted_base64 = {
+        // TODO: Handle errors better and report back to the user!
         let (_guard, pid) = ImpersonateGuard::start(None, None).unwrap();
         debug!("Impersonating system process with PID {}", pid);
 
         let system_decrypted = decrypt_data_base64(&args.encrypted, true);
-        debug!("Decrypted data1: {:?}", system_decrypted);
+        debug!("Decrypted data with system: {:?}", system_decrypted);
 
         if let Err(e) = system_decrypted {
-            let error_message = format!("Failed to decrypt data: {}", e);
-            error!("{}", error_message);
-            send_error_to_user(&error_message).await;
+            debug_and_send_error!("Failed to decrypt data: {}", e);
             return;
         }
 
         system_decrypted.unwrap()
     };
 
-    let user_decrypted = decrypt_data_base64(&system_decrypted_base64, false);
-    debug!("Decrypted data2: {:?}", user_decrypted);
-
-    if let Err(e) = user_decrypted {
-        let error_message = format!("Failed to decrypt data: {}", e);
-        error!("{}", error_message);
-        send_error_to_user(&error_message).await;
-        return;
-    }
-
-    let user_decrypted_base64 = user_decrypted.unwrap();
-
     debug!("Sending response back to user");
-    send_to_user(&user_decrypted_base64).await;
+    send_to_user(&system_decrypted_base64).await;
 
     return;
 }
