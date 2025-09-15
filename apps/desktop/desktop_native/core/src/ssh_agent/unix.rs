@@ -12,7 +12,7 @@ use super::{BitwardenDesktopAgent, SshAgentUIRequest};
 /// User can override the default socket path with this env var
 const ENV_BITWARDEN_SSH_AUTH_SOCK: &str = "BITWARDEN_SSH_AUTH_SOCK";
 
-const FLATPACK_DATA_DIR: &str = ".var/app/com.bitwarden.desktop/data";
+const FLATPAK_DATA_DIR: &str = ".var/app/com.bitwarden.desktop/data";
 
 const SOCKFILE_NAME: &str = ".bitwarden-ssh-agent.sock";
 
@@ -104,7 +104,7 @@ fn get_default_socket_path() -> Result<PathBuf, anyhow::Error> {
     };
 
     if is_flatpak() {
-        ssh_agent_directory = ssh_agent_directory.join(FLATPACK_DATA_DIR);
+        ssh_agent_directory = ssh_agent_directory.join(FLATPAK_DATA_DIR);
     }
 
     ssh_agent_directory = ssh_agent_directory.join(SOCKFILE_NAME);
