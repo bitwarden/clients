@@ -1763,14 +1763,8 @@
   "popupU2fCloseMessage": {
     "message": "இந்த உலாவி இந்தப் பாப்அப் சாளரத்தில் U2F கோரிக்கைகளை செயலாக்க முடியாது. U2F ஐப் பயன்படுத்தி உள்நுழைய, இந்த பாப்அப்பை புதிய சாளரத்தில் திறக்க விரும்புகிறீர்களா?"
   },
-  "enableFavicon": {
-    "message": "வலைத்தள ஐகான்களைக் காட்டு"
-  },
-  "faviconDesc": {
-    "message": "ஒவ்வொரு உள்நுழைவுக்கும் அருகில் அடையாளம் காணக்கூடிய படத்தைக் காட்டு."
-  },
-  "faviconDescAlt": {
-    "message": "ஒவ்வொரு உள்நுழைவுக்கும் அருகில் அடையாளம் காணக்கூடிய படத்தைக் காட்டு. உள்நுழைந்துள்ள அனைத்து கணக்குகளுக்கும் பொருந்தும்."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "enableBadgeCounter": {
     "message": "பேட்ஜ் கவுண்டரைக் காட்டு"
@@ -5583,6 +5577,12 @@
   "generatorNudgeBodyAria": {
     "message": "உங்கள் உள்நுழைவுகளைப் பாதுகாப்பாக வைத்திருக்க கடவுச்சொல்லை உருவாக்கு பொத்தானை கிளிக் செய்வதன் மூலம் வலுவான மற்றும் தனித்துவமான கடவுச்சொற்களை எளிதாக உருவாக்கலாம்.",
     "description": "Aria label for the body content of the generator nudge"
+  },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
   },
   "noPermissionsViewPage": {
     "message": "இந்த பக்கத்தைக் காண உங்களுக்கு அனுமதிகள் இல்லை. வேறு கணக்குடன் உள்நுழைய முயற்சிக்கவும்."

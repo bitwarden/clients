@@ -1305,11 +1305,8 @@
     "message": "נקה אוטומטית ערכים שהועתקו ללוח ההעתקות (clipboard).",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
-  "enableFavicon": {
-    "message": "הצג סמלי אתר אינטרנט"
-  },
-  "faviconDesc": {
-    "message": "הצג תמונה מוכרת ליד כל כניסה."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "enableMinToTray": {
     "message": "מזער למגש המערכת"
@@ -3839,6 +3836,12 @@
   "changeAtRiskPassword": {
     "message": "שנה סיסמה בסיכון"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "אינך יכול להסיר אוספים עם הרשאות הצגה בלבד: $COLLECTIONS$",
     "placeholders": {
@@ -3933,6 +3936,12 @@
     "message": "למד עוד על סוכן SSH",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
   },
   "assignToCollections": {
     "message": "הקצה לאוספים"
