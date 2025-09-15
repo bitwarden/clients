@@ -53,6 +53,10 @@ pub fn get_crypto_service(
     Ok(Box::new(MacCryptoService::new(config)))
 }
 
+pub fn configure_windows_crypto_service(_admin_exe_path: &String) {
+    // Do nothing on macOS
+}
+
 //
 // Private
 //

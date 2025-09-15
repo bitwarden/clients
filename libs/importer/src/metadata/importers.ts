@@ -8,7 +8,7 @@ import { ImporterMetadata } from "./types";
 // FIXME: load this data from rust code
 const importers = [
   // chromecsv import depends upon operating system, so ironically it doesn't support chromium
-  { id: "chromecsv", loaders: [Loader.file], instructions: Instructions.chromium },
+  { id: "chromecsv", loaders: [Loader.file, Loader.chromium], instructions: Instructions.chromium },
   { id: "operacsv", loaders: [Loader.file, Loader.chromium], instructions: Instructions.chromium },
   {
     id: "vivaldicsv",
