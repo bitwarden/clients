@@ -2107,7 +2107,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       "addToLockedVaultPendingNotifications",
       retryMessage,
     );
-    await this.openUnlockPopout(sender.tab, true);
+    await this.openUnlockPopout(sender.tab);
   }
 
   /**
