@@ -208,12 +208,8 @@ jobs:
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: ${{ steps.retrieve-node-version.outputs.node_version }}
+          npm-version: '11.5.1'
           registry-url: "https://registry.npmjs.org/"
-
-      - name: Update NPM
-        run: |
-          npm install -g npm@latest # npm 11.5.1 or later is required to publish w/ OIDC
-          npm --version
 
       - name: Download and set up artifact
         run: |
