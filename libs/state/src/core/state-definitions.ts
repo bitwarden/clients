@@ -218,4 +218,4 @@ export const VAULT_BROWSER_INTRO_CAROUSEL = new StateDefinition(
   "vaultBrowserIntroCarousel",
   "disk",
 );
-export const VAULT_AT_RISK_PASSWORDS_DISK = new StateDefinition("vaultAtRiskPasswords", "disk");
+export const VAULT_AT_RISK_PASSWORDS_MEMORY = new StateDefinition("vaultAtRiskPasswords", "memory");

@@ -5,7 +5,7 @@ import {
   SingleUserState,
   StateProvider,
   UserKeyDefinition,
-  VAULT_AT_RISK_PASSWORDS_DISK,
+  VAULT_AT_RISK_PASSWORDS_MEMORY,
 } from "@bitwarden/common/platform/state";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { SecurityTask, SecurityTaskType, TaskService } from "@bitwarden/common/vault/tasks";
@@ -18,11 +18,11 @@ export type AtRiskPasswordCalloutData = {
 };
 
 export const AT_RISK_PASSWORD_CALLOUT_KEY = new UserKeyDefinition<AtRiskPasswordCalloutData>(
-  VAULT_AT_RISK_PASSWORDS_DISK,
+  VAULT_AT_RISK_PASSWORDS_MEMORY,
   "atRiskPasswords",
   {
     deserializer: (jsonData) => jsonData,
-    clearOn: ["logout", "lock"],
+    clearOn: [],
   },
 );
 
