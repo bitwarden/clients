@@ -244,7 +244,6 @@ const initialData: ExtensionAnonLayoutWrapperData = {
   showAcctSwitcher: true,
   showBackButton: true,
   showLogo: true,
-  hideIcon: false,
 };
 
 const changedData: ExtensionAnonLayoutWrapperData = {
@@ -258,7 +257,6 @@ const changedData: ExtensionAnonLayoutWrapperData = {
   showAcctSwitcher: false,
   showBackButton: false,
   showLogo: false,
-  hideIcon: false,
 };
 
 @Component({

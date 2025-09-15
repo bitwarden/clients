@@ -14,8 +14,9 @@
   </a>
 
   <div class="tw-text-center tw-mb-4 sm:tw-mb-6 tw-mx-auto" [ngClass]="maxWidthClass">
-    <div *ngIf="!hideIcon()" class="tw-size-20 sm:tw-size-24 tw-mx-auto tw-content-center">
-      <bit-icon [icon]="icon()"></bit-icon>
+    @let iconInput = icon();
+    <div *ngIf="iconInput !== null" class="tw-size-20 sm:tw-size-24 tw-mx-auto tw-content-center">
+      <bit-icon [icon]="iconInput"></bit-icon>
     </div>
 
     <ng-container *ngIf="title()">
