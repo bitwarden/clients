@@ -208,7 +208,7 @@ jobs:
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: ${{ steps.retrieve-node-version.outputs.node_version }}
-          npm-version: '11.5.1' # npm 11.5.1 or later is required to publish w/ OIDC
+          npm-version: "11.5.1" # FIXME: npm 11.5.1 or later is required to publish w/ OIDC. move version management to somewhere maintainable by automation
           registry-url: "https://registry.npmjs.org/"
 
       - name: Download and set up artifact
