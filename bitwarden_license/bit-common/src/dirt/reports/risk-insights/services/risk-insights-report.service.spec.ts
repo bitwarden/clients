@@ -171,7 +171,7 @@ describe("RiskInsightsReportService", () => {
       );
 
       const saveResponse = { id: "" }; // Simulating no ID in response
-      mockRiskInsightsApiService.saveRiskInsightsReport.mockReturnValue(of(saveResponse));
+      mockRiskInsightsApiService.saveRiskInsightsReport$.mockReturnValue(of(saveResponse));
 
       const reportSubjectSpy = jest.spyOn((service as any).riskInsightsReportSubject, "next");
       const summarySubjectSpy = jest.spyOn((service as any).riskInsightsSummarySubject, "next");
@@ -202,9 +202,11 @@ describe("RiskInsightsReportService", () => {
 
       const organizationId = "orgId" as OrganizationId;
       const userId = "userId" as UserId;
-      mockRiskInsightsApiService.getRiskInsightsReport.mockReturnValue(of(apiResponse));
+      mockRiskInsightsApiService.getRiskInsightsReport$.mockReturnValue(of(apiResponse));
       service.getRiskInsightsReport(organizationId, userId);
-      expect(mockRiskInsightsApiService.getRiskInsightsReport).toHaveBeenCalledWith(organizationId);
+      expect(mockRiskInsightsApiService.getRiskInsightsReport$).toHaveBeenCalledWith(
+        organizationId,
+      );
       expect(mockRiskInsightsEncryptionService.decryptRiskInsightsReport).toHaveBeenCalledWith(
         organizationId,
         userId,
@@ -231,7 +233,7 @@ describe("RiskInsightsReportService", () => {
       const decryptedReport = {
         data: [{ foo: "bar" }],
       };
-      mockRiskInsightsApiService.getRiskInsightsReport.mockReturnValue(of(mockResponse));
+      mockRiskInsightsApiService.getRiskInsightsReport$.mockReturnValue(of(mockResponse));
       mockRiskInsightsEncryptionService.decryptRiskInsightsReport.mockResolvedValue(
         decryptedReport,
       );

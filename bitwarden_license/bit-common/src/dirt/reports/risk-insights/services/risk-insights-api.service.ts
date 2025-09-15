@@ -13,7 +13,7 @@ import {
 export class RiskInsightsApiService {
   constructor(private apiService: ApiService) {}
 
-  getRiskInsightsReport(orgId: OrganizationId): Observable<GetRiskInsightsReportResponse | null> {
+  getRiskInsightsReport$(orgId: OrganizationId): Observable<GetRiskInsightsReportResponse | null> {
     const dbResponse = this.apiService
       .send("GET", `/reports/organizations/${orgId.toString()}/latest`, null, true, true)
       .catch((error: any): any => {
@@ -26,7 +26,7 @@ export class RiskInsightsApiService {
     return from(dbResponse as Promise<GetRiskInsightsReportResponse>);
   }
 
-  saveRiskInsightsReport(
+  saveRiskInsightsReport$(
     request: SaveRiskInsightsReportRequest,
     organizationId: OrganizationId,
   ): Observable<SaveRiskInsightsReportResponse> {
@@ -41,7 +41,7 @@ export class RiskInsightsApiService {
     return from(dbResponse as Promise<SaveRiskInsightsReportResponse>);
   }
 
-  getRiskInsightsSummary(
+  getRiskInsightsSummary$(
     orgId: string,
     minDate: Date,
     maxDate: Date,
@@ -59,15 +59,46 @@ export class RiskInsightsApiService {
     return from(dbResponse as Promise<EncryptedDataModel[]>);
   }
 
-  updateRiskInsightsSummary(
-    data: EncryptedDataModel,
+  updateRiskInsightsSummary$(
+    summaryData: EncryptedDataModel,
     organizationId: OrganizationId,
     reportId: OrganizationReportId,
   ): Observable<void> {
     const dbResponse = this.apiService.send(
       "PATCH",
       `/reports/organizations/${organizationId.toString()}/data/summary/${reportId.toString()}`,
-      data,
+      summaryData,
+      true,
+      true,
+    );
+
+    return from(dbResponse as Promise<void>);
+  }
+
+  getRiskInsightsApplicationData$(
+    orgId: OrganizationId,
+    reportId: OrganizationReportId,
+  ): Observable<EncryptedDataModel | null> {
+    const dbResponse = this.apiService.send(
+      "GET",
+      `/reports/organizations/${orgId.toString()}/data/application/${reportId.toString()}`,
+      null,
+      true,
+      true,
+    );
+
+    return from(dbResponse as Promise<EncryptedDataModel | null>);
+  }
+
+  updateRiskInsightsApplicationData$(
+    applicationData: EncryptedDataModel,
+    orgId: OrganizationId,
+    reportId: OrganizationReportId,
+  ): Observable<void> {
+    const dbResponse = this.apiService.send(
+      "PATCH",
+      `/reports/organizations/${orgId.toString()}/data/application/${reportId.toString()}`,
+      applicationData,
       true,
       true,
     );

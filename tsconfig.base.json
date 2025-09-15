@@ -45,7 +45,6 @@
       "@bitwarden/key-management-ui": ["./libs/key-management-ui/src"],
       "@bitwarden/logging": ["libs/logging/src"],
       "@bitwarden/messaging": ["libs/messaging/src/index.ts"],
-      "@bitwarden/messaging-internal": ["libs/messaging-internal/src/index.ts"],
       "@bitwarden/node/*": ["./libs/node/src/*"],
       "@bitwarden/nx-plugin": ["libs/nx-plugin/src/index.ts"],
       "@bitwarden/platform": ["./libs/platform/src"],

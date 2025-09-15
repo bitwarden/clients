@@ -86,14 +86,14 @@
   "noAppsInOrgDescription": {
     "message": "Quando gli utenti salvano i login, i relativi dati e le password a rischio sono mostrati qui. Contrassegna le applicazioni critiche e notifica agli utenti di aggiornare le password."
   },
-  "noCriticalAppsTitle": {
-    "message": "Non hai contrassegnato nessuna applicazione come critica"
+  "noCriticalApplicationsTitle": {
+    "message": "You haven’t marked any applications as critical"
   },
-  "noCriticalAppsDescription": {
-    "message": "Seleziona le applicazioni critiche per scoprire le password a rischio e invitare gli utenti a modificarle."
+  "noCriticalApplicationsDescription": {
+    "message": "Select your most critical applications to prioritize security actions for your users to address at-risk passwords."
   },
-  "markCriticalApps": {
-    "message": "Seleziona le applicazioni critiche"
+  "markCriticalApplications": {
+    "message": "Select critical applications"
   },
   "markAppAsCritical": {
     "message": "Contrassegna l'applicazione come critica"
@@ -179,8 +179,8 @@
   "unmarkAsCritical": {
     "message": "Contrassegna l'elemento come non critico"
   },
-  "criticalApplicationSuccessfullyUnmarked": {
-    "message": "Applicazione contrassegnata come non critica"
+  "criticalApplicationUnmarkedSuccessfully": {
+    "message": "Successfully unmarked application as critical"
   },
   "whatTypeOfItem": {
     "message": "Che tipo di elemento è questo?"
@@ -2114,11 +2114,8 @@
   "languageDesc": {
     "message": "Cambia la lingua utilizzata dalla cassaforte web."
   },
-  "enableFavicon": {
-    "message": "Show website icons"
-  },
-  "faviconDesc": {
-    "message": "Show a recognizable image next to each login."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "default": {
     "message": "Predefinito"
@@ -7433,6 +7430,9 @@
   "off": {
     "message": "No"
   },
+  "connected": {
+    "message": "Connected"
+  },
   "members": {
     "message": "Membri"
   },
@@ -9690,6 +9690,15 @@
       }
     }
   },
+  "updateIntegrationButtonDesc": {
+    "message": "Update $INTEGRATION$",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
+  },
   "integrationCardTooltip": {
     "message": "Avvia la guida di $INTEGRATION$.",
     "placeholders": {
@@ -10896,6 +10905,12 @@
   "changeAtRiskPassword": {
     "message": "Cambia parola d'accesso a rischio"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
+  },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Rimuovi sblocco con PIN"
   },
@@ -11071,6 +11086,12 @@
     "message": "Indirizzo di fatturazione richiesto per aggiungere credito.",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+  },
   "billingAddress": {
     "message": "Indirizzo di fatturazione"
   },
@@ -11234,6 +11255,14 @@
   },
   "confirmKeyConnectorDomain": {
     "message": "Conferma dominio Key Connector"
+  },
+  "requiredToVerifyBankAccountWithStripe": {
+    "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
+  },
+  "verifyBankAccountWithStripe": {
+    "message": "We have made a micro-deposit to your bank account. This may take 1-2 business days. When you see the deposit in your account, you can verify your bank account. Failure to verify your bank account will result in a missed payment and your subscription will be suspended."
+  },
+  "verifyNow": {
+    "message": "Verify now."
   }
 }
-

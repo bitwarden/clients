@@ -1305,11 +1305,8 @@
     "message": "Automaticky vymaže zkopírované hodnoty z Vaší schránky.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
-  "enableFavicon": {
-    "message": "Zobrazit ikony webových stránek"
-  },
-  "faviconDesc": {
-    "message": "Zobrazí rozeznatelný obrázek vedle každého přihlášení."
+  "showIconsChangePasswordUrls": {
+    "message": "Zobrazit ikony webových stránek a načíst URL adresy pro změnu hesla"
   },
   "enableMinToTray": {
     "message": "Minimalizovat do systémové lišty"
@@ -3839,6 +3836,12 @@
   "changeAtRiskPassword": {
     "message": "Změnit ohrožené heslo"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Tyto přihlašovací údaje jsou ohrožené a chybí jim webová stránka. Přidejte webovou stránku a změňte heslo pro větší bezpečnost."
+  },
+  "missingWebsite": {
+    "message": "Chybějící webová stránka"
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "Nemůžete odebrat sbírky s oprávněními jen pro zobrazení: $COLLECTIONS$",
     "placeholders": {
@@ -3933,6 +3936,12 @@
     "message": "Další informace o SSH agentovi",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "aboutThisSetting": {
+    "message": "O tomto nastavení"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden bude používat uložené přihlašovací URI k identifikaci, která ikona nebo změna adresy URL by měla být použita pro zlepšení Vašeho zážitku. Při používání této služby nejsou shromažďovány ani ukládány žádné informace."
   },
   "assignToCollections": {
     "message": "Přiřadit ke sbírkám"
