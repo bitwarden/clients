@@ -830,16 +830,14 @@ pub mod logging {
     //!
     //! [Elec] 14:34:03.517 › [NAPI] [INFO] desktop_core::ssh_agent::platform_ssh_agent: Starting SSH Agent server {socket=/Users/foo/.bitwarden-ssh-agent.sock}
 
-    use std::fmt::{self, Write};
+    use std::fmt::Write;
     use std::sync::OnceLock;
 
     use napi::threadsafe_function::{
         ErrorStrategy::CalleeHandled, ThreadsafeFunction, ThreadsafeFunctionCallMode,
     };
-    use tracing::{
-        field::{Field, Visit},
-        Level,
-    };
+    use tracing::Level;
+    use tracing_subscriber::fmt::format::{DefaultVisitor, Writer};
     use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt, Layer};
 
     struct JsLogger(OnceLock<ThreadsafeFunction<(LogLevel, String), CalleeHandled>>);
@@ -866,26 +864,6 @@ pub mod logging {
         }
     }
 
-    /// Visitor handles custom formatting for the field names
-    struct Visitor<'a> {
-        buffer: &'a mut String,
-    }
-
-    impl Visit for Visitor<'_> {
-        fn record_debug(&mut self, field: &Field, value: &dyn fmt::Debug) {
-            // display the event's message
-            if field.name() == "message" {
-                write!(self.buffer, ": {:?}", value)
-                    .expect("Failed to write log event fields to buffer");
-
-            // all other fields display as "{field_name=field_value}"
-            } else {
-                write!(self.buffer, " {{{}={:?}}}", field.name(), value)
-                    .expect("Failed to write log event fields to buffer");
-            }
-        }
-    }
-
     // JsLayer lets us intercept events and write them to the JS Logger.
     struct JsLayer;
 
@@ -908,9 +886,8 @@ pub mod logging {
             )
             .expect("Failed to write tracing event to buffer");
 
-            let mut visitor = Visitor {
-                buffer: &mut buffer,
-            };
+            let writer = Writer::new(&mut buffer);
+            let mut visitor = DefaultVisitor::new(writer, false);
 
             event.record(&mut visitor);
 
