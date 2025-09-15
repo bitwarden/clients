@@ -1901,7 +1901,6 @@ export default class MainBackground {
       this.badgeService,
       this.accountService,
       this.cipherService,
-      this.logService,
       this.taskService,
     );
 

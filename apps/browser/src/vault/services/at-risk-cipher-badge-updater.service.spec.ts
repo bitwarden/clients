@@ -1,12 +1,11 @@
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, firstValueFrom } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { SecurityTask, TaskService } from "@bitwarden/common/vault/tasks";
-import { LogService } from "@bitwarden/logging";
-import { UserId } from "@bitwarden/user-core";
+import { SecurityTask, SecurityTaskType, TaskService } from "@bitwarden/common/vault/tasks";
 
-import { BadgeService } from "../../platform/badge/badge.service";
+import { Tab } from "../../platform/badge/badge-browser-api";
+import { BadgeService, DynamicStateFunction } from "../../platform/badge/badge.service";
 import { BadgeIcon } from "../../platform/badge/icon";
 import { BadgeStatePriority } from "../../platform/badge/priority";
 import { Unset } from "../../platform/badge/state";
@@ -17,35 +16,33 @@ import { AtRiskCipherBadgeUpdaterService } from "./at-risk-cipher-badge-updater.
 describe("AtRiskCipherBadgeUpdaterService", () => {
   let service: AtRiskCipherBadgeUpdaterService;
 
-  let setState: jest.Mock;
-  let clearState: jest.Mock;
-  let warning: jest.Mock;
+  let setDynamicState: jest.Mock;
   let getAllDecryptedForUrl: jest.Mock;
   let getTab: jest.Mock;
   let addListener: jest.Mock;
 
-  const activeAccount$ = new BehaviorSubject({ id: "test-account-id" });
-  const cipherViews$ = new BehaviorSubject([]);
-  const pendingTasks$ = new BehaviorSubject<SecurityTask[]>([]);
-  const userId = "test-user-id" as UserId;
+  let activeAccount$: BehaviorSubject<{ id: string }>;
+  let cipherViews$: BehaviorSubject<Array<{ id: string; isDeleted?: boolean }>>;
+  let pendingTasks$: BehaviorSubject<SecurityTask[]>;
 
   beforeEach(async () => {
-    setState = jest.fn().mockResolvedValue(undefined);
-    clearState = jest.fn().mockResolvedValue(undefined);
-    warning = jest.fn();
+    setDynamicState = jest.fn().mockResolvedValue(undefined);
     getAllDecryptedForUrl = jest.fn().mockResolvedValue([]);
     getTab = jest.fn();
     addListener = jest.fn();
+
+    activeAccount$ = new BehaviorSubject({ id: "test-account-id" });
+    cipherViews$ = new BehaviorSubject<Array<{ id: string; isDeleted?: boolean }>>([]);
+    pendingTasks$ = new BehaviorSubject<SecurityTask[]>([]);
 
     jest.spyOn(BrowserApi, "addListener").mockImplementation(addListener);
     jest.spyOn(BrowserApi, "getTab").mockImplementation(getTab);
 
     service = new AtRiskCipherBadgeUpdaterService(
-      { setState, clearState } as unknown as BadgeService,
+      { setDynamicState } as unknown as BadgeService,
       { activeAccount$ } as unknown as AccountService,
-      { cipherViews$, getAllDecryptedForUrl } as unknown as CipherService,
-      { warning } as unknown as LogService,
-      { pendingTasks$ } as unknown as TaskService,
+      { cipherViews$: () => cipherViews$, getAllDecryptedForUrl } as unknown as CipherService,
+      { pendingTasks$: () => pendingTasks$ } as unknown as TaskService,
     );
 
     await service.init();
@@ -55,30 +52,41 @@ describe("AtRiskCipherBadgeUpdaterService", () => {
     jest.restoreAllMocks();
   });
 
+  it("registers dynamic state function on init", () => {
+    expect(setDynamicState).toHaveBeenCalledWith("at-risk-cipher-badge", expect.any(Function));
+  });
+
   it("clears the tab state when there are no ciphers and no pending tasks", async () => {
-    const tab = { id: 1 } as chrome.tabs.Tab;
+    const tab: Tab = { tabId: 1, url: "https://bitwarden.com" };
+    const stateFunction = setDynamicState.mock.calls[0][1];
 
-    await service["setTabState"](tab, userId, []);
+    const state = await firstValueFrom(stateFunction(tab));
 
-    expect(clearState).toHaveBeenCalledWith("at-risk-cipher-badge-1");
+    expect(state).toBeUndefined();
   });
 
   it("sets state when there are pending tasks for the tab", async () => {
-    const tab = { id: 3, url: "https://bitwarden.com" } as chrome.tabs.Tab;
-    const pendingTasks: SecurityTask[] = [{ id: "task1", cipherId: "cipher1" } as SecurityTask];
+    const tab: Tab = { tabId: 3, url: "https://bitwarden.com" };
+    const stateFunction: DynamicStateFunction = setDynamicState.mock.calls[0][1];
+    const pendingTasks: SecurityTask[] = [
+      {
+        id: "task1",
+        cipherId: "cipher1",
+        type: SecurityTaskType.UpdateAtRiskCredential,
+      } as SecurityTask,
+    ];
+    pendingTasks$.next(pendingTasks);
     getAllDecryptedForUrl.mockResolvedValueOnce([{ id: "cipher1" }]);
 
-    await service["setTabState"](tab, userId, pendingTasks);
+    const state = await firstValueFrom(stateFunction(tab));
 
-    expect(setState).toHaveBeenCalledWith(
-      "at-risk-cipher-badge-3",
-      BadgeStatePriority.High,
-      {
+    expect(state).toEqual({
+      priority: BadgeStatePriority.High,
+      state: {
         icon: BadgeIcon.Berry,
         text: Unset,
         backgroundColor: Unset,
       },
-      3,
-    );
+    });
   });
 });
