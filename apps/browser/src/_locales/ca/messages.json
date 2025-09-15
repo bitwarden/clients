@@ -556,6 +556,9 @@
   "view": {
     "message": "Visualitza"
   },
+  "viewLogin": {
+    "message": "View login"
+  },
   "noItemsInList": {
     "message": "No hi ha cap element a llistar."
   },
@@ -1124,7 +1127,7 @@
     "description": "Button text for updating an existing login entry."
   },
   "unlockToSave": {
-    "message": "Unlock to save this login",
+    "message": "Desbloqueja per guardar aquest inici de sessió",
     "description": "User prompt to take action in order to save the login they just entered."
   },
   "saveLogin": {
@@ -2296,7 +2299,7 @@
     "message": "El formulari està allotjat en un domini diferent de l'URI de l'inici de sessió guardat. Trieu D'acord per omplir -lo automàticament de totes maneres o Cancel·la per aturar-ho."
   },
   "autofillIframeWarningTip": {
-    "message": "Per evitar aquest avís en el futur, guardeu aquest URI, $HOSTNAME$, al vostre element d'inici de sessió de Bitwarden d'aquest lloc.",
+    "message": "Per evitar aquest avís en el futur, guardeu el lloc d'aquest URI, $HOSTNAME$, en els elements d'inici de sessió de Bitwarden.",
     "placeholders": {
       "hostname": {
         "content": "$1",
@@ -4472,7 +4475,7 @@
     "message": "Suggested items"
   },
   "autofillSuggestionsTip": {
-    "message": "Save a login item for this site to autofill"
+    "message": "Guarda un inici de sessió d'aquest lloc web per omplir-lo automàticament"
   },
   "yourVaultIsEmpty": {
     "message": "La caixa forta està buida"
@@ -5446,6 +5449,12 @@
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
+  },
   "settingsVaultOptions": {
     "message": "Opcions de la caixa forta"
   },
@@ -5588,8 +5597,14 @@
   "showLess": {
     "message": "Show less"
   },
+  "next": {
+    "message": "Next"
+  },
   "moreBreadcrumbs": {
     "message": "More breadcrumbs",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Confirm Key Connector domain"
   }
 }

@@ -110,10 +110,6 @@
           <i class="bwi bwi-fw bwi-pencil" aria-hidden="true"></i>
           {{ "editProject" | i18n }}
         </button>
-        <button *ngIf="project.write" type="button" bitMenuItem (click)="deleteProject(project.id)">
-          <i class="bwi bwi-fw bwi-trash tw-text-danger" aria-hidden="true"></i>
-          <span class="tw-text-danger">{{ "deleteProject" | i18n }}</span>
-        </button>
         <button
           type="button"
           bitMenuItem
@@ -122,6 +118,10 @@
         >
           <i class="bwi bwi-fw bwi-billing" aria-hidden="true"></i>
           <span> {{ "viewEvents" | i18n }} </span>
+        </button>
+        <button *ngIf="project.write" type="button" bitMenuItem (click)="deleteProject(project.id)">
+          <i class="bwi bwi-fw bwi-trash tw-text-danger" aria-hidden="true"></i>
+          <span class="tw-text-danger">{{ "deleteProject" | i18n }}</span>
         </button>
       </bit-menu>
     </tr>

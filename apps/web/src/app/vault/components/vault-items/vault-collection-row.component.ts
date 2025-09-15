@@ -10,6 +10,7 @@ import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-u
 import { GroupView } from "../../../admin-console/organizations/core";
 
 import {
+  CollectionPermission,
   convertToPermission,
   getPermissionList,
 } from "./../../../admin-console/organizations/shared/components/access-selector/access-selector.models";
@@ -24,6 +25,7 @@ import { RowHeightClass } from "./vault-items.component";
 export class VaultCollectionRowComponent<C extends CipherViewLike> {
   protected RowHeightClass = RowHeightClass;
   protected Unassigned = "unassigned";
+  protected CollectionPermission = CollectionPermission;
 
   @Input() disabled: boolean;
   @Input() collection: CollectionView;
@@ -100,6 +102,15 @@ export class VaultCollectionRowComponent<C extends CipherViewLike> {
 
   protected access(readonly: boolean) {
     this.onEvent.next({ type: "viewCollectionAccess", item: this.collection, readonly: readonly });
+  }
+
+  protected addAccess(initialPermission: CollectionPermission) {
+    this.onEvent.next({
+      type: "viewCollectionAccess",
+      item: this.collection,
+      readonly: false,
+      initialPermission,
+    });
   }
 
   protected deleteCollection() {

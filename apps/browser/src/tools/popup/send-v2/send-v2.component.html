@@ -22,7 +22,9 @@
   >
     <bit-no-items [icon]="noItemIcon" class="tw-text-main">
       <ng-container slot="title">{{ "sendsTitleNoItems" | i18n }}</ng-container>
-      <ng-container slot="description">{{ "sendsBodyNoItems" | i18n }}</ng-container>
+      <ng-container slot="description">
+        <p bitTypography="body2" class="tw-mx-6 tw-mt-2">{{ "sendsBodyNoItems" | i18n }}</p>
+      </ng-container>
       <tools-new-send-dropdown
         [hideIcon]="true"
         *ngIf="!sendsDisabled"

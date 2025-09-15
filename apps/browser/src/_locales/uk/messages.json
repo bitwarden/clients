@@ -556,6 +556,9 @@
   "view": {
     "message": "Переглянути"
   },
+  "viewLogin": {
+    "message": "View login"
+  },
   "noItemsInList": {
     "message": "Немає записів."
   },
@@ -4126,10 +4129,10 @@
     "message": "Вибрати збірку"
   },
   "importTargetHintCollection": {
-    "message": "Select this option if you want the imported file contents moved to a collection"
+    "message": "Оберіть цю опцію, якщо ви хочете, щоб вміст імпортованого файлу було збережено до збірки"
   },
   "importTargetHintFolder": {
-    "message": "Select this option if you want the imported file contents moved to a folder"
+    "message": "Оберіть цю опцію, якщо ви хочете, щоб вміст імпортованого файлу було збережено до теки"
   },
   "importUnassignedItemsError": {
     "message": "Файл містить непризначені записи."
@@ -5108,10 +5111,10 @@
     "message": "Показувати кількість пропозицій автозаповнення на піктограмі розширення"
   },
   "accountAccessRequested": {
-    "message": "Account access requested"
+    "message": "Запитано доступ до облікового запису"
   },
   "confirmAccessAttempt": {
-    "message": "Confirm access attempt for $EMAIL$",
+    "message": "Підтвердити спробу доступу для $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -5446,6 +5449,12 @@
   "changeAtRiskPassword": {
     "message": "Змінити ризикований пароль"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
+  },
   "settingsVaultOptions": {
     "message": "Параметри сховища"
   },
@@ -5588,8 +5597,14 @@
   "showLess": {
     "message": "Згорнути"
   },
+  "next": {
+    "message": "Далі"
+  },
   "moreBreadcrumbs": {
-    "message": "More breadcrumbs",
+    "message": "Інші елементи",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Confirm Key Connector domain"
   }
 }

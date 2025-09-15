@@ -4487,6 +4487,34 @@ describe("AutofillService", () => {
 
       expect(result).toBe(totpField);
     });
+
+    it("returns null if the totp field matches excluded TOTP field names via htmlID", () => {
+      totpField.htmlID = "recovery-code";
+
+      const result = autofillService["findTotpField"](
+        pageDetails,
+        passwordField,
+        false,
+        false,
+        false,
+      );
+
+      expect(result).toBeNull();
+    });
+
+    it("returns null if the totp field matches excluded TOTP field names via htmlName", () => {
+      totpField.htmlName = "backup";
+
+      const result = autofillService["findTotpField"](
+        pageDetails,
+        passwordField,
+        false,
+        false,
+        false,
+      );
+
+      expect(result).toBeNull();
+    });
   });
 
   describe("findMatchingFieldIndex", () => {
