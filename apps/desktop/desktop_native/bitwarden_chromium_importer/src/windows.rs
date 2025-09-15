@@ -6,9 +6,10 @@ use anyhow::{anyhow, Result};
 use async_trait::async_trait;
 use base64::{engine::general_purpose::STANDARD as BASE64_STANDARD, Engine as _};
 use chacha20poly1305::ChaCha20Poly1305;
-use winapi::shared::minwindef::{BOOL, BYTE, DWORD};
-use winapi::um::{dpapi::CryptUnprotectData, wincrypt::DATA_BLOB};
-use windows::Win32::Foundation::{LocalFree, HLOCAL};
+use windows::Win32::{
+    Foundation::{LocalFree, HLOCAL},
+    Security::Cryptography::{CryptUnprotectData, CRYPT_INTEGER_BLOB},
+};
 
 use crate::chromium::{BrowserConfig, CryptoService, LocalState};
 
@@ -271,30 +272,29 @@ fn unprotect_data_win(data: &[u8]) -> Result<Vec<u8>> {
         return Ok(Vec::new());
     }
 
-    let mut data_in = DATA_BLOB {
-        cbData: data.len() as DWORD,
-        pbData: data.as_ptr() as *mut BYTE,
+    let data_in = CRYPT_INTEGER_BLOB {
+        cbData: data.len() as u32,
+        pbData: data.as_ptr() as *mut u8,
     };
 
-    let mut data_out = DATA_BLOB {
+    let mut data_out = CRYPT_INTEGER_BLOB {
         cbData: 0,
         pbData: std::ptr::null_mut(),
     };
 
-    let result: BOOL = unsafe {
-        // BOOL from winapi (i32)
+    let result = unsafe {
         CryptUnprotectData(
-            &mut data_in,
-            std::ptr::null_mut(), // ppszDataDescr: *mut LPWSTR (*mut *mut u16)
-            std::ptr::null_mut(), // pOptionalEntropy: *mut DATA_BLOB
-            std::ptr::null_mut(), // pvReserved: LPVOID (*mut c_void)
-            std::ptr::null_mut(), // pPromptStruct: *mut CRYPTPROTECT_PROMPTSTRUCT
-            0,                    // dwFlags: DWORD
+            &data_in,
+            None, // ppszDataDescr: Option<*mut PWSTR>
+            None, // pOptionalEntropy: Option<*const CRYPT_INTEGER_BLOB>
+            None, // pvReserved: Option<*const std::ffi::c_void>
+            None, // pPromptStruct: Option<*const CRYPTPROTECT_PROMPTSTRUCT>
+            0,    // dwFlags: u32
             &mut data_out,
         )
     };
 
-    if result == 0 {
+    if result.is_err() {
         return Err(anyhow!("CryptUnprotectData failed"));
     }
 

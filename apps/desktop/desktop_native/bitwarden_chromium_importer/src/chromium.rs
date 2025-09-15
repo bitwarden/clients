@@ -3,8 +3,8 @@ use std::sync::LazyLock;
 
 use anyhow::{anyhow, Result};
 use async_trait::async_trait;
+use dirs;
 use hex::decode;
-use homedir::my_home;
 use rusqlite::{params, Connection};
 
 // Platform-specific code
@@ -124,8 +124,7 @@ static SUPPORTED_BROWSER_MAP: LazyLock<
 });
 
 fn get_browser_data_dir(config: &BrowserConfig) -> Result<PathBuf> {
-    let dir = my_home()
-        .map_err(|_| anyhow!("Home directory not found"))?
+    let dir = dirs::home_dir()
         .ok_or_else(|| anyhow!("Home directory not found"))?
         .join(config.data_dir);
     Ok(dir)

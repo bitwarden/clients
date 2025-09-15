@@ -1,4 +1,4 @@
-use anyhow::{Result, anyhow};
+use anyhow::{anyhow, Result};
 use log::debug;
 use std::{ffi::OsStr, os::windows::ffi::OsStrExt};
 use tokio::{
@@ -8,8 +8,8 @@ use tokio::{
     task::JoinHandle,
 };
 use windows::{
-    Win32::UI::{Shell::ShellExecuteW, WindowsAndMessaging::SW_HIDE},
     core::PCWSTR,
+    Win32::UI::{Shell::ShellExecuteW, WindowsAndMessaging::SW_HIDE},
 };
 
 use crate::abe_config;

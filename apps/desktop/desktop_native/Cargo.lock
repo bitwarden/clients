@@ -460,9 +460,9 @@ dependencies = [
  "chacha20poly1305",
  "clap",
  "colog",
+ "dirs",
  "env_logger",
  "hex",
- "homedir",
  "log",
  "oo7",
  "pbkdf2",
@@ -473,7 +473,6 @@ dependencies = [
  "serde_json",
  "sha1",
  "tokio",
- "winapi",
  "windows 0.61.1",
 ]
 
