@@ -17,7 +17,7 @@ import {
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormGroup, ReactiveFormsModule } from "@angular/forms";
-import { Subject } from "rxjs";
+import { BehaviorSubject, Subject } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherType, SecureNoteType } from "@bitwarden/common/vault/enums";
@@ -115,7 +115,7 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
   /**
    * Emitted when the form is enabled
    */
-  private formStatusChangeSubject = new Subject<"enabled" | "disabled">();
+  private formStatusChangeSubject = new BehaviorSubject<"enabled" | "disabled" | null>(null);
   @Output() formStatusChange$ = this.formStatusChangeSubject.asObservable();
 
   /**
@@ -168,7 +168,7 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
    * when the form was disabled at this level.
    */
   enableFormFields(): void {
-    if (this.cipherForm.disabled) {
+    if (this.formStatusChangeSubject.getValue() === "disabled") {
       this.cipherForm.enable({ emitEvent: false });
       this.formStatusChangeSubject.next("enabled");
     }
