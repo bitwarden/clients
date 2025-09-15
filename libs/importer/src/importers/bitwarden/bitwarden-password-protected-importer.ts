@@ -91,11 +91,8 @@ export class BitwardenPasswordProtectedImporter extends BitwardenJsonImporter im
     const encKeyValidation = new EncString(jdoc.encKeyValidation_DO_NOT_EDIT);
 
     try {
-      const encKeyValidationDecrypt = await this.encryptService.decryptString(
-        encKeyValidation,
-        this.key,
-      );
-      return encKeyValidationDecrypt != null;
+      await this.encryptService.decryptString(encKeyValidation, this.key);
+      return true;
     } catch {
       return false;
     }
