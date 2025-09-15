@@ -116,7 +116,7 @@ describe("CipherViewLikeUtils", () => {
         id: "1",
         archivedDate: "2024-02-02",
         type: "identity",
-      } as CipherListView;
+      } as unknown as CipherListView;
       const cipherView = createCipherView();
       cipherView.archivedDate = new Date();
 
@@ -128,7 +128,7 @@ describe("CipherViewLikeUtils", () => {
       const cipherListView = {
         id: "2",
         type: "identity",
-      } as CipherListView;
+      } as unknown as CipherListView;
       const cipherView = createCipherView();
 
       expect(CipherViewLikeUtils.isArchived(cipherListView)).toBe(false);

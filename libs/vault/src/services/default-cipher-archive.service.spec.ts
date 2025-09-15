@@ -57,17 +57,17 @@ describe("DefaultCipherArchiveService", () => {
           id: "1",
           archivedDate: "2024-01-15T10:30:00.000Z",
           type: "identity",
-        } as CipherListView,
+        } as unknown as CipherListView,
         {
           id: "2",
           type: "secureNote",
-        } as CipherListView,
+        } as unknown as CipherListView,
         {
           id: "3",
           archivedDate: "2024-01-15T10:30:00.000Z",
           deletedDate: "2024-01-16T10:30:00.000Z",
           type: "sshKey",
-        } as CipherListView,
+        } as unknown as CipherListView,
       ];
 
       mockCipherService.cipherListViews$.mockReturnValue(of(mockCiphers));
@@ -83,7 +83,7 @@ describe("DefaultCipherArchiveService", () => {
         {
           id: "1",
           type: "identity",
-        } as CipherListView,
+        } as unknown as CipherListView,
       ];
 
       mockCipherService.cipherListViews$.mockReturnValue(of(mockCiphers));

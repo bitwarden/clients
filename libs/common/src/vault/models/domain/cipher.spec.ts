@@ -882,7 +882,8 @@ describe("Cipher DTO", () => {
         name: "EncryptedString",
         notes: "EncryptedString",
         creationDate: "2022-01-01T12:00:00.000Z",
-        deletedDate: null,
+        deletedDate: undefined,
+        archivedDate: undefined,
         reprompt: CipherRepromptType.None,
         key: "EncryptedString",
         login: {
@@ -1104,6 +1105,7 @@ describe("Cipher DTO", () => {
         ],
         creationDate: "2022-01-01T12:00:00.000Z",
         deletedDate: undefined,
+        archivedDate: undefined,
         revisionDate: "2022-01-31T12:00:00.000Z",
       };
 
@@ -1125,7 +1127,8 @@ describe("Cipher DTO", () => {
         name: "EncryptedString",
         notes: "EncryptedString",
         creationDate: "2022-01-01T12:00:00.000Z",
-        deletedDate: null,
+        deletedDate: undefined,
+        archivedDate: undefined,
         reprompt: CipherRepromptType.None,
         key: "EncryptedString",
         login: {
