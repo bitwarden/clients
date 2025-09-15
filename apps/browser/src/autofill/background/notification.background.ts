@@ -217,9 +217,9 @@ export default class NotificationBackground {
       let cipherView: CipherView;
       if (cipherQueueMessage.type === NotificationType.ChangePassword) {
         const {
-          data: { cipherId },
+          data: { cipherIds },
         } = cipherQueueMessage;
-        cipherView = await this.getDecryptedCipherById(cipherId, activeUserId);
+        cipherView = await this.getDecryptedCipherById(cipherIds[0], activeUserId);
       } else {
         cipherView = this.convertAddLoginQueueMessageToCipherView(cipherQueueMessage);
       }
@@ -573,16 +573,6 @@ export default class NotificationBackground {
       return true;
     }
 
-    const changePasswordIsEnabled = await this.getEnableChangedPasswordPrompt();
-
-    if (
-      changePasswordIsEnabled &&
-      usernameMatches.length === 1 &&
-      usernameMatches[0].login.password !== login.password
-    ) {
-      await this.pushChangePasswordToQueue(usernameMatches[0].id, loginDomain, login.password, tab);
-      return true;
-    }
     return false;
   }
 
@@ -621,45 +611,91 @@ export default class NotificationBackground {
     data: ModifyLoginCipherFormData,
     tab: chrome.tabs.Tab,
   ): Promise<boolean> {
-    const changeData = {
-      url: data.uri,
-      currentPassword: data.password,
-      newPassword: data.newPassword,
-    };
-
-    const loginDomain = Utils.getDomain(changeData.url);
-    if (loginDomain == null) {
+    const changePasswordIsEnabled = await this.getEnableChangedPasswordPrompt();
+    if (!changePasswordIsEnabled) {
       return false;
     }
-
-    if ((await this.getAuthStatus()) < AuthenticationStatus.Unlocked) {
-      await this.pushChangePasswordToQueue(null, loginDomain, changeData.newPassword, tab, true);
-      return true;
+    const authStatus = await this.getAuthStatus();
+    if (authStatus === AuthenticationStatus.LoggedOut) {
+      return false;
     }
-
-    let id: string = null;
     const activeUserId = await firstValueFrom(
       this.accountService.activeAccount$.pipe(getOptionalUserId),
     );
-    if (activeUserId == null) {
+    if (activeUserId === null) {
+      return false;
+    }
+    const loginDomain = Utils.getDomain(data.uri);
+    if (loginDomain === null) {
       return false;
     }
 
-    const ciphers = await this.cipherService.getAllDecryptedForUrl(changeData.url, activeUserId);
-    if (changeData.currentPassword != null) {
-      const passwordMatches = ciphers.filter(
-        (c) => c.login.password === changeData.currentPassword,
+    const username = data.username || null;
+    const currentPassword = data.password || null;
+    const newPassword = data.newPassword || null;
+
+    // @TODO Determine if needed
+    // if (authStatus === AuthenticationStatus.Locked) {
+    //   await this.pushChangePasswordToQueue(
+    //     null,
+    //     loginDomain,
+    //     newPassword || currentPassword, // @TODO note tentative add'l pass
+    //     tab,
+    //     true,
+    //   );
+    //   return true;
+    // }
+
+    let ciphers: CipherView[] = await this.cipherService.getAllDecryptedForUrl(
+      data.uri,
+      activeUserId,
+    );
+
+    const normalizedUsername: string = username ? username.toLowerCase() : "";
+
+    const shouldMatchUsername = typeof username === "string" && username.length > 0;
+
+    if (shouldMatchUsername) {
+      // Presence of a username should filter ciphers further.
+      ciphers = ciphers.filter(
+        (cipher) =>
+          cipher.login.username !== null &&
+          cipher.login.username.toLowerCase() === normalizedUsername,
       );
-      if (passwordMatches.length === 1) {
-        id = passwordMatches[0].id;
+    }
+
+    if (currentPassword && !newPassword) {
+      // Only use current password for change if no new password present.
+      if (ciphers.length > 0) {
+        await this.pushChangePasswordToQueue(
+          ciphers.map((cipher) => cipher.id),
+          loginDomain,
+          currentPassword,
+          tab,
+        );
+        return true;
       }
-    } else if (ciphers.length === 1) {
-      id = ciphers[0].id;
     }
-    if (id != null) {
-      await this.pushChangePasswordToQueue(id, loginDomain, changeData.newPassword, tab);
-      return true;
+
+    if (newPassword) {
+      // If both current and new password are known,
+      // we should only match ciphers with an existing current password match.
+      if (currentPassword) {
+        ciphers = ciphers.filter((cipher) => cipher.login.password === currentPassword);
+      }
+      // Otherwise include all known ciphers.
+      if (ciphers.length > 0) {
+        await this.pushChangePasswordToQueue(
+          ciphers.map((cipher) => cipher.id),
+          loginDomain,
+          newPassword,
+          tab,
+        );
+
+        return true;
+      }
     }
+
     return false;
   }
 
@@ -712,7 +748,7 @@ export default class NotificationBackground {
   }
 
   private async pushChangePasswordToQueue(
-    cipherId: string,
+    cipherIds: CipherView["id"][],
     loginDomain: string,
     newPassword: string,
     tab: chrome.tabs.Tab,
@@ -723,7 +759,7 @@ export default class NotificationBackground {
     const launchTimestamp = new Date().getTime();
     const message: AddChangePasswordNotificationQueueMessage = {
       type: NotificationType.ChangePassword,
-      data: { cipherId: cipherId, newPassword: newPassword },
+      data: { cipherIds: cipherIds, newPassword: newPassword },
       domain: loginDomain,
       tab: tab,
       launchTimestamp,
@@ -824,9 +860,9 @@ export default class NotificationBackground {
 
       if (queueMessage.type === NotificationType.ChangePassword) {
         const {
-          data: { cipherId, newPassword },
+          data: { cipherIds, newPassword },
         } = queueMessage;
-        const cipherView = await this.getDecryptedCipherById(cipherId, activeUserId);
+        const cipherView = await this.getDecryptedCipherById(cipherIds[0], activeUserId);
 
         await this.updatePassword(cipherView, newPassword, edit, tab, activeUserId, skipReprompt);
         return;

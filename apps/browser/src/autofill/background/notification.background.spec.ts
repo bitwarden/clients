@@ -570,7 +570,7 @@ describe("NotificationBackground", () => {
         await notificationBackground.triggerChangedPasswordNotification(data, tab);
 
         expect(pushChangePasswordToQueueSpy).toHaveBeenCalledWith(
-          "cipher-id",
+          ["cipher-id"],
           "example.com",
           data?.newPassword,
           sender.tab,
@@ -611,7 +611,7 @@ describe("NotificationBackground", () => {
         await notificationBackground.triggerChangedPasswordNotification(data, tab);
 
         expect(pushChangePasswordToQueueSpy).toHaveBeenCalledWith(
-          "cipher-id",
+          ["cipher-id"],
           "example.com",
           data?.newPassword,
           sender.tab,
