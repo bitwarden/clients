@@ -86,14 +86,14 @@
   "noAppsInOrgDescription": {
     "message": "在使用者儲存登入後，應用程式將會顯示在這裡，並同時顯示具有風險的密碼。標註重要應用程式並通知使用者以更新密碼。"
   },
-  "noCriticalAppsTitle": {
-    "message": "你並未將任何應用程式標註為重要"
+  "noCriticalApplicationsTitle": {
+    "message": "You haven’t marked any applications as critical"
   },
-  "noCriticalAppsDescription": {
-    "message": "選擇你最重要的應用程式以查找具有風險的密碼，並通知使用者以更改這些密碼。"
+  "noCriticalApplicationsDescription": {
+    "message": "Select your most critical applications to prioritize security actions for your users to address at-risk passwords."
   },
-  "markCriticalApps": {
-    "message": "標註重要應用程式"
+  "markCriticalApplications": {
+    "message": "Select critical applications"
   },
   "markAppAsCritical": {
     "message": "標註應用程式為重要"
@@ -179,8 +179,8 @@
   "unmarkAsCritical": {
     "message": "Unmark as critical"
   },
-  "criticalApplicationSuccessfullyUnmarked": {
-    "message": "Critical application successfully unmarked"
+  "criticalApplicationUnmarkedSuccessfully": {
+    "message": "Successfully unmarked application as critical"
   },
   "whatTypeOfItem": {
     "message": "這是什麼類型的項目？"
@@ -2114,11 +2114,8 @@
   "languageDesc": {
     "message": "變更網頁版密碼庫使用的語言。"
   },
-  "enableFavicon": {
-    "message": "Show website icons"
-  },
-  "faviconDesc": {
-    "message": "Show a recognizable image next to each login."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "default": {
     "message": "預設"
@@ -7433,6 +7430,9 @@
   "off": {
     "message": "關閉"
   },
+  "connected": {
+    "message": "Connected"
+  },
   "members": {
     "message": "成員"
   },
@@ -9690,6 +9690,15 @@
       }
     }
   },
+  "updateIntegrationButtonDesc": {
+    "message": "Update $INTEGRATION$",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
+  },
   "integrationCardTooltip": {
     "message": "Launch $INTEGRATION$ implementation guide.",
     "placeholders": {
@@ -10896,6 +10905,12 @@
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
+  },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Remove Unlock with PIN"
   },
@@ -11071,6 +11086,12 @@
     "message": "Billing address required to add credit.",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+  },
   "billingAddress": {
     "message": "Billing address"
   },
@@ -11234,6 +11255,14 @@
   },
   "confirmKeyConnectorDomain": {
     "message": "Confirm Key Connector domain"
+  },
+  "requiredToVerifyBankAccountWithStripe": {
+    "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
+  },
+  "verifyBankAccountWithStripe": {
+    "message": "We have made a micro-deposit to your bank account. This may take 1-2 business days. When you see the deposit in your account, you can verify your bank account. Failure to verify your bank account will result in a missed payment and your subscription will be suspended."
+  },
+  "verifyNow": {
+    "message": "Verify now."
   }
 }
-

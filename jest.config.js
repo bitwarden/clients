@@ -41,7 +41,6 @@ module.exports = {
     "<rootDir>/libs/key-management/jest.config.js",
     "<rootDir>/libs/key-management-ui/jest.config.js",
     "<rootDir>/libs/logging/jest.config.js",
-    "<rootDir>/libs/messaging-internal/jest.config.js",
     "<rootDir>/libs/messaging/jest.config.js",
     "<rootDir>/libs/node/jest.config.js",
     "<rootDir>/libs/platform/jest.config.js",

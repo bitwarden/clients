@@ -86,14 +86,14 @@
   "noAppsInOrgDescription": {
     "message": "Jakmile uživatelé uloží přihlašovací údaje, zobrazí se zde aplikace, které zobrazují všechna ohrožená hesla. Označte kritické aplikace a upozorněte uživatele, aby hesla aktualizovali."
   },
-  "noCriticalAppsTitle": {
+  "noCriticalApplicationsTitle": {
     "message": "Neoznačili jste žádné aplikace jako kritické"
   },
-  "noCriticalAppsDescription": {
-    "message": "Vyberte své nejkritičtější aplikace, abyste objevili ohrožená hesla a upozorněte uživatele na změnu těchto hesel."
+  "noCriticalApplicationsDescription": {
+    "message": "Vyberte nejdůležitější aplikace a stanovte priority bezpečnostních opatření, která mají uživatelé provést, aby vyřešili problém rizikových hesel."
   },
-  "markCriticalApps": {
-    "message": "Označit kritické aplikace"
+  "markCriticalApplications": {
+    "message": "Vyberte kritické aplikace"
   },
   "markAppAsCritical": {
     "message": "Označit aplikaci jako kritickou"
@@ -179,8 +179,8 @@
   "unmarkAsCritical": {
     "message": "Zrušit označení jako kritické"
   },
-  "criticalApplicationSuccessfullyUnmarked": {
-    "message": "Kritická aplikace úspěšně odoznačena"
+  "criticalApplicationUnmarkedSuccessfully": {
+    "message": "Úspěšné zrušení označení aplikace jako kritické"
   },
   "whatTypeOfItem": {
     "message": "O jaký typ položky se jedná?"
@@ -2114,11 +2114,8 @@
   "languageDesc": {
     "message": "Změní jazyk používaný ve webovém trezoru."
   },
-  "enableFavicon": {
-    "message": "Zobrazit ikony webových stránek"
-  },
-  "faviconDesc": {
-    "message": "Zobrazí rozeznatelný obrázek vedle každého přihlášení."
+  "showIconsChangePasswordUrls": {
+    "message": "Zobrazit ikony webových stránek a načíst URL adresy pro změnu hesla"
   },
   "default": {
     "message": "Výchozí"
@@ -7433,6 +7430,9 @@
   "off": {
     "message": "VYP."
   },
+  "connected": {
+    "message": "Připojeno"
+  },
   "members": {
     "message": "Členové"
   },
@@ -9690,6 +9690,15 @@
       }
     }
   },
+  "updateIntegrationButtonDesc": {
+    "message": "Aktualizovat $INTEGRATION$",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
+  },
   "integrationCardTooltip": {
     "message": "Spustí průvodce implementací $INTEGRATION$.",
     "placeholders": {
@@ -10896,6 +10905,12 @@
   "changeAtRiskPassword": {
     "message": "Změnit ohrožené heslo"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Tyto přihlašovací údaje jsou ohrožené a chybí jim webová stránka. Přidejte webovou stránku a změňte heslo pro větší bezpečnost."
+  },
+  "missingWebsite": {
+    "message": "Chybějící webová stránka"
+  },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Odebrat odemknutí pomocí PIN"
   },
@@ -11071,6 +11086,12 @@
     "message": "Pro přidání kreditu je vyžadována fakturační adresa.",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   },
+  "aboutThisSetting": {
+    "message": "O tomto nastavení"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden bude používat uložené přihlašovací URI k identifikaci, která ikona nebo změna adresy URL by měla být použita pro zlepšení Vašeho zážitku. Při používání této služby nejsou shromažďovány ani ukládány žádné informace."
+  },
   "billingAddress": {
     "message": "Fakturační adresa"
   },
@@ -11234,6 +11255,14 @@
   },
   "confirmKeyConnectorDomain": {
     "message": "Potvrdit doménu Key Connectoru"
+  },
+  "requiredToVerifyBankAccountWithStripe": {
+    "message": "Platba z bankovního účtu je k dispozici jen zákazníkům ve Spojených státech. Budete požádáni o ověření svého bankovního účtu. V průběhu následujících 1–2 pracovních dnů provedeme mikroplatbu. Pokud bankovní účet neověříte, platba nebude provedena a Vaše předplatné bude pozastaveno."
+  },
+  "verifyBankAccountWithStripe": {
+    "message": "Provedli jsme mikroplatbu na Váš bankovní účet. To může trvat 1–2 pracovní dny. Jakmile se platba objeví na Vašem účtu, můžete svůj bankovní účet ověřit. Pokud svůj bankovní účet neověříte, dojde k neprovedení platby a Vaše předplatné bude pozastaveno."
+  },
+  "verifyNow": {
+    "message": "Ověřit nyní"
   }
 }
-
