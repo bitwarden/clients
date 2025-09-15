@@ -443,7 +443,7 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
         showHeader: false,
         isSelectable: true,
       },
-      action: this.applyTypeFilter,
+      action: this.applyTypeFilter as (filterNode: TreeNode<VaultFilterType>) => Promise<void>,
     };
     return archiveFilterSection;
   }
