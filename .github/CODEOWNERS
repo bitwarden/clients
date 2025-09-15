@@ -97,7 +97,6 @@ libs/storage-core @bitwarden/team-platform-dev
 libs/logging @bitwarden/team-platform-dev
 libs/storage-test-utils @bitwarden/team-platform-dev
 libs/messaging @bitwarden/team-platform-dev
-libs/messaging-internal @bitwarden/team-platform-dev
 libs/serialization @bitwarden/team-platform-dev
 libs/guid @bitwarden/team-platform-dev
 libs/client-type @bitwarden/team-platform-dev
@@ -142,7 +141,7 @@ nx.json @bitwarden/team-platform-dev
 apps/browser/src/autofill @bitwarden/team-autofill-dev
 apps/desktop/src/autofill @bitwarden/team-autofill-dev
 libs/common/src/autofill @bitwarden/team-autofill-dev
-apps/desktop/macos/autofill-extension @bitwarden/team-autofill-dev
+apps/desktop/macos/autofill-extension @bitwarden/team-autofill-desktop-dev
 .github/workflows/test-browser-interactions.yml @bitwarden/team-autofill-dev
 # Autofill desktop files
 apps/desktop/src/app/components/fido2placeholder.component.ts @bitwarden/team-autofill-desktop-dev
