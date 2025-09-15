@@ -26,6 +26,7 @@ bitwarden-russh = { workspace = true }
 byteorder = { workspace = true }
 bytes = { workspace = true }
 cbc = { workspace = true, features = ["alloc"] }
+cfg-if = { workspace = true }
 dirs = { workspace = true }
 ed25519 = { workspace = true, features = ["pkcs8"] }
 futures = { workspace = true }
