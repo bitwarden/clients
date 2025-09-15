@@ -1763,14 +1763,8 @@
   "popupU2fCloseMessage": {
     "message": "Przeglądarka nie może przetworzyć żądań U2F. Czy chcesz otworzyć nowe okno, aby zalogować się za pomocą U2F?"
   },
-  "enableFavicon": {
-    "message": "Pokaż ikony stron internetowych"
-  },
-  "faviconDesc": {
-    "message": "Pokaż rozpoznawalną ikonę obok danych logowania."
-  },
-  "faviconDescAlt": {
-    "message": "Pokaż rozpoznawalną ikonę obok danych logowania. Dotyczy wszystkich zalogowanych kont."
+  "showIconsChangePasswordUrls": {
+    "message": "Pokaż ikony stron internetowych i pobierz adresy URL do zmiany hasła"
   },
   "enableBadgeCounter": {
     "message": "Pokaż licznik na ikonie"
@@ -5583,6 +5577,12 @@
   "generatorNudgeBodyAria": {
     "message": "Twórz silne i unikalne hasła, klikając przycisk Wygeneruj hasło, aby zapewnić bezpieczeństwo danych logowania.",
     "description": "Aria label for the body content of the generator nudge"
+  },
+  "aboutThisSetting": {
+    "message": "O ustawieniu"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden użyje zapisanych adresów URL danych logowania, aby określić, która ikona lub adres URL zmiany hasła powinien zostać użyty w celu poprawy komfortu użytkowania. Usługa nie zapisuje żadnych danych."
   },
   "noPermissionsViewPage": {
     "message": "Nie masz uprawnień do przeglądania tej strony. Zaloguj się na inne konto."
