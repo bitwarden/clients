@@ -20,6 +20,7 @@ export type OrganizationIntegrationConfigurationId = Opaque<
   string,
   "OrganizationIntegrationConfigurationId"
 >;
+export type OrganizationReportId = Opaque<string, "OrganizationReportId">;
 
 /**
  * A string representation of an empty guid.

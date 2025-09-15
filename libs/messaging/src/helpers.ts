@@ -1,6 +1,7 @@
 import { map } from "rxjs";
 
-import { CommandDefinition, EXTERNAL_SOURCE_TAG } from "@bitwarden/messaging";
+import { EXTERNAL_SOURCE_TAG } from "./is-external-message";
+import { CommandDefinition } from "./types";
 
 export const getCommand = (
   commandDefinition: CommandDefinition<Record<string, unknown>> | string,
