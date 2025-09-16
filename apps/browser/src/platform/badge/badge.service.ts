@@ -103,37 +103,6 @@ export class BadgeService {
           );
         },
       });
-    //   activeTabs: this.badgeApi.activeTabs$,
-    //   dynamicStateFunctions: this.stateFunctions,
-    // })
-    //   .pipe(
-    //     switchMap(({ activeTabs, dynamicStateFunctions }) => {
-    //       const functions = [...Object.values(dynamicStateFunctions), defaultTabStateFunction];
-
-    //       const tabObservables = activeTabs.map((tab) =>
-    //         combineLatest(functions.map((f) => f(tab).pipe(startWith(undefined)))).pipe(
-    //           map((states) => ({
-    //             states: states.filter((s): s is BadgeStateSetting => s !== undefined),
-    //             tab,
-    //           })),
-    //           debounceTime(BADGE_UPDATE_DEBOUNCE_MS),
-    //         ),
-    //       );
-
-    //       return merge(...tabObservables);
-    //     }),
-    //     concatMap(async (tabUpdate) => {
-    //       await this.updateBadge(tabUpdate.states, tabUpdate.tab.tabId);
-    //     }),
-    //   )
-    //   .subscribe({
-    //     error: (error: unknown) => {
-    //       this.logService.error(
-    //         "BadgeService: Fatal error updating badge state. Badge will no longer be updated.",
-    //         error,
-    //       );
-    //     },
-    //   });
   }
 
   /**
