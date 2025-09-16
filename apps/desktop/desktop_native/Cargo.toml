@@ -7,7 +7,7 @@ members = [
     "macos_provider",
     "napi",
     "proxy",
-    "windows_plugin_authenticator",
+    "windows_plugin_authenticator"
 ]
 
 [workspace.package]
