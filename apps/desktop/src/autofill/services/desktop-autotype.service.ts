@@ -3,6 +3,7 @@ import { combineLatest, filter, firstValueFrom, map, Observable, of, switchMap }
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { DeviceType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -25,7 +26,7 @@ export const AUTOTYPE_ENABLED = new KeyDefinition<boolean>(
 export class DesktopAutotypeService {
   private readonly autotypeEnabledState = this.globalStateProvider.get(AUTOTYPE_ENABLED);
 
-  autotypeEnabled$: Observable<boolean> = of(false);
+  resolvedAutotypeEnabled$: Observable<boolean> = of(false);
 
   constructor(
     private accountService: AccountService,
@@ -34,6 +35,7 @@ export class DesktopAutotypeService {
     private configService: ConfigService,
     private globalStateProvider: GlobalStateProvider,
     private platformUtilsService: PlatformUtilsService,
+    private billingAccountProfileStateService: BillingAccountProfileStateService,
   ) {
     ipc.autofill.listenAutotypeRequest(async (windowTitle, callback) => {
       const possibleCiphers = await this.matchCiphersToWindowTitle(windowTitle);
@@ -48,23 +50,30 @@ export class DesktopAutotypeService {
 
   async init() {
     if (this.platformUtilsService.getDevice() === DeviceType.WindowsDesktop) {
-      this.autotypeEnabled$ = combineLatest([
+      this.resolvedAutotypeEnabled$ = combineLatest([
         this.autotypeEnabledState.state$,
         this.configService.getFeatureFlag$(FeatureFlag.WindowsDesktopAutotype),
         this.accountService.activeAccount$.pipe(
-          map((account) => account?.id),
+          map((activeAccount) => activeAccount?.id),
           switchMap((userId) => this.authService.authStatusFor$(userId)),
+        ),
+        this.accountService.activeAccount$.pipe(
+          map((activeAccount) => activeAccount?.id),
+          switchMap((userId) =>
+            this.billingAccountProfileStateService.hasPremiumFromAnySource$(userId),
+          ),
         ),
       ]).pipe(
         map(
-          ([autotypeEnabled, windowsDesktopAutotypeFeatureFlag, authStatus]) =>
+          ([autotypeEnabled, windowsDesktopAutotypeFeatureFlag, authStatus, hasPremium]) =>
             autotypeEnabled &&
             windowsDesktopAutotypeFeatureFlag &&
-            authStatus == AuthenticationStatus.Unlocked,
+            authStatus == AuthenticationStatus.Unlocked &&
+            hasPremium,
         ),
       );
 
-      this.autotypeEnabled$.subscribe((enabled) => {
+      this.resolvedAutotypeEnabled$.subscribe((enabled) => {
         ipc.autofill.configureAutotype(enabled);
       });
     }

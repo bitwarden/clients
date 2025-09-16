@@ -10,17 +10,17 @@
   <bit-no-items [icon]="noItemsIcon" class="tw-text-main">
     <ng-container slot="title">
       <h2 class="tw-font-semibold tw-mt-4">
-        {{ "noCriticalAppsTitle" | i18n }}
+        {{ "noCriticalApplicationsTitle" | i18n }}
       </h2>
     </ng-container>
     <ng-container slot="description">
       <p class="tw-text-muted">
-        {{ "noCriticalAppsDescription" | i18n }}
+        {{ "noCriticalApplicationsDescription" | i18n }}
       </p>
     </ng-container>
     <ng-container slot="button">
       <button (click)="goToAllAppsTab()" bitButton buttonType="primary" type="button">
-        {{ "markCriticalApps" | i18n }}
+        {{ "markCriticalApplications" | i18n }}
       </button>
     </ng-container>
   </bit-no-items>
@@ -83,6 +83,6 @@
     [showRowMenuForCriticalApps]="true"
     [isDrawerIsOpenForThisRecord]="isDrawerOpenForTableRow"
     [showAppAtRiskMembers]="showAppAtRiskMembers"
-    [unmarkAsCriticalApp]="unmarkAsCriticalApp"
+    [unmarkAsCritical]="unmarkAsCritical"
   ></app-table-row-scrollable>
 </div>

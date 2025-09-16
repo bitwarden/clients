@@ -25,7 +25,7 @@
           bitIconButton="bwi-ellipsis-v"
           size="small"
           type="button"
-          appA11yTitle="{{ 'options' | i18n }}"
+          label="{{ 'options' | i18n }}"
         ></button>
         <bit-menu #headerMenu>
           <button
@@ -71,7 +71,7 @@
           bitIconButton="bwi-ellipsis-v"
           size="small"
           type="button"
-          appA11yTitle="{{ 'options' | i18n }}"
+          label="{{ 'options' | i18n }}"
         ></button>
         <bit-menu #rowMenu>
           <button
@@ -103,7 +103,7 @@
 <bit-no-items
   class="tw-text-main"
   *ngIf="!loading && tableDataSource.data.length == 0"
-  [icon]="Devices"
+  [icon]="DevicesIcon"
 >
   <ng-container slot="title">{{ "noDeviceRequests" | i18n }}</ng-container>
   <ng-container slot="description">{{ "noDeviceRequestsDesc" | i18n }}</ng-container>

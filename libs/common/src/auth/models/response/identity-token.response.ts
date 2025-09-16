@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { KdfType } from "@bitwarden/key-management";
+import { Argon2KdfConfig, KdfConfig, KdfType, PBKDF2KdfConfig } from "@bitwarden/key-management";
 
 import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { BaseResponse } from "../../../models/response/base.response";
@@ -12,31 +12,44 @@ import { UserDecryptionOptionsResponse } from "./user-decryption-options/user-de
 
 export class IdentityTokenResponse extends BaseResponse {
   accessToken: string;
-  expiresIn: number;
-  refreshToken: string;
+  expiresIn?: number;
+  refreshToken?: string;
   tokenType: string;
 
   resetMasterPassword: boolean;
   privateKey: string; // userKeyEncryptedPrivateKey
   key?: EncString; // masterKeyEncryptedUserKey
   twoFactorToken: string;
-  kdf: KdfType;
-  kdfIterations: number;
-  kdfMemory?: number;
-  kdfParallelism?: number;
+  kdfConfig: KdfConfig;
   forcePasswordReset: boolean;
   masterPasswordPolicy: MasterPasswordPolicyResponse;
   apiUseKeyConnector: boolean;
   keyConnectorUrl: string;
 
-  userDecryptionOptions: UserDecryptionOptionsResponse;
+  userDecryptionOptions?: UserDecryptionOptionsResponse;
 
-  constructor(response: any) {
+  constructor(response: unknown) {
     super(response);
-    this.accessToken = response.access_token;
-    this.expiresIn = response.expires_in;
-    this.refreshToken = response.refresh_token;
-    this.tokenType = response.token_type;
+
+    const accessToken = this.getResponseProperty("access_token");
+    if (accessToken == null || typeof accessToken !== "string") {
+      throw new Error("Identity response does not contain a valid access token");
+    }
+    const tokenType = this.getResponseProperty("token_type");
+    if (tokenType == null || typeof tokenType !== "string") {
+      throw new Error("Identity response does not contain a valid token type");
+    }
+    this.accessToken = accessToken;
+    this.tokenType = tokenType;
+
+    const expiresIn = this.getResponseProperty("expires_in");
+    if (expiresIn != null && typeof expiresIn === "number") {
+      this.expiresIn = expiresIn;
+    }
+    const refreshToken = this.getResponseProperty("refresh_token");
+    if (refreshToken != null && typeof refreshToken === "string") {
+      this.refreshToken = refreshToken;
+    }
 
     this.resetMasterPassword = this.getResponseProperty("ResetMasterPassword");
     this.privateKey = this.getResponseProperty("PrivateKey");
@@ -45,10 +58,14 @@ export class IdentityTokenResponse extends BaseResponse {
       this.key = new EncString(key);
     }
     this.twoFactorToken = this.getResponseProperty("TwoFactorToken");
-    this.kdf = this.getResponseProperty("Kdf");
-    this.kdfIterations = this.getResponseProperty("KdfIterations");
-    this.kdfMemory = this.getResponseProperty("KdfMemory");
-    this.kdfParallelism = this.getResponseProperty("KdfParallelism");
+    const kdf = this.getResponseProperty("Kdf");
+    const kdfIterations = this.getResponseProperty("KdfIterations");
+    const kdfMemory = this.getResponseProperty("KdfMemory");
+    const kdfParallelism = this.getResponseProperty("KdfParallelism");
+    this.kdfConfig =
+      kdf == KdfType.PBKDF2_SHA256
+        ? new PBKDF2KdfConfig(kdfIterations)
+        : new Argon2KdfConfig(kdfIterations, kdfMemory, kdfParallelism);
     this.forcePasswordReset = this.getResponseProperty("ForcePasswordReset");
     this.apiUseKeyConnector = this.getResponseProperty("ApiUseKeyConnector");
     this.keyConnectorUrl = this.getResponseProperty("KeyConnectorUrl");
@@ -56,10 +73,9 @@ export class IdentityTokenResponse extends BaseResponse {
       this.getResponseProperty("MasterPasswordPolicy"),
     );
 
-    if (response.UserDecryptionOptions) {
-      this.userDecryptionOptions = new UserDecryptionOptionsResponse(
-        this.getResponseProperty("UserDecryptionOptions"),
-      );
+    const userDecryptionOptions = this.getResponseProperty("UserDecryptionOptions");
+    if (userDecryptionOptions != null && typeof userDecryptionOptions === "object") {
+      this.userDecryptionOptions = new UserDecryptionOptionsResponse(userDecryptionOptions);
     }
   }
 

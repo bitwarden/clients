@@ -1,21 +1,5 @@
-#duo-frame {
-  height: 330px;
-  @include themify($themes) {
-    background: themed("imgLoading") 0 0 no-repeat;
-  }
-
-  iframe {
-    border: none;
-    height: 100%;
-    width: 100%;
-  }
-}
-
 #web-authn-frame {
   height: 40px;
-  @include themify($themes) {
-    background: themed("imgLoading") 0 0 no-repeat;
-  }
 
   iframe {
     border: none;
@@ -23,6 +7,9 @@
     width: 100%;
   }
 }
+
+// MFA Types for logo styling with no dark theme alternative
+$mfaTypes: 0, 2, 3, 4, 6;
 
 @each $mfaType in $mfaTypes {
   .mfaType#{$mfaType} {
@@ -32,31 +19,33 @@
 }
 
 .mfaType0 {
-  @include themify($themes) {
-    content: url("../images/two-factor/0.png");
-    max-width: 120px;
-    max-height: 62px;
-  }
+  content: url("../images/two-factor/0.png");
+  max-width: 120px;
+  max-height: 62px;
 }
 
 .mfaType1 {
-  @include themify($themes) {
-    content: url("../images/two-factor/1" + themed("mfaLogoSuffix"));
-    max-width: 120px;
-    max-height: 62px;
+  max-width: 120px;
+  max-height: 62px;
+
+  &:is(.theme_light *) {
+    content: url("../images/two-factor/1.png");
+  }
+
+  &:is(.theme_dark *) {
+    content: url("../images/two-factor/1-w.png");
   }
 }
 
 .mfaType7 {
-  @include themify($themes) {
-    content: url("../images/two-factor/7" + themed("mfaLogoSuffix"));
-    max-width: 120px;
-  }
-}
+  max-width: 120px;
 
-.progress {
-  @include themify($themes) {
-    background-color: themed("pwStrengthBackground");
+  &:is(.theme_light *) {
+    content: url("../images/two-factor/7.png");
+  }
+
+  &:is(.theme_dark *) {
+    content: url("../images/two-factor/7-w.png");
   }
 }
 
@@ -64,8 +53,12 @@
 
 #bt-dropin-container {
   min-height: 50px;
-  @include themify($themes) {
-    background: themed("loadingSvg") center center no-repeat;
+  &:is(.theme_light *) {
+    background: url("../images/loading.svg") center center no-repeat;
+  }
+
+  &:is(.theme_dark *) {
+    background: url("../images/loading-white.svg") center center no-repeat;
   }
 }
 
@@ -96,31 +89,21 @@
 }
 
 [data-braintree-id="upper-container"]::before {
-  @include themify($themes) {
-    background-color: themed("backgroundColor");
-  }
+  background-color: rgba(var(--color-background));
 }
 
 .card [data-braintree-id="upper-container"]::before {
-  @include themify($themes) {
-    background-color: themed("foregroundColor");
-  }
+  background-color: rgba(var(--color-background-alt));
 }
 
 [data-braintree-id="paypal-button"] {
-  @include themify($themes) {
-    background-color: themed("backgroundColor");
-  }
+  background-color: rgba(var(--color-background));
 }
 
 .card [data-braintree-id="paypal-button"] {
-  @include themify($themes) {
-    background-color: themed("foregroundColor");
-  }
+  background-color: rgba(var(--color-background-alt));
 }
 
 .paypal-button-text {
-  @include themify($themes) {
-    color: themed("textColor");
-  }
+  color: rgba(var(--color-text-main));
 }

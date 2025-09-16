@@ -11,10 +11,10 @@ import { EncryptService } from "@bitwarden/common/key-management/crypto/abstract
 import { DefaultVaultTimeoutService } from "@bitwarden/common/key-management/vault-timeout";
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
-import { StateService as StateServiceAbstraction } from "@bitwarden/common/platform/abstractions/state.service";
 import { IpcService } from "@bitwarden/common/platform/ipc";
-import { NotificationsService } from "@bitwarden/common/platform/notifications";
+import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
+import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
 import { UserAutoUnlockKeyService } from "@bitwarden/common/platform/services/user-auto-unlock-key.service";
 import { EventUploadService } from "@bitwarden/common/services/event/event-upload.service";
 import { TaskService } from "@bitwarden/common/vault/tasks";
@@ -26,12 +26,11 @@ import { VersionService } from "../platform/version.service";
 export class InitService {
   constructor(
     @Inject(WINDOW) private win: Window,
-    private notificationsService: NotificationsService,
+    private serverNotificationsService: ServerNotificationsService,
     private vaultTimeoutService: DefaultVaultTimeoutService,
     private i18nService: I18nServiceAbstraction,
     private eventUploadService: EventUploadServiceAbstraction,
     private twoFactorService: TwoFactorServiceAbstraction,
-    private stateService: StateServiceAbstraction,
     private keyService: KeyServiceAbstraction,
     private themingService: AbstractThemingService,
     private encryptService: EncryptService,
@@ -41,13 +40,14 @@ export class InitService {
     private ipcService: IpcService,
     private sdkLoadService: SdkLoadService,
     private taskService: TaskService,
+    private readonly migrationRunner: MigrationRunner,
     @Inject(DOCUMENT) private document: Document,
   ) {}
 
   init() {
     return async () => {
       await this.sdkLoadService.loadAndInit();
-      await this.stateService.init();
+      await this.migrationRunner.run();
 
       const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
       if (activeAccount) {
@@ -56,7 +56,7 @@ export class InitService {
         await this.userAutoUnlockKeyService.setUserKeyInMemoryIfAutoUserKeySet(activeAccount.id);
       }
 
-      this.notificationsService.startListening();
+      this.serverNotificationsService.startListening();
       await this.vaultTimeoutService.init(true);
       await this.i18nService.init();
       (this.eventUploadService as EventUploadService).init(true);

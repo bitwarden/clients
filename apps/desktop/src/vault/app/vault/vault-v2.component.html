@@ -19,7 +19,6 @@
       (onClone)="cloneCipher($event)"
       (onDelete)="deleteCipher()"
       (onCancel)="cancelCipher($event)"
-      [isSubmitting]="isSubmitting"
       [masterPasswordAlreadyPrompted]="cipherRepromptId === cipherId"
     ></app-vault-item-footer>
     <div class="content">
@@ -33,11 +32,16 @@
             formId="cipherForm"
             [config]="config"
             (cipherSaved)="savedCipher($event)"
-            [beforeSubmit]="onSubmit"
             [submitBtn]="footer?.submitBtn"
+            (formStatusChange$)="formStatusChanged($event)"
           >
             <bit-item slot="attachment-button">
-              <button bit-item-content type="button" (click)="openAttachmentsDialog()">
+              <button
+                bit-item-content
+                type="button"
+                (click)="openAttachmentsDialog()"
+                [disabled]="formDisabled"
+              >
                 <p class="tw-m-0">
                   {{ "attachments" | i18n }}
                   <span

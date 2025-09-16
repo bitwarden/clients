@@ -4,11 +4,12 @@ import * as papa from "papaparse";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { CollectionView } from "@bitwarden/admin-console/common";
+import { Collection, CollectionView } from "@bitwarden/admin-console/common";
 import { normalizeExpiryYearFormat } from "@bitwarden/common/autofill/utils";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { FieldType, SecureNoteType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
@@ -20,7 +21,7 @@ import { SecureNoteView } from "@bitwarden/common/vault/models/view/secure-note.
 import { ImportResult } from "../models/import-result";
 
 export abstract class BaseImporter {
-  organizationId: string = null;
+  organizationId: OrganizationId = null;
 
   // FIXME: This should be replaced by injecting the log service.
   protected logService: LogService = new ConsoleLogService(false);
@@ -277,9 +278,12 @@ export abstract class BaseImporter {
   protected moveFoldersToCollections(result: ImportResult) {
     result.folderRelationships.forEach((r) => result.collectionRelationships.push(r));
     result.collections = result.folders.map((f) => {
-      const collection = new CollectionView();
-      collection.name = f.name;
-      collection.id = f.id ?? undefined; // folder id may be null, which is not suitable for collections.
+      const collection = new CollectionView({
+        name: f.name,
+        organizationId: this.organizationId,
+        // FIXME: Folder.id may be null, this should be changed when refactoring Folders to be ts-strict
+        id: Collection.isCollectionId(f.id) ? f.id : null,
+      });
       return collection;
     });
     result.folderRelationships = [];

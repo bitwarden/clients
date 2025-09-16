@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Injectable } from "@angular/core";
 import { IndividualConfig, ToastrService } from "ngx-toastr";
 
@@ -36,7 +34,7 @@ export class ToastService {
           : calculateToastTimeout(options.message),
     };
 
-    this.toastrService.show(null, options.title, toastrConfig);
+    this.toastrService.show(undefined, options.title, toastrConfig);
   }
 
   /**
