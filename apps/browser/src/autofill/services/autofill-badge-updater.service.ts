@@ -1,15 +1,4 @@
-import {
-  combineLatest,
-  concatMap,
-  delay,
-  distinctUntilChanged,
-  merge,
-  mergeMap,
-  Observable,
-  of,
-  switchMap,
-  withLatestFrom,
-} from "rxjs";
+import { combineLatest, delay, distinctUntilChanged, mergeMap, of, switchMap } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BadgeSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/badge-settings.service";
@@ -18,7 +7,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 
 import { Tab } from "../../platform/badge/badge-browser-api";
-import { BadgeService, BadgeStateSetting } from "../../platform/badge/badge.service";
+import { BadgeService } from "../../platform/badge/badge.service";
 import { BadgeStatePriority } from "../../platform/badge/priority";
 
 const StateName = "autofill-badge-updater";
@@ -38,7 +27,7 @@ export class AutofillBadgeUpdaterService {
     );
 
     this.badgeService.setState(StateName, (tab) => {
-      const stateChangedObservable$: Observable<BadgeStateSetting | undefined> = combineLatest({
+      return combineLatest({
         account: this.accountService.activeAccount$,
         enableBadgeCounter:
           this.badgeSettingsService.enableBadgeCounter$.pipe(distinctUntilChanged()),
@@ -54,36 +43,9 @@ export class AutofillBadgeUpdaterService {
               text: await this.calculateCountText(tab, account.id),
             },
             priority: BadgeStatePriority.Default,
-            tabId: tab.tabId,
           };
         }),
       );
-
-      const tabUpdatedObservable$: Observable<BadgeStateSetting> = of(tab).pipe(
-        withLatestFrom(
-          this.accountService.activeAccount$,
-          this.badgeSettingsService.enableBadgeCounter$,
-        ),
-        concatMap(async ([tab, account, enableBadgeCounter]) => {
-          if (!account || !enableBadgeCounter) {
-            return {
-              state: {},
-              priority: BadgeStatePriority.Default,
-              tabId: tab.tabId,
-            };
-          }
-
-          return {
-            state: {
-              text: await this.calculateCountText(tab, account!.id),
-            },
-            priority: BadgeStatePriority.Default,
-            tabId: tab.tabId,
-          };
-        }),
-      );
-
-      return merge(stateChangedObservable$, tabUpdatedObservable$);
     });
   }
 
