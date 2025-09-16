@@ -3588,6 +3588,12 @@
   "awaitingSSODesc": {
     "message": "Por favor, continue a iniciar sessão utilizando as credenciais da sua empresa."
   },
+  "importDirectlyFromBrowser": {
+    "message": "Importar diretamente do navegador"
+  },
+  "browserProfile": {
+    "message": "Perfil do navegador"
+  },
   "seeDetailedInstructions": {
     "message": "Consulte as instruções detalhadas no nosso site de ajuda em",
     "description": "This is followed a by a hyperlink to the help website."
@@ -3829,6 +3835,12 @@
   },
   "changeAtRiskPassword": {
     "message": "Alterar palavra-passe em risco"
+  },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Esta credencial está em risco e não tem um site. Adicione um site e altere a palavra-passe para uma segurança mais forte."
+  },
+  "missingWebsite": {
+    "message": "Site em falta"
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "Não é possível remover coleções com permissões de Apenas visualização: $COLLECTIONS$",
@@ -4080,5 +4092,23 @@
   "moreBreadcrumbs": {
     "message": "Mais da navegação estrutural",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "next": {
+    "message": "Seguinte"
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Confirmar o domínio do Key Connector"
+  },
+  "confirm": {
+    "message": "Confirmar"
+  },
+  "enableAutotypeTransitionKey": {
+    "message": "Ativar o atalho de introdução automática"
+  },
+  "enableAutotypeDescriptionTransitionKey": {
+    "message": "Certifique-se de que está no campo correto antes de utilizar o atalho para evitar preencher dados no local errado."
+  },
+  "editShortcut": {
+    "message": "Editar atalho"
   }
 }

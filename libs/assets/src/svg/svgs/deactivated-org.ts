@@ -1,32 +1,31 @@
 import { svgIcon } from "../icon-service";
 
 export const DeactivatedOrg = svgIcon`
-<svg width="138" height="118" viewBox="0 0 138 118" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <g clip-path="url(#clip0_2929_17380)">
-    <path class="tw-stroke-art-primary" d="M80.0852 15.889V11.7504C80.0852 9.75243 78.6181 8.18262 76.7509 8.18262H53.1445C51.2773 8.18262 49.8102 9.75243 49.8102 11.7504V16.0317"  stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-    <path class="tw-stroke-art-primary" d="M73.3568 7.06126V3.568C73.3568 1.75668 71.8648 0.333496 69.9658 0.333496H59.9285C58.0295 0.333496 56.5374 1.75668 56.5374 3.568V7.06126"  stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-    <path class="tw-stroke-art-primary" d="M41.9611 29.8517V20.5736C41.9611 18.658 43.4441 17.1528 45.3315 17.1528H84.5637C86.4511 17.1528 87.9341 18.658 87.9341 20.5736V83.2728"  stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-    <path class="tw-stroke-art-primary" d="M12.8074 103.493V32.9262C12.8074 31.0004 14.3311 29.4873 16.2703 29.4873H56.4389C58.3781 29.4873 59.9018 31.0004 59.9018 32.9262V103.493"  stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-    <path class="tw-stroke-art-primary" d="M36.3545 39.5791V94.5225"  stroke-linecap="round" stroke-linejoin="round"/>
-    <path class="tw-stroke-art-primary" d="M47.5677 39.5791V94.5225"  stroke-linecap="round" stroke-linejoin="round"/>
-    <path class="tw-stroke-art-primary" d="M78.9634 26.1235V37.3365"  stroke-linecap="round" stroke-linejoin="round"/>
-    <path class="tw-stroke-art-primary" d="M78.9634 45.1851V56.398"  stroke-linecap="round" stroke-linejoin="round"/>
-    <path class="tw-stroke-art-primary" d="M78.9634 64.2476V75.4605"  stroke-linecap="round" stroke-linejoin="round"/>
-    <path class="tw-stroke-art-primary" d="M78.9634 83.3091V94.522"  stroke-linecap="round" stroke-linejoin="round"/>
-    <path class="tw-stroke-art-primary" d="M69.9932 26.1235V37.3365"  stroke-linecap="round" stroke-linejoin="round"/>
-    <path class="tw-stroke-art-primary" d="M69.9932 45.1851V56.398"  stroke-linecap="round" stroke-linejoin="round"/>
-    <path class="tw-stroke-art-primary" d="M69.9932 64.2476V75.4605"  stroke-linecap="round" stroke-linejoin="round"/>
-    <path class="tw-stroke-art-primary" d="M69.9932 83.3091V94.522"  stroke-linecap="round" stroke-linejoin="round"/>
-    <path class="tw-stroke-art-primary" d="M24.0202 39.5791V94.5225"  stroke-linecap="round" stroke-linejoin="round"/>
-    <path class="tw-stroke-art-primary" d="M0.473145 104.614H75.3408"  stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-    <path class="tw-fill-danger-600" fill-rule="evenodd" clip-rule="evenodd" d="M121.425 111.921L99.1265 73.2989C98.3006 71.8685 96.236 71.8685 95.4101 73.2989L73.1119 111.921C72.286 113.351 73.3183 115.139 74.97 115.139H119.567C121.218 115.139 122.251 113.351 121.425 111.921ZM101.604 71.8685C99.6771 68.5308 94.8595 68.5308 92.9325 71.8685L70.6343 110.49C68.7073 113.828 71.116 118 74.97 118H119.567C123.421 118 125.829 113.828 123.902 110.49L101.604 71.8685Z"/>
-    <path class="tw-fill-danger-600" d="M98.2704 84.3848C98.8321 84.3848 99.2836 84.8473 99.2701 85.4088L98.8811 101.584C98.8681 102.127 98.4243 102.56 97.8814 102.56H96.6544C96.1118 102.56 95.6682 102.127 95.6547 101.585L95.254 85.4095C95.24 84.8477 95.6917 84.3848 96.2537 84.3848H98.2704Z" />
-    <circle class="tw-fill-danger-600" cx="97.2682" cy="106.556" r="2.14565" />
-  </g>
-  <defs>
-    <clipPath id="clip0_2929_17380">
-      <rect width="138" height="118" class="tw-fill-danger-600"/>
-    </clipPath>
-  </defs>
-</svg>
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="4 0.5 90.32 96">
+    <path class="tw-fill-illustration-bg-secondary" d="M54 8.5a8 8 0 0 1 8-8h8a8 8 0 0 1 8 8v4H54v-4Z"/>
+    <path class="tw-fill-illustration-outline" fill-rule="evenodd" d="M70 2.5h-8a6 6 0 0 0-6 6v2h20v-2a6 6 0 0 0-6-6Zm-8-2a8 8 0 0 0-8 8v4h24v-4a8 8 0 0 0-8-8h-8Z" clip-rule="evenodd"/>
+    <path class="tw-fill-illustration-bg-secondary" d="M47 16.5a8 8 0 0 1 8-8h22a8 8 0 0 1 8 8v6H47v-6Z"/>
+    <path class="tw-fill-illustration-outline" fill-rule="evenodd" d="M77 10.5H55a6 6 0 0 0-6 6v4h34v-4a6 6 0 0 0-6-6Zm-22-2a8 8 0 0 0-8 8v6h38v-6a8 8 0 0 0-8-8H55Z" clip-rule="evenodd"/>
+    <path class="tw-fill-illustration-bg-secondary" d="M40 26.5a8 8 0 0 1 8-8h36a8 8 0 0 1 8 8v66H40v-66Z"/>
+    <path class="tw-fill-illustration-outline" fill-rule="evenodd" d="M84 20.5H48a6 6 0 0 0-6 6v64h48v-64a6 6 0 0 0-6-6Zm-36-2a8 8 0 0 0-8 8v66h52v-66a8 8 0 0 0-8-8H48Z" clip-rule="evenodd"/>
+    <path class="tw-fill-illustration-bg-primary" d="M4 44.5a8 8 0 0 1 8-8h38a8 8 0 0 1 8 8v48H4v-48Z"/>
+    <path class="tw-fill-illustration-outline" fill-rule="evenodd" d="M50 38.5H12a6 6 0 0 0-6 6v46h50v-46a6 6 0 0 0-6-6Zm-38-2a8 8 0 0 0-8 8v48h54v-48a8 8 0 0 0-8-8H12Z" clip-rule="evenodd"/>
+    <path class="tw-fill-illustration-tertiary" d="M68.677 60.935c1.928-3.316 6.718-3.316 8.645 0l16.31 28.052c1.938 3.334-.467 7.513-4.323 7.513H56.691c-3.856 0-6.26-4.18-4.323-7.513l16.31-28.052Z"/>
+    <path class="tw-fill-illustration-outline" fill-rule="evenodd" d="M91.903 89.993 75.593 61.94c-1.156-1.99-4.03-1.99-5.187 0L54.097 89.993c-1.163 2 .28 4.507 2.594 4.507h32.618c2.314 0 3.757-2.507 2.594-4.507Zm-14.58-29.058c-1.928-3.316-6.718-3.316-8.645 0l-16.31 28.052c-1.938 3.334.467 7.513 4.323 7.513h32.618c3.856 0 6.26-4.18 4.323-7.513l-16.31-28.052Z" clip-rule="evenodd"/>
+    <path class="tw-fill-illustration-outline" d="M75 88.5a2 2 0 1 1-4 0 2 2 0 0 1 4 0ZM70.06 71.053a.5.5 0 0 1 .496-.553h4.887a.5.5 0 0 1 .498.553l-1.393 13a.5.5 0 0 1-.498.447h-2.1a.5.5 0 0 1-.498-.447l-1.393-13Z"/>
+    <path class="tw-fill-illustration-bg-secondary" d="M21 80.5a8 8 0 0 1 8-8h4a8 8 0 0 1 8 8v12H21v-12Z"/>
+    <path class="tw-fill-illustration-outline" fill-rule="evenodd" d="M33 74.5h-4a6 6 0 0 0-6 6v10h16v-10a6 6 0 0 0-6-6Zm-4-2a8 8 0 0 0-8 8v12h20v-12a8 8 0 0 0-8-8h-4Z" clip-rule="evenodd"/>
+    <path class="tw-fill-illustration-bg-tertiary" d="M13 46.5a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-8a1 1 0 0 1-1-1v-8Z"/>
+    <path class="tw-fill-illustration-outline" fill-rule="evenodd" d="M15 47.5v6h6v-6h-6Zm-1-2a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-8Z" clip-rule="evenodd"/>
+    <path class="tw-fill-illustration-bg-tertiary" d="M13 59.5a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-8a1 1 0 0 1-1-1v-8Z"/>
+    <path class="tw-fill-illustration-outline" fill-rule="evenodd" d="M15 60.5v6h6v-6h-6Zm-1-2a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-8Z" clip-rule="evenodd"/>
+    <path class="tw-fill-illustration-bg-tertiary" d="M26 46.5a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-8a1 1 0 0 1-1-1v-8Z"/>
+    <path class="tw-fill-illustration-outline" fill-rule="evenodd" d="M28 47.5v6h6v-6h-6Zm-1-2a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-8Z" clip-rule="evenodd"/>
+    <path class="tw-fill-illustration-bg-tertiary" d="M26 59.5a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-8a1 1 0 0 1-1-1v-8Z"/>
+    <path class="tw-fill-illustration-outline" fill-rule="evenodd" d="M28 60.5v6h6v-6h-6Zm-1-2a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-8Z" clip-rule="evenodd"/>
+    <path class="tw-fill-illustration-bg-tertiary" d="M39 59.5a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-8a1 1 0 0 1-1-1v-8Z"/>
+    <path class="tw-fill-illustration-outline" fill-rule="evenodd" d="M41 60.5v6h6v-6h-6Zm-1-2a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-8Z" clip-rule="evenodd"/>
+    <path class="tw-fill-illustration-bg-tertiary" d="M39 46.5a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-8a1 1 0 0 1-1-1v-8Z"/>
+    <path class="tw-fill-illustration-outline" fill-rule="evenodd" d="M41 47.5v6h6v-6h-6Zm-1-2a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-8ZM47 27.5a1 1 0 0 1 1-1h6a1 1 0 1 1 0 2h-6a1 1 0 0 1-1-1Zm11-1a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2h-6Zm9 1a1 1 0 0 1 1-1h6a1 1 0 1 1 0 2h-6a1 1 0 0 1-1-1Zm10 0a1 1 0 0 1 1-1h6a1 1 0 1 1 0 2h-6a1 1 0 0 1-1-1Zm0 6a1 1 0 0 1 1-1h6a1 1 0 1 1 0 2h-6a1 1 0 0 1-1-1Zm1 5a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2h-6Zm-1 7a1 1 0 0 1 1-1h6a1 1 0 1 1 0 2h-6a1 1 0 0 1-1-1Zm1 5a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2h-6Zm-10-18a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2h-6Zm-1 7a1 1 0 0 1 1-1h6a1 1 0 1 1 0 2h-6a1 1 0 0 1-1-1Zm1 5a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2h-6Zm-1 7a1 1 0 0 1 1-1h6a1 1 0 1 1 0 2h-6a1 1 0 0 1-1-1Zm-9-19a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2h-6Zm-11 1a1 1 0 0 1 1-1h6a1 1 0 1 1 0 2h-6a1 1 0 0 1-1-1Zm11 5a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2h-6Zm-1 7a1 1 0 0 1 1-1h6a1 1 0 1 1 0 2h-6a1 1 0 0 1-1-1Zm1 5a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2h-6Z" clip-rule="evenodd"/>
+  </svg>
 `;

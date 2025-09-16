@@ -12,12 +12,12 @@ import {
   unauthGuardFn,
 } from "@bitwarden/angular/auth/guards";
 import { ChangePasswordComponent } from "@bitwarden/angular/auth/password-management/change-password";
+import { SetInitialPasswordComponent } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.component";
 import {
   DevicesIcon,
-  RegistrationLockAltIcon,
   RegistrationUserAddIcon,
   TwoFactorTimeoutIcon,
-  DeviceVerificationIcon,
+  TwoFactorAuthEmailIcon,
   UserLockIcon,
   VaultIcon,
   LockIcon,
@@ -85,7 +85,7 @@ const routes: Routes = [
     canActivate: [unauthGuardFn(), activeAuthGuard()],
     children: [{ path: "", component: NewDeviceVerificationComponent }],
     data: {
-      pageIcon: DeviceVerificationIcon,
+      pageIcon: TwoFactorAuthEmailIcon,
       pageTitle: {
         key: "verifyYourIdentity",
       },
@@ -149,7 +149,7 @@ const routes: Routes = [
         path: "finish-signup",
         canActivate: [unauthGuardFn()],
         data: {
-          pageIcon: RegistrationLockAltIcon,
+          pageIcon: LockIcon,
         } satisfies AnonLayoutWrapperData,
         children: [
           {
@@ -290,6 +290,14 @@ const routes: Routes = [
             key: "verifyYourIdentity",
           },
         } satisfies RouteDataProperties & AnonLayoutWrapperData,
+      },
+      {
+        path: "set-initial-password",
+        canActivate: [authGuard],
+        component: SetInitialPasswordComponent,
+        data: {
+          maxWidth: "lg",
+        } satisfies AnonLayoutWrapperData,
       },
       {
         path: "change-password",

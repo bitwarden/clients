@@ -131,6 +131,8 @@ describe("DefaultServerNotificationsService (multi-user)", () => {
     configService.getFeatureFlag$.mockImplementation((flag: FeatureFlag) => {
       const flagValueByFlag: Partial<Record<FeatureFlag, boolean>> = {
         [FeatureFlag.InactiveUserServerNotification]: true,
+        [FeatureFlag.PushNotificationsWhenLocked]: true,
+        [FeatureFlag.PM14938_BrowserExtensionLoginApproval]: true,
       };
       return new BehaviorSubject(flagValueByFlag[flag] ?? false) as any;
     });
@@ -253,8 +255,7 @@ describe("DefaultServerNotificationsService (multi-user)", () => {
         .next({ type: "not-supported", reason: "test" } as any);
     }
 
-    // TODO: When PM-14943 goes in, uncomment
-    // authRequestAnsweringService.receivedPendingAuthRequest.mockResolvedValue(undefined as any);
+    authRequestAnsweringService.receivedPendingAuthRequest.mockResolvedValue(undefined as any);
 
     const subscription = defaultServerNotificationsService.startListening();
 
@@ -273,12 +274,10 @@ describe("DefaultServerNotificationsService (multi-user)", () => {
     expect(messagingService.send).toHaveBeenCalledWith("openLoginApproval", {
       notificationId: "auth-id-2",
     });
-
-    // TODO: When PM-14943 goes in, uncomment
-    // expect(authRequestAnsweringService.receivedPendingAuthRequest).toHaveBeenCalledWith(
-    //   mockUserId2,
-    //   "auth-id-2",
-    // );
+    expect(authRequestAnsweringService.receivedPendingAuthRequest).toHaveBeenCalledWith(
+      mockUserId2,
+      "auth-id-2",
+    );
 
     subscription.unsubscribe();
   });
