@@ -78,7 +78,7 @@ export class SignalRConnectionService {
     return new Observable<SignalRNotification>((subsciber) => {
       const connection = this.hubConnectionBuilderFactory()
         .withUrl(notificationsUrl + "/hub", {
-          accessTokenFactory: () => this.apiService.getActiveBearerToken(),
+          accessTokenFactory: () => this.apiService.getActiveBearerToken(userId),
           skipNegotiation: true,
           transport: HttpTransportType.WebSockets,
         })

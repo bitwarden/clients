@@ -3588,6 +3588,12 @@
   "awaitingSSODesc": {
     "message": "Pokračujte v přihlášení pomocí přihlašovacích údajů Vaší společnosti."
   },
+  "importDirectlyFromBrowser": {
+    "message": "Importovat přímo z prohlížeče"
+  },
+  "browserProfile": {
+    "message": "Profil prohlížeče"
+  },
   "seeDetailedInstructions": {
     "message": "Podívejte se na podrobné pokyny na našem webu s nápovědou na",
     "description": "This is followed a by a hyperlink to the help website."
@@ -3829,6 +3835,12 @@
   },
   "changeAtRiskPassword": {
     "message": "Změnit ohrožené heslo"
+  },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Tyto přihlašovací údaje jsou ohrožené a chybí jim webová stránka. Přidejte webovou stránku a změňte heslo pro větší bezpečnost."
+  },
+  "missingWebsite": {
+    "message": "Chybějící webová stránka"
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "Nemůžete odebrat sbírky s oprávněními jen pro zobrazení: $COLLECTIONS$",
@@ -4080,5 +4092,23 @@
   "moreBreadcrumbs": {
     "message": "Více...",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "next": {
+    "message": "Další"
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Potvrdit doménu Key Connectoru"
+  },
+  "confirm": {
+    "message": "Potvrdit"
+  },
+  "enableAutotypeTransitionKey": {
+    "message": "Povolit zkratku automatického psaní"
+  },
+  "enableAutotypeDescriptionTransitionKey": {
+    "message": "Před použitím zkratky se ujistěte, že jste ve správném poli, abyste se vyhnuli vyplnění dat na nesprávné místo."
+  },
+  "editShortcut": {
+    "message": "Upravit zkratku"
   }
 }

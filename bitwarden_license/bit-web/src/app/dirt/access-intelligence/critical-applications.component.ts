@@ -4,7 +4,7 @@ import { Component, DestroyRef, inject, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { combineLatest, debounceTime, map, switchMap } from "rxjs";
+import { combineLatest, debounceTime, firstValueFrom, map, switchMap } from "rxjs";
 
 import { Security } from "@bitwarden/assets/svg";
 import {
@@ -17,6 +17,8 @@ import {
   ApplicationHealthReportDetailWithCriticalFlagAndCipher,
   ApplicationHealthReportSummary,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/password-health";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherId, OrganizationId } from "@bitwarden/common/types/guid";
@@ -54,17 +56,21 @@ export class CriticalApplicationsComponent implements OnInit {
   protected searchControl = new FormControl("", { nonNullable: true });
   private destroyRef = inject(DestroyRef);
   protected loading = false;
-  protected organizationId: string;
+  protected organizationId: OrganizationId;
   protected applicationSummary = {} as ApplicationHealthReportSummary;
   noItemsIcon = Security;
   enableRequestPasswordChange = false;
 
   async ngOnInit() {
-    this.organizationId = this.activatedRoute.snapshot.paramMap.get("organizationId") ?? "";
-
+    this.organizationId = this.activatedRoute.snapshot.paramMap.get(
+      "organizationId",
+    ) as OrganizationId;
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    this.criticalAppsService.setOrganizationId(this.organizationId as OrganizationId, userId);
+    // this.criticalAppsService.setOrganizationId(this.organizationId as OrganizationId);
     combineLatest([
       this.dataService.applications$,
-      this.criticalAppsService.getAppsListForOrg(this.organizationId),
+      this.criticalAppsService.getAppsListForOrg(this.organizationId as OrganizationId),
     ])
       .pipe(
         takeUntilDestroyed(this.destroyRef),
@@ -122,9 +128,8 @@ export class CriticalApplicationsComponent implements OnInit {
     }
 
     this.toastService.showToast({
-      message: this.i18nService.t("criticalApplicationSuccessfullyUnmarked"),
+      message: this.i18nService.t("criticalApplicationUnmarkedSuccessfully"),
       variant: "success",
-      title: this.i18nService.t("success"),
     });
     this.dataSource.data = this.dataSource.data.filter((app) => app.applicationName !== hostname);
   };
@@ -168,6 +173,7 @@ export class CriticalApplicationsComponent implements OnInit {
     protected i18nService: I18nService,
     private configService: ConfigService,
     private adminTaskService: DefaultAdminTaskService,
+    private accountService: AccountService,
   ) {
     this.searchControl.valueChanges
       .pipe(debounceTime(200), takeUntilDestroyed())

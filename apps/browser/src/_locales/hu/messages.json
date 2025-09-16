@@ -556,6 +556,9 @@
   "view": {
     "message": "Nézet"
   },
+  "viewLogin": {
+    "message": "Bejelentkezés megtekintése"
+  },
   "noItemsInList": {
     "message": "Nincsenek megjeleníthető tételek."
   },
@@ -5446,6 +5449,12 @@
   "changeAtRiskPassword": {
     "message": "Kockázatos jelszó megváltoztatása"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Ez a bejelentkezés veszélyben van és hiányzik egy webhely. Adjunk hozzá egy webhelyet és módosítsuk a jelszót az erősebb biztonság érdekében."
+  },
+  "missingWebsite": {
+    "message": "Hiányzó webhely"
+  },
   "settingsVaultOptions": {
     "message": "Széf opciók"
   },
@@ -5588,8 +5597,14 @@
   "showLess": {
     "message": "Kevesebb megjelenítése"
   },
+  "next": {
+    "message": "Következő"
+  },
   "moreBreadcrumbs": {
     "message": "További morzsamenük",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "A Key Connector tartomány megerősítése"
   }
 }

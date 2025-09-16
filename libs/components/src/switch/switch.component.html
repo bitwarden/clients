@@ -1,0 +1,61 @@
+@let disabledText = disabledReasonText();
+
+<div
+  class="tw-rounded-md tw-flex tw-flex-col [&:has(input:focus-visible)]:tw-ring-2 [&:has(input:focus-visible)]:tw-ring-offset-2 [&:has(input:focus-visible)]:tw-ring-primary-600"
+>
+  <label
+    [attr.for]="inputId"
+    class="tw-inline-flex tw-gap-2 tw-justify-between tw-group/switch-label"
+    [ngClass]="{
+      'tw-cursor-default': disabled(),
+      'tw-cursor-pointer': !disabled(),
+    }"
+  >
+    <div>
+      <span
+        bitTypography="body2"
+        class="tw-block [&_*]:tw-whitespace-normal tw-max-w-[60ch]"
+        [ngClass]="{ 'tw-text-muted tw-pointer-events-none': disabled() }"
+      >
+        <ng-content select="bit-label"></ng-content>
+      </span>
+    </div>
+    <span
+      class="tw-relative tw-w-9 tw-shrink-0 tw-h-[1.375rem] tw-rounded-full tw-relative after:tw-transition-[background-color] after:tw-absolute after:tw-inset-0 after:tw-rounded-full after:tw-size-full"
+      [ngClass]="{
+        'tw-bg-secondary-100': disabled(),
+        'tw-bg-primary-600 [&:has(input:focus-visible)]:after:tw-bg-primary-700 group-hover/switch-label:after:tw-bg-primary-700':
+          selected() && !disabled(),
+        'tw-bg-secondary-300 [&:has(input:focus-visible)]:after:tw-bg-hover-default group-hover/switch-label:after:tw-bg-hover-default':
+          !selected() && !disabled(),
+      }"
+    >
+      <input
+        type="checkbox"
+        role="switch"
+        [id]="inputId"
+        [checked]="selected()"
+        [attr.aria-disabled]="disabled()"
+        (change)="onInputChange($event)"
+        class="tw-sr-only"
+        [attr.aria-describedby]="describedByIds()"
+      />
+      <span
+        class="tw-absolute tw-z-10 tw-block tw-size-[1.125rem] tw-top-[2px] tw-start-[2px] tw-bg-text-alt2 tw-rounded-full tw-shadow-md tw-transform tw-transition-transform"
+        [ngClass]="{
+          'tw-translate-x-[calc(theme(spacing.9)_-_(1.125rem_+_4px))] rtl:-tw-translate-x-[calc(theme(spacing.9)_-_(1.125rem_+_4px))]':
+            selected(),
+        }"
+      ></span>
+    </span>
+  </label>
+  <div class="[&_bit-hint]:tw-mt-0 tw-max-w-[60ch] tw-leading-none">
+    <ng-content select="bit-hint" ngProjectAs="bit-hint"></ng-content>
+  </div>
+
+  @if (disabledText && disabled()) {
+    <div [attr.id]="disabledReasonTextId" class="tw-sr-only">
+      {{ disabledText }}
+    </div>
+  }
+</div>

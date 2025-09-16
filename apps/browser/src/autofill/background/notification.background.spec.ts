@@ -817,6 +817,7 @@ describe("NotificationBackground", () => {
             reprompt: CipherRepromptType.None,
           });
           getDecryptedCipherByIdSpy.mockResolvedValueOnce(cipherView);
+          taskService.tasksEnabled$.mockImplementation(() => of(false));
 
           sendMockExtensionMessage(message, sender);
           await flushPromises();
@@ -865,7 +866,7 @@ describe("NotificationBackground", () => {
             reprompt: CipherRepromptType.Password,
           });
           getDecryptedCipherByIdSpy.mockResolvedValueOnce(cipherView);
-
+          taskService.tasksEnabled$.mockImplementation(() => of(false));
           sendMockExtensionMessage(message, sender);
           await flushPromises();
 
@@ -913,9 +914,6 @@ describe("NotificationBackground", () => {
           taskService.pendingTasks$.mockImplementation(() =>
             of([mockSecurityTask, mockSecurityTask2]),
           );
-          jest
-            .spyOn(notificationBackground as any, "getNotificationFlag")
-            .mockResolvedValueOnce(true);
           jest.spyOn(notificationBackground as any, "getOrgData").mockResolvedValueOnce([
             {
               id: mockOrgId,
@@ -1369,74 +1367,6 @@ describe("NotificationBackground", () => {
             forms: formData,
           },
         );
-      });
-    });
-
-    describe("bgUnlockPopoutOpened message handler", () => {
-      let pushUnlockVaultToQueueSpy: jest.SpyInstance;
-
-      beforeEach(() => {
-        pushUnlockVaultToQueueSpy = jest.spyOn(
-          notificationBackground as any,
-          "pushUnlockVaultToQueue",
-        );
-      });
-
-      it("skips pushing the unlock vault message to the queue if the message indicates that the notification should be skipped", async () => {
-        const tabMock = createChromeTabMock();
-        const sender = mock<chrome.runtime.MessageSender>({ tab: tabMock });
-        const message: NotificationBackgroundExtensionMessage = {
-          command: "bgUnlockPopoutOpened",
-          data: { skipNotification: true },
-        };
-
-        sendMockExtensionMessage(message, sender);
-        await flushPromises();
-
-        expect(pushUnlockVaultToQueueSpy).not.toHaveBeenCalled();
-      });
-
-      it("skips pushing the unlock vault message to the queue if the auth status is not `Locked`", async () => {
-        const tabMock = createChromeTabMock();
-        const sender = mock<chrome.runtime.MessageSender>({ tab: tabMock });
-        const message: NotificationBackgroundExtensionMessage = {
-          command: "bgUnlockPopoutOpened",
-        };
-        activeAccountStatusMock$.next(AuthenticationStatus.LoggedOut);
-
-        sendMockExtensionMessage(message, sender);
-        await flushPromises();
-
-        expect(pushUnlockVaultToQueueSpy).not.toHaveBeenCalled();
-      });
-
-      it("skips pushing the unlock vault message to the queue if the notification queue already has an item", async () => {
-        const tabMock = createChromeTabMock();
-        const sender = mock<chrome.runtime.MessageSender>({ tab: tabMock });
-        const message: NotificationBackgroundExtensionMessage = {
-          command: "bgUnlockPopoutOpened",
-        };
-        activeAccountStatusMock$.next(AuthenticationStatus.Locked);
-        notificationBackground["notificationQueue"] = [mock<AddLoginQueueMessage>()];
-
-        sendMockExtensionMessage(message, sender);
-        await flushPromises();
-
-        expect(pushUnlockVaultToQueueSpy).not.toHaveBeenCalled();
-      });
-
-      it("sends an unlock vault message to the queue if the user has a locked vault", async () => {
-        const tabMock = createChromeTabMock({ url: "https://example.com" });
-        const sender = mock<chrome.runtime.MessageSender>({ tab: tabMock });
-        const message: NotificationBackgroundExtensionMessage = {
-          command: "bgUnlockPopoutOpened",
-        };
-        activeAccountStatusMock$.next(AuthenticationStatus.Locked);
-
-        sendMockExtensionMessage(message, sender);
-        await flushPromises();
-
-        expect(pushUnlockVaultToQueueSpy).toHaveBeenCalledWith("example.com", sender.tab);
       });
     });
 

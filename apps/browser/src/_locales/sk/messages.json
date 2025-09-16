@@ -556,6 +556,9 @@
   "view": {
     "message": "Zobraziť"
   },
+  "viewLogin": {
+    "message": "Zobraziť prihlásenie"
+  },
   "noItemsInList": {
     "message": "Neexistujú žiadne položky na zobrazenie."
   },
@@ -5446,6 +5449,12 @@
   "changeAtRiskPassword": {
     "message": "Zmeniť rizikové heslá"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Toto prihlásenie je v ohrození a chýba mu webová stránka. Pridajte webovú stránku a zmeňte heslo na silnejšie zabezpečenie."
+  },
+  "missingWebsite": {
+    "message": "Chýbajúca webová stránka"
+  },
   "settingsVaultOptions": {
     "message": "Možnosti trezoru"
   },
@@ -5588,8 +5597,14 @@
   "showLess": {
     "message": "Zobraziť menej"
   },
+  "next": {
+    "message": "Ďalej"
+  },
   "moreBreadcrumbs": {
     "message": "Viac",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Potvrdiť doménu Key Connectora"
   }
 }

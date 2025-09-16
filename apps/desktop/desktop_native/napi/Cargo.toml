@@ -17,6 +17,7 @@ manual_test = []
 anyhow = { workspace = true }
 autotype = { path = "../autotype" }
 base64 = { workspace = true }
+bitwarden_chromium_importer = { path = "../bitwarden_chromium_importer" }
 desktop_core = { path = "../core" }
 hex = { workspace = true }
 log = { workspace = true }
