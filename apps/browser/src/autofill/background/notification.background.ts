@@ -220,11 +220,24 @@ export default class NotificationBackground {
           data: { cipherIds },
         } = cipherQueueMessage;
         cipherView = await this.getDecryptedCipherById(cipherIds[0], activeUserId);
+        const cipherViews = await this.cipherService.getAllDecrypted(activeUserId);
+        return cipherViews
+          .filter((cipher) => cipherIds.includes(cipher.id))
+          .map((cipherView) => {
+            const organizationType = getOrganizationType(cipherView.organizationId);
+            return this.convertToNotificationCipherData(
+              cipherView,
+              iconsServerUrl,
+              showFavicons,
+              organizationType,
+            );
+          });
       } else {
         cipherView = this.convertAddLoginQueueMessageToCipherView(cipherQueueMessage);
       }
 
       const organizationType = getOrganizationType(cipherView.organizationId);
+
       return [
         this.convertToNotificationCipherData(
           cipherView,
