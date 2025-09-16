@@ -208,7 +208,9 @@ export const DefaultContentExample: Story = {
         children: [
           {
             path: "default-example",
-            data: {},
+            data: {
+              pageIcon: LockIcon,
+            } satisfies ExtensionAnonLayoutWrapperData,
             children: [
               {
                 path: "",
@@ -335,9 +337,9 @@ export const HasLoggedInAccountExample: Story = {
           {
             path: "has-logged-in-account",
             data: {
-              hasLoggedInAccount: true,
               showAcctSwitcher: true,
-            },
+              pageIcon: LockIcon,
+            } satisfies ExtensionAnonLayoutWrapperData,
             children: [
               {
                 path: "",
