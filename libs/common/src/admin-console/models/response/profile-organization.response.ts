@@ -1,3 +1,4 @@
+import { MemberDecryptionType } from "../../../auth/enums/sso";
 import { ProductTierType } from "../../../billing/enums";
 import { BaseResponse } from "../../../models/response/base.response";
 import { OrganizationUserStatusType, OrganizationUserType, ProviderType } from "../../enums";
@@ -58,6 +59,8 @@ export class ProfileOrganizationResponse extends BaseResponse {
   useRiskInsights: boolean;
   useAdminSponsoredFamilies: boolean;
   isAdminInitiated: boolean;
+  ssoEnabled: boolean;
+  ssoMemberDecryptionType?: MemberDecryptionType;
 
   constructor(response: any) {
     super(response);
@@ -127,5 +130,7 @@ export class ProfileOrganizationResponse extends BaseResponse {
     this.useRiskInsights = this.getResponseProperty("UseRiskInsights");
     this.useAdminSponsoredFamilies = this.getResponseProperty("UseAdminSponsoredFamilies");
     this.isAdminInitiated = this.getResponseProperty("IsAdminInitiated");
+    this.ssoEnabled = this.getResponseProperty("SsoEnabled") ?? false;
+    this.ssoMemberDecryptionType = this.getResponseProperty("SsoMemberDecryptionType");
   }
 }

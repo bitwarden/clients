@@ -86,14 +86,14 @@
   "noAppsInOrgDescription": {
     "message": "À medida que os utilizadores guardam as credenciais, as aplicações aparecem aqui, mostrando quaisquer palavras-passe em risco. Marque as aplicações críticas e notifique os utilizadores para atualizarem as palavras-passe."
   },
-  "noCriticalAppsTitle": {
+  "noCriticalApplicationsTitle": {
     "message": "Não marcou nenhuma aplicação como crítica"
   },
-  "noCriticalAppsDescription": {
-    "message": "Selecione as suas aplicações mais críticas para descobrir palavras-passe em risco e notifique os utilizadores para alterarem essas palavras-passe."
+  "noCriticalApplicationsDescription": {
+    "message": "Selecione as suas aplicações mais críticas para dar prioridade a ações de segurança para os seus utilizadores, de modo a resolver as palavras-passe em risco."
   },
-  "markCriticalApps": {
-    "message": "Marcar apps críticas"
+  "markCriticalApplications": {
+    "message": "Selecionar aplicações críticas"
   },
   "markAppAsCritical": {
     "message": "Marcar a app como crítica"
@@ -179,8 +179,8 @@
   "unmarkAsCritical": {
     "message": "Desmarcar como crítica"
   },
-  "criticalApplicationSuccessfullyUnmarked": {
-    "message": "Aplicação crítica desmarcada com sucesso"
+  "criticalApplicationUnmarkedSuccessfully": {
+    "message": "Aplicação desmarcada como crítica com sucesso"
   },
   "whatTypeOfItem": {
     "message": "Que tipo de item é este?"
@@ -7430,6 +7430,9 @@
   "off": {
     "message": "Desativado"
   },
+  "connected": {
+    "message": "Ligado"
+  },
   "members": {
     "message": "Membros"
   },
@@ -8935,20 +8938,25 @@
   "collectionManagement": {
     "message": "Gestão de coleções"
   },
-  "collectionManagementDesc": {
-    "message": "Gerir o comportamento da coleção da organização"
+  "collectionManagementDescription": {
+    "message": "Configurar o comportamento da coleção da organização"
   },
-  "limitCollectionCreationDesc": {
-    "message": "Limitar a criação de coleções aos proprietários e administradores"
+  "allowAdminAccessToAllCollectionItemsDescription": {
+    "message": "Permitir aos proprietários e administradores gerir todas as coleções e itens a partir da consola de administração"
   },
-  "limitCollectionDeletionDesc": {
-    "message": "Limitar a eliminação de coleções aos proprietários e administradores"
+  "restrictCollectionCreationDescription": {
+    "message": "Restringir a criação de coleções aos proprietários e administradores"
   },
-  "limitItemDeletionDescription": {
-    "message": "Limitar a eliminação de itens aos membros com as permissões Gerir coleção"
+  "restrictCollectionDeletionDescription": {
+    "message": "Restringir a eliminação de coleções aos proprietários e administradores"
   },
-  "allowAdminAccessToAllCollectionItemsDesc": {
-    "message": "Os proprietários e administradores podem gerir todas as coleções e itens"
+  "restrictItemDeletionDescriptionStart": {
+    "message": "Restringir a eliminação de itens a membros com a permissão ",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
+  },
+  "restrictItemDeletionDescriptionEnd": {
+    "message": "",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
   },
   "updatedCollectionManagement": {
     "message": "Definição de gestão de coleções atualizada"
@@ -9019,6 +9027,78 @@
   },
   "modifiedCollectionManagement": {
     "message": "Definição de gestão de coleções modificada $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationEnabled": {
+    "message": "Ativada a definição de criação de coleções restrita $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationDisabled": {
+    "message": "Desativada a definição de criação de coleções restrita $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionEnabled": {
+    "message": "Ativada a definição de eliminação de coleções restrita $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionDisabled": {
+    "message": "Desativada a definição de eliminação de coleções restrita $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionEnabled": {
+    "message": "Ativada a definição de eliminação de itens restrita $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionDisabled": {
+    "message": "Desativada a definição de eliminação de itens restrita $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsEnabled": {
+    "message": "Ativada a definição de permitir aos proprietários e administradores gerir todas as coleções e itens $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsDisabled": {
+    "message": "Desativada a definição de permitir aos proprietários e administradores gerir todas as coleções e itens $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -9603,6 +9683,15 @@
   },
   "connectIntegrationButtonDesc": {
     "message": "Estabelecer ligação com o $INTEGRATION$",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
+  },
+  "updateIntegrationButtonDesc": {
+    "message": "Atualizar $INTEGRATION$",
     "placeholders": {
       "integration": {
         "content": "$1",
@@ -10816,6 +10905,12 @@
   "changeAtRiskPassword": {
     "message": "Alterar palavra-passe em risco"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Esta credencial está em risco e não tem um site. Adicione um site e altere a palavra-passe para uma segurança mais forte."
+  },
+  "missingWebsite": {
+    "message": "Site em falta"
+  },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Remover o desbloqueio com PIN"
   },
@@ -11157,6 +11252,17 @@
         "example": "92873837267"
       }
     }
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Confirmar o domínio do Key Connector"
+  },
+  "requiredToVerifyBankAccountWithStripe": {
+    "message": "O pagamento com uma conta bancária só está disponível para clientes nos Estados Unidos. Ser-lhe-á pedido que verifique a sua conta bancária. Efetuaremos um micro-depósito nos próximos 1-2 dias úteis. A não verificação da conta bancária resultará na perda de um pagamento e na suspensão da subscrição."
+  },
+  "verifyBankAccountWithStripe": {
+    "message": "Efetuámos um micro-depósito na sua conta bancária. Isto pode demorar 1-2 dias úteis. Quando vir o depósito na sua conta, pode verificar a sua conta bancária. A não verificação da sua conta bancária resultará na falta de pagamento e a sua subscrição será suspensa."
+  },
+  "verifyNow": {
+    "message": "Verificar agora."
   }
 }
-

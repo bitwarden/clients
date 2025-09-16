@@ -80,6 +80,18 @@ export class CipherViewLikeUtils {
     return cipher.isDeleted;
   };
 
+  /**  @returns `true` when the cipher is not assigned to a collection, `false` otherwise. */
+  static isUnassigned = (cipher: CipherViewLike): boolean => {
+    if (this.isCipherListView(cipher)) {
+      return (
+        cipher.organizationId != null &&
+        (cipher.collectionIds == null || cipher.collectionIds.length === 0)
+      );
+    }
+
+    return cipher.isUnassigned;
+  };
+
   /** @returns `true` when the user can assign the cipher to a collection, `false` otherwise. */
   static canAssignToCollections = (cipher: CipherViewLike): boolean => {
     if (this.isCipherListView(cipher)) {
@@ -174,13 +186,19 @@ export class CipherViewLikeUtils {
     targetUri: string,
     equivalentDomains: Set<string>,
     defaultUriMatch: UriMatchStrategySetting = UriMatchStrategy.Domain,
+    overrideNeverMatchStrategy?: true,
   ): boolean => {
     if (CipherViewLikeUtils.getType(cipher) !== CipherType.Login) {
       return false;
     }
 
     if (!this.isCipherListView(cipher)) {
-      return cipher.login.matchesUri(targetUri, equivalentDomains, defaultUriMatch);
+      return cipher.login.matchesUri(
+        targetUri,
+        equivalentDomains,
+        defaultUriMatch,
+        overrideNeverMatchStrategy,
+      );
     }
 
     const login = this.getLogin(cipher);
@@ -198,7 +216,7 @@ export class CipherViewLikeUtils {
       });
 
     return loginUriViews.some((uriView) =>
-      uriView.matchesUri(targetUri, equivalentDomains, defaultUriMatch),
+      uriView.matchesUri(targetUri, equivalentDomains, defaultUriMatch, overrideNeverMatchStrategy),
     );
   };
 
