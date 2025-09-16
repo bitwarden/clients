@@ -4,11 +4,9 @@ import { combineLatest, concatMap, firstValueFrom } from "rxjs";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -79,7 +77,6 @@ export class BiometricMessageHandlerService {
     private messagingService: MessagingService,
     private desktopSettingService: DesktopSettingsService,
     private biometricsService: DesktopBiometricsService,
-    private configService: ConfigService,
     private dialogService: DialogService,
     private accountService: AccountService,
     private authService: AuthService,
@@ -88,11 +85,8 @@ export class BiometricMessageHandlerService {
     // This will be removed after the flag is rolled out
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     (async () => {
-      const enabled = await this.configService.getFeatureFlag(FeatureFlag.SystemBiometricsV2);
-      this.logService.info("[Native Messaging IPC] SystemBiometricsV2 feature flag is " + enabled);
-      if (enabled) {
-        await this.biometricsService.enableV2BiometricsBackend();
-      }
+      this.logService.info("[Native Messaging IPC] Setting SystemBiometricsV2");
+      await this.biometricsService.enableV2BiometricsBackend();
     })();
 
     combineLatest([
