@@ -13,12 +13,13 @@ import { DialogService, ToastService } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
-import { openHecConnectDialog } from "../integration-dialog";
+import { HecConnectDialogResultStatus, openHecConnectDialog } from "../integration-dialog";
 
 import { IntegrationCardComponent } from "./integration-card.component";
 
 jest.mock("../integration-dialog", () => ({
   openHecConnectDialog: jest.fn(),
+  HecConnectDialogResultStatus: { Edited: "edit", Delete: "delete" },
 }));
 
 describe("IntegrationCardComponent", () => {
@@ -272,7 +273,7 @@ describe("IntegrationCardComponent", () => {
     it("should call updateHec if isUpdateAvailable is true", async () => {
       (openHecConnectDialog as jest.Mock).mockReturnValue({
         closed: of({
-          success: true,
+          success: HecConnectDialogResultStatus.Edited,
           url: "test-url",
           bearerToken: "token",
           index: "index",
@@ -304,7 +305,7 @@ describe("IntegrationCardComponent", () => {
 
       (openHecConnectDialog as jest.Mock).mockReturnValue({
         closed: of({
-          success: true,
+          success: HecConnectDialogResultStatus.Edited,
           url: "test-url",
           bearerToken: "token",
           index: "index",
@@ -327,10 +328,66 @@ describe("IntegrationCardComponent", () => {
       expect(mockIntegrationService.updateHec).not.toHaveBeenCalled();
     });
 
-    it("should show toast on error", async () => {
+    it("should call deleteHec when a delete is requested", async () => {
+      component.organizationId = "org-id" as any;
+
       (openHecConnectDialog as jest.Mock).mockReturnValue({
         closed: of({
-          success: true,
+          success: HecConnectDialogResultStatus.Delete,
+          url: "test-url",
+          bearerToken: "token",
+          index: "index",
+        }),
+      });
+
+      mockIntegrationService.deleteHec.mockResolvedValue(undefined);
+
+      await component.setupConnection();
+
+      expect(mockIntegrationService.deleteHec).toHaveBeenCalledWith(
+        "org-id",
+        "integration-id",
+        "config-id",
+      );
+      expect(mockIntegrationService.saveHec).not.toHaveBeenCalled();
+    });
+
+    it("should not call deleteHec if no existing configuration", async () => {
+      component.integrationSettings = {
+        organizationIntegration: null,
+        name: OrganizationIntegrationServiceType.CrowdStrike,
+      } as any;
+      component.organizationId = "org-id" as any;
+
+      (openHecConnectDialog as jest.Mock).mockReturnValue({
+        closed: of({
+          success: HecConnectDialogResultStatus.Delete,
+          url: "test-url",
+          bearerToken: "token",
+          index: "index",
+        }),
+      });
+
+      mockIntegrationService.deleteHec.mockResolvedValue(undefined);
+
+      await component.setupConnection();
+
+      expect(mockIntegrationService.deleteHec).not.toHaveBeenCalledWith(
+        "org-id",
+        "integration-id",
+        "config-id",
+        OrganizationIntegrationServiceType.CrowdStrike,
+        "test-url",
+        "token",
+        "index",
+      );
+      expect(mockIntegrationService.updateHec).not.toHaveBeenCalled();
+    });
+
+    it("should show toast on error while saving", async () => {
+      (openHecConnectDialog as jest.Mock).mockReturnValue({
+        closed: of({
+          success: HecConnectDialogResultStatus.Edited,
           url: "test-url",
           bearerToken: "token",
           index: "index",
@@ -347,6 +404,29 @@ describe("IntegrationCardComponent", () => {
         variant: "error",
         title: "",
         message: mockI18nService.t("failedToSaveIntegration"),
+      });
+    });
+
+    it("should show toast on error while deleting", async () => {
+      (openHecConnectDialog as jest.Mock).mockReturnValue({
+        closed: of({
+          success: HecConnectDialogResultStatus.Delete,
+          url: "test-url",
+          bearerToken: "token",
+          index: "index",
+        }),
+      });
+
+      jest.spyOn(component, "isUpdateAvailable", "get").mockReturnValue(true);
+      mockIntegrationService.deleteHec.mockRejectedValue(new Error("fail"));
+
+      await component.setupConnection();
+
+      expect(mockIntegrationService.deleteHec).toHaveBeenCalled();
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        title: "",
+        message: mockI18nService.t("failedToDeleteIntegration"),
       });
     });
   });
