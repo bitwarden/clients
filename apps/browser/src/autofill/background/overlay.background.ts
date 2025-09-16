@@ -1141,11 +1141,16 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     { inlineMenuCipherId, usePasskey }: OverlayPortMessage,
     { sender }: chrome.runtime.Port,
   ) {
+    await BrowserApi.tabSendMessage(
+      sender.tab,
+      { command: "collectPageDetails" },
+      { frameId: this.focusedFieldData?.frameId },
+    );
+
     const pageDetailsForTab = this.pageDetailsForTab[sender.tab.id];
     if (!inlineMenuCipherId || !pageDetailsForTab?.size) {
       return;
     }
-
     const cipher = this.inlineMenuCiphers.get(inlineMenuCipherId);
     if (usePasskey && cipher.login?.hasFido2Credentials) {
       await this.authenticatePasskeyCredential(
@@ -2116,7 +2121,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       "addToLockedVaultPendingNotifications",
       retryMessage,
     );
-    await this.openUnlockPopout(sender.tab, true);
+    await this.openUnlockPopout(sender.tab);
   }
 
   /**

@@ -3411,6 +3411,7 @@ describe("OverlayBackground", () => {
               usePasskey: true,
               portKey,
             });
+            await flushPromises();
             triggerWebRequestOnCompletedEvent(
               mock<chrome.webRequest.WebResponseCacheDetails>({
                 statusCode: 200,
