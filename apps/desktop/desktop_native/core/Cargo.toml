@@ -48,10 +48,10 @@ ssh-key = { workspace = true, features = [
 ] }
 sysinfo = { workspace = true, features = ["windows"] }
 thiserror = { workspace = true }
-tracing = { workspace = true }
 tokio = { workspace = true, features = ["io-util", "sync", "macros", "net"] }
 tokio-stream = { workspace = true, features = ["net"] }
 tokio-util = { workspace = true, features = ["codec"] }
+tracing = { workspace = true }
 typenum = { workspace = true }
 zeroizing-alloc = { workspace = true }
 
