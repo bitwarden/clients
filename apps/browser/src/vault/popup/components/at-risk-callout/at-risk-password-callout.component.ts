@@ -63,29 +63,28 @@ export class AtRiskPasswordCalloutComponent {
 
   constructor() {
     effect(() => {
+      const pendingTasksLength = this.currentPendingTasks()?.length ?? 0;
+      let updateObject: AtRiskPasswordCalloutData | null = null;
+
       // If the user has resolved all tasks, we will show the banner
-      if (
-        this.atRiskPasswordStateSignal()?.hadPendingTasks &&
-        this.currentPendingTasks()?.length === 0
-      ) {
-        const updateObject: AtRiskPasswordCalloutData = {
+      if (this.atRiskPasswordStateSignal()?.hadPendingTasks && pendingTasksLength === 0) {
+        updateObject = {
           hadPendingTasks: false,
           showTasksCompleteBanner: true,
           tasksBannerDismissed: false,
         };
-        this.atRiskPasswordCalloutService.updateAtRiskPasswordState(
-          this.userIdSignal()!,
-          updateObject,
-        );
       }
 
       // If user has pending tasks set state hadPendingTasks to true
-      if ((this.currentPendingTasks()?.length ?? 0) > 0) {
-        const updateObject: AtRiskPasswordCalloutData = {
+      if (pendingTasksLength > 0) {
+        updateObject = {
           hadPendingTasks: true,
           showTasksCompleteBanner: false,
           tasksBannerDismissed: false,
         };
+      }
+
+      if (updateObject) {
         this.atRiskPasswordCalloutService.updateAtRiskPasswordState(
           this.userIdSignal()!,
           updateObject,
