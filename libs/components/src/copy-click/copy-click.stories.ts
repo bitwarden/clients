@@ -1,3 +1,4 @@
+import { provideNoopAnimations } from "@angular/platform-browser/animations";
 import { applicationConfig, moduleMetadata, StoryObj } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -8,7 +9,6 @@ import { IconButtonModule } from "../icon-button";
 import { InputModule } from "../input";
 import { ToastModule } from "../toast";
 import { I18nMockService } from "../utils";
-import { MockPlatformUtilsService } from "../utils/platform-utils-mock.service";
 
 import { CopyClickDirective } from "./copy-click.directive";
 
@@ -24,7 +24,10 @@ export default {
         ToastModule.forRoot().providers!,
         {
           provide: PlatformUtilsService,
-          useClass: MockPlatformUtilsService,
+          useValue: {
+            // eslint-disable-next-line
+            copyToClipboard: (text: string) => console.log(`"${text}" copied to clipboard`),
+          },
         },
         {
           provide: I18nService,
@@ -32,9 +35,13 @@ export default {
             return new I18nMockService({
               valueCopied: (text) => `${text} copied`,
               copySuccessful: "Copy Successful",
+              success: "Success",
+              close: "Close",
+              info: "Info",
             });
           },
         },
+        provideNoopAnimations(),
       ],
     }),
   ],
