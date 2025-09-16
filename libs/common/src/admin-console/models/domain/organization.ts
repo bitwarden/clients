@@ -2,13 +2,15 @@
 // @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
+import { MemberDecryptionType } from "../../../auth/enums/sso";
 import { ProductTierType } from "../../../billing/enums";
+import { OrganizationId } from "../../../types/guid";
 import { OrganizationUserStatusType, OrganizationUserType, ProviderType } from "../../enums";
 import { PermissionsApi } from "../api/permissions.api";
 import { OrganizationData } from "../data/organization.data";
 
 export class Organization {
-  id: string;
+  id: OrganizationId;
   name: string;
   status: OrganizationUserStatusType;
 
@@ -93,13 +95,15 @@ export class Organization {
   useRiskInsights: boolean;
   useAdminSponsoredFamilies: boolean;
   isAdminInitiated: boolean;
+  ssoEnabled: boolean;
+  ssoMemberDecryptionType?: MemberDecryptionType;
 
   constructor(obj?: OrganizationData) {
     if (obj == null) {
       return;
     }
 
-    this.id = obj.id;
+    this.id = obj.id as OrganizationId;
     this.name = obj.name;
     this.status = obj.status;
     this.type = obj.type;
@@ -154,6 +158,8 @@ export class Organization {
     this.useRiskInsights = obj.useRiskInsights;
     this.useAdminSponsoredFamilies = obj.useAdminSponsoredFamilies;
     this.isAdminInitiated = obj.isAdminInitiated;
+    this.ssoEnabled = obj.ssoEnabled;
+    this.ssoMemberDecryptionType = obj.ssoMemberDecryptionType;
   }
 
   get canAccess() {
@@ -303,7 +309,12 @@ export class Organization {
   }
 
   get canManageDeviceApprovals() {
-    return (this.isAdmin || this.permissions.manageResetPassword) && this.useSso;
+    return (
+      (this.isAdmin || this.permissions.manageResetPassword) &&
+      this.useSso &&
+      this.ssoEnabled &&
+      this.ssoMemberDecryptionType === MemberDecryptionType.TrustedDeviceEncryption
+    );
   }
 
   get isExemptFromPolicies() {

@@ -24,4 +24,5 @@ export abstract class PolicyApiServiceAbstraction {
     type: PolicyType,
     request: PolicyRequest,
   ) => Promise<any>;
+  abstract putPolicyVNext: (organizationId: string, type: PolicyType, request: any) => Promise<any>;
 }

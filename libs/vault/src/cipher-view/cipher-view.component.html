@@ -4,10 +4,14 @@
   </bit-callout>
 
   <bit-callout
-    *ngIf="cipher?.login.uris.length > 0 && hadPendingChangePasswordTask"
+    *ngIf="!hasLoginUri && hadPendingChangePasswordTask"
     type="warning"
-    [title]="''"
+    [title]="'missingWebsite' | i18n"
   >
+    {{ "changeAtRiskPasswordAndAddWebsite" | i18n }}
+  </bit-callout>
+
+  <bit-callout *ngIf="hasLoginUri && hadPendingChangePasswordTask" type="warning" [title]="''">
     <i class="bwi bwi-exclamation-triangle tw-text-warning" aria-hidden="true"></i>
     <a bitLink href="#" appStopClick (click)="launchChangePassword()">
       {{ "changeAtRiskPassword" | i18n }}
@@ -39,7 +43,7 @@
     *ngIf="hasLogin"
     [cipher]="cipher"
     [activeUserId]="activeUserId$ | async"
-    [hadPendingChangePasswordTask]="hadPendingChangePasswordTask"
+    [hadPendingChangePasswordTask]="hadPendingChangePasswordTask && cipher?.login.uris.length > 0"
     (handleChangePassword)="launchChangePassword()"
   ></app-login-credentials-view>
 
@@ -67,12 +71,12 @@
   </ng-container>
 
   <!-- CUSTOM FIELDS -->
-  <ng-container *ngIf="cipher.fields">
+  <ng-container *ngIf="cipher.hasFields">
     <app-custom-fields-v2 [cipher]="cipher"> </app-custom-fields-v2>
   </ng-container>
 
   <!-- ATTACHMENTS SECTION -->
-  <ng-container *ngIf="cipher.attachments">
+  <ng-container *ngIf="cipher.hasAttachments">
     <app-attachments-v2-view
       [emergencyAccessId]="emergencyAccessId"
       [cipher]="cipher"

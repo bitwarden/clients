@@ -86,9 +86,6 @@ describe("AuthRequestService", () => {
 
   describe("approveOrDenyAuthRequest", () => {
     beforeEach(() => {
-      encryptService.rsaEncrypt.mockResolvedValue({
-        encryptedString: "ENCRYPTED_STRING",
-      } as EncString);
       encryptService.encapsulateKeyUnsigned.mockResolvedValue({
         encryptedString: "ENCRYPTED_STRING",
       } as EncString);

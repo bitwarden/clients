@@ -12,6 +12,7 @@ import angularRxjs from "eslint-plugin-rxjs-angular";
 import storybook from "eslint-plugin-storybook";
 
 import platformPlugins from "./libs/eslint/platform/index.mjs";
+import componentPlugins from "./libs/eslint/components/index.mjs";
 
 export default tseslint.config(
   ...storybook.configs["flat/recommended"],
@@ -34,6 +35,7 @@ export default tseslint.config(
       rxjs: fixupPluginRules(rxjs),
       "rxjs-angular": fixupPluginRules(angularRxjs),
       "@bitwarden/platform": platformPlugins,
+      "@bitwarden/components": componentPlugins,
     },
     languageOptions: {
       parserOptions: {
@@ -73,8 +75,11 @@ export default tseslint.config(
       "@angular-eslint/prefer-standalone": 0,
       "@angular-eslint/use-lifecycle-interface": "error",
       "@angular-eslint/use-pipe-transform-interface": 0,
+
       "@bitwarden/platform/required-using": "error",
       "@bitwarden/platform/no-enums": "error",
+      "@bitwarden/components/require-theme-colors-in-svg": "warn",
+
       "@typescript-eslint/explicit-member-accessibility": ["error", { accessibility: "no-public" }],
       "@typescript-eslint/no-explicit-any": "off", // TODO: This should be re-enabled
       "@typescript-eslint/no-floating-promises": "error",
@@ -174,6 +179,7 @@ export default tseslint.config(
     plugins: {
       "@angular-eslint/template": angular.templatePlugin,
       tailwindcss: eslintPluginTailwindCSS,
+      "@bitwarden/components": componentPlugins,
     },
     rules: {
       "@angular-eslint/template/button-has-type": "error",
@@ -188,6 +194,10 @@ export default tseslint.config(
       "tailwindcss/enforces-negative-arbitrary-values": "error",
       "tailwindcss/enforces-shorthand": "error",
       "tailwindcss/no-contradicting-classname": "error",
+      "@bitwarden/components/require-label-on-biticonbutton": [
+        "error",
+        { ignoreIfHas: ["bitPasswordInputToggle"] },
+      ],
     },
   },
 
@@ -308,6 +318,26 @@ export default tseslint.config(
     files: ["libs/nx-plugin/**/*.ts", "libs/nx-plugin/**/*.js"],
     rules: {
       "no-console": "off",
+    },
+  },
+  // Tailwind migrated clients & libs
+  {
+    files: ["apps/web/**/*.html", "bitwarden_license/bit-web/**/*.html", "libs/**/*.html"],
+    rules: {
+      "tailwindcss/no-custom-classname": [
+        "error",
+        {
+          // In migrated clients we only allow tailwind classes plus the following exceptions
+          whitelist: [
+            "((bwi)\\-?).*", // Font icons
+            "logo",
+            "logo-themed",
+            "file-selector",
+            "mfaType.*",
+            "filter.*", // Temporary until filters are migrated
+          ],
+        },
+      ],
     },
   },
   /// Bandaids for keeping existing circular dependencies from getting worse and new ones from being created

@@ -83,11 +83,29 @@ export class Field extends Domain {
    */
   toSdkField(): SdkField {
     return {
-      name: this.name?.toJSON(),
-      value: this.value?.toJSON(),
+      name: this.name?.toSdk(),
+      value: this.value?.toSdk(),
       type: this.type,
       // Safe type cast: client and SDK LinkedIdType enums have identical values
       linkedId: this.linkedId as unknown as SdkLinkedIdType,
     };
+  }
+
+  /**
+   * Maps SDK Field to Field
+   * @param obj The SDK Field object to map
+   */
+  static fromSdkField(obj: SdkField): Field | undefined {
+    if (!obj) {
+      return undefined;
+    }
+
+    const field = new Field();
+    field.name = EncString.fromJSON(obj.name);
+    field.value = EncString.fromJSON(obj.value);
+    field.type = obj.type;
+    field.linkedId = obj.linkedId;
+
+    return field;
   }
 }

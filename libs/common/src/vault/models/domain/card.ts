@@ -95,12 +95,32 @@ export class Card extends Domain {
    */
   toSdkCard(): SdkCard {
     return {
-      cardholderName: this.cardholderName?.toJSON(),
-      brand: this.brand?.toJSON(),
-      number: this.number?.toJSON(),
-      expMonth: this.expMonth?.toJSON(),
-      expYear: this.expYear?.toJSON(),
-      code: this.code?.toJSON(),
+      cardholderName: this.cardholderName?.toSdk(),
+      brand: this.brand?.toSdk(),
+      number: this.number?.toSdk(),
+      expMonth: this.expMonth?.toSdk(),
+      expYear: this.expYear?.toSdk(),
+      code: this.code?.toSdk(),
     };
+  }
+
+  /**
+   * Maps an SDK Card object to a Card
+   * @param obj - The SDK Card object
+   */
+  static fromSdkCard(obj: SdkCard): Card | undefined {
+    if (obj == null) {
+      return undefined;
+    }
+
+    const card = new Card();
+    card.cardholderName = EncString.fromJSON(obj.cardholderName);
+    card.brand = EncString.fromJSON(obj.brand);
+    card.number = EncString.fromJSON(obj.number);
+    card.expMonth = EncString.fromJSON(obj.expMonth);
+    card.expYear = EncString.fromJSON(obj.expYear);
+    card.code = EncString.fromJSON(obj.code);
+
+    return card;
   }
 }

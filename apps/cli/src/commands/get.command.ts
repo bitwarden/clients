@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { firstValueFrom, map } from "rxjs";
+import { firstValueFrom, map, switchMap } from "rxjs";
 
 import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -13,7 +13,6 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EventType } from "@bitwarden/common/enums";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { CardExport } from "@bitwarden/common/models/export/card.export";
 import { CipherExport } from "@bitwarden/common/models/export/cipher.export";
 import { CollectionExport } from "@bitwarden/common/models/export/collection.export";
@@ -24,8 +23,8 @@ import { LoginUriExport } from "@bitwarden/common/models/export/login-uri.export
 import { LoginExport } from "@bitwarden/common/models/export/login.export";
 import { SecureNoteExport } from "@bitwarden/common/models/export/secure-note.export";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
+import { getById } from "@bitwarden/common/platform/misc";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { CipherId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -44,7 +43,6 @@ import { SelectionReadOnly } from "../admin-console/models/selection-read-only";
 import { Response } from "../models/response";
 import { StringResponse } from "../models/response/string.response";
 import { TemplateResponse } from "../models/response/template.response";
-import { SendResponse } from "../tools/send/models/send.response";
 import { CliUtils } from "../utils";
 import { CipherResponse } from "../vault/models/cipher.response";
 import { FolderResponse } from "../vault/models/folder.response";
@@ -444,16 +442,22 @@ export class GetCommand extends DownloadCommand {
 
   private async getCollection(id: string) {
     let decCollection: CollectionView = null;
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     if (Utils.isGuid(id)) {
-      const collection = await this.collectionService.get(id);
+      const collection = await firstValueFrom(
+        this.collectionService.encryptedCollections$(activeUserId).pipe(getById(id)),
+      );
       if (collection != null) {
         const orgKeys = await firstValueFrom(this.keyService.activeUserOrgKeys$);
         decCollection = await collection.decrypt(
           orgKeys[collection.organizationId as OrganizationId],
+          this.encryptService,
         );
       }
     } else if (id.trim() !== "") {
-      let collections = await this.collectionService.getAllDecrypted();
+      let collections = await firstValueFrom(
+        this.collectionService.decryptedCollections$(activeUserId),
+      );
       collections = CliUtils.searchCollections(collections, id);
       if (collections.length > 1) {
         return Response.multipleResults(collections.map((c) => c.id));
@@ -481,15 +485,21 @@ export class GetCommand extends DownloadCommand {
       return Response.badRequest("`" + options.organizationId + "` is not a GUID.");
     }
     try {
-      const orgKey = await this.keyService.getOrgKey(options.organizationId);
+      const orgKey = await firstValueFrom(
+        this.accountService.activeAccount$.pipe(
+          getUserId,
+          switchMap((userId) => this.keyService.orgKeys$(userId)),
+          map((orgKeys) => orgKeys[options.organizationId as OrganizationId] ?? null),
+        ),
+      );
       if (orgKey == null) {
         throw new Error("No encryption key for this organization.");
       }
 
       const response = await this.apiService.getCollectionAccessDetails(options.organizationId, id);
-      const decCollection = new CollectionView(response);
-      decCollection.name = await this.encryptService.decryptString(
-        new EncString(response.name),
+      const decCollection = await CollectionView.fromCollectionAccessDetails(
+        response,
+        this.encryptService,
         orgKey,
       );
       const groups =
@@ -577,11 +587,11 @@ export class GetCommand extends DownloadCommand {
       case "org-collection":
         template = OrganizationCollectionRequest.template();
         break;
-      case "send.text":
-        template = SendResponse.template(SendType.Text);
-        break;
       case "send.file":
-        template = SendResponse.template(SendType.File);
+      case "send.text":
+        template = Response.badRequest(
+          `Invalid template object. Use \`bw send template ${id}\` instead.`,
+        );
         break;
       default:
         return Response.badRequest("Unknown template object.");
@@ -596,6 +606,9 @@ export class GetCommand extends DownloadCommand {
     if (id === "me") {
       const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
       const publicKey = await firstValueFrom(this.keyService.userPublicKey$(activeUserId));
+      if (publicKey == null) {
+        return Response.error("No public key available for the active user.");
+      }
       fingerprint = await this.keyService.getFingerprint(activeUserId, publicKey);
     } else if (Utils.isGuid(id)) {
       try {

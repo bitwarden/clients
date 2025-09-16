@@ -23,6 +23,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -146,14 +147,16 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
       ciphers: PopupCipherViewLike[];
     }[]
   >(() => {
+    const ciphers = this.ciphers();
+
     // Not grouping by type, return a single group with all ciphers
-    if (!this.groupByType()) {
-      return [{ ciphers: this.ciphers() }];
+    if (!this.groupByType() && ciphers.length > 0) {
+      return [{ ciphers }];
     }
 
     const groups: Record<string, PopupCipherViewLike[]> = {};
 
-    this.ciphers().forEach((cipher) => {
+    ciphers.forEach((cipher) => {
       let groupKey = "all";
       switch (CipherViewLikeUtils.getType(cipher)) {
         case CipherType.Card:
@@ -319,7 +322,7 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
     }
 
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    await this.cipherService.updateLastLaunchedDate(cipher.id!, activeUserId);
+    await this.cipherService.updateLastLaunchedDate(uuidAsString(cipher.id!), activeUserId);
 
     await BrowserApi.createNewTab(launchURI);
 
@@ -336,7 +339,7 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
 
     // When only the `CipherListView` is available, fetch the full cipher details
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    const _cipher = await this.cipherService.get(cipher.id!, activeUserId);
+    const _cipher = await this.cipherService.get(uuidAsString(cipher.id!), activeUserId);
     const cipherView = await this.cipherService.decrypt(_cipher, activeUserId);
 
     await this.vaultPopupAutofillService.doAutofill(cipherView);

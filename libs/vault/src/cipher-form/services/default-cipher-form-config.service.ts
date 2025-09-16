@@ -48,9 +48,10 @@ export class DefaultCipherFormConfigService implements CipherFormConfigService {
       await firstValueFrom(
         combineLatest([
           this.organizations$(activeUserId),
-          this.collectionService.encryptedCollections$.pipe(
+          this.collectionService.encryptedCollections$(activeUserId).pipe(
+            map((collections) => collections ?? []),
             switchMap((c) =>
-              this.collectionService.decryptedCollections$.pipe(
+              this.collectionService.decryptedCollections$(activeUserId).pipe(
                 filter((d) => d.length === c.length), // Ensure all collections have been decrypted
               ),
             ),

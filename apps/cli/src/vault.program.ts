@@ -114,6 +114,7 @@ export class VaultProgram extends BaseProgram {
           this.serviceContainer.apiService,
           this.serviceContainer.eventCollectionService,
           this.serviceContainer.accountService,
+          this.serviceContainer.keyService,
           this.serviceContainer.cliRestrictedItemTypesService,
         );
         const response = await command.run(object, cmd);
@@ -284,6 +285,7 @@ export class VaultProgram extends BaseProgram {
           this.serviceContainer.folderApiService,
           this.serviceContainer.accountService,
           this.serviceContainer.cliRestrictedItemTypesService,
+          this.serviceContainer.policyService,
         );
         const response = await command.run(object, id, encodedJson, cmd);
         this.processResponse(response);
@@ -430,6 +432,9 @@ export class VaultProgram extends BaseProgram {
           this.serviceContainer.keyService,
           this.serviceContainer.encryptService,
           this.serviceContainer.organizationUserApiService,
+          this.serviceContainer.accountService,
+          this.serviceContainer.configService,
+          this.serviceContainer.i18nService,
         );
         const response = await command.run(object, id, cmd);
         this.processResponse(response);

@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Observable } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
@@ -67,12 +65,16 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
     userId: UserId,
     includeOtherTypes?: CipherType[],
     defaultMatch?: UriMatchStrategySetting,
+    /** When true, will override the match strategy for the cipher if it is Never. */
+    overrideNeverMatchStrategy?: true,
   ): Promise<CipherView[]>;
   abstract filterCiphersForUrl<C extends CipherViewLike = CipherView>(
     ciphers: C[],
     url: string,
     includeOtherTypes?: CipherType[],
     defaultMatch?: UriMatchStrategySetting,
+    /** When true, will override the match strategy for the cipher if it is Never. */
+    overrideNeverMatchStrategy?: true,
   ): Promise<C[]>;
   abstract getAllFromApiForOrganization(organizationId: string): Promise<CipherView[]>;
   /**
@@ -120,11 +122,21 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
     orgAdmin?: boolean,
     isNotClone?: boolean,
   ): Promise<Cipher>;
+
+  /**
+   * Move a cipher to an organization by re-encrypting its keys with the organization's key.
+   * @param cipher The cipher to move
+   * @param organizationId The Id of the organization to move the cipher to
+   * @param collectionIds The collection Ids to assign the cipher to in the organization
+   * @param userId The Id of the user performing the operation
+   * @param originalCipher Optional original cipher that will be used to compare/update password history
+   */
   abstract shareWithServer(
     cipher: CipherView,
     organizationId: string,
     collectionIds: string[],
     userId: UserId,
+    originalCipher?: Cipher,
   ): Promise<Cipher>;
   abstract shareManyWithServer(
     ciphers: CipherView[],
@@ -245,6 +257,10 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
    * @param attachment The attachment view object
    * @param response The response object containing the encrypted content
    * @param userId The user ID whose key will be used for decryption
+   * @param useLegacyDecryption When true, forces the use of the legacy decryption method
+   * even when the SDK feature is enabled. This is helpful for domains of
+   * the application that have yet to be moved into the SDK, i.e. emergency access.
+   * TODO: PM-25469 - this should be obsolete once emergency access is moved to the SDK.
    *
    * @returns A promise that resolves to the decrypted content
    */
@@ -253,6 +269,7 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
     attachment: AttachmentView,
     response: Response,
     userId: UserId,
+    useLegacyDecryption?: boolean,
   ): Promise<Uint8Array | null>;
 
   /**

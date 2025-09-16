@@ -1,4 +1,5 @@
 import { MockProxy, mock } from "jest-mock-extended";
+import { of } from "rxjs";
 
 import {
   OrganizationUserApiService,
@@ -8,12 +9,19 @@ import { EncryptService } from "@bitwarden/common/key-management/crypto/abstract
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { newGuid } from "@bitwarden/guid";
 import { KeyService } from "@bitwarden/key-management";
+import { UserId } from "@bitwarden/user-core";
 
 import { OrganizationAuthRequestApiService } from "./organization-auth-request-api.service";
 import { OrganizationAuthRequestUpdateRequest } from "./organization-auth-request-update.request";
 import { OrganizationAuthRequestService } from "./organization-auth-request.service";
 import { PendingAuthRequestView } from "./pending-auth-request.view";
+
+import {
+  FakeAccountService,
+  mockAccountServiceWith,
+} from "@bitwarden/common/../spec/fake-account-service";
 
 describe("OrganizationAuthRequestService", () => {
   let organizationAuthRequestApiService: MockProxy<OrganizationAuthRequestApiService>;
@@ -21,17 +29,22 @@ describe("OrganizationAuthRequestService", () => {
   let encryptService: MockProxy<EncryptService>;
   let organizationUserApiService: MockProxy<OrganizationUserApiService>;
   let organizationAuthRequestService: OrganizationAuthRequestService;
+  const mockUserId = newGuid() as UserId;
+  let accountService: FakeAccountService;
 
   beforeEach(() => {
     organizationAuthRequestApiService = mock<OrganizationAuthRequestApiService>();
     keyService = mock<KeyService>();
     encryptService = mock<EncryptService>();
     organizationUserApiService = mock<OrganizationUserApiService>();
+    accountService = mockAccountServiceWith(mockUserId);
+
     organizationAuthRequestService = new OrganizationAuthRequestService(
       organizationAuthRequestApiService,
       keyService,
       encryptService,
       organizationUserApiService,
+      accountService,
     );
   });
 
@@ -162,6 +175,7 @@ describe("OrganizationAuthRequestService", () => {
   describe("approvePendingRequests", () => {
     it("should approve the specified pending auth requests", async () => {
       jest.spyOn(organizationAuthRequestApiService, "bulkUpdatePendingRequests");
+      jest.spyOn(keyService, "orgKeys$").mockReturnValue(of({ key: "fake-key" }));
 
       const organizationId = "organizationId";
 
@@ -213,6 +227,7 @@ describe("OrganizationAuthRequestService", () => {
   describe("approvePendingRequest", () => {
     it("should approve the specified pending auth request", async () => {
       jest.spyOn(organizationAuthRequestApiService, "approvePendingRequest");
+      jest.spyOn(keyService, "orgKeys$").mockReturnValue(of({ key: "fake-key" }));
 
       const organizationId = "organizationId";
 

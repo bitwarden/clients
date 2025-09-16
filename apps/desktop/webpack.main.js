@@ -3,7 +3,7 @@ const { merge } = require("webpack-merge");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
 const configurator = require("./config/config");
-const { EnvironmentPlugin } = require("webpack");
+const { EnvironmentPlugin, DefinePlugin } = require("webpack");
 
 const NODE_ENV = process.env.NODE_ENV == null ? "development" : process.env.NODE_ENV;
 
@@ -65,6 +65,9 @@ const main = {
       },
     ],
   },
+  experiments: {
+    asyncWebAssembly: true,
+  },
   plugins: [
     new CopyWebpackPlugin({
       patterns: [
@@ -72,6 +75,9 @@ const main = {
         { from: "./src/images", to: "images" },
         { from: "./src/locales", to: "locales" },
       ],
+    }),
+    new DefinePlugin({
+      BIT_ENVIRONMENT: JSON.stringify(NODE_ENV),
     }),
     new EnvironmentPlugin({
       FLAGS: envConfig.flags,

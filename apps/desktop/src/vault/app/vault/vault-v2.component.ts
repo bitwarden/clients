@@ -30,8 +30,9 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { getByIds } from "@bitwarden/common/platform/misc";
 import { SyncService } from "@bitwarden/common/platform/sync";
-import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { CipherId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
@@ -160,7 +161,9 @@ export class VaultV2Component<C extends CipherViewLike>
   cipher: CipherView | null = new CipherView();
   collections: CollectionView[] | null = null;
   config: CipherFormConfig | null = null;
-  isSubmitting = false;
+
+  /** Tracks the disabled status of the edit cipher form */
+  protected formDisabled: boolean = false;
 
   private organizations$: Observable<Organization[]> = this.accountService.activeAccount$.pipe(
     map((a) => a?.id),
@@ -360,7 +363,12 @@ export class VaultV2Component<C extends CipherViewLike>
       this.allOrganizations = orgs;
     });
 
-    this.collectionService.decryptedCollections$
+    if (!this.activeUserId) {
+      throw new Error("No user found.");
+    }
+
+    this.collectionService
+      .decryptedCollections$(this.activeUserId)
       .pipe(takeUntil(this.componentIsDestroyed$))
       .subscribe((collections) => {
         this.allCollections = collections;
@@ -441,6 +449,10 @@ export class VaultV2Component<C extends CipherViewLike>
     );
   }
 
+  formStatusChanged(status: "disabled" | "enabled") {
+    this.formDisabled = status === "disabled";
+  }
+
   async openAttachmentsDialog() {
     if (!this.userHasPremiumAccess) {
       await this.premiumUpgradePromptService.promptForPremium();
@@ -460,14 +472,23 @@ export class VaultV2Component<C extends CipherViewLike>
         return;
       }
 
-      const updatedCipher = await this.cipherService.get(
-        this.cipherId as CipherId,
-        this.activeUserId as UserId,
+      // The encrypted state of ciphers is updated when an attachment is added,
+      // but the cache is also cleared. Depending on timing, `cipherService.get` can return the
+      // old cipher. Retrieve the updated cipher from `cipherViews$`,
+      // which refreshes after the cached is cleared.
+      const updatedCipherView = await firstValueFrom(
+        this.cipherService.cipherViews$(this.activeUserId!).pipe(
+          filter((c) => !!c),
+          map((ciphers) => ciphers.find((c) => c.id === this.cipherId)),
+        ),
       );
-      const updatedCipherView = await this.cipherService.decrypt(
-        updatedCipher,
-        this.activeUserId as UserId,
-      );
+
+      // `find` can return undefined but that shouldn't happen as
+      // this would mean that the cipher was deleted.
+      // To make TypeScript happy, exit early if it isn't found.
+      if (!updatedCipherView) {
+        return;
+      }
 
       this.cipherFormComponent.patchCipher((currentCipher) => {
         currentCipher.attachments = updatedCipherView.attachments;
@@ -493,7 +514,6 @@ export class VaultV2Component<C extends CipherViewLike>
 
     if (cipher.decryptionFailure) {
       invokeMenu(menu);
-      return;
     }
 
     if (!cipher.isDeleted) {
@@ -701,9 +721,17 @@ export class VaultV2Component<C extends CipherViewLike>
     this.cipherId = null;
     this.action = "view";
     await this.vaultItemsComponent?.refresh().catch(() => {});
+
+    if (!this.activeUserId) {
+      throw new Error("No userId provided.");
+    }
+
     this.collections = await firstValueFrom(
-      this.collectionService.decryptedCollectionViews$(cipher.collectionIds as CollectionId[]),
+      this.collectionService
+        .decryptedCollections$(this.activeUserId)
+        .pipe(getByIds(cipher.collectionIds)),
     );
+
     this.cipherId = cipher.id;
     this.cipher = cipher;
     if (this.activeUserId) {
@@ -712,7 +740,6 @@ export class VaultV2Component<C extends CipherViewLike>
     await this.vaultItemsComponent?.load(this.activeFilter.buildFilter()).catch(() => {});
     await this.go().catch(() => {});
     await this.vaultItemsComponent?.refresh().catch(() => {});
-    this.isSubmitting = false;
   }
 
   async deleteCipher() {
@@ -887,11 +914,6 @@ export class VaultV2Component<C extends CipherViewLike>
       this.changeDetectorRef.detectChanges();
     });
   }
-
-  protected onSubmit = async () => {
-    this.isSubmitting = true;
-    return Promise.resolve(true);
-  };
 
   private prefillCipherFromFilter() {
     if (this.activeFilter.selectedCollectionId != null && this.vaultFilterComponent != null) {

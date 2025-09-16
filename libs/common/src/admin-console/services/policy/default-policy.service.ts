@@ -13,7 +13,7 @@ import { ResetPasswordPolicyOptions } from "../../models/domain/reset-password-p
 
 import { POLICIES } from "./policy-state";
 
-export function policyRecordToArray(policiesMap: { [id: string]: PolicyData }) {
+export function policyRecordToArray(policiesMap: { [id: string]: PolicyData }): Policy[] {
   return Object.values(policiesMap || {}).map((f) => new Policy(f));
 }
 
@@ -89,8 +89,7 @@ export class DefaultPolicyService implements PolicyService {
     const policies$ = policies ? of(policies) : this.policies$(userId);
     return policies$.pipe(
       map((obsPolicies) => {
-        // TODO: replace with this.combinePoliciesIntoMasterPasswordPolicyOptions(obsPolicies)) once
-        // FeatureFlag.PM16117_ChangeExistingPasswordRefactor is removed.
+        // TODO ([PM-23777]): replace with this.combinePoliciesIntoMasterPasswordPolicyOptions(obsPolicies))
         let enforcedOptions: MasterPasswordPolicyOptions | undefined = undefined;
         const filteredPolicies =
           obsPolicies.filter((p) => p.type === PolicyType.MasterPassword) ?? [];

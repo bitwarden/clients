@@ -1,6 +1,8 @@
+import { UserKey } from "@bitwarden/common/types/key";
+import { EncryptionContext } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherListView } from "@bitwarden/sdk-internal";
 
-import { UserId } from "../../types/guid";
+import { UserId, OrganizationId } from "../../types/guid";
 import { Cipher } from "../models/domain/cipher";
 import { AttachmentView } from "../models/view/attachment.view";
 import { CipherView } from "../models/view/cipher.view";
@@ -9,6 +11,40 @@ import { CipherView } from "../models/view/cipher.view";
  * Service responsible for encrypting and decrypting ciphers.
  */
 export abstract class CipherEncryptionService {
+  /**
+   * Encrypts a cipher using the SDK for the given userId.
+   * @param model The cipher view to encrypt
+   * @param userId The user ID to initialize the SDK client with
+   *
+   * @returns A promise that resolves to the encryption context, or undefined if encryption fails
+   */
+  abstract encrypt(model: CipherView, userId: UserId): Promise<EncryptionContext | undefined>;
+
+  /**
+   * Move the cipher to the specified organization by re-encrypting its keys with the organization's key.
+   * The cipher.organizationId will be updated to the new organizationId.
+   * @param model The cipher view to move to the organization
+   * @param organizationId The ID of the organization to move the cipher to
+   * @param userId The user ID to initialize the SDK client with
+   */
+  abstract moveToOrganization(
+    model: CipherView,
+    organizationId: OrganizationId,
+    userId: UserId,
+  ): Promise<EncryptionContext | undefined>;
+
+  /**
+   * Encrypts a cipher for a given userId with a new key for key rotation.
+   * @param model The cipher view to encrypt
+   * @param userId The user ID to initialize the SDK client with
+   * @param newKey The new key to use for re-encryption
+   */
+  abstract encryptCipherForRotation(
+    model: CipherView,
+    userId: UserId,
+    newKey: UserKey,
+  ): Promise<EncryptionContext | undefined>;
+
   /**
    * Decrypts a cipher using the SDK for the given userId.
    *

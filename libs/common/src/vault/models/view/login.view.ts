@@ -82,12 +82,16 @@ export class LoginView extends ItemView {
     targetUri: string,
     equivalentDomains: Set<string>,
     defaultUriMatch: UriMatchStrategySetting = null,
+    /** When present, will override the match strategy for the cipher if it is `Never` with `Domain` */
+    overrideNeverMatchStrategy?: true,
   ): boolean {
     if (this.uris == null) {
       return false;
     }
 
-    return this.uris.some((uri) => uri.matchesUri(targetUri, equivalentDomains, defaultUriMatch));
+    return this.uris.some((uri) =>
+      uri.matchesUri(targetUri, equivalentDomains, defaultUriMatch, overrideNeverMatchStrategy),
+    );
   }
 
   static fromJSON(obj: Partial<DeepJsonify<LoginView>>): LoginView {
@@ -124,10 +128,30 @@ export class LoginView extends ItemView {
       obj.passwordRevisionDate == null ? null : new Date(obj.passwordRevisionDate);
     loginView.totp = obj.totp ?? null;
     loginView.autofillOnPageLoad = obj.autofillOnPageLoad ?? null;
-    loginView.uris = obj.uris?.map((uri) => LoginUriView.fromSdkLoginUriView(uri)) || [];
+    loginView.uris =
+      obj.uris
+        ?.filter((uri) => uri.uri != null && uri.uri !== "")
+        .map((uri) => LoginUriView.fromSdkLoginUriView(uri)) || [];
     // FIDO2 credentials are not decrypted here, they remain encrypted
     loginView.fido2Credentials = null;
 
     return loginView;
+  }
+
+  /**
+   * Converts the LoginView to an SDK LoginView.
+   *
+   * Note: FIDO2 credentials remain encrypted in the SDK view so they are not included here.
+   */
+  toSdkLoginView(): SdkLoginView {
+    return {
+      username: this.username,
+      password: this.password,
+      passwordRevisionDate: this.passwordRevisionDate?.toISOString(),
+      totp: this.totp,
+      autofillOnPageLoad: this.autofillOnPageLoad ?? undefined,
+      uris: this.uris?.map((uri) => uri.toSdkLoginUriView()),
+      fido2Credentials: undefined, // FIDO2 credentials are handled separately and remain encrypted
+    };
   }
 }
