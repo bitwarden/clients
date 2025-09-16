@@ -175,6 +175,7 @@ pub mod sshagent {
         threadsafe_function::{ErrorStrategy::CalleeHandled, ThreadsafeFunction},
     };
     use tokio::{self, sync::Mutex};
+    use tracing::error;
 
     #[napi]
     pub struct SshAgentState {
@@ -242,7 +243,7 @@ pub mod sshagent {
                                     .expect("should be able to send auth response to agent");
                             }
                             Err(e) => {
-                                println!("[SSH Agent Native Module] calling UI callback promise was rejected: {e}");
+                                error!(error = %e, "Calling UI callback promise was rejected");
                                 let _ = auth_response_tx_arc
                                     .lock()
                                     .await
@@ -251,7 +252,7 @@ pub mod sshagent {
                             }
                         },
                         Err(e) => {
-                            println!("[SSH Agent Native Module] calling UI callback could not create promise: {e}");
+                            error!(error = %e, "Calling UI callback could not create promise");
                             let _ = auth_response_tx_arc
                                 .lock()
                                 .await
@@ -513,6 +514,7 @@ pub mod autofill {
         ErrorStrategy, ThreadsafeFunction, ThreadsafeFunctionCallMode,
     };
     use serde::{de::DeserializeOwned, Deserialize, Serialize};
+    use tracing::error;
 
     #[napi]
     pub async fn run_command(value: String) -> napi::Result<String> {
@@ -668,7 +670,7 @@ pub mod autofill {
                         MessageType::Connected | MessageType::Disconnected => continue,
                         MessageType::Message => {
                             let Some(message) = message else {
-                                println!("[ERROR] Message is empty");
+                                error!("Message is empty");
                                 continue;
                             };
 
@@ -686,7 +688,7 @@ pub mod autofill {
                                     continue;
                                 }
                                 Err(e) => {
-                                    println!("[ERROR] Error deserializing message1: {e}");
+                                    error!(error = %e, "Error deserializing message1");
                                 }
                             }
 
@@ -705,7 +707,7 @@ pub mod autofill {
                                     continue;
                                 }
                                 Err(e) => {
-                                    println!("[ERROR] Error deserializing message1: {e}");
+                                    error!(error = %e, "Error deserializing message1");
                                 }
                             }
 
@@ -722,11 +724,11 @@ pub mod autofill {
                                     continue;
                                 }
                                 Err(e) => {
-                                    println!("[ERROR] Error deserializing message2: {e}");
+                                    error!(error = %e, "Error deserializing message2");
                                 }
                             }
 
-                            println!("[ERROR] Received an unknown message2: {message:?}");
+                            error!(message, "Received an unknown message2");
                         }
                     }
                 }
