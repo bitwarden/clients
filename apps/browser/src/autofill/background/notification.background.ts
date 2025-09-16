@@ -634,17 +634,10 @@ export default class NotificationBackground {
     const currentPassword = data.password || null;
     const newPassword = data.newPassword || null;
 
-    // @TODO Determine if needed
-    // if (authStatus === AuthenticationStatus.Locked) {
-    //   await this.pushChangePasswordToQueue(
-    //     null,
-    //     loginDomain,
-    //     newPassword || currentPassword, // @TODO note tentative add'l pass
-    //     tab,
-    //     true,
-    //   );
-    //   return true;
-    // }
+    if (authStatus === AuthenticationStatus.Locked && newPassword !== null) {
+      await this.pushChangePasswordToQueue(null, loginDomain, newPassword, tab, true);
+      return true;
+    }
 
     let ciphers: CipherView[] = await this.cipherService.getAllDecryptedForUrl(
       data.uri,
@@ -683,6 +676,7 @@ export default class NotificationBackground {
       if (currentPassword) {
         ciphers = ciphers.filter((cipher) => cipher.login.password === currentPassword);
       }
+
       // Otherwise include all known ciphers.
       if (ciphers.length > 0) {
         await this.pushChangePasswordToQueue(
