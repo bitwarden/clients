@@ -2,9 +2,10 @@
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, ElementRef, Inject, OnDestroy, OnInit, ViewChild } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
 import { firstValueFrom, Subject, switchMap } from "rxjs";
-import { map } from "rxjs/operators";
+import { map, tap } from "rxjs/operators";
 
 import { CollectionView } from "@bitwarden/admin-console/common";
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
@@ -277,6 +278,8 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
 
   protected attachmentsButtonDisabled = false;
 
+  protected confirmedPremiumUpgrade = false;
+
   constructor(
     @Inject(DIALOG_DATA) protected params: VaultItemDialogParams,
     private dialogRef: DialogRef<VaultItemDialogResult>,
@@ -296,6 +299,12 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     private routedVaultFilterService: RoutedVaultFilterService,
   ) {
     this.updateTitle();
+    this.premiumUpgradeService.upgradeConfirmed$
+      .pipe(
+        tap((c) => c && (this.confirmedPremiumUpgrade = true)),
+        takeUntilDestroyed(),
+      )
+      .subscribe();
   }
 
   async ngOnInit() {
@@ -339,6 +348,10 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
+    // If the user already confirmed a premium upgrade, don't emit any other result as it will overwrite the premium upgrade result.
+    if (this.confirmedPremiumUpgrade) {
+      return;
+    }
     // If the cipher was modified, be sure we emit the saved result in case the dialog was closed with the X button or ESC key.
     if (this._cipherModified) {
       this.dialogRef.close(VaultItemDialogResult.Saved);
