@@ -54,6 +54,7 @@ import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.res
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import {
   DIALOG_DATA,
@@ -63,6 +64,7 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+import { UserId } from "@bitwarden/user-core";
 
 import { BillingNotificationService } from "../services/billing-notification.service";
 import { BillingSharedModule } from "../shared/billing-shared.module";
@@ -70,8 +72,8 @@ import { PaymentComponent } from "../shared/payment/payment.component";
 
 type ChangePlanDialogParams = {
   organizationId: string;
-  subscription: OrganizationSubscriptionResponse;
   productTierType: ProductTierType;
+  subscription?: OrganizationSubscriptionResponse;
 };
 
 // FIXME: update to use a const object instead of a typescript enum
@@ -149,7 +151,6 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   @Output() onCanceled = new EventEmitter<void>();
   @Output() onTrialBillingSuccess = new EventEmitter();
 
-  protected discountPercentage: number = 20;
   protected discountPercentageFromSub: number;
   protected loading = true;
   protected planCards: PlanCard[];
@@ -769,6 +770,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     }
 
     const doSubmit = async (): Promise<string> => {
+      const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
       let orgId: string = null;
       const sub = this.sub?.subscription;
       const isCanceled = sub?.status === "canceled";
@@ -776,7 +778,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
         sub?.cancelled && this.organization.productTierType === ProductTierType.Free;
 
       if (isCanceled || isCancelledDowngradedToFreeOrg) {
-        await this.restartSubscription();
+        await this.restartSubscription(activeUserId);
         orgId = this.organizationId;
       } else {
         orgId = await this.updateOrganization();
@@ -816,7 +818,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     this.dialogRef.close();
   };
 
-  private async restartSubscription() {
+  private async restartSubscription(activeUserId: UserId) {
     const org = await this.organizationApiService.get(this.organizationId);
     const organization: OrganizationInformation = {
       name: org.name,
@@ -848,11 +850,15 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
       billing: this.getBillingInformationFromTaxInfoComponent(),
     };
 
-    await this.organizationBillingService.restartSubscription(this.organization.id, {
-      organization,
-      plan,
-      payment,
-    });
+    await this.organizationBillingService.restartSubscription(
+      this.organization.id,
+      {
+        organization,
+        plan,
+        payment,
+      },
+      activeUserId,
+    );
   }
 
   private async updateOrganization() {
@@ -892,7 +898,14 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
 
     // Backfill pub/priv key if necessary
     if (!this.organization.hasPublicAndPrivateKeys) {
-      const orgShareKey = await this.keyService.getOrgKey(this.organizationId);
+      const userId = await firstValueFrom(
+        this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+      );
+      const orgShareKey = await firstValueFrom(
+        this.keyService
+          .orgKeys$(userId)
+          .pipe(map((orgKeys) => orgKeys?.[this.organizationId as OrganizationId] ?? null)),
+      );
       const orgKeys = await this.keyService.makeKeyPair(orgShareKey);
       request.keys = new OrganizationKeysRequest(orgKeys[0], orgKeys[1].encryptedString);
     }

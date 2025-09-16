@@ -75,6 +75,7 @@ export class I18nRendererService extends BaseI18nService {
       "sl",
       "sr",
       "sv",
+      "ta",
       "te",
       "th",
       "tr",

@@ -2,9 +2,10 @@ import { Component } from "@angular/core";
 import { Router } from "@angular/router";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { ItemTypes, LoginCards, NoCredentialsIcon, DevicesIcon } from "@bitwarden/assets/svg";
 import { ButtonModule, DialogModule, IconModule, TypographyModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
-import { VaultCarouselModule, VaultIcons } from "@bitwarden/vault";
+import { VaultCarouselModule } from "@bitwarden/vault";
 
 import { IntroCarouselService } from "../../../services/intro-carousel.service";
 
@@ -22,10 +23,10 @@ import { IntroCarouselService } from "../../../services/intro-carousel.service";
   ],
 })
 export class IntroCarouselComponent {
-  protected securityHandshake = VaultIcons.SecurityHandshake;
-  protected loginCards = VaultIcons.LoginCards;
-  protected secureUser = VaultIcons.SecureUser;
-  protected secureDevices = VaultIcons.SecureDevices;
+  protected itemTypes = ItemTypes;
+  protected loginCards = LoginCards;
+  protected noCredentials = NoCredentialsIcon;
+  protected secureDevices = DevicesIcon;
 
   constructor(
     private router: Router,

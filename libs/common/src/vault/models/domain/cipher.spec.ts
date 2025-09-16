@@ -11,6 +11,7 @@ import {
   CipherRepromptType as SdkCipherRepromptType,
   LoginLinkedIdType,
   Cipher as SdkCipher,
+  EncString as SdkEncString,
 } from "@bitwarden/sdk-internal";
 
 import { makeStaticByteArray, mockEnc, mockFromJson } from "../../../../spec/utils";
@@ -848,9 +849,9 @@ describe("Cipher DTO", () => {
       const lastLaunched = new Date("2025-04-15T12:00:00.000Z").getTime();
 
       const cipherData: CipherData = {
-        id: "id",
-        organizationId: "orgId",
-        folderId: "folderId",
+        id: "2afb03fd-0d8e-4c08-a316-18b2f0efa618",
+        organizationId: "4748ad12-212e-4bc8-82b7-a75f6709d033",
+        folderId: "b4dac811-e44a-495a-9334-9e53b7aaf54c",
         edit: true,
         permissions: new CipherPermissionsApi(),
         viewPassword: true,
@@ -919,9 +920,9 @@ describe("Cipher DTO", () => {
       const sdkCipher = cipher.toSdkCipher();
 
       expect(sdkCipher).toEqual({
-        id: "id",
-        organizationId: "orgId",
-        folderId: "folderId",
+        id: "2afb03fd-0d8e-4c08-a316-18b2f0efa618",
+        organizationId: "4748ad12-212e-4bc8-82b7-a75f6709d033",
+        folderId: "b4dac811-e44a-495a-9334-9e53b7aaf54c",
         collectionIds: [],
         key: "EncryptedString",
         name: "EncryptedString",
@@ -1006,26 +1007,26 @@ describe("Cipher DTO", () => {
     it("should map from SDK Cipher", () => {
       jest.restoreAllMocks();
       const sdkCipher: SdkCipher = {
-        id: "id",
-        organizationId: "orgId",
-        folderId: "folderId",
+        id: "id" as any,
+        organizationId: "orgId" as any,
+        folderId: "folderId" as any,
         collectionIds: [],
-        key: "EncryptedString",
-        name: "EncryptedString",
-        notes: "EncryptedString",
+        key: "EncryptedString" as SdkEncString,
+        name: "EncryptedString" as SdkEncString,
+        notes: "EncryptedString" as SdkEncString,
         type: SdkCipherType.Login,
         login: {
-          username: "EncryptedString",
-          password: "EncryptedString",
+          username: "EncryptedString" as SdkEncString,
+          password: "EncryptedString" as SdkEncString,
           passwordRevisionDate: "2022-01-31T12:00:00.000Z",
           uris: [
             {
-              uri: "EncryptedString",
-              uriChecksum: "EncryptedString",
+              uri: "EncryptedString" as SdkEncString,
+              uriChecksum: "EncryptedString" as SdkEncString,
               match: UriMatchType.Domain,
             },
           ],
-          totp: "EncryptedString",
+          totp: "EncryptedString" as SdkEncString,
           autofillOnPageLoad: false,
           fido2Credentials: undefined,
         },
@@ -1049,35 +1050,35 @@ describe("Cipher DTO", () => {
             url: "url",
             size: "1100",
             sizeName: "1.1 KB",
-            fileName: "file",
-            key: "EncKey",
+            fileName: "file" as SdkEncString,
+            key: "EncKey" as SdkEncString,
           },
           {
             id: "a2",
             url: "url",
             size: "1100",
             sizeName: "1.1 KB",
-            fileName: "file",
-            key: "EncKey",
+            fileName: "file" as SdkEncString,
+            key: "EncKey" as SdkEncString,
           },
         ],
         fields: [
           {
-            name: "EncryptedString",
-            value: "EncryptedString",
+            name: "EncryptedString" as SdkEncString,
+            value: "EncryptedString" as SdkEncString,
             type: FieldType.Linked,
             linkedId: LoginLinkedIdType.Username,
           },
           {
-            name: "EncryptedString",
-            value: "EncryptedString",
+            name: "EncryptedString" as SdkEncString,
+            value: "EncryptedString" as SdkEncString,
             type: FieldType.Linked,
             linkedId: LoginLinkedIdType.Password,
           },
         ],
         passwordHistory: [
           {
-            password: "EncryptedString",
+            password: "EncryptedString" as SdkEncString,
             lastUsedDate: "2022-01-31T12:00:00.000Z",
           },
         ],

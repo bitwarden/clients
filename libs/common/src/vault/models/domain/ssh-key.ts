@@ -80,9 +80,9 @@ export class SshKey extends Domain {
    */
   toSdkSshKey(): SdkSshKey {
     return {
-      privateKey: this.privateKey.toJSON(),
-      publicKey: this.publicKey.toJSON(),
-      fingerprint: this.keyFingerprint.toJSON(),
+      privateKey: this.privateKey.toSdk(),
+      publicKey: this.publicKey.toSdk(),
+      fingerprint: this.keyFingerprint.toSdk(),
     };
   }
 

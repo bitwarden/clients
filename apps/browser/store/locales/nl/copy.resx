@@ -144,7 +144,7 @@ Gebruik Bitwarden om je medewerkers te beveiligen en gevoelige informatie te del
 Meer redenen om voor Bitwarden te kiezen:
 
 Encryptie van wereldklasse
-Wachtwoorden worden beschermd met geavanceerde end-to-end versleuteling (AES-256 bit, salted hashtag en PBKDF2 SHA-256) zodat je gegevens veilig en privé blijven.
+Wachtwoorden worden beschermd met geavanceerde end-to-end versleuteling (AES-256 bit, salted hashing en PBKDF2 SHA-256) zodat je gegevens veilig en privé blijven.
 
 Audits door derde partijen
 Bitwarden voert regelmatig uitgebreide beveiligingsaudits uit bij gerenommeerde beveiligingsbedrijven. Deze jaarlijkse audits omvatten broncodebeoordelingen en penetratietests voor Bitwarden IP's, servers en webapplicaties.

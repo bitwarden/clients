@@ -390,6 +390,68 @@ export class EventService {
           this.getShortId(ev.organizationId),
         );
         break;
+      case EventType.Organization_CollectionManagement_LimitCollectionCreationEnabled:
+        msg = this.i18nService.t("limitCollectionCreationEnabled", this.formatOrganizationId(ev));
+        humanReadableMsg = this.i18nService.t(
+          "limitCollectionCreationEnabled",
+          this.getShortId(ev.organizationId),
+        );
+        break;
+      case EventType.Organization_CollectionManagement_LimitCollectionCreationDisabled:
+        msg = this.i18nService.t("limitCollectionCreationDisabled", this.formatOrganizationId(ev));
+        humanReadableMsg = this.i18nService.t(
+          "limitCollectionCreationDisabled",
+          this.getShortId(ev.organizationId),
+        );
+        break;
+      case EventType.Organization_CollectionManagement_LimitCollectionDeletionEnabled:
+        msg = this.i18nService.t("limitCollectionDeletionEnabled", this.formatOrganizationId(ev));
+        humanReadableMsg = this.i18nService.t(
+          "limitCollectionDeletionEnabled",
+          this.getShortId(ev.organizationId),
+        );
+        break;
+      case EventType.Organization_CollectionManagement_LimitCollectionDeletionDisabled:
+        msg = this.i18nService.t("limitCollectionDeletionDisabled", this.formatOrganizationId(ev));
+        humanReadableMsg = this.i18nService.t(
+          "limitCollectionDeletionDisabled",
+          this.getShortId(ev.organizationId),
+        );
+        break;
+      case EventType.Organization_CollectionManagement_LimitItemDeletionEnabled:
+        msg = this.i18nService.t("limitItemDeletionEnabled", this.formatOrganizationId(ev));
+        humanReadableMsg = this.i18nService.t(
+          "limitItemDeletionEnabled",
+          this.getShortId(ev.organizationId),
+        );
+        break;
+      case EventType.Organization_CollectionManagement_LimitItemDeletionDisabled:
+        msg = this.i18nService.t("limitItemDeletionDisabled", this.formatOrganizationId(ev));
+        humanReadableMsg = this.i18nService.t(
+          "limitItemDeletionDisabled",
+          this.getShortId(ev.organizationId),
+        );
+        break;
+      case EventType.Organization_CollectionManagement_AllowAdminAccessToAllCollectionItemsEnabled:
+        msg = this.i18nService.t(
+          "allowAdminAccessToAllCollectionItemsEnabled",
+          this.formatOrganizationId(ev),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "allowAdminAccessToAllCollectionItemsEnabled",
+          this.getShortId(ev.organizationId),
+        );
+        break;
+      case EventType.Organization_CollectionManagement_AllowAdminAccessToAllCollectionItemsDisabled:
+        msg = this.i18nService.t(
+          "allowAdminAccessToAllCollectionItemsDisabled",
+          this.formatOrganizationId(ev),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "allowAdminAccessToAllCollectionItemsDisabled",
+          this.getShortId(ev.organizationId),
+        );
+        break;
 
       // Policies
       case EventType.Policy_Updated: {
@@ -467,20 +529,59 @@ export class EventService {
         break;
       // Secrets Manager
       case EventType.Secret_Retrieved:
-        msg = this.i18nService.t("accessedSecretWithId", this.formatSecretId(ev));
+        msg = this.i18nService.t("accessedSecretWithId", this.formatSecretId(ev, options));
         humanReadableMsg = this.i18nService.t("accessedSecretWithId", this.getShortId(ev.secretId));
         break;
       case EventType.Secret_Created:
-        msg = this.i18nService.t("createdSecretWithId", this.formatSecretId(ev));
+        msg = this.i18nService.t("createdSecretWithId", this.formatSecretId(ev, options));
         humanReadableMsg = this.i18nService.t("createdSecretWithId", this.getShortId(ev.secretId));
         break;
       case EventType.Secret_Deleted:
-        msg = this.i18nService.t("deletedSecretWithId", this.formatSecretId(ev));
+        msg = this.i18nService.t("deletedSecretWithId", this.formatSecretId(ev, options));
         humanReadableMsg = this.i18nService.t("deletedSecretWithId", this.getShortId(ev.secretId));
         break;
+      case EventType.Secret_Permanently_Deleted:
+        msg = this.i18nService.t(
+          "permanentlyDeletedSecretWithId",
+          this.formatSecretId(ev, options),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "permanentlyDeletedSecretWithId",
+          this.getShortId(ev.secretId),
+        );
+        break;
+      case EventType.Secret_Restored:
+        msg = this.i18nService.t("restoredSecretWithId", this.formatSecretId(ev, options));
+        humanReadableMsg = this.i18nService.t("restoredSecretWithId", this.getShortId(ev.secretId));
+        break;
       case EventType.Secret_Edited:
-        msg = this.i18nService.t("editedSecretWithId", this.formatSecretId(ev));
+        msg = this.i18nService.t("editedSecretWithId", this.formatSecretId(ev, options));
         humanReadableMsg = this.i18nService.t("editedSecretWithId", this.getShortId(ev.secretId));
+        break;
+      case EventType.Project_Retrieved:
+        msg = this.i18nService.t("accessedProjectWithId", this.formatProjectId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "accessedProjectWithId",
+          this.getShortId(ev.projectId),
+        );
+        break;
+      case EventType.Project_Created:
+        msg = this.i18nService.t("createdProjectWithId", this.formatProjectId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "createdProjectWithId",
+          this.getShortId(ev.projectId),
+        );
+        break;
+      case EventType.Project_Deleted:
+        msg = this.i18nService.t("deletedProjectWithId", this.formatProjectId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "deletedProjectWithId",
+          this.getShortId(ev.projectId),
+        );
+        break;
+      case EventType.Project_Edited:
+        msg = this.i18nService.t("editedProjectWithId", this.formatProjectId(ev, options));
+        humanReadableMsg = this.i18nService.t("editedProjectWithId", this.getShortId(ev.projectId));
         break;
       default:
         break;
@@ -637,10 +738,41 @@ export class EventService {
     return a.outerHTML;
   }
 
-  formatSecretId(ev: EventResponse): string {
+  formatSecretId(ev: EventResponse, options: EventOptions): string {
     const shortId = this.getShortId(ev.secretId);
+    if (options.disableLink) {
+      return shortId;
+    }
     const a = this.makeAnchor(shortId);
-    a.setAttribute("href", "#/sm/" + ev.organizationId + "/secrets?search=" + shortId);
+    a.setAttribute(
+      "href",
+      "#/sm/" +
+        ev.organizationId +
+        "/secrets?search=" +
+        shortId +
+        "&viewEvents=" +
+        ev.secretId +
+        "&type=all",
+    );
+    return a.outerHTML;
+  }
+
+  formatProjectId(ev: EventResponse, options: EventOptions): string {
+    const shortId = this.getShortId(ev.projectId);
+    if (options.disableLink) {
+      return shortId;
+    }
+    const a = this.makeAnchor(shortId);
+    a.setAttribute(
+      "href",
+      "#/sm/" +
+        ev.organizationId +
+        "/projects?search=" +
+        shortId +
+        "&viewEvents=" +
+        ev.projectId +
+        "&type=all",
+    );
     return a.outerHTML;
   }
 
@@ -684,4 +816,5 @@ export class EventInfo {
 
 export class EventOptions {
   cipherInfo = true;
+  disableLink = false;
 }

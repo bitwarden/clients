@@ -1,14 +1,15 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, map } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import {
   CollectionAccessDetailsResponse,
   CollectionDetailsResponse,
-  CollectionRequest,
   CollectionResponse,
+  CreateCollectionRequest,
+  UpdateCollectionRequest,
 } from "@bitwarden/admin-console/common";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -46,6 +47,7 @@ import {
   ProviderUserUserDetailsResponse,
 } from "../admin-console/models/response/provider/provider-user.response";
 import { SelectionReadOnlyResponse } from "../admin-console/models/response/selection-read-only.response";
+import { AccountService } from "../auth/abstractions/account.service";
 import { TokenService } from "../auth/abstractions/token.service";
 import { DeviceVerificationRequest } from "../auth/models/request/device-verification.request";
 import { DisableTwoFactorAuthenticatorRequest } from "../auth/models/request/disable-two-factor-authenticator.request";
@@ -120,7 +122,7 @@ import { ListResponse } from "../models/response/list.response";
 import { ProfileResponse } from "../models/response/profile.response";
 import { UserKeyResponse } from "../models/response/user-key.response";
 import { AppIdService } from "../platform/abstractions/app-id.service";
-import { EnvironmentService } from "../platform/abstractions/environment.service";
+import { Environment, EnvironmentService } from "../platform/abstractions/environment.service";
 import { LogService } from "../platform/abstractions/log.service";
 import { PlatformUtilsService } from "../platform/abstractions/platform-utils.service";
 import { flagEnabled } from "../platform/misc/flags";
@@ -154,7 +156,7 @@ export type HttpOperations = {
 export class ApiService implements ApiServiceAbstraction {
   private device: DeviceType;
   private deviceType: string;
-  private refreshTokenPromise: Promise<string> | undefined;
+  private refreshTokenPromise: Record<UserId, Promise<string>> = {};
 
   /**
    * The message (responseJson.ErrorModel.Message) that comes back from the server when a new device verification is required.
@@ -171,6 +173,7 @@ export class ApiService implements ApiServiceAbstraction {
     private logService: LogService,
     private logoutCallback: (logoutReason: LogoutReason) => Promise<void>,
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
+    private readonly accountService: AccountService,
     private readonly httpOperations: HttpOperations,
     private customUserAgent: string = null,
   ) {
@@ -197,7 +200,6 @@ export class ApiService implements ApiServiceAbstraction {
     if (this.customUserAgent != null) {
       headers.set("User-Agent", this.customUserAgent);
     }
-    request.alterIdentityTokenHeaders(headers);
 
     const identityToken =
       request instanceof UserApiTokenRequest
@@ -209,7 +211,7 @@ export class ApiService implements ApiServiceAbstraction {
     const response = await this.fetch(
       this.httpOperations.createRequest(env.getIdentityUrl() + "/connect/token", {
         body: this.qsStringify(identityToken),
-        credentials: await this.getCredentials(),
+        credentials: await this.getCredentials(env),
         cache: "no-store",
         headers: headers,
         method: "POST",
@@ -241,9 +243,13 @@ export class ApiService implements ApiServiceAbstraction {
     return Promise.reject(new ErrorResponse(responseJson, response.status, true));
   }
 
-  async refreshIdentityToken(): Promise<any> {
+  async refreshIdentityToken(userId: UserId | null = null): Promise<any> {
+    const normalizedUser = (userId ??= await this.getActiveUser());
+    if (normalizedUser == null) {
+      throw new Error("No user provided and no active user, cannot refresh the identity token.");
+    }
     try {
-      await this.refreshToken();
+      await this.refreshToken(normalizedUser);
     } catch (e) {
       this.logService.error("Error refreshing access token: ", e);
       throw e;
@@ -728,7 +734,7 @@ export class ApiService implements ApiServiceAbstraction {
 
   async postCollection(
     organizationId: string,
-    request: CollectionRequest,
+    request: CreateCollectionRequest,
   ): Promise<CollectionDetailsResponse> {
     const r = await this.send(
       "POST",
@@ -743,7 +749,7 @@ export class ApiService implements ApiServiceAbstraction {
   async putCollection(
     organizationId: string,
     id: string,
-    request: CollectionRequest,
+    request: UpdateCollectionRequest,
   ): Promise<CollectionDetailsResponse> {
     const r = await this.send(
       "PUT",
@@ -1268,6 +1274,50 @@ export class ApiService implements ApiServiceAbstraction {
     return new ListResponse(r, EventResponse);
   }
 
+  async getEventsSecret(
+    orgId: string,
+    id: string,
+    start: string,
+    end: string,
+    token: string,
+  ): Promise<ListResponse<EventResponse>> {
+    const r = await this.send(
+      "GET",
+      this.addEventParameters(
+        "/organization/" + orgId + "/secrets/" + id + "/events",
+        start,
+        end,
+        token,
+      ),
+      null,
+      true,
+      true,
+    );
+    return new ListResponse(r, EventResponse);
+  }
+
+  async getEventsProject(
+    orgId: string,
+    id: string,
+    start: string,
+    end: string,
+    token: string,
+  ): Promise<ListResponse<EventResponse>> {
+    const r = await this.send(
+      "GET",
+      this.addEventParameters(
+        "/organization/" + orgId + "/projects/" + id + "/events",
+        start,
+        end,
+        token,
+      ),
+      null,
+      true,
+      true,
+    );
+    return new ListResponse(r, EventResponse);
+  }
+
   async getEventsOrganization(
     id: string,
     start: string,
@@ -1354,11 +1404,16 @@ export class ApiService implements ApiServiceAbstraction {
     if (this.customUserAgent != null) {
       headers.set("User-Agent", this.customUserAgent);
     }
-    const env = await firstValueFrom(this.environmentService.environment$);
+
+    const env = await firstValueFrom(
+      userId == null
+        ? this.environmentService.environment$
+        : this.environmentService.getEnvironment$(userId),
+    );
     const response = await this.fetch(
       this.httpOperations.createRequest(env.getEventsUrl() + "/collect", {
         cache: "no-store",
-        credentials: await this.getCredentials(),
+        credentials: await this.getCredentials(env),
         method: "POST",
         body: JSON.stringify(request),
         headers: headers,
@@ -1379,7 +1434,8 @@ export class ApiService implements ApiServiceAbstraction {
   // HIBP APIs
 
   async getHibpBreach(username: string): Promise<BreachAccountResponse[]> {
-    const r = await this.send("GET", "/hibp/breach?username=" + username, null, true, true);
+    const encodedUsername = encodeURIComponent(username);
+    const r = await this.send("GET", "/hibp/breach?username=" + encodedUsername, null, true, true);
     return r.map((a: any) => new BreachAccountResponse(a));
   }
 
@@ -1400,7 +1456,11 @@ export class ApiService implements ApiServiceAbstraction {
   async getMasterKeyFromKeyConnector(
     keyConnectorUrl: string,
   ): Promise<KeyConnectorUserKeyResponse> {
-    const authHeader = await this.getActiveBearerToken();
+    const activeUser = await this.getActiveUser();
+    if (activeUser == null) {
+      throw new Error("No active user, cannot get master key from key connector.");
+    }
+    const authHeader = await this.getActiveBearerToken(activeUser);
 
     const response = await this.fetch(
       this.httpOperations.createRequest(keyConnectorUrl + "/user-keys", {
@@ -1425,7 +1485,11 @@ export class ApiService implements ApiServiceAbstraction {
     keyConnectorUrl: string,
     request: KeyConnectorUserKeyRequest,
   ): Promise<void> {
-    const authHeader = await this.getActiveBearerToken();
+    const activeUser = await this.getActiveUser();
+    if (activeUser == null) {
+      throw new Error("No active user, cannot post key to key connector.");
+    }
+    const authHeader = await this.getActiveBearerToken(activeUser);
 
     const response = await this.fetch(
       this.httpOperations.createRequest(keyConnectorUrl + "/user-keys", {
@@ -1477,10 +1541,10 @@ export class ApiService implements ApiServiceAbstraction {
 
   // Helpers
 
-  async getActiveBearerToken(): Promise<string> {
-    let accessToken = await this.tokenService.getAccessToken();
-    if (await this.tokenService.tokenNeedsRefresh()) {
-      accessToken = await this.refreshToken();
+  async getActiveBearerToken(userId: UserId): Promise<string> {
+    let accessToken = await this.tokenService.getAccessToken(userId);
+    if (await this.tokenService.tokenNeedsRefresh(userId)) {
+      accessToken = await this.refreshToken(userId);
     }
     return accessToken;
   }
@@ -1519,7 +1583,7 @@ export class ApiService implements ApiServiceAbstraction {
     const response = await this.fetch(
       this.httpOperations.createRequest(env.getIdentityUrl() + path, {
         cache: "no-store",
-        credentials: await this.getCredentials(),
+        credentials: await this.getCredentials(env),
         headers: headers,
         method: "GET",
       }),
@@ -1602,26 +1666,27 @@ export class ApiService implements ApiServiceAbstraction {
   }
 
   // Keep the running refreshTokenPromise to prevent parallel calls.
-  protected refreshToken(): Promise<string> {
-    if (this.refreshTokenPromise === undefined) {
-      this.refreshTokenPromise = this.internalRefreshToken();
-      void this.refreshTokenPromise.finally(() => {
-        this.refreshTokenPromise = undefined;
+  protected refreshToken(userId: UserId): Promise<string> {
+    if (this.refreshTokenPromise[userId] === undefined) {
+      // TODO: Have different promise for each user
+      this.refreshTokenPromise[userId] = this.internalRefreshToken(userId);
+      void this.refreshTokenPromise[userId].finally(() => {
+        delete this.refreshTokenPromise[userId];
       });
     }
-    return this.refreshTokenPromise;
+    return this.refreshTokenPromise[userId];
   }
 
-  private async internalRefreshToken(): Promise<string> {
-    const refreshToken = await this.tokenService.getRefreshToken();
+  private async internalRefreshToken(userId: UserId): Promise<string> {
+    const refreshToken = await this.tokenService.getRefreshToken(userId);
     if (refreshToken != null && refreshToken !== "") {
-      return this.refreshAccessToken();
+      return await this.refreshAccessToken(userId);
     }
 
-    const clientId = await this.tokenService.getClientId();
-    const clientSecret = await this.tokenService.getClientSecret();
+    const clientId = await this.tokenService.getClientId(userId);
+    const clientSecret = await this.tokenService.getClientSecret(userId);
     if (!Utils.isNullOrWhitespace(clientId) && !Utils.isNullOrWhitespace(clientSecret)) {
-      return this.refreshApiToken();
+      return await this.refreshApiToken(userId);
     }
 
     this.refreshAccessTokenErrorCallback();
@@ -1629,8 +1694,8 @@ export class ApiService implements ApiServiceAbstraction {
     throw new Error("Cannot refresh access token, no refresh token or api keys are stored.");
   }
 
-  protected async refreshAccessToken(): Promise<string> {
-    const refreshToken = await this.tokenService.getRefreshToken();
+  private async refreshAccessToken(userId: UserId): Promise<string> {
+    const refreshToken = await this.tokenService.getRefreshToken(userId);
     if (refreshToken == null || refreshToken === "") {
       throw new Error();
     }
@@ -1643,8 +1708,8 @@ export class ApiService implements ApiServiceAbstraction {
       headers.set("User-Agent", this.customUserAgent);
     }
 
-    const env = await firstValueFrom(this.environmentService.environment$);
-    const decodedToken = await this.tokenService.decodeAccessToken();
+    const env = await firstValueFrom(this.environmentService.getEnvironment$(userId));
+    const decodedToken = await this.tokenService.decodeAccessToken(userId);
     const response = await this.fetch(
       this.httpOperations.createRequest(env.getIdentityUrl() + "/connect/token", {
         body: this.qsStringify({
@@ -1653,7 +1718,7 @@ export class ApiService implements ApiServiceAbstraction {
           refresh_token: refreshToken,
         }),
         cache: "no-store",
-        credentials: await this.getCredentials(),
+        credentials: await this.getCredentials(env),
         headers: headers,
         method: "POST",
       }),
@@ -1688,9 +1753,9 @@ export class ApiService implements ApiServiceAbstraction {
     }
   }
 
-  protected async refreshApiToken(): Promise<string> {
-    const clientId = await this.tokenService.getClientId();
-    const clientSecret = await this.tokenService.getClientSecret();
+  protected async refreshApiToken(userId: UserId): Promise<string> {
+    const clientId = await this.tokenService.getClientId(userId);
+    const clientSecret = await this.tokenService.getClientSecret(userId);
 
     const appId = await this.appIdService.getAppId();
     const deviceRequest = new DeviceRequest(appId, this.platformUtilsService);
@@ -1707,7 +1772,12 @@ export class ApiService implements ApiServiceAbstraction {
     }
 
     const newDecodedAccessToken = await this.tokenService.decodeAccessToken(response.accessToken);
-    const userId = newDecodedAccessToken.sub;
+
+    if (newDecodedAccessToken.sub !== userId) {
+      throw new Error(
+        `Token was supposed to be refreshed for ${userId} but the token we got back was for ${newDecodedAccessToken.sub}`,
+      );
+    }
 
     const vaultTimeoutAction = await firstValueFrom(
       this.vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$(userId),
@@ -1728,12 +1798,28 @@ export class ApiService implements ApiServiceAbstraction {
     method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH",
     path: string,
     body: any,
-    authed: boolean,
+    authedOrUserId: UserId | boolean,
     hasResponse: boolean,
     apiUrl?: string | null,
     alterHeaders?: (headers: Headers) => void,
   ): Promise<any> {
-    const env = await firstValueFrom(this.environmentService.environment$);
+    if (authedOrUserId == null) {
+      throw new Error("A user id was given but it was null, cannot complete API request.");
+    }
+
+    let userId: UserId | null = null;
+    if (typeof authedOrUserId === "boolean" && authedOrUserId) {
+      // Backwards compatible for authenticating the active user when `true` is passed in
+      userId = await this.getActiveUser();
+    } else if (typeof authedOrUserId === "string") {
+      userId = authedOrUserId;
+    }
+
+    const env = await firstValueFrom(
+      userId == null
+        ? this.environmentService.environment$
+        : this.environmentService.getEnvironment$(userId),
+    );
     apiUrl = Utils.isNullOrWhitespace(apiUrl) ? env.getApiUrl() : apiUrl;
 
     // Prevent directory traversal from malicious paths
@@ -1742,7 +1828,7 @@ export class ApiService implements ApiServiceAbstraction {
       apiUrl + Utils.normalizePath(pathParts[0]) + (pathParts.length > 1 ? `?${pathParts[1]}` : "");
 
     const [requestHeaders, requestBody] = await this.buildHeadersAndBody(
-      authed,
+      userId,
       hasResponse,
       body,
       alterHeaders,
@@ -1750,7 +1836,7 @@ export class ApiService implements ApiServiceAbstraction {
 
     const requestInit: RequestInit = {
       cache: "no-store",
-      credentials: await this.getCredentials(),
+      credentials: await this.getCredentials(env),
       method: method,
     };
     requestInit.headers = requestHeaders;
@@ -1766,13 +1852,13 @@ export class ApiService implements ApiServiceAbstraction {
     } else if (hasResponse && response.status === 200 && responseIsCsv) {
       return await response.text();
     } else if (response.status !== 200 && response.status !== 204) {
-      const error = await this.handleError(response, false, authed);
+      const error = await this.handleError(response, false, userId != null);
       return Promise.reject(error);
     }
   }
 
   private async buildHeadersAndBody(
-    authed: boolean,
+    userToAuthenticate: UserId | null,
     hasResponse: boolean,
     body: any,
     alterHeaders: (headers: Headers) => void,
@@ -1794,8 +1880,8 @@ export class ApiService implements ApiServiceAbstraction {
     if (alterHeaders != null) {
       alterHeaders(headers);
     }
-    if (authed) {
-      const authHeader = await this.getActiveBearerToken();
+    if (userToAuthenticate != null) {
+      const authHeader = await this.getActiveBearerToken(userToAuthenticate);
       headers.set("Authorization", "Bearer " + authHeader);
     } else {
       // For unauthenticated requests, we need to tell the server what the device is for flag targeting,
@@ -1857,8 +1943,11 @@ export class ApiService implements ApiServiceAbstraction {
       .join("&");
   }
 
-  private async getCredentials(): Promise<RequestCredentials> {
-    const env = await firstValueFrom(this.environmentService.environment$);
+  private async getActiveUser(): Promise<UserId | null> {
+    return await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
+  }
+
+  private async getCredentials(env: Environment): Promise<RequestCredentials> {
     if (this.platformUtilsService.getClientType() !== ClientType.Web || env.hasBaseUrl()) {
       return "include";
     }

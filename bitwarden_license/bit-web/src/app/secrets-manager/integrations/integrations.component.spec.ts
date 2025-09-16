@@ -1,6 +1,7 @@
 import { Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
+import { ActivatedRoute } from "@angular/router";
 import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
@@ -8,11 +9,14 @@ import {} from "@bitwarden/web-vault/app/shared";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { SYSTEM_THEME_OBSERVABLE } from "@bitwarden/angular/services/injection-tokens";
+import { HecOrganizationIntegrationService } from "@bitwarden/bit-common/dirt/organization-integrations/services/hec-organization-integration-service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ThemeType } from "@bitwarden/common/platform/enums";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
-import { IntegrationCardComponent } from "@bitwarden/web-vault/app/admin-console/organizations/shared/components/integrations/integration-card/integration-card.component";
-import { IntegrationGridComponent } from "@bitwarden/web-vault/app/admin-console/organizations/shared/components/integrations/integration-grid/integration-grid.component";
+import { I18nPipe } from "@bitwarden/ui-common";
+
+import { IntegrationCardComponent } from "../../dirt/organization-integrations/integration-card/integration-card.component";
+import { IntegrationGridComponent } from "../../dirt/organization-integrations/integration-grid/integration-grid.component";
 
 import { IntegrationsComponent } from "./integrations.component";
 
@@ -32,24 +36,25 @@ class MockNewMenuComponent {}
 
 describe("IntegrationsComponent", () => {
   let fixture: ComponentFixture<IntegrationsComponent>;
+  const hecOrgIntegrationSvc = mock<HecOrganizationIntegrationService>();
+
+  const activatedRouteMock = {
+    snapshot: { paramMap: { get: jest.fn() } },
+  };
+  const mockI18nService = mock<I18nService>();
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [IntegrationsComponent, MockHeaderComponent, MockNewMenuComponent],
       imports: [JslibModule, IntegrationGridComponent, IntegrationCardComponent],
       providers: [
-        {
-          provide: I18nService,
-          useValue: mock<I18nService>(),
-        },
-        {
-          provide: ThemeStateService,
-          useValue: mock<ThemeStateService>(),
-        },
-        {
-          provide: SYSTEM_THEME_OBSERVABLE,
-          useValue: of(ThemeType.Light),
-        },
+        { provide: I18nService, useValue: mock<I18nService>() },
+        { provide: ThemeStateService, useValue: mock<ThemeStateService>() },
+        { provide: SYSTEM_THEME_OBSERVABLE, useValue: of(ThemeType.Light) },
+        { provide: ActivatedRoute, useValue: activatedRouteMock },
+        { provide: I18nPipe, useValue: mock<I18nPipe>() },
+        { provide: I18nService, useValue: mockI18nService },
+        { provide: HecOrganizationIntegrationService, useValue: hecOrgIntegrationSvc },
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(IntegrationsComponent);

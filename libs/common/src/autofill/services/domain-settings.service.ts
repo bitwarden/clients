@@ -1,15 +1,13 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { map, Observable, switchMap, of } from "rxjs";
+import { map, Observable } from "rxjs";
 
-import { FeatureFlag } from "../../enums/feature-flag.enum";
 import {
   NeverDomains,
   EquivalentDomains,
   UriMatchStrategySetting,
   UriMatchStrategy,
 } from "../../models/domain/domain-service";
-import { ConfigService } from "../../platform/abstractions/config/config.service";
 import { Utils } from "../../platform/misc/utils";
 import {
   DOMAIN_SETTINGS_DISK,
@@ -111,10 +109,7 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
   private defaultUriMatchStrategyState: ActiveUserState<UriMatchStrategySetting>;
   readonly defaultUriMatchStrategy$: Observable<UriMatchStrategySetting>;
 
-  constructor(
-    private stateProvider: StateProvider,
-    private configService: ConfigService,
-  ) {
+  constructor(private stateProvider: StateProvider) {
     this.showFaviconsState = this.stateProvider.getGlobal(SHOW_FAVICONS);
     this.showFavicons$ = this.showFaviconsState.state$.pipe(map((x) => x ?? true));
 
@@ -123,15 +118,9 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
 
     // Needs to be global to prevent pre-login injections
     this.blockedInteractionsUrisState = this.stateProvider.getGlobal(BLOCKED_INTERACTIONS_URIS);
-
-    this.blockedInteractionsUris$ = this.configService
-      .getFeatureFlag$(FeatureFlag.BlockBrowserInjectionsByDomain)
-      .pipe(
-        switchMap((featureIsEnabled) =>
-          featureIsEnabled ? this.blockedInteractionsUrisState.state$ : of({} as NeverDomains),
-        ),
-        map((disabledUris) => (Object.keys(disabledUris).length ? disabledUris : {})),
-      );
+    this.blockedInteractionsUris$ = this.blockedInteractionsUrisState.state$.pipe(
+      map((x) => x ?? ({} as NeverDomains)),
+    );
 
     this.equivalentDomainsState = this.stateProvider.getActive(EQUIVALENT_DOMAINS);
     this.equivalentDomains$ = this.equivalentDomainsState.state$.pipe(map((x) => x ?? null));
