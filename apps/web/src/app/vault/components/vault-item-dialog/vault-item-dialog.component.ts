@@ -5,7 +5,7 @@ import { Component, ElementRef, Inject, OnDestroy, OnInit, ViewChild } from "@an
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
 import { firstValueFrom, Subject, switchMap } from "rxjs";
-import { map, tap } from "rxjs/operators";
+import { map } from "rxjs/operators";
 
 import { CollectionView } from "@bitwarden/admin-console/common";
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
@@ -301,7 +301,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     this.updateTitle();
     this.premiumUpgradeService.upgradeConfirmed$
       .pipe(
-        tap((c) => c && (this.confirmedPremiumUpgrade = true)),
+        map((c) => c && (this.confirmedPremiumUpgrade = true)),
         takeUntilDestroyed(),
       )
       .subscribe();
