@@ -122,6 +122,14 @@ export const LongTitle: Story = {
   },
 };
 
+export const LongTitleMultiline: Story = {
+  ...Default,
+  args: {
+    dialogSize: "small",
+    title: "Very Long Sentence That Should Be Truncated After Two Lines",
+  },
+};
+
 export const Large: Story = {
   ...Default,
   args: {
