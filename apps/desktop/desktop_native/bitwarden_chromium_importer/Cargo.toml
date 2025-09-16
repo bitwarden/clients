@@ -28,8 +28,7 @@ security-framework = { workspace = true }
 [target.'cfg(target_os = "windows")'.dependencies]
 chacha20poly1305 = "=0.10.1"
 clap = { version = "=4.5.40", features = ["derive"] }
-colog = "=1.3.0"
-env_logger = "=0.11.8"
+simplelog = { workspace = true }
 tokio = { workspace = true, features = ["full"] }
 windows = { workspace = true, features = [
     "Wdk_System_SystemServices",

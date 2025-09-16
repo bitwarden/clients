@@ -1,8 +1,8 @@
 use anyhow::{anyhow, Result};
 use base64::{engine::general_purpose, Engine as _};
 use clap::Parser;
-use env_logger::Target;
 use log::debug;
+use simplelog::*;
 use std::{
     ffi::{OsStr, OsString},
     fs::OpenOptions,
@@ -49,9 +49,9 @@ struct Args {
     encrypted: String,
 }
 
-// Enable this to log to a file. Debugging a system level service in any other way is not easy.
-const NEED_LOGGING: bool = true;
-const LOG_FILENAME: &str = "c:\\temp\\bitwarden-abe-admin-log.txt";
+// Enable this to log to a file. The way this executable is used, it's not easy to debug and the stdout gets lost.
+const NEED_LOGGING: bool = false;
+const LOG_FILENAME: &str = "c:\\path\\to\\log.txt"; // This is an example filename, replace it with you own
 
 async fn send_message_to_pipe_server(pipe_name: &'static str, message: &str) -> Result<String> {
     // TODO: Don't loop forever, but retry a few times
@@ -332,16 +332,16 @@ macro_rules! debug_and_send_error {
 #[tokio::main]
 async fn main() {
     if NEED_LOGGING {
-        colog::default_builder()
-            .filter_level(log::STATIC_MAX_LEVEL) // Controlled by the feature flags in Cargo.toml
-            .target(Target::Pipe(Box::new(
-                OpenOptions::new()
-                    .create(true)
-                    .append(true)
-                    .open(LOG_FILENAME)
-                    .expect("Can't open the log file"),
-            )))
-            .init();
+        WriteLogger::init(
+            LevelFilter::Debug, // Controlled by the feature flags in Cargo.toml
+            Config::default(),
+            OpenOptions::new()
+                .create(true)
+                .append(true)
+                .open(LOG_FILENAME)
+                .expect("Can't open the log file"),
+        )
+        .expect("Failed to initialize logger");
     }
 
     debug!("Starting admin");
