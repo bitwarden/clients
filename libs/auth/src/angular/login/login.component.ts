@@ -201,35 +201,7 @@ export class LoginComponent implements OnInit, OnDestroy {
       FeatureFlag.PM22110_DisableAlternateLoginMethods,
     );
     if (disableAlternateLoginMethodsFlagEnabled) {
-      // SSO required check should come after email has had a chance to be pre-filled (if it
-      // was found in query params or was the remembered email)
-      const ssoRequiredCache = await firstValueFrom(this.ssoLoginService.ssoRequiredCache$);
-
-      // Only perform initial update and setup a subscription if there is actually a populated ssoRequiredCache
-      if (ssoRequiredCache != null && ssoRequiredCache.length > 0) {
-        // If the pre-filled/remembered email field value exists in the cache, set to true
-        if (
-          this.emailFormControl.value &&
-          ssoRequiredCache.includes(this.emailFormControl.value.toLowerCase())
-        ) {
-          this.ssoRequired = true;
-        }
-
-        // On subsequent email field value changes, check and set again. This allows alternate login buttons
-        // to dynamically enable/disable depending on whether or not the entered email is in the ssoRequiredCache
-        this.formGroup.controls.email.valueChanges
-          .pipe(takeUntilDestroyed(this.destroyRef))
-          .subscribe(() => {
-            if (
-              this.emailFormControl.value &&
-              ssoRequiredCache.includes(this.emailFormControl.value.toLowerCase())
-            ) {
-              this.ssoRequired = true;
-            } else {
-              this.ssoRequired = false;
-            }
-          });
-      }
+      await this.determineIfSsoRequired();
     }
   }
 
@@ -255,6 +227,42 @@ export class LoginComponent implements OnInit, OnDestroy {
     });
 
     this.messagingService.send("getWindowIsFocused");
+  }
+
+  private async determineIfSsoRequired() {
+    // SSO required check should come after email has had a chance to be pre-filled (if it
+    // was found in query params or was the remembered email)
+    const ssoRequiredCache = await firstValueFrom(this.ssoLoginService.ssoRequiredCache$);
+
+    // Only perform initial update and setup a subscription if there is actually a populated ssoRequiredCache
+    if (ssoRequiredCache != null && ssoRequiredCache.length > 0) {
+      // If the pre-filled/remembered email field value exists in the cache, set to true
+      if (
+        this.emailFormControl.value &&
+        ssoRequiredCache.includes(this.emailFormControl.value.toLowerCase())
+      ) {
+        this.ssoRequired = true;
+      }
+
+      this.listenForEmailChanges(ssoRequiredCache);
+    }
+  }
+
+  private listenForEmailChanges(ssoRequiredCache: string[]) {
+    // On subsequent email field value changes, check and set again. This allows alternate login buttons
+    // to dynamically enable/disable depending on whether or not the entered email is in the ssoRequiredCache
+    this.formGroup.controls.email.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        if (
+          this.emailFormControl.value &&
+          ssoRequiredCache.includes(this.emailFormControl.value.toLowerCase())
+        ) {
+          this.ssoRequired = true;
+        } else {
+          this.ssoRequired = false;
+        }
+      });
   }
 
   submit = async (): Promise<void> => {
