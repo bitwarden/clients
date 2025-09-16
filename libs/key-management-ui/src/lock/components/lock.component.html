@@ -93,7 +93,7 @@
             [disabled]="!biometricsAvailable"
             block
             [title]="biometricsAvailable ? undefined : biometricUnavailabilityReason"
-            [style]="biometricsAvailable ? undefined : 'pointer-events: auto'"
+            [ngClass]="{ 'tw-pointer-events-auto': !biometricsAvailable }"
             (click)="activeUnlockOption = UnlockOption.Biometrics"
           >
             <span> {{ biometricUnlockBtnText | i18n }}</span>
