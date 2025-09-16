@@ -1763,14 +1763,8 @@
   "popupU2fCloseMessage": {
     "message": "Deze browser kan U2F-verzoeken niet verwerken in dit popupvenster. Wilt je deze pop-up openen in een nieuw venster zodat je kunt inloggen met U2F?"
   },
-  "enableFavicon": {
-    "message": "Websitepictogrammen weergeven"
-  },
-  "faviconDesc": {
-    "message": "Een herkenbare afbeelding naast iedere login weergeven."
-  },
-  "faviconDescAlt": {
-    "message": "Toon een herkenbare afbeelding naast elke login. Geldt voor alle ingelogde accounts."
+  "showIconsChangePasswordUrls": {
+    "message": "Websitepictogrammen weergeven en URL's voor wachtwoordwijzigingen ophalen"
   },
   "enableBadgeCounter": {
     "message": "Teller weergeven"
@@ -5583,6 +5577,12 @@
   "generatorNudgeBodyAria": {
     "message": "Maak eenvoudig sterke en unieke wachtwoorden door op de knop Wachtwoord genereren te klikken om je logins veilig te houden.",
     "description": "Aria label for the body content of the generator nudge"
+  },
+  "aboutThisSetting": {
+    "message": "Over deze instelling"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden gebruikt opgeslagen login-URI's om te bepalen welk pictogram of URL voor het wijzigen van het wachtwoord moet worden gebruikt om je ervaring te verbeteren. Er wordt geen informatie verzameld of opgeslagen wanneer je deze service gebruikt."
   },
   "noPermissionsViewPage": {
     "message": "Je hebt geen rechten om deze pagina te bekijken. Probeer in te loggen met een ander account."

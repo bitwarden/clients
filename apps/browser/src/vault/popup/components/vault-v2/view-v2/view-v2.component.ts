@@ -325,8 +325,9 @@ export class ViewV2Component {
       case UPDATE_PASSWORD: {
         const repromptSuccess = await this.passwordRepromptService.showPasswordPrompt();
 
+        const tab = await BrowserApi.getTab(senderTabId);
         await sendExtensionMessage("bgHandleReprompt", {
-          tab: await chrome.tabs.get(senderTabId),
+          tab,
           success: repromptSuccess,
         });
 
