@@ -684,12 +684,6 @@ export default class NotificationBackground {
     }
 
     if (newPassword) {
-      // If both current and new password are known,
-      // we should only match ciphers with an existing current password match.
-      if (currentPassword) {
-        ciphers = ciphers.filter((cipher) => cipher.login.password === currentPassword);
-      }
-
       // Otherwise include all known ciphers.
       if (ciphers.length > 0) {
         await this.pushChangePasswordToQueue(
