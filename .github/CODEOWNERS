@@ -96,7 +96,6 @@ libs/storage-core @bitwarden/team-platform-dev
 libs/logging @bitwarden/team-platform-dev
 libs/storage-test-utils @bitwarden/team-platform-dev
 libs/messaging @bitwarden/team-platform-dev
-libs/messaging-internal @bitwarden/team-platform-dev
 libs/serialization @bitwarden/team-platform-dev
 libs/guid @bitwarden/team-platform-dev
 libs/client-type @bitwarden/team-platform-dev
