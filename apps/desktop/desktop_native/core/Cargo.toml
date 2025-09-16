@@ -31,7 +31,6 @@ ed25519 = { workspace = true, features = ["pkcs8"] }
 futures = { workspace = true }
 homedir = { workspace = true }
 interprocess = { workspace = true, features = ["tokio"] }
-log = { workspace = true }
 pin-project = { workspace = true }
 pkcs8 = { workspace = true, features = ["alloc", "encryption", "pem"] }
 rand = { workspace = true }
