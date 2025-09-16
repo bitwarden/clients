@@ -104,4 +104,13 @@ export abstract class SsoLoginServiceAbstraction {
    * Remove an email from the cached list of emails that must authenticate via SSO.
    */
   abstract removeFromSsoRequiredCacheIfPresent: (email: string) => Promise<void>;
+
+  /**
+   * Check if the user is required to authenticate via SSO. If so, add their email to a cache list.
+   * We'll use this cache list to display ONLY the "Use single sign-on" button to the
+   * user the next time they are on the /login page.
+   *
+   * If the user is not required to authenticate via SSO, remove their email from the cache list if it is present.
+   */
+  abstract updateSsoRequiredCache: (ssoLoginEmail: string, userId: UserId) => Promise<void>;
 }

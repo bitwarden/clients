@@ -1,7 +1,3 @@
-import { firstValueFrom } from "rxjs";
-
-import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -17,7 +13,6 @@ export class DefaultLoginSuccessHandlerService implements LoginSuccessHandlerSer
   constructor(
     private configService: ConfigService,
     private loginEmailService: LoginEmailService,
-    private policyService: PolicyService,
     private ssoLoginService: SsoLoginServiceAbstraction,
     private syncService: SyncService,
     private userAsymmetricKeysRegenerationService: UserAsymmetricKeysRegenerationService,
@@ -40,26 +35,7 @@ export class DefaultLoginSuccessHandlerService implements LoginSuccessHandlerSer
         return;
       }
 
-      /**
-       * If this user is required to authenticate via SSO, add their email to a cache list.
-       * We'll use this cache list to display ONLY the "Use single sign-on" button to the
-       * user the next time they are on the /login page.
-       */
-      const ssoRequired = await firstValueFrom(
-        this.policyService.policyAppliesToUser$(PolicyType.RequireSso, userId),
-      );
-
-      if (ssoRequired) {
-        await this.ssoLoginService.addToSsoRequiredCache(ssoLoginEmail.toLowerCase());
-      } else {
-        /**
-         * If user is not required to authenticate via SSO, remove email from the cache
-         * list (if it was on the list). This is necessary because the user may have been
-         * required to authenticate via SSO at some point in the past, but now their org
-         * no longer requires SSO authenticaiton.
-         */
-        await this.ssoLoginService.removeFromSsoRequiredCacheIfPresent(ssoLoginEmail.toLowerCase());
-      }
+      await this.ssoLoginService.updateSsoRequiredCache(ssoLoginEmail, userId);
     }
   }
 }

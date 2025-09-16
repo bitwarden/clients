@@ -1,5 +1,7 @@
 import { firstValueFrom, Observable } from "rxjs";
 
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { UserId } from "@bitwarden/common/types/guid";
 
@@ -78,6 +80,7 @@ export class SsoLoginService implements SsoLoginServiceAbstraction {
   constructor(
     private stateProvider: StateProvider,
     private logService: LogService,
+    private policyService: PolicyService,
   ) {
     this.codeVerifierState = this.stateProvider.getGlobal(CODE_VERIFIER);
     this.ssoState = this.stateProvider.getGlobal(SSO_STATE);
@@ -167,5 +170,26 @@ export class SsoLoginService implements SsoLoginServiceAbstraction {
         },
       },
     );
+  }
+
+  async updateSsoRequiredCache(ssoLoginEmail: string, userId: UserId): Promise<void> {
+    const ssoRequired = await firstValueFrom(
+      this.policyService.policyAppliesToUser$(PolicyType.RequireSso, userId),
+    );
+
+    if (ssoRequired) {
+      await this.addToSsoRequiredCache(ssoLoginEmail.toLowerCase());
+    } else {
+      /**
+       * If user is not required to authenticate via SSO, remove email from the cache
+       * list (if it was on the list). This is necessary because the user may have been
+       * required to authenticate via SSO at some point in the past, but now their org
+       * no longer requires SSO authenticaiton.
+       */
+      await this.removeFromSsoRequiredCacheIfPresent(ssoLoginEmail.toLowerCase());
+    }
+
+    // Clear the SSO email
+    await this.setSsoEmail(null);
   }
 }
