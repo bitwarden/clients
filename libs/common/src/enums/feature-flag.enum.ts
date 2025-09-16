@@ -19,7 +19,6 @@ export enum FeatureFlag {
   PM22110_DisableAlternateLoginMethods = "pm-22110-disable-alternate-login-methods",
 
   /* Autofill */
-  NotificationRefresh = "notification-refresh",
   MacOsNativeCredentialSync = "macos-native-credential-sync",
   WindowsDesktopAutotype = "windows-desktop-autotype",
 
@@ -76,7 +75,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.CollectionVaultRefactor]: FALSE,
 
   /* Autofill */
-  [FeatureFlag.NotificationRefresh]: FALSE,
   [FeatureFlag.MacOsNativeCredentialSync]: FALSE,
   [FeatureFlag.WindowsDesktopAutotype]: FALSE,
 

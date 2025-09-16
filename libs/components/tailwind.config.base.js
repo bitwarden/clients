@@ -64,11 +64,6 @@ module.exports = {
         100: rgba("--color-notification-100"),
         600: rgba("--color-notification-600"),
       },
-      // art styles deprecated, use 'illustration' instead
-      art: {
-        primary: rgba("--color-art-primary"),
-        accent: rgba("--color-art-accent"),
-      },
       text: {
         main: rgba("--color-text-main"),
         muted: rgba("--color-text-muted"),
