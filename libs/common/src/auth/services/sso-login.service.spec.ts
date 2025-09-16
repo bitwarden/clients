@@ -1,5 +1,8 @@
 import { mock, MockProxy } from "jest-mock-extended";
+import { of } from "rxjs";
 
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import {
   CODE_VERIFIER,
   GLOBAL_ORGANIZATION_SSO_IDENTIFIER,
@@ -21,6 +24,7 @@ describe("SSOLoginService ", () => {
   let accountService: FakeAccountService;
   let mockStateProvider: FakeStateProvider;
   let mockLogService: MockProxy<LogService>;
+  let mockPolicyService: MockProxy<PolicyService>;
   let userId: UserId;
 
   beforeEach(() => {
@@ -30,8 +34,9 @@ describe("SSOLoginService ", () => {
     accountService = mockAccountServiceWith(userId);
     mockStateProvider = new FakeStateProvider(accountService);
     mockLogService = mock<LogService>();
+    mockPolicyService = mock<PolicyService>();
 
-    sut = new SsoLoginService(mockStateProvider, mockLogService);
+    sut = new SsoLoginService(mockStateProvider, mockLogService, mockPolicyService);
   });
 
   it("instantiates", () => {
@@ -93,49 +98,120 @@ describe("SSOLoginService ", () => {
     );
   });
 
-  describe("addToSsoRequiredCache()", () => {
-    it("should add an email to an empty cache", async () => {
+  describe("updateSsoRequiredCache()", () => {
+    it("should add email to cache when SSO is required", async () => {
       const email = "test@example.com";
-      mockStateProvider.global.getFake(SSO_REQUIRED_CACHE).stateSubject.next([]);
 
-      await sut.addToSsoRequiredCache(email);
+      mockStateProvider.global.getFake(SSO_REQUIRED_CACHE).stateSubject.next([]);
+      mockStateProvider.global.getFake(SSO_EMAIL).stateSubject.next(email);
+      mockPolicyService.policyAppliesToUser$.mockReturnValue(of(true));
+
+      await sut.updateSsoRequiredCache(email, userId);
 
       const cacheState = mockStateProvider.global.getFake(SSO_REQUIRED_CACHE);
-      expect(cacheState.nextMock).toHaveBeenCalledWith([email]);
+      expect(cacheState.nextMock).toHaveBeenCalledWith([email.toLowerCase()]);
+
+      const emailState = mockStateProvider.global.getFake(SSO_EMAIL);
+      expect(emailState.nextMock).toHaveBeenCalledWith(null);
     });
 
-    it("should add an email to an existing cache when that email is not already present", async () => {
+    it("should add email to existing cache when SSO is required and email is not already present", async () => {
       const existingEmail = "existing@example.com";
       const newEmail = "new@example.com";
 
       mockStateProvider.global.getFake(SSO_REQUIRED_CACHE).stateSubject.next([existingEmail]);
+      mockStateProvider.global.getFake(SSO_EMAIL).stateSubject.next(newEmail);
+      mockPolicyService.policyAppliesToUser$.mockReturnValue(of(true));
 
-      await sut.addToSsoRequiredCache(newEmail);
+      await sut.updateSsoRequiredCache(newEmail, userId);
 
       const cacheState = mockStateProvider.global.getFake(SSO_REQUIRED_CACHE);
-      expect(cacheState.nextMock).toHaveBeenCalledWith([existingEmail, newEmail]);
+      expect(cacheState.nextMock).toHaveBeenCalledWith([existingEmail, newEmail.toLowerCase()]);
+
+      const emailState = mockStateProvider.global.getFake(SSO_EMAIL);
+      expect(emailState.nextMock).toHaveBeenCalledWith(null);
     });
 
-    it("should not add a duplicate email to cache", async () => {
+    it("should not add duplicate email to cache when SSO is required", async () => {
       const duplicateEmail = "duplicate@example.com";
 
       mockStateProvider.global.getFake(SSO_REQUIRED_CACHE).stateSubject.next([duplicateEmail]);
+      mockStateProvider.global.getFake(SSO_EMAIL).stateSubject.next(duplicateEmail);
+      mockPolicyService.policyAppliesToUser$.mockReturnValue(of(true));
 
-      await sut.addToSsoRequiredCache(duplicateEmail);
+      await sut.updateSsoRequiredCache(duplicateEmail, userId);
 
       const cacheState = mockStateProvider.global.getFake(SSO_REQUIRED_CACHE);
       expect(cacheState.nextMock).not.toHaveBeenCalled();
+
+      const emailState = mockStateProvider.global.getFake(SSO_EMAIL);
+      expect(emailState.nextMock).toHaveBeenCalledWith(null);
     });
 
-    it("should initialize a new cache with an email when no cache exists", async () => {
+    it("should initialize new cache with email when SSO is required and no cache exists", async () => {
       const email = "test@example.com";
 
       mockStateProvider.global.getFake(SSO_REQUIRED_CACHE).stateSubject.next(null);
+      mockStateProvider.global.getFake(SSO_EMAIL).stateSubject.next(email);
+      mockPolicyService.policyAppliesToUser$.mockReturnValue(of(true));
 
-      await sut.addToSsoRequiredCache(email);
+      await sut.updateSsoRequiredCache(email, userId);
 
       const cacheState = mockStateProvider.global.getFake(SSO_REQUIRED_CACHE);
-      expect(cacheState.nextMock).toHaveBeenCalledWith([email]);
+      expect(cacheState.nextMock).toHaveBeenCalledWith([email.toLowerCase()]);
+
+      const emailState = mockStateProvider.global.getFake(SSO_EMAIL);
+      expect(emailState.nextMock).toHaveBeenCalledWith(null);
+    });
+
+    it("should remove email from cache when SSO is not required", async () => {
+      const emailToRemove = "remove@example.com";
+      const remainingEmail = "keep@example.com";
+
+      mockStateProvider.global
+        .getFake(SSO_REQUIRED_CACHE)
+        .stateSubject.next([emailToRemove, remainingEmail]);
+      mockStateProvider.global.getFake(SSO_EMAIL).stateSubject.next(emailToRemove);
+      mockPolicyService.policyAppliesToUser$.mockReturnValue(of(false));
+
+      await sut.updateSsoRequiredCache(emailToRemove, userId);
+
+      const cacheState = mockStateProvider.global.getFake(SSO_REQUIRED_CACHE);
+      expect(cacheState.nextMock).toHaveBeenCalledWith([remainingEmail]);
+
+      const emailState = mockStateProvider.global.getFake(SSO_EMAIL);
+      expect(emailState.nextMock).toHaveBeenCalledWith(null);
+    });
+
+    it("should not update cache when SSO is not required and email is not present", async () => {
+      const existingEmail = "existing@example.com";
+      const nonExistentEmail = "nonexistent@example.com";
+
+      mockStateProvider.global.getFake(SSO_REQUIRED_CACHE).stateSubject.next([existingEmail]);
+      mockStateProvider.global.getFake(SSO_EMAIL).stateSubject.next(nonExistentEmail);
+      mockPolicyService.policyAppliesToUser$.mockReturnValue(of(false));
+
+      await sut.updateSsoRequiredCache(nonExistentEmail, userId);
+
+      const cacheState = mockStateProvider.global.getFake(SSO_REQUIRED_CACHE);
+      expect(cacheState.nextMock).not.toHaveBeenCalled();
+
+      const emailState = mockStateProvider.global.getFake(SSO_EMAIL);
+      expect(emailState.nextMock).toHaveBeenCalledWith(null);
+    });
+
+    it("should check policy for correct PolicyType and userId", async () => {
+      const email = "test@example.com";
+
+      mockStateProvider.global.getFake(SSO_REQUIRED_CACHE).stateSubject.next([]);
+      mockPolicyService.policyAppliesToUser$.mockReturnValue(of(true));
+
+      await sut.updateSsoRequiredCache(email, userId);
+
+      expect(mockPolicyService.policyAppliesToUser$).toHaveBeenCalledWith(
+        PolicyType.RequireSso,
+        userId,
+      );
     });
   });
 
