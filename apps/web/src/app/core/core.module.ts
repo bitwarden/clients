@@ -41,8 +41,6 @@ import {
   InternalUserDecryptionOptionsServiceAbstraction,
   LoginEmailService,
 } from "@bitwarden/auth/common";
-// eslint-disable-next-line no-restricted-imports
-import { OrganizationIntegrationApiService } from "@bitwarden/bit-common/dirt/integrations";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -113,7 +111,10 @@ import { DefaultSshImportPromptService, SshImportPromptService } from "@bitwarde
 import { WebOrganizationInviteService } from "@bitwarden/web-vault/app/auth/core/services/organization-invite/web-organization-invite.service";
 
 import { flagEnabled } from "../../utils/flags";
-import { PolicyListService } from "../admin-console/core/policy-list.service";
+import {
+  POLICY_EDIT_REGISTER,
+  ossPolicyEditRegister,
+} from "../admin-console/organizations/policies";
 import {
   WebChangePasswordService,
   WebRegistrationFinishService,
@@ -152,7 +153,10 @@ const safeProviders: SafeProvider[] = [
   safeProvider(InitService),
   safeProvider(RouterService),
   safeProvider(EventService),
-  safeProvider(PolicyListService),
+  safeProvider({
+    provide: POLICY_EDIT_REGISTER,
+    useValue: ossPolicyEditRegister,
+  }),
   safeProvider({
     provide: DEFAULT_VAULT_TIMEOUT,
     deps: [PlatformUtilsService],
@@ -398,11 +402,6 @@ const safeProviders: SafeProvider[] = [
     provide: DeviceManagementComponentServiceAbstraction,
     useClass: DefaultDeviceManagementComponentService,
     deps: [],
-  }),
-  safeProvider({
-    provide: OrganizationIntegrationApiService,
-    useClass: OrganizationIntegrationApiService,
-    deps: [ApiService],
   }),
 ];
 

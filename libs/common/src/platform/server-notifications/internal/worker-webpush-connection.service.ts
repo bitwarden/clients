@@ -143,7 +143,7 @@ class MyWebPushConnector implements WebPushConnector {
         await subscriptionUsersState.update(() => subscriptionUsers);
 
         // Inform the server about the new subscription-user association
-        await this.webPushApiService.putSubscription(subscription.toJSON());
+        await this.webPushApiService.putSubscription(subscription.toJSON(), this.userId);
       }),
       switchMap(() => this.pushEvent$),
       map((e) => {

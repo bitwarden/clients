@@ -1,4 +1,5 @@
 import { inject, Injectable } from "@angular/core";
+import { Jsonify } from "type-fest";
 
 import { ViewCacheService } from "@bitwarden/angular/platform/view-cache";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -32,10 +33,10 @@ export class CipherFormCacheService {
    * Update the cache with the new CipherView.
    */
   cacheCipherView(cipherView: CipherView): void {
-    // Create a new shallow reference to force the signal to update
+    // Create a new reference to force the signal to update
     // By default, signals use `Object.is` to determine equality
     // Docs: https://angular.dev/guide/signals#signal-equality-functions
-    this.cipherCache.set({ ...cipherView } as CipherView);
+    this.cipherCache.set(CipherView.fromJSON(cipherView as Jsonify<CipherView>));
   }
 
   /**

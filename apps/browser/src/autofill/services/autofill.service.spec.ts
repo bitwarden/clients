@@ -14,7 +14,7 @@ import { UserNotificationSettingsServiceAbstraction } from "@bitwarden/common/au
 import { InlineMenuVisibilitySetting } from "@bitwarden/common/autofill/types";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EventType } from "@bitwarden/common/enums";
-import { FeatureFlag, FeatureFlagValueType } from "@bitwarden/common/enums/feature-flag.enum";
+import { FeatureFlagValueType } from "@bitwarden/common/enums/feature-flag.enum";
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -741,7 +741,6 @@ describe("AutofillService", () => {
         {
           skipUsernameOnlyFill: autofillOptions.skipUsernameOnlyFill || false,
           onlyEmptyFields: autofillOptions.onlyEmptyFields || false,
-          onlyVisibleFields: autofillOptions.onlyVisibleFields || false,
           fillNewPassword: autofillOptions.fillNewPassword || false,
           allowTotpAutofill: autofillOptions.allowTotpAutofill || false,
           autoSubmitLogin: autofillOptions.allowTotpAutofill || false,
@@ -1070,7 +1069,6 @@ describe("AutofillService", () => {
           skipLastUsed: !fromCommand,
           skipUsernameOnlyFill: !fromCommand,
           onlyEmptyFields: !fromCommand,
-          onlyVisibleFields: !fromCommand,
           fillNewPassword: fromCommand,
           allowUntrustedIframe: fromCommand,
           allowTotpAutofill: fromCommand,
@@ -1100,7 +1098,6 @@ describe("AutofillService", () => {
           skipLastUsed: !fromCommand,
           skipUsernameOnlyFill: !fromCommand,
           onlyEmptyFields: !fromCommand,
-          onlyVisibleFields: !fromCommand,
           fillNewPassword: fromCommand,
           allowUntrustedIframe: fromCommand,
           allowTotpAutofill: fromCommand,
@@ -1127,7 +1124,6 @@ describe("AutofillService", () => {
           skipLastUsed: !fromCommand,
           skipUsernameOnlyFill: !fromCommand,
           onlyEmptyFields: !fromCommand,
-          onlyVisibleFields: !fromCommand,
           fillNewPassword: fromCommand,
           allowUntrustedIframe: fromCommand,
           allowTotpAutofill: fromCommand,
@@ -1306,7 +1302,6 @@ describe("AutofillService", () => {
         skipLastUsed: false,
         skipUsernameOnlyFill: false,
         onlyEmptyFields: false,
-        onlyVisibleFields: false,
         fillNewPassword: false,
         allowUntrustedIframe: true,
         allowTotpAutofill: false,
@@ -1353,7 +1348,6 @@ describe("AutofillService", () => {
         skipLastUsed: false,
         skipUsernameOnlyFill: false,
         onlyEmptyFields: false,
-        onlyVisibleFields: false,
         fillNewPassword: false,
         allowUntrustedIframe: true,
         allowTotpAutofill: false,
@@ -1903,20 +1897,11 @@ describe("AutofillService", () => {
           options,
         );
 
-        expect(AutofillService.loadPasswordFields).toHaveBeenCalledTimes(2);
-        expect(AutofillService.loadPasswordFields).toHaveBeenNthCalledWith(
-          1,
+        expect(AutofillService.loadPasswordFields).toHaveBeenCalledTimes(1);
+        expect(AutofillService.loadPasswordFields).toHaveBeenCalledWith(
           pageDetails,
           false,
           false,
-          options.onlyEmptyFields,
-          options.fillNewPassword,
-        );
-        expect(AutofillService.loadPasswordFields).toHaveBeenNthCalledWith(
-          2,
-          pageDetails,
-          true,
-          true,
           options.onlyEmptyFields,
           options.fillNewPassword,
         );
@@ -1932,36 +1917,7 @@ describe("AutofillService", () => {
           jest.spyOn(autofillService as any, "findTotpField");
         });
 
-        it("will attempt to find a username field from hidden fields if no visible username fields are found", async () => {
-          await autofillService["generateLoginFillScript"](
-            fillScript,
-            pageDetails,
-            filledFields,
-            options,
-          );
-
-          expect(autofillService["findUsernameField"]).toHaveBeenCalledTimes(2);
-          expect(autofillService["findUsernameField"]).toHaveBeenNthCalledWith(
-            1,
-            pageDetails,
-            passwordField,
-            false,
-            false,
-            false,
-          );
-          expect(autofillService["findUsernameField"]).toHaveBeenNthCalledWith(
-            2,
-            pageDetails,
-            passwordField,
-            true,
-            true,
-            false,
-          );
-        });
-
-        it("will not attempt to find a username field from hidden fields if the passed options indicate only visible fields should be referenced", async () => {
-          options.onlyVisibleFields = true;
-
+        it("will attempt to find a username field from visible fields", async () => {
           await autofillService["generateLoginFillScript"](
             fillScript,
             pageDetails,
@@ -1970,56 +1926,17 @@ describe("AutofillService", () => {
           );
 
           expect(autofillService["findUsernameField"]).toHaveBeenCalledTimes(1);
-          expect(autofillService["findUsernameField"]).toHaveBeenNthCalledWith(
-            1,
+          expect(autofillService["findUsernameField"]).toHaveBeenCalledWith(
             pageDetails,
             passwordField,
             false,
             false,
-            false,
-          );
-          expect(autofillService["findUsernameField"]).not.toHaveBeenNthCalledWith(
-            2,
-            pageDetails,
-            passwordField,
-            true,
-            true,
             false,
           );
         });
 
-        it("will attempt to find a totp field from hidden fields if no visible totp fields are found", async () => {
+        it("will attempt to find a totp field from visible fields", async () => {
           options.allowTotpAutofill = true;
-          await autofillService["generateLoginFillScript"](
-            fillScript,
-            pageDetails,
-            filledFields,
-            options,
-          );
-
-          expect(autofillService["findTotpField"]).toHaveBeenCalledTimes(2);
-          expect(autofillService["findTotpField"]).toHaveBeenNthCalledWith(
-            1,
-            pageDetails,
-            passwordField,
-            false,
-            false,
-            false,
-          );
-          expect(autofillService["findTotpField"]).toHaveBeenNthCalledWith(
-            2,
-            pageDetails,
-            passwordField,
-            true,
-            true,
-            false,
-          );
-        });
-
-        it("will not attempt to find a totp field from hidden fields if the passed options indicate only visible fields should be referenced", async () => {
-          options.allowTotpAutofill = true;
-          options.onlyVisibleFields = true;
-
           await autofillService["generateLoginFillScript"](
             fillScript,
             pageDetails,
@@ -2028,20 +1945,11 @@ describe("AutofillService", () => {
           );
 
           expect(autofillService["findTotpField"]).toHaveBeenCalledTimes(1);
-          expect(autofillService["findTotpField"]).toHaveBeenNthCalledWith(
-            1,
+          expect(autofillService["findTotpField"]).toHaveBeenCalledWith(
             pageDetails,
             passwordField,
             false,
             false,
-            false,
-          );
-          expect(autofillService["findTotpField"]).not.toHaveBeenNthCalledWith(
-            2,
-            pageDetails,
-            passwordField,
-            true,
-            true,
             false,
           );
         });
@@ -2085,40 +1993,9 @@ describe("AutofillService", () => {
           );
         });
 
-        it("will attempt to match a password field that does not contain a form to a username field that is not visible", async () => {
+        it("will not attempt to match a password field that does not contain a form to a username field that is not visible", async () => {
           usernameField.viewable = false;
           usernameField.readonly = true;
-
-          await autofillService["generateLoginFillScript"](
-            fillScript,
-            pageDetails,
-            filledFields,
-            options,
-          );
-
-          expect(autofillService["findUsernameField"]).toHaveBeenCalledTimes(2);
-          expect(autofillService["findUsernameField"]).toHaveBeenNthCalledWith(
-            1,
-            pageDetails,
-            passwordField,
-            false,
-            false,
-            true,
-          );
-          expect(autofillService["findUsernameField"]).toHaveBeenNthCalledWith(
-            2,
-            pageDetails,
-            passwordField,
-            true,
-            true,
-            true,
-          );
-        });
-
-        it("will not attempt to match a password field that does not contain a form to a username field that is not visible if the passed options indicate only visible fields", async () => {
-          usernameField.viewable = false;
-          usernameField.readonly = true;
-          options.onlyVisibleFields = true;
 
           await autofillService["generateLoginFillScript"](
             fillScript,
@@ -2128,20 +2005,11 @@ describe("AutofillService", () => {
           );
 
           expect(autofillService["findUsernameField"]).toHaveBeenCalledTimes(1);
-          expect(autofillService["findUsernameField"]).toHaveBeenNthCalledWith(
-            1,
+          expect(autofillService["findUsernameField"]).toHaveBeenCalledWith(
             pageDetails,
             passwordField,
             false,
             false,
-            true,
-          );
-          expect(autofillService["findUsernameField"]).not.toHaveBeenNthCalledWith(
-            2,
-            pageDetails,
-            passwordField,
-            true,
-            true,
             true,
           );
         });
@@ -2166,8 +2034,7 @@ describe("AutofillService", () => {
           );
         });
 
-        it("will attempt to match a password field that does not contain a form to a TOTP field that is not visible", async () => {
-          options.onlyVisibleFields = false;
+        it("will not attempt to match a password field that does not contain a form to a TOTP field that is not visible", async () => {
           options.allowTotpAutofill = true;
           totpField.viewable = false;
           totpField.readonly = true;
@@ -2179,21 +2046,13 @@ describe("AutofillService", () => {
             options,
           );
 
-          expect(autofillService["findTotpField"]).toHaveBeenCalledTimes(2);
+          expect(autofillService["findTotpField"]).toHaveBeenCalledTimes(1);
           expect(autofillService["findTotpField"]).toHaveBeenNthCalledWith(
             1,
             pageDetails,
             passwordField,
             false,
             false,
-            true,
-          );
-          expect(autofillService["findTotpField"]).toHaveBeenNthCalledWith(
-            2,
-            pageDetails,
-            passwordField,
-            true,
-            true,
             true,
           );
         });
@@ -2987,12 +2846,6 @@ describe("AutofillService", () => {
             options.cipher.card.expMonth = "5";
           }
 
-          const enableNewCardCombinedExpiryAutofill = await configService.getFeatureFlag(
-            FeatureFlag.EnableNewCardCombinedExpiryAutofill,
-          );
-
-          expect(enableNewCardCombinedExpiryAutofill).toEqual(false);
-
           const value = await autofillService["generateCardFillScript"](
             fillScript,
             pageDetails,
@@ -3002,23 +2855,6 @@ describe("AutofillService", () => {
 
           expect(value.script[2]).toStrictEqual(["fill_by_opid", "expirationDate", dateFormat[1]]);
         });
-      });
-
-      it("returns an expiration date format matching `yyyy-mm` if no valid format can be identified", async () => {
-        const value = await autofillService["generateCardFillScript"](
-          fillScript,
-          pageDetails,
-          filledFields,
-          options,
-        );
-
-        const enableNewCardCombinedExpiryAutofill = await configService.getFeatureFlag(
-          FeatureFlag.EnableNewCardCombinedExpiryAutofill,
-        );
-
-        expect(enableNewCardCombinedExpiryAutofill).toEqual(false);
-
-        expect(value.script[2]).toStrictEqual(["fill_by_opid", "expirationDate", "2024-05"]);
       });
     });
 
@@ -3092,12 +2928,6 @@ describe("AutofillService", () => {
             options.cipher.card.expMonth = "05";
           }
 
-          const enableNewCardCombinedExpiryAutofill = await configService.getFeatureFlag(
-            FeatureFlag.EnableNewCardCombinedExpiryAutofill,
-          );
-
-          expect(enableNewCardCombinedExpiryAutofill).toEqual(true);
-
           const value = await autofillService["generateCardFillScript"](
             fillScript,
             pageDetails,
@@ -3107,23 +2937,6 @@ describe("AutofillService", () => {
 
           expect(value.script[2]).toStrictEqual(["fill_by_opid", "expirationDate", dateFormat[1]]);
         });
-      });
-
-      it("feature-flagged logic returns an expiration date format matching `mm/yy` if no valid format can be identified", async () => {
-        const value = await autofillService["generateCardFillScript"](
-          fillScript,
-          pageDetails,
-          filledFields,
-          options,
-        );
-
-        const enableNewCardCombinedExpiryAutofill = await configService.getFeatureFlag(
-          FeatureFlag.EnableNewCardCombinedExpiryAutofill,
-        );
-
-        expect(enableNewCardCombinedExpiryAutofill).toEqual(true);
-
-        expect(value.script[2]).toStrictEqual(["fill_by_opid", "expirationDate", "05/24"]);
       });
     });
   });
@@ -4532,6 +4345,34 @@ describe("AutofillService", () => {
       );
 
       expect(result).toBe(totpField);
+    });
+
+    it("returns null if the totp field matches excluded TOTP field names via htmlID", () => {
+      totpField.htmlID = "recovery-code";
+
+      const result = autofillService["findTotpField"](
+        pageDetails,
+        passwordField,
+        false,
+        false,
+        false,
+      );
+
+      expect(result).toBeNull();
+    });
+
+    it("returns null if the totp field matches excluded TOTP field names via htmlName", () => {
+      totpField.htmlName = "backup";
+
+      const result = autofillService["findTotpField"](
+        pageDetails,
+        passwordField,
+        false,
+        false,
+        false,
+      );
+
+      expect(result).toBeNull();
     });
   });
 

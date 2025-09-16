@@ -24,7 +24,6 @@ export class ItemFooterComponent implements OnInit {
   @Input({ required: true }) cipher: CipherView = new CipherView();
   @Input() collectionId: string | null = null;
   @Input({ required: true }) action: string = "view";
-  @Input() isSubmitting: boolean = false;
   @Input() masterPasswordAlreadyPrompted: boolean = false;
   @Output() onEdit = new EventEmitter<CipherView>();
   @Output() onClone = new EventEmitter<CipherView>();

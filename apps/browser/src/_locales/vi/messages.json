@@ -556,6 +556,9 @@
   "view": {
     "message": "Xem"
   },
+  "viewLogin": {
+    "message": "Xem đăng nhập"
+  },
   "noItemsInList": {
     "message": "Không có mục nào để liệt kê."
   },
@@ -1760,14 +1763,8 @@
   "popupU2fCloseMessage": {
     "message": "Trình duyệt này không thể xử lý các yêu cầu U2F trong cửa sổ popup này. Bạn có muốn mở popup này trong cửa sổ mới để bạn có thể đăng nhập thông qua U2F?"
   },
-  "enableFavicon": {
-    "message": "Hiển thị biểu tượng trang web"
-  },
-  "faviconDesc": {
-    "message": "Hiển thị một ảnh nhận dạng bên cạnh mỗi lần đăng nhập."
-  },
-  "faviconDescAlt": {
-    "message": "Hiển thị một biểu tượng dễ nhận dạng bên cạnh mỗi mục đăng nhập. Áp dụng với mọi tài khoản đăng nhập trên thiết bị."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "enableBadgeCounter": {
     "message": "Hiển thị biểu tượng bộ đếm"
@@ -4132,10 +4129,10 @@
     "message": "Chọn bộ sưu tập"
   },
   "importTargetHintCollection": {
-    "message": "Select this option if you want the imported file contents moved to a collection"
+    "message": "Chọn tùy chọn này nếu bạn muốn nội dung tệp đã nhập được chuyển vào một bộ sưu tập"
   },
   "importTargetHintFolder": {
-    "message": "Select this option if you want the imported file contents moved to a folder"
+    "message": "Chọn tùy chọn này nếu bạn muốn nội dung tệp đã nhập được chuyển vào một thư mục"
   },
   "importUnassignedItemsError": {
     "message": "Tập tin chứa các mục không xác định."
@@ -5113,6 +5110,18 @@
   "showNumberOfAutofillSuggestions": {
     "message": "Hiển thị số lượng đề xuất tự động điền đăng nhập trên biểu tượng tiện ích mở rộng"
   },
+  "accountAccessRequested": {
+    "message": "Yêu cầu truy cập tài khoản"
+  },
+  "confirmAccessAttempt": {
+    "message": "Phê duyệt yêu cầu truy cập cho $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "showQuickCopyActions": {
     "message": "Hiển thị các hành động sao chép nhanh trên Kho"
   },
@@ -5440,6 +5449,12 @@
   "changeAtRiskPassword": {
     "message": "Thay đổi mật khẩu có rủi ro"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Thông tin đăng nhập này có rủi ro và thiếu một trang web. Hãy thêm trang web và đổi mật khẩu để tăng cường bảo mật."
+  },
+  "missingWebsite": {
+    "message": "Thiếu trang web"
+  },
   "settingsVaultOptions": {
     "message": "Tùy chọn kho"
   },
@@ -5563,6 +5578,12 @@
     "message": "Dễ dàng tạo mật khẩu mạnh và duy nhất bằng cách nhấp vào Trình tạo mật khẩu để giúp bạn bảo vệ tài khoản đăng nhập của mình.",
     "description": "Aria label for the body content of the generator nudge"
   },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+  },
   "noPermissionsViewPage": {
     "message": "Bạn không có quyền truy cập vào trang này. Hãy thử đăng nhập bằng tài khoản khác."
   },
@@ -5576,8 +5597,14 @@
   "showLess": {
     "message": "Thu gọn"
   },
+  "next": {
+    "message": "Tiếp theo"
+  },
   "moreBreadcrumbs": {
     "message": "Thêm mục điều hướng",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Xác nhận tên miền Key Connector"
   }
 }

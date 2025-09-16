@@ -4,6 +4,7 @@ import {
   distinctUntilChanged,
   EMPTY,
   filter,
+  firstValueFrom,
   map,
   mergeMap,
   Observable,
@@ -14,9 +15,11 @@ import {
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { LogoutReason } from "@bitwarden/auth/common";
+import { AuthRequestAnsweringServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { trackedMerge } from "@bitwarden/common/platform/misc";
 
-import { AccountService } from "../../../auth/abstractions/account.service";
+import { AccountInfo, AccountService } from "../../../auth/abstractions/account.service";
 import { AuthService } from "../../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
 import { NotificationType } from "../../../enums";
@@ -41,6 +44,10 @@ import { WebPushConnectionService } from "./webpush-connection.service";
 
 export const DISABLED_NOTIFICATIONS_URL = "http://-";
 
+export const AllowedMultiUserNotificationTypes = new Set<NotificationType>([
+  NotificationType.AuthRequest,
+]);
+
 export class DefaultServerNotificationsService implements ServerNotificationsService {
   notifications$: Observable<readonly [NotificationResponse, UserId]>;
 
@@ -57,23 +64,51 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
     private readonly signalRConnectionService: SignalRConnectionService,
     private readonly authService: AuthService,
     private readonly webPushConnectionService: WebPushConnectionService,
+    private readonly authRequestAnsweringService: AuthRequestAnsweringServiceAbstraction,
     private readonly configService: ConfigService,
   ) {
-    this.notifications$ = this.accountService.activeAccount$.pipe(
-      map((account) => account?.id),
-      distinctUntilChanged(),
-      switchMap((activeAccountId) => {
-        if (activeAccountId == null) {
-          // We don't emit server-notifications for inactive accounts currently
-          return EMPTY;
-        }
+    this.notifications$ = this.configService
+      .getFeatureFlag$(FeatureFlag.InactiveUserServerNotification)
+      .pipe(
+        distinctUntilChanged(),
+        switchMap((inactiveUserServerNotificationEnabled) => {
+          if (inactiveUserServerNotificationEnabled) {
+            return this.accountService.accounts$.pipe(
+              map((accounts: Record<UserId, AccountInfo>): Set<UserId> => {
+                const validUserIds = Object.entries(accounts)
+                  .filter(
+                    ([_, accountInfo]) => accountInfo.email !== "" || accountInfo.emailVerified,
+                  )
+                  .map(([userId, _]) => userId as UserId);
+                return new Set(validUserIds);
+              }),
+              trackedMerge((id: UserId) => {
+                return this.userNotifications$(id as UserId).pipe(
+                  map(
+                    (notification: NotificationResponse) => [notification, id as UserId] as const,
+                  ),
+                );
+              }),
+            );
+          }
 
-        return this.userNotifications$(activeAccountId).pipe(
-          map((notification) => [notification, activeAccountId] as const),
-        );
-      }),
-      share(), // Multiple subscribers should only create a single connection to the server
-    );
+          return this.accountService.activeAccount$.pipe(
+            map((account) => account?.id),
+            distinctUntilChanged(),
+            switchMap((activeAccountId) => {
+              if (activeAccountId == null) {
+                // We don't emit server-notifications for inactive accounts currently
+                return EMPTY;
+              }
+
+              return this.userNotifications$(activeAccountId).pipe(
+                map((notification) => [notification, activeAccountId] as const),
+              );
+            }),
+          );
+        }),
+        share(), // Multiple subscribers should only create a single connection to the server
+      );
   }
 
   /**
@@ -81,7 +116,7 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
    * @param userId The user id of the user to get the push server notifications for.
    */
   private userNotifications$(userId: UserId) {
-    return this.environmentService.environment$.pipe(
+    return this.environmentService.getEnvironment$(userId).pipe(
       map((env) => env.getNotificationsUrl()),
       distinctUntilChanged(),
       switchMap((notificationsUrl) => {
@@ -137,6 +172,7 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
 
   private hasAccessToken$(userId: UserId) {
     return this.configService.getFeatureFlag$(FeatureFlag.PushNotificationsWhenLocked).pipe(
+      distinctUntilChanged(),
       switchMap((featureFlagEnabled) => {
         if (featureFlagEnabled) {
           return this.authService.authStatusFor$(userId).pipe(
@@ -166,6 +202,21 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
     const payloadUserId = notification.payload?.userId || notification.payload?.UserId;
     if (payloadUserId != null && payloadUserId !== userId) {
       return;
+    }
+
+    if (
+      await firstValueFrom(
+        this.configService.getFeatureFlag$(FeatureFlag.InactiveUserServerNotification),
+      )
+    ) {
+      const activeAccountId = await firstValueFrom(
+        this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+      );
+
+      const isActiveUser = activeAccountId === userId;
+      if (!isActiveUser && !AllowedMultiUserNotificationTypes.has(notification.type)) {
+        return;
+      }
     }
 
     switch (notification.type) {
@@ -227,8 +278,16 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
         await this.syncService.syncDeleteSend(notification.payload as SyncSendNotification);
         break;
       case NotificationType.AuthRequest:
-        // create notification
-
+        if (
+          await firstValueFrom(
+            this.configService.getFeatureFlag$(FeatureFlag.PM14938_BrowserExtensionLoginApproval),
+          )
+        ) {
+          await this.authRequestAnsweringService.receivedPendingAuthRequest(
+            notification.payload.userId,
+            notification.payload.id,
+          );
+        }
         this.messagingService.send("openLoginApproval", {
           notificationId: notification.payload.id,
         });
@@ -239,6 +298,17 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
       case NotificationType.SyncOrganizationCollectionSettingChanged:
         await this.syncService.fullSync(true);
         break;
+      case NotificationType.OrganizationBankAccountVerified:
+        this.messagingService.send("organizationBankAccountVerified", {
+          organizationId: notification.payload.organizationId,
+        });
+        break;
+      case NotificationType.ProviderBankAccountVerified:
+        this.messagingService.send("providerBankAccountVerified", {
+          providerId: notification.payload.providerId,
+          adminId: notification.payload.adminId,
+        });
+        break;
       default:
         break;
     }
@@ -247,11 +317,23 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
   startListening() {
     return this.notifications$
       .pipe(
-        mergeMap(async ([notification, userId]) => this.processNotification(notification, userId)),
+        mergeMap(async ([notification, userId]) => {
+          try {
+            await this.processNotification(notification, userId);
+          } catch (err: unknown) {
+            this.logService.error(
+              `Problem processing notification of type ${notification.type}`,
+              err,
+            );
+          }
+        }),
       )
       .subscribe({
-        error: (e: unknown) =>
-          this.logService.warning("Error in server notifications$ observable", e),
+        error: (err: unknown) =>
+          this.logService.error(
+            "Fatal error in server notifications$ observable, notifications won't be recieved anymore.",
+            err,
+          ),
       });
   }
 
