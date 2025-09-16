@@ -119,8 +119,8 @@ export class TooltipDirective implements OnInit {
         const preferredPosition = this.tooltipPosition();
         const positions = this.computePositions(preferredPosition);
         this.positionStrategy.withPositions(positions);
-        this.overlayRef.updatePosition();
-        this.tooltipRef.setInput("tooltipPosition", preferredPosition);
+        this.overlayRef?.updatePosition();
+        this.tooltipRef?.setInput("tooltipPosition", preferredPosition);
       },
       { injector: this.injector },
     );
