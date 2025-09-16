@@ -9,6 +9,7 @@ import { Icon, isIcon } from "@bitwarden/assets/svg";
     "[attr.aria-hidden]": "!ariaLabel()",
     "[attr.aria-label]": "ariaLabel()",
     "[innerHtml]": "innerHtml",
+    class: "tw-max-h-full tw-flex tw-justify-center",
   },
   template: ``,
 })

@@ -52,10 +52,6 @@
   --color-notification-100: 255 225 247;
   --color-notification-600: 192 17 118;
 
-  /*art styles deprecated, use 'illustration' instead*/
-  --color-art-primary: 2 15 102;
-  --color-art-accent: 44 221 223;
-
   --color-text-main: 27 32 41;
   --color-text-muted: 96 109 145;
   --color-text-contrast: 255 255 255;
@@ -122,10 +118,6 @@
 
   --color-notification-100: 117 37 83;
   --color-notification-600: 255 143 208;
-
-  /*art styles deprecated, use 'illustration' instead*/
-  --color-art-primary: 243 246 249;
-  --color-art-accent: 44 221 233;
 
   --color-text-main: 243 246 249;
   --color-text-muted: 136 152 181;
