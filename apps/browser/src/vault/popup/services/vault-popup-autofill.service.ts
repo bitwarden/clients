@@ -268,7 +268,7 @@ export class VaultPopupAutofillService {
       });
       return false;
     }
-    // notify overlay background that a cipher was used from vault popup
+    // notify background that a vault cipher was used to autofill in order to update inline menu cipher ordering.
     this.messagingService.send("vaultAutofillSuggestionUsed", { cipherId: cipher.id });
 
     return true;

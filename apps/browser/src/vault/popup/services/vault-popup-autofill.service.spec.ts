@@ -218,7 +218,7 @@ describe("VaultPopupAutofillService", () => {
         mockAutofillService.doAutoFill.mockRejectedValue(null);
         const result = await service.doAutofill(mockCipher);
         expect(result).toBe(false);
-        expect(mockMessagingService.send).not.toHaveBeenCalledWith("vaultPopupAutofillUsedCipher");
+        expect(mockMessagingService.send).not.toHaveBeenCalledWith("vaultAutofillSuggestionUsed");
         expect(mockToastService.showToast).toHaveBeenCalledWith({
           variant: "error",
           title: null,
@@ -230,7 +230,7 @@ describe("VaultPopupAutofillService", () => {
         jest.spyOn(BrowserApi, "getTabFromCurrentWindow").mockResolvedValue(null);
         const result = await service.doAutofill(mockCipher);
         expect(result).toBe(false);
-        expect(mockMessagingService.send).not.toHaveBeenCalledWith("vaultPopupAutofillUsedCipher");
+        expect(mockMessagingService.send).not.toHaveBeenCalledWith("vaultAutofillSuggestionUsed");
         expect(mockToastService.showToast).toHaveBeenCalledWith({
           variant: "error",
           title: null,
@@ -242,7 +242,7 @@ describe("VaultPopupAutofillService", () => {
         mockPageDetails$.next([]);
         const result = await service.doAutofill(mockCipher);
         expect(result).toBe(false);
-        expect(mockMessagingService.send).not.toHaveBeenCalledWith("vaultPopupAutofillUsedCipher");
+        expect(mockMessagingService.send).not.toHaveBeenCalledWith("vaultAutofillSuggestionUsed");
         expect(mockToastService.showToast).toHaveBeenCalledWith({
           variant: "error",
           title: null,
@@ -255,7 +255,7 @@ describe("VaultPopupAutofillService", () => {
         mockPasswordRepromptService.showPasswordPrompt.mockResolvedValue(false);
         const result = await service.doAutofill(mockCipher);
         expect(result).toBe(false);
-        expect(mockMessagingService.send).not.toHaveBeenCalledWith("vaultPopupAutofillUsedCipher");
+        expect(mockMessagingService.send).not.toHaveBeenCalledWith("vaultAutofillSuggestionUsed");
       });
 
       it("should copy TOTP code to clipboard if available", async () => {
