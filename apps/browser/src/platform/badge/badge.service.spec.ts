@@ -69,6 +69,13 @@ describe("BadgeService", () => {
           expect(badgeApi.specificStates[tabId]).toEqual(DefaultBadgeState);
         });
 
+        it("sets default values even if state function never emits", async () => {
+          badgeService.setState("state-name", (_tab) => EMPTY);
+
+          await new Promise((resolve) => setTimeout(resolve, 0));
+          expect(badgeApi.specificStates[tabId]).toEqual(DefaultBadgeState);
+        });
+
         it("merges states when multiple same-priority states have been set", async () => {
           await badgeService.setState(
             "state-1",
