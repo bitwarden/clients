@@ -345,6 +345,20 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   }
 
   /**
+   * When a user uses an autofill suggestion, update the cipher's last used date.
+   *
+   * @param message - The message containing the cipher ID that was used
+   */
+  async handleAutofillSuggestionUsed(message: { cipherId: string }) {
+    const activeUserId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(getOptionalUserId),
+    );
+    if (activeUserId) {
+      await this.cipherService.updateLastUsedDate(message.cipherId, activeUserId);
+    }
+  }
+
+  /**
    * Handles a throttled update of the inline menu ciphers, acting on the emission of a value from
    * an observable. Will update on the first and last emissions within a 100ms time frame.
    *

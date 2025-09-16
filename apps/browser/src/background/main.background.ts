@@ -50,10 +50,7 @@ import { UserVerificationApiServiceAbstraction } from "@bitwarden/common/auth/ab
 import { UserVerificationService as UserVerificationServiceAbstraction } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { AuthServerNotificationTags } from "@bitwarden/common/auth/enums/auth-server-notification-tags";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import {
-  AccountServiceImplementation,
-  getOptionalUserId,
-} from "@bitwarden/common/auth/services/account.service";
+import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
 import { AuthRequestAnsweringService } from "@bitwarden/common/auth/services/auth-request-answering/auth-request-answering.service";
 import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
 import { AuthService } from "@bitwarden/common/auth/services/auth.service";
@@ -1549,13 +1546,8 @@ export default class MainBackground {
   }
 
   async handleVaultAutofillSuggestionUsed(message: { cipherId: string }) {
-    if (this.overlayBackground && message.cipherId) {
-      const activeUserId = await firstValueFrom(
-        this.accountService.activeAccount$.pipe(getOptionalUserId),
-      );
-      if (activeUserId) {
-        await this.cipherService.updateLastUsedDate(message.cipherId, activeUserId);
-      }
+    if (this.overlayBackground && message?.cipherId) {
+      await this.overlayBackground.handleAutofillSuggestionUsed(message);
     }
   }
 
