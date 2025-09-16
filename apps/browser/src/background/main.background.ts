@@ -881,7 +881,6 @@ export default class MainBackground {
     );
 
     this.restrictedItemTypesService = new RestrictedItemTypesService(
-      this.configService,
       this.accountService,
       this.organizationService,
       this.policyService,

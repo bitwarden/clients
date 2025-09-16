@@ -690,7 +690,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: RestrictedItemTypesService,
     useClass: RestrictedItemTypesService,
-    deps: [ConfigService, AccountService, OrganizationServiceAbstraction, PolicyServiceAbstraction],
+    deps: [AccountService, OrganizationServiceAbstraction, PolicyServiceAbstraction],
   }),
   safeProvider({
     provide: PasswordStrengthServiceAbstraction,

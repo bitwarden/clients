@@ -47,7 +47,6 @@ export enum FeatureFlag {
   PM22134SdkCipherListView = "pm-22134-sdk-cipher-list-view",
   PM22136_SdkCipherEncryption = "pm-22136-sdk-cipher-encryption",
   CipherKeyEncryption = "cipher-key-encryption",
-  RemoveCardItemTypePolicy = "pm-16442-remove-card-item-type-policy",
 
   /* Platform */
   IpcChannelFramework = "ipc-channel-framework",
@@ -88,7 +87,6 @@ export const DefaultFeatureFlagValue = {
   /* Vault */
   [FeatureFlag.CipherKeyEncryption]: FALSE,
   [FeatureFlag.PM19941MigrateCipherDomainToSdk]: FALSE,
-  [FeatureFlag.RemoveCardItemTypePolicy]: FALSE,
   [FeatureFlag.PM22134SdkCipherListView]: FALSE,
   [FeatureFlag.PM22136_SdkCipherEncryption]: FALSE,
 
