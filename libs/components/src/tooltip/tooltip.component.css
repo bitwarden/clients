@@ -1,0 +1,90 @@
+.bit-tooltip {
+  position: relative;
+  opacity: 0;
+  max-width: 12rem;
+  background-color: rgb(var(--color-text-main));
+  color: rgb(var(--color-text-contrast));
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.375rem;
+  transition:
+    transform 100ms ease-in-out,
+    opacity 100ms ease-in-out;
+  transform: scale(0.95);
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  z-index: 1000;
+
+  &::before {
+    content: "";
+    position: absolute;
+    width: 1.5rem;
+    height: 1.5rem;
+    background-color: rgb(var(--color-text-main));
+    z-index: -1;
+    rotate: 45deg;
+    border-radius: 3px;
+  }
+
+  &[data-visible="true"] {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  &[data-position^="above"],
+  &[data-position^="below"] {
+    &::before {
+      inset-inline-start: 50%;
+      transform: translateX(-50%);
+      transform-origin: left;
+    }
+  }
+
+  &[data-position^="above"] {
+    &::before {
+      inset-block-end: -0.25rem;
+    }
+  }
+
+  &[data-position^="below"]::before {
+    inset-block-start: -0.25rem;
+  }
+
+  &[data-position^="left"],
+  &[data-position^="right"] {
+    &::before {
+      inset-block-start: 50%;
+      transform: translateY(-50%);
+      transform-origin: top;
+    }
+  }
+
+  &[data-position^="left"] {
+    &::before {
+      inset-inline-end: -0.25rem;
+    }
+  }
+
+  &[data-position^="right"] {
+    &::before {
+      inset-inline-start: -0.25rem;
+    }
+  }
+}
+
+/* .bit-tooltip:hover,
+.bit-tooltip.tw-group-hover/tooltip:hover {
+  opacity: 1;
+  tw-relative tw-opacity-0 tw-max-w-48 tw-bg-text-main tw-text-contrast tw-py-2 tw-px-3 tw-rounded tw-transition-[transform,
+  opacity] tw-duration-100 tw-ease-in-out before: tw-absolute before:tw-content-[''] before:tw-size-6 before:tw-rounded-[3px] before:tw-bg-text-main before:tw-z-[-1] before:tw-left-[50%] before:tw--translate-x-[50%]
+} */
+
+/* [ngClass]="{
+ 'tw-opacity-0 tw-scale-95': !isVisible(),
+'tw-opacity-100 tw-scale-100': isVisible(),
+'before:tw-bottom-[-6px] before:tw-rotate-45': tooltipPosition().startsWith ('above'),
+'before:tw-top-[-6px] before:tw-rotate-[225deg] before:tw-start-[50%] before:tw--translate-x-[50%]': tooltipPosition().startsWith ('below'),
+'before:tw-end-[-6px] before:tw-rotate-[135deg]': tooltipPosition().startsWith ('left'),
+'before:tw-start-[-6px] before:tw-rotate-[-45deg]': tooltipPosition().startsWith ('right'),
+}
+
+" */

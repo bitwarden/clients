@@ -1,0 +1,8 @@
+<div
+  role="tooltip"
+  class="bit-tooltip"
+  [attr.data-position]="tooltipPosition()"
+  [attr.data-visible]="isVisible()"
+>
+  <ng-content>{{ content() }}</ng-content>
+</div>
