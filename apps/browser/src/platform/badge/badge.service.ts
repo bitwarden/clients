@@ -172,11 +172,8 @@ export class BadgeService {
    * @param tabId Tab id for which the the latest state change applied to. Set this to activeTab.tabId to force an update.
    * @param activeTabs The currently active tabs. If not provided, it will be fetched from the badge API.
    */
-  private async updateBadge(
-    serviceState: Record<string, BadgeStateSetting> | BadgeStateSetting[] | null | undefined,
-    tabId: number,
-  ) {
-    const newBadgeState = this.calculateState(new Set(Object.values(serviceState ?? {})));
+  private async updateBadge(serviceState: BadgeStateSetting[], tabId: number) {
+    const newBadgeState = this.calculateState(new Set(serviceState));
     try {
       await this.badgeApi.setState(newBadgeState, tabId);
     } catch (error) {
