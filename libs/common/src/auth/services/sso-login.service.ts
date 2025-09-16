@@ -123,6 +123,10 @@ export class SsoLoginService implements SsoLoginServiceAbstraction {
     await this.ssoEmailState.update((_) => email);
   }
 
+  private async clearSsoEmail(): Promise<void> {
+    await this.ssoEmailState.update((_) => null);
+  }
+
   getActiveUserOrganizationSsoIdentifier(userId: UserId): Promise<string | null> {
     return firstValueFrom(this.userOrgSsoIdentifierState(userId).state$);
   }
@@ -193,6 +197,6 @@ export class SsoLoginService implements SsoLoginServiceAbstraction {
     }
 
     // Clear the SSO email
-    await this.setSsoEmail(null);
+    await this.clearSsoEmail();
   }
 }
