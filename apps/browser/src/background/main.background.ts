@@ -894,7 +894,11 @@ export default class MainBackground {
       this.restrictedItemTypesService,
     );
 
-    this.ssoLoginService = new SsoLoginService(this.stateProvider, this.logService);
+    this.ssoLoginService = new SsoLoginService(
+      this.stateProvider,
+      this.logService,
+      this.policyService,
+    );
 
     this.userVerificationApiService = new UserVerificationApiService(this.apiService);
 
