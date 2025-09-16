@@ -836,9 +836,15 @@ pub mod logging {
     use napi::threadsafe_function::{
         ErrorStrategy::CalleeHandled, ThreadsafeFunction, ThreadsafeFunctionCallMode,
     };
+    // use tracing::level_filters::LevelFilter;
     use tracing::Level;
     use tracing_subscriber::fmt::format::{DefaultVisitor, Writer};
-    use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt, Layer};
+    use tracing_subscriber::{
+        filter::{EnvFilter, LevelFilter},
+        layer::SubscriberExt,
+        util::SubscriberInitExt,
+        Layer,
+    };
 
     struct JsLogger(OnceLock<ThreadsafeFunction<(LogLevel, String), CalleeHandled>>);
     static JS_LOGGER: JsLogger = JsLogger(OnceLock::new());
@@ -903,7 +909,17 @@ pub mod logging {
     pub fn init_napi_log(js_log_fn: ThreadsafeFunction<(LogLevel, String), CalleeHandled>) {
         let _ = JS_LOGGER.0.set(js_log_fn);
 
-        tracing_subscriber::registry().with(JsLayer).init();
+        let filter = EnvFilter::builder()
+            // set the default log level to INFO.
+            .with_default_directive(LevelFilter::INFO.into())
+            // parse directives from the RUST_LOG environment variable,
+            // overriding the default directive for matching targets.
+            .from_env_lossy();
+
+        tracing_subscriber::registry()
+            .with(filter)
+            .with(JsLayer)
+            .init();
     }
 }
 
