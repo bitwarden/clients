@@ -609,23 +609,6 @@ describe("NotificationBackground", () => {
         expect(pushChangePasswordToQueueSpy).not.toHaveBeenCalled();
       });
 
-      it("skips adding a change password message if more than one existing cipher is found with a matching password ", async () => {
-        const data: ModifyLoginCipherFormData = {
-          ...mockModifyLoginCipherFormData,
-          uri: "https://example.com",
-        };
-        activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
-        getAllDecryptedForUrlSpy.mockResolvedValueOnce([
-          mock<CipherView>({ login: { username: "test", password: "password" } }),
-          mock<CipherView>({ login: { username: "test2", password: "password" } }),
-        ]);
-
-        await notificationBackground.triggerChangedPasswordNotification(data, tab);
-
-        expect(getAllDecryptedForUrlSpy).toHaveBeenCalled();
-        expect(pushChangePasswordToQueueSpy).not.toHaveBeenCalled();
-      });
-
       it("adds a change password message to the queue if a single cipher matches the passed current password", async () => {
         const data: ModifyLoginCipherFormData = {
           ...mockModifyLoginCipherFormData,
@@ -649,21 +632,32 @@ describe("NotificationBackground", () => {
         );
       });
 
-      it("skips adding a change password message if no current password is passed in the message and more than one cipher is found for a url", async () => {
+      it("adds a change password message with all matching ciphers if no current password is passed and more than one cipher is found for a url", async () => {
         const data: ModifyLoginCipherFormData = {
           ...mockModifyLoginCipherFormData,
           uri: "https://example.com",
+          password: null,
         };
         activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
         getAllDecryptedForUrlSpy.mockResolvedValueOnce([
-          mock<CipherView>({ login: { username: "test", password: "password" } }),
-          mock<CipherView>({ login: { username: "test2", password: "password" } }),
+          mock<CipherView>({
+            id: "cipher-id-1",
+            login: { username: "test", password: "password" },
+          }),
+          mock<CipherView>({
+            id: "cipher-id-2",
+            login: { username: "test2", password: "password" },
+          }),
         ]);
 
         await notificationBackground.triggerChangedPasswordNotification(data, tab);
 
-        expect(getAllDecryptedForUrlSpy).toHaveBeenCalled();
-        expect(pushChangePasswordToQueueSpy).not.toHaveBeenCalled();
+        expect(pushChangePasswordToQueueSpy).toHaveBeenCalledWith(
+          ["cipher-id-1", "cipher-id-2"],
+          "example.com",
+          data?.newPassword,
+          sender.tab,
+        );
       });
 
       it("adds a change password message to the queue if no current password is passed with the message, but a single cipher is matched for the uri", async () => {
