@@ -931,10 +931,11 @@ export class VaultV2Component<C extends CipherViewLike>
       this.folderId = this.activeFilter.selectedFolderId;
     }
 
-    if (this.addOrganizationId && this.config) {
+    if (this.config) {
       this.config.initialValues = {
         ...this.config.initialValues,
-        organizationId: this.addOrganizationId as OrganizationId,
+        ...(this.addOrganizationId && { organizationId: this.addOrganizationId as OrganizationId }),
+        folderId: this.folderId,
       };
     }
   }
