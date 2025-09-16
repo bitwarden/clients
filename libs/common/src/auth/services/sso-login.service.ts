@@ -1,4 +1,4 @@
-import { firstValueFrom, Observable } from "rxjs";
+import { firstValueFrom, map, Observable } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -75,7 +75,7 @@ export class SsoLoginService implements SsoLoginServiceAbstraction {
   private ssoEmailState: GlobalState<string>;
   private ssoRequiredCacheState: GlobalState<string[]>;
 
-  ssoRequiredCache$: Observable<string[] | null>;
+  ssoRequiredCache$: Observable<Set<string> | null>;
 
   constructor(
     private stateProvider: StateProvider,
@@ -88,7 +88,7 @@ export class SsoLoginService implements SsoLoginServiceAbstraction {
     this.ssoEmailState = this.stateProvider.getGlobal(SSO_EMAIL);
     this.ssoRequiredCacheState = this.stateProvider.getGlobal(SSO_REQUIRED_CACHE);
 
-    this.ssoRequiredCache$ = this.ssoRequiredCacheState.state$;
+    this.ssoRequiredCache$ = this.ssoRequiredCacheState.state$.pipe(map((cache) => new Set(cache)));
   }
 
   getCodeVerifier(): Promise<string | null> {

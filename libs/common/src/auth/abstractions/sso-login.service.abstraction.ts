@@ -93,7 +93,7 @@ export abstract class SsoLoginServiceAbstraction {
    * A cache list of user emails for whom the `PolicyType.RequireSso` policy is applied (that is, a list
    * of users who are required to authenticate via SSO only). The cache lives on the current device only.
    */
-  abstract ssoRequiredCache$: Observable<string[] | null>;
+  abstract ssoRequiredCache$: Observable<Set<string> | null>;
 
   /**
    * Remove an email from the cached list of emails that must authenticate via SSO.
