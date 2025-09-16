@@ -39,10 +39,6 @@ export type BadgeStateFunction = (tab: Tab) => Observable<BadgeStateSetting | un
 export class BadgeService {
   private stateFunctions = new BehaviorSubject<Record<string, BadgeStateFunction>>({});
 
-  getActiveTabs(): Promise<Tab[]> {
-    return this.badgeApi.getActiveTabs();
-  }
-
   constructor(
     private badgeApi: BadgeBrowserApi,
     private logService: LogService,
