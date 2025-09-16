@@ -16,7 +16,7 @@ import { AtRiskCipherBadgeUpdaterService } from "./at-risk-cipher-badge-updater.
 describe("AtRiskCipherBadgeUpdaterService", () => {
   let service: AtRiskCipherBadgeUpdaterService;
 
-  let setDynamicState: jest.Mock;
+  let setState: jest.Mock;
   let getAllDecryptedForUrl: jest.Mock;
   let getTab: jest.Mock;
   let addListener: jest.Mock;
@@ -26,7 +26,7 @@ describe("AtRiskCipherBadgeUpdaterService", () => {
   let pendingTasks$: BehaviorSubject<SecurityTask[]>;
 
   beforeEach(async () => {
-    setDynamicState = jest.fn().mockResolvedValue(undefined);
+    setState = jest.fn().mockResolvedValue(undefined);
     getAllDecryptedForUrl = jest.fn().mockResolvedValue([]);
     getTab = jest.fn();
     addListener = jest.fn();
@@ -39,7 +39,7 @@ describe("AtRiskCipherBadgeUpdaterService", () => {
     jest.spyOn(BrowserApi, "getTab").mockImplementation(getTab);
 
     service = new AtRiskCipherBadgeUpdaterService(
-      { setDynamicState } as unknown as BadgeService,
+      { setState } as unknown as BadgeService,
       { activeAccount$ } as unknown as AccountService,
       { cipherViews$: () => cipherViews$, getAllDecryptedForUrl } as unknown as CipherService,
       { pendingTasks$: () => pendingTasks$ } as unknown as TaskService,
@@ -53,12 +53,12 @@ describe("AtRiskCipherBadgeUpdaterService", () => {
   });
 
   it("registers dynamic state function on init", () => {
-    expect(setDynamicState).toHaveBeenCalledWith("at-risk-cipher-badge", expect.any(Function));
+    expect(setState).toHaveBeenCalledWith("at-risk-cipher-badge", expect.any(Function));
   });
 
   it("clears the tab state when there are no ciphers and no pending tasks", async () => {
     const tab: Tab = { tabId: 1, url: "https://bitwarden.com" };
-    const stateFunction = setDynamicState.mock.calls[0][1];
+    const stateFunction = setState.mock.calls[0][1];
 
     const state = await firstValueFrom(stateFunction(tab));
 
@@ -67,7 +67,7 @@ describe("AtRiskCipherBadgeUpdaterService", () => {
 
   it("sets state when there are pending tasks for the tab", async () => {
     const tab: Tab = { tabId: 3, url: "https://bitwarden.com" };
-    const stateFunction: BadgeStateFunction = setDynamicState.mock.calls[0][1];
+    const stateFunction: BadgeStateFunction = setState.mock.calls[0][1];
     const pendingTasks: SecurityTask[] = [
       {
         id: "task1",
