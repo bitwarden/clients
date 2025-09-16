@@ -16,6 +16,7 @@ import {
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 
 import {
@@ -81,6 +82,7 @@ export class RiskInsightsDataService {
     private criticalAppsService: CriticalAppsService,
     private organizationService: OrganizationService,
     private reportService: RiskInsightsReportService,
+    private logService: LogService,
   ) {}
 
   async initialize(organizationId: OrganizationId) {
@@ -107,14 +109,21 @@ export class RiskInsightsDataService {
     this.fetchLastReport(organizationId, userId);
 
     // Setup new report generation
-    this._runApplicationsReport().subscribe({
-      next: (result) => {
-        this.isRunningReportSubject.next(false);
-      },
-      error: () => {
-        this.errorSubject.next("Failed to save report");
-      },
-    });
+    this._runApplicationsReport()
+      .pipe(
+        finalize(() => {
+          this.isRunningReportSubject.next(false);
+        }),
+      )
+      .subscribe({
+        next: (result) => {
+          this.logService.info("Risk insights report completed successfully", result);
+        },
+        error: () => {
+          this.logService.error("Error when running risk insights report");
+          this.errorSubject.next("Failed to save report");
+        },
+      });
   }
 
   filterReportByCritical(
