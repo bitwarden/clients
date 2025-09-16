@@ -1,10 +1,4 @@
-import {
-  ConnectedOverlayPositionChange,
-  ConnectionPositionPair,
-  Overlay,
-  OverlayConfig,
-  OverlayRef,
-} from "@angular/cdk/overlay";
+import { ConnectionPositionPair, Overlay, OverlayConfig, OverlayRef } from "@angular/cdk/overlay";
 import { ComponentPortal } from "@angular/cdk/portal";
 import {
   Directive,
@@ -32,12 +26,12 @@ export class TooltipDirective implements OnInit {
   readonly bitTooltip = input.required<string>();
   readonly tooltipPosition = input("above-center");
 
-  private overlayRef: OverlayRef;
+  private overlayRef: OverlayRef | undefined;
   private elementRef = inject(ElementRef);
   private overlay = inject(Overlay);
   private viewContainerRef = inject(ViewContainerRef);
   private injector = inject(Injector);
-  private tooltipRef: ComponentRef<TooltipComponent>;
+  private tooltipRef: ComponentRef<TooltipComponent> | undefined;
   private positionStrategy = this.overlay
     .position()
     .flexibleConnectedTo(this.elementRef)
@@ -47,11 +41,11 @@ export class TooltipDirective implements OnInit {
   tooltipPortal = new ComponentPortal(TooltipComponent, this.viewContainerRef, this.injector);
 
   private showTooltip = () => {
-    this.tooltipRef.setInput("isVisible", true);
+    this.tooltipRef?.setInput("isVisible", true);
   };
 
   private hideTooltip = () => {
-    this.tooltipRef.setInput("isVisible", false);
+    this.tooltipRef?.setInput("isVisible", false);
   };
 
   @HostListener("mouseenter")
@@ -102,15 +96,11 @@ export class TooltipDirective implements OnInit {
   }
 
   constructor() {
-    this.positionStrategy.positionChanges.pipe(takeUntilDestroyed()).subscribe(
-      (
-        change: ConnectedOverlayPositionChange & {
-          connectionPair: ConnectionPositionPair & { id: string };
-        },
-      ) => {
-        this.tooltipRef?.setInput("tooltipPosition", change.connectionPair.id);
-      },
-    );
+    this.positionStrategy.positionChanges.pipe(takeUntilDestroyed()).subscribe((change) => {
+      const connectionPair = change.connectionPair as ConnectionPositionPair & { id: string };
+
+      this.tooltipRef?.setInput("tooltipPosition", connectionPair.id);
+    });
   }
 
   ngOnInit() {
