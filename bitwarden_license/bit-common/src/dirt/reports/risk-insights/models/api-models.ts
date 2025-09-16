@@ -46,5 +46,5 @@ export interface GetRiskInsightsReportResponse {
   // TODO Update to use creationDate from server
   date: string;
   reportData: EncryptedString;
-  contentEncryptionKey: EncryptedString;
+  reportKey: EncryptedString;
 }
