@@ -44,7 +44,7 @@ export class WebVaultPremiumUpgradePromptService implements PremiumUpgradePrompt
         type: "success",
       });
       if (confirmed) {
-        route = ["settings", "subscription", "premium"];
+        route = ["settings/subscription/premium"];
       }
     }
 
