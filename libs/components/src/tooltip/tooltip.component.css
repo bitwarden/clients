@@ -70,21 +70,3 @@
     }
   }
 }
-
-/* .bit-tooltip:hover,
-.bit-tooltip.tw-group-hover/tooltip:hover {
-  opacity: 1;
-  tw-relative tw-opacity-0 tw-max-w-48 tw-bg-text-main tw-text-contrast tw-py-2 tw-px-3 tw-rounded tw-transition-[transform,
-  opacity] tw-duration-100 tw-ease-in-out before: tw-absolute before:tw-content-[''] before:tw-size-6 before:tw-rounded-[3px] before:tw-bg-text-main before:tw-z-[-1] before:tw-left-[50%] before:tw--translate-x-[50%]
-} */
-
-/* [ngClass]="{
- 'tw-opacity-0 tw-scale-95': !isVisible(),
-'tw-opacity-100 tw-scale-100': isVisible(),
-'before:tw-bottom-[-6px] before:tw-rotate-45': tooltipPosition().startsWith ('above'),
-'before:tw-top-[-6px] before:tw-rotate-[225deg] before:tw-start-[50%] before:tw--translate-x-[50%]': tooltipPosition().startsWith ('below'),
-'before:tw-end-[-6px] before:tw-rotate-[135deg]': tooltipPosition().startsWith ('left'),
-'before:tw-start-[-6px] before:tw-rotate-[-45deg]': tooltipPosition().startsWith ('right'),
-}
-
-" */
