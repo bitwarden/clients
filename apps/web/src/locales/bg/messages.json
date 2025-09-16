@@ -86,14 +86,14 @@
   "noAppsInOrgDescription": {
     "message": "Когато потребителите запазват данните си за вписване, тук ще се появяват приложения, а също и ще се показват паролите в риск. Можете да отбелязвате важните приложения и да напомняте на потребителите да сменят паролите си."
   },
-  "noCriticalAppsTitle": {
+  "noCriticalApplicationsTitle": {
     "message": "Не сте отбелязали нито едно приложение като важно"
   },
-  "noCriticalAppsDescription": {
-    "message": "Изберете най-важните си приложения, за да откриете паролите, които може да са в риск, и да известите потребителите да ги сменят."
+  "noCriticalApplicationsDescription": {
+    "message": "Изберете най важните си приложения, за да приоритизирате действията по сигурността за своите потребители, както и да адресирате паролите в риск."
   },
-  "markCriticalApps": {
-    "message": "Отбележете важните приложения"
+  "markCriticalApplications": {
+    "message": "Изберете важните приложения"
   },
   "markAppAsCritical": {
     "message": "Отбелязване на приложението като важно"
@@ -179,8 +179,8 @@
   "unmarkAsCritical": {
     "message": "Премахване от важните"
   },
-  "criticalApplicationSuccessfullyUnmarked": {
-    "message": "Приложението е премахнато от важните"
+  "criticalApplicationUnmarkedSuccessfully": {
+    "message": "Успешно премахване на приложението от важните"
   },
   "whatTypeOfItem": {
     "message": "Вид на елемента"
@@ -7430,6 +7430,9 @@
   "off": {
     "message": "Изключено"
   },
+  "connected": {
+    "message": "Свързано"
+  },
   "members": {
     "message": "Членове"
   },
@@ -8935,20 +8938,25 @@
   "collectionManagement": {
     "message": "Управление на колекциите"
   },
-  "collectionManagementDesc": {
-    "message": "Управление на поведението на колекциите за организацията"
+  "collectionManagementDescription": {
+    "message": "Настройване на поведението на колекциите за организацията"
   },
-  "limitCollectionCreationDesc": {
+  "allowAdminAccessToAllCollectionItemsDescription": {
+    "message": "Разрешаване на собствениците и администраторите да управляват всички колекции и елементи от административната конзола"
+  },
+  "restrictCollectionCreationDescription": {
     "message": "Ограничаване на създаването на колекции, така че да може да се извършва само от собствениците и администраторите"
   },
-  "limitCollectionDeletionDesc": {
+  "restrictCollectionDeletionDescription": {
     "message": "Ограничаване на изтриването на колекции, така че да може да се извършва само от собствениците и администраторите"
   },
-  "limitItemDeletionDescription": {
-    "message": "Ограничаване на изтриването на елементи, така че да може да се извършва само от членове с правомощия за управление на колекции"
+  "restrictItemDeletionDescriptionStart": {
+    "message": "Ограничаване на изтриването на елементи, така че да може да се извършва само от членове с правомощието ",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
   },
-  "allowAdminAccessToAllCollectionItemsDesc": {
-    "message": "Собствениците и администраторите могат да управляват всички колекции и елементи"
+  "restrictItemDeletionDescriptionEnd": {
+    "message": "",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
   },
   "updatedCollectionManagement": {
     "message": "Настройката за управление на колекции е променена"
@@ -9019,6 +9027,78 @@
   },
   "modifiedCollectionManagement": {
     "message": "Настройката за управление на колекции е променена: $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationEnabled": {
+    "message": "Настройката за ограничаване на създаването на колекции е включена: $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationDisabled": {
+    "message": "Настройката за ограничаване на създаването на колекции е изключена: $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionEnabled": {
+    "message": "Настройката за ограничаване на изтриване на колекции е включена: $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionDisabled": {
+    "message": "Настройката за ограничаване на изтриване на колекции е изключена: $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionEnabled": {
+    "message": "Настройката за ограничаване на изтриване на елементи е включена: $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionDisabled": {
+    "message": "Настройката за ограничаване на изтриване на елементи е изключена: $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsEnabled": {
+    "message": "Настройката за разрешаване на собствениците и администраторите да управляват всички колекции и елементи е включена: $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsDisabled": {
+    "message": "Настройката за разрешаване на собствениците и администраторите да управляват всички колекции и елементи е изключена: $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -9603,6 +9683,15 @@
   },
   "connectIntegrationButtonDesc": {
     "message": "Свързване на $INTEGRATION$",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
+  },
+  "updateIntegrationButtonDesc": {
+    "message": "Обновяване на $INTEGRATION$",
     "placeholders": {
       "integration": {
         "content": "$1",
@@ -10816,6 +10905,12 @@
   "changeAtRiskPassword": {
     "message": "Промяна на парола в риск"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Този елемент за вписване е в риск и в него липсва уеб сайт. Добавете уеб сайт и сменете паролата, за по-добра сигурност."
+  },
+  "missingWebsite": {
+    "message": "Липсващ уеб сайт"
+  },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Премахване на отключването чрез ПИН"
   },
@@ -11157,6 +11252,17 @@
         "example": "92873837267"
       }
     }
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Потвърждаване на домейна на конектора за ключове"
+  },
+  "requiredToVerifyBankAccountWithStripe": {
+    "message": "Плащането чрез банкова сметка е налично само за клиенти от САЩ. Ще трябва да потвърдите банковата си сметка. В следващите 1-2 работни дни ще направим малък депозит. Ако не потвърдите банковата сметка, може да пропуснете плащането и абонаментът Ви да бъде спрян."
+  },
+  "verifyBankAccountWithStripe": {
+    "message": "Направихме малък депозит по банковата Ви сметка. Може да отнеме 1-2 работни дни преди да го видите. Когато видите депозита, ще можете да потвърдите банковата си сметка. Ако не потвърдите банковата сметка, може да пропуснете плащането и абонаментът Ви да бъде спрян."
+  },
+  "verifyNow": {
+    "message": "Потвърдете сега."
   }
 }
-

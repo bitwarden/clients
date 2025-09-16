@@ -179,6 +179,10 @@ export class MembersComponent extends BaseMembersComponent<ProviderUser> {
     }
   }
 
+  async invite() {
+    await this.edit(null);
+  }
+
   async bulkRemove(): Promise<void> {
     if (this.actionPromise != null) {
       return;

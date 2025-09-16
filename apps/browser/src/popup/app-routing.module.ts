@@ -17,10 +17,9 @@ import { SetInitialPasswordComponent } from "@bitwarden/angular/auth/password-ma
 import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
 import {
   DevicesIcon,
-  RegistrationLockAltIcon,
   RegistrationUserAddIcon,
   TwoFactorTimeoutIcon,
-  DeviceVerificationIcon,
+  TwoFactorAuthEmailIcon,
   UserLockIcon,
   VaultIcon,
   LockIcon,
@@ -42,7 +41,7 @@ import {
 } from "@bitwarden/auth/angular";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AnonLayoutWrapperData } from "@bitwarden/components";
-import { LockComponent } from "@bitwarden/key-management-ui";
+import { LockComponent, ConfirmKeyConnectorDomainComponent } from "@bitwarden/key-management-ui";
 
 import { AccountSwitcherComponent } from "../auth/popup/account-switching/account-switcher.component";
 import { fido2AuthGuard } from "../auth/popup/guards/fido2-auth.guard";
@@ -165,7 +164,7 @@ const routes: Routes = [
     canActivate: [unauthGuardFn(), activeAuthGuard()],
     children: [{ path: "", component: NewDeviceVerificationComponent }],
     data: {
-      pageIcon: DeviceVerificationIcon,
+      pageIcon: TwoFactorAuthEmailIcon,
       pageTitle: {
         key: "verifyYourIdentity",
       },
@@ -362,7 +361,7 @@ const routes: Routes = [
         path: "finish-signup",
         canActivate: [unauthGuardFn()],
         data: {
-          pageIcon: RegistrationLockAltIcon,
+          pageIcon: LockIcon,
           elevation: 1,
           showBackButton: true,
         } satisfies RouteDataProperties & ExtensionAnonLayoutWrapperData,
@@ -595,6 +594,24 @@ const routes: Routes = [
           hideIcon: true,
           hideFooter: true,
         },
+      },
+    ],
+  },
+  {
+    path: "confirm-key-connector-domain",
+    component: ExtensionAnonLayoutWrapperComponent,
+    canActivate: [],
+    data: { elevation: 1 } satisfies RouteDataProperties,
+    children: [
+      {
+        path: "",
+        component: ConfirmKeyConnectorDomainComponent,
+        data: {
+          pageTitle: {
+            key: "confirmKeyConnectorDomain",
+          },
+          showBackButton: true,
+        } satisfies ExtensionAnonLayoutWrapperData,
       },
     ],
   },

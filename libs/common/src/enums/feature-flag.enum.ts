@@ -12,19 +12,17 @@ import { ServerConfig } from "../platform/abstractions/config/server-config";
 export enum FeatureFlag {
   /* Admin Console Team */
   CreateDefaultLocation = "pm-19467-create-default-location",
+  CollectionVaultRefactor = "pm-25030-resolve-ts-upgrade-errors",
 
   /* Auth */
   PM14938_BrowserExtensionLoginApproval = "pm-14938-browser-extension-login-approvals",
 
   /* Autofill */
-  NotificationRefresh = "notification-refresh",
-  UseTreeWalkerApiForPageDetailsCollection = "use-tree-walker-api-for-page-details-collection",
   MacOsNativeCredentialSync = "macos-native-credential-sync",
   WindowsDesktopAutotype = "windows-desktop-autotype",
 
   /* Billing */
   TrialPaymentOptional = "PM-8163-trial-payment",
-  PM12276_BreadcrumbEventLogs = "pm-12276-breadcrumbing-for-business-features",
   PM17772_AdminInitiatedSponsorships = "pm-17772-admin-initiated-sponsorships",
   UseOrganizationWarningsService = "use-organization-warnings-service",
   PM21881_ManagePaymentDetailsOutsideCheckout = "pm-21881-manage-payment-details-outside-checkout",
@@ -39,9 +37,11 @@ export enum FeatureFlag {
   /* Tools */
   DesktopSendUIRefresh = "desktop-send-ui-refresh",
   UseSdkPasswordGenerators = "pm-19976-use-sdk-password-generators",
+  UseChromiumImporter = "pm-23982-chromium-importer",
 
   /* DIRT */
   EventBasedOrganizationIntegrations = "event-based-organization-integrations",
+  PM22887_RiskInsightsActivityTab = "pm-22887-risk-insights-activity-tab",
 
   /* Vault */
   PM19941MigrateCipherDomainToSdk = "pm-19941-migrate-cipher-domain-to-sdk",
@@ -52,6 +52,7 @@ export enum FeatureFlag {
 
   /* Platform */
   IpcChannelFramework = "ipc-channel-framework",
+  InactiveUserServerNotification = "pm-25130-receive-push-notifications-for-inactive-users",
   PushNotificationsWhenLocked = "pm-19388-push-notifications-when-locked",
 }
 
@@ -71,19 +72,20 @@ const FALSE = false as boolean;
 export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
   [FeatureFlag.CreateDefaultLocation]: FALSE,
+  [FeatureFlag.CollectionVaultRefactor]: FALSE,
 
   /* Autofill */
-  [FeatureFlag.NotificationRefresh]: FALSE,
-  [FeatureFlag.UseTreeWalkerApiForPageDetailsCollection]: FALSE,
   [FeatureFlag.MacOsNativeCredentialSync]: FALSE,
   [FeatureFlag.WindowsDesktopAutotype]: FALSE,
 
   /* Tools */
   [FeatureFlag.DesktopSendUIRefresh]: FALSE,
   [FeatureFlag.UseSdkPasswordGenerators]: FALSE,
+  [FeatureFlag.UseChromiumImporter]: FALSE,
 
   /* DIRT */
   [FeatureFlag.EventBasedOrganizationIntegrations]: FALSE,
+  [FeatureFlag.PM22887_RiskInsightsActivityTab]: FALSE,
 
   /* Vault */
   [FeatureFlag.CipherKeyEncryption]: FALSE,
@@ -97,7 +99,6 @@ export const DefaultFeatureFlagValue = {
 
   /* Billing */
   [FeatureFlag.TrialPaymentOptional]: FALSE,
-  [FeatureFlag.PM12276_BreadcrumbEventLogs]: FALSE,
   [FeatureFlag.PM17772_AdminInitiatedSponsorships]: FALSE,
   [FeatureFlag.UseOrganizationWarningsService]: FALSE,
   [FeatureFlag.PM21881_ManagePaymentDetailsOutsideCheckout]: FALSE,
@@ -111,6 +112,7 @@ export const DefaultFeatureFlagValue = {
 
   /* Platform */
   [FeatureFlag.IpcChannelFramework]: FALSE,
+  [FeatureFlag.InactiveUserServerNotification]: FALSE,
   [FeatureFlag.PushNotificationsWhenLocked]: FALSE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 

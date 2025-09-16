@@ -556,6 +556,9 @@
   "view": {
     "message": "Weergeven"
   },
+  "viewLogin": {
+    "message": "Login bekijken"
+  },
   "noItemsInList": {
     "message": "Er zijn geen items om weer te geven."
   },
@@ -1761,7 +1764,7 @@
     "message": "Deze browser kan U2F-verzoeken niet verwerken in dit popupvenster. Wilt je deze pop-up openen in een nieuw venster zodat je kunt inloggen met U2F?"
   },
   "showIconsChangePasswordUrls": {
-    "message": "Pictogrammen van de website weergeven URL's voor wachtwoordwijzigingen ophalen"
+    "message": "Websitepictogrammen weergeven en URL's voor wachtwoordwijzigingen ophalen"
   },
   "enableBadgeCounter": {
     "message": "Teller weergeven"
@@ -5446,6 +5449,12 @@
   "changeAtRiskPassword": {
     "message": "Risicovol wachtwoord wijzigen"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Deze login is in gevaar en mist een website. Voeg een website toe en verander het wachtwoord voor een sterkere beveiliging."
+  },
+  "missingWebsite": {
+    "message": "Ontbrekende website"
+  },
   "settingsVaultOptions": {
     "message": "Kluis-instellingen"
   },
@@ -5588,8 +5597,14 @@
   "showLess": {
     "message": "Minder weergeven"
   },
+  "next": {
+    "message": "Volgende"
+  },
   "moreBreadcrumbs": {
     "message": "Meer broodkruimels",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Key Connector-domein bevestigen"
   }
 }

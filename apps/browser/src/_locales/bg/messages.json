@@ -556,6 +556,9 @@
   "view": {
     "message": "Преглед"
   },
+  "viewLogin": {
+    "message": "Преглед на елемента за вписване"
+  },
   "noItemsInList": {
     "message": "Няма елементи за показване."
   },
@@ -5446,6 +5449,12 @@
   "changeAtRiskPassword": {
     "message": "Промяна на парола в риск"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Този елемент за вписване е в риск и в него липсва уеб сайт. Добавете уеб сайт и сменете паролата, за по-добра сигурност."
+  },
+  "missingWebsite": {
+    "message": "Липсващ уеб сайт"
+  },
   "settingsVaultOptions": {
     "message": "Настройки на трезора"
   },
@@ -5588,8 +5597,14 @@
   "showLess": {
     "message": "Показване на по-малко"
   },
+  "next": {
+    "message": "Следващо"
+  },
   "moreBreadcrumbs": {
     "message": "Още елементи в пътечката",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Потвърждаване на домейна на конектора за ключове"
   }
 }

@@ -86,14 +86,14 @@
   "noAppsInOrgDescription": {
     "message": "İstifadəçilər giriş məlumatlarını saxladıqda, tətbiqlər burada görünür və riskli parolları göstərir. Kritik tətbiqləri işarələyin və parollarını güncəlləməsi üçün istifadəçiləri məlumatlandırın."
   },
-  "noCriticalAppsTitle": {
-    "message": "Heç bir tətbiqi Kritik olaraq işarələməmisiniz"
+  "noCriticalApplicationsTitle": {
+    "message": "You haven’t marked any applications as critical"
   },
-  "noCriticalAppsDescription": {
-    "message": "Riskli parolları kəşf etmək üçün ən kritik tətbiqlərinizi seçin və bu parolları dəyişdirməsi üçün istifadəçiləri məlumatlandırın."
+  "noCriticalApplicationsDescription": {
+    "message": "Select your most critical applications to prioritize security actions for your users to address at-risk passwords."
   },
-  "markCriticalApps": {
-    "message": "Kritik tətbiqləri işarələ"
+  "markCriticalApplications": {
+    "message": "Select critical applications"
   },
   "markAppAsCritical": {
     "message": "Tətbiqi kritik olaraq işarələ"
@@ -179,8 +179,8 @@
   "unmarkAsCritical": {
     "message": "Kritik olaraq işarələməni götür"
   },
-  "criticalApplicationSuccessfullyUnmarked": {
-    "message": "Kritik tətbiq işarəsi uğurla götürüldü"
+  "criticalApplicationUnmarkedSuccessfully": {
+    "message": "Successfully unmarked application as critical"
   },
   "whatTypeOfItem": {
     "message": "Bu elementin növü nədir?"
@@ -2115,7 +2115,7 @@
     "message": "Veb seyfdə istifadə olunan dili dəyişdirin."
   },
   "showIconsChangePasswordUrls": {
-    "message": "Veb sayt ikonlarını göstər və parol dəyişdirmə URL-lərini al"
+    "message": "Show website icons and retrieve change password URLs"
   },
   "default": {
     "message": "İlkin"
@@ -7430,6 +7430,9 @@
   "off": {
     "message": "Bağlı"
   },
+  "connected": {
+    "message": "Connected"
+  },
   "members": {
     "message": "Üzvlər"
   },
@@ -8935,20 +8938,25 @@
   "collectionManagement": {
     "message": "Kolleksiya idarəetməsi"
   },
-  "collectionManagementDesc": {
-    "message": "Təşkilat üçün kolleksiya davranışını idarə et"
+  "collectionManagementDescription": {
+    "message": "Təşkilat üçün kolleksiya davranışını konfiqurasiya et"
   },
-  "limitCollectionCreationDesc": {
-    "message": "Kolleksiya yaradılmasını sahibləri və adminləri ilə məhdudlaşdır"
+  "allowAdminAccessToAllCollectionItemsDescription": {
+    "message": "Sahiblərin və adminlərin bütün kolleksiyaları və elementləri Admin Konsolundan idarə etməsinə icazə ver"
   },
-  "limitCollectionDeletionDesc": {
-    "message": "Kolleksiya silinməsini sahibləri və adminləri ilə məhdudlaşdır"
+  "restrictCollectionCreationDescription": {
+    "message": "Kolleksiya yaradılmasını sahiblər və adminlərlə məhdudlaşdır"
   },
-  "limitItemDeletionDescription": {
-    "message": "Element silməni, \"Kolleksiyanı idarə et\" icazəsinə sahib üzvlərlə məhdudlaşdır"
+  "restrictCollectionDeletionDescription": {
+    "message": "Kolleksiya silməyi sahiblər və adminlərlə məhdudlaşdır"
   },
-  "allowAdminAccessToAllCollectionItemsDesc": {
-    "message": "Sahiblər və adminlər bütün kolleksiyaları və elementləri idarə edə bilər"
+  "restrictItemDeletionDescriptionStart": {
+    "message": "Element silməni bu üzvlərlə məhdudlaşdır ",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
+  },
+  "restrictItemDeletionDescriptionEnd": {
+    "message": "icazə",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
   },
   "updatedCollectionManagement": {
     "message": "Güncəllənən kolleksiya idarəetmə ayarı"
@@ -9019,6 +9027,78 @@
   },
   "modifiedCollectionManagement": {
     "message": "Kolleksiya idarəetmə ayarı $ID$ dəyişdirildi.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationEnabled": {
+    "message": "'Kolleksiya yaradılmasını məhdudlaşdır' ayarı $ID$ işə salındı.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationDisabled": {
+    "message": "'Kolleksiya yaradılmasını məhdudlaşdır' ayarı $ID$ söndürüldü.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionEnabled": {
+    "message": "'Kolleksiya silinməsini məhdudlaşdır' ayarı $ID$ işə salındı.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionDisabled": {
+    "message": "'Kolleksiya silinməsini məhdudlaşdır' ayarı $ID$ söndürüldü.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionEnabled": {
+    "message": "'Elementin silinməsini məhdudlaşdır' ayarı $ID$ işə salındı.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionDisabled": {
+    "message": "'Elementin silinməsini məhdudlaşdır' ayarı $ID$ söndürüldü.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsEnabled": {
+    "message": "'Sahiblərin və adminlərin bütün kolleksiyaları və elementləri idarə etməsinə icazə ver' ayarı $ID$ işə salındı.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsDisabled": {
+    "message": "'Sahiblərin və adminlərin bütün kolleksiyaları və elementləri idarə etməsinə icazə ver' ayarı $ID$ söndürüldü.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -9603,6 +9683,15 @@
   },
   "connectIntegrationButtonDesc": {
     "message": "$INTEGRATION$ ilə bağlantı qur",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
+  },
+  "updateIntegrationButtonDesc": {
+    "message": "Update $INTEGRATION$",
     "placeholders": {
       "integration": {
         "content": "$1",
@@ -10816,6 +10905,12 @@
   "changeAtRiskPassword": {
     "message": "Riskli parolları dəyişdir"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
+  },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Kilidi PIN ilə açmanı ləğv et"
   },
@@ -10992,10 +11087,10 @@
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   },
   "aboutThisSetting": {
-    "message": "Bu ayar barədə"
+    "message": "About this setting"
   },
   "permitCipherDetailsDescription": {
-    "message": "Bitwarden, təcrübənizi təkmilləşdirmək üçün hansı ikonun və ya parol dəyişdirmə URL-sinin istifadə olunmalı olduğunu müəyyənləşdirmək məqsədilə saxlanılmış giriş URL-lərini istifadə edəcək. Bu xidməti istifadə etdiyiniz zaman heç bir məlumat yığılmır və ya saxlanılmır."
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
   },
   "billingAddress": {
     "message": "Faktura ünvanı"
@@ -11157,6 +11252,17 @@
         "example": "92873837267"
       }
     }
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Key Connector domenini təsdiqlə"
+  },
+  "requiredToVerifyBankAccountWithStripe": {
+    "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
+  },
+  "verifyBankAccountWithStripe": {
+    "message": "We have made a micro-deposit to your bank account. This may take 1-2 business days. When you see the deposit in your account, you can verify your bank account. Failure to verify your bank account will result in a missed payment and your subscription will be suspended."
+  },
+  "verifyNow": {
+    "message": "Verify now."
   }
 }
-
