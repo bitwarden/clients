@@ -137,7 +137,7 @@ export class ManageClientsComponent {
 
     this.provider$
       .pipe(
-        map((provider: Provider) => {
+        map((provider: Provider | undefined) => {
           if (provider?.providerStatus !== ProviderStatusType.Billable) {
             return from(
               this.router.navigate(["../clients"], {

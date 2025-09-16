@@ -77,7 +77,10 @@ export class ProviderPaymentDetailsComponent implements OnInit, OnDestroy {
   private provider$ = combineLatest([
     this.activatedRoute.params,
     this.accountService.activeAccount$.pipe(getUserId),
-  ]).pipe(switchMap(([{ providerId }, userId]) => this.providerService.get$(providerId, userId)));
+  ]).pipe(
+    switchMap(([{ providerId }, userId]) => this.providerService.get$(providerId, userId)),
+    filter((provider) => provider != null),
+  );
 
   private load$: Observable<View> = this.provider$.pipe(
     switchMap((provider) =>

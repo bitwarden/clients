@@ -99,8 +99,13 @@ export class MembersComponent extends BaseMembersComponent<ProviderUser> {
           this.dataSource.filter = peopleFilter(queryParams.search, null);
 
           this.providerId = urlParams.providerId;
-          const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-          const provider = await this.providerService.get(this.providerId, userId);
+          const provider = await firstValueFrom(
+            this.accountService.activeAccount$.pipe(
+              getUserId,
+              switchMap((userId) => this.providerService.get$(this.providerId, userId)),
+            ),
+          );
+
           if (!provider || !provider.canManageUsers) {
             return await this.router.navigate(["../"], { relativeTo: this.activatedRoute });
           }

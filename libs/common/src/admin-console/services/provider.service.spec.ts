@@ -20,11 +20,11 @@ import { PROVIDERS, ProviderService } from "./provider.service";
  * in state. This helper methods lets us build provider arrays in tests
  * and easily map them to records before storing them in state.
  */
-function arrayToRecord(input: ProviderData[]): Record<string, ProviderData> {
-  if (input == null) {
-    return undefined;
+function arrayToRecord(input: ProviderData[] | undefined): Record<string, ProviderData> | null {
+  if (input == null || input.length < 1) {
+    return null;
   }
-  return Object.fromEntries(input?.map((i) => [i.id, i]));
+  return Object.fromEntries(input.map((i) => [i.id, i]));
 }
 
 /**
@@ -39,7 +39,7 @@ function arrayToRecord(input: ProviderData[]): Record<string, ProviderData> {
  */
 function buildMockProviders(count = 1, suffix?: string): ProviderData[] {
   if (count < 1) {
-    return undefined;
+    return [];
   }
 
   function buildMockProvider(id: string, name: string): ProviderData {
@@ -96,19 +96,19 @@ describe("ProviderService", () => {
     providerService = new ProviderService(fakeStateProvider);
   });
 
-  describe("getAll()", () => {
+  describe("providers$()", () => {
     it("Returns an array of all providers stored in state", async () => {
-      const mockData: ProviderData[] = buildMockProviders(5);
+      const mockData = buildMockProviders(5);
       fakeUserState.nextState(arrayToRecord(mockData));
-      const providers = await providerService.getAll(fakeUserId);
+      const providers = await firstValueFrom(providerService.providers$(fakeUserId));
       expect(providers).toHaveLength(5);
       expect(providers).toEqual(mockData.map((x) => new Provider(x)));
     });
 
     it("Returns an empty array if no providers are found in state", async () => {
-      const mockData: ProviderData[] = undefined;
+      let mockData;
       fakeUserState.nextState(arrayToRecord(mockData));
-      const result = await providerService.getAll(fakeUserId);
+      const result = await firstValueFrom(providerService.providers$(fakeUserId));
       expect(result).toEqual([]);
     });
   });
@@ -129,27 +129,15 @@ describe("ProviderService", () => {
     });
   });
 
-  describe("get()", () => {
-    it("Returns a single provider from state that matches the specified id", async () => {
-      const mockData = buildMockProviders(5);
-      fakeUserState.nextState(arrayToRecord(mockData));
-      const result = await providerService.get(mockData[3].id, fakeUserId);
-      expect(result).toEqual(new Provider(mockData[3]));
-    });
-
-    it("Returns undefined if the specified provider id is not found", async () => {
-      const result = await providerService.get("this-provider-does-not-exist", fakeUserId);
-      expect(result).toBe(undefined);
-    });
-  });
-
   describe("save()", () => {
     it("replaces the entire provider list in state for the specified user", async () => {
       const originalData = buildMockProviders(10);
       fakeUserState.nextState(arrayToRecord(originalData));
 
       const newData = arrayToRecord(buildMockProviders(10, "newData"));
-      await providerService.save(newData, fakeUserId);
+      if (newData) {
+        await providerService.save(newData, fakeUserId);
+      }
 
       expect(fakeUserState.nextMock).toHaveBeenCalledWith(newData);
     });

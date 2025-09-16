@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Component, Inject, OnInit } from "@angular/core";
-import { firstValueFrom } from "rxjs";
+import { Observable, switchMap } from "rxjs";
 
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -25,7 +25,7 @@ interface AddOrganizationDialogData {
   standalone: false,
 })
 export class AddOrganizationComponent implements OnInit {
-  protected provider: Provider;
+  protected provider$: Observable<Provider>;
   protected loading = true;
 
   constructor(
@@ -50,19 +50,21 @@ export class AddOrganizationComponent implements OnInit {
       return;
     }
 
-    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-    this.provider = await this.providerService.get(this.data.providerId, userId);
+    this.provider$ = this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) => this.providerService.get$(this.data.providerId, userId)),
+    );
 
     this.loading = false;
   }
 
-  add(organization: Organization) {
+  add(organization: Organization, provider: Provider) {
     return async () => {
       const confirmed = await this.dialogService.openSimpleDialog({
         title: organization.name,
         content: {
           key: "addOrganizationConfirmation",
-          placeholders: [organization.name, this.provider.name],
+          placeholders: [organization.name, provider.name],
         },
         type: "warning",
       });

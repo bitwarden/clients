@@ -1,4 +1,4 @@
-import { firstValueFrom, map, Observable } from "rxjs";
+import { map, Observable } from "rxjs";
 
 import { getById } from "../../platform/misc";
 import { PROVIDERS_DISK, StateProvider, UserKeyDefinition } from "../../platform/state";
@@ -15,7 +15,7 @@ export const PROVIDERS = UserKeyDefinition.record<ProviderData>(PROVIDERS_DISK, 
 export class ProviderService implements ProviderServiceAbstraction {
   constructor(private stateProvider: StateProvider) {}
 
-  private providers$(userId: UserId): Observable<Provider[]> {
+  providers$(userId: UserId): Observable<Provider[]> {
     return this.stateProvider
       .getUser(userId, PROVIDERS)
       .state$.pipe(this.mapProviderRecordToArray());
@@ -29,14 +29,6 @@ export class ProviderService implements ProviderServiceAbstraction {
 
   get$(id: string, userId: UserId): Observable<Provider | undefined> {
     return this.providers$(userId).pipe(getById(id));
-  }
-
-  async get(id: string, userId: UserId): Promise<Provider | undefined> {
-    return await firstValueFrom(this.providers$(userId).pipe(getById(id)));
-  }
-
-  async getAll(userId: UserId): Promise<Provider[]> {
-    return await firstValueFrom(this.providers$(userId));
   }
 
   async save(providers: { [id: string]: ProviderData }, userId: UserId) {

@@ -22,6 +22,7 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { PolicyType, ProviderType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -117,18 +118,28 @@ export class ProductSwitcherService {
     switchMap((id) => this.organizationService.organizations$(id)),
   );
 
+  providers$ = this.accountService.activeAccount$.pipe(
+    getUserId,
+    switchMap((id) => this.providerService.providers$(id)),
+  );
+
   products$: Observable<{
     bento: ProductSwitcherItem[];
     other: ProductSwitcherItem[];
-  }> = combineLatest([this.organizations$, this.route.paramMap, this.triggerProductUpdate$]).pipe(
-    map(([orgs, ...rest]): [Organization[], ParamMap, void] => {
+  }> = combineLatest([
+    this.organizations$,
+    this.providers$,
+    this.route.paramMap,
+    this.triggerProductUpdate$,
+  ]).pipe(
+    map(([orgs, ...rest]): [Organization[], Provider[], ParamMap, void] => {
       return [
         // Sort orgs by name to match the order within the sidebar
         orgs.sort((a, b) => a.name.localeCompare(b.name)),
         ...rest,
       ];
     }),
-    concatMap(async ([orgs, paramMap]) => {
+    concatMap(async ([orgs, providers, paramMap]) => {
       let routeOrg = orgs.find((o) => o.id === paramMap.get("organizationId"));
 
       let organizationIdViaPath: string | null = null;
@@ -154,10 +165,6 @@ export class ProductSwitcherService {
         routeOrg != null && canAccessOrgAdmin(routeOrg)
           ? routeOrg
           : orgs.find((o) => canAccessOrgAdmin(o));
-
-      // TODO: This should be migrated to an Observable provided by the provider service and moved to the combineLatest above. See AC-2092.
-      const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-      const providers = await this.providerService.getAll(userId);
 
       const providerPortalName =
         providers[0]?.providerType === ProviderType.BusinessUnit

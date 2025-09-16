@@ -7,7 +7,7 @@ import {
   Router,
   RouterStateSnapshot,
 } from "@angular/router";
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, switchMap } from "rxjs";
 
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
@@ -45,8 +45,12 @@ export function providerPermissionsGuard(
     const toastService = inject(ToastService);
     const accountService = inject(AccountService);
 
-    const userId = await firstValueFrom(getUserId(accountService.activeAccount$));
-    const provider = await providerService.get(route.params.providerId, userId);
+    const provider = await firstValueFrom(
+      accountService.activeAccount$.pipe(
+        getUserId,
+        switchMap((userId) => providerService.get$(route.params.providerId, userId)),
+      ),
+    );
     if (provider == null) {
       return router.createUrlTree(["/"]);
     }
