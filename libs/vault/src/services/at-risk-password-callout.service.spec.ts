@@ -109,4 +109,144 @@ describe("AtRiskPasswordCalloutService", () => {
       expect(updater({})).toEqual(updateObj);
     });
   });
+
+  describe("shouldShowCompletionBanner$", () => {
+    beforeEach(() => {
+      jest.spyOn(mockTaskService, "pendingTasks$").mockReturnValue(of([]));
+      jest.spyOn(mockCipherService, "cipherViews$").mockReturnValue(of([]));
+    });
+
+    it("should return false when user has pending tasks", async () => {
+      const tasks = [{ id: "t1", cipherId: "c1", type: SecurityTaskType.UpdateAtRiskCredential }];
+      const ciphers = [new MockCipherView("c1", false)];
+      const state: AtRiskPasswordCalloutData = {
+        hadPendingTasks: true,
+        showTasksCompleteBanner: false,
+        tasksBannerDismissed: false,
+      };
+
+      jest.spyOn(mockTaskService, "pendingTasks$").mockReturnValue(of(tasks));
+      jest.spyOn(mockCipherService, "cipherViews$").mockReturnValue(of(ciphers));
+      mockStateProvider.getUser.mockReturnValue({ state$: of(state) });
+
+      const result = await firstValueFrom(service.shouldShowCompletionBanner$(userId));
+
+      expect(result).toBe(false);
+    });
+
+    it("should return true when no pending tasks and showTasksCompleteBanner is true", async () => {
+      const state: AtRiskPasswordCalloutData = {
+        hadPendingTasks: false,
+        showTasksCompleteBanner: true,
+        tasksBannerDismissed: false,
+      };
+
+      mockStateProvider.getUser.mockReturnValue({ state$: of(state) });
+
+      const result = await firstValueFrom(service.shouldShowCompletionBanner$(userId));
+
+      expect(result).toBe(true);
+    });
+
+    it("should return true when no pending tasks and hadPendingTasks is true", async () => {
+      const state: AtRiskPasswordCalloutData = {
+        hadPendingTasks: true,
+        showTasksCompleteBanner: false,
+        tasksBannerDismissed: false,
+      };
+
+      mockStateProvider.getUser.mockReturnValue({ state$: of(state) });
+
+      const result = await firstValueFrom(service.shouldShowCompletionBanner$(userId));
+
+      expect(result).toBe(true);
+    });
+
+    it("should return false when banner has been dismissed", async () => {
+      const state: AtRiskPasswordCalloutData = {
+        hadPendingTasks: false,
+        showTasksCompleteBanner: false,
+        tasksBannerDismissed: true,
+      };
+
+      mockStateProvider.getUser.mockReturnValue({ state$: of(state) });
+
+      const result = await firstValueFrom(service.shouldShowCompletionBanner$(userId));
+
+      expect(result).toBe(false);
+    });
+
+    it("should return false when state is null", async () => {
+      mockStateProvider.getUser.mockReturnValue({ state$: of(null) });
+
+      const result = await firstValueFrom(service.shouldShowCompletionBanner$(userId));
+
+      expect(result).toBe(false);
+    });
+  });
+
+  describe("updatePendingTasksState", () => {
+    it("should set showTasksCompleteBanner to true when user had tasks and resolved all of them", () => {
+      const currentState: AtRiskPasswordCalloutData = {
+        hadPendingTasks: true,
+        showTasksCompleteBanner: false,
+        tasksBannerDismissed: false,
+      };
+      const returnedState = {
+        state$: of(currentState),
+        update: jest.fn().mockResolvedValue(undefined),
+      };
+      mockStateProvider.getUser.mockReturnValue(returnedState);
+
+      service.updatePendingTasksState(userId, 0);
+
+      expect(returnedState.update).toHaveBeenCalledWith(expect.any(Function));
+      const updater = (returnedState.update as jest.Mock).mock.calls[0][0];
+      expect(updater()).toEqual({
+        hadPendingTasks: false,
+        showTasksCompleteBanner: true,
+        tasksBannerDismissed: false,
+      });
+    });
+
+    it("should set hadPendingTasks to true when user has tasks", () => {
+      const currentState: AtRiskPasswordCalloutData = {
+        hadPendingTasks: false,
+        showTasksCompleteBanner: false,
+        tasksBannerDismissed: false,
+      };
+      const returnedState = {
+        state$: of(currentState),
+        update: jest.fn().mockResolvedValue(undefined),
+      };
+      mockStateProvider.getUser.mockReturnValue(returnedState);
+
+      service.updatePendingTasksState(userId, 2);
+
+      expect(returnedState.update).toHaveBeenCalledWith(expect.any(Function));
+      const updater = (returnedState.update as jest.Mock).mock.calls[0][0];
+      expect(updater()).toEqual({
+        hadPendingTasks: true,
+        showTasksCompleteBanner: false,
+        tasksBannerDismissed: false,
+      });
+    });
+
+    it("should not update state when no changes made", () => {
+      const currentState: AtRiskPasswordCalloutData = {
+        hadPendingTasks: false,
+        showTasksCompleteBanner: false,
+        tasksBannerDismissed: false,
+      };
+      const returnedState = {
+        state$: of(currentState),
+        update: jest.fn().mockResolvedValue(undefined),
+      };
+      mockStateProvider.getUser.mockReturnValue(returnedState);
+
+      service.updatePendingTasksState(userId, 0);
+
+      expect(returnedState.update).not.toHaveBeenCalled();
+    });
+  });
 });

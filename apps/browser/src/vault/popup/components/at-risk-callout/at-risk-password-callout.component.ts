@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, inject, effect, signal, Signal, WritableSignal, computed } from "@angular/core";
+import { Component, inject, effect, signal, Signal, WritableSignal } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { RouterModule } from "@angular/router";
 
@@ -30,15 +30,9 @@ export class AtRiskPasswordCalloutComponent {
   private atRiskPasswordCalloutService = inject(AtRiskPasswordCalloutService);
   private userIdSignal = toSignal(this.activeAccount$, { initialValue: null });
 
-  private atRiskPasswordStateSignal = toSignal(
-    this.atRiskPasswordCalloutService.atRiskPasswordState(this.userIdSignal()!).state$,
-    {
-      initialValue: {
-        hadPendingTasks: false,
-        showTasksCompleteBanner: false,
-        tasksBannerDismissed: false,
-      } as AtRiskPasswordCalloutData,
-    },
+  showTasksCompleteBanner = toSignal(
+    this.atRiskPasswordCalloutService.shouldShowCompletionBanner$(this.userIdSignal()!),
+    { initialValue: false },
   );
 
   currentPendingTasks: Signal<SecurityTask[] | null> = toSignal(
@@ -50,58 +44,24 @@ export class AtRiskPasswordCalloutComponent {
 
   dismissedClicked: WritableSignal<boolean> = signal(false);
 
-  showTasksCompleteBanner = computed(() => {
-    if (this.dismissedClicked()) {
-      return false;
-    }
-
-    const { showTasksCompleteBanner, hadPendingTasks } = this.atRiskPasswordStateSignal() ?? {};
-    const hasPendingTasks = (this.currentPendingTasks()?.length ?? 0) > 0;
-
-    return !hasPendingTasks && (showTasksCompleteBanner || hadPendingTasks);
-  });
-
   constructor() {
     effect(() => {
       const pendingTasksLength = this.currentPendingTasks()?.length ?? 0;
-      let updateObject: AtRiskPasswordCalloutData | null = null;
 
-      // If the user has resolved all tasks, we will show the banner
-      if (this.atRiskPasswordStateSignal()?.hadPendingTasks && pendingTasksLength === 0) {
-        updateObject = {
-          hadPendingTasks: false,
-          showTasksCompleteBanner: true,
-          tasksBannerDismissed: false,
-        };
-      }
-
-      // If user has pending tasks set state hadPendingTasks to true
-      if (pendingTasksLength > 0) {
-        updateObject = {
-          hadPendingTasks: true,
-          showTasksCompleteBanner: false,
-          tasksBannerDismissed: false,
-        };
-      }
-
-      if (updateObject) {
-        this.atRiskPasswordCalloutService.updateAtRiskPasswordState(
-          this.userIdSignal()!,
-          updateObject,
-        );
-      }
+      this.atRiskPasswordCalloutService.updatePendingTasksState(
+        this.userIdSignal()!,
+        pendingTasksLength,
+      );
     });
   }
 
   successBannerDismissed() {
-    // If the user dismisses the banner, we will update the state to reflect that
     const updateObject: AtRiskPasswordCalloutData = {
       hadPendingTasks: false,
       showTasksCompleteBanner: false,
       tasksBannerDismissed: true,
     };
     this.atRiskPasswordCalloutService.updateAtRiskPasswordState(this.userIdSignal()!, updateObject);
-
     this.dismissedClicked.set(true);
   }
 }
