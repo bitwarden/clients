@@ -96,11 +96,6 @@ export abstract class SsoLoginServiceAbstraction {
   abstract ssoRequiredCache$: Observable<string[] | null>;
 
   /**
-   * Add an email to the cached list of emails that must authenticate via SSO.
-   */
-  abstract addToSsoRequiredCache: (email: string) => Promise<void>;
-
-  /**
    * Remove an email from the cached list of emails that must authenticate via SSO.
    */
   abstract removeFromSsoRequiredCacheIfPresent: (email: string) => Promise<void>;

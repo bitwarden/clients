@@ -144,7 +144,10 @@ export class SsoLoginService implements SsoLoginServiceAbstraction {
     return this.stateProvider.getUser(userId, USER_ORGANIZATION_SSO_IDENTIFIER);
   }
 
-  async addToSsoRequiredCache(email: string): Promise<void> {
+  /**
+   * Add an email to the cached list of emails that must authenticate via SSO.
+   */
+  private async addToSsoRequiredCache(email: string): Promise<void> {
     await this.ssoRequiredCacheState.update(
       (cache) => (cache == null ? [email] : [...cache, email]),
       {
