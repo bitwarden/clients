@@ -160,7 +160,6 @@ export class ProviderPaymentDetailsComponent implements OnInit, OnDestroy {
     private providerWarningsService: ProviderWarningsService,
     private router: Router,
     private subscriberBillingClient: SubscriberBillingClient,
-    private accountService: AccountService,
   ) {}
 
   async ngOnInit() {
