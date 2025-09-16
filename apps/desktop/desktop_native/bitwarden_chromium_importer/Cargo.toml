@@ -17,7 +17,7 @@ homedir = { workspace = true }
 log = { workspace = true }
 pbkdf2 = "=0.12.2"
 rand = { workspace = true }
-rusqlite = { version = "=0.35.0", features = ["bundled"] }
+rusqlite = { version = "=0.37.0", features = ["bundled"] }
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
 sha1 = "=0.10.6"
