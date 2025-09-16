@@ -13,7 +13,7 @@ default = [
     "dep:security-framework",
     "dep:security-framework-sys",
     "dep:zbus",
-    "dep:zbus_polkit"
+    "dep:zbus_polkit",
 ]
 manual_test = []
 
@@ -48,12 +48,26 @@ ssh-key = { workspace = true, features = [
 ] }
 sysinfo = { workspace = true, features = ["windows"] }
 thiserror = { workspace = true }
-tracing = { workspace = true }
 tokio = { workspace = true, features = ["io-util", "sync", "macros", "net"] }
 tokio-stream = { workspace = true, features = ["net"] }
 tokio-util = { workspace = true, features = ["codec"] }
+tracing = { workspace = true }
 typenum = { workspace = true }
 zeroizing-alloc = { workspace = true }
+
+[target.'cfg(target_os = "linux")'.dependencies]
+ashpd = { workspace = true }
+libc = { workspace = true }
+oo7 = { workspace = true }
+
+zbus = { workspace = true, optional = true }
+zbus_polkit = { workspace = true, optional = true }
+
+[target.'cfg(target_os = "macos")'.dependencies]
+core-foundation = { workspace = true, optional = true }
+desktop_objc = { path = "../objc" }
+security-framework = { workspace = true, optional = true }
+security-framework-sys = { workspace = true, optional = true }
 
 [target.'cfg(windows)'.dependencies]
 widestring = { workspace = true, optional = true }
@@ -73,20 +87,6 @@ windows-future = { workspace = true }
 
 [target.'cfg(windows)'.dev-dependencies]
 keytar = { workspace = true }
-
-[target.'cfg(target_os = "macos")'.dependencies]
-core-foundation = { workspace = true, optional = true }
-security-framework = { workspace = true, optional = true }
-security-framework-sys = { workspace = true, optional = true }
-desktop_objc = { path = "../objc" }
-
-[target.'cfg(target_os = "linux")'.dependencies]
-oo7 = { workspace = true }
-libc = { workspace = true }
-ashpd = { workspace = true }
-
-zbus = { workspace = true, optional = true }
-zbus_polkit = { workspace = true, optional = true }
 
 [lints]
 workspace = true

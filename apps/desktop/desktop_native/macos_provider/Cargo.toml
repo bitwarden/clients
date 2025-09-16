@@ -5,13 +5,13 @@ license = { workspace = true }
 version = { workspace = true }
 publish = { workspace = true }
 
-[[bin]]
-name = "uniffi-bindgen"
-path = "uniffi-bindgen.rs"
-
 [lib]
 crate-type = ["staticlib", "cdylib"]
 bench = false
+
+[[bin]]
+name = "uniffi-bindgen"
+path = "uniffi-bindgen.rs"
 
 [dependencies]
 desktop_core = { path = "../core" }
