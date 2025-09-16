@@ -59,6 +59,7 @@ import {
 } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { DefaultBillingAccountProfileStateService } from "@bitwarden/common/billing/services/account/billing-account-profile-state.service";
+import { HibpApiService } from "@bitwarden/common/dirt/services/hibp-api.service";
 import { ClientType } from "@bitwarden/common/enums";
 import {
   DefaultKeyGenerationService,
@@ -221,6 +222,7 @@ export class ServiceContainer {
   tokenService: TokenService;
   appIdService: AppIdService;
   apiService: NodeApiService;
+  hibpApiService: HibpApiService;
   environmentService: EnvironmentService;
   cipherService: CipherService;
   folderService: InternalFolderService;
@@ -864,7 +866,12 @@ export class ServiceContainer {
 
     this.userAutoUnlockKeyService = new UserAutoUnlockKeyService(this.keyService);
 
-    this.auditService = new AuditService(this.cryptoFunctionService, this.apiService);
+    this.hibpApiService = new HibpApiService(this.apiService);
+    this.auditService = new AuditService(
+      this.cryptoFunctionService,
+      this.apiService,
+      this.hibpApiService,
+    );
 
     this.eventUploadService = new EventUploadService(
       this.apiService,
