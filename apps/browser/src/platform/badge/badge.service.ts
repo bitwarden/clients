@@ -141,8 +141,8 @@ export class BadgeService {
     this.stateFunctions.next(newDynamicStateFunctions);
   }
 
-  private calculateState(states: Set<BadgeStateSetting>): RawBadgeState {
-    const sortedStates = [...states].sort((a, b) => a.priority - b.priority);
+  private calculateState(states: BadgeStateSetting[]): RawBadgeState {
+    const sortedStates = states.sort((a, b) => a.priority - b.priority);
 
     const mergedState = sortedStates
       .map((s) => s.state)
@@ -173,7 +173,7 @@ export class BadgeService {
    * @param activeTabs The currently active tabs. If not provided, it will be fetched from the badge API.
    */
   private async updateBadge(serviceState: BadgeStateSetting[], tabId: number) {
-    const newBadgeState = this.calculateState(new Set(serviceState));
+    const newBadgeState = this.calculateState(serviceState);
     try {
       await this.badgeApi.setState(newBadgeState, tabId);
     } catch (error) {
