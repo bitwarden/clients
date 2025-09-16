@@ -1,11 +1,11 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-
 import { Opaque } from "type-fest";
 
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { BadgeVariant } from "@bitwarden/components";
+import { EncString } from "@bitwarden/sdk-internal";
 
 /**
  * All applications report summary. The total members,
@@ -132,6 +132,16 @@ export type AppAtRiskMembersDialogParams = {
   applicationName: string;
 };
 
+/*
+ * After data is encrypted, it is returned with the
+ * encryption key used to encrypt the data.
+ */
+export interface EncryptedDataWithKey {
+  organizationId: OrganizationId;
+  encryptedData: EncString;
+  encryptionKey: EncString;
+}
+
 /**
  * Request to drop a password health report application
  * Model is expected by the API endpoint
@@ -158,6 +168,13 @@ export interface PasswordHealthReportApplicationsRequest {
   url: string;
 }
 
+export interface EncryptedDataModel {
+  organizationId: OrganizationId;
+  encryptedData: string;
+  encryptionKey: string;
+  date: Date;
+}
+
 // FIXME: update to use a const object instead of a typescript enum
 // eslint-disable-next-line @bitwarden/platform/no-enums
 export enum DrawerType {
@@ -165,6 +182,34 @@ export enum DrawerType {
   AppAtRiskMembers = 1,
   OrgAtRiskMembers = 2,
   OrgAtRiskApps = 3,
+}
+
+export interface RiskInsightsReport {
+  organizationId: OrganizationId;
+  date: string;
+  reportData: string;
+  reportKey: string;
+}
+
+export interface ReportInsightsReportData {
+  data: ApplicationHealthReportDetail[];
+  summary: ApplicationHealthReportSummary;
+}
+
+export interface SaveRiskInsightsReportRequest {
+  data: RiskInsightsReport;
+}
+
+export interface SaveRiskInsightsReportResponse {
+  id: string;
+}
+
+export interface GetRiskInsightsReportResponse {
+  id: string;
+  organizationId: OrganizationId;
+  date: string;
+  reportData: EncString;
+  reportKey: EncString;
 }
 
 export type PasswordHealthReportApplicationId = Opaque<string, "PasswordHealthReportApplicationId">;

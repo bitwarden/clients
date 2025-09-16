@@ -6,7 +6,6 @@ import {
   debounceTime,
   distinctUntilChanged,
   filter,
-  from,
   map,
   Observable,
   shareReplay,
@@ -29,6 +28,7 @@ import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import {
   KeyDefinition,
@@ -237,7 +237,10 @@ export class VaultPopupListFiltersService {
               return false;
             }
 
-            if (filters.collection && !cipher.collectionIds?.includes(filters.collection.id!)) {
+            if (
+              filters.collection &&
+              !cipher.collectionIds?.includes(asUuid(filters.collection.id!))
+            ) {
               return false;
             }
 
@@ -446,7 +449,7 @@ export class VaultPopupListFiltersService {
           this.filters$.pipe(
             distinctUntilChanged((prev, curr) => prev.organization?.id === curr.organization?.id),
           ),
-          this.collectionService.decryptedCollections$,
+          this.collectionService.decryptedCollections$(userId),
           this.organizationService.memberOrganizations$(userId),
           this.configService.getFeatureFlag$(FeatureFlag.CreateDefaultLocation),
         ]),
@@ -463,16 +466,11 @@ export class VaultPopupListFiltersService {
         }
         return sortDefaultCollections(filtered, orgs, this.i18nService.collator);
       }),
-      switchMap((collections) => {
-        return from(this.collectionService.getAllNested(collections)).pipe(
-          map(
-            (nested) =>
-              new DynamicTreeNode<CollectionView>({
-                fullList: collections,
-                nestedList: nested,
-              }),
-          ),
-        );
+      map((fullList) => {
+        return new DynamicTreeNode<CollectionView>({
+          fullList,
+          nestedList: this.collectionService.getAllNested(fullList),
+        });
       }),
       map((tree) =>
         tree.nestedList.map((c) => this.convertToChipSelectOption(c, "bwi-collection-shared")),

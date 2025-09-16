@@ -1,8 +1,6 @@
 import { inject, Injectable } from "@angular/core";
-import { combineLatest, map, Observable, of, shareReplay, switchMap } from "rxjs";
+import { combineLatest, map, Observable, shareReplay } from "rxjs";
 
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { UserKeyDefinition, NUDGES_DISK } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
@@ -83,7 +81,6 @@ export class NudgesService {
    * @private
    */
   private defaultNudgeService = inject(DefaultSingleNudgeService);
-  private configService = inject(ConfigService);
 
   private getNudgeService(nudge: NudgeType): SingleNudgeService {
     return this.customNudgeServices[nudge] ?? this.defaultNudgeService;
@@ -95,16 +92,9 @@ export class NudgesService {
    * @param userId
    */
   showNudgeSpotlight$(nudge: NudgeType, userId: UserId): Observable<boolean> {
-    return this.configService.getFeatureFlag$(FeatureFlag.PM8851_BrowserOnboardingNudge).pipe(
-      switchMap((hasVaultNudgeFlag) => {
-        if (!hasVaultNudgeFlag) {
-          return of(false);
-        }
-        return this.getNudgeService(nudge)
-          .nudgeStatus$(nudge, userId)
-          .pipe(map((nudgeStatus) => !nudgeStatus.hasSpotlightDismissed));
-      }),
-    );
+    return this.getNudgeService(nudge)
+      .nudgeStatus$(nudge, userId)
+      .pipe(map((nudgeStatus) => !nudgeStatus.hasSpotlightDismissed));
   }
 
   /**
@@ -113,16 +103,9 @@ export class NudgesService {
    * @param userId
    */
   showNudgeBadge$(nudge: NudgeType, userId: UserId): Observable<boolean> {
-    return this.configService.getFeatureFlag$(FeatureFlag.PM8851_BrowserOnboardingNudge).pipe(
-      switchMap((hasVaultNudgeFlag) => {
-        if (!hasVaultNudgeFlag) {
-          return of(false);
-        }
-        return this.getNudgeService(nudge)
-          .nudgeStatus$(nudge, userId)
-          .pipe(map((nudgeStatus) => !nudgeStatus.hasBadgeDismissed));
-      }),
-    );
+    return this.getNudgeService(nudge)
+      .nudgeStatus$(nudge, userId)
+      .pipe(map((nudgeStatus) => !nudgeStatus.hasBadgeDismissed));
   }
 
   /**
@@ -131,14 +114,7 @@ export class NudgesService {
    * @param userId
    */
   showNudgeStatus$(nudge: NudgeType, userId: UserId) {
-    return this.configService.getFeatureFlag$(FeatureFlag.PM8851_BrowserOnboardingNudge).pipe(
-      switchMap((hasVaultNudgeFlag) => {
-        if (!hasVaultNudgeFlag) {
-          return of({ hasBadgeDismissed: true, hasSpotlightDismissed: true } as NudgeStatus);
-        }
-        return this.getNudgeService(nudge).nudgeStatus$(nudge, userId);
-      }),
-    );
+    return this.getNudgeService(nudge).nudgeStatus$(nudge, userId);
   }
 
   /**
@@ -160,7 +136,6 @@ export class NudgesService {
   hasActiveBadges$(userId: UserId): Observable<boolean> {
     // Add more nudge types here if they have the settings badge feature
     const nudgeTypes = [
-      NudgeType.AccountSecurity,
       NudgeType.EmptyVaultNudge,
       NudgeType.DownloadBitwarden,
       NudgeType.AutofillNudge,

@@ -52,8 +52,8 @@ export class MembersComponent extends BaseMembersComponent<ProviderUser> {
   dataSource = new MembersTableDataSource();
   loading = true;
   providerId: string;
-  rowHeight = 69;
-  rowHeightClass = `tw-h-[69px]`;
+  rowHeight = 70;
+  rowHeightClass = `tw-h-[70px]`;
   status: ProviderUserStatusType = null;
 
   userStatusType = ProviderUserStatusType;
@@ -168,6 +168,10 @@ export class MembersComponent extends BaseMembersComponent<ProviderUser> {
     } catch (error) {
       this.validationService.showError(error);
     }
+  }
+
+  async invite() {
+    await this.edit(null);
   }
 
   async bulkRemove(): Promise<void> {

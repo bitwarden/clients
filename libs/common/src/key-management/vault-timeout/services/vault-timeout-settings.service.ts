@@ -16,10 +16,7 @@ import {
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import {
-  PinServiceAbstraction,
-  UserDecryptionOptionsServiceAbstraction,
-} from "@bitwarden/auth/common";
+import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { BiometricStateService, KeyService } from "@bitwarden/key-management";
@@ -33,6 +30,7 @@ import { TokenService } from "../../../auth/abstractions/token.service";
 import { LogService } from "../../../platform/abstractions/log.service";
 import { StateProvider } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
+import { PinServiceAbstraction } from "../../pin/pin.service.abstraction";
 import { VaultTimeoutSettingsService as VaultTimeoutSettingsServiceAbstraction } from "../abstractions/vault-timeout-settings.service";
 import { VaultTimeoutAction } from "../enums/vault-timeout-action.enum";
 import { VaultTimeout, VaultTimeoutStringType } from "../types/vault-timeout.type";
@@ -72,17 +70,17 @@ export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceA
 
     // We swap these tokens from being on disk for lock actions, and in memory for logout actions
     // Get them here to set them to their new location after changing the timeout action and clearing if needed
-    const accessToken = await this.tokenService.getAccessToken();
-    const refreshToken = await this.tokenService.getRefreshToken();
-    const clientId = await this.tokenService.getClientId();
-    const clientSecret = await this.tokenService.getClientSecret();
+    const accessToken = await this.tokenService.getAccessToken(userId);
+    const refreshToken = await this.tokenService.getRefreshToken(userId);
+    const clientId = await this.tokenService.getClientId(userId);
+    const clientSecret = await this.tokenService.getClientSecret(userId);
 
     await this.setVaultTimeout(userId, timeout);
 
     if (timeout != VaultTimeoutStringType.Never && action === VaultTimeoutAction.LogOut) {
       // if we have a vault timeout and the action is log out, reset tokens
       // as the tokens were stored on disk and now should be stored in memory
-      await this.tokenService.clearTokens();
+      await this.tokenService.clearTokens(userId);
     }
 
     await this.setVaultTimeoutAction(userId, action);

@@ -1,21 +1,28 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
+import { combineLatest, firstValueFrom, from, map, Observable, of, switchMap } from "rxjs";
+
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import {
+  getOrganizationById,
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { SelectionReadOnlyRequest } from "@bitwarden/common/admin-console/models/request/selection-read-only.request";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { OrgKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
 
 import { CollectionAdminService, CollectionService } from "../abstractions";
 import {
   CollectionData,
-  CollectionRequest,
   CollectionAccessDetailsResponse,
   CollectionDetailsResponse,
   CollectionResponse,
   BulkCollectionAccessRequest,
   CollectionAccessSelectionView,
   CollectionAdminView,
+  BaseCollectionRequest,
+  UpdateCollectionRequest,
+  CreateCollectionRequest,
 } from "../models";
 
 export class DefaultCollectionAdminService implements CollectionAdminService {
@@ -24,63 +31,76 @@ export class DefaultCollectionAdminService implements CollectionAdminService {
     private keyService: KeyService,
     private encryptService: EncryptService,
     private collectionService: CollectionService,
+    private organizationService: OrganizationService,
   ) {}
 
-  async getAll(organizationId: string): Promise<CollectionAdminView[]> {
-    const collectionResponse =
-      await this.apiService.getManyCollectionsWithAccessDetails(organizationId);
+  collectionAdminViews$(organizationId: string, userId: UserId): Observable<CollectionAdminView[]> {
+    return combineLatest([
+      this.keyService.orgKeys$(userId),
+      from(this.apiService.getManyCollectionsWithAccessDetails(organizationId)),
+    ]).pipe(
+      switchMap(([orgKeys, res]) => {
+        if (res?.data == null || res.data.length === 0) {
+          return of([]);
+        }
+        if (orgKeys == null) {
+          throw new Error("No org keys found.");
+        }
 
-    if (collectionResponse?.data == null || collectionResponse.data.length === 0) {
-      return [];
-    }
-
-    return await this.decryptMany(organizationId, collectionResponse.data);
+        return this.decryptMany(organizationId, res.data, orgKeys);
+      }),
+    );
   }
 
-  async get(
-    organizationId: string,
-    collectionId: string,
-  ): Promise<CollectionAdminView | undefined> {
-    const collectionResponse = await this.apiService.getCollectionAccessDetails(
-      organizationId,
-      collectionId,
+  async update(
+    collection: CollectionAdminView,
+    userId: UserId,
+  ): Promise<CollectionDetailsResponse> {
+    const request = await this.encrypt(collection, userId, true);
+    if (!BaseCollectionRequest.isUpdate(request)) {
+      throw new Error("Cannot update collection with CreateCollectionRequest.");
+    }
+
+    const response = await this.apiService.putCollection(
+      collection.organizationId,
+      collection.id,
+      request,
     );
 
-    if (collectionResponse == null) {
-      return undefined;
-    }
+    await this.updateLocalCollections(response, collection, userId);
 
-    const [view] = await this.decryptMany(organizationId, [collectionResponse]);
-
-    return view;
+    return response;
   }
 
-  async save(collection: CollectionAdminView): Promise<CollectionDetailsResponse> {
-    const request = await this.encrypt(collection);
-
-    let response: CollectionDetailsResponse;
-    if (collection.id == null) {
-      response = await this.apiService.postCollection(collection.organizationId, request);
-      collection.id = response.id;
-    } else {
-      response = await this.apiService.putCollection(
-        collection.organizationId,
-        collection.id,
-        request,
-      );
+  async create(
+    collection: CollectionAdminView,
+    userId: UserId,
+  ): Promise<CollectionDetailsResponse> {
+    const request = await this.encrypt(collection, userId, false);
+    if (BaseCollectionRequest.isUpdate(request)) {
+      throw new Error("Cannot create collection with UpdateCollectionRequest.");
     }
 
-    if (response.assigned) {
-      await this.collectionService.upsert(new CollectionData(response));
-    } else {
-      await this.collectionService.delete(collection.id);
-    }
+    const response = await this.apiService.postCollection(collection.organizationId, request);
+    collection.id = response.id;
+
+    await this.updateLocalCollections(response, collection, userId);
 
     return response;
   }
 
   async delete(organizationId: string, collectionId: string): Promise<void> {
     await this.apiService.deleteCollection(organizationId, collectionId);
+  }
+
+  private async updateLocalCollections(
+    response: CollectionDetailsResponse,
+    collection: CollectionAdminView,
+    userId: UserId,
+  ) {
+    response.assigned
+      ? await this.collectionService.upsert(new CollectionData(response), userId)
+      : await this.collectionService.delete([collection.id as CollectionId], userId);
   }
 
   async bulkAssignAccess(
@@ -110,52 +130,90 @@ export class DefaultCollectionAdminService implements CollectionAdminService {
   private async decryptMany(
     organizationId: string,
     collections: CollectionResponse[] | CollectionAccessDetailsResponse[],
+    orgKeys: Record<OrganizationId, OrgKey>,
   ): Promise<CollectionAdminView[]> {
-    const orgKey = await this.keyService.getOrgKey(organizationId);
-
     const promises = collections.map(async (c) => {
-      const view = new CollectionAdminView();
-      view.id = c.id;
-      view.name = await this.encryptService.decryptString(new EncString(c.name), orgKey);
-      view.externalId = c.externalId;
-      view.organizationId = c.organizationId;
-
       if (isCollectionAccessDetailsResponse(c)) {
-        view.groups = c.groups;
-        view.users = c.users;
-        view.assigned = c.assigned;
-        view.readOnly = c.readOnly;
-        view.hidePasswords = c.hidePasswords;
-        view.manage = c.manage;
-        view.unmanaged = c.unmanaged;
+        return CollectionAdminView.fromCollectionAccessDetails(
+          c,
+          this.encryptService,
+          orgKeys[organizationId as OrganizationId],
+        );
       }
 
-      return view;
+      return await CollectionAdminView.fromCollectionResponse(
+        c,
+        this.encryptService,
+        orgKeys[organizationId as OrganizationId],
+      );
     });
 
-    return await Promise.all(promises);
+    const r = await Promise.all(promises);
+    return r;
   }
 
-  private async encrypt(model: CollectionAdminView): Promise<CollectionRequest> {
-    if (model.organizationId == null) {
+  private async encrypt(
+    model: CollectionAdminView,
+    userId: UserId,
+    editMode: boolean,
+  ): Promise<UpdateCollectionRequest | CreateCollectionRequest> {
+    if (!model.organizationId) {
       throw new Error("Collection has no organization id.");
     }
-    const key = await this.keyService.getOrgKey(model.organizationId);
-    if (key == null) {
-      throw new Error("No key for this collection's organization.");
-    }
-    const collection = new CollectionRequest();
-    collection.externalId = model.externalId;
-    collection.name = (await this.encryptService.encryptString(model.name, key)).encryptedString;
-    collection.groups = model.groups.map(
+
+    const key = await firstValueFrom(
+      this.keyService.orgKeys$(userId).pipe(
+        map((orgKeys) => {
+          if (!orgKeys) {
+            throw new Error("No keys for the provided userId.");
+          }
+
+          const key = orgKeys[model.organizationId];
+
+          if (key == null) {
+            throw new Error("No key for this collection's organization.");
+          }
+
+          return key;
+        }),
+      ),
+    );
+
+    const groups = model.groups.map(
       (group) =>
         new SelectionReadOnlyRequest(group.id, group.readOnly, group.hidePasswords, group.manage),
     );
-    collection.users = model.users.map(
+
+    const users = model.users.map(
       (user) =>
         new SelectionReadOnlyRequest(user.id, user.readOnly, user.hidePasswords, user.manage),
     );
-    return collection;
+
+    if (editMode) {
+      const org = await firstValueFrom(
+        this.organizationService
+          .organizations$(userId)
+          .pipe(getOrganizationById(model.organizationId)),
+      );
+      if (org == null) {
+        throw new Error("No Organization found.");
+      }
+      return new UpdateCollectionRequest({
+        name: model.canEditName(org)
+          ? await this.encryptService.encryptString(model.name, key)
+          : null,
+        externalId: model.externalId,
+        users,
+        groups,
+      });
+    }
+
+    return new CreateCollectionRequest({
+      name: await this.encryptService.encryptString(model.name, key),
+      externalId: model.externalId,
+      users,
+      groups,
+    });
   }
 }
 

@@ -49,7 +49,6 @@ export type EmergencyAccessTakeoverDialogResultType =
  * @link https://bitwarden.com/help/emergency-access/
  */
 @Component({
-  standalone: true,
   selector: "auth-emergency-access-takeover-dialog",
   templateUrl: "./emergency-access-takeover-dialog.component.html",
   imports: [
@@ -116,10 +115,12 @@ export class EmergencyAccessTakeoverDialogComponent implements OnInit {
     this.parentSubmittingBehaviorSubject.next(true);
 
     try {
+      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
       await this.emergencyAccessService.takeover(
         this.dialogData.emergencyAccessId,
         passwordInputResult.newPassword,
         this.dialogData.grantorEmail,
+        activeUserId,
       );
     } catch (e) {
       this.logService.error(e);

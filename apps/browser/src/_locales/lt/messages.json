@@ -3,14 +3,14 @@
     "message": "Bitwarden"
   },
   "appLogoLabel": {
-    "message": "Bitwarden logotipas"
+    "message": "„Bitwarden“ logotipas"
   },
   "extName": {
     "message": "„Bitwarden“ slaptažodžių tvarkyklė",
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
   },
   "extDesc": {
-    "message": "Namuose, darbe ar kelyje, Bitwarden apsaugo jūsų slaptažodžius, raktažodžius ir svarbią informaciją",
+    "message": "Namuose, darbe ar kelyje, „Bitwarden“ apsaugo jūsų slaptažodžius, raktažodžius ir svarbią informaciją",
     "description": "Extension description, MUST be less than 112 characters (Safari restriction)"
   },
   "loginOrCreateNewAccount": {
@@ -23,13 +23,13 @@
     "message": "Sukurti paskyrą"
   },
   "newToBitwarden": {
-    "message": "Pirmą kartą Bitwarden?"
+    "message": "Pirmą kartą „Bitwarden“?"
   },
   "logInWithPasskey": {
     "message": "Prisijungti naudojant prieigos raktą"
   },
   "useSingleSignOn": {
-    "message": "Use single sign-on"
+    "message": "Naudoti vieningo prisijungimo sistemą"
   },
   "welcomeBack": {
     "message": "Sveiki sugrįžę"
@@ -38,7 +38,7 @@
     "message": "Nustatyti stiprų slaptažodį"
   },
   "finishCreatingYourAccountBySettingAPassword": {
-    "message": "Baigkite kurti paskyrą nustatydami slaptažodį"
+    "message": "Baikite kurti paskyrą nustatydami slaptažodį"
   },
   "enterpriseSingleSignOn": {
     "message": "Vienkartinis įmonės prisijungimas"
@@ -59,10 +59,10 @@
     "message": "Pagrindinis slaptažodis"
   },
   "masterPassDesc": {
-    "message": "Pagrindinis slaptažodis yra slaptažodis, kurį naudojate norėdami pasiekti savo saugyklą. Labai svarbu nepamiršti pagrindinio slaptažodžio. Nėra galimybių atkurti slaptažodį, jei jį pamiršite."
+    "message": "Pagrindinis slaptažodis yra slaptažodis, kurį naudojate norėdami pasiekti savo saugyklą. Labai svarbu nepamiršti pagrindinio slaptažodžio. Nėra galimybių atkurti slaptažodžio, jei jį pamiršite."
   },
   "masterPassHintDesc": {
-    "message": "Pagrindinio slaptažodžio užuomina gali padėti Jums prisiminti slaptažodį, jei jį pamiršite."
+    "message": "Pagrindinio slaptažodžio užuomina gali padėti jums prisiminti slaptažodį, jei jį pamiršite."
   },
   "masterPassHintText": {
     "message": "Jei pamiršote slaptažodį, slaptažodžio užuomina gali būti išsiųsta į jūsų el. paštą. $CURRENT$ / $MAXIMUM$ didžiausias simbolių skaičius.",
@@ -105,7 +105,7 @@
     }
   },
   "finishJoiningThisOrganizationBySettingAMasterPassword": {
-    "message": "Baigėte prisijungimą prie organizacijos nustatant pagrindinį slaptažodį."
+    "message": "Užbaikite prisijungimą prie organizacijos nustatydami pagrindinį slaptažodį."
   },
   "tab": {
     "message": "Skirtukas"
@@ -132,7 +132,7 @@
     "message": "Kopijuoti slaptažodį"
   },
   "copyPassphrase": {
-    "message": "Kopijuoti slaptažodžio frazę"
+    "message": "Kopijuoti slaptą frazę"
   },
   "copyNote": {
     "message": "Kopijuoti pastabą"
@@ -156,13 +156,13 @@
     "message": "Kopijuoti įmonę"
   },
   "copySSN": {
-    "message": "Kopijuoti socialinės apsaugos numerį"
+    "message": "Kopijuoti asmens kodo numerį"
   },
   "copyPassportNumber": {
     "message": "Kopijuoti paso numerį"
   },
   "copyLicenseNumber": {
-    "message": "Kopijuoti licenzijos numerį"
+    "message": "Kopijuoti licencijos numerį"
   },
   "copyPrivateKey": {
     "message": "Kopijuoti privatų raktą"
@@ -193,7 +193,7 @@
     "description": "Copy to clipboard"
   },
   "fill": {
-    "message": "Fill",
+    "message": "Užpildyti",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
   "autoFill": {
@@ -209,10 +209,10 @@
     "message": "Tapatybės automatinis užpildymas"
   },
   "fillVerificationCode": {
-    "message": "Fill verification code"
+    "message": "Užpildyti patvirtinimo kodą"
   },
   "fillVerificationCodeAria": {
-    "message": "Fill Verification Code",
+    "message": "Užpildyti patvirtinimo kodą",
     "description": "Aria label for the heading displayed the inline menu for totp code autofill"
   },
   "generatePasswordCopied": {
@@ -240,10 +240,10 @@
     "message": "Pridėti tapatybę"
   },
   "unlockVaultMenu": {
-    "message": "Atrakinti Jūsų saugyklą"
+    "message": "Atrakinti jūsų saugyklą"
   },
   "loginToVaultMenu": {
-    "message": "Prisijungti prie Jūsų saugyklos"
+    "message": "Prisijungti prie jūsų saugyklos"
   },
   "autoFillInfo": {
     "message": "Nėra galimų prisijungimų prie dabartinio naršyklės skirtuko."
@@ -255,16 +255,16 @@
     "message": "Pridėti elementą"
   },
   "accountEmail": {
-    "message": "Account email"
+    "message": "Paskyros el. paštas"
   },
   "requestHint": {
-    "message": "Request hint"
+    "message": "Duoti užuominą"
   },
   "requestPasswordHint": {
-    "message": "Request password hint"
+    "message": "Duoti slaptažodžio užuominą"
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
-    "message": "Enter your account email address and your password hint will be sent to you"
+    "message": "Įveskite savo paskyros el. pašą ir jūsų slaptažodžio užuomina bus atsiųsta jums"
   },
   "getMasterPasswordHint": {
     "message": "Gauti pagrindinio slaptažodžio užuominą"
@@ -291,25 +291,25 @@
     "message": "Keisti pagrindinį slaptažodį"
   },
   "continueToWebApp": {
-    "message": "Tęsti į žiniatinklio programėlę?"
+    "message": "Tęsti į žiniatinklio programą?"
   },
   "continueToWebAppDesc": {
-    "message": "Atraskite daugiau savo Bitwarden paskyros funkcijų web programoje."
+    "message": "Atraskite daugiau savo „Bitwarden“ paskyros funkcijų žiniatinklio programoje."
   },
   "continueToHelpCenter": {
     "message": "Eiti į pagalbos centrą?"
   },
   "continueToHelpCenterDesc": {
-    "message": "Pagalbos Centre sužinokite daugiau kaip naudotis Bitwarden."
+    "message": "Pagalbos centre sužinokite daugiau, kaip naudotis „Bitwarden“."
   },
   "continueToBrowserExtensionStore": {
     "message": "Eiti į naršyklės plėtinių svetainę?"
   },
   "continueToBrowserExtensionStoreDesc": {
-    "message": "Padėkite kitiems sužinoti ar Bitwarden yra jiems tinkamas. Apsilankykite naršyklės plėtinių svetainėje ir įvertinkite Bitwarden."
+    "message": "Padėkite kitiems sužinoti ar B„itwarden“ yra jiems tinkamas. Apsilankykite naršyklės plėtinių svetainėje ir įvertinkite „Bitwarden“."
   },
   "changeMasterPasswordOnWebConfirmation": {
-    "message": "Pagrindinį slaptažodį galite pakeisti „Bitwarden“ žiniatinklio programėlėje."
+    "message": "Pagrindinį slaptažodį galite pakeisti „Bitwarden“ žiniatinklio programoje."
   },
   "fingerprintPhrase": {
     "message": "Pirštų atspaudų frazė",
@@ -383,7 +383,7 @@
     "message": "Redaguoti aplankalą"
   },
   "editFolderWithName": {
-    "message": "Edit folder: $FOLDERNAME$",
+    "message": "Redaguoti aplanką: $FOLDERNAME$",
     "placeholders": {
       "foldername": {
         "content": "$1",
@@ -392,10 +392,10 @@
     }
   },
   "newFolder": {
-    "message": "New folder"
+    "message": "Naujas aplankas"
   },
   "folderName": {
-    "message": "Folder name"
+    "message": "Aplanko vardas"
   },
   "folderHintText": {
     "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
@@ -547,11 +547,17 @@
   "searchVault": {
     "message": "Ieškoti saugykloje"
   },
+  "resetSearch": {
+    "message": "Reset search"
+  },
   "edit": {
     "message": "Keisti"
   },
   "view": {
     "message": "Peržiūrėti"
+  },
+  "viewLogin": {
+    "message": "View login"
   },
   "noItemsInList": {
     "message": "Nėra rodytinų elementų."
@@ -674,7 +680,7 @@
     "message": "Your account is locked"
   },
   "or": {
-    "message": "or"
+    "message": "arba"
   },
   "unlock": {
     "message": "Atrakinti"
@@ -699,7 +705,7 @@
     "message": "Atsijungta nuo saugyklos"
   },
   "vaultTimeout1": {
-    "message": "Timeout"
+    "message": "Skirtas laikas"
   },
   "lockNow": {
     "message": "Užrakinti dabar"
@@ -796,10 +802,10 @@
     "message": "Jūsų paskyra sukurta! Galite prisijungti."
   },
   "newAccountCreated2": {
-    "message": "Your new account has been created!"
+    "message": "Jūsų nauja paskyra buvo sukurta!"
   },
   "youHaveBeenLoggedIn": {
-    "message": "You have been logged in!"
+    "message": "Jūs prisijungėte!"
   },
   "youSuccessfullyLoggedIn": {
     "message": "Jūs sėkmingai prisijungėte"
@@ -842,7 +848,7 @@
     "message": "Nuskaitykite autentifikatoriaus QR kodą iš dabartinio tinklalapio"
   },
   "totpHelperTitle": {
-    "message": "Make 2-step verification seamless"
+    "message": "Padaryti dviejų veiksnių patvirtinimą sklandų"
   },
   "totpHelper": {
     "message": "Bitwarden can store and fill 2-step verification codes. Copy and paste the key into this field."
@@ -869,19 +875,19 @@
     "message": "Prisijungti"
   },
   "logInToBitwarden": {
-    "message": "Log in to Bitwarden"
+    "message": "Prisijungti prie „Bitwarden“"
   },
   "enterTheCodeSentToYourEmail": {
-    "message": "Enter the code sent to your email"
+    "message": "Įveskite kodą išsiųstą jums el. paštu"
   },
   "enterTheCodeFromYourAuthenticatorApp": {
-    "message": "Enter the code from your authenticator app"
+    "message": "Įveskite kodą iš autentifikacijos programėlės"
   },
   "pressYourYubiKeyToAuthenticate": {
-    "message": "Press your YubiKey to authenticate"
+    "message": "Palieskite savo „YubiKey“, kad autentifikuotumėtės"
   },
   "duoTwoFactorRequiredPageSubtitle": {
-    "message": "Duo two-step login is required for your account. Follow the steps below to finish logging in."
+    "message": "„Duo“ dviejų veiksnių prisijungimas yra privalomas jūsų paskyrai. Sekite žingsnius žemiau, kad užbaigtumėte prisijungimą."
   },
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "Follow the steps below to finish logging in."
@@ -1757,14 +1763,8 @@
   "popupU2fCloseMessage": {
     "message": "Ši naršyklė negali apdoroti U2F prašymų šiame iššokančiame lange. Ar nori atidaryti šį iššokantį langą naujame lange, kad galėtum prisijungti naudodamas (-a) U2F?"
   },
-  "enableFavicon": {
-    "message": "Rodyti tinklalapių ikonėles"
-  },
-  "faviconDesc": {
-    "message": "Rodyti atpažįstamą vaizdą šalia kiekvieno prisijungimo."
-  },
-  "faviconDescAlt": {
-    "message": "Rodyti atpažįstamą vaizdą šalia kiekvieno prisijungimo. Taikoma visoms prisijungusioms paskyroms."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "enableBadgeCounter": {
     "message": "Rodyti ženkliukų skaitiklį"
@@ -1828,6 +1828,9 @@
   },
   "securityCode": {
     "message": "Apsaugos kodas"
+  },
+  "cardNumber": {
+    "message": "card number"
   },
   "ex": {
     "message": "pvz."
@@ -3460,6 +3463,28 @@
   "logInRequestSent": {
     "message": "Request sent"
   },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
+  },
+  "device": {
+    "message": "Device"
+  },
+  "loginStatus": {
+    "message": "Login status"
+  },
   "masterPasswordChanged": {
     "message": "Master password saved"
   },
@@ -3555,6 +3580,94 @@
   },
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
     "message": "Remember this device to make future logins seamless"
+  },
+  "manageDevices": {
+    "message": "Manage devices"
+  },
+  "currentSession": {
+    "message": "Current session"
+  },
+  "mobile": {
+    "message": "Mobile",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Extension",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Desktop",
+    "description": "Desktop app"
+  },
+  "webVault": {
+    "message": "Web vault"
+  },
+  "webApp": {
+    "message": "Web app"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "requestPending": {
+    "message": "Request pending"
+  },
+  "firstLogin": {
+    "message": "First login"
+  },
+  "trusted": {
+    "message": "Trusted"
+  },
+  "needsApproval": {
+    "message": "Needs approval"
+  },
+  "devices": {
+    "message": "Devices"
+  },
+  "accessAttemptBy": {
+    "message": "Access attempt by $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "confirmAccess": {
+    "message": "Confirm access"
+  },
+  "denyAccess": {
+    "message": "Deny access"
+  },
+  "time": {
+    "message": "Time"
+  },
+  "deviceType": {
+    "message": "Device Type"
+  },
+  "loginRequest": {
+    "message": "Login request"
+  },
+  "thisRequestIsNoLongerValid": {
+    "message": "This request is no longer valid."
+  },
+  "loginRequestHasAlreadyExpired": {
+    "message": "Login request has already expired."
+  },
+  "justNow": {
+    "message": "Just now"
+  },
+  "requestedXMinutesAgo": {
+    "message": "Requested $MINUTES$ minutes ago",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
   },
   "deviceApprovalRequired": {
     "message": "Įrenginio patvirtinimas reikalingas. Pasirink patvirtinimo būdą toliau:"
@@ -4015,15 +4128,11 @@
   "selectImportCollection": {
     "message": "Pasirinkti rinkinį"
   },
-  "importTargetHint": {
-    "message": "Pasirinkite šį pasirinkimą, jei norite, jog importuoto failo turinys, būtų perkeltas į $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Select this option if you want the imported file contents moved to a collection"
+  },
+  "importTargetHintFolder": {
+    "message": "Select this option if you want the imported file contents moved to a folder"
   },
   "importUnassignedItemsError": {
     "message": "Faile yra nepriskirtų elementų."
@@ -4465,17 +4574,17 @@
       }
     }
   },
-  "copyFieldValue": {
-    "message": "Copy $FIELD$, $VALUE$",
+  "copyFieldCipherName": {
+    "message": "Copy $FIELD$, $CIPHERNAME$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
         "content": "$1",
         "example": "Username"
       },
-      "value": {
+      "ciphername": {
         "content": "$2",
-        "example": "Foo"
+        "example": "Login Item"
       }
     }
   },
@@ -5001,6 +5110,18 @@
   "showNumberOfAutofillSuggestions": {
     "message": "Show number of login autofill suggestions on extension icon"
   },
+  "accountAccessRequested": {
+    "message": "Account access requested"
+  },
+  "confirmAccessAttempt": {
+    "message": "Confirm access attempt for $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "showQuickCopyActions": {
     "message": "Show quick copy actions on Vault"
   },
@@ -5328,6 +5449,12 @@
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
+  },
   "settingsVaultOptions": {
     "message": "Vault options"
   },
@@ -5451,11 +5578,33 @@
     "message": "Easily create strong and unique passwords by clicking on the Generate password button to help you keep your logins secure.",
     "description": "Aria label for the body content of the generator nudge"
   },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+  },
   "noPermissionsViewPage": {
     "message": "You do not have permissions to view this page. Try logging in with a different account."
   },
   "wasmNotSupported": {
     "message": "WebAssembly is not supported on your browser or is not enabled. WebAssembly is required to use the Bitwarden app.",
     "description": "'WebAssembly' is a technical term and should not be translated."
+  },
+  "showMore": {
+    "message": "Show more"
+  },
+  "showLess": {
+    "message": "Show less"
+  },
+  "next": {
+    "message": "Next"
+  },
+  "moreBreadcrumbs": {
+    "message": "More breadcrumbs",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Confirm Key Connector domain"
   }
 }

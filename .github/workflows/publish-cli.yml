@@ -48,6 +48,10 @@ jobs:
     defaults:
       run:
         working-directory: .
+    permissions:
+      contents: read
+      deployments: write
+
     steps:
       - name: Branch check
         if: ${{ inputs.publish_type != 'Dry Run' }}
@@ -86,6 +90,10 @@ jobs:
     name: Deploy Snap
     runs-on: ubuntu-22.04
     needs: setup
+    permissions:
+      contents: read
+      packages: read
+      id-token: write
     if: inputs.snap_publish
     env:
       _PKG_VERSION: ${{ needs.setup.outputs.release_version }}
@@ -93,10 +101,12 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
-      - name: Login to Azure
-        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
+      - name: Log in to Azure
+        uses: bitwarden/gh-actions/azure-login@main
         with:
-          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
 
       - name: Retrieve secrets
         id: retrieve-secrets
@@ -104,6 +114,9 @@ jobs:
         with:
           keyvault: "bitwarden-ci"
           secrets: "snapcraft-store-token"
+
+      - name: Log out from Azure
+        uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Install Snap
         uses: samuelmeuli/action-snapcraft@d33c176a9b784876d966f80fb1b461808edc0641  # v2.1.1
@@ -123,6 +136,10 @@ jobs:
     name: Deploy Choco
     runs-on: windows-2022
     needs: setup
+    permissions:
+      contents: read
+      packages: read
+      id-token: write
     if: inputs.choco_publish
     env:
       _PKG_VERSION: ${{ needs.setup.outputs.release_version }}
@@ -130,10 +147,12 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
-      - name: Login to Azure
-        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
+      - name: Log in to Azure
+        uses: bitwarden/gh-actions/azure-login@main
         with:
-          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
 
       - name: Retrieve secrets
         id: retrieve-secrets
@@ -141,6 +160,9 @@ jobs:
         with:
           keyvault: "bitwarden-ci"
           secrets: "cli-choco-api-key"
+
+      - name: Log out from Azure
+        uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Setup Chocolatey
         run: choco apikey --key $env:CHOCO_API_KEY --source https://push.chocolatey.org/
@@ -161,26 +183,33 @@ jobs:
 
   npm:
     name: Publish NPM
+    environment: CLI - NPM
     runs-on: ubuntu-22.04
     needs: setup
+    permissions:
+      contents: read
+      packages: read
+      id-token: write
     if: inputs.npm_publish
     env:
       _PKG_VERSION: ${{ needs.setup.outputs.release_version }}
     steps:
       - name: Checkout repo
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      
+      - name: Get Node version
+        id: retrieve-node-version
+        run: |
+          NODE_NVMRC=$(cat .nvmrc)
+          NODE_VERSION=${NODE_NVMRC/v/''}
+          echo "node_version=$NODE_VERSION" >> $GITHUB_OUTPUT
 
-      - name: Login to Azure
-        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
+      - name: Set up Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
-          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
-
-      - name: Retrieve secrets
-        id: retrieve-secrets
-        uses: bitwarden/gh-actions/get-keyvault-secrets@main
-        with:
-          keyvault: "bitwarden-ci"
-          secrets: "npm-api-key"
+          node-version: ${{ steps.retrieve-node-version.outputs.node_version }}
+          npm-version: "11.5.1" # FIXME: npm 11.5.1 or later is required to publish w/ OIDC; move version management to somewhere maintainable by automation
+          registry-url: "https://registry.npmjs.org/"
 
       - name: Download and set up artifact
         run: |
@@ -188,19 +217,9 @@ jobs:
           wget https://github.com/bitwarden/clients/releases/download/cli-v${{ env._PKG_VERSION }}/bitwarden-cli-${{ env._PKG_VERSION }}-npm-build.zip
           unzip bitwarden-cli-${{ env._PKG_VERSION }}-npm-build.zip -d build
 
-      - name: Setup NPM
-        run: |
-          echo 'registry="https://registry.npmjs.org/"' > ./.npmrc
-          echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ./.npmrc
-        env:
-          NPM_TOKEN: ${{ steps.retrieve-secrets.outputs.npm-api-key }}
-
-      - name: Install Husky
-        run: npm install -g husky
-
       - name: Publish NPM
         if: ${{ inputs.publish_type != 'Dry Run' }}
-        run: npm publish --access public --regsitry=https://registry.npmjs.org/  --userconfig=./.npmrc
+        run: npm publish --access public
 
   update-deployment:
     name: Update Deployment Status
@@ -210,6 +229,10 @@ jobs:
       - npm
       - snap
       - choco
+    permissions:
+      contents: read
+      deployments: write
+
     if: ${{ always() && inputs.publish_type != 'Dry Run' }}
     steps:
       - name: Check if any job failed

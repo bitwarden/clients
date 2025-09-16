@@ -1,16 +1,14 @@
 import { Injectable } from "@angular/core";
+import { firstValueFrom } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyData } from "@bitwarden/common/admin-console/models/data/policy.data";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { BulkEncryptService } from "@bitwarden/common/key-management/crypto/abstractions/bulk-encrypt.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import {
   EncryptedString,
   EncString,
 } from "@bitwarden/common/key-management/crypto/models/enc-string";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -59,10 +57,8 @@ export class EmergencyAccessService
     private apiService: ApiService,
     private keyService: KeyService,
     private encryptService: EncryptService,
-    private bulkEncryptService: BulkEncryptService,
     private cipherService: CipherService,
     private logService: LogService,
-    private configService: ConfigService,
   ) {}
 
   /**
@@ -242,11 +238,14 @@ export class EmergencyAccessService
    * Gets the grantor ciphers for an emergency access in view mode.
    * Intended for grantee.
    * @param id emergency access id
+   * @param activeUserId the user id of the active user
    */
-  async getViewOnlyCiphers(id: string): Promise<CipherView[]> {
+  async getViewOnlyCiphers(id: string, activeUserId: UserId): Promise<CipherView[]> {
     const response = await this.emergencyAccessApiService.postEmergencyAccessView(id);
 
-    const activeUserPrivateKey = await this.keyService.getPrivateKey();
+    const activeUserPrivateKey = await firstValueFrom(
+      this.keyService.userPrivateKey$(activeUserId),
+    );
 
     if (activeUserPrivateKey == null) {
       throw new Error("Active user does not have a private key, cannot get view only ciphers.");
@@ -258,17 +257,8 @@ export class EmergencyAccessService
     )) as UserKey;
 
     let ciphers: CipherView[] = [];
-    if (await this.configService.getFeatureFlag(FeatureFlag.PM4154_BulkEncryptionService)) {
-      ciphers = await this.bulkEncryptService.decryptItems(
-        response.ciphers.map((c) => new Cipher(c)),
-        grantorUserKey,
-      );
-    } else {
-      ciphers = await this.encryptService.decryptItems(
-        response.ciphers.map((c) => new Cipher(c)),
-        grantorUserKey,
-      );
-    }
+    const ciphersEncrypted = response.ciphers.map((c) => new Cipher(c));
+    ciphers = await Promise.all(ciphersEncrypted.map(async (c) => c.decrypt(grantorUserKey)));
     return ciphers.sort(this.cipherService.getLocaleSortingFunction());
   }
 
@@ -278,11 +268,14 @@ export class EmergencyAccessService
    * @param id emergency access id
    * @param masterPassword new master password
    * @param email email address of grantee (must be consistent or login will fail)
+   * @param activeUserId the user id of the active user
    */
-  async takeover(id: string, masterPassword: string, email: string) {
+  async takeover(id: string, masterPassword: string, email: string, activeUserId: UserId) {
     const takeoverResponse = await this.emergencyAccessApiService.postEmergencyAccessTakeover(id);
 
-    const activeUserPrivateKey = await this.keyService.getPrivateKey();
+    const activeUserPrivateKey = await firstValueFrom(
+      this.keyService.userPrivateKey$(activeUserId),
+    );
 
     if (activeUserPrivateKey == null) {
       throw new Error("Active user does not have a private key, cannot complete a takeover.");
@@ -326,9 +319,7 @@ export class EmergencyAccessService
     request.newMasterPasswordHash = masterKeyHash;
     request.key = encKey[1].encryptedString;
 
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.emergencyAccessApiService.postEmergencyAccessPassword(id, request);
+    await this.emergencyAccessApiService.postEmergencyAccessPassword(id, request);
   }
 
   private async getEmergencyAccessData(): Promise<EmergencyAccessGranteeDetailsResponse[]> {

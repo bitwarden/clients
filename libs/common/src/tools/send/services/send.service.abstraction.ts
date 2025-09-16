@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Observable } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
@@ -16,49 +14,49 @@ import { SendWithIdRequest } from "../models/request/send-with-id.request";
 import { SendView } from "../models/view/send.view";
 
 export abstract class SendService implements UserKeyRotationDataProvider<SendWithIdRequest> {
-  sends$: Observable<Send[]>;
-  sendViews$: Observable<SendView[]>;
+  abstract sends$: Observable<Send[]>;
+  abstract sendViews$: Observable<SendView[]>;
 
-  encrypt: (
+  abstract encrypt(
     model: SendView,
     file: File | ArrayBuffer,
     password: string,
     key?: SymmetricCryptoKey,
-  ) => Promise<[Send, EncArrayBuffer]>;
+  ): Promise<[Send, EncArrayBuffer]>;
   /**
    * Provides a send for a determined id
    * updates after a change occurs to the send that matches the id
    * @param id The id of the desired send
    * @returns An observable that listens to the value of the desired send
    */
-  get$: (id: string) => Observable<Send | undefined>;
+  abstract get$(id: string): Observable<Send | undefined>;
   /**
    * Provides re-encrypted user sends for the key rotation process
    * @param newUserKey The new user key to use for re-encryption
    * @throws Error if the new user key is null or undefined
    * @returns A list of user sends that have been re-encrypted with the new user key
    */
-  getRotatedData: (
+  abstract getRotatedData(
     originalUserKey: UserKey,
     newUserKey: UserKey,
     userId: UserId,
-  ) => Promise<SendWithIdRequest[]>;
+  ): Promise<SendWithIdRequest[]>;
   /**
    * @deprecated Do not call this, use the sends$ observable collection
    */
-  getAll: () => Promise<Send[]>;
+  abstract getAll(): Promise<Send[]>;
   /**
    * @deprecated Only use in CLI
    */
-  getFromState: (id: string) => Promise<Send>;
+  abstract getFromState(id: string): Promise<Send>;
   /**
    * @deprecated Only use in CLI
    */
-  getAllDecryptedFromState: (userId: UserId) => Promise<SendView[]>;
+  abstract getAllDecryptedFromState(userId: UserId): Promise<SendView[]>;
 }
 
 export abstract class InternalSendService extends SendService {
-  upsert: (send: SendData | SendData[]) => Promise<any>;
-  replace: (sends: { [id: string]: SendData }, userId: UserId) => Promise<void>;
-  delete: (id: string | string[]) => Promise<any>;
+  abstract upsert(send: SendData | SendData[]): Promise<any>;
+  abstract replace(sends: { [id: string]: SendData }, userId: UserId): Promise<void>;
+  abstract delete(id: string | string[]): Promise<any>;
 }

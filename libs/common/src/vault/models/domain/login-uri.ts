@@ -97,9 +97,22 @@ export class LoginUri extends Domain {
    */
   toSdkLoginUri(): SdkLoginUri {
     return {
-      uri: this.uri?.toJSON(),
-      uriChecksum: this.uriChecksum?.toJSON(),
+      uri: this.uri?.toSdk(),
+      uriChecksum: this.uriChecksum?.toSdk(),
       match: this.match,
     };
+  }
+
+  static fromSdkLoginUri(obj: SdkLoginUri): LoginUri | undefined {
+    if (obj == null) {
+      return undefined;
+    }
+
+    const view = new LoginUri();
+    view.uri = EncString.fromJSON(obj.uri);
+    view.uriChecksum = obj.uriChecksum ? EncString.fromJSON(obj.uriChecksum) : undefined;
+    view.match = obj.match;
+
+    return view;
   }
 }

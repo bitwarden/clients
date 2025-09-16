@@ -19,7 +19,7 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
+import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   CardComponent,
@@ -80,6 +80,10 @@ export class ItemDetailsSectionComponent implements OnInit {
 
   protected organizations: Organization[] = [];
 
+  protected userId: UserId;
+
+  protected favoriteButtonDisabled = false;
+
   @Input({ required: true })
   config: CipherFormConfig;
 
@@ -96,7 +100,7 @@ export class ItemDetailsSectionComponent implements OnInit {
     return this.config.mode === "partial-edit";
   }
 
-  get organizationDataOwnershipDisabled() {
+  get allowPersonalOwnership() {
     return this.config.organizationDataOwnershipDisabled;
   }
 
@@ -109,16 +113,19 @@ export class ItemDetailsSectionComponent implements OnInit {
   }
 
   /**
-   * Show the organization data ownership option in the Owner dropdown when:
-   * - organization data ownership is disabled
-   * - The `organizationId` control is disabled. This avoids the scenario
-   * where a the dropdown is empty because the user personally owns the cipher
-   * but cannot edit the ownership.
+   * Show the personal ownership option in the Owner dropdown when any of the following:
+   * - personal ownership is allowed
+   * - `organizationId` control is disabled
+   * - personal ownership is not allowed AND the user is editing a cipher that is not
+   * currently owned by an organization
    */
-  get showOrganizationDataOwnershipOption() {
+  get showPersonalOwnershipOption() {
     return (
-      this.organizationDataOwnershipDisabled ||
-      !this.itemDetailsForm.controls.organizationId.enabled
+      this.allowPersonalOwnership ||
+      this.itemDetailsForm.controls.organizationId.disabled ||
+      (!this.allowPersonalOwnership &&
+        this.config.originalCipher &&
+        this.itemDetailsForm.controls.organizationId.value === null)
     );
   }
 
@@ -170,7 +177,7 @@ export class ItemDetailsSectionComponent implements OnInit {
     }
 
     // If personal ownership is allowed and there is at least one organization, allow ownership change.
-    if (this.organizationDataOwnershipDisabled) {
+    if (this.allowPersonalOwnership) {
       return this.organizations.length > 0;
     }
 
@@ -189,7 +196,7 @@ export class ItemDetailsSectionComponent implements OnInit {
   }
 
   get defaultOwner() {
-    return this.organizationDataOwnershipDisabled ? null : this.organizations[0].id;
+    return this.allowPersonalOwnership ? null : this.organizations[0].id;
   }
 
   async ngOnInit() {
@@ -197,7 +204,9 @@ export class ItemDetailsSectionComponent implements OnInit {
       Utils.getSortFunction(this.i18nService, "name"),
     );
 
-    if (!this.organizationDataOwnershipDisabled && this.organizations.length === 0) {
+    this.userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
+    if (!this.allowPersonalOwnership && this.organizations.length === 0) {
       throw new Error("No organizations available for ownership.");
     }
 
@@ -216,43 +225,77 @@ export class ItemDetailsSectionComponent implements OnInit {
       });
       await this.updateCollectionOptions(this.initialValues?.collectionIds);
     }
-    if (!this.allowOwnershipChange) {
-      this.itemDetailsForm.controls.organizationId.disable();
-    }
+
+    this.setFormState();
+
     this.itemDetailsForm.controls.organizationId.valueChanges
       .pipe(
         takeUntilDestroyed(this.destroyRef),
-        concatMap(async () => await this.updateCollectionOptions()),
+        concatMap(async () => {
+          await this.updateCollectionOptions();
+          this.setFormState();
+        }),
       )
       .subscribe();
+  }
+
+  /**
+   * Updates the global form and organizationId control states.
+   */
+  private setFormState() {
+    if (this.config.originalCipher && !this.allowPersonalOwnership) {
+      // When editing a cipher and the user cannot have personal ownership
+      // and the cipher is is not within the organization - force the user to
+      // move the cipher within the organization first before editing any other field
+      if (this.itemDetailsForm.controls.organizationId.value === null) {
+        this.cipherFormContainer.disableFormFields();
+        this.itemDetailsForm.controls.organizationId.enable();
+        this.favoriteButtonDisabled = true;
+      } else {
+        // The "after" from the above: When editing a cipher and the user cannot have personal ownership
+        // and the organization is populated - re-enable the global form.
+        this.cipherFormContainer.enableFormFields();
+        this.favoriteButtonDisabled = false;
+        this.setCollectionControlState();
+      }
+    } else if (!this.allowOwnershipChange) {
+      // When the user cannot change the organization field, disable the organizationId control.
+      // This could be because they aren't a part of an organization
+      this.itemDetailsForm.controls.organizationId.disable({ emitEvent: false });
+    }
   }
 
   /**
    * Gets the default collection IDs for the selected organization.
    * Returns null if any of the following apply:
    * - the feature flag is disabled
+   * - the "no private data policy" doesn't apply to the user
    * - no org is currently selected
    * - the selected org doesn't have the "no private data policy" enabled
    */
   private async getDefaultCollectionId(orgId?: OrganizationId) {
-    if (!orgId) {
+    if (!orgId || this.allowPersonalOwnership) {
       return;
     }
+
     const isFeatureEnabled = await this.configService.getFeatureFlag(
       FeatureFlag.CreateDefaultLocation,
     );
+
     if (!isFeatureEnabled) {
       return;
     }
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
     const selectedOrgHasPolicyEnabled = (
       await firstValueFrom(
-        this.policyService.policiesByType$(PolicyType.OrganizationDataOwnership, userId),
+        this.policyService.policiesByType$(PolicyType.OrganizationDataOwnership, this.userId),
       )
     ).find((p) => p.organizationId);
+
     if (!selectedOrgHasPolicyEnabled) {
       return;
     }
+
     const defaultUserCollection = this.collections.find(
       (c) => c.organizationId === orgId && c.type === CollectionTypes.DefaultUserCollection,
     );
@@ -273,7 +316,6 @@ export class ItemDetailsSectionComponent implements OnInit {
     });
 
     const orgId = this.itemDetailsForm.controls.organizationId.value as OrganizationId;
-    const organization = this.organizations.find((o) => o.id === orgId);
     const initializedWithCachedCipher = this.cipherFormContainer.initializedWithCachedCipher();
 
     // Configure form for clone mode.
@@ -284,7 +326,7 @@ export class ItemDetailsSectionComponent implements OnInit {
         );
       }
 
-      if (!this.organizationDataOwnershipDisabled && prefillCipher.organizationId == null) {
+      if (!this.allowPersonalOwnership && prefillCipher.organizationId == null) {
         this.itemDetailsForm.controls.organizationId.setValue(this.defaultOwner);
       }
     }
@@ -295,9 +337,7 @@ export class ItemDetailsSectionComponent implements OnInit {
 
     await this.updateCollectionOptions(prefillCollections);
 
-    if (!organization?.canEditAllCiphers && !prefillCipher.canAssignToCollections) {
-      this.itemDetailsForm.controls.collectionIds.disable();
-    }
+    this.setCollectionControlState();
 
     if (this.partialEdit) {
       this.itemDetailsForm.disable();
@@ -312,19 +352,31 @@ export class ItemDetailsSectionComponent implements OnInit {
             c.readOnly &&
             this.originalCipherView.collectionIds.includes(c.id as CollectionId),
         );
-
-        // When Owners/Admins access setting is turned on.
-        // Disable Collections Options if Owner/Admin does not have Edit/Manage permissions on item
-        // Disable Collections Options if Custom user does not have Edit/Manage permissions on item
-        if (
-          (organization?.allowAdminAccessToAllCollectionItems &&
-            (!this.originalCipherView.viewPassword || !this.originalCipherView.edit)) ||
-          (organization?.type === OrganizationUserType.Custom &&
-            !this.originalCipherView.viewPassword)
-        ) {
-          this.itemDetailsForm.controls.collectionIds.disable();
-        }
       }
+    }
+  }
+
+  private setCollectionControlState() {
+    const initialCipherView = this.cipherFormContainer.getInitialCipherView();
+    const orgId = this.itemDetailsForm.controls.organizationId.value as OrganizationId;
+    const organization = this.organizations.find((o) => o.id === orgId);
+    if (!organization || !initialCipherView) {
+      return;
+    }
+    // Disable the collection control if either of the following apply:
+    // 1. The organization does not allow editing all ciphers and the existing cipher cannot be assigned to
+    // collections
+    // 2. When Owners/Admins access setting is turned on.
+    // AND either:
+    //   a. Disable Collections Options if Owner/Admin does not have Edit/Manage permissions on item
+    //   b. Disable Collections Options if Custom user does not have Edit/Manage permissions on item
+    if (
+      (!organization.canEditAllCiphers && !initialCipherView.canAssignToCollections) ||
+      (organization.allowAdminAccessToAllCollectionItems &&
+        (!initialCipherView.viewPassword || !initialCipherView.edit)) ||
+      (organization.type === OrganizationUserType.Custom && !initialCipherView.viewPassword)
+    ) {
+      this.itemDetailsForm.controls.collectionIds.disable();
     }
   }
 

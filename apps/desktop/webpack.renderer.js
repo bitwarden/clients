@@ -177,6 +177,9 @@ const renderer = {
       filename: "[name].[contenthash].css",
       chunkFilename: "[id].[contenthash].css",
     }),
+    new webpack.DefinePlugin({
+      BIT_ENVIRONMENT: JSON.stringify(NODE_ENV),
+    }),
     new webpack.EnvironmentPlugin({
       ENV: ENV,
       FLAGS: envConfig.flags,
