@@ -702,6 +702,12 @@
   "attachmentSaved": {
     "message": "Вкладення збережено"
   },
+  "addAttachment": {
+    "message": "Додати вкладення"
+  },
+  "maxFileSizeSansPunctuation": {
+    "message": "Максимальний розмір файлу – 500 МБ"
+  },
   "file": {
     "message": "Файл"
   },
@@ -1299,11 +1305,8 @@
     "message": "Автоматично очищати скопійовані значення з буфера обміну.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
-  "enableFavicon": {
-    "message": "Показувати піктограми вебсайтів"
-  },
-  "faviconDesc": {
-    "message": "Показувати зображення біля кожного запису."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "enableMinToTray": {
     "message": "Згортати до системного лотка"
@@ -1839,12 +1842,6 @@
   },
   "autoPromptTouchId": {
     "message": "Запитувати Touch ID під час запуску"
-  },
-  "requirePasswordOnStart": {
-    "message": "Вимагати пароль чи PIN під час запуску"
-  },
-  "requirePasswordWithoutPinOnStart": {
-    "message": "Вимагати пароль під час запуску"
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Блокувати головним паролем при перезапуску"
@@ -3491,15 +3488,11 @@
   "selectImportCollection": {
     "message": "Вибрати збірку"
   },
-  "importTargetHint": {
-    "message": "Оберіть цю опцію, якщо ви хочете, щоб вміст імпортованого файлу було збережено в $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Оберіть цю опцію, якщо ви хочете, щоб вміст імпортованого файлу було збережено до збірки"
+  },
+  "importTargetHintFolder": {
+    "message": "Оберіть цю опцію, якщо ви хочете, щоб вміст імпортованого файлу було збережено до теки"
   },
   "importUnassignedItemsError": {
     "message": "Файл містить непризначені записи."
@@ -3594,6 +3587,12 @@
   },
   "awaitingSSODesc": {
     "message": "Увійдіть з використанням облікових даних вашої компанії."
+  },
+  "importDirectlyFromBrowser": {
+    "message": "Import directly from browser"
+  },
+  "browserProfile": {
+    "message": "Browser Profile"
   },
   "seeDetailedInstructions": {
     "message": "Перегляньте докладні інструкції на нашому довідковому сайті",
@@ -3837,6 +3836,12 @@
   "changeAtRiskPassword": {
     "message": "Змінити ризикований пароль"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "Ви не можете вилучати збірки, маючи дозвіл лише на перегляд: $COLLECTIONS$",
     "placeholders": {
@@ -3931,6 +3936,12 @@
     "message": "Докладніше про SSH-агента",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
   },
   "assignToCollections": {
     "message": "Призначити до збірок"
@@ -4067,15 +4078,37 @@
     }
   },
   "showMore": {
-    "message": "Show more"
+    "message": "Розгорнути"
   },
   "showLess": {
-    "message": "Show less"
+    "message": "Згорнути"
   },
   "enableAutotype": {
     "message": "Увімкнути автовведення"
   },
   "enableAutotypeDescription": {
     "message": "Bitwarden не перевіряє місця введення. Переконайтеся, що у вас відкрите правильне вікно і вибрано потрібне поле, перш ніж застосувати комбінацію клавіш."
+  },
+  "moreBreadcrumbs": {
+    "message": "Інші елементи",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "next": {
+    "message": "Next"
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Confirm Key Connector domain"
+  },
+  "confirm": {
+    "message": "Confirm"
+  },
+  "enableAutotypeTransitionKey": {
+    "message": "Enable autotype shortcut"
+  },
+  "enableAutotypeDescriptionTransitionKey": {
+    "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."
+  },
+  "editShortcut": {
+    "message": "Edit shortcut"
   }
 }

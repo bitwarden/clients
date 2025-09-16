@@ -86,14 +86,14 @@
   "noAppsInOrgDescription": {
     "message": "Während Benutzer Zugangsdaten speichern, werden hier Anwendungen angezeigt, die alle gefährdeten Passwörter anzeigen. Markiere kritische Anwendungen und benachrichtige Benutzer, um Passwörter zu ändern."
   },
-  "noCriticalAppsTitle": {
-    "message": "Du hast keine Anwendungen als kritisch markiert"
+  "noCriticalApplicationsTitle": {
+    "message": "You haven’t marked any applications as critical"
   },
-  "noCriticalAppsDescription": {
-    "message": "Wähle deine wichtigsten Anwendungen aus, um gefährdete Passwörter zu ermitteln, und benachrichtige die Benutzer, damit sie diese Passwörter ändern."
+  "noCriticalApplicationsDescription": {
+    "message": "Select your most critical applications to prioritize security actions for your users to address at-risk passwords."
   },
-  "markCriticalApps": {
-    "message": "Kritische Anwendungen markieren"
+  "markCriticalApplications": {
+    "message": "Select critical applications"
   },
   "markAppAsCritical": {
     "message": "Anwendung als kritisch markieren"
@@ -176,11 +176,11 @@
   "totalApplications": {
     "message": "Anwendungen insgesamt"
   },
-  "unmarkAsCriticalApp": {
-    "message": "Markierung als kritische Anwendung aufheben"
+  "unmarkAsCritical": {
+    "message": "Unmark as critical"
   },
-  "criticalApplicationSuccessfullyUnmarked": {
-    "message": "Markierung als kritische Anwendung erfolgreich aufgehoben"
+  "criticalApplicationUnmarkedSuccessfully": {
+    "message": "Successfully unmarked application as critical"
   },
   "whatTypeOfItem": {
     "message": "Um welche Art von Eintrag handelt es sich hierbei?"
@@ -867,6 +867,15 @@
   "copyLicenseNumber": {
     "message": "Lizenznummer kopieren"
   },
+  "copyPrivateKey": {
+    "message": "Copy private key"
+  },
+  "copyPublicKey": {
+    "message": "Copy public key"
+  },
+  "copyFingerprint": {
+    "message": "Copy fingerprint"
+  },
   "copyName": {
     "message": "Name kopieren"
   },
@@ -1507,6 +1516,9 @@
   "recoveryCodeTitle": {
     "message": "Wiederherstellungscode"
   },
+  "invalidRecoveryCode": {
+    "message": "Invalid recovery code"
+  },
   "authenticatorAppTitle": {
     "message": "Authenticator App"
   },
@@ -2050,15 +2062,11 @@
   "selectImportCollection": {
     "message": "Sammlung auswählen"
   },
-  "importTargetHint": {
-    "message": "Wähle diese Option, wenn der importierte Dateiinhalt in eine(n) $DESTINATION$ verschoben werden soll",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Select this option if you want the imported file contents moved to a collection"
+  },
+  "importTargetHintFolder": {
+    "message": "Select this option if you want the imported file contents moved to a folder"
   },
   "importUnassignedItemsError": {
     "message": "Die Datei enthält nicht zugewiesene Einträge."
@@ -2106,11 +2114,8 @@
   "languageDesc": {
     "message": "Die Sprache des Web-Tresors ändern."
   },
-  "enableFavicon": {
-    "message": "Website-Symbole anzeigen"
-  },
-  "faviconDesc": {
-    "message": "Ein wiedererkennbares Bild neben jeden Zugangsdaten anzeigen."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "default": {
     "message": "Standard"
@@ -2450,9 +2455,6 @@
   },
   "twoFactorU2fProblemReadingTryAgain": {
     "message": "Es gab ein Problem beim Lesen des Sicherheitsschlüssels, bitte versuche es erneut."
-  },
-  "twoFactorWebAuthnWarning1": {
-    "message": "Aufgrund von Plattformbeschränkungen kann WebAuthn nicht in allen Bitwarden-Anwendungen verwendet werden. Du solltest einen anderen Zwei-Faktor-Authentifizierungsanbieter einrichten, damit du auf dein Konto zugreifen kannst, wenn WebAuthn nicht verwendet werden kann."
   },
   "twoFactorRecoveryYourCode": {
     "message": "Ihr Wiederherstellungsschlüssel für die Zwei-Faktor-Anmeldung in Bitwarden"
@@ -2823,6 +2825,12 @@
         "example": "'month' or 'year'"
       }
     }
+  },
+  "showPricingSummary": {
+    "message": "Show pricing summary"
+  },
+  "hidePricingSummary": {
+    "message": "Hide pricing summary"
   },
   "summary": {
     "message": "Zusammenfassung"
@@ -7029,6 +7037,12 @@
   "unknownCipher": {
     "message": "Unbekannter Eintrag. Du musst möglicherweise eine Berechtigung anfordern, um auf diesen Eintrag zuzugreifen."
   },
+  "unknownSecret": {
+    "message": "Unknown secret, you may need to request permission to access this secret."
+  },
+  "unknownProject": {
+    "message": "Unknown project, you may need to request permission to access this project."
+  },
   "cannotSponsorSelf": {
     "message": "Du kannst nicht für das aktive Konto einlösen. Gib eine andere E-Mail ein."
   },
@@ -7415,6 +7429,9 @@
   },
   "off": {
     "message": "Aus"
+  },
+  "connected": {
+    "message": "Connected"
   },
   "members": {
     "message": "Mitglieder"
@@ -8352,10 +8369,82 @@
       }
     }
   },
+  "permanentlyDeletedSecretWithId": {
+    "message": "Permanently deleted a secret with identifier: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "restoredSecretWithId": {
+    "message": "Restored a secret with identifier: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
   "createdSecretWithId": {
     "message": "Ein neues Geheimnis erstellt mit Kennung: $SECRET_ID$",
     "placeholders": {
       "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "accessedProjectWithId": {
+    "message": "Accessed a project with Id: $PROJECT_ID$.",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "nameUnavailableProjectDeleted": {
+    "message": "Deleted project Id: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "nameUnavailableSecretDeleted": {
+    "message": "Deleted secret Id: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "editedProjectWithId": {
+    "message": "Edited a project with identifier: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "deletedProjectWithId": {
+    "message": "Deleted a project with identifier: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "createdProjectWithId": {
+    "message": "Created a new project with identifier: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
         "content": "$1",
         "example": "4d34e8a8"
       }
@@ -8849,20 +8938,25 @@
   "collectionManagement": {
     "message": "Verwaltung der Sammlungen"
   },
-  "collectionManagementDesc": {
-    "message": "Verwalte das Sammlungsverhalten für die Organisation"
+  "collectionManagementDescription": {
+    "message": "Configure the collection behavior for the organization"
   },
-  "limitCollectionCreationDesc": {
-    "message": "Das Erstellen von Sammlungen auf Eigentümer und Administratoren beschränken"
+  "allowAdminAccessToAllCollectionItemsDescription": {
+    "message": "Allow owners and admins to manage all collections and items from the Admin Console"
   },
-  "limitCollectionDeletionDesc": {
-    "message": "Das Löschen von Sammlungen auf Eigentümer und Administratoren beschränken"
+  "restrictCollectionCreationDescription": {
+    "message": "Restrict collection creation to owners and admins"
   },
-  "limitItemDeletionDescription": {
-    "message": "Die Löschung von Einträgen auf Mitglieder mit den Berechtigungen zur Verwaltung von Sammlungen beschränken"
+  "restrictCollectionDeletionDescription": {
+    "message": "Restrict collection deletion to owners and admins"
   },
-  "allowAdminAccessToAllCollectionItemsDesc": {
-    "message": "Besitzer und Administratoren können alle Sammlungen und Einträge verwalten"
+  "restrictItemDeletionDescriptionStart": {
+    "message": "Restrict item deletion to members with the ",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
+  },
+  "restrictItemDeletionDescriptionEnd": {
+    "message": " permission",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
   },
   "updatedCollectionManagement": {
     "message": "Einstellung für die Verwaltung der Sammlungen aktualisiert"
@@ -8933,6 +9027,78 @@
   },
   "modifiedCollectionManagement": {
     "message": "Sammlungsverwaltungs-Einstellung bearbeitet $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationEnabled": {
+    "message": "Turned on Restrict collection creation setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationDisabled": {
+    "message": "Turned off Restrict collection creation setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionEnabled": {
+    "message": "Turned on Restrict collection deletion setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionDisabled": {
+    "message": "Turned off Restrict collection deletion setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionEnabled": {
+    "message": "Turned on Restrict item deletion setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionDisabled": {
+    "message": "Turned off Restrict item deletion setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsEnabled": {
+    "message": "Turned on Allow owners and admins to manage all collections and items setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsDisabled": {
+    "message": "Turned off Allow owners and admins to manage all collections and items setting $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -9517,6 +9683,15 @@
   },
   "connectIntegrationButtonDesc": {
     "message": "$INTEGRATION$ verbinden",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
+  },
+  "updateIntegrationButtonDesc": {
+    "message": "Update $INTEGRATION$",
     "placeholders": {
       "integration": {
         "content": "$1",
@@ -10730,6 +10905,12 @@
   "changeAtRiskPassword": {
     "message": "Gefährdetes Passwort ändern"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
+  },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Entsperren mit PIN entfernen"
   },
@@ -10744,6 +10925,9 @@
   },
   "upgradeEventLogMessage": {
     "message": "Diese Ereignisse sind nur Beispiele und spiegeln keine realen Ereignisse in deiner Bitwarden-Organisation wider."
+  },
+  "viewEvents": {
+    "message": "View Events"
   },
   "cannotCreateCollection": {
     "message": "Kostenlose Organisationen können bis zu 2 Sammlungen haben. Upgrade auf ein kostenpflichtiges Abo, um mehr Sammlungen hinzuzufügen."
@@ -10902,6 +11086,12 @@
     "message": "Rechnungsadresse erforderlich, um Guthaben hinzuzufügen.",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+  },
   "billingAddress": {
     "message": "Rechnungsadresse"
   },
@@ -11012,5 +11202,67 @@
   },
   "showLess": {
     "message": "Weniger anzeigen"
+  },
+  "missingTaxId": {
+    "message": "Fehlende Steuernummer"
+  },
+  "missingTaxIdWarning": {
+    "message": "Maßnahme erforderlich: In den Zahlungsdetails fehlt eine Steueridentifikationsnummer. Wenn keine Steuernummer hinzugefügt wird, können deine Rechnungen zusätzliche Steuern enthalten."
+  },
+  "moreBreadcrumbs": {
+    "message": "More breadcrumbs",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "addTaxId": {
+    "message": "Steuernummer hinzufügen"
+  },
+  "missingTaxIdCalloutTitle": {
+    "message": "Maßnahme erforderlich: Fehlende Steuernummer"
+  },
+  "missingTaxIdCalloutDescription": {
+    "message": "Wenn keine Steuernummer hinzugefügt wird, können deine Rechnungen zusätzliche Steuern enthalten."
+  },
+  "unverifiedTaxIdWarning": {
+    "message": "Maßnahme erforderlich: Deine Steueridentifikationsnummer ist nicht verifiziert. Wenn deine Steuernummer nicht verifiziert wurde, können deine Rechnungen zusätzliche Steuern enthalten."
+  },
+  "editTaxId": {
+    "message": "Bearbeite deine Steuernummer"
+  },
+  "unverifiedTaxIdCalloutTitle": {
+    "message": "Steuernummer nicht verifiziert"
+  },
+  "unverifiedTaxIdCalloutDescription": {
+    "message": "Überprüfe deine Steuernummer, um sicherzustellen, dass das Format korrekt ist und keine Tippfehler enthalten sind."
+  },
+  "pendingVerification": {
+    "message": "Ausstehende Verifizierung"
+  },
+  "checkInputFormat": {
+    "message": "Überprüfe das Eingabeformat auf Tippfehler."
+  },
+  "exampleTaxIdFormat": {
+    "message": "Beispiel $CODE$-Format: $EXAMPLE$",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "ABN"
+      },
+      "example": {
+        "content": "$2",
+        "example": "92873837267"
+      }
+    }
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Confirm Key Connector domain"
+  },
+  "requiredToVerifyBankAccountWithStripe": {
+    "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
+  },
+  "verifyBankAccountWithStripe": {
+    "message": "We have made a micro-deposit to your bank account. This may take 1-2 business days. When you see the deposit in your account, you can verify your bank account. Failure to verify your bank account will result in a missed payment and your subscription will be suspended."
+  },
+  "verifyNow": {
+    "message": "Verify now."
   }
 }

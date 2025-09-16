@@ -1,7 +1,5 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { NgTemplateOutlet } from "@angular/common";
-import { Component, ContentChild, HostBinding, Optional, Input, Self, input } from "@angular/core";
+import { Component, HostBinding, Optional, Self, input, contentChild } from "@angular/core";
 import { ControlValueAccessor, NgControl, Validators } from "@angular/forms";
 
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -22,14 +20,8 @@ export class RadioGroupComponent implements ControlValueAccessor {
   selected: unknown;
   disabled = false;
 
-  // TODO: Skipped for signal migration because:
-  //  Accessor inputs cannot be migrated as they are too complex.
-  private _name?: string;
-  @Input() get name() {
-    return this._name ?? this.ngControl?.name?.toString();
-  }
-  set name(value: string) {
-    this._name = value;
+  get name() {
+    return this.ngControl?.name?.toString();
   }
 
   readonly block = input(false);
@@ -38,7 +30,7 @@ export class RadioGroupComponent implements ControlValueAccessor {
   readonly id = input(`bit-radio-group-${nextId++}`);
   @HostBinding("class") classList = ["tw-block", "tw-mb-4"];
 
-  @ContentChild(BitLabel) protected label: BitLabel;
+  protected readonly label = contentChild(BitLabel);
 
   constructor(@Optional() @Self() private ngControl?: NgControl) {
     if (ngControl != null) {
@@ -51,8 +43,8 @@ export class RadioGroupComponent implements ControlValueAccessor {
   }
 
   // ControlValueAccessor
-  onChange: (value: unknown) => void;
-  onTouched: () => void;
+  onChange?: (value: unknown) => void;
+  onTouched?: () => void;
 
   writeValue(value: boolean): void {
     this.selected = value;
@@ -72,10 +64,10 @@ export class RadioGroupComponent implements ControlValueAccessor {
 
   onInputChange(value: unknown) {
     this.selected = value;
-    this.onChange(this.selected);
+    this.onChange?.(this.selected);
   }
 
   onBlur() {
-    this.onTouched();
+    this.onTouched?.();
   }
 }

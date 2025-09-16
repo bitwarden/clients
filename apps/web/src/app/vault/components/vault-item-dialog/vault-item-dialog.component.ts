@@ -7,6 +7,7 @@ import { firstValueFrom, Subject, switchMap } from "rxjs";
 import { map } from "rxjs/operators";
 
 import { CollectionView } from "@bitwarden/admin-console/common";
+import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { VaultViewPasswordHistoryService } from "@bitwarden/angular/services/view-password-history.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
@@ -131,6 +132,7 @@ export type VaultItemDialogResult = UnionOfValues<typeof VaultItemDialogResult>;
     CipherFormModule,
     AsyncActionsModule,
     ItemModule,
+    PremiumBadgeComponent,
   ],
   providers: [
     { provide: PremiumUpgradePromptService, useClass: WebVaultPremiumUpgradePromptService },
@@ -273,6 +275,8 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
 
   protected canDelete = false;
 
+  protected attachmentsButtonDisabled = false;
+
   constructor(
     @Inject(DIALOG_DATA) protected params: VaultItemDialogParams,
     private dialogRef: DialogRef<VaultItemDialogResult>,
@@ -339,6 +343,10 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     if (this._cipherModified) {
       this.dialogRef.close(VaultItemDialogResult.Saved);
     }
+  }
+
+  formStatusChanged(status: "disabled" | "enabled") {
+    this.attachmentsButtonDisabled = status === "disabled";
   }
 
   /**

@@ -1,9 +1,9 @@
 import { CommonModule } from "@angular/common";
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
-// import { NoAccess } from "libs/components/src/icon/icons";
 import { firstValueFrom } from "rxjs";
 
+import { DeactivatedOrg } from "@bitwarden/assets/svg";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import {
@@ -35,7 +35,6 @@ import {
   CalloutComponent,
   DialogService,
   ToastService,
-  Icons,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -113,7 +112,7 @@ export class SetInitialPasswordComponent implements OnInit {
       this.userType = SetInitialPasswordUserType.OFFBOARDED_TDE_ORG_USER_UNTRUSTED_DEVICE;
       this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
         pageTitle: { key: "unableToCompleteLogin" },
-        pageIcon: Icons.NoAccess,
+        pageIcon: DeactivatedOrg,
       });
     }
 

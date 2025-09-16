@@ -556,6 +556,9 @@
   "view": {
     "message": "Преглед"
   },
+  "viewLogin": {
+    "message": "Преглед на елемента за вписване"
+  },
   "noItemsInList": {
     "message": "Няма елементи за показване."
   },
@@ -1760,14 +1763,8 @@
   "popupU2fCloseMessage": {
     "message": "Този браузър не поддържа заявки чрез U2F в такъв изскачащ прозорец. Искате ли да се отвори нов прозорец, за да може да се впишете чрез U2F?"
   },
-  "enableFavicon": {
-    "message": "Показване на иконките на уеб сайтовете"
-  },
-  "faviconDesc": {
-    "message": "Показване на разпознаваемо изображение до всеки запис."
-  },
-  "faviconDescAlt": {
-    "message": "Показване на разпознаваемо изображение до всеки елемент. Прилага се към всички акаунти, в които сте Вписан(а)."
+  "showIconsChangePasswordUrls": {
+    "message": "Показване на иконките на уеб сайтовете и извличане на адресите за смяна на паролата"
   },
   "enableBadgeCounter": {
     "message": "Показване на брояч в значка"
@@ -4131,15 +4128,11 @@
   "selectImportCollection": {
     "message": "Изберете колекция"
   },
-  "importTargetHint": {
-    "message": "Изберете тази опция, ако искате съдържанието на внесения файл да бъде преместено в $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Изберете тази опция, ако искате съдържанието на внесения файл да бъде преместено в колекция"
+  },
+  "importTargetHintFolder": {
+    "message": "Изберете тази опция, ако искате съдържанието на внесения файл да бъде преместено в папка"
   },
   "importUnassignedItemsError": {
     "message": "Файлът съдържа невъзложени елементи."
@@ -5117,6 +5110,18 @@
   "showNumberOfAutofillSuggestions": {
     "message": "Показване на броя предложения за автоматично попълване на данни за вписване върху иконката на добавката"
   },
+  "accountAccessRequested": {
+    "message": "Има заявка за достъп до акаунта"
+  },
+  "confirmAccessAttempt": {
+    "message": "Потвърждаване на заявката за достъп за $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "showQuickCopyActions": {
     "message": "Показване на действията за бързо копиране в трезора"
   },
@@ -5444,6 +5449,12 @@
   "changeAtRiskPassword": {
     "message": "Промяна на парола в риск"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Този елемент за вписване е в риск и в него липсва уеб сайт. Добавете уеб сайт и сменете паролата, за по-добра сигурност."
+  },
+  "missingWebsite": {
+    "message": "Липсващ уеб сайт"
+  },
   "settingsVaultOptions": {
     "message": "Настройки на трезора"
   },
@@ -5567,6 +5578,12 @@
     "message": "Създавайте лесно сложни и уникални пароли като щракнете върху бутона за генериране на парола, за да защитите данните си за вписване.",
     "description": "Aria label for the body content of the generator nudge"
   },
+  "aboutThisSetting": {
+    "message": "Относно тази настройка"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Битуорден ще използва запазените адреси за вписване, за да определи коя иконка или адрес за смяна на паролата да се ползва, за да улесни работата Ви. Никакви данни не се събират или съхраняват, когато използвате тази услуга."
+  },
   "noPermissionsViewPage": {
     "message": "Нямате права за преглед на тази страница. Опитайте да се впишете с друг акаунт."
   },
@@ -5579,5 +5596,15 @@
   },
   "showLess": {
     "message": "Показване на по-малко"
+  },
+  "next": {
+    "message": "Следващо"
+  },
+  "moreBreadcrumbs": {
+    "message": "Още елементи в пътечката",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Потвърждаване на домейна на конектора за ключове"
   }
 }

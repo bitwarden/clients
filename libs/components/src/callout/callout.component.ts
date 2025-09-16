@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Component, computed, input } from "@angular/core";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -50,11 +48,11 @@ export class CalloutComponent {
     return title;
   });
 
-  protected titleId = `bit-callout-title-${nextId++}`;
+  protected readonly titleId = `bit-callout-title-${nextId++}`;
 
   constructor(private i18nService: I18nService) {}
 
-  get calloutClass() {
+  protected readonly calloutClass = computed(() => {
     switch (this.type()) {
       case "danger":
         return "tw-bg-danger-100";
@@ -65,5 +63,5 @@ export class CalloutComponent {
       case "warning":
         return "tw-bg-warning-100";
     }
-  }
+  });
 }

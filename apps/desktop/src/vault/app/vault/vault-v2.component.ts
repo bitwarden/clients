@@ -161,7 +161,9 @@ export class VaultV2Component<C extends CipherViewLike>
   cipher: CipherView | null = new CipherView();
   collections: CollectionView[] | null = null;
   config: CipherFormConfig | null = null;
-  isSubmitting = false;
+
+  /** Tracks the disabled status of the edit cipher form */
+  protected formDisabled: boolean = false;
 
   private organizations$: Observable<Organization[]> = this.accountService.activeAccount$.pipe(
     map((a) => a?.id),
@@ -445,6 +447,10 @@ export class VaultV2Component<C extends CipherViewLike>
       false,
       cipher.organizationId,
     );
+  }
+
+  formStatusChanged(status: "disabled" | "enabled") {
+    this.formDisabled = status === "disabled";
   }
 
   async openAttachmentsDialog() {
@@ -734,7 +740,6 @@ export class VaultV2Component<C extends CipherViewLike>
     await this.vaultItemsComponent?.load(this.activeFilter.buildFilter()).catch(() => {});
     await this.go().catch(() => {});
     await this.vaultItemsComponent?.refresh().catch(() => {});
-    this.isSubmitting = false;
   }
 
   async deleteCipher() {
@@ -909,11 +914,6 @@ export class VaultV2Component<C extends CipherViewLike>
       this.changeDetectorRef.detectChanges();
     });
   }
-
-  protected onSubmit = async () => {
-    this.isSubmitting = true;
-    return Promise.resolve(true);
-  };
 
   private prefillCipherFromFilter() {
     if (this.activeFilter.selectedCollectionId != null && this.vaultFilterComponent != null) {

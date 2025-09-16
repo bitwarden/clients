@@ -702,6 +702,12 @@
   "attachmentSaved": {
     "message": "Anhang gespeichert"
   },
+  "addAttachment": {
+    "message": "Add attachment"
+  },
+  "maxFileSizeSansPunctuation": {
+    "message": "Maximum file size is 500 MB"
+  },
   "file": {
     "message": "Datei"
   },
@@ -1299,11 +1305,8 @@
     "message": "Kopierten Inhalt automatisch aus der Zwischenablage löschen.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
-  "enableFavicon": {
-    "message": "Website-Symbole anzeigen"
-  },
-  "faviconDesc": {
-    "message": "Ein wiedererkennbares Bild neben jeden Zugangsdaten anzeigen."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "enableMinToTray": {
     "message": "In Infobereich-Symbol minimieren"
@@ -1839,12 +1842,6 @@
   },
   "autoPromptTouchId": {
     "message": "Beim Start nach Touch ID fragen"
-  },
-  "requirePasswordOnStart": {
-    "message": "Passwort oder PIN beim Start der App verlangen"
-  },
-  "requirePasswordWithoutPinOnStart": {
-    "message": "Ein Passwort beim Starten der App verlangen"
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Beim Neustart mit Master-Passwort sperren"
@@ -3491,15 +3488,11 @@
   "selectImportCollection": {
     "message": "Sammlung auswählen"
   },
-  "importTargetHint": {
-    "message": "Wähle diese Option, wenn der importierte Dateiinhalt in eine(n) $DESTINATION$ verschoben werden soll",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Select this option if you want the imported file contents moved to a collection"
+  },
+  "importTargetHintFolder": {
+    "message": "Select this option if you want the imported file contents moved to a folder"
   },
   "importUnassignedItemsError": {
     "message": "Die Datei enthält nicht zugewiesene Einträge."
@@ -3594,6 +3587,12 @@
   },
   "awaitingSSODesc": {
     "message": "Bitte melde dich weiterhin mit deinen Firmenzugangsdaten an."
+  },
+  "importDirectlyFromBrowser": {
+    "message": "Import directly from browser"
+  },
+  "browserProfile": {
+    "message": "Browser Profile"
   },
   "seeDetailedInstructions": {
     "message": "Detaillierte Anleitungen auf unserer Hilfeseite unter",
@@ -3837,6 +3836,12 @@
   "changeAtRiskPassword": {
     "message": "Gefährdetes Passwort ändern"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "Du kannst Sammlungen mit Leseberechtigung nicht entfernen: $COLLECTIONS$",
     "placeholders": {
@@ -3931,6 +3936,12 @@
     "message": "Erfahre mehr über den SSH-Agenten",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
   },
   "assignToCollections": {
     "message": "Sammlungen zuweisen"
@@ -4077,5 +4088,27 @@
   },
   "enableAutotypeDescription": {
     "message": "Bitwarden überprüft die Eingabestellen nicht. Vergewissere dich, dass du dich im richtigen Fenster und Feld befindest, bevor du die Tastenkombination verwendest."
+  },
+  "moreBreadcrumbs": {
+    "message": "More breadcrumbs",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "next": {
+    "message": "Next"
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Confirm Key Connector domain"
+  },
+  "confirm": {
+    "message": "Confirm"
+  },
+  "enableAutotypeTransitionKey": {
+    "message": "Enable autotype shortcut"
+  },
+  "enableAutotypeDescriptionTransitionKey": {
+    "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."
+  },
+  "editShortcut": {
+    "message": "Edit shortcut"
   }
 }

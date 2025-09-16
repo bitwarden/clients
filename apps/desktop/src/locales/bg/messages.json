@@ -702,6 +702,12 @@
   "attachmentSaved": {
     "message": "Прикаченият файл е запазен."
   },
+  "addAttachment": {
+    "message": "Добавяне на прикачен файл"
+  },
+  "maxFileSizeSansPunctuation": {
+    "message": "Максималният размер на файла е 500 MB"
+  },
   "file": {
     "message": "Файл"
   },
@@ -1299,11 +1305,8 @@
     "message": "Автоматично изчистване на буфера след поставяне на стойността.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
-  "enableFavicon": {
-    "message": "Показване на иконките на уеб сайтовете"
-  },
-  "faviconDesc": {
-    "message": "Показване на разпознаваемо изображение до всеки запис."
+  "showIconsChangePasswordUrls": {
+    "message": "Показване на иконките на уеб сайтовете и извличане на адресите за смяна на паролата"
   },
   "enableMinToTray": {
     "message": "Смаляване в областта за уведомяване"
@@ -1839,12 +1842,6 @@
   },
   "autoPromptTouchId": {
     "message": "Питане за Touch ID при пускане"
-  },
-  "requirePasswordOnStart": {
-    "message": "Изискване на парола или ПИН при стартиране на приложението"
-  },
-  "requirePasswordWithoutPinOnStart": {
-    "message": "Изискване на парола при стартиране на приложението"
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Заключване с главната парола при повторно пускане"
@@ -3491,15 +3488,11 @@
   "selectImportCollection": {
     "message": "Изберете колекция"
   },
-  "importTargetHint": {
-    "message": "Изберете тази опция, ако искате съдържанието на внесения файл да бъде преместено в $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Изберете тази опция, ако искате съдържанието на внесения файл да бъде преместено в колекция"
+  },
+  "importTargetHintFolder": {
+    "message": "Изберете тази опция, ако искате съдържанието на внесения файл да бъде преместено в папка"
   },
   "importUnassignedItemsError": {
     "message": "Файлът съдържа невъзложени елементи."
@@ -3594,6 +3587,12 @@
   },
   "awaitingSSODesc": {
     "message": "Моля, продължете вписването с данните за удостоверяване на Вашата компания."
+  },
+  "importDirectlyFromBrowser": {
+    "message": "Внасяне директно от браузъра"
+  },
+  "browserProfile": {
+    "message": "Профил на браузъра"
   },
   "seeDetailedInstructions": {
     "message": "Може да намерите подробни инструкции в помощния ни уеб сайт на адрес",
@@ -3837,6 +3836,12 @@
   "changeAtRiskPassword": {
     "message": "Промяна на парола в риск"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Този елемент за вписване е в риск и в него липсва уеб сайт. Добавете уеб сайт и сменете паролата, за по-добра сигурност."
+  },
+  "missingWebsite": {
+    "message": "Липсващ уеб сайт"
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "Не можете да премахвате колекции с права „Само за преглед“: $COLLECTIONS$",
     "placeholders": {
@@ -3931,6 +3936,12 @@
     "message": "Научете повече относно SSH-агента",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "aboutThisSetting": {
+    "message": "Относно тази настройка"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Битуорден ще използва запазените адреси за вписване, за да определи коя иконка или адрес за смяна на паролата да се ползва, за да улесни работата Ви. Никакви данни не се събират или съхраняват, когато използвате тази услуга."
   },
   "assignToCollections": {
     "message": "Свързване с колекции"
@@ -4077,5 +4088,27 @@
   },
   "enableAutotypeDescription": {
     "message": "Битуорден не проверява местата за въвеждане, така че се уверете, че сте в правилния прозорец, преди да ползвате клавишната комбинация."
+  },
+  "moreBreadcrumbs": {
+    "message": "Още елементи в пътечката",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "next": {
+    "message": "Следващо"
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Потвърждаване на домейна на конектора за ключове"
+  },
+  "confirm": {
+    "message": "Потвърждаване"
+  },
+  "enableAutotypeTransitionKey": {
+    "message": "Включване на клавишната комбинация за автоматично попълване"
+  },
+  "enableAutotypeDescriptionTransitionKey": {
+    "message": "Уверете се, че сет в правилното поле, преди да използвате комбинацията, за да избегнете попълването на данните на грешното място."
+  },
+  "editShortcut": {
+    "message": "Редактиране на комбинацията"
   }
 }

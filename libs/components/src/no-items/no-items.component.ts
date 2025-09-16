@@ -1,6 +1,7 @@
 import { Component, input } from "@angular/core";
 
-import { Icons } from "..";
+import { NoResults } from "@bitwarden/assets/svg";
+
 import { BitIconComponent } from "../icon/icon.component";
 
 /**
@@ -12,5 +13,5 @@ import { BitIconComponent } from "../icon/icon.component";
   imports: [BitIconComponent],
 })
 export class NoItemsComponent {
-  readonly icon = input(Icons.Search);
+  readonly icon = input(NoResults);
 }

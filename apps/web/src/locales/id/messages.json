@@ -84,16 +84,16 @@
     }
   },
   "noAppsInOrgDescription": {
-    "message": "As users save logins, applications appear here, showing any at-risk passwords. Mark critical apps and notify users to update passwords."
+    "message": "Setelah pengguna menyimpan info masuk, aplikasi akan muncul di sini menampilkan sandi yang berisiko. Tandai aplikasi penting dan beri tahukan pengguna untuk memperbarui sandi."
   },
-  "noCriticalAppsTitle": {
-    "message": "You haven't marked any applications as a Critical"
+  "noCriticalApplicationsTitle": {
+    "message": "You haven’t marked any applications as critical"
   },
-  "noCriticalAppsDescription": {
-    "message": "Select your most critical applications to discover at-risk passwords, and notify users to change those passwords."
+  "noCriticalApplicationsDescription": {
+    "message": "Select your most critical applications to prioritize security actions for your users to address at-risk passwords."
   },
-  "markCriticalApps": {
-    "message": "Mark critical apps"
+  "markCriticalApplications": {
+    "message": "Select critical applications"
   },
   "markAppAsCritical": {
     "message": "Mark app as critical"
@@ -176,11 +176,11 @@
   "totalApplications": {
     "message": "Semua aplikasi"
   },
-  "unmarkAsCriticalApp": {
-    "message": "Unmark as critical app"
+  "unmarkAsCritical": {
+    "message": "Unmark as critical"
   },
-  "criticalApplicationSuccessfullyUnmarked": {
-    "message": "Critical application successfully unmarked"
+  "criticalApplicationUnmarkedSuccessfully": {
+    "message": "Successfully unmarked application as critical"
   },
   "whatTypeOfItem": {
     "message": "Jenis barang apa ini?"
@@ -256,7 +256,7 @@
     }
   },
   "itemHistory": {
-    "message": "Riwayat benda"
+    "message": "Riwayat barang"
   },
   "authenticatorKey": {
     "message": "Kunci Autentikator"
@@ -450,17 +450,17 @@
     "message": "Boolean"
   },
   "cfTypeCheckbox": {
-    "message": "Checkbox"
+    "message": "Kotak centang"
   },
   "cfTypeLinked": {
     "message": "Terhubung",
     "description": "This describes a field that is 'linked' (related) to another field."
   },
   "fieldType": {
-    "message": "Field type"
+    "message": "Jenis bidang"
   },
   "fieldLabel": {
-    "message": "Field label"
+    "message": "Label bidang"
   },
   "remove": {
     "message": "Hapus"
@@ -473,7 +473,7 @@
     "description": "This is the folder for uncategorized items"
   },
   "selfOwnershipLabel": {
-    "message": "You",
+    "message": "Anda",
     "description": "Used as a label to indicate that the user is the owner of an item."
   },
   "addFolder": {
@@ -483,7 +483,7 @@
     "message": "Edit Folder"
   },
   "editWithName": {
-    "message": "Edit $ITEM$: $NAME$",
+    "message": "Sunting $ITEM$: $NAME$",
     "placeholders": {
       "item": {
         "content": "$1",
@@ -496,10 +496,10 @@
     }
   },
   "newFolder": {
-    "message": "New folder"
+    "message": "Folder baru"
   },
   "folderName": {
-    "message": "Folder name"
+    "message": "Nama folder"
   },
   "folderHintText": {
     "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
@@ -569,7 +569,7 @@
     "message": "Batalkan"
   },
   "later": {
-    "message": "Later"
+    "message": "Nanti"
   },
   "canceled": {
     "message": "Dibatalkan"
@@ -599,7 +599,7 @@
     "message": "Cari favorit"
   },
   "searchLogin": {
-    "message": "Search logins",
+    "message": "Cari info masuk",
     "description": "Search Login type"
   },
   "searchCard": {
@@ -611,7 +611,7 @@
     "description": "Search Identity type"
   },
   "searchSecureNote": {
-    "message": "Search secure notes",
+    "message": "Cari catatan aman",
     "description": "Search Secure Note type"
   },
   "searchVault": {
@@ -624,13 +624,13 @@
     "message": "Cari organisasi"
   },
   "searchMembers": {
-    "message": "Search members"
+    "message": "Cari anggota"
   },
   "searchGroups": {
-    "message": "Search groups"
+    "message": "Cari grup"
   },
   "resetSearch": {
-    "message": "Reset search"
+    "message": "Atur ulang pencarian"
   },
   "allItems": {
     "message": "Semua Item"
@@ -654,10 +654,10 @@
     "message": "Catatan Aman"
   },
   "typeNote": {
-    "message": "Note"
+    "message": "Catatan"
   },
   "typeSshKey": {
-    "message": "SSH key"
+    "message": "Kunci SSH"
   },
   "typeLoginPlural": {
     "message": "Masuk"
@@ -690,7 +690,7 @@
     "message": "Nama Lengkap"
   },
   "address": {
-    "message": "Address"
+    "message": "Alamat"
   },
   "address1": {
     "message": "Alamat 1"
@@ -723,7 +723,7 @@
     "message": "Pilih"
   },
   "newItem": {
-    "message": "New item"
+    "message": "Barang baru"
   },
   "addItem": {
     "message": "Tambah Item"
@@ -735,7 +735,7 @@
     "message": "Lihat Item"
   },
   "newItemHeader": {
-    "message": "New $TYPE$",
+    "message": "$TYPE$ baru",
     "placeholders": {
       "type": {
         "content": "$1",
@@ -744,7 +744,7 @@
     }
   },
   "editItemHeader": {
-    "message": "Edit $TYPE$",
+    "message": "Sunting $TYPE$",
     "placeholders": {
       "type": {
         "content": "$1",
@@ -753,7 +753,7 @@
     }
   },
   "viewItemType": {
-    "message": "View $ITEMTYPE$",
+    "message": "Lihat $ITEMTYPE$",
     "placeholders": {
       "itemtype": {
         "content": "$1",
@@ -762,17 +762,17 @@
     }
   },
   "new": {
-    "message": "New",
+    "message": "Baru",
     "description": "for adding new items"
   },
   "item": {
-    "message": "Item"
+    "message": "Barang"
   },
   "itemDetails": {
-    "message": "Item details"
+    "message": "Rincian barang"
   },
   "itemName": {
-    "message": "Item name"
+    "message": "Nama barang"
   },
   "ex": {
     "message": "cth.",
@@ -798,7 +798,7 @@
     }
   },
   "copySuccessful": {
-    "message": "Copy Successful"
+    "message": "Berhasil Disalin"
   },
   "copyValue": {
     "message": "Salin Nilai",
@@ -809,11 +809,11 @@
     "description": "Copy password to clipboard"
   },
   "copyPassphrase": {
-    "message": "Copy passphrase",
+    "message": "Salin frasa sandi",
     "description": "Copy passphrase to clipboard"
   },
   "passwordCopied": {
-    "message": "Password copied"
+    "message": "Sandi disalin"
   },
   "copyUsername": {
     "message": "Salin Nama Pengguna",
@@ -832,7 +832,7 @@
     "description": "Copy URI to clipboard"
   },
   "copyCustomField": {
-    "message": "Copy $FIELD$",
+    "message": "Salin $FIELD$",
     "placeholders": {
       "field": {
         "content": "$1",
@@ -841,13 +841,13 @@
     }
   },
   "copyWebsite": {
-    "message": "Copy website"
+    "message": "Salin situs web"
   },
   "copyNotes": {
     "message": "Salin catatan"
   },
   "copyAddress": {
-    "message": "Copy address"
+    "message": "Salin alamat"
   },
   "copyPhone": {
     "message": "Salin nomor telepon"
@@ -867,14 +867,23 @@
   "copyLicenseNumber": {
     "message": "Salin nomor lisensi"
   },
+  "copyPrivateKey": {
+    "message": "Salin kunci pribadi"
+  },
+  "copyPublicKey": {
+    "message": "Salin kunci umum"
+  },
+  "copyFingerprint": {
+    "message": "Salin sidik jari"
+  },
   "copyName": {
     "message": "Salin nama"
   },
   "cardNumber": {
-    "message": "card number"
+    "message": "nomor kartu"
   },
   "copyFieldCipherName": {
-    "message": "Copy $FIELD$, $CIPHERNAME$",
+    "message": "Salin $FIELD$, $CIPHERNAME$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
@@ -891,7 +900,7 @@
     "message": "Saya"
   },
   "myItems": {
-    "message": "My Items"
+    "message": "Barang saya"
   },
   "myVault": {
     "message": "Brankas Saya"
@@ -967,7 +976,7 @@
     }
   },
   "itemsMovedToOrg": {
-    "message": "Items moved to $ORGNAME$",
+    "message": "Barang dipindahkan ke $ORGNAME$",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -976,7 +985,7 @@
     }
   },
   "itemMovedToOrg": {
-    "message": "Item moved to $ORGNAME$",
+    "message": "Barang dipindahkan ke $ORGNAME$",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -1153,13 +1162,13 @@
     "message": "Set up encryption"
   },
   "usedForEncryption": {
-    "message": "Used for encryption"
+    "message": "Digunakan untuk enkripsi"
   },
   "loginWithPasskeyEnabled": {
-    "message": "Log in with passkey turned on"
+    "message": "Masuk dengan kunci sandi menyala"
   },
   "passkeySaved": {
-    "message": "$NAME$ saved",
+    "message": "$NAME$ disimpan",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -1168,31 +1177,31 @@
     }
   },
   "passkeyRemoved": {
-    "message": "Passkey removed"
+    "message": "Kunci sandi dihapus"
   },
   "removePasskey": {
-    "message": "Remove passkey"
+    "message": "Hapus kunci sandi"
   },
   "removePasskeyInfo": {
-    "message": "If all passkeys are removed, you will be unable to log into new devices without your master password."
+    "message": "Jika semua kunci sandi dihapus, Anda tidak dapat masuk ke perangkat baru tanpa sandi utama."
   },
   "passkeyLimitReachedInfo": {
-    "message": "Passkey limit reached. Remove a passkey to add another."
+    "message": "Batas kunci sandi dicapai. Harap hapus satu kunci sandi untuk menambahkan yang lain."
   },
   "tryAgain": {
-    "message": "Try again"
+    "message": "Coba lagi"
   },
   "createAccount": {
     "message": "Buat Akun"
   },
   "newToBitwarden": {
-    "message": "New to Bitwarden?"
+    "message": "Baru menggunakan Bitwarden?"
   },
   "setAStrongPassword": {
-    "message": "Set a strong password"
+    "message": "Atur sandi yang kuat"
   },
   "finishCreatingYourAccountBySettingAPassword": {
-    "message": "Finish creating your account by setting a password"
+    "message": "Selesaikan membuat akun dengan mengatur sandi"
   },
   "newAroundHere": {
     "message": "Pengguna baru?"
@@ -1204,43 +1213,43 @@
     "message": "Masuk"
   },
   "logInToBitwarden": {
-    "message": "Log in to Bitwarden"
+    "message": "Masuk ke Bitwarden"
   },
   "enterTheCodeSentToYourEmail": {
-    "message": "Enter the code sent to your email"
+    "message": "Masukkan kode yang dikirim ke surel Anda"
   },
   "enterTheCodeFromYourAuthenticatorApp": {
-    "message": "Enter the code from your authenticator app"
+    "message": "Masukkan kode dari aplikasi autentikator Anda"
   },
   "pressYourYubiKeyToAuthenticate": {
-    "message": "Press your YubiKey to authenticate"
+    "message": "Tekan YubiKey Anda untuk mengautentikasi"
   },
   "authenticationTimeout": {
-    "message": "Authentication timeout"
+    "message": "Batas waktu otentikasi tercapai"
   },
   "authenticationSessionTimedOut": {
     "message": "The authentication session timed out. Please restart the login process."
   },
   "verifyYourIdentity": {
-    "message": "Verify your Identity"
+    "message": "Verifikasikan identitas Anda"
   },
   "weDontRecognizeThisDevice": {
-    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+    "message": "Kami tidak mengenali perangkat ini. Masukkan kode yang dikirim ke surel Anda untuk memverifikasi identitas Anda."
   },
   "continueLoggingIn": {
-    "message": "Continue logging in"
+    "message": "Lanjutkan masuk"
   },
   "whatIsADevice": {
-    "message": "What is a device?"
+    "message": "Apa itu perangkat?"
   },
   "aDeviceIs": {
-    "message": "A device is a unique installation of the Bitwarden app where you have logged in. Reinstalling, clearing app data, or clearing your cookies could result in a device appearing multiple times."
+    "message": "\"Perangkat\" adalah tiap pemasangan aplikasi Bitwarden tempat Anda masuk. Memasang ulang, menghapus data aplikasi, atau membersikan kuki dapat membuat sebuat perangkat dianggap dua atau lebih."
   },
   "logInInitiated": {
-    "message": "Log in initiated"
+    "message": "Proses masuk dimulai"
   },
   "logInRequestSent": {
-    "message": "Request sent"
+    "message": "Permintaan dikirim"
   },
   "submit": {
     "message": "Kirim"
@@ -1506,6 +1515,9 @@
   },
   "recoveryCodeTitle": {
     "message": "Kode Pemulihan"
+  },
+  "invalidRecoveryCode": {
+    "message": "Invalid recovery code"
   },
   "authenticatorAppTitle": {
     "message": "Aplikasi Autentikasi"
@@ -2050,15 +2062,11 @@
   "selectImportCollection": {
     "message": "Pilih koleksi"
   },
-  "importTargetHint": {
-    "message": "Select this option if you want the imported file contents moved to a $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Select this option if you want the imported file contents moved to a collection"
+  },
+  "importTargetHintFolder": {
+    "message": "Select this option if you want the imported file contents moved to a folder"
   },
   "importUnassignedItemsError": {
     "message": "File contains unassigned items."
@@ -2106,11 +2114,8 @@
   "languageDesc": {
     "message": "Ubah bahasa yang digunakan oleh brankas web."
   },
-  "enableFavicon": {
-    "message": "Tampilkan ikon website"
-  },
-  "faviconDesc": {
-    "message": "Tampilkan gambar pengenal di samping setiap login."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "default": {
     "message": "Bawaan"
@@ -2450,9 +2455,6 @@
   },
   "twoFactorU2fProblemReadingTryAgain": {
     "message": "Ada masalah saat membaca kunci keamanan. Coba lagi."
-  },
-  "twoFactorWebAuthnWarning1": {
-    "message": "Due to platform limitations, WebAuthn cannot be used on all Bitwarden applications. You should set up another two-step login provider so that you can access your account when WebAuthn cannot be used."
   },
   "twoFactorRecoveryYourCode": {
     "message": "Kode pemulihan masuk dua langkah Bitwarden Anda"
@@ -2823,6 +2825,12 @@
         "example": "'month' or 'year'"
       }
     }
+  },
+  "showPricingSummary": {
+    "message": "Show pricing summary"
+  },
+  "hidePricingSummary": {
+    "message": "Hide pricing summary"
   },
   "summary": {
     "message": "Ringkasan"
@@ -7029,6 +7037,12 @@
   "unknownCipher": {
     "message": "Unknown item, you may need to request permission to access this item."
   },
+  "unknownSecret": {
+    "message": "Unknown secret, you may need to request permission to access this secret."
+  },
+  "unknownProject": {
+    "message": "Unknown project, you may need to request permission to access this project."
+  },
   "cannotSponsorSelf": {
     "message": "You cannot redeem for the active account. Enter a different email."
   },
@@ -7415,6 +7429,9 @@
   },
   "off": {
     "message": "Off"
+  },
+  "connected": {
+    "message": "Connected"
   },
   "members": {
     "message": "Anggota"
@@ -8352,10 +8369,82 @@
       }
     }
   },
+  "permanentlyDeletedSecretWithId": {
+    "message": "Permanently deleted a secret with identifier: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "restoredSecretWithId": {
+    "message": "Restored a secret with identifier: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
   "createdSecretWithId": {
     "message": "Created a new secret with identifier: $SECRET_ID$",
     "placeholders": {
       "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "accessedProjectWithId": {
+    "message": "Accessed a project with Id: $PROJECT_ID$.",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "nameUnavailableProjectDeleted": {
+    "message": "Deleted project Id: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "nameUnavailableSecretDeleted": {
+    "message": "Deleted secret Id: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "editedProjectWithId": {
+    "message": "Edited a project with identifier: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "deletedProjectWithId": {
+    "message": "Deleted a project with identifier: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "createdProjectWithId": {
+    "message": "Created a new project with identifier: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
         "content": "$1",
         "example": "4d34e8a8"
       }
@@ -8849,20 +8938,25 @@
   "collectionManagement": {
     "message": "Collection management"
   },
-  "collectionManagementDesc": {
-    "message": "Manage the collection behavior for the organization"
+  "collectionManagementDescription": {
+    "message": "Configure the collection behavior for the organization"
   },
-  "limitCollectionCreationDesc": {
-    "message": "Limit collection creation to owners and admins"
+  "allowAdminAccessToAllCollectionItemsDescription": {
+    "message": "Allow owners and admins to manage all collections and items from the Admin Console"
   },
-  "limitCollectionDeletionDesc": {
-    "message": "Limit collection deletion to owners and admins"
+  "restrictCollectionCreationDescription": {
+    "message": "Restrict collection creation to owners and admins"
   },
-  "limitItemDeletionDescription": {
-    "message": "Limit item deletion to members with the Manage collection permissions"
+  "restrictCollectionDeletionDescription": {
+    "message": "Restrict collection deletion to owners and admins"
   },
-  "allowAdminAccessToAllCollectionItemsDesc": {
-    "message": "Owners and admins can manage all collections and items"
+  "restrictItemDeletionDescriptionStart": {
+    "message": "Restrict item deletion to members with the ",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
+  },
+  "restrictItemDeletionDescriptionEnd": {
+    "message": " permission",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
   },
   "updatedCollectionManagement": {
     "message": "Updated collection management setting"
@@ -8933,6 +9027,78 @@
   },
   "modifiedCollectionManagement": {
     "message": "Modified collection management setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationEnabled": {
+    "message": "Turned on Restrict collection creation setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationDisabled": {
+    "message": "Turned off Restrict collection creation setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionEnabled": {
+    "message": "Turned on Restrict collection deletion setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionDisabled": {
+    "message": "Turned off Restrict collection deletion setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionEnabled": {
+    "message": "Turned on Restrict item deletion setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionDisabled": {
+    "message": "Turned off Restrict item deletion setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsEnabled": {
+    "message": "Turned on Allow owners and admins to manage all collections and items setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsDisabled": {
+    "message": "Turned off Allow owners and admins to manage all collections and items setting $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -9517,6 +9683,15 @@
   },
   "connectIntegrationButtonDesc": {
     "message": "Connect $INTEGRATION$",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
+  },
+  "updateIntegrationButtonDesc": {
+    "message": "Update $INTEGRATION$",
     "placeholders": {
       "integration": {
         "content": "$1",
@@ -10730,6 +10905,12 @@
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
+  },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Remove Unlock with PIN"
   },
@@ -10744,6 +10925,9 @@
   },
   "upgradeEventLogMessage": {
     "message": "These events are examples only and do not reflect real events within your Bitwarden organization."
+  },
+  "viewEvents": {
+    "message": "View Events"
   },
   "cannotCreateCollection": {
     "message": "Free organizations may have up to 2 collections. Upgrade to a paid plan to add more collections."
@@ -10902,6 +11086,12 @@
     "message": "Billing address required to add credit.",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+  },
   "billingAddress": {
     "message": "Billing address"
   },
@@ -11012,5 +11202,67 @@
   },
   "showLess": {
     "message": "Show less"
+  },
+  "missingTaxId": {
+    "message": "Missing Tax ID"
+  },
+  "missingTaxIdWarning": {
+    "message": "Action required: You're missing a Tax ID number in payment details. If a Tax ID is not added, your invoices may include additional tax."
+  },
+  "moreBreadcrumbs": {
+    "message": "More breadcrumbs",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "addTaxId": {
+    "message": "Add a Tax ID"
+  },
+  "missingTaxIdCalloutTitle": {
+    "message": "Action required: Missing Tax ID"
+  },
+  "missingTaxIdCalloutDescription": {
+    "message": "If a Tax ID is not added, your invoices may include additional tax."
+  },
+  "unverifiedTaxIdWarning": {
+    "message": "Action required: Your Tax ID number is unverified. If your Tax ID is left unverified, your invoices may include additional tax."
+  },
+  "editTaxId": {
+    "message": "Edit your Tax ID"
+  },
+  "unverifiedTaxIdCalloutTitle": {
+    "message": "Tax ID unverified"
+  },
+  "unverifiedTaxIdCalloutDescription": {
+    "message": "Check your Tax ID to verify the format is correct and there are no typos."
+  },
+  "pendingVerification": {
+    "message": "Pending verification"
+  },
+  "checkInputFormat": {
+    "message": "Check input format for typos."
+  },
+  "exampleTaxIdFormat": {
+    "message": "Example $CODE$ format: $EXAMPLE$",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "ABN"
+      },
+      "example": {
+        "content": "$2",
+        "example": "92873837267"
+      }
+    }
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Confirm Key Connector domain"
+  },
+  "requiredToVerifyBankAccountWithStripe": {
+    "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
+  },
+  "verifyBankAccountWithStripe": {
+    "message": "We have made a micro-deposit to your bank account. This may take 1-2 business days. When you see the deposit in your account, you can verify your bank account. Failure to verify your bank account will result in a missed payment and your subscription will be suspended."
+  },
+  "verifyNow": {
+    "message": "Verify now."
   }
 }
