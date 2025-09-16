@@ -7,6 +7,12 @@ import {
   InlineMenuFillType,
 } from "../enums/autofill-overlay.enum";
 
+export type DomainMatch = {
+  domain: string;
+  fieldType: AutofillFieldQualifierType;
+  xpathResult: XPathResult;
+};
+
 /**
  * Represents a single field that is collected from the page source and is potentially autofilled.
  */
@@ -125,6 +131,8 @@ export default class AutofillField {
   fieldQualifier?: AutofillFieldQualifierType;
 
   accountCreationFieldType?: InlineMenuAccountCreationFieldTypes;
+
+  domainMatch?: DomainMatch;
 
   /**
    * used for totp multiline calculations
