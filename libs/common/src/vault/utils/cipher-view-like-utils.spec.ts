@@ -272,6 +272,10 @@ describe("CipherViewLikeUtils", () => {
         (cipherView.attachments as any) = null;
 
         expect(CipherViewLikeUtils.hasAttachments(cipherView)).toBe(false);
+
+        cipherView.attachments = [];
+
+        expect(CipherViewLikeUtils.hasAttachments(cipherView)).toBe(false);
       });
     });
 

@@ -112,7 +112,7 @@ export class CipherView implements View, InitializerMetadata {
   }
 
   get hasAttachments(): boolean {
-    return this.attachments && this.attachments.length > 0;
+    return !!this.attachments && this.attachments.length > 0;
   }
 
   get hasOldAttachments(): boolean {
