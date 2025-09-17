@@ -125,7 +125,7 @@ export const LongTitle: Story = {
   ...Default,
   args: {
     dialogSize: "small",
-    title: "Long_Title_That_Should_Be_Truncated",
+    title: "Incredibly_Super_Long_Title_That_Should_Be_Truncated",
   },
 };
 
