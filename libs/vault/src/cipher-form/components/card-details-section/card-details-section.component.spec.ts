@@ -20,7 +20,7 @@ describe("CardDetailsSectionComponent", () => {
   let registerChildFormSpy: jest.SpyInstance;
   let patchCipherSpy: jest.SpyInstance;
 
-  const getInitialCipherView = jest.fn(() => null);
+  const getInitialCipherView = jest.fn(() => null as any);
 
   beforeEach(async () => {
     cipherFormProvider = mock<CipherFormContainer>({ getInitialCipherView });
@@ -67,6 +67,7 @@ describe("CardDetailsSectionComponent", () => {
     cardView.brand = "Visa";
     cardView.expMonth = "";
     cardView.code = "";
+    cardView.expYear = "";
 
     expect(patchCipherSpy).toHaveBeenCalled();
     const patchFn = patchCipherSpy.mock.lastCall[0];
@@ -85,6 +86,7 @@ describe("CardDetailsSectionComponent", () => {
     cardView.number = "";
     cardView.expMonth = "";
     cardView.code = "";
+    cardView.brand = "";
     cardView.expYear = "2022";
 
     expect(patchCipherSpy).toHaveBeenCalled();
@@ -122,8 +124,6 @@ describe("CardDetailsSectionComponent", () => {
       number,
       code,
       brand: cardView.brand,
-      expMonth: null,
-      expYear: null,
     });
   });
 
