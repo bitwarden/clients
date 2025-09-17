@@ -88,7 +88,7 @@ export function getFlattenedCipherDetails(
   uri: string,
 ): CipherHealthReportUriDetail {
   return {
-    cipherId: detail.id!,
+    cipherId: detail.id,
     reusedPasswordCount: detail.reusedPasswordCount,
     weakPasswordDetail: detail.weakPasswordDetail,
     exposedPasswordDetail: detail.exposedPasswordDetail,

@@ -26,7 +26,7 @@ export class SearchCiphersPipe implements PipeTransform {
       if (c.name != null && c.name.toLowerCase().indexOf(searchText) > -1) {
         return true;
       }
-      if (searchText.length >= 8 && c.id?.startsWith(searchText)) {
+      if (searchText.length >= 8 && c.id.startsWith(searchText)) {
         return true;
       }
       if (c.subTitle != null && c.subTitle.toLowerCase().indexOf(searchText) > -1) {

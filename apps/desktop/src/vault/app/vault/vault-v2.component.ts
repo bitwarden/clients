@@ -434,7 +434,7 @@ export class VaultV2Component<C extends CipherViewLike>
     if (await this.shouldReprompt(cipher, "view")) {
       return;
     }
-    this.cipherId = cipher.id!;
+    this.cipherId = cipher.id;
     this.cipher = cipher;
     this.collections =
       this.vaultFilterComponent?.collections?.fullList.filter((c) =>
@@ -639,7 +639,7 @@ export class VaultV2Component<C extends CipherViewLike>
     if (await this.shouldReprompt(cipher, "edit")) {
       return;
     }
-    this.cipherId = cipher.id!;
+    this.cipherId = cipher.id;
     this.cipher = cipher;
     await this.buildFormConfig("edit");
     if (!cipher.edit && this.config) {
@@ -653,7 +653,7 @@ export class VaultV2Component<C extends CipherViewLike>
     if (await this.shouldReprompt(cipher, "clone")) {
       return;
     }
-    this.cipherId = cipher.id!;
+    this.cipherId = cipher.id;
     this.cipher = cipher;
     await this.buildFormConfig("clone");
     this.action = "clone";
@@ -734,7 +734,7 @@ export class VaultV2Component<C extends CipherViewLike>
         .pipe(getByIds(cipher.collectionIds)),
     );
 
-    this.cipherId = cipher.id!;
+    this.cipherId = cipher.id;
     this.cipher = cipher;
     if (this.activeUserId) {
       await this.cipherService.clearCache(this.activeUserId).catch(() => {});
@@ -760,7 +760,7 @@ export class VaultV2Component<C extends CipherViewLike>
   }
 
   async cancelCipher(cipher: CipherView) {
-    this.cipherId = cipher.id!;
+    this.cipherId = cipher.id;
     this.cipher = cipher;
     this.action = this.cipherId != null ? "view" : null;
     await this.go().catch(() => {});
@@ -965,7 +965,7 @@ export class VaultV2Component<C extends CipherViewLike>
     }
     const repromptResult = await this.passwordRepromptService.showPasswordPrompt();
     if (repromptResult) {
-      this.cipherRepromptId = cipher.id!;
+      this.cipherRepromptId = cipher.id;
     }
     return repromptResult;
   }
