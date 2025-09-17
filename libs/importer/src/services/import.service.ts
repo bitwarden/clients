@@ -10,6 +10,7 @@ import {
   CollectionView,
 } from "@bitwarden/admin-console/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { DeviceType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
@@ -144,6 +145,18 @@ export class ImportService implements ImportServiceAbstraction {
     const capabilities$ = combineLatest([type$, browserEnabled$]).pipe(
       map(([type, enabled]) => {
         let loaders = availableLoaders(type, client);
+
+        /* Hide Chromium importer for Brave on Windows desktop only */
+        try {
+          const device = this.system.environment.getDevice?.();
+          const isWindowsDesktop = device === DeviceType.WindowsDesktop;
+          if (type === "bravecsv" && isWindowsDesktop) {
+            loaders = loaders?.filter((loader) => loader !== Loader.chromium);
+          }
+        } catch {
+          // TODO handle situation where environment could not provide device type
+        }
+
         if (!enabled) {
           loaders = loaders?.filter((loader) => loader !== Loader.chromium);
         }

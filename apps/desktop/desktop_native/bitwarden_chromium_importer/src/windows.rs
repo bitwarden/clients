@@ -16,7 +16,8 @@ mod util;
 // Public API
 //
 
-pub const SUPPORTED_BROWSERS: [BrowserConfig; 6] = [
+// if Brave is re-enabled, be sure to adjust array size (5 => 6)
+pub const SUPPORTED_BROWSERS: [BrowserConfig; 5] = [
     BrowserConfig {
         name: "Chrome",
         data_dir: "AppData/Local/Google/Chrome/User Data",
@@ -29,10 +30,12 @@ pub const SUPPORTED_BROWSERS: [BrowserConfig; 6] = [
         name: "Microsoft Edge",
         data_dir: "AppData/Local/Microsoft/Edge/User Data",
     },
-    BrowserConfig {
-        name: "Brave",
-        data_dir: "AppData/Local/BraveSoftware/Brave-Browser/User Data",
-    },
+    /* Remove Brave for Windows Desktop clients */
+    
+    // BrowserConfig {
+    //     name: "Brave",
+    //     data_dir: "AppData/Local/BraveSoftware/Brave-Browser/User Data",
+    // },
     BrowserConfig {
         name: "Opera",
         data_dir: "AppData/Roaming/Opera Software/Opera Stable",
