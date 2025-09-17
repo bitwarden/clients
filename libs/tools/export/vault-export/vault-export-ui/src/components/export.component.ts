@@ -44,7 +44,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { pin } from "@bitwarden/common/tools/rx";
-import { OrganizationId } from "@bitwarden/common/types/guid";
+import { isId, OrganizationId } from "@bitwarden/common/types/guid";
 import {
   AsyncActionsModule,
   BitSubmitDirective,
@@ -96,7 +96,18 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
    * If a organizationId is provided, the organization selection is disabled.
    */
   @Input() set organizationId(value: OrganizationId | string | undefined) {
-    this._organizationId = value as OrganizationId;
+    if (Utils.isNullOrEmpty(value)) {
+      this._organizationId = undefined;
+      return;
+    }
+
+    if (!isId<OrganizationId>(value)) {
+      this._organizationId = undefined;
+      return;
+    }
+
+    this._organizationId = value;
+
     getUserId(this.accountService.activeAccount$)
       .pipe(
         switchMap((userId) =>
@@ -107,7 +118,7 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
       )
       .pipe(takeUntil(this.destroy$))
       .subscribe((organization) => {
-        this._organizationId = organization?.id as OrganizationId;
+        this._organizationId = organization?.id;
       });
   }
 
