@@ -26,6 +26,7 @@ import {
   SendListCommand,
   SendRemovePasswordCommand,
 } from "./tools/send";
+import { ArchiveCommand } from "./vault/archive.command";
 import { CreateCommand } from "./vault/create.command";
 import { DeleteCommand } from "./vault/delete.command";
 import { SyncCommand } from "./vault/sync.command";
@@ -40,6 +41,7 @@ export class OssServeConfigurator {
   private statusCommand: StatusCommand;
   private syncCommand: SyncCommand;
   private deleteCommand: DeleteCommand;
+  private archiveCommand: ArchiveCommand;
   private confirmCommand: ConfirmCommand;
   private restoreCommand: RestoreCommand;
   private lockCommand: LockCommand;
@@ -126,6 +128,13 @@ export class OssServeConfigurator {
       this.serviceContainer.cipherAuthorizationService,
       this.serviceContainer.accountService,
       this.serviceContainer.cliRestrictedItemTypesService,
+    );
+    this.archiveCommand = new ArchiveCommand(
+      this.serviceContainer.cipherService,
+      this.serviceContainer.accountService,
+      this.serviceContainer.configService,
+      this.serviceContainer.cipherArchiveService,
+      this.serviceContainer.billingAccountProfileStateService,
     );
     this.confirmCommand = new ConfirmCommand(
       this.serviceContainer.apiService,
@@ -398,6 +407,17 @@ export class OssServeConfigurator {
           ctx.request.query,
         );
       }
+      this.processResponse(ctx.response, response);
+      await next();
+    });
+
+    router.post("/archive/:object/:id", async (ctx, next) => {
+      if (await this.errorIfLocked(ctx.response)) {
+        await next();
+        return;
+      }
+      let response: Response = null;
+      response = await this.archiveCommand.run(ctx.params.object, ctx.params.id);
       this.processResponse(ctx.response, response);
       await next();
     });
