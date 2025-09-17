@@ -214,13 +214,8 @@ export class DefaultCollectionService implements CollectionService {
   }
 
   // Transforms the input CollectionViews into TreeNodes
-  // ensures collections with same parent name from different orgs aren't grouped together
   getAllNested(collections: CollectionView[]): TreeNode<CollectionView>[] {
-    const groupedByOrg = new Map<string, CollectionView[]>();
-    collections.map((c) => {
-      const key = c.organizationId;
-      (groupedByOrg.get(key) ?? groupedByOrg.set(key, []).get(key)!).push(c);
-    });
+    const groupedByOrg = this.groupByOrganization(collections);
 
     const all: TreeNode<CollectionView>[] = [];
     for (const group of groupedByOrg.values()) {
@@ -233,6 +228,15 @@ export class DefaultCollectionService implements CollectionService {
       all.push(...nodes);
     }
     return all;
+  }
+
+  groupByOrganization(collections: CollectionView[]): Map<string, CollectionView[]> {
+    const groupedByOrg = new Map<string, CollectionView[]>();
+    collections.map((c) => {
+      const key = c.organizationId;
+      (groupedByOrg.get(key) ?? groupedByOrg.set(key, []).get(key)!).push(c);
+    });
+    return groupedByOrg;
   }
 
   /**
