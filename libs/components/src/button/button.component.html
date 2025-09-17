@@ -2,10 +2,9 @@
   <span [ngClass]="{ 'tw-invisible': showLoadingStyle() }">
     <ng-content></ng-content>
   </span>
-  <span
-    class="tw-absolute tw-inset-0 tw-flex tw-items-center tw-justify-center"
-    [ngClass]="{ 'tw-invisible': !showLoadingStyle() }"
-  >
-    <bit-spinner size="fill" noColor></bit-spinner>
-  </span>
+  @if (showLoadingStyle()) {
+    <span class="tw-absolute tw-inset-0 tw-flex tw-items-center tw-justify-center">
+      <bit-spinner size="fill" noColor></bit-spinner>
+    </span>
+  }
 </span>
