@@ -307,7 +307,7 @@ export class ItemDetailsSectionComponent implements OnInit {
   private async initFromExistingCipher(prefillCipher: CipherView) {
     const { name, folderId, collectionIds } = prefillCipher;
 
-    this.itemDetailsForm.setValue({
+    this.itemDetailsForm.patchValue({
       name: name ? name : (this.initialValues?.name ?? ""),
       organizationId: prefillCipher.organizationId, // We do not allow changing ownership of an existing cipher.
       folderId: folderId ? folderId : (this.initialValues?.folderId ?? null),
