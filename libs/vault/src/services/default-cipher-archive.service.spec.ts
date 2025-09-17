@@ -11,21 +11,14 @@ import {
   CipherBulkArchiveRequest,
   CipherBulkUnarchiveRequest,
 } from "@bitwarden/common/vault/models/request/cipher-bulk-archive.request";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { DialogService } from "@bitwarden/components";
 import { CipherListView } from "@bitwarden/sdk-internal";
 
-import { DecryptionFailureDialogComponent } from "../components/decryption-failure-dialog/decryption-failure-dialog.component";
-
 import { DefaultCipherArchiveService } from "./default-cipher-archive.service";
-import { PasswordRepromptService } from "./password-reprompt.service";
 
 describe("DefaultCipherArchiveService", () => {
   let service: DefaultCipherArchiveService;
   let mockCipherService: jest.Mocked<CipherService>;
   let mockApiService: jest.Mocked<ApiService>;
-  let mockDialogService: jest.Mocked<DialogService>;
-  let mockPasswordRepromptService: jest.Mocked<PasswordRepromptService>;
   let mockBillingAccountProfileStateService: jest.Mocked<BillingAccountProfileStateService>;
   let mockConfigService: jest.Mocked<ConfigService>;
 
@@ -35,16 +28,12 @@ describe("DefaultCipherArchiveService", () => {
   beforeEach(() => {
     mockCipherService = mock<CipherService>();
     mockApiService = mock<ApiService>();
-    mockDialogService = mock<DialogService>();
-    mockPasswordRepromptService = mock<PasswordRepromptService>();
     mockBillingAccountProfileStateService = mock<BillingAccountProfileStateService>();
     mockConfigService = mock<ConfigService>();
 
     service = new DefaultCipherArchiveService(
       mockCipherService,
       mockApiService,
-      mockDialogService,
-      mockPasswordRepromptService,
       mockBillingAccountProfileStateService,
       mockConfigService,
     );
@@ -242,48 +231,6 @@ describe("DefaultCipherArchiveService", () => {
         true,
         true,
       );
-    });
-  });
-
-  describe("canInteract", () => {
-    let mockCipherView: CipherView;
-
-    beforeEach(() => {
-      mockCipherView = {
-        id: cipherId,
-        decryptionFailure: false,
-      } as unknown as CipherView;
-    });
-
-    it("should return false and open dialog when cipher has decryption failure", async () => {
-      mockCipherView.decryptionFailure = true;
-      const openSpy = jest.spyOn(DecryptionFailureDialogComponent, "open").mockImplementation();
-
-      const result = await service.canInteract(mockCipherView);
-
-      expect(result).toBe(false);
-      expect(openSpy).toHaveBeenCalledWith(mockDialogService, {
-        cipherIds: [cipherId],
-      });
-    });
-
-    it("should return password reprompt result when no decryption failure", async () => {
-      mockPasswordRepromptService.passwordRepromptCheck.mockResolvedValue(true);
-
-      const result = await service.canInteract(mockCipherView);
-
-      expect(result).toBe(true);
-      expect(mockPasswordRepromptService.passwordRepromptCheck).toHaveBeenCalledWith(
-        mockCipherView,
-      );
-    });
-
-    it("should return false when password reprompt fails", async () => {
-      mockPasswordRepromptService.passwordRepromptCheck.mockResolvedValue(false);
-
-      const result = await service.canInteract(mockCipherView);
-
-      expect(result).toBe(false);
     });
   });
 });

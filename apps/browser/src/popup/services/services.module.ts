@@ -708,14 +708,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: CipherArchiveService,
     useClass: DefaultCipherArchiveService,
-    deps: [
-      CipherService,
-      ApiService,
-      DialogService,
-      PasswordRepromptService,
-      BillingAccountProfileStateService,
-      ConfigService,
-    ],
+    deps: [CipherService, ApiService, BillingAccountProfileStateService, ConfigService],
   }),
 ];
 
