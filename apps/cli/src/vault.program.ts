@@ -13,6 +13,7 @@ import { Response } from "./models/response";
 import { ExportCommand } from "./tools/export.command";
 import { ImportCommand } from "./tools/import.command";
 import { CliUtils } from "./utils";
+import { ArchiveCommand } from "./vault/archive.command";
 import { CreateCommand } from "./vault/create.command";
 import { DeleteCommand } from "./vault/delete.command";
 
@@ -26,6 +27,7 @@ export class VaultProgram extends BaseProgram {
       .addCommand(this.createCommand())
       .addCommand(this.editCommand())
       .addCommand(this.deleteCommand())
+      .addCommand(this.archiveCommand())
       .addCommand(this.restoreCommand())
       .addCommand(this.shareCommand("move", false))
       .addCommand(this.confirmCommand())
@@ -42,7 +44,7 @@ export class VaultProgram extends BaseProgram {
         Response.badRequest(
           'Unknown object "' +
             requestedObject +
-            '". Allowed objects are ' +
+            '". Allowed objects are: ' +
             validObjects.join(", ") +
             ".",
         ),
@@ -332,6 +334,36 @@ export class VaultProgram extends BaseProgram {
           this.serviceContainer.cliRestrictedItemTypesService,
         );
         const response = await command.run(object, id, cmd);
+        this.processResponse(response);
+      });
+  }
+
+  private archiveCommand(): Command {
+    const archiveObjects = ["item"];
+    return new Command("archive")
+      .argument("<object>", "Valid objects are: " + archiveObjects.join(", "))
+      .argument("<id>", "Object's globally unique `id`.")
+      .description("Archive an object from the vault.")
+      .on("--help", () => {
+        writeLn("\n  Examples:");
+        writeLn("");
+        writeLn("    bw archive item 7063feab-4b10-472e-b64c-785e2b870b92");
+        writeLn("", true);
+      })
+      .action(async (object, id) => {
+        if (!this.validateObject(object, archiveObjects)) {
+          return;
+        }
+
+        await this.exitIfLocked();
+        const command = new ArchiveCommand(
+          this.serviceContainer.cipherService,
+          this.serviceContainer.accountService,
+          this.serviceContainer.configService,
+          this.serviceContainer.cipherArchiveService,
+          this.serviceContainer.billingAccountProfileStateService,
+        );
+        const response = await command.run(object, id);
         this.processResponse(response);
       });
   }
