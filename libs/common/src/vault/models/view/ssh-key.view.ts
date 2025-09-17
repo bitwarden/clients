@@ -43,18 +43,14 @@ export class SshKeyView extends ItemView {
     return this.keyFingerprint;
   }
 
-  static fromJSON(obj: Partial<Jsonify<SshKeyView>>): SshKeyView {
+  static fromJSON(obj: Partial<Jsonify<SshKeyView>> | undefined): SshKeyView {
     return Object.assign(new SshKeyView(), obj);
   }
 
   /**
    * Converts the SDK SshKeyView to a SshKeyView.
    */
-  static fromSdkSshKeyView(obj: SdkSshKeyView): SshKeyView | undefined {
-    if (!obj) {
-      return undefined;
-    }
-
+  static fromSdkSshKeyView(obj: SdkSshKeyView): SshKeyView {
     const sshKeyView = new SshKeyView();
 
     sshKeyView.privateKey = obj.privateKey ?? null;

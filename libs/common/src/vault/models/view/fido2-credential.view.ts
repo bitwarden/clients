@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
 import {
@@ -10,21 +8,21 @@ import {
 import { ItemView } from "./item.view";
 
 export class Fido2CredentialView extends ItemView {
-  credentialId: string;
-  keyType: "public-key";
-  keyAlgorithm: "ECDSA";
-  keyCurve: "P-256";
-  keyValue: string;
-  rpId: string;
-  userHandle: string;
-  userName: string;
-  counter: number;
-  rpName: string;
-  userDisplayName: string;
-  discoverable: boolean;
-  creationDate: Date = null;
+  credentialId!: string;
+  keyType!: "public-key";
+  keyAlgorithm!: "ECDSA";
+  keyCurve!: "P-256";
+  keyValue!: string;
+  rpId!: string;
+  userHandle?: string;
+  userName?: string;
+  counter!: number;
+  rpName?: string;
+  userDisplayName?: string;
+  discoverable: boolean = false;
+  creationDate!: Date;
 
-  get subTitle(): string {
+  get subTitle(): string | undefined {
     return this.userDisplayName;
   }
 
@@ -54,8 +52,8 @@ export class Fido2CredentialView extends ItemView {
     view.counter = parseInt(obj.counter);
     view.rpName = obj.rpName;
     view.userDisplayName = obj.userDisplayName;
-    view.discoverable = obj.discoverable?.toLowerCase() === "true" ? true : false;
-    view.creationDate = obj.creationDate ? new Date(obj.creationDate) : null;
+    view.discoverable = obj.discoverable?.toLowerCase() === "true";
+    view.creationDate = new Date(obj.creationDate);
 
     return view;
   }
