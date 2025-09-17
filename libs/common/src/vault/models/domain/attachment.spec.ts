@@ -110,7 +110,7 @@ describe("Attachment", () => {
 
         await attachment.decrypt(null, "", providedKey);
 
-        expect(keyService.getUserKeyWithLegacySupport).not.toHaveBeenCalled();
+        expect(keyService.getUserKey).not.toHaveBeenCalled();
         expect(encryptService.unwrapSymmetricKey).toHaveBeenCalledWith(attachment.key, providedKey);
       });
 
@@ -126,11 +126,11 @@ describe("Attachment", () => {
 
       it("gets the user's decryption key if required", async () => {
         const userKey = mock<UserKey>();
-        keyService.getUserKeyWithLegacySupport.mockResolvedValue(userKey);
+        keyService.getUserKey.mockResolvedValue(userKey);
 
         await attachment.decrypt(null, "", null);
 
-        expect(keyService.getUserKeyWithLegacySupport).toHaveBeenCalled();
+        expect(keyService.getUserKey).toHaveBeenCalled();
         expect(encryptService.unwrapSymmetricKey).toHaveBeenCalledWith(attachment.key, userKey);
       });
     });

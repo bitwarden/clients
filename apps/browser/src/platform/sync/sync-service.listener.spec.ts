@@ -4,7 +4,7 @@ import { Subject, firstValueFrom } from "rxjs";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessageListener, MessageSender } from "@bitwarden/common/platform/messaging";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
-import { tagAsExternal } from "@bitwarden/messaging-internal";
+import { tagAsExternal } from "@bitwarden/messaging";
 
 import { FullSyncMessage } from "./foreground-sync.service";
 import { FULL_SYNC_FINISHED, SyncServiceListener } from "./sync-service.listener";

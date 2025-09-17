@@ -12,6 +12,7 @@ import { EventUploadService } from "@bitwarden/common/abstractions/event/event-u
 import { InternalOrganizationServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
@@ -21,27 +22,13 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { NotificationsService } from "@bitwarden/common/platform/notifications";
+import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 import { StateEventRunnerService } from "@bitwarden/common/platform/state";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { InternalFolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { KeyService, BiometricStateService } from "@bitwarden/key-management";
-
-import { PolicyListService } from "./admin-console/core/policy-list.service";
-import {
-  DisableSendPolicy,
-  MasterPasswordPolicy,
-  PasswordGeneratorPolicy,
-  OrganizationDataOwnershipPolicy,
-  RequireSsoPolicy,
-  ResetPasswordPolicy,
-  SendOptionsPolicy,
-  SingleOrgPolicy,
-  TwoFactorAuthenticationPolicy,
-  RemoveUnlockWithPinPolicy,
-} from "./admin-console/organizations/policies";
 
 const BroadcasterSubscriptionId = "AppComponent";
 const IdleTimeout = 60000 * 10; // 10 minutes
@@ -73,10 +60,9 @@ export class AppComponent implements OnDestroy, OnInit {
     private keyService: KeyService,
     private collectionService: CollectionService,
     private searchService: SearchService,
-    private notificationsService: NotificationsService,
+    private serverNotificationsService: ServerNotificationsService,
     private stateService: StateService,
     private eventUploadService: EventUploadService,
-    protected policyListService: PolicyListService,
     protected configService: ConfigService,
     private dialogService: DialogService,
     private biometricStateService: BiometricStateService,
@@ -85,13 +71,14 @@ export class AppComponent implements OnDestroy, OnInit {
     private accountService: AccountService,
     private processReloadService: ProcessReloadServiceAbstraction,
     private deviceTrustToastService: DeviceTrustToastService,
-    private readonly destoryRef: DestroyRef,
+    private readonly destroy: DestroyRef,
     private readonly documentLangSetter: DocumentLangSetter,
+    private readonly tokenService: TokenService,
   ) {
     this.deviceTrustToastService.setupListeners$.pipe(takeUntilDestroyed()).subscribe();
 
     const langSubscription = this.documentLangSetter.start();
-    this.destoryRef.onDestroy(() => langSubscription.unsubscribe());
+    this.destroy.onDestroy(() => langSubscription.unsubscribe());
   }
 
   ngOnInit() {
@@ -234,19 +221,6 @@ export class AppComponent implements OnDestroy, OnInit {
         }
       });
     });
-
-    this.policyListService.addPolicies([
-      new TwoFactorAuthenticationPolicy(),
-      new MasterPasswordPolicy(),
-      new RemoveUnlockWithPinPolicy(),
-      new ResetPasswordPolicy(),
-      new PasswordGeneratorPolicy(),
-      new SingleOrgPolicy(),
-      new RequireSsoPolicy(),
-      new OrganizationDataOwnershipPolicy(),
-      new DisableSendPolicy(),
-      new SendOptionsPolicy(),
-    ]);
   }
 
   ngOnDestroy() {
@@ -284,6 +258,7 @@ export class AppComponent implements OnDestroy, OnInit {
     await Promise.all([
       this.keyService.clearKeys(userId),
       this.cipherService.clear(userId),
+      // ! DO NOT REMOVE folderService.clear ! For more information see PM-25660
       this.folderService.clear(userId),
       this.biometricStateService.logout(userId),
     ]);
@@ -293,6 +268,7 @@ export class AppComponent implements OnDestroy, OnInit {
     await this.searchService.clearIndex(userId);
     this.authService.logOut(async () => {
       await this.stateService.clean({ userId: userId });
+      await this.tokenService.clearAccessToken(userId);
       await this.accountService.clean(userId);
       await this.accountService.switchAccount(null);
 
@@ -340,9 +316,9 @@ export class AppComponent implements OnDestroy, OnInit {
 
   private idleStateChanged() {
     if (this.isIdle) {
-      this.notificationsService.disconnectFromInactivity();
+      this.serverNotificationsService.disconnectFromInactivity();
     } else {
-      this.notificationsService.reconnectFromActivity();
+      this.serverNotificationsService.reconnectFromActivity();
     }
   }
 }

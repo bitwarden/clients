@@ -5,6 +5,7 @@ import { ActivatedRoute, Router, RouterModule } from "@angular/router";
 import { firstValueFrom, Subject, take, takeUntil } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { VaultIcon, WaveIcon } from "@bitwarden/assets/svg";
 import {
   LoginEmailServiceAbstraction,
   LoginStrategyServiceAbstraction,
@@ -44,8 +45,6 @@ import {
   ToastService,
 } from "@bitwarden/components";
 
-import { VaultIcon, WaveIcon } from "../icons";
-
 import { LoginComponentService, PasswordPolicies } from "./login-component.service";
 
 const BroadcasterSubscriptionId = "LoginComponent";
@@ -80,6 +79,7 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   clientType: ClientType;
   ClientType = ClientType;
+  orgPoliciesFromInvite: PasswordPolicies | null = null;
   LoginUiState = LoginUiState;
   isKnownDevice = false;
   loginUiState: LoginUiState = LoginUiState.EMAIL_ENTRY;
@@ -232,11 +232,12 @@ export class LoginComponent implements OnInit, OnDestroy {
     // Try to retrieve any org policies from an org invite now so we can send it to the
     // login strategies. Since it is optional and we only want to be doing this on the
     // web we will only send in content in the right context.
-    const orgPoliciesFromInvite = this.loginComponentService.getOrgPoliciesFromOrgInvite
-      ? await this.loginComponentService.getOrgPoliciesFromOrgInvite()
+    this.orgPoliciesFromInvite = this.loginComponentService.getOrgPoliciesFromOrgInvite
+      ? await this.loginComponentService.getOrgPoliciesFromOrgInvite(email)
       : null;
 
-    const orgMasterPasswordPolicyOptions = orgPoliciesFromInvite?.enforcedPasswordPolicyOptions;
+    const orgMasterPasswordPolicyOptions =
+      this.orgPoliciesFromInvite?.enforcedPasswordPolicyOptions;
 
     const credentials = new PasswordLoginCredentials(
       email,
@@ -265,7 +266,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     if (error instanceof ErrorResponse) {
       switch (error.statusCode) {
         case HttpStatusCode.BadRequest: {
-          if (error.message.toLowerCase().includes("username or password is incorrect")) {
+          if (error.message?.toLowerCase().includes("username or password is incorrect")) {
             this.formGroup.controls.masterPassword.setErrors({
               error: {
                 message: this.i18nService.t("invalidMasterPassword"),
@@ -327,25 +328,18 @@ export class LoginComponent implements OnInit, OnDestroy {
 
     // TODO: PM-18269 - evaluate if we can combine this with the
     // password evaluation done in the password login strategy.
-    // If there's an existing org invite, use it to get the org's password policies
-    // so we can evaluate the MP against the org policies
-    if (this.loginComponentService.getOrgPoliciesFromOrgInvite) {
-      const orgPolicies: PasswordPolicies | null =
-        await this.loginComponentService.getOrgPoliciesFromOrgInvite();
+    if (this.orgPoliciesFromInvite) {
+      // Since we have retrieved the policies, we can go ahead and set them into state for future use
+      // e.g., the change-password page currently only references state for policy data and
+      // doesn't fallback to pulling them from the server like it should if they are null.
+      await this.setPoliciesIntoState(authResult.userId, this.orgPoliciesFromInvite.policies);
 
-      if (orgPolicies) {
-        // Since we have retrieved the policies, we can go ahead and set them into state for future use
-        // e.g., the change-password page currently only references state for policy data and
-        // doesn't fallback to pulling them from the server like it should if they are null.
-        await this.setPoliciesIntoState(authResult.userId, orgPolicies.policies);
-
-        const isPasswordChangeRequired = await this.isPasswordChangeRequiredByOrgPolicy(
-          orgPolicies.enforcedPasswordPolicyOptions,
-        );
-        if (isPasswordChangeRequired) {
-          await this.router.navigate(["change-password"]);
-          return;
-        }
+      const isPasswordChangeRequired = await this.isPasswordChangeRequiredByOrgPolicy(
+        this.orgPoliciesFromInvite.enforcedPasswordPolicyOptions,
+      );
+      if (isPasswordChangeRequired) {
+        await this.router.navigate(["change-password"]);
+        return;
       }
     }
 

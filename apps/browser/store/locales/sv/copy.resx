@@ -121,7 +121,7 @@
     <value>Bitwarden Lösenordshanterare</value>
   </data>
   <data name="Summary" xml:space="preserve">
-    <value>Hemma, på jobbet eller på resande fot säkrar Bitwarden enkelt alla dina lösenord, passkeys, och känslig information.</value>
+    <value>Hemma, på jobbet eller på resande fot säkrar Bitwarden enkelt alla dina lösenord, inloggningsnycklar och känslig information.</value>
   </data>
   <data name="Description" xml:space="preserve">
     <value>Erkänd som den bästa lösenordshanteraren av PCMag, WIRED, The Verge, CNET, G2 och många fler!
@@ -144,7 +144,7 @@ Använd Bitwarden för att säkra din personalstyrka och dela känslig informati
 Fler anledningar att välja Bitwarden:
 
 Kryptering i världsklass
-Lösenord skyddas med avancerad end-to-end-kryptering (AES-256 bit, salted hashtag och PBKDF2 SHA-256) så att dina data förblir säkra och privata.
+Lösenord skyddas med avancerad end-to-end-kryptering (AES-256 bit, salted hashing och PBKDF2 SHA-256) så att dina data förblir säkra och privata.
 
 revisioner från tredje part
 Bitwarden genomför regelbundet omfattande tredjeparts säkerhetsrevisioner med välkända säkerhetsföretag. Dessa årliga revisioner inkluderar källkodsbedömningar och penetrationstestning över Bitwardens IP-adresser, servrar och webbapplikationer.
@@ -169,7 +169,7 @@ End-to-end krypterade lösningar för hantering av referenser från Bitwarden g�
 </value>
   </data>
   <data name="AssetTitle" xml:space="preserve">
-    <value>Hemma, på jobbet eller på resande fot säkrar Bitwarden enkelt alla dina lösenord, passkeys, och känslig information.</value>
+    <value>Hemma, på jobbet eller på resande fot säkrar Bitwarden enkelt alla dina lösenord, inloggningsnycklar och känslig information.</value>
   </data>
   <data name="ScreenshotSync" xml:space="preserve">
     <value>Synkronisera och kom åt ditt valv från flera enheter</value>

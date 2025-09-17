@@ -86,14 +86,14 @@
   "noAppsInOrgDescription": {
     "message": "Keď používatelia uložia prihlasovacie údaje, tu sa zobrazia aplikácie a ohrozené heslá. Označte kritické aplikácie a upozornite používateľov, aby si aktualizovali heslá."
   },
-  "noCriticalAppsTitle": {
+  "noCriticalApplicationsTitle": {
     "message": "Neoznačili ste žiadne aplikácie ako kritické"
   },
-  "noCriticalAppsDescription": {
-    "message": "Pre odhalenie ohrozených hesiel a upozornenie používateľov aby si ich zmenili vyberte vaše najkritickejšie aplikácie."
+  "noCriticalApplicationsDescription": {
+    "message": "Vyberte najviac kritické aplikácie aby ste uprednostnili bezpečnostné aktivity vašich používateľov pri riešení ohrozených hesiel."
   },
-  "markCriticalApps": {
-    "message": "Označiť kritické aplikácie"
+  "markCriticalApplications": {
+    "message": "Vybrať kritické aplikácie"
   },
   "markAppAsCritical": {
     "message": "Označiť aplikáciu ako kritickú"
@@ -176,11 +176,11 @@
   "totalApplications": {
     "message": "Všetkých aplikácii"
   },
-  "unmarkAsCriticalApp": {
-    "message": "Zrušiť označenie aplikácie za kritickú"
+  "unmarkAsCritical": {
+    "message": "Zrušiť označenie za kritické"
   },
-  "criticalApplicationSuccessfullyUnmarked": {
-    "message": "Označenie aplikácie za kritickú úspešne zrušené"
+  "criticalApplicationUnmarkedSuccessfully": {
+    "message": "Úspešne zrušené onačenie aplikácie za kritickú"
   },
   "whatTypeOfItem": {
     "message": "Aký typ položky to je?"
@@ -867,6 +867,15 @@
   "copyLicenseNumber": {
     "message": "Kopírovať číslo licencie"
   },
+  "copyPrivateKey": {
+    "message": "Kopírovať súkromný kľúč"
+  },
+  "copyPublicKey": {
+    "message": "Kopírovať verejný kľúč"
+  },
+  "copyFingerprint": {
+    "message": "Kopírovať odtlačok"
+  },
   "copyName": {
     "message": "Kopírovať meno"
   },
@@ -1428,9 +1437,6 @@
   "notificationSentDevicePart1": {
     "message": "Odomknúť Bitwarden vo svojom zariadení alebo vo "
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Snažíte sa získať prístup k svojmu účtu?"
-  },
   "accessAttemptBy": {
     "message": "Pokus o prístup z $EMAIL$",
     "placeholders": {
@@ -1509,6 +1515,9 @@
   },
   "recoveryCodeTitle": {
     "message": "Záchranný kód"
+  },
+  "invalidRecoveryCode": {
+    "message": "Neplatný kód na obnovenie"
   },
   "authenticatorAppTitle": {
     "message": "Overovacia aplikácia"
@@ -2053,15 +2062,11 @@
   "selectImportCollection": {
     "message": "Vyberte zbierku"
   },
-  "importTargetHint": {
-    "message": "Zvoľte túto možnosť ak chcete obsah importovaného súboru presunúť do $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Zvoľte túto možnosť, ak chcete obsah importovaného súboru presunúť do zbierky"
+  },
+  "importTargetHintFolder": {
+    "message": "Zvoľte túto možnosť, ak chcete obsah importovaného súboru presunúť do priečinka"
   },
   "importUnassignedItemsError": {
     "message": "Súbor obsahuje nepridelené položky."
@@ -2109,11 +2114,8 @@
   "languageDesc": {
     "message": "Zmeňte východzí jazyk pre webový trezor."
   },
-  "enableFavicon": {
-    "message": "Zobraziť favikony"
-  },
-  "faviconDesc": {
-    "message": "Pri každom prihlásení zobraziť rozpoznateľný obrázok."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "default": {
     "message": "Predvolené"
@@ -2453,9 +2455,6 @@
   },
   "twoFactorU2fProblemReadingTryAgain": {
     "message": "Problém pri čítaní bezpečnostného kľúča. Skúste to znova."
-  },
-  "twoFactorWebAuthnWarning1": {
-    "message": "Vzhľadom na obmedzenia platforiem, WebAuthn nemôže byť použitý vo všetkých Bitwarden aplikáciách. Mali by ste nastaviť inú formu dvojitého overenia, aby ste sa mohli prihlásiť k svojmu účtu ak nie je možné použiť WebAuthn."
   },
   "twoFactorRecoveryYourCode": {
     "message": "Váš Bitwarden záchranný kód pre dvojstupňové overovanie"
@@ -2826,6 +2825,12 @@
         "example": "'month' or 'year'"
       }
     }
+  },
+  "showPricingSummary": {
+    "message": "Zobraziť prehľad cien"
+  },
+  "hidePricingSummary": {
+    "message": "Skryť prehľad cien"
   },
   "summary": {
     "message": "Súhrn"
@@ -3976,22 +3981,6 @@
   },
   "thisRequestIsNoLongerValid": {
     "message": "Táto žiadosť už nie je platná."
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Potvrdené prihlásenie pomocou $EMAIL$ na $DEVICE$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Odmietli ste pokus o prihlásenie z iného zariadenia. Ak ste to boli naozaj vy, skúste sa prihlásiť pomocou zariadenia znova."
   },
   "loginRequestApprovedForEmailOnDevice": {
     "message": "Potvrdené prihlásenie pre $EMAIL$ na $DEVICE$",
@@ -5284,6 +5273,14 @@
   "downloadAttachments": {
     "message": "Stiahnuť prílohy"
   },
+  "sendAccessPasswordTitle": {
+    "message": "Ak chcete zobraziť Send, zadajte heslo",
+    "description": "Title of the Send password authentication screen."
+  },
+  "sendAccessContentTitle": {
+    "message": "Zobraziť Send",
+    "description": "Title of the Send view content screen."
+  },
   "sendAccessUnavailable": {
     "message": "Odoslanie, ku ktorému sa pokúšate získať prístup, neexistuje alebo už nie je k dispozícii.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5443,6 +5440,37 @@
   },
   "organizationDataOwnership": {
     "message": "Požadovanie vlastníctva údajov organizácie"
+  },
+  "organizationDataOwnershipDesc": {
+    "message": "Odstrániť možnosť uložiť položku pod kontom a požadovať aby všetky položky boli vlastnené organizáciou.",
+    "description": "This is the policy description shown in the policy list."
+  },
+  "organizationDataOwnershipContent": {
+    "message": "Všetky položky budú vo vlastníctve organizácie a uložené v nej, čo umožní kontrolu, prehľadnosť a vykazovanie v rámci celej organizácie. Po zapnutí bude každému členovi k dispozícii predvolená zbierka na ukladanie položiek. Dozvedieť sa viac o správe ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection be available for each member to store items. Learn more about managing the credential lifecycle.'"
+  },
+  "organizationDataOwnershipContentAnchor": {
+    "message": "životného cyklu položiek",
+    "description": "This will be used as a hyperlink"
+  },
+  "organizationDataOwnershipWarningTitle": {
+    "message": "Naozaj chcete pokračovať?"
+  },
+  "organizationDataOwnershipWarning1": {
+    "message": "bude naďalej dostupná všetkým členom"
+  },
+  "organizationDataOwnershipWarning2": {
+    "message": "prestane byť predvolenou voľbou pri vytváraní nových položiek"
+  },
+  "organizationDataOwnershipWarning3": {
+    "message": "nemôže byt spravovaná prostredníctvom Konzoly Správcu pokiaľ nebude používateľ odhlásený"
+  },
+  "organizationDataOwnershipWarningContentTop": {
+    "message": "Ak vypnete toto pravidlo, predvolená zbierka: "
+  },
+  "organizationDataOwnershipWarningContentBottom": {
+    "message": "Viac informácií o ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about the credential lifecycle.'"
   },
   "personalOwnership": {
     "message": "Zakázať osobný trezor"
@@ -7009,6 +7037,12 @@
   "unknownCipher": {
     "message": "Neznáma položka, na prístup k tejto položke sa možno budete musieť prihlásiť pomocou iného účtu."
   },
+  "unknownSecret": {
+    "message": "Neznáma položka možno potrebujete požiadať o prístup k tejto položke."
+  },
+  "unknownProject": {
+    "message": "Neznámy projekt, možno potrebujete požiadať o prístup k tomuto projektu."
+  },
   "cannotSponsorSelf": {
     "message": "You cannot redeem for the active account. Enter a different email."
   },
@@ -7395,6 +7429,9 @@
   },
   "off": {
     "message": "Vypnuté"
+  },
+  "connected": {
+    "message": "Connected"
   },
   "members": {
     "message": "Členovia"
@@ -8332,10 +8369,82 @@
       }
     }
   },
+  "permanentlyDeletedSecretWithId": {
+    "message": "Natrvalo odstránená položka s identifikátorom: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "restoredSecretWithId": {
+    "message": "Obnovená položka s identifikátorom: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
   "createdSecretWithId": {
     "message": "Vytvorená nová položka s identifikátorom: $SECRET_ID$",
     "placeholders": {
       "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "accessedProjectWithId": {
+    "message": "Pristúp k projektu s identifikátorom: $PROJECT_ID$.",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "nameUnavailableProjectDeleted": {
+    "message": "Odstránený projekt s identifikátorom: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "nameUnavailableSecretDeleted": {
+    "message": "Odstránená položka s identifikátorom: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "editedProjectWithId": {
+    "message": "Upravený projekt s identifikátorom: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "deletedProjectWithId": {
+    "message": "Odstránený projekt s identifikátorom: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "createdProjectWithId": {
+    "message": "Vytvorený nový projekt s identifikátorom: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
         "content": "$1",
         "example": "4d34e8a8"
       }
@@ -8829,20 +8938,25 @@
   "collectionManagement": {
     "message": "Správa zbierky"
   },
-  "collectionManagementDesc": {
-    "message": "Spravovať správanie zbierky pre organizáciu"
+  "collectionManagementDescription": {
+    "message": "Nastaviť správanie zbierky pre organizáciu"
   },
-  "limitCollectionCreationDesc": {
+  "allowAdminAccessToAllCollectionItemsDescription": {
+    "message": "Povoliť majiteľom a správcom spravovať všetky zbierky prostredníctvom správcovskej konzoly"
+  },
+  "restrictCollectionCreationDescription": {
     "message": "Obmedziť vytváranie zbierky len pre vlastníkov a administrátorov"
   },
-  "limitCollectionDeletionDesc": {
+  "restrictCollectionDeletionDescription": {
     "message": "Obmedziť vymazávanie zbierky len pre vlastníkov a administrátorov"
   },
-  "limitItemDeletionDescription": {
-    "message": "Obmedziť vymazávanie položiek na členov s oprávnením na správu zbierky"
+  "restrictItemDeletionDescriptionStart": {
+    "message": "Restrict item deletion to members with the ",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
   },
-  "allowAdminAccessToAllCollectionItemsDesc": {
-    "message": "Vlastníci a správcovia môžu spravovať všetky zbierky a položky"
+  "restrictItemDeletionDescriptionEnd": {
+    "message": " permission",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
   },
   "updatedCollectionManagement": {
     "message": "Aktualizované nastavenia zbierky"
@@ -8913,6 +9027,78 @@
   },
   "modifiedCollectionManagement": {
     "message": "Modified collection management setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationEnabled": {
+    "message": "Zapnuté nastavenie obmedzenia vytvárania zbierky $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationDisabled": {
+    "message": "Vypnuté nastavenie obmedzenia vytvárania zbierky $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionEnabled": {
+    "message": "Zapnuté nastavenie obmedzenia vymazávania zbierky $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionDisabled": {
+    "message": "Vypnuté nastavenie obmedzenia vymazávania zbierky $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionEnabled": {
+    "message": "Zapnuté nastavenie obmedzenia vymazávania položky $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionDisabled": {
+    "message": "Vypnuté nastavenie obmedzenia vymazávania položky $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsEnabled": {
+    "message": "Zapnuté povolenie vlastníkov a správcov spravovať všetky položky a zbierky $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsDisabled": {
+    "message": "Vypnuté povolenie vlastníkov a správcov spravovať všetky položky a zbierky $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -9475,7 +9661,10 @@
     "message": "Configure device management for Bitwarden using the implementation guide for your platform."
   },
   "crowdstrikeEventIntegrationDesc": {
-    "message": "Send event data to your Logscale instance"
+    "message": "Pošlite dáta z denníka udalostí do vašej inštancie Logscale"
+  },
+  "failedToSaveIntegration": {
+    "message": "Nepodarilo sa uložiť integráciu. Prosím skúste to neskôr."
   },
   "deviceIdMissing": {
     "message": "Chýba ID zariadenia"
@@ -9493,7 +9682,16 @@
     "message": "Otvorte tento odkaz z emailu na desktope."
   },
   "connectIntegrationButtonDesc": {
-    "message": "Connect $INTEGRATION$",
+    "message": "Prepojiť $INTEGRATION$",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
+  },
+  "updateIntegrationButtonDesc": {
+    "message": "Update $INTEGRATION$",
     "placeholders": {
       "integration": {
         "content": "$1",
@@ -9557,6 +9755,15 @@
   },
   "createNewClientToManageAsProvider": {
     "message": "Vytvoriť novú klientskú organizáciu ktorú môžete spravovať ako Poskytovateľ. Dodatočné sedenia sa prejavia v najbližšom fakturačnom období."
+  },
+  "url": {
+    "message": "URL"
+  },
+  "bearerToken": {
+    "message": "Token nositeľa"
+  },
+  "index": {
+    "message": "Index"
   },
   "selectAPlan": {
     "message": "Vyberte plán"
@@ -10698,6 +10905,12 @@
   "changeAtRiskPassword": {
     "message": "Zmeniť ohrozené heslo"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Toto prihlásenie je v ohrození a chýba mu webová stránka. Pridajte webovú stránku a zmeňte heslo na silnejšie zabezpečenie."
+  },
+  "missingWebsite": {
+    "message": "Chýbajúca webová stránka"
+  },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Odstrániť odomknutie PIN kódom"
   },
@@ -10712,6 +10925,9 @@
   },
   "upgradeEventLogMessage": {
     "message": "These events are examples only and do not reflect real events within your Bitwarden organization."
+  },
+  "viewEvents": {
+    "message": "Zobraziť udalosti"
   },
   "cannotCreateCollection": {
     "message": "Bezplatné organizácie môžu mat maximálne dve zbierky. Ak chcete pridať viac zbierok povýšte na platené predplatné."
@@ -10870,6 +11086,12 @@
     "message": "Na pridanie kreditu je potrebná fakturačná adresa.",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+  },
   "billingAddress": {
     "message": "Fakturačná adresa"
   },
@@ -10918,6 +11140,36 @@
       }
     }
   },
+  "unpaidInvoices": {
+    "message": "Neuhradené faktúry"
+  },
+  "unpaidInvoicesForServiceUser": {
+    "message": "Predplatné nebolo uhradené. Pre obnovu služby pre vás a vašich klientov, kontaktujte správcu vášho poskytovateľa.",
+    "description": "A message shown in a non-dismissible dialog to service users of unpaid providers."
+  },
+  "providerSuspended": {
+    "message": "$PROVIDER$ je pozastavený",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Acme Industries"
+      }
+    }
+  },
+  "restoreProviderPortalAccessViaCustomerSupport": {
+    "message": "Pre obnovu prístupu k portálu poskytovateľa, kontaktujte zákaznícku podporu Bitwarden a obnovte vaše predplatné.",
+    "description": "A message shown in a non-dismissible dialog to any user of a suspended providers."
+  },
+  "restoreProviderPortalAccessViaPaymentMethod": {
+    "message": "Predplatné nebolo uhradené. Pre obnovu služby pre vás a vašich klientov, pridajte platobnú metódu do $CANCELLATION_DATE$.",
+    "placeholders": {
+      "cancellation_date": {
+        "content": "$1",
+        "example": "07/10/2025"
+      }
+    },
+    "description": "A message shown in a non-dismissible dialog to admins of unpaid providers."
+  },
   "subscribetoEnterprise": {
     "message": "Predplatiť si $PLAN$",
     "placeholders": {
@@ -10938,5 +11190,79 @@
   },
   "unlimitedSecretsAndProjects": {
     "message": "Neobmedzený počet položiek a projektov"
+  },
+  "providersubscriptionCanceled": {
+    "message": "Predplatné bolo zrušené"
+  },
+  "providersubCanceledmessage": {
+    "message": "Ak chcete obnoviť predplatné, kontaktujte zákaznícku podporu Bitwarden."
+  },
+  "showMore": {
+    "message": "Zobraziť viac"
+  },
+  "showLess": {
+    "message": "Zobraziť menej"
+  },
+  "missingTaxId": {
+    "message": "Chýbajúce daňové identifikačné číslo"
+  },
+  "missingTaxIdWarning": {
+    "message": "Požadovaná akcia: V platobných údajoch chýba daňové identifikačné číslo. Ak nepridáte daňové identifikačné číslo, vaše faktúry môžu zahŕňať dodatočnú daň."
+  },
+  "moreBreadcrumbs": {
+    "message": "Viac",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "addTaxId": {
+    "message": "Pridať daňové identifikačné číslo"
+  },
+  "missingTaxIdCalloutTitle": {
+    "message": "Požadovaná akcia: Chýbajúce daňové identifikačné číslo"
+  },
+  "missingTaxIdCalloutDescription": {
+    "message": "Ak nepridáte daňové identifikačné číslo, vaše faktúry môžu zahŕňať dodatočnú daň."
+  },
+  "unverifiedTaxIdWarning": {
+    "message": "Požadovaná akcia: Vaše daňové identifikačné číslo nie je overene. Ak neoveríte daňové identifikačné číslo, vaše faktúry môžu zahŕňať dodatočnú daň."
+  },
+  "editTaxId": {
+    "message": "Upraviť vaše daňove identifikačné číslo"
+  },
+  "unverifiedTaxIdCalloutTitle": {
+    "message": "Neoverené daňové identifikačné číslo"
+  },
+  "unverifiedTaxIdCalloutDescription": {
+    "message": "Skontrolujte daňové identifikačné číslo a uistite sa ze má správny formát a neobsahuje preklep."
+  },
+  "pendingVerification": {
+    "message": "Čaká sa na overenie"
+  },
+  "checkInputFormat": {
+    "message": "Skontrolujte formát vstupu na preklepy."
+  },
+  "exampleTaxIdFormat": {
+    "message": "Príklad formátu pre $CODE$: $EXAMPLE$",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "ABN"
+      },
+      "example": {
+        "content": "$2",
+        "example": "92873837267"
+      }
+    }
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Potvrdiť doménu Key Connectora"
+  },
+  "requiredToVerifyBankAccountWithStripe": {
+    "message": "Platba prostredníctvom bankového účtu je dostupná len pre zákazníkov v Spojených Štátoch. Budete musieť overiť svoj bankový účet. V priebehu nasledujúcich 1-2 pracovných dní vykonáme mikro vklad. Neoverenie bankového účtu bude mať za následok neuskutočnenie platby a pozastavenie vášho predplatného."
+  },
+  "verifyBankAccountWithStripe": {
+    "message": "Na váš bankový účet sme vykonali mikro vklad. Môže to trvať 1-2 pracovné dni. Keď uvidíte vklad na vašom účte, môžete váš účet overiť. Neoverenie bankového účtu bude mať za následok neuskutočnenie platby a pozastavenie vášho predplatného."
+  },
+  "verifyNow": {
+    "message": "Overiť teraz."
   }
 }

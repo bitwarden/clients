@@ -17,7 +17,7 @@ import {
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormGroup, ReactiveFormsModule } from "@angular/forms";
-import { Subject } from "rxjs";
+import { BehaviorSubject, Subject } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherType, SecureNoteType } from "@bitwarden/common/vault/enums";
@@ -113,6 +113,12 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
   @Output() formReady = this.formReadySubject.asObservable();
 
   /**
+   * Emitted when the form is enabled
+   */
+  private formStatusChangeSubject = new BehaviorSubject<"enabled" | "disabled" | null>(null);
+  @Output() formStatusChange$ = this.formStatusChangeSubject.asObservable();
+
+  /**
    * The original cipher being edited or cloned. Null for add mode.
    */
   originalCipherView: CipherView | null;
@@ -152,10 +158,20 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
 
   disableFormFields(): void {
     this.cipherForm.disable({ emitEvent: false });
+    this.formStatusChangeSubject.next("disabled");
   }
 
+  /**
+   * Enables the form, only when it is currently disabled.
+   * Child forms could have disabled some of their controls based on
+   * other factors. Enabling the form from this level should only occur
+   * when the form was disabled at this level.
+   */
   enableFormFields(): void {
-    this.cipherForm.enable({ emitEvent: false });
+    if (this.formStatusChangeSubject.getValue() === "disabled") {
+      this.cipherForm.enable({ emitEvent: false });
+      this.formStatusChangeSubject.next("enabled");
+    }
   }
 
   /**
@@ -219,8 +235,6 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
 
     // Force change detection so that all child components are destroyed and re-created
     this.changeDetectorRef.detectChanges();
-
-    await this.cipherFormCacheService.init();
 
     this.updatedCipherView = new CipherView();
     this.originalCipherView = null;

@@ -10,10 +10,12 @@ import {
   ViewChild,
 } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
-import { from, Subject, switchMap, takeUntil } from "rxjs";
+import { firstValueFrom, from, Subject, switchMap, takeUntil } from "rxjs";
 
 import { ManageTaxInformationComponent } from "@bitwarden/angular/billing/components";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import {
   BillingInformation,
   OrganizationBillingServiceAbstraction as OrganizationBillingService,
@@ -42,7 +44,7 @@ export type TrialOrganizationType = Exclude<ProductTierType, ProductTierType.Fre
 export interface OrganizationInfo {
   name: string;
   email: string;
-  type: TrialOrganizationType;
+  type: TrialOrganizationType | null;
 }
 
 export interface OrganizationCreatedEvent {
@@ -107,6 +109,7 @@ export class TrialBillingStepComponent implements OnInit, OnDestroy {
     private organizationBillingService: OrganizationBillingService,
     private toastService: ToastService,
     private taxService: TaxServiceAbstraction,
+    private accountService: AccountService,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -190,6 +193,7 @@ export class TrialBillingStepComponent implements OnInit, OnDestroy {
   }
 
   private async createOrganization(): Promise<string> {
+    const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     const planResponse = this.findPlanFor(this.formGroup.value.cadence);
 
     const { type, token } = await this.paymentComponent.tokenize();
@@ -221,11 +225,14 @@ export class TrialBillingStepComponent implements OnInit, OnDestroy {
       skipTrial: this.trialLength === 0,
     };
 
-    const response = await this.organizationBillingService.purchaseSubscription({
-      organization,
-      plan,
-      payment,
-    });
+    const response = await this.organizationBillingService.purchaseSubscription(
+      {
+        organization,
+        plan,
+        payment,
+      },
+      activeUserId,
+    );
 
     return response.id;
   }
@@ -257,6 +264,15 @@ export class TrialBillingStepComponent implements OnInit, OnDestroy {
     const productType = this.organizationInfo.type;
     const planType = this.productTypeToPlanTypeMap[productType]?.[cadence];
     return planType ? this.applicablePlans.find((plan) => plan.type === planType) : null;
+  }
+
+  protected get showTaxIdField(): boolean {
+    switch (this.organizationInfo.type) {
+      case ProductTierType.Families:
+        return false;
+      default:
+        return true;
+    }
   }
 
   private getBillingInformationFromTaxInfoComponent(): BillingInformation {
@@ -304,6 +320,7 @@ export class TrialBillingStepComponent implements OnInit, OnDestroy {
     this.fetchingTaxAmount = true;
 
     if (!this.taxInfoComponent.validate()) {
+      this.fetchingTaxAmount = false;
       return 0;
     }
 
@@ -326,7 +343,7 @@ export class TrialBillingStepComponent implements OnInit, OnDestroy {
 
     const response = await this.taxService.previewTaxAmountForOrganizationTrial(request);
     this.fetchingTaxAmount = false;
-    return response.taxAmount;
+    return response;
   };
 
   get price() {

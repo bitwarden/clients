@@ -1,4 +1,5 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, DestroyRef, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
 
@@ -9,8 +10,10 @@ import {
 } from "@bitwarden/auth/common";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
+import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { ToastService } from "@bitwarden/components";
 
 @Component({
@@ -19,7 +22,7 @@ import { ToastService } from "@bitwarden/components";
   standalone: false,
 })
 export class RecoverTwoFactorComponent implements OnInit {
-  protected formGroup = new FormGroup({
+  formGroup = new FormGroup({
     email: new FormControl("", [Validators.required]),
     masterPassword: new FormControl("", [Validators.required]),
     recoveryCode: new FormControl("", [Validators.required]),
@@ -31,16 +34,23 @@ export class RecoverTwoFactorComponent implements OnInit {
   recoveryCodeMessage = "";
 
   constructor(
+    private destroyRef: DestroyRef,
     private router: Router,
     private i18nService: I18nService,
     private loginStrategyService: LoginStrategyServiceAbstraction,
     private toastService: ToastService,
     private loginSuccessHandlerService: LoginSuccessHandlerService,
     private logService: LogService,
+    private validationService: ValidationService,
   ) {}
 
   async ngOnInit() {
     this.recoveryCodeMessage = this.i18nService.t("logInBelowUsingYourSingleUseRecoveryCode");
+
+    // Clear any existing recovery code inline error when user updates the form
+    this.formGroup.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      this.formGroup.get("recoveryCode")?.setErrors(null);
+    });
   }
 
   get email(): string {
@@ -99,10 +109,21 @@ export class RecoverTwoFactorComponent implements OnInit {
       await this.loginSuccessHandlerService.run(authResult.userId);
 
       await this.router.navigate(["/settings/security/two-factor"]);
-    } catch (error) {
-      // If login errors, redirect to login page per product. Don't show error
-      this.logService.error("Error logging in automatically: ", (error as Error).message);
-      await this.router.navigate(["/login"], { queryParams: { email: email } });
+    } catch (error: unknown) {
+      if (error instanceof ErrorResponse) {
+        this.logService.error("Error logging in automatically: ", error.message);
+
+        if (error.message.includes("Two-step token is invalid")) {
+          this.formGroup.get("recoveryCode")?.setErrors({
+            invalidRecoveryCode: { message: this.i18nService.t("invalidRecoveryCode") },
+          });
+        } else {
+          this.validationService.showError(error.message);
+        }
+      } else {
+        this.logService.error("Error logging in automatically: ", error);
+        this.validationService.showError(error);
+      }
     }
   }
 }

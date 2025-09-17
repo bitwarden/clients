@@ -2,10 +2,10 @@
 // @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
-import { uuidToString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { Cipher as SdkCipher } from "@bitwarden/sdk-internal";
 
 import { EncString } from "../../../key-management/crypto/models/enc-string";
+import { asUuid, uuidAsString } from "../../../platform/abstractions/sdk/sdk.service";
 import { Decryptable } from "../../../platform/interfaces/decryptable.interface";
 import { Utils } from "../../../platform/misc/utils";
 import Domain from "../../../platform/models/domain/domain-base";
@@ -344,13 +344,13 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
    */
   toSdkCipher(): SdkCipher {
     const sdkCipher: SdkCipher = {
-      id: this.id,
-      organizationId: this.organizationId ?? undefined,
-      folderId: this.folderId ?? undefined,
-      collectionIds: this.collectionIds ?? [],
-      key: this.key?.toJSON(),
-      name: this.name.toJSON(),
-      notes: this.notes?.toJSON(),
+      id: asUuid(this.id),
+      organizationId: this.organizationId ? asUuid(this.organizationId) : undefined,
+      folderId: this.folderId ? asUuid(this.folderId) : undefined,
+      collectionIds: this.collectionIds ? this.collectionIds.map(asUuid) : ([] as any),
+      key: this.key?.toSdk(),
+      name: this.name.toSdk(),
+      notes: this.notes?.toSdk(),
       type: this.type,
       favorite: this.favorite ?? false,
       organizationUseTotp: this.organizationUseTotp ?? false,
@@ -412,12 +412,12 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
 
     const cipher = new Cipher();
 
-    cipher.id = sdkCipher.id ? uuidToString(sdkCipher.id) : undefined;
+    cipher.id = sdkCipher.id ? uuidAsString(sdkCipher.id) : undefined;
     cipher.organizationId = sdkCipher.organizationId
-      ? uuidToString(sdkCipher.organizationId)
+      ? uuidAsString(sdkCipher.organizationId)
       : undefined;
-    cipher.folderId = sdkCipher.folderId ? uuidToString(sdkCipher.folderId) : undefined;
-    cipher.collectionIds = sdkCipher.collectionIds ? sdkCipher.collectionIds.map(uuidToString) : [];
+    cipher.folderId = sdkCipher.folderId ? uuidAsString(sdkCipher.folderId) : undefined;
+    cipher.collectionIds = sdkCipher.collectionIds ? sdkCipher.collectionIds.map(uuidAsString) : [];
     cipher.key = EncString.fromJSON(sdkCipher.key);
     cipher.name = EncString.fromJSON(sdkCipher.name);
     cipher.notes = EncString.fromJSON(sdkCipher.notes);

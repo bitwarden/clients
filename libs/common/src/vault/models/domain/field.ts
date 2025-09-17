@@ -83,8 +83,8 @@ export class Field extends Domain {
    */
   toSdkField(): SdkField {
     return {
-      name: this.name?.toJSON(),
-      value: this.value?.toJSON(),
+      name: this.name?.toSdk(),
+      value: this.value?.toSdk(),
       type: this.type,
       // Safe type cast: client and SDK LinkedIdType enums have identical values
       linkedId: this.linkedId as unknown as SdkLinkedIdType,

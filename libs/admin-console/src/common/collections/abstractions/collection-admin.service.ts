@@ -1,15 +1,20 @@
+import { Observable } from "rxjs";
+
 import { CollectionDetailsResponse } from "@bitwarden/admin-console/common";
 import { UserId } from "@bitwarden/common/types/guid";
 
 import { CollectionAccessSelectionView, CollectionAdminView } from "../models";
 
 export abstract class CollectionAdminService {
-  abstract getAll(organizationId: string): Promise<CollectionAdminView[]>;
-  abstract get(
+  abstract collectionAdminViews$(
     organizationId: string,
-    collectionId: string,
-  ): Promise<CollectionAdminView | undefined>;
-  abstract save(
+    userId: UserId,
+  ): Observable<CollectionAdminView[]>;
+  abstract update(
+    collection: CollectionAdminView,
+    userId: UserId,
+  ): Promise<CollectionDetailsResponse>;
+  abstract create(
     collection: CollectionAdminView,
     userId: UserId,
   ): Promise<CollectionDetailsResponse>;

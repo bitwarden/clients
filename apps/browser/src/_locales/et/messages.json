@@ -111,13 +111,13 @@
     "message": "Kaart"
   },
   "vault": {
-    "message": "Seif"
+    "message": "Hoidla"
   },
   "myVault": {
-    "message": "Minu seif"
+    "message": "Minu hoidla"
   },
   "allVaults": {
-    "message": "Kõik seifid"
+    "message": "Kõik hoidlad"
   },
   "tools": {
     "message": "Tööriistad"
@@ -556,6 +556,9 @@
   "view": {
     "message": "Vaata"
   },
+  "viewLogin": {
+    "message": "View login"
+  },
   "noItemsInList": {
     "message": "Puuduvad kirjed, mida kuvada."
   },
@@ -671,7 +674,7 @@
     "message": "Hoidla on lukus. Jätkamiseks sisesta ülemparool."
   },
   "yourVaultIsLockedV2": {
-    "message": "Your vault is locked"
+    "message": "Sinu hoidla on lukus"
   },
   "yourAccountIsLocked": {
     "message": "Your account is locked"
@@ -1760,14 +1763,8 @@
   "popupU2fCloseMessage": {
     "message": "Kasutatav brauser ei suuda selles aknas U2F päringuid töödelda. Kas avan uue akna, et saaksid U2F abil sisse logida?"
   },
-  "enableFavicon": {
-    "message": "Kuva veebilehtede ikoone"
-  },
-  "faviconDesc": {
-    "message": "Kuvab iga kirje kõrval lehekülje ikooni."
-  },
-  "faviconDescAlt": {
-    "message": "Näita väikest tuttavat ikooni iga kirje kõrval. Kehtib ka sisselogitud kontodele."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "enableBadgeCounter": {
     "message": "Kuva kirjete arvu"
@@ -3657,25 +3654,6 @@
   "thisRequestIsNoLongerValid": {
     "message": "This request is no longer valid."
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Are you trying to access your account?"
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Login confirmed for $EMAIL$ on $DEVICE$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "You denied a login attempt from another device. If this really was you, try to log in with the device again."
-  },
   "loginRequestHasAlreadyExpired": {
     "message": "Login request has already expired."
   },
@@ -4150,15 +4128,11 @@
   "selectImportCollection": {
     "message": "Select a collection"
   },
-  "importTargetHint": {
-    "message": "Select this option if you want the imported file contents moved to a $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Select this option if you want the imported file contents moved to a collection"
+  },
+  "importTargetHintFolder": {
+    "message": "Select this option if you want the imported file contents moved to a folder"
   },
   "importUnassignedItemsError": {
     "message": "File contains unassigned items."
@@ -4495,13 +4469,13 @@
     "message": "Pääsuvõti on eemaldatud"
   },
   "autofillSuggestions": {
-    "message": "Autofill suggestions"
+    "message": "Automaatse täitmise soovitused"
   },
   "itemSuggestions": {
     "message": "Suggested items"
   },
   "autofillSuggestionsTip": {
-    "message": "Save a login item for this site to autofill"
+    "message": "Automaatseks täitmiseks salvesta kirje selle saidi jaoks"
   },
   "yourVaultIsEmpty": {
     "message": "Your vault is empty"
@@ -4668,7 +4642,7 @@
     }
   },
   "new": {
-    "message": "New"
+    "message": "Uus"
   },
   "removeItem": {
     "message": "Remove $NAME$",
@@ -4709,7 +4683,7 @@
     "message": "Item history"
   },
   "lastEdited": {
-    "message": "Last edited"
+    "message": "Viimati muudetud"
   },
   "ownerYou": {
     "message": "Owner: You"
@@ -5136,6 +5110,18 @@
   "showNumberOfAutofillSuggestions": {
     "message": "Show number of login autofill suggestions on extension icon"
   },
+  "accountAccessRequested": {
+    "message": "Account access requested"
+  },
+  "confirmAccessAttempt": {
+    "message": "Confirm access attempt for $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "showQuickCopyActions": {
     "message": "Show quick copy actions on Vault"
   },
@@ -5463,6 +5449,12 @@
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
+  },
   "settingsVaultOptions": {
     "message": "Vault options"
   },
@@ -5509,7 +5501,7 @@
     "message": "Import now"
   },
   "hasItemsVaultNudgeTitle": {
-    "message": "Welcome to your vault!"
+    "message": "Tere tulemast sinu hoidlasse!"
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Autofill items for the current page"
@@ -5586,11 +5578,33 @@
     "message": "Easily create strong and unique passwords by clicking on the Generate password button to help you keep your logins secure.",
     "description": "Aria label for the body content of the generator nudge"
   },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+  },
   "noPermissionsViewPage": {
     "message": "You do not have permissions to view this page. Try logging in with a different account."
   },
   "wasmNotSupported": {
     "message": "WebAssembly is not supported on your browser or is not enabled. WebAssembly is required to use the Bitwarden app.",
     "description": "'WebAssembly' is a technical term and should not be translated."
+  },
+  "showMore": {
+    "message": "Show more"
+  },
+  "showLess": {
+    "message": "Show less"
+  },
+  "next": {
+    "message": "Next"
+  },
+  "moreBreadcrumbs": {
+    "message": "More breadcrumbs",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Confirm Key Connector domain"
   }
 }

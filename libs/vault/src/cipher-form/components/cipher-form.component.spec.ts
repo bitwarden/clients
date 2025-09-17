@@ -122,4 +122,33 @@ describe("CipherFormComponent", () => {
       expect(component["updatedCipherView"]?.login.fido2Credentials).toBeNull();
     });
   });
+
+  describe("enableFormFields", () => {
+    beforeEach(() => {
+      // disable the form so enabling occurs
+      component.disableFormFields();
+    });
+
+    it("only enables the form when it is disabled", () => {
+      jest.spyOn(component["cipherForm"], "enable");
+      component.enableFormFields();
+
+      expect(component["cipherForm"].enable).toHaveBeenCalled();
+
+      component.enableFormFields();
+      component.enableFormFields();
+
+      // enable is only called once
+      expect(component["cipherForm"].enable).toHaveBeenCalledTimes(1);
+    });
+
+    it("emits formStatusChange$", (done) => {
+      component.formStatusChange$.subscribe((status) => {
+        expect(status).toBe("enabled");
+        done();
+      });
+
+      component.enableFormFields();
+    });
+  });
 });

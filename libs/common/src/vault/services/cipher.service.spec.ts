@@ -1,5 +1,5 @@
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject, map, of } from "rxjs";
+import { BehaviorSubject, filter, firstValueFrom, map, of } from "rxjs";
 
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -7,6 +7,7 @@ import { CipherResponse } from "@bitwarden/common/vault/models/response/cipher.r
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { CipherDecryptionKeys, KeyService } from "@bitwarden/key-management";
+import { MessageSender } from "@bitwarden/messaging";
 
 import { FakeAccountService, mockAccountServiceWith } from "../../../spec/fake-account-service";
 import { FakeStateProvider } from "../../../spec/fake-state-provider";
@@ -14,13 +15,11 @@ import { makeStaticByteArray, makeSymmetricCryptoKey } from "../../../spec/utils
 import { ApiService } from "../../abstractions/api.service";
 import { AutofillSettingsService } from "../../autofill/services/autofill-settings.service";
 import { DomainSettingsService } from "../../autofill/services/domain-settings.service";
-import { BulkEncryptService } from "../../key-management/crypto/abstractions/bulk-encrypt.service";
 import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "../../key-management/crypto/models/enc-string";
 import { UriMatchStrategy } from "../../models/domain/domain-service";
 import { ConfigService } from "../../platform/abstractions/config/config.service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
-import { StateService } from "../../platform/abstractions/state.service";
 import { Utils } from "../../platform/misc/utils";
 import { EncArrayBuffer } from "../../platform/models/domain/enc-array-buffer";
 import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
@@ -94,7 +93,6 @@ let accountService: FakeAccountService;
 
 describe("Cipher Service", () => {
   const keyService = mock<KeyService>();
-  const stateService = mock<StateService>();
   const autofillSettingsService = mock<AutofillSettingsService>();
   const domainSettingsService = mock<DomainSettingsService>();
   const apiService = mock<ApiService>();
@@ -102,12 +100,12 @@ describe("Cipher Service", () => {
   const i18nService = mock<I18nService>();
   const searchService = mock<SearchService>();
   const encryptService = mock<EncryptService>();
-  const bulkEncryptService = mock<BulkEncryptService>();
   const configService = mock<ConfigService>();
   accountService = mockAccountServiceWith(mockUserId);
   const logService = mock<LogService>();
   const stateProvider = new FakeStateProvider(accountService);
   const cipherEncryptionService = mock<CipherEncryptionService>();
+  const messageSender = mock<MessageSender>();
 
   const userId = "TestUserId" as UserId;
   const orgId = "4ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b2" as OrganizationId;
@@ -127,16 +125,15 @@ describe("Cipher Service", () => {
       apiService,
       i18nService,
       searchService,
-      stateService,
       autofillSettingsService,
       encryptService,
-      bulkEncryptService,
       cipherFileUploadService,
       configService,
       stateProvider,
       accountService,
       logService,
       cipherEncryptionService,
+      messageSender,
     );
 
     encryptionContext = { cipher: new Cipher(cipherData), encryptedFor: userId };
@@ -470,8 +467,6 @@ describe("Cipher Service", () => {
 
       searchService.indexedEntityId$.mockReturnValue(of(null));
 
-      stateService.getUserId.mockResolvedValue(mockUserId);
-
       const keys = { userKey: originalUserKey } as CipherDecryptionKeys;
       keyService.cipherDecryptionKeys$.mockReturnValue(of(keys));
 
@@ -554,6 +549,23 @@ describe("Cipher Service", () => {
         newUserKey,
       );
     });
+
+    it("sends overlay update when cipherViews$ emits", async () => {
+      (cipherService.cipherViews$ as jest.Mock)?.mockRestore();
+
+      const decryptedView = new CipherView(encryptionContext.cipher);
+      jest.spyOn(cipherService, "getAllDecrypted").mockResolvedValue([decryptedView]);
+
+      const sendSpy = jest.spyOn(messageSender, "send");
+
+      await firstValueFrom(
+        cipherService
+          .cipherViews$(mockUserId)
+          .pipe(filter((cipherViews): cipherViews is CipherView[] => cipherViews != null)),
+      );
+      expect(sendSpy).toHaveBeenCalledWith("updateOverlayCiphers");
+      expect(sendSpy).toHaveBeenCalledTimes(1);
+    });
   });
 
   describe("decrypt", () => {
@@ -578,7 +590,6 @@ describe("Cipher Service", () => {
         .calledWith(FeatureFlag.PM19941MigrateCipherDomainToSdk)
         .mockResolvedValue(false);
       cipherService.getKeyForCipherKeyDecryption = jest.fn().mockResolvedValue(mockUserKey);
-      encryptService.decryptToBytes.mockResolvedValue(new Uint8Array(32));
       jest
         .spyOn(encryptionContext.cipher, "decrypt")
         .mockResolvedValue(new CipherView(encryptionContext.cipher));

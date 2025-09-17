@@ -3,8 +3,8 @@ use std::os::windows::ffi::OsStringExt;
 
 use windows::Win32::Foundation::{GetLastError, HWND};
 use windows::Win32::UI::Input::KeyboardAndMouse::{
-    BlockInput, SendInput, INPUT, INPUT_0, INPUT_KEYBOARD, KEYBDINPUT, KEYEVENTF_KEYUP,
-    KEYEVENTF_UNICODE,
+    SendInput, INPUT, INPUT_0, INPUT_KEYBOARD, KEYBDINPUT, KEYEVENTF_KEYUP, KEYEVENTF_UNICODE,
+    VIRTUAL_KEY,
 };
 use windows::Win32::UI::WindowsAndMessaging::{
     GetForegroundWindow, GetWindowTextLengthW, GetWindowTextW,
@@ -28,21 +28,31 @@ pub fn get_foreground_window_title() -> std::result::Result<String, ()> {
 ///
 /// https://learn.microsoft.com/en-in/windows/win32/api/winuser/nf-winuser-sendinput
 pub fn type_input(input: Vec<u16>) -> Result<(), ()> {
+    const TAB_KEY: u16 = 9;
     let mut keyboard_inputs: Vec<INPUT> = Vec::new();
 
+    // Release hotkeys
+    keyboard_inputs.push(build_virtual_key_input(InputKeyPress::Up, 0x12)); // alt
+    keyboard_inputs.push(build_virtual_key_input(InputKeyPress::Up, 0x11)); // ctrl
+    keyboard_inputs.push(build_unicode_input(InputKeyPress::Up, 105)); // i
+
     for i in input {
-        let next_down_input = build_input(InputKeyPress::Down, i);
-        let next_up_input = build_input(InputKeyPress::Up, i);
+        let next_down_input = if i == TAB_KEY {
+            build_virtual_key_input(InputKeyPress::Down, i as u8)
+        } else {
+            build_unicode_input(InputKeyPress::Down, i)
+        };
+        let next_up_input = if i == TAB_KEY {
+            build_virtual_key_input(InputKeyPress::Up, i as u8)
+        } else {
+            build_unicode_input(InputKeyPress::Up, i)
+        };
 
         keyboard_inputs.push(next_down_input);
         keyboard_inputs.push(next_up_input);
     }
 
-    let _ = block_input(true);
-    let result = send_input(keyboard_inputs);
-    let _ = block_input(false);
-
-    result
+    send_input(keyboard_inputs)
 }
 
 /// Gets the foreground window handle.
@@ -103,11 +113,11 @@ enum InputKeyPress {
     Up,
 }
 
-/// A function for easily building keyboard INPUT structs used in SendInput().
+/// A function for easily building keyboard unicode INPUT structs used in SendInput().
 ///
 /// Before modifying this function, make sure you read the SendInput() documentation:
 /// https://learn.microsoft.com/en-in/windows/win32/api/winuser/nf-winuser-sendinput
-fn build_input(key_press: InputKeyPress, character: u16) -> INPUT {
+fn build_unicode_input(key_press: InputKeyPress, character: u16) -> INPUT {
     match key_press {
         InputKeyPress::Down => INPUT {
             r#type: INPUT_KEYBOARD,
@@ -136,14 +146,37 @@ fn build_input(key_press: InputKeyPress, character: u16) -> INPUT {
     }
 }
 
-/// Block keyboard and mouse input events. This prevents the hotkey
-/// key presses from interfering with the input sent via SendInput().
+/// A function for easily building keyboard virtual-key INPUT structs used in SendInput().
 ///
-/// https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-blockinput
-fn block_input(block: bool) -> Result<(), ()> {
-    match unsafe { BlockInput(block) } {
-        Ok(()) => Ok(()),
-        Err(_) => Err(()),
+/// Before modifying this function, make sure you read the SendInput() documentation:
+/// https://learn.microsoft.com/en-in/windows/win32/api/winuser/nf-winuser-sendinput
+/// https://learn.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
+fn build_virtual_key_input(key_press: InputKeyPress, virtual_key: u8) -> INPUT {
+    match key_press {
+        InputKeyPress::Down => INPUT {
+            r#type: INPUT_KEYBOARD,
+            Anonymous: INPUT_0 {
+                ki: KEYBDINPUT {
+                    wVk: VIRTUAL_KEY(virtual_key as u16),
+                    wScan: Default::default(),
+                    dwFlags: Default::default(),
+                    time: 0,
+                    dwExtraInfo: 0,
+                },
+            },
+        },
+        InputKeyPress::Up => INPUT {
+            r#type: INPUT_KEYBOARD,
+            Anonymous: INPUT_0 {
+                ki: KEYBDINPUT {
+                    wVk: VIRTUAL_KEY(virtual_key as u16),
+                    wScan: Default::default(),
+                    dwFlags: KEYEVENTF_KEYUP,
+                    time: 0,
+                    dwExtraInfo: 0,
+                },
+            },
+        },
     }
 }
 

@@ -108,7 +108,7 @@ type PaymentMethodFormGroup = FormGroup<{
                   <i class="bwi bwi-question-circle tw-text-lg" aria-hidden="true"></i>
                 </button>
                 <bit-popover [title]="'cardSecurityCode' | i18n" #cardSecurityCodePopover>
-                  <p>{{ "cardSecurityCodeDescription" | i18n }}</p>
+                  <p class="tw-mb-0">{{ "cardSecurityCodeDescription" | i18n }}</p>
                 </bit-popover>
               </app-payment-label>
               <div id="stripe-card-cvc" class="tw-stripe-form-control"></div>
@@ -118,7 +118,7 @@ type PaymentMethodFormGroup = FormGroup<{
         @case ("bankAccount") {
           <ng-container>
             <bit-callout type="warning" title="{{ 'verifyBankAccount' | i18n }}">
-              {{ "verifyBankAccountWarning" | i18n }}
+              {{ "requiredToVerifyBankAccountWithStripe" | i18n }}
             </bit-callout>
             <div class="tw-grid tw-grid-cols-2 tw-gap-4 tw-mb-4" formGroupName="bankAccount">
               <bit-form-field class="tw-col-span-1" [disableMargin]="true">

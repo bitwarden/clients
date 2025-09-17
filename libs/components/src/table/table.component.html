@@ -6,7 +6,7 @@
   </thead>
   <tbody>
     <ng-container
-      *ngTemplateOutlet="templateVariable.template; context: { $implicit: rows$ }"
+      *ngTemplateOutlet="templateVariable().template; context: { $implicit: rows$ }"
     ></ng-container>
   </tbody>
 </table>
