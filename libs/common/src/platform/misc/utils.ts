@@ -392,11 +392,11 @@ export class Utils {
     };
   }
 
-  static isNullOrWhitespace(str: string): boolean {
+  static isNullOrWhitespace(str: string | undefined | null): boolean {
     return str == null || typeof str !== "string" || str.trim() === "";
   }
 
-  static isNullOrEmpty(str: string | null): boolean {
+  static isNullOrEmpty(str: string | null | undefined): boolean {
     return str == null || typeof str !== "string" || str == "";
   }
 
@@ -418,7 +418,7 @@ export class Utils {
     return (Object.keys(obj).filter((k) => Number.isNaN(+k)) as K[]).map((k) => obj[k]);
   }
 
-  static getUrl(uriString: string): URL {
+  static getUrl(uriString: string | undefined | null): URL {
     if (this.isNullOrWhitespace(uriString)) {
       return null;
     }

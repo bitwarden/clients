@@ -236,7 +236,7 @@ export abstract class BaseImporter {
     return hostname.startsWith("www.") ? hostname.replace("www.", "") : hostname;
   }
 
-  protected isNullOrWhitespace(str: string): boolean {
+  protected isNullOrWhitespace(str: string | undefined | null): boolean {
     return Utils.isNullOrWhitespace(str);
   }
 
