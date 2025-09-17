@@ -33,7 +33,7 @@ export class SpinnerComponent {
   @HostBinding("class") get classList() {
     return ["tw-inline-block", "tw-overflow-hidden", "tw-flex", "tw-items-center"]
       .concat(this.sizeClass)
-      .concat([this.noColor ? null : "tw-text-primary-600"]);
+      .concat([this.noColor ? "" : "tw-text-primary-600"]);
   }
 
   constructor(private i18nService: I18nService) {}
