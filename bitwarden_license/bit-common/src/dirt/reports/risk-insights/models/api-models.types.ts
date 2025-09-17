@@ -1,9 +1,9 @@
 import { EncryptedString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 
-import { PasswordHealthReportApplicationId, RiskInsightsReport } from "./domain-models";
+import { PasswordHealthReportApplicationId, RiskInsightsReport } from "./report-models";
 
-// -------------------- Password Health Report API Models --------------------
+// -------------------- Password Health Report Models --------------------
 /**
  * Request to drop a password health report application
  * Model is expected by the API endpoint
@@ -21,8 +21,7 @@ export interface PasswordHealthReportApplicationsResponse {
   organizationId: OrganizationId;
   uri: string;
 }
-
-/**
+/*
  * Request to save a password health report application
  * Model is expected by the API endpoint
  */
@@ -31,7 +30,7 @@ export interface PasswordHealthReportApplicationsRequest {
   url: string;
 }
 
-// -------------------- Risk Insights Report API Models --------------------
+// -------------------- Risk Insights Report Models --------------------
 export interface SaveRiskInsightsReportRequest {
   data: RiskInsightsReport;
 }
@@ -46,5 +45,5 @@ export interface GetRiskInsightsReportResponse {
   // TODO Update to use creationDate from server
   date: string;
   reportData: EncryptedString;
-  reportKey: EncryptedString;
+  contentEncryptionKey: EncryptedString;
 }
