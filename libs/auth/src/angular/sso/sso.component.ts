@@ -294,27 +294,7 @@ export class SsoComponent implements OnInit {
     try {
       await this.submitSso();
     } catch (error) {
-      if (
-        error instanceof ErrorResponse &&
-        error.message === "SSO is not yet enabled for this organization."
-      ) {
-        /**
-         * If a user's email is in the ssoRequiredCache, the only login button shown to them (on this device)
-         * is the login via SSO button. This means that if their org disables SSO entirely, they would now be
-         * unable to use the alternate login methods on this device. This error handling makes it so that if
-         * the server responds that SSO is not enabled, we remove the user's email from the ssoRequiredCache,
-         * thus re-enabling the alternate login buttons on /login.
-         */
-        this.validationService.showError(error);
-
-        if (!this.email) {
-          this.logService.error("Email not found.");
-          return;
-        }
-
-        await this.ssoLoginService.removeFromSsoRequiredCacheIfPresent(this.email);
-        await this.router.navigate(["/login"], { queryParams: { email: this.email } });
-      } else if (autoSubmit) {
+      if (autoSubmit) {
         await this.router.navigate(["/login"]);
       } else {
         this.validationService.showError(error);
