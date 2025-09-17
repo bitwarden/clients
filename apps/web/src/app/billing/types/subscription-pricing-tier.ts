@@ -1,0 +1,69 @@
+export const PersonalSubscriptionPricingTierIds = {
+  Premium: "premium",
+  Families: "families",
+} as const;
+
+export const BusinessSubscriptionPricingTierIds = {
+  Free: "free",
+  Teams: "teams",
+  Enterprise: "enterprise",
+} as const;
+
+export const SubscriptionCadenceIds = {
+  Annually: "annually",
+  Monthly: "monthly",
+} as const;
+
+export type PersonalSubscriptionPricingTierId =
+  (typeof PersonalSubscriptionPricingTierIds)[keyof typeof PersonalSubscriptionPricingTierIds];
+export type BusinessSubscriptionPricingTierId =
+  (typeof BusinessSubscriptionPricingTierIds)[keyof typeof BusinessSubscriptionPricingTierIds];
+export type SubscriptionCadence =
+  (typeof SubscriptionCadenceIds)[keyof typeof SubscriptionCadenceIds];
+
+type HasFeatures = {
+  features: { key: string; value: string }[];
+};
+
+type HasAdditionalStorage = {
+  monthlyCostPerAdditionalStorageGB: number;
+};
+
+type StandalonePasswordManager = HasFeatures &
+  HasAdditionalStorage & {
+    type: "standalone";
+    monthlyCost: number;
+  };
+
+type PackagedPasswordManager = HasFeatures &
+  HasAdditionalStorage & {
+    type: "packaged";
+    users: number;
+    monthlyCost: number;
+  };
+
+type FreePasswordManager = HasFeatures & {
+  type: "free";
+};
+
+type ScalablePasswordManager = HasFeatures &
+  HasAdditionalStorage & {
+    type: "scalable";
+    monthlyCostPerUser: number;
+  };
+
+export type PersonalSubscriptionPricingTier = {
+  id: PersonalSubscriptionPricingTierId;
+  name: string;
+  description: string;
+  availableCadences: Omit<SubscriptionCadence, "monthly">[]; // personal plans are only ever annual
+  passwordManager: StandalonePasswordManager | PackagedPasswordManager;
+};
+
+export type BusinessSubscriptionPricingTier = {
+  id: BusinessSubscriptionPricingTierId;
+  name: string;
+  description: string;
+  availableCadences: SubscriptionCadence[];
+  passwordManager: FreePasswordManager | ScalablePasswordManager;
+};
