@@ -176,6 +176,8 @@ import {
   DefaultStateService,
 } from "@bitwarden/state-internal";
 import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
+import { CipherArchiveService } from "@bitwarden/vault/abstractions/cipher-archive.service";
+import { DefaultCipherArchiveService } from "@bitwarden/vault/services/default-cipher-archive.service";
 import {
   IndividualVaultExportService,
   IndividualVaultExportServiceAbstraction,
@@ -298,6 +300,7 @@ export class ServiceContainer {
   cipherEncryptionService: CipherEncryptionService;
   restrictedItemTypesService: RestrictedItemTypesService;
   cliRestrictedItemTypesService: CliRestrictedItemTypesService;
+  cipherArchiveService: CipherArchiveService;
 
   constructor() {
     let p = null;
@@ -724,6 +727,13 @@ export class ServiceContainer {
       this.logService,
       this.cipherEncryptionService,
       this.messagingService,
+    );
+
+    this.cipherArchiveService = new DefaultCipherArchiveService(
+      this.cipherService,
+      this.apiService,
+      this.billingAccountProfileStateService,
+      this.configService,
     );
 
     this.folderService = new FolderService(
