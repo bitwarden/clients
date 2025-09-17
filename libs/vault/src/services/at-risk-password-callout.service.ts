@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { combineLatest, map, Observable, take, tap } from "rxjs";
+import { combineLatest, map, Observable } from "rxjs";
 
 import {
   SingleUserState,
@@ -22,7 +22,7 @@ export const AT_RISK_PASSWORD_CALLOUT_KEY = new UserKeyDefinition<AtRiskPassword
   "atRiskPasswords",
   {
     deserializer: (jsonData) => jsonData,
-    clearOn: [],
+    clearOn: ["lock", "logout"],
   },
 );
 
@@ -86,33 +86,27 @@ export class AtRiskPasswordCalloutService {
   }
 
   updatePendingTasksState(userId: UserId, currentTaskCount: number): void {
-    this.atRiskPasswordState(userId)
-      .state$.pipe(
-        take(1),
-        tap((currentState) => {
-          let updateObject: AtRiskPasswordCalloutData | null = null;
+    void this.atRiskPasswordState(userId).update((currentState) => {
+      let updateObject;
+      // If user had pending tasks and resolved all, show banner
+      if (currentState?.hadPendingTasks && currentTaskCount === 0) {
+        updateObject = {
+          hadPendingTasks: false,
+          showTasksCompleteBanner: true,
+          tasksBannerDismissed: false,
+        };
+        // If user has pending tasks, set hadPendingTasks to true
+      } else if (currentTaskCount > 0) {
+        updateObject = {
+          hadPendingTasks: true,
+          showTasksCompleteBanner: false,
+          tasksBannerDismissed: false,
+        };
+      } else {
+        updateObject = currentState;
+      }
 
-          // If user had pending tasks and resolved all, show banner
-          if (currentState?.hadPendingTasks && currentTaskCount === 0) {
-            updateObject = {
-              hadPendingTasks: false,
-              showTasksCompleteBanner: true,
-              tasksBannerDismissed: false,
-            };
-            // If user has pending tasks, set hadPendingTasks to true
-          } else if (currentTaskCount > 0) {
-            updateObject = {
-              hadPendingTasks: true,
-              showTasksCompleteBanner: false,
-              tasksBannerDismissed: false,
-            };
-          }
-
-          if (updateObject) {
-            this.updateAtRiskPasswordState(userId, updateObject);
-          }
-        }),
-      )
-      .subscribe();
+      return updateObject;
+    });
   }
 }

@@ -202,7 +202,7 @@ describe("AtRiskPasswordCalloutService", () => {
 
       expect(returnedState.update).toHaveBeenCalledWith(expect.any(Function));
       const updater = (returnedState.update as jest.Mock).mock.calls[0][0];
-      expect(updater()).toEqual({
+      expect(updater(currentState)).toEqual({
         hadPendingTasks: false,
         showTasksCompleteBanner: true,
         tasksBannerDismissed: false,
@@ -232,7 +232,7 @@ describe("AtRiskPasswordCalloutService", () => {
       });
     });
 
-    it("should not update state when no changes made", () => {
+    it("should return currentState when no changes are needed", () => {
       const currentState: AtRiskPasswordCalloutData = {
         hadPendingTasks: false,
         showTasksCompleteBanner: false,
@@ -246,7 +246,9 @@ describe("AtRiskPasswordCalloutService", () => {
 
       service.updatePendingTasksState(userId, 0);
 
-      expect(returnedState.update).not.toHaveBeenCalled();
+      expect(returnedState.update).toHaveBeenCalledWith(expect.any(Function));
+      const updater = (returnedState.update as jest.Mock).mock.calls[0][0];
+      expect(updater(currentState)).toBe(currentState);
     });
   });
 });
