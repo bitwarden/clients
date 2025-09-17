@@ -29,10 +29,7 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { PasswordStrengthV2Component } from "@bitwarden/angular/tools/password-strength/password-strength-v2.component";
 import { UserVerificationDialogComponent } from "@bitwarden/auth/angular";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
-import {
-  getOrganizationById,
-  OrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -42,6 +39,7 @@ import { EventType } from "@bitwarden/common/enums";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { getById } from "@bitwarden/common/platform/misc";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { pin } from "@bitwarden/common/tools/rx";
 import { isId, OrganizationId } from "@bitwarden/common/types/guid";
@@ -111,9 +109,7 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
     getUserId(this.accountService.activeAccount$)
       .pipe(
         switchMap((userId) =>
-          this.organizationService
-            .organizations$(userId)
-            .pipe(getOrganizationById(this._organizationId)),
+          this.organizationService.organizations$(userId).pipe(getById(this._organizationId)),
         ),
       )
       .pipe(takeUntil(this.destroy$))
