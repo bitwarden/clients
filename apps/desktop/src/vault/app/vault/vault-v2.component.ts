@@ -86,6 +86,7 @@ import { ItemFooterComponent } from "./item-footer.component";
 import { VaultFilterComponent } from "./vault-filter/vault-filter.component";
 import { VaultFilterModule } from "./vault-filter/vault-filter.module";
 import { VaultItemsV2Component } from "./vault-items-v2.component";
+import { cipher } from "node-forge";
 
 const BroadcasterSubscriptionId = "VaultComponent";
 
@@ -901,9 +902,7 @@ export class VaultV2Component<C extends CipherViewLike>
           title: undefined,
           message: this.i18nService.t("valueCopied", this.i18nService.t(labelI18nKey)),
         });
-        if (this.action === "view") {
-          this.messagingService.send("minimizeOnCopy");
-        }
+        this.messagingService.send("minimizeOnCopy");
       })().catch(() => {});
     });
   }
