@@ -314,7 +314,7 @@ export class Utils {
     }
   }
 
-  static getDomain(uriString: string): string {
+  static getDomain(uriString: string | null | undefined): string {
     if (Utils.isNullOrWhitespace(uriString)) {
       return null;
     }
