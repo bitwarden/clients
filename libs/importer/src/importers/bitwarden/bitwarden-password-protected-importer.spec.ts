@@ -136,5 +136,17 @@ describe("BitwardenPasswordProtectedImporter", () => {
       jDoc.data = null;
       expect((await importer.parse(JSON.stringify(jDoc))).success).toEqual(false);
     });
+
+    it("returns invalidFilePassword errorMessage if decryptString throws", async () => {
+      encryptService.decryptString.mockImplementation(() => {
+        throw new Error("SDK error");
+      });
+      i18nService.t.mockReturnValue("invalidFilePassword");
+
+      const result = await importer.parse(JSON.stringify(jDoc));
+
+      expect(result.success).toBe(false);
+      expect(result.errorMessage).toBe("invalidFilePassword");
+    });
   });
 });
