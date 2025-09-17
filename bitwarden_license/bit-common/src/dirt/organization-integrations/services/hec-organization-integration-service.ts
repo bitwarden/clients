@@ -156,6 +156,34 @@ export class HecOrganizationIntegrationService {
     }
   }
 
+  async deleteHec(
+    organizationId: OrganizationId,
+    OrganizationIntegrationId: OrganizationIntegrationId,
+    OrganizationIntegrationConfigurationId: OrganizationIntegrationConfigurationId,
+  ) {
+    if (organizationId != this.organizationId$.getValue()) {
+      throw new Error("Organization ID mismatch");
+    }
+    // delete the configuration first due to foreign key constraint
+    await this.integrationConfigurationApiService.deleteOrganizationIntegrationConfiguration(
+      organizationId,
+      OrganizationIntegrationId,
+      OrganizationIntegrationConfigurationId,
+    );
+
+    // delete the integration
+    await this.integrationApiService.deleteOrganizationIntegration(
+      organizationId,
+      OrganizationIntegrationId,
+    );
+
+    // update the local observable
+    const updatedIntegrations = this._integrations$
+      .getValue()
+      .filter((i) => i.id !== OrganizationIntegrationId);
+    this._integrations$.next(updatedIntegrations);
+  }
+
   /**
    * Gets a OrganizationIntegration for an OrganizationIntegrationId
    * @param integrationId id of the integration
