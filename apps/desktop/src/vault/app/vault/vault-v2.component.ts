@@ -86,7 +86,6 @@ import { ItemFooterComponent } from "./item-footer.component";
 import { VaultFilterComponent } from "./vault-filter/vault-filter.component";
 import { VaultFilterModule } from "./vault-filter/vault-filter.module";
 import { VaultItemsV2Component } from "./vault-items-v2.component";
-import { cipher } from "node-forge";
 
 const BroadcasterSubscriptionId = "VaultComponent";
 
