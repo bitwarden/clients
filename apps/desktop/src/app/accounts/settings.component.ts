@@ -7,6 +7,7 @@ import { RouterModule } from "@angular/router";
 import { BehaviorSubject, Observable, Subject, combineLatest, firstValueFrom, of } from "rxjs";
 import { concatMap, map, pairwise, startWith, switchMap, takeUntil, timeout } from "rxjs/operators";
 
+import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { VaultTimeoutInputComponent } from "@bitwarden/auth/angular";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -51,7 +52,6 @@ import {
   SelectModule,
   ToastService,
   TypographyModule,
-  BadgeComponent,
 } from "@bitwarden/components";
 import { KeyService, BiometricStateService, BiometricsStatus } from "@bitwarden/key-management";
 import { PermitCipherDetailsPopoverComponent } from "@bitwarden/vault";
@@ -60,7 +60,6 @@ import { SetPinComponent } from "../../auth/components/set-pin.component";
 import { SshAgentPromptType } from "../../autofill/models/ssh-agent-setting";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
 import { DesktopAutotypeService } from "../../autofill/services/desktop-autotype.service";
-import { PremiumComponent } from "../../billing/app/accounts/premium.component";
 import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
 import { NativeMessagingManifestService } from "../services/native-messaging-manifest.service";
@@ -70,7 +69,6 @@ import { NativeMessagingManifestService } from "../services/native-messaging-man
   templateUrl: "settings.component.html",
   standalone: true,
   imports: [
-    BadgeComponent,
     CheckboxModule,
     CommonModule,
     FormFieldModule,
@@ -87,6 +85,7 @@ import { NativeMessagingManifestService } from "../services/native-messaging-man
     TypographyModule,
     VaultTimeoutInputComponent,
     PermitCipherDetailsPopoverComponent,
+    PremiumBadgeComponent,
   ],
 })
 export class SettingsComponent implements OnInit, OnDestroy {
@@ -103,7 +102,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   showAlwaysShowDock = false;
   requireEnableTray = false;
   showDuckDuckGoIntegrationOption = false;
-  showEnableAutotype = false;
+  showEnableAutotype = true;
   showOpenAtLoginOption = false;
   isWindows: boolean;
   isLinux: boolean;
@@ -890,10 +889,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
         this.form.controls.allowScreenshots.setValue(true, { emitEvent: false });
       }
     }
-  }
-
-  async openPremiumDialog() {
-    await this.dialogService.open(PremiumComponent);
   }
 
   async saveEnableAutotype() {
