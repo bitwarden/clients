@@ -838,7 +838,6 @@ pub mod logging {
     use napi::threadsafe_function::{
         ErrorStrategy::CalleeHandled, ThreadsafeFunction, ThreadsafeFunctionCallMode,
     };
-    // use tracing::level_filters::LevelFilter;
     use tracing::Level;
     use tracing_subscriber::fmt::format::{DefaultVisitor, Writer};
     use tracing_subscriber::{
@@ -879,6 +878,23 @@ pub mod logging {
     where
         S: tracing::Subscriber,
     {
+        // This function builds a log message buffer from the event data and
+        // calls the JS logger with it.
+        //
+        // For example, this log call:
+        //
+        // ```
+        // mod supreme {
+        //   mod module {
+        //     let foo = "bar";
+        //     info!(best_variable_name = %foo, "Foo done it again.");
+        //   }
+        // }
+        // ```
+        //
+        // , results in the following string:
+        //
+        // [INFO] supreme::module: Foo done it again. {best_variable_name=bar}
         fn on_event(
             &self,
             event: &tracing::Event<'_>,
@@ -886,17 +902,18 @@ pub mod logging {
         ) {
             let mut buffer = String::new();
 
-            write!(
-                &mut buffer,
-                "[{}] {}",
-                event.metadata().level().as_str(),
-                event.metadata().module_path().unwrap_or_default()
-            )
-            .expect("Failed to write tracing event to buffer");
+            // create the preamble text that precedes the message and vars. e.g.:
+            //     [INFO] desktop_core::ssh_agent::platform_ssh_agent:
+            let level = event.metadata().level().as_str();
+            let module_path = event.metadata().module_path().unwrap_or_default();
+
+            write!(&mut buffer, "[{level}] {module_path}:")
+                .expect("Failed to write tracing event to buffer");
 
             let writer = Writer::new(&mut buffer);
-            let mut visitor = DefaultVisitor::new(writer, false);
 
+            // DefaultVisitor adds the message and variables to the buffer
+            let mut visitor = DefaultVisitor::new(writer, false);
             event.record(&mut visitor);
 
             let msg = (event.metadata().level().into(), buffer);
