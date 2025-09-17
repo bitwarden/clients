@@ -22,7 +22,12 @@ import {
   ToastService,
   TypographyModule,
 } from "@bitwarden/components";
-import { CanDeleteCipherDirective, CipherArchiveService } from "@bitwarden/vault";
+import {
+  CanDeleteCipherDirective,
+  CipherArchiveService,
+  DecryptionFailureDialogComponent,
+  PasswordRepromptService,
+} from "@bitwarden/vault";
 
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
@@ -56,6 +61,7 @@ export class ArchiveComponent {
   private toastService = inject(ToastService);
   private i18nService = inject(I18nService);
   private cipherArchiveService = inject(CipherArchiveService);
+  private passwordRepromptService = inject(PasswordRepromptService);
 
   private userId$: Observable<UserId> = this.accountService.activeAccount$.pipe(getUserId);
 
@@ -69,7 +75,7 @@ export class ArchiveComponent {
   );
 
   async view(cipher: CipherView) {
-    if (!(await this.cipherArchiveService.canInteract(cipher))) {
+    if (!(await this.canInteract(cipher))) {
       return;
     }
 
@@ -79,7 +85,7 @@ export class ArchiveComponent {
   }
 
   async edit(cipher: CipherView) {
-    if (!(await this.cipherArchiveService.canInteract(cipher))) {
+    if (!(await this.canInteract(cipher))) {
       return;
     }
 
@@ -89,7 +95,7 @@ export class ArchiveComponent {
   }
 
   async delete(cipher: CipherView) {
-    if (!(await this.cipherArchiveService.canInteract(cipher))) {
+    if (!(await this.canInteract(cipher))) {
       return;
     }
     const confirmed = await this.dialogService.openSimpleDialog({
@@ -118,7 +124,7 @@ export class ArchiveComponent {
   }
 
   async unarchive(cipher: CipherView) {
-    if (!(await this.cipherArchiveService.canInteract(cipher))) {
+    if (!(await this.canInteract(cipher))) {
       return;
     }
     const activeUserId = await firstValueFrom(this.userId$);
@@ -132,7 +138,7 @@ export class ArchiveComponent {
   }
 
   async clone(cipher: CipherView) {
-    if (!(await this.cipherArchiveService.canInteract(cipher))) {
+    if (!(await this.canInteract(cipher))) {
       return;
     }
 
@@ -155,5 +161,22 @@ export class ArchiveComponent {
         type: cipher.type,
       },
     });
+  }
+
+  /**
+   * Check if the user is able to interact with the cipher
+   * (password re-prompt / decryption failure checks).
+   * @param cipher
+   * @private
+   */
+  private canInteract(cipher: CipherView) {
+    if (cipher.decryptionFailure) {
+      DecryptionFailureDialogComponent.open(this.dialogService, {
+        cipherIds: [cipher.id as CipherId],
+      });
+      return false;
+    }
+
+    return this.passwordRepromptService.passwordRepromptCheck(cipher);
   }
 }
