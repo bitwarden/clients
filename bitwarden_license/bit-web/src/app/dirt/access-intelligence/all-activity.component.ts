@@ -21,18 +21,19 @@ import { ApplicationsLoadingComponent } from "./risk-insights-loading.component"
 export class AllActivityComponent implements OnInit {
   isLoading$: Observable<boolean> = this.dataService.isLoading$;
   atRiskAppDetails: AtRiskApplicationDetail[] = [];
-  organization: Organization = new Organization();
+  organization: Organization | null = null;
 
   async ngOnInit(): Promise<void> {
     const organizationId = this.activatedRoute.snapshot.paramMap.get("organizationId");
     const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
 
     if (organizationId) {
-      this.organization = await firstValueFrom(
-        this.organizationService.organizations$(userId).pipe(getById(organizationId)),
-      );
+      this.organization =
+        (await firstValueFrom(
+          this.organizationService.organizations$(userId).pipe(getById(organizationId)),
+        )) ?? null;
 
-      this.atRiskAppDetails = this.dataService.atRiskAppDetails;
+      this.atRiskAppDetails = this.dataService.atRiskAppDetails ?? [];
     }
   }
 
