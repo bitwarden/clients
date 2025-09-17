@@ -1,3 +1,7 @@
+.cdk-overlay-pane:has(.bit-tooltip[data-visible="false"]) {
+  pointer-events: none;
+}
+
 .bit-tooltip {
   position: relative;
   opacity: 0;
@@ -12,7 +16,7 @@
   transform: scale(0.95);
   font-size: 0.875rem;
   line-height: 1.25rem;
-  z-index: 1000;
+  z-index: -1;
 
   &::before {
     content: "";
@@ -28,6 +32,7 @@
   &[data-visible="true"] {
     opacity: 1;
     transform: scale(1);
+    z-index: 1000;
   }
 
   &[data-position^="above"],
