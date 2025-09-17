@@ -33,9 +33,9 @@ export default {
     },
     tooltipPosition: {
       control: "select",
-      options: getDefaultPositions("bit-tooltip").filter((position: DefaultPosition) =>
-        ALLOWED_TOOLTIP_POSITION_IDS.includes(position.id),
-      ),
+      options: getDefaultPositions("bit-tooltip")
+        .filter((position: DefaultPosition) => ALLOWED_TOOLTIP_POSITION_IDS.includes(position.id))
+        .map((position: DefaultPosition) => position.id),
       description: "Position of the tooltip relative to the element",
     },
   },
