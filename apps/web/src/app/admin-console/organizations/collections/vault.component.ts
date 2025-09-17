@@ -1130,14 +1130,14 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
     // If user has edit all Access no need to check for unassigned ciphers
     if (organization.canEditAllCiphers) {
       ciphers.map((cipher) => {
-        editAccessCiphers.push(cipher.id);
+        editAccessCiphers.push(cipher.id!);
       });
     } else {
       ciphers.map((cipher) => {
         if (cipher.collectionIds.length === 0) {
-          unassignedCiphers.push(cipher.id);
+          unassignedCiphers.push(cipher.id!);
         } else if (cipher.edit) {
-          editAccessCiphers.push(cipher.id);
+          editAccessCiphers.push(cipher.id!);
         }
       });
     }
@@ -1192,7 +1192,7 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
 
     try {
       const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-      await this.deleteCipherWithServer(c.id, activeUserId, permanent, c.isUnassigned);
+      await this.deleteCipherWithServer(c.id!, activeUserId, permanent, c.isUnassigned);
       this.toastService.showToast({
         variant: "success",
 
@@ -1265,9 +1265,9 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
 
     ciphers.map((c) => {
       if (c.isUnassigned) {
-        unassignedCiphers.push(c.id);
+        unassignedCiphers.push(c.id!);
       } else {
-        assignedCiphers.push(c.id);
+        assignedCiphers.push(c.id!);
       }
     });
 
@@ -1321,7 +1321,7 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
       aType = "Password";
       value = cipher.login.password;
       typeI18nKey = "password";
-    } else if (field === "totp") {
+    } else if (field === "totp" && cipher.login.totp != null) {
       aType = "TOTP";
       const totpResponse = await firstValueFrom(this.totpService.getCode$(cipher.login.totp));
       value = totpResponse.code;
@@ -1342,7 +1342,7 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
       return;
     }
 
-    if (!cipher.viewPassword) {
+    if (!cipher.viewPassword || value == null) {
       return;
     }
 
@@ -1494,7 +1494,7 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
       data: {
         name: cipher.name,
         organizationId: organization.id,
-        entityId: cipher.id,
+        entityId: cipher.id!,
         showUser: true,
         entity: "cipher",
       },

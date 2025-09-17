@@ -114,6 +114,6 @@ export class CipherContextMenuHandler {
       title += ` ${cipher.card.subTitle}`;
     }
 
-    await this.mainContextMenuHandler.loadOptions(title, cipher.id, cipher);
+    await this.mainContextMenuHandler.loadOptions(title, cipher.id!, cipher);
   }
 }

@@ -24,11 +24,11 @@ export async function getCredentialsForAutofill(
       const credId = Utils.fromBufferToUrlB64(parseCredentialId(credential.credentialId));
 
       return {
-        cipherId: cipher.id,
+        cipherId: cipher.id!,
         credentialId: credId,
         rpId: credential.rpId,
         userHandle: credential.userHandle,
         userName: credential.userName,
-      };
+      } as Fido2CredentialAutofillView;
     });
 }
