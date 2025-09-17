@@ -1,7 +1,7 @@
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 
-import { OrganizationId } from "@bitwarden/common/types/guid";
+import { isId, OrganizationId } from "@bitwarden/common/types/guid";
 import { ExportComponent } from "@bitwarden/vault-export-ui";
 
 import { HeaderModule } from "../../layouts/header/header.module";
@@ -19,7 +19,16 @@ export class OrganizationVaultExportComponent implements OnInit {
   constructor(private route: ActivatedRoute) {}
 
   async ngOnInit() {
-    this.routeOrgId = this.route.snapshot.paramMap.get("organizationId") as OrganizationId;
+    const orgIdParam = this.route.snapshot.paramMap.get("organizationId");
+    if (orgIdParam === undefined) {
+      throw new Error("`organizationId` is a required route parameter");
+    }
+
+    if (!isId<OrganizationId>(orgIdParam)) {
+      throw new Error("Invalid OrganizationId provided in route parameter `organizationId`");
+    }
+
+    this.routeOrgId = orgIdParam;
   }
 
   /**
