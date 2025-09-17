@@ -5,20 +5,23 @@ import {
   SingleUserState,
   StateProvider,
   UserKeyDefinition,
-  VAULT_AT_RISK_PASSWORDS_MEMORY,
+  VAULT_AT_RISK_PASSWORDS_DISK,
 } from "@bitwarden/common/platform/state";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { SecurityTask, SecurityTaskType, TaskService } from "@bitwarden/common/vault/tasks";
+import {
+  SecurityTask,
+  SecurityTaskStatus,
+  SecurityTaskType,
+  TaskService,
+} from "@bitwarden/common/vault/tasks";
 import { UserId } from "@bitwarden/user-core";
 
 export type AtRiskPasswordCalloutData = {
-  hadPendingTasks: boolean;
-  showTasksCompleteBanner: boolean;
   tasksBannerDismissed: boolean;
 };
 
 export const AT_RISK_PASSWORD_CALLOUT_KEY = new UserKeyDefinition<AtRiskPasswordCalloutData>(
-  VAULT_AT_RISK_PASSWORDS_MEMORY,
+  VAULT_AT_RISK_PASSWORDS_DISK,
   "atRiskPasswords",
   {
     deserializer: (jsonData) => jsonData,
@@ -45,6 +48,7 @@ export class AtRiskPasswordCalloutService {
 
           return (
             t.type === SecurityTaskType.UpdateAtRiskCredential &&
+            t.status === SecurityTaskStatus.Pending &&
             associatedCipher &&
             !associatedCipher.isDeleted
           );
@@ -53,26 +57,49 @@ export class AtRiskPasswordCalloutService {
     );
   }
 
-  shouldShowCompletionBanner$(userId: UserId): Observable<boolean> {
+  completedTasks$(userId: UserId): Observable<SecurityTask[]> {
+    return combineLatest([
+      this.taskService.completedTasks$(userId),
+      this.cipherService.cipherViews$(userId),
+    ]).pipe(
+      map(([tasks, ciphers]) => {
+        return tasks.filter((t: SecurityTask) => {
+          const associatedCipher = ciphers.find((c) => c.id === t.cipherId);
+
+          return (
+            t.type === SecurityTaskType.UpdateAtRiskCredential &&
+            t.status === SecurityTaskStatus.Completed &&
+            associatedCipher &&
+            !associatedCipher.isDeleted
+          );
+        });
+      }),
+    );
+  }
+
+  showCompletedTasksBanner$(userId: UserId): Observable<boolean> {
     return combineLatest([
       this.pendingTasks$(userId),
+      this.completedTasks$(userId),
       this.atRiskPasswordState(userId).state$,
     ]).pipe(
-      map(([pendingTasks, state]) => {
+      map(([pendingTasks, completedTasks, state]) => {
         const hasPendingTasks = pendingTasks.length > 0;
-        const {
-          showTasksCompleteBanner = false,
-          hadPendingTasks = false,
-          tasksBannerDismissed = false,
-        } = state ?? {};
+        const hasCompletedTasks = completedTasks.length > 0;
 
-        // Show banner if
-        // user has resolved all pending tasks
-        // user had showTasksCompleteBanner set to true and hasn't received new tasks
-        // user had showTasksCompleteBanner set to true and hasn't dismissed
-        return (
-          !hasPendingTasks && (showTasksCompleteBanner || hadPendingTasks) && !tasksBannerDismissed
-        );
+        if (state?.tasksBannerDismissed) {
+          return false;
+        }
+
+        if (hasPendingTasks) {
+          const updateObject = {
+            tasksBannerDismissed: false,
+          };
+          void this.atRiskPasswordState(userId).update(() => updateObject);
+        }
+
+        // Show banner if there are completed tasks and no pending tasks, and banner hasn't been dismissed
+        return hasCompletedTasks && !hasPendingTasks && !(state?.tasksBannerDismissed ?? false);
       }),
     );
   }
@@ -83,30 +110,5 @@ export class AtRiskPasswordCalloutService {
 
   updateAtRiskPasswordState(userId: UserId, updatedState: AtRiskPasswordCalloutData): void {
     void this.atRiskPasswordState(userId).update(() => updatedState);
-  }
-
-  updatePendingTasksState(userId: UserId, currentTaskCount: number): void {
-    void this.atRiskPasswordState(userId).update((currentState) => {
-      let updateObject;
-      // If user had pending tasks and resolved all, show banner
-      if (currentState?.hadPendingTasks && currentTaskCount === 0) {
-        updateObject = {
-          hadPendingTasks: false,
-          showTasksCompleteBanner: true,
-          tasksBannerDismissed: false,
-        };
-        // If user has pending tasks, set hadPendingTasks to true
-      } else if (currentTaskCount > 0) {
-        updateObject = {
-          hadPendingTasks: true,
-          showTasksCompleteBanner: false,
-          tasksBannerDismissed: false,
-        };
-      } else {
-        updateObject = currentState;
-      }
-
-      return updateObject;
-    });
   }
 }
