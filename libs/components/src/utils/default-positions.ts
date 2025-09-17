@@ -3,6 +3,13 @@ import { ConnectedPosition } from "@angular/cdk/overlay";
 const ORIGIN_OFFSET_PX = 14;
 const OVERLAY_OFFSET_PX = 24;
 
+export const ALLOWED_TOOLTIP_POSITION_IDS = [
+  "left-center",
+  "right-center",
+  "above-center",
+  "below-center",
+];
+
 export type PositionIdentifier =
   | "right-start"
   | "right-center"
@@ -21,7 +28,7 @@ export interface DefaultPosition extends ConnectedPosition {
   id: PositionIdentifier;
 }
 
-export const defaultPositions: DefaultPosition[] = [
+export const getDefaultPositions = (classNamePrefix?: string): DefaultPosition[] => [
   /**
    * The order of these positions matters. The Popover component will use
    * the first position that fits within the viewport.
@@ -36,7 +43,7 @@ export const defaultPositions: DefaultPosition[] = [
     originY: "center",
     overlayX: "start",
     overlayY: "top",
-    panelClass: ["bit-popover-right", "bit-popover-right-start"],
+    panelClass: [`${classNamePrefix}-right`, `${classNamePrefix}-right-start`],
   },
   {
     id: "right-center",
@@ -45,7 +52,7 @@ export const defaultPositions: DefaultPosition[] = [
     originY: "center",
     overlayX: "start",
     overlayY: "center",
-    panelClass: ["bit-popover-right", "bit-popover-right-center"],
+    panelClass: [`${classNamePrefix}-right`, `${classNamePrefix}-right-center`],
   },
   {
     id: "right-end",
@@ -55,7 +62,7 @@ export const defaultPositions: DefaultPosition[] = [
     originY: "center",
     overlayX: "start",
     overlayY: "bottom",
-    panelClass: ["bit-popover-right", "bit-popover-right-end"],
+    panelClass: [`${classNamePrefix}-right`, `${classNamePrefix}-right-end`],
   },
   // ... to left of trigger
   {
@@ -66,7 +73,7 @@ export const defaultPositions: DefaultPosition[] = [
     originY: "center",
     overlayX: "end",
     overlayY: "top",
-    panelClass: ["bit-popover-left", "bit-popover-left-start"],
+    panelClass: [`${classNamePrefix}-left`, `${classNamePrefix}-left-start`],
   },
   {
     id: "left-center",
@@ -75,7 +82,7 @@ export const defaultPositions: DefaultPosition[] = [
     originY: "center",
     overlayX: "end",
     overlayY: "center",
-    panelClass: ["bit-popover-left", "bit-popover-left-center"],
+    panelClass: [`${classNamePrefix}-left`, `${classNamePrefix}-left-center`],
   },
   {
     id: "left-end",
@@ -85,7 +92,7 @@ export const defaultPositions: DefaultPosition[] = [
     originY: "center",
     overlayX: "end",
     overlayY: "bottom",
-    panelClass: ["bit-popover-left", "bit-popover-left-end"],
+    panelClass: [`${classNamePrefix}-left`, `${classNamePrefix}-left-end`],
   },
   // ... below trigger
   {
@@ -95,7 +102,7 @@ export const defaultPositions: DefaultPosition[] = [
     originY: "bottom",
     overlayX: "center",
     overlayY: "top",
-    panelClass: ["bit-popover-below", "bit-popover-below-center"],
+    panelClass: [`${classNamePrefix}-below`, `${classNamePrefix}-below-center`],
   },
   {
     id: "below-start",
@@ -105,7 +112,7 @@ export const defaultPositions: DefaultPosition[] = [
     originY: "bottom",
     overlayX: "start",
     overlayY: "top",
-    panelClass: ["bit-popover-below", "bit-popover-below-start"],
+    panelClass: [`${classNamePrefix}-below`, `${classNamePrefix}-below-start`],
   },
   {
     id: "below-end",
@@ -115,7 +122,7 @@ export const defaultPositions: DefaultPosition[] = [
     originY: "bottom",
     overlayX: "end",
     overlayY: "top",
-    panelClass: ["bit-popover-below", "bit-popover-below-end"],
+    panelClass: [`${classNamePrefix}-below`, `${classNamePrefix}-below-end`],
   },
   // ... above trigger
   {
@@ -125,7 +132,7 @@ export const defaultPositions: DefaultPosition[] = [
     originY: "top",
     overlayX: "center",
     overlayY: "bottom",
-    panelClass: ["bit-popover-above", "bit-popover-above-center"],
+    panelClass: [`${classNamePrefix}-above`, `${classNamePrefix}-above-center`],
   },
   {
     id: "above-start",
@@ -135,7 +142,7 @@ export const defaultPositions: DefaultPosition[] = [
     originY: "top",
     overlayX: "start",
     overlayY: "bottom",
-    panelClass: ["bit-popover-above", "bit-popover-above-start"],
+    panelClass: [`${classNamePrefix}-above`, `${classNamePrefix}-above-start`],
   },
   {
     id: "above-end",
@@ -145,6 +152,6 @@ export const defaultPositions: DefaultPosition[] = [
     originY: "top",
     overlayX: "end",
     overlayY: "bottom",
-    panelClass: ["bit-popover-above", "bit-popover-above-end"],
+    panelClass: [`${classNamePrefix}-above`, `${classNamePrefix}-above-end`],
   },
 ];

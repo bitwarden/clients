@@ -2,7 +2,11 @@ import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 
 import { ButtonComponent } from "../button";
 import { BitIconButtonComponent } from "../icon-button";
-import { defaultPositions, DefaultPosition } from "../popover/default-positions";
+import {
+  getDefaultPositions,
+  DefaultPosition,
+  ALLOWED_TOOLTIP_POSITION_IDS,
+} from "../utils/default-positions";
 
 import { TooltipDirective } from "./tooltip.directive";
 
@@ -29,7 +33,9 @@ export default {
     },
     tooltipPosition: {
       control: "select",
-      options: defaultPositions.map((position: DefaultPosition) => position.id),
+      options: getDefaultPositions("bit-tooltip").filter((position: DefaultPosition) =>
+        ALLOWED_TOOLTIP_POSITION_IDS.includes(position.id),
+      ),
       description: "Position of the tooltip relative to the element",
     },
   },

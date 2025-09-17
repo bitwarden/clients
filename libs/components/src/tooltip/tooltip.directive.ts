@@ -14,7 +14,7 @@ import {
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 
-import { defaultPositions } from "../popover/default-positions";
+import { getDefaultPositions, ALLOWED_TOOLTIP_POSITION_IDS } from "../utils/default-positions";
 
 import { TooltipComponent } from "./tooltip.component";
 
@@ -60,19 +60,17 @@ export class TooltipDirective implements OnInit {
     this.hideTooltip();
   }
 
-  private computePositions(pref: string) {
-    const allowedPositions = defaultPositions.filter(
-      (p) =>
-        p.id === "left-center" ||
-        p.id === "right-center" ||
-        p.id === "above-center" ||
-        p.id === "below-center",
+  private computePositions(tooltipPosition: string) {
+    const allowedPositions = getDefaultPositions("bit-tooltip").filter((position) =>
+      ALLOWED_TOOLTIP_POSITION_IDS.includes(position.id),
     );
-    const chosenPosition = allowedPositions.find((p) => p.id === pref);
+    const chosenPosition = allowedPositions.find((position) => position.id === tooltipPosition);
     return chosenPosition ? [chosenPosition, ...allowedPositions] : allowedPositions;
   }
 
   get positions() {
+    const defaultPositions = getDefaultPositions("bit-tooltip");
+
     if (!this.tooltipPosition()) {
       return defaultPositions;
     }

@@ -12,7 +12,8 @@ import {
 } from "@angular/core";
 import { Observable, Subscription, filter, mergeWith } from "rxjs";
 
-import { defaultPositions } from "./default-positions";
+import { getDefaultPositions } from "../utils/default-positions";
+
 import { PopoverComponent } from "./popover.component";
 
 @Directive({
@@ -33,6 +34,7 @@ export class PopoverTriggerForDirective implements OnDestroy, AfterViewInit {
   private closedEventsSub: Subscription | null = null;
 
   get positions() {
+    const defaultPositions = getDefaultPositions("bit-popover");
     if (!this.position()) {
       return defaultPositions;
     }
