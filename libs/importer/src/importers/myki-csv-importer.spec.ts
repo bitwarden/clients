@@ -468,8 +468,8 @@ describe("Myki CSV Importer", () => {
     const cipher = result.ciphers.shift();
 
     expect(cipher.name).toEqual("2FA nickname");
-    expect(cipher.login.username).toBeNull();
-    expect(cipher.login.password).toBeNull();
+    expect(cipher.login.username).toBeUndefined();
+    expect(cipher.login.password).toBeUndefined();
     expect(cipher.login.totp).toBe("someTOTPSeed");
     expect(cipher.notes).toEqual("Additional information field content.");
 

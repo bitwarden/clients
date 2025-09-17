@@ -193,7 +193,6 @@ export abstract class BaseImporter {
       if (this.isNullOrWhitespace(loginUri.uri)) {
         return null;
       }
-      loginUri.match = null;
       return [loginUri];
     }
 
@@ -205,7 +204,6 @@ export abstract class BaseImporter {
         if (this.isNullOrWhitespace(loginUri.uri)) {
           return;
         }
-        loginUri.match = null;
         returnArr.push(loginUri);
       });
       return returnArr.length === 0 ? null : returnArr;
