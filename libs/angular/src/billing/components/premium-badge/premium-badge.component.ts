@@ -15,11 +15,11 @@ import { BadgeModule } from "@bitwarden/components";
   imports: [BadgeModule, JslibModule],
 })
 export class PremiumBadgeComponent {
-  orgId = input<string>();
+  organizationId = input<string>();
 
   constructor(private premiumUpgradePromptService: PremiumUpgradePromptService) {}
 
   async promptForPremium() {
-    await this.premiumUpgradePromptService.promptForPremium(this.orgId());
+    await this.premiumUpgradePromptService.promptForPremium(this.organizationId());
   }
 }
