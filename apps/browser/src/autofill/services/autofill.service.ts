@@ -2513,6 +2513,7 @@ export default class AutofillService implements AutofillServiceInterface {
       "label-tag",
       "placeholder",
       "label-left",
+      "label-right",
       "label-top",
       "label-aria",
       "dataSetValues",
@@ -2609,7 +2610,7 @@ export default class AutofillService implements AutofillServiceInterface {
   }
 
   /**
-   * Updates a fill script to place the `cilck_on_opid`, `focus_on_opid`, and `fill_by_opid`
+   * Updates a fill script to place the `click_on_opid`, `focus_on_opid`, and `fill_by_opid`
    * fill script actions associated with the provided field.
    * @param {AutofillScript} fillScript
    * @param {AutofillField} field
