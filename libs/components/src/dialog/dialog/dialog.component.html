@@ -65,9 +65,10 @@
       }"
     >
       <ng-content select="[bitDialogContent]"></ng-content>
+      <div #scrollBottom></div>
     </div>
   </div>
-
+  @let isScrollable = isScrollable$ | async;
   @let showFooterBorder =
     (!bodyHasScrolledFrom().top && isScrollable) || bodyHasScrolledFrom().bottom;
   <footer

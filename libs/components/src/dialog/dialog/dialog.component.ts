@@ -8,14 +8,18 @@ import {
   viewChild,
   input,
   booleanAttribute,
-  AfterViewInit,
+  ElementRef,
+  DestroyRef,
 } from "@angular/core";
+import { toObservable } from "@angular/core/rxjs-interop";
+import { combineLatest, switchMap } from "rxjs";
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { BitIconButtonComponent } from "../../icon-button/icon-button.component";
 import { SpinnerComponent } from "../../spinner";
 import { TypographyDirective } from "../../typography/typography.directive";
+import { hasScrollableContent$ } from "../../utils/";
 import { hasScrolledFrom } from "../../utils/has-scrolled-from";
 import { fadeIn } from "../animations";
 import { DialogRef } from "../dialog.service";
@@ -41,11 +45,22 @@ import { DialogTitleContainerDirective } from "../directives/dialog-title-contai
     SpinnerComponent,
   ],
 })
-export class DialogComponent implements AfterViewInit {
-  protected dialogRef = inject(DialogRef, { optional: true });
+export class DialogComponent {
+  private readonly destroyRef = inject(DestroyRef);
   private scrollableBody = viewChild.required(CdkScrollable);
+  private scrollBottom = viewChild.required<ElementRef<HTMLDivElement>>("scrollBottom");
+
+  protected dialogRef = inject(DialogRef, { optional: true });
   protected bodyHasScrolledFrom = hasScrolledFrom(this.scrollableBody);
-  protected isScrollable = false;
+
+  private scrollableBody$ = toObservable(this.scrollableBody);
+  private scrollBottom$ = toObservable(this.scrollBottom);
+
+  protected isScrollable$ = combineLatest([this.scrollableBody$, this.scrollBottom$]).pipe(
+    switchMap(([body, bottom]) =>
+      hasScrollableContent$(body.getElementRef().nativeElement, bottom.nativeElement),
+    ),
+  );
 
   /** Background color */
   readonly background = input<"default" | "alt">("default");
@@ -106,14 +121,5 @@ export class DialogComponent implements AfterViewInit {
         return "md:tw-max-w-xl";
       }
     }
-  }
-
-  ngAfterViewInit() {
-    this.isScrollable = this.canScroll();
-  }
-
-  canScroll(): boolean {
-    const el = this.scrollableBody().getElementRef().nativeElement as HTMLElement;
-    return el.scrollHeight > el.clientHeight;
   }
 }
