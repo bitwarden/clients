@@ -129,7 +129,7 @@ export const LongTitle: Story = {
   },
 };
 
-export const LongTitleMultiline: Story = {
+export const LongTitleSentence: Story = {
   ...Default,
   args: {
     dialogSize: "small",
