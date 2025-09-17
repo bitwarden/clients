@@ -25,7 +25,7 @@ import { SshKeyView } from "./ssh-key.view";
 export class CipherView implements View, InitializerMetadata {
   readonly initializerKey = InitializerKey.CipherView;
 
-  id?: string;
+  id: string = "";
   organizationId?: string;
   folderId?: string;
   name: string = "";
@@ -189,7 +189,7 @@ export class CipherView implements View, InitializerMetadata {
 
     const view = new CipherView();
     view.type = obj.type ?? CipherType.Login;
-    view.id = obj.id;
+    view.id = obj.id ?? "";
     view.name = obj.name ?? "";
     if (obj.creationDate) {
       view.creationDate = new Date(obj.creationDate);

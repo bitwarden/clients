@@ -1088,7 +1088,7 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
 
     // Allow restore of an Unassigned Item
     try {
-      if (c.id == null) {
+      if (c.id == null || c.id === "") {
         throw new Error("Cipher must have an Id to be restored");
       }
       const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
