@@ -62,7 +62,7 @@ export class CardDetailsSectionComponent implements OnInit {
 
   /** Available Card Brands */
   readonly cardBrands = [
-    { name: "-- " + this.i18nService.t("select") + " --", value: "" },
+    { name: "-- " + this.i18nService.t("select") + " --", value: null },
     { name: "Visa", value: "Visa" },
     { name: "Mastercard", value: "Mastercard" },
     { name: "American Express", value: "Amex" },
