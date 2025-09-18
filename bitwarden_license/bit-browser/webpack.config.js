@@ -10,4 +10,10 @@ module.exports = buildConfig({
     entry: "../../bitwarden_license/bit-browser/src/platform/background.ts",
   },
   tsConfig: "../../bitwarden_license/bit-browser/tsconfig.json",
+  importAliases: [
+    {
+      name: "@bitwarden/sdk-internal",
+      alias: require.resolve("@bitwarden/bit-sdk-internal"),
+    },
+  ],
 });
