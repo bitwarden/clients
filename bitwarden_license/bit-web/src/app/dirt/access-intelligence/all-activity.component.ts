@@ -42,23 +42,24 @@ export class AllActivityComponent implements OnInit {
         (await firstValueFrom(
           this.organizationService.organizations$(userId).pipe(getById(organizationId)),
         )) ?? null;
+
+      combineLatest([
+        this.dataService.applications$,
+        this.criticalAppsService.getAppsListForOrg(organizationId as OrganizationId),
+      ])
+        .pipe(
+          takeUntilDestroyed(this.destroyRef),
+          switchMap(([apps, criticalApps]) => {
+            const atRiskMembers = this.reportService.generateAtRiskMemberList(apps ?? []);
+            return of({ apps, atRiskMembers, criticalApps });
+          }),
+        )
+        .subscribe(({ apps, atRiskMembers, criticalApps }) => {
+          this.noData$.next((apps?.length ?? 0) === 0);
+          this.atRiskMemberCount = atRiskMembers?.length ?? 0;
+          this.criticalApplicationsCount = criticalApps?.length ?? 0;
+        });
     }
-    combineLatest([
-      this.dataService.applications$,
-      this.criticalAppsService.getAppsListForOrg(organizationId as OrganizationId),
-    ])
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        switchMap(([apps, criticalApps]) => {
-          const atRiskMembers = this.reportService.generateAtRiskMemberList(apps ?? []);
-          return of({ apps, atRiskMembers, criticalApps });
-        }),
-      )
-      .subscribe(({ apps, atRiskMembers, criticalApps }) => {
-        this.noData$.next((apps?.length ?? 0) === 0);
-        this.atRiskMemberCount = atRiskMembers?.length ?? 0;
-        this.criticalApplicationsCount = criticalApps?.length ?? 0;
-      });
   }
 
   constructor(
