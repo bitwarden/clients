@@ -150,6 +150,7 @@ export class OssServeConfigurator {
       this.serviceContainer.cipherService,
       this.serviceContainer.accountService,
       this.serviceContainer.cipherAuthorizationService,
+      this.serviceContainer.cipherArchiveService,
     );
     this.shareCommand = new ShareCommand(
       this.serviceContainer.cipherService,
