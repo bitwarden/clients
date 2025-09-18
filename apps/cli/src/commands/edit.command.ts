@@ -9,6 +9,7 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { SelectionReadOnlyRequest } from "@bitwarden/common/admin-console/models/request/selection-read-only.request";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { CipherExport } from "@bitwarden/common/models/export/cipher.export";
 import { CollectionExport } from "@bitwarden/common/models/export/collection.export";
@@ -40,6 +41,7 @@ export class EditCommand {
     private accountService: AccountService,
     private cliRestrictedItemTypesService: CliRestrictedItemTypesService,
     private policyService: PolicyService,
+    private billingAccountProfileStateService: BillingAccountProfileStateService,
   ) {}
 
   async run(
@@ -92,6 +94,10 @@ export class EditCommand {
   private async editCipher(id: string, req: CipherExport) {
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const cipher = await this.cipherService.get(id, activeUserId);
+    const hasPremium = await firstValueFrom(
+      this.billingAccountProfileStateService.hasPremiumFromAnySource$(activeUserId),
+    );
+
     if (cipher == null) {
       return Response.notFound();
     }
@@ -101,6 +107,14 @@ export class EditCommand {
       return Response.badRequest("You may not edit a deleted item. Use the restore command first.");
     }
     cipherView = CipherExport.toView(req, cipherView);
+
+    // When a user is editing an archived cipher and does not have premium, automatically unarchive it
+    if (cipherView.isArchived && !hasPremium) {
+      CliUtils.writeLn(
+        "Archive is only available with a Premium subscription, which has ended. Your edit was saved and the item was moved back to your vault.",
+      );
+      cipherView.archivedDate = null;
+    }
 
     const isCipherRestricted =
       await this.cliRestrictedItemTypesService.isCipherRestricted(cipherView);
