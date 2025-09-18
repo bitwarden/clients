@@ -98,7 +98,9 @@ export class SshAgentService implements OnDestroy {
         // switchMap is used here to prevent multiple requests from being processed at the same time,
         // and will cancel the previous request if a new one is received.
         switchMap(([message, status, account]) => {
+          let wasLocked = false;
           if (status !== AuthenticationStatus.Unlocked) {
+            wasLocked = true;
             ipc.platform.focusWindow();
             this.toastService.showToast({
               variant: "info",
@@ -127,20 +129,20 @@ export class SshAgentService implements OnDestroy {
 
                 throw error;
               }),
-              map(() => [message, account.id]),
+              map(() => [message, account.id, wasLocked]),
             );
           }
 
-          return of([message, account.id]);
+          return of([message, account.id, wasLocked]);
         }),
         // This switchMap handles fetching the ciphers from the vault.
-        switchMap(([message, userId]: [Record<string, unknown>, UserId]) =>
+        switchMap(([message, userId, wasLocked]: [Record<string, unknown>, UserId, boolean]) =>
           from(this.cipherService.getAllDecrypted(userId)).pipe(
-            map((ciphers) => [message, ciphers] as const),
+            map((ciphers) => [message, ciphers, wasLocked] as const),
           ),
         ),
         // This concatMap handles showing the dialog to approve the request.
-        concatMap(async ([message, ciphers]) => {
+        concatMap(async ([message, ciphers, wasLocked]) => {
           const cipherId = message.cipherId as string;
           const isListRequest = message.isListRequest as boolean;
           const requestId = message.requestId as number;
@@ -164,6 +166,9 @@ export class SshAgentService implements OnDestroy {
             });
             await ipc.platform.sshAgent.setKeys(keys);
             await ipc.platform.sshAgent.signRequestResponse(requestId, true);
+            if (wasLocked) {
+              ipc.platform.minimizeWindow();
+            }
             return;
           }
 
@@ -175,6 +180,7 @@ export class SshAgentService implements OnDestroy {
 
           if (await this.needsAuthorization(cipherId, isAgentForwarding)) {
             ipc.platform.focusWindow();
+            wasLocked = true;
             const cipher = ciphers.find((cipher) => cipher.id == cipherId);
             const dialogRef = ApproveSshRequestComponent.open(
               this.dialogService,
@@ -183,6 +189,9 @@ export class SshAgentService implements OnDestroy {
               isAgentForwarding,
               namespace,
             );
+            if (wasLocked) {
+              ipc.platform.minimizeWindow();
+            }
 
             if (await firstValueFrom(dialogRef.closed)) {
               await this.rememberAuthorization(cipherId);
