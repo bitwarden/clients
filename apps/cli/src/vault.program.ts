@@ -75,6 +75,7 @@ export class VaultProgram extends BaseProgram {
         "Filter items or collections by organization id.",
       )
       .option("--trash", "Filter items that are deleted and in the trash.")
+      .option("--archived", "Filter items that are archived.")
       .on("--help", () => {
         writeLn("\n  Notes:");
         writeLn("");
@@ -118,6 +119,7 @@ export class VaultProgram extends BaseProgram {
           this.serviceContainer.accountService,
           this.serviceContainer.keyService,
           this.serviceContainer.cliRestrictedItemTypesService,
+          this.serviceContainer.cipherArchiveService,
         );
         const response = await command.run(object, cmd);
 

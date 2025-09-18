@@ -21,6 +21,7 @@ import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folde
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { KeyService } from "@bitwarden/key-management";
+import { CipherArchiveService } from "@bitwarden/vault";
 
 import { CollectionResponse } from "../admin-console/models/response/collection.response";
 import { OrganizationUserResponse } from "../admin-console/models/response/organization-user.response";
@@ -45,6 +46,7 @@ export class ListCommand {
     private accountService: AccountService,
     private keyService: KeyService,
     private cliRestrictedItemTypesService: CliRestrictedItemTypesService,
+    private cipherArchiveService: CipherArchiveService,
   ) {}
 
   async run(object: string, cmdOptions: Record<string, any>): Promise<Response> {
@@ -71,8 +73,13 @@ export class ListCommand {
     let ciphers: CipherView[];
 
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    const userCanArchive = await firstValueFrom(
+      this.cipherArchiveService.userCanArchive$(activeUserId),
+    );
 
     options.trash = options.trash || false;
+    options.archived = userCanArchive && options.archived;
+
     if (options.url != null && options.url.trim() !== "") {
       ciphers = await this.cipherService.getAllDecryptedForUrl(options.url, activeUserId);
     } else {
@@ -85,9 +92,12 @@ export class ListCommand {
       options.organizationId != null
     ) {
       ciphers = ciphers.filter((c) => {
-        if (options.trash !== c.isDeleted) {
+        const matchesStateOptions = this.matchesStateOptions(c, options);
+
+        if (!matchesStateOptions) {
           return false;
         }
+
         if (options.folderId != null) {
           if (options.folderId === "notnull" && c.folderId != null) {
             return true;
@@ -131,11 +141,16 @@ export class ListCommand {
         return false;
       });
     } else if (options.search == null || options.search.trim() === "") {
-      ciphers = ciphers.filter((c) => options.trash === c.isDeleted);
+      ciphers = ciphers.filter((c) => this.matchesStateOptions(c, options));
     }
 
     if (options.search != null && options.search.trim() !== "") {
-      ciphers = this.searchService.searchCiphersBasic(ciphers, options.search, options.trash);
+      ciphers = this.searchService.searchCiphersBasic(
+        ciphers,
+        options.search,
+        options.trash,
+        options.archived,
+      );
     }
 
     ciphers = await this.cliRestrictedItemTypesService.filterRestrictedCiphers(ciphers);
@@ -287,6 +302,17 @@ export class ListCommand {
     const res = new ListResponse(organizations.map((o) => new OrganizationResponse(o)));
     return Response.success(res);
   }
+
+  /**
+   * Checks if the cipher passes either the trash or the archive options.
+   * @returns true if the cipher passes *any* of the filters
+   */
+  private matchesStateOptions(c: CipherView, options: Options): boolean {
+    const passesTrashFilter = options.trash && c.isDeleted;
+    const passesArchivedFilter = options.archived && c.isArchived;
+
+    return passesTrashFilter || passesArchivedFilter;
+  }
 }
 
 class Options {
@@ -296,6 +322,7 @@ class Options {
   search: string;
   url: string;
   trash: boolean;
+  archived: boolean;
 
   constructor(passedOptions: Record<string, any>) {
     this.organizationId = passedOptions?.organizationid || passedOptions?.organizationId;
@@ -304,5 +331,6 @@ class Options {
     this.search = passedOptions?.search;
     this.url = passedOptions?.url;
     this.trash = CliUtils.convertBooleanOption(passedOptions?.trash);
+    this.archived = CliUtils.convertBooleanOption(passedOptions?.archived);
   }
 }
