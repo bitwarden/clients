@@ -1,4 +1,5 @@
 import { Injectable } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { BehaviorSubject, Observable, combineLatest, fromEvent, map, startWith } from "rxjs";
 
 @Injectable({
@@ -9,14 +10,18 @@ export class SideNavService {
   open$ = this._open$.asObservable();
 
   isOverlay$ = combineLatest([this.open$, media("(max-width: 768px)")]).pipe(
-    map(([open, isSmallScreen]) => {
-      if (open && isSmallScreen) {
-        this.setClose();
-        return false;
-      }
-      return open;
-    }),
+    map(([open, isSmallScreen]) => open && isSmallScreen),
   );
+
+  private isSmallScreen$ = media("(max-width: 768px)");
+
+  constructor() {
+    this.isSmallScreen$.pipe(takeUntilDestroyed()).subscribe((isSmallScreen) => {
+      if (isSmallScreen) {
+        this.setClose();
+      }
+    });
+  }
 
   get open() {
     return this._open$.getValue();
