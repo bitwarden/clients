@@ -13,6 +13,8 @@ import { isDev } from "../utils";
 
 import { WindowMain } from "./window.main";
 
+const LOG_MESSAGE_CONTENT = false;
+
 export class NativeMessagingMain {
   private ipcServer: ipc.IpcServer | null;
   private connected: number[] = [];
@@ -97,7 +99,9 @@ export class NativeMessagingMain {
         case ipc.IpcMessageType.Message:
           try {
             const msgJson = JSON.parse(msg.message);
-            this.logService.debug("Native messaging message:", msgJson);
+            if (LOG_MESSAGE_CONTENT) {
+              this.logService.debug("Native messaging message:", msgJson);
+            }
             this.windowMain.win?.webContents.send("nativeMessaging", msgJson);
           } catch (e) {
             this.logService.warning("Error processing message:", e, msg.message);
@@ -124,7 +128,9 @@ export class NativeMessagingMain {
   }
 
   send(message: object) {
-    this.logService.debug("Native messaging reply:", message);
+    if (LOG_MESSAGE_CONTENT) {
+      this.logService.debug("Native messaging reply:", message);
+    }
     this.ipcServer?.send(JSON.stringify(message));
   }
 
