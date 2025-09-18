@@ -375,7 +375,7 @@ export class VaultProgram extends BaseProgram {
     return new Command("restore")
       .argument("<object>", "Valid objects are: " + restoreObjects.join(", "))
       .argument("<id>", "Object's globally unique `id`.")
-      .description("Restores an object from the trash.")
+      .description("Restores an object from the trash or archive.")
       .on("--help", () => {
         writeLn("\n  Examples:");
         writeLn("");
@@ -392,6 +392,7 @@ export class VaultProgram extends BaseProgram {
           this.serviceContainer.cipherService,
           this.serviceContainer.accountService,
           this.serviceContainer.cipherAuthorizationService,
+          this.serviceContainer.cipherArchiveService,
         );
         const response = await command.run(object, id);
         this.processResponse(response);
