@@ -2,6 +2,9 @@
   "allApplications": {
     "message": "All applications"
   },
+  "activity": {
+    "message": "Activity"
+  },
   "appLogoLabel": {
     "message": "Bitwarden logo"
   },

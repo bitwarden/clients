@@ -105,6 +105,11 @@ export class PopupRouterCacheService {
    * Navigate back in history
    */
   async back() {
+    if (!BrowserPopupUtils.inPopup(window)) {
+      this.location.back();
+      return;
+    }
+
     const history = await this.state.update((prevState) =>
       prevState ? prevState.slice(0, -1) : [],
     );
