@@ -40,7 +40,7 @@ import {
 } from "../models/password-health";
 import {
   ApplicationHealthReportDetail,
-  ApplicationHealthReportSummary,
+  OrganizationReportSummary,
   AtRiskMemberDetail,
   AtRiskApplicationDetail,
   RiskInsightsReportData,
@@ -63,7 +63,7 @@ export class RiskInsightsReportService {
   private riskInsightsReportSubject = new BehaviorSubject<ApplicationHealthReportDetail[]>([]);
   riskInsightsReport$ = this.riskInsightsReportSubject.asObservable();
 
-  private riskInsightsSummarySubject = new BehaviorSubject<ApplicationHealthReportSummary>({
+  private riskInsightsSummarySubject = new BehaviorSubject<OrganizationReportSummary>({
     totalMemberCount: 0,
     totalAtRiskMemberCount: 0,
     totalApplicationCount: 0,
@@ -190,9 +190,7 @@ export class RiskInsightsReportService {
    * @param reports The previously calculated application health report data
    * @returns A summary object containing report totals
    */
-  generateApplicationsSummary(
-    reports: ApplicationHealthReportDetail[],
-  ): ApplicationHealthReportSummary {
+  generateApplicationsSummary(reports: ApplicationHealthReportDetail[]): OrganizationReportSummary {
     const totalMembers = reports.flatMap((x) => x.memberDetails);
     const uniqueMembers = getUniqueMembers(totalMembers);
 

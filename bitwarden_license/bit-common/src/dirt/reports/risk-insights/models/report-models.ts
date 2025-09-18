@@ -90,7 +90,7 @@ export type CipherApplicationView = {
  * total at risk members, application, and at risk application
  * counts. Aggregated from all calculated applications
  */
-export type ApplicationHealthReportSummary = {
+export type OrganizationReportSummary = {
   totalMemberCount: number;
   totalAtRiskMemberCount: number;
   totalApplicationCount: number;
@@ -138,7 +138,7 @@ export type PasswordHealthReportApplicationId = Opaque<string, "PasswordHealthRe
 // -------------------- Risk Insights Report Models --------------------
 export interface RiskInsightsReportData {
   data: ApplicationHealthReportDetailEnriched[];
-  summary: ApplicationHealthReportSummary;
+  summary: OrganizationReportSummary;
 }
 export interface RiskInsightsReport {
   organizationId: OrganizationId;
@@ -157,6 +157,6 @@ export type ReportResult = CipherView & {
 
 export type ReportDetailsAndSummary = {
   data: ApplicationHealthReportDetailEnriched[];
-  summary: ApplicationHealthReportSummary;
+  summary: OrganizationReportSummary;
   dateCreated: Date;
 };
