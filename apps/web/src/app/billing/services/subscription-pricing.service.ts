@@ -1,4 +1,3 @@
-import { formatCurrency } from "@angular/common";
 import { Injectable } from "@angular/core";
 import { combineLatest, from, map, Observable, of, shareReplay } from "rxjs";
 import { catchError } from "rxjs/operators";
@@ -32,25 +31,26 @@ export class SubscriptionPricingService {
     combineLatest([this.premium$, this.families$]).pipe(
       catchError((error: unknown) => {
         this.logService.error(error);
-        this.toastService.showToast({
-          variant: "error",
-          title: "",
-          message: this.i18nService.t("unexpectedError"),
-        });
-        return [];
+        this.showUnexpectedErrorToast();
+        return of([]);
       }),
     );
 
   getBusinessSubscriptionPricingTiers$ = (): Observable<BusinessSubscriptionPricingTier[]> =>
-    combineLatest([this.teams$, this.enterprise$]).pipe(
+    combineLatest([this.teams$, this.enterprise$, this.custom$]).pipe(
       catchError((error: unknown) => {
         this.logService.error(error);
-        this.toastService.showToast({
-          variant: "error",
-          title: "",
-          message: this.i18nService.t("unexpectedError"),
-        });
-        return [];
+        this.showUnexpectedErrorToast();
+        return of([]);
+      }),
+    );
+
+  getDeveloperSubscriptionPricingTiers$ = (): Observable<BusinessSubscriptionPricingTier[]> =>
+    combineLatest([this.free$, this.teams$, this.enterprise$]).pipe(
+      catchError((error: unknown) => {
+        this.logService.error(error);
+        this.showUnexpectedErrorToast();
+        return of([]);
       }),
     );
 
@@ -62,28 +62,25 @@ export class SubscriptionPricingService {
     // premium plan is not configured server-side so for now, hardcode it
     basePrice: 10,
     additionalStoragePricePerGb: 4,
-    baseStorageGb: 1,
   }).pipe(
-    map((details) => {
-      return {
-        id: PersonalSubscriptionPricingTierIds.Premium,
-        name: this.i18nService.t("planNamePremium"),
-        description: this.i18nService.t("planDescPremium"),
-        availableCadences: [SubscriptionCadenceIds.Annually],
-        passwordManager: {
-          type: "standalone",
-          monthlyCost: details.basePrice / 12,
-          monthlyCostPerAdditionalStorageGB: details.additionalStoragePricePerGb / 12,
-          features: [
-            this.featureTranslations.builtInAuthenticator(),
-            this.featureTranslations.encryptedFileStorage(details.baseStorageGb),
-            this.featureTranslations.emergencyAccess(),
-            this.featureTranslations.breachMonitoring(),
-            this.featureTranslations.andMoreFeatures(),
-          ],
-        },
-      };
-    }),
+    map((details) => ({
+      id: PersonalSubscriptionPricingTierIds.Premium,
+      name: this.i18nService.t("premium"),
+      description: this.i18nService.t("planDescPremium"),
+      availableCadences: [SubscriptionCadenceIds.Annually],
+      passwordManager: {
+        type: "standalone",
+        monthlyCost: details.basePrice / 12,
+        monthlyCostPerAdditionalStorageGB: details.additionalStoragePricePerGb / 12,
+        features: [
+          this.featureTranslations.builtInAuthenticator(),
+          this.featureTranslations.secureFileStorage(),
+          this.featureTranslations.emergencyAccess(),
+          this.featureTranslations.breachMonitoring(),
+          this.featureTranslations.andMoreFeatures(),
+        ],
+      },
+    })),
   );
 
   private families$: Observable<PersonalSubscriptionPricingTier> = this.plansResponse$.pipe(
@@ -93,7 +90,7 @@ export class SubscriptionPricingService {
       return {
         id: PersonalSubscriptionPricingTierIds.Families,
         name: this.i18nService.t("planNameFamilies"),
-        description: this.i18nService.t("planDescFamilies"),
+        description: this.i18nService.t("planDescFamiliesV2"),
         availableCadences: [SubscriptionCadenceIds.Annually],
         passwordManager: {
           type: "packaged",
@@ -103,17 +100,37 @@ export class SubscriptionPricingService {
             familiesPlan.PasswordManager.additionalStoragePricePerGb / 12,
           features: [
             this.featureTranslations.premiumAccounts(),
-            this.featureTranslations.createUnlimitedCollections(),
-            this.featureTranslations.unlimitedSharing(),
-            this.featureTranslations.addShareLimitedUsers(familiesPlan.PasswordManager.maxSeats),
-            this.featureTranslations.createUnlimitedCollections(),
-            this.featureTranslations.encryptedFileStorage(
-              familiesPlan.PasswordManager.baseStorageGb,
-            ),
-            this.featureTranslations.optionalSelfHost(),
-            this.featureTranslations.usersGetPremium(),
-            this.featureTranslations.priorityCustomerSupport(),
-            this.featureTranslations.freeTrial(familiesPlan.trialPeriodDays),
+            this.featureTranslations.familiesUnlimitedSharing(),
+            this.featureTranslations.familiesUnlimitedCollections(),
+            this.featureTranslations.familiesSharedStorage(),
+          ],
+        },
+      };
+    }),
+  );
+
+  private free$: Observable<BusinessSubscriptionPricingTier> = this.plansResponse$.pipe(
+    map((plans) => {
+      const freePlan = plans.data.find((plan) => plan.type === PlanType.Free)!;
+
+      return {
+        id: BusinessSubscriptionPricingTierIds.Free,
+        name: this.i18nService.t("planNameFree"),
+        description: this.i18nService.t("planDescFreeV2", "1"),
+        availableCadences: [],
+        passwordManager: {
+          type: "free",
+          features: [
+            this.featureTranslations.limitedUsersV2(freePlan.PasswordManager.maxSeats),
+            this.featureTranslations.limitedCollectionsV2(freePlan.PasswordManager.maxCollections),
+            this.featureTranslations.alwaysFree(),
+          ],
+        },
+        secretsManager: {
+          type: "free",
+          features: [
+            this.featureTranslations.twoSecretsIncluded(),
+            this.featureTranslations.projectsIncludedV2(freePlan.SecretsManager.maxProjects),
           ],
         },
       };
@@ -127,7 +144,7 @@ export class SubscriptionPricingService {
       return {
         id: BusinessSubscriptionPricingTierIds.Teams,
         name: this.i18nService.t("planNameTeams"),
-        description: this.i18nService.t("planDescTeams"),
+        description: this.i18nService.t("teamsPlanUpgradeMessage"),
         availableCadences: [SubscriptionCadenceIds.Annually, SubscriptionCadenceIds.Monthly],
         passwordManager: {
           type: "scalable",
@@ -135,16 +152,22 @@ export class SubscriptionPricingService {
           monthlyCostPerAdditionalStorageGB:
             annualTeamsPlan.PasswordManager.additionalStoragePricePerGb / 12,
           features: [
-            this.featureTranslations.addShareUnlimitedUsers(),
-            this.featureTranslations.createUnlimitedCollections(),
-            this.featureTranslations.encryptedFileStorage(
-              annualTeamsPlan.PasswordManager.baseStorageGb,
+            this.featureTranslations.secureItemSharing(),
+            this.featureTranslations.eventLogMonitoring(),
+            this.featureTranslations.directoryIntegration(),
+            this.featureTranslations.scimSupport(),
+          ],
+        },
+        secretsManager: {
+          type: "scalable",
+          monthlyCostPerUser: annualTeamsPlan.SecretsManager.seatPrice / 12,
+          monthlyCostPerAdditionalServiceAccount:
+            annualTeamsPlan.SecretsManager.additionalPricePerServiceAccount / 12,
+          features: [
+            this.featureTranslations.unlimitedSecretsAndProjects(),
+            this.featureTranslations.includedMachineAccountsV2(
+              annualTeamsPlan.SecretsManager.baseServiceAccount,
             ),
-            this.featureTranslations.controlAccessWithGroups(),
-            this.featureTranslations.syncUsersFromDirectory(),
-            this.featureTranslations.usersGetPremium(),
-            this.featureTranslations.priorityCustomerSupport(),
-            this.featureTranslations.freeTrial(annualTeamsPlan.trialPeriodDays),
           ],
         },
       };
@@ -160,144 +183,182 @@ export class SubscriptionPricingService {
       return {
         id: BusinessSubscriptionPricingTierIds.Enterprise,
         name: this.i18nService.t("planNameEnterprise"),
-        description: this.i18nService.t("planDesc"),
-        availableCadences: ["annually", "monthly"],
+        description: this.i18nService.t("planDescEnterpriseV2"),
+        availableCadences: [SubscriptionCadenceIds.Annually, SubscriptionCadenceIds.Monthly],
         passwordManager: {
           type: "scalable",
           monthlyCostPerUser: annualEnterprisePlan.PasswordManager.seatPrice / 12,
           monthlyCostPerAdditionalStorageGB:
             annualEnterprisePlan.PasswordManager.additionalStoragePricePerGb / 12,
           features: [
-            this.featureTranslations.allTeamsFeaturesPlus(),
-            this.featureTranslations.optionalSelfHost(),
-            this.featureTranslations.ssoAuthentication(),
-            this.featureTranslations.enterprisePolicies(),
-            this.featureTranslations.freeTrial(annualEnterprisePlan.trialPeriodDays),
+            this.featureTranslations.enterpriseSecurityPolicies(),
+            this.featureTranslations.passwordLessSso(),
+            this.featureTranslations.accountRecovery(),
+            this.featureTranslations.selfHostOption(),
+            this.featureTranslations.complimentaryFamiliesPlan(),
+          ],
+        },
+        secretsManager: {
+          type: "scalable",
+          monthlyCostPerUser: annualEnterprisePlan.SecretsManager.seatPrice / 12,
+          monthlyCostPerAdditionalServiceAccount:
+            annualEnterprisePlan.SecretsManager.additionalPricePerServiceAccount / 12,
+          features: [
+            this.featureTranslations.unlimitedUsers(),
+            this.featureTranslations.includedMachineAccountsV2(
+              annualEnterprisePlan.SecretsManager.baseServiceAccount,
+            ),
           ],
         },
       };
     }),
   );
 
+  private custom$: Observable<BusinessSubscriptionPricingTier> = this.plansResponse$.pipe(
+    map(() => ({
+      id: BusinessSubscriptionPricingTierIds.Custom,
+      name: this.i18nService.t("planNameCustom"),
+      description: this.i18nService.t("planDescCustom"),
+      availableCadences: [],
+      passwordManager: {
+        type: "custom",
+        features: [
+          this.featureTranslations.strengthenCybersecurity(),
+          this.featureTranslations.boostProductivity(),
+          this.featureTranslations.seamlessIntegration(),
+        ],
+      },
+    })),
+  );
+
+  private showUnexpectedErrorToast() {
+    this.toastService.showToast({
+      variant: "error",
+      title: "",
+      message: this.i18nService.t("unexpectedError"),
+    });
+  }
+
   private featureTranslations = {
-    limitedUsers: (users: number) => ({
-      key: "limitedUsers",
-      value: this.i18nService.t("limitedUsers", users),
+    builtInAuthenticator: () => ({
+      key: "builtInAuthenticator",
+      value: this.i18nService.t("builtInAuthenticator"),
     }),
-    limitedCollections: (collections: number) => ({
-      key: "limitedCollections",
-      value: this.i18nService.t("limitedCollections", collections),
+    emergencyAccess: () => ({
+      key: "emergencyAccess",
+      value: this.i18nService.t("emergencyAccess"),
     }),
-    addShareLimitedUsers: (users: number) => ({
-      key: "addShareLimitedUsers",
-      value: this.i18nService.t("addShareLimitedUsers", users),
+    breachMonitoring: () => ({
+      key: "breachMonitoring",
+      value: this.i18nService.t("breachMonitoring"),
     }),
-    createUnlimitedCollections: () => ({
-      key: "createUnlimitedCollections",
-      value: this.i18nService.t("createUnlimitedCollections"),
+    andMoreFeatures: () => ({
+      key: "andMoreFeatures",
+      value: this.i18nService.t("andMoreFeatures"),
     }),
-    encryptedFileStorage: (storageGB: number) => ({
-      key: "gbEncryptedFileStorage",
-      value: this.i18nService.t("gbEncryptedFileStorage", storageGB + "GB"),
+    premiumAccounts: () => ({
+      key: "premiumAccounts",
+      value: this.i18nService.t("premiumAccounts"),
     }),
-    optionalSelfHost: () => ({
-      key: "onPremHostingOptional",
-      value: this.i18nService.t("onPremHostingOptional"),
+    unlimitedSharing: () => ({
+      key: "unlimitedSharing",
+      value: this.i18nService.t("unlimitedSharing"),
     }),
-    usersGetPremium: () => ({
-      key: "usersGetPremium",
-      value: this.i18nService.t("usersGetPremium"),
+    secureFileStorage: () => ({
+      key: "secureFileStorage",
+      value: this.i18nService.t("secureFileStorage"),
     }),
-    priorityCustomerSupport: () => ({
-      key: "priorityCustomerSupport",
-      value: this.i18nService.t("priorityCustomerSupport"),
+    familiesUnlimitedSharing: () => ({
+      key: "familiesUnlimitedSharing",
+      value: this.i18nService.t("familiesUnlimitedSharing"),
     }),
-    freeTrial: (days: number) => ({
-      key: "xDayFreeTrial",
-      value: this.i18nService.t("xDayFreeTrial", days),
+    familiesUnlimitedCollections: () => ({
+      key: "familiesUnlimitedCollections",
+      value: this.i18nService.t("familiesUnlimitedCollections"),
     }),
-    addShareUnlimitedUsers: () => ({
-      key: "addShareUnlimitedUsers",
-      value: this.i18nService.t("addShareUnlimitedUsers"),
+    familiesSharedStorage: () => ({
+      key: "familiesSharedStorage",
+      value: this.i18nService.t("familiesSharedStorage"),
     }),
-    controlAccessWithGroups: () => ({
-      key: "controlAccessWithGroups",
-      value: this.i18nService.t("controlAccessWithGroups"),
+    limitedUsersV2: (users: number) => ({
+      key: "limitedUsersV2",
+      value: this.i18nService.t("limitedUsersV2", users),
     }),
-    syncUsersFromDirectory: () => ({
-      key: "syncUsersFromDirectory",
-      value: this.i18nService.t("syncUsersFromDirectory"),
+    limitedCollectionsV2: (collections: number) => ({
+      key: "limitedCollectionsV2",
+      value: this.i18nService.t("limitedCollectionsV2", collections),
     }),
-    allTeamsFeaturesPlus: () => ({
-      key: "includeAllTeamsFeatures",
-      value: this.i18nService.t("includeAllTeamsFeatures"),
+    alwaysFree: () => ({
+      key: "alwaysFree",
+      value: this.i18nService.t("alwaysFree"),
     }),
-    ssoAuthentication: () => ({
-      key: "includeSsoAuthentication",
-      value: this.i18nService.t("includeSsoAuthentication"),
+    twoSecretsIncluded: () => ({
+      key: "twoSecretsIncluded",
+      value: this.i18nService.t("twoSecretsIncluded"),
     }),
-    enterprisePolicies: () => ({
-      key: "includeEnterprisePolicies",
-      value: this.i18nService.t("includeEnterprisePolicies"),
+    projectsIncludedV2: (projects: number) => ({
+      key: "projectsIncludedV2",
+      value: this.i18nService.t("projectsIncludedV2", projects),
     }),
-    unlimitedSecrets: () => ({
-      key: "unlimitedSecrets",
-      value: this.i18nService.t("unlimitedSecrets"),
+    secureItemSharing: () => ({
+      key: "secureItemSharing",
+      value: this.i18nService.t("secureItemSharing"),
     }),
-    limitedProjects: (projects: number) => ({
-      key: "projectsIncluded",
-      value: this.i18nService.t("projectsIncluded", projects),
+    eventLogMonitoring: () => ({
+      key: "eventLogMonitoring",
+      value: this.i18nService.t("eventLogMonitoring"),
     }),
-    unlimitedProjects: () => ({
-      key: "unlimitedProjects",
-      value: this.i18nService.t("unlimitedProjects"),
+    directoryIntegration: () => ({
+      key: "directoryIntegration",
+      value: this.i18nService.t("directoryIntegration"),
     }),
-    includedMachineAccounts: (machineAccounts: number) => ({
-      key: "machineAccountsIncluded",
-      value: this.i18nService.t("machineAccountsIncluded", machineAccounts),
+    scimSupport: () => ({
+      key: "scimSupport",
+      value: this.i18nService.t("scimSupport"),
     }),
-    additionalMachineAccounts: (monthlyCostPerAccount: number) => {
-      const cost = formatCurrency(monthlyCostPerAccount, "en-US", "$");
-      return {
-        key: "additionalMachineAccountCost",
-        value: this.i18nService.t("additionalMachineAccountCost", cost!),
-      };
-    },
-    builtInAuthenticator: () => {
-      return {
-        key: "builtInAuthenticator",
-        value: this.i18nService.t("builtInAuthenticator"),
-      };
-    },
-    emergencyAccess: () => {
-      return {
-        key: "emergencyAccess",
-        value: this.i18nService.t("emergencyAccess"),
-      };
-    },
-    breachMonitoring: () => {
-      return {
-        key: "breachMonitoring",
-        value: this.i18nService.t("breachMonitoring"),
-      };
-    },
-    andMoreFeatures: () => {
-      return {
-        key: "andMoreFeatures",
-        value: this.i18nService.t("andMoreFeatures"),
-      };
-    },
-    premiumAccounts: () => {
-      return {
-        key: "premiumAccounts",
-        value: this.i18nService.t("premiumAccounts"),
-      };
-    },
-    unlimitedSharing: () => {
-      return {
-        key: "unlimitedSharing",
-        value: this.i18nService.t("unlimitedSharing"),
-      };
-    },
+    unlimitedSecretsAndProjects: () => ({
+      key: "unlimitedSecretsAndProjects",
+      value: this.i18nService.t("unlimitedSecretsAndProjects"),
+    }),
+    includedMachineAccountsV2: (included: number) => ({
+      key: "includedMachineAccountsV2",
+      value: this.i18nService.t("includedMachineAccountsV2", included),
+    }),
+    enterpriseSecurityPolicies: () => ({
+      key: "enterpriseSecurityPolicies",
+      value: this.i18nService.t("enterpriseSecurityPolicies"),
+    }),
+    passwordLessSso: () => ({
+      key: "passwordLessSso",
+      value: this.i18nService.t("passwordLessSso"),
+    }),
+    accountRecovery: () => ({
+      key: "accountRecovery",
+      value: this.i18nService.t("accountRecovery"),
+    }),
+    selfHostOption: () => ({
+      key: "selfHostOption",
+      value: this.i18nService.t("selfHostOption"),
+    }),
+    complimentaryFamiliesPlan: () => ({
+      key: "complimentaryFamiliesPlan",
+      value: this.i18nService.t("complimentaryFamiliesPlan"),
+    }),
+    unlimitedUsers: () => ({
+      key: "unlimitedUsers",
+      value: this.i18nService.t("unlimitedUsers"),
+    }),
+    strengthenCybersecurity: () => ({
+      key: "strengthenCybersecurity",
+      value: this.i18nService.t("strengthenCybersecurity"),
+    }),
+    boostProductivity: () => ({
+      key: "boostProductivity",
+      value: this.i18nService.t("boostProductivity"),
+    }),
+    seamlessIntegration: () => ({
+      key: "seamlessIntegration",
+      value: this.i18nService.t("seamlessIntegration"),
+    }),
   };
 }

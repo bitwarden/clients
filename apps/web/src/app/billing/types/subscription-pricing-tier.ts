@@ -7,6 +7,7 @@ export const BusinessSubscriptionPricingTierIds = {
   Free: "free",
   Teams: "teams",
   Enterprise: "enterprise",
+  Custom: "custom",
 } as const;
 
 export const SubscriptionCadenceIds = {
@@ -46,11 +47,25 @@ type FreePasswordManager = HasFeatures & {
   type: "free";
 };
 
+type CustomPasswordManager = HasFeatures & {
+  type: "custom";
+};
+
 type ScalablePasswordManager = HasFeatures &
   HasAdditionalStorage & {
     type: "scalable";
     monthlyCostPerUser: number;
   };
+
+type FreeSecretsManager = HasFeatures & {
+  type: "free";
+};
+
+type ScalableSecretsManager = HasFeatures & {
+  type: "scalable";
+  monthlyCostPerUser: number;
+  monthlyCostPerAdditionalServiceAccount: number;
+};
 
 export type PersonalSubscriptionPricingTier = {
   id: PersonalSubscriptionPricingTierId;
@@ -65,5 +80,6 @@ export type BusinessSubscriptionPricingTier = {
   name: string;
   description: string;
   availableCadences: SubscriptionCadence[];
-  passwordManager: FreePasswordManager | ScalablePasswordManager;
+  passwordManager: FreePasswordManager | ScalablePasswordManager | CustomPasswordManager;
+  secretsManager?: FreeSecretsManager | ScalableSecretsManager;
 };
