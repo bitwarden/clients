@@ -11344,5 +11344,20 @@
   },
   "verifyNow": {
     "message": "Verify now."
+  },
+  "upgradeToPlan": {
+    "message": "Upgrade to $PLAN$",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Premium"
+      }
+    }
+  },
+    "familiesMembership": {
+    "message": "Families membership"
+  },
+    "familiesUpdated":{
+    "message": "You've upgraded to Families!"
   }
 }
