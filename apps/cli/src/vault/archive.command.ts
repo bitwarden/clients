@@ -93,6 +93,12 @@ export class ArchiveCommand {
       case CipherViewLikeUtils.isArchived(cipher): {
         return { canArchive: false, errorMessage: "Item is already archived." };
       }
+      case CipherViewLikeUtils.isDeleted(cipher): {
+        return {
+          canArchive: false,
+          errorMessage: "Item is in the trash, the item must be restored before archiving.",
+        };
+      }
       case cipher.organizationId != null: {
         return { canArchive: false, errorMessage: "Cannot archive items in an organization." };
       }
