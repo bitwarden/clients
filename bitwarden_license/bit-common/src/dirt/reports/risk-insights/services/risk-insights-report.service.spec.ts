@@ -120,9 +120,9 @@ describe("RiskInsightsReportService", () => {
       const appCom = result.find((r) => r.applicationName === "app.com");
       const otherCom = result.find((r) => r.applicationName === "other.com");
       expect(appCom).toBeTruthy();
-      expect(appCom.passwordCount).toBe(2);
+      expect(appCom?.passwordCount).toBe(2);
       expect(otherCom).toBeTruthy();
-      expect(otherCom.passwordCount).toBe(1);
+      expect(otherCom?.passwordCount).toBe(1);
       done();
     });
   });
