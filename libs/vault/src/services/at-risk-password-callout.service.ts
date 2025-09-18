@@ -8,12 +8,7 @@ import {
   VAULT_AT_RISK_PASSWORDS_DISK,
 } from "@bitwarden/common/platform/state";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import {
-  SecurityTask,
-  SecurityTaskStatus,
-  SecurityTaskType,
-  TaskService,
-} from "@bitwarden/common/vault/tasks";
+import { SecurityTask, SecurityTaskType, TaskService } from "@bitwarden/common/vault/tasks";
 import { UserId } from "@bitwarden/user-core";
 
 export type AtRiskPasswordCalloutData = {
@@ -48,7 +43,6 @@ export class AtRiskPasswordCalloutService {
 
           return (
             t.type === SecurityTaskType.UpdateAtRiskCredential &&
-            t.status === SecurityTaskStatus.Pending &&
             associatedCipher &&
             !associatedCipher.isDeleted
           );
@@ -57,22 +51,10 @@ export class AtRiskPasswordCalloutService {
     );
   }
 
-  completedTasks$(userId: UserId): Observable<SecurityTask[]> {
-    return combineLatest([
-      this.taskService.completedTasks$(userId),
-      this.cipherService.cipherViews$(userId),
-    ]).pipe(
-      map(([tasks, ciphers]) => {
-        return tasks.filter((t: SecurityTask) => {
-          const associatedCipher = ciphers.find((c) => c.id === t.cipherId);
-
-          return (
-            t.type === SecurityTaskType.UpdateAtRiskCredential &&
-            t.status === SecurityTaskStatus.Completed &&
-            associatedCipher &&
-            !associatedCipher.isDeleted
-          );
-        });
+  completedTasks$(userId: UserId): Observable<SecurityTask | undefined> {
+    return this.taskService.completedTasks$(userId).pipe(
+      map((tasks) => {
+        return tasks.find((t: SecurityTask) => t.type === SecurityTaskType.UpdateAtRiskCredential);
       }),
     );
   }
@@ -85,11 +67,6 @@ export class AtRiskPasswordCalloutService {
     ]).pipe(
       map(([pendingTasks, completedTasks, state]) => {
         const hasPendingTasks = pendingTasks.length > 0;
-        const hasCompletedTasks = completedTasks.length > 0;
-
-        if (state?.tasksBannerDismissed) {
-          return false;
-        }
 
         if (hasPendingTasks) {
           const updateObject = {
@@ -98,8 +75,12 @@ export class AtRiskPasswordCalloutService {
           void this.atRiskPasswordState(userId).update(() => updateObject);
         }
 
+        if (state?.tasksBannerDismissed) {
+          return false;
+        }
+
         // Show banner if there are completed tasks and no pending tasks, and banner hasn't been dismissed
-        return hasCompletedTasks && !hasPendingTasks && !(state?.tasksBannerDismissed ?? false);
+        return !!completedTasks && !hasPendingTasks && !(state?.tasksBannerDismissed ?? false);
       }),
     );
   }

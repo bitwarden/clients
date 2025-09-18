@@ -66,7 +66,7 @@ describe("AtRiskPasswordCalloutService", () => {
   });
 
   describe("completedTasks$", () => {
-    it(" should return ciphers with SecurityTaskStatus Complete and not deleted", async () => {
+    it(" should return true if completed tasks exist", async () => {
       const tasks: SecurityTask[] = [
         {
           id: "t1",
@@ -93,18 +93,13 @@ describe("AtRiskPasswordCalloutService", () => {
           status: SecurityTaskStatus.Completed,
         } as any,
       ];
-      const ciphers = [
-        new MockCipherView("c1", false),
-        new MockCipherView("c2", false),
-        new MockCipherView("c3", true),
-      ];
 
       jest.spyOn(mockTaskService, "completedTasks$").mockReturnValue(of(tasks));
-      jest.spyOn(mockCipherService, "cipherViews$").mockReturnValue(of(ciphers));
 
       const result = await firstValueFrom(service.completedTasks$(userId));
 
-      expect(result.map((t) => t.id)).toEqual(["t1"]);
+      expect(result).toEqual(tasks[0]);
+      expect(result?.id).toBe("t1");
     });
   });
 
