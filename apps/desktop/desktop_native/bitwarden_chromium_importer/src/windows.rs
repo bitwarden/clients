@@ -31,7 +31,6 @@ pub const SUPPORTED_BROWSERS: [BrowserConfig; 5] = [
         data_dir: "AppData/Local/Microsoft/Edge/User Data",
     },
     /* Remove Brave for Windows Desktop clients */
-    
     // BrowserConfig {
     //     name: "Brave",
     //     data_dir: "AppData/Local/BraveSoftware/Brave-Browser/User Data",
