@@ -10,6 +10,7 @@ import {
   ElementRef,
   DestroyRef,
   computed,
+  signal,
 } from "@angular/core";
 import { toObservable } from "@angular/core/rxjs-interop";
 import { combineLatest, switchMap } from "rxjs";

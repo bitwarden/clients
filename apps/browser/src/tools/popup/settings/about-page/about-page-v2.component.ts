@@ -49,7 +49,9 @@ export class AboutPageV2Component {
   ) {}
 
   about() {
-    this.dialogService.open(AboutDialogComponent);
+    this.dialogService.open(AboutDialogComponent, {
+      positionStrategy: this.dialogService.defaultSimpleDialogPositionStrategy,
+    });
   }
 
   async launchHelp() {

@@ -174,6 +174,10 @@ export class DialogService {
   private defaultPositionStrategy = new ResponsivePositionStrategy();
   private activeDrawer: DrawerDialogRef<any, any> | null = null;
 
+  defaultSimpleDialogPositionStrategy = new GlobalPositionStrategy()
+    .centerHorizontally()
+    .centerVertically();
+
   constructor() {
     /**
      * TODO: This logic should exist outside of `libs/components`.
@@ -269,7 +273,7 @@ export class DialogService {
     return this.open<boolean, SimpleDialogOptions>(SimpleConfigurableDialogComponent, {
       data: simpleDialogOptions,
       disableClose: simpleDialogOptions.disableClose,
-      positionStrategy: new GlobalPositionStrategy().centerHorizontally().centerVertically(),
+      positionStrategy: this.defaultSimpleDialogPositionStrategy,
     });
   }
 

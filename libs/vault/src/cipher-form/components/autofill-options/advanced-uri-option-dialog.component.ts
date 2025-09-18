@@ -53,6 +53,7 @@ export class AdvancedUriOptionDialogComponent {
     return dialogService.open<boolean>(AdvancedUriOptionDialogComponent, {
       data: params,
       disableClose: true,
+      positionStrategy: dialogService.defaultSimpleDialogPositionStrategy,
     });
   }
 }
