@@ -559,9 +559,12 @@ export class EventService {
         humanReadableMsg = this.i18nService.t("editedSecretWithId", this.getShortId(ev.secretId));
         break;
       case EventType.Project_Retrieved:
-        msg = this.i18nService.t("accessedProjectWithId", this.formatProjectId(ev, options));
+        msg = this.i18nService.t(
+          "accessedProjectWithIdentifier",
+          this.formatProjectId(ev, options),
+        );
         humanReadableMsg = this.i18nService.t(
-          "accessedProjectWithId",
+          "accessedProjectWithIdentifier",
           this.getShortId(ev.projectId),
         );
         break;
@@ -621,12 +624,12 @@ export class EventService {
         break;
       case EventType.ServiceAccount_GroupAdded:
         msg = this.i18nService.t(
-          "addedGroupToServiceAccountWithIdentifier",
+          "addedGroupToServiceAccountId",
           this.formatGroupId(ev),
           this.formatServiceAccountId(ev, options),
         );
         humanReadableMsg = this.i18nService.t(
-          "addedGroupToServiceAccountWithIdentifier",
+          "addedGroupToServiceAccountId",
           this.formatGroupId(ev),
           this.formatServiceAccountId(ev, options),
         );
