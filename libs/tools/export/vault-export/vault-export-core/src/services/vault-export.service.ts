@@ -1,4 +1,5 @@
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 
 import { ExportedVault } from "../types";
 
@@ -42,7 +43,7 @@ export class VaultExportService implements VaultExportServiceAbstraction {
    * @throws Error if the organization policies prevent the export
    */
   async getOrganizationExport(
-    organizationId: string,
+    organizationId: OrganizationId,
     format: ExportFormat,
     password: string,
     onlyManagedCollections = false,

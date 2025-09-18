@@ -13,10 +13,10 @@ import {
   RiskInsightsReportService,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import {
-  ApplicationHealthReportDetailWithCriticalFlag,
-  ApplicationHealthReportDetailWithCriticalFlagAndCipher,
-  ApplicationHealthReportSummary,
+  LEGACY_ApplicationHealthReportDetailWithCriticalFlag,
+  LEGACY_ApplicationHealthReportDetailWithCriticalFlagAndCipher,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/password-health";
+import { OrganizationReportSummary } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/report-models";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -51,13 +51,13 @@ import { RiskInsightsTabType } from "./risk-insights.component";
 })
 export class CriticalApplicationsComponent implements OnInit {
   protected dataSource =
-    new TableDataSource<ApplicationHealthReportDetailWithCriticalFlagAndCipher>();
+    new TableDataSource<LEGACY_ApplicationHealthReportDetailWithCriticalFlagAndCipher>();
   protected selectedIds: Set<number> = new Set<number>();
   protected searchControl = new FormControl("", { nonNullable: true });
   private destroyRef = inject(DestroyRef);
   protected loading = false;
   protected organizationId: OrganizationId;
-  protected applicationSummary = {} as ApplicationHealthReportSummary;
+  protected applicationSummary = {} as OrganizationReportSummary;
   noItemsIcon = Security;
   enableRequestPasswordChange = false;
 
@@ -79,7 +79,7 @@ export class CriticalApplicationsComponent implements OnInit {
           const data = applications?.map((app) => ({
             ...app,
             isMarkedAsCritical: criticalUrls.includes(app.applicationName),
-          })) as ApplicationHealthReportDetailWithCriticalFlag[];
+          })) as LEGACY_ApplicationHealthReportDetailWithCriticalFlag[];
           return data?.filter((app) => app.isMarkedAsCritical);
         }),
         switchMap(async (data) => {
@@ -200,7 +200,7 @@ export class CriticalApplicationsComponent implements OnInit {
     this.dataService.setDrawerForOrgAtRiskApps(data, invokerId);
   };
 
-  trackByFunction(_: number, item: ApplicationHealthReportDetailWithCriticalFlag) {
+  trackByFunction(_: number, item: LEGACY_ApplicationHealthReportDetailWithCriticalFlag) {
     return item.applicationName;
   }
   isDrawerOpenForTableRow = (applicationName: string) => {

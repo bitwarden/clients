@@ -8,7 +8,7 @@ import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/pass
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 
-import { GetRiskInsightsReportResponse } from "../models/password-health";
+import { GetRiskInsightsReportResponse } from "../models/api-models.types";
 
 import { mockCiphers } from "./ciphers.mock";
 import { MemberCipherDetailsApiService } from "./member-cipher-details-api.service";
@@ -197,7 +197,7 @@ describe("RiskInsightsReportService", () => {
         date: new Date().toISOString(),
         organizationId: "orgId",
         reportData: "encryptedReportData",
-        reportKey: "encryptionKey",
+        contentEncryptionKey: "encryptionKey",
       } as GetRiskInsightsReportResponse;
 
       const organizationId = "orgId" as OrganizationId;
@@ -227,7 +227,7 @@ describe("RiskInsightsReportService", () => {
         date: new Date().toISOString(),
         organizationId: organizationId as OrganizationId,
         reportData: "encryptedReportData",
-        reportKey: "encryptionKey",
+        contentEncryptionKey: "encryptionKey",
       } as GetRiskInsightsReportResponse;
 
       const decryptedReport = {

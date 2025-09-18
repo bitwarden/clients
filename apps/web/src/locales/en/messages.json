@@ -2,6 +2,9 @@
   "allApplications": {
     "message": "All applications"
   },
+  "activity": {
+    "message": "Activity"
+  },
   "appLogoLabel": {
     "message": "Bitwarden logo"
   },
@@ -56,8 +59,20 @@
   "createNewLoginItem": {
     "message": "Create new login item"
   },
+  "criticalApplicationsActivityDescription": {
+    "message": "Once you mark applications critical, they will display here."
+  },
   "criticalApplicationsWithCount": {
     "message": "Critical applications ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfCriticalApplications": {
+    "message": "$COUNT$ critical applications",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -118,6 +133,18 @@
   },
   "atRiskMembers": {
     "message": "At-risk members"
+  },
+  "membersAtRiskActivityDescription":{
+    "message": "Members with edit access to at-risk items for critical applications"
+  },
+  "membersAtRisk": {
+    "message": "$COUNT$ members at risk",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "atRiskMembersWithCount": {
     "message": "At-risk members ($COUNT$)",
@@ -9814,6 +9841,9 @@
   },
   "bearerToken": {
     "message": "Bearer Token"
+  },
+  "repositoryNameHint": {
+    "message": "Name of the repository to ingest into"
   },
   "index": {
     "message": "Index"

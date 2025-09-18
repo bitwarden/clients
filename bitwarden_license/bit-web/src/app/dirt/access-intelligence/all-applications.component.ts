@@ -11,11 +11,13 @@ import {
   RiskInsightsReportService,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import {
-  ApplicationHealthReportDetail,
-  ApplicationHealthReportDetailWithCriticalFlag,
-  ApplicationHealthReportDetailWithCriticalFlagAndCipher,
-  ApplicationHealthReportSummary,
+  LEGACY_ApplicationHealthReportDetailWithCriticalFlag,
+  LEGACY_ApplicationHealthReportDetailWithCriticalFlagAndCipher,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/password-health";
+import {
+  ApplicationHealthReportDetail,
+  OrganizationReportSummary,
+} from "@bitwarden/bit-common/dirt/reports/risk-insights/models/report-models";
 import { RiskInsightsEncryptionService } from "@bitwarden/bit-common/dirt/reports/risk-insights/services/risk-insights-encryption.service";
 import {
   getOrganizationById,
@@ -60,18 +62,23 @@ import { ApplicationsLoadingComponent } from "./risk-insights-loading.component"
 })
 export class AllApplicationsComponent implements OnInit {
   protected dataSource =
-    new TableDataSource<ApplicationHealthReportDetailWithCriticalFlagAndCipher>();
+    new TableDataSource<LEGACY_ApplicationHealthReportDetailWithCriticalFlagAndCipher>();
   protected selectedUrls: Set<string> = new Set<string>();
   protected searchControl = new FormControl("", { nonNullable: true });
   protected loading = true;
   protected organization = new Organization();
   noItemsIcon = Security;
   protected markingAsCritical = false;
-  protected applicationSummary: ApplicationHealthReportSummary = {
+  protected applicationSummary: OrganizationReportSummary = {
     totalMemberCount: 0,
     totalAtRiskMemberCount: 0,
     totalApplicationCount: 0,
     totalAtRiskApplicationCount: 0,
+    totalCriticalMemberCount: 0,
+    totalCriticalAtRiskMemberCount: 0,
+    totalCriticalApplicationCount: 0,
+    totalCriticalAtRiskApplicationCount: 0,
+    newApplications: [],
   };
 
   destroyRef = inject(DestroyRef);
@@ -99,7 +106,7 @@ export class AllApplicationsComponent implements OnInit {
               const data = applications?.map((app) => ({
                 ...app,
                 isMarkedAsCritical: criticalUrls.includes(app.applicationName),
-              })) as ApplicationHealthReportDetailWithCriticalFlag[];
+              })) as LEGACY_ApplicationHealthReportDetailWithCriticalFlag[];
               return { data, organization };
             }
 
