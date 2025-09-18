@@ -1,17 +1,19 @@
-import { PasswordHealthService } from "./password-health.service";
+import { mock } from "jest-mock-extended";
+import { ZXCVBNResult } from "zxcvbn";
+
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { mock } from "jest-mock-extended";
-import { ZXCVBNResult } from "zxcvbn";
+
+import { PasswordHealthService } from "./password-health.service";
 
 describe("PasswordHealthService", () => {
   let service: PasswordHealthService;
 
   // Mock services
-  let passwordStrengthService = mock<PasswordStrengthServiceAbstraction>();
-  let auditService = mock<AuditService>();
+  const passwordStrengthService = mock<PasswordStrengthServiceAbstraction>();
+  const auditService = mock<AuditService>();
 
   // Mock data
   let mockValidCipher: CipherView;
