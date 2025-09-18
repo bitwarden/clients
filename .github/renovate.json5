@@ -324,6 +324,7 @@
         "storybook",
         "tailwindcss",
         "zone.js",
+        "@tailwindcss/container-queries",
       ],
       description: "UI Foundation owned dependencies",
       commitMessagePrefix: "[deps] UI Foundation:",
