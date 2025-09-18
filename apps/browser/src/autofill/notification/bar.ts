@@ -1,6 +1,7 @@
 import { render } from "lit";
 
 import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import type { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 
 import { NotificationCipherData } from "../content/components/cipher/types";
@@ -8,6 +9,7 @@ import { CollectionView, I18n, OrgView } from "../content/components/common-type
 import { AtRiskNotification } from "../content/components/notification/at-risk-password/container";
 import { NotificationConfirmationContainer } from "../content/components/notification/confirmation/container";
 import { NotificationContainer } from "../content/components/notification/container";
+// import { selectedCipher as selectedCipherSignal } from "../content/components/signals/selected-cipher";
 import { selectedFolder as selectedFolderSignal } from "../content/components/signals/selected-folder";
 import { selectedVault as selectedVaultSignal } from "../content/components/signals/selected-vault";
 
@@ -201,7 +203,8 @@ async function initNotificationBar(message: NotificationBarWindowMessage) {
     };
 
     const handleSaveAction = () => {
-      sendSaveCipherMessage(true);
+      // @TODO
+      sendSaveCipherMessage(null, true);
 
       render(
         NotificationContainer({
@@ -278,7 +281,10 @@ async function initNotificationBar(message: NotificationBarWindowMessage) {
   function handleEditOrUpdateAction(e: Event) {
     const notificationType = initData?.type;
     e.preventDefault();
-    notificationType === "add" ? sendSaveCipherMessage(true) : sendSaveCipherMessage(false);
+    // @TODO use cipherId
+    notificationType === "add"
+      ? sendSaveCipherMessage(null, true)
+      : sendSaveCipherMessage(null, false); // change
   }
 }
 
@@ -291,6 +297,7 @@ function handleCloseNotification(e: Event) {
 }
 
 function handleSaveAction(e: Event) {
+  // const selectedCipher = selectedCipherSignal.get();
   const selectedVault = selectedVaultSignal.get();
   const selectedFolder = selectedFolderSignal.get();
 
@@ -304,16 +311,17 @@ function handleSaveAction(e: Event) {
   }
 
   e.preventDefault();
-
-  sendSaveCipherMessage(removeIndividualVault(), selectedFolder);
+  // @TODO
+  sendSaveCipherMessage(null, removeIndividualVault(), selectedFolder);
   if (removeIndividualVault()) {
     return;
   }
 }
 
-function sendSaveCipherMessage(edit: boolean, folder?: string) {
+function sendSaveCipherMessage(cipherId: CipherView["id"] | null, edit: boolean, folder?: string) {
   sendPlatformMessage({
     command: "bgSaveCipher",
+    cipherId,
     folder,
     edit,
   });

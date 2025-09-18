@@ -215,7 +215,6 @@ export default class NotificationBackground {
         const {
           data: { cipherIds },
         } = cipherQueueMessage;
-        cipherView = await this.getDecryptedCipherById(cipherIds[0], activeUserId);
         const cipherViews = await this.cipherService.getAllDecrypted(activeUserId);
         return cipherViews
           .filter((cipher) => cipherIds.includes(cipher.id))
@@ -625,7 +624,7 @@ export default class NotificationBackground {
       return false;
     }
 
-    const username = data.username || null;
+    const username: string | null = data.username || null;
     const currentPassword = data.password || null;
     const newPassword = data.newPassword || null;
 
@@ -650,6 +649,19 @@ export default class NotificationBackground {
           cipher.login.username !== null &&
           cipher.login.username.toLowerCase() === normalizedUsername,
       );
+    }
+
+    if (ciphers.length === 1) {
+      const [cipher] = ciphers;
+      if (
+        username !== null &&
+        newPassword === null &&
+        cipher.login.username === normalizedUsername &&
+        cipher.login.password === currentPassword
+      ) {
+        // Assumed to be a login
+        return false;
+      }
     }
 
     if (currentPassword && !newPassword) {
@@ -759,12 +771,12 @@ export default class NotificationBackground {
       return;
     }
 
-    await this.saveOrUpdateCredentials(sender.tab, message.edit, message.folder);
+    await this.saveOrUpdateCredentials(sender.tab, message.cipherId, message.edit, message.folder);
   }
 
   async handleCipherUpdateRepromptResponse(message: NotificationBackgroundExtensionMessage) {
     if (message.success) {
-      await this.saveOrUpdateCredentials(message.tab, false, undefined, true);
+      await this.saveOrUpdateCredentials(message.tab, message.cipherId, false, undefined, true);
     } else {
       await BrowserApi.tabSendMessageData(message.tab, "saveCipherAttemptCompleted", {
         error: "Password reprompt failed",
@@ -783,6 +795,7 @@ export default class NotificationBackground {
    */
   private async saveOrUpdateCredentials(
     tab: chrome.tabs.Tab,
+    cipherId: CipherView["id"],
     edit: boolean,
     folderId?: string,
     skipReprompt: boolean = false,
@@ -807,9 +820,9 @@ export default class NotificationBackground {
 
       if (queueMessage.type === NotificationType.ChangePassword) {
         const {
-          data: { cipherIds, newPassword },
+          data: { newPassword },
         } = queueMessage;
-        const cipherView = await this.getDecryptedCipherById(cipherIds[0], activeUserId);
+        const cipherView = await this.getDecryptedCipherById(cipherId, activeUserId);
 
         await this.updatePassword(cipherView, newPassword, edit, tab, activeUserId, skipReprompt);
         return;
