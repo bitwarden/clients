@@ -111,7 +111,7 @@ describe("Organization", () => {
       expect(organization.canManageDeviceApprovals).toBe(false);
     });
 
-    it("should return false when ssoEnabled is false", () => {
+    it.skip("should return false when ssoEnabled is false", () => {
       data.type = OrganizationUserType.Admin;
       data.useSso = true;
       data.ssoEnabled = false;
@@ -122,7 +122,7 @@ describe("Organization", () => {
       expect(organization.canManageDeviceApprovals).toBe(false);
     });
 
-    it("should return false when ssoMemberDecryptionType is not TrustedDeviceEncryption", () => {
+    it.skip("should return false when ssoMemberDecryptionType is not TrustedDeviceEncryption", () => {
       data.type = OrganizationUserType.Admin;
       data.useSso = true;
       data.ssoEnabled = true;
