@@ -1,345 +1,153 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, of } from "rxjs";
 
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import {
-  EncryptedString,
-  EncString,
-} from "@bitwarden/common/key-management/crypto/models/enc-string";
-import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
-import { CipherWithIdExport } from "@bitwarden/common/models/export/cipher-with-ids.export";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { UserId } from "@bitwarden/common/types/guid";
-import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
-import { CipherType } from "@bitwarden/common/vault/enums";
-import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
-import { Folder } from "@bitwarden/common/vault/models/domain/folder";
-import { Login } from "@bitwarden/common/vault/models/domain/login";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
-import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
-import {
-  RestrictedCipherType,
-  RestrictedItemTypesService,
-} from "@bitwarden/common/vault/services/restricted-item-types.service";
-import {
-  DEFAULT_KDF_CONFIG,
-  PBKDF2KdfConfig,
-  KdfConfigService,
-  KeyService,
-  KdfType,
-} from "@bitwarden/key-management";
+import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
+import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 
-import { BuildTestObject, GetUniqueString } from "../../../../../../common/spec";
-import { ExportedVault, ExportedVaultAsString } from "../types";
+import { IndividualVaultExportServiceAbstraction } from "./individual-vault-export.service.abstraction";
+import { OrganizationVaultExportServiceAbstraction } from "./org-vault-export.service.abstraction";
+import { VaultExportService } from "./vault-export.service";
 
-import { IndividualVaultExportService } from "./individual-vault-export.service";
-
-const UserCipherViews = [
-  generateCipherView(false),
-  generateCipherView(false),
-  generateCipherView(true),
-];
-
-const UserCipherDomains = [
-  generateCipherDomain(false),
-  generateCipherDomain(false),
-  generateCipherDomain(true),
-];
-
-const UserFolderViews = [generateFolderView(), generateFolderView()];
-
-const UserFolders = [generateFolder(), generateFolder()];
-
-function generateCipherView(deleted: boolean) {
-  return BuildTestObject(
-    {
-      id: GetUniqueString("id"),
-      notes: GetUniqueString("notes"),
-      type: CipherType.Login,
-      login: BuildTestObject<LoginView>(
-        {
-          username: GetUniqueString("username"),
-          password: GetUniqueString("password"),
-        },
-        LoginView,
-      ),
-      collectionIds: null,
-      deletedDate: deleted ? new Date() : null,
-    },
-    CipherView,
-  );
-}
-
-function generateCipherDomain(deleted: boolean) {
-  return BuildTestObject(
-    {
-      id: GetUniqueString("id"),
-      notes: new EncString(GetUniqueString("notes")),
-      type: CipherType.Login,
-      login: BuildTestObject<Login>(
-        {
-          username: new EncString(GetUniqueString("username")),
-          password: new EncString(GetUniqueString("password")),
-        },
-        Login,
-      ),
-      collectionIds: null,
-      deletedDate: deleted ? new Date() : null,
-    },
-    Cipher,
-  );
-}
-
-function generateFolderView() {
-  return BuildTestObject(
-    {
-      id: GetUniqueString("id"),
-      name: GetUniqueString("name"),
-      revisionDate: new Date(),
-    },
-    FolderView,
-  );
-}
-
-function generateFolder() {
-  const actual = Folder.fromJSON({
-    revisionDate: new Date("2022-08-04T01:06:40.441Z").toISOString(),
-    name: "name" as EncryptedString,
-    id: "id",
-  });
-  return actual;
-}
-
-function expectEqualCiphers(ciphers: CipherView[] | Cipher[], jsonResult: string) {
-  const actual = JSON.stringify(JSON.parse(jsonResult).items);
-  const items: CipherWithIdExport[] = [];
-  ciphers.forEach((c: CipherView | Cipher) => {
-    const item = new CipherWithIdExport();
-    item.build(c);
-    items.push(item);
-  });
-
-  expect(actual).toEqual(JSON.stringify(items));
-}
-
-function expectEqualFolderViews(folderViews: FolderView[] | Folder[], jsonResult: string) {
-  const actual = JSON.stringify(JSON.parse(jsonResult).folders);
-  const folders: FolderResponse[] = [];
-  folderViews.forEach((c) => {
-    const folder = new FolderResponse();
-    folder.id = c.id;
-    folder.name = c.name.toString();
-    folders.push(folder);
-  });
-
-  expect(actual.length).toBeGreaterThan(0);
-  expect(actual).toEqual(JSON.stringify(folders));
-}
-
-function expectEqualFolders(folders: Folder[], jsonResult: string) {
-  const actual = JSON.stringify(JSON.parse(jsonResult).folders);
-  const items: Folder[] = [];
-  folders.forEach((c) => {
-    const item = new Folder();
-    item.id = c.id;
-    item.name = c.name;
-    items.push(item);
-  });
-
-  expect(actual.length).toBeGreaterThan(0);
-  expect(actual).toEqual(JSON.stringify(items));
-}
-
+/** Tests the vault export service which handles exporting both individual and organizational vaults */
 describe("VaultExportService", () => {
-  const userId = "" as UserId;
-
-  let exportService: IndividualVaultExportService;
-  let cryptoFunctionService: MockProxy<CryptoFunctionService>;
-  let cipherService: MockProxy<CipherService>;
-  let pinService: MockProxy<PinServiceAbstraction>;
-  let folderService: MockProxy<FolderService>;
-  let keyService: MockProxy<KeyService>;
-  let encryptService: MockProxy<EncryptService>;
-  let kdfConfigService: MockProxy<KdfConfigService>;
-  let apiService: MockProxy<ApiService>;
-  let restrictedItemTypesService: Partial<RestrictedItemTypesService>;
+  let service: VaultExportService;
+  let individualVaultExportService: MockProxy<IndividualVaultExportServiceAbstraction>;
+  let organizationVaultExportService: MockProxy<OrganizationVaultExportServiceAbstraction>;
+  let accountService: FakeAccountService;
+  const mockUserId = Utils.newGuid() as UserId;
+  const mockOrganizationId = Utils.newGuid() as OrganizationId;
 
   beforeEach(() => {
-    cryptoFunctionService = mock<CryptoFunctionService>();
-    cipherService = mock<CipherService>();
-    pinService = mock<PinServiceAbstraction>();
-    folderService = mock<FolderService>();
-    keyService = mock<KeyService>();
-    encryptService = mock<EncryptService>();
-    apiService = mock<ApiService>();
+    individualVaultExportService = mock<IndividualVaultExportServiceAbstraction>();
+    organizationVaultExportService = mock<OrganizationVaultExportServiceAbstraction>();
+    accountService = mockAccountServiceWith(mockUserId);
 
-    kdfConfigService = mock<KdfConfigService>();
-
-    folderService.folderViews$.mockReturnValue(of(UserFolderViews));
-    folderService.folders$.mockReturnValue(of(UserFolders));
-    kdfConfigService.getKdfConfig.mockResolvedValue(DEFAULT_KDF_CONFIG);
-    encryptService.encryptString.mockResolvedValue(new EncString("encrypted"));
-    keyService.userKey$.mockReturnValue(new BehaviorSubject("mockOriginalUserKey" as any));
-
-    restrictedItemTypesService = {
-      restricted$: new BehaviorSubject<RestrictedCipherType[]>([]),
-      isCipherRestricted: jest.fn().mockReturnValue(false),
-      isCipherRestricted$: jest.fn().mockReturnValue(of(false)),
-    };
-
-    exportService = new IndividualVaultExportService(
-      folderService,
-      cipherService,
-      pinService,
-      keyService,
-      encryptService,
-      cryptoFunctionService,
-      kdfConfigService,
-      apiService,
-      restrictedItemTypesService as RestrictedItemTypesService,
+    service = new VaultExportService(
+      individualVaultExportService,
+      organizationVaultExportService,
+      accountService,
     );
   });
 
-  it("exports unencrypted user ciphers", async () => {
-    cipherService.getAllDecrypted.mockResolvedValue(UserCipherViews.slice(0, 1));
+  describe("getExport", () => {
+    it("calls checkForImpersonation with userId", async () => {
+      const spy = jest.spyOn(service as any, "checkForImpersonation");
 
-    const actual = await exportService.getExport(userId, "json");
-    expect(typeof actual.data).toBe("string");
-    const exportedData = actual as ExportedVaultAsString;
-    expectEqualCiphers(UserCipherViews.slice(0, 1), exportedData.data);
-  });
+      await service.getExport(mockUserId, "json", "");
+      expect(spy).toHaveBeenCalledWith(mockUserId);
+    });
 
-  it("exports encrypted json user ciphers", async () => {
-    cipherService.getAll.mockResolvedValue(UserCipherDomains.slice(0, 1));
+    it("validates the given userId matches the current authenticated user", async () => {
+      const anotherUserId = "another-user-id" as UserId;
 
-    const actual = await exportService.getExport(userId, "encrypted_json");
-    expect(typeof actual.data).toBe("string");
-    const exportedData = actual as ExportedVaultAsString;
-    expectEqualCiphers(UserCipherDomains.slice(0, 1), exportedData.data);
-  });
+      await expect(service.getExport(anotherUserId, "json", "")).rejects.toThrow(
+        "UserId does not match the currently authenticated user",
+      );
 
-  it("does not unencrypted export trashed user items", async () => {
-    cipherService.getAllDecrypted.mockResolvedValue(UserCipherViews);
+      expect(individualVaultExportService.getExport).not.toHaveBeenCalledWith(mockUserId, "json");
+    });
 
-    const actual = await exportService.getExport(userId, "json");
-    expect(typeof actual.data).toBe("string");
-    const exportedData = actual as ExportedVaultAsString;
-    expectEqualCiphers(UserCipherViews.slice(0, 2), exportedData.data);
-  });
+    it("calls getExport when password is empty", async () => {
+      await service.getExport(mockUserId, "json", "");
+      expect(individualVaultExportService.getExport).toHaveBeenCalledWith(mockUserId, "json");
+    });
 
-  it("does not encrypted export trashed user items", async () => {
-    cipherService.getAll.mockResolvedValue(UserCipherDomains);
+    it("throws error if format is csv and password is provided", async () => {
+      await expect(service.getExport(mockUserId, "csv", "secret")).rejects.toThrow(
+        "CSV does not support password protected export",
+      );
+      expect(individualVaultExportService.getPasswordProtectedExport).not.toHaveBeenCalled();
+      expect(individualVaultExportService.getExport).not.toHaveBeenCalled();
+    });
 
-    const actual = await exportService.getExport(userId, "encrypted_json");
-    expect(typeof actual.data).toBe("string");
-    const exportedData = actual as ExportedVaultAsString;
-    expectEqualCiphers(UserCipherDomains.slice(0, 2), exportedData.data);
-  });
+    it("calls getPasswordProtectedExport when password is provided and format is not csv", async () => {
+      await service.getExport(mockUserId, "json", "somePassword");
+      expect(individualVaultExportService.getPasswordProtectedExport).toHaveBeenCalledWith(
+        mockUserId,
+        "somePassword",
+      );
+    });
 
-  describe("password protected export", () => {
-    let exportedVault: ExportedVault;
-    let exportString: string;
-    let exportObject: any;
-    let mac: MockProxy<EncString>;
-    let data: MockProxy<EncString>;
-    const password = "password";
-    const salt = "salt";
-
-    describe("export json object", () => {
-      beforeEach(async () => {
-        mac = mock<EncString>();
-        data = mock<EncString>();
-
-        mac.encryptedString = "mac" as EncryptedString;
-        data.encryptedString = "encData" as EncryptedString;
-
-        jest.spyOn(Utils, "fromBufferToB64").mockReturnValue(salt);
-        cipherService.getAllDecrypted.mockResolvedValue(UserCipherViews.slice(0, 1));
-
-        exportedVault = await exportService.getPasswordProtectedExport(userId, password);
-        expect(typeof exportedVault.data).toBe("string");
-        exportString = (exportedVault as ExportedVaultAsString).data;
-        exportObject = JSON.parse(exportString);
-      });
-
-      it("specifies it is encrypted", () => {
-        expect(exportObject.encrypted).toBe(true);
-      });
-
-      it("specifies it's password protected", () => {
-        expect(exportObject.passwordProtected).toBe(true);
-      });
-
-      it("specifies salt", () => {
-        expect(exportObject.salt).toEqual("salt");
-      });
-
-      it("specifies kdfIterations", () => {
-        expect(exportObject.kdfIterations).toEqual(PBKDF2KdfConfig.ITERATIONS.defaultValue);
-      });
-
-      it("has kdfType", () => {
-        expect(exportObject.kdfType).toEqual(KdfType.PBKDF2_SHA256);
-      });
-
-      it("has a mac property", async () => {
-        encryptService.encryptString.mockResolvedValue(mac);
-
-        exportedVault = await exportService.getPasswordProtectedExport(userId, password);
-
-        expect(typeof exportedVault.data).toBe("string");
-        exportString = (exportedVault as ExportedVaultAsString).data;
-        exportObject = JSON.parse(exportString);
-        expect(exportObject.encKeyValidation_DO_NOT_EDIT).toEqual(mac.encryptedString);
-      });
-
-      it("has data property", async () => {
-        encryptService.encryptString.mockResolvedValue(data);
-
-        exportedVault = await exportService.getPasswordProtectedExport(userId, password);
-
-        expect(typeof exportedVault.data).toBe("string");
-        exportString = (exportedVault as ExportedVaultAsString).data;
-        exportObject = JSON.parse(exportString);
-        expect(exportObject.data).toEqual(data.encryptedString);
-      });
-
-      it("encrypts the data property", async () => {
-        const unEncryptedExportVault = await exportService.getExport(userId);
-
-        expect(typeof unEncryptedExportVault.data).toBe("string");
-        const unEncryptedExportString = (unEncryptedExportVault as ExportedVaultAsString).data;
-        expect(exportObject.data).not.toEqual(unEncryptedExportString);
-      });
+    it("uses default format csv if not provided", async () => {
+      await service.getExport(mockUserId);
+      expect(individualVaultExportService.getExport).toHaveBeenCalledWith(mockUserId, "csv");
     });
   });
 
-  it("exported unencrypted object contains folders", async () => {
-    cipherService.getAllDecrypted.mockResolvedValue(UserCipherViews.slice(0, 1));
+  describe("getOrganizationExport", () => {
+    it("calls checkForImpersonation with userId", async () => {
+      const spy = jest.spyOn(service as any, "checkForImpersonation");
 
-    const actual = await exportService.getExport(userId, "json");
+      await service.getOrganizationExport(mockUserId, mockOrganizationId, "json", "");
+      expect(spy).toHaveBeenCalledWith(mockUserId);
+    });
 
-    expect(typeof actual.data).toBe("string");
-    const exportedData = actual as ExportedVaultAsString;
-    expectEqualFolderViews(UserFolderViews, exportedData.data);
-  });
+    it("validates the given userId matches the current authenticated user", async () => {
+      const anotherUserId = "another-user-id" as UserId;
 
-  it("exported encrypted json contains folders", async () => {
-    cipherService.getAll.mockResolvedValue(UserCipherDomains.slice(0, 1));
+      await expect(
+        service.getOrganizationExport(anotherUserId, mockOrganizationId, "json", ""),
+      ).rejects.toThrow("UserId does not match the currently authenticated user");
 
-    const actual = await exportService.getExport(userId, "encrypted_json");
+      expect(organizationVaultExportService.getOrganizationExport).not.toHaveBeenCalledWith(
+        mockUserId,
+        mockOrganizationId,
+        "json",
+      );
+    });
 
-    expect(typeof actual.data).toBe("string");
-    const exportedData = actual as ExportedVaultAsString;
-    expectEqualFolders(UserFolders, exportedData.data);
+    it("calls getOrganizationExport when password is empty", async () => {
+      await service.getOrganizationExport(mockUserId, mockOrganizationId, "json", "");
+      expect(organizationVaultExportService.getOrganizationExport).toHaveBeenCalledWith(
+        mockUserId,
+        mockOrganizationId,
+        "json",
+        false,
+      );
+    });
+
+    it("throws error if format is csv and password is provided", async () => {
+      await expect(
+        service.getOrganizationExport(mockUserId, mockOrganizationId, "csv", "secret"),
+      ).rejects.toThrow("CSV does not support password protected export");
+      expect(organizationVaultExportService.getPasswordProtectedExport).not.toHaveBeenCalled();
+      expect(organizationVaultExportService.getOrganizationExport).not.toHaveBeenCalled();
+    });
+
+    it("calls getPasswordProtectedExport when password is provided and format is not csv", async () => {
+      await service.getOrganizationExport(mockUserId, mockOrganizationId, "json", "somePassword");
+      expect(organizationVaultExportService.getPasswordProtectedExport).toHaveBeenCalledWith(
+        mockUserId,
+        mockOrganizationId,
+        "somePassword",
+        false,
+      );
+    });
+
+    it("when calling getOrganizationExport without a password it passes onlyManagedCollection param on", async () => {
+      await service.getOrganizationExport(mockUserId, mockOrganizationId, "json", "", true);
+      expect(organizationVaultExportService.getOrganizationExport).toHaveBeenCalledWith(
+        mockUserId,
+        mockOrganizationId,
+        "json",
+        true,
+      );
+    });
+
+    it("when calling getOrganizationExport with a password it passes onlyManagedCollection param on", async () => {
+      await service.getOrganizationExport(
+        mockUserId,
+        mockOrganizationId,
+        "json",
+        "somePassword",
+        true,
+      );
+      expect(organizationVaultExportService.getPasswordProtectedExport).toHaveBeenCalledWith(
+        mockUserId,
+        mockOrganizationId,
+        "somePassword",
+        true,
+      );
+    });
   });
 });
-
-export class FolderResponse {
-  id: string = null;
-  name: string = null;
-}
