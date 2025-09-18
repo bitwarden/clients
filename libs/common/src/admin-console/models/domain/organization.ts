@@ -309,12 +309,7 @@ export class Organization {
   }
 
   get canManageDeviceApprovals() {
-    return (
-      (this.isAdmin || this.permissions.manageResetPassword) &&
-      this.useSso &&
-      this.ssoEnabled &&
-      this.ssoMemberDecryptionType === MemberDecryptionType.TrustedDeviceEncryption
-    );
+    return (this.isAdmin || this.permissions.manageResetPassword) && this.useSso;
   }
 
   get isExemptFromPolicies() {

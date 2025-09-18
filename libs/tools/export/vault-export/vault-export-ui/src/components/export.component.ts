@@ -30,10 +30,7 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { PasswordStrengthV2Component } from "@bitwarden/angular/tools/password-strength/password-strength-v2.component";
 import { UserVerificationDialogComponent } from "@bitwarden/auth/angular";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
-import {
-  getOrganizationById,
-  OrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -43,8 +40,10 @@ import { EventType } from "@bitwarden/common/enums";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { getById } from "@bitwarden/common/platform/misc";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { pin } from "@bitwarden/common/tools/rx";
+import { isId, OrganizationId } from "@bitwarden/common/types/guid";
 import {
   AsyncActionsModule,
   BitSubmitDirective,
@@ -85,9 +84,9 @@ import { ExportScopeCalloutComponent } from "./export-scope-callout.component";
   ],
 })
 export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
-  private _organizationId: string;
+  private _organizationId: OrganizationId | undefined;
 
-  get organizationId(): string {
+  get organizationId(): OrganizationId | undefined {
     return this._organizationId;
   }
 
@@ -95,14 +94,23 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
    * Enables the hosting control to pass in an organizationId
    * If a organizationId is provided, the organization selection is disabled.
    */
-  @Input() set organizationId(value: string) {
+  @Input() set organizationId(value: OrganizationId | string | undefined) {
+    if (Utils.isNullOrEmpty(value)) {
+      this._organizationId = undefined;
+      return;
+    }
+
+    if (!isId<OrganizationId>(value)) {
+      this._organizationId = undefined;
+      return;
+    }
+
     this._organizationId = value;
+
     getUserId(this.accountService.activeAccount$)
       .pipe(
         switchMap((userId) =>
-          this.organizationService
-            .organizations$(userId)
-            .pipe(getOrganizationById(this._organizationId)),
+          this.organizationService.organizations$(userId).pipe(getById(this._organizationId)),
         ),
       )
       .pipe(takeUntil(this.destroy$))
@@ -134,11 +142,11 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
 
   /**
    * Emits when the creation and download of the export-file have succeeded
-   * - Emits an null/empty string when exporting from an individual vault
+   * - Emits an undefined when exporting from an individual vault
    * - Emits the organizationId when exporting from an organizationl vault
    * */
   @Output()
-  onSuccessfulExport = new EventEmitter<string>();
+  onSuccessfulExport = new EventEmitter<OrganizationId | undefined>();
 
   @ViewChild(PasswordStrengthV2Component) passwordStrengthComponent: PasswordStrengthV2Component;
 

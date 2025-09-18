@@ -64,7 +64,7 @@ export class OrganizationVaultExportService
    */
   async getPasswordProtectedExport(
     userId: UserId,
-    organizationId: string,
+    organizationId: OrganizationId,
     password: string,
     onlyManagedCollections: boolean,
   ): Promise<ExportedVaultAsString> {
@@ -95,7 +95,7 @@ export class OrganizationVaultExportService
    */
   async getOrganizationExport(
     userId: UserId,
-    organizationId: string,
+    organizationId: OrganizationId,
     format: ExportFormat = "csv",
     onlyManagedCollections: boolean,
   ): Promise<ExportedVaultAsString> {
@@ -128,7 +128,7 @@ export class OrganizationVaultExportService
 
   private async getOrganizationDecryptedExport(
     activeUserId: UserId,
-    organizationId: string,
+    organizationId: OrganizationId,
     format: "json" | "csv",
   ): Promise<string> {
     const decCollections: CollectionView[] = [];
@@ -138,49 +138,42 @@ export class OrganizationVaultExportService
     const restrictions = await firstValueFrom(this.restrictedItemTypesService.restricted$);
 
     promises.push(
-      this.vaultExportApiService
-        .getOrganizationExport(organizationId as OrganizationId)
-        .then((exportData) => {
-          const exportPromises: Promise<void>[] = [];
-          if (exportData != null) {
-            if (exportData.collections != null && exportData.collections.length > 0) {
-              exportData.collections.forEach((c) => {
-                const collection = Collection.fromCollectionData(
-                  new CollectionData(c as CollectionDetailsResponse),
-                );
+      this.vaultExportApiService.getOrganizationExport(organizationId).then((exportData) => {
+        const exportPromises: Promise<void>[] = [];
+        if (exportData != null) {
+          if (exportData.collections != null && exportData.collections.length > 0) {
+            exportData.collections.forEach((c) => {
+              const collection = Collection.fromCollectionData(
+                new CollectionData(c as CollectionDetailsResponse),
+              );
+              exportPromises.push(
+                firstValueFrom(this.keyService.activeUserOrgKeys$)
+                  .then((keys) => collection.decrypt(keys[organizationId], this.encryptService))
+                  .then((decCol) => {
+                    decCollections.push(decCol);
+                  }),
+              );
+            });
+          }
+          if (exportData.ciphers != null && exportData.ciphers.length > 0) {
+            exportData.ciphers
+              .filter((c) => c.deletedDate === null)
+              .forEach(async (c) => {
+                const cipher = new Cipher(new CipherData(c));
                 exportPromises.push(
-                  firstValueFrom(this.keyService.activeUserOrgKeys$)
-                    .then((keys) =>
-                      collection.decrypt(
-                        keys[organizationId as OrganizationId],
-                        this.encryptService,
-                      ),
-                    )
-                    .then((decCol) => {
-                      decCollections.push(decCol);
-                    }),
+                  this.cipherService.decrypt(cipher, activeUserId).then((decCipher) => {
+                    if (
+                      !this.restrictedItemTypesService.isCipherRestricted(decCipher, restrictions)
+                    ) {
+                      decCiphers.push(decCipher);
+                    }
+                  }),
                 );
               });
-            }
-            if (exportData.ciphers != null && exportData.ciphers.length > 0) {
-              exportData.ciphers
-                .filter((c) => c.deletedDate === null)
-                .forEach(async (c) => {
-                  const cipher = new Cipher(new CipherData(c));
-                  exportPromises.push(
-                    this.cipherService.decrypt(cipher, activeUserId).then((decCipher) => {
-                      if (
-                        !this.restrictedItemTypesService.isCipherRestricted(decCipher, restrictions)
-                      ) {
-                        decCiphers.push(decCipher);
-                      }
-                    }),
-                  );
-                });
-            }
           }
-          return Promise.all(exportPromises);
-        }),
+        }
+        return Promise.all(exportPromises);
+      }),
     );
 
     await Promise.all(promises);
@@ -191,15 +184,13 @@ export class OrganizationVaultExportService
     return this.buildJsonExport(decCollections, decCiphers);
   }
 
-  private async getOrganizationEncryptedExport(organizationId: string): Promise<string> {
+  private async getOrganizationEncryptedExport(organizationId: OrganizationId): Promise<string> {
     const collections: Collection[] = [];
     const ciphers: Cipher[] = [];
 
     const restrictions = await firstValueFrom(this.restrictedItemTypesService.restricted$);
 
-    const exportData = await this.vaultExportApiService.getOrganizationExport(
-      organizationId as OrganizationId,
-    );
+    const exportData = await this.vaultExportApiService.getOrganizationExport(organizationId);
 
     if (exportData == null) {
       return;
@@ -229,7 +220,7 @@ export class OrganizationVaultExportService
 
   private async getDecryptedManagedExport(
     activeUserId: UserId,
-    organizationId: string,
+    organizationId: OrganizationId,
     format: "json" | "csv",
   ): Promise<string> {
     let decCiphers: CipherView[] = [];
@@ -271,7 +262,7 @@ export class OrganizationVaultExportService
 
   private async getEncryptedManagedExport(
     activeUserId: UserId,
-    organizationId: string,
+    organizationId: OrganizationId,
   ): Promise<string> {
     let encCiphers: Cipher[] = [];
     let allCiphers: Cipher[] = [];
@@ -308,7 +299,7 @@ export class OrganizationVaultExportService
   }
 
   private async BuildEncryptedExport(
-    organizationId: string,
+    organizationId: OrganizationId,
     collections: Collection[],
     ciphers: Cipher[],
   ): Promise<string> {

@@ -1,4 +1,4 @@
-import { UserId } from "@bitwarden/common/types/guid";
+import { UserId, OrganizationId } from "@bitwarden/common/types/guid";
 
 import { ExportedVault } from "../types";
 
@@ -13,7 +13,7 @@ export abstract class VaultExportServiceAbstraction {
   ) => Promise<ExportedVault>;
   abstract getOrganizationExport: (
     userId: UserId,
-    organizationId: string,
+    organizationId: OrganizationId,
     format: ExportFormat,
     password: string,
     onlyManagedCollections?: boolean,

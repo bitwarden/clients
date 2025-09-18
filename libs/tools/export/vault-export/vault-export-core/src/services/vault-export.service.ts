@@ -3,7 +3,7 @@ import { firstValueFrom } from "rxjs";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { UserId } from "@bitwarden/common/types/guid";
+import { UserId, OrganizationId } from "@bitwarden/common/types/guid";
 
 import { ExportedVault } from "../types";
 
@@ -57,7 +57,7 @@ export class VaultExportService implements VaultExportServiceAbstraction {
    */
   async getOrganizationExport(
     userId: UserId,
-    organizationId: string,
+    organizationId: OrganizationId,
     format: ExportFormat,
     password: string,
     onlyManagedCollections = false,
