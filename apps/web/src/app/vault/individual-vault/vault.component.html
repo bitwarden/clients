@@ -66,8 +66,11 @@
       ></i>
       <span class="tw-sr-only">{{ "loading" | i18n }}</span>
     </div>
-    <div class="tw-mt-6 tw-flex tw-h-full tw-flex-col tw-items-center tw-justify-start">
-      <bit-no-items [icon]="noItemIcon" *ngIf="isEmpty && !performingInitialLoad">
+    <div
+      class="tw-mt-6 tw-flex tw-h-full tw-flex-col tw-items-center tw-justify-start"
+      *ngIf="isEmpty && !performingInitialLoad"
+    >
+      <bit-no-items [icon]="noItemIcon">
         <div slot="title">{{ "noItemsInList" | i18n }}</div>
         <button
           type="button"
