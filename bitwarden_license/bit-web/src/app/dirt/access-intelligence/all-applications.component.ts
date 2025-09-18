@@ -11,11 +11,14 @@ import {
   RiskInsightsReportService,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import {
-  ApplicationHealthReportDetail,
-  ApplicationHealthReportDetailWithCriticalFlag,
-  ApplicationHealthReportDetailWithCriticalFlagAndCipher,
-  ApplicationHealthReportSummary,
+  LEGACY_ApplicationHealthReportDetailWithCriticalFlag,
+  LEGACY_ApplicationHealthReportDetailWithCriticalFlagAndCipher,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/password-health";
+import {
+  ApplicationHealthReportDetail,
+  ApplicationHealthReportSummary,
+} from "@bitwarden/bit-common/dirt/reports/risk-insights/models/report-models";
+import { RiskInsightsEncryptionService } from "@bitwarden/bit-common/dirt/reports/risk-insights/services/risk-insights-encryption.service";
 import {
   getOrganizationById,
   OrganizationService,
@@ -59,7 +62,7 @@ import { ApplicationsLoadingComponent } from "./risk-insights-loading.component"
 })
 export class AllApplicationsComponent implements OnInit {
   protected dataSource =
-    new TableDataSource<ApplicationHealthReportDetailWithCriticalFlagAndCipher>();
+    new TableDataSource<LEGACY_ApplicationHealthReportDetailWithCriticalFlagAndCipher>();
   protected selectedUrls: Set<string> = new Set<string>();
   protected searchControl = new FormControl("", { nonNullable: true });
   protected loading = true;
@@ -98,7 +101,7 @@ export class AllApplicationsComponent implements OnInit {
               const data = applications?.map((app) => ({
                 ...app,
                 isMarkedAsCritical: criticalUrls.includes(app.applicationName),
-              })) as ApplicationHealthReportDetailWithCriticalFlag[];
+              })) as LEGACY_ApplicationHealthReportDetailWithCriticalFlag[];
               return { data, organization };
             }
 
@@ -108,7 +111,7 @@ export class AllApplicationsComponent implements OnInit {
             if (data && organization) {
               const dataWithCiphers = await this.reportService.identifyCiphers(
                 data,
-                organization.id,
+                organization.id as OrganizationId,
               );
 
               return {
@@ -145,6 +148,7 @@ export class AllApplicationsComponent implements OnInit {
     protected reportService: RiskInsightsReportService,
     private accountService: AccountService,
     protected criticalAppsService: CriticalAppsService,
+    protected riskInsightsEncryptionService: RiskInsightsEncryptionService,
   ) {
     this.searchControl.valueChanges
       .pipe(debounceTime(200), takeUntilDestroyed())

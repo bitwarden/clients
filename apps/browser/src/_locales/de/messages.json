@@ -557,7 +557,7 @@
     "message": "Anzeigen"
   },
   "viewLogin": {
-    "message": "View login"
+    "message": "Login ansehen"
   },
   "noItemsInList": {
     "message": "Keine Einträge zum Anzeigen vorhanden."
@@ -5450,10 +5450,10 @@
     "message": "Gefährdetes Passwort ändern"
   },
   "changeAtRiskPasswordAndAddWebsite": {
-    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+    "message": "Dieser Login ist gefährdet und es fehlt eine Website. Fügen Sie eine Website hinzu und ändern Sie das Passwort, um die Sicherheit zu erhöhen."
   },
   "missingWebsite": {
-    "message": "Missing website"
+    "message": "Fehlende Webseite"
   },
   "settingsVaultOptions": {
     "message": "Tresoroptionen"
@@ -5582,7 +5582,7 @@
     "message": "Über diese Einstellung"
   },
   "permitCipherDetailsDescription": {
-    "message": "Bitwarden wird gespeicherte Login-URIs verwenden, um zu ermitteln, welches Symbol oder welche URL zum Ändern des Passworts verwendet werden soll, um Ihr Erlebnus zu verbessern. Bei der Nutzung dieses Dienstes werden keine Informationen erfasst oder gespeichert."
+    "message": "Bitwarden wird gespeicherte Login-URIs verwenden, um zu ermitteln, welches Symbol oder welche URL zum Ändern des Passworts verwendet werden soll, um Ihr Erlebnis zu verbessern. Bei der Nutzung dieses Dienstes werden keine Informationen erfasst oder gespeichert."
   },
   "noPermissionsViewPage": {
     "message": "Du hast keine Berechtigung, diese Seite anzuzeigen. Versuche dich mit einem anderen Konto anzumelden."
@@ -5605,6 +5605,6 @@
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   },
   "confirmKeyConnectorDomain": {
-    "message": "Confirm Key Connector domain"
+    "message": "Bestätige Key Connector Domäne"
   }
 }

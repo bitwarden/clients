@@ -1306,7 +1306,7 @@
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
   "showIconsChangePasswordUrls": {
-    "message": "Rādīt tīmekļvietņu ikonas un iegūt paroles nomaiņas URL"
+    "message": "Show website icons and retrieve change password URLs"
   },
   "enableMinToTray": {
     "message": "Samazināt ikonjoslā"
@@ -3836,6 +3836,12 @@
   "changeAtRiskPassword": {
     "message": "Mainīt riskam pakļautu paroli"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Šis pieteikšanās vienums ir pakļauts riskam, un tam nav norādīta tīmekļvietne. Lielākai drošībai jāpievieno tīmekļvietne un jānomaina parole."
+  },
+  "missingWebsite": {
+    "message": "Nav norādīta tīmekļvietne"
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "Nevar noņemt krājumus ar tiesībām \"Tikai skatīt\": $COLLECTIONS$",
     "placeholders": {
@@ -3932,10 +3938,10 @@
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
   "aboutThisSetting": {
-    "message": "Par šo iestatījumu"
+    "message": "About this setting"
   },
   "permitCipherDetailsDescription": {
-    "message": "Bitwarden izmantos saglabātos pieteikšanās vienuma URI, lai noteiktu, kuru ikonu vai paroles nomaiņas URL izmantot, lai uzlabotu pieredzi. Šī pakalpojuma izmantošanas laikā nekāda informācija netiek ievākta vai saglabāta."
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
   },
   "assignToCollections": {
     "message": "Piešķirt krājumiem"
@@ -4097,12 +4103,12 @@
     "message": "Apstiprināt"
   },
   "enableAutotypeTransitionKey": {
-    "message": "Enable autotype shortcut"
+    "message": "Iespējot automātiskās ievades saīsni"
   },
   "enableAutotypeDescriptionTransitionKey": {
-    "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."
+    "message": "Jāpārliecinās, ka pirms saīsnes izmantošanas kursors ir pareizajā laukā, lai izvairītos no datu ievadīšanas nepareizā vietā."
   },
   "editShortcut": {
-    "message": "Edit shortcut"
+    "message": "Labot saīsni"
   }
 }

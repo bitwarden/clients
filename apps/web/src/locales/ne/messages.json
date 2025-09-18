@@ -86,14 +86,14 @@
   "noAppsInOrgDescription": {
     "message": "As users save logins, applications appear here, showing any at-risk passwords. Mark critical apps and notify users to update passwords."
   },
-  "noCriticalAppsTitle": {
-    "message": "You haven't marked any applications as a Critical"
+  "noCriticalApplicationsTitle": {
+    "message": "You haven’t marked any applications as critical"
   },
-  "noCriticalAppsDescription": {
-    "message": "Select your most critical applications to discover at-risk passwords, and notify users to change those passwords."
+  "noCriticalApplicationsDescription": {
+    "message": "Select your most critical applications to prioritize security actions for your users to address at-risk passwords."
   },
-  "markCriticalApps": {
-    "message": "Mark critical apps"
+  "markCriticalApplications": {
+    "message": "Select critical applications"
   },
   "markAppAsCritical": {
     "message": "Mark app as critical"
@@ -179,8 +179,8 @@
   "unmarkAsCritical": {
     "message": "Unmark as critical"
   },
-  "criticalApplicationSuccessfullyUnmarked": {
-    "message": "Critical application successfully unmarked"
+  "criticalApplicationUnmarkedSuccessfully": {
+    "message": "Successfully unmarked application as critical"
   },
   "whatTypeOfItem": {
     "message": "यो कस्तो प्रकारको वस्तु हो?"
@@ -7430,6 +7430,9 @@
   "off": {
     "message": "Off"
   },
+  "connected": {
+    "message": "Connected"
+  },
   "members": {
     "message": "Members"
   },
@@ -9031,6 +9034,78 @@
       }
     }
   },
+  "limitCollectionCreationEnabled": {
+    "message": "Turned on Restrict collection creation setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationDisabled": {
+    "message": "Turned off Restrict collection creation setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionEnabled": {
+    "message": "Turned on Restrict collection deletion setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionDisabled": {
+    "message": "Turned off Restrict collection deletion setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionEnabled": {
+    "message": "Turned on Restrict item deletion setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionDisabled": {
+    "message": "Turned off Restrict item deletion setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsEnabled": {
+    "message": "Turned on Allow owners and admins to manage all collections and items setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsDisabled": {
+    "message": "Turned off Allow owners and admins to manage all collections and items setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "seeDetailedInstructions": {
     "message": "See detailed instructions on our help site at",
     "description": "This is followed a by a hyperlink to the help website."
@@ -9608,6 +9683,15 @@
   },
   "connectIntegrationButtonDesc": {
     "message": "Connect $INTEGRATION$",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
+  },
+  "updateIntegrationButtonDesc": {
+    "message": "Update $INTEGRATION$",
     "placeholders": {
       "integration": {
         "content": "$1",
@@ -10821,6 +10905,12 @@
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
+  },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Remove Unlock with PIN"
   },
@@ -11165,6 +11255,14 @@
   },
   "confirmKeyConnectorDomain": {
     "message": "Confirm Key Connector domain"
+  },
+  "requiredToVerifyBankAccountWithStripe": {
+    "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
+  },
+  "verifyBankAccountWithStripe": {
+    "message": "We have made a micro-deposit to your bank account. This may take 1-2 business days. When you see the deposit in your account, you can verify your bank account. Failure to verify your bank account will result in a missed payment and your subscription will be suspended."
+  },
+  "verifyNow": {
+    "message": "Verify now."
   }
 }
-

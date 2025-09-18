@@ -10,13 +10,14 @@ import {
   CriticalAppsService,
   RiskInsightsDataService,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights";
+import { PasswordHealthReportApplicationsResponse } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/api-models.types";
 import {
   ApplicationHealthReportDetail,
   DrawerType,
-  PasswordHealthReportApplicationsResponse,
-} from "@bitwarden/bit-common/dirt/reports/risk-insights/models/password-health";
+} from "@bitwarden/bit-common/dirt/reports/risk-insights/models/report-models";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
@@ -29,15 +30,17 @@ import {
 } from "@bitwarden/components";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 
+import { AllActivityComponent } from "./all-activity.component";
 import { AllApplicationsComponent } from "./all-applications.component";
 import { CriticalApplicationsComponent } from "./critical-applications.component";
 
 // FIXME: update to use a const object instead of a typescript enum
 // eslint-disable-next-line @bitwarden/platform/no-enums
 export enum RiskInsightsTabType {
-  AllApps = 0,
-  CriticalApps = 1,
-  NotifiedMembers = 2,
+  AllActivity = 0,
+  AllApps = 1,
+  CriticalApps = 2,
+  NotifiedMembers = 3,
 }
 
 @Component({
@@ -54,10 +57,12 @@ export enum RiskInsightsTabType {
     DrawerComponent,
     DrawerBodyComponent,
     DrawerHeaderComponent,
+    AllActivityComponent,
   ],
 })
 export class RiskInsightsComponent implements OnInit {
   tabIndex: RiskInsightsTabType = RiskInsightsTabType.AllApps;
+  isRiskInsightsActivityTabFeatureEnabled: boolean = false;
 
   dataLastUpdated: Date = new Date();
 
@@ -67,8 +72,9 @@ export class RiskInsightsComponent implements OnInit {
   criticalAppsCount: number = 0;
   notifiedMembersCount: number = 0;
 
-  private organizationId: string | null = null;
+  private organizationId: OrganizationId = "" as OrganizationId;
   private destroyRef = inject(DestroyRef);
+
   isLoading$: Observable<boolean> = new Observable<boolean>();
   isRefreshing$: Observable<boolean> = new Observable<boolean>();
   dataLastUpdated$: Observable<Date | null> = new Observable<Date | null>();
@@ -85,6 +91,14 @@ export class RiskInsightsComponent implements OnInit {
     this.route.queryParams.pipe(takeUntilDestroyed()).subscribe(({ tabIndex }) => {
       this.tabIndex = !isNaN(Number(tabIndex)) ? Number(tabIndex) : RiskInsightsTabType.AllApps;
     });
+
+    this.configService
+      .getFeatureFlag$(FeatureFlag.PM22887_RiskInsightsActivityTab)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((isEnabled) => {
+        this.isRiskInsightsActivityTabFeatureEnabled = isEnabled;
+        this.tabIndex = 0; // default to first tab
+      });
   }
 
   async ngOnInit() {
@@ -94,10 +108,10 @@ export class RiskInsightsComponent implements OnInit {
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         map((params) => params.get("organizationId")),
-        switchMap((orgId: string | null) => {
+        switchMap((orgId) => {
           if (orgId) {
-            this.organizationId = orgId;
-            this.dataService.fetchApplicationsReport(orgId);
+            this.organizationId = orgId as OrganizationId;
+            this.dataService.fetchApplicationsReport(this.organizationId);
             this.isLoading$ = this.dataService.isLoading$;
             this.isRefreshing$ = this.dataService.isRefreshing$;
             this.dataLastUpdated$ = this.dataService.dataLastUpdated$;

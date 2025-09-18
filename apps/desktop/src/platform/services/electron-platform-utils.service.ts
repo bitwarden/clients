@@ -55,6 +55,10 @@ export class ElectronPlatformUtilsService implements PlatformUtilsService {
     return false;
   }
 
+  isChromium(): boolean {
+    return true;
+  }
+
   isMacAppStore(): boolean {
     return ipc.platform.isMacAppStore;
   }

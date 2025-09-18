@@ -86,14 +86,14 @@
   "noAppsInOrgDescription": {
     "message": "När användare sparar inloggningar visas applikationer här och visar eventuella riskfyllda lösenord. Markera kritiska appar och meddela användarna att de ska uppdatera lösenorden."
   },
-  "noCriticalAppsTitle": {
+  "noCriticalApplicationsTitle": {
     "message": "Du har inte markerat några applikationer som kritiska"
   },
-  "noCriticalAppsDescription": {
-    "message": "Välj ut dina mest kritiska applikationer för att upptäcka riskfyllda lösenord och meddela användarna att de ska byta lösenord."
+  "noCriticalApplicationsDescription": {
+    "message": "Välj dina mest kritiska program för att prioritera säkerhetsåtgärder för dina användare att adressera lösenord i riskzonen."
   },
-  "markCriticalApps": {
-    "message": "Markera kritiska applikationer"
+  "markCriticalApplications": {
+    "message": "Välj kritiska applikationer"
   },
   "markAppAsCritical": {
     "message": "Markera app som kritisk"
@@ -179,8 +179,8 @@
   "unmarkAsCritical": {
     "message": "Avmarkera som kritisk"
   },
-  "criticalApplicationSuccessfullyUnmarked": {
-    "message": "Kritisk applikation avmarkerades"
+  "criticalApplicationUnmarkedSuccessfully": {
+    "message": "Avmarkerade applikation som kritisk"
   },
   "whatTypeOfItem": {
     "message": "Vilken typ av objekt är detta?"
@@ -2115,7 +2115,7 @@
     "message": "Ändra språket som används i webbvalvet."
   },
   "showIconsChangePasswordUrls": {
-    "message": "Visa webbplatsikoner och URLer för lösenordsändringar"
+    "message": "Show website icons and retrieve change password URLs"
   },
   "default": {
     "message": "Standard"
@@ -7430,6 +7430,9 @@
   "off": {
     "message": "Av"
   },
+  "connected": {
+    "message": "Connected"
+  },
   "members": {
     "message": "Medlemmar"
   },
@@ -9031,6 +9034,78 @@
       }
     }
   },
+  "limitCollectionCreationEnabled": {
+    "message": "Turned on Restrict collection creation setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationDisabled": {
+    "message": "Turned off Restrict collection creation setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionEnabled": {
+    "message": "Turned on Restrict collection deletion setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionDisabled": {
+    "message": "Turned off Restrict collection deletion setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionEnabled": {
+    "message": "Turned on Restrict item deletion setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionDisabled": {
+    "message": "Turned off Restrict item deletion setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsEnabled": {
+    "message": "Turned on Allow owners and admins to manage all collections and items setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsDisabled": {
+    "message": "Turned off Allow owners and admins to manage all collections and items setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "seeDetailedInstructions": {
     "message": "Se detaljerade instruktioner på vår hjälpsida på",
     "description": "This is followed a by a hyperlink to the help website."
@@ -9608,6 +9683,15 @@
   },
   "connectIntegrationButtonDesc": {
     "message": "Anslut $INTEGRATION$",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
+  },
+  "updateIntegrationButtonDesc": {
+    "message": "Update $INTEGRATION$",
     "placeholders": {
       "integration": {
         "content": "$1",
@@ -10821,6 +10905,12 @@
   "changeAtRiskPassword": {
     "message": "Ändra lösenord för riskgrupper"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Denna inloggning är i riskzonen och saknar en webbplats. Lägg till en webbplats och ändra lösenordet för starkare säkerhet."
+  },
+  "missingWebsite": {
+    "message": "Saknar webbplats"
+  },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Ta bort upplåsning med PIN-kod"
   },
@@ -10997,10 +11087,10 @@
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   },
   "aboutThisSetting": {
-    "message": "Om denna inställning"
+    "message": "About this setting"
   },
   "permitCipherDetailsDescription": {
-    "message": "Bitwarden använder sparade inloggnings-URI: er för att identifiera vilken ikon eller URL för lösenordsändring som ska användas för att förbättra din upplevelse. Ingen information samlas in eller sparas när du använder denna tjänst."
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
   },
   "billingAddress": {
     "message": "Faktureringsadress"
@@ -11165,6 +11255,14 @@
   },
   "confirmKeyConnectorDomain": {
     "message": "Bekräfta Key Connector-domän"
+  },
+  "requiredToVerifyBankAccountWithStripe": {
+    "message": "Betalning med ett bankkonto är endast tillgänglig för kunder i USA. Du kommer att behöva verifiera ditt bankkonto. Vi kommer att göra en mikroinsättning inom de närmaste 1-2 arbetsdagarna. Underlåtenhet att verifiera bankkontot kommer att resultera i en missad betalning och ditt abonnemang stängs av."
+  },
+  "verifyBankAccountWithStripe": {
+    "message": "Vi har gjort en mikroinsättning till ditt bankkonto. Detta kan ta 1-2 arbetsdagar. När du ser insättningen på ditt konto kan du verifiera ditt bankkonto. Underlåtenhet att verifiera ditt bankkonto resulterar i en missad betalning och ditt abonnemang kommer att stängas av."
+  },
+  "verifyNow": {
+    "message": "Verifiera nu."
   }
 }
-

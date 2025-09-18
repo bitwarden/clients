@@ -1306,7 +1306,7 @@
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
   "showIconsChangePasswordUrls": {
-    "message": "Prikaži ikonu web mjesta i dohvati URL za promjenu lozinke"
+    "message": "Show website icons and retrieve change password URLs"
   },
   "enableMinToTray": {
     "message": "Minimiziraj u područje obavijesti"
@@ -3836,6 +3836,12 @@
   "changeAtRiskPassword": {
     "message": "Promijeni rizičnu lozinku"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Ova prijava je ugrožena i nedostaje joj web-stranica. Dodaj web-stranicu i promijeni lozinku za veću sigurnost."
+  },
+  "missingWebsite": {
+    "message": "Nedostaje web-stranica"
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "S dopuštenjima samo za prikaz ne možeš ukloniti zbirke: $COLLECTIONS$",
     "placeholders": {
@@ -3932,10 +3938,10 @@
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
   "aboutThisSetting": {
-    "message": "O ovoj postavci"
+    "message": "About this setting"
   },
   "permitCipherDetailsDescription": {
-    "message": "Bitwarden će koristiti spremljene URI-je za prijavu kako bi identificirao ikonu ili URL za promjenu lozinke koji treba koristiti za poboljšanje tvojeg iskustva. Nikakvi podaci se ne prikupljaju, niti spremaju kada koristiš ovu uslugu."
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
   },
   "assignToCollections": {
     "message": "Dodijeli zbirkama"
@@ -4097,12 +4103,12 @@
     "message": "Potvrdi"
   },
   "enableAutotypeTransitionKey": {
-    "message": "Enable autotype shortcut"
+    "message": "Omogući prečac za automatsko tipkanje"
   },
   "enableAutotypeDescriptionTransitionKey": {
-    "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."
+    "message": "Prije korištenja prečaca provjeri nalaziš li se u ispravnom polju kako se podaci ne bi unijeli na pogrešno mjesto."
   },
   "editShortcut": {
-    "message": "Edit shortcut"
+    "message": "Uredi prečac"
   }
 }

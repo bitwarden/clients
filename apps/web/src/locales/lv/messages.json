@@ -86,14 +86,14 @@
   "noAppsInOrgDescription": {
     "message": "Tiklīdz lietotāji saglabā pieteikšanās vienumus, šeit parādās lietotnes, norādot uz jebkurām riskam pakļautām parolēm. Atzīmēt kritiskās lietotnēs un apziņot lietotājus, lai atjaunina paroles."
   },
-  "noCriticalAppsTitle": {
+  "noCriticalApplicationsTitle": {
     "message": "Neviena lietotne nav atzīmēta kā kritiska"
   },
-  "noCriticalAppsDescription": {
-    "message": "Atlasi kritiskākās lietotnes, la iatklātu riskam pakļautas paroles un apziņotu lietotājus, lai tās nomaina!"
+  "noCriticalApplicationsDescription": {
+    "message": "Atlasi savas visbūtiskākās lietotnes, lai lietotājiem izvirzīdu svarīgas drošības darbības, lai novērstu riskam pakļautas paroles."
   },
-  "markCriticalApps": {
-    "message": "Atzīmēt kritiskās lietotnes"
+  "markCriticalApplications": {
+    "message": "Atlasīt būtiskās lietotnes"
   },
   "markAppAsCritical": {
     "message": "Atzīmēt lietotni kā kritisku"
@@ -179,8 +179,8 @@
   "unmarkAsCritical": {
     "message": "Noņemt kritiskuma atzīmi"
   },
-  "criticalApplicationSuccessfullyUnmarked": {
-    "message": "Kritiskas lietotnes atzīme sekmīgi noņemta"
+  "criticalApplicationUnmarkedSuccessfully": {
+    "message": "Lietotnei sekmīgi noņemta būtiskuma atzīme"
   },
   "whatTypeOfItem": {
     "message": "Kāda veida vienums tas ir?"
@@ -2115,7 +2115,7 @@
     "message": "Nomainīt tīmekļa glabātavā izmantoto valodu."
   },
   "showIconsChangePasswordUrls": {
-    "message": "Rādīt tīmekļvietņu ikonas un iegūt paroles nomaiņas URL"
+    "message": "Show website icons and retrieve change password URLs"
   },
   "default": {
     "message": "Noklusējums"
@@ -7430,6 +7430,9 @@
   "off": {
     "message": "Izslēgts"
   },
+  "connected": {
+    "message": "Connected"
+  },
   "members": {
     "message": "Dalībnieki"
   },
@@ -9031,6 +9034,78 @@
       }
     }
   },
+  "limitCollectionCreationEnabled": {
+    "message": "Turned on Restrict collection creation setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationDisabled": {
+    "message": "Turned off Restrict collection creation setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionEnabled": {
+    "message": "Turned on Restrict collection deletion setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionDisabled": {
+    "message": "Turned off Restrict collection deletion setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionEnabled": {
+    "message": "Turned on Restrict item deletion setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionDisabled": {
+    "message": "Turned off Restrict item deletion setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsEnabled": {
+    "message": "Turned on Allow owners and admins to manage all collections and items setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsDisabled": {
+    "message": "Turned off Allow owners and admins to manage all collections and items setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "seeDetailedInstructions": {
     "message": "Izvērstas norādes ir aplūkojamas mūsu palīdzības vietnē",
     "description": "This is followed a by a hyperlink to the help website."
@@ -9608,6 +9683,15 @@
   },
   "connectIntegrationButtonDesc": {
     "message": "Pieslēgt $INTEGRATION$",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
+  },
+  "updateIntegrationButtonDesc": {
+    "message": "Update $INTEGRATION$",
     "placeholders": {
       "integration": {
         "content": "$1",
@@ -10821,6 +10905,12 @@
   "changeAtRiskPassword": {
     "message": "Mainīt riskam pakļautu paroli"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Šis pieteikšanās vienums ir pakļauts riskam, un tam nav norādīta tīmekļvietne. Lielākai drošībai jāpievieno tīmekļvietne un jānomaina parole."
+  },
+  "missingWebsite": {
+    "message": "Nav norādīta tīmekļvietne"
+  },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Noņemt atslēgšanu ar PIN"
   },
@@ -10997,10 +11087,10 @@
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   },
   "aboutThisSetting": {
-    "message": "Par šo iestatījumu"
+    "message": "About this setting"
   },
   "permitCipherDetailsDescription": {
-    "message": "Bitwarden izmantos saglabātos pieteikšanās vienuma URI, lai noteiktu, kuru ikonu vai paroles nomaiņas URL izmantot, lai uzlabotu pieredzi. Šī pakalpojuma izmantošanas laikā nekāda informācija netiek ievākta vai saglabāta."
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
   },
   "billingAddress": {
     "message": "Norēķinu adrese"
@@ -11165,6 +11255,14 @@
   },
   "confirmKeyConnectorDomain": {
     "message": "Apstiprināt Key Connector domēnu"
+  },
+  "requiredToVerifyBankAccountWithStripe": {
+    "message": "Apmaksa ar bankas kontu ir pieejama tikai klientiem Savienotajās Valstīs. Būs nepieciešams apliecināt savu bankas kontu. Mēs veiksim sīkiemaksu nākamās darba dienas vai divu laikā. Bankas konta apliecināšanas neveikšana beigsies ar nokavētu maksājumu un apturētu abonementu."
+  },
+  "verifyBankAccountWithStripe": {
+    "message": "Mēs veicām sīkiemaksu Tavā bankas kontā. Tas var aizņemt 1 līdz 2 darba dienas. Kad redzēsi iemaksu savā kontā, varēsi apliecināt savu bankas kontu. Bankas konta apliecināšans neveikšana beigsies ar nokavētu maksājumu un apturētu abonementu."
+  },
+  "verifyNow": {
+    "message": "Apliecini tagad!"
   }
 }
-

@@ -557,7 +557,7 @@
     "message": "Prikaz"
   },
   "viewLogin": {
-    "message": "View login"
+    "message": "Prikaži prijavu"
   },
   "noItemsInList": {
     "message": "Nema stavki za prikaz."
@@ -1764,7 +1764,7 @@
     "message": "Ovaj preglednik ne može obraditi U2F zahtjeve u ovom iskočnom prozoru. Želiš li otvoriti ovaj iskočni prozor u novom prozoru za prijavu putem U2F?"
   },
   "showIconsChangePasswordUrls": {
-    "message": "Prikaži ikonu web mjesta i dohvati URL za promjenu lozinke"
+    "message": "Show website icons and retrieve change password URLs"
   },
   "enableBadgeCounter": {
     "message": "Prikaži značku brojača"
@@ -5450,10 +5450,10 @@
     "message": "Promijeni rizičnu lozinku"
   },
   "changeAtRiskPasswordAndAddWebsite": {
-    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+    "message": "Ova prijava je ugrožena i nedostaje joj web-stranica. Dodaj web-stranicu i promijeni lozinku za veću sigurnost."
   },
   "missingWebsite": {
-    "message": "Missing website"
+    "message": "Nedostaje web-stranica"
   },
   "settingsVaultOptions": {
     "message": "Mogućnosti trezora"
@@ -5579,10 +5579,10 @@
     "description": "Aria label for the body content of the generator nudge"
   },
   "aboutThisSetting": {
-    "message": "O ovoj postavci"
+    "message": "About this setting"
   },
   "permitCipherDetailsDescription": {
-    "message": "Bitwarden će koristiti spremljene URI-je za prijavu kako bi identificirao ikonu ili URL za promjenu lozinke koji treba koristiti za poboljšanje tvojeg iskustva. Nikakvi podaci se ne prikupljaju, niti spremaju kada koristiš ovu uslugu."
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
   },
   "noPermissionsViewPage": {
     "message": "Nemaš dozvolu za pregled ove stranice. Pokušaj se prijaviti s drugim računom."

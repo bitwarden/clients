@@ -92,6 +92,7 @@ export interface CollectionDialogParams {
   initialTab?: CollectionDialogTabType;
   parentCollectionId?: string;
   showOrgSelector?: boolean;
+  initialPermission?: CollectionPermission;
   /**
    * Flag to limit the nested collections to only those the user has explicit CanManage access too.
    */
@@ -142,6 +143,7 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
   protected showDeleteButton = false;
   protected showAddAccessWarning = false;
   protected buttonDisplayName: ButtonType = ButtonType.Save;
+  protected initialPermission: CollectionPermission;
   private orgExceedingCollectionLimit!: Organization;
 
   constructor(
@@ -161,6 +163,7 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
     private configService: ConfigService,
   ) {
     this.tabIndex = params.initialTab ?? CollectionDialogTabType.Info;
+    this.initialPermission = params.initialPermission ?? CollectionPermission.View;
   }
 
   async ngOnInit() {

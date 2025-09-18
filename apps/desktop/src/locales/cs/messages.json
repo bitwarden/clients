@@ -3836,6 +3836,12 @@
   "changeAtRiskPassword": {
     "message": "Změnit ohrožené heslo"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Tyto přihlašovací údaje jsou ohrožené a chybí jim webová stránka. Přidejte webovou stránku a změňte heslo pro větší bezpečnost."
+  },
+  "missingWebsite": {
+    "message": "Chybějící webová stránka"
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "Nemůžete odebrat sbírky s oprávněními jen pro zobrazení: $COLLECTIONS$",
     "placeholders": {
