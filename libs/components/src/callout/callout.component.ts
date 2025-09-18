@@ -64,7 +64,7 @@ export class CalloutComponent {
       case "warning":
         return "tw-bg-warning-100 w-bg-warning-100 tw-border-warning-700 tw-text-warning-700";
       case "secondary":
-        return "w-bg-background-alt tw-border-secondary-700 tw-text-secondary-700";
+        return "tw-bg-background-alt tw-border-secondary-700 tw-text-secondary-700";
     }
   });
 }
