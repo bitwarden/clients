@@ -30,6 +30,7 @@ export abstract class SearchService {
     ciphers: C[],
     query: string,
     deleted?: boolean,
+    archived?: boolean,
   ): C[];
   abstract searchSends(sends: SendView[], query: string): SendView[];
 }
