@@ -1,186 +1,136 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { Inject, Injectable } from "@angular/core";
+import { filter, from, map, mergeMap, Observable, toArray } from "rxjs";
 
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
-import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { BadgeVariant } from "@bitwarden/components";
 
-import { MemberCipherDetailsApiService } from "./member-cipher-details-api.service";
+import {
+  ExposedPasswordDetail,
+  WeakPasswordDetail,
+  WeakPasswordScore,
+} from "../models/password-health";
 
-@Injectable()
 export class PasswordHealthService {
-  reportCiphers: CipherView[] = [];
-
-  reportCipherIds: string[] = [];
-
-  passwordStrengthMap = new Map<string, [string, BadgeVariant]>();
-
-  passwordUseMap = new Map<string, number>();
-
-  exposedPasswordMap = new Map<string, number>();
-
-  totalMembersMap = new Map<string, number>();
-
   constructor(
     private passwordStrengthService: PasswordStrengthServiceAbstraction,
     private auditService: AuditService,
-    private cipherService: CipherService,
-    private memberCipherDetailsApiService: MemberCipherDetailsApiService,
-    @Inject("organizationId") private organizationId: string,
   ) {}
 
-  async generateReport() {
-    const allCiphers = await this.cipherService.getAllFromApiForOrganization(this.organizationId);
-    allCiphers.forEach(async (cipher) => {
-      this.findWeakPassword(cipher);
-      this.findReusedPassword(cipher);
-      await this.findExposedPassword(cipher);
-    });
-
-    const memberCipherDetails = await this.memberCipherDetailsApiService.getMemberCipherDetails(
-      this.organizationId,
+  /**
+   * Finds exposed passwords in a list of ciphers.
+   *
+   * @param ciphers The list of ciphers to check.
+   * @returns An observable that emits an array of ExposedPasswordDetail.
+   */
+  auditPasswordLeaks$(ciphers: CipherView[]): Observable<ExposedPasswordDetail[]> {
+    return from(ciphers).pipe(
+      filter((cipher) => this.isValidCipher(cipher)),
+      mergeMap((cipher) =>
+        this.auditService
+          .passwordLeaked(cipher.login.password)
+          .then((exposedCount) => ({ cipher, exposedCount })),
+      ),
+      filter(({ exposedCount }) => exposedCount > 0),
+      map(({ cipher, exposedCount }) => ({
+        exposedXTimes: exposedCount,
+        cipherId: cipher.id,
+      })),
+      toArray(),
     );
-
-    memberCipherDetails.forEach((user) => {
-      user.cipherIds.forEach((cipherId: string) => {
-        if (this.totalMembersMap.has(cipherId)) {
-          this.totalMembersMap.set(cipherId, (this.totalMembersMap.get(cipherId) || 0) + 1);
-        } else {
-          this.totalMembersMap.set(cipherId, 1);
-        }
-      });
-    });
   }
 
-  async findExposedPassword(cipher: CipherView) {
-    const { type, login, isDeleted, viewPassword, id } = cipher;
-    if (
-      type !== CipherType.Login ||
-      login.password == null ||
-      login.password === "" ||
-      isDeleted ||
-      !viewPassword
-    ) {
-      return;
-    }
+  /**
+   * Extracts username parts from the cipher's username.
+   * This is used to help determine password strength.
+   *
+   * @param cipherUsername The username from the cipher.
+   * @returns An array of username parts.
+   */
+  extractUsernameParts(cipherUsername: string) {
+    const atPosition = cipherUsername.indexOf("@");
+    const userNameToProcess =
+      atPosition > -1 ? cipherUsername.substring(0, atPosition) : cipherUsername;
 
-    const exposedCount = await this.auditService.passwordLeaked(login.password);
-    if (exposedCount > 0) {
-      this.exposedPasswordMap.set(id, exposedCount);
-      this.checkForExistingCipher(cipher);
-    }
+    return userNameToProcess
+      .trim()
+      .toLowerCase()
+      .split(/[^A-Za-z0-9]/);
   }
 
-  findReusedPassword(cipher: CipherView) {
-    const { type, login, isDeleted, viewPassword } = cipher;
-    if (
-      type !== CipherType.Login ||
-      login.password == null ||
-      login.password === "" ||
-      isDeleted ||
-      !viewPassword
-    ) {
-      return;
+  /**
+   * Checks if the cipher has a weak password based on the password strength score.
+   *
+   * @param cipher
+   * @returns
+   */
+  findWeakPasswordDetails(cipher: CipherView): WeakPasswordDetail | null {
+    // Validate the cipher
+    if (!this.isValidCipher(cipher)) {
+      return null;
     }
 
-    if (this.passwordUseMap.has(login.password)) {
-      this.passwordUseMap.set(login.password, (this.passwordUseMap.get(login.password) || 0) + 1);
-    } else {
-      this.passwordUseMap.set(login.password, 1);
-    }
+    // Check the username
+    const userInput = this.isUserNameNotEmpty(cipher)
+      ? this.extractUsernameParts(cipher.login.username)
+      : null;
 
-    this.checkForExistingCipher(cipher);
-  }
-
-  findWeakPassword(cipher: CipherView): void {
-    const { type, login, isDeleted, viewPassword } = cipher;
-    if (
-      type !== CipherType.Login ||
-      login.password == null ||
-      login.password === "" ||
-      isDeleted ||
-      !viewPassword
-    ) {
-      return;
-    }
-
-    const hasUserName = this.isUserNameNotEmpty(cipher);
-    let userInput: string[] = [];
-    if (hasUserName) {
-      const atPosition = login.username.indexOf("@");
-      if (atPosition > -1) {
-        userInput = userInput
-          .concat(
-            login.username
-              .substring(0, atPosition)
-              .trim()
-              .toLowerCase()
-              .split(/[^A-Za-z0-9]/),
-          )
-          .filter((i) => i.length >= 3);
-      } else {
-        userInput = login.username
-          .trim()
-          .toLowerCase()
-          .split(/[^A-Za-z0-9]/)
-          .filter((i) => i.length >= 3);
-      }
-    }
     const { score } = this.passwordStrengthService.getPasswordStrength(
-      login.password,
+      cipher.login.password,
       null,
-      userInput.length > 0 ? userInput : null,
+      userInput,
     );
 
+    // If a score is not found or a score is less than 3, it's weak
     if (score != null && score <= 2) {
-      this.passwordStrengthMap.set(cipher.id, this.scoreKey(score));
-      this.checkForExistingCipher(cipher);
+      return { score: score, detailValue: this.getPasswordScoreInfo(score) };
+    }
+    return null;
+  }
+
+  /**
+   * Gets the password score information based on the score.
+   *
+   * @param score
+   * @returns An object containing the label and badge variant for the password score.
+   */
+  getPasswordScoreInfo(score: number): WeakPasswordScore {
+    switch (score) {
+      case 4:
+        return { label: "strong", badgeVariant: "success" };
+      case 3:
+        return { label: "good", badgeVariant: "primary" };
+      case 2:
+        return { label: "weak", badgeVariant: "warning" };
+      default:
+        return { label: "veryWeak", badgeVariant: "danger" };
     }
   }
 
-  private isUserNameNotEmpty(c: CipherView): boolean {
+  /**
+   * Checks if the username on the cipher is not empty.
+   */
+  isUserNameNotEmpty(c: CipherView): boolean {
     return !Utils.isNullOrWhitespace(c.login.username);
   }
 
-  private scoreKey(score: number): [string, BadgeVariant] {
-    switch (score) {
-      case 4:
-        return ["strong", "success"];
-      case 3:
-        return ["good", "primary"];
-      case 2:
-        return ["weak", "warning"];
-      default:
-        return ["veryWeak", "danger"];
+  /**
+   * Validates that the cipher is a login item, has a password
+   * is not deleted, and the user can view the password
+   * @param c the input cipher
+   */
+  isValidCipher(c: CipherView): boolean {
+    const { type, login, isDeleted, viewPassword } = c;
+    if (
+      type !== CipherType.Login ||
+      login.password == null ||
+      login.password === "" ||
+      isDeleted ||
+      !viewPassword
+    ) {
+      return false;
     }
-  }
-
-  checkForExistingCipher(ciph: CipherView) {
-    if (!this.reportCipherIds.includes(ciph.id)) {
-      this.reportCipherIds.push(ciph.id);
-      this.reportCiphers.push(ciph);
-    }
-  }
-
-  groupCiphersByLoginUri(): CipherView[] {
-    const cipherViews: CipherView[] = [];
-    const cipherUris: string[] = [];
-    const ciphers = this.reportCiphers;
-
-    ciphers.forEach((ciph) => {
-      const uris = ciph.login?.uris ?? [];
-      uris.map((u: { uri: string }) => {
-        const uri = Utils.getHostname(u.uri).replace("www.", "");
-        cipherUris.push(uri);
-        cipherViews.push({ ...ciph, hostURI: uri } as CipherView & { hostURI: string });
-      });
-    });
-
-    return cipherViews;
+    return true;
   }
 }
