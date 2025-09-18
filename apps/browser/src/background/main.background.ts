@@ -1549,6 +1549,12 @@ export default class MainBackground {
     }
   }
 
+  async handleVaultAutofillSuggestionUsed(message: { cipherId: string }) {
+    if (this.overlayBackground && message?.cipherId) {
+      await this.overlayBackground.handleAutofillSuggestionUsed(message);
+    }
+  }
+
   /**
    * Switch accounts to indicated userId -- null is no active user
    */
