@@ -110,9 +110,6 @@ describe("SSOLoginService ", () => {
 
       const cacheState = mockStateProvider.global.getFake(SSO_REQUIRED_CACHE);
       expect(cacheState.nextMock).toHaveBeenCalledWith([email.toLowerCase()]);
-
-      const emailState = mockStateProvider.global.getFake(SSO_EMAIL);
-      expect(emailState.nextMock).toHaveBeenCalledWith(null);
     });
 
     it("should add email to existing cache when SSO is required and email is not already present", async () => {
@@ -127,9 +124,6 @@ describe("SSOLoginService ", () => {
 
       const cacheState = mockStateProvider.global.getFake(SSO_REQUIRED_CACHE);
       expect(cacheState.nextMock).toHaveBeenCalledWith([existingEmail, newEmail.toLowerCase()]);
-
-      const emailState = mockStateProvider.global.getFake(SSO_EMAIL);
-      expect(emailState.nextMock).toHaveBeenCalledWith(null);
     });
 
     it("should not add duplicate email to cache when SSO is required", async () => {
@@ -143,9 +137,6 @@ describe("SSOLoginService ", () => {
 
       const cacheState = mockStateProvider.global.getFake(SSO_REQUIRED_CACHE);
       expect(cacheState.nextMock).not.toHaveBeenCalled();
-
-      const emailState = mockStateProvider.global.getFake(SSO_EMAIL);
-      expect(emailState.nextMock).toHaveBeenCalledWith(null);
     });
 
     it("should initialize new cache with email when SSO is required and no cache exists", async () => {
@@ -159,9 +150,6 @@ describe("SSOLoginService ", () => {
 
       const cacheState = mockStateProvider.global.getFake(SSO_REQUIRED_CACHE);
       expect(cacheState.nextMock).toHaveBeenCalledWith([email.toLowerCase()]);
-
-      const emailState = mockStateProvider.global.getFake(SSO_EMAIL);
-      expect(emailState.nextMock).toHaveBeenCalledWith(null);
     });
 
     it("should remove email from cache when SSO is not required", async () => {
@@ -178,9 +166,6 @@ describe("SSOLoginService ", () => {
 
       const cacheState = mockStateProvider.global.getFake(SSO_REQUIRED_CACHE);
       expect(cacheState.nextMock).toHaveBeenCalledWith([remainingEmail]);
-
-      const emailState = mockStateProvider.global.getFake(SSO_EMAIL);
-      expect(emailState.nextMock).toHaveBeenCalledWith(null);
     });
 
     it("should not update cache when SSO is not required and email is not present", async () => {
@@ -195,9 +180,6 @@ describe("SSOLoginService ", () => {
 
       const cacheState = mockStateProvider.global.getFake(SSO_REQUIRED_CACHE);
       expect(cacheState.nextMock).not.toHaveBeenCalled();
-
-      const emailState = mockStateProvider.global.getFake(SSO_EMAIL);
-      expect(emailState.nextMock).toHaveBeenCalledWith(null);
     });
 
     it("should check policy for correct PolicyType and userId", async () => {

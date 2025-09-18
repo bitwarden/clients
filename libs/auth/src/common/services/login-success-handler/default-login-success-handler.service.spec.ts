@@ -108,10 +108,11 @@ describe("DefaultLoginSuccessHandlerService", () => {
           ssoLoginService.getSsoEmail.mockResolvedValue(testEmail);
         });
 
-        it("should call updateSsoRequiredCache()", async () => {
+        it("should call updateSsoRequiredCache() and clearSsoEmail()", async () => {
           await service.run(userId);
 
           expect(ssoLoginService.updateSsoRequiredCache).toHaveBeenCalledWith(testEmail, userId);
+          expect(ssoLoginService.clearSsoEmail).toHaveBeenCalled();
         });
       });
     });

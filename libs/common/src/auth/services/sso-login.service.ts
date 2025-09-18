@@ -123,7 +123,7 @@ export class SsoLoginService implements SsoLoginServiceAbstraction {
     await this.ssoEmailState.update((_) => email);
   }
 
-  private async clearSsoEmail(): Promise<void> {
+  async clearSsoEmail(): Promise<void> {
     await this.ssoEmailState.update((_) => null);
   }
 
@@ -195,8 +195,5 @@ export class SsoLoginService implements SsoLoginServiceAbstraction {
        */
       await this.removeFromSsoRequiredCacheIfPresent(ssoLoginEmail.toLowerCase());
     }
-
-    // Clear the SSO email
-    await this.clearSsoEmail();
   }
 }

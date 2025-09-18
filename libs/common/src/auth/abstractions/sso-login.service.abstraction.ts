@@ -73,6 +73,10 @@ export abstract class SsoLoginServiceAbstraction {
    */
   abstract setSsoEmail: (email: string) => Promise<void>;
   /**
+   * Clear the SSO email
+   */
+  abstract clearSsoEmail: () => Promise<void>;
+  /**
    * Gets the value of the active user's organization sso identifier.
    *
    * This should only be used post successful SSO login once the user is initialized.

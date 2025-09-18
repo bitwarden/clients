@@ -36,6 +36,7 @@ export class DefaultLoginSuccessHandlerService implements LoginSuccessHandlerSer
       }
 
       await this.ssoLoginService.updateSsoRequiredCache(ssoLoginEmail, userId);
+      await this.ssoLoginService.clearSsoEmail();
     }
   }
 }
