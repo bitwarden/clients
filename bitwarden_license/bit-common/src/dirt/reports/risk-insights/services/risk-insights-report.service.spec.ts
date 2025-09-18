@@ -10,7 +10,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
-import { GetRiskInsightsReportResponse } from "../models/password-health";
+import { GetRiskInsightsReportResponse } from "../models/api-models.types";
 import { MemberCipherDetailsResponse } from "../response/member-cipher-details.response";
 
 import { mockCiphers } from "./ciphers.mock";
@@ -272,7 +272,7 @@ describe("RiskInsightsReportService", () => {
         date: new Date().toISOString(),
         organizationId: "orgId",
         reportData: "encryptedReportData",
-        reportKey: "encryptionKey",
+        contentEncryptionKey: "encryptionKey",
       } as GetRiskInsightsReportResponse;
 
       const organizationId = "orgId" as OrganizationId;
@@ -302,7 +302,7 @@ describe("RiskInsightsReportService", () => {
         date: new Date().toISOString(),
         organizationId: organizationId as OrganizationId,
         reportData: "encryptedReportData",
-        reportKey: "encryptionKey",
+        contentEncryptionKey: "encryptionKey",
       } as GetRiskInsightsReportResponse;
 
       const decryptedReport = {
