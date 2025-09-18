@@ -28,4 +28,9 @@ export abstract class CollectionService {
    * Transforms the input CollectionViews into TreeNodes and then returns the Treenode with the specified id
    */
   abstract getNested(collections: CollectionView[], id: string): TreeNode<CollectionView>;
+
+  /*
+   * Groups/keys collections by organizationId
+   */
+  abstract groupByOrganization(collections: CollectionView[]): Map<string, CollectionView[]>;
 }

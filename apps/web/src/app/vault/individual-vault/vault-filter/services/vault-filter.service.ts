@@ -249,7 +249,7 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
       collections = sortDefaultCollections(collections, orgs, this.i18nService.collator);
     }
 
-    const groupedByOrg = this.groupByOrganization(collections);
+    const groupedByOrg = this.collectionService.groupByOrganization(collections);
 
     for (const group of groupedByOrg.values()) {
       const nodes: TreeNode<CollectionFilter>[] = [];
@@ -270,15 +270,6 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
     });
 
     return headNode;
-  }
-
-  protected groupByOrganization(collections: CollectionView[]): Map<string, CollectionView[]> {
-    const groupedByOrg = new Map<string, CollectionView[]>();
-    collections.map((c) => {
-      const key = c.organizationId;
-      (groupedByOrg.get(key) ?? groupedByOrg.set(key, []).get(key)!).push(c);
-    });
-    return groupedByOrg;
   }
 
   protected getCollectionFilterHead(): TreeNode<CollectionFilter> {
