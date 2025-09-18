@@ -1,6 +1,7 @@
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LinkModule, IconModule } from "@bitwarden/components";
 
 import { formatArgsForCodeSnippet } from "../../../../.storybook/format-args-for-code-snippet";
 import { I18nMockService } from "../utils/i18n-mock.service";
@@ -12,6 +13,7 @@ export default {
   component: CalloutComponent,
   decorators: [
     moduleMetadata({
+      imports: [LinkModule, IconModule],
       providers: [
         {
           provide: I18nService,
@@ -89,5 +91,20 @@ export const NoTitle: Story = {
   ...Info,
   args: {
     icon: "bwi-star",
+  },
+};
+
+export const WithTextButton: Story = {
+  render: (args) => ({
+    props: args,
+    template: `
+      <bit-callout ${formatArgsForCodeSnippet<CalloutComponent>(args)}>
+      <p class="tw-mb-2">The content of the callout</p>
+        <a bitLink> Visit the help center<i aria-hidden="true" class="bwi bwi-fw bwi-sm bwi-angle-right"></i> </a>
+      </bit-callout>
+    `,
+  }),
+  args: {
+    type: "secondary",
   },
 };
