@@ -1,7 +1,7 @@
 import { Component, DestroyRef, inject, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
-import { BehaviorSubject, firstValueFrom, of, switchMap } from "rxjs";
+import { BehaviorSubject, combineLatest, firstValueFrom, of, switchMap } from "rxjs";
 
 import {
   CriticalAppsService,
@@ -13,6 +13,7 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { getById } from "@bitwarden/common/platform/misc";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 import { ActivityCardComponent } from "./activity-card.component";
@@ -42,18 +43,21 @@ export class AllActivityComponent implements OnInit {
           this.organizationService.organizations$(userId).pipe(getById(organizationId)),
         )) ?? null;
     }
-
-    this.dataService.applications$
+    combineLatest([
+      this.dataService.applications$,
+      this.criticalAppsService.getAppsListForOrg(organizationId as OrganizationId),
+    ])
       .pipe(
         takeUntilDestroyed(this.destroyRef),
-        switchMap((apps) => {
+        switchMap(([apps, criticalApps]) => {
           const atRiskMembers = this.reportService.generateAtRiskMemberList(apps ?? []);
-          return of({ apps, atRiskMembers });
+          return of({ apps, atRiskMembers, criticalApps });
         }),
       )
-      .subscribe(({ apps, atRiskMembers }) => {
+      .subscribe(({ apps, atRiskMembers, criticalApps }) => {
         this.noData$.next((apps?.length ?? 0) === 0);
-        this.atRiskMemberCount = atRiskMembers?.length;
+        this.atRiskMemberCount = atRiskMembers?.length ?? 0;
+        this.criticalApplicationsCount = criticalApps?.length ?? 0;
       });
   }
 
