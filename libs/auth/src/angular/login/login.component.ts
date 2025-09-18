@@ -201,6 +201,8 @@ export class LoginComponent implements OnInit, OnDestroy {
       FeatureFlag.PM22110_DisableAlternateLoginMethods,
     );
     if (disableAlternateLoginMethodsFlagEnabled) {
+      // This SSO required check should come after email has had a chance to be pre-filled (if it
+      // was found in query params or was the remembered email)
       await this.determineIfSsoRequired();
     }
   }
@@ -230,8 +232,6 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   private async determineIfSsoRequired() {
-    // SSO required check should come after email has had a chance to be pre-filled (if it
-    // was found in query params or was the remembered email)
     const ssoRequiredCache = await firstValueFrom(this.ssoLoginService.ssoRequiredCache$);
 
     // Only perform initial update and setup a subscription if there is actually a populated ssoRequiredCache
