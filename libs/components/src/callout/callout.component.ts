@@ -5,13 +5,14 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { SharedModule } from "../shared";
 import { TypographyModule } from "../typography";
 
-export type CalloutTypes = "success" | "info" | "warning" | "danger";
+export type CalloutTypes = "success" | "info" | "warning" | "danger" | "secondary";
 
 const defaultIcon: Record<CalloutTypes, string> = {
   success: "bwi-check-circle",
   info: "bwi-info-circle",
   warning: "bwi-exclamation-triangle",
   danger: "bwi-error",
+  secondary: "bwi-star",
 };
 
 const defaultI18n: Partial<Record<CalloutTypes, string>> = {
@@ -62,6 +63,8 @@ export class CalloutComponent {
         return "tw-bg-success-100";
       case "warning":
         return "tw-bg-warning-100";
+      case "secondary":
+        return "tw-bg-secondary-100";
     }
   });
 }

@@ -69,6 +69,14 @@ export const Danger: Story = {
   },
 };
 
+export const Secondary: Story = {
+  ...Info,
+  args: {
+    ...Info.args,
+    type: "secondary",
+  },
+};
+
 export const CustomIcon: Story = {
   ...Info,
   args: {
