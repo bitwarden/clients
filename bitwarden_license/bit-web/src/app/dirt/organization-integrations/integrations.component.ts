@@ -253,7 +253,6 @@ export class AdminConsoleIntegrationsComponent implements OnInit, OnDestroy {
         image: "../../../../../../../images/integrations/logo-crowdstrike-black.svg",
         type: IntegrationType.EVENT,
         description: "crowdstrikeEventIntegrationDesc",
-        isConnected: false,
         canSetupConnection: true,
       };
 
@@ -265,6 +264,11 @@ export class AdminConsoleIntegrationsComponent implements OnInit, OnDestroy {
     this.hecOrganizationIntegrationService.integrations$
       .pipe(takeUntil(this.destroy$))
       .subscribe((integrations) => {
+        // reset all integrations to null first - in case one was deleted
+        this.integrationsList.forEach((i) => {
+          i.organizationIntegration = null;
+        });
+
         integrations.map((integration) => {
           const item = this.integrationsList.find((i) => i.name === integration.serviceType);
           if (item) {

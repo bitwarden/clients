@@ -1,0 +1,17 @@
+<div *ngIf="isLoading$ | async">
+  <tools-risk-insights-loading></tools-risk-insights-loading>
+</div>
+<div class="tw-mt-4" *ngIf="!(isLoading$ | async) && !atRiskAppDetails?.length">
+  <bit-no-items class="tw-text-main">
+    <ng-container slot="title">
+      <h2 class="tw-font-semibold tw-mt-4">
+        {{ organization.name }}
+      </h2>
+    </ng-container>
+    <ng-container slot="description">
+      <div class="tw-flex tw-flex-col tw-mb-2">
+        <a class="tw-text-primary-600" routerLink="/login">{{ "learnMore" | i18n }}</a>
+      </div>
+    </ng-container>
+  </bit-no-items>
+</div>
