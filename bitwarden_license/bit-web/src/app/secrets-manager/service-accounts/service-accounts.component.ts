@@ -107,6 +107,10 @@ export class ServiceAccountsComponent implements OnInit {
         return serviceAccounts;
       }),
     );
+
+    if (this.route.snapshot.queryParams.search) {
+      this.search = this.route.snapshot.queryParams.search;
+    }
   }
 
   openEventsDialogByEntityId = (
