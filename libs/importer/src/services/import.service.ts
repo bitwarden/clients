@@ -146,21 +146,21 @@ export class ImportService implements ImportServiceAbstraction {
       map(([type, enabled]) => {
         let loaders = availableLoaders(type, client);
 
-        if (enabled) {
-          /* Hide Chromium importer for Brave on Windows desktop only */
+        let isUnsupported = false;
+
+        if (enabled && type === "bravecsv") {
           try {
-            const device = this.system.environment.getDevice?.();
+            const device = this.system.environment.getDevice();
             const isWindowsDesktop = device === DeviceType.WindowsDesktop;
-            if (type === "bravecsv" && isWindowsDesktop) {
-              loaders = loaders?.filter((loader) => loader !== Loader.chromium);
+            if (isWindowsDesktop) {
+              isUnsupported = true;
             }
           } catch {
-            // In the case we can't detect the environment, it's safer to remove the chromium loader
-            loaders = loaders?.filter((loader) => loader !== Loader.chromium);
+            isUnsupported = true;
           }
         }
-
-        if (!enabled) {
+        // If the feature flag is disabled, or if the browser is unsupported, remove the chromium loader
+        if (!enabled || isUnsupported) {
           loaders = loaders?.filter((loader) => loader !== Loader.chromium);
         }
 
