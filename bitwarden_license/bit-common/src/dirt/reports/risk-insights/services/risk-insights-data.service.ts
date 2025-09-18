@@ -49,7 +49,7 @@ export class RiskInsightsDataService {
       this.isLoadingSubject.next(true);
     }
     this.reportService
-      .generateApplicationsReport$(organizationId)
+      .LEGACY_generateApplicationsReport$(organizationId)
       .pipe(
         finalize(() => {
           this.isLoadingSubject.next(false);

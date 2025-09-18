@@ -55,7 +55,7 @@ describe("RiskInsightsReportService", () => {
   });
 
   it("should generate the raw data report correctly", async () => {
-    const result = await firstValueFrom(service.generateRawDataReport$(orgId));
+    const result = await firstValueFrom(service.LEGACY_generateRawDataReport$(orgId));
 
     expect(result).toHaveLength(6);
 
@@ -104,7 +104,7 @@ describe("RiskInsightsReportService", () => {
   });
 
   it("should generate applications health report data correctly", async () => {
-    const result = await firstValueFrom(service.generateApplicationsReport$(orgId));
+    const result = await firstValueFrom(service.LEGACY_generateApplicationsReport$(orgId));
 
     expect(result).toHaveLength(8);
 
@@ -145,7 +145,7 @@ describe("RiskInsightsReportService", () => {
   });
 
   it("should generate applications summary data correctly", async () => {
-    const reportResult = await firstValueFrom(service.generateApplicationsReport$(orgId));
+    const reportResult = await firstValueFrom(service.LEGACY_generateApplicationsReport$(orgId));
     const reportSummary = service.generateApplicationsSummary(reportResult);
 
     expect(reportSummary.totalMemberCount).toEqual(7);
