@@ -14,7 +14,7 @@
       {{ title }}
     </header>
   }
-  <div class="tw-ps-7" bitTypography="body2">
+  <div [ngClass]="titleComputed() ? 'tw-pl-7' : 'tw-pl-0'" bitTypography="body2">
     <ng-content></ng-content>
   </div>
 </aside>
