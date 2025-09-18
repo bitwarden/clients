@@ -67,7 +67,6 @@
       <h2 slot="summary" class="tw-mb-0" bitTypography="h2" noMargin>{{ "secrets" | i18n }}</h2>
       <sm-secrets-list
         baseRoute="secrets"
-        [disableVirtualScroll]="true"
         (deleteSecretsEvent)="openDeleteSecret($event)"
         (newSecretEvent)="openNewSecretDialog()"
         (editSecretEvent)="openEditSecret($event)"

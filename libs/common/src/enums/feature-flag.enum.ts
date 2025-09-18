@@ -18,7 +18,6 @@ export enum FeatureFlag {
   PM14938_BrowserExtensionLoginApproval = "pm-14938-browser-extension-login-approvals",
 
   /* Autofill */
-  NotificationRefresh = "notification-refresh",
   MacOsNativeCredentialSync = "macos-native-credential-sync",
   WindowsDesktopAutotype = "windows-desktop-autotype",
 
@@ -41,6 +40,7 @@ export enum FeatureFlag {
 
   /* DIRT */
   EventBasedOrganizationIntegrations = "event-based-organization-integrations",
+  PM22887_RiskInsightsActivityTab = "pm-22887-risk-insights-activity-tab",
 
   /* Vault */
   PM19941MigrateCipherDomainToSdk = "pm-19941-migrate-cipher-domain-to-sdk",
@@ -74,7 +74,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.CollectionVaultRefactor]: FALSE,
 
   /* Autofill */
-  [FeatureFlag.NotificationRefresh]: FALSE,
   [FeatureFlag.MacOsNativeCredentialSync]: FALSE,
   [FeatureFlag.WindowsDesktopAutotype]: FALSE,
 
@@ -85,6 +84,7 @@ export const DefaultFeatureFlagValue = {
 
   /* DIRT */
   [FeatureFlag.EventBasedOrganizationIntegrations]: FALSE,
+  [FeatureFlag.PM22887_RiskInsightsActivityTab]: FALSE,
 
   /* Vault */
   [FeatureFlag.CipherKeyEncryption]: FALSE,

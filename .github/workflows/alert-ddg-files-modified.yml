@@ -29,6 +29,42 @@ jobs:
             - 'apps/desktop/src/services/duckduckgo-message-handler.service.ts'
             - 'apps/desktop/src/services/encrypted-message-handler.service.ts'
 
+    - name: Remove past BIT status comments
+      uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+      with:
+        script: |
+          // Note: should match the first line of `message` in the communication steps
+          const workflowCommentTag = '<!-- comment_tag: ddg-test-warning -->';
+
+          const issueComments = await github.rest.issues.listComments({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+          });
+
+          for (const comment of issueComments.data || []) {
+            const shouldDeleteComment =
+              // Do not delete comments that were not automated
+              !!comment.performed_via_github_app &&
+
+              // Do not delete user comments
+              comment.user.type === 'Bot' &&
+
+              // Do not delete edited comments
+              comment.created_at === comment.updated_at &&
+
+              // Only delete comments from this workflow
+              comment.body.trim().startsWith(workflowCommentTag);
+
+            if (shouldDeleteComment) {
+              await github.rest.issues.deleteComment({
+                comment_id: comment.id,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+              });
+            }
+          }
+
     - name: Comment on PR if monitored files changed
       if: steps.changed-files.outputs.monitored == 'true'
       uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
@@ -36,12 +72,13 @@ jobs:
         script: |
           const changedFiles = `${{ steps.changed-files.outputs.monitored_files }}`.split(' ').filter(file => file.trim() !== '');
 
-          const message = `⚠️🦆 **DuckDuckGo Integration files have been modified in this PR:**
-          
+          const message = `<!-- comment_tag: ddg-test-warning -->
+          ⚠️🦆 **DuckDuckGo Integration files have been modified in this PR:**
+
           ${changedFiles.map(file => `- \`${file}\``).join('\n')}
-          
+
           Please run the DuckDuckGo native messaging test runner from this branch using [these instructions](https://contributing.bitwarden.com/getting-started/clients/desktop/native-messaging-test-runner) and ensure it functions properly.`;
-          
+
           github.rest.issues.createComment({
             issue_number: context.issue.number,
             owner: context.repo.owner,

@@ -32,7 +32,7 @@ import {
   Unassigned,
 } from "@bitwarden/admin-console/common";
 import { SearchPipe } from "@bitwarden/angular/pipes/search.pipe";
-import { Search } from "@bitwarden/assets/svg";
+import { NoResults } from "@bitwarden/assets/svg";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import {
@@ -159,7 +159,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   kdfIterations: number;
   activeFilter: VaultFilter = new VaultFilter();
 
-  protected noItemIcon = Search;
+  protected noItemIcon = NoResults;
   protected performingInitialLoad = true;
   protected refreshing = false;
   protected processingEvent = false;

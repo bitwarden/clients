@@ -64,22 +64,21 @@
       ></i>
       <span class="tw-sr-only">{{ "loading" | i18n }}</span>
     </div>
-    <div
-      *ngIf="isEmpty && !performingInitialLoad"
-      class="tw-mt-6 tw-flex tw-h-full tw-flex-col tw-items-center tw-justify-start"
-    >
-      <bit-icon [icon]="noItemIcon" aria-hidden="true"></bit-icon>
-      <p>{{ "noItemsInList" | i18n }}</p>
-      <button
-        type="button"
-        buttonType="primary"
-        bitButton
-        (click)="addCipher()"
-        *ngIf="filter.type !== 'trash'"
-      >
-        <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i>
-        {{ "newItem" | i18n }}
-      </button>
+    <div class="tw-mt-6 tw-flex tw-h-full tw-flex-col tw-items-center tw-justify-start">
+      <bit-no-items [icon]="noItemIcon" *ngIf="isEmpty && !performingInitialLoad">
+        <div slot="title">{{ "noItemsInList" | i18n }}</div>
+        <button
+          type="button"
+          buttonType="primary"
+          bitButton
+          (click)="addCipher()"
+          *ngIf="filter.type !== 'trash'"
+          slot="button"
+        >
+          <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i>
+          {{ "newItem" | i18n }}
+        </button>
+      </bit-no-items>
     </div>
   </div>
 </div>
