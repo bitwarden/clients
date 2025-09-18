@@ -1,7 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit, ViewChild } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Params, Router } from "@angular/router";
 import {
   BehaviorSubject,
@@ -625,7 +624,7 @@ export class VaultComponent implements OnInit, OnDestroy {
             this.organizationWarningsService.showSubscribeBeforeFreeTrialEndsDialog$(organization),
           ),
         ),
-        takeUntilDestroyed(),
+        takeUntil(this.destroy$),
       )
       .subscribe();
     // End Billing Warnings

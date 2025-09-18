@@ -1,10 +1,12 @@
-<app-organization-free-trial-warning
-  [organization]="organization"
-  (clicked)="navigateToPaymentMethod()"
->
-</app-organization-free-trial-warning>
-<app-organization-reseller-renewal-warning [organization]="organization">
-</app-organization-reseller-renewal-warning>
+@if (organization) {
+  <app-organization-free-trial-warning
+    [organization]="organization"
+    (clicked)="navigateToPaymentMethod()"
+  >
+  </app-organization-free-trial-warning>
+  <app-organization-reseller-renewal-warning [organization]="organization">
+  </app-organization-reseller-renewal-warning>
+}
 
 <app-org-vault-header
   [filter]="filter"
