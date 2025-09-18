@@ -911,7 +911,11 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: VaultExportServiceAbstraction,
     useClass: VaultExportService,
-    deps: [IndividualVaultExportServiceAbstraction, OrganizationVaultExportServiceAbstraction],
+    deps: [
+      IndividualVaultExportServiceAbstraction,
+      OrganizationVaultExportServiceAbstraction,
+      AccountServiceAbstraction,
+    ],
   }),
   safeProvider({
     provide: SearchServiceAbstraction,

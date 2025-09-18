@@ -1,3 +1,7 @@
+import { firstValueFrom } from "rxjs";
+
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { UserId } from "@bitwarden/common/types/guid";
 
@@ -11,6 +15,7 @@ export class VaultExportService implements VaultExportServiceAbstraction {
   constructor(
     private individualVaultExportService: IndividualVaultExportServiceAbstraction,
     private organizationVaultExportService: OrganizationVaultExportServiceAbstraction,
+    private accountService: AccountService,
   ) {}
 
   /** Creates an export of an individual vault (My vault). Based on the provided format it will either be unencrypted, encrypted or password protected
@@ -25,6 +30,8 @@ export class VaultExportService implements VaultExportServiceAbstraction {
     format: ExportFormat = "csv",
     password: string = "",
   ): Promise<ExportedVault> {
+    await this.checkForImpersonation(userId);
+
     if (!Utils.isNullOrWhitespace(password)) {
       if (format == "csv") {
         throw new Error("CSV does not support password protected export");
@@ -55,6 +62,8 @@ export class VaultExportService implements VaultExportServiceAbstraction {
     password: string,
     onlyManagedCollections = false,
   ): Promise<ExportedVault> {
+    await this.checkForImpersonation(userId);
+
     if (!Utils.isNullOrWhitespace(password)) {
       if (format == "csv") {
         throw new Error("CSV does not support password protected export");
@@ -74,5 +83,16 @@ export class VaultExportService implements VaultExportServiceAbstraction {
       format,
       onlyManagedCollections,
     );
+  }
+
+  /** Checks if the provided userId matches the currently authenticated user
+   * @param userId The userId to check
+   * @throws Error if the userId does not match the currently authenticated user
+   */
+  private async checkForImpersonation(userId: UserId): Promise<void> {
+    const currentUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    if (userId !== currentUserId) {
+      throw new Error("UserId does not match the currently authenticated user");
+    }
   }
 }

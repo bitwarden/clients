@@ -1119,6 +1119,7 @@ export default class MainBackground {
     this.exportService = new VaultExportService(
       this.individualVaultExportService,
       this.organizationVaultExportService,
+      this.accountService,
     );
 
     this.browserInitialInstallService = new BrowserInitialInstallService(this.stateProvider);

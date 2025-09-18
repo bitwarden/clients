@@ -863,6 +863,7 @@ export class ServiceContainer {
     this.exportService = new VaultExportService(
       this.individualExportService,
       this.organizationExportService,
+      this.accountService,
     );
 
     this.userAutoUnlockKeyService = new UserAutoUnlockKeyService(this.keyService);
