@@ -24,7 +24,6 @@ import {
   OrganizationConnectionConfigApis,
   OrganizationConnectionResponse,
 } from "../admin-console/models/response/organization-connection.response";
-import { OrganizationExportResponse } from "../admin-console/models/response/organization-export.response";
 import { OrganizationSponsorshipSyncStatusResponse } from "../admin-console/models/response/organization-sponsorship-sync-status.response";
 import { PreValidateSponsorshipResponse } from "../admin-console/models/response/pre-validate-sponsorship.response";
 import {
@@ -552,5 +551,4 @@ export abstract class ApiService {
     request: KeyConnectorUserKeyRequest,
   ): Promise<void>;
   abstract getKeyConnectorAlive(keyConnectorUrl: string): Promise<void>;
-  abstract getOrganizationExport(organizationId: string): Promise<OrganizationExportResponse>;
 }
