@@ -12,7 +12,8 @@
         "outputPath": "dist/libs/core-test-utils",
         "main": "libs/core-test-utils/src/index.ts",
         "tsConfig": "libs/core-test-utils/tsconfig.lib.json",
-        "assets": ["libs/core-test-utils/*.md"]
+        "assets": ["libs/core-test-utils/*.md"],
+        "rootDir": "libs/core-test-utils/src"
       }
     },
     "lint": {

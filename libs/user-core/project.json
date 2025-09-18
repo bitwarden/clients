@@ -12,7 +12,8 @@
         "outputPath": "dist/libs/user-core",
         "main": "libs/user-core/src/index.ts",
         "tsConfig": "libs/user-core/tsconfig.lib.json",
-        "assets": ["libs/user-core/*.md"]
+        "assets": ["libs/user-core/*.md"],
+        "rootDir": "libs/user-core/src"
       }
     },
     "test": {

@@ -12,7 +12,8 @@
         "outputPath": "dist/libs/logging",
         "main": "libs/logging/src/index.ts",
         "tsConfig": "libs/logging/tsconfig.lib.json",
-        "assets": ["libs/logging/*.md"]
+        "assets": ["libs/logging/*.md"],
+        "rootDir": "libs/logging/src"
       }
     },
     "lint": {

@@ -12,7 +12,8 @@
         "outputPath": "dist/libs/client-type",
         "main": "libs/client-type/src/index.ts",
         "tsConfig": "libs/client-type/tsconfig.lib.json",
-        "assets": ["libs/client-type/*.md"]
+        "assets": ["libs/client-type/*.md"],
+        "rootDir": "libs/client-type/src"
       }
     },
     "lint": {
