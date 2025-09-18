@@ -56,15 +56,15 @@ export class CalloutComponent {
   protected readonly calloutClass = computed(() => {
     switch (this.type()) {
       case "danger":
-        return "tw-bg-danger-100";
+        return "tw-bg-danger-100 border-danger-700 tw-text-danger-700";
       case "info":
-        return "tw-bg-info-100";
+        return "tw-bg-info-100 w-bg-info-100 tw-border-info-700 tw-text-info-700";
       case "success":
-        return "tw-bg-success-100";
+        return "tw-bg-success-100 tw-bg-success-100 tw-border-success-700 tw-text-success-700";
       case "warning":
-        return "tw-bg-warning-100";
+        return "tw-bg-warning-100 w-bg-warning-100 tw-border-warning-700 tw-text-warning-700";
       case "secondary":
-        return "tw-bg-secondary-100";
+        return "w-bg-background-alt tw-border-secondary-700 tw-text-secondary-700";
     }
   });
 }
