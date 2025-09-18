@@ -5,18 +5,19 @@ import {
   SingleUserState,
   StateProvider,
   UserKeyDefinition,
-  VAULT_AT_RISK_PASSWORDS_DISK,
+  VAULT_AT_RISK_PASSWORDS_MEMORY,
 } from "@bitwarden/common/platform/state";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { SecurityTask, SecurityTaskType, TaskService } from "@bitwarden/common/vault/tasks";
 import { UserId } from "@bitwarden/user-core";
 
 export type AtRiskPasswordCalloutData = {
+  hasInteractedWithTasks: boolean;
   tasksBannerDismissed: boolean;
 };
 
 export const AT_RISK_PASSWORD_CALLOUT_KEY = new UserKeyDefinition<AtRiskPasswordCalloutData>(
-  VAULT_AT_RISK_PASSWORDS_DISK,
+  VAULT_AT_RISK_PASSWORDS_MEMORY,
   "atRiskPasswords",
   {
     deserializer: (jsonData) => jsonData,
@@ -67,16 +68,20 @@ export class AtRiskPasswordCalloutService {
     ]).pipe(
       map(([pendingTasks, completedTasks, state]) => {
         const hasPendingTasks = pendingTasks.length > 0;
+        const bannerDismissed = state?.tasksBannerDismissed ?? false;
+        const hasInteracted = state?.hasInteractedWithTasks ?? false;
 
-        if (hasPendingTasks) {
-          const updateObject = {
-            tasksBannerDismissed: false,
-          };
-          void this.atRiskPasswordState(userId).update(() => updateObject);
+        // This will ensure the banner remains visible only in the client the user resolved their tasks in
+        // e.g. if the user did not see tasks in the browser, and resolves them in the web, the browser will not show the banner
+        if (!hasPendingTasks && (!hasInteracted || bannerDismissed)) {
+          return false;
         }
 
-        if (state?.tasksBannerDismissed) {
-          return false;
+        if (hasPendingTasks) {
+          void this.atRiskPasswordState(userId).update(() => ({
+            hasInteractedWithTasks: true,
+            tasksBannerDismissed: false,
+          }));
         }
 
         // Show banner if there are completed tasks and no pending tasks, and banner hasn't been dismissed

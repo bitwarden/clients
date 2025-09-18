@@ -111,7 +111,10 @@ describe("AtRiskPasswordCalloutService", () => {
     });
 
     it("should return false if banner has been dismissed", async () => {
-      const state: AtRiskPasswordCalloutData = { tasksBannerDismissed: true };
+      const state: AtRiskPasswordCalloutData = {
+        hasInteractedWithTasks: true,
+        tasksBannerDismissed: true,
+      };
       const mockState = { ...fakeUserState(), state$: of(state) };
       mockStateProvider.getUser.mockReturnValue(mockState);
 
@@ -130,7 +133,10 @@ describe("AtRiskPasswordCalloutService", () => {
         },
       ];
       const ciphers = [new MockCipherView("c1", false)];
-      const state: AtRiskPasswordCalloutData = { tasksBannerDismissed: false };
+      const state: AtRiskPasswordCalloutData = {
+        hasInteractedWithTasks: true,
+        tasksBannerDismissed: false,
+      };
       const mockState = { ...fakeUserState(), state$: of(state), update: jest.fn() };
 
       jest.spyOn(mockTaskService, "pendingTasks$").mockReturnValue(of(tasks));
@@ -141,7 +147,10 @@ describe("AtRiskPasswordCalloutService", () => {
 
       expect(mockState.update).toHaveBeenCalledWith(expect.any(Function));
       const updater = (mockState.update as jest.Mock).mock.calls[0][0];
-      expect(updater()).toEqual({ tasksBannerDismissed: false });
+      expect(updater()).toEqual({
+        hasInteractedWithTasks: true,
+        tasksBannerDismissed: false,
+      });
     });
 
     it("should return true when has completed tasks, no pending tasks, and banner not dismissed", async () => {
@@ -154,7 +163,10 @@ describe("AtRiskPasswordCalloutService", () => {
         },
       ];
       const ciphers = [new MockCipherView("c1", false)];
-      const state: AtRiskPasswordCalloutData = { tasksBannerDismissed: false };
+      const state: AtRiskPasswordCalloutData = {
+        hasInteractedWithTasks: true,
+        tasksBannerDismissed: false,
+      };
 
       jest.spyOn(mockTaskService, "completedTasks$").mockReturnValue(of(completedTasks));
       jest.spyOn(mockCipherService, "cipherViews$").mockReturnValue(of(ciphers));
@@ -166,7 +178,10 @@ describe("AtRiskPasswordCalloutService", () => {
     });
 
     it("returns false when no completed tasks", async () => {
-      const state: AtRiskPasswordCalloutData = { tasksBannerDismissed: false };
+      const state: AtRiskPasswordCalloutData = {
+        hasInteractedWithTasks: true,
+        tasksBannerDismissed: false,
+      };
       mockStateProvider.getUser.mockReturnValue({ state$: of(state) });
 
       const result = await firstValueFrom(service.showCompletedTasksBanner$(userId));

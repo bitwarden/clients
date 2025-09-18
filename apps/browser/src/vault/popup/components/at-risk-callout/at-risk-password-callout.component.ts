@@ -38,6 +38,7 @@ export class AtRiskPasswordCalloutComponent {
 
   async successBannerDismissed() {
     const updateObject: AtRiskPasswordCalloutData = {
+      hasInteractedWithTasks: true,
       tasksBannerDismissed: true,
     };
     const userId = await firstValueFrom(this.activeAccount$);
