@@ -4,11 +4,9 @@ import { firstValueFrom, Observable, of, switchMap } from "rxjs";
 
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { BrowserPremiumUpgradePromptService } from "@bitwarden/browser/vault/popup/services/browser-premium-upgrade-prompt.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
-import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { ButtonModule, DialogService, MenuModule } from "@bitwarden/components";
 import { DefaultSendFormConfigService, SendAddEditDialogComponent } from "@bitwarden/send-ui";
 
@@ -16,13 +14,7 @@ import { DefaultSendFormConfigService, SendAddEditDialogComponent } from "@bitwa
   selector: "tools-new-send-dropdown",
   templateUrl: "new-send-dropdown.component.html",
   imports: [JslibModule, CommonModule, ButtonModule, MenuModule, PremiumBadgeComponent],
-  providers: [
-    DefaultSendFormConfigService,
-    {
-      provide: PremiumUpgradePromptService,
-      useClass: BrowserPremiumUpgradePromptService,
-    },
-  ],
+  providers: [DefaultSendFormConfigService],
 })
 /**
  * A dropdown component that allows the user to create a new Send of a specific type.
