@@ -260,10 +260,6 @@ export class SubscriptionPricingService {
       key: "premiumAccounts",
       value: this.i18nService.t("premiumAccounts"),
     }),
-    unlimitedSharing: () => ({
-      key: "unlimitedSharing",
-      value: this.i18nService.t("unlimitedSharing"),
-    }),
     secureFileStorage: () => ({
       key: "secureFileStorage",
       value: this.i18nService.t("secureFileStorage"),
