@@ -30,19 +30,21 @@ import {
   getUniqueMembers,
 } from "../helpers/risk-insights-data-mappers";
 import {
-  ApplicationHealthReportDetail,
-  ApplicationHealthReportSummary,
-  AtRiskMemberDetail,
-  AtRiskApplicationDetail,
-  CipherHealthReportDetail,
-  CipherHealthReportUriDetail,
+  LEGACY_CipherHealthReportDetail,
+  LEGACY_CipherHealthReportUriDetail,
   ExposedPasswordDetail,
   LEGACY_MemberDetailsFlat,
   WeakPasswordDetail,
   WeakPasswordScore,
-  ApplicationHealthReportDetailWithCriticalFlagAndCipher,
-  ReportInsightsReportData,
+  LEGACY_ApplicationHealthReportDetailWithCriticalFlagAndCipher,
 } from "../models/password-health";
+import {
+  ApplicationHealthReportDetail,
+  ApplicationHealthReportSummary,
+  AtRiskMemberDetail,
+  AtRiskApplicationDetail,
+  RiskInsightsReportData,
+} from "../models/report-models";
 
 import { MemberCipherDetailsApiService } from "./member-cipher-details-api.service";
 import { RiskInsightsApiService } from "./risk-insights-api.service";
@@ -76,7 +78,9 @@ export class RiskInsightsReportService {
    * @param organizationId
    * @returns Cipher health report data with members and trimmed uris
    */
-  generateRawDataReport$(organizationId: OrganizationId): Observable<CipherHealthReportDetail[]> {
+  generateRawDataReport$(
+    organizationId: OrganizationId,
+  ): Observable<LEGACY_CipherHealthReportDetail[]> {
     const allCiphers$ = from(this.cipherService.getAllFromApiForOrganization(organizationId));
     const memberCiphers$ = from(
       this.memberCipherDetailsApiService.getMemberCipherDetails(organizationId),
@@ -104,7 +108,7 @@ export class RiskInsightsReportService {
    */
   generateRawDataUriReport$(
     organizationId: OrganizationId,
-  ): Observable<CipherHealthReportUriDetail[]> {
+  ): Observable<LEGACY_CipherHealthReportUriDetail[]> {
     const cipherHealthDetails$ = this.generateRawDataReport$(organizationId);
     const results$ = cipherHealthDetails$.pipe(
       map((healthDetails) => this.getCipherUriDetails(healthDetails)),
@@ -206,7 +210,7 @@ export class RiskInsightsReportService {
   async identifyCiphers(
     data: ApplicationHealthReportDetail[],
     organizationId: OrganizationId,
-  ): Promise<ApplicationHealthReportDetailWithCriticalFlagAndCipher[]> {
+  ): Promise<LEGACY_ApplicationHealthReportDetailWithCriticalFlagAndCipher[]> {
     const cipherViews = await this.cipherService.getAllFromApiForOrganization(organizationId);
 
     const dataWithCiphers = data.map(
@@ -214,7 +218,7 @@ export class RiskInsightsReportService {
         ({
           ...app,
           ciphers: cipherViews.filter((c) => app.cipherIds.some((a) => a === c.id)),
-        }) as ApplicationHealthReportDetailWithCriticalFlagAndCipher,
+        }) as LEGACY_ApplicationHealthReportDetailWithCriticalFlagAndCipher,
     );
     return dataWithCiphers;
   }
@@ -226,7 +230,7 @@ export class RiskInsightsReportService {
         switchMap((response) => {
           if (!response) {
             // Return an empty report and summary if response is falsy
-            return of<ReportInsightsReportData>({
+            return of<RiskInsightsReportData>({
               data: [],
               summary: {
                 totalMemberCount: 0,
@@ -237,12 +241,12 @@ export class RiskInsightsReportService {
             });
           }
           return from(
-            this.riskInsightsEncryptionService.decryptRiskInsightsReport<ReportInsightsReportData>(
+            this.riskInsightsEncryptionService.decryptRiskInsightsReport<RiskInsightsReportData>(
               organizationId,
               userId,
               new EncString(response.reportData),
-              new EncString(response.reportKey),
-              (data) => data as ReportInsightsReportData,
+              new EncString(response.contentEncryptionKey),
+              (data) => data as RiskInsightsReportData,
             ),
           );
         }),
@@ -275,7 +279,7 @@ export class RiskInsightsReportService {
         organizationId: organizationId,
         date: new Date().toISOString(),
         reportData: encryptedReport.encryptedData,
-        reportKey: encryptedReport.encryptionKey,
+        reportKey: encryptedReport.contentEncryptionKey,
       },
     };
 
@@ -298,8 +302,8 @@ export class RiskInsightsReportService {
   private async getCipherDetails(
     ciphers: CipherView[],
     memberDetails: LEGACY_MemberDetailsFlat[],
-  ): Promise<CipherHealthReportDetail[]> {
-    const cipherHealthReports: CipherHealthReportDetail[] = [];
+  ): Promise<LEGACY_CipherHealthReportDetail[]> {
+    const cipherHealthReports: LEGACY_CipherHealthReportDetail[] = [];
     const passwordUseMap = new Map<string, number>();
     const exposedDetails = await this.findExposedPasswords(ciphers);
     for (const cipher of ciphers) {
@@ -329,7 +333,7 @@ export class RiskInsightsReportService {
           exposedPasswordDetail: exposedPassword,
           cipherMembers: cipherMembers,
           trimmedUris: cipherTrimmedUris,
-        } as CipherHealthReportDetail;
+        } as LEGACY_CipherHealthReportDetail;
 
         cipherHealthReports.push(cipherHealth);
       }
@@ -348,8 +352,8 @@ export class RiskInsightsReportService {
    * @returns Flattened cipher health details to uri
    */
   private getCipherUriDetails(
-    cipherHealthReport: CipherHealthReportDetail[],
-  ): CipherHealthReportUriDetail[] {
+    cipherHealthReport: LEGACY_CipherHealthReportDetail[],
+  ): LEGACY_CipherHealthReportUriDetail[] {
     return cipherHealthReport.flatMap((rpt) =>
       rpt.trimmedUris.map((u) => getFlattenedCipherDetails(rpt, u)),
     );
@@ -362,7 +366,7 @@ export class RiskInsightsReportService {
    * @returns Application health reports
    */
   private getApplicationHealthReport(
-    cipherHealthUriReport: CipherHealthReportUriDetail[],
+    cipherHealthUriReport: LEGACY_CipherHealthReportUriDetail[],
   ): ApplicationHealthReportDetail[] {
     const appReports: ApplicationHealthReportDetail[] = [];
     cipherHealthUriReport.forEach((uri) => {

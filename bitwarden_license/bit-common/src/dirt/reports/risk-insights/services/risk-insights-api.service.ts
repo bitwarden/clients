@@ -4,11 +4,11 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationId, OrganizationReportId } from "@bitwarden/common/types/guid";
 
 import {
-  EncryptedDataModel,
   GetRiskInsightsReportResponse,
   SaveRiskInsightsReportRequest,
   SaveRiskInsightsReportResponse,
-} from "../models/password-health";
+} from "../models/api-models.types";
+import { EncryptedDataWithKey } from "../models/password-health";
 
 export class RiskInsightsApiService {
   constructor(private apiService: ApiService) {}
@@ -45,7 +45,7 @@ export class RiskInsightsApiService {
     orgId: string,
     minDate: Date,
     maxDate: Date,
-  ): Observable<EncryptedDataModel[]> {
+  ): Observable<EncryptedDataWithKey[]> {
     const minDateStr = minDate.toISOString().split("T")[0];
     const maxDateStr = maxDate.toISOString().split("T")[0];
     const dbResponse = this.apiService.send(
@@ -56,11 +56,11 @@ export class RiskInsightsApiService {
       true,
     );
 
-    return from(dbResponse as Promise<EncryptedDataModel[]>);
+    return from(dbResponse as Promise<EncryptedDataWithKey[]>);
   }
 
   updateRiskInsightsSummary$(
-    summaryData: EncryptedDataModel,
+    summaryData: EncryptedDataWithKey,
     organizationId: OrganizationId,
     reportId: OrganizationReportId,
   ): Observable<void> {
@@ -78,7 +78,7 @@ export class RiskInsightsApiService {
   getRiskInsightsApplicationData$(
     orgId: OrganizationId,
     reportId: OrganizationReportId,
-  ): Observable<EncryptedDataModel | null> {
+  ): Observable<EncryptedDataWithKey | null> {
     const dbResponse = this.apiService.send(
       "GET",
       `/reports/organizations/${orgId.toString()}/data/application/${reportId.toString()}`,
@@ -87,11 +87,11 @@ export class RiskInsightsApiService {
       true,
     );
 
-    return from(dbResponse as Promise<EncryptedDataModel | null>);
+    return from(dbResponse as Promise<EncryptedDataWithKey | null>);
   }
 
   updateRiskInsightsApplicationData$(
-    applicationData: EncryptedDataModel,
+    applicationData: EncryptedDataWithKey,
     orgId: OrganizationId,
     reportId: OrganizationReportId,
   ): Observable<void> {

@@ -3,10 +3,10 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import {
   LEGACY_MemberDetailsFlat,
-  CipherHealthReportDetail,
-  CipherHealthReportUriDetail,
-  ApplicationHealthReportDetail,
+  LEGACY_CipherHealthReportDetail,
+  LEGACY_CipherHealthReportUriDetail,
 } from "../models/password-health";
+import { ApplicationHealthReportDetail } from "../models/report-models";
 import { MemberCipherDetailsResponse } from "../response/member-cipher-details.response";
 
 export function flattenMemberDetails(
@@ -86,9 +86,9 @@ export function getMemberDetailsFlat(
  * @returns Flattened cipher health details to URI
  */
 export function getFlattenedCipherDetails(
-  detail: CipherHealthReportDetail,
+  detail: LEGACY_CipherHealthReportDetail,
   uri: string,
-): CipherHealthReportUriDetail {
+): LEGACY_CipherHealthReportUriDetail {
   return {
     cipherId: detail.id,
     reusedPasswordCount: detail.reusedPasswordCount,
@@ -109,7 +109,7 @@ export function getFlattenedCipherDetails(
  * @returns The new or updated application health report detail
  */
 export function getApplicationReportDetail(
-  newUriDetail: CipherHealthReportUriDetail,
+  newUriDetail: LEGACY_CipherHealthReportUriDetail,
   isAtRisk: boolean,
   existingUriDetail?: ApplicationHealthReportDetail,
 ): ApplicationHealthReportDetail {
