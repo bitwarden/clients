@@ -10,7 +10,6 @@ import {
   CollectionDetailsResponse,
   CollectionView,
 } from "@bitwarden/admin-console/common";
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
@@ -34,6 +33,7 @@ import {
   ExportedVaultAsString,
 } from "../types";
 
+import { VaultExportApiService } from "./api/vault-export-api.service.abstraction";
 import { BaseVaultExportService } from "./base-vault-export.service";
 import { ExportHelper } from "./export-helper";
 import { OrganizationVaultExportServiceAbstraction } from "./org-vault-export.service.abstraction";
@@ -45,7 +45,7 @@ export class OrganizationVaultExportService
 {
   constructor(
     private cipherService: CipherService,
-    private apiService: ApiService,
+    private vaultExportApiService: VaultExportApiService,
     pinService: PinServiceAbstraction,
     private keyService: KeyService,
     encryptService: EncryptService,
@@ -138,44 +138,49 @@ export class OrganizationVaultExportService
     const restrictions = await firstValueFrom(this.restrictedItemTypesService.restricted$);
 
     promises.push(
-      this.apiService.getOrganizationExport(organizationId).then((exportData) => {
-        const exportPromises: any = [];
-        if (exportData != null) {
-          if (exportData.collections != null && exportData.collections.length > 0) {
-            exportData.collections.forEach((c) => {
-              const collection = Collection.fromCollectionData(
-                new CollectionData(c as CollectionDetailsResponse),
-              );
-              exportPromises.push(
-                firstValueFrom(this.keyService.activeUserOrgKeys$)
-                  .then((keys) =>
-                    collection.decrypt(keys[organizationId as OrganizationId], this.encryptService),
-                  )
-                  .then((decCol) => {
-                    decCollections.push(decCol);
-                  }),
-              );
-            });
-          }
-          if (exportData.ciphers != null && exportData.ciphers.length > 0) {
-            exportData.ciphers
-              .filter((c) => c.deletedDate === null)
-              .forEach(async (c) => {
-                const cipher = new Cipher(new CipherData(c));
+      this.vaultExportApiService
+        .getOrganizationExport(organizationId as OrganizationId)
+        .then((exportData) => {
+          const exportPromises: Promise<void>[] = [];
+          if (exportData != null) {
+            if (exportData.collections != null && exportData.collections.length > 0) {
+              exportData.collections.forEach((c) => {
+                const collection = Collection.fromCollectionData(
+                  new CollectionData(c as CollectionDetailsResponse),
+                );
                 exportPromises.push(
-                  this.cipherService.decrypt(cipher, activeUserId).then((decCipher) => {
-                    if (
-                      !this.restrictedItemTypesService.isCipherRestricted(decCipher, restrictions)
-                    ) {
-                      decCiphers.push(decCipher);
-                    }
-                  }),
+                  firstValueFrom(this.keyService.activeUserOrgKeys$)
+                    .then((keys) =>
+                      collection.decrypt(
+                        keys[organizationId as OrganizationId],
+                        this.encryptService,
+                      ),
+                    )
+                    .then((decCol) => {
+                      decCollections.push(decCol);
+                    }),
                 );
               });
+            }
+            if (exportData.ciphers != null && exportData.ciphers.length > 0) {
+              exportData.ciphers
+                .filter((c) => c.deletedDate === null)
+                .forEach(async (c) => {
+                  const cipher = new Cipher(new CipherData(c));
+                  exportPromises.push(
+                    this.cipherService.decrypt(cipher, activeUserId).then((decCipher) => {
+                      if (
+                        !this.restrictedItemTypesService.isCipherRestricted(decCipher, restrictions)
+                      ) {
+                        decCiphers.push(decCipher);
+                      }
+                    }),
+                  );
+                });
+            }
           }
-        }
-        return Promise.all(exportPromises);
-      }),
+          return Promise.all(exportPromises);
+        }),
     );
 
     await Promise.all(promises);
@@ -188,39 +193,37 @@ export class OrganizationVaultExportService
 
   private async getOrganizationEncryptedExport(organizationId: string): Promise<string> {
     const collections: Collection[] = [];
-    let ciphers: Cipher[] = [];
-    const promises = [];
-
-    promises.push(
-      this.apiService.getCollections(organizationId).then((c) => {
-        if (c != null && c.data != null && c.data.length > 0) {
-          c.data.forEach((r) => {
-            const collection = Collection.fromCollectionData(
-              new CollectionData(r as CollectionDetailsResponse),
-            );
-            collections.push(collection);
-          });
-        }
-      }),
-    );
+    const ciphers: Cipher[] = [];
 
     const restrictions = await firstValueFrom(this.restrictedItemTypesService.restricted$);
 
-    promises.push(
-      this.apiService.getCiphersOrganization(organizationId).then((c) => {
-        if (c != null && c.data != null && c.data.length > 0) {
-          ciphers = c.data
-            .filter((item) => item.deletedDate === null)
-            .map((item) => new Cipher(new CipherData(item)))
-            .filter(
-              (cipher) => !this.restrictedItemTypesService.isCipherRestricted(cipher, restrictions),
-            );
-        }
-      }),
+    const exportData = await this.vaultExportApiService.getOrganizationExport(
+      organizationId as OrganizationId,
     );
 
-    await Promise.all(promises);
+    if (exportData == null) {
+      return;
+    }
 
+    if (exportData.collections != null && exportData.collections.length > 0) {
+      exportData.collections.forEach((c) => {
+        const collection = Collection.fromCollectionData(
+          new CollectionData(c as CollectionDetailsResponse),
+        );
+        collections.push(collection);
+      });
+    }
+
+    if (exportData.ciphers != null && exportData.ciphers.length > 0) {
+      exportData.ciphers
+        .filter((c) => c.deletedDate === null)
+        .forEach((c) => {
+          const cipher = new Cipher(new CipherData(c));
+          if (!this.restrictedItemTypesService.isCipherRestricted(cipher, restrictions)) {
+            ciphers.push(cipher);
+          }
+        });
+    }
     return this.BuildEncryptedExport(organizationId, collections, ciphers);
   }
 
