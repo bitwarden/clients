@@ -8505,7 +8505,7 @@
       }
     }
   },
-   "addedGroupToServiceAccountWithId": {
+   "addedGroupToServiceAccountWithIdentifier": {
     "message": "Added group: $GROUP_ID$ to machine account with identifier: $SERVICE_ACCOUNT_ID$",
     "placeholders": {
       "group_id": {

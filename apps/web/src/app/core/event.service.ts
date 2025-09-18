@@ -621,12 +621,12 @@ export class EventService {
         break;
       case EventType.ServiceAccount_GroupAdded:
         msg = this.i18nService.t(
-          "addedGroupToServiceAccountWithId",
+          "addedGroupToServiceAccountWithIdentifier",
           this.formatGroupId(ev),
           this.formatServiceAccountId(ev, options),
         );
         humanReadableMsg = this.i18nService.t(
-          "addedGroupToServiceAccountWithId",
+          "addedGroupToServiceAccountWithIdentifier",
           this.formatGroupId(ev),
           this.formatServiceAccountId(ev, options),
         );
