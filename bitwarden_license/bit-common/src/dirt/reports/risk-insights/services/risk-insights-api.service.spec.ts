@@ -5,7 +5,7 @@ import { makeEncString } from "@bitwarden/common/spec";
 import { OrganizationId, OrganizationReportId } from "@bitwarden/common/types/guid";
 
 import { SaveRiskInsightsReportRequest } from "../models/api-models.types";
-import { EncryptedDataWithKey } from "../models/password-health";
+import { EncryptedDataModel } from "../models/password-health";
 
 import { RiskInsightsApiService } from "./risk-insights-api.service";
 
@@ -163,7 +163,7 @@ describe("RiskInsightsApiService", () => {
   it("Get Summary: should call apiService.send with correct parameters and return an Observable", (done) => {
     const minDate = new Date("2024-01-01");
     const maxDate = new Date("2024-01-31");
-    const mockResponse: EncryptedDataWithKey[] = [{ encryptedData: "abc" } as EncryptedDataWithKey];
+    const mockResponse: EncryptedDataModel[] = [{ encryptedData: "abc" } as EncryptedDataModel];
 
     mockApiService.send.mockResolvedValueOnce(mockResponse);
 
@@ -181,7 +181,7 @@ describe("RiskInsightsApiService", () => {
   });
 
   it("Update Summary: should call apiService.send with correct parameters and return an Observable", (done) => {
-    const data: EncryptedDataWithKey = { encryptedData: "xyz" } as EncryptedDataWithKey;
+    const data: EncryptedDataModel = { encryptedData: "xyz" } as EncryptedDataModel;
     const reportId = "report123" as OrganizationReportId;
 
     mockApiService.send.mockResolvedValueOnce(undefined);
@@ -201,9 +201,9 @@ describe("RiskInsightsApiService", () => {
 
   it("Get Applications: should call apiService.send with correct parameters and return an Observable", (done) => {
     const reportId = "report123" as OrganizationReportId;
-    const mockResponse: EncryptedDataWithKey | null = {
+    const mockResponse: EncryptedDataModel | null = {
       encryptedData: "abc",
-    } as EncryptedDataWithKey;
+    } as EncryptedDataModel;
 
     mockApiService.send.mockResolvedValueOnce(mockResponse);
 
@@ -221,7 +221,7 @@ describe("RiskInsightsApiService", () => {
   });
 
   it("Update Applications: should call apiService.send with correct parameters and return an Observable", (done) => {
-    const applicationData: EncryptedDataWithKey = { encryptedData: "xyz" } as EncryptedDataWithKey;
+    const applicationData: EncryptedDataModel = { encryptedData: "xyz" } as EncryptedDataModel;
     const reportId = "report123" as OrganizationReportId;
 
     mockApiService.send.mockResolvedValueOnce(undefined);

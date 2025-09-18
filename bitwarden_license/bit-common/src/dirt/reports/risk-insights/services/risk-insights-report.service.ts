@@ -279,7 +279,7 @@ export class RiskInsightsReportService {
         organizationId: organizationId,
         date: new Date().toISOString(),
         reportData: encryptedReport.encryptedData,
-        reportKey: encryptedReport.contentEncryptionKey,
+        reportKey: encryptedReport.encryptionKey,
       },
     };
 

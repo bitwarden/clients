@@ -8,7 +8,7 @@ import {
   SaveRiskInsightsReportRequest,
   SaveRiskInsightsReportResponse,
 } from "../models/api-models.types";
-import { EncryptedDataWithKey } from "../models/password-health";
+import { EncryptedDataModel } from "../models/password-health";
 
 export class RiskInsightsApiService {
   constructor(private apiService: ApiService) {}
@@ -45,7 +45,7 @@ export class RiskInsightsApiService {
     orgId: string,
     minDate: Date,
     maxDate: Date,
-  ): Observable<EncryptedDataWithKey[]> {
+  ): Observable<EncryptedDataModel[]> {
     const minDateStr = minDate.toISOString().split("T")[0];
     const maxDateStr = maxDate.toISOString().split("T")[0];
     const dbResponse = this.apiService.send(
@@ -56,11 +56,11 @@ export class RiskInsightsApiService {
       true,
     );
 
-    return from(dbResponse as Promise<EncryptedDataWithKey[]>);
+    return from(dbResponse as Promise<EncryptedDataModel[]>);
   }
 
   updateRiskInsightsSummary$(
-    summaryData: EncryptedDataWithKey,
+    summaryData: EncryptedDataModel,
     organizationId: OrganizationId,
     reportId: OrganizationReportId,
   ): Observable<void> {
@@ -78,7 +78,7 @@ export class RiskInsightsApiService {
   getRiskInsightsApplicationData$(
     orgId: OrganizationId,
     reportId: OrganizationReportId,
-  ): Observable<EncryptedDataWithKey | null> {
+  ): Observable<EncryptedDataModel | null> {
     const dbResponse = this.apiService.send(
       "GET",
       `/reports/organizations/${orgId.toString()}/data/application/${reportId.toString()}`,
@@ -87,11 +87,11 @@ export class RiskInsightsApiService {
       true,
     );
 
-    return from(dbResponse as Promise<EncryptedDataWithKey | null>);
+    return from(dbResponse as Promise<EncryptedDataModel | null>);
   }
 
   updateRiskInsightsApplicationData$(
-    applicationData: EncryptedDataWithKey,
+    applicationData: EncryptedDataModel,
     orgId: OrganizationId,
     reportId: OrganizationReportId,
   ): Observable<void> {
