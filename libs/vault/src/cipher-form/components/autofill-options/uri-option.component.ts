@@ -18,9 +18,14 @@ import {
   NG_VALUE_ACCESSOR,
   ReactiveFormsModule,
 } from "@angular/forms";
-import { concatMap, pairwise } from "rxjs";
+import { concatMap, pairwise, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { getFirstPolicy } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import {
   UriMatchStrategy,
   UriMatchStrategySetting,
@@ -164,6 +169,8 @@ export class UriOptionComponent implements ControlValueAccessor {
     private dialogService: DialogService,
     private formBuilder: FormBuilder,
     private i18nService: I18nService,
+    private policyService: PolicyService,
+    private accountService: AccountService,
   ) {
     this.uriForm.valueChanges.pipe(takeUntilDestroyed()).subscribe((value) => {
       this.onChange(value);
@@ -180,6 +187,39 @@ export class UriOptionComponent implements ControlValueAccessor {
         takeUntilDestroyed(),
       )
       .subscribe();
+
+    this.applyUriMatchPolicy();
+  }
+
+  applyUriMatchPolicy() {
+    this.accountService.activeAccount$
+      .pipe(
+        getUserId,
+        switchMap((userId) =>
+          this.policyService.policiesByType$(PolicyType.UriMatchDefaults, userId),
+        ),
+        getFirstPolicy,
+        takeUntilDestroyed(),
+      )
+      .subscribe((policy) => {
+        if (policy?.enabled && policy.data?.defaultMatchType !== undefined) {
+          // Ensure we have a valid match type before setting
+          const defaultMatchType = policy.data.defaultMatchType;
+
+          // Only set if it's a valid UriMatchStrategy value
+          if (Object.values(UriMatchStrategy).includes(defaultMatchType)) {
+            this.defaultMatchDetection = defaultMatchType;
+
+            // Optionally disable user override if policy enforces it
+            if (policy.data?.restrictUserSelection) {
+              this.uriMatchOptions = this.uriMatchOptions.map((option) => ({
+                ...option,
+                disabled: option.value !== null && option.value !== defaultMatchType,
+              }));
+            }
+          }
+        }
+      });
   }
 
   private async handleAdvancedMatch(
