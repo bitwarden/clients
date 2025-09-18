@@ -100,9 +100,9 @@ mod tests {
         run_split_encrypted_string_test::<LENGTH10>(false, "v0", "v0", vec![0]);
     }
 
-    fn run_split_encrypted_string_and_validate_test<'a>(
+    fn run_split_encrypted_string_and_validate_test(
         valid_version: bool,
-        plaintext_to_encrypt: &'a str,
+        plaintext_to_encrypt: &str,
         supported_versions: &[&str],
     ) {
         let result = super::split_encrypted_string_and_validate(
