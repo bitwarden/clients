@@ -39,3 +39,10 @@ export interface EncryptedDataWithKey {
   encryptedData: EncryptedString;
   contentEncryptionKey: EncryptedString;
 }
+
+export type LEGACY_MemberDetailsFlat = {
+  userGuid: string;
+  userName: string;
+  email: string;
+  cipherId: string;
+};

@@ -2,7 +2,7 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import {
-  MemberDetailsFlat,
+  LEGACY_MemberDetailsFlat,
   CipherHealthReportDetail,
   CipherHealthReportUriDetail,
   ApplicationHealthReportDetail,
@@ -11,7 +11,7 @@ import { MemberCipherDetailsResponse } from "../response/member-cipher-details.r
 
 export function flattenMemberDetails(
   memberCiphers: MemberCipherDetailsResponse[],
-): MemberDetailsFlat[] {
+): LEGACY_MemberDetailsFlat[] {
   return memberCiphers.flatMap((member) =>
     member.cipherIds.map((cipherId) => ({
       userGuid: member.userGuid,
@@ -44,7 +44,9 @@ export function getTrimmedCipherUris(cipher: CipherView): string[] {
 }
 
 // Returns a deduplicated array of members by email
-export function getUniqueMembers(orgMembers: MemberDetailsFlat[]): MemberDetailsFlat[] {
+export function getUniqueMembers(
+  orgMembers: LEGACY_MemberDetailsFlat[],
+): LEGACY_MemberDetailsFlat[] {
   const existingEmails = new Set<string>();
   return orgMembers.filter((member) => {
     if (existingEmails.has(member.email)) {
@@ -68,7 +70,7 @@ export function getMemberDetailsFlat(
   userName: string,
   email: string,
   cipherId: string,
-): MemberDetailsFlat {
+): LEGACY_MemberDetailsFlat {
   return {
     userGuid: userGuid,
     userName: userName,

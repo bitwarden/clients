@@ -37,7 +37,7 @@ import {
   CipherHealthReportDetail,
   CipherHealthReportUriDetail,
   ExposedPasswordDetail,
-  MemberDetailsFlat,
+  LEGACY_MemberDetailsFlat,
   WeakPasswordDetail,
   WeakPasswordScore,
   ApplicationHealthReportDetailWithCriticalFlagAndCipher,
@@ -84,7 +84,7 @@ export class RiskInsightsReportService {
 
     const results$ = zip(allCiphers$, memberCiphers$).pipe(
       map(([allCiphers, memberCiphers]) => {
-        const details: MemberDetailsFlat[] = memberCiphers.flatMap((dtl) =>
+        const details: LEGACY_MemberDetailsFlat[] = memberCiphers.flatMap((dtl) =>
           dtl.cipherIds.map((c) => getMemberDetailsFlat(dtl.userGuid, dtl.userName, dtl.email, c)),
         );
         return [allCiphers, details] as const;
@@ -297,7 +297,7 @@ export class RiskInsightsReportService {
    */
   private async getCipherDetails(
     ciphers: CipherView[],
-    memberDetails: MemberDetailsFlat[],
+    memberDetails: LEGACY_MemberDetailsFlat[],
   ): Promise<CipherHealthReportDetail[]> {
     const cipherHealthReports: CipherHealthReportDetail[] = [];
     const passwordUseMap = new Map<string, number>();
