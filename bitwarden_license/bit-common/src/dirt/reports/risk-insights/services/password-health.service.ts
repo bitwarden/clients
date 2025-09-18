@@ -74,11 +74,11 @@ export class PasswordHealthService {
     // Check the username
     const userInput = this.isUserNameNotEmpty(cipher)
       ? this.extractUsernameParts(cipher.login.username)
-      : null;
+      : undefined;
 
     const { score } = this.passwordStrengthService.getPasswordStrength(
       cipher.login.password,
-      null,
+      undefined, // No email available in this context
       userInput,
     );
 
