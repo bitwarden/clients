@@ -92,9 +92,14 @@ export type CipherApplicationView = {
  */
 export type OrganizationReportSummary = {
   totalMemberCount: number;
+  totalCriticalMemberCount: number;
   totalAtRiskMemberCount: number;
+  totalCriticalAtRiskMemberCount: number;
   totalApplicationCount: number;
+  totalCriticalApplicationCount: number;
   totalAtRiskApplicationCount: number;
+  totalCriticalAtRiskApplicationCount: number;
+  newApplications: string[];
 };
 
 export type CriticalSummaryDetails = {
