@@ -11,6 +11,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EventType } from "@bitwarden/common/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { LogService } from "@bitwarden/logging";
 import {
   ExportFormat,
   EXPORT_FORMATS,
@@ -28,6 +29,7 @@ export class ExportCommand {
     private policyService: PolicyService,
     private eventCollectionService: EventCollectionService,
     private accountService: AccountService,
+    private logService: LogService,
   ) {}
 
   async run(options: OptionValues): Promise<Response> {
@@ -67,7 +69,18 @@ export class ExportCommand {
     let exportContent: ExportedVault = null;
     try {
       if (format === "encrypted_json") {
-        password = await this.promptPassword(password);
+        const normalizedOptions = new Options(options);
+        const passwordResult = await CliUtils.getPassword(
+          password,
+          normalizedOptions,
+          this.logService,
+        );
+
+        if (passwordResult instanceof Response) {
+          return passwordResult;
+        } else {
+          password = passwordResult;
+        }
       }
 
       exportContent =
@@ -131,5 +144,15 @@ export class ExportCommand {
 
   private isSupportedExportFormat(format: string): format is ExportFormat {
     return EXPORT_FORMATS.includes(format as ExportFormat);
+  }
+}
+
+class Options {
+  passwordEnv: string;
+  passwordFile: string;
+
+  constructor(passedOptions: Record<string, any>) {
+    this.passwordEnv = passedOptions?.passwordenv || passedOptions?.passwordEnv;
+    this.passwordFile = passedOptions?.passwordfile || passedOptions?.passwordFile;
   }
 }
