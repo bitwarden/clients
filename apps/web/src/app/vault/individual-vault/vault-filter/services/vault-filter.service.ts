@@ -243,27 +243,42 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
     if (!collections) {
       return headNode;
     }
-    const nodes: TreeNode<CollectionFilter>[] = [];
+    const all: TreeNode<CollectionFilter>[] = [];
 
     if (defaultCollectionsFlagEnabled) {
       collections = sortDefaultCollections(collections, orgs, this.i18nService.collator);
     }
 
-    collections.forEach((c) => {
-      const collectionCopy = cloneCollection(
-        new CollectionView({ ...c, name: c.name }),
-      ) as CollectionFilter;
-      collectionCopy.icon = "bwi-collection-shared";
-      const parts = c.name != null ? c.name.replace(/^\/+|\/+$/g, "").split(NestingDelimiter) : [];
-      ServiceUtils.nestedTraverse(nodes, 0, parts, collectionCopy, null, NestingDelimiter);
-    });
+    const groupedByOrg = this.groupByOrganization(collections);
 
-    nodes.forEach((n) => {
+    for (const group of groupedByOrg.values()) {
+      const nodes: TreeNode<CollectionFilter>[] = [];
+      for (const c of group) {
+        const collectionCopy = cloneCollection(
+          new CollectionView({ ...c, name: c.name }),
+        ) as CollectionFilter;
+        collectionCopy.icon = "bwi-collection-shared";
+        const parts = c.name ? c.name.replace(/^\/+|\/+$/g, "").split(NestingDelimiter) : [];
+        ServiceUtils.nestedTraverse(nodes, 0, parts, collectionCopy, undefined, NestingDelimiter);
+      }
+      all.push(...nodes);
+    }
+
+    all.forEach((n) => {
       n.parent = headNode;
       headNode.children.push(n);
     });
 
     return headNode;
+  }
+
+  protected groupByOrganization(collections: CollectionView[]): Map<string, CollectionView[]> {
+    const groupedByOrg = new Map<string, CollectionView[]>();
+    collections.map((c) => {
+      const key = c.organizationId;
+      (groupedByOrg.get(key) ?? groupedByOrg.set(key, []).get(key)!).push(c);
+    });
+    return groupedByOrg;
   }
 
   protected getCollectionFilterHead(): TreeNode<CollectionFilter> {
