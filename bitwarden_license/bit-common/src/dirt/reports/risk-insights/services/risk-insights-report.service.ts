@@ -141,6 +141,7 @@ export class RiskInsightsReportService {
 
     return results$;
   }
+
   /**
    * Report data for the aggregation of uris to like uris and getting password/member counts,
    * members, and at risk statuses.
