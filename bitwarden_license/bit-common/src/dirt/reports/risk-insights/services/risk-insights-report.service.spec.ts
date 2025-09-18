@@ -163,7 +163,7 @@ describe("RiskInsightsReportService", () => {
       const encryptedReport = {
         organizationId: organizationId as OrganizationId,
         encryptedData: "encryptedData" as EncryptedString,
-        contentEncryptionKey: "encryptionKey" as EncryptedString,
+        encryptionKey: "encryptionKey" as EncryptedString,
       };
 
       mockRiskInsightsEncryptionService.encryptRiskInsightsReport.mockResolvedValue(
