@@ -9845,6 +9845,9 @@
   "bearerToken": {
     "message": "Bearer Token"
   },
+  "repositoryNameHint": {
+    "message": "Name of the repository to ingest into"
+  },
   "index": {
     "message": "Index"
   },
