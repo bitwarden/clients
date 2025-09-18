@@ -40,7 +40,7 @@ import {
 } from "../models/password-health";
 import {
   ApplicationHealthReportDetail,
-  ApplicationHealthReportSummary,
+  OrganizationReportSummary,
   AtRiskMemberDetail,
   AtRiskApplicationDetail,
   RiskInsightsReportData,
@@ -63,11 +63,16 @@ export class RiskInsightsReportService {
   private riskInsightsReportSubject = new BehaviorSubject<ApplicationHealthReportDetail[]>([]);
   riskInsightsReport$ = this.riskInsightsReportSubject.asObservable();
 
-  private riskInsightsSummarySubject = new BehaviorSubject<ApplicationHealthReportSummary>({
+  private riskInsightsSummarySubject = new BehaviorSubject<OrganizationReportSummary>({
     totalMemberCount: 0,
     totalAtRiskMemberCount: 0,
     totalApplicationCount: 0,
     totalAtRiskApplicationCount: 0,
+    totalCriticalMemberCount: 0,
+    totalCriticalAtRiskMemberCount: 0,
+    totalCriticalApplicationCount: 0,
+    totalCriticalAtRiskApplicationCount: 0,
+    newApplications: [],
   });
   riskInsightsSummary$ = this.riskInsightsSummarySubject.asObservable();
 
@@ -190,20 +195,24 @@ export class RiskInsightsReportService {
    * @param reports The previously calculated application health report data
    * @returns A summary object containing report totals
    */
-  generateApplicationsSummary(
-    reports: ApplicationHealthReportDetail[],
-  ): ApplicationHealthReportSummary {
+  generateApplicationsSummary(reports: ApplicationHealthReportDetail[]): OrganizationReportSummary {
     const totalMembers = reports.flatMap((x) => x.memberDetails);
     const uniqueMembers = getUniqueMembers(totalMembers);
 
     const atRiskMembers = reports.flatMap((x) => x.atRiskMemberDetails);
     const uniqueAtRiskMembers = getUniqueMembers(atRiskMembers);
 
+    // TODO: totalCriticalMemberCount, totalCriticalAtRiskMemberCount, totalCriticalApplicationCount, totalCriticalAtRiskApplicationCount, and newApplications will be handled with future logic implementation
     return {
       totalMemberCount: uniqueMembers.length,
+      totalCriticalMemberCount: 0,
       totalAtRiskMemberCount: uniqueAtRiskMembers.length,
+      totalCriticalAtRiskMemberCount: 0,
       totalApplicationCount: reports.length,
+      totalCriticalApplicationCount: 0,
       totalAtRiskApplicationCount: reports.filter((app) => app.atRiskPasswordCount > 0).length,
+      totalCriticalAtRiskApplicationCount: 0,
+      newApplications: [],
     };
   }
 
@@ -237,6 +246,11 @@ export class RiskInsightsReportService {
                 totalAtRiskMemberCount: 0,
                 totalApplicationCount: 0,
                 totalAtRiskApplicationCount: 0,
+                totalCriticalMemberCount: 0,
+                totalCriticalAtRiskMemberCount: 0,
+                totalCriticalApplicationCount: 0,
+                totalCriticalAtRiskApplicationCount: 0,
+                newApplications: [],
               },
             });
           }
