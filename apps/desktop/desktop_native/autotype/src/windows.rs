@@ -1,35 +1,168 @@
-use std::ffi::OsString;
-use std::os::windows::ffi::OsStringExt;
+use std::{ffi::OsString, os::windows::ffi::OsStringExt};
 
-use windows::Win32::Foundation::{GetLastError, HWND};
-use windows::Win32::UI::Input::KeyboardAndMouse::{
-    SendInput, INPUT, INPUT_0, INPUT_KEYBOARD, KEYBDINPUT, KEYEVENTF_KEYUP, KEYEVENTF_UNICODE,
-    VIRTUAL_KEY,
+use anyhow::{anyhow, Result};
+use windows::Win32::{
+    Foundation::{GetLastError, SetLastError, WIN32_ERROR},
+    UI::{
+        Input::KeyboardAndMouse::{
+            SendInput, INPUT, INPUT_0, INPUT_KEYBOARD, KEYBDINPUT, KEYEVENTF_KEYUP,
+            KEYEVENTF_UNICODE, VIRTUAL_KEY,
+        },
+        WindowsAndMessaging::{GetForegroundWindow, GetWindowTextLengthW, GetWindowTextW},
+    },
 };
-use windows::Win32::UI::WindowsAndMessaging::{
-    GetForegroundWindow, GetWindowTextLengthW, GetWindowTextW,
-};
+
+mod window_handle {
+    //! This module provides an interface to the `HWND` struct, which
+    //! is a Win32 handle (pointer), in the form of a light wrapper.
+    //!
+    //! The reason to isolate in a module is to help ensure that the
+    //! handle is checked to be valid whenever it is used.
+
+    use anyhow::{anyhow, Result};
+    use windows::Win32::Foundation::HWND;
+
+    /// `WindowHandle` is a light wrapper over the `HWND` (a win32 pointer)
+    pub struct WindowHandle {
+        handle: HWND,
+    }
+
+    impl WindowHandle {
+        /// Createa a new `WindowHandle`
+        ///
+        /// # Errors
+        ///
+        /// This function will return an Error if:
+        ///   * The raw handle is not valid.
+        pub fn new(handle: HWND) -> Result<Self> {
+            let handle = Self { handle };
+            handle.is_valid()?;
+            Ok(handle)
+        }
+
+        /// Get the raw win32 handle.
+        ///
+        /// # Errors
+        ///
+        /// This function will return an Error if:
+        ///   * The raw handle is not valid.
+        pub fn get(&self) -> Result<&HWND> {
+            self.is_valid()?;
+            Ok(&self.handle)
+        }
+
+        /// Check if the raw win32 handle is valid.
+        ///
+        /// # Errors
+        ///
+        /// This function will return an Error if:
+        ///   * The raw handle is not valid.
+        pub fn is_valid(&self) -> Result<()> {
+            if self.handle.is_invalid() {
+                let error = "Window handle is invalid.";
+                eprintln!("{error}"); // TODO: error
+                return Err(anyhow!(error));
+            }
+            Ok(())
+        }
+    }
+}
+
+fn clear_last_error() {
+    // TODO debug!("Clearing last error with SetLastError");
+    unsafe {
+        SetLastError(WIN32_ERROR(0));
+    }
+}
+
+fn get_last_error() -> String {
+    let last_err = unsafe { GetLastError().to_hresult().message() };
+    println!("GetLastError(): {last_err}"); // TODO: debug!()
+
+    last_err
+}
+
+// ---------- Window title --------------
+
+use window_handle::WindowHandle;
 
 /// Gets the title bar string for the foreground window.
-pub fn get_foreground_window_title() -> std::result::Result<String, ()> {
-    let Ok(window_handle) = get_foreground_window() else {
-        return Err(());
-    };
-    let Ok(Some(window_title)) = get_window_title(window_handle) else {
-        return Err(());
-    };
+pub fn get_foreground_window_title() -> Result<String> {
+    // https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getforegroundwindow
+    let foreground_window_handle = unsafe { GetForegroundWindow() };
 
-    Ok(window_title)
+    let window_handle = WindowHandle::new(foreground_window_handle)?;
+
+    get_window_title(&window_handle)
 }
+
+/// Gets the length of the window title bar text.
+///
+/// https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getwindowtextlengthw
+fn get_window_title_length(window_handle: &WindowHandle) -> Result<usize> {
+    // GetWindowTextLengthW does not itself clear the last error so we must do it ourselves.
+    clear_last_error();
+
+    let length = unsafe { GetWindowTextLengthW(*window_handle.get()?) };
+
+    let length = usize::try_from(length)?;
+
+    if length == 0 {
+        let last_err = get_last_error();
+        if !last_err.is_empty() {
+            let error_string = format!("Error getting window text length: {last_err}");
+            eprintln!("{error_string}"); // TODO: error!()
+            return Err(anyhow!(error_string));
+        }
+        let error_string = "Window text length is zero.";
+        eprintln!("{error_string}"); // TODO: error!()
+        return Err(anyhow!(error_string));
+    }
+
+    Ok(length)
+}
+
+/// Gets the window title bar title.
+///
+/// https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getwindowtextw
+fn get_window_title(window_handle: &WindowHandle) -> Result<String> {
+    let window_title_length = get_window_title_length(window_handle)?;
+
+    let mut buffer: Vec<u16> = vec![0; window_title_length + 1]; // add extra space for the null character
+
+    let len_written = unsafe { GetWindowTextW(*window_handle.get()?, &mut buffer) };
+
+    if len_written == 0 {
+        // attempt to retreive win32 error
+        let last_err = get_last_error();
+        if !last_err.is_empty() {
+            let error_string = format!("Error retrieving window title: {last_err}");
+            eprintln!("{error_string}"); // TODO: error!()
+            return Err(anyhow!(last_err));
+        }
+        // still return error because we won't be able to get window title string
+        let error_string = "Window title length is zero.";
+        eprintln!("{error_string}"); // TODO: error!()
+        return Err(anyhow!(error_string));
+    }
+
+    let window_title = OsString::from_wide(&buffer);
+
+    Ok(window_title.to_string_lossy().into_owned())
+}
+
+// ---------- Type Input --------------
 
 /// Attempts to type the input text wherever the user's cursor is.
 ///
 /// `input` must be an array of utf-16 encoded characters to insert.
 ///
 /// https://learn.microsoft.com/en-in/windows/win32/api/winuser/nf-winuser-sendinput
-pub fn type_input(input: Vec<u16>) -> Result<(), ()> {
+pub fn type_input(input: Vec<u16>) -> Result<()> {
     const TAB_KEY: u16 = 9;
-    let mut keyboard_inputs: Vec<INPUT> = Vec::new();
+
+    // the length of this vec is always (2x length of input chars + 3 hotkeys to release)
+    let mut keyboard_inputs: Vec<INPUT> = Vec::with_capacity((input.len() * 2) + 3);
 
     // Release hotkeys
     keyboard_inputs.push(build_virtual_key_input(InputKeyPress::Up, 0x12)); // alt
@@ -55,59 +188,7 @@ pub fn type_input(input: Vec<u16>) -> Result<(), ()> {
     send_input(keyboard_inputs)
 }
 
-/// Gets the foreground window handle.
-///
-/// https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getforegroundwindow
-fn get_foreground_window() -> Result<HWND, ()> {
-    let foreground_window_handle = unsafe { GetForegroundWindow() };
-
-    if foreground_window_handle.is_invalid() {
-        return Err(());
-    }
-
-    Ok(foreground_window_handle)
-}
-
-/// Gets the length of the window title bar text.
-///
-/// https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getwindowtextlengthw
-fn get_window_title_length(window_handle: HWND) -> Result<usize, ()> {
-    if window_handle.is_invalid() {
-        return Err(());
-    }
-
-    match usize::try_from(unsafe { GetWindowTextLengthW(window_handle) }) {
-        Ok(length) => Ok(length),
-        Err(_) => Err(()),
-    }
-}
-
-/// Gets the window title bar title.
-///
-/// https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getwindowtextw
-fn get_window_title(window_handle: HWND) -> Result<Option<String>, ()> {
-    if window_handle.is_invalid() {
-        return Err(());
-    }
-
-    let window_title_length = get_window_title_length(window_handle)?;
-    if window_title_length == 0 {
-        return Ok(None);
-    }
-
-    let mut buffer: Vec<u16> = vec![0; window_title_length + 1]; // add extra space for the null character
-
-    let window_title_length = unsafe { GetWindowTextW(window_handle, &mut buffer) };
-    if window_title_length == 0 {
-        return Ok(None);
-    }
-
-    let window_title = OsString::from_wide(&buffer);
-
-    Ok(Some(window_title.to_string_lossy().into_owned()))
-}
-
-/// Used in build_input() to specify if an input key is being pressed (down) or released (up).
+/// An input key can be either pressed (down), or released (up).
 enum InputKeyPress {
     Down,
     Up,
@@ -183,17 +264,28 @@ fn build_virtual_key_input(key_press: InputKeyPress, virtual_key: u8) -> INPUT {
 /// Attempts to type the provided input wherever the user's cursor is.
 ///
 /// https://learn.microsoft.com/en-in/windows/win32/api/winuser/nf-winuser-sendinput
-fn send_input(inputs: Vec<INPUT>) -> Result<(), ()> {
+fn send_input(inputs: Vec<INPUT>) -> Result<()> {
     let insert_count = unsafe { SendInput(&inputs, std::mem::size_of::<INPUT>() as i32) };
 
-    let e = unsafe { GetLastError().to_hresult().message() };
-    println!("type_input() called, GetLastError() is: {:?}", e);
-
     if insert_count == 0 {
-        return Err(()); // input was blocked by another thread
+        let last_err = get_last_error();
+        let error_string =
+            format!("SendInput sent 0 inputs. Input was blocked by another thread. : {last_err}");
+
+        eprintln!("{error_string}"); // TODO: error!()
+        return Err(anyhow!(error_string));
     } else if insert_count != inputs.len() as u32 {
-        return Err(()); // input insertion not completed
+        let last_err = get_last_error();
+        let error_string = format!(
+            "SendInput sent {insert_count} but expected {}: {last_err}",
+            inputs.len()
+        );
+
+        eprintln!("{error_string}"); // TODO: error!()
+        return Err(anyhow!(error_string));
     }
+
+    println!("Sent input."); // TODO debug!()
 
     Ok(())
 }
