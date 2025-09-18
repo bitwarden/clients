@@ -30,7 +30,6 @@ import {
 import {
   LEGACY_CipherHealthReportDetail,
   LEGACY_CipherHealthReportUriDetail,
-  ExposedPasswordDetail,
   LEGACY_MemberDetailsFlat,
   LEGACY_ApplicationHealthReportDetailWithCriticalFlagAndCipher,
 } from "../models/password-health";
@@ -317,7 +316,9 @@ export class RiskInsightsReportService {
   ): Promise<LEGACY_CipherHealthReportDetail[]> {
     const cipherHealthReports: LEGACY_CipherHealthReportDetail[] = [];
     const passwordUseMap = new Map<string, number>();
-    const exposedDetails = await this.findExposedPasswords(ciphers);
+    const exposedDetails = await firstValueFrom(
+      this.passwordHealthService.auditPasswordLeaks$(ciphers),
+    );
     for (const cipher of ciphers) {
       if (this.passwordHealthService.isValidCipher(cipher)) {
         const weakPassword = this.passwordHealthService.findWeakPasswordDetails(cipher);
@@ -396,30 +397,5 @@ export class RiskInsightsReportService {
       }
     });
     return appReports;
-  }
-
-  private async findExposedPasswords(ciphers: CipherView[]): Promise<ExposedPasswordDetail[]> {
-    const exposedDetails: ExposedPasswordDetail[] = [];
-    const promises: Promise<void>[] = [];
-
-    ciphers.forEach((ciph) => {
-      if (this.passwordHealthService.isValidCipher(ciph)) {
-        const promise = this.auditService
-          .passwordLeaked(ciph.login.password)
-          .then((exposedCount) => {
-            if (exposedCount > 0) {
-              const detail = {
-                exposedXTimes: exposedCount,
-                cipherId: ciph.id,
-              } as ExposedPasswordDetail;
-              exposedDetails.push(detail);
-            }
-          });
-        promises.push(promise);
-      }
-    });
-    await Promise.all(promises);
-
-    return exposedDetails;
   }
 }

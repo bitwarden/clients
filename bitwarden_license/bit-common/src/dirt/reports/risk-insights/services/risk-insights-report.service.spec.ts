@@ -58,6 +58,15 @@ describe("RiskInsightsReportService", () => {
       }
       return null;
     });
+    mockPasswordHealthService.auditPasswordLeaks$.mockImplementation((ciphers: any[]) => {
+      const exposedDetails = ciphers
+        .filter((cipher) => cipher.login?.password === "123")
+        .map((cipher) => ({
+          exposedXTimes: 100,
+          cipherId: cipher.id,
+        }));
+      return of(exposedDetails);
+    });
 
     service = new RiskInsightsReportService(
       pwdStrengthService,
