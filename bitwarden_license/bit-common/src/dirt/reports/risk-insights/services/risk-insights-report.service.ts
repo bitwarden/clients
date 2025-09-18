@@ -68,6 +68,11 @@ export class RiskInsightsReportService {
     totalAtRiskMemberCount: 0,
     totalApplicationCount: 0,
     totalAtRiskApplicationCount: 0,
+    totalCriticalMemberCount: 0,
+    totalCriticalAtRiskMemberCount: 0,
+    totalCriticalApplicationCount: 0,
+    totalCriticalAtRiskApplicationCount: 0,
+    newApplications: [],
   });
   riskInsightsSummary$ = this.riskInsightsSummarySubject.asObservable();
 
@@ -197,11 +202,17 @@ export class RiskInsightsReportService {
     const atRiskMembers = reports.flatMap((x) => x.atRiskMemberDetails);
     const uniqueAtRiskMembers = getUniqueMembers(atRiskMembers);
 
+    // TODO: totalCriticalMemberCount, totalCriticalAtRiskMemberCount, totalCriticalApplicationCount, totalCriticalAtRiskApplicationCount, and newApplications will be handled with future logic implementation
     return {
       totalMemberCount: uniqueMembers.length,
+      totalCriticalMemberCount: 0,
       totalAtRiskMemberCount: uniqueAtRiskMembers.length,
+      totalCriticalAtRiskMemberCount: 0,
       totalApplicationCount: reports.length,
+      totalCriticalApplicationCount: 0,
       totalAtRiskApplicationCount: reports.filter((app) => app.atRiskPasswordCount > 0).length,
+      totalCriticalAtRiskApplicationCount: 0,
+      newApplications: [],
     };
   }
 
@@ -235,6 +246,11 @@ export class RiskInsightsReportService {
                 totalAtRiskMemberCount: 0,
                 totalApplicationCount: 0,
                 totalAtRiskApplicationCount: 0,
+                totalCriticalMemberCount: 0,
+                totalCriticalAtRiskMemberCount: 0,
+                totalCriticalApplicationCount: 0,
+                totalCriticalAtRiskApplicationCount: 0,
+                newApplications: [],
               },
             });
           }

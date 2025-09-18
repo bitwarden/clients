@@ -16,7 +16,7 @@ import {
   LEGACY_ApplicationHealthReportDetailWithCriticalFlag,
   LEGACY_ApplicationHealthReportDetailWithCriticalFlagAndCipher,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/password-health";
-import { ApplicationHealthReportSummary } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/report-models";
+import { OrganizationReportSummary } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/report-models";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -57,7 +57,7 @@ export class CriticalApplicationsComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
   protected loading = false;
   protected organizationId: OrganizationId;
-  protected applicationSummary = {} as ApplicationHealthReportSummary;
+  protected applicationSummary = {} as OrganizationReportSummary;
   noItemsIcon = Security;
   enableRequestPasswordChange = false;
 
