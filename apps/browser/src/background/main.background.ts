@@ -286,6 +286,7 @@ import { AutofillBadgeUpdaterService } from "../autofill/services/autofill-badge
 import AutofillService from "../autofill/services/autofill.service";
 import { InlineMenuFieldQualificationService } from "../autofill/services/inline-menu-field-qualification.service";
 import { SafariApp } from "../browser/safariApp";
+import { PhishingDetectionService } from "../dirt/phishing-detection/services/phishing-detection.service";
 import { BackgroundBrowserBiometricsService } from "../key-management/biometrics/background-browser-biometrics.service";
 import VaultTimeoutService from "../key-management/vault-timeout/vault-timeout.service";
 import { BrowserActionsService } from "../platform/actions/browser-actions.service";
@@ -884,7 +885,6 @@ export default class MainBackground {
     );
 
     this.restrictedItemTypesService = new RestrictedItemTypesService(
-      this.configService,
       this.accountService,
       this.organizationService,
       this.policyService,
@@ -1098,7 +1098,6 @@ export default class MainBackground {
       this.encryptService,
       this.cryptoFunctionService,
       this.kdfConfigService,
-      this.accountService,
       this.apiService,
       this.restrictedItemTypesService,
     );
@@ -1114,13 +1113,13 @@ export default class MainBackground {
       this.cryptoFunctionService,
       this.collectionService,
       this.kdfConfigService,
-      this.accountService,
       this.restrictedItemTypesService,
     );
 
     this.exportService = new VaultExportService(
       this.individualVaultExportService,
       this.organizationVaultExportService,
+      this.accountService,
     );
 
     this.browserInitialInstallService = new BrowserInitialInstallService(this.stateProvider);
@@ -1403,6 +1402,15 @@ export default class MainBackground {
     );
 
     this.inlineMenuFieldQualificationService = new InlineMenuFieldQualificationService();
+
+    PhishingDetectionService.initialize(
+      this.configService,
+      this.auditService,
+      this.logService,
+      this.storageService,
+      this.taskSchedulerService,
+      this.eventCollectionService,
+    );
 
     this.ipcContentScriptManagerService = new IpcContentScriptManagerService(this.configService);
     this.ipcService = new IpcBackgroundService(this.platformUtilsService, this.logService);

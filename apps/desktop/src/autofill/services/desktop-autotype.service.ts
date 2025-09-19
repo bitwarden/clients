@@ -86,7 +86,7 @@ export class DesktopAutotypeService {
   }
 
   async matchCiphersToWindowTitle(windowTitle: string): Promise<CipherView[]> {
-    const URI_PREFIX = "APP:";
+    const URI_PREFIX = "apptitle://";
     windowTitle = windowTitle.toLowerCase();
 
     const ciphers = await firstValueFrom(
@@ -107,7 +107,7 @@ export class DesktopAutotypeService {
             return false;
           }
 
-          const uri = u.uri.substring(4).toLowerCase();
+          const uri = u.uri.substring(URI_PREFIX.length).toLowerCase();
 
           return windowTitle.indexOf(uri) > -1;
         })
