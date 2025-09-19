@@ -429,21 +429,6 @@
     width: calc(100% - 25px);
   }
 
-  .row-sub-icon {
-    @include themify($themes) {
-      color: themed("disabledIconColor");
-    }
-  }
-
-  .row-sub-label {
-    margin: 0 15px;
-    white-space: nowrap;
-
-    @include themify($themes) {
-      color: themed("mutedColor");
-    }
-  }
-
   .progress {
     display: flex;
     height: 5px;
