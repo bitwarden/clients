@@ -40,6 +40,7 @@ export enum FeatureFlag {
 
   /* DIRT */
   EventBasedOrganizationIntegrations = "event-based-organization-integrations",
+  PhishingDetection = "phishing-detection",
   PM22887_RiskInsightsActivityTab = "pm-22887-risk-insights-activity-tab",
 
   /* Vault */
@@ -83,6 +84,7 @@ export const DefaultFeatureFlagValue = {
 
   /* DIRT */
   [FeatureFlag.EventBasedOrganizationIntegrations]: FALSE,
+  [FeatureFlag.PhishingDetection]: FALSE,
   [FeatureFlag.PM22887_RiskInsightsActivityTab]: FALSE,
 
   /* Vault */
