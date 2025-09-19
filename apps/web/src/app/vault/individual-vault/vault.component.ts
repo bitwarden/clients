@@ -99,6 +99,15 @@ import {
   CollectionDialogTabType,
   openCollectionDialog,
 } from "../../admin-console/organizations/shared/components/collection-dialog";
+import {
+  UpgradeAccountDialogComponent,
+  UpgradeAccountDialogResult,
+  UpgradeAccountDialogStatus,
+} from "../../billing/individual/upgrade/upgrade-account-dialog/upgrade-account-dialog.component";
+import {
+  UpgradePaymentDialogComponent,
+  UpgradePaymentDialogResult,
+} from "../../billing/individual/upgrade/upgrade-payment-dialog/upgrade-payment-dialog.component";
 import { BillingNotificationService } from "../../billing/services/billing-notification.service";
 import { TrialFlowService } from "../../billing/services/trial-flow.service";
 import { FreeTrial } from "../../billing/types/free-trial";
@@ -186,6 +195,9 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   private hasSubscription$ = new BehaviorSubject<boolean>(false);
 
   private vaultItemDialogRef?: DialogRef<VaultItemDialogResult> | undefined;
+  private upgradeToPremiumDialogRef?: DialogRef<UpgradeAccountDialogResult> | undefined;
+  private upgradePaymentDialogRef: DialogRef<UpgradePaymentDialogResult> | undefined;
+
   private organizations$ = this.accountService.activeAccount$
     .pipe(map((a) => a?.id))
     .pipe(switchMap((id) => this.organizationService.organizations$(id)));
@@ -571,6 +583,36 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
           this.changeDetectorRef.markForCheck();
         },
       );
+    await this.openUpgradeDialog(activeUserId);
+  }
+
+  private async openUpgradeDialog(userId?: UserId) {
+    while (true) {
+      // Open the upgrade account dialog
+      this.upgradeToPremiumDialogRef = UpgradeAccountDialogComponent.open(this.dialogService, {
+        data: { organizationId: null },
+      });
+      const result = await lastValueFrom(this.upgradeToPremiumDialogRef.closed);
+      this.upgradeToPremiumDialogRef = undefined;
+
+      // If user wants to proceed to payment
+      if (result.status === UpgradeAccountDialogStatus.ProceededToPayment) {
+        // Open the payment dialog
+        this.upgradePaymentDialogRef = UpgradePaymentDialogComponent.open(this.dialogService, {
+          data: { plan: result.plan, subscriber: null },
+        });
+        const paymentResult = await lastValueFrom(this.upgradePaymentDialogRef.closed);
+        this.upgradePaymentDialogRef = undefined;
+
+        // If user clicked "Back", continue the loop to reopen the first dialog
+        if (paymentResult === UpgradePaymentDialogResult.Back) {
+          continue;
+        }
+      }
+
+      // Exit the loop for all other cases
+      break;
+    }
   }
 
   ngOnDestroy() {

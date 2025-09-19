@@ -7,7 +7,7 @@
   <div class="tw-flex tw-items-center tw-pb-4">
     <div class="tw-flex tw-items-center">
       <h2 bitTypography="h4" id="purchase-summary-heading" class="!tw-m-0">
-        {{ "Total" | i18n }}: {{ total() | currency: "USD" : "symbol" }} USD
+        {{ "total" | i18n }}: {{ total() | currency: "USD" : "symbol" }} USD
       </h2>
       <span bitTypography="h3">&nbsp;</span>
       <span bitTypography="body1" class="tw-text-main">/ {{ passwordManager.cadence | i18n }}</span>
@@ -28,7 +28,7 @@
       <!-- Password Manager Section -->
       <div class="tw-border-b tw-border-secondary-100 tw-pb-2">
         <div class="tw-flex tw-justify-between tw-mb-1">
-          <h3 bitTypography="h5" class="tw-text-muted">{{ "Password Manager" | i18n }}</h3>
+          <h3 bitTypography="h5" class="tw-text-muted">{{ "passwordManager" | i18n }}</h3>
         </div>
 
         <!-- Password Manager Members -->
@@ -67,7 +67,7 @@
       @if (secretsManager) {
         <div class="tw-border-b tw-border-secondary-100 tw-py-2">
           <div class="tw-flex tw-justify-between">
-            <h3 bitTypography="h5" class="tw-text-muted">{{ "Secrets Manager" | i18n }}</h3>
+            <h3 bitTypography="h5" class="tw-text-muted">{{ "secretsManager" | i18n }}</h3>
           </div>
 
           <!-- Secrets Manager Members -->
@@ -102,7 +102,7 @@
 
       <!-- Estimated Tax -->
       <div class="tw-flex tw-justify-between tw-border-b tw-border-secondary-100 tw-pt-2 tw-pb-0.5">
-        <h3 bitTypography="h5" class="tw-text-muted">{{ "Estimated tax" | i18n }}</h3>
+        <h3 bitTypography="h5" class="tw-text-muted">{{ "estimatedTax" | i18n }}</h3>
         <div bitTypography="body1" class="tw-text-muted">
           {{ estimatedTax() | currency: "USD" : "symbol" }}
         </div>
@@ -110,7 +110,7 @@
 
       <!-- Total -->
       <div class="tw-flex tw-justify-between tw-items-center tw-pt-2">
-        <h3 bitTypography="h5" class="tw-text-muted">{{ "Total" | i18n }}</h3>
+        <h3 bitTypography="h5" class="tw-text-muted">{{ "total" | i18n }}</h3>
         <div bitTypography="body1" class="tw-text-muted">
           {{ total() | currency: "USD" : "symbol" }} / {{ passwordManager.cadence | i18n }}
         </div>
