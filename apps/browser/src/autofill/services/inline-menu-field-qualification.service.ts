@@ -431,11 +431,9 @@ export class InlineMenuFieldQualificationService
       return false;
     }
 
-    // If the form has any visible username fields, we should treat the field as part of a login form
-    const visibleUsernameFields = usernameFieldsInPageDetails.filter(
-      (f) => f.form === field.form && f.viewable,
-    );
-    if (visibleUsernameFields.length > 0) {
+    // If the form has any username fields, we should treat the field as part of a login form
+    const usernameFields = usernameFieldsInPageDetails.filter((f) => f.form === field.form);
+    if (usernameFields.length > 0) {
       return true;
     }
 
