@@ -48,6 +48,7 @@ export type FocusedFieldData = {
   frameId?: number;
   accountCreationFieldType?: string;
   showPasskeys?: boolean;
+  focusedFieldForm?: string;
 };
 
 export type InlineMenuElementPosition = {
