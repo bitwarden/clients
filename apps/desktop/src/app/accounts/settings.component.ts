@@ -54,6 +54,7 @@ import {
   BadgeComponent,
 } from "@bitwarden/components";
 import { KeyService, BiometricStateService, BiometricsStatus } from "@bitwarden/key-management";
+import { PermitCipherDetailsPopoverComponent } from "@bitwarden/vault";
 
 import { SetPinComponent } from "../../auth/components/set-pin.component";
 import { SshAgentPromptType } from "../../autofill/models/ssh-agent-setting";
@@ -85,6 +86,7 @@ import { NativeMessagingManifestService } from "../services/native-messaging-man
     SelectModule,
     TypographyModule,
     VaultTimeoutInputComponent,
+    PermitCipherDetailsPopoverComponent,
   ],
 })
 export class SettingsComponent implements OnInit, OnDestroy {

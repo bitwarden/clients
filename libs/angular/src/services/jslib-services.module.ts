@@ -343,6 +343,8 @@ import { PasswordRepromptService } from "@bitwarden/vault";
 import {
   IndividualVaultExportService,
   IndividualVaultExportServiceAbstraction,
+  DefaultVaultExportApiService,
+  VaultExportApiService,
   OrganizationVaultExportService,
   OrganizationVaultExportServiceAbstraction,
   VaultExportService,
@@ -690,7 +692,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: RestrictedItemTypesService,
     useClass: RestrictedItemTypesService,
-    deps: [ConfigService, AccountService, OrganizationServiceAbstraction, PolicyServiceAbstraction],
+    deps: [AccountService, OrganizationServiceAbstraction, PolicyServiceAbstraction],
   }),
   safeProvider({
     provide: PasswordStrengthServiceAbstraction,
@@ -888,11 +890,16 @@ const safeProviders: SafeProvider[] = [
     ],
   }),
   safeProvider({
+    provide: VaultExportApiService,
+    useClass: DefaultVaultExportApiService,
+    deps: [ApiServiceAbstraction],
+  }),
+  safeProvider({
     provide: OrganizationVaultExportServiceAbstraction,
     useClass: OrganizationVaultExportService,
     deps: [
       CipherServiceAbstraction,
-      ApiServiceAbstraction,
+      VaultExportApiService,
       PinServiceAbstraction,
       KeyService,
       EncryptService,

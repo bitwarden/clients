@@ -194,15 +194,15 @@ export class ViewComponent implements OnInit {
 
     switch (this.cipher.type) {
       case CipherType.Login:
-        return this.i18nService.t("viewItemType", this.i18nService.t("typeLogin").toLowerCase());
+        return this.i18nService.t("viewItemHeaderLogin");
       case CipherType.SecureNote:
-        return this.i18nService.t("viewItemType", this.i18nService.t("note").toLowerCase());
+        return this.i18nService.t("viewItemHeaderCard");
       case CipherType.Card:
-        return this.i18nService.t("viewItemType", this.i18nService.t("typeCard").toLowerCase());
+        return this.i18nService.t("viewItemHeaderIdentity");
       case CipherType.Identity:
-        return this.i18nService.t("viewItemType", this.i18nService.t("typeIdentity").toLowerCase());
+        return this.i18nService.t("viewItemHeaderNote");
       case CipherType.SshKey:
-        return this.i18nService.t("viewItemType", this.i18nService.t("typeSshKey").toLowerCase());
+        return this.i18nService.t("viewItemHeaderSshKey");
       default:
         return null;
     }
