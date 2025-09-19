@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { concatMap, firstValueFrom, lastValueFrom, takeUntil } from "rxjs";
+import { concatMap, filter, firstValueFrom, lastValueFrom, map, switchMap, takeUntil } from "rxjs";
 
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
@@ -136,22 +136,24 @@ export class EventsComponent extends BaseEventsComponent implements OnInit, OnDe
 
     if (this.organization.providerId != null) {
       try {
-        const provider = await this.providerService.get(this.organization.providerId);
-        if (
-          provider != null &&
-          (await this.providerService.get(this.organization.providerId)).canManageUsers
-        ) {
-          const providerUsersResponse = await this.apiService.getProviderUsers(
-            this.organization.providerId,
-          );
-          providerUsersResponse.data.forEach((u) => {
-            const name = this.userNamePipe.transform(u);
-            this.orgUsersUserIdMap.set(u.userId, {
-              name: `${name} (${this.organization.providerName})`,
-              email: u.email,
-            });
-          });
-        }
+        await firstValueFrom(
+          this.accountService.activeAccount$.pipe(
+            getUserId,
+            switchMap((userId) => this.providerService.get$(this.organization.providerId, userId)),
+            map((provider) => provider != null && provider.canManageUsers),
+            filter((result) => result),
+            switchMap(() => this.apiService.getProviderUsers(this.organization.id)),
+            map((providerUsersResponse) =>
+              providerUsersResponse.data.forEach((u) => {
+                const name = this.userNamePipe.transform(u);
+                this.orgUsersUserIdMap.set(u.userId, {
+                  name: `${name} (${this.organization.providerName})`,
+                  email: u.email,
+                });
+              }),
+            ),
+          ),
+        );
       } catch (e) {
         this.logService.warning(e);
       }

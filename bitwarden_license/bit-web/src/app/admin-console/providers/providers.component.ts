@@ -1,9 +1,12 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
+import { map, Observable, switchMap, tap } from "rxjs";
 
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
@@ -13,24 +16,27 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
   standalone: false,
 })
 export class ProvidersComponent implements OnInit {
-  providers: Provider[];
+  providers$: Observable<Provider[]>;
   loaded = false;
   actionPromise: Promise<any>;
 
   constructor(
     private providerService: ProviderService,
     private i18nService: I18nService,
+    private accountService: AccountService,
   ) {}
 
-  async ngOnInit() {
+  ngOnInit() {
     document.body.classList.remove("layout_frontend");
-    await this.load();
+    this.load();
   }
 
-  async load() {
-    const providers = await this.providerService.getAll();
-    providers.sort(Utils.getSortFunction(this.i18nService, "name"));
-    this.providers = providers;
-    this.loaded = true;
+  load() {
+    this.providers$ = this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) => this.providerService.providers$(userId)),
+      map((p) => p.sort(Utils.getSortFunction(this.i18nService, "name"))),
+      tap(() => (this.loaded = true)),
+    );
   }
 }

@@ -3,12 +3,16 @@
 import { TestBed } from "@angular/core/testing";
 import { ActivatedRouteSnapshot, Router, RouterStateSnapshot } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
+import { of } from "rxjs";
 
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { ProviderUserType } from "@bitwarden/common/admin-console/enums";
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { UserId } from "@bitwarden/common/types/guid";
 import { ToastService } from "@bitwarden/components";
+import { newGuid } from "@bitwarden/guid";
 
 import { providerPermissionsGuard } from "./provider-permissions.guard";
 
@@ -25,11 +29,23 @@ const providerFactory = (props: Partial<Provider> = {}) =>
 
 describe("Provider Permissions Guard", () => {
   let providerService: MockProxy<ProviderService>;
+  let accountService: MockProxy<AccountService>;
   let route: MockProxy<ActivatedRouteSnapshot>;
   let state: MockProxy<RouterStateSnapshot>;
 
+  const mockUserId = newGuid() as UserId;
+
   beforeEach(() => {
     providerService = mock<ProviderService>();
+    accountService = mock<AccountService>();
+
+    accountService.activeAccount$ = of({
+      id: mockUserId,
+      email: "test@example.com",
+      emailVerified: true,
+      name: "Test User",
+    });
+
     route = mock<ActivatedRouteSnapshot>({
       params: {
         providerId: providerFactory().id,
@@ -44,12 +60,15 @@ describe("Provider Permissions Guard", () => {
         { provide: ToastService, useValue: mock<ToastService>() },
         { provide: I18nService, useValue: mock<I18nService>() },
         { provide: Router, useValue: mock<Router>() },
+        { provide: AccountService, useValue: accountService },
       ],
     });
   });
 
   it("blocks navigation if provider does not exist", async () => {
-    providerService.get.mockResolvedValue(null);
+    providerService.get$
+      .calledWith(providerFactory().id, mockUserId)
+      .mockReturnValue(of(undefined));
 
     const actual = await TestBed.runInInjectionContext(
       async () => await providerPermissionsGuard()(route, state),
@@ -60,7 +79,7 @@ describe("Provider Permissions Guard", () => {
 
   it("permits navigation if no permissions are specified", async () => {
     const provider = providerFactory();
-    providerService.get.calledWith(provider.id).mockResolvedValue(provider);
+    providerService.get$.calledWith(provider.id, mockUserId).mockReturnValue(of(provider));
 
     const actual = await TestBed.runInInjectionContext(
       async () => await providerPermissionsGuard()(route, state),
@@ -74,7 +93,7 @@ describe("Provider Permissions Guard", () => {
     permissionsCallback.mockImplementation((_provider) => true);
 
     const provider = providerFactory();
-    providerService.get.calledWith(provider.id).mockResolvedValue(provider);
+    providerService.get$.calledWith(provider.id, mockUserId).mockReturnValue(of(provider));
 
     const actual = await TestBed.runInInjectionContext(
       async () => await providerPermissionsGuard(permissionsCallback)(route, state),
@@ -88,7 +107,7 @@ describe("Provider Permissions Guard", () => {
     const permissionsCallback = jest.fn();
     permissionsCallback.mockImplementation((_org) => false);
     const provider = providerFactory();
-    providerService.get.calledWith(provider.id).mockResolvedValue(provider);
+    providerService.get$.calledWith(provider.id, mockUserId).mockReturnValue(of(provider));
 
     const actual = await TestBed.runInInjectionContext(
       async () => await providerPermissionsGuard(permissionsCallback)(route, state),
@@ -104,7 +123,7 @@ describe("Provider Permissions Guard", () => {
         type: ProviderUserType.ServiceUser,
         enabled: false,
       });
-      providerService.get.calledWith(org.id).mockResolvedValue(org);
+      providerService.get$.calledWith(org.id, mockUserId).mockReturnValue(of(org));
 
       const actual = await TestBed.runInInjectionContext(
         async () => await providerPermissionsGuard()(route, state),
@@ -118,7 +137,7 @@ describe("Provider Permissions Guard", () => {
         type: ProviderUserType.ProviderAdmin,
         enabled: false,
       });
-      providerService.get.calledWith(org.id).mockResolvedValue(org);
+      providerService.get$.calledWith(org.id, mockUserId).mockReturnValue(of(org));
 
       const actual = await TestBed.runInInjectionContext(
         async () => await providerPermissionsGuard()(route, state),

@@ -21,6 +21,8 @@ import {
 } from "@bitwarden/common/admin-console/enums";
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
 import { ProviderOrganizationOrganizationDetailsResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-organization.response";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -87,9 +89,10 @@ export class ManageClientsComponent {
     this.activatedRoute.parent?.params.pipe(map((params) => params.providerId as string)) ??
     new Observable();
 
-  protected provider$ = this.providerId$.pipe(
-    switchMap((providerId) => this.providerService.get$(providerId)),
-  );
+  protected provider$ = combineLatest([
+    this.providerId$,
+    this.accountService.activeAccount$.pipe(getUserId),
+  ]).pipe(switchMap(([providerId, userId]) => this.providerService.get$(providerId, userId)));
 
   protected isAdminOrServiceUser$ = this.provider$.pipe(
     map(
@@ -126,6 +129,7 @@ export class ManageClientsComponent {
     private webProviderService: WebProviderService,
     private billingNotificationService: BillingNotificationService,
     private configService: ConfigService,
+    private accountService: AccountService,
   ) {
     this.activatedRoute.queryParams.pipe(first(), takeUntilDestroyed()).subscribe((queryParams) => {
       this.searchControl.setValue(queryParams.search);
@@ -133,7 +137,7 @@ export class ManageClientsComponent {
 
     this.provider$
       .pipe(
-        map((provider: Provider) => {
+        map((provider: Provider | undefined) => {
           if (provider?.providerStatus !== ProviderStatusType.Billable) {
             return from(
               this.router.navigate(["../clients"], {
@@ -158,7 +162,8 @@ export class ManageClientsComponent {
   async load() {
     try {
       const providerId = await firstValueFrom(this.providerId$);
-      const provider = await firstValueFrom(this.providerService.get$(providerId));
+      const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+      const provider = await firstValueFrom(this.providerService.get$(providerId, userId));
       if (provider?.providerType === ProviderType.BusinessUnit) {
         this.pageTitle = this.i18nService.t("businessUnits");
         this.clientColumnHeader = this.i18nService.t("businessUnit");
