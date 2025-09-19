@@ -53,6 +53,10 @@ export function guidToRawFormat(guid: string) {
 
 /** Convert raw 16 byte array to standard format (XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX) UUID. */
 export function guidToStandardFormat(bufferSource: BufferSource) {
+  if (bufferSource.byteLength !== 16) {
+    throw TypeError("BufferSource length is invalid");
+  }
+
   const arr =
     bufferSource instanceof ArrayBuffer
       ? new Uint8Array(bufferSource)
