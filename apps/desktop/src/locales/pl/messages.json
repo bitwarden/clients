@@ -3012,7 +3012,7 @@
     "message": "Logowanie za pomocą urządzenia musi być włączone w ustawieniach aplikacji Bitwarden. Potrzebujesz innej opcji?"
   },
   "viewAllLogInOptions": {
-    "message": "Zobacz wszystkie sposoby logowania"
+    "message": "Pokaż wszystkie metody logowania"
   },
   "viewAllLoginOptions": {
     "message": "Pokaż wszystkie metody logowania"

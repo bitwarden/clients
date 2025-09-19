@@ -71,6 +71,10 @@ export class CliPlatformUtilsService implements PlatformUtilsService {
     return false;
   }
 
+  isChromium(): boolean {
+    return false;
+  }
+
   isMacAppStore() {
     return false;
   }

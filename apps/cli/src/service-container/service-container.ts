@@ -179,10 +179,12 @@ import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
 import {
   IndividualVaultExportService,
   IndividualVaultExportServiceAbstraction,
+  VaultExportApiService,
   OrganizationVaultExportService,
   OrganizationVaultExportServiceAbstraction,
   VaultExportService,
   VaultExportServiceAbstraction,
+  DefaultVaultExportApiService,
 } from "@bitwarden/vault-export-core";
 
 import { CliBiometricsService } from "../key-management/cli-biometrics-service";
@@ -241,6 +243,7 @@ export class ServiceContainer {
   importService: ImportServiceAbstraction;
   importApiService: ImportApiServiceAbstraction;
   exportService: VaultExportServiceAbstraction;
+  vaultExportApiService: VaultExportApiService;
   individualExportService: IndividualVaultExportServiceAbstraction;
   organizationExportService: OrganizationVaultExportServiceAbstraction;
   searchService: SearchService;
@@ -686,7 +689,6 @@ export class ServiceContainer {
     );
 
     this.restrictedItemTypesService = new RestrictedItemTypesService(
-      this.configService,
       this.accountService,
       this.organizationService,
       this.policyService,
@@ -844,9 +846,11 @@ export class ServiceContainer {
       this.restrictedItemTypesService,
     );
 
+    this.vaultExportApiService = new DefaultVaultExportApiService(this.apiService);
+
     this.organizationExportService = new OrganizationVaultExportService(
       this.cipherService,
-      this.apiService,
+      this.vaultExportApiService,
       this.pinService,
       this.keyService,
       this.encryptService,

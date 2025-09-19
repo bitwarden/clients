@@ -5,10 +5,10 @@ import { OrganizationId } from "@bitwarden/common/types/guid";
 
 import {
   PasswordHealthReportApplicationDropRequest,
-  PasswordHealthReportApplicationId,
   PasswordHealthReportApplicationsRequest,
   PasswordHealthReportApplicationsResponse,
-} from "../models/password-health";
+} from "../models/api-models.types";
+import { PasswordHealthReportApplicationId } from "../models/report-models";
 
 import { CriticalAppsApiService } from "./critical-apps-api.service";
 
