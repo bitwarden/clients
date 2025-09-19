@@ -960,9 +960,6 @@
   "insertU2f": {
     "message": "Plaas u beveilingsleutel in u rekenaar se USB-poort. Indien dit ’n knop het, druk dit dan."
   },
-  "recoveryCodeDesc": {
-    "message": "Het u toegang tot al u tweestapaanbieders verloor? Gebruik dan u terugstelkode om alle tweestapaanbieders op u rekening te deaktiveer."
-  },
   "recoveryCodeTitle": {
     "message": "Terugstelkode"
   },

@@ -14,6 +14,7 @@ import {
 import { ReactiveFormsModule, UntypedFormBuilder, Validators } from "@angular/forms";
 import {
   combineLatest,
+  firstValueFrom,
   map,
   merge,
   Observable,
@@ -460,9 +461,11 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   protected async getExportData(): Promise<ExportedVault> {
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     return Utils.isNullOrWhitespace(this.organizationId)
-      ? this.exportService.getExport(this.format, this.filePassword)
+      ? this.exportService.getExport(userId, this.format, this.filePassword)
       : this.exportService.getOrganizationExport(
+          userId,
           this.organizationId,
           this.format,
           this.filePassword,

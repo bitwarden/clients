@@ -1587,9 +1587,6 @@
   "selectTwoStepLoginMethod": {
     "message": "Select two-step login method"
   },
-  "recoveryCodeDesc": {
-    "message": "Lost access to all of your two-step login providers? Use your recovery code to turn off all two-step login providers from your account."
-  },
   "recoveryCodeTitle": {
     "message": "Recovery code"
   },

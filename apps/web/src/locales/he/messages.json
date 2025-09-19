@@ -2,6 +2,9 @@
   "allApplications": {
     "message": "כל היישומים"
   },
+  "activity": {
+    "message": "Activity"
+  },
   "appLogoLabel": {
     "message": "הלוגו של Bitwarden"
   },
@@ -56,8 +59,20 @@
   "createNewLoginItem": {
     "message": "צור פריט כניסה חדש"
   },
+  "criticalApplicationsActivityDescription": {
+    "message": "Once you mark applications critical, they will display here."
+  },
   "criticalApplicationsWithCount": {
     "message": "יישומים קריטיים ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfCriticalApplications": {
+    "message": "$COUNT$ critical applications",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -87,13 +102,13 @@
     "message": "ככל שמשתמשים שומרים כניסות, יישומים מופיעים כאן, ומוצגות כל הסיסמאות בסיכון. סמן יישומים קריטיים והודע למשתמשים לעדכן סיסמאות."
   },
   "noCriticalApplicationsTitle": {
-    "message": "You haven’t marked any applications as critical"
+    "message": "לא סימנת אף יישום כקריטי"
   },
   "noCriticalApplicationsDescription": {
-    "message": "Select your most critical applications to prioritize security actions for your users to address at-risk passwords."
+    "message": "בחר את האפליקציות הקריטיות ביותר שלך כדי לתעדף פעולות אבטחה עבור המשתמשים שלך כדי לטפל בסיסמאות בסיכון."
   },
   "markCriticalApplications": {
-    "message": "Select critical applications"
+    "message": "בחר יישומים קריטיים"
   },
   "markAppAsCritical": {
     "message": "סמן יישום כקריטי"
@@ -118,6 +133,18 @@
   },
   "atRiskMembers": {
     "message": "חברים בסיכון"
+  },
+  "membersAtRiskActivityDescription": {
+    "message": "Members with edit access to at-risk items for critical applications"
+  },
+  "membersAtRisk": {
+    "message": "$COUNT$ members at risk",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "atRiskMembersWithCount": {
     "message": "חברים בסיכון ($COUNT$)",
@@ -180,7 +207,7 @@
     "message": "בטל סימון כקריטי"
   },
   "criticalApplicationUnmarkedSuccessfully": {
-    "message": "Successfully unmarked application as critical"
+    "message": "ביטול הסימון של האפליקציה כקריטית בוצע בהצלחה"
   },
   "whatTypeOfItem": {
     "message": "מאיזה סוג פריט זה?"
@@ -734,32 +761,81 @@
   "viewItem": {
     "message": "הצג פריט"
   },
-  "newItemHeader": {
-    "message": "$TYPE$ חדש",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderLogin": {
+    "message": "New Login",
+    "description": "Header for new login item type"
   },
-  "editItemHeader": {
-    "message": "ערוך $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderCard": {
+    "message": "New Card",
+    "description": "Header for new card item type"
   },
-  "viewItemType": {
-    "message": "הצג $ITEMTYPE$",
-    "placeholders": {
-      "itemtype": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderIdentity": {
+    "message": "New Identity",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "New Note",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "New SSH key",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderTextSend": {
+    "message": "New Text Send",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "New File Send",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderLogin": {
+    "message": "Edit Login",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Edit Card",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Edit Identity",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Edit Note",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "Edit SSH key",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Edit Text Send",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Edit File Send",
+    "description": "Header for edit file send"
+  },
+  "viewItemHeaderLogin": {
+    "message": "View Login",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "View Card",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "View Identity",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "View Note",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "View SSH key",
+    "description": "Header for view SSH key item type"
   },
   "new": {
     "message": "חדש",
@@ -1510,9 +1586,6 @@
   "selectTwoStepLoginMethod": {
     "message": "בחר שיטת כניסה דו־שלבית"
   },
-  "recoveryCodeDesc": {
-    "message": "איבדת גישה לכל ספקי הכניסות הדו־שלביות שלך? השתמש בקוד השחזור שלך כדי לכבות את כל ספקי הכניסות הדו־שלביות מהחשבון שלך."
-  },
   "recoveryCodeTitle": {
     "message": "קוד שחזור"
   },
@@ -2115,7 +2188,7 @@
     "message": "שנה את השפה של כספת הרשת."
   },
   "showIconsChangePasswordUrls": {
-    "message": "Show website icons and retrieve change password URLs"
+    "message": "הצג סמלי אתרי אינטרנט ואחזר כתובות URL לשינוי סיסמה"
   },
   "default": {
     "message": "ברירת מחדל"
@@ -7431,7 +7504,7 @@
     "message": "כבוי"
   },
   "connected": {
-    "message": "Connected"
+    "message": "מחובר"
   },
   "members": {
     "message": "חברים"
@@ -9666,6 +9739,9 @@
   "failedToSaveIntegration": {
     "message": "שמירת האינטגרציה נכשלה. נא לנסות שוב מאוחר יותר."
   },
+  "failedToDeleteIntegration": {
+    "message": "Failed to delete integration. Please try again later."
+  },
   "deviceIdMissing": {
     "message": "מזהה המכשיר חסר"
   },
@@ -9691,7 +9767,7 @@
     }
   },
   "updateIntegrationButtonDesc": {
-    "message": "Update $INTEGRATION$",
+    "message": "עדכן $INTEGRATION$",
     "placeholders": {
       "integration": {
         "content": "$1",
@@ -9761,6 +9837,9 @@
   },
   "bearerToken": {
     "message": "אסימון נושא"
+  },
+  "repositoryNameHint": {
+    "message": "Name of the repository to ingest into"
   },
   "index": {
     "message": "אינדקס"
@@ -10210,14 +10289,8 @@
   "learnMoreAboutApi": {
     "message": "למד עוד על ה־API של Bitwarden"
   },
-  "fileSend": {
-    "message": "סֵנְד של קובץ"
-  },
   "fileSends": {
     "message": "סֵנְדים של קובץ"
-  },
-  "textSend": {
-    "message": "סֵנְד של טקסט"
   },
   "textSends": {
     "message": "סֵנְדים של טקסט"
@@ -10906,10 +10979,10 @@
     "message": "שנה סיסמה בסיכון"
   },
   "changeAtRiskPasswordAndAddWebsite": {
-    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+    "message": "כניסה זו נמצאת בסיכון וחסר בה אתר אינטרנט. הוסף אתר אינטרנט ושנה את הסיסמה לאבטחה חזקה יותר."
   },
   "missingWebsite": {
-    "message": "Missing website"
+    "message": "לא נמצא אתר אינטרנט"
   },
   "removeUnlockWithPinPolicyTitle": {
     "message": "הסר ביטול נעילה עם PIN"
@@ -11087,10 +11160,10 @@
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   },
   "aboutThisSetting": {
-    "message": "About this setting"
+    "message": "אודות הגדרה זו"
   },
   "permitCipherDetailsDescription": {
-    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+    "message": "Bitwarden ישתמש בכתובות URI של כניסות שמורות כדי לזהות באיזה סמל או URL לשינוי סיסמה יש להשתמש על מנת לשפר את החוויה שלך. לא נאסף או נשמר מידע כלשהו כאשר אתה משתמש בשירות זה."
   },
   "billingAddress": {
     "message": "כתובת לחיוב"
@@ -11257,12 +11330,12 @@
     "message": "אשר דומיין של Key Connector"
   },
   "requiredToVerifyBankAccountWithStripe": {
-    "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
+    "message": "תשלום באמצעות חשבון בנק זמין רק ללקוחות בארצות הברית. אתה תידרש לאמת את חשבון הבנק שלך. אנחנו נבצע מיקרו־הפקדה בתוך 1-2 ימי עסקים. כשל באימות חשבון הבנק יגרום לפספוס תשלום ולהשעיית המנוי שלך."
   },
   "verifyBankAccountWithStripe": {
-    "message": "We have made a micro-deposit to your bank account. This may take 1-2 business days. When you see the deposit in your account, you can verify your bank account. Failure to verify your bank account will result in a missed payment and your subscription will be suspended."
+    "message": "ביצענו מיקרו־הפקדה לחשבון הבנק שלך. זה עשוי לקחת 1-2 ימי עסקים. כאשר תראה את ההפקדה בחשבונך, תוכל לאמת את חשבון הבנק שלך. כשל באימות חשבון הבנק יגרום לפספוס תשלום ולהשעיית המנוי שלך."
   },
   "verifyNow": {
-    "message": "Verify now."
+    "message": "אמת כעת."
   }
 }
