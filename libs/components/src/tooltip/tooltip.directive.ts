@@ -61,7 +61,7 @@ export class TooltipDirective implements OnInit {
   }
 
   private computePositions(tooltipPosition: string) {
-    const allowedPositions = getDefaultPositions("bit-tooltip", 8).filter((position) =>
+    const allowedPositions = getDefaultPositions("bit-tooltip", 10).filter((position) =>
       ALLOWED_TOOLTIP_POSITION_IDS.includes(position.id),
     );
     const chosenPosition = allowedPositions.find((position) => position.id === tooltipPosition);
