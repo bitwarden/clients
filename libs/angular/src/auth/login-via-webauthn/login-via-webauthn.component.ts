@@ -1,27 +1,69 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Directive, OnInit } from "@angular/core";
-import { Router } from "@angular/router";
+import { CommonModule } from "@angular/common";
+import { Component, OnInit } from "@angular/core";
+import { Router, RouterModule } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
+import { JslibModule } from "@bitwarden/angular/jslib.module";
+import {
+  TwoFactorAuthSecurityKeyIcon,
+  TwoFactorAuthSecurityKeyFailedIcon,
+} from "@bitwarden/assets/svg";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { LoginSuccessHandlerService } from "@bitwarden/auth/common";
 import { WebAuthnLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login.service.abstraction";
 import { WebAuthnLoginCredentialAssertionView } from "@bitwarden/common/auth/models/view/webauthn-login/webauthn-login-credential-assertion.view";
+import { ClientType } from "@bitwarden/common/enums";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
+import {
+  AnonLayoutWrapperDataService,
+  ButtonModule,
+  IconModule,
+  LinkModule,
+  TypographyModule,
+} from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 
 export type State = "assert" | "assertFailed";
-
-@Directive()
-export class BaseLoginViaWebAuthnComponent implements OnInit {
+@Component({
+  selector: "app-login-via-webauthn",
+  templateUrl: "login-via-webauthn.component.html",
+  standalone: true,
+  imports: [
+    CommonModule,
+    RouterModule,
+    JslibModule,
+    ButtonModule,
+    IconModule,
+    LinkModule,
+    TypographyModule,
+  ],
+})
+export class LoginViaWebAuthnComponent implements OnInit {
   protected currentState: State = "assert";
 
-  protected successRoute = "/vault";
+  protected readonly Icons = {
+    TwoFactorAuthSecurityKeyIcon,
+    TwoFactorAuthSecurityKeyFailedIcon,
+  };
+
+  private readonly successRoutes: Record<ClientType, string> = {
+    [ClientType.Web]: "/vault",
+    [ClientType.Browser]: "/tabs/vault",
+    [ClientType.Desktop]: "/vault",
+    [ClientType.Cli]: "/vault",
+  };
+
+  protected get successRoute(): string {
+    const clientType = this.platformUtilsService.getClientType();
+    return this.successRoutes[clientType] || "/vault";
+  }
 
   constructor(
     private webAuthnLoginService: WebAuthnLoginServiceAbstraction,
@@ -31,6 +73,8 @@ export class BaseLoginViaWebAuthnComponent implements OnInit {
     private i18nService: I18nService,
     private loginSuccessHandlerService: LoginSuccessHandlerService,
     private keyService: KeyService,
+    private platformUtilsService: PlatformUtilsService,
+    private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
   ) {}
 
   ngOnInit(): void {
@@ -41,6 +85,8 @@ export class BaseLoginViaWebAuthnComponent implements OnInit {
 
   protected retry() {
     this.currentState = "assert";
+    // Reset to default icon on retry
+    this.setDefaultIcon();
     // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.authenticate();
@@ -54,6 +100,7 @@ export class BaseLoginViaWebAuthnComponent implements OnInit {
     } catch (error) {
       this.validationService.showError(error);
       this.currentState = "assertFailed";
+      this.setFailureIcon();
       return;
     }
     try {
@@ -64,6 +111,7 @@ export class BaseLoginViaWebAuthnComponent implements OnInit {
           this.i18nService.t("twoFactorForPasskeysNotSupportedOnClientUpdateToLogIn"),
         );
         this.currentState = "assertFailed";
+        this.setFailureIcon();
         return;
       }
 
@@ -80,6 +128,19 @@ export class BaseLoginViaWebAuthnComponent implements OnInit {
       }
       this.logService.error(error);
       this.currentState = "assertFailed";
+      this.setFailureIcon();
     }
+  }
+
+  private setDefaultIcon(): void {
+    this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
+      pageIcon: this.Icons.TwoFactorAuthSecurityKeyIcon,
+    });
+  }
+
+  private setFailureIcon(): void {
+    this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
+      pageIcon: this.Icons.TwoFactorAuthSecurityKeyFailedIcon,
+    });
   }
 }
