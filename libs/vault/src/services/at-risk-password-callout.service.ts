@@ -77,13 +77,6 @@ export class AtRiskPasswordCalloutService {
           return false;
         }
 
-        if (hasPendingTasks) {
-          void this.atRiskPasswordState(userId).update(() => ({
-            hasInteractedWithTasks: state?.hasInteractedWithTasks || false,
-            tasksBannerDismissed: false,
-          }));
-        }
-
         // Show banner if there are completed tasks and no pending tasks, and banner hasn't been dismissed
         return !!completedTasks && !hasPendingTasks && !(state?.tasksBannerDismissed ?? false);
       }),

@@ -123,36 +123,6 @@ describe("AtRiskPasswordCalloutService", () => {
       expect(result).toBe(false);
     });
 
-    it("should set tasksBannerDismissed to false if user has pending tasks", async () => {
-      const tasks = [
-        {
-          id: "t1",
-          cipherId: "c1",
-          type: SecurityTaskType.UpdateAtRiskCredential,
-          status: SecurityTaskStatus.Pending,
-        },
-      ];
-      const ciphers = [new MockCipherView("c1", false)];
-      const state: AtRiskPasswordCalloutData = {
-        hasInteractedWithTasks: true,
-        tasksBannerDismissed: false,
-      };
-      const mockState = { ...fakeUserState(), state$: of(state), update: jest.fn() };
-
-      jest.spyOn(mockTaskService, "pendingTasks$").mockReturnValue(of(tasks));
-      jest.spyOn(mockCipherService, "cipherViews$").mockReturnValue(of(ciphers));
-      mockStateProvider.getUser.mockReturnValue(mockState);
-
-      await firstValueFrom(service.showCompletedTasksBanner$(userId));
-
-      expect(mockState.update).toHaveBeenCalledWith(expect.any(Function));
-      const updater = (mockState.update as jest.Mock).mock.calls[0][0];
-      expect(updater()).toEqual({
-        hasInteractedWithTasks: true,
-        tasksBannerDismissed: false,
-      });
-    });
-
     it("should return true when has completed tasks, no pending tasks, and banner not dismissed", async () => {
       const completedTasks = [
         {

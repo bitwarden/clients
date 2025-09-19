@@ -203,13 +203,9 @@ export class AtRiskPasswordsComponent implements OnInit {
 
     this.markTaskNotificationsAsRead();
 
-    const currentBannerState = await firstValueFrom(
-      this.atRiskPasswordCalloutService.atRiskPasswordState(userId).state$,
-    );
-
     this.atRiskPasswordCalloutService.updateAtRiskPasswordState(userId, {
       hasInteractedWithTasks: true,
-      tasksBannerDismissed: currentBannerState?.tasksBannerDismissed ?? false,
+      tasksBannerDismissed: false,
     });
   }
 
