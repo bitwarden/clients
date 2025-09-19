@@ -5,11 +5,11 @@ import { OrganizationId } from "@bitwarden/common/types/guid";
 
 import {
   AppAtRiskMembersDialogParams,
-  ApplicationHealthReportDetail,
   AtRiskApplicationDetail,
   AtRiskMemberDetail,
   DrawerType,
-} from "../models/password-health";
+  ApplicationHealthReportDetail,
+} from "../models/report-models";
 
 import { RiskInsightsReportService } from "./risk-insights-report.service";
 export class RiskInsightsDataService {

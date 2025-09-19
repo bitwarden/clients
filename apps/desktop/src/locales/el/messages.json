@@ -42,7 +42,7 @@
     "message": "Αναζήτηση κρύπτης"
   },
   "resetSearch": {
-    "message": "Reset search"
+    "message": "Επαναφορά αναζήτησης"
   },
   "addItem": {
     "message": "Προσθήκη στοιχείου"
@@ -431,7 +431,7 @@
     }
   },
   "websiteAdded": {
-    "message": "Website added"
+    "message": "Ο ιστότοπος προστέθηκε"
   },
   "addWebsite": {
     "message": "Προσθήκη ιστοτόπου"
@@ -576,7 +576,7 @@
     "message": "Αντιγραφή κωδικού επαλήθευσης (TOTP)"
   },
   "copyFieldCipherName": {
-    "message": "Copy $FIELD$, $CIPHERNAME$",
+    "message": "Αντιγραφή $FIELD$, $CIPHERNAME$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
@@ -703,10 +703,10 @@
     "message": "Το συνημμένο αποθηκεύτηκε"
   },
   "addAttachment": {
-    "message": "Add attachment"
+    "message": "Προσθήκη συνημμένου"
   },
   "maxFileSizeSansPunctuation": {
-    "message": "Maximum file size is 500 MB"
+    "message": "Το μέγιστο μέγεθος αρχείου είναι 500 MB"
   },
   "file": {
     "message": "Αρχείο"
@@ -959,9 +959,6 @@
   },
   "insertU2f": {
     "message": "Εισάγετε το κλειδί ασφαλείας στη θύρα USB του υπολογιστή σας. Αν έχει κουμπί, πατήστε το."
-  },
-  "recoveryCodeDesc": {
-    "message": "Έχετε χάσει την πρόσβαση σε όλους τους παρόχους δύο παραγόντων; Χρησιμοποιήστε τον κωδικό ανάκτησης σας για να απενεργοποιήσετε όλους τους παρόχους δύο παραγόντων από τον λογαριασμό σας."
   },
   "recoveryCodeTitle": {
     "message": "Κωδικός ανάκτησης"
@@ -2012,13 +2009,13 @@
     "description": "Premium membership"
   },
   "freeOrgsCannotUseAttachments": {
-    "message": "Free organizations cannot use attachments"
+    "message": "Οι δωρεάν οργανισμοί δεν μπορούν να χρησιμοποιήσουν συνημμένα"
   },
   "singleFieldNeedsAttention": {
-    "message": "1 field needs your attention."
+    "message": "1 πεδίο χρειάζεται την προσοχή σας."
   },
   "multipleFieldsNeedAttention": {
-    "message": "$COUNT$ fields need your attention.",
+    "message": "$COUNT$ πεδία χρειάζονται την προσοχή σας.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -3072,7 +3069,7 @@
     "description": "Software Development Kit"
   },
   "server": {
-    "message": "Server"
+    "message": "Διακομιστής"
   },
   "loginRequest": {
     "message": "Login request"
@@ -3638,7 +3635,7 @@
     "description": "Advanced option placeholder for uri option component"
   },
   "warningCapitalized": {
-    "message": "Warning",
+    "message": "Προειδοποίηση",
     "description": "Warning (should maintain locale-relevant capitalization)"
   },
   "success": {
@@ -3786,7 +3783,7 @@
     "message": "ζητά πρόσβαση σε"
   },
   "sshkeyApprovalMessageSuffix": {
-    "message": "in order to"
+    "message": "προκειμένου να"
   },
   "sshActionLogin": {
     "message": "authenticate to a server"

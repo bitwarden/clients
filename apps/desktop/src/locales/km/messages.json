@@ -960,9 +960,6 @@
   "insertU2f": {
     "message": "Insert your security key into your computer's USB port. If it has a button, touch it."
   },
-  "recoveryCodeDesc": {
-    "message": "Lost access to all of your two-factor providers? Use your recovery code to turn off all two-factor providers on your account."
-  },
   "recoveryCodeTitle": {
     "message": "Recovery code"
   },
