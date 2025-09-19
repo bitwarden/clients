@@ -88,7 +88,7 @@ The cart summary component provides flexibility through its structured input pro
 <billing-cart-summary
   [passwordManager]="{
     quantity: 5,
-    name: 'Members',
+    name: 'members',
     cost: 50.00,
     cadence: 'month'
   }"
@@ -100,13 +100,13 @@ The cart summary component provides flexibility through its structured input pro
 <billing-cart-summary
   [passwordManager]="{
     quantity: 5,
-    name: 'Members',
+    name: 'members',
     cost: 50.00,
     cadence: 'month'
   }"
   [additionalStorage]="{
     quantity: 2,
-    name: 'Additional storage GB',
+    name: 'additionalStorageGB',
     cost: 10.00,
     cadence: 'month'
   }"
@@ -140,7 +140,7 @@ Show cart with yearly subscription:
 <billing-cart-summary
   [passwordManager]="{
     quantity: 5,
-    name: 'Members',
+    name: 'members',
     cost: 500.00,
     cadence: 'year'
   }"
@@ -159,13 +159,13 @@ Show cart with password manager and additional storage:
 <billing-cart-summary
   [passwordManager]="{
     quantity: 5,
-    name: 'Members',
+    name: 'members',
     cost: 50.00,
     cadence: 'month'
   }"
   [additionalStorage]="{
     quantity: 2,
-    name: 'Additional storage GB',
+    name: 'additionalStorageGB',
     cost: 10.00,
     cadence: 'month'
   }"
@@ -184,14 +184,14 @@ Show cart with password manager and secrets manager seats only:
 <billing-cart-summary
   [passwordManager]="{
     quantity: 5,
-    name: 'Members',
+    name: 'members',
     cost: 50.00,
     cadence: 'month'
   }"
   [secretsManager]="{
     seats: {
       quantity: 3,
-      name: 'Members',
+      name: 'members',
       cost: 30.00,
       cadence: 'month'
     }
@@ -211,20 +211,20 @@ Show cart with password manager, secrets manager seats, and additional service a
 <billing-cart-summary
   [passwordManager]="{
     quantity: 5,
-    name: 'Members',
+    name: 'members',
     cost: 50.00,
     cadence: 'month'
   }"
   [secretsManager]="{
     seats: {
       quantity: 3,
-      name: 'Members',
+      name: 'members',
       cost: 30.00,
       cadence: 'month'
     },
     additionalServiceAccounts: {
       quantity: 2,
-      name: 'Additional machine accounts',
+      name: 'additionalServiceAccounts',
       cost: 6.00,
       cadence: 'month'
     }
@@ -244,26 +244,26 @@ Show a cart with all available products:
 <billing-cart-summary
   [passwordManager]="{
     quantity: 5,
-    name: 'Members',
+    name: 'members',
     cost: 50.00,
     cadence: 'month'
   }"
   [additionalStorage]="{
     quantity: 2,
-    name: 'Additional storage GB',
+    name: 'additionalStorageGB',
     cost: 10.00,
     cadence: 'month'
   }"
   [secretsManager]="{
     seats: {
       quantity: 3,
-      name: 'Members',
+      name: 'members',
       cost: 30.00,
       cadence: 'month'
     },
     additionalServiceAccounts: {
       quantity: 2,
-      name: 'Additional machine accounts',
+      name: 'additionalServiceAccounts',
       cost: 6.00,
       cadence: 'month'
     }
@@ -282,7 +282,7 @@ Show cart with premium plan:
 <billing-cart-summary
   [passwordManager]="{
     quantity: 1,
-    name: 'Premium membership',
+    name: 'premiumMembership',
     cost: 10.00,
     cadence: 'month'
   }"
@@ -300,7 +300,7 @@ Show cart with families plan:
 <billing-cart-summary
   [passwordManager]="{
     quantity: 1,
-    name: 'Families membership',
+    name: 'familiesMembership',
     cost: 40.00,
     cadence: 'month'
   }"
@@ -330,6 +330,7 @@ Show cart with families plan:
 - Ensure tax estimates are accurate and clearly labeled
 - Maintain consistent cadence formats across related items
 - Use the same cadence for all items within a single cart
+- Use localized strings for LineItem names
 
 ### ❌ Don't
 
