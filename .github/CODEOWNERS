@@ -43,6 +43,7 @@ apps/web/src/app/dirt @bitwarden/team-data-insights-and-reporting-dev
 bitwarden_license/bit-common/src/dirt @bitwarden/team-data-insights-and-reporting-dev
 bitwarden_license/bit-web/src/app/dirt @bitwarden/team-data-insights-and-reporting-dev
 libs/dirt @bitwarden/team-data-insights-and-reporting-dev
+libs/common/src/dirt @bitwarden/team-data-insights-and-reporting-dev
 
 ## Localization/Crowdin (Platform and Tools team)
 apps/browser/src/_locales @bitwarden/team-tools-dev @bitwarden/team-platform-dev
