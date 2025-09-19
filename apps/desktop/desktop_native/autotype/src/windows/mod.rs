@@ -230,7 +230,7 @@ fn send_input(inputs: Vec<INPUT>) -> Result<()> {
         return Err(anyhow!(error_string));
     }
 
-    println!("Sent input."); // TODO debug!()
+    // TODO debug!("Sent input.");
 
     Ok(())
 }
