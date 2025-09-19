@@ -30,7 +30,9 @@ export abstract class CollectionService {
   abstract getNested(collections: CollectionView[], id: string): TreeNode<CollectionView>;
 
   /*
-   * Groups/keys collections by organizationId
+   * Groups/keys collections by OrganizationId
    */
-  abstract groupByOrganization(collections: CollectionView[]): Map<string, CollectionView[]>;
+  abstract groupByOrganization(
+    collections: CollectionView[],
+  ): Map<OrganizationId, CollectionView[]>;
 }
