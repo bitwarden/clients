@@ -1525,9 +1525,6 @@
   "selectTwoStepLoginMethod": {
     "message": "Select two-step login method"
   },
-  "recoveryCodeDesc": {
-    "message": "Praradai prieigą prie visų savo dviejų veiksnių teikėjų? Naudok atkūrimo kodą, kad iš savo paskyros išjungtum visus dviejų veiksnių teikėjus."
-  },
   "recoveryCodeTitle": {
     "message": "Atkūrimo kodas"
   },
@@ -1686,9 +1683,6 @@
   "defaultAutoFillOnPageLoadDesc": {
     "message": "Galite išjungti automatinį pildymą įkeliant puslapį atskiriems prisijungimo elementams, elemento redagavimo rodinyje."
   },
-  "itemAutoFillOnPageLoad": {
-    "message": "Automatinis pildymas įkeliant puslapį (jei nustatyta Parinktyse)"
-  },
   "autoFillOnPageLoadUseDefault": {
     "message": "Naudoti numatytuosius nustatymus"
   },
@@ -1760,17 +1754,8 @@
   "popup2faCloseMessage": {
     "message": "Paspaudę už iššokančio lango, kad patikrintum, ar el. paštu gausi patvirtinimo kodą, uždarys šį iššokantį langą. Ar nori atidaryti šį iššokantį langą naujame lange, kad jis neužsidarytų?"
   },
-  "popupU2fCloseMessage": {
-    "message": "Ši naršyklė negali apdoroti U2F prašymų šiame iššokančiame lange. Ar nori atidaryti šį iššokantį langą naujame lange, kad galėtum prisijungti naudodamas (-a) U2F?"
-  },
   "showIconsChangePasswordUrls": {
     "message": "Show website icons and retrieve change password URLs"
-  },
-  "enableBadgeCounter": {
-    "message": "Rodyti ženkliukų skaitiklį"
-  },
-  "badgeCounterDesc": {
-    "message": "Nurodoma, kiek prisijungimų turi dabartiniame žiniatinklio puslapyje."
   },
   "cardholderName": {
     "message": "Mokėjimo kortelės savininko vardas"
@@ -3570,9 +3555,6 @@
   "autofillPageLoadPolicyActivated": {
     "message": "Your organization policies have turned on autofill on page load."
   },
-  "howToAutofill": {
-    "message": "Kaip automatiškai užpildyti"
-  },
   "autofillSelectInfoWithCommand": {
     "message": "Select an item from this screen, use the shortcut $COMMAND$, or explore other options in settings.",
     "placeholders": {
@@ -3957,17 +3939,9 @@
   "aliasDomain": {
     "message": "Domeno slapyvardis"
   },
-  "passwordRepromptDisabledAutofillOnPageLoad": {
-    "message": "Elementai su pagrindinio slaptažodžio raginimu negali būti automatiškai užpildyti įkeliant puslapį. Automatinis pildymas, įkeliant puslapį, išjungtas.",
-    "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
-  },
   "autofillOnPageLoadSetToDefault": {
     "message": "Automatinis pildymas įkeliant puslapį nustatytas naudoti numatytąjį nustatymą.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "turnOffMasterPasswordPromptToEditField": {
-    "message": "Išjunkite pagrindinio slaptažodžio raginimą, jei norite redaguoti šį lauką",
-    "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
   },
   "toggleSideNavigation": {
     "message": "Perjungti šoninę naršymą"
@@ -4237,9 +4211,6 @@
   },
   "passkeyNotCopiedAlert": {
     "message": "The passkey will not be copied to the cloned item. Do you want to continue cloning this item?"
-  },
-  "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
-    "message": "Verification required by the initiating site. This feature is not yet implemented for accounts without master password."
   },
   "logInWithPasskeyQuestion": {
     "message": "Log in with passkey?"
@@ -4926,9 +4897,6 @@
       }
     }
   },
-  "enableAnimations": {
-    "message": "Enable animations"
-  },
   "showAnimations": {
     "message": "Show animations"
   },
@@ -5203,9 +5171,6 @@
   },
   "vaultCustomTimeoutMinimum": {
     "message": "Minimum custom timeout is 1 minute."
-  },
-  "additionalContentAvailable": {
-    "message": "Additional content is available"
   },
   "fileSavedToDevice": {
     "message": "File saved to device. Manage from your device downloads."

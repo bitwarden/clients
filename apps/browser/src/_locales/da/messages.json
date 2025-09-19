@@ -1525,9 +1525,6 @@
   "selectTwoStepLoginMethod": {
     "message": "Select two-step login method"
   },
-  "recoveryCodeDesc": {
-    "message": "Mistet adgang til alle dine to-faktor-udbydere? Brug din genoprettelseskode til at deaktivere alle to-faktor udbydere på din konto."
-  },
   "recoveryCodeTitle": {
     "message": "Gendannelseskode"
   },
@@ -1686,9 +1683,6 @@
   "defaultAutoFillOnPageLoadDesc": {
     "message": "Autoudfyldning ved sideindlæsning kan slås fra for individuelle loginemner fra emnets redigeringsvisning."
   },
-  "itemAutoFillOnPageLoad": {
-    "message": "Autoudfyld ved sideindlæsning (hvis opsat i Indstillinger)"
-  },
   "autoFillOnPageLoadUseDefault": {
     "message": "Anvend standardindstilling"
   },
@@ -1760,17 +1754,8 @@
   "popup2faCloseMessage": {
     "message": "Ved at klikke uden for pop-up-vinduet for at tjekke din e-mail for din bekræftelseskode vil få denne popup til at lukke. Vil du åbne denne popup i et nyt vindue, så det ikke lukker?"
   },
-  "popupU2fCloseMessage": {
-    "message": "Denne browser kan ikke behandle U2F-anmodninger i dette popup-vindue. Vil du åbne denne popup i et nyt vindue, så du kan logge ind ved hjælp af U2F?"
-  },
   "showIconsChangePasswordUrls": {
     "message": "Show website icons and retrieve change password URLs"
-  },
-  "enableBadgeCounter": {
-    "message": "Vis badge-tæller"
-  },
-  "badgeCounterDesc": {
-    "message": "Vis hvor mange logins du har til den aktuelle webside."
   },
   "cardholderName": {
     "message": "Kortholders navn"
@@ -3570,9 +3555,6 @@
   "autofillPageLoadPolicyActivated": {
     "message": "Organisationspolitikkerne har aktiveret autoudfyldning ved sideindlæsning."
   },
-  "howToAutofill": {
-    "message": "Sådan autoudfyldes"
-  },
   "autofillSelectInfoWithCommand": {
     "message": "Vælg et emne fra denne skærm, brug genvejen $COMMAND$ eller udforsk andre valgmuligheder i Indstillinger.",
     "placeholders": {
@@ -3957,17 +3939,9 @@
   "aliasDomain": {
     "message": "Aliasdomæne"
   },
-  "passwordRepromptDisabledAutofillOnPageLoad": {
-    "message": "Emner, hvor der anmodes om hovedadgangskode igen, kan ikke autoudfyldes ved sideindlæsning. Autoudfyldning ved sideindlæsning er slået fra.",
-    "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
-  },
   "autofillOnPageLoadSetToDefault": {
     "message": "Autoudfyldning ved sideindlæsning sat til standardindstillingen.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "turnOffMasterPasswordPromptToEditField": {
-    "message": "Slå anmodning om hovedadgangskode igen fra for at redigere dette felt",
-    "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
   },
   "toggleSideNavigation": {
     "message": "Slå sidenavigering til/fra"
@@ -4237,9 +4211,6 @@
   },
   "passkeyNotCopiedAlert": {
     "message": "Adgangsnøglen kopieres ikke til det klonede emne. Fortsæt kloningen af emnet alligevel?"
-  },
-  "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
-    "message": "Bekræftelse krævet af startwebstedet. Denne funktion er endnu ikke implementeret for konti uden hovedadgangskode."
   },
   "logInWithPasskeyQuestion": {
     "message": "Log ind med adgangsnøgle?"
@@ -4926,9 +4897,6 @@
       }
     }
   },
-  "enableAnimations": {
-    "message": "Aktivér animationer"
-  },
   "showAnimations": {
     "message": "Vis animationer"
   },
@@ -5203,9 +5171,6 @@
   },
   "vaultCustomTimeoutMinimum": {
     "message": "Tilpasset minimumstimeout udgør 1 minut."
-  },
-  "additionalContentAvailable": {
-    "message": "Yderligere indhold er tilgængeligt"
   },
   "fileSavedToDevice": {
     "message": "Fil gemt på enheden. Håndtér fra enhedens downloads."

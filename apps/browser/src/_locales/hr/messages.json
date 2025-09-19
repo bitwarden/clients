@@ -1525,9 +1525,6 @@
   "selectTwoStepLoginMethod": {
     "message": "Odaberi način prijave dvostrukom autentifikacijom"
   },
-  "recoveryCodeDesc": {
-    "message": "Izgubljen je pristup uređaju za dvostruku autentifikaciju? Koristi svoj kôd za oporavak za onemogućavanje svih pružatelja usluga dvostruke autentifikacije na tvojem računu."
-  },
   "recoveryCodeTitle": {
     "message": "Kôd za oporavak"
   },
@@ -1686,9 +1683,6 @@
   "defaultAutoFillOnPageLoadDesc": {
     "message": "Auto-ispunu kod učitavanju stranice je moguće uključiti/isključiti za svaku pojedinu prijavu unutar uređivanja stavke."
   },
-  "itemAutoFillOnPageLoad": {
-    "message": "Auto-ispuna kod učitavanja stranice (ako je uključeno u Postavkama)"
-  },
   "autoFillOnPageLoadUseDefault": {
     "message": "Koristi zadane postavke"
   },
@@ -1760,17 +1754,8 @@
   "popup2faCloseMessage": {
     "message": "Ako klikneš izvan iskočnog prozora, za provjeru kôda za provjeru iz e-pošte, on će se zatvoriti. Želiš li ovaj iskočni prozor otvoriti u novom prozoru kako se ne bi zatvorio?"
   },
-  "popupU2fCloseMessage": {
-    "message": "Ovaj preglednik ne može obraditi U2F zahtjeve u ovom iskočnom prozoru. Želiš li otvoriti ovaj iskočni prozor u novom prozoru za prijavu putem U2F?"
-  },
   "showIconsChangePasswordUrls": {
     "message": "Prikaži ikonu web mjesta i dohvati URL za promjenu lozinke"
-  },
-  "enableBadgeCounter": {
-    "message": "Prikaži značku brojača"
-  },
-  "badgeCounterDesc": {
-    "message": "Prikazuje broj spremljenih prijava za trenutnu web stranicu."
   },
   "cardholderName": {
     "message": "Vlasnik platne kartice"
@@ -3570,9 +3555,6 @@
   "autofillPageLoadPolicyActivated": {
     "message": "Prema pravilima tvoje organizacije uključena je auto-ispuna prilikom učitavanja stranice."
   },
-  "howToAutofill": {
-    "message": "Kako auto-ispuniti"
-  },
   "autofillSelectInfoWithCommand": {
     "message": "Odaberi stavku s ovog zaslona, upotrijebi prečac $COMMAND$ ili istraži druge opcije u postavkama.",
     "placeholders": {
@@ -3957,17 +3939,9 @@
   "aliasDomain": {
     "message": "Alias domene"
   },
-  "passwordRepromptDisabledAutofillOnPageLoad": {
-    "message": "Stavke za koje je potrebna glavna lozinka neće se auto-ispuniti kod učitavanja stranice. Auto-ispuna pri učitavanju stranice je isključena.",
-    "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
-  },
   "autofillOnPageLoadSetToDefault": {
     "message": "Auto-ispuna kod učitavanja stranice koristi zadane postavke.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "turnOffMasterPasswordPromptToEditField": {
-    "message": "Isključi traženje glavne lozinke za promjenu ovog polja",
-    "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
   },
   "toggleSideNavigation": {
     "message": "U/Isključi bočnu navigaciju"
@@ -4237,9 +4211,6 @@
   },
   "passkeyNotCopiedAlert": {
     "message": "Pristupni ključ se neće kopirati u kloniranu stavku. Želiš li nastaviti klonirati ovu stavku?"
-  },
-  "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
-    "message": "Ishodišna stranica zahtijeva verifikaciju. Ova značajka još nije implementirana za račune bez glavne lozinke."
   },
   "logInWithPasskeyQuestion": {
     "message": "Prijava pristupnim ključem?"
@@ -4926,9 +4897,6 @@
       }
     }
   },
-  "enableAnimations": {
-    "message": "Omogući animacije"
-  },
   "showAnimations": {
     "message": "Prikaži animacije"
   },
@@ -5203,9 +5171,6 @@
   },
   "vaultCustomTimeoutMinimum": {
     "message": "Najmanje prilagođeno vrijeme je 1 minuta."
-  },
-  "additionalContentAvailable": {
-    "message": "Dostupan je dodatni sadržaj"
   },
   "fileSavedToDevice": {
     "message": "Datoteka spremljena na uređaj. Upravljaj u preuzimanjima svog uređaja."

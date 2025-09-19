@@ -1525,9 +1525,6 @@
   "selectTwoStepLoginMethod": {
     "message": "Vyberte metódu dvojstupňového prihlásenia"
   },
-  "recoveryCodeDesc": {
-    "message": "Stratili ste prístup ku všetkým vašim dvojstupňovým poskytovateľom? Použite váš záchranný kód pre vypnutie všetkých poskytovateľov vo vašom účte."
-  },
   "recoveryCodeTitle": {
     "message": "Záchranný kód"
   },
@@ -1686,9 +1683,6 @@
   "defaultAutoFillOnPageLoadDesc": {
     "message": "Pri úprave položky prihlásenia môžete individuálne zapnúť alebo vypnúť automatické vypĺňanie pri načítaní stránky pre danú položku."
   },
-  "itemAutoFillOnPageLoad": {
-    "message": "Automatické vypĺňanie pri načítaní stránky (ak je povolené v možnostiach)"
-  },
   "autoFillOnPageLoadUseDefault": {
     "message": "Pôvodné nastavenia"
   },
@@ -1760,17 +1754,8 @@
   "popup2faCloseMessage": {
     "message": "Kliknutie mimo popup okna na prezretie vášho emailu pre overovací kód spôsobí zavretie tohto popupu. Chcete otvoriť tento popup v novom okne tak, aby sa nezavrel?"
   },
-  "popupU2fCloseMessage": {
-    "message": "Tento prehliadač nedokáže spracovať U2F požiadavku v popup okne. Chcete ho otvoriť v novom okne aby ste sa mohli prihlásiť pomocou U2F?"
-  },
   "showIconsChangePasswordUrls": {
     "message": "Zobraziť ikony webových stránok a načítať adresy URL na zmenu hesla"
-  },
-  "enableBadgeCounter": {
-    "message": "Zobraziť počítadlo na ikone"
-  },
-  "badgeCounterDesc": {
-    "message": "Ukazuje, koľko prihlásení máte pre aktuálnu webovú stránku."
   },
   "cardholderName": {
     "message": "Meno vlastníka karty"
@@ -3570,9 +3555,6 @@
   "autofillPageLoadPolicyActivated": {
     "message": "V pravidlách vašej organizácie je zapnuté automatické vypĺňanie pri načítaní stránky."
   },
-  "howToAutofill": {
-    "message": "Ako používať automatické vypĺňanie"
-  },
   "autofillSelectInfoWithCommand": {
     "message": "Vyberte položku z ponuky, použite klávesovú skratku $COMMAND$, alebo preskúmajte ďalšie možnosti nastavenia.",
     "placeholders": {
@@ -3957,17 +3939,9 @@
   "aliasDomain": {
     "message": "Alias doména"
   },
-  "passwordRepromptDisabledAutofillOnPageLoad": {
-    "message": "Položky, ktoré vyžadujú opätovné zadanie hlavného hesla sa nedajú automaticky vyplniť pri načítaní stránky. Automatické vypĺňanie pri načítaní stránky je vypnuté.",
-    "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
-  },
   "autofillOnPageLoadSetToDefault": {
     "message": "Automatické vypĺňanie pri načítaní stránky nastavené na pôvodnú predvoľbu.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "turnOffMasterPasswordPromptToEditField": {
-    "message": "Vypnite výzvu na opätovné zadanie hlavného hesla na úpravu tohto poľa",
-    "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
   },
   "toggleSideNavigation": {
     "message": "Prepnúť bočnú navigáciu"
@@ -4237,9 +4211,6 @@
   },
   "passkeyNotCopiedAlert": {
     "message": "Prístupový kľúč sa do klonovanej položky neskopíruje. Chcete pokračovať v klonovaní tejto položky?"
-  },
-  "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
-    "message": "Overenie požadované iniciujúcim webom. Táto funkcia zatiaľ nie je implementovaná pre účty bez hlavného hesla."
   },
   "logInWithPasskeyQuestion": {
     "message": "Prihlásiť sa s prístupovým kľúčom?"
@@ -4926,9 +4897,6 @@
       }
     }
   },
-  "enableAnimations": {
-    "message": "Povoliť animácie"
-  },
   "showAnimations": {
     "message": "Zobraziť animácie"
   },
@@ -5203,9 +5171,6 @@
   },
   "vaultCustomTimeoutMinimum": {
     "message": "Minimálny vlastný časový limit je 1 minúta."
-  },
-  "additionalContentAvailable": {
-    "message": "K dispozícii je ďalší obsah"
   },
   "fileSavedToDevice": {
     "message": "Súbor sa uložil do zariadenia. Spravujte stiahnuté súbory zo zariadenia."

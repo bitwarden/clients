@@ -1525,9 +1525,6 @@
   "selectTwoStepLoginMethod": {
     "message": "İki aşamalı giriş yöntemini seçin"
   },
-  "recoveryCodeDesc": {
-    "message": "İki aşamalı doğrulama sağlayıcılarınıza ulaşamıyor musunuz? Kurtarma kodunuzu kullanarak hesabınızdaki tüm iki aşamalı giriş sağlayıcılarını devre dışı bırakabilirsiniz."
-  },
   "recoveryCodeTitle": {
     "message": "Kurtarma kodu"
   },
@@ -1686,9 +1683,6 @@
   "defaultAutoFillOnPageLoadDesc": {
     "message": "\"Sayfa yüklenince otomatik doldur\"u her hesabın \"Düzenle\" görünümünden ayrı ayrı kapatabilirsiniz."
   },
-  "itemAutoFillOnPageLoad": {
-    "message": "Sayfa yüklenince otomatik doldur (Seçeneklerde ayarlanmışsa)"
-  },
   "autoFillOnPageLoadUseDefault": {
     "message": "Varsayılan ayarı kullan"
   },
@@ -1760,17 +1754,8 @@
   "popup2faCloseMessage": {
     "message": "Doğrulama kodunuzu alacağınız e-postayı kontrol etmek için bu pencerenin dışında bir yere tıklarsanız bu pencere kapanacaktır. Bu pencerenin kapanmaması için yeni bir pencerede açmak ister misiniz?"
   },
-  "popupU2fCloseMessage": {
-    "message": "Bu tarayıcı bu açılır pencerede U2F isteklerini işleyemiyor. U2F kullanarak giriş yapmak için bu açılır pencereyi yeni bir pencerede açmak ister misiniz?"
-  },
   "showIconsChangePasswordUrls": {
     "message": "Web sitesi simgelerini göster ve parola değiştirme URL'lerini al"
-  },
-  "enableBadgeCounter": {
-    "message": "Rozet sayacını göster"
-  },
-  "badgeCounterDesc": {
-    "message": "Geçerli web sayfasına ait kaç tane hesabınız olduğunu gösterir."
   },
   "cardholderName": {
     "message": "Kart sahibinin adı"
@@ -3570,9 +3555,6 @@
   "autofillPageLoadPolicyActivated": {
     "message": "Kuruluş ilkeleriniz, sayfa yüklenince otomatik doldurmayı etkinleştirdi."
   },
-  "howToAutofill": {
-    "message": "Otomatik doldurma nasıl yapılır?"
-  },
   "autofillSelectInfoWithCommand": {
     "message": "Bu ekrandan bir öğe seçin, $COMMAND$ kısayolunu kullanın veya ayarlardaki diğer seçenekleri keşfedin.",
     "placeholders": {
@@ -3957,17 +3939,9 @@
   "aliasDomain": {
     "message": "Alias alan adı"
   },
-  "passwordRepromptDisabledAutofillOnPageLoad": {
-    "message": "Ana parolayı yeniden isteyen kayıtlar sayfa yüklenince otomatik olarak doldurulamaz. Sayfa yüklenince otomatik doldurma kapatıldı.",
-    "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
-  },
   "autofillOnPageLoadSetToDefault": {
     "message": "Sayfa yüklenince otomatik doldurma, varsayılan ayarı kullanacak şekilde ayarlandı.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "turnOffMasterPasswordPromptToEditField": {
-    "message": "Bu alanı düzenlemek için ana parolayı yeniden istemeyi kapatın",
-    "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
   },
   "toggleSideNavigation": {
     "message": "Kenar menüsünü aç/kapat"
@@ -4237,9 +4211,6 @@
   },
   "passkeyNotCopiedAlert": {
     "message": "Geçiş anahtarı klonlanan öğeye kopyalanmayacaktır. Bu öğeyi klonlamaya devam etmek istiyor musunuz?"
-  },
-  "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
-    "message": "Site kimlik doğrulaması gerektiriyor. Bu özellik henüz ana parolası olmayan hesaplarda kullanılamaz."
   },
   "logInWithPasskeyQuestion": {
     "message": "Geçiş anahtarı ile giriş yapılsın mı?"
@@ -4926,9 +4897,6 @@
       }
     }
   },
-  "enableAnimations": {
-    "message": "Animasyonları etkinleştir"
-  },
   "showAnimations": {
     "message": "Animasyonları göster"
   },
@@ -5203,9 +5171,6 @@
   },
   "vaultCustomTimeoutMinimum": {
     "message": "Minimum özel zaman aşımı 1 dakikadır."
-  },
-  "additionalContentAvailable": {
-    "message": "Ek içerikler mevcut"
   },
   "fileSavedToDevice": {
     "message": "Dosya cihaza kaydedildi. Cihazınızın indirilenler klasöründen yönetebilirsiniz."

@@ -1525,9 +1525,6 @@
   "selectTwoStepLoginMethod": {
     "message": "Selecciona un método de inicio de sesión en dos pasos"
   },
-  "recoveryCodeDesc": {
-    "message": "¿Has perdido el acceso a todos tus métodos de autenticación en dos pasos? Utiliza tu código de recuperación para deshabilitar todos los métodos de autenticación en dos pasos de tu cuenta."
-  },
   "recoveryCodeTitle": {
     "message": "Código de recuperación"
   },
@@ -1686,9 +1683,6 @@
   "defaultAutoFillOnPageLoadDesc": {
     "message": "Puedes desactivar el autocompletado al cargar la página para elementos individuales de inicio de sesión desde la vista de Edición del elemento."
   },
-  "itemAutoFillOnPageLoad": {
-    "message": "Auto-relleno en carga de página (si está habilitado en opciones)"
-  },
   "autoFillOnPageLoadUseDefault": {
     "message": "Usar configuración predeterminada"
   },
@@ -1760,17 +1754,8 @@
   "popup2faCloseMessage": {
     "message": "Pulsar fuera de la ventana emergente para comprobar tu correo de verificación, hará que esta se cierre. ¿Quieres abrir esta ventana emergente en una nueva ventana para evitar su cierre?"
   },
-  "popupU2fCloseMessage": {
-    "message": "Este navegador no puede procesar las peticiones U2F en esta ventana emergente. ¿Desea abrir esta ventana emergente en una nueva ventana para que pueda iniciar sesión usando U2F?"
-  },
   "showIconsChangePasswordUrls": {
     "message": "Show website icons and retrieve change password URLs"
-  },
-  "enableBadgeCounter": {
-    "message": "Mostrar el contador numérico"
-  },
-  "badgeCounterDesc": {
-    "message": "Indique cuántos inicios de sesión tiene para la página web actual."
   },
   "cardholderName": {
     "message": "Nombre en la tarjeta"
@@ -3570,9 +3555,6 @@
   "autofillPageLoadPolicyActivated": {
     "message": "Las políticas de su organización han activado autocompletar al cargar la página."
   },
-  "howToAutofill": {
-    "message": "Cómo autocompletar"
-  },
   "autofillSelectInfoWithCommand": {
     "message": "Selecciona un elemento de esta pantalla, usa el acceso directo $COMMAND$ o explora otras opciones en ajustes.",
     "placeholders": {
@@ -3957,17 +3939,9 @@
   "aliasDomain": {
     "message": "Seudónimo del dominio"
   },
-  "passwordRepromptDisabledAutofillOnPageLoad": {
-    "message": "Los elementos que requieren la contraseña maestra no se pueden rellenar automáticamente al cargar la página. Se desactivó el autorrellenado de la página.",
-    "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
-  },
   "autofillOnPageLoadSetToDefault": {
     "message": "El autorrellenado de la página está usando la configuración predeterminada.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "turnOffMasterPasswordPromptToEditField": {
-    "message": "Desactiva la solicitud de contraseña maestra para editar este campo",
-    "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
   },
   "toggleSideNavigation": {
     "message": "Activar/desactivar navegación lateral"
@@ -4237,9 +4211,6 @@
   },
   "passkeyNotCopiedAlert": {
     "message": "La clave de acceso no se copiará al elemento clonado. ¿Desea continuar clonando este elemento?"
-  },
-  "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
-    "message": "Verificación requerida por el sitio inicial. Esta característica aún no está implementada para cuentas sin contraseña maestra."
   },
   "logInWithPasskeyQuestion": {
     "message": "¿Iniciar sesión con clave de acceso?"
@@ -4926,9 +4897,6 @@
       }
     }
   },
-  "enableAnimations": {
-    "message": "Activar animaciones"
-  },
   "showAnimations": {
     "message": "Mostrar animaciones"
   },
@@ -5203,9 +5171,6 @@
   },
   "vaultCustomTimeoutMinimum": {
     "message": "El tiempo de espera mínimo personalizado es de 1 minuto."
-  },
-  "additionalContentAvailable": {
-    "message": "Contenido adicional disponible"
   },
   "fileSavedToDevice": {
     "message": "File saved to device. Manage from your device downloads."

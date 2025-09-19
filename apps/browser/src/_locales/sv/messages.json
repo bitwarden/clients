@@ -1525,9 +1525,6 @@
   "selectTwoStepLoginMethod": {
     "message": "Välj metod för tvåstegsverifiering"
   },
-  "recoveryCodeDesc": {
-    "message": "Förlorat åtkomst till alla dina metoder för tvåstegsverifiering? Använd din återställningskod för att inaktivera tvåstegsverifiering på ditt konto."
-  },
   "recoveryCodeTitle": {
     "message": "Återställningskod"
   },
@@ -1686,9 +1683,6 @@
   "defaultAutoFillOnPageLoadDesc": {
     "message": "Efter att du har aktiverat automatisk ifyllnad vid sidhämtning kan du aktivera eller inaktivera funktionen för enskilda inloggningsobjekt. Detta är standardinställningen för inloggningsobjekt som inte är konfigurerade separat."
   },
-  "itemAutoFillOnPageLoad": {
-    "message": "Automatisk ifyllning vid sidhämtning (om aktiverat i Alternativ)"
-  },
   "autoFillOnPageLoadUseDefault": {
     "message": "Använd standardinställningen"
   },
@@ -1760,17 +1754,8 @@
   "popup2faCloseMessage": {
     "message": "Om du klickar utanför popup-fönstret för att kontrollera din email efter din verifieringskod så stängs popup-fönstret. Vill du öppna popup-fönstret i ett nytt fönster, så att det inte stängs?"
   },
-  "popupU2fCloseMessage": {
-    "message": "Den här webbläsaren kan inte bearbeta U2F-förfrågningar i detta popup-fönster. Vill du öppna ett nytt fönster så att du kan logga in med U2F?"
-  },
   "showIconsChangePasswordUrls": {
     "message": "Visa webbplatsikoner och URLer för lösenordsändringar"
-  },
-  "enableBadgeCounter": {
-    "message": "Visa aktivitetsräknaren"
-  },
-  "badgeCounterDesc": {
-    "message": "Visa hur många inloggningar du har för den aktuella webbsidan."
   },
   "cardholderName": {
     "message": "Kortinnehavarens namn"
@@ -3570,9 +3555,6 @@
   "autofillPageLoadPolicyActivated": {
     "message": "Dina organisationspolicyer har aktiverat automatisk ifyllnad vid sidladdning."
   },
-  "howToAutofill": {
-    "message": "Hur du fyller i automatiskt"
-  },
   "autofillSelectInfoWithCommand": {
     "message": "Välj ett objekt från den här skärmen, använd genvägen $COMMAND$ eller utforska andra alternativ i inställningarna.",
     "placeholders": {
@@ -3957,17 +3939,9 @@
   "aliasDomain": {
     "message": "Aliasdomän"
   },
-  "passwordRepromptDisabledAutofillOnPageLoad": {
-    "message": "Objekt med \"Återupprepa huvudlösenord\" kan inte fyllas i automatiskt vid sidladdning. Automatisk ifyllning vid sidladdning avstängd.",
-    "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
-  },
   "autofillOnPageLoadSetToDefault": {
     "message": "Aktivera automatisk ifyllnad vid sidhämtning sattes till att använda standardinställningen.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "turnOffMasterPasswordPromptToEditField": {
-    "message": "Stäng av \"återupprepa huvudlösenord\" för att redigera detta fält",
-    "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
   },
   "toggleSideNavigation": {
     "message": "Växla sidonavigering"
@@ -4237,9 +4211,6 @@
   },
   "passkeyNotCopiedAlert": {
     "message": "Inloggningsnyckeln kommer inte att kopieras till det klonade objektet. Vill du fortsätta klona det här objektet?"
-  },
-  "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
-    "message": "Verifiering krävs av den initierande webbplatsen. Denna funktion är ännu inte implementerad för konton utan huvudlösenord."
   },
   "logInWithPasskeyQuestion": {
     "message": "Logga in med nyckel?"
@@ -4926,9 +4897,6 @@
       }
     }
   },
-  "enableAnimations": {
-    "message": "Aktivera animationer"
-  },
   "showAnimations": {
     "message": "Visa animationer"
   },
@@ -5203,9 +5171,6 @@
   },
   "vaultCustomTimeoutMinimum": {
     "message": "Minsta anpassade timeout är 1 minut."
-  },
-  "additionalContentAvailable": {
-    "message": "Ytterligare innehåll är tillgängligt"
   },
   "fileSavedToDevice": {
     "message": "Fil sparad till enhet. Hantera nedladdningar från din enhet."

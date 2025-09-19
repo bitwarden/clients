@@ -1525,9 +1525,6 @@
   "selectTwoStepLoginMethod": {
     "message": "Изберете начин за двустепенно удостоверяване"
   },
-  "recoveryCodeDesc": {
-    "message": "Ако сте загубили достъп до двустепенното удостоверяване, може да използвате код за възстановяване, за да изключите двустепенното удостоверяване в абонамента си."
-  },
   "recoveryCodeTitle": {
     "message": "Код за възстановяване"
   },
@@ -1686,9 +1683,6 @@
   "defaultAutoFillOnPageLoadDesc": {
     "message": "Ако включите автоматичното попълване при зареждане на страница, след това можете да включвате или изключвате тази функционалност за всеки отделен запис. Това ще бъде стандартният начин на работа за записите, за които не е настроено допълнително."
   },
-  "itemAutoFillOnPageLoad": {
-    "message": "Автоматично попълване при зареждане на страницата (ако е включено в настройките)"
-  },
   "autoFillOnPageLoadUseDefault": {
     "message": "Използване на стандартната настройка"
   },
@@ -1760,17 +1754,8 @@
   "popup2faCloseMessage": {
     "message": "Ако натиснете бутон на мишката извън изскочилия прозорец за кода за потвърждение, същият този прозорец ще се затвори. Искате ли проверката да се извърши в нормален прозорец, който не се затваря толкова лесно?"
   },
-  "popupU2fCloseMessage": {
-    "message": "Този браузър не поддържа заявки чрез U2F в такъв изскачащ прозорец. Искате ли да се отвори нов прозорец, за да може да се впишете чрез U2F?"
-  },
   "showIconsChangePasswordUrls": {
     "message": "Показване на иконките на уеб сайтовете и извличане на адресите за смяна на паролата"
-  },
-  "enableBadgeCounter": {
-    "message": "Показване на брояч в значка"
-  },
-  "badgeCounterDesc": {
-    "message": "Показване на броя записи, които имате за текущата уеб страница."
   },
   "cardholderName": {
     "message": "Име на притежателя на картата"
@@ -3570,9 +3555,6 @@
   "autofillPageLoadPolicyActivated": {
     "message": "Автоматичното попълване при зареждане на страница е включено в съответствие с политиките на Вашата организация."
   },
-  "howToAutofill": {
-    "message": "Как се ползва автоматичното попълване"
-  },
   "autofillSelectInfoWithCommand": {
     "message": "Изберете елемент на този екран, използвайте комбинацията $COMMAND$ или разгледайте други опции в настройките.",
     "placeholders": {
@@ -3957,17 +3939,9 @@
   "aliasDomain": {
     "message": "Псевдонимен домейн"
   },
-  "passwordRepromptDisabledAutofillOnPageLoad": {
-    "message": "Записите с включено изискване за повторно въвеждане на главната парола не могат да бъдат попълвани автоматично при зареждане на страницата. Автоматичното попълване при зареждане на страницата е изключено.",
-    "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
-  },
   "autofillOnPageLoadSetToDefault": {
     "message": "Автоматичното попълване при зареждане на страницата използва настройката си по подразбиране.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "turnOffMasterPasswordPromptToEditField": {
-    "message": "Изключете повторното въвеждане на главната парола, за да редактирате това поле",
-    "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
   },
   "toggleSideNavigation": {
     "message": "Превключване на страничната навигация"
@@ -4237,9 +4211,6 @@
   },
   "passkeyNotCopiedAlert": {
     "message": "Секретният ключ няма да бъде копиран в клонирания елемент. Искате ли да продължите с клонирането на елемента?"
-  },
-  "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
-    "message": "Изисква се проверка от иницииращия сайт. Тази функция все още не е внедрена за акаунти без главна парола."
   },
   "logInWithPasskeyQuestion": {
     "message": "Вписване със секретен ключ?"
@@ -4926,9 +4897,6 @@
       }
     }
   },
-  "enableAnimations": {
-    "message": "Включване на анимациите"
-  },
   "showAnimations": {
     "message": "Показване на анимации"
   },
@@ -5203,9 +5171,6 @@
   },
   "vaultCustomTimeoutMinimum": {
     "message": "Минималното персонализирано време за достъп е 1 минута."
-  },
-  "additionalContentAvailable": {
-    "message": "Има налично допълнително съдържание"
   },
   "fileSavedToDevice": {
     "message": "Файлът е запазен на устройството. Можете да го намерите в мястото за сваляния на устройството."

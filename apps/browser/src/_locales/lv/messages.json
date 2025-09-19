@@ -1525,9 +1525,6 @@
   "selectTwoStepLoginMethod": {
     "message": "Atlasīt divpakāpju pieteikšanās veidu"
   },
-  "recoveryCodeDesc": {
-    "message": "Zaudēta piekļuve visiem divpakāpju nodrošinātājiem? Izmanto atkopes kodus, lai atspējotu visus sava konta divpakāpju nodrošinātājus!"
-  },
   "recoveryCodeTitle": {
     "message": "Atkopes kods"
   },
@@ -1686,9 +1683,6 @@
   "defaultAutoFillOnPageLoadDesc": {
     "message": "Automātisko aizpildi lapas ielādes brīdī atsevišķiem pieteikšanās vienumiem var atslēgt vienuma labošanas skatā."
   },
-  "itemAutoFillOnPageLoad": {
-    "message": "Automātiski aizpildīt lapas ielādes brīdī (ja iespējots iestatījumos)"
-  },
   "autoFillOnPageLoadUseDefault": {
     "message": "Izmantot noklusējuma iestatījumu"
   },
@@ -1760,17 +1754,8 @@
   "popup2faCloseMessage": {
     "message": "Klikšķināšana ārpus uznirstošā loga, lai e-pastā apskatītu apliecinājuma kodu, to aizvērs. Vai atvērt to atsevišķā logā, lai tas netiktu aizvērts?"
   },
-  "popupU2fCloseMessage": {
-    "message": "Šis pārlūks nevar apstrādāt U2F pieprasījumus šajā uznirstošajā logā. Vai atvērt to atsevišķā logā, lai varētu pieteikties, izmantojot U2F?"
-  },
   "showIconsChangePasswordUrls": {
     "message": "Rādīt tīmekļvietņu ikonas un iegūt paroles nomaiņas URL"
-  },
-  "enableBadgeCounter": {
-    "message": "Rādīt skaita nozīmīti"
-  },
-  "badgeCounterDesc": {
-    "message": "Attēlot pašreizējāi tīmekļa vietnei atbilstošo pieteikšanās vienumu skaitu."
   },
   "cardholderName": {
     "message": "Kartes īpašnieka vārds"
@@ -3570,9 +3555,6 @@
   "autofillPageLoadPolicyActivated": {
     "message": "Tavas apvienības nosacījumos ir ieslēgta automātiskā aizpilde lapas ielādes brīdī."
   },
-  "howToAutofill": {
-    "message": "Kā automātiski aizpildīt"
-  },
   "autofillSelectInfoWithCommand": {
     "message": "Jāizvēlas šī skata vienums, jāizmanto īsceļš $COMMAND$ vai iestatījumos jāizpēta citas iespējas.",
     "placeholders": {
@@ -3957,17 +3939,9 @@
   "aliasDomain": {
     "message": "Aizstājdomēns"
   },
-  "passwordRepromptDisabledAutofillOnPageLoad": {
-    "message": "Vienumus ar galvenās paroles pārvaicāšanu nevar automātiski aizpildīt lapas ielādes brīdī. Automātiskā aizpilde lapas ielādes brīdī ir izslēgta.",
-    "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
-  },
   "autofillOnPageLoadSetToDefault": {
     "message": "Automātiskā aizpilde lapas ielādes brīdī iestatīta izmantot noklusējuma iestatījumu.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "turnOffMasterPasswordPromptToEditField": {
-    "message": "Jāizslēdz galvenās paroles pārvaicāšana, lai labotu šo lauku",
-    "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
   },
   "toggleSideNavigation": {
     "message": "Pārslēgt sānu pārvietošanās joslu"
@@ -4237,9 +4211,6 @@
   },
   "passkeyNotCopiedAlert": {
     "message": "Piekļuves atslēga netiks ievietota klonētajā vienumā. Vai turpināt šī vienuma klonēšanu?"
-  },
-  "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
-    "message": "Vietne, kurā tika uzsākta darbība, pieprasa apliecinājumu. Šī iespēja vēl nav īstenota kontiem, kuriem nav galvenās paroles."
   },
   "logInWithPasskeyQuestion": {
     "message": "Pieteikties ar piekļuves atslēgu?"
@@ -4926,9 +4897,6 @@
       }
     }
   },
-  "enableAnimations": {
-    "message": "Iespējot animācijas"
-  },
   "showAnimations": {
     "message": "Rādīt animācijas"
   },
@@ -5203,9 +5171,6 @@
   },
   "vaultCustomTimeoutMinimum": {
     "message": "Mazākā pieļaujamā pielāgotā noildze ir 1 minūte."
-  },
-  "additionalContentAvailable": {
-    "message": "Ir pieejams papildu saturs"
   },
   "fileSavedToDevice": {
     "message": "Datne saglabāta ierīcē. Tā ir atrodama ierīces lejupielāžu mapē."

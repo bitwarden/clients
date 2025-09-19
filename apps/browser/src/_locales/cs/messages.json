@@ -1525,9 +1525,6 @@
   "selectTwoStepLoginMethod": {
     "message": "Vyberte metodu dvoufázového přihlášení"
   },
-  "recoveryCodeDesc": {
-    "message": "Ztratili jste přístup ke všem nastaveným poskytovatelům dvoufázového přihlášení? Použijte obnovovací kód pro vypnutí dvoufázového přihlášení."
-  },
   "recoveryCodeTitle": {
     "message": "Kód pro obnovení"
   },
@@ -1686,9 +1683,6 @@
   "defaultAutoFillOnPageLoadDesc": {
     "message": "Můžete vypnout automatické vyplňování při načtení stránky pro jednotlivé přihlašovací položky v zobrazení pro úpravu položky."
   },
-  "itemAutoFillOnPageLoad": {
-    "message": "Automatické vyplnění při načtení stránky (pokud je nastaveno)"
-  },
   "autoFillOnPageLoadUseDefault": {
     "message": "Použít výchozí nastavení"
   },
@@ -1760,17 +1754,8 @@
   "popup2faCloseMessage": {
     "message": "Klepnutím mimo vyskakovací okno při zjišťování ověřovacího kódu zaslaného na e-mail bude vyskakovací okno zavřeno. Chcete otevřít toto vyskakovací okno v novém okně, aby se nezavřelo?"
   },
-  "popupU2fCloseMessage": {
-    "message": "Tento prohlížeč nemůže zpracovat požadavky U2F  ve vyskakovacím okně. Chcete otevřít toto vyskakovací okno v novém okně, abyste se mohli přihlásit pomocí U2F?"
-  },
   "showIconsChangePasswordUrls": {
     "message": "Zobrazit ikony webových stránek a načíst URL adresy pro změnu hesla"
-  },
-  "enableBadgeCounter": {
-    "message": "Zobrazovat počet uložených přihlašovacích údajů na stránce"
-  },
-  "badgeCounterDesc": {
-    "message": "Zobrazí počet přihlašovacích údajů pro aktuální webovou stránku na ikoně rozšíření prohlížeče."
   },
   "cardholderName": {
     "message": "Jméno držitele karty"
@@ -3570,9 +3555,6 @@
   "autofillPageLoadPolicyActivated": {
     "message": "Podle zásad Vaší organizace je zapnuto automatické vyplňování při načítání stránky."
   },
-  "howToAutofill": {
-    "message": "Jak na automatické vyplňování"
-  },
   "autofillSelectInfoWithCommand": {
     "message": "Vyberte položku z této obrazovky, použijte zkratku $COMMAND$ nebo prozkoumejte další volby v nastavení.",
     "placeholders": {
@@ -3957,17 +3939,9 @@
   "aliasDomain": {
     "message": "Doména aliasu"
   },
-  "passwordRepromptDisabledAutofillOnPageLoad": {
-    "message": "Položky se žádostí o změnu hlavního hesla nemohou být automaticky vyplněny při načítání stránky. Automatické vyplnění při načítání stránky je vypnuto.",
-    "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
-  },
   "autofillOnPageLoadSetToDefault": {
     "message": "Automatické vyplnění při načítání stránky bylo nastaveno na výchozí nastavení.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "turnOffMasterPasswordPromptToEditField": {
-    "message": "Pro úpravu tohoto pole vypněte požadavek na hlavní heslo",
-    "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
   },
   "toggleSideNavigation": {
     "message": "Přepnout boční navigaci"
@@ -4237,9 +4211,6 @@
   },
   "passkeyNotCopiedAlert": {
     "message": "Přístupový klíč nebude zkopírován do duplikované položky. Chete pokračovat v duplikování této položky?"
-  },
-  "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
-    "message": "Ověření vyžadované iniciátorem webu. Tato funkce ještě není implementována pro účty bez hlavního hesla."
   },
   "logInWithPasskeyQuestion": {
     "message": "Přihlásit se pomocí přístupového klíče?"
@@ -4926,9 +4897,6 @@
       }
     }
   },
-  "enableAnimations": {
-    "message": "Povolit animace"
-  },
   "showAnimations": {
     "message": "Zobrazit animaci"
   },
@@ -5203,9 +5171,6 @@
   },
   "vaultCustomTimeoutMinimum": {
     "message": "Minimální vlastní časový limit je 1 minuta."
-  },
-  "additionalContentAvailable": {
-    "message": "Je k dispozici další obsah"
   },
   "fileSavedToDevice": {
     "message": "Soubor byl uložen. Můžete jej nalézt ve stažené složce v zařízení."

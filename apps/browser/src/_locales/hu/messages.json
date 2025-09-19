@@ -1525,9 +1525,6 @@
   "selectTwoStepLoginMethod": {
     "message": "Kétlépcsős bejelentkezési mód használata"
   },
-  "recoveryCodeDesc": {
-    "message": "Elveszett a hozzáférés az összes kétlépcsős szolgáltatóhoz? A helyreállító kód használatával letilthatók fiókból a kétlépcsős szolgáltatók."
-  },
   "recoveryCodeTitle": {
     "message": "Helyreállító kód"
   },
@@ -1686,9 +1683,6 @@
   "defaultAutoFillOnPageLoadDesc": {
     "message": "Az egyes bejelentkezési elemeknél kikapcsolhatjuk oldalbetöltéskor az automatikus kitöltést az elem Szerkesztés nézetében."
   },
-  "itemAutoFillOnPageLoad": {
-    "message": "Automatikus kitöltés oldal betöltésnél (Ha engedélyezett az opcióknál)"
-  },
   "autoFillOnPageLoadUseDefault": {
     "message": "Alapbeállítások használata"
   },
@@ -1760,17 +1754,8 @@
   "popup2faCloseMessage": {
     "message": "Az ellenőrző kódot tartalmazó email egy olyan felugró ablakban nyílik meg, mely a mellette levő területre kattinva bezáródik. Szeretnéd az emailt egy olyan ablakban megnyitni, ami nem záródhat így be?"
   },
-  "popupU2fCloseMessage": {
-    "message": "Ez a böngésző nem dolgozza fel az U2F kéréseket ebben a felbukkanó ablakban. Szeretnénk megnyitni a felbukkanó ablakot új böngészőablakban az U2F segítségével történő bejelentkezéshez?"
-  },
   "showIconsChangePasswordUrls": {
     "message": "Webhely ikonok megjelenítése és jelszó webcímek módosításának lekérése"
-  },
-  "enableBadgeCounter": {
-    "message": "Számláló jelvény megjelenítése"
-  },
-  "badgeCounterDesc": {
-    "message": "Jelöljük meg, hogy hány bejelentkezés van az aktuális weboldalnál."
   },
   "cardholderName": {
     "message": "Kártyatulajdonos neve"
@@ -3570,9 +3555,6 @@
   "autofillPageLoadPolicyActivated": {
     "message": "A szervezeti szabályzat bekapcsolta az automatikus kitöltést az oldalbetöltéskor."
   },
-  "howToAutofill": {
-    "message": "Az automatikus kitöltés működése"
-  },
   "autofillSelectInfoWithCommand": {
     "message": "Select an item from this screen, use the shortcut $COMMAND$, or explore other options in settings.",
     "placeholders": {
@@ -3957,17 +3939,9 @@
   "aliasDomain": {
     "message": "Áldomain"
   },
-  "passwordRepromptDisabledAutofillOnPageLoad": {
-    "message": "A mesterjelszót újra bekérő elemeket nem lehet automatikusan kitölteni az oldal betöltésekor. Az automatikus kitöltés az oldal betöltésekor kikapcsolásra kerül.",
-    "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
-  },
   "autofillOnPageLoadSetToDefault": {
     "message": "Az automatikus kitöltés az oldal betöltésekor az alapértelmezett beállítás használatára lett beállítva.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "turnOffMasterPasswordPromptToEditField": {
-    "message": "Kapcsoljuk ki a mesterjelszó újbóli bekérését a mező szerkesztéséhez.",
-    "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
   },
   "toggleSideNavigation": {
     "message": "Toggle side navigation"
@@ -4237,9 +4211,6 @@
   },
   "passkeyNotCopiedAlert": {
     "message": "A hozzáférési kulcs nem kerül másolásra a klónozott elembe. Folytatjuk ennek az elemnek a klónozását?"
-  },
-  "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
-    "message": "A kezdeményező hely által megkövetelt ellenőrzés. Ez a szolgáltatás még nincs megvalósítva mesterjelszó nélküli fiókok esetén."
   },
   "logInWithPasskeyQuestion": {
     "message": "Bejelentkezés hozzáférési kulccsal?"
@@ -4926,9 +4897,6 @@
       }
     }
   },
-  "enableAnimations": {
-    "message": "Animációk engedélyezése"
-  },
   "showAnimations": {
     "message": "Animációk megjelenítése"
   },
@@ -5203,9 +5171,6 @@
   },
   "vaultCustomTimeoutMinimum": {
     "message": "A minimális egyedi időkifutás 1 perc."
-  },
-  "additionalContentAvailable": {
-    "message": "Kiegészítő tartalom érhető el."
   },
   "fileSavedToDevice": {
     "message": "A fájl mentésre került az eszközre. Kezeljük az eszközről a letöltéseket."

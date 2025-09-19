@@ -1525,9 +1525,6 @@
   "selectTwoStepLoginMethod": {
     "message": "Select two-step login method"
   },
-  "recoveryCodeDesc": {
-    "message": "Ste izgubili dostop do vseh ponudnikov dvostopenjske prijave? Uporabite svojo kodo za obnovitev in tako onemogočite dvostopenjsko prijavo v svoj račun."
-  },
   "recoveryCodeTitle": {
     "message": "Koda za obnovitev"
   },
@@ -1686,9 +1683,6 @@
   "defaultAutoFillOnPageLoadDesc": {
     "message": "Samodejno izpolnjevanje ob naložitvi strani lahko izklopite za posamčne prijave, ko jih urejate."
   },
-  "itemAutoFillOnPageLoad": {
-    "message": "Samodejno izpolni ob naložitvi strani (če je omogočeno v Možnostih)"
-  },
   "autoFillOnPageLoadUseDefault": {
     "message": "Uporabi privzete nastavitve"
   },
@@ -1760,17 +1754,8 @@
   "popup2faCloseMessage": {
     "message": "Če kliknete izven tega pojavnega okna, da bi preverili pošto, se to pojavno okno zaprlo. Želite odpreti to pojavno okno v novem oknu, da se ne bo zaprlo?"
   },
-  "popupU2fCloseMessage": {
-    "message": "Ta spletni brskalnik ne more obdelati U2F zahteve v tem pojavnem oknu. Želite odpreti to pojavno okno v novem oknu, tako, da se lahko prijavite z U2F?"
-  },
   "showIconsChangePasswordUrls": {
     "message": "Show website icons and retrieve change password URLs"
-  },
-  "enableBadgeCounter": {
-    "message": "Show badge counter"
-  },
-  "badgeCounterDesc": {
-    "message": "Indicate how many logins you have for the current web page."
   },
   "cardholderName": {
     "message": "Ime imetnika kartice"
@@ -3570,9 +3555,6 @@
   "autofillPageLoadPolicyActivated": {
     "message": "V pravilih vaše organizacije je vklopljeno samodejno izpolnjevanje."
   },
-  "howToAutofill": {
-    "message": "Kako uporabljati samodejno izpolnjevanje"
-  },
   "autofillSelectInfoWithCommand": {
     "message": "Select an item from this screen, use the shortcut $COMMAND$, or explore other options in settings.",
     "placeholders": {
@@ -3957,17 +3939,9 @@
   "aliasDomain": {
     "message": "Alias domain"
   },
-  "passwordRepromptDisabledAutofillOnPageLoad": {
-    "message": "Items with master password re-prompt cannot be autofilled on page load. Autofill on page load turned off.",
-    "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
-  },
   "autofillOnPageLoadSetToDefault": {
     "message": "Autofill on page load set to use default setting.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "turnOffMasterPasswordPromptToEditField": {
-    "message": "Turn off master password re-prompt to edit this field",
-    "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
   },
   "toggleSideNavigation": {
     "message": "Toggle side navigation"
@@ -4237,9 +4211,6 @@
   },
   "passkeyNotCopiedAlert": {
     "message": "The passkey will not be copied to the cloned item. Do you want to continue cloning this item?"
-  },
-  "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
-    "message": "Verification required by the initiating site. This feature is not yet implemented for accounts without master password."
   },
   "logInWithPasskeyQuestion": {
     "message": "Log in with passkey?"
@@ -4926,9 +4897,6 @@
       }
     }
   },
-  "enableAnimations": {
-    "message": "Enable animations"
-  },
   "showAnimations": {
     "message": "Show animations"
   },
@@ -5203,9 +5171,6 @@
   },
   "vaultCustomTimeoutMinimum": {
     "message": "Minimum custom timeout is 1 minute."
-  },
-  "additionalContentAvailable": {
-    "message": "Additional content is available"
   },
   "fileSavedToDevice": {
     "message": "File saved to device. Manage from your device downloads."

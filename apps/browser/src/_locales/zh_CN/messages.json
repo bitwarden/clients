@@ -1525,9 +1525,6 @@
   "selectTwoStepLoginMethod": {
     "message": "选择两步登录方式"
   },
-  "recoveryCodeDesc": {
-    "message": "无法访问您所有的双重身份提供程序吗？请使用您的恢复代码来停用您账户中所有的双重身份提供程序。"
-  },
   "recoveryCodeTitle": {
     "message": "恢复代码"
   },
@@ -1686,9 +1683,6 @@
   "defaultAutoFillOnPageLoadDesc": {
     "message": "您可以从项目编辑视图中为单个登录项目停用页面加载时自动填充。"
   },
-  "itemAutoFillOnPageLoad": {
-    "message": "页面加载时自动填充（如果选项中已设置）"
-  },
   "autoFillOnPageLoadUseDefault": {
     "message": "使用默认设置"
   },
@@ -1760,17 +1754,8 @@
   "popup2faCloseMessage": {
     "message": "如果您点击弹窗外的区域以检查您的验证码电子邮件，将导致弹窗关闭。您想在新窗口中打开此弹窗，以便它不会关闭吗？"
   },
-  "popupU2fCloseMessage": {
-    "message": "此浏览器无法处理此弹出窗口中的 U2F 请求。您想要在新窗口中打开此弹出窗口吗？"
-  },
   "showIconsChangePasswordUrls": {
     "message": "显示网站图标并检索更改密码的 URL"
-  },
-  "enableBadgeCounter": {
-    "message": "显示角标计数器"
-  },
-  "badgeCounterDesc": {
-    "message": "指示可用于当前网页的登录项目的数量。"
   },
   "cardholderName": {
     "message": "持卡人姓名"
@@ -3570,9 +3555,6 @@
   "autofillPageLoadPolicyActivated": {
     "message": "您的组织策略已启用页面加载时自动填充。"
   },
-  "howToAutofill": {
-    "message": "如何自动填充"
-  },
   "autofillSelectInfoWithCommand": {
     "message": "从此界面选择一个项目，使用快捷键 $COMMAND$，或探索设置中的其他选项。",
     "placeholders": {
@@ -3957,17 +3939,9 @@
   "aliasDomain": {
     "message": "别名域"
   },
-  "passwordRepromptDisabledAutofillOnPageLoad": {
-    "message": "具有主密码重新提示的项目无法在页面加载时自动填充。页面加载时的自动填充功能已停用。",
-    "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
-  },
   "autofillOnPageLoadSetToDefault": {
     "message": "页面加载时自动填充设置为使用默认设置。",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "turnOffMasterPasswordPromptToEditField": {
-    "message": "停用主密码重新提示以编辑此字段",
-    "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
   },
   "toggleSideNavigation": {
     "message": "切换侧边导航"
@@ -4237,9 +4211,6 @@
   },
   "passkeyNotCopiedAlert": {
     "message": "通行密钥将不会被复制到克隆的项目。要继续克隆这个项目吗？"
-  },
-  "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
-    "message": "启动站点需要验证。对于没有主密码的账户，此功能尚未实现。"
   },
   "logInWithPasskeyQuestion": {
     "message": "使用通行密钥登录吗？"
@@ -4926,9 +4897,6 @@
       }
     }
   },
-  "enableAnimations": {
-    "message": "启用动画"
-  },
   "showAnimations": {
     "message": "显示动画"
   },
@@ -5203,9 +5171,6 @@
   },
   "vaultCustomTimeoutMinimum": {
     "message": "自定义超时时间最小为 1 分钟。"
-  },
-  "additionalContentAvailable": {
-    "message": "更多内容可用"
   },
   "fileSavedToDevice": {
     "message": "文件已保存到设备。可以在设备下载中进行管理。"

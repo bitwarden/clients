@@ -1525,9 +1525,6 @@
   "selectTwoStepLoginMethod": {
     "message": "Виберіть спосіб двоетапної перевірки"
   },
-  "recoveryCodeDesc": {
-    "message": "Втратили доступ до всіх провайдерів двоетапної перевірки? Скористайтеся кодом відновлення, щоб вимкнути двоетапну перевірку для свого облікового запису."
-  },
   "recoveryCodeTitle": {
     "message": "Код відновлення"
   },
@@ -1686,9 +1683,6 @@
   "defaultAutoFillOnPageLoadDesc": {
     "message": "Ви можете вимкнути цю функцію для окремих записів входу в меню запису \"Змінити\"."
   },
-  "itemAutoFillOnPageLoad": {
-    "message": "Автозаповнення на сторінці (якщо увімкнено в налаштуваннях)"
-  },
   "autoFillOnPageLoadUseDefault": {
     "message": "Типове налаштування"
   },
@@ -1760,17 +1754,8 @@
   "popup2faCloseMessage": {
     "message": "Натискання поза межами спливаючого вікна для перевірки коду підтвердження в пошті спричинить його закриття. Хочете відкрити його в новому вікні, щоб воно не закрилося?"
   },
-  "popupU2fCloseMessage": {
-    "message": "Цей браузер не може обробити U2F запити в цьому виринаючому вікні. Хочете відкрити його у новому вікні, щоб ви змогли увійти з використанням U2F?"
-  },
   "showIconsChangePasswordUrls": {
     "message": "Show website icons and retrieve change password URLs"
-  },
-  "enableBadgeCounter": {
-    "message": "Показувати лічильник"
-  },
-  "badgeCounterDesc": {
-    "message": "Показувати індикатор кількості записів для поточної вебсторінки."
   },
   "cardholderName": {
     "message": "Ім'я власника картки"
@@ -3570,9 +3555,6 @@
   "autofillPageLoadPolicyActivated": {
     "message": "Політикою вашої організації було увімкнено автозаповнення на сторінці."
   },
-  "howToAutofill": {
-    "message": "Як працює автозаповнення"
-  },
   "autofillSelectInfoWithCommand": {
     "message": "Виберіть об'єкт із цього екрану, скористайтеся комбінацією клавіш $COMMAND$, або дізнайтеся про інші можливості в налаштуваннях.",
     "placeholders": {
@@ -3957,17 +3939,9 @@
   "aliasDomain": {
     "message": "Псевдонім домену"
   },
-  "passwordRepromptDisabledAutofillOnPageLoad": {
-    "message": "Записи з повторним запитом головного пароля не можна автоматично заповнювати під час завантаження сторінки. Автозаповнення на сторінці вимкнено.",
-    "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
-  },
   "autofillOnPageLoadSetToDefault": {
     "message": "Автозаповнення на сторінці налаштовано з типовими параметрами.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "turnOffMasterPasswordPromptToEditField": {
-    "message": "Вимкніть повторний запит головного пароля, щоб редагувати це поле",
-    "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
   },
   "toggleSideNavigation": {
     "message": "Перемкнути бічну навігацію"
@@ -4237,9 +4211,6 @@
   },
   "passkeyNotCopiedAlert": {
     "message": "Ключ доступу не буде скопійовано до клонованого запису. Хочете продовжити клонування цього запису?"
-  },
-  "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
-    "message": "Сайт ініціює обов'язкову верифікацію. Ця функція ще не реалізована для облікових записів без головного пароля."
   },
   "logInWithPasskeyQuestion": {
     "message": "Увійти з ключем доступу?"
@@ -4926,9 +4897,6 @@
       }
     }
   },
-  "enableAnimations": {
-    "message": "Увімкнути анімацію"
-  },
   "showAnimations": {
     "message": "Показати анімації"
   },
@@ -5203,9 +5171,6 @@
   },
   "vaultCustomTimeoutMinimum": {
     "message": "Мінімальний власний час очікування – 1 хвилина."
-  },
-  "additionalContentAvailable": {
-    "message": "Доступний додатковий вміст"
   },
   "fileSavedToDevice": {
     "message": "Файл збережено на пристрої. Ви можете його знайти у теці завантажень."

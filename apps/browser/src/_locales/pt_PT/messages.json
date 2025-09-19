@@ -1525,9 +1525,6 @@
   "selectTwoStepLoginMethod": {
     "message": "Selecionar método de verificação de dois passos"
   },
-  "recoveryCodeDesc": {
-    "message": "Perdeu o acesso a todos os seus fornecedores de verificação de dois passos? Utilize o seu código de recuperação para desativar todos os fornecedores de verificação de dois passos da sua conta."
-  },
   "recoveryCodeTitle": {
     "message": "Código de recuperação"
   },
@@ -1686,9 +1683,6 @@
   "defaultAutoFillOnPageLoadDesc": {
     "message": "Pode desativar o preenchimento automático ao carregar a página para itens de início de sessão individuais a partir da vista Editar do item."
   },
-  "itemAutoFillOnPageLoad": {
-    "message": "Preencher automaticamente ao carregar a página (se configurado nas Opções)"
-  },
   "autoFillOnPageLoadUseDefault": {
     "message": "Utilizar a predefinição"
   },
@@ -1760,17 +1754,8 @@
   "popup2faCloseMessage": {
     "message": "Ao clicar fora da janela pop-up para verificar o código de verificação no seu e-mail fará com que este pop-up se feche. Pretende abrir esta janela pop-up numa nova janela para que não se feche?"
   },
-  "popupU2fCloseMessage": {
-    "message": "Este navegador não pode processar pedidos U2F nesta janela pop-up. Pretende abrir este pop-up numa nova janela para poder iniciar sessão utilizando o U2F?"
-  },
   "showIconsChangePasswordUrls": {
     "message": "Mostrar ícones de sites e recuperar URLs de alteração de palavra-passe"
-  },
-  "enableBadgeCounter": {
-    "message": "Mostrar distintivo de contador"
-  },
-  "badgeCounterDesc": {
-    "message": "Indica quantas credenciais tem para a página Web atual."
   },
   "cardholderName": {
     "message": "Titular do cartão"
@@ -3570,9 +3555,6 @@
   "autofillPageLoadPolicyActivated": {
     "message": "As políticas da sua organização ativaram o preenchimento automático ao carregar a página."
   },
-  "howToAutofill": {
-    "message": "Como preencher automaticamente"
-  },
   "autofillSelectInfoWithCommand": {
     "message": "Selecione um item a partir deste ecrã, utilize o atalho $COMMAND$ ou explore outras opções nas definições.",
     "placeholders": {
@@ -3957,17 +3939,9 @@
   "aliasDomain": {
     "message": "Alias de domínio"
   },
-  "passwordRepromptDisabledAutofillOnPageLoad": {
-    "message": "Os itens que voltem a pedir a palavra-passe mestra não podem ser preenchidos automaticamente no carregamento da página. Preenchimento automático no carregamento da página desativado.",
-    "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
-  },
   "autofillOnPageLoadSetToDefault": {
     "message": "Preencher automaticamente ao carregar a página definido para utilizar a predefinição.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "turnOffMasterPasswordPromptToEditField": {
-    "message": "Desativar o pedido para reintroduzir a palavra-passe mestra para editar este campo",
-    "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
   },
   "toggleSideNavigation": {
     "message": "Ativar/desativar navegação lateral"
@@ -4237,9 +4211,6 @@
   },
   "passkeyNotCopiedAlert": {
     "message": "A chave de acesso não será copiada para o item duplicado. Pretende ainda assim duplicar este item?"
-  },
-  "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
-    "message": "Verificação exigida pelo site inicial. Esta funcionalidade ainda não está implementada para contas sem palavra-passe mestra."
   },
   "logInWithPasskeyQuestion": {
     "message": "Iniciar sessão com a chave de acesso?"
@@ -4926,9 +4897,6 @@
       }
     }
   },
-  "enableAnimations": {
-    "message": "Ativar animações"
-  },
   "showAnimations": {
     "message": "Mostrar animações"
   },
@@ -5203,9 +5171,6 @@
   },
   "vaultCustomTimeoutMinimum": {
     "message": "O tempo limite mínimo personalizado é de 1 minuto."
-  },
-  "additionalContentAvailable": {
-    "message": "Estão disponíveis conteúdos adicionais"
   },
   "fileSavedToDevice": {
     "message": "Ficheiro guardado no dispositivo. Gira-o a partir das transferências do seu dispositivo."
