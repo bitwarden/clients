@@ -53,12 +53,14 @@ fn get_window_title_length(window_handle: &WindowHandle) -> Result<usize> {
     let length = usize::try_from(length)?;
 
     if length == 0 {
+        // attempt to retreive win32 error
         let last_err = get_last_error();
         if !last_err.is_empty() {
             let error_string = format!("Error getting window text length: {last_err}");
             eprintln!("{error_string}"); // TODO: error!()
             return Err(anyhow!(error_string));
         }
+        // still return error because we won't be able to get window title string
         let error_string = "Window text length is zero.";
         eprintln!("{error_string}"); // TODO: error!()
         return Err(anyhow!(error_string));
@@ -86,7 +88,10 @@ fn get_window_title(window_handle: &WindowHandle) -> Result<String> {
             return Err(anyhow!(last_err));
         }
         // still return error because we won't be able to get window title string
-        let error_string = "Window title length is zero.";
+        let error_string = format!(
+            "No window title retrieved. Expected {}, read 0.",
+            window_title_length
+        );
         eprintln!("{error_string}"); // TODO: error!()
         return Err(anyhow!(error_string));
     }
