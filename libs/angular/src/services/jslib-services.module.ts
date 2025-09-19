@@ -884,7 +884,6 @@ const safeProviders: SafeProvider[] = [
       EncryptService,
       CryptoFunctionServiceAbstraction,
       KdfConfigService,
-      AccountServiceAbstraction,
       ApiServiceAbstraction,
       RestrictedItemTypesService,
     ],
@@ -906,14 +905,17 @@ const safeProviders: SafeProvider[] = [
       CryptoFunctionServiceAbstraction,
       CollectionService,
       KdfConfigService,
-      AccountServiceAbstraction,
       RestrictedItemTypesService,
     ],
   }),
   safeProvider({
     provide: VaultExportServiceAbstraction,
     useClass: VaultExportService,
-    deps: [IndividualVaultExportServiceAbstraction, OrganizationVaultExportServiceAbstraction],
+    deps: [
+      IndividualVaultExportServiceAbstraction,
+      OrganizationVaultExportServiceAbstraction,
+      AccountServiceAbstraction,
+    ],
   }),
   safeProvider({
     provide: SearchServiceAbstraction,

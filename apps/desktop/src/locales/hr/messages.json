@@ -960,9 +960,6 @@
   "insertU2f": {
     "message": "Umetni svoj sigurnosni ključ u USB priključak računala. Ako ima tipku, dodirni ju."
   },
-  "recoveryCodeDesc": {
-    "message": "Izgubljen je pristup uređaju za dvostruku autentifikaciju? Koristi svoj kôd za oporavak za onemogućavanje svih pružatelja usluga dvostruke autentifikacije na tvojem računu."
-  },
   "recoveryCodeTitle": {
     "message": "Kôd za oporavak"
   },
@@ -1306,7 +1303,7 @@
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
   "showIconsChangePasswordUrls": {
-    "message": "Show website icons and retrieve change password URLs"
+    "message": "Prikaži ikonu web mjesta i dohvati URL za promjenu lozinke"
   },
   "enableMinToTray": {
     "message": "Minimiziraj u područje obavijesti"
@@ -3938,10 +3935,10 @@
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
   "aboutThisSetting": {
-    "message": "About this setting"
+    "message": "O ovoj postavci"
   },
   "permitCipherDetailsDescription": {
-    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+    "message": "Bitwarden će koristiti spremljene URI-je za prijavu kako bi identificirao ikonu ili URL za promjenu lozinke koji treba koristiti za poboljšanje tvojeg iskustva. Nikakvi podaci se ne prikupljaju, niti spremaju kada koristiš ovu uslugu."
   },
   "assignToCollections": {
     "message": "Dodijeli zbirkama"
