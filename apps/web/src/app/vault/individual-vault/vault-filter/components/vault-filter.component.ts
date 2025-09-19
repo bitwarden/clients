@@ -25,8 +25,8 @@ import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { CipherArchiveService } from "@bitwarden/vault";
+import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 
-import { TrialFlowService } from "../../../../billing/services/trial-flow.service";
 import { VaultFilterService } from "../services/abstractions/vault-filter.service";
 import {
   VaultFilterList,
@@ -63,6 +63,8 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
   get filtersList() {
     return this.filters ? Object.values(this.filters) : [];
   }
+
+  protected organizationWarningsService = inject(OrganizationWarningsService);
 
   allTypeFilters: CipherTypeFilter[] = [
     {
@@ -144,7 +146,6 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     return "searchVault";
   }
 
-  private trialFlowService = inject(TrialFlowService);
   protected activeUserId$ = this.accountService.activeAccount$.pipe(getUserId);
 
   constructor(
@@ -212,8 +213,9 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
         variant: "error",
         message: this.i18nService.t("disabledOrganizationFilterError"),
       });
-      const metadata = await this.billingApiService.getOrganizationBillingMetadata(orgNode.node.id);
-      await this.trialFlowService.handleUnpaidSubscriptionDialog(orgNode.node, metadata);
+      await firstValueFrom(
+        this.organizationWarningsService.showInactiveSubscriptionDialog$(orgNode.node),
+      );
     }
     const filter = this.activeFilter;
     if (orgNode?.node.id === "AllVaults") {

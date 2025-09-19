@@ -1,6 +1,4 @@
-<app-vault-banners
-  [organizationsPaymentStatus]="organizationsPaymentStatus$ | async"
-></app-vault-banners>
+<app-vault-banners [organizations]="organizations$ | async"></app-vault-banners>
 
 <app-vault-header
   [filter]="filter"
@@ -66,8 +64,11 @@
       ></i>
       <span class="tw-sr-only">{{ "loading" | i18n }}</span>
     </div>
-    <div class="tw-mt-6 tw-flex tw-h-full tw-flex-col tw-items-center tw-justify-start">
-      <bit-no-items [icon]="noItemIcon" *ngIf="isEmpty && !performingInitialLoad">
+    <div
+      class="tw-mt-6 tw-flex tw-h-full tw-flex-col tw-items-center tw-justify-start"
+      *ngIf="isEmpty && !performingInitialLoad"
+    >
+      <bit-no-items [icon]="noItemIcon">
         <div slot="title" *ngIf="filter.type === 'archive'">{{ "noItemsInArchive" | i18n }}</div>
         <p slot="description" class="tw-text-center tw-max-w-md" *ngIf="filter.type === 'archive'">
           {{ "archivedItemsDescription" | i18n }}
