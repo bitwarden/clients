@@ -80,6 +80,6 @@ export class ExtensionLoginComponentService
    * https://developer.apple.com/forums/thread/774351
    */
   isLoginWithPasskeySupported(): boolean {
-    return !this.platformUtilsService.isFirefox() && !this.platformUtilsService.isSafari();
+    return this.platformUtilsService.isChromium();
   }
 }
