@@ -9,7 +9,7 @@ import {
   Validators,
 } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
-import { concatMap, firstValueFrom, Subject, takeUntil } from "rxjs";
+import { concatMap, firstValueFrom, Subject, switchMap, takeUntil } from "rxjs";
 
 import { ControlsOf } from "@bitwarden/angular/types/controls-of";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -34,6 +34,7 @@ import { OrganizationSsoRequest } from "@bitwarden/common/auth/models/request/or
 import { OrganizationSsoResponse } from "@bitwarden/common/auth/models/response/organization-sso.response";
 import { SsoConfigView } from "@bitwarden/common/auth/models/view/sso-config.view";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -201,6 +202,7 @@ export class SsoComponent implements OnInit, OnDestroy {
     private accountService: AccountService,
     private organizationApiService: OrganizationApiServiceAbstraction,
     private toastService: ToastService,
+    private environmentService: EnvironmentService,
   ) {}
 
   async ngOnInit() {
@@ -251,6 +253,23 @@ export class SsoComponent implements OnInit, OnDestroy {
       .subscribe();
 
     this.showKeyConnectorOptions = this.platformUtilsService.isSelfHost();
+
+    this.ssoConfigForm?.controls?.memberDecryptionType.valueChanges
+      .pipe(
+        switchMap(async (memberDecryptionType) => {
+          if (memberDecryptionType === MemberDecryptionType.KeyConnector) {
+            const env = await firstValueFrom(this.environmentService.environment$);
+            const webVaultUrl = env.getWebVaultUrl();
+            const defaultKeyConnectorUrl = webVaultUrl + "/key-connector";
+
+            this.ssoConfigForm.controls.keyConnectorUrl.setValue(defaultKeyConnectorUrl);
+          } else {
+            this.ssoConfigForm.controls.keyConnectorUrl.setValue("");
+          }
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe();
   }
 
   ngOnDestroy(): void {
