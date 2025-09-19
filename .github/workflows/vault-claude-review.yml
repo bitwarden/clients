@@ -1,0 +1,57 @@
+name: Vault Claude review code
+
+on:
+  pull_request:
+    types: [opened, synchronize, ready_for_review, reopened]
+    # Only run on changes to code files owned by Vault team
+    paths:
+      - "apps/browser/src/vault/**"
+      - "apps/cli/src/vault/**"
+      - "apps/desktop/src/vault/**"
+      - "apps/web/src/app/vault/**"
+      - "libs/angular/src/vault/**"
+      - "libs/common/src/vault/**"
+      - "libs/vault/**"
+
+permissions: {}
+
+jobs:
+  review:
+    name: Review
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
+      pull-requests: write
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Review with Claude Code
+        uses: anthropics/claude-code-action@a5528eec7426a4f0c9c1ac96018daa53ebd05bc4 # v1.0.7
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          track_progress: true
+          prompt: |
+            REPO: ${{ github.repository }}
+            PR NUMBER: ${{ github.event.pull_request.number }}
+            TITLE: ${{ github.event.pull_request.title }}
+            BODY: ${{ github.event.pull_request.body }}
+            AUTHOR: ${{ github.event.pull_request.user.login }}
+
+            Please review this pull request with a focus on:
+            - Code quality and best practices
+            - Potential bugs or issues
+            - Security implications
+            - Performance considerations
+
+            Note: The PR branch is already checked out in the current working directory.
+
+            Provide detailed feedback using inline comments for specific issues.
+
+          claude_args: |
+            --allowedTools "mcp__github_inline_comment__create_inline_comment,Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*)"
