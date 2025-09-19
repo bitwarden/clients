@@ -161,6 +161,7 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
       await this.router.navigate(["/finish-signup"], {
         queryParams: { token: result, email: this.email.value },
       });
+      return;
     }
 
     // Result is null, so email verification is required

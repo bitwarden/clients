@@ -2,6 +2,9 @@
   "allApplications": {
     "message": "அனைத்து பயன்பாடுகளும்"
   },
+  "activity": {
+    "message": "Activity"
+  },
   "appLogoLabel": {
     "message": "பிட்வார்டன் லோகோ"
   },
@@ -56,8 +59,20 @@
   "createNewLoginItem": {
     "message": "புதிய உள்நுழைவு உருப்படியை உருவாக்கவும்"
   },
+  "criticalApplicationsActivityDescription": {
+    "message": "Once you mark applications critical, they will display here."
+  },
   "criticalApplicationsWithCount": {
     "message": "முக்கியமான பயன்பாடுகள் ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfCriticalApplications": {
+    "message": "$COUNT$ critical applications",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -86,14 +101,14 @@
   "noAppsInOrgDescription": {
     "message": "பயனர்கள் உள்நுழைவுகளை சேமிக்கும்போது, ​​பயன்பாடுகள் இங்கே தோன்றி, எந்தவொரு ஆபத்தான கடவுச்சொற்களையும் காண்பிக்கும். முக்கியமான பயன்பாடுகளைக் குறியிட்டு, கடவுச்சொற்களைப் புதுப்பிக்க பயனர்களுக்குத் தெரிவிக்கவும்."
   },
-  "noCriticalAppsTitle": {
-    "message": "நீங்கள் எந்தப் பயன்பாட்டையும் முக்கியமானது என்று குறியிடவில்லை"
+  "noCriticalApplicationsTitle": {
+    "message": "You haven’t marked any applications as critical"
   },
-  "noCriticalAppsDescription": {
-    "message": "ஆபத்தான கடவுச்சொற்களைக் கண்டறிய உங்கள் மிக முக்கியமான பயன்பாடுகளைத் தேர்ந்தெடுத்து, அந்தக் கடவுச்சொற்களை மாற்ற பயனர்களுக்குத் தெரிவிக்கவும்."
+  "noCriticalApplicationsDescription": {
+    "message": "Select your most critical applications to prioritize security actions for your users to address at-risk passwords."
   },
-  "markCriticalApps": {
-    "message": "முக்கியமான பயன்பாடுகளைக் குறியிடு"
+  "markCriticalApplications": {
+    "message": "Select critical applications"
   },
   "markAppAsCritical": {
     "message": "பயன்பாட்டை முக்கியமானதாகக் குறியிடு"
@@ -118,6 +133,18 @@
   },
   "atRiskMembers": {
     "message": "ஆபத்தில் உள்ள உறுப்பினர்கள்"
+  },
+  "membersAtRiskActivityDescription": {
+    "message": "Members with edit access to at-risk items for critical applications"
+  },
+  "membersAtRisk": {
+    "message": "$COUNT$ members at risk",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "atRiskMembersWithCount": {
     "message": "ஆபத்தில் உள்ள உறுப்பினர்கள் ($COUNT$)",
@@ -179,8 +206,8 @@
   "unmarkAsCritical": {
     "message": "முக்கியமானதாக இருந்து குறியீட்டை நீக்கு"
   },
-  "criticalApplicationSuccessfullyUnmarked": {
-    "message": "முக்கியமான பயன்பாட்டின் குறியீடு வெற்றிகரமாக நீக்கப்பட்டது"
+  "criticalApplicationUnmarkedSuccessfully": {
+    "message": "Successfully unmarked application as critical"
   },
   "whatTypeOfItem": {
     "message": "இது என்ன வகை உருப்படி?"
@@ -734,32 +761,81 @@
   "viewItem": {
     "message": "பொருளைக் காண்"
   },
-  "newItemHeader": {
-    "message": "புதிய $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderLogin": {
+    "message": "New Login",
+    "description": "Header for new login item type"
   },
-  "editItemHeader": {
-    "message": "திருத்து $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderCard": {
+    "message": "New Card",
+    "description": "Header for new card item type"
   },
-  "viewItemType": {
-    "message": "காண் $ITEMTYPE$",
-    "placeholders": {
-      "itemtype": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderIdentity": {
+    "message": "New Identity",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "New Note",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "New SSH key",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderTextSend": {
+    "message": "New Text Send",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "New File Send",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderLogin": {
+    "message": "Edit Login",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Edit Card",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Edit Identity",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Edit Note",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "Edit SSH key",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Edit Text Send",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Edit File Send",
+    "description": "Header for edit file send"
+  },
+  "viewItemHeaderLogin": {
+    "message": "View Login",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "View Card",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "View Identity",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "View Note",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "View SSH key",
+    "description": "Header for view SSH key item type"
   },
   "new": {
     "message": "புதியது",
@@ -1510,9 +1586,6 @@
   "selectTwoStepLoginMethod": {
     "message": "இரு-படி உள்நுழைவு முறையைத் தேர்ந்தெடுக்கவும்"
   },
-  "recoveryCodeDesc": {
-    "message": "உங்கள் இரு-படி உள்நுழைவு வழங்குநர்கள் அனைத்திற்கும் அணுகலை இழந்தீர்களா? உங்கள் கணக்கிலிருந்து அனைத்து இரு-படி உள்நுழைவு வழங்குநர்களையும் அணைக்க உங்கள் மீட்டெடுப்பு குறியீட்டைப் பயன்படுத்தவும்."
-  },
   "recoveryCodeTitle": {
     "message": "மீட்டெடுப்பு குறியீடு"
   },
@@ -2114,11 +2187,8 @@
   "languageDesc": {
     "message": "வெப் வால்ட் பயன்படுத்தும் மொழியை மாற்றவும்."
   },
-  "enableFavicon": {
-    "message": "வலைத்தள ஐகான்களைக் காட்டு"
-  },
-  "faviconDesc": {
-    "message": "ஒவ்வொரு உள்நுழைவுக்கும் அருகில் அடையாளம் காணக்கூடிய படத்தைக் காட்டு."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "default": {
     "message": "இயல்புநிலை"
@@ -7433,6 +7503,9 @@
   "off": {
     "message": "நிறுத்தப்பட்டது"
   },
+  "connected": {
+    "message": "Connected"
+  },
   "members": {
     "message": "உறுப்பினர்கள்"
   },
@@ -9666,6 +9739,9 @@
   "failedToSaveIntegration": {
     "message": "ஒருங்கிணைப்பைச் சேமிக்கத் தவறிவிட்டது. பின்னர் மீண்டும் முயற்சிக்கவும்."
   },
+  "failedToDeleteIntegration": {
+    "message": "Failed to delete integration. Please try again later."
+  },
   "deviceIdMissing": {
     "message": "சாதன ஐடி இல்லை"
   },
@@ -9683,6 +9759,15 @@
   },
   "connectIntegrationButtonDesc": {
     "message": "$INTEGRATION$ஐ இணைக்கவும்",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
+  },
+  "updateIntegrationButtonDesc": {
+    "message": "Update $INTEGRATION$",
     "placeholders": {
       "integration": {
         "content": "$1",
@@ -9752,6 +9837,9 @@
   },
   "bearerToken": {
     "message": "பியரர் டோக்கன்"
+  },
+  "repositoryNameHint": {
+    "message": "Name of the repository to ingest into"
   },
   "index": {
     "message": "குறியீடு"
@@ -10201,14 +10289,8 @@
   "learnMoreAboutApi": {
     "message": "Bitwarden's API பற்றி மேலும் அறிக"
   },
-  "fileSend": {
-    "message": "கோப்பு அனுப்பு"
-  },
   "fileSends": {
     "message": "கோப்பு அனுப்புதல்கள்"
-  },
-  "textSend": {
-    "message": "உரை அனுப்பு"
   },
   "textSends": {
     "message": "உரை அனுப்புதல்கள்"
@@ -10896,6 +10978,12 @@
   "changeAtRiskPassword": {
     "message": "அபாயகரமான கடவுச்சொல்லை மாற்றவும்"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
+  },
   "removeUnlockWithPinPolicyTitle": {
     "message": "பின் குறியீட்டைக் கொண்டு திறக்கும் வசதியை அகற்று"
   },
@@ -11071,6 +11159,12 @@
     "message": "கடன் தொகையைச் சேர்க்க, பில்லிங் முகவரி தேவை.",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+  },
   "billingAddress": {
     "message": "பில்லிங் முகவரி"
   },
@@ -11234,6 +11328,14 @@
   },
   "confirmKeyConnectorDomain": {
     "message": "கீ கனெக்டர் டொமைனை உறுதிப்படுத்தவும்"
+  },
+  "requiredToVerifyBankAccountWithStripe": {
+    "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
+  },
+  "verifyBankAccountWithStripe": {
+    "message": "We have made a micro-deposit to your bank account. This may take 1-2 business days. When you see the deposit in your account, you can verify your bank account. Failure to verify your bank account will result in a missed payment and your subscription will be suspended."
+  },
+  "verifyNow": {
+    "message": "Verify now."
   }
 }
-

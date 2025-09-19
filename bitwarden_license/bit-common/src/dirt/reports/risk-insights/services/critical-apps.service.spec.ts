@@ -12,10 +12,10 @@ import { OrgKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
 
 import {
-  PasswordHealthReportApplicationId,
   PasswordHealthReportApplicationsRequest,
   PasswordHealthReportApplicationsResponse,
-} from "../models/password-health";
+} from "../models/api-models.types";
+import { PasswordHealthReportApplicationId } from "../models/report-models";
 
 import { CriticalAppsApiService } from "./critical-apps-api.service";
 import { CriticalAppsService } from "./critical-apps.service";

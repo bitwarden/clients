@@ -6,14 +6,11 @@ import {
   BehaviorSubject,
   combineLatest,
   firstValueFrom,
-  from,
   lastValueFrom,
   Observable,
-  of,
   Subject,
 } from "rxjs";
 import {
-  catchError,
   concatMap,
   debounceTime,
   distinctUntilChanged,
@@ -36,7 +33,7 @@ import {
 } from "@bitwarden/admin-console/common";
 import { SearchPipe } from "@bitwarden/angular/pipes/search.pipe";
 import {
-  Search,
+  NoResults,
   OrganizationIcon,
   TrashIcon,
   FavoritesIcon,
@@ -45,7 +42,6 @@ import {
 } from "@bitwarden/assets/svg";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
-import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import {
   getOrganizationById,
   OrganizationService,
@@ -53,12 +49,10 @@ import {
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { OrganizationBillingServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { EventType } from "@bitwarden/common/enums";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -96,6 +90,8 @@ import {
   DefaultCipherFormConfigService,
   PasswordRepromptService,
 } from "@bitwarden/vault";
+import { OrganizationWarningsModule } from "@bitwarden/web-vault/app/billing/organizations/warnings/organization-warnings.module";
+import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 
 import {
   getNestedCollectionTree,
@@ -106,9 +102,6 @@ import {
   CollectionDialogTabType,
   openCollectionDialog,
 } from "../../admin-console/organizations/shared/components/collection-dialog";
-import { BillingNotificationService } from "../../billing/services/billing-notification.service";
-import { TrialFlowService } from "../../billing/services/trial-flow.service";
-import { FreeTrial } from "../../billing/types/free-trial";
 import { SharedModule } from "../../shared/shared.module";
 import { AssignCollectionsWebComponent } from "../components/assign-collections";
 import {
@@ -157,6 +150,7 @@ const BroadcasterSubscriptionId = "VaultComponent";
     VaultFilterModule,
     VaultItemsModule,
     SharedModule,
+    OrganizationWarningsModule,
   ],
   providers: [
     RoutedVaultFilterService,
@@ -172,13 +166,12 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   kdfIterations: number;
   activeFilter: VaultFilter = new VaultFilter();
 
-  protected noItemIcon = Search;
+  protected noItemIcon = NoResults;
   protected orgIcon = OrganizationIcon;
   protected trashIcon = TrashIcon;
   protected favoritesIcon = FavoritesIcon;
   protected emptyVaultIcon = EmptyVaultIcon;
   protected emptySearchResultIcon = EmptySearchIcon;
-
   protected performingInitialLoad = true;
   protected refreshing = false;
   protected processingEvent = false;
@@ -198,70 +191,13 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   private searchText$ = new Subject<string>();
   private refresh$ = new BehaviorSubject<void>(null);
   private destroy$ = new Subject<void>();
-  private hasSubscription$ = new BehaviorSubject<boolean>(false);
 
   private vaultItemDialogRef?: DialogRef<VaultItemDialogResult> | undefined;
-  private organizations$ = this.accountService.activeAccount$
+
+  organizations$ = this.accountService.activeAccount$
     .pipe(map((a) => a?.id))
     .pipe(switchMap((id) => this.organizationService.organizations$(id)));
 
-  private readonly unpaidSubscriptionDialog$ = this.organizations$.pipe(
-    filter((organizations) => organizations.length === 1),
-    map(([organization]) => organization),
-    switchMap((organization) =>
-      from(this.billingApiService.getOrganizationBillingMetadata(organization.id)).pipe(
-        tap((organizationMetaData) => {
-          this.hasSubscription$.next(organizationMetaData.hasSubscription);
-        }),
-        switchMap((organizationMetaData) =>
-          from(
-            this.trialFlowService.handleUnpaidSubscriptionDialog(
-              organization,
-              organizationMetaData,
-            ),
-          ),
-        ),
-      ),
-    ),
-  );
-  protected organizationsPaymentStatus$: Observable<FreeTrial[]> = combineLatest([
-    this.organizations$.pipe(
-      map(
-        (organizations) =>
-          organizations?.filter((org) => org.isOwner && org.canViewBillingHistory) ?? [],
-      ),
-    ),
-    this.hasSubscription$,
-  ]).pipe(
-    switchMap(([ownerOrgs, hasSubscription]) => {
-      if (!ownerOrgs || ownerOrgs.length === 0 || !hasSubscription) {
-        return of([]);
-      }
-      return combineLatest(
-        ownerOrgs.map((org) =>
-          combineLatest([
-            this.organizationApiService.getSubscription(org.id),
-            from(this.organizationBillingService.getPaymentSource(org.id)).pipe(
-              catchError((error: unknown) => {
-                this.billingNotificationService.handleError(error);
-                return of(null);
-              }),
-            ),
-          ]).pipe(
-            map(([subscription, paymentSource]) =>
-              this.trialFlowService.checkForOrgsWithUpcomingPaymentIssues(
-                org,
-                subscription,
-                paymentSource,
-              ),
-            ),
-          ),
-        ),
-      );
-    }),
-    map((results) => results.filter((result) => result !== null && result.shownBanner)),
-    shareReplay({ refCount: false, bufferSize: 1 }),
-  );
   emptyState$ = combineLatest([this.currentSearchText$]).pipe(
     map(([searchText]) => {
       if (this.isSelectedOrgDisabled()) {
@@ -331,13 +267,9 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     private toastService: ToastService,
     private accountService: AccountService,
     private cipherFormConfigService: DefaultCipherFormConfigService,
-    private organizationApiService: OrganizationApiServiceAbstraction,
     protected billingApiService: BillingApiServiceAbstraction,
-    private trialFlowService: TrialFlowService,
-    private organizationBillingService: OrganizationBillingServiceAbstraction,
-    private billingNotificationService: BillingNotificationService,
-    private configService: ConfigService,
     private restrictedItemTypesService: RestrictedItemTypesService,
+    private organizationWarningsService: OrganizationWarningsService,
   ) {}
 
   async ngOnInit() {
@@ -575,7 +507,16 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         });
       });
 
-    this.unpaidSubscriptionDialog$.pipe(takeUntil(this.destroy$)).subscribe();
+    this.organizations$
+      .pipe(
+        filter((organizations) => organizations.length === 1),
+        map((organizations) => organizations[0]),
+        switchMap((organization) =>
+          this.organizationWarningsService.showInactiveSubscriptionDialog$(organization),
+        ),
+        takeUntil(this.destroy$),
+      )
+      .subscribe();
 
     firstSetup$
       .pipe(

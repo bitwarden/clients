@@ -2,6 +2,9 @@
   "allApplications": {
     "message": "Alle applicaties"
   },
+  "activity": {
+    "message": "Activiteit"
+  },
   "appLogoLabel": {
     "message": "Bitwarden-logo"
   },
@@ -56,8 +59,20 @@
   "createNewLoginItem": {
     "message": "Nieuw login item aanmaken"
   },
+  "criticalApplicationsActivityDescription": {
+    "message": "Als je toepassingen als belangrijk markeert, verschijnen ze hier."
+  },
   "criticalApplicationsWithCount": {
     "message": "Belangrijke applicaties ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfCriticalApplications": {
+    "message": "$COUNT$ belangrijke applicaties",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -86,14 +101,14 @@
   "noAppsInOrgDescription": {
     "message": "Als gebruikers inloggegevens opslaan, verschijnen hier applicaties met wachtwoorden die risico lopen. Markeer belangrijke applicaties en attendeer gebruikers op het bijwerken van wachtwoorden."
   },
-  "noCriticalAppsTitle": {
+  "noCriticalApplicationsTitle": {
     "message": "Je hebt nog geen applicaties als belangrijk aangewezen"
   },
-  "noCriticalAppsDescription": {
-    "message": "Wijs je meest belangrijke applicaties aan om risicovolle wachtwoorden te ontdekken en gebruikers te attenderen deze te wijzigen."
+  "noCriticalApplicationsDescription": {
+    "message": "Selecteer je meest belangrijke applicaties om prioriteit te geven aan beveiligingsacties voor je gebruikers om risico-wachtwoorden aan te pakken."
   },
-  "markCriticalApps": {
-    "message": "Markeer belangrijke apps"
+  "markCriticalApplications": {
+    "message": "Belangrijke applicaties selecteren"
   },
   "markAppAsCritical": {
     "message": "App aanwijzen als belangrijk"
@@ -118,6 +133,18 @@
   },
   "atRiskMembers": {
     "message": "Leden in gevaar"
+  },
+  "membersAtRiskActivityDescription": {
+    "message": "Leden met toegang voor bewerken van risico-items voor belangrijke applicaties"
+  },
+  "membersAtRisk": {
+    "message": "$COUNT$ leden lopen risico",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "atRiskMembersWithCount": {
     "message": "Leden die risico lopen ($COUNT$)",
@@ -179,8 +206,8 @@
   "unmarkAsCritical": {
     "message": "Markeren als belangrijk ongedaan maken"
   },
-  "criticalApplicationSuccessfullyUnmarked": {
-    "message": "Markeren als belangrijke app ongedaan gemaakt"
+  "criticalApplicationUnmarkedSuccessfully": {
+    "message": "Toepassing niet meer gemarkeerd als belangrijk"
   },
   "whatTypeOfItem": {
     "message": "Van welke categorie is dit item?"
@@ -734,32 +761,81 @@
   "viewItem": {
     "message": "Item weergeven"
   },
-  "newItemHeader": {
-    "message": "Nieuwe $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderLogin": {
+    "message": "Nieuwe login",
+    "description": "Header for new login item type"
   },
-  "editItemHeader": {
-    "message": "$TYPE$ bewerken",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderCard": {
+    "message": "Nieuwe kaart",
+    "description": "Header for new card item type"
   },
-  "viewItemType": {
-    "message": "$ITEMTYPE$ weergeven",
-    "placeholders": {
-      "itemtype": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderIdentity": {
+    "message": "Nieuwe identiteit",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "Nieuwe notitie",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "Nieuwe SSH-sleutel",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderTextSend": {
+    "message": "Nieuwe Send (tekst)",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "Nieuwe Send (bestand)",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderLogin": {
+    "message": "Login bewerken",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Kaart bewerken",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Identiteit bewerken",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Notitie bewerken",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "SSH-sleutel bewerken",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Send (tekst) bewerken",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Send (bestand) bewerken",
+    "description": "Header for edit file send"
+  },
+  "viewItemHeaderLogin": {
+    "message": "Login bekijken",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "Kaart bekijken",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "Identiteit bekijken",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "Notitie bekijken",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "SSH-sleutel bekijken",
+    "description": "Header for view SSH key item type"
   },
   "new": {
     "message": "Nieuw",
@@ -1510,9 +1586,6 @@
   "selectTwoStepLoginMethod": {
     "message": "Kies methode voor tweestapsaanmelding"
   },
-  "recoveryCodeDesc": {
-    "message": "Ben je de toegang tot al je tweestapsaanbieders verloren? Gebruik dan je herstelcode om alle tweestapsaanbieders op je account uit te schakelen."
-  },
   "recoveryCodeTitle": {
     "message": "Herstelcode"
   },
@@ -2114,11 +2187,8 @@
   "languageDesc": {
     "message": "De taal van de webkluis aanpassen."
   },
-  "enableFavicon": {
-    "message": "Websitepictogrammen weergeven"
-  },
-  "faviconDesc": {
-    "message": "Een herkenbare afbeelding naast iedere login weergeven."
+  "showIconsChangePasswordUrls": {
+    "message": "Websitepictogrammen weergeven en URL's voor wachtwoordwijzigingen ophalen"
   },
   "default": {
     "message": "Standaard"
@@ -7433,6 +7503,9 @@
   "off": {
     "message": "Uit"
   },
+  "connected": {
+    "message": "Verbonden"
+  },
   "members": {
     "message": "Leden"
   },
@@ -9666,6 +9739,9 @@
   "failedToSaveIntegration": {
     "message": "Opslaan van integratie mislukt. Probeer het later opnieuw."
   },
+  "failedToDeleteIntegration": {
+    "message": "Verwijderen van integratie mislukt. Probeer het later opnieuw."
+  },
   "deviceIdMissing": {
     "message": "Apparaat-ID ontbreekt"
   },
@@ -9683,6 +9759,15 @@
   },
   "connectIntegrationButtonDesc": {
     "message": "$INTEGRATION$ verbinden",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
+  },
+  "updateIntegrationButtonDesc": {
+    "message": "$INTEGRATION$ bijwerken",
     "placeholders": {
       "integration": {
         "content": "$1",
@@ -9752,6 +9837,9 @@
   },
   "bearerToken": {
     "message": "Bearer-token"
+  },
+  "repositoryNameHint": {
+    "message": "Naam van de repository om in te nemen"
   },
   "index": {
     "message": "Index"
@@ -10201,14 +10289,8 @@
   "learnMoreAboutApi": {
     "message": "Lees meer over Bitwarden's API"
   },
-  "fileSend": {
-    "message": "Bestand Send"
-  },
   "fileSends": {
     "message": "Bestand-Sends"
-  },
-  "textSend": {
-    "message": "Tekst Send"
   },
   "textSends": {
     "message": "Tekst-Sends"
@@ -10896,6 +10978,12 @@
   "changeAtRiskPassword": {
     "message": "Risicovol wachtwoord wijzigen"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Deze login is in gevaar en mist een website. Voeg een website toe en verander het wachtwoord voor een sterkere beveiliging."
+  },
+  "missingWebsite": {
+    "message": "Ontbrekende website"
+  },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Ontgrendelen met PIN verwijderen"
   },
@@ -11071,6 +11159,12 @@
     "message": "Factuuradres vereist voor het toevoegen van krediet.",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   },
+  "aboutThisSetting": {
+    "message": "Over deze instelling"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden gebruikt opgeslagen login-URI's om te bepalen welk pictogram of URL voor het wijzigen van het wachtwoord moet worden gebruikt om je ervaring te verbeteren. Er wordt geen informatie verzameld of opgeslagen wanneer je deze service gebruikt."
+  },
   "billingAddress": {
     "message": "Factuuradres"
   },
@@ -11234,6 +11328,14 @@
   },
   "confirmKeyConnectorDomain": {
     "message": "Key Connector-domein bevestigen"
+  },
+  "requiredToVerifyBankAccountWithStripe": {
+    "message": "Betaling met een bankrekening is alleen beschikbaar voor klanten in de Verenigde Staten. Je moet je bankrekening verifiëren. We zullen binnen 1-2 werkdagen een microbetaling uitvoeren. Als de bankrekening niet wordt geverifieerd, wordt er een betaling gemist en wordt je abonnement opgeschort."
+  },
+  "verifyBankAccountWithStripe": {
+    "message": "We hebben een microbetaling op je bankrekening gedaan. Dit kan 1-2 werkdagen duren. Als je de betaling op je rekening ziet, kun je je bannkrekening verifiëren. Als de bankrekening niet wordt geverifieerd, wordt er een betaling gemist en wordt je abonnement opgeschort."
+  },
+  "verifyNow": {
+    "message": "Nu verifiëren."
   }
 }
-

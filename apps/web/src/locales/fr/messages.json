@@ -2,6 +2,9 @@
   "allApplications": {
     "message": "Toutes les applications"
   },
+  "activity": {
+    "message": "Activité"
+  },
   "appLogoLabel": {
     "message": "Logo Bitwarden"
   },
@@ -56,8 +59,20 @@
   "createNewLoginItem": {
     "message": "Créer un nouvel élément de connexion"
   },
+  "criticalApplicationsActivityDescription": {
+    "message": "Une fois que vous avez marqué des applications comme critiques, elles s'afficheront ici."
+  },
   "criticalApplicationsWithCount": {
     "message": "Applications critiques ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfCriticalApplications": {
+    "message": "$COUNT$ applications critiques",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -86,14 +101,14 @@
   "noAppsInOrgDescription": {
     "message": "Au fur et à mesure que les utilisateurs enregistrent des identifiants, les applications apparaissent ici, montrant les mots de passe à risque. Marquez les applications critiques et avertissez les utilisateurs de mettre à jour les mots de passe."
   },
-  "noCriticalAppsTitle": {
-    "message": "Vous n'avez marqué aucune application comme Critique"
+  "noCriticalApplicationsTitle": {
+    "message": "Vous n'avez marqué aucune application comme critique"
   },
-  "noCriticalAppsDescription": {
-    "message": "Sélectionnez vos applications les plus critiques pour découvrir les mots de passe à risque et avertissez les utilisateurs de modifier ces mots de passe."
+  "noCriticalApplicationsDescription": {
+    "message": "Sélectionnez vos applications les plus critiques afin de prioriser les actions de sécurité pour vos utilisateurs afin de traiter les mots de passe à risque."
   },
-  "markCriticalApps": {
-    "message": "Marquer les applications critiques"
+  "markCriticalApplications": {
+    "message": "Sélectionner les applications critiques"
   },
   "markAppAsCritical": {
     "message": "Marquer l'application comme critique"
@@ -118,6 +133,18 @@
   },
   "atRiskMembers": {
     "message": "Membres à risque"
+  },
+  "membersAtRiskActivityDescription": {
+    "message": "Membres pouvant modifier les éléments à risque pour les applications critiques"
+  },
+  "membersAtRisk": {
+    "message": "$COUNT$ membres à risque",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "atRiskMembersWithCount": {
     "message": "Membres à risque ($COUNT$)",
@@ -179,8 +206,8 @@
   "unmarkAsCritical": {
     "message": "Retirer la cote critique"
   },
-  "criticalApplicationSuccessfullyUnmarked": {
-    "message": "Marquage d'application critique retiré avec succès"
+  "criticalApplicationUnmarkedSuccessfully": {
+    "message": "Retrait de la marque critique pour l'application réussi"
   },
   "whatTypeOfItem": {
     "message": "Quel type d'élément est-ce ?"
@@ -734,32 +761,81 @@
   "viewItem": {
     "message": "Afficher l'élément"
   },
-  "newItemHeader": {
-    "message": "Nouveau $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderLogin": {
+    "message": "Nouvel Identifiant",
+    "description": "Header for new login item type"
   },
-  "editItemHeader": {
-    "message": "Modifier $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderCard": {
+    "message": "Nouvelle Carte de paiement",
+    "description": "Header for new card item type"
   },
-  "viewItemType": {
-    "message": "Voir $ITEMTYPE$",
-    "placeholders": {
-      "itemtype": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderIdentity": {
+    "message": "Nouvelle Identité",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "Nouvelle Note",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "Nouvelle clé SSH",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderTextSend": {
+    "message": "Nouveau Send de texte",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "Nouveau Send de fichier",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderLogin": {
+    "message": "Modifier l'Identifiant",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Modifier la Carte de paiement",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Modifier l'Identité",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Modifier la Note",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "Modifier la clé SSH",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Modifier le Send de texte",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Modifier le Send de fichier",
+    "description": "Header for edit file send"
+  },
+  "viewItemHeaderLogin": {
+    "message": "Afficher l'Identifiant",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "Afficher la Carte de paiement",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "Afficher l'Identité",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "Afficher la Note",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "Afficher la clé SSH",
+    "description": "Header for view SSH key item type"
   },
   "new": {
     "message": "Nouveau",
@@ -1510,9 +1586,6 @@
   "selectTwoStepLoginMethod": {
     "message": "Sélectionnez la méthode d'authentification à deux facteurs"
   },
-  "recoveryCodeDesc": {
-    "message": "Vous avez perdu l'accès à tous vos fournisseurs d'authentification à deux facteurs ? Utilisez votre code de récupération pour désactiver tous les fournisseurs d'authentification à deux facteurs de votre compte."
-  },
   "recoveryCodeTitle": {
     "message": "Code de récupération"
   },
@@ -2114,11 +2187,8 @@
   "languageDesc": {
     "message": "Changez la langue utilisée par le coffre web."
   },
-  "enableFavicon": {
-    "message": "Afficher les icônes des sites web"
-  },
-  "faviconDesc": {
-    "message": "Affiche une image reconnaissable à côté de chaque identifiant."
+  "showIconsChangePasswordUrls": {
+    "message": "Affiche les icônes du site web et récupère les URL de changement de mot de passe"
   },
   "default": {
     "message": "Par défaut"
@@ -7433,6 +7503,9 @@
   "off": {
     "message": "Désactivée"
   },
+  "connected": {
+    "message": "Connecté"
+  },
   "members": {
     "message": "Membres"
   },
@@ -9666,6 +9739,9 @@
   "failedToSaveIntegration": {
     "message": "Impossible d'enregistrer l'intégration. Veuillez réessayer plus tard."
   },
+  "failedToDeleteIntegration": {
+    "message": "La suppression de l'intégration échouée. Veuillez réessayer plus tard."
+  },
   "deviceIdMissing": {
     "message": "L'identification de l'appareil est manquante"
   },
@@ -9683,6 +9759,15 @@
   },
   "connectIntegrationButtonDesc": {
     "message": "Connecter $INTEGRATION$",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
+  },
+  "updateIntegrationButtonDesc": {
+    "message": "Mettre à jour $INTEGRATION$",
     "placeholders": {
       "integration": {
         "content": "$1",
@@ -9752,6 +9837,9 @@
   },
   "bearerToken": {
     "message": "Jeton du porteur"
+  },
+  "repositoryNameHint": {
+    "message": "Nom du dépôt à ingérer dans"
   },
   "index": {
     "message": "Index"
@@ -10201,14 +10289,8 @@
   "learnMoreAboutApi": {
     "message": "En savoir plus sur l'API de Bitwarden"
   },
-  "fileSend": {
-    "message": "Send d'un fichier"
-  },
   "fileSends": {
     "message": "Déposer des Sends"
-  },
-  "textSend": {
-    "message": "Send d'un texte"
   },
   "textSends": {
     "message": "Texter des Sends"
@@ -10896,6 +10978,12 @@
   "changeAtRiskPassword": {
     "message": "Changer le mot de passe à risque"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Cet identifiant est à risques et manque un site web. Ajoutez un site web et changez le mot de passe pour une meilleure sécurité."
+  },
+  "missingWebsite": {
+    "message": "Site Web manquant"
+  },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Supprimer Déverrouiller avec un NIP"
   },
@@ -11071,6 +11159,12 @@
     "message": "L'adresse de facturation est requise pour ajouter du crédit.",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   },
+  "aboutThisSetting": {
+    "message": "À propos de ce paramètre"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden utilisera les URI de connexion enregistrées pour identifier quelle icône ou URL de changement de mot de passe doit être utilisée pour améliorer votre expérience. Aucune information n'est recueillie ou enregistrée lorsque vous utilisez ce service."
+  },
   "billingAddress": {
     "message": "Adresse de facturation"
   },
@@ -11234,6 +11328,14 @@
   },
   "confirmKeyConnectorDomain": {
     "message": "Confirmez le domaine de Key Connector"
+  },
+  "requiredToVerifyBankAccountWithStripe": {
+    "message": "Le paiement avec un compte bancaire est seulement disponible pour les clients aux États-Unis. Vous devrez procéder à la vérification de votre compte bancaire. Nous effectuerons un micro-dépôt dans 2 prochains jours ouvrables. Si vous ne complétez pas la vérification de votre compte bancaire résultera en un paiement manqué et votre abonnement sera suspendu."
+  },
+  "verifyBankAccountWithStripe": {
+    "message": "Nous avons effectué un micro-dépôt dans votre compte bancaire. Cela peut prendre jusqu'à 2 jours ouvrables. Quand vous verrez le dépôt dans votre compte, vous pourrez faire la vérification de votre compte bancaire. Si vous ne complétez pas la vérification de votre compte bancaire, cela résultera en un paiement manqué et votre abonnement sera suspendu."
+  },
+  "verifyNow": {
+    "message": "Vérifier maintenant."
   }
 }
-

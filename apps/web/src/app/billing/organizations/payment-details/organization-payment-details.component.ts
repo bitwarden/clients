@@ -19,6 +19,7 @@ import {
   take,
   takeUntil,
   tap,
+  withLatestFrom,
 } from "rxjs";
 
 import {
@@ -31,6 +32,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { DialogService } from "@bitwarden/components";
+import { CommandDefinition, MessageListener } from "@bitwarden/messaging";
 import { SubscriberBillingClient } from "@bitwarden/web-vault/app/billing/clients";
 import { OrganizationFreeTrialWarningComponent } from "@bitwarden/web-vault/app/billing/organizations/warnings/components";
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
@@ -66,6 +68,10 @@ type View = {
   credit: number | null;
   taxIdWarning: TaxIdWarningType | null;
 };
+
+const BANK_ACCOUNT_VERIFIED_COMMAND = new CommandDefinition<{ organizationId: string }>(
+  "organizationBankAccountVerified",
+);
 
 @Component({
   templateUrl: "./organization-payment-details.component.html",
@@ -150,6 +156,7 @@ export class OrganizationPaymentDetailsComponent implements OnInit, OnDestroy {
     private activatedRoute: ActivatedRoute,
     private configService: ConfigService,
     private dialogService: DialogService,
+    private messageListener: MessageListener,
     private organizationService: OrganizationService,
     private organizationWarningsService: OrganizationWarningsService,
     private router: Router,
@@ -195,6 +202,30 @@ export class OrganizationPaymentDetailsComponent implements OnInit, OnDestroy {
           }
         });
     }
+
+    this.messageListener
+      .messages$(BANK_ACCOUNT_VERIFIED_COMMAND)
+      .pipe(
+        withLatestFrom(this.view$),
+        filter(([message, view]) => message.organizationId === view.organization.data.id),
+        switchMap(
+          async ([_, view]) =>
+            await Promise.all([
+              this.subscriberBillingClient.getPaymentMethod(view.organization),
+              this.subscriberBillingClient.getBillingAddress(view.organization),
+            ]),
+        ),
+        tap(async ([paymentMethod, billingAddress]) => {
+          if (paymentMethod) {
+            await this.setPaymentMethod(paymentMethod);
+          }
+          if (billingAddress) {
+            this.setBillingAddress(billingAddress);
+          }
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe();
   }
 
   ngOnDestroy() {
@@ -212,7 +243,6 @@ export class OrganizationPaymentDetailsComponent implements OnInit, OnDestroy {
     const result = await lastValueFrom(dialogRef.closed);
     if (result?.type === "success") {
       await this.setPaymentMethod(result.paymentMethod);
-      this.organizationWarningsService.refreshFreeTrialWarning();
     }
   };
 
@@ -233,6 +263,10 @@ export class OrganizationPaymentDetailsComponent implements OnInit, OnDestroy {
 
   setPaymentMethod = async (paymentMethod: MaskedPaymentMethod) => {
     if (this.viewState$.value) {
+      if (!this.viewState$.value.paymentMethod) {
+        this.organizationWarningsService.refreshFreeTrialWarning();
+      }
+
       const billingAddress =
         this.viewState$.value.billingAddress ??
         (await this.subscriberBillingClient.getBillingAddress(this.viewState$.value.organization));

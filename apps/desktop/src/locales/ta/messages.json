@@ -960,9 +960,6 @@
   "insertU2f": {
     "message": "உங்கள் கணினியின் USB போர்ட்டில் உங்கள் பாதுகாப்பு விசையைச் செருகவும். அதற்கு ஒரு பொத்தான் இருந்தால், அதைத் தொடவும்."
   },
-  "recoveryCodeDesc": {
-    "message": "உங்கள் இரண்டு-காரணி வழங்குநர்கள் அனைத்திற்கான அணுகலை இழந்தீர்களா? உங்கள் கணக்கில் உள்ள அனைத்து இரண்டு-காரணி வழங்குநர்களையும் முடக்க உங்கள் மீட்புக் குறியீட்டைப் பயன்படுத்தவும்."
-  },
   "recoveryCodeTitle": {
     "message": "மீட்புக் குறியீடு"
   },
@@ -1305,11 +1302,8 @@
     "message": "உங்கள் கிளிப்போர்டில் இருந்து நகலெடுக்கப்பட்ட மதிப்புகளை தானாக அழிக்கவும்.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
-  "enableFavicon": {
-    "message": "வலைத்தள ஐகான்களைக் காட்டு"
-  },
-  "faviconDesc": {
-    "message": "ஒவ்வொரு உள்நுழைவுக்கும் அருகில் அடையாளம் காணக்கூடிய படத்தைக் காட்டு."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "enableMinToTray": {
     "message": "ட்ராய் ஐகானுக்கு சுருக்கவும்"
@@ -3839,6 +3833,12 @@
   "changeAtRiskPassword": {
     "message": "ஆபத்தில் உள்ள கடவுச்சொல்லை மாற்று"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "காட்சி மட்டும் அனுமதிகளுடன் உள்ள தொகுப்புகளை உங்களால் அகற்ற முடியாது: $COLLECTIONS$",
     "placeholders": {
@@ -3933,6 +3933,12 @@
     "message": "SSH முகவரைப் பற்றி மேலும் அறியவும்",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
   },
   "assignToCollections": {
     "message": "தொகுப்புகளுக்கு ஒதுக்கு"
