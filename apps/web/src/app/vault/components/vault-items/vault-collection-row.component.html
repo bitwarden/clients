@@ -17,12 +17,12 @@
   </div>
 </td>
 <td bitCell [ngClass]="RowHeightClass">
-  <div class="tw-flex">
+  <div class="tw-flex tw-truncate">
     <button
       bitLink
       [disabled]="disabled"
       type="button"
-      class="tw-flex tw-text-start tw-leading-snug"
+      class="tw-flex tw-text-start tw-leading-snug tw-overflow-hidden tw-text-ellipsis"
       linkType="secondary"
       title="{{ 'viewCollectionWithName' | i18n: collection.name }}"
       [routerLink]="[]"
