@@ -4,13 +4,13 @@ import { AnonLayoutWrapperDataService } from "./anon-layout-wrapper-data.service
 import { AnonLayoutWrapperData } from "./anon-layout-wrapper.component";
 
 export class DefaultAnonLayoutWrapperDataService implements AnonLayoutWrapperDataService {
-  protected anonLayoutWrapperDataSubject = new Subject<AnonLayoutWrapperData>();
+  protected anonLayoutWrapperDataSubject = new Subject<Partial<AnonLayoutWrapperData>>();
 
-  setAnonLayoutWrapperData(data: AnonLayoutWrapperData): void {
+  setAnonLayoutWrapperData(data: Partial<AnonLayoutWrapperData>): void {
     this.anonLayoutWrapperDataSubject.next(data);
   }
 
-  anonLayoutWrapperData$(): Observable<AnonLayoutWrapperData> {
+  anonLayoutWrapperData$(): Observable<Partial<AnonLayoutWrapperData>> {
     return this.anonLayoutWrapperDataSubject.asObservable();
   }
 }

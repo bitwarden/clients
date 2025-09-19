@@ -147,7 +147,9 @@ export const DefaultContentExample: Story = {
         children: [
           {
             path: "default-example",
-            data: {},
+            data: {
+              pageIcon: LockIcon,
+            } satisfies AnonLayoutWrapperData,
             children: [
               {
                 path: "",

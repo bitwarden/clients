@@ -208,7 +208,9 @@ export const DefaultContentExample: Story = {
         children: [
           {
             path: "default-example",
-            data: {},
+            data: {
+              pageIcon: LockIcon,
+            } satisfies ExtensionAnonLayoutWrapperData,
             children: [
               {
                 path: "",
@@ -244,7 +246,6 @@ const initialData: ExtensionAnonLayoutWrapperData = {
   showAcctSwitcher: true,
   showBackButton: true,
   showLogo: true,
-  hideIcon: false,
 };
 
 const changedData: ExtensionAnonLayoutWrapperData = {
@@ -258,7 +259,6 @@ const changedData: ExtensionAnonLayoutWrapperData = {
   showAcctSwitcher: false,
   showBackButton: false,
   showLogo: false,
-  hideIcon: false,
 };
 
 @Component({
@@ -337,9 +337,9 @@ export const HasLoggedInAccountExample: Story = {
           {
             path: "has-logged-in-account",
             data: {
-              hasLoggedInAccount: true,
               showAcctSwitcher: true,
-            },
+              pageIcon: LockIcon,
+            } satisfies ExtensionAnonLayoutWrapperData,
             children: [
               {
                 path: "",
