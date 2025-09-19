@@ -241,6 +241,15 @@ jobs:
           rustup target add x86_64-unknown-linux-musl
           node build.js --target=x86_64-unknown-linux-musl --release
 
+      - name: Check index.d.ts generated
+        if: steps.cache.outputs.cache-hit != 'true'
+        working-directory: apps/desktop/desktop_native
+        run: |
+          if ! git diff-index --quiet HEAD -- napi/index.d.ts; then
+            echo "NAPI index.d.ts doesn't match, make sure to regenerate it and commit it"
+            exit 1
+          fi
+
       - name: Build application
         run: npm run dist:lin
 
@@ -376,6 +385,15 @@ jobs:
             ${{ env.RUNNER_TEMP }}/.cargo/git
           key: rust-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('apps/desktop/desktop_native/**/*') }}
 
+      - name: Check index.d.ts generated
+        if: steps.cache.outputs.cache-hit != 'true'
+        working-directory: apps/desktop/desktop_native
+        run: |
+          if ! git diff-index --quiet HEAD -- napi/index.d.ts; then
+            echo "NAPI index.d.ts doesn't match, make sure to regenerate it and commit it"
+            exit 1
+          fi
+
       - name: Build Native Module
         if: steps.cache.outputs.cache-hit != 'true'
         working-directory: apps/desktop/desktop_native
@@ -500,6 +518,15 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         working-directory: apps/desktop/desktop_native
         run: node build.js cross-platform
+
+      - name: Check index.d.ts generated
+        if: steps.cache.outputs.cache-hit != 'true'
+        working-directory: apps/desktop/desktop_native
+        run: |
+          if ! git diff-index --quiet HEAD -- napi/index.d.ts; then
+            echo "NAPI index.d.ts doesn't match, make sure to regenerate it and commit it"
+            exit 1
+          fi
 
       - name: Build
         run: npm run build
@@ -863,6 +890,15 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         working-directory: apps/desktop/desktop_native
         run: node build.js cross-platform
+
+      - name: Check index.d.ts generated
+        if: steps.cache.outputs.cache-hit != 'true'
+        working-directory: apps/desktop/desktop_native
+        run: |
+          if ! git diff-index --quiet HEAD -- napi/index.d.ts; then
+            echo "NAPI index.d.ts doesn't match, make sure to regenerate it and commit it"
+            exit 1
+          fi
 
       - name: Build application (dev)
         run: npm run build
