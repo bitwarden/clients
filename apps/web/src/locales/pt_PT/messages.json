@@ -2,6 +2,9 @@
   "allApplications": {
     "message": "Todas as aplicações"
   },
+  "activity": {
+    "message": "Atividade"
+  },
   "appLogoLabel": {
     "message": "Logótipo do Bitwarden"
   },
@@ -56,8 +59,20 @@
   "createNewLoginItem": {
     "message": "Criar nova credencial"
   },
+  "criticalApplicationsActivityDescription": {
+    "message": "Depois de marcar as aplicações como críticas, estas serão apresentadas aqui."
+  },
   "criticalApplicationsWithCount": {
     "message": "Aplicações críticas ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfCriticalApplications": {
+    "message": "$COUNT$ aplicações críticas",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -118,6 +133,18 @@
   },
   "atRiskMembers": {
     "message": "Membros em risco"
+  },
+  "membersAtRiskActivityDescription": {
+    "message": "Membros com acesso de edição a itens em risco para aplicações críticas"
+  },
+  "membersAtRisk": {
+    "message": "$COUNT$ membros em risco",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "atRiskMembersWithCount": {
     "message": "Membros em risco ($COUNT$)",
@@ -734,32 +761,81 @@
   "viewItem": {
     "message": "Ver item"
   },
-  "newItemHeader": {
-    "message": "Novo(a) $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderLogin": {
+    "message": "Nova credencial",
+    "description": "Header for new login item type"
   },
-  "editItemHeader": {
-    "message": "Editar $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderCard": {
+    "message": "Novo cartão",
+    "description": "Header for new card item type"
   },
-  "viewItemType": {
-    "message": "Ver $ITEMTYPE$",
-    "placeholders": {
-      "itemtype": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderIdentity": {
+    "message": "Nova identidade",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "Nova nota",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "Nova chave SSH",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderTextSend": {
+    "message": "Novo Send de texto",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "Novo Send de ficheiro",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderLogin": {
+    "message": "Editar credencial",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Editar cartão",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Editar identidade",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Editar nota",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "Editar chave SSH",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Editar Send de texto",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Editar Send de ficheiro",
+    "description": "Header for edit file send"
+  },
+  "viewItemHeaderLogin": {
+    "message": "Ver credencial",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "Ver cartão",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "Ver identidade",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "Ver nota",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "Ver chave SSH",
+    "description": "Header for view SSH key item type"
   },
   "new": {
     "message": "Novo",
@@ -9666,6 +9742,9 @@
   "failedToSaveIntegration": {
     "message": "Falha ao guardar a integração. Por favor, tente novamente mais tarde."
   },
+  "failedToDeleteIntegration": {
+    "message": "Falha ao eliminar a integração. Por favor, tente novamente mais tarde."
+  },
   "deviceIdMissing": {
     "message": "ID do dispositivo em falta"
   },
@@ -9761,6 +9840,9 @@
   },
   "bearerToken": {
     "message": "Token de portador"
+  },
+  "repositoryNameHint": {
+    "message": "Name of the repository to ingest into"
   },
   "index": {
     "message": "Índice"
@@ -10210,14 +10292,8 @@
   "learnMoreAboutApi": {
     "message": "Saiba mais sobre a API do Bitwarden"
   },
-  "fileSend": {
-    "message": "Send de ficheiro"
-  },
   "fileSends": {
     "message": "Sends de ficheiros"
-  },
-  "textSend": {
-    "message": "Send de texto"
   },
   "textSends": {
     "message": "Sends de texto"

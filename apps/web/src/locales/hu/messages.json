@@ -2,6 +2,9 @@
   "allApplications": {
     "message": "Összes alkalmazás"
   },
+  "activity": {
+    "message": "Tevékenység"
+  },
   "appLogoLabel": {
     "message": "Bitwarden logó"
   },
@@ -56,8 +59,20 @@
   "createNewLoginItem": {
     "message": "Új bejelentkezési elem létrehozása"
   },
+  "criticalApplicationsActivityDescription": {
+    "message": "Miután megjelöltük a kritikus alkalmazásokat, azok itt jelennek meg."
+  },
   "criticalApplicationsWithCount": {
     "message": "Kritikus alkalmazások ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfCriticalApplications": {
+    "message": "$COUNT$ kritikus alkalmazás",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -118,6 +133,18 @@
   },
   "atRiskMembers": {
     "message": "Veszélyes tagok"
+  },
+  "membersAtRiskActivityDescription": {
+    "message": "Tagok szerkesztési hozzáféréssel a kritikus alkalmazások veszélyeztetett elemeihez"
+  },
+  "membersAtRisk": {
+    "message": "$COUNT$ kockázatos tag",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "atRiskMembersWithCount": {
     "message": "Veszélyes tagok ($COUNT$)",
@@ -180,7 +207,7 @@
     "message": "Ktritkus jelölés eltávolítása"
   },
   "criticalApplicationUnmarkedSuccessfully": {
-    "message": "Successfully unmarked application as critical"
+    "message": "Az alkamzás lritikusnak jelölés visszavonása sikeres volt."
   },
   "whatTypeOfItem": {
     "message": "Milyen típusú elem ez?"
@@ -734,32 +761,81 @@
   "viewItem": {
     "message": "Elem megtekintése"
   },
-  "newItemHeader": {
-    "message": "Új $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderLogin": {
+    "message": "Új bejelentkezés",
+    "description": "Header for new login item type"
   },
-  "editItemHeader": {
-    "message": "$TYPE$ szerkesztése",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderCard": {
+    "message": "Új kártya",
+    "description": "Header for new card item type"
   },
-  "viewItemType": {
-    "message": "$ITEMTYPE$ megtekintése",
-    "placeholders": {
-      "itemtype": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderIdentity": {
+    "message": "Új személyazonosság",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "Új jegyzet",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "Új SSH kulcs",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderTextSend": {
+    "message": "Új szöveges Send elem",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "Új fájl Send elem",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderLogin": {
+    "message": "Bejelentkezés szerkesztése",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Kártya szerkesztése",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Személyazonossság szerkesztése",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Jegyzet szerkesztése",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "SSH kulcs szerkesztése",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Send szöveg szerkesztése",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Send fájl szerkesztése",
+    "description": "Header for edit file send"
+  },
+  "viewItemHeaderLogin": {
+    "message": "Bejelentkezés megtekintése",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "Kártya megtekintése",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "Személyazonosság megtekintése",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "Jegyzet megtekintése",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "SSH kulcs megtekintése",
+    "description": "Header for view SSH key item type"
   },
   "new": {
     "message": "Új",
@@ -2115,7 +2191,7 @@
     "message": "A webes széf nyelvének megváltoztatása."
   },
   "showIconsChangePasswordUrls": {
-    "message": "Show website icons and retrieve change password URLs"
+    "message": "Webhely ikonok megjelenítése és jelszó webcímek módosításának lekérése"
   },
   "default": {
     "message": "Alapértelmezett"
@@ -7431,7 +7507,7 @@
     "message": "Ki"
   },
   "connected": {
-    "message": "Connected"
+    "message": "Csatlakozva"
   },
   "members": {
     "message": "Tagok"
@@ -9035,7 +9111,7 @@
     }
   },
   "limitCollectionCreationEnabled": {
-    "message": "Turned on Restrict collection creation setting $ID$.",
+    "message": "A Gyűjtemény létrehozás korlátozás beállítás bekapcsolásra került: $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -9044,7 +9120,7 @@
     }
   },
   "limitCollectionCreationDisabled": {
-    "message": "Turned off Restrict collection creation setting $ID$.",
+    "message": "A Gyűjtemény létrehozás korlátozás beállítás kikapcsolásra került: $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -9053,7 +9129,7 @@
     }
   },
   "limitCollectionDeletionEnabled": {
-    "message": "Turned on Restrict collection deletion setting $ID$.",
+    "message": "A Gyűjtemény létrehozás törlés beállítás bekapcsolásra került: $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -9062,7 +9138,7 @@
     }
   },
   "limitCollectionDeletionDisabled": {
-    "message": "Turned off Restrict collection deletion setting $ID$.",
+    "message": "A Gyűjtemény létrehozás törlés beállítás kikapcsolásra került: $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -9071,7 +9147,7 @@
     }
   },
   "limitItemDeletionEnabled": {
-    "message": "Turned on Restrict item deletion setting $ID$.",
+    "message": "Az Elem törlés korlátozás beállítás bekapcsolásra került: $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -9080,7 +9156,7 @@
     }
   },
   "limitItemDeletionDisabled": {
-    "message": "Turned off Restrict item deletion setting $ID$.",
+    "message": "Az Elem törlés korlátozás beállítás kikapcsolásra került: $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -9089,7 +9165,7 @@
     }
   },
   "allowAdminAccessToAllCollectionItemsEnabled": {
-    "message": "Turned on Allow owners and admins to manage all collections and items setting $ID$.",
+    "message": "A tulajdonosok és adminisztrátorok engedélyezés az összes gyűjtemény és elem kezeléséhez beállítás bekapcsolásra került: $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -9098,7 +9174,7 @@
     }
   },
   "allowAdminAccessToAllCollectionItemsDisabled": {
-    "message": "Turned off Allow owners and admins to manage all collections and items setting $ID$.",
+    "message": "A tulajdonosok és adminisztrátorok engedélyezés az összes gyűjtemény és elem kezeléséhez beállítás kikapcsolásra került: $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -9666,6 +9742,9 @@
   "failedToSaveIntegration": {
     "message": "Nem sikerült menteni az integrációt. Próbáljuk újra később."
   },
+  "failedToDeleteIntegration": {
+    "message": "Nem sikerült törölni az integrációt. Próbáljuk újra később."
+  },
   "deviceIdMissing": {
     "message": "Az eszköz AZ hiányzik."
   },
@@ -9691,7 +9770,7 @@
     }
   },
   "updateIntegrationButtonDesc": {
-    "message": "Update $INTEGRATION$",
+    "message": "$INTEGRATION$ frissítése",
     "placeholders": {
       "integration": {
         "content": "$1",
@@ -9761,6 +9840,9 @@
   },
   "bearerToken": {
     "message": "Tulajdonosi vezérjel"
+  },
+  "repositoryNameHint": {
+    "message": "A bevivendő adattár neve"
   },
   "index": {
     "message": "Index"
@@ -10210,14 +10292,8 @@
   "learnMoreAboutApi": {
     "message": "További információ a Bitwarden API-járól"
   },
-  "fileSend": {
-    "message": "Fájl típusú Send"
-  },
   "fileSends": {
     "message": "Fájl küldés"
-  },
-  "textSend": {
-    "message": "Szöveg típusú Send"
   },
   "textSends": {
     "message": "Szöveg küldés"
@@ -10906,10 +10982,10 @@
     "message": "Kockázatos jelszó megváltoztatása"
   },
   "changeAtRiskPasswordAndAddWebsite": {
-    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+    "message": "Ez a bejelentkezés veszélyben van és hiányzik egy webhely. Adjunk hozzá egy webhelyet és módosítsuk a jelszót az erősebb biztonság érdekében."
   },
   "missingWebsite": {
-    "message": "Missing website"
+    "message": "Hiányzó webhely"
   },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Feloldás eltávolítása PIN kóddal"
@@ -11087,10 +11163,10 @@
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   },
   "aboutThisSetting": {
-    "message": "About this setting"
+    "message": "Informció erről a beállításról"
   },
   "permitCipherDetailsDescription": {
-    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+    "message": "A Bitwarden mentett bejelentkezési webcímeket használ annak azonosítására, hogy melyik ikont vagy jelszó webcímet kell használni az élmény javítása érdekében. A szolgáltatás használatakor nincs információ gyűjtés vagy mentés."
   },
   "billingAddress": {
     "message": "Számlázási cím"
@@ -11257,12 +11333,12 @@
     "message": "A Key Connector tartomány megerősítése"
   },
   "requiredToVerifyBankAccountWithStripe": {
-    "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
+    "message": "A bankszámlával történő fizetés csak az Egyesült Államokban lévő ügyfelek számára elérhető. Ellenőrizni kell bankszámlát. A következő 1-2 munkanapon belül mikrobetét készül.  A bankszámla ellenőrzéséhez írjuk be a kimutatás leíró kódot ebből a befizetésből a Fizetési adatok oldalon. A bankszámla ellenőrzésének elmulasztása a fizetés elmaradását és az előfizetés felfüggesztését vonja maga után."
   },
   "verifyBankAccountWithStripe": {
-    "message": "We have made a micro-deposit to your bank account. This may take 1-2 business days. When you see the deposit in your account, you can verify your bank account. Failure to verify your bank account will result in a missed payment and your subscription will be suspended."
+    "message": "A fejlesztők mikrobetétet utaltak bankszámlánkra (ez 1-2 munkanapot is igénybe vehet). Adjuk meg a befizetés leírásában található, 'SM' kezdetű hatjegyű kódot. Ha elmulasztjuk a bankszámla igazolását, az a fizetés elmaradását és az előfizetés felfüggesztését vonja maga után."
   },
   "verifyNow": {
-    "message": "Verify now."
+    "message": "Ellenőrzés most"
   }
 }
