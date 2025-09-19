@@ -68,6 +68,7 @@ const cipherData: CipherData = {
   deletedDate: null,
   permissions: new CipherPermissionsApi(),
   key: "EncKey",
+  archivedDate: null,
   reprompt: CipherRepromptType.None,
   login: {
     uris: [

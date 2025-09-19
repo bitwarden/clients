@@ -30,6 +30,7 @@ import {
   LoginDecryptionOptionsComponent,
   LoginSecondaryContentComponent,
   LoginViaAuthRequestComponent,
+  NewDeviceVerificationComponent,
   PasswordHintComponent,
   RegistrationFinishComponent,
   RegistrationStartComponent,
@@ -38,7 +39,6 @@ import {
   SsoComponent,
   TwoFactorAuthComponent,
   TwoFactorAuthGuard,
-  NewDeviceVerificationComponent,
 } from "@bitwarden/auth/angular";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AnonLayoutWrapperComponent, AnonLayoutWrapperData } from "@bitwarden/components";
@@ -80,6 +80,7 @@ import { canAccessAtRiskPasswords } from "../vault/popup/guards/at-risk-password
 import { clearVaultStateGuard } from "../vault/popup/guards/clear-vault-state.guard";
 import { IntroCarouselGuard } from "../vault/popup/guards/intro-carousel.guard";
 import { AppearanceV2Component } from "../vault/popup/settings/appearance-v2.component";
+import { ArchiveComponent } from "../vault/popup/settings/archive.component";
 import { DownloadBitwardenComponent } from "../vault/popup/settings/download-bitwarden.component";
 import { FoldersV2Component } from "../vault/popup/settings/folders-v2.component";
 import { MoreFromBitwardenPageV2Component } from "../vault/popup/settings/more-from-bitwarden-page-v2.component";
@@ -672,6 +673,12 @@ const routes: Routes = [
   {
     path: "trash",
     component: TrashComponent,
+    canActivate: [authGuard],
+    data: { elevation: 2 } satisfies RouteDataProperties,
+  },
+  {
+    path: "archive",
+    component: ArchiveComponent,
     canActivate: [authGuard],
     data: { elevation: 2 } satisfies RouteDataProperties,
   },
