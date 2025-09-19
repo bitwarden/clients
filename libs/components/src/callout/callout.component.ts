@@ -62,7 +62,7 @@ export class CalloutComponent {
       case "success":
         return "tw-bg-success-100 tw-bg-success-100 tw-border-success-700 tw-text-success-700";
       case "warning":
-        return "tw-bg-warning-100 w-bg-warning-100 tw-border-warning-700 tw-text-warning-700";
+        return "tw-bg-warning-100 tw-bg-warning-100 tw-border-warning-700 tw-text-warning-700";
       case "secondary":
         return "tw-bg-background-alt tw-border-secondary-700 tw-text-secondary-700";
     }
