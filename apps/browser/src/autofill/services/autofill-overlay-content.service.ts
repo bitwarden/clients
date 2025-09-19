@@ -76,21 +76,11 @@ type QualificationMessageOptions = {
 };
 type QualificationConfig = {
   blocking?: false; // assume qualifiers are blocking unless otherwise indicated
-  effect?: (criteria?: QualificationCriteria) => void;
+  effect?: (criteria?: QualificationCriteria) => void; // success side effect
 } & QualificationMessageOptions;
 
 type QualificationDefinition = QualificationMeta & QualificationConfig;
 type QualificationResponse = QualificationMeta & { result: boolean; message: string };
-// type QualificationResolver = (
-//   qualifier: Qualifier,
-//   criteria?: QualificationCriteria,
-// ) => QualificationResponse;
-
-// type QualificationResponse = {
-//   lastQualified: Qualification;
-//   passed: Qualification[];
-//   failed: Qualification[];
-// };
 
 export class AutofillOverlayContentService implements AutofillOverlayContentServiceInterface {
   pageDetailsUpdateRequired = false;
