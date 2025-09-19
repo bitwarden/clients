@@ -32,7 +32,14 @@ import {
   Unassigned,
 } from "@bitwarden/admin-console/common";
 import { SearchPipe } from "@bitwarden/angular/pipes/search.pipe";
-import { NoResults } from "@bitwarden/assets/svg";
+import {
+  NoResults,
+  OrganizationIcon,
+  TrashIcon,
+  FavoritesIcon,
+  EmptyVaultIcon,
+  EmptySearchIcon,
+} from "@bitwarden/assets/svg";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import {
@@ -160,6 +167,11 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   activeFilter: VaultFilter = new VaultFilter();
 
   protected noItemIcon = NoResults;
+  protected orgIcon = OrganizationIcon;
+  protected trashIcon = TrashIcon;
+  protected favoritesIcon = FavoritesIcon;
+  protected emptyVaultIcon = EmptyVaultIcon;
+  protected emptySearchResultIcon = EmptySearchIcon;
   protected performingInitialLoad = true;
   protected refreshing = false;
   protected processingEvent = false;
@@ -173,15 +185,59 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   protected isEmpty: boolean;
   protected selectedCollection: TreeNode<CollectionView> | undefined;
   protected canCreateCollections = false;
-  protected currentSearchText$: Observable<string>;
+  protected currentSearchText$: Observable<string> = this.route.queryParams.pipe(
+    map((queryParams) => queryParams.search),
+  );
   private searchText$ = new Subject<string>();
   private refresh$ = new BehaviorSubject<void>(null);
   private destroy$ = new Subject<void>();
 
   private vaultItemDialogRef?: DialogRef<VaultItemDialogResult> | undefined;
+
   organizations$ = this.accountService.activeAccount$
     .pipe(map((a) => a?.id))
     .pipe(switchMap((id) => this.organizationService.organizations$(id)));
+
+  emptyState$ = combineLatest([this.currentSearchText$]).pipe(
+    map(([searchText]) => {
+      if (this.isSelectedOrgDisabled()) {
+        return {
+          title: "organizationIsSuspended",
+          description: "organizationIsSuspendedDesc",
+          icon: this.orgIcon,
+        };
+      }
+
+      if (searchText) {
+        return {
+          title: "noSearchResults",
+          description: "clearFiltersOrTryAnother",
+          icon: this.emptySearchResultIcon,
+        };
+      }
+
+      switch (this.filter?.type) {
+        case "trash":
+          return {
+            title: "noItemsInTrash",
+            description: "noItemsInTrashDesc",
+            icon: this.trashIcon,
+          };
+        case "favorites":
+          return {
+            title: "emptyFavorites",
+            description: "emptyFavoritesDesc",
+            icon: this.favoritesIcon,
+          };
+        default:
+          return {
+            title: "noItemsInVault",
+            description: "emptyVaultDescription",
+            icon: this.emptyVaultIcon,
+          };
+      }
+    }),
+  );
 
   constructor(
     private syncService: SyncService,
@@ -1248,6 +1304,12 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       queryParamsHandling: "merge",
       replaceUrl: true,
     });
+  }
+
+  isSelectedOrgDisabled(): boolean {
+    return !!this.allOrganizations?.find(
+      (o) => o.id === this.activeFilter.selectedOrganizationNode?.node.id && o.enabled === false,
+    );
   }
 
   private showMissingPermissionsError() {

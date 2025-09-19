@@ -69,7 +69,12 @@
       *ngIf="isEmpty && !performingInitialLoad"
     >
       <bit-no-items [icon]="noItemIcon">
-        <div slot="title">{{ "noItemsInList" | i18n }}</div>
+        <h4 bitTypography="h4">
+          {{ (emptyState$ | async)?.title | i18n }}
+        </h4>
+        <p bitTypography="body2" class="tw-w-[300px] tw-text-center">
+          {{ (emptyState$ | async)?.description | i18n }}
+        </p>
         <button
           type="button"
           buttonType="primary"
