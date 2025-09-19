@@ -258,12 +258,14 @@ export class SsoComponent implements OnInit, OnDestroy {
       .pipe(
         switchMap(async (memberDecryptionType) => {
           if (memberDecryptionType === MemberDecryptionType.KeyConnector) {
+            // Pre-populate a default key connector URL (user can still change it)
             const env = await firstValueFrom(this.environmentService.environment$);
             const webVaultUrl = env.getWebVaultUrl();
             const defaultKeyConnectorUrl = webVaultUrl + "/key-connector";
 
             this.ssoConfigForm.controls.keyConnectorUrl.setValue(defaultKeyConnectorUrl);
           } else {
+            // Otherwise clear the key connector URL
             this.ssoConfigForm.controls.keyConnectorUrl.setValue("");
           }
         }),
