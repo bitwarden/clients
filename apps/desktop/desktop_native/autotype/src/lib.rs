@@ -2,7 +2,7 @@ use anyhow::Result;
 
 #[cfg_attr(target_os = "linux", path = "linux.rs")]
 #[cfg_attr(target_os = "macos", path = "macos.rs")]
-#[cfg_attr(target_os = "windows", path = "windows.rs")]
+#[cfg_attr(target_os = "windows", path = "windows/mod.rs")]
 mod windowing;
 
 /// Gets the title bar string for the foreground window.
