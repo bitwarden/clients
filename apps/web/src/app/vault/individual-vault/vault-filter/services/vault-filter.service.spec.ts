@@ -247,6 +247,9 @@ describe("vault filter service", () => {
           createCollectionView("id-3", "Collection 1/Collection 3", "org test id"),
         ];
         collectionViews.next(storedCollections);
+        collectionService.groupByOrganization.mockReturnValue(
+          new Map([["org test id" as OrganizationId, storedCollections]]),
+        );
 
         const result = await firstValueFrom(vaultFilterService.collectionTree$);
 
@@ -260,6 +263,9 @@ describe("vault filter service", () => {
           createCollectionView("id-3", "Collection 1/Collection 2/Collection 3", "org test id"),
         ];
         collectionViews.next(storedCollections);
+        collectionService.groupByOrganization.mockReturnValue(
+          new Map([["org test id" as OrganizationId, storedCollections]]),
+        );
 
         const result = await firstValueFrom(vaultFilterService.collectionTree$);
 
@@ -276,6 +282,9 @@ describe("vault filter service", () => {
           createCollectionView("id-4", "Collection 1/Collection 4", "org test id"),
         ];
         collectionViews.next(storedCollections);
+        collectionService.groupByOrganization.mockReturnValue(
+          new Map([["org test id" as OrganizationId, storedCollections]]),
+        );
 
         const result = await firstValueFrom(vaultFilterService.collectionTree$);
 
@@ -294,6 +303,9 @@ describe("vault filter service", () => {
           createCollectionView("id-3", "Collection 1/Collection 2/Collection 3", "org test id"),
         ];
         collectionViews.next(storedCollections);
+        collectionService.groupByOrganization.mockReturnValue(
+          new Map([["org test id" as OrganizationId, storedCollections]]),
+        );
 
         const result = await firstValueFrom(vaultFilterService.collectionTree$);
 
@@ -302,7 +314,7 @@ describe("vault filter service", () => {
         expect(c3.parent.node.id).toEqual("id-1");
       });
 
-      it.only("calls sortDefaultCollections with the correct args", async () => {
+      it("calls sortDefaultCollections with the correct args", async () => {
         const storedOrgs = [
           createOrganization("id-defaultOrg1", "org1"),
           createOrganization("id-defaultOrg2", "org2"),
@@ -326,6 +338,9 @@ describe("vault filter service", () => {
           ),
         ];
         collectionViews.next(storedCollections);
+        collectionService.groupByOrganization.mockReturnValue(
+          new Map([["org test id" as OrganizationId, storedCollections]]),
+        );
 
         await firstValueFrom(vaultFilterService.collectionTree$);
 

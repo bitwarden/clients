@@ -230,8 +230,8 @@ export class DefaultCollectionService implements CollectionService {
     return all;
   }
 
-  groupByOrganization(collections: CollectionView[]): Map<string, CollectionView[]> {
-    const groupedByOrg = new Map<string, CollectionView[]>();
+  groupByOrganization(collections: CollectionView[]): Map<OrganizationId, CollectionView[]> {
+    const groupedByOrg = new Map<OrganizationId, CollectionView[]>();
     collections.map((c) => {
       const key = c.organizationId;
       (groupedByOrg.get(key) ?? groupedByOrg.set(key, []).get(key)!).push(c);
