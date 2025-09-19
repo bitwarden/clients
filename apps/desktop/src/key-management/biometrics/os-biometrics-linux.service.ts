@@ -47,6 +47,12 @@ export default class OsBiometricsServiceLinux implements OsBiometricService {
     private logService: LogService,
   ) {}
 
+  async enrollPersistent(userId: UserId, key: SymmetricCryptoKey): Promise<void> {}
+
+  async hasPersistentKey(userId: UserId): Promise<boolean> {
+    return false;
+  }
+
   private _iv: string | null = null;
   // Use getKeyMaterial helper instead of direct access
   private _osKeyHalf: string | null = null;
