@@ -290,6 +290,7 @@ export class SsoComponent implements OnInit {
     this.identifier = this.identifierFormControl.value ?? "";
     await this.ssoLoginService.setOrganizationSsoIdentifier(this.identifier);
     this.ssoComponentService.setDocumentCookies?.();
+
     try {
       await this.submitSso();
     } catch (error) {
