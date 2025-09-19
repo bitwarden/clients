@@ -159,6 +159,8 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
 
     await this.decryptObj<Cipher, CipherView>(
       this,
+      // @ts-expect-error Ciphers have optional Ids which are getting swallowed by the ViewEncryptableKeys type
+      // The ViewEncryptableKeys type should be fixed to allow for optional Ids, but is out of scope for now.
       model,
       ["name", "notes"],
       this.organizationId,

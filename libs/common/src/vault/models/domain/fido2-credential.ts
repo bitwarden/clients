@@ -56,6 +56,7 @@ export class Fido2Credential extends Domain {
   async decrypt(orgId: string, encKey?: SymmetricCryptoKey): Promise<Fido2CredentialView> {
     const view = await this.decryptObj<Fido2Credential, Fido2CredentialView>(
       this,
+      // @ts-expect-error ViewEncryptableKeys type should be fixed to allow for optional values, but is out of scope for now.
       new Fido2CredentialView(),
       [
         "credentialId",

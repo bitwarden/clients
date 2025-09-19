@@ -36,7 +36,7 @@ export class DefaultCipherFormService implements CipherFormService {
     let savedCipher: Cipher;
 
     // Creating a new cipher
-    if (cipher.id == null) {
+    if (cipher.id == null || cipher.id === "") {
       const encrypted = await this.cipherService.encrypt(cipher, activeUserId);
       savedCipher = await this.cipherService.createWithServer(encrypted, config.admin);
       return await this.cipherService.decrypt(savedCipher, activeUserId);

@@ -52,12 +52,12 @@ export class CardDetailsSectionComponent implements OnInit {
    * leaving as just null gets inferred as `unknown`
    */
   cardDetailsForm = this.formBuilder.group({
-    cardholderName: null as string | null,
-    number: null as string | null,
-    brand: null as string | null,
-    expMonth: null as string | null,
-    expYear: null as string | number | null,
-    code: null as string | null,
+    cardholderName: "",
+    number: "",
+    brand: "",
+    expMonth: "",
+    expYear: "" as string | number,
+    code: "",
   });
 
   /** Available Card Brands */
@@ -110,16 +110,14 @@ export class CardDetailsSectionComponent implements OnInit {
       .pipe(takeUntilDestroyed())
       .subscribe(({ cardholderName, number, brand, expMonth, expYear, code }) => {
         this.cipherFormContainer.patchCipher((cipher) => {
-          const expirationYear = normalizeExpiryYearFormat(expYear);
+          const expirationYear = normalizeExpiryYearFormat(expYear) ?? "";
 
-          Object.assign(cipher.card, {
-            cardholderName,
-            number,
-            brand,
-            expMonth,
-            expYear: expirationYear,
-            code,
-          });
+          cipher.card.cardholderName = cardholderName;
+          cipher.card.number = number;
+          cipher.card.brand = brand;
+          cipher.card.expMonth = expMonth;
+          cipher.card.expYear = expirationYear;
+          cipher.card.code = code;
 
           return cipher;
         });
@@ -167,6 +165,7 @@ export class CardDetailsSectionComponent implements OnInit {
       expMonth: this.initialValues?.expMonth || "",
       expYear: this.initialValues?.expYear || "",
       code: this.initialValues?.code || "",
+      brand: CardView.getCardBrandByPatterns(this.initialValues?.number) || "",
     });
   }
 
@@ -194,19 +193,5 @@ export class CardDetailsSectionComponent implements OnInit {
         originalCipher.organizationId,
       );
     }
-  }
-
-  /** Set form initial form values from the current cipher */
-  private setInitialValues(cipherView: CipherView) {
-    const { cardholderName, number, brand, expMonth, expYear, code } = cipherView.card;
-
-    this.cardDetailsForm.setValue({
-      cardholderName: cardholderName,
-      number: number,
-      brand: brand,
-      expMonth: expMonth,
-      expYear: expYear,
-      code: code,
-    });
   }
 }

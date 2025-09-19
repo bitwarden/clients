@@ -37,9 +37,6 @@ Expiration Date:June,2020
 Notes:some text
 ",Credit-card,,0`,
     expected: Object.assign(new CipherView(), {
-      id: null,
-      organizationId: null,
-      folderId: null,
       name: "Credit-card",
       notes: "some text\n",
       type: 3,
@@ -71,11 +68,7 @@ Start Date:,
 Expiration Date:,
 Notes:",empty,,0`,
     expected: Object.assign(new CipherView(), {
-      id: null,
-      organizationId: null,
-      folderId: null,
       name: "empty",
-      notes: null,
       type: 3,
       card: {
         expMonth: undefined,
@@ -101,11 +94,7 @@ Start Date:,
 Expiration Date:January,
 Notes:",noyear,,0`,
     expected: Object.assign(new CipherView(), {
-      id: null,
-      organizationId: null,
-      folderId: null,
       name: "noyear",
-      notes: null,
       type: 3,
       card: {
         cardholderName: "John Doe",
@@ -139,11 +128,7 @@ Start Date:,
 Expiration Date:,2020
 Notes:",nomonth,,0`,
     expected: Object.assign(new CipherView(), {
-      id: null,
-      organizationId: null,
-      folderId: null,
       name: "nomonth",
-      notes: null,
       type: 3,
       card: {
         cardholderName: "John Doe",
@@ -171,6 +156,7 @@ Notes:",nomonth,,0`,
 describe("Lastpass CSV Importer", () => {
   CipherData.forEach((data) => {
     it(data.title, async () => {
+      jest.useFakeTimers().setSystemTime(data.expected.creationDate);
       const importer = new LastPassCsvImporter();
       const result = await importer.parse(data.csv);
       expect(result != null).toBe(true);

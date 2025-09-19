@@ -59,12 +59,12 @@ describe("Dashlane CSV Importer", () => {
     const cipher = result.ciphers.shift();
     expect(cipher.type).toBe(CipherType.Card);
     expect(cipher.name).toBe("John's savings account");
-    expect(cipher.card.brand).toBeNull();
+    expect(cipher.card.brand).toBeUndefined();
     expect(cipher.card.cardholderName).toBe("John Doe");
     expect(cipher.card.number).toBe("accountNumber");
-    expect(cipher.card.code).toBeNull();
-    expect(cipher.card.expMonth).toBeNull();
-    expect(cipher.card.expYear).toBeNull();
+    expect(cipher.card.code).toBeUndefined();
+    expect(cipher.card.expMonth).toBeUndefined();
+    expect(cipher.card.expYear).toBeUndefined();
 
     expect(cipher.fields.length).toBe(4);
 
@@ -112,7 +112,7 @@ describe("Dashlane CSV Importer", () => {
     expect(cipher.name).toBe("John Doe card");
     expect(cipher.identity.fullName).toBe("John Doe");
     expect(cipher.identity.firstName).toBe("John");
-    expect(cipher.identity.middleName).toBeNull();
+    expect(cipher.identity.middleName).toBeUndefined();
     expect(cipher.identity.lastName).toBe("Doe");
     expect(cipher.identity.licenseNumber).toBe("123123123");
 
@@ -133,7 +133,7 @@ describe("Dashlane CSV Importer", () => {
     expect(cipher2.name).toBe("John Doe passport");
     expect(cipher2.identity.fullName).toBe("John Doe");
     expect(cipher2.identity.firstName).toBe("John");
-    expect(cipher2.identity.middleName).toBeNull();
+    expect(cipher2.identity.middleName).toBeUndefined();
     expect(cipher2.identity.lastName).toBe("Doe");
     expect(cipher2.identity.passportNumber).toBe("123123123");
 
@@ -154,7 +154,7 @@ describe("Dashlane CSV Importer", () => {
     expect(cipher3.name).toBe("John Doe license");
     expect(cipher3.identity.fullName).toBe("John Doe");
     expect(cipher3.identity.firstName).toBe("John");
-    expect(cipher3.identity.middleName).toBeNull();
+    expect(cipher3.identity.middleName).toBeUndefined();
     expect(cipher3.identity.lastName).toBe("Doe");
     expect(cipher3.identity.licenseNumber).toBe("1234556");
     expect(cipher3.identity.state).toBe("DC");
@@ -173,7 +173,7 @@ describe("Dashlane CSV Importer", () => {
     expect(cipher4.name).toBe("John Doe social_security");
     expect(cipher4.identity.fullName).toBe("John Doe");
     expect(cipher4.identity.firstName).toBe("John");
-    expect(cipher4.identity.middleName).toBeNull();
+    expect(cipher4.identity.middleName).toBeUndefined();
     expect(cipher4.identity.lastName).toBe("Doe");
     expect(cipher4.identity.ssn).toBe("123123123");
 
