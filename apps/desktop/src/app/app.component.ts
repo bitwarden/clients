@@ -295,7 +295,7 @@ export class AppComponent implements OnInit, OnDestroy {
             await this.openModal<SettingsComponent>(SettingsComponent, this.settingsRef);
             break;
           case "openPremium":
-            await this.openModal<PremiumComponent>(PremiumComponent, this.premiumRef);
+            this.dialogService.open(PremiumComponent);
             break;
           case "showFingerprintPhrase": {
             const activeUserId = await firstValueFrom(

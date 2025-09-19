@@ -13,6 +13,7 @@ import { firstValueFrom, Subject, takeUntil, switchMap, lastValueFrom, Observabl
 import { filter, map, take } from "rxjs/operators";
 
 import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
+import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { VaultViewPasswordHistoryService } from "@bitwarden/angular/services/view-password-history.service";
 import { VaultFilter } from "@bitwarden/angular/vault/vault-filter/models/vault-filter.model";
 import { AuthRequestServiceAbstraction } from "@bitwarden/auth/common";
@@ -101,6 +102,7 @@ const BroadcasterSubscriptionId = "VaultComponent";
     I18nPipe,
     ItemModule,
     ButtonModule,
+    PremiumBadgeComponent,
     NavComponent,
     VaultFilterModule,
     VaultItemsV2Component,
@@ -455,7 +457,6 @@ export class VaultV2Component<C extends CipherViewLike>
 
   async openAttachmentsDialog() {
     if (!this.userHasPremiumAccess) {
-      await this.premiumUpgradePromptService.promptForPremium();
       return;
     }
     const dialogRef = AttachmentsV2Component.open(this.dialogService, {

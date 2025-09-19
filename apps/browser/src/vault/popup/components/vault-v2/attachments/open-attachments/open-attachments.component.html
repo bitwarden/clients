@@ -5,10 +5,10 @@
     (click)="openAttachments()"
     [disabled]="parentFormDisabled"
   >
-    {{ "attachments" | i18n }}
-    <span *ngIf="!canAccessAttachments" bitBadge variant="success" slot="default-trailing">
-      {{ "premium" | i18n }}
-    </span>
+    <div class="tw-flex tw-items-center tw-gap-2">
+      {{ "attachments" | i18n }}
+      <app-premium-badge></app-premium-badge>
+    </div>
     <ng-container slot="end">
       <i class="bwi bwi-popout" aria-hidden="true" *ngIf="openAttachmentsInPopout"></i>
       <i class="bwi bwi-angle-right" aria-hidden="true" *ngIf="!openAttachmentsInPopout"></i>

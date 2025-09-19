@@ -13,6 +13,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { ToastService } from "@bitwarden/components";
@@ -107,6 +108,12 @@ describe("OpenAttachmentsComponent", () => {
         {
           provide: AccountService,
           useValue: accountService,
+        },
+        {
+          provide: PremiumUpgradePromptService,
+          useValue: {
+            promptForPremium: jest.fn().mockResolvedValue(null),
+          },
         },
       ],
     }).compileComponents();
