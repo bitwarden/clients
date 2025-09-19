@@ -200,19 +200,10 @@ impl WindowsCryptoService {
         let key_bytes = BASE64_STANDARD.decode(&key_base64)?;
         let key = unprotect_data_win(&key_bytes)?;
 
-        if key.len() < 61 {
-            return Err(anyhow!("Decrypted v20 key is too short"));
-        }
+        let key_data = KeyData::parse(&mut &key[..])?;
 
-        let key = key[key.len() - 61..].to_vec();
-
-        let version = key[0];
-        let iv = &key[1..13];
-        let ciphertext = &key[13..key.len() - 16];
-        let tag = &key[key.len() - 16..];
-
-        match version {
-            0x01 => {
+        match key_data {
+            KeyData::One { iv, ciphertext } => {
                 // Google's fixed AES key for v20 decryption
                 const GOOGLE_AES_KEY: &[u8] = &[
                     0xB3, 0x1C, 0x6E, 0x24, 0x1A, 0xC8, 0x46, 0x72, 0x8D, 0xA9, 0xC1, 0xFA, 0xC4,
@@ -222,20 +213,14 @@ impl WindowsCryptoService {
 
                 let aes_key = Key::<Aes256Gcm>::from_slice(GOOGLE_AES_KEY);
                 let cipher = Aes256Gcm::new(aes_key);
-                let nonce = Nonce::from_slice(iv);
-
-                let mut ciphertext_with_tag = Vec::new();
-                ciphertext_with_tag.extend_from_slice(ciphertext);
-                ciphertext_with_tag.extend_from_slice(tag);
 
                 let decrypted = cipher
-                    .decrypt(nonce, ciphertext_with_tag.as_ref())
+                    .decrypt(iv.into(), ciphertext.as_ref())
                     .map_err(|e| anyhow!("Failed to decrypt v20 key with Google AES key: {}", e))?;
 
                 return Ok(decrypted);
             }
-
-            0x02 => {
+            KeyData::Two { iv, ciphertext } => {
                 // Google's fixed ChaCha20 key for v20 decryption
                 const GOOGLE_CHACHA20_KEY: &[u8] = &[
                     0xE9, 0x8F, 0x37, 0xD7, 0xF4, 0xE1, 0xFA, 0x43, 0x3D, 0x19, 0x30, 0x4D, 0xC2,
@@ -245,23 +230,21 @@ impl WindowsCryptoService {
 
                 let chacha20_key = chacha20poly1305::Key::from_slice(GOOGLE_CHACHA20_KEY);
                 let cipher = ChaCha20Poly1305::new(chacha20_key);
-                let nonce = chacha20poly1305::Nonce::from_slice(iv);
-
-                let mut ciphertext_with_tag = Vec::new();
-                ciphertext_with_tag.extend_from_slice(ciphertext);
-                ciphertext_with_tag.extend_from_slice(tag);
 
                 let decrypted = cipher
-                    .decrypt(nonce, ciphertext_with_tag.as_ref())
+                    .decrypt(iv.into(), ciphertext.as_ref())
                     .map_err(|e| {
                         anyhow!("Failed to decrypt v20 key with Google ChaCha20 key: {}", e)
                     })?;
 
                 return Ok(decrypted);
             }
-
-            _ => {
-                return Err(anyhow!("Unsupported v20 key version: {}", version));
+            KeyData::Three { .. } => {
+                // There's no way to test this at the moment. This encryption scheme is not used in any of the browsers I've tested.
+                return Err(anyhow!("v20 version 3 is not supported yet"));
+            }
+            KeyData::Plain(key) => {
+                return Ok(key.to_vec());
             }
         }
     }
@@ -320,4 +303,65 @@ fn get_admin_exe_path() -> Result<String> {
         .unwrap()
         .clone()
         .ok_or_else(|| anyhow!("admin.exe path is not set"))
+}
+
+//
+// KeyData
+//
+
+// Borrowed from https://github.com/saying121/tidy-browser/blob/master/crates/chromium-crypto/src/win/mod.rs
+#[derive(Clone, Copy)]
+enum KeyData<'k> {
+    One {
+        iv: &'k [u8],
+        ciphertext: &'k [u8], // with tag
+    },
+    Two {
+        iv: &'k [u8],
+        ciphertext: &'k [u8], // with tag
+    },
+    // TODO: Not supported yet
+    Three {
+        _enctypted_aes_key: &'k [u8],
+        _iv: &'k [u8],
+        _ciphertext: &'k [u8], // with tag
+    },
+    Plain(&'k [u8]),
+}
+
+impl<'k> KeyData<'k> {
+    fn parse<'b>(blob_data: &mut &'b [u8]) -> Result<KeyData<'b>> {
+        let header_len = u32::from_le_bytes(blob_data[0..4].try_into()?) as usize;
+        // Ignore the header
+
+        let content_len_offset = 4 + header_len;
+        let content_len =
+            u32::from_le_bytes(blob_data[content_len_offset..content_len_offset + 4].try_into()?)
+                as usize;
+
+        let content_offset = content_len_offset + 4;
+        let content = blob_data[content_offset..content_offset + content_len].try_into()?;
+
+        if content_len == 32 {
+            return Ok(KeyData::Plain(content));
+        }
+
+        let initial = content[0];
+        match initial {
+            1_u8 => Ok(KeyData::One {
+                iv: content[1..1 + 12].try_into()?,
+                ciphertext: content[13..13 + 48].try_into()?,
+            }),
+            2_u8 => Ok(KeyData::Two {
+                iv: content[1..1 + 12].try_into()?,
+                ciphertext: content[13..13 + 48].try_into()?,
+            }),
+            3_u8 => Ok(KeyData::Three {
+                _enctypted_aes_key: content[1..1 + 32].try_into()?,
+                _iv: content[33..33 + 12].try_into()?,
+                _ciphertext: content[45..45 + 48].try_into()?,
+            }),
+            value => Err(anyhow!("Unsupported flag: {}", value)),
+        }
+    }
 }
