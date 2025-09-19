@@ -41,6 +41,7 @@ export default {
             return new I18nMockService({
               ...mockLayoutI18n,
               close: "Close",
+              loading: "Loading",
             });
           },
         },

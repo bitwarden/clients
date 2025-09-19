@@ -63,6 +63,7 @@ export default {
               inputRequired: "Input is required.",
               inputEmail: "Input is not an email-address.",
               toggleVisibility: "Toggle visibility",
+              loading: "Loading",
             });
           },
         },

@@ -15,8 +15,10 @@ import {
   Security,
   VaultOpen,
 } from "@bitwarden/assets/svg";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { ButtonModule } from "../button";
+import { I18nMockService } from "../utils";
 
 import { NoItemsComponent } from "./no-items.component";
 import { NoItemsModule } from "./no-items.module";
@@ -27,6 +29,12 @@ export default {
   decorators: [
     moduleMetadata({
       imports: [ButtonModule, NoItemsModule],
+      providers: [
+        {
+          provide: I18nService,
+          useValue: new I18nMockService({ loading: "Loading" }),
+        },
+      ],
     }),
   ],
   parameters: {

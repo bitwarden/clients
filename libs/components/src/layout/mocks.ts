@@ -4,4 +4,5 @@ export const mockLayoutI18n = {
   skipToContent: "Skip to content",
   submenu: "submenu",
   toggleCollapse: "toggle collapse",
+  loading: "Loading",
 };
