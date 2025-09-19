@@ -107,7 +107,7 @@ export class DesktopAutotypeService {
             return false;
           }
 
-          const uri = u.uri.substring(4).toLowerCase();
+          const uri = u.uri.substring(URI_PREFIX.length).toLowerCase();
 
           return windowTitle.indexOf(uri) > -1;
         })
