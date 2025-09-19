@@ -277,4 +277,11 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
    * When a `CipherView` instance is passed, it returns it as is.
    */
   abstract getFullCipherView(c: CipherViewLike): Promise<CipherView>;
+
+  /**
+   * Updates the favorite status of a cipher and persists it to the server.
+   * @param id The cipher ID.
+   * @param favorite The new favorite status.
+   */
+  abstract updateFavorite(id: string, favorite: boolean): Promise<void>;
 }
