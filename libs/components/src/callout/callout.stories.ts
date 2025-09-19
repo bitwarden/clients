@@ -90,7 +90,7 @@ export const CustomIcon: Story = {
 export const NoTitle: Story = {
   ...Info,
   args: {
-    icon: "bwi-star",
+    icon: "",
   },
 };
 
