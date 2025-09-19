@@ -23,7 +23,9 @@ fn clear_last_error() {
 }
 
 fn get_last_error() -> String {
-    let last_err = unsafe { GetLastError().to_hresult().message() };
+    let last_err = unsafe { GetLastError() };
+    let last_err = last_err.to_hresult().message();
+
     println!("GetLastError(): {last_err}"); // TODO: debug!()
 
     last_err
