@@ -257,6 +257,8 @@ import {
   IndividualVaultExportServiceAbstraction,
   OrganizationVaultExportService,
   OrganizationVaultExportServiceAbstraction,
+  DefaultVaultExportApiService,
+  VaultExportApiService,
   VaultExportService,
   VaultExportServiceAbstraction,
 } from "@bitwarden/vault-export-core";
@@ -364,6 +366,7 @@ export default class MainBackground {
   loginEmailService: LoginEmailServiceAbstraction;
   importApiService: ImportApiServiceAbstraction;
   importService: ImportServiceAbstraction;
+  exportApiService: VaultExportApiService;
   exportService: VaultExportServiceAbstraction;
   searchService: SearchServiceAbstraction;
   serverNotificationsService: ServerNotificationsService;
@@ -884,7 +887,6 @@ export default class MainBackground {
     );
 
     this.restrictedItemTypesService = new RestrictedItemTypesService(
-      this.configService,
       this.accountService,
       this.organizationService,
       this.policyService,
@@ -1102,27 +1104,28 @@ export default class MainBackground {
       this.encryptService,
       this.cryptoFunctionService,
       this.kdfConfigService,
-      this.accountService,
       this.apiService,
       this.restrictedItemTypesService,
     );
 
+    this.exportApiService = new DefaultVaultExportApiService(this.apiService);
+
     this.organizationVaultExportService = new OrganizationVaultExportService(
       this.cipherService,
-      this.apiService,
+      this.exportApiService,
       this.pinService,
       this.keyService,
       this.encryptService,
       this.cryptoFunctionService,
       this.collectionService,
       this.kdfConfigService,
-      this.accountService,
       this.restrictedItemTypesService,
     );
 
     this.exportService = new VaultExportService(
       this.individualVaultExportService,
       this.organizationVaultExportService,
+      this.accountService,
     );
 
     this.browserInitialInstallService = new BrowserInitialInstallService(this.stateProvider);

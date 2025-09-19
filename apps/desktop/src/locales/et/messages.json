@@ -960,9 +960,6 @@
   "insertU2f": {
     "message": "Sisesta oma turvaline võti arvuti USB porti. Kui sellel on nupp, siis vajuta seda."
   },
-  "recoveryCodeDesc": {
-    "message": "Puudub ligipääs kaheastmelise kinnitamise teenusele? Kasuta Taastamise koodi, et kaheastmeline kinnitamine oma kontol välja lülitada."
-  },
   "recoveryCodeTitle": {
     "message": "Taastamise kood"
   },

@@ -926,17 +926,22 @@ export class VaultV2Component<C extends CipherViewLike>
       }
     } else if (this.activeFilter.selectedOrganizationId) {
       this.addOrganizationId = this.activeFilter.selectedOrganizationId;
+    } else {
+      // clear out organizationId when the user switches to a personal vault filter
+      this.addOrganizationId = null;
     }
     if (this.activeFilter.selectedFolderId && this.activeFilter.selectedFolder) {
       this.folderId = this.activeFilter.selectedFolderId;
     }
 
-    if (this.addOrganizationId && this.config) {
-      this.config.initialValues = {
-        ...this.config.initialValues,
-        organizationId: this.addOrganizationId as OrganizationId,
-      };
+    if (this.config == null) {
+      return;
     }
+
+    this.config.initialValues = {
+      ...this.config.initialValues,
+      organizationId: this.addOrganizationId as OrganizationId,
+    };
   }
 
   private async canNavigateAway(action: string, cipher?: CipherView) {

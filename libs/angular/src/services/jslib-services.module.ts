@@ -344,6 +344,8 @@ import { PasswordRepromptService } from "@bitwarden/vault";
 import {
   IndividualVaultExportService,
   IndividualVaultExportServiceAbstraction,
+  DefaultVaultExportApiService,
+  VaultExportApiService,
   OrganizationVaultExportService,
   OrganizationVaultExportServiceAbstraction,
   VaultExportService,
@@ -696,7 +698,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: RestrictedItemTypesService,
     useClass: RestrictedItemTypesService,
-    deps: [ConfigService, AccountService, OrganizationServiceAbstraction, PolicyServiceAbstraction],
+    deps: [AccountService, OrganizationServiceAbstraction, PolicyServiceAbstraction],
   }),
   safeProvider({
     provide: PasswordStrengthServiceAbstraction,
@@ -888,31 +890,38 @@ const safeProviders: SafeProvider[] = [
       EncryptService,
       CryptoFunctionServiceAbstraction,
       KdfConfigService,
-      AccountServiceAbstraction,
       ApiServiceAbstraction,
       RestrictedItemTypesService,
     ],
+  }),
+  safeProvider({
+    provide: VaultExportApiService,
+    useClass: DefaultVaultExportApiService,
+    deps: [ApiServiceAbstraction],
   }),
   safeProvider({
     provide: OrganizationVaultExportServiceAbstraction,
     useClass: OrganizationVaultExportService,
     deps: [
       CipherServiceAbstraction,
-      ApiServiceAbstraction,
+      VaultExportApiService,
       PinServiceAbstraction,
       KeyService,
       EncryptService,
       CryptoFunctionServiceAbstraction,
       CollectionService,
       KdfConfigService,
-      AccountServiceAbstraction,
       RestrictedItemTypesService,
     ],
   }),
   safeProvider({
     provide: VaultExportServiceAbstraction,
     useClass: VaultExportService,
-    deps: [IndividualVaultExportServiceAbstraction, OrganizationVaultExportServiceAbstraction],
+    deps: [
+      IndividualVaultExportServiceAbstraction,
+      OrganizationVaultExportServiceAbstraction,
+      AccountServiceAbstraction,
+    ],
   }),
   safeProvider({
     provide: SearchServiceAbstraction,
