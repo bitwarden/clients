@@ -23,7 +23,7 @@
           data-testid="remove-uri-button"
         ></button>
       </bit-form-field>
-      <div class="tw-flex tw-items-center tw-ml-1.5">
+      <div class="tw-flex tw-items-center tw-ml-1.5" *ngIf="canReorder">
         <button
           type="button"
           bitIconButton="bwi-drag-and-drop"
@@ -32,7 +32,6 @@
           [label]="'reorderToggleButton' | i18n: uriLabel"
           (keydown)="handleKeydown($event)"
           data-testid="reorder-toggle-button"
-          *ngIf="canReorder"
         ></button>
       </div>
     </div>
