@@ -56,7 +56,7 @@ export class CalloutComponent {
   protected readonly calloutClass = computed(() => {
     switch (this.type()) {
       case "danger":
-        return "tw-bg-danger-100 border-danger-700 tw-text-danger-700";
+        return "tw-bg-danger-100 tw-border-danger-700 tw-text-danger-700";
       case "info":
         return "tw-bg-info-100 tw-bg-info-100 tw-border-info-700 tw-text-info-700";
       case "success":
