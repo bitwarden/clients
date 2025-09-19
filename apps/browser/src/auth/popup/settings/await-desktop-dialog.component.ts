@@ -9,6 +9,8 @@ import { ButtonModule, DialogModule, DialogService } from "@bitwarden/components
 })
 export class AwaitDesktopDialogComponent {
   static open(dialogService: DialogService) {
-    return dialogService.open<boolean>(AwaitDesktopDialogComponent);
+    return dialogService.open<boolean>(AwaitDesktopDialogComponent, {
+      positionStrategy: dialogService.defaultSimpleDialogPositionStrategy,
+    });
   }
 }

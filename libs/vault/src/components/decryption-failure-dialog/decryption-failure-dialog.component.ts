@@ -54,6 +54,9 @@ export class DecryptionFailureDialogComponent {
   }
 
   static open(dialogService: DialogService, params: DecryptionFailureDialogParams) {
-    return dialogService.open(DecryptionFailureDialogComponent, { data: params });
+    return dialogService.open(DecryptionFailureDialogComponent, {
+      data: params,
+      positionStrategy: dialogService.defaultSimpleDialogPositionStrategy,
+    });
   }
 }

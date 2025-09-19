@@ -48,6 +48,7 @@ export class AtRiskCarouselDialogComponent {
   static open(dialogService: DialogService) {
     return dialogService.open<AtRiskCarouselDialogResult>(AtRiskCarouselDialogComponent, {
       disableClose: true,
+      positionStrategy: dialogService.defaultSimpleDialogPositionStrategy,
     });
   }
 }

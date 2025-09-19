@@ -35,6 +35,7 @@ class StoryDialogComponent {
       data: {
         animal: "panda",
       },
+      positionStrategy: this.dialogService.defaultSimpleDialogPositionStrategy,
     });
   }
 
@@ -44,6 +45,7 @@ class StoryDialogComponent {
         animal: "panda",
       },
       disableClose: true,
+      positionStrategy: this.dialogService.defaultSimpleDialogPositionStrategy,
     });
   }
 
@@ -53,6 +55,7 @@ class StoryDialogComponent {
         animal: "panda",
       },
       disableClose: true,
+      positionStrategy: this.dialogService.defaultSimpleDialogPositionStrategy,
     });
   }
 }

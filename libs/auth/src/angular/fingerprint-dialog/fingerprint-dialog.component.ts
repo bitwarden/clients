@@ -17,6 +17,9 @@ export class FingerprintDialogComponent {
   constructor(@Inject(DIALOG_DATA) protected data: FingerprintDialogData) {}
 
   static open(dialogService: DialogService, data: FingerprintDialogData) {
-    return dialogService.open(FingerprintDialogComponent, { data });
+    return dialogService.open(FingerprintDialogComponent, {
+      data,
+      positionStrategy: dialogService.defaultSimpleDialogPositionStrategy,
+    });
   }
 }

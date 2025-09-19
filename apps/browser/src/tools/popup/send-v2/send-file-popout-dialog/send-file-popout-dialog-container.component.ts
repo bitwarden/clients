@@ -31,7 +31,9 @@ export class SendFilePopoutDialogContainerComponent implements OnInit {
       this.config?.mode === "add" &&
       this.filePopoutUtilsService.showFilePopoutMessage(window)
     ) {
-      this.dialogService.open(SendFilePopoutDialogComponent);
+      this.dialogService.open(SendFilePopoutDialogComponent, {
+        positionStrategy: this.dialogService.defaultSimpleDialogPositionStrategy,
+      });
     }
   }
 }

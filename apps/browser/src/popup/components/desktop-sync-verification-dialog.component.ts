@@ -47,6 +47,7 @@ export class DesktopSyncVerificationDialogComponent implements OnDestroy, OnInit
   static open(dialogService: DialogService, data: DesktopSyncVerificationDialogParams) {
     return dialogService.open(DesktopSyncVerificationDialogComponent, {
       data,
+      positionStrategy: dialogService.defaultSimpleDialogPositionStrategy,
     });
   }
 }
