@@ -108,6 +108,15 @@ export type CriticalSummaryDetails = {
 };
 
 /**
+ * An entry for an organization application and if it is
+ * marked as critical
+ */
+export type OrganizationReportApplication = {
+  applicationName: string;
+  isCritical: boolean;
+};
+
+/**
  * All applications report detail. Application is the cipher
  * uri. Has the at risk, password, and member information
  */
