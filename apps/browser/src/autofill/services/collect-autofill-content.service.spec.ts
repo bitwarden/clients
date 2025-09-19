@@ -578,7 +578,7 @@ describe("CollectAutofillContentService", () => {
       const autofillFieldsData = await Promise.resolve(autofillFieldsPromise);
 
       expect(collectAutofillContentService["getAutofillFieldElements"]).toHaveBeenCalledWith(
-        100,
+        200,
         formFieldElements,
       );
       expect(collectAutofillContentService["buildAutofillFieldItem"]).toHaveBeenCalledTimes(2);
