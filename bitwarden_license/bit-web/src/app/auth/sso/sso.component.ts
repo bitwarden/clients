@@ -254,6 +254,13 @@ export class SsoComponent implements OnInit, OnDestroy {
 
     this.showKeyConnectorOptions = this.platformUtilsService.isSelfHost();
 
+    // Only setup listener if key connector is a possible selection
+    if (this.showKeyConnectorOptions) {
+      this.listenForKeyConnectorSelection();
+    }
+  }
+
+  listenForKeyConnectorSelection() {
     this.ssoConfigForm?.controls?.memberDecryptionType.valueChanges
       .pipe(
         switchMap(async (memberDecryptionType) => {
