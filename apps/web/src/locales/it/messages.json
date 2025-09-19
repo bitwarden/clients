@@ -1586,9 +1586,6 @@
   "selectTwoStepLoginMethod": {
     "message": "Scegli il metodo di accesso in due passaggi"
   },
-  "recoveryCodeDesc": {
-    "message": "Hai perso l'accesso a tutti i tuoi metodi di verifica in due passaggi? Usa il tuo codice di recupero per disattivarli tutti dal tuo account."
-  },
   "recoveryCodeTitle": {
     "message": "Codice di recupero"
   },

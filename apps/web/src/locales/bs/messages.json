@@ -1586,9 +1586,6 @@
   "selectTwoStepLoginMethod": {
     "message": "Select two-step login method"
   },
-  "recoveryCodeDesc": {
-    "message": "Izgubljen je pristup uređaju za dvostruku autentifikaciju? Koristite svoj kôd za oporavak za onemogućavanje svih pružatelja usluga dvostruke autentifikacije na tvojem računu."
-  },
   "recoveryCodeTitle": {
     "message": "Recovery code"
   },

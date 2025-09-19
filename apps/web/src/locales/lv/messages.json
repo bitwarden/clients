@@ -60,7 +60,7 @@
     "message": "Izveidot jaunu pieteikšanās vienumu"
   },
   "criticalApplicationsActivityDescription": {
-    "message": "Once you mark applications critical, they will display here."
+    "message": "Tiklīz lietotnes tiks atzīmētas kā būtiskas, tās tiks parādītas šeit."
   },
   "criticalApplicationsWithCount": {
     "message": "Kritiskās lietotnes ($COUNT$)",
@@ -72,7 +72,7 @@
     }
   },
   "countOfCriticalApplications": {
-    "message": "$COUNT$ critical applications",
+    "message": "$COUNT$ būtiskas lietotnes",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -135,10 +135,10 @@
     "message": "Riskam pakļautie dalībnieki"
   },
   "membersAtRiskActivityDescription": {
-    "message": "Members with edit access to at-risk items for critical applications"
+    "message": "Dalībnieki ar labošanas piekluvi riskam pakļautajiem vienumiem būtiskajām lietotnēm"
   },
   "membersAtRisk": {
-    "message": "$COUNT$ members at risk",
+    "message": "$COUNT$ riskam pakļauti dalībnieki",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1585,9 +1585,6 @@
   },
   "selectTwoStepLoginMethod": {
     "message": "Atlasīt divpakāpju pieteikšanās veidu"
-  },
-  "recoveryCodeDesc": {
-    "message": "Zaudēta piekļuve visiem divpakāpju pieteikšanās nodrošinātājiem? Jāizmanto atkopes kods, lai izslēgtu visus sava konta divpakāpju pieteikšanās nodrošinātājus."
   },
   "recoveryCodeTitle": {
     "message": "Atkopes kods"
@@ -9842,7 +9839,7 @@
     "message": "Uzrādītāja pilnvara"
   },
   "repositoryNameHint": {
-    "message": "Name of the repository to ingest into"
+    "message": "Glabātavas nosaukums, kurā ievietot"
   },
   "index": {
     "message": "Indekss"

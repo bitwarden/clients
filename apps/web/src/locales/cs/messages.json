@@ -3,7 +3,7 @@
     "message": "Všechny aplikace"
   },
   "activity": {
-    "message": "Activity"
+    "message": "Aktivita"
   },
   "appLogoLabel": {
     "message": "Logo Bitwarden"
@@ -60,7 +60,7 @@
     "message": "Vytvořit novou položku přihlášení"
   },
   "criticalApplicationsActivityDescription": {
-    "message": "Once you mark applications critical, they will display here."
+    "message": "Jakmile označíte aplikace jako kritické, zobrazí se zde."
   },
   "criticalApplicationsWithCount": {
     "message": "Kritické aplikace ($COUNT$)",
@@ -72,7 +72,7 @@
     }
   },
   "countOfCriticalApplications": {
-    "message": "$COUNT$ critical applications",
+    "message": "$COUNT$ kritických aplikací",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -135,10 +135,10 @@
     "message": "Ohrožení členové"
   },
   "membersAtRiskActivityDescription": {
-    "message": "Members with edit access to at-risk items for critical applications"
+    "message": "Členové, kteří upravují přístup k rizikovým položkám pro kritické aplikace"
   },
   "membersAtRisk": {
-    "message": "$COUNT$ members at risk",
+    "message": "$COUNT$ členů v ohrožení",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1585,9 +1585,6 @@
   },
   "selectTwoStepLoginMethod": {
     "message": "Vyberte metodu dvoufázového přihlášení"
-  },
-  "recoveryCodeDesc": {
-    "message": "Ztratili jste přístup ke všem nastaveným poskytovatelům dvoufázového přihlášení? Použijte obnovovací kód pro vypnutí dvoufázového přihlášení."
   },
   "recoveryCodeTitle": {
     "message": "Kód pro obnovení"
@@ -9842,7 +9839,7 @@
     "message": "Token na doručitele"
   },
   "repositoryNameHint": {
-    "message": "Name of the repository to ingest into"
+    "message": "Název úložiště, do kterého má být vpuštěno"
   },
   "index": {
     "message": "Index"

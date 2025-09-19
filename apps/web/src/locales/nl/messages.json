@@ -1586,9 +1586,6 @@
   "selectTwoStepLoginMethod": {
     "message": "Kies methode voor tweestapsaanmelding"
   },
-  "recoveryCodeDesc": {
-    "message": "Ben je de toegang tot al je tweestapsaanbieders verloren? Gebruik dan je herstelcode om alle tweestapsaanbieders op je account uit te schakelen."
-  },
   "recoveryCodeTitle": {
     "message": "Herstelcode"
   },

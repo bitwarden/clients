@@ -1586,9 +1586,6 @@
   "selectTwoStepLoginMethod": {
     "message": "Elekti dupaŝan salutan metodon"
   },
-  "recoveryCodeDesc": {
-    "message": "Ĉu vi perdis aliron al ĉiuj viaj du-faktoraj provizantoj? Uzu vian reakiran kodon por malŝalti ĉiujn du-faktorajn provizantojn de via konto."
-  },
   "recoveryCodeTitle": {
     "message": "Rekuperiga Kodo"
   },

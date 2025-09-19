@@ -1586,9 +1586,6 @@
   "selectTwoStepLoginMethod": {
     "message": "İki aşamalı giriş yöntemini seçin"
   },
-  "recoveryCodeDesc": {
-    "message": "İki aşamalı giriş sağlayıcılarınıza ulaşamıyor musunuz? Kurtarma kodunuzu kullanarak hesabınızdaki tüm iki aşamalı giriş sağlayıcılarını devre dışı bırakabilirsiniz."
-  },
   "recoveryCodeTitle": {
     "message": "Kurtarma kodu"
   },

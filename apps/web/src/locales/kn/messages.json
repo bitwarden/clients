@@ -1586,9 +1586,6 @@
   "selectTwoStepLoginMethod": {
     "message": "Select two-step login method"
   },
-  "recoveryCodeDesc": {
-    "message": "ನಿಮ್ಮ ಎಲ್ಲಾ ಎರಡು ಅಂಶ ಪೂರೈಕೆದಾರರಿಗೆ ಪ್ರವೇಶವನ್ನು ಕಳೆದುಕೊಂಡಿದ್ದೀರಾ? ನಿಮ್ಮ ಖಾತೆಯಿಂದ ಎಲ್ಲಾ ಎರಡು ಅಂಶ ಪೂರೈಕೆದಾರರನ್ನು ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಲು ನಿಮ್ಮ ಮರುಪಡೆಯುವಿಕೆ ಕೋಡ್ ಬಳಸಿ."
-  },
   "recoveryCodeTitle": {
     "message": "ಮರುಪಡೆಯುವಿಕೆ ಕೋಡ್"
   },

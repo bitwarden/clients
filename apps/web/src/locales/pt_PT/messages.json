@@ -1586,9 +1586,6 @@
   "selectTwoStepLoginMethod": {
     "message": "Selecionar método de verificação de dois passos"
   },
-  "recoveryCodeDesc": {
-    "message": "Perdeu o acesso a todos os seus fornecedores de verificação de dois passos? Utilize o seu código de recuperação para desativar todos os fornecedores de verificação de dois passos da sua conta."
-  },
   "recoveryCodeTitle": {
     "message": "Código de recuperação"
   },

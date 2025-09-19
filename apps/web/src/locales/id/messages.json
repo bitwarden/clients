@@ -1586,9 +1586,6 @@
   "selectTwoStepLoginMethod": {
     "message": "Select two-step login method"
   },
-  "recoveryCodeDesc": {
-    "message": "Kehilangan akses ke semua penyedia dua faktor Anda? Gunakan kode pemulihan untuk menonaktifkan semua penyedia dua faktor dari akun Anda."
-  },
   "recoveryCodeTitle": {
     "message": "Kode Pemulihan"
   },

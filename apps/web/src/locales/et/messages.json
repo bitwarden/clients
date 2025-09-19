@@ -1586,9 +1586,6 @@
   "selectTwoStepLoginMethod": {
     "message": "Vali kaheastmelise sisselogimise meetod"
   },
-  "recoveryCodeDesc": {
-    "message": "Sul ei ole ligipääsu ühelegi kaheastmelise kinnitamise teenusele? Kasuta taastamise koodi, et kaheastmeline kinnitamine oma kontol välja lülitada."
-  },
   "recoveryCodeTitle": {
     "message": "Taastamise kood"
   },

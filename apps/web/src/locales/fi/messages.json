@@ -1586,9 +1586,6 @@
   "selectTwoStepLoginMethod": {
     "message": "Valitse todennustapa"
   },
-  "recoveryCodeDesc": {
-    "message": "Etkö voi käyttää kaksivaiheisen kirjautumisen todentajiasi? Poista kaikki tilillesi määritetyt todentajat käytöstä palautuskoodillasi."
-  },
   "recoveryCodeTitle": {
     "message": "Palautuskoodi"
   },

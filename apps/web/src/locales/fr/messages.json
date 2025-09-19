@@ -1586,9 +1586,6 @@
   "selectTwoStepLoginMethod": {
     "message": "Sélectionnez la méthode d'authentification à deux facteurs"
   },
-  "recoveryCodeDesc": {
-    "message": "Vous avez perdu l'accès à tous vos fournisseurs d'authentification à deux facteurs ? Utilisez votre code de récupération pour désactiver tous les fournisseurs d'authentification à deux facteurs de votre compte."
-  },
   "recoveryCodeTitle": {
     "message": "Code de récupération"
   },

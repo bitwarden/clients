@@ -1586,9 +1586,6 @@
   "selectTwoStepLoginMethod": {
     "message": "Select two-step login method"
   },
-  "recoveryCodeDesc": {
-    "message": "無法使用任何兩步驟登入方式嗎？請使用您的復原碼停用所有兩步驟登入方式。"
-  },
   "recoveryCodeTitle": {
     "message": "復原碼"
   },

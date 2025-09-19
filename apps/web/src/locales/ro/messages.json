@@ -1586,9 +1586,6 @@
   "selectTwoStepLoginMethod": {
     "message": "Select two-step login method"
   },
-  "recoveryCodeDesc": {
-    "message": "Ați pierdut accesul la toți furnizorii de autentificare în două etape? Folosiți codul de recuperare pentru a dezactiva toți acești furnizori din contul dvs."
-  },
   "recoveryCodeTitle": {
     "message": "Cod de recuperare"
   },

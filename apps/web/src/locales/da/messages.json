@@ -1586,9 +1586,6 @@
   "selectTwoStepLoginMethod": {
     "message": "Select two-step login method"
   },
-  "recoveryCodeDesc": {
-    "message": "Mistet adgang til alle totrinsudbyderene? Brug din genoprettelseskode til at deaktivere dem alle på kontoen."
-  },
   "recoveryCodeTitle": {
     "message": "Gendannelseskode"
   },

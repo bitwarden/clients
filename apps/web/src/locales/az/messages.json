@@ -1586,9 +1586,6 @@
   "selectTwoStepLoginMethod": {
     "message": "İki addımlı giriş üsulunu seçin"
   },
-  "recoveryCodeDesc": {
-    "message": "İki addımlı giriş provayderlərinizə erişə bilmirsiniz? Geri qaytarma kodunuzu istifadə edərək hesabınızdakı bütün iki addımlı giriş provayderlərini söndürə bilərsiniz."
-  },
   "recoveryCodeTitle": {
     "message": "Geri qaytarma kodu"
   },

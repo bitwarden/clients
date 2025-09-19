@@ -1586,9 +1586,6 @@
   "selectTwoStepLoginMethod": {
     "message": "Select two-step login method"
   },
-  "recoveryCodeDesc": {
-    "message": "Bi urratseko egiaztatzeko modu guztietarako sarbidea galdu duzu? Erabili zure berreskuratze-kodea zure kontuko bi urratseko egiaztatze hornitzaile guztiak desaktibatzeko."
-  },
   "recoveryCodeTitle": {
     "message": "Berreskuratze-kodea"
   },

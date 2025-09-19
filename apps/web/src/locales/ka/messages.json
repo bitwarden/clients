@@ -1586,9 +1586,6 @@
   "selectTwoStepLoginMethod": {
     "message": "Select two-step login method"
   },
-  "recoveryCodeDesc": {
-    "message": "დაკარგეთ წვდომა ყველა შენს ორსაფეხურიან პროვაიდერებთან? გამოიყენეთ თქვენი აღდგენის კოდი რომ გათიშოთ ყველა ორსაფეხურიანი ავტორიზაციის პროვაიდერები შენი ანგარიშიდან."
-  },
   "recoveryCodeTitle": {
     "message": "აღდგენის კოდი"
   },

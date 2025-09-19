@@ -1586,9 +1586,6 @@
   "selectTwoStepLoginMethod": {
     "message": "Chọn phương pháp đăng nhập hai bước"
   },
-  "recoveryCodeDesc": {
-    "message": "Bạn bị mất quyền truy cập vào tất cả các dịch vụ xác minh hai bước? Sử dụng mã phục hồi của bạn để tắt chúng trên tài khoản bạn."
-  },
   "recoveryCodeTitle": {
     "message": "Mã phục hồi"
   },

@@ -3,7 +3,7 @@
     "message": "Alla applikationer"
   },
   "activity": {
-    "message": "Activity"
+    "message": "Aktivitet"
   },
   "appLogoLabel": {
     "message": "Bitwardens logotyp"
@@ -72,7 +72,7 @@
     }
   },
   "countOfCriticalApplications": {
-    "message": "$COUNT$ critical applications",
+    "message": "$COUNT$ kritiska applikationer",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1585,9 +1585,6 @@
   },
   "selectTwoStepLoginMethod": {
     "message": "Välj metod för tvåstegsinloggning"
-  },
-  "recoveryCodeDesc": {
-    "message": "Förlorat åtkomst till alla dina metoder för tvåstegsverifiering? Använd din återställningskod för att inaktivera tvåstegsverifiering på ditt konto."
   },
   "recoveryCodeTitle": {
     "message": "Återställningskod"

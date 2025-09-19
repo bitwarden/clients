@@ -1586,9 +1586,6 @@
   "selectTwoStepLoginMethod": {
     "message": "Kétlépcsős bejelentkezési mód használata"
   },
-  "recoveryCodeDesc": {
-    "message": "Elveszett a hozzáférés az összes kétlépcsős szolgáltatóhoz? A visszaállítókód használatával letilthatók fiókból a kétlépcsős szolgáltatók."
-  },
   "recoveryCodeTitle": {
     "message": "Helyreállító kód"
   },

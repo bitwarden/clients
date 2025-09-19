@@ -1586,9 +1586,6 @@
   "selectTwoStepLoginMethod": {
     "message": "Wybierz metodę logowania dwustopniowego"
   },
-  "recoveryCodeDesc": {
-    "message": "Utraciłeś dostęp do wszystkich swoich mechanizmów dwustopniowego logowania? Użyj kodów odzyskiwania, aby wyłączyć dwustopniowe logowanie na Twoim koncie."
-  },
   "recoveryCodeTitle": {
     "message": "Kod odzyskiwania"
   },

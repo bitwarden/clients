@@ -1586,9 +1586,6 @@
   "selectTwoStepLoginMethod": {
     "message": "Select two-step login method"
   },
-  "recoveryCodeDesc": {
-    "message": "Ste izgubili dostop do vseh vaših ponudnikov dvostopenjse prijave? Uporabite svoje kode za obnovitev in tako onemogočite dvostopenjsko prijavo v svoj račun."
-  },
   "recoveryCodeTitle": {
     "message": "Koda za obnovitev"
   },

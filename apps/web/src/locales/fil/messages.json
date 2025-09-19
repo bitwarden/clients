@@ -1586,9 +1586,6 @@
   "selectTwoStepLoginMethod": {
     "message": "Select two-step login method"
   },
-  "recoveryCodeDesc": {
-    "message": "Nawalan ng access sa lahat ng provider mo ng dalawang-hakbang na pag-log in? Gamitin ang code pang-recover mo para patayin ang lahat ng mga provider ng dalawang-hakbang na pag-log in sa account mo."
-  },
   "recoveryCodeTitle": {
     "message": "Code pang-recover"
   },

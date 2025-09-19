@@ -1586,9 +1586,6 @@
   "selectTwoStepLoginMethod": {
     "message": "Selecionar método de login em duas etapas"
   },
-  "recoveryCodeDesc": {
-    "message": "Perdeu o acesso a todos os seus provedores de duas etapas? Utilize o seu código de recuperação para desativar todos os provedores de duas etapas da sua conta."
-  },
   "recoveryCodeTitle": {
     "message": "Código de recuperação"
   },

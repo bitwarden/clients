@@ -1586,9 +1586,6 @@
   "selectTwoStepLoginMethod": {
     "message": "Select two-step login method"
   },
-  "recoveryCodeDesc": {
-    "message": "Heu perdut l'accés a tots els vostres proveïdors de dos factors? Utilitzeu el vostre codi de recuperació per desactivar tots els proveïdors de dos factors del vostre compte."
-  },
   "recoveryCodeTitle": {
     "message": "Codi de recuperació"
   },

@@ -1586,9 +1586,6 @@
   "selectTwoStepLoginMethod": {
     "message": "Select two-step login method"
   },
-  "recoveryCodeDesc": {
-    "message": "Έχετε χάσει την πρόσβαση σε όλους τους παρόχους δύο παραγόντων; Χρησιμοποιήστε τον κωδικό ανάκτησης για να απενεργοποιήσετε όλους τους παρόχους δύο παραγόντων από το λογαριασμό σας."
-  },
   "recoveryCodeTitle": {
     "message": "Κωδικός Ανάκτησης"
   },

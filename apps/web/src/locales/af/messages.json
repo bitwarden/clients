@@ -1586,9 +1586,6 @@
   "selectTwoStepLoginMethod": {
     "message": "Select two-step login method"
   },
-  "recoveryCodeDesc": {
-    "message": "Het u toegang tot al u tweestapaanbieders verloor? Gebruik dan u terugstelkode om alle tweestapaanbieders op u rekening te deaktiveer."
-  },
   "recoveryCodeTitle": {
     "message": "Terugstelkode"
   },

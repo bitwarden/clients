@@ -1586,9 +1586,6 @@
   "selectTwoStepLoginMethod": {
     "message": "Select two-step login method"
   },
-  "recoveryCodeDesc": {
-    "message": "നിങ്ങളുടെ രണ്ട്-ഘടക ദാതാക്കളിലേക്കുള്ള ആക്‌സസ്സ് നഷ്‌ടപ്പെട്ടോ? നിങ്ങളുടെ അക്കൗണ്ടിൽ നിന്ന് രണ്ട്-ഘടക ദാതാക്കളെ പ്രവർത്തനരഹിതമാക്കാൻ നിങ്ങളുടെ റിക്കവറി കോഡ് ഉപയോഗിക്കുക."
-  },
   "recoveryCodeTitle": {
     "message": "റിക്കവറി കോഡ്"
   },

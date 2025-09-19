@@ -1586,9 +1586,6 @@
   "selectTwoStepLoginMethod": {
     "message": "Selecciona un método de inicio de sesión en dos pasos"
   },
-  "recoveryCodeDesc": {
-    "message": "¿Has perdido el acceso a todos tus métodos de autenticación en dos pasos? Utiliza tu código de recuperación para deshabilitar todos los métodos de autenticación en dos pasos de tu cuenta."
-  },
   "recoveryCodeTitle": {
     "message": "Código de recuperación"
   },

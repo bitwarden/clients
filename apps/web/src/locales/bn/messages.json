@@ -1586,9 +1586,6 @@
   "selectTwoStepLoginMethod": {
     "message": "Select two-step login method"
   },
-  "recoveryCodeDesc": {
-    "message": "আপনার সমস্ত দ্বি-গুণক সরবরাহকারীদের অ্যাক্সেস হারিয়েছেন? আপনার অ্যাকাউন্ট থেকে সমস্ত দ্বি-গুণক সরবরাহকারীদের অক্ষম করতে আপনার পুনরুদ্ধার কোডটি ব্যবহার করুন।"
-  },
   "recoveryCodeTitle": {
     "message": "পুনরুদ্ধার কোড"
   },

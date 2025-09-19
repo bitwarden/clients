@@ -1586,9 +1586,6 @@
   "selectTwoStepLoginMethod": {
     "message": "Vyberte metódu dvojstupňového prihlásenia"
   },
-  "recoveryCodeDesc": {
-    "message": "Stratili ste prístup ku všetkým vašim dvojstupňovým poskytovateľom? Použite váš záchranný kód pre vypnutie všetkých poskytovateľov vo vašom účte."
-  },
   "recoveryCodeTitle": {
     "message": "Záchranný kód"
   },

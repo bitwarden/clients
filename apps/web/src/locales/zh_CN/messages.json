@@ -60,7 +60,7 @@
     "message": "创建新的登录项目"
   },
   "criticalApplicationsActivityDescription": {
-    "message": "Once you mark applications critical, they will display here."
+    "message": "您将应用程序标记为关键后，它们将显示在这里。"
   },
   "criticalApplicationsWithCount": {
     "message": "关键应用程序 ($COUNT$)",
@@ -72,7 +72,7 @@
     }
   },
   "countOfCriticalApplications": {
-    "message": "$COUNT$ critical applications",
+    "message": "$COUNT$ 个关键应用程序",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -135,10 +135,10 @@
     "message": "存在风险的成员"
   },
   "membersAtRiskActivityDescription": {
-    "message": "Members with edit access to at-risk items for critical applications"
+    "message": "对关键应用程序中存在风险的项目具有编辑权限的成员"
   },
   "membersAtRisk": {
-    "message": "$COUNT$ members at risk",
+    "message": "$COUNT$ 个成员存在风险",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1585,9 +1585,6 @@
   },
   "selectTwoStepLoginMethod": {
     "message": "选择两步登录方式"
-  },
-  "recoveryCodeDesc": {
-    "message": "无法访问您所有的两步登录提供程序吗？请使用您的恢复代码来停用您账户中所有的两步登录提供程序。"
   },
   "recoveryCodeTitle": {
     "message": "恢复代码"
@@ -9842,7 +9839,7 @@
     "message": "Bearer 令牌"
   },
   "repositoryNameHint": {
-    "message": "Name of the repository to ingest into"
+    "message": "要摄取的存储库的名称"
   },
   "index": {
     "message": "索引"
