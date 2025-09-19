@@ -45,6 +45,26 @@ function buildProxyBin(target, release = true) {
     }
 }
 
+function buildImporterBinaries(target, release = true) {
+    // These binaries are only built for Windows, so we can skip them on other platforms
+    if (process.platform !== "win32") {
+        return;
+    }
+
+    ["admin"].forEach(bin => {
+        const targetArg = target ? `--target ${target}` : "";
+        const releaseArg = release ? "--release" : "";
+        child_process.execSync(`cargo build --bin ${bin} ${releaseArg} ${targetArg} --features windows-binary`, {stdio: 'inherit', cwd: path.join(__dirname, "bitwarden_chromium_importer")});
+
+        if (target) {
+            // Copy the resulting binary to the dist folder
+            const targetFolder = release ? "release" : "debug";
+            const nodeArch = rustTargetsMap[target].nodeArch;
+            fs.copyFileSync(path.join(__dirname, "target", target, targetFolder, `${bin}.exe`), path.join(__dirname, "dist", `${bin}.${process.platform}-${nodeArch}.exe`));
+        }
+    });
+}
+
 function installTarget(target) {
     child_process.execSync(`rustup target add ${target}`, { stdio: 'inherit', cwd: __dirname });
 }
@@ -53,6 +73,7 @@ if (!crossPlatform && !target) {
     console.log(`Building native modules in ${mode} mode for the native architecture`);
     buildNapiModule(false, mode === "release");
     buildProxyBin(false, mode === "release");
+    buildImporterBinaries(false, mode === "release");
     return;
 }
 
@@ -61,6 +82,7 @@ if (target) {
     installTarget(target);
     buildNapiModule(target, mode === "release");
     buildProxyBin(target, mode === "release");
+    buildImporterBinaries(false, mode === "release");
     return;
 }
 
@@ -78,4 +100,5 @@ platformTargets.forEach(([target, _]) => {
     installTarget(target);
     buildNapiModule(target);
     buildProxyBin(target);
+    buildImporterBinaries(target);
 });
