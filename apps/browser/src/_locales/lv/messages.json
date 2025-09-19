@@ -1764,7 +1764,7 @@
     "message": "Šis pārlūks nevar apstrādāt U2F pieprasījumus šajā uznirstošajā logā. Vai atvērt to atsevišķā logā, lai varētu pieteikties, izmantojot U2F?"
   },
   "showIconsChangePasswordUrls": {
-    "message": "Show website icons and retrieve change password URLs"
+    "message": "Rādīt tīmekļvietņu ikonas un iegūt paroles nomaiņas URL"
   },
   "enableBadgeCounter": {
     "message": "Rādīt skaita nozīmīti"
@@ -1934,32 +1934,81 @@
   "typeNote": {
     "message": "Piezīme"
   },
-  "newItemHeader": {
-    "message": "Jauns/a $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderLogin": {
+    "message": "Jauns pieteikšanās vienums",
+    "description": "Header for new login item type"
   },
-  "editItemHeader": {
-    "message": "Labot $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderCard": {
+    "message": "Jauna karte",
+    "description": "Header for new card item type"
   },
-  "viewItemHeader": {
-    "message": "Apskatīt $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderIdentity": {
+    "message": "Jauna identitāte",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "Jauna piezīme",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "Jauna SSH atslēga",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderTextSend": {
+    "message": "Jauns teksta Send",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "Jauns datnes Send",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderLogin": {
+    "message": "Labot pieteikšanās vienumu",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Labot karti",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Labot identitāti",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Labot piezīmi",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "Labot SSH atslēgu",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Labot teksta Send",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Labot datnes Send",
+    "description": "Header for edit file send"
+  },
+  "viewItemHeaderLogin": {
+    "message": "Apskatīt pieteikšanās vienumu",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "Apskatīt karti",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "Skatīt identitāti",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "Apskatīt piezīmi",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "Apskatīt SSH atslēgu",
+    "description": "Header for view SSH key item type"
   },
   "passwordHistory": {
     "message": "Paroļu vēsture"
@@ -5092,14 +5141,8 @@
   "itemLocation": {
     "message": "Vienuma atrašanās vieta"
   },
-  "fileSend": {
-    "message": "Datņu Send"
-  },
   "fileSends": {
     "message": "Datņu Send"
-  },
-  "textSend": {
-    "message": "Teksta Send"
   },
   "textSends": {
     "message": "Teksta Send"
@@ -5579,10 +5622,10 @@
     "description": "Aria label for the body content of the generator nudge"
   },
   "aboutThisSetting": {
-    "message": "About this setting"
+    "message": "Par šo iestatījumu"
   },
   "permitCipherDetailsDescription": {
-    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+    "message": "Bitwarden izmantos saglabātos pieteikšanās vienuma URI, lai noteiktu, kuru ikonu vai paroles nomaiņas URL izmantot, lai uzlabotu pieredzi. Šī pakalpojuma izmantošanas laikā nekāda informācija netiek ievākta vai saglabāta."
   },
   "noPermissionsViewPage": {
     "message": "Nav atļaujas apskatīt šo lapu. Jāmēģina pieteikties ar citu kontu."

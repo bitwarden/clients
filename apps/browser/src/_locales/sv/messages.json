@@ -1764,7 +1764,7 @@
     "message": "Den här webbläsaren kan inte bearbeta U2F-förfrågningar i detta popup-fönster. Vill du öppna ett nytt fönster så att du kan logga in med U2F?"
   },
   "showIconsChangePasswordUrls": {
-    "message": "Show website icons and retrieve change password URLs"
+    "message": "Visa webbplatsikoner och URLer för lösenordsändringar"
   },
   "enableBadgeCounter": {
     "message": "Visa aktivitetsräknaren"
@@ -1934,32 +1934,81 @@
   "typeNote": {
     "message": "Anteckning"
   },
-  "newItemHeader": {
-    "message": "Ny $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderLogin": {
+    "message": "Ny inloggning",
+    "description": "Header for new login item type"
   },
-  "editItemHeader": {
-    "message": "Redigera $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderCard": {
+    "message": "Nytt kort",
+    "description": "Header for new card item type"
   },
-  "viewItemHeader": {
-    "message": "Visa $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderIdentity": {
+    "message": "Ny identitet",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "Ny anteckning",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "Ny SSH-nyckel",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderTextSend": {
+    "message": "New Text Send",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "New File Send",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderLogin": {
+    "message": "Redigera inloggning",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Redigera kort",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Redigera identitet",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Redigera anteckning",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "Redigera SSH-nyckel",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Edit Text Send",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Edit File Send",
+    "description": "Header for edit file send"
+  },
+  "viewItemHeaderLogin": {
+    "message": "Visa inloggning",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "Visa kort",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "Visa identitet",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "Visa anteckning",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "Visa SSH-nyckel",
+    "description": "Header for view SSH key item type"
   },
   "passwordHistory": {
     "message": "Lösenordshistorik"
@@ -5092,14 +5141,8 @@
   "itemLocation": {
     "message": "Föremålets placering"
   },
-  "fileSend": {
-    "message": "Skicka fil"
-  },
   "fileSends": {
     "message": "Skicka filer"
-  },
-  "textSend": {
-    "message": "Skicka text"
   },
   "textSends": {
     "message": "Text skickas"
@@ -5579,10 +5622,10 @@
     "description": "Aria label for the body content of the generator nudge"
   },
   "aboutThisSetting": {
-    "message": "About this setting"
+    "message": "Om denna inställning"
   },
   "permitCipherDetailsDescription": {
-    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+    "message": "Bitwarden använder sparade inloggnings-URI: er för att identifiera vilken ikon eller URL för lösenordsändring som ska användas för att förbättra din upplevelse. Ingen information samlas in eller sparas när du använder denna tjänst."
   },
   "noPermissionsViewPage": {
     "message": "Du har inte behörighet att visa den här sidan. Försök att logga in med ett annat konto."

@@ -1934,32 +1934,81 @@
   "typeNote": {
     "message": "Notiz"
   },
-  "newItemHeader": {
-    "message": "Neue $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderLogin": {
+    "message": "Neue Zugangsdaten",
+    "description": "Header for new login item type"
   },
-  "editItemHeader": {
-    "message": "$TYPE$ bearbeiten",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderCard": {
+    "message": "Neue Karte",
+    "description": "Header for new card item type"
   },
-  "viewItemHeader": {
-    "message": "$TYPE$ ansehen",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderIdentity": {
+    "message": "Neue Identität",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "Neue Notiz",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "Neuer SSH-Schlüssel",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderTextSend": {
+    "message": "Neuen Text senden",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "Neue Datei senden",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderLogin": {
+    "message": "Zugangsdaten bearbeiten",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Karte bearbeiten",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Identität bearbeiten",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Notiz bearbeiten",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "SSH-Schlüssel bearbeiten",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Textversand bearbeiten",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Dateiversand bearbeiten",
+    "description": "Header for edit file send"
+  },
+  "viewItemHeaderLogin": {
+    "message": "Zugangsdaten anzeigen",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "Karte anzeigen",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "Identität anzeigen",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "Notiz anzeigen",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "SSH-Schlüssel anzeigen",
+    "description": "Header for view SSH key item type"
   },
   "passwordHistory": {
     "message": "Passwortverlauf"
@@ -5092,14 +5141,8 @@
   "itemLocation": {
     "message": "Eintrags-Standort"
   },
-  "fileSend": {
-    "message": "Datei-Send"
-  },
   "fileSends": {
     "message": "Datei-Sends"
-  },
-  "textSend": {
-    "message": "Text-Send"
   },
   "textSends": {
     "message": "Text-Sends"
