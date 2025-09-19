@@ -960,9 +960,6 @@
   "insertU2f": {
     "message": "Włóż klucz bezpieczeństwa do portu USB urządzenia. Jeśli klucz ma przycisk, dotknij go."
   },
-  "recoveryCodeDesc": {
-    "message": "Nie masz dostępu do logowania dwustopniowego? Użyj kodu odzyskiwania, aby je wyłączyć."
-  },
   "recoveryCodeTitle": {
     "message": "Kod odzyskiwania"
   },
