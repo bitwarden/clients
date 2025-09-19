@@ -147,7 +147,7 @@
               filter &&
               filter.type !== "trash" &&
               filter.collectionId !== Unassigned &&
-              (selectedCollection?.node?.canEditItems(organization) ?? true)
+              (!selectedCollection || selectedCollection.node?.canEditItems(organization))
             ) {
               <button
                 slot="button"
