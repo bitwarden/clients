@@ -1,6 +1,7 @@
 use std::ffi::OsString;
 use std::os::windows::ffi::OsStringExt;
 
+use tracing::debug;
 use windows::Win32::Foundation::{GetLastError, HWND};
 use windows::Win32::UI::Input::KeyboardAndMouse::{
     SendInput, INPUT, INPUT_0, INPUT_KEYBOARD, KEYBDINPUT, KEYEVENTF_KEYUP, KEYEVENTF_UNICODE,
@@ -187,7 +188,7 @@ fn send_input(inputs: Vec<INPUT>) -> Result<(), ()> {
     let insert_count = unsafe { SendInput(&inputs, std::mem::size_of::<INPUT>() as i32) };
 
     let e = unsafe { GetLastError().to_hresult().message() };
-    println!("type_input() called, GetLastError() is: {:?}", e);
+    debug!("type_input() called, GetLastError() is: {:?}", e);
 
     if insert_count == 0 {
         return Err(()); // input was blocked by another thread

@@ -5,21 +5,21 @@ use interprocess::local_socket::{
     tokio::{prelude::*, Stream},
     GenericFilePath, ToFsName,
 };
-use log::{error, info};
+use tracing::{error, info};
 
 pub async fn connect(
     path: PathBuf,
     send: tokio::sync::mpsc::Sender<String>,
     mut recv: tokio::sync::mpsc::Receiver<String>,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    info!("Attempting to connect to {}", path.display());
+    info!(?path, "Attempting to connect");
 
     let name = path.as_os_str().to_fs_name::<GenericFilePath>()?;
     let conn = Stream::connect(name).await?;
 
     let mut conn = crate::ipc::internal_ipc_codec(conn);
 
-    info!("Connected to {}", path.display());
+    info!(?path, "Connected");
 
     // This `connected` and the latter `disconnected` messages are the only ones that
     // are sent from the Rust IPC code and not just forwarded from the desktop app.
@@ -46,7 +46,7 @@ pub async fn connect(
             res = conn.next() => {
                 match res {
                     Some(Err(e)) => {
-                        error!("Error reading from IPC server: {e}");
+                        error!(error = %e, "Error reading from IPC server");
                         break;
                     }
                      None => {

@@ -14,7 +14,6 @@ base64 = { workspace = true }
 cbc = { workspace = true, features = ["alloc"] }
 hex = { workspace = true }
 homedir = { workspace = true }
-log = { workspace = true }
 pbkdf2 = "=0.12.2"
 rand = { workspace = true }
 rusqlite = { version = "=0.35.0", features = ["bundled"] }
