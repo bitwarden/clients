@@ -79,7 +79,7 @@ export class AtRiskPasswordCalloutService {
 
         if (hasPendingTasks) {
           void this.atRiskPasswordState(userId).update(() => ({
-            hasInteractedWithTasks: true,
+            hasInteractedWithTasks: state?.hasInteractedWithTasks || false,
             tasksBannerDismissed: false,
           }));
         }
