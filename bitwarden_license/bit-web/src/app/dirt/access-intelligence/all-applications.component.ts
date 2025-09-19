@@ -16,7 +16,7 @@ import {
 } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/password-health";
 import {
   ApplicationHealthReportDetail,
-  ApplicationHealthReportSummary,
+  OrganizationReportSummary,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/report-models";
 import { RiskInsightsEncryptionService } from "@bitwarden/bit-common/dirt/reports/risk-insights/services/risk-insights-encryption.service";
 import {
@@ -69,11 +69,16 @@ export class AllApplicationsComponent implements OnInit {
   protected organization = new Organization();
   noItemsIcon = Security;
   protected markingAsCritical = false;
-  protected applicationSummary: ApplicationHealthReportSummary = {
+  protected applicationSummary: OrganizationReportSummary = {
     totalMemberCount: 0,
     totalAtRiskMemberCount: 0,
     totalApplicationCount: 0,
     totalAtRiskApplicationCount: 0,
+    totalCriticalMemberCount: 0,
+    totalCriticalAtRiskMemberCount: 0,
+    totalCriticalApplicationCount: 0,
+    totalCriticalAtRiskApplicationCount: 0,
+    newApplications: [],
   };
 
   destroyRef = inject(DestroyRef);

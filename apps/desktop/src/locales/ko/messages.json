@@ -960,9 +960,6 @@
   "insertU2f": {
     "message": "보안 키를 컴퓨터의 USB 포트에 삽입하고 버튼이 있는 경우 누르세요."
   },
-  "recoveryCodeDesc": {
-    "message": "모든 2단계 인증을 사용할 수 없는 상황인가요? 복구 코드를 사용하여 계정의 모든 2단계 인증을 비활성화할 수 있습니다."
-  },
   "recoveryCodeTitle": {
     "message": "복구 코드"
   },

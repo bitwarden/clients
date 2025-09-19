@@ -960,9 +960,6 @@
   "insertU2f": {
     "message": "Sett din sikkerhetsnøkkel inn i din datamaskins USB-uttak. Dersom den har en knapp, trykk på den."
   },
-  "recoveryCodeDesc": {
-    "message": "Har du mistet tilgang til alle dine 2-trinnsleverandører? Bruk din gjenopprettingskode til å fjerne alle 2-trinnsleverandører fra din konto."
-  },
   "recoveryCodeTitle": {
     "message": "Gjenopprettingskode"
   },

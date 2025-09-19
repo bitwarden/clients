@@ -24,7 +24,6 @@ export enum FeatureFlag {
   /* Billing */
   TrialPaymentOptional = "PM-8163-trial-payment",
   PM17772_AdminInitiatedSponsorships = "pm-17772-admin-initiated-sponsorships",
-  UseOrganizationWarningsService = "use-organization-warnings-service",
   PM21881_ManagePaymentDetailsOutsideCheckout = "pm-21881-manage-payment-details-outside-checkout",
   PM21821_ProviderPortalTakeover = "pm-21821-provider-portal-takeover",
   PM22415_TaxIDWarnings = "pm-22415-tax-id-warnings",
@@ -41,6 +40,7 @@ export enum FeatureFlag {
 
   /* DIRT */
   EventBasedOrganizationIntegrations = "event-based-organization-integrations",
+  PhishingDetection = "phishing-detection",
   PM22887_RiskInsightsActivityTab = "pm-22887-risk-insights-activity-tab",
 
   /* Vault */
@@ -84,6 +84,7 @@ export const DefaultFeatureFlagValue = {
 
   /* DIRT */
   [FeatureFlag.EventBasedOrganizationIntegrations]: FALSE,
+  [FeatureFlag.PhishingDetection]: FALSE,
   [FeatureFlag.PM22887_RiskInsightsActivityTab]: FALSE,
 
   /* Vault */
@@ -98,7 +99,6 @@ export const DefaultFeatureFlagValue = {
   /* Billing */
   [FeatureFlag.TrialPaymentOptional]: FALSE,
   [FeatureFlag.PM17772_AdminInitiatedSponsorships]: FALSE,
-  [FeatureFlag.UseOrganizationWarningsService]: FALSE,
   [FeatureFlag.PM21881_ManagePaymentDetailsOutsideCheckout]: FALSE,
   [FeatureFlag.PM21821_ProviderPortalTakeover]: FALSE,
   [FeatureFlag.PM22415_TaxIDWarnings]: FALSE,

@@ -960,9 +960,6 @@
   "insertU2f": {
     "message": "Włóż klucz bezpieczeństwa do portu USB urządzenia. Jeśli klucz ma przycisk, dotknij go."
   },
-  "recoveryCodeDesc": {
-    "message": "Nie masz dostępu do logowania dwustopniowego? Użyj kodu odzyskiwania, aby je wyłączyć."
-  },
   "recoveryCodeTitle": {
     "message": "Kod odzyskiwania"
   },
@@ -3012,7 +3009,7 @@
     "message": "Logowanie za pomocą urządzenia musi być włączone w ustawieniach aplikacji Bitwarden. Potrzebujesz innej opcji?"
   },
   "viewAllLogInOptions": {
-    "message": "Zobacz wszystkie sposoby logowania"
+    "message": "Pokaż wszystkie metody logowania"
   },
   "viewAllLoginOptions": {
     "message": "Pokaż wszystkie metody logowania"

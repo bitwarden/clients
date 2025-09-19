@@ -960,9 +960,6 @@
   "insertU2f": {
     "message": "Indsæt din sikkerhedsnøgle i din computers USB-port. Hvis den har en knap, tryk på den."
   },
-  "recoveryCodeDesc": {
-    "message": "Mistet adgang til alle dine tofaktorudbydere? Brug din genoprettelseskode til at deaktivere alle tofaktorudbydere på din konto."
-  },
   "recoveryCodeTitle": {
     "message": "Gendannelseskode"
   },
