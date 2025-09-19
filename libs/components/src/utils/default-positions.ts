@@ -28,7 +28,10 @@ export interface DefaultPosition extends ConnectedPosition {
   id: PositionIdentifier;
 }
 
-export const getDefaultPositions = (classNamePrefix?: string): DefaultPosition[] => [
+export const getDefaultPositions = (
+  classNamePrefix?: string,
+  originOffset?: number,
+): DefaultPosition[] => [
   /**
    * The order of these positions matters. The Popover component will use
    * the first position that fits within the viewport.
@@ -37,7 +40,7 @@ export const getDefaultPositions = (classNamePrefix?: string): DefaultPosition[]
   // Popover opens to right of trigger
   {
     id: "right-start",
-    offsetX: ORIGIN_OFFSET_PX,
+    offsetX: originOffset || ORIGIN_OFFSET_PX,
     offsetY: -OVERLAY_OFFSET_PX,
     originX: "end",
     originY: "center",
@@ -47,7 +50,7 @@ export const getDefaultPositions = (classNamePrefix?: string): DefaultPosition[]
   },
   {
     id: "right-center",
-    offsetX: ORIGIN_OFFSET_PX,
+    offsetX: originOffset || ORIGIN_OFFSET_PX,
     originX: "end",
     originY: "center",
     overlayX: "start",
@@ -56,7 +59,7 @@ export const getDefaultPositions = (classNamePrefix?: string): DefaultPosition[]
   },
   {
     id: "right-end",
-    offsetX: ORIGIN_OFFSET_PX,
+    offsetX: originOffset || ORIGIN_OFFSET_PX,
     offsetY: OVERLAY_OFFSET_PX,
     originX: "end",
     originY: "center",
@@ -67,7 +70,7 @@ export const getDefaultPositions = (classNamePrefix?: string): DefaultPosition[]
   // ... to left of trigger
   {
     id: "left-start",
-    offsetX: -ORIGIN_OFFSET_PX,
+    offsetX: -originOffset || ORIGIN_OFFSET_PX,
     offsetY: -OVERLAY_OFFSET_PX,
     originX: "start",
     originY: "center",
@@ -77,7 +80,7 @@ export const getDefaultPositions = (classNamePrefix?: string): DefaultPosition[]
   },
   {
     id: "left-center",
-    offsetX: -ORIGIN_OFFSET_PX,
+    offsetX: -originOffset || ORIGIN_OFFSET_PX,
     originX: "start",
     originY: "center",
     overlayX: "end",
@@ -86,7 +89,7 @@ export const getDefaultPositions = (classNamePrefix?: string): DefaultPosition[]
   },
   {
     id: "left-end",
-    offsetX: -ORIGIN_OFFSET_PX,
+    offsetX: -originOffset || ORIGIN_OFFSET_PX,
     offsetY: OVERLAY_OFFSET_PX,
     originX: "start",
     originY: "center",
@@ -97,7 +100,7 @@ export const getDefaultPositions = (classNamePrefix?: string): DefaultPosition[]
   // ... below trigger
   {
     id: "below-center",
-    offsetY: ORIGIN_OFFSET_PX,
+    offsetY: originOffset || ORIGIN_OFFSET_PX,
     originX: "center",
     originY: "bottom",
     overlayX: "center",
@@ -107,7 +110,7 @@ export const getDefaultPositions = (classNamePrefix?: string): DefaultPosition[]
   {
     id: "below-start",
     offsetX: -OVERLAY_OFFSET_PX,
-    offsetY: ORIGIN_OFFSET_PX,
+    offsetY: originOffset || ORIGIN_OFFSET_PX,
     originX: "center",
     originY: "bottom",
     overlayX: "start",
@@ -117,7 +120,7 @@ export const getDefaultPositions = (classNamePrefix?: string): DefaultPosition[]
   {
     id: "below-end",
     offsetX: OVERLAY_OFFSET_PX,
-    offsetY: ORIGIN_OFFSET_PX,
+    offsetY: originOffset || ORIGIN_OFFSET_PX,
     originX: "center",
     originY: "bottom",
     overlayX: "end",
@@ -127,7 +130,7 @@ export const getDefaultPositions = (classNamePrefix?: string): DefaultPosition[]
   // ... above trigger
   {
     id: "above-center",
-    offsetY: -ORIGIN_OFFSET_PX,
+    offsetY: -originOffset || ORIGIN_OFFSET_PX,
     originX: "center",
     originY: "top",
     overlayX: "center",
@@ -137,7 +140,7 @@ export const getDefaultPositions = (classNamePrefix?: string): DefaultPosition[]
   {
     id: "above-start",
     offsetX: -OVERLAY_OFFSET_PX,
-    offsetY: -ORIGIN_OFFSET_PX,
+    offsetY: -originOffset || ORIGIN_OFFSET_PX,
     originX: "center",
     originY: "top",
     overlayX: "start",
@@ -147,7 +150,7 @@ export const getDefaultPositions = (classNamePrefix?: string): DefaultPosition[]
   {
     id: "above-end",
     offsetX: OVERLAY_OFFSET_PX,
-    offsetY: -ORIGIN_OFFSET_PX,
+    offsetY: -originOffset || ORIGIN_OFFSET_PX,
     originX: "center",
     originY: "top",
     overlayX: "end",
