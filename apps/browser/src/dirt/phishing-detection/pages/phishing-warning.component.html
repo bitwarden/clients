@@ -1,0 +1,13 @@
+<div class="tw-flex tw-flex-col tw-gap-2">
+  <bit-form-field>
+    <bit-label>{{ "phishingPageTitle" | i18n }}</bit-label>
+    <input bitInput disabled type="text" [value]="phishingHost" />
+  </bit-form-field>
+
+  <button type="button" (click)="closeTab()" bitButton buttonType="primary">
+    {{ "phishingPageCloseTab" | i18n }}
+  </button>
+  <button type="button" (click)="continueAnyway()" bitButton buttonType="danger">
+    {{ "phishingPageContinue" | i18n }}
+  </button>
+</div>

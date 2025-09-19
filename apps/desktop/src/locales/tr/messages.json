@@ -960,9 +960,6 @@
   "insertU2f": {
     "message": "Güvenlik anahtarınızı bilgisayarınızın USB portuna takın. Bir düğmesi varsa dokunun."
   },
-  "recoveryCodeDesc": {
-    "message": "İki aşamalı doğrulama sağlayıcılarınıza ulaşamıyor musunuz? Kurtarma kodunuzu kullanarak hesabınızdaki tüm iki aşamalı giriş sağlayıcılarını devre dışı bırakabilirsiniz."
-  },
   "recoveryCodeTitle": {
     "message": "Kurtarma kodu"
   },
@@ -1305,11 +1302,8 @@
     "message": "Kopyalanan değerleri otomatik olarak panodan sil.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
-  "enableFavicon": {
-    "message": "Web sitesi simgelerini göster"
-  },
-  "faviconDesc": {
-    "message": "Hesapların yanında tanıdık görseller göster."
+  "showIconsChangePasswordUrls": {
+    "message": "Web sitesi simgelerini göster ve parola değiştirme URL'lerini al"
   },
   "enableMinToTray": {
     "message": "Tepsi simgesine küçült"
@@ -3839,6 +3833,12 @@
   "changeAtRiskPassword": {
     "message": "Risk altındaki parolayı değiştirin"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Bu hesap risk altında ve web sitesi eksik. Bir web sitesi ekleyin ve güvenliğinizi artırmak için parolayı değiştirin."
+  },
+  "missingWebsite": {
+    "message": "Web sitesi eksik"
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "Yalnızca Görüntüleme izinlerine sahip koleksiyonları kaldıramazsınız: $COLLECTIONS$",
     "placeholders": {
@@ -3933,6 +3933,12 @@
     "message": "SSH agent hakkında daha fazla bilgi edinin",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "aboutThisSetting": {
+    "message": "Bu ayar hakkında"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
   },
   "assignToCollections": {
     "message": "Koleksiyonlara ata"

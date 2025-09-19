@@ -2,6 +2,9 @@
   "allApplications": {
     "message": "Всички приложения"
   },
+  "activity": {
+    "message": "Дейност"
+  },
   "appLogoLabel": {
     "message": "Лого на Битуорден"
   },
@@ -56,8 +59,20 @@
   "createNewLoginItem": {
     "message": "Създаване на нов елемент за вписване"
   },
+  "criticalApplicationsActivityDescription": {
+    "message": "Когато отбележите някое приложение като важно, то ще се появи тук."
+  },
   "criticalApplicationsWithCount": {
     "message": "Важни приложения ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfCriticalApplications": {
+    "message": "$COUNT$ важни приложения",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -86,14 +101,14 @@
   "noAppsInOrgDescription": {
     "message": "Когато потребителите запазват данните си за вписване, тук ще се появяват приложения, а също и ще се показват паролите в риск. Можете да отбелязвате важните приложения и да напомняте на потребителите да сменят паролите си."
   },
-  "noCriticalAppsTitle": {
+  "noCriticalApplicationsTitle": {
     "message": "Не сте отбелязали нито едно приложение като важно"
   },
-  "noCriticalAppsDescription": {
-    "message": "Изберете най-важните си приложения, за да откриете паролите, които може да са в риск, и да известите потребителите да ги сменят."
+  "noCriticalApplicationsDescription": {
+    "message": "Изберете най важните си приложения, за да приоритизирате действията по сигурността за своите потребители, както и да адресирате паролите в риск."
   },
-  "markCriticalApps": {
-    "message": "Отбележете важните приложения"
+  "markCriticalApplications": {
+    "message": "Изберете важните приложения"
   },
   "markAppAsCritical": {
     "message": "Отбелязване на приложението като важно"
@@ -118,6 +133,18 @@
   },
   "atRiskMembers": {
     "message": "Членове в риск"
+  },
+  "membersAtRiskActivityDescription": {
+    "message": "Членове с права за редактиране на елементи в риск за важни приложения"
+  },
+  "membersAtRisk": {
+    "message": "$COUNT$ членове в риск",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "atRiskMembersWithCount": {
     "message": "Членове в риск ($COUNT$)",
@@ -179,8 +206,8 @@
   "unmarkAsCritical": {
     "message": "Премахване от важните"
   },
-  "criticalApplicationSuccessfullyUnmarked": {
-    "message": "Приложението е премахнато от важните"
+  "criticalApplicationUnmarkedSuccessfully": {
+    "message": "Успешно премахване на приложението от важните"
   },
   "whatTypeOfItem": {
     "message": "Вид на елемента"
@@ -734,32 +761,81 @@
   "viewItem": {
     "message": "Преглед на елемента"
   },
-  "newItemHeader": {
-    "message": "Ново $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderLogin": {
+    "message": "Нов елемент за вписване",
+    "description": "Header for new login item type"
   },
-  "editItemHeader": {
-    "message": "Редактиране на $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderCard": {
+    "message": "Нова карта",
+    "description": "Header for new card item type"
   },
-  "viewItemType": {
-    "message": "Преглед на $ITEMTYPE$",
-    "placeholders": {
-      "itemtype": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderIdentity": {
+    "message": "Нова самоличност",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "Нова бележка",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "Нов SSH ключ",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderTextSend": {
+    "message": "Ново текстово Изпращане",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "Ново файлово Изпращане",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderLogin": {
+    "message": "Редактиране на елемента за вписване",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Редактиране на картата",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Редактиране на самоличността",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Редактиране на бележката",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "Редактиране на SSH ключа",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Редактиране на текстовото Изпращане",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Редактиране на файловото Изпращане",
+    "description": "Header for edit file send"
+  },
+  "viewItemHeaderLogin": {
+    "message": "Преглед на елемента за вписване",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "Преглед на картата",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "Преглед на самоличността",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "Преглед на бележката",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "Преглед на SSH ключа",
+    "description": "Header for view SSH key item type"
   },
   "new": {
     "message": "Ново",
@@ -1510,9 +1586,6 @@
   "selectTwoStepLoginMethod": {
     "message": "Изберете начин за двустепенно удостоверяване"
   },
-  "recoveryCodeDesc": {
-    "message": "Ако сте загубили достъп до двустепенното удостоверяване, може да използвате код за възстановяване, за да изключите двустепенното удостоверяване в абонамента си."
-  },
   "recoveryCodeTitle": {
     "message": "Код за възстановяване"
   },
@@ -2114,11 +2187,8 @@
   "languageDesc": {
     "message": "Смяна на езика на интерфейса. Ще трябва да пуснете програмата повторно."
   },
-  "enableFavicon": {
-    "message": "Показване на иконките на уеб сайтовете"
-  },
-  "faviconDesc": {
-    "message": "Показване на разпознаваемо изображение до всеки запис."
+  "showIconsChangePasswordUrls": {
+    "message": "Показване на иконките на уеб сайтовете и извличане на адресите за смяна на паролата"
   },
   "default": {
     "message": "Стандартно"
@@ -7433,6 +7503,9 @@
   "off": {
     "message": "Изключено"
   },
+  "connected": {
+    "message": "Свързано"
+  },
   "members": {
     "message": "Членове"
   },
@@ -9666,6 +9739,9 @@
   "failedToSaveIntegration": {
     "message": "Интеграцията не беше запазена. Опитайте отново по-късно."
   },
+  "failedToDeleteIntegration": {
+    "message": "Интеграцията не беше изтрита. Опитайте отново по-късно."
+  },
   "deviceIdMissing": {
     "message": "Липсва идентификатор на устройството"
   },
@@ -9683,6 +9759,15 @@
   },
   "connectIntegrationButtonDesc": {
     "message": "Свързване на $INTEGRATION$",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
+  },
+  "updateIntegrationButtonDesc": {
+    "message": "Обновяване на $INTEGRATION$",
     "placeholders": {
       "integration": {
         "content": "$1",
@@ -9752,6 +9837,9 @@
   },
   "bearerToken": {
     "message": "Идентификатор „Bearer“"
+  },
+  "repositoryNameHint": {
+    "message": "Име на хранилището, към което да се праща"
   },
   "index": {
     "message": "Индекс"
@@ -10201,14 +10289,8 @@
   "learnMoreAboutApi": {
     "message": "Научете повече относно ППИ на Биуорден"
   },
-  "fileSend": {
-    "message": "Файлово изпращане"
-  },
   "fileSends": {
     "message": "Файлови изпращания"
-  },
-  "textSend": {
-    "message": "Текстово изпращане"
   },
   "textSends": {
     "message": "Текстови изпращания"
@@ -10896,6 +10978,12 @@
   "changeAtRiskPassword": {
     "message": "Промяна на парола в риск"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Този елемент за вписване е в риск и в него липсва уеб сайт. Добавете уеб сайт и сменете паролата, за по-добра сигурност."
+  },
+  "missingWebsite": {
+    "message": "Липсващ уеб сайт"
+  },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Премахване на отключването чрез ПИН"
   },
@@ -11071,6 +11159,12 @@
     "message": "Адресът за таксуване е задължителен за добавянето на средства.",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   },
+  "aboutThisSetting": {
+    "message": "Относно тази настройка"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Битуорден ще използва запазените адреси за вписване, за да определи коя иконка или адрес за смяна на паролата да се ползва, за да улесни работата Ви. Никакви данни не се събират или съхраняват, когато използвате тази услуга."
+  },
   "billingAddress": {
     "message": "Адрес за фактуриране"
   },
@@ -11234,6 +11328,14 @@
   },
   "confirmKeyConnectorDomain": {
     "message": "Потвърждаване на домейна на конектора за ключове"
+  },
+  "requiredToVerifyBankAccountWithStripe": {
+    "message": "Плащането чрез банкова сметка е налично само за клиенти от САЩ. Ще трябва да потвърдите банковата си сметка. В следващите 1-2 работни дни ще направим малък депозит. Ако не потвърдите банковата сметка, може да пропуснете плащането и абонаментът Ви да бъде спрян."
+  },
+  "verifyBankAccountWithStripe": {
+    "message": "Направихме малък депозит по банковата Ви сметка. Може да отнеме 1-2 работни дни преди да го видите. Когато видите депозита, ще можете да потвърдите банковата си сметка. Ако не потвърдите банковата сметка, може да пропуснете плащането и абонаментът Ви да бъде спрян."
+  },
+  "verifyNow": {
+    "message": "Потвърдете сега."
   }
 }
-

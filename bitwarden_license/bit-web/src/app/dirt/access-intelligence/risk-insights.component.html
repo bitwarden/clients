@@ -34,6 +34,11 @@
     </span>
   </div>
   <bit-tab-group [(selectedIndex)]="tabIndex" (selectedIndexChange)="onTabChange($event)">
+    @if (isRiskInsightsActivityTabFeatureEnabled) {
+      <bit-tab label="{{ 'activity' | i18n }}">
+        <tools-all-activity></tools-all-activity>
+      </bit-tab>
+    }
     <bit-tab label="{{ 'allApplicationsWithCount' | i18n: appsCount }}">
       <tools-all-applications></tools-all-applications>
     </bit-tab>

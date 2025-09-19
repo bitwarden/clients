@@ -2,6 +2,9 @@
   "allApplications": {
     "message": "Tất cả các ứng dụng"
   },
+  "activity": {
+    "message": "Activity"
+  },
   "appLogoLabel": {
     "message": "Bitwarden logo"
   },
@@ -56,8 +59,20 @@
   "createNewLoginItem": {
     "message": "Tạo mục đăng nhập mới"
   },
+  "criticalApplicationsActivityDescription": {
+    "message": "Once you mark applications critical, they will display here."
+  },
   "criticalApplicationsWithCount": {
     "message": "Ứng dụng quan trọng ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfCriticalApplications": {
+    "message": "$COUNT$ critical applications",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -86,14 +101,14 @@
   "noAppsInOrgDescription": {
     "message": "Khi người dùng lưu thông tin đăng nhập, các ứng dụng sẽ hiển thị tại đây, bao gồm cả các mật khẩu có nguy cơ bị lộ. Đánh dấu các ứng dụng quan trọng và thông báo cho người dùng cập nhật mật khẩu."
   },
-  "noCriticalAppsTitle": {
-    "message": "Bạn chưa đánh dấu bất kỳ ứng dụng nào là Quan trọng"
+  "noCriticalApplicationsTitle": {
+    "message": "Bạn chưa đánh dấu ứng dụng nào là quan trọng"
   },
-  "noCriticalAppsDescription": {
-    "message": "Chọn các ứng dụng quan trọng nhất của bạn để phát hiện các mật khẩu có nguy cơ bị lộ, và thông báo cho người dùng thay đổi các mật khẩu đó."
+  "noCriticalApplicationsDescription": {
+    "message": "Chọn các ứng dụng quan trọng nhất để ưu tiên các hành động bảo mật, giúp người dùng xử lý mật khẩu có nguy cơ bị lộ."
   },
-  "markCriticalApps": {
-    "message": "Đánh dấu các ứng dụng quan trọng"
+  "markCriticalApplications": {
+    "message": "Chọn các ứng dụng quan trọng"
   },
   "markAppAsCritical": {
     "message": "Đánh dấu các ứng dụng quan trọng"
@@ -118,6 +133,18 @@
   },
   "atRiskMembers": {
     "message": "Các thành viên có rủi ro"
+  },
+  "membersAtRiskActivityDescription": {
+    "message": "Members with edit access to at-risk items for critical applications"
+  },
+  "membersAtRisk": {
+    "message": "$COUNT$ members at risk",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "atRiskMembersWithCount": {
     "message": "Các thành viên có rủi ro ($COUNT$)",
@@ -179,8 +206,8 @@
   "unmarkAsCritical": {
     "message": "Bỏ đánh dấu là nghiêm trọng"
   },
-  "criticalApplicationSuccessfullyUnmarked": {
-    "message": "Ứng dụng quan trọng đã được gỡ bỏ dấu hiệu thành công"
+  "criticalApplicationUnmarkedSuccessfully": {
+    "message": "Đã bỏ đánh dấu ứng dụng là quan trọng thành công"
   },
   "whatTypeOfItem": {
     "message": "Mục này là gì?"
@@ -734,32 +761,81 @@
   "viewItem": {
     "message": "Xem mục"
   },
-  "newItemHeader": {
-    "message": "$TYPE$ mới",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderLogin": {
+    "message": "New Login",
+    "description": "Header for new login item type"
   },
-  "editItemHeader": {
-    "message": "Chỉnh sửa $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderCard": {
+    "message": "New Card",
+    "description": "Header for new card item type"
   },
-  "viewItemType": {
-    "message": "Xem $ITEMTYPE$",
-    "placeholders": {
-      "itemtype": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderIdentity": {
+    "message": "New Identity",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "New Note",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "New SSH key",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderTextSend": {
+    "message": "New Text Send",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "New File Send",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderLogin": {
+    "message": "Edit Login",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Edit Card",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Edit Identity",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Edit Note",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "Edit SSH key",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Edit Text Send",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Edit File Send",
+    "description": "Header for edit file send"
+  },
+  "viewItemHeaderLogin": {
+    "message": "View Login",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "View Card",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "View Identity",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "View Note",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "View SSH key",
+    "description": "Header for view SSH key item type"
   },
   "new": {
     "message": "Mới",
@@ -1510,9 +1586,6 @@
   "selectTwoStepLoginMethod": {
     "message": "Chọn phương pháp đăng nhập hai bước"
   },
-  "recoveryCodeDesc": {
-    "message": "Bạn bị mất quyền truy cập vào tất cả các dịch vụ xác minh hai bước? Sử dụng mã phục hồi của bạn để tắt chúng trên tài khoản bạn."
-  },
   "recoveryCodeTitle": {
     "message": "Mã phục hồi"
   },
@@ -2114,11 +2187,8 @@
   "languageDesc": {
     "message": "Thay đổi ngôn ngữ của kho trên web."
   },
-  "enableFavicon": {
-    "message": "Show website icons"
-  },
-  "faviconDesc": {
-    "message": "Show a recognizable image next to each login."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "default": {
     "message": "Mặc định"
@@ -7433,6 +7503,9 @@
   "off": {
     "message": "Tắt"
   },
+  "connected": {
+    "message": "Connected"
+  },
   "members": {
     "message": "Thành viên"
   },
@@ -8939,23 +9012,23 @@
     "message": "Quản lý bộ sưu tập"
   },
   "collectionManagementDescription": {
-    "message": "Configure the collection behavior for the organization"
+    "message": "Cấu hình hành vi bộ sưu tập cho tổ chức"
   },
   "allowAdminAccessToAllCollectionItemsDescription": {
-    "message": "Allow owners and admins to manage all collections and items from the Admin Console"
+    "message": "Cho phép chủ sở hữu và quản trị viên quản lý tất cả các bộ sưu tập và mục từ Bảng điều khiển quản trị"
   },
   "restrictCollectionCreationDescription": {
-    "message": "Restrict collection creation to owners and admins"
+    "message": "Hạn chế tạo bộ sưu tập cho chủ sở hữu và quản trị viên"
   },
   "restrictCollectionDeletionDescription": {
-    "message": "Restrict collection deletion to owners and admins"
+    "message": "Hạn chế xóa bộ sưu tập cho chủ sở hữu và quản trị viên"
   },
   "restrictItemDeletionDescriptionStart": {
-    "message": "Restrict item deletion to members with the ",
+    "message": "Hạn chế xóa mục cho thành viên có ",
     "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
   },
   "restrictItemDeletionDescriptionEnd": {
-    "message": " permission",
+    "message": " quyền",
     "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
   },
   "updatedCollectionManagement": {
@@ -9035,7 +9108,7 @@
     }
   },
   "limitCollectionCreationEnabled": {
-    "message": "Turned on Restrict collection creation setting $ID$.",
+    "message": "Đã bật cài đặt Hạn chế tạo bộ sưu tập $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -9044,7 +9117,7 @@
     }
   },
   "limitCollectionCreationDisabled": {
-    "message": "Turned off Restrict collection creation setting $ID$.",
+    "message": "Đã tắt cài đặt Hạn chế tạo bộ sưu tập $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -9053,7 +9126,7 @@
     }
   },
   "limitCollectionDeletionEnabled": {
-    "message": "Turned on Restrict collection deletion setting $ID$.",
+    "message": "Đã bật cài đặt Hạn chế xóa bộ sưu tập $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -9062,7 +9135,7 @@
     }
   },
   "limitCollectionDeletionDisabled": {
-    "message": "Turned off Restrict collection deletion setting $ID$.",
+    "message": "Đã tắt cài đặt Hạn chế xóa bộ sưu tập $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -9071,7 +9144,7 @@
     }
   },
   "limitItemDeletionEnabled": {
-    "message": "Turned on Restrict item deletion setting $ID$.",
+    "message": "Đã bật cài đặt Hạn chế xóa mục $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -9080,7 +9153,7 @@
     }
   },
   "limitItemDeletionDisabled": {
-    "message": "Turned off Restrict item deletion setting $ID$.",
+    "message": "Đã tắt cài đặt Hạn chế xóa mục $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -9089,7 +9162,7 @@
     }
   },
   "allowAdminAccessToAllCollectionItemsEnabled": {
-    "message": "Turned on Allow owners and admins to manage all collections and items setting $ID$.",
+    "message": "Đã bật cài đặt Cho phép chủ sở hữu và quản trị viên quản lý tất cả các bộ sưu tập và mục $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -9098,7 +9171,7 @@
     }
   },
   "allowAdminAccessToAllCollectionItemsDisabled": {
-    "message": "Turned off Allow owners and admins to manage all collections and items setting $ID$.",
+    "message": "Đã tắt cài đặt Cho phép chủ sở hữu và quản trị viên quản lý tất cả các bộ sưu tập và mục $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -9666,6 +9739,9 @@
   "failedToSaveIntegration": {
     "message": "Không thể lưu tích hợp. Vui lòng thử lại sau."
   },
+  "failedToDeleteIntegration": {
+    "message": "Failed to delete integration. Please try again later."
+  },
   "deviceIdMissing": {
     "message": "Thiếu ID thiết bị"
   },
@@ -9683,6 +9759,15 @@
   },
   "connectIntegrationButtonDesc": {
     "message": "Kết nối $INTEGRATION$",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
+  },
+  "updateIntegrationButtonDesc": {
+    "message": "Update $INTEGRATION$",
     "placeholders": {
       "integration": {
         "content": "$1",
@@ -9752,6 +9837,9 @@
   },
   "bearerToken": {
     "message": "Bearer Token"
+  },
+  "repositoryNameHint": {
+    "message": "Name of the repository to ingest into"
   },
   "index": {
     "message": "Mục lục"
@@ -10201,14 +10289,8 @@
   "learnMoreAboutApi": {
     "message": "Tìm hiểu thêm về API của Bitwarden"
   },
-  "fileSend": {
-    "message": "Send tập tin"
-  },
   "fileSends": {
     "message": "Send tập tin"
-  },
-  "textSend": {
-    "message": "Send văn bản"
   },
   "textSends": {
     "message": "Gửi văn bản"
@@ -10896,6 +10978,12 @@
   "changeAtRiskPassword": {
     "message": "Thay đổi mật khẩu có rủi ro"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Mục đăng nhập này có nguy cơ bị lộ và thiếu trang web. Thêm trang web và thay đổi mật khẩu để tăng cường bảo mật."
+  },
+  "missingWebsite": {
+    "message": "Thiếu trang web"
+  },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Xóa Mở khóa bằng mã PIN"
   },
@@ -11071,6 +11159,12 @@
     "message": "Cần có địa chỉ thanh toán để thêm tín dụng.",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+  },
   "billingAddress": {
     "message": "Địa chỉ thanh toán"
   },
@@ -11233,7 +11327,15 @@
     }
   },
   "confirmKeyConnectorDomain": {
-    "message": "Confirm Key Connector domain"
+    "message": "Xác nhận tên miền Key Connector"
+  },
+  "requiredToVerifyBankAccountWithStripe": {
+    "message": "Thanh toán bằng tài khoản ngân hàng chỉ khả dụng với khách hàng ở Hoa Kỳ. Bạn sẽ phải xác minh tài khoản ngân hàng của mình. Chúng tôi sẽ thực hiện một khoản tiền gửi nhỏ trong vòng 1-2 ngày làm việc tới. Việc không xác minh tài khoản ngân hàng sẽ dẫn đến lỡ kỳ thanh toán và đăng ký của bạn sẽ bị tạm ngưng."
+  },
+  "verifyBankAccountWithStripe": {
+    "message": "Chúng tôi đã thực hiện một khoản tiền gửi nhỏ vào tài khoản ngân hàng của bạn. Việc này có thể mất 1-2 ngày làm việc. Khi bạn thấy khoản tiền gửi trong tài khoản, bạn có thể xác minh tài khoản ngân hàng của mình. Việc không xác minh tài khoản ngân hàng sẽ dẫn đến lỡ kỳ thanh toán và đăng ký của bạn sẽ bị tạm ngưng."
+  },
+  "verifyNow": {
+    "message": "Xác minh ngay."
   }
 }
-

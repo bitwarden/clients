@@ -2,6 +2,9 @@
   "allApplications": {
     "message": "所有应用程序"
   },
+  "activity": {
+    "message": "Activity"
+  },
   "appLogoLabel": {
     "message": "Bitwarden logo"
   },
@@ -21,7 +24,7 @@
     "message": "密码风险"
   },
   "reviewAtRiskPasswords": {
-    "message": "审查各个应用程序中存在风险的密码（弱、暴露或重复使用）。选择最关键的应用程序，优先为用户采取安全措施，以解决存在风险的密码问题。"
+    "message": "审查各个应用程序中存在风险的密码（弱、暴露或重复使用）。选择最关键的应用程序，优先为您的用户采取安全措施，以处理存在风险的密码。"
   },
   "dataLastUpdated": {
     "message": "数据最后更新于：$DATE$",
@@ -56,8 +59,20 @@
   "createNewLoginItem": {
     "message": "创建新的登录项目"
   },
+  "criticalApplicationsActivityDescription": {
+    "message": "您将应用程序标记为关键后，它们将显示在这里。"
+  },
   "criticalApplicationsWithCount": {
     "message": "关键应用程序 ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfCriticalApplications": {
+    "message": "$COUNT$ 个关键应用程序",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -86,14 +101,14 @@
   "noAppsInOrgDescription": {
     "message": "当用户保存登录信息时，应用程序会出现在这里，显示所有存在风险的密码。标记关键应用程序并通知用户更新密码。"
   },
-  "noCriticalAppsTitle": {
-    "message": "您未将任何应用程序标记为关键"
+  "noCriticalApplicationsTitle": {
+    "message": "您还没有将任何应用程序标记为关键"
   },
-  "noCriticalAppsDescription": {
-    "message": "选择最关键的应用程序来发现存在风险的密码，并通知用户更改这些密码。"
+  "noCriticalApplicationsDescription": {
+    "message": "选择最关键的应用程序，优先为您的用户采取安全措施，以处理存在风险的密码。"
   },
-  "markCriticalApps": {
-    "message": "标记关键应用程序"
+  "markCriticalApplications": {
+    "message": "选择关键应用程序"
   },
   "markAppAsCritical": {
     "message": "标记应用程序为关键"
@@ -118,6 +133,18 @@
   },
   "atRiskMembers": {
     "message": "存在风险的成员"
+  },
+  "membersAtRiskActivityDescription": {
+    "message": "对关键应用程序中存在风险的项目具有编辑权限的成员"
+  },
+  "membersAtRisk": {
+    "message": "$COUNT$ 个成员存在风险",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "atRiskMembersWithCount": {
     "message": "存在风险的成员 ($COUNT$)",
@@ -179,8 +206,8 @@
   "unmarkAsCritical": {
     "message": "取消标记为关键"
   },
-  "criticalApplicationSuccessfullyUnmarked": {
-    "message": "关键应用程序已成功取消标记"
+  "criticalApplicationUnmarkedSuccessfully": {
+    "message": "成功将应用程序取消标记为关键"
   },
   "whatTypeOfItem": {
     "message": "这是什么类型的项目？"
@@ -734,32 +761,81 @@
   "viewItem": {
     "message": "查看项目"
   },
-  "newItemHeader": {
-    "message": "新增 $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderLogin": {
+    "message": "新增登录",
+    "description": "Header for new login item type"
   },
-  "editItemHeader": {
-    "message": "编辑 $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderCard": {
+    "message": "新增支付卡",
+    "description": "Header for new card item type"
   },
-  "viewItemType": {
-    "message": "查看 $ITEMTYPE$",
-    "placeholders": {
-      "itemtype": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderIdentity": {
+    "message": "新增身份",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "新增笔记",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "新增 SSH 密钥",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderTextSend": {
+    "message": "新增文本 Send",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "新增文件 Send",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderLogin": {
+    "message": "编辑登录",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "编辑支付卡",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "编辑身份",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "编辑笔记",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "编辑 SSH 密钥",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderTextSend": {
+    "message": "编辑文本 Send",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "编辑文件 Send",
+    "description": "Header for edit file send"
+  },
+  "viewItemHeaderLogin": {
+    "message": "查看登录",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "查看支付卡",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "查看身份",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "查看笔记",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "查看 SSH 密钥",
+    "description": "Header for view SSH key item type"
   },
   "new": {
     "message": "新增",
@@ -1510,9 +1586,6 @@
   "selectTwoStepLoginMethod": {
     "message": "选择两步登录方式"
   },
-  "recoveryCodeDesc": {
-    "message": "无法访问您所有的两步登录提供程序吗？请使用您的恢复代码来停用您账户中所有的两步登录提供程序。"
-  },
   "recoveryCodeTitle": {
     "message": "恢复代码"
   },
@@ -1799,7 +1872,7 @@
     "message": "更改电子邮箱"
   },
   "changeEmailTwoFactorWarning": {
-    "message": "继续操作将更改您的账户电子邮箱地址。这不会更改用于双重身份验证的电子邮箱地址。您可以在两步登录设置中更改它。"
+    "message": "继续操作将更改您的账户电子邮箱地址。但不会更改用于双重身份验证的电子邮箱地址，您可以在两步登录设置中更改它。"
   },
   "newEmail": {
     "message": "新电子邮箱"
@@ -2114,11 +2187,8 @@
   "languageDesc": {
     "message": "更改网页密码库的语言。"
   },
-  "enableFavicon": {
-    "message": "显示网站图标"
-  },
-  "faviconDesc": {
-    "message": "在每个登录项目旁边显示一个可识别的图像。"
+  "showIconsChangePasswordUrls": {
+    "message": "显示网站图标并检索更改密码的 URL"
   },
   "default": {
     "message": "默认"
@@ -4349,7 +4419,7 @@
     "message": "使用银行账户付款仅对美国用户开放。您将被要求验证您的银行账户。我们将在 1-2 个工作日内进行两笔小额转账，请在组织的计费页面输入这些金额以验证银行账户。"
   },
   "verifyBankAccountFailureWarning": {
-    "message": "验证银行账户失败将会错过支付，您的订阅将失效。"
+    "message": "验证银行账户失败将会错过支付，您的订阅将暂停。"
   },
   "verifiedBankAccount": {
     "message": "银行账户已验证"
@@ -4700,22 +4770,22 @@
     "description": "ex. Date this password was updated"
   },
   "organizationIsDisabled": {
-    "message": "组织已停用"
+    "message": "组织已暂停"
   },
   "secretsAccessSuspended": {
-    "message": "无法访问已停用的组织。请联系您的组织所有者寻求帮助。"
+    "message": "无法访问已暂停的组织。请联系您的组织所有者寻求帮助。"
   },
   "secretsCannotCreate": {
-    "message": "无法在已停用的组织中创建机密。请联系您的组织所有者寻求帮助。"
+    "message": "无法在已暂停的组织中创建机密。请联系您的组织所有者寻求帮助。"
   },
   "projectsCannotCreate": {
-    "message": "无法在已停用的组织中创建工程。请联系您的组织所有者寻求帮助。"
+    "message": "无法在已暂停的组织中创建工程。请联系您的组织所有者寻求帮助。"
   },
   "serviceAccountsCannotCreate": {
-    "message": "无法在已停用的组织中创建服务账户。请联系您的组织所有者寻求帮助。"
+    "message": "无法在已暂停的组织中创建服务账户。请联系您的组织所有者寻求帮助。"
   },
   "disabledOrganizationFilterError": {
-    "message": "无法访问已停用组织中的项目。请联系您的组织所有者寻求帮助。"
+    "message": "无法访问已暂停组织中的项目。请联系您的组织所有者寻求帮助。"
   },
   "licenseIsExpired": {
     "message": "授权已过期"
@@ -5300,22 +5370,22 @@
     "message": "紧急访问"
   },
   "emergencyAccessDesc": {
-    "message": "授予和管理可信联系人的紧急访问权限。可信联系人可以在紧急情况下请求获取查看或接管您账户的权限。请访问我们的帮助页面，了解更多关于零知识共享的工作原理和细节。"
+    "message": "授予和管理可信任的联系人的紧急访问权限。已信任的联系人可以在紧急情况下请求获取查看或接管您账户的权限。请访问我们的帮助页面，了解更多关于零知识共享的工作原理和细节。"
   },
   "emergencyAccessOwnerWarning": {
     "message": "您是一个或多个组织的拥有者。如果您授予紧急联系人接管权限，他们在接管后可作为拥有者持有您的所有权限。"
   },
   "trustedEmergencyContacts": {
-    "message": "可信的紧急联系人"
+    "message": "已信任的紧急联系人"
   },
   "noTrustedContacts": {
-    "message": "您尚未添加任何紧急联系人，请邀请可信的联系人以开始使用。"
+    "message": "您尚未添加任何紧急联系人，请邀请可信任的联系人以开始使用。"
   },
   "addEmergencyContact": {
     "message": "添加紧急联系人"
   },
   "designatedEmergencyContacts": {
-    "message": "指定为紧急联系人"
+    "message": "被指定为紧急联系人"
   },
   "noGrantedAccess": {
     "message": "您尚未被任何人指定为紧急联系人。"
@@ -6120,7 +6190,7 @@
     }
   },
   "providerIsDisabled": {
-    "message": "提供商已停用"
+    "message": "提供商已暂停"
   },
   "providerUpdated": {
     "message": "提供商已保存"
@@ -7432,6 +7502,9 @@
   },
   "off": {
     "message": "关闭"
+  },
+  "connected": {
+    "message": "已连接"
   },
   "members": {
     "message": "成员"
@@ -8945,13 +9018,13 @@
     "message": "允许所有者和管理员从管理控制台管理所有集合和项目"
   },
   "restrictCollectionCreationDescription": {
-    "message": "仅限所有者和管理员可以创建集合"
+    "message": "限制为所有者和管理员可以创建集合"
   },
   "restrictCollectionDeletionDescription": {
-    "message": "仅限所有者和管理员可以删除集合"
+    "message": "限制为所有者和管理员可以删除集合"
   },
   "restrictItemDeletionDescriptionStart": {
-    "message": "仅限具有以下权限的成员可以删除项目：",
+    "message": "限制为具有以下权限的成员可以删除项目：",
     "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
   },
   "restrictItemDeletionDescriptionEnd": {
@@ -9397,7 +9470,7 @@
     "description": "The date header used when a subscription is cancelled."
   },
   "machineAccountsCannotCreate": {
-    "message": "无法在已停用的组织中创建机器账户。请联系您的组织所有者寻求帮助。"
+    "message": "无法在已暂停的组织中创建机器账户。请联系您的组织所有者寻求帮助。"
   },
   "machineAccount": {
     "message": "机器账户",
@@ -9666,6 +9739,9 @@
   "failedToSaveIntegration": {
     "message": "保存集成失败。请稍后再试。"
   },
+  "failedToDeleteIntegration": {
+    "message": "删除集成失败。请稍后再试。"
+  },
   "deviceIdMissing": {
     "message": "缺少设备 ID"
   },
@@ -9683,6 +9759,15 @@
   },
   "connectIntegrationButtonDesc": {
     "message": "连接 $INTEGRATION$",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
+  },
+  "updateIntegrationButtonDesc": {
+    "message": "更新 $INTEGRATION$",
     "placeholders": {
       "integration": {
         "content": "$1",
@@ -9752,6 +9837,9 @@
   },
   "bearerToken": {
     "message": "Bearer 令牌"
+  },
+  "repositoryNameHint": {
+    "message": "要摄取的存储库的名称"
   },
   "index": {
     "message": "索引"
@@ -10201,14 +10289,8 @@
   "learnMoreAboutApi": {
     "message": "进一步了解 Bitwarden API"
   },
-  "fileSend": {
-    "message": "文件 Send"
-  },
   "fileSends": {
     "message": "文件 Send"
-  },
-  "textSend": {
-    "message": "文本 Send"
   },
   "textSends": {
     "message": "文本 Send"
@@ -10337,7 +10419,7 @@
     "message": "6 个高级账户"
   },
   "unlimitedSharing": {
-    "message": "无限制的共享"
+    "message": "不限数量的共享"
   },
   "unlimitedCollections": {
     "message": "不限数量的集合"
@@ -10361,7 +10443,7 @@
     "message": "自定义角色"
   },
   "unlimitedSecretsStorage": {
-    "message": "无限制的机密存储"
+    "message": "不限数量的机密存储"
   },
   "unlimitedUsers": {
     "message": "不限数量的用户"
@@ -10523,7 +10605,7 @@
     }
   },
   "suspendedOrganizationTitle": {
-    "message": "$ORGANIZATION$ 已停用",
+    "message": "$ORGANIZATION$ 已暂停",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -10553,10 +10635,10 @@
     "message": "不允许成员通过此组织兑换家庭计划。"
   },
   "verifyBankAccountWithStatementDescriptorWarning": {
-    "message": "使用银行账户付款仅对美国用户开放。您将被要求验证您的银行账户。我们将在 1-2 个工作日内进行一笔小额转账，请在组织的计费页面输入该转账的对账单描述符代码以验证银行账户。验证银行账户失败将会错过支付，您的订阅将失效。"
+    "message": "使用银行账户付款仅对美国用户开放。您将被要求验证您的银行账户。我们将在 1-2 个工作日内进行一笔小额转账，请在组织的计费页面输入该转账的对账单描述符代码以验证银行账户。验证银行账户失败将会错过支付，您的订阅将暂停。"
   },
   "verifyBankAccountWithStatementDescriptorInstructions": {
-    "message": "我们已向您的银行账户存入了一笔小额转账（可能需要 1-2 个工作日到账）。请输入转账描述中以「SM」开头的六位数代码。验证银行账户失败将会错过支付，您的订阅将失效。"
+    "message": "我们已向您的银行账户存入了一笔小额转账（可能需要 1-2 个工作日到账）。请输入转账描述中以「SM」开头的六位数代码。验证银行账户失败将会错过支付，您的订阅将暂停。"
   },
   "descriptorCode": {
     "message": "描述符代码"
@@ -10896,6 +10978,12 @@
   "changeAtRiskPassword": {
     "message": "更改有风险的密码"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "此登录存在风险且缺少网站。请添加网站并更改密码以增强安全性。"
+  },
+  "missingWebsite": {
+    "message": "缺少网站"
+  },
   "removeUnlockWithPinPolicyTitle": {
     "message": "禁用 PIN 码解锁"
   },
@@ -11049,7 +11137,7 @@
     "message": "重启"
   },
   "verifyProviderBankAccountWithStatementDescriptorWarning": {
-    "message": "使用银行账户付款仅对美国用户开放。您将被要求验证您的银行账户。我们将在 1-2 个工作日内进行一笔小额转账，请在提供商的订阅页面输入该转账的对账单描述符代码以验证银行账户。验证银行账户失败将会错过支付，您的订阅将失效。"
+    "message": "使用银行账户付款仅对美国用户开放。您将被要求验证您的银行账户。我们将在 1-2 个工作日内进行一笔小额转账，请在提供商的订阅页面输入该转账的对账单描述符代码以验证银行账户。验证银行账户失败将会错过支付，您的订阅将暂停。"
   },
   "clickPayWithPayPal": {
     "message": "请点击「使用 PayPal 付款」按钮以添加您的付款方式。"
@@ -11070,6 +11158,12 @@
   "billingAddressRequiredToAddCredit": {
     "message": "添加信用额度需要计费地址。",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
+  },
+  "aboutThisSetting": {
+    "message": "关于此设置"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden 将使用已保存的登录 URI 来识别应使用哪个图标或更改密码的 URL 来改善您的体验。当您使用此服务时，不会收集或保存任何信息。"
   },
   "billingAddress": {
     "message": "计费地址"
@@ -11108,7 +11202,7 @@
     "message": "卡安全码，又称 CVV 或 CVC，通常是印在信用卡背面的 3 位数字，或是印在信用卡正面卡号上方的 4 位数字。"
   },
   "verifyBankAccountWarning": {
-    "message": "使用银行账户付款仅对美国用户开放。您将被要求验证您的银行账户。我们将在 1-2 个工作日内进行一笔小额转账，请在付款详细信息页面输入该转账的对账单描述符代码以验证银行账户。验证银行账户失败将会错过支付，您的订阅将失效。"
+    "message": "使用银行账户付款仅对美国用户开放。您将被要求验证您的银行账户。我们将在 1-2 个工作日内进行一笔小额转账，请在付款详细信息页面输入该转账的对账单描述符代码以验证银行账户。验证银行账户失败将会错过支付，您的订阅将暂停。"
   },
   "taxId": {
     "message": "税务 ID：$TAX_ID$",
@@ -11127,7 +11221,7 @@
     "description": "A message shown in a non-dismissible dialog to service users of unpaid providers."
   },
   "providerSuspended": {
-    "message": "$PROVIDER$ 已停用",
+    "message": "$PROVIDER$ 已暂停",
     "placeholders": {
       "provider": {
         "content": "$1",
@@ -11234,6 +11328,14 @@
   },
   "confirmKeyConnectorDomain": {
     "message": "确认 Key Connector 域名"
+  },
+  "requiredToVerifyBankAccountWithStripe": {
+    "message": "使用银行账户付款仅对美国用户开放。您将被要求验证您的银行账户。我们将在 1-2 个工作日内进行一笔小额转账。验证银行账户失败将会错过支付，您的订阅将暂停。"
+  },
+  "verifyBankAccountWithStripe": {
+    "message": "我们已向您的银行账户做了一笔小额转账，可能需要 1-2 个工作日到账。请在到账后验证您的银行账户。验证银行账户失败将会错过支付，您的订阅将暂停。"
+  },
+  "verifyNow": {
+    "message": " 立即验证。"
   }
 }
-

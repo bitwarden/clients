@@ -5,52 +5,14 @@
 @let loading = loading$ | async;
 
 @if (organization) {
-  @if (useOrganizationWarningsService$ | async) {
+  @if (!refreshing) {
     <app-organization-free-trial-warning
       [organization]="organization"
       (clicked)="navigateToPaymentMethod()"
     >
     </app-organization-free-trial-warning>
-  }
-
-  @if (useOrganizationWarningsService$ | async) {
     <app-organization-reseller-renewal-warning [organization]="organization">
     </app-organization-reseller-renewal-warning>
-  }
-
-  @let freeTrial = freeTrialWhenWarningsServiceDisabled$ | async;
-  @if (!refreshing && freeTrial?.shownBanner) {
-    <bit-banner
-      id="free-trial-banner"
-      class="-tw-m-6 tw-flex tw-flex-col tw-pb-6"
-      icon="bwi-billing"
-      bannerType="premium"
-      [showClose]="false"
-    >
-      {{ freeTrial.message }}
-      <a
-        bitLink
-        linkType="secondary"
-        (click)="navigateToPaymentMethod()"
-        class="tw-cursor-pointer"
-        rel="noreferrer noopener"
-      >
-        {{ "clickHereToAddPaymentMethod" | i18n }}
-      </a>
-    </bit-banner>
-  }
-
-  @let resellerWarning = resellerWarningWhenWarningsServiceDisabled$ | async;
-  @if (!refreshing && resellerWarning) {
-    <bit-banner
-      id="reseller-warning-banner"
-      class="-tw-m-6 tw-flex tw-flex-col tw-pb-6"
-      icon="bwi-billing"
-      bannerType="info"
-      [showClose]="false"
-    >
-      {{ resellerWarning?.message }}
-    </bit-banner>
   }
 
   @if (filter) {
@@ -147,7 +109,7 @@
               filter &&
               filter.type !== "trash" &&
               filter.collectionId !== Unassigned &&
-              selectedCollection?.node?.canEditItems(organization)
+              (!selectedCollection || selectedCollection.node?.canEditItems(organization))
             ) {
               <button
                 slot="button"

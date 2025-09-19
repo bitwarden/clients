@@ -1525,9 +1525,6 @@
   "selectTwoStepLoginMethod": {
     "message": "İki addımlı giriş üsulunu seçin"
   },
-  "recoveryCodeDesc": {
-    "message": "İki faktorlu provayderlərinizə erişə bilmirsiniz? Geri qaytarma kodunuzu istifadə edərək hesabınızdakı bütün iki faktorlu provayderləri söndürün."
-  },
   "recoveryCodeTitle": {
     "message": "Geri qaytarma kodu"
   },
@@ -1686,9 +1683,6 @@
   "defaultAutoFillOnPageLoadDesc": {
     "message": "Fərdi giriş elementləri üçün \"Səhifə yüklənəndə avto-doldur\"u elementin Düzəliş et görünüşündən söndürə bilərsiniz."
   },
-  "itemAutoFillOnPageLoad": {
-    "message": "Səhifə yüklənəndə avto-doldur (Seçimlərdə fəallaşdırılıbsa)"
-  },
   "autoFillOnPageLoadUseDefault": {
     "message": "İlkin ayarı istifadə et"
   },
@@ -1760,23 +1754,8 @@
   "popup2faCloseMessage": {
     "message": "Doğrulama kodunu alacağınız e-poçtu yoxlamaq üçün bu pəncərə xaricində bir yerə klikləsəniz bu pəncərə bağlanacaq. Bu pəncərənin bağlanmaması üçün yeni bir pəncərədə açmaq istəyirsiniz?"
   },
-  "popupU2fCloseMessage": {
-    "message": "Bu brauzer bu açılan pəncərədə U2F tələblərini emal edə bilmir. U2F istifadə edərək giriş etmək üçün bu açılan pəncərəni yeni bir pəncərədə açmaq istəyirsiniz?"
-  },
-  "enableFavicon": {
-    "message": "Show website icons"
-  },
-  "faviconDesc": {
-    "message": "Show a recognizable image next to each login."
-  },
-  "faviconDescAlt": {
-    "message": "Show a recognizable image next to each login. Applies to all logged in accounts."
-  },
-  "enableBadgeCounter": {
-    "message": "Nişan sayğacını göstər"
-  },
-  "badgeCounterDesc": {
-    "message": "Hazırkı veb səhifə üçün neçə giriş olduğunu göstərir."
+  "showIconsChangePasswordUrls": {
+    "message": "Veb sayt ikonlarını göstər və parol dəyişdirmə URL-lərini al"
   },
   "cardholderName": {
     "message": "Kart sahibinin adı"
@@ -1940,32 +1919,81 @@
   "typeNote": {
     "message": "Not"
   },
-  "newItemHeader": {
-    "message": "Yeni $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderLogin": {
+    "message": "New Login",
+    "description": "Header for new login item type"
   },
-  "editItemHeader": {
-    "message": "$TYPE$ - düzəliş et",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderCard": {
+    "message": "New Card",
+    "description": "Header for new card item type"
   },
-  "viewItemHeader": {
-    "message": "$TYPE$ - bax",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderIdentity": {
+    "message": "New Identity",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "New Note",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "New SSH key",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderTextSend": {
+    "message": "New Text Send",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "New File Send",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderLogin": {
+    "message": "Edit Login",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Edit Card",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Edit Identity",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Edit Note",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "Edit SSH key",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Edit Text Send",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Edit File Send",
+    "description": "Header for edit file send"
+  },
+  "viewItemHeaderLogin": {
+    "message": "View Login",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "View Card",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "View Identity",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "View Note",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "View SSH key",
+    "description": "Header for view SSH key item type"
   },
   "passwordHistory": {
     "message": "Parol tarixçəsi"
@@ -3527,9 +3555,6 @@
   "autofillPageLoadPolicyActivated": {
     "message": "Təşkilatınızın siyasətləri, səhifə yüklənəndə avto-doldurmanı işə saldı."
   },
-  "howToAutofill": {
-    "message": "Avto-doldurma necə edilir"
-  },
   "autofillSelectInfoWithCommand": {
     "message": "Bu ekrandan bir element seçin, $COMMAND$ qısayolunu istifadə edin və ya ayarlardakı digər seçimləri kəşf edin.",
     "placeholders": {
@@ -3914,17 +3939,9 @@
   "aliasDomain": {
     "message": "Domen ləqəbi"
   },
-  "passwordRepromptDisabledAutofillOnPageLoad": {
-    "message": "\"Ana parolu təkrar soruş\" özəlliyi olan elementlər səhifə yüklənəndə avto-doldurulmur. \"Səhifə yüklənəndə avto-doldurma\" özəlliyi söndürülüb.",
-    "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
-  },
   "autofillOnPageLoadSetToDefault": {
     "message": "\"Səhifə yüklənəndə avto-doldurma\" özəlliyi ilkin ayarı istifadə etmək üzrə ayarlandı.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "turnOffMasterPasswordPromptToEditField": {
-    "message": "Bu xanaya düzəliş etmək üçün \"Ana parolu təkrar soruş\"u söndürün",
-    "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
   },
   "toggleSideNavigation": {
     "message": "Yan naviqasiyanı aç/bağla"
@@ -4194,9 +4211,6 @@
   },
   "passkeyNotCopiedAlert": {
     "message": "Keçid açarı, klonlanmış elementə kopyalanmayacaq. Bu elementi klonlamağa davam etmək istəyirsiniz?"
-  },
-  "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
-    "message": "Başladan saytın tələb etdiyi doğrulama. Bu özəllik, hələlik ana parolu olmayan hesablara tətbiq olunmur."
   },
   "logInWithPasskeyQuestion": {
     "message": "Keçid açarı ilə giriş edilsin?"
@@ -4883,9 +4897,6 @@
       }
     }
   },
-  "enableAnimations": {
-    "message": "Animasiyaları fəallaşdır"
-  },
   "showAnimations": {
     "message": "Animasiyaları göstər"
   },
@@ -5098,14 +5109,8 @@
   "itemLocation": {
     "message": "Element yeri"
   },
-  "fileSend": {
-    "message": "Fayl \"Send\"i"
-  },
   "fileSends": {
     "message": "Fayl \"Send\"ləri"
-  },
-  "textSend": {
-    "message": "Mətn \"Send\"i"
   },
   "textSends": {
     "message": "Mətn \"Send\"ləri"
@@ -5166,9 +5171,6 @@
   },
   "vaultCustomTimeoutMinimum": {
     "message": "Minimum özəl bitmə vaxtı 1 dəqiqədir."
-  },
-  "additionalContentAvailable": {
-    "message": "Əlavə məzmun əlçatandır"
   },
   "fileSavedToDevice": {
     "message": "Fayl cihazda saxlanıldı. Endirilənləri cihazınızdan idarə edin."
@@ -5583,6 +5585,12 @@
   "generatorNudgeBodyAria": {
     "message": "Girişlərinizi güvənli şəkildə saxlamağınıza kömək etməsi üçün Parol yarat düyməsinə klikləyərək güclü və unikal parolları asanlıqla yaradın.",
     "description": "Aria label for the body content of the generator nudge"
+  },
+  "aboutThisSetting": {
+    "message": "Bu ayar barədə"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden, təcrübənizi təkmilləşdirmək üçün hansı ikonun və ya parol dəyişdirmə URL-sinin istifadə olunmalı olduğunu müəyyənləşdirmək məqsədilə saxlanılmış giriş URL-lərini istifadə edəcək. Bu xidməti istifadə etdiyiniz zaman heç bir məlumat yığılmır və ya saxlanılmır."
   },
   "noPermissionsViewPage": {
     "message": "Bu səhifəyə baxmaq icazəniz yoxdur. Fərqli hesabla giriş etməyə çalışın."

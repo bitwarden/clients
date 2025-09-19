@@ -1525,9 +1525,6 @@
   "selectTwoStepLoginMethod": {
     "message": "Select two-step login method"
   },
-  "recoveryCodeDesc": {
-    "message": "Heu perdut l'accés a tots els vostres proveïdors de dos factors? Utilitzeu el vostre codi de recuperació per desactivar tots els proveïdors de dos factors del vostre compte."
-  },
   "recoveryCodeTitle": {
     "message": "Codi de recuperació"
   },
@@ -1686,9 +1683,6 @@
   "defaultAutoFillOnPageLoadDesc": {
     "message": "Podeu desactivar l'emplenament automàtic a la càrrega de la pàgina per a elements d'inici de sessió individuals des de la vista d'edició de l'element."
   },
-  "itemAutoFillOnPageLoad": {
-    "message": "Emplenament automàtic a la càrrega de la pàgina (si està habilitat a Opcions)"
-  },
   "autoFillOnPageLoadUseDefault": {
     "message": "Utilitza la configuració per defecte"
   },
@@ -1760,23 +1754,8 @@
   "popup2faCloseMessage": {
     "message": "Si feu clic a l'exterior de la finestra emergent per comprovar el vostre correu electrònic amb el codi de verificació, es tancarà aquesta finestra. Voleu obrir aquesta finestra emergent en una finestra nova perquè no es tanque?"
   },
-  "popupU2fCloseMessage": {
-    "message": "Aquest navegador no pot processar sol·licituds U2F en aquesta finestra emergent. Voleu obrir l'emergent en una finestra nova per poder iniciar la sessió mitjançant U2F?"
-  },
-  "enableFavicon": {
-    "message": "Show website icons"
-  },
-  "faviconDesc": {
-    "message": "Show a recognizable image next to each login."
-  },
-  "faviconDescAlt": {
-    "message": "Show a recognizable image next to each login. Applies to all logged in accounts."
-  },
-  "enableBadgeCounter": {
-    "message": "Mostra el comptador insígnia"
-  },
-  "badgeCounterDesc": {
-    "message": "Indiqueu quants inicis de sessió teniu per a la pàgina web actual."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "cardholderName": {
     "message": "Nom del titular de la targeta"
@@ -1940,32 +1919,81 @@
   "typeNote": {
     "message": "Nota"
   },
-  "newItemHeader": {
-    "message": "Nou $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderLogin": {
+    "message": "New Login",
+    "description": "Header for new login item type"
   },
-  "editItemHeader": {
-    "message": "Edita $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderCard": {
+    "message": "New Card",
+    "description": "Header for new card item type"
   },
-  "viewItemHeader": {
-    "message": "Mostra $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderIdentity": {
+    "message": "New Identity",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "New Note",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "New SSH key",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderTextSend": {
+    "message": "New Text Send",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "New File Send",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderLogin": {
+    "message": "Edit Login",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Edit Card",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Edit Identity",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Edit Note",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "Edit SSH key",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Edit Text Send",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Edit File Send",
+    "description": "Header for edit file send"
+  },
+  "viewItemHeaderLogin": {
+    "message": "View Login",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "View Card",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "View Identity",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "View Note",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "View SSH key",
+    "description": "Header for view SSH key item type"
   },
   "passwordHistory": {
     "message": "Historial de les contrasenyes"
@@ -3527,9 +3555,6 @@
   "autofillPageLoadPolicyActivated": {
     "message": "Les polítiques de l'organització han activat l'emplenament automàtic en carregar la pàgina."
   },
-  "howToAutofill": {
-    "message": "Com emplenar automàticament"
-  },
   "autofillSelectInfoWithCommand": {
     "message": "Seleccioneu un element d'aquesta pantalla, utilitzeu la drecera $COMMAND$ o exploreu altres opcions a la configuració.",
     "placeholders": {
@@ -3914,17 +3939,9 @@
   "aliasDomain": {
     "message": "Alies de domini"
   },
-  "passwordRepromptDisabledAutofillOnPageLoad": {
-    "message": "Els elements amb una nova sol·licitud de contrasenya mestra no es poden omplir automàticament en carregar la pàgina. L'emplenament automàtic en carregar la pàgina està desactivat.",
-    "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
-  },
   "autofillOnPageLoadSetToDefault": {
     "message": "S'ha configurat l'emplenament automàtic en carregar la pàgina perquè utilitze la configuració predeterminada.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "turnOffMasterPasswordPromptToEditField": {
-    "message": "Desactiveu la sol·licitud de nova contrasenya mestra per editar aquest camp",
-    "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
   },
   "toggleSideNavigation": {
     "message": "Canvia a la navegació lateral"
@@ -4194,9 +4211,6 @@
   },
   "passkeyNotCopiedAlert": {
     "message": "La clau de pas no es copiarà a l'element clonat. Voleu continuar clonant aquest element?"
-  },
-  "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
-    "message": "Verificació requerida pel lloc iniciador. Aquesta funció encara no s'ha implementat per als comptes sense contrasenya mestra."
   },
   "logInWithPasskeyQuestion": {
     "message": "Inici de sessió amb clau de pas?"
@@ -4883,9 +4897,6 @@
       }
     }
   },
-  "enableAnimations": {
-    "message": "Enable animations"
-  },
   "showAnimations": {
     "message": "Mostra animacions"
   },
@@ -5098,14 +5109,8 @@
   "itemLocation": {
     "message": "Item Location"
   },
-  "fileSend": {
-    "message": "Send de fitxer"
-  },
   "fileSends": {
     "message": "Sends de fitxer"
-  },
-  "textSend": {
-    "message": "Send de text"
   },
   "textSends": {
     "message": "Sends de text"
@@ -5166,9 +5171,6 @@
   },
   "vaultCustomTimeoutMinimum": {
     "message": "El temps d'espera personalitzat mínim és d'1 minut."
-  },
-  "additionalContentAvailable": {
-    "message": "Additional content is available"
   },
   "fileSavedToDevice": {
     "message": "File saved to device. Manage from your device downloads."
@@ -5583,6 +5585,12 @@
   "generatorNudgeBodyAria": {
     "message": "Easily create strong and unique passwords by clicking on the Generate password button to help you keep your logins secure.",
     "description": "Aria label for the body content of the generator nudge"
+  },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
   },
   "noPermissionsViewPage": {
     "message": "You do not have permissions to view this page. Try logging in with a different account."

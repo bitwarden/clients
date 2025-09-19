@@ -960,9 +960,6 @@
   "insertU2f": {
     "message": "A biztonsági kulcs beillesztése a számítógép USB portjába. Ha van rajta gomb, nyomjuk meg."
   },
-  "recoveryCodeDesc": {
-    "message": "Elveszett a hozzáférés az összes kétlépcsős szolgáltatóhoz? A visszaállítókód használatával letilthatók fiókból a kétlépcsős szolgáltatók."
-  },
   "recoveryCodeTitle": {
     "message": "Helyreállító kód"
   },
@@ -1305,11 +1302,8 @@
     "message": "Automatikusan törli a vágólapra másolt értékeket.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
-  "enableFavicon": {
-    "message": "Show website icons"
-  },
-  "faviconDesc": {
-    "message": "Show a recognizable image next to each login."
+  "showIconsChangePasswordUrls": {
+    "message": "Webhelyikonok megjelenítése és jelszó webcímek módosításának lekérése"
   },
   "enableMinToTray": {
     "message": "Kicsinyítés tálcaikonná"
@@ -3839,6 +3833,12 @@
   "changeAtRiskPassword": {
     "message": "Kockázatos jelszó megváltoztatása"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Ez a bejelentkezés veszélyben van és hiányzik egy webhely. Adjunk hozzá egy webhelyet és módosítsuk a jelszót az erősebb biztonság érdekében."
+  },
+  "missingWebsite": {
+    "message": "Hiányzó webhely"
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "Nem távolíthatók el a csak megtekintési engedéllyel bíró gyűjtemények: $COLLECTIONS$",
     "placeholders": {
@@ -3933,6 +3933,12 @@
     "message": "Tudjon meg többet az SSH ügynökröl",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "aboutThisSetting": {
+    "message": "Információ erről a beállításról"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "A Bitwarden mentett bejelentkezési webcímeket használ annak azonosítására, hogy melyik ikont vagy jelszó webcímet kell használni az élmény javítása érdekében. A szolgáltatás használatakor nincs információ gyűjtés vagy mentés."
   },
   "assignToCollections": {
     "message": "Hozzárendelés gyűjteményekhez"
