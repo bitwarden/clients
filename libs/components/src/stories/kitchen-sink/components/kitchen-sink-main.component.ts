@@ -89,9 +89,7 @@ class KitchenSinkDialog {
   selector: "bit-tab-main",
   imports: [KitchenSinkSharedModule, KitchenSinkTable, KitchenSinkToggleList, KitchenSinkForm],
   template: `
-    <bit-banner bannerType="info" class="-tw-m-6 tw-flex tw-flex-col tw-pb-6">
-      Kitchen Sink test zone
-    </bit-banner>
+    <bit-banner bannerType="info"> Kitchen Sink test zone </bit-banner>
 
     <p class="tw-mt-4">
       <bit-breadcrumbs>

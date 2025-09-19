@@ -117,9 +117,9 @@ pub fn type_input(input: Vec<u16>) -> Result<()> {
     let mut keyboard_inputs: Vec<INPUT> = Vec::with_capacity((input.len() * 2) + 3);
 
     // Release hotkeys
-    keyboard_inputs.push(build_virtual_key_input(InputKeyPress::Up, 0x12)); // alt
     keyboard_inputs.push(build_virtual_key_input(InputKeyPress::Up, 0x11)); // ctrl
-    keyboard_inputs.push(build_unicode_input(InputKeyPress::Up, 105)); // i
+    keyboard_inputs.push(build_virtual_key_input(InputKeyPress::Up, 0x10)); // shift
+    keyboard_inputs.push(build_unicode_input(InputKeyPress::Up, 42)); // b
 
     for i in input {
         let next_down_input = if i == TAB_KEY {
