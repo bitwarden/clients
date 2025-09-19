@@ -2,8 +2,12 @@ import { firstValueFrom } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
+import { UserId } from "@bitwarden/user-core";
+import { CipherArchiveService } from "@bitwarden/vault/abstractions/cipher-archive.service";
 
 import { Response } from "../models/response";
 
@@ -12,6 +16,7 @@ export class RestoreCommand {
     private cipherService: CipherService,
     private accountService: AccountService,
     private cipherAuthorizationService: CipherAuthorizationService,
+    private cipherArchiveService: CipherArchiveService,
   ) {}
 
   async run(object: string, id: string): Promise<Response> {
@@ -34,6 +39,16 @@ export class RestoreCommand {
     if (cipher == null) {
       return Response.notFound();
     }
+
+    if (cipher.archivedDate) {
+      return this.restoreArchivedCipher(cipher, activeUserId);
+    } else {
+      return this.restoreDeletedCipher(cipher, activeUserId);
+    }
+  }
+
+  /** Restores a cipher from the trash. */
+  private async restoreDeletedCipher(cipher: Cipher, userId: UserId) {
     if (cipher.deletedDate == null) {
       return Response.badRequest("Cipher is not in trash.");
     }
@@ -47,7 +62,17 @@ export class RestoreCommand {
     }
 
     try {
-      await this.cipherService.restoreWithServer(id, activeUserId);
+      await this.cipherService.restoreWithServer(cipher.id, userId);
+      return Response.success();
+    } catch (e) {
+      return Response.error(e);
+    }
+  }
+
+  /** Restore a cipher from the archive vault */
+  private async restoreArchivedCipher(cipher: Cipher, userId: UserId) {
+    try {
+      await this.cipherArchiveService.unarchiveWithServer(cipher.id as CipherId, userId);
       return Response.success();
     } catch (e) {
       return Response.error(e);

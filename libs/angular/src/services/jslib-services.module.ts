@@ -291,7 +291,6 @@ import { DefaultTaskService, TaskService } from "@bitwarden/common/vault/tasks";
 import {
   AnonLayoutWrapperDataService,
   DefaultAnonLayoutWrapperDataService,
-  DialogService,
   ToastService,
 } from "@bitwarden/components";
 import {
@@ -1625,8 +1624,6 @@ const safeProviders: SafeProvider[] = [
     deps: [
       CipherServiceAbstraction,
       ApiServiceAbstraction,
-      DialogService,
-      PasswordRepromptService,
       BillingAccountProfileStateService,
       ConfigService,
     ],

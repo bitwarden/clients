@@ -13,6 +13,7 @@ import { Response } from "./models/response";
 import { ExportCommand } from "./tools/export.command";
 import { ImportCommand } from "./tools/import.command";
 import { CliUtils } from "./utils";
+import { ArchiveCommand } from "./vault/archive.command";
 import { CreateCommand } from "./vault/create.command";
 import { DeleteCommand } from "./vault/delete.command";
 
@@ -26,6 +27,7 @@ export class VaultProgram extends BaseProgram {
       .addCommand(this.createCommand())
       .addCommand(this.editCommand())
       .addCommand(this.deleteCommand())
+      .addCommand(this.archiveCommand())
       .addCommand(this.restoreCommand())
       .addCommand(this.shareCommand("move", false))
       .addCommand(this.confirmCommand())
@@ -42,7 +44,7 @@ export class VaultProgram extends BaseProgram {
         Response.badRequest(
           'Unknown object "' +
             requestedObject +
-            '". Allowed objects are ' +
+            '". Allowed objects are: ' +
             validObjects.join(", ") +
             ".",
         ),
@@ -73,6 +75,7 @@ export class VaultProgram extends BaseProgram {
         "Filter items or collections by organization id.",
       )
       .option("--trash", "Filter items that are deleted and in the trash.")
+      .option("--archived", "Filter items that are archived.")
       .on("--help", () => {
         writeLn("\n  Notes:");
         writeLn("");
@@ -116,6 +119,7 @@ export class VaultProgram extends BaseProgram {
           this.serviceContainer.accountService,
           this.serviceContainer.keyService,
           this.serviceContainer.cliRestrictedItemTypesService,
+          this.serviceContainer.cipherArchiveService,
         );
         const response = await command.run(object, cmd);
 
@@ -286,6 +290,7 @@ export class VaultProgram extends BaseProgram {
           this.serviceContainer.accountService,
           this.serviceContainer.cliRestrictedItemTypesService,
           this.serviceContainer.policyService,
+          this.serviceContainer.billingAccountProfileStateService,
         );
         const response = await command.run(object, id, encodedJson, cmd);
         this.processResponse(response);
@@ -336,12 +341,42 @@ export class VaultProgram extends BaseProgram {
       });
   }
 
+  private archiveCommand(): Command {
+    const archiveObjects = ["item"];
+    return new Command("archive")
+      .argument("<object>", "Valid objects are: " + archiveObjects.join(", "))
+      .argument("<id>", "Object's globally unique `id`.")
+      .description("Archive an object from the vault.")
+      .on("--help", () => {
+        writeLn("\n  Examples:");
+        writeLn("");
+        writeLn("    bw archive item 7063feab-4b10-472e-b64c-785e2b870b92");
+        writeLn("", true);
+      })
+      .action(async (object, id) => {
+        if (!this.validateObject(object, archiveObjects)) {
+          return;
+        }
+
+        await this.exitIfLocked();
+        const command = new ArchiveCommand(
+          this.serviceContainer.cipherService,
+          this.serviceContainer.accountService,
+          this.serviceContainer.configService,
+          this.serviceContainer.cipherArchiveService,
+          this.serviceContainer.billingAccountProfileStateService,
+        );
+        const response = await command.run(object, id);
+        this.processResponse(response);
+      });
+  }
+
   private restoreCommand(): Command {
     const restoreObjects = ["item"];
     return new Command("restore")
       .argument("<object>", "Valid objects are: " + restoreObjects.join(", "))
       .argument("<id>", "Object's globally unique `id`.")
-      .description("Restores an object from the trash.")
+      .description("Restores an object from the trash or archive.")
       .on("--help", () => {
         writeLn("\n  Examples:");
         writeLn("");
@@ -358,6 +393,7 @@ export class VaultProgram extends BaseProgram {
           this.serviceContainer.cipherService,
           this.serviceContainer.accountService,
           this.serviceContainer.cipherAuthorizationService,
+          this.serviceContainer.cipherArchiveService,
         );
         const response = await command.run(object, id);
         this.processResponse(response);

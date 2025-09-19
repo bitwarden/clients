@@ -26,6 +26,7 @@ import {
   SendListCommand,
   SendRemovePasswordCommand,
 } from "./tools/send";
+import { ArchiveCommand } from "./vault/archive.command";
 import { CreateCommand } from "./vault/create.command";
 import { DeleteCommand } from "./vault/delete.command";
 import { SyncCommand } from "./vault/sync.command";
@@ -40,6 +41,7 @@ export class OssServeConfigurator {
   private statusCommand: StatusCommand;
   private syncCommand: SyncCommand;
   private deleteCommand: DeleteCommand;
+  private archiveCommand: ArchiveCommand;
   private confirmCommand: ConfirmCommand;
   private restoreCommand: RestoreCommand;
   private lockCommand: LockCommand;
@@ -81,6 +83,7 @@ export class OssServeConfigurator {
       this.serviceContainer.accountService,
       this.serviceContainer.keyService,
       this.serviceContainer.cliRestrictedItemTypesService,
+      this.serviceContainer.cipherArchiveService,
     );
     this.createCommand = new CreateCommand(
       this.serviceContainer.cipherService,
@@ -104,6 +107,7 @@ export class OssServeConfigurator {
       this.serviceContainer.accountService,
       this.serviceContainer.cliRestrictedItemTypesService,
       this.serviceContainer.policyService,
+      this.serviceContainer.billingAccountProfileStateService,
     );
     this.generateCommand = new GenerateCommand(
       this.serviceContainer.passwordGenerationService,
@@ -127,6 +131,13 @@ export class OssServeConfigurator {
       this.serviceContainer.accountService,
       this.serviceContainer.cliRestrictedItemTypesService,
     );
+    this.archiveCommand = new ArchiveCommand(
+      this.serviceContainer.cipherService,
+      this.serviceContainer.accountService,
+      this.serviceContainer.configService,
+      this.serviceContainer.cipherArchiveService,
+      this.serviceContainer.billingAccountProfileStateService,
+    );
     this.confirmCommand = new ConfirmCommand(
       this.serviceContainer.apiService,
       this.serviceContainer.keyService,
@@ -140,6 +151,7 @@ export class OssServeConfigurator {
       this.serviceContainer.cipherService,
       this.serviceContainer.accountService,
       this.serviceContainer.cipherAuthorizationService,
+      this.serviceContainer.cipherArchiveService,
     );
     this.shareCommand = new ShareCommand(
       this.serviceContainer.cipherService,
@@ -398,6 +410,17 @@ export class OssServeConfigurator {
           ctx.request.query,
         );
       }
+      this.processResponse(ctx.response, response);
+      await next();
+    });
+
+    router.post("/archive/:object/:id", async (ctx, next) => {
+      if (await this.errorIfLocked(ctx.response)) {
+        await next();
+        return;
+      }
+      let response: Response = null;
+      response = await this.archiveCommand.run(ctx.params.object, ctx.params.id);
       this.processResponse(ctx.response, response);
       await next();
     });
