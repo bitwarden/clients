@@ -28,6 +28,7 @@ import {
 export class SshKeyPasswordPromptComponent {
   protected formGroup = this.formBuilder.group({
     sshKeyPassword: ["", Validators.required],
+    rememberPassphrase: [false],
   });
 
   constructor(
@@ -40,6 +41,9 @@ export class SshKeyPasswordPromptComponent {
     if (!this.formGroup.valid) {
       return;
     }
-    this.dialogRef.close(this.formGroup.value.sshKeyPassword);
+    this.dialogRef.close({
+      password: this.formGroup.value.sshKeyPassword,
+      rememberPassphrase: this.formGroup.value.rememberPassphrase ?? false,
+    });
   };
 }

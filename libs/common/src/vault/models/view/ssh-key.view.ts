@@ -13,6 +13,11 @@ export class SshKeyView extends ItemView {
   publicKey: string = null;
   keyFingerprint: string = null;
 
+  // New metadata to preserve original encrypted PEM and passphrase handling
+  originalPrivateKey?: string = null;
+  isEncrypted?: boolean = null;
+  sshKeyPassphrase?: string = null;
+
   constructor(n?: SshKey) {
     super();
     if (!n) {
@@ -57,7 +62,12 @@ export class SshKeyView extends ItemView {
 
     const sshKeyView = new SshKeyView();
 
-    sshKeyView.privateKey = obj.privateKey ?? null;
+    // Prefer showing the original PEM if present (keeps encrypted header intact)
+    sshKeyView.originalPrivateKey = (obj as any).originalPrivateKey ?? null;
+    sshKeyView.isEncrypted = (obj as any).isEncrypted ?? null;
+    sshKeyView.sshKeyPassphrase = (obj as any).sshKeyPassphrase ?? null;
+
+    sshKeyView.privateKey = (sshKeyView.originalPrivateKey ?? obj.privateKey) ?? null;
     sshKeyView.publicKey = obj.publicKey ?? null;
     sshKeyView.keyFingerprint = obj.fingerprint ?? null;
 
@@ -72,6 +82,10 @@ export class SshKeyView extends ItemView {
       privateKey: this.privateKey,
       publicKey: this.publicKey,
       fingerprint: this.keyFingerprint,
-    };
+      // Preserve metadata if present
+      ...(this.originalPrivateKey != null ? { originalPrivateKey: this.originalPrivateKey } : {}),
+      ...(this.isEncrypted != null ? { isEncrypted: this.isEncrypted } : {}),
+      ...(this.sshKeyPassphrase != null ? { sshKeyPassphrase: this.sshKeyPassphrase } : {}),
+    } as unknown as SdkSshKeyView;
   }
 }
