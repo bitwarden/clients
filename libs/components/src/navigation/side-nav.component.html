@@ -5,43 +5,60 @@
   };
   as data
 ) {
-  <nav
-    id="bit-side-nav"
-    class="tw-fixed md:tw-sticky tw-inset-y-0 tw-left-0 tw-z-30 tw-flex tw-h-screen tw-flex-col tw-overscroll-none tw-overflow-auto tw-bg-background-alt3 tw-outline-none"
-    [ngClass]="{ 'tw-w-60': data.open }"
-    [ngStyle]="
-      variant() === 'secondary' && {
-        '--color-text-alt2': 'var(--color-text-main)',
-        '--color-background-alt3': 'var(--color-secondary-100)',
-        '--color-background-alt4': 'var(--color-secondary-300)',
-        '--color-hover-contrast': 'var(--color-hover-default)',
-      }
-    "
-    [cdkTrapFocus]="data.isOverlay"
-    [attr.role]="data.isOverlay ? 'dialog' : null"
-    [attr.aria-modal]="data.isOverlay ? 'true' : null"
-    (keydown)="handleKeyDown($event)"
-  >
-    <ng-content></ng-content>
-    <div class="tw-sticky tw-bottom-0 tw-left-0 tw-z-20 tw-mt-auto tw-w-full tw-bg-background-alt3">
-      <bit-nav-divider></bit-nav-divider>
-      @if (data.open) {
-        <ng-content select="[slot=footer]"></ng-content>
-      }
-      <div class="tw-mx-0.5 tw-my-4 tw-w-[3.75rem]">
-        <button
-          #toggleButton
-          type="button"
-          class="tw-mx-auto tw-block tw-max-w-fit"
-          [bitIconButton]="data.open ? 'bwi-angle-left' : 'bwi-angle-right'"
-          buttonType="nav-contrast"
-          size="small"
-          (click)="sideNavService.toggle()"
-          [label]="'toggleSideNavigation' | i18n"
-          [attr.aria-expanded]="data.open"
-          aria-controls="bit-side-nav"
-        ></button>
+  <div class="tw-relative">
+    <nav
+      id="bit-side-nav"
+      class="tw-sticky tw-inset-y-0 tw-left-0 tw-z-30 tw-flex tw-h-screen tw-flex-col tw-overscroll-none tw-overflow-auto tw-bg-background-alt3 tw-outline-none"
+      [ngClass]="{ 'tw-w-60': data.open }"
+      [style.width.px]="currentWidth()"
+      [ngStyle]="
+        variant() === 'secondary' && {
+          '--color-text-alt2': 'var(--color-text-main)',
+          '--color-background-alt3': 'var(--color-secondary-100)',
+          '--color-background-alt4': 'var(--color-secondary-300)',
+          '--color-hover-contrast': 'var(--color-hover-default)',
+        }
+      "
+      [cdkTrapFocus]="data.isOverlay"
+      [attr.role]="data.isOverlay ? 'dialog' : null"
+      [attr.aria-modal]="data.isOverlay ? 'true' : null"
+      (keydown)="handleKeyDown($event)"
+    >
+      <ng-content></ng-content>
+      <div
+        class="tw-sticky tw-bottom-0 tw-left-0 tw-z-20 tw-mt-auto tw-w-full tw-bg-background-alt3"
+      >
+        <bit-nav-divider></bit-nav-divider>
+        @if (data.open) {
+          <ng-content select="[slot=footer]"></ng-content>
+        }
+        <div class="tw-mx-0.5 tw-my-4 tw-w-[3.75rem]">
+          <button
+            #toggleButton
+            type="button"
+            class="tw-mx-auto tw-block tw-max-w-fit"
+            [bitIconButton]="data.open ? 'bwi-angle-left' : 'bwi-angle-right'"
+            buttonType="nav-contrast"
+            size="small"
+            (click)="sideNavService.toggle()"
+            [label]="'toggleSideNavigation' | i18n"
+            [attr.aria-expanded]="data.open"
+            aria-controls="bit-side-nav"
+          ></button>
+        </div>
+      </div>
+    </nav>
+    <div
+      cdkDrag
+      (cdkDragMoved)="onDragMoved($event)"
+      class="tw-group tw-absolute tw-top-0 -tw-right-2 tw-z-30 tw-h-full tw-w-3 tw-text-contrast tw-cursor-col-resize tw-opacity-0 hover:tw-opacity-100 tw-transition-opacity [&.cdk-drag-dragging]:tw-opacity-100 [&.cdk-drag-dragging_>_div]:tw-scale-x-100"
+      [ngClass]="{ 'tw-hidden': !data.open }"
+    >
+      <div
+        class="tw-flex tw-items-center tw-justify-center tw-size-full tw-bg-background-alt4 tw-transition-transform tw-scale-x-0 group-hover:tw-scale-x-100 tw-transition-transform tw-origin-center"
+      >
+        <span class="tw-text-sm tw-text-alt2 tw-pointer-events-none tw-select-none">⠿</span>
       </div>
     </div>
-  </nav>
+  </div>
 }
