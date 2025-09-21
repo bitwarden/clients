@@ -1,7 +1,7 @@
 <h2 bitTypography="h2" class="tw-mt-6">
   {{ "encKeySettings" | i18n }}
 </h2>
-@if (!forceUpdateKDFSettingsFeatureFlag$) {
+@if (!(forceUpdateKDFSettingsFeatureFlag$ | async)) {
   <bit-callout type="warning">{{ "kdfSettingsChangeLogoutWarning" | i18n }}</bit-callout>
 }
 <p bitTypography="body1" class="tw-mt-4">

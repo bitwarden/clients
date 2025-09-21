@@ -5,7 +5,7 @@
     </span>
 
     <span bitDialogContent>
-      @if (!forceUpdateKDFSettingsFeatureFlag$) {
+      @if (!(forceUpdateKDFSettingsFeatureFlag$ | async)) {
         <bit-callout type="warning">{{ "kdfSettingsChangeLogoutWarning" | i18n }}</bit-callout>
       }
       <bit-form-field>
