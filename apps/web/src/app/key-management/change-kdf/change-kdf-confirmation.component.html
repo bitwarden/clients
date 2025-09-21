@@ -1,11 +1,13 @@
 <form [formGroup]="form" [bitSubmit]="submit" autocomplete="off">
   <bit-dialog>
     <span bitDialogTitle>
-      {{ "changeKdf" | i18n }}
+      {{ "updateYourEncryptionSettings" | i18n }}
     </span>
 
     <span bitDialogContent>
-      <bit-callout type="warning">{{ "kdfSettingsChangeLogoutWarning" | i18n }}</bit-callout>
+      @if (!forceUpdateKDFSettingsFeatureFlag$) {
+        <bit-callout type="warning">{{ "kdfSettingsChangeLogoutWarning" | i18n }}</bit-callout>
+      }
       <bit-form-field>
         <bit-label>{{ "masterPass" | i18n }}</bit-label>
         <input bitInput type="password" formControlName="masterPassword" appAutofocus />
@@ -18,12 +20,12 @@
         ></button>
         <bit-hint>
           {{ "confirmIdentity" | i18n }}
-        </bit-hint></bit-form-field
-      >
+        </bit-hint>
+      </bit-form-field>
     </span>
     <ng-container bitDialogFooter>
       <button bitButton buttonType="primary" type="submit" bitFormButton>
-        <span>{{ "changeKdf" | i18n }}</span>
+        <span>{{ "updateSettings" | i18n }}</span>
       </button>
       <button bitButton buttonType="secondary" type="button" bitFormButton bitDialogClose>
         {{ "cancel" | i18n }}

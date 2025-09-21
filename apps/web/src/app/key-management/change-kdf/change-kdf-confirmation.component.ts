@@ -2,14 +2,16 @@
 // @ts-strict-ignore
 import { Component, Inject } from "@angular/core";
 import { FormGroup, FormControl, Validators } from "@angular/forms";
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, Observable } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { KdfRequest } from "@bitwarden/common/models/request/kdf.request";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
-import { DIALOG_DATA, ToastService } from "@bitwarden/components";
+import { DIALOG_DATA, DialogRef, ToastService } from "@bitwarden/components";
 import { KdfConfig, KdfType, KeyService } from "@bitwarden/key-management";
 
 @Component({
@@ -27,6 +29,8 @@ export class ChangeKdfConfirmationComponent {
   masterPassword: string;
   loading = false;
 
+  forceUpdateKDFSettingsFeatureFlag$: Observable<boolean>;
+
   constructor(
     private apiService: ApiService,
     private i18nService: I18nService,
@@ -35,9 +39,14 @@ export class ChangeKdfConfirmationComponent {
     @Inject(DIALOG_DATA) params: { kdf: KdfType; kdfConfig: KdfConfig },
     private accountService: AccountService,
     private toastService: ToastService,
+    private dialogRef: DialogRef<ChangeKdfConfirmationComponent>,
+    configService: ConfigService,
   ) {
     this.kdfConfig = params.kdfConfig;
     this.masterPassword = null;
+    this.forceUpdateKDFSettingsFeatureFlag$ = configService.getFeatureFlag$(
+      FeatureFlag.ForceUpdateKDFSettings,
+    );
   }
 
   submit = async () => {
@@ -46,12 +55,20 @@ export class ChangeKdfConfirmationComponent {
     }
     this.loading = true;
     await this.makeKeyAndSaveAsync();
-    this.toastService.showToast({
-      variant: "success",
-      title: this.i18nService.t("encKeySettingsChanged"),
-      message: this.i18nService.t("logBackIn"),
-    });
-    this.messagingService.send("logout");
+    if (await firstValueFrom(this.forceUpdateKDFSettingsFeatureFlag$)) {
+      this.toastService.showToast({
+        variant: "success",
+        message: this.i18nService.t("encKeySettingsChanged"),
+      });
+      this.dialogRef.close();
+    } else {
+      this.toastService.showToast({
+        variant: "success",
+        title: this.i18nService.t("encKeySettingsChanged"),
+        message: this.i18nService.t("logBackIn"),
+      });
+      this.messagingService.send("logout");
+    }
     this.loading = false;
   };
 

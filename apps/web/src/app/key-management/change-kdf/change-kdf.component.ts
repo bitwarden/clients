@@ -2,10 +2,12 @@
 // @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, FormControl, ValidatorFn, Validators } from "@angular/forms";
-import { Subject, firstValueFrom, takeUntil } from "rxjs";
+import { Subject, firstValueFrom, takeUntil, Observable } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { DialogService } from "@bitwarden/components";
 import {
   KdfConfigService,
@@ -31,7 +33,7 @@ export class ChangeKdfComponent implements OnInit, OnDestroy {
   protected formGroup = this.formBuilder.group({
     kdf: new FormControl(KdfType.PBKDF2_SHA256, [Validators.required]),
     kdfConfig: this.formBuilder.group({
-      iterations: [this.kdfConfig.iterations],
+      iterations: new FormControl(this.kdfConfig.iterations, [Validators.required]),
       memory: [null as number],
       parallelism: [null as number],
     }),
@@ -43,16 +45,22 @@ export class ChangeKdfComponent implements OnInit, OnDestroy {
   protected ARGON2_MEMORY = Argon2KdfConfig.MEMORY;
   protected ARGON2_PARALLELISM = Argon2KdfConfig.PARALLELISM;
 
+  forceUpdateKDFSettingsFeatureFlag$: Observable<boolean>;
+
   constructor(
     private dialogService: DialogService,
     private kdfConfigService: KdfConfigService,
     private accountService: AccountService,
     private formBuilder: FormBuilder,
+    configService: ConfigService,
   ) {
     this.kdfOptions = [
       { name: "PBKDF2 SHA-256", value: KdfType.PBKDF2_SHA256 },
       { name: "Argon2id", value: KdfType.Argon2id },
     ];
+    this.forceUpdateKDFSettingsFeatureFlag$ = configService.getFeatureFlag$(
+      FeatureFlag.ForceUpdateKDFSettings,
+    );
   }
 
   async ngOnInit() {
