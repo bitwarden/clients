@@ -33,7 +33,7 @@ export class ChangeKdfComponent implements OnInit, OnDestroy {
   protected formGroup = this.formBuilder.group({
     kdf: new FormControl(KdfType.PBKDF2_SHA256, [Validators.required]),
     kdfConfig: this.formBuilder.group({
-      iterations: new FormControl(this.kdfConfig.iterations, [Validators.required]),
+      iterations: [null as number],
       memory: [null as number],
       parallelism: [null as number],
     }),
@@ -68,62 +68,65 @@ export class ChangeKdfComponent implements OnInit, OnDestroy {
     this.kdfConfig = await this.kdfConfigService.getKdfConfig(userId);
     this.formGroup.get("kdf").setValue(this.kdfConfig.kdfType);
     this.setFormControlValues(this.kdfConfig);
+    this.setFormValidators(this.kdfConfig.kdfType);
 
     this.formGroup
       .get("kdf")
       .valueChanges.pipe(takeUntil(this.destroy$))
-      .subscribe((newValue) => {
+      .subscribe((newValue: KdfType) => {
         this.updateKdfConfig(newValue);
       });
   }
   private updateKdfConfig(newValue: KdfType) {
     let config: KdfConfig;
-    const validators: { [key: string]: ValidatorFn[] } = {
-      iterations: [],
-      memory: [],
-      parallelism: [],
-    };
 
     switch (newValue) {
       case KdfType.PBKDF2_SHA256:
         config = new PBKDF2KdfConfig();
-        validators.iterations = [
-          Validators.required,
-          Validators.min(PBKDF2KdfConfig.ITERATIONS.min),
-          Validators.max(PBKDF2KdfConfig.ITERATIONS.max),
-        ];
         break;
       case KdfType.Argon2id:
         config = new Argon2KdfConfig();
-        validators.iterations = [
-          Validators.required,
-          Validators.min(Argon2KdfConfig.ITERATIONS.min),
-          Validators.max(Argon2KdfConfig.ITERATIONS.max),
-        ];
-        validators.memory = [
-          Validators.required,
-          Validators.min(Argon2KdfConfig.MEMORY.min),
-          Validators.max(Argon2KdfConfig.MEMORY.max),
-        ];
-        validators.parallelism = [
-          Validators.required,
-          Validators.min(Argon2KdfConfig.PARALLELISM.min),
-          Validators.max(Argon2KdfConfig.PARALLELISM.max),
-        ];
         break;
       default:
         throw new Error("Unknown KDF type.");
     }
 
     this.kdfConfig = config;
-    this.setFormValidators(validators);
+    this.setFormValidators(newValue);
     this.setFormControlValues(this.kdfConfig);
   }
 
-  private setFormValidators(validators: { [key: string]: ValidatorFn[] }) {
-    this.setValidators("kdfConfig.iterations", validators.iterations);
-    this.setValidators("kdfConfig.memory", validators.memory);
-    this.setValidators("kdfConfig.parallelism", validators.parallelism);
+  private setFormValidators(kdfType: KdfType) {
+    switch (kdfType) {
+      case KdfType.PBKDF2_SHA256:
+        this.setValidators("kdfConfig.iterations", [
+          Validators.required,
+          Validators.min(PBKDF2KdfConfig.ITERATIONS.min),
+          Validators.max(PBKDF2KdfConfig.ITERATIONS.max),
+        ]);
+        this.setValidators("kdfConfig.memory", []);
+        this.setValidators("kdfConfig.parallelism", []);
+        break;
+      case KdfType.Argon2id:
+        this.setValidators("kdfConfig.iterations", [
+          Validators.required,
+          Validators.min(Argon2KdfConfig.ITERATIONS.min),
+          Validators.max(Argon2KdfConfig.ITERATIONS.max),
+        ]);
+        this.setValidators("kdfConfig.memory", [
+          Validators.required,
+          Validators.min(Argon2KdfConfig.MEMORY.min),
+          Validators.max(Argon2KdfConfig.MEMORY.max),
+        ]);
+        this.setValidators("kdfConfig.parallelism", [
+          Validators.required,
+          Validators.min(Argon2KdfConfig.PARALLELISM.min),
+          Validators.max(Argon2KdfConfig.PARALLELISM.max),
+        ]);
+        break;
+      default:
+        throw new Error("Unknown KDF type.");
+    }
   }
   private setValidators(controlName: string, validators: ValidatorFn[]) {
     const control = this.formGroup.get(controlName);
