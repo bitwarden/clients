@@ -23,10 +23,9 @@ export class ChangeKdfConfirmationComponent {
   kdfConfig: KdfConfig;
 
   form = new FormGroup({
-    masterPassword: new FormControl(null, Validators.required),
+    masterPassword: new FormControl<string>(null, Validators.required),
   });
   showPassword = false;
-  masterPassword: string;
   loading = false;
 
   forceUpdateKDFSettingsFeatureFlag$: Observable<boolean>;
@@ -43,7 +42,6 @@ export class ChangeKdfConfirmationComponent {
     configService: ConfigService,
   ) {
     this.kdfConfig = params.kdfConfig;
-    this.masterPassword = null;
     this.forceUpdateKDFSettingsFeatureFlag$ = configService.getFeatureFlag$(
       FeatureFlag.ForceUpdateKDFSettings,
     );
@@ -54,7 +52,7 @@ export class ChangeKdfConfirmationComponent {
       return;
     }
     this.loading = true;
-    await this.makeKeyAndSaveAsync();
+    await this.makeKeyAndSave();
     if (await firstValueFrom(this.forceUpdateKDFSettingsFeatureFlag$)) {
       this.toastService.showToast({
         variant: "success",
@@ -72,7 +70,7 @@ export class ChangeKdfConfirmationComponent {
     this.loading = false;
   };
 
-  private async makeKeyAndSaveAsync() {
+  async makeKeyAndSave() {
     const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
     if (activeAccount == null) {
       throw new Error("No active account found.");
