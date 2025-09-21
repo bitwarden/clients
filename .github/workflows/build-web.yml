@@ -385,7 +385,7 @@ jobs:
 
   trigger-web-vault-deploy:
     name: Trigger web vault deploy
-    if: github.event_name != 'pull_request_target' && github.ref == 'refs/heads/main'
+    if: github.event_name != 'pull_request' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/hotfix-rc-web' )
     runs-on: ubuntu-24.04
     needs: build-containers
     permissions:
@@ -408,7 +408,8 @@ jobs:
       - name: Log out from Azure
         uses: bitwarden/gh-actions/azure-logout@main
 
-      - name: Trigger web vault deploy using GitHub Run ID
+      - name: Trigger US-DEV web vault deploy using GitHub Run ID
+        if: github.ref == 'refs/heads/main'
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         with:
           github-token: ${{ steps.retrieve-secret-pat.outputs.github-pat-bitwarden-devops-bot-repo-scope }}
@@ -420,6 +421,25 @@ jobs:
               ref: 'main',
               inputs: {
                 'environment': 'USDEV',
+                'build-web-run-id': '${{ github.run_id }}'
+              }
+            })
+      
+      - name: Trigger US-QA staging web vault deploy using GitHub Run ID
+        if: github.event_name != 'pull_request' && ( github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/hotfix-rc-web' )
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          github-token: ${{ steps.retrieve-secret-pat.outputs.github-pat-bitwarden-devops-bot-repo-scope }}
+          script: |
+            const tag = context.ref === 'refs/heads/rc' ? 'rc' : 'hotfix-rc-web';
+            
+            await github.rest.actions.createWorkflowDispatch({
+              owner: 'bitwarden',
+              repo: 'clients',
+              workflow_id: 'deploy-web.yml',
+              ref: tag,
+              inputs: {
+                'environment': 'USQA',
                 'build-web-run-id': '${{ github.run_id }}'
               }
             })

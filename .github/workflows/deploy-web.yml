@@ -144,21 +144,27 @@ jobs:
           PROD_ENV_PATTERN='USPROD|EUPROD'
           PROD_ALLOWED_TAGS_PATTERN='web-v[0-9]+\.[0-9]+\.[0-9]+'
 
-          QA_ENV_PATTERN='USQA|EUQA'
-          QA_ALLOWED_TAGS_PATTERN='.*'
+          EU_QA_ENV_PATTERN='EUQA'
+          EU_QA_ALLOWED_TAGS_PATTERN='.*'
 
           DEV_ENV_PATTERN='USDEV'
           DEV_ALLOWED_TAGS_PATTERN='main'
+
+          US_QA_ENV_PATTERN='USQA'
+          US_QA_ALLOWED_TAGS_PATTERN='rc|hotfix-rc-web'
 
           if [[ \
               ${{ inputs.environment }} =~ \.*($PROD_ENV_PATTERN)\.* && \
               ! "$BRANCH_OR_TAG_LOWER" =~ ^($PROD_ALLOWED_TAGS_PATTERN).* \
           ]] || [[ \
-              ${{ inputs.environment }} =~ \.*($QA_ENV_PATTERN)\.* && \
-              ! "$BRANCH_OR_TAG_LOWER" =~ ^($QA_ALLOWED_TAGS_PATTERN).* \
+              ${{ inputs.environment }} =~ \.*($EU_QA_ENV_PATTERN)\.* && \
+              ! "$BRANCH_OR_TAG_LOWER" =~ ^($EU_QA_ALLOWED_TAGS_PATTERN).* \
           ]] || [[ \
               ${{ inputs.environment }} =~ \.*($DEV_ENV_PATTERN)\.* && \
               $BRANCH_OR_TAG_LOWER != $DEV_ALLOWED_TAGS_PATTERN \
+          ]] || [[ \
+              ${{ inputs.environment }} =~ \.*($US_QA_ENV_PATTERN)\.* && \
+              ! "$BRANCH_OR_TAG_LOWER" =~ ^($US_QA_ALLOWED_TAGS_PATTERN).* \
           ]]; then
               echo "!Deployment blocked!"
               echo "Attempting to deploy a tag that is not allowed in ${{ inputs.environment }} environment"
