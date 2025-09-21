@@ -161,6 +161,34 @@ describe("MasterPasswordService", () => {
       ),
     ) as MasterKey;
 
+    it("decrypts a userkey wrapped in AES256-CBC", async () => {
+      const masterKey = new SymmetricCryptoKey(
+        PureCrypto.derive_kdf_material(
+          new TextEncoder().encode("asdfasdfasdf"),
+          new TextEncoder().encode("legacy@bitwarden.com"),
+          kdfConfig.toSdkConfig(),
+        ),
+      ) as MasterKey;
+      const masterKeyEncryptedUserKey = new EncString(
+        "0.8UClLa8IPE1iZT7chy5wzQ==|6PVfHnVk5S3XqEtQemnM5yb4JodxmPkkWzmDRdfyHtjORmvxqlLX40tBJZ+CKxQWmS8tpEB5w39rbgHg/gqs0haGdZG4cPbywsgGzxZ7uNI=",
+      );
+
+      const decryptedUserKey = await sut.decryptUserKeyWithMasterKey(
+        masterKey,
+        userId,
+        masterKeyEncryptedUserKey,
+      );
+      expect(decryptedUserKey).not.toBeNull();
+      expect(decryptedUserKey!.toEncoded()).toEqual(
+        new Uint8Array([
+          12, 95, 151, 203, 37, 4, 236, 67, 137, 97, 90, 58, 6, 127, 242, 28, 209, 168, 125, 29,
+          118, 24, 213, 44, 117, 202, 2, 115, 132, 165, 125, 148, 186, 215, 234, 137, 24, 169, 227,
+          29, 218, 57, 180, 237, 73, 91, 189, 51, 253, 26, 17, 52, 226, 4, 134, 75, 194, 208, 178,
+          133, 128, 224, 140, 167,
+        ]),
+      );
+    });
+
     it("decrypts a userkey wrapped in AES256-CBC-HMAC", async () => {
       const userKey = new SymmetricCryptoKey(PureCrypto.make_user_key_aes256_cbc_hmac()) as UserKey;
       const masterKeyEncryptedUserKey = new EncString(
@@ -179,6 +207,7 @@ describe("MasterPasswordService", () => {
       );
       expect(decryptedUserKey).toEqual(userKey);
     });
+
     it("decrypts a userkey wrapped in XChaCha20Poly1305", async () => {
       const userKey = new SymmetricCryptoKey(
         PureCrypto.make_user_key_xchacha20_poly1305(),
