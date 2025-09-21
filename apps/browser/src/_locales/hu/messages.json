@@ -5511,6 +5511,18 @@
   "hasItemsVaultNudgeTitle": {
     "message": "Üdvözlet a széfben!"
   },
+  "phishingPageTitle": {
+    "message": "Adathalász webhely"
+  },
+  "phishingPageCloseTab": {
+    "message": "Fül bezárása"
+  },
+  "phishingPageContinue": {
+    "message": "Folytatás"
+  },
+  "phishingPageLearnWhy": {
+    "message": "Miért látható ez?"
+  },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Az aktuális oldal elemeinek automatikus kitöltése"
   },

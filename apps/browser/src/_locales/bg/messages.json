@@ -5511,6 +5511,18 @@
   "hasItemsVaultNudgeTitle": {
     "message": "Добре дошли в трезора си!"
   },
+  "phishingPageTitle": {
+    "message": "Измамен уеб сайт"
+  },
+  "phishingPageCloseTab": {
+    "message": "Затваряне на раздела"
+  },
+  "phishingPageContinue": {
+    "message": "Продължаване"
+  },
+  "phishingPageLearnWhy": {
+    "message": "Защо виждате това?"
+  },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Попълвайте автоматично елементи в текущата страница"
   },
