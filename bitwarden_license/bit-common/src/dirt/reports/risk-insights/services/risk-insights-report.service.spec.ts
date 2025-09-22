@@ -7,8 +7,11 @@ import { EncryptedString } from "@bitwarden/common/key-management/crypto/models/
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import { GetRiskInsightsReportResponse } from "../models/api-models.types";
+import { MemberCipherDetailsResponse } from "../response/member-cipher-details.response";
 
 import { mockCiphers } from "./ciphers.mock";
 import { MemberCipherDetailsApiService } from "./member-cipher-details-api.service";
@@ -20,6 +23,8 @@ import { RiskInsightsReportService } from "./risk-insights-report.service";
 
 describe("RiskInsightsReportService", () => {
   let service: RiskInsightsReportService;
+
+  // Mock services
   const pwdStrengthService = mock<PasswordStrengthServiceAbstraction>();
   const auditService = mock<AuditService>();
   const cipherService = mock<CipherService>();
@@ -30,7 +35,11 @@ describe("RiskInsightsReportService", () => {
     encryptRiskInsightsReport: jest.fn().mockResolvedValue("encryptedReportData"),
     decryptRiskInsightsReport: jest.fn().mockResolvedValue("decryptedReportData"),
   });
-  const orgId = "orgId" as OrganizationId;
+
+  // Mock data
+  const mockOrgId = "orgId" as OrganizationId;
+  let mockCipherViews: CipherView[];
+  let mockMemberDetails: MemberCipherDetailsResponse[];
 
   beforeEach(() => {
     pwdStrengthService.getPasswordStrength.mockImplementation((password: string) => {
@@ -77,10 +86,74 @@ describe("RiskInsightsReportService", () => {
       mockRiskInsightsEncryptionService,
       mockPasswordHealthService,
     );
+
+    // Reset mock ciphers before each test
+    mockCipherViews = [
+      mock<CipherView>({
+        id: "cipher-1",
+        type: CipherType.Login,
+        login: { password: "pass1", username: "user1", uris: [{ uri: "https://app.com/login" }] },
+        isDeleted: false,
+        viewPassword: true,
+      }),
+      mock<CipherView>({
+        id: "cipher-2",
+        type: CipherType.Login,
+        login: { password: "pass2", username: "user2", uris: [{ uri: "app.com/home" }] },
+        isDeleted: false,
+        viewPassword: true,
+      }),
+      mock<CipherView>({
+        id: "cipher-3",
+        type: CipherType.Login,
+        login: { password: "pass3", username: "user3", uris: [{ uri: "https://other.com" }] },
+        isDeleted: false,
+        viewPassword: true,
+      }),
+    ];
+    mockMemberDetails = [
+      mock<MemberCipherDetailsResponse>({
+        cipherIds: ["cipher-1"],
+        userGuid: "user1",
+        userName: "User 1",
+        email: "user1@app.com",
+      }),
+      mock<MemberCipherDetailsResponse>({
+        cipherIds: ["cipher-2"],
+        userGuid: "user2",
+        userName: "User 2",
+        email: "user2@app.com",
+      }),
+      mock<MemberCipherDetailsResponse>({
+        cipherIds: ["cipher-3"],
+        userGuid: "user3",
+        userName: "User 3",
+        email: "user3@other.com",
+      }),
+    ];
+  });
+
+  it("should group and aggregate application health reports correctly", (done) => {
+    // Mock the service methods
+    cipherService.getAllFromApiForOrganization.mockResolvedValue(mockCipherViews);
+    memberCipherDetailsService.getMemberCipherDetails.mockResolvedValue(mockMemberDetails);
+
+    service.generateApplicationsReport$("orgId" as any).subscribe((result) => {
+      expect(Array.isArray(result)).toBe(true);
+
+      // Should group by application name (trimmedUris)
+      const appCom = result.find((r) => r.applicationName === "app.com");
+      const otherCom = result.find((r) => r.applicationName === "other.com");
+      expect(appCom).toBeTruthy();
+      expect(appCom?.passwordCount).toBe(2);
+      expect(otherCom).toBeTruthy();
+      expect(otherCom?.passwordCount).toBe(1);
+      done();
+    });
   });
 
   it("should generate the raw data report correctly", async () => {
-    const result = await firstValueFrom(service.generateRawDataReport$(orgId));
+    const result = await firstValueFrom(service.LEGACY_generateRawDataReport$(mockOrgId));
 
     expect(result).toHaveLength(6);
 
@@ -106,7 +179,7 @@ describe("RiskInsightsReportService", () => {
   });
 
   it("should generate the raw data + uri report correctly", async () => {
-    const result = await firstValueFrom(service.generateRawDataUriReport$(orgId));
+    const result = await firstValueFrom(service.generateRawDataUriReport$(mockOrgId));
 
     expect(result).toHaveLength(11);
 
@@ -129,7 +202,7 @@ describe("RiskInsightsReportService", () => {
   });
 
   it("should generate applications health report data correctly", async () => {
-    const result = await firstValueFrom(service.generateApplicationsReport$(orgId));
+    const result = await firstValueFrom(service.LEGACY_generateApplicationsReport$(mockOrgId));
 
     expect(result).toHaveLength(8);
 
@@ -170,7 +243,9 @@ describe("RiskInsightsReportService", () => {
   });
 
   it("should generate applications summary data correctly", async () => {
-    const reportResult = await firstValueFrom(service.generateApplicationsReport$(orgId));
+    const reportResult = await firstValueFrom(
+      service.LEGACY_generateApplicationsReport$(mockOrgId),
+    );
     const reportSummary = service.generateApplicationsSummary(reportResult);
 
     expect(reportSummary.totalMemberCount).toEqual(7);

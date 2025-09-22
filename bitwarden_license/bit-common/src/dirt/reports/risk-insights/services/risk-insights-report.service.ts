@@ -5,6 +5,7 @@ import {
   concatMap,
   first,
   firstValueFrom,
+  forkJoin,
   from,
   map,
   Observable,
@@ -21,6 +22,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import {
+  flattenMemberDetails,
   getApplicationReportDetail,
   getFlattenedCipherDetails,
   getMemberDetailsFlat,
@@ -36,8 +38,11 @@ import {
 import {
   ApplicationHealthReportDetail,
   OrganizationReportSummary,
-  AtRiskMemberDetail,
   AtRiskApplicationDetail,
+  AtRiskMemberDetail,
+  CipherHealthReport,
+  MemberDetails,
+  PasswordHealthData,
   RiskInsightsReportData,
 } from "../models/report-models";
 
@@ -80,7 +85,7 @@ export class RiskInsightsReportService {
    * @param organizationId
    * @returns Cipher health report data with members and trimmed uris
    */
-  generateRawDataReport$(
+  LEGACY_generateRawDataReport$(
     organizationId: OrganizationId,
   ): Observable<LEGACY_CipherHealthReportDetail[]> {
     const allCiphers$ = from(this.cipherService.getAllFromApiForOrganization(organizationId));
@@ -95,7 +100,9 @@ export class RiskInsightsReportService {
         );
         return [allCiphers, details] as const;
       }),
-      concatMap(([ciphers, flattenedDetails]) => this.getCipherDetails(ciphers, flattenedDetails)),
+      concatMap(([ciphers, flattenedDetails]) =>
+        this.LEGACY_getCipherDetails(ciphers, flattenedDetails),
+      ),
       first(),
     );
 
@@ -111,9 +118,27 @@ export class RiskInsightsReportService {
   generateRawDataUriReport$(
     organizationId: OrganizationId,
   ): Observable<LEGACY_CipherHealthReportUriDetail[]> {
-    const cipherHealthDetails$ = this.generateRawDataReport$(organizationId);
+    const cipherHealthDetails$ = this.LEGACY_generateRawDataReport$(organizationId);
     const results$ = cipherHealthDetails$.pipe(
       map((healthDetails) => this.getCipherUriDetails(healthDetails)),
+      first(),
+    );
+
+    return results$;
+  }
+
+  /**
+   * Report data for the aggregation of uris to like uris and getting password/member counts,
+   * members, and at risk statuses.
+   * @param organizationId Id of the organization
+   * @returns The all applications health report data
+   */
+  LEGACY_generateApplicationsReport$(
+    organizationId: OrganizationId,
+  ): Observable<ApplicationHealthReportDetail[]> {
+    const cipherHealthUriReport$ = this.generateRawDataUriReport$(organizationId);
+    const results$ = cipherHealthUriReport$.pipe(
+      map((uriDetails) => this.LEGACY_getApplicationHealthReport(uriDetails)),
       first(),
     );
 
@@ -129,13 +154,21 @@ export class RiskInsightsReportService {
   generateApplicationsReport$(
     organizationId: OrganizationId,
   ): Observable<ApplicationHealthReportDetail[]> {
-    const cipherHealthUriReport$ = this.generateRawDataUriReport$(organizationId);
-    const results$ = cipherHealthUriReport$.pipe(
-      map((uriDetails) => this.getApplicationHealthReport(uriDetails)),
-      first(),
-    );
+    const allCiphers$ = from(this.cipherService.getAllFromApiForOrganization(organizationId));
+    const memberCiphers$ = from(
+      this.memberCipherDetailsApiService.getMemberCipherDetails(organizationId),
+    ).pipe(map((memberCiphers) => flattenMemberDetails(memberCiphers)));
 
-    return results$;
+    return forkJoin([allCiphers$, memberCiphers$]).pipe(
+      switchMap(([ciphers, memberCiphers]) => this._getCipherDetails(ciphers, memberCiphers)),
+      map((cipherApplications) => {
+        const groupedByApplication = this._groupCiphersByApplication(cipherApplications);
+
+        return Array.from(groupedByApplication.entries()).map(([application, ciphers]) =>
+          this._getApplicationHealthReport(application, ciphers),
+        );
+      }),
+    );
   }
 
   /**
@@ -310,7 +343,7 @@ export class RiskInsightsReportService {
    * @param memberDetails Org members
    * @returns Cipher password health data with trimmed uris and associated members
    */
-  private async getCipherDetails(
+  private async LEGACY_getCipherDetails(
     ciphers: CipherView[],
     memberDetails: LEGACY_MemberDetailsFlat[],
   ): Promise<LEGACY_CipherHealthReportDetail[]> {
@@ -378,7 +411,7 @@ export class RiskInsightsReportService {
    * @param cipherHealthUriReport Cipher and password health info broken out into their uris
    * @returns Application health reports
    */
-  private getApplicationHealthReport(
+  private LEGACY_getApplicationHealthReport(
     cipherHealthUriReport: LEGACY_CipherHealthReportUriDetail[],
   ): ApplicationHealthReportDetail[] {
     const appReports: ApplicationHealthReportDetail[] = [];
@@ -397,5 +430,158 @@ export class RiskInsightsReportService {
       }
     });
     return appReports;
+  }
+
+  private _buildPasswordUseMap(ciphers: CipherView[]): Map<string, number> {
+    const passwordUseMap = new Map<string, number>();
+    ciphers.forEach((cipher) => {
+      const password = cipher.login.password;
+      passwordUseMap.set(password, (passwordUseMap.get(password) || 0) + 1);
+    });
+    return passwordUseMap;
+  }
+
+  private _groupCiphersByApplication(
+    cipherHealthData: CipherHealthReport[],
+  ): Map<string, CipherHealthReport[]> {
+    const applicationMap = new Map<string, CipherHealthReport[]>();
+
+    cipherHealthData.forEach((cipher: CipherHealthReport) => {
+      cipher.applications.forEach((application) => {
+        const existingApplication = applicationMap.get(application) || [];
+        existingApplication.push(cipher);
+        applicationMap.set(application, existingApplication);
+      });
+    });
+
+    return applicationMap;
+  }
+
+  /**
+   * Loop through the flattened cipher to uri data. If the item exists it's values need to be updated with the new item.
+   * If the item is new, create and add the object with the flattened details
+   * @param cipherHealthReport Cipher and password health info broken out into their uris
+   * @returns Application health reports
+   */
+  private _getApplicationHealthReport(
+    application: string,
+    ciphers: CipherHealthReport[],
+  ): ApplicationHealthReportDetail {
+    let aggregatedReport: ApplicationHealthReportDetail | undefined;
+
+    ciphers.forEach((cipher) => {
+      const isAtRisk = this._isPasswordAtRisk(cipher.healthData);
+      aggregatedReport = this._aggregateReport(application, cipher, isAtRisk, aggregatedReport);
+    });
+
+    return aggregatedReport!;
+  }
+
+  private _aggregateReport(
+    application: string,
+    newCipherReport: CipherHealthReport,
+    isAtRisk: boolean,
+    existingReport?: ApplicationHealthReportDetail,
+  ): ApplicationHealthReportDetail {
+    let baseReport = existingReport
+      ? this._updateExistingReport(existingReport, newCipherReport)
+      : this._createNewReport(application, newCipherReport);
+    if (isAtRisk) {
+      baseReport = { ...baseReport, ...this._getAtRiskData(baseReport, newCipherReport) };
+    }
+
+    baseReport.memberCount = baseReport.memberDetails.length;
+    baseReport.atRiskMemberCount = baseReport.atRiskMemberDetails.length;
+
+    return baseReport;
+  }
+  private _createNewReport(
+    application: string,
+    cipherReport: CipherHealthReport,
+  ): ApplicationHealthReportDetail {
+    return {
+      applicationName: application,
+      cipherIds: [cipherReport.cipher.id],
+      passwordCount: 1,
+      memberDetails: [...cipherReport.cipherMembers],
+      memberCount: cipherReport.cipherMembers.length,
+      atRiskCipherIds: [],
+      atRiskMemberCount: 0,
+      atRiskMemberDetails: [],
+      atRiskPasswordCount: 0,
+    };
+  }
+
+  private _updateExistingReport(
+    existingReport: ApplicationHealthReportDetail,
+    newCipherReport: CipherHealthReport,
+  ): ApplicationHealthReportDetail {
+    return {
+      ...existingReport,
+      passwordCount: existingReport.passwordCount + 1,
+      memberDetails: getUniqueMembers(
+        existingReport.memberDetails.concat(newCipherReport.cipherMembers),
+      ),
+      cipherIds: existingReport.cipherIds.concat(newCipherReport.cipher.id),
+    };
+  }
+
+  private _getAtRiskData(report: ApplicationHealthReportDetail, cipherReport: CipherHealthReport) {
+    const atRiskMemberDetails = getUniqueMembers(
+      report.atRiskMemberDetails.concat(cipherReport.cipherMembers),
+    );
+    return {
+      atRiskPasswordCount: report.atRiskPasswordCount + 1,
+      atRiskCipherIds: report.atRiskCipherIds.concat(cipherReport.cipher.id),
+      atRiskMemberDetails,
+      atRiskMemberCount: atRiskMemberDetails.length,
+    };
+  }
+
+  // TODO Move to health service
+  private _isPasswordAtRisk(healthData: PasswordHealthData): boolean {
+    return !!(
+      healthData.exposedPasswordDetail ||
+      healthData.weakPasswordDetail ||
+      healthData.reusedPasswordCount > 1
+    );
+  }
+  /**
+   * Associates the members with the ciphers they have access to. Calculates the password health.
+   * Finds the trimmed uris.
+   * @param ciphers Org ciphers
+   * @param memberDetails Org members
+   * @returns Cipher password health data with trimmed uris and associated members
+   */
+  private _getCipherDetails(
+    ciphers: CipherView[],
+    memberDetails: MemberDetails[],
+  ): Observable<CipherHealthReport[]> {
+    const validCiphers = ciphers.filter((cipher) =>
+      this.passwordHealthService.isValidCipher(cipher),
+    );
+    // Build password use map
+    const passwordUseMap = this._buildPasswordUseMap(validCiphers);
+
+    return this.passwordHealthService.auditPasswordLeaks$(validCiphers).pipe(
+      map((exposedDetails) => {
+        return validCiphers.map((cipher) => {
+          const exposedPassword = exposedDetails.find((x) => x.cipherId === cipher.id);
+          const cipherMembers = memberDetails.filter((x) => x.cipherId === cipher.id);
+
+          const result = {
+            cipher: cipher,
+            cipherMembers,
+            healthData: {
+              weakPasswordDetail: this.passwordHealthService.findWeakPasswordDetails(cipher),
+              exposedPasswordDetail: exposedPassword,
+              reusedPasswordCount: passwordUseMap.get(cipher.login.password) ?? 0,
+            },
+            applications: getTrimmedCipherUris(cipher),
+          } as CipherHealthReport;
+          return result;
+        });
+      }),
+    );
   }
 }

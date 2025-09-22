@@ -5511,6 +5511,18 @@
   "hasItemsVaultNudgeTitle": {
     "message": "Welkom in je kluis!"
   },
+  "phishingPageTitle": {
+    "message": "Kwaadaardige website"
+  },
+  "phishingPageCloseTab": {
+    "message": "Tabblad sluiten"
+  },
+  "phishingPageContinue": {
+    "message": "Doorgaan"
+  },
+  "phishingPageLearnWhy": {
+    "message": "Waarom zie je dit?"
+  },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Automatisch invullen van items voor de huidige pagina"
   },

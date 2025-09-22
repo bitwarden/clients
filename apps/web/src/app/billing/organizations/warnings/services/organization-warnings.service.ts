@@ -63,6 +63,7 @@ export class OrganizationWarningsService {
 
   getFreeTrialWarning$ = (
     organization: Organization,
+    includeOrganizationNameInMessaging = false,
   ): Observable<OrganizationFreeTrialWarning | null> =>
     merge(
       this.getWarning$(organization, (response) => response.freeTrial),
@@ -80,20 +81,30 @@ export class OrganizationWarningsService {
         if (remainingTrialDays >= 2) {
           return {
             organization,
-            message: this.i18nService.t("freeTrialEndPromptCount", remainingTrialDays),
+            message: includeOrganizationNameInMessaging
+              ? this.i18nService.t(
+                  "freeTrialEndPromptMultipleDays",
+                  organization.name,
+                  remainingTrialDays,
+                )
+              : this.i18nService.t("freeTrialEndPromptCount", remainingTrialDays),
           };
         }
 
         if (remainingTrialDays == 1) {
           return {
             organization,
-            message: this.i18nService.t("freeTrialEndPromptTomorrowNoOrgName"),
+            message: includeOrganizationNameInMessaging
+              ? this.i18nService.t("freeTrialEndPromptTomorrow", organization.name)
+              : this.i18nService.t("freeTrialEndPromptTomorrowNoOrgName"),
           };
         }
 
         return {
           organization,
-          message: this.i18nService.t("freeTrialEndingTodayWithoutOrgName"),
+          message: includeOrganizationNameInMessaging
+            ? this.i18nService.t("freeTrialEndPromptToday", organization.name)
+            : this.i18nService.t("freeTrialEndingTodayWithoutOrgName"),
         };
       }),
     );
