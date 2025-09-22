@@ -15,7 +15,7 @@
       <td
         bitCell
         *ngIf="showRowCheckBox"
-        [ngClass]="{ 'tw-bg-primary-100': isDrawerIsOpenForThisRecord(row.applicationName) }"
+        [ngClass]="{ 'tw-bg-primary-100': row.applicationName === openApplication }"
         appStopProp
       >
         <input
@@ -30,14 +30,14 @@
       <td
         bitCell
         *ngIf="!showRowCheckBox"
-        [ngClass]="{ 'tw-bg-primary-100': isDrawerIsOpenForThisRecord(row.applicationName) }"
+        [ngClass]="{ 'tw-bg-primary-100': row.applicationName === openApplication }"
       >
         <i class="bwi bwi-star-f" *ngIf="row.isMarkedAsCritical"></i>
       </td>
       <td
         bitCell
         class="tw-cursor-pointer"
-        [ngClass]="{ 'tw-bg-primary-100': isDrawerIsOpenForThisRecord(row.applicationName) }"
+        [ngClass]="{ 'tw-bg-primary-100': row.applicationName === openApplication }"
         (click)="showAppAtRiskMembers(row.applicationName)"
         (keydown.enter)="showAppAtRiskMembers(row.applicationName)"
         (keydown.space)="showAppAtRiskMembers(row.applicationName)"
@@ -50,7 +50,7 @@
       <td
         bitCell
         class="tw-cursor-pointer"
-        [ngClass]="{ 'tw-bg-primary-100': isDrawerIsOpenForThisRecord(row.applicationName) }"
+        [ngClass]="{ 'tw-bg-primary-100': row.applicationName === openApplication }"
         (click)="showAppAtRiskMembers(row.applicationName)"
         (keydown.enter)="showAppAtRiskMembers(row.applicationName)"
         (keydown.space)="showAppAtRiskMembers(row.applicationName)"
@@ -63,7 +63,7 @@
       <td
         bitCell
         class="tw-cursor-pointer"
-        [ngClass]="{ 'tw-bg-primary-100': isDrawerIsOpenForThisRecord(row.applicationName) }"
+        [ngClass]="{ 'tw-bg-primary-100': row.applicationName === openApplication }"
         (click)="showAppAtRiskMembers(row.applicationName)"
         (keydown.enter)="showAppAtRiskMembers(row.applicationName)"
         (keydown.space)="showAppAtRiskMembers(row.applicationName)"
@@ -78,7 +78,7 @@
       <td
         bitCell
         class="tw-cursor-pointer"
-        [ngClass]="{ 'tw-bg-primary-100': isDrawerIsOpenForThisRecord(row.applicationName) }"
+        [ngClass]="{ 'tw-bg-primary-100': row.applicationName === openApplication }"
         (click)="showAppAtRiskMembers(row.applicationName)"
         (keydown.enter)="showAppAtRiskMembers(row.applicationName)"
         (keydown.space)="showAppAtRiskMembers(row.applicationName)"
@@ -93,7 +93,7 @@
       <td
         bitCell
         class="tw-cursor-pointer"
-        [ngClass]="{ 'tw-bg-primary-100': isDrawerIsOpenForThisRecord(row.applicationName) }"
+        [ngClass]="{ 'tw-bg-primary-100': row.applicationName === openApplication }"
         (click)="showAppAtRiskMembers(row.applicationName)"
         (keydown.enter)="showAppAtRiskMembers(row.applicationName)"
         (keydown.space)="showAppAtRiskMembers(row.applicationName)"
@@ -109,7 +109,7 @@
         bitCell
         data-testid="total-membership"
         class="tw-cursor-pointer"
-        [ngClass]="{ 'tw-bg-primary-100': isDrawerIsOpenForThisRecord(row.applicationName) }"
+        [ngClass]="{ 'tw-bg-primary-100': row.applicationName === openApplication }"
         (click)="showAppAtRiskMembers(row.applicationName)"
         (keydown.enter)="showAppAtRiskMembers(row.applicationName)"
         (keydown.space)="showAppAtRiskMembers(row.applicationName)"
@@ -122,7 +122,7 @@
       <td
         bitCell
         *ngIf="showRowMenuForCriticalApps"
-        [ngClass]="{ 'tw-bg-primary-100': isDrawerIsOpenForThisRecord(row.applicationName) }"
+        [ngClass]="{ 'tw-bg-primary-100': row.applicationName === openApplication }"
         appStopProp
       >
         <button
