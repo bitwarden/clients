@@ -5511,6 +5511,18 @@
   "hasItemsVaultNudgeTitle": {
     "message": "Laipni lūdzam Tavā glabātavā!"
   },
+  "phishingPageTitle": {
+    "message": "Pikšķerēšanas tīmekļvietne"
+  },
+  "phishingPageCloseTab": {
+    "message": "Aizvērt cilni"
+  },
+  "phishingPageContinue": {
+    "message": "Turpināt"
+  },
+  "phishingPageLearnWhy": {
+    "message": "Kāpēc šis ir redzams?"
+  },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Automātiska pašreizējās lapas vienumu aizpildīšana"
   },
