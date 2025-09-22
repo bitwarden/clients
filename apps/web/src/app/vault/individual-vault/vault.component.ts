@@ -166,7 +166,6 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   kdfIterations: number;
   activeFilter: VaultFilter = new VaultFilter();
 
-  protected noItemIcon = NoResults;
   protected orgIcon = DeactivatedOrg;
   protected trashIcon = EmptyTrash;
   protected favoritesIcon = FavoritesIcon;

@@ -68,7 +68,7 @@
       class="tw-mt-6 tw-flex tw-h-full tw-flex-col tw-items-center tw-justify-start"
       *ngIf="isEmpty && !performingInitialLoad"
     >
-      <bit-no-items [icon]="noItemIcon">
+      <bit-no-items [icon]="(emptyState$ | async)?.icon">
         <div slot="title" *ngIf="filter.type === 'archive'">
           {{ "noItemsInArchive" | i18n }}
         </div>
