@@ -59,6 +59,7 @@ import {
 } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { DefaultBillingAccountProfileStateService } from "@bitwarden/common/billing/services/account/billing-account-profile-state.service";
+import { HibpApiService } from "@bitwarden/common/dirt/services/hibp-api.service";
 import { ClientType } from "@bitwarden/common/enums";
 import {
   DefaultKeyGenerationService,
@@ -181,10 +182,12 @@ import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
 import {
   IndividualVaultExportService,
   IndividualVaultExportServiceAbstraction,
+  VaultExportApiService,
   OrganizationVaultExportService,
   OrganizationVaultExportServiceAbstraction,
   VaultExportService,
   VaultExportServiceAbstraction,
+  DefaultVaultExportApiService,
 } from "@bitwarden/vault-export-core";
 
 import { CliBiometricsService } from "../key-management/cli-biometrics-service";
@@ -223,6 +226,7 @@ export class ServiceContainer {
   tokenService: TokenService;
   appIdService: AppIdService;
   apiService: NodeApiService;
+  hibpApiService: HibpApiService;
   environmentService: EnvironmentService;
   cipherService: CipherService;
   folderService: InternalFolderService;
@@ -243,6 +247,7 @@ export class ServiceContainer {
   importService: ImportServiceAbstraction;
   importApiService: ImportApiServiceAbstraction;
   exportService: VaultExportServiceAbstraction;
+  vaultExportApiService: VaultExportApiService;
   individualExportService: IndividualVaultExportServiceAbstraction;
   organizationExportService: OrganizationVaultExportServiceAbstraction;
   searchService: SearchService;
@@ -694,7 +699,6 @@ export class ServiceContainer {
     );
 
     this.restrictedItemTypesService = new RestrictedItemTypesService(
-      this.configService,
       this.accountService,
       this.organizationService,
       this.policyService,
@@ -847,32 +851,38 @@ export class ServiceContainer {
       this.encryptService,
       this.cryptoFunctionService,
       this.kdfConfigService,
-      this.accountService,
       this.apiService,
       this.restrictedItemTypesService,
     );
 
+    this.vaultExportApiService = new DefaultVaultExportApiService(this.apiService);
+
     this.organizationExportService = new OrganizationVaultExportService(
       this.cipherService,
-      this.apiService,
+      this.vaultExportApiService,
       this.pinService,
       this.keyService,
       this.encryptService,
       this.cryptoFunctionService,
       this.collectionService,
       this.kdfConfigService,
-      this.accountService,
       this.restrictedItemTypesService,
     );
 
     this.exportService = new VaultExportService(
       this.individualExportService,
       this.organizationExportService,
+      this.accountService,
     );
 
     this.userAutoUnlockKeyService = new UserAutoUnlockKeyService(this.keyService);
 
-    this.auditService = new AuditService(this.cryptoFunctionService, this.apiService);
+    this.hibpApiService = new HibpApiService(this.apiService);
+    this.auditService = new AuditService(
+      this.cryptoFunctionService,
+      this.apiService,
+      this.hibpApiService,
+    );
 
     this.eventUploadService = new EventUploadService(
       this.apiService,

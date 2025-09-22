@@ -24,7 +24,6 @@ import {
   OrganizationConnectionConfigApis,
   OrganizationConnectionResponse,
 } from "../admin-console/models/response/organization-connection.response";
-import { OrganizationExportResponse } from "../admin-console/models/response/organization-export.response";
 import { OrganizationSponsorshipSyncStatusResponse } from "../admin-console/models/response/organization-sponsorship-sync-status.response";
 import { PreValidateSponsorshipResponse } from "../admin-console/models/response/pre-validate-sponsorship.response";
 import {
@@ -98,7 +97,6 @@ import { UpdateAvatarRequest } from "../models/request/update-avatar.request";
 import { UpdateDomainsRequest } from "../models/request/update-domains.request";
 import { VerifyDeleteRecoverRequest } from "../models/request/verify-delete-recover.request";
 import { VerifyEmailRequest } from "../models/request/verify-email.request";
-import { BreachAccountResponse } from "../models/response/breach-account.response";
 import { DomainsResponse } from "../models/response/domains.response";
 import { EventResponse } from "../models/response/event.response";
 import { ListResponse } from "../models/response/list.response";
@@ -517,8 +515,6 @@ export abstract class ApiService {
 
   abstract getUserPublicKey(id: string): Promise<UserKeyResponse>;
 
-  abstract getHibpBreach(username: string): Promise<BreachAccountResponse[]>;
-
   abstract postBitPayInvoice(request: BitPayInvoiceRequest): Promise<string>;
   abstract postSetupPayment(): Promise<string>;
 
@@ -552,5 +548,4 @@ export abstract class ApiService {
     request: KeyConnectorUserKeyRequest,
   ): Promise<void>;
   abstract getKeyConnectorAlive(keyConnectorUrl: string): Promise<void>;
-  abstract getOrganizationExport(organizationId: string): Promise<OrganizationExportResponse>;
 }
