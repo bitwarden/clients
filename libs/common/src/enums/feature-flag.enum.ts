@@ -16,6 +16,7 @@ export enum FeatureFlag {
 
   /* Auth */
   PM14938_BrowserExtensionLoginApproval = "pm-14938-browser-extension-login-approvals",
+  PM22110_DisableAlternateLoginMethods = "pm-22110-disable-alternate-login-methods",
 
   /* Autofill */
   MacOsNativeCredentialSync = "macos-native-credential-sync",
@@ -98,6 +99,7 @@ export const DefaultFeatureFlagValue = {
 
   /* Auth */
   [FeatureFlag.PM14938_BrowserExtensionLoginApproval]: FALSE,
+  [FeatureFlag.PM22110_DisableAlternateLoginMethods]: FALSE,
 
   /* Billing */
   [FeatureFlag.TrialPaymentOptional]: FALSE,

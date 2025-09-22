@@ -8,10 +8,10 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { DialogService } from "@bitwarden/components";
 
+import { ChangeKdfModule } from "../../../key-management/change-kdf/change-kdf.module";
 import { SharedModule } from "../../../shared";
 
 import { ApiKeyComponent } from "./api-key.component";
-import { ChangeKdfModule } from "./change-kdf/change-kdf.module";
 
 @Component({
   templateUrl: "security-keys.component.html",

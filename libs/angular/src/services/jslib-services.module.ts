@@ -877,7 +877,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: SsoLoginServiceAbstraction,
     useClass: SsoLoginService,
-    deps: [StateProvider, LogService],
+    deps: [StateProvider, LogService, PolicyServiceAbstraction],
   }),
   safeProvider({
     provide: StateServiceAbstraction,
@@ -1561,7 +1561,14 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: LoginSuccessHandlerService,
     useClass: DefaultLoginSuccessHandlerService,
-    deps: [SyncService, UserAsymmetricKeysRegenerationService, LoginEmailService],
+    deps: [
+      ConfigService,
+      LoginEmailService,
+      SsoLoginServiceAbstraction,
+      SyncService,
+      UserAsymmetricKeysRegenerationService,
+      LogService,
+    ],
   }),
   safeProvider({
     provide: TaskService,
