@@ -81,7 +81,7 @@
           bitButton
           (click)="addCipher()"
           slot="button"
-          *ngIf="filter.type !== 'trash' && filter.type !== 'archive'"
+          *ngIf="showAddCipherBtn"
         >
           <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i>
           {{ "newItem" | i18n }}

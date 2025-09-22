@@ -192,6 +192,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   private destroy$ = new Subject<void>();
 
   private vaultItemDialogRef?: DialogRef<VaultItemDialogResult> | undefined;
+  protected showAddCipherBtn: boolean = false;
 
   organizations$ = this.accountService.activeAccount$
     .pipe(map((a) => a?.id))
@@ -214,6 +215,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       const isOrgDisabled = selectedOrg && !selectedOrg.enabled;
 
       if (isOrgDisabled) {
+        this.showAddCipherBtn = false;
         return {
           title: "organizationIsSuspended",
           description: "organizationIsSuspendedDesc",
@@ -247,13 +249,18 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         },
       };
 
-      return (
-        emptyStateMap[filter?.type] || {
-          title: "noItemsInVault",
-          description: "emptyVaultDescription",
-          icon: this.itemTypesIcon,
-        }
-      );
+      const hasFilterType = emptyStateMap[filter?.type];
+      if (hasFilterType) {
+        this.showAddCipherBtn = false;
+        return hasFilterType;
+      }
+
+      this.showAddCipherBtn = true;
+      return {
+        title: "noItemsInVault",
+        description: "emptyVaultDescription",
+        icon: this.itemTypesIcon,
+      };
     }),
   );
 
