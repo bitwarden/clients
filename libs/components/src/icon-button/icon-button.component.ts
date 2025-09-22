@@ -129,7 +129,11 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
       .concat(sizes[this.size()])
       .concat(
         this.showDisabledStyles() || this.disabled()
-          ? ["aria-disabled:tw-opacity-60", "aria-disabled:hover:!tw-bg-transparent"]
+          ? [
+              "aria-disabled:tw-opacity-60",
+              "aria-disabled:hover:!tw-bg-transparent",
+              "tw-cursor-default",
+            ]
           : [],
       );
   }
