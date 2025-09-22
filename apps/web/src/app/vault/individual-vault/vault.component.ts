@@ -204,9 +204,16 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     }),
   );
 
-  emptyState$ = combineLatest([this.currentSearchText$]).pipe(
-    map(([searchText]) => {
-      if (this.isSelectedOrgDisabled()) {
+  emptyState$ = combineLatest([
+    this.currentSearchText$,
+    this.routedVaultFilterService.filter$,
+    this.organizations$,
+  ]).pipe(
+    map(([searchText, filter, organizations]) => {
+      const selectedOrg = organizations?.find((org) => org.id === filter.organizationId);
+      const isOrgDisabled = selectedOrg && !selectedOrg.enabled;
+
+      if (isOrgDisabled) {
         return {
           title: "organizationIsSuspended",
           description: "organizationIsSuspendedDesc",
@@ -222,26 +229,31 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         };
       }
 
-      switch (this.filter?.type) {
-        case "trash":
-          return {
-            title: "noItemsInTrash",
-            description: "noItemsInTrashDesc",
-            icon: this.trashIcon,
-          };
-        case "favorites":
-          return {
-            title: "emptyFavorites",
-            description: "emptyFavoritesDesc",
-            icon: this.favoritesIcon,
-          };
-        default:
-          return {
-            title: "noItemsInVault",
-            description: "emptyVaultDescription",
-            icon: this.emptyVaultIcon,
-          };
-      }
+      const emptyStateMap: any = {
+        trash: {
+          title: "noItemsInTrash",
+          description: "noItemsInTrashDesc",
+          icon: this.trashIcon,
+        },
+        favorites: {
+          title: "emptyFavorites",
+          description: "emptyFavoritesDesc",
+          icon: this.favoritesIcon,
+        },
+        archive: {
+          title: "noItemsInArchive",
+          description: "archivedItemsDescription",
+          icon: this.emptyVaultIcon,
+        },
+      };
+
+      return (
+        emptyStateMap[filter?.type] || {
+          title: "noItemsInVault",
+          description: "emptyVaultDescription",
+          icon: this.emptyVaultIcon,
+        }
+      );
     }),
   );
 

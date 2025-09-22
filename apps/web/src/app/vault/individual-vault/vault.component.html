@@ -69,20 +69,10 @@
       *ngIf="isEmpty && !performingInitialLoad"
     >
       <bit-no-items [icon]="(emptyState$ | async)?.icon">
-        <div slot="title" *ngIf="filter.type === 'archive'">
-          {{ "noItemsInArchive" | i18n }}
-        </div>
-        <p slot="description" class="tw-text-center tw-max-w-md" *ngIf="filter.type === 'archive'">
-          {{ "archivedItemsDescription" | i18n }}
-        </p>
-        <div slot="title" *ngIf="filter.type !== 'archive'">
+        <div slot="title">
           {{ (emptyState$ | async)?.title | i18n }}
         </div>
-        <p
-          bitTypography="body2"
-          class="tw-w-[300px] tw-text-center"
-          *ngIf="filter.type !== 'archive'"
-        >
+        <p slot="description" bitTypography="body2" class="tw-max-w-md tw-text-center">
           {{ (emptyState$ | async)?.description | i18n }}
         </p>
         <button
