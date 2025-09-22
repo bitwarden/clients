@@ -55,14 +55,14 @@ import {
   EnterPaymentMethodComponent,
   getBillingAddressFromForm,
 } from "@bitwarden/web-vault/app/billing/payment/components";
-import { BitwardenSubscriber } from "@bitwarden/web-vault/app/billing/types";
-
-import { BillingNotificationService } from "../services/billing-notification.service";
-import { BillingSharedModule } from "../shared/billing-shared.module";
 import {
   getCardBrandIcon,
   MaskedPaymentMethod,
 } from "@bitwarden/web-vault/app/billing/payment/types";
+import { BitwardenSubscriber } from "@bitwarden/web-vault/app/billing/types";
+
+import { BillingNotificationService } from "../services/billing-notification.service";
+import { BillingSharedModule } from "../shared/billing-shared.module";
 
 type ChangePlanDialogParams = {
   organizationId: string;
