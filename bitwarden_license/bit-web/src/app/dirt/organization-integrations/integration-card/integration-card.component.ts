@@ -21,7 +21,11 @@ import { OrganizationId } from "@bitwarden/common/types/guid";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
-import { openHecConnectDialog } from "../integration-dialog/index";
+import {
+  HecConnectDialogResult,
+  HecConnectDialogResultStatus,
+  openHecConnectDialog,
+} from "../integration-dialog/index";
 
 @Component({
   selector: "app-integration-card",
@@ -142,32 +146,20 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
     }
 
     try {
-      if (this.isUpdateAvailable) {
-        const orgIntegrationId = this.integrationSettings.organizationIntegration?.id;
-        const orgIntegrationConfigurationId =
-          this.integrationSettings.organizationIntegration?.integrationConfiguration[0]?.id;
+      if (result.success === HecConnectDialogResultStatus.Delete) {
+        await this.deleteHec();
+      }
+    } catch {
+      this.toastService.showToast({
+        variant: "error",
+        title: "",
+        message: this.i18nService.t("failedToDeleteIntegration"),
+      });
+    }
 
-        if (!orgIntegrationId || !orgIntegrationConfigurationId) {
-          throw Error("Organization Integration ID or Configuration ID is missing");
-        }
-
-        await this.hecOrganizationIntegrationService.updateHec(
-          this.organizationId,
-          orgIntegrationId,
-          orgIntegrationConfigurationId,
-          this.integrationSettings.name as OrganizationIntegrationServiceType,
-          result.url,
-          result.bearerToken,
-          result.index,
-        );
-      } else {
-        await this.hecOrganizationIntegrationService.saveHec(
-          this.organizationId,
-          this.integrationSettings.name as OrganizationIntegrationServiceType,
-          result.url,
-          result.bearerToken,
-          result.index,
-        );
+    try {
+      if (result.success === HecConnectDialogResultStatus.Edited) {
+        await this.saveHec(result);
       }
     } catch {
       this.toastService.showToast({
@@ -175,7 +167,66 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
         title: "",
         message: this.i18nService.t("failedToSaveIntegration"),
       });
-      return;
     }
+  }
+
+  async saveHec(result: HecConnectDialogResult) {
+    if (this.isUpdateAvailable) {
+      // retrieve org integration and configuration ids
+      const orgIntegrationId = this.integrationSettings.organizationIntegration?.id;
+      const orgIntegrationConfigurationId =
+        this.integrationSettings.organizationIntegration?.integrationConfiguration[0]?.id;
+
+      if (!orgIntegrationId || !orgIntegrationConfigurationId) {
+        throw Error("Organization Integration ID or Configuration ID is missing");
+      }
+
+      // update existing integration and configuration
+      await this.hecOrganizationIntegrationService.updateHec(
+        this.organizationId,
+        orgIntegrationId,
+        orgIntegrationConfigurationId,
+        this.integrationSettings.name as OrganizationIntegrationServiceType,
+        result.url,
+        result.bearerToken,
+        result.index,
+      );
+    } else {
+      // create new integration and configuration
+      await this.hecOrganizationIntegrationService.saveHec(
+        this.organizationId,
+        this.integrationSettings.name as OrganizationIntegrationServiceType,
+        result.url,
+        result.bearerToken,
+        result.index,
+      );
+    }
+    this.toastService.showToast({
+      variant: "success",
+      title: "",
+      message: this.i18nService.t("success"),
+    });
+  }
+
+  async deleteHec() {
+    const orgIntegrationId = this.integrationSettings.organizationIntegration?.id;
+    const orgIntegrationConfigurationId =
+      this.integrationSettings.organizationIntegration?.integrationConfiguration[0]?.id;
+
+    if (!orgIntegrationId || !orgIntegrationConfigurationId) {
+      throw Error("Organization Integration ID or Configuration ID is missing");
+    }
+
+    await this.hecOrganizationIntegrationService.deleteHec(
+      this.organizationId,
+      orgIntegrationId,
+      orgIntegrationConfigurationId,
+    );
+
+    this.toastService.showToast({
+      variant: "success",
+      title: "",
+      message: this.i18nService.t("success"),
+    });
   }
 }

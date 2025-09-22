@@ -2,6 +2,9 @@
   "allApplications": {
     "message": "Alle applicaties"
   },
+  "activity": {
+    "message": "Activiteit"
+  },
   "appLogoLabel": {
     "message": "Bitwarden-logo"
   },
@@ -56,8 +59,20 @@
   "createNewLoginItem": {
     "message": "Nieuw login item aanmaken"
   },
+  "criticalApplicationsActivityDescription": {
+    "message": "Als je toepassingen als belangrijk markeert, verschijnen ze hier."
+  },
   "criticalApplicationsWithCount": {
     "message": "Belangrijke applicaties ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfCriticalApplications": {
+    "message": "$COUNT$ belangrijke applicaties",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -118,6 +133,18 @@
   },
   "atRiskMembers": {
     "message": "Leden in gevaar"
+  },
+  "membersAtRiskActivityDescription": {
+    "message": "Leden met toegang voor bewerken van risico-items voor belangrijke applicaties"
+  },
+  "membersAtRisk": {
+    "message": "$COUNT$ leden lopen risico",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "atRiskMembersWithCount": {
     "message": "Leden die risico lopen ($COUNT$)",
@@ -734,32 +761,81 @@
   "viewItem": {
     "message": "Item weergeven"
   },
-  "newItemHeader": {
-    "message": "Nieuwe $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderLogin": {
+    "message": "Nieuwe login",
+    "description": "Header for new login item type"
   },
-  "editItemHeader": {
-    "message": "$TYPE$ bewerken",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderCard": {
+    "message": "Nieuwe kaart",
+    "description": "Header for new card item type"
   },
-  "viewItemType": {
-    "message": "$ITEMTYPE$ weergeven",
-    "placeholders": {
-      "itemtype": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderIdentity": {
+    "message": "Nieuwe identiteit",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "Nieuwe notitie",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "Nieuwe SSH-sleutel",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderTextSend": {
+    "message": "Nieuwe Send (tekst)",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "Nieuwe Send (bestand)",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderLogin": {
+    "message": "Login bewerken",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Kaart bewerken",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Identiteit bewerken",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Notitie bewerken",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "SSH-sleutel bewerken",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Send (tekst) bewerken",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Send (bestand) bewerken",
+    "description": "Header for edit file send"
+  },
+  "viewItemHeaderLogin": {
+    "message": "Login bekijken",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "Kaart bekijken",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "Identiteit bekijken",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "Notitie bekijken",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "SSH-sleutel bekijken",
+    "description": "Header for view SSH key item type"
   },
   "new": {
     "message": "Nieuw",
@@ -1509,9 +1585,6 @@
   },
   "selectTwoStepLoginMethod": {
     "message": "Kies methode voor tweestapsaanmelding"
-  },
-  "recoveryCodeDesc": {
-    "message": "Ben je de toegang tot al je tweestapsaanbieders verloren? Gebruik dan je herstelcode om alle tweestapsaanbieders op je account uit te schakelen."
   },
   "recoveryCodeTitle": {
     "message": "Herstelcode"
@@ -9666,6 +9739,9 @@
   "failedToSaveIntegration": {
     "message": "Opslaan van integratie mislukt. Probeer het later opnieuw."
   },
+  "failedToDeleteIntegration": {
+    "message": "Verwijderen van integratie mislukt. Probeer het later opnieuw."
+  },
   "deviceIdMissing": {
     "message": "Apparaat-ID ontbreekt"
   },
@@ -9761,6 +9837,9 @@
   },
   "bearerToken": {
     "message": "Bearer-token"
+  },
+  "repositoryNameHint": {
+    "message": "Naam van de repository om in te nemen"
   },
   "index": {
     "message": "Index"
@@ -10210,14 +10289,8 @@
   "learnMoreAboutApi": {
     "message": "Lees meer over Bitwarden's API"
   },
-  "fileSend": {
-    "message": "Bestand Send"
-  },
   "fileSends": {
     "message": "Bestand-Sends"
-  },
-  "textSend": {
-    "message": "Tekst Send"
   },
   "textSends": {
     "message": "Tekst-Sends"
