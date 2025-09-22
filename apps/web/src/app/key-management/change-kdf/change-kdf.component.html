@@ -20,7 +20,6 @@
             type="button"
             class="tw-border-none tw-bg-transparent tw-text-primary-600 tw-p-0"
             [bitPopoverTriggerFor]="algorithmPopover"
-            #triggerRef="popoverTrigger"
             aria-label="Open about encryption algorithms popover"
             title="Open about encryption algorithms popover"
             bitLink
@@ -122,8 +121,7 @@
       appA11yTitle="{{ 'learnMoreAboutEncryptionAlgorithms' | i18n }}"
     >
       {{ "learnMore" | i18n }}
-      <i class="bwi bwi-popout tw-ml-1" aria-hidden="true"></i>
+      <i class="bwi bwi-external-link tw-ml-1" aria-hidden="true"></i>
     </a>
   </div>
-  <button type="button" bitButton class="tw-mt-4" (click)="triggerRef.closePopover()">Close</button>
 </bit-popover>
