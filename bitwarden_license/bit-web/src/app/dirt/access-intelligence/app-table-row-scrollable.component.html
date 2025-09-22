@@ -48,7 +48,6 @@
         <app-vault-icon *ngIf="row.ciphers.length > 0" [cipher]="row.ciphers[0]"></app-vault-icon>
       </td>
       <td
-        bitCell
         class="tw-cursor-pointer"
         [ngClass]="{ 'tw-bg-primary-100': row.applicationName === openApplication }"
         (click)="showAppAtRiskMembers(row.applicationName)"
