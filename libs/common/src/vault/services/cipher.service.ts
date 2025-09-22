@@ -453,6 +453,10 @@ export class CipherService implements CipherServiceAbstraction {
       return decCiphers;
     }
 
+    // if (!(window as any).markedCipherDecryptionStart) {
+    //   performance.mark("cipher-decryption-start");
+    //   (window as any).markedCipherDecryptionStart = true;
+    // }
     const decrypted = await this.decryptCiphers(await this.getAll(userId), userId);
 
     // We failed to decrypt, return empty array but do not cache
@@ -464,6 +468,11 @@ export class CipherService implements CipherServiceAbstraction {
 
     await this.setDecryptedCipherCache(newDecCiphers, userId);
     await this.setFailedDecryptedCiphers(failedCiphers, userId);
+
+    // if (!(window as any).markedCipherDecryptionEnd) {
+    //   performance.mark("cipher-decryption-end");
+    //   (window as any).markedCipherDecryptionEnd = true;
+    // }
 
     return newDecCiphers;
   }
