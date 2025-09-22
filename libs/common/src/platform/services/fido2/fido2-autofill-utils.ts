@@ -29,6 +29,6 @@ export async function getCredentialsForAutofill(
         rpId: credential.rpId,
         userHandle: credential.userHandle,
         userName: credential.userName,
-      };
+      } as Fido2CredentialAutofillView;
     });
 }

@@ -66,7 +66,7 @@ export class DeleteAttachmentComponent {
 
       await this.cipherService.deleteAttachmentWithServer(
         this.cipherId,
-        this.attachment.id,
+        this.attachment.id!,
         activeUserId,
         this.admin,
       );

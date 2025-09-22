@@ -45,6 +45,7 @@ import {
   CipherViewLike,
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
+import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 import {
   BadgeModule,
   ButtonModule,
@@ -167,6 +168,7 @@ export class VaultV2Component<C extends CipherViewLike>
 
   private organizations$: Observable<Organization[]> = this.accountService.activeAccount$.pipe(
     map((a) => a?.id),
+    filterOutNullish(),
     switchMap((id) => this.organizationService.organizations$(id)),
   );
 
@@ -323,7 +325,7 @@ export class VaultV2Component<C extends CipherViewLike>
       )) === true
     ) {
       const authRequests = await firstValueFrom(
-        this.authRequestService.getLatestPendingAuthRequest$(),
+        this.authRequestService.getLatestPendingAuthRequest$()!,
       );
       if (authRequests != null) {
         this.messagingService.send("openLoginApproval", {
