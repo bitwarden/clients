@@ -123,7 +123,9 @@ export class AddAccountCreditDialogComponent implements OnInit {
       this.formGroup.patchValue({
         creditAmount: 20.0,
       });
-      this.provider = await this.providerService.get(this.dialogParams.providerId);
+      this.provider = await firstValueFrom(
+        this.providerService.get$(this.dialogParams.providerId, this.user.id),
+      );
       payPalCustomField = "provider_id:" + this.provider.id;
       this.payPalConfig.subject = this.provider.name;
     } else {
