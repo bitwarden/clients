@@ -1063,6 +1063,11 @@ export class InlineMenuFieldQualificationService
       return false;
     }
 
+    // If it is an email or username field, it's not TOTP
+    if (this.isEmailField(field) || this.isUsernameField(field)) {
+      return false;
+    }
+
     if (this.fieldContainsAutocompleteValues(field, this.totpFieldAutocompleteValue)) {
       return true;
     }
