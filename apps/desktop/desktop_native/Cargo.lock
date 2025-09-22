@@ -446,8 +446,10 @@ dependencies = [
  "async-trait",
  "base64",
  "cbc",
+ "chacha20poly1305",
+ "clap",
+ "dirs",
  "hex",
- "homedir",
  "log",
  "oo7",
  "pbkdf2",
@@ -457,8 +459,8 @@ dependencies = [
  "serde",
  "serde_json",
  "sha1",
+ "simplelog",
  "tokio",
- "winapi",
  "windows 0.61.1",
 ]
 
@@ -586,6 +588,19 @@ dependencies = [
  "cfg-if",
  "cipher",
  "cpufeatures",
+]
+
+[[package]]
+name = "chacha20poly1305"
+version = "0.10.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "10cd79432192d1c0f4e1a0fef9527696cc039165d729fb41b3f4f4f354c2dc35"
+dependencies = [
+ "aead",
+ "chacha20",
+ "cipher",
+ "poly1305",
+ "zeroize",
 ]
 
 [[package]]
