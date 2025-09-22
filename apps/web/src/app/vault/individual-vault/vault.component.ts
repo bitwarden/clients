@@ -364,8 +364,6 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         }),
       );
 
-    this.currentSearchText$ = this.route.queryParams.pipe(map((queryParams) => queryParams.search));
-
     const _ciphers = this.cipherService
       .cipherListViews$(activeUserId)
       .pipe(filter((c) => c !== null));
