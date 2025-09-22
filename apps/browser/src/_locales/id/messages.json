@@ -5511,6 +5511,18 @@
   "hasItemsVaultNudgeTitle": {
     "message": "Selamat datang di brankas Anda!"
   },
+  "phishingPageTitle": {
+    "message": "Phishing website"
+  },
+  "phishingPageCloseTab": {
+    "message": "Close tab"
+  },
+  "phishingPageContinue": {
+    "message": "Continue"
+  },
+  "phishingPageLearnWhy": {
+    "message": "Why are you seeing this?"
+  },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Benda-benda isi otomatis untuk halaman saat ini"
   },
