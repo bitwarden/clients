@@ -217,8 +217,7 @@ describe("SubscriptionPricingService", () => {
     continuationToken: null,
   };
 
-  beforeEach(() => {
-    apiService = mock<ApiService>();
+  beforeAll(() => {
     i18nService = mock<I18nService>();
     logService = mock<LogService>();
     toastService = mock<ToastService>();
@@ -318,6 +317,10 @@ describe("SubscriptionPricingService", () => {
           return key;
       }
     });
+  });
+
+  beforeEach(() => {
+    apiService = mock<ApiService>();
 
     apiService.getPlans.mockResolvedValue(mockPlansResponse);
 
@@ -349,8 +352,8 @@ describe("SubscriptionPricingService", () => {
           availableCadences: [SubscriptionCadenceIds.Annually],
           passwordManager: {
             type: "standalone",
-            monthlyCost: 10 / 12, // basePrice / 12
-            monthlyCostPerAdditionalStorageGB: 4 / 12, // additionalStoragePricePerGb / 12
+            annualPrice: 10,
+            annualPricePerAdditionalStorageGB: 4,
             features: [
               { key: "builtInAuthenticator", value: "Built-in authenticator" },
               { key: "secureFileStorage", value: "Secure file storage" },
@@ -372,9 +375,9 @@ describe("SubscriptionPricingService", () => {
           passwordManager: {
             type: "packaged",
             users: mockFamiliesPlan.PasswordManager.baseSeats,
-            monthlyCost: mockFamiliesPlan.PasswordManager.basePrice / 12,
-            monthlyCostPerAdditionalStorageGB:
-              mockFamiliesPlan.PasswordManager.additionalStoragePricePerGb / 12,
+            annualPrice: mockFamiliesPlan.PasswordManager.basePrice,
+            annualPricePerAdditionalStorageGB:
+              mockFamiliesPlan.PasswordManager.additionalStoragePricePerGb,
             features: [
               { key: "premiumAccounts", value: "6 premium accounts" },
               { key: "familiesUnlimitedSharing", value: "Unlimited sharing for families" },
@@ -451,14 +454,14 @@ describe("SubscriptionPricingService", () => {
           (tier) => tier.id === PersonalSubscriptionPricingTierIds.Families,
         )!;
 
-        expect(premiumTier.passwordManager.monthlyCost).toEqual(10 / 12);
-        expect(premiumTier.passwordManager.monthlyCostPerAdditionalStorageGB).toEqual(4 / 12);
+        expect(premiumTier.passwordManager.annualPrice).toEqual(10);
+        expect(premiumTier.passwordManager.annualPricePerAdditionalStorageGB).toEqual(4);
 
-        expect(familiesTier.passwordManager.monthlyCost).toEqual(
-          mockFamiliesPlan.PasswordManager.basePrice / 12,
+        expect(familiesTier.passwordManager.annualPrice).toEqual(
+          mockFamiliesPlan.PasswordManager.basePrice,
         );
-        expect(familiesTier.passwordManager.monthlyCostPerAdditionalStorageGB).toEqual(
-          mockFamiliesPlan.PasswordManager.additionalStoragePricePerGb / 12,
+        expect(familiesTier.passwordManager.annualPricePerAdditionalStorageGB).toEqual(
+          mockFamiliesPlan.PasswordManager.additionalStoragePricePerGb,
         );
 
         done();
@@ -481,9 +484,9 @@ describe("SubscriptionPricingService", () => {
           availableCadences: [SubscriptionCadenceIds.Annually, SubscriptionCadenceIds.Monthly],
           passwordManager: {
             type: "scalable",
-            monthlyCostPerUser: mockTeamsPlan.PasswordManager.seatPrice / 12,
-            monthlyCostPerAdditionalStorageGB:
-              mockTeamsPlan.PasswordManager.additionalStoragePricePerGb / 12,
+            annualPricePerUser: mockTeamsPlan.PasswordManager.seatPrice,
+            annualPricePerAdditionalStorageGB:
+              mockTeamsPlan.PasswordManager.additionalStoragePricePerGb,
             features: [
               { key: "secureItemSharing", value: "Secure item sharing" },
               { key: "eventLogMonitoring", value: "Event log monitoring" },
@@ -493,9 +496,9 @@ describe("SubscriptionPricingService", () => {
           },
           secretsManager: {
             type: "scalable",
-            monthlyCostPerUser: mockTeamsPlan.SecretsManager!.seatPrice / 12,
-            monthlyCostPerAdditionalServiceAccount:
-              mockTeamsPlan.SecretsManager!.additionalPricePerServiceAccount / 12,
+            annualPricePerUser: mockTeamsPlan.SecretsManager!.seatPrice,
+            annualPricePerAdditionalServiceAccount:
+              mockTeamsPlan.SecretsManager!.additionalPricePerServiceAccount,
             features: [
               { key: "unlimitedSecretsAndProjects", value: "Unlimited secrets and projects" },
               {
@@ -516,9 +519,9 @@ describe("SubscriptionPricingService", () => {
           availableCadences: [SubscriptionCadenceIds.Annually, SubscriptionCadenceIds.Monthly],
           passwordManager: {
             type: "scalable",
-            monthlyCostPerUser: mockEnterprisePlan.PasswordManager.seatPrice / 12,
-            monthlyCostPerAdditionalStorageGB:
-              mockEnterprisePlan.PasswordManager.additionalStoragePricePerGb / 12,
+            annualPricePerUser: mockEnterprisePlan.PasswordManager.seatPrice,
+            annualPricePerAdditionalStorageGB:
+              mockEnterprisePlan.PasswordManager.additionalStoragePricePerGb,
             features: [
               { key: "enterpriseSecurityPolicies", value: "Enterprise security policies" },
               { key: "passwordLessSso", value: "Passwordless SSO" },
@@ -529,9 +532,9 @@ describe("SubscriptionPricingService", () => {
           },
           secretsManager: {
             type: "scalable",
-            monthlyCostPerUser: mockEnterprisePlan.SecretsManager!.seatPrice / 12,
-            monthlyCostPerAdditionalServiceAccount:
-              mockEnterprisePlan.SecretsManager!.additionalPricePerServiceAccount / 12,
+            annualPricePerUser: mockEnterprisePlan.SecretsManager!.seatPrice,
+            annualPricePerAdditionalServiceAccount:
+              mockEnterprisePlan.SecretsManager!.additionalPricePerServiceAccount,
             features: [
               { key: "unlimitedUsers", value: "Unlimited users" },
               {
@@ -638,32 +641,32 @@ describe("SubscriptionPricingService", () => {
 
         const teamsPasswordManager = teamsTier.passwordManager as any;
         const teamsSecretsManager = teamsTier.secretsManager as any;
-        expect(teamsPasswordManager.monthlyCostPerUser).toEqual(
-          mockTeamsPlan.PasswordManager.seatPrice / 12,
+        expect(teamsPasswordManager.annualPricePerUser).toEqual(
+          mockTeamsPlan.PasswordManager.seatPrice,
         );
-        expect(teamsPasswordManager.monthlyCostPerAdditionalStorageGB).toEqual(
-          mockTeamsPlan.PasswordManager.additionalStoragePricePerGb / 12,
+        expect(teamsPasswordManager.annualPricePerAdditionalStorageGB).toEqual(
+          mockTeamsPlan.PasswordManager.additionalStoragePricePerGb,
         );
-        expect(teamsSecretsManager.monthlyCostPerUser).toEqual(
-          mockTeamsPlan.SecretsManager.seatPrice / 12,
+        expect(teamsSecretsManager.annualPricePerUser).toEqual(
+          mockTeamsPlan.SecretsManager.seatPrice,
         );
-        expect(teamsSecretsManager.monthlyCostPerAdditionalServiceAccount).toEqual(
-          mockTeamsPlan.SecretsManager.additionalPricePerServiceAccount / 12,
+        expect(teamsSecretsManager.annualPricePerAdditionalServiceAccount).toEqual(
+          mockTeamsPlan.SecretsManager.additionalPricePerServiceAccount,
         );
 
         const enterprisePasswordManager = enterpriseTier.passwordManager as any;
         const enterpriseSecretsManager = enterpriseTier.secretsManager as any;
-        expect(enterprisePasswordManager.monthlyCostPerUser).toEqual(
-          mockEnterprisePlan.PasswordManager.seatPrice / 12,
+        expect(enterprisePasswordManager.annualPricePerUser).toEqual(
+          mockEnterprisePlan.PasswordManager.seatPrice,
         );
-        expect(enterprisePasswordManager.monthlyCostPerAdditionalStorageGB).toEqual(
-          mockEnterprisePlan.PasswordManager.additionalStoragePricePerGb / 12,
+        expect(enterprisePasswordManager.annualPricePerAdditionalStorageGB).toEqual(
+          mockEnterprisePlan.PasswordManager.additionalStoragePricePerGb,
         );
-        expect(enterpriseSecretsManager.monthlyCostPerUser).toEqual(
-          mockEnterprisePlan.SecretsManager.seatPrice / 12,
+        expect(enterpriseSecretsManager.annualPricePerUser).toEqual(
+          mockEnterprisePlan.SecretsManager.seatPrice,
         );
-        expect(enterpriseSecretsManager.monthlyCostPerAdditionalServiceAccount).toEqual(
-          mockEnterprisePlan.SecretsManager.additionalPricePerServiceAccount / 12,
+        expect(enterpriseSecretsManager.annualPricePerAdditionalServiceAccount).toEqual(
+          mockEnterprisePlan.SecretsManager.additionalPricePerServiceAccount,
         );
 
         done();
@@ -728,9 +731,9 @@ describe("SubscriptionPricingService", () => {
           availableCadences: [SubscriptionCadenceIds.Annually, SubscriptionCadenceIds.Monthly],
           passwordManager: {
             type: "scalable",
-            monthlyCostPerUser: mockTeamsPlan.PasswordManager.seatPrice / 12,
-            monthlyCostPerAdditionalStorageGB:
-              mockTeamsPlan.PasswordManager.additionalStoragePricePerGb / 12,
+            annualPricePerUser: mockTeamsPlan.PasswordManager.seatPrice,
+            annualPricePerAdditionalStorageGB:
+              mockTeamsPlan.PasswordManager.additionalStoragePricePerGb,
             features: [
               { key: "secureItemSharing", value: "Secure item sharing" },
               { key: "eventLogMonitoring", value: "Event log monitoring" },
@@ -740,9 +743,9 @@ describe("SubscriptionPricingService", () => {
           },
           secretsManager: {
             type: "scalable",
-            monthlyCostPerUser: mockTeamsPlan.SecretsManager!.seatPrice / 12,
-            monthlyCostPerAdditionalServiceAccount:
-              mockTeamsPlan.SecretsManager!.additionalPricePerServiceAccount / 12,
+            annualPricePerUser: mockTeamsPlan.SecretsManager!.seatPrice,
+            annualPricePerAdditionalServiceAccount:
+              mockTeamsPlan.SecretsManager!.additionalPricePerServiceAccount,
             features: [
               { key: "unlimitedSecretsAndProjects", value: "Unlimited secrets and projects" },
               {
@@ -763,9 +766,9 @@ describe("SubscriptionPricingService", () => {
           availableCadences: [SubscriptionCadenceIds.Annually, SubscriptionCadenceIds.Monthly],
           passwordManager: {
             type: "scalable",
-            monthlyCostPerUser: mockEnterprisePlan.PasswordManager.seatPrice / 12,
-            monthlyCostPerAdditionalStorageGB:
-              mockEnterprisePlan.PasswordManager.additionalStoragePricePerGb / 12,
+            annualPricePerUser: mockEnterprisePlan.PasswordManager.seatPrice,
+            annualPricePerAdditionalStorageGB:
+              mockEnterprisePlan.PasswordManager.additionalStoragePricePerGb,
             features: [
               { key: "enterpriseSecurityPolicies", value: "Enterprise security policies" },
               { key: "passwordLessSso", value: "Passwordless SSO" },
@@ -776,9 +779,9 @@ describe("SubscriptionPricingService", () => {
           },
           secretsManager: {
             type: "scalable",
-            monthlyCostPerUser: mockEnterprisePlan.SecretsManager!.seatPrice / 12,
-            monthlyCostPerAdditionalServiceAccount:
-              mockEnterprisePlan.SecretsManager!.additionalPricePerServiceAccount / 12,
+            annualPricePerUser: mockEnterprisePlan.SecretsManager!.seatPrice,
+            annualPricePerAdditionalServiceAccount:
+              mockEnterprisePlan.SecretsManager!.additionalPricePerServiceAccount,
             features: [
               { key: "unlimitedUsers", value: "Unlimited users" },
               {

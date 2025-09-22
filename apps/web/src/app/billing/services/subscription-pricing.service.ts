@@ -70,8 +70,8 @@ export class SubscriptionPricingService {
       availableCadences: [SubscriptionCadenceIds.Annually],
       passwordManager: {
         type: "standalone",
-        monthlyCost: details.basePrice / 12,
-        monthlyCostPerAdditionalStorageGB: details.additionalStoragePricePerGb / 12,
+        annualPrice: details.basePrice,
+        annualPricePerAdditionalStorageGB: details.additionalStoragePricePerGb,
         features: [
           this.featureTranslations.builtInAuthenticator(),
           this.featureTranslations.secureFileStorage(),
@@ -95,9 +95,9 @@ export class SubscriptionPricingService {
         passwordManager: {
           type: "packaged",
           users: familiesPlan.PasswordManager.baseSeats,
-          monthlyCost: familiesPlan.PasswordManager.basePrice / 12,
-          monthlyCostPerAdditionalStorageGB:
-            familiesPlan.PasswordManager.additionalStoragePricePerGb / 12,
+          annualPrice: familiesPlan.PasswordManager.basePrice,
+          annualPricePerAdditionalStorageGB:
+            familiesPlan.PasswordManager.additionalStoragePricePerGb,
           features: [
             this.featureTranslations.premiumAccounts(),
             this.featureTranslations.familiesUnlimitedSharing(),
@@ -148,9 +148,9 @@ export class SubscriptionPricingService {
         availableCadences: [SubscriptionCadenceIds.Annually, SubscriptionCadenceIds.Monthly],
         passwordManager: {
           type: "scalable",
-          monthlyCostPerUser: annualTeamsPlan.PasswordManager.seatPrice / 12,
-          monthlyCostPerAdditionalStorageGB:
-            annualTeamsPlan.PasswordManager.additionalStoragePricePerGb / 12,
+          annualPricePerUser: annualTeamsPlan.PasswordManager.seatPrice,
+          annualPricePerAdditionalStorageGB:
+            annualTeamsPlan.PasswordManager.additionalStoragePricePerGb,
           features: [
             this.featureTranslations.secureItemSharing(),
             this.featureTranslations.eventLogMonitoring(),
@@ -160,9 +160,9 @@ export class SubscriptionPricingService {
         },
         secretsManager: {
           type: "scalable",
-          monthlyCostPerUser: annualTeamsPlan.SecretsManager.seatPrice / 12,
-          monthlyCostPerAdditionalServiceAccount:
-            annualTeamsPlan.SecretsManager.additionalPricePerServiceAccount / 12,
+          annualPricePerUser: annualTeamsPlan.SecretsManager.seatPrice,
+          annualPricePerAdditionalServiceAccount:
+            annualTeamsPlan.SecretsManager.additionalPricePerServiceAccount,
           features: [
             this.featureTranslations.unlimitedSecretsAndProjects(),
             this.featureTranslations.includedMachineAccountsV2(
@@ -187,9 +187,9 @@ export class SubscriptionPricingService {
         availableCadences: [SubscriptionCadenceIds.Annually, SubscriptionCadenceIds.Monthly],
         passwordManager: {
           type: "scalable",
-          monthlyCostPerUser: annualEnterprisePlan.PasswordManager.seatPrice / 12,
-          monthlyCostPerAdditionalStorageGB:
-            annualEnterprisePlan.PasswordManager.additionalStoragePricePerGb / 12,
+          annualPricePerUser: annualEnterprisePlan.PasswordManager.seatPrice,
+          annualPricePerAdditionalStorageGB:
+            annualEnterprisePlan.PasswordManager.additionalStoragePricePerGb,
           features: [
             this.featureTranslations.enterpriseSecurityPolicies(),
             this.featureTranslations.passwordLessSso(),
@@ -200,9 +200,9 @@ export class SubscriptionPricingService {
         },
         secretsManager: {
           type: "scalable",
-          monthlyCostPerUser: annualEnterprisePlan.SecretsManager.seatPrice / 12,
-          monthlyCostPerAdditionalServiceAccount:
-            annualEnterprisePlan.SecretsManager.additionalPricePerServiceAccount / 12,
+          annualPricePerUser: annualEnterprisePlan.SecretsManager.seatPrice,
+          annualPricePerAdditionalServiceAccount:
+            annualEnterprisePlan.SecretsManager.additionalPricePerServiceAccount,
           features: [
             this.featureTranslations.unlimitedUsers(),
             this.featureTranslations.includedMachineAccountsV2(

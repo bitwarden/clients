@@ -27,20 +27,20 @@ type HasFeatures = {
 };
 
 type HasAdditionalStorage = {
-  monthlyCostPerAdditionalStorageGB: number;
+  annualPricePerAdditionalStorageGB: number;
 };
 
 type StandalonePasswordManager = HasFeatures &
   HasAdditionalStorage & {
     type: "standalone";
-    monthlyCost: number;
+    annualPrice: number;
   };
 
 type PackagedPasswordManager = HasFeatures &
   HasAdditionalStorage & {
     type: "packaged";
     users: number;
-    monthlyCost: number;
+    annualPrice: number;
   };
 
 type FreePasswordManager = HasFeatures & {
@@ -54,7 +54,7 @@ type CustomPasswordManager = HasFeatures & {
 type ScalablePasswordManager = HasFeatures &
   HasAdditionalStorage & {
     type: "scalable";
-    monthlyCostPerUser: number;
+    annualPricePerUser: number;
   };
 
 type FreeSecretsManager = HasFeatures & {
@@ -63,8 +63,8 @@ type FreeSecretsManager = HasFeatures & {
 
 type ScalableSecretsManager = HasFeatures & {
   type: "scalable";
-  monthlyCostPerUser: number;
-  monthlyCostPerAdditionalServiceAccount: number;
+  annualPricePerUser: number;
+  annualPricePerAdditionalServiceAccount: number;
 };
 
 export type PersonalSubscriptionPricingTier = {
