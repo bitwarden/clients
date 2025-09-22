@@ -52,7 +52,7 @@ describe("ProductSwitcherService", () => {
     router.url = "/";
     router.events = of({});
     organizationService.organizations$.mockReturnValue(of([{}] as Organization[]));
-    providerService.getAll.mockResolvedValue([] as Provider[]);
+    providerService.providers$.mockReturnValue(of([]) as Observable<Provider[]>);
     platformUtilsService.isSelfHost.mockReturnValue(false);
 
     TestBed.configureTestingModule({
@@ -212,7 +212,7 @@ describe("ProductSwitcherService", () => {
       });
 
       it("is included when there are providers", async () => {
-        providerService.getAll.mockResolvedValue([{ id: "67899" }] as Provider[]);
+        providerService.providers$.mockReturnValue(of([{ id: "67899" }]) as Observable<Provider[]>);
 
         initiateService();
 
@@ -263,7 +263,7 @@ describe("ProductSwitcherService", () => {
     });
 
     it("marks Provider Portal as active", async () => {
-      providerService.getAll.mockResolvedValue([{ id: "67899" }] as Provider[]);
+      providerService.providers$.mockReturnValue(of([{ id: "67899" }]) as Observable<Provider[]>);
       router.url = "/providers/";
 
       initiateService();

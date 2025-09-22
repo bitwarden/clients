@@ -163,6 +163,7 @@ describe("CipherView", () => {
         creationDate: "2022-01-01T12:00:00.000Z",
         revisionDate: "2022-01-02T12:00:00.000Z",
         deletedDate: undefined,
+        archivedDate: undefined,
       };
     });
 

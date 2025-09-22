@@ -5511,6 +5511,18 @@
   "hasItemsVaultNudgeTitle": {
     "message": "Vitajte vo svojom trezore!"
   },
+  "phishingPageTitle": {
+    "message": "Phishingová webová stránka"
+  },
+  "phishingPageCloseTab": {
+    "message": "Zavrieť kartu"
+  },
+  "phishingPageContinue": {
+    "message": "Pokračovať"
+  },
+  "phishingPageLearnWhy": {
+    "message": "Prečo to vidíte?"
+  },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Položky na automatické vypĺňanie pre aktuálnu stránku"
   },
