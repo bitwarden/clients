@@ -556,6 +556,9 @@
   "view": {
     "message": "Bax"
   },
+  "viewLogin": {
+    "message": "Girişə bax"
+  },
   "noItemsInList": {
     "message": "Sadalanacaq heç bir element yoxdur."
   },
@@ -1522,9 +1525,6 @@
   "selectTwoStepLoginMethod": {
     "message": "İki addımlı giriş üsulunu seçin"
   },
-  "recoveryCodeDesc": {
-    "message": "İki faktorlu provayderlərinizə erişə bilmirsiniz? Geri qaytarma kodunuzu istifadə edərək hesabınızdakı bütün iki faktorlu provayderləri söndürün."
-  },
   "recoveryCodeTitle": {
     "message": "Geri qaytarma kodu"
   },
@@ -1683,9 +1683,6 @@
   "defaultAutoFillOnPageLoadDesc": {
     "message": "Fərdi giriş elementləri üçün \"Səhifə yüklənəndə avto-doldur\"u elementin Düzəliş et görünüşündən söndürə bilərsiniz."
   },
-  "itemAutoFillOnPageLoad": {
-    "message": "Səhifə yüklənəndə avto-doldur (Seçimlərdə fəallaşdırılıbsa)"
-  },
   "autoFillOnPageLoadUseDefault": {
     "message": "İlkin ayarı istifadə et"
   },
@@ -1757,17 +1754,8 @@
   "popup2faCloseMessage": {
     "message": "Doğrulama kodunu alacağınız e-poçtu yoxlamaq üçün bu pəncərə xaricində bir yerə klikləsəniz bu pəncərə bağlanacaq. Bu pəncərənin bağlanmaması üçün yeni bir pəncərədə açmaq istəyirsiniz?"
   },
-  "popupU2fCloseMessage": {
-    "message": "Bu brauzer bu açılan pəncərədə U2F tələblərini emal edə bilmir. U2F istifadə edərək giriş etmək üçün bu açılan pəncərəni yeni bir pəncərədə açmaq istəyirsiniz?"
-  },
   "showIconsChangePasswordUrls": {
-    "message": "Show website icons and retrieve change password URLs"
-  },
-  "enableBadgeCounter": {
-    "message": "Nişan sayğacını göstər"
-  },
-  "badgeCounterDesc": {
-    "message": "Hazırkı veb səhifə üçün neçə giriş olduğunu göstərir."
+    "message": "Veb sayt ikonlarını göstər və parol dəyişdirmə URL-lərini al"
   },
   "cardholderName": {
     "message": "Kart sahibinin adı"
@@ -1931,32 +1919,81 @@
   "typeNote": {
     "message": "Not"
   },
-  "newItemHeader": {
-    "message": "Yeni $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderLogin": {
+    "message": "Yeni giriş",
+    "description": "Header for new login item type"
   },
-  "editItemHeader": {
-    "message": "$TYPE$ - düzəliş et",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderCard": {
+    "message": "Yeni kart",
+    "description": "Header for new card item type"
   },
-  "viewItemHeader": {
-    "message": "$TYPE$ - bax",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderIdentity": {
+    "message": "Yeni kimlik",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "Yeni not",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "Yeni SSH açarı",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderTextSend": {
+    "message": "Yeni Send mətni",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "Yeni Send faylı",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderLogin": {
+    "message": "Girişə düzəliş et",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Karta düzəliş et",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Kimliyə düzəliş et",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Nota düzəliş et",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "SSH açarına düzəliş et",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Send mətninə düzəliş et",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Send faylına düzəliş et",
+    "description": "Header for edit file send"
+  },
+  "viewItemHeaderLogin": {
+    "message": "Girişə bax",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "Karta bax",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "Kimliyə bax",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "Nota bax",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "SSH açarına bax",
+    "description": "Header for view SSH key item type"
   },
   "passwordHistory": {
     "message": "Parol tarixçəsi"
@@ -2377,13 +2414,13 @@
     "message": "Bu qutunu işarələyərək aşağıdakılarla razılaşırsınız:"
   },
   "acceptPoliciesRequired": {
-    "message": "Xidmət Şərtləri və Gizlilik Siyasəti qəbul edilməyib."
+    "message": "Xidmət Şərtləri və Məxfilik Siyasəti qəbul edilməyib."
   },
   "termsOfService": {
     "message": "Xidmət Şərtləri"
   },
   "privacyPolicy": {
-    "message": "Gizlilik Siyasəti"
+    "message": "Məxfilik Siyasəti"
   },
   "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
     "message": "Yeni parolunuz hazırkı parolunuzla eyni ola bilməz."
@@ -2485,7 +2522,7 @@
     "message": "Bu əməliyyat yan çubuqda icra edilə bilməz. Lütfən açılan pəncərədə yenidən sınayın."
   },
   "personalOwnershipSubmitError": {
-    "message": "Müəssisə Siyasətinə görə, elementləri şəxsi seyfinizdə saxlamağınız məhdudlaşdırılıb. Sahiblik seçimini təşkilat olaraq dəyişdirin və mövcud kolleksiyalar arasından seçim edin."
+    "message": "Müəssisə Siyasətinə görə, elementləri fərdi seyfinizdə saxlamağınız məhdudlaşdırılıb. Sahiblik seçimini təşkilat olaraq dəyişdirin və mövcud kolleksiyalar arasından seçim edin."
   },
   "personalOwnershipPolicyInEffect": {
     "message": "Bir təşkilat siyasəti, sahiblik seçimlərinizə təsir edir."
@@ -3518,9 +3555,6 @@
   "autofillPageLoadPolicyActivated": {
     "message": "Təşkilatınızın siyasətləri, səhifə yüklənəndə avto-doldurmanı işə saldı."
   },
-  "howToAutofill": {
-    "message": "Avto-doldurma necə edilir"
-  },
   "autofillSelectInfoWithCommand": {
     "message": "Bu ekrandan bir element seçin, $COMMAND$ qısayolunu istifadə edin və ya ayarlardakı digər seçimləri kəşf edin.",
     "placeholders": {
@@ -3905,17 +3939,9 @@
   "aliasDomain": {
     "message": "Domen ləqəbi"
   },
-  "passwordRepromptDisabledAutofillOnPageLoad": {
-    "message": "\"Ana parolu təkrar soruş\" özəlliyi olan elementlər səhifə yüklənəndə avto-doldurulmur. \"Səhifə yüklənəndə avto-doldurma\" özəlliyi söndürülüb.",
-    "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
-  },
   "autofillOnPageLoadSetToDefault": {
     "message": "\"Səhifə yüklənəndə avto-doldurma\" özəlliyi ilkin ayarı istifadə etmək üzrə ayarlandı.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "turnOffMasterPasswordPromptToEditField": {
-    "message": "Bu xanaya düzəliş etmək üçün \"Ana parolu təkrar soruş\"u söndürün",
-    "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
   },
   "toggleSideNavigation": {
     "message": "Yan naviqasiyanı aç/bağla"
@@ -4186,9 +4212,6 @@
   "passkeyNotCopiedAlert": {
     "message": "Keçid açarı, klonlanmış elementə kopyalanmayacaq. Bu elementi klonlamağa davam etmək istəyirsiniz?"
   },
-  "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
-    "message": "Başladan saytın tələb etdiyi doğrulama. Bu özəllik, hələlik ana parolu olmayan hesablara tətbiq olunmur."
-  },
   "logInWithPasskeyQuestion": {
     "message": "Keçid açarı ilə giriş edilsin?"
   },
@@ -4429,7 +4452,7 @@
     "description": "Title for the dialog that appears when the user has not granted the extension permission to set privacy settings"
   },
   "privacyPermissionAdditionNotGrantedDescription": {
-    "message": "Bitwarden-i ilkin parol meneceri olaraq ayarlamaq üçün ona brauzer gizlilik icazələrini verməlisiniz.",
+    "message": "Bitwarden-i ilkin parol meneceri olaraq ayarlamaq üçün ona brauzer məxfilik icazələrini verməlisiniz.",
     "description": "Description for the dialog that appears when the user has not granted the extension permission to set privacy settings"
   },
   "makeDefault": {
@@ -4773,7 +4796,7 @@
     }
   },
   "personalDetails": {
-    "message": "Şəxsi detallar"
+    "message": "Fərdi detallar"
   },
   "identification": {
     "message": "İdentifikasiya"
@@ -4873,9 +4896,6 @@
         "example": "Visa"
       }
     }
-  },
-  "enableAnimations": {
-    "message": "Animasiyaları fəallaşdır"
   },
   "showAnimations": {
     "message": "Animasiyaları göstər"
@@ -5089,14 +5109,8 @@
   "itemLocation": {
     "message": "Element yeri"
   },
-  "fileSend": {
-    "message": "Fayl \"Send\"i"
-  },
   "fileSends": {
     "message": "Fayl \"Send\"ləri"
-  },
-  "textSend": {
-    "message": "Mətn \"Send\"i"
   },
   "textSends": {
     "message": "Mətn \"Send\"ləri"
@@ -5108,10 +5122,10 @@
     "message": "Uzantı ikonunda giriş üçün avto-doldurma təklif sayını göstər"
   },
   "accountAccessRequested": {
-    "message": "Account access requested"
+    "message": "Hesab erişimi tələb olundu"
   },
   "confirmAccessAttempt": {
-    "message": "Confirm access attempt for $EMAIL$",
+    "message": "$EMAIL$ üçün erişim cəhdini təsdiqlə",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -5157,9 +5171,6 @@
   },
   "vaultCustomTimeoutMinimum": {
     "message": "Minimum özəl bitmə vaxtı 1 dəqiqədir."
-  },
-  "additionalContentAvailable": {
-    "message": "Əlavə məzmun əlçatandır"
   },
   "fileSavedToDevice": {
     "message": "Fayl cihazda saxlanıldı. Endirilənləri cihazınızdan idarə edin."
@@ -5446,6 +5457,12 @@
   "changeAtRiskPassword": {
     "message": "Riskli parolları dəyişdir"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Bu giriş risk altındadır və bir veb sayt əskikdir. Daha güclü təhlükəsizlik üçün bir veb sayt əlavə edin və parolu dəyişdirin."
+  },
+  "missingWebsite": {
+    "message": "Əskik veb sayt"
+  },
   "settingsVaultOptions": {
     "message": "Seyf seçimləri"
   },
@@ -5493,6 +5510,18 @@
   },
   "hasItemsVaultNudgeTitle": {
     "message": "Seyfinizə xoş gəlmisiniz!"
+  },
+  "phishingPageTitle": {
+    "message": "Fişinq veb sayt"
+  },
+  "phishingPageCloseTab": {
+    "message": "Vərəqi bağla"
+  },
+  "phishingPageContinue": {
+    "message": "Davam"
+  },
+  "phishingPageLearnWhy": {
+    "message": "Bunu niyə görürürsünüz?"
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Hazırkı səhifə üçün elementləri avto-doldur"
@@ -5570,10 +5599,10 @@
     "description": "Aria label for the body content of the generator nudge"
   },
   "aboutThisSetting": {
-    "message": "About this setting"
+    "message": "Bu ayar barədə"
   },
   "permitCipherDetailsDescription": {
-    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+    "message": "Bitwarden, təcrübənizi təkmilləşdirmək üçün hansı ikonun və ya parol dəyişdirmə URL-sinin istifadə olunmalı olduğunu müəyyənləşdirmək məqsədilə saxlanılmış giriş URL-lərini istifadə edəcək. Bu xidməti istifadə etdiyiniz zaman heç bir məlumat yığılmır və ya saxlanılmır."
   },
   "noPermissionsViewPage": {
     "message": "Bu səhifəyə baxmaq icazəniz yoxdur. Fərqli hesabla giriş etməyə çalışın."
@@ -5588,8 +5617,14 @@
   "showLess": {
     "message": "Daha az göstər"
   },
+  "next": {
+    "message": "Növbəti"
+  },
   "moreBreadcrumbs": {
-    "message": "More breadcrumbs",
+    "message": "Daha çox naviqasiya yolu",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Key Connector domenini təsdiqlə"
   }
 }

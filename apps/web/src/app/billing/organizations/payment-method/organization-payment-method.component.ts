@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Location } from "@angular/common";
 import { Component, OnDestroy } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
@@ -8,8 +6,8 @@ import { combineLatest, firstValueFrom, from, lastValueFrom, map, switchMap } fr
 
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import {
-  getOrganizationById,
   OrganizationService,
+  getOrganizationById,
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -27,7 +25,6 @@ import { SyncService } from "@bitwarden/common/platform/sync";
 import { DialogService, ToastService } from "@bitwarden/components";
 
 import { BillingNotificationService } from "../../services/billing-notification.service";
-import { TrialFlowService } from "../../services/trial-flow.service";
 import {
   AddCreditDialogResult,
   openAddCreditDialog,
@@ -40,28 +37,26 @@ import {
   TRIAL_PAYMENT_METHOD_DIALOG_RESULT_TYPE,
   TrialPaymentDialogComponent,
 } from "../../shared/trial-payment-dialog/trial-payment-dialog.component";
-import { FreeTrial } from "../../types/free-trial";
 
 @Component({
   templateUrl: "./organization-payment-method.component.html",
   standalone: false,
 })
 export class OrganizationPaymentMethodComponent implements OnDestroy {
-  organizationId: string;
+  organizationId!: string;
   isUnpaid = false;
-  accountCredit: number;
+  accountCredit?: number;
   paymentSource?: PaymentSourceResponse;
   subscriptionStatus?: string;
-  protected freeTrialData: FreeTrial;
-  organization: Organization;
-  organizationSubscriptionResponse: OrganizationSubscriptionResponse;
+  organization?: Organization;
+  organizationSubscriptionResponse?: OrganizationSubscriptionResponse;
 
   loading = true;
 
   protected readonly Math = Math;
   launchPaymentModalAutomatically = false;
 
-  protected taxInformation: TaxInformation;
+  protected taxInformation?: TaxInformation;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -73,7 +68,6 @@ export class OrganizationPaymentMethodComponent implements OnDestroy {
     private router: Router,
     private toastService: ToastService,
     private location: Location,
-    private trialFlowService: TrialFlowService,
     private organizationService: OrganizationService,
     private accountService: AccountService,
     protected syncService: SyncService,
@@ -104,7 +98,7 @@ export class OrganizationPaymentMethodComponent implements OnDestroy {
       .subscribe();
 
     const state = this.router.getCurrentNavigation()?.extras?.state;
-    // incase the above state is undefined or null we use redundantState
+    // In case the above state is undefined or null, we use redundantState
     const redundantState: any = location.getState();
     const queryParam = this.activatedRoute.snapshot.queryParamMap.get(
       "launchPaymentModalAutomatically",
@@ -116,10 +110,8 @@ export class OrganizationPaymentMethodComponent implements OnDestroy {
       Object.prototype.hasOwnProperty.call(redundantState, "launchPaymentModalAutomatically")
     ) {
       this.launchPaymentModalAutomatically = redundantState.launchPaymentModalAutomatically;
-    } else if (queryParam === "true") {
-      this.launchPaymentModalAutomatically = true;
     } else {
-      this.launchPaymentModalAutomatically = false;
+      this.launchPaymentModalAutomatically = queryParam === "true";
     }
   }
   ngOnDestroy(): void {
@@ -155,14 +147,21 @@ export class OrganizationPaymentMethodComponent implements OnDestroy {
       this.paymentSource = paymentSource;
       this.subscriptionStatus = subscriptionStatus;
       this.taxInformation = taxInformation;
+      this.isUnpaid = this.subscriptionStatus === "unpaid";
 
       if (this.organizationId) {
         const organizationSubscriptionPromise = this.organizationApiService.getSubscription(
           this.organizationId,
         );
+
         const userId = await firstValueFrom(
           this.accountService.activeAccount$.pipe(map((a) => a?.id)),
         );
+
+        if (!userId) {
+          throw new Error("User ID is not found");
+        }
+
         const organizationPromise = await firstValueFrom(
           this.organizationService
             .organizations$(userId)
@@ -173,15 +172,14 @@ export class OrganizationPaymentMethodComponent implements OnDestroy {
           organizationSubscriptionPromise,
           organizationPromise,
         ]);
-        this.freeTrialData = this.trialFlowService.checkForOrgsWithUpcomingPaymentIssues(
-          this.organization,
-          this.organizationSubscriptionResponse,
-          paymentSource,
-        );
+
+        if (!this.organization) {
+          throw new Error("Organization is not found");
+        }
+        if (!this.paymentSource) {
+          throw new Error("Payment source is not found");
+        }
       }
-      // TODO: Eslint upgrade. Please resolve this since the ?? does nothing
-      // eslint-disable-next-line no-constant-binary-expression
-      this.isUnpaid = this.subscriptionStatus === "unpaid" ?? false;
       // If the flag `launchPaymentModalAutomatically` is set to true,
       // we schedule a timeout (delay of 800ms) to automatically launch the payment modal.
       // This delay ensures that any prior UI/rendering operations complete before triggering the modal.
@@ -219,14 +217,14 @@ export class OrganizationPaymentMethodComponent implements OnDestroy {
     const dialogRef = TrialPaymentDialogComponent.open(this.dialogService, {
       data: {
         organizationId: this.organizationId,
-        subscription: this.organizationSubscriptionResponse,
-        productTierType: this.organization?.productTierType,
+        subscription: this.organizationSubscriptionResponse!,
+        productTierType: this.organization!.productTierType,
       },
     });
     const result = await lastValueFrom(dialogRef.closed);
     if (result === TRIAL_PAYMENT_METHOD_DIALOG_RESULT_TYPE.SUBMITTED) {
       this.location.replaceState(this.location.path(), "", {});
-      if (this.launchPaymentModalAutomatically && !this.organization.enabled) {
+      if (this.launchPaymentModalAutomatically && !this.organization?.enabled) {
         await this.syncService.fullSync(true);
       }
       this.launchPaymentModalAutomatically = false;
@@ -238,13 +236,14 @@ export class OrganizationPaymentMethodComponent implements OnDestroy {
     await this.billingApiService.verifyOrganizationBankAccount(this.organizationId, request);
     this.toastService.showToast({
       variant: "success",
-      title: null,
+      title: "",
       message: this.i18nService.t("verifiedBankAccount"),
     });
   };
 
   protected get accountCreditHeaderText(): string {
-    const key = this.accountCredit <= 0 ? "accountBalance" : "accountCredit";
+    const hasAccountCredit = this.accountCredit && this.accountCredit > 0;
+    const key = hasAccountCredit ? "accountCredit" : "accountBalance";
     return this.i18nService.t(key);
   }
 
@@ -279,7 +278,7 @@ export class OrganizationPaymentMethodComponent implements OnDestroy {
     if (!hasBillingAddress) {
       this.toastService.showToast({
         variant: "error",
-        title: null,
+        title: "",
         message: this.i18nService.t("billingAddressRequiredToAddCredit"),
       });
       return false;

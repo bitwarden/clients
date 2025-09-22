@@ -17,9 +17,9 @@ manual_test = []
 anyhow = { workspace = true }
 autotype = { path = "../autotype" }
 base64 = { workspace = true }
+bitwarden_chromium_importer = { path = "../bitwarden_chromium_importer" }
 desktop_core = { path = "../core" }
 hex = { workspace = true }
-log = { workspace = true }
 napi = { workspace = true, features = ["async"] }
 napi-derive = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
@@ -27,6 +27,8 @@ serde_json = { workspace = true }
 tokio = { workspace = true }
 tokio-stream = { workspace = true }
 tokio-util = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
 
 [target.'cfg(windows)'.dependencies]
 windows-registry = { workspace = true }

@@ -960,9 +960,6 @@
   "insertU2f": {
     "message": "Włóż klucz bezpieczeństwa do portu USB urządzenia. Jeśli klucz ma przycisk, dotknij go."
   },
-  "recoveryCodeDesc": {
-    "message": "Nie masz dostępu do logowania dwustopniowego? Użyj kodu odzyskiwania, aby je wyłączyć."
-  },
   "recoveryCodeTitle": {
     "message": "Kod odzyskiwania"
   },
@@ -2124,10 +2121,10 @@
     "message": "Połączenie z przeglądarką nie jest obsługiwane"
   },
   "browserIntegrationErrorTitle": {
-    "message": "Błąd podczas włączania integracji z przeglądarką"
+    "message": "Błąd podczas włączania połączenia z przeglądarką"
   },
   "browserIntegrationErrorDesc": {
-    "message": "Wystąpił błąd podczas włączania integracji z przeglądarką."
+    "message": "Wystąpił błąd podczas włączania połączenia z przeglądarką."
   },
   "browserIntegrationMasOnlyDesc": {
     "message": "Połączenie z przeglądarką jest obsługiwane tylko z wersją aplikacji ze sklepu Mac App Store."
@@ -2988,7 +2985,7 @@
     "message": "Powiadomienie zostało wysłane na urządzenie"
   },
   "notificationSentDevicePart1": {
-    "message": "Odblokuj Bitwarden na swoim urządzeniu lub w"
+    "message": "Odblokuj Bitwarden na swoim urządzeniu lub w "
   },
   "notificationSentDeviceAnchor": {
     "message": "aplikacji internetowej"
@@ -3012,7 +3009,7 @@
     "message": "Logowanie za pomocą urządzenia musi być włączone w ustawieniach aplikacji Bitwarden. Potrzebujesz innej opcji?"
   },
   "viewAllLogInOptions": {
-    "message": "Zobacz wszystkie sposoby logowania"
+    "message": "Pokaż wszystkie metody logowania"
   },
   "viewAllLoginOptions": {
     "message": "Pokaż wszystkie metody logowania"
@@ -3588,6 +3585,12 @@
   "awaitingSSODesc": {
     "message": "Kontynuuj logowanie przy użyciu danych firmowych."
   },
+  "importDirectlyFromBrowser": {
+    "message": "Import directly from browser"
+  },
+  "browserProfile": {
+    "message": "Browser Profile"
+  },
   "seeDetailedInstructions": {
     "message": "Zobacz szczegółowe instrukcje na naszej stronie pomocy pod adresem",
     "description": "This is followed a by a hyperlink to the help website."
@@ -3829,6 +3832,12 @@
   },
   "changeAtRiskPassword": {
     "message": "Zmień zagrożone hasło"
+  },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "Nie możesz usunąć następujących kolekcji z uprawnieniami tylko do odczytu: $COLLECTIONS$",
@@ -4080,5 +4089,23 @@
   "moreBreadcrumbs": {
     "message": "Więcej nawigacji",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "next": {
+    "message": "Dalej"
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Potwierdź domenę Key Connector"
+  },
+  "confirm": {
+    "message": "Potwierdź"
+  },
+  "enableAutotypeTransitionKey": {
+    "message": "Enable autotype shortcut"
+  },
+  "enableAutotypeDescriptionTransitionKey": {
+    "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."
+  },
+  "editShortcut": {
+    "message": "Edytuj skrót"
   }
 }

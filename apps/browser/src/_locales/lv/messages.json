@@ -556,6 +556,9 @@
   "view": {
     "message": "Skatīt"
   },
+  "viewLogin": {
+    "message": "Apskatīt pieteikšanās vienumu"
+  },
   "noItemsInList": {
     "message": "Nav vienumu, ko parādīt."
   },
@@ -1522,9 +1525,6 @@
   "selectTwoStepLoginMethod": {
     "message": "Atlasīt divpakāpju pieteikšanās veidu"
   },
-  "recoveryCodeDesc": {
-    "message": "Zaudēta piekļuve visiem divpakāpju nodrošinātājiem? Izmanto atkopes kodus, lai atspējotu visus sava konta divpakāpju nodrošinātājus!"
-  },
   "recoveryCodeTitle": {
     "message": "Atkopes kods"
   },
@@ -1683,9 +1683,6 @@
   "defaultAutoFillOnPageLoadDesc": {
     "message": "Automātisko aizpildi lapas ielādes brīdī atsevišķiem pieteikšanās vienumiem var atslēgt vienuma labošanas skatā."
   },
-  "itemAutoFillOnPageLoad": {
-    "message": "Automātiski aizpildīt lapas ielādes brīdī (ja iespējots iestatījumos)"
-  },
   "autoFillOnPageLoadUseDefault": {
     "message": "Izmantot noklusējuma iestatījumu"
   },
@@ -1757,17 +1754,8 @@
   "popup2faCloseMessage": {
     "message": "Klikšķināšana ārpus uznirstošā loga, lai e-pastā apskatītu apliecinājuma kodu, to aizvērs. Vai atvērt to atsevišķā logā, lai tas netiktu aizvērts?"
   },
-  "popupU2fCloseMessage": {
-    "message": "Šis pārlūks nevar apstrādāt U2F pieprasījumus šajā uznirstošajā logā. Vai atvērt to atsevišķā logā, lai varētu pieteikties, izmantojot U2F?"
-  },
   "showIconsChangePasswordUrls": {
     "message": "Rādīt tīmekļvietņu ikonas un iegūt paroles nomaiņas URL"
-  },
-  "enableBadgeCounter": {
-    "message": "Rādīt skaita nozīmīti"
-  },
-  "badgeCounterDesc": {
-    "message": "Attēlot pašreizējāi tīmekļa vietnei atbilstošo pieteikšanās vienumu skaitu."
   },
   "cardholderName": {
     "message": "Kartes īpašnieka vārds"
@@ -1931,32 +1919,81 @@
   "typeNote": {
     "message": "Piezīme"
   },
-  "newItemHeader": {
-    "message": "Jauns/a $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderLogin": {
+    "message": "Jauns pieteikšanās vienums",
+    "description": "Header for new login item type"
   },
-  "editItemHeader": {
-    "message": "Labot $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderCard": {
+    "message": "Jauna karte",
+    "description": "Header for new card item type"
   },
-  "viewItemHeader": {
-    "message": "Apskatīt $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderIdentity": {
+    "message": "Jauna identitāte",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "Jauna piezīme",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "Jauna SSH atslēga",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderTextSend": {
+    "message": "Jauns teksta Send",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "Jauns datnes Send",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderLogin": {
+    "message": "Labot pieteikšanās vienumu",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Labot karti",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Labot identitāti",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Labot piezīmi",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "Labot SSH atslēgu",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Labot teksta Send",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Labot datnes Send",
+    "description": "Header for edit file send"
+  },
+  "viewItemHeaderLogin": {
+    "message": "Apskatīt pieteikšanās vienumu",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "Apskatīt karti",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "Skatīt identitāti",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "Apskatīt piezīmi",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "Apskatīt SSH atslēgu",
+    "description": "Header for view SSH key item type"
   },
   "passwordHistory": {
     "message": "Paroļu vēsture"
@@ -3518,9 +3555,6 @@
   "autofillPageLoadPolicyActivated": {
     "message": "Tavas apvienības nosacījumos ir ieslēgta automātiskā aizpilde lapas ielādes brīdī."
   },
-  "howToAutofill": {
-    "message": "Kā automātiski aizpildīt"
-  },
   "autofillSelectInfoWithCommand": {
     "message": "Jāizvēlas šī skata vienums, jāizmanto īsceļš $COMMAND$ vai iestatījumos jāizpēta citas iespējas.",
     "placeholders": {
@@ -3905,17 +3939,9 @@
   "aliasDomain": {
     "message": "Aizstājdomēns"
   },
-  "passwordRepromptDisabledAutofillOnPageLoad": {
-    "message": "Vienumus ar galvenās paroles pārvaicāšanu nevar automātiski aizpildīt lapas ielādes brīdī. Automātiskā aizpilde lapas ielādes brīdī ir izslēgta.",
-    "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
-  },
   "autofillOnPageLoadSetToDefault": {
     "message": "Automātiskā aizpilde lapas ielādes brīdī iestatīta izmantot noklusējuma iestatījumu.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "turnOffMasterPasswordPromptToEditField": {
-    "message": "Jāizslēdz galvenās paroles pārvaicāšana, lai labotu šo lauku",
-    "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
   },
   "toggleSideNavigation": {
     "message": "Pārslēgt sānu pārvietošanās joslu"
@@ -4185,9 +4211,6 @@
   },
   "passkeyNotCopiedAlert": {
     "message": "Piekļuves atslēga netiks ievietota klonētajā vienumā. Vai turpināt šī vienuma klonēšanu?"
-  },
-  "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
-    "message": "Vietne, kurā tika uzsākta darbība, pieprasa apliecinājumu. Šī iespēja vēl nav īstenota kontiem, kuriem nav galvenās paroles."
   },
   "logInWithPasskeyQuestion": {
     "message": "Pieteikties ar piekļuves atslēgu?"
@@ -4874,9 +4897,6 @@
       }
     }
   },
-  "enableAnimations": {
-    "message": "Iespējot animācijas"
-  },
   "showAnimations": {
     "message": "Rādīt animācijas"
   },
@@ -5089,14 +5109,8 @@
   "itemLocation": {
     "message": "Vienuma atrašanās vieta"
   },
-  "fileSend": {
-    "message": "Datņu Send"
-  },
   "fileSends": {
     "message": "Datņu Send"
-  },
-  "textSend": {
-    "message": "Teksta Send"
   },
   "textSends": {
     "message": "Teksta Send"
@@ -5108,10 +5122,10 @@
     "message": "Paplašinājuma ikonā rādīt pieteikšanās automātiskās aizpildes ieteikumu skaitu"
   },
   "accountAccessRequested": {
-    "message": "Account access requested"
+    "message": "Pieprasīta piekļuve kontam"
   },
   "confirmAccessAttempt": {
-    "message": "Confirm access attempt for $EMAIL$",
+    "message": "Apstiprināt $EMAIL$ piekļuves mēģinājumu",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -5157,9 +5171,6 @@
   },
   "vaultCustomTimeoutMinimum": {
     "message": "Mazākā pieļaujamā pielāgotā noildze ir 1 minūte."
-  },
-  "additionalContentAvailable": {
-    "message": "Ir pieejams papildu saturs"
   },
   "fileSavedToDevice": {
     "message": "Datne saglabāta ierīcē. Tā ir atrodama ierīces lejupielāžu mapē."
@@ -5446,6 +5457,12 @@
   "changeAtRiskPassword": {
     "message": "Mainīt riskam pakļautu paroli"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Šis pieteikšanās vienums ir pakļauts riskam, un tam nav norādīta tīmekļvietne. Lielākai drošībai jāpievieno tīmekļvietne un jānomaina parole."
+  },
+  "missingWebsite": {
+    "message": "Nav norādīta tīmekļvietne"
+  },
   "settingsVaultOptions": {
     "message": "Glabātavas iespējas"
   },
@@ -5493,6 +5510,18 @@
   },
   "hasItemsVaultNudgeTitle": {
     "message": "Laipni lūdzam Tavā glabātavā!"
+  },
+  "phishingPageTitle": {
+    "message": "Pikšķerēšanas tīmekļvietne"
+  },
+  "phishingPageCloseTab": {
+    "message": "Aizvērt cilni"
+  },
+  "phishingPageContinue": {
+    "message": "Turpināt"
+  },
+  "phishingPageLearnWhy": {
+    "message": "Kāpēc šis ir redzams?"
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Automātiska pašreizējās lapas vienumu aizpildīšana"
@@ -5588,8 +5617,14 @@
   "showLess": {
     "message": "Rādīt mazāk"
   },
+  "next": {
+    "message": "Nākamais"
+  },
   "moreBreadcrumbs": {
     "message": "Vairāk norāžu",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Apstiprināt Key Connector domēnu"
   }
 }

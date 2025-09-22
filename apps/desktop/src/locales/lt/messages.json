@@ -960,9 +960,6 @@
   "insertU2f": {
     "message": "Įkiškite savo saugos raktą į kompiuterio USB prievadą. Jei jame yra mygtukas, palieskite jį."
   },
-  "recoveryCodeDesc": {
-    "message": "Praradote prieigą prie visų savo dviejų faktorių tiekėjų? Naudokite atkūrimo kodą, kad iš savo paskyros išjungtumėte visus dviejų faktorių tiekėjus."
-  },
   "recoveryCodeTitle": {
     "message": "Atkūrimo kodas"
   },
@@ -3588,6 +3585,12 @@
   "awaitingSSODesc": {
     "message": "Prašome toliau prisijungti naudojant savo įmonės prisijungimo duomenis."
   },
+  "importDirectlyFromBrowser": {
+    "message": "Import directly from browser"
+  },
+  "browserProfile": {
+    "message": "Browser Profile"
+  },
   "seeDetailedInstructions": {
     "message": "Peržiūrėkite detalias instrukcijas mūsų pagalbos tinklalapyje, esančiam",
     "description": "This is followed a by a hyperlink to the help website."
@@ -3829,6 +3832,12 @@
   },
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
+  },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
@@ -4080,5 +4089,23 @@
   "moreBreadcrumbs": {
     "message": "More breadcrumbs",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "next": {
+    "message": "Next"
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Confirm Key Connector domain"
+  },
+  "confirm": {
+    "message": "Confirm"
+  },
+  "enableAutotypeTransitionKey": {
+    "message": "Enable autotype shortcut"
+  },
+  "enableAutotypeDescriptionTransitionKey": {
+    "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."
+  },
+  "editShortcut": {
+    "message": "Edit shortcut"
   }
 }

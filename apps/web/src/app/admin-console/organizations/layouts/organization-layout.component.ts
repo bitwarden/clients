@@ -68,9 +68,7 @@ export class OrganizationLayoutComponent implements OnInit {
   hideNewOrgButton$: Observable<boolean>;
   organizationIsUnmanaged$: Observable<boolean>;
 
-  protected isBreadcrumbEventLogsEnabled$: Observable<boolean>;
   protected showSponsoredFamiliesDropdown$: Observable<boolean>;
-  protected canShowPoliciesTab$: Observable<boolean>;
 
   protected paymentDetailsPageData$: Observable<{
     route: string;
@@ -94,9 +92,6 @@ export class OrganizationLayoutComponent implements OnInit {
   ) {}
 
   async ngOnInit() {
-    this.isBreadcrumbEventLogsEnabled$ = this.configService.getFeatureFlag$(
-      FeatureFlag.PM12276_BreadcrumbEventLogs,
-    );
     document.body.classList.remove("layout_frontend");
 
     this.organization$ = this.route.params.pipe(
@@ -126,8 +121,13 @@ export class OrganizationLayoutComponent implements OnInit {
       switchMap((userId) => this.policyService.policyAppliesToUser$(PolicyType.SingleOrg, userId)),
     );
 
-    const provider$ = this.organization$.pipe(
-      switchMap((organization) => this.providerService.get$(organization.providerId)),
+    const provider$ = combineLatest([
+      this.organization$,
+      this.accountService.activeAccount$.pipe(getUserId),
+    ]).pipe(
+      switchMap(([organization, userId]) =>
+        this.providerService.get$(organization.providerId, userId),
+      ),
     );
 
     this.organizationIsUnmanaged$ = combineLatest([this.organization$, provider$]).pipe(
@@ -140,18 +140,6 @@ export class OrganizationLayoutComponent implements OnInit {
     );
 
     this.integrationPageEnabled$ = this.organization$.pipe(map((org) => org.canAccessIntegrations));
-
-    this.canShowPoliciesTab$ = this.organization$.pipe(
-      switchMap((organization) =>
-        this.organizationBillingService
-          .isBreadcrumbingPoliciesEnabled$(organization)
-          .pipe(
-            map(
-              (isBreadcrumbingEnabled) => isBreadcrumbingEnabled || organization.canManagePolicies,
-            ),
-          ),
-      ),
-    );
 
     this.paymentDetailsPageData$ = this.configService
       .getFeatureFlag$(FeatureFlag.PM21881_ManagePaymentDetailsOutsideCheckout)
