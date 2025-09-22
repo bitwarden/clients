@@ -15,15 +15,17 @@
       "dataLastUpdated" | i18n: (dataLastUpdated$ | async | date: "MMMM d, y 'at' h:mm a")
     }}</span>
     <span class="tw-flex tw-justify-center tw-w-16">
-      <a
+      <button
         *ngIf="!(isRefreshing$ | async)"
+        type="button"
         bitButton
-        buttonType="unstyled"
+        buttonType="secondary"
         class="tw-border-none !tw-font-normal tw-cursor-pointer !tw-py-0"
+        tabindex="0"
         [bitAction]="refreshData.bind(this)"
       >
         {{ "refresh" | i18n }}
-      </a>
+      </button>
       <span>
         <i
           *ngIf="isRefreshing$ | async"

@@ -5511,6 +5511,18 @@
   "hasItemsVaultNudgeTitle": {
     "message": "欢迎来到您的密码库！"
   },
+  "phishingPageTitle": {
+    "message": "钓鱼网站"
+  },
+  "phishingPageCloseTab": {
+    "message": "关闭标签页"
+  },
+  "phishingPageContinue": {
+    "message": "继续"
+  },
+  "phishingPageLearnWhy": {
+    "message": "您为什么会看到这个？"
+  },
   "hasItemsVaultNudgeBodyOne": {
     "message": "为当前页面自动填充项目"
   },
