@@ -1587,9 +1587,6 @@
   "selectTwoStepLoginMethod": {
     "message": "Select two-step login method"
   },
-  "recoveryCodeDesc": {
-    "message": "Lost access to all of your two-step login providers? Use your recovery code to turn off all two-step login providers from your account."
-  },
   "recoveryCodeTitle": {
     "message": "Recovery code"
   },
@@ -9845,6 +9842,9 @@
   "bearerToken": {
     "message": "Bearer Token"
   },
+  "repositoryNameHint": {
+    "message": "Name of the repository to ingest into"
+  },
   "index": {
     "message": "Index"
   },
@@ -11341,5 +11341,26 @@
   },
   "verifyNow": {
     "message": "Verify now."
+  },
+  "additionalStorageGB": {
+    "message": "Additional storage GB"
+  },
+  "additionalServiceAccountsV2": {
+    "message": "Additional machine accounts"
+  },
+  "secretsManagerSeats": {
+    "message": "Secrets Manager seats"
+  },
+  "additionalStorage": {
+    "message": "Additional Storage"
+  },
+  "expandPurchaseDetails": {
+    "message": "Expand purchase details"
+  },
+  "collapsePurchaseDetails": {
+    "message": "Collapse purchase details"
+  },
+  "familiesMembership": {
+    "message": "Families membership"
   }
 }

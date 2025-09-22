@@ -5,11 +5,11 @@
 }
 
 @if (!(isLoading$ | async) && (noData$ | async)) {
-  <div class="tw-mt-4" *ngIf="">
+  <div class="tw-mt-4">
     <bit-no-items class="tw-text-main">
       <ng-container slot="title">
         <h2 class="tw-font-semibold tw-mt-4">
-          {{ organization?.name }}
+          {{ "noAppsInOrgTitle" | i18n: organization?.name }}
         </h2>
       </ng-container>
       <ng-container slot="description">

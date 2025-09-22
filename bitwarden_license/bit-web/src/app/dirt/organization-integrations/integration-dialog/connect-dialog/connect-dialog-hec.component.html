@@ -13,15 +13,24 @@
         <ng-container>
           <bit-form-field>
             <bit-label>{{ "url" | i18n }}</bit-label>
-            <input bitInput formControlName="url" />
+            <input
+              bitInput
+              type="text"
+              formControlName="url"
+              placeholder="https://<customer-id>.crowdstrike.com"
+            />
           </bit-form-field>
+
           <bit-form-field>
             <bit-label>{{ "bearerToken" | i18n }}</bit-label>
-            <input bitInput formControlName="bearerToken" />
+            <input bitInput type="text" formControlName="bearerToken" />
+            <bit-hint>{{ "apiKey" | i18n }}</bit-hint>
           </bit-form-field>
+
           <bit-form-field>
             <bit-label>{{ "index" | i18n }}</bit-label>
-            <input bitInput formControlName="index" />
+            <input bitInput type="text" formControlName="index" />
+            <bit-hint>{{ "repositoryNameHint" | i18n }}</bit-hint>
           </bit-form-field>
         </ng-container>
       }

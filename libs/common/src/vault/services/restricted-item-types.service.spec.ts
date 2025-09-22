@@ -52,12 +52,7 @@ describe("RestrictedItemTypesService", () => {
     organizationService.organizations$.mockReturnValue(of([org1, org2]));
     policyService.policiesByType$.mockReturnValue(of([]));
 
-    service = new RestrictedItemTypesService(
-      configService,
-      accountService,
-      organizationService,
-      policyService,
-    );
+    service = new RestrictedItemTypesService(accountService, organizationService, policyService);
   });
 
   it("emits empty array when feature flag is disabled", async () => {

@@ -37,7 +37,7 @@ export class ConnectHecDialogComponent implements OnInit {
   hecConfig: HecConfiguration | null = null;
   hecTemplate: HecTemplate | null = null;
   formGroup = this.formBuilder.group({
-    url: ["", [Validators.required, Validators.pattern("https?://.+")]],
+    url: ["", [Validators.required, Validators.minLength(7)]],
     bearerToken: ["", Validators.required],
     index: ["", Validators.required],
     service: ["", Validators.required],
