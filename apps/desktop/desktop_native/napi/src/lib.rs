@@ -969,7 +969,7 @@ pub mod chromium_importer {
     }
 
     #[napi]
-    pub async fn configure_windows_crypto_service(admin_exe_path: String) {
+    pub fn configure_windows_crypto_service(admin_exe_path: String) {
         bitwarden_chromium_importer::chromium::configure_windows_crypto_service(&admin_exe_path)
     }
 }

@@ -231,7 +231,7 @@ export declare namespace chromium_importer {
   export function getInstalledBrowsers(): Array<string>
   export function getAvailableProfiles(browser: string): Array<ProfileInfo>
   export function importLogins(browser: string, profileId: string): Promise<Array<LoginImportResult>>
-  export function configureWindowsCryptoService(adminExePath: string): Promise<void>
+  export function configureWindowsCryptoService(adminExePath: string): void
 }
 export declare namespace autotype {
   export function getForegroundWindowTitle(): string
