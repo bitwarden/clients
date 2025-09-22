@@ -5511,6 +5511,18 @@
   "hasItemsVaultNudgeTitle": {
     "message": "Bem-vindo ao seu cofre!"
   },
+  "phishingPageTitle": {
+    "message": "Site de phishing"
+  },
+  "phishingPageCloseTab": {
+    "message": "Fechar separador"
+  },
+  "phishingPageContinue": {
+    "message": "Continuar"
+  },
+  "phishingPageLearnWhy": {
+    "message": "Porque é que está a ver isto?"
+  },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Preenchimento automático de itens para a página atual"
   },

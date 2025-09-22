@@ -53,3 +53,8 @@ export * from "./vault-open";
 export * from "./vault.icon";
 export * from "./vault";
 export * from "./wave.icon";
+export * from "./organization.icon";
+export * from "./trash.icon";
+export * from "./favorites.icon";
+export * from "./empty-vault.icon";
+export * from "./empty-search.icon";

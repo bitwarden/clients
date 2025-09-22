@@ -84,6 +84,7 @@ import {
   AttachmentDialogCloseResult,
   AttachmentDialogResult,
   AttachmentsV2Component,
+  CipherArchiveService,
   CipherFormConfig,
   CollectionAssignmentResult,
   DecryptionFailureDialogComponent,
@@ -198,6 +199,13 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     .pipe(map((a) => a?.id))
     .pipe(switchMap((id) => this.organizationService.organizations$(id)));
 
+  private userCanArchive$ = this.accountService.activeAccount$.pipe(
+    getUserId,
+    switchMap((userId) => {
+      return this.cipherArchiveService.userCanArchive$(userId);
+    }),
+  );
+
   emptyState$ = combineLatest([this.currentSearchText$]).pipe(
     map(([searchText]) => {
       if (this.isSelectedOrgDisabled()) {
@@ -269,6 +277,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     private cipherFormConfigService: DefaultCipherFormConfigService,
     protected billingApiService: BillingApiServiceAbstraction,
     private restrictedItemTypesService: RestrictedItemTypesService,
+    private cipherArchiveService: CipherArchiveService,
     private organizationWarningsService: OrganizationWarningsService,
   ) {}
 
@@ -365,12 +374,17 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       ),
     );
 
-    const ciphers$ = combineLatest([allowedCiphers$, filter$, this.currentSearchText$]).pipe(
+    const ciphers$ = combineLatest([
+      allowedCiphers$,
+      filter$,
+      this.currentSearchText$,
+      this.userCanArchive$,
+    ]).pipe(
       filter(([ciphers, filter]) => ciphers != undefined && filter != undefined),
-      concatMap(async ([ciphers, filter, searchText]) => {
+      concatMap(async ([ciphers, filter, searchText, archiveEnabled]) => {
         const failedCiphers =
           (await firstValueFrom(this.cipherService.failedToDecryptCiphers$(activeUserId))) ?? [];
-        const filterFunction = createFilterFunction(filter);
+        const filterFunction = createFilterFunction(filter, archiveEnabled);
         // Append any failed to decrypt ciphers to the top of the cipher list
         const allCiphers = [...failedCiphers, ...ciphers];
 

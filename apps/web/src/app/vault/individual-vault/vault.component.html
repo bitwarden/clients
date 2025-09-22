@@ -69,10 +69,20 @@
       *ngIf="isEmpty && !performingInitialLoad"
     >
       <bit-no-items [icon]="noItemIcon">
-        <h4 bitTypography="h4">
+        <div slot="title" *ngIf="filter.type === 'archive'">
+          {{ "noItemsInArchive" | i18n }}
+        </div>
+        <p slot="description" class="tw-text-center tw-max-w-md" *ngIf="filter.type === 'archive'">
+          {{ "archivedItemsDescription" | i18n }}
+        </p>
+        <div slot="title" *ngIf="filter.type !== 'archive'">
           {{ (emptyState$ | async)?.title | i18n }}
-        </h4>
-        <p bitTypography="body2" class="tw-w-[300px] tw-text-center">
+        </div>
+        <p
+          bitTypography="body2"
+          class="tw-w-[300px] tw-text-center"
+          *ngIf="filter.type !== 'archive'"
+        >
           {{ (emptyState$ | async)?.description | i18n }}
         </p>
         <button
@@ -80,8 +90,8 @@
           buttonType="primary"
           bitButton
           (click)="addCipher()"
-          *ngIf="filter.type !== 'trash'"
           slot="button"
+          *ngIf="filter.type !== 'trash' && filter.type !== 'archive'"
         >
           <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i>
           {{ "newItem" | i18n }}

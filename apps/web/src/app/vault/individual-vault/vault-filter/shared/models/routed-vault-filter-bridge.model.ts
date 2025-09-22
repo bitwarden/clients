@@ -130,6 +130,9 @@ export class RoutedVaultFilterBridge implements VaultFilter {
   get isDeleted(): boolean {
     return this.legacyFilter.isDeleted;
   }
+  get isArchived(): boolean {
+    return this.legacyFilter.isArchived;
+  }
   get organizationId(): string {
     return this.legacyFilter.organizationId;
   }
