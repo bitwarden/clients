@@ -94,6 +94,19 @@ export const NoTitle: Story = {
   },
 };
 
+export const NoTitleWithIcon: Story = {
+  render: (args) => ({
+    props: args,
+    template: `
+      <bit-callout ${formatArgsForCodeSnippet<CalloutComponent>(args)}>The content of the callout</bit-callout>
+    `,
+  }),
+  args: {
+    type: "secondary",
+    icon: "bwi-globe",
+  },
+};
+
 export const WithTextButton: Story = {
   render: (args) => ({
     props: args,
@@ -106,5 +119,6 @@ export const WithTextButton: Story = {
   }),
   args: {
     type: "secondary",
+    icon: "",
   },
 };

@@ -1,20 +1,31 @@
 <aside
-  class="tw-mb-4 tw-box-border tw-border tw-rounded-lg tw-bg-background tw-ps-4 tw-pe-4 tw-py-3 tw-leading-5"
-  [ngClass]="calloutClass()"
+  class="tw-mb-4 tw-box-border tw-border tw-rounded-lg tw-bg-background tw-ps-4 tw-pe-4 tw-py-3 tw-leading-5 tw-flex"
+  [ngClass]="[calloutClass(), titleComputed() ? 'tw-flex-col' : '']"
   [attr.aria-labelledby]="titleId"
 >
-  @if (titleComputed(); as title) {
+  @let title = titleComputed();
+  @let icon = iconComputed();
+  @if (title || icon) {
     <header
       id="{{ titleId }}"
-      class="tw-mb-0.5 tw-mt-0 tw-text-base tw-font-semibold tw-flex tw-gap-3 tw-items-start"
+      class="tw-mb-0.5 tw-mt-0 tw-text-base tw-font-semibold tw-flex tw-gap-3"
     >
-      @if (iconComputed(); as icon) {
-        <i class="bwi tw-relative tw-top-[3px]" [ngClass]="[icon]" aria-hidden="true"></i>
+      @if (icon) {
+        <i
+          class="bwi tw-relative"
+          [ngClass]="[icon, title ? 'tw-mt-1' : 'tw-mt-0.5']"
+          aria-hidden="true"
+        ></i>
       }
-      {{ title }}
+      @if (title) {
+        {{ title }}
+      }
     </header>
   }
-  <div [ngClass]="titleComputed() ? 'tw-ps-7' : 'tw-ps-0'" bitTypography="body2">
+  <div
+    [ngClass]="[title ? 'tw-ps-7' : 'tw-ps-0', icon ? 'tw-ps-3' : 'tw-ps-0']"
+    bitTypography="body2"
+  >
     <ng-content></ng-content>
   </div>
 </aside>
