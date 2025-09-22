@@ -11,7 +11,7 @@ import {
 } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
-import { firstValueFrom, Subject, takeUntil } from "rxjs";
+import { firstValueFrom, merge, Subject, takeUntil } from "rxjs";
 import { debounceTime, map, switchMap } from "rxjs/operators";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -273,15 +273,11 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
 
     this.loading = false;
 
-    this.formGroup.valueChanges
-      .pipe(
-        debounceTime(1000),
-        switchMap(async () => await this.refreshSalesTax()),
-        takeUntil(this.destroy$),
-      )
-      .subscribe();
-
-    this.secretsManagerForm.valueChanges
+    merge(
+      this.formGroup.valueChanges,
+      this.billingFormGroup.valueChanges,
+      this.secretsManagerForm.valueChanges,
+    )
       .pipe(
         debounceTime(1000),
         switchMap(async () => await this.refreshSalesTax()),
