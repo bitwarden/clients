@@ -121,9 +121,9 @@ describe("ConnectDialogHecComponent", () => {
     expect(component.formGroup.valid).toBeTruthy();
   });
 
-  it("should invalidate url if not matching pattern", () => {
+  it("should test url is at least 7 characters long", () => {
     component.formGroup.setValue({
-      url: "ftp://test.com",
+      url: "test",
       bearerToken: "token",
       index: "1",
       service: "Test Service",

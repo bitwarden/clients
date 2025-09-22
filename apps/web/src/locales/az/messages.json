@@ -2,6 +2,9 @@
   "allApplications": {
     "message": "Bütün tətbiqlər"
   },
+  "activity": {
+    "message": "Fəaliyyət"
+  },
   "appLogoLabel": {
     "message": "Bitwarden loqosu"
   },
@@ -56,8 +59,20 @@
   "createNewLoginItem": {
     "message": "Yeni giriş elementi yarat"
   },
+  "criticalApplicationsActivityDescription": {
+    "message": "Tətbiqləri kritik olaraq işarələsəniz, onlar burada nümayiş olunacaq."
+  },
   "criticalApplicationsWithCount": {
     "message": "Kritik tətbiqlər ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfCriticalApplications": {
+    "message": "$COUNT$ kritik tətbiq",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -87,13 +102,13 @@
     "message": "İstifadəçilər giriş məlumatlarını saxladıqda, tətbiqlər burada görünür və riskli parolları göstərir. Kritik tətbiqləri işarələyin və parollarını güncəlləməsi üçün istifadəçiləri məlumatlandırın."
   },
   "noCriticalApplicationsTitle": {
-    "message": "You haven’t marked any applications as critical"
+    "message": "Heç bir tətbiqi kritik olaraq işarələməmisiniz"
   },
   "noCriticalApplicationsDescription": {
-    "message": "Select your most critical applications to prioritize security actions for your users to address at-risk passwords."
+    "message": "İstifadəçilərinizin risk altında olan parollara müraciət etmələri üçün təhlükəsizlik tədbirlərinə üstünlük verməsi məqsədilə ən kritik tətbiqlərinizi seçin."
   },
   "markCriticalApplications": {
-    "message": "Select critical applications"
+    "message": "Kritik tətbiqləri seç"
   },
   "markAppAsCritical": {
     "message": "Tətbiqi kritik olaraq işarələ"
@@ -118,6 +133,18 @@
   },
   "atRiskMembers": {
     "message": "Riskli üzvlər"
+  },
+  "membersAtRiskActivityDescription": {
+    "message": "Kritik tətbiqlər üçün risk altındakı elementlərə düzəliş erişimi olan üzvlər"
+  },
+  "membersAtRisk": {
+    "message": "$COUNT$ üzv riskdədir",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "atRiskMembersWithCount": {
     "message": "Risk altındakı üzvlər ($COUNT$)",
@@ -180,7 +207,7 @@
     "message": "Kritik olaraq işarələməni götür"
   },
   "criticalApplicationUnmarkedSuccessfully": {
-    "message": "Successfully unmarked application as critical"
+    "message": "Tətbiqin kritik olaraq işarələnməsi uğurla götürüldü"
   },
   "whatTypeOfItem": {
     "message": "Bu elementin növü nədir?"
@@ -734,32 +761,81 @@
   "viewItem": {
     "message": "Elementə bax"
   },
-  "newItemHeader": {
-    "message": "Yeni $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderLogin": {
+    "message": "Yeni giriş",
+    "description": "Header for new login item type"
   },
-  "editItemHeader": {
-    "message": "$TYPE$ - düzəliş et",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderCard": {
+    "message": "Yeni kart",
+    "description": "Header for new card item type"
   },
-  "viewItemType": {
-    "message": "$ITEMTYPE$ - bax",
-    "placeholders": {
-      "itemtype": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderIdentity": {
+    "message": "Yeni kimlik",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "Yeni not",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "Yeni SSH açarı",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderTextSend": {
+    "message": "Yeni Send mətni",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "Yeni Send faylı",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderLogin": {
+    "message": "Girişə düzəliş et",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Karta düzəliş et",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Kimliyə düzəliş et",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Nota düzəliş et",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "SSH açarına düzəliş et",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Send mətninə düzəliş et",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Send faylına düzəliş et",
+    "description": "Header for edit file send"
+  },
+  "viewItemHeaderLogin": {
+    "message": "Girişə bax",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "Karta bax",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "Kimliyə bax",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "Nota bax",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "SSH açarına bax",
+    "description": "Header for view SSH key item type"
   },
   "new": {
     "message": "Yeni",
@@ -1510,9 +1586,6 @@
   "selectTwoStepLoginMethod": {
     "message": "İki addımlı giriş üsulunu seçin"
   },
-  "recoveryCodeDesc": {
-    "message": "İki addımlı giriş provayderlərinizə erişə bilmirsiniz? Geri qaytarma kodunuzu istifadə edərək hesabınızdakı bütün iki addımlı giriş provayderlərini söndürə bilərsiniz."
-  },
   "recoveryCodeTitle": {
     "message": "Geri qaytarma kodu"
   },
@@ -2115,7 +2188,7 @@
     "message": "Veb seyfdə istifadə olunan dili dəyişdirin."
   },
   "showIconsChangePasswordUrls": {
-    "message": "Show website icons and retrieve change password URLs"
+    "message": "Veb sayt ikonlarını göstər və parol dəyişdirmə URL-lərini al"
   },
   "default": {
     "message": "İlkin"
@@ -7431,7 +7504,7 @@
     "message": "Bağlı"
   },
   "connected": {
-    "message": "Connected"
+    "message": "Bağlantılıdır"
   },
   "members": {
     "message": "Üzvlər"
@@ -9666,6 +9739,9 @@
   "failedToSaveIntegration": {
     "message": "İnteqrasiya saxlanılmadı. Lütfən daha sonra yenidən sınayın."
   },
+  "failedToDeleteIntegration": {
+    "message": "İnteqrasiya silinmədi. Lütfən daha sonra yenidən sınayın."
+  },
   "deviceIdMissing": {
     "message": "Cihaz kimliyi əskikdir"
   },
@@ -9691,7 +9767,7 @@
     }
   },
   "updateIntegrationButtonDesc": {
-    "message": "Update $INTEGRATION$",
+    "message": "Güncəllə: $INTEGRATION$",
     "placeholders": {
       "integration": {
         "content": "$1",
@@ -9761,6 +9837,9 @@
   },
   "bearerToken": {
     "message": "Bearer Tokeni"
+  },
+  "repositoryNameHint": {
+    "message": "Daxil ediləcək repozitoriyanın adı"
   },
   "index": {
     "message": "İndeks"
@@ -10210,14 +10289,8 @@
   "learnMoreAboutApi": {
     "message": "Bitwarden-nin API-si haqqında daha ətraflı"
   },
-  "fileSend": {
-    "message": "Fayl \"Send\"i"
-  },
   "fileSends": {
     "message": "Fayl \"Send\"ləri"
-  },
-  "textSend": {
-    "message": "Mətn \"Send\"i"
   },
   "textSends": {
     "message": "Mətn \"Send\"ləri"
@@ -10906,10 +10979,10 @@
     "message": "Riskli parolları dəyişdir"
   },
   "changeAtRiskPasswordAndAddWebsite": {
-    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+    "message": "Bu giriş risk altındadır və bir veb sayt əskikdir. Daha güclü təhlükəsizlik üçün bir veb sayt əlavə edin və parolu dəyişdirin."
   },
   "missingWebsite": {
-    "message": "Missing website"
+    "message": "Əskik veb sayt"
   },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Kilidi PIN ilə açmanı ləğv et"
@@ -11087,10 +11160,10 @@
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   },
   "aboutThisSetting": {
-    "message": "About this setting"
+    "message": "Bu ayar barədə"
   },
   "permitCipherDetailsDescription": {
-    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+    "message": "Bitwarden, təcrübənizi təkmilləşdirmək üçün hansı ikonun və ya parol dəyişdirmə URL-sinin istifadə olunmalı olduğunu müəyyənləşdirmək məqsədilə saxlanılmış giriş URL-lərini istifadə edəcək. Bu xidməti istifadə etdiyiniz zaman heç bir məlumat yığılmır və ya saxlanılmır."
   },
   "billingAddress": {
     "message": "Faktura ünvanı"
@@ -11210,7 +11283,7 @@
     "message": "Əməliyyat tələb olunur: Ödəniş detallarında Vergi kimlik nömrəsini buraxmısınız. Əgər əlavə edilməyəcəksə, fakturalarınıza əlavə vergi daxil ola bilər."
   },
   "moreBreadcrumbs": {
-    "message": "More breadcrumbs",
+    "message": "Daha çox naviqasiya yolu",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   },
   "addTaxId": {
@@ -11257,12 +11330,12 @@
     "message": "Key Connector domenini təsdiqlə"
   },
   "requiredToVerifyBankAccountWithStripe": {
-    "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
+    "message": "Bank hesabı ilə ödəniş, yalnız Amerika Birləşmiş Ştatlarındakı müştərilər üçün əlçatandır. Bank hesabınızı doğrulamağınız tələb olunacaq. Növbəti 1-2 iş günü ərzində mikro depozit qoyacağıq. Bank hesabı doğrulanmadıqda ödəniş buraxılacaq və abunəliyiniz dayandırılacaq."
   },
   "verifyBankAccountWithStripe": {
-    "message": "We have made a micro-deposit to your bank account. This may take 1-2 business days. When you see the deposit in your account, you can verify your bank account. Failure to verify your bank account will result in a missed payment and your subscription will be suspended."
+    "message": "Bank hesabınıza mikro depozit qoymuşuq. Bu, 1-2 iş günü çəkə bilər. Hesabınızda depoziti gördüyünüz zaman bank hesabınızı doğrulaya biləcəksiniz. Bank hesabı doğrulanmadıqda ödəniş buraxılacaq və abunəliyiniz dayandırılacaq."
   },
   "verifyNow": {
-    "message": "Verify now."
+    "message": "İndi doğrula."
   }
 }

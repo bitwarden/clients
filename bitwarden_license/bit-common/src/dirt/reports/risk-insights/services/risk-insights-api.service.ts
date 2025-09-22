@@ -4,11 +4,11 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationId, OrganizationReportId } from "@bitwarden/common/types/guid";
 
 import {
-  EncryptedDataModel,
   GetRiskInsightsReportResponse,
   SaveRiskInsightsReportRequest,
   SaveRiskInsightsReportResponse,
-} from "../models/password-health";
+} from "../models/api-models.types";
+import { EncryptedDataModel } from "../models/password-health";
 
 export class RiskInsightsApiService {
   constructor(private apiService: ApiService) {}
