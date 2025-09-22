@@ -445,7 +445,7 @@ describe("SubscriptionPricingService", () => {
       });
     });
 
-    it("should correctly calculate monthly costs from annual pricing", (done) => {
+    it("should contain correct pricing", (done) => {
       service.getPersonalSubscriptionPricingTiers$().subscribe((tiers) => {
         const premiumTier = tiers.find(
           (tier) => tier.id === PersonalSubscriptionPricingTierIds.Premium,
@@ -630,7 +630,7 @@ describe("SubscriptionPricingService", () => {
       });
     });
 
-    it("should correctly calculate monthly costs from annual pricing", (done) => {
+    it("should contain correct pricing", (done) => {
       service.getBusinessSubscriptionPricingTiers$().subscribe((tiers) => {
         const teamsTier = tiers.find(
           (tier) => tier.id === BusinessSubscriptionPricingTierIds.Teams,
