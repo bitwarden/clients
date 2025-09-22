@@ -1,7 +1,7 @@
 use std::{ffi::OsString, os::windows::ffi::OsStringExt};
 
 use anyhow::{anyhow, Result};
-use tracing::debug;
+use tracing::{debug, error};
 use windows::Win32::{
     Foundation::{GetLastError, SetLastError, WIN32_ERROR},
     UI::{
@@ -17,7 +17,7 @@ mod window_handle;
 use window_handle::WindowHandle;
 
 fn clear_last_error() {
-    // TODO debug!("Clearing last error with SetLastError");
+    debug!("Clearing last error with SetLastError");
     unsafe {
         SetLastError(WIN32_ERROR(0));
     }
@@ -27,7 +27,7 @@ fn get_last_error() -> String {
     let last_err = unsafe { GetLastError() };
     let last_err = last_err.to_hresult().message();
 
-    println!("GetLastError(): {last_err}"); // TODO: debug!()
+    debug!(last_err, "GetLastError()");
 
     last_err
 }
@@ -59,14 +59,12 @@ fn get_window_title_length(window_handle: &WindowHandle) -> Result<usize> {
         // attempt to retreive win32 error
         let last_err = get_last_error();
         if !last_err.is_empty() {
-            let error_string = format!("Error getting window text length: {last_err}");
-            eprintln!("{error_string}"); // TODO: error!()
-            return Err(anyhow!(error_string));
+            error!(last_err, "Error getting window text length");
+            return Err(anyhow!("Error getting window text length: {last_err}"));
         }
         // still return error because we won't be able to get window title string
-        let error_string = "Window text length is zero.";
-        eprintln!("{error_string}"); // TODO: error!()
-        return Err(anyhow!(error_string));
+        error!("Window text length is zero");
+        return Err(anyhow!("Error getting window text length"));
     }
 
     Ok(length)
@@ -86,17 +84,14 @@ fn get_window_title(window_handle: &WindowHandle) -> Result<String> {
         // attempt to retreive win32 error
         let last_err = get_last_error();
         if !last_err.is_empty() {
-            let error_string = format!("Error retrieving window title: {last_err}");
-            eprintln!("{error_string}"); // TODO: error!()
-            return Err(anyhow!(last_err));
+            error!(last_err, "Error retrieving window title");
+            return Err(anyhow!("Error retrieving window title. {last_err}"));
         }
         // still return error because we won't be able to get window title string
-        let error_string = format!(
-            "No window title retrieved. Expected {}, read 0.",
-            window_title_length
-        );
-        eprintln!("{error_string}"); // TODO: error!()
-        return Err(anyhow!(error_string));
+        error!(window_title_length, "No window title retrieved, read 0.");
+        return Err(anyhow!(
+            "No window title length, read 0 but expected {window_title_length}"
+        ));
     }
 
     let window_title = OsString::from_wide(&buffer);
@@ -220,28 +215,26 @@ fn build_virtual_key_input(key_press: InputKeyPress, virtual_key: u8) -> INPUT {
 fn send_input(inputs: Vec<INPUT>) -> Result<()> {
     let insert_count = unsafe { SendInput(&inputs, std::mem::size_of::<INPUT>() as i32) };
 
-    let e = unsafe { GetLastError().to_hresult().message() };
-    debug!("type_input() called, GetLastError() is: {:?}", e);
+    let last_err = unsafe { GetLastError().to_hresult().message() };
+    debug!(GetLastError= %last_err, "SendInput() called.");
 
     if insert_count == 0 {
         let last_err = get_last_error();
-        let error_string =
-            format!("SendInput sent 0 inputs. Input was blocked by another thread. : {last_err}");
+        error!(GetLastError = %last_err, "SendInput sent 0 inputs. Input was blocked by another thread.");
 
-        eprintln!("{error_string}"); // TODO: error!()
-        return Err(anyhow!(error_string));
+        return Err(anyhow!("SendInput sent 0 inputs. Input was blocked by another thread. GetLastError: {last_err}"));
     } else if insert_count != inputs.len() as u32 {
         let last_err = get_last_error();
-        let error_string = format!(
-            "SendInput sent {insert_count} but expected {}: {last_err}",
-            inputs.len()
+        error!(sent = %insert_count, expected = inputs.len(), GetLastError = %last_err,
+            "SendInput sent does not match expected."
         );
-
-        eprintln!("{error_string}"); // TODO: error!()
-        return Err(anyhow!(error_string));
+        return Err(anyhow!(
+            "SendInput does not match expected. sent: {insert_count}, expected: {}",
+            inputs.len()
+        ));
     }
 
-    // TODO debug!("Sent input.");
+    debug!("Autotype sent input.");
 
     Ok(())
 }
