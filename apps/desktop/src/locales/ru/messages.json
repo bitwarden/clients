@@ -702,6 +702,12 @@
   "attachmentSaved": {
     "message": "Вложение сохранено."
   },
+  "addAttachment": {
+    "message": "Добавить вложение"
+  },
+  "maxFileSizeSansPunctuation": {
+    "message": "Максимальный размер файла 500 МБ"
+  },
   "file": {
     "message": "Файл"
   },
@@ -953,9 +959,6 @@
   },
   "insertU2f": {
     "message": "Вставьте ключ безопасности в USB-порт компьютера. Если у ключа есть кнопка, нажмите ее."
-  },
-  "recoveryCodeDesc": {
-    "message": "Потеряли доступ ко всем вариантам двухэтапной аутентификации? Используйте код восстановления, чтобы отключить двухэтапную аутентификацию для вашего аккаунта."
   },
   "recoveryCodeTitle": {
     "message": "Код восстановления"
@@ -1299,11 +1302,8 @@
     "message": "Автоматически удалять скопированные значения из буфера обмена.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
-  "enableFavicon": {
-    "message": "Показать значки сайтов"
-  },
-  "faviconDesc": {
-    "message": "Отображать узнаваемое изображение рядом с каждым логином."
+  "showIconsChangePasswordUrls": {
+    "message": "Показывать значки сайтов и извлекать URL изменения пароля"
   },
   "enableMinToTray": {
     "message": "Сворачивать в область уведомлений"
@@ -1839,12 +1839,6 @@
   },
   "autoPromptTouchId": {
     "message": "Запрашивать Touch ID при запуске приложения"
-  },
-  "requirePasswordOnStart": {
-    "message": "Требовать пароль или PIN-код при запуске приложения"
-  },
-  "requirePasswordWithoutPinOnStart": {
-    "message": "Требовать пароль при запуске приложения"
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Блокировать мастер-паролем при перезапуске"
@@ -3491,15 +3485,11 @@
   "selectImportCollection": {
     "message": "Выберите коллекцию"
   },
-  "importTargetHint": {
-    "message": "Выберите эту опцию, если хотите, чтобы содержимое импортированного файла было перемещено в $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Выберите эту опцию, если хотите, чтобы содержимое импортированного файла было перемещено в коллекцию"
+  },
+  "importTargetHintFolder": {
+    "message": "Выберите эту опцию, если хотите, чтобы содержимое импортированного файла было перемещено в папку"
   },
   "importUnassignedItemsError": {
     "message": "Файл содержит неназначенные элементы."
@@ -3594,6 +3584,12 @@
   },
   "awaitingSSODesc": {
     "message": "Пожалуйста, продолжите вход, используя учетные данные вашей компании."
+  },
+  "importDirectlyFromBrowser": {
+    "message": "Импорт непосредственно из браузера"
+  },
+  "browserProfile": {
+    "message": "Профиль браузера"
   },
   "seeDetailedInstructions": {
     "message": "Подробные инструкции см. на нашем справочном сайте по адресу",
@@ -3837,6 +3833,12 @@
   "changeAtRiskPassword": {
     "message": "Изменить пароль, подверженный риску"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "Вы не можете удалить коллекции с правами только на просмотр: $COLLECTIONS$",
     "placeholders": {
@@ -3931,6 +3933,12 @@
     "message": "Узнайте больше об агенте SSH",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "aboutThisSetting": {
+    "message": "Об этой настройке"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden будет использовать сохраненные URI логинов, чтобы определить, какой значок или URL для смены пароля следует использовать для улучшения вашего взаимодействия. При использовании этого сервиса никакая информация не собирается и не сохраняется."
   },
   "assignToCollections": {
     "message": "Назначить коллекциям"
@@ -4077,5 +4085,27 @@
   },
   "enableAutotypeDescription": {
     "message": "Bitwarden не проверяет местоположение ввода, поэтому, прежде чем использовать ярлык, убедитесь, что вы находитесь в нужном окне и поле."
+  },
+  "moreBreadcrumbs": {
+    "message": "More breadcrumbs",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "next": {
+    "message": "Далее"
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Подтвердите домен соединителя ключей"
+  },
+  "confirm": {
+    "message": "Подтвердить"
+  },
+  "enableAutotypeTransitionKey": {
+    "message": "Включить ярлык автоввода"
+  },
+  "enableAutotypeDescriptionTransitionKey": {
+    "message": "Прежде чем использовать ярлык, убедитесь, что вы поставили курсор в нужное поле, чтобы избежать ввода данных в неправильное место."
+  },
+  "editShortcut": {
+    "message": "Изменить ярлык"
   }
 }

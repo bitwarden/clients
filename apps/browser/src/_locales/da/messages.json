@@ -556,6 +556,9 @@
   "view": {
     "message": "Vis"
   },
+  "viewLogin": {
+    "message": "View login"
+  },
   "noItemsInList": {
     "message": "Der er ingen elementer at vise."
   },
@@ -1522,9 +1525,6 @@
   "selectTwoStepLoginMethod": {
     "message": "Select two-step login method"
   },
-  "recoveryCodeDesc": {
-    "message": "Mistet adgang til alle dine to-faktor-udbydere? Brug din genoprettelseskode til at deaktivere alle to-faktor udbydere på din konto."
-  },
   "recoveryCodeTitle": {
     "message": "Gendannelseskode"
   },
@@ -1683,9 +1683,6 @@
   "defaultAutoFillOnPageLoadDesc": {
     "message": "Autoudfyldning ved sideindlæsning kan slås fra for individuelle loginemner fra emnets redigeringsvisning."
   },
-  "itemAutoFillOnPageLoad": {
-    "message": "Autoudfyld ved sideindlæsning (hvis opsat i Indstillinger)"
-  },
   "autoFillOnPageLoadUseDefault": {
     "message": "Anvend standardindstilling"
   },
@@ -1757,23 +1754,8 @@
   "popup2faCloseMessage": {
     "message": "Ved at klikke uden for pop-up-vinduet for at tjekke din e-mail for din bekræftelseskode vil få denne popup til at lukke. Vil du åbne denne popup i et nyt vindue, så det ikke lukker?"
   },
-  "popupU2fCloseMessage": {
-    "message": "Denne browser kan ikke behandle U2F-anmodninger i dette popup-vindue. Vil du åbne denne popup i et nyt vindue, så du kan logge ind ved hjælp af U2F?"
-  },
-  "enableFavicon": {
-    "message": "Vis webstedsikoner"
-  },
-  "faviconDesc": {
-    "message": "Vis et genkendeligt billede ud for hvert login."
-  },
-  "faviconDescAlt": {
-    "message": "Vis et genkendeligt billede ved siden af hvert login. Gælder for alle indloggede konti."
-  },
-  "enableBadgeCounter": {
-    "message": "Vis badge-tæller"
-  },
-  "badgeCounterDesc": {
-    "message": "Vis hvor mange logins du har til den aktuelle webside."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "cardholderName": {
     "message": "Kortholders navn"
@@ -1937,32 +1919,81 @@
   "typeNote": {
     "message": "Note"
   },
-  "newItemHeader": {
-    "message": "Ny $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderLogin": {
+    "message": "New Login",
+    "description": "Header for new login item type"
   },
-  "editItemHeader": {
-    "message": "Redigér $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderCard": {
+    "message": "New Card",
+    "description": "Header for new card item type"
   },
-  "viewItemHeader": {
-    "message": "Vis $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderIdentity": {
+    "message": "New Identity",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "New Note",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "New SSH key",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderTextSend": {
+    "message": "New Text Send",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "New File Send",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderLogin": {
+    "message": "Edit Login",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Edit Card",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Edit Identity",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Edit Note",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "Edit SSH key",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Edit Text Send",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Edit File Send",
+    "description": "Header for edit file send"
+  },
+  "viewItemHeaderLogin": {
+    "message": "View Login",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "View Card",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "View Identity",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "View Note",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "View SSH key",
+    "description": "Header for view SSH key item type"
   },
   "passwordHistory": {
     "message": "Adgangskodehistorik"
@@ -3524,9 +3555,6 @@
   "autofillPageLoadPolicyActivated": {
     "message": "Organisationspolitikkerne har aktiveret autoudfyldning ved sideindlæsning."
   },
-  "howToAutofill": {
-    "message": "Sådan autoudfyldes"
-  },
   "autofillSelectInfoWithCommand": {
     "message": "Vælg et emne fra denne skærm, brug genvejen $COMMAND$ eller udforsk andre valgmuligheder i Indstillinger.",
     "placeholders": {
@@ -3911,17 +3939,9 @@
   "aliasDomain": {
     "message": "Aliasdomæne"
   },
-  "passwordRepromptDisabledAutofillOnPageLoad": {
-    "message": "Emner, hvor der anmodes om hovedadgangskode igen, kan ikke autoudfyldes ved sideindlæsning. Autoudfyldning ved sideindlæsning er slået fra.",
-    "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
-  },
   "autofillOnPageLoadSetToDefault": {
     "message": "Autoudfyldning ved sideindlæsning sat til standardindstillingen.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "turnOffMasterPasswordPromptToEditField": {
-    "message": "Slå anmodning om hovedadgangskode igen fra for at redigere dette felt",
-    "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
   },
   "toggleSideNavigation": {
     "message": "Slå sidenavigering til/fra"
@@ -4131,15 +4151,11 @@
   "selectImportCollection": {
     "message": "Vælg en samling"
   },
-  "importTargetHint": {
-    "message": "Vælg denne indstilling, hvis importeret filindhold skal flyttet til en $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Select this option if you want the imported file contents moved to a collection"
+  },
+  "importTargetHintFolder": {
+    "message": "Select this option if you want the imported file contents moved to a folder"
   },
   "importUnassignedItemsError": {
     "message": "Fil indeholder ikke-tildelte emner."
@@ -4195,9 +4211,6 @@
   },
   "passkeyNotCopiedAlert": {
     "message": "Adgangsnøglen kopieres ikke til det klonede emne. Fortsæt kloningen af emnet alligevel?"
-  },
-  "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
-    "message": "Bekræftelse krævet af startwebstedet. Denne funktion er endnu ikke implementeret for konti uden hovedadgangskode."
   },
   "logInWithPasskeyQuestion": {
     "message": "Log ind med adgangsnøgle?"
@@ -4884,9 +4897,6 @@
       }
     }
   },
-  "enableAnimations": {
-    "message": "Aktivér animationer"
-  },
   "showAnimations": {
     "message": "Vis animationer"
   },
@@ -5099,14 +5109,8 @@
   "itemLocation": {
     "message": "Emneplacering"
   },
-  "fileSend": {
-    "message": "Fil Send"
-  },
   "fileSends": {
     "message": "Fil-Sends"
-  },
-  "textSend": {
-    "message": "Tekst Send"
   },
   "textSends": {
     "message": "Tekst-Sends"
@@ -5116,6 +5120,18 @@
   },
   "showNumberOfAutofillSuggestions": {
     "message": "Vis antal login-autoudfyldningsforslag på udvidelsesikon"
+  },
+  "accountAccessRequested": {
+    "message": "Account access requested"
+  },
+  "confirmAccessAttempt": {
+    "message": "Confirm access attempt for $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
   },
   "showQuickCopyActions": {
     "message": "Vis hurtig-kopihandlinger på Boks"
@@ -5155,9 +5171,6 @@
   },
   "vaultCustomTimeoutMinimum": {
     "message": "Tilpasset minimumstimeout udgør 1 minut."
-  },
-  "additionalContentAvailable": {
-    "message": "Yderligere indhold er tilgængeligt"
   },
   "fileSavedToDevice": {
     "message": "Fil gemt på enheden. Håndtér fra enhedens downloads."
@@ -5444,6 +5457,12 @@
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
+  },
   "settingsVaultOptions": {
     "message": "Vault options"
   },
@@ -5491,6 +5510,18 @@
   },
   "hasItemsVaultNudgeTitle": {
     "message": "Welcome to your vault!"
+  },
+  "phishingPageTitle": {
+    "message": "Phishing website"
+  },
+  "phishingPageCloseTab": {
+    "message": "Close tab"
+  },
+  "phishingPageContinue": {
+    "message": "Continue"
+  },
+  "phishingPageLearnWhy": {
+    "message": "Why are you seeing this?"
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Autofill items for the current page"
@@ -5567,6 +5598,12 @@
     "message": "Easily create strong and unique passwords by clicking on the Generate password button to help you keep your logins secure.",
     "description": "Aria label for the body content of the generator nudge"
   },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+  },
   "noPermissionsViewPage": {
     "message": "You do not have permissions to view this page. Try logging in with a different account."
   },
@@ -5579,5 +5616,15 @@
   },
   "showLess": {
     "message": "Show less"
+  },
+  "next": {
+    "message": "Next"
+  },
+  "moreBreadcrumbs": {
+    "message": "More breadcrumbs",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Confirm Key Connector domain"
   }
 }

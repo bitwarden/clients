@@ -14,6 +14,7 @@ import { BiometricsService } from "@bitwarden/key-management";
 
 import { AccountService } from "../../../auth/abstractions/account.service";
 import { AuthService } from "../../../auth/abstractions/auth.service";
+import { TokenService } from "../../../auth/abstractions/token.service";
 import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
 import { LogService } from "../../../platform/abstractions/log.service";
 import { MessagingService } from "../../../platform/abstractions/messaging.service";
@@ -43,6 +44,7 @@ export class VaultTimeoutService implements VaultTimeoutServiceAbstraction {
     private messagingService: MessagingService,
     private searchService: SearchService,
     private stateService: StateService,
+    private tokenService: TokenService,
     private authService: AuthService,
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     private stateEventRunnerService: StateEventRunnerService,
@@ -82,7 +84,7 @@ export class VaultTimeoutService implements VaultTimeoutServiceAbstraction {
 
   async checkVaultTimeout(): Promise<void> {
     // Get whether or not the view is open a single time so it can be compared for each user
-    const isViewOpen = await this.platformUtilsService.isViewOpen();
+    const isViewOpen = await this.platformUtilsService.isPopupOpen();
 
     await firstValueFrom(
       combineLatest([
@@ -108,7 +110,10 @@ export class VaultTimeoutService implements VaultTimeoutServiceAbstraction {
   async lock(userId?: UserId): Promise<void> {
     await this.biometricService.setShouldAutopromptNow(false);
 
-    const authed = await this.stateService.getIsAuthenticated({ userId: userId });
+    const lockingUserId =
+      userId ?? (await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id))));
+
+    const authed = await firstValueFrom(this.tokenService.hasAccessToken$(lockingUserId));
     if (!authed) {
       return;
     }
@@ -120,12 +125,6 @@ export class VaultTimeoutService implements VaultTimeoutServiceAbstraction {
     if (!supportsLock) {
       await this.logOut(userId);
     }
-
-    const currentUserId = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-    );
-
-    const lockingUserId = userId ?? currentUserId;
 
     // HACK: Start listening for the transition of the locking user from something to the locked state.
     // This is very much a hack to ensure that the authentication status to retrievable right after
@@ -145,6 +144,7 @@ export class VaultTimeoutService implements VaultTimeoutServiceAbstraction {
 
     await this.searchService.clearIndex(lockingUserId);
 
+    // ! DO NOT REMOVE folderService.clearDecryptedFolderState ! For more information see PM-25660
     await this.folderService.clearDecryptedFolderState(lockingUserId);
     await this.masterPasswordService.clearMasterKey(lockingUserId);
 

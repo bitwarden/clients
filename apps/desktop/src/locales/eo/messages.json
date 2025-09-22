@@ -593,14 +593,14 @@
     "message": "Longo"
   },
   "passwordMinLength": {
-    "message": "Minimuma longo de pasvorto"
+    "message": "La minimuma longo de pasvorto"
   },
   "uppercase": {
     "message": "Majuskla (A-Z)",
     "description": "deprecated. Use uppercaseLabel instead."
   },
   "lowercase": {
-    "message": "Minisukla (a-z)",
+    "message": "Minusukla (a-z)",
     "description": "deprecated. Use lowercaseLabel instead."
   },
   "numbers": {
@@ -697,10 +697,16 @@
     "message": "Aldonaĵo foriĝis"
   },
   "deleteAttachmentConfirmation": {
-    "message": "Ĉu vi certas, ke vi volas forigi ĉi tiun aldonaĵon?"
+    "message": "Ĉu vi certas, ke vi volas poreterne forigi tiun aldonaĵon?"
   },
   "attachmentSaved": {
     "message": "Aldonaĵo konserviĝis"
+  },
+  "addAttachment": {
+    "message": "Add attachment"
+  },
+  "maxFileSizeSansPunctuation": {
+    "message": "Maximum file size is 500 MB"
   },
   "file": {
     "message": "Dosiero"
@@ -721,7 +727,7 @@
     "message": "La dosierujo aldoniĝis"
   },
   "deleteFolderConfirmation": {
-    "message": "Ĉu vi certas, ke vi volas forigi ĉi tiun dosierujon?"
+    "message": "Ĉu vi certas, ke vi volas forigi tiun dosierujon?"
   },
   "deletedFolder": {
     "message": "La dosierujo foriĝis"
@@ -854,7 +860,7 @@
     "message": "Retpoŝtadreso estas postulata."
   },
   "invalidEmail": {
-    "message": "Invalid email address."
+    "message": "Malvalida retpoŝtadreso."
   },
   "masterPasswordRequired": {
     "message": "Ĉefa pasvorto estas postulata"
@@ -888,7 +894,7 @@
     "message": "Via nova konto estas kreita!"
   },
   "youHaveBeenLoggedIn": {
-    "message": "Vi jam salutis!"
+    "message": "Vi estas adiaŭita el via konto."
   },
   "masterPassSent": {
     "message": "Ni sendis al vi retleteron kun la aludo de via ĉefa pasvorto."
@@ -903,7 +909,7 @@
     "message": "There are no items to list."
   },
   "sendVerificationCode": {
-    "message": "Sendi kontrolan kodon al via retpoŝto"
+    "message": "Sendi certigan kodon al via retpoŝto"
   },
   "sendCode": {
     "message": "Sendi kodon"
@@ -918,7 +924,7 @@
     "message": "Konfirmi vian identecon por daŭrigi"
   },
   "verificationCodeRequired": {
-    "message": "Postulata estas la kontrola kodo."
+    "message": "Necesas la certiga kodo."
   },
   "webauthnCancelOrTimeout": {
     "message": "The authentication was cancelled or took too long. Please try again."
@@ -954,11 +960,8 @@
   "insertU2f": {
     "message": "Insert your security key into your computer's USB port. If it has a button, touch it."
   },
-  "recoveryCodeDesc": {
-    "message": "Lost access to all of your two-factor providers? Use your recovery code to turn off all two-factor providers on your account."
-  },
   "recoveryCodeTitle": {
-    "message": "Restariga kodo"
+    "message": "Rehaviga kodo"
   },
   "authenticatorAppTitle": {
     "message": "Aŭtentiga apo"
@@ -1030,7 +1033,7 @@
     "message": "You must add either the base Server URL or at least one custom environment."
   },
   "customEnvironment": {
-    "message": "Proprigita medio"
+    "message": "Propra medio"
   },
   "baseUrl": {
     "message": "La retadreso de servilo"
@@ -1139,7 +1142,7 @@
     "message": "Help and feedback"
   },
   "getHelp": {
-    "message": "Get help"
+    "message": "Gajni helpon"
   },
   "fileBugReport": {
     "message": "File a bug report"
@@ -1151,7 +1154,7 @@
     "message": "Sekvu nin"
   },
   "syncVault": {
-    "message": "Samhavigi la trezorujon"
+    "message": "Speguli la trezorejon"
   },
   "changeMasterPass": {
     "message": "Ŝanĝi la ĉefan pasvorton"
@@ -1223,7 +1226,7 @@
     "message": "Two-step login makes your account more secure by requiring you to verify your login with another device such as a security key, authenticator app, SMS, phone call, or email. Two-step login can be set up on the bitwarden.com web vault. Do you want to visit the website now?"
   },
   "twoStepLogin": {
-    "message": "Restarigi la dufaktoran aŭtentigon de la konto"
+    "message": "Duŝtupa saluto"
   },
   "vaultTimeoutHeader": {
     "message": "Vault timeout"
@@ -1299,11 +1302,8 @@
     "message": "Aŭtomate forviŝi la kopiitajn valorojn el via tondujo.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
-  "enableFavicon": {
-    "message": "Montri la bildosimbolojn de la retejoj"
-  },
-  "faviconDesc": {
-    "message": "Show a recognizable image next to each login."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "enableMinToTray": {
     "message": "Minimize to tray icon"
@@ -1402,7 +1402,7 @@
     }
   },
   "restartToUpdate": {
-    "message": "Restart to update"
+    "message": "Relanĉi por ĝisdatigi"
   },
   "restartToUpdateDesc": {
     "message": "La versio $VERSION_NUM$ estas preta por instali. Vi devas relanĉi la aplikaĵon por plenumi la instalon. Ĉu vi volas nun relanĉi kaj ĝisdatigi?",
@@ -1426,7 +1426,7 @@
     "message": "Poste"
   },
   "noUpdatesAvailable": {
-    "message": "Neniu ĝisdatiĝo nun disponeblas. Vi nun uzas la plej novan version."
+    "message": "Neniu ĝisdatigo nun disponeblas. Vi nun uzas la plej novan version."
   },
   "updateError": {
     "message": "Eraro en ĝisdatigo"
@@ -1537,7 +1537,7 @@
     "message": "Neniu por montri"
   },
   "nothingGeneratedRecently": {
-    "message": "Vi lastatempe generis nenion ajn"
+    "message": "Vi nenion ajn lastatempe generis"
   },
   "undo": {
     "message": "Malfari"
@@ -1759,7 +1759,7 @@
     "description": "WARNING (should stay in capitalized letters if the language permits)"
   },
   "confirmVaultExport": {
-    "message": "Confirm vault export"
+    "message": "Konfirmu elporton de la trezorejo"
   },
   "exportWarningDesc": {
     "message": "This export contains your vault data in an unencrypted format. You should not store or send the exported file over unsecure channels (such as email). Delete it immediately after you are done using it."
@@ -1840,12 +1840,6 @@
   "autoPromptTouchId": {
     "message": "Ask for Touch ID on app start"
   },
-  "requirePasswordOnStart": {
-    "message": "Require password or PIN on app start"
-  },
-  "requirePasswordWithoutPinOnStart": {
-    "message": "Require password on app start"
-  },
   "lockWithMasterPassOnRestart1": {
     "message": "Ŝlosi per la ĉefa pasvorto ĉe relanĉo"
   },
@@ -1908,7 +1902,7 @@
     "message": "Are you sure you want to leave? If you leave now then your current information will not be saved."
   },
   "unsavedChangesTitle": {
-    "message": "Nekonservitaj ŝanĝoj"
+    "message": "Nekonserviĝis la ŝanĝoj"
   },
   "clone": {
     "message": "Kloni"
@@ -1943,7 +1937,7 @@
     "message": "Poreterne forviŝi eron"
   },
   "permanentlyDeleteItemConfirmation": {
-    "message": "Se vi certas, ke vi volas poreterne forviŝi ĉi tiun eron?"
+    "message": "Ĉu vi certas, ke vi volas ĉi tiun eron poreterne forviŝi?"
   },
   "permanentlyDeletedItem": {
     "message": "La ero poreterne forviŝiĝis"
@@ -1984,7 +1978,7 @@
     }
   },
   "cardDetails": {
-    "message": "Card details"
+    "message": "Detaloj de karto"
   },
   "cardBrandDetails": {
     "message": "$BRAND$ details",
@@ -2030,20 +2024,20 @@
     }
   },
   "cardExpiredTitle": {
-    "message": "Expired card"
+    "message": "Eksvalida karto"
   },
   "cardExpiredMessage": {
     "message": "If you've renewed it, update the card's information"
   },
   "verificationRequired": {
-    "message": "Verification required",
+    "message": "Necesas certigo",
     "description": "Default title for the user verification dialog."
   },
   "currentMasterPass": {
     "message": "Current master password"
   },
   "newMasterPass": {
-    "message": "New master password"
+    "message": "Nova ĉefa pasvorto"
   },
   "confirmNewMasterPass": {
     "message": "Confirm new master password"
@@ -2061,7 +2055,7 @@
     }
   },
   "policyInEffectMinLength": {
-    "message": "Minimum length of $LENGTH$",
+    "message": "Maksimuma longo de $LENGTH$",
     "placeholders": {
       "length": {
         "content": "$1",
@@ -2094,7 +2088,7 @@
     "message": "Get advice, announcements, and research opportunities from Bitwarden in your inbox."
   },
   "unsubscribe": {
-    "message": "Unsubscribe"
+    "message": "Malaboni"
   },
   "atAnyTime": {
     "message": "at any time."
@@ -2145,7 +2139,7 @@
     "message": "Require verification for browser integration"
   },
   "enableBrowserIntegrationFingerprintDesc": {
-    "message": "Add an additional layer of security by requiring fingerprint phrase confirmation when establishing a link between your desktop and browser. This requires user action and verification each time a connection is created."
+    "message": "Aldoni aldonan tavolon de sekurigo kun la postulado de konfirmo per fingropremaĵero, kiam establi ligon inter viaj labortablo kaj retumilo. Tio postulas agon de la uzanto kaj certigo ĉu ĉiutempe konekto estas kreita."
   },
   "enableHardwareAcceleration": {
     "message": "Use hardware acceleration"
@@ -2187,7 +2181,7 @@
     "message": "Automatic setup not available"
   },
   "biometricsManualSetupDesc": {
-    "message": "Due to the installation method, biometrics support could not be automatically enabled. Would you like to open the documentation on how to do this manually?"
+    "message": "Pro la instala metodo, la disponebligo de biometriko ne povas esti aŭtomate ŝaltita. Ĉu vi ŝatus malfermi la dokumenton pri tio kiel fari tion permane?"
   },
   "personalOwnershipSubmitError": {
     "message": "Due to an enterprise policy, you are restricted from saving items to your individual vault. Change the ownership option to an organization and choose from available collections."
@@ -2214,7 +2208,7 @@
     "message": "Contact information"
   },
   "allSends": {
-    "message": "All Sends",
+    "message": "Ĉiuj Send'oj",
     "description": "'Sends' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendTypeFile": {
@@ -2224,11 +2218,11 @@
     "message": "Teksto"
   },
   "searchSends": {
-    "message": "Search Sends",
+    "message": "Serĉi Send'ojn",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "editSend": {
-    "message": "Edit Send",
+    "message": "Redakti Send'on",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "myVault": {
@@ -2260,7 +2254,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "currentAccessCount": {
-    "message": "Current access count"
+    "message": "Ĝisnuna nombro de aliroj"
   },
   "disableSend": {
     "message": "Deactivate this Send so that no one can access it.",
@@ -2271,7 +2265,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendNotesDesc": {
-    "message": "Private notes about this Send.",
+    "message": "Privataj notoj pri tiu Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendLink": {
@@ -2287,30 +2281,30 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createdSend": {
-    "message": "Send added",
+    "message": "Send aldoniĝis",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "editedSend": {
-    "message": "Send saved",
+    "message": "Send konserviĝis",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deletedSend": {
-    "message": "Send deleted",
+    "message": "Send foriĝis",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "newPassword": {
     "message": "Nova pasvorto"
   },
   "whatTypeOfSend": {
-    "message": "What type of Send is this?",
+    "message": "Kiu tipo de Send tiu estas?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createSend": {
-    "message": "New Send",
+    "message": "Nova Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendTextDesc": {
-    "message": "The text you want to send."
+    "message": "La teksto kiun vi volas sendi"
   },
   "sendFileDesc": {
     "message": "The file you want to send."
@@ -2331,7 +2325,7 @@
     "message": "Propra"
   },
   "deleteSendConfirmation": {
-    "message": "Are you sure you want to delete this Send?",
+    "message": "Ĉu vi certas, ke vi volas forigi tiun Send'on?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "copySendLinkToClipboard": {
@@ -2342,7 +2336,7 @@
     "message": "Copy the link to share this Send to my clipboard upon save."
   },
   "sendDisabled": {
-    "message": "Send removed",
+    "message": "Send foriĝis",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendDisabledWarning": {
@@ -2350,16 +2344,16 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "copyLink": {
-    "message": "Copy link"
+    "message": "Kopii la ligilon"
   },
   "disabled": {
     "message": "Malŝaltita"
   },
   "removePassword": {
-    "message": "Remove password"
+    "message": "Forigi la pasvorton"
   },
   "removedPassword": {
-    "message": "Password removed"
+    "message": "Pasvorto foriĝis"
   },
   "removePasswordConfirmation": {
     "message": "Are you sure you want to remove the password?"
@@ -2368,7 +2362,7 @@
     "message": "Max access count reached"
   },
   "expired": {
-    "message": "Expired"
+    "message": "Eksvalidiĝis"
   },
   "pendingDeletion": {
     "message": "Pending deletion"
@@ -2377,7 +2371,7 @@
     "message": "Aŭtentigi WebAuthn'on"
   },
   "readSecurityKey": {
-    "message": "Read security key"
+    "message": "Legi sekurigan ŝlosilon"
   },
   "awaitingSecurityKeyInteraction": {
     "message": "Awaiting security key interaction..."
@@ -2389,7 +2383,7 @@
     "message": "One or more organization policies are affecting your Send options."
   },
   "emailVerificationRequired": {
-    "message": "Email verification required"
+    "message": "Petiĝis certigo de retpoŝto"
   },
   "emailVerifiedV2": {
     "message": "Email verified"
@@ -2407,10 +2401,10 @@
     "message": "This action is protected. To continue, please re-enter your master password to verify your identity."
   },
   "masterPasswordSuccessfullySet": {
-    "message": "Master password successfully set"
+    "message": "La ĉefa pasvorto sukcese ŝargiĝis"
   },
   "updatedMasterPassword": {
-    "message": "Updated master password"
+    "message": "Ĝisdatiĝis la ĉefa pasvorto"
   },
   "updateMasterPassword": {
     "message": "Update master password"
@@ -2452,7 +2446,7 @@
     "message": "Could not complete biometrics."
   },
   "needADifferentMethod": {
-    "message": "Bezonas diferencan metodon?"
+    "message": "Ĉu vi bezonas diferencan metodon?"
   },
   "useMasterPassword": {
     "message": "Uzi la ĉefan pasvorton"
@@ -2574,7 +2568,7 @@
     "message": "A master password is no longer required for members of the following organization. Please confirm the domain below with your organization administrator."
   },
   "organizationName": {
-    "message": "Organization name"
+    "message": "Nomo de la organizo"
   },
   "keyConnectorDomain": {
     "message": "Key Connector domain"
@@ -2601,7 +2595,7 @@
     "message": "Agordoj"
   },
   "appPreferences": {
-    "message": "App settings (all accounts)"
+    "message": "Agordoj de la apo (ĉiuj kontoj)"
   },
   "accountSwitcherLimitReached": {
     "message": "Account limit reached. Log out of an account to add another."
@@ -2689,7 +2683,7 @@
     "message": "Generi retpoŝton"
   },
   "usernameGenerator": {
-    "message": "Uzantnomo-generilo"
+    "message": "Generilo de uzantnomo"
   },
   "generatePassword": {
     "message": "Generi pasvorton"
@@ -2754,13 +2748,13 @@
     "message": "Use your email provider's sub-addressing capabilities."
   },
   "catchallEmail": {
-    "message": "Catch-all email"
+    "message": "Stapli ĉiun retpoŝton"
   },
   "catchallEmailDesc": {
     "message": "Use your domain's configured catch-all inbox."
   },
   "useThisEmail": {
-    "message": "Uzi ĉi tiun retpoŝton"
+    "message": "Uzi tiun retpoŝton"
   },
   "useThisPassword": {
     "message": "Uzi tiun pasvorton"
@@ -2943,7 +2937,7 @@
     "message": "API-ŝlosilo"
   },
   "premiumSubcriptionRequired": {
-    "message": "Premium subscription required"
+    "message": "Necesas Premium-abono"
   },
   "organizationIsDisabled": {
     "message": "Organization suspended"
@@ -2982,16 +2976,16 @@
     "message": "Login initiated"
   },
   "logInRequestSent": {
-    "message": "Peto sendiĝis"
+    "message": "La peto sendiĝis"
   },
   "notificationSentDevice": {
-    "message": "A notification has been sent to your device."
+    "message": "Sciigo estas sendita al via aparato."
   },
   "aNotificationWasSentToYourDevice": {
-    "message": "A notification was sent to your device"
+    "message": "Sciigo estis sendita al via aparato"
   },
   "notificationSentDevicePart1": {
-    "message": "Unlock Bitwarden on your device or on the "
+    "message": "Malŝlosi Bitwarden en via aparato aŭ en la "
   },
   "notificationSentDeviceAnchor": {
     "message": "Reteja apo"
@@ -3009,19 +3003,19 @@
     "message": "Fingropremaĵero"
   },
   "youWillBeNotifiedOnceTheRequestIsApproved": {
-    "message": "You will be notified once the request is approved"
+    "message": "Vi estos sciigita unufoje, ke la peto estas aprobita"
   },
   "needAnotherOption": {
-    "message": "Log in with device must be set up in the settings of the Bitwarden app. Need another option?"
+    "message": "Saluti per aparato devas esti staligita en la agortoj de la apo de Bitwarden. Ĉu vi bezonas alian elekteblon?"
   },
   "viewAllLogInOptions": {
-    "message": "View all log in options"
+    "message": "Vidi ĉiujn elekteblojn por saluti"
   },
   "viewAllLoginOptions": {
-    "message": "View all login options"
+    "message": "Vidi ĉiujn elekteblojn por saluti"
   },
   "resendNotification": {
-    "message": "Resend notification"
+    "message": "Resendi la sciigon"
   },
   "toggleCharacterCount": {
     "message": "Toggle character count",
@@ -3037,7 +3031,7 @@
     }
   },
   "loginRequestApprovedForEmailOnDevice": {
-    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "message": "Peto por saluto aprobiĝis por $EMAIL$ ĉe $DEVICE$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3053,10 +3047,10 @@
     "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
   },
   "webApp": {
-    "message": "Web app"
+    "message": "Reteja apo"
   },
   "mobile": {
-    "message": "Mobile",
+    "message": "Portebla",
     "description": "Mobile app"
   },
   "extension": {
@@ -3064,7 +3058,7 @@
     "description": "Browser extension/addon"
   },
   "desktop": {
-    "message": "Desktop",
+    "message": "Labortabla",
     "description": "Desktop app"
   },
   "cli": {
@@ -3075,13 +3069,13 @@
     "description": "Software Development Kit"
   },
   "server": {
-    "message": "Server"
+    "message": "Servilo"
   },
   "loginRequest": {
     "message": "Login request"
   },
   "deviceType": {
-    "message": "Device Type"
+    "message": "Tipo de aparato"
   },
   "ipAddress": {
     "message": "IP-adreso"
@@ -3093,13 +3087,13 @@
     "message": "Confirm access"
   },
   "denyAccess": {
-    "message": "Deny access"
+    "message": "Malkonfirmi aliron"
   },
   "justNow": {
     "message": "Ĝuste nun"
   },
   "requestedXMinutesAgo": {
-    "message": "Requested $MINUTES$ minutes ago",
+    "message": "Petita antaŭ $MINUTES$ minutoj",
     "placeholders": {
       "minutes": {
         "content": "$1",
@@ -3126,13 +3120,13 @@
     "message": "Saluto petiĝis"
   },
   "accountAccessRequested": {
-    "message": "Account access requested"
+    "message": "Petiĝis aliro al la konto"
   },
   "creatingAccountOn": {
-    "message": "Creating account on"
+    "message": "Krei konton ĉe"
   },
   "checkYourEmail": {
-    "message": "Check your email"
+    "message": "Kontrolu vian retpoŝton"
   },
   "followTheLinkInTheEmailSentTo": {
     "message": "Follow the link in the email sent to"
@@ -3292,7 +3286,7 @@
     "message": "Fidi la uzanton"
   },
   "inputRequired": {
-    "message": "Input is required."
+    "message": "Necesas la enmeto"
   },
   "required": {
     "message": "Postulata"
@@ -3491,15 +3485,11 @@
   "selectImportCollection": {
     "message": "Elekti kolekton"
   },
-  "importTargetHint": {
-    "message": "Elektu tiun ĉi elekteblon se vi volus la enhavojn de la enporta dosiero movi al $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Select this option if you want the imported file contents moved to a collection"
+  },
+  "importTargetHintFolder": {
+    "message": "Select this option if you want the imported file contents moved to a folder"
   },
   "importUnassignedItemsError": {
     "message": "File contains unassigned items."
@@ -3548,16 +3538,16 @@
     "message": "Troviĝis neniu datumo de LastPass"
   },
   "incorrectUsernameOrPassword": {
-    "message": "Neĝusta uzantnomo aŭ pasvorto"
+    "message": "Neĝustas uzantnomo aŭ pasvorto"
   },
   "incorrectPassword": {
-    "message": "Neĝusta pasvorto"
+    "message": "Neĝustas pasvorto"
   },
   "incorrectCode": {
-    "message": "Neĝusta kodo"
+    "message": "Neĝustas kodo"
   },
   "incorrectPin": {
-    "message": "Neĝusta PIN"
+    "message": "Neĝustas PIN"
   },
   "multifactorAuthenticationFailed": {
     "message": "Malsukcesis plurfaktora aŭtentigo"
@@ -3587,13 +3577,19 @@
     "message": "La ĉefa pasvorto de LastPass"
   },
   "lastPassAuthRequired": {
-    "message": "Postulata estas aŭtentigo de LastPass"
+    "message": "Necesas aŭtentigi LastPass'on"
   },
   "awaitingSSO": {
     "message": "Awaiting SSO authentication"
   },
   "awaitingSSODesc": {
     "message": "Please continue to log in using your company credentials."
+  },
+  "importDirectlyFromBrowser": {
+    "message": "Import directly from browser"
+  },
+  "browserProfile": {
+    "message": "Browser Profile"
   },
   "seeDetailedInstructions": {
     "message": "See detailed instructions on our help site at",
@@ -3677,7 +3673,7 @@
     }
   },
   "backTo": {
-    "message": "Reveni al $NAME$",
+    "message": "Reveni $NAME$",
     "description": "Navigate back to a previous folder or collection",
     "placeholders": {
       "name": {
@@ -3837,6 +3833,12 @@
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
     "placeholders": {
@@ -3932,6 +3934,12 @@
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+  },
   "assignToCollections": {
     "message": "Assign to collections"
   },
@@ -3948,7 +3956,7 @@
     "message": "No collections have been assigned"
   },
   "assign": {
-    "message": "Assign"
+    "message": "Asigni"
   },
   "bulkCollectionAssignmentDialogDescription": {
     "message": "Only organization members with access to these collections will be able to see the items."
@@ -4077,5 +4085,27 @@
   },
   "enableAutotypeDescription": {
     "message": "Bitwarden does not validate input locations, be sure you are in the right window and field before using the shortcut."
+  },
+  "moreBreadcrumbs": {
+    "message": "More breadcrumbs",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "next": {
+    "message": "Next"
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Confirm Key Connector domain"
+  },
+  "confirm": {
+    "message": "Confirm"
+  },
+  "enableAutotypeTransitionKey": {
+    "message": "Enable autotype shortcut"
+  },
+  "enableAutotypeDescriptionTransitionKey": {
+    "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."
+  },
+  "editShortcut": {
+    "message": "Edit shortcut"
   }
 }

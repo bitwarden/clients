@@ -83,8 +83,8 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     unsetMostRecentlyFocusedField: () => this.unsetMostRecentlyFocusedField(),
     checkIsMostRecentlyFocusedFieldWithinViewport: () =>
       this.checkIsMostRecentlyFocusedFieldWithinViewport(),
-    bgUnlockPopoutOpened: () => this.blurMostRecentlyFocusedField(true),
     bgVaultItemRepromptPopoutOpened: () => this.blurMostRecentlyFocusedField(true),
+    bgUnlockPopoutOpened: () => this.blurMostRecentlyFocusedField(true),
     redirectAutofillInlineMenuFocusOut: ({ message }) =>
       this.redirectInlineMenuFocusOut(message?.data?.direction),
     getSubFrameOffsets: ({ message }) => this.getSubFrameOffsets(message),
@@ -224,6 +224,13 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       await this.sendExtensionMessage("closeAutofillInlineMenu", { forceCloseInlineMenu: true });
     }
   }
+
+  refreshMenuLayerPosition = () => this.inlineMenuContentService?.refreshTopLayerPosition();
+
+  getOwnedInlineMenuTagNames = () => this.inlineMenuContentService?.getOwnedTagNames() || [];
+
+  getUnownedTopLayerItems = (includeCandidates?: boolean) =>
+    this.inlineMenuContentService?.getUnownedTopLayerItems(includeCandidates);
 
   /**
    * Clears all cached user filled fields.

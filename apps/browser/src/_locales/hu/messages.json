@@ -556,6 +556,9 @@
   "view": {
     "message": "Nézet"
   },
+  "viewLogin": {
+    "message": "Bejelentkezés megtekintése"
+  },
   "noItemsInList": {
     "message": "Nincsenek megjeleníthető tételek."
   },
@@ -1522,9 +1525,6 @@
   "selectTwoStepLoginMethod": {
     "message": "Kétlépcsős bejelentkezési mód használata"
   },
-  "recoveryCodeDesc": {
-    "message": "Elveszett a hozzáférés az összes kétlépcsős szolgáltatóhoz? A helyreállító kód használatával letilthatók fiókból a kétlépcsős szolgáltatók."
-  },
   "recoveryCodeTitle": {
     "message": "Helyreállító kód"
   },
@@ -1683,9 +1683,6 @@
   "defaultAutoFillOnPageLoadDesc": {
     "message": "Az egyes bejelentkezési elemeknél kikapcsolhatjuk oldalbetöltéskor az automatikus kitöltést az elem Szerkesztés nézetében."
   },
-  "itemAutoFillOnPageLoad": {
-    "message": "Automatikus kitöltés oldal betöltésnél (Ha engedélyezett az opcióknál)"
-  },
   "autoFillOnPageLoadUseDefault": {
     "message": "Alapbeállítások használata"
   },
@@ -1757,23 +1754,8 @@
   "popup2faCloseMessage": {
     "message": "Az ellenőrző kódot tartalmazó email egy olyan felugró ablakban nyílik meg, mely a mellette levő területre kattinva bezáródik. Szeretnéd az emailt egy olyan ablakban megnyitni, ami nem záródhat így be?"
   },
-  "popupU2fCloseMessage": {
-    "message": "Ez a böngésző nem dolgozza fel az U2F kéréseket ebben a felbukkanó ablakban. Szeretnénk megnyitni a felbukkanó ablakot új böngészőablakban az U2F segítségével történő bejelentkezéshez?"
-  },
-  "enableFavicon": {
-    "message": "Webhely ikonok megjelenítése"
-  },
-  "faviconDesc": {
-    "message": "Felismerhető kép megjelenítése minden bejelentkezés mellett."
-  },
-  "faviconDescAlt": {
-    "message": "Minden bejelentkezés mellett egy felismerhető kép megjelenítése. Minden bejelentkezett fiókra vonatkozik."
-  },
-  "enableBadgeCounter": {
-    "message": "Számláló jelvény megjelenítése"
-  },
-  "badgeCounterDesc": {
-    "message": "Jelöljük meg, hogy hány bejelentkezés van az aktuális weboldalnál."
+  "showIconsChangePasswordUrls": {
+    "message": "Webhely ikonok megjelenítése és jelszó webcímek módosításának lekérése"
   },
   "cardholderName": {
     "message": "Kártyatulajdonos neve"
@@ -1937,32 +1919,81 @@
   "typeNote": {
     "message": "Jegyzet"
   },
-  "newItemHeader": {
-    "message": "Új $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderLogin": {
+    "message": "Új bejelentkezés",
+    "description": "Header for new login item type"
   },
-  "editItemHeader": {
-    "message": "$TYPE$ szerkesztése",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderCard": {
+    "message": "Új kártya",
+    "description": "Header for new card item type"
   },
-  "viewItemHeader": {
-    "message": "$TYPE$ megtekintése",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderIdentity": {
+    "message": "Új személyazonosság",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "Új jegyzet",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "Új SSH kulcs",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderTextSend": {
+    "message": "Új szöveges Send elem",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "Új fájl Send elem",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderLogin": {
+    "message": "Bejelentkezés szerkesztése",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Kártya szerkesztése",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Személyazonossság szerkesztése",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Jegyzet szerkesztése",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "SSH kulcs szerkesztése",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Send szöveg szerkesztése",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Send fájl szerkesztése",
+    "description": "Header for edit file send"
+  },
+  "viewItemHeaderLogin": {
+    "message": "Bejelentkezés megtekintése",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "Kártya megtekintése",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "Személyazonosság megtekintése",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "Jegyzet megtekintése",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "SSH kulcs megtekintése",
+    "description": "Header for view SSH key item type"
   },
   "passwordHistory": {
     "message": "Jelszó előzmények"
@@ -3524,9 +3555,6 @@
   "autofillPageLoadPolicyActivated": {
     "message": "A szervezeti szabályzat bekapcsolta az automatikus kitöltést az oldalbetöltéskor."
   },
-  "howToAutofill": {
-    "message": "Az automatikus kitöltés működése"
-  },
   "autofillSelectInfoWithCommand": {
     "message": "Select an item from this screen, use the shortcut $COMMAND$, or explore other options in settings.",
     "placeholders": {
@@ -3911,17 +3939,9 @@
   "aliasDomain": {
     "message": "Áldomain"
   },
-  "passwordRepromptDisabledAutofillOnPageLoad": {
-    "message": "A mesterjelszót újra bekérő elemeket nem lehet automatikusan kitölteni az oldal betöltésekor. Az automatikus kitöltés az oldal betöltésekor kikapcsolásra kerül.",
-    "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
-  },
   "autofillOnPageLoadSetToDefault": {
     "message": "Az automatikus kitöltés az oldal betöltésekor az alapértelmezett beállítás használatára lett beállítva.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "turnOffMasterPasswordPromptToEditField": {
-    "message": "Kapcsoljuk ki a mesterjelszó újbóli bekérését a mező szerkesztéséhez.",
-    "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
   },
   "toggleSideNavigation": {
     "message": "Toggle side navigation"
@@ -4131,15 +4151,11 @@
   "selectImportCollection": {
     "message": "Gyűjtemény kiválasztása"
   },
-  "importTargetHint": {
-    "message": "Válasszuk ezt a lehetőséget, ha azt akarjuk, hogy az importált fájl tartalma $DESTINATION$ helyre kerüljön",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Válasszuk ezt az opciót, ha azt akarjuk, hogy az importált fájl tartalma egy gyűjteménybe kerüljön."
+  },
+  "importTargetHintFolder": {
+    "message": "Válasszuk ezt az opciót, ha azt akarjuk, hogy az importált fájl tartalma egy mappába kerüljön."
   },
   "importUnassignedItemsError": {
     "message": "A fájl hozzá nem rendelt elemeket tartalmaz."
@@ -4195,9 +4211,6 @@
   },
   "passkeyNotCopiedAlert": {
     "message": "A hozzáférési kulcs nem kerül másolásra a klónozott elembe. Folytatjuk ennek az elemnek a klónozását?"
-  },
-  "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
-    "message": "A kezdeményező hely által megkövetelt ellenőrzés. Ez a szolgáltatás még nincs megvalósítva mesterjelszó nélküli fiókok esetén."
   },
   "logInWithPasskeyQuestion": {
     "message": "Bejelentkezés hozzáférési kulccsal?"
@@ -4884,9 +4897,6 @@
       }
     }
   },
-  "enableAnimations": {
-    "message": "Animációk engedélyezése"
-  },
   "showAnimations": {
     "message": "Animációk megjelenítése"
   },
@@ -5099,14 +5109,8 @@
   "itemLocation": {
     "message": "Elem helyek"
   },
-  "fileSend": {
-    "message": "Fájl típusú Send"
-  },
   "fileSends": {
     "message": "Fájl küldés"
-  },
-  "textSend": {
-    "message": "Szöveg típusú Send"
   },
   "textSends": {
     "message": "Szöveg küldés"
@@ -5116,6 +5120,18 @@
   },
   "showNumberOfAutofillSuggestions": {
     "message": "Az automatikus bejelentkezési kitöltési javaslatok számának megjelenítése a bővítmény ikonján"
+  },
+  "accountAccessRequested": {
+    "message": "Fiók hozzáférés kérés történt."
+  },
+  "confirmAccessAttempt": {
+    "message": "Bejelentkezési kísérlet megerősítése $EMAIL$ email címmel",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
   },
   "showQuickCopyActions": {
     "message": "Gyors másolási műveletek megjelenítése a Széfen"
@@ -5155,9 +5171,6 @@
   },
   "vaultCustomTimeoutMinimum": {
     "message": "A minimális egyedi időkifutás 1 perc."
-  },
-  "additionalContentAvailable": {
-    "message": "Kiegészítő tartalom érhető el."
   },
   "fileSavedToDevice": {
     "message": "A fájl mentésre került az eszközre. Kezeljük az eszközről a letöltéseket."
@@ -5444,6 +5457,12 @@
   "changeAtRiskPassword": {
     "message": "Kockázatos jelszó megváltoztatása"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Ez a bejelentkezés veszélyben van és hiányzik egy webhely. Adjunk hozzá egy webhelyet és módosítsuk a jelszót az erősebb biztonság érdekében."
+  },
+  "missingWebsite": {
+    "message": "Hiányzó webhely"
+  },
   "settingsVaultOptions": {
     "message": "Széf opciók"
   },
@@ -5491,6 +5510,18 @@
   },
   "hasItemsVaultNudgeTitle": {
     "message": "Üdvözlet a széfben!"
+  },
+  "phishingPageTitle": {
+    "message": "Adathalász webhely"
+  },
+  "phishingPageCloseTab": {
+    "message": "Fül bezárása"
+  },
+  "phishingPageContinue": {
+    "message": "Folytatás"
+  },
+  "phishingPageLearnWhy": {
+    "message": "Miért látható ez?"
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Az aktuális oldal elemeinek automatikus kitöltése"
@@ -5567,6 +5598,12 @@
     "message": "Könnyedén hozhatunk létre erős és egyedi jelszavakat a Jelszó generálása gombra kattintva, amely segít megőrizni a bejelentkezések biztonságát.",
     "description": "Aria label for the body content of the generator nudge"
   },
+  "aboutThisSetting": {
+    "message": "Informció erről a beállításról"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "A Bitwarden mentett bejelentkezési webcímeket használ annak azonosítására, hogy melyik ikont vagy jelszó webcímet kell használni az élmény javítása érdekében. A szolgáltatás használatakor nincs információ gyűjtés vagy mentés."
+  },
   "noPermissionsViewPage": {
     "message": "Nincs jogosultság az oldal megtekintéséhez. Próbáljunk meg másik fiókkal bejelentkezni."
   },
@@ -5579,5 +5616,15 @@
   },
   "showLess": {
     "message": "Kevesebb megjelenítése"
+  },
+  "next": {
+    "message": "Következő"
+  },
+  "moreBreadcrumbs": {
+    "message": "További morzsamenük",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "A Key Connector tartomány megerősítése"
   }
 }

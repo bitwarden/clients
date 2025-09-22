@@ -17,22 +17,22 @@ import {
   DeriveDefinition,
   DerivedStateProvider,
   UserKeyDefinition,
-  ActiveUserAccessor,
 } from "@bitwarden/state";
+import { UserId } from "@bitwarden/user-core";
+
 import {
   FakeActiveUserState,
   FakeDerivedState,
   FakeGlobalState,
   FakeSingleUserState,
-} from "@bitwarden/state-test-utils";
-import { UserId } from "@bitwarden/user-core";
+} from "./fake-state";
 
 export interface MinimalAccountService {
   activeUserId: UserId | null;
   activeAccount$: Observable<{ id: UserId } | null>;
 }
 
-export class FakeActiveUserAccessor implements MinimalAccountService, ActiveUserAccessor {
+export class FakeActiveUserAccessor implements MinimalAccountService {
   private _subject: BehaviorSubject<UserId | null>;
 
   constructor(startingUser: UserId | null) {

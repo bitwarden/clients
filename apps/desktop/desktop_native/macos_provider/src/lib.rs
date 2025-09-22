@@ -7,8 +7,8 @@ use std::{
 };
 
 use futures::FutureExt;
-use log::{error, info};
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use tracing::{error, info};
 
 uniffi::setup_scaffolding!();
 
@@ -61,6 +61,8 @@ pub struct MacOSProviderClient {
 
 #[uniffi::export]
 impl MacOSProviderClient {
+    // FIXME: Remove unwraps! They panic and terminate the whole application.
+    #[allow(clippy::unwrap_used)]
     #[uniffi::constructor]
     pub fn connect() -> Self {
         let _ = oslog::OsLogger::new("com.bitwarden.desktop.autofill-extension")
@@ -112,21 +114,21 @@ impl MacOSProviderClient {
                                 match value {
                                     Ok(value) => {
                                         if let Err(e) = cb.complete(value) {
-                                            error!("Error deserializing message: {e}");
+                                            error!(error = %e, "Error deserializing message");
                                         }
                                     }
                                     Err(e) => {
-                                        error!("Error processing message: {e:?}");
+                                        error!(error = ?e, "Error processing message");
                                         cb.error(e)
                                     }
                                 }
                             }
                             None => {
-                                error!("No callback found for sequence number: {sequence_number}")
+                                error!(sequence_number, "No callback found for sequence number")
                             }
                         },
                         Err(e) => {
-                            error!("Error deserializing message: {e}");
+                            error!(error = %e, "Error deserializing message");
                         }
                     };
                 }
@@ -179,6 +181,8 @@ enum SerializedMessage {
 }
 
 impl MacOSProviderClient {
+    // FIXME: Remove unwraps! They panic and terminate the whole application.
+    #[allow(clippy::unwrap_used)]
     fn add_callback(&self, callback: Box<dyn Callback>) -> u32 {
         let sequence_number = self
             .response_callbacks_counter
@@ -192,6 +196,8 @@ impl MacOSProviderClient {
         sequence_number
     }
 
+    // FIXME: Remove unwraps! They panic and terminate the whole application.
+    #[allow(clippy::unwrap_used)]
     fn send_message(
         &self,
         message: impl Serialize + DeserializeOwned,

@@ -17,13 +17,18 @@ import {
   take,
   takeUntil,
   tap,
+  withLatestFrom,
 } from "rxjs";
 import { catchError } from "rxjs/operators";
 
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { CommandDefinition, MessageListener } from "@bitwarden/messaging";
+import { UserId } from "@bitwarden/user-core";
 import { SubscriberBillingClient } from "@bitwarden/web-vault/app/billing/clients";
 import {
   DisplayAccountCreditComponent,
@@ -52,12 +57,18 @@ class RedirectError {
 }
 
 type View = {
+  activeUserId: UserId;
   provider: BitwardenSubscriber;
   paymentMethod: MaskedPaymentMethod | null;
   billingAddress: BillingAddress | null;
   credit: number | null;
   taxIdWarning: TaxIdWarningType | null;
 };
+
+const BANK_ACCOUNT_VERIFIED_COMMAND = new CommandDefinition<{
+  providerId: string;
+  adminId: string;
+}>("providerBankAccountVerified");
 
 @Component({
   templateUrl: "./provider-payment-details.component.html",
@@ -72,8 +83,12 @@ type View = {
 export class ProviderPaymentDetailsComponent implements OnInit, OnDestroy {
   private viewState$ = new BehaviorSubject<View | null>(null);
 
-  private provider$ = this.activatedRoute.params.pipe(
-    switchMap(({ providerId }) => this.providerService.get$(providerId)),
+  private provider$ = combineLatest([
+    this.activatedRoute.params,
+    this.accountService.activeAccount$.pipe(getUserId),
+  ]).pipe(
+    switchMap(([{ providerId }, userId]) => this.providerService.get$(providerId, userId)),
+    filter((provider) => provider != null),
   );
 
   private load$: Observable<View> = this.provider$.pipe(
@@ -94,15 +109,20 @@ export class ProviderPaymentDetailsComponent implements OnInit, OnDestroy {
       const getTaxIdWarning = firstValueFrom(
         this.providerWarningsService.getTaxIdWarning$(provider.data as Provider),
       );
+      const getActiveUserId = firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
-      const [paymentMethod, billingAddress, credit, taxIdWarning] = await Promise.all([
-        this.billingClient.getPaymentMethod(provider),
-        this.billingClient.getBillingAddress(provider),
-        this.billingClient.getCredit(provider),
-        getTaxIdWarning,
-      ]);
+      const [activeUserId, paymentMethod, billingAddress, credit, taxIdWarning] = await Promise.all(
+        [
+          getActiveUserId,
+          this.billingClient.getPaymentMethod(provider),
+          this.billingClient.getBillingAddress(provider),
+          this.billingClient.getCredit(provider),
+          getTaxIdWarning,
+        ],
+      );
 
       return {
+        activeUserId,
         provider,
         paymentMethod,
         billingAddress,
@@ -131,9 +151,11 @@ export class ProviderPaymentDetailsComponent implements OnInit, OnDestroy {
   protected enableTaxIdWarning!: boolean;
 
   constructor(
+    private accountService: AccountService,
     private activatedRoute: ActivatedRoute,
     private billingClient: SubscriberBillingClient,
     private configService: ConfigService,
+    private messageListener: MessageListener,
     private providerService: ProviderService,
     private providerWarningsService: ProviderWarningsService,
     private router: Router,
@@ -169,6 +191,33 @@ export class ProviderPaymentDetailsComponent implements OnInit, OnDestroy {
           }
         });
     }
+
+    this.messageListener
+      .messages$(BANK_ACCOUNT_VERIFIED_COMMAND)
+      .pipe(
+        withLatestFrom(this.view$),
+        filter(
+          ([message, view]) =>
+            message.providerId === view.provider.data.id && message.adminId === view.activeUserId,
+        ),
+        switchMap(
+          async ([_, view]) =>
+            await Promise.all([
+              this.subscriberBillingClient.getPaymentMethod(view.provider),
+              this.subscriberBillingClient.getBillingAddress(view.provider),
+            ]),
+        ),
+        tap(async ([paymentMethod, billingAddress]) => {
+          if (paymentMethod) {
+            await this.setPaymentMethod(paymentMethod);
+          }
+          if (billingAddress) {
+            this.setBillingAddress(billingAddress);
+          }
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe();
   }
 
   ngOnDestroy() {

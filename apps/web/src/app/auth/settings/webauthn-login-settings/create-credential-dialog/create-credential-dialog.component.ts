@@ -4,6 +4,10 @@ import { Component, OnInit } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { firstValueFrom, map, Observable } from "rxjs";
 
+import {
+  TwoFactorAuthSecurityKeyFailedIcon,
+  TwoFactorAuthSecurityKeyIcon,
+} from "@bitwarden/assets/svg";
 import { PrfKeySet } from "@bitwarden/auth/common";
 import { Verification } from "@bitwarden/common/auth/types/verification";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
@@ -15,9 +19,6 @@ import { DialogConfig, DialogRef, DialogService, ToastService } from "@bitwarden
 import { WebauthnLoginAdminService } from "../../../core";
 import { CredentialCreateOptionsView } from "../../../core/views/credential-create-options.view";
 import { PendingWebauthnLoginCredentialView } from "../../../core/views/pending-webauthn-login-credential.view";
-
-import { CreatePasskeyFailedIcon } from "./create-passkey-failed.icon";
-import { CreatePasskeyIcon } from "./create-passkey.icon";
 
 // FIXME: update to use a const object instead of a typescript enum
 // eslint-disable-next-line @bitwarden/platform/no-enums
@@ -38,7 +39,10 @@ type Step =
 export class CreateCredentialDialogComponent implements OnInit {
   protected readonly NameMaxCharacters = 50;
   protected readonly CreateCredentialDialogResult = CreateCredentialDialogResult;
-  protected readonly Icons = { CreatePasskeyIcon, CreatePasskeyFailedIcon };
+  protected readonly Icons = {
+    TwoFactorAuthSecurityKeyIcon,
+    TwoFactorAuthSecurityKeyFailedIcon,
+  };
 
   protected currentStep: Step = "userVerification";
   protected invalidSecret = false;

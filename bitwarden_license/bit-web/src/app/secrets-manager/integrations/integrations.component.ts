@@ -1,7 +1,7 @@
 import { Component } from "@angular/core";
 
+import { Integration } from "@bitwarden/bit-common/dirt/organization-integrations/models/integration";
 import { IntegrationType } from "@bitwarden/common/enums";
-import { Integration } from "@bitwarden/web-vault/app/admin-console/organizations/shared/components/integrations/models";
 
 @Component({
   selector: "sm-integrations",

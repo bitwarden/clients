@@ -1,7 +1,4 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-
-import { Component, EventEmitter, Output, TemplateRef, ViewChild, input } from "@angular/core";
+import { Component, EventEmitter, Output, TemplateRef, input, viewChild } from "@angular/core";
 import { QueryParamsHandling } from "@angular/router";
 
 @Component({
@@ -20,7 +17,7 @@ export class BreadcrumbComponent {
   @Output()
   click = new EventEmitter();
 
-  @ViewChild(TemplateRef, { static: true }) content: TemplateRef<unknown>;
+  readonly content = viewChild(TemplateRef);
 
   onClick(args: unknown) {
     this.click.next(args);

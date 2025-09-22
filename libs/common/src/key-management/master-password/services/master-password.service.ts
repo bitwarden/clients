@@ -18,6 +18,7 @@ import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-cr
 import {
   MASTER_PASSWORD_DISK,
   MASTER_PASSWORD_MEMORY,
+  MASTER_PASSWORD_UNLOCK_DISK,
   StateProvider,
   UserKeyDefinition,
 } from "../../../platform/state";
@@ -64,6 +65,16 @@ const FORCE_SET_PASSWORD_REASON = new UserKeyDefinition<ForceSetPasswordReason>(
   "forceSetPasswordReason",
   {
     deserializer: (reason) => reason,
+    clearOn: ["logout"],
+  },
+);
+
+/** Disk to persist through lock */
+export const MASTER_PASSWORD_UNLOCK_KEY = new UserKeyDefinition<MasterPasswordUnlockData>(
+  MASTER_PASSWORD_UNLOCK_DISK,
+  "masterPasswordUnlockKey",
+  {
+    deserializer: (obj) => MasterPasswordUnlockData.fromJSON(obj),
     clearOn: ["logout"],
   },
 );
@@ -149,14 +160,18 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
     if (userId == null) {
       throw new Error("User ID is required.");
     }
-    await this.stateProvider.getUser(userId, MASTER_KEY_HASH).update((_) => masterKeyHash);
+    await this.stateProvider.getUser(userId, MASTER_KEY_HASH).update((_) => masterKeyHash, {
+      shouldUpdate: (previousValue) => previousValue !== masterKeyHash,
+    });
   }
 
   async clearMasterKeyHash(userId: UserId): Promise<void> {
     if (userId == null) {
       throw new Error("User ID is required.");
     }
-    await this.stateProvider.getUser(userId, MASTER_KEY_HASH).update((_) => null);
+    await this.stateProvider.getUser(userId, MASTER_KEY_HASH).update((_) => null, {
+      shouldUpdate: (previousValue) => previousValue !== null,
+    });
   }
 
   async setMasterKeyEncryptedUserKey(encryptedKey: EncString, userId: UserId): Promise<void> {
@@ -292,11 +307,7 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
         kdf.toSdkConfig(),
       ),
     ) as MasterKeyWrappedUserKey;
-    return {
-      salt,
-      kdf,
-      masterKeyWrappedUserKey,
-    };
+    return new MasterPasswordUnlockData(salt, kdf, masterKeyWrappedUserKey);
   }
 
   async unwrapUserKeyFromMasterPasswordUnlockData(
@@ -316,5 +327,17 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
       ),
     );
     return userKey as UserKey;
+  }
+
+  async setMasterPasswordUnlockData(
+    masterPasswordUnlockData: MasterPasswordUnlockData,
+    userId: UserId,
+  ): Promise<void> {
+    assertNonNullish(masterPasswordUnlockData, "masterPasswordUnlockData");
+    assertNonNullish(userId, "userId");
+
+    await this.stateProvider
+      .getUser(userId, MASTER_PASSWORD_UNLOCK_KEY)
+      .update(() => masterPasswordUnlockData.toJSON());
   }
 }

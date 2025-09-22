@@ -556,6 +556,9 @@
   "view": {
     "message": "表示"
   },
+  "viewLogin": {
+    "message": "View login"
+  },
   "noItemsInList": {
     "message": "表示するアイテムがありません"
   },
@@ -1522,9 +1525,6 @@
   "selectTwoStepLoginMethod": {
     "message": "2段階認証の方法を選択"
   },
-  "recoveryCodeDesc": {
-    "message": "すべての2段階認証プロパイダにアクセスできなくなったときは、リカバリーコードを使用するとアカウントの2段階認証を無効化できます。"
-  },
   "recoveryCodeTitle": {
     "message": "リカバリーコード"
   },
@@ -1683,9 +1683,6 @@
   "defaultAutoFillOnPageLoadDesc": {
     "message": "ページ読み込み時に自動入力を有効にすると、個々のログインアイテムの機能を有効または無効にできます。 これは個別に設定されていないログインアイテムに適用されるデフォルト設定です。"
   },
-  "itemAutoFillOnPageLoad": {
-    "message": "ページ読み込み時に自動入力する (オプションで有効な場合)"
-  },
   "autoFillOnPageLoadUseDefault": {
     "message": "デフォルト設定を使用"
   },
@@ -1757,23 +1754,8 @@
   "popup2faCloseMessage": {
     "message": "認証コードを確認するためにポップアップの外をクリックすると、このポップアップが閉じてしまいます。閉じてしまわないよう、新しいウインドウでこのポップアップを開きますか？"
   },
-  "popupU2fCloseMessage": {
-    "message": "このブラウザーでは U2F 要求をポップアップウインドウでは実行できません。U2F でログインできるよう、新しいウインドウで開き直しますか？"
-  },
-  "enableFavicon": {
-    "message": "ウェブサイトのアイコンを表示"
-  },
-  "faviconDesc": {
-    "message": "ログイン情報の隣にアイコン画像を表示します"
-  },
-  "faviconDescAlt": {
-    "message": "各ログインの横に認識可能な画像を表示します。すべてのログイン済みアカウントに適用されます。"
-  },
-  "enableBadgeCounter": {
-    "message": "バッジカウンターを表示"
-  },
-  "badgeCounterDesc": {
-    "message": "現在のページに一致するログイン情報の数を表示します"
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "cardholderName": {
     "message": "カードの名義人名"
@@ -1937,32 +1919,81 @@
   "typeNote": {
     "message": "Note"
   },
-  "newItemHeader": {
-    "message": "$TYPE$ を新規作成",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderLogin": {
+    "message": "New Login",
+    "description": "Header for new login item type"
   },
-  "editItemHeader": {
-    "message": "$TYPE$ を編集",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderCard": {
+    "message": "New Card",
+    "description": "Header for new card item type"
   },
-  "viewItemHeader": {
-    "message": "$TYPE$ を表示",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderIdentity": {
+    "message": "New Identity",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "New Note",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "New SSH key",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderTextSend": {
+    "message": "New Text Send",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "New File Send",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderLogin": {
+    "message": "Edit Login",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Edit Card",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Edit Identity",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Edit Note",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "Edit SSH key",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Edit Text Send",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Edit File Send",
+    "description": "Header for edit file send"
+  },
+  "viewItemHeaderLogin": {
+    "message": "View Login",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "View Card",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "View Identity",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "View Note",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "View SSH key",
+    "description": "Header for view SSH key item type"
   },
   "passwordHistory": {
     "message": "パスワードの履歴"
@@ -3524,9 +3555,6 @@
   "autofillPageLoadPolicyActivated": {
     "message": "組織のポリシーはページ読み込み時の自動入力をオンにしました。"
   },
-  "howToAutofill": {
-    "message": "自動入力する方法"
-  },
   "autofillSelectInfoWithCommand": {
     "message": "この画面からアイテムを選択するか、ショートカット $COMMAND$を使用するか、設定で他のオプションを確認してください。",
     "placeholders": {
@@ -3911,17 +3939,9 @@
   "aliasDomain": {
     "message": "エイリアスドメイン"
   },
-  "passwordRepromptDisabledAutofillOnPageLoad": {
-    "message": "マスターパスワードの再入力を促すアイテムは、ページ読み込み時に自動入力できません。ページ読み込み時の自動入力をオフにしました。",
-    "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
-  },
   "autofillOnPageLoadSetToDefault": {
     "message": "ページ読み込み時の自動入力はデフォルトの設定を使うよう設定しました。",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "turnOffMasterPasswordPromptToEditField": {
-    "message": "このフィールドを編集するには、マスターパスワードの再入力をオフにしてください",
-    "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
   },
   "toggleSideNavigation": {
     "message": "サイドナビゲーションの切り替え"
@@ -4131,15 +4151,11 @@
   "selectImportCollection": {
     "message": "コレクションを選択"
   },
-  "importTargetHint": {
-    "message": "インポートしたファイルコンテンツを $DESTINATION$ に移動したい場合は、このオプションを選択してください。",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Select this option if you want the imported file contents moved to a collection"
+  },
+  "importTargetHintFolder": {
+    "message": "Select this option if you want the imported file contents moved to a folder"
   },
   "importUnassignedItemsError": {
     "message": "割り当てられていないアイテムがファイルに含まれています。"
@@ -4195,9 +4211,6 @@
   },
   "passkeyNotCopiedAlert": {
     "message": "パスキーは複製されたアイテムにコピーされません。このアイテムを複製しますか？"
-  },
-  "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
-    "message": "開始サイトでの認証が必要です。この機能はマスターパスワードのないアカウントではまだ対応していません。"
   },
   "logInWithPasskeyQuestion": {
     "message": "パスキーでログインしますか?"
@@ -4884,9 +4897,6 @@
       }
     }
   },
-  "enableAnimations": {
-    "message": "アニメーションを有効化"
-  },
   "showAnimations": {
     "message": "アニメーションを表示"
   },
@@ -5099,14 +5109,8 @@
   "itemLocation": {
     "message": "アイテムの場所"
   },
-  "fileSend": {
-    "message": "ファイル Send"
-  },
   "fileSends": {
     "message": "ファイル Send"
-  },
-  "textSend": {
-    "message": "テキスト Send"
   },
   "textSends": {
     "message": "テキスト Send"
@@ -5116,6 +5120,18 @@
   },
   "showNumberOfAutofillSuggestions": {
     "message": "拡張機能アイコンにログイン自動入力の候補の数を表示する"
+  },
+  "accountAccessRequested": {
+    "message": "Account access requested"
+  },
+  "confirmAccessAttempt": {
+    "message": "Confirm access attempt for $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
   },
   "showQuickCopyActions": {
     "message": "保管庫にクイックコピー操作を表示する"
@@ -5155,9 +5171,6 @@
   },
   "vaultCustomTimeoutMinimum": {
     "message": "カスタムタイムアウトの最小値は1分です。"
-  },
-  "additionalContentAvailable": {
-    "message": "追加コンテンツが利用可能です"
   },
   "fileSavedToDevice": {
     "message": "ファイルをデバイスに保存しました。デバイスのダウンロードで管理できます。"
@@ -5444,6 +5457,12 @@
   "changeAtRiskPassword": {
     "message": "危険なパスワードの変更"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
+  },
   "settingsVaultOptions": {
     "message": "保管庫オプション"
   },
@@ -5491,6 +5510,18 @@
   },
   "hasItemsVaultNudgeTitle": {
     "message": "Welcome to your vault!"
+  },
+  "phishingPageTitle": {
+    "message": "Phishing website"
+  },
+  "phishingPageCloseTab": {
+    "message": "Close tab"
+  },
+  "phishingPageContinue": {
+    "message": "Continue"
+  },
+  "phishingPageLearnWhy": {
+    "message": "Why are you seeing this?"
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Autofill items for the current page"
@@ -5567,6 +5598,12 @@
     "message": "Easily create strong and unique passwords by clicking on the Generate password button to help you keep your logins secure.",
     "description": "Aria label for the body content of the generator nudge"
   },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+  },
   "noPermissionsViewPage": {
     "message": "You do not have permissions to view this page. Try logging in with a different account."
   },
@@ -5579,5 +5616,15 @@
   },
   "showLess": {
     "message": "Show less"
+  },
+  "next": {
+    "message": "Next"
+  },
+  "moreBreadcrumbs": {
+    "message": "More breadcrumbs",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Confirm Key Connector domain"
   }
 }

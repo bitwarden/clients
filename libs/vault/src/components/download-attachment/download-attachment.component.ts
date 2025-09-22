@@ -6,6 +6,7 @@ import { firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { DECRYPT_ERROR } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -45,6 +46,10 @@ export class DownloadAttachmentComponent {
     private stateProvider: StateProvider,
     private cipherService: CipherService,
   ) {}
+
+  protected get isDecryptionFailure(): boolean {
+    return this.attachment.fileName === DECRYPT_ERROR;
+  }
 
   /** Download the attachment */
   download = async () => {
@@ -87,6 +92,9 @@ export class DownloadAttachmentComponent {
         this.attachment,
         response,
         userId,
+        // When the emergency access ID is present, the cipher is being viewed via emergency access.
+        // Force legacy decryption in these cases.
+        this.emergencyAccessId ? true : false,
       );
 
       this.fileDownloadService.download({
