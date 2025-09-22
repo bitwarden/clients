@@ -141,8 +141,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   pinEnabled$: Observable<boolean> = of(true);
 
-  hasPremium: boolean = false;
-
   form = this.formBuilder.group({
     // Security
     vaultTimeout: [null as VaultTimeout | null],
@@ -428,9 +426,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
         .hasPremiumFromAnySource$(activeAccount.id)
         .pipe(takeUntil(this.destroy$))
         .subscribe((hasPremium) => {
-          this.hasPremium = hasPremium;
-
-          if (this.hasPremium) {
+          if (hasPremium) {
             this.form.controls.enableAutotype.enable();
           }
         });
