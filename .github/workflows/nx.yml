@@ -16,11 +16,20 @@ jobs:
         with:
           fetch-depth: 0
       
-      - name: Setup Node.js
+      - name: Get Node Version
+        id: retrieve-node-version
+        working-directory: ./
+        run: |
+          NODE_NVMRC=$(cat .nvmrc)
+          NODE_VERSION=${NODE_NVMRC/v/''}
+          echo "node_version=$NODE_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Set up Node
         uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
         with:
-          node-version: 20
           cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
+          node-version: ${{ env._NODE_VERSION }}
       
       - name: Install dependencies
         run: npm ci
