@@ -166,11 +166,11 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   kdfIterations: number;
   activeFilter: VaultFilter = new VaultFilter();
 
-  protected orgIcon = DeactivatedOrg;
-  protected trashIcon = EmptyTrash;
+  protected deactivatedOrgIcon = DeactivatedOrg;
+  protected emptyTrashIcon = EmptyTrash;
   protected favoritesIcon = FavoritesIcon;
-  protected emptyVaultIcon = ItemTypes;
-  protected emptySearchResultIcon = NoResults;
+  protected itemTypesIcon = ItemTypes;
+  protected noResultsIcon = NoResults;
   protected performingInitialLoad = true;
   protected refreshing = false;
   protected processingEvent = false;
@@ -217,7 +217,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         return {
           title: "organizationIsSuspended",
           description: "organizationIsSuspendedDesc",
-          icon: this.orgIcon,
+          icon: this.deactivatedOrgIcon,
         };
       }
 
@@ -225,7 +225,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         return {
           title: "noSearchResults",
           description: "clearFiltersOrTryAnother",
-          icon: this.emptySearchResultIcon,
+          icon: this.noResultsIcon,
         };
       }
 
@@ -233,7 +233,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         trash: {
           title: "noItemsInTrash",
           description: "noItemsInTrashDesc",
-          icon: this.trashIcon,
+          icon: this.emptyTrashIcon,
         },
         favorites: {
           title: "emptyFavorites",
@@ -243,7 +243,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         archive: {
           title: "noItemsInArchive",
           description: "archivedItemsDescription",
-          icon: this.emptyVaultIcon,
+          icon: this.itemTypesIcon,
         },
       };
 
@@ -251,7 +251,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         emptyStateMap[filter?.type] || {
           title: "noItemsInVault",
           description: "emptyVaultDescription",
-          icon: this.emptyVaultIcon,
+          icon: this.itemTypesIcon,
         }
       );
     }),
