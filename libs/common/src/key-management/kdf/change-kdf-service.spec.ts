@@ -8,13 +8,12 @@ import { UserKey } from "@bitwarden/common/types/key";
 // eslint-disable-next-line no-restricted-imports
 import { KdfConfigService, KeyService, PBKDF2KdfConfig } from "@bitwarden/key-management";
 
-import { makeEncString } from "../../../spec";
-import { EncString } from "../crypto/models/enc-string";
 import { MasterPasswordServiceAbstraction } from "../master-password/abstractions/master-password.service.abstraction";
 import {
   MasterKeyWrappedUserKey,
   MasterPasswordAuthenticationHash,
   MasterPasswordSalt,
+  MasterPasswordUnlockData,
 } from "../master-password/types/master-password.types";
 
 import { ChangeKdfApiService } from "./change-kdf-api.service.abstraction";
@@ -35,7 +34,7 @@ describe("ChangeKdfService", () => {
   const mockNewHash = "newHash" as MasterPasswordAuthenticationHash;
   const mockUserId = "00000000-0000-0000-0000-000000000000" as UserId;
   const mockSalt = "test@bitwarden.com" as MasterPasswordSalt;
-  const mockWrappedUserKey: EncString = makeEncString("wrappedUserKey");
+  const mockWrappedUserKey = "wrappedUserKey";
 
   beforeEach(() => {
     sut = new DefaultChangeKdfService(
@@ -135,11 +134,13 @@ describe("ChangeKdfService", () => {
           masterPasswordAuthenticationHash: mockNewHash,
         });
 
-      masterPasswordService.makeMasterPasswordUnlockData.mockResolvedValueOnce({
-        kdf: mockNewKdfConfig,
-        salt: mockSalt,
-        masterKeyWrappedUserKey: mockWrappedUserKey.encryptedString as MasterKeyWrappedUserKey,
-      });
+      masterPasswordService.makeMasterPasswordUnlockData.mockResolvedValueOnce(
+        new MasterPasswordUnlockData(
+          mockSalt,
+          mockNewKdfConfig,
+          mockWrappedUserKey as MasterKeyWrappedUserKey,
+        ),
+      );
 
       await sut.updateUserKdfParams("masterPassword", mockNewKdfConfig, mockUserId);
 
@@ -149,11 +150,11 @@ describe("ChangeKdfService", () => {
           kdf: mockNewKdfConfig,
           masterPasswordAuthenticationHash: mockNewHash,
         },
-        {
-          kdf: mockNewKdfConfig,
-          salt: mockSalt,
-          masterKeyWrappedUserKey: mockWrappedUserKey.encryptedString as MasterKeyWrappedUserKey,
-        },
+        new MasterPasswordUnlockData(
+          mockSalt,
+          mockNewKdfConfig,
+          mockWrappedUserKey as MasterKeyWrappedUserKey,
+        ),
       ).authenticateWith({
         salt: mockSalt,
         kdf: mockOldKdfConfig,
