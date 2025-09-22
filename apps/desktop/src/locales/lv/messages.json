@@ -79,7 +79,7 @@
     "message": "Pielikumi"
   },
   "viewItem": {
-    "message": "Skatīt vienumu"
+    "message": "Apskatīt vienumu"
   },
   "name": {
     "message": "Nosaukums"
@@ -573,7 +573,7 @@
     "message": "Ievietot vietrādi starpliktuvē"
   },
   "copyVerificationCodeTotp": {
-    "message": "Ievietot Apliecinājuma kodu (TOTP) starpliktuvē"
+    "message": "Ievietot apliecinājuma kodu (TOTP) starpliktuvē"
   },
   "copyFieldCipherName": {
     "message": "Ievietot starpliktuvē $FIELD$, $CIPHERNAME$",
@@ -701,6 +701,12 @@
   },
   "attachmentSaved": {
     "message": "Pielikums tika saglabāts."
+  },
+  "addAttachment": {
+    "message": "Pievienot pielikumu"
+  },
+  "maxFileSizeSansPunctuation": {
+    "message": "Lielākais pieļaujamais datnes izmērs ir 500 MB"
   },
   "file": {
     "message": "Datne"
@@ -954,11 +960,8 @@
   "insertU2f": {
     "message": "Ievieto savu drošības atslēgu datora USB ligzdā! Ja tai ir poga, pieskaries tai!"
   },
-  "recoveryCodeDesc": {
-    "message": "Zaudēta piekļuve visiem divpakāpju nodrošinātājiem? Izmanto atkopšanas kodus, lai atspējotu visus sava konta divpakāpju nodrošinātājus!"
-  },
   "recoveryCodeTitle": {
-    "message": "Atgūšanas kods"
+    "message": "Atkopes kods"
   },
   "authenticatorAppTitle": {
     "message": "Autentificētāja lietotne"
@@ -1299,11 +1302,8 @@
     "message": "Automātiski noņemt starpliktuvē ievietotās vērtības.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
-  "enableFavicon": {
-    "message": "Rādīt tīmekļvietņu ikonas"
-  },
-  "faviconDesc": {
-    "message": "Attēlot atpazīstamu attēlu pie katra pieteikšanās vienuma."
+  "showIconsChangePasswordUrls": {
+    "message": "Rādīt tīmekļvietņu ikonas un iegūt paroles nomaiņas URL"
   },
   "enableMinToTray": {
     "message": "Samazināt ikonjoslā"
@@ -1839,12 +1839,6 @@
   },
   "autoPromptTouchId": {
     "message": "Palaišanā vaicāt pēc Touch ID"
-  },
-  "requirePasswordOnStart": {
-    "message": "Pieprasīt paroli vai PIN pēc lietotnes palaišanas"
-  },
-  "requirePasswordWithoutPinOnStart": {
-    "message": "Pieprasīt paroli pēc lietotnes palaišanas"
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Aizslēgt ar galveno paroli pēc pārsāknēšanas"
@@ -2425,7 +2419,7 @@
     "message": "Pēc savas paroles nomainīšanas būs nepieciešams pieteikties ar jauno paroli. Spēkā esošajās sesijās citās ierīcēs stundas laikā notiks atteikšanās."
   },
   "accountRecoveryUpdateMasterPasswordSubtitle": {
-    "message": "Jānomaina sava galvenā'parole, lai pabeigtu konta atkopi."
+    "message": "Jānomaina sava galvenā parole, lai pabeigtu konta atkopi."
   },
   "updateMasterPasswordSubtitle": {
     "message": "Galvenā parole neatbilst šīs apvienības prasībām. Jānomaina sava galvenā parole, lai turpinātu."
@@ -3015,10 +3009,10 @@
     "message": "Ir jāuzstāda pieteikšanās ar ierīci Bitwarden lietotnes iestatījumos. Nepieciešama cita iespēja?"
   },
   "viewAllLogInOptions": {
-    "message": "Skatīt visas pieteikšanās iespējas"
+    "message": "Apskatīt visas pieteikšanās iespējas"
   },
   "viewAllLoginOptions": {
-    "message": "Skatīt visas pieteikšanās iespējas"
+    "message": "Apskatīt visas pieteikšanās iespējas"
   },
   "resendNotification": {
     "message": "Atkārtoti nosūtīt paziņojumu"
@@ -3241,7 +3235,7 @@
     "message": "pašmitināts"
   },
   "accessDenied": {
-    "message": "Piekļuve liegta. Nav nepieciešamo atļauju, lai skatītu šo lapu."
+    "message": "Piekļuve liegta. Nav nepieciešamo atļauju, lai apskatītu šo lapu."
   },
   "accountSuccessfullyCreated": {
     "message": "Konts ir veiksmīgi izveidots."
@@ -3491,15 +3485,11 @@
   "selectImportCollection": {
     "message": "Atlasīt krājumu"
   },
-  "importTargetHint": {
-    "message": "Šī iespēja jāatlasa, ja ir vēlēšanās ievietotās datnes saturu pārvietot uz $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Šī iespēja jāatlasa, ja ir vēlēšanās ievietotās datnes saturu ievietot krājumā"
+  },
+  "importTargetHintFolder": {
+    "message": "Šī iespēja jāatlasa, ja ir vēlēšanās ievietotās datnes saturu ievietot mapē"
   },
   "importUnassignedItemsError": {
     "message": "Datne satur nepiešķirtus vienumus."
@@ -3595,6 +3585,12 @@
   "awaitingSSODesc": {
     "message": "Lūgums turpināt pieteikšanos ar savas apvienības pieteikšanās datiem."
   },
+  "importDirectlyFromBrowser": {
+    "message": "Ievietot tieši no pārlūka"
+  },
+  "browserProfile": {
+    "message": "Pārlūka profils"
+  },
   "seeDetailedInstructions": {
     "message": "Izvērstas norādes ir aplūkojamas mūsu palīdzības vietnē",
     "description": "This is followed a by a hyperlink to the help website."
@@ -3627,7 +3623,7 @@
     "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
   },
   "startsWithAdvancedOptionWarning": {
-    "message": "\"Sākas ar' ir lietpratējiem paredzēta iespēja ar paaugstinātu piekļuves datu atklāšanas bīstamību.",
+    "message": "“Sākas ar” ir lietpratējiem paredzēta iespēja ar paaugstinātu piekļuves datu atklāšanas bīstamību.",
     "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
   },
   "uriMatchWarningDialogLink": {
@@ -3667,7 +3663,7 @@
     "message": "Kļūda mērķa mapes piešķiršanā."
   },
   "viewItemsIn": {
-    "message": "Skatīt $NAME$ vienumus",
+    "message": "Apskatīt $NAME$ vienumus",
     "description": "Button to view the contents of a folder or collection",
     "placeholders": {
       "name": {
@@ -3820,7 +3816,7 @@
     "message": "Atļaut ekrāna tveršanu"
   },
   "allowScreenshotsDesc": {
-    "message": "Ļaut Bitwarden darbvirsmas lietotni tvert ekrānuzņēmumos un rādīt attālās darbvirsmas sesijās. Atspējošana liegs piekļuvu atsevišķos ārējos ekrānos."
+    "message": "Ļaut Bitwarden darbvirsmas lietotni tvert ekrānuzņēmumos un rādīt attālās darbvirsmas sesijās. Atspējošana liegs piekļuvi atsevišķos ārējos ekrānos."
   },
   "confirmWindowStillVisibleTitle": {
     "message": "Apstirpināt, ka logs joprojām ir redzams"
@@ -3836,6 +3832,12 @@
   },
   "changeAtRiskPassword": {
     "message": "Mainīt riskam pakļautu paroli"
+  },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Šis pieteikšanās vienums ir pakļauts riskam, un tam nav norādīta tīmekļvietne. Lielākai drošībai jāpievieno tīmekļvietne un jānomaina parole."
+  },
+  "missingWebsite": {
+    "message": "Nav norādīta tīmekļvietne"
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "Nevar noņemt krājumus ar tiesībām \"Tikai skatīt\": $COLLECTIONS$",
@@ -3931,6 +3933,12 @@
     "message": "Uzzināt vairāk par SSH aģentu",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "aboutThisSetting": {
+    "message": "Par šo iestatījumu"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden izmantos saglabātos pieteikšanās vienuma URI, lai noteiktu, kuru ikonu vai paroles nomaiņas URL izmantot, lai uzlabotu pieredzi. Šī pakalpojuma izmantošanas laikā nekāda informācija netiek ievākta vai saglabāta."
   },
   "assignToCollections": {
     "message": "Piešķirt krājumiem"
@@ -4077,5 +4085,27 @@
   },
   "enableAutotypeDescription": {
     "message": "Bitwarden nepārbauda ievades atrašanās vietas, jāpārliecinās, ka atrodies pareizajā logā un laukā, pirms saīsnes izmantošanas."
+  },
+  "moreBreadcrumbs": {
+    "message": "Vairāk norāžu",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "next": {
+    "message": "Nākamais"
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Apstiprināt Key Connector domēnu"
+  },
+  "confirm": {
+    "message": "Apstiprināt"
+  },
+  "enableAutotypeTransitionKey": {
+    "message": "Iespējot automātiskās ievades saīsni"
+  },
+  "enableAutotypeDescriptionTransitionKey": {
+    "message": "Jāpārliecinās, ka pirms saīsnes izmantošanas kursors ir pareizajā laukā, lai izvairītos no datu ievadīšanas nepareizā vietā."
+  },
+  "editShortcut": {
+    "message": "Labot saīsni"
   }
 }

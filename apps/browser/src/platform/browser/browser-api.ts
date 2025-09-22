@@ -33,6 +33,15 @@ export class BrowserApi {
   }
 
   /**
+   * Gets all open browser windows, including their tabs.
+   *
+   * @returns A promise that resolves to an array of browser windows.
+   */
+  static async getWindows(): Promise<chrome.windows.Window[]> {
+    return new Promise((resolve) => chrome.windows.getAll({ populate: true }, resolve));
+  }
+
+  /**
    * Gets the current window or the window with the given id.
    *
    * @param windowId - The id of the window to get. If not provided, the current window is returned.
@@ -203,6 +212,47 @@ export class BrowserApi {
     );
   }
 
+  /**
+   * Closes a browser tab with the given id
+   *
+   * @param tabId The id of the tab to close
+   */
+  static async closeTab(tabId: number): Promise<void> {
+    if (tabId) {
+      if (BrowserApi.isWebExtensionsApi) {
+        browser.tabs.remove(tabId).catch((error) => {
+          throw new Error("[BrowserApi] Failed to remove current tab: " + error.message);
+        });
+      } else if (BrowserApi.isChromeApi) {
+        chrome.tabs.remove(tabId).catch((error) => {
+          throw new Error("[BrowserApi] Failed to remove current tab: " + error.message);
+        });
+      }
+    }
+  }
+
+  /**
+   * Navigates a browser tab to the given URL
+   *
+   * @param tabId The id of the tab to navigate
+   * @param url The URL to navigate to
+   */
+  static async navigateTabToUrl(tabId: number, url: URL): Promise<void> {
+    if (tabId) {
+      if (BrowserApi.isWebExtensionsApi) {
+        browser.tabs.update(tabId, { url: url.href }).catch((error) => {
+          throw new Error("Failed to navigate tab to URL: " + error.message);
+        });
+      } else if (BrowserApi.isChromeApi) {
+        chrome.tabs.update(tabId, { url: url.href }, () => {
+          if (chrome.runtime.lastError) {
+            throw new Error("Failed to navigate tab to URL: " + chrome.runtime.lastError.message);
+          }
+        });
+      }
+    }
+  }
+
   static async tabsQuery(options: chrome.tabs.QueryInfo): Promise<chrome.tabs.Tab[]> {
     return new Promise((resolve) => {
       chrome.tabs.query(options, (tabs) => {
@@ -224,7 +274,7 @@ export class BrowserApi {
    * Drop-in replacement for {@link BrowserApi.tabsQueryFirst}.
    *
    * Safari sometimes returns >1 tabs unexpectedly even when
-   * specificing a `windowId` or `currentWindow: true` query option.
+   * specifying a `windowId` or `currentWindow: true` query option.
    *
    * For all of these calls,
    * ```
@@ -309,6 +359,14 @@ export class BrowserApi {
     responseCallback?: (response: T) => void,
   ) {
     chrome.tabs.sendMessage<TabMessage, T>(tabId, message, options, responseCallback);
+  }
+
+  static getRuntimeURL(path: string): string {
+    if (BrowserApi.isWebExtensionsApi) {
+      return browser.runtime.getURL(path);
+    } else if (BrowserApi.isChromeApi) {
+      return chrome.runtime.getURL(path);
+    }
   }
 
   static async onWindowCreated(callback: (win: chrome.windows.Window) => any) {

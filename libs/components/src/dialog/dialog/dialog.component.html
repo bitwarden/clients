@@ -37,8 +37,7 @@
         buttonType="main"
         size="default"
         bitDialogClose
-        [attr.title]="'close' | i18n"
-        [attr.aria-label]="'close' | i18n"
+        [label]="'close' | i18n"
       ></button>
     }
   </header>
@@ -66,9 +65,10 @@
       }"
     >
       <ng-content select="[bitDialogContent]"></ng-content>
+      <div #scrollBottom></div>
     </div>
   </div>
-
+  @let isScrollable = isScrollable$ | async;
   @let showFooterBorder =
     (!bodyHasScrolledFrom().top && isScrollable) || bodyHasScrolledFrom().bottom;
   <footer

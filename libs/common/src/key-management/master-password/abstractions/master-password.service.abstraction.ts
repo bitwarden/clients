@@ -159,4 +159,16 @@ export abstract class InternalMasterPasswordServiceAbstraction extends MasterPas
     reason: ForceSetPasswordReason,
     userId: UserId,
   ) => Promise<void>;
+
+  /**
+   * Sets the master password unlock data for the user.
+   * This data is used to unlock the user key with the master password.
+   * @param masterPasswordUnlockData The master password unlock data containing the KDF settings, salt, and encrypted user key.
+   * @param userId The user ID.
+   * @throws Error If the user ID or master password unlock data is missing.
+   */
+  abstract setMasterPasswordUnlockData(
+    masterPasswordUnlockData: MasterPasswordUnlockData,
+    userId: UserId,
+  ): Promise<void>;
 }

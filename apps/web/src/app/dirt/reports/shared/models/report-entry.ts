@@ -1,4 +1,4 @@
-import { Icon } from "@bitwarden/components";
+import { Icon } from "@bitwarden/assets/svg";
 
 import { ReportVariant } from "./report-variant";
 

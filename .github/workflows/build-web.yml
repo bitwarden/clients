@@ -106,6 +106,10 @@ jobs:
           - artifact_name: selfhosted-COMMERCIAL
             image_name: web
             npm_command: dist:bit:selfhost
+          - artifact_name: selfhosted-DEV
+            image_name: web
+            npm_command: build:bit:selfhost:dev
+            git_metadata: true
           - artifact_name: cloud-QA
             image_name: web-qa-cloud
             npm_command: build:bit:qa

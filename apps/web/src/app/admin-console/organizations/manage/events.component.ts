@@ -1,8 +1,8 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
-import { ActivatedRoute, Router } from "@angular/router";
-import { concatMap, firstValueFrom, lastValueFrom, Subject, takeUntil } from "rxjs";
+import { ActivatedRoute } from "@angular/router";
+import { concatMap, filter, firstValueFrom, lastValueFrom, map, switchMap, takeUntil } from "rxjs";
 
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
@@ -19,7 +19,6 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { EventSystemUser } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EventResponse } from "@bitwarden/common/models/response/event.response";
 import { EventView } from "@bitwarden/common/models/view/event.view";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -34,6 +33,8 @@ import {
   openChangePlanDialog,
 } from "../../../billing/organizations/change-plan-dialog.component";
 import { EventService } from "../../../core";
+import { HeaderModule } from "../../../layouts/header/header.module";
+import { SharedModule } from "../../../shared";
 import { EventExportService } from "../../../tools/event-export";
 import { BaseEventsComponent } from "../../common/base.events.component";
 
@@ -46,9 +47,8 @@ const EVENT_SYSTEM_USER_TO_TRANSLATION: Record<EventSystemUser, string> = {
 };
 
 @Component({
-  selector: "app-org-events",
   templateUrl: "events.component.html",
-  standalone: false,
+  imports: [SharedModule, HeaderModule],
 })
 export class EventsComponent extends BaseEventsComponent implements OnInit, OnDestroy {
   exportFileName = "org-events";
@@ -59,13 +59,7 @@ export class EventsComponent extends BaseEventsComponent implements OnInit, OnDe
   placeholderEvents = placeholderEvents as EventView[];
 
   private orgUsersUserIdMap = new Map<string, any>();
-  private destroy$ = new Subject<void>();
-
   readonly ProductTierType = ProductTierType;
-
-  protected isBreadcrumbEventLogsEnabled$ = this.configService.getFeatureFlag$(
-    FeatureFlag.PM12276_BreadcrumbEventLogs,
-  );
 
   constructor(
     private apiService: ApiService,
@@ -74,18 +68,18 @@ export class EventsComponent extends BaseEventsComponent implements OnInit, OnDe
     i18nService: I18nService,
     exportService: EventExportService,
     platformUtilsService: PlatformUtilsService,
-    private router: Router,
     logService: LogService,
     private userNamePipe: UserNamePipe,
-    private organizationService: OrganizationService,
+    protected organizationService: OrganizationService,
     private organizationUserApiService: OrganizationUserApiService,
     private organizationApiService: OrganizationApiServiceAbstraction,
     private providerService: ProviderService,
     fileDownloadService: FileDownloadService,
     toastService: ToastService,
-    private accountService: AccountService,
+    protected accountService: AccountService,
     private dialogService: DialogService,
     private configService: ConfigService,
+    protected activeRoute: ActivatedRoute,
   ) {
     super(
       eventService,
@@ -95,10 +89,15 @@ export class EventsComponent extends BaseEventsComponent implements OnInit, OnDe
       logService,
       fileDownloadService,
       toastService,
+      activeRoute,
+      accountService,
+      organizationService,
     );
   }
 
   async ngOnInit() {
+    this.initBase();
+
     const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     this.route.params
       .pipe(
@@ -137,22 +136,24 @@ export class EventsComponent extends BaseEventsComponent implements OnInit, OnDe
 
     if (this.organization.providerId != null) {
       try {
-        const provider = await this.providerService.get(this.organization.providerId);
-        if (
-          provider != null &&
-          (await this.providerService.get(this.organization.providerId)).canManageUsers
-        ) {
-          const providerUsersResponse = await this.apiService.getProviderUsers(
-            this.organization.providerId,
-          );
-          providerUsersResponse.data.forEach((u) => {
-            const name = this.userNamePipe.transform(u);
-            this.orgUsersUserIdMap.set(u.userId, {
-              name: `${name} (${this.organization.providerName})`,
-              email: u.email,
-            });
-          });
-        }
+        await firstValueFrom(
+          this.accountService.activeAccount$.pipe(
+            getUserId,
+            switchMap((userId) => this.providerService.get$(this.organization.providerId, userId)),
+            map((provider) => provider != null && provider.canManageUsers),
+            filter((result) => result),
+            switchMap(() => this.apiService.getProviderUsers(this.organization.id)),
+            map((providerUsersResponse) =>
+              providerUsersResponse.data.forEach((u) => {
+                const name = this.userNamePipe.transform(u);
+                this.orgUsersUserIdMap.set(u.userId, {
+                  name: `${name} (${this.organization.providerName})`,
+                  email: u.email,
+                });
+              }),
+            ),
+          ),
+        );
       } catch (e) {
         this.logService.warning(e);
       }
@@ -231,10 +232,5 @@ export class EventsComponent extends BaseEventsComponent implements OnInit, OnDe
       return;
     }
     await this.load();
-  }
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 }

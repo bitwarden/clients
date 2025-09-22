@@ -156,7 +156,7 @@ describe("OverlayBackground", () => {
     fakeStateProvider = new FakeStateProvider(accountService);
     showFaviconsMock$ = new BehaviorSubject(true);
     neverDomainsMock$ = new BehaviorSubject({});
-    domainSettingsService = new DefaultDomainSettingsService(fakeStateProvider, configService);
+    domainSettingsService = new DefaultDomainSettingsService(fakeStateProvider);
     domainSettingsService.showFavicons$ = showFaviconsMock$;
     domainSettingsService.neverDomains$ = neverDomainsMock$;
     logService = mock<LogService>();
@@ -3389,6 +3389,7 @@ describe("OverlayBackground", () => {
               usePasskey: true,
               portKey,
             });
+            await flushPromises();
             triggerWebRequestOnCompletedEvent(
               mock<chrome.webRequest.WebResponseCacheDetails>({
                 statusCode: 200,

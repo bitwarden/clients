@@ -702,6 +702,12 @@
   "attachmentSaved": {
     "message": "Bilaga sparad"
   },
+  "addAttachment": {
+    "message": "Lägg till bilaga"
+  },
+  "maxFileSizeSansPunctuation": {
+    "message": "Maximal filstorlek är 500 MB"
+  },
   "file": {
     "message": "Fil"
   },
@@ -953,9 +959,6 @@
   },
   "insertU2f": {
     "message": "Anslut din säkerhetsnyckel till datorns USB-port. Om den har en knapp, tryck på den."
-  },
-  "recoveryCodeDesc": {
-    "message": "Förlorat åtkomst till alla dina metoder för tvåstegsverifiering? Använd din återställningskod för att inaktivera tvåstegsverifiering på ditt konto."
   },
   "recoveryCodeTitle": {
     "message": "Återställningskod"
@@ -1299,11 +1302,8 @@
     "message": "Rensa automatiskt kopierade värden från urklipp.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
-  "enableFavicon": {
-    "message": "Visa webbplatsikoner"
-  },
-  "faviconDesc": {
-    "message": "Visa en identifierbar bild bredvid varje inloggning."
+  "showIconsChangePasswordUrls": {
+    "message": "Visa webbplatsikoner och URLer för lösenordsändringar"
   },
   "enableMinToTray": {
     "message": "Minimera till systemfältsikon"
@@ -1839,12 +1839,6 @@
   },
   "autoPromptTouchId": {
     "message": "Be om Touch ID vid appstart"
-  },
-  "requirePasswordOnStart": {
-    "message": "Kräv lösenord eller PIN-kod vid appstart"
-  },
-  "requirePasswordWithoutPinOnStart": {
-    "message": "Kräv lösenord vid appstart"
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Lås med huvudlösenord vid omstart"
@@ -2518,10 +2512,10 @@
     "message": "Ditt valvs tid för timeout överskrider de begränsningar som fastställts av din organisation."
   },
   "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Enterprise policy requirements have been applied to your timeout options"
+    "message": "Företagets policykrav har tillämpats på dina tidsgränsalternativ"
   },
   "vaultTimeoutPolicyInEffect": {
-    "message": "Your organization policies have set your maximum allowed vault timeout to $HOURS$ hour(s) and $MINUTES$ minute(s).",
+    "message": "Din organisations policy har fastställt den maximalt tillåtna tidsgränsen för valvet till $HOURS$ timmar och $MINUTES$ minuter.",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -2534,7 +2528,7 @@
     }
   },
   "vaultTimeoutPolicyMaximumError": {
-    "message": "Timeout exceeds the restriction set by your organization: $HOURS$ hour(s) and $MINUTES$ minute(s) maximum",
+    "message": "Tidsgränsen överskrider den begränsning som din organisation har ställt in: $HOURS$ timmar och $MINUTES$ minut(er) maximalt",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -3491,15 +3485,11 @@
   "selectImportCollection": {
     "message": "Välj en samling"
   },
-  "importTargetHint": {
-    "message": "Välj det här alternativet om du vill att innehållet i den importerade filen ska flyttas till en $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Välj det här alternativet om du vill att innehållet i den importerade filen ska flyttas till en samling"
+  },
+  "importTargetHintFolder": {
+    "message": "Välj detta alternativ om du vill att innehållet i den importerade filen ska flyttas till en mapp"
   },
   "importUnassignedItemsError": {
     "message": "Filen innehåller otilldelade objekt."
@@ -3594,6 +3584,12 @@
   },
   "awaitingSSODesc": {
     "message": "Fortsätt att logga in med dina företagsuppgifter."
+  },
+  "importDirectlyFromBrowser": {
+    "message": "Importera direkt från webbläsaren"
+  },
+  "browserProfile": {
+    "message": "Webbläsarprofil"
   },
   "seeDetailedInstructions": {
     "message": "Se detaljerade instruktioner på vår hjälpsida på",
@@ -3837,6 +3833,12 @@
   "changeAtRiskPassword": {
     "message": "Ändra lösenord för riskgrupper"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Denna inloggning är utsatt för risk och saknar en webbplats. Lägg till en webbplats och ändra lösenordet för ökad säkerhet."
+  },
+  "missingWebsite": {
+    "message": "Saknar webbplats"
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "Du kan inte ta bort samlingar med behörigheten Visa endast: $COLLECTIONS$",
     "placeholders": {
@@ -3931,6 +3933,12 @@
     "message": "Läs mer om SSH-agent",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "aboutThisSetting": {
+    "message": "Om denna inställning"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden använder sparade inloggnings-URI: er för att identifiera vilken ikon eller URL för lösenordsändring som ska användas för att förbättra din upplevelse. Ingen information samlas in eller sparas när du använder denna tjänst."
   },
   "assignToCollections": {
     "message": "Tilldela till samlingar"
@@ -4077,5 +4085,27 @@
   },
   "enableAutotypeDescription": {
     "message": "Bitwarden validerar inte inmatningsplatser, så se till att du är i rätt fönster och fält innan du använder genvägen."
+  },
+  "moreBreadcrumbs": {
+    "message": "Fler länkstigar",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "next": {
+    "message": "Nästa"
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Bekräfta Key Connector-domän"
+  },
+  "confirm": {
+    "message": "Bekräfta"
+  },
+  "enableAutotypeTransitionKey": {
+    "message": "Aktivera genväg för automatisk inmatning"
+  },
+  "enableAutotypeDescriptionTransitionKey": {
+    "message": "Försäkra dig om att du befinner dig i rätt fält innan du använder genvägen för att undvika att fylla i data på fel ställe."
+  },
+  "editShortcut": {
+    "message": "Redigera genväg"
   }
 }

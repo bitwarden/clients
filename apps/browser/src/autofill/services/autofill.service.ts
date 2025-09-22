@@ -29,7 +29,6 @@ import { InlineMenuVisibilitySetting } from "@bitwarden/common/autofill/types";
 import { normalizeExpiryYearFormat } from "@bitwarden/common/autofill/utils";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EventType } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import {
   UriMatchStrategySetting,
   UriMatchStrategy,
@@ -438,7 +437,6 @@ export default class AutofillService implements AutofillServiceInterface {
         const fillScript = await this.generateFillScript(pd.details, {
           skipUsernameOnlyFill: options.skipUsernameOnlyFill || false,
           onlyEmptyFields: options.onlyEmptyFields || false,
-          onlyVisibleFields: options.onlyVisibleFields || false,
           fillNewPassword: options.fillNewPassword || false,
           allowTotpAutofill: options.allowTotpAutofill || false,
           autoSubmitLogin: options.autoSubmitLogin || false,
@@ -572,7 +570,6 @@ export default class AutofillService implements AutofillServiceInterface {
       skipLastUsed: !fromCommand,
       skipUsernameOnlyFill: !fromCommand,
       onlyEmptyFields: !fromCommand,
-      onlyVisibleFields: !fromCommand,
       fillNewPassword: fromCommand,
       allowUntrustedIframe: fromCommand,
       allowTotpAutofill: fromCommand,
@@ -677,7 +674,6 @@ export default class AutofillService implements AutofillServiceInterface {
       skipLastUsed: !fromCommand,
       skipUsernameOnlyFill: !fromCommand,
       onlyEmptyFields: !fromCommand,
-      onlyVisibleFields: !fromCommand,
       fillNewPassword: false,
       allowUntrustedIframe: fromCommand,
       allowTotpAutofill: false,
@@ -844,23 +840,13 @@ export default class AutofillService implements AutofillServiceInterface {
 
     fillScript.untrustedIframe = await this.inUntrustedIframe(pageDetails.url, options);
 
-    let passwordFields = AutofillService.loadPasswordFields(
+    const passwordFields = AutofillService.loadPasswordFields(
       pageDetails,
       false,
       false,
       options.onlyEmptyFields,
       options.fillNewPassword,
     );
-    if (!passwordFields.length && !options.onlyVisibleFields) {
-      // not able to find any viewable password fields. maybe there are some "hidden" ones?
-      passwordFields = AutofillService.loadPasswordFields(
-        pageDetails,
-        true,
-        true,
-        options.onlyEmptyFields,
-        options.fillNewPassword,
-      );
-    }
 
     for (const formKey in pageDetails.forms) {
       // eslint-disable-next-line
@@ -875,11 +861,6 @@ export default class AutofillService implements AutofillServiceInterface {
         if (login.username) {
           username = this.findUsernameField(pageDetails, pf, false, false, false);
 
-          if (!username && !options.onlyVisibleFields) {
-            // not able to find any viewable username fields. maybe there are some "hidden" ones?
-            username = this.findUsernameField(pageDetails, pf, true, true, false);
-          }
-
           if (username) {
             usernames.push(username);
           }
@@ -887,11 +868,6 @@ export default class AutofillService implements AutofillServiceInterface {
 
         if (options.allowTotpAutofill && login.totp) {
           totp = this.findTotpField(pageDetails, pf, false, false, false);
-
-          if (!totp && !options.onlyVisibleFields) {
-            // not able to find any viewable totp fields. maybe there are some "hidden" ones?
-            totp = this.findTotpField(pageDetails, pf, true, true, false);
-          }
 
           if (totp) {
             totps.push(totp);
@@ -910,11 +886,6 @@ export default class AutofillService implements AutofillServiceInterface {
       if (login.username && pf.elementNumber > 0) {
         username = this.findUsernameField(pageDetails, pf, false, false, true);
 
-        if (!username && !options.onlyVisibleFields) {
-          // not able to find any viewable username fields. maybe there are some "hidden" ones?
-          username = this.findUsernameField(pageDetails, pf, true, true, true);
-        }
-
         if (username) {
           usernames.push(username);
         }
@@ -922,11 +893,6 @@ export default class AutofillService implements AutofillServiceInterface {
 
       if (options.allowTotpAutofill && login.totp && pf.elementNumber > 0) {
         totp = this.findTotpField(pageDetails, pf, false, false, true);
-
-        if (!totp && !options.onlyVisibleFields) {
-          // not able to find any viewable username fields. maybe there are some "hidden" ones?
-          totp = this.findTotpField(pageDetails, pf, true, true, true);
-        }
 
         if (totp) {
           totps.push(totp);
@@ -949,7 +915,8 @@ export default class AutofillService implements AutofillServiceInterface {
             ...AutoFillConstants.TotpFieldNames,
             ...AutoFillConstants.AmbiguousTotpFieldNames,
           ]) ||
-            field.autoCompleteType === "one-time-code");
+            field.autoCompleteType === "one-time-code") &&
+          !AutofillService.fieldIsFuzzyMatch(field, [...AutoFillConstants.RecoveryCodeFieldNames]);
 
         const isFillableUsernameField =
           !options.skipUsernameOnlyFill &&
@@ -1212,161 +1179,7 @@ export default class AutofillService implements AutofillServiceInterface {
       AutofillService.hasValue(card.expMonth) &&
       AutofillService.hasValue(card.expYear)
     ) {
-      let combinedExpiryFillValue = null;
-
-      const enableNewCardCombinedExpiryAutofill = await this.configService.getFeatureFlag(
-        FeatureFlag.EnableNewCardCombinedExpiryAutofill,
-      );
-
-      if (enableNewCardCombinedExpiryAutofill) {
-        combinedExpiryFillValue = this.generateCombinedExpiryValue(card, fillFields.exp);
-      } else {
-        const fullMonth = ("0" + card.expMonth).slice(-2);
-
-        let fullYear: string = card.expYear;
-        let partYear: string = null;
-        if (fullYear.length === 2) {
-          partYear = fullYear;
-          fullYear = normalizeExpiryYearFormat(fullYear);
-        } else if (fullYear.length === 4) {
-          partYear = fullYear.substr(2, 2);
-        }
-
-        for (let i = 0; i < CreditCardAutoFillConstants.MonthAbbr.length; i++) {
-          if (
-            // mm/yyyy
-            this.fieldAttrsContain(
-              fillFields.exp,
-              CreditCardAutoFillConstants.MonthAbbr[i] +
-                "/" +
-                CreditCardAutoFillConstants.YearAbbrLong[i],
-            )
-          ) {
-            combinedExpiryFillValue = fullMonth + "/" + fullYear;
-          } else if (
-            // mm/yy
-            this.fieldAttrsContain(
-              fillFields.exp,
-              CreditCardAutoFillConstants.MonthAbbr[i] +
-                "/" +
-                CreditCardAutoFillConstants.YearAbbrShort[i],
-            ) &&
-            partYear != null
-          ) {
-            combinedExpiryFillValue = fullMonth + "/" + partYear;
-          } else if (
-            // yyyy/mm
-            this.fieldAttrsContain(
-              fillFields.exp,
-              CreditCardAutoFillConstants.YearAbbrLong[i] +
-                "/" +
-                CreditCardAutoFillConstants.MonthAbbr[i],
-            )
-          ) {
-            combinedExpiryFillValue = fullYear + "/" + fullMonth;
-          } else if (
-            // yy/mm
-            this.fieldAttrsContain(
-              fillFields.exp,
-              CreditCardAutoFillConstants.YearAbbrShort[i] +
-                "/" +
-                CreditCardAutoFillConstants.MonthAbbr[i],
-            ) &&
-            partYear != null
-          ) {
-            combinedExpiryFillValue = partYear + "/" + fullMonth;
-          } else if (
-            // mm-yyyy
-            this.fieldAttrsContain(
-              fillFields.exp,
-              CreditCardAutoFillConstants.MonthAbbr[i] +
-                "-" +
-                CreditCardAutoFillConstants.YearAbbrLong[i],
-            )
-          ) {
-            combinedExpiryFillValue = fullMonth + "-" + fullYear;
-          } else if (
-            // mm-yy
-            this.fieldAttrsContain(
-              fillFields.exp,
-              CreditCardAutoFillConstants.MonthAbbr[i] +
-                "-" +
-                CreditCardAutoFillConstants.YearAbbrShort[i],
-            ) &&
-            partYear != null
-          ) {
-            combinedExpiryFillValue = fullMonth + "-" + partYear;
-          } else if (
-            // yyyy-mm
-            this.fieldAttrsContain(
-              fillFields.exp,
-              CreditCardAutoFillConstants.YearAbbrLong[i] +
-                "-" +
-                CreditCardAutoFillConstants.MonthAbbr[i],
-            )
-          ) {
-            combinedExpiryFillValue = fullYear + "-" + fullMonth;
-          } else if (
-            // yy-mm
-            this.fieldAttrsContain(
-              fillFields.exp,
-              CreditCardAutoFillConstants.YearAbbrShort[i] +
-                "-" +
-                CreditCardAutoFillConstants.MonthAbbr[i],
-            ) &&
-            partYear != null
-          ) {
-            combinedExpiryFillValue = partYear + "-" + fullMonth;
-          } else if (
-            // yyyymm
-            this.fieldAttrsContain(
-              fillFields.exp,
-              CreditCardAutoFillConstants.YearAbbrLong[i] +
-                CreditCardAutoFillConstants.MonthAbbr[i],
-            )
-          ) {
-            combinedExpiryFillValue = fullYear + fullMonth;
-          } else if (
-            // yymm
-            this.fieldAttrsContain(
-              fillFields.exp,
-              CreditCardAutoFillConstants.YearAbbrShort[i] +
-                CreditCardAutoFillConstants.MonthAbbr[i],
-            ) &&
-            partYear != null
-          ) {
-            combinedExpiryFillValue = partYear + fullMonth;
-          } else if (
-            // mmyyyy
-            this.fieldAttrsContain(
-              fillFields.exp,
-              CreditCardAutoFillConstants.MonthAbbr[i] +
-                CreditCardAutoFillConstants.YearAbbrLong[i],
-            )
-          ) {
-            combinedExpiryFillValue = fullMonth + fullYear;
-          } else if (
-            // mmyy
-            this.fieldAttrsContain(
-              fillFields.exp,
-              CreditCardAutoFillConstants.MonthAbbr[i] +
-                CreditCardAutoFillConstants.YearAbbrShort[i],
-            ) &&
-            partYear != null
-          ) {
-            combinedExpiryFillValue = fullMonth + partYear;
-          }
-
-          if (combinedExpiryFillValue != null) {
-            break;
-          }
-        }
-
-        // If none of the previous cases applied, set as default
-        if (combinedExpiryFillValue == null) {
-          combinedExpiryFillValue = fullYear + "-" + fullMonth;
-        }
-      }
+      const combinedExpiryFillValue = this.generateCombinedExpiryValue(card, fillFields.exp);
 
       this.makeScriptActionWithValue(
         fillScript,
@@ -2459,22 +2272,23 @@ export default class AutofillService implements AutofillServiceInterface {
         break;
       }
 
+      const includesUsernameFieldName =
+        this.findMatchingFieldIndex(f, AutoFillConstants.UsernameFieldNames) > -1;
+
       if (
         !f.disabled &&
         (canBeReadOnly || !f.readonly) &&
-        (withoutForm || f.form === passwordField.form) &&
+        (withoutForm || f.form === passwordField.form || includesUsernameFieldName) &&
         (canBeHidden || f.viewable) &&
         (f.type === "text" || f.type === "email" || f.type === "tel")
       ) {
         usernameField = f;
-
-        if (this.findMatchingFieldIndex(f, AutoFillConstants.UsernameFieldNames) > -1) {
-          // We found an exact match. No need to keep looking.
+        // We found an exact match. No need to keep looking.
+        if (includesUsernameFieldName) {
           break;
         }
       }
     }
-
     return usernameField;
   }
 
@@ -2511,11 +2325,15 @@ export default class AutofillService implements AutofillServiceInterface {
         (canBeReadOnly || !f.readonly) &&
         (withoutForm || f.form === passwordField.form) &&
         (canBeHidden || f.viewable) &&
-        (f.type === "text" || f.type === "number") &&
+        (f.type === "text" ||
+          f.type === "number" ||
+          // sites will commonly use tel in order to get the digit pad against semantic recommendations
+          f.type === "tel") &&
         AutofillService.fieldIsFuzzyMatch(f, [
           ...AutoFillConstants.TotpFieldNames,
           ...AutoFillConstants.AmbiguousTotpFieldNames,
-        ])
+        ]) &&
+        !AutofillService.fieldIsFuzzyMatch(f, [...AutoFillConstants.RecoveryCodeFieldNames])
       ) {
         totpField = f;
 
@@ -2695,6 +2513,7 @@ export default class AutofillService implements AutofillServiceInterface {
       "label-tag",
       "placeholder",
       "label-left",
+      "label-right",
       "label-top",
       "label-aria",
       "dataSetValues",
@@ -2705,7 +2524,7 @@ export default class AutofillService implements AutofillServiceInterface {
       if (!AutofillService.hasValue(value)) {
         continue;
       }
-      if (this.fuzzyMatch(names, value)) {
+      if (AutofillService.fuzzyMatch(names, value)) {
         return showMatch ? [true, { attr, value }] : true;
       }
     }
@@ -2721,7 +2540,13 @@ export default class AutofillService implements AutofillServiceInterface {
    * @private
    */
   private static fuzzyMatch(options: string[], value: string): boolean {
-    if (options == null || options.length === 0 || value == null || value === "") {
+    if (
+      options == null ||
+      options.length === 0 ||
+      value == null ||
+      typeof value !== "string" ||
+      value.length < 1
+    ) {
       return false;
     }
 
@@ -2785,7 +2610,7 @@ export default class AutofillService implements AutofillServiceInterface {
   }
 
   /**
-   * Updates a fill script to place the `cilck_on_opid`, `focus_on_opid`, and `fill_by_opid`
+   * Updates a fill script to place the `click_on_opid`, `focus_on_opid`, and `fill_by_opid`
    * fill script actions associated with the provided field.
    * @param {AutofillScript} fillScript
    * @param {AutofillField} field

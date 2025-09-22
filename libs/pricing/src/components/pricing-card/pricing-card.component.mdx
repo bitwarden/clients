@@ -1,0 +1,228 @@
+import { Meta, Story, Canvas } from "@storybook/addon-docs";
+import * as PricingCardStories from "./pricing-card.component.stories";
+
+<Meta of={PricingCardStories} />
+
+# Pricing Card
+
+A reusable UI component for displaying pricing plans with consistent styling and behavior across
+Bitwarden applications.
+
+<Canvas of={PricingCardStories.Default} />
+
+## Usage
+
+The pricing card component is designed to be used in billing and subscription interfaces to display
+different pricing tiers and plans.
+
+```ts
+import { PricingCardComponent } from "@bitwarden/pricing";
+```
+
+```html
+<billing-pricing-card
+  tagline="Everything you need for secure password management"
+  [price]="{ amount: 10, cadence: 'monthly', showPerUser: true }"
+  [button]="{ text: 'Choose Premium', type: 'primary' }"
+  [features]="features"
+  [activeBadge]="{ text: 'Active plan', show: true }"
+  (buttonClick)="onPlanSelected()"
+>
+  <h2 slot="title" class="tw-m-0" bitTypography="h3">Premium Plan</h2>
+</billing-pricing-card>
+```
+
+## API
+
+### Inputs
+
+| Input         | Type                                                                                                             | Description                                                                                                                                             |
+| ------------- | ---------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `tagline`     | `string`                                                                                                         | **Required.** Descriptive text below title (max 2 lines)                                                                                                |
+| `price`       | `{ amount: number; cadence: "monthly" \| "annually"; showPerUser?: boolean }`                                    | **Optional.** Price information. If omitted, no price is shown                                                                                          |
+| `button`      | `{ type: ButtonType; text: string; disabled?: boolean; icon?: { type: string; position: "before" \| "after" } }` | **Optional.** Button configuration with optional icon. If omitted, no button is shown. Icon uses `bwi-*` classes, position defaults to "after"          |
+| `features`    | `string[]`                                                                                                       | **Optional.** List of features with checkmarks                                                                                                          |
+| `activeBadge` | `{ text: string; variant?: BadgeVariant }`                                                                       | **Optional.** Active plan badge using proper Badge component, positioned on the same line as title, aligned to the right. If omitted, no badge is shown |
+
+### Content Slots
+
+| Slot           | Description                                                                                                       |
+| -------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `slot="title"` | **Required.** HTML element with `slot="title"` attribute for the title with appropriate heading level and styling |
+
+### Events
+
+| Event         | Type   | Description                               |
+| ------------- | ------ | ----------------------------------------- |
+| `buttonClick` | `void` | Emitted when the action button is clicked |
+
+## Flexibility
+
+The title slot allows complete control over the heading element and styling:
+
+```html
+<!-- Different semantic levels -->
+<h1 slot="title" class="tw-m-0" bitTypography="h3">Main Plan</h1>
+<h3 slot="title" class="tw-m-0" bitTypography="h3">Sub Plan</h3>
+
+<!-- Custom styling -->
+<h2 slot="title" class="tw-m-0 tw-text-primary-600" bitTypography="h2">Featured Plan</h2>
+```
+
+| Output        | Type   | Description                             |
+| ------------- | ------ | --------------------------------------- |
+| `buttonClick` | `void` | Emitted when the plan button is clicked |
+
+## Design
+
+The component follows the Bitwarden design system with:
+
+- **Fixed width**: 449px for consistent layout
+- **Border & Elevation**: secondary-100 border with shadow-sm elevation
+- **Border radius**: 24px (tw-rounded-3xl) for modern appearance
+- **Spacing**: 32px padding (tw-p-8) around content
+- **Modern Angular**: Uses `@if`, `@for`, and `@switch` control flow with signal inputs
+- **Signal inputs**: Type-safe inputs using Angular's signal-based input API
+- **Official buttons**: Uses `bitButton` directive from Component Library
+- **Typography**: Uses `bitTypography` helper and custom 30px price styling
+- **Icons**: Uses `bwi-check` icon with primary-600 styling from the legacy icon library
+- **Layout**: Flexbox column layout with `tw-h-full` for equal height alignment in grid layouts
+- **Accessibility**: Configurable heading levels and semantic structure
+
+## Examples
+
+### Basic Plan (No Price)
+
+For free or contact-based plans, omit the `price` input:
+
+<Canvas of={PricingCardStories.WithoutPrice} />
+
+```html
+<billing-pricing-card
+  title="Free Plan"
+  tagline="Get started with essential features"
+  [button]="{ text: 'Get Started', type: 'secondary' }"
+  [features]="freeFeatures"
+>
+</billing-pricing-card>
+```
+
+### Business Plan with Per User Pricing
+
+Show business plans with "per user" text:
+
+<Canvas of={PricingCardStories.LongTagline} />
+
+```html
+<billing-pricing-card
+  title="Business Plan"
+  tagline="Advanced security and management for teams"
+  [price]="{ amount: 5, cadence: 'monthly', showPerUser: true }"
+  [button]="{ text: 'Start Business Trial', type: 'primary' }"
+  [features]="businessFeatures"
+>
+</billing-pricing-card>
+```
+
+### Annual Pricing
+
+Show annual pricing with different cadence:
+
+<Canvas of={PricingCardStories.Annual} />
+
+```html
+<billing-pricing-card
+  title="Premium Plan"
+  tagline="Save with annual billing"
+  [price]="{ amount: 120, cadence: 'annually' }"
+  [button]="{ text: 'Choose Annual', type: 'primary' }"
+  [features]="premiumFeatures"
+>
+</billing-pricing-card>
+```
+
+### Configurable Heading Levels
+
+For accessibility, you can configure the heading level:
+
+<Canvas of={PricingCardStories.ConfigurableHeadings} />
+
+```html
+<!-- In a section with h1, use h2 for plan titles -->
+<billing-pricing-card
+  title="Premium Plan"
+  tagline="Best value option"
+  [titleLevel]="'h2'"
+  [price]="{ amount: 10, cadence: 'monthly' }"
+  [button]="{ text: 'Choose Plan', type: 'primary' }"
+>
+</billing-pricing-card>
+
+<!-- In a subsection, use h4 for plan titles -->
+<billing-pricing-card
+  title="Add-on Plan"
+  tagline="Extra features"
+  [titleLevel]="'h4'"
+  [price]="{ amount: 5, cadence: 'monthly' }"
+  [button]="{ text: 'Add to Plan', type: 'secondary' }"
+>
+</billing-pricing-card>
+```
+
+### Disabled State
+
+For coming soon or unavailable plans:
+
+<Canvas of={PricingCardStories.Disabled} />
+
+```html
+<billing-pricing-card
+  title="Enterprise Plan"
+  tagline="Advanced features coming soon"
+  [price]="{ amount: 50, cadence: 'monthly' }"
+  [button]="{ text: 'Coming Soon', type: 'secondary', disabled: true }"
+  [features]="enterpriseFeatures"
+>
+</billing-pricing-card>
+```
+
+### Pricing Grid Layout
+
+Multiple cards displayed together:
+
+<Canvas of={PricingCardStories.PricingGrid} />
+
+## Button Types
+
+The component supports all standard button types from the Component Library:
+
+- `primary` - Main call-to-action (blue background, white text)
+- `secondary` - Secondary action (transparent background, blue text)
+- `danger` - Destructive actions (red theme)
+- `unstyled` - Text-only button
+
+## Do's and Don'ts
+
+### ✅ Do
+
+- Use consistent button text like "Choose [Plan]" or "Get Started"
+- Keep taglines concise and focused on key benefits
+- Use annual pricing to show value (e.g., "2 months free")
+- Group related plans together with consistent styling
+
+### ❌ Don't
+
+- Make taglines longer than 2 lines (they will be truncated)
+- Use custom button styling - rely on the built-in types
+- Mix different pricing cadences in the same comparison
+- Override the 449px width - it's designed for optimal layout
+
+## Accessibility
+
+The component includes:
+
+- Proper heading hierarchy (`h3` for titles)
+- Semantic button elements with `type="button"`
+- Screen reader friendly structure
+- Focus management and keyboard navigation
+- High contrast color combinations

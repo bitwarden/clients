@@ -82,7 +82,7 @@ export declare namespace sshagent {
 export declare namespace processisolations {
   export function disableCoredumps(): Promise<void>
   export function isCoreDumpingDisabled(): Promise<boolean>
-  export function disableMemoryAccess(): Promise<void>
+  export function isolateProcess(): Promise<void>
 }
 export declare namespace powermonitors {
   export function onLock(callback: (err: Error | null, ) => any): Promise<void>
@@ -207,6 +207,30 @@ export declare namespace logging {
     Error = 4
   }
   export function initNapiLog(jsLogFn: (err: Error | null, arg0: LogLevel, arg1: string) => any): void
+}
+export declare namespace chromium_importer {
+  export interface ProfileInfo {
+    id: string
+    name: string
+  }
+  export interface Login {
+    url: string
+    username: string
+    password: string
+    note: string
+  }
+  export interface LoginImportFailure {
+    url: string
+    username: string
+    error: string
+  }
+  export interface LoginImportResult {
+    login?: Login
+    failure?: LoginImportFailure
+  }
+  export function getInstalledBrowsers(): Array<string>
+  export function getAvailableProfiles(browser: string): Array<ProfileInfo>
+  export function importLogins(browser: string, profileId: string): Promise<Array<LoginImportResult>>
 }
 export declare namespace autotype {
   export function getForegroundWindowTitle(): string

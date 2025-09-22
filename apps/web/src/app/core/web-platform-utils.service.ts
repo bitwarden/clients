@@ -90,6 +90,10 @@ export class WebPlatformUtilsService implements PlatformUtilsService {
     return this.getDevice() === DeviceType.SafariBrowser;
   }
 
+  isChromium(): boolean {
+    return this.isChrome() || this.isEdge() || this.isOpera() || this.isVivaldi();
+  }
+
   isWebKit(): boolean {
     return true;
   }
@@ -98,7 +102,7 @@ export class WebPlatformUtilsService implements PlatformUtilsService {
     return false;
   }
 
-  isViewOpen(): Promise<boolean> {
+  isPopupOpen(): Promise<boolean> {
     return Promise.resolve(false);
   }
 
