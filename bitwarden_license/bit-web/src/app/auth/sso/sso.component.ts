@@ -268,7 +268,7 @@ export class SsoComponent implements OnInit, OnDestroy {
             // Pre-populate a default key connector URL (user can still change it)
             const env = await firstValueFrom(this.environmentService.environment$);
             const webVaultUrl = env.getWebVaultUrl();
-            const defaultKeyConnectorUrl = webVaultUrl + "/key-connector";
+            const defaultKeyConnectorUrl = webVaultUrl + "/key-connector/";
 
             this.ssoConfigForm.controls.keyConnectorUrl.setValue(defaultKeyConnectorUrl);
           } else {
