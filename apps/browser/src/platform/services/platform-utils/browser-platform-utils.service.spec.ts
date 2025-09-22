@@ -356,6 +356,33 @@ describe("Browser Utils Service", () => {
       expect(result).toBe("");
     });
   });
+
+  describe("isChromium", () => {
+    const chromiumDevices: DeviceType[] = [
+      DeviceType.ChromeExtension,
+      DeviceType.EdgeExtension,
+      DeviceType.OperaExtension,
+      DeviceType.VivaldiExtension,
+    ];
+
+    const nonChromiumDevices: DeviceType[] = [
+      DeviceType.FirefoxExtension,
+      DeviceType.SafariExtension,
+    ];
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    test.each(chromiumDevices)("returns true when getDevice() is %s", (deviceType) => {
+      jest.spyOn(browserPlatformUtilsService, "getDevice").mockReturnValue(deviceType);
+      expect(browserPlatformUtilsService.isChromium()).toBe(true);
+    });
+
+    test.each(nonChromiumDevices)("returns false when getDevice() is %s", (deviceType) => {
+      jest.spyOn(browserPlatformUtilsService, "getDevice").mockReturnValue(deviceType);
+      expect(browserPlatformUtilsService.isChromium()).toBe(false);
+    });
+  });
 });
 
 describe("Safari Height Fix", () => {
