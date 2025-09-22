@@ -12,7 +12,8 @@
         "outputPath": "dist/libs/state-internal",
         "main": "libs/state-internal/src/index.ts",
         "tsConfig": "libs/state-internal/tsconfig.lib.json",
-        "assets": ["libs/state-internal/*.md"]
+        "assets": ["libs/state-internal/*.md"],
+        "rootDir": "libs/state-internal/src"
       }
     },
     "lint": {

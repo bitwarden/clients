@@ -1,4 +1,4 @@
-import { BreachAccountResponse } from "../models/response/breach-account.response";
+import { BreachAccountResponse } from "../dirt/models/response/breach-account.response";
 
 export abstract class AuditService {
   /**
