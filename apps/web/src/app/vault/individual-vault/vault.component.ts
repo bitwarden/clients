@@ -34,11 +34,10 @@ import {
 import { SearchPipe } from "@bitwarden/angular/pipes/search.pipe";
 import {
   NoResults,
-  OrganizationIcon,
-  TrashIcon,
+  DeactivatedOrg,
+  EmptyTrash,
   FavoritesIcon,
-  EmptyVaultIcon,
-  EmptySearchIcon,
+  ItemTypes,
 } from "@bitwarden/assets/svg";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
@@ -168,11 +167,11 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   activeFilter: VaultFilter = new VaultFilter();
 
   protected noItemIcon = NoResults;
-  protected orgIcon = OrganizationIcon;
-  protected trashIcon = TrashIcon;
+  protected orgIcon = DeactivatedOrg;
+  protected trashIcon = EmptyTrash;
   protected favoritesIcon = FavoritesIcon;
-  protected emptyVaultIcon = EmptyVaultIcon;
-  protected emptySearchResultIcon = EmptySearchIcon;
+  protected emptyVaultIcon = ItemTypes;
+  protected emptySearchResultIcon = NoResults;
   protected performingInitialLoad = true;
   protected refreshing = false;
   protected processingEvent = false;
