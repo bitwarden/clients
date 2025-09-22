@@ -71,11 +71,11 @@ export const Danger: Story = {
   },
 };
 
-export const Secondary: Story = {
+export const Default: Story = {
   ...Info,
   args: {
     ...Info.args,
-    type: "secondary",
+    type: "default",
   },
 };
 
@@ -102,7 +102,7 @@ export const NoTitleWithIcon: Story = {
     `,
   }),
   args: {
-    type: "secondary",
+    type: "default",
     icon: "bwi-globe",
   },
 };
@@ -118,7 +118,7 @@ export const WithTextButton: Story = {
     `,
   }),
   args: {
-    type: "secondary",
+    type: "default",
     icon: "",
   },
 };

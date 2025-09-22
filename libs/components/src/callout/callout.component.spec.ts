@@ -58,7 +58,7 @@ describe("Callout", () => {
     });
 
     it("secondary", () => {
-      fixture.componentRef.setInput("type", "secondary");
+      fixture.componentRef.setInput("type", "default");
       fixture.detectChanges();
       expect(component.titleComputed()).toBeUndefined();
       expect(component.iconComputed()).toBe("bwi-star");
