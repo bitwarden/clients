@@ -72,6 +72,10 @@ export class VaultFilter {
     return this.selectedCipherTypeNode?.node.type === "trash" ? true : null;
   }
 
+  get isArchived(): boolean {
+    return this.selectedCipherTypeNode?.node.type === "archive";
+  }
+
   get organizationId(): string {
     return this.selectedOrganizationNode?.node.id;
   }
@@ -120,6 +124,9 @@ export class VaultFilter {
       }
       if (this.isDeleted && cipherPassesFilter) {
         cipherPassesFilter = cipher.isDeleted;
+      }
+      if (this.isArchived && cipherPassesFilter) {
+        cipherPassesFilter = cipher.isArchived;
       }
       if (this.cipherType && cipherPassesFilter) {
         cipherPassesFilter = cipher.type === this.cipherType;

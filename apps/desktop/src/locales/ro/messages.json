@@ -960,9 +960,6 @@
   "insertU2f": {
     "message": "Introduceți cheia de securitate în portul USB al computerului. Dacă are un buton, apăsați-l."
   },
-  "recoveryCodeDesc": {
-    "message": "Ați pierdut accesul la toți furnizorii dvs. cu doi factori? Folosiți codul de recuperare pentru a dezactiva toți furnizorii cu doi factori din contul dvs."
-  },
   "recoveryCodeTitle": {
     "message": "Cod de recuperare"
   },
