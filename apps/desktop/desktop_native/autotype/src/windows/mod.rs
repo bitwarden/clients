@@ -1,6 +1,7 @@
 use std::{ffi::OsString, os::windows::ffi::OsStringExt};
 
 use anyhow::{anyhow, Result};
+use tracing::debug;
 use windows::Win32::{
     Foundation::{GetLastError, SetLastError, WIN32_ERROR},
     UI::{
@@ -218,6 +219,9 @@ fn build_virtual_key_input(key_press: InputKeyPress, virtual_key: u8) -> INPUT {
 /// https://learn.microsoft.com/en-in/windows/win32/api/winuser/nf-winuser-sendinput
 fn send_input(inputs: Vec<INPUT>) -> Result<()> {
     let insert_count = unsafe { SendInput(&inputs, std::mem::size_of::<INPUT>() as i32) };
+
+    let e = unsafe { GetLastError().to_hresult().message() };
+    debug!("type_input() called, GetLastError() is: {:?}", e);
 
     if insert_count == 0 {
         let last_err = get_last_error();

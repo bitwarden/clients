@@ -4091,13 +4091,13 @@
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   },
   "next": {
-    "message": "Next"
+    "message": "Dalej"
   },
   "confirmKeyConnectorDomain": {
-    "message": "Confirm Key Connector domain"
+    "message": "Potwierdź domenę Key Connector"
   },
   "confirm": {
-    "message": "Confirm"
+    "message": "Potwierdź"
   },
   "enableAutotypeTransitionKey": {
     "message": "Enable autotype shortcut"
@@ -4106,6 +4106,6 @@
     "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."
   },
   "editShortcut": {
-    "message": "Edit shortcut"
+    "message": "Edytuj skrót"
   }
 }

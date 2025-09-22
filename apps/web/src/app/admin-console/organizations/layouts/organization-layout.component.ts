@@ -121,8 +121,13 @@ export class OrganizationLayoutComponent implements OnInit {
       switchMap((userId) => this.policyService.policyAppliesToUser$(PolicyType.SingleOrg, userId)),
     );
 
-    const provider$ = this.organization$.pipe(
-      switchMap((organization) => this.providerService.get$(organization.providerId)),
+    const provider$ = combineLatest([
+      this.organization$,
+      this.accountService.activeAccount$.pipe(getUserId),
+    ]).pipe(
+      switchMap(([organization, userId]) =>
+        this.providerService.get$(organization.providerId, userId),
+      ),
     );
 
     this.organizationIsUnmanaged$ = combineLatest([this.organization$, provider$]).pipe(
