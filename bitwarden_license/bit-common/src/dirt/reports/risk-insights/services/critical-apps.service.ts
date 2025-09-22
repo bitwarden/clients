@@ -1,9 +1,9 @@
 import {
   BehaviorSubject,
+  filter,
   first,
   firstValueFrom,
   forkJoin,
-  from,
   map,
   Observable,
   of,
@@ -15,14 +15,14 @@ import {
 
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
-import { OrganizationId } from "@bitwarden/common/types/guid";
+import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
 
 import {
   PasswordHealthReportApplicationsRequest,
   PasswordHealthReportApplicationsResponse,
-} from "../models/password-health";
+} from "../models/api-models.types";
 
 import { CriticalAppsApiService } from "./critical-apps-api.service";
 
@@ -31,6 +31,7 @@ import { CriticalAppsApiService } from "./critical-apps-api.service";
  */
 export class CriticalAppsService {
   private orgId = new BehaviorSubject<OrganizationId | null>(null);
+  private orgKey$ = new Observable<OrgKey>();
   private criticalAppsList = new BehaviorSubject<PasswordHealthReportApplicationsResponse[]>([]);
   private teardown = new Subject<void>();
 
@@ -48,7 +49,11 @@ export class CriticalAppsService {
   ) {}
 
   // Get a list of critical apps for a given organization
-  getAppsListForOrg(orgId: string): Observable<PasswordHealthReportApplicationsResponse[]> {
+  getAppsListForOrg(orgId: OrganizationId): Observable<PasswordHealthReportApplicationsResponse[]> {
+    if (orgId != this.orgId.value) {
+      throw new Error("Organization ID mismatch");
+    }
+
     return this.criticalAppsList
       .asObservable()
       .pipe(map((apps) => apps.filter((app) => app.organizationId === orgId)));
@@ -60,17 +65,22 @@ export class CriticalAppsService {
   }
 
   // Save the selected critical apps for a given organization
-  async setCriticalApps(orgId: string, selectedUrls: string[]) {
-    const key = await this.keyService.getOrgKey(orgId);
-    if (key == null) {
+  async setCriticalApps(orgId: OrganizationId, selectedUrls: string[]) {
+    if (orgId != this.orgId.value) {
+      throw new Error("Organization ID mismatch");
+    }
+
+    const orgKey = await firstValueFrom(this.orgKey$);
+
+    if (orgKey == null) {
       throw new Error("Organization key not found");
     }
 
     // only save records that are not already in the database
     const newEntries = await this.filterNewEntries(orgId as OrganizationId, selectedUrls);
     const criticalAppsRequests = await this.encryptNewEntries(
-      orgId as OrganizationId,
-      key,
+      this.orgId.value as OrganizationId,
+      orgKey,
       newEntries,
     );
 
@@ -83,7 +93,7 @@ export class CriticalAppsService {
     for (const responseItem of dbResponse) {
       const decryptedUrl = await this.encryptService.decryptString(
         new EncString(responseItem.uri),
-        key,
+        orgKey,
       );
       if (!updatedList.some((f) => f.uri === decryptedUrl)) {
         updatedList.push({
@@ -97,13 +107,21 @@ export class CriticalAppsService {
   }
 
   // Get the critical apps for a given organization
-  setOrganizationId(orgId: OrganizationId) {
+  setOrganizationId(orgId: OrganizationId, userId: UserId) {
+    this.orgKey$ = this.keyService.orgKeys$(userId).pipe(
+      filter((OrgKeys) => !!OrgKeys),
+      map((organizationKeysById) => organizationKeysById[orgId as OrganizationId]),
+    );
     this.orgId.next(orgId);
   }
 
   // Drop a critical app for a given organization
   // Only one app may be dropped at a time
   async dropCriticalApp(orgId: OrganizationId, selectedUrl: string) {
+    if (orgId != this.orgId.value) {
+      throw new Error("Organization ID mismatch");
+    }
+
     const app = this.criticalAppsList.value.find(
       (f) => f.organizationId === orgId && f.uri === selectedUrl,
     );
@@ -127,10 +145,7 @@ export class CriticalAppsService {
       return of([]);
     }
 
-    const result$ = zip(
-      this.criticalAppsApiService.getCriticalApps(orgId),
-      from(this.keyService.getOrgKey(orgId)),
-    ).pipe(
+    const result$ = zip(this.criticalAppsApiService.getCriticalApps(orgId), this.orgKey$).pipe(
       switchMap(([response, key]) => {
         if (key == null) {
           throw new Error("Organization key not found");

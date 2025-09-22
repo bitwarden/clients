@@ -2,7 +2,17 @@
 // @ts-strict-ignore
 import "core-js/proposals/explicit-resource-management";
 
-import { filter, firstValueFrom, map, merge, Subject, switchMap, timeout } from "rxjs";
+import {
+  filter,
+  firstValueFrom,
+  from,
+  map,
+  merge,
+  Observable,
+  Subject,
+  switchMap,
+  timeout,
+} from "rxjs";
 
 import { CollectionService, DefaultCollectionService } from "@bitwarden/admin-console/common";
 import {
@@ -42,6 +52,7 @@ import { AuthServerNotificationTags } from "@bitwarden/common/auth/enums/auth-se
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
 import { AuthRequestAnsweringService } from "@bitwarden/common/auth/services/auth-request-answering/auth-request-answering.service";
+import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
 import { AuthService } from "@bitwarden/common/auth/services/auth.service";
 import { AvatarService } from "@bitwarden/common/auth/services/avatar.service";
 import { DefaultActiveUserAccessor } from "@bitwarden/common/auth/services/default-active-user.accessor";
@@ -152,16 +163,20 @@ import { SyncService } from "@bitwarden/common/platform/sync";
 // eslint-disable-next-line no-restricted-imports -- Needed for service creation
 import { DefaultSyncService } from "@bitwarden/common/platform/sync/internal";
 import { SystemNotificationsService } from "@bitwarden/common/platform/system-notifications/";
+import { SystemNotificationEvent } from "@bitwarden/common/platform/system-notifications/system-notifications.service";
 import { UnsupportedSystemNotificationsService } from "@bitwarden/common/platform/system-notifications/unsupported-system-notifications.service";
 import { DefaultThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { ApiService } from "@bitwarden/common/services/api.service";
 import { AuditService } from "@bitwarden/common/services/audit.service";
 import { EventCollectionService } from "@bitwarden/common/services/event/event-collection.service";
 import { EventUploadService } from "@bitwarden/common/services/event/event-upload.service";
+import { KeyServiceLegacyEncryptorProvider } from "@bitwarden/common/tools/cryptography/key-service-legacy-encryptor-provider";
+import { buildExtensionRegistry } from "@bitwarden/common/tools/extension/factory";
 import {
   PasswordStrengthService,
   PasswordStrengthServiceAbstraction,
 } from "@bitwarden/common/tools/password-strength";
+import { createSystemServiceProvider } from "@bitwarden/common/tools/providers";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service";
 import { SendApiService as SendApiServiceAbstraction } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendStateProvider } from "@bitwarden/common/tools/send/services/send-state.provider";
@@ -241,6 +256,8 @@ import {
   IndividualVaultExportServiceAbstraction,
   OrganizationVaultExportService,
   OrganizationVaultExportServiceAbstraction,
+  DefaultVaultExportApiService,
+  VaultExportApiService,
   VaultExportService,
   VaultExportServiceAbstraction,
 } from "@bitwarden/vault-export-core";
@@ -269,6 +286,7 @@ import { AutofillBadgeUpdaterService } from "../autofill/services/autofill-badge
 import AutofillService from "../autofill/services/autofill.service";
 import { InlineMenuFieldQualificationService } from "../autofill/services/inline-menu-field-qualification.service";
 import { SafariApp } from "../browser/safariApp";
+import { PhishingDetectionService } from "../dirt/phishing-detection/services/phishing-detection.service";
 import { BackgroundBrowserBiometricsService } from "../key-management/biometrics/background-browser-biometrics.service";
 import VaultTimeoutService from "../key-management/vault-timeout/vault-timeout.service";
 import { BrowserActionsService } from "../platform/actions/browser-actions.service";
@@ -300,7 +318,10 @@ import { BackgroundMemoryStorageService } from "../platform/storage/background-m
 import { BrowserStorageServiceProvider } from "../platform/storage/browser-storage-service.provider";
 import { OffscreenStorageService } from "../platform/storage/offscreen-storage.service";
 import { SyncServiceListener } from "../platform/sync/sync-service.listener";
-import { BrowserSystemNotificationService } from "../platform/system-notifications/browser-system-notification.service";
+import {
+  BrowserSystemNotificationService,
+  isNotificationsSupported,
+} from "../platform/system-notifications/browser-system-notification.service";
 import { fromChromeRuntimeMessaging } from "../platform/utils/from-chrome-runtime-messaging";
 import { AtRiskCipherBadgeUpdaterService } from "../vault/services/at-risk-cipher-badge-updater.service";
 
@@ -344,6 +365,7 @@ export default class MainBackground {
   loginEmailService: LoginEmailServiceAbstraction;
   importApiService: ImportApiServiceAbstraction;
   importService: ImportServiceAbstraction;
+  exportApiService: VaultExportApiService;
   exportService: VaultExportServiceAbstraction;
   searchService: SearchServiceAbstraction;
   serverNotificationsService: ServerNotificationsService;
@@ -401,6 +423,7 @@ export default class MainBackground {
   individualVaultExportService: IndividualVaultExportServiceAbstraction;
   organizationVaultExportService: OrganizationVaultExportServiceAbstraction;
   vaultSettingsService: VaultSettingsServiceAbstraction;
+  pendingAuthRequestStateService: PendingAuthRequestsStateService;
   biometricStateService: BiometricStateService;
   biometricsService: BiometricsService;
   stateEventRunnerService: StateEventRunnerService;
@@ -737,6 +760,7 @@ export default class MainBackground {
       this.logService,
       (logoutReason: LogoutReason, userId?: UserId) => this.logout(logoutReason, userId),
       this.vaultTimeoutSettingsService,
+      this.accountService,
       { createRequest: (url, request) => new Request(url, request) },
     );
 
@@ -773,6 +797,25 @@ export default class MainBackground {
       this.stateProvider,
     );
 
+    this.authService = new AuthService(
+      this.accountService,
+      this.messagingService,
+      this.keyService,
+      this.apiService,
+      this.stateService,
+      this.tokenService,
+    );
+
+    this.configApiService = new ConfigApiService(this.apiService);
+
+    this.configService = new DefaultConfigService(
+      this.configApiService,
+      this.environmentService,
+      this.logService,
+      this.stateProvider,
+      this.authService,
+    );
+
     const sdkClientFactory = flagEnabled("sdk")
       ? new DefaultSdkClientFactory()
       : new NoopSdkClientFactory();
@@ -785,6 +828,7 @@ export default class MainBackground {
       this.kdfConfigService,
       this.keyService,
       this.stateProvider,
+      this.configService,
     );
 
     this.passwordStrengthService = new PasswordStrengthService();
@@ -834,25 +878,6 @@ export default class MainBackground {
       this.authRequestApiService,
     );
 
-    this.authService = new AuthService(
-      this.accountService,
-      this.messagingService,
-      this.keyService,
-      this.apiService,
-      this.stateService,
-      this.tokenService,
-    );
-
-    this.configApiService = new ConfigApiService(this.apiService, this.tokenService);
-
-    this.configService = new DefaultConfigService(
-      this.configApiService,
-      this.environmentService,
-      this.logService,
-      this.stateProvider,
-      this.authService,
-    );
-
     this.billingAccountProfileStateService = new DefaultBillingAccountProfileStateService(
       this.stateProvider,
       this.platformUtilsService,
@@ -860,7 +885,6 @@ export default class MainBackground {
     );
 
     this.restrictedItemTypesService = new RestrictedItemTypesService(
-      this.configService,
       this.accountService,
       this.organizationService,
       this.policyService,
@@ -1054,8 +1078,16 @@ export default class MainBackground {
       this.encryptService,
       this.pinService,
       this.accountService,
-      this.sdkService,
       this.restrictedItemTypesService,
+      createSystemServiceProvider(
+        new KeyServiceLegacyEncryptorProvider(this.encryptService, this.keyService),
+        this.stateProvider,
+        this.policyService,
+        buildExtensionRegistry(),
+        this.logService,
+        this.platformUtilsService,
+        this.configService,
+      ),
     );
 
     this.individualVaultExportService = new IndividualVaultExportService(
@@ -1066,27 +1098,28 @@ export default class MainBackground {
       this.encryptService,
       this.cryptoFunctionService,
       this.kdfConfigService,
-      this.accountService,
       this.apiService,
       this.restrictedItemTypesService,
     );
 
+    this.exportApiService = new DefaultVaultExportApiService(this.apiService);
+
     this.organizationVaultExportService = new OrganizationVaultExportService(
       this.cipherService,
-      this.apiService,
+      this.exportApiService,
       this.pinService,
       this.keyService,
       this.encryptService,
       this.cryptoFunctionService,
       this.collectionService,
       this.kdfConfigService,
-      this.accountService,
       this.restrictedItemTypesService,
     );
 
     this.exportService = new VaultExportService(
       this.individualVaultExportService,
       this.organizationVaultExportService,
+      this.accountService,
     );
 
     this.browserInitialInstallService = new BrowserInitialInstallService(this.stateProvider);
@@ -1111,7 +1144,7 @@ export default class MainBackground {
 
     this.actionsService = new BrowserActionsService(this.logService, this.platformUtilsService);
 
-    if ("notifications" in chrome) {
+    if (isNotificationsSupported()) {
       this.systemNotificationService = new BrowserSystemNotificationService(
         this.platformUtilsService,
       );
@@ -1119,12 +1152,16 @@ export default class MainBackground {
       this.systemNotificationService = new UnsupportedSystemNotificationsService();
     }
 
+    this.pendingAuthRequestStateService = new PendingAuthRequestsStateService(this.stateProvider);
+
     this.authRequestAnsweringService = new AuthRequestAnsweringService(
       this.accountService,
       this.actionsService,
       this.authService,
       this.i18nService,
       this.masterPasswordService,
+      this.messagingService,
+      this.pendingAuthRequestStateService,
       this.platformUtilsService,
       this.systemNotificationService,
     );
@@ -1366,6 +1403,15 @@ export default class MainBackground {
 
     this.inlineMenuFieldQualificationService = new InlineMenuFieldQualificationService();
 
+    PhishingDetectionService.initialize(
+      this.configService,
+      this.auditService,
+      this.logService,
+      this.storageService,
+      this.taskSchedulerService,
+      this.eventCollectionService,
+    );
+
     this.ipcContentScriptManagerService = new IpcContentScriptManagerService(this.configService);
     this.ipcService = new IpcBackgroundService(this.platformUtilsService, this.logService);
 
@@ -1405,7 +1451,7 @@ export default class MainBackground {
     // Only the "true" background should run migrations
     await this.migrationRunner.run();
 
-    // This is here instead of in in the InitService b/c we don't plan for
+    // This is here instead of in the InitService b/c we don't plan for
     // side effects to run in the Browser InitService.
     const accounts = await firstValueFrom(this.accountService.accounts$);
 
@@ -1607,6 +1653,7 @@ export default class MainBackground {
     await Promise.all([
       this.keyService.clearKeys(userBeingLoggedOut),
       this.cipherService.clear(userBeingLoggedOut),
+      // ! DO NOT REMOVE folderService.clear ! For more information see PM-25660
       this.folderService.clear(userBeingLoggedOut),
       this.vaultTimeoutSettingsService.clear(userBeingLoggedOut),
       this.biometricStateService.logout(userBeingLoggedOut),
@@ -1784,18 +1831,41 @@ export default class MainBackground {
   /**
    * This function is for creating any subscriptions for the background service worker. We do this
    * here because it's important to run this during the evaluation period of the browser extension
-   * service worker.
+   * service worker. If it's not done this way we risk the service worker being closed before it's
+   * registered these system notification click events.
    */
   initNotificationSubscriptions() {
-    this.systemNotificationService.notificationClicked$
-      .pipe(
-        filter((n) => n.id.startsWith(AuthServerNotificationTags.AuthRequest + "_")),
-        map((n) => ({ event: n, authRequestId: n.id.split("_")[1] })),
-        switchMap(({ event }) =>
-          this.authRequestAnsweringService.handleAuthRequestNotificationClicked(event),
+    const handlers: Array<{
+      startsWith: string;
+      handler: (event: SystemNotificationEvent) => Promise<void>;
+    }> = [];
+
+    const register = (
+      startsWith: string,
+      handler: (event: SystemNotificationEvent) => Promise<void>,
+    ) => {
+      handlers.push({ startsWith, handler });
+    };
+
+    // ======= Register All System Notification Handlers Here =======
+    register(AuthServerNotificationTags.AuthRequest, (event) =>
+      this.authRequestAnsweringService.handleAuthRequestNotificationClicked(event),
+    );
+    // ======= End Register All System Notification Handlers =======
+
+    const streams: Observable<void>[] = handlers.map(({ startsWith, handler }) =>
+      this.systemNotificationService.notificationClicked$.pipe(
+        filter((event: SystemNotificationEvent): boolean => event.id.startsWith(startsWith + "_")),
+        switchMap(
+          (event: SystemNotificationEvent): Observable<void> =>
+            from(Promise.resolve(handler(event))),
         ),
-      )
-      .subscribe();
+      ),
+    );
+
+    if (streams.length > 0) {
+      merge(...streams).subscribe();
+    }
   }
 
   /**

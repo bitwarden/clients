@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Directive } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
@@ -14,6 +12,7 @@ import {
   ProviderUserStatusType,
   ProviderUserType,
 } from "@bitwarden/common/admin-console/enums";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { ProviderUserUserDetailsResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-user.response";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -66,20 +65,20 @@ export abstract class BaseMembersComponent<UserView extends UserViewTypes> {
 
   protected abstract dataSource: PeopleTableDataSource<UserView>;
 
-  firstLoaded: boolean;
+  firstLoaded: boolean = false;
 
   /**
-   * The currently selected status filter, or null to show all active users.
+   * The currently selected status filter, or undefined to show all active users.
    */
-  status: StatusType | null;
+  status?: StatusType;
 
   /**
    * The currently executing promise - used to avoid multiple user actions executing at once.
    */
-  actionPromise: Promise<void>;
+  actionPromise?: Promise<void>;
 
   protected searchControl = new FormControl("", { nonNullable: true });
-  protected statusToggle = new BehaviorSubject<StatusType | null>(null);
+  protected statusToggle = new BehaviorSubject<StatusType | undefined>(undefined);
 
   constructor(
     protected apiService: ApiService,
@@ -100,15 +99,20 @@ export abstract class BaseMembersComponent<UserView extends UserViewTypes> {
       );
   }
 
-  abstract edit(user: UserView): void;
-  abstract getUsers(): Promise<ListResponse<UserView> | UserView[]>;
-  abstract removeUser(id: string): Promise<void>;
-  abstract reinviteUser(id: string): Promise<void>;
-  abstract confirmUser(user: UserView, publicKey: Uint8Array): Promise<void>;
+  abstract edit(user: UserView, organization?: Organization): void;
+  abstract getUsers(organization?: Organization): Promise<ListResponse<UserView> | UserView[]>;
+  abstract removeUser(id: string, organization?: Organization): Promise<void>;
+  abstract reinviteUser(id: string, organization?: Organization): Promise<void>;
+  abstract confirmUser(
+    user: UserView,
+    publicKey: Uint8Array,
+    organization?: Organization,
+  ): Promise<void>;
+  abstract invite(organization?: Organization): void;
 
-  async load() {
+  async load(organization?: Organization) {
     // Load new users from the server
-    const response = await this.getUsers();
+    const response = await this.getUsers(organization);
 
     // GetUsers can return a ListResponse or an Array
     if (response instanceof ListResponse) {
@@ -120,10 +124,6 @@ export abstract class BaseMembersComponent<UserView extends UserViewTypes> {
     this.firstLoaded = true;
   }
 
-  invite() {
-    this.edit(null);
-  }
-
   protected async removeUserConfirmationDialog(user: UserView) {
     return this.dialogService.openSimpleDialog({
       title: this.userNamePipe.transform(user),
@@ -132,64 +132,61 @@ export abstract class BaseMembersComponent<UserView extends UserViewTypes> {
     });
   }
 
-  async remove(user: UserView) {
+  async remove(user: UserView, organization?: Organization) {
     const confirmed = await this.removeUserConfirmationDialog(user);
     if (!confirmed) {
       return false;
     }
 
-    this.actionPromise = this.removeUser(user.id);
+    this.actionPromise = this.removeUser(user.id, organization);
     try {
       await this.actionPromise;
       this.toastService.showToast({
         variant: "success",
-        title: null,
         message: this.i18nService.t("removedUserId", this.userNamePipe.transform(user)),
       });
       this.dataSource.removeUser(user);
     } catch (e) {
       this.validationService.showError(e);
     }
-    this.actionPromise = null;
+    this.actionPromise = undefined;
   }
 
-  async reinvite(user: UserView) {
+  async reinvite(user: UserView, organization?: Organization) {
     if (this.actionPromise != null) {
       return;
     }
 
-    this.actionPromise = this.reinviteUser(user.id);
+    this.actionPromise = this.reinviteUser(user.id, organization);
     try {
       await this.actionPromise;
       this.toastService.showToast({
         variant: "success",
-        title: null,
         message: this.i18nService.t("hasBeenReinvited", this.userNamePipe.transform(user)),
       });
     } catch (e) {
       this.validationService.showError(e);
     }
-    this.actionPromise = null;
+    this.actionPromise = undefined;
   }
 
-  async confirm(user: UserView) {
+  async confirm(user: UserView, organization?: Organization) {
     const confirmUser = async (publicKey: Uint8Array) => {
       try {
-        this.actionPromise = this.confirmUser(user, publicKey);
+        this.actionPromise = this.confirmUser(user, publicKey, organization);
         await this.actionPromise;
         user.status = this.userStatusType.Confirmed;
         this.dataSource.replaceUser(user);
 
         this.toastService.showToast({
           variant: "success",
-          title: null,
           message: this.i18nService.t("hasBeenConfirmed", this.userNamePipe.transform(user)),
         });
       } catch (e) {
         this.validationService.showError(e);
         throw e;
       } finally {
-        this.actionPromise = null;
+        this.actionPromise = undefined;
       }
     };
 
@@ -204,11 +201,14 @@ export abstract class BaseMembersComponent<UserView extends UserViewTypes> {
       const autoConfirm = await firstValueFrom(
         this.organizationManagementPreferencesService.autoConfirmFingerPrints.state$,
       );
+      if (user == null) {
+        throw new Error("Cannot confirm null user.");
+      }
       if (autoConfirm == null || !autoConfirm) {
         const dialogRef = UserConfirmComponent.open(this.dialogService, {
           data: {
             name: this.userNamePipe.transform(user),
-            userId: user != null ? user.userId : null,
+            userId: user.id,
             publicKey: publicKey,
             confirmUser: () => confirmUser(publicKey),
           },

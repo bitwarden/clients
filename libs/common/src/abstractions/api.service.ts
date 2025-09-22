@@ -24,7 +24,6 @@ import {
   OrganizationConnectionConfigApis,
   OrganizationConnectionResponse,
 } from "../admin-console/models/response/organization-connection.response";
-import { OrganizationExportResponse } from "../admin-console/models/response/organization-export.response";
 import { OrganizationSponsorshipSyncStatusResponse } from "../admin-console/models/response/organization-sponsorship-sync-status.response";
 import { PreValidateSponsorshipResponse } from "../admin-console/models/response/pre-validate-sponsorship.response";
 import {
@@ -127,11 +126,34 @@ import { OptionalCipherResponse } from "../vault/models/response/optional-cipher
  * of this decision please read https://contributing.bitwarden.com/architecture/adr/refactor-api-service.
  */
 export abstract class ApiService {
+  /** @deprecated Use the overload accepting the user you want the request authenticated for. */
   abstract send(
     method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH",
     path: string,
     body: any,
-    authed: boolean,
+    authed: true,
+    hasResponse: boolean,
+    apiUrl?: string | null,
+    alterHeaders?: (header: Headers) => void,
+  ): Promise<any>;
+
+  /** Sends an unauthenticated API request. */
+  abstract send(
+    method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH",
+    path: string,
+    body: any,
+    authed: false,
+    hasResponse: boolean,
+    apiUrl?: string | null,
+    alterHeaders?: (header: Headers) => void,
+  ): Promise<any>;
+
+  /** Sends an API request authenticated with the given users ID. */
+  abstract send(
+    method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH",
+    path: string,
+    body: any,
+    userId: UserId,
     hasResponse: boolean,
     apiUrl?: string | null,
     alterHeaders?: (headers: Headers) => void,
@@ -499,7 +521,7 @@ export abstract class ApiService {
   abstract postBitPayInvoice(request: BitPayInvoiceRequest): Promise<string>;
   abstract postSetupPayment(): Promise<string>;
 
-  abstract getActiveBearerToken(): Promise<string>;
+  abstract getActiveBearerToken(userId: UserId): Promise<string>;
   abstract fetch(request: Request): Promise<Response>;
   abstract nativeFetch(request: Request): Promise<Response>;
 
@@ -529,5 +551,4 @@ export abstract class ApiService {
     request: KeyConnectorUserKeyRequest,
   ): Promise<void>;
   abstract getKeyConnectorAlive(keyConnectorUrl: string): Promise<void>;
-  abstract getOrganizationExport(organizationId: string): Promise<OrganizationExportResponse>;
 }

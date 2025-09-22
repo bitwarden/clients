@@ -134,7 +134,7 @@ describe("EmergencyViewDialogComponent", () => {
 
       component["updateTitle"]();
 
-      expect(component["title"]).toBe("viewItemType typelogin");
+      expect(component["title"]).toBe("viewItemHeaderLogin");
     });
 
     it("sets card title", () => {
@@ -142,7 +142,7 @@ describe("EmergencyViewDialogComponent", () => {
 
       component["updateTitle"]();
 
-      expect(component["title"]).toBe("viewItemType typecard");
+      expect(component["title"]).toBe("viewItemHeaderCard");
     });
 
     it("sets identity title", () => {
@@ -150,7 +150,7 @@ describe("EmergencyViewDialogComponent", () => {
 
       component["updateTitle"]();
 
-      expect(component["title"]).toBe("viewItemType typeidentity");
+      expect(component["title"]).toBe("viewItemHeaderIdentity");
     });
 
     it("sets note title", () => {
@@ -158,7 +158,7 @@ describe("EmergencyViewDialogComponent", () => {
 
       component["updateTitle"]();
 
-      expect(component["title"]).toBe("viewItemType note");
+      expect(component["title"]).toBe("viewItemHeaderNote");
     });
   });
 });

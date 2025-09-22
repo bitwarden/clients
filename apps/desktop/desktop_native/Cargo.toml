@@ -2,6 +2,7 @@
 resolver = "2"
 members = [
     "autotype",
+    "bitwarden_chromium_importer",
     "core",
     "macos_provider",
     "napi",
@@ -21,12 +22,11 @@ anyhow = "=1.0.94"
 arboard = { version = "=3.6.0", default-features = false }
 ashpd = "=0.11.0"
 base64 = "=0.22.1"
-bindgen = "=0.72.0"
 bitwarden-russh = { git = "https://github.com/bitwarden/bitwarden-russh.git", rev = "a641316227227f8777fdf56ac9fa2d6b5f7fe662" }
 byteorder = "=1.5.0"
 bytes = "=1.10.1"
 cbc = "=0.1.2"
-core-foundation = "=0.10.0"
+core-foundation = "=0.10.1"
 dirs = "=6.0.0"
 ed25519 = "=2.2.3"
 embed_plist = "=1.2.2"
@@ -48,8 +48,9 @@ rand = "=0.9.1"
 rsa = "=0.9.6"
 russh-cryptovec = "=0.7.3"
 scopeguard = "=1.2.0"
-security-framework = "=3.1.0"
-security-framework-sys = "=2.13.0"
+secmem-proc = "=0.3.7"
+security-framework = "=3.4.0"
+security-framework-sys = "=2.15.0"
 serde = "=1.0.209"
 serde_json = "=1.0.127"
 sha2 = "=0.10.8"
@@ -68,7 +69,7 @@ windows = "=0.61.1"
 windows-core = "=0.61.0"
 windows-future = "=0.2.0"
 windows-registry = "=0.5.3"
-zbus = "=5.5.0"
+zbus = "=5.11.0"
 zbus_polkit = "=5.0.0"
 zeroizing-alloc = "=0.1.0"
 
