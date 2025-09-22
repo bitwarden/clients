@@ -85,7 +85,7 @@ export const DefaultFeatureFlagValue = {
   /* DIRT */
   [FeatureFlag.EventBasedOrganizationIntegrations]: FALSE,
   [FeatureFlag.PhishingDetection]: FALSE,
-  [FeatureFlag.PM22887_RiskInsightsActivityTab]: FALSE,
+  [FeatureFlag.PM22887_RiskInsightsActivityTab]: true,
 
   /* Vault */
   [FeatureFlag.CipherKeyEncryption]: FALSE,

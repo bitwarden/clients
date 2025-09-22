@@ -22,10 +22,41 @@
 }
 
 @if (!(isLoading$ | async) && !(noData$ | async)) {
-  <div class="tw-mt-4 tw-flex tw-flex-col">
-    <div class="tw-flex tw-gap-4 tw-col-span-6">
+  <!-- section 1 -->
+  <div class="tw-grid tw-grid-cols-10 tw-gap-2">
+    <dirt-password-change-metric class="tw-col-span-8"></dirt-password-change-metric>
+
+    <div class="tw-col-span-4">
       <dirt-activity-card
-        class="tw-col-span-2 tw-cursor-pointer"
+        [title]="'atRiskMembers'"
+        [value]="atRiskMemberCount"
+        [cardMetrics]="'membersAtRisk'"
+        [metricDescription]="'membersAtRiskActivityDescription'"
+      ></dirt-activity-card>
+    </div>
+
+    <div class="tw-col-span-4">
+      <dirt-activity-card
+        #allAppsOrgAtRiskApplications
+        [title]="'criticalApplications'"
+        [value]="criticalApplicationsCount"
+        [cardMetrics]="'countOfCriticalApplications'"
+        [metricDescription]="'criticalApplicationsActivityDescription'"
+      >
+      </dirt-activity-card>
+    </div>
+  </div>
+
+  <!-- section 2 -->
+
+  <div class="tw-mt-4 tw-flex tw-flex-col">
+    <div class="tw-flex tw-col-span-6 tw-gap-4 tw-mt-2">
+      <dirt-password-change-metric></dirt-password-change-metric>
+    </div>
+
+    <div class="tw-flex tw-gap-4 tw-col-span-6 tw-mt-2">
+      <dirt-activity-card
+        class="tw-col-span-2"
         [title]="'atRiskMembers'"
         [value]="atRiskMemberCount"
         [cardMetrics]="'membersAtRisk'"
@@ -34,7 +65,7 @@
       </dirt-activity-card>
       <dirt-activity-card
         #allAppsOrgAtRiskApplications
-        class="tw-col-span-2 tw-cursor-pointer"
+        class="tw-col-span-2"
         [title]="'criticalApplications'"
         [value]="criticalApplicationsCount"
         [cardMetrics]="'countOfCriticalApplications'"

@@ -17,11 +17,17 @@ import { OrganizationId } from "@bitwarden/common/types/guid";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 import { ActivityCardComponent } from "./activity-card.component";
+import { PasswordChangeMetricComponent } from "./activity-cards/password-change-metric.component";
 import { ApplicationsLoadingComponent } from "./risk-insights-loading.component";
 
 @Component({
   selector: "tools-all-activity",
-  imports: [ApplicationsLoadingComponent, SharedModule, ActivityCardComponent],
+  imports: [
+    ApplicationsLoadingComponent,
+    SharedModule,
+    ActivityCardComponent,
+    PasswordChangeMetricComponent,
+  ],
   templateUrl: "./all-activity.component.html",
 })
 export class AllActivityComponent implements OnInit {
