@@ -38,6 +38,9 @@ export class UpdaterMain {
   ) {
     autoUpdater.logger = log;
 
+    // Ignore the rollout for test
+    autoUpdater.isUserWithinRollout = (info) => true;
+
     this.originalRolloutFunction = autoUpdater.isUserWithinRollout;
 
     const linuxCanUpdate = process.platform === "linux" && isAppImage();
