@@ -1330,12 +1330,6 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     });
   }
 
-  isSelectedOrgDisabled(): boolean {
-    return !!this.allOrganizations?.find(
-      (o) => o.id === this.activeFilter.selectedOrganizationNode?.node.id && o.enabled === false,
-    );
-  }
-
   private showMissingPermissionsError() {
     this.toastService.showToast({
       variant: "error",
