@@ -9,7 +9,7 @@ import { CollectionView, I18n, OrgView } from "../content/components/common-type
 import { AtRiskNotification } from "../content/components/notification/at-risk-password/container";
 import { NotificationConfirmationContainer } from "../content/components/notification/confirmation/container";
 import { NotificationContainer } from "../content/components/notification/container";
-// import { selectedCipher as selectedCipherSignal } from "../content/components/signals/selected-cipher";
+import { selectedCipher as selectedCipherSignal } from "../content/components/signals/selected-cipher";
 import { selectedFolder as selectedFolderSignal } from "../content/components/signals/selected-folder";
 import { selectedVault as selectedVaultSignal } from "../content/components/signals/selected-vault";
 
@@ -182,9 +182,9 @@ async function initNotificationBar(message: NotificationBarWindowMessage) {
   const i18n = getI18n();
   const resolvedTheme = getResolvedTheme(theme ?? ThemeTypes.Light);
 
-  const resolvedType = resolveNotificationType(notificationBarIframeInitData);
-  const headerMessage = getNotificationHeaderMessage(i18n, resolvedType);
-  const notificationTestId = getNotificationTestId(resolvedType);
+  const notificationType = resolveNotificationType(notificationBarIframeInitData);
+  const headerMessage = getNotificationHeaderMessage(i18n, notificationType);
+  const notificationTestId = getNotificationTestId(notificationType);
   appendHeaderMessageToTitle(headerMessage);
 
   document.body.innerHTML = "";
@@ -193,7 +193,7 @@ async function initNotificationBar(message: NotificationBarWindowMessage) {
     const notificationConfig = {
       ...notificationBarIframeInitData,
       headerMessage,
-      type: resolvedType,
+      type: notificationType,
       notificationTestId,
       theme: resolvedTheme,
       personalVaultIsAllowed: !personalVaultDisallowed,
@@ -203,7 +203,7 @@ async function initNotificationBar(message: NotificationBarWindowMessage) {
     };
 
     const handleSaveAction = () => {
-      // @TODO
+      // @TODO Determine case
       sendSaveCipherMessage(null, true);
 
       render(
@@ -265,7 +265,7 @@ async function initNotificationBar(message: NotificationBarWindowMessage) {
       NotificationContainer({
         ...notificationBarIframeInitData,
         headerMessage,
-        type: resolvedType,
+        type: notificationType,
         theme: resolvedTheme,
         notificationTestId,
         personalVaultIsAllowed: !personalVaultDisallowed,
@@ -279,12 +279,8 @@ async function initNotificationBar(message: NotificationBarWindowMessage) {
   });
 
   function handleEditOrUpdateAction(e: Event) {
-    const notificationType = initData?.type;
     e.preventDefault();
-    // @TODO use cipherId
-    notificationType === "add"
-      ? sendSaveCipherMessage(null, true)
-      : sendSaveCipherMessage(null, false); // change
+    sendSaveCipherMessage(selectedCipherSignal.get(), notificationType === NotificationTypes.Add);
   }
 }
 
@@ -297,7 +293,7 @@ function handleCloseNotification(e: Event) {
 }
 
 function handleSaveAction(e: Event) {
-  // const selectedCipher = selectedCipherSignal.get();
+  const selectedCipher = selectedCipherSignal.get();
   const selectedVault = selectedVaultSignal.get();
   const selectedFolder = selectedFolderSignal.get();
 
@@ -311,8 +307,7 @@ function handleSaveAction(e: Event) {
   }
 
   e.preventDefault();
-  // @TODO
-  sendSaveCipherMessage(null, removeIndividualVault(), selectedFolder);
+  sendSaveCipherMessage(selectedCipher, removeIndividualVault(), selectedFolder);
   if (removeIndividualVault()) {
     return;
   }

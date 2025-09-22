@@ -100,14 +100,11 @@ type UnlockVaultMessageData = {
  * - eliminate optional status of properties as needed per Notification Type
  */
 type NotificationBackgroundExtensionMessage = {
-  // @TODO remove any
   [key: string]: any;
   command: string;
-  // @TODO do not use partial, use generic
   data?: Partial<LockedVaultPendingNotificationsData> &
     Partial<AdjustNotificationBarMessageData> &
     Partial<UnlockVaultMessageData>;
-  // @TODO remove as many optional items as possible, favor data attribute
   folder?: string;
   edit?: boolean;
   details?: AutofillPageDetails;
