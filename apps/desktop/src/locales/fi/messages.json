@@ -960,9 +960,6 @@
   "insertU2f": {
     "message": "Kytke suojausavaimesi tietokoneen USB-porttiin ja jos laitteessa on painike, paina sitä."
   },
-  "recoveryCodeDesc": {
-    "message": "Etkö pysty käyttämään kaksivaiheisen kirjautumisen todentajiasi? Poista kaikki tilillesi määritetyt todentajat käytöstä palautuskoodillasi."
-  },
   "recoveryCodeTitle": {
     "message": "Palautuskoodi"
   },
