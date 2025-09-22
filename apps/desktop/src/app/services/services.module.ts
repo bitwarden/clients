@@ -333,6 +333,7 @@ const safeProviders: SafeProvider[] = [
       ConfigService,
       Fido2AuthenticatorServiceAbstraction,
       AccountService,
+      AuthService,
     ],
   }),
   safeProvider({
