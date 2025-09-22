@@ -8,6 +8,7 @@ import {
   ALLOWED_TOOLTIP_POSITION_IDS,
 } from "../utils/default-positions";
 
+import { TooltipComponent } from "./tooltip.component";
 import { TooltipDirective } from "./tooltip.directive";
 
 import { formatArgsForCodeSnippet } from ".storybook/format-args-for-code-snippet";
@@ -17,7 +18,7 @@ export default {
   component: TooltipDirective,
   decorators: [
     moduleMetadata({
-      imports: [TooltipDirective, BitIconButtonComponent, ButtonComponent],
+      imports: [TooltipDirective, TooltipComponent, BitIconButtonComponent, ButtonComponent],
     }),
   ],
   parameters: {
@@ -44,6 +45,21 @@ export default {
 type Story = StoryObj<TooltipDirective>;
 
 export const Default: Story = {
+  args: {
+    bitTooltip: "This is a tooltip",
+    tooltipPosition: "above-center",
+  },
+  render: (args) => ({
+    props: args,
+    template: `
+      <div class="tw-p-4">
+        <bit-tooltip content="This is a tooltip" isVisible="true" />
+      </div>
+    `,
+  }),
+};
+
+export const BasicUsage: Story = {
   args: {
     bitTooltip: "This is a tooltip",
     tooltipPosition: "above-center",

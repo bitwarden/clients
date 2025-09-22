@@ -10,6 +10,7 @@
   position: relative;
   max-width: 12rem;
   opacity: 0;
+  width: max-content;
   box-shadow:
     0 4px 6px -1px var(--tooltip-shadow),
     0 2px 4px -2px var(--tooltip-shadow);
@@ -119,6 +120,8 @@
 }
 
 .bit-tooltip {
+  width: max-content;
+  max-width: 12rem;
   background-color: rgb(var(--color-text-main));
   color: rgb(var(--color-text-contrast));
   padding: 0.5rem 0.75rem;
