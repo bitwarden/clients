@@ -1525,9 +1525,6 @@
   "selectTwoStepLoginMethod": {
     "message": "Select two-step login method"
   },
-  "recoveryCodeDesc": {
-    "message": "모든 2단계 인증을 사용할 수 없는 상황인가요? 복구 코드를 사용하여 계정의 모든 2단계 인증을 비활성화할 수 있습니다."
-  },
   "recoveryCodeTitle": {
     "message": "복구 코드"
   },
@@ -1686,9 +1683,6 @@
   "defaultAutoFillOnPageLoadDesc": {
     "message": "페이지 로드 시 자동 완성을 켠 뒤에는 각 로그인 항목별로 이 기능을 켜거나 끌 수 있습니다. 이 옵션은 해당 기능을 개별적으로 구성하지 않은 항목에 사용되는 기본 설정값입니다."
   },
-  "itemAutoFillOnPageLoad": {
-    "message": "페이지 로드 시 자동 완성 (옵션에서 켜져 있을 경우)"
-  },
   "autoFillOnPageLoadUseDefault": {
     "message": "기본 설정 사용"
   },
@@ -1760,17 +1754,8 @@
   "popup2faCloseMessage": {
     "message": "인증 코드가 담긴 이메일을 확인하기 위해 팝업 창의 바깥쪽을 누르면 이 팝업이 닫힙니다. 팝업 창이 닫히는 것을 방지하기 위해 이 팝업을 새 창에서 다시 여시겠습니까?"
   },
-  "popupU2fCloseMessage": {
-    "message": "이 브라우저의 팝업 창에서는 U2F 요청을 처리할 수 없습니다. U2F로 로그인할 수 있도록 이 창을 새 창에서 여시겠습니까?"
-  },
   "showIconsChangePasswordUrls": {
     "message": "Show website icons and retrieve change password URLs"
-  },
-  "enableBadgeCounter": {
-    "message": "배지 갯수 표시"
-  },
-  "badgeCounterDesc": {
-    "message": "현재 웹 페이지에 저장된 로그인 정보의 수를 표시합니다."
   },
   "cardholderName": {
     "message": "카드 소유자 이름"
@@ -1934,32 +1919,81 @@
   "typeNote": {
     "message": "Note"
   },
-  "newItemHeader": {
-    "message": "새 $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderLogin": {
+    "message": "New Login",
+    "description": "Header for new login item type"
   },
-  "editItemHeader": {
-    "message": "$TYPE$ 수정",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderCard": {
+    "message": "New Card",
+    "description": "Header for new card item type"
   },
-  "viewItemHeader": {
-    "message": "$TYPE$ 보기",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderIdentity": {
+    "message": "New Identity",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "New Note",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "New SSH key",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderTextSend": {
+    "message": "New Text Send",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "New File Send",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderLogin": {
+    "message": "Edit Login",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Edit Card",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Edit Identity",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Edit Note",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "Edit SSH key",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Edit Text Send",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Edit File Send",
+    "description": "Header for edit file send"
+  },
+  "viewItemHeaderLogin": {
+    "message": "View Login",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "View Card",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "View Identity",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "View Note",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "View SSH key",
+    "description": "Header for view SSH key item type"
   },
   "passwordHistory": {
     "message": "비밀번호 변경 기록"
@@ -3521,9 +3555,6 @@
   "autofillPageLoadPolicyActivated": {
     "message": "조직 정책에 따라, 페이지 로드 시 자동 완성 기능을 켰습니다."
   },
-  "howToAutofill": {
-    "message": "자동 완성 사용법"
-  },
   "autofillSelectInfoWithCommand": {
     "message": "이 화면에서 항목을 선택하거나, 바로 가기 $COMMAND$를 사용하거나, 설정의 다른 옵션을 탐색하세요.",
     "placeholders": {
@@ -3908,17 +3939,9 @@
   "aliasDomain": {
     "message": "도메인 별칭"
   },
-  "passwordRepromptDisabledAutofillOnPageLoad": {
-    "message": "마스터 비밀번호 재 요청이 있는 항목은 페이지 로드에서 자동으로 채울 수 없습니다. 페이지 로드의 자동 완성이 꺼졌습니다.",
-    "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
-  },
   "autofillOnPageLoadSetToDefault": {
     "message": "페이지 로드 시 자동 완성이 기본 설정을 사용하도록 설정되었습니다.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "turnOffMasterPasswordPromptToEditField": {
-    "message": "마스터 암호 재 요청을 해제하여 이 필드를 편집합니다",
-    "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
   },
   "toggleSideNavigation": {
     "message": "사이드 내비게이션 전환"
@@ -4188,9 +4211,6 @@
   },
   "passkeyNotCopiedAlert": {
     "message": "패스키는 복제된 아이템에 복사되지 않습니다. 계속 이 항목을 복제하시겠어요?"
-  },
-  "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
-    "message": "사이트에서 인증을 요구합니다. 이 기능은 비밀번호가 없는 계정에서는 아직 지원하지 않습니다."
   },
   "logInWithPasskeyQuestion": {
     "message": "패스키로 로그인하시겠어요?"
@@ -4877,9 +4897,6 @@
       }
     }
   },
-  "enableAnimations": {
-    "message": "애니메이션 활성화"
-  },
   "showAnimations": {
     "message": "애니메이션 표시"
   },
@@ -5092,14 +5109,8 @@
   "itemLocation": {
     "message": "항목 위치"
   },
-  "fileSend": {
-    "message": "파일 Send"
-  },
   "fileSends": {
     "message": "파일 Send"
-  },
-  "textSend": {
-    "message": "텍스트 Send"
   },
   "textSends": {
     "message": "텍스트 Send"
@@ -5160,9 +5171,6 @@
   },
   "vaultCustomTimeoutMinimum": {
     "message": "최소 사용자 지정 시간 초과는 1분입니다."
-  },
-  "additionalContentAvailable": {
-    "message": "추가 콘텐츠를 사용할 수 있습니다"
   },
   "fileSavedToDevice": {
     "message": "파일을 장치에 저장했습니다. 장치 다운로드로 관리할 수 있습니다."
@@ -5502,6 +5510,18 @@
   },
   "hasItemsVaultNudgeTitle": {
     "message": "Welcome to your vault!"
+  },
+  "phishingPageTitle": {
+    "message": "Phishing website"
+  },
+  "phishingPageCloseTab": {
+    "message": "Close tab"
+  },
+  "phishingPageContinue": {
+    "message": "Continue"
+  },
+  "phishingPageLearnWhy": {
+    "message": "Why are you seeing this?"
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Autofill items for the current page"

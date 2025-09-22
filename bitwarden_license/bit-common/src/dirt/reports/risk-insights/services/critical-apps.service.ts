@@ -22,7 +22,7 @@ import { KeyService } from "@bitwarden/key-management";
 import {
   PasswordHealthReportApplicationsRequest,
   PasswordHealthReportApplicationsResponse,
-} from "../models/password-health";
+} from "../models/api-models.types";
 
 import { CriticalAppsApiService } from "./critical-apps-api.service";
 
