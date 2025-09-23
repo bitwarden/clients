@@ -960,9 +960,6 @@
   "insertU2f": {
     "message": "Поставете устройството за удостоверяване в USB порт на компютъра. Ако на устройството има бутон, натиснете го."
   },
-  "recoveryCodeDesc": {
-    "message": "Ако сте загубили достъп до двустепенното удостоверяване, може да използвате код за възстановяване, за да изключите двустепенното удостоверяване в абонамента си."
-  },
   "recoveryCodeTitle": {
     "message": "Код за възстановяване"
   },
@@ -1305,11 +1302,8 @@
     "message": "Автоматично изчистване на буфера след поставяне на стойността.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
-  "enableFavicon": {
-    "message": "Показване на иконките на уеб сайтовете"
-  },
-  "faviconDesc": {
-    "message": "Показване на разпознаваемо изображение до всеки запис."
+  "showIconsChangePasswordUrls": {
+    "message": "Показване на иконките на уеб сайтовете и извличане на адресите за смяна на паролата"
   },
   "enableMinToTray": {
     "message": "Смаляване в областта за уведомяване"
@@ -3591,6 +3585,12 @@
   "awaitingSSODesc": {
     "message": "Моля, продължете вписването с данните за удостоверяване на Вашата компания."
   },
+  "importDirectlyFromBrowser": {
+    "message": "Внасяне директно от браузъра"
+  },
+  "browserProfile": {
+    "message": "Профил на браузъра"
+  },
   "seeDetailedInstructions": {
     "message": "Може да намерите подробни инструкции в помощния ни уеб сайт на адрес",
     "description": "This is followed a by a hyperlink to the help website."
@@ -3833,6 +3833,12 @@
   "changeAtRiskPassword": {
     "message": "Промяна на парола в риск"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Този елемент за вписване е в риск и в него липсва уеб сайт. Добавете уеб сайт и сменете паролата, за по-добра сигурност."
+  },
+  "missingWebsite": {
+    "message": "Липсващ уеб сайт"
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "Не можете да премахвате колекции с права „Само за преглед“: $COLLECTIONS$",
     "placeholders": {
@@ -3927,6 +3933,12 @@
     "message": "Научете повече относно SSH-агента",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "aboutThisSetting": {
+    "message": "Относно тази настройка"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Битуорден ще използва запазените адреси за вписване, за да определи коя иконка или адрес за смяна на паролата да се ползва, за да улесни работата Ви. Никакви данни не се събират или съхраняват, когато използвате тази услуга."
   },
   "assignToCollections": {
     "message": "Свързване с колекции"
@@ -4077,5 +4089,23 @@
   "moreBreadcrumbs": {
     "message": "Още елементи в пътечката",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "next": {
+    "message": "Следващо"
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Потвърждаване на домейна на конектора за ключове"
+  },
+  "confirm": {
+    "message": "Потвърждаване"
+  },
+  "enableAutotypeTransitionKey": {
+    "message": "Включване на клавишната комбинация за автоматично попълване"
+  },
+  "enableAutotypeDescriptionTransitionKey": {
+    "message": "Уверете се, че сет в правилното поле, преди да използвате комбинацията, за да избегнете попълването на данните на грешното място."
+  },
+  "editShortcut": {
+    "message": "Редактиране на комбинацията"
   }
 }

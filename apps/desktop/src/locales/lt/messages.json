@@ -960,9 +960,6 @@
   "insertU2f": {
     "message": "Įkiškite savo saugos raktą į kompiuterio USB prievadą. Jei jame yra mygtukas, palieskite jį."
   },
-  "recoveryCodeDesc": {
-    "message": "Praradote prieigą prie visų savo dviejų faktorių tiekėjų? Naudokite atkūrimo kodą, kad iš savo paskyros išjungtumėte visus dviejų faktorių tiekėjus."
-  },
   "recoveryCodeTitle": {
     "message": "Atkūrimo kodas"
   },
@@ -1305,11 +1302,8 @@
     "message": "Automatiškai išvalyti nukopijuotas reikšmes iškarpinėje.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
-  "enableFavicon": {
-    "message": "Rodyti tinklalapių ikonėles"
-  },
-  "faviconDesc": {
-    "message": "Prie kiekvieno prisijungimo parodykite atpažįstamą vaizdą."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "enableMinToTray": {
     "message": "Sumažinti į užduočių juostos piktogramą"
@@ -3591,6 +3585,12 @@
   "awaitingSSODesc": {
     "message": "Prašome toliau prisijungti naudojant savo įmonės prisijungimo duomenis."
   },
+  "importDirectlyFromBrowser": {
+    "message": "Import directly from browser"
+  },
+  "browserProfile": {
+    "message": "Browser Profile"
+  },
   "seeDetailedInstructions": {
     "message": "Peržiūrėkite detalias instrukcijas mūsų pagalbos tinklalapyje, esančiam",
     "description": "This is followed a by a hyperlink to the help website."
@@ -3833,6 +3833,12 @@
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
     "placeholders": {
@@ -3927,6 +3933,12 @@
     "message": "Learn more about SSH agent",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
   },
   "assignToCollections": {
     "message": "Assign to collections"
@@ -4077,5 +4089,23 @@
   "moreBreadcrumbs": {
     "message": "More breadcrumbs",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "next": {
+    "message": "Next"
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Confirm Key Connector domain"
+  },
+  "confirm": {
+    "message": "Confirm"
+  },
+  "enableAutotypeTransitionKey": {
+    "message": "Enable autotype shortcut"
+  },
+  "enableAutotypeDescriptionTransitionKey": {
+    "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."
+  },
+  "editShortcut": {
+    "message": "Edit shortcut"
   }
 }

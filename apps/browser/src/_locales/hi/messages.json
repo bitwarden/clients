@@ -556,6 +556,9 @@
   "view": {
     "message": "देखें"
   },
+  "viewLogin": {
+    "message": "View login"
+  },
   "noItemsInList": {
     "message": "सूचीबद्ध करने के लिए कोई आइटम नहीं हैं।"
   },
@@ -1522,9 +1525,6 @@
   "selectTwoStepLoginMethod": {
     "message": "Select two-step login method"
   },
-  "recoveryCodeDesc": {
-    "message": "अपने दो कारक प्रदाताओं के सभी के लिए उपयोग खो दिया है? अपने खाते से सभी दो-कारक प्रदाताओं को अक्षम करने के लिए अपने रिकवरी कोड का उपयोग करें।"
-  },
   "recoveryCodeTitle": {
     "message": "Recovery Code"
   },
@@ -1683,9 +1683,6 @@
   "defaultAutoFillOnPageLoadDesc": {
     "message": "पेज लोड पर ऑटो-फिल को सक्षम करने के बाद, आप व्यक्तिगत लॉगिन आइटम के लिए सुविधा को सक्षम या अक्षम कर सकते हैं।यह लॉगिन आइटम के लिए डिफ़ॉल्ट सेटिंग है जो अलग से कॉन्फ़िगर नहीं हैं।"
   },
-  "itemAutoFillOnPageLoad": {
-    "message": "पेज लोड पर ऑटो-भरें (यदि विकल्पों में सक्षम हैं)"
-  },
   "autoFillOnPageLoadUseDefault": {
     "message": "डिफ़ॉल्ट सेटिंग का उपयोग करें"
   },
@@ -1757,23 +1754,8 @@
   "popup2faCloseMessage": {
     "message": "अपने सत्यापन कोड के लिए अपने ईमेल की जांच करने के लिए पॉपअप विंडो के बाहर क्लिक करने से यह पॉपअप बंद हो जाएगा।क्या आप इस पॉपअप को एक नई विंडो में खोलना चाहते हैं ताकि यह बंद न हो?"
   },
-  "popupU2fCloseMessage": {
-    "message": "यह ब्राउज़र इस पॉपअप विंडो में U2F अनुरोधों को संसाधित नहीं कर सकता है।क्या आप इस पॉपअप को एक नई विंडो में खोलना चाहते हैं ताकि आप U2F का उपयोग करके लॉग इन कर सकें?"
-  },
-  "enableFavicon": {
-    "message": "वेबसाइट आइकन दिखाएं"
-  },
-  "faviconDesc": {
-    "message": "प्रत्येक लॉगिन के आगे एक पहचानने योग्य छवि दिखाएं।"
-  },
-  "faviconDescAlt": {
-    "message": "Show a recognizable image next to each login. Applies to all logged in accounts."
-  },
-  "enableBadgeCounter": {
-    "message": "बैज काउंटर दिखाएं"
-  },
-  "badgeCounterDesc": {
-    "message": "इंगित करें कि आपके पास वर्तमान वेब पेज के लिए कितने लॉगिन हैं।"
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "cardholderName": {
     "message": "Cardholder Name"
@@ -1937,32 +1919,81 @@
   "typeNote": {
     "message": "नोट"
   },
-  "newItemHeader": {
-    "message": "नया $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderLogin": {
+    "message": "New Login",
+    "description": "Header for new login item type"
   },
-  "editItemHeader": {
-    "message": "$TYPE$ संपादन",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderCard": {
+    "message": "New Card",
+    "description": "Header for new card item type"
   },
-  "viewItemHeader": {
-    "message": "View $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderIdentity": {
+    "message": "New Identity",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "New Note",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "New SSH key",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderTextSend": {
+    "message": "New Text Send",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "New File Send",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderLogin": {
+    "message": "Edit Login",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Edit Card",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Edit Identity",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Edit Note",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "Edit SSH key",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Edit Text Send",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Edit File Send",
+    "description": "Header for edit file send"
+  },
+  "viewItemHeaderLogin": {
+    "message": "View Login",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "View Card",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "View Identity",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "View Note",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "View SSH key",
+    "description": "Header for view SSH key item type"
   },
   "passwordHistory": {
     "message": "पासवर्ड इतिहास"
@@ -3524,9 +3555,6 @@
   "autofillPageLoadPolicyActivated": {
     "message": "Your organization policies have turned on autofill on page load."
   },
-  "howToAutofill": {
-    "message": "ऑटो-फ़िल कैसे करें"
-  },
   "autofillSelectInfoWithCommand": {
     "message": "Select an item from this screen, use the shortcut $COMMAND$, or explore other options in settings.",
     "placeholders": {
@@ -3911,17 +3939,9 @@
   "aliasDomain": {
     "message": "डोमेन उपनाम"
   },
-  "passwordRepromptDisabledAutofillOnPageLoad": {
-    "message": "Items with master password re-prompt cannot be autofilled on page load. Autofill on page load turned off.",
-    "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
-  },
   "autofillOnPageLoadSetToDefault": {
     "message": "Autofill on page load set to use default setting.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "turnOffMasterPasswordPromptToEditField": {
-    "message": "Turn off master password re-prompt to edit this field",
-    "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
   },
   "toggleSideNavigation": {
     "message": "Toggle side navigation"
@@ -4191,9 +4211,6 @@
   },
   "passkeyNotCopiedAlert": {
     "message": "The passkey will not be copied to the cloned item. Do you want to continue cloning this item?"
-  },
-  "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
-    "message": "Verification required by the initiating site. This feature is not yet implemented for accounts without master password."
   },
   "logInWithPasskeyQuestion": {
     "message": "Log in with passkey?"
@@ -4880,9 +4897,6 @@
       }
     }
   },
-  "enableAnimations": {
-    "message": "Enable animations"
-  },
   "showAnimations": {
     "message": "एनिमेशन दिखाएं"
   },
@@ -5095,14 +5109,8 @@
   "itemLocation": {
     "message": "Item Location"
   },
-  "fileSend": {
-    "message": "File Send"
-  },
   "fileSends": {
     "message": "File Sends"
-  },
-  "textSend": {
-    "message": "Text Send"
   },
   "textSends": {
     "message": "Text Sends"
@@ -5112,6 +5120,18 @@
   },
   "showNumberOfAutofillSuggestions": {
     "message": "Show number of login autofill suggestions on extension icon"
+  },
+  "accountAccessRequested": {
+    "message": "Account access requested"
+  },
+  "confirmAccessAttempt": {
+    "message": "Confirm access attempt for $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
   },
   "showQuickCopyActions": {
     "message": "Show quick copy actions on Vault"
@@ -5151,9 +5171,6 @@
   },
   "vaultCustomTimeoutMinimum": {
     "message": "न्यूनतम कस्टम टाइमआउट 1 मिनट है."
-  },
-  "additionalContentAvailable": {
-    "message": "अतिरिक्त सामग्री उपलब्ध है"
   },
   "fileSavedToDevice": {
     "message": "File saved to device. Manage from your device downloads."
@@ -5440,6 +5457,12 @@
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
+  },
   "settingsVaultOptions": {
     "message": "Vault options"
   },
@@ -5487,6 +5510,18 @@
   },
   "hasItemsVaultNudgeTitle": {
     "message": "Welcome to your vault!"
+  },
+  "phishingPageTitle": {
+    "message": "Phishing website"
+  },
+  "phishingPageCloseTab": {
+    "message": "Close tab"
+  },
+  "phishingPageContinue": {
+    "message": "Continue"
+  },
+  "phishingPageLearnWhy": {
+    "message": "Why are you seeing this?"
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Autofill items for the current page"
@@ -5563,6 +5598,12 @@
     "message": "Easily create strong and unique passwords by clicking on the Generate password button to help you keep your logins secure.",
     "description": "Aria label for the body content of the generator nudge"
   },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+  },
   "noPermissionsViewPage": {
     "message": "You do not have permissions to view this page. Try logging in with a different account."
   },
@@ -5576,8 +5617,14 @@
   "showLess": {
     "message": "Show less"
   },
+  "next": {
+    "message": "Next"
+  },
   "moreBreadcrumbs": {
     "message": "More breadcrumbs",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Confirm Key Connector domain"
   }
 }

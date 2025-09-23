@@ -72,14 +72,14 @@ export abstract class TokenService {
    * @param userId - The optional user id to get the access token for; if not provided, the active user is used.
    * @returns A promise that resolves with the access token or null.
    */
-  abstract getAccessToken(userId?: UserId): Promise<string | null>;
+  abstract getAccessToken(userId: UserId): Promise<string | null>;
 
   /**
    * Gets the refresh token.
    * @param userId - The optional user id to get the refresh token for; if not provided, the active user is used.
    * @returns A promise that resolves with the refresh token or null.
    */
-  abstract getRefreshToken(userId?: UserId): Promise<string | null>;
+  abstract getRefreshToken(userId: UserId): Promise<string | null>;
 
   /**
    * Sets the API Key Client ID for the active user id in memory or disk based on the given vaultTimeoutAction and vaultTimeout.
@@ -96,10 +96,10 @@ export abstract class TokenService {
   ): Promise<string>;
 
   /**
-   * Gets the API Key Client ID for the active user.
+   * Gets the API Key Client ID for the given user.
    * @returns A promise that resolves with the API Key Client ID or undefined
    */
-  abstract getClientId(userId?: UserId): Promise<string | undefined>;
+  abstract getClientId(userId: UserId): Promise<string | undefined>;
 
   /**
    * Sets the API Key Client Secret for the active user id in memory or disk based on the given vaultTimeoutAction and vaultTimeout.
@@ -116,10 +116,10 @@ export abstract class TokenService {
   ): Promise<string>;
 
   /**
-   * Gets the API Key Client Secret for the active user.
+   * Gets the API Key Client Secret for the given user.
    * @returns A promise that resolves with the API Key Client Secret or undefined
    */
-  abstract getClientSecret(userId?: UserId): Promise<string | undefined>;
+  abstract getClientSecret(userId: UserId): Promise<string | undefined>;
 
   /**
    * Sets the two factor token for the given email in global state.
@@ -157,7 +157,7 @@ export abstract class TokenService {
    * Gets the expiration date for the access token. Returns if token can't be decoded or has no expiration
    * @returns A promise that resolves with the expiration date for the access token.
    */
-  abstract getTokenExpirationDate(): Promise<Date | null>;
+  abstract getTokenExpirationDate(userId: UserId): Promise<Date | null>;
 
   /**
    * Calculates the adjusted time in seconds until the access token expires, considering an optional offset.
@@ -175,7 +175,7 @@ export abstract class TokenService {
    * @param {number} [minutes=5] - Optional number of minutes before the access token expires to consider refreshing it.
    * @returns A promise that resolves with a boolean indicating if the access token needs to be refreshed.
    */
-  abstract tokenNeedsRefresh(userId?: UserId, minutes?: number): Promise<boolean>;
+  abstract tokenNeedsRefresh(userId: UserId, minutes?: number): Promise<boolean>;
 
   /**
    * Gets the user id for the active user from the access token.

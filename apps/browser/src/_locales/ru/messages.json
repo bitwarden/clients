@@ -556,6 +556,9 @@
   "view": {
     "message": "Просмотр"
   },
+  "viewLogin": {
+    "message": "Просмотр логина"
+  },
   "noItemsInList": {
     "message": "Нет элементов для отображения."
   },
@@ -1522,9 +1525,6 @@
   "selectTwoStepLoginMethod": {
     "message": "Выбрать другой метод двухэтапной аутентификации"
   },
-  "recoveryCodeDesc": {
-    "message": "Потеряли доступ ко всем вариантам двухэтапной аутентификации? Используйте код восстановления, чтобы отключить двухэтапную аутентификацию для вашей учетной записи."
-  },
   "recoveryCodeTitle": {
     "message": "Код восстановления"
   },
@@ -1683,9 +1683,6 @@
   "defaultAutoFillOnPageLoadDesc": {
     "message": "Вы можете отключить автозаполнение при загрузке страницы для отдельных логинов в режиме редактирования элемента."
   },
-  "itemAutoFillOnPageLoad": {
-    "message": "Автозаполнение при загрузке страницы (если включено в настройках)"
-  },
   "autoFillOnPageLoadUseDefault": {
     "message": "Использовать настройки по умолчанию"
   },
@@ -1757,23 +1754,8 @@
   "popup2faCloseMessage": {
     "message": "Щелчок за пределами этого окна для просмотра кода проверки из электронной почты приведет к его закрытию. Открыть bitwarden в новом окне?"
   },
-  "popupU2fCloseMessage": {
-    "message": "Этот браузер не может обрабатывать запросы U2F в этом всплывающем окне. Вы хотите открыть это всплывающее окно в новом окне, чтобы иметь возможность войти в систему, используя U2F?"
-  },
-  "enableFavicon": {
-    "message": "Показать значки сайтов"
-  },
-  "faviconDesc": {
-    "message": "Отображать узнаваемое изображение рядом с каждым логином."
-  },
-  "faviconDescAlt": {
-    "message": "Показывать узнаваемое изображение рядом с каждым логином. Применяется ко всем авторизованным аккаунтам."
-  },
-  "enableBadgeCounter": {
-    "message": "Показать счетчик на значке"
-  },
-  "badgeCounterDesc": {
-    "message": "Показывает количество логинов для текущей веб-страницы."
+  "showIconsChangePasswordUrls": {
+    "message": "Показывать значки сайтов и извлекать URL изменения пароля"
   },
   "cardholderName": {
     "message": "Имя владельца карты"
@@ -1937,32 +1919,81 @@
   "typeNote": {
     "message": "Заметка"
   },
-  "newItemHeader": {
-    "message": "Новый $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderLogin": {
+    "message": "Новый логин",
+    "description": "Header for new login item type"
   },
-  "editItemHeader": {
-    "message": "Изменить $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderCard": {
+    "message": "Новая карта",
+    "description": "Header for new card item type"
   },
-  "viewItemHeader": {
-    "message": "Просмотр $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderIdentity": {
+    "message": "Новая личная информация",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "Новая заметка",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "Новый ключ SSH",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderTextSend": {
+    "message": "Новая текстовая Send",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "Новая файловая Send",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderLogin": {
+    "message": "Изменить логин",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Редактировать карту",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Редактировать личную информацию",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Редактировать заметку",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "Редактировать ключ SSH",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Изменить тестовую Send",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Изменить файловую Send",
+    "description": "Header for edit file send"
+  },
+  "viewItemHeaderLogin": {
+    "message": "Просмотр логина",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "Просмотр карты",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "Просмотр личной информации",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "Просмотр заметки",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "Просмотр ключа SSH",
+    "description": "Header for view SSH key item type"
   },
   "passwordHistory": {
     "message": "История паролей"
@@ -3524,9 +3555,6 @@
   "autofillPageLoadPolicyActivated": {
     "message": "Автозаполнение при загрузке страницы было активировано политиками вашей организации."
   },
-  "howToAutofill": {
-    "message": "Как использовать автозаполнение"
-  },
   "autofillSelectInfoWithCommand": {
     "message": "Выберите элемент на этой странице, используйте сочетание клавиш: $COMMAND$ или ознакомьтесь с другими параметрами в настройках.",
     "placeholders": {
@@ -3911,17 +3939,9 @@
   "aliasDomain": {
     "message": "Псевдоним домена"
   },
-  "passwordRepromptDisabledAutofillOnPageLoad": {
-    "message": "Элементы с повторным запросом мастер-пароля не могут быть автоматически заполнены при загрузке страницы. Автозаполнение при загрузке страницы выключено.",
-    "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
-  },
   "autofillOnPageLoadSetToDefault": {
     "message": "Автозаполнение при загрузке страницы использует настройку по умолчанию.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "turnOffMasterPasswordPromptToEditField": {
-    "message": "Для редактирования этого поля отключите повторный запрос мастер-пароля",
-    "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
   },
   "toggleSideNavigation": {
     "message": "Переключить боковую навигацию"
@@ -4191,9 +4211,6 @@
   },
   "passkeyNotCopiedAlert": {
     "message": "Passkey не будет скопирован в клонированный элемент. Продолжить клонирование этого элемента?"
-  },
-  "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
-    "message": "Необходима верификация со стороны инициирующего сайта. Для аккаунтов без мастер-пароля эта возможность пока не реализована."
   },
   "logInWithPasskeyQuestion": {
     "message": "Войти с passkey?"
@@ -4880,9 +4897,6 @@
       }
     }
   },
-  "enableAnimations": {
-    "message": "Включить анимацию"
-  },
   "showAnimations": {
     "message": "Показать анимацию"
   },
@@ -5095,14 +5109,8 @@
   "itemLocation": {
     "message": "Расположение элемента"
   },
-  "fileSend": {
-    "message": "Файловая Send"
-  },
   "fileSends": {
     "message": "Файловая Send"
-  },
-  "textSend": {
-    "message": "Текстовая Send"
   },
   "textSends": {
     "message": "Текстовая Send"
@@ -5112,6 +5120,18 @@
   },
   "showNumberOfAutofillSuggestions": {
     "message": "Показывать количество вариантов автозаполнения логина на значке расширения"
+  },
+  "accountAccessRequested": {
+    "message": "Запрошен доступ к аккаунту"
+  },
+  "confirmAccessAttempt": {
+    "message": "Подтвердить попытку доступа $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
   },
   "showQuickCopyActions": {
     "message": "Показать быстрые действия копирования в хранилище"
@@ -5151,9 +5171,6 @@
   },
   "vaultCustomTimeoutMinimum": {
     "message": "Минимальный пользовательский тайм-аут составляет 1 минуту."
-  },
-  "additionalContentAvailable": {
-    "message": "Дополнительный контент доступен"
   },
   "fileSavedToDevice": {
     "message": "Файл сохранен на устройстве. Управляйте им из загрузок устройства."
@@ -5440,6 +5457,12 @@
   "changeAtRiskPassword": {
     "message": "Изменить пароль, подверженный риску"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
+  },
   "settingsVaultOptions": {
     "message": "Настройки хранилища"
   },
@@ -5487,6 +5510,18 @@
   },
   "hasItemsVaultNudgeTitle": {
     "message": "Добро пожаловать в ваше хранилище!"
+  },
+  "phishingPageTitle": {
+    "message": "Фишинг-сайт"
+  },
+  "phishingPageCloseTab": {
+    "message": "Закрыть вкладку"
+  },
+  "phishingPageContinue": {
+    "message": "Продолжить"
+  },
+  "phishingPageLearnWhy": {
+    "message": "Почему вы это видите?"
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Автозаполнение элементов на текущей странице"
@@ -5563,6 +5598,12 @@
     "message": "Легко создавайте надежные и уникальные пароли, нажатием на кнопку 'Сгенерировать пароль', чтобы обеспечить безопасность ваших логинов.",
     "description": "Aria label for the body content of the generator nudge"
   },
+  "aboutThisSetting": {
+    "message": "Об этой настройке"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden будет использовать сохраненные URI логинов, чтобы определить, какой значок или URL для смены пароля следует использовать для улучшения вашего взаимодействия. При использовании этого сервиса никакая информация не собирается и не сохраняется."
+  },
   "noPermissionsViewPage": {
     "message": "У вас нет прав для просмотра этой страницы. Попробуйте авторизоваться под другим аккаунтом."
   },
@@ -5576,8 +5617,14 @@
   "showLess": {
     "message": "Меньше"
   },
+  "next": {
+    "message": "Далее"
+  },
   "moreBreadcrumbs": {
     "message": "More breadcrumbs",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Подтвердите домен соединителя ключей"
   }
 }

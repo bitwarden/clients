@@ -50,6 +50,8 @@ fn init_logging(log_path: &Path, console_level: LevelFilter, file_level: LevelFi
 ///
 /// Browser extension <-[native messaging]-> proxy <-[ipc]-> desktop
 ///
+// FIXME: Remove unwraps! They panic and terminate the whole application.
+#[allow(clippy::unwrap_used)]
 #[tokio::main(flavor = "current_thread")]
 async fn main() {
     #[cfg(target_os = "windows")]

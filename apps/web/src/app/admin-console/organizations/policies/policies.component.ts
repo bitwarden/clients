@@ -2,8 +2,8 @@
 // @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { firstValueFrom, lastValueFrom, map, Observable, switchMap } from "rxjs";
-import { first } from "rxjs/operators";
+import { firstValueFrom, lastValueFrom, Observable } from "rxjs";
+import { first, map } from "rxjs/operators";
 
 import {
   getOrganizationById,
@@ -14,43 +14,43 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { PolicyResponse } from "@bitwarden/common/admin-console/models/response/policy.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { OrganizationBillingServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { DialogService } from "@bitwarden/components";
-import {
-  ChangePlanDialogResultType,
-  openChangePlanDialog,
-} from "@bitwarden/web-vault/app/billing/organizations/change-plan-dialog.component";
-import { All } from "@bitwarden/web-vault/app/vault/individual-vault/vault-filter/shared/models/routed-vault-filter.model";
+import { safeProvider } from "@bitwarden/ui-common";
 
-import { PolicyListService } from "../../core/policy-list.service";
-import { BasePolicy } from "../policies";
-import { CollectionDialogTabType } from "../shared/components/collection-dialog";
+import { HeaderModule } from "../../../layouts/header/header.module";
+import { SharedModule } from "../../../shared";
 
-import { PolicyEditComponent, PolicyEditDialogResult } from "./policy-edit.component";
+import { BasePolicyEditDefinition } from "./base-policy-edit.component";
+import { PolicyEditDialogComponent } from "./policy-edit-dialog.component";
+import { PolicyListService } from "./policy-list.service";
+import { POLICY_EDIT_REGISTER } from "./policy-register-token";
 
 @Component({
-  selector: "app-org-policies",
   templateUrl: "policies.component.html",
-  standalone: false,
+  imports: [SharedModule, HeaderModule],
+  providers: [
+    safeProvider({
+      provide: PolicyListService,
+      deps: [POLICY_EDIT_REGISTER],
+    }),
+  ],
 })
 export class PoliciesComponent implements OnInit {
   loading = true;
   organizationId: string;
-  policies: BasePolicy[];
+  policies: readonly BasePolicyEditDefinition[];
   protected organization$: Observable<Organization>;
 
   private orgPolicies: PolicyResponse[];
   protected policiesEnabledMap: Map<PolicyType, boolean> = new Map<PolicyType, boolean>();
-  protected isBreadcrumbingEnabled$: Observable<boolean>;
 
   constructor(
     private route: ActivatedRoute,
-    private accountService: AccountService,
     private organizationService: OrganizationService,
+    private accountService: AccountService,
     private policyApiService: PolicyApiServiceAbstraction,
     private policyListService: PolicyListService,
-    private organizationBillingService: OrganizationBillingServiceAbstraction,
     private dialogService: DialogService,
     protected configService: ConfigService,
   ) {}
@@ -62,9 +62,11 @@ export class PoliciesComponent implements OnInit {
       const userId = await firstValueFrom(
         this.accountService.activeAccount$.pipe(map((a) => a?.id)),
       );
+
       this.organization$ = this.organizationService
         .organizations$(userId)
         .pipe(getOrganizationById(this.organizationId));
+
       this.policies = this.policyListService.getPolicies();
 
       await this.load();
@@ -100,16 +102,12 @@ export class PoliciesComponent implements OnInit {
     this.orgPolicies.forEach((op) => {
       this.policiesEnabledMap.set(op.type, op.enabled);
     });
-    this.isBreadcrumbingEnabled$ = this.organization$.pipe(
-      switchMap((organization) =>
-        this.organizationBillingService.isBreadcrumbingPoliciesEnabled$(organization),
-      ),
-    );
+
     this.loading = false;
   }
 
-  async edit(policy: BasePolicy) {
-    const dialogRef = PolicyEditComponent.open(this.dialogService, {
+  async edit(policy: BasePolicyEditDefinition) {
+    const dialogRef = PolicyEditDialogComponent.open(this.dialogService, {
       data: {
         policy: policy,
         organizationId: this.organizationId,
@@ -117,34 +115,8 @@ export class PoliciesComponent implements OnInit {
     });
 
     const result = await lastValueFrom(dialogRef.closed);
-    switch (result) {
-      case PolicyEditDialogResult.Saved:
-        await this.load();
-        break;
-      case PolicyEditDialogResult.UpgradePlan:
-        await this.changePlan(await firstValueFrom(this.organization$));
-        break;
+    if (result == "saved") {
+      await this.load();
     }
-  }
-
-  protected readonly CollectionDialogTabType = CollectionDialogTabType;
-  protected readonly All = All;
-
-  protected async changePlan(organization: Organization) {
-    const reference = openChangePlanDialog(this.dialogService, {
-      data: {
-        organizationId: organization.id,
-        subscription: null,
-        productTierType: organization.productTierType,
-      },
-    });
-
-    const result = await lastValueFrom(reference.closed);
-
-    if (result === ChangePlanDialogResultType.Closed) {
-      return;
-    }
-
-    await this.load();
   }
 }

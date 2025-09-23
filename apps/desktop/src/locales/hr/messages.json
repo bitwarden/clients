@@ -703,10 +703,10 @@
     "message": "Privitak spremljen"
   },
   "addAttachment": {
-    "message": "Add attachment"
+    "message": "Dodaj privitak"
   },
   "maxFileSizeSansPunctuation": {
-    "message": "Maximum file size is 500 MB"
+    "message": "Najveća veličina datoteke je 500 MB"
   },
   "file": {
     "message": "Datoteka"
@@ -959,9 +959,6 @@
   },
   "insertU2f": {
     "message": "Umetni svoj sigurnosni ključ u USB priključak računala. Ako ima tipku, dodirni ju."
-  },
-  "recoveryCodeDesc": {
-    "message": "Izgubljen je pristup uređaju za dvostruku autentifikaciju? Koristi svoj kôd za oporavak za onemogućavanje svih pružatelja usluga dvostruke autentifikacije na tvojem računu."
   },
   "recoveryCodeTitle": {
     "message": "Kôd za oporavak"
@@ -1305,11 +1302,8 @@
     "message": "Automatski očisti kopirane vrijednosti iz međuspremnika.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
-  "enableFavicon": {
-    "message": "Prikaži ikone mrežnih mjesta"
-  },
-  "faviconDesc": {
-    "message": "Prikaži prepoznatljivu sliku pored svake prijave."
+  "showIconsChangePasswordUrls": {
+    "message": "Prikaži ikonu web mjesta i dohvati URL za promjenu lozinke"
   },
   "enableMinToTray": {
     "message": "Minimiziraj u područje obavijesti"
@@ -3492,10 +3486,10 @@
     "message": "Odaberi zbirku"
   },
   "importTargetHintCollection": {
-    "message": "Select this option if you want the imported file contents moved to a collection"
+    "message": "Odaberi ovu opciju ako sadržaj uvezene datoteke želiš premjestiti u zbirku"
   },
   "importTargetHintFolder": {
-    "message": "Select this option if you want the imported file contents moved to a folder"
+    "message": "Odaberi ovu opciju ako sadržaj uvezene datoteke želiš premjestiti u mapu"
   },
   "importUnassignedItemsError": {
     "message": "Datoteka sadrži nedodijeljene stavke."
@@ -3590,6 +3584,12 @@
   },
   "awaitingSSODesc": {
     "message": "Prijavi se koristeći pristupne podatke svoje tvrtke."
+  },
+  "importDirectlyFromBrowser": {
+    "message": "Uvezi direktno iz preglednika"
+  },
+  "browserProfile": {
+    "message": "Profil preglednika"
   },
   "seeDetailedInstructions": {
     "message": "Detaljne upute za pomoć pronađi na našoj stranici za pomoć na",
@@ -3833,6 +3833,12 @@
   "changeAtRiskPassword": {
     "message": "Promijeni rizičnu lozinku"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Ova prijava je ugrožena i nedostaje joj web-stranica. Dodaj web-stranicu i promijeni lozinku za veću sigurnost."
+  },
+  "missingWebsite": {
+    "message": "Nedostaje web-stranica"
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "S dopuštenjima samo za prikaz ne možeš ukloniti zbirke: $COLLECTIONS$",
     "placeholders": {
@@ -3927,6 +3933,12 @@
     "message": "Saznaj više o SSH agentu",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "aboutThisSetting": {
+    "message": "O ovoj postavci"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden će koristiti spremljene URI-je za prijavu kako bi identificirao ikonu ili URL za promjenu lozinke koji treba koristiti za poboljšanje tvojeg iskustva. Nikakvi podaci se ne prikupljaju, niti spremaju kada koristiš ovu uslugu."
   },
   "assignToCollections": {
     "message": "Dodijeli zbirkama"
@@ -4075,7 +4087,25 @@
     "message": "Bitwarden ne provjerava lokacije unosa, prije korištenja prečaca provjeri da si u pravom prozoru i polju."
   },
   "moreBreadcrumbs": {
-    "message": "More breadcrumbs",
+    "message": "Više mrvica",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "next": {
+    "message": "Sljedeće"
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Potvrdi domenu kontektora ključa"
+  },
+  "confirm": {
+    "message": "Potvrdi"
+  },
+  "enableAutotypeTransitionKey": {
+    "message": "Omogući prečac za automatsko tipkanje"
+  },
+  "enableAutotypeDescriptionTransitionKey": {
+    "message": "Prije korištenja prečaca provjeri nalaziš li se u ispravnom polju kako se podaci ne bi unijeli na pogrešno mjesto."
+  },
+  "editShortcut": {
+    "message": "Uredi prečac"
   }
 }

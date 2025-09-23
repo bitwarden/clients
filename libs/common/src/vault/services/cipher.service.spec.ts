@@ -8,6 +8,7 @@ import { CipherResponse } from "@bitwarden/common/vault/models/response/cipher.r
 // eslint-disable-next-line no-restricted-imports
 import { CipherDecryptionKeys, KeyService } from "@bitwarden/key-management";
 import { MessageSender } from "@bitwarden/messaging";
+import { CipherListView } from "@bitwarden/sdk-internal";
 
 import { FakeAccountService, mockAccountServiceWith } from "../../../spec/fake-account-service";
 import { FakeStateProvider } from "../../../spec/fake-state-provider";
@@ -67,6 +68,7 @@ const cipherData: CipherData = {
   deletedDate: null,
   permissions: new CipherPermissionsApi(),
   key: "EncKey",
+  archivedDate: null,
   reprompt: CipherRepromptType.None,
   login: {
     uris: [
@@ -116,6 +118,12 @@ describe("Cipher Service", () => {
   beforeEach(() => {
     encryptService.encryptFileData.mockReturnValue(Promise.resolve(ENCRYPTED_BYTES));
     encryptService.encryptString.mockReturnValue(Promise.resolve(new EncString(ENCRYPTED_TEXT)));
+
+    // Mock i18nService collator
+    i18nService.collator = {
+      compare: jest.fn().mockImplementation((a: string, b: string) => a.localeCompare(b)),
+      resolvedOptions: jest.fn().mockReturnValue({}),
+    } as any;
 
     (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
 
@@ -731,6 +739,82 @@ describe("Cipher Service", () => {
         } as unknown as CipherView),
         userId,
       );
+    });
+  });
+
+  describe("decryptCiphers", () => {
+    let mockCiphers: Cipher[];
+    const cipher1_id = "11111111-1111-1111-1111-111111111111";
+    const cipher2_id = "22222222-2222-2222-2222-222222222222";
+
+    beforeEach(() => {
+      const originalUserKey = new SymmetricCryptoKey(new Uint8Array(32)) as UserKey;
+      const orgKey = new SymmetricCryptoKey(new Uint8Array(32)) as OrgKey;
+      const keys = {
+        userKey: originalUserKey,
+        orgKeys: { [orgId]: orgKey },
+      } as CipherDecryptionKeys;
+      keyService.cipherDecryptionKeys$.mockReturnValue(of(keys));
+
+      mockCiphers = [
+        new Cipher({ ...cipherData, id: cipher1_id }),
+        new Cipher({ ...cipherData, id: cipher2_id }),
+      ];
+
+      //// Mock the SDK response
+      cipherEncryptionService.decryptManyWithFailures.mockResolvedValue([
+        [{ id: mockCiphers[0].id, name: "Success 1" } as unknown as CipherListView],
+        [mockCiphers[1]], // Mock failed cipher
+      ]);
+    });
+
+    it("should use the SDK for decryption when SDK feature flag is enabled", async () => {
+      configService.getFeatureFlag
+        .calledWith(FeatureFlag.PM19941MigrateCipherDomainToSdk)
+        .mockResolvedValue(true);
+
+      // Set up expected results
+      const expectedSuccessCipherViews = [
+        { id: mockCiphers[0].id, name: "Success 1" } as unknown as CipherListView,
+      ];
+
+      const expectedFailedCipher = new CipherView(mockCiphers[1]);
+      expectedFailedCipher.name = "[error: cannot decrypt]";
+      expectedFailedCipher.decryptionFailure = true;
+      const expectedFailedCipherViews = [expectedFailedCipher];
+
+      // Execute
+      const [successes, failures] = await (cipherService as any).decryptCiphers(
+        mockCiphers,
+        userId,
+      );
+
+      // Verify the SDK was used for decryption
+      expect(cipherEncryptionService.decryptManyWithFailures).toHaveBeenCalledWith(
+        mockCiphers,
+        userId,
+      );
+
+      expect(successes).toEqual(expectedSuccessCipherViews);
+      expect(failures).toEqual(expectedFailedCipherViews);
+    });
+
+    it("should use legacy decryption when SDK feature flag is disabled", async () => {
+      configService.getFeatureFlag
+        .calledWith(FeatureFlag.PM19941MigrateCipherDomainToSdk)
+        .mockResolvedValue(false);
+
+      // Execute
+      const [successes, failures] = await (cipherService as any).decryptCiphers(
+        mockCiphers,
+        userId,
+      );
+
+      // Verify the SDK was not used for decryption
+      expect(cipherEncryptionService.decryptManyWithFailures).toHaveBeenCalledTimes(0);
+
+      expect(successes).toHaveLength(2);
+      expect(failures).toHaveLength(0);
     });
   });
 });

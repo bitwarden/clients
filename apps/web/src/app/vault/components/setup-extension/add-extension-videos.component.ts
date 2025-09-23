@@ -4,11 +4,12 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { debounceTime, fromEvent } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { DarkImageSourceDirective } from "@bitwarden/vault";
 
 @Component({
   selector: "vault-add-extension-videos",
   templateUrl: "./add-extension-videos.component.html",
-  imports: [CommonModule, JslibModule],
+  imports: [CommonModule, JslibModule, DarkImageSourceDirective],
 })
 export class AddExtensionVideosComponent {
   @ViewChildren("video", { read: ElementRef }) protected videoElements!: QueryList<

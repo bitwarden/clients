@@ -960,9 +960,6 @@
   "insertU2f": {
     "message": "Plaats je beveilingssleutel in de USB-poort van je computer. Als het een knop heeft, druk deze dan in."
   },
-  "recoveryCodeDesc": {
-    "message": "Ben je de toegang tot al je tweestapsaanbieders verloren? Gebruik dan je herstelcode om alle tweestapsaanbieders op je account uit te schakelen."
-  },
   "recoveryCodeTitle": {
     "message": "Herstelcode"
   },
@@ -1305,11 +1302,8 @@
     "message": "Gekopieerde waarden automatisch van het klembord wissen.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
-  "enableFavicon": {
-    "message": "Toon website-pictogrammen"
-  },
-  "faviconDesc": {
-    "message": "Een herkenbare afbeelding naast iedere login weergeven."
+  "showIconsChangePasswordUrls": {
+    "message": "Websitepictogrammen weergeven en URL's voor wachtwoordwijzigingen ophalen"
   },
   "enableMinToTray": {
     "message": "Minimaliseren naar systeemvak"
@@ -3591,6 +3585,12 @@
   "awaitingSSODesc": {
     "message": "Ga door met inloggen met de inloggegevens van je bedrijf."
   },
+  "importDirectlyFromBrowser": {
+    "message": "Import directly from browser"
+  },
+  "browserProfile": {
+    "message": "Browser Profile"
+  },
   "seeDetailedInstructions": {
     "message": "Zie gedetailleerde instructies op onze helpsite op",
     "description": "This is followed a by a hyperlink to the help website."
@@ -3833,6 +3833,12 @@
   "changeAtRiskPassword": {
     "message": "Risicovol wachtwoord wijzigen"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Deze login is in gevaar en mist een website. Voeg een website toe en verander het wachtwoord voor een sterkere beveiliging."
+  },
+  "missingWebsite": {
+    "message": "Ontbrekende website"
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "Je kunt verzamelingen niet verwijderen met alleen rechten voor weergeven: $COLLECTIONS$",
     "placeholders": {
@@ -3927,6 +3933,12 @@
     "message": "Meer informatie over SSH-agent",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "aboutThisSetting": {
+    "message": "Over deze instelling"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden gebruikt opgeslagen login-URI's om te bepalen welk pictogram of URL voor het wijzigen van het wachtwoord moet worden gebruikt om je ervaring te verbeteren. Er wordt geen informatie verzameld of opgeslagen wanneer je deze service gebruikt."
   },
   "assignToCollections": {
     "message": "Aan collecties toewijzen"
@@ -4077,5 +4089,23 @@
   "moreBreadcrumbs": {
     "message": "Meer broodkruimels",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "next": {
+    "message": "Volgende"
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Key Connector-domein bevestigen"
+  },
+  "confirm": {
+    "message": "Bevestigen"
+  },
+  "enableAutotypeTransitionKey": {
+    "message": "Snelkoppeling autotype inschakelen"
+  },
+  "enableAutotypeDescriptionTransitionKey": {
+    "message": "Zorg ervoor dat je je in het juiste veld bevindt voordat je de snelkoppeling gebruikt om te voorkomen dat je de gegevens op de verkeerde plaats invult."
+  },
+  "editShortcut": {
+    "message": "Snelkoppeling bewerken"
   }
 }
