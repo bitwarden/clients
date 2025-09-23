@@ -47,6 +47,7 @@ describe("DefaultSdkService", () => {
     let service!: DefaultSdkService;
     let accountService!: FakeAccountService;
     let fakeStateProvider!: FakeStateProvider;
+    let apiService!: MockProxy<ApiService>;
 
     beforeEach(async () => {
       await new TestSdkLoadService().loadAndInit();
