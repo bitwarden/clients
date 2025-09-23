@@ -17,10 +17,10 @@ export const FavoritesIcon = svgIcon`
 </g>
 <defs>
 <clipPath id="clip0_2211_2391">
-<rect width="96" height="96" class="tw-fill-text-alt2" transform="translate(0.5 0.400024)"/>
+<rect width="96" height="96" class="tw-fill-bg-tertiary" transform="translate(0.5 0.400024)"/>
 </clipPath>
 <clipPath id="clip1_2211_2391">
-<rect width="37.6674" height="20.0537" class="tw-fill-text-alt2" transform="matrix(0.86609 -0.499888 0.500112 0.86596 25.2179 45.5771)"/>
+<rect width="37.6674" height="20.0537" class="tw-fill-bg-tertiary" transform="matrix(0.86609 -0.499888 0.500112 0.86596 25.2179 45.5771)"/>
 </clipPath>
 </defs>
 </svg>`;
