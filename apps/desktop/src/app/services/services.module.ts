@@ -473,7 +473,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: DesktopAutotypeDefaultSettingPolicy,
     useClass: DesktopAutotypeDefaultSettingPolicy,
-    deps: [AccountServiceAbstraction, AuthServiceAbstraction, InternalPolicyService],
+    deps: [AccountServiceAbstraction, AuthServiceAbstraction, InternalPolicyService, ConfigService],
   }),
 ];
 

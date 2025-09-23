@@ -8,6 +8,8 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
 @Injectable({ providedIn: "root" })
 export class DesktopAutotypeDefaultSettingPolicy {
@@ -15,35 +17,46 @@ export class DesktopAutotypeDefaultSettingPolicy {
     private readonly accountService: AccountService,
     private readonly authService: AuthService,
     private readonly policyService: InternalPolicyService,
+    private readonly configService: ConfigService,
   ) {}
 
   /**
-   * Emits the autotype policy's enabled status (true | false | null) when unlocked.
+   * Emits the autotype policy enabled status (true | false | null) when account is unlocked and WindowsDesktopAutotype is enabled.
    * - true: autotype policy exists and is enabled
    * - false: autotype policy exists and is disabled
    * - null: no autotype policy exists for the user's organization
    */
-  readonly autotypeDefaultSetting$: Observable<boolean | null> =
-    this.accountService.activeAccount$.pipe(
-      filter((account) => account != null),
-      getUserId,
-      distinctUntilChanged(),
-      switchMap((userId) => {
-        const isUnlocked$ = this.authService.authStatusFor$(userId).pipe(
-          map((status) => status === AuthenticationStatus.Unlocked),
-          distinctUntilChanged(),
-        );
+  readonly autotypeDefaultSetting$: Observable<boolean | null> = this.configService
+    .getFeatureFlag$(FeatureFlag.WindowsDesktopAutotype)
+    .pipe(
+      switchMap((autotypeFeatureEnabled) => {
+        if (!autotypeFeatureEnabled) {
+          return NEVER;
+        }
 
-        const policy$ = this.policyService.policies$(userId).pipe(
-          map((policies) =>
-            policies.find((policy) => policy.type === PolicyType.AutotypeDefaultSetting),
-          ),
-          map((policy) => (policy ? policy.enabled : null)),
+        return this.accountService.activeAccount$.pipe(
+          filter((account) => account != null),
+          getUserId,
           distinctUntilChanged(),
-          shareReplay({ bufferSize: 1, refCount: true }),
-        );
+          switchMap((userId) => {
+            const isUnlocked$ = this.authService.authStatusFor$(userId).pipe(
+              map((status) => status === AuthenticationStatus.Unlocked),
+              distinctUntilChanged(),
+            );
 
-        return isUnlocked$.pipe(switchMap((unlocked) => (unlocked ? policy$ : NEVER)));
+            const policy$ = this.policyService.policies$(userId).pipe(
+              map(
+                (policies) =>
+                  policies.find((policy) => policy.type === PolicyType.AutotypeDefaultSetting)
+                    ?.enabled ?? null,
+              ),
+              distinctUntilChanged(),
+              shareReplay({ bufferSize: 1, refCount: true }),
+            );
+
+            return isUnlocked$.pipe(switchMap((unlocked) => (unlocked ? policy$ : NEVER)));
+          }),
+        );
       }),
       shareReplay({ bufferSize: 1, refCount: true }),
     );
