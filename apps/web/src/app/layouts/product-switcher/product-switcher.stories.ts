@@ -1,7 +1,7 @@
 import { Component, Directive, importProvidersFrom, Input } from "@angular/core";
 import { RouterModule } from "@angular/router";
 import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
-import { BehaviorSubject, firstValueFrom, Observable, of } from "rxjs";
+import { BehaviorSubject, Observable, of } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -47,8 +47,8 @@ class MockOrganizationService implements Partial<OrganizationService> {
 class MockProviderService implements Partial<ProviderService> {
   private static _providers = new BehaviorSubject<Provider[]>([]);
 
-  async getAll() {
-    return await firstValueFrom(MockProviderService._providers);
+  providers$() {
+    return MockProviderService._providers.asObservable();
   }
 
   @Input()
@@ -124,6 +124,7 @@ export default {
               switchProducts: "Switch Products",
               secureYourInfrastructure: "Secure your infrastructure",
               protectYourFamilyOrBusiness: "Protect your family or business",
+              loading: "Loading",
             });
           },
         },

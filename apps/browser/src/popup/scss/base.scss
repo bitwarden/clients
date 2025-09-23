@@ -372,10 +372,9 @@ header:not(bit-callout header, bit-dialog header, popup-page header) {
 }
 
 app-root {
-  position: absolute;
   width: 100%;
   height: 100%;
-  z-index: 980;
+
   @include themify($themes) {
     background-color: themed("backgroundColor");
   }
