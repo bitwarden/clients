@@ -314,7 +314,7 @@ describe("IntegrationCardComponent", () => {
 
       jest.spyOn(component, "isUpdateAvailable", "get").mockReturnValue(false);
 
-      mockIntegrationService.saveHec.mockResolvedValue(undefined);
+      mockIntegrationService.saveHec.mockResolvedValue({ mustBeOwner: false, success: true });
 
       await component.setupConnection();
 
