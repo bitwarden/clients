@@ -563,12 +563,6 @@ export class AutofillComponent implements OnInit {
 
             // Disable the entire select input
             this.additionalOptionsForm.controls.defaultUriMatch.disable({ emitEvent: false });
-
-            // Update dropdown options to show only the policy-enforced option as enabled
-            this.uriMatchOptions = this.uriMatchOptions.map((option) => ({
-              ...option,
-              disabled: option.value !== null && option.value !== defaultMatchType,
-            }));
           }
         } else {
           // No policy or policy disabled - restore normal behavior
