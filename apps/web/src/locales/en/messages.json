@@ -1471,6 +1471,15 @@
   "invalidMasterPassword": {
     "message": "Invalid master password"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "invalidFilePassword": {
     "message": "Invalid file password, please use the password you entered when you created the export file."
   },
