@@ -6,9 +6,7 @@ import {
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { DevicesServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices/devices.service.abstraction";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import {
   StateProvider,
@@ -69,9 +67,7 @@ export class VaultBannersService {
     private kdfConfigService: KdfConfigService,
     private syncService: SyncService,
     private userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
-    private devicesService: DevicesServiceAbstraction,
     private authRequestService: AuthRequestServiceAbstraction,
-    private configService: ConfigService,
   ) {}
 
   /** Returns true when the pending auth request banner should be shown */
