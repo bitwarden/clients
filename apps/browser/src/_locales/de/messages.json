@@ -1525,9 +1525,6 @@
   "selectTwoStepLoginMethod": {
     "message": "Zwei-Faktor-Authentifizierungsmethode auswählen"
   },
-  "recoveryCodeDesc": {
-    "message": "Zugang zu allen Zwei-Faktor Anbietern verloren? Benutze deinen Wiederherstellungscode, um alle Zwei-Faktor Anbieter in deinem Konto zu deaktivieren."
-  },
   "recoveryCodeTitle": {
     "message": "Wiederherstellungscode"
   },
@@ -1686,9 +1683,6 @@
   "defaultAutoFillOnPageLoadDesc": {
     "message": "Du kannst Auto-Ausfüllen beim Laden der Seite für einzelne Zugangsdaten-Einträge in der Bearbeiten-Ansicht des Eintrags deaktivieren."
   },
-  "itemAutoFillOnPageLoad": {
-    "message": "Auto-Ausfüllen beim Laden der Seite (wenn in Optionen aktiviert)"
-  },
   "autoFillOnPageLoadUseDefault": {
     "message": "Nutze Standardeinstellung"
   },
@@ -1760,17 +1754,8 @@
   "popup2faCloseMessage": {
     "message": "Dieses Pop-up Fenster wird geschlossen, wenn du außerhalb des Fensters klickst um in deinen E-Mails nach dem Verifizierungscode zu suchen. Möchtest du, dass dieses Pop-up in einem separaten Fenster geöffnet wird, damit es nicht geschlossen wird?"
   },
-  "popupU2fCloseMessage": {
-    "message": "Dieser Browser kann U2F-Anfragen in diesem Popup-Fenster nicht verarbeiten. Möchtest du dieses Popup in einem neuen Fenster öffnen, damit du dich mit U2F anmelden kannst?"
-  },
   "showIconsChangePasswordUrls": {
     "message": "Website Symbole anzeigen und URLs zum Ändern von Passwörtern abrufen"
-  },
-  "enableBadgeCounter": {
-    "message": "Badge-Zähler anzeigen"
-  },
-  "badgeCounterDesc": {
-    "message": "Zeigt an, wie viele Zugangsdaten du für die aktuelle Webseite besitzt."
   },
   "cardholderName": {
     "message": "Name des Karteninhabers"
@@ -1934,32 +1919,81 @@
   "typeNote": {
     "message": "Notiz"
   },
-  "newItemHeader": {
-    "message": "Neue $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderLogin": {
+    "message": "Neue Zugangsdaten",
+    "description": "Header for new login item type"
   },
-  "editItemHeader": {
-    "message": "$TYPE$ bearbeiten",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderCard": {
+    "message": "Neue Karte",
+    "description": "Header for new card item type"
   },
-  "viewItemHeader": {
-    "message": "$TYPE$ ansehen",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderIdentity": {
+    "message": "Neue Identität",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "Neue Notiz",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "Neuer SSH-Schlüssel",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderTextSend": {
+    "message": "Neuen Text senden",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "Neue Datei senden",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderLogin": {
+    "message": "Zugangsdaten bearbeiten",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Karte bearbeiten",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Identität bearbeiten",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Notiz bearbeiten",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "SSH-Schlüssel bearbeiten",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Textversand bearbeiten",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Dateiversand bearbeiten",
+    "description": "Header for edit file send"
+  },
+  "viewItemHeaderLogin": {
+    "message": "Zugangsdaten anzeigen",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "Karte anzeigen",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "Identität anzeigen",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "Notiz anzeigen",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "SSH-Schlüssel anzeigen",
+    "description": "Header for view SSH key item type"
   },
   "passwordHistory": {
     "message": "Passwortverlauf"
@@ -3521,9 +3555,6 @@
   "autofillPageLoadPolicyActivated": {
     "message": "Deine Organisationsrichtlinien haben das automatische Ausfüllen beim Laden der Seite aktiviert."
   },
-  "howToAutofill": {
-    "message": "So funktioniert automatisches Ausfüllen"
-  },
   "autofillSelectInfoWithCommand": {
     "message": "Wähle einen Eintrag von dieser Bildschirmseite, verwende das Tastaturkürzel $COMMAND$ oder entdecke andere Optionen in den Einstellungen.",
     "placeholders": {
@@ -3908,17 +3939,9 @@
   "aliasDomain": {
     "message": "Alias-Domain"
   },
-  "passwordRepromptDisabledAutofillOnPageLoad": {
-    "message": "Einträge, die eine erneuten Abfrage des Master-Passworts verlangen, können nicht beim Laden einer Seite automatisch ausgefüllt werden. Auto-Ausfüllen beim Laden einer Seite deaktiviert.",
-    "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
-  },
   "autofillOnPageLoadSetToDefault": {
     "message": "Auto-Ausfüllen beim Laden einer Seite wurde auf die Standardeinstellung gesetzt.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "turnOffMasterPasswordPromptToEditField": {
-    "message": "Deaktiviere die erneute Abfrage des Master-Passworts, um dieses Feld zu bearbeiten",
-    "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
   },
   "toggleSideNavigation": {
     "message": "Seitennavigation umschalten"
@@ -4188,9 +4211,6 @@
   },
   "passkeyNotCopiedAlert": {
     "message": "Der Passkey wird nicht in den duplizierten Eintrag kopiert. Möchtest du mit dem Duplizieren dieses Eintrags fortfahren?"
-  },
-  "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
-    "message": "Überprüfung durch die initiierende Website erforderlich. Diese Funktion ist noch nicht für Konten ohne Master-Passwort implementiert."
   },
   "logInWithPasskeyQuestion": {
     "message": "Mit Passkey anmelden?"
@@ -4877,9 +4897,6 @@
       }
     }
   },
-  "enableAnimations": {
-    "message": "Animationen aktivieren"
-  },
   "showAnimations": {
     "message": "Animationen anzeigen"
   },
@@ -5092,14 +5109,8 @@
   "itemLocation": {
     "message": "Eintrags-Standort"
   },
-  "fileSend": {
-    "message": "Datei-Send"
-  },
   "fileSends": {
     "message": "Datei-Sends"
-  },
-  "textSend": {
-    "message": "Text-Send"
   },
   "textSends": {
     "message": "Text-Sends"
@@ -5160,9 +5171,6 @@
   },
   "vaultCustomTimeoutMinimum": {
     "message": "Das minimal benutzerdefinierte Timeout beträgt 1 Minute."
-  },
-  "additionalContentAvailable": {
-    "message": "Zusätzlicher Inhalt ist verfügbar"
   },
   "fileSavedToDevice": {
     "message": "Datei auf Gerät gespeichert. Greife darauf über die Downloads deines Geräts zu."
@@ -5502,6 +5510,18 @@
   },
   "hasItemsVaultNudgeTitle": {
     "message": "Willkommen in deinem Tresor!"
+  },
+  "phishingPageTitle": {
+    "message": "Phishing website"
+  },
+  "phishingPageCloseTab": {
+    "message": "Close tab"
+  },
+  "phishingPageContinue": {
+    "message": "Continue"
+  },
+  "phishingPageLearnWhy": {
+    "message": "Why are you seeing this?"
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Einträge für die aktuelle Seite automatisch ausfüllen"

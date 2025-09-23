@@ -17,7 +17,7 @@ export const PopupWidthOptions = Object.freeze({
 type PopupWidthOptions = typeof PopupWidthOptions;
 export type PopupWidthOption = keyof PopupWidthOptions;
 
-class BrowserPopupUtils {
+export default class BrowserPopupUtils {
   /**
    * Identifies if the popup is within the sidebar.
    *
@@ -288,5 +288,3 @@ class BrowserPopupUtils {
     return parsedUrl.toString();
   }
 }
-
-export default BrowserPopupUtils;

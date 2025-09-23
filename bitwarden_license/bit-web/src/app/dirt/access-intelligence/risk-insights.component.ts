@@ -10,11 +10,11 @@ import {
   CriticalAppsService,
   RiskInsightsDataService,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights";
+import { PasswordHealthReportApplicationsResponse } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/api-models.types";
 import {
   ApplicationHealthReportDetail,
   DrawerType,
-  PasswordHealthReportApplicationsResponse,
-} from "@bitwarden/bit-common/dirt/reports/risk-insights/models/password-health";
+} from "@bitwarden/bit-common/dirt/reports/risk-insights/models/report-models";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
