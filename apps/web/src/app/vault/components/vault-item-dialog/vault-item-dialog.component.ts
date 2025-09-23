@@ -452,7 +452,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     const canAccessAttachments = await firstValueFrom(this.canAccessAttachments$);
 
     if (!canAccessAttachments) {
-      await this.premiumUpgradeService.promptForPremium();
+      await this.premiumUpgradeService.promptForPremium(this.cipher?.organizationId);
       return;
     }
 
