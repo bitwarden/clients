@@ -38,6 +38,7 @@ import {
   EmptyTrash,
   FavoritesIcon,
   ItemTypes,
+  Icon,
 } from "@bitwarden/assets/svg";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
@@ -140,6 +141,16 @@ import { VaultOnboardingComponent } from "./vault-onboarding/vault-onboarding.co
 
 const BroadcasterSubscriptionId = "VaultComponent";
 
+type EmptyStateType = "trash" | "favorites" | "archive";
+
+type EmptyStateItem = {
+  title: string;
+  description: string;
+  icon: Icon;
+};
+
+type EmptyStateMap = Record<EmptyStateType, EmptyStateItem>;
+
 @Component({
   selector: "app-vault",
   templateUrl: "vault.component.html",
@@ -231,7 +242,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         };
       }
 
-      const emptyStateMap: any = {
+      const emptyStateMap: EmptyStateMap = {
         trash: {
           title: "noItemsInTrash",
           description: "noItemsInTrashDesc",
@@ -249,10 +260,9 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         },
       };
 
-      const hasFilterType = emptyStateMap[filter?.type];
-      if (hasFilterType) {
+      if (filter?.type && filter.type in emptyStateMap) {
         this.showAddCipherBtn = false;
-        return hasFilterType;
+        return emptyStateMap[filter.type as EmptyStateType];
       }
 
       this.showAddCipherBtn = true;
