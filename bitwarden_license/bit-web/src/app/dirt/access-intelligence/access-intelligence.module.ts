@@ -5,6 +5,8 @@ import { CriticalAppsService } from "@bitwarden/bit-common/dirt/reports/risk-ins
 import {
   CriticalAppsApiService,
   MemberCipherDetailsApiService,
+  PasswordHealthService,
+  RiskInsightsApiService,
   RiskInsightsDataService,
   RiskInsightsReportService,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights/services";
@@ -28,12 +30,23 @@ import { RiskInsightsComponent } from "./risk-insights.component";
       deps: [ApiService],
     },
     {
+      provide: PasswordHealthService,
+      deps: [PasswordStrengthServiceAbstraction, AuditService],
+    },
+    {
+      provide: RiskInsightsApiService,
+      deps: [ApiService],
+    },
+    {
       provide: RiskInsightsReportService,
       deps: [
         PasswordStrengthServiceAbstraction,
         AuditService,
         CipherService,
         MemberCipherDetailsApiService,
+        RiskInsightsApiService,
+        RiskInsightsEncryptionService,
+        PasswordHealthService,
       ],
     },
     {
