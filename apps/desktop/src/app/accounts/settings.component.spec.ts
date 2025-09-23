@@ -182,6 +182,7 @@ describe("SettingsComponent", () => {
     pinServiceAbstraction.isPinSet.mockResolvedValue(false);
     policyService.policiesByType$.mockReturnValue(of([null]));
     desktopAutotypeService.resolvedAutotypeEnabled$ = of(false);
+    desktopAutotypeService.autotypeEnabledUserSetting$ = of(false);
     billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(false));
     configService.getFeatureFlag$.mockReturnValue(of(true));
   });
