@@ -187,11 +187,9 @@ export class UriOptionComponent implements ControlValueAccessor {
         takeUntilDestroyed(),
       )
       .subscribe();
-
-    this.applyUriMatchPolicy();
   }
 
-  applyUriMatchPolicy() {
+  applyUriMatchPolicy(existingMatchDetection?: UriMatchStrategySetting | null) {
     this.accountService.activeAccount$
       .pipe(
         getUserId,
@@ -203,19 +201,15 @@ export class UriOptionComponent implements ControlValueAccessor {
       )
       .subscribe((policy) => {
         if (policy?.enabled && policy.data?.defaultMatchType !== undefined) {
-          // Ensure we have a valid match type before setting
           const defaultMatchType = policy.data.defaultMatchType;
 
-          // Only set if it's a valid UriMatchStrategy value
           if (Object.values(UriMatchStrategy).includes(defaultMatchType)) {
+            // Update the "Default" label to show what policy sets
             this.defaultMatchDetection = defaultMatchType;
 
-            // Optionally disable user override if policy enforces it
-            if (policy.data?.restrictUserSelection) {
-              this.uriMatchOptions = this.uriMatchOptions.map((option) => ({
-                ...option,
-                disabled: option.value !== null && option.value !== defaultMatchType,
-              }));
+            // Only set to policy default if not previously set by user
+            if (existingMatchDetection === null || existingMatchDetection === undefined) {
+              this.uriForm.controls.matchDetection.setValue(null, { emitEvent: false });
             }
           }
         }
@@ -265,6 +259,7 @@ export class UriOptionComponent implements ControlValueAccessor {
         { emitEvent: false },
       );
     }
+    this.applyUriMatchPolicy(value?.matchDetection);
   }
 
   registerOnChange(fn: () => void): void {
