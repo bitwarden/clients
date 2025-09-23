@@ -12,7 +12,7 @@ export class DesktopAutotypeDefaultSettingPolicy extends BasePolicyEditDefinitio
   name = "desktopAutotypePolicy";
   description = "desktopAutotypePolicyDesc";
   type = PolicyType.AutotypeDefaultSetting;
-  component = AutotypeDefaultSettingPolicyComponent;
+  component = DesktopAutotypeDefaultSettingPolicyComponent;
 
   display$(organization: Organization, configService: ConfigService) {
     return configService.getFeatureFlag$(FeatureFlag.WindowsDesktopAutotype);
@@ -22,4 +22,4 @@ export class DesktopAutotypeDefaultSettingPolicy extends BasePolicyEditDefinitio
   templateUrl: "autotype-policy.component.html",
   imports: [SharedModule],
 })
-export class AutotypeDefaultSettingPolicyComponent extends BasePolicyEditComponent {}
+export class DesktopAutotypeDefaultSettingPolicyComponent extends BasePolicyEditComponent {}
