@@ -768,7 +768,6 @@ const safeProviders: SafeProvider[] = [
       VaultTimeoutSettingsService,
       AccountService,
       HTTP_OPERATIONS,
-      StateProvider,
     ],
   }),
   safeProvider({

@@ -764,7 +764,6 @@ export default class MainBackground {
       this.vaultTimeoutSettingsService,
       this.accountService,
       { createRequest: (url, request) => new Request(url, request) },
-      this.stateProvider,
     );
 
     this.hibpApiService = new HibpApiService(this.apiService);
