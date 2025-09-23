@@ -44,7 +44,7 @@ export class BannerComponent implements OnInit {
   @Output() onClose = new EventEmitter<void>();
 
   ngOnInit(): void {
-    if (!this.icon() && this.icon() != null) {
+    if (!this.icon() && this.icon() !== null) {
       this.icon.set(defaultIcon[this.bannerType()]);
     }
   }
