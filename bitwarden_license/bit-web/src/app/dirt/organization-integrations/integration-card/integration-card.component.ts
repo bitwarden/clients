@@ -193,14 +193,24 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
       );
     } else {
       // create new integration and configuration
-      await this.hecOrganizationIntegrationService.saveHec(
+      const saveResponse = await this.hecOrganizationIntegrationService.saveHec(
         this.organizationId,
         this.integrationSettings.name as OrganizationIntegrationServiceType,
         result.url,
         result.bearerToken,
         result.index,
       );
+
+      if (saveResponse.mustBeOwner) {
+        this.toastService.showToast({
+          variant: "error",
+          title: "",
+          message: this.i18nService.t("mustBeOrgOwnerToPerformAction"),
+        });
+        return;
+      }
     }
+
     this.toastService.showToast({
       variant: "success",
       title: "",
