@@ -31,3 +31,5 @@ export { SshImportPromptService } from "./services/ssh-import-prompt.service";
 
 export * from "./abstractions/change-login-password.service";
 export * from "./services/default-change-login-password.service";
+export * from "./abstractions/cipher-archive.service";
+export * from "./services/default-cipher-archive.service";
