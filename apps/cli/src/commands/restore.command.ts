@@ -2,6 +2,8 @@ import { firstValueFrom } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
@@ -17,6 +19,7 @@ export class RestoreCommand {
     private accountService: AccountService,
     private cipherAuthorizationService: CipherAuthorizationService,
     private cipherArchiveService: CipherArchiveService,
+    private configService: ConfigService,
   ) {}
 
   async run(object: string, id: string): Promise<Response> {
@@ -35,12 +38,15 @@ export class RestoreCommand {
   private async restoreCipher(id: string) {
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const cipher = await this.cipherService.get(id, activeUserId);
+    const isArchivedVaultEnabled = await firstValueFrom(
+      this.configService.getFeatureFlag$(FeatureFlag.PM19148_InnovationArchive),
+    );
 
     if (cipher == null) {
       return Response.notFound();
     }
 
-    if (cipher.archivedDate) {
+    if (cipher.archivedDate && isArchivedVaultEnabled) {
       return this.restoreArchivedCipher(cipher, activeUserId);
     } else {
       return this.restoreDeletedCipher(cipher, activeUserId);

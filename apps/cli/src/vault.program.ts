@@ -2,6 +2,8 @@
 // @ts-strict-ignore
 import { program, Command } from "commander";
 
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+
 import { ConfirmCommand } from "./admin-console/commands/confirm.command";
 import { ShareCommand } from "./admin-console/commands/share.command";
 import { BaseProgram } from "./base-program";
@@ -20,20 +22,27 @@ import { DeleteCommand } from "./vault/delete.command";
 const writeLn = CliUtils.writeLn;
 
 export class VaultProgram extends BaseProgram {
-  register() {
+  async register() {
+    const isArchivedEnabled = await this.serviceContainer.configService.getFeatureFlag(
+      FeatureFlag.PM19148_InnovationArchive,
+    );
+
     program
-      .addCommand(this.listCommand())
+      .addCommand(this.listCommand(isArchivedEnabled))
       .addCommand(this.getCommand())
       .addCommand(this.createCommand())
       .addCommand(this.editCommand())
       .addCommand(this.deleteCommand())
-      .addCommand(this.archiveCommand())
-      .addCommand(this.restoreCommand())
+      .addCommand(this.restoreCommand(isArchivedEnabled))
       .addCommand(this.shareCommand("move", false))
       .addCommand(this.confirmCommand())
       .addCommand(this.importCommand())
       .addCommand(this.exportCommand())
       .addCommand(this.shareCommand("share", true));
+
+    if (isArchivedEnabled) {
+      program.addCommand(this.archiveCommand());
+    }
   }
 
   private validateObject(requestedObject: string, validObjects: string[]): boolean {
@@ -53,7 +62,7 @@ export class VaultProgram extends BaseProgram {
     return success;
   }
 
-  private listCommand(): Command {
+  private listCommand(isArchivedEnabled: boolean): Command {
     const listObjects = [
       "items",
       "folders",
@@ -63,7 +72,7 @@ export class VaultProgram extends BaseProgram {
       "organizations",
     ];
 
-    return new Command("list")
+    const command = new Command("list")
       .argument("<object>", "Valid objects are: " + listObjects.join(", "))
       .description("List an array of objects from the vault.")
       .option("--search <search>", "Perform a search on the listed objects.")
@@ -75,7 +84,6 @@ export class VaultProgram extends BaseProgram {
         "Filter items or collections by organization id.",
       )
       .option("--trash", "Filter items that are deleted and in the trash.")
-      .option("--archived", "Filter items that are archived.")
       .on("--help", () => {
         writeLn("\n  Notes:");
         writeLn("");
@@ -97,6 +105,9 @@ export class VaultProgram extends BaseProgram {
           "    bw list items --folderid 60556c31-e649-4b5d-8daf-fc1c391a1bf2 --organizationid notnull",
         );
         writeLn("    bw list items --trash");
+        if (isArchivedEnabled) {
+          writeLn("    bw list items --archived");
+        }
         writeLn("    bw list folders --search email");
         writeLn("    bw list org-members --organizationid 60556c31-e649-4b5d-8daf-fc1c391a1bf2");
         writeLn("", true);
@@ -125,6 +136,12 @@ export class VaultProgram extends BaseProgram {
 
         this.processResponse(response);
       });
+
+    if (isArchivedEnabled) {
+      command.option("--archived", "Filter items that are archived.");
+    }
+
+    return command;
   }
 
   private getCommand(): Command {
@@ -371,12 +388,11 @@ export class VaultProgram extends BaseProgram {
       });
   }
 
-  private restoreCommand(): Command {
+  private restoreCommand(isArchivedEnabled: boolean): Command {
     const restoreObjects = ["item"];
-    return new Command("restore")
+    const command = new Command("restore")
       .argument("<object>", "Valid objects are: " + restoreObjects.join(", "))
       .argument("<id>", "Object's globally unique `id`.")
-      .description("Restores an object from the trash or archive.")
       .on("--help", () => {
         writeLn("\n  Examples:");
         writeLn("");
@@ -394,10 +410,19 @@ export class VaultProgram extends BaseProgram {
           this.serviceContainer.accountService,
           this.serviceContainer.cipherAuthorizationService,
           this.serviceContainer.cipherArchiveService,
+          this.serviceContainer.configService,
         );
         const response = await command.run(object, id);
         this.processResponse(response);
       });
+
+    if (isArchivedEnabled) {
+      command.description("Restores an object from the trash or archive.");
+    } else {
+      command.description("Restores an object from the trash.");
+    }
+
+    return command;
   }
 
   private shareCommand(commandName: string, deprecated: boolean): Command {

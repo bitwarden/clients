@@ -5,6 +5,8 @@ import * as koaRouter from "@koa/router";
 import * as koa from "koa";
 import { firstValueFrom, map } from "rxjs";
 
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+
 import { ConfirmCommand } from "./admin-console/commands/confirm.command";
 import { ShareCommand } from "./admin-console/commands/share.command";
 import { LockCommand } from "./auth/commands/lock.command";
@@ -152,6 +154,7 @@ export class OssServeConfigurator {
       this.serviceContainer.accountService,
       this.serviceContainer.cipherAuthorizationService,
       this.serviceContainer.cipherArchiveService,
+      this.serviceContainer.configService,
     );
     this.shareCommand = new ShareCommand(
       this.serviceContainer.cipherService,
@@ -211,7 +214,7 @@ export class OssServeConfigurator {
     );
   }
 
-  configureRouter(router: koaRouter) {
+  async configureRouter(router: koaRouter) {
     router.get("/generate", async (ctx, next) => {
       const response = await this.generateCommand.run(ctx.request.query);
       this.processResponse(ctx.response, response);
@@ -414,16 +417,22 @@ export class OssServeConfigurator {
       await next();
     });
 
-    router.post("/archive/:object/:id", async (ctx, next) => {
-      if (await this.errorIfLocked(ctx.response)) {
+    const isArchivedEnabled = await this.serviceContainer.configService.getFeatureFlag(
+      FeatureFlag.PM19148_InnovationArchive,
+    );
+
+    if (isArchivedEnabled) {
+      router.post("/archive/:object/:id", async (ctx, next) => {
+        if (await this.errorIfLocked(ctx.response)) {
+          await next();
+          return;
+        }
+        let response: Response = null;
+        response = await this.archiveCommand.run(ctx.params.object, ctx.params.id);
+        this.processResponse(ctx.response, response);
         await next();
-        return;
-      }
-      let response: Response = null;
-      response = await this.archiveCommand.run(ctx.params.object, ctx.params.id);
-      this.processResponse(ctx.response, response);
-      await next();
-    });
+      });
+    }
   }
 
   protected processResponse(res: koa.Response, commandResponse: Response) {
