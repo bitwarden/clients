@@ -26,6 +26,9 @@ import {
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
 import { SpotlightComponent } from "@bitwarden/angular/vault/components/spotlight/spotlight.component";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { PolicyType } from "@bitwarden/common/admin-console/enums/policy-type.enum";
+import { getFirstPolicy } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import {
@@ -140,6 +143,9 @@ export class AutofillComponent implements OnInit {
     defaultUriMatch: new FormControl(),
   });
 
+  protected isDefaultUriMatchDisabledByPolicy = false;
+  protected uriMatchPolicyHint: string | null = null;
+
   advancedOptionWarningMap: Partial<Record<UriMatchStrategySetting, string>>;
   enableAutofillOnPageLoad: boolean = false;
   enableInlineMenu: boolean = false;
@@ -174,6 +180,7 @@ export class AutofillComponent implements OnInit {
     private accountService: AccountService,
     private autofillBrowserSettingsService: AutofillBrowserSettingsService,
     private restrictedItemTypesService: RestrictedItemTypesService,
+    private policyService: PolicyService,
   ) {
     this.autofillOnPageLoadOptions = [
       { name: this.i18nService.t("autoFillOnPageLoadYes"), value: true },
@@ -309,6 +316,8 @@ export class AutofillComponent implements OnInit {
     this.additionalOptionsForm.controls.defaultUriMatch.patchValue(this.defaultUriMatch, {
       emitEvent: false,
     });
+
+    this.applyUriMatchPolicy();
 
     this.additionalOptionsForm.controls.enableContextMenuItem.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -523,6 +532,58 @@ export class AutofillComponent implements OnInit {
     this.defaultBrowserAutofillDisabled = true;
     await this.updateDefaultBrowserAutofillDisabled();
   };
+
+  private applyUriMatchPolicy() {
+    this.accountService.activeAccount$
+      .pipe(
+        getUserId,
+        switchMap((userId) =>
+          this.policyService.policiesByType$(PolicyType.UriMatchDefaults, userId),
+        ),
+        getFirstPolicy,
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((policy) => {
+        if (policy?.enabled && policy.data?.defaultMatchType !== undefined) {
+          const defaultMatchType = policy.data.defaultMatchType;
+
+          if (Object.values(UriMatchStrategy).includes(defaultMatchType)) {
+            // Set the policy-enforced default and select it
+            this.defaultUriMatch = defaultMatchType;
+            this.additionalOptionsForm.controls.defaultUriMatch.patchValue(defaultMatchType, {
+              emitEvent: false,
+            });
+            // Apply to domain settings service
+            void this.domainSettingsService.setDefaultUriMatchStrategy(defaultMatchType);
+
+            this.isDefaultUriMatchDisabledByPolicy = true;
+
+            // Add hint to inform user why it's disabled
+            this.uriMatchPolicyHint = this.i18nService.t("settingDisabledByPolicy");
+
+            // Disable the entire select input
+            this.additionalOptionsForm.controls.defaultUriMatch.disable({ emitEvent: false });
+
+            // Update dropdown options to show only the policy-enforced option as enabled
+            this.uriMatchOptions = this.uriMatchOptions.map((option) => ({
+              ...option,
+              disabled: option.value !== null && option.value !== defaultMatchType,
+            }));
+          }
+        } else {
+          // No policy or policy disabled - restore normal behavior
+          this.isDefaultUriMatchDisabledByPolicy = false;
+          this.uriMatchPolicyHint = null;
+          this.additionalOptionsForm.controls.defaultUriMatch.enable({ emitEvent: false });
+
+          // Restore original options
+          this.uriMatchOptions = this.uriMatchOptions.map((option) => ({
+            ...option,
+            disabled: option.value === null, // Only the separator remains disabled
+          }));
+        }
+      });
+  }
 
   private async handleAdvancedMatch(
     previous: UriMatchStrategySetting | null,
