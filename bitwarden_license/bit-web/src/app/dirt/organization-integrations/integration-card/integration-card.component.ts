@@ -123,7 +123,8 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
   }
 
   showConnectedBadge(): boolean {
-    return this.canSetupConnection ?? false;
+    return true;
+    // return this.canSetupConnection ?? false;
   }
 
   get isUpdateAvailable(): boolean {

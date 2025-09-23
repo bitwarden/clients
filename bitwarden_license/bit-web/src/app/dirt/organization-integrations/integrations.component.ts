@@ -29,7 +29,7 @@ import { FilterIntegrationsPipe } from "./integrations.pipe";
 export class AdminConsoleIntegrationsComponent implements OnInit, OnDestroy {
   tabIndex: number = 0;
   organization$: Observable<Organization> = new Observable<Organization>();
-  isEventBasedIntegrationsEnabled: boolean = false;
+  isEventBasedIntegrationsEnabled: boolean = true;
   private destroy$ = new Subject<void>();
 
   // initialize the integrations list with default integrations
@@ -242,7 +242,7 @@ export class AdminConsoleIntegrationsComponent implements OnInit, OnDestroy {
       .getFeatureFlag$(FeatureFlag.EventBasedOrganizationIntegrations)
       .pipe(takeUntil(this.destroy$))
       .subscribe((isEnabled) => {
-        this.isEventBasedIntegrationsEnabled = isEnabled;
+        this.isEventBasedIntegrationsEnabled = true;
       });
 
     // Add the new event based items to the list
@@ -257,6 +257,18 @@ export class AdminConsoleIntegrationsComponent implements OnInit, OnDestroy {
       };
 
       this.integrationsList.push(crowdstrikeIntegration);
+
+      const datadogIntegration: Integration = {
+        name: OrganizationIntegrationServiceType.Datadog,
+        // TODO: Update link when help article is published
+        linkURL: "https://bitwarden.com/help/non-native-siem/",
+        image: "../../../../../../../images/integrations/logo-datadog-color.svg",
+        type: IntegrationType.EVENT,
+        description: "datadogEventIntegrationDesc",
+        canSetupConnection: true,
+      };
+
+      this.integrationsList.push(datadogIntegration);
     }
 
     // For all existing event based configurations loop through and assign the
