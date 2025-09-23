@@ -9,7 +9,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { UserId } from "@bitwarden/user-core";
-import { CipherArchiveService } from "@bitwarden/vault/abstractions/cipher-archive.service";
+import { CipherArchiveService } from "@bitwarden/vault/services";
 
 import { Response } from "../models/response";
 

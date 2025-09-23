@@ -177,8 +177,7 @@ import {
   DefaultStateService,
 } from "@bitwarden/state-internal";
 import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
-import { CipherArchiveService } from "@bitwarden/vault/abstractions/cipher-archive.service";
-import { DefaultCipherArchiveService } from "@bitwarden/vault/services/default-cipher-archive.service";
+import { CipherArchiveService, DefaultCipherArchiveService } from "@bitwarden/vault/services";
 import {
   IndividualVaultExportService,
   IndividualVaultExportServiceAbstraction,
