@@ -14,17 +14,22 @@ import {
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 
-import { getDefaultPositions, ALLOWED_TOOLTIP_POSITION_IDS } from "../utils/default-positions";
+import {
+  getDefaultPositions,
+  ALLOWED_TOOLTIP_POSITION_IDS,
+  DefaultPosition,
+} from "../utils/default-positions";
 
 import { TooltipComponent } from "./tooltip.component";
 
+type AllowedTooltipPosition = (typeof ALLOWED_TOOLTIP_POSITION_IDS)[number];
 @Directive({
   selector: "[bitTooltip]",
   standalone: true,
 })
 export class TooltipDirective implements OnInit {
-  readonly bitTooltip = input.required<string>();
-  readonly tooltipPosition = input("above-center");
+  readonly bitTooltip = input<string>();
+  readonly tooltipPosition = input<AllowedTooltipPosition>("above-center");
 
   private overlayRef: OverlayRef | undefined;
   private elementRef = inject(ElementRef);
@@ -60,9 +65,9 @@ export class TooltipDirective implements OnInit {
     this.hideTooltip();
   }
 
-  private computePositions(tooltipPosition: string) {
-    const allowedPositions = getDefaultPositions("bit-tooltip", 10).filter((position) =>
-      ALLOWED_TOOLTIP_POSITION_IDS.includes(position.id),
+  private computePositions(tooltipPosition: AllowedTooltipPosition) {
+    const allowedPositions = getDefaultPositions("bit-tooltip", 10).filter(
+      (position: DefaultPosition) => ALLOWED_TOOLTIP_POSITION_IDS.includes(position.id),
     );
     const chosenPosition = allowedPositions.find((position) => position.id === tooltipPosition);
     return chosenPosition ? [chosenPosition, ...allowedPositions] : allowedPositions;
@@ -93,10 +98,24 @@ export class TooltipDirective implements OnInit {
     };
   }
 
+  setContent(text: string) {
+    if (!this.tooltipRef) {
+      return;
+    }
+
+    this.tooltipRef.setInput("content", text ?? "");
+  }
+
+  setPreferredPosition(position: (typeof ALLOWED_TOOLTIP_POSITION_IDS)[number]) {
+    const positions = this.computePositions(position);
+    this.positionStrategy.withPositions(positions);
+    this.overlayRef?.updatePosition();
+    this.tooltipRef?.setInput("tooltipPosition", position);
+  }
+
   constructor() {
     this.positionStrategy.positionChanges.pipe(takeUntilDestroyed()).subscribe((change) => {
       const connectionPair = change.connectionPair as ConnectionPositionPair & { id: string };
-
       this.tooltipRef?.setInput("tooltipPosition", connectionPair.id);
     });
   }
@@ -110,15 +129,21 @@ export class TooltipDirective implements OnInit {
     });
 
     this.tooltipRef = this.overlayRef.attach(this.tooltipPortal);
-    this.tooltipRef.setInput("content", this.bitTooltip());
 
     effect(
       () => {
-        const preferredPosition = this.tooltipPosition();
-        const positions = this.computePositions(preferredPosition);
-        this.positionStrategy.withPositions(positions);
-        this.overlayRef?.updatePosition();
-        this.tooltipRef?.setInput("tooltipPosition", preferredPosition);
+        if (this.bitTooltip()) {
+          this.setContent(this.bitTooltip());
+        }
+      },
+      { injector: this.injector },
+    );
+
+    effect(
+      () => {
+        if (this.tooltipPosition()) {
+          this.setPreferredPosition(this.tooltipPosition());
+        }
       },
       { injector: this.injector },
     );

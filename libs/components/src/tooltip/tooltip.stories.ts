@@ -15,10 +15,10 @@ import { formatArgsForCodeSnippet } from ".storybook/format-args-for-code-snippe
 
 export default {
   title: "Component Library/Tooltip",
-  component: TooltipDirective,
+  component: TooltipComponent,
   decorators: [
     moduleMetadata({
-      imports: [TooltipDirective, TooltipComponent, BitIconButtonComponent, ButtonComponent],
+      imports: [TooltipComponent, BitIconButtonComponent, ButtonComponent],
     }),
   ],
   parameters: {
@@ -61,7 +61,6 @@ export const Default: Story = {
 
 export const BasicUsage: Story = {
   args: {
-    bitTooltip: "This is a tooltip",
     tooltipPosition: "above-center",
   },
   render: (args) => ({
@@ -70,6 +69,7 @@ export const BasicUsage: Story = {
       <div class="tw-p-4">
         <button
           bitIconButton="bwi-ellipsis-v"
+          label="More options"
           ${formatArgsForCodeSnippet<TooltipDirective>(args)}
         >
           Button label here
@@ -85,22 +85,22 @@ export const AllPositions: Story = {
       <div class="tw-p-16 tw-grid tw-grid-cols-2 tw-gap-8 tw-place-items-center">
         <button
           bitIconButton="bwi-angle-up"
-          bitTooltip="Top tooltip"
+          label="Top tooltip"
           tooltipPosition="above-center"
         ></button>
         <button
           bitIconButton="bwi-angle-right"
-          bitTooltip="Right tooltip"
+          label="Right tooltip"
           tooltipPosition="right-center"
         ></button>
         <button
           bitIconButton="bwi-angle-left"
-          bitTooltip="Left tooltip"
+          label="Left tooltip"
           tooltipPosition="left-center"
         ></button>
         <button
           bitIconButton="bwi-angle-down"
-          bitTooltip="Bottom tooltip"
+          label="Bottom tooltip"
           tooltipPosition="below-center"
         ></button>
       </div>
@@ -114,7 +114,7 @@ export const LongContent: Story = {
       <div class="tw-p-16 tw-flex tw-items-center tw-justify-center">
         <button
           bitIconButton="bwi-ellipsis-v"
-          bitTooltip="This is a very long tooltip that will wrap to multiple lines to demonstrate how the tooltip handles long content. This is not recommended for usability."
+          label="This is a very long tooltip that will wrap to multiple lines to demonstrate how the tooltip handles long content. This is not recommended for usability."
         ></button>
       </div>
     `,
