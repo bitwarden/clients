@@ -29,7 +29,7 @@ import { FilterIntegrationsPipe } from "./integrations.pipe";
 export class AdminConsoleIntegrationsComponent implements OnInit, OnDestroy {
   tabIndex: number = 0;
   organization$: Observable<Organization> = new Observable<Organization>();
-  isEventBasedIntegrationsEnabled: boolean = true;
+  isEventBasedIntegrationsEnabled: boolean = false;
   private destroy$ = new Subject<void>();
 
   // initialize the integrations list with default integrations
@@ -242,7 +242,7 @@ export class AdminConsoleIntegrationsComponent implements OnInit, OnDestroy {
       .getFeatureFlag$(FeatureFlag.EventBasedOrganizationIntegrations)
       .pipe(takeUntil(this.destroy$))
       .subscribe((isEnabled) => {
-        this.isEventBasedIntegrationsEnabled = true;
+        this.isEventBasedIntegrationsEnabled = isEnabled;
       });
 
     // Add the new event based items to the list
