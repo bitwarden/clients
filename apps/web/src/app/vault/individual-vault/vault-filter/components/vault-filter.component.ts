@@ -17,7 +17,6 @@ import { getFirstPolicy } from "@bitwarden/common/admin-console/services/policy/
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -25,6 +24,7 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { DialogService, ToastService } from "@bitwarden/components";
+import { CipherArchiveService } from "@bitwarden/vault";
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 
 import { VaultFilterService } from "../services/abstractions/vault-filter.service";
@@ -112,6 +112,9 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     if (this.activeFilter.isDeleted) {
       return "searchTrash";
     }
+    if (this.activeFilter.isArchived) {
+      return "searchArchive";
+    }
     if (this.activeFilter.cipherType === CipherType.Login) {
       return "searchLogin";
     }
@@ -153,10 +156,10 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     protected toastService: ToastService,
     protected billingApiService: BillingApiServiceAbstraction,
     protected dialogService: DialogService,
-    protected configService: ConfigService,
     protected accountService: AccountService,
     protected restrictedItemTypesService: RestrictedItemTypesService,
     protected cipherService: CipherService,
+    protected cipherArchiveService: CipherArchiveService,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -248,11 +251,18 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
   };
 
   async buildAllFilters(): Promise<VaultFilterList> {
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const builderFilter = {} as VaultFilterList;
     builderFilter.organizationFilter = await this.addOrganizationFilter();
     builderFilter.typeFilter = await this.addTypeFilter();
     builderFilter.folderFilter = await this.addFolderFilter();
     builderFilter.collectionFilter = await this.addCollectionFilter();
+    if (
+      (await firstValueFrom(this.cipherArchiveService.userCanArchive$(userId))) ||
+      (await firstValueFrom(this.cipherArchiveService.showArchiveVault$(userId)))
+    ) {
+      builderFilter.archiveFilter = await this.addArchiveFilter();
+    }
     builderFilter.trashFilter = await this.addTrashFilter();
     return builderFilter;
   }
@@ -336,9 +346,7 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
           .map((r) => r.cipherType);
 
         const toExclude = [...excludeTypes, ...restrictedForUser];
-        return this.allTypeFilters.filter(
-          (f) => typeof f.type === "string" || !toExclude.includes(f.type),
-        );
+        return this.allTypeFilters.filter((f) => !toExclude.includes(f.type));
       }),
       switchMap((allowed) => this.vaultFilterService.buildTypeTree(allFilter, allowed)),
       distinctUntilChanged(),
@@ -411,5 +419,32 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
       action: this.applyTypeFilter as (filterNode: TreeNode<VaultFilterType>) => Promise<void>,
     };
     return trashFilterSection;
+  }
+
+  protected async addArchiveFilter(): Promise<VaultFilterSection> {
+    const archiveFilterSection: VaultFilterSection = {
+      data$: this.vaultFilterService.buildTypeTree(
+        {
+          id: "headArchive",
+          name: "HeadArchive",
+          type: "archive",
+          icon: "bwi-archive",
+        },
+        [
+          {
+            id: "archive",
+            name: this.i18nService.t("archive"),
+            type: "archive",
+            icon: "bwi-archive",
+          },
+        ],
+      ),
+      header: {
+        showHeader: false,
+        isSelectable: true,
+      },
+      action: this.applyTypeFilter as (filterNode: TreeNode<VaultFilterType>) => Promise<void>,
+    };
+    return archiveFilterSection;
   }
 }

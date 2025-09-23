@@ -292,6 +292,7 @@ import { DefaultTaskService, TaskService } from "@bitwarden/common/vault/tasks";
 import {
   AnonLayoutWrapperDataService,
   DefaultAnonLayoutWrapperDataService,
+  DialogService,
   ToastService,
 } from "@bitwarden/components";
 import {
@@ -340,7 +341,11 @@ import {
 import { SafeInjectionToken } from "@bitwarden/ui-common";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { PasswordRepromptService } from "@bitwarden/vault";
+import {
+  CipherArchiveService,
+  DefaultCipherArchiveService,
+  PasswordRepromptService,
+} from "@bitwarden/vault";
 import {
   IndividualVaultExportService,
   IndividualVaultExportServiceAbstraction,
@@ -872,7 +877,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: SsoLoginServiceAbstraction,
     useClass: SsoLoginService,
-    deps: [StateProvider, LogService],
+    deps: [StateProvider, LogService, PolicyServiceAbstraction],
   }),
   safeProvider({
     provide: StateServiceAbstraction,
@@ -1556,7 +1561,14 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: LoginSuccessHandlerService,
     useClass: DefaultLoginSuccessHandlerService,
-    deps: [SyncService, UserAsymmetricKeysRegenerationService, LoginEmailService],
+    deps: [
+      ConfigService,
+      LoginEmailService,
+      SsoLoginServiceAbstraction,
+      SyncService,
+      UserAsymmetricKeysRegenerationService,
+      LogService,
+    ],
   }),
   safeProvider({
     provide: TaskService,
@@ -1618,6 +1630,18 @@ const safeProviders: SafeProvider[] = [
       KeyService,
       MasterPasswordApiServiceAbstraction,
       InternalMasterPasswordServiceAbstraction,
+    ],
+  }),
+  safeProvider({
+    provide: CipherArchiveService,
+    useClass: DefaultCipherArchiveService,
+    deps: [
+      CipherServiceAbstraction,
+      ApiServiceAbstraction,
+      DialogService,
+      PasswordRepromptService,
+      BillingAccountProfileStateService,
+      ConfigService,
     ],
   }),
 ];

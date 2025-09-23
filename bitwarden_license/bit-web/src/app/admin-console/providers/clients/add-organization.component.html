@@ -11,7 +11,14 @@
             {{ o.name }}
           </td>
           <td bitCell>
-            <button type="button" bitButton [bitAction]="add(o)" class="tw-float-right">Add</button>
+            <button
+              type="button"
+              bitButton
+              [bitAction]="add(o, provider$ | async)"
+              class="tw-float-right"
+            >
+              Add
+            </button>
           </td>
         </tr>
       </ng-template>
