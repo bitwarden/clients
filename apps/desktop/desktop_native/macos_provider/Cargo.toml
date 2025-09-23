@@ -21,6 +21,7 @@ serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
 tokio = { workspace = true, features = ["sync"] }
 tokio-util = { workspace = true }
+tracing = { workspace = true }
 uniffi = { workspace = true, features = ["cli"] }
 
 [target.'cfg(target_os = "macos")'.dependencies]
@@ -28,3 +29,6 @@ oslog = { workspace = true }
 
 [build-dependencies]
 uniffi = { workspace = true, features = ["build"] }
+
+[lints]
+workspace = true

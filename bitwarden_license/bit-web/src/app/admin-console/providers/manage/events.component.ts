@@ -2,10 +2,14 @@
 // @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
+import { firstValueFrom, switchMap } from "rxjs";
 
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EventResponse } from "@bitwarden/common/models/response/event.response";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -41,6 +45,8 @@ export class EventsComponent extends BaseEventsComponent implements OnInit {
     private userNamePipe: UserNamePipe,
     fileDownloadService: FileDownloadService,
     toastService: ToastService,
+    accountService: AccountService,
+    organizationService: OrganizationService,
   ) {
     super(
       eventService,
@@ -50,6 +56,9 @@ export class EventsComponent extends BaseEventsComponent implements OnInit {
       logService,
       fileDownloadService,
       toastService,
+      route,
+      accountService,
+      organizationService,
     );
   }
 
@@ -57,7 +66,13 @@ export class EventsComponent extends BaseEventsComponent implements OnInit {
     // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
     this.route.parent.parent.params.subscribe(async (params) => {
       this.providerId = params.providerId;
-      const provider = await this.providerService.get(this.providerId);
+      const provider = await firstValueFrom(
+        this.accountService.activeAccount$.pipe(
+          getUserId,
+          switchMap((userId) => this.providerService.get$(this.providerId, userId)),
+        ),
+      );
+
       if (provider == null || !provider.useEvents) {
         // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -69,6 +84,7 @@ export class EventsComponent extends BaseEventsComponent implements OnInit {
   }
 
   async load() {
+    this.initBase();
     const response = await this.apiService.getProviderUsers(this.providerId);
     response.data.forEach((u) => {
       const name = this.userNamePipe.transform(u);

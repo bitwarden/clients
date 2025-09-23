@@ -1,7 +1,7 @@
 import { Component, effect, input } from "@angular/core";
 import { DomSanitizer, SafeHtml } from "@angular/platform-browser";
 
-import { Icon, isIcon } from "./icon";
+import { Icon, isIcon } from "@bitwarden/assets/svg";
 
 @Component({
   selector: "bit-icon",
@@ -9,6 +9,7 @@ import { Icon, isIcon } from "./icon";
     "[attr.aria-hidden]": "!ariaLabel()",
     "[attr.aria-label]": "ariaLabel()",
     "[innerHtml]": "innerHtml",
+    class: "tw-max-h-full tw-flex tw-justify-center",
   },
   template: ``,
 })

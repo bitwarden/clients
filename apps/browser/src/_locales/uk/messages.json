@@ -556,6 +556,9 @@
   "view": {
     "message": "Переглянути"
   },
+  "viewLogin": {
+    "message": "View login"
+  },
   "noItemsInList": {
     "message": "Немає записів."
   },
@@ -1522,9 +1525,6 @@
   "selectTwoStepLoginMethod": {
     "message": "Виберіть спосіб двоетапної перевірки"
   },
-  "recoveryCodeDesc": {
-    "message": "Втратили доступ до всіх провайдерів двоетапної перевірки? Скористайтеся кодом відновлення, щоб вимкнути двоетапну перевірку для свого облікового запису."
-  },
   "recoveryCodeTitle": {
     "message": "Код відновлення"
   },
@@ -1683,9 +1683,6 @@
   "defaultAutoFillOnPageLoadDesc": {
     "message": "Ви можете вимкнути цю функцію для окремих записів входу в меню запису \"Змінити\"."
   },
-  "itemAutoFillOnPageLoad": {
-    "message": "Автозаповнення на сторінці (якщо увімкнено в налаштуваннях)"
-  },
   "autoFillOnPageLoadUseDefault": {
     "message": "Типове налаштування"
   },
@@ -1757,23 +1754,8 @@
   "popup2faCloseMessage": {
     "message": "Натискання поза межами спливаючого вікна для перевірки коду підтвердження в пошті спричинить його закриття. Хочете відкрити його в новому вікні, щоб воно не закрилося?"
   },
-  "popupU2fCloseMessage": {
-    "message": "Цей браузер не може обробити U2F запити в цьому виринаючому вікні. Хочете відкрити його у новому вікні, щоб ви змогли увійти з використанням U2F?"
-  },
-  "enableFavicon": {
-    "message": "Показувати піктограми вебсайтів"
-  },
-  "faviconDesc": {
-    "message": "Показувати зображення біля кожного запису."
-  },
-  "faviconDescAlt": {
-    "message": "Показувати зображення поруч з кожним записом. Застосовується для всіх облікових записів, до яких виконано вхід."
-  },
-  "enableBadgeCounter": {
-    "message": "Показувати лічильник"
-  },
-  "badgeCounterDesc": {
-    "message": "Показувати індикатор кількості записів для поточної вебсторінки."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "cardholderName": {
     "message": "Ім'я власника картки"
@@ -1937,32 +1919,81 @@
   "typeNote": {
     "message": "Нотатка"
   },
-  "newItemHeader": {
-    "message": "Новий $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderLogin": {
+    "message": "New Login",
+    "description": "Header for new login item type"
   },
-  "editItemHeader": {
-    "message": "Редагувати $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderCard": {
+    "message": "New Card",
+    "description": "Header for new card item type"
   },
-  "viewItemHeader": {
-    "message": "Переглянути $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderIdentity": {
+    "message": "New Identity",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "New Note",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "New SSH key",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderTextSend": {
+    "message": "New Text Send",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "New File Send",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderLogin": {
+    "message": "Edit Login",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Edit Card",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Edit Identity",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Edit Note",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "Edit SSH key",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Edit Text Send",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Edit File Send",
+    "description": "Header for edit file send"
+  },
+  "viewItemHeaderLogin": {
+    "message": "View Login",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "View Card",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "View Identity",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "View Note",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "View SSH key",
+    "description": "Header for view SSH key item type"
   },
   "passwordHistory": {
     "message": "Історія паролів"
@@ -3524,9 +3555,6 @@
   "autofillPageLoadPolicyActivated": {
     "message": "Політикою вашої організації було увімкнено автозаповнення на сторінці."
   },
-  "howToAutofill": {
-    "message": "Як працює автозаповнення"
-  },
   "autofillSelectInfoWithCommand": {
     "message": "Виберіть об'єкт із цього екрану, скористайтеся комбінацією клавіш $COMMAND$, або дізнайтеся про інші можливості в налаштуваннях.",
     "placeholders": {
@@ -3656,25 +3684,6 @@
   },
   "thisRequestIsNoLongerValid": {
     "message": "Цей запит більше недійсний."
-  },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Ви намагаєтесь отримати доступ до свого облікового запису?"
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Підтверджено вхід для $EMAIL$ на $DEVICE$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Ви відхилили спробу входу з іншого пристрою. Якщо це були дійсно ви, спробуйте ввійти з пристроєм знову."
   },
   "loginRequestHasAlreadyExpired": {
     "message": "Термін дії запиту на вхід завершився."
@@ -3930,17 +3939,9 @@
   "aliasDomain": {
     "message": "Псевдонім домену"
   },
-  "passwordRepromptDisabledAutofillOnPageLoad": {
-    "message": "Записи з повторним запитом головного пароля не можна автоматично заповнювати під час завантаження сторінки. Автозаповнення на сторінці вимкнено.",
-    "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
-  },
   "autofillOnPageLoadSetToDefault": {
     "message": "Автозаповнення на сторінці налаштовано з типовими параметрами.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "turnOffMasterPasswordPromptToEditField": {
-    "message": "Вимкніть повторний запит головного пароля, щоб редагувати це поле",
-    "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
   },
   "toggleSideNavigation": {
     "message": "Перемкнути бічну навігацію"
@@ -4150,15 +4151,11 @@
   "selectImportCollection": {
     "message": "Вибрати збірку"
   },
-  "importTargetHint": {
-    "message": "Оберіть цю опцію, якщо ви хочете, щоб вміст імпортованого файлу було збережено в $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Оберіть цю опцію, якщо ви хочете, щоб вміст імпортованого файлу було збережено до збірки"
+  },
+  "importTargetHintFolder": {
+    "message": "Оберіть цю опцію, якщо ви хочете, щоб вміст імпортованого файлу було збережено до теки"
   },
   "importUnassignedItemsError": {
     "message": "Файл містить непризначені записи."
@@ -4214,9 +4211,6 @@
   },
   "passkeyNotCopiedAlert": {
     "message": "Ключ доступу не буде скопійовано до клонованого запису. Хочете продовжити клонування цього запису?"
-  },
-  "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
-    "message": "Сайт ініціює обов'язкову верифікацію. Ця функція ще не реалізована для облікових записів без головного пароля."
   },
   "logInWithPasskeyQuestion": {
     "message": "Увійти з ключем доступу?"
@@ -4903,9 +4897,6 @@
       }
     }
   },
-  "enableAnimations": {
-    "message": "Увімкнути анімацію"
-  },
   "showAnimations": {
     "message": "Показати анімації"
   },
@@ -5118,14 +5109,8 @@
   "itemLocation": {
     "message": "Розташування запису"
   },
-  "fileSend": {
-    "message": "Відправлення файлу"
-  },
   "fileSends": {
     "message": "Відправлення файлів"
-  },
-  "textSend": {
-    "message": "Відправлення тексту"
   },
   "textSends": {
     "message": "Відправлення тексту"
@@ -5135,6 +5120,18 @@
   },
   "showNumberOfAutofillSuggestions": {
     "message": "Показувати кількість пропозицій автозаповнення на піктограмі розширення"
+  },
+  "accountAccessRequested": {
+    "message": "Запитано доступ до облікового запису"
+  },
+  "confirmAccessAttempt": {
+    "message": "Підтвердити спробу доступу для $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
   },
   "showQuickCopyActions": {
     "message": "Показати дії швидкого копіювання у сховищі"
@@ -5174,9 +5171,6 @@
   },
   "vaultCustomTimeoutMinimum": {
     "message": "Мінімальний власний час очікування – 1 хвилина."
-  },
-  "additionalContentAvailable": {
-    "message": "Доступний додатковий вміст"
   },
   "fileSavedToDevice": {
     "message": "Файл збережено на пристрої. Ви можете його знайти у теці завантажень."
@@ -5463,6 +5457,12 @@
   "changeAtRiskPassword": {
     "message": "Змінити ризикований пароль"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
+  },
   "settingsVaultOptions": {
     "message": "Параметри сховища"
   },
@@ -5510,6 +5510,18 @@
   },
   "hasItemsVaultNudgeTitle": {
     "message": "Вітаємо у вашому сховищі!"
+  },
+  "phishingPageTitle": {
+    "message": "Phishing website"
+  },
+  "phishingPageCloseTab": {
+    "message": "Close tab"
+  },
+  "phishingPageContinue": {
+    "message": "Continue"
+  },
+  "phishingPageLearnWhy": {
+    "message": "Why are you seeing this?"
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Автозаповнення записів для поточної сторінки"
@@ -5586,11 +5598,33 @@
     "message": "Легко створюйте надійні та унікальні паролі, натиснувши кнопку Генерувати пароль, щоб зберегти свої записи в безпеці.",
     "description": "Aria label for the body content of the generator nudge"
   },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+  },
   "noPermissionsViewPage": {
     "message": "У вас немає дозволу переглядати цю сторінку. Спробуйте ввійти з іншим обліковим записом."
   },
   "wasmNotSupported": {
     "message": "WebAssembly не підтримується або не ввімкнено у вашому браузері. WebAssembly є обов'язковою вимогою для програми Bitwarden.",
     "description": "'WebAssembly' is a technical term and should not be translated."
+  },
+  "showMore": {
+    "message": "Розгорнути"
+  },
+  "showLess": {
+    "message": "Згорнути"
+  },
+  "next": {
+    "message": "Далі"
+  },
+  "moreBreadcrumbs": {
+    "message": "Інші елементи",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Confirm Key Connector domain"
   }
 }

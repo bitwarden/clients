@@ -2,6 +2,9 @@
   "allApplications": {
     "message": "すべてのアプリ"
   },
+  "activity": {
+    "message": "Activity"
+  },
   "appLogoLabel": {
     "message": "Bitwarden logo"
   },
@@ -56,8 +59,20 @@
   "createNewLoginItem": {
     "message": "新しいログインアイテムを作成"
   },
+  "criticalApplicationsActivityDescription": {
+    "message": "Once you mark applications critical, they will display here."
+  },
   "criticalApplicationsWithCount": {
     "message": "特に重要なアプリ ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfCriticalApplications": {
+    "message": "$COUNT$ critical applications",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -86,14 +101,14 @@
   "noAppsInOrgDescription": {
     "message": "ユーザーがログイン情報を保存すると、アプリがここに表示され、リスクの高いパスワードがあれば表示されます。特に重要なアプリはマークして、パスワードを更新するようにユーザーに通知しましょう。"
   },
-  "noCriticalAppsTitle": {
-    "message": "重要なアプリとしてマークしたものがありません"
+  "noCriticalApplicationsTitle": {
+    "message": "You haven’t marked any applications as critical"
   },
-  "noCriticalAppsDescription": {
-    "message": "特に重要なアプリケーションを選択して、危険なパスワードを発見し、ユーザーにパスワードを変更するよう通知しましょう。"
+  "noCriticalApplicationsDescription": {
+    "message": "Select your most critical applications to prioritize security actions for your users to address at-risk passwords."
   },
-  "markCriticalApps": {
-    "message": "重要なアプリをマークする"
+  "markCriticalApplications": {
+    "message": "Select critical applications"
   },
   "markAppAsCritical": {
     "message": "重要なアプリとしてマーク"
@@ -118,6 +133,18 @@
   },
   "atRiskMembers": {
     "message": "リスクがあるメンバー"
+  },
+  "membersAtRiskActivityDescription": {
+    "message": "Members with edit access to at-risk items for critical applications"
+  },
+  "membersAtRisk": {
+    "message": "$COUNT$ members at risk",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "atRiskMembersWithCount": {
     "message": "危険な状態のメンバー ($COUNT$)",
@@ -176,11 +203,11 @@
   "totalApplications": {
     "message": "合計アプリ数"
   },
-  "unmarkAsCriticalApp": {
-    "message": "重要なアプリとしてのマークを解除"
+  "unmarkAsCritical": {
+    "message": "Unmark as critical"
   },
-  "criticalApplicationSuccessfullyUnmarked": {
-    "message": "重要なアプリケーションのマークを解除しました"
+  "criticalApplicationUnmarkedSuccessfully": {
+    "message": "Successfully unmarked application as critical"
   },
   "whatTypeOfItem": {
     "message": "このアイテムのタイプは何ですか？"
@@ -734,32 +761,81 @@
   "viewItem": {
     "message": "アイテムの表示"
   },
-  "newItemHeader": {
-    "message": "$TYPE$ を新規作成",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderLogin": {
+    "message": "New Login",
+    "description": "Header for new login item type"
   },
-  "editItemHeader": {
-    "message": "$TYPE$ を編集",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderCard": {
+    "message": "New Card",
+    "description": "Header for new card item type"
   },
-  "viewItemType": {
-    "message": "$ITEMTYPE$ を表示",
-    "placeholders": {
-      "itemtype": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderIdentity": {
+    "message": "New Identity",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "New Note",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "New SSH key",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderTextSend": {
+    "message": "New Text Send",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "New File Send",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderLogin": {
+    "message": "Edit Login",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Edit Card",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Edit Identity",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Edit Note",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "Edit SSH key",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Edit Text Send",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Edit File Send",
+    "description": "Header for edit file send"
+  },
+  "viewItemHeaderLogin": {
+    "message": "View Login",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "View Card",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "View Identity",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "View Note",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "View SSH key",
+    "description": "Header for view SSH key item type"
   },
   "new": {
     "message": "新規作成",
@@ -866,6 +942,15 @@
   },
   "copyLicenseNumber": {
     "message": "免許証番号をコピー"
+  },
+  "copyPrivateKey": {
+    "message": "Copy private key"
+  },
+  "copyPublicKey": {
+    "message": "Copy public key"
+  },
+  "copyFingerprint": {
+    "message": "Copy fingerprint"
   },
   "copyName": {
     "message": "名前をコピー"
@@ -1428,9 +1513,6 @@
   "notificationSentDevicePart1": {
     "message": "デバイスまたは"
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "アカウントにアクセスしようとしていますか？"
-  },
   "accessAttemptBy": {
     "message": "$EMAIL$ によるログインの試行",
     "placeholders": {
@@ -1504,11 +1586,11 @@
   "selectTwoStepLoginMethod": {
     "message": "2段階認証の方法を選択"
   },
-  "recoveryCodeDesc": {
-    "message": "すべての2段階認証プロパイダにアクセスできなくなったときは、リカバリーコードを使用するとアカウントの2段階認証を無効化できます。"
-  },
   "recoveryCodeTitle": {
     "message": "リカバリーコード"
+  },
+  "invalidRecoveryCode": {
+    "message": "Invalid recovery code"
   },
   "authenticatorAppTitle": {
     "message": "認証アプリ"
@@ -2053,15 +2135,11 @@
   "selectImportCollection": {
     "message": "コレクションを選択"
   },
-  "importTargetHint": {
-    "message": "インポートしたファイルコンテンツを $DESTINATION$ に移動したい場合は、このオプションを選択してください。",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Select this option if you want the imported file contents moved to a collection"
+  },
+  "importTargetHintFolder": {
+    "message": "Select this option if you want the imported file contents moved to a folder"
   },
   "importUnassignedItemsError": {
     "message": "割り当てられていないアイテムがファイルに含まれています。"
@@ -2109,11 +2187,8 @@
   "languageDesc": {
     "message": "ウェブ保管庫で使用する言語を変更します。"
   },
-  "enableFavicon": {
-    "message": "ウェブサイトのアイコンを表示"
-  },
-  "faviconDesc": {
-    "message": "ログイン情報の隣にアイコン画像を表示します"
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "default": {
     "message": "デフォルト"
@@ -2453,9 +2528,6 @@
   },
   "twoFactorU2fProblemReadingTryAgain": {
     "message": "セキュリティキーの読み取り中に問題が発生しました。もう一度やり直して下さい。"
-  },
-  "twoFactorWebAuthnWarning1": {
-    "message": "プラットフォームの制限により、 WebAuthn は全ての Bitwarden アプリケーションで使用できるわけではありません。 WebAuthn が使用できない場合に備えて、他の2段階認証プロバイダーを設定しておくことをおすすめします。"
   },
   "twoFactorRecoveryYourCode": {
     "message": "二段階認証のリカバリーコード"
@@ -2826,6 +2898,12 @@
         "example": "'month' or 'year'"
       }
     }
+  },
+  "showPricingSummary": {
+    "message": "Show pricing summary"
+  },
+  "hidePricingSummary": {
+    "message": "Hide pricing summary"
   },
   "summary": {
     "message": "概要"
@@ -3976,22 +4054,6 @@
   },
   "thisRequestIsNoLongerValid": {
     "message": "このリクエストは無効になりました。"
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "$EMAIL$ に $DEVICE$ でのログインを承認しました",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "別のデバイスからのログイン試行を拒否しました。本当にあなたであった場合は、もう一度デバイスでログインしてみてください。"
   },
   "loginRequestApprovedForEmailOnDevice": {
     "message": "Login request approved for $EMAIL$ on $DEVICE$",
@@ -5284,6 +5346,14 @@
   "downloadAttachments": {
     "message": "添付ファイルをダウンロード"
   },
+  "sendAccessPasswordTitle": {
+    "message": "Enter the password to view this Send",
+    "description": "Title of the Send password authentication screen."
+  },
+  "sendAccessContentTitle": {
+    "message": "View Send",
+    "description": "Title of the Send view content screen."
+  },
   "sendAccessUnavailable": {
     "message": "アクセスしようとしているSendは存在しないか、利用できません。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5443,6 +5513,37 @@
   },
   "organizationDataOwnership": {
     "message": "Enforce organization data ownership"
+  },
+  "organizationDataOwnershipDesc": {
+    "message": "Require all items to be owned by an organization, removing the option to store items at the account level.",
+    "description": "This is the policy description shown in the policy list."
+  },
+  "organizationDataOwnershipContent": {
+    "message": "All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection be available for each member to store items. Learn more about managing the ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection be available for each member to store items. Learn more about managing the credential lifecycle.'"
+  },
+  "organizationDataOwnershipContentAnchor": {
+    "message": "credential lifecycle",
+    "description": "This will be used as a hyperlink"
+  },
+  "organizationDataOwnershipWarningTitle": {
+    "message": "Are you sure you want to proceed?"
+  },
+  "organizationDataOwnershipWarning1": {
+    "message": "will remain accessible to members"
+  },
+  "organizationDataOwnershipWarning2": {
+    "message": "will not be automatically selected when creating new items"
+  },
+  "organizationDataOwnershipWarning3": {
+    "message": "cannot be managed from the Admin Console until the user is offboarded"
+  },
+  "organizationDataOwnershipWarningContentTop": {
+    "message": "By turning this policy off, the default collection: "
+  },
+  "organizationDataOwnershipWarningContentBottom": {
+    "message": "Learn more about the ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about the credential lifecycle.'"
   },
   "personalOwnership": {
     "message": "個別の保管庫を削除"
@@ -7009,6 +7110,12 @@
   "unknownCipher": {
     "message": "不明なアイテムです。このアイテムにアクセスするには別のアカウントでログインする必要があります。"
   },
+  "unknownSecret": {
+    "message": "Unknown secret, you may need to request permission to access this secret."
+  },
+  "unknownProject": {
+    "message": "Unknown project, you may need to request permission to access this project."
+  },
   "cannotSponsorSelf": {
     "message": "有効なアカウントと引き換えることはできません。別のメールアドレスを入力してください。"
   },
@@ -7395,6 +7502,9 @@
   },
   "off": {
     "message": "オフ"
+  },
+  "connected": {
+    "message": "Connected"
   },
   "members": {
     "message": "メンバー"
@@ -8332,10 +8442,82 @@
       }
     }
   },
+  "permanentlyDeletedSecretWithId": {
+    "message": "Permanently deleted a secret with identifier: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "restoredSecretWithId": {
+    "message": "Restored a secret with identifier: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
   "createdSecretWithId": {
     "message": "Created a new secret with identifier: $SECRET_ID$",
     "placeholders": {
       "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "accessedProjectWithId": {
+    "message": "Accessed a project with Id: $PROJECT_ID$.",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "nameUnavailableProjectDeleted": {
+    "message": "Deleted project Id: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "nameUnavailableSecretDeleted": {
+    "message": "Deleted secret Id: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "editedProjectWithId": {
+    "message": "Edited a project with identifier: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "deletedProjectWithId": {
+    "message": "Deleted a project with identifier: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "createdProjectWithId": {
+    "message": "Created a new project with identifier: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
         "content": "$1",
         "example": "4d34e8a8"
       }
@@ -8829,20 +9011,25 @@
   "collectionManagement": {
     "message": "コレクション管理"
   },
-  "collectionManagementDesc": {
-    "message": "組織のコレクションに関する挙動を管理します"
+  "collectionManagementDescription": {
+    "message": "Configure the collection behavior for the organization"
   },
-  "limitCollectionCreationDesc": {
-    "message": "コレクションの作成を所有者と管理者のみに制限"
+  "allowAdminAccessToAllCollectionItemsDescription": {
+    "message": "Allow owners and admins to manage all collections and items from the Admin Console"
   },
-  "limitCollectionDeletionDesc": {
-    "message": "コレクションの削除を所有者と管理者のみに制限"
+  "restrictCollectionCreationDescription": {
+    "message": "Restrict collection creation to owners and admins"
   },
-  "limitItemDeletionDescription": {
-    "message": "Limit item deletion to members with the Manage collection permissions"
+  "restrictCollectionDeletionDescription": {
+    "message": "Restrict collection deletion to owners and admins"
   },
-  "allowAdminAccessToAllCollectionItemsDesc": {
-    "message": "所有者と管理者はすべてのコレクションとアイテムを管理できます"
+  "restrictItemDeletionDescriptionStart": {
+    "message": "Restrict item deletion to members with the ",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
+  },
+  "restrictItemDeletionDescriptionEnd": {
+    "message": " permission",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
   },
   "updatedCollectionManagement": {
     "message": "コレクション管理設定を更新しました"
@@ -8913,6 +9100,78 @@
   },
   "modifiedCollectionManagement": {
     "message": "コレクション管理設定 $ID$ を変更しました。",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationEnabled": {
+    "message": "Turned on Restrict collection creation setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationDisabled": {
+    "message": "Turned off Restrict collection creation setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionEnabled": {
+    "message": "Turned on Restrict collection deletion setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionDisabled": {
+    "message": "Turned off Restrict collection deletion setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionEnabled": {
+    "message": "Turned on Restrict item deletion setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionDisabled": {
+    "message": "Turned off Restrict item deletion setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsEnabled": {
+    "message": "Turned on Allow owners and admins to manage all collections and items setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsDisabled": {
+    "message": "Turned off Allow owners and admins to manage all collections and items setting $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -9480,6 +9739,9 @@
   "failedToSaveIntegration": {
     "message": "Failed to save integration. Please try again later."
   },
+  "failedToDeleteIntegration": {
+    "message": "Failed to delete integration. Please try again later."
+  },
   "deviceIdMissing": {
     "message": "Device ID is missing"
   },
@@ -9497,6 +9759,15 @@
   },
   "connectIntegrationButtonDesc": {
     "message": "Connect $INTEGRATION$",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
+  },
+  "updateIntegrationButtonDesc": {
+    "message": "Update $INTEGRATION$",
     "placeholders": {
       "integration": {
         "content": "$1",
@@ -9566,6 +9837,9 @@
   },
   "bearerToken": {
     "message": "Bearer Token"
+  },
+  "repositoryNameHint": {
+    "message": "Name of the repository to ingest into"
   },
   "index": {
     "message": "Index"
@@ -10015,14 +10289,8 @@
   "learnMoreAboutApi": {
     "message": "Bitwarden API の詳細"
   },
-  "fileSend": {
-    "message": "File Send"
-  },
   "fileSends": {
     "message": "ファイル Send"
-  },
-  "textSend": {
-    "message": "Text Send"
   },
   "textSends": {
     "message": "テキスト Send"
@@ -10710,6 +10978,12 @@
   "changeAtRiskPassword": {
     "message": "危険なパスワードの変更"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
+  },
   "removeUnlockWithPinPolicyTitle": {
     "message": "PINによるロック解除を削除"
   },
@@ -10724,6 +10998,9 @@
   },
   "upgradeEventLogMessage": {
     "message": "These events are examples only and do not reflect real events within your Bitwarden organization."
+  },
+  "viewEvents": {
+    "message": "View Events"
   },
   "cannotCreateCollection": {
     "message": "無料版の組織ではコレクションは 2 つまでです。さらにコレクションを追加するには有料プランにアップグレードしてください。"
@@ -10882,6 +11159,12 @@
     "message": "Billing address required to add credit.",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+  },
   "billingAddress": {
     "message": "Billing address"
   },
@@ -10980,5 +11263,79 @@
   },
   "unlimitedSecretsAndProjects": {
     "message": "Unlimited secrets and projects"
+  },
+  "providersubscriptionCanceled": {
+    "message": "Subscription canceled"
+  },
+  "providersubCanceledmessage": {
+    "message": "To resubscribe, contact Bitwarden Customer Support."
+  },
+  "showMore": {
+    "message": "Show more"
+  },
+  "showLess": {
+    "message": "Show less"
+  },
+  "missingTaxId": {
+    "message": "Missing Tax ID"
+  },
+  "missingTaxIdWarning": {
+    "message": "Action required: You're missing a Tax ID number in payment details. If a Tax ID is not added, your invoices may include additional tax."
+  },
+  "moreBreadcrumbs": {
+    "message": "More breadcrumbs",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "addTaxId": {
+    "message": "Add a Tax ID"
+  },
+  "missingTaxIdCalloutTitle": {
+    "message": "Action required: Missing Tax ID"
+  },
+  "missingTaxIdCalloutDescription": {
+    "message": "If a Tax ID is not added, your invoices may include additional tax."
+  },
+  "unverifiedTaxIdWarning": {
+    "message": "Action required: Your Tax ID number is unverified. If your Tax ID is left unverified, your invoices may include additional tax."
+  },
+  "editTaxId": {
+    "message": "Edit your Tax ID"
+  },
+  "unverifiedTaxIdCalloutTitle": {
+    "message": "Tax ID unverified"
+  },
+  "unverifiedTaxIdCalloutDescription": {
+    "message": "Check your Tax ID to verify the format is correct and there are no typos."
+  },
+  "pendingVerification": {
+    "message": "Pending verification"
+  },
+  "checkInputFormat": {
+    "message": "Check input format for typos."
+  },
+  "exampleTaxIdFormat": {
+    "message": "Example $CODE$ format: $EXAMPLE$",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "ABN"
+      },
+      "example": {
+        "content": "$2",
+        "example": "92873837267"
+      }
+    }
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Confirm Key Connector domain"
+  },
+  "requiredToVerifyBankAccountWithStripe": {
+    "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
+  },
+  "verifyBankAccountWithStripe": {
+    "message": "We have made a micro-deposit to your bank account. This may take 1-2 business days. When you see the deposit in your account, you can verify your bank account. Failure to verify your bank account will result in a missed payment and your subscription will be suspended."
+  },
+  "verifyNow": {
+    "message": "Verify now."
   }
 }

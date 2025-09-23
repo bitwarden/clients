@@ -52,16 +52,18 @@ describe("RestrictedItemTypesService", () => {
     organizationService.organizations$.mockReturnValue(of([org1, org2]));
     policyService.policiesByType$.mockReturnValue(of([]));
 
-    service = new RestrictedItemTypesService(
-      configService,
-      accountService,
-      organizationService,
-      policyService,
-    );
+    service = new RestrictedItemTypesService(accountService, organizationService, policyService);
   });
 
   it("emits empty array when feature flag is disabled", async () => {
     configService.getFeatureFlag$.mockReturnValue(of(false));
+
+    const result = await firstValueFrom(service.restricted$);
+    expect(result).toEqual([]);
+  });
+
+  it("emits empty array if no account is active", async () => {
+    accountService.activeAccount$ = of(null);
 
     const result = await firstValueFrom(service.restricted$);
     expect(result).toEqual([]);

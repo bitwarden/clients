@@ -2,6 +2,9 @@
   "allApplications": {
     "message": "همه‌ برنامه‌ها"
   },
+  "activity": {
+    "message": "Activity"
+  },
   "appLogoLabel": {
     "message": "لوگو Bitwarden"
   },
@@ -56,8 +59,20 @@
   "createNewLoginItem": {
     "message": "ایجاد مورد ورود جدید"
   },
+  "criticalApplicationsActivityDescription": {
+    "message": "Once you mark applications critical, they will display here."
+  },
   "criticalApplicationsWithCount": {
     "message": "برنامه‌های حیاتی ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfCriticalApplications": {
+    "message": "$COUNT$ critical applications",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -86,14 +101,14 @@
   "noAppsInOrgDescription": {
     "message": "با ذخیره‌ی اطلاعات ورود توسط کاربران، برنامه‌ها در اینجا نمایش داده می‌شوند و کلمات عبور در معرض خطر مشخص می‌گردند. برنامه‌های حیاتی را علامت‌گذاری کرده و کاربران را برای به‌روزرسانی کلمات عبور مطلع کنید."
   },
-  "noCriticalAppsTitle": {
-    "message": "شما هیچ برنامه‌ای را به عنوان حیاتی علامت‌گذاری نکرده‌اید"
+  "noCriticalApplicationsTitle": {
+    "message": "You haven’t marked any applications as critical"
   },
-  "noCriticalAppsDescription": {
-    "message": "مهم‌ترین برنامه‌های خود را انتخاب کنید تا کلمات عبور در معرض خطر شناسایی شوند و کاربران برای تغییر آن‌ها مطلع شوند."
+  "noCriticalApplicationsDescription": {
+    "message": "Select your most critical applications to prioritize security actions for your users to address at-risk passwords."
   },
-  "markCriticalApps": {
-    "message": "برنامه‌های حیاتی را علامت‌گذاری کنید"
+  "markCriticalApplications": {
+    "message": "Select critical applications"
   },
   "markAppAsCritical": {
     "message": "برنامه را به عنوان حیاتی علامت‌گذاری کنید"
@@ -118,6 +133,18 @@
   },
   "atRiskMembers": {
     "message": "اعضای در معرض خطر"
+  },
+  "membersAtRiskActivityDescription": {
+    "message": "Members with edit access to at-risk items for critical applications"
+  },
+  "membersAtRisk": {
+    "message": "$COUNT$ members at risk",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "atRiskMembersWithCount": {
     "message": "اعضای در معرض خطر ($COUNT$)",
@@ -176,11 +203,11 @@
   "totalApplications": {
     "message": "کل برنامه‌ها"
   },
-  "unmarkAsCriticalApp": {
-    "message": "لغو علامت حیاتی بودن برنامه"
+  "unmarkAsCritical": {
+    "message": "Unmark as critical"
   },
-  "criticalApplicationSuccessfullyUnmarked": {
-    "message": "برنامه حیاتی با موفقیت لغو علامت شد"
+  "criticalApplicationUnmarkedSuccessfully": {
+    "message": "Successfully unmarked application as critical"
   },
   "whatTypeOfItem": {
     "message": "این چه نوع موردی است؟"
@@ -734,32 +761,81 @@
   "viewItem": {
     "message": "مشاهده مورد"
   },
-  "newItemHeader": {
-    "message": "$TYPE$ جدید",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderLogin": {
+    "message": "New Login",
+    "description": "Header for new login item type"
   },
-  "editItemHeader": {
-    "message": "ویرایش $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderCard": {
+    "message": "New Card",
+    "description": "Header for new card item type"
   },
-  "viewItemType": {
-    "message": "مشاهده $ITEMTYPE$",
-    "placeholders": {
-      "itemtype": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderIdentity": {
+    "message": "New Identity",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "New Note",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "New SSH key",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderTextSend": {
+    "message": "New Text Send",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "New File Send",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderLogin": {
+    "message": "Edit Login",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Edit Card",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Edit Identity",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Edit Note",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "Edit SSH key",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Edit Text Send",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Edit File Send",
+    "description": "Header for edit file send"
+  },
+  "viewItemHeaderLogin": {
+    "message": "View Login",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "View Card",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "View Identity",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "View Note",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "View SSH key",
+    "description": "Header for view SSH key item type"
   },
   "new": {
     "message": "جدید",
@@ -866,6 +942,15 @@
   },
   "copyLicenseNumber": {
     "message": "کپی شماره گواهینامه"
+  },
+  "copyPrivateKey": {
+    "message": "Copy private key"
+  },
+  "copyPublicKey": {
+    "message": "Copy public key"
+  },
+  "copyFingerprint": {
+    "message": "Copy fingerprint"
   },
   "copyName": {
     "message": "کپی نام"
@@ -1428,9 +1513,6 @@
   "notificationSentDevicePart1": {
     "message": "قفل Bitwarden را روی دستگاه خود باز کنید یا روی "
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "آیا در تلاش برای دسترسی به حساب کاربری خود هستید؟"
-  },
   "accessAttemptBy": {
     "message": "تلاش برای دسترسی به سیستم توسط $EMAIL$",
     "placeholders": {
@@ -1504,11 +1586,11 @@
   "selectTwoStepLoginMethod": {
     "message": "انتخاب ورود دو مرحله‌ای"
   },
-  "recoveryCodeDesc": {
-    "message": "دسترسی به تمامی ارائه‌دهندگان دو مرحله‌ای را از دست داده‌اید؟ از کد بازیابی خود برای غیرفعال‌سازی ارائه‌دهندگان دو مرحله‌ای از حسابتان استفاده کنید."
-  },
   "recoveryCodeTitle": {
     "message": "کد بازیابی"
+  },
+  "invalidRecoveryCode": {
+    "message": "Invalid recovery code"
   },
   "authenticatorAppTitle": {
     "message": "برنامه احراز هویت"
@@ -2053,15 +2135,11 @@
   "selectImportCollection": {
     "message": "انتخاب یک مجموعه"
   },
-  "importTargetHint": {
-    "message": "اگر می‌خواهید محتوای فایل وارد شده به $DESTINATION$ منتقل شود، این گزینه را انتخاب کنید",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Select this option if you want the imported file contents moved to a collection"
+  },
+  "importTargetHintFolder": {
+    "message": "Select this option if you want the imported file contents moved to a folder"
   },
   "importUnassignedItemsError": {
     "message": "فایل حاوی موارد اختصاص نیافته است."
@@ -2109,11 +2187,8 @@
   "languageDesc": {
     "message": "زبان مورد استفاده در گاوصندوق وب را تغییر دهید."
   },
-  "enableFavicon": {
-    "message": "نمایش نمادهای وب‌سایت"
-  },
-  "faviconDesc": {
-    "message": "یک تصویر قابل تشخیص در کنار هر ورود نشان دهید."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "default": {
     "message": "پیش‌فرض"
@@ -2453,9 +2528,6 @@
   },
   "twoFactorU2fProblemReadingTryAgain": {
     "message": "مشکلی در خواندن کلید امنیتی وجود داشت. دوباره امتحان کنید."
-  },
-  "twoFactorWebAuthnWarning1": {
-    "message": "به‌دلیل محدودیت‌های پلتفرم، WebAuthn در تمام برنامه‌های Bitwarden قابل استفاده نیست. بهتر است یک روش ورود دو مرحله‌ای دیگر نیز تنظیم کنید تا در مواقعی که WebAuthn قابل استفاده نیست، بتوانید به حساب کاربرب خود دسترسی داشته باشید."
   },
   "twoFactorRecoveryYourCode": {
     "message": "کد بازیابی ورود دو مرحله ای Bitwarden شما"
@@ -2826,6 +2898,12 @@
         "example": "'month' or 'year'"
       }
     }
+  },
+  "showPricingSummary": {
+    "message": "Show pricing summary"
+  },
+  "hidePricingSummary": {
+    "message": "Hide pricing summary"
   },
   "summary": {
     "message": "خلاصه"
@@ -3976,22 +4054,6 @@
   },
   "thisRequestIsNoLongerValid": {
     "message": "این درخواست دیگر معتبر نیست."
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "ورود به سیستم برای $EMAIL$ در $DEVICE$ تأیید شد",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "شما تلاش برای ورود به سیستم از دستگاه دیگری را رد کردید. اگر واقعاً این شما بودید، سعی کنید دوباره با دستگاه وارد شوید."
   },
   "loginRequestApprovedForEmailOnDevice": {
     "message": "Login request approved for $EMAIL$ on $DEVICE$",
@@ -5284,6 +5346,14 @@
   "downloadAttachments": {
     "message": "بارگیری پیوست‌ها"
   },
+  "sendAccessPasswordTitle": {
+    "message": "Enter the password to view this Send",
+    "description": "Title of the Send password authentication screen."
+  },
+  "sendAccessContentTitle": {
+    "message": "View Send",
+    "description": "Title of the Send view content screen."
+  },
   "sendAccessUnavailable": {
     "message": "ارسالی که می‌خواهید به آن دسترسی پیدا کنید وجود ندارد یا دیگر در دسترس نیست.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5443,6 +5513,37 @@
   },
   "organizationDataOwnership": {
     "message": "اجرای مالکیت داده‌های سازمانی"
+  },
+  "organizationDataOwnershipDesc": {
+    "message": "Require all items to be owned by an organization, removing the option to store items at the account level.",
+    "description": "This is the policy description shown in the policy list."
+  },
+  "organizationDataOwnershipContent": {
+    "message": "All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection be available for each member to store items. Learn more about managing the ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection be available for each member to store items. Learn more about managing the credential lifecycle.'"
+  },
+  "organizationDataOwnershipContentAnchor": {
+    "message": "credential lifecycle",
+    "description": "This will be used as a hyperlink"
+  },
+  "organizationDataOwnershipWarningTitle": {
+    "message": "Are you sure you want to proceed?"
+  },
+  "organizationDataOwnershipWarning1": {
+    "message": "will remain accessible to members"
+  },
+  "organizationDataOwnershipWarning2": {
+    "message": "will not be automatically selected when creating new items"
+  },
+  "organizationDataOwnershipWarning3": {
+    "message": "cannot be managed from the Admin Console until the user is offboarded"
+  },
+  "organizationDataOwnershipWarningContentTop": {
+    "message": "By turning this policy off, the default collection: "
+  },
+  "organizationDataOwnershipWarningContentBottom": {
+    "message": "Learn more about the ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about the credential lifecycle.'"
   },
   "personalOwnership": {
     "message": "حذف گاوصندوق شخصی"
@@ -7009,6 +7110,12 @@
   "unknownCipher": {
     "message": "مورد ناشناس، ممکن است برای دسترسی به این مورد نیاز به درخواست مجوز داشته باشید."
   },
+  "unknownSecret": {
+    "message": "Unknown secret, you may need to request permission to access this secret."
+  },
+  "unknownProject": {
+    "message": "Unknown project, you may need to request permission to access this project."
+  },
   "cannotSponsorSelf": {
     "message": "شما نمی‌توانید برای حساب فعال استفاده کنید. ایمیل دیگری وارد کنید."
   },
@@ -7395,6 +7502,9 @@
   },
   "off": {
     "message": "خاموش"
+  },
+  "connected": {
+    "message": "Connected"
   },
   "members": {
     "message": "اعضا"
@@ -8332,10 +8442,82 @@
       }
     }
   },
+  "permanentlyDeletedSecretWithId": {
+    "message": "Permanently deleted a secret with identifier: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "restoredSecretWithId": {
+    "message": "Restored a secret with identifier: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
   "createdSecretWithId": {
     "message": "یک راز با شناسه‌ی $SECRET_ID$ دسترسی ساخته شد",
     "placeholders": {
       "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "accessedProjectWithId": {
+    "message": "Accessed a project with Id: $PROJECT_ID$.",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "nameUnavailableProjectDeleted": {
+    "message": "Deleted project Id: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "nameUnavailableSecretDeleted": {
+    "message": "Deleted secret Id: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "editedProjectWithId": {
+    "message": "Edited a project with identifier: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "deletedProjectWithId": {
+    "message": "Deleted a project with identifier: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "createdProjectWithId": {
+    "message": "Created a new project with identifier: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
         "content": "$1",
         "example": "4d34e8a8"
       }
@@ -8829,20 +9011,25 @@
   "collectionManagement": {
     "message": "مدیریت مجموعه"
   },
-  "collectionManagementDesc": {
-    "message": "مدیریت رفتار مجموعه برای سازمان"
+  "collectionManagementDescription": {
+    "message": "Configure the collection behavior for the organization"
   },
-  "limitCollectionCreationDesc": {
-    "message": "محدود کردن ایجاد مجموعه فقط به مالکان و مدیران"
+  "allowAdminAccessToAllCollectionItemsDescription": {
+    "message": "Allow owners and admins to manage all collections and items from the Admin Console"
   },
-  "limitCollectionDeletionDesc": {
-    "message": "محدود کردن حذف مجموعه فقط به مالکان و مدیران"
+  "restrictCollectionCreationDescription": {
+    "message": "Restrict collection creation to owners and admins"
   },
-  "limitItemDeletionDescription": {
-    "message": "حذف موارد را فقط به اعضایی که دارای مجوز مدیریت مجموعه هستند محدود کنید"
+  "restrictCollectionDeletionDescription": {
+    "message": "Restrict collection deletion to owners and admins"
   },
-  "allowAdminAccessToAllCollectionItemsDesc": {
-    "message": "مالکان و مدیران می‌توانند تمام مجموعه‌ها و موارد را مدیریت کنند"
+  "restrictItemDeletionDescriptionStart": {
+    "message": "Restrict item deletion to members with the ",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
+  },
+  "restrictItemDeletionDescriptionEnd": {
+    "message": " permission",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
   },
   "updatedCollectionManagement": {
     "message": "تنظیم مدیریت مجموعه به‌روزرسانی شد"
@@ -8913,6 +9100,78 @@
   },
   "modifiedCollectionManagement": {
     "message": "تنظیم مدیریت مجموعه با شناسه $ID$ تغییر یافت.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationEnabled": {
+    "message": "Turned on Restrict collection creation setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationDisabled": {
+    "message": "Turned off Restrict collection creation setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionEnabled": {
+    "message": "Turned on Restrict collection deletion setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionDisabled": {
+    "message": "Turned off Restrict collection deletion setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionEnabled": {
+    "message": "Turned on Restrict item deletion setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionDisabled": {
+    "message": "Turned off Restrict item deletion setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsEnabled": {
+    "message": "Turned on Allow owners and admins to manage all collections and items setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsDisabled": {
+    "message": "Turned off Allow owners and admins to manage all collections and items setting $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -9480,6 +9739,9 @@
   "failedToSaveIntegration": {
     "message": "Failed to save integration. Please try again later."
   },
+  "failedToDeleteIntegration": {
+    "message": "Failed to delete integration. Please try again later."
+  },
   "deviceIdMissing": {
     "message": "شناسه دستگاه موجود نیست"
   },
@@ -9497,6 +9759,15 @@
   },
   "connectIntegrationButtonDesc": {
     "message": "Connect $INTEGRATION$",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
+  },
+  "updateIntegrationButtonDesc": {
+    "message": "Update $INTEGRATION$",
     "placeholders": {
       "integration": {
         "content": "$1",
@@ -9566,6 +9837,9 @@
   },
   "bearerToken": {
     "message": "Bearer Token"
+  },
+  "repositoryNameHint": {
+    "message": "Name of the repository to ingest into"
   },
   "index": {
     "message": "Index"
@@ -10015,14 +10289,8 @@
   "learnMoreAboutApi": {
     "message": "بیشتر درباره Bitwarden API بیاموزید"
   },
-  "fileSend": {
-    "message": "پرونده ارسال"
-  },
   "fileSends": {
     "message": "پرونده ارسال‌ها"
-  },
-  "textSend": {
-    "message": "ارسال متن"
   },
   "textSends": {
     "message": "ارسال‌های متن"
@@ -10710,6 +10978,12 @@
   "changeAtRiskPassword": {
     "message": "تغییر کلمه عبور در معرض خطر"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
+  },
   "removeUnlockWithPinPolicyTitle": {
     "message": "حذف گزینه‌ی بازکردن با کد پین"
   },
@@ -10724,6 +10998,9 @@
   },
   "upgradeEventLogMessage": {
     "message": "این رویدادها تنها مثال هستند و رویدادهای واقعی درون سازمان Bitwarden شما را نشان نمی‌دهند."
+  },
+  "viewEvents": {
+    "message": "View Events"
   },
   "cannotCreateCollection": {
     "message": "سازمان‌های رایگان می‌توانند حداکثر تا ۲ مجموعه داشته باشند. برای اضافه کردن مجموعه‌های بیشتر، به طرح پولی ارتقا دهید."
@@ -10882,6 +11159,12 @@
     "message": "نشانی صورتحساب برای افزودن اعتبار الزامی است.",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+  },
   "billingAddress": {
     "message": "Billing address"
   },
@@ -10980,5 +11263,79 @@
   },
   "unlimitedSecretsAndProjects": {
     "message": "Unlimited secrets and projects"
+  },
+  "providersubscriptionCanceled": {
+    "message": "Subscription canceled"
+  },
+  "providersubCanceledmessage": {
+    "message": "To resubscribe, contact Bitwarden Customer Support."
+  },
+  "showMore": {
+    "message": "Show more"
+  },
+  "showLess": {
+    "message": "Show less"
+  },
+  "missingTaxId": {
+    "message": "Missing Tax ID"
+  },
+  "missingTaxIdWarning": {
+    "message": "Action required: You're missing a Tax ID number in payment details. If a Tax ID is not added, your invoices may include additional tax."
+  },
+  "moreBreadcrumbs": {
+    "message": "More breadcrumbs",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "addTaxId": {
+    "message": "Add a Tax ID"
+  },
+  "missingTaxIdCalloutTitle": {
+    "message": "Action required: Missing Tax ID"
+  },
+  "missingTaxIdCalloutDescription": {
+    "message": "If a Tax ID is not added, your invoices may include additional tax."
+  },
+  "unverifiedTaxIdWarning": {
+    "message": "Action required: Your Tax ID number is unverified. If your Tax ID is left unverified, your invoices may include additional tax."
+  },
+  "editTaxId": {
+    "message": "Edit your Tax ID"
+  },
+  "unverifiedTaxIdCalloutTitle": {
+    "message": "Tax ID unverified"
+  },
+  "unverifiedTaxIdCalloutDescription": {
+    "message": "Check your Tax ID to verify the format is correct and there are no typos."
+  },
+  "pendingVerification": {
+    "message": "Pending verification"
+  },
+  "checkInputFormat": {
+    "message": "Check input format for typos."
+  },
+  "exampleTaxIdFormat": {
+    "message": "Example $CODE$ format: $EXAMPLE$",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "ABN"
+      },
+      "example": {
+        "content": "$2",
+        "example": "92873837267"
+      }
+    }
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Confirm Key Connector domain"
+  },
+  "requiredToVerifyBankAccountWithStripe": {
+    "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
+  },
+  "verifyBankAccountWithStripe": {
+    "message": "We have made a micro-deposit to your bank account. This may take 1-2 business days. When you see the deposit in your account, you can verify your bank account. Failure to verify your bank account will result in a missed payment and your subscription will be suspended."
+  },
+  "verifyNow": {
+    "message": "Verify now."
   }
 }

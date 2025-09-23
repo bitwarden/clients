@@ -2,11 +2,7 @@ import { Injectable, NgModule } from "@angular/core";
 import { ActivatedRouteSnapshot, RouteReuseStrategy, RouterModule, Routes } from "@angular/router";
 
 import { AuthenticationTimeoutComponent } from "@bitwarden/angular/auth/components/authentication-timeout.component";
-import {
-  EnvironmentSelectorComponent,
-  EnvironmentSelectorRouteData,
-  ExtensionDefaultOverlayPosition,
-} from "@bitwarden/angular/auth/components/environment-selector.component";
+import { EnvironmentSelectorComponent } from "@bitwarden/angular/auth/environment-selector/environment-selector.component";
 import {
   activeAuthGuard,
   authGuard,
@@ -21,29 +17,32 @@ import { SetInitialPasswordComponent } from "@bitwarden/angular/auth/password-ma
 import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
 import {
   DevicesIcon,
+  RegistrationUserAddIcon,
+  TwoFactorTimeoutIcon,
+  TwoFactorAuthEmailIcon,
+  UserLockIcon,
+  VaultIcon,
+  LockIcon,
+  DeactivatedOrg,
+} from "@bitwarden/assets/svg";
+import {
   LoginComponent,
   LoginDecryptionOptionsComponent,
   LoginSecondaryContentComponent,
   LoginViaAuthRequestComponent,
+  NewDeviceVerificationComponent,
   PasswordHintComponent,
   RegistrationFinishComponent,
-  RegistrationLockAltIcon,
   RegistrationStartComponent,
   RegistrationStartSecondaryComponent,
   RegistrationStartSecondaryComponentData,
-  RegistrationUserAddIcon,
   SsoComponent,
-  TwoFactorTimeoutIcon,
   TwoFactorAuthComponent,
   TwoFactorAuthGuard,
-  NewDeviceVerificationComponent,
-  DeviceVerificationIcon,
-  UserLockIcon,
-  VaultIcon,
 } from "@bitwarden/auth/angular";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { AnonLayoutWrapperData, Icons } from "@bitwarden/components";
-import { LockComponent } from "@bitwarden/key-management-ui";
+import { AnonLayoutWrapperComponent, AnonLayoutWrapperData } from "@bitwarden/components";
+import { LockComponent, ConfirmKeyConnectorDomainComponent } from "@bitwarden/key-management-ui";
 
 import { AccountSwitcherComponent } from "../auth/popup/account-switching/account-switcher.component";
 import { fido2AuthGuard } from "../auth/popup/guards/fido2-auth.guard";
@@ -55,6 +54,8 @@ import { BlockedDomainsComponent } from "../autofill/popup/settings/blocked-doma
 import { ExcludedDomainsComponent } from "../autofill/popup/settings/excluded-domains.component";
 import { NotificationsSettingsComponent } from "../autofill/popup/settings/notifications.component";
 import { PremiumV2Component } from "../billing/popup/settings/premium-v2.component";
+import { LearnMoreComponent } from "../dirt/phishing-detection/pages/learn-more-component";
+import { PhishingWarning } from "../dirt/phishing-detection/pages/phishing-warning.component";
 import { RemovePasswordComponent } from "../key-management/key-connector/remove-password.component";
 import BrowserPopupUtils from "../platform/browser/browser-popup-utils";
 import { popupRouterCacheGuard } from "../platform/popup/view-cache/popup-router-cache.service";
@@ -79,6 +80,7 @@ import { canAccessAtRiskPasswords } from "../vault/popup/guards/at-risk-password
 import { clearVaultStateGuard } from "../vault/popup/guards/clear-vault-state.guard";
 import { IntroCarouselGuard } from "../vault/popup/guards/intro-carousel.guard";
 import { AppearanceV2Component } from "../vault/popup/settings/appearance-v2.component";
+import { ArchiveComponent } from "../vault/popup/settings/archive.component";
 import { DownloadBitwardenComponent } from "../vault/popup/settings/download-bitwarden.component";
 import { FoldersV2Component } from "../vault/popup/settings/folders-v2.component";
 import { MoreFromBitwardenPageV2Component } from "../vault/popup/settings/more-from-bitwarden-page-v2.component";
@@ -166,7 +168,7 @@ const routes: Routes = [
     canActivate: [unauthGuardFn(), activeAuthGuard()],
     children: [{ path: "", component: NewDeviceVerificationComponent }],
     data: {
-      pageIcon: DeviceVerificationIcon,
+      pageIcon: TwoFactorAuthEmailIcon,
       pageTitle: {
         key: "verifyYourIdentity",
       },
@@ -363,7 +365,7 @@ const routes: Routes = [
         path: "finish-signup",
         canActivate: [unauthGuardFn()],
         data: {
-          pageIcon: RegistrationLockAltIcon,
+          pageIcon: LockIcon,
           elevation: 1,
           showBackButton: true,
         } satisfies RouteDataProperties & ExtensionAnonLayoutWrapperData,
@@ -400,9 +402,6 @@ const routes: Routes = [
             path: "",
             component: EnvironmentSelectorComponent,
             outlet: "environment-selector",
-            data: {
-              overlayPosition: ExtensionDefaultOverlayPosition,
-            } satisfies EnvironmentSelectorRouteData,
           },
         ],
       },
@@ -425,9 +424,6 @@ const routes: Routes = [
             path: "",
             component: EnvironmentSelectorComponent,
             outlet: "environment-selector",
-            data: {
-              overlayPosition: ExtensionDefaultOverlayPosition,
-            } satisfies EnvironmentSelectorRouteData,
           },
         ],
       },
@@ -474,9 +470,6 @@ const routes: Routes = [
             path: "",
             component: EnvironmentSelectorComponent,
             outlet: "environment-selector",
-            data: {
-              overlayPosition: ExtensionDefaultOverlayPosition,
-            } satisfies EnvironmentSelectorRouteData,
           },
         ],
       },
@@ -510,7 +503,7 @@ const routes: Routes = [
         path: "lock",
         canActivate: [lockGuard()],
         data: {
-          pageIcon: Icons.LockIcon,
+          pageIcon: LockIcon,
           pageTitle: {
             key: "yourVaultIsLockedV2",
           },
@@ -609,6 +602,24 @@ const routes: Routes = [
     ],
   },
   {
+    path: "confirm-key-connector-domain",
+    component: ExtensionAnonLayoutWrapperComponent,
+    canActivate: [],
+    data: { elevation: 1 } satisfies RouteDataProperties,
+    children: [
+      {
+        path: "",
+        component: ConfirmKeyConnectorDomainComponent,
+        data: {
+          pageTitle: {
+            key: "confirmKeyConnectorDomain",
+          },
+          showBackButton: true,
+        } satisfies ExtensionAnonLayoutWrapperData,
+      },
+    ],
+  },
+  {
     path: "tabs",
     component: TabsV2Component,
     data: { elevation: 0 } satisfies RouteDataProperties,
@@ -664,6 +675,38 @@ const routes: Routes = [
     component: TrashComponent,
     canActivate: [authGuard],
     data: { elevation: 2 } satisfies RouteDataProperties,
+  },
+  {
+    path: "archive",
+    component: ArchiveComponent,
+    canActivate: [authGuard],
+    data: { elevation: 2 } satisfies RouteDataProperties,
+  },
+  {
+    path: "security",
+    component: AnonLayoutWrapperComponent,
+    children: [
+      {
+        path: "phishing-warning",
+        children: [
+          {
+            path: "",
+            component: PhishingWarning,
+          },
+          {
+            path: "",
+            component: LearnMoreComponent,
+            outlet: "secondary",
+          },
+        ],
+        data: {
+          pageIcon: DeactivatedOrg,
+          pageTitle: "Bitwarden blocked it!",
+          pageSubtitle: "Bitwarden blocked a known phishing site from loading.",
+          showReadonlyHostname: true,
+        } satisfies AnonLayoutWrapperData,
+      },
+    ],
   },
 ];
 

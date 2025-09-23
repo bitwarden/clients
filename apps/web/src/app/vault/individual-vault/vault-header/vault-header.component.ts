@@ -1,7 +1,7 @@
 import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from "@angular/core";
 import { Router } from "@angular/router";
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, switchMap } from "rxjs";
 
 import {
   Unassigned,
@@ -10,8 +10,9 @@ import {
 } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -93,6 +94,7 @@ export class VaultHeaderComponent {
     private dialogService: DialogService,
     private router: Router,
     private configService: ConfigService,
+    private accountService: AccountService,
   ) {}
 
   /**
@@ -135,6 +137,10 @@ export class VaultHeaderComponent {
 
     if (this.filter.organizationId === Unassigned) {
       return this.i18nService.t("myVault");
+    }
+
+    if (this.filter.type === "archive") {
+      return this.i18nService.t("archive");
     }
 
     const activeOrganization = this.activeOrganization;
@@ -215,21 +221,22 @@ export class VaultHeaderComponent {
   }
 
   async addCollection(): Promise<void> {
-    const isBreadcrumbEventLogsEnabled = await firstValueFrom(
-      this.configService.getFeatureFlag$(FeatureFlag.PM12276_BreadcrumbEventLogs),
+    const organization = this.organizations?.find(
+      (org) => org.productTierType === ProductTierType.Free,
     );
 
-    if (isBreadcrumbEventLogsEnabled) {
-      const organization = this.organizations?.find(
-        (org) => org.productTierType === ProductTierType.Free,
+    if (this.organizations?.length == 1 && !!organization) {
+      const collections = await firstValueFrom(
+        this.accountService.activeAccount$.pipe(
+          getUserId,
+          switchMap((userId) =>
+            this.collectionAdminService.collectionAdminViews$(organization.id, userId),
+          ),
+        ),
       );
-
-      if (this.organizations?.length == 1 && !!organization) {
-        const collections = await this.collectionAdminService.getAll(organization.id);
-        if (collections.length === organization.maxCollections) {
-          await this.showFreeOrgUpgradeDialog(organization);
-          return;
-        }
+      if (collections.length === organization.maxCollections) {
+        await this.showFreeOrgUpgradeDialog(organization);
+        return;
       }
     }
 

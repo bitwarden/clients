@@ -702,6 +702,12 @@
   "attachmentSaved": {
     "message": "Vedlegget har blitt lagret."
   },
+  "addAttachment": {
+    "message": "Add attachment"
+  },
+  "maxFileSizeSansPunctuation": {
+    "message": "Maximum file size is 500 MB"
+  },
   "file": {
     "message": "Fil"
   },
@@ -953,9 +959,6 @@
   },
   "insertU2f": {
     "message": "Sett din sikkerhetsnøkkel inn i din datamaskins USB-uttak. Dersom den har en knapp, trykk på den."
-  },
-  "recoveryCodeDesc": {
-    "message": "Har du mistet tilgang til alle dine 2-trinnsleverandører? Bruk din gjenopprettingskode til å fjerne alle 2-trinnsleverandører fra din konto."
   },
   "recoveryCodeTitle": {
     "message": "Gjenopprettingskode"
@@ -1225,11 +1228,17 @@
   "twoStepLogin": {
     "message": "2-trinnsinnlogging"
   },
+  "vaultTimeoutHeader": {
+    "message": "Vault timeout"
+  },
   "vaultTimeout": {
     "message": "Tidsavbrudd i hvelvet"
   },
   "vaultTimeout1": {
     "message": "Tidsavbrudd"
+  },
+  "vaultTimeoutAction1": {
+    "message": "Timeout action"
   },
   "vaultTimeoutDesc": {
     "message": "Velg når hvelvet ditt skal tidsavbrytes og utføre den valgte handlingen."
@@ -1293,11 +1302,8 @@
     "message": "Slett automatisk kopierte verdier fra utklippstavlen.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
-  "enableFavicon": {
-    "message": "Vis nettstedsikoner"
-  },
-  "faviconDesc": {
-    "message": "Vis et gjenkjennelig bilde ved siden av hver innlogging."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "enableMinToTray": {
     "message": "Minimer til oppgavelinjen"
@@ -1833,12 +1839,6 @@
   },
   "autoPromptTouchId": {
     "message": "Spør om Touch ID ved oppstart"
-  },
-  "requirePasswordOnStart": {
-    "message": "Krev passord eller PIN-kode når appen startes"
-  },
-  "requirePasswordWithoutPinOnStart": {
-    "message": "Require password on app start"
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Lock with master password on restart"
@@ -2511,6 +2511,35 @@
   "vaultTimeoutTooLarge": {
     "message": "Tidsavbruddet ditt for hvelvet overstiger begrensningene som er satt av organisasjonen din."
   },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "Enterprise policy requirements have been applied to your timeout options"
+  },
+  "vaultTimeoutPolicyInEffect": {
+    "message": "Your organization policies have set your maximum allowed vault timeout to $HOURS$ hour(s) and $MINUTES$ minute(s).",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "Timeout exceeds the restriction set by your organization: $HOURS$ hour(s) and $MINUTES$ minute(s) maximum",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
   "inviteAccepted": {
     "message": "Invitasjon akseptert"
   },
@@ -2992,9 +3021,6 @@
     "message": "Vis/skjul antall tegn",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Are you trying to access your account?"
-  },
   "accessAttemptBy": {
     "message": "Access attempt by $EMAIL$",
     "placeholders": {
@@ -3003,6 +3029,50 @@
         "example": "name@example.com"
       }
     }
+  },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
+  },
+  "webApp": {
+    "message": "Web app"
+  },
+  "mobile": {
+    "message": "Mobile",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Extension",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Desktop",
+    "description": "Desktop app"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "server": {
+    "message": "Server"
+  },
+  "loginRequest": {
+    "message": "Login request"
   },
   "deviceType": {
     "message": "Enhetstype"
@@ -3018,22 +3088,6 @@
   },
   "denyAccess": {
     "message": "Nekt tilgang"
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Login confirmed for $EMAIL$ on $DEVICE$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "You denied a login attempt from another device. If this really was you, try to log in with the device again."
   },
   "justNow": {
     "message": "Akkurat nå"
@@ -3431,15 +3485,11 @@
   "selectImportCollection": {
     "message": "Velg en samling"
   },
-  "importTargetHint": {
-    "message": "Velg dette alternativet hvis du vil flytte den importerte filens innhold til en $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Select this option if you want the imported file contents moved to a collection"
+  },
+  "importTargetHintFolder": {
+    "message": "Select this option if you want the imported file contents moved to a folder"
   },
   "importUnassignedItemsError": {
     "message": "Filen inneholder utildelte elementer."
@@ -3534,6 +3584,12 @@
   },
   "awaitingSSODesc": {
     "message": "Please continue to log in using your company credentials."
+  },
+  "importDirectlyFromBrowser": {
+    "message": "Import directly from browser"
+  },
+  "browserProfile": {
+    "message": "Browser Profile"
   },
   "seeDetailedInstructions": {
     "message": "Se detaljerte instruksjoner på hjelpesidene våre på",
@@ -3777,6 +3833,12 @@
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
     "placeholders": {
@@ -3871,6 +3933,12 @@
     "message": "Learn more about SSH agent",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
   },
   "assignToCollections": {
     "message": "Legg til i samlinger"
@@ -4006,10 +4074,38 @@
       }
     }
   },
+  "showMore": {
+    "message": "Show more"
+  },
+  "showLess": {
+    "message": "Show less"
+  },
   "enableAutotype": {
     "message": "Enable Autotype"
   },
   "enableAutotypeDescription": {
     "message": "Bitwarden does not validate input locations, be sure you are in the right window and field before using the shortcut."
+  },
+  "moreBreadcrumbs": {
+    "message": "More breadcrumbs",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "next": {
+    "message": "Next"
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Confirm Key Connector domain"
+  },
+  "confirm": {
+    "message": "Confirm"
+  },
+  "enableAutotypeTransitionKey": {
+    "message": "Enable autotype shortcut"
+  },
+  "enableAutotypeDescriptionTransitionKey": {
+    "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."
+  },
+  "editShortcut": {
+    "message": "Edit shortcut"
   }
 }

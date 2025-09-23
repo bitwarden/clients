@@ -1,29 +1,38 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 
+import { isId, OrganizationId } from "@bitwarden/common/types/guid";
 import { ExportComponent } from "@bitwarden/vault-export-ui";
 
-import { LooseComponentsModule, SharedModule } from "../../shared";
+import { HeaderModule } from "../../layouts/header/header.module";
+import { SharedModule } from "../../shared";
 
 @Component({
   templateUrl: "org-vault-export.component.html",
-  imports: [SharedModule, ExportComponent, LooseComponentsModule],
+  imports: [SharedModule, ExportComponent, HeaderModule],
 })
 export class OrganizationVaultExportComponent implements OnInit {
-  protected routeOrgId: string = null;
+  protected routeOrgId: OrganizationId | undefined = undefined;
   protected loading = false;
   protected disabled = false;
 
   constructor(private route: ActivatedRoute) {}
 
   async ngOnInit() {
-    this.routeOrgId = this.route.snapshot.paramMap.get("organizationId");
+    const orgIdParam = this.route.snapshot.paramMap.get("organizationId");
+    if (orgIdParam === undefined) {
+      throw new Error("`organizationId` is a required route parameter");
+    }
+
+    if (!isId<OrganizationId>(orgIdParam)) {
+      throw new Error("Invalid OrganizationId provided in route parameter `organizationId`");
+    }
+
+    this.routeOrgId = orgIdParam;
   }
 
   /**
    * Callback that is called after a successful export.
    */
-  protected async onSuccessfulExport(organizationId: string): Promise<void> {}
+  protected async onSuccessfulExport(organizationId: OrganizationId): Promise<void> {}
 }

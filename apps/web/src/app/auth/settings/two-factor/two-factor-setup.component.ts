@@ -12,6 +12,7 @@ import {
   switchMap,
 } from "rxjs";
 
+import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -33,7 +34,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { DialogRef, DialogService, ItemModule } from "@bitwarden/components";
 
-import { LooseComponentsModule } from "../../../shared/loose-components.module";
+import { HeaderModule } from "../../../layouts/header/header.module";
 import { SharedModule } from "../../../shared/shared.module";
 
 import { TwoFactorRecoveryComponent } from "./two-factor-recovery.component";
@@ -47,7 +48,7 @@ import { TwoFactorVerifyComponent } from "./two-factor-verify.component";
 @Component({
   selector: "app-two-factor-setup",
   templateUrl: "two-factor-setup.component.html",
-  imports: [ItemModule, LooseComponentsModule, SharedModule],
+  imports: [ItemModule, HeaderModule, PremiumBadgeComponent, SharedModule],
 })
 export class TwoFactorSetupComponent implements OnInit, OnDestroy {
   organizationId: string;

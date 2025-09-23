@@ -2,6 +2,9 @@
   "allApplications": {
     "message": "所有应用程序"
   },
+  "activity": {
+    "message": "活动"
+  },
   "appLogoLabel": {
     "message": "Bitwarden logo"
   },
@@ -21,7 +24,7 @@
     "message": "密码风险"
   },
   "reviewAtRiskPasswords": {
-    "message": "审查各个应用程序中存在风险的密码（弱、暴露或重复使用）。选择最关键的应用程序，优先为用户采取安全措施，以解决存在风险的密码问题。"
+    "message": "审查各个应用程序中存在风险的密码（弱、暴露或重复使用）。选择最关键的应用程序，优先为您的用户采取安全措施，以处理存在风险的密码。"
   },
   "dataLastUpdated": {
     "message": "数据最后更新于：$DATE$",
@@ -45,7 +48,7 @@
     "message": "无法恢复组织访问权限"
   },
   "allApplicationsWithCount": {
-    "message": "所有应用程序（$COUNT$）",
+    "message": "所有应用程序 ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -56,8 +59,20 @@
   "createNewLoginItem": {
     "message": "创建新的登录项目"
   },
+  "criticalApplicationsActivityDescription": {
+    "message": "您将应用程序标记为关键后，它们将显示在这里。"
+  },
   "criticalApplicationsWithCount": {
-    "message": "关键应用程序（$COUNT$）",
+    "message": "关键应用程序 ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfCriticalApplications": {
+    "message": "$COUNT$ 个关键应用程序",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -66,7 +81,7 @@
     }
   },
   "notifiedMembersWithCount": {
-    "message": "已通知的成员（$COUNT$）",
+    "message": "已通知的成员 ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -86,14 +101,14 @@
   "noAppsInOrgDescription": {
     "message": "当用户保存登录信息时，应用程序会出现在这里，显示所有存在风险的密码。标记关键应用程序并通知用户更新密码。"
   },
-  "noCriticalAppsTitle": {
-    "message": "您未将任何应用程序标记为关键"
+  "noCriticalApplicationsTitle": {
+    "message": "您还没有将任何应用程序标记为关键"
   },
-  "noCriticalAppsDescription": {
-    "message": "选择最关键的应用程序来发现存在风险的密码，并通知用户更改这些密码。"
+  "noCriticalApplicationsDescription": {
+    "message": "选择最关键的应用程序，优先为您的用户采取安全措施，以处理存在风险的密码。"
   },
-  "markCriticalApps": {
-    "message": "标记关键应用程序"
+  "markCriticalApplications": {
+    "message": "选择关键应用程序"
   },
   "markAppAsCritical": {
     "message": "标记应用程序为关键"
@@ -118,6 +133,18 @@
   },
   "atRiskMembers": {
     "message": "存在风险的成员"
+  },
+  "membersAtRiskActivityDescription": {
+    "message": "对关键应用程序中存在风险的项目具有编辑权限的成员"
+  },
+  "membersAtRisk": {
+    "message": "$COUNT$ 个成员存在风险",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "atRiskMembersWithCount": {
     "message": "存在风险的成员 ($COUNT$)",
@@ -176,11 +203,11 @@
   "totalApplications": {
     "message": "总的应用程序"
   },
-  "unmarkAsCriticalApp": {
-    "message": "取消标记为关键应用程序"
+  "unmarkAsCritical": {
+    "message": "取消标记为关键"
   },
-  "criticalApplicationSuccessfullyUnmarked": {
-    "message": "关键应用程序已成功取消标记"
+  "criticalApplicationUnmarkedSuccessfully": {
+    "message": "成功将应用程序取消标记为关键"
   },
   "whatTypeOfItem": {
     "message": "这是什么类型的项目？"
@@ -734,32 +761,81 @@
   "viewItem": {
     "message": "查看项目"
   },
-  "newItemHeader": {
-    "message": "新增 $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderLogin": {
+    "message": "新增登录",
+    "description": "Header for new login item type"
   },
-  "editItemHeader": {
-    "message": "编辑 $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderCard": {
+    "message": "新增支付卡",
+    "description": "Header for new card item type"
   },
-  "viewItemType": {
-    "message": "查看 $ITEMTYPE$",
-    "placeholders": {
-      "itemtype": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderIdentity": {
+    "message": "新增身份",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "新增笔记",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "新增 SSH 密钥",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderTextSend": {
+    "message": "新增文本 Send",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "新增文件 Send",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderLogin": {
+    "message": "编辑登录",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "编辑支付卡",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "编辑身份",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "编辑笔记",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "编辑 SSH 密钥",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderTextSend": {
+    "message": "编辑文本 Send",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "编辑文件 Send",
+    "description": "Header for edit file send"
+  },
+  "viewItemHeaderLogin": {
+    "message": "查看登录",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "查看支付卡",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "查看身份",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "查看笔记",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "查看 SSH 密钥",
+    "description": "Header for view SSH key item type"
   },
   "new": {
     "message": "新增",
@@ -867,6 +943,15 @@
   "copyLicenseNumber": {
     "message": "复制许可证号码"
   },
+  "copyPrivateKey": {
+    "message": "复制私钥"
+  },
+  "copyPublicKey": {
+    "message": "复制公钥"
+  },
+  "copyFingerprint": {
+    "message": "复制指纹"
+  },
   "copyName": {
     "message": "复制名称"
   },
@@ -874,7 +959,7 @@
     "message": "卡号"
   },
   "copyFieldCipherName": {
-    "message": "复制 $FIELD$、$CIPHERNAME$",
+    "message": "复制 $CIPHERNAME$ 的 $FIELD$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
@@ -1322,7 +1407,7 @@
     "message": "必须再次输入主密码。"
   },
   "masterPasswordMinlength": {
-    "message": "主密码必须至少 $VALUE$ 个字符长度。",
+    "message": "主密码长度必须至少为 $VALUE$ 个字符。",
     "description": "The Master Password must be at least a specific number of characters long.",
     "placeholders": {
       "value": {
@@ -1428,9 +1513,6 @@
   "notificationSentDevicePart1": {
     "message": "解锁您设备上的 Bitwarden 或通过"
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "您正在尝试访问您的账户吗？"
-  },
   "accessAttemptBy": {
     "message": "$EMAIL$ 的访问尝试",
     "placeholders": {
@@ -1504,17 +1586,17 @@
   "selectTwoStepLoginMethod": {
     "message": "选择两步登录方式"
   },
-  "recoveryCodeDesc": {
-    "message": "无法访问您所有的两步登录提供程序吗？请使用您的恢复代码来停用您账户中所有的两步登录提供程序。"
-  },
   "recoveryCodeTitle": {
     "message": "恢复代码"
+  },
+  "invalidRecoveryCode": {
+    "message": "无效的恢复代码"
   },
   "authenticatorAppTitle": {
     "message": "验证器 App"
   },
   "authenticatorAppDescV2": {
-    "message": "输入验证器 App（例如 Bitwarden 验证器）生成的代码。",
+    "message": "输入验证器 App（例如 Bitwarden Authenticator）生成的代码。",
     "description": "'Bitwarden Authenticator' is a product name and should not be translated."
   },
   "yubiKeyTitleV2": {
@@ -1790,7 +1872,7 @@
     "message": "更改电子邮箱"
   },
   "changeEmailTwoFactorWarning": {
-    "message": "继续操作将更改您的账户电子邮箱地址。这不会更改用于双重身份验证的电子邮箱地址。您可以在两步登录设置中更改它。"
+    "message": "继续操作将更改您的账户电子邮箱地址。但不会更改用于双重身份验证的电子邮箱地址，您可以在两步登录设置中更改它。"
   },
   "newEmail": {
     "message": "新电子邮箱"
@@ -2053,15 +2135,11 @@
   "selectImportCollection": {
     "message": "选择一个集合"
   },
-  "importTargetHint": {
-    "message": "如果您希望将导入的文件内容移动到某个 $DESTINATION$，请选择此选项",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "如果希望将导入的文件内容移动到集合中，请选择此选项"
+  },
+  "importTargetHintFolder": {
+    "message": "如果希望将导入的文件内容移动到文件夹中，请选择此选项"
   },
   "importUnassignedItemsError": {
     "message": "文件包含未分配项目。"
@@ -2109,11 +2187,8 @@
   "languageDesc": {
     "message": "更改网页密码库的语言。"
   },
-  "enableFavicon": {
-    "message": "显示网站图标"
-  },
-  "faviconDesc": {
-    "message": "在每个登录项目旁边显示一个可识别的图像。"
+  "showIconsChangePasswordUrls": {
+    "message": "显示网站图标并检索更改密码的 URL"
   },
   "default": {
     "message": "默认"
@@ -2299,7 +2374,7 @@
     "message": "前往 bitwarden.com 吗？"
   },
   "twoStepContinueToBitwardenUrlDesc": {
-    "message": "Bitwarden 验证器允许您存储验证器密钥以及为两步验证流程生成 TOTP 代码。访问 bitwarden.com 网站了解更多信息。"
+    "message": "Bitwarden Authenticator 允许您存储验证器密钥以及为两步验证流程生成 TOTP 代码。访问 bitwarden.com 网站了解更多信息。"
   },
   "twoStepAuthenticatorScanCodeV2": {
     "message": "用您的验证器 App 扫描下面的二维码或输入密钥。"
@@ -2453,9 +2528,6 @@
   },
   "twoFactorU2fProblemReadingTryAgain": {
     "message": "读取安全密钥时出现问题。请重试。"
-  },
-  "twoFactorWebAuthnWarning1": {
-    "message": "由于平台限制，WebAuthn 不能在所有 Bitwarden 应用程序上使用。您应该启用另一个两步登录提供程序，以便在无法使用 WebAuthn 时可以访问您的账户。"
   },
   "twoFactorRecoveryYourCode": {
     "message": "您的 Bitwarden 两步登录恢复代码"
@@ -2826,6 +2898,12 @@
         "example": "'month' or 'year'"
       }
     }
+  },
+  "showPricingSummary": {
+    "message": "显示定价摘要"
+  },
+  "hidePricingSummary": {
+    "message": "隐藏定价摘要"
   },
   "summary": {
     "message": "摘要"
@@ -3977,22 +4055,6 @@
   "thisRequestIsNoLongerValid": {
     "message": "此请求已失效。"
   },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "已确认 $EMAIL$ 在 $DEVICE$ 上的登录",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "您拒绝了一个来自其他设备的登录尝试。若确实是您本人，请尝试再次发起设备登录。"
-  },
   "loginRequestApprovedForEmailOnDevice": {
     "message": "已批准 $EMAIL$ 在 $DEVICE$ 上的登录请求",
     "placeholders": {
@@ -4357,7 +4419,7 @@
     "message": "使用银行账户付款仅对美国用户开放。您将被要求验证您的银行账户。我们将在 1-2 个工作日内进行两笔小额转账，请在组织的计费页面输入这些金额以验证银行账户。"
   },
   "verifyBankAccountFailureWarning": {
-    "message": "验证银行账户失败将会错过支付，您的订阅将失效。"
+    "message": "验证银行账户失败将会错过支付，您的订阅将暂停。"
   },
   "verifiedBankAccount": {
     "message": "银行账户已验证"
@@ -4708,22 +4770,22 @@
     "description": "ex. Date this password was updated"
   },
   "organizationIsDisabled": {
-    "message": "组织已停用"
+    "message": "组织已暂停"
   },
   "secretsAccessSuspended": {
-    "message": "无法访问已停用的组织。请联系您的组织所有者寻求帮助。"
+    "message": "无法访问已暂停的组织。请联系您的组织所有者寻求帮助。"
   },
   "secretsCannotCreate": {
-    "message": "无法在已停用的组织中创建机密。请联系您的组织所有者寻求帮助。"
+    "message": "无法在已暂停的组织中创建机密。请联系您的组织所有者寻求帮助。"
   },
   "projectsCannotCreate": {
-    "message": "无法在已停用的组织中创建工程。请联系您的组织所有者寻求帮助。"
+    "message": "无法在已暂停的组织中创建工程。请联系您的组织所有者寻求帮助。"
   },
   "serviceAccountsCannotCreate": {
-    "message": "无法在已停用的组织中创建服务账户。请联系您的组织所有者寻求帮助。"
+    "message": "无法在已暂停的组织中创建服务账户。请联系您的组织所有者寻求帮助。"
   },
   "disabledOrganizationFilterError": {
-    "message": "无法访问已停用组织中的项目。请联系您的组织所有者寻求帮助。"
+    "message": "无法访问已暂停组织中的项目。请联系您的组织所有者寻求帮助。"
   },
   "licenseIsExpired": {
     "message": "授权已过期"
@@ -5284,6 +5346,14 @@
   "downloadAttachments": {
     "message": "下载附件"
   },
+  "sendAccessPasswordTitle": {
+    "message": "输入密码后查看此 Send",
+    "description": "Title of the Send password authentication screen."
+  },
+  "sendAccessContentTitle": {
+    "message": "查看 Send",
+    "description": "Title of the Send view content screen."
+  },
   "sendAccessUnavailable": {
     "message": "您尝试访问的 Send 不存在或不再可用。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5300,22 +5370,22 @@
     "message": "紧急访问"
   },
   "emergencyAccessDesc": {
-    "message": "授予和管理可信联系人的紧急访问权限。可信联系人可以在紧急情况下请求获取查看或接管您账户的权限。请访问我们的帮助页面，了解更多关于零知识共享的工作原理和细节。"
+    "message": "授予和管理可信任的联系人的紧急访问权限。已信任的联系人可以在紧急情况下请求获取查看或接管您账户的权限。请访问我们的帮助页面，了解更多关于零知识共享的工作原理和细节。"
   },
   "emergencyAccessOwnerWarning": {
     "message": "您是一个或多个组织的拥有者。如果您授予紧急联系人接管权限，他们在接管后可作为拥有者持有您的所有权限。"
   },
   "trustedEmergencyContacts": {
-    "message": "可信的紧急联系人"
+    "message": "已信任的紧急联系人"
   },
   "noTrustedContacts": {
-    "message": "您尚未添加任何紧急联系人，请邀请可信的联系人以开始使用。"
+    "message": "您尚未添加任何紧急联系人，请邀请可信任的联系人以开始使用。"
   },
   "addEmergencyContact": {
     "message": "添加紧急联系人"
   },
   "designatedEmergencyContacts": {
-    "message": "指定为紧急联系人"
+    "message": "被指定为紧急联系人"
   },
   "noGrantedAccess": {
     "message": "您尚未被任何人指定为紧急联系人。"
@@ -5443,6 +5513,37 @@
   },
   "organizationDataOwnership": {
     "message": "强制组织数据所有权"
+  },
+  "organizationDataOwnershipDesc": {
+    "message": "要求所有项目归组织所有，禁用此选项以在账户级别存储项目。",
+    "description": "This is the policy description shown in the policy list."
+  },
+  "organizationDataOwnershipContent": {
+    "message": "所有项目都将归组织所有并保存到组织中，从而实现整个组织范围内的控制、可见性和报告。开启后，每个成员都可以使用默认集合来存储项目。进一步了解如何管理",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection be available for each member to store items. Learn more about managing the credential lifecycle.'"
+  },
+  "organizationDataOwnershipContentAnchor": {
+    "message": "凭据的生命周期",
+    "description": "This will be used as a hyperlink"
+  },
+  "organizationDataOwnershipWarningTitle": {
+    "message": "您确定要继续吗？"
+  },
+  "organizationDataOwnershipWarning1": {
+    "message": "成员仍可以访问"
+  },
+  "organizationDataOwnershipWarning2": {
+    "message": "创建新项目时不会自动选择"
+  },
+  "organizationDataOwnershipWarning3": {
+    "message": "在用户离开之前，无法从管理控制台进行管理"
+  },
+  "organizationDataOwnershipWarningContentTop": {
+    "message": "停用此策略后，默认的集合将："
+  },
+  "organizationDataOwnershipWarningContentBottom": {
+    "message": "进一步了解",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about the credential lifecycle.'"
   },
   "personalOwnership": {
     "message": "禁用个人密码库"
@@ -6089,7 +6190,7 @@
     }
   },
   "providerIsDisabled": {
-    "message": "提供商已停用"
+    "message": "提供商已暂停"
   },
   "providerUpdated": {
     "message": "提供商已保存"
@@ -7009,6 +7110,12 @@
   "unknownCipher": {
     "message": "未知项目，您可能需要申请权限才能访问这个项目。"
   },
+  "unknownSecret": {
+    "message": "未知的机密，您可能需要请求权限才能访问此机密。"
+  },
+  "unknownProject": {
+    "message": "未知的工程，您可能需要请求权限才能访问此工程。"
+  },
   "cannotSponsorSelf": {
     "message": "您不能为活动账户兑换。请输入其他电子邮箱。"
   },
@@ -7292,7 +7399,7 @@
     "message": "输入的不是电子邮箱地址。"
   },
   "inputMinLength": {
-    "message": "输入长度不能低于 $COUNT$ 个字符。",
+    "message": "输入长度必须至少为 $COUNT$ 个字符。",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -7395,6 +7502,9 @@
   },
   "off": {
     "message": "关闭"
+  },
+  "connected": {
+    "message": "已连接"
   },
   "members": {
     "message": "成员"
@@ -8332,10 +8442,82 @@
       }
     }
   },
+  "permanentlyDeletedSecretWithId": {
+    "message": "永久删除了标识符为 $SECRET_ID$ 的机密",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "restoredSecretWithId": {
+    "message": "恢复了标识符为 $SECRET_ID$ 的机密",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
   "createdSecretWithId": {
     "message": "创建了标识符为 $SECRET_ID$ 的新机密",
     "placeholders": {
       "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "accessedProjectWithId": {
+    "message": "访问了 Id 为 $PROJECT_ID$ 的工程。",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "nameUnavailableProjectDeleted": {
+    "message": "删除了 Id 为 $PROJECT_ID$ 的工程",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "nameUnavailableSecretDeleted": {
+    "message": "删除了 Id 为 $SECRET_ID$ 的机密",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "editedProjectWithId": {
+    "message": "编辑了标识符为 $PROJECT_ID$ 的工程",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "deletedProjectWithId": {
+    "message": "删除了标识符为 $PROJECT_ID$ 的工程",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "createdProjectWithId": {
+    "message": "创建了标识符为 $PROJECT_ID$ 的新工程",
+    "placeholders": {
+      "project_id": {
         "content": "$1",
         "example": "4d34e8a8"
       }
@@ -8829,20 +9011,25 @@
   "collectionManagement": {
     "message": "集合管理"
   },
-  "collectionManagementDesc": {
-    "message": "管理组织的集合行为"
+  "collectionManagementDescription": {
+    "message": "配置组织的集合行为"
   },
-  "limitCollectionCreationDesc": {
-    "message": "仅限所有者和管理员可以创建集合"
+  "allowAdminAccessToAllCollectionItemsDescription": {
+    "message": "允许所有者和管理员从管理控制台管理所有集合和项目"
   },
-  "limitCollectionDeletionDesc": {
-    "message": "仅限所有者和管理员可以删除集合"
+  "restrictCollectionCreationDescription": {
+    "message": "限制为所有者和管理员可以创建集合"
   },
-  "limitItemDeletionDescription": {
-    "message": "仅限具有「管理集合」权限的成员可以删除项目"
+  "restrictCollectionDeletionDescription": {
+    "message": "限制为所有者和管理员可以删除集合"
   },
-  "allowAdminAccessToAllCollectionItemsDesc": {
-    "message": "所有者和管理员可以管理所有集合和项目"
+  "restrictItemDeletionDescriptionStart": {
+    "message": "限制为具有以下权限的成员可以删除项目：",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
+  },
+  "restrictItemDeletionDescriptionEnd": {
+    "message": "权限",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
   },
   "updatedCollectionManagement": {
     "message": "更新了集合管理设置"
@@ -8920,6 +9107,78 @@
       }
     }
   },
+  "limitCollectionCreationEnabled": {
+    "message": "启用了限制集合创建设置 $ID$。",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationDisabled": {
+    "message": "停用了限制集合创建设置 $ID$。",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionEnabled": {
+    "message": "启用了限制集合删除设置 $ID$。",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionDisabled": {
+    "message": "停用了限制集合删除设置 $ID$。",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionEnabled": {
+    "message": "启用了限制项目删除设置 $ID$。",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionDisabled": {
+    "message": "停用了限制项目删除设置 $ID$。",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsEnabled": {
+    "message": "启用了允许所有者和管理员管理所有集合和项目设置 $ID$。",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsDisabled": {
+    "message": "停用了允许所有者和管理员管理所有集合和项目设置 $ID$。",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "seeDetailedInstructions": {
     "message": "请参阅我们的帮助网站上的详细说明：",
     "description": "This is followed a by a hyperlink to the help website."
@@ -8974,15 +9233,15 @@
     "description": "Label indicating the most common import formats"
   },
   "uriMatchDefaultStrategyHint": {
-    "message": "URI match detection is how Bitwarden identifies autofill suggestions.",
+    "message": "Bitwarden 根据 URI 匹配检测来识别自动填充建议。",
     "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
   },
   "regExAdvancedOptionWarning": {
-    "message": "\"Regular expression\" is an advanced option with increased risk of exposing credentials.",
+    "message": "「正则表达方式」是一种高级选项，会增加暴露凭据的风险。",
     "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
   },
   "startsWithAdvancedOptionWarning": {
-    "message": "\"Starts with\" is an advanced option with increased risk of exposing credentials.",
+    "message": "「开始于」是一种高级选项，会增加暴露凭据的风险。",
     "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
   },
   "uriMatchWarningDialogLink": {
@@ -9211,7 +9470,7 @@
     "description": "The date header used when a subscription is cancelled."
   },
   "machineAccountsCannotCreate": {
-    "message": "无法在已停用的组织中创建机器账户。请联系您的组织所有者寻求帮助。"
+    "message": "无法在已暂停的组织中创建机器账户。请联系您的组织所有者寻求帮助。"
   },
   "machineAccount": {
     "message": "机器账户",
@@ -9478,7 +9737,10 @@
     "message": "将事件数据发送到您的 Logscale 实例"
   },
   "failedToSaveIntegration": {
-    "message": "Failed to save integration. Please try again later."
+    "message": "保存集成失败。请稍后再试。"
+  },
+  "failedToDeleteIntegration": {
+    "message": "删除集成失败。请稍后再试。"
   },
   "deviceIdMissing": {
     "message": "缺少设备 ID"
@@ -9497,6 +9759,15 @@
   },
   "connectIntegrationButtonDesc": {
     "message": "连接 $INTEGRATION$",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
+  },
+  "updateIntegrationButtonDesc": {
+    "message": "更新 $INTEGRATION$",
     "placeholders": {
       "integration": {
         "content": "$1",
@@ -9565,10 +9836,13 @@
     "message": "URL"
   },
   "bearerToken": {
-    "message": "Bearer Token"
+    "message": "Bearer 令牌"
+  },
+  "repositoryNameHint": {
+    "message": "要摄取的存储库的名称"
   },
   "index": {
-    "message": "Index"
+    "message": "索引"
   },
   "selectAPlan": {
     "message": "选择一个计划"
@@ -10015,14 +10289,8 @@
   "learnMoreAboutApi": {
     "message": "进一步了解 Bitwarden API"
   },
-  "fileSend": {
-    "message": "文件 Send"
-  },
   "fileSends": {
     "message": "文件 Send"
-  },
-  "textSend": {
-    "message": "文本 Send"
   },
   "textSends": {
     "message": "文本 Send"
@@ -10151,7 +10419,7 @@
     "message": "6 个高级账户"
   },
   "unlimitedSharing": {
-    "message": "无限制的共享"
+    "message": "不限数量的共享"
   },
   "unlimitedCollections": {
     "message": "不限数量的集合"
@@ -10175,7 +10443,7 @@
     "message": "自定义角色"
   },
   "unlimitedSecretsStorage": {
-    "message": "无限制的机密存储"
+    "message": "不限数量的机密存储"
   },
   "unlimitedUsers": {
     "message": "不限数量的用户"
@@ -10337,7 +10605,7 @@
     }
   },
   "suspendedOrganizationTitle": {
-    "message": "$ORGANIZATION$ 已停用",
+    "message": "$ORGANIZATION$ 已暂停",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -10367,10 +10635,10 @@
     "message": "不允许成员通过此组织兑换家庭计划。"
   },
   "verifyBankAccountWithStatementDescriptorWarning": {
-    "message": "使用银行账户付款仅对美国用户开放。您将被要求验证您的银行账户。我们将在 1-2 个工作日内进行一笔小额转账，请在组织的计费页面输入该转账的对账单描述符代码以验证银行账户。验证银行账户失败将会错过支付，您的订阅将失效。"
+    "message": "使用银行账户付款仅对美国用户开放。您将被要求验证您的银行账户。我们将在 1-2 个工作日内进行一笔小额转账，请在组织的计费页面输入该转账的对账单描述符代码以验证银行账户。验证银行账户失败将会错过支付，您的订阅将暂停。"
   },
   "verifyBankAccountWithStatementDescriptorInstructions": {
-    "message": "我们已向您的银行账户存入了一笔小额转账（可能需要 1-2 个工作日到账）。请输入转账描述中以「SM」开头的六位数代码。验证银行账户失败将会错过支付，您的订阅将失效。"
+    "message": "我们已向您的银行账户存入了一笔小额转账（可能需要 1-2 个工作日到账）。请输入转账描述中以「SM」开头的六位数代码。验证银行账户失败将会错过支付，您的订阅将暂停。"
   },
   "descriptorCode": {
     "message": "描述符代码"
@@ -10702,13 +10970,19 @@
     }
   },
   "userkeyRotationDisclaimerDescription": {
-    "message": "轮换加密密钥将需要您信任能够恢复您账户的所有组织的密钥，以及您已为其启用紧急访问的所有联系人的密钥。要继续操作，请确保您能够验证以下信息："
+    "message": "轮换加密密钥要求您信任可以恢复您账户的任何组织的密钥，以及您已为其启用紧急访问的任何联系人的密钥。要继续，请确保您可以验证以下信息："
   },
   "userkeyRotationDisclaimerTitle": {
     "message": "未信任的加密密钥"
   },
   "changeAtRiskPassword": {
     "message": "更改有风险的密码"
+  },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "此登录存在风险且缺少网站。请添加网站并更改密码以增强安全性。"
+  },
+  "missingWebsite": {
+    "message": "缺少网站"
   },
   "removeUnlockWithPinPolicyTitle": {
     "message": "禁用 PIN 码解锁"
@@ -10724,6 +10998,9 @@
   },
   "upgradeEventLogMessage": {
     "message": "这些事件仅为示例，并不反映您 Bitwarden 组织内的真实事件。"
+  },
+  "viewEvents": {
+    "message": "查看事件"
   },
   "cannotCreateCollection": {
     "message": "免费组织最多拥有 2 个集合。要添加更多集合，请升级到付费计划。"
@@ -10812,10 +11089,10 @@
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
   "setupExtensionPageTitle": {
-    "message": "Autofill your passwords securely with one click"
+    "message": "一键安全地自动填充您的密码"
   },
   "setupExtensionPageDescription": {
-    "message": "Get the Bitwarden browser extension and start autofilling today"
+    "message": "获取 Bitwarden 浏览器扩展，即刻开启自动填充"
   },
   "getTheExtension": {
     "message": "获取扩展"
@@ -10836,7 +11113,7 @@
     "message": "Bitwarden 扩展已安装！"
   },
   "openExtensionToAutofill": {
-    "message": "打开此扩展以登录并开始自动填充。"
+    "message": "打开扩展以登录并开始自动填充。"
   },
   "openBitwardenExtension": {
     "message": "打开 Bitwarden 扩展"
@@ -10846,11 +11123,11 @@
     "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
   },
   "gettingStartedWithBitwardenPart2": {
-    "message": "Learning Center",
+    "message": "学习中心",
     "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
   },
   "gettingStartedWithBitwardenPart3": {
-    "message": "Help Center",
+    "message": "帮助中心",
     "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
   },
   "setupExtensionContentAlt": {
@@ -10860,7 +11137,7 @@
     "message": "重启"
   },
   "verifyProviderBankAccountWithStatementDescriptorWarning": {
-    "message": "使用银行账户付款仅对美国用户开放。您将被要求验证您的银行账户。我们将在 1-2 个工作日内进行一笔小额转账，请在提供商的订阅页面输入该转账的对账单描述符代码以验证银行账户。验证银行账户失败将会错过支付，您的订阅将失效。"
+    "message": "使用银行账户付款仅对美国用户开放。您将被要求验证您的银行账户。我们将在 1-2 个工作日内进行一笔小额转账，请在提供商的订阅页面输入该转账的对账单描述符代码以验证银行账户。验证银行账户失败将会错过支付，您的订阅将暂停。"
   },
   "clickPayWithPayPal": {
     "message": "请点击「使用 PayPal 付款」按钮以添加您的付款方式。"
@@ -10881,6 +11158,12 @@
   "billingAddressRequiredToAddCredit": {
     "message": "添加信用额度需要计费地址。",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
+  },
+  "aboutThisSetting": {
+    "message": "关于此设置"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden 将使用已保存的登录 URI 来识别应使用哪个图标或更改密码的 URL 来改善您的体验。当您使用此服务时，不会收集或保存任何信息。"
   },
   "billingAddress": {
     "message": "计费地址"
@@ -10907,19 +11190,19 @@
     "message": "您的银行账户已验证。"
   },
   "availableCreditAppliedToInvoice": {
-    "message": "Any available credit will be automatically applied towards invoices generated for this account."
+    "message": "任何可用的信用额度将用于自动抵扣此账户的账单。"
   },
   "mustBePositiveNumber": {
-    "message": "Must be a positive number"
+    "message": "必须是正数"
   },
   "cardSecurityCode": {
-    "message": "Card security code"
+    "message": "卡安全码"
   },
   "cardSecurityCodeDescription": {
-    "message": "Card security code, also known as CVV or CVC, is typically a 3 digit number printed on the back of your credit card or 4 digit number printed on the front above your card number."
+    "message": "卡安全码，又称 CVV 或 CVC，通常是印在信用卡背面的 3 位数字，或是印在信用卡正面卡号上方的 4 位数字。"
   },
   "verifyBankAccountWarning": {
-    "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Enter the statement descriptor code from this deposit on the Payment Details page to verify the bank account. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
+    "message": "使用银行账户付款仅对美国用户开放。您将被要求验证您的银行账户。我们将在 1-2 个工作日内进行一笔小额转账，请在付款详细信息页面输入该转账的对账单描述符代码以验证银行账户。验证银行账户失败将会错过支付，您的订阅将暂停。"
   },
   "taxId": {
     "message": "税务 ID：$TAX_ID$",
@@ -10934,11 +11217,11 @@
     "message": "未付款账单"
   },
   "unpaidInvoicesForServiceUser": {
-    "message": "Your subscription has not been paid. Contact your provider administrator to restore service to you and your clients.",
+    "message": "您的订阅尚未支付。请联系您的提供商管理员，以恢复对您和您客户的服务。",
     "description": "A message shown in a non-dismissible dialog to service users of unpaid providers."
   },
   "providerSuspended": {
-    "message": "$PROVIDER$ is suspended",
+    "message": "$PROVIDER$ 已暂停",
     "placeholders": {
       "provider": {
         "content": "$1",
@@ -10947,11 +11230,11 @@
     }
   },
   "restoreProviderPortalAccessViaCustomerSupport": {
-    "message": "To restore access to your provider portal, contact Bitwarden Customer Support to renew your subscription.",
+    "message": "要恢复对您的提供商门户的访问权限，请联系 Bitwarden 客户支持续费您的订阅。",
     "description": "A message shown in a non-dismissible dialog to any user of a suspended providers."
   },
   "restoreProviderPortalAccessViaPaymentMethod": {
-    "message": "Your subscription has not been paid. To restore service to you and your clients, add a payment method by $CANCELLATION_DATE$.",
+    "message": "您的订阅尚未支付。要恢复对您和您客户的服务，请在 $CANCELLATION_DATE$ 前添加一个付款方式。",
     "placeholders": {
       "cancellation_date": {
         "content": "$1",
@@ -10961,7 +11244,7 @@
     "description": "A message shown in a non-dismissible dialog to admins of unpaid providers."
   },
   "subscribetoEnterprise": {
-    "message": "Subscribe to $PLAN$",
+    "message": "订阅为 $PLAN$",
     "placeholders": {
       "plan": {
         "content": "$1",
@@ -10970,7 +11253,7 @@
     }
   },
   "subscribeEnterpriseSubtitle": {
-    "message": "Your 7-day $PLAN$ trial starts today. Add a payment method now to continue using these features after your trial ends: ",
+    "message": "您的 7 天 $PLAN$ 试用从今天开始。现在就添加一个付款方式，以便在试用结束后继续使用这些功能：",
     "placeholders": {
       "plan": {
         "content": "$1",
@@ -10980,5 +11263,79 @@
   },
   "unlimitedSecretsAndProjects": {
     "message": "不限数量的机密和工程"
+  },
+  "providersubscriptionCanceled": {
+    "message": "订阅已取消"
+  },
+  "providersubCanceledmessage": {
+    "message": "要重新订阅，请联系 Bitwarden 客户支持。"
+  },
+  "showMore": {
+    "message": "显示更多"
+  },
+  "showLess": {
+    "message": "显示更少"
+  },
+  "missingTaxId": {
+    "message": "缺少税务 ID"
+  },
+  "missingTaxIdWarning": {
+    "message": "需要采取操作：您的付款详细信息缺少税务 ID 号码。如果未添加税务 ID，您的账单可能会包括额外的税款。"
+  },
+  "moreBreadcrumbs": {
+    "message": "更多导航项",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "addTaxId": {
+    "message": "添加税务 ID"
+  },
+  "missingTaxIdCalloutTitle": {
+    "message": "需要采取操作：缺少税务 ID"
+  },
+  "missingTaxIdCalloutDescription": {
+    "message": "如果未添加税务 ID，您的账单可能会包括额外的税款。"
+  },
+  "unverifiedTaxIdWarning": {
+    "message": "需要采取操作：您的税务 ID 号码未验证。如果您的税务 ID 未验证，您的账单可能会包括额外的税款。"
+  },
+  "editTaxId": {
+    "message": "编辑您的税务 ID"
+  },
+  "unverifiedTaxIdCalloutTitle": {
+    "message": "税务 ID 未验证"
+  },
+  "unverifiedTaxIdCalloutDescription": {
+    "message": "请检查您的税务 ID，确保格式正确且无拼写错误。"
+  },
+  "pendingVerification": {
+    "message": "待验证"
+  },
+  "checkInputFormat": {
+    "message": "请检查输入格式是否有拼写错误。"
+  },
+  "exampleTaxIdFormat": {
+    "message": "示例 $CODE$ 格式：$EXAMPLE$",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "ABN"
+      },
+      "example": {
+        "content": "$2",
+        "example": "92873837267"
+      }
+    }
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "确认 Key Connector 域名"
+  },
+  "requiredToVerifyBankAccountWithStripe": {
+    "message": "使用银行账户付款仅对美国用户开放。您将被要求验证您的银行账户。我们将在 1-2 个工作日内进行一笔小额转账。验证银行账户失败将会错过支付，您的订阅将暂停。"
+  },
+  "verifyBankAccountWithStripe": {
+    "message": "我们已向您的银行账户做了一笔小额转账，可能需要 1-2 个工作日到账。请在到账后验证您的银行账户。验证银行账户失败将会错过支付，您的订阅将暂停。"
+  },
+  "verifyNow": {
+    "message": " 立即验证。"
   }
 }

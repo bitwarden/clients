@@ -2,11 +2,13 @@
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, ElementRef, Inject, OnDestroy, OnInit, ViewChild } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
 import { firstValueFrom, Subject, switchMap } from "rxjs";
 import { map } from "rxjs/operators";
 
 import { CollectionView } from "@bitwarden/admin-console/common";
+import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { VaultViewPasswordHistoryService } from "@bitwarden/angular/services/view-password-history.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
@@ -131,6 +133,7 @@ export type VaultItemDialogResult = UnionOfValues<typeof VaultItemDialogResult>;
     CipherFormModule,
     AsyncActionsModule,
     ItemModule,
+    PremiumBadgeComponent,
   ],
   providers: [
     { provide: PremiumUpgradePromptService, useClass: WebVaultPremiumUpgradePromptService },
@@ -273,6 +276,10 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
 
   protected canDelete = false;
 
+  protected attachmentsButtonDisabled = false;
+
+  protected confirmedPremiumUpgrade = false;
+
   constructor(
     @Inject(DIALOG_DATA) protected params: VaultItemDialogParams,
     private dialogRef: DialogRef<VaultItemDialogResult>,
@@ -292,6 +299,12 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     private routedVaultFilterService: RoutedVaultFilterService,
   ) {
     this.updateTitle();
+    this.premiumUpgradeService.upgradeConfirmed$
+      .pipe(
+        map((c) => c && (this.confirmedPremiumUpgrade = true)),
+        takeUntilDestroyed(),
+      )
+      .subscribe();
   }
 
   async ngOnInit() {
@@ -335,10 +348,18 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
+    // If the user already confirmed a premium upgrade, don't emit any other result as it will overwrite the premium upgrade result.
+    if (this.confirmedPremiumUpgrade) {
+      return;
+    }
     // If the cipher was modified, be sure we emit the saved result in case the dialog was closed with the X button or ESC key.
     if (this._cipherModified) {
       this.dialogRef.close(VaultItemDialogResult.Saved);
     }
+  }
+
+  formStatusChanged(status: "disabled" | "enabled") {
+    this.attachmentsButtonDisabled = status === "disabled";
   }
 
   /**
@@ -431,7 +452,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     const canAccessAttachments = await firstValueFrom(this.canAccessAttachments$);
 
     if (!canAccessAttachments) {
-      await this.premiumUpgradeService.promptForPremium();
+      await this.premiumUpgradeService.promptForPremium(this.cipher?.organizationId);
       return;
     }
 
@@ -513,36 +534,39 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     return await this.cipherService.decrypt(config.originalCipher, activeUserId);
   }
 
-  private updateTitle() {
-    let partOne: string;
+  private updateTitle(): void {
+    const mode = this.formConfig.mode || this.params.mode;
+    const type = this.cipher?.type ?? this.formConfig.cipherType;
+    const translation: { [key: string]: { [key: number]: string } } = {
+      view: {
+        [CipherType.Login]: "viewItemHeaderLogin",
+        [CipherType.Card]: "viewItemHeaderCard",
+        [CipherType.Identity]: "viewItemHeaderIdentity",
+        [CipherType.SecureNote]: "viewItemHeaderNote",
+        [CipherType.SshKey]: "viewItemHeaderSshKey",
+      },
+      new: {
+        [CipherType.Login]: "newItemHeaderLogin",
+        [CipherType.Card]: "newItemHeaderCard",
+        [CipherType.Identity]: "newItemHeaderIdentity",
+        [CipherType.SecureNote]: "newItemHeaderNote",
+        [CipherType.SshKey]: "newItemHeaderSshKey",
+      },
+      edit: {
+        [CipherType.Login]: "editItemHeaderLogin",
+        [CipherType.Card]: "editItemHeaderCard",
+        [CipherType.Identity]: "editItemHeaderIdentity",
+        [CipherType.SecureNote]: "editItemHeaderNote",
+        [CipherType.SshKey]: "editItemHeaderSshKey",
+      },
+    };
 
-    if (this.params.mode === "view") {
-      partOne = "viewItemType";
-    } else if (this.formConfig.mode === "edit" || this.formConfig.mode === "partial-edit") {
-      partOne = "editItemHeader";
-    } else {
-      partOne = "newItemHeader";
-    }
+    const effectiveMode =
+      mode === "partial-edit" || mode === "edit" ? "edit" : translation[mode] ? mode : "new";
 
-    const type = this.cipher?.type ?? this.formConfig.cipherType ?? CipherType.Login;
+    const fullTranslation = translation[effectiveMode][type];
 
-    switch (type) {
-      case CipherType.Login:
-        this.title = this.i18nService.t(partOne, this.i18nService.t("typeLogin"));
-        break;
-      case CipherType.Card:
-        this.title = this.i18nService.t(partOne, this.i18nService.t("typeCard"));
-        break;
-      case CipherType.Identity:
-        this.title = this.i18nService.t(partOne, this.i18nService.t("typeIdentity"));
-        break;
-      case CipherType.SecureNote:
-        this.title = this.i18nService.t(partOne, this.i18nService.t("note"));
-        break;
-      case CipherType.SshKey:
-        this.title = this.i18nService.t(partOne, this.i18nService.t("typeSshKey"));
-        break;
-    }
+    this.title = this.i18nService.t(fullTranslation);
   }
 
   /**

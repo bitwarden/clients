@@ -702,6 +702,12 @@
   "attachmentSaved": {
     "message": "Прилог је сачуван"
   },
+  "addAttachment": {
+    "message": "Додај прилог"
+  },
+  "maxFileSizeSansPunctuation": {
+    "message": "Максимална величина је 500МБ"
+  },
   "file": {
     "message": "Датотека"
   },
@@ -953,9 +959,6 @@
   },
   "insertU2f": {
     "message": "Убаците свој сигурносни кључ у УСБ порт рачунара, и ако има дугме , додирните га."
-  },
-  "recoveryCodeDesc": {
-    "message": "Изгубили сте приступ свим својим двофакторским добављачима? Употребите код за опоравак да онемогућите све двофакторске добављаче из налога."
   },
   "recoveryCodeTitle": {
     "message": "Шифра за опоравак"
@@ -1225,11 +1228,17 @@
   "twoStepLogin": {
     "message": "Дво-коракна лозинка"
   },
+  "vaultTimeoutHeader": {
+    "message": "Тајмаут сефа"
+  },
   "vaultTimeout": {
     "message": "Тајмаут сефа"
   },
   "vaultTimeout1": {
     "message": "Време трајања"
+  },
+  "vaultTimeoutAction1": {
+    "message": "Акција тајмаута"
   },
   "vaultTimeoutDesc": {
     "message": "Изаберите када ће сеф истећи и извршити одабрану радњу."
@@ -1293,11 +1302,8 @@
     "message": "Аутоматски обришите копиране вредности из привремене меморије.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
-  "enableFavicon": {
-    "message": "Прикажи иконе сајтова"
-  },
-  "faviconDesc": {
-    "message": "Прикажи препознатљиву слику поред сваке ставке за пријаву."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "enableMinToTray": {
     "message": "Минимизирај као иконицу у системској траци"
@@ -1833,12 +1839,6 @@
   },
   "autoPromptTouchId": {
     "message": "Захтевај Touch ID при покретању"
-  },
-  "requirePasswordOnStart": {
-    "message": "Захтевај лозинку или ПИН при покретању"
-  },
-  "requirePasswordWithoutPinOnStart": {
-    "message": "Захтевај лозинку при покретању"
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Закључајте са главном лозинком при поновном покретању"
@@ -2511,6 +2511,35 @@
   "vaultTimeoutTooLarge": {
     "message": "Време истека вашег сефа је премашило дозвољена ограничења од стране ваше организације."
   },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "Захтеви политике предузећа су примењени на опције тајмаута"
+  },
+  "vaultTimeoutPolicyInEffect": {
+    "message": "Ваше организационе политике су поставиле максимално дозвољено време трајања сефа на $HOURS$ сат(и) и $MINUTES$ минут(а).",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "Тајмаут је већи него што је решила организација: макимум $HOURS$ сат(а) и $MINUTES$ минут(а)",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
   "inviteAccepted": {
     "message": "Позив прихваћен"
   },
@@ -2992,9 +3021,6 @@
     "message": "Пребаци бројање слова",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Да ли покушавате да приступите вашем налогу?"
-  },
   "accessAttemptBy": {
     "message": "Покушај приступа са $EMAIL$",
     "placeholders": {
@@ -3003,6 +3029,50 @@
         "example": "name@example.com"
       }
     }
+  },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Захтев за пријаву одобрен за $EMAIL$ на $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Одбили сте покушај пријаве са другог уређаја. Ако сте то били ви, покушајте поново да се пријавите помоћу уређаја."
+  },
+  "webApp": {
+    "message": "Веб апликација"
+  },
+  "mobile": {
+    "message": "Мобилни",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Додатак",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Десктоп",
+    "description": "Desktop app"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "server": {
+    "message": "Сервер"
+  },
+  "loginRequest": {
+    "message": "Захтев за пријаву"
   },
   "deviceType": {
     "message": "Тип уређаја"
@@ -3018,22 +3088,6 @@
   },
   "denyAccess": {
     "message": "Одбити приступ"
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Пријава потврђена за $EMAIL$ на $DEVICE$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Одбили сте покушај пријаве са другог уређаја. Ако сте то заиста били ви, покушајте поново да се пријавите помоћу уређаја."
   },
   "justNow": {
     "message": "Управо сада"
@@ -3226,7 +3280,7 @@
     "message": "За сигурност вашег рачуна, наставите само ако сте члан ове организације, омогућили опоравак рачуна и отисак који се приказује испод одговара прстима организације."
   },
   "orgTrustWarning1": {
-    "message": "This organization has an Enterprise policy that will enroll you in account recovery. Enrollment will allow organization administrators to change your password. Only proceed if you recognize this organization and the fingerprint phrase displayed below matches the organization's fingerprint."
+    "message": "Ова организација има политику за предузећа која ће вас уписати у опоравак налога. Упис ће омогућити администраторима организације да промене вашу лозинку. Наставите само ако препознајете ову организацију и ако се фраза отиска приказана испод поклапа са отиском организације."
   },
   "trustUser": {
     "message": "Повери кориснику"
@@ -3431,15 +3485,11 @@
   "selectImportCollection": {
     "message": "Изабери колекцију"
   },
-  "importTargetHint": {
-    "message": "Изаберите ову опцију ако желите да се садржај увезене датотеке премести у $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Изаберите ову опцију ако желите да се садржај увезене датотеке пребацио у колекцију"
+  },
+  "importTargetHintFolder": {
+    "message": "Изаберите ову опцију ако желите да се садржај увезене датотеке пребацио у фасцикли"
   },
   "importUnassignedItemsError": {
     "message": "Датотека садржи недодељене ставке."
@@ -3534,6 +3584,12 @@
   },
   "awaitingSSODesc": {
     "message": "Наставите да се пријављујете користећи акредитиве своје компаније."
+  },
+  "importDirectlyFromBrowser": {
+    "message": "Директан увоз из прегледача"
+  },
+  "browserProfile": {
+    "message": "Профил прегледача"
   },
   "seeDetailedInstructions": {
     "message": "Погледајте детаљна упутства на нашој веб локацији за помоћ на",
@@ -3777,6 +3833,12 @@
   "changeAtRiskPassword": {
     "message": "Променити ризичну лозинку"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "Не можете уклонити колекције са дозволама само за приказ: $COLLECTIONS$",
     "placeholders": {
@@ -3871,6 +3933,12 @@
     "message": "Сазнајте више о SSH агенту",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
   },
   "assignToCollections": {
     "message": "Додели колекцијама"
@@ -4006,10 +4074,38 @@
       }
     }
   },
+  "showMore": {
+    "message": "Прикажи више"
+  },
+  "showLess": {
+    "message": "Прикажи мање"
+  },
   "enableAutotype": {
     "message": "Упали ауто-унос"
   },
   "enableAutotypeDescription": {
     "message": "Bitwarden не потврђује локације уноса, будите сигурни да сте у добром прозору и поље пре употребе пречице."
+  },
+  "moreBreadcrumbs": {
+    "message": "Више мрвица",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "next": {
+    "message": "Следеће"
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Потврдите домен конектора кључа"
+  },
+  "confirm": {
+    "message": "Потврди"
+  },
+  "enableAutotypeTransitionKey": {
+    "message": "Enable autotype shortcut"
+  },
+  "enableAutotypeDescriptionTransitionKey": {
+    "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."
+  },
+  "editShortcut": {
+    "message": "Edit shortcut"
   }
 }

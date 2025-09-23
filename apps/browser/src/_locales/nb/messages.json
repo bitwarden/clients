@@ -556,6 +556,9 @@
   "view": {
     "message": "Vis"
   },
+  "viewLogin": {
+    "message": "View login"
+  },
   "noItemsInList": {
     "message": "Det er ingen elementer å vise."
   },
@@ -1522,9 +1525,6 @@
   "selectTwoStepLoginMethod": {
     "message": "Velg 2-trinnspåloggingsmetode"
   },
-  "recoveryCodeDesc": {
-    "message": "Har du mistet tilgang til alle dine 2-trinnsleverandører? Bruk din gjenopprettingskode til å fjerne alle 2-trinnsleverandører fra din konto."
-  },
   "recoveryCodeTitle": {
     "message": "Gjenopprettingskode"
   },
@@ -1683,9 +1683,6 @@
   "defaultAutoFillOnPageLoadDesc": {
     "message": "Du kan skru av auto-utfylling ved sideinnlastinger for individuelle innloggingsgjenstander fra gjenstandens «Redigér»-visning."
   },
-  "itemAutoFillOnPageLoad": {
-    "message": "Auto-utfyll på sideinnlastning (hvis aktivert i Alternativer)"
-  },
   "autoFillOnPageLoadUseDefault": {
     "message": "Bruk standardinnstillinger"
   },
@@ -1757,23 +1754,8 @@
   "popup2faCloseMessage": {
     "message": "Å klikke utenfor dette oppsprettsvinduet for å sjekke E-postinnboksen din for en verifiseringskoden, vil lukke denne oppspretten. Vil du åpne oppsprettet i et nytt vindu sånn at den ikke lukkes?"
   },
-  "popupU2fCloseMessage": {
-    "message": "Denne nettleseren kan ikke behandle U2F-forespørsler i dette popup-vinduet. Vil du åpne denne popupen i et nytt vindu, slik at du kan logge deg på med U2F?"
-  },
-  "enableFavicon": {
-    "message": "Vis nettsideikoner"
-  },
-  "faviconDesc": {
-    "message": "Vis et gjenkjennelig bilde ved siden av hver innlogging."
-  },
-  "faviconDescAlt": {
-    "message": "Show a recognizable image next to each login. Applies to all logged in accounts."
-  },
-  "enableBadgeCounter": {
-    "message": "Vis merke-teller"
-  },
-  "badgeCounterDesc": {
-    "message": "Indiker hvor mange innlogginger du har for den aktuelle nettsiden."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "cardholderName": {
     "message": "Kortholderens navn"
@@ -1937,32 +1919,81 @@
   "typeNote": {
     "message": "Note"
   },
-  "newItemHeader": {
-    "message": "Ny $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderLogin": {
+    "message": "New Login",
+    "description": "Header for new login item type"
   },
-  "editItemHeader": {
-    "message": "Rediger $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderCard": {
+    "message": "New Card",
+    "description": "Header for new card item type"
   },
-  "viewItemHeader": {
-    "message": "Vis $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderIdentity": {
+    "message": "New Identity",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "New Note",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "New SSH key",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderTextSend": {
+    "message": "New Text Send",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "New File Send",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderLogin": {
+    "message": "Edit Login",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Edit Card",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Edit Identity",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Edit Note",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "Edit SSH key",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Edit Text Send",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Edit File Send",
+    "description": "Header for edit file send"
+  },
+  "viewItemHeaderLogin": {
+    "message": "View Login",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "View Card",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "View Identity",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "View Note",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "View SSH key",
+    "description": "Header for view SSH key item type"
   },
   "passwordHistory": {
     "message": "Passordhistorikk"
@@ -3524,9 +3555,6 @@
   "autofillPageLoadPolicyActivated": {
     "message": "Virksomhetsreglene dine har slått på automatisk utfylling av sidene."
   },
-  "howToAutofill": {
-    "message": "Hvordan bruke auto-utfylling"
-  },
   "autofillSelectInfoWithCommand": {
     "message": "Velg en gjenstand fra denne skjermen, bruk snarveien $COMMAND$, eller utforsk andre alternativer i innstillingene.",
     "placeholders": {
@@ -3656,25 +3684,6 @@
   },
   "thisRequestIsNoLongerValid": {
     "message": "Denne forespørselen er ikke lenger gyldig."
-  },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Are you trying to access your account?"
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Login confirmed for $EMAIL$ on $DEVICE$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "You denied a login attempt from another device. If this really was you, try to log in with the device again."
   },
   "loginRequestHasAlreadyExpired": {
     "message": "Innloggingsforespørselen har allerede utløpt."
@@ -3930,17 +3939,9 @@
   "aliasDomain": {
     "message": "Alias-domene"
   },
-  "passwordRepromptDisabledAutofillOnPageLoad": {
-    "message": "Items with master password re-prompt cannot be autofilled on page load. Autofill on page load turned off.",
-    "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
-  },
   "autofillOnPageLoadSetToDefault": {
     "message": "Autofill on page load set to use default setting.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "turnOffMasterPasswordPromptToEditField": {
-    "message": "Turn off master password re-prompt to edit this field",
-    "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
   },
   "toggleSideNavigation": {
     "message": "Skru av/på sidenavigering"
@@ -4150,15 +4151,11 @@
   "selectImportCollection": {
     "message": "Velg en samling"
   },
-  "importTargetHint": {
-    "message": "Velg dette alternativet hvis du vil flytte den importerte filens innhold til en $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Select this option if you want the imported file contents moved to a collection"
+  },
+  "importTargetHintFolder": {
+    "message": "Select this option if you want the imported file contents moved to a folder"
   },
   "importUnassignedItemsError": {
     "message": "Filen inneholder utildelte elementer."
@@ -4214,9 +4211,6 @@
   },
   "passkeyNotCopiedAlert": {
     "message": "Passnøkkelen kopieres ikke til det klonede elementet. Vil du fortsette kloningen av denne gjenstanden?"
-  },
-  "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
-    "message": "Verification required by the initiating site. This feature is not yet implemented for accounts without master password."
   },
   "logInWithPasskeyQuestion": {
     "message": "Vil du logge inn med passnøkkel?"
@@ -4903,9 +4897,6 @@
       }
     }
   },
-  "enableAnimations": {
-    "message": "Aktiver animasjoner"
-  },
   "showAnimations": {
     "message": "Vis animasjoner"
   },
@@ -5118,14 +5109,8 @@
   "itemLocation": {
     "message": "Gjenstandens plassering"
   },
-  "fileSend": {
-    "message": "File Send"
-  },
   "fileSends": {
     "message": "File Sends"
-  },
-  "textSend": {
-    "message": "Text Send"
   },
   "textSends": {
     "message": "Text Sends"
@@ -5135,6 +5120,18 @@
   },
   "showNumberOfAutofillSuggestions": {
     "message": "Vis antall auto-utfyllingsforslag for pålogging på utvidelsesikonet"
+  },
+  "accountAccessRequested": {
+    "message": "Account access requested"
+  },
+  "confirmAccessAttempt": {
+    "message": "Confirm access attempt for $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
   },
   "showQuickCopyActions": {
     "message": "Vis hurtigkopieringshandlinger i hvelvet"
@@ -5174,9 +5171,6 @@
   },
   "vaultCustomTimeoutMinimum": {
     "message": "Minste egendefinerte tidsavbrudd er 1 minutt."
-  },
-  "additionalContentAvailable": {
-    "message": "Ytterligere innhold er tilgjengelig"
   },
   "fileSavedToDevice": {
     "message": "File saved to device. Manage from your device downloads."
@@ -5463,6 +5457,12 @@
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
+  },
   "settingsVaultOptions": {
     "message": "Hvelvinnstillinger"
   },
@@ -5510,6 +5510,18 @@
   },
   "hasItemsVaultNudgeTitle": {
     "message": "Velkommen til hvelvet ditt!"
+  },
+  "phishingPageTitle": {
+    "message": "Phishing website"
+  },
+  "phishingPageCloseTab": {
+    "message": "Close tab"
+  },
+  "phishingPageContinue": {
+    "message": "Continue"
+  },
+  "phishingPageLearnWhy": {
+    "message": "Why are you seeing this?"
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Autofill items for the current page"
@@ -5586,11 +5598,33 @@
     "message": "Easily create strong and unique passwords by clicking on the Generate password button to help you keep your logins secure.",
     "description": "Aria label for the body content of the generator nudge"
   },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+  },
   "noPermissionsViewPage": {
     "message": "You do not have permissions to view this page. Try logging in with a different account."
   },
   "wasmNotSupported": {
     "message": "WebAssembly is not supported on your browser or is not enabled. WebAssembly is required to use the Bitwarden app.",
     "description": "'WebAssembly' is a technical term and should not be translated."
+  },
+  "showMore": {
+    "message": "Show more"
+  },
+  "showLess": {
+    "message": "Show less"
+  },
+  "next": {
+    "message": "Next"
+  },
+  "moreBreadcrumbs": {
+    "message": "More breadcrumbs",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Confirm Key Connector domain"
   }
 }

@@ -51,7 +51,7 @@ const render: Story["render"] = (args) => ({
           buttonType="danger"
           size="default"
           title="Delete"
-          aria-label="Delete"></button>
+          label="Delete"></button>
       </ng-container>
     </bit-dialog>
   `,

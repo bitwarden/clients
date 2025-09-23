@@ -20,11 +20,12 @@ export { openPasswordHistoryDialog } from "./components/password-history/passwor
 export * from "./components/add-edit-folder-dialog/add-edit-folder-dialog.component";
 export * from "./components/carousel";
 export * from "./components/new-cipher-menu/new-cipher-menu.component";
-
-export * as VaultIcons from "./icons";
+export * from "./components/permit-cipher-details-popover/permit-cipher-details-popover.component";
 
 export { DefaultSshImportPromptService } from "./services/default-ssh-import-prompt.service";
 export { SshImportPromptService } from "./services/ssh-import-prompt.service";
 
 export * from "./abstractions/change-login-password.service";
 export * from "./services/default-change-login-password.service";
+export * from "./abstractions/cipher-archive.service";
+export * from "./services/default-cipher-archive.service";
