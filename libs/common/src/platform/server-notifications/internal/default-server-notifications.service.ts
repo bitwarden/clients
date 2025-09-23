@@ -278,16 +278,11 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
         await this.syncService.syncDeleteSend(notification.payload as SyncSendNotification);
         break;
       case NotificationType.AuthRequest:
-        if (
-          await firstValueFrom(
-            this.configService.getFeatureFlag$(FeatureFlag.PM14938_BrowserExtensionLoginApproval),
-          )
-        ) {
-          await this.authRequestAnsweringService.receivedPendingAuthRequest(
-            notification.payload.userId,
-            notification.payload.id,
-          );
-        }
+        await this.authRequestAnsweringService.receivedPendingAuthRequest(
+          notification.payload.userId,
+          notification.payload.id,
+        );
+
         this.messagingService.send("openLoginApproval", {
           notificationId: notification.payload.id,
         });
