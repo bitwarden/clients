@@ -20,7 +20,7 @@ const CipherData = [
         password: "Qh6W4Wz55YGFNU",
         uris: [
           Object.assign(new LoginUriView(), {
-            uri: "android://N2H9MndUUUt3JuQSWAKexOU9oJLJeHR4nyUGac5E1TXKppkY7xtdRl6l8vKo1hQWCqAEy4gsNLUBIbVxpdmhOP==@com.xyz.example.app.android/",
+            uri: "androidapp://com.xyz.example.app.android",
           }),
         ],
       }),
