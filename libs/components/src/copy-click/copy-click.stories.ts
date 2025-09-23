@@ -38,6 +38,7 @@ export default {
               success: "Success",
               close: "Close",
               info: "Info",
+              loading: "Loading",
             });
           },
         },
