@@ -40,7 +40,6 @@ import {
   VaultTimeoutSettingsService,
   VaultTimeoutStringType,
 } from "@bitwarden/common/key-management/vault-timeout";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -155,7 +154,6 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     private biometricsService: BiometricsService,
     private vaultNudgesService: NudgesService,
     private validationService: ValidationService,
-    private configService: ConfigService,
     private logService: LogService,
   ) {}
 
