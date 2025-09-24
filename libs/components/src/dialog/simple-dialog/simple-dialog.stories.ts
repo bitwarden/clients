@@ -1,7 +1,10 @@
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+
 import { ButtonModule } from "../../button";
+import { I18nMockService } from "../../utils";
 import { DialogModule } from "../dialog.module";
 
 import { SimpleDialogComponent } from "./simple-dialog.component";
@@ -12,6 +15,16 @@ export default {
   decorators: [
     moduleMetadata({
       imports: [ButtonModule, NoopAnimationsModule, DialogModule],
+      providers: [
+        {
+          provide: I18nService,
+          useFactory: () => {
+            return new I18nMockService({
+              loading: "Loading",
+            });
+          },
+        },
+      ],
     }),
   ],
   parameters: {
