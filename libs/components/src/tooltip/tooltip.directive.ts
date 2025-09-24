@@ -115,7 +115,7 @@ export class TooltipDirective implements OnInit {
   }
 
   ngOnInit() {
-    // this.positionStrategy.withPositions(this.computePositions("above-center"));
+    this.positionStrategy.withPositions(this.computePositions(this.tooltipPosition()));
 
     this.overlayRef = this.overlay.create({
       ...this.defaultPopoverConfig,

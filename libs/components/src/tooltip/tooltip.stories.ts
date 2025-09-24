@@ -1,7 +1,10 @@
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+
 import { ButtonComponent } from "../button";
 import { BitIconButtonComponent } from "../icon-button";
+import { I18nMockService } from "../utils";
 import {
   getDefaultPositions,
   DefaultPosition,
@@ -19,6 +22,16 @@ export default {
   decorators: [
     moduleMetadata({
       imports: [TooltipDirective, TooltipComponent, BitIconButtonComponent, ButtonComponent],
+      providers: [
+        {
+          provide: I18nService,
+          useFactory: () => {
+            return new I18nMockService({
+              loading: "Loading",
+            });
+          },
+        },
+      ],
     }),
   ],
   parameters: {
