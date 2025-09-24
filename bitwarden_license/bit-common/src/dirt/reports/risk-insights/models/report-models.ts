@@ -108,8 +108,7 @@ export type CriticalSummaryDetails = {
 };
 
 /**
- * All applications report detail. Application is the cipher
- * uri. Has the at risk, password, and member information
+ * Report details for an application
  */
 export type ApplicationHealthReportDetail = {
   applicationName: string;

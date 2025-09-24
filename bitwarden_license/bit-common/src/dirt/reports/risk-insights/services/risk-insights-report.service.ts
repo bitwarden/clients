@@ -59,15 +59,6 @@ import { RiskInsightsApiService } from "./risk-insights-api.service";
 import { RiskInsightsEncryptionService } from "./risk-insights-encryption.service";
 
 export class RiskInsightsReportService {
-  constructor(
-    private passwordStrengthService: PasswordStrengthServiceAbstraction,
-    private auditService: AuditService,
-    private cipherService: CipherService,
-    private memberCipherDetailsApiService: MemberCipherDetailsApiService,
-    private riskInsightsApiService: RiskInsightsApiService,
-    private riskInsightsEncryptionService: RiskInsightsEncryptionService,
-  ) {}
-
   private riskInsightsReportSubject = new BehaviorSubject<ApplicationHealthReportDetail[]>([]);
   riskInsightsReport$ = this.riskInsightsReportSubject.asObservable();
 
@@ -83,6 +74,27 @@ export class RiskInsightsReportService {
     newApplications: [],
   });
   riskInsightsSummary$ = this.riskInsightsSummarySubject.asObservable();
+
+  // [FIXME] CipherData
+  // Cipher data
+  // private _ciphersSubject = new BehaviorSubject<CipherView[] | null>(null);
+  // _ciphers$ = this._ciphersSubject.asObservable();
+
+  constructor(
+    private passwordStrengthService: PasswordStrengthServiceAbstraction,
+    private auditService: AuditService,
+    private cipherService: CipherService,
+    private memberCipherDetailsApiService: MemberCipherDetailsApiService,
+    private riskInsightsApiService: RiskInsightsApiService,
+    private riskInsightsEncryptionService: RiskInsightsEncryptionService,
+  ) {}
+
+  // [FIXME] CipherData
+  // async loadCiphersForOrganization(organizationId: OrganizationId): Promise<void> {
+  //   await this.cipherService.getAllFromApiForOrganization(organizationId).then((ciphers) => {
+  //     this._ciphersSubject.next(ciphers);
+  //   });
+  // }
 
   /**
    * Report data from raw cipher health data.
@@ -559,6 +571,31 @@ export class RiskInsightsReportService {
     return applicationMap;
   }
 
+  /**
+   *
+   * @param applications The list of application health report details to map ciphers to
+   * @param organizationId
+   * @returns
+   */
+  async getApplicationCipherMap(
+    applications: ApplicationHealthReportDetail[],
+    organizationId: OrganizationId,
+  ): Promise<Map<string, CipherView[]>> {
+    // [FIXME] CipherData
+    // This call is made multiple times. We can optimize this
+    // by loading the ciphers once via a load method to avoid multiple API calls
+    // for the same organization
+    const allCiphers = await this.cipherService.getAllFromApiForOrganization(organizationId);
+    const cipherMap = new Map<string, CipherView[]>();
+
+    applications.forEach((app) => {
+      const filteredCiphers = allCiphers.filter((c) => app.cipherIds.includes(c.id));
+      cipherMap.set(app.applicationName, filteredCiphers);
+    });
+    return cipherMap;
+  }
+
+  // --------------------------- Aggregation methods ---------------------------
   /**
    * Loop through the flattened cipher to uri data. If the item exists it's values need to be updated with the new item.
    * If the item is new, create and add the object with the flattened details
