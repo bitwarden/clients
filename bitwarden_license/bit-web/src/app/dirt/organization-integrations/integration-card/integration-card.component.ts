@@ -201,6 +201,11 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
         result.index,
       );
     }
+    this.toastService.showToast({
+      variant: "success",
+      title: "",
+      message: this.i18nService.t("success"),
+    });
   }
 
   async deleteHec() {
@@ -217,5 +222,11 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
       orgIntegrationId,
       orgIntegrationConfigurationId,
     );
+
+    this.toastService.showToast({
+      variant: "success",
+      title: "",
+      message: this.i18nService.t("success"),
+    });
   }
 }

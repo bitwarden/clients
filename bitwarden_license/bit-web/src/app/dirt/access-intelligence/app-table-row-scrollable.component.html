@@ -48,17 +48,14 @@
         <app-vault-icon *ngIf="row.ciphers.length > 0" [cipher]="row.ciphers[0]"></app-vault-icon>
       </td>
       <td
-        bitCell
         class="tw-cursor-pointer"
-        [ngClass]="{ 'tw-bg-primary-100': isDrawerIsOpenForThisRecord(row.applicationName) }"
-        (click)="showAppAtRiskMembers(row.applicationName)"
-        (keydown.enter)="showAppAtRiskMembers(row.applicationName)"
-        (keydown.space)="showAppAtRiskMembers(row.applicationName)"
-        role="button"
-        tabindex="0"
         [attr.aria-label]="'viewItem' | i18n"
+        [ngClass]="{ 'tw-bg-primary-100': isDrawerIsOpenForThisRecord(row.applicationName) }"
+        bitCell
       >
-        <span>{{ row.applicationName }}</span>
+        <button type="button" tabindex="0" (click)="showAppAtRiskMembers(row.applicationName)">
+          <span>{{ row.applicationName }}</span>
+        </button>
       </td>
       <td
         bitCell
