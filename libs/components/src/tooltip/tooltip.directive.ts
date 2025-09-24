@@ -14,7 +14,12 @@ import {
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 
-import { getDefaultPositions, ALLOWED_TOOLTIP_POSITION_IDS } from "../utils/default-positions";
+import {
+  getDefaultPositions,
+  ALLOWED_TOOLTIP_POSITION_IDS,
+  AllowedTooltipPosition,
+  DefaultPosition,
+} from "../utils/default-positions";
 
 import { TooltipComponent } from "./tooltip.component";
 
@@ -24,7 +29,7 @@ import { TooltipComponent } from "./tooltip.component";
 })
 export class TooltipDirective implements OnInit {
   readonly bitTooltip = input.required<string>();
-  readonly tooltipPosition = input("above-center");
+  readonly tooltipPosition = input<AllowedTooltipPosition>("above-center");
 
   private overlayRef: OverlayRef | undefined;
   private elementRef = inject(ElementRef);
@@ -60,9 +65,10 @@ export class TooltipDirective implements OnInit {
     this.hideTooltip();
   }
 
-  private computePositions(tooltipPosition: string) {
-    const allowedPositions = getDefaultPositions("bit-tooltip", 10).filter((position) =>
-      ALLOWED_TOOLTIP_POSITION_IDS.includes(position.id),
+  private computePositions(tooltipPosition: AllowedTooltipPosition): DefaultPosition[] {
+    const allowedPositions = getDefaultPositions("bit-tooltip", 10).filter(
+      (position: DefaultPosition) =>
+        ALLOWED_TOOLTIP_POSITION_IDS.includes(position.id as AllowedTooltipPosition),
     );
     const chosenPosition = allowedPositions.find((position) => position.id === tooltipPosition);
     return chosenPosition ? [chosenPosition, ...allowedPositions] : allowedPositions;

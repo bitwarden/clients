@@ -1,6 +1,8 @@
 import { CommonModule } from "@angular/common";
 import { Component, ElementRef, inject, input, TemplateRef, viewChild } from "@angular/core";
 
+import { AllowedTooltipPosition } from "../utils/default-positions";
+
 @Component({
   selector: "bit-tooltip",
   standalone: true,
@@ -10,7 +12,7 @@ import { Component, ElementRef, inject, input, TemplateRef, viewChild } from "@a
 export class TooltipComponent {
   readonly content = input<string>("");
   readonly isVisible = input<boolean>(false);
-  protected tooltipPosition = input("above-center");
+  protected tooltipPosition = input<AllowedTooltipPosition>("above-center");
 
   readonly templateRef = viewChild.required(TemplateRef);
 

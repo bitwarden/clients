@@ -8,7 +8,9 @@ export const ALLOWED_TOOLTIP_POSITION_IDS = [
   "right-center",
   "above-center",
   "below-center",
-];
+] as const;
+
+export type AllowedTooltipPosition = (typeof ALLOWED_TOOLTIP_POSITION_IDS)[number];
 
 export type PositionIdentifier =
   | "right-start"
