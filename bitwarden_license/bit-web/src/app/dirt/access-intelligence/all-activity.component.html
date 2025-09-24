@@ -21,16 +21,6 @@
   <div class="tw-grid tw-gap-2 tw-grid-cols-3">
     <div class="tw-col-span-1">
       <dirt-activity-card
-        [title]="'atRiskMembers'"
-        [value]="atRiskMemberCount"
-        [cardMetrics]="'membersAtRisk'"
-        [metricDescription]="'membersAtRiskActivityDescription'"
-      ></dirt-activity-card>
-    </div>
-    <dirt-password-change-metric class="tw-col-span-2"></dirt-password-change-metric>
-
-    <div class="tw-col-span-1">
-      <dirt-activity-card
         class="tw-col-span-2 tw-cursor-pointer"
         [title]="'atRiskMembers' | i18n"
         [cardMetrics]="'membersAtRisk' | i18n: totalCriticalAppsAtRiskMemberCount"
