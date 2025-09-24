@@ -242,10 +242,10 @@ jobs:
           node build.js --target=x86_64-unknown-linux-musl --release
 
       - name: Check index.d.ts generated
-        if: steps.cache.outputs.cache-hit != 'true'
+        if: github.event_name == 'pull_request' && steps.cache.outputs.cache-hit != 'true'
         working-directory: apps/desktop/desktop_native
         run: |
-          if ! git diff-index --quiet HEAD -- napi/index.d.ts; then
+          if ! git diff-index --quiet ${{ github.pull_request.head.ref }} -- napi/index.d.ts; then
             echo "NAPI index.d.ts doesn't match, make sure to regenerate it and commit it"
             exit 1
           fi
@@ -386,10 +386,10 @@ jobs:
           key: rust-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('apps/desktop/desktop_native/**/*') }}
 
       - name: Check index.d.ts generated
-        if: steps.cache.outputs.cache-hit != 'true'
+        if: github.event_name == 'pull_request' && steps.cache.outputs.cache-hit != 'true'
         working-directory: apps/desktop/desktop_native
         run: |
-          if ! git diff-index --quiet HEAD -- napi/index.d.ts; then
+          if ! git diff-index --quiet ${{ github.pull_request.head.ref }} -- napi/index.d.ts; then
             echo "NAPI index.d.ts doesn't match, make sure to regenerate it and commit it"
             exit 1
           fi
@@ -520,10 +520,10 @@ jobs:
         run: node build.js cross-platform
 
       - name: Check index.d.ts generated
-        if: steps.cache.outputs.cache-hit != 'true'
+        if: github.event_name == 'pull_request' && steps.cache.outputs.cache-hit != 'true'
         working-directory: apps/desktop/desktop_native
         run: |
-          if ! git diff-index --quiet HEAD -- napi/index.d.ts; then
+          if ! git diff-index --quiet ${{ github.pull_request.head.ref }} -- napi/index.d.ts; then
             echo "NAPI index.d.ts doesn't match, make sure to regenerate it and commit it"
             exit 1
           fi
@@ -892,10 +892,10 @@ jobs:
         run: node build.js cross-platform
 
       - name: Check index.d.ts generated
-        if: steps.cache.outputs.cache-hit != 'true'
+        if: github.event_name == 'pull_request' && steps.cache.outputs.cache-hit != 'true'
         working-directory: apps/desktop/desktop_native
         run: |
-          if ! git diff-index --quiet HEAD -- napi/index.d.ts; then
+          if ! git diff-index --quiet ${{ github.pull_request.head.ref }} -- napi/index.d.ts; then
             echo "NAPI index.d.ts doesn't match, make sure to regenerate it and commit it"
             exit 1
           fi
