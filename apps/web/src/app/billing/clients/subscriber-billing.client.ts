@@ -62,6 +62,16 @@ export class SubscriberBillingClient {
     }
   };
 
+  purchasePremiumSubscription = async (
+    subscriber: BitwardenSubscriber,
+    paymentMethod: TokenizedPaymentMethod,
+    billingAddress: Pick<BillingAddress, "country" | "postalCode">,
+  ): Promise<void> => {
+    const path = `${this.getEndpoint(subscriber)}/subscription`;
+    const request = { tokenizedPaymentMethod: paymentMethod, billingAddress: billingAddress };
+    await this.apiService.send("POST", path, request, true, true);
+  };
+
   getBillingAddress = async (subscriber: BitwardenSubscriber): Promise<BillingAddress | null> => {
     const path = `${this.getEndpoint(subscriber)}/address`;
     const data = await this.apiService.send("GET", path, null, true, true);
