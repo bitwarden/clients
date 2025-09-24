@@ -37,20 +37,21 @@ export type DefaultPosition<Id extends PositionIdentifier = PositionIdentifier> 
     id: Id;
   };
 
-type GetDefaultPositionConfig<T extends readonly PositionIdentifier[] | undefined = undefined> = {
+type GetDefaultPositionConfig = {
   classNamePrefix?: string;
   originOffset?: number;
-  positionSubset?: T;
 };
 
 export function getDefaultPositions(options?: GetDefaultPositionConfig): DefaultPosition[];
 
 /** With subset -> return is narrowed to that subset’s union */
 export function getDefaultPositions<const T extends readonly PositionIdentifier[]>(
-  options?: GetDefaultPositionConfig<T>,
+  options?: GetDefaultPositionConfig & { positionSubset: T },
 ): DefaultPosition<T[number]>[];
 
-export function getDefaultPositions(options?: GetDefaultPositionConfig): DefaultPosition[] {
+export function getDefaultPositions(
+  options?: GetDefaultPositionConfig & { positionSubset?: readonly PositionIdentifier[] },
+): DefaultPosition[] {
   const { classNamePrefix, originOffset, positionSubset } = options;
 
   const defaultPositions: DefaultPosition[] = [

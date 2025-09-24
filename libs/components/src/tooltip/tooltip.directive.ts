@@ -6,7 +6,6 @@ import {
   inject,
   OnInit,
   ElementRef,
-  HostListener,
   ComponentRef,
   Injector,
   input,
@@ -25,6 +24,12 @@ import { TooltipComponent } from "./tooltip.component";
 @Directive({
   selector: "[bitTooltip]",
   standalone: true,
+  host: {
+    "(mouseenter)": "show()",
+    "(mouseleave)": "hide()",
+    "(focus)": "show()",
+    "(blur)": "hide()",
+  },
 })
 export class TooltipDirective implements OnInit {
   readonly bitTooltip = input.required<string>();
@@ -52,14 +57,10 @@ export class TooltipDirective implements OnInit {
     this.tooltipRef?.setInput("isVisible", false);
   };
 
-  @HostListener("mouseenter")
-  @HostListener("focus")
   show() {
     this.showTooltip();
   }
 
-  @HostListener("mouseleave")
-  @HostListener("blur")
   hide() {
     this.hideTooltip();
   }
@@ -114,7 +115,7 @@ export class TooltipDirective implements OnInit {
   }
 
   ngOnInit() {
-    this.positionStrategy.withPositions(this.computePositions("above-center"));
+    // this.positionStrategy.withPositions(this.computePositions("above-center"));
 
     this.overlayRef = this.overlay.create({
       ...this.defaultPopoverConfig,
