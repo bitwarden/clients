@@ -1,9 +1,18 @@
 <div class="tw-flex-col">
-  <span bitTypography="h6" class="tw-flex tw-text-main">{{ title | i18n }}</span>
+  <span bitTypography="h6" class="tw-flex tw-text-main">{{ title }}</span>
   <div class="tw-flex tw-items-baseline tw-gap-2">
-    <span bitTypography="h3">{{ cardMetrics | i18n: value }}</span>
+    <span bitTypography="h3">{{ cardMetrics }}</span>
   </div>
-  <div class="tw-flex tw-items-baseline tw-gap-2">
-    <span bitTypography="body2">{{ metricDescription | i18n }}</span>
+  <div class="tw-flex tw-items-baseline tw-mt-4 tw-gap-2">
+    <span bitTypography="body2">{{ metricDescription }}</span>
   </div>
+  @if (showNavigationLink) {
+    <div class="tw-flex tw-items-baseline tw-mt-4 tw-gap-2">
+      <p bitTypography="body1">
+        <a bitLink (click)="navigateToLink(navigationLink)" rel="noreferrer">
+          {{ navigationText }}
+        </a>
+      </p>
+    </div>
+  }
 </div>
