@@ -37,7 +37,7 @@ export default {
   parameters: {
     design: {
       type: "figma",
-      url: "YOUR_FIGMA_URL_HERE",
+      url: "https://www.figma.com/design/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?m=auto&node-id=30558-13730&t=4k23PtzCwqDekAZW-1",
     },
   },
   argTypes: {
