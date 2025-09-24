@@ -57,7 +57,7 @@ describe("Callout", () => {
       expect(component.iconComputed()).toBe("bwi-error");
     });
 
-    it("secondary", () => {
+    it("default", () => {
       fixture.componentRef.setInput("type", "default");
       fixture.detectChanges();
       expect(component.titleComputed()).toBeUndefined();
