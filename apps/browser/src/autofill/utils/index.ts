@@ -499,6 +499,10 @@ export function isInvalidResponseStatusCode(statusCode: number) {
  * Determines if the current context is within a sandboxed iframe.
  */
 export function currentlyInSandboxedIframe(): boolean {
+  if (String(self.origin).toLowerCase() === "null" || globalThis.location.hostname === "") {
+    return true;
+  }
+
   const sandbox = globalThis.frameElement?.getAttribute?.("sandbox");
 
   // No frameElement or sandbox attribute means not sandboxed
