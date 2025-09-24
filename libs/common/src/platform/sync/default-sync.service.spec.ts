@@ -15,7 +15,6 @@ import {
 // eslint-disable-next-line no-restricted-imports
 import { KeyService, PBKDF2KdfConfig } from "@bitwarden/key-management";
 
-import { makeEncString } from "../../../spec";
 import { Matrix } from "../../../spec/matrix";
 import { ApiService } from "../../abstractions/api.service";
 import { InternalOrganizationServiceAbstraction } from "../../admin-console/abstractions/organization/organization.service.abstraction";
@@ -247,7 +246,7 @@ describe("DefaultSyncService", () => {
     describe("syncUserDecryption", () => {
       const salt = "test@example.com";
       const kdf = new PBKDF2KdfConfig(600_000);
-      const encryptedUserKey = makeEncString("testUserKey");
+      const encryptedUserKey = "testUserKey";
 
       it("should set master password unlock when present in user decryption", async () => {
         const syncResponse = new SyncResponse({
@@ -261,7 +260,7 @@ describe("DefaultSyncService", () => {
                 KdfType: kdf.kdfType,
                 Iterations: kdf.iterations,
               },
-              MasterKeyEncryptedUserKey: encryptedUserKey.encryptedString,
+              MasterKeyEncryptedUserKey: encryptedUserKey,
             },
           },
         });
