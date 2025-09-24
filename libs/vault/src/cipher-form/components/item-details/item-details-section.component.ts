@@ -406,6 +406,16 @@ export class ItemDetailsSectionComponent implements OnInit {
       this.showCollectionsControl = true;
     }
 
+    /**
+     * Determine if the the cipher is only assigned to shared collections.
+     * i.e. The cipher is not assigned to a default collections.
+     */
+    const cipherIsOnlyInOrgCollections =
+      this.originalCipherView?.collectionIds?.every(
+        (cId) =>
+          this.collections.find((c) => c.id === cId)?.type === CollectionTypes.SharedCollection,
+      ) ?? false;
+
     this.collectionOptions = this.collections
       .filter((c) => {
         // The collection belongs to the organization
@@ -423,10 +433,17 @@ export class ItemDetailsSectionComponent implements OnInit {
           return true;
         }
 
+        // When the cipher is only assigned to shared collections, do not allow a user to
+        // move it back to a default collection. Exclude the default collection from the list.
+        if (cipherIsOnlyInOrgCollections && c.type === CollectionTypes.DefaultUserCollection) {
+          return false;
+        }
+
         // Non-admins can only select assigned collections that are not read only. (Non-AC)
         return c.assigned && !c.readOnly;
       })
       .sort((a, b) => {
+        // Show default collection first
         const aIsDefaultCollection = a.type === CollectionTypes.DefaultUserCollection ? -1 : 0;
         const bIsDefaultCollection = b.type === CollectionTypes.DefaultUserCollection ? -1 : 0;
         return aIsDefaultCollection - bIsDefaultCollection;
