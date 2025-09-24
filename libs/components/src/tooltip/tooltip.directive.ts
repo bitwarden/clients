@@ -17,12 +17,12 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
   getDefaultPositions,
   ALLOWED_TOOLTIP_POSITION_IDS,
+  AllowedTooltipPosition,
   DefaultPosition,
 } from "../utils/default-positions";
 
 import { TooltipComponent } from "./tooltip.component";
 
-type AllowedTooltipPosition = (typeof ALLOWED_TOOLTIP_POSITION_IDS)[number];
 @Directive({
   selector: "[bitTooltip]",
   standalone: true,

@@ -10,6 +10,8 @@ export const ALLOWED_TOOLTIP_POSITION_IDS = [
   "below-center",
 ];
 
+export type AllowedTooltipPosition = (typeof ALLOWED_TOOLTIP_POSITION_IDS)[number];
+
 export type PositionIdentifier =
   | "right-start"
   | "right-center"
