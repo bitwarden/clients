@@ -245,7 +245,7 @@ jobs:
         if: github.event_name == 'pull_request' && steps.cache.outputs.cache-hit != 'true'
         working-directory: apps/desktop/desktop_native
         run: |
-          if ! git diff-index --quiet ${{ github.pull_request.head.ref }} -- napi/index.d.ts; then
+          if ! git diff-index --quiet ${{ github.event.pull_request.head.ref }} -- napi/index.d.ts; then
             echo "NAPI index.d.ts doesn't match, make sure to regenerate it and commit it"
             exit 1
           fi
@@ -389,7 +389,7 @@ jobs:
         if: github.event_name == 'pull_request' && steps.cache.outputs.cache-hit != 'true'
         working-directory: apps/desktop/desktop_native
         run: |
-          if ! git diff-index --quiet ${{ github.pull_request.head.ref }} -- napi/index.d.ts; then
+          if ! git diff-index --quiet ${{ github.event.pull_request.head.ref }} -- napi/index.d.ts; then
             echo "NAPI index.d.ts doesn't match, make sure to regenerate it and commit it"
             exit 1
           fi
@@ -523,7 +523,7 @@ jobs:
         if: github.event_name == 'pull_request' && steps.cache.outputs.cache-hit != 'true'
         working-directory: apps/desktop/desktop_native
         run: |
-          if ! git diff-index --quiet ${{ github.pull_request.head.ref }} -- napi/index.d.ts; then
+          if ! git diff-index --quiet ${{ github.event.pull_request.head.ref }} -- napi/index.d.ts; then
             echo "NAPI index.d.ts doesn't match, make sure to regenerate it and commit it"
             exit 1
           fi
@@ -895,7 +895,7 @@ jobs:
         if: github.event_name == 'pull_request' && steps.cache.outputs.cache-hit != 'true'
         working-directory: apps/desktop/desktop_native
         run: |
-          if ! git diff-index --quiet ${{ github.pull_request.head.ref }} -- napi/index.d.ts; then
+          if ! git diff-index --quiet ${{ github.event.pull_request.head.ref }} -- napi/index.d.ts; then
             echo "NAPI index.d.ts doesn't match, make sure to regenerate it and commit it"
             exit 1
           fi
