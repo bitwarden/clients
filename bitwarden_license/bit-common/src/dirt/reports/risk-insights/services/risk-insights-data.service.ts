@@ -109,41 +109,71 @@ export class RiskInsightsDataService {
     atRiskMemberDetails: AtRiskMemberDetail[],
     invokerId: string = "",
   ): void => {
-    this.drawerDetailsSubject.next({
-      open: true,
-      invokerId,
-      activeDrawerType: DrawerType.OrgAtRiskMembers,
-      atRiskMemberDetails,
-      appAtRiskMembers: null,
-      atRiskAppDetails: null,
-    });
+    const currentDetails = this.drawerDetailsSubject.value;
+    const shouldClose =
+      currentDetails.open &&
+      currentDetails.activeDrawerType === DrawerType.OrgAtRiskMembers &&
+      currentDetails.invokerId === invokerId;
+
+    if (shouldClose) {
+      this.closeDrawer();
+    } else {
+      this.drawerDetailsSubject.next({
+        open: true,
+        invokerId,
+        activeDrawerType: DrawerType.OrgAtRiskMembers,
+        atRiskMemberDetails,
+        appAtRiskMembers: null,
+        atRiskAppDetails: null,
+      });
+    }
   };
 
   setDrawerForAppAtRiskMembers = (
     atRiskMembersDialogParams: AppAtRiskMembersDialogParams,
     invokerId: string = "",
   ): void => {
-    this.drawerDetailsSubject.next({
-      open: true,
-      invokerId,
-      activeDrawerType: DrawerType.AppAtRiskMembers,
-      atRiskMemberDetails: [],
-      appAtRiskMembers: atRiskMembersDialogParams,
-      atRiskAppDetails: null,
-    });
+    const currentDetails = this.drawerDetailsSubject.value;
+    const shouldClose =
+      currentDetails.open &&
+      currentDetails.activeDrawerType === DrawerType.AppAtRiskMembers &&
+      currentDetails.invokerId === invokerId;
+
+    if (shouldClose) {
+      this.closeDrawer();
+    } else {
+      this.drawerDetailsSubject.next({
+        open: true,
+        invokerId,
+        activeDrawerType: DrawerType.AppAtRiskMembers,
+        atRiskMemberDetails: [],
+        appAtRiskMembers: atRiskMembersDialogParams,
+        atRiskAppDetails: null,
+      });
+    }
   };
 
   setDrawerForOrgAtRiskApps = (
     atRiskApps: AtRiskApplicationDetail[],
     invokerId: string = "",
   ): void => {
-    this.drawerDetailsSubject.next({
-      open: true,
-      invokerId,
-      activeDrawerType: DrawerType.OrgAtRiskApps,
-      atRiskMemberDetails: [],
-      appAtRiskMembers: null,
-      atRiskAppDetails: atRiskApps,
-    });
+    const currentDetails = this.drawerDetailsSubject.value;
+    const shouldClose =
+      currentDetails.open &&
+      currentDetails.activeDrawerType === DrawerType.OrgAtRiskApps &&
+      currentDetails.invokerId === invokerId;
+
+    if (shouldClose) {
+      this.closeDrawer();
+    } else {
+      this.drawerDetailsSubject.next({
+        open: true,
+        invokerId,
+        activeDrawerType: DrawerType.OrgAtRiskApps,
+        atRiskMemberDetails: [],
+        appAtRiskMembers: null,
+        atRiskAppDetails: atRiskApps,
+      });
+    }
   };
 }
