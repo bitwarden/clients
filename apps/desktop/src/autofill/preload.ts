@@ -128,6 +128,7 @@ export default {
     );
   },
   configureAutotype: (enabled: boolean, keyboardShortcut: string[]) => {
+    console.log("2: configure autotype IPC hit");
     ipcRenderer.send("autofill.configureAutotype", { enabled, keyboardShortcut });
   },
   listenAutotypeRequest: (

@@ -7,7 +7,7 @@
 
     This is currently only supported for Windows operating systems.
 */
-class AutotypeKeyboardShortcut {
+export class AutotypeKeyboardShortcut {
     private readonly defaultWindowsAutotypeKeyboardShorcut: string[] = ["Control", "Shift", "B"];
     private autotypeKeyboardShortcut: string[];
 
@@ -20,10 +20,13 @@ class AutotypeKeyboardShortcut {
         was valid and set or not.
     */
     set(newAutotypeKeyboardShortcut: string[]) {
+        console.log("!!!!! -----> We are attempting to set the new shortcut");
         if (!this.#keyboardShortcutIsValid(newAutotypeKeyboardShortcut)) {
+            console.log("!!!!! -----> The shortcut is invalid");
             return false;
         }
 
+        console.log("!!!!! -----> The shortcut is valid, setting it to this: " + newAutotypeKeyboardShortcut);
         this.autotypeKeyboardShortcut = newAutotypeKeyboardShortcut;
         return true;
     }

@@ -3,6 +3,7 @@ import { ipcMain, globalShortcut } from "electron";
 import { autotype } from "@bitwarden/desktop-napi";
 import { LogService } from "@bitwarden/logging";
 
+import { AutotypeKeyboardShortcut } from "../models/main-autotype-keyboard-shortcut"
 import { WindowMain } from "../../main/window.main";
 import { stringIsNotUndefinedNullAndEmpty } from "../../utils";
 
@@ -18,15 +19,15 @@ export class MainDesktopAutotypeService {
 
   init() {
     ipcMain.on("autofill.configureAutotype", (event, data) => {
-      const { response } = data;
+      console.log("3: autofill.configureAutotype hit in the main process");
 
-      let setCorrectly = this.autotypeKeyboardShortcut.set(response.keyboardShortcut);
+      let setCorrectly = this.autotypeKeyboardShortcut.set(data.keyboardShortcut);
       console.log("Was autotypeKeyboardShortcut set correctly from within the main process? " + setCorrectly);
       // TODO: What do we do if it wasn't? The value won't change but we need to send a failure message back
 
-      if (response.enabled === true && !globalShortcut.isRegistered(this.autotypeKeyboardShortcut.getElectronFormat())) {
+      if (data.enabled === true && !globalShortcut.isRegistered(this.autotypeKeyboardShortcut.getElectronFormat())) {
         this.enableAutotype();
-      } else if (response.enabled === false && globalShortcut.isRegistered(this.autotypeKeyboardShortcut.getElectronFormat())) {
+      } else if (data.enabled === false && globalShortcut.isRegistered(this.autotypeKeyboardShortcut.getElectronFormat())) {
         this.disableAutotype();
       }
     });
