@@ -1,6 +1,9 @@
 import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+
 import { IconButtonModule } from "../icon-button";
+import { I18nMockService } from "../utils";
 
 import { DisclosureTriggerForDirective } from "./disclosure-trigger-for.directive";
 import { DisclosureComponent } from "./disclosure.component";
@@ -11,6 +14,16 @@ export default {
   decorators: [
     moduleMetadata({
       imports: [DisclosureTriggerForDirective, DisclosureComponent, IconButtonModule],
+      providers: [
+        {
+          provide: I18nService,
+          useFactory: () => {
+            return new I18nMockService({
+              loading: "Loading",
+            });
+          },
+        },
+      ],
     }),
   ],
   parameters: {
