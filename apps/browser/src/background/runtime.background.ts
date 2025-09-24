@@ -296,9 +296,6 @@ export default class RuntimeBackground {
       case "deletedCipher":
         await this.main.refreshMenu();
         break;
-      case "vaultAutofillSuggestionUsed":
-        await this.main.handleVaultAutofillSuggestionUsed(msg);
-        break;
       case "bgReseedStorage": {
         await this.main.reseedStorage();
         break;

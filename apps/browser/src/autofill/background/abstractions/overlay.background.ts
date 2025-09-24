@@ -285,5 +285,4 @@ export interface OverlayBackground {
   init(): Promise<void>;
   removePageDetails(tabId: number): void;
   updateOverlayCiphers(updateAllCipherTypes?: boolean): Promise<void>;
-  handleAutofillSuggestionUsed(message: { cipherId: string }): Promise<void>;
 }

@@ -2825,28 +2825,6 @@ describe("OverlayBackground", () => {
     });
   });
 
-  describe("handleAutofillSuggestionUsed", () => {
-    const cipherId = "cipher-123";
-
-    beforeEach(() => {
-      cipherService.updateLastUsedDate.mockResolvedValue(undefined);
-    });
-
-    it("updates last used date when there is an active user", async () => {
-      await overlayBackground["handleAutofillSuggestionUsed"]({ cipherId });
-
-      expect(cipherService.updateLastUsedDate).toHaveBeenCalledTimes(1);
-      expect(cipherService.updateLastUsedDate).toHaveBeenCalledWith(cipherId, mockUserId);
-    });
-
-    it("does nothing when there is no active user", async () => {
-      accountService.activeAccount$ = of(null);
-      await overlayBackground["handleAutofillSuggestionUsed"]({ cipherId });
-
-      expect(cipherService.updateLastUsedDate).not.toHaveBeenCalled();
-    });
-  });
-
   describe("handle extension onMessage", () => {
     it("will return early if the message command is not present within the extensionMessageHandlers", () => {
       const message = {
