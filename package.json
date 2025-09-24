@@ -61,7 +61,7 @@
     "@storybook/test-runner": "0.22.0",
     "@storybook/theming": "8.6.12",
     "@storybook/web-components-webpack5": "8.6.12",
-    "@types/chrome": "0.1.6",
+    "@types/chrome": "0.1.12",
     "@types/firefox-webext-browser": "120.0.4",
     "@types/inquirer": "8.2.10",
     "@types/jest": "29.5.14",
