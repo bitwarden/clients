@@ -960,9 +960,6 @@
   "insertU2f": {
     "message": "Cắm khóa bảo mật vào cổng USB của máy tính. Nếu có nút bấm, hãy nhấn vào nó."
   },
-  "recoveryCodeDesc": {
-    "message": "Bạn đã mất quyền truy cập vào tất cả các dịch vụ xác thực 2 lớp? Sử dụng mã khôi phục để tắt tất cả các phương pháp xác thực hai lớp trong tài khoản của bạn."
-  },
   "recoveryCodeTitle": {
     "message": "Mã khôi phục"
   },

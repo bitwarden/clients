@@ -2,6 +2,7 @@
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, ElementRef, Inject, OnDestroy, OnInit, ViewChild } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
 import { firstValueFrom, Subject, switchMap } from "rxjs";
 import { map } from "rxjs/operators";
@@ -277,6 +278,8 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
 
   protected attachmentsButtonDisabled = false;
 
+  protected confirmedPremiumUpgrade = false;
+
   constructor(
     @Inject(DIALOG_DATA) protected params: VaultItemDialogParams,
     private dialogRef: DialogRef<VaultItemDialogResult>,
@@ -296,6 +299,12 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     private routedVaultFilterService: RoutedVaultFilterService,
   ) {
     this.updateTitle();
+    this.premiumUpgradeService.upgradeConfirmed$
+      .pipe(
+        map((c) => c && (this.confirmedPremiumUpgrade = true)),
+        takeUntilDestroyed(),
+      )
+      .subscribe();
   }
 
   async ngOnInit() {
@@ -339,6 +348,10 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
+    // If the user already confirmed a premium upgrade, don't emit any other result as it will overwrite the premium upgrade result.
+    if (this.confirmedPremiumUpgrade) {
+      return;
+    }
     // If the cipher was modified, be sure we emit the saved result in case the dialog was closed with the X button or ESC key.
     if (this._cipherModified) {
       this.dialogRef.close(VaultItemDialogResult.Saved);
@@ -439,7 +452,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     const canAccessAttachments = await firstValueFrom(this.canAccessAttachments$);
 
     if (!canAccessAttachments) {
-      await this.premiumUpgradeService.promptForPremium();
+      await this.premiumUpgradeService.promptForPremium(this.cipher?.organizationId);
       return;
     }
 
@@ -522,8 +535,6 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
   }
 
   private updateTitle(): void {
-    const mode = this.formConfig.mode || this.params.mode;
-    const type = this.cipher?.type ?? this.formConfig.cipherType;
     const translation: { [key: string]: { [key: number]: string } } = {
       view: {
         [CipherType.Login]: "viewItemHeaderLogin",
@@ -547,11 +558,15 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
         [CipherType.SshKey]: "editItemHeaderSshKey",
       },
     };
+    const type = this.cipher?.type ?? this.formConfig.cipherType;
+    let mode: "view" | "edit" | "new" = "view";
 
-    const effectiveMode =
-      mode === "partial-edit" || mode === "edit" ? "edit" : translation[mode] ? mode : "new";
+    if (this.params.mode === "form") {
+      mode =
+        this.formConfig.mode === "edit" || this.formConfig.mode === "partial-edit" ? "edit" : "new";
+    }
 
-    const fullTranslation = translation[effectiveMode][type];
+    const fullTranslation = translation[mode][type];
 
     this.title = this.i18nService.t(fullTranslation);
   }

@@ -1,5 +1,4 @@
 import { BaseResponse } from "../../../../models/response/base.response";
-import { EncString } from "../../../crypto/models/enc-string";
 import { KdfConfigResponse } from "../../../models/response/kdf-config.response";
 import {
   MasterKeyWrappedUserKey,
@@ -29,9 +28,7 @@ export class MasterPasswordUnlockResponse extends BaseResponse {
         "MasterPasswordUnlockResponse does not contain a valid master key encrypted user key",
       );
     }
-    this.masterKeyWrappedUserKey = new EncString(
-      masterKeyEncryptedUserKey,
-    ) as MasterKeyWrappedUserKey;
+    this.masterKeyWrappedUserKey = masterKeyEncryptedUserKey as MasterKeyWrappedUserKey;
   }
 
   toMasterPasswordUnlockData() {

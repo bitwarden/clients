@@ -960,9 +960,6 @@
   "insertU2f": {
     "message": "Insérez votre clé de sécurité dans le port USB de votre ordinateur. S'il dispose d'un bouton, appuyez dessus."
   },
-  "recoveryCodeDesc": {
-    "message": "Accès perdu à tous vos services d'authentification à double facteurs ? Utilisez votre code de récupération pour désactiver tous les services de double authentifications sur votre compte."
-  },
   "recoveryCodeTitle": {
     "message": "Code de récupération"
   },

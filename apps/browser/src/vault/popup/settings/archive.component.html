@@ -1,0 +1,81 @@
+<popup-page [loading]="loading$ | async">
+  <popup-header slot="header" [pageTitle]="'archive' | i18n" showBackButton>
+    <ng-container slot="end">
+      <app-pop-out></app-pop-out>
+    </ng-container>
+  </popup-header>
+
+  @if (archivedCiphers$ | async; as archivedItems) {
+    @if (archivedItems.length) {
+      <bit-section>
+        <bit-section-header>
+          <h2 bitTypography="h6">
+            {{ "itemsInArchive" | i18n }}
+          </h2>
+          <span bitTypography="body1" slot="end">{{ archivedItems.length }}</span>
+        </bit-section-header>
+        <bit-item-group>
+          @for (cipher of archivedItems; track cipher.id) {
+            <bit-item>
+              <button
+                bit-item-content
+                type="button"
+                [appA11yTitle]="'viewItemTitle' | i18n: cipher.name"
+                (click)="view(cipher)"
+              >
+                <div slot="start" class="tw-justify-start tw-w-7 tw-flex">
+                  <app-vault-icon [cipher]="cipher"></app-vault-icon>
+                </div>
+                <span data-testid="item-name">{{ cipher.name }}</span>
+                @if (cipher.hasAttachments) {
+                  <i class="bwi bwi-paperclip bwi-sm" [appA11yTitle]="'attachments' | i18n"></i>
+                }
+                <span slot="secondary">{{ cipher.subTitle }}</span>
+              </button>
+              <bit-item-action slot="end">
+                <button
+                  type="button"
+                  bitIconButton="bwi-ellipsis-v"
+                  size="small"
+                  label="{{ 'options' | i18n }}"
+                  [appA11yTitle]="'moreOptionsTitle' | i18n: cipher.name"
+                  [bitMenuTriggerFor]="moreOptions"
+                ></button>
+                <bit-menu #moreOptions>
+                  <button type="button" bitMenuItem (click)="edit(cipher)">
+                    {{ "edit" | i18n }}
+                  </button>
+                  <button type="button" bitMenuItem (click)="clone(cipher)">
+                    {{ "clone" | i18n }}
+                  </button>
+                  <button type="button" bitMenuItem (click)="unarchive(cipher)">
+                    {{ "unarchive" | i18n }}
+                  </button>
+                  <button
+                    type="button"
+                    bitMenuItem
+                    *appCanDeleteCipher="cipher"
+                    (click)="delete(cipher)"
+                  >
+                    <span class="tw-text-danger">
+                      {{ "delete" | i18n }}
+                    </span>
+                  </button>
+                </bit-menu>
+              </bit-item-action>
+            </bit-item>
+          }
+        </bit-item-group>
+      </bit-section>
+    } @else {
+      <bit-no-items class="tw-flex tw-h-full tw-items-center tw-justify-center">
+        <ng-container slot="title">
+          {{ "noItemsInArchive" | i18n }}
+        </ng-container>
+        <ng-container slot="description">
+          {{ "noItemsInArchiveDesc" | i18n }}
+        </ng-container>
+      </bit-no-items>
+    }
+  }
+</popup-page>

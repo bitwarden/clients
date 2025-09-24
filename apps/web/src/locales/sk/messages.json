@@ -2,6 +2,9 @@
   "allApplications": {
     "message": "Všetky aplikácie"
   },
+  "activity": {
+    "message": "Activity"
+  },
   "appLogoLabel": {
     "message": "Logo Bitwarden"
   },
@@ -56,8 +59,20 @@
   "createNewLoginItem": {
     "message": "Pridať novu položku s prihlásením"
   },
+  "criticalApplicationsActivityDescription": {
+    "message": "Once you mark applications critical, they will display here."
+  },
   "criticalApplicationsWithCount": {
     "message": "Kritické aplikácie ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfCriticalApplications": {
+    "message": "$COUNT$ critical applications",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -118,6 +133,18 @@
   },
   "atRiskMembers": {
     "message": "Ohrozených členov"
+  },
+  "membersAtRiskActivityDescription": {
+    "message": "Members with edit access to at-risk items for critical applications"
+  },
+  "membersAtRisk": {
+    "message": "$COUNT$ members at risk",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "atRiskMembersWithCount": {
     "message": "Ohrození členovia ($COUNT$)",
@@ -734,32 +761,81 @@
   "viewItem": {
     "message": "Zobraziť položku"
   },
-  "newItemHeader": {
-    "message": "Nové $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderLogin": {
+    "message": "New Login",
+    "description": "Header for new login item type"
   },
-  "editItemHeader": {
-    "message": "Upraviť $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderCard": {
+    "message": "New Card",
+    "description": "Header for new card item type"
   },
-  "viewItemType": {
-    "message": "Zobraziť $ITEMTYPE$",
-    "placeholders": {
-      "itemtype": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderIdentity": {
+    "message": "New Identity",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "New Note",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "New SSH key",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderTextSend": {
+    "message": "New Text Send",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "New File Send",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderLogin": {
+    "message": "Edit Login",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Edit Card",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Edit Identity",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Edit Note",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "Edit SSH key",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Edit Text Send",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Edit File Send",
+    "description": "Header for edit file send"
+  },
+  "viewItemHeaderLogin": {
+    "message": "View Login",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "View Card",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "View Identity",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "View Note",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "View SSH key",
+    "description": "Header for view SSH key item type"
   },
   "new": {
     "message": "Nový",
@@ -1510,9 +1586,6 @@
   "selectTwoStepLoginMethod": {
     "message": "Vyberte metódu dvojstupňového prihlásenia"
   },
-  "recoveryCodeDesc": {
-    "message": "Stratili ste prístup ku všetkým vašim dvojstupňovým poskytovateľom? Použite váš záchranný kód pre vypnutie všetkých poskytovateľov vo vašom účte."
-  },
   "recoveryCodeTitle": {
     "message": "Záchranný kód"
   },
@@ -2115,7 +2188,7 @@
     "message": "Zmeňte východzí jazyk pre webový trezor."
   },
   "showIconsChangePasswordUrls": {
-    "message": "Show website icons and retrieve change password URLs"
+    "message": "Zobraziť ikony webových stránok a načítať adresy URL na zmenu hesla"
   },
   "default": {
     "message": "Predvolené"
@@ -9666,6 +9739,9 @@
   "failedToSaveIntegration": {
     "message": "Nepodarilo sa uložiť integráciu. Prosím skúste to neskôr."
   },
+  "failedToDeleteIntegration": {
+    "message": "Failed to delete integration. Please try again later."
+  },
   "deviceIdMissing": {
     "message": "Chýba ID zariadenia"
   },
@@ -9761,6 +9837,9 @@
   },
   "bearerToken": {
     "message": "Token nositeľa"
+  },
+  "repositoryNameHint": {
+    "message": "Name of the repository to ingest into"
   },
   "index": {
     "message": "Index"
@@ -10210,14 +10289,8 @@
   "learnMoreAboutApi": {
     "message": "Dozvedieť sa viac o Bitwarden API"
   },
-  "fileSend": {
-    "message": "Send so súborom"
-  },
   "fileSends": {
     "message": "Sendy so súborom"
-  },
-  "textSend": {
-    "message": "Textový Send"
   },
   "textSends": {
     "message": "Textové Sendy"
@@ -11087,10 +11160,10 @@
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   },
   "aboutThisSetting": {
-    "message": "About this setting"
+    "message": "O tomto nastavení"
   },
   "permitCipherDetailsDescription": {
-    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+    "message": "Bitwarden použije uložené prihlasovacie URI na určenie ikony alebo adresy URL na zmenu hesla, ktoré by sa mali použiť na zlepšenie vášho zážitku. Pri používaní tejto služby sa nezbierajú ani neukladajú žiadne informácie."
   },
   "billingAddress": {
     "message": "Fakturačná adresa"

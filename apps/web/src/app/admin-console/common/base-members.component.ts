@@ -208,7 +208,7 @@ export abstract class BaseMembersComponent<UserView extends UserViewTypes> {
         const dialogRef = UserConfirmComponent.open(this.dialogService, {
           data: {
             name: this.userNamePipe.transform(user),
-            userId: user.id,
+            userId: user.userId,
             publicKey: publicKey,
             confirmUser: () => confirmUser(publicKey),
           },

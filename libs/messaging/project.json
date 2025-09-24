@@ -12,7 +12,8 @@
         "outputPath": "dist/libs/messaging",
         "main": "libs/messaging/src/index.ts",
         "tsConfig": "libs/messaging/tsconfig.lib.json",
-        "assets": ["libs/messaging/*.md"]
+        "assets": ["libs/messaging/*.md"],
+        "rootDir": "libs/messaging/src"
       }
     },
     "lint": {
