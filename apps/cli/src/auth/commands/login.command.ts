@@ -374,10 +374,10 @@ export class LoginCommand {
         e instanceof ErrorResponse &&
         e.message === "Username or password is incorrect. Try again."
       ) {
-        const isSelfHost = this.platformUtilsService.isSelfHost();
+        const env = await firstValueFrom(this.environmentService.environment$);
+        const isCloud = env.isCloud();
 
-        if (!isSelfHost) {
-          const env = await firstValueFrom(this.environmentService.environment$);
+        if (isCloud) {
           const host = Utils.getHost(env.getWebVaultUrl());
 
           return Response.error(
