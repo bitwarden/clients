@@ -1,5 +1,5 @@
 import { mock } from "jest-mock-extended";
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, of } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
@@ -9,11 +9,11 @@ import { FakeMasterPasswordService } from "@bitwarden/common/key-management/mast
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { AuthRequestPushNotification } from "@bitwarden/common/models/response/notification.response";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
-import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
+import { newGuid } from "@bitwarden/guid";
 import { KeyService } from "@bitwarden/key-management";
 
 import { DefaultAuthRequestApiService } from "./auth-request-api.service";
@@ -32,7 +32,7 @@ describe("AuthRequestService", () => {
 
   let mockPrivateKey: Uint8Array;
   let mockPublicKey: Uint8Array;
-  const mockUserId = Utils.newGuid() as UserId;
+  const mockUserId = newGuid() as UserId;
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -95,22 +95,23 @@ describe("AuthRequestService", () => {
       const authRequestNoId = new AuthRequestResponse({ id: "", key: "KEY" });
       const authRequestNoPublicKey = new AuthRequestResponse({ id: "123", publicKey: "" });
 
-      await expect(sut.approveOrDenyAuthRequest(true, authRequestNoId)).rejects.toThrow(
+      await expect(sut.approveOrDenyAuthRequest(true, authRequestNoId, mockUserId)).rejects.toThrow(
         "Auth request has no id",
       );
-      await expect(sut.approveOrDenyAuthRequest(true, authRequestNoPublicKey)).rejects.toThrow(
-        "Auth request has no public key",
-      );
+      await expect(
+        sut.approveOrDenyAuthRequest(true, authRequestNoPublicKey, mockUserId),
+      ).rejects.toThrow("Auth request has no public key");
     });
 
     it("should use the user key if the master key and hash do not exist", async () => {
-      keyService.getUserKey.mockResolvedValueOnce(
-        new SymmetricCryptoKey(new Uint8Array(64)) as UserKey,
+      keyService.userKey$.mockReturnValue(
+        of(new SymmetricCryptoKey(new Uint8Array(64)) as UserKey),
       );
 
       await sut.approveOrDenyAuthRequest(
         true,
         new AuthRequestResponse({ id: "123", publicKey: "KEY" }),
+        mockUserId,
       );
 
       expect(encryptService.encapsulateKeyUnsigned).toHaveBeenCalledWith(
