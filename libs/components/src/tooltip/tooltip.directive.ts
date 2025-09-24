@@ -18,7 +18,7 @@ import {
   getDefaultPositions,
   ALLOWED_TOOLTIP_POSITION_IDS,
   AllowedTooltipPosition,
-  DefaultPosition,
+  TooltipPosition,
 } from "../utils/default-positions";
 
 import { TooltipComponent } from "./tooltip.component";
@@ -65,12 +65,15 @@ export class TooltipDirective implements OnInit {
     this.hideTooltip();
   }
 
-  private computePositions(tooltipPosition: AllowedTooltipPosition): DefaultPosition[] {
+  private computePositions(tooltipPosition: AllowedTooltipPosition): TooltipPosition[] {
     const allowedPositions = getDefaultPositions("bit-tooltip", 10).filter(
-      (position: DefaultPosition) =>
-        ALLOWED_TOOLTIP_POSITION_IDS.includes(position.id as AllowedTooltipPosition),
+      (position: TooltipPosition) => ALLOWED_TOOLTIP_POSITION_IDS.includes(position.id),
+    ) as TooltipPosition[];
+
+    const chosenPosition = allowedPositions.find(
+      (position: TooltipPosition) => position.id === tooltipPosition,
     );
-    const chosenPosition = allowedPositions.find((position) => position.id === tooltipPosition);
+
     return chosenPosition ? [chosenPosition, ...allowedPositions] : allowedPositions;
   }
 

@@ -12,6 +12,8 @@ export const ALLOWED_TOOLTIP_POSITION_IDS = [
 
 export type AllowedTooltipPosition = (typeof ALLOWED_TOOLTIP_POSITION_IDS)[number];
 
+export type TooltipPosition = DefaultPosition & { id: AllowedTooltipPosition };
+
 export type PositionIdentifier =
   | "right-start"
   | "right-center"
@@ -26,14 +28,16 @@ export type PositionIdentifier =
   | "above-center"
   | "above-end";
 
-export interface DefaultPosition extends ConnectedPosition {
+export type DefaultPosition = ConnectedPosition & {
   id: PositionIdentifier;
-}
+};
+
+type GetDefaultPositionsReturnValue = DefaultPosition[] | TooltipPosition[];
 
 export const getDefaultPositions = (
   classNamePrefix?: string,
   originOffset?: number,
-): DefaultPosition[] => [
+): GetDefaultPositionsReturnValue => [
   /**
    * The order of these positions matters. The Popover component will use
    * the first position that fits within the viewport.
