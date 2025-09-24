@@ -55,6 +55,7 @@ export default {
               error: "Error",
               warning: "Warning",
               info: "Info",
+              loading: "Loading",
             });
           },
         },
