@@ -106,7 +106,6 @@
         "@emotion/css",
         "@webcomponents/custom-elements",
         "bitwarden-russh",
-        "bytes",
         "concurrently",
         "cross-env",
         "del",
