@@ -34,7 +34,7 @@ export class PopoverTriggerForDirective implements OnDestroy, AfterViewInit {
   private closedEventsSub: Subscription | null = null;
 
   get positions() {
-    const defaultPositions = getDefaultPositions("bit-popover");
+    const defaultPositions = getDefaultPositions({ classNamePrefix: "bit-popover" });
     if (!this.position()) {
       return defaultPositions;
     }
