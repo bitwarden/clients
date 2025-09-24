@@ -48,6 +48,10 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
    * uses new permission restore logic from PM-15493
    */
   @Input() canRestoreCipher: boolean;
+  /**
+   * user has archive permissions
+   */
+  @Input() userCanArchive: boolean;
 
   @Output() onEvent = new EventEmitter<VaultItemEvent<C>>();
 
@@ -74,6 +78,18 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     if (this.cipher.organizationId != null) {
       this.organization = this.organizations.find((o) => o.id === this.cipher.organizationId);
     }
+  }
+
+  protected get showArchiveButton() {
+    return (
+      this.userCanArchive &&
+      !CipherViewLikeUtils.isArchived(this.cipher) &&
+      !this.cipher.organizationId
+    );
+  }
+
+  protected get showUnArchiveButton() {
+    return this.userCanArchive && CipherViewLikeUtils.isArchived(this.cipher);
   }
 
   protected get clickAction() {
@@ -234,6 +250,14 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
 
   protected events() {
     this.onEvent.emit({ type: "viewEvents", item: this.cipher });
+  }
+
+  protected archive() {
+    this.onEvent.emit({ type: "archive", item: this.cipher });
+  }
+
+  protected unarchive() {
+    this.onEvent.emit({ type: "unarchive", item: this.cipher });
   }
 
   protected restore() {

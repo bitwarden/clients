@@ -151,6 +151,20 @@
         <i class="bwi bwi-fw bwi-file-text" aria-hidden="true"></i>
         {{ "eventLogs" | i18n }}
       </button>
+      @if (showArchiveButton) {
+        <button bitMenuItem (click)="archive()" type="button">
+          <i class="bwi bwi-fw bwi-archive" aria-hidden="true"></i>
+          {{ "archive" | i18n }}
+        </button>
+      }
+
+      @if (showUnArchiveButton) {
+        <button bitMenuItem (click)="unarchive()" type="button">
+          <i class="bwi bwi-fw bwi-archive" aria-hidden="true"></i>
+          {{ "unarchive" | i18n }}
+        </button>
+      }
+
       <button bitMenuItem (click)="restore()" type="button" *ngIf="isDeleted && canRestoreCipher">
         <i class="bwi bwi-fw bwi-undo" aria-hidden="true"></i>
         {{ "restore" | i18n }}

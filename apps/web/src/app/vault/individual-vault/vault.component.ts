@@ -184,12 +184,14 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     .pipe(map((a) => a?.id))
     .pipe(switchMap((id) => this.organizationService.organizations$(id)));
 
-  private userCanArchive$ = this.accountService.activeAccount$.pipe(
+  protected userCanArchive$ = this.accountService.activeAccount$.pipe(
     getUserId,
     switchMap((userId) => {
       return this.cipherArchiveService.userCanArchive$(userId);
     }),
   );
+
+  private userId$ = this.accountService.activeAccount$.pipe(getUserId);
 
   constructor(
     private syncService: SyncService,
@@ -569,10 +571,54 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         case "assignToCollections":
           await this.bulkAssignToCollections(event.items);
           break;
+        case "archive":
+          await this.archive(event.item);
+          break;
+        case "unarchive":
+          await this.unarchive(event.item);
+          break;
       }
     } finally {
       this.processingEvent = false;
     }
+  }
+
+  async archive(cipher: CipherView | CipherListView) {
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: { key: "archiveItem" },
+      content: { key: "archiveItemConfirmDesc" },
+      type: "info",
+    });
+
+    if (!confirmed) {
+      return;
+    }
+
+    const repromptPassed = await this.passwordRepromptService.passwordRepromptCheck(cipher);
+    if (!repromptPassed) {
+      return;
+    }
+    const activeUserId = await firstValueFrom(this.userId$);
+    await this.cipherArchiveService.archiveWithServer(cipher.id as CipherId, activeUserId);
+    this.toastService.showToast({
+      variant: "success",
+      message: this.i18nService.t("itemSentToArchive"),
+    });
+  }
+
+  async unarchive(cipher: CipherView | CipherListView) {
+    const repromptPassed = await this.passwordRepromptService.passwordRepromptCheck(cipher);
+    if (!repromptPassed) {
+      return;
+    }
+    const activeUserId = await firstValueFrom(this.userId$);
+
+    await this.cipherArchiveService.unarchiveWithServer(cipher.id as CipherId, activeUserId);
+
+    this.toastService.showToast({
+      variant: "success",
+      message: this.i18nService.t("itemRemovedFromArchive"),
+    });
   }
 
   async applyOrganizationFilter(orgId: string) {

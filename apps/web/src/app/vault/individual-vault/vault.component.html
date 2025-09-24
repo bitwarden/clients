@@ -50,6 +50,7 @@
       [useEvents]="false"
       [showAdminActions]="false"
       [showBulkAddToCollections]="true"
+      [userCanArchive]="userCanArchive$ | async"
       (onEvent)="onVaultItemsEvent($event)"
     >
     </app-vault-items>
