@@ -401,10 +401,8 @@ jobs:
       - name: Check index.d.ts generated
         if: github.event_name == 'pull_request' && steps.cache.outputs.cache-hit != 'true'
         working-directory: apps/desktop/desktop_native
-        env:
-          PR_HEAD: ${{ github.event.pull_request.head.sha }}
         run: |
-          if ! git diff-index --quiet "$PR_HEAD" -- napi/index.d.ts; then
+          if ! git diff --quiet --name-only -- napi/index.d.ts; then
             echo "NAPI index.d.ts doesn't match, make sure to regenerate it and commit it"
             exit 1
           fi
