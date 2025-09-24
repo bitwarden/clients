@@ -199,11 +199,4 @@ export class CriticalApplicationsComponent implements OnInit {
     const data = this.reportService.generateAtRiskApplicationList(this.dataSource.data);
     this.dataService.setDrawerForOrgAtRiskApps(data, invokerId);
   };
-
-  trackByFunction(_: number, item: LEGACY_ApplicationHealthReportDetailWithCriticalFlag) {
-    return item.applicationName;
-  }
-  isDrawerOpenForTableRow = (applicationName: string) => {
-    return this.dataService.drawerInvokerId === applicationName;
-  };
 }
