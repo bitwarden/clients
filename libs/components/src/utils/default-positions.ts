@@ -52,7 +52,7 @@ export function getDefaultPositions<const T extends readonly PositionIdentifier[
 export function getDefaultPositions(
   options?: GetDefaultPositionConfig & { positionSubset?: readonly PositionIdentifier[] },
 ): DefaultPosition[] {
-  const { classNamePrefix, originOffset, positionSubset } = options;
+  const { classNamePrefix, originOffset, positionSubset } = options ?? {};
 
   const defaultPositions: DefaultPosition[] = [
     /**
