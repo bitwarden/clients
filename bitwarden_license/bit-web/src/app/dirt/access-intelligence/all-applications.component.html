@@ -36,7 +36,8 @@
         #allAppsOrgAtRiskMembers
         class="tw-w-full"
         [ngClass]="{
-          'tw-bg-primary-100': dataService.drawerInvokerId === 'allAppsOrgAtRiskMembers',
+          'tw-bg-primary-100':
+            (dataService.drawerDetails$ | async)?.invokerId === 'allAppsOrgAtRiskMembers',
         }"
         [title]="'atRiskMembers' | i18n"
         [value]="applicationSummary.totalAtRiskMemberCount"
@@ -54,7 +55,8 @@
         #allAppsOrgAtRiskApplications
         class="tw-w-full"
         [ngClass]="{
-          'tw-bg-primary-100': dataService.drawerInvokerId === 'allAppsOrgAtRiskApplications',
+          'tw-bg-primary-100':
+            (dataService.drawerDetails$ | async)?.invokerId === 'allAppsOrgAtRiskApplications',
         }"
         [title]="'atRiskApplications' | i18n"
         [value]="applicationSummary.totalAtRiskApplicationCount"
@@ -87,7 +89,7 @@
     [showRowCheckBox]="true"
     [showRowMenuForCriticalApps]="false"
     [selectedUrls]="selectedUrls"
-    [isDrawerIsOpenForThisRecord]="isDrawerOpenForTableRow"
+    [openApplication]="(dataService.drawerDetails$ | async)?.invokerId"
     [checkboxChange]="onCheckboxChange"
     [showAppAtRiskMembers]="showAppAtRiskMembers"
   ></app-table-row-scrollable>
