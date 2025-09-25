@@ -16,6 +16,8 @@ use windows::Win32::{
 mod window_handle;
 use window_handle::WindowHandle;
 
+const WIN_SUCCESS: WIN32_ERROR = WIN32_ERROR(0);
+
 fn clear_last_error() {
     debug!("Clearing last error with SetLastError");
     unsafe {
@@ -23,12 +25,9 @@ fn clear_last_error() {
     }
 }
 
-fn get_last_error() -> String {
+fn get_last_error() -> WIN32_ERROR {
     let last_err = unsafe { GetLastError() };
-    let last_err = last_err.to_hresult().message();
-
-    debug!(last_err, "GetLastError()");
-
+    debug!("GetLastError(): {}", last_err.to_hresult());
     last_err
 }
 
@@ -58,7 +57,8 @@ fn get_window_title_length(window_handle: &WindowHandle) -> Result<usize> {
     if length == 0 {
         // attempt to retreive win32 error
         let last_err = get_last_error();
-        if !last_err.is_empty() {
+        if last_err != WIN_SUCCESS {
+            let last_err = last_err.to_hresult().message();
             error!(last_err, "Error getting window text length");
             return Err(anyhow!("Error getting window text length: {last_err}"));
         }
@@ -83,7 +83,8 @@ fn get_window_title(window_handle: &WindowHandle) -> Result<String> {
     if len_written == 0 {
         // attempt to retreive win32 error
         let last_err = get_last_error();
-        if !last_err.is_empty() {
+        if last_err != WIN_SUCCESS {
+            let last_err = last_err.to_hresult().message();
             error!(last_err, "Error retrieving window title");
             return Err(anyhow!("Error retrieving window title. {last_err}"));
         }
@@ -215,16 +216,16 @@ fn build_virtual_key_input(key_press: InputKeyPress, virtual_key: u8) -> INPUT {
 fn send_input(inputs: Vec<INPUT>) -> Result<()> {
     let insert_count = unsafe { SendInput(&inputs, std::mem::size_of::<INPUT>() as i32) };
 
-    let last_err = unsafe { GetLastError().to_hresult().message() };
-    debug!(GetLastError= %last_err, "SendInput() called.");
+    let last_err = get_last_error();
+    debug!("SendInput() called.");
 
     if insert_count == 0 {
-        let last_err = get_last_error();
+        let last_err = last_err.to_hresult().message();
         error!(GetLastError = %last_err, "SendInput sent 0 inputs. Input was blocked by another thread.");
 
         return Err(anyhow!("SendInput sent 0 inputs. Input was blocked by another thread. GetLastError: {last_err}"));
     } else if insert_count != inputs.len() as u32 {
-        let last_err = get_last_error();
+        let last_err = last_err.to_hresult().message();
         error!(sent = %insert_count, expected = inputs.len(), GetLastError = %last_err,
             "SendInput sent does not match expected."
         );
