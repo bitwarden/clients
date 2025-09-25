@@ -112,6 +112,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   requireEnableTray = false;
   showDuckDuckGoIntegrationOption = false;
   showEnableAutotype = false;
+  autotypeShortcut: string;
   showOpenAtLoginOption = false;
   isWindows: boolean;
   isLinux: boolean;
@@ -174,6 +175,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
       value: false,
       disabled: true,
     }),
+    autotypeShortcut: [null as string[] | null], 
     theme: [null as Theme | null],
     locale: [null as string | null],
   });
@@ -398,6 +400,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
       ),
       allowScreenshots: !(await firstValueFrom(this.desktopSettingsService.preventScreenshots$)),
       enableAutotype: await firstValueFrom(this.desktopAutotypeService.autotypeEnabledUserSetting$),
+      autotypeShortcut: await firstValueFrom(this.desktopAutotypeService.autotypeKeyboardShortcut$),
       theme: await firstValueFrom(this.themeStateService.selectedTheme$),
       locale: await firstValueFrom(this.i18nService.userSetLocale$),
     };
@@ -898,22 +901,28 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   async saveEnableAutotype() {
     await this.desktopAutotypeService.setAutotypeEnabledState(this.form.value.enableAutotype);
+    if (!this.form.value.enableAutotype) {
+      this.form.controls.autotypeShortcut.setValue(null, { emitEvent: false });
+    } else {
+      const currentShortcut = await firstValueFrom(this.desktopAutotypeService.autotypeKeyboardShortcut$);
+      this.form.controls.autotypeShortcut.setValue(currentShortcut, { emitEvent: false });
+    }
   }
 
   async updateAutotypeShortcut() {
     const dialogRef = AutotypeShortcutComponent.open(this.dialogService);
 
-    if (dialogRef == null) {
-      this.form.controls.pin.setValue(false, { emitEvent: false });
+    let dialogValue = await firstValueFrom(dialogRef.closed);
+    
+    if (!dialogValue) {
       return;
     }
 
-    let newShortcut = await firstValueFrom(dialogRef.closed);
-    let newShortcutArray = newShortcut.split("+");
-    console.log("settings received the new shortcut: " + newShortcut);
+    let newShortcutArray = dialogValue.split("+");
+    this.form.controls.autotypeShortcut.setValue(newShortcutArray, { emitEvent: true });
+    console.log("settings received the new shortcut: " + dialogValue);
     console.log("settings received the new shortcut array: " + newShortcutArray);
     await this.desktopAutotypeService.setAutotypeKeyboardShortcutState(newShortcutArray);
-    //this.form.controls.pin.setValue(this.userHasAutotypeShortcutSet, { emitEvent: false });
   }
 
   private async generateVaultTimeoutOptions(): Promise<VaultTimeoutOption[]> {
