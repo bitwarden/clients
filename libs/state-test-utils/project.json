@@ -12,7 +12,8 @@
         "outputPath": "dist/libs/state-test-utils",
         "main": "libs/state-test-utils/src/index.ts",
         "tsConfig": "libs/state-test-utils/tsconfig.lib.json",
-        "assets": ["libs/state-test-utils/*.md"]
+        "assets": ["libs/state-test-utils/*.md"],
+        "rootDir": "libs/state-test-utils/src"
       }
     },
     "lint": {

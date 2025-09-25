@@ -5511,6 +5511,18 @@
   "hasItemsVaultNudgeTitle": {
     "message": "Kasanıza hoş geldiniz!"
   },
+  "phishingPageTitle": {
+    "message": "Dolandırıcılık web sitesi"
+  },
+  "phishingPageCloseTab": {
+    "message": "Sekmeyi kapat"
+  },
+  "phishingPageContinue": {
+    "message": "Devam et"
+  },
+  "phishingPageLearnWhy": {
+    "message": "Bunu neden görüyorsunuz?"
+  },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Geçerli sayfada kayıtları otomatik doldurun"
   },

@@ -5511,6 +5511,18 @@
   "hasItemsVaultNudgeTitle": {
     "message": "உங்கள் சேமிப்பு பெட்டகத்திற்கு நல்வரவு!"
   },
+  "phishingPageTitle": {
+    "message": "Phishing website"
+  },
+  "phishingPageCloseTab": {
+    "message": "Close tab"
+  },
+  "phishingPageContinue": {
+    "message": "Continue"
+  },
+  "phishingPageLearnWhy": {
+    "message": "Why are you seeing this?"
+  },
   "hasItemsVaultNudgeBodyOne": {
     "message": "தற்போதைய பக்கத்திற்கான தானாக நிரப்பு பொருள்கள்"
   },

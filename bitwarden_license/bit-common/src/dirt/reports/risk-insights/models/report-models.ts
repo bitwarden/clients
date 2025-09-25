@@ -108,7 +108,17 @@ export type CriticalSummaryDetails = {
 };
 
 /**
+ * An entry for an organization application and if it is
+ * marked as critical
+ */
+export type OrganizationReportApplication = {
+  applicationName: string;
+  isCritical: boolean;
+};
+
+/**
  * Report details for an application
+ * uri. Has the at risk, password, and member information
  */
 export type ApplicationHealthReportDetail = {
   applicationName: string;
