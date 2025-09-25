@@ -1,10 +1,10 @@
 <!-- eslint-disable-next-line tailwindcss/no-custom-classname -->
 <div
   class="bit-tooltip-container"
-  [attr.data-position]="tooltipPosition()"
-  [attr.data-visible]="isVisible()"
+  [attr.data-position]="tooltipData.tooltipPosition()"
+  [attr.data-visible]="tooltipData.isVisible()"
 >
   <div role="tooltip" class="bit-tooltip">
-    <ng-content>{{ content() }}</ng-content>
+    <ng-content>{{ tooltipData.content() }}</ng-content>
   </div>
 </div>
