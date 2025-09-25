@@ -5653,5 +5653,8 @@
   },
   "confirmKeyConnectorDomain": {
     "message": "Confirm Key Connector domain"
+  },
+    "settingDisabledByPolicy": {
+    "message": "This setting is disabled by your organization's policy."
   }
 }
