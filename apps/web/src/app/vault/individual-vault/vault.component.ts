@@ -572,10 +572,18 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
           await this.bulkAssignToCollections(event.items);
           break;
         case "archive":
-          await this.archive(event.item);
+          if (event.items.length === 1) {
+            await this.archive(event.items[0]);
+          } else {
+            await this.bulkArchive(event.items);
+          }
           break;
         case "unarchive":
-          await this.unarchive(event.item);
+          if (event.items.length === 1) {
+            await this.unarchive(event.items[0]);
+          } else {
+            await this.bulkUnarchive(event.items);
+          }
           break;
       }
     } finally {
@@ -583,7 +591,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     }
   }
 
-  async archive(cipher: CipherView | CipherListView) {
+  async archive(cipher: C) {
     const confirmed = await this.dialogService.openSimpleDialog({
       title: { key: "archiveItem" },
       content: { key: "archiveItemConfirmDesc" },
@@ -606,7 +614,33 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     });
   }
 
-  async unarchive(cipher: CipherView | CipherListView) {
+  async bulkArchive(ciphers: C[]) {
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: { key: "archiveItem" },
+      content: { key: "archiveItemConfirmDesc" },
+      type: "info",
+    });
+
+    if (!confirmed) {
+      return;
+    }
+
+    if (!(await this.repromptCipher(ciphers))) {
+      return;
+    }
+
+    const activeUserId = await firstValueFrom(this.userId$);
+    const cipherIds = ciphers.map((c) => c.id as CipherId);
+    await this.cipherArchiveService.archiveWithServer(cipherIds as CipherId[], activeUserId);
+    this.toastService.showToast({
+      variant: "success",
+      message: this.i18nService.t("itemSentToArchive"),
+    });
+
+    this.refresh();
+  }
+
+  async unarchive(cipher: C) {
     const repromptPassed = await this.passwordRepromptService.passwordRepromptCheck(cipher);
     if (!repromptPassed) {
       return;
@@ -619,6 +653,22 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       variant: "success",
       message: this.i18nService.t("itemRemovedFromArchive"),
     });
+  }
+
+  async bulkUnarchive(ciphers: C[]) {
+    if (!(await this.repromptCipher(ciphers))) {
+      return;
+    }
+
+    const activeUserId = await firstValueFrom(this.userId$);
+    const cipherIds = ciphers.map((c) => c.id as CipherId);
+    await this.cipherArchiveService.unarchiveWithServer(cipherIds as CipherId[], activeUserId);
+    this.toastService.showToast({
+      variant: "success",
+      message: this.i18nService.t("itemRemovedFromArchive"),
+    });
+
+    this.refresh();
   }
 
   async applyOrganizationFilter(orgId: string) {

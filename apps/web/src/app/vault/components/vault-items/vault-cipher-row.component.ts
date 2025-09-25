@@ -253,11 +253,11 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
   }
 
   protected archive() {
-    this.onEvent.emit({ type: "archive", item: this.cipher });
+    this.onEvent.emit({ type: "archive", items: [this.cipher] });
   }
 
   protected unarchive() {
-    this.onEvent.emit({ type: "unarchive", item: this.cipher });
+    this.onEvent.emit({ type: "unarchive", items: [this.cipher] });
   }
 
   protected restore() {

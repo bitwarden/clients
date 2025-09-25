@@ -191,6 +191,32 @@ export class VaultItemsComponent<C extends CipherViewLike> {
     );
   }
 
+  get bulkArchiveAllowed() {
+    if (this.selection.selected.length === 0 || !this.userCanArchive) {
+      return false;
+    }
+
+    return (
+      this.userCanArchive &&
+      !this.selection.selected.find(
+        (item) => item.cipher.organizationId || item.cipher.archivedDate,
+      )
+    );
+  }
+
+  get bulkUnarchiveAllowed() {
+    if (this.selection.selected.length === 0 || !this.userCanArchive) {
+      return false;
+    }
+
+    return (
+      this.userCanArchive &&
+      !this.selection.selected.find(
+        (item) => !item.cipher.archivedDate || item.cipher.organizationId,
+      )
+    );
+  }
+
   //@TODO: remove this function when removing the limitItemDeletion$ feature flag.
   get showDelete(): boolean {
     if (this.selection.selected.length === 0) {
@@ -264,6 +290,24 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   protected bulkMoveToFolder() {
     this.event({
       type: "moveToFolder",
+      items: this.selection.selected
+        .filter((item) => item.cipher !== undefined)
+        .map((item) => item.cipher),
+    });
+  }
+
+  protected bulkArchive() {
+    this.event({
+      type: "archive",
+      items: this.selection.selected
+        .filter((item) => item.cipher !== undefined)
+        .map((item) => item.cipher),
+    });
+  }
+
+  protected bulkUnarchive() {
+    this.event({
+      type: "unarchive",
       items: this.selection.selected
         .filter((item) => item.cipher !== undefined)
         .map((item) => item.cipher),

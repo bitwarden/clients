@@ -83,6 +83,22 @@
               <i class="bwi bwi-fw bwi-collection-shared" aria-hidden="true"></i>
               {{ "assignToCollections" | i18n }}
             </button>
+
+            <button *ngIf="bulkArchiveAllowed" type="button" bitMenuItem (click)="bulkArchive()">
+              <i class="bwi bwi-fw bwi-archive" aria-hidden="true"></i>
+              {{ "archive" | i18n }}
+            </button>
+
+            <button
+              *ngIf="bulkUnarchiveAllowed"
+              type="button"
+              bitMenuItem
+              (click)="bulkUnarchive()"
+            >
+              <i class="bwi bwi-fw bwi-archive" aria-hidden="true"></i>
+              {{ "unarchive" | i18n }}
+            </button>
+
             <button
               *ngIf="canRestoreSelected$ | async"
               type="button"
