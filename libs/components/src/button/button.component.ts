@@ -14,6 +14,7 @@ import { debounce, interval } from "rxjs";
 
 import { AriaDisableDirective } from "../a11y";
 import { ButtonLikeAbstraction, ButtonType, ButtonSize } from "../shared/button-like.abstraction";
+import { SpinnerComponent } from "../spinner";
 import { ariaDisableElement } from "../utils";
 
 const focusRing = [
@@ -60,7 +61,7 @@ const buttonStyles: Record<ButtonType, string[]> = {
   selector: "button[bitButton], a[bitButton]",
   templateUrl: "button.component.html",
   providers: [{ provide: ButtonLikeAbstraction, useExisting: ButtonComponent }],
-  imports: [NgClass],
+  imports: [NgClass, SpinnerComponent],
   hostDirectives: [AriaDisableDirective],
 })
 export class ButtonComponent implements ButtonLikeAbstraction {
