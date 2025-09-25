@@ -53,29 +53,19 @@ export class DesktopAutotypeService {
   }
 
   async init() {
-    console.log("Dan is a brown belt in bjj");
     if (this.platformUtilsService.getDevice() === DeviceType.WindowsDesktop) {
-      console.log("Dan is a black belt in bjj");
-
-      // combineLatest([
-      //   this.autotypeEnabledState.state$,
-      //   this.desktopAutotypePolicy.autotypeDefaultSetting$,
-      // ]).pipe(
-      //   map(async ([autotypeEnabledState, autotypeDefaultPolicy]) => {
-      //     console.log("Our combineLatest: [" + autotypeEnabledState + ", " + autotypeDefaultPolicy + "]");
-      //     if (autotypeDefaultPolicy === true && autotypeEnabledState === null) {
-      //       await this.setAutotypeEnabledState(true);
-      //     }
-      //   }),
-      // );
-
       combineLatest([
+        this.autotypeEnabledState.state$,
         this.desktopAutotypePolicy.autotypeDefaultSetting$,
-      ]).pipe(
-        map(async ([autotypeDefaultPolicy]) => {
-          console.log("Our combineLatest: [" + autotypeDefaultPolicy + "]");
-        }),
-      );
+      ])
+        .pipe(
+          map(async ([autotypeEnabledState, autotypeDefaultPolicy]) => {
+            if (autotypeDefaultPolicy === true && autotypeEnabledState === null) {
+              await this.setAutotypeEnabledState(true);
+            }
+          }),
+        )
+        .subscribe();
 
       this.autotypeEnabledUserSetting$ = this.autotypeEnabledState.state$;
 

@@ -468,7 +468,7 @@ const safeProviders: SafeProvider[] = [
       GlobalStateProvider,
       PlatformUtilsServiceAbstraction,
       BillingAccountProfileStateService,
-      DesktopAutotypeDefaultSettingPolicy
+      DesktopAutotypeDefaultSettingPolicy,
     ],
   }),
   safeProvider({
