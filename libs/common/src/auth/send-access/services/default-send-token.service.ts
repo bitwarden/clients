@@ -157,7 +157,7 @@ export class DefaultSendTokenService implements SendTokenServiceAbstraction {
       keyMaterialUrlB64Array,
     );
 
-    // Convert the Uint8Array to a base64 URL encoded string which is required
+    // Convert the Uint8Array to a base64 encoded string which is required
     // for the server to be able to compare the password hash.
     const sendHashedPasswordB64 = Utils.fromBufferToB64(
       sendHashedPasswordArray,
