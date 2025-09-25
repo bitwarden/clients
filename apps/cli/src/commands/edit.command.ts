@@ -95,7 +95,9 @@ export class EditCommand {
   private async editCipher(id: string, req: CipherExport) {
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const cipher = await this.cipherService.get(id, activeUserId);
-    const hasPremium = false;
+    const hasPremium = await firstValueFrom(
+      this.billingAccountProfileStateService.hasPremiumFromAnySource$(activeUserId),
+    );
 
     if (cipher == null) {
       return Response.notFound();
