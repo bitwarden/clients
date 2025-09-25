@@ -121,6 +121,8 @@ export class SsoComponent implements OnInit, OnDestroy {
   spMetadataUrl: string;
   spAcsUrl: string;
 
+  showClientSecret = false;
+
   protected openIdForm = this.formBuilder.group<ControlsOf<SsoConfigView["openId"]>>(
     {
       authority: new FormControl("", Validators.required),
@@ -156,7 +158,7 @@ export class SsoComponent implements OnInit, OnDestroy {
 
       idpEntityId: new FormControl("", Validators.required),
       idpBindingType: new FormControl(Saml2BindingType.HttpRedirect),
-      idpSingleSignOnServiceUrl: new FormControl(),
+      idpSingleSignOnServiceUrl: new FormControl("", Validators.required),
       idpSingleLogoutServiceUrl: new FormControl(),
       idpX509PublicCert: new FormControl("", Validators.required),
       idpOutboundSigningAlgorithm: new FormControl(defaultSigningAlgorithm),
