@@ -12,7 +12,7 @@ import {
 } from "@angular/core";
 import { Observable, Subscription, filter, mergeWith } from "rxjs";
 
-import { getDefaultPositions } from "../utils/default-positions";
+import { getDefaultPositions } from "../utils/overlay-positions";
 
 import { PopoverComponent } from "./popover.component";
 

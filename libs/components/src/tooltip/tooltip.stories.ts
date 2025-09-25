@@ -9,7 +9,7 @@ import {
   getDefaultPositions,
   DefaultPosition,
   ALLOWED_TOOLTIP_POSITION_IDS,
-} from "../utils/default-positions";
+} from "../utils/overlay-positions";
 
 import { TooltipComponent } from "./tooltip.component";
 import { TooltipDirective } from "./tooltip.directive";

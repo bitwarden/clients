@@ -1,7 +1,7 @@
 import { CommonModule } from "@angular/common";
 import { Component, ElementRef, inject, input, TemplateRef, viewChild } from "@angular/core";
 
-import { AllowedTooltipPosition } from "../utils/default-positions";
+import { AllowedTooltipPosition } from "../utils/overlay-positions";
 
 @Component({
   selector: "bit-tooltip",

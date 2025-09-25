@@ -17,7 +17,7 @@ import {
   getDefaultPositions,
   ALLOWED_TOOLTIP_POSITION_IDS,
   AllowedTooltipPosition,
-} from "../utils/default-positions";
+} from "../utils/overlay-positions";
 
 import { TooltipComponent } from "./tooltip.component";
 
@@ -75,28 +75,6 @@ export class TooltipDirective implements OnInit {
     const chosenPosition = allowedPositions.find((position) => position.id === tooltipPosition);
 
     return chosenPosition ? [chosenPosition, ...allowedPositions] : allowedPositions;
-  }
-
-  get positions() {
-    const defaultPositions = getDefaultPositions({
-      classNamePrefix: "bit-tooltip",
-      originOffset: 10,
-      positionSubset: ALLOWED_TOOLTIP_POSITION_IDS,
-    });
-
-    if (!this.tooltipPosition()) {
-      return defaultPositions;
-    }
-
-    const preferredPosition = defaultPositions.find(
-      (position) => position.id === this.tooltipPosition(),
-    );
-
-    if (preferredPosition) {
-      return [preferredPosition, ...defaultPositions];
-    }
-
-    return defaultPositions;
   }
 
   get defaultPopoverConfig(): OverlayConfig {
