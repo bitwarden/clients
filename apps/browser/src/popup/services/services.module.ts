@@ -29,6 +29,7 @@ import {
   TwoFactorAuthDuoComponentService,
   TwoFactorAuthWebAuthnComponentService,
   SsoComponentService,
+  NewDeviceVerificationComponentService,
 } from "@bitwarden/auth/angular";
 import {
   LockService,
@@ -36,6 +37,7 @@ import {
   SsoUrlService,
   LogoutService,
 } from "@bitwarden/auth/common";
+import { ExtensionNewDeviceVerificationComponentService } from "@bitwarden/browser/auth/services/new-device-verification/extension-new-device-verification-component.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService as EventCollectionServiceAbstraction } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -716,6 +718,11 @@ const safeProviders: SafeProvider[] = [
       BillingAccountProfileStateService,
       ConfigService,
     ],
+  }),
+  safeProvider({
+    provide: NewDeviceVerificationComponentService,
+    useClass: ExtensionNewDeviceVerificationComponentService,
+    deps: [],
   }),
 ];
 
