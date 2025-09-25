@@ -208,15 +208,6 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
   }
 
   applyOrganizationFilter = async (orgNode: TreeNode<OrganizationFilter>): Promise<void> => {
-    if (!orgNode?.node.enabled) {
-      this.toastService.showToast({
-        variant: "error",
-        message: this.i18nService.t("disabledOrganizationFilterError"),
-      });
-      await firstValueFrom(
-        this.organizationWarningsService.showInactiveSubscriptionDialog$(orgNode.node),
-      );
-    }
     const filter = this.activeFilter;
     if (orgNode?.node.id === "AllVaults") {
       filter.resetOrganization();
