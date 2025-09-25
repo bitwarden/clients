@@ -452,7 +452,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     const canAccessAttachments = await firstValueFrom(this.canAccessAttachments$);
 
     if (!canAccessAttachments) {
-      await this.premiumUpgradeService.promptForPremium();
+      await this.premiumUpgradeService.promptForPremium(this.cipher?.organizationId);
       return;
     }
 
@@ -535,8 +535,6 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
   }
 
   private updateTitle(): void {
-    const mode = this.formConfig.mode || this.params.mode;
-    const type = this.cipher?.type ?? this.formConfig.cipherType;
     const translation: { [key: string]: { [key: number]: string } } = {
       view: {
         [CipherType.Login]: "viewItemHeaderLogin",
@@ -560,11 +558,15 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
         [CipherType.SshKey]: "editItemHeaderSshKey",
       },
     };
+    const type = this.cipher?.type ?? this.formConfig.cipherType;
+    let mode: "view" | "edit" | "new" = "view";
 
-    const effectiveMode =
-      mode === "partial-edit" || mode === "edit" ? "edit" : translation[mode] ? mode : "new";
+    if (this.params.mode === "form") {
+      mode =
+        this.formConfig.mode === "edit" || this.formConfig.mode === "partial-edit" ? "edit" : "new";
+    }
 
-    const fullTranslation = translation[effectiveMode][type];
+    const fullTranslation = translation[mode][type];
 
     this.title = this.i18nService.t(fullTranslation);
   }

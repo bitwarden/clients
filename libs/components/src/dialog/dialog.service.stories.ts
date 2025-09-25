@@ -155,6 +155,7 @@ export default {
               toggleSideNavigation: "Toggle side navigation",
               yes: "Yes",
               no: "No",
+              loading: "Loading",
             });
           },
         },

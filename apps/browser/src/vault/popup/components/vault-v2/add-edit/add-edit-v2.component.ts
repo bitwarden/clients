@@ -17,6 +17,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { CipherType, toCipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
@@ -50,6 +51,7 @@ import { PopupPageComponent } from "../../../../../platform/popup/layout/popup-p
 import { PopupRouterCacheService } from "../../../../../platform/popup/view-cache/popup-router-cache.service";
 import { PopupCloseWarningService } from "../../../../../popup/services/popup-close-warning.service";
 import { BrowserCipherFormGenerationService } from "../../../services/browser-cipher-form-generation.service";
+import { BrowserPremiumUpgradePromptService } from "../../../services/browser-premium-upgrade-prompt.service";
 import { BrowserTotpCaptureService } from "../../../services/browser-totp-capture.service";
 import {
   fido2PopoutSessionData$,
@@ -136,6 +138,7 @@ export type AddEditQueryParams = Partial<Record<keyof QueryParams, string>>;
     { provide: CipherFormConfigService, useClass: DefaultCipherFormConfigService },
     { provide: TotpCaptureService, useClass: BrowserTotpCaptureService },
     { provide: CipherFormGenerationService, useClass: BrowserCipherFormGenerationService },
+    { provide: PremiumUpgradePromptService, useClass: BrowserPremiumUpgradePromptService },
   ],
   imports: [
     CommonModule,
