@@ -295,19 +295,26 @@ describe("DefaultSyncService", () => {
 
     describe("mutate 'last update time'", () => {
       it("uses the current time when a sync is forced", async () => {
+        // Mock the value of this observable because it's used in `syncProfile`. Without it, the test breaks.
         keyConnectorService.convertAccountRequired$ = of(false);
 
+        // This combo mocks usage of stateProvider.getUser(...).update(...) in order to inspect arguments passed to update(...)
         const mockUserState = { update: jest.fn() };
         jest.spyOn(stateProvider, "getUser").mockReturnValue(mockUserState as any);
 
+        // Baseline date/time to compare sync time to, in order to avoid needing to use some kind of fake date provider.
         const beforeSync = Date.now();
+
+        // send it!
         await sut.fullSync(true, { allowThrowOnError: true, skipTokenRefresh: true });
 
         expect(mockUserState.update).toHaveBeenCalledTimes(1);
+        // Get the first and only call to update(...)
+        const updateCall = mockUserState.update.mock.calls[0];
+        // Get the first argument to update(...) -- this will be the date callback that returns the date of the last successful sync
+        const dateCallback = updateCall[0];
+        const actualTime = dateCallback() as Date;
 
-        const actualTime = mockUserState.update.mock.calls[0][0]();
-
-        expect(actualTime).toBeInstanceOf(Date);
         expect(Math.abs(actualTime.getTime() - beforeSync)).toBeLessThan(1);
       });
     });
