@@ -5,3 +5,4 @@ export * from "./critical-apps-api.service";
 export * from "./risk-insights-report.service";
 export * from "./risk-insights-data.service";
 export * from "./all-activities.service";
+export * from "./security-tasks-api.service";

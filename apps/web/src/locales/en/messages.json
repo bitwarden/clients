@@ -84,6 +84,15 @@
   "passwordChangeProgress": {
     "message": "Password change progress"
   },
+  "assignMembersTasksToMonitorProgress": {
+    "message": "Assign members tasks to monitor progress"
+  },
+  "onceYouReviewApplications": {
+    "message": "Once you review applications and mark them as critical, they will display here."
+  },
+  "sendReminders": {
+    "message": "Send reminders"
+  },
   "criticalApplicationsActivityDescription": {
     "message": "Once you mark applications critical, they will display here."
   },
