@@ -1,3 +1,4 @@
+import { signal } from "@angular/core";
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -11,7 +12,7 @@ import {
   ALLOWED_TOOLTIP_POSITION_IDS,
 } from "../utils/overlay-positions";
 
-import { TooltipComponent } from "./tooltip.component";
+import { TOOLTIP_DATA, TooltipComponent } from "./tooltip.component";
 import { TooltipDirective } from "./tooltip.directive";
 
 import { formatArgsForCodeSnippet } from ".storybook/format-args-for-code-snippet";
@@ -29,6 +30,19 @@ export default {
             return new I18nMockService({
               loading: "Loading",
             });
+          },
+        },
+        {
+          provide: TOOLTIP_DATA,
+          useFactory: () => {
+            // simple fixed demo values for the Default story
+            return {
+              content: signal("This is a tooltip"),
+              isVisible: signal(true),
+              tooltipPosition: signal<
+                "above-center" | "below-center" | "left-center" | "right-center"
+              >("above-center"),
+            };
           },
         },
       ],
