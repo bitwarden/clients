@@ -165,7 +165,8 @@ export class EmergencyAccessComponent implements OnInit {
       });
       const result = await lastValueFrom(dialogRef.closed);
       if (result === EmergencyAccessConfirmDialogResult.Confirmed) {
-        await this.emergencyAccessService.confirm(contact.id, contact.granteeId, publicKey);
+        const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+        await this.emergencyAccessService.confirm(contact.id, contact.granteeId, publicKey, userId);
         updateUser();
         this.toastService.showToast({
           variant: "success",
@@ -176,10 +177,12 @@ export class EmergencyAccessComponent implements OnInit {
       return;
     }
 
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     this.actionPromise = this.emergencyAccessService.confirm(
       contact.id,
       contact.granteeId,
       publicKey,
+      userId,
     );
     await this.actionPromise;
     updateUser();
