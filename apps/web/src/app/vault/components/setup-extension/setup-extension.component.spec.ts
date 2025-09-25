@@ -143,7 +143,6 @@ describe("SetupExtensionComponent", () => {
             key: "somethingWentWrong",
           },
           pageIcon: BrowserExtensionIcon,
-          hideIcon: false,
           hideCardWrapper: false,
           maxWidth: "md",
         });
