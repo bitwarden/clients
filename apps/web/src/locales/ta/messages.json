@@ -2,6 +2,9 @@
   "allApplications": {
     "message": "அனைத்து பயன்பாடுகளும்"
   },
+  "activity": {
+    "message": "Activity"
+  },
   "appLogoLabel": {
     "message": "பிட்வார்டன் லோகோ"
   },
@@ -56,8 +59,20 @@
   "createNewLoginItem": {
     "message": "புதிய உள்நுழைவு உருப்படியை உருவாக்கவும்"
   },
+  "criticalApplicationsActivityDescription": {
+    "message": "Once you mark applications critical, they will display here."
+  },
   "criticalApplicationsWithCount": {
     "message": "முக்கியமான பயன்பாடுகள் ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfCriticalApplications": {
+    "message": "$COUNT$ critical applications",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -118,6 +133,18 @@
   },
   "atRiskMembers": {
     "message": "ஆபத்தில் உள்ள உறுப்பினர்கள்"
+  },
+  "membersAtRiskActivityDescription": {
+    "message": "Members with edit access to at-risk items for critical applications"
+  },
+  "membersAtRisk": {
+    "message": "$COUNT$ members at risk",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "atRiskMembersWithCount": {
     "message": "ஆபத்தில் உள்ள உறுப்பினர்கள் ($COUNT$)",
@@ -734,32 +761,81 @@
   "viewItem": {
     "message": "பொருளைக் காண்"
   },
-  "newItemHeader": {
-    "message": "புதிய $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderLogin": {
+    "message": "New Login",
+    "description": "Header for new login item type"
   },
-  "editItemHeader": {
-    "message": "திருத்து $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderCard": {
+    "message": "New Card",
+    "description": "Header for new card item type"
   },
-  "viewItemType": {
-    "message": "காண் $ITEMTYPE$",
-    "placeholders": {
-      "itemtype": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderIdentity": {
+    "message": "New Identity",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "New Note",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "New SSH key",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderTextSend": {
+    "message": "New Text Send",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "New File Send",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderLogin": {
+    "message": "Edit Login",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Edit Card",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Edit Identity",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Edit Note",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "Edit SSH key",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Edit Text Send",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Edit File Send",
+    "description": "Header for edit file send"
+  },
+  "viewItemHeaderLogin": {
+    "message": "View Login",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "View Card",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "View Identity",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "View Note",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "View SSH key",
+    "description": "Header for view SSH key item type"
   },
   "new": {
     "message": "புதியது",
@@ -1509,9 +1585,6 @@
   },
   "selectTwoStepLoginMethod": {
     "message": "இரு-படி உள்நுழைவு முறையைத் தேர்ந்தெடுக்கவும்"
-  },
-  "recoveryCodeDesc": {
-    "message": "உங்கள் இரு-படி உள்நுழைவு வழங்குநர்கள் அனைத்திற்கும் அணுகலை இழந்தீர்களா? உங்கள் கணக்கிலிருந்து அனைத்து இரு-படி உள்நுழைவு வழங்குநர்களையும் அணைக்க உங்கள் மீட்டெடுப்பு குறியீட்டைப் பயன்படுத்தவும்."
   },
   "recoveryCodeTitle": {
     "message": "மீட்டெடுப்பு குறியீடு"
@@ -9666,6 +9739,9 @@
   "failedToSaveIntegration": {
     "message": "ஒருங்கிணைப்பைச் சேமிக்கத் தவறிவிட்டது. பின்னர் மீண்டும் முயற்சிக்கவும்."
   },
+  "failedToDeleteIntegration": {
+    "message": "Failed to delete integration. Please try again later."
+  },
   "deviceIdMissing": {
     "message": "சாதன ஐடி இல்லை"
   },
@@ -9761,6 +9837,9 @@
   },
   "bearerToken": {
     "message": "பியரர் டோக்கன்"
+  },
+  "repositoryNameHint": {
+    "message": "Name of the repository to ingest into"
   },
   "index": {
     "message": "குறியீடு"
@@ -10210,14 +10289,8 @@
   "learnMoreAboutApi": {
     "message": "Bitwarden's API பற்றி மேலும் அறிக"
   },
-  "fileSend": {
-    "message": "கோப்பு அனுப்பு"
-  },
   "fileSends": {
     "message": "கோப்பு அனுப்புதல்கள்"
-  },
-  "textSend": {
-    "message": "உரை அனுப்பு"
   },
   "textSends": {
     "message": "உரை அனுப்புதல்கள்"

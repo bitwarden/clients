@@ -2,6 +2,9 @@
   "allApplications": {
     "message": "Всички приложения"
   },
+  "activity": {
+    "message": "Дейност"
+  },
   "appLogoLabel": {
     "message": "Лого на Битуорден"
   },
@@ -56,8 +59,20 @@
   "createNewLoginItem": {
     "message": "Създаване на нов елемент за вписване"
   },
+  "criticalApplicationsActivityDescription": {
+    "message": "Когато отбележите някое приложение като важно, то ще се появи тук."
+  },
   "criticalApplicationsWithCount": {
     "message": "Важни приложения ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfCriticalApplications": {
+    "message": "$COUNT$ важни приложения",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -118,6 +133,18 @@
   },
   "atRiskMembers": {
     "message": "Членове в риск"
+  },
+  "membersAtRiskActivityDescription": {
+    "message": "Членове с права за редактиране на елементи в риск за важни приложения"
+  },
+  "membersAtRisk": {
+    "message": "$COUNT$ членове в риск",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "atRiskMembersWithCount": {
     "message": "Членове в риск ($COUNT$)",
@@ -734,32 +761,81 @@
   "viewItem": {
     "message": "Преглед на елемента"
   },
-  "newItemHeader": {
-    "message": "Ново $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderLogin": {
+    "message": "Нов елемент за вписване",
+    "description": "Header for new login item type"
   },
-  "editItemHeader": {
-    "message": "Редактиране на $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderCard": {
+    "message": "Нова карта",
+    "description": "Header for new card item type"
   },
-  "viewItemType": {
-    "message": "Преглед на $ITEMTYPE$",
-    "placeholders": {
-      "itemtype": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderIdentity": {
+    "message": "Нова самоличност",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "Нова бележка",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "Нов SSH ключ",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderTextSend": {
+    "message": "Ново текстово Изпращане",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "Ново файлово Изпращане",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderLogin": {
+    "message": "Редактиране на елемента за вписване",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Редактиране на картата",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Редактиране на самоличността",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Редактиране на бележката",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "Редактиране на SSH ключа",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Редактиране на текстовото Изпращане",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Редактиране на файловото Изпращане",
+    "description": "Header for edit file send"
+  },
+  "viewItemHeaderLogin": {
+    "message": "Преглед на елемента за вписване",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "Преглед на картата",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "Преглед на самоличността",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "Преглед на бележката",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "Преглед на SSH ключа",
+    "description": "Header for view SSH key item type"
   },
   "new": {
     "message": "Ново",
@@ -1509,9 +1585,6 @@
   },
   "selectTwoStepLoginMethod": {
     "message": "Изберете начин за двустепенно удостоверяване"
-  },
-  "recoveryCodeDesc": {
-    "message": "Ако сте загубили достъп до двустепенното удостоверяване, може да използвате код за възстановяване, за да изключите двустепенното удостоверяване в абонамента си."
   },
   "recoveryCodeTitle": {
     "message": "Код за възстановяване"
@@ -9666,6 +9739,9 @@
   "failedToSaveIntegration": {
     "message": "Интеграцията не беше запазена. Опитайте отново по-късно."
   },
+  "failedToDeleteIntegration": {
+    "message": "Интеграцията не беше изтрита. Опитайте отново по-късно."
+  },
   "deviceIdMissing": {
     "message": "Липсва идентификатор на устройството"
   },
@@ -9761,6 +9837,9 @@
   },
   "bearerToken": {
     "message": "Идентификатор „Bearer“"
+  },
+  "repositoryNameHint": {
+    "message": "Име на хранилището, към което да се праща"
   },
   "index": {
     "message": "Индекс"
@@ -10210,14 +10289,8 @@
   "learnMoreAboutApi": {
     "message": "Научете повече относно ППИ на Биуорден"
   },
-  "fileSend": {
-    "message": "Файлово изпращане"
-  },
   "fileSends": {
     "message": "Файлови изпращания"
-  },
-  "textSend": {
-    "message": "Текстово изпращане"
   },
   "textSends": {
     "message": "Текстови изпращания"

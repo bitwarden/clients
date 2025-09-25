@@ -960,9 +960,6 @@
   "insertU2f": {
     "message": "Ubaci svoj sigurnosni ključ u USB slot kompjutera. Ako ima tipku, dodirni je."
   },
-  "recoveryCodeDesc": {
-    "message": "Izgubljen je pristup uređaju za dvostruku autentifikaciju? Koristi svoj kôd za oporavak za onemogućavanje svih pružatelja usluga dvostruke autentifikacije na tvom računu."
-  },
   "recoveryCodeTitle": {
     "message": "Kod za oporavak"
   },

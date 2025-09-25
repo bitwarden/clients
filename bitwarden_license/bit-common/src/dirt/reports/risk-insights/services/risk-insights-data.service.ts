@@ -5,11 +5,11 @@ import { OrganizationId } from "@bitwarden/common/types/guid";
 
 import {
   AppAtRiskMembersDialogParams,
-  ApplicationHealthReportDetail,
   AtRiskApplicationDetail,
   AtRiskMemberDetail,
   DrawerType,
-} from "../models/password-health";
+  ApplicationHealthReportDetail,
+} from "../models/report-models";
 
 import { RiskInsightsReportService } from "./risk-insights-report.service";
 export class RiskInsightsDataService {
@@ -49,7 +49,7 @@ export class RiskInsightsDataService {
       this.isLoadingSubject.next(true);
     }
     this.reportService
-      .generateApplicationsReport$(organizationId)
+      .LEGACY_generateApplicationsReport$(organizationId)
       .pipe(
         finalize(() => {
           this.isLoadingSubject.next(false);
