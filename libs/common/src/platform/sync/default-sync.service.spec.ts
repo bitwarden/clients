@@ -292,5 +292,24 @@ describe("DefaultSyncService", () => {
         expect(masterPasswordAbstraction.setMasterPasswordUnlockData).not.toHaveBeenCalled();
       });
     });
+
+    describe("mutate 'last update time'", () => {
+      it("uses the current time when a sync is forced", async () => {
+        keyConnectorService.convertAccountRequired$ = of(false);
+
+        const mockUserState = { update: jest.fn() };
+        jest.spyOn(stateProvider, "getUser").mockReturnValue(mockUserState as any);
+
+        const beforeSync = Date.now();
+        await sut.fullSync(true, { allowThrowOnError: true, skipTokenRefresh: true });
+
+        expect(mockUserState.update).toHaveBeenCalledTimes(1);
+
+        const actualTime = mockUserState.update.mock.calls[0][0]();
+
+        expect(actualTime).toBeInstanceOf(Date);
+        expect(Math.abs(actualTime.getTime() - beforeSync)).toBeLessThan(1);
+      });
+    });
   });
 });
