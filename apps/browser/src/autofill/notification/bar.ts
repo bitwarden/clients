@@ -203,7 +203,7 @@ async function initNotificationBar(message: NotificationBarWindowMessage) {
     };
 
     const handleSaveAction = () => {
-      // @TODO Determine case
+      // cipher ID is null while vault is locked.
       sendSaveCipherMessage(null, true);
 
       render(
