@@ -154,6 +154,9 @@ export class Utils {
    * - `""` (empty string) for empty inputs (length 0),
    * - `null` if `buffer` is `null` or `undefined`.
    */
+  static fromBufferToB64(buffer: null | undefined): null;
+  static fromBufferToB64(buffer: ArrayBuffer): string;
+  static fromBufferToB64(buffer: ArrayBufferView): string;
   static fromBufferToB64(buffer: ArrayBuffer | ArrayBufferView | null | undefined): string | null {
     if (buffer == null) {
       return null;
