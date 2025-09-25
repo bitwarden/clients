@@ -348,7 +348,9 @@
                 <small class="help-block" *ngIf="form.value.enableAutotype">
                   <b>{{ "important" | i18n }}</b>
                   {{ "enableAutotypeDescriptionTransitionKey" | i18n }}
-                  <b>{{ "editShortcut" | i18n }}</b></small
+                  <span class="settings-link" *ngIf="this.form.value.enableAutotype" (click)="updateAutotypeShortcut()">
+                    {{ "editShortcut" | i18n }}
+                  </span></small
                 >
               </div>
               <div class="form-group">

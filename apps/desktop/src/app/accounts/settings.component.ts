@@ -65,6 +65,7 @@ import { DesktopBiometricsService } from "../../key-management/biometrics/deskto
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
 import { DesktopPremiumUpgradePromptService } from "../../services/desktop-premium-upgrade-prompt.service";
 import { NativeMessagingManifestService } from "../services/native-messaging-manifest.service";
+import { AutotypeShortcutComponent } from "../../autofill/components/autotype-shortcut.component";
 
 @Component({
   selector: "app-settings",
@@ -897,6 +898,22 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   async saveEnableAutotype() {
     await this.desktopAutotypeService.setAutotypeEnabledState(this.form.value.enableAutotype);
+  }
+
+  async updateAutotypeShortcut() {
+    const dialogRef = AutotypeShortcutComponent.open(this.dialogService);
+
+    if (dialogRef == null) {
+      this.form.controls.pin.setValue(false, { emitEvent: false });
+      return;
+    }
+
+    let newShortcut = await firstValueFrom(dialogRef.closed);
+    let newShortcutArray = newShortcut.split("+");
+    console.log("settings received the new shortcut: " + newShortcut);
+    console.log("settings received the new shortcut array: " + newShortcutArray);
+    await this.desktopAutotypeService.setAutotypeKeyboardShortcutState(newShortcutArray);
+    //this.form.controls.pin.setValue(this.userHasAutotypeShortcutSet, { emitEvent: false });
   }
 
   private async generateVaultTimeoutOptions(): Promise<VaultTimeoutOption[]> {

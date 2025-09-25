@@ -23,25 +23,25 @@ pub fn get_foreground_window_title() -> std::result::Result<String, ()> {
     Ok(window_title)
 }
 
-fn convert_shortcut_key_to_input(key: String) -> Result<INPUT, ()> {
-    const CONTROL_KEY: u8 = 0x11;
-    const SHIFT_KEY: u8 = 0x10;
-    const ALT_KEY: u8 = 0x12;
-    const LEFT_WINDOWS_KEY: u8 = 0x5B;
+// fn convert_shortcut_key_to_input(key: String) -> Result<INPUT, ()> {
+//     const CONTROL_KEY: u8 = 0x11;
+//     const SHIFT_KEY: u8 = 0x10;
+//     const ALT_KEY: u8 = 0x12;
+//     const LEFT_WINDOWS_KEY: u8 = 0x5B;
 
-    let input = if key == "Control" {
-        build_virtual_key_input(InputKeyPress::Up, CONTROL_KEY)
-    } else if key == "Alt" {
-        build_virtual_key_input(InputKeyPress::Up, ALT_KEY)
-    } else if key == "Super" {
-        build_virtual_key_input(InputKeyPress::Up, LEFT_WINDOWS_KEY)
-    } else if key == "Shift" {
-        build_virtual_key_input(InputKeyPress::Up, SHIFT_KEY)
-    } else {
-        let unicode_value: Vec<u16> = key.encode_utf16().collect();
-        build_virtual_key_input(InputKeyPress::Up, SHIFT_KEY)
-    };
-}
+//     let input = if key == "Control" {
+//         build_virtual_key_input(InputKeyPress::Up, CONTROL_KEY)
+//     } else if key == "Alt" {
+//         build_virtual_key_input(InputKeyPress::Up, ALT_KEY)
+//     } else if key == "Super" {
+//         build_virtual_key_input(InputKeyPress::Up, LEFT_WINDOWS_KEY)
+//     } else if key == "Shift" {
+//         build_virtual_key_input(InputKeyPress::Up, SHIFT_KEY)
+//     } else {
+//         let unicode_value: Vec<u16> = key.encode_utf16().collect();
+//         build_virtual_key_input(InputKeyPress::Up, SHIFT_KEY)
+//     };
+// }
 
 /// Attempts to type the input text wherever the user's cursor is.
 ///
@@ -50,44 +50,48 @@ fn convert_shortcut_key_to_input(key: String) -> Result<INPUT, ()> {
 ///
 /// https://learn.microsoft.com/en-in/windows/win32/api/winuser/nf-winuser-sendinput
 pub fn type_input(input: Vec<u16>, keyboard_shortcut: Vec<String>) -> Result<(), ()> {
-    const TAB_KEY: u8 = 9;
+    //const TAB_KEY: u8 = 9;
 
-    let mut keyboard_inputs: Vec<INPUT> = Vec::new();
+    //let mut keyboard_inputs: Vec<INPUT> = Vec::new();
+
+    println!("type_input hotkey: {:?}", keyboard_shortcut);
+
+    Ok(())
 
     // Release hotkeys
-    for key in keyboard_shortcut {
-        let key_to_release: INPUT = match key {
-            String::from("Control") => ,
-            String::from("Alt") => build_virtual_key_input(InputKeyPress::Up, CONTROL_KEY),
-            String::from("Super") => build_virtual_key_input(InputKeyPress::Up, CONTROL_KEY),
-            String::from("Shift") => build_virtual_key_input(InputKeyPress::Up, CONTROL_KEY),
-            _ => 
-        }
+    // for key in keyboard_shortcut {
+    //     let key_to_release: INPUT = match key {
+    //         String::from("Control") => ,
+    //         String::from("Alt") => build_virtual_key_input(InputKeyPress::Up, CONTROL_KEY),
+    //         String::from("Super") => build_virtual_key_input(InputKeyPress::Up, CONTROL_KEY),
+    //         String::from("Shift") => build_virtual_key_input(InputKeyPress::Up, CONTROL_KEY),
+    //         _ => 
+    //     }
 
-        keyboard_inputs.push(key_to_release);
-    }
+    //     keyboard_inputs.push(key_to_release);
+    // }
 
     //keyboard_inputs.push(build_virtual_key_input(InputKeyPress::Up, 0x11)); // ctrl
     //keyboard_inputs.push(build_virtual_key_input(InputKeyPress::Up, 0x10)); // shift
     //keyboard_inputs.push(build_unicode_input(InputKeyPress::Up, 42)); // b
 
-    for i in input {
-        let next_down_input = if i == TAB_KEY {
-            build_virtual_key_input(InputKeyPress::Down, i as u8)
-        } else {
-            build_unicode_input(InputKeyPress::Down, i)
-        };
-        let next_up_input = if i == TAB_KEY {
-            build_virtual_key_input(InputKeyPress::Up, i as u8)
-        } else {
-            build_unicode_input(InputKeyPress::Up, i)
-        };
+    // for i in input {
+    //     let next_down_input = if i == TAB_KEY.into() {
+    //         build_virtual_key_input(InputKeyPress::Down, i as u8)
+    //     } else {
+    //         build_unicode_input(InputKeyPress::Down, i)
+    //     };
+    //     let next_up_input = if i == TAB_KEY.into() {
+    //         build_virtual_key_input(InputKeyPress::Up, i as u8)
+    //     } else {
+    //         build_unicode_input(InputKeyPress::Up, i)
+    //     };
 
-        keyboard_inputs.push(next_down_input);
-        keyboard_inputs.push(next_up_input);
-    }
+    //     keyboard_inputs.push(next_down_input);
+    //     keyboard_inputs.push(next_up_input);
+    // }
 
-    send_input(keyboard_inputs)
+    //send_input(keyboard_inputs)
 }
 
 /// Gets the foreground window handle.
