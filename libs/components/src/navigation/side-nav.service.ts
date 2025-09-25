@@ -9,11 +9,11 @@ export class SideNavService {
   private _open$ = new BehaviorSubject<boolean>(!window.matchMedia("(max-width: 768px)").matches);
   open$ = this._open$.asObservable();
 
-  isOverlay$ = combineLatest([this.open$, media("(max-width: 768px)")]).pipe(
+  private isSmallScreen$ = media("(max-width: 768px)");
+
+  isOverlay$ = combineLatest([this.open$, this.isSmallScreen$]).pipe(
     map(([open, isSmallScreen]) => open && isSmallScreen),
   );
-
-  private isSmallScreen$ = media("(max-width: 768px)");
 
   constructor() {
     this.isSmallScreen$.pipe(takeUntilDestroyed()).subscribe((isSmallScreen) => {
