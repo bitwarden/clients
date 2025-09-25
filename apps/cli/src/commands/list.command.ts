@@ -16,12 +16,12 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EventType } from "@bitwarden/common/enums";
 import { ListResponse as ApiListResponse } from "@bitwarden/common/models/response/list.response";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { KeyService } from "@bitwarden/key-management";
-import { CipherArchiveService } from "@bitwarden/vault";
 
 import { CollectionResponse } from "../admin-console/models/response/collection.response";
 import { OrganizationUserResponse } from "../admin-console/models/response/organization-user.response";

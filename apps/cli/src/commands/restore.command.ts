@@ -5,11 +5,11 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CipherId } from "@bitwarden/common/types/guid";
+import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { UserId } from "@bitwarden/user-core";
-import { CipherArchiveService } from "@bitwarden/vault/services";
 
 import { Response } from "../models/response";
 

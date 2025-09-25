@@ -9,6 +9,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherId, UserId } from "@bitwarden/common/types/guid";
+import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
@@ -24,7 +25,6 @@ import {
 } from "@bitwarden/components";
 import {
   CanDeleteCipherDirective,
-  CipherArchiveService,
   DecryptionFailureDialogComponent,
   PasswordRepromptService,
 } from "@bitwarden/vault";

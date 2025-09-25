@@ -260,6 +260,7 @@ import {
   InternalSendService,
   SendService as SendServiceAbstraction,
 } from "@bitwarden/common/tools/send/services/send.service.abstraction";
+import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherEncryptionService } from "@bitwarden/common/vault/abstractions/cipher-encryption.service";
 import { CipherService as CipherServiceAbstraction } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherFileUploadService as CipherFileUploadServiceAbstraction } from "@bitwarden/common/vault/abstractions/file-upload/cipher-file-upload.service";
@@ -280,6 +281,7 @@ import {
   DefaultCipherAuthorizationService,
 } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { CipherService } from "@bitwarden/common/vault/services/cipher.service";
+import { DefaultCipherArchiveService } from "@bitwarden/common/vault/services/default-cipher-archive.service";
 import { DefaultCipherEncryptionService } from "@bitwarden/common/vault/services/default-cipher-encryption.service";
 import { CipherFileUploadService } from "@bitwarden/common/vault/services/file-upload/cipher-file-upload.service";
 import { FolderApiService } from "@bitwarden/common/vault/services/folder/folder-api.service";
@@ -340,11 +342,7 @@ import {
 import { SafeInjectionToken } from "@bitwarden/ui-common";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import {
-  CipherArchiveService,
-  DefaultCipherArchiveService,
-  PasswordRepromptService,
-} from "@bitwarden/vault";
+import { PasswordRepromptService } from "@bitwarden/vault";
 import {
   IndividualVaultExportService,
   IndividualVaultExportServiceAbstraction,

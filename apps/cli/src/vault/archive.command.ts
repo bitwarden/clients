@@ -6,11 +6,11 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CipherId } from "@bitwarden/common/types/guid";
+import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { UserId } from "@bitwarden/user-core";
-import { CipherArchiveService } from "@bitwarden/vault";
 
 import { Response } from "../models/response";
 
