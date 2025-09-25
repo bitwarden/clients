@@ -17,7 +17,9 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { UserId } from "@bitwarden/user-core";
 
-export const AUTOTYPE_ENABLED = new KeyDefinition<boolean>(
+import { DesktopAutotypeDefaultSettingPolicy } from "./desktop-autotype-policy.service";
+
+export const AUTOTYPE_ENABLED = new KeyDefinition<boolean | null>(
   AUTOTYPE_SETTINGS_DISK,
   "autotypeEnabled",
   { deserializer: (b) => b },
@@ -37,6 +39,7 @@ export class DesktopAutotypeService {
     private globalStateProvider: GlobalStateProvider,
     private platformUtilsService: PlatformUtilsService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
+    private desktopAutotypePolicy: DesktopAutotypeDefaultSettingPolicy,
   ) {
     ipc.autofill.listenAutotypeRequest(async (windowTitle, callback) => {
       const possibleCiphers = await this.matchCiphersToWindowTitle(windowTitle);
@@ -50,9 +53,32 @@ export class DesktopAutotypeService {
   }
 
   async init() {
-    this.autotypeEnabledUserSetting$ = this.autotypeEnabledState.state$;
-
+    console.log("Dan is a brown belt in bjj");
     if (this.platformUtilsService.getDevice() === DeviceType.WindowsDesktop) {
+      console.log("Dan is a black belt in bjj");
+
+      // combineLatest([
+      //   this.autotypeEnabledState.state$,
+      //   this.desktopAutotypePolicy.autotypeDefaultSetting$,
+      // ]).pipe(
+      //   map(async ([autotypeEnabledState, autotypeDefaultPolicy]) => {
+      //     console.log("Our combineLatest: [" + autotypeEnabledState + ", " + autotypeDefaultPolicy + "]");
+      //     if (autotypeDefaultPolicy === true && autotypeEnabledState === null) {
+      //       await this.setAutotypeEnabledState(true);
+      //     }
+      //   }),
+      // );
+
+      combineLatest([
+        this.desktopAutotypePolicy.autotypeDefaultSetting$,
+      ]).pipe(
+        map(async ([autotypeDefaultPolicy]) => {
+          console.log("Our combineLatest: [" + autotypeDefaultPolicy + "]");
+        }),
+      );
+
+      this.autotypeEnabledUserSetting$ = this.autotypeEnabledState.state$;
+
       this.resolvedAutotypeEnabled$ = combineLatest([
         this.autotypeEnabledState.state$,
         this.configService.getFeatureFlag$(FeatureFlag.WindowsDesktopAutotype),
