@@ -154,6 +154,10 @@ export class RiskInsightsDataService {
     return of(applications).pipe(
       withLatestFrom(this.organizationDetails$, this.criticalApps$),
       switchMap(async ([apps, orgDetails, criticalApps]) => {
+        if (!orgDetails) {
+          return [];
+        }
+
         // Get ciphers for application
         const cipherMap = await this.reportService.getApplicationCipherMap(
           apps,
