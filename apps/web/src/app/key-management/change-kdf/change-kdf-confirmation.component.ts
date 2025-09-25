@@ -4,13 +4,13 @@ import { Component, Inject } from "@angular/core";
 import { FormGroup, FormControl, Validators } from "@angular/forms";
 import { firstValueFrom } from "rxjs";
 
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { KdfRequest } from "@bitwarden/common/models/request/kdf.request";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { ChangeKdfService } from "@bitwarden/common/key-management/kdf/change-kdf-service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { DIALOG_DATA, ToastService } from "@bitwarden/components";
-import { KdfConfig, KdfType, KeyService } from "@bitwarden/key-management";
+import { KdfConfig, KdfType } from "@bitwarden/key-management";
 
 @Component({
   selector: "app-change-kdf-confirmation",
@@ -28,13 +28,12 @@ export class ChangeKdfConfirmationComponent {
   loading = false;
 
   constructor(
-    private apiService: ApiService,
     private i18nService: I18nService,
-    private keyService: KeyService,
     private messagingService: MessagingService,
     @Inject(DIALOG_DATA) params: { kdf: KdfType; kdfConfig: KdfConfig },
     private accountService: AccountService,
     private toastService: ToastService,
+    private changeKdfService: ChangeKdfService,
   ) {
     this.kdfConfig = params.kdfConfig;
     this.masterPassword = null;
@@ -56,37 +55,17 @@ export class ChangeKdfConfirmationComponent {
   };
 
   private async makeKeyAndSaveAsync() {
-    const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
-    if (activeAccount == null) {
-      throw new Error("No active account found.");
-    }
     const masterPassword = this.form.value.masterPassword;
 
     // Ensure the KDF config is valid.
     this.kdfConfig.validateKdfConfigForSetting();
 
-    const request = new KdfRequest();
-    request.kdf = this.kdfConfig.kdfType;
-    request.kdfIterations = this.kdfConfig.iterations;
-    if (this.kdfConfig.kdfType === KdfType.Argon2id) {
-      request.kdfMemory = this.kdfConfig.memory;
-      request.kdfParallelism = this.kdfConfig.parallelism;
-    }
-    const masterKey = await this.keyService.getOrDeriveMasterKey(masterPassword, activeAccount.id);
-    request.masterPasswordHash = await this.keyService.hashMasterKey(masterPassword, masterKey);
+    const activeAccountId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
 
-    const newMasterKey = await this.keyService.makeMasterKey(
+    await this.changeKdfService.updateUserKdfParams(
       masterPassword,
-      activeAccount.email,
       this.kdfConfig,
+      activeAccountId,
     );
-    request.newMasterPasswordHash = await this.keyService.hashMasterKey(
-      masterPassword,
-      newMasterKey,
-    );
-    const newUserKey = await this.keyService.encryptUserKeyWithMasterKey(newMasterKey);
-    request.key = newUserKey[1].encryptedString;
-
-    await this.apiService.postAccountKdf(request);
   }
 }

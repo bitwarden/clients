@@ -26,6 +26,7 @@ export const AUTOTYPE_ENABLED = new KeyDefinition<boolean>(
 export class DesktopAutotypeService {
   private readonly autotypeEnabledState = this.globalStateProvider.get(AUTOTYPE_ENABLED);
 
+  autotypeEnabledUserSetting$: Observable<boolean> = of(false);
   resolvedAutotypeEnabled$: Observable<boolean> = of(false);
 
   constructor(
@@ -49,6 +50,8 @@ export class DesktopAutotypeService {
   }
 
   async init() {
+    this.autotypeEnabledUserSetting$ = this.autotypeEnabledState.state$;
+
     if (this.platformUtilsService.getDevice() === DeviceType.WindowsDesktop) {
       this.resolvedAutotypeEnabled$ = combineLatest([
         this.autotypeEnabledState.state$,
