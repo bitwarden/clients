@@ -33,7 +33,7 @@ import { TooltipComponent } from "./tooltip.component";
 })
 export class TooltipDirective implements OnInit {
   /**
-   * The value of this input is forwared to the tooltip.component to render
+   * The value of this input is forwarded to the tooltip.component to render
    */
   readonly bitTooltip = input.required<string>();
   /**
