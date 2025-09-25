@@ -17,8 +17,8 @@ export class AuthStatusBadgeUpdaterService {
     private accountService: AccountService,
     private authService: AuthService,
   ) {
-    this.accountService.activeAccount$
-      .pipe(
+    this.badgeService.setState(StateName, (_tab) =>
+      this.accountService.activeAccount$.pipe(
         switchMap((account) =>
           account
             ? this.authService.authStatusFor$(account.id)
@@ -27,30 +27,36 @@ export class AuthStatusBadgeUpdaterService {
         mergeMap(async (authStatus) => {
           switch (authStatus) {
             case AuthenticationStatus.LoggedOut: {
-              await this.badgeService.setState(StateName, BadgeStatePriority.High, {
-                icon: BadgeIcon.LoggedOut,
-                backgroundColor: Unset,
-                text: Unset,
-              });
-              break;
+              return {
+                priority: BadgeStatePriority.High,
+                state: {
+                  icon: BadgeIcon.LoggedOut,
+                  backgroundColor: Unset,
+                  text: Unset,
+                },
+              };
             }
             case AuthenticationStatus.Locked: {
-              await this.badgeService.setState(StateName, BadgeStatePriority.High, {
-                icon: BadgeIcon.Locked,
-                backgroundColor: Unset,
-                text: Unset,
-              });
-              break;
+              return {
+                priority: BadgeStatePriority.High,
+                state: {
+                  icon: BadgeIcon.Locked,
+                  backgroundColor: Unset,
+                  text: Unset,
+                },
+              };
             }
             case AuthenticationStatus.Unlocked: {
-              await this.badgeService.setState(StateName, BadgeStatePriority.Low, {
-                icon: BadgeIcon.Unlocked,
-              });
-              break;
+              return {
+                priority: BadgeStatePriority.Low,
+                state: {
+                  icon: BadgeIcon.Unlocked,
+                },
+              };
             }
           }
         }),
-      )
-      .subscribe();
+      ),
+    );
   }
 }
