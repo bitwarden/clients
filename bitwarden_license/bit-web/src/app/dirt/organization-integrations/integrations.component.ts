@@ -257,6 +257,18 @@ export class AdminConsoleIntegrationsComponent implements OnInit, OnDestroy {
       };
 
       this.integrationsList.push(crowdstrikeIntegration);
+
+      const datadogIntegration: Integration = {
+        name: OrganizationIntegrationServiceType.Datadog,
+        // TODO: Update link when help article is published
+        linkURL: "https://bitwarden.com/help/non-native-siem/",
+        image: "../../../../../../../images/integrations/logo-datadog-color.svg",
+        type: IntegrationType.EVENT,
+        description: "datadogEventIntegrationDesc",
+        canSetupConnection: true,
+      };
+
+      this.integrationsList.push(datadogIntegration);
     }
 
     // For all existing event based configurations loop through and assign the
