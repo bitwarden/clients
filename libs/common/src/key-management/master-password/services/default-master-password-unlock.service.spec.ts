@@ -9,7 +9,6 @@ import { UserId } from "@bitwarden/user-core";
 import { HashPurpose } from "../../../platform/enums";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { MasterKey, UserKey } from "../../../types/key";
-import { EncString } from "../../crypto/models/enc-string";
 import { InternalMasterPasswordServiceAbstraction } from "../abstractions/master-password.service.abstraction";
 import {
   MasterKeyWrappedUserKey,
@@ -32,7 +31,7 @@ describe("DefaultMasterPasswordUnlockService", () => {
   const mockMasterPasswordUnlockData: MasterPasswordUnlockData = new MasterPasswordUnlockData(
     "user@example.com" as MasterPasswordSalt,
     new Argon2KdfConfig(100000, 64, 1),
-    new EncString("encryptedMasterKeyWrappedUserKey") as MasterKeyWrappedUserKey,
+    "encryptedMasterKeyWrappedUserKey" as MasterKeyWrappedUserKey,
   );
 
   //Legacy data for tests
