@@ -317,6 +317,89 @@ describe("DefaultSyncService", () => {
 
         expect(Math.abs(actualTime.getTime() - beforeSync)).toBeLessThan(1);
       });
+
+      it("updates last sync time when no sync is necessary", async () => {
+        const revisionDate = new Date(1);
+        const lastSyncDate = revisionDate;
+
+        // Set the account revision date
+        jest.spyOn(apiService, "getAccountRevisionDate").mockResolvedValue(revisionDate.getTime());
+
+        // Set the last sync date.
+        jest.spyOn(sut as any, "getLastSync").mockResolvedValue(lastSyncDate);
+
+        // This combo mocks usage of stateProvider.getUser(...).update(...) to verify it's called
+        const mockUserState = { update: jest.fn() };
+        jest.spyOn(stateProvider, "getUser").mockReturnValue(mockUserState as any);
+
+        const syncResult = await sut.fullSync(false, {
+          allowThrowOnError: true,
+          skipTokenRefresh: true,
+        });
+
+        // Sync should complete but return false since no sync was needed
+        expect(syncResult).toBe(false);
+        // setLastSync should never be called, so update should never be called
+        expect(mockUserState.update).toHaveBeenCalledTimes(1);
+      });
+
+      it("updates last sync time when sync is successful", async () => {
+        const revisionDate = new Date(2);
+        const lastSyncDate = new Date(1);
+
+        // Set the account revision date
+        jest.spyOn(apiService, "getAccountRevisionDate").mockResolvedValue(revisionDate.getTime());
+
+        // Set the last sync date.
+        jest.spyOn(sut as any, "getLastSync").mockResolvedValue(lastSyncDate);
+
+        // This combo mocks usage of stateProvider.getUser(...).update(...) to verify it's called
+        const mockUserState = { update: jest.fn() };
+        jest.spyOn(stateProvider, "getUser").mockReturnValue(mockUserState as any);
+
+        const syncResult = await sut.fullSync(false, {
+          allowThrowOnError: true,
+          skipTokenRefresh: true,
+        });
+
+        expect(syncResult).toBe(true);
+        // setLastSync should be called, which should cause stateProvider.getUser(...).update(...) to be called
+        expect(mockUserState.update).toHaveBeenCalledTimes(1);
+      });
+
+      it("does not update last sync time when sync fails", async () => {
+        const mockUserState = { update: jest.fn() };
+        jest.spyOn(stateProvider, "getUser").mockReturnValue(mockUserState as any);
+
+        apiService.getSync.mockRejectedValue(new Error("not connected"));
+
+        const syncResult = await sut.fullSync(true, {
+          allowThrowOnError: false,
+          skipTokenRefresh: true,
+        });
+
+        expect(syncResult).toBe(false);
+        // setLastSync should be called, which should cause stateProvider.getUser(...).update(...) to be called
+        expect(mockUserState.update).not.toHaveBeenCalled();
+      });
+
+      it("does not update last sync time when account revision check fails", async () => {
+        jest
+          .spyOn(apiService, "getAccountRevisionDate")
+          .mockRejectedValue(new Error("not connected"));
+
+        const mockUserState = { update: jest.fn() };
+        jest.spyOn(stateProvider, "getUser").mockReturnValue(mockUserState as any);
+
+        const syncResult = await sut.fullSync(false, {
+          allowThrowOnError: false,
+          skipTokenRefresh: true,
+        });
+
+        expect(syncResult).toBe(false);
+        // setLastSync should be called, which should cause stateProvider.getUser(...).update(...) to be called
+        expect(mockUserState.update).not.toHaveBeenCalled();
+      });
     });
   });
 });
