@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { Observable, NEVER } from "rxjs";
+import { Observable, of } from "rxjs";
 import { distinctUntilChanged, filter, map, shareReplay, switchMap } from "rxjs/operators";
 
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -23,7 +23,6 @@ export class DesktopAutotypeDefaultSettingPolicy {
   /**
    * Emits the autotype policy enabled status (true | false | null) when account is unlocked and WindowsDesktopAutotype is enabled.
    * - true: autotype policy exists and is enabled
-   * - false: autotype policy exists and is disabled
    * - null: no autotype policy exists for the user's organization
    */
   readonly autotypeDefaultSetting$: Observable<boolean | null> = this.configService
@@ -31,7 +30,7 @@ export class DesktopAutotypeDefaultSettingPolicy {
     .pipe(
       switchMap((autotypeFeatureEnabled) => {
         if (!autotypeFeatureEnabled) {
-          return NEVER;
+          return of(null);
         }
 
         return this.accountService.activeAccount$.pipe(
@@ -44,17 +43,15 @@ export class DesktopAutotypeDefaultSettingPolicy {
               distinctUntilChanged(),
             );
 
-            const policy$ = this.policyService.policies$(userId).pipe(
-              map(
-                (policies) =>
-                  policies.find((policy) => policy.type === PolicyType.AutotypeDefaultSetting)
-                    ?.enabled ?? null,
-              ),
-              distinctUntilChanged(),
-              shareReplay({ bufferSize: 1, refCount: true }),
-            );
+            const policy$ = this.policyService
+              .policyAppliesToUser$(PolicyType.AutotypeDefaultSetting, userId)
+              .pipe(
+                map((appliesToUser) => (appliesToUser ? true : null)),
+                distinctUntilChanged(),
+                shareReplay({ bufferSize: 1, refCount: true }),
+              );
 
-            return isUnlocked$.pipe(switchMap((unlocked) => (unlocked ? policy$ : NEVER)));
+            return isUnlocked$.pipe(switchMap((unlocked) => (unlocked ? policy$ : of(null))));
           }),
         );
       }),

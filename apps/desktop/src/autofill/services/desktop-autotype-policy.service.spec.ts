@@ -3,14 +3,11 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, firstValueFrom, take, timeout, TimeoutError } from "rxjs";
 
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { PolicyType } from "@bitwarden/common/admin-console/enums";
-import { PolicyData } from "@bitwarden/common/admin-console/models/data/policy.data";
-import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { OrganizationId, PolicyId, UserId } from "@bitwarden/common/types/guid";
+import { Account, UserId } from "@bitwarden/common/platform/models/domain/account";
 
 import { DesktopAutotypeDefaultSettingPolicy } from "./desktop-autotype-policy.service";
 
@@ -24,20 +21,9 @@ describe("DesktopAutotypeDefaultSettingPolicy", () => {
   let mockAccountSubject: BehaviorSubject<{ id: UserId } | null>;
   let mockFeatureFlagSubject: BehaviorSubject<boolean>;
   let mockAuthStatusSubject: BehaviorSubject<AuthenticationStatus>;
-  let mockPoliciesSubject: BehaviorSubject<Policy[]>;
+  let mockPolicyAppliesSubject: BehaviorSubject<boolean>;
 
   const mockUserId = "user-123" as UserId;
-
-  function createPolicy(overrides: Partial<PolicyData> = {}): Policy {
-    return new Policy({
-      id: "policy-1" as PolicyId,
-      organizationId: "org-1" as OrganizationId,
-      type: PolicyType.AutotypeDefaultSetting,
-      enabled: true,
-      data: {},
-      ...overrides,
-    });
-  }
 
   beforeEach(() => {
     mockAccountSubject = new BehaviorSubject<Account | null>({
@@ -50,7 +36,7 @@ describe("DesktopAutotypeDefaultSettingPolicy", () => {
     mockAuthStatusSubject = new BehaviorSubject<AuthenticationStatus>(
       AuthenticationStatus.Unlocked,
     );
-    mockPoliciesSubject = new BehaviorSubject<Policy[]>([]);
+    mockPolicyAppliesSubject = new BehaviorSubject<boolean>(false);
 
     accountService = mock<AccountService>();
     authService = mock<AuthService>();
@@ -64,7 +50,9 @@ describe("DesktopAutotypeDefaultSettingPolicy", () => {
     authService.authStatusFor$ = jest
       .fn()
       .mockImplementation((_: UserId) => mockAuthStatusSubject.asObservable());
-    policyService.policies$ = jest.fn().mockReturnValue(mockPoliciesSubject.asObservable());
+    policyService.policyAppliesToUser$ = jest
+      .fn()
+      .mockReturnValue(mockPolicyAppliesSubject.asObservable());
 
     TestBed.configureTestingModule({
       providers: [
@@ -84,15 +72,14 @@ describe("DesktopAutotypeDefaultSettingPolicy", () => {
     mockAccountSubject.complete();
     mockFeatureFlagSubject.complete();
     mockAuthStatusSubject.complete();
-    mockPoliciesSubject.complete();
+    mockPolicyAppliesSubject.complete();
   });
 
   describe("autotypeDefaultSetting$", () => {
-    it("should not emit when feature flag is disabled", async () => {
+    it("should emit null when feature flag is disabled", async () => {
       mockFeatureFlagSubject.next(false);
-      await expect(
-        firstValueFrom(service.autotypeDefaultSetting$.pipe(timeout({ first: 30 }))),
-      ).rejects.toBeInstanceOf(TimeoutError);
+      const result = await firstValueFrom(service.autotypeDefaultSetting$.pipe(take(1)));
+      expect(result).toBeNull();
     });
 
     it("should not emit when no active account", async () => {
@@ -102,37 +89,32 @@ describe("DesktopAutotypeDefaultSettingPolicy", () => {
       ).rejects.toBeInstanceOf(TimeoutError);
     });
 
-    it("should not emit when user is not unlocked", async () => {
+    it("should emit null when user is not unlocked", async () => {
       mockAuthStatusSubject.next(AuthenticationStatus.Locked);
-      await expect(
-        firstValueFrom(service.autotypeDefaultSetting$.pipe(timeout({ first: 30 }))),
-      ).rejects.toBeInstanceOf(TimeoutError);
+      const result = await firstValueFrom(service.autotypeDefaultSetting$.pipe(take(1)));
+      expect(result).toBeNull();
     });
 
     it("should emit null when no autotype policy exists", async () => {
-      mockPoliciesSubject.next([]);
+      mockPolicyAppliesSubject.next(false);
       const policy = await firstValueFrom(service.autotypeDefaultSetting$.pipe(take(1)));
       expect(policy).toBeNull();
     });
 
     it("should emit true when autotype policy is enabled", async () => {
-      mockPoliciesSubject.next([
-        createPolicy({ type: PolicyType.AutotypeDefaultSetting, enabled: true }),
-      ]);
+      mockPolicyAppliesSubject.next(true);
       const policyStatus = await firstValueFrom(service.autotypeDefaultSetting$.pipe(take(1)));
       expect(policyStatus).toBe(true);
     });
 
     it("should emit false when autotype policy is disabled", async () => {
-      mockPoliciesSubject.next([
-        createPolicy({ type: PolicyType.AutotypeDefaultSetting, enabled: false }),
-      ]);
+      mockPolicyAppliesSubject.next(false);
       const policyStatus = await firstValueFrom(service.autotypeDefaultSetting$.pipe(take(1)));
-      expect(policyStatus).toBe(false);
+      expect(policyStatus).toBeNull();
     });
 
-    it("should emit null when autotype policy exists but is not the correct type", async () => {
-      mockPoliciesSubject.next([createPolicy({ type: PolicyType.RequireSso, enabled: true })]);
+    it("should emit null when autotype policy does not apply", async () => {
+      mockPolicyAppliesSubject.next(false);
       const policy = await firstValueFrom(service.autotypeDefaultSetting$.pipe(take(1)));
       expect(policy).toBeNull();
     });
@@ -143,11 +125,10 @@ describe("DesktopAutotypeDefaultSettingPolicy", () => {
       const first = await firstValueFrom(service.autotypeDefaultSetting$.pipe(take(1)));
       expect(first).toBeNull();
 
-      // Expect no emission when locked
+      // Expect null emission when locked
       mockAuthStatusSubject.next(AuthenticationStatus.Locked);
-      await expect(
-        firstValueFrom(service.autotypeDefaultSetting$.pipe(timeout({ first: 30 }))),
-      ).rejects.toBeInstanceOf(TimeoutError);
+      const lockedResult = await firstValueFrom(service.autotypeDefaultSetting$.pipe(take(1)));
+      expect(lockedResult).toBeNull();
     });
 
     it("should react to account changes", async () => {
@@ -160,9 +141,6 @@ describe("DesktopAutotypeDefaultSettingPolicy", () => {
       // Change account and expect a new emission
       mockAccountSubject.next({
         id: newUserId,
-        email: "newuser@example.com",
-        emailVerified: true,
-        name: "New User",
       });
       const secondValue = await firstValueFrom(service.autotypeDefaultSetting$.pipe(take(1)));
       expect(secondValue).toBeNull();
@@ -172,21 +150,17 @@ describe("DesktopAutotypeDefaultSettingPolicy", () => {
     });
 
     it("should react to policy changes", async () => {
-      mockPoliciesSubject.next([]);
+      mockPolicyAppliesSubject.next(false);
       const nullValue = await firstValueFrom(service.autotypeDefaultSetting$.pipe(take(1)));
       expect(nullValue).toBeNull();
 
-      mockPoliciesSubject.next([
-        createPolicy({ type: PolicyType.AutotypeDefaultSetting, enabled: true }),
-      ]);
+      mockPolicyAppliesSubject.next(true);
       const trueValue = await firstValueFrom(service.autotypeDefaultSetting$.pipe(take(1)));
       expect(trueValue).toBe(true);
 
-      mockPoliciesSubject.next([
-        createPolicy({ type: PolicyType.AutotypeDefaultSetting, enabled: false }),
-      ]);
-      const falseValue = await firstValueFrom(service.autotypeDefaultSetting$.pipe(take(1)));
-      expect(falseValue).toBe(false);
+      mockPolicyAppliesSubject.next(false);
+      const nullValueAgain = await firstValueFrom(service.autotypeDefaultSetting$.pipe(take(1)));
+      expect(nullValueAgain).toBeNull();
     });
   });
 });
