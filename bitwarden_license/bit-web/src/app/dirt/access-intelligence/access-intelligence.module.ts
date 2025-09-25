@@ -8,6 +8,7 @@ import {
   MemberCipherDetailsApiService,
   RiskInsightsDataService,
   RiskInsightsReportService,
+  SecurityTasksApiService,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights/services";
 import { RiskInsightsEncryptionService } from "@bitwarden/bit-common/dirt/reports/risk-insights/services/risk-insights-encryption.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -60,6 +61,11 @@ import { RiskInsightsComponent } from "./risk-insights.component";
       provide: AllActivitiesService,
       useClass: AllActivitiesService,
       deps: [],
+    }),
+    safeProvider({
+      provide: SecurityTasksApiService,
+      useClass: SecurityTasksApiService,
+      deps: [ApiService],
     }),
   ],
 })
