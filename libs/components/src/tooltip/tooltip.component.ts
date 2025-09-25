@@ -5,10 +5,13 @@ import { AllowedTooltipPosition } from "../utils/overlay-positions";
 
 @Component({
   selector: "bit-tooltip",
-  standalone: true,
   templateUrl: "./tooltip.component.html",
   imports: [CommonModule],
 })
+
+/**
+ * tooltip component used internally by the tooltip.directive. Not meant to be used explicitly
+ */
 export class TooltipComponent {
   readonly content = input<string>("");
   readonly isVisible = input<boolean>(false);
