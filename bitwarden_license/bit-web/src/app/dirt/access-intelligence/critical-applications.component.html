@@ -95,7 +95,7 @@
     [dataSource]="dataSource"
     [showRowCheckBox]="false"
     [showRowMenuForCriticalApps]="true"
-    [openApplication]="(dataService.drawerDetails$ | async)?.invokerId"
+    [isDrawerIsOpenForThisRecord]="isDrawerOpenForTableRow"
     [showAppAtRiskMembers]="showAppAtRiskMembers"
     [unmarkAsCritical]="unmarkAsCritical"
   ></app-table-row-scrollable>

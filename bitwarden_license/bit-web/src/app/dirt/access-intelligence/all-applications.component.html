@@ -89,7 +89,7 @@
     [showRowCheckBox]="true"
     [showRowMenuForCriticalApps]="false"
     [selectedUrls]="selectedUrls"
-    [openApplication]="(dataService.drawerDetails$ | async)?.invokerId"
+    [isDrawerIsOpenForThisRecord]="isDrawerOpenForTableRow"
     [checkboxChange]="onCheckboxChange"
     [showAppAtRiskMembers]="showAppAtRiskMembers"
   ></app-table-row-scrollable>
