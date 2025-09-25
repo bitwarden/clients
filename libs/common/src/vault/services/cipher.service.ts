@@ -286,6 +286,7 @@ export class CipherService implements CipherServiceAbstraction {
     cipher.collectionIds = model.collectionIds;
     cipher.creationDate = model.creationDate;
     cipher.revisionDate = model.revisionDate;
+    cipher.archivedDate = model.archivedDate;
     cipher.reprompt = model.reprompt;
     cipher.edit = model.edit;
 
@@ -634,12 +635,20 @@ export class CipherService implements CipherServiceAbstraction {
     );
     defaultMatch ??= await firstValueFrom(this.domainSettingsService.defaultUriMatchStrategy$);
 
+    const archiveFeatureEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.PM19148_InnovationArchive,
+    );
+
     return ciphers.filter((cipher) => {
       const type = CipherViewLikeUtils.getType(cipher);
       const login = CipherViewLikeUtils.getLogin(cipher);
       const cipherIsLogin = login !== null;
 
       if (CipherViewLikeUtils.isDeleted(cipher)) {
+        return false;
+      }
+
+      if (archiveFeatureEnabled && CipherViewLikeUtils.isArchived(cipher)) {
         return false;
       }
 
@@ -666,8 +675,16 @@ export class CipherService implements CipherServiceAbstraction {
     userId: UserId,
   ): Promise<CipherView[]> {
     const ciphers = await this.getAllDecrypted(userId);
+    const archiveFeatureEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.PM19148_InnovationArchive,
+    );
     return ciphers
-      .filter((cipher) => cipher.deletedDate == null && type.includes(cipher.type))
+      .filter(
+        (cipher) =>
+          cipher.deletedDate == null &&
+          (!archiveFeatureEnabled || !cipher.isArchived) &&
+          type.includes(cipher.type),
+      )
       .sort((a, b) => this.sortCiphersByLastUsedThenName(a, b));
   }
 

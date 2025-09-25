@@ -1,24 +1,23 @@
 import { Component, DestroyRef, inject, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
-import { BehaviorSubject, combineLatest, firstValueFrom, of, switchMap } from "rxjs";
+import { BehaviorSubject, firstValueFrom } from "rxjs";
 
 import {
-  CriticalAppsService,
+  AllActivitiesService,
   RiskInsightsDataService,
-  RiskInsightsReportService,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { getById } from "@bitwarden/common/platform/misc";
-import { OrganizationId } from "@bitwarden/common/types/guid";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 import { ActivityCardComponent } from "./activity-card.component";
 import { PasswordChangeMetricComponent } from "./activity-cards/password-change-metric.component";
 import { ApplicationsLoadingComponent } from "./risk-insights-loading.component";
+import { RiskInsightsTabType } from "./risk-insights.component";
 
 @Component({
   selector: "tools-all-activity",
@@ -34,8 +33,9 @@ export class AllActivityComponent implements OnInit {
   protected isLoading$ = this.dataService.isLoading$;
   protected noData$ = new BehaviorSubject(true);
   organization: Organization | null = null;
-  atRiskMemberCount = 0;
-  criticalApplicationsCount = 0;
+  totalCriticalAppsAtRiskMemberCount = 0;
+  totalCriticalAppsCount = 0;
+  totalCriticalAppsAtRiskCount = 0;
 
   destroyRef = inject(DestroyRef);
 
@@ -49,21 +49,13 @@ export class AllActivityComponent implements OnInit {
           this.organizationService.organizations$(userId).pipe(getById(organizationId)),
         )) ?? null;
 
-      combineLatest([
-        this.dataService.applications$,
-        this.criticalAppsService.getAppsListForOrg(organizationId as OrganizationId),
-      ])
-        .pipe(
-          takeUntilDestroyed(this.destroyRef),
-          switchMap(([apps, criticalApps]) => {
-            const atRiskMembers = this.reportService.generateAtRiskMemberList(apps ?? []);
-            return of({ apps, atRiskMembers, criticalApps });
-          }),
-        )
-        .subscribe(({ apps, atRiskMembers, criticalApps }) => {
-          this.noData$.next((apps?.length ?? 0) === 0);
-          this.atRiskMemberCount = atRiskMembers?.length ?? 0;
-          this.criticalApplicationsCount = criticalApps?.length ?? 0;
+      this.allActivitiesService.reportSummary$
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe((summary) => {
+          this.noData$.next(summary.totalApplicationCount === 0);
+          this.totalCriticalAppsAtRiskMemberCount = summary.totalCriticalAtRiskMemberCount;
+          this.totalCriticalAppsCount = summary.totalCriticalApplicationCount;
+          this.totalCriticalAppsAtRiskCount = summary.totalCriticalAtRiskApplicationCount;
         });
     }
   }
@@ -73,7 +65,15 @@ export class AllActivityComponent implements OnInit {
     private accountService: AccountService,
     protected organizationService: OrganizationService,
     protected dataService: RiskInsightsDataService,
-    protected reportService: RiskInsightsReportService,
-    protected criticalAppsService: CriticalAppsService,
+    protected allActivitiesService: AllActivitiesService,
   ) {}
+
+  get RiskInsightsTabType() {
+    return RiskInsightsTabType;
+  }
+
+  getLinkForRiskInsightsTab(tabIndex: RiskInsightsTabType): string {
+    const organizationId = this.activatedRoute.snapshot.paramMap.get("organizationId");
+    return `/organizations/${organizationId}/access-intelligence/risk-insights?tabIndex=${tabIndex}`;
+  }
 }
