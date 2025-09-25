@@ -49,6 +49,7 @@ import {
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { ClientType } from "@bitwarden/common/enums";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
@@ -461,6 +462,7 @@ const safeProviders: SafeProvider[] = [
       ConfigService,
       GlobalStateProvider,
       PlatformUtilsServiceAbstraction,
+      BillingAccountProfileStateService,
     ],
   }),
 ];

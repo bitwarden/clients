@@ -556,6 +556,9 @@
   "view": {
     "message": "Прагляд"
   },
+  "viewLogin": {
+    "message": "View login"
+  },
   "noItemsInList": {
     "message": "У спісе адсутнічаюць элементы."
   },
@@ -1522,9 +1525,6 @@
   "selectTwoStepLoginMethod": {
     "message": "Select two-step login method"
   },
-  "recoveryCodeDesc": {
-    "message": "Згубілі доступ да ўсіх варыянтаў доступу пастаўшчыкоў двухэтапнай аўтэнтыфікацыі? Скарыстайцеся кодам аднаўлення, каб адключыць праверку пастаўшчыкоў двухэтапнай аўтэнтыфікацыі для вашага ўліковага запісу."
-  },
   "recoveryCodeTitle": {
     "message": "Код аднаўлення"
   },
@@ -1683,9 +1683,6 @@
   "defaultAutoFillOnPageLoadDesc": {
     "message": "Вы можаце выключыць аўтазапаўненне на старонцы загрузцы для асобных элементаў уваходу ў меню \"Рэдагаваць\"."
   },
-  "itemAutoFillOnPageLoad": {
-    "message": "Аўтазапаўненне пры загрузцы старонкі (калі ўключана ў параметрах праграмы)"
-  },
   "autoFillOnPageLoadUseDefault": {
     "message": "Выкарыстоўваць прадвызначаныя налады"
   },
@@ -1757,17 +1754,8 @@
   "popup2faCloseMessage": {
     "message": "Націск за межамі ўсплывальнага акна для прагляду праверачнага кода прывядзе да яго закрыцця. Адкрыць гэта ўсплывальнае акно ў новым акне, якое не закрыецца?"
   },
-  "popupU2fCloseMessage": {
-    "message": "Дадзены браўзер не можа апрацоўваць запыты U2F у гэтым усплывальным акне. Адкрыць гэта ўсплывальнае акно ў новым акне, каб мець магчымасць увайсці ў сістэму, выкарыстоўваючы U2F?"
-  },
   "showIconsChangePasswordUrls": {
     "message": "Show website icons and retrieve change password URLs"
-  },
-  "enableBadgeCounter": {
-    "message": "Паказваць лічыльнік на значку"
-  },
-  "badgeCounterDesc": {
-    "message": "Паказвае колькасць уваходаў для бягучай вэб-старонкі."
   },
   "cardholderName": {
     "message": "Імя ўладальніка карткі"
@@ -1931,32 +1919,81 @@
   "typeNote": {
     "message": "Note"
   },
-  "newItemHeader": {
-    "message": "Новы $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderLogin": {
+    "message": "New Login",
+    "description": "Header for new login item type"
   },
-  "editItemHeader": {
-    "message": "Рэдагаваць $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderCard": {
+    "message": "New Card",
+    "description": "Header for new card item type"
   },
-  "viewItemHeader": {
-    "message": "Прагляд $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderIdentity": {
+    "message": "New Identity",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "New Note",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "New SSH key",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderTextSend": {
+    "message": "New Text Send",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "New File Send",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderLogin": {
+    "message": "Edit Login",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Edit Card",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Edit Identity",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Edit Note",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "Edit SSH key",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Edit Text Send",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Edit File Send",
+    "description": "Header for edit file send"
+  },
+  "viewItemHeaderLogin": {
+    "message": "View Login",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "View Card",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "View Identity",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "View Note",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "View SSH key",
+    "description": "Header for view SSH key item type"
   },
   "passwordHistory": {
     "message": "Гісторыя пароляў"
@@ -3518,9 +3555,6 @@
   "autofillPageLoadPolicyActivated": {
     "message": "Аўтазапаўненне пры загрузцы старонцы было ўключана палітыкамі вашай арганізацыі."
   },
-  "howToAutofill": {
-    "message": "Як аўтазапоўніць"
-  },
   "autofillSelectInfoWithCommand": {
     "message": "Select an item from this screen, use the shortcut $COMMAND$, or explore other options in settings.",
     "placeholders": {
@@ -3905,17 +3939,9 @@
   "aliasDomain": {
     "message": "Мянушка дамена"
   },
-  "passwordRepromptDisabledAutofillOnPageLoad": {
-    "message": "Items with master password re-prompt cannot be autofilled on page load. Autofill on page load turned off.",
-    "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
-  },
   "autofillOnPageLoadSetToDefault": {
     "message": "Autofill on page load set to use default setting.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "turnOffMasterPasswordPromptToEditField": {
-    "message": "Turn off master password re-prompt to edit this field",
-    "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
   },
   "toggleSideNavigation": {
     "message": "Toggle side navigation"
@@ -4185,9 +4211,6 @@
   },
   "passkeyNotCopiedAlert": {
     "message": "The passkey will not be copied to the cloned item. Do you want to continue cloning this item?"
-  },
-  "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
-    "message": "Verification required by the initiating site. This feature is not yet implemented for accounts without master password."
   },
   "logInWithPasskeyQuestion": {
     "message": "Log in with passkey?"
@@ -4874,9 +4897,6 @@
       }
     }
   },
-  "enableAnimations": {
-    "message": "Уключыць анімацыі"
-  },
   "showAnimations": {
     "message": "Паказаць анімацыі"
   },
@@ -5089,14 +5109,8 @@
   "itemLocation": {
     "message": "Item Location"
   },
-  "fileSend": {
-    "message": "File Send"
-  },
   "fileSends": {
     "message": "File Sends"
-  },
-  "textSend": {
-    "message": "Text Send"
   },
   "textSends": {
     "message": "Text Sends"
@@ -5157,9 +5171,6 @@
   },
   "vaultCustomTimeoutMinimum": {
     "message": "Minimum custom timeout is 1 minute."
-  },
-  "additionalContentAvailable": {
-    "message": "Additional content is available"
   },
   "fileSavedToDevice": {
     "message": "File saved to device. Manage from your device downloads."
@@ -5446,6 +5457,12 @@
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
+  },
   "settingsVaultOptions": {
     "message": "Vault options"
   },
@@ -5493,6 +5510,18 @@
   },
   "hasItemsVaultNudgeTitle": {
     "message": "Welcome to your vault!"
+  },
+  "phishingPageTitle": {
+    "message": "Phishing website"
+  },
+  "phishingPageCloseTab": {
+    "message": "Close tab"
+  },
+  "phishingPageContinue": {
+    "message": "Continue"
+  },
+  "phishingPageLearnWhy": {
+    "message": "Why are you seeing this?"
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Autofill items for the current page"
@@ -5588,8 +5617,14 @@
   "showLess": {
     "message": "Show less"
   },
+  "next": {
+    "message": "Next"
+  },
   "moreBreadcrumbs": {
     "message": "More breadcrumbs",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Confirm Key Connector domain"
   }
 }

@@ -1,6 +1,7 @@
 use std::ffi::OsString;
 use std::os::windows::ffi::OsStringExt;
 
+use tracing::debug;
 use windows::Win32::Foundation::{GetLastError, HWND};
 use windows::Win32::UI::Input::KeyboardAndMouse::{
     SendInput, INPUT, INPUT_0, INPUT_KEYBOARD, KEYBDINPUT, KEYEVENTF_KEYUP, KEYEVENTF_UNICODE,
@@ -32,9 +33,9 @@ pub fn type_input(input: Vec<u16>) -> Result<(), ()> {
     let mut keyboard_inputs: Vec<INPUT> = Vec::new();
 
     // Release hotkeys
-    keyboard_inputs.push(build_virtual_key_input(InputKeyPress::Up, 0x12)); // alt
     keyboard_inputs.push(build_virtual_key_input(InputKeyPress::Up, 0x11)); // ctrl
-    keyboard_inputs.push(build_unicode_input(InputKeyPress::Up, 105)); // i
+    keyboard_inputs.push(build_virtual_key_input(InputKeyPress::Up, 0x10)); // shift
+    keyboard_inputs.push(build_unicode_input(InputKeyPress::Up, 42)); // b
 
     for i in input {
         let next_down_input = if i == TAB_KEY {
@@ -187,7 +188,7 @@ fn send_input(inputs: Vec<INPUT>) -> Result<(), ()> {
     let insert_count = unsafe { SendInput(&inputs, std::mem::size_of::<INPUT>() as i32) };
 
     let e = unsafe { GetLastError().to_hresult().message() };
-    println!("type_input() called, GetLastError() is: {:?}", e);
+    debug!("type_input() called, GetLastError() is: {:?}", e);
 
     if insert_count == 0 {
         return Err(()); // input was blocked by another thread

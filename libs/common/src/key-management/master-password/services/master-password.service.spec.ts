@@ -1,11 +1,12 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { firstValueFrom, of } from "rxjs";
 import * as rxjs from "rxjs";
+import { firstValueFrom, of } from "rxjs";
+import { Jsonify } from "type-fest";
 
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 // eslint-disable-next-line no-restricted-imports
-import { KdfConfig, PBKDF2KdfConfig } from "@bitwarden/key-management";
+import { Argon2KdfConfig, KdfConfig, KdfType, PBKDF2KdfConfig } from "@bitwarden/key-management";
 
 import {
   FakeAccountService,
@@ -23,9 +24,13 @@ import { KeyGenerationService } from "../../crypto";
 import { CryptoFunctionService } from "../../crypto/abstractions/crypto-function.service";
 import { EncryptService } from "../../crypto/abstractions/encrypt.service";
 import { EncString } from "../../crypto/models/enc-string";
-import { MasterPasswordSalt } from "../types/master-password.types";
+import {
+  MasterKeyWrappedUserKey,
+  MasterPasswordSalt,
+  MasterPasswordUnlockData,
+} from "../types/master-password.types";
 
-import { MasterPasswordService } from "./master-password.service";
+import { MASTER_PASSWORD_UNLOCK_KEY, MasterPasswordService } from "./master-password.service";
 
 describe("MasterPasswordService", () => {
   let sut: MasterPasswordService;
@@ -182,7 +187,7 @@ describe("MasterPasswordService", () => {
       expect(keyGenerationService.stretchKey).toHaveBeenCalledWith(testMasterKey);
     });
     it("returns null if failed to decrypt", async () => {
-      encryptService.unwrapSymmetricKey.mockResolvedValue(null);
+      encryptService.unwrapSymmetricKey.mockRejectedValue(new Error("Decryption failed"));
       const result = await sut.decryptUserKeyWithMasterKey(
         testMasterKey,
         userId,
@@ -319,6 +324,108 @@ describe("MasterPasswordService", () => {
       await expect(
         sut.makeMasterPasswordUnlockData(password, kdf, salt, null as unknown as UserKey),
       ).rejects.toThrow();
+    });
+  });
+
+  describe("setMasterPasswordUnlockData", () => {
+    const kdfPBKDF2: KdfConfig = new PBKDF2KdfConfig(600_000);
+    const kdfArgon2: KdfConfig = new Argon2KdfConfig(4, 64, 3);
+    const salt = "test@bitwarden.com" as MasterPasswordSalt;
+    const userKey = makeSymmetricCryptoKey(64, 2) as UserKey;
+
+    it.each([kdfPBKDF2, kdfArgon2])(
+      "sets the master password unlock data kdf %o in the state",
+      async (kdfConfig) => {
+        const masterPasswordUnlockData = await sut.makeMasterPasswordUnlockData(
+          "test-password",
+          kdfConfig,
+          salt,
+          userKey,
+        );
+
+        await sut.setMasterPasswordUnlockData(masterPasswordUnlockData, userId);
+
+        expect(stateProvider.getUser).toHaveBeenCalledWith(userId, MASTER_PASSWORD_UNLOCK_KEY);
+        expect(mockUserState.update).toHaveBeenCalled();
+
+        const updateFn = mockUserState.update.mock.calls[0][0];
+        expect(updateFn(null)).toEqual(masterPasswordUnlockData.toJSON());
+      },
+    );
+
+    it("throws if masterPasswordUnlockData is null", async () => {
+      await expect(
+        sut.setMasterPasswordUnlockData(null as unknown as MasterPasswordUnlockData, userId),
+      ).rejects.toThrow("masterPasswordUnlockData is null or undefined.");
+    });
+
+    it("throws if userId is null", async () => {
+      const masterPasswordUnlockData = await sut.makeMasterPasswordUnlockData(
+        "test-password",
+        kdfPBKDF2,
+        salt,
+        userKey,
+      );
+
+      await expect(
+        sut.setMasterPasswordUnlockData(masterPasswordUnlockData, null as unknown as UserId),
+      ).rejects.toThrow("userId is null or undefined.");
+    });
+  });
+
+  describe("MASTER_PASSWORD_UNLOCK_KEY", () => {
+    it("has the correct configuration", () => {
+      expect(MASTER_PASSWORD_UNLOCK_KEY.stateDefinition).toBeDefined();
+      expect(MASTER_PASSWORD_UNLOCK_KEY.key).toBe("masterPasswordUnlockKey");
+      expect(MASTER_PASSWORD_UNLOCK_KEY.clearOn).toEqual(["logout"]);
+    });
+
+    describe("deserializer", () => {
+      const kdfPBKDF2: KdfConfig = new PBKDF2KdfConfig(600_000);
+      const kdfArgon2: KdfConfig = new Argon2KdfConfig(4, 64, 3);
+      const salt = "test@bitwarden.com" as MasterPasswordSalt;
+      const encryptedUserKey = "testUserKet" as MasterKeyWrappedUserKey;
+
+      it("returns null when value is null", () => {
+        const deserialized = MASTER_PASSWORD_UNLOCK_KEY.deserializer(
+          null as unknown as Jsonify<MasterPasswordUnlockData>,
+        );
+        expect(deserialized).toBeNull();
+      });
+
+      it("returns master password unlock data when value is present and kdf type is pbkdf2", () => {
+        const data: Jsonify<MasterPasswordUnlockData> = {
+          salt: salt,
+          kdf: {
+            kdfType: KdfType.PBKDF2_SHA256,
+            iterations: kdfPBKDF2.iterations,
+          },
+          masterKeyWrappedUserKey: encryptedUserKey as string,
+        };
+
+        const deserialized = MASTER_PASSWORD_UNLOCK_KEY.deserializer(data);
+        expect(deserialized).toEqual(
+          new MasterPasswordUnlockData(salt, kdfPBKDF2, encryptedUserKey),
+        );
+      });
+
+      it("returns master password unlock data when value is present and kdf type is argon2", () => {
+        const data: Jsonify<MasterPasswordUnlockData> = {
+          salt: salt,
+          kdf: {
+            kdfType: KdfType.Argon2id,
+            iterations: kdfArgon2.iterations,
+            memory: kdfArgon2.memory,
+            parallelism: kdfArgon2.parallelism,
+          },
+          masterKeyWrappedUserKey: encryptedUserKey as string,
+        };
+
+        const deserialized = MASTER_PASSWORD_UNLOCK_KEY.deserializer(data);
+        expect(deserialized).toEqual(
+          new MasterPasswordUnlockData(salt, kdfArgon2, encryptedUserKey),
+        );
+      });
     });
   });
 });

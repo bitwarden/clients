@@ -1,6 +1,5 @@
 import { Observable } from "rxjs";
 
-import { EncryptedOrganizationKeyData } from "@bitwarden/common/admin-console/models/data/encrypted-organization-key.data";
 import { ProfileOrganizationResponse } from "@bitwarden/common/admin-console/models/response/profile-organization.response";
 import { ProfileProviderOrganizationResponse } from "@bitwarden/common/admin-console/models/response/profile-provider-organization.response";
 import { ProfileProviderResponse } from "@bitwarden/common/admin-console/models/response/profile-provider.response";
@@ -260,11 +259,12 @@ export abstract class KeyService {
   /**
    * Creates a new organization key and encrypts it with the user's public key.
    * This method can also return Provider keys for creating new Provider users.
-   *
-   * @throws Error when no active user or user have no public key
-   * @returns The new encrypted org key and the decrypted key itself
+   * @param userId The user id of the target user's public key to use.
+   * @throws Error when userId is null or undefined.
+   * @throws Error when no public key is found for the target user.
+   * @returns The new encrypted OrgKey | ProviderKey and the decrypted key itself
    */
-  abstract makeOrgKey<T extends OrgKey | ProviderKey>(): Promise<[EncString, T]>;
+  abstract makeOrgKey<T extends OrgKey | ProviderKey>(userId: UserId): Promise<[EncString, T]>;
   /**
    * Sets the user's encrypted private key in storage and
    * clears the decrypted private key from memory
@@ -398,9 +398,7 @@ export abstract class KeyService {
    * @deprecated Temporary function to allow the SDK to be initialized after the login process, it
    * will be removed when auth has been migrated to the SDK.
    */
-  abstract encryptedOrgKeys$(
-    userId: UserId,
-  ): Observable<Record<OrganizationId, EncryptedOrganizationKeyData> | null>;
+  abstract encryptedOrgKeys$(userId: UserId): Observable<Record<OrganizationId, EncString>>;
 
   /**
    * Gets an observable stream of the users public key. If the user is does not have

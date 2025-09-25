@@ -18,6 +18,7 @@ import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-cr
 import {
   MASTER_PASSWORD_DISK,
   MASTER_PASSWORD_MEMORY,
+  MASTER_PASSWORD_UNLOCK_DISK,
   StateProvider,
   UserKeyDefinition,
 } from "../../../platform/state";
@@ -64,6 +65,16 @@ const FORCE_SET_PASSWORD_REASON = new UserKeyDefinition<ForceSetPasswordReason>(
   "forceSetPasswordReason",
   {
     deserializer: (reason) => reason,
+    clearOn: ["logout"],
+  },
+);
+
+/** Disk to persist through lock */
+export const MASTER_PASSWORD_UNLOCK_KEY = new UserKeyDefinition<MasterPasswordUnlockData>(
+  MASTER_PASSWORD_UNLOCK_DISK,
+  "masterPasswordUnlockKey",
+  {
+    deserializer: (obj) => MasterPasswordUnlockData.fromJSON(obj),
     clearOn: ["logout"],
   },
 );
@@ -121,7 +132,7 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
     return EncString.fromJSON(key);
   }
 
-  private emailToSalt(email: string): MasterPasswordSalt {
+  emailToSalt(email: string): MasterPasswordSalt {
     return email.toLowerCase().trim() as MasterPasswordSalt;
   }
 
@@ -245,6 +256,9 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
     assertNonNullish(password, "password");
     assertNonNullish(kdf, "kdf");
     assertNonNullish(salt, "salt");
+    if (password === "") {
+      throw new Error("Master password cannot be empty.");
+    }
 
     // We don't trust callers to use masterpasswordsalt correctly. They may type assert incorrectly.
     salt = salt.toLowerCase().trim() as MasterPasswordSalt;
@@ -283,24 +297,21 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
     assertNonNullish(kdf, "kdf");
     assertNonNullish(salt, "salt");
     assertNonNullish(userKey, "userKey");
+    if (password === "") {
+      throw new Error("Master password cannot be empty.");
+    }
 
     // We don't trust callers to use masterpasswordsalt correctly. They may type assert incorrectly.
     salt = salt.toLowerCase().trim() as MasterPasswordSalt;
 
     await SdkLoadService.Ready;
-    const masterKeyWrappedUserKey = new EncString(
-      PureCrypto.encrypt_user_key_with_master_password(
-        userKey.toEncoded(),
-        password,
-        salt,
-        kdf.toSdkConfig(),
-      ),
-    ) as MasterKeyWrappedUserKey;
-    return {
+    const masterKeyWrappedUserKey = PureCrypto.encrypt_user_key_with_master_password(
+      userKey.toEncoded(),
+      password,
       salt,
-      kdf,
-      masterKeyWrappedUserKey,
-    };
+      kdf.toSdkConfig(),
+    ) as MasterKeyWrappedUserKey;
+    return new MasterPasswordUnlockData(salt, kdf, masterKeyWrappedUserKey);
   }
 
   async unwrapUserKeyFromMasterPasswordUnlockData(
@@ -313,12 +324,24 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
     await SdkLoadService.Ready;
     const userKey = new SymmetricCryptoKey(
       PureCrypto.decrypt_user_key_with_master_password(
-        masterPasswordUnlockData.masterKeyWrappedUserKey.encryptedString,
+        masterPasswordUnlockData.masterKeyWrappedUserKey,
         password,
         masterPasswordUnlockData.salt,
         masterPasswordUnlockData.kdf.toSdkConfig(),
       ),
     );
     return userKey as UserKey;
+  }
+
+  async setMasterPasswordUnlockData(
+    masterPasswordUnlockData: MasterPasswordUnlockData,
+    userId: UserId,
+  ): Promise<void> {
+    assertNonNullish(masterPasswordUnlockData, "masterPasswordUnlockData");
+    assertNonNullish(userId, "userId");
+
+    await this.stateProvider
+      .getUser(userId, MASTER_PASSWORD_UNLOCK_KEY)
+      .update(() => masterPasswordUnlockData.toJSON());
   }
 }

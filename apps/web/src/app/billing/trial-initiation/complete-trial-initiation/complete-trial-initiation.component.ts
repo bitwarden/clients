@@ -29,6 +29,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { ToastService } from "@bitwarden/components";
+import { UserId } from "@bitwarden/user-core";
 
 import {
   OrganizationCreatedEvent,
@@ -227,13 +228,14 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
   }
 
   async orgNameEntrySubmit(): Promise<void> {
+    const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     const isTrialPaymentOptional = await firstValueFrom(this.trialPaymentOptional$);
 
     /** Only skip payment if the flag is on AND trialLength > 0 */
     if (isTrialPaymentOptional && this.trialLength > 0) {
-      await this.createOrganizationOnTrial();
+      await this.createOrganizationOnTrial(activeUserId);
     } else {
-      await this.conditionallyCreateOrganization();
+      await this.conditionallyCreateOrganization(activeUserId);
     }
   }
 
@@ -245,7 +247,7 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
   }
 
   /** create an organization on trial without payment method */
-  async createOrganizationOnTrial() {
+  async createOrganizationOnTrial(activeUserId: UserId) {
     this.loading = true;
     let trialInitiationPath: InitiationPath = "Password Manager trial from marketing website";
     let plan: PlanInformation = {
@@ -272,10 +274,13 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
       initiationPath: trialInitiationPath,
     };
 
-    const response = await this.organizationBillingService.purchaseSubscriptionNoPaymentMethod({
-      organization,
-      plan,
-    });
+    const response = await this.organizationBillingService.purchaseSubscriptionNoPaymentMethod(
+      {
+        organization,
+        plan,
+      },
+      activeUserId,
+    );
 
     this.orgId = response?.id;
     this.billingSubLabel = response.name.toString();
@@ -351,27 +356,30 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
   );
 
   /** Create an organization unless the trial is for secrets manager */
-  async conditionallyCreateOrganization(): Promise<void> {
+  async conditionallyCreateOrganization(activeUserId: UserId): Promise<void> {
     if (!this.isSecretsManagerFree) {
       this.verticalStepper.next();
       return;
     }
 
-    const response = await this.organizationBillingService.startFree({
-      organization: {
-        name: this.orgInfoFormGroup.value.name == null ? "" : this.orgInfoFormGroup.value.name,
-        billingEmail:
-          this.orgInfoFormGroup.value.billingEmail == null
-            ? ""
-            : this.orgInfoFormGroup.value.billingEmail,
-        initiationPath: "Password Manager trial from marketing website",
+    const response = await this.organizationBillingService.startFree(
+      {
+        organization: {
+          name: this.orgInfoFormGroup.value.name == null ? "" : this.orgInfoFormGroup.value.name,
+          billingEmail:
+            this.orgInfoFormGroup.value.billingEmail == null
+              ? ""
+              : this.orgInfoFormGroup.value.billingEmail,
+          initiationPath: "Password Manager trial from marketing website",
+        },
+        plan: {
+          type: 0,
+          subscribeToSecretsManager: true,
+          isFromSecretsManagerTrial: true,
+        },
       },
-      plan: {
-        type: 0,
-        subscribeToSecretsManager: true,
-        isFromSecretsManagerTrial: true,
-      },
-    });
+      activeUserId,
+    );
 
     this.orgId = response.id;
     this.verticalStepper.next();

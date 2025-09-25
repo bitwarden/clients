@@ -297,7 +297,7 @@ export class AppComponent implements OnInit, OnDestroy {
             await this.openModal<SettingsComponent>(SettingsComponent, this.settingsRef);
             break;
           case "openPremium":
-            await this.openModal<PremiumComponent>(PremiumComponent, this.premiumRef);
+            this.dialogService.open(PremiumComponent);
             break;
           case "showFingerprintPhrase": {
             const activeUserId = await firstValueFrom(
@@ -691,6 +691,7 @@ export class AppComponent implements OnInit, OnDestroy {
       await this.eventUploadService.uploadEvents(userBeingLoggedOut);
       await this.keyService.clearKeys(userBeingLoggedOut);
       await this.cipherService.clear(userBeingLoggedOut);
+      // ! DO NOT REMOVE folderService.clear ! For more information see PM-25660
       await this.folderService.clear(userBeingLoggedOut);
       await this.biometricStateService.logout(userBeingLoggedOut);
       await this.pinService.logout(userBeingLoggedOut);

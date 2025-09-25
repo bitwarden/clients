@@ -14,6 +14,7 @@ import {
 } from "@angular/core";
 import { Observable, switchMap } from "rxjs";
 
+import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -56,6 +57,7 @@ type TotpCodeValues = {
     BitTotpCountdownComponent,
     ReadOnlyCipherCardComponent,
     LinkModule,
+    PremiumBadgeComponent,
   ],
 })
 export class LoginCredentialsViewComponent implements OnChanges {
@@ -103,10 +105,6 @@ export class LoginCredentialsViewComponent implements OnChanges {
       this.passwordRevealed = false;
       this.showPasswordCount = false;
     }
-  }
-
-  async getPremium(organizationId?: string) {
-    await this.premiumUpgradeService.promptForPremium(organizationId);
   }
 
   async pwToggleValue(passwordVisible: boolean) {

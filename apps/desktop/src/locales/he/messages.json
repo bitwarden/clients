@@ -960,9 +960,6 @@
   "insertU2f": {
     "message": "הכנס את מפתח האבטחה שלך אל כניסת ה-USB במחשבך. אם יש לו כפתור, גע בו."
   },
-  "recoveryCodeDesc": {
-    "message": "איבדת גישה לכל ספקי האימות הדו-שלבי שלך? השתמש בקוד שחזור כדי לבטל את כל הספקים הקיימים בחשבונך."
-  },
   "recoveryCodeTitle": {
     "message": "קוד שחזור"
   },
@@ -1306,7 +1303,7 @@
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
   "showIconsChangePasswordUrls": {
-    "message": "הצג סמלי אתרים ואחזר כתובות URL לשינוי סיסמה"
+    "message": "הצג סמלי אתרי אינטרנט ואחזר כתובות URL לשינוי סיסמה"
   },
   "enableMinToTray": {
     "message": "מזער למגש המערכת"
@@ -3588,6 +3585,12 @@
   "awaitingSSODesc": {
     "message": "נא להמשיך להיכנס באמצעות אישורי החברה שלך."
   },
+  "importDirectlyFromBrowser": {
+    "message": "ייבא ישירות מדפדפן"
+  },
+  "browserProfile": {
+    "message": "פרופיל דפדפן"
+  },
   "seeDetailedInstructions": {
     "message": "ראה הוראות מפורטות באתר העזרה שלנו ב־",
     "description": "This is followed a by a hyperlink to the help website."
@@ -3829,6 +3832,12 @@
   },
   "changeAtRiskPassword": {
     "message": "שנה סיסמה בסיכון"
+  },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "כניסה זו נמצאת בסיכון וחסר בה אתר אינטרנט. הוסף אתר אינטרנט ושנה את הסיסמה לאבטחה חזקה יותר."
+  },
+  "missingWebsite": {
+    "message": "לא נמצא אתר אינטרנט"
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "אינך יכול להסיר אוספים עם הרשאות הצגה בלבד: $COLLECTIONS$",
@@ -4080,5 +4089,23 @@
   "moreBreadcrumbs": {
     "message": "עוד סימני דרך",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "next": {
+    "message": "הבא"
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "אשר דומיין של Key Connector"
+  },
+  "confirm": {
+    "message": "אשר"
+  },
+  "enableAutotypeTransitionKey": {
+    "message": "הפעל קיצור דרך להקלדה אוטומטית"
+  },
+  "enableAutotypeDescriptionTransitionKey": {
+    "message": "וודא שאתה נמצא בשדה הנכון לפני השימוש בקיצור הדרך כדי להימנע ממילוי נתונים במקום הלא נכון."
+  },
+  "editShortcut": {
+    "message": "ערוך קיצור דרך"
   }
 }

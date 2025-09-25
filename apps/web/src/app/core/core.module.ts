@@ -41,8 +41,6 @@ import {
   InternalUserDecryptionOptionsServiceAbstraction,
   LoginEmailService,
 } from "@bitwarden/auth/common";
-// eslint-disable-next-line no-restricted-imports
-import { OrganizationIntegrationApiService } from "@bitwarden/bit-common/dirt/integrations";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -100,6 +98,7 @@ import {
   DefaultThemeStateService,
   ThemeStateService,
 } from "@bitwarden/common/platform/theming/theme-state.service";
+import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 import {
@@ -111,9 +110,13 @@ import { LockComponentService } from "@bitwarden/key-management-ui";
 import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
 import { DefaultSshImportPromptService, SshImportPromptService } from "@bitwarden/vault";
 import { WebOrganizationInviteService } from "@bitwarden/web-vault/app/auth/core/services/organization-invite/web-organization-invite.service";
+import { WebVaultPremiumUpgradePromptService } from "@bitwarden/web-vault/app/vault/services/web-premium-upgrade-prompt.service";
 
 import { flagEnabled } from "../../utils/flags";
-import { PolicyListService } from "../admin-console/core/policy-list.service";
+import {
+  POLICY_EDIT_REGISTER,
+  ossPolicyEditRegister,
+} from "../admin-console/organizations/policies";
 import {
   WebChangePasswordService,
   WebRegistrationFinishService,
@@ -152,7 +155,10 @@ const safeProviders: SafeProvider[] = [
   safeProvider(InitService),
   safeProvider(RouterService),
   safeProvider(EventService),
-  safeProvider(PolicyListService),
+  safeProvider({
+    provide: POLICY_EDIT_REGISTER,
+    useValue: ossPolicyEditRegister,
+  }),
   safeProvider({
     provide: DEFAULT_VAULT_TIMEOUT,
     deps: [PlatformUtilsService],
@@ -400,9 +406,9 @@ const safeProviders: SafeProvider[] = [
     deps: [],
   }),
   safeProvider({
-    provide: OrganizationIntegrationApiService,
-    useClass: OrganizationIntegrationApiService,
-    deps: [ApiService],
+    provide: PremiumUpgradePromptService,
+    useClass: WebVaultPremiumUpgradePromptService,
+    deps: [DialogService, Router],
   }),
 ];
 

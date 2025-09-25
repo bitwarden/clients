@@ -4,6 +4,7 @@ use anyhow::Result;
 use base64::Engine;
 use rand::RngCore;
 use sha2::{Digest, Sha256};
+use tracing::error;
 
 use crate::biometric::{base64_engine, KeyMaterial, OsDerivedKey};
 use zbus::Connection;
@@ -35,7 +36,7 @@ impl super::BiometricTrait for Biometric {
         match result {
             Ok(result) => Ok(result.is_authorized),
             Err(e) => {
-                println!("polkit biometric error: {:?}", e);
+                error!( error = %e, "polkit biometric error");
                 Ok(false)
             }
         }

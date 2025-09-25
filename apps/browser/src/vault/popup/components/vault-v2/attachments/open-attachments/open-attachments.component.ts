@@ -6,6 +6,7 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
 import { firstValueFrom, map, switchMap } from "rxjs";
 
+import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
   getOrganizationById,
@@ -27,7 +28,14 @@ import { FilePopoutUtilsService } from "../../../../../../tools/popup/services/f
 @Component({
   selector: "app-open-attachments",
   templateUrl: "./open-attachments.component.html",
-  imports: [BadgeModule, CommonModule, ItemModule, JslibModule, TypographyModule],
+  imports: [
+    BadgeModule,
+    CommonModule,
+    ItemModule,
+    JslibModule,
+    TypographyModule,
+    PremiumBadgeComponent,
+  ],
 })
 export class OpenAttachmentsComponent implements OnInit {
   /** Cipher `id` */

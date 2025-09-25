@@ -446,19 +446,17 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     await this.stateProvider.setUserState(USER_ENCRYPTED_PROVIDER_KEYS, null, userId);
   }
 
-  // TODO: Make userId required
-  async makeOrgKey<T extends OrgKey | ProviderKey>(userId?: UserId): Promise<[EncString, T]> {
-    const shareKey = await this.keyGenerationService.createKey(512);
-    userId ??= await firstValueFrom(this.stateProvider.activeUserId$);
+  async makeOrgKey<T extends OrgKey | ProviderKey>(userId: UserId): Promise<[EncString, T]> {
     if (userId == null) {
-      throw new Error("No active user found.");
+      throw new Error("UserId is required");
     }
 
     const publicKey = await firstValueFrom(this.userPublicKey$(userId));
     if (publicKey == null) {
-      throw new Error("No public key found.");
+      throw new Error("No public key found for user " + userId);
     }
 
+    const shareKey = await this.keyGenerationService.createKey(512);
     const encShareKey = await this.encryptService.encapsulateKeyUnsigned(shareKey, publicKey);
     return [encShareKey, shareKey as T];
   }
@@ -786,10 +784,14 @@ export class DefaultKeyService implements KeyServiceAbstraction {
         }
 
         return this.stateProvider.getUser(userId, USER_ENCRYPTED_PRIVATE_KEY).state$.pipe(
-          switchMap(
-            async (encryptedPrivateKey) =>
-              await this.decryptPrivateKey(encryptedPrivateKey, userKey),
-          ),
+          switchMap(async (encryptedPrivateKey) => {
+            try {
+              return await this.decryptPrivateKey(encryptedPrivateKey, userKey);
+            } catch (e) {
+              this.logService.error("Failed to decrypt private key for user ", userId, e);
+              throw e;
+            }
+          }),
           // Combine outerscope info with user private key
           map((userPrivateKey) => ({
             userKey,
@@ -864,10 +866,57 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     return this.cipherDecryptionKeys$(userId).pipe(map((keys) => keys?.orgKeys ?? null));
   }
 
-  encryptedOrgKeys$(
-    userId: UserId,
-  ): Observable<Record<OrganizationId, EncryptedOrganizationKeyData> | null> {
-    return this.stateProvider.getUser(userId, USER_ENCRYPTED_ORGANIZATION_KEYS).state$;
+  encryptedOrgKeys$(userId: UserId): Observable<Record<OrganizationId, EncString>> {
+    return this.userPrivateKey$(userId)?.pipe(
+      switchMap((userPrivateKey) => {
+        if (userPrivateKey == null) {
+          // We can't do any org based decryption
+          return of({});
+        }
+
+        return combineLatest([
+          this.stateProvider.getUser(userId, USER_ENCRYPTED_ORGANIZATION_KEYS).state$,
+          this.providerKeysHelper$(userId, userPrivateKey),
+        ]).pipe(
+          switchMap(async ([encryptedOrgKeys, providerKeys]) => {
+            const userPubKey = await this.derivePublicKey(userPrivateKey);
+
+            const result: Record<OrganizationId, EncString> = {};
+            encryptedOrgKeys = encryptedOrgKeys ?? {};
+            for (const orgId of Object.keys(encryptedOrgKeys) as OrganizationId[]) {
+              if (result[orgId] != null) {
+                continue;
+              }
+              const encrypted = BaseEncryptedOrganizationKey.fromData(encryptedOrgKeys[orgId]);
+              if (encrypted == null) {
+                continue;
+              }
+
+              let orgKey: EncString;
+
+              // Because the SDK only supports user encrypted org keys, we need to re-encrypt
+              // any provider encrypted org keys with the user's public key. This should be removed
+              // once the SDK has support for provider keys.
+              if (BaseEncryptedOrganizationKey.isProviderEncrypted(encrypted)) {
+                if (providerKeys == null) {
+                  continue;
+                }
+                orgKey = await this.encryptService.encapsulateKeyUnsigned(
+                  await encrypted.decrypt(this.encryptService, providerKeys!),
+                  userPubKey!,
+                );
+              } else {
+                orgKey = encrypted.encryptedOrganizationKey;
+              }
+
+              result[orgId] = orgKey;
+            }
+
+            return result;
+          }),
+        );
+      }),
+    );
   }
 
   cipherDecryptionKeys$(userId: UserId): Observable<CipherDecryptionKeys | null> {

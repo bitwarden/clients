@@ -330,6 +330,27 @@
                   "enableBrowserIntegrationFingerprintDesc" | i18n
                 }}</small>
               </div>
+              <div class="form-group" *ngIf="showEnableAutotype">
+                <div class="checkbox">
+                  <label for="enableAutotype">
+                    <input
+                      id="enableAutotype"
+                      type="checkbox"
+                      formControlName="enableAutotype"
+                      (change)="saveEnableAutotype()"
+                    />
+                    <div class="tw-flex tw-items-center tw-gap-2">
+                      {{ "enableAutotypeTransitionKey" | i18n }}
+                      <app-premium-badge></app-premium-badge>
+                    </div>
+                  </label>
+                </div>
+                <small class="help-block" *ngIf="form.value.enableAutotype">
+                  <b>{{ "important" | i18n }}</b>
+                  {{ "enableAutotypeDescriptionTransitionKey" | i18n }}
+                  <b>{{ "editShortcut" | i18n }}</b></small
+                >
+              </div>
               <div class="form-group">
                 <div class="checkbox">
                   <label for="enableHardwareAcceleration">
@@ -412,22 +433,6 @@
                 <small class="help-block">{{
                   "enableDuckDuckGoBrowserIntegrationDesc" | i18n
                 }}</small>
-              </div>
-              <div class="form-group" *ngIf="showEnableAutotype">
-                <div class="checkbox">
-                  <label for="enableAutotype">
-                    <input
-                      id="enableAutotype"
-                      type="checkbox"
-                      formControlName="enableAutotype"
-                      (change)="saveEnableAutotype()"
-                    />
-                    {{ "enableAutotype" | i18n }}
-                  </label>
-                </div>
-                <small class="help-block"
-                  ><b>{{ "important" | i18n }}</b> {{ "enableAutotypeDescription" | i18n }}</small
-                >
               </div>
               <div class="form-group">
                 <label for="theme">{{ "theme" | i18n }}</label>

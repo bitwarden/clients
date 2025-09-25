@@ -34,7 +34,6 @@ import {
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { getById } from "@bitwarden/common/platform/misc";
@@ -93,6 +92,7 @@ export interface CollectionDialogParams {
   initialTab?: CollectionDialogTabType;
   parentCollectionId?: string;
   showOrgSelector?: boolean;
+  initialPermission?: CollectionPermission;
   /**
    * Flag to limit the nested collections to only those the user has explicit CanManage access too.
    */
@@ -143,6 +143,7 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
   protected showDeleteButton = false;
   protected showAddAccessWarning = false;
   protected buttonDisplayName: ButtonType = ButtonType.Save;
+  protected initialPermission: CollectionPermission;
   private orgExceedingCollectionLimit!: Organization;
 
   constructor(
@@ -162,6 +163,7 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
     private configService: ConfigService,
   ) {
     this.tabIndex = params.initialTab ?? CollectionDialogTabType.Info;
+    this.initialPermission = params.initialPermission ?? CollectionPermission.View;
   }
 
   async ngOnInit() {
@@ -188,22 +190,16 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
       await this.loadOrg(this.params.organizationId);
     }
 
-    const isBreadcrumbEventLogsEnabled = await firstValueFrom(
-      this.configService.getFeatureFlag$(FeatureFlag.PM12276_BreadcrumbEventLogs),
+    this.organizationSelected.setAsyncValidators(
+      freeOrgCollectionLimitValidator(
+        this.organizations$,
+        this.collectionService
+          .encryptedCollections$(userId)
+          .pipe(map((collections) => collections ?? [])),
+        this.i18nService,
+      ),
     );
-
-    if (isBreadcrumbEventLogsEnabled) {
-      this.organizationSelected.setAsyncValidators(
-        freeOrgCollectionLimitValidator(
-          this.organizations$,
-          this.collectionService
-            .encryptedCollections$(userId)
-            .pipe(map((collections) => collections ?? [])),
-          this.i18nService,
-        ),
-      );
-      this.formGroup.updateValueAndValidity();
-    }
+    this.formGroup.updateValueAndValidity();
 
     this.organizationSelected.valueChanges
       .pipe(

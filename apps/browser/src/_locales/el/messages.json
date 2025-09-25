@@ -556,6 +556,9 @@
   "view": {
     "message": "Προβολή"
   },
+  "viewLogin": {
+    "message": "View login"
+  },
   "noItemsInList": {
     "message": "Δεν υπάρχουν στοιχεία στη λίστα."
   },
@@ -665,7 +668,7 @@
     "message": "Δεν αναγνωρίζουμε αυτή τη συσκευή. Εισάγετε τον κωδικό που στάλθηκε στο email σας για να επαληθεύσετε την ταυτότητά σας."
   },
   "continueLoggingIn": {
-    "message": "Continue logging in"
+    "message": "Συνέχεια σύνδεσης"
   },
   "yourVaultIsLocked": {
     "message": "Το vault σας είναι κλειδωμένο. Επαληθεύστε τον κύριο κωδικό πρόσβασης για να συνεχίσετε."
@@ -1028,7 +1031,7 @@
     "message": "Ζητήστε να προσθέσετε ένα αντικείμενο αν δε βρεθεί στο θησαυ/κιό σας. Ισχύει για όλους τους συνδεδεμένους λογαριασμούς."
   },
   "showCardsInVaultViewV2": {
-    "message": "Always show cards as Autofill suggestions on Vault view"
+    "message": "Εμφάνιση καρτών ως προτάσεις αυτόματης συμπλήρωσης στην προβολή Θησαυ/κίου"
   },
   "showCardsCurrentTab": {
     "message": "Εμφάνιση καρτών στη σελίδα Καρτέλας"
@@ -1037,7 +1040,7 @@
     "message": "Εμφάνισε τα αντικείμενα κάρτες στη σελίδα Καρτέλα για εύκολη αυτόματη συμπλήρωση."
   },
   "showIdentitiesInVaultViewV2": {
-    "message": "Always show identities as Autofill suggestions on Vault view"
+    "message": "Εμφάνιση ταυτοτήτων ως προτάσεις αυτόματης συμπλήρωσης στην προβολή Θησαυ/κίου"
   },
   "showIdentitiesCurrentTab": {
     "message": "Εμφάνιση ταυτοτήτων στη σελίδα καρτέλας"
@@ -1049,7 +1052,7 @@
     "message": "Κάντε κλικ στα αντικείμενα για αυτόματη συμπλήρωση στην προβολή Θησαυ/κίου"
   },
   "clickToAutofill": {
-    "message": "Click items in autofill suggestion to fill"
+    "message": "Κάντε κλικ στα αντικείμενα της πρότασης αυτόματης συμπλήρωσης για εισαγωγή"
   },
   "clearClipboard": {
     "message": "Εκκαθάριση Πρόχειρου",
@@ -1066,7 +1069,7 @@
     "message": "Ναι, Αποθήκευση Τώρα"
   },
   "notificationViewAria": {
-    "message": "View $ITEMNAME$, opens in new window",
+    "message": "Προβολή $ITEMNAME$, ανοίγει σε νέο παράθυρο",
     "placeholders": {
       "itemName": {
         "content": "$1"
@@ -1075,18 +1078,18 @@
     "description": "Aria label for the view button in notification bar confirmation message"
   },
   "notificationNewItemAria": {
-    "message": "New Item, opens in new window",
+    "message": "Νέο στοιχείο, ανοίγει σε νέο παράθυρο",
     "description": "Aria label for the new item button in notification bar confirmation message when error is prompted"
   },
   "notificationEditTooltip": {
-    "message": "Edit before saving",
+    "message": "Επεξεργασία πριν την αποθήκευση",
     "description": "Tooltip and Aria label for edit button on cipher item"
   },
   "newNotification": {
-    "message": "New notification"
+    "message": "Νέα ειδοποίηση"
   },
   "labelWithNotification": {
-    "message": "$LABEL$: New notification",
+    "message": "$LABEL$: Νέα ειδοποίηση",
     "description": "Label for the notification with a new login suggestion.",
     "placeholders": {
       "label": {
@@ -1096,11 +1099,11 @@
     }
   },
   "notificationLoginSaveConfirmation": {
-    "message": "saved to Bitwarden.",
+    "message": "αποθηκεύτηκε στο Bitwarden.",
     "description": "Shown to user after item is saved."
   },
   "notificationLoginUpdatedConfirmation": {
-    "message": "updated in Bitwarden.",
+    "message": "ενημερώθηκε στο Bitwarden.",
     "description": "Shown to user after item is updated."
   },
   "selectItemAriaLabel": {
@@ -1116,31 +1119,31 @@
     }
   },
   "saveAsNewLoginAction": {
-    "message": "Save as new login",
+    "message": "Αποθήκευση ως νέα σύνδεση",
     "description": "Button text for saving login details as a new entry."
   },
   "updateLoginAction": {
-    "message": "Update login",
+    "message": "Ενημέρωση σύνδεσης",
     "description": "Button text for updating an existing login entry."
   },
   "unlockToSave": {
-    "message": "Unlock to save this login",
+    "message": "Ξεκλειδώστε για να αποθηκεύσετε αυτή τη σύνδεση",
     "description": "User prompt to take action in order to save the login they just entered."
   },
   "saveLogin": {
-    "message": "Save login",
+    "message": "Αποθήκευση σύνδεσης",
     "description": "Prompt asking the user if they want to save their login details."
   },
   "updateLogin": {
-    "message": "Update existing login",
+    "message": "Ενημέρωση υπάρχουσας σύνδεσης",
     "description": "Prompt asking the user if they want to update an existing login entry."
   },
   "loginSaveSuccess": {
-    "message": "Login saved",
+    "message": "Σύνδεση αποθηκεύτηκε",
     "description": "Message displayed when login details are successfully saved."
   },
   "loginUpdateSuccess": {
-    "message": "Login updated",
+    "message": "Σύνδεση ενημερώθηκε",
     "description": "Message displayed when login details are successfully updated."
   },
   "loginUpdateTaskSuccess": {
@@ -1165,7 +1168,7 @@
     "description": "Shown to user after login is updated."
   },
   "nextSecurityTaskAction": {
-    "message": "Change next password",
+    "message": "Αλλαγή επόμενου κωδικού πρόσβασης",
     "description": "Message prompting user to undertake completion of another security task."
   },
   "saveFailure": {
@@ -1522,9 +1525,6 @@
   "selectTwoStepLoginMethod": {
     "message": "Select two-step login method"
   },
-  "recoveryCodeDesc": {
-    "message": "Έχετε χάσει την πρόσβαση σε όλους τους παρόχους δύο παραγόντων; Χρησιμοποιήστε τον κωδικό ανάκτησης για να απενεργοποιήσετε όλους τους παρόχους δύο παραγόντων από το λογαριασμό σας."
-  },
   "recoveryCodeTitle": {
     "message": "Κωδικός ανάκτησης"
   },
@@ -1683,9 +1683,6 @@
   "defaultAutoFillOnPageLoadDesc": {
     "message": "Μπορείτε να απενεργοποιήσετε την αυτόματη συμπλήρωση κατά τη φόρτωση της σελίδας για μεμονωμένα αντικείμενα σύνδεσης από την προβολή Επεξεργασία αντικειμένου."
   },
-  "itemAutoFillOnPageLoad": {
-    "message": "Αυτόματη συμπλήρωση κατά τη φόρτωση της σελίδας (αν έχει ενεργοποιηθεί στις Επιλογές)"
-  },
   "autoFillOnPageLoadUseDefault": {
     "message": "Χρήση προεπιλεγμένης ρύθμισης"
   },
@@ -1757,17 +1754,8 @@
   "popup2faCloseMessage": {
     "message": "Εάν κάνετε κλικ έξω από το αναδυόμενο παράθυρο για να ελέγξετε το email για κωδικό επαλήθευσης, το αναδυόμενο παράθυρο θα κλείσει. Θέλετε να ανοίξετε αυτό το αναδυόμενο σε νέο παράθυρο ώστε να μην κλείνει;"
   },
-  "popupU2fCloseMessage": {
-    "message": "Αυτό το πρόγραμμα περιήγησης δεν μπορεί να επεξεργαστεί αιτήματα του U2F σε αυτό το αναδυόμενο παράθυρο. Θέλετε να ανοίξετε το αναδυόμενο σε νέο παράθυρο, ώστε να μπορείτε να συνδεθείτε χρησιμοποιώντας U2F;"
-  },
   "showIconsChangePasswordUrls": {
     "message": "Show website icons and retrieve change password URLs"
-  },
-  "enableBadgeCounter": {
-    "message": "Εμφάνιση μετρητή εμβλημάτων"
-  },
-  "badgeCounterDesc": {
-    "message": "Υποδείξτε πόσες συνδέσεις έχετε για την τρέχουσα ιστοσελίδα."
   },
   "cardholderName": {
     "message": "Όνομα κατόχου κάρτας"
@@ -1931,32 +1919,81 @@
   "typeNote": {
     "message": "Note"
   },
-  "newItemHeader": {
-    "message": "Νέα $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderLogin": {
+    "message": "New Login",
+    "description": "Header for new login item type"
   },
-  "editItemHeader": {
-    "message": "Επεξεργασία $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderCard": {
+    "message": "New Card",
+    "description": "Header for new card item type"
   },
-  "viewItemHeader": {
-    "message": "Εμφάνιση $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderIdentity": {
+    "message": "New Identity",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "New Note",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "New SSH key",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderTextSend": {
+    "message": "New Text Send",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "New File Send",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderLogin": {
+    "message": "Edit Login",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Edit Card",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Edit Identity",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Edit Note",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "Edit SSH key",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Edit Text Send",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Edit File Send",
+    "description": "Header for edit file send"
+  },
+  "viewItemHeaderLogin": {
+    "message": "View Login",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "View Card",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "View Identity",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "View Note",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "View SSH key",
+    "description": "Header for view SSH key item type"
   },
   "passwordHistory": {
     "message": "Ιστορικό κωδικού πρόσβασης"
@@ -3518,9 +3555,6 @@
   "autofillPageLoadPolicyActivated": {
     "message": "Οι πολιτικές του οργανισμού σας έχουν ενεργοποιήσει την αυτόματη συμπλήρωση με φόρτωση σελίδας."
   },
-  "howToAutofill": {
-    "message": "Πώς να συμπληρώσετε αυτόματα"
-  },
   "autofillSelectInfoWithCommand": {
     "message": "Επιλέξτε ένα αντικείμενο από αυτήν την οθόνη, χρησιμοποιήστε τη συντόμευση $COMMAND$, ή εξερευνήστε άλλες επιλογές στις ρυθμίσεις.",
     "placeholders": {
@@ -3905,17 +3939,9 @@
   "aliasDomain": {
     "message": "Ψευδώνυμο τομέα"
   },
-  "passwordRepromptDisabledAutofillOnPageLoad": {
-    "message": "Τα αντικείμενα με υπόδειξη κύριου κωδικού πρόσβασης δεν μπορούν να συμπληρωθούν αυτόματα κατά τη φόρτωση της σελίδας. Η αυτόματη συμπλήρωση έχει απενεργοποιηθεί κατά τη φόρτωση της σελίδας.",
-    "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
-  },
   "autofillOnPageLoadSetToDefault": {
     "message": "Η αυτόματη συμπλήρωση κατά τη φόρτωση της σελίδας ορίστηκε να χρησιμοποιεί τις προεπιλεγμένες ρυθμίσεις.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "turnOffMasterPasswordPromptToEditField": {
-    "message": "Απενεργοποιήστε την υπόδειξη κύριου κωδικού πρόσβασης για να επεξεργαστείτε αυτό το πεδίο",
-    "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
   },
   "toggleSideNavigation": {
     "message": "Εναλλαγή πλευρικής πλοήγησης"
@@ -4185,9 +4211,6 @@
   },
   "passkeyNotCopiedAlert": {
     "message": "Το κλειδί πρόσβασης δε θα αντιγραφεί στο κλωνοποιημένο αντικείμενο. Θέλετε να συνεχίσετε την κλωνοποίηση αυτού του αντικειμένου;"
-  },
-  "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
-    "message": "Απαιτείται επαλήθευση από τον ιστότοπο εκκίνησης. Αυτή η λειτουργία δεν έχει ακόμα υλοποιηθεί για λογαριασμούς χωρίς τον κύριο κωδικό πρόσβασης."
   },
   "logInWithPasskeyQuestion": {
     "message": "Σύνδεση με κλειδί πρόσβασης;"
@@ -4874,9 +4897,6 @@
       }
     }
   },
-  "enableAnimations": {
-    "message": "Ενεργοποίηση κινούμενων εικόνων"
-  },
   "showAnimations": {
     "message": "Εμφάνιση εφέ κίνησης"
   },
@@ -5089,14 +5109,8 @@
   "itemLocation": {
     "message": "Τοποθεσία Αντικειμένου"
   },
-  "fileSend": {
-    "message": "Δημιουργία Αποστολής"
-  },
   "fileSends": {
     "message": "Send αρχείων"
-  },
-  "textSend": {
-    "message": "Κείμενο Αποστολής"
   },
   "textSends": {
     "message": "Send κειμένων"
@@ -5157,9 +5171,6 @@
   },
   "vaultCustomTimeoutMinimum": {
     "message": "Το ελάχιστο προσαρμοσμένο χρονικό όριο λήξης είναι 1 λεπτό."
-  },
-  "additionalContentAvailable": {
-    "message": "Διατίθεται πρόσθετο περιεχόμενο"
   },
   "fileSavedToDevice": {
     "message": "Το αρχείο αποθηκεύτηκε στη συσκευή. Διαχειριστείτε το από τις λήψεις της συσκευής σας."
@@ -5446,6 +5457,12 @@
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
+  },
   "settingsVaultOptions": {
     "message": "Vault options"
   },
@@ -5493,6 +5510,18 @@
   },
   "hasItemsVaultNudgeTitle": {
     "message": "Welcome to your vault!"
+  },
+  "phishingPageTitle": {
+    "message": "Phishing website"
+  },
+  "phishingPageCloseTab": {
+    "message": "Close tab"
+  },
+  "phishingPageContinue": {
+    "message": "Continue"
+  },
+  "phishingPageLearnWhy": {
+    "message": "Why are you seeing this?"
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Autofill items for the current page"
@@ -5588,8 +5617,14 @@
   "showLess": {
     "message": "Show less"
   },
+  "next": {
+    "message": "Next"
+  },
   "moreBreadcrumbs": {
     "message": "More breadcrumbs",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Confirm Key Connector domain"
   }
 }
