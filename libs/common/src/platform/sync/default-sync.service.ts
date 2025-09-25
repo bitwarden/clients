@@ -144,7 +144,6 @@ export class DefaultSyncService extends CoreSyncService {
     }
 
     if (!needsSync) {
-      await this.setLastSync(now, userId);
       return this.syncCompleted(false, userId);
     }
 
