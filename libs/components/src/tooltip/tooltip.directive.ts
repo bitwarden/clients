@@ -26,10 +26,10 @@ import { TooltipComponent, TOOLTIP_DATA } from "./tooltip.component";
   selector: "[bitTooltip]",
   standalone: true,
   host: {
-    "(mouseenter)": "show()",
-    "(mouseleave)": "hide()",
-    "(focus)": "show()",
-    "(blur)": "hide()",
+    "(mouseenter)": "showTooltip()",
+    "(mouseleave)": "hideTooltip()",
+    "(focus)": "showTooltip()",
+    "(blur)": "hideTooltip()",
   },
 })
 export class TooltipDirective implements OnInit {
@@ -83,14 +83,6 @@ export class TooltipDirective implements OnInit {
   private hideTooltip = () => {
     this.isVisible.set(false);
   };
-
-  show() {
-    this.showTooltip();
-  }
-
-  hide() {
-    this.hideTooltip();
-  }
 
   private computePositions(tooltipPosition: AllowedTooltipPosition) {
     const allowedPositions = getDefaultPositions({
