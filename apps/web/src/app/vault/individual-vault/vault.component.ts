@@ -610,7 +610,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     await this.cipherArchiveService.archiveWithServer(cipher.id as CipherId, activeUserId);
     this.toastService.showToast({
       variant: "success",
-      message: this.i18nService.t("itemSentToArchive"),
+      message: this.i18nService.t("itemWasSentToArchive"),
     });
   }
 
@@ -634,7 +634,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     await this.cipherArchiveService.archiveWithServer(cipherIds as CipherId[], activeUserId);
     this.toastService.showToast({
       variant: "success",
-      message: this.i18nService.t("itemSentToArchive"),
+      message: this.i18nService.t("itemWasSentToArchive"),
     });
 
     this.refresh();
@@ -651,7 +651,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
 
     this.toastService.showToast({
       variant: "success",
-      message: this.i18nService.t("itemRemovedFromArchive"),
+      message: this.i18nService.t("itemUnarchived"),
     });
   }
 
@@ -665,7 +665,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     await this.cipherArchiveService.unarchiveWithServer(cipherIds as CipherId[], activeUserId);
     this.toastService.showToast({
       variant: "success",
-      message: this.i18nService.t("itemRemovedFromArchive"),
+      message: this.i18nService.t("bulkUnarchiveItems"),
     });
 
     this.refresh();

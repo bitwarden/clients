@@ -72,7 +72,7 @@
       <bit-no-items [icon]="noItemIcon">
         <div slot="title" *ngIf="filter.type === 'archive'">{{ "noItemsInArchive" | i18n }}</div>
         <p slot="description" class="tw-text-center tw-max-w-md" *ngIf="filter.type === 'archive'">
-          {{ "archivedItemsDescription" | i18n }}
+          {{ "noItemsInArchiveDesc" | i18n }}
         </p>
         <div slot="title" *ngIf="filter.type !== 'archive'">{{ "noItemsInList" | i18n }}</div>
         <button
