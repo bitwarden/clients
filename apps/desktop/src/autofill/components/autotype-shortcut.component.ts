@@ -94,7 +94,7 @@ export class AutotypeShortcutComponent {
     }
 
     // Accept a single alphabetical letter as the base key
-    const isAlphabetical = typeof key === "string" && /^[a-zA-Z]$/.test(key);
+    const isAlphabetical = typeof key === "string" && /^[a-z]$/i.test(key);
     if (!isAlphabetical) {
       return null;
     }
