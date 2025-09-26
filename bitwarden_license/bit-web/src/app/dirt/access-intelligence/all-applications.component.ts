@@ -227,8 +227,4 @@ export class AllApplicationsComponent implements OnInit {
   };
 
   getSelectedUrls = () => Array.from(this.selectedUrls);
-
-  isDrawerOpenForTableRow = (applicationName: string): boolean => {
-    return this.dataService.drawerInvokerId === applicationName;
-  };
 }
