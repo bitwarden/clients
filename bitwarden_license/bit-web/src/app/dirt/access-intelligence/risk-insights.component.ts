@@ -129,7 +129,10 @@ export class RiskInsightsComponent implements OnInit {
             this.appsCount = applications.length;
           }
 
-          this.criticalAppsService.setOrganizationId(this.organizationId as OrganizationId, userId);
+          this.criticalAppsService.loadOrganizationContext(
+            this.organizationId as OrganizationId,
+            userId,
+          );
           this.criticalApps$ = this.criticalAppsService.getAppsListForOrg(
             this.organizationId as OrganizationId,
           );
