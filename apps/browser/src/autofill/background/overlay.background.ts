@@ -1238,7 +1238,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * @param details - The web request details
    */
   private handlePasskeyAuthenticationOnCompleted = (
-    details: chrome.webRequest.WebResponseCacheDetails,
+    details: chrome.webRequest.OnCompletedDetails,
   ) => {
     chrome.webRequest.onCompleted.removeListener(this.handlePasskeyAuthenticationOnCompleted);
 
