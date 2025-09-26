@@ -27,7 +27,7 @@ export class MainDesktopAutotypeService {
           this.disableAutotype();
           this.autotypeKeyboardShortcut = newKeyboardShortcut;
           this.enableAutotype();
-        } else if (!newKeyboardShortcutIsValid) {
+        } else {
           this.logService.error(
             "Attempting to configure autotype but the shortcut given is invalid.",
           );
