@@ -137,6 +137,9 @@ export class RiskInsightsComponent implements OnInit {
         },
       });
   }
+  runReport = () => {
+    this.dataService.triggerReport();
+  };
 
   /**
    * Refreshes the data by re-fetching the applications report.

@@ -5,7 +5,6 @@ import {
   concatMap,
   filter,
   first,
-  firstValueFrom,
   forkJoin,
   from,
   map,
@@ -34,6 +33,10 @@ import {
   getTrimmedCipherUris,
   getUniqueMembers,
 } from "../helpers/risk-insights-data-mappers";
+import {
+  isSaveRiskInsightsReportResponse,
+  SaveRiskInsightsReportResponse,
+} from "../models/api-models.types";
 import {
   LEGACY_CipherHealthReportDetail,
   LEGACY_CipherHealthReportUriDetail,
@@ -280,78 +283,98 @@ export class RiskInsightsReportService {
     return dataWithCiphers;
   }
 
-  getRiskInsightsReport(organizationId: OrganizationId, userId: UserId): void {
-    this.riskInsightsApiService
-      .getRiskInsightsReport$(organizationId)
-      .pipe(
-        switchMap((response) => {
-          if (!response) {
-            // Return an empty report and summary if response is falsy
-            return of<RiskInsightsReportData>({
-              data: [],
-              summary: {
-                totalMemberCount: 0,
-                totalAtRiskMemberCount: 0,
-                totalApplicationCount: 0,
-                totalAtRiskApplicationCount: 0,
-                totalCriticalMemberCount: 0,
-                totalCriticalAtRiskMemberCount: 0,
-                totalCriticalApplicationCount: 0,
-                totalCriticalAtRiskApplicationCount: 0,
-                newApplications: [],
-              },
-            });
-          }
-          return from(
-            this.riskInsightsEncryptionService.decryptRiskInsightsReport<RiskInsightsReportData>(
-              organizationId,
-              userId,
-              new EncString(response.reportData),
-              new EncString(response.contentEncryptionKey),
-              (data) => data as RiskInsightsReportData,
-            ),
-          );
-        }),
-      )
-      .subscribe({
-        next: (decryptRiskInsightsReport) => {
-          this.riskInsightsReportSubject.next(decryptRiskInsightsReport.data);
-          this.riskInsightsSummarySubject.next(decryptRiskInsightsReport.summary);
-        },
-      });
-  }
-
-  async saveRiskInsightsReport(
+  /**
+   * Gets the risk insights report for a specific organization and user.
+   *
+   * @param organizationId
+   * @param userId
+   * @returns An observable that emits the decrypted risk insights report data.
+   */
+  getRiskInsightsReport$(
     organizationId: OrganizationId,
     userId: UserId,
+  ): Observable<RiskInsightsReportData> {
+    return this.riskInsightsApiService.getRiskInsightsReport$(organizationId).pipe(
+      switchMap((response) => {
+        if (!response) {
+          // Return an empty report and summary if response is falsy
+          return of<RiskInsightsReportData>({
+            data: [],
+            summary: {
+              totalMemberCount: 0,
+              totalAtRiskMemberCount: 0,
+              totalApplicationCount: 0,
+              totalAtRiskApplicationCount: 0,
+              totalCriticalMemberCount: 0,
+              totalCriticalAtRiskMemberCount: 0,
+              totalCriticalApplicationCount: 0,
+              totalCriticalAtRiskApplicationCount: 0,
+              newApplications: [],
+            },
+          });
+        }
+        if (!response.contentEncryptionKey || response.contentEncryptionKey.data == "") {
+          throw new Error("Report key not found");
+        }
+        return from(
+          this.riskInsightsEncryptionService.decryptRiskInsightsReport<RiskInsightsReportData>(
+            organizationId,
+            userId,
+            new EncString(response.reportData.encryptedString),
+            new EncString(response.contentEncryptionKey.encryptedString),
+            (data) => data as RiskInsightsReportData,
+          ),
+        );
+      }),
+    );
+  }
+
+  /**
+   * Encrypts the risk insights report data for a specific organization.
+   * @param organizationId The ID of the organization.
+   * @param userId The ID of the user.
+   * @param report The report data to encrypt.
+   * @returns A promise that resolves to an object containing the encrypted data and encryption key.
+   */
+  saveRiskInsightsReport$(
     report: ApplicationHealthReportDetail[],
-  ): Promise<void> {
-    const riskReport = {
-      data: report,
-    };
-
-    const encryptedReport = await this.riskInsightsEncryptionService.encryptRiskInsightsReport(
-      organizationId,
-      userId,
-      riskReport,
+    summary: OrganizationReportSummary,
+    encryptionParameters: {
+      organizationId: OrganizationId;
+      userId: UserId;
+    },
+  ): Observable<SaveRiskInsightsReportResponse> {
+    return from(
+      this.riskInsightsEncryptionService.encryptRiskInsightsReport(
+        encryptionParameters.organizationId,
+        encryptionParameters.userId,
+        {
+          data: report,
+          summary: summary,
+        },
+      ),
+    ).pipe(
+      map(({ encryptedData, contentEncryptionKey }) => ({
+        data: {
+          organizationId: encryptionParameters.organizationId,
+          date: new Date().toISOString(),
+          reportData: encryptedData.encryptedString,
+          contentEncryptionKey: contentEncryptionKey.encryptedString,
+        },
+      })),
+      switchMap((encryptedReport) =>
+        this.riskInsightsApiService.saveRiskInsightsReport$(
+          encryptedReport,
+          encryptionParameters.organizationId,
+        ),
+      ),
+      map((response) => {
+        if (!isSaveRiskInsightsReportResponse(response)) {
+          throw new Error("Invalid response from API");
+        }
+        return response;
+      }),
     );
-
-    const saveRequest = {
-      data: {
-        organizationId: organizationId,
-        date: new Date().toISOString(),
-        reportData: encryptedReport.encryptedData,
-        reportKey: encryptedReport.encryptionKey,
-      },
-    };
-
-    const response = await firstValueFrom(
-      this.riskInsightsApiService.saveRiskInsightsReport$(saveRequest, organizationId),
-    );
-
-    if (response && response.id) {
-      this.riskInsightsReportSubject.next(report);
-    }
   }
 
   /**

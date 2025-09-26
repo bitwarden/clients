@@ -158,7 +158,7 @@ export interface RiskInsightsReport {
   organizationId: OrganizationId;
   date: string;
   reportData: string;
-  reportKey: string;
+  contentEncryptionKey: string;
 }
 
 export type ReportScore = { label: string; badgeVariant: BadgeVariant; sortOrder: number };
