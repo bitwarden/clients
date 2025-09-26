@@ -16,6 +16,7 @@ import {
 } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { isUrlInList } from "@bitwarden/common/autofill/utils";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -268,6 +269,7 @@ export class VaultPopupAutofillService {
       });
       return false;
     }
+    await this.handleAutofillSuggestionUsed({ cipherId: cipher.id });
 
     return true;
   }
@@ -324,6 +326,21 @@ export class VaultPopupAutofillService {
     }
 
     return didAutofill;
+  }
+
+  /**
+   * When a user autofills with an autofill suggestion outside of the inline menu,
+   * update the cipher's last used date.
+   *
+   * @param message - The message containing the cipher ID that was used
+   */
+  async handleAutofillSuggestionUsed(message: { cipherId: string }) {
+    const activeUserId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(getOptionalUserId),
+    );
+    if (activeUserId) {
+      await this.cipherService.updateLastUsedDate(message.cipherId, activeUserId);
+    }
   }
 
   /**

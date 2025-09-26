@@ -145,6 +145,7 @@ export default class RuntimeBackground {
             if (totpCode != null) {
               this.platformUtilsService.copyToClipboard(totpCode);
             }
+            await this.main.updateOverlayCiphers();
             break;
           }
           case ExtensionCommand.AutofillCard: {
