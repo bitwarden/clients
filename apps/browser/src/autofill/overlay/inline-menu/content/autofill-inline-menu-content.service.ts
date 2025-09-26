@@ -39,8 +39,10 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
   private containerElementMutationObserver: MutationObserver;
   private topLayerRefreshCountWithinTimeThreshold: number = 0;
   private lastTrackedTopLayerRefreshTimestamp = Date.now();
-  // Distinct from preventing inline menu script injection, this is for cases where the page
-  // is subsequently determined to be risky.
+  /**
+   * Distinct from preventing inline menu script injection, this is for cases
+   * where the page is subsequently determined to be risky.
+   */
   private inlineMenuEnabled = true;
   private mutationObserverIterations = 0;
   private mutationObserverIterationsResetTimeout: number | NodeJS.Timeout;
@@ -530,6 +532,9 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
         // Set inline menu to be off; page is aggressively trying to take top position of top layer
         this.inlineMenuEnabled = false;
         void this.checkPageRisks();
+
+        const warningMessage = chrome.i18n.getMessage("topLayerHijackWarning");
+        globalThis.window.alert(warningMessage);
       }
     } else {
       this.lastTrackedTopLayerRefreshTimestamp = now;
