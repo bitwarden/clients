@@ -55,7 +55,7 @@
 
   @if (dataService.drawerDetails$ | async; as drawerDetails) {
     <bit-drawer style="width: 30%" [(open)]="isDrawerOpen" (openChange)="dataService.closeDrawer()">
-      <ng-container *ngIf="dataService.isActiveDrawerType$(drawerTypes.OrgAtRiskMembers) | async">
+      <ng-container *ngIf="dataService.isActiveDrawerType(drawerTypes.OrgAtRiskMembers)">
         <bit-drawer-header
           title="{{ 'atRiskMembersWithCount' | i18n: drawerDetails.atRiskMemberDetails.length }}"
         >
@@ -84,7 +84,7 @@
         </bit-drawer-body>
       </ng-container>
 
-      @if (dataService.isActiveDrawerType$(drawerTypes.AppAtRiskMembers) | async) {
+      @if (dataService.isActiveDrawerType(drawerTypes.AppAtRiskMembers)) {
         <bit-drawer-header title="{{ drawerDetails.appAtRiskMembers.applicationName }}">
         </bit-drawer-header>
         <bit-drawer-body>
@@ -107,7 +107,7 @@
         </bit-drawer-body>
       }
 
-      @if (dataService.isActiveDrawerType$(drawerTypes.OrgAtRiskApps) | async) {
+      @if (dataService.isActiveDrawerType(drawerTypes.OrgAtRiskApps)) {
         <bit-drawer-header
           title="{{ 'atRiskApplicationsWithCount' | i18n: drawerDetails.atRiskAppDetails.length }}"
         >
