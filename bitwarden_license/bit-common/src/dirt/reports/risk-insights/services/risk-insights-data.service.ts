@@ -109,11 +109,9 @@ export class RiskInsightsDataService {
     atRiskMemberDetails: AtRiskMemberDetail[],
     invokerId: string = "",
   ): void => {
-    const currentDetails = this.drawerDetailsSubject.value;
+    const { open, activeDrawerType, invokerId: currentInvokerId } = this.drawerDetailsSubject.value;
     const shouldClose =
-      currentDetails.open &&
-      currentDetails.activeDrawerType === DrawerType.OrgAtRiskMembers &&
-      currentDetails.invokerId === invokerId;
+      open && activeDrawerType === DrawerType.OrgAtRiskMembers && currentInvokerId === invokerId;
 
     if (shouldClose) {
       this.closeDrawer();
@@ -133,11 +131,9 @@ export class RiskInsightsDataService {
     atRiskMembersDialogParams: AppAtRiskMembersDialogParams,
     invokerId: string = "",
   ): void => {
-    const currentDetails = this.drawerDetailsSubject.value;
+    const { open, activeDrawerType, invokerId: currentInvokerId } = this.drawerDetailsSubject.value;
     const shouldClose =
-      currentDetails.open &&
-      currentDetails.activeDrawerType === DrawerType.AppAtRiskMembers &&
-      currentDetails.invokerId === invokerId;
+      open && activeDrawerType === DrawerType.AppAtRiskMembers && currentInvokerId === invokerId;
 
     if (shouldClose) {
       this.closeDrawer();
@@ -157,11 +153,9 @@ export class RiskInsightsDataService {
     atRiskApps: AtRiskApplicationDetail[],
     invokerId: string = "",
   ): void => {
-    const currentDetails = this.drawerDetailsSubject.value;
+    const { open, activeDrawerType, invokerId: currentInvokerId } = this.drawerDetailsSubject.value;
     const shouldClose =
-      currentDetails.open &&
-      currentDetails.activeDrawerType === DrawerType.OrgAtRiskApps &&
-      currentDetails.invokerId === invokerId;
+      open && activeDrawerType === DrawerType.OrgAtRiskApps && currentInvokerId === invokerId;
 
     if (shouldClose) {
       this.closeDrawer();
