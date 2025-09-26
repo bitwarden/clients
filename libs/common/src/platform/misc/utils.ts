@@ -128,19 +128,76 @@ export class Utils {
     return arr;
   }
 
-  static fromBufferToB64(buffer: ArrayBuffer): string {
+  /**
+   * Convert binary data into a Base64 string.
+   *
+   * Overloads are provided for two categories of input:
+   *
+   * 1. ArrayBuffer
+   *    - A raw, fixed-length chunk of memory (no element semantics).
+   *    - Example: `const buf = new ArrayBuffer(16);`
+   *
+   * 2. ArrayBufferView
+   *    - A *view* onto an existing buffer that gives the bytes meaning.
+   *    - Examples: Uint8Array, Int32Array, DataView, etc.
+   *    - Views can expose only a *window* of the underlying buffer via
+   *      `byteOffset` and `byteLength`.
+   *      Example:
+   *      ```ts
+   *      const buf = new ArrayBuffer(8);
+   *      const full = new Uint8Array(buf);       // sees all 8 bytes
+   *      const half = new Uint8Array(buf, 4, 4); // sees only last 4 bytes
+   *      ```
+   *
+   * Returns:
+   * - Base64 string for non-empty inputs,
+   * - null if `buffer` is `null` or `undefined` or for empty inputs (length 0)
+   */
+  static fromBufferToB64(buffer: ArrayBuffer | ArrayBufferView | null | undefined): string | null {
+    // Handle null / undefined input
     if (buffer == null) {
       return null;
     }
+
+    const bytes: Uint8Array = Utils.normalizeToUint8Array(buffer);
+
+    // Handle empty input
+    if (bytes.length === 0) {
+      return null;
+    }
+
     if (Utils.isNode) {
-      return Buffer.from(buffer).toString("base64");
+      return Buffer.from(bytes).toString("base64");
     } else {
       let binary = "";
-      const bytes = new Uint8Array(buffer);
       for (let i = 0; i < bytes.byteLength; i++) {
         binary += String.fromCharCode(bytes[i]);
       }
       return Utils.global.btoa(binary);
+    }
+  }
+
+  /**
+   * Normalizes input into a Uint8Array so we always have a uniform,
+   * byte-level view of the data. This avoids dealing with differences
+   * between ArrayBuffer (raw memory with no indexing) and other typed
+   * views (which may have element sizes, offsets, and lengths).
+   * @param buffer ArrayBuffer or ArrayBufferView (e.g. Uint8Array, DataView, etc.)
+   */
+  private static normalizeToUint8Array(buffer: ArrayBuffer | ArrayBufferView): Uint8Array {
+    /**
+     * 1) Uint8Array: already bytes → use directly.
+     * 2) ArrayBuffer: wrap whole buffer.
+     * 3) Other ArrayBufferView (e.g., DataView, Int32Array):
+     *    wrap the view’s window (byteOffset..byteOffset+byteLength).
+     */
+    if (buffer instanceof Uint8Array) {
+      return buffer;
+    } else if (buffer instanceof ArrayBuffer) {
+      return new Uint8Array(buffer);
+    } else {
+      const view = buffer as ArrayBufferView;
+      return new Uint8Array(view.buffer, view.byteOffset, view.byteLength);
     }
   }
 
