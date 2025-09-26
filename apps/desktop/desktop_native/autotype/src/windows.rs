@@ -64,16 +64,12 @@ pub fn type_input(input: Vec<u16>, keyboard_shortcut: Vec<String>) -> Result<(),
 
 /// Converts a valid shortcut key to an "up" keyboard input.
 ///
-/// `input` must be a valid shortcut key: Control, Alt, Super, Shift, letters a - Z
+/// `input` must be a valid shortcut key: Control, Alt, Super, Shift, letters [a-z][A-Z]
 fn convert_shortcut_key_to_up_input(key: String) -> Result<INPUT, ()> {
     const SHIFT_KEY: u8 = 0x10;
     const CONTROL_KEY: u8 = 0x11;
     const ALT_KEY: u8 = 0x12;
     const LEFT_WINDOWS_KEY: u8 = 0x5B;
-    const UPPERCASE_A_UNICODE_DECIMAL_VALUE: u16 = 65;
-    const UPPERCASE_Z_UNICODE_DECIMAL_VALUE: u16 = 90;
-    const LOWERCASE_A_UNICODE_DECIMAL_VALUE: u16 = 97;
-    const LOWERCASE_Z_UNICODE_DECIMAL_VALUE: u16 = 122;
 
     if key == "Shift" {
         Ok(build_virtual_key_input(InputKeyPress::Up, SHIFT_KEY))
@@ -84,31 +80,43 @@ fn convert_shortcut_key_to_up_input(key: String) -> Result<INPUT, ()> {
     } else if key == "Super" {
         Ok(build_virtual_key_input(InputKeyPress::Up, LEFT_WINDOWS_KEY))
     } else {
-        let unicode_value: Vec<u16> = key.encode_utf16().collect();
+        Ok(build_unicode_input(
+            InputKeyPress::Up,
+            encodeutf16_alphabetic_hotkey(key)?,
+        ))
+    }
+}
 
-        // Ensure the encoding is 1 byte, otherwise we could get a false match
-        // on [a-z][A-Z] below
-        if unicode_value.len() != 1 {
-            return Err(());
-        }
+/// Given a letter that is a String, get the utf16 encoded
+/// decimal version of the letter as long as it meets the
+/// [a-z][A-Z] restriction.
+fn encodeutf16_alphabetic_hotkey(letter: String) -> Result<u16, ()> {
+    const UPPERCASE_A_UNICODE_DECIMAL_VALUE: u16 = 65;
+    const UPPERCASE_Z_UNICODE_DECIMAL_VALUE: u16 = 90;
+    const LOWERCASE_A_UNICODE_DECIMAL_VALUE: u16 = 97;
+    const LOWERCASE_Z_UNICODE_DECIMAL_VALUE: u16 = 122;
 
-        // Ensure the unicode decimal value is a key within: [a-z][A-Z]
-        if let Some(key_unicode_value_as_decimal) = unicode_value.first() {
-            if (*key_unicode_value_as_decimal >= UPPERCASE_A_UNICODE_DECIMAL_VALUE
-                && *key_unicode_value_as_decimal <= UPPERCASE_Z_UNICODE_DECIMAL_VALUE)
-                || (*key_unicode_value_as_decimal >= LOWERCASE_A_UNICODE_DECIMAL_VALUE
-                    && *key_unicode_value_as_decimal <= LOWERCASE_Z_UNICODE_DECIMAL_VALUE)
-            {
-                Ok(build_unicode_input(
-                    InputKeyPress::Up,
-                    key_unicode_value_as_decimal.clone(),
-                ))
-            } else {
-                Err(())
-            }
+    let unicode_value: Vec<u16> = letter.encode_utf16().collect();
+
+    // Ensure the encoding is 1 byte, otherwise we could get a false match
+    // on [a-z][A-Z] below
+    if unicode_value.len() != 1 {
+        return Err(());
+    }
+
+    // Ensure the unicode decimal value is a key within: [a-z][A-Z]
+    if let Some(key_unicode_value_as_decimal) = unicode_value.first() {
+        if (*key_unicode_value_as_decimal >= UPPERCASE_A_UNICODE_DECIMAL_VALUE
+            && *key_unicode_value_as_decimal <= UPPERCASE_Z_UNICODE_DECIMAL_VALUE)
+            || (*key_unicode_value_as_decimal >= LOWERCASE_A_UNICODE_DECIMAL_VALUE
+                && *key_unicode_value_as_decimal <= LOWERCASE_Z_UNICODE_DECIMAL_VALUE)
+        {
+            Ok(key_unicode_value_as_decimal.clone())
         } else {
             Err(())
         }
+    } else {
+        Err(())
     }
 }
 
