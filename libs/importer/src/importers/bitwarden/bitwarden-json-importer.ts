@@ -64,12 +64,13 @@ export class BitwardenJsonImporter extends BaseImporter implements Importer {
   private async parseEncrypted(
     results: BitwardenEncryptedIndividualJsonExport | BitwardenEncryptedOrgJsonExport,
   ) {
+    const account = await firstValueFrom(this.accountService.activeAccount$);
+
     if (results.encKeyValidation_DO_NOT_EDIT != null) {
-      let keyForDecryption: SymmetricCryptoKey = await this.keyService.getOrgKey(
-        this.organizationId,
-      );
+      const orgKeys = await firstValueFrom(this.keyService.orgKeys$(account.id));
+      let keyForDecryption: SymmetricCryptoKey = orgKeys?.[this.organizationId];
       if (keyForDecryption == null) {
-        keyForDecryption = await this.keyService.getUserKey();
+        keyForDecryption = await firstValueFrom(this.keyService.userKey$(account.id));
       }
       const encKeyValidation = new EncString(results.encKeyValidation_DO_NOT_EDIT);
       try {
@@ -113,10 +114,7 @@ export class BitwardenJsonImporter extends BaseImporter implements Importer {
         });
       }
 
-      const activeUserId = await firstValueFrom(
-        this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-      );
-      const view = await this.cipherService.decrypt(cipher, activeUserId);
+      const view = await this.cipherService.decrypt(cipher, account.id);
       this.cleanupCipher(view);
       this.result.ciphers.push(view);
     }
