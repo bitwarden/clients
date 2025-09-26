@@ -3,13 +3,14 @@ import { CdkScrollable } from "@angular/cdk/scrolling";
 import { CommonModule } from "@angular/common";
 import {
   Component,
-  HostBinding,
   inject,
   viewChild,
   input,
   booleanAttribute,
   ElementRef,
   DestroyRef,
+  computed,
+  signal,
 } from "@angular/core";
 import { toObservable } from "@angular/core/rxjs-interop";
 import { combineLatest, switchMap } from "rxjs";
@@ -21,7 +22,6 @@ import { SpinnerComponent } from "../../spinner";
 import { TypographyDirective } from "../../typography/typography.directive";
 import { hasScrollableContent$ } from "../../utils/";
 import { hasScrolledFrom } from "../../utils/has-scrolled-from";
-import { fadeIn } from "../animations";
 import { DialogRef } from "../dialog.service";
 import { DialogCloseDirective } from "../directives/dialog-close.directive";
 import { DialogTitleContainerDirective } from "../directives/dialog-title-container.directive";
@@ -29,9 +29,10 @@ import { DialogTitleContainerDirective } from "../directives/dialog-title-contai
 @Component({
   selector: "bit-dialog",
   templateUrl: "./dialog.component.html",
-  animations: [fadeIn],
   host: {
+    "[class]": "classes()",
     "(keydown.esc)": "handleEsc($event)",
+    "(animationend)": "onAnimationEnd()",
   },
   imports: [
     CommonModule,
@@ -90,14 +91,22 @@ export class DialogComponent {
    */
   readonly loading = input(false);
 
-  @HostBinding("class") get classes() {
+  private animationCompleted = signal(false);
+
+  classes() {
     // `tw-max-h-[90vh]` is needed to prevent dialogs from overlapping the desktop header
-    return ["tw-flex", "tw-flex-col", "tw-w-screen"]
+    return [
+      "tw-flex",
+      "tw-flex-col",
+      "tw-w-screen",
+      // Prevent the animation from starting again when the viewport changes since it changes between breakpoints
+      this.animationCompleted() ? [] : this.animationClasses(),
+    ]
       .concat(
         this.width,
         this.dialogRef?.isDrawer
           ? ["tw-min-h-screen", "md:tw-w-[23rem]"]
-          : ["tw-p-4", "tw-w-screen", "tw-max-h-[90vh]"],
+          : ["md:tw-p-4", "tw-w-screen", "tw-max-h-[90vh]"],
       )
       .flat();
   }
@@ -121,5 +130,21 @@ export class DialogComponent {
         return "md:tw-max-w-xl";
       }
     }
+  }
+
+  protected animationClasses = computed(() => {
+    if (!this.dialogRef || this.dialogRef?.isDrawer) {
+      return [];
+    }
+    switch (this.dialogSize()) {
+      case "small":
+        return ["tw-animate-slide-down"];
+      default:
+        return ["tw-animate-slide-up", "md:tw-animate-slide-down"];
+    }
+  });
+
+  onAnimationEnd() {
+    this.animationCompleted.set(true);
   }
 }
