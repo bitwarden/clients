@@ -83,9 +83,10 @@ export class AutotypeShortcutComponent implements OnInit {
     const hasCtrl = event.ctrlKey;
     const hasAlt = event.altKey;
     const hasShift = event.shiftKey;
+    const hasMeta = event.metaKey; // Windows key on Windows, Command on macOS
 
-    // Require at least one modifier (Ctrl, Alt, or Shift)
-    if (!hasCtrl && !hasAlt && !hasShift) {
+    // Require at least one modifier (Control, Alt, Shift, or Super)
+    if (!hasCtrl && !hasAlt && !hasShift && !hasMeta) {
       return null;
     }
 
@@ -97,7 +98,7 @@ export class AutotypeShortcutComponent implements OnInit {
     }
 
     // Accept a single alphanumeric letter or number as the base key
-    const isAlphaNumeric = typeof key === "string" && /^[a-zA-Z0-9]$/.test(key);
+    const isAlphaNumeric = typeof key === "string" && /^[a-zA-Z]$/.test(key);
     if (!isAlphaNumeric) {
       return null;
     }
@@ -111,6 +112,9 @@ export class AutotypeShortcutComponent implements OnInit {
     }
     if (hasShift) {
       parts.push("Shift");
+    }
+    if (hasMeta) {
+      parts.push("Super");
     }
     parts.push(key.toUpperCase());
 
@@ -129,7 +133,7 @@ export class AutotypeShortcutComponent implements OnInit {
       // Must include at least one modifier and end with a single alphanumeric
       // Valid examples: Ctrl+A, Alt+5, Shift+Z, Ctrl+Alt+7, Ctrl+Shift+X, Alt+Shift+Q
       const pattern =
-        /^(?=.*\b(Control|Alt|Shift)\b)(?:Control\+)?(?:Alt\+)?(?:Shift\+)?[A-Z0-9]$/i;
+        /^(?=.*\b(Control|Alt|Shift|Super)\b)(?:Control\+)?(?:Alt\+)?(?:Shift\+)?(?:Super\+)?[A-Z]$/i;
       return pattern.test(value) ? null : { invalidShortcut: true };
     };
   }
