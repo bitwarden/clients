@@ -9,6 +9,7 @@ config.content = [
   "../../libs/key-management-ui/src/**/*.{html,ts}",
   "../../libs/vault/src/**/*.{html,ts}",
   "../../libs/angular/src/**/*.{html,ts}",
+  "../../libs/tools/generator/components/src/**/*.{html,ts}",
   "../../bitwarden_license/bit-web/src/**/*.{html,ts}",
 ];
 config.corePlugins.preflight = true;
