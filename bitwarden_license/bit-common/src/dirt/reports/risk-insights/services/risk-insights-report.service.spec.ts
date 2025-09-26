@@ -13,7 +13,11 @@ import {
   SaveRiskInsightsReportResponse,
 } from "../models/api-models.types";
 import { EncryptedDataWithKey } from "../models/password-health";
-import { ApplicationHealthReportDetail, OrganizationReportSummary } from "../models/report-models";
+import {
+  ApplicationHealthReportDetail,
+  OrganizationReportSummary,
+  RiskInsightsReportData,
+} from "../models/report-models";
 import { MemberCipherDetailsResponse } from "../response/member-cipher-details.response";
 
 import { mockCiphers } from "./ciphers.mock";
@@ -323,7 +327,7 @@ describe("RiskInsightsReportService", () => {
       jest.clearAllMocks();
     });
 
-    it("should call riskInsightsApiService.getRiskInsightsReport$ with the correct organizationId", async () => {
+    it("should call with the correct organizationId", async () => {
       // we need to ensure that the api is invoked with the specified organizationId
       // here it doesn't matter what the Api returns
       const apiResponse = {
@@ -334,9 +338,32 @@ describe("RiskInsightsReportService", () => {
         contentEncryptionKey: mockEncryptedReport.contentEncryptionKey,
       } as GetRiskInsightsReportResponse;
 
+      const decryptedResponse: RiskInsightsReportData = {
+        data: [],
+        summary: {
+          totalMemberCount: 1,
+          totalAtRiskMemberCount: 1,
+          totalApplicationCount: 1,
+          totalAtRiskApplicationCount: 1,
+          totalCriticalMemberCount: 1,
+          totalCriticalAtRiskMemberCount: 1,
+          totalCriticalApplicationCount: 1,
+          totalCriticalAtRiskApplicationCount: 1,
+          newApplications: [],
+        },
+      };
+
       const organizationId = "orgId" as OrganizationId;
       const userId = "userId" as UserId;
+
+      // Mock api returned encrypted data
       mockRiskInsightsApiService.getRiskInsightsReport$.mockReturnValue(of(apiResponse));
+
+      // Mock decrypted data
+      mockRiskInsightsEncryptionService.decryptRiskInsightsReport.mockReturnValue(
+        Promise.resolve(decryptedResponse),
+      );
+
       await firstValueFrom(service.getRiskInsightsReport$(organizationId, userId));
 
       expect(mockRiskInsightsApiService.getRiskInsightsReport$).toHaveBeenCalledWith(

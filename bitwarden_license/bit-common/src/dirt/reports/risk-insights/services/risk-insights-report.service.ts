@@ -4,12 +4,14 @@ import {
   BehaviorSubject,
   concatMap,
   first,
+  firstValueFrom,
   forkJoin,
   from,
   map,
   Observable,
   of,
   switchMap,
+  throwError,
   zip,
 } from "rxjs";
 
@@ -304,7 +306,7 @@ export class RiskInsightsReportService {
           });
         }
         if (!response.contentEncryptionKey || response.contentEncryptionKey.data == "") {
-          throw new Error("Report key not found");
+          return throwError(() => new Error("Report key not found"));
         }
         return from(
           this.riskInsightsEncryptionService.decryptRiskInsightsReport<RiskInsightsReportData>(
