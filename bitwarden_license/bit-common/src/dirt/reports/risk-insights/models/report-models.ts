@@ -117,7 +117,7 @@ export type OrganizationReportApplication = {
 };
 
 /**
- * All applications report detail. Application is the cipher
+ * Report details for an application
  * uri. Has the at risk, password, and member information
  */
 export type ApplicationHealthReportDetail = {
