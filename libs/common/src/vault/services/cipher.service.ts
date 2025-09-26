@@ -1176,16 +1176,25 @@ export class CipherService implements CipherServiceAbstraction {
     userId: UserId = null,
   ): Promise<Record<CipherId, CipherData>> {
     userId ||= await firstValueFrom(this.stateProvider.activeUserId$);
+
+    const current = (await firstValueFrom(this.encryptedCiphersState(userId).state$)) ?? {};
+
+    // run the update against a clone to protect against mutating updaters
+    const clonedCurrent = JSON.parse(JSON.stringify(current));
+    const proposed = update(clonedCurrent) ?? clonedCurrent;
+
+    // If nothing changed, do nothing
+    if (JSON.stringify(current) === JSON.stringify(proposed)) {
+      return current;
+    }
+
     await this.clearCache(userId);
+
     const updatedCiphers = await this.stateProvider
       .getUser(userId, ENCRYPTED_CIPHERS)
-      .update((current) => {
-        const result = update(current ?? {});
-        return result;
-      });
-    // Some state storage providers (e.g. Electron) don't update the state immediately, wait for next tick
-    // Otherwise, subscribers to cipherViews$ can get stale data
-    await new Promise((resolve) => setTimeout(resolve, 0));
+      .update(() => proposed);
+
+    await new Promise((r) => setTimeout(r, 0));
     return updatedCiphers;
   }
 
