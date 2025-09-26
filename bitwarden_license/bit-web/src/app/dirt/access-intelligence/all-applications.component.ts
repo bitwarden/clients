@@ -6,6 +6,7 @@ import { combineLatest, debounceTime, firstValueFrom, map, Observable, of, switc
 
 import { Security } from "@bitwarden/assets/svg";
 import {
+  AllActivitiesService,
   CriticalAppsService,
   RiskInsightsDataService,
   RiskInsightsReportService,
@@ -132,6 +133,7 @@ export class AllApplicationsComponent implements OnInit {
           if (data) {
             this.dataSource.data = data;
             this.applicationSummary = this.reportService.generateApplicationsSummary(data);
+            this.allActivitiesService.setAllAppsReportSummary(this.applicationSummary);
           }
           if (organization) {
             this.organization = organization;
@@ -154,6 +156,7 @@ export class AllApplicationsComponent implements OnInit {
     private accountService: AccountService,
     protected criticalAppsService: CriticalAppsService,
     protected riskInsightsEncryptionService: RiskInsightsEncryptionService,
+    protected allActivitiesService: AllActivitiesService,
   ) {
     this.searchControl.valueChanges
       .pipe(debounceTime(200), takeUntilDestroyed())
