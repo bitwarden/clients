@@ -55,12 +55,11 @@ export class DesktopAutotypeService {
   async init() {
     // Currently Autotype is only supported for Windows
     if (this.platformUtilsService.getDevice() === DeviceType.WindowsDesktop) {
-      // If autotypeDefaultPolicy is true for an org, and the user has never
-      // changed their local autotype setting (autotypeEnabledState), we set
-      // their local setting to true for the org. This represents that
-      // Autotype is on by default. Once the local user setting is changed
+      // If `autotypeDefaultPolicy` is `true` for a user's organization, and the
+      // user has never changed their local autotype setting (`autotypeEnabledState`), 
+      // we set their local setting to `true` (once the local user setting is changed
       // by this policy or the user themselves, the default policy should
-      // never change the user setting again.
+      // never change the user setting again).
       combineLatest([
         this.autotypeEnabledState.state$,
         this.desktopAutotypePolicy.autotypeDefaultSetting$,
