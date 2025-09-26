@@ -6,6 +6,7 @@ import { LogService } from "@bitwarden/logging";
 import { AutotypeKeyboardShortcut } from "../models/main-autotype-keyboard-shortcut"
 import { WindowMain } from "../../main/window.main";
 import { stringIsNotUndefinedNullAndEmpty } from "../../utils";
+import { AutotypeKeyboardShortcut } from "../models/main-autotype-keyboard-shortcut";
 
 export class MainDesktopAutotypeService {
   autotypeKeyboardShortcut: AutotypeKeyboardShortcut;
