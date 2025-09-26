@@ -2,6 +2,9 @@
   "allApplications": {
     "message": "Alla applikationer"
   },
+  "activity": {
+    "message": "Aktivitet"
+  },
   "appLogoLabel": {
     "message": "Bitwardens logotyp"
   },
@@ -56,8 +59,20 @@
   "createNewLoginItem": {
     "message": "Skapa nytt inloggningsobjekt"
   },
+  "criticalApplicationsActivityDescription": {
+    "message": "Once you mark applications critical, they will display here."
+  },
   "criticalApplicationsWithCount": {
     "message": "Kritiska applikationer ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfCriticalApplications": {
+    "message": "$COUNT$ kritiska applikationer",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -86,14 +101,14 @@
   "noAppsInOrgDescription": {
     "message": "När användare sparar inloggningar visas applikationer här och visar eventuella riskfyllda lösenord. Markera kritiska appar och meddela användarna att de ska uppdatera lösenorden."
   },
-  "noCriticalAppsTitle": {
+  "noCriticalApplicationsTitle": {
     "message": "Du har inte markerat några applikationer som kritiska"
   },
-  "noCriticalAppsDescription": {
-    "message": "Välj ut dina mest kritiska applikationer för att upptäcka riskfyllda lösenord och meddela användarna att de ska byta lösenord."
+  "noCriticalApplicationsDescription": {
+    "message": "Välj dina mest kritiska program för att prioritera säkerhetsåtgärder för dina användare att adressera lösenord i riskzonen."
   },
-  "markCriticalApps": {
-    "message": "Markera kritiska applikationer"
+  "markCriticalApplications": {
+    "message": "Välj kritiska applikationer"
   },
   "markAppAsCritical": {
     "message": "Markera app som kritisk"
@@ -118,6 +133,18 @@
   },
   "atRiskMembers": {
     "message": "Riskutsatta medlemmar"
+  },
+  "membersAtRiskActivityDescription": {
+    "message": "Members with edit access to at-risk items for critical applications"
+  },
+  "membersAtRisk": {
+    "message": "$COUNT$ members at risk",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "atRiskMembersWithCount": {
     "message": "Medlemmar i riskzonen ($COUNT$)",
@@ -179,8 +206,8 @@
   "unmarkAsCritical": {
     "message": "Avmarkera som kritisk"
   },
-  "criticalApplicationSuccessfullyUnmarked": {
-    "message": "Kritisk applikation avmarkerades"
+  "criticalApplicationUnmarkedSuccessfully": {
+    "message": "Avmarkerade applikation som kritisk"
   },
   "whatTypeOfItem": {
     "message": "Vilken typ av objekt är detta?"
@@ -734,32 +761,81 @@
   "viewItem": {
     "message": "Visa objekt"
   },
-  "newItemHeader": {
-    "message": "Ny $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderLogin": {
+    "message": "Ny inloggning",
+    "description": "Header for new login item type"
   },
-  "editItemHeader": {
-    "message": "Redigera $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderCard": {
+    "message": "Nytt kort",
+    "description": "Header for new card item type"
   },
-  "viewItemType": {
-    "message": "Visa $ITEMTYPE$",
-    "placeholders": {
-      "itemtype": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderIdentity": {
+    "message": "Ny identitet",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "Ny anteckning",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "Ny SSH-nyckel",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderTextSend": {
+    "message": "New Text Send",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "New File Send",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderLogin": {
+    "message": "Redigera inloggning",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Redigera kort",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Redigera identitet",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Redigera anteckning",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "Redigera SSH-nyckel",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Edit Text Send",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Edit File Send",
+    "description": "Header for edit file send"
+  },
+  "viewItemHeaderLogin": {
+    "message": "Visa inloggning",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "Visa kort",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "Visa identitet",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "Visa anteckning",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "Visa SSH-nyckel",
+    "description": "Header for view SSH key item type"
   },
   "new": {
     "message": "Nytt",
@@ -1509,9 +1585,6 @@
   },
   "selectTwoStepLoginMethod": {
     "message": "Välj metod för tvåstegsinloggning"
-  },
-  "recoveryCodeDesc": {
-    "message": "Förlorat åtkomst till alla dina metoder för tvåstegsverifiering? Använd din återställningskod för att inaktivera tvåstegsverifiering på ditt konto."
   },
   "recoveryCodeTitle": {
     "message": "Återställningskod"
@@ -7430,6 +7503,9 @@
   "off": {
     "message": "Av"
   },
+  "connected": {
+    "message": "Ansluten"
+  },
   "members": {
     "message": "Medlemmar"
   },
@@ -9031,6 +9107,78 @@
       }
     }
   },
+  "limitCollectionCreationEnabled": {
+    "message": "Aktiverade inställningen Begränsa skapande av samlingar för $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationDisabled": {
+    "message": "Inaktiverade inställningen Begränsa skapande av samlingar för $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionEnabled": {
+    "message": "Aktiverade inställningen Begränsa borttagning av samlingar för $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionDisabled": {
+    "message": "Inaktiverade inställningen Begränsa borttagning av samlingar för $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionEnabled": {
+    "message": "Aktiverade inställningen Begränsa borttagning av objekt för $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionDisabled": {
+    "message": "Inaktiverade inställningen Begränsa borttagning av objekt för $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsEnabled": {
+    "message": "Aktiverade inställningen Tillåt ägare och administratörer att hantera alla samlingar och objekt $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsDisabled": {
+    "message": "Inaktiverade inställningen Tillåt ägare och administratörer att hantera alla samlingar och objekt $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "seeDetailedInstructions": {
     "message": "Se detaljerade instruktioner på vår hjälpsida på",
     "description": "This is followed a by a hyperlink to the help website."
@@ -9591,6 +9739,9 @@
   "failedToSaveIntegration": {
     "message": "Misslyckades med att spara integration. Försök igen senare."
   },
+  "failedToDeleteIntegration": {
+    "message": "Misslyckades med att ta bort integrationen. Försök igen senare."
+  },
   "deviceIdMissing": {
     "message": "Enhetens ID saknas"
   },
@@ -9608,6 +9759,15 @@
   },
   "connectIntegrationButtonDesc": {
     "message": "Anslut $INTEGRATION$",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
+  },
+  "updateIntegrationButtonDesc": {
+    "message": "Uppdatera $INTEGRATION$",
     "placeholders": {
       "integration": {
         "content": "$1",
@@ -9677,6 +9837,9 @@
   },
   "bearerToken": {
     "message": "Bärartoken"
+  },
+  "repositoryNameHint": {
+    "message": "Name of the repository to ingest into"
   },
   "index": {
     "message": "Index"
@@ -10126,14 +10289,8 @@
   "learnMoreAboutApi": {
     "message": "Läs mer om Bitwardens API"
   },
-  "fileSend": {
-    "message": "Skicka fil"
-  },
   "fileSends": {
     "message": "Skicka filer"
-  },
-  "textSend": {
-    "message": "Skicka text"
   },
   "textSends": {
     "message": "Text skickas"
@@ -10821,6 +10978,12 @@
   "changeAtRiskPassword": {
     "message": "Ändra lösenord för riskgrupper"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Denna inloggning är i riskzonen och saknar en webbplats. Lägg till en webbplats och ändra lösenordet för starkare säkerhet."
+  },
+  "missingWebsite": {
+    "message": "Saknar webbplats"
+  },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Ta bort upplåsning med PIN-kod"
   },
@@ -11165,6 +11328,14 @@
   },
   "confirmKeyConnectorDomain": {
     "message": "Bekräfta Key Connector-domän"
+  },
+  "requiredToVerifyBankAccountWithStripe": {
+    "message": "Betalning med ett bankkonto är endast tillgänglig för kunder i USA. Du kommer att behöva verifiera ditt bankkonto. Vi kommer att göra en mikroinsättning inom de närmaste 1-2 arbetsdagarna. Underlåtenhet att verifiera bankkontot kommer att resultera i en missad betalning och ditt abonnemang stängs av."
+  },
+  "verifyBankAccountWithStripe": {
+    "message": "Vi har gjort en mikroinsättning till ditt bankkonto. Detta kan ta 1-2 arbetsdagar. När du ser insättningen på ditt konto kan du verifiera ditt bankkonto. Underlåtenhet att verifiera ditt bankkonto resulterar i en missad betalning och ditt abonnemang kommer att stängas av."
+  },
+  "verifyNow": {
+    "message": "Verifiera nu."
   }
 }
-

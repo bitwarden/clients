@@ -3,7 +3,7 @@
     <bit-nav-logo [openIcon]="logo" route="." [label]="'adminConsole' | i18n"></bit-nav-logo>
     <org-switcher [filter]="orgFilter" [hideNewButton]="hideNewOrgButton$ | async"></org-switcher>
     <bit-nav-group
-      icon="bwi-filter"
+      icon="bwi-dashboard"
       *ngIf="organization.useRiskInsights && organization.canAccessReports"
       [text]="'accessIntelligence' | i18n"
       route="access-intelligence"
@@ -140,11 +140,7 @@
   </app-side-nav>
 
   <ng-container *ngIf="organization$ | async as organization">
-    <bit-banner
-      *ngIf="organization.isProviderUser"
-      [showClose]="false"
-      class="-tw-m-6 tw-flex tw-flex-col tw-pb-6"
-    >
+    <bit-banner *ngIf="organization.isProviderUser" [showClose]="false">
       {{ "accessingUsingProvider" | i18n: organization.providerName }}
     </bit-banner>
     <app-tax-id-warning

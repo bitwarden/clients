@@ -576,7 +576,7 @@
     "message": "复制验证码 (TOTP)"
   },
   "copyFieldCipherName": {
-    "message": "复制 $FIELD$、$CIPHERNAME$",
+    "message": "复制 $CIPHERNAME$ 的 $FIELD$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
@@ -959,9 +959,6 @@
   },
   "insertU2f": {
     "message": "将您的安全密钥插入计算机的 USB 端口。如果它有按钮，请触摸它。"
-  },
-  "recoveryCodeDesc": {
-    "message": "无法访问您所有的双重身份提供程序吗？请使用您的恢复代码来停用您账户中所有的双重身份提供程序。"
   },
   "recoveryCodeTitle": {
     "message": "恢复代码"
@@ -2943,10 +2940,10 @@
     "message": "需要高级版订阅"
   },
   "organizationIsDisabled": {
-    "message": "组织已停用"
+    "message": "组织已暂停"
   },
   "disabledOrganizationFilterError": {
-    "message": "无法访问已停用组织中的项目。请联系您的组织所有者寻求帮助。"
+    "message": "无法访问已暂停组织中的项目。请联系您的组织所有者寻求帮助。"
   },
   "neverLockWarning": {
     "message": "确定要使用「从不」选项吗？将锁定选项设置为「从不」会将密码库的加密密钥存储在您的设备上。如果使用此选项，您必须确保您的设备安全。"
@@ -3298,7 +3295,7 @@
     "message": "搜索"
   },
   "inputMinLength": {
-    "message": "输入长度不能低于 $COUNT$ 个字符。",
+    "message": "输入长度必须至少为 $COUNT$ 个字符。",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -3377,7 +3374,7 @@
     "message": "清除全部"
   },
   "plusNMore": {
-    "message": "+ $QUANTITY$ more",
+    "message": "另外 $QUANTITY$ 个",
     "placeholders": {
       "quantity": {
         "content": "$1",
@@ -3836,6 +3833,12 @@
   "changeAtRiskPassword": {
     "message": "更改有风险的密码"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "此登录存在风险且缺少网站。请添加网站并更改密码以增强安全性。"
+  },
+  "missingWebsite": {
+    "message": "缺少网站"
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "您无法移除仅具有「查看」权限的集合：$COLLECTIONS$",
     "placeholders": {
@@ -3935,7 +3938,7 @@
     "message": "关于此设置"
   },
   "permitCipherDetailsDescription": {
-    "message": "Bitwarden 将使用已保存的登录 URI 来识别应使用哪个图标或更改密码的 URL，以提升您的使用体验。使用此服务时不会收集或保存任何信息。"
+    "message": "Bitwarden 将使用已保存的登录 URI 来识别应使用哪个图标或更改密码的 URL 来改善您的体验。当您使用此服务时，不会收集或保存任何信息。"
   },
   "assignToCollections": {
     "message": "分配到集合"
@@ -4084,7 +4087,7 @@
     "message": "Bitwarden 不会验证输入位置，在使用快捷键之前，请确保您位于正确的窗口和字段中。"
   },
   "moreBreadcrumbs": {
-    "message": "进一步的指引",
+    "message": "更多导航项",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   },
   "next": {
@@ -4097,12 +4100,12 @@
     "message": "确认"
   },
   "enableAutotypeTransitionKey": {
-    "message": "Enable autotype shortcut"
+    "message": "启用自动输入快捷键"
   },
   "enableAutotypeDescriptionTransitionKey": {
-    "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."
+    "message": "在使用快捷键之前，请确保您位于正确的字段中，以避免将数据填入错误的地方。"
   },
   "editShortcut": {
-    "message": "Edit shortcut"
+    "message": "编辑快捷键"
   }
 }

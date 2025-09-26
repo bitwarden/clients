@@ -22,7 +22,7 @@
       [route]="['../', org.id]"
       (mainContentClicked)="toggle()"
       [routerLinkActiveOptions]="{ exact: true }"
-      (click)="handleUnpaidSubscription(org)"
+      (click)="showInactiveSubscriptionDialog(org)"
     >
       <i
         slot="end"

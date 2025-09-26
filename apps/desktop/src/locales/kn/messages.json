@@ -960,9 +960,6 @@
   "insertU2f": {
     "message": "ನಿಮ್ಮ ಕಂಪ್ಯೂಟರ್‌ನ ಯುಎಸ್‌ಬಿ ಪೋರ್ಟ್ಗೆ ನಿಮ್ಮ ಭದ್ರತಾ ಕೀಲಿಯನ್ನು ಸೇರಿಸಿ. ಅದು ಬಟನ್ ಹೊಂದಿದ್ದರೆ, ಅದನ್ನು ಸ್ಪರ್ಶಿಸಿ."
   },
-  "recoveryCodeDesc": {
-    "message": "ನಿಮ್ಮ ಎಲ್ಲಾ ಎರಡು ಅಂಶ ಪೂರೈಕೆದಾರರಿಗೆ ಪ್ರವೇಶವನ್ನು ಕಳೆದುಕೊಂಡಿದ್ದೀರಾ? ನಿಮ್ಮ ಖಾತೆಯಿಂದ ಎಲ್ಲಾ ಎರಡು ಅಂಶ ಪೂರೈಕೆದಾರರನ್ನು ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಲು ನಿಮ್ಮ ಮರುಪಡೆಯುವಿಕೆ ಕೋಡ್ ಬಳಸಿ."
-  },
   "recoveryCodeTitle": {
     "message": "ಮರುಪಡೆಯುವಿಕೆ ಕೋಡ್"
   },
@@ -3835,6 +3832,12 @@
   },
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
+  },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",

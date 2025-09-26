@@ -557,7 +557,7 @@
     "message": "הצג"
   },
   "viewLogin": {
-    "message": "View login"
+    "message": "הצג כניסה"
   },
   "noItemsInList": {
     "message": "אין פריטים להצגה."
@@ -1525,9 +1525,6 @@
   "selectTwoStepLoginMethod": {
     "message": "בחר שיטת כניסה דו־שלבית"
   },
-  "recoveryCodeDesc": {
-    "message": "איבדת גישה לכל הספקים הדו־גורמיים שלך? השתמש בקוד השחזור שלך כדי לכבות את כל הספקים הדו־גורמיים מהחשבון שלך."
-  },
   "recoveryCodeTitle": {
     "message": "קוד שחזור"
   },
@@ -1686,9 +1683,6 @@
   "defaultAutoFillOnPageLoadDesc": {
     "message": "אתה יכול לכבות מילוי אוטומטי בעת טעינת עמוד עבור פריטי כניסה בודדים מתצוגת העריכה של הפריט."
   },
-  "itemAutoFillOnPageLoad": {
-    "message": "מילוי אוטומטי בעת טעינת עמוד (אם מוגדר באפשרויות)"
-  },
   "autoFillOnPageLoadUseDefault": {
     "message": "השתמש בהגדרת ברירת המחדל"
   },
@@ -1760,17 +1754,8 @@
   "popup2faCloseMessage": {
     "message": "לחיצה מחוץ לחלונית הצפה שנפתחה בכדי לבדוק את פרטי האימות תגרום לחלונית שנפתחה, להסגר. האם ברצונך להציג את המידע בחלון שאינו נסגר?"
   },
-  "popupU2fCloseMessage": {
-    "message": "דפדפן זה לא יכול לעבד בקשות U2F בחלון צף זה. האם ברצונך לפתוח את החלון הצף כחלון חדש רגיל כדי שתוכל להכנס באמצעות U2F?"
-  },
   "showIconsChangePasswordUrls": {
     "message": "הצג סמלי אתרי אינטרנט ואחזר כתובות URL לשינוי סיסמה"
-  },
-  "enableBadgeCounter": {
-    "message": "הצג מונה סמל"
-  },
-  "badgeCounterDesc": {
-    "message": "מציין כמה כניסות יש לך עבור עמוד הרשת הנוכחי."
   },
   "cardholderName": {
     "message": "שם בעל הכרטיס"
@@ -1934,32 +1919,81 @@
   "typeNote": {
     "message": "הערה"
   },
-  "newItemHeader": {
-    "message": "$TYPE$ חדש",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderLogin": {
+    "message": "New Login",
+    "description": "Header for new login item type"
   },
-  "editItemHeader": {
-    "message": "ערוך $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderCard": {
+    "message": "New Card",
+    "description": "Header for new card item type"
   },
-  "viewItemHeader": {
-    "message": "הצג $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderIdentity": {
+    "message": "New Identity",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "New Note",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "New SSH key",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderTextSend": {
+    "message": "New Text Send",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "New File Send",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderLogin": {
+    "message": "Edit Login",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Edit Card",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Edit Identity",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Edit Note",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "Edit SSH key",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Edit Text Send",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Edit File Send",
+    "description": "Header for edit file send"
+  },
+  "viewItemHeaderLogin": {
+    "message": "View Login",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "View Card",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "View Identity",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "View Note",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "View SSH key",
+    "description": "Header for view SSH key item type"
   },
   "passwordHistory": {
     "message": "היסטוריית סיסמאות"
@@ -3521,9 +3555,6 @@
   "autofillPageLoadPolicyActivated": {
     "message": "פוליסות הארגון שלך הפעילו מילוי אוטומטי בעת טעינת עמוד."
   },
-  "howToAutofill": {
-    "message": "כיצד למלא אוטומטית"
-  },
   "autofillSelectInfoWithCommand": {
     "message": "בחר פריט ממסך זה, בחר את קיצור הדרך $COMMAND$, או חקור אפשרויות אחרות בהגדרות.",
     "placeholders": {
@@ -3908,17 +3939,9 @@
   "aliasDomain": {
     "message": "דומיין כינוי"
   },
-  "passwordRepromptDisabledAutofillOnPageLoad": {
-    "message": "פריטים עם בקשת סיסמה ראשית חוזרת לא ניתנים למילוי אוטומטי בעת טעינת עמוד. מילוי אוטומטי בעת טעינת נכבה.",
-    "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
-  },
   "autofillOnPageLoadSetToDefault": {
     "message": "מילוי אוטומטי בעת טעינת הוגדר להשתמש בהגדרת ברירת מחדל.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "turnOffMasterPasswordPromptToEditField": {
-    "message": "כבה בקשת סיסמה ראשית חוזרת כדי לערוך שדה זה",
-    "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
   },
   "toggleSideNavigation": {
     "message": "החלף מצב ניווט צדדי"
@@ -4188,9 +4211,6 @@
   },
   "passkeyNotCopiedAlert": {
     "message": "מפתח הגישה לא יועתק לפריט המשוכפל. האם ברצונך להמשיך לשכפל פריט זה?"
-  },
-  "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
-    "message": "נדרש אימות על ידי האתר היוזם. תכונה זו עדיין לא מיושמת עבור חשבונות ללא סיסמה ראשית."
   },
   "logInWithPasskeyQuestion": {
     "message": "להיכנס עם מפתח גישה?"
@@ -4877,9 +4897,6 @@
       }
     }
   },
-  "enableAnimations": {
-    "message": "אפשר הנפשות"
-  },
   "showAnimations": {
     "message": "הצג הנפשות"
   },
@@ -5092,14 +5109,8 @@
   "itemLocation": {
     "message": "מיקום פריט"
   },
-  "fileSend": {
-    "message": "סֵנְד של קובץ"
-  },
   "fileSends": {
     "message": "סֵנְדים של קובץ"
-  },
-  "textSend": {
-    "message": "סֵנְד של טקסט"
   },
   "textSends": {
     "message": "סֵנְדים של טקסט"
@@ -5160,9 +5171,6 @@
   },
   "vaultCustomTimeoutMinimum": {
     "message": "פסק זמן מותאם אישית מינימלי הוא דקה 1."
-  },
-  "additionalContentAvailable": {
-    "message": "תוכן נוסף זמין"
   },
   "fileSavedToDevice": {
     "message": "הקובץ נשמר למכשיר. נהל מהורדות המכשיר שלך."
@@ -5450,10 +5458,10 @@
     "message": "שנה סיסמה בסיכון"
   },
   "changeAtRiskPasswordAndAddWebsite": {
-    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+    "message": "כניסה זו נמצאת בסיכון וחסר בה אתר אינטרנט. הוסף אתר אינטרנט ושנה את הסיסמה לאבטחה חזקה יותר."
   },
   "missingWebsite": {
-    "message": "Missing website"
+    "message": "לא נמצא אתר אינטרנט"
   },
   "settingsVaultOptions": {
     "message": "אפשרויות כספת"
@@ -5502,6 +5510,18 @@
   },
   "hasItemsVaultNudgeTitle": {
     "message": "ברוך בואך אל הכספת שלך!"
+  },
+  "phishingPageTitle": {
+    "message": "Phishing website"
+  },
+  "phishingPageCloseTab": {
+    "message": "Close tab"
+  },
+  "phishingPageContinue": {
+    "message": "Continue"
+  },
+  "phishingPageLearnWhy": {
+    "message": "Why are you seeing this?"
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "פריטים למילוי אוטומטי עבור הדף הנוכחי"

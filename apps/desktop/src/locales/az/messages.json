@@ -960,9 +960,6 @@
   "insertU2f": {
     "message": "Güvənlik açarını kompüterinizin USB portuna taxın. Düyməsi varsa toxunun."
   },
-  "recoveryCodeDesc": {
-    "message": "İki faktorlu provayderlərinizə erişə bilmirsiniz? Geri qaytarma kodunuzu istifadə edərək hesabınızdakı bütün iki faktorlu provayderləri söndürə bilərsiniz."
-  },
   "recoveryCodeTitle": {
     "message": "Bərpa kodu"
   },
@@ -3589,10 +3586,10 @@
     "message": "Lütfən şirkət kimlik məlumatlarınızı istifadə edərək giriş etməyə davam edin."
   },
   "importDirectlyFromBrowser": {
-    "message": "Import directly from browser"
+    "message": "Birbaşa brauzerdən daxilə köçür"
   },
   "browserProfile": {
-    "message": "Browser Profile"
+    "message": "Brauzer profili"
   },
   "seeDetailedInstructions": {
     "message": "Kömək saytımızda detallı təlimatlara baxın",
@@ -3835,6 +3832,12 @@
   },
   "changeAtRiskPassword": {
     "message": "Riskli parolları dəyişdir"
+  },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Bu giriş risk altındadır və bir veb sayt əskikdir. Daha güclü təhlükəsizlik üçün bir veb sayt əlavə edin və parolu dəyişdirin."
+  },
+  "missingWebsite": {
+    "message": "Əskik veb sayt"
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "\"Yalnız baxma\" icazələrinə sahib kolleksiyaları silə bilməzsiniz: $COLLECTIONS$",
@@ -4084,7 +4087,7 @@
     "message": "Bitwarden, giriş yerlərini doğrulamır, qısayolu istifadə etməzdən əvvəl doğru pəncərədə və xanada olduğunuza əmin olun."
   },
   "moreBreadcrumbs": {
-    "message": "More breadcrumbs",
+    "message": "Daha çox naviqasiya yolu",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   },
   "next": {
@@ -4097,12 +4100,12 @@
     "message": "Təsdiqlə"
   },
   "enableAutotypeTransitionKey": {
-    "message": "Enable autotype shortcut"
+    "message": "Avto-yazma qısayolunu fəallaşdır"
   },
   "enableAutotypeDescriptionTransitionKey": {
-    "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."
+    "message": "Veriləri yanlış yerə doldurmamaq üçün qısayolu istifadə etməzdən əvvəl doğru xanada olduğunuza əmin olun."
   },
   "editShortcut": {
-    "message": "Edit shortcut"
+    "message": "Qısayola düzəliş et"
   }
 }

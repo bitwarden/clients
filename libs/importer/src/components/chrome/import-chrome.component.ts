@@ -1,7 +1,16 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
+import {
+  Component,
+  effect,
+  EventEmitter,
+  input,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+} from "@angular/core";
 import {
   AsyncValidatorFn,
   ControlContainer,
@@ -26,6 +35,8 @@ import {
 } from "@bitwarden/components";
 
 import { ImportType } from "../../models";
+
+type ProfileOption = { id: string; name: string };
 
 @Component({
   selector: "import-chrome",
@@ -57,13 +68,12 @@ export class ImportChromeComponent implements OnInit, OnDestroy {
     ],
   });
 
-  profileList: { id: string; name: string }[] = [];
+  profileList: ProfileOption[] = [];
+
+  format = input.required<ImportType>();
 
   @Input()
-  format: ImportType;
-
-  @Input()
-  onLoadProfilesFromBrowser: (browser: string) => Promise<any[]>;
+  onLoadProfilesFromBrowser: (browser: string) => Promise<ProfileOption[]>;
 
   @Input()
   onImportFromBrowser: (browser: string, profile: string) => Promise<any[]>;
@@ -75,12 +85,16 @@ export class ImportChromeComponent implements OnInit, OnDestroy {
     private controlContainer: ControlContainer,
     private logService: LogService,
     private i18nService: I18nService,
-  ) {}
+  ) {
+    effect(async () => {
+      this.profileList = await this.onLoadProfilesFromBrowser(this.getBrowserName(this.format()));
+      // FIXME: Add error handling and display when profiles could not be loaded/retrieved
+    });
+  }
 
   async ngOnInit(): Promise<void> {
     this._parentFormGroup = this.controlContainer.control as FormGroup;
     this._parentFormGroup.addControl("chromeOptions", this.formGroup);
-    this.profileList = await this.onLoadProfilesFromBrowser(this.getBrowserName());
   }
 
   ngOnDestroy(): void {
@@ -96,7 +110,7 @@ export class ImportChromeComponent implements OnInit, OnDestroy {
     return async () => {
       try {
         const logins = await this.onImportFromBrowser(
-          this.getBrowserName(),
+          this.getBrowserName(this.format()),
           this.formGroup.controls.profile.value,
         );
         if (logins.length === 0) {
@@ -130,14 +144,14 @@ export class ImportChromeComponent implements OnInit, OnDestroy {
     }
   }
 
-  private getBrowserName(): string {
-    if (this.format === "edgecsv") {
+  private getBrowserName(format: ImportType): string {
+    if (format === "edgecsv") {
       return "Microsoft Edge";
-    } else if (this.format === "operacsv") {
+    } else if (format === "operacsv") {
       return "Opera";
-    } else if (this.format === "bravecsv") {
+    } else if (format === "bravecsv") {
       return "Brave";
-    } else if (this.format === "vivaldicsv") {
+    } else if (format === "vivaldicsv") {
       return "Vivaldi";
     }
     return "Chrome";

@@ -960,9 +960,6 @@
   "insertU2f": {
     "message": "เสียบคีย์ความปลอดภัยเข้ากับพอร์ต USB ของคอมพิวเตอร์ หากมีปุ่ม ให้แตะปุ่มนั้น"
   },
-  "recoveryCodeDesc": {
-    "message": "สูญเสียการเข้าถึงผู้ให้บริการแบบสองปัจจัยทั้งหมดของคุณหรือไม่ ใช้รหัสกู้คืนของคุณเพื่อปิดผู้ให้บริการแบบสองปัจจัยทั้งหมดในบัญชีของคุณ"
-  },
   "recoveryCodeTitle": {
     "message": "รหัสกู้คืน"
   },
@@ -3835,6 +3832,12 @@
   },
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
+  },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
