@@ -2,11 +2,7 @@ import { TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, firstValueFrom, of, take, timeout } from "rxjs";
 
-import {
-  AuthRequestServiceAbstraction,
-  UserDecryptionOptions,
-  UserDecryptionOptionsServiceAbstraction,
-} from "@bitwarden/auth/common";
+import { AuthRequestServiceAbstraction } from "@bitwarden/auth/common";
 import { AccountInfo, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { DevicesServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices/devices.service.abstraction";
 import { DeviceView } from "@bitwarden/common/auth/abstractions/devices/views/device.view";
@@ -20,7 +16,6 @@ import { StateProvider } from "@bitwarden/common/platform/state";
 import { FakeStateProvider, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
-import { KdfConfigService, KdfType } from "@bitwarden/key-management";
 
 import {
   PREMIUM_BANNER_REPROMPT_KEY,
@@ -36,10 +31,6 @@ describe("VaultBannersService", () => {
   const fakeStateProvider = new FakeStateProvider(mockAccountServiceWith(userId));
   const getEmailVerified = jest.fn().mockResolvedValue(true);
   const lastSync$ = new BehaviorSubject<Date | null>(null);
-  const userDecryptionOptions$ = new BehaviorSubject<UserDecryptionOptions>({
-    hasMasterPassword: true,
-  });
-  const kdfConfig$ = new BehaviorSubject({ kdfType: KdfType.PBKDF2_SHA256, iterations: 600000 });
   const accounts$ = new BehaviorSubject<Record<UserId, AccountInfo>>({
     [userId]: { email: "test@bitwarden.com", emailVerified: true, name: "name" } as AccountInfo,
   });
@@ -78,18 +69,8 @@ describe("VaultBannersService", () => {
           useValue: { accounts$ },
         },
         {
-          provide: KdfConfigService,
-          useValue: { getKdfConfig$: () => kdfConfig$ },
-        },
-        {
           provide: SyncService,
           useValue: { lastSync$: () => lastSync$ },
-        },
-        {
-          provide: UserDecryptionOptionsServiceAbstraction,
-          useValue: {
-            userDecryptionOptionsById$: () => userDecryptionOptions$,
-          },
         },
         {
           provide: DevicesServiceAbstraction,
@@ -203,45 +184,6 @@ describe("VaultBannersService", () => {
           nextPromptDate: oneYearLater.getTime(),
         });
       });
-    });
-  });
-
-  describe("KDFSettings", () => {
-    beforeEach(async () => {
-      userDecryptionOptions$.next({ hasMasterPassword: true });
-      kdfConfig$.next({ kdfType: KdfType.PBKDF2_SHA256, iterations: 599999 });
-    });
-
-    it("shows low KDF iteration banner", async () => {
-      service = TestBed.inject(VaultBannersService);
-
-      expect(await service.shouldShowLowKDFBanner(userId)).toBe(true);
-    });
-
-    it("does not show low KDF iteration banner if KDF type is not PBKDF2_SHA256", async () => {
-      kdfConfig$.next({ kdfType: KdfType.Argon2id, iterations: 600001 });
-
-      service = TestBed.inject(VaultBannersService);
-
-      expect(await service.shouldShowLowKDFBanner(userId)).toBe(false);
-    });
-
-    it("does not show low KDF for iterations about 600,000", async () => {
-      kdfConfig$.next({ kdfType: KdfType.PBKDF2_SHA256, iterations: 600001 });
-
-      service = TestBed.inject(VaultBannersService);
-
-      expect(await service.shouldShowLowKDFBanner(userId)).toBe(false);
-    });
-
-    it("dismisses low KDF iteration banner", async () => {
-      service = TestBed.inject(VaultBannersService);
-
-      expect(await service.shouldShowLowKDFBanner(userId)).toBe(true);
-
-      await service.dismissBanner(userId, VisibleVaultBanner.KDFSettings);
-
-      expect(await service.shouldShowLowKDFBanner(userId)).toBe(false);
     });
   });
 
