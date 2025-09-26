@@ -77,14 +77,10 @@ import {
 } from "../auth/models/response/two-factor-web-authn.response";
 import { TwoFactorYubiKeyResponse } from "../auth/models/response/two-factor-yubi-key.response";
 import { BitPayInvoiceRequest } from "../billing/models/request/bit-pay-invoice.request";
-import { PaymentRequest } from "../billing/models/request/payment.request";
-import { TaxInfoUpdateRequest } from "../billing/models/request/tax-info-update.request";
 import { BillingHistoryResponse } from "../billing/models/response/billing-history.response";
-import { BillingPaymentResponse } from "../billing/models/response/billing-payment.response";
 import { PaymentResponse } from "../billing/models/response/payment.response";
 import { PlanResponse } from "../billing/models/response/plan.response";
 import { SubscriptionResponse } from "../billing/models/response/subscription.response";
-import { TaxInfoResponse } from "../billing/models/response/tax-info.response";
 import { KeyConnectorUserKeyRequest } from "../key-management/key-connector/models/key-connector-user-key.request";
 import { SetKeyConnectorKeyRequest } from "../key-management/key-connector/models/set-key-connector-key.request";
 import { DeleteRecoverRequest } from "../models/request/delete-recover.request";
@@ -171,10 +167,8 @@ export abstract class ApiService {
 
   abstract getProfile(): Promise<ProfileResponse>;
   abstract getUserSubscription(): Promise<SubscriptionResponse>;
-  abstract getTaxInfo(): Promise<TaxInfoResponse>;
   abstract putProfile(request: UpdateProfileRequest): Promise<ProfileResponse>;
   abstract putAvatar(request: UpdateAvatarRequest): Promise<ProfileResponse>;
-  abstract putTaxInfo(request: TaxInfoUpdateRequest): Promise<any>;
   abstract postPrelogin(request: PreloginRequest): Promise<PreloginResponse>;
   abstract postEmailToken(request: EmailTokenRequest): Promise<any>;
   abstract postEmail(request: EmailRequest): Promise<any>;
@@ -185,7 +179,6 @@ export abstract class ApiService {
   abstract postPremium(data: FormData): Promise<PaymentResponse>;
   abstract postReinstatePremium(): Promise<any>;
   abstract postAccountStorage(request: StorageRequest): Promise<PaymentResponse>;
-  abstract postAccountPayment(request: PaymentRequest): Promise<void>;
   abstract postAccountLicense(data: FormData): Promise<any>;
   abstract postAccountKeys(request: KeysRequest): Promise<any>;
   abstract postAccountVerifyEmail(): Promise<any>;
@@ -209,7 +202,6 @@ export abstract class ApiService {
   abstract getLastAuthRequest(): Promise<AuthRequestResponse>;
 
   abstract getUserBillingHistory(): Promise<BillingHistoryResponse>;
-  abstract getUserBillingPayment(): Promise<BillingPaymentResponse>;
 
   abstract getCipher(id: string): Promise<CipherResponse>;
   abstract getFullCipherDetails(id: string): Promise<CipherResponse>;

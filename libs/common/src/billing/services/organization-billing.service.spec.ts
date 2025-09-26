@@ -23,7 +23,6 @@ import { OrganizationResponse } from "../../admin-console/models/response/organi
 import { EncString } from "../../key-management/crypto/models/enc-string";
 import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
 import { OrgKey } from "../../types/key";
-import { PaymentMethodResponse } from "../models/response/payment-method.response";
 
 describe("OrganizationBillingService", () => {
   let apiService: jest.Mocked<ApiService>;
@@ -62,47 +61,6 @@ describe("OrganizationBillingService", () => {
     return jest.resetAllMocks();
   });
 
-  describe("getPaymentSource()", () => {
-    it("given a valid organization id, then it returns a payment source", async () => {
-      //Arrange
-      const orgId = "organization-test";
-      const paymentMethodResponse = {
-        paymentSource: { type: PaymentMethodType.Card },
-      } as PaymentMethodResponse;
-      billingApiService.getOrganizationPaymentMethod.mockResolvedValue(paymentMethodResponse);
-
-      //Act
-      const returnedPaymentSource = await sut.getPaymentSource(orgId);
-
-      //Assert
-      expect(billingApiService.getOrganizationPaymentMethod).toHaveBeenCalledTimes(1);
-      expect(returnedPaymentSource).toEqual(paymentMethodResponse.paymentSource);
-    });
-
-    it("given an invalid organizationId, it should return undefined", async () => {
-      //Arrange
-      const orgId = "invalid-id";
-      billingApiService.getOrganizationPaymentMethod.mockResolvedValue(null);
-
-      //Act
-      const returnedPaymentSource = await sut.getPaymentSource(orgId);
-
-      //Assert
-      expect(billingApiService.getOrganizationPaymentMethod).toHaveBeenCalledTimes(1);
-      expect(returnedPaymentSource).toBeUndefined();
-    });
-
-    it("given an API error occurs, then it throws the error", async () => {
-      // Arrange
-      const orgId = "error-org";
-      billingApiService.getOrganizationPaymentMethod.mockRejectedValue(new Error("API Error"));
-
-      // Act & Assert
-      await expect(sut.getPaymentSource(orgId)).rejects.toThrow("API Error");
-      expect(billingApiService.getOrganizationPaymentMethod).toHaveBeenCalledTimes(1);
-    });
-  });
-
   describe("purchaseSubscription()", () => {
     it("given valid subscription information, then it returns successful response", async () => {
       //Arrange
@@ -118,7 +76,7 @@ describe("OrganizationBillingService", () => {
       const organizationResponse = {
         name: subscriptionInformation.organization.name,
         billingEmail: subscriptionInformation.organization.billingEmail,
-        planType: subscriptionInformation.plan.type,
+        planType: subscriptionInformation.plan!.type,
       } as OrganizationResponse;
 
       organizationApiService.create.mockResolvedValue(organizationResponse);
@@ -201,8 +159,8 @@ describe("OrganizationBillingService", () => {
 
       const organizationResponse = {
         name: subscriptionInformation.organization.name,
-        plan: { type: subscriptionInformation.plan.type },
-        planType: subscriptionInformation.plan.type,
+        plan: { type: subscriptionInformation.plan!.type },
+        planType: subscriptionInformation.plan!.type,
       } as OrganizationResponse;
 
       organizationApiService.createWithoutPayment.mockResolvedValue(organizationResponse);
@@ -262,7 +220,7 @@ describe("OrganizationBillingService", () => {
       const organizationResponse = {
         name: subscriptionInformation.organization.name,
         billingEmail: subscriptionInformation.organization.billingEmail,
-        planType: subscriptionInformation.plan.type,
+        planType: subscriptionInformation.plan!.type,
       } as OrganizationResponse;
 
       organizationApiService.create.mockResolvedValue(organizationResponse);

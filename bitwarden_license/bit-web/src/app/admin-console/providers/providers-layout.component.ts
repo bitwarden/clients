@@ -47,7 +47,6 @@ export class ProvidersLayoutComponent implements OnInit, OnDestroy {
   protected canAccessBilling$: Observable<boolean>;
 
   protected clientsTranslationKey$: Observable<string>;
-  protected managePaymentDetailsOutsideCheckout$: Observable<boolean>;
   protected providerPortalTakeover$: Observable<boolean>;
 
   protected subscriber$: Observable<NonIndividualSubscriber>;
@@ -98,10 +97,6 @@ export class ProvidersLayoutComponent implements OnInit, OnDestroy {
       map((provider) =>
         provider.providerType === ProviderType.BusinessUnit ? "businessUnits" : "clients",
       ),
-    );
-
-    this.managePaymentDetailsOutsideCheckout$ = this.configService.getFeatureFlag$(
-      FeatureFlag.PM21881_ManagePaymentDetailsOutsideCheckout,
     );
 
     this.provider$

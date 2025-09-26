@@ -1,3 +1,5 @@
+import { PaymentMethodType } from "@bitwarden/common/billing/enums";
+
 export const TokenizablePaymentMethods = {
   bankAccount: "bankAccount",
   card: "card",
@@ -14,6 +16,34 @@ export type TokenizablePaymentMethod =
 export const isTokenizablePaymentMethod = (value: string): value is TokenizablePaymentMethod => {
   const valid = Object.values(TokenizablePaymentMethods) as readonly string[];
   return valid.includes(value);
+};
+
+export const tokenizablePaymentMethodFromLegacyEnum = (
+  legacyEnum: PaymentMethodType,
+): TokenizablePaymentMethod | null => {
+  switch (legacyEnum) {
+    case PaymentMethodType.BankAccount:
+      return "bankAccount";
+    case PaymentMethodType.Card:
+      return "card";
+    case PaymentMethodType.PayPal:
+      return "payPal";
+    default:
+      return null;
+  }
+};
+
+export const tokenizablePaymentMethodToLegacyEnum = (
+  paymentMethod: TokenizablePaymentMethod,
+): PaymentMethodType => {
+  switch (paymentMethod) {
+    case "bankAccount":
+      return PaymentMethodType.BankAccount;
+    case "card":
+      return PaymentMethodType.Card;
+    case "payPal":
+      return PaymentMethodType.PayPal;
+  }
 };
 
 export type TokenizedPaymentMethod = {

@@ -37,6 +37,10 @@ export abstract class SubmitPaymentMethodDialogComponent {
     }
 
     const paymentMethod = await this.enterPaymentMethodComponent.tokenize();
+    if (!paymentMethod) {
+      return;
+    }
+
     const billingAddress =
       this.formGroup.value.type !== "payPal"
         ? this.formGroup.controls.billingAddress.getRawValue()

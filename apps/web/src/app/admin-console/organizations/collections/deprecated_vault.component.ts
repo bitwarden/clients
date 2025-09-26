@@ -41,9 +41,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { EventType } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -220,7 +218,6 @@ export class VaultComponent implements OnInit, OnDestroy {
     private totpService: TotpService,
     private apiService: ApiService,
     private toastService: ToastService,
-    private configService: ConfigService,
     private cipherFormConfigService: CipherFormConfigService,
     protected billingApiService: BillingApiServiceAbstraction,
     private accountService: AccountService,
@@ -680,13 +677,12 @@ export class VaultComponent implements OnInit, OnDestroy {
   }
 
   async navigateToPaymentMethod() {
-    const managePaymentDetailsOutsideCheckout = await this.configService.getFeatureFlag(
-      FeatureFlag.PM21881_ManagePaymentDetailsOutsideCheckout,
+    await this.router.navigate(
+      ["organizations", `${this.organization?.id}`, "billing", "payment-details"],
+      {
+        state: { launchPaymentModalAutomatically: true },
+      },
     );
-    const route = managePaymentDetailsOutsideCheckout ? "payment-details" : "payment-method";
-    await this.router.navigate(["organizations", `${this.organization?.id}`, "billing", route], {
-      state: { launchPaymentModalAutomatically: true },
-    });
   }
 
   addAccessToggle(e: AddAccessStatusType) {
