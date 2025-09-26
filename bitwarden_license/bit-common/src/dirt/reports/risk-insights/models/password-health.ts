@@ -1,9 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { BadgeVariant } from "@bitwarden/components";
-import { EncString } from "@bitwarden/sdk-internal";
 
 import { ApplicationHealthReportDetail } from "./report-models";
 
@@ -40,7 +40,7 @@ export type ExposedPasswordDetail = {
 export interface EncryptedDataWithKey {
   organizationId: OrganizationId;
   encryptedData: EncString;
-  encryptionKey: EncString;
+  contentEncryptionKey: EncString;
 }
 
 export type LEGACY_MemberDetailsFlat = {
@@ -76,10 +76,3 @@ export type LEGACY_CipherHealthReportUriDetail = {
   trimmedUri: string;
   cipher: CipherView;
 };
-
-export interface EncryptedDataModel {
-  organizationId: OrganizationId;
-  encryptedData: string;
-  encryptionKey: string;
-  date: Date;
-}

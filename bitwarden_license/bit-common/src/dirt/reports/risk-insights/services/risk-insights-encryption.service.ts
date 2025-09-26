@@ -51,13 +51,13 @@ export class RiskInsightsEncryptionService {
       throw new Error("Encryption failed, encrypted strings are null");
     }
 
-    const encryptedData = dataEncrypted.encryptedString;
-    const encryptionKey = wrappedEncryptionKey.encryptedString;
+    const encryptedData = dataEncrypted;
+    const contentEncryptionKeyString = wrappedEncryptionKey;
 
-    const encryptedDataPacket = {
-      organizationId: organizationId,
-      encryptedData: encryptedData,
-      encryptionKey: encryptionKey,
+    const encryptedDataPacket: EncryptedDataWithKey = {
+      organizationId,
+      encryptedData,
+      contentEncryptionKey: contentEncryptionKeyString,
     };
 
     return encryptedDataPacket;

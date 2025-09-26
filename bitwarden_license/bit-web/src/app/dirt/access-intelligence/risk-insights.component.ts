@@ -146,6 +146,9 @@ export class RiskInsightsComponent implements OnInit {
         this._isDrawerOpen = details.open;
       });
   }
+  runReport = () => {
+    this.dataService.triggerReport();
+  };
 
   /**
    * Refreshes the data by re-fetching the applications report.

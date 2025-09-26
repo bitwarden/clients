@@ -1,29 +1,38 @@
-import { from, Observable } from "rxjs";
+import { catchError, from, map, Observable, of, throwError } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { OrganizationId, OrganizationReportId } from "@bitwarden/common/types/guid";
 
 import {
+  GetRiskInsightsApplicationDataResponse,
   GetRiskInsightsReportResponse,
+  GetRiskInsightsSummaryResponse,
   SaveRiskInsightsReportRequest,
   SaveRiskInsightsReportResponse,
 } from "../models/api-models.types";
-import { EncryptedDataModel } from "../models/password-health";
+import { EncryptedDataWithKey } from "../models/password-health";
 
 export class RiskInsightsApiService {
   constructor(private apiService: ApiService) {}
 
   getRiskInsightsReport$(orgId: OrganizationId): Observable<GetRiskInsightsReportResponse | null> {
-    const dbResponse = this.apiService
-      .send("GET", `/reports/organizations/${orgId.toString()}/latest`, null, true, true)
-      .catch((error: any): any => {
-        if (error.statusCode === 404) {
-          return null; // Handle 404 by returning null or an appropriate default value
+    const dbResponse = this.apiService.send(
+      "GET",
+      `/reports/organizations/${orgId.toString()}/latest`,
+      null,
+      true,
+      true,
+    );
+    return from(dbResponse).pipe(
+      map((response) => new GetRiskInsightsReportResponse(response)),
+      catchError((error: unknown) => {
+        if (error instanceof ErrorResponse && error.statusCode === 404) {
+          return of(null); // Handle 404 by returning null or an appropriate default value
         }
-        throw error; // Re-throw other errors
-      });
-
-    return from(dbResponse as Promise<GetRiskInsightsReportResponse>);
+        return throwError(() => error); // Re-throw other errors
+      }),
+    );
   }
 
   saveRiskInsightsReport$(
@@ -38,14 +47,14 @@ export class RiskInsightsApiService {
       true,
     );
 
-    return from(dbResponse as Promise<SaveRiskInsightsReportResponse>);
+    return from(dbResponse).pipe(map((response) => new SaveRiskInsightsReportResponse(response)));
   }
 
   getRiskInsightsSummary$(
     orgId: string,
     minDate: Date,
     maxDate: Date,
-  ): Observable<EncryptedDataModel[]> {
+  ): Observable<GetRiskInsightsSummaryResponse> {
     const minDateStr = minDate.toISOString().split("T")[0];
     const maxDateStr = maxDate.toISOString().split("T")[0];
     const dbResponse = this.apiService.send(
@@ -56,11 +65,11 @@ export class RiskInsightsApiService {
       true,
     );
 
-    return from(dbResponse as Promise<EncryptedDataModel[]>);
+    return from(dbResponse).pipe(map((response) => new GetRiskInsightsSummaryResponse(response)));
   }
 
   updateRiskInsightsSummary$(
-    summaryData: EncryptedDataModel,
+    summaryData: EncryptedDataWithKey,
     organizationId: OrganizationId,
     reportId: OrganizationReportId,
   ): Observable<void> {
@@ -78,7 +87,7 @@ export class RiskInsightsApiService {
   getRiskInsightsApplicationData$(
     orgId: OrganizationId,
     reportId: OrganizationReportId,
-  ): Observable<EncryptedDataModel | null> {
+  ): Observable<GetRiskInsightsApplicationDataResponse> {
     const dbResponse = this.apiService.send(
       "GET",
       `/reports/organizations/${orgId.toString()}/data/application/${reportId.toString()}`,
@@ -87,11 +96,13 @@ export class RiskInsightsApiService {
       true,
     );
 
-    return from(dbResponse as Promise<EncryptedDataModel | null>);
+    return from(dbResponse).pipe(
+      map((response) => new GetRiskInsightsApplicationDataResponse(response)),
+    );
   }
 
   updateRiskInsightsApplicationData$(
-    applicationData: EncryptedDataModel,
+    applicationData: EncryptedDataWithKey,
     orgId: OrganizationId,
     reportId: OrganizationReportId,
   ): Observable<void> {
