@@ -283,6 +283,16 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
           notification.payload.id,
         );
 
+        /**
+         * This call is necessary for Desktop, which for the time being uses a noop for the
+         * authRequestAnsweringService.receivedPendingAuthRequest() call just above. Desktop
+         * will eventually use the new AuthRequestAnsweringService, at which point we can remove
+         * this second call.
+         *
+         * The Extension AppComponent has logic (see processingPendingAuth) that only allows one
+         * pending auth request to process at a time, so this second call will not cause any
+         * duplicate processing conflicts on Extension.
+         */
         this.messagingService.send("openLoginApproval", {
           notificationId: notification.payload.id,
         });
