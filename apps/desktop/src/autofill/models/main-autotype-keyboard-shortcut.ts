@@ -8,48 +8,45 @@
     This is currently only supported for Windows operating systems.
 */
 export class AutotypeKeyboardShortcut {
-    private readonly defaultWindowsAutotypeKeyboardShorcut: string[] = ["Control", "Shift", "B"];
-    private autotypeKeyboardShortcut: string[];
+  private readonly defaultWindowsAutotypeKeyboardShorcut: string[] = ["Control", "Shift", "B"];
+  private autotypeKeyboardShortcut: string[];
 
-    constructor() {
-        this.autotypeKeyboardShortcut = this.defaultWindowsAutotypeKeyboardShorcut;
-    }
+  constructor() {
+    this.autotypeKeyboardShortcut = this.defaultWindowsAutotypeKeyboardShorcut;
+  }
 
-    /*
+  /*
         Returns a boolean value indicating if the autotypeKeyboardShortcut
         was valid and set or not.
     */
-    set(newAutotypeKeyboardShortcut: string[]) {
-        console.log("!!!!! -----> We are attempting to set the new shortcut");
-        if (!this.#keyboardShortcutIsValid(newAutotypeKeyboardShortcut)) {
-            console.log("!!!!! -----> The shortcut is invalid");
-            return false;
-        }
-
-        console.log("!!!!! -----> The shortcut is valid, setting it to this: " + newAutotypeKeyboardShortcut);
-        this.autotypeKeyboardShortcut = newAutotypeKeyboardShortcut;
-        return true;
+  set(newAutotypeKeyboardShortcut: string[]) {
+    if (!this.#keyboardShortcutIsValid(newAutotypeKeyboardShortcut)) {
+      return false;
     }
 
-    /*
+    this.autotypeKeyboardShortcut = newAutotypeKeyboardShortcut;
+    return true;
+  }
+
+  /*
         Returns the autotype keyboard shortcut as a string array.
     */
-    getArrayFormat() {
-        return this.autotypeKeyboardShortcut;
-    }
+  getArrayFormat() {
+    return this.autotypeKeyboardShortcut;
+  }
 
-    /*
+  /*
         Returns the autotype keyboard shortcut as a single string, as
         Electron expects. Please note this does not reorder the keys.
 
         See Electron keyboard shorcut docs for more info:
         https://www.electronjs.org/docs/latest/tutorial/keyboard-shortcuts
     */
-    getElectronFormat() {
-        return this.autotypeKeyboardShortcut.join("+");
-    }
+  getElectronFormat() {
+    return this.autotypeKeyboardShortcut.join("+");
+  }
 
-    /*
+  /*
         This private function validates the strArray input to make sure the array contains
         valid, currently accepted shortcut keys for Windows.
 
@@ -59,35 +56,42 @@ export class AutotypeKeyboardShortcut {
         See Electron keyboard shorcut docs for more info:
         https://www.electronjs.org/docs/latest/tutorial/keyboard-shortcuts
     */
-    #keyboardShortcutIsValid(strArray: string[]) {
-        const VALID_SHORTCUT_CONTROL_KEYS: string[] = ["Control", "Alt", "Super", "Shift"];
-        const UNICODE_LOWER_BOUND = 65; // 'A' in base 10
-        const UNICODE_UPPER_BOUND = 90; // 'Z' in base 10
-        const MIN_LENGTH: number = 2;
-        const MAX_LENGTH: number = 3;
+  #keyboardShortcutIsValid(strArray: string[]) {
+    const VALID_SHORTCUT_CONTROL_KEYS: string[] = ["Control", "Alt", "Super", "Shift"];
+    const UNICODE_LOWER_BOUND = 65; // unicode 'A'
+    const UNICODE_UPPER_BOUND = 90; // unicode 'Z'
+    const MIN_LENGTH: number = 2;
+    const MAX_LENGTH: number = 3;
 
-        // Ensure strArray is a string array of valid length
-        if (strArray === undefined || strArray === null || strArray.length < MIN_LENGTH || strArray.length > MAX_LENGTH) {
-            return false;
-        }
-
-        // Ensure strArray is all modifier keys, and that the last key is a modifier key OR a letter key
-        for (let i = 0; i < strArray.length; i++) {
-            if (i < strArray.length - 1) {
-                if (!VALID_SHORTCUT_CONTROL_KEYS.includes(strArray[i])) {
-                    return false;
-                }
-            } else {
-                if (!VALID_SHORTCUT_CONTROL_KEYS.includes(strArray[i])) {
-                    let unicodeValue: number = strArray[i].charCodeAt(0);
-
-                    if (Number.isNaN(unicodeValue) || unicodeValue < UNICODE_LOWER_BOUND || unicodeValue > UNICODE_UPPER_BOUND) {
-                        return false;
-                    }
-                }
-            }
-        }
-
-        return true;
+    // Ensure strArray is a string array of valid length
+    if (
+      strArray === undefined ||
+      strArray === null ||
+      strArray.length < MIN_LENGTH ||
+      strArray.length > MAX_LENGTH
+    ) {
+      return false;
     }
+
+    // Ensure strArray is all modifier keys, and that the last key is a letter
+    for (let i = 0; i < strArray.length; i++) {
+      if (i < strArray.length - 1) {
+        if (!VALID_SHORTCUT_CONTROL_KEYS.includes(strArray[i])) {
+          return false;
+        }
+      } else {
+        const unicodeValue: number = strArray[i].charCodeAt(0);
+
+        if (
+          Number.isNaN(unicodeValue) ||
+          unicodeValue < UNICODE_LOWER_BOUND ||
+          unicodeValue > UNICODE_UPPER_BOUND
+        ) {
+          return false;
+        }
+      }
+    }
+
+    return true;
+  }
 }

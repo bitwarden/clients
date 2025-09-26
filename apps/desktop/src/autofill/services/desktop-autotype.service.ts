@@ -38,13 +38,15 @@ export const AUTOTYPE_KEYBOARD_SHORTCUT = new KeyDefinition<string[]>(
 );
 
 export class DesktopAutotypeService {
-  private readonly defaultWindowsAutotypeKeyboardShorcut: string[] = ["Control", "Shift", "A"];
+  private readonly defaultWindowsAutotypeKeyboardShorcut: string[] = ["Control", "Shift", "B"];
   private readonly autotypeEnabledState = this.globalStateProvider.get(AUTOTYPE_ENABLED);
-  private readonly autotypeKeyboardShortcut = this.globalStateProvider.get(AUTOTYPE_KEYBOARD_SHORTCUT);
+  private readonly autotypeKeyboardShortcut = this.globalStateProvider.get(
+    AUTOTYPE_KEYBOARD_SHORTCUT,
+  );
 
   autotypeEnabledUserSetting$: Observable<boolean> = of(false);
   resolvedAutotypeEnabled$: Observable<boolean> = of(false);
-  autotypeKeyboardShortcut$: Observable<string[]> = of([]);
+  autotypeKeyboardShortcut$: Observable<string[]> = of(this.defaultWindowsAutotypeKeyboardShorcut);
 
   constructor(
     private accountService: AccountService,
@@ -94,35 +96,15 @@ export class DesktopAutotypeService {
         ),
       );
 
-      combineLatest([this.resolvedAutotypeEnabled$, this.autotypeKeyboardShortcut$]).subscribe(([resolvedAutotypeEnabled, autotypeKeyboardShortcut]) => {
-        console.log("1: either the resolved value for autotype enabled OR the autotype keyboard shortcut was set / changed.");
-        ipc.autofill.configureAutotype(resolvedAutotypeEnabled, autotypeKeyboardShortcut);
-      });
+      combineLatest([this.resolvedAutotypeEnabled$, this.autotypeKeyboardShortcut$]).subscribe(
+        ([resolvedAutotypeEnabled, autotypeKeyboardShortcut]) => {
+          ipc.autofill.configureAutotype(resolvedAutotypeEnabled, autotypeKeyboardShortcut);
+        },
+      );
     }
   }
 
   async setAutotypeEnabledState(enabled: boolean): Promise<void> {
-
-    /////
-    // let's make sure the storage works
-    // console.log("----- setAutotypeEnabledState() -----");
-    // let currentValue = await firstValueFrom(this.autotypeKeyboardShortcut.state$);
-    // console.log("autotypeKeyboardShortcut current value: " + currentValue);
-
-    // if (currentValue != undefined && currentValue != null && currentValue.length > 0) {
-    //   //console.log("clearing the value");
-    //   //await this.setAutotypeKeyboardShortcutState([]);
-    //   //let newValue = await firstValueFrom(this.autotypeKeyboardShortcut.state$);
-    //   //console.log("autotypeKeyboardShortcut new value: " + newValue);
-    // } else {
-    //   console.log("setting the value");
-    //   await this.setAutotypeKeyboardShortcutState(this.defaultWindowsAutotypeKeyboardShorcut);
-    //   let newValue = await firstValueFrom(this.autotypeKeyboardShortcut.state$);
-    //   console.log("autotypeKeyboardShortcut new value: " + newValue);
-    // }
-    await this.setAutotypeKeyboardShortcutState(this.defaultWindowsAutotypeKeyboardShorcut);
-    /////
-
     await this.autotypeEnabledState.update(() => enabled, {
       shouldUpdate: (currentlyEnabled) => currentlyEnabled !== enabled,
     });

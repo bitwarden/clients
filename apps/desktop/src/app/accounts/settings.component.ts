@@ -58,6 +58,7 @@ import { KeyService, BiometricStateService, BiometricsStatus } from "@bitwarden/
 import { PermitCipherDetailsPopoverComponent } from "@bitwarden/vault";
 
 import { SetPinComponent } from "../../auth/components/set-pin.component";
+import { AutotypeShortcutComponent } from "../../autofill/components/autotype-shortcut.component";
 import { SshAgentPromptType } from "../../autofill/models/ssh-agent-setting";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
 import { DesktopAutotypeService } from "../../autofill/services/desktop-autotype.service";
@@ -65,7 +66,6 @@ import { DesktopBiometricsService } from "../../key-management/biometrics/deskto
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
 import { DesktopPremiumUpgradePromptService } from "../../services/desktop-premium-upgrade-prompt.service";
 import { NativeMessagingManifestService } from "../services/native-messaging-manifest.service";
-import { AutotypeShortcutComponent } from "../../autofill/components/autotype-shortcut.component";
 
 @Component({
   selector: "app-settings",
@@ -175,7 +175,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
       value: false,
       disabled: true,
     }),
-    autotypeShortcut: [null as string[] | null], 
+    autotypeShortcut: [null as string[] | null],
     theme: [null as Theme | null],
     locale: [null as string | null],
   });
@@ -904,7 +904,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
     if (!this.form.value.enableAutotype) {
       this.form.controls.autotypeShortcut.setValue(null, { emitEvent: false });
     } else {
-      const currentShortcut = await firstValueFrom(this.desktopAutotypeService.autotypeKeyboardShortcut$);
+      const currentShortcut = await firstValueFrom(
+        this.desktopAutotypeService.autotypeKeyboardShortcut$,
+      );
       this.form.controls.autotypeShortcut.setValue(currentShortcut, { emitEvent: false });
     }
   }
@@ -912,13 +914,13 @@ export class SettingsComponent implements OnInit, OnDestroy {
   async updateAutotypeShortcut() {
     const dialogRef = AutotypeShortcutComponent.open(this.dialogService);
 
-    let dialogValue = await firstValueFrom(dialogRef.closed);
-    
+    const dialogValue = await firstValueFrom(dialogRef.closed);
+
     if (!dialogValue) {
       return;
     }
 
-    let newShortcutArray = dialogValue.split("+");
+    const newShortcutArray = dialogValue.split("+");
     this.form.controls.autotypeShortcut.setValue(newShortcutArray, { emitEvent: true });
     console.log("settings received the new shortcut: " + dialogValue);
     console.log("settings received the new shortcut array: " + newShortcutArray);

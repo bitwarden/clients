@@ -342,7 +342,9 @@
                     <div class="tw-flex tw-items-center tw-gap-2">
                       {{ "enableAutotypeTransitionKey" | i18n }}
                       <div *ngIf="form.value.enableAutotype">
-                        <code formControlName="autotypeShortcut">{{ form.value.autotypeShortcut.join("+") }}</code>
+                        <code formControlName="autotypeShortcut">{{
+                          form.value.autotypeShortcut.join("+")
+                        }}</code>
                       </div>
                       <app-premium-badge></app-premium-badge>
                     </div>
@@ -351,7 +353,11 @@
                 <small class="help-block" *ngIf="form.value.enableAutotype">
                   <b>{{ "important" | i18n }}</b>
                   {{ "enableAutotypeDescriptionTransitionKey" | i18n }}
-                  <span class="settings-link" *ngIf="this.form.value.enableAutotype" (click)="updateAutotypeShortcut()">
+                  <span
+                    class="settings-link"
+                    *ngIf="this.form.value.enableAutotype"
+                    (click)="updateAutotypeShortcut()"
+                  >
                     {{ "editShortcut" | i18n }}
                   </span></small
                 >

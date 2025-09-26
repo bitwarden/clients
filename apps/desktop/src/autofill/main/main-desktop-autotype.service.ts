@@ -3,9 +3,9 @@ import { ipcMain, globalShortcut } from "electron";
 import { autotype } from "@bitwarden/desktop-napi";
 import { LogService } from "@bitwarden/logging";
 
-import { AutotypeKeyboardShortcut } from "../models/main-autotype-keyboard-shortcut"
 import { WindowMain } from "../../main/window.main";
 import { stringIsNotUndefinedNullAndEmpty } from "../../utils";
+import { AutotypeKeyboardShortcut } from "../models/main-autotype-keyboard-shortcut";
 
 export class MainDesktopAutotypeService {
   autotypeKeyboardShortcut: AutotypeKeyboardShortcut;
@@ -19,16 +19,40 @@ export class MainDesktopAutotypeService {
 
   init() {
     ipcMain.on("autofill.configureAutotype", (event, data) => {
-      console.log("3: autofill.configureAutotype hit in the main process");
+      console.log("autofill.configureAutotype hit in the main process");
 
-      let setCorrectly = this.autotypeKeyboardShortcut.set(data.keyboardShortcut);
-      console.log("Was autotypeKeyboardShortcut set correctly from within the main process? " + setCorrectly);
-      // TODO: What do we do if it wasn't? The value won't change but we need to send a failure message back
+      if (data.enabled) {
+        const newKeyboardShortcut = new AutotypeKeyboardShortcut();
+        const newKeyboardShortcutIsValid = newKeyboardShortcut.set(data.keyboardShortcut);
 
-      if (data.enabled === true && !globalShortcut.isRegistered(this.autotypeKeyboardShortcut.getElectronFormat())) {
-        this.enableAutotype();
-      } else if (data.enabled === false && globalShortcut.isRegistered(this.autotypeKeyboardShortcut.getElectronFormat())) {
-        this.disableAutotype();
+        if (newKeyboardShortcutIsValid) {
+          // Deregister the current keyboard shortcut if needed
+          if (globalShortcut.isRegistered(this.autotypeKeyboardShortcut.getElectronFormat())) {
+            globalShortcut.unregister(this.autotypeKeyboardShortcut.getElectronFormat());
+          }
+
+          this.autotypeKeyboardShortcut = newKeyboardShortcut;
+          this.enableAutotype();
+        } else if (!newKeyboardShortcutIsValid) {
+          // TODO
+          // Autotype is enabled and the new shortcut is invalid
+          // Send an error back to the render process
+        }
+      } else {
+        // Deregister the current keyboard shortcut if needed
+        if (globalShortcut.isRegistered(this.autotypeKeyboardShortcut.getElectronFormat())) {
+          globalShortcut.unregister(this.autotypeKeyboardShortcut.getElectronFormat());
+        }
+
+        // Deregister the incoming keyboard shortcut if needed
+        if (
+          this.autotypeKeyboardShortcut.set(data.keyboardShortcut) &&
+          globalShortcut.isRegistered(this.autotypeKeyboardShortcut.getElectronFormat())
+        ) {
+          globalShortcut.unregister(this.autotypeKeyboardShortcut.getElectronFormat());
+        }
+
+        this.logService.info("Autotype disabled.");
       }
     });
 
@@ -39,27 +63,26 @@ export class MainDesktopAutotypeService {
         stringIsNotUndefinedNullAndEmpty(response.username) &&
         stringIsNotUndefinedNullAndEmpty(response.password)
       ) {
-        this.doAutotype(response.username, response.password, this.autotypeKeyboardShortcut.getArrayFormat());
+        this.doAutotype(
+          response.username,
+          response.password,
+          this.autotypeKeyboardShortcut.getArrayFormat(),
+        );
       }
     });
   }
 
-  disableAutotype() {
-    if (globalShortcut.isRegistered(this.autotypeKeyboardShortcut.getElectronFormat())) {
-      globalShortcut.unregister(this.autotypeKeyboardShortcut.getElectronFormat());
-    }
-
-    this.logService.info("Autotype disabled.");
-  }
-
   private enableAutotype() {
-    const result = globalShortcut.register(this.autotypeKeyboardShortcut.getElectronFormat(), () => {
-      const windowTitle = autotype.getForegroundWindowTitle();
+    const result = globalShortcut.register(
+      this.autotypeKeyboardShortcut.getElectronFormat(),
+      () => {
+        const windowTitle = autotype.getForegroundWindowTitle();
 
-      this.windowMain.win.webContents.send("autofill.listenAutotypeRequest", {
-        windowTitle,
-      });
-    });
+        this.windowMain.win.webContents.send("autofill.listenAutotypeRequest", {
+          windowTitle,
+        });
+      },
+    );
 
     result
       ? this.logService.info("Autotype enabled.")
