@@ -25,46 +25,46 @@
 </div>
 <div class="tw-mt-4 tw-flex tw-flex-col" *ngIf="!(isLoading$ | async) && dataSource.data.length">
   <h2 class="tw-mb-6" bitTypography="h2">{{ "allApplications" | i18n }}</h2>
-  <div class="tw-flex tw-gap-6">
-    <button
-      type="button"
-      class="tw-flex-1"
-      tabindex="0"
-      (click)="showOrgAtRiskMembers('allAppsOrgAtRiskMembers')"
-    >
-      <dirt-card
-        #allAppsOrgAtRiskMembers
-        class="tw-w-full"
-        [ngClass]="{
-          'tw-bg-primary-100':
-            (dataService.drawerDetails$ | async)?.invokerId === 'allAppsOrgAtRiskMembers',
-        }"
-        [title]="'atRiskMembers' | i18n"
-        [value]="applicationSummary.totalAtRiskMemberCount"
-        [maxValue]="applicationSummary.totalMemberCount"
+  @if (dataService.drawerDetails$ | async; as drawerDetails) {
+    <div class="tw-flex tw-gap-6">
+      <button
+        type="button"
+        class="tw-flex-1"
+        tabindex="0"
+        (click)="showOrgAtRiskMembers('allAppsOrgAtRiskMembers')"
       >
-      </dirt-card>
-    </button>
-    <button
-      type="button"
-      class="tw-flex-1"
-      tabindex="0"
-      (click)="showOrgAtRiskApps('allAppsOrgAtRiskApplications')"
-    >
-      <dirt-card
-        #allAppsOrgAtRiskApplications
-        class="tw-w-full"
-        [ngClass]="{
-          'tw-bg-primary-100':
-            (dataService.drawerDetails$ | async)?.invokerId === 'allAppsOrgAtRiskApplications',
-        }"
-        [title]="'atRiskApplications' | i18n"
-        [value]="applicationSummary.totalAtRiskApplicationCount"
-        [maxValue]="applicationSummary.totalApplicationCount"
+        <dirt-card
+          #allAppsOrgAtRiskMembers
+          class="tw-w-full"
+          [ngClass]="{
+            'tw-bg-primary-100': drawerDetails.invokerId === 'allAppsOrgAtRiskMembers',
+          }"
+          [title]="'atRiskMembers' | i18n"
+          [value]="applicationSummary.totalAtRiskMemberCount"
+          [maxValue]="applicationSummary.totalMemberCount"
+        >
+        </dirt-card>
+      </button>
+      <button
+        type="button"
+        class="tw-flex-1"
+        tabindex="0"
+        (click)="showOrgAtRiskApps('allAppsOrgAtRiskApplications')"
       >
-      </dirt-card>
-    </button>
-  </div>
+        <dirt-card
+          #allAppsOrgAtRiskApplications
+          class="tw-w-full"
+          [ngClass]="{
+            'tw-bg-primary-100': drawerDetails.invokerId === 'allAppsOrgAtRiskApplications',
+          }"
+          [title]="'atRiskApplications' | i18n"
+          [value]="applicationSummary.totalAtRiskApplicationCount"
+          [maxValue]="applicationSummary.totalApplicationCount"
+        >
+        </dirt-card>
+      </button>
+    </div>
+  }
   <div class="tw-flex tw-mt-8 tw-mb-4 tw-gap-4">
     <bit-search
       [placeholder]="'searchApps' | i18n"
