@@ -3,13 +3,13 @@
     <ng-container header>
       <th></th>
       <th bitCell></th>
-      <th bitSortable="applicationName" bitCell>{{ "application" | i18n }}</th>
-      <th bitSortable="atRiskPasswordCount" bitCell default="desc">
+      <th bitSortable="applicationName" bitCell tabindex="0">{{ "application" | i18n }}</th>
+      <th bitSortable="atRiskPasswordCount" bitCell default="desc" tabindex="0">
         {{ "atRiskPasswords" | i18n }}
       </th>
-      <th bitSortable="passwordCount" bitCell>{{ "totalPasswords" | i18n }}</th>
-      <th bitSortable="atRiskMemberCount" bitCell>{{ "atRiskMembers" | i18n }}</th>
-      <th bitSortable="memberCount" bitCell>{{ "totalMembers" | i18n }}</th>
+      <th bitSortable="passwordCount" bitCell tabindex="0">{{ "totalPasswords" | i18n }}</th>
+      <th bitSortable="atRiskMemberCount" bitCell tabindex="0">{{ "atRiskMembers" | i18n }}</th>
+      <th bitSortable="memberCount" bitCell tabindex="0">{{ "totalMembers" | i18n }}</th>
     </ng-container>
     <ng-template bitRowDef let-row>
       <td
@@ -128,6 +128,7 @@
           bitIconButton="bwi-ellipsis-v"
           size="small"
           label="{{ 'options' | i18n }}"
+          tabindex="0"
         ></button>
 
         <bit-menu #rowMenu>
