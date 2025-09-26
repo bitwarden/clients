@@ -22,7 +22,7 @@ import {
 import { AutofillInlineMenuButtonIframe } from "../iframe-content/autofill-inline-menu-button-iframe";
 import { AutofillInlineMenuListIframe } from "../iframe-content/autofill-inline-menu-list-iframe";
 
-const TopLayerRefreshBackoffThresholds = { countLimit: 5, timeSpanLimit: 3000 };
+const TopLayerRefreshBackoffThresholds = { countLimit: 5, timeSpanLimit: 5000 };
 
 export class AutofillInlineMenuContentService implements AutofillInlineMenuContentServiceInterface {
   private readonly sendExtensionMessage = sendExtensionMessage;
