@@ -151,8 +151,12 @@ export class Utils {
    *
    * Returns:
    * - Base64 string for non-empty inputs,
-   * - null if `buffer` is `null` or `undefined` or for empty inputs (length 0)
+   * - null if `buffer` is `null` or `undefined`
+   * - empty string if `buffer` is empty (0 bytes)
    */
+  static fromBufferToB64(buffer: null | undefined): null;
+  static fromBufferToB64(buffer: ArrayBuffer): string;
+  static fromBufferToB64(buffer: ArrayBufferView): string;
   static fromBufferToB64(buffer: ArrayBuffer | ArrayBufferView | null | undefined): string | null {
     // Handle null / undefined input
     if (buffer == null) {
@@ -163,7 +167,7 @@ export class Utils {
 
     // Handle empty input
     if (bytes.length === 0) {
-      return null;
+      return "";
     }
 
     if (Utils.isNode) {

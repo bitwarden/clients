@@ -302,10 +302,10 @@ describe("Utils Service", () => {
       expect(b64String).toBe(b64HelloWorldString);
     });
 
-    runInBothEnvironments("should return null for an empty ArrayBuffer", () => {
+    runInBothEnvironments("should return empty string for an empty ArrayBuffer", () => {
       const buffer = new Uint8Array([]).buffer;
       const b64String = Utils.fromBufferToB64(buffer);
-      expect(b64String).toBeNull();
+      expect(b64String).toBe("");
     });
 
     runInBothEnvironments("should return null for null input", () => {
@@ -318,9 +318,9 @@ describe("Utils Service", () => {
       expect(b64).toBeNull();
     });
 
-    runInBothEnvironments("returns null for empty input", () => {
+    runInBothEnvironments("returns empty string for empty input", () => {
       const b64 = Utils.fromBufferToB64(new ArrayBuffer(0));
-      expect(b64).toBeNull();
+      expect(b64).toBe("");
     });
 
     runInBothEnvironments("accepts Uint8Array directly", () => {
@@ -359,12 +359,15 @@ describe("Utils Service", () => {
       expect(b64).toBe(b64HelloWorldString);
     });
 
-    runInBothEnvironments("encodes empty view (offset-length window of zero) as null", () => {
-      const backing = new Uint8Array([1, 2, 3, 4]);
-      const emptyView = new Uint8Array(backing.buffer, 2, 0);
-      const b64 = Utils.fromBufferToB64(emptyView);
-      expect(b64).toBeNull();
-    });
+    runInBothEnvironments(
+      "encodes empty view (offset-length window of zero) as empty string",
+      () => {
+        const backing = new Uint8Array([1, 2, 3, 4]);
+        const emptyView = new Uint8Array(backing.buffer, 2, 0);
+        const b64 = Utils.fromBufferToB64(emptyView);
+        expect(b64).toBe("");
+      },
+    );
 
     runInBothEnvironments("does not mutate the input", () => {
       const original = new Uint8Array(asciiHelloWorldArray);
