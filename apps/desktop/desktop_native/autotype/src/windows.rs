@@ -63,7 +63,7 @@ pub fn type_input(input: Vec<u16>, keyboard_shortcut: Vec<String>) -> Result<(),
 }
 
 /// Converts a valid shortcut key to an "up" keyboard input.
-/// 
+///
 /// `input` must be a valid shortcut key: Control, Alt, Super, Shift, letters a - Z
 fn convert_shortcut_key_to_up_input(key: String) -> Result<INPUT, ()> {
     const SHIFT_KEY: u8 = 0x10;
@@ -86,6 +86,13 @@ fn convert_shortcut_key_to_up_input(key: String) -> Result<INPUT, ()> {
     } else {
         let unicode_value: Vec<u16> = key.encode_utf16().collect();
 
+        // Ensure the encoding is 1 byte, otherwise we could get a false match
+        // on [a-z][A-Z] below
+        if unicode_value.len() != 1 {
+            return Err(());
+        }
+
+        // Ensure the unicode decimal value is a key within: [a-z][A-Z]
         if let Some(key_unicode_value_as_decimal) = unicode_value.first() {
             if (*key_unicode_value_as_decimal >= UPPERCASE_A_UNICODE_DECIMAL_VALUE
                 && *key_unicode_value_as_decimal <= UPPERCASE_Z_UNICODE_DECIMAL_VALUE)
