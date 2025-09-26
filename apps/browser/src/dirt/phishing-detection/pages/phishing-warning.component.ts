@@ -1,10 +1,10 @@
 // eslint-disable-next-line no-restricted-imports
 import { CommonModule } from "@angular/common";
 // eslint-disable-next-line no-restricted-imports
-import { Component, OnDestroy } from "@angular/core";
+import { Component, inject } from "@angular/core";
 // eslint-disable-next-line no-restricted-imports
 import { ActivatedRoute, RouterModule } from "@angular/router";
-import { Subject, takeUntil } from "rxjs";
+import { map } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
@@ -33,26 +33,16 @@ import { PhishingDetectionService } from "../services/phishing-detection.service
     RouterModule,
   ],
 })
-export class PhishingWarning implements OnDestroy {
-  phishingHost = "";
-
-  private destroy$ = new Subject<void>();
-
-  constructor(private activatedRoute: ActivatedRoute) {
-    this.activatedRoute.queryParamMap.pipe(takeUntil(this.destroy$)).subscribe((params) => {
-      this.phishingHost = params.get("phishingHost") || "";
-    });
-  }
+export class PhishingWarning {
+  private activatedRoute = inject(ActivatedRoute);
+  protected phishingHost$ = this.activatedRoute.queryParamMap.pipe(
+    map((params) => params.get("phishingHost") || ""),
+  );
 
   async closeTab() {
     await PhishingDetectionService.requestClosePhishingWarningPage();
   }
   async continueAnyway() {
     await PhishingDetectionService.requestContinueToDangerousUrl();
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 }
