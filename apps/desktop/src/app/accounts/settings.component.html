@@ -340,10 +340,10 @@
                       (change)="saveEnableAutotype()"
                     />
                     <div class="tw-flex tw-items-center tw-gap-2">
-                      {{ "enableAutotypeTransitionKey" | i18n }}
-                      <div *ngIf="form.value.enableAutotype">
+                      {{ "enableAutotypeShortcutPreview" | i18n }}
+                      <div>                        
                         <code formControlName="autotypeShortcut">{{
-                          form.value.autotypeShortcut.join("+")
+                          form.value.autotypeShortcut
                         }}</code>
                       </div>
                       <app-premium-badge></app-premium-badge>

@@ -4081,7 +4081,7 @@
     "message": "Show less"
   },
   "enableAutotype": {
-    "message": "Enable Autotype"
+    "message": " "
   },
   "enableAutotypeDescription": {
     "message": "Bitwarden does not validate input locations, be sure you are in the right window and field before using the shortcut."
@@ -4105,8 +4105,8 @@
   "confirm": {
     "message": "Confirm"
   },
-  "enableAutotypeTransitionKey": {
-    "message": "Enable autotype shortcut"
+  "enableAutotypeShortcutPreview": {
+    "message": "Enable autotype shortcut (Feature Preview)"
   },
   "enableAutotypeDescriptionTransitionKey": {
     "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."

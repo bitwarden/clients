@@ -175,7 +175,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
       value: false,
       disabled: true,
     }),
-    autotypeShortcut: [null as string[] | null],
+    autotypeShortcut: [null as string | null],
     theme: [null as Theme | null],
     locale: [null as string | null],
   });
@@ -400,7 +400,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
       ),
       allowScreenshots: !(await firstValueFrom(this.desktopSettingsService.preventScreenshots$)),
       enableAutotype: await firstValueFrom(this.desktopAutotypeService.autotypeEnabledUserSetting$),
-      autotypeShortcut: await firstValueFrom(this.desktopAutotypeService.autotypeKeyboardShortcut$),
+      autotypeShortcut: (await firstValueFrom(this.desktopAutotypeService.autotypeKeyboardShortcut$)).join("+"),
       theme: await firstValueFrom(this.themeStateService.selectedTheme$),
       locale: await firstValueFrom(this.i18nService.userSetLocale$),
     };
@@ -901,14 +901,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   async saveEnableAutotype() {
     await this.desktopAutotypeService.setAutotypeEnabledState(this.form.value.enableAutotype);
-    if (!this.form.value.enableAutotype) {
-      this.form.controls.autotypeShortcut.setValue(null, { emitEvent: false });
-    } else {
       const currentShortcut = await firstValueFrom(
         this.desktopAutotypeService.autotypeKeyboardShortcut$,
       );
-      this.form.controls.autotypeShortcut.setValue(currentShortcut, { emitEvent: false });
-    }
+      this.form.controls.autotypeShortcut.setValue(currentShortcut.join("+"), { emitEvent: false });
   }
 
   async updateAutotypeShortcut() {
@@ -921,9 +917,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
 
     const newShortcutArray = dialogValue.split("+");
-    this.form.controls.autotypeShortcut.setValue(newShortcutArray, { emitEvent: true });
-    console.log("settings received the new shortcut: " + dialogValue);
-    console.log("settings received the new shortcut array: " + newShortcutArray);
+    this.form.controls.autotypeShortcut.setValue(newShortcutArray.join("+"), { emitEvent: true });
     await this.desktopAutotypeService.setAutotypeKeyboardShortcutState(newShortcutArray);
   }
 
