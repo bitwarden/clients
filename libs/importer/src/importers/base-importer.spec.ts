@@ -23,6 +23,10 @@ class FakeBaseImporter extends BaseImporter {
   processFolder(result: ImportResult, folderName: string, addRelationship: boolean = true): void {
     return super.processFolder(result, folderName, addRelationship);
   }
+
+  cleanupCipher(cipher: CipherView): void {
+    return super.cleanupCipher(cipher);
+  }
 }
 
 describe("processFolder method", () => {
@@ -283,6 +287,60 @@ describe("BaseImporter class", () => {
         </passwordsafe>`;
       const result = importer.parseXml(xml);
       expect(result).toBe(null);
+    });
+  });
+
+  describe("cleanupCipher method", () => {
+    beforeEach(() => {
+      cipher = importer.initLoginCipher();
+    });
+
+    it("should preserve leading and trailing spaces in notes", () => {
+      cipher.notes = "  This note has leading and trailing spaces  ";
+      importer.cleanupCipher(cipher);
+      expect(cipher.notes).toBe("  This note has leading and trailing spaces  ");
+    });
+
+    it("should preserve spaces in the middle of notes", () => {
+      cipher.notes = "This note has   multiple   spaces";
+      importer.cleanupCipher(cipher);
+      expect(cipher.notes).toBe("This note has   multiple   spaces");
+    });
+
+    it("should set notes to null if they contain only whitespace", () => {
+      cipher.notes = "   \t\n  ";
+      importer.cleanupCipher(cipher);
+      expect(cipher.notes).toBe(null);
+    });
+
+    it("should set notes to null if they are empty", () => {
+      cipher.notes = "";
+      importer.cleanupCipher(cipher);
+      expect(cipher.notes).toBe(null);
+    });
+
+    it("should set notes to null if they are null", () => {
+      cipher.notes = null;
+      importer.cleanupCipher(cipher);
+      expect(cipher.notes).toBe(null);
+    });
+
+    it("should preserve normal notes without spaces", () => {
+      cipher.notes = "This is a normal note";
+      importer.cleanupCipher(cipher);
+      expect(cipher.notes).toBe("This is a normal note");
+    });
+
+    it("should set name to '--' if it contains only whitespace", () => {
+      cipher.name = "   \t\n  ";
+      importer.cleanupCipher(cipher);
+      expect(cipher.name).toBe("--");
+    });
+
+    it("should preserve normal names", () => {
+      cipher.name = "Test Item";
+      importer.cleanupCipher(cipher);
+      expect(cipher.name).toBe("Test Item");
     });
   });
 });
