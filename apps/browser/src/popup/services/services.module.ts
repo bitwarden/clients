@@ -119,10 +119,12 @@ import { SystemNotificationsService } from "@bitwarden/common/platform/system-no
 import { UnsupportedSystemNotificationsService } from "@bitwarden/common/platform/system-notifications/unsupported-system-notifications.service";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { InternalSendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
+import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
 import { InternalFolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { TotpService as TotpServiceAbstraction } from "@bitwarden/common/vault/abstractions/totp.service";
+import { DefaultCipherArchiveService } from "@bitwarden/common/vault/services/default-cipher-archive.service";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { TotpService } from "@bitwarden/common/vault/services/totp.service";
 import {
@@ -145,8 +147,6 @@ import {
   DefaultSshImportPromptService,
   PasswordRepromptService,
   SshImportPromptService,
-  CipherArchiveService,
-  DefaultCipherArchiveService,
 } from "@bitwarden/vault";
 
 import { AccountSwitcherService } from "../../auth/popup/account-switching/services/account-switcher.service";
@@ -708,14 +708,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: CipherArchiveService,
     useClass: DefaultCipherArchiveService,
-    deps: [
-      CipherService,
-      ApiService,
-      DialogService,
-      PasswordRepromptService,
-      BillingAccountProfileStateService,
-      ConfigService,
-    ],
+    deps: [CipherService, ApiService, BillingAccountProfileStateService, ConfigService],
   }),
 ];
 

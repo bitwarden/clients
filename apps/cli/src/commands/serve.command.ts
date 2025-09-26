@@ -51,7 +51,7 @@ export class ServeCommand {
       .use(koaBodyParser())
       .use(koaJson({ pretty: false, param: "pretty" }));
 
-    this.serveConfigurator.configureRouter(router);
+    await this.serveConfigurator.configureRouter(router);
 
     server.use(router.routes()).use(router.allowedMethods());
 
