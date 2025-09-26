@@ -21,7 +21,7 @@ export class DesktopAutotypeDefaultSettingPolicy {
   ) {}
 
   /**
-   * Emits the autotype policy enabled status (true | false | null) when account is unlocked and WindowsDesktopAutotype is enabled.
+   * Emits the autotype policy enabled status when account is unlocked and WindowsDesktopAutotype is enabled.
    * - true: autotype policy exists and is enabled
    * - null: no autotype policy exists for the user's organization
    */
