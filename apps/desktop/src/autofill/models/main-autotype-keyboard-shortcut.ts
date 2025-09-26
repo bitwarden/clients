@@ -1,24 +1,25 @@
-/*
-    This class provides the following:
-    - A way to get and set an AutotypeKeyboardShortcut value within the main process
-    - A way to set an AutotypeKeyboardShortcut with validation
-    - A way to "get" the value in string array format or a single string format for electron
-    - Default shortcut support
+import { defaultWindowsAutotypeKeyboardShorcut } from "../services/desktop-autotype.service";
 
-    This is currently only supported for Windows operating systems.
+/*
+  This class provides the following:
+  - A way to get and set an AutotypeKeyboardShortcut value within the main process
+  - A way to set an AutotypeKeyboardShortcut with validation
+  - A way to "get" the value in string array format or a single string format for electron
+  - Default shortcut support
+
+  This is currently only supported for Windows operating systems.
 */
 export class AutotypeKeyboardShortcut {
-  private readonly defaultWindowsAutotypeKeyboardShorcut: string[] = ["Control", "Shift", "B"];
   private autotypeKeyboardShortcut: string[];
 
   constructor() {
-    this.autotypeKeyboardShortcut = this.defaultWindowsAutotypeKeyboardShorcut;
+    this.autotypeKeyboardShortcut = defaultWindowsAutotypeKeyboardShorcut;
   }
 
   /*
-        Returns a boolean value indicating if the autotypeKeyboardShortcut
-        was valid and set or not.
-    */
+    Returns a boolean value indicating if the autotypeKeyboardShortcut
+    was valid and set or not.
+  */
   set(newAutotypeKeyboardShortcut: string[]) {
     if (!this.#keyboardShortcutIsValid(newAutotypeKeyboardShortcut)) {
       return false;
@@ -29,33 +30,33 @@ export class AutotypeKeyboardShortcut {
   }
 
   /*
-        Returns the autotype keyboard shortcut as a string array.
-    */
+    Returns the autotype keyboard shortcut as a string array.
+  */
   getArrayFormat() {
     return this.autotypeKeyboardShortcut;
   }
 
   /*
-        Returns the autotype keyboard shortcut as a single string, as
-        Electron expects. Please note this does not reorder the keys.
+    Returns the autotype keyboard shortcut as a single string, as
+    Electron expects. Please note this does not reorder the keys.
 
-        See Electron keyboard shorcut docs for more info:
-        https://www.electronjs.org/docs/latest/tutorial/keyboard-shortcuts
-    */
+    See Electron keyboard shorcut docs for more info:
+    https://www.electronjs.org/docs/latest/tutorial/keyboard-shortcuts
+  */
   getElectronFormat() {
     return this.autotypeKeyboardShortcut.join("+");
   }
 
   /*
-        This private function validates the strArray input to make sure the array contains
-        valid, currently accepted shortcut keys for Windows.
+    This private function validates the strArray input to make sure the array contains
+    valid, currently accepted shortcut keys for Windows.
 
-        Valid windows shortcut keys: Control, Alt, Super, Shift, letters A - Z
-        Valid macOS shortcut keys: Control, Alt, Command, Shift, letters A - Z (not yet supported)
+    Valid windows shortcut keys: Control, Alt, Super, Shift, letters A - Z
+    Valid macOS shortcut keys: Control, Alt, Command, Shift, letters A - Z (not yet supported)
 
-        See Electron keyboard shorcut docs for more info:
-        https://www.electronjs.org/docs/latest/tutorial/keyboard-shortcuts
-    */
+    See Electron keyboard shorcut docs for more info:
+    https://www.electronjs.org/docs/latest/tutorial/keyboard-shortcuts
+  */
   #keyboardShortcutIsValid(strArray: string[]) {
     const VALID_SHORTCUT_CONTROL_KEYS: string[] = ["Control", "Alt", "Super", "Shift"];
     const UNICODE_LOWER_BOUND = 65; // unicode 'A'

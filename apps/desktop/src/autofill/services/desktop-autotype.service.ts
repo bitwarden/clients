@@ -19,6 +19,8 @@ import { UserId } from "@bitwarden/user-core";
 
 import { DesktopAutotypeDefaultSettingPolicy } from "./desktop-autotype-policy.service";
 
+export const defaultWindowsAutotypeKeyboardShorcut: string[] = ["Control", "Shift", "B"];
+
 export const AUTOTYPE_ENABLED = new KeyDefinition<boolean | null>(
   AUTOTYPE_SETTINGS_DISK,
   "autotypeEnabled",
@@ -39,7 +41,6 @@ export const AUTOTYPE_KEYBOARD_SHORTCUT = new KeyDefinition<string[]>(
 );
 
 export class DesktopAutotypeService {
-  private readonly defaultWindowsAutotypeKeyboardShorcut: string[] = ["Control", "Shift", "B"];
   private readonly autotypeEnabledState = this.globalStateProvider.get(AUTOTYPE_ENABLED);
   private readonly autotypeKeyboardShortcut = this.globalStateProvider.get(
     AUTOTYPE_KEYBOARD_SHORTCUT,
@@ -47,7 +48,7 @@ export class DesktopAutotypeService {
 
   autotypeEnabledUserSetting$: Observable<boolean> = of(false);
   resolvedAutotypeEnabled$: Observable<boolean> = of(false);
-  autotypeKeyboardShortcut$: Observable<string[]> = of(this.defaultWindowsAutotypeKeyboardShorcut);
+  autotypeKeyboardShortcut$: Observable<string[]> = of(defaultWindowsAutotypeKeyboardShorcut);
 
   constructor(
     private accountService: AccountService,
