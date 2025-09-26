@@ -361,7 +361,9 @@ form,
 }
 
 .settings-link {
-  color: #175ddc;
+  @include themify($themes) {
+    color: themed("primaryColor");
+  }
   font-weight: bold;
 }
 
