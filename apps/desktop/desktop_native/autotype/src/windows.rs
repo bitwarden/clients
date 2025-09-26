@@ -62,7 +62,9 @@ pub fn type_input(input: Vec<u16>, keyboard_shortcut: Vec<String>) -> Result<(),
     send_input(keyboard_inputs)
 }
 
-/// Converts a valid shortcut key to an "up" keyboard input
+/// Converts a valid shortcut key to an "up" keyboard input.
+/// 
+/// `input` must be a valid shortcut key: Control, Alt, Super, Shift, letters a - Z
 fn convert_shortcut_key_to_up_input(key: String) -> Result<INPUT, ()> {
     const SHIFT_KEY: u8 = 0x10;
     const CONTROL_KEY: u8 = 0x11;
