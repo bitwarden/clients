@@ -83,15 +83,15 @@ export class RiskInsightsDataService {
   isActiveDrawerType$ = (drawerType: DrawerType): Observable<boolean> => {
     return this.drawerDetails$.pipe(map((details) => details.activeDrawerType === drawerType));
   };
-  isActiveDrawerType = (drawerType: DrawerType): Observable<boolean> => {
-    return this.drawerDetails$.pipe(map((details) => details.activeDrawerType === drawerType));
+  isActiveDrawerType = (drawerType: DrawerType): boolean => {
+    return this.drawerDetailsSubject.value.activeDrawerType === drawerType;
   };
 
   isDrawerOpenForInvoker$ = (applicationName: string) => {
     return this.drawerDetails$.pipe(map((details) => details.invokerId === applicationName));
   };
-  isDrawerOpenForInvoker = (applicationName: string) => {
-    return this.drawerDetails$.pipe(map((details) => details.invokerId === applicationName));
+  isDrawerOpenForInvoker = (applicationName: string): boolean => {
+    return this.drawerDetailsSubject.value.invokerId === applicationName;
   };
 
   closeDrawer = (): void => {
