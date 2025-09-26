@@ -30,8 +30,6 @@ pub fn get_foreground_window_title() -> std::result::Result<String, ()> {
 ///
 /// https://learn.microsoft.com/en-in/windows/win32/api/winuser/nf-winuser-sendinput
 pub fn type_input(input: Vec<u16>, keyboard_shortcut: Vec<String>) -> Result<(), ()> {
-    println!("type_input hotkey: {:?}", keyboard_shortcut);
-
     const TAB_KEY: u8 = 9;
 
     let mut keyboard_inputs: Vec<INPUT> = Vec::new();
@@ -82,7 +80,7 @@ fn convert_shortcut_key_to_up_input(key: String) -> Result<INPUT, ()> {
     } else {
         Ok(build_unicode_input(
             InputKeyPress::Up,
-            encodeutf16_alphabetic_hotkey(key)?,
+            encode_utf16_alphabetic_hotkey(key)?,
         ))
     }
 }
@@ -90,7 +88,7 @@ fn convert_shortcut_key_to_up_input(key: String) -> Result<INPUT, ()> {
 /// Given a letter that is a String, get the utf16 encoded
 /// decimal version of the letter as long as it meets the
 /// [a-z][A-Z] restriction.
-fn encodeutf16_alphabetic_hotkey(letter: String) -> Result<u16, ()> {
+fn encode_utf16_alphabetic_hotkey(letter: String) -> Result<u16, ()> {
     const UPPERCASE_A_UNICODE_DECIMAL_VALUE: u16 = 65;
     const UPPERCASE_Z_UNICODE_DECIMAL_VALUE: u16 = 90;
     const LOWERCASE_A_UNICODE_DECIMAL_VALUE: u16 = 97;

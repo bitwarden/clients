@@ -19,8 +19,6 @@ export class MainDesktopAutotypeService {
 
   init() {
     ipcMain.on("autofill.configureAutotype", (event, data) => {
-      console.log("autofill.configureAutotype hit in the main process");
-
       if (data.enabled) {
         const newKeyboardShortcut = new AutotypeKeyboardShortcut();
         const newKeyboardShortcutIsValid = newKeyboardShortcut.set(data.keyboardShortcut);
@@ -30,9 +28,7 @@ export class MainDesktopAutotypeService {
           this.autotypeKeyboardShortcut = newKeyboardShortcut;
           this.enableAutotype();
         } else if (!newKeyboardShortcutIsValid) {
-          // TODO
-          // Autotype is enabled and the new shortcut is invalid
-          // Send an error back to the render process
+          this.logService.error("Attempting to configure autotype but the shortcut given is invalid.");
         }
       } else {
         this.disableAutotype();
@@ -43,9 +39,8 @@ export class MainDesktopAutotypeService {
           globalShortcut.isRegistered(this.autotypeKeyboardShortcut.getElectronFormat())
         ) {
           globalShortcut.unregister(this.autotypeKeyboardShortcut.getElectronFormat());
+          this.logService.info("Autotype disabled.");
         }
-
-        this.logService.info("Autotype disabled.");
       }
     });
 
@@ -69,9 +64,8 @@ export class MainDesktopAutotypeService {
     // Deregister the current keyboard shortcut if needed
     if (globalShortcut.isRegistered(this.autotypeKeyboardShortcut.getElectronFormat())) {
       globalShortcut.unregister(this.autotypeKeyboardShortcut.getElectronFormat());
+      this.logService.info("Autotype disabled.");
     }
-
-    this.logService.info("Autotype disabled.");
   }
 
   private enableAutotype() {
