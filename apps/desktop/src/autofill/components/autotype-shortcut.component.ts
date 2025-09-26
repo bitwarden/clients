@@ -8,7 +8,6 @@ import {
   AbstractControl,
   ValidationErrors,
 } from "@angular/forms";
-import { firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -41,8 +40,9 @@ export class AutotypeShortcutComponent implements OnInit {
     private accountService: AccountService,
     private dialogRef: DialogRef,
     private formBuilder: FormBuilder,
-    // Autotype service?
   ) {}
+
+  private shortcutArray: string[] = [];
 
   ngOnInit(): void {
     // set form value from state
@@ -60,16 +60,11 @@ export class AutotypeShortcutComponent implements OnInit {
       return;
     }
 
-    const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
-
-    // Save shortcut via autotype service
-    console.log(shortcutFormControl.value);
-
-    this.dialogRef.close(shortcutFormControl.value);
+    this.dialogRef.close(this.shortcutArray);
   };
 
   static open(dialogService: DialogService) {
-    return dialogService.open<string>(AutotypeShortcutComponent);
+    return dialogService.open<string[]>(AutotypeShortcutComponent);
   }
 
   onShortcutKeydown(event: KeyboardEvent): void {
@@ -118,6 +113,8 @@ export class AutotypeShortcutComponent implements OnInit {
       parts.push("Shift");
     }
     parts.push(key.toUpperCase());
+
+    this.shortcutArray = parts;
 
     return parts.join("+");
   }

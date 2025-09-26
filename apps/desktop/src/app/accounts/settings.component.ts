@@ -400,7 +400,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
       ),
       allowScreenshots: !(await firstValueFrom(this.desktopSettingsService.preventScreenshots$)),
       enableAutotype: await firstValueFrom(this.desktopAutotypeService.autotypeEnabledUserSetting$),
-      autotypeShortcut: (await firstValueFrom(this.desktopAutotypeService.autotypeKeyboardShortcut$)).join("+"),
+      autotypeShortcut: (
+        (await firstValueFrom(this.desktopAutotypeService.autotypeKeyboardShortcut$)) ?? []
+      ).join("+"),
       theme: await firstValueFrom(this.themeStateService.selectedTheme$),
       locale: await firstValueFrom(this.i18nService.userSetLocale$),
     };
@@ -901,22 +903,23 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   async saveEnableAutotype() {
     await this.desktopAutotypeService.setAutotypeEnabledState(this.form.value.enableAutotype);
-      const currentShortcut = await firstValueFrom(
-        this.desktopAutotypeService.autotypeKeyboardShortcut$,
-      );
+    const currentShortcut = await firstValueFrom(
+      this.desktopAutotypeService.autotypeKeyboardShortcut$,
+    );
+    if (currentShortcut) {
       this.form.controls.autotypeShortcut.setValue(currentShortcut.join("+"), { emitEvent: false });
+    }
   }
 
   async updateAutotypeShortcut() {
     const dialogRef = AutotypeShortcutComponent.open(this.dialogService);
 
-    const dialogValue = await firstValueFrom(dialogRef.closed);
+    const newShortcutArray = await firstValueFrom(dialogRef.closed);
 
-    if (!dialogValue) {
+    if (!newShortcutArray) {
       return;
     }
 
-    const newShortcutArray = dialogValue.split("+");
     this.form.controls.autotypeShortcut.setValue(newShortcutArray.join("+"), { emitEvent: true });
     await this.desktopAutotypeService.setAutotypeKeyboardShortcutState(newShortcutArray);
   }
