@@ -26,6 +26,7 @@ bitwarden-russh = { workspace = true }
 byteorder = { workspace = true }
 bytes = { workspace = true }
 cbc = { workspace = true, features = ["alloc"] }
+chacha20poly1305 = { workspace = true }
 dirs = { workspace = true }
 ed25519 = { workspace = true, features = ["pkcs8"] }
 futures = { workspace = true }
@@ -38,6 +39,8 @@ rsa = { workspace = true }
 russh-cryptovec = { workspace = true }
 scopeguard = { workspace = true }
 secmem-proc = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
 sha2 = { workspace = true }
 ssh-encoding = { workspace = true }
 ssh-key = { workspace = true, features = [
@@ -64,6 +67,7 @@ windows = { workspace = true, features = [
     "Storage_Streams",
     "Win32_Foundation",
     "Win32_Security_Credentials",
+    "Win32_Security_Cryptography",
     "Win32_System_WinRT",
     "Win32_UI_Input_KeyboardAndMouse",
     "Win32_UI_WindowsAndMessaging",

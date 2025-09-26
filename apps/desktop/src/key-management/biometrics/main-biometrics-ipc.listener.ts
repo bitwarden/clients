@@ -51,6 +51,17 @@ export class MainBiometricsIPCListener {
             return await this.biometricService.setShouldAutopromptNow(message.data as boolean);
           case BiometricAction.GetShouldAutoprompt:
             return await this.biometricService.getShouldAutopromptNow();
+          case BiometricAction.HasPersistentKey:
+            return await this.biometricService.hasPersistentKey(message.userId as UserId);
+          case BiometricAction.EnrollPersistent:
+            return await this.biometricService.enrollPersistent(
+              message.userId as UserId,
+              SymmetricCryptoKey.fromString(message.key as string),
+            );
+          case BiometricAction.EnableWindowsV2:
+            return await this.biometricService.enableWindowsV2Biometrics();
+          case BiometricAction.IsWindowsV2Enabled:
+            return await this.biometricService.isWindowsV2BiometricsEnabled();
           default:
             return;
         }
