@@ -1175,6 +1175,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       pageDetails,
       fillNewPassword: true,
       allowTotpAutofill: true,
+      focusedFieldForm: this.focusedFieldData?.focusedFieldForm,
     });
 
     if (totpCode) {
@@ -1237,7 +1238,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * @param details - The web request details
    */
   private handlePasskeyAuthenticationOnCompleted = (
-    details: chrome.webRequest.WebResponseCacheDetails,
+    details: chrome.webRequest.OnCompletedDetails,
   ) => {
     chrome.webRequest.onCompleted.removeListener(this.handlePasskeyAuthenticationOnCompleted);
 
@@ -1859,6 +1860,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       pageDetails,
       fillNewPassword: true,
       allowTotpAutofill: false,
+      focusedFieldForm: this.focusedFieldData?.focusedFieldForm,
     });
 
     globalThis.setTimeout(async () => {
