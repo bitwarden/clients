@@ -455,12 +455,12 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
     notificationType: NotificationType,
   ): boolean => {
     switch (notificationType) {
-      case NotificationTypes.Change:
-        return modifyLoginData?.newPassword && !modifyLoginData.username;
       case NotificationTypes.Add:
         return (
           modifyLoginData?.username && !!(modifyLoginData.password || modifyLoginData.newPassword)
         );
+      case NotificationTypes.Change:
+        return !!(modifyLoginData.password || modifyLoginData.newPassword);
       case NotificationTypes.AtRiskPassword:
         return !modifyLoginData.newPassword;
       case NotificationTypes.Unlock:
