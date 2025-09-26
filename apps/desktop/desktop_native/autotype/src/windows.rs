@@ -23,7 +23,47 @@ pub fn get_foreground_window_title() -> std::result::Result<String, ()> {
     Ok(window_title)
 }
 
-fn convert_shortcut_key_to_input(key: String) -> Result<INPUT, ()> {
+/// Attempts to type the input text wherever the user's cursor is.
+///
+/// `input` must be a vector of utf-16 encoded characters to insert.
+/// `keyboard_shortcut` must be a vector of Strings, where valid shortcut keys: Control, Alt, Super, Shift, letters A - Z
+///
+/// https://learn.microsoft.com/en-in/windows/win32/api/winuser/nf-winuser-sendinput
+pub fn type_input(input: Vec<u16>, keyboard_shortcut: Vec<String>) -> Result<(), ()> {
+    println!("type_input hotkey: {:?}", keyboard_shortcut);
+
+    const TAB_KEY: u8 = 9;
+
+    let mut keyboard_inputs: Vec<INPUT> = Vec::new();
+
+    // Add key "up" inputs for the shortcut
+    for key in keyboard_shortcut {
+        keyboard_inputs.push(convert_shortcut_key_to_up_input(key)?);
+    }
+
+    // Add key "down" and "up" inputs for the input
+    // (currently in this form: {username}/t{password})
+    for i in input {
+        let next_down_input = if i == TAB_KEY.into() {
+            build_virtual_key_input(InputKeyPress::Down, i as u8)
+        } else {
+            build_unicode_input(InputKeyPress::Down, i)
+        };
+        let next_up_input = if i == TAB_KEY.into() {
+            build_virtual_key_input(InputKeyPress::Up, i as u8)
+        } else {
+            build_unicode_input(InputKeyPress::Up, i)
+        };
+
+        keyboard_inputs.push(next_down_input);
+        keyboard_inputs.push(next_up_input);
+    }
+
+    send_input(keyboard_inputs)
+}
+
+/// Converts a valid shortcut key to an "up" keyboard input
+fn convert_shortcut_key_to_up_input(key: String) -> Result<INPUT, ()> {
     const SHIFT_KEY: u8 = 0x10;
     const CONTROL_KEY: u8 = 0x11;
     const ALT_KEY: u8 = 0x12;
@@ -48,45 +88,6 @@ fn convert_shortcut_key_to_input(key: String) -> Result<INPUT, ()> {
             Err(())
         }
     }
-}
-
-/// Attempts to type the input text wherever the user's cursor is.
-///
-/// `input` must be a vector of utf-16 encoded characters to insert.
-/// `keyboard_shortcut` must be a vector of Strings, where valid shortcut keys: Control, Alt, Super, Shift, letters A - Z
-///
-/// https://learn.microsoft.com/en-in/windows/win32/api/winuser/nf-winuser-sendinput
-pub fn type_input(input: Vec<u16>, keyboard_shortcut: Vec<String>) -> Result<(), ()> {
-    println!("type_input hotkey: {:?}", keyboard_shortcut);
-
-    const TAB_KEY: u8 = 9;
-
-    let mut keyboard_inputs: Vec<INPUT> = Vec::new();
-
-    // Add key "up" inputs for the shortcut
-    for key in keyboard_shortcut {
-        keyboard_inputs.push(convert_shortcut_key_to_input(key)?);
-    }
-
-    // Add key "down" and "up" inputs for the input
-    // (currently in this form: {username}/t{password})
-    for i in input {
-        let next_down_input = if i == TAB_KEY.into() {
-            build_virtual_key_input(InputKeyPress::Down, i as u8)
-        } else {
-            build_unicode_input(InputKeyPress::Down, i)
-        };
-        let next_up_input = if i == TAB_KEY.into() {
-            build_virtual_key_input(InputKeyPress::Up, i as u8)
-        } else {
-            build_unicode_input(InputKeyPress::Up, i)
-        };
-
-        keyboard_inputs.push(next_down_input);
-        keyboard_inputs.push(next_up_input);
-    }
-
-    send_input(keyboard_inputs)
 }
 
 /// Gets the foreground window handle.
