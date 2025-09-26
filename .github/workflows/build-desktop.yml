@@ -387,6 +387,15 @@ jobs:
           rustup target add aarch64-unknown-linux-musl
           node build.js --target=aarch64-unknown-linux-musl --release
 
+      - name: Check index.d.ts generated
+        if: github.event_name == 'pull_request' && steps.cache.outputs.cache-hit != 'true'
+        working-directory: apps/desktop/desktop_native
+        run: |
+          if ! git diff --quiet --name-only -- napi/index.d.ts; then
+            echo "NAPI index.d.ts doesn't match, make sure to regenerate it and commit it"
+            exit 1
+          fi
+
       - name: Build application
         run: npm run dist:lin:arm64
 
