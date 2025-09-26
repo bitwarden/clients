@@ -550,6 +550,33 @@
   "resetSearch": {
     "message": "Suche zurücksetzen"
   },
+  "archive": {
+    "message": "Archivieren"
+  },
+  "unarchive": {
+    "message": "Archivierung aufheben"
+  },
+  "itemsInArchive": {
+    "message": "Einträge im Archiv"
+  },
+  "noItemsInArchive": {
+    "message": "Kein Eintrag im Archiv"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Archivierte Einträge erscheinen hier und werden von allgemeinen Suchergebnissen und Autofill Vorschlägen ausgeschlossen."
+  },
+  "itemSentToArchive": {
+    "message": "Eintrag an das Archiv gesendet"
+  },
+  "itemRemovedFromArchive": {
+    "message": "Eintrag aus dem Archiv entfernt"
+  },
+  "archiveItem": {
+    "message": "Eintrag archivieren"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Archivierte Einträge sind von allgemeinen Suchergebnissen und Autofill Vorschlägen ausgeschlossen. Sind Sie sicher, dass Sie diesen Eintrag archivieren möchten?"
+  },
   "edit": {
     "message": "Bearbeiten"
   },
@@ -5512,16 +5539,16 @@
     "message": "Willkommen in deinem Tresor!"
   },
   "phishingPageTitle": {
-    "message": "Phishing website"
+    "message": "Phishing Webseite"
   },
   "phishingPageCloseTab": {
-    "message": "Close tab"
+    "message": "Tab schließen"
   },
   "phishingPageContinue": {
-    "message": "Continue"
+    "message": "Weiter"
   },
   "phishingPageLearnWhy": {
-    "message": "Why are you seeing this?"
+    "message": "Warum sehen Sie das?"
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Einträge für die aktuelle Seite automatisch ausfüllen"
