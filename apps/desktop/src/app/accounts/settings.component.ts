@@ -402,7 +402,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
       enableAutotype: await firstValueFrom(this.desktopAutotypeService.autotypeEnabledUserSetting$),
       autotypeShortcut: (
         (await firstValueFrom(this.desktopAutotypeService.autotypeKeyboardShortcut$)) ?? []
-      ).join("+"),
+      )
+        .join("+")
+        .replace("Super", "Win"),
       theme: await firstValueFrom(this.themeStateService.selectedTheme$),
       locale: await firstValueFrom(this.i18nService.userSetLocale$),
     };
@@ -907,7 +909,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
       this.desktopAutotypeService.autotypeKeyboardShortcut$,
     );
     if (currentShortcut) {
-      this.form.controls.autotypeShortcut.setValue(currentShortcut.join("+"), { emitEvent: false });
+      this.form.controls.autotypeShortcut.setValue(
+        currentShortcut.join("+").replace("Super", "Win"),
+      );
     }
   }
 
@@ -920,7 +924,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.form.controls.autotypeShortcut.setValue(newShortcutArray.join("+"), { emitEvent: true });
+    this.form.controls.autotypeShortcut.setValue(
+      newShortcutArray.join("+").replace("Super", "Win"),
+    );
     await this.desktopAutotypeService.setAutotypeKeyboardShortcutState(newShortcutArray);
   }
 

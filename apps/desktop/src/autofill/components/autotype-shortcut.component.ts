@@ -120,7 +120,7 @@ export class AutotypeShortcutComponent implements OnInit {
 
     this.shortcutArray = parts;
 
-    return parts.join("+");
+    return parts.join("+").replace("Super", "Win");
   }
 
   private shortcutCombinationValidator(): ValidatorFn {
@@ -133,7 +133,7 @@ export class AutotypeShortcutComponent implements OnInit {
       // Must include at least one modifier and end with a single alphanumeric
       // Valid examples: Ctrl+A, Alt+5, Shift+Z, Ctrl+Alt+7, Ctrl+Shift+X, Alt+Shift+Q
       const pattern =
-        /^(?=.*\b(Control|Alt|Shift|Super)\b)(?:Control\+)?(?:Alt\+)?(?:Shift\+)?(?:Super\+)?[A-Z]$/i;
+        /^(?=.*\b(Control|Alt|Shift|Win)\b)(?:Control\+)?(?:Alt\+)?(?:Shift\+)?(?:Win\+)?[A-Z]$/i;
       return pattern.test(value) ? null : { invalidShortcut: true };
     };
   }
