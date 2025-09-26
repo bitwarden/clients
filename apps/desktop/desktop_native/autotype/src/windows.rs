@@ -26,7 +26,7 @@ pub fn get_foreground_window_title() -> std::result::Result<String, ()> {
 /// Attempts to type the input text wherever the user's cursor is.
 ///
 /// `input` must be a vector of utf-16 encoded characters to insert.
-/// `keyboard_shortcut` must be a vector of Strings, where valid shortcut keys: Control, Alt, Super, Shift, letters A - Z
+/// `keyboard_shortcut` must be a vector of Strings, where valid shortcut keys: Control, Alt, Super, Shift, letters a - Z
 ///
 /// https://learn.microsoft.com/en-in/windows/win32/api/winuser/nf-winuser-sendinput
 pub fn type_input(input: Vec<u16>, keyboard_shortcut: Vec<String>) -> Result<(), ()> {
@@ -68,6 +68,10 @@ fn convert_shortcut_key_to_up_input(key: String) -> Result<INPUT, ()> {
     const CONTROL_KEY: u8 = 0x11;
     const ALT_KEY: u8 = 0x12;
     const LEFT_WINDOWS_KEY: u8 = 0x5B;
+    const UPPERCASE_A_UNICODE_DECIMAL_VALUE: u16 = 65;
+    const UPPERCASE_Z_UNICODE_DECIMAL_VALUE: u16 = 90;
+    const LOWERCASE_A_UNICODE_DECIMAL_VALUE: u16 = 97;
+    const LOWERCASE_Z_UNICODE_DECIMAL_VALUE: u16 = 122;
 
     if key == "Shift" {
         Ok(build_virtual_key_input(InputKeyPress::Up, SHIFT_KEY))
@@ -79,11 +83,20 @@ fn convert_shortcut_key_to_up_input(key: String) -> Result<INPUT, ()> {
         Ok(build_virtual_key_input(InputKeyPress::Up, LEFT_WINDOWS_KEY))
     } else {
         let unicode_value: Vec<u16> = key.encode_utf16().collect();
+
         if let Some(key_unicode_value_as_decimal) = unicode_value.first() {
-            Ok(build_unicode_input(
-                InputKeyPress::Up,
-                key_unicode_value_as_decimal.clone(),
-            ))
+            if (*key_unicode_value_as_decimal >= UPPERCASE_A_UNICODE_DECIMAL_VALUE
+                && *key_unicode_value_as_decimal <= UPPERCASE_Z_UNICODE_DECIMAL_VALUE)
+                || (*key_unicode_value_as_decimal >= LOWERCASE_A_UNICODE_DECIMAL_VALUE
+                    && *key_unicode_value_as_decimal <= LOWERCASE_Z_UNICODE_DECIMAL_VALUE)
+            {
+                Ok(build_unicode_input(
+                    InputKeyPress::Up,
+                    key_unicode_value_as_decimal.clone(),
+                ))
+            } else {
+                Err(())
+            }
         } else {
             Err(())
         }
