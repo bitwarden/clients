@@ -26,11 +26,7 @@ export class MainDesktopAutotypeService {
         const newKeyboardShortcutIsValid = newKeyboardShortcut.set(data.keyboardShortcut);
 
         if (newKeyboardShortcutIsValid) {
-          // Deregister the current keyboard shortcut if needed
-          if (globalShortcut.isRegistered(this.autotypeKeyboardShortcut.getElectronFormat())) {
-            globalShortcut.unregister(this.autotypeKeyboardShortcut.getElectronFormat());
-          }
-
+          this.disableAutotype();
           this.autotypeKeyboardShortcut = newKeyboardShortcut;
           this.enableAutotype();
         } else if (!newKeyboardShortcutIsValid) {
@@ -39,10 +35,7 @@ export class MainDesktopAutotypeService {
           // Send an error back to the render process
         }
       } else {
-        // Deregister the current keyboard shortcut if needed
-        if (globalShortcut.isRegistered(this.autotypeKeyboardShortcut.getElectronFormat())) {
-          globalShortcut.unregister(this.autotypeKeyboardShortcut.getElectronFormat());
-        }
+        this.disableAutotype();
 
         // Deregister the incoming keyboard shortcut if needed
         if (
@@ -70,6 +63,15 @@ export class MainDesktopAutotypeService {
         );
       }
     });
+  }
+
+  disableAutotype() {
+    // Deregister the current keyboard shortcut if needed
+    if (globalShortcut.isRegistered(this.autotypeKeyboardShortcut.getElectronFormat())) {
+      globalShortcut.unregister(this.autotypeKeyboardShortcut.getElectronFormat());
+    }
+
+    this.logService.info("Autotype disabled.");
   }
 
   private enableAutotype() {
