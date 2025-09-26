@@ -701,18 +701,7 @@ export default class MainBackground {
 
     this.kdfConfigService = new DefaultKdfConfigService(this.stateProvider);
 
-    this.pinService = new PinService(
-      this.accountService,
-      this.cryptoFunctionService,
-      this.encryptService,
-      this.kdfConfigService,
-      this.keyGenerationService,
-      this.logService,
-      this.stateProvider,
-    );
-
     this.keyService = new DefaultKeyService(
-      this.pinService,
       this.masterPasswordService,
       this.keyGenerationService,
       this.cryptoFunctionService,
@@ -723,6 +712,17 @@ export default class MainBackground {
       this.accountService,
       this.stateProvider,
       this.kdfConfigService,
+    );
+
+    this.pinService = new PinService(
+      this.accountService,
+      this.encryptService,
+      this.kdfConfigService,
+      this.keyGenerationService,
+      this.logService,
+      this.stateProvider,
+      this.keyService,
+      this.sdkService,
     );
 
     this.appIdService = new AppIdService(this.storageService, this.logService);
@@ -751,6 +751,7 @@ export default class MainBackground {
       this.biometricStateService,
       this.messagingService,
       this.vaultTimeoutSettingsService,
+      this.pinService,
     );
 
     this.apiService = new ApiService(
@@ -1666,9 +1667,9 @@ export default class MainBackground {
       this.cipherService.clear(userBeingLoggedOut),
       // ! DO NOT REMOVE folderService.clear ! For more information see PM-25660
       this.folderService.clear(userBeingLoggedOut),
-      this.vaultTimeoutSettingsService.clear(userBeingLoggedOut),
       this.biometricStateService.logout(userBeingLoggedOut),
       this.popupViewCacheBackgroundService.clearState(),
+      this.pinService.logout(userBeingLoggedOut),
       /* We intentionally do not clear:
        *  - autofillSettingsService
        *  - badgeSettingsService
