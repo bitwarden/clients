@@ -40,8 +40,6 @@ import { RiskInsightsComponent } from "./risk-insights.component";
     {
       provide: RiskInsightsReportService,
       deps: [
-        PasswordStrengthServiceAbstraction,
-        AuditService,
         CipherService,
         MemberCipherDetailsApiService,
         RiskInsightsApiService,

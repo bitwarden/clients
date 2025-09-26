@@ -14,9 +14,7 @@ import {
   zip,
 } from "rxjs";
 
-import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
-import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -53,8 +51,6 @@ import { RiskInsightsEncryptionService } from "./risk-insights-encryption.servic
 
 export class RiskInsightsReportService {
   constructor(
-    private passwordStrengthService: PasswordStrengthServiceAbstraction,
-    private auditService: AuditService,
     private cipherService: CipherService,
     private memberCipherDetailsApiService: MemberCipherDetailsApiService,
     private riskInsightsApiService: RiskInsightsApiService,
