@@ -4090,7 +4090,10 @@
     "message": "Type shortcut"
   },
   "editAutotypeShortcutDescription": {
-    "message": "Include one of the following modifiers: Ctrl, Alt, or Shift, and a letter or number."
+    "message": "Include one or two of the following modifiers: Ctrl, Alt, Win, or Shift, and a letter."
+  },
+  "invalidShortcut": {
+    "message": "Invalid shortcut"
   },
   "moreBreadcrumbs": {
     "message": "More breadcrumbs",

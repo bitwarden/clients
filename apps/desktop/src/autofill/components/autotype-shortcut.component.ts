@@ -10,6 +10,7 @@ import {
 } from "@angular/forms";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import {
   AsyncActionsModule,
@@ -38,6 +39,7 @@ export class AutotypeShortcutComponent {
   constructor(
     private dialogRef: DialogRef,
     private formBuilder: FormBuilder,
+    private i18nService: I18nService,
   ) {}
 
   private shortcutArray: string[] = [];
@@ -124,11 +126,14 @@ export class AutotypeShortcutComponent {
         return null; // handled by required
       }
 
-      // Must include at least one modifier and end with a single letter
+      // Must include exactly 1-2 modifiers and end with a single letter
       // Valid examples: Ctrl+A, Shift+Z, Ctrl+Shift+X, Alt+Shift+Q
+      // Allow modifiers in any order, but only 1-2 modifiers total
       const pattern =
-        /^(?=.*\b(Control|Alt|Shift|Win)\b)(?:Control\+)?(?:Alt\+)?(?:Shift\+)?(?:Win\+)?[A-Z]$/i;
-      return pattern.test(value) ? null : { invalidShortcut: true };
+        /^(?=.*\b(Control|Alt|Shift|Win)\b)(?:Control\+|Alt\+|Shift\+|Win\+){1,2}[A-Z]$/i;
+      return pattern.test(value)
+        ? null
+        : { invalidShortcut: { message: this.i18nService.t("invalidShortcut") } };
     };
   }
 }
