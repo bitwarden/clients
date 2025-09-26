@@ -306,7 +306,11 @@ export abstract class LoginStrategy {
 
   protected async createKeyPairForOldAccount(userId: UserId) {
     try {
-      const userKey = await this.keyService.getUserKey(userId);
+      const userKey = await firstValueFrom(this.keyService.userKey$(userId));
+      if (userKey === null) {
+        throw new Error("User key is null when creating key pair for old account");
+      }
+
       if (userKey.inner().type == EncryptionType.CoseEncrypt0) {
         throw new Error("Cannot create key pair for account on V2 encryption");
       }

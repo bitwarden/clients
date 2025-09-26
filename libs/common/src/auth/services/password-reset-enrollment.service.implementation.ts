@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { firstValueFrom, map } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -8,9 +8,11 @@ import {
   OrganizationUserApiService,
   OrganizationUserResetPasswordEnrollmentRequest,
 } from "@bitwarden/admin-console/common";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
+import { UserId } from "@bitwarden/user-core";
 
 import { OrganizationApiServiceAbstraction } from "../../admin-console/abstractions/organization/organization-api.service.abstraction";
 import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
@@ -43,7 +45,7 @@ export class PasswordResetEnrollmentServiceImplementation
 
   async enroll(organizationId: string): Promise<void>;
   async enroll(organizationId: string, userId: string, userKey: UserKey): Promise<void>;
-  async enroll(organizationId: string, userId?: string, userKey?: UserKey): Promise<void> {
+  async enroll(organizationId: string, activeUserId?: string, userKey?: UserKey): Promise<void> {
     const orgKeyResponse = await this.organizationApiService.getKeys(organizationId);
     if (orgKeyResponse == null) {
       throw new Error(this.i18nService.t("resetPasswordOrgKeysError"));
@@ -51,9 +53,12 @@ export class PasswordResetEnrollmentServiceImplementation
 
     const orgPublicKey = Utils.fromB64ToArray(orgKeyResponse.publicKey);
 
-    userId =
-      userId ?? (await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id))));
-    userKey = userKey ?? (await this.keyService.getUserKey(userId));
+    activeUserId =
+      activeUserId ?? (await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId)));
+    if (activeUserId == null) {
+      throw new Error("User ID is required");
+    }
+    userKey = userKey ?? (await firstValueFrom(this.keyService.userKey$(activeUserId as UserId)));
     // RSA Encrypt user's userKey.key with organization public key
     const encryptedKey = await this.encryptService.encapsulateKeyUnsigned(userKey, orgPublicKey);
 
@@ -62,7 +67,7 @@ export class PasswordResetEnrollmentServiceImplementation
 
     await this.organizationUserApiService.putOrganizationUserResetPasswordEnrollment(
       organizationId,
-      userId,
+      activeUserId,
       resetRequest,
     );
   }

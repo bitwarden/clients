@@ -116,7 +116,11 @@ describe("LoginApprovalDialogComponent", () => {
 
       await component.denyLogin();
 
-      expect(authRequestService.approveOrDenyAuthRequest).toHaveBeenCalledWith(false, response);
+      expect(authRequestService.approveOrDenyAuthRequest).toHaveBeenCalledWith(
+        false,
+        response,
+        "test-user-id",
+      );
       expect(toastService.showToast).toHaveBeenCalledWith({
         variant: "info",
         message: "denied message",
