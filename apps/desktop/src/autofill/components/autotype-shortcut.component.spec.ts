@@ -1,16 +1,21 @@
 import { AbstractControl, FormBuilder, ValidationErrors } from "@angular/forms";
 import { mock, MockProxy } from "jest-mock-extended";
 
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+
 import { AutotypeShortcutComponent } from "./autotype-shortcut.component";
 
 describe("AutotypeShortcutComponent", () => {
   let component: AutotypeShortcutComponent;
   let validator: (control: AbstractControl) => ValidationErrors | null;
   let formBuilder: MockProxy<FormBuilder>;
+  let i18nService: MockProxy<I18nService>;
 
   beforeEach(() => {
     formBuilder = mock<FormBuilder>();
-    component = new AutotypeShortcutComponent(null as any, formBuilder);
+    i18nService = mock<I18nService>();
+    i18nService.t.mockReturnValue("Invalid shortcut");
+    component = new AutotypeShortcutComponent(null as any, formBuilder, i18nService);
     validator = component["shortcutCombinationValidator"]();
   });
 
