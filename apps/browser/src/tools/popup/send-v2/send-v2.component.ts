@@ -32,12 +32,16 @@ import { PopOutComponent } from "../../../platform/popup/components/pop-out.comp
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
 
-// FIXME: update to use a const object instead of a typescript enum
-// eslint-disable-next-line @bitwarden/platform/no-enums
-export enum SendState {
-  Empty,
-  NoResults,
-}
+/** A state of the Send list UI. */
+export const SendState = Object.freeze({
+  /** No sends exist for the current filter (file or text). */
+  Empty: "Empty",
+  /** Sends exist, but none match the current filter/search. */
+  NoResults: "NoResults",
+} as const);
+
+/** A state of the Send list UI. */
+export type SendState = (typeof SendState)[keyof typeof SendState];
 
 @Component({
   templateUrl: "send-v2.component.html",
@@ -91,7 +95,11 @@ export class SendV2Component implements OnDestroy {
       .pipe(takeUntilDestroyed())
       .subscribe(([emptyList, noFilteredResults, currentFilter]) => {
         if (currentFilter?.sendType !== null) {
-          this.title = `${this.sendType[currentFilter.sendType].toLowerCase()}Sends`;
+          if (currentFilter.sendType === SendType.File) {
+            this.title = "fileSends";
+          } else if (currentFilter.sendType === SendType.Text) {
+            this.title = "textSends";
+          }
         } else {
           this.title = "allSends";
         }
