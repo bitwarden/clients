@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, OnInit } from "@angular/core";
+import { Component } from "@angular/core";
 import {
   FormBuilder,
   ReactiveFormsModule,
@@ -10,7 +10,6 @@ import {
 } from "@angular/forms";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import {
   AsyncActionsModule,
@@ -35,18 +34,13 @@ import {
     FormFieldModule,
   ],
 })
-export class AutotypeShortcutComponent implements OnInit {
+export class AutotypeShortcutComponent {
   constructor(
-    private accountService: AccountService,
     private dialogRef: DialogRef,
     private formBuilder: FormBuilder,
   ) {}
 
   private shortcutArray: string[] = [];
-
-  ngOnInit(): void {
-    // set form value from state
-  }
 
   setShortcutForm = this.formBuilder.group({
     shortcut: ["", [Validators.required, this.shortcutCombinationValidator()]],
@@ -130,8 +124,8 @@ export class AutotypeShortcutComponent implements OnInit {
         return null; // handled by required
       }
 
-      // Must include at least one modifier and end with a single alphanumeric
-      // Valid examples: Ctrl+A, Alt+5, Shift+Z, Ctrl+Alt+7, Ctrl+Shift+X, Alt+Shift+Q
+      // Must include at least one modifier and end with a single letter
+      // Valid examples: Ctrl+A, Shift+Z, Ctrl+Shift+X, Alt+Shift+Q
       const pattern =
         /^(?=.*\b(Control|Alt|Shift|Win)\b)(?:Control\+)?(?:Alt\+)?(?:Shift\+)?(?:Win\+)?[A-Z]$/i;
       return pattern.test(value) ? null : { invalidShortcut: true };
