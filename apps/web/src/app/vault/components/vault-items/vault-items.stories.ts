@@ -39,6 +39,7 @@ import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cip
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { LayoutComponent } from "@bitwarden/components";
+import { CopyCipherFieldService } from "@bitwarden/vault";
 
 import { GroupView } from "../../../admin-console/organizations/core";
 import { PreloadedEnglishI18nModule } from "../../../core/tests";
@@ -142,6 +143,14 @@ export default {
             restricted$: of([]), // No restricted item types for this story
             isCipherRestricted: () => false, // No restrictions for this story
           },
+        },
+        {
+          provide: CopyCipherFieldService,
+          useValue: {
+            async totpAllowed() {
+              return Promise.resolve(true);
+            },
+          } as Partial<CopyCipherFieldService>,
         },
       ],
     }),

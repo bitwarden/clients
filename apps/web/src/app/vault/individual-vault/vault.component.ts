@@ -569,6 +569,12 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         case "assignToCollections":
           await this.bulkAssignToCollections(event.items);
           break;
+        case "toggleFavorite":
+          await this.toggleFavorite(event.item);
+          break;
+        case "edit":
+          await this.editCipher(event.item);
+          break;
       }
     } finally {
       this.processingEvent = false;
@@ -1160,35 +1166,79 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     }
   }
 
-  async copy(cipher: C, field: "username" | "password" | "totp") {
+  async copy(
+    cipher: C,
+    field:
+      | "username"
+      | "password"
+      | "totp"
+      | "cardNumber"
+      | "securityCode"
+      | "email"
+      | "phone"
+      | "address"
+      | "notes",
+  ) {
     let aType;
     let value;
     let typeI18nKey;
+    const cipherView = await this.cipherService.getFullCipherView(cipher);
 
-    const login = CipherViewLikeUtils.getLogin(cipher);
-
-    if (!login) {
+    if (field === "username" && cipherView.type === CipherType.Login) {
+      aType = "Username";
+      value = cipherView.login?.username;
+      typeI18nKey = "username";
+    } else if (field === "password") {
+      aType = "Password";
+      value = cipherView.login?.password;
+      typeI18nKey = "password";
+    } else if (field === "totp" && cipherView.login?.totp) {
+      aType = "TOTP";
+      const totpResponse = await firstValueFrom(this.totpService.getCode$(cipherView.login.totp));
+      value = totpResponse.code;
+      typeI18nKey = "verificationCodeTotp";
+    } else if (field === "cardNumber") {
+      aType = "CardNumber";
+      value = cipherView.card?.number;
+      typeI18nKey = "cardNumber";
+    } else if (field === "securityCode") {
+      aType = "SecurityCode";
+      value = cipherView.card?.code;
+      typeI18nKey = "securityCode";
+    } else if (field === "username" && cipherView.type === CipherType.Identity) {
+      aType = "Username";
+      value = cipherView.identity?.username;
+      typeI18nKey = "username";
+    } else if (field === "email") {
+      aType = "Email";
+      value = cipherView.identity?.email;
+      typeI18nKey = "email";
+    } else if (field === "phone") {
+      aType = "Phone";
+      value = cipherView.identity?.phone;
+      typeI18nKey = "phone";
+    } else if (field === "address") {
+      aType = "Address";
+      value = cipherView.identity?.fullAddressForCopy;
+      typeI18nKey = "address";
+    } else if (field === "notes") {
+      aType = "Note";
+      value = cipherView.notes;
+      typeI18nKey = "notes";
+    } else {
       this.toastService.showToast({
         variant: "error",
         title: null,
         message: this.i18nService.t("unexpectedError"),
       });
+      return;
     }
 
-    if (field === "username") {
-      aType = "Username";
-      value = login.username;
-      typeI18nKey = "username";
-    } else if (field === "password") {
-      aType = "Password";
-      value = await this.getPasswordFromCipherViewLike(cipher);
-      typeI18nKey = "password";
-    } else if (field === "totp") {
-      aType = "TOTP";
-      const totpResponse = await firstValueFrom(this.totpService.getCode$(login.totp));
-      value = totpResponse.code;
-      typeI18nKey = "verificationCodeTotp";
-    } else {
+    // The UI should prevent this from happening, but double check that
+    // the user isn't attempting to copy a field they cannot visually see.
+    const hiddenFields = ["password", "totp"];
+
+    if (!value || (!cipherView.viewPassword && hiddenFields.includes(field))) {
       this.toastService.showToast({
         variant: "error",
         title: null,
@@ -1201,10 +1251,6 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       this.passwordRepromptService.protectedFields().includes(aType) &&
       !(await this.repromptCipher([cipher]))
     ) {
-      return;
-    }
-
-    if (!cipher.viewPassword) {
       return;
     }
 
@@ -1272,19 +1318,26 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     });
   }
 
-  /**
-   * Returns the password for a `CipherViewLike` object.
-   * `CipherListView` does not contain the password, the full `CipherView` needs to be fetched.
-   */
-  private async getPasswordFromCipherViewLike(cipher: C): Promise<string | undefined> {
-    if (!CipherViewLikeUtils.isCipherListView(cipher)) {
-      return Promise.resolve(cipher.login?.password);
-    }
+  /** Toggles the favorite status of the cipher and updates it on the server. */
+  async toggleFavorite(cipherViewLike: C) {
+    const cipherView = await this.cipherService.getFullCipherView(cipherViewLike);
 
-    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    const _cipher = await this.cipherService.get(uuidAsString(cipher.id), activeUserId);
-    const cipherView = await this.cipherService.decrypt(_cipher, activeUserId);
-    return cipherView.login?.password;
+    cipherView.favorite = !cipherView.favorite;
+
+    const activeUserId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+    );
+
+    const encryptedCipher = await this.cipherService.encrypt(cipherView, activeUserId);
+    await this.cipherService.updateWithServer(encryptedCipher);
+
+    this.toastService.showToast({
+      variant: "success",
+      title: null,
+      message: this.i18nService.t(
+        cipherView.favorite ? "itemAddedToFavorites" : "itemRemovedFromFavorites",
+      ),
+    });
   }
 }
 
