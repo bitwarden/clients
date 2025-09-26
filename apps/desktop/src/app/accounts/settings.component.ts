@@ -400,11 +400,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
       ),
       allowScreenshots: !(await firstValueFrom(this.desktopSettingsService.preventScreenshots$)),
       enableAutotype: await firstValueFrom(this.desktopAutotypeService.autotypeEnabledUserSetting$),
-      autotypeShortcut: (
-        (await firstValueFrom(this.desktopAutotypeService.autotypeKeyboardShortcut$)) ?? []
-      )
-        .join("+")
-        .replace("Super", "Win"),
+      autotypeShortcut: this.getFormattedAutotypeShortcutText(
+        (await firstValueFrom(this.desktopAutotypeService.autotypeKeyboardShortcut$)) ?? [],
+      ),
       theme: await firstValueFrom(this.themeStateService.selectedTheme$),
       locale: await firstValueFrom(this.i18nService.userSetLocale$),
     };
@@ -910,7 +908,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     );
     if (currentShortcut) {
       this.form.controls.autotypeShortcut.setValue(
-        currentShortcut.join("+").replace("Super", "Win"),
+        this.getFormattedAutotypeShortcutText(currentShortcut),
       );
     }
   }
@@ -925,7 +923,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
 
     this.form.controls.autotypeShortcut.setValue(
-      newShortcutArray.join("+").replace("Super", "Win"),
+      this.getFormattedAutotypeShortcutText(newShortcutArray),
     );
     await this.desktopAutotypeService.setAutotypeKeyboardShortcutState(newShortcutArray);
   }
@@ -974,5 +972,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
       default:
         throw new Error("Unsupported platform");
     }
+  }
+
+  getFormattedAutotypeShortcutText(shortcut: string[]) {
+    return shortcut ? shortcut.join("+").replace("Super", "Win") : null;
   }
 }
