@@ -12,8 +12,6 @@ import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import { ForceSetPasswordReason } from "../../../auth/models/domain/force-set-password-reason";
 import { LogService } from "../../../platform/abstractions/log.service";
-import { StateService } from "../../../platform/abstractions/state.service";
-import { EncryptionType } from "../../../platform/enums";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import {
   MASTER_PASSWORD_DISK,
@@ -26,7 +24,6 @@ import { UserId } from "../../../types/guid";
 import { MasterKey, UserKey } from "../../../types/key";
 import { KeyGenerationService } from "../../crypto";
 import { CryptoFunctionService } from "../../crypto/abstractions/crypto-function.service";
-import { EncryptService } from "../../crypto/abstractions/encrypt.service";
 import { EncryptedString, EncString } from "../../crypto/models/enc-string";
 import { InternalMasterPasswordServiceAbstraction } from "../abstractions/master-password.service.abstraction";
 import {
@@ -82,9 +79,7 @@ export const MASTER_PASSWORD_UNLOCK_KEY = new UserKeyDefinition<MasterPasswordUn
 export class MasterPasswordService implements InternalMasterPasswordServiceAbstraction {
   constructor(
     private stateProvider: StateProvider,
-    private stateService: StateService,
     private keyGenerationService: KeyGenerationService,
-    private encryptService: EncryptService,
     private logService: LogService,
     private cryptoFunctionService: CryptoFunctionService,
     private accountService: AccountService,
@@ -219,33 +214,15 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
       throw new Error("No master key found.");
     }
 
-    let decUserKey: SymmetricCryptoKey;
-
-    if (userKey.encryptionType === EncryptionType.AesCbc256_B64) {
-      try {
-        decUserKey = await this.encryptService.unwrapSymmetricKey(userKey, masterKey);
-      } catch {
-        this.logService.warning("Failed to decrypt user key with master key.");
-        return null;
-      }
-    } else if (userKey.encryptionType === EncryptionType.AesCbc256_HmacSha256_B64) {
-      try {
-        const newKey = await this.keyGenerationService.stretchKey(masterKey);
-        decUserKey = await this.encryptService.unwrapSymmetricKey(userKey, newKey);
-      } catch {
-        this.logService.warning("Failed to decrypt user key with stretched master key.");
-        return null;
-      }
-    } else {
-      throw new Error("Unsupported encryption type.");
-    }
-
-    if (decUserKey == null) {
-      this.logService.warning("Failed to decrypt user key with master key, user key is null.");
+    await SdkLoadService.Ready;
+    try {
+      return new SymmetricCryptoKey(
+        PureCrypto.decrypt_user_key_with_master_key(userKey.toSdk(), masterKey.toEncoded()),
+      ) as UserKey;
+    } catch {
+      this.logService.warning("Failed to decrypt user key with master key.");
       return null;
     }
-
-    return decUserKey as UserKey;
   }
 
   async makeMasterPasswordAuthenticationData(
