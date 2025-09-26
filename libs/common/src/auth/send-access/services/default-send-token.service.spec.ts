@@ -556,6 +556,20 @@ describe("SendTokenService", () => {
         );
       });
     });
+
+    describe("invalidateSendAccessToken", () => {
+      it("removes a send access token from storage", async () => {
+        // Arrange
+        sendAccessTokenDictGlobalState.stateSubject.next({ [sendId]: sendAccessToken });
+
+        // Act
+        await service.invalidateSendAccessToken(sendId);
+        const sendAccessTokenDict = await firstValueFrom(sendAccessTokenDictGlobalState.state$);
+
+        // Assert
+        expect(sendAccessTokenDict).not.toHaveProperty(sendId);
+      });
+    });
   });
 
   describe("hashSendPassword", () => {
