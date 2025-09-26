@@ -78,7 +78,7 @@ fn convert_shortcut_key_to_up_input(key: String) -> Result<INPUT, ()> {
         CONTROL_KEY_STR => build_virtual_key_input(InputKeyPress::Up, CONTROL_KEY),
         ALT_KEY_STR => build_virtual_key_input(InputKeyPress::Up, ALT_KEY),
         LEFT_WINDOWS_KEY_STR => build_virtual_key_input(InputKeyPress::Up, LEFT_WINDOWS_KEY),
-        _ => build_unicode_input(InputKeyPress::Up, encode_utf16_alphabetic_hotkey(key)?),
+        _ => build_unicode_input(InputKeyPress::Up, get_alphabetic_hotkey(key)?),
     })
 }
 
@@ -89,7 +89,7 @@ fn convert_shortcut_key_to_up_input(key: String) -> Result<INPUT, ()> {
 /// Because we only accept [a-z][A-Z], the decimal u16
 /// cast of the letter is safe because the unicode code point
 /// of these characters fits in a u16.
-fn encode_utf16_alphabetic_hotkey(letter: String) -> Result<u16, ()> {
+fn get_alphabetic_hotkey(letter: String) -> Result<u16, ()> {
     if letter.len() != 1 {
         return Err(());
     }
@@ -246,4 +246,33 @@ fn send_input(inputs: Vec<INPUT>) -> Result<(), ()> {
     }
 
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn get_alphabetic_hot_key_happy() {
+        for c in ('a'..='z').chain('A'..='Z') {
+            let letter = c.to_string();
+            println!("{}", letter);
+            let converted = get_alphabetic_hotkey(letter).unwrap();
+            assert_eq!(converted, c as u16);
+        }
+    }
+
+    #[test]
+    #[should_panic = ""]
+    fn get_alphabetic_hot_key_fail_not_single_char() {
+        let letter = String::from("foo");
+        get_alphabetic_hotkey(letter).unwrap();
+    }
+
+    #[test]
+    #[should_panic = ""]
+    fn get_alphabetic_hot_key_fail_not_alphabetic() {
+        let letter = String::from("🚀");
+        get_alphabetic_hotkey(letter).unwrap();
+    }
 }
