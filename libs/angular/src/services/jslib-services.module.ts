@@ -20,11 +20,13 @@ import {
 import {
   DefaultLoginComponentService,
   DefaultLoginDecryptionOptionsService,
+  DefaultNewDeviceVerificationComponentService,
   DefaultRegistrationFinishService,
   DefaultTwoFactorAuthComponentService,
   DefaultTwoFactorAuthWebAuthnComponentService,
   LoginComponentService,
   LoginDecryptionOptionsService,
+  NewDeviceVerificationComponentService,
   RegistrationFinishService as RegistrationFinishServiceAbstraction,
   TwoFactorAuthComponentService,
   TwoFactorAuthWebAuthnComponentService,
@@ -1657,6 +1659,11 @@ const safeProviders: SafeProvider[] = [
       BillingAccountProfileStateService,
       ConfigService,
     ],
+  }),
+  safeProvider({
+    provide: NewDeviceVerificationComponentService,
+    useClass: DefaultNewDeviceVerificationComponentService,
+    deps: [],
   }),
 ];
 
