@@ -53,7 +53,14 @@ export class DesktopAutotypeService {
   }
 
   async init() {
+    // Currently Autotype is only supported for Windows
     if (this.platformUtilsService.getDevice() === DeviceType.WindowsDesktop) {
+      // If autotypeDefaultPolicy is true for an org, and the user has never
+      // changed their local autotype setting (autotypeEnabledState), we set
+      // their local setting to true for the org. This represents that
+      // Autotype is on by default. Once the local user setting is changed
+      // by this policy or the user themselves, the default policy should
+      // never change the user setting again.
       combineLatest([
         this.autotypeEnabledState.state$,
         this.desktopAutotypePolicy.autotypeDefaultSetting$,
@@ -67,8 +74,12 @@ export class DesktopAutotypeService {
         )
         .subscribe();
 
+      // autotypeEnabledUserSetting$ publicly represents the value the
+      // user has set for autotyeEnabled in their local settings.
       this.autotypeEnabledUserSetting$ = this.autotypeEnabledState.state$;
 
+      // resolvedAutotypeEnabled$ represents the final determination if the Autotype
+      // feature should be on or off.
       this.resolvedAutotypeEnabled$ = combineLatest([
         this.autotypeEnabledState.state$,
         this.configService.getFeatureFlag$(FeatureFlag.WindowsDesktopAutotype),
@@ -92,6 +103,8 @@ export class DesktopAutotypeService {
         ),
       );
 
+      // When the resolvedAutotypeEnabled$ value changes, this might require
+      // hotkey registration / deregistration in the main process.
       this.resolvedAutotypeEnabled$.subscribe((enabled) => {
         ipc.autofill.configureAutotype(enabled);
       });
