@@ -115,7 +115,7 @@
     "husky": "9.1.7",
     "jest-diff": "29.7.0",
     "jest-junit": "16.0.0",
-    "jest-mock-extended": "3.0.7",
+    "jest-mock-extended": "4.0.0",
     "jest-preset-angular": "14.6.0",
     "json5": "2.2.3",
     "lint-staged": "16.0.0",
