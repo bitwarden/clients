@@ -1432,7 +1432,7 @@
     "message": "账户创建成功。"
   },
   "masterPassSent": {
-    "message": "我们已经为您发送了包含主密码提示的电子邮件。"
+    "message": "我们已经向您发送了一封包含主密码提示的电子邮件。"
   },
   "unexpectedError": {
     "message": "发生意外错误。"
@@ -2188,7 +2188,7 @@
     "message": "更改网页密码库的语言。"
   },
   "showIconsChangePasswordUrls": {
-    "message": "显示网站图标并检索更改密码的 URL"
+    "message": "显示网站图标并获取更改密码的 URL"
   },
   "default": {
     "message": "默认"
@@ -2579,7 +2579,7 @@
     "message": "未激活两步登录"
   },
   "inactive2faReportDesc": {
-    "message": "两步登录为您的账户增加了一层保护。使用 Bitwarden 验证器或其他方式为这些账户开启两步登录。"
+    "message": "两步登录为您的账户增加了一层保护。使用 Bitwarden Authenticator 或其他方式为这些账户开启两步登录。"
   },
   "inactive2faFound": {
     "message": "发现未启用两步登录的登录项目"
@@ -2771,7 +2771,7 @@
     "message": "计费"
   },
   "billingPlanLabel": {
-    "message": "计费计划"
+    "message": "计费方案"
   },
   "paymentType": {
     "message": "付款类型"
@@ -2855,7 +2855,7 @@
     }
   },
   "bitwardenFamiliesPlan": {
-    "message": "Bitwarden 家庭计划。"
+    "message": "Bitwarden 家庭方案。"
   },
   "addons": {
     "message": "附加项目"
@@ -2883,7 +2883,7 @@
     "message": "# GB 附加存储"
   },
   "additionalStorageIntervalDesc": {
-    "message": "您的计划包含 $SIZE$ 的加密存储空间。您也可以以每 GB $PRICE$ /$INTERVAL$ 购买附加存储。",
+    "message": "您的方案包含 $SIZE$ 加密文件存储空间。您也可以以每 GB $PRICE$ /$INTERVAL$ 购买附加存储。",
     "placeholders": {
       "size": {
         "content": "$1",
@@ -2940,7 +2940,7 @@
     "message": "任何未付费订阅都将通过您的付款方式收取费用。"
   },
   "paymentChargedWithTrial": {
-    "message": "您的计划包含了 7 天的免费试用。在试用期结束前，不会从您的付款方式中扣款。您可以随时取消。"
+    "message": "您的方案包含了 7 天的免费试用。在试用期结束前，不会从您的付款方式中扣款。您可以随时取消。"
   },
   "paymentInformation": {
     "message": "支付信息"
@@ -3162,7 +3162,7 @@
     "message": "公司名称"
   },
   "chooseYourPlan": {
-    "message": "选择您的计划"
+    "message": "选择您的方案"
   },
   "users": {
     "message": "用户"
@@ -3177,7 +3177,7 @@
     "message": "# 用户席位"
   },
   "userSeatsAdditionalDesc": {
-    "message": "您的计划包含 $BASE_SEATS$ 个用户席位。您也可以以每用户 $SEAT_PRICE$ /月购买附加用户。",
+    "message": "您的方案包含 $BASE_SEATS$ 个用户席位。您也可以以每用户 $SEAT_PRICE$ /月购买附加用户。",
     "placeholders": {
       "base_seats": {
         "content": "$1",
@@ -3193,7 +3193,7 @@
     "message": "您需要多少个用户席位？您也可以在以后需要的时候添加附加席位。"
   },
   "planNameFree": {
-    "message": "免费",
+    "message": "免费版",
     "description": "Free as in 'free beer'."
   },
   "planDescFree": {
@@ -3206,7 +3206,7 @@
     }
   },
   "planNameFamilies": {
-    "message": "家庭"
+    "message": "家庭版"
   },
   "planDescFamilies": {
     "message": "适用于个人使用，与家人和朋友共享。"
@@ -3323,7 +3323,7 @@
     }
   },
   "trialThankYou": {
-    "message": "感谢您注册适用于 $PLAN$ 的 Bitwarden！",
+    "message": "感谢您注册 $PLAN$ Bitwarden！",
     "placeholders": {
       "plan": {
         "content": "$1",
@@ -3332,7 +3332,7 @@
     }
   },
   "trialSecretsManagerThankYou": {
-    "message": "感谢您注册适用于 $PLAN$ 的 Bitwarden 机密管理器！",
+    "message": "感谢您注册 $PLAN$ Bitwarden 机密管理器！",
     "placeholders": {
       "plan": {
         "content": "$1",
@@ -4382,15 +4382,15 @@
     "message": "对于美国境内的客户，需要提供邮政编码以满足销售税要求。对于其他国家，您可以选择提供一个税号 (VAT/GST) 和/或地址来显示在您的账单上。"
   },
   "billingPlan": {
-    "message": "计划",
+    "message": "方案",
     "description": "A billing plan/package. For example: Families, Teams, Enterprise, etc."
   },
   "changeBillingPlan": {
-    "message": "升级计划",
+    "message": "升级方案",
     "description": "A billing plan/package. For example: Families, Teams, Enterprise, etc."
   },
   "changeBillingPlanUpgrade": {
-    "message": "要将您的账户升级到另一个计划，请提供以下信息。同时请确保您账户已添加有一个有效的付款方式。",
+    "message": "要将您的账户升级到另一个方案，请提供以下信息。同时请确保您账户已添加有一个有效的付款方式。",
     "description": "A billing plan/package. For example: Families, Teams, Enterprise, etc."
   },
   "invoiceNumber": {
@@ -4529,7 +4529,7 @@
     }
   },
   "subscriptionUserSeatsWithoutAdditionalSeatsOption": {
-    "message": "您最多可邀请 $COUNT$ 名成员，而无需额外付费。要升级您的计划并邀请更多成员，请联系客户支持。",
+    "message": "您最多可邀请 $COUNT$ 名成员，而无需额外付费。要升级您的方案并邀请更多成员，请联系客户支持。",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4538,7 +4538,7 @@
     }
   },
   "subscriptionFreePlan": {
-    "message": "如果不升级您的计划，您最多只能邀请 $COUNT$ 位成员。",
+    "message": "如果不升级您的方案，您最多只能邀请 $COUNT$ 位成员。",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4547,7 +4547,7 @@
     }
   },
   "subscriptionUpgrade": {
-    "message": "如果不升级您的计划，您最多只能邀请 $COUNT$ 位成员。",
+    "message": "如果不升级您的方案，您最多只能邀请 $COUNT$ 位成员。",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4556,7 +4556,7 @@
     }
   },
   "subscriptionSponsoredFamiliesPlan": {
-    "message": "您的订阅一共允许 $COUNT$ 位成员。您的计划由一个外部组织赞助和支付费用。",
+    "message": "您的订阅一共允许 $COUNT$ 位成员。您的方案由一个外部组织赞助和支付费用。",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4677,7 +4677,7 @@
     "message": "升级组织"
   },
   "upgradeOrganizationDesc": {
-    "message": "此功能不适用于免费组织。请切换到付费计划以解锁更多功能。"
+    "message": "此功能不适用于免费组织。请切换到付费方案以解锁更多功能。"
   },
   "createOrganizationStep1": {
     "message": "创建组织：第一步"
@@ -5557,6 +5557,13 @@
   "personalOwnershipSubmitError": {
     "message": "由于某个企业策略，您不能将项目保存到您的个人密码库。请将所有权选项更改为组织，然后选择可用的集合。"
   },
+  "desktopAutotypePolicy": {
+    "message": "Desktop Autotype Default Setting"
+  },
+  "desktopAutotypePolicyDesc": {
+    "message": "Turn Desktop Autotype ON by default for members. Members can turn Autotype off manually in the Desktop client.",
+    "description": "This policy will enable Desktop Autotype by default for members on Unlock."
+  },
   "disableSend": {
     "message": "禁用 Send"
   },
@@ -5600,7 +5607,7 @@
     }
   },
   "planPrice": {
-    "message": "计划价格"
+    "message": "方案价格"
   },
   "estimatedTax": {
     "message": "预估税额"
@@ -5624,7 +5631,7 @@
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Custom roles is an enterprise feature. Contact our support team to upgrade your subscription'"
   },
   "customNonEnterpriseError": {
-    "message": "要启用自定义权限，该组织必须处于 2020 企业计划中。"
+    "message": "要启用自定义权限，该组织必须处于 2020 企业方案中。"
   },
   "permissions": {
     "message": "权限"
@@ -5736,10 +5743,10 @@
     "message": "使用端到端加密保护机密。而不再需要硬编码机密或通过 .env 文件分享机密。"
   },
   "enhanceDeveloperProductivity": {
-    "message": "提高开发人员的生产力。"
+    "message": "提升开发人员的工作效率。"
   },
   "enhanceDeveloperProductivityDescription": {
-    "message": "程序化地在运行时检索和部署机密，使开发人员可以专注于最重要的事情，例如提高代码质量。"
+    "message": "程序化地在运行时获取和部署机密，使开发人员可以专注于最重要的事情，例如提高代码质量。"
   },
   "strengthenBusinessSecurity": {
     "message": "加强企业安全。"
@@ -6491,7 +6498,7 @@
     "message": "没有赞助的家庭"
   },
   "nosponsoredFamiliesDetails": {
-    "message": "已赞助的非成员家庭计划将显示在这里"
+    "message": "已赞助的非成员家庭方案将显示在这里"
   },
   "sponsorshipFreeBitwardenFamilies": {
     "message": "您的组织成员有资格获得免费的 Bitwarden 家庭计划。您可以为不是您的 Bitwarden 组织成员的员工赞助免费 Bitwarden 家庭。赞助非成员需要您的组织内有可用的席位。"
@@ -6503,16 +6510,16 @@
     "message": "您和您的家人有资格获得免费的 Bitwarden 家庭版计划。使用您的个人电子邮箱兑换，即使您不在工作中，也能确保您的数据安全。"
   },
   "sponsoredFamiliesEligibleCard": {
-    "message": "立即兑换免费的 Bitwarden 家庭计划，即使您不在工作中，也能确保您的数据安全。"
+    "message": "立即兑换免费的 Bitwarden 家庭方案，即使您不在工作中，也能确保您的数据安全。"
   },
   "sponsoredFamiliesIncludeMessage": {
-    "message": "Bitwarden 家庭计划包含"
+    "message": "Bitwarden 家庭方案包含"
   },
   "sponsoredFamiliesPremiumAccess": {
     "message": "最多 6 个用户的高级访问权限"
   },
   "sponsoredFamiliesSharedCollectionsForFamilyMembers": {
-    "message": "适用于家庭成员的共享集合"
+    "message": "为家庭成员提供共享集合"
   },
   "memberFamilies": {
     "message": "成员家庭"
@@ -6521,7 +6528,7 @@
     "message": "没有成员家庭"
   },
   "noMemberFamiliesDescription": {
-    "message": "已兑换家庭计划的成员将在这里显示"
+    "message": "已兑换家庭方案的成员将在这里显示"
   },
   "membersWithSponsoredFamilies": {
     "message": "您的组织成员有资格获得免费的 Bitwarden 家庭计划。在这里，您可以看到已赞助了家庭组织的成员。"
@@ -6539,7 +6546,7 @@
     "message": "链接已失效。请让赞助方重新发送邀请。"
   },
   "reclaimedFreePlan": {
-    "message": "收回了免费计划"
+    "message": "收回了免费方案"
   },
   "redeem": {
     "message": "兑换"
@@ -6560,7 +6567,7 @@
     "message": "接受现有组织的邀请或创建一个新的家庭组织。"
   },
   "setupSponsoredFamiliesLoginDesc": {
-    "message": "您已被邀请加入免费的 Bitwarden 家庭计划组织。要继续，您需要登录到接收邀请的账户。"
+    "message": "您已被邀请加入免费的 Bitwarden 家庭方案组织。要继续，您需要登录到接收邀请的账户。"
   },
   "sponsoredFamiliesAcceptFailed": {
     "message": "无法接受邀请。请通过您的企业账户重新发送邀请邮件，然后重试。"
@@ -6605,7 +6612,7 @@
     }
   },
   "freeFamiliesPlan": {
-    "message": "免费家庭计划"
+    "message": "免费家庭方案"
   },
   "redeemNow": {
     "message": "立即兑换"
@@ -6721,6 +6728,15 @@
   "disabledSso": {
     "message": "SSO 已关闭"
   },
+  "emailMustLoginWithSso": {
+    "message": "$EMAIL$ 必须使用单点登录",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "enabledKeyConnector": {
     "message": "Key Connector 已启用"
   },
@@ -6830,7 +6846,7 @@
     "message": "自托管"
   },
   "selfHostingEnterpriseOrganizationSectionCopy": {
-    "message": "要在您自己的服务器上设置您的组织，您需要上传您的许可证文件。要为您的自托管组织提供免费家庭计划和高级计费功能，您需要设置计费同步。"
+    "message": "要在您自己的服务器上设置您的组织，您需要上传您的许可证文件。要为您的自托管组织提供免费家庭方案和高级计费功能，您需要设置计费同步。"
   },
   "billingSyncApiKeyRotated": {
     "message": "令牌已轮换"
@@ -8190,7 +8206,7 @@
     "message": "切换产品"
   },
   "freeOrgInvLimitReachedManageBilling": {
-    "message": "免费组织最多拥有 $SEATCOUNT$ 位成员。要邀请更多成员，请升级到付费计划。",
+    "message": "免费组织最多拥有 $SEATCOUNT$ 位成员。要邀请更多成员，请升级到付费方案。",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -8208,7 +8224,7 @@
     }
   },
   "teamsStarterPlanInvLimitReachedManageBilling": {
-    "message": "团队入门版计划最多拥有 $SEATCOUNT$ 位成员。要邀请更多成员，请升级您的计划。",
+    "message": "团队入门版方案最多拥有 $SEATCOUNT$ 位成员。要邀请更多成员，请升级您的方案。",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -8217,7 +8233,7 @@
     }
   },
   "teamsStarterPlanInvLimitReachedNoManageBilling": {
-    "message": "团队入门版计划最多拥有 $SEATCOUNT$ 位成员。要升级您的计划并邀请更多成员，请联系您的组织所有者。",
+    "message": "团队入门版方案最多拥有 $SEATCOUNT$ 位成员。要升级您的方案并邀请更多成员，请联系您的组织所有者。",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -8226,7 +8242,7 @@
     }
   },
   "freeOrgMaxCollectionReachedManageBilling": {
-    "message": "免费组织最多拥有 $COLLECTIONCOUNT$ 个集合。要添加更多集合，请升级到付费计划。",
+    "message": "免费组织最多拥有 $COLLECTIONCOUNT$ 个集合。要添加更多集合，请升级到付费方案。",
     "placeholders": {
       "COLLECTIONCOUNT": {
         "content": "$1",
@@ -8934,7 +8950,7 @@
     "message": "邀请用户"
   },
   "secretsManagerForPlan": {
-    "message": "适用于 $PLAN$ 的机密管理器",
+    "message": "$PLAN$ 机密管理器",
     "placeholders": {
       "plan": {
         "content": "$1",
@@ -8985,13 +9001,13 @@
     "message": "订阅机密管理器"
   },
   "addSecretsManagerUpgradeDesc": {
-    "message": "将机密管理器添加到升级后的计划中，以保留对使用之前的计划创建的所有机密的访问权限。"
+    "message": "将机密管理器添加到升级后的方案中，以保留对使用之前的方案创建的所有机密的访问权限。"
   },
   "additionalServiceAccounts": {
     "message": "附加服务账户"
   },
   "includedServiceAccounts": {
-    "message": "您的计划包含 $COUNT$ 个服务账户。",
+    "message": "您的方案包含 $COUNT$ 个服务账户。",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -9035,10 +9051,10 @@
     "message": "更新了集合管理设置"
   },
   "passwordManagerPlanPrice": {
-    "message": "密码管理器计划价格"
+    "message": "密码管理器方案价格"
   },
   "secretsManagerPlanPrice": {
-    "message": "机密管理器计划价格"
+    "message": "机密管理器方案价格"
   },
   "passwordManager": {
     "message": "密码管理器"
@@ -9600,7 +9616,7 @@
     "message": "附加机器账户"
   },
   "includedMachineAccounts": {
-    "message": "您的计划包含 $COUNT$ 个机器账户。",
+    "message": "您的方案包含 $COUNT$ 个机器账户。",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -9845,7 +9861,7 @@
     "message": "索引"
   },
   "selectAPlan": {
-    "message": "选择一个计划"
+    "message": "选择一个方案"
   },
   "thirtyFivePercentDiscount": {
     "message": "35% 折扣"
@@ -9993,10 +10009,10 @@
     "message": "保护您的家庭或企业"
   },
   "upgradeOrganizationCloseSecurityGaps": {
-    "message": "通过监控报告弥补安全漏洞"
+    "message": "通过监测报告弥补安全漏洞"
   },
   "upgradeOrganizationCloseSecurityGapsDesc": {
-    "message": "升级到付费计划以加强监控，从而提前发现安全漏洞。"
+    "message": "升级到付费方案以加强监测，从而提前发现安全漏洞。"
   },
   "approveAllRequests": {
     "message": "批准所有请求"
@@ -10045,7 +10061,7 @@
     "message": "通过审计成员访问权限来识别安全风险"
   },
   "onlyAvailableForEnterpriseOrganization": {
-    "message": "通过升级为企业版计划，快速查看整个组织的成员访问权限。"
+    "message": "通过升级为企业版方案，快速查看整个组织的成员访问权限。"
   },
   "date": {
     "message": "日期"
@@ -10329,7 +10345,7 @@
     "message": "SSO 身份验证"
   },
   "familiesPlanInvLimitReachedManageBilling": {
-    "message": "家庭组织最多拥有 $SEATCOUNT$ 位成员。要邀请更多成员，请升级到付费计划。",
+    "message": "家庭组织最多拥有 $SEATCOUNT$ 位成员。要邀请更多成员，请升级到付费方案。",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -10347,7 +10363,7 @@
     }
   },
   "upgradePlans": {
-    "message": "升级您的计划以邀请成员并体验强大的安全功能。"
+    "message": "升级您的方案以邀请成员并体验强大的安全功能。"
   },
   "upgradeDiscount": {
     "message": "节省 $AMOUNT$%",
@@ -10359,7 +10375,7 @@
     }
   },
   "enterprisePlanUpgradeMessage": {
-    "message": "适用于大型组织的高级功能"
+    "message": "为大型组织提供高级功能"
   },
   "teamsPlanUpgradeMessage": {
     "message": "为成长中的团队提供弹性保护"
@@ -10458,13 +10474,13 @@
     "message": "当前"
   },
   "secretsManagerSubscriptionInfo": {
-    "message": "您的机密管理器订阅将基于选择的计划升级"
+    "message": "您的机密管理器订阅将基于选择的方案升级"
   },
   "bitwardenPasswordManager": {
     "message": "Bitwarden 密码管理器"
   },
   "secretsManagerComplimentaryPasswordManager": {
-    "message": "您的一年免费密码管理器订阅将升级到所选计划。在免费期结束前，我们不会向您收取费用。"
+    "message": "您的一年免费密码管理器订阅将升级到所选方案。在免费期结束前，我们不会向您收取费用。"
   },
   "fileSavedToDevice": {
     "message": "文件已保存到设备。可以在设备下载中进行管理。"
@@ -10539,7 +10555,7 @@
     "description": "This represents the beginning of a sentence. The full sentence will be 'Manage subscription from the Provider Portal', but 'Provider Portal' will be a link and thus cannot be included in the translation file."
   },
   "toHostBitwardenOnYourOwnServer": {
-    "message": "要在您自己的服务器上托管 Bitwarden，您需要上传许可证文件。要支持自托管组织的免费家庭计划和高级计费功能，您需要在自托管组织中设置自动同步。"
+    "message": "要在您自己的服务器上托管 Bitwarden，您需要上传许可证文件。要支持自托管组织的免费家庭版方案和高级计费功能，您需要在自托管组织中设置自动同步。"
   },
   "selfHostingTitleProper": {
     "message": "自托管"
@@ -10632,7 +10648,7 @@
     "message": "禁用免费 Bitwarden 家庭赞助"
   },
   "freeFamiliesSponsorshipPolicyDesc": {
-    "message": "不允许成员通过此组织兑换家庭计划。"
+    "message": "不允许成员通过此组织兑换家庭版方案。"
   },
   "verifyBankAccountWithStatementDescriptorWarning": {
     "message": "使用银行账户付款仅对美国用户开放。您将被要求验证您的银行账户。我们将在 1-2 个工作日内进行一笔小额转账，请在组织的计费页面输入该转账的对账单描述符代码以验证银行账户。验证银行账户失败将会错过支付，您的订阅将暂停。"
@@ -10722,7 +10738,7 @@
     }
   },
   "updatedRevokeSponsorshipConfirmationForSentSponsorship": {
-    "message": "如果您移除 $EMAIL$，将无法兑换此家庭计划赞助。确定要继续吗？",
+    "message": "如果您移除 $EMAIL$，将无法兑换此家庭版方案赞助。确定要继续吗？",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -10731,7 +10747,7 @@
     }
   },
   "updatedRevokeSponsorshipConfirmationForAcceptedSponsorship": {
-    "message": "如果您移除 $EMAIL$，此家庭计划赞助将终止，并且将于 $DATE$ 向已保存的付款方式收取 $40 + 相关税费。在 $DATE$ 之前您将无法兑换新的赞助。确定要继续吗？",
+    "message": "如果您移除 $EMAIL$，此家庭版方案赞助将终止，并且将于 $DATE$ 向已保存的付款方式收取 $40 + 相关税费。在 $DATE$ 之前您将无法兑换新的赞助。确定要继续吗？",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -10991,7 +11007,7 @@
     "message": "不允许成员使用 PIN 码解锁他们的账户。"
   },
   "upgradeForFullEventsMessage": {
-    "message": "不会为您的组织存储事件日志。升级到团队计划或企业计划以获取组织事件日志的完整访问权限。"
+    "message": "不会为您的组织存储事件日志。升级到团队版或企业版方案以获取组织事件日志的完整访问权限。"
   },
   "upgradeEventLogTitleMessage": {
     "message": "升级以查看您组织中的事件日志。"
@@ -11003,7 +11019,19 @@
     "message": "查看事件"
   },
   "cannotCreateCollection": {
-    "message": "免费组织最多拥有 2 个集合。要添加更多集合，请升级到付费计划。"
+    "message": "免费组织最多拥有 2 个集合。要添加更多集合，请升级到付费方案。"
+  },
+  "searchArchive": {
+    "message": "搜索归档"
+  },
+  "archive": {
+    "message": "归档"
+  },
+  "noItemsInArchive": {
+    "message": "归档中没有项目"
+  },
+  "archivedItemsDescription": {
+    "message": "已归档的项目将显示在此处，并将被排除在一般搜索结果和自动填充建议之外。"
   },
   "businessUnit": {
     "message": "业务单元"
@@ -11143,7 +11171,7 @@
     "message": "请点击「使用 PayPal 付款」按钮以添加您的付款方式。"
   },
   "revokeActiveSponsorshipConfirmation": {
-    "message": "如果您移除 $EMAIL$，此家庭计划的赞助将结束。在被赞助组织的续费日期 $DATE$ 之后，您的组织中将释放一个可用席位，可供成员或赞助使用。",
+    "message": "如果您移除 $EMAIL$，此家庭版方案赞助将终止。在被赞助组织的续费日期 $DATE$ 之后，您的组织中将释放一个可用席位，可供成员或赞助使用。",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -11337,5 +11365,137 @@
   },
   "verifyNow": {
     "message": " 立即验证。"
+  },
+  "additionalStorageGB": {
+    "message": "附加存储 GB"
+  },
+  "additionalServiceAccountsV2": {
+    "message": "附加机器账户"
+  },
+  "secretsManagerSeats": {
+    "message": "机密管理器席位"
+  },
+  "additionalStorage": {
+    "message": "附加存储"
+  },
+  "expandPurchaseDetails": {
+    "message": "展开购买详细信息"
+  },
+  "collapsePurchaseDetails": {
+    "message": "折叠购买详细信息"
+  },
+  "familiesMembership": {
+    "message": "家庭成员"
+  },
+  "planDescPremium": {
+    "message": "全面的在线安全防护"
+  },
+  "planDescFamiliesV2": {
+    "message": "为您的家庭提供高级安全防护"
+  },
+  "planDescFreeV2": {
+    "message": "与 $COUNT$ 位其他用户共享",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "planDescEnterpriseV2": {
+    "message": "为任何组织提供高级功能"
+  },
+  "planNameCustom": {
+    "message": "自定义方案"
+  },
+  "planDescCustom": {
+    "message": "Bitwarden 适用于各种规模的企业，为密码和敏感信息提供安全保障。若您属于大型企业，请联系销售人员获取报价。"
+  },
+  "builtInAuthenticator": {
+    "message": "内置身份验证器"
+  },
+  "breachMonitoring": {
+    "message": "数据泄露监测"
+  },
+  "andMoreFeatures": {
+    "message": "以及更多！"
+  },
+  "secureFileStorage": {
+    "message": "安全文件存储"
+  },
+  "familiesUnlimitedSharing": {
+    "message": "不限数量的共享 - 自主掌控可见范围"
+  },
+  "familiesUnlimitedCollections": {
+    "message": "不限数量的家庭集合"
+  },
+  "familiesSharedStorage": {
+    "message": "为重要的家庭信息提供共享存储"
+  },
+  "limitedUsersV2": {
+    "message": "最多 $COUNT$ 位成员",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "limitedCollectionsV2": {
+    "message": "最多 $COUNT$ 个集合",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "alwaysFree": {
+    "message": "永远免费"
+  },
+  "twoSecretsIncluded": {
+    "message": "2 个机密"
+  },
+  "projectsIncludedV2": {
+    "message": "$COUNT$ 个工程",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "secureItemSharing": {
+    "message": "安全项目共享"
+  },
+  "scimSupport": {
+    "message": "SCIM 支持"
+  },
+  "includedMachineAccountsV2": {
+    "message": "$COUNT$ 个机器账户",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
+  },
+  "enterpriseSecurityPolicies": {
+    "message": "企业安全策略"
+  },
+  "selfHostOption": {
+    "message": "自托管选项"
+  },
+  "complimentaryFamiliesPlan": {
+    "message": "为所有用户提供免费家庭版方案"
+  },
+  "strengthenCybersecurity": {
+    "message": "加强网络安全"
+  },
+  "boostProductivity": {
+    "message": "提高工作效率"
+  },
+  "seamlessIntegration": {
+    "message": "无缝集成"
   }
 }
