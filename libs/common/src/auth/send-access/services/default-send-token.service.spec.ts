@@ -317,6 +317,58 @@ describe("SendTokenService", () => {
           error: unknownError,
         });
       });
+
+      describe("getSendAccessTokenFromStorage", () => {
+        it("returns undefined if no token is found in storage", async () => {
+          const result = await (service as any).getSendAccessTokenFromStorage("nonexistentSendId");
+          expect(result).toBeUndefined();
+        });
+
+        it("returns the token if found in storage", async () => {
+          sendAccessTokenDictGlobalState.stateSubject.next({ [sendId]: sendAccessToken });
+          const result = await (service as any).getSendAccessTokenFromStorage(sendId);
+          expect(result).toEqual(sendAccessToken);
+        });
+
+        it("returns undefined if the global state isn't initialized yet", async () => {
+          sendAccessTokenDictGlobalState.stateSubject.next(null);
+
+          const result = await (service as any).getSendAccessTokenFromStorage(sendId);
+          expect(result).toBeUndefined();
+        });
+      });
+
+      describe("setSendAccessTokenInStorage", () => {
+        it("stores the token in storage", async () => {
+          await (service as any).setSendAccessTokenInStorage(sendId, sendAccessToken);
+          const sendAccessTokenDict = await firstValueFrom(sendAccessTokenDictGlobalState.state$);
+          expect(sendAccessTokenDict).toHaveProperty(sendId, sendAccessToken);
+        });
+
+        it("initializes the dictionary if it isn't already", async () => {
+          sendAccessTokenDictGlobalState.stateSubject.next(null);
+
+          await (service as any).setSendAccessTokenInStorage(sendId, sendAccessToken);
+          const sendAccessTokenDict = await firstValueFrom(sendAccessTokenDictGlobalState.state$);
+          expect(sendAccessTokenDict).toHaveProperty(sendId, sendAccessToken);
+        });
+
+        it("merges with existing tokens in storage", async () => {
+          const anotherSendId = "anotherSendId";
+          const anotherSendAccessToken = new SendAccessToken(
+            "anotherToken",
+            Date.now() + 1000 * 60,
+          );
+
+          sendAccessTokenDictGlobalState.stateSubject.next({
+            [anotherSendId]: anotherSendAccessToken,
+          });
+          await (service as any).setSendAccessTokenInStorage(sendId, sendAccessToken);
+          const sendAccessTokenDict = await firstValueFrom(sendAccessTokenDictGlobalState.state$);
+          expect(sendAccessTokenDict).toHaveProperty(sendId, sendAccessToken);
+          expect(sendAccessTokenDict).toHaveProperty(anotherSendId, anotherSendAccessToken);
+        });
+      });
     });
 
     describe("getSendAccessToken$", () => {
