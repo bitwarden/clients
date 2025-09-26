@@ -36,8 +36,9 @@ export class MainDesktopAutotypeService {
         this.disableAutotype();
 
         // Deregister the incoming keyboard shortcut if needed
+        const setCorrectly = this.autotypeKeyboardShortcut.set(data.keyboardShortcut);
         if (
-          this.autotypeKeyboardShortcut.set(data.keyboardShortcut) &&
+          setCorrectly &&
           globalShortcut.isRegistered(this.autotypeKeyboardShortcut.getElectronFormat())
         ) {
           globalShortcut.unregister(this.autotypeKeyboardShortcut.getElectronFormat());
@@ -64,8 +65,9 @@ export class MainDesktopAutotypeService {
 
   disableAutotype() {
     // Deregister the current keyboard shortcut if needed
-    if (globalShortcut.isRegistered(this.autotypeKeyboardShortcut.getElectronFormat())) {
-      globalShortcut.unregister(this.autotypeKeyboardShortcut.getElectronFormat());
+    const formattedKeyboardShortcut = this.autotypeKeyboardShortcut.getElectronFormat();
+    if (globalShortcut.isRegistered(formattedKeyboardShortcut)) {
+      globalShortcut.unregister(formattedKeyboardShortcut);
       this.logService.info("Autotype disabled.");
     }
   }

@@ -85,12 +85,19 @@ fn convert_shortcut_key_to_up_input(key: String) -> Result<INPUT, ()> {
 /// Given a letter that is a String, get the utf16 encoded
 /// decimal version of the letter as long as it meets the
 /// [a-z][A-Z] restriction.
+///
+/// Because we only accept [a-z][A-Z], the decimal u16
+/// cast of the letter is safe because the unicode code point
+/// of these characters fits in a u16.
 fn encode_utf16_alphabetic_hotkey(letter: String) -> Result<u16, ()> {
     if letter.len() != 1 {
         return Err(());
     }
 
-    let c = letter.chars().next().expect("we shouldn't reach this");
+    let c = letter.chars().next().expect("letter is size 1");
+
+    // is_ascii_alphabetic() checks for:
+    // U+0041 `A` ..= U+005A `Z`, or  U+0061 `a` ..= U+007A `z`
     if !c.is_ascii_alphabetic() {
         return Err(());
     }

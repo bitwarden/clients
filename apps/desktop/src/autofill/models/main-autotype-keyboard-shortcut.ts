@@ -1,4 +1,4 @@
-import { defaultWindowsAutotypeKeyboardShorcut } from "../services/desktop-autotype.service";
+import { defaultWindowsAutotypeKeyboardShortcut } from "../services/desktop-autotype.service";
 
 /*
   This class provides the following:
@@ -13,7 +13,7 @@ export class AutotypeKeyboardShortcut {
   private autotypeKeyboardShortcut: string[];
 
   constructor() {
-    this.autotypeKeyboardShortcut = defaultWindowsAutotypeKeyboardShorcut;
+    this.autotypeKeyboardShortcut = defaultWindowsAutotypeKeyboardShortcut;
   }
 
   /*
