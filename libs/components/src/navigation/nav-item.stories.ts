@@ -30,6 +30,7 @@ export default {
               toggleCollapse: "toggle collapse",
               toggleSideNavigation: "Toggle side navigation",
               skipToContent: "Skip to content",
+              loading: "Loading",
             });
           },
         },
