@@ -86,7 +86,7 @@
 
             <button *ngIf="bulkArchiveAllowed" type="button" bitMenuItem (click)="bulkArchive()">
               <i class="bwi bwi-fw bwi-archive" aria-hidden="true"></i>
-              {{ "archive" | i18n }}
+              {{ "archiveVerb" | i18n }}
             </button>
 
             <button
@@ -96,7 +96,7 @@
               (click)="bulkUnarchive()"
             >
               <i class="bwi bwi-fw bwi-archive" aria-hidden="true"></i>
-              {{ "unarchive" | i18n }}
+              {{ "unArchiveVerb" | i18n }}
             </button>
 
             <button

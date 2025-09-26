@@ -550,11 +550,17 @@
   "resetSearch": {
     "message": "Reset search"
   },
-  "archive": {
-    "message": "Archive"
+  "archiveVerb": {
+    "message": "Archive",
+    "descripton": "Verb"
   },
-  "unarchive": {
-    "message": "Unarchive"
+  "archiveNoun": {
+    "message": "Archive",
+    "descripton": "Noun"
+  },
+  "unArchiveVerb": {
+    "message": "Unarchive",
+    "descripton": "Verb"
   },
   "itemsInArchive": {
     "message": "Items in archive"
