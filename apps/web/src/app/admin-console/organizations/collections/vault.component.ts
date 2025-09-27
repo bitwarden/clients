@@ -1132,7 +1132,7 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
       const selectedCollection = await firstValueFrom(this.selectedCollection$);
       if (selectedCollection?.node.id === collection.id) {
         void this.router.navigate([], {
-          queryParams: { collectionId: selectedCollection.parent.node.id ?? null },
+          queryParams: { collectionId: selectedCollection?.parent?.node.id ?? null },
           queryParamsHandling: "merge",
           replaceUrl: true,
         });

@@ -3,7 +3,7 @@
     "message": "Sve aplikacije"
   },
   "activity": {
-    "message": "Activity"
+    "message": "Aktivnost"
   },
   "appLogoLabel": {
     "message": "Bitwarden logo"
@@ -60,7 +60,7 @@
     "message": "Stvori novu stavku prijave"
   },
   "criticalApplicationsActivityDescription": {
-    "message": "Once you mark applications critical, they will display here."
+    "message": "Aplikacije označene kao kritične će biti prikazane ovdje."
   },
   "criticalApplicationsWithCount": {
     "message": "Kritične aplikacije ($COUNT$)",
@@ -72,7 +72,7 @@
     }
   },
   "countOfCriticalApplications": {
-    "message": "$COUNT$ critical applications",
+    "message": "Kritičnih aplikacija: $COUNT$",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -135,10 +135,10 @@
     "message": "Rizični korisnici"
   },
   "membersAtRiskActivityDescription": {
-    "message": "Members with edit access to at-risk items for critical applications"
+    "message": "Članovi koji mogu uređivati stavke za aplikacije označene kao kritične"
   },
   "membersAtRisk": {
-    "message": "$COUNT$ members at risk",
+    "message": "Rizičnih članova: $COUNT$",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -5557,6 +5557,13 @@
   "personalOwnershipSubmitError": {
     "message": "Pravila tvrtke onemogućuju spremanje stavki u osobni trezor. Promijeni vlasništvo stavke na tvrtku i odaberi dostupnu Zbirku."
   },
+  "desktopAutotypePolicy": {
+    "message": "Desktop Autotype Default Setting"
+  },
+  "desktopAutotypePolicyDesc": {
+    "message": "Turn Desktop Autotype ON by default for members. Members can turn Autotype off manually in the Desktop client.",
+    "description": "This policy will enable Desktop Autotype by default for members on Unlock."
+  },
   "disableSend": {
     "message": "Onemogući Send"
   },
@@ -6720,6 +6727,15 @@
   },
   "disabledSso": {
     "message": "SSO onemogućen"
+  },
+  "emailMustLoginWithSso": {
+    "message": "$EMAIL$ se mora prijavljivati sa SSO",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
   },
   "enabledKeyConnector": {
     "message": "Konektor za ključ omogućen"
@@ -9839,7 +9855,7 @@
     "message": "Token nositelja"
   },
   "repositoryNameHint": {
-    "message": "Name of the repository to ingest into"
+    "message": "Naziv repozitorija u koji se unosi"
   },
   "index": {
     "message": "Indeks"
@@ -11005,6 +11021,18 @@
   "cannotCreateCollection": {
     "message": "Besplatne organizacije mogu imati do 2 zbirke. Nadogradi na plaćeni plan za dodavanje više zbirki."
   },
+  "searchArchive": {
+    "message": "Pretraži arhivu"
+  },
+  "archive": {
+    "message": "Arhiva"
+  },
+  "noItemsInArchive": {
+    "message": "Nema stavki u arhivi"
+  },
+  "archivedItemsDescription": {
+    "message": "Arhivirane stavke biti će prikazane ovdje i biti će izuzete iz rezultata općih pretraga i preporuka auto-ispune."
+  },
   "businessUnit": {
     "message": "Poslovna jedinica"
   },
@@ -11337,5 +11365,137 @@
   },
   "verifyNow": {
     "message": "Potvrdi sada."
+  },
+  "additionalStorageGB": {
+    "message": "Dodati GB pohrane"
+  },
+  "additionalServiceAccountsV2": {
+    "message": "Dodatni mašinski računi"
+  },
+  "secretsManagerSeats": {
+    "message": "Secret Manager licence"
+  },
+  "additionalStorage": {
+    "message": "Dodatna pohrana"
+  },
+  "expandPurchaseDetails": {
+    "message": "Proširi detalje kupnje"
+  },
+  "collapsePurchaseDetails": {
+    "message": "Skupi detalje kupnje"
+  },
+  "familiesMembership": {
+    "message": "Obiteljsko članstvo"
+  },
+  "planDescPremium": {
+    "message": "Dovrši online sigurnost"
+  },
+  "planDescFamiliesV2": {
+    "message": "Premium sigurnost za tvoju obitelj"
+  },
+  "planDescFreeV2": {
+    "message": "Podijeli s ovoliko korisnika: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "planDescEnterpriseV2": {
+    "message": "Napredne mogućnosti za bilo koju organizaciju"
+  },
+  "planNameCustom": {
+    "message": "Vlastiti plan"
+  },
+  "planDescCustom": {
+    "message": "Bitwarden se prilagođava tvrtkama svih veličina kako bi osigurao lozinke i osjetljive podatke. Ako si dio velike tvrtke, zatraži ponudu od odjela prodaje."
+  },
+  "builtInAuthenticator": {
+    "message": "Ugrađeni autentifikator"
+  },
+  "breachMonitoring": {
+    "message": "Nadzor proboja"
+  },
+  "andMoreFeatures": {
+    "message": "I više!"
+  },
+  "secureFileStorage": {
+    "message": "Sigurna pohrana datoteka"
+  },
+  "familiesUnlimitedSharing": {
+    "message": "Neograničeno dijeljenje - odaberi tko vidi što"
+  },
+  "familiesUnlimitedCollections": {
+    "message": "Neograničene obiteljske zbirke"
+  },
+  "familiesSharedStorage": {
+    "message": "Dijeljena pohrana za važbe obiteljske informacije"
+  },
+  "limitedUsersV2": {
+    "message": "Najveći broj članova: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "limitedCollectionsV2": {
+    "message": "Najveći broj zbirki: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "alwaysFree": {
+    "message": "Zauvijek besplatno"
+  },
+  "twoSecretsIncluded": {
+    "message": "2 tajne"
+  },
+  "projectsIncludedV2": {
+    "message": "Broj projekata: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "secureItemSharing": {
+    "message": "Sigurno dijeljenje stavki"
+  },
+  "scimSupport": {
+    "message": "SCIM podrška"
+  },
+  "includedMachineAccountsV2": {
+    "message": "Mašinskih računa: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
+  },
+  "enterpriseSecurityPolicies": {
+    "message": "Sigurnosne politike tvrtke"
+  },
+  "selfHostOption": {
+    "message": "Mogućnost samostalnog hostinga"
+  },
+  "complimentaryFamiliesPlan": {
+    "message": "Besplatni obiteljski plan za sve korisnike"
+  },
+  "strengthenCybersecurity": {
+    "message": "Jačanje kibernetičke sigurnosti"
+  },
+  "boostProductivity": {
+    "message": "Povećanje produktivnosti"
+  },
+  "seamlessIntegration": {
+    "message": "Jednostavna integracija"
   }
 }
