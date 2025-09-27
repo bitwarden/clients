@@ -409,13 +409,14 @@ export class ItemDetailsSectionComponent implements OnInit {
     /**
      * Determine if the the cipher is only assigned to shared collections.
      * i.e. The cipher is not assigned to a default collections.
+     * Note: `.every` will return true for an empty array
      */
     const cipherIsOnlyInOrgCollections =
-      this.originalCipherView?.collectionIds?.every(
+      (this.originalCipherView?.collectionIds ?? []).length > 0 &&
+      this.originalCipherView.collectionIds.every(
         (cId) =>
           this.collections.find((c) => c.id === cId)?.type === CollectionTypes.SharedCollection,
-      ) ?? false;
-
+      );
     this.collectionOptions = this.collections
       .filter((c) => {
         // The collection belongs to the organization
