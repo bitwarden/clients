@@ -1,5 +1,6 @@
 import { CommandDefinition } from "./types";
 
+// Test
 class MultiMessageSender implements MessageSender {
   constructor(private readonly innerMessageSenders: MessageSender[]) {}
 
