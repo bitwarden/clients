@@ -7,7 +7,7 @@ import { BehaviorSubject, of } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { CollectionTypes, CollectionView } from "@bitwarden/admin-console/common";
+import { CollectionType, CollectionTypes, CollectionView } from "@bitwarden/admin-console/common";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
@@ -33,6 +33,7 @@ const createMockCollection = (
   organizationId: string,
   readOnly = false,
   canEdit = true,
+  type: CollectionType = CollectionTypes.DefaultUserCollection,
 ): CollectionView => {
   const cv = new CollectionView({
     name,
@@ -41,7 +42,7 @@ const createMockCollection = (
   });
   cv.readOnly = readOnly;
   cv.manage = true;
-  cv.type = CollectionTypes.DefaultUserCollection;
+  cv.type = type;
   cv.externalId = "";
   cv.hidePasswords = false;
   cv.assigned = true;
@@ -509,6 +510,42 @@ describe("ItemDetailsSectionComponent", () => {
         createMockCollection("col3", "Collection 3", "org1", false, false) as CollectionView,
       ];
 
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      component.itemDetailsForm.controls.organizationId.setValue("org1");
+
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(component["collectionOptions"].map((c) => c.id)).toEqual(["col1", "col2", "col3"]);
+    });
+
+    it("should exclude default collections when the cipher is only assigned to shared collections", async () => {
+      component.config.admin = false;
+      component.config.organizationDataOwnershipDisabled = true;
+      component.config.organizations = [{ id: "org1" } as Organization];
+      component.config.collections = new Array(4)
+        .fill(null)
+        .map((_, i) => i + 1)
+        .map(
+          (i) =>
+            createMockCollection(
+              `col${i}`,
+              `Collection ${i}`,
+              "org1",
+              false,
+              false,
+              i < 4 ? CollectionTypes.SharedCollection : CollectionTypes.DefaultUserCollection,
+            ) as CollectionView,
+        );
+      component.originalCipherView = {
+        name: "cipher1",
+        organizationId: "org1",
+        folderId: "folder1",
+        collectionIds: ["col2", "col3"],
+        favorite: true,
+      } as CipherView;
       fixture.detectChanges();
       await fixture.whenStable();
 
