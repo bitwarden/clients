@@ -5557,6 +5557,13 @@
   "personalOwnershipSubmitError": {
     "message": "En raison d'une politique de sécurité Entreprise, il vous est interdit d'enregistrer des éléments dans votre coffre personnel. Sélectionnez une organisation dans l'option Propriété et choisissez parmi les collections disponibles."
   },
+  "desktopAutotypePolicy": {
+    "message": "Desktop Autotype Default Setting"
+  },
+  "desktopAutotypePolicyDesc": {
+    "message": "Turn Desktop Autotype ON by default for members. Members can turn Autotype off manually in the Desktop client.",
+    "description": "This policy will enable Desktop Autotype by default for members on Unlock."
+  },
   "disableSend": {
     "message": "Supprimer le Send"
   },
@@ -6720,6 +6727,15 @@
   },
   "disabledSso": {
     "message": "SSO désactivé"
+  },
+  "emailMustLoginWithSso": {
+    "message": "$EMAIL$ doit se connecter avec une Authentification Unique (SSO)",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
   },
   "enabledKeyConnector": {
     "message": "Key Connector activé"
@@ -10464,7 +10480,7 @@
     "message": "Gestionnaire de Mots de Passe Bitwarden"
   },
   "secretsManagerComplimentaryPasswordManager": {
-    "message": "Votre abonnement complémentairegratuit d'un an au Gestionnaire de Mots de Passe sera mis à niveau au plan sélectionné. Vous ne serez pas chargé avant la fin de votre période gratuite."
+    "message": "Votre abonnement offert gratuit d'un an au Gestionnaire de Mots de Passe sera mis à niveau au plan sélectionné. Vous ne serez pas chargé avant la fin de votre période gratuite."
   },
   "fileSavedToDevice": {
     "message": "Fichier enregistré sur l'appareil. Gérez à partir des téléchargements de votre appareil."
@@ -11005,6 +11021,18 @@
   "cannotCreateCollection": {
     "message": "Les organisations gratuites peuvent avoir jusqu'à 2 collections. Passez à une offre payante pour ajouter plus de collections."
   },
+  "searchArchive": {
+    "message": "Rechercher dans l'archive"
+  },
+  "archive": {
+    "message": "Archive"
+  },
+  "noItemsInArchive": {
+    "message": "Aucun élément dans l'archive"
+  },
+  "archivedItemsDescription": {
+    "message": "Les éléments archivés apparaîtront ici et seront exclus des résultats de recherche généraux et des suggestions de remplissage automatique."
+  },
   "businessUnit": {
     "message": "Unité d'affaires"
   },
@@ -11337,5 +11365,137 @@
   },
   "verifyNow": {
     "message": "Vérifier maintenant."
+  },
+  "additionalStorageGB": {
+    "message": "Stockage additionnel (Go)"
+  },
+  "additionalServiceAccountsV2": {
+    "message": "Comptes de machine supplémentaires"
+  },
+  "secretsManagerSeats": {
+    "message": "Places du Secrets Manager"
+  },
+  "additionalStorage": {
+    "message": "Stockage supplémentaire"
+  },
+  "expandPurchaseDetails": {
+    "message": "Développer les détails de l'achat"
+  },
+  "collapsePurchaseDetails": {
+    "message": "Réduire les détails de l'achat"
+  },
+  "familiesMembership": {
+    "message": "Abonnement à Familles"
+  },
+  "planDescPremium": {
+    "message": "Sécurité en ligne complète"
+  },
+  "planDescFamiliesV2": {
+    "message": "Sécurité Premium pour votre famille"
+  },
+  "planDescFreeV2": {
+    "message": "Partager avec $COUNT$ autres utilisateurs",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "planDescEnterpriseV2": {
+    "message": "Fonctionnalités avancées pour toute organisation"
+  },
+  "planNameCustom": {
+    "message": "Forfait personnalisé"
+  },
+  "planDescCustom": {
+    "message": "Bitwarden évolue avec des entreprises de toutes tailles pour sécuriser les mots de passe et les informations sensibles. Si vous faites partie d'une grande entreprise, contactez les ventes pour demander une soumission."
+  },
+  "builtInAuthenticator": {
+    "message": "Authentificateur intégré"
+  },
+  "breachMonitoring": {
+    "message": "Surveillance des fuites"
+  },
+  "andMoreFeatures": {
+    "message": "Et encore plus !"
+  },
+  "secureFileStorage": {
+    "message": "Stockage sécurisé de fichier"
+  },
+  "familiesUnlimitedSharing": {
+    "message": "Partage illimité - choisissez qui voit quoi"
+  },
+  "familiesUnlimitedCollections": {
+    "message": "Collections familiales illimitées"
+  },
+  "familiesSharedStorage": {
+    "message": "Stockage partagé pour les informations importantes de la famille"
+  },
+  "limitedUsersV2": {
+    "message": "Jusqu'à $COUNT$ membres",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "limitedCollectionsV2": {
+    "message": "Jusqu'à $COUNT$ collections",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "alwaysFree": {
+    "message": "Toujours gratuit"
+  },
+  "twoSecretsIncluded": {
+    "message": "2 secrets"
+  },
+  "projectsIncludedV2": {
+    "message": "$COUNT$ projet(s)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "secureItemSharing": {
+    "message": "Partage sécurisé d’éléments"
+  },
+  "scimSupport": {
+    "message": "Support SCIM"
+  },
+  "includedMachineAccountsV2": {
+    "message": "$COUNT$ comptes machine",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
+  },
+  "enterpriseSecurityPolicies": {
+    "message": "Politiques de sécurité de l'entreprise"
+  },
+  "selfHostOption": {
+    "message": "Option d'auto-hébergement"
+  },
+  "complimentaryFamiliesPlan": {
+    "message": "Plan pour familles offert gratuitement pour tous les utilisateurs"
+  },
+  "strengthenCybersecurity": {
+    "message": "Renforcer la cybersécurité"
+  },
+  "boostProductivity": {
+    "message": "Améliore la productivité"
+  },
+  "seamlessIntegration": {
+    "message": "Intégrations transparentes"
   }
 }
