@@ -1,4 +1,4 @@
-import { BehaviorSubject, firstValueFrom, Observable, of } from "rxjs";
+import { BehaviorSubject, EMPTY, firstValueFrom, Observable, of } from "rxjs";
 import {
   distinctUntilChanged,
   exhaustMap,
@@ -345,9 +345,10 @@ export class RiskInsightsDataService {
       distinctUntilChanged(),
       filter((isRunning) => isRunning),
       withLatestFrom(this.organizationDetails$, this.userId$),
-      exhaustMap(([_, { organizationId }, userId]) => {
+      exhaustMap(([_, organizationDetails, userId]) => {
+        const organizationId = organizationDetails?.organizationId;
         if (!organizationId || !userId) {
-          return;
+          return EMPTY;
         }
 
         // Generate the report

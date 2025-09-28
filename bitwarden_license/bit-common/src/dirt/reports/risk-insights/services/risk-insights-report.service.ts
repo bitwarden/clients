@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe
-// @ts-strict-ignore
 import {
   BehaviorSubject,
   concatMap,
@@ -15,12 +13,13 @@ import {
   zip,
 } from "rxjs";
 
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import {
+  createNewReportData,
+  createNewSummaryData,
   flattenMemberDetails,
   getApplicationReportDetail,
   getFlattenedCipherDetails,
@@ -58,17 +57,9 @@ export class RiskInsightsReportService {
   private riskInsightsReportSubject = new BehaviorSubject<ApplicationHealthReportDetail[]>([]);
   riskInsightsReport$ = this.riskInsightsReportSubject.asObservable();
 
-  private riskInsightsSummarySubject = new BehaviorSubject<OrganizationReportSummary>({
-    totalMemberCount: 0,
-    totalAtRiskMemberCount: 0,
-    totalApplicationCount: 0,
-    totalAtRiskApplicationCount: 0,
-    totalCriticalMemberCount: 0,
-    totalCriticalAtRiskMemberCount: 0,
-    totalCriticalApplicationCount: 0,
-    totalCriticalAtRiskApplicationCount: 0,
-    newApplications: [],
-  });
+  private riskInsightsSummarySubject = new BehaviorSubject<OrganizationReportSummary>(
+    createNewSummaryData(),
+  );
   riskInsightsSummary$ = this.riskInsightsSummarySubject.asObservable();
 
   // [FIXME] CipherData
@@ -194,11 +185,8 @@ export class RiskInsightsReportService {
 
     cipherHealthReportDetails.forEach((app) => {
       app.atRiskMemberDetails.forEach((member) => {
-        if (memberRiskMap.has(member.email)) {
-          memberRiskMap.set(member.email, memberRiskMap.get(member.email) + 1);
-        } else {
-          memberRiskMap.set(member.email, 1);
-        }
+        const currentCount = memberRiskMap.get(member.email) ?? 0;
+        memberRiskMap.set(member.email, currentCount + 1);
       });
     });
 
@@ -211,25 +199,24 @@ export class RiskInsightsReportService {
   generateAtRiskApplicationList(
     cipherHealthReportDetails: ApplicationHealthReportDetail[],
   ): AtRiskApplicationDetail[] {
-    const appsRiskMap = new Map<string, number>();
+    const applicationPasswordRiskMap = new Map<string, number>();
 
     cipherHealthReportDetails
       .filter((app) => app.atRiskPasswordCount > 0)
       .forEach((app) => {
-        if (appsRiskMap.has(app.applicationName)) {
-          appsRiskMap.set(
-            app.applicationName,
-            appsRiskMap.get(app.applicationName) + app.atRiskPasswordCount,
-          );
-        } else {
-          appsRiskMap.set(app.applicationName, app.atRiskPasswordCount);
-        }
+        const atRiskPasswordCount = applicationPasswordRiskMap.get(app.applicationName) ?? 0;
+        applicationPasswordRiskMap.set(
+          app.applicationName,
+          atRiskPasswordCount + app.atRiskPasswordCount,
+        );
       });
 
-    return Array.from(appsRiskMap.entries()).map(([applicationName, atRiskPasswordCount]) => ({
-      applicationName,
-      atRiskPasswordCount,
-    }));
+    return Array.from(applicationPasswordRiskMap.entries()).map(
+      ([applicationName, atRiskPasswordCount]) => ({
+        applicationName,
+        atRiskPasswordCount,
+      }),
+    );
   }
 
   /**
@@ -287,36 +274,26 @@ export class RiskInsightsReportService {
     userId: UserId,
   ): Observable<RiskInsightsReportData> {
     return this.riskInsightsApiService.getRiskInsightsReport$(organizationId).pipe(
-      switchMap((response) => {
+      switchMap((response): Observable<RiskInsightsReportData> => {
         if (!response) {
           // Return an empty report and summary if response is falsy
-          return of<RiskInsightsReportData>({
-            data: [],
-            summary: {
-              totalMemberCount: 0,
-              totalAtRiskMemberCount: 0,
-              totalApplicationCount: 0,
-              totalAtRiskApplicationCount: 0,
-              totalCriticalMemberCount: 0,
-              totalCriticalAtRiskMemberCount: 0,
-              totalCriticalApplicationCount: 0,
-              totalCriticalAtRiskApplicationCount: 0,
-              newApplications: [],
-            },
-          });
+          return of<RiskInsightsReportData>(createNewReportData());
         }
         if (!response.contentEncryptionKey || response.contentEncryptionKey.data == "") {
           return throwError(() => new Error("Report key not found"));
+        }
+        if (!response.reportData) {
+          return throwError(() => new Error("Report data not found"));
         }
         return from(
           this.riskInsightsEncryptionService.decryptRiskInsightsReport<RiskInsightsReportData>(
             organizationId,
             userId,
-            new EncString(response.reportData.encryptedString),
-            new EncString(response.contentEncryptionKey.encryptedString),
+            response.reportData,
+            response.contentEncryptionKey,
             (data) => data as RiskInsightsReportData,
           ),
-        );
+        ).pipe(map((decryptedReport) => decryptedReport ?? createNewReportData()));
       }),
     );
   }
@@ -350,8 +327,8 @@ export class RiskInsightsReportService {
         data: {
           organizationId: encryptionParameters.organizationId,
           date: new Date().toISOString(),
-          reportData: encryptedData.encryptedString,
-          contentEncryptionKey: contentEncryptionKey.encryptedString,
+          reportData: encryptedData.toSdk(),
+          contentEncryptionKey: contentEncryptionKey.toSdk(),
         },
       })),
       switchMap((encryptedReport) =>
@@ -399,7 +376,7 @@ export class RiskInsightsReportService {
           passwordUseMap.set(cipher.login.password, 1);
         }
 
-        const exposedPassword = exposedDetails.find((x) => x.cipherId === cipher.id);
+        const exposedPassword = exposedDetails.find((x) => x?.cipherId === cipher.id);
 
         // Get the cipher members
         const cipherMembers = memberDetails.filter((x) => x.cipherId === cipher.id);
@@ -624,7 +601,7 @@ export class RiskInsightsReportService {
     return this.passwordHealthService.auditPasswordLeaks$(validCiphers).pipe(
       map((exposedDetails) => {
         return validCiphers.map((cipher) => {
-          const exposedPassword = exposedDetails.find((x) => x.cipherId === cipher.id);
+          const exposedPassword = exposedDetails.find((x) => x?.cipherId === cipher.id);
           const cipherMembers = memberDetails.filter((x) => x.cipherId === cipher.id);
 
           const result = {

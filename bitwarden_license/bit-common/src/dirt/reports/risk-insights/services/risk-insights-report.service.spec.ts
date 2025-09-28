@@ -8,6 +8,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
+import { createNewSummaryData } from "../helpers";
 import {
   GetRiskInsightsReportResponse,
   SaveRiskInsightsReportResponse,
@@ -149,17 +150,7 @@ describe("RiskInsightsReportService", () => {
         cipherIds: [],
       },
     ];
-    mockSummary = {
-      totalMemberCount: 0,
-      totalCriticalMemberCount: 0,
-      totalAtRiskMemberCount: 0,
-      totalCriticalAtRiskMemberCount: 0,
-      totalApplicationCount: 0,
-      totalCriticalApplicationCount: 0,
-      totalAtRiskApplicationCount: 0,
-      totalCriticalAtRiskApplicationCount: 0,
-      newApplications: [],
-    };
+    mockSummary = createNewSummaryData();
 
     mockEncryptedReport = {
       organizationId: mockOrganizationId,
@@ -291,7 +282,7 @@ describe("RiskInsightsReportService", () => {
     expect(reportSummary.totalAtRiskApplicationCount).toEqual(7);
   });
 
-  describe("saveRiskInsightsReport", () => {
+  describe("saveRiskInsightsReport$", () => {
     it("should not update subjects if save response does not have id", (done) => {
       mockRiskInsightsEncryptionService.encryptRiskInsightsReport.mockResolvedValue(
         mockEncryptedReport,

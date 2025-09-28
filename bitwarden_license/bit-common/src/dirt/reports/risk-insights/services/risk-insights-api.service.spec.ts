@@ -3,6 +3,7 @@ import { firstValueFrom } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { makeEncString } from "@bitwarden/common/spec";
 import { OrganizationId, OrganizationReportId } from "@bitwarden/common/types/guid";
 
@@ -71,8 +72,8 @@ describe("RiskInsightsApiService", () => {
   });
 
   it("getRiskInsightsReport$ should return null if apiService.send rejects with 404 error", async () => {
-    const error = { statusCode: 404 };
-    mockApiService.send.mockReturnValue(Promise.reject(error));
+    const mockError = new ErrorResponse(null, 404);
+    mockApiService.send.mockReturnValue(Promise.reject(mockError));
 
     const result = await firstValueFrom(service.getRiskInsightsReport$(orgId));
 

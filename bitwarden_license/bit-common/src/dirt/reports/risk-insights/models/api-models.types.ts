@@ -2,11 +2,9 @@ import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-st
 import { BaseResponse } from "@bitwarden/common/models/response/base.response";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 
-import {
-  OrganizationReportSummary,
-  PasswordHealthReportApplicationId,
-  RiskInsightsReport,
-} from "./report-models";
+import { createNewSummaryData } from "../helpers";
+
+import { OrganizationReportSummary, PasswordHealthReportApplicationId } from "./report-models";
 
 // -------------------- Password Health Report Models --------------------
 /**
@@ -37,7 +35,12 @@ export interface PasswordHealthReportApplicationsRequest {
 
 // -------------------- Risk Insights Report Models --------------------
 export interface SaveRiskInsightsReportRequest {
-  data: RiskInsightsReport;
+  data: {
+    organizationId: OrganizationId;
+    date: string;
+    reportData: string;
+    contentEncryptionKey: string;
+  };
 }
 
 export class SaveRiskInsightsReportResponse extends BaseResponse {
@@ -88,17 +91,7 @@ export class GetRiskInsightsSummaryResponse extends BaseResponse {
 
   // TODO
   getSummary(): OrganizationReportSummary {
-    return {
-      totalMemberCount: 0,
-      totalCriticalMemberCount: 0,
-      totalAtRiskMemberCount: 0,
-      totalCriticalAtRiskMemberCount: 0,
-      totalApplicationCount: 0,
-      totalCriticalApplicationCount: 0,
-      totalAtRiskApplicationCount: 0,
-      totalCriticalAtRiskApplicationCount: 0,
-      newApplications: [],
-    };
+    return createNewSummaryData();
   }
 }
 export class GetRiskInsightsApplicationDataResponse extends BaseResponse {
