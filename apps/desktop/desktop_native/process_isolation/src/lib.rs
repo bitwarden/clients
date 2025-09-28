@@ -40,7 +40,7 @@ fn preload_init() {
     let pid = unsafe { libc::getpid() };
     unsafe {
         println!("[Process Isolation] Enabling memory security for process {pid}");
-        process_isolation::disable_memory_access();
+        process_isolation::isolate_process();
         process_isolation::disable_coredumps();
     }
 }
