@@ -960,9 +960,6 @@
   "insertU2f": {
     "message": "Włóż klucz bezpieczeństwa do portu USB urządzenia. Jeśli klucz ma przycisk, dotknij go."
   },
-  "recoveryCodeDesc": {
-    "message": "Nie masz dostępu do logowania dwustopniowego? Użyj kodu odzyskiwania, aby je wyłączyć."
-  },
   "recoveryCodeTitle": {
     "message": "Kod odzyskiwania"
   },
@@ -3012,7 +3009,7 @@
     "message": "Logowanie za pomocą urządzenia musi być włączone w ustawieniach aplikacji Bitwarden. Potrzebujesz innej opcji?"
   },
   "viewAllLogInOptions": {
-    "message": "Zobacz wszystkie sposoby logowania"
+    "message": "Pokaż wszystkie metody logowania"
   },
   "viewAllLoginOptions": {
     "message": "Pokaż wszystkie metody logowania"
@@ -3588,6 +3585,12 @@
   "awaitingSSODesc": {
     "message": "Kontynuuj logowanie przy użyciu danych firmowych."
   },
+  "importDirectlyFromBrowser": {
+    "message": "Importuj bezpośrednio z przeglądarki"
+  },
+  "browserProfile": {
+    "message": "Profil przeglądarki"
+  },
   "seeDetailedInstructions": {
     "message": "Zobacz szczegółowe instrukcje na naszej stronie pomocy pod adresem",
     "description": "This is followed a by a hyperlink to the help website."
@@ -3830,6 +3833,12 @@
   "changeAtRiskPassword": {
     "message": "Zmień zagrożone hasło"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Dane logowania są zagrożone i nie zawierają strony internetowej. Dodaj stronę internetową i zmień hasło."
+  },
+  "missingWebsite": {
+    "message": "Brak strony internetowej"
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "Nie możesz usunąć następujących kolekcji z uprawnieniami tylko do odczytu: $COLLECTIONS$",
     "placeholders": {
@@ -3929,7 +3938,7 @@
     "message": "O ustawieniu"
   },
   "permitCipherDetailsDescription": {
-    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+    "message": "Bitwarden użyje zapisanych adresów URL danych logowania, aby określić, która ikona lub adres URL zmiany hasła powinien zostać użyty w celu poprawy komfortu użytkowania. Usługa nie zapisuje żadnych danych."
   },
   "assignToCollections": {
     "message": "Przypisz do kolekcji"
@@ -4080,5 +4089,50 @@
   "moreBreadcrumbs": {
     "message": "Więcej nawigacji",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "next": {
+    "message": "Dalej"
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Potwierdź domenę Key Connector"
+  },
+  "confirm": {
+    "message": "Potwierdź"
+  },
+  "enableAutotypeTransitionKey": {
+    "message": "Enable autotype shortcut"
+  },
+  "enableAutotypeDescriptionTransitionKey": {
+    "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."
+  },
+  "editShortcut": {
+    "message": "Edytuj skrót"
+  },
+  "archive": {
+    "message": "Archive"
+  },
+  "unarchive": {
+    "message": "Usuń z archiwum"
+  },
+  "itemsInArchive": {
+    "message": "Elementy w archiwum"
+  },
+  "noItemsInArchive": {
+    "message": "Brak elementów w archiwum"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Zarchiwizowane elementy pojawią się tutaj i zostaną wykluczone z wyników wyszukiwania i sugestii autouzupełniania."
+  },
+  "itemSentToArchive": {
+    "message": "Element został przeniesiony do archiwum"
+  },
+  "itemRemovedFromArchive": {
+    "message": "Element został usunięty z archiwum"
+  },
+  "archiveItem": {
+    "message": "Archiwizuj element"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
   }
 }

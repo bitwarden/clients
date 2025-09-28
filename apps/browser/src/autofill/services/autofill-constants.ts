@@ -46,6 +46,8 @@ export class AutoFillConstants {
     "verification code",
   ];
 
+  static readonly RecoveryCodeFieldNames: string[] = ["backup", "recovery"];
+
   static readonly AmbiguousTotpFieldNames: string[] = ["code", "pin", "otc", "otp", "2fa", "mfa"];
 
   static readonly SearchFieldNames: string[] = ["search", "query", "find", "go"];

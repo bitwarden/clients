@@ -92,6 +92,9 @@ export class DownloadAttachmentComponent {
         this.attachment,
         response,
         userId,
+        // When the emergency access ID is present, the cipher is being viewed via emergency access.
+        // Force legacy decryption in these cases.
+        this.emergencyAccessId ? true : false,
       );
 
       this.fileDownloadService.download({

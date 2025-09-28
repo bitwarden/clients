@@ -5,12 +5,19 @@ import { combineLatest, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { NoResults, NoSendsIcon } from "@bitwarden/assets/svg";
+import { BrowserPremiumUpgradePromptService } from "@bitwarden/browser/vault/popup/services/browser-premium-upgrade-prompt.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
-import { ButtonModule, CalloutModule, NoItemsModule } from "@bitwarden/components";
+import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
+import {
+  ButtonModule,
+  CalloutModule,
+  NoItemsModule,
+  TypographyModule,
+} from "@bitwarden/components";
 import {
   NewSendDropdownComponent,
   SendItemsService,
@@ -34,6 +41,12 @@ export enum SendState {
 
 @Component({
   templateUrl: "send-v2.component.html",
+  providers: [
+    {
+      provide: PremiumUpgradePromptService,
+      useClass: BrowserPremiumUpgradePromptService,
+    },
+  ],
   imports: [
     CalloutModule,
     PopupPageComponent,
@@ -48,6 +61,7 @@ export enum SendState {
     SendListItemsContainerComponent,
     SendListFiltersComponent,
     SendSearchComponent,
+    TypographyModule,
   ],
 })
 export class SendV2Component implements OnDestroy {

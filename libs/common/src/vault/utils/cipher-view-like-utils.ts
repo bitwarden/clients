@@ -71,6 +71,15 @@ export class CipherViewLikeUtils {
     return cipher.type === CipherType.Card ? cipher.card : null;
   };
 
+  /**  @returns `true` when the cipher has been archived, `false` otherwise. */
+  static isArchived = (cipher: CipherViewLike): boolean => {
+    if (this.isCipherListView(cipher)) {
+      return !!cipher.archivedDate;
+    }
+
+    return cipher.isArchived;
+  };
+
   /**  @returns `true` when the cipher has been deleted, `false` otherwise. */
   static isDeleted = (cipher: CipherViewLike): boolean => {
     if (this.isCipherListView(cipher)) {
@@ -78,6 +87,18 @@ export class CipherViewLikeUtils {
     }
 
     return cipher.isDeleted;
+  };
+
+  /**  @returns `true` when the cipher is not assigned to a collection, `false` otherwise. */
+  static isUnassigned = (cipher: CipherViewLike): boolean => {
+    if (this.isCipherListView(cipher)) {
+      return (
+        cipher.organizationId != null &&
+        (cipher.collectionIds == null || cipher.collectionIds.length === 0)
+      );
+    }
+
+    return cipher.isUnassigned;
   };
 
   /** @returns `true` when the user can assign the cipher to a collection, `false` otherwise. */

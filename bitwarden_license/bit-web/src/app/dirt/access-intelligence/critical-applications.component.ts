@@ -4,7 +4,7 @@ import { Component, DestroyRef, inject, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { combineLatest, debounceTime, map, switchMap } from "rxjs";
+import { combineLatest, debounceTime, firstValueFrom, map, switchMap } from "rxjs";
 
 import { Security } from "@bitwarden/assets/svg";
 import {
@@ -13,10 +13,12 @@ import {
   RiskInsightsReportService,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import {
-  ApplicationHealthReportDetailWithCriticalFlag,
-  ApplicationHealthReportDetailWithCriticalFlagAndCipher,
-  ApplicationHealthReportSummary,
+  LEGACY_ApplicationHealthReportDetailWithCriticalFlag,
+  LEGACY_ApplicationHealthReportDetailWithCriticalFlagAndCipher,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/password-health";
+import { OrganizationReportSummary } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/report-models";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherId, OrganizationId } from "@bitwarden/common/types/guid";
@@ -49,51 +51,57 @@ import { RiskInsightsTabType } from "./risk-insights.component";
 })
 export class CriticalApplicationsComponent implements OnInit {
   protected dataSource =
-    new TableDataSource<ApplicationHealthReportDetailWithCriticalFlagAndCipher>();
+    new TableDataSource<LEGACY_ApplicationHealthReportDetailWithCriticalFlagAndCipher>();
   protected selectedIds: Set<number> = new Set<number>();
   protected searchControl = new FormControl("", { nonNullable: true });
   private destroyRef = inject(DestroyRef);
   protected loading = false;
-  protected organizationId: string;
-  protected applicationSummary = {} as ApplicationHealthReportSummary;
+  protected organizationId: OrganizationId;
+  protected applicationSummary = {} as OrganizationReportSummary;
   noItemsIcon = Security;
   enableRequestPasswordChange = false;
 
   async ngOnInit() {
-    this.organizationId = this.activatedRoute.snapshot.paramMap.get("organizationId") ?? "";
+    this.organizationId = this.activatedRoute.snapshot.paramMap.get(
+      "organizationId",
+    ) as OrganizationId;
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    this.criticalAppsService.loadOrganizationContext(this.organizationId as OrganizationId, userId);
 
-    combineLatest([
-      this.dataService.applications$,
-      this.criticalAppsService.getAppsListForOrg(this.organizationId),
-    ])
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        map(([applications, criticalApps]) => {
-          const criticalUrls = criticalApps.map((ca) => ca.uri);
-          const data = applications?.map((app) => ({
-            ...app,
-            isMarkedAsCritical: criticalUrls.includes(app.applicationName),
-          })) as ApplicationHealthReportDetailWithCriticalFlag[];
-          return data?.filter((app) => app.isMarkedAsCritical);
-        }),
-        switchMap(async (data) => {
-          if (data) {
-            const dataWithCiphers = await this.reportService.identifyCiphers(
-              data,
-              this.organizationId,
-            );
-            return dataWithCiphers;
+    if (this.organizationId) {
+      combineLatest([
+        this.dataService.applications$,
+        this.criticalAppsService.getAppsListForOrg(this.organizationId as OrganizationId),
+      ])
+        .pipe(
+          takeUntilDestroyed(this.destroyRef),
+          map(([applications, criticalApps]) => {
+            const criticalUrls = criticalApps.map((ca) => ca.uri);
+            const data = applications?.map((app) => ({
+              ...app,
+              isMarkedAsCritical: criticalUrls.includes(app.applicationName),
+            })) as LEGACY_ApplicationHealthReportDetailWithCriticalFlag[];
+            return data?.filter((app) => app.isMarkedAsCritical);
+          }),
+          switchMap(async (data) => {
+            if (data) {
+              const dataWithCiphers = await this.reportService.identifyCiphers(
+                data,
+                this.organizationId,
+              );
+              return dataWithCiphers;
+            }
+            return null;
+          }),
+        )
+        .subscribe((applications) => {
+          if (applications) {
+            this.dataSource.data = applications;
+            this.applicationSummary = this.reportService.generateApplicationsSummary(applications);
+            this.enableRequestPasswordChange = this.applicationSummary.totalAtRiskMemberCount > 0;
           }
-          return null;
-        }),
-      )
-      .subscribe((applications) => {
-        if (applications) {
-          this.dataSource.data = applications;
-          this.applicationSummary = this.reportService.generateApplicationsSummary(applications);
-          this.enableRequestPasswordChange = this.applicationSummary.totalAtRiskMemberCount > 0;
-        }
-      });
+        });
+    }
   }
 
   goToAllAppsTab = async () => {
@@ -122,9 +130,8 @@ export class CriticalApplicationsComponent implements OnInit {
     }
 
     this.toastService.showToast({
-      message: this.i18nService.t("criticalApplicationSuccessfullyUnmarked"),
+      message: this.i18nService.t("criticalApplicationUnmarkedSuccessfully"),
       variant: "success",
-      title: this.i18nService.t("success"),
     });
     this.dataSource.data = this.dataSource.data.filter((app) => app.applicationName !== hostname);
   };
@@ -168,6 +175,7 @@ export class CriticalApplicationsComponent implements OnInit {
     protected i18nService: I18nService,
     private configService: ConfigService,
     private adminTaskService: DefaultAdminTaskService,
+    private accountService: AccountService,
   ) {
     this.searchControl.valueChanges
       .pipe(debounceTime(200), takeUntilDestroyed())
@@ -194,10 +202,9 @@ export class CriticalApplicationsComponent implements OnInit {
     this.dataService.setDrawerForOrgAtRiskApps(data, invokerId);
   };
 
-  trackByFunction(_: number, item: ApplicationHealthReportDetailWithCriticalFlag) {
-    return item.applicationName;
-  }
   isDrawerOpenForTableRow = (applicationName: string) => {
-    return this.dataService.drawerInvokerId === applicationName;
+    // Note: This function will be replaced by PR #16523 with openApplication binding
+    // Using private access to BehaviorSubject value for backward compatibility
+    return (this.dataService as any).drawerDetailsSubject?.value?.invokerId === applicationName;
   };
 }

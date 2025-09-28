@@ -12,6 +12,16 @@ import {
 
 import { fromChromeEvent } from "../browser/from-chrome-event";
 
+/**
+ * A check to see if the current browser has the needed API to support the `BrowserSystemNotificationService`.
+ *
+ * This check should only be called during dependency creation, if consumers need to know if
+ * system notifications can be used they should use {@link SystemNotificationsService.isSupported}.
+ */
+export function isNotificationsSupported() {
+  return "notifications" in chrome && chrome.notifications != null;
+}
+
 export class BrowserSystemNotificationService implements SystemNotificationsService {
   notificationClicked$: Observable<SystemNotificationEvent>;
 
@@ -36,7 +46,7 @@ export class BrowserSystemNotificationService implements SystemNotificationsServ
     return new Promise<string>((resolve) => {
       const deviceType: DeviceType = this.platformUtilsService.getDevice();
 
-      const options: chrome.notifications.NotificationOptions<true> = {
+      const options: chrome.notifications.NotificationCreateOptions = {
         iconUrl: chrome.runtime.getURL("images/icon128.png"),
         message: createInfo.body,
         type: "basic",
@@ -60,6 +70,7 @@ export class BrowserSystemNotificationService implements SystemNotificationsServ
   }
 
   async clear(clearInfo: SystemNotificationClearInfo): Promise<undefined> {
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     chrome.notifications.clear(clearInfo.id);
   }
 

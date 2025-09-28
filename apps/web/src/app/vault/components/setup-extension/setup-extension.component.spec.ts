@@ -3,6 +3,7 @@ import { By } from "@angular/platform-browser";
 import { Router, RouterModule } from "@angular/router";
 import { BehaviorSubject } from "rxjs";
 
+import { SYSTEM_THEME_OBSERVABLE } from "@bitwarden/angular/services/injection-tokens";
 import { BrowserExtensionIcon } from "@bitwarden/assets/svg";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { DeviceType } from "@bitwarden/common/enums";
@@ -10,6 +11,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { StateProvider } from "@bitwarden/common/platform/state";
+import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { AnonLayoutWrapperDataService } from "@bitwarden/components";
 
 import { WebBrowserInteractionService } from "../../services/web-browser-interaction.service";
@@ -39,6 +41,8 @@ describe("SetupExtensionComponent", () => {
         { provide: I18nService, useValue: { t: (key: string) => key } },
         { provide: WebBrowserInteractionService, useValue: { extensionInstalled$, openExtension } },
         { provide: PlatformUtilsService, useValue: { getDevice: () => DeviceType.UnknownBrowser } },
+        { provide: SYSTEM_THEME_OBSERVABLE, useValue: new BehaviorSubject("system") },
+        { provide: ThemeStateService, useValue: { selectedTheme$: new BehaviorSubject("system") } },
         { provide: AnonLayoutWrapperDataService, useValue: { setAnonLayoutWrapperData } },
         {
           provide: AccountService,
