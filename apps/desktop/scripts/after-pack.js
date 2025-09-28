@@ -30,6 +30,17 @@ async function run(context) {
     fse.copyFileSync(wrapperScript, wrapperBin);
     fse.chmodSync(wrapperBin, "755");
     console.log("Copied memory-protection wrapper script");
+
+    const memorySecurityPath = path.join(__dirname, "../process_isolation/");
+    const memorySecurityLibPath = path.join(
+      memorySecurityPath,
+      "target",
+      "release",
+      "libprocess_isolation.so",
+    );
+    const memorySecurityLibOutPath = path.join(appOutDir, "libprocess_isolation.so");
+    child_process.execSync(`cargo build --release`, { cwd: memorySecurityPath });
+    fse.copyFileSync(memorySecurityLibPath, memorySecurityLibOutPath);
   }
 
   if (["darwin", "mas"].includes(context.electronPlatformName)) {
