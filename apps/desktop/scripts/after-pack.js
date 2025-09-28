@@ -39,7 +39,6 @@ async function run(context) {
       "libprocess_isolation.so",
     );
     const memorySecurityLibOutPath = path.join(appOutDir, "libprocess_isolation.so");
-    child_process.execSync(`cargo build --release`, { cwd: memorySecurityPath });
     fse.copyFileSync(memorySecurityLibPath, memorySecurityLibOutPath);
   }
 
