@@ -1,3 +1,4 @@
+import { Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { ActivatedRoute, RouterModule } from "@angular/router";
@@ -14,6 +15,13 @@ import { NavItemComponent } from "@bitwarden/components/src/navigation/nav-item.
 import { ProductSwitcherItem, ProductSwitcherService } from "../shared/product-switcher.service";
 
 import { NavigationProductSwitcherComponent } from "./navigation-switcher.component";
+
+@Component({
+  selector: "app-upgrade-nav-button",
+  template: "<div>Upgrade Nav Button</div>",
+  standalone: true,
+})
+class MockUpgradeNavButtonComponent {}
 
 Object.defineProperty(window, "matchMedia", {
   writable: true,
@@ -41,13 +49,16 @@ describe("NavigationProductSwitcherComponent", () => {
     other: [],
   });
 
+  const mockShouldShowPremiumUpgradeButton$ = new BehaviorSubject<boolean>(false);
+
   beforeEach(async () => {
     productSwitcherService = mock<ProductSwitcherService>();
     productSwitcherService.products$ = mockProducts$;
+    productSwitcherService.shouldShowPremiumUpgradeButton$ = mockShouldShowPremiumUpgradeButton$;
     mockProducts$.next({ bento: [], other: [] });
 
     await TestBed.configureTestingModule({
-      imports: [RouterModule, NavigationModule, IconButtonModule],
+      imports: [RouterModule, NavigationModule, IconButtonModule, MockUpgradeNavButtonComponent],
       declarations: [NavigationProductSwitcherComponent, I18nPipe],
       providers: [
         { provide: ProductSwitcherService, useValue: productSwitcherService },
@@ -231,5 +242,51 @@ describe("NavigationProductSwitcherComponent", () => {
     const link = fixture.nativeElement.querySelector("a");
 
     expect(link.getAttribute("href")).toBe("/vault");
+  });
+
+  describe("upgrade nav button", () => {
+    it("shows upgrade nav button when shouldShowPremiumUpgradeButton$ is true", () => {
+      mockShouldShowPremiumUpgradeButton$.next(true);
+      mockProducts$.next({
+        bento: [],
+        other: [
+          {
+            name: "Organizations",
+            icon: "bwi-lock",
+            marketingRoute: { route: "https://www.example.com/", external: true },
+          },
+        ],
+      });
+
+      fixture.detectChanges();
+
+      const upgradeButton = fixture.nativeElement.querySelector("app-upgrade-nav-button");
+      const moreProductsSection = fixture.nativeElement.querySelector("section");
+
+      expect(upgradeButton).toBeTruthy();
+      expect(moreProductsSection).toBeFalsy();
+    });
+
+    it("shows more products when shouldShowPremiumUpgradeButton$ is false and there are more products", () => {
+      mockShouldShowPremiumUpgradeButton$.next(false);
+      mockProducts$.next({
+        bento: [],
+        other: [
+          {
+            name: "Organizations",
+            icon: "bwi-lock",
+            marketingRoute: { route: "https://www.example.com/", external: true },
+          },
+        ],
+      });
+
+      fixture.detectChanges();
+
+      const upgradeButton = fixture.nativeElement.querySelector("app-upgrade-nav-button");
+      const moreProductsSection = fixture.nativeElement.querySelector("section");
+
+      expect(upgradeButton).toBeFalsy();
+      expect(moreProductsSection).toBeTruthy();
+    });
   });
 });

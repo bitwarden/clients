@@ -9,11 +9,12 @@
     [forceActiveStyles]="product.isActive"
   >
   </bit-nav-item>
-  <ng-container *ngIf="moreProducts$ | async as moreProducts">
-    <section
-      *ngIf="moreProducts.length > 0"
-      class="tw-mt-2 tw-flex tw-w-full tw-flex-col tw-gap-2 tw-border-0"
-    >
+
+  @let moreProducts = moreProducts$ | async;
+  @if (shouldShowPremiumUpgradeButton$ | async) {
+    <app-upgrade-nav-button></app-upgrade-nav-button>
+  } @else if (moreProducts && moreProducts.length > 0) {
+    <section class="tw-mt-2 tw-flex tw-w-full tw-flex-col tw-gap-2 tw-border-0">
       <span class="tw-text-xs !tw-text-alt2 tw-p-2 tw-pb-0">{{ "moreFromBitwarden" | i18n }}</span>
       <ng-container *ngFor="let more of moreProducts">
         <div class="tw-ps-2 tw-pe-2">
@@ -57,5 +58,5 @@
         </div>
       </ng-container>
     </section>
-  </ng-container>
+  }
 </div>

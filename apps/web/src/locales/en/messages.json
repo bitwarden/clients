@@ -11562,5 +11562,8 @@
   },
   "continueWithoutUpgrading": {
     "message": "Continue without upgrading"
+  },
+  "upgradeYourPlan": {
+    "message": "Upgrade your plan"
   }
 }
