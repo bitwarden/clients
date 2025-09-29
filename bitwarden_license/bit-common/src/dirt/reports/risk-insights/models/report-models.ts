@@ -155,5 +155,5 @@ export interface RiskInsightsData {
   creationDate: Date;
   reportData: ApplicationHealthReportDetail[];
   summaryData: OrganizationReportSummary;
-  applicationsData: OrganizationReportApplication[];
+  applicationData: OrganizationReportApplication[];
 }

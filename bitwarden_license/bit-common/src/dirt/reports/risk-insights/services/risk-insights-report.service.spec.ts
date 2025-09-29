@@ -12,7 +12,7 @@ import {
   SaveRiskInsightsReportResponse,
 } from "../models/api-models.types";
 import {
-  mockApplicationsData,
+  mockApplicationData,
   mockCipherViews,
   mockMemberDetails,
   mockReportData,
@@ -49,7 +49,7 @@ describe("RiskInsightsReportService", () => {
   let mockDecryptedData: DecryptedReportData;
   const mockReportEnc = makeEncString(JSON.stringify(mockReportData));
   const mockSummaryEnc = makeEncString(JSON.stringify(mockSummaryData));
-  const mockApplicationsEnc = makeEncString(JSON.stringify(mockApplicationsData));
+  const mockApplicationsEnc = makeEncString(JSON.stringify(mockApplicationData));
 
   beforeEach(() => {
     cipherService.getAllFromApiForOrganization.mockResolvedValue(mockCiphers);
@@ -89,7 +89,7 @@ describe("RiskInsightsReportService", () => {
     mockDecryptedData = {
       reportData: mockReportData,
       summaryData: mockSummaryData,
-      applicationsData: mockApplicationsData,
+      applicationData: mockApplicationData,
     };
   });
 
@@ -222,7 +222,7 @@ describe("RiskInsightsReportService", () => {
         organizationId: mockOrganizationId,
         encryptedReportData: mockReportEnc,
         encryptedSummaryData: mockSummaryEnc,
-        encryptedApplicationsData: mockApplicationsEnc,
+        encryptedApplicationData: mockApplicationsEnc,
         contentEncryptionKey: mockEncryptedKey,
       };
       mockRiskInsightsEncryptionService.encryptRiskInsightsReport.mockResolvedValue(
@@ -233,7 +233,7 @@ describe("RiskInsightsReportService", () => {
       mockRiskInsightsApiService.saveRiskInsightsReport$.mockReturnValue(of(saveResponse));
 
       service
-        .saveRiskInsightsReport$(mockReportData, mockSummaryData, mockApplicationsData, {
+        .saveRiskInsightsReport$(mockReportData, mockSummaryData, mockApplicationData, {
           organizationId: mockOrganizationId,
           userId: mockUserId,
         })
@@ -268,7 +268,7 @@ describe("RiskInsightsReportService", () => {
         organizationId: mockOrganizationId,
         reportData: mockReportEnc.encryptedString,
         summaryData: mockSummaryEnc.encryptedString,
-        applicationsData: mockApplicationsEnc.encryptedString,
+        applicationData: mockApplicationsEnc.encryptedString,
         contentEncryptionKey: mockEncryptedKey.encryptedString,
       });
 
@@ -285,7 +285,7 @@ describe("RiskInsightsReportService", () => {
           totalCriticalAtRiskApplicationCount: 1,
           newApplications: [],
         },
-        applicationsData: [],
+        applicationData: [],
       };
 
       const userId = "userId" as UserId;
@@ -322,7 +322,7 @@ describe("RiskInsightsReportService", () => {
         organizationId: organizationId as OrganizationId,
         reportData: mockReportEnc.encryptedString,
         summaryData: mockSummaryEnc.encryptedString,
-        applicationsData: mockApplicationsEnc.encryptedString,
+        applicationData: mockApplicationsEnc.encryptedString,
         contentEncryptionKey: mockEncryptedKey.encryptedString,
       });
 

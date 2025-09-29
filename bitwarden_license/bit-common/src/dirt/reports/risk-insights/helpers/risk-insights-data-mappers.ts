@@ -159,7 +159,7 @@ export function createNewReportData(): RiskInsightsData {
     creationDate: new Date(),
     reportData: [],
     summaryData: createNewSummaryData(),
-    applicationsData: [],
+    applicationData: [],
   };
 }
 

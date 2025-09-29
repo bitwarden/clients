@@ -11,7 +11,7 @@ import { OrgKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
 
 import { EncryptedReportData, DecryptedReportData } from "../models";
-import { mockApplicationsData, mockReportData, mockSummaryData } from "../models/mock-data";
+import { mockApplicationData, mockReportData, mockSummaryData } from "../models/mock-data";
 
 import { RiskInsightsEncryptionService } from "./risk-insights-encryption.service";
 
@@ -59,12 +59,12 @@ describe("RiskInsightsEncryptionService", () => {
     mockEncryptedData = {
       encryptedReportData: new EncString(JSON.stringify(mockReportData)),
       encryptedSummaryData: new EncString(JSON.stringify(mockSummaryData)),
-      encryptedApplicationsData: new EncString(JSON.stringify(mockApplicationsData)),
+      encryptedApplicationData: new EncString(JSON.stringify(mockApplicationData)),
     };
     mockDecryptedData = {
       reportData: mockReportData,
       summaryData: mockSummaryData,
-      applicationsData: mockApplicationsData,
+      applicationData: mockApplicationData,
     };
   });
 
@@ -93,7 +93,7 @@ describe("RiskInsightsEncryptionService", () => {
         contentEncryptionKey,
       );
       expect(mockEncryptService.encryptString).toHaveBeenCalledWith(
-        JSON.stringify(mockDecryptedData.applicationsData),
+        JSON.stringify(mockDecryptedData.applicationData),
         contentEncryptionKey,
       );
 
@@ -107,7 +107,7 @@ describe("RiskInsightsEncryptionService", () => {
         organizationId: orgId,
         encryptedReportData: new EncString(ENCRYPTED_TEXT),
         encryptedSummaryData: new EncString(ENCRYPTED_TEXT),
-        encryptedApplicationsData: new EncString(ENCRYPTED_TEXT),
+        encryptedApplicationData: new EncString(ENCRYPTED_TEXT),
         contentEncryptionKey: new EncString(ENCRYPTED_KEY),
       });
     });
@@ -170,7 +170,7 @@ describe("RiskInsightsEncryptionService", () => {
       expect(result).toEqual({
         reportData: testData,
         summaryData: testData,
-        applicationsData: testData,
+        applicationData: testData,
       });
     });
 
@@ -192,7 +192,7 @@ describe("RiskInsightsEncryptionService", () => {
       expect(result).toEqual({
         reportData: testData,
         summaryData: testData,
-        applicationsData: testData,
+        applicationData: testData,
       });
     });
 

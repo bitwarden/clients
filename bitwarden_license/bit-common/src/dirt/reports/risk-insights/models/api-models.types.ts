@@ -63,7 +63,7 @@ export class GetRiskInsightsReportResponse extends BaseResponse {
   creationDate: Date;
   reportData: EncString;
   summaryData: EncString;
-  applicationsData: EncString;
+  applicationData: EncString;
   contentEncryptionKey: EncString;
 
   constructor(response: any) {
@@ -74,7 +74,7 @@ export class GetRiskInsightsReportResponse extends BaseResponse {
     this.creationDate = new Date(this.getResponseProperty("creationDate"));
     this.reportData = new EncString(this.getResponseProperty("reportData"));
     this.summaryData = new EncString(this.getResponseProperty("summaryData"));
-    this.applicationsData = new EncString(this.getResponseProperty("applicationsData"));
+    this.applicationData = new EncString(this.getResponseProperty("applicationData"));
     this.contentEncryptionKey = new EncString(this.getResponseProperty("contentEncryptionKey"));
   }
 }

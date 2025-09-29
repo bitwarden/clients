@@ -306,7 +306,7 @@ export class RiskInsightsReportService {
         if (!response.summaryData) {
           return throwError(() => new Error("Summary data not found"));
         }
-        if (!response.applicationsData) {
+        if (!response.applicationData) {
           return throwError(() => new Error("Application data not found"));
         }
 
@@ -319,7 +319,7 @@ export class RiskInsightsReportService {
             {
               encryptedReportData: response.reportData,
               encryptedSummaryData: response.summaryData,
-              encryptedApplicationsData: response.applicationsData,
+              encryptedApplicationData: response.applicationData,
             },
             response.contentEncryptionKey,
           ),
@@ -327,10 +327,19 @@ export class RiskInsightsReportService {
           map((decryptedData) => ({
             reportData: decryptedData.reportData,
             summaryData: decryptedData.summaryData,
-            applicationsData: decryptedData.applicationsData,
+            applicationData: decryptedData.applicationData,
             creationDate: response.creationDate,
           })),
+          catchError((error: unknown) => {
+            // TODO Handle errors appropriately
+            // console.error("An error occurred when decrypting report", error);
+            return EMPTY;
+          }),
         );
+      }),
+      catchError((error: unknown) => {
+        // console.error("An error occurred when fetching the last report", error);
+        return EMPTY;
       }),
     );
   }
@@ -360,7 +369,7 @@ export class RiskInsightsReportService {
         {
           reportData: report,
           summaryData: summary,
-          applicationsData: applications,
+          applicationData: applications,
         },
       ),
     ).pipe(
@@ -368,7 +377,7 @@ export class RiskInsightsReportService {
         ({
           encryptedReportData,
           encryptedSummaryData,
-          encryptedApplicationsData,
+          encryptedApplicationData,
           contentEncryptionKey,
         }) => ({
           data: {
@@ -376,7 +385,7 @@ export class RiskInsightsReportService {
             creationDate: new Date().toISOString(),
             reportData: encryptedReportData.toSdk(),
             summaryData: encryptedSummaryData.toSdk(),
-            applicationData: encryptedApplicationsData.toSdk(),
+            applicationData: encryptedApplicationData.toSdk(),
             contentEncryptionKey: contentEncryptionKey.toSdk(),
           },
         }),

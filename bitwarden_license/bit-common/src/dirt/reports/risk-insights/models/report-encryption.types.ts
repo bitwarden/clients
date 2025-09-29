@@ -15,18 +15,18 @@ export interface EncryptedDataWithKey {
   organizationId: OrganizationId;
   encryptedReportData: EncString;
   encryptedSummaryData: EncString;
-  encryptedApplicationsData: EncString;
+  encryptedApplicationData: EncString;
   contentEncryptionKey: EncString;
 }
 
 export interface DecryptedReportData {
   reportData: ApplicationHealthReportDetail[];
   summaryData: OrganizationReportSummary;
-  applicationsData: OrganizationReportApplication[];
+  applicationData: OrganizationReportApplication[];
 }
 
 export interface EncryptedReportData {
   encryptedReportData: EncString;
   encryptedSummaryData: EncString;
-  encryptedApplicationsData: EncString;
+  encryptedApplicationData: EncString;
 }

@@ -99,7 +99,7 @@ export class RiskInsightsComponent implements OnInit {
             void this.dataService.initializeForOrganization(orgId as OrganizationId);
 
             this.organizationId = orgId as OrganizationId;
-            this.dataService.fetchApplicationsReport(this.organizationId);
+            this.dataService.LEGACY_fetchApplicationsReport(this.organizationId);
             this.isLoading$ = this.dataService.isLoading$;
             this.isRefreshing$ = this.dataService.isRefreshing$;
             return this.dataService.LEGACY_applications$;

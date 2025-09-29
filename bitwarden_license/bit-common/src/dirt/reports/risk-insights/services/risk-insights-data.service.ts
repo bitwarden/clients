@@ -1,7 +1,9 @@
 import { BehaviorSubject, EMPTY, firstValueFrom, Observable, of } from "rxjs";
 import {
+  catchError,
   distinctUntilChanged,
   exhaustMap,
+  filter,
   finalize,
   map,
   switchMap,
@@ -135,7 +137,7 @@ export class RiskInsightsDataService {
    * Fetches the applications report and updates the applicationsSubject.
    * @param organizationId The ID of the organization.
    */
-  fetchApplicationsReport(organizationId: OrganizationId, isRefresh?: boolean): void {
+  LEGACY_fetchApplicationsReport(organizationId: OrganizationId, isRefresh?: boolean): void {
     if (isRefresh) {
       this.isRefreshingSubject.next(true);
     } else {
@@ -159,10 +161,6 @@ export class RiskInsightsDataService {
           this.LEGACY_applicationsSubject.next([]);
         },
       });
-  }
-
-  refreshApplicationsReport(organizationId: OrganizationId): void {
-    this.fetchApplicationsReport(organizationId, true);
   }
 
   // ------------------------------- Enrichment methods -------------------------------
@@ -320,10 +318,14 @@ export class RiskInsightsDataService {
             map((enrichedReport) => ({
               report: enrichedReport,
               summary: report.summaryData,
-              applications: report.applicationsData,
+              applications: report.applicationData,
               creationDate: report.creationDate,
             })),
           );
+        }),
+        catchError((error: unknown) => {
+          // console.error("An error occurred when fetching the last report", error);
+          return EMPTY;
         }),
         finalize(() => {
           this.isLoadingSubject.next(false);
@@ -351,6 +353,8 @@ export class RiskInsightsDataService {
   private _runApplicationsReport() {
     return this.isRunningReport$.pipe(
       distinctUntilChanged(),
+      // Only run this report if the flag for running is true
+      filter((isRunning) => isRunning),
       withLatestFrom(this.organizationDetails$, this.userId$),
       exhaustMap(([_, organizationDetails, userId]) => {
         const organizationId = organizationDetails?.organizationId;

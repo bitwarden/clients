@@ -48,7 +48,7 @@ export class RiskInsightsEncryptionService {
       contentEncryptionKey = await this.encryptService.unwrapSymmetricKey(wrappedKey, orgKey);
     }
 
-    const { reportData, summaryData, applicationsData } = data;
+    const { reportData, summaryData, applicationData } = data;
 
     // Encrypt the data
     const encryptedReportData = await this.encryptService.encryptString(
@@ -60,7 +60,7 @@ export class RiskInsightsEncryptionService {
       contentEncryptionKey,
     );
     const encryptedApplicationData = await this.encryptService.encryptString(
-      JSON.stringify(applicationsData),
+      JSON.stringify(applicationData),
       contentEncryptionKey,
     );
 
@@ -82,7 +82,7 @@ export class RiskInsightsEncryptionService {
       organizationId,
       encryptedReportData: encryptedReportData,
       encryptedSummaryData: encryptedSummaryData,
-      encryptedApplicationsData: encryptedApplicationData,
+      encryptedApplicationData: encryptedApplicationData,
       contentEncryptionKey: wrappedEncryptionKey,
     };
 
@@ -117,7 +117,10 @@ export class RiskInsightsEncryptionService {
       throw Error("Encryption key not found");
     }
 
-    const { encryptedReportData, encryptedSummaryData, encryptedApplicationsData } = encryptedData;
+    const { encryptedReportData, encryptedSummaryData, encryptedApplicationData } = encryptedData;
+    if (!encryptedReportData || !encryptedSummaryData || !encryptedApplicationData) {
+      throw new Error("Missing data");
+    }
 
     // Decrypt the data
     const decryptedReportData = await this.encryptService.decryptString(
@@ -129,7 +132,7 @@ export class RiskInsightsEncryptionService {
       unwrappedEncryptionKey,
     );
     const decryptedApplicationData = await this.encryptService.decryptString(
-      encryptedApplicationsData,
+      encryptedApplicationData,
       unwrappedEncryptionKey,
     );
 
@@ -144,7 +147,7 @@ export class RiskInsightsEncryptionService {
     const decryptedFullReport = {
       reportData: decryptedReportDataJson,
       summaryData: decryptedSummaryDataJson,
-      applicationsData: decryptedApplicationDataJson,
+      applicationData: decryptedApplicationDataJson,
     };
 
     return decryptedFullReport;

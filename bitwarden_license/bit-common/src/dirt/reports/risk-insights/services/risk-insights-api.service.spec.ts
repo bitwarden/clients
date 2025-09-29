@@ -15,7 +15,7 @@ import {
   SaveRiskInsightsReportRequest,
   SaveRiskInsightsReportResponse,
 } from "../models/api-models.types";
-import { mockApplicationsData, mockReportData, mockSummaryData } from "../models/mock-data";
+import { mockApplicationData, mockReportData, mockSummaryData } from "../models/mock-data";
 
 import { RiskInsightsApiService } from "./risk-insights-api.service";
 
@@ -32,7 +32,7 @@ describe("RiskInsightsApiService", () => {
 
   const mockReportEnc = makeEncString(JSON.stringify(mockReportData));
   const mockSummaryEnc = makeEncString(JSON.stringify(mockSummaryData));
-  const mockApplicationsEnc = makeEncString(JSON.stringify(mockApplicationsData));
+  const mockApplicationsEnc = makeEncString(JSON.stringify(mockApplicationData));
 
   const mockSaveRiskInsightsReportRequest: SaveRiskInsightsReportRequest = {
     data: {
@@ -60,7 +60,7 @@ describe("RiskInsightsApiService", () => {
       date: new Date().toISOString(),
       reportData: mockReportEnc,
       summaryData: mockSummaryEnc,
-      applicationsData: mockApplicationsEnc,
+      applicationData: mockApplicationsEnc,
       contentEncryptionKey: mockKey,
     };
 
@@ -185,7 +185,7 @@ describe("RiskInsightsApiService", () => {
       contentEncryptionKey: new EncString(mockKey),
       encryptedReportData: new EncString(JSON.stringify(mockReportData)),
       encryptedSummaryData: new EncString(JSON.stringify(mockSummaryData)),
-      encryptedApplicationsData: new EncString(JSON.stringify(mockApplicationsData)),
+      encryptedApplicationData: new EncString(JSON.stringify(mockApplicationData)),
     };
 
     const reportId = "report123" as OrganizationReportId;
@@ -210,7 +210,7 @@ describe("RiskInsightsApiService", () => {
       organizationId: orgId,
       encryptedReportData: new EncString(JSON.stringify(mockReportData)),
       encryptedSummaryData: new EncString(JSON.stringify(mockSummaryData)),
-      encryptedApplicationsData: new EncString(JSON.stringify(mockApplicationsData)),
+      encryptedApplicationData: new EncString(JSON.stringify(mockApplicationData)),
       contentEncryptionKey: new EncString(mockKey),
     };
 
@@ -229,7 +229,7 @@ describe("RiskInsightsApiService", () => {
 
   it("updateRiskInsightsApplicationData$ should call apiService.send with correct parameters and return an Observable", async () => {
     const reportId = "report123" as OrganizationReportId;
-    const mockApplication = mockApplicationsData[0];
+    const mockApplication = mockApplicationData[0];
 
     mockApiService.send.mockResolvedValueOnce(undefined);
     const result = await firstValueFrom(
