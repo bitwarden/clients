@@ -6,10 +6,6 @@
     class="tw-absolute tw-inset-0 tw-flex tw-items-center tw-justify-center"
     [ngClass]="{ 'tw-invisible': !showLoadingStyle() }"
   >
-    <i
-      class="bwi bwi-spinner bwi-spin"
-      aria-hidden="true"
-      [ngClass]="{ 'bwi-lg': size() === 'default' }"
-    ></i>
+    <bit-spinner size="fill" noColor></bit-spinner>
   </span>
 </span>
