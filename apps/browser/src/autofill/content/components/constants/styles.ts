@@ -144,17 +144,17 @@ export const border = {
 export const typography = {
   body1: `
     line-height: 24px;
-    font-family: Roboto, sans-serif;
+    font-family: Inter, sans-serif;
     font-size: 16px;
   `,
   body2: `
     line-height: 20px;
-    font-family: Roboto, sans-serif;
+    font-family: Inter, sans-serif;
     font-size: 14px;
   `,
   helperMedium: `
     line-height: 16px;
-    font-family: Roboto, sans-serif;
+    font-family: Inter, sans-serif;
     font-size: 12px;
   `,
 };
