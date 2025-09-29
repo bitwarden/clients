@@ -24,7 +24,7 @@ fn clear_last_error() {
 
 fn get_last_error() -> WIN32_ERROR {
     let last_err = unsafe { GetLastError() };
-    debug!("GetLastError(): {}", last_err.to_hresult());
+    debug!("GetLastError(): {}", last_err.to_hresult().message());
     last_err
 }
 
