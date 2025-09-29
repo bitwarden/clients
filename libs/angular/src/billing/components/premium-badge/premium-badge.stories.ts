@@ -6,6 +6,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessageSender } from "@bitwarden/common/platform/messaging";
+import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { BadgeModule, I18nMockService } from "@bitwarden/components";
 
 import { PremiumBadgeComponent } from "./premium-badge.component";
@@ -49,6 +50,12 @@ export default {
           provide: BillingAccountProfileStateService,
           useValue: {
             hasPremiumFromAnySource$: () => of(false),
+          },
+        },
+        {
+          provide: PremiumUpgradePromptService,
+          useValue: {
+            promptForPremium: (orgId?: string) => {},
           },
         },
       ],
