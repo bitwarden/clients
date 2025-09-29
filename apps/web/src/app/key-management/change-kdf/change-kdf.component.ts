@@ -45,7 +45,7 @@ export class ChangeKdfComponent implements OnInit, OnDestroy {
   protected ARGON2_MEMORY = Argon2KdfConfig.MEMORY;
   protected ARGON2_PARALLELISM = Argon2KdfConfig.PARALLELISM;
 
-  forceUpdateKDFSettingsFeatureFlag$: Observable<boolean>;
+  noLogoutOnKdfChangeFeatureFlag$: Observable<boolean>;
 
   constructor(
     private dialogService: DialogService,
@@ -58,8 +58,8 @@ export class ChangeKdfComponent implements OnInit, OnDestroy {
       { name: "PBKDF2 SHA-256", value: KdfType.PBKDF2_SHA256 },
       { name: "Argon2id", value: KdfType.Argon2id },
     ];
-    this.forceUpdateKDFSettingsFeatureFlag$ = configService.getFeatureFlag$(
-      FeatureFlag.ForceUpdateKDFSettings,
+    this.noLogoutOnKdfChangeFeatureFlag$ = configService.getFeatureFlag$(
+      FeatureFlag.NoLogoutOnKdfChange,
     );
   }
 

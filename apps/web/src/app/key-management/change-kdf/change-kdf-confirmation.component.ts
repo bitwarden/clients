@@ -28,7 +28,7 @@ export class ChangeKdfConfirmationComponent {
   showPassword = false;
   loading = false;
 
-  forceUpdateKDFSettingsFeatureFlag$: Observable<boolean>;
+  noLogoutOnKdfChangeFeatureFlag$: Observable<boolean>;
 
   constructor(
     private i18nService: I18nService,
@@ -41,8 +41,8 @@ export class ChangeKdfConfirmationComponent {
     configService: ConfigService,
   ) {
     this.kdfConfig = params.kdfConfig;
-    this.forceUpdateKDFSettingsFeatureFlag$ = configService.getFeatureFlag$(
-      FeatureFlag.ForceUpdateKDFSettings,
+    this.noLogoutOnKdfChangeFeatureFlag$ = configService.getFeatureFlag$(
+      FeatureFlag.NoLogoutOnKdfChange,
     );
   }
 
@@ -52,7 +52,7 @@ export class ChangeKdfConfirmationComponent {
     }
     this.loading = true;
     await this.makeKeyAndSave();
-    if (await firstValueFrom(this.forceUpdateKDFSettingsFeatureFlag$)) {
+    if (await firstValueFrom(this.noLogoutOnKdfChangeFeatureFlag$)) {
       this.toastService.showToast({
         variant: "success",
         message: this.i18nService.t("encKeySettingsChanged"),
