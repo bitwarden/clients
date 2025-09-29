@@ -17,6 +17,7 @@ import { combineLatest, switchMap } from "rxjs";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { BitIconButtonComponent } from "../../icon-button/icon-button.component";
+import { SpinnerComponent } from "../../spinner";
 import { TypographyDirective } from "../../typography/typography.directive";
 import { hasScrollableContent$ } from "../../utils/";
 import { hasScrolledFrom } from "../../utils/has-scrolled-from";
@@ -41,6 +42,7 @@ import { DialogTitleContainerDirective } from "../directives/dialog-title-contai
     I18nPipe,
     CdkTrapFocus,
     CdkScrollable,
+    SpinnerComponent,
   ],
 })
 export class DialogComponent {
