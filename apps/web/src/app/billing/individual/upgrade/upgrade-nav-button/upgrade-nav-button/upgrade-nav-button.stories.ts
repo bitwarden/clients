@@ -42,7 +42,9 @@ export const Default: Story = {
   render: (args) => ({
     props: args,
     template: `
-      <app-upgrade-nav-button></app-upgrade-nav-button>
+      <div class="tw-p-4 tw-bg-background-alt3">
+        <app-upgrade-nav-button></app-upgrade-nav-button>
+      </div>
     `,
   }),
 };
