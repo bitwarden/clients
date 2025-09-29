@@ -6,12 +6,8 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { ButtonComponent } from "../button";
 import { BitIconButtonComponent } from "../icon-button";
 import { I18nMockService } from "../utils";
-import {
-  getDefaultPositions,
-  DefaultPosition,
-  ALLOWED_TOOLTIP_POSITION_IDS,
-} from "../utils/overlay-positions";
 
+import { TooltipPosition, TooltipPositionIdentifier, tooltipPositions } from "./tooltip-positions";
 import { TOOLTIP_DATA, TooltipComponent } from "./tooltip.component";
 import { TooltipDirective } from "./tooltip.directive";
 
@@ -39,9 +35,7 @@ export default {
             return {
               content: signal("This is a tooltip"),
               isVisible: signal(true),
-              tooltipPosition: signal<
-                "above-center" | "below-center" | "left-center" | "right-center"
-              >("above-center"),
+              tooltipPosition: signal<TooltipPositionIdentifier>("above-center"),
             };
           },
         },
@@ -61,11 +55,7 @@ export default {
     },
     tooltipPosition: {
       control: "select",
-      options: getDefaultPositions({
-        classNamePrefix: "bit-tooltip",
-        originOffset: 10,
-        positionSubset: ALLOWED_TOOLTIP_POSITION_IDS,
-      }).map((position: DefaultPosition) => position.id),
+      options: tooltipPositions.map((position: TooltipPosition) => position.id),
       description: "Position of the tooltip relative to the element",
     },
   },

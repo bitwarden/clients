@@ -9,12 +9,12 @@ import {
   viewChild,
 } from "@angular/core";
 
-import { AllowedTooltipPosition } from "../utils/overlay-positions";
+import { TooltipPosition } from "./tooltip-positions";
 
 type TooltipData = {
   content: Signal<string>;
   isVisible: Signal<boolean>;
-  tooltipPosition: Signal<AllowedTooltipPosition>;
+  tooltipPosition: Signal<TooltipPosition>;
 };
 
 export const TOOLTIP_DATA = new InjectionToken<TooltipData>("TOOLTIP_DATA");

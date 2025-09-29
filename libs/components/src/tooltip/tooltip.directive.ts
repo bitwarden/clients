@@ -14,12 +14,7 @@ import {
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 
-import {
-  getDefaultPositions,
-  ALLOWED_TOOLTIP_POSITION_IDS,
-  AllowedTooltipPosition,
-} from "../utils/overlay-positions";
-
+import { TooltipPosition, TooltipPositionIdentifier, tooltipPositions } from "./tooltip-positions";
 import { TooltipComponent, TOOLTIP_DATA } from "./tooltip.component";
 
 @Directive({
@@ -41,9 +36,9 @@ export class TooltipDirective implements OnInit {
    * The value of this input is forwarded to the tooltip.component to set it's position explicitly.
    * @default "above-center"
    */
-  readonly tooltipPosition = input<AllowedTooltipPosition>("above-center");
+  readonly tooltipPosition = input<TooltipPositionIdentifier>("above-center");
 
-  private _tooltipPosition = signal<AllowedTooltipPosition>(this.tooltipPosition());
+  private _tooltipPosition = signal<TooltipPositionIdentifier>(this.tooltipPosition());
   private isVisible = signal(false);
   private overlayRef: OverlayRef | undefined;
   private elementRef = inject(ElementRef);
@@ -82,16 +77,10 @@ export class TooltipDirective implements OnInit {
     this.isVisible.set(false);
   };
 
-  private computePositions(tooltipPosition: AllowedTooltipPosition) {
-    const allowedPositions = getDefaultPositions({
-      classNamePrefix: "bit-tooltip",
-      originOffset: 10,
-      positionSubset: ALLOWED_TOOLTIP_POSITION_IDS,
-    });
+  private computePositions(tooltipPosition: TooltipPositionIdentifier) {
+    const chosenPosition = tooltipPositions.find((position) => position.id === tooltipPosition);
 
-    const chosenPosition = allowedPositions.find((position) => position.id === tooltipPosition);
-
-    return chosenPosition ? [chosenPosition, ...allowedPositions] : allowedPositions;
+    return chosenPosition ? [chosenPosition, ...tooltipPositions] : tooltipPositions;
   }
 
   get defaultPopoverConfig(): OverlayConfig {
@@ -104,7 +93,7 @@ export class TooltipDirective implements OnInit {
   constructor() {
     this.positionStrategy.positionChanges.pipe(takeUntilDestroyed()).subscribe((change) => {
       const connectionPair = change.connectionPair as ConnectionPositionPair & {
-        id: AllowedTooltipPosition;
+        id: TooltipPosition["id"];
       };
 
       this._tooltipPosition.set(connectionPair.id);
