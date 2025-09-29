@@ -57,8 +57,6 @@ export class TooltipDirective implements OnInit {
     .withFlexibleDimensions(false)
     .withPush(true);
 
-  // private TOOLTIP_DATA = new InjectionToken<TooltipData>("TOOLTIP_DATA");
-
   private tooltipPortal = new ComponentPortal(
     TooltipComponent,
     this.viewContainerRef,
