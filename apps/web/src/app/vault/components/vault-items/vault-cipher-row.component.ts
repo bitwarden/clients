@@ -52,6 +52,10 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
    * user has archive permissions
    */
   @Input() userCanArchive: boolean;
+  /**
+   * Enforge Org Data Ownership Policy Status
+   */
+  @Input() enforceOrgDataOwnershipPolicy: boolean;
 
   @Output() onEvent = new EventEmitter<VaultItemEvent<C>>();
 
@@ -80,6 +84,11 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     }
   }
 
+  // what buttons to hide here and how?
+  // if item has archivedDate but userCanArchive is false ONLY SHOW
+  // Edit, Unarchive, Trash
+  // make a "isArchivedItem" getter?
+
   protected get showArchiveButton() {
     return (
       this.userCanArchive &&
@@ -88,8 +97,9 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     );
   }
 
+  // If item is archived always show unarchive button, even if user is not premium
   protected get showUnArchiveButton() {
-    return this.userCanArchive && CipherViewLikeUtils.isArchived(this.cipher);
+    return CipherViewLikeUtils.isArchived(this.cipher);
   }
 
   protected get clickAction() {
@@ -116,7 +126,12 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     return CipherViewLikeUtils.hasAttachments(this.cipher);
   }
 
+  // Do not show attachments button if:
+  // item is archived AND user is not premium user
   protected get showAttachments() {
+    if (CipherViewLikeUtils.isArchived(this.cipher) && !this.userCanArchive) {
+      return false;
+    }
     return this.canEditCipher || this.hasAttachments;
   }
 
@@ -148,7 +163,16 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     );
   }
 
+  // Do NOT show clone button if:
+  // item is archived AND user is not premium user
+  // item is archived AND enforce org data ownership policy is on
   protected get showClone() {
+    if (
+      CipherViewLikeUtils.isArchived(this.cipher) &&
+      (!this.userCanArchive || this.enforceOrgDataOwnershipPolicy)
+    ) {
+      return false;
+    }
     return this.cloneable && !CipherViewLikeUtils.isDeleted(this.cipher);
   }
 

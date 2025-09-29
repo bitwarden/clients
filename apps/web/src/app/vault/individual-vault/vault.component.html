@@ -51,6 +51,7 @@
       [showAdminActions]="false"
       [showBulkAddToCollections]="true"
       [userCanArchive]="userCanArchive$ | async"
+      [enforceOrgDataOwnershipPolicy]="enforceOrgDataOwnershipPolicy$ | async"
       (onEvent)="onVaultItemsEvent($event)"
     >
     </app-vault-items>
