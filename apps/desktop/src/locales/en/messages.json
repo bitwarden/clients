@@ -4115,10 +4115,12 @@
     "message": "Edit shortcut"
   },
   "archiveNoun": {
-    "message": "Archive"
+    "message": "Archive",
+    "description": "Noun"
   },
   "archiveVerb": {
-    "message": "Archive"
+    "message": "Archive",
+    "description": "Verb"
   },
   "unarchive": {
     "message": "Unarchive"

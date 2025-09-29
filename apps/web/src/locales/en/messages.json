@@ -11060,10 +11060,12 @@
     "message": "Search archive"
   },
   "archiveNoun": {
-    "message": "Archive"
+    "message": "Archive",
+    "description": "Noun"
   },
   "archiveVerb": {
-    "message": "Archive"
+    "message": "Archive",
+    "description": "Verb"
   },
   "noItemsInArchive": {
     "message": "No items in archive"
