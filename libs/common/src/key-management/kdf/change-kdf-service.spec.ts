@@ -38,7 +38,7 @@ describe("ChangeKdfService", () => {
 
   const mockSdkClient = {
     crypto: jest.fn().mockReturnValue({
-      update_kdf: jest.fn(),
+      make_update_kdf: jest.fn(),
     }),
   };
   const mockRef = {
@@ -81,7 +81,7 @@ describe("ChangeKdfService", () => {
     };
 
     beforeEach(() => {
-      mockSdkClient.crypto().update_kdf.mockReturnValue(mockUpdateKdfResult);
+      mockSdkClient.crypto().make_update_kdf.mockReturnValue(mockUpdateKdfResult);
     });
 
     it("should throw an error if masterPassword is null", async () => {
@@ -138,7 +138,7 @@ describe("ChangeKdfService", () => {
 
       await sut.updateUserKdfParams(masterPassword, mockNewKdfConfig, mockUserId);
 
-      expect(mockSdkClient.crypto().update_kdf).toHaveBeenCalledWith(
+      expect(mockSdkClient.crypto().make_update_kdf).toHaveBeenCalledWith(
         masterPassword,
         expect.any(Object), // the SDK config
       );
@@ -184,7 +184,7 @@ describe("ChangeKdfService", () => {
       const masterPassword = "masterPassword";
       const sdkError = new Error("SDK update_kdf failed");
       jest.spyOn(mockNewKdfConfig, "toSdkConfig").mockReturnValue({} as any);
-      mockSdkClient.crypto().update_kdf.mockImplementation(() => {
+      mockSdkClient.crypto().make_update_kdf.mockImplementation(() => {
         throw sdkError;
       });
 
