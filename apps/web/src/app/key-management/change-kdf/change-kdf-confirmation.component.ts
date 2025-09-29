@@ -69,11 +69,8 @@ export class ChangeKdfConfirmationComponent {
     this.loading = false;
   };
 
-  async makeKeyAndSave() {
+  private async makeKeyAndSave() {
     const activeAccountId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-    if (activeAccountId == null) {
-      throw new Error("No active account found.");
-    }
 
     const masterPassword = this.form.value.masterPassword;
 
