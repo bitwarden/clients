@@ -74,10 +74,10 @@
     <bit-section
       *ngIf="data.message.type === BrowserFido2MessageTypes.InformExcludedCredentialRequest"
     >
-      <div class="auth-flow">
-        <p class="subtitle">{{ "passkeyAlreadyExists" | i18n }}</p>
-        <div class="box list">
-          <div class="box-content">
+      <div class="tw-space-y-4">
+        <p>{{ "passkeyAlreadyExists" | i18n }}</p>
+        <div class="tw-bg-background tw-rounded tw-shadow-sm tw-border tw-border-secondary-300">
+          <div class="tw-divide-y tw-divide-secondary-300">
             <app-fido2-cipher-row
               *ngFor="let cipherItem of displayedCiphers"
               [cipher]="cipherItem"
@@ -126,14 +126,14 @@
       </ng-container>
     </bit-section>
 
-    <!-- Display when initiating passkey login, but no cooresponding cipher is found in the vault -->
+    <!-- Display when initiating passkey login, but no corresponding cipher is found in the vault -->
     <bit-section
       *ngIf="data.message.type === BrowserFido2MessageTypes.InformCredentialNotFoundRequest"
     >
-      <div class="auth-flow">
-        <p class="subtitle">{{ "noPasskeysFoundForThisApplication" | i18n }}</p>
+      <div class="tw-space-y-4">
+        <p>{{ "noPasskeysFoundForThisApplication" | i18n }}</p>
       </div>
-      <button type="button" class="btn primary block" (click)="abort(false)">
+      <button bitButton buttonType="primary" type="button" class="tw-w-full" (click)="abort(false)">
         <span [hidden]="loading">{{ "close" | i18n }}</span>
         <i class="bwi bwi-spinner bwi-lg bwi-spin" [hidden]="!loading" aria-hidden="true"></i>
       </button>
