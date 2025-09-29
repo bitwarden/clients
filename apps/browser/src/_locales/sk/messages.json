@@ -550,6 +550,33 @@
   "resetSearch": {
     "message": "Resetovať vyhľadávanie"
   },
+  "archive": {
+    "message": "Archivovať"
+  },
+  "unarchive": {
+    "message": "Zrušiť archiváciu"
+  },
+  "itemsInArchive": {
+    "message": "Položky v archíve"
+  },
+  "noItemsInArchive": {
+    "message": "Žiadne položky v archíve"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Tu sa zobrazia archivované položky, ktoré budú vylúčené zo všeobecného vyhľadávania a z návrhov automatického vypĺňania."
+  },
+  "itemSentToArchive": {
+    "message": "Položka bola archivovaná"
+  },
+  "itemRemovedFromArchive": {
+    "message": "Položka bola odobraná z archívu"
+  },
+  "archiveItem": {
+    "message": "Archivovať položku"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Archivované položky sú vylúčené zo všeobecného vyhľadávania a z návrhov automatického vypĺňania. Naozaj chcete archivovať túto položku?"
+  },
   "edit": {
     "message": "Upraviť"
   },
