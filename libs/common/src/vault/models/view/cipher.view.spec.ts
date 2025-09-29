@@ -180,15 +180,12 @@ describe("CipherView", () => {
         folderId: "folderId",
         collectionIds: ["collectionId"],
         name: "name",
-        notes: undefined,
         type: CipherType.Login,
         favorite: true,
         edit: true,
         reprompt: CipherRepromptType.None,
         organizationUseTotp: false,
         viewPassword: true,
-        localData: undefined,
-        permissions: undefined,
         attachments: [
           {
             id: "attachmentId",
@@ -224,7 +221,6 @@ describe("CipherView", () => {
         passwordHistory: [],
         creationDate: new Date("2022-01-01T12:00:00.000Z"),
         revisionDate: new Date("2022-01-02T12:00:00.000Z"),
-        deletedDate: undefined,
       });
     });
   });
@@ -283,18 +279,12 @@ describe("CipherView", () => {
           restore: true,
           delete: true,
         },
-        deletedDate: undefined,
         creationDate: "2022-01-02T12:00:00.000Z",
         revisionDate: "2022-01-02T12:00:00.000Z",
         attachments: [],
         passwordHistory: [],
-        login: undefined,
-        identity: undefined,
-        card: undefined,
-        secureNote: undefined,
-        sshKey: undefined,
         fields: [],
-      } as SdkCipherView);
+      });
     });
   });
 });
