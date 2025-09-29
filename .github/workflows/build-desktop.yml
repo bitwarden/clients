@@ -771,12 +771,13 @@ jobs:
 
       - name: Configure for beta build
         run: |
-          jq '.productName = "Bitwarden Beta" | \
-          .appx.identityName = "8bitSolutionsLLC.BitwardenBeta" | \
-          .appx.artifactName = "Bitwarden-Beta-${version}-${arch}.${ext}" | \
-          .portable.artifactName = "Bitwarden-Beta-Portable-${version}.${ext}" | \
-          .nsisWeb.artifactName = "Bitwarden-Beta-Installer-${version}.${ext}"' \
-          electron-builder.json
+          $config = Get-Content electron-builder.json | ConvertFrom-Json
+          $config.productName = "Bitwarden Beta"
+          $config.appx.identityName = "8bitSolutionsLLC.BitwardenBeta"
+          $config.appx.artifactName = "Bitwarden-Beta-`${version}-`${arch}.`${ext}"
+          $config.portable.artifactName = "Bitwarden-Beta-Portable-`${version}.`${ext}"
+          $config.nsisWeb.artifactName = "Bitwarden-Beta-Installer-`${version}.`${ext}"
+          $config | ConvertTo-Json -Depth 32 | Set-Content electron-builder.json
 
       - name: Build
         run: npm run build
@@ -932,11 +933,6 @@ jobs:
           name: ${{ needs.setup.outputs.release_channel }}-beta.yml
           path: apps/desktop/dist/nsis-web/${{ needs.setup.outputs.release_channel }}.yml
           if-no-files-found: error
-
-      - name: Restore electron-builder config
-        run: |
-          jq '.productName = "Bitwarden" | .appx.identityName = "8bitSolutionsLLC.bitwardendesktop" | .appx.artifactName = "${productName}-${version}-${arch}.${ext}" | .portable.artifactName = "${productName}-Portable-${version}.${ext}" | .nsisWeb.artifactName = "${productName}-Installer-${version}.${ext}"' electron-builder.json > electron-builder-temp.json
-          Move-Item electron-builder-temp.json electron-builder.json
 
 
   macos-build:
