@@ -132,7 +132,7 @@ export class AvatarComponent implements OnChanges {
     textTag.setAttribute("fill", Utils.pickTextColorBasedOnBgColor(color, 135, true));
     textTag.setAttribute(
       "font-family",
-      'Roboto,"Helvetica Neue",Helvetica,Arial,' +
+      'Inter,"Helvetica Neue",Helvetica,Arial,' +
         'sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol"',
     );
     // Warning do not use innerHTML here, characters are user provided

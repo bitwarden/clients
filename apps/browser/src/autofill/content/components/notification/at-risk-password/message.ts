@@ -29,7 +29,7 @@ const baseTextStyles = css`
   text-align: left;
   text-overflow: ellipsis;
   line-height: 24px;
-  font-family: Roboto, sans-serif;
+  font-family: Inter, sans-serif;
   font-size: 16px;
 `;
 

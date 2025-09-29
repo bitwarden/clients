@@ -4,7 +4,7 @@ import { formatArgsForCodeSnippet } from "../../../../.storybook/format-args-for
 
 import { ColorPasswordComponent } from "./color-password.component";
 
-const examplePassword = "Wq$Jk😀7j  DX#rS5Sdi!z ";
+const examplePassword = "Wq$Jk😀7jlI  DX#rS5Sdi!z ";
 
 export default {
   title: "Component Library/Color Password",
