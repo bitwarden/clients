@@ -12,6 +12,8 @@ import {
 } from "@bitwarden/common/platform/abstractions/storage.service";
 import { NodeUtils } from "@bitwarden/node/node-utils";
 
+import { isWindowsPortable } from "../../utils";
+
 interface BaseOptions<T extends string> {
   action: T;
   key: string;
@@ -32,10 +34,11 @@ export class ElectronStorageService implements AbstractStorageService {
     if (!fs.existsSync(dir)) {
       NodeUtils.mkdirpSync(dir, "700");
     }
+    const fileMode = isWindowsPortable() ? 0o666 : 0o600;
     const storeConfig: ElectronStore.Options<Record<string, unknown>> = {
       defaults: defaults,
       name: "data",
-      configFileMode: 0o600,
+      configFileMode: fileMode,
     };
     this.store = new ElectronStore(storeConfig);
     this.updates$ = this.updatesSubject.asObservable();
