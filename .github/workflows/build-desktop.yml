@@ -668,8 +668,7 @@ jobs:
   windows-beta:
     name: Windows Beta Build
     runs-on: windows-2022
-    needs:
-      - setup
+    needs: setup
     permissions:
         contents: read
         id-token: write
@@ -782,10 +781,13 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Test
+        shell: bash
+        run: ls -alh dist
+
       - name: Pack
         if: ${{ needs.setup.outputs.has_secrets == 'false' }}
-        run: |
-          npm run pack:win
+        run: npm run pack:win
 
       - name: Pack & Sign
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
@@ -796,8 +798,7 @@ jobs:
           SIGNING_TENANT_ID: ${{ steps.retrieve-secrets.outputs.code-signing-tenant-id }}
           SIGNING_CLIENT_SECRET: ${{ steps.retrieve-secrets.outputs.code-signing-client-secret }}
           SIGNING_CERT_NAME: ${{ steps.retrieve-secrets.outputs.code-signing-cert-name }}
-        run: |
-          npm run pack:win
+        run: npm run pack:win
 
       - name: Rename appx files for store
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
