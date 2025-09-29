@@ -1,25 +1,35 @@
 import { randomUUID } from "crypto";
 
-import { fakeAsync, flush } from "@angular/core/testing";
 import { mock } from "jest-mock-extended";
-import { of } from "rxjs";
+import { of, BehaviorSubject } from "rxjs";
 
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
-import { OrganizationId } from "@bitwarden/common/types/guid";
+import { UserId, OrganizationId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
 
 import {
-  PasswordHealthReportApplicationId,
   PasswordHealthReportApplicationsRequest,
   PasswordHealthReportApplicationsResponse,
-} from "../models/password-health";
+} from "../models/api-models.types";
+import { PasswordHealthReportApplicationId } from "../models/report-models";
 
 import { CriticalAppsApiService } from "./critical-apps-api.service";
 import { CriticalAppsService } from "./critical-apps.service";
+
+const SomeCsprngArray = new Uint8Array(64) as CsprngArray;
+const SomeUser = "some user" as UserId;
+const SomeOrganization = "some organization" as OrganizationId;
+const AnotherOrganization = "another organization" as OrganizationId;
+const SomeOrgKey = new SymmetricCryptoKey(SomeCsprngArray) as OrgKey;
+const AnotherOrgKey = new SymmetricCryptoKey(SomeCsprngArray) as OrgKey;
+const OrgRecords: Record<OrganizationId, OrgKey> = {
+  [SomeOrganization]: SomeOrgKey,
+  [AnotherOrganization]: AnotherOrgKey,
+};
 
 describe("CriticalAppsService", () => {
   let service: CriticalAppsService;
@@ -35,10 +45,6 @@ describe("CriticalAppsService", () => {
 
     // reset mocks
     jest.resetAllMocks();
-
-    const mockRandomBytes = new Uint8Array(64) as CsprngArray;
-    const mockOrgKey = new SymmetricCryptoKey(mockRandomBytes) as OrgKey;
-    keyService.getOrgKey.mockResolvedValue(mockOrgKey);
   });
 
   it("should be created", () => {
@@ -50,23 +56,27 @@ describe("CriticalAppsService", () => {
     const criticalApps = ["https://example.com", "https://example.org"];
 
     const request = [
-      { organizationId: "org1", url: "encryptedUrlName" },
-      { organizationId: "org1", url: "encryptedUrlName" },
+      { organizationId: SomeOrganization, url: "encryptedUrlName" },
+      { organizationId: SomeOrganization, url: "encryptedUrlName" },
     ] as PasswordHealthReportApplicationsRequest[];
 
     const response = [
-      { id: "id1", organizationId: "org1", uri: "https://example.com" },
-      { id: "id2", organizationId: "org1", uri: "https://example.org" },
+      { id: "id1", organizationId: SomeOrganization, uri: "https://example.com" },
+      { id: "id2", organizationId: SomeOrganization, uri: "https://example.org" },
     ] as PasswordHealthReportApplicationsResponse[];
 
     encryptService.encryptString.mockResolvedValue(new EncString("encryptedUrlName"));
     criticalAppsApiService.saveCriticalApps.mockReturnValue(of(response));
+    const orgKey$ = new BehaviorSubject(OrgRecords);
+    keyService.orgKeys$.mockReturnValue(orgKey$);
+
+    service.loadOrganizationContext(SomeOrganization, SomeUser);
 
     // act
-    await service.setCriticalApps("org1", criticalApps);
+    await service.setCriticalApps(SomeOrganization, criticalApps);
 
     // expectations
-    expect(keyService.getOrgKey).toHaveBeenCalledWith("org1");
+    expect(keyService.orgKeys$).toHaveBeenCalledWith(SomeUser);
     expect(encryptService.encryptString).toHaveBeenCalledTimes(2);
     expect(criticalAppsApiService.saveCriticalApps).toHaveBeenCalledWith(request);
   });
@@ -77,7 +87,7 @@ describe("CriticalAppsService", () => {
     service.setAppsInListForOrg([
       {
         id: randomUUID() as PasswordHealthReportApplicationId,
-        organizationId: "org1" as OrganizationId,
+        organizationId: SomeOrganization,
         uri: "https://example.com",
       },
     ]);
@@ -87,59 +97,65 @@ describe("CriticalAppsService", () => {
 
     // expect only one record to be sent to the server
     const request = [
-      { organizationId: "org1", url: "encryptedUrlName" },
+      { organizationId: SomeOrganization, url: "encryptedUrlName" },
     ] as PasswordHealthReportApplicationsRequest[];
 
     // mocked response
     const response = [
-      { id: "id1", organizationId: "org1", uri: "test" },
+      { id: "id1", organizationId: SomeOrganization, uri: "test" },
     ] as PasswordHealthReportApplicationsResponse[];
 
     encryptService.encryptString.mockResolvedValue(new EncString("encryptedUrlName"));
     criticalAppsApiService.saveCriticalApps.mockReturnValue(of(response));
 
+    // mock org keys
+    const orgKey$ = new BehaviorSubject(OrgRecords);
+    keyService.orgKeys$.mockReturnValue(orgKey$);
+
+    service.loadOrganizationContext(SomeOrganization, SomeUser);
+
     // act
-    await service.setCriticalApps("org1", selectedUrls);
+    await service.setCriticalApps(SomeOrganization, selectedUrls);
 
     // expectations
-    expect(keyService.getOrgKey).toHaveBeenCalledWith("org1");
+    expect(keyService.orgKeys$).toHaveBeenCalledWith(SomeUser);
     expect(encryptService.encryptString).toHaveBeenCalledTimes(1);
     expect(criticalAppsApiService.saveCriticalApps).toHaveBeenCalledWith(request);
   });
 
-  it("should get critical apps", fakeAsync(() => {
-    const orgId = "org1" as OrganizationId;
+  it("should get critical apps", () => {
     const response = [
-      { id: "id1", organizationId: "org1", uri: "https://example.com" },
-      { id: "id2", organizationId: "org1", uri: "https://example.org" },
+      { id: "id1", organizationId: SomeOrganization, uri: "https://example.com" },
+      { id: "id2", organizationId: SomeOrganization, uri: "https://example.org" },
     ] as PasswordHealthReportApplicationsResponse[];
 
     encryptService.decryptString.mockResolvedValue("https://example.com");
     criticalAppsApiService.getCriticalApps.mockReturnValue(of(response));
 
-    const mockRandomBytes = new Uint8Array(64) as CsprngArray;
-    const mockOrgKey = new SymmetricCryptoKey(mockRandomBytes) as OrgKey;
-    keyService.getOrgKey.mockResolvedValue(mockOrgKey);
+    // mock org keys
+    const orgKey$ = new BehaviorSubject(OrgRecords);
+    keyService.orgKeys$.mockReturnValue(orgKey$);
 
-    service.setOrganizationId(orgId as OrganizationId);
-    flush();
+    service.loadOrganizationContext(SomeOrganization, SomeUser);
 
-    expect(keyService.getOrgKey).toHaveBeenCalledWith(orgId.toString());
+    expect(keyService.orgKeys$).toHaveBeenCalledWith(SomeUser);
     expect(encryptService.decryptString).toHaveBeenCalledTimes(2);
-    expect(criticalAppsApiService.getCriticalApps).toHaveBeenCalledWith(orgId);
-  }));
+    expect(criticalAppsApiService.getCriticalApps).toHaveBeenCalledWith(SomeOrganization);
+  });
 
   it("should get by org id", () => {
-    const orgId = "org1" as OrganizationId;
+    const orgId = "some organization" as OrganizationId;
     const response = [
-      { id: "id1", organizationId: "org1", uri: "https://example.com" },
-      { id: "id2", organizationId: "org1", uri: "https://example.org" },
-      { id: "id3", organizationId: "org2", uri: "https://example.org" },
-      { id: "id4", organizationId: "org2", uri: "https://example.org" },
+      { id: "id1", organizationId: "some organization", uri: "https://example.com" },
+      { id: "id2", organizationId: "some organization", uri: "https://example.org" },
+      { id: "id3", organizationId: "another organization", uri: "https://example.org" },
+      { id: "id4", organizationId: "another organization", uri: "https://example.org" },
     ] as PasswordHealthReportApplicationsResponse[];
 
+    const orgKey$ = new BehaviorSubject(OrgRecords);
+    keyService.orgKeys$.mockReturnValue(orgKey$);
+    service.loadOrganizationContext(SomeOrganization, SomeUser);
     service.setAppsInListForOrg(response);
-
     service.getAppsListForOrg(orgId as OrganizationId).subscribe((res) => {
       expect(res).toHaveLength(2);
     });
@@ -147,26 +163,30 @@ describe("CriticalAppsService", () => {
 
   it("should drop a critical app", async () => {
     // arrange
-    const orgId = "org1" as OrganizationId;
     const selectedUrl = "https://example.com";
 
     const initialList = [
-      { id: "id1", organizationId: "org1", uri: "https://example.com" },
-      { id: "id2", organizationId: "org1", uri: "https://example.org" },
+      { id: "id1", organizationId: SomeOrganization, uri: "https://example.com" },
+      { id: "id2", organizationId: SomeOrganization, uri: "https://example.org" },
     ] as PasswordHealthReportApplicationsResponse[];
+
+    const orgKey$ = new BehaviorSubject(OrgRecords);
+    keyService.orgKeys$.mockReturnValue(orgKey$);
+
+    service.loadOrganizationContext(SomeOrganization, SomeUser);
 
     service.setAppsInListForOrg(initialList);
 
     // act
-    await service.dropCriticalApp(orgId, selectedUrl);
+    await service.dropCriticalApp(SomeOrganization, selectedUrl);
 
     // expectations
     expect(criticalAppsApiService.dropCriticalApp).toHaveBeenCalledWith({
-      organizationId: orgId,
+      organizationId: SomeOrganization,
       passwordHealthReportApplicationIds: ["id1"],
     });
-    expect(service.getAppsListForOrg(orgId)).toBeTruthy();
-    service.getAppsListForOrg(orgId).subscribe((res) => {
+    expect(service.getAppsListForOrg(SomeOrganization)).toBeTruthy();
+    service.getAppsListForOrg(SomeOrganization).subscribe((res) => {
       expect(res).toHaveLength(1);
       expect(res[0].uri).toBe("https://example.org");
     });
@@ -174,23 +194,27 @@ describe("CriticalAppsService", () => {
 
   it("should not drop a critical app if it does not exist", async () => {
     // arrange
-    const orgId = "org1" as OrganizationId;
     const selectedUrl = "https://nonexistent.com";
 
     const initialList = [
-      { id: "id1", organizationId: "org1", uri: "https://example.com" },
-      { id: "id2", organizationId: "org1", uri: "https://example.org" },
+      { id: "id1", organizationId: SomeOrganization, uri: "https://example.com" },
+      { id: "id2", organizationId: SomeOrganization, uri: "https://example.org" },
     ] as PasswordHealthReportApplicationsResponse[];
+
+    const orgKey$ = new BehaviorSubject(OrgRecords);
+    keyService.orgKeys$.mockReturnValue(orgKey$);
+
+    service.loadOrganizationContext(SomeOrganization, SomeUser);
 
     service.setAppsInListForOrg(initialList);
 
     // act
-    await service.dropCriticalApp(orgId, selectedUrl);
+    await service.dropCriticalApp(SomeOrganization, selectedUrl);
 
     // expectations
     expect(criticalAppsApiService.dropCriticalApp).not.toHaveBeenCalled();
-    expect(service.getAppsListForOrg(orgId)).toBeTruthy();
-    service.getAppsListForOrg(orgId).subscribe((res) => {
+    expect(service.getAppsListForOrg(SomeOrganization)).toBeTruthy();
+    service.getAppsListForOrg(SomeOrganization).subscribe((res) => {
       expect(res).toHaveLength(2);
     });
   });

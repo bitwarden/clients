@@ -3,7 +3,7 @@
 import { Component } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
-import { combineLatest, lastValueFrom, switchMap } from "rxjs";
+import { combineLatest, firstValueFrom, lastValueFrom, switchMap } from "rxjs";
 import { first } from "rxjs/operators";
 
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
@@ -14,6 +14,8 @@ import { ProviderUserStatusType, ProviderUserType } from "@bitwarden/common/admi
 import { ProviderUserBulkRequest } from "@bitwarden/common/admin-console/models/request/provider/provider-user-bulk.request";
 import { ProviderUserConfirmRequest } from "@bitwarden/common/admin-console/models/request/provider/provider-user-confirm.request";
 import { ProviderUserUserDetailsResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-user.response";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -73,6 +75,7 @@ export class MembersComponent extends BaseMembersComponent<ProviderUser> {
     private activatedRoute: ActivatedRoute,
     private providerService: ProviderService,
     private router: Router,
+    private accountService: AccountService,
   ) {
     super(
       apiService,
@@ -96,7 +99,13 @@ export class MembersComponent extends BaseMembersComponent<ProviderUser> {
           this.dataSource.filter = peopleFilter(queryParams.search, null);
 
           this.providerId = urlParams.providerId;
-          const provider = await this.providerService.get(this.providerId);
+          const provider = await firstValueFrom(
+            this.accountService.activeAccount$.pipe(
+              getUserId,
+              switchMap((userId) => this.providerService.get$(this.providerId, userId)),
+            ),
+          );
+
           if (!provider || !provider.canManageUsers) {
             return await this.router.navigate(["../"], { relativeTo: this.activatedRoute });
           }
@@ -168,6 +177,10 @@ export class MembersComponent extends BaseMembersComponent<ProviderUser> {
     } catch (error) {
       this.validationService.showError(error);
     }
+  }
+
+  async invite() {
+    await this.edit(null);
   }
 
   async bulkRemove(): Promise<void> {

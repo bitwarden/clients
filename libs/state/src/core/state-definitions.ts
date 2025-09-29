@@ -61,10 +61,12 @@ export const LOGIN_EMAIL_MEMORY = new StateDefinition("loginEmail", "memory");
 export const LOGIN_STRATEGY_MEMORY = new StateDefinition("loginStrategy", "memory");
 export const MASTER_PASSWORD_DISK = new StateDefinition("masterPassword", "disk");
 export const MASTER_PASSWORD_MEMORY = new StateDefinition("masterPassword", "memory");
+export const MASTER_PASSWORD_UNLOCK_DISK = new StateDefinition("masterPasswordUnlock", "disk");
 export const PIN_DISK = new StateDefinition("pinUnlock", "disk");
 export const PIN_MEMORY = new StateDefinition("pinUnlock", "memory");
 export const ROUTER_DISK = new StateDefinition("router", "disk");
 export const SSO_DISK = new StateDefinition("ssoLogin", "disk");
+export const SSO_DISK_LOCAL = new StateDefinition("ssoLoginLocal", "disk", { web: "disk-local" });
 export const TOKEN_DISK = new StateDefinition("token", "disk");
 export const TOKEN_DISK_LOCAL = new StateDefinition("tokenDiskLocal", "disk", {
   web: "disk-local",

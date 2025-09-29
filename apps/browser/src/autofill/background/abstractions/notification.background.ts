@@ -4,11 +4,29 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 
 import { CollectionView } from "../../content/components/common-types";
-import { NotificationQueueMessageTypes } from "../../enums/notification-queue-message-type.enum";
+import { NotificationType, NotificationTypes } from "../../enums/notification-type.enum";
 import AutofillPageDetails from "../../models/autofill-page-details";
 
+/**
+ * @todo Remove Standard_ label when implemented as standard NotificationQueueMessage.
+ */
+export interface Standard_NotificationQueueMessage<T, D> {
+  // universal notification properties
+  domain: string;
+  tab: chrome.tabs.Tab;
+  launchTimestamp: number;
+  expires: Date;
+  wasVaultLocked: boolean;
+
+  type: T; // NotificationType
+  data: D; // notification-specific data
+}
+
+/**
+ * @todo Deprecate in favor of Standard_NotificationQueueMessage.
+ */
 interface NotificationQueueMessage {
-  type: NotificationQueueMessageTypes;
+  type: NotificationTypes;
   domain: string;
   tab: chrome.tabs.Tab;
   launchTimestamp: number;
@@ -16,11 +34,15 @@ interface NotificationQueueMessage {
   wasVaultLocked: boolean;
 }
 
-interface AddChangePasswordQueueMessage extends NotificationQueueMessage {
-  type: "change";
+type ChangePasswordNotificationData = {
   cipherId: CipherView["id"];
   newPassword: string;
-}
+};
+
+type AddChangePasswordNotificationQueueMessage = Standard_NotificationQueueMessage<
+  typeof NotificationType.ChangePassword,
+  ChangePasswordNotificationData
+>;
 
 interface AddLoginQueueMessage extends NotificationQueueMessage {
   type: "add";
@@ -41,7 +63,7 @@ interface AtRiskPasswordQueueMessage extends NotificationQueueMessage {
 
 type NotificationQueueMessageItem =
   | AddLoginQueueMessage
-  | AddChangePasswordQueueMessage
+  | AddChangePasswordNotificationQueueMessage
   | AddUnlockVaultQueueMessage
   | AtRiskPasswordQueueMessage;
 
@@ -72,6 +94,11 @@ type UnlockVaultMessageData = {
   skipNotification?: boolean;
 };
 
+/**
+ * @todo Extend generics to this type, see Standard_NotificationQueueMessage
+ * - use new `data` types as generic
+ * - eliminate optional status of properties as needed per Notification Type
+ */
 type NotificationBackgroundExtensionMessage = {
   [key: string]: any;
   command: string;
@@ -114,7 +141,6 @@ type NotificationBackgroundExtensionMessageHandlers = {
     sender,
   }: BackgroundOnMessageHandlerParams) => Promise<void>;
   bgNeverSave: ({ sender }: BackgroundSenderParam) => Promise<void>;
-  bgUnlockPopoutOpened: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<void>;
   bgReopenUnlockPopout: ({ sender }: BackgroundSenderParam) => Promise<void>;
   checkNotificationQueue: ({ sender }: BackgroundSenderParam) => Promise<void>;
   collectPageDetailsResponse: ({ message }: BackgroundMessageParam) => Promise<void>;
@@ -126,7 +152,7 @@ type NotificationBackgroundExtensionMessageHandlers = {
 };
 
 export {
-  AddChangePasswordQueueMessage,
+  AddChangePasswordNotificationQueueMessage,
   AddLoginQueueMessage,
   AddUnlockVaultQueueMessage,
   NotificationQueueMessageItem,

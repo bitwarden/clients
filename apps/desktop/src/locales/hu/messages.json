@@ -702,6 +702,12 @@
   "attachmentSaved": {
     "message": "A melléklet mentésre került."
   },
+  "addAttachment": {
+    "message": "Melléklet hozzáadása"
+  },
+  "maxFileSizeSansPunctuation": {
+    "message": "A maximális fájlméret 500 MB."
+  },
   "file": {
     "message": "Fájl"
   },
@@ -953,9 +959,6 @@
   },
   "insertU2f": {
     "message": "A biztonsági kulcs beillesztése a számítógép USB portjába. Ha van rajta gomb, nyomjuk meg."
-  },
-  "recoveryCodeDesc": {
-    "message": "Elveszett a hozzáférés az összes kétlépcsős szolgáltatóhoz? A visszaállítókód használatával letilthatók fiókból a kétlépcsős szolgáltatók."
   },
   "recoveryCodeTitle": {
     "message": "Helyreállító kód"
@@ -1299,11 +1302,8 @@
     "message": "Automatikusan törli a vágólapra másolt értékeket.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
-  "enableFavicon": {
-    "message": "Webhely ikonok megjelenítése"
-  },
-  "faviconDesc": {
-    "message": "Felismerhető kép megjelenítése minden bejelentkezés mellett."
+  "showIconsChangePasswordUrls": {
+    "message": "Webhelyikonok megjelenítése és jelszó webcímek módosításának lekérése"
   },
   "enableMinToTray": {
     "message": "Kicsinyítés tálcaikonná"
@@ -1839,12 +1839,6 @@
   },
   "autoPromptTouchId": {
     "message": "Érintés AZ kérése indításkor"
-  },
-  "requirePasswordOnStart": {
-    "message": "Jelszó vagy PIN kód szükséges az alkalmazás indításakor"
-  },
-  "requirePasswordWithoutPinOnStart": {
-    "message": "Jelszó szükséges az alkalmazás indításakor"
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Lezárás mesterjelszóval újraindításkor"
@@ -3491,15 +3485,11 @@
   "selectImportCollection": {
     "message": "Gyűjtemény kiválasztása"
   },
-  "importTargetHint": {
-    "message": "Válasszuk ezt a lehetőséget, ha azt akarjuk, hogy az importált fájl tartalma $DESTINATION$ helyre kerüljön",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Válasszuk ezt az opciót, ha azt akarjuk, hogy az importált fájl tartalma egy gyűjteménybe kerüljön."
+  },
+  "importTargetHintFolder": {
+    "message": "Válasszuk ezt az opciót, ha azt akarjuk, hogy az importált fájl tartalma egy mappába kerüljön."
   },
   "importUnassignedItemsError": {
     "message": "A fájl hozzá nem rendelt elemeket tartalmaz."
@@ -3594,6 +3584,12 @@
   },
   "awaitingSSODesc": {
     "message": "Folytassuk a bejelentkezést a cég hitelesítő adataival."
+  },
+  "importDirectlyFromBrowser": {
+    "message": "Importálás közvetlenül a bővítményből"
+  },
+  "browserProfile": {
+    "message": "Böngésző profil"
   },
   "seeDetailedInstructions": {
     "message": "Tekintsük meg a részletes utasításokat a súgó oldalon:",
@@ -3837,6 +3833,12 @@
   "changeAtRiskPassword": {
     "message": "Kockázatos jelszó megváltoztatása"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Ez a bejelentkezés veszélyben van és hiányzik egy webhely. Adjunk hozzá egy webhelyet és módosítsuk a jelszót az erősebb biztonság érdekében."
+  },
+  "missingWebsite": {
+    "message": "Hiányzó webhely"
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "Nem távolíthatók el a csak megtekintési engedéllyel bíró gyűjtemények: $COLLECTIONS$",
     "placeholders": {
@@ -3931,6 +3933,12 @@
     "message": "Tudjon meg többet az SSH ügynökröl",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "aboutThisSetting": {
+    "message": "Információ erről a beállításról"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "A Bitwarden mentett bejelentkezési webcímeket használ annak azonosítására, hogy melyik ikont vagy jelszó webcímet kell használni az élmény javítása érdekében. A szolgáltatás használatakor nincs információ gyűjtés vagy mentés."
   },
   "assignToCollections": {
     "message": "Hozzárendelés gyűjteményekhez"
@@ -4077,5 +4085,54 @@
   },
   "enableAutotypeDescription": {
     "message": "A Bitwarden nem érvényesíti a beviteli helyeket, győződjünk meg róla, hogy a megfelelő ablakban és mezőben vagyunk, mielőtt a parancsikont használnánk."
+  },
+  "moreBreadcrumbs": {
+    "message": "További morzsamenük",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "next": {
+    "message": "Következő"
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "A Key Connector tartomány megerősítése"
+  },
+  "confirm": {
+    "message": "Megerősítés"
+  },
+  "enableAutotypeTransitionKey": {
+    "message": "Automatikus típusú parancsikon engedélyezése"
+  },
+  "enableAutotypeDescriptionTransitionKey": {
+    "message": "Győződjünk meg arról, hogy a megfelelő mezőben vagyunk, mielőtt a parancsikont használnánk, hogy elkerüljük az adatok rossz helyre történő kitöltését."
+  },
+  "editShortcut": {
+    "message": "Parancsikon szerkesztése"
+  },
+  "archive": {
+    "message": "Archívum"
+  },
+  "unarchive": {
+    "message": "Visszavétel archívumból"
+  },
+  "itemsInArchive": {
+    "message": "Archívum elemek száma"
+  },
+  "noItemsInArchive": {
+    "message": "Nincs elem az archívumban."
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Az archivált elemek itt jelennek meg és kizárásra kerülnek az általános keresési eredményekből és az automatikus kitöltési javaslatokból."
+  },
+  "itemSentToArchive": {
+    "message": "Archívumba küldött elemek száma"
+  },
+  "itemRemovedFromArchive": {
+    "message": "Az elem kikerült az archívumból."
+  },
+  "archiveItem": {
+    "message": "Elem archiválása"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Az archivált elemek ki vannak zárva az általános keresési eredményekből és az automatikus kitöltési javaslatokból. Biztosan archiválni szeretnénk ezt az elemet?"
   }
 }

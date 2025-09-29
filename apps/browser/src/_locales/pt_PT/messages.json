@@ -65,7 +65,7 @@
     "message": "Uma dica da palavra-passe mestra pode ajudá-lo a lembrar-se da sua palavra-passe, caso se esqueça dela."
   },
   "masterPassHintText": {
-    "message": "Se se esquecer da sua palavra-passe, a dica da palavra-passe pode ser enviada para o seu e-mail. Máximo de $CURRENT$/$MAXIMUM$ carateres.",
+    "message": "Se se esquecer da sua palavra-passe, a dica da palavra-passe pode ser enviada para o seu e-mail. Máximo de $CURRENT$/$MAXIMUM$ caracteres.",
     "placeholders": {
       "current": {
         "content": "$1",
@@ -490,7 +490,7 @@
     "description": "Card header for password generator include block"
   },
   "uppercaseDescription": {
-    "message": "Incluir carateres em maiúsculas",
+    "message": "Incluir caracteres em maiúsculas",
     "description": "Tooltip for the password generator uppercase character checkbox"
   },
   "uppercaseLabel": {
@@ -498,7 +498,7 @@
     "description": "Label for the password generator uppercase character checkbox"
   },
   "lowercaseDescription": {
-    "message": "Incluir carateres em minúsculas",
+    "message": "Incluir caracteres em minúsculas",
     "description": "Full description for the password generator lowercase character checkbox"
   },
   "lowercaseLabel": {
@@ -514,7 +514,7 @@
     "description": "Label for the password generator numbers checkbox"
   },
   "specialCharactersDescription": {
-    "message": "Incluir carateres especiais",
+    "message": "Incluir caracteres especiais",
     "description": "Full description for the password generator special characters checkbox"
   },
   "numWords": {
@@ -534,10 +534,10 @@
     "message": "Mínimo de números"
   },
   "minSpecial": {
-    "message": "Mínimo de carateres especiais"
+    "message": "Mínimo de caracteres especiais"
   },
   "avoidAmbiguous": {
-    "message": "Evitar carateres ambíguos",
+    "message": "Evitar caracteres ambíguos",
     "description": "Label for the avoid ambiguous characters checkbox."
   },
   "generatorPolicyInEffect": {
@@ -550,11 +550,41 @@
   "resetSearch": {
     "message": "Repor pesquisa"
   },
+  "archive": {
+    "message": "Arquivar"
+  },
+  "unarchive": {
+    "message": "Desarquivar"
+  },
+  "itemsInArchive": {
+    "message": "Itens no arquivo"
+  },
+  "noItemsInArchive": {
+    "message": "Nenhum item no arquivo"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Os itens arquivados aparecerão aqui e serão excluídos dos resultados gerais da pesquisa e das sugestões de preenchimento automático."
+  },
+  "itemSentToArchive": {
+    "message": "Item movido para o arquivo"
+  },
+  "itemRemovedFromArchive": {
+    "message": "Item removido do arquivo"
+  },
+  "archiveItem": {
+    "message": "Arquivar item"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Os itens arquivados são excluídos dos resultados gerais da pesquisa e das sugestões de preenchimento automático. Tem a certeza de que pretende arquivar este item?"
+  },
   "edit": {
     "message": "Editar"
   },
   "view": {
     "message": "Ver"
+  },
+  "viewLogin": {
+    "message": "Ver credencial"
   },
   "noItemsInList": {
     "message": "Não existem itens para listar."
@@ -783,7 +813,7 @@
     "message": "É necessário reescrever a palavra-passe mestra."
   },
   "masterPasswordMinlength": {
-    "message": "A palavra-passe mestra deve ter pelo menos $VALUE$ carateres.",
+    "message": "A palavra-passe mestra deve ter pelo menos $VALUE$ caracteres.",
     "description": "The Master Password must be at least a specific number of characters long.",
     "placeholders": {
       "value": {
@@ -1232,10 +1262,10 @@
     "message": "Tema"
   },
   "themeDesc": {
-    "message": "Altere o tema de cores da aplicação."
+    "message": "Altere o tema da aplicação."
   },
   "themeDescAlt": {
-    "message": "Altere o tema de cores da aplicação. Aplica-se a todas as contas com sessão iniciada."
+    "message": "Altere o tema da aplicação. Aplica-se a todas as contas com sessão iniciada."
   },
   "dark": {
     "message": "Escuro",
@@ -1522,9 +1552,6 @@
   "selectTwoStepLoginMethod": {
     "message": "Selecionar método de verificação de dois passos"
   },
-  "recoveryCodeDesc": {
-    "message": "Perdeu o acesso a todos os seus fornecedores de verificação de dois passos? Utilize o seu código de recuperação para desativar todos os fornecedores de verificação de dois passos da sua conta."
-  },
   "recoveryCodeTitle": {
     "message": "Código de recuperação"
   },
@@ -1683,9 +1710,6 @@
   "defaultAutoFillOnPageLoadDesc": {
     "message": "Pode desativar o preenchimento automático ao carregar a página para itens de início de sessão individuais a partir da vista Editar do item."
   },
-  "itemAutoFillOnPageLoad": {
-    "message": "Preencher automaticamente ao carregar a página (se configurado nas Opções)"
-  },
   "autoFillOnPageLoadUseDefault": {
     "message": "Utilizar a predefinição"
   },
@@ -1757,23 +1781,8 @@
   "popup2faCloseMessage": {
     "message": "Ao clicar fora da janela pop-up para verificar o código de verificação no seu e-mail fará com que este pop-up se feche. Pretende abrir esta janela pop-up numa nova janela para que não se feche?"
   },
-  "popupU2fCloseMessage": {
-    "message": "Este navegador não pode processar pedidos U2F nesta janela pop-up. Pretende abrir este pop-up numa nova janela para poder iniciar sessão utilizando o U2F?"
-  },
-  "enableFavicon": {
-    "message": "Mostrar ícones do site"
-  },
-  "faviconDesc": {
-    "message": "Mostrar uma imagem reconhecível junto a cada credencial."
-  },
-  "faviconDescAlt": {
-    "message": "Mostrar uma imagem reconhecível junto a cada credencial. Aplica-se a todas as contas com sessão iniciada."
-  },
-  "enableBadgeCounter": {
-    "message": "Mostrar distintivo de contador"
-  },
-  "badgeCounterDesc": {
-    "message": "Indica quantas credenciais tem para a página Web atual."
+  "showIconsChangePasswordUrls": {
+    "message": "Mostrar ícones de sites e recuperar URLs de alteração de palavra-passe"
   },
   "cardholderName": {
     "message": "Titular do cartão"
@@ -1937,32 +1946,81 @@
   "typeNote": {
     "message": "Nota"
   },
-  "newItemHeader": {
-    "message": "Novo(a) $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderLogin": {
+    "message": "Nova credencial",
+    "description": "Header for new login item type"
   },
-  "editItemHeader": {
-    "message": "Editar $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderCard": {
+    "message": "Novo cartão",
+    "description": "Header for new card item type"
   },
-  "viewItemHeader": {
-    "message": "Ver $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderIdentity": {
+    "message": "Nova identidade",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "Nova nota",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "Nova chave SSH",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderTextSend": {
+    "message": "Novo Send de texto",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "Novo Send de ficheiro",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderLogin": {
+    "message": "Editar credencial",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Editar cartão",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Editar identidade",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Editar nota",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "Editar chave SSH",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Editar Send de texto",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Editar Send de ficheiro",
+    "description": "Header for edit file send"
+  },
+  "viewItemHeaderLogin": {
+    "message": "Ver credencial",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "Ver cartão",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "Ver identidade",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "Ver nota",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "Ver chave SSH",
+    "description": "Header for view SSH key item type"
   },
   "passwordHistory": {
     "message": "Histórico de palavras-passe"
@@ -2344,16 +2402,16 @@
     }
   },
   "policyInEffectUppercase": {
-    "message": "Contém um ou mais carateres em maiúsculas"
+    "message": "Contém um ou mais caracteres em maiúsculas"
   },
   "policyInEffectLowercase": {
-    "message": "Contém um ou mais carateres em minúsculas"
+    "message": "Contém um ou mais caracteres em minúsculas"
   },
   "policyInEffectNumbers": {
     "message": "Contém um ou mais números"
   },
   "policyInEffectSpecial": {
-    "message": "Contém um ou mais dos seguintes carateres especiais $CHARS$",
+    "message": "Contém um ou mais dos seguintes caracteres especiais $CHARS$",
     "placeholders": {
       "chars": {
         "content": "$1",
@@ -3097,7 +3155,7 @@
     "message": "Saiu da organização."
   },
   "toggleCharacterCount": {
-    "message": "Mostrar/ocultar contagem de carateres"
+    "message": "Mostrar/ocultar contagem de caracteres"
   },
   "sessionTimeout": {
     "message": "A sua sessão expirou. Por favor, volte atrás e tente iniciar sessão novamente."
@@ -3173,7 +3231,7 @@
     }
   },
   "passwordLengthRecommendationHint": {
-    "message": " Utilize $RECOMMENDED$ carateres ou mais para gerar uma palavra-passe forte.",
+    "message": " Utilize $RECOMMENDED$ caracteres ou mais para gerar uma palavra-passe forte.",
     "description": "Appended to `spinboxBoundariesHint` to recommend a length to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
@@ -3513,7 +3571,7 @@
     "message": "A sua palavra-passe mestra não pode ser recuperada se a esquecer!"
   },
   "characterMinimum": {
-    "message": "$LENGTH$ carateres no mínimo",
+    "message": "$LENGTH$ caracteres no mínimo",
     "placeholders": {
       "length": {
         "content": "$1",
@@ -3523,9 +3581,6 @@
   },
   "autofillPageLoadPolicyActivated": {
     "message": "As políticas da sua organização ativaram o preenchimento automático ao carregar a página."
-  },
-  "howToAutofill": {
-    "message": "Como preencher automaticamente"
   },
   "autofillSelectInfoWithCommand": {
     "message": "Selecione um item a partir deste ecrã, utilize o atalho $COMMAND$ ou explore outras opções nas definições.",
@@ -3802,7 +3857,7 @@
     "message": "Procurar"
   },
   "inputMinLength": {
-    "message": "O campo deve ter pelo menos $COUNT$ carateres.",
+    "message": "O campo deve ter pelo menos $COUNT$ caracteres.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -3811,7 +3866,7 @@
     }
   },
   "inputMaxLength": {
-    "message": "O campo não pode exceder os $COUNT$ carateres de comprimento.",
+    "message": "O campo não pode exceder os $COUNT$ caracteres de comprimento.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -3820,7 +3875,7 @@
     }
   },
   "inputForbiddenCharacters": {
-    "message": "Não são permitidos os seguintes carateres: $CHARACTERS$",
+    "message": "Não são permitidos os seguintes caracteres: $CHARACTERS$",
     "placeholders": {
       "characters": {
         "content": "$1",
@@ -3829,7 +3884,7 @@
     }
   },
   "inputMinValue": {
-    "message": "O valor do campo tem de ser, pelo menos, $MIN$ carateres.",
+    "message": "O valor do campo tem de ser, pelo menos, $MIN$ caracteres.",
     "placeholders": {
       "min": {
         "content": "$1",
@@ -3838,7 +3893,7 @@
     }
   },
   "inputMaxValue": {
-    "message": "O valor do campo não pode exceder os $MAX$ carateres.",
+    "message": "O valor do campo não pode exceder os $MAX$ caracteres.",
     "placeholders": {
       "max": {
         "content": "$1",
@@ -3911,17 +3966,9 @@
   "aliasDomain": {
     "message": "Alias de domínio"
   },
-  "passwordRepromptDisabledAutofillOnPageLoad": {
-    "message": "Os itens que voltem a pedir a palavra-passe mestra não podem ser preenchidos automaticamente no carregamento da página. Preenchimento automático no carregamento da página desativado.",
-    "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
-  },
   "autofillOnPageLoadSetToDefault": {
     "message": "Preencher automaticamente ao carregar a página definido para utilizar a predefinição.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "turnOffMasterPasswordPromptToEditField": {
-    "message": "Desativar o pedido para reintroduzir a palavra-passe mestra para editar este campo",
-    "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
   },
   "toggleSideNavigation": {
     "message": "Ativar/desativar navegação lateral"
@@ -4131,15 +4178,11 @@
   "selectImportCollection": {
     "message": "Selecionar uma coleção"
   },
-  "importTargetHint": {
-    "message": "Selecione esta opção se pretender que o conteúdo do ficheiro importado seja transferido para $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Selecione esta opção se pretender que o conteúdo do ficheiro importado seja transferido para uma coleção"
+  },
+  "importTargetHintFolder": {
+    "message": "Selecione esta opção se pretender que o conteúdo do ficheiro importado seja transferido para uma pasta"
   },
   "importUnassignedItemsError": {
     "message": "O ficheiro contém itens não atribuídos."
@@ -4195,9 +4238,6 @@
   },
   "passkeyNotCopiedAlert": {
     "message": "A chave de acesso não será copiada para o item duplicado. Pretende ainda assim duplicar este item?"
-  },
-  "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
-    "message": "Verificação exigida pelo site inicial. Esta funcionalidade ainda não está implementada para contas sem palavra-passe mestra."
   },
   "logInWithPasskeyQuestion": {
     "message": "Iniciar sessão com a chave de acesso?"
@@ -4383,7 +4423,7 @@
     "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
   },
   "regExAdvancedOptionWarning": {
-    "message": "A \"expressão regular\" é uma opção avançada com um risco acrescido de exposição de credenciais.",
+    "message": "A \"Expressão regular\" é uma opção avançada com um risco acrescido de exposição de credenciais.",
     "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
   },
   "startsWithAdvancedOptionWarning": {
@@ -4884,9 +4924,6 @@
       }
     }
   },
-  "enableAnimations": {
-    "message": "Ativar animações"
-  },
   "showAnimations": {
     "message": "Mostrar animações"
   },
@@ -5099,14 +5136,8 @@
   "itemLocation": {
     "message": "Localização do item"
   },
-  "fileSend": {
-    "message": "Send de ficheiro"
-  },
   "fileSends": {
     "message": "Sends de ficheiros"
-  },
-  "textSend": {
-    "message": "Send de texto"
   },
   "textSends": {
     "message": "Sends de texto"
@@ -5116,6 +5147,18 @@
   },
   "showNumberOfAutofillSuggestions": {
     "message": "Mostrar o número de sugestões de preenchimento automático de credenciais no ícone da extensão"
+  },
+  "accountAccessRequested": {
+    "message": "Acesso à conta solicitado"
+  },
+  "confirmAccessAttempt": {
+    "message": "Confirmar tentativa de acesso para $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
   },
   "showQuickCopyActions": {
     "message": "Mostrar ações de cópia rápida no cofre"
@@ -5156,17 +5199,14 @@
   "vaultCustomTimeoutMinimum": {
     "message": "O tempo limite mínimo personalizado é de 1 minuto."
   },
-  "additionalContentAvailable": {
-    "message": "Estão disponíveis conteúdos adicionais"
-  },
   "fileSavedToDevice": {
     "message": "Ficheiro guardado no dispositivo. Gira-o a partir das transferências do seu dispositivo."
   },
   "showCharacterCount": {
-    "message": "Mostrar contagem de carateres"
+    "message": "Mostrar contagem de caracteres"
   },
   "hideCharacterCount": {
-    "message": "Ocultar contagem de carateres"
+    "message": "Ocultar contagem de caracteres"
   },
   "itemsInTrash": {
     "message": "Itens no lixo"
@@ -5444,6 +5484,12 @@
   "changeAtRiskPassword": {
     "message": "Alterar palavra-passe em risco"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Esta credencial está em risco e não tem um site. Adicione um site e altere a palavra-passe para uma segurança mais forte."
+  },
+  "missingWebsite": {
+    "message": "Site em falta"
+  },
   "settingsVaultOptions": {
     "message": "Opções do cofre"
   },
@@ -5491,6 +5537,18 @@
   },
   "hasItemsVaultNudgeTitle": {
     "message": "Bem-vindo ao seu cofre!"
+  },
+  "phishingPageTitle": {
+    "message": "Site de phishing"
+  },
+  "phishingPageCloseTab": {
+    "message": "Fechar separador"
+  },
+  "phishingPageContinue": {
+    "message": "Continuar"
+  },
+  "phishingPageLearnWhy": {
+    "message": "Porque é que está a ver isto?"
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Preenchimento automático de itens para a página atual"
@@ -5567,6 +5625,12 @@
     "message": "Crie facilmente palavras-passe fortes e únicas clicando no botão Gerar palavra-passe para o ajudar a manter as suas credenciais seguras.",
     "description": "Aria label for the body content of the generator nudge"
   },
+  "aboutThisSetting": {
+    "message": "Acerca desta definição"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "O Bitwarden utilizará os URIs de credenciais guardadas para identificar qual o ícone ou URL de alteração de palavra-passe que deve ser utilizado para melhorar a sua experiência. Nenhuma informação é recolhida ou guardada quando utiliza este serviço."
+  },
   "noPermissionsViewPage": {
     "message": "Não tem permissões para ver esta página. Tente iniciar sessão com uma conta diferente."
   },
@@ -5579,5 +5643,15 @@
   },
   "showLess": {
     "message": "Mostrar menos"
+  },
+  "next": {
+    "message": "Seguinte"
+  },
+  "moreBreadcrumbs": {
+    "message": "Mais da navegação estrutural",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Confirmar o domínio do Key Connector"
   }
 }

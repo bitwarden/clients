@@ -82,6 +82,8 @@ export class ItemDetailsSectionComponent implements OnInit {
 
   protected userId: UserId;
 
+  protected favoriteButtonDisabled = false;
+
   @Input({ required: true })
   config: CipherFormConfig;
 
@@ -184,6 +186,11 @@ export class ItemDetailsSectionComponent implements OnInit {
   }
 
   get showOwnership() {
+    // Don't show ownership field for archived ciphers
+    if (this.originalCipherView?.isArchived) {
+      return false;
+    }
+
     // Show ownership field when editing with available orgs
     const isEditingWithOrgs = this.organizations.length > 0 && this.config.mode === "edit";
 
@@ -223,10 +230,9 @@ export class ItemDetailsSectionComponent implements OnInit {
       });
       await this.updateCollectionOptions(this.initialValues?.collectionIds);
     }
+
     this.setFormState();
-    if (!this.allowOwnershipChange) {
-      this.itemDetailsForm.controls.organizationId.disable();
-    }
+
     this.itemDetailsForm.controls.organizationId.valueChanges
       .pipe(
         takeUntilDestroyed(this.destroyRef),
@@ -239,18 +245,28 @@ export class ItemDetailsSectionComponent implements OnInit {
   }
 
   /**
-   * When the cipher does not belong to an organization but the user's organization
-   * requires all ciphers to be owned by an organization, disable the entire form
-   * until the user selects an organization.
+   * Updates the global form and organizationId control states.
    */
   private setFormState() {
     if (this.config.originalCipher && !this.allowPersonalOwnership) {
+      // When editing a cipher and the user cannot have personal ownership
+      // and the cipher is is not within the organization - force the user to
+      // move the cipher within the organization first before editing any other field
       if (this.itemDetailsForm.controls.organizationId.value === null) {
         this.cipherFormContainer.disableFormFields();
         this.itemDetailsForm.controls.organizationId.enable();
+        this.favoriteButtonDisabled = true;
       } else {
+        // The "after" from the above: When editing a cipher and the user cannot have personal ownership
+        // and the organization is populated - re-enable the global form.
         this.cipherFormContainer.enableFormFields();
+        this.favoriteButtonDisabled = false;
+        this.setCollectionControlState();
       }
+    } else if (!this.allowOwnershipChange) {
+      // When the user cannot change the organization field, disable the organizationId control.
+      // This could be because they aren't a part of an organization
+      this.itemDetailsForm.controls.organizationId.disable({ emitEvent: false });
     }
   }
 
@@ -305,7 +321,6 @@ export class ItemDetailsSectionComponent implements OnInit {
     });
 
     const orgId = this.itemDetailsForm.controls.organizationId.value as OrganizationId;
-    const organization = this.organizations.find((o) => o.id === orgId);
     const initializedWithCachedCipher = this.cipherFormContainer.initializedWithCachedCipher();
 
     // Configure form for clone mode.
@@ -327,9 +342,7 @@ export class ItemDetailsSectionComponent implements OnInit {
 
     await this.updateCollectionOptions(prefillCollections);
 
-    if (!organization?.canEditAllCiphers && !prefillCipher.canAssignToCollections) {
-      this.itemDetailsForm.controls.collectionIds.disable();
-    }
+    this.setCollectionControlState();
 
     if (this.partialEdit) {
       this.itemDetailsForm.disable();
@@ -344,19 +357,31 @@ export class ItemDetailsSectionComponent implements OnInit {
             c.readOnly &&
             this.originalCipherView.collectionIds.includes(c.id as CollectionId),
         );
-
-        // When Owners/Admins access setting is turned on.
-        // Disable Collections Options if Owner/Admin does not have Edit/Manage permissions on item
-        // Disable Collections Options if Custom user does not have Edit/Manage permissions on item
-        if (
-          (organization?.allowAdminAccessToAllCollectionItems &&
-            (!this.originalCipherView.viewPassword || !this.originalCipherView.edit)) ||
-          (organization?.type === OrganizationUserType.Custom &&
-            !this.originalCipherView.viewPassword)
-        ) {
-          this.itemDetailsForm.controls.collectionIds.disable();
-        }
       }
+    }
+  }
+
+  private setCollectionControlState() {
+    const initialCipherView = this.cipherFormContainer.getInitialCipherView();
+    const orgId = this.itemDetailsForm.controls.organizationId.value as OrganizationId;
+    const organization = this.organizations.find((o) => o.id === orgId);
+    if (!organization || !initialCipherView) {
+      return;
+    }
+    // Disable the collection control if either of the following apply:
+    // 1. The organization does not allow editing all ciphers and the existing cipher cannot be assigned to
+    // collections
+    // 2. When Owners/Admins access setting is turned on.
+    // AND either:
+    //   a. Disable Collections Options if Owner/Admin does not have Edit/Manage permissions on item
+    //   b. Disable Collections Options if Custom user does not have Edit/Manage permissions on item
+    if (
+      (!organization.canEditAllCiphers && !initialCipherView.canAssignToCollections) ||
+      (organization.allowAdminAccessToAllCollectionItems &&
+        (!initialCipherView.viewPassword || !initialCipherView.edit)) ||
+      (organization.type === OrganizationUserType.Custom && !initialCipherView.viewPassword)
+    ) {
+      this.itemDetailsForm.controls.collectionIds.disable();
     }
   }
 

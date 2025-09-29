@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
 import { Router } from "@angular/router";
 import { RouterTestingModule } from "@angular/router/testing";
 import { BehaviorSubject, of } from "rxjs";
@@ -12,9 +13,11 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { ToastService } from "@bitwarden/components";
+import { CipherFormContainer } from "@bitwarden/vault";
 
 import BrowserPopupUtils from "../../../../../../platform/browser/browser-popup-utils";
 import { FilePopoutUtilsService } from "../../../../../../tools/popup/services/file-popout-utils.service";
@@ -62,6 +65,7 @@ describe("OpenAttachmentsComponent", () => {
       name: "Test User",
     }),
   };
+  const formStatusChange$ = new BehaviorSubject<"enabled" | "disabled">("enabled");
 
   beforeEach(async () => {
     openCurrentPagePopout.mockClear();
@@ -70,6 +74,7 @@ describe("OpenAttachmentsComponent", () => {
     organizations$.mockClear();
     showFilePopoutMessage.mockClear();
     hasPremiumFromAnySource$.next(true);
+    formStatusChange$.next("enabled");
 
     await TestBed.configureTestingModule({
       imports: [OpenAttachmentsComponent, RouterTestingModule],
@@ -83,6 +88,10 @@ describe("OpenAttachmentsComponent", () => {
             getKeyForCipherKeyDecryption: () => Promise.resolve(null),
             decrypt: jest.fn().mockResolvedValue(cipherView),
           },
+        },
+        {
+          provide: CipherFormContainer,
+          useValue: { formStatusChange$ },
         },
         {
           provide: ToastService,
@@ -99,6 +108,12 @@ describe("OpenAttachmentsComponent", () => {
         {
           provide: AccountService,
           useValue: accountService,
+        },
+        {
+          provide: PremiumUpgradePromptService,
+          useValue: {
+            promptForPremium: jest.fn().mockResolvedValue(null),
+          },
         },
       ],
     }).compileComponents();
@@ -145,6 +160,21 @@ describe("OpenAttachmentsComponent", () => {
     await component.openAttachments();
 
     expect(router.navigate).toHaveBeenCalledWith(["/premium"]);
+  });
+
+  it("disables attachments when the edit form is disabled", () => {
+    formStatusChange$.next("disabled");
+    fixture.detectChanges();
+
+    let button = fixture.debugElement.query(By.css("button"));
+
+    expect(button.nativeElement.disabled).toBe(true);
+
+    formStatusChange$.next("enabled");
+    fixture.detectChanges();
+
+    button = fixture.debugElement.query(By.css("button"));
+    expect(button.nativeElement.disabled).toBe(false);
   });
 
   describe("Free Orgs", () => {

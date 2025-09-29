@@ -369,6 +369,27 @@ describe("DefaultCollectionService", () => {
     });
   });
 
+  describe("groupByOrganization", () => {
+    it("groups collections by organization", () => {
+      const org1 = { organizationId: "org1" } as CollectionView;
+      org1.name = "Collection 1";
+
+      const org2 = { organizationId: "org1" } as CollectionView;
+      org2.name = "Collection 2";
+      const org3 = { organizationId: "org2" } as CollectionView;
+      org3.name = "Collection 3";
+      const collections = [org1, org2, org3];
+
+      const result = collectionService.groupByOrganization(collections);
+
+      expect(result.size).toBe(2);
+      expect(result.get(org1.organizationId)?.length).toBe(2);
+      expect(result.get(org1.organizationId)).toContainPartialObjects([org1, org2]);
+      expect(result.get(org3.organizationId)?.length).toBe(1);
+      expect(result.get(org3.organizationId)).toContainPartialObjects([org3]);
+    });
+  });
+
   const setEncryptedState = (collectionData: CollectionData[] | null) =>
     stateProvider.setUserState(
       ENCRYPTED_COLLECTION_DATA_KEY,
@@ -390,9 +411,11 @@ const collectionDataFactory = (orgId?: OrganizationId) => {
 };
 
 function collectionViewDataFactory(orgId?: OrganizationId): CollectionView {
-  const collectionView = new CollectionView();
-  collectionView.id = Utils.newGuid() as CollectionId;
-  collectionView.organizationId = orgId ?? (Utils.newGuid() as OrganizationId);
-  collectionView.name = "DEC_NAME_" + collectionView.id;
+  const id = Utils.newGuid() as CollectionId;
+  const collectionView = new CollectionView({
+    id,
+    organizationId: orgId ?? (Utils.newGuid() as OrganizationId),
+    name: "DEC_NAME_" + id,
+  });
   return collectionView;
 }

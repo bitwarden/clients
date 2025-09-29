@@ -1,22 +1,3 @@
-<bit-banner
-  id="free-trial-banner"
-  class="-tw-m-6 tw-flex tw-flex-col tw-pb-6"
-  bannerType="premium"
-  icon="bwi-billing"
-  [showClose]="false"
-  *ngIf="freeTrialData?.shownBanner"
->
-  {{ freeTrialData.message }}
-  <a
-    bitLink
-    linkType="secondary"
-    (click)="changePayment()"
-    class="tw-cursor-pointer"
-    rel="noreferrer noopener"
-  >
-    {{ "clickHereToAddPaymentMethod" | i18n }}
-  </a>
-</bit-banner>
 <app-header></app-header>
 <bit-container>
   <ng-container *ngIf="loading">

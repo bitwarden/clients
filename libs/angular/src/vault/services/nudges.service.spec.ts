@@ -8,7 +8,6 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -31,10 +30,6 @@ describe("Vault Nudges Service", () => {
   let fakeStateProvider: FakeStateProvider;
 
   let testBed: TestBed;
-  const mockConfigService = {
-    getFeatureFlag$: jest.fn().mockReturnValue(of(true)),
-    getFeatureFlag: jest.fn().mockReturnValue(true),
-  };
 
   const nudgeServices = [
     EmptyVaultNudgeService,
@@ -58,7 +53,6 @@ describe("Vault Nudges Service", () => {
           provide: StateProvider,
           useValue: fakeStateProvider,
         },
-        { provide: ConfigService, useValue: mockConfigService },
         {
           provide: HasItemsNudgeService,
           useValue: mock<HasItemsNudgeService>(),

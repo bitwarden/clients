@@ -2,6 +2,9 @@
   "allApplications": {
     "message": "Tutte le applicazioni"
   },
+  "activity": {
+    "message": "Attività"
+  },
   "appLogoLabel": {
     "message": "Logo Bitwarden"
   },
@@ -56,8 +59,20 @@
   "createNewLoginItem": {
     "message": "Crea nuovo elemento di login"
   },
+  "criticalApplicationsActivityDescription": {
+    "message": "Once you mark applications critical, they will display here."
+  },
   "criticalApplicationsWithCount": {
     "message": "Applicazioni critiche ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfCriticalApplications": {
+    "message": "$COUNT$ critical applications",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -86,14 +101,14 @@
   "noAppsInOrgDescription": {
     "message": "Quando gli utenti salvano i login, i relativi dati e le password a rischio sono mostrati qui. Contrassegna le applicazioni critiche e notifica agli utenti di aggiornare le password."
   },
-  "noCriticalAppsTitle": {
-    "message": "Non hai contrassegnato nessuna applicazione come critica"
+  "noCriticalApplicationsTitle": {
+    "message": "You haven’t marked any applications as critical"
   },
-  "noCriticalAppsDescription": {
-    "message": "Seleziona le applicazioni critiche per scoprire le password a rischio e invitare gli utenti a modificarle."
+  "noCriticalApplicationsDescription": {
+    "message": "Select your most critical applications to prioritize security actions for your users to address at-risk passwords."
   },
-  "markCriticalApps": {
-    "message": "Seleziona le applicazioni critiche"
+  "markCriticalApplications": {
+    "message": "Select critical applications"
   },
   "markAppAsCritical": {
     "message": "Contrassegna l'applicazione come critica"
@@ -118,6 +133,18 @@
   },
   "atRiskMembers": {
     "message": "Membri a rischio"
+  },
+  "membersAtRiskActivityDescription": {
+    "message": "Members with edit access to at-risk items for critical applications"
+  },
+  "membersAtRisk": {
+    "message": "$COUNT$ members at risk",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "atRiskMembersWithCount": {
     "message": "Membri a rischio ($COUNT$)",
@@ -176,11 +203,11 @@
   "totalApplications": {
     "message": "Applicazioni totali"
   },
-  "unmarkAsCriticalApp": {
-    "message": "Contrassegna l'applicazione come non critica"
+  "unmarkAsCritical": {
+    "message": "Contrassegna l'elemento come non critico"
   },
-  "criticalApplicationSuccessfullyUnmarked": {
-    "message": "Applicazione contrassegnata come non critica"
+  "criticalApplicationUnmarkedSuccessfully": {
+    "message": "Successfully unmarked application as critical"
   },
   "whatTypeOfItem": {
     "message": "Che tipo di elemento è questo?"
@@ -734,32 +761,81 @@
   "viewItem": {
     "message": "Visualizza elemento"
   },
-  "newItemHeader": {
-    "message": "Nuovo $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderLogin": {
+    "message": "Nuovo Login",
+    "description": "Header for new login item type"
   },
-  "editItemHeader": {
-    "message": "Modifica $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderCard": {
+    "message": "Nuova Carta",
+    "description": "Header for new card item type"
   },
-  "viewItemType": {
-    "message": "Visualizza $ITEMTYPE$",
-    "placeholders": {
-      "itemtype": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderIdentity": {
+    "message": "Nuova Identità",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "Nuova Nota",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "Nuova chiave SSH",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderTextSend": {
+    "message": "New Text Send",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "New File Send",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderLogin": {
+    "message": "Modifica Login",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Modifica Carta",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Modifica Identità",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Edit Note",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "Edit SSH key",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Edit Text Send",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Edit File Send",
+    "description": "Header for edit file send"
+  },
+  "viewItemHeaderLogin": {
+    "message": "View Login",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "View Card",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "View Identity",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "View Note",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "View SSH key",
+    "description": "Header for view SSH key item type"
   },
   "new": {
     "message": "Nuovo",
@@ -866,6 +942,15 @@
   },
   "copyLicenseNumber": {
     "message": "Copia numero patente"
+  },
+  "copyPrivateKey": {
+    "message": "Copia chiave privata"
+  },
+  "copyPublicKey": {
+    "message": "Copia chiave pubblica"
+  },
+  "copyFingerprint": {
+    "message": "Copia frase impronta"
   },
   "copyName": {
     "message": "Copia nome"
@@ -1501,11 +1586,11 @@
   "selectTwoStepLoginMethod": {
     "message": "Scegli il metodo di accesso in due passaggi"
   },
-  "recoveryCodeDesc": {
-    "message": "Hai perso l'accesso a tutti i tuoi metodi di verifica in due passaggi? Usa il tuo codice di recupero per disattivarli tutti dal tuo account."
-  },
   "recoveryCodeTitle": {
     "message": "Codice di recupero"
+  },
+  "invalidRecoveryCode": {
+    "message": "Codice di recupero non valido"
   },
   "authenticatorAppTitle": {
     "message": "App di autenticazione"
@@ -2050,15 +2135,11 @@
   "selectImportCollection": {
     "message": "Seleziona una raccolta"
   },
-  "importTargetHint": {
-    "message": "Seleziona questa opzione se vuoi che i contenuti del file di importazione siano spostati in una $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Seleziona questa opzione se vuoi che i contenuti dell'importazione siano salvati in una raccolta"
+  },
+  "importTargetHintFolder": {
+    "message": "Seleziona questa opzione se vuoi che i contenuti dell'importazione siano salvati in una cartella"
   },
   "importUnassignedItemsError": {
     "message": "Il file contiene elementi non assegnati."
@@ -2106,11 +2187,8 @@
   "languageDesc": {
     "message": "Cambia la lingua utilizzata dalla cassaforte web."
   },
-  "enableFavicon": {
-    "message": "Mostra icone dei siti"
-  },
-  "faviconDesc": {
-    "message": "Mostra un piccolo logo riconoscibile accanto a ogni login."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "default": {
     "message": "Predefinito"
@@ -2450,9 +2528,6 @@
   },
   "twoFactorU2fProblemReadingTryAgain": {
     "message": "Si è verificato un problema durante la lettura della chiave di sicurezza. Riprova."
-  },
-  "twoFactorWebAuthnWarning1": {
-    "message": "A causa delle limitazioni della piattaforma, WebAuthn non può essere usato in tutte le applicazioni Bitwarden. È necessario impostare un altro fornitore d'accesso in due passaggi in modo da poter accedere al tuo account quando WebAuthn non può essere usato."
   },
   "twoFactorRecoveryYourCode": {
     "message": "Il tuo codice di recupero Bitwarden per la verifica in due passaggi"
@@ -2823,6 +2898,12 @@
         "example": "'month' or 'year'"
       }
     }
+  },
+  "showPricingSummary": {
+    "message": "Mostra riepilogo prezzi"
+  },
+  "hidePricingSummary": {
+    "message": "Nascondi riepilogo prezzi"
   },
   "summary": {
     "message": "Riepilogo"
@@ -5476,6 +5557,13 @@
   "personalOwnershipSubmitError": {
     "message": "A causa di una politica aziendale, non puoi salvare elementi nella tua cassaforte personale. Cambia l'opzione di proprietà in un'organizzazione e scegli tra le raccolte disponibili."
   },
+  "desktopAutotypePolicy": {
+    "message": "Desktop Autotype Default Setting"
+  },
+  "desktopAutotypePolicyDesc": {
+    "message": "Turn Desktop Autotype ON by default for members. Members can turn Autotype off manually in the Desktop client.",
+    "description": "This policy will enable Desktop Autotype by default for members on Unlock."
+  },
   "disableSend": {
     "message": "Rimuovi Send"
   },
@@ -6640,6 +6728,15 @@
   "disabledSso": {
     "message": "SSO disattivato"
   },
+  "emailMustLoginWithSso": {
+    "message": "$EMAIL$ must login with Single Sign-on",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "enabledKeyConnector": {
     "message": "Key Connector attivato"
   },
@@ -7029,6 +7126,12 @@
   "unknownCipher": {
     "message": "Elemento sconosciuto, potrebbe essere necessario richiedere autorizzazione per accedere a questo elemento."
   },
+  "unknownSecret": {
+    "message": "Segreto sconosciuto, potrebbe essere necessario richiedere l'autorizzazione per l'accesso."
+  },
+  "unknownProject": {
+    "message": "Progetto sconosciuto, potrebbe essere necessario richiedere l'autorizzazione per l'accesso."
+  },
   "cannotSponsorSelf": {
     "message": "Non puoi riscattare per l'account attivo. Inserisci un'email diversa."
   },
@@ -7415,6 +7518,9 @@
   },
   "off": {
     "message": "No"
+  },
+  "connected": {
+    "message": "Connected"
   },
   "members": {
     "message": "Membri"
@@ -8352,10 +8458,82 @@
       }
     }
   },
+  "permanentlyDeletedSecretWithId": {
+    "message": "Segreto con identificatore $SECRET_ID$ eliminato in modo permanente",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "restoredSecretWithId": {
+    "message": "Segreto con identificatore $SECRET_ID$ ripristinato",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
   "createdSecretWithId": {
     "message": "Creato un segreto con identificatore $SECRET_ID$",
     "placeholders": {
       "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "accessedProjectWithId": {
+    "message": "Accesso al progetto con identificatore $PROJECT_ID$ riuscito.",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "nameUnavailableProjectDeleted": {
+    "message": "Progetto con identificatore $PROJECT_ID$ eliminato in modo permanente",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "nameUnavailableSecretDeleted": {
+    "message": "ID segreto $SECRET_ID$ eliminato",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "editedProjectWithId": {
+    "message": "Progetto con identificatore $PROJECT_ID$ modificato",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "deletedProjectWithId": {
+    "message": "Progetto con identificatore $PROJECT_ID$ eliminato",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "createdProjectWithId": {
+    "message": "Creato nuovo progetto con identificatore $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
         "content": "$1",
         "example": "4d34e8a8"
       }
@@ -8849,20 +9027,25 @@
   "collectionManagement": {
     "message": "Gestione della raccolta"
   },
-  "collectionManagementDesc": {
-    "message": "Gestisci il comportamento delle raccolte per l'organizzazione"
+  "collectionManagementDescription": {
+    "message": "Configura il comportamento delle raccolte per l'organizzazione"
   },
-  "limitCollectionCreationDesc": {
+  "allowAdminAccessToAllCollectionItemsDescription": {
+    "message": "Consenti ai proprietari e agli amministratori di gestire tutti gli elementi e le raccolte dalla console di amministrazione"
+  },
+  "restrictCollectionCreationDescription": {
     "message": "Limita la creazione di raccolte ai proprietari e agli amministratori"
   },
-  "limitCollectionDeletionDesc": {
+  "restrictCollectionDeletionDescription": {
     "message": "Limita l'eliminazione delle raccolte ai proprietari e agli amministratori"
   },
-  "limitItemDeletionDescription": {
-    "message": "Consenti l'eliminazione solo ai membri con i permessi di gestione raccolte"
+  "restrictItemDeletionDescriptionStart": {
+    "message": "Limita la cancellazione di elementi ai membri con il ",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
   },
-  "allowAdminAccessToAllCollectionItemsDesc": {
-    "message": "Proprietari e amministratori possono gestire tutte le raccolte e gli elementi"
+  "restrictItemDeletionDescriptionEnd": {
+    "message": " permesso",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
   },
   "updatedCollectionManagement": {
     "message": "Impostazione di gestione della raccolta aggiornata"
@@ -8933,6 +9116,78 @@
   },
   "modifiedCollectionManagement": {
     "message": "Modificata l'impostazione di gestione della raccolta $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationEnabled": {
+    "message": "Turned on Restrict collection creation setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationDisabled": {
+    "message": "Turned off Restrict collection creation setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionEnabled": {
+    "message": "Turned on Restrict collection deletion setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionDisabled": {
+    "message": "Turned off Restrict collection deletion setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionEnabled": {
+    "message": "Turned on Restrict item deletion setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionDisabled": {
+    "message": "Turned off Restrict item deletion setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsEnabled": {
+    "message": "Turned on Allow owners and admins to manage all collections and items setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsDisabled": {
+    "message": "Turned off Allow owners and admins to manage all collections and items setting $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -9500,6 +9755,9 @@
   "failedToSaveIntegration": {
     "message": "Impossibile salvare l'integrazione. Riprova più tardi."
   },
+  "failedToDeleteIntegration": {
+    "message": "Failed to delete integration. Please try again later."
+  },
   "deviceIdMissing": {
     "message": "ID dispositivo mancante"
   },
@@ -9517,6 +9775,15 @@
   },
   "connectIntegrationButtonDesc": {
     "message": "Collega $INTEGRATION$",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
+  },
+  "updateIntegrationButtonDesc": {
+    "message": "Update $INTEGRATION$",
     "placeholders": {
       "integration": {
         "content": "$1",
@@ -9586,6 +9853,9 @@
   },
   "bearerToken": {
     "message": "Token portatore"
+  },
+  "repositoryNameHint": {
+    "message": "Name of the repository to ingest into"
   },
   "index": {
     "message": "Indice"
@@ -10035,14 +10305,8 @@
   "learnMoreAboutApi": {
     "message": "Info sulle API di Bitwarden"
   },
-  "fileSend": {
-    "message": "File Send"
-  },
   "fileSends": {
     "message": "Send File"
-  },
-  "textSend": {
-    "message": "Testo Send"
   },
   "textSends": {
     "message": "Send Testo"
@@ -10730,6 +10994,12 @@
   "changeAtRiskPassword": {
     "message": "Cambia parola d'accesso a rischio"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
+  },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Rimuovi sblocco con PIN"
   },
@@ -10745,8 +11015,23 @@
   "upgradeEventLogMessage": {
     "message": "Questi eventi sono solo esempi e non riflettono eventi reali all'interno della tua organizzazione Bitwarden."
   },
+  "viewEvents": {
+    "message": "Visualizza eventi"
+  },
   "cannotCreateCollection": {
     "message": "Le organizzazioni gratuite possono avere fino a 2 raccolte. Aggiorna ad un piano a pagamento per crearne di più."
+  },
+  "searchArchive": {
+    "message": "Search archive"
+  },
+  "archive": {
+    "message": "Archive"
+  },
+  "noItemsInArchive": {
+    "message": "No items in archive"
+  },
+  "archivedItemsDescription": {
+    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
   },
   "businessUnit": {
     "message": "Business Unit"
@@ -10841,40 +11126,40 @@
     "message": "Installa l'estensione"
   },
   "addItLater": {
-    "message": "Add it later"
+    "message": "Più tardi"
   },
   "cannotAutofillPasswordsWithoutExtensionTitle": {
-    "message": "You can't autofill passwords without the browser extension"
+    "message": "Per l'inserimento automatico delle credenziali è necessaria l'estensione del browser"
   },
   "cannotAutofillPasswordsWithoutExtensionDesc": {
-    "message": "Are you sure you don't want to add the extension now?"
+    "message": "Vuoi davvero evitare di aggiungere l'estensione?"
   },
   "skipToWebApp": {
-    "message": "Skip to web app"
+    "message": "Vai a Bitwarden Web"
   },
   "bitwardenExtensionInstalled": {
-    "message": "Bitwarden extension installed!"
+    "message": "Estensione di Bitwarden installata!"
   },
   "openExtensionToAutofill": {
-    "message": "Open the extension to log in and start autofilling."
+    "message": "Apri l'estensione cliccando sul tasto della barra degli strumenti e accedi con i tuoi dati per attivare il riempimento automatico."
   },
   "openBitwardenExtension": {
-    "message": "Open Bitwarden extension"
+    "message": "Apri l'estensione di Bitwarden"
   },
   "gettingStartedWithBitwardenPart1": {
-    "message": "For tips on getting started with Bitwarden visit the",
+    "message": "Per suggerimenti su come muovere i primi passi con Bitwarden, visita la",
     "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
   },
   "gettingStartedWithBitwardenPart2": {
-    "message": "Learning Center",
+    "message": "Guida introduttiva",
     "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
   },
   "gettingStartedWithBitwardenPart3": {
-    "message": "Help Center",
+    "message": "il Manuale di Bitwarden",
     "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
   },
   "setupExtensionContentAlt": {
-    "message": "With the Bitwarden browser extension you can easily create new logins, access your saved logins directly from your browser toolbar, and sign in to accounts quickly using Bitwarden autofill."
+    "message": "Con l'estensione di Bitwarden puoi salvare facilmente nuovi login, avere sempre a disposizione quelli salvati e accedere rapidamente ai servizi Web grazie al riempimento automatico."
   },
   "restart": {
     "message": "Riavvia"
@@ -10902,47 +11187,53 @@
     "message": "Indirizzo di fatturazione richiesto per aggiungere credito.",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+  },
   "billingAddress": {
-    "message": "Billing address"
+    "message": "Indirizzo di fatturazione"
   },
   "addBillingAddress": {
-    "message": "Add billing address"
+    "message": "Aggiungi indirizzo di fatturazione"
   },
   "editBillingAddress": {
-    "message": "Edit billing address"
+    "message": "Modifica indirizzo di fatturazione"
   },
   "noBillingAddress": {
-    "message": "No address on file."
+    "message": "Nessun indirizzo nel file."
   },
   "billingAddressUpdated": {
-    "message": "Your billing address has been updated."
+    "message": "Indirizzo di fatturazione aggiornato."
   },
   "paymentDetails": {
-    "message": "Payment details"
+    "message": "Dettagli pagamento"
   },
   "paymentMethodUpdated": {
-    "message": "Your payment method has been updated."
+    "message": "Il metodo di pagamento è stato aggiornato."
   },
   "bankAccountVerified": {
-    "message": "Your bank account has been verified."
+    "message": "Il conto bancario è stato verificato."
   },
   "availableCreditAppliedToInvoice": {
-    "message": "Any available credit will be automatically applied towards invoices generated for this account."
+    "message": "Qualsiasi credito disponibile sarà automaticamente applicato alle fatture generate per questo account."
   },
   "mustBePositiveNumber": {
-    "message": "Must be a positive number"
+    "message": "Deve essere un numero positivo"
   },
   "cardSecurityCode": {
-    "message": "Card security code"
+    "message": "Codice di sicurezza della carta"
   },
   "cardSecurityCodeDescription": {
-    "message": "Card security code, also known as CVV or CVC, is typically a 3 digit number printed on the back of your credit card or 4 digit number printed on the front above your card number."
+    "message": "Il codice di sicurezza della carta, noto anche come CVV o CVC, è tipicamente un numero a 3 cifre stampato sul retro della carta di credito, oppure un numero a 4 cifre stampato sul fronte sopra il numero della tua carta."
   },
   "verifyBankAccountWarning": {
-    "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Enter the statement descriptor code from this deposit on the Payment Details page to verify the bank account. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
+    "message": "Il pagamento con un conto corrente bancario è disponibile solo per i clienti negli Stati Uniti. Ti sarà richiesto di verificare il tuo conto corrente. Effettueremo un micro-deposito entro i prossimi 1-2 giorni lavorativi. Cerca l'apposito codice nei dettagli della transazione e inseriscilo nella pagina di sottoscrizione del provider per verificare il conto bancario. La mancata verifica del conto bancario comporterà un mancato pagamento e la sospensione dell'abbonamento."
   },
   "taxId": {
-    "message": "Tax ID: $TAX_ID$",
+    "message": "CF o P.IVA: $TAX_ID$",
     "placeholders": {
       "tax_id": {
         "content": "$1",
@@ -10951,14 +11242,14 @@
     }
   },
   "unpaidInvoices": {
-    "message": "Unpaid invoices"
+    "message": "Fatture non pagate"
   },
   "unpaidInvoicesForServiceUser": {
-    "message": "Your subscription has not been paid. Contact your provider administrator to restore service to you and your clients.",
+    "message": "Il tuo abbonamento non è stato pagato. Contatta l'amministratore per ripristinare il servizio a te e ai tuoi clienti.",
     "description": "A message shown in a non-dismissible dialog to service users of unpaid providers."
   },
   "providerSuspended": {
-    "message": "$PROVIDER$ is suspended",
+    "message": "$PROVIDER$ è sospeso",
     "placeholders": {
       "provider": {
         "content": "$1",
@@ -10967,11 +11258,11 @@
     }
   },
   "restoreProviderPortalAccessViaCustomerSupport": {
-    "message": "To restore access to your provider portal, contact Bitwarden Customer Support to renew your subscription.",
+    "message": "Per ripristinare l'accesso al portale del tuo provider, contatta il Servizio Clienti Bitwarden per rinnovare l'abbonamento.",
     "description": "A message shown in a non-dismissible dialog to any user of a suspended providers."
   },
   "restoreProviderPortalAccessViaPaymentMethod": {
-    "message": "Your subscription has not been paid. To restore service to you and your clients, add a payment method by $CANCELLATION_DATE$.",
+    "message": "L'abbonamento non risulta pagato. Per ripristinare il servizio a te e ai tuoi clienti, aggiungi un metodo di pagamento entro $CANCELLATION_DATE$.",
     "placeholders": {
       "cancellation_date": {
         "content": "$1",
@@ -10981,7 +11272,7 @@
     "description": "A message shown in a non-dismissible dialog to admins of unpaid providers."
   },
   "subscribetoEnterprise": {
-    "message": "Subscribe to $PLAN$",
+    "message": "Abbonati a $PLAN$",
     "placeholders": {
       "plan": {
         "content": "$1",
@@ -10990,7 +11281,7 @@
     }
   },
   "subscribeEnterpriseSubtitle": {
-    "message": "Your 7-day $PLAN$ trial starts today. Add a payment method now to continue using these features after your trial ends: ",
+    "message": "La tua prova $PLAN$ di 7 giorni inizia oggi. Aggiungi un metodo di pagamento per continuare a utilizzarne le funzionalità dopo la fine del periodo di prova: ",
     "placeholders": {
       "plan": {
         "content": "$1",
@@ -10999,18 +11290,212 @@
     }
   },
   "unlimitedSecretsAndProjects": {
-    "message": "Unlimited secrets and projects"
+    "message": "Segreti e progetti illimitati"
   },
   "providersubscriptionCanceled": {
-    "message": "Subscription canceled"
+    "message": "Abbonamento cancellato"
   },
   "providersubCanceledmessage": {
-    "message": "To resubscribe, contact Bitwarden Customer Support."
+    "message": "Per ri-iscriverti, contatta il Servizio Clienti Bitwarden."
   },
   "showMore": {
-    "message": "Show more"
+    "message": "Mostra di più"
   },
   "showLess": {
-    "message": "Show less"
+    "message": "Mostra di meno"
+  },
+  "missingTaxId": {
+    "message": "Identificatore fiscale mancante"
+  },
+  "missingTaxIdWarning": {
+    "message": "Azione richiesta: i dettagli del pagamento non includono un identificatore fiscale. Se non lo aggiungi, le tue fatture potrebbero includere imposte aggiuntive."
+  },
+  "moreBreadcrumbs": {
+    "message": "Ulteriori segmenti",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "addTaxId": {
+    "message": "Aggiungi identificatore fiscale"
+  },
+  "missingTaxIdCalloutTitle": {
+    "message": "Azione richiesta: identificatore fiscale mancante"
+  },
+  "missingTaxIdCalloutDescription": {
+    "message": "Se non aggiungi un identificatore fiscale, le tue fatture potrebbero includere imposte aggiuntive."
+  },
+  "unverifiedTaxIdWarning": {
+    "message": "Azione richiesta: il tuo identificatore fiscale non è verificato. Se non lo verifichi, le tue fatture potrebbero includere imposte aggiuntive."
+  },
+  "editTaxId": {
+    "message": "Modifica il tuo identificatore fiscale"
+  },
+  "unverifiedTaxIdCalloutTitle": {
+    "message": "Identificatore fiscale non verificato"
+  },
+  "unverifiedTaxIdCalloutDescription": {
+    "message": "Verifica che il formato del tuo identificatore fiscale sia corretto e che non ci siano errori di battitura."
+  },
+  "pendingVerification": {
+    "message": "In attesa di verifica"
+  },
+  "checkInputFormat": {
+    "message": "Controlla che non ci siano errori di battitura."
+  },
+  "exampleTaxIdFormat": {
+    "message": "Esempio formato $CODE$: $EXAMPLE$",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "ABN"
+      },
+      "example": {
+        "content": "$2",
+        "example": "92873837267"
+      }
+    }
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Conferma dominio Key Connector"
+  },
+  "requiredToVerifyBankAccountWithStripe": {
+    "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
+  },
+  "verifyBankAccountWithStripe": {
+    "message": "We have made a micro-deposit to your bank account. This may take 1-2 business days. When you see the deposit in your account, you can verify your bank account. Failure to verify your bank account will result in a missed payment and your subscription will be suspended."
+  },
+  "verifyNow": {
+    "message": "Verify now."
+  },
+  "additionalStorageGB": {
+    "message": "Additional storage GB"
+  },
+  "additionalServiceAccountsV2": {
+    "message": "Additional machine accounts"
+  },
+  "secretsManagerSeats": {
+    "message": "Secrets Manager seats"
+  },
+  "additionalStorage": {
+    "message": "Additional Storage"
+  },
+  "expandPurchaseDetails": {
+    "message": "Expand purchase details"
+  },
+  "collapsePurchaseDetails": {
+    "message": "Collapse purchase details"
+  },
+  "familiesMembership": {
+    "message": "Families membership"
+  },
+  "planDescPremium": {
+    "message": "Complete online security"
+  },
+  "planDescFamiliesV2": {
+    "message": "Premium security for your family"
+  },
+  "planDescFreeV2": {
+    "message": "Share with $COUNT$ other user",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "planDescEnterpriseV2": {
+    "message": "Advanced capabilities for any organization"
+  },
+  "planNameCustom": {
+    "message": "Custom plan"
+  },
+  "planDescCustom": {
+    "message": "Bitwarden scales with businesses of all sizes to secure passwords and sensitive information. If you're part of a large enterprise, contact sales to request a quote."
+  },
+  "builtInAuthenticator": {
+    "message": "Built-in authenticator"
+  },
+  "breachMonitoring": {
+    "message": "Breach monitoring"
+  },
+  "andMoreFeatures": {
+    "message": "And more!"
+  },
+  "secureFileStorage": {
+    "message": "Secure file storage"
+  },
+  "familiesUnlimitedSharing": {
+    "message": "Unlimited sharing - choose who sees what"
+  },
+  "familiesUnlimitedCollections": {
+    "message": "Unlimited family collections"
+  },
+  "familiesSharedStorage": {
+    "message": "Shared storage for important family info"
+  },
+  "limitedUsersV2": {
+    "message": "Up to $COUNT$ members",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "limitedCollectionsV2": {
+    "message": "Up to $COUNT$ collections",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "alwaysFree": {
+    "message": "Always free"
+  },
+  "twoSecretsIncluded": {
+    "message": "2 secrets"
+  },
+  "projectsIncludedV2": {
+    "message": "$COUNT$ project(s)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "secureItemSharing": {
+    "message": "Secure item sharing"
+  },
+  "scimSupport": {
+    "message": "SCIM support"
+  },
+  "includedMachineAccountsV2": {
+    "message": "$COUNT$ machine accounts",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
+  },
+  "enterpriseSecurityPolicies": {
+    "message": "Enterprise security policies"
+  },
+  "selfHostOption": {
+    "message": "Self-host option"
+  },
+  "complimentaryFamiliesPlan": {
+    "message": "Complimentary families plan for all users"
+  },
+  "strengthenCybersecurity": {
+    "message": "Strengthen cybersecurity"
+  },
+  "boostProductivity": {
+    "message": "Boost productivity"
+  },
+  "seamlessIntegration": {
+    "message": "Seamless integration"
   }
 }

@@ -3,8 +3,7 @@
     type="button"
     bitIconButton="bwi-ellipsis-v"
     size="small"
-    [attr.aria-label]="'moreOptionsLabel' | i18n: cipher.name"
-    [title]="'moreOptionsTitle' | i18n: cipher.name"
+    [label]="'moreOptionsLabel' | i18n: cipher.name"
     [disabled]="decryptionFailure"
     [bitMenuTriggerFor]="moreOptions"
   ></button>
@@ -39,5 +38,10 @@
         {{ "assignToCollections" | i18n }}
       </a>
     </ng-container>
+    @if (canArchive$ | async) {
+      <button type="button" bitMenuItem (click)="archive()" *ngIf="canArchive$ | async">
+        {{ "archive" | i18n }}
+      </button>
+    }
   </bit-menu>
 </bit-item-action>

@@ -550,11 +550,41 @@
   "resetSearch": {
     "message": "Nollaa haku"
   },
+  "archive": {
+    "message": "Archive"
+  },
+  "unarchive": {
+    "message": "Unarchive"
+  },
+  "itemsInArchive": {
+    "message": "Items in archive"
+  },
+  "noItemsInArchive": {
+    "message": "No items in archive"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+  },
+  "itemSentToArchive": {
+    "message": "Item sent to archive"
+  },
+  "itemRemovedFromArchive": {
+    "message": "Item removed from archive"
+  },
+  "archiveItem": {
+    "message": "Archive item"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+  },
   "edit": {
     "message": "Muokkaa"
   },
   "view": {
     "message": "Näytä"
+  },
+  "viewLogin": {
+    "message": "View login"
   },
   "noItemsInList": {
     "message": "Näytettäviä kohteita ei ole."
@@ -1522,9 +1552,6 @@
   "selectTwoStepLoginMethod": {
     "message": "Valitse todennustapa"
   },
-  "recoveryCodeDesc": {
-    "message": "Etkö voi käyttää kaksivaiheisen kirjautumisen todentajiasi? Poista kaikki tilillesi määritetyt todentajat käytöstä palautuskoodillasi."
-  },
   "recoveryCodeTitle": {
     "message": "Palautuskoodi"
   },
@@ -1683,9 +1710,6 @@
   "defaultAutoFillOnPageLoadDesc": {
     "message": "Automaattinen täyttö voidaan ottaa käyttöön tai poistaa käytöstä kohdekohtaisesti muokkaamalla yksittäisiä kirjautumistietoja."
   },
-  "itemAutoFillOnPageLoad": {
-    "message": "Automaattitäyttö sivun avautuessa (jos määritetty asetuksista)"
-  },
   "autoFillOnPageLoadUseDefault": {
     "message": "Käytä oletusasetusta"
   },
@@ -1757,23 +1781,8 @@
   "popup2faCloseMessage": {
     "message": "Painallus ponnahdusikkunan ulkopuolelle todennuskoodin sähköpostista noutoa varten sulkee ikkunan. Haluatko avata näkymän uuteen ikkunaan, jotta se pysyy avoinna?"
   },
-  "popupU2fCloseMessage": {
-    "message": "Tämä selain ei voi käsitellä U2F-pyyntöjä tässä ponnahdusikkunassa. Haluatko avata näkymän uuteen ikkunaan vahvistaaksesi kirjautumisen U2F-suojausavaimella?"
-  },
-  "enableFavicon": {
-    "message": "Näytä verkkosivustojen kuvakkeet"
-  },
-  "faviconDesc": {
-    "message": "Näytä tunnistettava kuva jokaiselle kirjautumistiedolle."
-  },
-  "faviconDescAlt": {
-    "message": "Näytä tunnistettava kuva jokaisen kirjautumistiedon vieressä. Koskee kaikkia kirjautuneita tilejä."
-  },
-  "enableBadgeCounter": {
-    "message": "Näytä laskuri"
-  },
-  "badgeCounterDesc": {
-    "message": "Ilmaisee nykyiselle sivulle sopivien kirjautumistietojen määrän."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "cardholderName": {
     "message": "Kortinhaltijan nimi"
@@ -1937,32 +1946,81 @@
   "typeNote": {
     "message": "Muistiinpano"
   },
-  "newItemHeader": {
-    "message": "Uusi $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderLogin": {
+    "message": "New Login",
+    "description": "Header for new login item type"
   },
-  "editItemHeader": {
-    "message": "Muokkaa tyyppiä $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderCard": {
+    "message": "New Card",
+    "description": "Header for new card item type"
   },
-  "viewItemHeader": {
-    "message": "Näytä $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderIdentity": {
+    "message": "New Identity",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "New Note",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "New SSH key",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderTextSend": {
+    "message": "New Text Send",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "New File Send",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderLogin": {
+    "message": "Edit Login",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Edit Card",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Edit Identity",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Edit Note",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "Edit SSH key",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Edit Text Send",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Edit File Send",
+    "description": "Header for edit file send"
+  },
+  "viewItemHeaderLogin": {
+    "message": "View Login",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "View Card",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "View Identity",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "View Note",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "View SSH key",
+    "description": "Header for view SSH key item type"
   },
   "passwordHistory": {
     "message": "Salasanahistoria"
@@ -3524,9 +3582,6 @@
   "autofillPageLoadPolicyActivated": {
     "message": "Organisaatiokäytännöt ovat poistaneet käytöstä avautuessa suoritettavan automaattisen täytön."
   },
-  "howToAutofill": {
-    "message": "Miten automaattitäyttöä käytetään"
-  },
   "autofillSelectInfoWithCommand": {
     "message": "Valitse kohde tästä ruudusta, käytä pikanäppäintä $COMMAND$ tai tutustu muihin vaihtoehtoihin asetuksissa.",
     "placeholders": {
@@ -3911,17 +3966,9 @@
   "aliasDomain": {
     "message": "Aliaksen verkkotunnus"
   },
-  "passwordRepromptDisabledAutofillOnPageLoad": {
-    "message": "Pääsalasanan vahvistuksen vaativia kohteita ei voida automaattitäyttää sivun avautuessa. Automaattitäyttö sivun avautuessa poistettiin käytöstä.",
-    "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
-  },
   "autofillOnPageLoadSetToDefault": {
     "message": "Automaattitäyttö sivun avautuessa käyttää oletusasetusta.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "turnOffMasterPasswordPromptToEditField": {
-    "message": "Poista pääsalasanan uudelleenkysely käytöstä muokataksesi kenttää",
-    "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
   },
   "toggleSideNavigation": {
     "message": "Näytä/piilota sivuvalikko"
@@ -4131,15 +4178,11 @@
   "selectImportCollection": {
     "message": "Valitse kokoelma"
   },
-  "importTargetHint": {
-    "message": "Valitse tämä, jos haluat tuoda tiedoston sisällön kohteeseen \"$DESTINATION$\".",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Select this option if you want the imported file contents moved to a collection"
+  },
+  "importTargetHintFolder": {
+    "message": "Select this option if you want the imported file contents moved to a folder"
   },
   "importUnassignedItemsError": {
     "message": "Tiedosto sisältää määrittämättömiä kohteita."
@@ -4195,9 +4238,6 @@
   },
   "passkeyNotCopiedAlert": {
     "message": "Pääsyavain ei kopioidu kloonattuun kohteeseen. Haluatko jatkaa kloonausta?"
-  },
-  "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
-    "message": "Käynnistänyt sivusto edellyttää vahvistusta. Ominaisuutta ei ole vielä toteutettu tileille, joilla ei ole pääsalasanaa."
   },
   "logInWithPasskeyQuestion": {
     "message": "Kirjaudutaanko pääsyavaimella?"
@@ -4884,9 +4924,6 @@
       }
     }
   },
-  "enableAnimations": {
-    "message": "Käytä animaatioita"
-  },
   "showAnimations": {
     "message": "Näytä animaatiot"
   },
@@ -5099,14 +5136,8 @@
   "itemLocation": {
     "message": "Kohteen sijainti"
   },
-  "fileSend": {
-    "message": "Tiedosto-Send"
-  },
   "fileSends": {
     "message": "Tiedosto-Sendit"
-  },
-  "textSend": {
-    "message": "Teksti-Send"
   },
   "textSends": {
     "message": "Teksti-Sendit"
@@ -5116,6 +5147,18 @@
   },
   "showNumberOfAutofillSuggestions": {
     "message": "Näytä automaattitäytön ehdotusten määrä laajennuksen kuvakkeessa"
+  },
+  "accountAccessRequested": {
+    "message": "Account access requested"
+  },
+  "confirmAccessAttempt": {
+    "message": "Confirm access attempt for $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
   },
   "showQuickCopyActions": {
     "message": "Näytä pikakopiointitoiminnot holvissa"
@@ -5155,9 +5198,6 @@
   },
   "vaultCustomTimeoutMinimum": {
     "message": "Mukautetun aikakatkaisun vähimmäisaika on yksi minuutti."
-  },
-  "additionalContentAvailable": {
-    "message": "Lisäsisältöä on käytettävissä"
   },
   "fileSavedToDevice": {
     "message": "Tiedosto tallennettiin laitteelle. Hallitse sitä laitteesi latauksista."
@@ -5444,6 +5484,12 @@
   "changeAtRiskPassword": {
     "message": "Vaihda vaarantunut salasana"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
+  },
   "settingsVaultOptions": {
     "message": "Holvin asetukset"
   },
@@ -5491,6 +5537,18 @@
   },
   "hasItemsVaultNudgeTitle": {
     "message": "Tervetuloa holviisi!"
+  },
+  "phishingPageTitle": {
+    "message": "Phishing website"
+  },
+  "phishingPageCloseTab": {
+    "message": "Close tab"
+  },
+  "phishingPageContinue": {
+    "message": "Continue"
+  },
+  "phishingPageLearnWhy": {
+    "message": "Why are you seeing this?"
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Täytä nykyisen sivun kohteet automaattisesti"
@@ -5567,6 +5625,12 @@
     "message": "Luo helposti vahvoja ja uniikkeja salasanoja klikkaamalla Luo salasana -painiketta. Sen avuilla voit pitää kirjautumisesi turvallisina.",
     "description": "Aria label for the body content of the generator nudge"
   },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+  },
   "noPermissionsViewPage": {
     "message": "Sinulla ei ole oikeuksia tähän sivuun. Yritä kirjautua sisään toisella tilillä."
   },
@@ -5579,5 +5643,15 @@
   },
   "showLess": {
     "message": "Show less"
+  },
+  "next": {
+    "message": "Next"
+  },
+  "moreBreadcrumbs": {
+    "message": "More breadcrumbs",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Confirm Key Connector domain"
   }
 }

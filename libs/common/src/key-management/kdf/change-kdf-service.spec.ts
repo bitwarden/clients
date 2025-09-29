@@ -14,6 +14,7 @@ import {
   MasterKeyWrappedUserKey,
   MasterPasswordAuthenticationHash,
   MasterPasswordSalt,
+  MasterPasswordUnlockData,
 } from "../master-password/types/master-password.types";
 
 import { ChangeKdfApiService } from "./change-kdf-api.service.abstraction";
@@ -155,11 +156,11 @@ describe("ChangeKdfService", () => {
           kdf: mockNewKdfConfig,
           masterPasswordAuthenticationHash: mockNewHash,
         },
-        {
-          salt: mockSalt,
-          kdf: mockNewKdfConfig,
-          masterKeyWrappedUserKey: mockWrappedUserKey.encryptedString as MasterKeyWrappedUserKey,
-        },
+        new MasterPasswordUnlockData(
+          mockSalt,
+          mockNewKdfConfig,
+          mockWrappedUserKey.encryptedString as MasterKeyWrappedUserKey,
+        ),
       );
       expectedRequest.authenticateWith({
         salt: mockSalt,

@@ -43,7 +43,7 @@ export class DefaultChangeKdfService implements ChangeKdfService {
 
           const updateKdfResponse = ref.value
             .crypto()
-            .update_kdf(masterPassword, kdf.toSdkConfig());
+            .make_update_kdf(masterPassword, kdf.toSdkConfig());
           return updateKdfResponse;
         }),
       ),
@@ -55,12 +55,11 @@ export class DefaultChangeKdfService implements ChangeKdfService {
       masterPasswordAuthenticationHash: updateKdfResult.masterPasswordAuthenticationData
         .masterPasswordAuthenticationHash as MasterPasswordAuthenticationHash,
     };
-    const unlockData: MasterPasswordUnlockData = {
-      salt: updateKdfResult.masterPasswordUnlockData.salt as MasterPasswordSalt,
-      kdf: kdf,
-      masterKeyWrappedUserKey: updateKdfResult.masterPasswordUnlockData
-        .masterKeyWrappedUserKey as MasterKeyWrappedUserKey,
-    };
+    const unlockData: MasterPasswordUnlockData = new MasterPasswordUnlockData(
+      updateKdfResult.masterPasswordUnlockData.salt as MasterPasswordSalt,
+      kdf,
+      updateKdfResult.masterPasswordUnlockData.masterKeyWrappedUserKey as MasterKeyWrappedUserKey,
+    );
     const oldAuthenticationData: MasterPasswordAuthenticationData = {
       salt: updateKdfResult.oldMasterPasswordAuthenticationData.salt as MasterPasswordSalt,
       kdf: kdf,

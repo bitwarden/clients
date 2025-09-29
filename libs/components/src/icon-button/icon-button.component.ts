@@ -1,12 +1,23 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { NgClass } from "@angular/common";
-import { Component, computed, ElementRef, HostBinding, input, model } from "@angular/core";
+import {
+  Component,
+  computed,
+  effect,
+  ElementRef,
+  HostBinding,
+  inject,
+  input,
+  model,
+} from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { debounce, interval } from "rxjs";
 
+import { AriaDisableDirective } from "../a11y";
+import { setA11yTitleAndAriaLabel } from "../a11y/set-a11y-title-and-aria-label";
 import { ButtonLikeAbstraction } from "../shared/button-like.abstraction";
 import { FocusableElement } from "../shared/focusable-element";
+import { SpinnerComponent } from "../spinner";
+import { ariaDisableElement } from "../utils";
 
 export type IconButtonType = "primary" | "danger" | "contrast" | "main" | "muted" | "nav-contrast";
 
@@ -64,7 +75,7 @@ const sizes: Record<IconButtonSize, string[]> = {
   small: ["tw-text-base", "tw-p-2", "tw-rounded"],
 };
 /**
-  * Icon buttons are used when no text accompanies the button. It consists of an icon that may be updated to any icon in the `bwi-font`, a `title` attribute, and an `aria-label`.
+  * Icon buttons are used when no text accompanies the button. It consists of an icon that may be updated to any icon in the `bwi-font`, a `title` attribute, and an `aria-label` that are added via the `label` input.
 
   * The most common use of the icon button is in the banner, toast, and modal components as a close button. It can also be found in tables as the 3 dot option menu, or on navigation list items when there are options that need to be collapsed into a menu.
 
@@ -77,9 +88,8 @@ const sizes: Record<IconButtonSize, string[]> = {
     { provide: ButtonLikeAbstraction, useExisting: BitIconButtonComponent },
     { provide: FocusableElement, useExisting: BitIconButtonComponent },
   ],
-  imports: [NgClass],
+  imports: [NgClass, SpinnerComponent],
   host: {
-    "[attr.disabled]": "disabledAttr()",
     /**
      * When the `bitIconButton` input is dynamic from a consumer, Angular doesn't put the
      * `bitIconButton` attribute into the DOM. We use the attribute as a css selector in
@@ -88,13 +98,22 @@ const sizes: Record<IconButtonSize, string[]> = {
      */
     "[attr.bitIconButton]": "icon()",
   },
+  hostDirectives: [AriaDisableDirective],
 })
 export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableElement {
-  readonly icon = model<string>(undefined, { alias: "bitIconButton" });
+  readonly icon = model.required<string>({ alias: "bitIconButton" });
 
   readonly buttonType = input<IconButtonType>("main");
 
   readonly size = model<IconButtonSize>("default");
+
+  /**
+   * label input will be used to set the `aria-label` attributes on the button.
+   * This is for accessibility purposes, as it provides a text alternative for the icon button.
+   *
+   * NOTE: It will also be used to set the `title` attribute on the button if no `title` is provided.
+   */
+  readonly label = input<string>();
 
   @HostBinding("class") get classList() {
     return [
@@ -111,7 +130,7 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
       .concat(sizes[this.size()])
       .concat(
         this.showDisabledStyles() || this.disabled()
-          ? ["disabled:tw-opacity-60", "disabled:hover:!tw-bg-transparent"]
+          ? ["aria-disabled:tw-opacity-60", "aria-disabled:hover:!tw-bg-transparent"]
           : [],
       );
   }
@@ -122,7 +141,7 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
 
   protected disabledAttr = computed(() => {
     const disabled = this.disabled() != null && this.disabled() !== false;
-    return disabled || this.loading() ? true : null;
+    return disabled || this.loading();
   });
 
   /**
@@ -161,5 +180,21 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
     return this.elementRef.nativeElement;
   }
 
-  constructor(private elementRef: ElementRef) {}
+  private elementRef = inject(ElementRef);
+
+  constructor() {
+    const element = this.elementRef.nativeElement;
+
+    ariaDisableElement(element, this.disabledAttr);
+
+    const originalTitle = element.getAttribute("title");
+
+    effect(() => {
+      setA11yTitleAndAriaLabel({
+        element: this.elementRef.nativeElement,
+        title: originalTitle ?? this.label(),
+        label: this.label(),
+      });
+    });
+  }
 }

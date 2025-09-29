@@ -41,7 +41,6 @@ import {
 import { SecretService } from "../../secrets/secret.service";
 import { SecretsListComponent } from "../../shared/secrets-list.component";
 import { ProjectService } from "../project.service";
-
 @Component({
   selector: "sm-project-secrets",
   templateUrl: "./project-secrets.component.html",
@@ -68,16 +67,13 @@ export class ProjectSecretsComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    // Refresh list if project is edited
     const currentProjectEdited = this.projectService.project$.pipe(
       filter((p) => p?.id === this.projectId),
       startWith(null),
     );
 
     this.project$ = combineLatest([this.route.params, currentProjectEdited]).pipe(
-      switchMap(([params, _]) => {
-        return this.projectService.getByProjectId(params.projectId);
-      }),
+      switchMap(([params, _]) => this.projectService.getByProjectId(params.projectId, false)),
     );
 
     this.secrets$ = this.secretService.secret$.pipe(

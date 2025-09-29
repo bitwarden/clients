@@ -7,6 +7,7 @@ import { RouterModule } from "@angular/router";
 import { BehaviorSubject, Observable, Subject, combineLatest, firstValueFrom, of } from "rxjs";
 import { concatMap, map, pairwise, startWith, switchMap, takeUntil, timeout } from "rxjs/operators";
 
+import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { VaultTimeoutInputComponent } from "@bitwarden/auth/angular";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -17,6 +18,7 @@ import { UserVerificationService as UserVerificationServiceAbstraction } from "@
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { DeviceType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
@@ -38,6 +40,7 @@ import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums/theme-type.e
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { UserId } from "@bitwarden/common/types/guid";
+import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import {
   CheckboxModule,
   DialogService,
@@ -52,6 +55,7 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 import { KeyService, BiometricStateService, BiometricsStatus } from "@bitwarden/key-management";
+import { PermitCipherDetailsPopoverComponent } from "@bitwarden/vault";
 
 import { SetPinComponent } from "../../auth/components/set-pin.component";
 import { SshAgentPromptType } from "../../autofill/models/ssh-agent-setting";
@@ -59,12 +63,19 @@ import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-
 import { DesktopAutotypeService } from "../../autofill/services/desktop-autotype.service";
 import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
+import { DesktopPremiumUpgradePromptService } from "../../services/desktop-premium-upgrade-prompt.service";
 import { NativeMessagingManifestService } from "../services/native-messaging-manifest.service";
 
 @Component({
   selector: "app-settings",
   templateUrl: "settings.component.html",
   standalone: true,
+  providers: [
+    {
+      provide: PremiumUpgradePromptService,
+      useClass: DesktopPremiumUpgradePromptService,
+    },
+  ],
   imports: [
     CheckboxModule,
     CommonModule,
@@ -81,6 +92,8 @@ import { NativeMessagingManifestService } from "../services/native-messaging-man
     SelectModule,
     TypographyModule,
     VaultTimeoutInputComponent,
+    PermitCipherDetailsPopoverComponent,
+    PremiumBadgeComponent,
   ],
 })
 export class SettingsComponent implements OnInit, OnDestroy {
@@ -135,7 +148,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
     pin: [null as boolean | null],
     biometric: false,
     autoPromptBiometrics: false,
-    requirePasswordOnStart: false,
     // Account Preferences
     clearClipboard: [null],
     minimizeOnCopyToClipboard: false,
@@ -157,7 +169,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
     sshAgentPromptBehavior: SshAgentPromptType.Always,
     allowScreenshots: false,
     enableDuckDuckGoBrowserIntegration: false,
-    enableAutotype: false,
+    enableAutotype: this.formBuilder.control<boolean>({
+      value: false,
+      disabled: true,
+    }),
     theme: [null as Theme | null],
     locale: [null as string | null],
   });
@@ -192,6 +207,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     private validationService: ValidationService,
     private changeDetectorRef: ChangeDetectorRef,
     private toastService: ToastService,
+    private billingAccountProfileStateService: BillingAccountProfileStateService,
   ) {
     this.isMac = this.platformUtilsService.getDevice() === DeviceType.MacOsDesktop;
     this.isLinux = this.platformUtilsService.getDevice() === DeviceType.LinuxDesktop;
@@ -267,10 +283,14 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
     // Autotype is for Windows initially
     const isWindows = this.platformUtilsService.getDevice() === DeviceType.WindowsDesktop;
-    const windowsDesktopAutotypeFeatureFlag = await this.configService.getFeatureFlag(
-      FeatureFlag.WindowsDesktopAutotype,
-    );
-    this.showEnableAutotype = isWindows && windowsDesktopAutotypeFeatureFlag;
+    if (isWindows) {
+      this.configService
+        .getFeatureFlag$(FeatureFlag.WindowsDesktopAutotype)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe((enabled) => {
+          this.showEnableAutotype = enabled;
+        });
+    }
 
     this.userHasMasterPassword = await this.userVerificationService.hasMasterPassword();
 
@@ -350,9 +370,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
       pin: this.userHasPinSet,
       biometric: await this.vaultTimeoutSettingsService.isBiometricLockSet(),
       autoPromptBiometrics: await firstValueFrom(this.biometricStateService.promptAutomatically$),
-      requirePasswordOnStart: await firstValueFrom(
-        this.biometricStateService.requirePasswordOnStart$,
-      ),
       clearClipboard: await firstValueFrom(this.autofillSettingsService.clearClipboardDelay$),
       minimizeOnCopyToClipboard: await firstValueFrom(this.desktopSettingsService.minimizeOnCopy$),
       enableFavicons: await firstValueFrom(this.domainSettingsService.showFavicons$),
@@ -379,7 +396,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
         this.desktopSettingsService.sshAgentPromptBehavior$,
       ),
       allowScreenshots: !(await firstValueFrom(this.desktopSettingsService.preventScreenshots$)),
-      enableAutotype: await firstValueFrom(this.desktopAutotypeService.autotypeEnabled$),
+      enableAutotype: await firstValueFrom(this.desktopAutotypeService.autotypeEnabledUserSetting$),
       theme: await firstValueFrom(this.themeStateService.selectedTheme$),
       locale: await firstValueFrom(this.i18nService.userSetLocale$),
     };
@@ -403,6 +420,17 @@ export class SettingsComponent implements OnInit, OnDestroy {
       .subscribe((action) => {
         this.form.controls.vaultTimeoutAction.setValue(action, { emitEvent: false });
       });
+
+    if (isWindows) {
+      this.billingAccountProfileStateService
+        .hasPremiumFromAnySource$(activeAccount.id)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe((hasPremium) => {
+          if (hasPremium) {
+            this.form.controls.enableAutotype.enable();
+          }
+        });
+    }
 
     // Form events
     this.form.controls.vaultTimeout.valueChanges
@@ -557,16 +585,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
       this.userHasPinSet = await firstValueFrom(dialogRef.closed);
       this.form.controls.pin.setValue(this.userHasPinSet, { emitEvent: false });
-    }
-
-    if (!value) {
-      // If user turned off PIN without having a MP and has biometric + require MP/PIN on restart enabled
-      if (this.form.value.requirePasswordOnStart && !this.userHasMasterPassword) {
-        // then must turn that off to prevent user from getting into bad state
-        this.form.controls.requirePasswordOnStart.setValue(false);
-        await this.updateRequirePasswordOnStart();
-      }
-
+    } else {
       const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
       await this.vaultTimeoutSettingsService.clear(userId);
     }
@@ -617,18 +636,12 @@ export class SettingsComponent implements OnInit, OnDestroy {
     await this.biometricStateService.setBiometricUnlockEnabled(true);
     if (this.isWindows) {
       // Recommended settings for Windows Hello
-      this.form.controls.requirePasswordOnStart.setValue(true);
       this.form.controls.autoPromptBiometrics.setValue(false);
       await this.biometricStateService.setPromptAutomatically(false);
-      await this.biometricStateService.setRequirePasswordOnStart(true);
-      await this.biometricStateService.setDismissedRequirePasswordOnStartCallout();
     } else if (this.isLinux) {
       // Similar to Windows
-      this.form.controls.requirePasswordOnStart.setValue(true);
       this.form.controls.autoPromptBiometrics.setValue(false);
       await this.biometricStateService.setPromptAutomatically(false);
-      await this.biometricStateService.setRequirePasswordOnStart(true);
-      await this.biometricStateService.setDismissedRequirePasswordOnStartCallout();
     }
     await this.keyService.refreshAdditionalKeys(activeUserId);
 
@@ -644,28 +657,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   async updateAutoPromptBiometrics() {
     if (this.form.value.autoPromptBiometrics) {
-      // require password on start must be disabled if auto prompt biometrics is enabled
-      this.form.controls.requirePasswordOnStart.setValue(false);
-      await this.updateRequirePasswordOnStart();
       await this.biometricStateService.setPromptAutomatically(true);
     } else {
       await this.biometricStateService.setPromptAutomatically(false);
     }
-  }
-
-  async updateRequirePasswordOnStart() {
-    if (this.form.value.requirePasswordOnStart) {
-      // auto prompt biometrics must be disabled if require password on start is enabled
-      this.form.controls.autoPromptBiometrics.setValue(false);
-      await this.updateAutoPromptBiometrics();
-
-      await this.biometricStateService.setRequirePasswordOnStart(true);
-    } else {
-      await this.biometricStateService.setRequirePasswordOnStart(false);
-    }
-    await this.biometricStateService.setDismissedRequirePasswordOnStartCallout();
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    await this.keyService.refreshAdditionalKeys(userId);
   }
 
   async saveFavicons() {

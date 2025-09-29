@@ -23,6 +23,7 @@ import { KitchenSinkSharedModule } from "../kitchen-sink-shared.module";
           inputMaxValue: (max) => `Input value must not exceed ${max}.`,
           inputMinValue: (min) => `Input value must be at least ${min}.`,
           inputRequired: "Input is required.",
+          loading: "Loading",
           multiSelectClearAll: "Clear all",
           multiSelectLoading: "Retrieving options...",
           multiSelectNotFound: "No items found",
@@ -80,7 +81,13 @@ import { KitchenSinkSharedModule } from "../kitchen-sink-shared.module";
           </button>
         </bit-label>
         <input bitInput type="password" formControlName="password" />
-        <button type="button" bitIconButton bitSuffix bitPasswordInputToggle></button>
+        <button
+          type="button"
+          label="Toggle password visibility"
+          bitIconButton
+          bitSuffix
+          bitPasswordInputToggle
+        ></button>
       </bit-form-field>
 
       <div class="tw-mb-6">

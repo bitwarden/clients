@@ -112,4 +112,11 @@ export class FakeMasterPasswordService implements InternalMasterPasswordServiceA
   ): Promise<UserKey> {
     return this.mock.unwrapUserKeyFromMasterPasswordUnlockData(password, masterPasswordUnlockData);
   }
+
+  setMasterPasswordUnlockData(
+    masterPasswordUnlockData: MasterPasswordUnlockData,
+    userId: UserId,
+  ): Promise<void> {
+    return this.mock.setMasterPasswordUnlockData(masterPasswordUnlockData, userId);
+  }
 }

@@ -1,7 +1,10 @@
 import { OverlayModule } from "@angular/cdk/overlay";
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+
 import { ButtonModule } from "../button/button.module";
+import { I18nMockService } from "../utils";
 
 import { MenuTriggerForDirective } from "./menu-trigger-for.directive";
 import { MenuModule } from "./menu.module";
@@ -12,6 +15,12 @@ export default {
   decorators: [
     moduleMetadata({
       imports: [MenuModule, OverlayModule, ButtonModule],
+      providers: [
+        {
+          provide: I18nService,
+          useValue: new I18nMockService({ loading: "Loading" }),
+        },
+      ],
     }),
   ],
   parameters: {
@@ -46,7 +55,7 @@ export const OpenMenu: Story = {
 
       <div class="tw-h-40">
         <div class="cdk-overlay-pane bit-menu-panel">
-          <ng-container *ngTemplateOutlet="myMenu.templateRef"></ng-container>
+          <ng-container *ngTemplateOutlet="myMenu.templateRef()"></ng-container>
         </div>
       </div>
       `,

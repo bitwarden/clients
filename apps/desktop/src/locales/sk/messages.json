@@ -702,6 +702,12 @@
   "attachmentSaved": {
     "message": "Príloha bola uložená."
   },
+  "addAttachment": {
+    "message": "Priložiť prílohu"
+  },
+  "maxFileSizeSansPunctuation": {
+    "message": "Maximálna veľkosť súboru je 500 MB"
+  },
   "file": {
     "message": "Súbor"
   },
@@ -953,9 +959,6 @@
   },
   "insertU2f": {
     "message": "Vložte váš bezpečnostný kľúč do USB portu počítača. Ak má tlačidlo, stlačte ho."
-  },
-  "recoveryCodeDesc": {
-    "message": "Stratili ste prístup ku všetkým vašim dvojstupňovým poskytovateľom? Použite váš záchranný kód pre vypnutie všetkých poskytovateľov vo vašom účte."
   },
   "recoveryCodeTitle": {
     "message": "Kód na obnovenie"
@@ -1299,11 +1302,8 @@
     "message": "Automaticky vymazať skopírované hodnoty zo schránky.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
-  "enableFavicon": {
-    "message": "Zobrazovať favikony stránok"
-  },
-  "faviconDesc": {
-    "message": "Pri každom prihlásení zobrazí rozpoznateľný obrázok."
+  "showIconsChangePasswordUrls": {
+    "message": "Zobraziť ikony webových stránok a načítať adresy URL na zmenu hesla"
   },
   "enableMinToTray": {
     "message": "Minimalizovať do systémovej lišty"
@@ -1839,12 +1839,6 @@
   },
   "autoPromptTouchId": {
     "message": "Pri spustení požiadať o Touch ID"
-  },
-  "requirePasswordOnStart": {
-    "message": "Pri spustení aplikácie vyžadovať heslo alebo PIN"
-  },
-  "requirePasswordWithoutPinOnStart": {
-    "message": "Pri spustení aplikácie vyžadovať heslo"
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Pri reštarte zamknúť hlavným heslom"
@@ -3491,15 +3485,11 @@
   "selectImportCollection": {
     "message": "Vyberte zbierku"
   },
-  "importTargetHint": {
-    "message": "Zvoľte túto možnosť, ak chcete obsah importovaného súboru presunúť do $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Zvoľte túto možnosť, ak chcete obsah importovaného súboru presunúť do zbierky"
+  },
+  "importTargetHintFolder": {
+    "message": "Zvoľte túto možnosť, ak chcete obsah importovaného súboru presunúť do priečinka"
   },
   "importUnassignedItemsError": {
     "message": "Súbor obsahuje nepriradené položky."
@@ -3594,6 +3584,12 @@
   },
   "awaitingSSODesc": {
     "message": "Pokračujte v prihlasovaní pomocou prihlasovacích údajov svojej spoločnosti."
+  },
+  "importDirectlyFromBrowser": {
+    "message": "Importovať priamo z prehliadača"
+  },
+  "browserProfile": {
+    "message": "Profil prehliadača"
   },
   "seeDetailedInstructions": {
     "message": "Podrobné pokyny nájdete na našej stránke pomoci na adrese",
@@ -3837,6 +3833,12 @@
   "changeAtRiskPassword": {
     "message": "Zmeniť rizikové heslá"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Toto prihlásenie je v ohrození a chýba mu webová stránka. Pridajte webovú stránku a zmeňte heslo na silnejšie zabezpečenie."
+  },
+  "missingWebsite": {
+    "message": "Chýbajúca webová stránka"
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "Zbierky, ktoré môžete len zobraziť nemôžete odstrániť: $COLLECTIONS$",
     "placeholders": {
@@ -3931,6 +3933,12 @@
     "message": "Viac informácií o agentovi SSH",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "aboutThisSetting": {
+    "message": "O tomto nastavení"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden použije uložené prihlasovacie URI na určenie ikony alebo adresy URL na zmenu hesla, ktoré by sa mali použiť na zlepšenie vášho zážitku. Pri používaní tejto služby sa nezbierajú ani neukladajú žiadne informácie."
   },
   "assignToCollections": {
     "message": "Priradiť ku zbierkam"
@@ -4077,5 +4085,54 @@
   },
   "enableAutotypeDescription": {
     "message": "Bitwarden neoveruje miesto stupu, pred použitím skratky sa uistite, že ste v správnom okne a poli."
+  },
+  "moreBreadcrumbs": {
+    "message": "Viac",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "next": {
+    "message": "Ďalej"
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Potvrdiť doménu Key Connectora"
+  },
+  "confirm": {
+    "message": "Potvrdiť"
+  },
+  "enableAutotypeTransitionKey": {
+    "message": "Povoliť skratku automatického písania"
+  },
+  "enableAutotypeDescriptionTransitionKey": {
+    "message": "Pred použitím skratky sa uistite, že sa nachádzate v správnom poli, aby ste údaje nevyplnili na nesprávne miesto."
+  },
+  "editShortcut": {
+    "message": "Upraviť skratku"
+  },
+  "archive": {
+    "message": "Archivovať"
+  },
+  "unarchive": {
+    "message": "Zrušiť archiváciu"
+  },
+  "itemsInArchive": {
+    "message": "Položky v archíve"
+  },
+  "noItemsInArchive": {
+    "message": "Žiadne položky v archíve"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Tu sa zobrazia archivované položky, ktoré budú vylúčené zo všeobecného vyhľadávania a z návrhov automatického vypĺňania."
+  },
+  "itemSentToArchive": {
+    "message": "Položka bola archivovaná"
+  },
+  "itemRemovedFromArchive": {
+    "message": "Položka bola odobraná z archívu"
+  },
+  "archiveItem": {
+    "message": "Archivovať položku"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Archivované položky sú vylúčené zo všeobecného vyhľadávania a z návrhov automatického vypĺňania. Naozaj chcete archivovať túto položku?"
   }
 }

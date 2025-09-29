@@ -30,6 +30,7 @@ export default {
               toggleCollapse: "toggle collapse",
               toggleSideNavigation: "Toggle side navigation",
               skipToContent: "Skip to content",
+              loading: "Loading",
             });
           },
         },
@@ -95,7 +96,7 @@ export const WithChildButtons: Story = {
           [bitIconButton]="'bwi-pencil-square'"
           [buttonType]="'nav-contrast'"
           size="small"
-          aria-label="option 2"
+          label="Edit"
         ></button>
         <button
           type="button" 
@@ -104,7 +105,7 @@ export const WithChildButtons: Story = {
           [bitIconButton]="'bwi-check'"
           [buttonType]="'nav-contrast'"
           size="small"
-          aria-label="option 3"
+          label="Confirm"
         ></button>
       </bit-nav-item>
     `,

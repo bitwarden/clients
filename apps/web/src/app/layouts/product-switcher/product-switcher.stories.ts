@@ -1,7 +1,7 @@
 import { Component, Directive, importProvidersFrom, Input } from "@angular/core";
 import { RouterModule } from "@angular/router";
 import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
-import { BehaviorSubject, firstValueFrom, Observable, of } from "rxjs";
+import { BehaviorSubject, Observable, of } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -47,8 +47,8 @@ class MockOrganizationService implements Partial<OrganizationService> {
 class MockProviderService implements Partial<ProviderService> {
   private static _providers = new BehaviorSubject<Provider[]>([]);
 
-  async getAll() {
-    return await firstValueFrom(MockProviderService._providers);
+  providers$() {
+    return MockProviderService._providers.asObservable();
   }
 
   @Input()
@@ -124,6 +124,7 @@ export default {
               switchProducts: "Switch Products",
               secureYourInfrastructure: "Secure your infrastructure",
               protectYourFamilyOrBusiness: "Protect your family or business",
+              loading: "Loading",
             });
           },
         },
@@ -179,7 +180,7 @@ type Story = StoryObj<
 const Template: Story = {
   render: (args) => ({
     props: args,
-    template: `
+    template: /*html*/ `
     <router-outlet [mockOrgs]="mockOrgs" [mockProviders]="mockProviders"></router-outlet>
     <div class="tw-flex tw-gap-[200px]">
       <div>
@@ -191,7 +192,7 @@ const Template: Story = {
         <product-switcher-content #content></product-switcher-content>
         <div class="tw-h-40">
           <div class="cdk-overlay-pane bit-menu-panel">
-            <ng-container *ngTemplateOutlet="content?.menu?.templateRef"></ng-container>
+            <ng-container *ngTemplateOutlet="content?.menu?.templateRef()"></ng-container>
           </div>
         </div>
       </div>
