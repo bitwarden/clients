@@ -5558,10 +5558,10 @@
     "message": "Müəssisə siyasətinə görə, elementləri şəxsi seyfinizdə saxlamağınız məhdudlaşdırılıb. Sahiblik seçimini təşkilat olaraq dəyişdirin və mövcud kolleksiyalar arasından seçim edin."
   },
   "desktopAutotypePolicy": {
-    "message": "Desktop Autotype Default Setting"
+    "message": "Masaüstü avto-yazma ilkin ayarı"
   },
   "desktopAutotypePolicyDesc": {
-    "message": "Turn Desktop Autotype ON by default for members. Members can turn Autotype off manually in the Desktop client.",
+    "message": "Üzvlər üçün Masaüstü avto-yazma ayarını ilkin olaraq işə salın. Üzvlər Masaüstü client-ində avto-yazma ayarını manual olaraq söndürə bilər.",
     "description": "This policy will enable Desktop Autotype by default for members on Unlock."
   },
   "disableSend": {
@@ -6729,7 +6729,7 @@
     "message": "SSO sıradan çıxarılıb"
   },
   "emailMustLoginWithSso": {
-    "message": "$EMAIL$ must login with Single Sign-on",
+    "message": "$EMAIL$, Vahid Daxil olma üsulu ilə giriş etməlidir",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -11022,16 +11022,16 @@
     "message": "Ödənişsiz təşkilatların ən çox 2 kolleksiyası ola bilər. Daha çox kolleksiya əlavə etmək üçün ödənişli bir plana yüksəldin."
   },
   "searchArchive": {
-    "message": "Search archive"
+    "message": "Arxivdə axtar"
   },
   "archive": {
-    "message": "Archive"
+    "message": "Arxiv"
   },
   "noItemsInArchive": {
-    "message": "No items in archive"
+    "message": "Arxivdə element yoxdur"
   },
   "archivedItemsDescription": {
-    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+    "message": "Arxivlənmiş elementlər burada görünəcək, ümumi axtarış nəticələrindən və avto-doldurma təkliflərindən xaric ediləcək."
   },
   "businessUnit": {
     "message": "Biznes vahidi"
@@ -11367,34 +11367,34 @@
     "message": "İndi doğrula."
   },
   "additionalStorageGB": {
-    "message": "Additional storage GB"
+    "message": "Əlavə anbar sahəsi GB"
   },
   "additionalServiceAccountsV2": {
-    "message": "Additional machine accounts"
+    "message": "Əlavə maşın hesabları"
   },
   "secretsManagerSeats": {
-    "message": "Secrets Manager seats"
+    "message": "Sirr Meneceri yerləri"
   },
   "additionalStorage": {
-    "message": "Additional Storage"
+    "message": "Əlavə anbar sahəsi"
   },
   "expandPurchaseDetails": {
-    "message": "Expand purchase details"
+    "message": "Satın alma detallarını genişləndir"
   },
   "collapsePurchaseDetails": {
-    "message": "Collapse purchase details"
+    "message": "Satın alma detallarını yığcamlaşdır"
   },
   "familiesMembership": {
-    "message": "Families membership"
+    "message": "Ailə üzvlüyü"
   },
   "planDescPremium": {
-    "message": "Complete online security"
+    "message": "Tam onlayn təhlükəsizlik"
   },
   "planDescFamiliesV2": {
-    "message": "Premium security for your family"
+    "message": "Ailəniz üçün Premium təhlükəsizlik"
   },
   "planDescFreeV2": {
-    "message": "Share with $COUNT$ other user",
+    "message": "Digər $COUNT$ istifadəçi ilə paylaş",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -11403,37 +11403,37 @@
     }
   },
   "planDescEnterpriseV2": {
-    "message": "Advanced capabilities for any organization"
+    "message": "Hər bir təşkilat üçün qabaqcıl imkanlar"
   },
   "planNameCustom": {
-    "message": "Custom plan"
+    "message": "Özəl plan"
   },
   "planDescCustom": {
-    "message": "Bitwarden scales with businesses of all sizes to secure passwords and sensitive information. If you're part of a large enterprise, contact sales to request a quote."
+    "message": "Bitwarden, parolların və həssas məlumatların təhlükəsizliyini təmin etmək üçün istənilən miqyaslı şirkətə uyğunlaşır. Əgər böyük bir müəssisənin bir hissəsisinizsə, qiymət təklifi üçün satış şöbəsi ilə əlaqə saxlayın."
   },
   "builtInAuthenticator": {
-    "message": "Built-in authenticator"
+    "message": "Daxili kimlik doğrulayıcı"
   },
   "breachMonitoring": {
-    "message": "Breach monitoring"
+    "message": "Pozuntu monitorinqi"
   },
   "andMoreFeatures": {
-    "message": "And more!"
+    "message": "Və daha çoxu!"
   },
   "secureFileStorage": {
-    "message": "Secure file storage"
+    "message": "Güvənli fayl anbarı"
   },
   "familiesUnlimitedSharing": {
-    "message": "Unlimited sharing - choose who sees what"
+    "message": "Limitsiz paylaşım - kimin nəyi görəcəyini seçin"
   },
   "familiesUnlimitedCollections": {
-    "message": "Unlimited family collections"
+    "message": "Limitsiz ailə kolleksiyaları"
   },
   "familiesSharedStorage": {
-    "message": "Shared storage for important family info"
+    "message": "Vacib ailə məlumatları üçün paylaşılan anbar sahəsi"
   },
   "limitedUsersV2": {
-    "message": "Up to $COUNT$ members",
+    "message": "$COUNT$ üzvə qədər",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -11442,7 +11442,7 @@
     }
   },
   "limitedCollectionsV2": {
-    "message": "Up to $COUNT$ collections",
+    "message": "$COUNT$ kolleksiyaya qədər",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -11451,13 +11451,13 @@
     }
   },
   "alwaysFree": {
-    "message": "Always free"
+    "message": "Həmişə ödənişsiz"
   },
   "twoSecretsIncluded": {
-    "message": "2 secrets"
+    "message": "2 sirr"
   },
   "projectsIncludedV2": {
-    "message": "$COUNT$ project(s)",
+    "message": "$COUNT$ layihə",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -11466,13 +11466,13 @@
     }
   },
   "secureItemSharing": {
-    "message": "Secure item sharing"
+    "message": "Güvənli element paylaşımı"
   },
   "scimSupport": {
-    "message": "SCIM support"
+    "message": "SCIM dəstəyi"
   },
   "includedMachineAccountsV2": {
-    "message": "$COUNT$ machine accounts",
+    "message": "$COUNT$ maşın hesabı",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -11481,21 +11481,21 @@
     }
   },
   "enterpriseSecurityPolicies": {
-    "message": "Enterprise security policies"
+    "message": "Müəssisə təhlükəsizlik siyasətləri"
   },
   "selfHostOption": {
-    "message": "Self-host option"
+    "message": "Self-host seçimi"
   },
   "complimentaryFamiliesPlan": {
-    "message": "Complimentary families plan for all users"
+    "message": "Bütün istifadəçilər üçün ödənişsiz ailə planı"
   },
   "strengthenCybersecurity": {
-    "message": "Strengthen cybersecurity"
+    "message": "Gücləndirilmiş kibertəhlükəsizlik"
   },
   "boostProductivity": {
-    "message": "Boost productivity"
+    "message": "Məhsuldarlığı artırın"
   },
   "seamlessIntegration": {
-    "message": "Seamless integration"
+    "message": "Problemsiz inteqrasiya"
   }
 }
