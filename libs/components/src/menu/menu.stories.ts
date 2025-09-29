@@ -1,7 +1,10 @@
 import { OverlayModule } from "@angular/cdk/overlay";
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+
 import { ButtonModule } from "../button/button.module";
+import { I18nMockService } from "../utils";
 
 import { MenuTriggerForDirective } from "./menu-trigger-for.directive";
 import { MenuModule } from "./menu.module";
@@ -12,6 +15,12 @@ export default {
   decorators: [
     moduleMetadata({
       imports: [MenuModule, OverlayModule, ButtonModule],
+      providers: [
+        {
+          provide: I18nService,
+          useValue: new I18nMockService({ loading: "Loading" }),
+        },
+      ],
     }),
   ],
   parameters: {

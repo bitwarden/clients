@@ -13,7 +13,6 @@ import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import {
   FakeAccountService,
-  makeEncString,
   makeSymmetricCryptoKey,
   mockAccountServiceWith,
 } from "../../../../spec";
@@ -435,7 +434,7 @@ describe("MasterPasswordService", () => {
       const kdfPBKDF2: KdfConfig = new PBKDF2KdfConfig(600_000);
       const kdfArgon2: KdfConfig = new Argon2KdfConfig(4, 64, 3);
       const salt = "test@bitwarden.com" as MasterPasswordSalt;
-      const encryptedUserKey = makeEncString("testUserKet") as MasterKeyWrappedUserKey;
+      const encryptedUserKey = "testUserKet" as MasterKeyWrappedUserKey;
 
       it("returns null when value is null", () => {
         const deserialized = MASTER_PASSWORD_UNLOCK_KEY.deserializer(
@@ -451,7 +450,7 @@ describe("MasterPasswordService", () => {
             kdfType: KdfType.PBKDF2_SHA256,
             iterations: kdfPBKDF2.iterations,
           },
-          masterKeyWrappedUserKey: encryptedUserKey.encryptedString as string,
+          masterKeyWrappedUserKey: encryptedUserKey as string,
         };
 
         const deserialized = MASTER_PASSWORD_UNLOCK_KEY.deserializer(data);
@@ -469,7 +468,7 @@ describe("MasterPasswordService", () => {
             memory: kdfArgon2.memory,
             parallelism: kdfArgon2.parallelism,
           },
-          masterKeyWrappedUserKey: encryptedUserKey.encryptedString as string,
+          masterKeyWrappedUserKey: encryptedUserKey as string,
         };
 
         const deserialized = MASTER_PASSWORD_UNLOCK_KEY.deserializer(data);
