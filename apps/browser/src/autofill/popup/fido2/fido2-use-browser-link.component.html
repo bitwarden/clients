@@ -1,4 +1,4 @@
-<ng-container *ngIf="(fido2PopoutSessionData$ | async).fallbackSupported">
+@if (fido2PopoutSessionData$ | async) {
   <div class="tw-flex tw-items-center tw-justify-center tw-p-2">
     <button
       bitButton
@@ -55,8 +55,9 @@
     </div>
   </ng-template>
 
-  <div
-    *ngIf="showOverlay"
-    class="tw-absolute tw-size-full tw-bg-background-alt tw-inset-0 tw-bg-opacity-80 tw-z-50"
-  ></div>
-</ng-container>
+  @if (showOverlay) {
+    <div
+      class="tw-absolute tw-size-full tw-bg-background-alt tw-inset-0 tw-bg-opacity-80 tw-z-50"
+    ></div>
+  }
+}
