@@ -972,7 +972,7 @@ export default class AutofillService implements AutofillServiceInterface {
       fillScript.autosubmit = Array.from(formElementsSet);
     }
 
-    if (options.allowTotpAutofill) {
+    if (options.allowTotpAutofill && login?.totp) {
       await Promise.all(
         totps.map(async (t, i) => {
           if (Object.prototype.hasOwnProperty.call(filledFields, t.opid)) {
@@ -980,10 +980,10 @@ export default class AutofillService implements AutofillServiceInterface {
           }
 
           filledFields[t.opid] = t;
-          const totpResponse = await firstValueFrom(
-            this.totpService.getCode$(options.cipher.login.totp),
-          );
+
+          const totpResponse = await firstValueFrom(this.totpService.getCode$(login.totp));
           let totpValue = totpResponse.code;
+
           if (totpValue.length == totps.length) {
             totpValue = totpValue.charAt(i);
           }
