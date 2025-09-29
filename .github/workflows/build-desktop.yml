@@ -771,8 +771,12 @@ jobs:
 
       - name: Configure for beta build
         run: |
-          jq '.productName = "Bitwarden Beta" | .appx.identityName = "8bitSolutionsLLC.BitwardenBeta" | .appx.artifactName = "Bitwarden-Beta-${version}-${arch}.${ext}" | .portable.artifactName = "Bitwarden-Beta-Portable-${version}.${ext}" | .nsisWeb.artifactName = "Bitwarden-Beta-Installer-${version}.${ext}"' electron-builder.json > electron-builder-temp.json
-          Move-Item electron-builder-temp.json electron-builder.json
+          jq '.productName = "Bitwarden Beta" | \
+          .appx.identityName = "8bitSolutionsLLC.BitwardenBeta" | \
+          .appx.artifactName = "Bitwarden-Beta-${version}-${arch}.${ext}" | \
+          .portable.artifactName = "Bitwarden-Beta-Portable-${version}.${ext}" | \
+          .nsisWeb.artifactName = "Bitwarden-Beta-Installer-${version}.${ext}"' \
+          electron-builder.json
 
       - name: Build
         run: npm run build
