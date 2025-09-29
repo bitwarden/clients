@@ -27,6 +27,6 @@ pub fn get_foreground_window_title() -> Result<String> {
 /// This function returns an `anyhow::Error` if there is any
 /// issue obtaining the window title. Detailed reasons will
 /// vary based on platform implementation.
-pub fn type_input(input: Vec<u16>) -> Result<()> {
-    windowing::type_input(input)
+pub fn type_input(input: Vec<u16>, keyboard_shortcut: Vec<String>) -> Result<()> {
+    windowing::type_input(input, keyboard_shortcut)
 }

@@ -137,8 +137,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       newPasswordHint,
       orgSsoIdentifier,
       keysRequest,
-      kdfConfig.kdfType,
-      kdfConfig.iterations,
+      kdfConfig,
     );
 
     await this.masterPasswordApiService.setPassword(request);

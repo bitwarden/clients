@@ -3,27 +3,20 @@
 import {
   BehaviorSubject,
   concatMap,
-  filter,
   first,
   firstValueFrom,
   forkJoin,
   from,
   map,
-  mergeMap,
   Observable,
   of,
   switchMap,
-  toArray,
   zip,
 } from "rxjs";
 
-import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
-import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import {
@@ -37,10 +30,7 @@ import {
 import {
   LEGACY_CipherHealthReportDetail,
   LEGACY_CipherHealthReportUriDetail,
-  ExposedPasswordDetail,
   LEGACY_MemberDetailsFlat,
-  WeakPasswordDetail,
-  WeakPasswordScore,
   LEGACY_ApplicationHealthReportDetailWithCriticalFlagAndCipher,
 } from "../models/password-health";
 import {
@@ -55,19 +45,11 @@ import {
 } from "../models/report-models";
 
 import { MemberCipherDetailsApiService } from "./member-cipher-details-api.service";
+import { PasswordHealthService } from "./password-health.service";
 import { RiskInsightsApiService } from "./risk-insights-api.service";
 import { RiskInsightsEncryptionService } from "./risk-insights-encryption.service";
 
 export class RiskInsightsReportService {
-  constructor(
-    private passwordStrengthService: PasswordStrengthServiceAbstraction,
-    private auditService: AuditService,
-    private cipherService: CipherService,
-    private memberCipherDetailsApiService: MemberCipherDetailsApiService,
-    private riskInsightsApiService: RiskInsightsApiService,
-    private riskInsightsEncryptionService: RiskInsightsEncryptionService,
-  ) {}
-
   private riskInsightsReportSubject = new BehaviorSubject<ApplicationHealthReportDetail[]>([]);
   riskInsightsReport$ = this.riskInsightsReportSubject.asObservable();
 
@@ -83,6 +65,26 @@ export class RiskInsightsReportService {
     newApplications: [],
   });
   riskInsightsSummary$ = this.riskInsightsSummarySubject.asObservable();
+
+  // [FIXME] CipherData
+  // Cipher data
+  // private _ciphersSubject = new BehaviorSubject<CipherView[] | null>(null);
+  // _ciphers$ = this._ciphersSubject.asObservable();
+
+  constructor(
+    private cipherService: CipherService,
+    private memberCipherDetailsApiService: MemberCipherDetailsApiService,
+    private riskInsightsApiService: RiskInsightsApiService,
+    private riskInsightsEncryptionService: RiskInsightsEncryptionService,
+    private passwordHealthService: PasswordHealthService,
+  ) {}
+
+  // [FIXME] CipherData
+  // async loadCiphersForOrganization(organizationId: OrganizationId): Promise<void> {
+  //   await this.cipherService.getAllFromApiForOrganization(organizationId).then((ciphers) => {
+  //     this._ciphersSubject.next(ciphers);
+  //   });
+  // }
 
   /**
    * Report data from raw cipher health data.
@@ -355,10 +357,12 @@ export class RiskInsightsReportService {
   ): Promise<LEGACY_CipherHealthReportDetail[]> {
     const cipherHealthReports: LEGACY_CipherHealthReportDetail[] = [];
     const passwordUseMap = new Map<string, number>();
-    const exposedDetails = await this.findExposedPasswords(ciphers);
+    const exposedDetails = await firstValueFrom(
+      this.passwordHealthService.auditPasswordLeaks$(ciphers),
+    );
     for (const cipher of ciphers) {
-      if (this.validateCipher(cipher)) {
-        const weakPassword = this.findWeakPassword(cipher);
+      if (this.passwordHealthService.isValidCipher(cipher)) {
+        const weakPassword = this.passwordHealthService.findWeakPasswordDetails(cipher);
         // Looping over all ciphers needs to happen first to determine reused passwords over all ciphers.
         // Store in the set and evaluate later
         if (passwordUseMap.has(cipher.login.password)) {
@@ -436,104 +440,6 @@ export class RiskInsightsReportService {
     return appReports;
   }
 
-  private async findExposedPasswords(ciphers: CipherView[]): Promise<ExposedPasswordDetail[]> {
-    const exposedDetails: ExposedPasswordDetail[] = [];
-    const promises: Promise<void>[] = [];
-
-    ciphers.forEach((ciph) => {
-      if (this.validateCipher(ciph)) {
-        const promise = this.auditService
-          .passwordLeaked(ciph.login.password)
-          .then((exposedCount) => {
-            if (exposedCount > 0) {
-              const detail = {
-                exposedXTimes: exposedCount,
-                cipherId: ciph.id,
-              } as ExposedPasswordDetail;
-              exposedDetails.push(detail);
-            }
-          });
-        promises.push(promise);
-      }
-    });
-    await Promise.all(promises);
-
-    return exposedDetails;
-  }
-
-  private findWeakPassword(cipher: CipherView): WeakPasswordDetail {
-    const hasUserName = this.isUserNameNotEmpty(cipher);
-    let userInput: string[] = [];
-    if (hasUserName) {
-      const atPosition = cipher.login.username.indexOf("@");
-      if (atPosition > -1) {
-        userInput = userInput
-          .concat(
-            cipher.login.username
-              .substring(0, atPosition)
-              .trim()
-              .toLowerCase()
-              .split(/[^A-Za-z0-9]/),
-          )
-          .filter((i) => i.length >= 3);
-      } else {
-        userInput = cipher.login.username
-          .trim()
-          .toLowerCase()
-          .split(/[^A-Za-z0-9]/)
-          .filter((i) => i.length >= 3);
-      }
-    }
-    const { score } = this.passwordStrengthService.getPasswordStrength(
-      cipher.login.password,
-      null,
-      userInput.length > 0 ? userInput : null,
-    );
-
-    if (score != null && score <= 2) {
-      const scoreValue = this.weakPasswordScore(score);
-      const weakPasswordDetail = { score: score, detailValue: scoreValue } as WeakPasswordDetail;
-      return weakPasswordDetail;
-    }
-    return null;
-  }
-
-  private weakPasswordScore(score: number): WeakPasswordScore {
-    switch (score) {
-      case 4:
-        return { label: "strong", badgeVariant: "success" };
-      case 3:
-        return { label: "good", badgeVariant: "primary" };
-      case 2:
-        return { label: "weak", badgeVariant: "warning" };
-      default:
-        return { label: "veryWeak", badgeVariant: "danger" };
-    }
-  }
-
-  private isUserNameNotEmpty(c: CipherView): boolean {
-    return !Utils.isNullOrWhitespace(c.login.username);
-  }
-
-  /**
-   * Validates that the cipher is a login item, has a password
-   * is not deleted, and the user can view the password
-   * @param c the input cipher
-   */
-  private validateCipher(c: CipherView): boolean {
-    const { type, login, isDeleted, viewPassword } = c;
-    if (
-      type !== CipherType.Login ||
-      login.password == null ||
-      login.password === "" ||
-      isDeleted ||
-      !viewPassword
-    ) {
-      return false;
-    }
-    return true;
-  }
-
   private _buildPasswordUseMap(ciphers: CipherView[]): Map<string, number> {
     const passwordUseMap = new Map<string, number>();
     ciphers.forEach((cipher) => {
@@ -559,6 +465,31 @@ export class RiskInsightsReportService {
     return applicationMap;
   }
 
+  /**
+   *
+   * @param applications The list of application health report details to map ciphers to
+   * @param organizationId
+   * @returns
+   */
+  async getApplicationCipherMap(
+    applications: ApplicationHealthReportDetail[],
+    organizationId: OrganizationId,
+  ): Promise<Map<string, CipherView[]>> {
+    // [FIXME] CipherData
+    // This call is made multiple times. We can optimize this
+    // by loading the ciphers once via a load method to avoid multiple API calls
+    // for the same organization
+    const allCiphers = await this.cipherService.getAllFromApiForOrganization(organizationId);
+    const cipherMap = new Map<string, CipherView[]>();
+
+    applications.forEach((app) => {
+      const filteredCiphers = allCiphers.filter((c) => app.cipherIds.includes(c.id));
+      cipherMap.set(app.applicationName, filteredCiphers);
+    });
+    return cipherMap;
+  }
+
+  // --------------------------- Aggregation methods ---------------------------
   /**
    * Loop through the flattened cipher to uri data. If the item exists it's values need to be updated with the new item.
    * If the item is new, create and add the object with the flattened details
@@ -659,11 +590,13 @@ export class RiskInsightsReportService {
     ciphers: CipherView[],
     memberDetails: MemberDetails[],
   ): Observable<CipherHealthReport[]> {
-    const validCiphers = ciphers.filter((cipher) => this.isValidCipher(cipher));
+    const validCiphers = ciphers.filter((cipher) =>
+      this.passwordHealthService.isValidCipher(cipher),
+    );
     // Build password use map
     const passwordUseMap = this._buildPasswordUseMap(validCiphers);
 
-    return this.auditPasswordLeaks$(validCiphers).pipe(
+    return this.passwordHealthService.auditPasswordLeaks$(validCiphers).pipe(
       map((exposedDetails) => {
         return validCiphers.map((cipher) => {
           const exposedPassword = exposedDetails.find((x) => x.cipherId === cipher.id);
@@ -673,7 +606,7 @@ export class RiskInsightsReportService {
             cipher: cipher,
             cipherMembers,
             healthData: {
-              weakPasswordDetail: this.findWeakPasswordDetails(cipher),
+              weakPasswordDetail: this.passwordHealthService.findWeakPasswordDetails(cipher),
               exposedPasswordDetail: exposedPassword,
               reusedPasswordCount: passwordUseMap.get(cipher.login.password) ?? 0,
             },
@@ -682,121 +615,6 @@ export class RiskInsightsReportService {
           return result;
         });
       }),
-    );
-  }
-
-  // TODO This is a temp implementation until the function is available in the password health service
-  /**
-   * Validates that the cipher is a login item, has a password
-   * is not deleted, and the user can view the password
-   * @param c the input cipher
-   */
-  isValidCipher(c: CipherView): boolean {
-    const { type, login, isDeleted, viewPassword } = c;
-    if (
-      type !== CipherType.Login ||
-      login.password == null ||
-      login.password === "" ||
-      isDeleted ||
-      !viewPassword
-    ) {
-      return false;
-    }
-    return true;
-  }
-
-  // TODO This is a temp implementation until the function is available in the password health service
-  /**
-   * Extracts username parts from the cipher's username.
-   * This is used to help determine password strength.
-   *
-   * @param cipherUsername The username from the cipher.
-   * @returns An array of username parts.
-   */
-  extractUsernameParts(cipherUsername: string) {
-    const atPosition = cipherUsername.indexOf("@");
-    const userNameToProcess =
-      atPosition > -1 ? cipherUsername.substring(0, atPosition) : cipherUsername;
-
-    return userNameToProcess
-      .trim()
-      .toLowerCase()
-      .split(/[^A-Za-z0-9]/)
-      .filter((i) => i.length >= 3);
-  }
-
-  // TODO This is a temp implementation until the function is available in the password health service
-  /**
-   * Checks if the cipher has a weak password based on the password strength score.
-   *
-   * @param cipher
-   * @returns
-   */
-  findWeakPasswordDetails(cipher: CipherView): WeakPasswordDetail | null {
-    // Validate the cipher
-    if (!this.isValidCipher(cipher)) {
-      return null;
-    }
-
-    // Check the username
-    const userInput = this.isUserNameNotEmpty(cipher)
-      ? this.extractUsernameParts(cipher.login.username)
-      : null;
-
-    const { score } = this.passwordStrengthService.getPasswordStrength(
-      cipher.login.password,
-      null,
-      userInput,
-    );
-
-    // If a score is not found or a score is less than 3, it's weak
-    if (score != null && score <= 2) {
-      return { score: score, detailValue: this.getPasswordScoreInfo(score) };
-    }
-    return null;
-  }
-
-  // TODO This is a temp implementation until the function is available in the password health service
-  /**
-   * Gets the password score information based on the score.
-   *
-   * @param score
-   * @returns An object containing the label and badge variant for the password score.
-   */
-  getPasswordScoreInfo(score: number): WeakPasswordScore {
-    switch (score) {
-      case 4:
-        return { label: "strong", badgeVariant: "success" };
-      case 3:
-        return { label: "good", badgeVariant: "primary" };
-      case 2:
-        return { label: "weak", badgeVariant: "warning" };
-      default:
-        return { label: "veryWeak", badgeVariant: "danger" };
-    }
-  }
-
-  // TODO This is a temp implementation until the function is available in the password health service
-  /**
-   * Finds exposed passwords in a list of ciphers.
-   *
-   * @param ciphers The list of ciphers to check.
-   * @returns An observable that emits an array of ExposedPasswordDetail.
-   */
-  auditPasswordLeaks$(ciphers: CipherView[]): Observable<ExposedPasswordDetail[]> {
-    return from(ciphers).pipe(
-      filter((cipher) => this.isValidCipher(cipher)),
-      mergeMap((cipher) =>
-        this.auditService
-          .passwordLeaked(cipher.login.password)
-          .then((exposedCount) => ({ cipher, exposedCount })),
-      ),
-      filter(({ exposedCount }) => exposedCount > 0),
-      map(({ cipher, exposedCount }) => ({
-        exposedXTimes: exposedCount,
-        cipherId: cipher.id,
-      })),
-      toArray(),
     );
   }
 }
