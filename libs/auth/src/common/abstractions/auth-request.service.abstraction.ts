@@ -63,7 +63,6 @@ export abstract class AuthRequestServiceAbstraction {
   abstract approveOrDenyAuthRequest(
     approve: boolean,
     authRequest: AuthRequestResponse,
-    activeUserId: UserId,
   ): Promise<AuthRequestResponse>;
   /**
    * Sets the `UserKey` from an auth request. Auth request must have a `UserKey`.

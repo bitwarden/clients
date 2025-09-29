@@ -4,9 +4,11 @@ import { Observable, Subject, defer, firstValueFrom, map } from "rxjs";
 import { Jsonify } from "type-fest";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AdminAuthRequestStorable } from "@bitwarden/common/auth/models/domain/admin-auth-req-storable";
 import { PasswordlessAuthRequest } from "@bitwarden/common/auth/models/request/passwordless-auth.request";
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
@@ -56,6 +58,7 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
     private apiService: ApiService,
     private stateProvider: StateProvider,
     private authRequestApiService: AuthRequestApiServiceAbstraction,
+    private accountService: AccountService,
   ) {
     this.authRequestPushNotification$ = this.authRequestPushNotificationSubject.asObservable();
     this.adminLoginApproved$ = this.adminLoginApprovedSubject.asObservable();
@@ -123,19 +126,20 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
   async approveOrDenyAuthRequest(
     approve: boolean,
     authRequest: AuthRequestResponse,
-    userId: UserId,
   ): Promise<AuthRequestResponse> {
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
     if (!authRequest.id) {
       throw new Error("Auth request has no id");
     }
     if (!authRequest.publicKey) {
       throw new Error("Auth request has no public key");
     }
-    if (userId == null) {
+    if (activeUserId == null) {
       throw new Error("User ID is required");
     }
     const pubKey = Utils.fromB64ToArray(authRequest.publicKey);
-    const keyToEncrypt = await firstValueFrom(this.keyService.userKey$(userId));
+    const keyToEncrypt = await firstValueFrom(this.keyService.userKey$(activeUserId));
     const encryptedKey = await this.encryptService.encapsulateKeyUnsigned(keyToEncrypt, pubKey);
 
     const response = new PasswordlessAuthRequest(

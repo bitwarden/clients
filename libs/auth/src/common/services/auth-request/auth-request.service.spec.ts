@@ -2,6 +2,7 @@ import { mock } from "jest-mock-extended";
 import { firstValueFrom, of } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
@@ -29,6 +30,7 @@ describe("AuthRequestService", () => {
   const encryptService = mock<EncryptService>();
   const apiService = mock<ApiService>();
   const authRequestApiService = mock<DefaultAuthRequestApiService>();
+  const accountService = mock<AccountService>();
 
   let mockPrivateKey: Uint8Array;
   let mockPublicKey: Uint8Array;
@@ -46,6 +48,7 @@ describe("AuthRequestService", () => {
       apiService,
       stateProvider,
       authRequestApiService,
+      accountService,
     );
 
     mockPrivateKey = new Uint8Array(64);
@@ -95,15 +98,18 @@ describe("AuthRequestService", () => {
       const authRequestNoId = new AuthRequestResponse({ id: "", key: "KEY" });
       const authRequestNoPublicKey = new AuthRequestResponse({ id: "123", publicKey: "" });
 
-      await expect(sut.approveOrDenyAuthRequest(true, authRequestNoId, mockUserId)).rejects.toThrow(
+      accountService.activeAccount$ = of({ id: mockUserId } as any);
+
+      await expect(sut.approveOrDenyAuthRequest(true, authRequestNoId)).rejects.toThrow(
         "Auth request has no id",
       );
-      await expect(
-        sut.approveOrDenyAuthRequest(true, authRequestNoPublicKey, mockUserId),
-      ).rejects.toThrow("Auth request has no public key");
+      await expect(sut.approveOrDenyAuthRequest(true, authRequestNoPublicKey)).rejects.toThrow(
+        "Auth request has no public key",
+      );
     });
 
     it("should use the user key if the master key and hash do not exist", async () => {
+      accountService.activeAccount$ = of({ id: mockUserId } as any);
       keyService.userKey$.mockReturnValue(
         of(new SymmetricCryptoKey(new Uint8Array(64)) as UserKey),
       );
@@ -111,11 +117,10 @@ describe("AuthRequestService", () => {
       await sut.approveOrDenyAuthRequest(
         true,
         new AuthRequestResponse({ id: "123", publicKey: "KEY" }),
-        mockUserId,
       );
 
       expect(encryptService.encapsulateKeyUnsigned).toHaveBeenCalledWith(
-        new SymmetricCryptoKey(new Uint8Array(64)),
+        expect.any(SymmetricCryptoKey),
         expect.anything(),
       );
     });

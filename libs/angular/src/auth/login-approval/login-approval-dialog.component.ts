@@ -10,7 +10,6 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { DevicesServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices/devices.service.abstraction";
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -24,7 +23,6 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
-import { UserId } from "@bitwarden/user-core";
 
 import { LoginApprovalDialogComponentServiceAbstraction } from "./login-approval-dialog-component.service.abstraction";
 
@@ -145,11 +143,9 @@ export class LoginApprovalDialogComponent implements OnInit, OnDestroy {
         message: this.i18nService.t("thisRequestIsNoLongerValid"),
       });
     } else {
-      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
       const loginResponse = await this.authRequestService.approveOrDenyAuthRequest(
         approve,
         this.authRequestResponse,
-        activeUserId as UserId,
       );
       this.showResultToast(loginResponse);
     }
