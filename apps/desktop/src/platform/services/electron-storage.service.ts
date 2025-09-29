@@ -3,6 +3,7 @@
 import * as fs from "fs";
 
 import { ipcMain } from "electron";
+import ElectronStore from "electron-store";
 import { Subject } from "rxjs";
 
 import {
@@ -10,23 +11,6 @@ import {
   StorageUpdate,
 } from "@bitwarden/common/platform/abstractions/storage.service";
 import { NodeUtils } from "@bitwarden/node/node-utils";
-
-// See: https://github.com/sindresorhus/electron-store/blob/main/index.d.ts
-interface ElectronStoreOptions {
-  defaults: unknown;
-  name: string;
-}
-
-type ElectronStoreConstructor = new (options: ElectronStoreOptions) => ElectronStore;
-
-// eslint-disable-next-line
-const Store: ElectronStoreConstructor = require("electron-store");
-
-interface ElectronStore {
-  get: (key: string) => unknown;
-  set: (key: string, obj: unknown) => void;
-  delete: (key: string) => void;
-}
 
 interface BaseOptions<T extends string> {
   action: T;
@@ -48,11 +32,12 @@ export class ElectronStorageService implements AbstractStorageService {
     if (!fs.existsSync(dir)) {
       NodeUtils.mkdirpSync(dir, "700");
     }
-    const storeConfig: ElectronStoreOptions = {
+    const storeConfig: ElectronStore.Options<Record<string, unknown>> = {
       defaults: defaults,
       name: "data",
+      configFileMode: 0o600,
     };
-    this.store = new Store(storeConfig);
+    this.store = new ElectronStore(storeConfig);
     this.updates$ = this.updatesSubject.asObservable();
 
     ipcMain.handle("storageService", (event, options: Options) => {
