@@ -142,7 +142,7 @@
     "typescript-strict-plugin": "2.4.4",
     "url": "0.11.4",
     "util": "0.12.5",
-    "wait-on": "8.0.3",
+    "wait-on": "9.0.1",
     "webpack": "5.99.7",
     "webpack-cli": "6.0.1",
     "webpack-dev-server": "5.2.1",
