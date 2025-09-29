@@ -6,11 +6,11 @@
     "message": "Bitwarden logó"
   },
   "extName": {
-    "message": "Bitwarden Password Manager",
+    "message": "Bitwarden Jelszókezelő",
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
   },
   "extDesc": {
-    "message": "At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information",
+    "message": "Legyen otthon, munkában, vagy úton, a Bitwarden könnyen biztosítja jelszavát, kulcsait, és kényes információit",
     "description": "Extension description, MUST be less than 112 characters (Safari restriction)"
   },
   "loginOrCreateNewAccount": {
@@ -550,6 +550,33 @@
   "resetSearch": {
     "message": "Keresés visszaállítása"
   },
+  "archive": {
+    "message": "Archívum"
+  },
+  "unarchive": {
+    "message": "Visszavétel archívumból"
+  },
+  "itemsInArchive": {
+    "message": "Archívum elemek száma"
+  },
+  "noItemsInArchive": {
+    "message": "Nincs elem az archívumban."
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Az archivált elemek itt jelennek meg és kizárásra kerülnek az általános keresési eredményekből és az automatikus kitöltési javaslatokból."
+  },
+  "itemSentToArchive": {
+    "message": "Archívumba küldött elemek száma"
+  },
+  "itemRemovedFromArchive": {
+    "message": "Az elem kikerült a kedvencekből."
+  },
+  "archiveItem": {
+    "message": "Elem archiválása"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Az archivált elemek ki vannak zárva az általános keresési eredményekből és az automatikus kitöltési javaslatokból. Biztosan archiválni szeretnénk ezt az elemet?"
+  },
   "edit": {
     "message": "Szerkesztés"
   },
@@ -866,13 +893,13 @@
     "message": "Kijelentkezett"
   },
   "loggedOutDesc": {
-    "message": "You have been logged out of your account."
+    "message": "Kijelentkezett fiókjából."
   },
   "loginExpired": {
     "message": "Bejelentkezési munkamenete lejárt."
   },
   "logIn": {
-    "message": "Log in"
+    "message": "Bejelentkezés"
   },
   "logInToBitwarden": {
     "message": "Bejelentkezés a Bitwardenbe"
@@ -896,16 +923,16 @@
     "message": "Kövessük az alábbi lépéseket a biztonsági kulccsal bejelentkezés befejezéséhez."
   },
   "restartRegistration": {
-    "message": "Restart registration"
+    "message": "Regisztráció újraindítása"
   },
   "expiredLink": {
-    "message": "Expired link"
+    "message": "Lejárt hivatkozás"
   },
   "pleaseRestartRegistrationOrTryLoggingIn": {
-    "message": "Please restart registration or try logging in."
+    "message": "Kérem kezdje újra a regisztrációt, vagy próbáljon meg bejelentkezni."
   },
   "youMayAlreadyHaveAnAccount": {
-    "message": "You may already have an account"
+    "message": "Lehetséges, hogy már rendelkezik fiókkal"
   },
   "logOutConfirmation": {
     "message": "Biztos benne, hogy ki szeretnél jelentkezni?"
@@ -1176,7 +1203,7 @@
     "description": "Error message shown when the system fails to save login details."
   },
   "saveFailureDetails": {
-    "message": "Oh no! We couldn't save this. Try entering the details manually.",
+    "message": "Ja ne! Nem tudtuk elmenteni. Próbálja meg beírni a kézzel.",
     "description": "Detailed error message shown when saving login details fails."
   },
   "changePasswordWarning": {
@@ -1525,9 +1552,6 @@
   "selectTwoStepLoginMethod": {
     "message": "Kétlépcsős bejelentkezési mód használata"
   },
-  "recoveryCodeDesc": {
-    "message": "Elveszett a hozzáférés az összes kétlépcsős szolgáltatóhoz? A helyreállító kód használatával letilthatók fiókból a kétlépcsős szolgáltatók."
-  },
   "recoveryCodeTitle": {
     "message": "Helyreállító kód"
   },
@@ -1609,7 +1633,7 @@
     "description": "Represents the message for allowing the user to enable the autofill overlay"
   },
   "autofillSuggestionsSectionTitle": {
-    "message": "Autofill suggestions"
+    "message": "Automatikus kitöltés javaslatok"
   },
   "autofillSpotlightTitle": {
     "message": "Az automatikus kitöltési javaslatok könnyű megtalálása"
@@ -1686,9 +1710,6 @@
   "defaultAutoFillOnPageLoadDesc": {
     "message": "Az egyes bejelentkezési elemeknél kikapcsolhatjuk oldalbetöltéskor az automatikus kitöltést az elem Szerkesztés nézetében."
   },
-  "itemAutoFillOnPageLoad": {
-    "message": "Automatikus kitöltés oldal betöltésnél (Ha engedélyezett az opcióknál)"
-  },
   "autoFillOnPageLoadUseDefault": {
     "message": "Alapbeállítások használata"
   },
@@ -1760,17 +1781,8 @@
   "popup2faCloseMessage": {
     "message": "Az ellenőrző kódot tartalmazó email egy olyan felugró ablakban nyílik meg, mely a mellette levő területre kattinva bezáródik. Szeretnéd az emailt egy olyan ablakban megnyitni, ami nem záródhat így be?"
   },
-  "popupU2fCloseMessage": {
-    "message": "Ez a böngésző nem dolgozza fel az U2F kéréseket ebben a felbukkanó ablakban. Szeretnénk megnyitni a felbukkanó ablakot új böngészőablakban az U2F segítségével történő bejelentkezéshez?"
-  },
   "showIconsChangePasswordUrls": {
-    "message": "Show website icons and retrieve change password URLs"
-  },
-  "enableBadgeCounter": {
-    "message": "Számláló jelvény megjelenítése"
-  },
-  "badgeCounterDesc": {
-    "message": "Jelöljük meg, hogy hány bejelentkezés van az aktuális weboldalnál."
+    "message": "Webhely ikonok megjelenítése és jelszó webcímek módosításának lekérése"
   },
   "cardholderName": {
     "message": "Kártyatulajdonos neve"
@@ -1934,32 +1946,81 @@
   "typeNote": {
     "message": "Jegyzet"
   },
-  "newItemHeader": {
-    "message": "Új $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderLogin": {
+    "message": "Új bejelentkezés",
+    "description": "Header for new login item type"
   },
-  "editItemHeader": {
-    "message": "$TYPE$ szerkesztése",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderCard": {
+    "message": "Új kártya",
+    "description": "Header for new card item type"
   },
-  "viewItemHeader": {
-    "message": "$TYPE$ megtekintése",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderIdentity": {
+    "message": "Új személyazonosság",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "Új jegyzet",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "Új SSH kulcs",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderTextSend": {
+    "message": "Új szöveges Send elem",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "Új fájl Send elem",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderLogin": {
+    "message": "Bejelentkezés szerkesztése",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Kártya szerkesztése",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Személyazonossság szerkesztése",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Jegyzet szerkesztése",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "SSH kulcs szerkesztése",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Send szöveg szerkesztése",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Send fájl szerkesztése",
+    "description": "Header for edit file send"
+  },
+  "viewItemHeaderLogin": {
+    "message": "Bejelentkezés megtekintése",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "Kártya megtekintése",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "Személyazonosság megtekintése",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "Jegyzet megtekintése",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "SSH kulcs megtekintése",
+    "description": "Header for view SSH key item type"
   },
   "passwordHistory": {
     "message": "Jelszó előzmények"
@@ -3521,9 +3582,6 @@
   "autofillPageLoadPolicyActivated": {
     "message": "A szervezeti szabályzat bekapcsolta az automatikus kitöltést az oldalbetöltéskor."
   },
-  "howToAutofill": {
-    "message": "Az automatikus kitöltés működése"
-  },
   "autofillSelectInfoWithCommand": {
     "message": "Select an item from this screen, use the shortcut $COMMAND$, or explore other options in settings.",
     "placeholders": {
@@ -3908,17 +3966,9 @@
   "aliasDomain": {
     "message": "Áldomain"
   },
-  "passwordRepromptDisabledAutofillOnPageLoad": {
-    "message": "A mesterjelszót újra bekérő elemeket nem lehet automatikusan kitölteni az oldal betöltésekor. Az automatikus kitöltés az oldal betöltésekor kikapcsolásra kerül.",
-    "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
-  },
   "autofillOnPageLoadSetToDefault": {
     "message": "Az automatikus kitöltés az oldal betöltésekor az alapértelmezett beállítás használatára lett beállítva.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "turnOffMasterPasswordPromptToEditField": {
-    "message": "Kapcsoljuk ki a mesterjelszó újbóli bekérését a mező szerkesztéséhez.",
-    "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
   },
   "toggleSideNavigation": {
     "message": "Toggle side navigation"
@@ -4188,9 +4238,6 @@
   },
   "passkeyNotCopiedAlert": {
     "message": "A hozzáférési kulcs nem kerül másolásra a klónozott elembe. Folytatjuk ennek az elemnek a klónozását?"
-  },
-  "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
-    "message": "A kezdeményező hely által megkövetelt ellenőrzés. Ez a szolgáltatás még nincs megvalósítva mesterjelszó nélküli fiókok esetén."
   },
   "logInWithPasskeyQuestion": {
     "message": "Bejelentkezés hozzáférési kulccsal?"
@@ -4877,9 +4924,6 @@
       }
     }
   },
-  "enableAnimations": {
-    "message": "Animációk engedélyezése"
-  },
   "showAnimations": {
     "message": "Animációk megjelenítése"
   },
@@ -5092,14 +5136,8 @@
   "itemLocation": {
     "message": "Elem helyek"
   },
-  "fileSend": {
-    "message": "Fájl típusú Send"
-  },
   "fileSends": {
     "message": "Fájl küldés"
-  },
-  "textSend": {
-    "message": "Szöveg típusú Send"
   },
   "textSends": {
     "message": "Szöveg küldés"
@@ -5160,9 +5198,6 @@
   },
   "vaultCustomTimeoutMinimum": {
     "message": "A minimális egyedi időkifutás 1 perc."
-  },
-  "additionalContentAvailable": {
-    "message": "Kiegészítő tartalom érhető el."
   },
   "fileSavedToDevice": {
     "message": "A fájl mentésre került az eszközre. Kezeljük az eszközről a letöltéseket."
@@ -5503,6 +5538,18 @@
   "hasItemsVaultNudgeTitle": {
     "message": "Üdvözlet a széfben!"
   },
+  "phishingPageTitle": {
+    "message": "Adathalász webhely"
+  },
+  "phishingPageCloseTab": {
+    "message": "Fül bezárása"
+  },
+  "phishingPageContinue": {
+    "message": "Folytatás"
+  },
+  "phishingPageLearnWhy": {
+    "message": "Miért látható ez?"
+  },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Az aktuális oldal elemeinek automatikus kitöltése"
   },
@@ -5579,10 +5626,10 @@
     "description": "Aria label for the body content of the generator nudge"
   },
   "aboutThisSetting": {
-    "message": "About this setting"
+    "message": "Informció erről a beállításról"
   },
   "permitCipherDetailsDescription": {
-    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+    "message": "A Bitwarden mentett bejelentkezési webcímeket használ annak azonosítására, hogy melyik ikont vagy jelszó webcímet kell használni az élmény javítása érdekében. A szolgáltatás használatakor nincs információ gyűjtés vagy mentés."
   },
   "noPermissionsViewPage": {
     "message": "Nincs jogosultság az oldal megtekintéséhez. Próbáljunk meg másik fiókkal bejelentkezni."

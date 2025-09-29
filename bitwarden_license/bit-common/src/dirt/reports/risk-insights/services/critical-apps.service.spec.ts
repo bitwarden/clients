@@ -12,10 +12,10 @@ import { OrgKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
 
 import {
-  PasswordHealthReportApplicationId,
   PasswordHealthReportApplicationsRequest,
   PasswordHealthReportApplicationsResponse,
-} from "../models/password-health";
+} from "../models/api-models.types";
+import { PasswordHealthReportApplicationId } from "../models/report-models";
 
 import { CriticalAppsApiService } from "./critical-apps-api.service";
 import { CriticalAppsService } from "./critical-apps.service";
@@ -70,7 +70,7 @@ describe("CriticalAppsService", () => {
     const orgKey$ = new BehaviorSubject(OrgRecords);
     keyService.orgKeys$.mockReturnValue(orgKey$);
 
-    service.setOrganizationId(SomeOrganization, SomeUser);
+    service.loadOrganizationContext(SomeOrganization, SomeUser);
 
     // act
     await service.setCriticalApps(SomeOrganization, criticalApps);
@@ -112,7 +112,7 @@ describe("CriticalAppsService", () => {
     const orgKey$ = new BehaviorSubject(OrgRecords);
     keyService.orgKeys$.mockReturnValue(orgKey$);
 
-    service.setOrganizationId(SomeOrganization, SomeUser);
+    service.loadOrganizationContext(SomeOrganization, SomeUser);
 
     // act
     await service.setCriticalApps(SomeOrganization, selectedUrls);
@@ -136,7 +136,7 @@ describe("CriticalAppsService", () => {
     const orgKey$ = new BehaviorSubject(OrgRecords);
     keyService.orgKeys$.mockReturnValue(orgKey$);
 
-    service.setOrganizationId(SomeOrganization, SomeUser);
+    service.loadOrganizationContext(SomeOrganization, SomeUser);
 
     expect(keyService.orgKeys$).toHaveBeenCalledWith(SomeUser);
     expect(encryptService.decryptString).toHaveBeenCalledTimes(2);
@@ -154,7 +154,7 @@ describe("CriticalAppsService", () => {
 
     const orgKey$ = new BehaviorSubject(OrgRecords);
     keyService.orgKeys$.mockReturnValue(orgKey$);
-    service.setOrganizationId(SomeOrganization, SomeUser);
+    service.loadOrganizationContext(SomeOrganization, SomeUser);
     service.setAppsInListForOrg(response);
     service.getAppsListForOrg(orgId as OrganizationId).subscribe((res) => {
       expect(res).toHaveLength(2);
@@ -173,7 +173,7 @@ describe("CriticalAppsService", () => {
     const orgKey$ = new BehaviorSubject(OrgRecords);
     keyService.orgKeys$.mockReturnValue(orgKey$);
 
-    service.setOrganizationId(SomeOrganization, SomeUser);
+    service.loadOrganizationContext(SomeOrganization, SomeUser);
 
     service.setAppsInListForOrg(initialList);
 
@@ -204,7 +204,7 @@ describe("CriticalAppsService", () => {
     const orgKey$ = new BehaviorSubject(OrgRecords);
     keyService.orgKeys$.mockReturnValue(orgKey$);
 
-    service.setOrganizationId(SomeOrganization, SomeUser);
+    service.loadOrganizationContext(SomeOrganization, SomeUser);
 
     service.setAppsInListForOrg(initialList);
 

@@ -960,9 +960,6 @@
   "insertU2f": {
     "message": "Ievieto savu drošības atslēgu datora USB ligzdā! Ja tai ir poga, pieskaries tai!"
   },
-  "recoveryCodeDesc": {
-    "message": "Zaudēta piekļuve visiem divpakāpju nodrošinātājiem? Izmanto atkopes kodus, lai atspējotu visus sava konta divpakāpju nodrošinātājus!"
-  },
   "recoveryCodeTitle": {
     "message": "Atkopes kods"
   },
@@ -1306,7 +1303,7 @@
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
   "showIconsChangePasswordUrls": {
-    "message": "Show website icons and retrieve change password URLs"
+    "message": "Rādīt tīmekļvietņu ikonas un iegūt paroles nomaiņas URL"
   },
   "enableMinToTray": {
     "message": "Samazināt ikonjoslā"
@@ -3938,10 +3935,10 @@
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
   "aboutThisSetting": {
-    "message": "About this setting"
+    "message": "Par šo iestatījumu"
   },
   "permitCipherDetailsDescription": {
-    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+    "message": "Bitwarden izmantos saglabātos pieteikšanās vienuma URI, lai noteiktu, kuru ikonu vai paroles nomaiņas URL izmantot, lai uzlabotu pieredzi. Šī pakalpojuma izmantošanas laikā nekāda informācija netiek ievākta vai saglabāta."
   },
   "assignToCollections": {
     "message": "Piešķirt krājumiem"
@@ -4110,5 +4107,32 @@
   },
   "editShortcut": {
     "message": "Labot saīsni"
+  },
+  "archive": {
+    "message": "Arhivēt"
+  },
+  "unarchive": {
+    "message": "Atcelt arhivēšanu"
+  },
+  "itemsInArchive": {
+    "message": "Vienumi arhīvā"
+  },
+  "noItemsInArchive": {
+    "message": "Arhīvā nav vienumu"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Šeit parādīsies arhivētie vienumi, un tie netiks iekļauti vispārējās meklēšanas iznākumos un automātiskās aizpildes ieteikumos."
+  },
+  "itemSentToArchive": {
+    "message": "Vienums ievietots arhīvā"
+  },
+  "itemRemovedFromArchive": {
+    "message": "Vienums izņemts no arhīva"
+  },
+  "archiveItem": {
+    "message": "Arhivēt vienumu"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Arhivētie vienumi netiek iekļauti vispārējās meklēšanas iznākumos un automātiskās aizpildes ieteikumos. Vai tiešām ahrivēt šo vienumu?"
   }
 }

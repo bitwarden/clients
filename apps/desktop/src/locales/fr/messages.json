@@ -960,9 +960,6 @@
   "insertU2f": {
     "message": "Insérez votre clé de sécurité dans le port USB de votre ordinateur. S'il dispose d'un bouton, appuyez dessus."
   },
-  "recoveryCodeDesc": {
-    "message": "Accès perdu à tous vos services d'authentification à double facteurs ? Utilisez votre code de récupération pour désactiver tous les services de double authentifications sur votre compte."
-  },
   "recoveryCodeTitle": {
     "message": "Code de récupération"
   },
@@ -4084,7 +4081,7 @@
     "message": "Afficher moins"
   },
   "enableAutotype": {
-    "message": "Activer le type automatique"
+    "message": "Activer la Saisie Auto"
   },
   "enableAutotypeDescription": {
     "message": "Bitwarden ne valide pas les emplacements d'entrée, assurez-vous d'être dans la bonne fenêtre et le bon champ avant d'utiliser le raccourci."
@@ -4103,12 +4100,39 @@
     "message": "Confirmer"
   },
   "enableAutotypeTransitionKey": {
-    "message": "Enable autotype shortcut"
+    "message": "Activer le raccourci de la Saisie Auto"
   },
   "enableAutotypeDescriptionTransitionKey": {
-    "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."
+    "message": "Assurez-vous d'être dans le bon champ avant d'utiliser le raccourci pour éviter de remplir les données au mauvais endroit."
   },
   "editShortcut": {
     "message": "Modifier le raccourci"
+  },
+  "archive": {
+    "message": "Archive"
+  },
+  "unarchive": {
+    "message": "Désarchiver"
+  },
+  "itemsInArchive": {
+    "message": "Éléments dans l'archive"
+  },
+  "noItemsInArchive": {
+    "message": "Aucun élément dans l'archive"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Les éléments archivés apparaîtront ici et seront exclus des résultats de recherche généraux et des suggestions de remplissage automatique."
+  },
+  "itemSentToArchive": {
+    "message": "Élément envoyé à l'archive"
+  },
+  "itemRemovedFromArchive": {
+    "message": "Élément retiré de l'archive"
+  },
+  "archiveItem": {
+    "message": "Archiver l'élément"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Les éléments archivés sont exclus des résultats de recherche généraux et des suggestions de remplissage automatique. Êtes-vous sûr de vouloir archiver cet élément ?"
   }
 }

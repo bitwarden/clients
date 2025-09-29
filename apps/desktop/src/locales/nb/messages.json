@@ -960,9 +960,6 @@
   "insertU2f": {
     "message": "Sett din sikkerhetsnøkkel inn i din datamaskins USB-uttak. Dersom den har en knapp, trykk på den."
   },
-  "recoveryCodeDesc": {
-    "message": "Har du mistet tilgang til alle dine 2-trinnsleverandører? Bruk din gjenopprettingskode til å fjerne alle 2-trinnsleverandører fra din konto."
-  },
   "recoveryCodeTitle": {
     "message": "Gjenopprettingskode"
   },
@@ -4110,5 +4107,32 @@
   },
   "editShortcut": {
     "message": "Edit shortcut"
+  },
+  "archive": {
+    "message": "Archive"
+  },
+  "unarchive": {
+    "message": "Unarchive"
+  },
+  "itemsInArchive": {
+    "message": "Items in archive"
+  },
+  "noItemsInArchive": {
+    "message": "No items in archive"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+  },
+  "itemSentToArchive": {
+    "message": "Item sent to archive"
+  },
+  "itemRemovedFromArchive": {
+    "message": "Item removed from archive"
+  },
+  "archiveItem": {
+    "message": "Archive item"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
   }
 }

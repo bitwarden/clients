@@ -5,8 +5,8 @@ import {
   BehaviorSubject,
   combineLatest,
   firstValueFrom,
-  from,
   lastValueFrom,
+  merge,
   Observable,
   of,
   Subject,
@@ -25,7 +25,6 @@ import {
   switchMap,
   take,
   takeUntil,
-  tap,
 } from "rxjs/operators";
 
 import {
@@ -39,12 +38,10 @@ import { SearchPipe } from "@bitwarden/angular/pipes/search.pipe";
 import { NoResults } from "@bitwarden/assets/svg";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
-import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { OrganizationBillingServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { EventType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -66,6 +63,7 @@ import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-repromp
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
+import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import {
   CipherViewLike,
   CipherViewLikeUtils,
@@ -93,13 +91,6 @@ import {
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 import { VaultItemsComponent } from "@bitwarden/web-vault/app/vault/components/vault-items/vault-items.component";
 
-import { BillingNotificationService } from "../../../billing/services/billing-notification.service";
-import {
-  ResellerWarning,
-  ResellerWarningService,
-} from "../../../billing/services/reseller-warning.service";
-import { TrialFlowService } from "../../../billing/services/trial-flow.service";
-import { FreeTrial } from "../../../billing/types/free-trial";
 import { SharedModule } from "../../../shared";
 import { AssignCollectionsWebComponent } from "../../../vault/components/assign-collections";
 import {
@@ -193,10 +184,6 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
   protected showCollectionAccessRestricted$: Observable<boolean>;
 
   protected isEmpty$: Observable<boolean> = of(false);
-  private hasSubscription$ = new BehaviorSubject<boolean>(false);
-  protected useOrganizationWarningsService$: Observable<boolean>;
-  protected freeTrialWhenWarningsServiceDisabled$: Observable<FreeTrial>;
-  protected resellerWarningWhenWarningsServiceDisabled$: Observable<ResellerWarning | null>;
   protected prevCipherId: string | null = null;
   protected userId$: Observable<UserId>;
 
@@ -226,31 +213,6 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
     | VaultItemsComponent<CipherView>
     | undefined;
 
-  private readonly unpaidSubscriptionDialog$ = this.accountService.activeAccount$.pipe(
-    getUserId,
-    switchMap((id) =>
-      this.organizationService.organizations$(id).pipe(
-        filter((organizations) => organizations.length === 1),
-        map(([organization]) => organization),
-        switchMap((organization) =>
-          from(this.billingApiService.getOrganizationBillingMetadata(organization.id)).pipe(
-            tap((organizationMetaData) => {
-              this.hasSubscription$.next(organizationMetaData.hasSubscription);
-            }),
-            switchMap((organizationMetaData) =>
-              from(
-                this.trialFlowService.handleUnpaidSubscriptionDialog(
-                  organization,
-                  organizationMetaData,
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    ),
-  );
-
   constructor(
     private route: ActivatedRoute,
     private organizationService: OrganizationService,
@@ -279,15 +241,11 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
     private toastService: ToastService,
     private configService: ConfigService,
     private cipherFormConfigService: CipherFormConfigService,
-    private organizationApiService: OrganizationApiServiceAbstraction,
-    private trialFlowService: TrialFlowService,
     protected billingApiService: BillingApiServiceAbstraction,
-    private organizationBillingService: OrganizationBillingServiceAbstraction,
-    private resellerWarningService: ResellerWarningService,
     private accountService: AccountService,
-    private billingNotificationService: BillingNotificationService,
     private organizationWarningsService: OrganizationWarningsService,
     private collectionService: CollectionService,
+    private restrictedItemTypesService: RestrictedItemTypesService,
   ) {
     this.userId$ = this.accountService.activeAccount$.pipe(getUserId);
     this.filter$ = this.routedVaultFilterService.filter$;
@@ -357,9 +315,10 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
     this.allCiphers$ = combineLatest([
       this.organization$,
       this.userId$,
+      this.restrictedItemTypesService.restricted$,
       this.refreshingSubject$,
     ]).pipe(
-      switchMap(async ([organization, userId]) => {
+      switchMap(async ([organization, userId, restricted]) => {
         // If user swaps organization reset the addAccessToggle
         if (!this.showAddAccessToggle || organization) {
           this.addAccessToggle(0);
@@ -380,6 +339,11 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
           // Otherwise, only fetch ciphers they have access to (includes unassigned for admins).
           ciphers = await this.cipherService.getManyFromApiForOrganization(organization.id);
         }
+
+        // Filter out restricted ciphers before indexing
+        ciphers = ciphers.filter(
+          (cipher) => !this.restrictedItemTypesService.isCipherRestricted(cipher, restricted),
+        );
 
         await this.searchService.indexCiphers(userId, ciphers, organization.id);
         return ciphers;
@@ -453,68 +417,17 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
     );
 
     // Billing Warnings
-    this.useOrganizationWarningsService$ = this.configService.getFeatureFlag$(
-      FeatureFlag.UseOrganizationWarningsService,
-    );
-
-    const freeTrial$ = combineLatest([
-      this.organization$,
-      this.hasSubscription$.pipe(filter((hasSubscription) => hasSubscription !== null)),
-    ]).pipe(
-      filter(
-        ([org, hasSubscription]) => org.isOwner && hasSubscription && org.canViewBillingHistory,
-      ),
-      switchMap(([org]) =>
-        combineLatest([
-          of(org),
-          this.organizationApiService.getSubscription(org.id),
-          from(this.organizationBillingService.getPaymentSource(org.id)).pipe(
-            map((paymentSource) => {
-              if (paymentSource == null) {
-                throw new Error("Payment source not found.");
-              }
-              return paymentSource;
-            }),
-          ),
-        ]),
-      ),
-      map(([org, sub, paymentSource]) =>
-        this.trialFlowService.checkForOrgsWithUpcomingPaymentIssues(org, sub, paymentSource),
-      ),
-      filter((result) => result !== null),
-      catchError((error: unknown) => {
-        this.billingNotificationService.handleError(error);
-        return of();
-      }),
-    );
-
-    this.freeTrialWhenWarningsServiceDisabled$ = this.useOrganizationWarningsService$.pipe(
-      filter((enabled) => !enabled),
-      switchMap(() => freeTrial$),
-    );
-
-    this.resellerWarningWhenWarningsServiceDisabled$ = combineLatest([
-      this.organization$,
-      this.useOrganizationWarningsService$,
-    ]).pipe(
-      filter(([org, enabled]) => !enabled && org.isOwner),
-      switchMap(([org]) =>
-        from(this.billingApiService.getOrganizationBillingMetadata(org.id)).pipe(
-          map((metadata) => ({ org, metadata })),
-        ),
-      ),
-      map(({ org, metadata }) => this.resellerWarningService.getWarning(org, metadata)),
-    );
-
     this.organization$
       .pipe(
         switchMap((organization) =>
-          this.organizationWarningsService.showSubscribeBeforeFreeTrialEndsDialog$(organization),
+          merge(
+            this.organizationWarningsService.showInactiveSubscriptionDialog$(organization),
+            this.organizationWarningsService.showSubscribeBeforeFreeTrialEndsDialog$(organization),
+          ),
         ),
         takeUntilDestroyed(),
       )
       .subscribe();
-
     // End Billing Warnings
 
     this.editableCollections$ = combineLatest([
@@ -769,17 +682,6 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
             });
           }
         }),
-        takeUntil(this.destroy$),
-      )
-      .subscribe();
-
-    combineLatest([this.useOrganizationWarningsService$, this.organization$])
-      .pipe(
-        switchMap(([enabled, organization]) =>
-          enabled
-            ? this.organizationWarningsService.showInactiveSubscriptionDialog$(organization)
-            : this.unpaidSubscriptionDialog$,
-        ),
         takeUntil(this.destroy$),
       )
       .subscribe();
@@ -1230,7 +1132,7 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
       const selectedCollection = await firstValueFrom(this.selectedCollection$);
       if (selectedCollection?.node.id === collection.id) {
         void this.router.navigate([], {
-          queryParams: { collectionId: selectedCollection.parent.node.id ?? null },
+          queryParams: { collectionId: selectedCollection?.parent?.node.id ?? null },
           queryParamsHandling: "merge",
           replaceUrl: true,
         });

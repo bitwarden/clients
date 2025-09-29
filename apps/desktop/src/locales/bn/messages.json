@@ -960,9 +960,6 @@
   "insertU2f": {
     "message": "আপনার কম্পিউটারের ইউএসবি পোর্টে আপনার সুরক্ষা কী ঢোকান। এটিতে যদি একটি বোতাম থাকে তবে তা স্পর্শ করুন।"
   },
-  "recoveryCodeDesc": {
-    "message": "আপনার সমস্ত দ্বি-গুণক সরবরাহকারীদের অ্যাক্সেস হারিয়েছেন? আপনার অ্যাকাউন্ট থেকে সমস্ত দ্বি-গুণক সরবরাহকারীদের অক্ষম করতে আপনার পুনরুদ্ধার কোডটি ব্যবহার করুন।"
-  },
   "recoveryCodeTitle": {
     "message": "পুনরুদ্ধার কোড"
   },
@@ -4110,5 +4107,32 @@
   },
   "editShortcut": {
     "message": "Edit shortcut"
+  },
+  "archive": {
+    "message": "Archive"
+  },
+  "unarchive": {
+    "message": "Unarchive"
+  },
+  "itemsInArchive": {
+    "message": "Items in archive"
+  },
+  "noItemsInArchive": {
+    "message": "No items in archive"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+  },
+  "itemSentToArchive": {
+    "message": "Item sent to archive"
+  },
+  "itemRemovedFromArchive": {
+    "message": "Item removed from archive"
+  },
+  "archiveItem": {
+    "message": "Archive item"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
   }
 }

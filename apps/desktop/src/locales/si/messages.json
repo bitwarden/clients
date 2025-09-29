@@ -960,9 +960,6 @@
   "insertU2f": {
     "message": "Insert your security key into your computer's USB port. If it has a button, touch it."
   },
-  "recoveryCodeDesc": {
-    "message": "Lost access to all of your two-factor providers? Use your recovery code to turn off all two-factor providers on your account."
-  },
   "recoveryCodeTitle": {
     "message": "ප්‍රතිසාධන කේතය"
   },
@@ -4110,5 +4107,32 @@
   },
   "editShortcut": {
     "message": "Edit shortcut"
+  },
+  "archive": {
+    "message": "Archive"
+  },
+  "unarchive": {
+    "message": "Unarchive"
+  },
+  "itemsInArchive": {
+    "message": "Items in archive"
+  },
+  "noItemsInArchive": {
+    "message": "No items in archive"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+  },
+  "itemSentToArchive": {
+    "message": "Item sent to archive"
+  },
+  "itemRemovedFromArchive": {
+    "message": "Item removed from archive"
+  },
+  "archiveItem": {
+    "message": "Archive item"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
   }
 }

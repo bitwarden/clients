@@ -960,9 +960,6 @@
   "insertU2f": {
     "message": "നിങ്ങളുടെ കമ്പ്യൂട്ടറിന്റെ യുഎസ്ബി പോർട്ടിൽ സുരക്ഷാ കീ ഇടുക. അതിന് ഒരു ബട്ടൺ ഉണ്ടെങ്കിൽ അത് അമർത്തുക."
   },
-  "recoveryCodeDesc": {
-    "message": "നിങ്ങളുടെ രണ്ട്-ഘടക ദാതാക്കളിലേക്കുള്ള ആക്‌സസ്സ് നഷ്‌ടപ്പെട്ടോ? നിങ്ങളുടെ അക്കൗണ്ടിൽ നിന്ന് രണ്ട്-ഘടക ദാതാക്കളെ പ്രവർത്തനരഹിതമാക്കാൻ നിങ്ങളുടെ റിക്കവറി കോഡ് ഉപയോഗിക്കുക."
-  },
   "recoveryCodeTitle": {
     "message": "റിക്കവറി കോഡ്"
   },
@@ -4110,5 +4107,32 @@
   },
   "editShortcut": {
     "message": "Edit shortcut"
+  },
+  "archive": {
+    "message": "Archive"
+  },
+  "unarchive": {
+    "message": "Unarchive"
+  },
+  "itemsInArchive": {
+    "message": "Items in archive"
+  },
+  "noItemsInArchive": {
+    "message": "No items in archive"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+  },
+  "itemSentToArchive": {
+    "message": "Item sent to archive"
+  },
+  "itemRemovedFromArchive": {
+    "message": "Item removed from archive"
+  },
+  "archiveItem": {
+    "message": "Archive item"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
   }
 }

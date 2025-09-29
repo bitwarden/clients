@@ -2,6 +2,9 @@
   "allApplications": {
     "message": "Всички приложения"
   },
+  "activity": {
+    "message": "Дейност"
+  },
   "appLogoLabel": {
     "message": "Лого на Битуорден"
   },
@@ -56,8 +59,20 @@
   "createNewLoginItem": {
     "message": "Създаване на нов елемент за вписване"
   },
+  "criticalApplicationsActivityDescription": {
+    "message": "Когато отбележите някое приложение като важно, то ще се появи тук."
+  },
   "criticalApplicationsWithCount": {
     "message": "Важни приложения ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfCriticalApplications": {
+    "message": "$COUNT$ важни приложения",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -118,6 +133,18 @@
   },
   "atRiskMembers": {
     "message": "Членове в риск"
+  },
+  "membersAtRiskActivityDescription": {
+    "message": "Членове с права за редактиране на елементи в риск за важни приложения"
+  },
+  "membersAtRisk": {
+    "message": "$COUNT$ членове в риск",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "atRiskMembersWithCount": {
     "message": "Членове в риск ($COUNT$)",
@@ -734,32 +761,81 @@
   "viewItem": {
     "message": "Преглед на елемента"
   },
-  "newItemHeader": {
-    "message": "Ново $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderLogin": {
+    "message": "Нов елемент за вписване",
+    "description": "Header for new login item type"
   },
-  "editItemHeader": {
-    "message": "Редактиране на $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderCard": {
+    "message": "Нова карта",
+    "description": "Header for new card item type"
   },
-  "viewItemType": {
-    "message": "Преглед на $ITEMTYPE$",
-    "placeholders": {
-      "itemtype": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderIdentity": {
+    "message": "Нова самоличност",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "Нова бележка",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "Нов SSH ключ",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderTextSend": {
+    "message": "Ново текстово Изпращане",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "Ново файлово Изпращане",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderLogin": {
+    "message": "Редактиране на елемента за вписване",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Редактиране на картата",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Редактиране на самоличността",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Редактиране на бележката",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "Редактиране на SSH ключа",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Редактиране на текстовото Изпращане",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Редактиране на файловото Изпращане",
+    "description": "Header for edit file send"
+  },
+  "viewItemHeaderLogin": {
+    "message": "Преглед на елемента за вписване",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "Преглед на картата",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "Преглед на самоличността",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "Преглед на бележката",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "Преглед на SSH ключа",
+    "description": "Header for view SSH key item type"
   },
   "new": {
     "message": "Ново",
@@ -1509,9 +1585,6 @@
   },
   "selectTwoStepLoginMethod": {
     "message": "Изберете начин за двустепенно удостоверяване"
-  },
-  "recoveryCodeDesc": {
-    "message": "Ако сте загубили достъп до двустепенното удостоверяване, може да използвате код за възстановяване, за да изключите двустепенното удостоверяване в абонамента си."
   },
   "recoveryCodeTitle": {
     "message": "Код за възстановяване"
@@ -3507,7 +3580,7 @@
     "description": "Browser extension/addon"
   },
   "desktop": {
-    "message": "Десктоп",
+    "message": "Настолно приложение",
     "description": "Desktop app"
   },
   "webVault": {
@@ -5484,6 +5557,13 @@
   "personalOwnershipSubmitError": {
     "message": "Заради някоя политика за голяма организация не може да запазвате елементи в собствения си трезор. Променете собствеността да е на организация и изберете от наличните колекции."
   },
+  "desktopAutotypePolicy": {
+    "message": "Настройка по подразбиране за авт. попълване за работен плот"
+  },
+  "desktopAutotypePolicyDesc": {
+    "message": "Включете автоматичното попълване за работен плот по подразбиране за всички членове. Всеки от тях ще може поотделно да изключи автоматичното попълване ръчно от настолното приложение.",
+    "description": "This policy will enable Desktop Autotype by default for members on Unlock."
+  },
   "disableSend": {
     "message": "Без изпращане"
   },
@@ -6647,6 +6727,15 @@
   },
   "disabledSso": {
     "message": "Еднократното удостоверяване е изключено"
+  },
+  "emailMustLoginWithSso": {
+    "message": "$EMAIL$ трябва да се впише чрез еднократно удостоверяване",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
   },
   "enabledKeyConnector": {
     "message": "Конекторът за ключове е включен"
@@ -9666,6 +9755,9 @@
   "failedToSaveIntegration": {
     "message": "Интеграцията не беше запазена. Опитайте отново по-късно."
   },
+  "failedToDeleteIntegration": {
+    "message": "Интеграцията не беше изтрита. Опитайте отново по-късно."
+  },
   "deviceIdMissing": {
     "message": "Липсва идентификатор на устройството"
   },
@@ -9761,6 +9853,9 @@
   },
   "bearerToken": {
     "message": "Идентификатор „Bearer“"
+  },
+  "repositoryNameHint": {
+    "message": "Име на хранилището, към което да се праща"
   },
   "index": {
     "message": "Индекс"
@@ -10210,14 +10305,8 @@
   "learnMoreAboutApi": {
     "message": "Научете повече относно ППИ на Биуорден"
   },
-  "fileSend": {
-    "message": "Файлово изпращане"
-  },
   "fileSends": {
     "message": "Файлови изпращания"
-  },
-  "textSend": {
-    "message": "Текстово изпращане"
   },
   "textSends": {
     "message": "Текстови изпращания"
@@ -10932,6 +11021,18 @@
   "cannotCreateCollection": {
     "message": "Безплатните организации могат да имат не повече от 2 колекции. Надградете до платен план, ако искате да имате повече колекции."
   },
+  "searchArchive": {
+    "message": "Търсене в архива"
+  },
+  "archive": {
+    "message": "Архив"
+  },
+  "noItemsInArchive": {
+    "message": "Няма елементи в архива"
+  },
+  "archivedItemsDescription": {
+    "message": "Архивираните елементи ще се показват тук и ще бъдат изключени от общите резултати при търсене и от предложенията за автоматично попълване."
+  },
   "businessUnit": {
     "message": "Бизнес единица"
   },
@@ -11264,5 +11365,137 @@
   },
   "verifyNow": {
     "message": "Потвърдете сега."
+  },
+  "additionalStorageGB": {
+    "message": "Допълнително място в ГБ"
+  },
+  "additionalServiceAccountsV2": {
+    "message": "Допълнителни машинни акаунти"
+  },
+  "secretsManagerSeats": {
+    "message": "Брой потребители за Управлението на тайни"
+  },
+  "additionalStorage": {
+    "message": "Допълнително място"
+  },
+  "expandPurchaseDetails": {
+    "message": "Разгъване на подробностите за покупката"
+  },
+  "collapsePurchaseDetails": {
+    "message": "Свиване на подробностите за покупката"
+  },
+  "familiesMembership": {
+    "message": "Членство за семейства"
+  },
+  "planDescPremium": {
+    "message": "Пълна сигурност в Интернет"
+  },
+  "planDescFamiliesV2": {
+    "message": "Допълнителна защита за Вашето семейство"
+  },
+  "planDescFreeV2": {
+    "message": "Споделяне с още $COUNT$ потребител",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "planDescEnterpriseV2": {
+    "message": "Допълнителни възможности за всякакви организации"
+  },
+  "planNameCustom": {
+    "message": "Персонализиран план"
+  },
+  "planDescCustom": {
+    "message": "Битуорден работи за компании от всякакви размери, когато става въпрос за пароли и поверителна информация. Ако сте част от голяма компания, свържете се с отдела по продажби, за да попитате за цена."
+  },
+  "builtInAuthenticator": {
+    "message": "Вграден удостоверител"
+  },
+  "breachMonitoring": {
+    "message": "Наблюдение за пробиви"
+  },
+  "andMoreFeatures": {
+    "message": "И още!"
+  },
+  "secureFileStorage": {
+    "message": "Сигурно съхранение на файлове"
+  },
+  "familiesUnlimitedSharing": {
+    "message": "Неограничено споделяне – изберете кой и какво може да вижда"
+  },
+  "familiesUnlimitedCollections": {
+    "message": "Неограничен брой колекции за семейства"
+  },
+  "familiesSharedStorage": {
+    "message": "Споделено пространство за важните семейни данни"
+  },
+  "limitedUsersV2": {
+    "message": "До $COUNT$ членове",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "limitedCollectionsV2": {
+    "message": "До $COUNT$ колекции",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "alwaysFree": {
+    "message": "Винаги безплатно"
+  },
+  "twoSecretsIncluded": {
+    "message": "2 тайни"
+  },
+  "projectsIncludedV2": {
+    "message": "$COUNT$ проект(а)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "secureItemSharing": {
+    "message": "Сигурно споделяне на елементи"
+  },
+  "scimSupport": {
+    "message": "Поддръжка на SCIM"
+  },
+  "includedMachineAccountsV2": {
+    "message": "$COUNT$ машинни акаунти",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
+  },
+  "enterpriseSecurityPolicies": {
+    "message": "Политики за сигурност за големи компании"
+  },
+  "selfHostOption": {
+    "message": "Възможност за собствен хостинг"
+  },
+  "complimentaryFamiliesPlan": {
+    "message": "Допълнителен безплатен семеен план за всички потребители"
+  },
+  "strengthenCybersecurity": {
+    "message": "Затвърдете киберсигурността"
+  },
+  "boostProductivity": {
+    "message": "Увеличете продуктивността"
+  },
+  "seamlessIntegration": {
+    "message": "Безпроблемна интеграция"
   }
 }

@@ -960,9 +960,6 @@
   "insertU2f": {
     "message": "セキュリティキーを USB ポートに挿入し、ボタンがある場合はボタンをタッチしてください。"
   },
-  "recoveryCodeDesc": {
-    "message": "すべての2段階認証プロパイダにアクセスできなくなったときは、リカバリーコードを使用するとアカウントの2段階認証を無効化できます。"
-  },
   "recoveryCodeTitle": {
     "message": "リカバリーコード"
   },
@@ -4110,5 +4107,32 @@
   },
   "editShortcut": {
     "message": "Edit shortcut"
+  },
+  "archive": {
+    "message": "Archive"
+  },
+  "unarchive": {
+    "message": "Unarchive"
+  },
+  "itemsInArchive": {
+    "message": "Items in archive"
+  },
+  "noItemsInArchive": {
+    "message": "No items in archive"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+  },
+  "itemSentToArchive": {
+    "message": "Item sent to archive"
+  },
+  "itemRemovedFromArchive": {
+    "message": "Item removed from archive"
+  },
+  "archiveItem": {
+    "message": "Archive item"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
   }
 }

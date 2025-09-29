@@ -33,7 +33,6 @@ import {
   OrganizationConnectionConfigApis,
   OrganizationConnectionResponse,
 } from "../admin-console/models/response/organization-connection.response";
-import { OrganizationExportResponse } from "../admin-console/models/response/organization-export.response";
 import { OrganizationSponsorshipSyncStatusResponse } from "../admin-console/models/response/organization-sponsorship-sync-status.response";
 import { PreValidateSponsorshipResponse } from "../admin-console/models/response/pre-validate-sponsorship.response";
 import {
@@ -114,7 +113,6 @@ import { UpdateAvatarRequest } from "../models/request/update-avatar.request";
 import { UpdateDomainsRequest } from "../models/request/update-domains.request";
 import { VerifyDeleteRecoverRequest } from "../models/request/verify-delete-recover.request";
 import { VerifyEmailRequest } from "../models/request/verify-email.request";
-import { BreachAccountResponse } from "../models/response/breach-account.response";
 import { DomainsResponse } from "../models/response/domains.response";
 import { ErrorResponse } from "../models/response/error.response";
 import { EventResponse } from "../models/response/event.response";
@@ -1431,14 +1429,6 @@ export class ApiService implements ApiServiceAbstraction {
     return new UserKeyResponse(r);
   }
 
-  // HIBP APIs
-
-  async getHibpBreach(username: string): Promise<BreachAccountResponse[]> {
-    const encodedUsername = encodeURIComponent(username);
-    const r = await this.send("GET", "/hibp/breach?username=" + encodedUsername, null, true, true);
-    return r.map((a: any) => new BreachAccountResponse(a));
-  }
-
   // Misc
 
   async postBitPayInvoice(request: BitPayInvoiceRequest): Promise<string> {
@@ -1526,17 +1516,6 @@ export class ApiService implements ApiServiceAbstraction {
       const error = await this.handleError(response, false, true);
       return Promise.reject(error);
     }
-  }
-
-  async getOrganizationExport(organizationId: string): Promise<OrganizationExportResponse> {
-    const r = await this.send(
-      "GET",
-      "/organizations/" + organizationId + "/export",
-      null,
-      true,
-      true,
-    );
-    return new OrganizationExportResponse(r);
   }
 
   // Helpers
