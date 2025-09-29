@@ -4087,7 +4087,7 @@
     "message": "Bitwarden не проверяет местоположение ввода, поэтому, прежде чем использовать ярлык, убедитесь, что вы находитесь в нужном окне и поле."
   },
   "moreBreadcrumbs": {
-    "message": "More breadcrumbs",
+    "message": "Больше хлебных крошек",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   },
   "next": {

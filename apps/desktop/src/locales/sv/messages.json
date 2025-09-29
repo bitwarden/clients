@@ -4121,18 +4121,18 @@
     "message": "Inga objekt i arkivet"
   },
   "noItemsInArchiveDesc": {
-    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+    "message": "Arkiverade objekt kommer att visas här och kommer att uteslutas från allmänna sökresultat och förslag för autofyll."
   },
   "itemSentToArchive": {
     "message": "Objekt skickat till arkiv"
   },
   "itemRemovedFromArchive": {
-    "message": "Item removed from archive"
+    "message": "Objekt borttaget från arkiv"
   },
   "archiveItem": {
     "message": "Arkivera objekt"
   },
   "archiveItemConfirmDesc": {
-    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+    "message": "Arkiverade objekt är uteslutna från allmänna sökresultat och förslag för autofyll. Är du säker på att du vill arkivera detta objekt?"
   }
 }

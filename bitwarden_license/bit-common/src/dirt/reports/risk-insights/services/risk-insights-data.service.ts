@@ -1,5 +1,5 @@
 import { BehaviorSubject, firstValueFrom, Observable, of } from "rxjs";
-import { finalize, switchMap, withLatestFrom } from "rxjs/operators";
+import { finalize, switchMap, withLatestFrom, map } from "rxjs/operators";
 
 import {
   getOrganizationById,
@@ -14,6 +14,7 @@ import {
   AtRiskApplicationDetail,
   AtRiskMemberDetail,
   DrawerType,
+  DrawerDetails,
   ApplicationHealthReportDetail,
   ApplicationHealthReportDetailEnriched,
 } from "../models/report-models";
@@ -53,12 +54,17 @@ export class RiskInsightsDataService {
   private errorSubject = new BehaviorSubject<string | null>(null);
   error$ = this.errorSubject.asObservable();
 
-  openDrawer = false;
-  drawerInvokerId: string = "";
-  activeDrawerType: DrawerType = DrawerType.None;
-  atRiskMemberDetails: AtRiskMemberDetail[] = [];
-  appAtRiskMembers: AppAtRiskMembersDialogParams | null = null;
-  atRiskAppDetails: AtRiskApplicationDetail[] | null = null;
+  // ------------------------- Drawer Variables ----------------
+  // Drawer variables unified into a single BehaviorSubject
+  private drawerDetailsSubject = new BehaviorSubject<DrawerDetails>({
+    open: false,
+    invokerId: "",
+    activeDrawerType: DrawerType.None,
+    atRiskMemberDetails: [],
+    appAtRiskMembers: null,
+    atRiskAppDetails: null,
+  });
+  drawerDetails$ = this.drawerDetailsSubject.asObservable();
 
   constructor(
     private accountService: AccountService,
@@ -178,56 +184,96 @@ export class RiskInsightsDataService {
   }
 
   // ------------------------------- Drawer management methods -------------------------------
+  // ------------------------- Drawer functions -----------------------------
+
+  isActiveDrawerType$ = (drawerType: DrawerType): Observable<boolean> => {
+    return this.drawerDetails$.pipe(map((details) => details.activeDrawerType === drawerType));
+  };
   isActiveDrawerType = (drawerType: DrawerType): boolean => {
-    return this.activeDrawerType === drawerType;
+    return this.drawerDetailsSubject.value.activeDrawerType === drawerType;
+  };
+
+  isDrawerOpenForInvoker$ = (applicationName: string) => {
+    return this.drawerDetails$.pipe(map((details) => details.invokerId === applicationName));
+  };
+  isDrawerOpenForInvoker = (applicationName: string): boolean => {
+    return this.drawerDetailsSubject.value.invokerId === applicationName;
+  };
+
+  closeDrawer = (): void => {
+    this.drawerDetailsSubject.next({
+      open: false,
+      invokerId: "",
+      activeDrawerType: DrawerType.None,
+      atRiskMemberDetails: [],
+      appAtRiskMembers: null,
+      atRiskAppDetails: null,
+    });
   };
 
   setDrawerForOrgAtRiskMembers = (
     atRiskMemberDetails: AtRiskMemberDetail[],
     invokerId: string = "",
   ): void => {
-    this.resetDrawer(DrawerType.OrgAtRiskMembers);
-    this.activeDrawerType = DrawerType.OrgAtRiskMembers;
-    this.drawerInvokerId = invokerId;
-    this.atRiskMemberDetails = atRiskMemberDetails;
-    this.openDrawer = !this.openDrawer;
+    const { open, activeDrawerType, invokerId: currentInvokerId } = this.drawerDetailsSubject.value;
+    const shouldClose =
+      open && activeDrawerType === DrawerType.OrgAtRiskMembers && currentInvokerId === invokerId;
+
+    if (shouldClose) {
+      this.closeDrawer();
+    } else {
+      this.drawerDetailsSubject.next({
+        open: true,
+        invokerId,
+        activeDrawerType: DrawerType.OrgAtRiskMembers,
+        atRiskMemberDetails,
+        appAtRiskMembers: null,
+        atRiskAppDetails: null,
+      });
+    }
   };
 
   setDrawerForAppAtRiskMembers = (
     atRiskMembersDialogParams: AppAtRiskMembersDialogParams,
     invokerId: string = "",
   ): void => {
-    this.resetDrawer(DrawerType.None);
-    this.activeDrawerType = DrawerType.AppAtRiskMembers;
-    this.drawerInvokerId = invokerId;
-    this.appAtRiskMembers = atRiskMembersDialogParams;
-    this.openDrawer = !this.openDrawer;
+    const { open, activeDrawerType, invokerId: currentInvokerId } = this.drawerDetailsSubject.value;
+    const shouldClose =
+      open && activeDrawerType === DrawerType.AppAtRiskMembers && currentInvokerId === invokerId;
+
+    if (shouldClose) {
+      this.closeDrawer();
+    } else {
+      this.drawerDetailsSubject.next({
+        open: true,
+        invokerId,
+        activeDrawerType: DrawerType.AppAtRiskMembers,
+        atRiskMemberDetails: [],
+        appAtRiskMembers: atRiskMembersDialogParams,
+        atRiskAppDetails: null,
+      });
+    }
   };
 
   setDrawerForOrgAtRiskApps = (
     atRiskApps: AtRiskApplicationDetail[],
     invokerId: string = "",
   ): void => {
-    this.resetDrawer(DrawerType.OrgAtRiskApps);
-    this.activeDrawerType = DrawerType.OrgAtRiskApps;
-    this.drawerInvokerId = invokerId;
-    this.atRiskAppDetails = atRiskApps;
-    this.openDrawer = !this.openDrawer;
-  };
+    const { open, activeDrawerType, invokerId: currentInvokerId } = this.drawerDetailsSubject.value;
+    const shouldClose =
+      open && activeDrawerType === DrawerType.OrgAtRiskApps && currentInvokerId === invokerId;
 
-  closeDrawer = (): void => {
-    this.resetDrawer(DrawerType.None);
-  };
-
-  private resetDrawer = (drawerType: DrawerType): void => {
-    if (this.activeDrawerType !== drawerType) {
-      this.openDrawer = false;
+    if (shouldClose) {
+      this.closeDrawer();
+    } else {
+      this.drawerDetailsSubject.next({
+        open: true,
+        invokerId,
+        activeDrawerType: DrawerType.OrgAtRiskApps,
+        atRiskMemberDetails: [],
+        appAtRiskMembers: null,
+        atRiskAppDetails: atRiskApps,
+      });
     }
-
-    this.activeDrawerType = DrawerType.None;
-    this.atRiskMemberDetails = [];
-    this.appAtRiskMembers = null;
-    this.atRiskAppDetails = null;
-    this.drawerInvokerId = "";
   };
 }
