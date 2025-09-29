@@ -81,7 +81,7 @@ export default class TabsBackground {
    */
   private handleTabOnUpdated = async (
     tabId: number,
-    changeInfo: chrome.tabs.TabChangeInfo,
+    changeInfo: chrome.tabs.OnUpdatedInfo,
     tab: chrome.tabs.Tab,
   ) => {
     if (this.focusedWindowId > 0 && tab.windowId !== this.focusedWindowId) {

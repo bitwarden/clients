@@ -67,41 +67,42 @@ export class CriticalApplicationsComponent implements OnInit {
       "organizationId",
     ) as OrganizationId;
     const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-    this.criticalAppsService.setOrganizationId(this.organizationId as OrganizationId, userId);
-    // this.criticalAppsService.setOrganizationId(this.organizationId as OrganizationId);
-    combineLatest([
-      this.dataService.applications$,
-      this.criticalAppsService.getAppsListForOrg(this.organizationId as OrganizationId),
-    ])
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        map(([applications, criticalApps]) => {
-          const criticalUrls = criticalApps.map((ca) => ca.uri);
-          const data = applications?.map((app) => ({
-            ...app,
-            isMarkedAsCritical: criticalUrls.includes(app.applicationName),
-          })) as LEGACY_ApplicationHealthReportDetailWithCriticalFlag[];
-          return data?.filter((app) => app.isMarkedAsCritical);
-        }),
-        switchMap(async (data) => {
-          if (data) {
-            const dataWithCiphers = await this.reportService.identifyCiphers(
-              data,
-              this.organizationId,
-            );
-            return dataWithCiphers;
+    this.criticalAppsService.loadOrganizationContext(this.organizationId as OrganizationId, userId);
+
+    if (this.organizationId) {
+      combineLatest([
+        this.dataService.applications$,
+        this.criticalAppsService.getAppsListForOrg(this.organizationId as OrganizationId),
+      ])
+        .pipe(
+          takeUntilDestroyed(this.destroyRef),
+          map(([applications, criticalApps]) => {
+            const criticalUrls = criticalApps.map((ca) => ca.uri);
+            const data = applications?.map((app) => ({
+              ...app,
+              isMarkedAsCritical: criticalUrls.includes(app.applicationName),
+            })) as LEGACY_ApplicationHealthReportDetailWithCriticalFlag[];
+            return data?.filter((app) => app.isMarkedAsCritical);
+          }),
+          switchMap(async (data) => {
+            if (data) {
+              const dataWithCiphers = await this.reportService.identifyCiphers(
+                data,
+                this.organizationId,
+              );
+              return dataWithCiphers;
+            }
+            return null;
+          }),
+        )
+        .subscribe((applications) => {
+          if (applications) {
+            this.dataSource.data = applications;
+            this.applicationSummary = this.reportService.generateApplicationsSummary(applications);
+            this.enableRequestPasswordChange = this.applicationSummary.totalAtRiskMemberCount > 0;
           }
-          return null;
-        }),
-      )
-      .subscribe((applications) => {
-        if (applications) {
-          this.dataSource.data = applications;
-          this.applicationSummary = this.reportService.generateApplicationsSummary(applications);
-          this.enableRequestPasswordChange = this.applicationSummary.totalAtRiskMemberCount > 0;
-          this.allActivitiesService.setCriticalAppsReportSummary(this.applicationSummary);
-        }
-      });
+        });
+    }
   }
 
   goToAllAppsTab = async () => {
@@ -201,12 +202,5 @@ export class CriticalApplicationsComponent implements OnInit {
   showOrgAtRiskApps = async (invokerId: string) => {
     const data = this.reportService.generateAtRiskApplicationList(this.dataSource.data);
     this.dataService.setDrawerForOrgAtRiskApps(data, invokerId);
-  };
-
-  trackByFunction(_: number, item: LEGACY_ApplicationHealthReportDetailWithCriticalFlag) {
-    return item.applicationName;
-  }
-  isDrawerOpenForTableRow = (applicationName: string) => {
-    return this.dataService.drawerInvokerId === applicationName;
   };
 }

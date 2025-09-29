@@ -6,6 +6,8 @@ import {
   AllActivitiesService,
   CriticalAppsApiService,
   MemberCipherDetailsApiService,
+  PasswordHealthService,
+  RiskInsightsApiService,
   RiskInsightsDataService,
   RiskInsightsReportService,
   SecurityTasksApiService,
@@ -13,6 +15,8 @@ import {
 import { RiskInsightsEncryptionService } from "@bitwarden/bit-common/dirt/reports/risk-insights/services/risk-insights-encryption.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { AccountService as AccountServiceAbstraction } from "@bitwarden/common/auth/abstractions/account.service";
 import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength/password-strength.service.abstraction";
@@ -30,18 +34,32 @@ import { RiskInsightsComponent } from "./risk-insights.component";
       deps: [ApiService],
     },
     {
-      provide: RiskInsightsReportService,
-      deps: [
-        PasswordStrengthServiceAbstraction,
-        AuditService,
-        CipherService,
-        MemberCipherDetailsApiService,
-      ],
+      provide: PasswordHealthService,
+      deps: [PasswordStrengthServiceAbstraction, AuditService],
     },
     {
-      provide: RiskInsightsDataService,
-      deps: [RiskInsightsReportService],
+      provide: RiskInsightsApiService,
+      deps: [ApiService],
     },
+    {
+      provide: RiskInsightsReportService,
+      deps: [
+        CipherService,
+        MemberCipherDetailsApiService,
+        RiskInsightsApiService,
+        RiskInsightsEncryptionService,
+        PasswordHealthService,
+      ],
+    },
+    safeProvider({
+      provide: RiskInsightsDataService,
+      deps: [
+        AccountServiceAbstraction,
+        CriticalAppsService,
+        OrganizationService,
+        RiskInsightsReportService,
+      ],
+    }),
     {
       provide: RiskInsightsEncryptionService,
       useClass: RiskInsightsEncryptionService,
