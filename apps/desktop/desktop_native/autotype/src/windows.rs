@@ -1,7 +1,7 @@
 use std::{ffi::OsString, os::windows::ffi::OsStringExt};
 
 use anyhow::{anyhow, Result};
-use tracing::{debug, error};
+use tracing::{debug, error, warn};
 use windows::Win32::{
     Foundation::{GetLastError, SetLastError, HWND, WIN32_ERROR},
     UI::{
@@ -13,10 +13,10 @@ use windows::Win32::{
     },
 };
 
-const WIN_SUCCESS: WIN32_ERROR = WIN32_ERROR(0);
+const WIN32_SUCCESS: WIN32_ERROR = WIN32_ERROR(0);
 
 fn clear_last_error() {
-    debug!("Clearing last error with SetLastError");
+    debug!("Clearing last error with SetLastError.");
     unsafe {
         SetLastError(WIN32_ERROR(0));
     }
@@ -28,12 +28,25 @@ fn get_last_error() -> WIN32_ERROR {
     last_err
 }
 
+// The handle should be validated before any unsafe calls referencing it.
+fn validate_window_handle(handle: &HWND) -> Result<()> {
+    if handle.is_invalid() {
+        error!("Window handle is invalid.");
+        return Err(anyhow!("Window handle is invalid."));
+    }
+    Ok(())
+}
+
 // ---------- Window title --------------
 
 /// Gets the title bar string for the foreground window.
 pub fn get_foreground_window_title() -> Result<String> {
     // https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getforegroundwindow
     let window_handle = unsafe { GetForegroundWindow() };
+
+    debug!("GetForegroundWindow() called.");
+
+    validate_window_handle(&window_handle)?;
 
     get_window_title(&window_handle)
 }
@@ -45,6 +58,8 @@ fn get_window_title_length(window_handle: &HWND) -> Result<usize> {
     // GetWindowTextLengthW does not itself clear the last error so we must do it ourselves.
     clear_last_error();
 
+    validate_window_handle(&window_handle)?;
+
     let length = unsafe { GetWindowTextLengthW(*window_handle) };
 
     let length = usize::try_from(length)?;
@@ -54,14 +69,11 @@ fn get_window_title_length(window_handle: &HWND) -> Result<usize> {
     if length == 0 {
         // attempt to retreive win32 error
         let last_err = get_last_error();
-        if last_err != WIN_SUCCESS {
+        if last_err != WIN32_SUCCESS {
             let last_err = last_err.to_hresult().message();
-            error!(last_err, "Error getting window text length");
+            error!(last_err, "Error getting window text length.");
             return Err(anyhow!("Error getting window text length: {last_err}"));
         }
-        // still return error because we won't be able to get window title string
-        error!("Window text length is zero");
-        return Err(anyhow!("Error getting window text length"));
     }
 
     Ok(length)
@@ -73,7 +85,16 @@ fn get_window_title_length(window_handle: &HWND) -> Result<usize> {
 fn get_window_title(window_handle: &HWND) -> Result<String> {
     let window_title_length = get_window_title_length(window_handle)?;
 
+    // This isn't considered an error by the windows API, but in practice it means we can't
+    // match against the title so we'll stop here.
+    if window_title_length == 0 {
+        warn!("Window title length is zero.");
+        return Ok(String::from(""));
+    }
+
     let mut buffer: Vec<u16> = vec![0; window_title_length + 1]; // add extra space for the null character
+
+    validate_window_handle(&window_handle)?;
 
     let len_written = unsafe { GetWindowTextW(*window_handle, &mut buffer) };
 
@@ -82,16 +103,14 @@ fn get_window_title(window_handle: &HWND) -> Result<String> {
     if len_written == 0 {
         // attempt to retreive win32 error
         let last_err = get_last_error();
-        if last_err != WIN_SUCCESS {
+        if last_err != WIN32_SUCCESS {
             let last_err = last_err.to_hresult().message();
-            error!(last_err, "Error retrieving window title");
+            error!(last_err, "Error retrieving window title.");
             return Err(anyhow!("Error retrieving window title. {last_err}"));
         }
-        // still return error because we won't be able to get window title string
-        error!(window_title_length, "No window title retrieved, read 0.");
-        return Err(anyhow!(
-            "No window title length, read 0 but expected {window_title_length}"
-        ));
+        // in practice, we should not get to the below code, since we asserted the len > 0
+        // above. but it is an extra protection in case the windows API didn't set an error.
+        warn!(window_title_length, "No window title retrieved, read 0.");
     }
 
     let window_title = OsString::from_wide(&buffer);
@@ -110,9 +129,9 @@ fn get_window_title(window_handle: &HWND) -> Result<String> {
 pub fn type_input(input: Vec<u16>, keyboard_shortcut: Vec<String>) -> Result<()> {
     const TAB_KEY: u8 = 9;
 
-    // the length of this vec is always (2x length of input chars + shortcut keys to release)
+    // the length of this vec is always shortcut keys to release + (2x length of input chars)
     let mut keyboard_inputs: Vec<INPUT> =
-        Vec::with_capacity((input.len() * 2) + keyboard_shortcut.len());
+        Vec::with_capacity(keyboard_shortcut.len() + (input.len() * 2));
 
     debug!(?keyboard_shortcut, "Converting keyboard shortcut to input.");
 
