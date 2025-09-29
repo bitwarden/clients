@@ -6,10 +6,7 @@ import {
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { DevicesServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices/devices.service.abstraction";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import {
   StateProvider,
@@ -70,9 +67,7 @@ export class VaultBannersService {
     private kdfConfigService: KdfConfigService,
     private syncService: SyncService,
     private userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
-    private devicesService: DevicesServiceAbstraction,
     private authRequestService: AuthRequestServiceAbstraction,
-    private configService: ConfigService,
   ) {}
 
   /** Returns true when the pending auth request banner should be shown */
@@ -80,24 +75,12 @@ export class VaultBannersService {
     const alreadyDismissed = (await this.getBannerDismissedState(userId)).includes(
       VisibleVaultBanner.PendingAuthRequest,
     );
-    // TODO: PM-20439 remove feature flag
-    const browserLoginApprovalFeatureFlag = await firstValueFrom(
-      this.configService.getFeatureFlag$(FeatureFlag.PM14938_BrowserExtensionLoginApproval),
+
+    const pendingAuthRequests = await firstValueFrom(
+      this.authRequestService.getPendingAuthRequests$(),
     );
-    if (browserLoginApprovalFeatureFlag === true) {
-      const pendingAuthRequests = await firstValueFrom(
-        this.authRequestService.getPendingAuthRequests$(),
-      );
 
-      return pendingAuthRequests.length > 0 && !alreadyDismissed;
-    } else {
-      const devices = await firstValueFrom(this.devicesService.getDevices$());
-      const hasPendingRequest = devices.some(
-        (device) => device.response?.devicePendingAuthRequest != null,
-      );
-
-      return hasPendingRequest && !alreadyDismissed;
-    }
+    return pendingAuthRequests.length > 0 && !alreadyDismissed;
   }
 
   shouldShowPremiumBanner$(userId: UserId): Observable<boolean> {
