@@ -3580,7 +3580,7 @@
     "description": "Browser extension/addon"
   },
   "desktop": {
-    "message": "Десктоп",
+    "message": "Настолно приложение",
     "description": "Desktop app"
   },
   "webVault": {
@@ -5558,10 +5558,10 @@
     "message": "Заради някоя политика за голяма организация не може да запазвате елементи в собствения си трезор. Променете собствеността да е на организация и изберете от наличните колекции."
   },
   "desktopAutotypePolicy": {
-    "message": "Desktop Autotype Default Setting"
+    "message": "Настройка по подразбиране за авт. попълване за работен плот"
   },
   "desktopAutotypePolicyDesc": {
-    "message": "Turn Desktop Autotype ON by default for members. Members can turn Autotype off manually in the Desktop client.",
+    "message": "Включете автоматичното попълване за работен плот по подразбиране за всички членове. Всеки от тях ще може поотделно да изключи автоматичното попълване ръчно от настолното приложение.",
     "description": "This policy will enable Desktop Autotype by default for members on Unlock."
   },
   "disableSend": {

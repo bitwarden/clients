@@ -14,10 +14,7 @@ import {
   LEGACY_ApplicationHealthReportDetailWithCriticalFlag,
   LEGACY_ApplicationHealthReportDetailWithCriticalFlagAndCipher,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/password-health";
-import {
-  ApplicationHealthReportDetail,
-  OrganizationReportSummary,
-} from "@bitwarden/bit-common/dirt/reports/risk-insights/models/report-models";
+import { OrganizationReportSummary } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/report-models";
 import { RiskInsightsEncryptionService } from "@bitwarden/bit-common/dirt/reports/risk-insights/services/risk-insights-encryption.service";
 import {
   getOrganizationById,
@@ -193,10 +190,6 @@ export class AllApplicationsComponent implements OnInit {
     }
   };
 
-  trackByFunction(_: number, item: ApplicationHealthReportDetail) {
-    return item.applicationName;
-  }
-
   showAppAtRiskMembers = async (applicationName: string) => {
     const info = {
       members:
@@ -226,9 +219,9 @@ export class AllApplicationsComponent implements OnInit {
     }
   };
 
-  getSelectedUrls = () => Array.from(this.selectedUrls);
-
   isDrawerOpenForTableRow = (applicationName: string): boolean => {
-    return this.dataService.drawerInvokerId === applicationName;
+    // Note: This function will be replaced by PR #16523 with openApplication binding
+    // Using private access to BehaviorSubject value for backward compatibility
+    return (this.dataService as any).drawerDetailsSubject?.value?.invokerId === applicationName;
   };
 }
