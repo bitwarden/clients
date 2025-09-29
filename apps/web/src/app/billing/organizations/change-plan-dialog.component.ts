@@ -56,6 +56,7 @@ import {
   getBillingAddressFromForm,
 } from "@bitwarden/web-vault/app/billing/payment/components";
 import {
+  BillingAddress,
   getCardBrandIcon,
   MaskedPaymentMethod,
 } from "@bitwarden/web-vault/app/billing/payment/types";
@@ -195,6 +196,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   secretsManagerTotal: number;
 
   paymentMethod: MaskedPaymentMethod | null;
+  billingAddress: BillingAddress | null;
 
   private destroy$ = new Subject<void>();
 
@@ -238,10 +240,14 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
       );
       if (this.sub?.subscription?.status !== "canceled") {
         try {
-          this.paymentMethod = await this.subscriberBillingClient.getPaymentMethod({
-            type: "organization",
-            data: this.organization,
-          });
+          const subscriber: BitwardenSubscriber = { type: "organization", data: this.organization };
+          const [paymentMethod, billingAddress] = await Promise.all([
+            this.subscriberBillingClient.getPaymentMethod(subscriber),
+            this.subscriberBillingClient.getBillingAddress(subscriber),
+          ]);
+
+          this.paymentMethod = paymentMethod;
+          this.billingAddress = billingAddress;
         } catch (error) {
           this.billingNotificationService.handleError(error);
         }
@@ -985,7 +991,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   }
 
   private async refreshSalesTax(): Promise<void> {
-    if (this.formGroup.controls.billingAddress.invalid) {
+    if (this.formGroup.controls.billingAddress.invalid && !this.billingAddress) {
       return;
     }
 
@@ -1004,7 +1010,9 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
       }
     };
 
-    const billingAddress = getBillingAddressFromForm(this.formGroup.controls.billingAddress);
+    const billingAddress = this.formGroup.controls.billingAddress.valid
+      ? getBillingAddressFromForm(this.formGroup.controls.billingAddress)
+      : this.billingAddress;
 
     const taxAmounts = await this.taxClient.previewTaxForOrganizationSubscriptionPlanChange(
       this.organizationId,
