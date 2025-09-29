@@ -49,6 +49,7 @@ export class CipherView implements View, InitializerMetadata {
   revisionDate: Date;
   creationDate: Date;
   deletedDate?: Date;
+  archivedDate?: Date;
   reprompt: CipherRepromptType = CipherRepromptType.None;
   // We need a copy of the encrypted key so we can pass it to
   // the SdkCipherView during encryption
@@ -79,6 +80,7 @@ export class CipherView implements View, InitializerMetadata {
     this.revisionDate = c.revisionDate;
     this.creationDate = c.creationDate;
     this.deletedDate = c.deletedDate;
+    this.archivedDate = c.archivedDate;
     // Old locally stored ciphers might have reprompt == null. If so set it to None.
     this.reprompt = c.reprompt ?? CipherRepromptType.None;
     this.key = c.key;
@@ -143,6 +145,10 @@ export class CipherView implements View, InitializerMetadata {
     return this.deletedDate != null;
   }
 
+  get isArchived(): boolean {
+    return this.archivedDate != null;
+  }
+
   get linkedFieldOptions() {
     return this.item?.linkedFieldOptions;
   }
@@ -198,6 +204,7 @@ export class CipherView implements View, InitializerMetadata {
       view.revisionDate = new Date(obj.revisionDate);
     }
     view.deletedDate = obj.deletedDate == null ? undefined : new Date(obj.deletedDate);
+    view.archivedDate = obj.archivedDate == null ? undefined : new Date(obj.archivedDate);
     view.attachments = obj.attachments?.map((a: any) => AttachmentView.fromJSON(a)) ?? [];
     view.fields = obj.fields?.map((f: any) => FieldView.fromJSON(f)) ?? [];
     view.passwordHistory =
@@ -271,6 +278,7 @@ export class CipherView implements View, InitializerMetadata {
     cipherView.revisionDate = new Date(obj.revisionDate);
     cipherView.creationDate = new Date(obj.creationDate);
     cipherView.deletedDate = obj.deletedDate == null ? undefined : new Date(obj.deletedDate);
+    cipherView.archivedDate = obj.archivedDate == null ? undefined : new Date(obj.archivedDate);
     cipherView.reprompt = obj.reprompt ?? CipherRepromptType.None;
     cipherView.key = obj.key ? EncString.fromJSON(obj.key) : undefined;
 
@@ -330,6 +338,7 @@ export class CipherView implements View, InitializerMetadata {
       revisionDate: (this.revisionDate ?? new Date()).toISOString(),
       creationDate: (this.creationDate ?? new Date()).toISOString(),
       deletedDate: this.deletedDate?.toISOString(),
+      archivedDate: this.archivedDate?.toISOString(),
       reprompt: this.reprompt ?? CipherRepromptType.None,
       key: this.key?.toSdk(),
       // Cipher type specific properties are set in the switch statement below

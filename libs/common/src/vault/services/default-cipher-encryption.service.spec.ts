@@ -48,7 +48,8 @@ const cipherData: CipherData = {
   name: "EncryptedString",
   notes: "EncryptedString",
   creationDate: "2022-01-01T12:00:00.000Z",
-  deletedDate: null,
+  deletedDate: undefined,
+  archivedDate: undefined,
   permissions: new CipherPermissionsApi(),
   key: "EncKey",
   reprompt: CipherRepromptType.None,
@@ -98,6 +99,7 @@ describe("DefaultCipherEncryptionService", () => {
         set_fido2_credentials: jest.fn(),
         decrypt: jest.fn(),
         decrypt_list: jest.fn(),
+        decrypt_list_with_failures: jest.fn(),
         decrypt_fido2_credentials: jest.fn(),
         move_to_organization: jest.fn(),
       }),
@@ -514,36 +516,40 @@ describe("DefaultCipherEncryptionService", () => {
     });
   });
 
-  describe("decryptMany", () => {
-    it("should decrypt multiple ciphers to list views", async () => {
-      const ciphers = [new Cipher(cipherData), new Cipher(cipherData)];
-
-      const expectedListViews = [
-        { id: "list1" as any, name: "List 1" } as CipherListView,
-        { id: "list2" as any, name: "List 2" } as CipherListView,
+  describe("decryptManyWithFailures", () => {
+    const cipher1_id = "11111111-1111-1111-1111-111111111111";
+    const cipher2_id = "22222222-2222-2222-2222-222222222222";
+    it("should decrypt multiple ciphers and return successes and failures", async () => {
+      const ciphers = [
+        new Cipher({ ...cipherData, id: cipher1_id as CipherId }),
+        new Cipher({ ...cipherData, id: cipher2_id as CipherId }),
       ];
 
-      mockSdkClient.vault().ciphers().decrypt_list.mockReturnValue(expectedListViews);
+      const successCipherList = {
+        id: cipher1_id,
+        name: "Decrypted Cipher 1",
+      } as unknown as CipherListView;
+      const failedCipher = { id: cipher2_id, name: "Failed Cipher" } as unknown as SdkCipher;
 
-      const result = await cipherEncryptionService.decryptMany(ciphers, userId);
+      const expectedFailedCiphers = [Cipher.fromSdkCipher(failedCipher)];
 
-      expect(result).toEqual(expectedListViews);
-      expect(mockSdkClient.vault().ciphers().decrypt_list).toHaveBeenCalledWith(
+      const mockResult = {
+        successes: [successCipherList],
+        failures: [failedCipher],
+      };
+
+      mockSdkClient.vault().ciphers().decrypt_list_with_failures.mockReturnValue(mockResult);
+
+      const result = await cipherEncryptionService.decryptManyWithFailures(ciphers, userId);
+
+      expect(result).toEqual([[successCipherList], expectedFailedCiphers]);
+      expect(mockSdkClient.vault().ciphers().decrypt_list_with_failures).toHaveBeenCalledWith(
         expect.arrayContaining([
-          expect.objectContaining({ id: cipherData.id }),
-          expect.objectContaining({ id: cipherData.id }),
+          expect.objectContaining({ id: cipher1_id }),
+          expect.objectContaining({ id: cipher2_id }),
         ]),
       );
-    });
-
-    it("should throw EmptyError when SDK is not available", async () => {
-      sdkService.userClient$ = jest.fn().mockReturnValue(of(null)) as any;
-
-      await expect(cipherEncryptionService.decryptMany([cipherObj], userId)).rejects.toThrow();
-
-      expect(logService.error).toHaveBeenCalledWith(
-        expect.stringContaining("Failed to decrypt cipher list"),
-      );
+      expect(Cipher.fromSdkCipher).toHaveBeenCalledWith(failedCipher);
     });
   });
 

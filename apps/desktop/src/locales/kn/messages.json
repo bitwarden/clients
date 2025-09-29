@@ -960,9 +960,6 @@
   "insertU2f": {
     "message": "ನಿಮ್ಮ ಕಂಪ್ಯೂಟರ್‌ನ ಯುಎಸ್‌ಬಿ ಪೋರ್ಟ್ಗೆ ನಿಮ್ಮ ಭದ್ರತಾ ಕೀಲಿಯನ್ನು ಸೇರಿಸಿ. ಅದು ಬಟನ್ ಹೊಂದಿದ್ದರೆ, ಅದನ್ನು ಸ್ಪರ್ಶಿಸಿ."
   },
-  "recoveryCodeDesc": {
-    "message": "ನಿಮ್ಮ ಎಲ್ಲಾ ಎರಡು ಅಂಶ ಪೂರೈಕೆದಾರರಿಗೆ ಪ್ರವೇಶವನ್ನು ಕಳೆದುಕೊಂಡಿದ್ದೀರಾ? ನಿಮ್ಮ ಖಾತೆಯಿಂದ ಎಲ್ಲಾ ಎರಡು ಅಂಶ ಪೂರೈಕೆದಾರರನ್ನು ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಲು ನಿಮ್ಮ ಮರುಪಡೆಯುವಿಕೆ ಕೋಡ್ ಬಳಸಿ."
-  },
   "recoveryCodeTitle": {
     "message": "ಮರುಪಡೆಯುವಿಕೆ ಕೋಡ್"
   },
@@ -4110,5 +4107,32 @@
   },
   "editShortcut": {
     "message": "Edit shortcut"
+  },
+  "archive": {
+    "message": "Archive"
+  },
+  "unarchive": {
+    "message": "Unarchive"
+  },
+  "itemsInArchive": {
+    "message": "Items in archive"
+  },
+  "noItemsInArchive": {
+    "message": "No items in archive"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+  },
+  "itemSentToArchive": {
+    "message": "Item sent to archive"
+  },
+  "itemRemovedFromArchive": {
+    "message": "Item removed from archive"
+  },
+  "archiveItem": {
+    "message": "Archive item"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
   }
 }

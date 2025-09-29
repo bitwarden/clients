@@ -960,9 +960,6 @@
   "insertU2f": {
     "message": "Ipasok ang iyong key ng seguridad sa USB port ng iyong computer. Kung may butones ito, hawakan ito."
   },
-  "recoveryCodeDesc": {
-    "message": "Nawala ang access sa lahat ng iyong dalawang-factor provider? Gamitin ang iyong recovery code para patayin ang lahat ng dalawang-factor provider sa iyong account."
-  },
   "recoveryCodeTitle": {
     "message": "Recovery code"
   },
@@ -4110,5 +4107,32 @@
   },
   "editShortcut": {
     "message": "Edit shortcut"
+  },
+  "archive": {
+    "message": "Archive"
+  },
+  "unarchive": {
+    "message": "Unarchive"
+  },
+  "itemsInArchive": {
+    "message": "Items in archive"
+  },
+  "noItemsInArchive": {
+    "message": "No items in archive"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+  },
+  "itemSentToArchive": {
+    "message": "Item sent to archive"
+  },
+  "itemRemovedFromArchive": {
+    "message": "Item removed from archive"
+  },
+  "archiveItem": {
+    "message": "Archive item"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
   }
 }

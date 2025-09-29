@@ -1,6 +1,7 @@
 use std::ffi::OsString;
 use std::os::windows::ffi::OsStringExt;
 
+use tracing::debug;
 use windows::Win32::Foundation::{GetLastError, HWND};
 use windows::Win32::UI::Input::KeyboardAndMouse::{
     SendInput, INPUT, INPUT_0, INPUT_KEYBOARD, KEYBDINPUT, KEYEVENTF_KEYUP, KEYEVENTF_UNICODE,
@@ -24,25 +25,29 @@ pub fn get_foreground_window_title() -> std::result::Result<String, ()> {
 
 /// Attempts to type the input text wherever the user's cursor is.
 ///
-/// `input` must be an array of utf-16 encoded characters to insert.
+/// `input` must be a vector of utf-16 encoded characters to insert.
+/// `keyboard_shortcut` must be a vector of Strings, where valid shortcut keys: Control, Alt, Super, Shift, letters a - Z
 ///
 /// https://learn.microsoft.com/en-in/windows/win32/api/winuser/nf-winuser-sendinput
-pub fn type_input(input: Vec<u16>) -> Result<(), ()> {
-    const TAB_KEY: u16 = 9;
+pub fn type_input(input: Vec<u16>, keyboard_shortcut: Vec<String>) -> Result<(), ()> {
+    const TAB_KEY: u8 = 9;
+
     let mut keyboard_inputs: Vec<INPUT> = Vec::new();
 
-    // Release hotkeys
-    keyboard_inputs.push(build_virtual_key_input(InputKeyPress::Up, 0x12)); // alt
-    keyboard_inputs.push(build_virtual_key_input(InputKeyPress::Up, 0x11)); // ctrl
-    keyboard_inputs.push(build_unicode_input(InputKeyPress::Up, 105)); // i
+    // Add key "up" inputs for the shortcut
+    for key in keyboard_shortcut {
+        keyboard_inputs.push(convert_shortcut_key_to_up_input(key)?);
+    }
 
+    // Add key "down" and "up" inputs for the input
+    // (currently in this form: {username}/t{password})
     for i in input {
-        let next_down_input = if i == TAB_KEY {
+        let next_down_input = if i == TAB_KEY.into() {
             build_virtual_key_input(InputKeyPress::Down, i as u8)
         } else {
             build_unicode_input(InputKeyPress::Down, i)
         };
-        let next_up_input = if i == TAB_KEY {
+        let next_up_input = if i == TAB_KEY.into() {
             build_virtual_key_input(InputKeyPress::Up, i as u8)
         } else {
             build_unicode_input(InputKeyPress::Up, i)
@@ -53,6 +58,51 @@ pub fn type_input(input: Vec<u16>) -> Result<(), ()> {
     }
 
     send_input(keyboard_inputs)
+}
+
+/// Converts a valid shortcut key to an "up" keyboard input.
+///
+/// `input` must be a valid shortcut key: Control, Alt, Super, Shift, letters [a-z][A-Z]
+fn convert_shortcut_key_to_up_input(key: String) -> Result<INPUT, ()> {
+    const SHIFT_KEY: u8 = 0x10;
+    const SHIFT_KEY_STR: &str = "Shift";
+    const CONTROL_KEY: u8 = 0x11;
+    const CONTROL_KEY_STR: &str = "Control";
+    const ALT_KEY: u8 = 0x12;
+    const ALT_KEY_STR: &str = "Alt";
+    const LEFT_WINDOWS_KEY: u8 = 0x5B;
+    const LEFT_WINDOWS_KEY_STR: &str = "Super";
+
+    Ok(match key.as_str() {
+        SHIFT_KEY_STR => build_virtual_key_input(InputKeyPress::Up, SHIFT_KEY),
+        CONTROL_KEY_STR => build_virtual_key_input(InputKeyPress::Up, CONTROL_KEY),
+        ALT_KEY_STR => build_virtual_key_input(InputKeyPress::Up, ALT_KEY),
+        LEFT_WINDOWS_KEY_STR => build_virtual_key_input(InputKeyPress::Up, LEFT_WINDOWS_KEY),
+        _ => build_unicode_input(InputKeyPress::Up, get_alphabetic_hotkey(key)?),
+    })
+}
+
+/// Given a letter that is a String, get the utf16 encoded
+/// decimal version of the letter as long as it meets the
+/// [a-z][A-Z] restriction.
+///
+/// Because we only accept [a-z][A-Z], the decimal u16
+/// cast of the letter is safe because the unicode code point
+/// of these characters fits in a u16.
+fn get_alphabetic_hotkey(letter: String) -> Result<u16, ()> {
+    if letter.len() != 1 {
+        return Err(());
+    }
+
+    let c = letter.chars().next().expect("letter is size 1");
+
+    // is_ascii_alphabetic() checks for:
+    // U+0041 `A` ..= U+005A `Z`, or  U+0061 `a` ..= U+007A `z`
+    if !c.is_ascii_alphabetic() {
+        return Err(());
+    }
+
+    Ok(c as u16)
 }
 
 /// Gets the foreground window handle.
@@ -187,7 +237,7 @@ fn send_input(inputs: Vec<INPUT>) -> Result<(), ()> {
     let insert_count = unsafe { SendInput(&inputs, std::mem::size_of::<INPUT>() as i32) };
 
     let e = unsafe { GetLastError().to_hresult().message() };
-    println!("type_input() called, GetLastError() is: {:?}", e);
+    debug!("type_input() called, GetLastError() is: {:?}", e);
 
     if insert_count == 0 {
         return Err(()); // input was blocked by another thread
@@ -196,4 +246,33 @@ fn send_input(inputs: Vec<INPUT>) -> Result<(), ()> {
     }
 
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn get_alphabetic_hot_key_happy() {
+        for c in ('a'..='z').chain('A'..='Z') {
+            let letter = c.to_string();
+            println!("{}", letter);
+            let converted = get_alphabetic_hotkey(letter).unwrap();
+            assert_eq!(converted, c as u16);
+        }
+    }
+
+    #[test]
+    #[should_panic = ""]
+    fn get_alphabetic_hot_key_fail_not_single_char() {
+        let letter = String::from("foo");
+        get_alphabetic_hotkey(letter).unwrap();
+    }
+
+    #[test]
+    #[should_panic = ""]
+    fn get_alphabetic_hot_key_fail_not_alphabetic() {
+        let letter = String::from("🚀");
+        get_alphabetic_hotkey(letter).unwrap();
+    }
 }

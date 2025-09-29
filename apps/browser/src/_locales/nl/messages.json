@@ -550,6 +550,33 @@
   "resetSearch": {
     "message": "Zoekopdracht resetten"
   },
+  "archive": {
+    "message": "Archiveren"
+  },
+  "unarchive": {
+    "message": "Dearchiveren"
+  },
+  "itemsInArchive": {
+    "message": "Items in archief"
+  },
+  "noItemsInArchive": {
+    "message": "Geen items in archief"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Gearchiveerde items verschijnen hier en worden uitgesloten van algemene zoekresultaten en automatisch invulsuggesties."
+  },
+  "itemSentToArchive": {
+    "message": "Item naar archief verzonden"
+  },
+  "itemRemovedFromArchive": {
+    "message": "Item verwijderd uit archief"
+  },
+  "archiveItem": {
+    "message": "Item archiveren"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Gearchiveerde items worden uitgesloten van algemene zoekresultaten en automatische invulsuggesties. Weet je zeker dat je dit item wilt archiveren?"
+  },
   "edit": {
     "message": "Bewerken"
   },
@@ -1525,9 +1552,6 @@
   "selectTwoStepLoginMethod": {
     "message": "Kies methode voor tweestapslogin"
   },
-  "recoveryCodeDesc": {
-    "message": "Ben je de toegang tot al je tweestapsaanbieders verloren? Gebruik dan je herstelcode om alle tweestapsaanbieders op je account uit te schakelen."
-  },
   "recoveryCodeTitle": {
     "message": "Herstelcode"
   },
@@ -1686,9 +1710,6 @@
   "defaultAutoFillOnPageLoadDesc": {
     "message": "Na het inschakelen van Automatisch invullen bij laden van pagina, kun je de functie voor individuele inlogitems in- of uitschakelen. Dit is de standaardinstelling voor inlogitems die niet afzonderlijk zijn geconfigureerd."
   },
-  "itemAutoFillOnPageLoad": {
-    "message": "Automatisch invullen bij laden van pagina (als ingeschakeld in Opties)"
-  },
   "autoFillOnPageLoadUseDefault": {
     "message": "Standaardinstelling gebruiken"
   },
@@ -1760,17 +1781,8 @@
   "popup2faCloseMessage": {
     "message": "Als je buiten het pop-upvenster klikt om je e-mail te controleren op een verificatiecode, dan zal de pop-up sluiten. Wil je het pop-upvenster openen in een nieuw scherm, zodat het niet wordt gesloten?"
   },
-  "popupU2fCloseMessage": {
-    "message": "Deze browser kan U2F-verzoeken niet verwerken in dit popupvenster. Wilt je deze pop-up openen in een nieuw venster zodat je kunt inloggen met U2F?"
-  },
   "showIconsChangePasswordUrls": {
     "message": "Websitepictogrammen weergeven en URL's voor wachtwoordwijzigingen ophalen"
-  },
-  "enableBadgeCounter": {
-    "message": "Teller weergeven"
-  },
-  "badgeCounterDesc": {
-    "message": "Indicatie van het aantal logins dat je hebt voor de huidige webpagina."
   },
   "cardholderName": {
     "message": "Naam kaarthouder"
@@ -1934,32 +1946,81 @@
   "typeNote": {
     "message": "Notitie"
   },
-  "newItemHeader": {
-    "message": "Nieuwe $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderLogin": {
+    "message": "Nieuwe login",
+    "description": "Header for new login item type"
   },
-  "editItemHeader": {
-    "message": "$TYPE$ bewerken",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderCard": {
+    "message": "Nieuwe kaart",
+    "description": "Header for new card item type"
   },
-  "viewItemHeader": {
-    "message": "$TYPE$ weergeven",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderIdentity": {
+    "message": "Nieuwe identiteit",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "Nieuwe notitie",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "Nieuwe SSH-sleutel",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderTextSend": {
+    "message": "Nieuwe Send (tekst)",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "Nieuwe Send (bestand)",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderLogin": {
+    "message": "Login bewerken",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Kaart bewerken",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Identiteit bewerken",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Notitie bewerken",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "SSH-sleutel bewerken",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Send (tekst) bewerken",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Send (bestand) bewerken",
+    "description": "Header for edit file send"
+  },
+  "viewItemHeaderLogin": {
+    "message": "Login bekijken",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "Kaart bekijken",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "Identiteit bekijken",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "Notitie bekijken",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "SSH-sleutel bekijken",
+    "description": "Header for view SSH key item type"
   },
   "passwordHistory": {
     "message": "Geschiedenis"
@@ -3521,9 +3582,6 @@
   "autofillPageLoadPolicyActivated": {
     "message": "Je organisatiebeleid heeft het automatisch invullen bij laden van pagina ingeschakeld."
   },
-  "howToAutofill": {
-    "message": "Hoe automatisch invullen"
-  },
   "autofillSelectInfoWithCommand": {
     "message": "Selecteer een item in dit scherm, gebruik de sneltoets $COMMAND$ of verken andere opties in de instellingen.",
     "placeholders": {
@@ -3908,17 +3966,9 @@
   "aliasDomain": {
     "message": "Aliasdomein"
   },
-  "passwordRepromptDisabledAutofillOnPageLoad": {
-    "message": "Items met hoofdwachtwoord re-prompt kunnen niet automatisch worden ingevuld bij het laden van de pagina. Automatisch invullen bij laden van pagina uitgeschakeld.",
-    "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
-  },
   "autofillOnPageLoadSetToDefault": {
     "message": "Automatisch invullen bij het laden van een pagina ingesteld op de standaardinstelling.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "turnOffMasterPasswordPromptToEditField": {
-    "message": "Hoofdwachtwoord herhaalprompt uitschakelen om dit veld te bewerken",
-    "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
   },
   "toggleSideNavigation": {
     "message": "Zijnavigatie schakelen"
@@ -4188,9 +4238,6 @@
   },
   "passkeyNotCopiedAlert": {
     "message": "De passkey wordt niet gekopieerd naar het gekloonde item. Wil je doorgaan met het klonen van dit item?"
-  },
-  "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
-    "message": "De initiërende site vereist verificatie. Deze functie is nog niet geïmplementeerd voor accounts zonder hoofdwachtwoord."
   },
   "logInWithPasskeyQuestion": {
     "message": "Inloggen met passkey?"
@@ -4877,9 +4924,6 @@
       }
     }
   },
-  "enableAnimations": {
-    "message": "Animaties inschakelen"
-  },
   "showAnimations": {
     "message": "Animaties weergeven"
   },
@@ -5092,14 +5136,8 @@
   "itemLocation": {
     "message": "Itemlocatie"
   },
-  "fileSend": {
-    "message": "Bestand verzenden"
-  },
   "fileSends": {
     "message": "Bestanden verzenden"
-  },
-  "textSend": {
-    "message": "Tekst-Sends"
   },
   "textSends": {
     "message": "Tekst-Sends"
@@ -5160,9 +5198,6 @@
   },
   "vaultCustomTimeoutMinimum": {
     "message": "Minimale aangepaste time-out is 1 minuut."
-  },
-  "additionalContentAvailable": {
-    "message": "Extra inhoud beschikbaar"
   },
   "fileSavedToDevice": {
     "message": "Bestand op apparaat opgeslagen. Beheer vanaf de downloads op je apparaat."
@@ -5502,6 +5537,18 @@
   },
   "hasItemsVaultNudgeTitle": {
     "message": "Welkom in je kluis!"
+  },
+  "phishingPageTitle": {
+    "message": "Kwaadaardige website"
+  },
+  "phishingPageCloseTab": {
+    "message": "Tabblad sluiten"
+  },
+  "phishingPageContinue": {
+    "message": "Doorgaan"
+  },
+  "phishingPageLearnWhy": {
+    "message": "Waarom zie je dit?"
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Automatisch invullen van items voor de huidige pagina"

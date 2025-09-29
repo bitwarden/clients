@@ -550,6 +550,33 @@
   "resetSearch": {
     "message": "Svuota ricerca"
   },
+  "archive": {
+    "message": "Archive"
+  },
+  "unarchive": {
+    "message": "Unarchive"
+  },
+  "itemsInArchive": {
+    "message": "Items in archive"
+  },
+  "noItemsInArchive": {
+    "message": "No items in archive"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+  },
+  "itemSentToArchive": {
+    "message": "Item sent to archive"
+  },
+  "itemRemovedFromArchive": {
+    "message": "Item removed from archive"
+  },
+  "archiveItem": {
+    "message": "Archive item"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+  },
   "edit": {
     "message": "Modifica"
   },
@@ -1525,9 +1552,6 @@
   "selectTwoStepLoginMethod": {
     "message": "Seleziona metodo di accesso in due passaggi"
   },
-  "recoveryCodeDesc": {
-    "message": "Hai perso l'accesso a tutti i tuoi metodi di verifica in due passaggi? Usa il tuo codice di recupero per disattivarli tutti dal tuo account."
-  },
   "recoveryCodeTitle": {
     "message": "Codice di recupero"
   },
@@ -1686,9 +1710,6 @@
   "defaultAutoFillOnPageLoadDesc": {
     "message": "Puoi disattivare il riempimento automatico al caricamento della pagina per singoli login dalla sezione Modifica elemento."
   },
-  "itemAutoFillOnPageLoad": {
-    "message": "Riempi automaticamente al caricamento della pagina (se abilitato in Impostazioni)"
-  },
   "autoFillOnPageLoadUseDefault": {
     "message": "Usa impostazione predefinita"
   },
@@ -1760,17 +1781,8 @@
   "popup2faCloseMessage": {
     "message": "Cliccare fuori del pop-up per controllare il codice di verifica nella tua email chiuderà questo pop-up. Vuoi aprire questo pop-up in una nuova finestra in modo che non si chiuda?"
   },
-  "popupU2fCloseMessage": {
-    "message": "Questo browser non può elaborare richieste U2F in questo pop-up. Aprire questo pop-up in una nuova finestra per accedere usando U2F?"
-  },
   "showIconsChangePasswordUrls": {
     "message": "Show website icons and retrieve change password URLs"
-  },
-  "enableBadgeCounter": {
-    "message": "Mostra badge contatore"
-  },
-  "badgeCounterDesc": {
-    "message": "Mostra il numero di login salvati per il sito web corrente nell'icona dell'estensione."
   },
   "cardholderName": {
     "message": "Titolare della carta"
@@ -1934,32 +1946,81 @@
   "typeNote": {
     "message": "Nota"
   },
-  "newItemHeader": {
-    "message": "Nuovo $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderLogin": {
+    "message": "New Login",
+    "description": "Header for new login item type"
   },
-  "editItemHeader": {
-    "message": "Modifica $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderCard": {
+    "message": "New Card",
+    "description": "Header for new card item type"
   },
-  "viewItemHeader": {
-    "message": "Visualizza $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderIdentity": {
+    "message": "New Identity",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "New Note",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "New SSH key",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderTextSend": {
+    "message": "New Text Send",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "New File Send",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderLogin": {
+    "message": "Edit Login",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Edit Card",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Edit Identity",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Edit Note",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "Edit SSH key",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Edit Text Send",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Edit File Send",
+    "description": "Header for edit file send"
+  },
+  "viewItemHeaderLogin": {
+    "message": "View Login",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "View Card",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "View Identity",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "View Note",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "View SSH key",
+    "description": "Header for view SSH key item type"
   },
   "passwordHistory": {
     "message": "Cronologia delle password"
@@ -3521,9 +3582,6 @@
   "autofillPageLoadPolicyActivated": {
     "message": "Le politiche della tua organizzazione hanno abilitato il riempimento automatico al caricamento della pagina."
   },
-  "howToAutofill": {
-    "message": "Come riempire automaticamente"
-  },
   "autofillSelectInfoWithCommand": {
     "message": "Seleziona un elemento da questa schermata, usa la scorciatoia $COMMAND$, o esplora altre opzioni nelle impostazioni.",
     "placeholders": {
@@ -3908,17 +3966,9 @@
   "aliasDomain": {
     "message": "Dominio alias"
   },
-  "passwordRepromptDisabledAutofillOnPageLoad": {
-    "message": "Gli elementi che richiedono di inserire di nuovo la password principale non possono essere riempiti automaticamente al caricamento della pagina.",
-    "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
-  },
   "autofillOnPageLoadSetToDefault": {
     "message": "Riempimento automatico al caricamento della pagina impostato con l'impostazione predefinita.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "turnOffMasterPasswordPromptToEditField": {
-    "message": "Disattiva l'inserimento della password principale di nuovo per modificare questo campo",
-    "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
   },
   "toggleSideNavigation": {
     "message": "Attiva/Disattiva navigazione laterale"
@@ -4188,9 +4238,6 @@
   },
   "passkeyNotCopiedAlert": {
     "message": "La passkey non sarà copiata nell'elemento clonato. Vuoi continuare a clonare questo elemento?"
-  },
-  "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
-    "message": "Verifica richiesta dal sito web. Questa funzionalità non è ancora implementata per gli account senza password principale."
   },
   "logInWithPasskeyQuestion": {
     "message": "Accedi con passkey?"
@@ -4877,9 +4924,6 @@
       }
     }
   },
-  "enableAnimations": {
-    "message": "Abilita animazioni"
-  },
   "showAnimations": {
     "message": "Mostra animazioni"
   },
@@ -5092,14 +5136,8 @@
   "itemLocation": {
     "message": "Posizione elemento"
   },
-  "fileSend": {
-    "message": "Send di File"
-  },
   "fileSends": {
     "message": "Send File"
-  },
-  "textSend": {
-    "message": "Send di Testo"
   },
   "textSends": {
     "message": "Send Testo"
@@ -5160,9 +5198,6 @@
   },
   "vaultCustomTimeoutMinimum": {
     "message": "Il timeout personalizzato minimo è 1 minuto."
-  },
-  "additionalContentAvailable": {
-    "message": "Sono disponibili ulteriori contenuti"
   },
   "fileSavedToDevice": {
     "message": "File salvato sul dispositivo. Gestisci dai download del dispositivo."
@@ -5502,6 +5537,18 @@
   },
   "hasItemsVaultNudgeTitle": {
     "message": "Benvenuto nella tua cassaforte!"
+  },
+  "phishingPageTitle": {
+    "message": "Phishing website"
+  },
+  "phishingPageCloseTab": {
+    "message": "Close tab"
+  },
+  "phishingPageContinue": {
+    "message": "Continue"
+  },
+  "phishingPageLearnWhy": {
+    "message": "Why are you seeing this?"
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Riempimento automatico per questa pagina"

@@ -960,9 +960,6 @@
   "insertU2f": {
     "message": "உங்கள் கணினியின் USB போர்ட்டில் உங்கள் பாதுகாப்பு விசையைச் செருகவும். அதற்கு ஒரு பொத்தான் இருந்தால், அதைத் தொடவும்."
   },
-  "recoveryCodeDesc": {
-    "message": "உங்கள் இரண்டு-காரணி வழங்குநர்கள் அனைத்திற்கான அணுகலை இழந்தீர்களா? உங்கள் கணக்கில் உள்ள அனைத்து இரண்டு-காரணி வழங்குநர்களையும் முடக்க உங்கள் மீட்புக் குறியீட்டைப் பயன்படுத்தவும்."
-  },
   "recoveryCodeTitle": {
     "message": "மீட்புக் குறியீடு"
   },
@@ -4110,5 +4107,32 @@
   },
   "editShortcut": {
     "message": "குறுக்குவழியைத் திருத்து"
+  },
+  "archive": {
+    "message": "Archive"
+  },
+  "unarchive": {
+    "message": "Unarchive"
+  },
+  "itemsInArchive": {
+    "message": "Items in archive"
+  },
+  "noItemsInArchive": {
+    "message": "No items in archive"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+  },
+  "itemSentToArchive": {
+    "message": "Item sent to archive"
+  },
+  "itemRemovedFromArchive": {
+    "message": "Item removed from archive"
+  },
+  "archiveItem": {
+    "message": "Archive item"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
   }
 }

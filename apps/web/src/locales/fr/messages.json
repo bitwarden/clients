@@ -2,6 +2,9 @@
   "allApplications": {
     "message": "Toutes les applications"
   },
+  "activity": {
+    "message": "Activité"
+  },
   "appLogoLabel": {
     "message": "Logo Bitwarden"
   },
@@ -56,8 +59,20 @@
   "createNewLoginItem": {
     "message": "Créer un nouvel élément de connexion"
   },
+  "criticalApplicationsActivityDescription": {
+    "message": "Une fois que vous avez marqué des applications comme critiques, elles s'afficheront ici."
+  },
   "criticalApplicationsWithCount": {
     "message": "Applications critiques ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfCriticalApplications": {
+    "message": "$COUNT$ applications critiques",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -118,6 +133,18 @@
   },
   "atRiskMembers": {
     "message": "Membres à risque"
+  },
+  "membersAtRiskActivityDescription": {
+    "message": "Membres pouvant modifier les éléments à risque pour les applications critiques"
+  },
+  "membersAtRisk": {
+    "message": "$COUNT$ membres à risque",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "atRiskMembersWithCount": {
     "message": "Membres à risque ($COUNT$)",
@@ -734,32 +761,81 @@
   "viewItem": {
     "message": "Afficher l'élément"
   },
-  "newItemHeader": {
-    "message": "Nouveau $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderLogin": {
+    "message": "Nouvel Identifiant",
+    "description": "Header for new login item type"
   },
-  "editItemHeader": {
-    "message": "Modifier $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderCard": {
+    "message": "Nouvelle Carte de paiement",
+    "description": "Header for new card item type"
   },
-  "viewItemType": {
-    "message": "Voir $ITEMTYPE$",
-    "placeholders": {
-      "itemtype": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderIdentity": {
+    "message": "Nouvelle Identité",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "Nouvelle Note",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "Nouvelle clé SSH",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderTextSend": {
+    "message": "Nouveau Send de texte",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "Nouveau Send de fichier",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderLogin": {
+    "message": "Modifier l'Identifiant",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Modifier la Carte de paiement",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Modifier l'Identité",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Modifier la Note",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "Modifier la clé SSH",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Modifier le Send de texte",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Modifier le Send de fichier",
+    "description": "Header for edit file send"
+  },
+  "viewItemHeaderLogin": {
+    "message": "Afficher l'Identifiant",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "Afficher la Carte de paiement",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "Afficher l'Identité",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "Afficher la Note",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "Afficher la clé SSH",
+    "description": "Header for view SSH key item type"
   },
   "new": {
     "message": "Nouveau",
@@ -1509,9 +1585,6 @@
   },
   "selectTwoStepLoginMethod": {
     "message": "Sélectionnez la méthode d'authentification à deux facteurs"
-  },
-  "recoveryCodeDesc": {
-    "message": "Vous avez perdu l'accès à tous vos fournisseurs d'authentification à deux facteurs ? Utilisez votre code de récupération pour désactiver tous les fournisseurs d'authentification à deux facteurs de votre compte."
   },
   "recoveryCodeTitle": {
     "message": "Code de récupération"
@@ -5484,6 +5557,13 @@
   "personalOwnershipSubmitError": {
     "message": "En raison d'une politique de sécurité Entreprise, il vous est interdit d'enregistrer des éléments dans votre coffre personnel. Sélectionnez une organisation dans l'option Propriété et choisissez parmi les collections disponibles."
   },
+  "desktopAutotypePolicy": {
+    "message": "Réglage par Défaut de la Saisie Auto pour le Bureau"
+  },
+  "desktopAutotypePolicyDesc": {
+    "message": "Activer la Saisie Auto pour le Bureau par défaut pour les membres. Les membres peuvent désactiver la Saisie Automatique manuellement dans l'application du Bureau.",
+    "description": "This policy will enable Desktop Autotype by default for members on Unlock."
+  },
   "disableSend": {
     "message": "Supprimer le Send"
   },
@@ -6647,6 +6727,15 @@
   },
   "disabledSso": {
     "message": "SSO désactivé"
+  },
+  "emailMustLoginWithSso": {
+    "message": "$EMAIL$ doit se connecter avec une Authentification Unique (SSO)",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
   },
   "enabledKeyConnector": {
     "message": "Key Connector activé"
@@ -9666,6 +9755,9 @@
   "failedToSaveIntegration": {
     "message": "Impossible d'enregistrer l'intégration. Veuillez réessayer plus tard."
   },
+  "failedToDeleteIntegration": {
+    "message": "La suppression de l'intégration échouée. Veuillez réessayer plus tard."
+  },
   "deviceIdMissing": {
     "message": "L'identification de l'appareil est manquante"
   },
@@ -9761,6 +9853,9 @@
   },
   "bearerToken": {
     "message": "Jeton du porteur"
+  },
+  "repositoryNameHint": {
+    "message": "Nom du dépôt à ingérer dans"
   },
   "index": {
     "message": "Index"
@@ -10210,14 +10305,8 @@
   "learnMoreAboutApi": {
     "message": "En savoir plus sur l'API de Bitwarden"
   },
-  "fileSend": {
-    "message": "Send d'un fichier"
-  },
   "fileSends": {
     "message": "Déposer des Sends"
-  },
-  "textSend": {
-    "message": "Send d'un texte"
   },
   "textSends": {
     "message": "Texter des Sends"
@@ -10391,7 +10480,7 @@
     "message": "Gestionnaire de Mots de Passe Bitwarden"
   },
   "secretsManagerComplimentaryPasswordManager": {
-    "message": "Votre abonnement complémentairegratuit d'un an au Gestionnaire de Mots de Passe sera mis à niveau au plan sélectionné. Vous ne serez pas chargé avant la fin de votre période gratuite."
+    "message": "Votre abonnement offert gratuit d'un an au Gestionnaire de Mots de Passe sera mis à niveau au plan sélectionné. Vous ne serez pas chargé avant la fin de votre période gratuite."
   },
   "fileSavedToDevice": {
     "message": "Fichier enregistré sur l'appareil. Gérez à partir des téléchargements de votre appareil."
@@ -10932,6 +11021,18 @@
   "cannotCreateCollection": {
     "message": "Les organisations gratuites peuvent avoir jusqu'à 2 collections. Passez à une offre payante pour ajouter plus de collections."
   },
+  "searchArchive": {
+    "message": "Rechercher dans l'archive"
+  },
+  "archive": {
+    "message": "Archive"
+  },
+  "noItemsInArchive": {
+    "message": "Aucun élément dans l'archive"
+  },
+  "archivedItemsDescription": {
+    "message": "Les éléments archivés apparaîtront ici et seront exclus des résultats de recherche généraux et des suggestions de remplissage automatique."
+  },
   "businessUnit": {
     "message": "Unité d'affaires"
   },
@@ -11264,5 +11365,137 @@
   },
   "verifyNow": {
     "message": "Vérifier maintenant."
+  },
+  "additionalStorageGB": {
+    "message": "Stockage additionnel (Go)"
+  },
+  "additionalServiceAccountsV2": {
+    "message": "Comptes de machine supplémentaires"
+  },
+  "secretsManagerSeats": {
+    "message": "Places du Secrets Manager"
+  },
+  "additionalStorage": {
+    "message": "Stockage supplémentaire"
+  },
+  "expandPurchaseDetails": {
+    "message": "Développer les détails de l'achat"
+  },
+  "collapsePurchaseDetails": {
+    "message": "Réduire les détails de l'achat"
+  },
+  "familiesMembership": {
+    "message": "Abonnement à Familles"
+  },
+  "planDescPremium": {
+    "message": "Sécurité en ligne complète"
+  },
+  "planDescFamiliesV2": {
+    "message": "Sécurité Premium pour votre famille"
+  },
+  "planDescFreeV2": {
+    "message": "Partager avec $COUNT$ autres utilisateurs",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "planDescEnterpriseV2": {
+    "message": "Fonctionnalités avancées pour toute organisation"
+  },
+  "planNameCustom": {
+    "message": "Forfait personnalisé"
+  },
+  "planDescCustom": {
+    "message": "Bitwarden évolue avec des entreprises de toutes tailles pour sécuriser les mots de passe et les informations sensibles. Si vous faites partie d'une grande entreprise, contactez les ventes pour demander une soumission."
+  },
+  "builtInAuthenticator": {
+    "message": "Authentificateur intégré"
+  },
+  "breachMonitoring": {
+    "message": "Surveillance des fuites"
+  },
+  "andMoreFeatures": {
+    "message": "Et encore plus !"
+  },
+  "secureFileStorage": {
+    "message": "Stockage sécurisé de fichier"
+  },
+  "familiesUnlimitedSharing": {
+    "message": "Partage illimité - choisissez qui voit quoi"
+  },
+  "familiesUnlimitedCollections": {
+    "message": "Collections familiales illimitées"
+  },
+  "familiesSharedStorage": {
+    "message": "Stockage partagé pour les informations importantes de la famille"
+  },
+  "limitedUsersV2": {
+    "message": "Jusqu'à $COUNT$ membres",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "limitedCollectionsV2": {
+    "message": "Jusqu'à $COUNT$ collections",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "alwaysFree": {
+    "message": "Toujours gratuit"
+  },
+  "twoSecretsIncluded": {
+    "message": "2 secrets"
+  },
+  "projectsIncludedV2": {
+    "message": "$COUNT$ projet(s)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "secureItemSharing": {
+    "message": "Partage sécurisé d’éléments"
+  },
+  "scimSupport": {
+    "message": "Support SCIM"
+  },
+  "includedMachineAccountsV2": {
+    "message": "$COUNT$ comptes machine",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
+  },
+  "enterpriseSecurityPolicies": {
+    "message": "Politiques de sécurité de l'entreprise"
+  },
+  "selfHostOption": {
+    "message": "Option d'auto-hébergement"
+  },
+  "complimentaryFamiliesPlan": {
+    "message": "Plan pour familles offert gratuitement pour tous les utilisateurs"
+  },
+  "strengthenCybersecurity": {
+    "message": "Renforcer la cybersécurité"
+  },
+  "boostProductivity": {
+    "message": "Améliore la productivité"
+  },
+  "seamlessIntegration": {
+    "message": "Intégrations transparentes"
   }
 }

@@ -4,7 +4,8 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { makeEncString } from "@bitwarden/common/spec";
 import { OrganizationId, OrganizationReportId } from "@bitwarden/common/types/guid";
 
-import { EncryptedDataModel, SaveRiskInsightsReportRequest } from "../models/password-health";
+import { SaveRiskInsightsReportRequest } from "../models/api-models.types";
+import { EncryptedDataModel } from "../models/password-health";
 
 import { RiskInsightsApiService } from "./risk-insights-api.service";
 
@@ -200,7 +201,9 @@ describe("RiskInsightsApiService", () => {
 
   it("Get Applications: should call apiService.send with correct parameters and return an Observable", (done) => {
     const reportId = "report123" as OrganizationReportId;
-    const mockResponse: EncryptedDataModel | null = { encryptedData: "abc" } as EncryptedDataModel;
+    const mockResponse: EncryptedDataModel | null = {
+      encryptedData: "abc",
+    } as EncryptedDataModel;
 
     mockApiService.send.mockResolvedValueOnce(mockResponse);
 
