@@ -12,8 +12,7 @@ import {
 } from "@angular/core";
 import { Observable, Subscription, filter, mergeWith } from "rxjs";
 
-import { getDefaultPositions } from "../utils/overlay-positions";
-
+import { defaultPositions } from "./default-positions";
 import { PopoverComponent } from "./popover.component";
 
 @Directive({
@@ -34,7 +33,6 @@ export class PopoverTriggerForDirective implements OnDestroy, AfterViewInit {
   private closedEventsSub: Subscription | null = null;
 
   get positions() {
-    const defaultPositions = getDefaultPositions({ classNamePrefix: "bit-popover" });
     if (!this.position()) {
       return defaultPositions;
     }
