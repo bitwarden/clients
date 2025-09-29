@@ -796,7 +796,7 @@ jobs:
       - name: Test
         if: always()
         shell: bash
-        run: ls -alh ./dist/win-unpacked
+        run: ls -alhR ./dist/
 
       - name: Rename appx files for store
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
