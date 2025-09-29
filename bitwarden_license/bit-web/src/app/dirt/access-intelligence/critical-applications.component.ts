@@ -201,10 +201,4 @@ export class CriticalApplicationsComponent implements OnInit {
     const data = this.reportService.generateAtRiskApplicationList(this.dataSource.data);
     this.dataService.setDrawerForOrgAtRiskApps(data, invokerId);
   };
-
-  isDrawerOpenForTableRow = (applicationName: string) => {
-    // Note: This function will be replaced by PR #16523 with openApplication binding
-    // Using private access to BehaviorSubject value for backward compatibility
-    return (this.dataService as any).drawerDetailsSubject?.value?.invokerId === applicationName;
-  };
 }

@@ -64,33 +64,33 @@
         </dirt-card>
       </button>
     </div>
-  }
-  <div class="tw-flex tw-mt-8 tw-mb-4 tw-gap-4">
-    <bit-search
-      [placeholder]="'searchApps' | i18n"
-      class="tw-grow"
-      [formControl]="searchControl"
-    ></bit-search>
-    <button
-      type="button"
-      [buttonType]="'primary'"
-      bitButton
-      [disabled]="!selectedUrls.size"
-      [loading]="markingAsCritical"
-      (click)="markAppsAsCritical()"
-    >
-      <i class="bwi tw-mr-2" [ngClass]="selectedUrls.size ? 'bwi-star-f' : 'bwi-star'"></i>
-      {{ "markAppAsCritical" | i18n }}
-    </button>
-  </div>
+    <div class="tw-flex tw-mt-8 tw-mb-4 tw-gap-4">
+      <bit-search
+        [placeholder]="'searchApps' | i18n"
+        class="tw-grow"
+        [formControl]="searchControl"
+      ></bit-search>
+      <button
+        type="button"
+        [buttonType]="'primary'"
+        bitButton
+        [disabled]="!selectedUrls.size"
+        [loading]="markingAsCritical"
+        (click)="markAppsAsCritical()"
+      >
+        <i class="bwi tw-mr-2" [ngClass]="selectedUrls.size ? 'bwi-star-f' : 'bwi-star'"></i>
+        {{ "markAppAsCritical" | i18n }}
+      </button>
+    </div>
 
-  <app-table-row-scrollable
-    [dataSource]="dataSource"
-    [showRowCheckBox]="true"
-    [showRowMenuForCriticalApps]="false"
-    [selectedUrls]="selectedUrls"
-    [openApplication]="dataService.drawerInvokerId"
-    [checkboxChange]="onCheckboxChange"
-    [showAppAtRiskMembers]="showAppAtRiskMembers"
-  ></app-table-row-scrollable>
+    <app-table-row-scrollable
+      [dataSource]="dataSource"
+      [showRowCheckBox]="true"
+      [showRowMenuForCriticalApps]="false"
+      [selectedUrls]="selectedUrls"
+      [openApplication]="drawerDetails.invokerId || ''"
+      [checkboxChange]="onCheckboxChange"
+      [showAppAtRiskMembers]="showAppAtRiskMembers"
+    ></app-table-row-scrollable>
+  }
 </div>
