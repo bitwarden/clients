@@ -781,13 +781,6 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Test
-        shell: bash
-        run: |
-          pwd
-          ls -alh
-          ls -alh ./dist
-
       - name: Pack
         if: ${{ needs.setup.outputs.has_secrets == 'false' }}
         run: npm run pack:win
@@ -802,6 +795,14 @@ jobs:
           SIGNING_CLIENT_SECRET: ${{ steps.retrieve-secrets.outputs.code-signing-client-secret }}
           SIGNING_CERT_NAME: ${{ steps.retrieve-secrets.outputs.code-signing-cert-name }}
         run: npm run pack:win
+
+      - name: Test
+        if: always()
+        shell: bash
+        run: |
+          pwd
+          ls -alh
+          ls -alh ./dist
 
       - name: Rename appx files for store
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
