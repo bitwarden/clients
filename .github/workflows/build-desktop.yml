@@ -783,7 +783,10 @@ jobs:
 
       - name: Test
         shell: bash
-        run: ls -alh dist
+        run: |
+          pwd
+          ls -alh
+          ls -alh ./dist
 
       - name: Pack
         if: ${{ needs.setup.outputs.has_secrets == 'false' }}
