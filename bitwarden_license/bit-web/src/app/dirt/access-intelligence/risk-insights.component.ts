@@ -67,8 +67,6 @@ export class RiskInsightsComponent implements OnInit {
   tabIndex: RiskInsightsTabType = RiskInsightsTabType.AllApps;
   isRiskInsightsActivityTabFeatureEnabled: boolean = false;
 
-  dataLastUpdated: Date = new Date();
-
   criticalApps$: Observable<PasswordHealthReportApplicationsResponse[]> = new Observable();
 
   appsCount: number = 0;
