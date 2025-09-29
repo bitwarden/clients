@@ -49,6 +49,8 @@ fn get_window_title_length(window_handle: &HWND) -> Result<usize> {
 
     let length = usize::try_from(length)?;
 
+    debug!(length, "window text length retrieved from handle.");
+
     if length == 0 {
         // attempt to retreive win32 error
         let last_err = get_last_error();
@@ -74,6 +76,8 @@ fn get_window_title(window_handle: &HWND) -> Result<String> {
     let mut buffer: Vec<u16> = vec![0; window_title_length + 1]; // add extra space for the null character
 
     let len_written = unsafe { GetWindowTextW(*window_handle, &mut buffer) };
+
+    debug!(read = len_written, "window title retrieved.");
 
     if len_written == 0 {
         // attempt to retreive win32 error
@@ -109,6 +113,8 @@ pub fn type_input(input: Vec<u16>, keyboard_shortcut: Vec<String>) -> Result<()>
     // the length of this vec is always (2x length of input chars + shortcut keys to release)
     let mut keyboard_inputs: Vec<INPUT> =
         Vec::with_capacity((input.len() * 2) + keyboard_shortcut.len());
+
+    debug!(?keyboard_shortcut, "Converting keyboard shortcut to input.");
 
     // Add key "up" inputs for the shortcut
     for key in keyboard_shortcut {
@@ -187,7 +193,11 @@ fn get_alphabetic_hotkey(letter: String) -> Result<u16> {
         ));
     }
 
-    Ok(c as u16)
+    let c = c as u16;
+
+    debug!(c, letter, "Got alphabetic hotkey.");
+
+    Ok(c)
 }
 
 /// An input key can be either pressed (down), or released (up).
@@ -287,7 +297,7 @@ fn send_input(inputs: Vec<INPUT>) -> Result<()> {
         ));
     }
 
-    debug!("Autotype sent input.");
+    debug!(insert_count, "Autotype sent input.");
 
     Ok(())
 }
