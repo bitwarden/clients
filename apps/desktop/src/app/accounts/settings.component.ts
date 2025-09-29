@@ -913,7 +913,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
   }
 
-  async updateAutotypeShortcut() {
+  async saveAutotypeShortcut() {
     const dialogRef = AutotypeShortcutComponent.open(this.dialogService);
 
     const newShortcutArray = await firstValueFrom(dialogRef.closed);
