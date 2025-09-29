@@ -202,10 +202,9 @@ export class CriticalApplicationsComponent implements OnInit {
     this.dataService.setDrawerForOrgAtRiskApps(data, invokerId);
   };
 
-  trackByFunction(_: number, item: LEGACY_ApplicationHealthReportDetailWithCriticalFlag) {
-    return item.applicationName;
-  }
   isDrawerOpenForTableRow = (applicationName: string) => {
-    return this.dataService.drawerInvokerId === applicationName;
+    // Note: This function will be replaced by PR #16523 with openApplication binding
+    // Using private access to BehaviorSubject value for backward compatibility
+    return (this.dataService as any).drawerDetailsSubject?.value?.invokerId === applicationName;
   };
 }

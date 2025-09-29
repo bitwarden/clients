@@ -551,31 +551,31 @@
     "message": "Ресетовати претрагу"
   },
   "archive": {
-    "message": "Archive"
+    "message": "Архива"
   },
   "unarchive": {
-    "message": "Unarchive"
+    "message": "Врати из архиве"
   },
   "itemsInArchive": {
-    "message": "Items in archive"
+    "message": "Ставке у архиви"
   },
   "noItemsInArchive": {
-    "message": "No items in archive"
+    "message": "Нема ставка у архиви"
   },
   "noItemsInArchiveDesc": {
-    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+    "message": "Архивиране ставке ће се овде појавити и бити искључени из општих резултата претраге и сугестија о ауто-пуњењу."
   },
   "itemSentToArchive": {
-    "message": "Item sent to archive"
+    "message": "Ставка је послата у архиву"
   },
   "itemRemovedFromArchive": {
-    "message": "Item removed from archive"
+    "message": "Ставка је уклоњена из архиве"
   },
   "archiveItem": {
-    "message": "Archive item"
+    "message": "Архивирај ставку"
   },
   "archiveItemConfirmDesc": {
-    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+    "message": "Архивиране ставке су искључене из општих резултата претраге и предлога за ауто попуњавање. Јесте ли сигурни да желите да архивирате ову ставку?"
   },
   "edit": {
     "message": "Уреди"
