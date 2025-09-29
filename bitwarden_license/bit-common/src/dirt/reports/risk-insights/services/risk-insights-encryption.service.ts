@@ -1,13 +1,13 @@
 import { firstValueFrom, map } from "rxjs";
-import { Jsonify } from "type-fest";
 
 import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
 
-import { EncryptedDataWithKey } from "../models/password-health";
+import { DecryptedReportData, EncryptedReportData, EncryptedDataWithKey } from "../models";
 
 export class RiskInsightsEncryptionService {
   constructor(
@@ -16,11 +16,15 @@ export class RiskInsightsEncryptionService {
     private keyGeneratorService: KeyGenerationService,
   ) {}
 
-  async encryptRiskInsightsReport<T>(
-    organizationId: OrganizationId,
-    userId: UserId,
-    data: T,
+  async encryptRiskInsightsReport(
+    context: {
+      organizationId: OrganizationId;
+      userId: UserId;
+    },
+    data: DecryptedReportData,
+    wrappedKey?: EncString,
   ): Promise<EncryptedDataWithKey> {
+    const { userId, organizationId } = context;
     const orgKey = await firstValueFrom(
       this.keyService
         .orgKeys$(userId)
@@ -35,10 +39,28 @@ export class RiskInsightsEncryptionService {
       throw new Error("Organization key not found");
     }
 
-    const contentEncryptionKey = await this.keyGeneratorService.createKey(512);
+    let contentEncryptionKey: SymmetricCryptoKey;
+    if (!wrappedKey) {
+      // Generate a new key
+      contentEncryptionKey = await this.keyGeneratorService.createKey(512);
+    } else {
+      // Unwrap the existing key
+      contentEncryptionKey = await this.encryptService.unwrapSymmetricKey(wrappedKey, orgKey);
+    }
 
-    const dataEncrypted = await this.encryptService.encryptString(
-      JSON.stringify(data),
+    const { reportData, summaryData, applicationsData } = data;
+
+    // Encrypt the data
+    const encryptedReportData = await this.encryptService.encryptString(
+      JSON.stringify(reportData),
+      contentEncryptionKey,
+    );
+    const encryptedSummaryData = await this.encryptService.encryptString(
+      JSON.stringify(summaryData),
+      contentEncryptionKey,
+    );
+    const encryptedApplicationData = await this.encryptService.encryptString(
+      JSON.stringify(applicationsData),
       contentEncryptionKey,
     );
 
@@ -47,59 +69,84 @@ export class RiskInsightsEncryptionService {
       orgKey,
     );
 
-    if (!dataEncrypted.encryptedString || !wrappedEncryptionKey.encryptedString) {
+    if (
+      !encryptedReportData.encryptedString ||
+      !encryptedSummaryData.encryptedString ||
+      !encryptedApplicationData.encryptedString ||
+      !wrappedEncryptionKey.encryptedString
+    ) {
       throw new Error("Encryption failed, encrypted strings are null");
     }
 
-    const encryptedData = dataEncrypted;
-    const contentEncryptionKeyString = wrappedEncryptionKey;
-
     const encryptedDataPacket: EncryptedDataWithKey = {
       organizationId,
-      encryptedData,
-      contentEncryptionKey: contentEncryptionKeyString,
+      encryptedReportData: encryptedReportData,
+      encryptedSummaryData: encryptedSummaryData,
+      encryptedApplicationsData: encryptedApplicationData,
+      contentEncryptionKey: wrappedEncryptionKey,
     };
 
     return encryptedDataPacket;
   }
 
-  async decryptRiskInsightsReport<T>(
-    organizationId: OrganizationId,
-    userId: UserId,
-    encryptedData: EncString,
+  async decryptRiskInsightsReport(
+    context: {
+      organizationId: OrganizationId;
+      userId: UserId;
+    },
+    encryptedData: EncryptedReportData,
     wrappedKey: EncString,
-    parser: (data: Jsonify<T>) => T,
-  ): Promise<T | null> {
-    try {
-      const orgKey = await firstValueFrom(
-        this.keyService
-          .orgKeys$(userId)
-          .pipe(
-            map((organizationKeysById) =>
-              organizationKeysById ? organizationKeysById[organizationId] : null,
-            ),
+  ): Promise<DecryptedReportData> {
+    const { userId, organizationId } = context;
+    const orgKey = await firstValueFrom(
+      this.keyService
+        .orgKeys$(userId)
+        .pipe(
+          map((organizationKeysById) =>
+            organizationKeysById ? organizationKeysById[organizationId] : null,
           ),
-      );
+        ),
+    );
 
-      if (!orgKey) {
-        throw new Error("Organization key not found");
-      }
-
-      const unwrappedEncryptionKey = await this.encryptService.unwrapSymmetricKey(
-        wrappedKey,
-        orgKey,
-      );
-
-      const dataUnencrypted = await this.encryptService.decryptString(
-        encryptedData,
-        unwrappedEncryptionKey,
-      );
-
-      const dataUnencryptedJson = parser(JSON.parse(dataUnencrypted));
-
-      return dataUnencryptedJson as T;
-    } catch {
-      return null;
+    if (!orgKey) {
+      throw new Error("Organization key not found");
     }
+
+    const unwrappedEncryptionKey = await this.encryptService.unwrapSymmetricKey(wrappedKey, orgKey);
+    if (!unwrappedEncryptionKey) {
+      throw Error("Encryption key not found");
+    }
+
+    const { encryptedReportData, encryptedSummaryData, encryptedApplicationsData } = encryptedData;
+
+    // Decrypt the data
+    const decryptedReportData = await this.encryptService.decryptString(
+      encryptedReportData,
+      unwrappedEncryptionKey,
+    );
+    const decryptedSummaryData = await this.encryptService.decryptString(
+      encryptedSummaryData,
+      unwrappedEncryptionKey,
+    );
+    const decryptedApplicationData = await this.encryptService.decryptString(
+      encryptedApplicationsData,
+      unwrappedEncryptionKey,
+    );
+
+    if (!decryptedReportData || !decryptedSummaryData || !decryptedApplicationData) {
+      throw new Error("Decryption failed, decrypted strings are null");
+    }
+
+    const decryptedReportDataJson = JSON.parse(decryptedReportData);
+    const decryptedSummaryDataJson = JSON.parse(decryptedSummaryData);
+    const decryptedApplicationDataJson = JSON.parse(decryptedApplicationData);
+
+    const decryptedFullReport = {
+      reportData: decryptedReportDataJson,
+      summaryData: decryptedSummaryDataJson,
+      applicationsData: decryptedApplicationDataJson,
+    };
+
+    return decryptedFullReport;
   }
 }

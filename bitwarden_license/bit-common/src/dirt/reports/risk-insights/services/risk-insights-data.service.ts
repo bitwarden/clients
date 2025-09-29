@@ -18,6 +18,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 
+import { ApplicationHealthReportDetailEnriched, RiskInsightsEnrichedData } from "../models";
 import {
   AppAtRiskMembersDialogParams,
   AtRiskApplicationDetail,
@@ -25,12 +26,11 @@ import {
   DrawerType,
   DrawerDetails,
   ApplicationHealthReportDetail,
-  ApplicationHealthReportDetailEnriched,
-  ReportDetailsAndSummary,
 } from "../models/report-models";
 
 import { CriticalAppsService } from "./critical-apps.service";
 import { RiskInsightsReportService } from "./risk-insights-report.service";
+
 export class RiskInsightsDataService {
   // -------------------------- Context state --------------------------
   // Current user viewing risk insights
@@ -78,7 +78,7 @@ export class RiskInsightsDataService {
 
   // ------------------------- Report Variables ----------------
   // The last run report details
-  private reportResultsSubject = new BehaviorSubject<ReportDetailsAndSummary | null>(null);
+  private reportResultsSubject = new BehaviorSubject<RiskInsightsEnrichedData | null>(null);
   reportResults$ = this.reportResultsSubject.asObservable();
   // Is a report being generated
   private isRunningReportSubject = new BehaviorSubject<boolean>(false);
@@ -174,6 +174,8 @@ export class RiskInsightsDataService {
   enrichReportData$(
     applications: ApplicationHealthReportDetail[],
   ): Observable<ApplicationHealthReportDetailEnriched[]> {
+    // TODO Compare applications on report to updated critical applications
+    // TODO Compare applications on report to any new applications
     return of(applications).pipe(
       withLatestFrom(this.organizationDetails$, this.criticalApps$),
       switchMap(async ([apps, orgDetails, criticalApps]) => {
@@ -311,10 +313,12 @@ export class RiskInsightsDataService {
       .getRiskInsightsReport$(organizationId, userId)
       .pipe(
         switchMap((report) => {
+          // Take fetched report data and merge with critical applications
           return this.enrichReportData$(report.reportData).pipe(
             map((enrichedReport) => ({
-              data: enrichedReport,
+              report: enrichedReport,
               summary: report.summaryData,
+              applications: report.applicationsData,
             })),
           );
         }),
@@ -323,11 +327,12 @@ export class RiskInsightsDataService {
         }),
       )
       .subscribe({
-        next: ({ data, summary }) => {
+        next: ({ report, summary, applications }) => {
           this.reportResultsSubject.next({
-            data,
-            summary,
-            dateCreated: new Date(),
+            reportData: report,
+            summaryData: summary,
+            applicationData: applications,
+            creationDate: new Date(),
           });
           this.errorSubject.next(null);
           this.isLoadingSubject.next(false);
@@ -353,22 +358,30 @@ export class RiskInsightsDataService {
 
         // Generate the report
         return this.reportService.generateApplicationsReport$(organizationId).pipe(
-          map((data) => ({
-            data,
-            summary: this.reportService.generateApplicationsSummary(data),
+          map((report) => ({
+            report,
+            summary: this.reportService.generateApplicationsSummary(report),
+            applications: this.reportService.generateOrganizationApplications(report),
           })),
-          switchMap(({ data, summary }) =>
-            this.enrichReportData$(data).pipe(
-              map((enrichedData) => ({ data: enrichedData, summary })),
+          // Enrich report with critical markings
+          switchMap(({ report, summary, applications }) =>
+            this.enrichReportData$(report).pipe(
+              map((enrichedReport) => ({ report: enrichedReport, summary, applications })),
             ),
           ),
-          tap(({ data, summary }) => {
-            this.reportResultsSubject.next({ data, summary, dateCreated: new Date() });
+          // Load the updated data into the UI
+          tap(({ report, summary, applications }) => {
+            this.reportResultsSubject.next({
+              reportData: report,
+              summaryData: summary,
+              applicationData: applications,
+              creationDate: new Date(),
+            });
             this.errorSubject.next(null);
           }),
-          switchMap(({ data, summary }) => {
-            // Just returns ID
-            return this.reportService.saveRiskInsightsReport$(data, summary, {
+          switchMap(({ report, summary, applications }) => {
+            // Save the generated data
+            return this.reportService.saveRiskInsightsReport$(report, summary, applications, {
               organizationId,
               userId,
             });

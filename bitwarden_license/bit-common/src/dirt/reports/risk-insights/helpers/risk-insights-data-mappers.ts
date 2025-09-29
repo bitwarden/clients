@@ -9,7 +9,7 @@ import {
 import {
   ApplicationHealthReportDetail,
   OrganizationReportSummary,
-  RiskInsightsReportData,
+  RiskInsightsData,
 } from "../models/report-models";
 import { MemberCipherDetailsResponse } from "../response/member-cipher-details.response";
 
@@ -154,10 +154,12 @@ export function getApplicationReportDetail(
  *
  * @returns An empty report
  */
-export function createNewReportData(): RiskInsightsReportData {
+export function createNewReportData(): RiskInsightsData {
   return {
+    creationDate: new Date(),
     reportData: [],
     summaryData: createNewSummaryData(),
+    applicationsData: [],
   };
 }
 

@@ -45,7 +45,8 @@ import {
   CipherHealthReport,
   MemberDetails,
   PasswordHealthData,
-  RiskInsightsReportData,
+  OrganizationReportApplication,
+  RiskInsightsData,
 } from "../models/report-models";
 
 import { MemberCipherDetailsApiService } from "./member-cipher-details-api.service";
@@ -70,9 +71,9 @@ export class RiskInsightsReportService {
   constructor(
     private cipherService: CipherService,
     private memberCipherDetailsApiService: MemberCipherDetailsApiService,
+    private passwordHealthService: PasswordHealthService,
     private riskInsightsApiService: RiskInsightsApiService,
     private riskInsightsEncryptionService: RiskInsightsEncryptionService,
-    private passwordHealthService: PasswordHealthService,
   ) {}
 
   // [FIXME] CipherData
@@ -246,6 +247,21 @@ export class RiskInsightsReportService {
     };
   }
 
+  /**
+   * Generate a snapshot of applications and related data associated to this report
+   *
+   * @param reports
+   * @returns A list of applications with a critical marking flag
+   */
+  generateOrganizationApplications(
+    reports: ApplicationHealthReportDetail[],
+  ): OrganizationReportApplication[] {
+    return reports.map((report) => ({
+      applicationName: report.applicationName,
+      isCritical: false,
+    }));
+  }
+
   async identifyCiphers(
     data: ApplicationHealthReportDetail[],
     organizationId: OrganizationId,
@@ -272,12 +288,12 @@ export class RiskInsightsReportService {
   getRiskInsightsReport$(
     organizationId: OrganizationId,
     userId: UserId,
-  ): Observable<RiskInsightsReportData> {
+  ): Observable<RiskInsightsData> {
     return this.riskInsightsApiService.getRiskInsightsReport$(organizationId).pipe(
-      switchMap((response): Observable<RiskInsightsReportData> => {
+      switchMap((response) => {
         if (!response) {
           // Return an empty report and summary if response is falsy
-          return of<RiskInsightsReportData>(createNewReportData());
+          return of<RiskInsightsData>(createNewReportData());
         }
         if (!response.contentEncryptionKey || response.contentEncryptionKey.data == "") {
           return throwError(() => new Error("Report key not found"));
@@ -285,15 +301,34 @@ export class RiskInsightsReportService {
         if (!response.reportData) {
           return throwError(() => new Error("Report data not found"));
         }
+        if (!response.summaryData) {
+          return throwError(() => new Error("Summary data not found"));
+        }
+        if (!response.applicationsData) {
+          return throwError(() => new Error("Application data not found"));
+        }
+
         return from(
-          this.riskInsightsEncryptionService.decryptRiskInsightsReport<RiskInsightsReportData>(
-            organizationId,
-            userId,
-            response.reportData,
+          this.riskInsightsEncryptionService.decryptRiskInsightsReport(
+            {
+              organizationId,
+              userId,
+            },
+            {
+              encryptedReportData: response.reportData,
+              encryptedSummaryData: response.summaryData,
+              encryptedApplicationsData: response.applicationsData,
+            },
             response.contentEncryptionKey,
-            (data) => data as RiskInsightsReportData,
           ),
-        ).pipe(map((decryptedReport) => decryptedReport ?? createNewReportData()));
+        ).pipe(
+          map((decryptedData) => ({
+            reportData: decryptedData.reportData,
+            summaryData: decryptedData.summaryData,
+            applicationsData: decryptedData.applicationsData,
+            creationDate: response.creationDate,
+          })),
+        );
       }),
     );
   }
@@ -308,6 +343,7 @@ export class RiskInsightsReportService {
   saveRiskInsightsReport$(
     report: ApplicationHealthReportDetail[],
     summary: OrganizationReportSummary,
+    applications: OrganizationReportApplication[],
     encryptionParameters: {
       organizationId: OrganizationId;
       userId: UserId;
@@ -315,15 +351,18 @@ export class RiskInsightsReportService {
   ): Observable<SaveRiskInsightsReportResponse> {
     return from(
       this.riskInsightsEncryptionService.encryptRiskInsightsReport(
-        encryptionParameters.organizationId,
-        encryptionParameters.userId,
         {
-          data: report,
-          summary: summary,
+          organizationId: encryptionParameters.organizationId,
+          userId: encryptionParameters.userId,
+        },
+        {
+          reportData: report,
+          summaryData: summary,
+          applicationsData: applications,
         },
       ),
     ).pipe(
-      map(({ encryptedData, contentEncryptionKey }) => ({
+      map(({ encryptedReportData: encryptedData, contentEncryptionKey }) => ({
         data: {
           organizationId: encryptionParameters.organizationId,
           date: new Date().toISOString(),

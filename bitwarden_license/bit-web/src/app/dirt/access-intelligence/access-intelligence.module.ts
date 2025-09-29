@@ -44,9 +44,9 @@ import { RiskInsightsComponent } from "./risk-insights.component";
       deps: [
         CipherService,
         MemberCipherDetailsApiService,
+        PasswordHealthService,
         RiskInsightsApiService,
         RiskInsightsEncryptionService,
-        PasswordHealthService,
       ],
     },
     safeProvider({
