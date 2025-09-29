@@ -63,7 +63,6 @@ export class AllApplicationsComponent implements OnInit {
     new TableDataSource<LEGACY_ApplicationHealthReportDetailWithCriticalFlagAndCipher>();
   protected selectedUrls: Set<string> = new Set<string>();
   protected searchControl = new FormControl("", { nonNullable: true });
-  protected loading = true;
   protected organization = new Organization();
   noItemsIcon = Security;
   protected markingAsCritical = false;
@@ -71,6 +70,24 @@ export class AllApplicationsComponent implements OnInit {
 
   destroyRef = inject(DestroyRef);
   isLoading$: Observable<boolean> = of(false);
+
+  constructor(
+    protected cipherService: CipherService,
+    protected i18nService: I18nService,
+    protected activatedRoute: ActivatedRoute,
+    protected toastService: ToastService,
+    protected configService: ConfigService,
+    protected dataService: RiskInsightsDataService,
+    protected organizationService: OrganizationService,
+    protected reportService: RiskInsightsReportService,
+    private accountService: AccountService,
+    protected criticalAppsService: CriticalAppsService,
+    protected riskInsightsEncryptionService: RiskInsightsEncryptionService,
+  ) {
+    this.searchControl.valueChanges
+      .pipe(debounceTime(200), takeUntilDestroyed())
+      .subscribe((v) => (this.dataSource.filter = v));
+  }
 
   async ngOnInit() {
     const organizationId = this.activatedRoute.snapshot.paramMap.get("organizationId");
@@ -128,24 +145,6 @@ export class AllApplicationsComponent implements OnInit {
 
       this.isLoading$ = this.dataService.isLoading$;
     }
-  }
-
-  constructor(
-    protected cipherService: CipherService,
-    protected i18nService: I18nService,
-    protected activatedRoute: ActivatedRoute,
-    protected toastService: ToastService,
-    protected configService: ConfigService,
-    protected dataService: RiskInsightsDataService,
-    protected organizationService: OrganizationService,
-    protected reportService: RiskInsightsReportService,
-    private accountService: AccountService,
-    protected criticalAppsService: CriticalAppsService,
-    protected riskInsightsEncryptionService: RiskInsightsEncryptionService,
-  ) {
-    this.searchControl.valueChanges
-      .pipe(debounceTime(200), takeUntilDestroyed())
-      .subscribe((v) => (this.dataSource.filter = v));
   }
 
   goToCreateNewLoginItem = async () => {
