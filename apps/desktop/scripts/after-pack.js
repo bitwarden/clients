@@ -151,7 +151,7 @@ async function addElectronFuses(context) {
   const IS_LINUX = platform === "linux";
   const executableName = IS_LINUX
     ? context.packager.appInfo.productFilename.toLowerCase().replace("-dev", "").replace(" ", "-")
-    : context.packager.appInfo.productFilename.replace(" ", "-"); // .toLowerCase() to accomodate Linux file named `name` but productFileName is `Name` -- Replaces '-dev' because on Linux the executable name is `name` even for the DEV builds
+    : context.packager.appInfo.productFilename; // .toLowerCase() to accomodate Linux file named `name` but productFileName is `Name` -- Replaces '-dev' because on Linux the executable name is `name` even for the DEV builds
 
   const electronBinaryPath = path.join(context.appOutDir, `${executableName}${ext}`);
 
