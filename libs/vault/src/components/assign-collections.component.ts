@@ -26,7 +26,11 @@ import {
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
+import {
+  CollectionService,
+  CollectionTypes,
+  CollectionView,
+} from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
   getOrganizationById,
@@ -311,9 +315,19 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
 
     await this.setReadOnlyCollectionNames();
 
+    const canAccessDefaultCollection = this.canAccessDefaultCollection(
+      this.params.availableCollections,
+    );
+
     this.availableCollections = this.params.availableCollections
       .filter((collection) => {
-        return collection.canEditItems(org);
+        if (canAccessDefaultCollection) {
+          return collection.canEditItems(org);
+        }
+
+        return (
+          collection.canEditItems(org) && collection.type !== CollectionTypes.DefaultUserCollection
+        );
       })
       .map((c) => ({
         icon: "bwi-collection-shared",
@@ -447,8 +461,16 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
         const org = organizations.find((o) => o.id === orgId);
         this.orgName = org.name;
 
-        return collections.filter((c) => {
-          return c.organizationId === orgId && !c.readOnly;
+        const orgCollections = collections.filter((c) => c.organizationId === orgId);
+
+        const canAccessDefaultCollection = this.canAccessDefaultCollection(collections);
+
+        return orgCollections.filter((c) => {
+          if (canAccessDefaultCollection) {
+            return !c.readOnly;
+          }
+
+          return !c.readOnly && c.type !== CollectionTypes.DefaultUserCollection;
         });
       }),
       shareReplay({ refCount: true, bufferSize: 1 }),
@@ -535,5 +557,27 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
         );
       })
       .map((c) => c.name);
+  }
+
+  /**
+   * Determines if the ciphers to be assigned can be assigned to the Default Collection.
+   * When false, the Default Collections should be excluded from the list of available collections.
+   */
+  private canAccessDefaultCollection(collections: CollectionView[]): boolean {
+    const collectionsObject = Object.fromEntries(collections.map((c) => [c.id, c]));
+
+    const allCiphersUnassignedOrInDefault = this.params.ciphers.every(
+      (cipher) =>
+        !cipher.collectionIds.length ||
+        cipher.collectionIds.some(
+          (cId) => collectionsObject[cId]?.type === CollectionTypes.DefaultUserCollection,
+        ),
+    );
+
+    // When all ciphers are either:
+    // - unassigned
+    // - already in a Default Collection
+    // then the Default Collection can be shown.
+    return allCiphersUnassignedOrInDefault;
   }
 }
