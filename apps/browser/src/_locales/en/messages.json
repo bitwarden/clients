@@ -550,7 +550,10 @@
   "resetSearch": {
     "message": "Reset search"
   },
-  "archive": {
+  "archiveNoun": {
+    "message": "Archive"
+  },
+  "archiveVerb": {
     "message": "Archive"
   },
   "unarchive": {

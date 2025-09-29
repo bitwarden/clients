@@ -4114,7 +4114,10 @@
   "editShortcut": {
     "message": "Edit shortcut"
   },
-  "archive": {
+  "archiveNoun": {
+    "message": "Archive"
+  },
+  "archiveVerb": {
     "message": "Archive"
   },
   "unarchive": {

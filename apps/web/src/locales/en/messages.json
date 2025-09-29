@@ -11059,7 +11059,10 @@
   "searchArchive": {
     "message": "Search archive"
   },
-  "archive": {
+  "archiveNoun": {
+    "message": "Archive"
+  },
+  "archiveVerb": {
     "message": "Archive"
   },
   "noItemsInArchive": {
