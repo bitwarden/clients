@@ -4107,32 +4107,5 @@
   },
   "editShortcut": {
     "message": "Uredi prečac"
-  },
-  "archive": {
-    "message": "Arhiviraj"
-  },
-  "unarchive": {
-    "message": "Poništi arhiviranje"
-  },
-  "itemsInArchive": {
-    "message": "Stavke u arhivi"
-  },
-  "noItemsInArchive": {
-    "message": "Nema stavki u arhivi"
-  },
-  "noItemsInArchiveDesc": {
-    "message": "Arhivirane stavke biti će prikazane ovdje i biti će izuzete iz rezultata općih pretraga i preporuka auto-ispune."
-  },
-  "itemSentToArchive": {
-    "message": "Stavka poslana u arhivu"
-  },
-  "itemRemovedFromArchive": {
-    "message": "Stavka maknute iz arhive"
-  },
-  "archiveItem": {
-    "message": "Arhiviraj stavku"
-  },
-  "archiveItemConfirmDesc": {
-    "message": "Arhivirane stavke biti će izuzete iz rezultata općih pretraga i preporuka auto-ispune. Sigurno želiš arhivirati?"
   }
 }

@@ -550,33 +550,6 @@
   "resetSearch": {
     "message": "Скинути пошук"
   },
-  "archive": {
-    "message": "Архівувати"
-  },
-  "unarchive": {
-    "message": "Видобути"
-  },
-  "itemsInArchive": {
-    "message": "Записи в архіві"
-  },
-  "noItemsInArchive": {
-    "message": "Немає записів у архіві"
-  },
-  "noItemsInArchiveDesc": {
-    "message": "Архівовані записи з'являтимуться тут і будуть виключені з результатів звичайного пошуку та пропозицій автозаповнення."
-  },
-  "itemSentToArchive": {
-    "message": "Запис переміщено до архіву"
-  },
-  "itemRemovedFromArchive": {
-    "message": "Запис вилучено з архіву"
-  },
-  "archiveItem": {
-    "message": "Архівувати запис"
-  },
-  "archiveItemConfirmDesc": {
-    "message": "Архівовані записи виключаються з результатів звичайного пошуку та пропозицій автозаповнення. Ви дійсно хочете архівувати цей запис?"
-  },
   "edit": {
     "message": "Змінити"
   },
@@ -584,7 +557,7 @@
     "message": "Переглянути"
   },
   "viewLogin": {
-    "message": "Переглянути запис"
+    "message": "View login"
   },
   "noItemsInList": {
     "message": "Немає записів."
@@ -1782,7 +1755,7 @@
     "message": "Натискання поза межами спливаючого вікна для перевірки коду підтвердження в пошті спричинить його закриття. Хочете відкрити його в новому вікні, щоб воно не закрилося?"
   },
   "showIconsChangePasswordUrls": {
-    "message": "Показувати піктограми вебсайтів та отримувати адреси для зміни паролів"
+    "message": "Show website icons and retrieve change password URLs"
   },
   "cardholderName": {
     "message": "Ім'я власника картки"
@@ -1947,79 +1920,79 @@
     "message": "Нотатка"
   },
   "newItemHeaderLogin": {
-    "message": "Новий запис",
+    "message": "New Login",
     "description": "Header for new login item type"
   },
   "newItemHeaderCard": {
-    "message": "Нова картка",
+    "message": "New Card",
     "description": "Header for new card item type"
   },
   "newItemHeaderIdentity": {
-    "message": "Нове посвідчення",
+    "message": "New Identity",
     "description": "Header for new identity item type"
   },
   "newItemHeaderNote": {
-    "message": "Нова нотатка",
+    "message": "New Note",
     "description": "Header for new note item type"
   },
   "newItemHeaderSshKey": {
-    "message": "Новий ключ SSH",
+    "message": "New SSH key",
     "description": "Header for new SSH key item type"
   },
   "newItemHeaderTextSend": {
-    "message": "Нове текстове відправлення",
+    "message": "New Text Send",
     "description": "Header for new text send"
   },
   "newItemHeaderFileSend": {
-    "message": "Нове файлове відправлення",
+    "message": "New File Send",
     "description": "Header for new file send"
   },
   "editItemHeaderLogin": {
-    "message": "Редагувати запис",
+    "message": "Edit Login",
     "description": "Header for edit login item type"
   },
   "editItemHeaderCard": {
-    "message": "Редагувати картку",
+    "message": "Edit Card",
     "description": "Header for edit card item type"
   },
   "editItemHeaderIdentity": {
-    "message": "Редагувати посвідчення",
+    "message": "Edit Identity",
     "description": "Header for edit identity item type"
   },
   "editItemHeaderNote": {
-    "message": "Редагувати нотатку",
+    "message": "Edit Note",
     "description": "Header for edit note item type"
   },
   "editItemHeaderSshKey": {
-    "message": "Редагувати ключ SSH",
+    "message": "Edit SSH key",
     "description": "Header for edit SSH key item type"
   },
   "editItemHeaderTextSend": {
-    "message": "Редагувати текстове відправлення",
+    "message": "Edit Text Send",
     "description": "Header for edit text send"
   },
   "editItemHeaderFileSend": {
-    "message": "Редагувати файлове відправлення",
+    "message": "Edit File Send",
     "description": "Header for edit file send"
   },
   "viewItemHeaderLogin": {
-    "message": "Перегляд запису",
+    "message": "View Login",
     "description": "Header for view login item type"
   },
   "viewItemHeaderCard": {
-    "message": "Перегляд картки",
+    "message": "View Card",
     "description": "Header for view card item type"
   },
   "viewItemHeaderIdentity": {
-    "message": "Перегляд посвідчення",
+    "message": "View Identity",
     "description": "Header for view identity item type"
   },
   "viewItemHeaderNote": {
-    "message": "Перегляд нотатки",
+    "message": "View Note",
     "description": "Header for view note item type"
   },
   "viewItemHeaderSshKey": {
-    "message": "Перегляд ключа SSH",
+    "message": "View SSH key",
     "description": "Header for view SSH key item type"
   },
   "passwordHistory": {
@@ -3261,7 +3234,7 @@
     "message": "Адреса е-пошти Catch-all"
   },
   "catchallEmailDesc": {
-    "message": "Використовуйте можливості Catch-All власного домену."
+    "message": "Використовуйте свою скриньку вхідних Catch-All власного домену."
   },
   "random": {
     "message": "Випадково"
@@ -5485,10 +5458,10 @@
     "message": "Змінити ризикований пароль"
   },
   "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Цей запис ризикований, і не має адреси вебсайту. Додайте адресу вебсайту і змініть пароль для вдосконалення безпеки."
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
   },
   "missingWebsite": {
-    "message": "Немає вебсайту"
+    "message": "Missing website"
   },
   "settingsVaultOptions": {
     "message": "Параметри сховища"
@@ -5539,16 +5512,16 @@
     "message": "Вітаємо у вашому сховищі!"
   },
   "phishingPageTitle": {
-    "message": "Шахрайський вебсайт"
+    "message": "Phishing website"
   },
   "phishingPageCloseTab": {
-    "message": "Закрити вкладку"
+    "message": "Close tab"
   },
   "phishingPageContinue": {
-    "message": "Продовжити"
+    "message": "Continue"
   },
   "phishingPageLearnWhy": {
-    "message": "Чому ви це бачите?"
+    "message": "Why are you seeing this?"
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Автозаповнення записів для поточної сторінки"
@@ -5626,10 +5599,10 @@
     "description": "Aria label for the body content of the generator nudge"
   },
   "aboutThisSetting": {
-    "message": "Про ці налаштування"
+    "message": "About this setting"
   },
   "permitCipherDetailsDescription": {
-    "message": "Bitwarden використовуватиме збережені URI-адреси записів для визначення піктограм вебсайтів або URL-адрес для зміни паролів, щоб вдосконалити вашу роботу. Під час використання цієї послуги ваша інформація не збирається і не зберігається."
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
   },
   "noPermissionsViewPage": {
     "message": "У вас немає дозволу переглядати цю сторінку. Спробуйте ввійти з іншим обліковим записом."
@@ -5652,6 +5625,6 @@
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   },
   "confirmKeyConnectorDomain": {
-    "message": "Підтвердити домен Key Connector"
+    "message": "Confirm Key Connector domain"
   }
 }

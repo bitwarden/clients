@@ -6,11 +6,11 @@
     "message": "Bitwarden logó"
   },
   "extName": {
-    "message": "Bitwarden Jelszókezelő",
+    "message": "Bitwarden Password Manager",
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
   },
   "extDesc": {
-    "message": "Legyen otthon, munkában, vagy úton, a Bitwarden könnyen biztosítja jelszavát, kulcsait, és kényes információit",
+    "message": "At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information",
     "description": "Extension description, MUST be less than 112 characters (Safari restriction)"
   },
   "loginOrCreateNewAccount": {
@@ -550,33 +550,6 @@
   "resetSearch": {
     "message": "Keresés visszaállítása"
   },
-  "archive": {
-    "message": "Archívum"
-  },
-  "unarchive": {
-    "message": "Visszavétel archívumból"
-  },
-  "itemsInArchive": {
-    "message": "Archívum elemek száma"
-  },
-  "noItemsInArchive": {
-    "message": "Nincs elem az archívumban."
-  },
-  "noItemsInArchiveDesc": {
-    "message": "Az archivált elemek itt jelennek meg és kizárásra kerülnek az általános keresési eredményekből és az automatikus kitöltési javaslatokból."
-  },
-  "itemSentToArchive": {
-    "message": "Archívumba küldött elemek száma"
-  },
-  "itemRemovedFromArchive": {
-    "message": "Az elem kikerült a kedvencekből."
-  },
-  "archiveItem": {
-    "message": "Elem archiválása"
-  },
-  "archiveItemConfirmDesc": {
-    "message": "Az archivált elemek ki vannak zárva az általános keresési eredményekből és az automatikus kitöltési javaslatokból. Biztosan archiválni szeretnénk ezt az elemet?"
-  },
   "edit": {
     "message": "Szerkesztés"
   },
@@ -893,13 +866,13 @@
     "message": "Kijelentkezett"
   },
   "loggedOutDesc": {
-    "message": "Kijelentkezett fiókjából."
+    "message": "You have been logged out of your account."
   },
   "loginExpired": {
     "message": "Bejelentkezési munkamenete lejárt."
   },
   "logIn": {
-    "message": "Bejelentkezés"
+    "message": "Log in"
   },
   "logInToBitwarden": {
     "message": "Bejelentkezés a Bitwardenbe"
@@ -923,16 +896,16 @@
     "message": "Kövessük az alábbi lépéseket a biztonsági kulccsal bejelentkezés befejezéséhez."
   },
   "restartRegistration": {
-    "message": "Regisztráció újraindítása"
+    "message": "Restart registration"
   },
   "expiredLink": {
-    "message": "Lejárt hivatkozás"
+    "message": "Expired link"
   },
   "pleaseRestartRegistrationOrTryLoggingIn": {
-    "message": "Kérem kezdje újra a regisztrációt, vagy próbáljon meg bejelentkezni."
+    "message": "Please restart registration or try logging in."
   },
   "youMayAlreadyHaveAnAccount": {
-    "message": "Lehetséges, hogy már rendelkezik fiókkal"
+    "message": "You may already have an account"
   },
   "logOutConfirmation": {
     "message": "Biztos benne, hogy ki szeretnél jelentkezni?"
@@ -1203,7 +1176,7 @@
     "description": "Error message shown when the system fails to save login details."
   },
   "saveFailureDetails": {
-    "message": "Ja ne! Nem tudtuk elmenteni. Próbálja meg beírni a kézzel.",
+    "message": "Oh no! We couldn't save this. Try entering the details manually.",
     "description": "Detailed error message shown when saving login details fails."
   },
   "changePasswordWarning": {
@@ -1633,7 +1606,7 @@
     "description": "Represents the message for allowing the user to enable the autofill overlay"
   },
   "autofillSuggestionsSectionTitle": {
-    "message": "Automatikus kitöltés javaslatok"
+    "message": "Autofill suggestions"
   },
   "autofillSpotlightTitle": {
     "message": "Az automatikus kitöltési javaslatok könnyű megtalálása"

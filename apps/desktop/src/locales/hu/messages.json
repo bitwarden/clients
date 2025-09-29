@@ -4107,32 +4107,5 @@
   },
   "editShortcut": {
     "message": "Parancsikon szerkesztése"
-  },
-  "archive": {
-    "message": "Archívum"
-  },
-  "unarchive": {
-    "message": "Visszavétel archívumból"
-  },
-  "itemsInArchive": {
-    "message": "Archívum elemek száma"
-  },
-  "noItemsInArchive": {
-    "message": "Nincs elem az archívumban."
-  },
-  "noItemsInArchiveDesc": {
-    "message": "Az archivált elemek itt jelennek meg és kizárásra kerülnek az általános keresési eredményekből és az automatikus kitöltési javaslatokból."
-  },
-  "itemSentToArchive": {
-    "message": "Archívumba küldött elemek száma"
-  },
-  "itemRemovedFromArchive": {
-    "message": "Az elem kikerült az archívumból."
-  },
-  "archiveItem": {
-    "message": "Elem archiválása"
-  },
-  "archiveItemConfirmDesc": {
-    "message": "Az archivált elemek ki vannak zárva az általános keresési eredményekből és az automatikus kitöltési javaslatokból. Biztosan archiválni szeretnénk ezt az elemet?"
   }
 }

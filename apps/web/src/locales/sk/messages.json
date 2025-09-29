@@ -3,7 +3,7 @@
     "message": "Všetky aplikácie"
   },
   "activity": {
-    "message": "Aktivita"
+    "message": "Activity"
   },
   "appLogoLabel": {
     "message": "Logo Bitwarden"
@@ -60,7 +60,7 @@
     "message": "Pridať novu položku s prihlásením"
   },
   "criticalApplicationsActivityDescription": {
-    "message": "Tu sa zobrazia aplikácie, ktoré označíte za kritické."
+    "message": "Once you mark applications critical, they will display here."
   },
   "criticalApplicationsWithCount": {
     "message": "Kritické aplikácie ($COUNT$)",
@@ -72,7 +72,7 @@
     }
   },
   "countOfCriticalApplications": {
-    "message": "$COUNT$ kritických aplikácií",
+    "message": "$COUNT$ critical applications",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -135,10 +135,10 @@
     "message": "Ohrozených členov"
   },
   "membersAtRiskActivityDescription": {
-    "message": "Členovia s oprávnením upravovať ohrozené položky kritických aplikácii"
+    "message": "Members with edit access to at-risk items for critical applications"
   },
   "membersAtRisk": {
-    "message": "$COUNT$ ohrozených členov",
+    "message": "$COUNT$ members at risk",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -762,79 +762,79 @@
     "message": "Zobraziť položku"
   },
   "newItemHeaderLogin": {
-    "message": "Nové prihlásenie",
+    "message": "New Login",
     "description": "Header for new login item type"
   },
   "newItemHeaderCard": {
-    "message": "Nová karta",
+    "message": "New Card",
     "description": "Header for new card item type"
   },
   "newItemHeaderIdentity": {
-    "message": "Nová identita",
+    "message": "New Identity",
     "description": "Header for new identity item type"
   },
   "newItemHeaderNote": {
-    "message": "Nová poznámka",
+    "message": "New Note",
     "description": "Header for new note item type"
   },
   "newItemHeaderSshKey": {
-    "message": "Nový kľúč SSH",
+    "message": "New SSH key",
     "description": "Header for new SSH key item type"
   },
   "newItemHeaderTextSend": {
-    "message": "Nový textový Send",
+    "message": "New Text Send",
     "description": "Header for new text send"
   },
   "newItemHeaderFileSend": {
-    "message": "Nový súborový Send",
+    "message": "New File Send",
     "description": "Header for new file send"
   },
   "editItemHeaderLogin": {
-    "message": "Upraviť prihlásenie",
+    "message": "Edit Login",
     "description": "Header for edit login item type"
   },
   "editItemHeaderCard": {
-    "message": "Upraviť kartu",
+    "message": "Edit Card",
     "description": "Header for edit card item type"
   },
   "editItemHeaderIdentity": {
-    "message": "Upraviť identitu",
+    "message": "Edit Identity",
     "description": "Header for edit identity item type"
   },
   "editItemHeaderNote": {
-    "message": "Upraviť poznámku",
+    "message": "Edit Note",
     "description": "Header for edit note item type"
   },
   "editItemHeaderSshKey": {
-    "message": "Upraviť kľúč SSH",
+    "message": "Edit SSH key",
     "description": "Header for edit SSH key item type"
   },
   "editItemHeaderTextSend": {
-    "message": "Upraviť textový Send",
+    "message": "Edit Text Send",
     "description": "Header for edit text send"
   },
   "editItemHeaderFileSend": {
-    "message": "Upraviť súborový Send",
+    "message": "Edit File Send",
     "description": "Header for edit file send"
   },
   "viewItemHeaderLogin": {
-    "message": "Zobraziť prihlásenie",
+    "message": "View Login",
     "description": "Header for view login item type"
   },
   "viewItemHeaderCard": {
-    "message": "Zobraziť kartu",
+    "message": "View Card",
     "description": "Header for view card item type"
   },
   "viewItemHeaderIdentity": {
-    "message": "Zobraziť identitu",
+    "message": "View Identity",
     "description": "Header for view identity item type"
   },
   "viewItemHeaderNote": {
-    "message": "Zobraziť poznámku",
+    "message": "View Note",
     "description": "Header for view note item type"
   },
   "viewItemHeaderSshKey": {
-    "message": "Zobraziť kľúč SSH",
+    "message": "View SSH key",
     "description": "Header for view SSH key item type"
   },
   "new": {
@@ -5557,13 +5557,6 @@
   "personalOwnershipSubmitError": {
     "message": "Z dôvodu podnikovej politiky máte obmedzené ukladanie položiek do osobného trezora. Zmeňte možnosť vlastníctvo na organizáciu a vyberte si z dostupných zbierok."
   },
-  "desktopAutotypePolicy": {
-    "message": "Východzie nastavenie automatického vpisovania pre desktop"
-  },
-  "desktopAutotypePolicyDesc": {
-    "message": "Vo východzom nastavení desktopu zapnúť členom automatické vpisovanie. Členovia si môžu automatické vpisovanie vypnúť v nastaveniach desktop klienta.",
-    "description": "This policy will enable Desktop Autotype by default for members on Unlock."
-  },
   "disableSend": {
     "message": "Zakázať Send"
   },
@@ -6727,15 +6720,6 @@
   },
   "disabledSso": {
     "message": "SSO zakázané"
-  },
-  "emailMustLoginWithSso": {
-    "message": "$EMAIL$ sa musí prihlásiť cez prihlasovací formulár spoločnosti ",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
   },
   "enabledKeyConnector": {
     "message": "Key Connector activated"
@@ -9756,7 +9740,7 @@
     "message": "Nepodarilo sa uložiť integráciu. Prosím skúste to neskôr."
   },
   "failedToDeleteIntegration": {
-    "message": "Nepodarilo sa odstrániť integráciu. Prosím skúste to neskôr."
+    "message": "Failed to delete integration. Please try again later."
   },
   "deviceIdMissing": {
     "message": "Chýba ID zariadenia"
@@ -11021,18 +11005,6 @@
   "cannotCreateCollection": {
     "message": "Bezplatné organizácie môžu mat maximálne dve zbierky. Ak chcete pridať viac zbierok povýšte na platené predplatné."
   },
-  "searchArchive": {
-    "message": "Prehľadať archív"
-  },
-  "archive": {
-    "message": "Archív"
-  },
-  "noItemsInArchive": {
-    "message": "Žiadne položky v archíve"
-  },
-  "archivedItemsDescription": {
-    "message": "Tu sa zobrazia archivované položky, ktoré budú vylúčené zo všeobecného vyhľadávania a z návrhov automatického vypĺňania."
-  },
   "businessUnit": {
     "message": "Organizačná jednotka"
   },
@@ -11365,137 +11337,5 @@
   },
   "verifyNow": {
     "message": "Overiť teraz."
-  },
-  "additionalStorageGB": {
-    "message": "Dodatočné úložisko GB"
-  },
-  "additionalServiceAccountsV2": {
-    "message": "Dodatočné strojové účty"
-  },
-  "secretsManagerSeats": {
-    "message": "Sedenia pre Secrets Manager"
-  },
-  "additionalStorage": {
-    "message": "Dodatočné úložisko"
-  },
-  "expandPurchaseDetails": {
-    "message": "Rozbaliť detaily nákupu"
-  },
-  "collapsePurchaseDetails": {
-    "message": "Zložiť detaily nákupu"
-  },
-  "familiesMembership": {
-    "message": "Členstvo pre rodiny"
-  },
-  "planDescPremium": {
-    "message": "Complete online security"
-  },
-  "planDescFamiliesV2": {
-    "message": "Premium security for your family"
-  },
-  "planDescFreeV2": {
-    "message": "Share with $COUNT$ other user",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "1"
-      }
-    }
-  },
-  "planDescEnterpriseV2": {
-    "message": "Advanced capabilities for any organization"
-  },
-  "planNameCustom": {
-    "message": "Custom plan"
-  },
-  "planDescCustom": {
-    "message": "Bitwarden scales with businesses of all sizes to secure passwords and sensitive information. If you're part of a large enterprise, contact sales to request a quote."
-  },
-  "builtInAuthenticator": {
-    "message": "Built-in authenticator"
-  },
-  "breachMonitoring": {
-    "message": "Breach monitoring"
-  },
-  "andMoreFeatures": {
-    "message": "And more!"
-  },
-  "secureFileStorage": {
-    "message": "Secure file storage"
-  },
-  "familiesUnlimitedSharing": {
-    "message": "Unlimited sharing - choose who sees what"
-  },
-  "familiesUnlimitedCollections": {
-    "message": "Unlimited family collections"
-  },
-  "familiesSharedStorage": {
-    "message": "Shared storage for important family info"
-  },
-  "limitedUsersV2": {
-    "message": "Up to $COUNT$ members",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "2"
-      }
-    }
-  },
-  "limitedCollectionsV2": {
-    "message": "Up to $COUNT$ collections",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "2"
-      }
-    }
-  },
-  "alwaysFree": {
-    "message": "Always free"
-  },
-  "twoSecretsIncluded": {
-    "message": "2 secrets"
-  },
-  "projectsIncludedV2": {
-    "message": "$COUNT$ project(s)",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "1"
-      }
-    }
-  },
-  "secureItemSharing": {
-    "message": "Secure item sharing"
-  },
-  "scimSupport": {
-    "message": "SCIM support"
-  },
-  "includedMachineAccountsV2": {
-    "message": "$COUNT$ machine accounts",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "20"
-      }
-    }
-  },
-  "enterpriseSecurityPolicies": {
-    "message": "Enterprise security policies"
-  },
-  "selfHostOption": {
-    "message": "Self-host option"
-  },
-  "complimentaryFamiliesPlan": {
-    "message": "Complimentary families plan for all users"
-  },
-  "strengthenCybersecurity": {
-    "message": "Strengthen cybersecurity"
-  },
-  "boostProductivity": {
-    "message": "Boost productivity"
-  },
-  "seamlessIntegration": {
-    "message": "Seamless integration"
   }
 }

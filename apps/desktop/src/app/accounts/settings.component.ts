@@ -58,7 +58,6 @@ import { KeyService, BiometricStateService, BiometricsStatus } from "@bitwarden/
 import { PermitCipherDetailsPopoverComponent } from "@bitwarden/vault";
 
 import { SetPinComponent } from "../../auth/components/set-pin.component";
-import { AutotypeShortcutComponent } from "../../autofill/components/autotype-shortcut.component";
 import { SshAgentPromptType } from "../../autofill/models/ssh-agent-setting";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
 import { DesktopAutotypeService } from "../../autofill/services/desktop-autotype.service";
@@ -112,7 +111,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
   requireEnableTray = false;
   showDuckDuckGoIntegrationOption = false;
   showEnableAutotype = false;
-  autotypeShortcut: string;
   showOpenAtLoginOption = false;
   isWindows: boolean;
   isLinux: boolean;
@@ -175,7 +173,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
       value: false,
       disabled: true,
     }),
-    autotypeShortcut: [null as string | null],
     theme: [null as Theme | null],
     locale: [null as string | null],
   });
@@ -400,9 +397,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
       ),
       allowScreenshots: !(await firstValueFrom(this.desktopSettingsService.preventScreenshots$)),
       enableAutotype: await firstValueFrom(this.desktopAutotypeService.autotypeEnabledUserSetting$),
-      autotypeShortcut: this.getFormattedAutotypeShortcutText(
-        (await firstValueFrom(this.desktopAutotypeService.autotypeKeyboardShortcut$)) ?? [],
-      ),
       theme: await firstValueFrom(this.themeStateService.selectedTheme$),
       locale: await firstValueFrom(this.i18nService.userSetLocale$),
     };
@@ -903,29 +897,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   async saveEnableAutotype() {
     await this.desktopAutotypeService.setAutotypeEnabledState(this.form.value.enableAutotype);
-    const currentShortcut = await firstValueFrom(
-      this.desktopAutotypeService.autotypeKeyboardShortcut$,
-    );
-    if (currentShortcut) {
-      this.form.controls.autotypeShortcut.setValue(
-        this.getFormattedAutotypeShortcutText(currentShortcut),
-      );
-    }
-  }
-
-  async saveAutotypeShortcut() {
-    const dialogRef = AutotypeShortcutComponent.open(this.dialogService);
-
-    const newShortcutArray = await firstValueFrom(dialogRef.closed);
-
-    if (!newShortcutArray) {
-      return;
-    }
-
-    this.form.controls.autotypeShortcut.setValue(
-      this.getFormattedAutotypeShortcutText(newShortcutArray),
-    );
-    await this.desktopAutotypeService.setAutotypeKeyboardShortcutState(newShortcutArray);
   }
 
   private async generateVaultTimeoutOptions(): Promise<VaultTimeoutOption[]> {
@@ -972,9 +943,5 @@ export class SettingsComponent implements OnInit, OnDestroy {
       default:
         throw new Error("Unsupported platform");
     }
-  }
-
-  getFormattedAutotypeShortcutText(shortcut: string[]) {
-    return shortcut ? shortcut.join("+").replace("Super", "Win") : null;
   }
 }

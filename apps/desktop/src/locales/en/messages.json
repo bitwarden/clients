@@ -4080,17 +4080,11 @@
   "showLess": {
     "message": "Show less"
   },
+  "enableAutotype": {
+    "message": "Enable Autotype"
+  },
   "enableAutotypeDescription": {
     "message": "Bitwarden does not validate input locations, be sure you are in the right window and field before using the shortcut."
-  },
-  "typeShortcut": {
-    "message": "Type shortcut"
-  },
-  "editAutotypeShortcutDescription": {
-    "message": "Include one or two of the following modifiers: Ctrl, Alt, Win, or Shift, and a letter."
-  },
-  "invalidShortcut": {
-    "message": "Invalid shortcut"
   },
   "moreBreadcrumbs": {
     "message": "More breadcrumbs",
@@ -4105,8 +4099,8 @@
   "confirm": {
     "message": "Confirm"
   },
-  "enableAutotypeShortcutPreview": {
-    "message": "Enable autotype shortcut (Feature Preview)"
+  "enableAutotypeTransitionKey": {
+    "message": "Enable autotype shortcut"
   },
   "enableAutotypeDescriptionTransitionKey": {
     "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."

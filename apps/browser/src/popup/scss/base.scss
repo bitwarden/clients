@@ -151,7 +151,6 @@ textarea {
 
 app-root > div {
   height: 100%;
-  width: 100%;
 }
 
 main::-webkit-scrollbar,
@@ -374,8 +373,7 @@ header:not(bit-callout header, bit-dialog header, popup-page header) {
 
 app-root {
   width: 100%;
-  height: 100vh;
-  display: flex;
+  height: 100%;
 
   @include themify($themes) {
     background-color: themed("backgroundColor");

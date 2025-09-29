@@ -70,7 +70,7 @@ describe("CriticalAppsService", () => {
     const orgKey$ = new BehaviorSubject(OrgRecords);
     keyService.orgKeys$.mockReturnValue(orgKey$);
 
-    service.loadOrganizationContext(SomeOrganization, SomeUser);
+    service.setOrganizationId(SomeOrganization, SomeUser);
 
     // act
     await service.setCriticalApps(SomeOrganization, criticalApps);
@@ -112,7 +112,7 @@ describe("CriticalAppsService", () => {
     const orgKey$ = new BehaviorSubject(OrgRecords);
     keyService.orgKeys$.mockReturnValue(orgKey$);
 
-    service.loadOrganizationContext(SomeOrganization, SomeUser);
+    service.setOrganizationId(SomeOrganization, SomeUser);
 
     // act
     await service.setCriticalApps(SomeOrganization, selectedUrls);
@@ -136,7 +136,7 @@ describe("CriticalAppsService", () => {
     const orgKey$ = new BehaviorSubject(OrgRecords);
     keyService.orgKeys$.mockReturnValue(orgKey$);
 
-    service.loadOrganizationContext(SomeOrganization, SomeUser);
+    service.setOrganizationId(SomeOrganization, SomeUser);
 
     expect(keyService.orgKeys$).toHaveBeenCalledWith(SomeUser);
     expect(encryptService.decryptString).toHaveBeenCalledTimes(2);
@@ -154,7 +154,7 @@ describe("CriticalAppsService", () => {
 
     const orgKey$ = new BehaviorSubject(OrgRecords);
     keyService.orgKeys$.mockReturnValue(orgKey$);
-    service.loadOrganizationContext(SomeOrganization, SomeUser);
+    service.setOrganizationId(SomeOrganization, SomeUser);
     service.setAppsInListForOrg(response);
     service.getAppsListForOrg(orgId as OrganizationId).subscribe((res) => {
       expect(res).toHaveLength(2);
@@ -173,7 +173,7 @@ describe("CriticalAppsService", () => {
     const orgKey$ = new BehaviorSubject(OrgRecords);
     keyService.orgKeys$.mockReturnValue(orgKey$);
 
-    service.loadOrganizationContext(SomeOrganization, SomeUser);
+    service.setOrganizationId(SomeOrganization, SomeUser);
 
     service.setAppsInListForOrg(initialList);
 
@@ -204,7 +204,7 @@ describe("CriticalAppsService", () => {
     const orgKey$ = new BehaviorSubject(OrgRecords);
     keyService.orgKeys$.mockReturnValue(orgKey$);
 
-    service.loadOrganizationContext(SomeOrganization, SomeUser);
+    service.setOrganizationId(SomeOrganization, SomeUser);
 
     service.setAppsInListForOrg(initialList);
 

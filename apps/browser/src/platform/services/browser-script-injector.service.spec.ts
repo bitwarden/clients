@@ -41,10 +41,7 @@ describe("ScriptInjectorService", () => {
   const mv2SpecificFile = "content/autofill-init-mv2.js";
   const mv2Details = { file: mv2SpecificFile };
   const mv3SpecificFile = "content/autofill-init-mv3.js";
-  const mv3Details: Mv3ScriptInjectionDetails = {
-    file: mv3SpecificFile,
-    world: chrome.scripting.ExecutionWorld.MAIN,
-  };
+  const mv3Details: Mv3ScriptInjectionDetails = { file: mv3SpecificFile, world: "MAIN" };
   const sharedInjectDetails: CommonScriptInjectionDetails = {
     runAt: "document_start",
   };

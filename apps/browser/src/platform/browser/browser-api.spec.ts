@@ -375,7 +375,7 @@ describe("BrowserApi", () => {
   describe("executeScriptInTab", () => {
     it("calls to the extension api to execute a script within the give tabId", async () => {
       const tabId = 1;
-      const injectDetails = mock<chrome.extensionTypes.InjectDetails>();
+      const injectDetails = mock<chrome.tabs.InjectDetails>();
       jest.spyOn(BrowserApi, "manifestVersion", "get").mockReturnValue(2);
       (chrome.tabs.executeScript as jest.Mock).mockImplementation(
         (tabId, injectDetails, callback) => callback(executeScriptResult),
@@ -393,7 +393,7 @@ describe("BrowserApi", () => {
 
     it("calls the manifest v3 scripting API if the extension manifest is for v3", async () => {
       const tabId = 1;
-      const injectDetails = mock<chrome.extensionTypes.InjectDetails>({
+      const injectDetails = mock<chrome.tabs.InjectDetails>({
         file: "file.js",
         allFrames: true,
         runAt: "document_start",
@@ -419,7 +419,7 @@ describe("BrowserApi", () => {
     it("injects the script into a specified frameId when the extension is built for manifest v3", async () => {
       const tabId = 1;
       const frameId = 2;
-      const injectDetails = mock<chrome.extensionTypes.InjectDetails>({
+      const injectDetails = mock<chrome.tabs.InjectDetails>({
         file: "file.js",
         allFrames: true,
         runAt: "document_start",
@@ -443,7 +443,7 @@ describe("BrowserApi", () => {
 
     it("injects the script into the MAIN world context when injecting a script for manifest v3", async () => {
       const tabId = 1;
-      const injectDetails = mock<chrome.extensionTypes.InjectDetails>({
+      const injectDetails = mock<chrome.tabs.InjectDetails>({
         file: null,
         allFrames: true,
         runAt: "document_start",

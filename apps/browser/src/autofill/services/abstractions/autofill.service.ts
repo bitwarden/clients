@@ -30,7 +30,6 @@ export interface AutoFillOptions {
   allowUntrustedIframe?: boolean;
   allowTotpAutofill?: boolean;
   autoSubmitLogin?: boolean;
-  focusedFieldForm?: string;
 }
 
 export interface FormData {

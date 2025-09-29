@@ -1,6 +1,5 @@
 import { BehaviorSubject, firstValueFrom, map, Subject, switchMap, takeUntil, zip } from "rxjs";
 
-import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import {
   OrganizationId,
   OrganizationIntegrationId,
@@ -21,11 +20,6 @@ import { OrganizationIntegrationType } from "../models/organization-integration-
 import { OrganizationIntegrationApiService } from "./organization-integration-api.service";
 import { OrganizationIntegrationConfigurationApiService } from "./organization-integration-configuration-api.service";
 
-export type HecModificationFailureReason = {
-  mustBeOwner: boolean;
-  success: boolean;
-};
-
 export class HecOrganizationIntegrationService {
   private organizationId$ = new BehaviorSubject<OrganizationId | null>(null);
   private _integrations$ = new BehaviorSubject<OrganizationIntegration[]>([]);
@@ -40,7 +34,7 @@ export class HecOrganizationIntegrationService {
           const data$ = await this.setIntegrations(orgId);
           return await firstValueFrom(data$);
         } else {
-          return [] as OrganizationIntegration[];
+          return this._integrations$.getValue();
         }
       }),
       takeUntil(this.destroy$),
@@ -62,10 +56,6 @@ export class HecOrganizationIntegrationService {
    * @param orgId
    */
   setOrganizationIntegrations(orgId: OrganizationId) {
-    if (orgId == this.organizationId$.getValue()) {
-      return;
-    }
-    this._integrations$.next([]);
     this.organizationId$.next(orgId);
   }
 
@@ -83,39 +73,31 @@ export class HecOrganizationIntegrationService {
     url: string,
     bearerToken: string,
     index: string,
-  ): Promise<HecModificationFailureReason> {
+  ) {
     if (organizationId != this.organizationId$.getValue()) {
       throw new Error("Organization ID mismatch");
     }
 
-    try {
-      const hecConfig = new HecConfiguration(url, bearerToken, service);
-      const newIntegrationResponse = await this.integrationApiService.createOrganizationIntegration(
+    const hecConfig = new HecConfiguration(url, bearerToken, service);
+    const newIntegrationResponse = await this.integrationApiService.createOrganizationIntegration(
+      organizationId,
+      new OrganizationIntegrationRequest(OrganizationIntegrationType.Hec, hecConfig.toString()),
+    );
+
+    const newTemplate = new HecTemplate(index, service);
+    const newIntegrationConfigResponse =
+      await this.integrationConfigurationApiService.createOrganizationIntegrationConfiguration(
         organizationId,
-        new OrganizationIntegrationRequest(OrganizationIntegrationType.Hec, hecConfig.toString()),
+        newIntegrationResponse.id,
+        new OrganizationIntegrationConfigurationRequest(null, null, null, newTemplate.toString()),
       );
 
-      const newTemplate = new HecTemplate(index, service);
-      const newIntegrationConfigResponse =
-        await this.integrationConfigurationApiService.createOrganizationIntegrationConfiguration(
-          organizationId,
-          newIntegrationResponse.id,
-          new OrganizationIntegrationConfigurationRequest(null, null, null, newTemplate.toString()),
-        );
-
-      const newIntegration = this.mapResponsesToOrganizationIntegration(
-        newIntegrationResponse,
-        newIntegrationConfigResponse,
-      );
-      if (newIntegration !== null) {
-        this._integrations$.next([...this._integrations$.getValue(), newIntegration]);
-      }
-      return { mustBeOwner: false, success: true };
-    } catch (error) {
-      if (error instanceof ErrorResponse && error.statusCode === 404) {
-        return { mustBeOwner: true, success: false };
-      }
-      throw error;
+    const newIntegration = this.mapResponsesToOrganizationIntegration(
+      newIntegrationResponse,
+      newIntegrationConfigResponse,
+    );
+    if (newIntegration !== null) {
+      this._integrations$.next([...this._integrations$.getValue(), newIntegration]);
     }
   }
 
@@ -137,48 +119,40 @@ export class HecOrganizationIntegrationService {
     url: string,
     bearerToken: string,
     index: string,
-  ): Promise<HecModificationFailureReason> {
+  ) {
     if (organizationId != this.organizationId$.getValue()) {
       throw new Error("Organization ID mismatch");
     }
 
-    try {
-      const hecConfig = new HecConfiguration(url, bearerToken, service);
-      const updatedIntegrationResponse =
-        await this.integrationApiService.updateOrganizationIntegration(
-          organizationId,
-          OrganizationIntegrationId,
-          new OrganizationIntegrationRequest(OrganizationIntegrationType.Hec, hecConfig.toString()),
-        );
-
-      const updatedTemplate = new HecTemplate(index, service);
-      const updatedIntegrationConfigResponse =
-        await this.integrationConfigurationApiService.updateOrganizationIntegrationConfiguration(
-          organizationId,
-          OrganizationIntegrationId,
-          OrganizationIntegrationConfigurationId,
-          new OrganizationIntegrationConfigurationRequest(
-            null,
-            null,
-            null,
-            updatedTemplate.toString(),
-          ),
-        );
-
-      const updatedIntegration = this.mapResponsesToOrganizationIntegration(
-        updatedIntegrationResponse,
-        updatedIntegrationConfigResponse,
+    const hecConfig = new HecConfiguration(url, bearerToken, service);
+    const updatedIntegrationResponse =
+      await this.integrationApiService.updateOrganizationIntegration(
+        organizationId,
+        OrganizationIntegrationId,
+        new OrganizationIntegrationRequest(OrganizationIntegrationType.Hec, hecConfig.toString()),
       );
 
-      if (updatedIntegration !== null) {
-        this._integrations$.next([...this._integrations$.getValue(), updatedIntegration]);
-      }
-      return { mustBeOwner: false, success: true };
-    } catch (error) {
-      if (error instanceof ErrorResponse && error.statusCode === 404) {
-        return { mustBeOwner: true, success: false };
-      }
-      throw error;
+    const updatedTemplate = new HecTemplate(index, service);
+    const updatedIntegrationConfigResponse =
+      await this.integrationConfigurationApiService.updateOrganizationIntegrationConfiguration(
+        organizationId,
+        OrganizationIntegrationId,
+        OrganizationIntegrationConfigurationId,
+        new OrganizationIntegrationConfigurationRequest(
+          null,
+          null,
+          null,
+          updatedTemplate.toString(),
+        ),
+      );
+
+    const updatedIntegration = this.mapResponsesToOrganizationIntegration(
+      updatedIntegrationResponse,
+      updatedIntegrationConfigResponse,
+    );
+
+    if (updatedIntegration !== null) {
+      this._integrations$.next([...this._integrations$.getValue(), updatedIntegration]);
     }
   }
 
@@ -186,38 +160,28 @@ export class HecOrganizationIntegrationService {
     organizationId: OrganizationId,
     OrganizationIntegrationId: OrganizationIntegrationId,
     OrganizationIntegrationConfigurationId: OrganizationIntegrationConfigurationId,
-  ): Promise<HecModificationFailureReason> {
+  ) {
     if (organizationId != this.organizationId$.getValue()) {
       throw new Error("Organization ID mismatch");
     }
+    // delete the configuration first due to foreign key constraint
+    await this.integrationConfigurationApiService.deleteOrganizationIntegrationConfiguration(
+      organizationId,
+      OrganizationIntegrationId,
+      OrganizationIntegrationConfigurationId,
+    );
 
-    try {
-      // delete the configuration first due to foreign key constraint
-      await this.integrationConfigurationApiService.deleteOrganizationIntegrationConfiguration(
-        organizationId,
-        OrganizationIntegrationId,
-        OrganizationIntegrationConfigurationId,
-      );
+    // delete the integration
+    await this.integrationApiService.deleteOrganizationIntegration(
+      organizationId,
+      OrganizationIntegrationId,
+    );
 
-      // delete the integration
-      await this.integrationApiService.deleteOrganizationIntegration(
-        organizationId,
-        OrganizationIntegrationId,
-      );
-
-      // update the local observable
-      const updatedIntegrations = this._integrations$
-        .getValue()
-        .filter((i) => i.id !== OrganizationIntegrationId);
-      this._integrations$.next(updatedIntegrations);
-
-      return { mustBeOwner: false, success: true };
-    } catch (error) {
-      if (error instanceof ErrorResponse && error.statusCode === 404) {
-        return { mustBeOwner: true, success: false };
-      }
-      throw error;
-    }
+    // update the local observable
+    const updatedIntegrations = this._integrations$
+      .getValue()
+      .filter((i) => i.id !== OrganizationIntegrationId);
+    this._integrations$.next(updatedIntegrations);
   }
 
   /**

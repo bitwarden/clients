@@ -127,8 +127,8 @@ export default {
       },
     );
   },
-  configureAutotype: (enabled: boolean, keyboardShortcut: string[]) => {
-    ipcRenderer.send("autofill.configureAutotype", { enabled, keyboardShortcut });
+  configureAutotype: (enabled: boolean) => {
+    ipcRenderer.send("autofill.configureAutotype", { enabled });
   },
   listenAutotypeRequest: (
     fn: (

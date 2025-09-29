@@ -1,4 +1,4 @@
-import { Injectable, Optional } from "@angular/core";
+import { Injectable } from "@angular/core";
 import { Router } from "@angular/router";
 import { Subject } from "rxjs";
 
@@ -16,7 +16,7 @@ export class WebVaultPremiumUpgradePromptService implements PremiumUpgradePrompt
   constructor(
     private dialogService: DialogService,
     private router: Router,
-    @Optional() private dialog?: DialogRef<VaultItemDialogResult>,
+    private dialog: DialogRef<VaultItemDialogResult>,
   ) {}
 
   /**
@@ -53,7 +53,7 @@ export class WebVaultPremiumUpgradePromptService implements PremiumUpgradePrompt
     if (route) {
       await this.router.navigate(route);
     }
-    if (confirmed && this.dialog) {
+    if (confirmed) {
       this.dialog.close(VaultItemDialogResult.PremiumUpgrade);
     }
   }

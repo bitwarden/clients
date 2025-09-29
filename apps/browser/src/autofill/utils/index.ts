@@ -499,24 +499,11 @@ export function isInvalidResponseStatusCode(statusCode: number) {
  * Determines if the current context is within a sandboxed iframe.
  */
 export function currentlyInSandboxedIframe(): boolean {
-  if (String(self.origin).toLowerCase() === "null" || globalThis.location.hostname === "") {
-    return true;
-  }
-
-  const sandbox = globalThis.frameElement?.getAttribute?.("sandbox");
-
-  // No frameElement or sandbox attribute means not sandboxed
-  if (sandbox === null || sandbox === undefined) {
-    return false;
-  }
-
-  // An empty string means fully sandboxed
-  if (sandbox === "") {
-    return true;
-  }
-
-  const tokens = new Set(sandbox.toLowerCase().split(" "));
-  return !["allow-scripts", "allow-same-origin"].every((token) => tokens.has(token));
+  return (
+    String(self.origin).toLowerCase() === "null" ||
+    globalThis.frameElement?.hasAttribute("sandbox") ||
+    globalThis.location.hostname === ""
+  );
 }
 
 /**

@@ -6,13 +6,16 @@ use aes::cipher::{
     block_padding::Pkcs7, generic_array::GenericArray, typenum::U32, BlockDecryptMut, KeyIvInit,
 };
 
+#[allow(clippy::question_mark)]
 pub fn decrypt_aes256(iv: &[u8; 16], data: &[u8], key: GenericArray<u8, U32>) -> Result<Vec<u8>> {
     let iv = GenericArray::from_slice(iv);
     let mut data = data.to_vec();
-    cbc::Decryptor::<aes::Aes256>::new(&key, iv)
+    let result = cbc::Decryptor::<aes::Aes256>::new(&key, iv)
         .decrypt_padded_mut::<Pkcs7>(&mut data)
-        .map_err(|_| anyhow!("Failed to decrypt data"))?;
-
+        .map_err(|_| anyhow!("Failed to decrypt data"));
+    if let Err(e) = result {
+        return Err(e);
+    }
     Ok(data)
 }
 

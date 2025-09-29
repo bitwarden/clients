@@ -1303,7 +1303,7 @@
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
   "showIconsChangePasswordUrls": {
-    "message": "Mostra icones de llocs web i recupera les URL de canvi de contrasenya"
+    "message": "Show website icons and retrieve change password URLs"
   },
   "enableMinToTray": {
     "message": "Minimitza a icona en la safata"
@@ -2416,16 +2416,16 @@
     "message": "La vostra contrasenya mestra no compleix una o més de les polítiques de l'organització. Per accedir a la caixa forta, heu d'actualitzar-la ara. Si continueu, es tancarà la sessió actual i us demanarà que torneu a iniciar-la. Les sessions en altres dispositius poden continuar romanent actives fins a una hora."
   },
   "changePasswordWarning": {
-    "message": "En canviar la contrasenya, cal iniciar la sessió amb la nova contrasenya. Les sessions actives en altres dispositius es tancaran en una hora."
+    "message": "En canviar la teva contrasenya, cal iniciar la sessió amb la nova contrasenya. Les sessions actives en altres dispositius es tancaran en una hora."
   },
   "accountRecoveryUpdateMasterPasswordSubtitle": {
-    "message": "Canvia la contrasenya mestra per completar la recuperació del compte."
+    "message": "Canvia la contrasenya mestra per completar el recobrament del compte."
   },
   "updateMasterPasswordSubtitle": {
-    "message": "La contrasenya mestra no s'ajusta als requisits de l'organització. Canvieu-la per continuar."
+    "message": "La contrasenya mestra no s'ajusta als requisits de l'organització. Canvia't la contrasenya mestra per continuar."
   },
   "tdeDisabledMasterPasswordRequired": {
-    "message": "L'organització ha desactivat el xifratge de dispositius de confiança. Defineix una contrasenya mestra per accedir a la caixa forta."
+    "message": "La teva organització ha desactivat l'encriptació de dispositius fiables. Fixa una contrasenya mestra per accedir a la teva caixa forta."
   },
   "tryAgain": {
     "message": "Torneu-ho a provar"
@@ -2470,7 +2470,7 @@
     "message": "Minuts"
   },
   "vaultTimeoutPolicyInEffect1": {
-    "message": "$HOURS$ hores i $MINUTES$ minuts com a màxim.",
+    "message": "$HOURS$ hora(es) i $MINUTES$ minut(s) màxim.",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -2565,7 +2565,7 @@
     "message": "S'ha suprimit la contrasenya mestra."
   },
   "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "Ja no cal contrasenya mestra per als membres de la següent organització. Confirmeu el domini següent amb l'administrador de l'organització."
+    "message": "Ja no cal contrasenya mestra per als membres de la següent organització. Confirma'n el domini a sota amb l'administrador de la teva organització."
   },
   "organizationName": {
     "message": "Nom de l'organització"
@@ -2634,7 +2634,7 @@
     }
   },
   "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "Només s'exportaran els elements individuals de la caixa forta, inclosos els fitxers adjunts associats amb $EMAIL$. No s'hi inclouran els elements de la caixa forta de l'organització",
+    "message": "Només els objectes individuals de la caixa forta, inclosos adjunts associats amb $EMAIL$, seran exportats. Els objectes de la caixa forta de l'organització no hi seran inclosos",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2760,7 +2760,7 @@
     "message": "Utilitzeu aquesta contrasenya"
   },
   "useThisPassphrase": {
-    "message": "Utilitzeu aquesta frase de contrasenya"
+    "message": "Empra aquesta frase de pas"
   },
   "useThisUsername": {
     "message": "Utilitzeu aquest nom d'usuari"
@@ -2829,7 +2829,7 @@
     }
   },
   "forwaderInvalidToken": {
-    "message": "Token d'API $SERVICENAME$ no vàlid",
+    "message": "API token de $SERVICENAME$ invàlid",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -3453,10 +3453,10 @@
     "message": "Cal l'inici de sessió en dos passos de Duo al vostre compte. Seguiu els passos de sota per finalitzar l'inici de sessió."
   },
   "followTheStepsBelowToFinishLoggingIn": {
-    "message": "Seguiu els passos següents per finalitzar l'inici de sessió."
+    "message": "Seguiu els passos de sota per finalitzar l'inici de sessió."
   },
   "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
-    "message": "Seguiu els passos següents per finalitzar l'inici de sessió amb la clau de seguretat."
+    "message": "Seguiu els passos de sota per finalitzar l'inici de sessió amb la clau de seguretat."
   },
   "launchDuo": {
     "message": "Inicia Duo al navegador"
@@ -3627,7 +3627,7 @@
     "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
   },
   "uriMatchWarningDialogLink": {
-    "message": "Més informació sobre la detecció de coincidències",
+    "message": "Més sobre la detecció de coincidències",
     "description": "Link to match detection docs on warning dialog for advance match strategy"
   },
   "uriAdvancedOption": {
@@ -4107,32 +4107,5 @@
   },
   "editShortcut": {
     "message": "Edit shortcut"
-  },
-  "archive": {
-    "message": "Archive"
-  },
-  "unarchive": {
-    "message": "Unarchive"
-  },
-  "itemsInArchive": {
-    "message": "Items in archive"
-  },
-  "noItemsInArchive": {
-    "message": "No items in archive"
-  },
-  "noItemsInArchiveDesc": {
-    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
-  },
-  "itemSentToArchive": {
-    "message": "Item sent to archive"
-  },
-  "itemRemovedFromArchive": {
-    "message": "Item removed from archive"
-  },
-  "archiveItem": {
-    "message": "Archive item"
-  },
-  "archiveItemConfirmDesc": {
-    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
   }
 }

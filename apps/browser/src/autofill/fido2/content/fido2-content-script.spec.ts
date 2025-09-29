@@ -75,7 +75,7 @@ describe("Fido2 Content Script", () => {
       data: mock<InsecureCreateCredentialParams>(),
     });
     const mockResult = { credentialId: "mock" } as CreateCredentialResult;
-    (jest.spyOn(chrome.runtime, "sendMessage") as jest.Mock).mockResolvedValue(mockResult);
+    jest.spyOn(chrome.runtime, "sendMessage").mockResolvedValue(mockResult);
 
     // FIXME: Remove when updating file. Eslint update
     // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -167,9 +167,7 @@ describe("Fido2 Content Script", () => {
       data: mock<InsecureCreateCredentialParams>(),
     });
     const abortController = new AbortController();
-    (jest.spyOn(chrome.runtime, "sendMessage") as jest.Mock).mockResolvedValue({
-      error: errorMessage,
-    });
+    jest.spyOn(chrome.runtime, "sendMessage").mockResolvedValue({ error: errorMessage });
 
     // FIXME: Remove when updating file. Eslint update
     // eslint-disable-next-line @typescript-eslint/no-require-imports

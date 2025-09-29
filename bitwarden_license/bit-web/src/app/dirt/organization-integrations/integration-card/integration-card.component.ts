@@ -171,7 +171,6 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
   }
 
   async saveHec(result: HecConnectDialogResult) {
-    let saveResponse = { mustBeOwner: false, success: false };
     if (this.isUpdateAvailable) {
       // retrieve org integration and configuration ids
       const orgIntegrationId = this.integrationSettings.organizationIntegration?.id;
@@ -183,7 +182,7 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
       }
 
       // update existing integration and configuration
-      saveResponse = await this.hecOrganizationIntegrationService.updateHec(
+      await this.hecOrganizationIntegrationService.updateHec(
         this.organizationId,
         orgIntegrationId,
         orgIntegrationConfigurationId,
@@ -194,7 +193,7 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
       );
     } else {
       // create new integration and configuration
-      saveResponse = await this.hecOrganizationIntegrationService.saveHec(
+      await this.hecOrganizationIntegrationService.saveHec(
         this.organizationId,
         this.integrationSettings.name as OrganizationIntegrationServiceType,
         result.url,
@@ -202,12 +201,6 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
         result.index,
       );
     }
-
-    if (saveResponse.mustBeOwner) {
-      this.showMustBeOwnerToast();
-      return;
-    }
-
     this.toastService.showToast({
       variant: "success",
       title: "",
@@ -224,29 +217,16 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
       throw Error("Organization Integration ID or Configuration ID is missing");
     }
 
-    const response = await this.hecOrganizationIntegrationService.deleteHec(
+    await this.hecOrganizationIntegrationService.deleteHec(
       this.organizationId,
       orgIntegrationId,
       orgIntegrationConfigurationId,
     );
 
-    if (response.mustBeOwner) {
-      this.showMustBeOwnerToast();
-      return;
-    }
-
     this.toastService.showToast({
       variant: "success",
       title: "",
       message: this.i18nService.t("success"),
-    });
-  }
-
-  private showMustBeOwnerToast() {
-    this.toastService.showToast({
-      variant: "error",
-      title: "",
-      message: this.i18nService.t("mustBeOrgOwnerToPerformAction"),
     });
   }
 }

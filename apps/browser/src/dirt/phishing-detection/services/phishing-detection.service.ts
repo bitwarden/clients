@@ -230,7 +230,7 @@ export class PhishingDetectionService {
    */
   private static async _processNavigation(
     tabId: number,
-    changeInfo: chrome.tabs.OnUpdatedInfo,
+    changeInfo: chrome.tabs.TabChangeInfo,
     tab: chrome.tabs.Tab,
   ): Promise<void> {
     if (changeInfo.status !== "complete" || !tab.url) {
@@ -253,7 +253,7 @@ export class PhishingDetectionService {
 
   private static _handleNavigationEvent(
     tabId: number,
-    changeInfo: chrome.tabs.OnUpdatedInfo,
+    changeInfo: chrome.tabs.TabChangeInfo,
     tab: chrome.tabs.Tab,
   ): boolean {
     this._navigationEventsSubject.next({ tabId, changeInfo, tab });

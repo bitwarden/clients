@@ -2751,7 +2751,7 @@
     "message": "Адреса е-пошти Catch-all"
   },
   "catchallEmailDesc": {
-    "message": "Використовуйте можливості Catch-All власного домену."
+    "message": "Використовуйте свою скриньку вхідних Catch-All власного домену."
   },
   "useThisEmail": {
     "message": "Використати цю е-пошту"
@@ -4107,32 +4107,5 @@
   },
   "editShortcut": {
     "message": "Edit shortcut"
-  },
-  "archive": {
-    "message": "Archive"
-  },
-  "unarchive": {
-    "message": "Unarchive"
-  },
-  "itemsInArchive": {
-    "message": "Items in archive"
-  },
-  "noItemsInArchive": {
-    "message": "No items in archive"
-  },
-  "noItemsInArchiveDesc": {
-    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
-  },
-  "itemSentToArchive": {
-    "message": "Item sent to archive"
-  },
-  "itemRemovedFromArchive": {
-    "message": "Item removed from archive"
-  },
-  "archiveItem": {
-    "message": "Archive item"
-  },
-  "archiveItemConfirmDesc": {
-    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
   }
 }

@@ -550,33 +550,6 @@
   "resetSearch": {
     "message": "Zresetuj wyszukiwanie"
   },
-  "archive": {
-    "message": "Archive"
-  },
-  "unarchive": {
-    "message": "Usuń z archiwum"
-  },
-  "itemsInArchive": {
-    "message": "Elementy w archiwum"
-  },
-  "noItemsInArchive": {
-    "message": "Brak elementów w archiwum"
-  },
-  "noItemsInArchiveDesc": {
-    "message": "Zarchiwizowane elementy pojawią się tutaj i zostaną wykluczone z wyników wyszukiwania i sugestii autouzupełniania."
-  },
-  "itemSentToArchive": {
-    "message": "Element został przeniesiony do archiwum"
-  },
-  "itemRemovedFromArchive": {
-    "message": "Element został usunięty z archiwum"
-  },
-  "archiveItem": {
-    "message": "Archiwizuj element"
-  },
-  "archiveItemConfirmDesc": {
-    "message": "Zarchiwizowane elementy są wykluczone z wyników wyszukiwania i sugestii autouzupełniania. Czy na pewno chcesz archiwizować element?"
-  },
   "edit": {
     "message": "Edytuj"
   },

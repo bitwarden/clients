@@ -183,7 +183,7 @@ export class Login extends Domain {
       ? new Date(obj.passwordRevisionDate)
       : undefined;
     login.totp = EncString.fromJSON(obj.totp);
-    login.autofillOnPageLoad = obj.autofillOnPageLoad;
+    login.autofillOnPageLoad = obj.autofillOnPageLoad ?? false;
     login.fido2Credentials = obj.fido2Credentials?.map((f) =>
       Fido2Credential.fromSdkFido2Credential(f),
     );

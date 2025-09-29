@@ -30,6 +30,6 @@ export type CaughtPhishingDomain = {
 
 export type PhishingDetectionNavigationEvent = {
   tabId: number;
-  changeInfo: chrome.tabs.OnUpdatedInfo;
+  changeInfo: chrome.tabs.TabChangeInfo;
   tab: chrome.tabs.Tab;
 };

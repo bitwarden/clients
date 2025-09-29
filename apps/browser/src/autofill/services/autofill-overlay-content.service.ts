@@ -974,7 +974,6 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       inlineMenuFillType: autofillFieldData?.inlineMenuFillType,
       showPasskeys: !!autofillFieldData?.showPasskeys,
       accountCreationFieldType: autofillFieldData?.accountCreationFieldType,
-      focusedFieldForm: autofillFieldData?.form,
     };
 
     const allFields = this.formFieldElements;

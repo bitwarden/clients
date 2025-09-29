@@ -52,7 +52,7 @@ describe("ChromeStorageApiService", () => {
     });
 
     afterEach(() => {
-      (chrome.runtime.lastError as any) = undefined;
+      chrome.runtime.lastError = undefined;
     });
 
     it("uses `objToStore` to prepare a value for set", async () => {
@@ -80,7 +80,7 @@ describe("ChromeStorageApiService", () => {
 
     it("translates chrome.runtime.lastError to promise rejection", async () => {
       setMock.mockImplementation((data, callback) => {
-        (chrome.runtime.lastError as any) = new Error("Test Error");
+        chrome.runtime.lastError = new Error("Test Error");
         callback();
       });
 
@@ -101,7 +101,7 @@ describe("ChromeStorageApiService", () => {
     });
 
     afterEach(() => {
-      (chrome.runtime.lastError as any) = undefined;
+      chrome.runtime.lastError = undefined;
     });
 
     it("returns a stored value when it is serialized", async () => {
@@ -132,9 +132,9 @@ describe("ChromeStorageApiService", () => {
 
     it("translates chrome.runtime.lastError to promise rejection", async () => {
       getMock.mockImplementation((key, callback) => {
-        (chrome.runtime.lastError as any) = new Error("Test Error");
+        chrome.runtime.lastError = new Error("Test Error");
         callback();
-        (chrome.runtime.lastError as any) = undefined;
+        chrome.runtime.lastError = undefined;
       });
 
       await expect(async () => await service.get("test")).rejects.toThrow("Test Error");

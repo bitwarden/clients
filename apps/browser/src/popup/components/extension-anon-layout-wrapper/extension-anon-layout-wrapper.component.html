@@ -5,9 +5,12 @@
     [showBackButton]="showBackButton"
     [pageTitle]="''"
   >
-    <div class="tw-w-32">
-      <bit-icon *ngIf="showLogo" [icon]="logo" [ariaLabel]="'appLogoLabel' | i18n"></bit-icon>
-    </div>
+    <bit-icon
+      *ngIf="showLogo"
+      class="tw-inline-flex"
+      [icon]="logo"
+      [ariaLabel]="'appLogoLabel' | i18n"
+    ></bit-icon>
 
     <ng-container slot="end">
       <app-pop-out></app-pop-out>

@@ -550,33 +550,6 @@
   "resetSearch": {
     "message": "Đặt lại tìm kiếm"
   },
-  "archive": {
-    "message": "Lưu trữ"
-  },
-  "unarchive": {
-    "message": "Hủy lưu trữ"
-  },
-  "itemsInArchive": {
-    "message": "Các mục trong kho lưu trữ"
-  },
-  "noItemsInArchive": {
-    "message": "Không có mục nào trong kho lưu trữ"
-  },
-  "noItemsInArchiveDesc": {
-    "message": "Các mục đã lưu trữ sẽ hiển thị ở đây và sẽ bị loại khỏi kết quả tìm kiếm và gợi ý tự động điền."
-  },
-  "itemSentToArchive": {
-    "message": "Mục đã được gửi đến kho lưu trữ"
-  },
-  "itemRemovedFromArchive": {
-    "message": "Mục đã được gỡ khỏi kho lưu trữ"
-  },
-  "archiveItem": {
-    "message": "Lưu trữ mục"
-  },
-  "archiveItemConfirmDesc": {
-    "message": "Các mục đã lưu trữ sẽ bị loại khỏi kết quả tìm kiếm chung và gợi ý tự động điền. Bạn có chắc chắn muốn lưu trữ mục này không?"
-  },
   "edit": {
     "message": "Sửa"
   },
@@ -1782,7 +1755,7 @@
     "message": "Nhấp bên ngoài popup để xem mã xác thực trong email của bạn sẽ làm cho popup này đóng lại. Bạn có muốn mở popup này trong một cửa sổ mới để nó không bị đóng?"
   },
   "showIconsChangePasswordUrls": {
-    "message": "Hiển thị biểu tượng trang web và truy xuất các URL đổi mật khẩu"
+    "message": "Show website icons and retrieve change password URLs"
   },
   "cardholderName": {
     "message": "Tên chủ thẻ"
@@ -1947,79 +1920,79 @@
     "message": "Ghi chú"
   },
   "newItemHeaderLogin": {
-    "message": "Đăng nhập mới",
+    "message": "New Login",
     "description": "Header for new login item type"
   },
   "newItemHeaderCard": {
-    "message": "Thẻ mới",
+    "message": "New Card",
     "description": "Header for new card item type"
   },
   "newItemHeaderIdentity": {
-    "message": "Danh tính mới",
+    "message": "New Identity",
     "description": "Header for new identity item type"
   },
   "newItemHeaderNote": {
-    "message": "Ghi chú mới",
+    "message": "New Note",
     "description": "Header for new note item type"
   },
   "newItemHeaderSshKey": {
-    "message": "Khóa SSH mới",
+    "message": "New SSH key",
     "description": "Header for new SSH key item type"
   },
   "newItemHeaderTextSend": {
-    "message": "Send văn bản mới",
+    "message": "New Text Send",
     "description": "Header for new text send"
   },
   "newItemHeaderFileSend": {
-    "message": "Send tập tin mới",
+    "message": "New File Send",
     "description": "Header for new file send"
   },
   "editItemHeaderLogin": {
-    "message": "Chỉnh sửa đăng nhập",
+    "message": "Edit Login",
     "description": "Header for edit login item type"
   },
   "editItemHeaderCard": {
-    "message": "Chỉnh sửa thẻ",
+    "message": "Edit Card",
     "description": "Header for edit card item type"
   },
   "editItemHeaderIdentity": {
-    "message": "Chỉnh sửa danh tính",
+    "message": "Edit Identity",
     "description": "Header for edit identity item type"
   },
   "editItemHeaderNote": {
-    "message": "Chỉnh sửa ghi chú",
+    "message": "Edit Note",
     "description": "Header for edit note item type"
   },
   "editItemHeaderSshKey": {
-    "message": "Sửa khóa SSH",
+    "message": "Edit SSH key",
     "description": "Header for edit SSH key item type"
   },
   "editItemHeaderTextSend": {
-    "message": "Sửa Send văn bản",
+    "message": "Edit Text Send",
     "description": "Header for edit text send"
   },
   "editItemHeaderFileSend": {
-    "message": "Sửa Send tập tin",
+    "message": "Edit File Send",
     "description": "Header for edit file send"
   },
   "viewItemHeaderLogin": {
-    "message": "Xem đăng nhập",
+    "message": "View Login",
     "description": "Header for view login item type"
   },
   "viewItemHeaderCard": {
-    "message": "Xem thẻ",
+    "message": "View Card",
     "description": "Header for view card item type"
   },
   "viewItemHeaderIdentity": {
-    "message": "Xem danh tính",
+    "message": "View Identity",
     "description": "Header for view identity item type"
   },
   "viewItemHeaderNote": {
-    "message": "Xem ghi chú",
+    "message": "View Note",
     "description": "Header for view note item type"
   },
   "viewItemHeaderSshKey": {
-    "message": "Xem khóa SSH",
+    "message": "View SSH key",
     "description": "Header for view SSH key item type"
   },
   "passwordHistory": {
@@ -5539,16 +5512,16 @@
     "message": "Chào mừng đến với kho lưu trữ của bạn!"
   },
   "phishingPageTitle": {
-    "message": "Trang web lừa đảo"
+    "message": "Phishing website"
   },
   "phishingPageCloseTab": {
-    "message": "Đóng tab"
+    "message": "Close tab"
   },
   "phishingPageContinue": {
-    "message": "Tiếp tục"
+    "message": "Continue"
   },
   "phishingPageLearnWhy": {
-    "message": "Tại sao bạn thấy điều này?"
+    "message": "Why are you seeing this?"
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Tự động điền các mục cho trang hiện tại"
@@ -5626,10 +5599,10 @@
     "description": "Aria label for the body content of the generator nudge"
   },
   "aboutThisSetting": {
-    "message": "Về cài đặt này"
+    "message": "About this setting"
   },
   "permitCipherDetailsDescription": {
-    "message": "Bitwarden sẽ sử dụng URI đăng nhập đã lưu để xác định biểu tượng hoặc URL đổi mật khẩu nào cần dùng nhằm cải thiện trải nghiệm của bạn. Không có thông tin nào được thu thập hay lưu lại khi bạn sử dụng dịch vụ này."
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
   },
   "noPermissionsViewPage": {
     "message": "Bạn không có quyền truy cập vào trang này. Hãy thử đăng nhập bằng tài khoản khác."

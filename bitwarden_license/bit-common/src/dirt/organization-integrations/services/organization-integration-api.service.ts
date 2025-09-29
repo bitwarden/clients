@@ -10,18 +10,14 @@ export class OrganizationIntegrationApiService {
   async getOrganizationIntegrations(
     orgId: OrganizationId,
   ): Promise<OrganizationIntegrationResponse[]> {
-    try {
-      const response = await this.apiService.send(
-        "GET",
-        `/organizations/${orgId}/integrations`,
-        null,
-        true,
-        true,
-      );
-      return response;
-    } catch {
-      return [];
-    }
+    const response = await this.apiService.send(
+      "GET",
+      `/organizations/${orgId}/integrations`,
+      null,
+      true,
+      true,
+    );
+    return response;
   }
 
   async createOrganizationIntegration(

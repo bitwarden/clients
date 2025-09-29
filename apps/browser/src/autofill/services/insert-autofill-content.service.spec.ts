@@ -153,9 +153,7 @@ describe("InsertAutofillContentService", () => {
 
     it("returns early if the script is filling within a sand boxed iframe", async () => {
       Object.defineProperty(globalThis, "frameElement", {
-        value: {
-          getAttribute: jest.fn(() => ""),
-        },
+        value: { hasAttribute: jest.fn(() => true) },
         writable: true,
       });
       jest.spyOn(insertAutofillContentService as any, "userCancelledInsecureUrlAutofill");

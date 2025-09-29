@@ -110,11 +110,11 @@ describe("AutoSubmitLoginBackground", () => {
   });
 
   describe("when the AutomaticAppLogIn policy is valid and active", () => {
-    let webRequestDetails: chrome.webRequest.WebRequestDetails;
+    let webRequestDetails: chrome.webRequest.WebRequestBodyDetails;
 
     describe("starting the auto-submit login workflow", () => {
       beforeEach(async () => {
-        webRequestDetails = mock<chrome.webRequest.WebRequestDetails>({
+        webRequestDetails = mock<chrome.webRequest.WebRequestBodyDetails>({
           initiator: validIpdUrl1,
           url: validAutoSubmitUrl,
           type: "main_frame",
@@ -196,7 +196,7 @@ describe("AutoSubmitLoginBackground", () => {
 
     describe("cancelling an active auto-submit login workflow", () => {
       beforeEach(async () => {
-        webRequestDetails = mock<chrome.webRequest.WebRequestDetails>({
+        webRequestDetails = mock<chrome.webRequest.WebRequestBodyDetails>({
           initiator: validIpdUrl1,
           url: validAutoSubmitUrl,
           type: "main_frame",
@@ -280,7 +280,7 @@ describe("AutoSubmitLoginBackground", () => {
       });
 
       describe("requests that occur within a sub-frame", () => {
-        const webRequestDetails = mock<chrome.webRequest.WebRequestDetails>({
+        const webRequestDetails = mock<chrome.webRequest.WebRequestBodyDetails>({
           url: validAutoSubmitUrl,
           frameId: 1,
         });
@@ -324,7 +324,7 @@ describe("AutoSubmitLoginBackground", () => {
         it("updates the most recent idp host when a tab is activated", async () => {
           jest.spyOn(BrowserApi, "getTab").mockResolvedValue(newTab);
 
-          triggerTabOnActivatedEvent(mock<chrome.tabs.OnActivatedInfo>({ tabId: newTabId }));
+          triggerTabOnActivatedEvent(mock<chrome.tabs.TabActiveInfo>({ tabId: newTabId }));
           await flushPromises();
 
           expect(autoSubmitLoginBackground["mostRecentIdpHost"]).toStrictEqual({
@@ -336,7 +336,7 @@ describe("AutoSubmitLoginBackground", () => {
         it("updates the most recent id host when a tab is updated", () => {
           triggerTabOnUpdatedEvent(
             newTabId,
-            mock<chrome.tabs.OnUpdatedInfo>({ url: validIpdUrl1 }),
+            mock<chrome.tabs.TabChangeInfo>({ url: validIpdUrl1 }),
             newTab,
           );
 
@@ -389,7 +389,7 @@ describe("AutoSubmitLoginBackground", () => {
               tabId: newTabId,
             };
 
-            triggerTabOnRemovedEvent(newTabId, mock<chrome.tabs.OnRemovedInfo>());
+            triggerTabOnRemovedEvent(newTabId, mock<chrome.tabs.TabRemoveInfo>());
 
             expect(autoSubmitLoginBackground["currentAutoSubmitHostData"]).toStrictEqual({});
           });
@@ -403,14 +403,14 @@ describe("AutoSubmitLoginBackground", () => {
           tabId: tabId,
         };
         triggerWebRequestOnBeforeRedirectEvent(
-          mock<chrome.webRequest.OnBeforeRedirectDetails>({
+          mock<chrome.webRequest.WebRedirectionResponseDetails>({
             url: validIpdUrl1,
             redirectUrl: validIpdUrl2,
             frameId: 0,
           }),
         );
         triggerWebRequestOnBeforeRedirectEvent(
-          mock<chrome.webRequest.OnBeforeRedirectDetails>({
+          mock<chrome.webRequest.WebRedirectionResponseDetails>({
             url: validIpdUrl2,
             redirectUrl: validAutoSubmitUrl,
             frameId: 0,
@@ -418,7 +418,7 @@ describe("AutoSubmitLoginBackground", () => {
         );
 
         triggerWebRequestOnBeforeRequestEvent(
-          mock<chrome.webRequest.WebRequestDetails>({
+          mock<chrome.webRequest.WebRequestBodyDetails>({
             tabId: tabId,
             url: `https://${validAutoSubmitHost}`,
             initiator: null,

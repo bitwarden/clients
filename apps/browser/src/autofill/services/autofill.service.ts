@@ -434,15 +434,7 @@ export default class AutofillService implements AutofillServiceInterface {
           return;
         }
 
-        // If we have a focused form, filter the page details to only include fields from that form
-        const details = options.focusedFieldForm
-          ? {
-              ...pd.details,
-              fields: pd.details.fields.filter((f) => f.form === options.focusedFieldForm),
-            }
-          : pd.details;
-
-        const fillScript = await this.generateFillScript(details, {
+        const fillScript = await this.generateFillScript(pd.details, {
           skipUsernameOnlyFill: options.skipUsernameOnlyFill || false,
           onlyEmptyFields: options.onlyEmptyFields || false,
           fillNewPassword: options.fillNewPassword || false,

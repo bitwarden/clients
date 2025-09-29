@@ -550,33 +550,6 @@
   "resetSearch": {
     "message": "Ресетовати претрагу"
   },
-  "archive": {
-    "message": "Архива"
-  },
-  "unarchive": {
-    "message": "Врати из архиве"
-  },
-  "itemsInArchive": {
-    "message": "Ставке у архиви"
-  },
-  "noItemsInArchive": {
-    "message": "Нема ставка у архиви"
-  },
-  "noItemsInArchiveDesc": {
-    "message": "Архивиране ставке ће се овде појавити и бити искључени из општих резултата претраге и сугестија о ауто-пуњењу."
-  },
-  "itemSentToArchive": {
-    "message": "Ставка је послата у архиву"
-  },
-  "itemRemovedFromArchive": {
-    "message": "Ставка је уклоњена из архиве"
-  },
-  "archiveItem": {
-    "message": "Архивирај ставку"
-  },
-  "archiveItemConfirmDesc": {
-    "message": "Архивиране ставке су искључене из општих резултата претраге и предлога за ауто попуњавање. Јесте ли сигурни да желите да архивирате ову ставку?"
-  },
   "edit": {
     "message": "Уреди"
   },
@@ -1782,7 +1755,7 @@
     "message": "Ако кликнете изван искачућег прозора да бисте проверили имејл за верификациони код, овај прозор ће се затворити. Да ли желите да отворите овај прозор у новом прозору да се не би затворио?"
   },
   "showIconsChangePasswordUrls": {
-    "message": "Прикажи иконе веб локација и преузмите линкове промене лозинке"
+    "message": "Show website icons and retrieve change password URLs"
   },
   "cardholderName": {
     "message": "Име Власника Картице"
@@ -1947,79 +1920,79 @@
     "message": "Белешка"
   },
   "newItemHeaderLogin": {
-    "message": "Ново пријављивање",
+    "message": "New Login",
     "description": "Header for new login item type"
   },
   "newItemHeaderCard": {
-    "message": "Нова картица",
+    "message": "New Card",
     "description": "Header for new card item type"
   },
   "newItemHeaderIdentity": {
-    "message": "Нови идентитет",
+    "message": "New Identity",
     "description": "Header for new identity item type"
   },
   "newItemHeaderNote": {
-    "message": "Нова белешка",
+    "message": "New Note",
     "description": "Header for new note item type"
   },
   "newItemHeaderSshKey": {
-    "message": "Нов SSH кљич",
+    "message": "New SSH key",
     "description": "Header for new SSH key item type"
   },
   "newItemHeaderTextSend": {
-    "message": "Нови текст Send",
+    "message": "New Text Send",
     "description": "Header for new text send"
   },
   "newItemHeaderFileSend": {
-    "message": "Нова датотека Send",
+    "message": "New File Send",
     "description": "Header for new file send"
   },
   "editItemHeaderLogin": {
-    "message": "Уреди пријаву",
+    "message": "Edit Login",
     "description": "Header for edit login item type"
   },
   "editItemHeaderCard": {
-    "message": "Уреди картицу",
+    "message": "Edit Card",
     "description": "Header for edit card item type"
   },
   "editItemHeaderIdentity": {
-    "message": "Уреди идентитет",
+    "message": "Edit Identity",
     "description": "Header for edit identity item type"
   },
   "editItemHeaderNote": {
-    "message": "Уреди белешку",
+    "message": "Edit Note",
     "description": "Header for edit note item type"
   },
   "editItemHeaderSshKey": {
-    "message": "Уреди SSH кључ",
+    "message": "Edit SSH key",
     "description": "Header for edit SSH key item type"
   },
   "editItemHeaderTextSend": {
-    "message": "Уреди текст Send",
+    "message": "Edit Text Send",
     "description": "Header for edit text send"
   },
   "editItemHeaderFileSend": {
-    "message": "Уреди датотеку Send",
+    "message": "Edit File Send",
     "description": "Header for edit file send"
   },
   "viewItemHeaderLogin": {
-    "message": "Преглед пријаве",
+    "message": "View Login",
     "description": "Header for view login item type"
   },
   "viewItemHeaderCard": {
-    "message": "Преглед картице",
+    "message": "View Card",
     "description": "Header for view card item type"
   },
   "viewItemHeaderIdentity": {
-    "message": "Преглед идентитета",
+    "message": "View Identity",
     "description": "Header for view identity item type"
   },
   "viewItemHeaderNote": {
-    "message": "Преглед белешке",
+    "message": "View Note",
     "description": "Header for view note item type"
   },
   "viewItemHeaderSshKey": {
-    "message": "Преглед SSH кључа",
+    "message": "View SSH key",
     "description": "Header for view SSH key item type"
   },
   "passwordHistory": {
@@ -5539,16 +5512,16 @@
     "message": "Добродошли у ваш сеф!"
   },
   "phishingPageTitle": {
-    "message": "Пронађен злонамеран сајт"
+    "message": "Phishing website"
   },
   "phishingPageCloseTab": {
-    "message": "Затвори језичак"
+    "message": "Close tab"
   },
   "phishingPageContinue": {
-    "message": "Настави"
+    "message": "Continue"
   },
   "phishingPageLearnWhy": {
-    "message": "Зашто видите ово?"
+    "message": "Why are you seeing this?"
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Ауто-пуњење предмета за тренутну страницу"
@@ -5626,10 +5599,10 @@
     "description": "Aria label for the body content of the generator nudge"
   },
   "aboutThisSetting": {
-    "message": "О овом подешавању"
+    "message": "About this setting"
   },
   "permitCipherDetailsDescription": {
-    "message": "Bitwarden ће користити сачуване URI-јеве за пријаву да би одредио коју икону или URL за промену лозинке треба користити како би побољшао ваше искуство. Никакви подаци нису сакупљени нити сачувани приликом коришћења ове услуге."
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
   },
   "noPermissionsViewPage": {
     "message": "Немате дозволе за преглед ове странице. Покушајте да се пријавите са другим налогом."

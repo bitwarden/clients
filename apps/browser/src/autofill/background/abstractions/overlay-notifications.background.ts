@@ -19,7 +19,7 @@ export type LoginSecurityTaskInfo = {
 
 export type WebsiteOriginsWithFields = Map<chrome.tabs.Tab["id"], Set<string>>;
 
-export type ActiveFormSubmissionRequests = Set<chrome.webRequest.WebRequestDetails["requestId"]>;
+export type ActiveFormSubmissionRequests = Set<chrome.webRequest.ResourceRequest["requestId"]>;
 
 export type ModifyLoginCipherFormData = {
   uri: string;

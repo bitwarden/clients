@@ -550,33 +550,6 @@
   "resetSearch": {
     "message": "重置搜索"
   },
-  "archive": {
-    "message": "归档"
-  },
-  "unarchive": {
-    "message": "取消归档"
-  },
-  "itemsInArchive": {
-    "message": "归档中的项目"
-  },
-  "noItemsInArchive": {
-    "message": "归档中没有项目"
-  },
-  "noItemsInArchiveDesc": {
-    "message": "已归档的项目将显示在此处，并将被排除在一般搜索结果和自动填充建议之外。"
-  },
-  "itemSentToArchive": {
-    "message": "项目已归档"
-  },
-  "itemRemovedFromArchive": {
-    "message": "项目已取消归档"
-  },
-  "archiveItem": {
-    "message": "归档项目"
-  },
-  "archiveItemConfirmDesc": {
-    "message": "已归档的项目将被排除在一般搜索结果和自动填充建议之外。确定要归档此项目吗？"
-  },
   "edit": {
     "message": "编辑"
   },
@@ -841,7 +814,7 @@
     "message": "您可以关闭此窗口"
   },
   "masterPassSent": {
-    "message": "我们已经向您发送了一封包含主密码提示的电子邮件。"
+    "message": "我们已经为您发送了包含主密码提示的电子邮件。"
   },
   "verificationCodeRequired": {
     "message": "必须填写验证码。"
@@ -1639,10 +1612,10 @@
     "message": "轻松找到自动填充建议"
   },
   "autofillSpotlightDesc": {
-    "message": "停用您浏览器的自动填充设置，以免与 Bitwarden 产生冲突。"
+    "message": "关闭浏览器的自动填充设置，以免与 Bitwarden 产生冲突。"
   },
   "turnOffBrowserAutofill": {
-    "message": "停用 $BROWSER$ 自动填充",
+    "message": "关闭 $BROWSER$ 的自动填充",
     "placeholders": {
       "browser": {
         "content": "$1",
@@ -1651,7 +1624,7 @@
     }
   },
   "turnOffAutofill": {
-    "message": "停用自动填充"
+    "message": "关闭自动填充"
   },
   "showInlineMenuLabel": {
     "message": "在表单字段中显示自动填充建议"
@@ -1782,7 +1755,7 @@
     "message": "如果您点击弹窗外的区域以检查您的验证码电子邮件，将导致弹窗关闭。您想在新窗口中打开此弹窗，以便它不会关闭吗？"
   },
   "showIconsChangePasswordUrls": {
-    "message": "显示网站图标并获取更改密码的 URL"
+    "message": "显示网站图标并检索更改密码的 URL"
   },
   "cardholderName": {
     "message": "持卡人姓名"
@@ -4403,7 +4376,7 @@
     "message": "仅此一次"
   },
   "alwaysForThisSite": {
-    "message": "始终适用于此站点"
+    "message": "总是为此站点"
   },
   "domainAddedToExcludedDomains": {
     "message": "$DOMAIN$ 已添加到排除域名列表。",
@@ -5548,7 +5521,7 @@
     "message": "继续"
   },
   "phishingPageLearnWhy": {
-    "message": "为什么您会看到这个？"
+    "message": "您为什么会看到这个？"
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "为当前页面自动填充项目"

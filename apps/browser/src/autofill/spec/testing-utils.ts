@@ -80,7 +80,7 @@ export function triggerWindowOnFocusedChangedEvent(windowId: number) {
   );
 }
 
-export function triggerTabOnActivatedEvent(activeInfo: chrome.tabs.OnActivatedInfo) {
+export function triggerTabOnActivatedEvent(activeInfo: chrome.tabs.TabActiveInfo) {
   (chrome.tabs.onActivated.addListener as unknown as jest.SpyInstance).mock.calls.forEach(
     (call) => {
       const callback = call[0];
@@ -98,7 +98,7 @@ export function triggerTabOnReplacedEvent(addedTabId: number, removedTabId: numb
 
 export function triggerTabOnUpdatedEvent(
   tabId: number,
-  changeInfo: chrome.tabs.OnUpdatedInfo,
+  changeInfo: chrome.tabs.TabChangeInfo,
   tab: chrome.tabs.Tab,
 ) {
   (chrome.tabs.onUpdated.addListener as unknown as jest.SpyInstance).mock.calls.forEach((call) => {
@@ -107,7 +107,7 @@ export function triggerTabOnUpdatedEvent(
   });
 }
 
-export function triggerTabOnRemovedEvent(tabId: number, removeInfo: chrome.tabs.OnRemovedInfo) {
+export function triggerTabOnRemovedEvent(tabId: number, removeInfo: chrome.tabs.TabRemoveInfo) {
   (chrome.tabs.onRemoved.addListener as unknown as jest.SpyInstance).mock.calls.forEach((call) => {
     const callback = call[0];
     callback(tabId, removeInfo);
@@ -165,7 +165,7 @@ export function triggerWebRequestOnBeforeRedirectEvent(
   });
 }
 
-export function triggerWebRequestOnCompletedEvent(details: chrome.webRequest.OnCompletedDetails) {
+export function triggerWebRequestOnCompletedEvent(details: chrome.webRequest.WebResponseDetails) {
   (chrome.webRequest.onCompleted.addListener as unknown as jest.SpyInstance).mock.calls.forEach(
     (call) => {
       const callback = call[0];

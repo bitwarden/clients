@@ -4081,7 +4081,7 @@
     "message": "Afficher moins"
   },
   "enableAutotype": {
-    "message": "Activer la Saisie Auto"
+    "message": "Activer le type automatique"
   },
   "enableAutotypeDescription": {
     "message": "Bitwarden ne valide pas les emplacements d'entrée, assurez-vous d'être dans la bonne fenêtre et le bon champ avant d'utiliser le raccourci."
@@ -4100,39 +4100,12 @@
     "message": "Confirmer"
   },
   "enableAutotypeTransitionKey": {
-    "message": "Activer le raccourci de la Saisie Auto"
+    "message": "Enable autotype shortcut"
   },
   "enableAutotypeDescriptionTransitionKey": {
-    "message": "Assurez-vous d'être dans le bon champ avant d'utiliser le raccourci pour éviter de remplir les données au mauvais endroit."
+    "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."
   },
   "editShortcut": {
     "message": "Modifier le raccourci"
-  },
-  "archive": {
-    "message": "Archive"
-  },
-  "unarchive": {
-    "message": "Désarchiver"
-  },
-  "itemsInArchive": {
-    "message": "Éléments dans l'archive"
-  },
-  "noItemsInArchive": {
-    "message": "Aucun élément dans l'archive"
-  },
-  "noItemsInArchiveDesc": {
-    "message": "Les éléments archivés apparaîtront ici et seront exclus des résultats de recherche généraux et des suggestions de remplissage automatique."
-  },
-  "itemSentToArchive": {
-    "message": "Élément envoyé à l'archive"
-  },
-  "itemRemovedFromArchive": {
-    "message": "Élément retiré de l'archive"
-  },
-  "archiveItem": {
-    "message": "Archiver l'élément"
-  },
-  "archiveItemConfirmDesc": {
-    "message": "Les éléments archivés sont exclus des résultats de recherche généraux et des suggestions de remplissage automatique. Êtes-vous sûr de vouloir archiver cet élément ?"
   }
 }

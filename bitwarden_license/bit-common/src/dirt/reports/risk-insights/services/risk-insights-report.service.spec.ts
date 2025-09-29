@@ -1,7 +1,10 @@
 import { mock } from "jest-mock-extended";
 import { firstValueFrom, of } from "rxjs";
+import { ZXCVBNResult } from "zxcvbn";
 
+import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { EncryptedString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -13,7 +16,6 @@ import { MemberCipherDetailsResponse } from "../response/member-cipher-details.r
 import { mockCiphers } from "./ciphers.mock";
 import { MemberCipherDetailsApiService } from "./member-cipher-details-api.service";
 import { mockMemberCipherDetails } from "./member-cipher-details-api.service.spec";
-import { PasswordHealthService } from "./password-health.service";
 import { RiskInsightsApiService } from "./risk-insights-api.service";
 import { RiskInsightsEncryptionService } from "./risk-insights-encryption.service";
 import { RiskInsightsReportService } from "./risk-insights-report.service";
@@ -22,9 +24,10 @@ describe("RiskInsightsReportService", () => {
   let service: RiskInsightsReportService;
 
   // Mock services
+  const pwdStrengthService = mock<PasswordStrengthServiceAbstraction>();
+  const auditService = mock<AuditService>();
   const cipherService = mock<CipherService>();
   const memberCipherDetailsService = mock<MemberCipherDetailsApiService>();
-  const mockPasswordHealthService = mock<PasswordHealthService>();
   const mockRiskInsightsApiService = mock<RiskInsightsApiService>();
   const mockRiskInsightsEncryptionService = mock<RiskInsightsEncryptionService>({
     encryptRiskInsightsReport: jest.fn().mockResolvedValue("encryptedReportData"),
@@ -37,38 +40,26 @@ describe("RiskInsightsReportService", () => {
   let mockMemberDetails: MemberCipherDetailsResponse[];
 
   beforeEach(() => {
+    pwdStrengthService.getPasswordStrength.mockImplementation((password: string) => {
+      const score = password.length < 4 ? 1 : 4;
+      return { score } as ZXCVBNResult;
+    });
+
+    auditService.passwordLeaked.mockImplementation((password: string) =>
+      Promise.resolve(password === "123" ? 100 : 0),
+    );
+
     cipherService.getAllFromApiForOrganization.mockResolvedValue(mockCiphers);
 
     memberCipherDetailsService.getMemberCipherDetails.mockResolvedValue(mockMemberCipherDetails);
 
-    // Mock PasswordHealthService methods
-    mockPasswordHealthService.isValidCipher.mockImplementation((cipher: any) => {
-      return (
-        cipher.type === 1 && cipher.login?.password && !cipher.isDeleted && cipher.viewPassword
-      );
-    });
-    mockPasswordHealthService.findWeakPasswordDetails.mockImplementation((cipher: any) => {
-      if (cipher.login?.password === "123") {
-        return { score: 1, detailValue: { label: "veryWeak", badgeVariant: "danger" } };
-      }
-      return null;
-    });
-    mockPasswordHealthService.auditPasswordLeaks$.mockImplementation((ciphers: any[]) => {
-      const exposedDetails = ciphers
-        .filter((cipher) => cipher.login?.password === "123")
-        .map((cipher) => ({
-          exposedXTimes: 100,
-          cipherId: cipher.id,
-        }));
-      return of(exposedDetails);
-    });
-
     service = new RiskInsightsReportService(
+      pwdStrengthService,
+      auditService,
       cipherService,
       memberCipherDetailsService,
       mockRiskInsightsApiService,
       mockRiskInsightsEncryptionService,
-      mockPasswordHealthService,
     );
 
     // Reset mock ciphers before each test
