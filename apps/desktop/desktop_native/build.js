@@ -55,6 +55,7 @@ function buildProcessIsolation() {
         cwd: path.join(__dirname, "process_isolation")
     });
 
+    console.log("Copying process isolation library to dist folder");
     fs.copyFileSync(path.join(__dirname, "target", "release", "libprocess_isolation.so"), path.join(__dirname, "dist", `libprocess_isolation.so`));
 }
 
