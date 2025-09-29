@@ -3,7 +3,7 @@ use std::{ffi::OsString, os::windows::ffi::OsStringExt};
 use anyhow::{anyhow, Result};
 use tracing::{debug, error};
 use windows::Win32::{
-    Foundation::{GetLastError, SetLastError, WIN32_ERROR},
+    Foundation::{GetLastError, SetLastError, HWND, WIN32_ERROR},
     UI::{
         Input::KeyboardAndMouse::{
             SendInput, INPUT, INPUT_0, INPUT_KEYBOARD, KEYBDINPUT, KEYEVENTF_KEYUP,
@@ -12,9 +12,6 @@ use windows::Win32::{
         WindowsAndMessaging::{GetForegroundWindow, GetWindowTextLengthW, GetWindowTextW},
     },
 };
-
-mod window_handle;
-use window_handle::WindowHandle;
 
 const WIN_SUCCESS: WIN32_ERROR = WIN32_ERROR(0);
 
@@ -36,9 +33,7 @@ fn get_last_error() -> WIN32_ERROR {
 /// Gets the title bar string for the foreground window.
 pub fn get_foreground_window_title() -> Result<String> {
     // https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getforegroundwindow
-    let foreground_window_handle = unsafe { GetForegroundWindow() };
-
-    let window_handle = WindowHandle::new(foreground_window_handle)?;
+    let window_handle = unsafe { GetForegroundWindow() };
 
     get_window_title(&window_handle)
 }
@@ -46,11 +41,11 @@ pub fn get_foreground_window_title() -> Result<String> {
 /// Gets the length of the window title bar text.
 ///
 /// https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getwindowtextlengthw
-fn get_window_title_length(window_handle: &WindowHandle) -> Result<usize> {
+fn get_window_title_length(window_handle: &HWND) -> Result<usize> {
     // GetWindowTextLengthW does not itself clear the last error so we must do it ourselves.
     clear_last_error();
 
-    let length = unsafe { GetWindowTextLengthW(*window_handle.get()?) };
+    let length = unsafe { GetWindowTextLengthW(*window_handle) };
 
     let length = usize::try_from(length)?;
 
@@ -73,12 +68,12 @@ fn get_window_title_length(window_handle: &WindowHandle) -> Result<usize> {
 /// Gets the window title bar title.
 ///
 /// https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getwindowtextw
-fn get_window_title(window_handle: &WindowHandle) -> Result<String> {
+fn get_window_title(window_handle: &HWND) -> Result<String> {
     let window_title_length = get_window_title_length(window_handle)?;
 
     let mut buffer: Vec<u16> = vec![0; window_title_length + 1]; // add extra space for the null character
 
-    let len_written = unsafe { GetWindowTextW(*window_handle.get()?, &mut buffer) };
+    let len_written = unsafe { GetWindowTextW(*window_handle, &mut buffer) };
 
     if len_written == 0 {
         // attempt to retreive win32 error
@@ -171,7 +166,6 @@ fn convert_shortcut_key_to_up_input(key: String) -> Result<INPUT> {
 /// cast of the letter is safe because the unicode code point
 /// of these characters fits in a u16.
 fn get_alphabetic_hotkey(letter: String) -> Result<u16> {
-    println!("letter: {letter}, letter length: {}", letter.len());
     if letter.len() != 1 {
         error!(
             len = letter.len(),
