@@ -98,6 +98,7 @@ import {
   DefaultThemeStateService,
   ThemeStateService,
 } from "@bitwarden/common/platform/theming/theme-state.service";
+import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 import {
@@ -109,6 +110,7 @@ import { LockComponentService } from "@bitwarden/key-management-ui";
 import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
 import { DefaultSshImportPromptService, SshImportPromptService } from "@bitwarden/vault";
 import { WebOrganizationInviteService } from "@bitwarden/web-vault/app/auth/core/services/organization-invite/web-organization-invite.service";
+import { WebVaultPremiumUpgradePromptService } from "@bitwarden/web-vault/app/vault/services/web-premium-upgrade-prompt.service";
 
 import { flagEnabled } from "../../utils/flags";
 import {
@@ -402,6 +404,11 @@ const safeProviders: SafeProvider[] = [
     provide: DeviceManagementComponentServiceAbstraction,
     useClass: DefaultDeviceManagementComponentService,
     deps: [],
+  }),
+  safeProvider({
+    provide: PremiumUpgradePromptService,
+    useClass: WebVaultPremiumUpgradePromptService,
+    deps: [DialogService, Router],
   }),
 ];
 
