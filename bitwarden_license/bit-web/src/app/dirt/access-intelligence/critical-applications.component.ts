@@ -100,6 +100,7 @@ export class CriticalApplicationsComponent implements OnInit {
             this.dataSource.data = applications;
             this.applicationSummary = this.reportService.generateApplicationsSummary(applications);
             this.enableRequestPasswordChange = this.applicationSummary.totalAtRiskMemberCount > 0;
+            this.allActivitiesService.setCriticalAppsReportSummary(this.applicationSummary);
           }
         });
     }
