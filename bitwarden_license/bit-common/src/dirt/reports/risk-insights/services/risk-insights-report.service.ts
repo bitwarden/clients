@@ -1,6 +1,8 @@
 import {
   BehaviorSubject,
+  catchError,
   concatMap,
+  EMPTY,
   first,
   firstValueFrom,
   forkJoin,
@@ -362,20 +364,32 @@ export class RiskInsightsReportService {
         },
       ),
     ).pipe(
-      map(({ encryptedReportData: encryptedData, contentEncryptionKey }) => ({
-        data: {
-          organizationId: encryptionParameters.organizationId,
-          date: new Date().toISOString(),
-          reportData: encryptedData.toSdk(),
-          contentEncryptionKey: contentEncryptionKey.toSdk(),
-        },
-      })),
+      map(
+        ({
+          encryptedReportData,
+          encryptedSummaryData,
+          encryptedApplicationsData,
+          contentEncryptionKey,
+        }) => ({
+          data: {
+            organizationId: encryptionParameters.organizationId,
+            creationDate: new Date().toISOString(),
+            reportData: encryptedReportData.toSdk(),
+            summaryData: encryptedSummaryData.toSdk(),
+            applicationData: encryptedApplicationsData.toSdk(),
+            contentEncryptionKey: contentEncryptionKey.toSdk(),
+          },
+        }),
+      ),
       switchMap((encryptedReport) =>
         this.riskInsightsApiService.saveRiskInsightsReport$(
           encryptedReport,
           encryptionParameters.organizationId,
         ),
       ),
+      catchError((error: unknown) => {
+        return EMPTY;
+      }),
       map((response) => {
         if (!isSaveRiskInsightsReportResponse(response)) {
           throw new Error("Invalid response from API");

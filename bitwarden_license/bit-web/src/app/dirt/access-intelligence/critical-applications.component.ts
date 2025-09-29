@@ -70,7 +70,7 @@ export class CriticalApplicationsComponent implements OnInit {
 
     if (this.organizationId) {
       combineLatest([
-        this.dataService.applications$,
+        this.dataService.LEGACY_applications$,
         this.criticalAppsService.getAppsListForOrg(this.organizationId as OrganizationId),
       ])
         .pipe(

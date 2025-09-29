@@ -2,28 +2,21 @@ import { Component, DestroyRef, inject, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
-import { combineLatest, debounceTime, firstValueFrom, map, Observable, of, switchMap } from "rxjs";
+import { debounceTime } from "rxjs";
 
 import { Security } from "@bitwarden/assets/svg";
 import {
+  ApplicationHealthReportDetailEnriched,
   CriticalAppsService,
   RiskInsightsDataService,
   RiskInsightsReportService,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import { createNewSummaryData } from "@bitwarden/bit-common/dirt/reports/risk-insights/helpers";
-import {
-  LEGACY_ApplicationHealthReportDetailWithCriticalFlag,
-  LEGACY_ApplicationHealthReportDetailWithCriticalFlagAndCipher,
-} from "@bitwarden/bit-common/dirt/reports/risk-insights/models/password-health";
 import { OrganizationReportSummary } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/report-models";
 import { RiskInsightsEncryptionService } from "@bitwarden/bit-common/dirt/reports/risk-insights/services/risk-insights-encryption.service";
-import {
-  getOrganizationById,
-  OrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
@@ -59,8 +52,7 @@ import { ApplicationsLoadingComponent } from "./risk-insights-loading.component"
   ],
 })
 export class AllApplicationsComponent implements OnInit {
-  protected dataSource =
-    new TableDataSource<LEGACY_ApplicationHealthReportDetailWithCriticalFlagAndCipher>();
+  protected dataSource = new TableDataSource<ApplicationHealthReportDetailEnriched>();
   protected selectedUrls: Set<string> = new Set<string>();
   protected searchControl = new FormControl("", { nonNullable: true });
   protected organization = new Organization();
@@ -69,7 +61,6 @@ export class AllApplicationsComponent implements OnInit {
   protected applicationSummary: OrganizationReportSummary = createNewSummaryData();
 
   destroyRef = inject(DestroyRef);
-  isLoading$: Observable<boolean> = of(false);
 
   constructor(
     protected cipherService: CipherService,
@@ -90,61 +81,14 @@ export class AllApplicationsComponent implements OnInit {
   }
 
   async ngOnInit() {
-    const organizationId = this.activatedRoute.snapshot.paramMap.get("organizationId");
-    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-
-    if (organizationId) {
-      const organization$ = this.organizationService
-        .organizations$(userId)
-        .pipe(getOrganizationById(organizationId));
-
-      combineLatest([
-        this.dataService.applications$,
-        this.criticalAppsService.getAppsListForOrg(organizationId as OrganizationId),
-        organization$,
-      ])
-        .pipe(
-          takeUntilDestroyed(this.destroyRef),
-          map(([applications, criticalApps, organization]) => {
-            if (applications && applications.length === 0 && criticalApps && criticalApps) {
-              const criticalUrls = criticalApps.map((ca) => ca.uri);
-              const data = applications?.map((app) => ({
-                ...app,
-                isMarkedAsCritical: criticalUrls.includes(app.applicationName),
-              })) as LEGACY_ApplicationHealthReportDetailWithCriticalFlag[];
-              return { data, organization };
-            }
-
-            return { data: applications, organization };
-          }),
-          switchMap(async ({ data, organization }) => {
-            if (data && organization) {
-              const dataWithCiphers = await this.reportService.identifyCiphers(
-                data,
-                organization.id as OrganizationId,
-              );
-
-              return {
-                data: dataWithCiphers,
-                organization,
-              };
-            }
-
-            return { data: [], organization };
-          }),
-        )
-        .subscribe(({ data, organization }) => {
-          if (data) {
-            this.dataSource.data = data;
-            this.applicationSummary = this.reportService.generateApplicationsSummary(data);
-          }
-          if (organization) {
-            this.organization = organization;
-          }
-        });
-
-      this.isLoading$ = this.dataService.isLoading$;
-    }
+    this.dataService.reportResults$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (report) => {
+        this.dataSource.data = report?.reportData ?? [];
+      },
+      error: () => {
+        this.dataSource.data = [];
+      },
+    });
   }
 
   goToCreateNewLoginItem = async () => {

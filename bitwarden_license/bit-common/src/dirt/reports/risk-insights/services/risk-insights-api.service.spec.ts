@@ -37,8 +37,10 @@ describe("RiskInsightsApiService", () => {
   const mockSaveRiskInsightsReportRequest: SaveRiskInsightsReportRequest = {
     data: {
       organizationId: orgId,
-      date: new Date().toISOString(),
+      creationDate: new Date().toISOString(),
       reportData: mockReportEnc.decryptedValue ?? "",
+      summaryData: mockReportEnc.decryptedValue ?? "",
+      applicationData: mockReportEnc.decryptedValue ?? "",
       contentEncryptionKey: mockReportKey.decryptedValue ?? "",
     },
   };

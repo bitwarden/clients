@@ -44,7 +44,7 @@ export class AllActivityComponent implements OnInit {
         )) ?? null;
 
       combineLatest([
-        this.dataService.applications$,
+        this.dataService.LEGACY_applications$,
         this.criticalAppsService.getAppsListForOrg(organizationId as OrganizationId),
       ])
         .pipe(

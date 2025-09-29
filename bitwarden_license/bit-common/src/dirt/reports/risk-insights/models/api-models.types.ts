@@ -37,8 +37,10 @@ export interface PasswordHealthReportApplicationsRequest {
 export interface SaveRiskInsightsReportRequest {
   data: {
     organizationId: OrganizationId;
-    date: string;
+    creationDate: string;
     reportData: string;
+    summaryData: string;
+    applicationData: string;
     contentEncryptionKey: string;
   };
 }

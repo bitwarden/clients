@@ -2,7 +2,6 @@ import { BehaviorSubject, EMPTY, firstValueFrom, Observable, of } from "rxjs";
 import {
   distinctUntilChanged,
   exhaustMap,
-  filter,
   finalize,
   map,
   switchMap,
@@ -45,16 +44,19 @@ export class RiskInsightsDataService {
   organizationDetails$ = this.organizationDetailsSubject.asObservable();
 
   // -------------------------- Data ------------------------------------
-  private applicationsSubject = new BehaviorSubject<ApplicationHealthReportDetail[] | null>(null);
-  applications$ = this.applicationsSubject.asObservable();
+  // TODO: Remove. Will use report results
+  private LEGACY_applicationsSubject = new BehaviorSubject<ApplicationHealthReportDetail[] | null>(
+    null,
+  );
+  LEGACY_applications$ = this.LEGACY_applicationsSubject.asObservable();
 
-  private dataLastUpdatedSubject = new BehaviorSubject<Date | null>(null);
-  dataLastUpdated$ = this.dataLastUpdatedSubject.asObservable();
+  // TODO: Remove. Will use date from report results
+  private LEGACY_dataLastUpdatedSubject = new BehaviorSubject<Date | null>(null);
+  dataLastUpdated$ = this.LEGACY_dataLastUpdatedSubject.asObservable();
 
   criticalApps$ = this.criticalAppsService.criticalAppsList$;
 
   // --------------------------- UI State ------------------------------------
-
   private isLoadingSubject = new BehaviorSubject<boolean>(false);
   isLoading$ = this.isLoadingSubject.asObservable();
 
@@ -145,16 +147,16 @@ export class RiskInsightsDataService {
         finalize(() => {
           this.isLoadingSubject.next(false);
           this.isRefreshingSubject.next(false);
-          this.dataLastUpdatedSubject.next(new Date());
+          this.LEGACY_dataLastUpdatedSubject.next(new Date());
         }),
       )
       .subscribe({
         next: (reports: ApplicationHealthReportDetail[]) => {
-          this.applicationsSubject.next(reports);
+          this.LEGACY_applicationsSubject.next(reports);
           this.errorSubject.next(null);
         },
         error: () => {
-          this.applicationsSubject.next([]);
+          this.LEGACY_applicationsSubject.next([]);
         },
       });
   }
@@ -319,6 +321,7 @@ export class RiskInsightsDataService {
               report: enrichedReport,
               summary: report.summaryData,
               applications: report.applicationsData,
+              creationDate: report.creationDate,
             })),
           );
         }),
@@ -327,12 +330,12 @@ export class RiskInsightsDataService {
         }),
       )
       .subscribe({
-        next: ({ report, summary, applications }) => {
+        next: ({ report, summary, applications, creationDate }) => {
           this.reportResultsSubject.next({
             reportData: report,
             summaryData: summary,
             applicationData: applications,
-            creationDate: new Date(),
+            creationDate: creationDate,
           });
           this.errorSubject.next(null);
           this.isLoadingSubject.next(false);
@@ -348,7 +351,6 @@ export class RiskInsightsDataService {
   private _runApplicationsReport() {
     return this.isRunningReport$.pipe(
       distinctUntilChanged(),
-      filter((isRunning) => isRunning),
       withLatestFrom(this.organizationDetails$, this.userId$),
       exhaustMap(([_, organizationDetails, userId]) => {
         const organizationId = organizationDetails?.organizationId;

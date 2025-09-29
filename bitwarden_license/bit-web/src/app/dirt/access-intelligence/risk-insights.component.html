@@ -4,7 +4,7 @@
     {{ "reviewAtRiskPasswords" | i18n }}
   </div>
   <div
-    *ngIf="dataLastUpdated$ | async"
+    *ngIf="dataLastUpdated"
     class="tw-bg-primary-100 tw-rounded-lg tw-w-full tw-px-8 tw-py-4 tw-my-4 tw-flex tw-items-center"
   >
     <i
@@ -12,7 +12,7 @@
       aria-hidden="true"
     ></i>
     <span class="tw-mx-4">{{
-      "dataLastUpdated" | i18n: (dataLastUpdated$ | async | date: "MMMM d, y 'at' h:mm a")
+      "dataLastUpdated" | i18n: (dataLastUpdated | date: "MMMM d, y 'at' h:mm a")
     }}</span>
     <span class="tw-flex tw-justify-center tw-w-16">
       <button
@@ -47,7 +47,10 @@
     <bit-tab>
       <ng-template bitTabLabel>
         <i class="bwi bwi-star"></i>
-        {{ "criticalApplicationsWithCount" | i18n: (criticalApps$ | async)?.length ?? 0 }}
+        {{
+          "criticalApplicationsWithCount"
+            | i18n: (this.dataService.criticalApps$ | async)?.length ?? 0
+        }}
       </ng-template>
       <tools-critical-applications></tools-critical-applications>
     </bit-tab>

@@ -1,11 +1,14 @@
-<div *ngIf="isLoading$ | async">
+<div *ngIf="dataService.isLoading$ | async">
   <tools-risk-insights-loading></tools-risk-insights-loading>
 </div>
-<div class="tw-mt-4" *ngIf="!(isLoading$ | async) && !dataSource.data.length">
+<div class="tw-mt-4" *ngIf="!(dataService.isLoading$ | async) && !dataSource.data.length">
   <bit-no-items [icon]="noItemsIcon" class="tw-text-main">
     <ng-container slot="title">
       <h2 class="tw-font-semibold tw-mt-4">
-        {{ "noAppsInOrgTitle" | i18n: organization?.name }}
+        {{
+          "noAppsInOrgTitle"
+            | i18n: (this.dataService.organizationDetails$ | async)?.organizationName || ""
+        }}
       </h2>
     </ng-container>
     <ng-container slot="description">
@@ -23,7 +26,10 @@
     </ng-container>
   </bit-no-items>
 </div>
-<div class="tw-mt-4 tw-flex tw-flex-col" *ngIf="!(isLoading$ | async) && dataSource.data.length">
+<div
+  class="tw-mt-4 tw-flex tw-flex-col"
+  *ngIf="!(dataService.isLoading$ | async) && dataSource.data.length"
+>
   <h2 class="tw-mb-6" bitTypography="h2">{{ "allApplications" | i18n }}</h2>
   @if (dataService.drawerDetails$ | async; as drawerDetails) {
     <div class="tw-flex tw-gap-6">
