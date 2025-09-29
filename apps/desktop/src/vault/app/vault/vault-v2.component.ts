@@ -25,7 +25,6 @@ import { Account, AccountService } from "@bitwarden/common/auth/abstractions/acc
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EventType } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -321,26 +320,13 @@ export class VaultV2Component<C extends CipherViewLike>
     this.searchBarService.setEnabled(true);
     this.searchBarService.setPlaceholderText(this.i18nService.t("searchVault"));
 
-    if (
-      (await firstValueFrom(
-        this.configService.getFeatureFlag$(FeatureFlag.PM14938_BrowserExtensionLoginApproval),
-      )) === true
-    ) {
-      const authRequests = await firstValueFrom(
-        this.authRequestService.getLatestPendingAuthRequest$()!,
-      );
-      if (authRequests != null) {
-        this.messagingService.send("openLoginApproval", {
-          notificationId: authRequests.id,
-        });
-      }
-    } else {
-      const authRequest = await this.apiService.getLastAuthRequest();
-      if (authRequest != null) {
-        this.messagingService.send("openLoginApproval", {
-          notificationId: authRequest.id,
-        });
-      }
+    const authRequests = await firstValueFrom(
+      this.authRequestService.getLatestPendingAuthRequest$()!,
+    );
+    if (authRequests != null) {
+      this.messagingService.send("openLoginApproval", {
+        notificationId: authRequests.id,
+      });
     }
 
     this.activeUserId = await firstValueFrom(

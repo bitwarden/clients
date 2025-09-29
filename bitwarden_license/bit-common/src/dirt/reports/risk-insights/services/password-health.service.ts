@@ -32,6 +32,7 @@ export class PasswordHealthService {
           .passwordLeaked(cipher.login.password!)
           .then((exposedCount) => ({ cipher, exposedCount })),
       ),
+      // [FIXME] ExposedDetails is can still return a null
       filter(({ exposedCount }) => exposedCount > 0),
       map(({ cipher, exposedCount }) => ({
         exposedXTimes: exposedCount,
