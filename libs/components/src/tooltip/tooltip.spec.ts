@@ -11,7 +11,6 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { Observable, Subject } from "rxjs";
 
-import { TooltipComponent } from "./tooltip.component";
 import { TooltipDirective } from "./tooltip.directive";
 
 type TooltipPositionId = "above-center" | "below-center" | "left-center" | "right-center";
@@ -31,6 +30,11 @@ interface OverlayLike {
   scrollStrategies: { reposition: () => unknown };
 }
 
+interface OverlayRefStub {
+  attach: (portal: ComponentPortal<unknown>) => unknown; // no setInput in new impl
+  updatePosition: () => void;
+}
+
 @Component({
   standalone: true,
   imports: [TooltipDirective],
@@ -45,26 +49,14 @@ class TooltipHostComponent {
   currentPosition: TooltipPositionId = "above-center";
 }
 
-type TooltipRefStub = Pick<ComponentRefLike, "setInput">;
-interface OverlayRefStub {
-  attach: (portal: ComponentPortal<unknown>) => TooltipRefStub;
-  updatePosition: () => void;
-}
-
-// Minimal interface to avoid importing full ComponentRef shape
-interface ComponentRefLike {
-  setInput: <K extends string, V>(key: K, value: V) => void;
-}
-
-describe("TooltipDirective", () => {
+describe("TooltipDirective (signals + DI)", () => {
   let fixture: ComponentFixture<TooltipHostComponent>;
   let positionChanges$: Subject<ConnectedOverlayPositionChange>;
-  let tooltipRefMock: TooltipRefStub;
 
   beforeEach(() => {
     positionChanges$ = new Subject<ConnectedOverlayPositionChange>();
 
-    // Chainable strategy methods that return the same object
+    // Chainable strategy mock
     const strategy: StrategyLike = {
       withFlexibleDimensions: jest.fn(() => strategy),
       withPush: jest.fn(() => strategy),
@@ -74,15 +66,11 @@ describe("TooltipDirective", () => {
       },
     };
 
-    // 2) Mock OverlayRef + attach() to return our tooltipRef stub
-    tooltipRefMock = { setInput: jest.fn() };
-
     const overlayRefStub: OverlayRefStub = {
-      attach: (_portal: ComponentPortal<unknown>) => tooltipRefMock,
+      attach: (_portal: ComponentPortal<unknown>) => ({}), // directive doesn't use setInput now
       updatePosition: jest.fn(),
     };
 
-    // 3) Provide an Overlay that returns our controllable strategy
     const overlayMock: OverlayLike = {
       position: () => ({
         flexibleConnectedTo: () => strategy,
@@ -93,10 +81,7 @@ describe("TooltipDirective", () => {
 
     TestBed.configureTestingModule({
       imports: [TooltipHostComponent],
-      providers: [
-        { provide: Overlay, useValue: overlayMock as unknown as Overlay },
-        { provide: TooltipComponent, useValue: {} },
-      ],
+      providers: [{ provide: Overlay, useValue: overlayMock as unknown as Overlay }],
     });
 
     fixture = TestBed.createComponent(TooltipHostComponent);
@@ -108,59 +93,53 @@ describe("TooltipDirective", () => {
     return hostDebugEl.injector.get(TooltipDirective);
   }
 
-  it("shows and hides the tooltip on hover", () => {
-    const hostButton: HTMLButtonElement = fixture.debugElement.query(
-      By.css("button"),
-    ).nativeElement;
+  it("toggles visibility signal on hover/focus", () => {
+    const hostBtn: HTMLButtonElement = fixture.debugElement.query(By.css("button")).nativeElement;
     const directive = getDirective();
 
-    // Stub only the API we need, preserving types
-    const tooltipRefMock: TooltipRefStub = {
-      setInput: jest.fn(),
-    };
-    (directive as unknown as { tooltipRef: TooltipRefStub }).tooltipRef = tooltipRefMock;
+    const isVisible = (directive as unknown as { isVisible: () => boolean }).isVisible;
 
-    hostButton.dispatchEvent(new Event("mouseenter"));
-    expect(tooltipRefMock.setInput).toHaveBeenCalledWith("isVisible", true);
+    hostBtn.dispatchEvent(new Event("mouseenter"));
+    expect(isVisible()).toBe(true);
 
-    hostButton.dispatchEvent(new Event("mouseleave"));
-    expect(tooltipRefMock.setInput).toHaveBeenCalledWith("isVisible", false);
+    hostBtn.dispatchEvent(new Event("mouseleave"));
+    expect(isVisible()).toBe(false);
+
+    hostBtn.dispatchEvent(new Event("focus"));
+    expect(isVisible()).toBe(true);
+
+    hostBtn.dispatchEvent(new Event("blur"));
+    expect(isVisible()).toBe(false);
   });
 
-  it("updates strategy + forwards tooltipPosition when the input changes", () => {
+  it("updates strategy and overlay when tooltipPosition input changes", () => {
     const directive = getDirective();
 
-    const tooltipRefMock: TooltipRefStub = { setInput: jest.fn() };
-    const overlayRefMock: OverlayRefStub = {
-      attach: (_portal: ComponentPortal<unknown>) => tooltipRefMock,
-      updatePosition: jest.fn(),
-    };
-
-    (directive as unknown as { tooltipRef: TooltipRefStub }).tooltipRef = tooltipRefMock;
-    (directive as unknown as { overlayRef: OverlayRefStub }).overlayRef = overlayRefMock;
-
-    // Spy on the existing strategy’s withPositions (keep original instance)
     const strategy = (
       directive as unknown as { positionStrategy: FlexibleConnectedPositionStrategy }
     ).positionStrategy;
+
     const withPositionsSpy = jest.spyOn(strategy, "withPositions");
 
-    // Drive the change via host input
+    const overlayRef = (directive as unknown as { overlayRef: OverlayRefStub }).overlayRef;
+    const updatePositionSpy = jest.spyOn(overlayRef!, "updatePosition");
+
     fixture.componentInstance.currentPosition = "right-center";
     fixture.detectChanges();
 
     expect(withPositionsSpy).toHaveBeenCalled();
-    expect(overlayRefMock.updatePosition).toHaveBeenCalled();
-    expect(tooltipRefMock.setInput).toHaveBeenCalledWith("tooltipPosition", "right-center");
+    expect(updatePositionSpy).toHaveBeenCalled();
   });
 
-  it("forwards active connectionPair id from positionChanges to the tooltip", () => {
+  it("updates internal _tooltipPosition signal from positionChanges", () => {
     const directive = getDirective();
 
-    const tooltipRefMock: TooltipRefStub = { setInput: jest.fn() };
-    (directive as unknown as { tooltipRef: TooltipRefStub }).tooltipRef = tooltipRefMock;
+    const getCurrentPos = (
+      directive as unknown as {
+        _tooltipPosition: () => TooltipPositionId;
+      }
+    )._tooltipPosition;
 
-    // Use the subject created in beforeEach
     const pair: ConnectionPositionPair = {
       originX: "center",
       originY: "top",
@@ -169,6 +148,7 @@ describe("TooltipDirective", () => {
       offsetX: 0,
       offsetY: 0,
     };
+
     const changeEvent: ConnectedOverlayPositionChange & {
       connectionPair: ConnectionPositionPair & { id: TooltipPositionId };
     } = {
@@ -181,9 +161,8 @@ describe("TooltipDirective", () => {
       },
     };
 
-    // Emit on the subject the directive subscribed to
     positionChanges$.next(changeEvent);
 
-    expect(tooltipRefMock.setInput).toHaveBeenCalledWith("tooltipPosition", "below-center");
+    expect(getCurrentPos()).toBe("below-center");
   });
 });
