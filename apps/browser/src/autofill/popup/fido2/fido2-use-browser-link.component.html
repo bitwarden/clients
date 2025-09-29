@@ -1,6 +1,7 @@
 <ng-container *ngIf="(fido2PopoutSessionData$ | async).fallbackSupported">
-  <div class="useBrowserlink">
+  <div class="tw-flex tw-items-center tw-justify-center tw-p-2">
     <button
+      bitButton
       type="button"
       (click)="toggle()"
       cdkOverlayOrigin
@@ -8,7 +9,7 @@
       aria-haspopup="dialog"
       aria-controls="cdk-overlay-container"
     >
-      <span class="text-primary">
+      <span bitTypography="body2">
         {{ "useDeviceOrHardwareKey" | i18n }}
       </span>
       <i class="bwi bwi-fw bwi-sm bwi-angle-down" aria-hidden="true"></i>
@@ -25,20 +26,29 @@
     (backdropClick)="isOpen = false"
     (detach)="close()"
   >
-    <div class="box-content">
+    <div
+      class="tw-bg-background tw-rounded tw-shadow-lg tw-border tw-border-secondary-300 tw-min-w-48 tw-max-w-xs"
+    >
       <div
-        class="fido2-browser-selector-dropdown"
+        class="tw-py-2"
         [@transformPanel]="'open'"
         cdkTrapFocus
         cdkTrapFocusAutoCapture
         role="dialog"
         aria-modal="true"
       >
-        <button type="button" class="fido2-browser-selector-dropdown-item" (click)="abort(false)">
+        <button
+          type="button"
+          class="tw-flex tw-px-3 tw-py-2 tw-rounded-md tw-text-main !tw-no-underline hover:tw-bg-secondary-100 tw-w-full tw-text-left tw-transition-colors tw-duration-150"
+          (click)="abort(false)"
+        >
           <span>{{ "justOnce" | i18n }}</span>
         </button>
-        <br />
-        <button type="button" class="fido2-browser-selector-dropdown-item" (click)="abort()">
+        <button
+          type="button"
+          class="tw-flex tw-px-3 tw-py-2 tw-rounded-md tw-text-main !tw-no-underline hover:tw-bg-secondary-100 tw-w-full tw-text-left tw-transition-colors tw-duration-150"
+          (click)="abort()"
+        >
           <span>{{ "alwaysForThisSite" | i18n }}</span>
         </button>
       </div>
