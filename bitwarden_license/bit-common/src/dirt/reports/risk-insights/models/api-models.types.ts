@@ -58,9 +58,10 @@ export function isSaveRiskInsightsReportResponse(obj: any): obj is SaveRiskInsig
 export class GetRiskInsightsReportResponse extends BaseResponse {
   id: string;
   organizationId: OrganizationId;
-  // TODO Update to use creationDate from server
   date: string;
   reportData: EncString;
+  summaryData: EncString;
+  applicationData: EncString;
   contentEncryptionKey: EncString;
 
   constructor(response: any) {
@@ -68,8 +69,10 @@ export class GetRiskInsightsReportResponse extends BaseResponse {
 
     this.id = this.getResponseProperty("organizationId");
     this.organizationId = this.getResponseProperty("organizationId");
-    this.date = this.getResponseProperty("date");
+    this.date = this.getResponseProperty("creationDate");
     this.reportData = new EncString(this.getResponseProperty("reportData"));
+    this.summaryData = new EncString(this.getResponseProperty("summaryData"));
+    this.applicationData = new EncString(this.getResponseProperty("applicationData"));
     this.contentEncryptionKey = new EncString(this.getResponseProperty("contentEncryptionKey"));
   }
 }

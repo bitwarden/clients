@@ -330,8 +330,8 @@ describe("RiskInsightsReportService", () => {
       } as GetRiskInsightsReportResponse;
 
       const decryptedResponse: RiskInsightsReportData = {
-        data: [],
-        summary: {
+        reportData: [],
+        summaryData: {
           totalMemberCount: 1,
           totalAtRiskMemberCount: 1,
           totalApplicationCount: 1,

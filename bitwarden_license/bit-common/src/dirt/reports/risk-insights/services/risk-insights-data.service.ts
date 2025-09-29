@@ -311,10 +311,10 @@ export class RiskInsightsDataService {
       .getRiskInsightsReport$(organizationId, userId)
       .pipe(
         switchMap((report) => {
-          return this.enrichReportData$(report.data).pipe(
+          return this.enrichReportData$(report.reportData).pipe(
             map((enrichedReport) => ({
               data: enrichedReport,
-              summary: report.summary,
+              summary: report.summaryData,
             })),
           );
         }),

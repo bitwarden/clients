@@ -156,8 +156,8 @@ export function getApplicationReportDetail(
  */
 export function createNewReportData(): RiskInsightsReportData {
   return {
-    data: [],
-    summary: createNewSummaryData(),
+    reportData: [],
+    summaryData: createNewSummaryData(),
   };
 }
 

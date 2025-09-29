@@ -150,8 +150,8 @@ export type PasswordHealthReportApplicationId = Opaque<string, "PasswordHealthRe
 
 // -------------------- Risk Insights Report Models --------------------
 export interface RiskInsightsReportData {
-  data: ApplicationHealthReportDetailEnriched[];
-  summary: OrganizationReportSummary;
+  reportData: ApplicationHealthReportDetailEnriched[];
+  summaryData: OrganizationReportSummary;
 }
 
 export type ReportScore = { label: string; badgeVariant: BadgeVariant; sortOrder: number };
