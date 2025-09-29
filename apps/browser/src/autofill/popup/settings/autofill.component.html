@@ -265,8 +265,8 @@
                 [disabled]="option.disabled"
               ></bit-option>
             </bit-select>
-            <bit-hint *ngIf="uriMatchPolicyHint">
-              {{ uriMatchPolicyHint }}
+            <bit-hint *ngIf="isDefaultUriMatchDisabledByPolicy">
+              {{ "settingDisabledByPolicy" | i18n }}
             </bit-hint>
             <bit-hint *ngIf="getMatchHints() as hints">
               {{ hints[0] | i18n }}
