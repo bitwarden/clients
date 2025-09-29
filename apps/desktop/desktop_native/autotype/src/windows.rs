@@ -58,7 +58,7 @@ fn get_window_title_length(window_handle: &HWND) -> Result<usize> {
     // GetWindowTextLengthW does not itself clear the last error so we must do it ourselves.
     clear_last_error();
 
-    validate_window_handle(&window_handle)?;
+    validate_window_handle(window_handle)?;
 
     let length = unsafe { GetWindowTextLengthW(*window_handle) };
 
@@ -94,7 +94,7 @@ fn get_window_title(window_handle: &HWND) -> Result<String> {
 
     let mut buffer: Vec<u16> = vec![0; window_title_length + 1]; // add extra space for the null character
 
-    validate_window_handle(&window_handle)?;
+    validate_window_handle(window_handle)?;
 
     let len_written = unsafe { GetWindowTextW(*window_handle, &mut buffer) };
 
