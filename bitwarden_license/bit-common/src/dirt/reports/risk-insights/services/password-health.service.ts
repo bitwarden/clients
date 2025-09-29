@@ -29,7 +29,7 @@ export class PasswordHealthService {
       filter((cipher) => this.isValidCipher(cipher)),
       mergeMap((cipher) =>
         this.auditService
-          .passwordLeaked(cipher.login.password)
+          .passwordLeaked(cipher.login.password!)
           .then((exposedCount) => ({ cipher, exposedCount })),
       ),
       filter(({ exposedCount }) => exposedCount > 0),
@@ -73,11 +73,11 @@ export class PasswordHealthService {
 
     // Check the username
     const userInput = this.isUserNameNotEmpty(cipher)
-      ? this.extractUsernameParts(cipher.login.username)
+      ? this.extractUsernameParts(cipher.login.username!)
       : undefined;
 
     const { score } = this.passwordStrengthService.getPasswordStrength(
-      cipher.login.password,
+      cipher.login.password!,
       undefined, // No email available in this context
       userInput,
     );
