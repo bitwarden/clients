@@ -269,16 +269,15 @@ fn build_virtual_key_input(key_press: InputKeyPress, virtual_key: u8) -> INPUT {
 fn send_input(inputs: Vec<INPUT>) -> Result<()> {
     let insert_count = unsafe { SendInput(&inputs, std::mem::size_of::<INPUT>() as i32) };
 
-    let last_err = get_last_error();
     debug!("SendInput() called.");
 
     if insert_count == 0 {
-        let last_err = last_err.to_hresult().message();
+        let last_err = get_last_error().to_hresult().message();
         error!(GetLastError = %last_err, "SendInput sent 0 inputs. Input was blocked by another thread.");
 
         return Err(anyhow!("SendInput sent 0 inputs. Input was blocked by another thread. GetLastError: {last_err}"));
     } else if insert_count != inputs.len() as u32 {
-        let last_err = last_err.to_hresult().message();
+        let last_err = get_last_error().to_hresult().message();
         error!(sent = %insert_count, expected = inputs.len(), GetLastError = %last_err,
             "SendInput sent does not match expected."
         );
