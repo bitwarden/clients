@@ -129,7 +129,7 @@
       [(activeUnlockOption)]="activeUnlockOption"
       [unlockOptions]="unlockOptions"
       [biometricUnlockBtnText]="biometricUnlockBtnText"
-      (successfulUnlock)="setUserKeyAndContinue($event, true)"
+      (successfulUnlock)="successfulMasterPasswordUnlock($event)"
       (logOut)="logOut()"
     ></bit-master-password-lock>
   } @else {

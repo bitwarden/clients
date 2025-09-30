@@ -1,6 +1,5 @@
 import { Opaque } from "type-fest";
 
-import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { BadgeVariant } from "@bitwarden/components";
 
@@ -117,7 +116,7 @@ export type OrganizationReportApplication = {
 };
 
 /**
- * All applications report detail. Application is the cipher
+ * Report details for an application
  * uri. Has the at risk, password, and member information
  */
 export type ApplicationHealthReportDetail = {
@@ -153,12 +152,6 @@ export type PasswordHealthReportApplicationId = Opaque<string, "PasswordHealthRe
 export interface RiskInsightsReportData {
   data: ApplicationHealthReportDetailEnriched[];
   summary: OrganizationReportSummary;
-}
-export interface RiskInsightsReport {
-  organizationId: OrganizationId;
-  date: string;
-  reportData: string;
-  reportKey: string;
 }
 
 export type ReportScore = { label: string; badgeVariant: BadgeVariant; sortOrder: number };
