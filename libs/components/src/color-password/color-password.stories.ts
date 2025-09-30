@@ -19,7 +19,7 @@ export default {
       url: "https://www.figma.com/design/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=21540-46261&t=b5tDKylm5sWm2yKo-4",
     },
     chromatic: {
-      delay: 1000,
+      delay: 500,
     },
   },
 } as Meta;
