@@ -1,102 +1,102 @@
-@let drawerDetails = dataService.drawerDetails$ | async;
-
-<div *ngIf="dataService.isLoading$ | async">
-  <tools-risk-insights-loading></tools-risk-insights-loading>
-</div>
-<div class="tw-mt-4" *ngIf="!(dataService.isLoading$ | async) && !dataSource.data.length">
-  <bit-no-items [icon]="noItemsIcon" class="tw-text-main">
-    <ng-container slot="title">
-      <h2 class="tw-font-semibold tw-mt-4">
-        {{
-          "noAppsInOrgTitle"
-            | i18n: (dataService.organizationDetails$ | async)?.organizationName || ""
-        }}
-      </h2>
-    </ng-container>
-    <ng-container slot="description">
-      <div class="tw-flex tw-flex-col tw-mb-2">
-        <span class="tw-text-muted">
-          {{ "noAppsInOrgDescription" | i18n }}
-        </span>
-        <a class="tw-text-primary-600" routerLink="/login">{{ "learnMore" | i18n }}</a>
+@if (dataService.isLoading$ | async) {
+  <dirt-risk-insights-loading></dirt-risk-insights-loading>
+} @else {
+  @let drawerDetails = dataService.drawerDetails$ | async;
+  @if (!dataSource.data.length) {
+    <div class="tw-mt-4">
+      <bit-no-items [icon]="noItemsIcon" class="tw-text-main">
+        <ng-container slot="title">
+          <h2 class="tw-font-semibold tw-mt-4">
+            {{
+              "noAppsInOrgTitle"
+                | i18n: (dataService.organizationDetails$ | async)?.organizationName || ""
+            }}
+          </h2>
+        </ng-container>
+        <ng-container slot="description">
+          <div class="tw-flex tw-flex-col tw-mb-2">
+            <span class="tw-text-muted">
+              {{ "noAppsInOrgDescription" | i18n }}
+            </span>
+            <a class="tw-text-primary-600" routerLink="/login">{{ "learnMore" | i18n }}</a>
+          </div>
+        </ng-container>
+        <ng-container slot="button">
+          <button (click)="goToCreateNewLoginItem()" bitButton buttonType="primary" type="button">
+            {{ "createNewLoginItem" | i18n }}
+          </button>
+        </ng-container>
+      </bit-no-items>
+    </div>
+  } @else {
+    <div class="tw-mt-4 tw-flex tw-flex-col">
+      <h2 class="tw-mb-6" bitTypography="h2">{{ "allApplications" | i18n }}</h2>
+      <div class="tw-flex tw-gap-6">
+        <button
+          type="button"
+          class="tw-flex-1"
+          tabindex="0"
+          (click)="dataService.setDrawerForOrgAtRiskMembers('allAppsOrgAtRiskMembers')"
+        >
+          <dirt-card
+            #allAppsOrgAtRiskMembers
+            class="tw-w-full"
+            [ngClass]="{
+              'tw-bg-primary-100': drawerDetails.invokerId === 'allAppsOrgAtRiskMembers',
+            }"
+            [title]="'atRiskMembers' | i18n"
+            [value]="applicationSummary.totalAtRiskMemberCount"
+            [maxValue]="applicationSummary.totalMemberCount"
+          >
+          </dirt-card>
+        </button>
+        <button
+          type="button"
+          class="tw-flex-1"
+          tabindex="0"
+          (click)="dataService.setDrawerForOrgAtRiskApps('allAppsOrgAtRiskApplications')"
+        >
+          <dirt-card
+            #allAppsOrgAtRiskApplications
+            class="tw-w-full"
+            [ngClass]="{
+              'tw-bg-primary-100': drawerDetails.invokerId === 'allAppsOrgAtRiskApplications',
+            }"
+            [title]="'atRiskApplications' | i18n"
+            [value]="applicationSummary.totalAtRiskApplicationCount"
+            [maxValue]="applicationSummary.totalApplicationCount"
+          >
+          </dirt-card>
+        </button>
       </div>
-    </ng-container>
-    <ng-container slot="button">
-      <button (click)="goToCreateNewLoginItem()" bitButton buttonType="primary" type="button">
-        {{ "createNewLoginItem" | i18n }}
-      </button>
-    </ng-container>
-  </bit-no-items>
-</div>
-<div
-  class="tw-mt-4 tw-flex tw-flex-col"
-  *ngIf="!(dataService.isLoading$ | async) && dataSource.data.length"
->
-  <h2 class="tw-mb-6" bitTypography="h2">{{ "allApplications" | i18n }}</h2>
-  <div class="tw-flex tw-gap-6">
-    <button
-      type="button"
-      class="tw-flex-1"
-      tabindex="0"
-      (click)="dataService.setDrawerForOrgAtRiskMembers('allAppsOrgAtRiskMembers')"
-    >
-      <dirt-card
-        #allAppsOrgAtRiskMembers
-        class="tw-w-full"
-        [ngClass]="{
-          'tw-bg-primary-100': drawerDetails.invokerId === 'allAppsOrgAtRiskMembers',
-        }"
-        [title]="'atRiskMembers' | i18n"
-        [value]="applicationSummary.totalAtRiskMemberCount"
-        [maxValue]="applicationSummary.totalMemberCount"
-      >
-      </dirt-card>
-    </button>
-    <button
-      type="button"
-      class="tw-flex-1"
-      tabindex="0"
-      (click)="dataService.setDrawerForOrgAtRiskApps('allAppsOrgAtRiskApplications')"
-    >
-      <dirt-card
-        #allAppsOrgAtRiskApplications
-        class="tw-w-full"
-        [ngClass]="{
-          'tw-bg-primary-100': drawerDetails.invokerId === 'allAppsOrgAtRiskApplications',
-        }"
-        [title]="'atRiskApplications' | i18n"
-        [value]="applicationSummary.totalAtRiskApplicationCount"
-        [maxValue]="applicationSummary.totalApplicationCount"
-      >
-      </dirt-card>
-    </button>
-  </div>
-  <div class="tw-flex tw-mt-8 tw-mb-4 tw-gap-4">
-    <bit-search
-      [placeholder]="'searchApps' | i18n"
-      class="tw-grow"
-      [formControl]="searchControl"
-    ></bit-search>
-    <button
-      type="button"
-      [buttonType]="'primary'"
-      bitButton
-      [disabled]="!selectedUrls.size"
-      [loading]="markingAsCritical"
-      (click)="markAppsAsCritical()"
-    >
-      <i class="bwi tw-mr-2" [ngClass]="selectedUrls.size ? 'bwi-star-f' : 'bwi-star'"></i>
-      {{ "markAppAsCritical" | i18n }}
-    </button>
-  </div>
+      <div class="tw-flex tw-mt-8 tw-mb-4 tw-gap-4">
+        <bit-search
+          [placeholder]="'searchApps' | i18n"
+          class="tw-grow"
+          [formControl]="searchControl"
+        ></bit-search>
+        <button
+          type="button"
+          [buttonType]="'primary'"
+          bitButton
+          [disabled]="!selectedUrls.size"
+          [loading]="markingAsCritical"
+          (click)="markAppsAsCritical()"
+        >
+          <i class="bwi tw-mr-2" [ngClass]="selectedUrls.size ? 'bwi-star-f' : 'bwi-star'"></i>
+          {{ "markAppAsCritical" | i18n }}
+        </button>
+      </div>
 
-  <app-table-row-scrollable
-    [dataSource]="dataSource"
-    [showRowCheckBox]="true"
-    [showRowMenuForCriticalApps]="false"
-    [selectedUrls]="selectedUrls"
-    [openApplication]="drawerDetails.invokerId || ''"
-    [checkboxChange]="onCheckboxChange"
-    [showAppAtRiskMembers]="showAppAtRiskMembers"
-  ></app-table-row-scrollable>
-</div>
+      <app-table-row-scrollable
+        [dataSource]="dataSource"
+        [showRowCheckBox]="true"
+        [showRowMenuForCriticalApps]="false"
+        [selectedUrls]="selectedUrls"
+        [openApplication]="drawerDetails.invokerId || ''"
+        [checkboxChange]="onCheckboxChange"
+        [showAppAtRiskMembers]="showAppAtRiskMembers"
+      ></app-table-row-scrollable>
+    </div>
+  }
+}

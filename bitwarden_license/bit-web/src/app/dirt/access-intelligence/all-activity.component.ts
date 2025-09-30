@@ -24,7 +24,6 @@ import { RiskInsightsTabType } from "./risk-insights.component";
   templateUrl: "./all-activity.component.html",
 })
 export class AllActivityComponent implements OnInit {
-  protected isLoading$ = this.dataService.isLoading$;
   protected noData$ = new BehaviorSubject(true);
   organization: Organization | null = null;
   totalCriticalAppsAtRiskMemberCount = 0;

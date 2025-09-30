@@ -1,55 +1,51 @@
-@if (isLoading$ | async) {
-  <div *ngIf="isLoading$ | async">
-    <tools-risk-insights-loading></tools-risk-insights-loading>
-  </div>
-}
-
-@if (!(isLoading$ | async) && (noData$ | async)) {
-  <div class="tw-mt-4">
-    <bit-no-items class="tw-text-main">
-      <ng-container slot="title">
-        <h2 class="tw-font-semibold tw-mt-4">
-          {{ "noAppsInOrgTitle" | i18n: organization?.name }}
-        </h2>
-      </ng-container>
-    </bit-no-items>
-  </div>
-}
-
-@if (!(isLoading$ | async) && !(noData$ | async)) {
-  <div class="tw-mt-4 tw-flex tw-flex-col">
-    <div class="tw-flex tw-gap-4 tw-col-span-6">
-      <dirt-activity-card
-        class="tw-col-span-2 tw-cursor-pointer"
-        [title]="'atRiskMembers' | i18n"
-        [cardMetrics]="'membersAtRisk' | i18n: totalCriticalAppsAtRiskMemberCount"
-        [metricDescription]="'membersAtRiskActivityDescription' | i18n"
-        navigationText="{{ 'viewAtRiskMembers' | i18n }}"
-        navigationLink="{{ getLinkForRiskInsightsTab(RiskInsightsTabType.AllApps) }}"
-        [showNavigationLink]="totalCriticalAppsAtRiskMemberCount > 0"
-      >
-      </dirt-activity-card>
-
-      <dirt-activity-card
-        #allAppsOrgAtRiskApplications
-        class="tw-col-span-2 tw-cursor-pointer"
-        [title]="'criticalApplications' | i18n"
-        [cardMetrics]="
-          totalCriticalAppsCount === 0
-            ? ('countOfCriticalApplications' | i18n: totalCriticalAppsCount)
-            : ('countOfApplicationsAtRisk' | i18n: totalCriticalAppsCount)
-        "
-        [metricDescription]="
-          totalCriticalAppsCount === 0
-            ? ('onceYouMarkCriticalApplicationsActivityDescription' | i18n)
-            : ('criticalApplicationsAreAtRisk'
-              | i18n: totalCriticalAppsAtRiskCount : totalCriticalAppsCount)
-        "
-        navigationText="{{ 'viewAtRiskApplications' | i18n }}"
-        navigationLink="{{ getLinkForRiskInsightsTab(RiskInsightsTabType.CriticalApps) }}"
-        [showNavigationLink]="totalCriticalAppsAtRiskCount > 0"
-      >
-      </dirt-activity-card>
+@if (dataService.isLoading$ | async) {
+  <dirt-risk-insights-loading></dirt-risk-insights-loading>
+} @else {
+  @if (noData$ | async) {
+    <div class="tw-mt-4">
+      <bit-no-items class="tw-text-main">
+        <ng-container slot="title">
+          <h2 class="tw-font-semibold tw-mt-4">
+            {{ "noAppsInOrgTitle" | i18n: organization?.name }}
+          </h2>
+        </ng-container>
+      </bit-no-items>
     </div>
-  </div>
+  } @else {
+    <div class="tw-mt-4 tw-flex tw-flex-col">
+      <div class="tw-flex tw-gap-4 tw-col-span-6">
+        <dirt-activity-card
+          class="tw-col-span-2 tw-cursor-pointer"
+          [title]="'atRiskMembers' | i18n"
+          [cardMetrics]="'membersAtRisk' | i18n: totalCriticalAppsAtRiskMemberCount"
+          [metricDescription]="'membersAtRiskActivityDescription' | i18n"
+          navigationText="{{ 'viewAtRiskMembers' | i18n }}"
+          navigationLink="{{ getLinkForRiskInsightsTab(RiskInsightsTabType.AllApps) }}"
+          [showNavigationLink]="totalCriticalAppsAtRiskMemberCount > 0"
+        >
+        </dirt-activity-card>
+
+        <dirt-activity-card
+          #allAppsOrgAtRiskApplications
+          class="tw-col-span-2 tw-cursor-pointer"
+          [title]="'criticalApplications' | i18n"
+          [cardMetrics]="
+            totalCriticalAppsCount === 0
+              ? ('countOfCriticalApplications' | i18n: totalCriticalAppsCount)
+              : ('countOfApplicationsAtRisk' | i18n: totalCriticalAppsCount)
+          "
+          [metricDescription]="
+            totalCriticalAppsCount === 0
+              ? ('onceYouMarkCriticalApplicationsActivityDescription' | i18n)
+              : ('criticalApplicationsAreAtRisk'
+                | i18n: totalCriticalAppsAtRiskCount : totalCriticalAppsCount)
+          "
+          navigationText="{{ 'viewAtRiskApplications' | i18n }}"
+          navigationLink="{{ getLinkForRiskInsightsTab(RiskInsightsTabType.CriticalApps) }}"
+          [showNavigationLink]="totalCriticalAppsAtRiskCount > 0"
+        >
+        </dirt-activity-card>
+      </div>
+    </div>
+  }
 }

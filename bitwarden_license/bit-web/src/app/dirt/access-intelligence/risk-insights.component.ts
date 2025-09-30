@@ -64,7 +64,6 @@ export class RiskInsightsComponent implements OnInit {
 
   private organizationId: OrganizationId = "" as OrganizationId;
 
-  isLoading$: Observable<boolean> = new Observable<boolean>();
   isRefreshing$: Observable<boolean> = new Observable<boolean>();
   dataLastUpdated: Date | null = null;
   refetching: boolean = false;
@@ -100,7 +99,6 @@ export class RiskInsightsComponent implements OnInit {
 
             this.organizationId = orgId as OrganizationId;
             this.dataService.LEGACY_fetchApplicationsReport(this.organizationId);
-            this.isLoading$ = this.dataService.isLoading$;
             this.isRefreshing$ = this.dataService.isRefreshing$;
             return this.dataService.LEGACY_applications$;
           } else {
