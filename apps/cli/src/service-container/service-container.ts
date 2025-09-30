@@ -833,6 +833,7 @@ export class ServiceContainer {
         this.platformUtilsService,
         this.configService,
       ),
+      this.platformUtilsService,
     );
 
     this.individualExportService = new IndividualVaultExportService(
