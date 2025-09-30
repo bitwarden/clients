@@ -83,24 +83,26 @@ fn get_window_title_length(window_handle: &HWND) -> Result<usize> {
 ///
 /// https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getwindowtextw
 fn get_window_title(window_handle: &HWND) -> Result<String> {
-    let window_title_length = get_window_title_length(window_handle)?;
+    let expected_window_title_length = get_window_title_length(window_handle)?;
 
     // This isn't considered an error by the windows API, but in practice it means we can't
     // match against the title so we'll stop here.
-    if window_title_length == 0 {
+    // The upstream will make a contains comparison on what we return, so an empty string
+    // will not result on a match.
+    if expected_window_title_length == 0 {
         warn!("Window title length is zero.");
         return Ok(String::from(""));
     }
 
-    let mut buffer: Vec<u16> = vec![0; window_title_length + 1]; // add extra space for the null character
+    let mut buffer: Vec<u16> = vec![0; expected_window_title_length + 1]; // add extra space for the null character
 
     validate_window_handle(window_handle)?;
 
-    let len_written = unsafe { GetWindowTextW(*window_handle, &mut buffer) };
+    let actual_window_title_length = unsafe { GetWindowTextW(*window_handle, &mut buffer) };
 
-    debug!(read = len_written, "window title retrieved.");
+    debug!(actual_window_title_length, "window title retrieved.");
 
-    if len_written == 0 {
+    if actual_window_title_length == 0 {
         // attempt to retreive win32 error
         let last_err = get_last_error();
         if last_err != WIN32_SUCCESS {
@@ -110,7 +112,7 @@ fn get_window_title(window_handle: &HWND) -> Result<String> {
         }
         // in practice, we should not get to the below code, since we asserted the len > 0
         // above. but it is an extra protection in case the windows API didn't set an error.
-        warn!(window_title_length, "No window title retrieved, read 0.");
+        warn!(expected_window_title_length, "No window title retrieved.");
     }
 
     let window_title = OsString::from_wide(&buffer);
