@@ -61,6 +61,9 @@ export enum RiskInsightsTabType {
   ],
 })
 export class RiskInsightsComponent implements OnInit {
+  private destroyRef = inject(DestroyRef);
+  private _isDrawerOpen: boolean = false;
+
   tabIndex: RiskInsightsTabType = RiskInsightsTabType.AllApps;
   isRiskInsightsActivityTabFeatureEnabled: boolean = false;
 
@@ -73,7 +76,6 @@ export class RiskInsightsComponent implements OnInit {
   notifiedMembersCount: number = 0;
 
   private organizationId: OrganizationId = "" as OrganizationId;
-  private destroyRef = inject(DestroyRef);
 
   isLoading$: Observable<boolean> = new Observable<boolean>();
   isRefreshing$: Observable<boolean> = new Observable<boolean>();
@@ -127,13 +129,26 @@ export class RiskInsightsComponent implements OnInit {
             this.appsCount = applications.length;
           }
 
-          this.criticalAppsService.setOrganizationId(this.organizationId as OrganizationId, userId);
+          this.criticalAppsService.loadOrganizationContext(
+            this.organizationId as OrganizationId,
+            userId,
+          );
           this.criticalApps$ = this.criticalAppsService.getAppsListForOrg(
             this.organizationId as OrganizationId,
           );
         },
       });
+
+    // Subscribe to drawer state changes
+    this.dataService.drawerDetails$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((details) => {
+        this._isDrawerOpen = details.open;
+      });
   }
+  runReport = () => {
+    this.dataService.triggerReport();
+  };
 
   /**
    * Refreshes the data by re-fetching the applications report.
@@ -159,5 +174,28 @@ export class RiskInsightsComponent implements OnInit {
   // Get a list of drawer types
   get drawerTypes(): typeof DrawerType {
     return DrawerType;
+  }
+
+  /**
+   * Special case getter for syncing drawer state from service to component.
+   * This allows the template to use two-way binding while staying reactive.
+   */
+  get isDrawerOpen() {
+    return this._isDrawerOpen;
+  }
+
+  /**
+   * Special case setter for syncing drawer state from component to service.
+   * When the drawer component closes the drawer, this syncs the state back to the service.
+   */
+  set isDrawerOpen(value: boolean) {
+    if (this._isDrawerOpen !== value) {
+      this._isDrawerOpen = value;
+
+      // Close the drawer in the service if the drawer component closed the drawer
+      if (!value) {
+        this.dataService.closeDrawer();
+      }
+    }
   }
 }
