@@ -167,7 +167,7 @@ describe("Browser Utils Service", () => {
 
     it("returns false if special error is sent", async () => {
       chrome.runtime.sendMessage = jest.fn().mockImplementation((message, callback) => {
-        chrome.runtime.lastError = new Error(
+        (chrome.runtime.lastError as any) = new Error(
           "Could not establish connection. Receiving end does not exist.",
         );
         callback(undefined);
@@ -177,7 +177,7 @@ describe("Browser Utils Service", () => {
 
       expect(isViewOpen).toBe(false);
 
-      chrome.runtime.lastError = null;
+      (chrome.runtime.lastError as any) = null;
     });
   });
 

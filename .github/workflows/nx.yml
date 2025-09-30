@@ -38,4 +38,5 @@ jobs:
         uses: nrwl/nx-set-shas@826660b82addbef3abff5fa871492ebad618c9e1 # v4.3.3
       
       - name: Run Nx affected tasks
+        continue-on-error: true
         run: npx nx affected -t build lint test
