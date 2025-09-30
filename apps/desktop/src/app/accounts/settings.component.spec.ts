@@ -11,6 +11,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { DeviceType } from "@bitwarden/common/enums";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import {
@@ -70,6 +71,8 @@ describe("SettingsComponent", () => {
   const keyService = mock<KeyService>();
   const dialogService = mock<DialogService>();
   const desktopAutotypeService = mock<DesktopAutotypeService>();
+  const billingAccountProfileStateService = mock<BillingAccountProfileStateService>();
+  const configService = mock<ConfigService>();
 
   beforeEach(async () => {
     jest.clearAllMocks();
@@ -99,7 +102,7 @@ describe("SettingsComponent", () => {
         },
         { provide: AccountService, useValue: accountService },
         { provide: BiometricStateService, useValue: biometricStateService },
-        { provide: ConfigService, useValue: mock<ConfigService>() },
+        { provide: ConfigService, useValue: configService },
         {
           provide: DesktopAutofillSettingsService,
           useValue: desktopAutofillSettingsService,
@@ -127,6 +130,7 @@ describe("SettingsComponent", () => {
         { provide: MessagingService, useValue: messagingService },
         { provide: ToastService, useValue: mock<ToastService>() },
         { provide: DesktopAutotypeService, useValue: desktopAutotypeService },
+        { provide: BillingAccountProfileStateService, useValue: billingAccountProfileStateService },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -177,7 +181,11 @@ describe("SettingsComponent", () => {
     i18nService.userSetLocale$ = of("en");
     pinServiceAbstraction.isPinSet.mockResolvedValue(false);
     policyService.policiesByType$.mockReturnValue(of([null]));
-    desktopAutotypeService.autotypeEnabled$ = of(false);
+    desktopAutotypeService.resolvedAutotypeEnabled$ = of(false);
+    desktopAutotypeService.autotypeEnabledUserSetting$ = of(false);
+    desktopAutotypeService.autotypeKeyboardShortcut$ = of(["Control", "Shift", "B"]);
+    billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(false));
+    configService.getFeatureFlag$.mockReturnValue(of(true));
   });
 
   afterEach(() => {
@@ -636,6 +644,29 @@ describe("SettingsComponent", () => {
         null,
         "Number too large test error",
       );
+    });
+  });
+
+  describe("desktop autotype", () => {
+    it("autotype should be hidden on mac os", async () => {
+      // Set OS
+      platformUtilsService.getDevice.mockReturnValue(DeviceType.MacOsDesktop);
+
+      // Recreate component to apply the correct device
+      fixture = TestBed.createComponent(SettingsComponent);
+      component = fixture.componentInstance;
+
+      await component.ngOnInit();
+      fixture.detectChanges();
+
+      // `enableAutotype` label shouldn't be found
+      const showEnableAutotypeLabelElement = fixture.debugElement.query(
+        By.css("label[for='enableAutotype']"),
+      );
+      expect(showEnableAutotypeLabelElement).toBeNull();
+
+      // `showEnableAutotype` should be false
+      expect(component.showEnableAutotype).toBe(false);
     });
   });
 });

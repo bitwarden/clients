@@ -960,9 +960,6 @@
   "insertU2f": {
     "message": "Anslut din säkerhetsnyckel till datorns USB-port. Om den har en knapp, tryck på den."
   },
-  "recoveryCodeDesc": {
-    "message": "Förlorat åtkomst till alla dina metoder för tvåstegsverifiering? Använd din återställningskod för att inaktivera tvåstegsverifiering på ditt konto."
-  },
   "recoveryCodeTitle": {
     "message": "Återställningskod"
   },
@@ -1306,7 +1303,7 @@
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
   "showIconsChangePasswordUrls": {
-    "message": "Show website icons and retrieve change password URLs"
+    "message": "Visa webbplatsikoner och URLer för lösenordsändringar"
   },
   "enableMinToTray": {
     "message": "Minimera till systemfältsikon"
@@ -3588,6 +3585,12 @@
   "awaitingSSODesc": {
     "message": "Fortsätt att logga in med dina företagsuppgifter."
   },
+  "importDirectlyFromBrowser": {
+    "message": "Importera direkt från webbläsaren"
+  },
+  "browserProfile": {
+    "message": "Webbläsarprofil"
+  },
   "seeDetailedInstructions": {
     "message": "Se detaljerade instruktioner på vår hjälpsida på",
     "description": "This is followed a by a hyperlink to the help website."
@@ -3830,6 +3833,12 @@
   "changeAtRiskPassword": {
     "message": "Ändra lösenord för riskgrupper"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Denna inloggning är utsatt för risk och saknar en webbplats. Lägg till en webbplats och ändra lösenordet för ökad säkerhet."
+  },
+  "missingWebsite": {
+    "message": "Saknar webbplats"
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "Du kan inte ta bort samlingar med behörigheten Visa endast: $COLLECTIONS$",
     "placeholders": {
@@ -3926,10 +3935,10 @@
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
   "aboutThisSetting": {
-    "message": "About this setting"
+    "message": "Om denna inställning"
   },
   "permitCipherDetailsDescription": {
-    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+    "message": "Bitwarden använder sparade inloggnings-URI: er för att identifiera vilken ikon eller URL för lösenordsändring som ska användas för att förbättra din upplevelse. Ingen information samlas in eller sparas när du använder denna tjänst."
   },
   "assignToCollections": {
     "message": "Tilldela till samlingar"
@@ -4080,5 +4089,50 @@
   "moreBreadcrumbs": {
     "message": "Fler länkstigar",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "next": {
+    "message": "Nästa"
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Bekräfta Key Connector-domän"
+  },
+  "confirm": {
+    "message": "Bekräfta"
+  },
+  "enableAutotypeTransitionKey": {
+    "message": "Aktivera genväg för automatisk inmatning"
+  },
+  "enableAutotypeDescriptionTransitionKey": {
+    "message": "Försäkra dig om att du befinner dig i rätt fält innan du använder genvägen för att undvika att fylla i data på fel ställe."
+  },
+  "editShortcut": {
+    "message": "Redigera genväg"
+  },
+  "archive": {
+    "message": "Arkivera"
+  },
+  "unarchive": {
+    "message": "Packa upp"
+  },
+  "itemsInArchive": {
+    "message": "Objekt i arkivet"
+  },
+  "noItemsInArchive": {
+    "message": "Inga objekt i arkivet"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Arkiverade objekt kommer att visas här och kommer att uteslutas från allmänna sökresultat och förslag för autofyll."
+  },
+  "itemSentToArchive": {
+    "message": "Objekt skickat till arkiv"
+  },
+  "itemRemovedFromArchive": {
+    "message": "Objekt borttaget från arkiv"
+  },
+  "archiveItem": {
+    "message": "Arkivera objekt"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Arkiverade objekt är uteslutna från allmänna sökresultat och förslag för autofyll. Är du säker på att du vill arkivera detta objekt?"
   }
 }

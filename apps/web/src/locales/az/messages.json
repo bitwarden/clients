@@ -2,6 +2,9 @@
   "allApplications": {
     "message": "Bütün tətbiqlər"
   },
+  "activity": {
+    "message": "Fəaliyyət"
+  },
   "appLogoLabel": {
     "message": "Bitwarden loqosu"
   },
@@ -56,8 +59,20 @@
   "createNewLoginItem": {
     "message": "Yeni giriş elementi yarat"
   },
+  "criticalApplicationsActivityDescription": {
+    "message": "Tətbiqləri kritik olaraq işarələsəniz, onlar burada nümayiş olunacaq."
+  },
   "criticalApplicationsWithCount": {
     "message": "Kritik tətbiqlər ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfCriticalApplications": {
+    "message": "$COUNT$ kritik tətbiq",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -86,14 +101,14 @@
   "noAppsInOrgDescription": {
     "message": "İstifadəçilər giriş məlumatlarını saxladıqda, tətbiqlər burada görünür və riskli parolları göstərir. Kritik tətbiqləri işarələyin və parollarını güncəlləməsi üçün istifadəçiləri məlumatlandırın."
   },
-  "noCriticalAppsTitle": {
-    "message": "Heç bir tətbiqi Kritik olaraq işarələməmisiniz"
+  "noCriticalApplicationsTitle": {
+    "message": "Heç bir tətbiqi kritik olaraq işarələməmisiniz"
   },
-  "noCriticalAppsDescription": {
-    "message": "Riskli parolları kəşf etmək üçün ən kritik tətbiqlərinizi seçin və bu parolları dəyişdirməsi üçün istifadəçiləri məlumatlandırın."
+  "noCriticalApplicationsDescription": {
+    "message": "İstifadəçilərinizin risk altında olan parollara müraciət etmələri üçün təhlükəsizlik tədbirlərinə üstünlük verməsi məqsədilə ən kritik tətbiqlərinizi seçin."
   },
-  "markCriticalApps": {
-    "message": "Kritik tətbiqləri işarələ"
+  "markCriticalApplications": {
+    "message": "Kritik tətbiqləri seç"
   },
   "markAppAsCritical": {
     "message": "Tətbiqi kritik olaraq işarələ"
@@ -118,6 +133,18 @@
   },
   "atRiskMembers": {
     "message": "Riskli üzvlər"
+  },
+  "membersAtRiskActivityDescription": {
+    "message": "Kritik tətbiqlər üçün risk altındakı elementlərə düzəliş erişimi olan üzvlər"
+  },
+  "membersAtRisk": {
+    "message": "$COUNT$ üzv riskdədir",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "atRiskMembersWithCount": {
     "message": "Risk altındakı üzvlər ($COUNT$)",
@@ -177,10 +204,10 @@
     "message": "Cəmi tətbiq"
   },
   "unmarkAsCritical": {
-    "message": "Unmark as critical"
+    "message": "Kritik olaraq işarələməni götür"
   },
-  "criticalApplicationSuccessfullyUnmarked": {
-    "message": "Kritik tətbiq işarəsi uğurla götürüldü"
+  "criticalApplicationUnmarkedSuccessfully": {
+    "message": "Tətbiqin kritik olaraq işarələnməsi uğurla götürüldü"
   },
   "whatTypeOfItem": {
     "message": "Bu elementin növü nədir?"
@@ -220,7 +247,7 @@
     "message": "Notlar"
   },
   "privateNote": {
-    "message": "Şəxsi not"
+    "message": "Özəl not"
   },
   "note": {
     "message": "Not"
@@ -235,7 +262,7 @@
     "message": "Giriş məlumatları"
   },
   "personalDetails": {
-    "message": "Şəxsi detallar"
+    "message": "Fərdi detallar"
   },
   "identification": {
     "message": "İdentifikasiya"
@@ -734,32 +761,81 @@
   "viewItem": {
     "message": "Elementə bax"
   },
-  "newItemHeader": {
-    "message": "Yeni $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderLogin": {
+    "message": "Yeni giriş",
+    "description": "Header for new login item type"
   },
-  "editItemHeader": {
-    "message": "$TYPE$ - düzəliş et",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderCard": {
+    "message": "Yeni kart",
+    "description": "Header for new card item type"
   },
-  "viewItemType": {
-    "message": "$ITEMTYPE$ - bax",
-    "placeholders": {
-      "itemtype": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderIdentity": {
+    "message": "Yeni kimlik",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "Yeni not",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "Yeni SSH açarı",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderTextSend": {
+    "message": "Yeni Send mətni",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "Yeni Send faylı",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderLogin": {
+    "message": "Girişə düzəliş et",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Karta düzəliş et",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Kimliyə düzəliş et",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Nota düzəliş et",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "SSH açarına düzəliş et",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Send mətninə düzəliş et",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Send faylına düzəliş et",
+    "description": "Header for edit file send"
+  },
+  "viewItemHeaderLogin": {
+    "message": "Girişə bax",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "Karta bax",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "Kimliyə bax",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "Nota bax",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "SSH açarına bax",
+    "description": "Header for view SSH key item type"
   },
   "new": {
     "message": "Yeni",
@@ -868,13 +944,13 @@
     "message": "Lisenziya nömrəsini kopyala"
   },
   "copyPrivateKey": {
-    "message": "Copy private key"
+    "message": "Private açarı kopyala"
   },
   "copyPublicKey": {
-    "message": "Copy public key"
+    "message": "Public açarı kopyala"
   },
   "copyFingerprint": {
-    "message": "Copy fingerprint"
+    "message": "Barmaq izini kopyala"
   },
   "copyName": {
     "message": "Adı kopyala"
@@ -1510,11 +1586,11 @@
   "selectTwoStepLoginMethod": {
     "message": "İki addımlı giriş üsulunu seçin"
   },
-  "recoveryCodeDesc": {
-    "message": "İki addımlı giriş provayderlərinizə erişə bilmirsiniz? Geri qaytarma kodunuzu istifadə edərək hesabınızdakı bütün iki addımlı giriş provayderlərini söndürə bilərsiniz."
-  },
   "recoveryCodeTitle": {
     "message": "Geri qaytarma kodu"
+  },
+  "invalidRecoveryCode": {
+    "message": "Yararsız geri qaytarma kodu"
   },
   "authenticatorAppTitle": {
     "message": "Kimlik doğrulayıcı tətbiqi"
@@ -2112,7 +2188,7 @@
     "message": "Veb seyfdə istifadə olunan dili dəyişdirin."
   },
   "showIconsChangePasswordUrls": {
-    "message": "Show website icons and retrieve change password URLs"
+    "message": "Veb sayt ikonlarını göstər və parol dəyişdirmə URL-lərini al"
   },
   "default": {
     "message": "İlkin"
@@ -2636,7 +2712,7 @@
     "message": "Veri pozuntusu"
   },
   "breachDesc": {
-    "message": "Hesabların pozuntusu zamanı, şəxsi məlumatlar ifşa oluna bilər. 2FA-nı fəallaşdıraraq və ya daha güclü bir parol yaradaraq pozuntuya daxil olmuş hesabların güvənliyini artırın."
+    "message": "Hesabların pozuntusu zamanı, fərdi məlumatlar ifşa oluna bilər. 2FA-nı fəallaşdıraraq və ya daha güclü bir parol yaradaraq pozuntuya daxil olmuş hesabların güvənliyini artırın."
   },
   "breachCheckUsernameEmail": {
     "message": "İstifadə etdiyiniz istifadəçi adlarını və ya e-poçt ünvanlarını yoxlayın."
@@ -4637,13 +4713,13 @@
     "message": "Bu qutunu işarələyərək aşağıdakılarla razılaşırsınız:"
   },
   "acceptPoliciesRequired": {
-    "message": "Xidmət Şərtləri və Gizlilik Siyasəti qəbul edilməyib."
+    "message": "Xidmət Şərtləri və Məxfilik Siyasəti qəbul edilməyib."
   },
   "termsOfService": {
     "message": "Xidmət Şərtləri"
   },
   "privacyPolicy": {
-    "message": "Gizlilik Siyasəti"
+    "message": "Məxfilik Siyasəti"
   },
   "filters": {
     "message": "Filtrlər"
@@ -5480,6 +5556,13 @@
   },
   "personalOwnershipSubmitError": {
     "message": "Müəssisə siyasətinə görə, elementləri şəxsi seyfinizdə saxlamağınız məhdudlaşdırılıb. Sahiblik seçimini təşkilat olaraq dəyişdirin və mövcud kolleksiyalar arasından seçim edin."
+  },
+  "desktopAutotypePolicy": {
+    "message": "Masaüstü avto-yazma ilkin ayarı"
+  },
+  "desktopAutotypePolicyDesc": {
+    "message": "Üzvlər üçün Masaüstü avto-yazma ayarını ilkin olaraq işə salın. Üzvlər Masaüstü client-ində avto-yazma ayarını manual olaraq söndürə bilər.",
+    "description": "This policy will enable Desktop Autotype by default for members on Unlock."
   },
   "disableSend": {
     "message": "\"Send\"i sıradan çıxart"
@@ -6424,7 +6507,7 @@
     "message": "Aktiv bir sponsorluğu ləğv etdiyiniz zaman, sponsorlu təşkilatınızın yenilənmə tarixindən sonra təşkilatınızda bir yer mövcud olacaq."
   },
   "sponsoredFamiliesEligible": {
-    "message": "Siz və ailəniz Ödənişsiz Bitwarden Ailələri üçün uyğunsunuz. İşdə olmadığınız vaxtlarda belə verilərinizi güvənli saxlamaq üçün özəl e-poçtunuzu istifadə edin."
+    "message": "Siz və ailəniz Ödənişsiz Bitwarden Ailələri üçün uyğunsunuz. İşdə olmadığınız vaxtlarda belə verilərinizi güvənli saxlamaq üçün fərdi e-poçtunuzu istifadə edin."
   },
   "sponsoredFamiliesEligibleCard": {
     "message": "İşdə olmadığınız vaxtlarda belə verilərinizi güvənli saxlamaq üçün Ailələr üçün nəzərdə tutulan Ödənişsiz Bitwarden planını bu gün istifadə edin."
@@ -6475,7 +6558,7 @@
     "message": "Hansı Ödənişsiz Ailələr təklifindən faydalanmaq istəyirsiniz?"
   },
   "sponsoredFamiliesEmail": {
-    "message": "\"Bitwarden Ailələri\"ni istifadə etmək üçün özəl e-poçtunuzu daxil edin"
+    "message": "\"Bitwarden Ailələri\"ni istifadə etmək üçün fərdi e-poçtunuzu daxil edin"
   },
   "sponsoredFamiliesLeaveCopy": {
     "message": "Bu təşkilatı tərk etsəniz və ya bu təşkilatdan çıxarılsanız, Ailələr planınızın istifadə müddəti faktura dövrünün sonunda başa çatacaq."
@@ -6644,6 +6727,15 @@
   },
   "disabledSso": {
     "message": "SSO sıradan çıxarılıb"
+  },
+  "emailMustLoginWithSso": {
+    "message": "$EMAIL$, Vahid Daxil olma üsulu ilə giriş etməlidir",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
   },
   "enabledKeyConnector": {
     "message": "Key Connector aktivdir"
@@ -7426,6 +7518,9 @@
   },
   "off": {
     "message": "Bağlı"
+  },
+  "connected": {
+    "message": "Bağlantılıdır"
   },
   "members": {
     "message": "Üzvlər"
@@ -8932,20 +9027,25 @@
   "collectionManagement": {
     "message": "Kolleksiya idarəetməsi"
   },
-  "collectionManagementDesc": {
-    "message": "Təşkilat üçün kolleksiya davranışını idarə et"
+  "collectionManagementDescription": {
+    "message": "Təşkilat üçün kolleksiya davranışını konfiqurasiya et"
   },
-  "limitCollectionCreationDesc": {
-    "message": "Kolleksiya yaradılmasını sahibləri və adminləri ilə məhdudlaşdır"
+  "allowAdminAccessToAllCollectionItemsDescription": {
+    "message": "Sahiblərin və adminlərin bütün kolleksiyaları və elementləri Admin Konsolundan idarə etməsinə icazə ver"
   },
-  "limitCollectionDeletionDesc": {
-    "message": "Kolleksiya silinməsini sahibləri və adminləri ilə məhdudlaşdır"
+  "restrictCollectionCreationDescription": {
+    "message": "Kolleksiya yaradılmasını sahiblər və adminlərlə məhdudlaşdır"
   },
-  "limitItemDeletionDescription": {
-    "message": "Element silməni, \"Kolleksiyanı idarə et\" icazəsinə sahib üzvlərlə məhdudlaşdır"
+  "restrictCollectionDeletionDescription": {
+    "message": "Kolleksiya silməyi sahiblər və adminlərlə məhdudlaşdır"
   },
-  "allowAdminAccessToAllCollectionItemsDesc": {
-    "message": "Sahiblər və adminlər bütün kolleksiyaları və elementləri idarə edə bilər"
+  "restrictItemDeletionDescriptionStart": {
+    "message": "Element silməni bu üzvlərlə məhdudlaşdır ",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
+  },
+  "restrictItemDeletionDescriptionEnd": {
+    "message": "icazə",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
   },
   "updatedCollectionManagement": {
     "message": "Güncəllənən kolleksiya idarəetmə ayarı"
@@ -9016,6 +9116,78 @@
   },
   "modifiedCollectionManagement": {
     "message": "Kolleksiya idarəetmə ayarı $ID$ dəyişdirildi.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationEnabled": {
+    "message": "'Kolleksiya yaradılmasını məhdudlaşdır' ayarı $ID$ işə salındı.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationDisabled": {
+    "message": "'Kolleksiya yaradılmasını məhdudlaşdır' ayarı $ID$ söndürüldü.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionEnabled": {
+    "message": "'Kolleksiya silinməsini məhdudlaşdır' ayarı $ID$ işə salındı.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionDisabled": {
+    "message": "'Kolleksiya silinməsini məhdudlaşdır' ayarı $ID$ söndürüldü.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionEnabled": {
+    "message": "'Elementin silinməsini məhdudlaşdır' ayarı $ID$ işə salındı.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionDisabled": {
+    "message": "'Elementin silinməsini məhdudlaşdır' ayarı $ID$ söndürüldü.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsEnabled": {
+    "message": "'Sahiblərin və adminlərin bütün kolleksiyaları və elementləri idarə etməsinə icazə ver' ayarı $ID$ işə salındı.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsDisabled": {
+    "message": "'Sahiblərin və adminlərin bütün kolleksiyaları və elementləri idarə etməsinə icazə ver' ayarı $ID$ söndürüldü.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -9583,6 +9755,9 @@
   "failedToSaveIntegration": {
     "message": "İnteqrasiya saxlanılmadı. Lütfən daha sonra yenidən sınayın."
   },
+  "failedToDeleteIntegration": {
+    "message": "İnteqrasiya silinmədi. Lütfən daha sonra yenidən sınayın."
+  },
   "deviceIdMissing": {
     "message": "Cihaz kimliyi əskikdir"
   },
@@ -9600,6 +9775,15 @@
   },
   "connectIntegrationButtonDesc": {
     "message": "$INTEGRATION$ ilə bağlantı qur",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
+  },
+  "updateIntegrationButtonDesc": {
+    "message": "Güncəllə: $INTEGRATION$",
     "placeholders": {
       "integration": {
         "content": "$1",
@@ -9669,6 +9853,9 @@
   },
   "bearerToken": {
     "message": "Bearer Tokeni"
+  },
+  "repositoryNameHint": {
+    "message": "Daxil ediləcək repozitoriyanın adı"
   },
   "index": {
     "message": "İndeks"
@@ -9999,7 +10186,7 @@
     "description": "A paragraph on the Billing History page of the Provider Portal letting users know they can download a CSV report for their invoices that does not include prorations."
   },
   "providerClientVaultPrivacyNotification": {
-    "message": "Bildiriş: Bu ayın sonu, client seyf gizliliyi yaxşılaşdırılacaq və provayder üzvləri artıq client seyf elementlərinə birbaşa erişə bilməyəcək. Suallar üçün",
+    "message": "Bildiriş: Bu ayın sonu, client seyf məxfiliyi yaxşılaşdırılacaq və provayder üzvləri artıq client seyf elementlərinə birbaşa erişə bilməyəcək. Suallar üçün",
     "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'Notice: Later this month, client vault privacy will be improved and provider members will no longer have direct access to client vault items. For questions, please contact Bitwarden support'."
   },
   "contactBitwardenSupport": {
@@ -10118,14 +10305,8 @@
   "learnMoreAboutApi": {
     "message": "Bitwarden-nin API-si haqqında daha ətraflı"
   },
-  "fileSend": {
-    "message": "Fayl \"Send\"i"
-  },
   "fileSends": {
     "message": "Fayl \"Send\"ləri"
-  },
-  "textSend": {
-    "message": "Mətn \"Send\"i"
   },
   "textSends": {
     "message": "Mətn \"Send\"ləri"
@@ -10813,6 +10994,12 @@
   "changeAtRiskPassword": {
     "message": "Riskli parolları dəyişdir"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Bu giriş risk altındadır və bir veb sayt əskikdir. Daha güclü təhlükəsizlik üçün bir veb sayt əlavə edin və parolu dəyişdirin."
+  },
+  "missingWebsite": {
+    "message": "Əskik veb sayt"
+  },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Kilidi PIN ilə açmanı ləğv et"
   },
@@ -10833,6 +11020,18 @@
   },
   "cannotCreateCollection": {
     "message": "Ödənişsiz təşkilatların ən çox 2 kolleksiyası ola bilər. Daha çox kolleksiya əlavə etmək üçün ödənişli bir plana yüksəldin."
+  },
+  "searchArchive": {
+    "message": "Arxivdə axtar"
+  },
+  "archive": {
+    "message": "Arxiv"
+  },
+  "noItemsInArchive": {
+    "message": "Arxivdə element yoxdur"
+  },
+  "archivedItemsDescription": {
+    "message": "Arxivlənmiş elementlər burada görünəcək, ümumi axtarış nəticələrindən və avto-doldurma təkliflərindən xaric ediləcək."
   },
   "businessUnit": {
     "message": "Biznes vahidi"
@@ -10989,10 +11188,10 @@
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   },
   "aboutThisSetting": {
-    "message": "About this setting"
+    "message": "Bu ayar barədə"
   },
   "permitCipherDetailsDescription": {
-    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+    "message": "Bitwarden, təcrübənizi təkmilləşdirmək üçün hansı ikonun və ya parol dəyişdirmə URL-sinin istifadə olunmalı olduğunu müəyyənləşdirmək məqsədilə saxlanılmış giriş URL-lərini istifadə edəcək. Bu xidməti istifadə etdiyiniz zaman heç bir məlumat yığılmır və ya saxlanılmır."
   },
   "billingAddress": {
     "message": "Faktura ünvanı"
@@ -11112,7 +11311,7 @@
     "message": "Əməliyyat tələb olunur: Ödəniş detallarında Vergi kimlik nömrəsini buraxmısınız. Əgər əlavə edilməyəcəksə, fakturalarınıza əlavə vergi daxil ola bilər."
   },
   "moreBreadcrumbs": {
-    "message": "More breadcrumbs",
+    "message": "Daha çox naviqasiya yolu",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   },
   "addTaxId": {
@@ -11154,6 +11353,149 @@
         "example": "92873837267"
       }
     }
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Key Connector domenini təsdiqlə"
+  },
+  "requiredToVerifyBankAccountWithStripe": {
+    "message": "Bank hesabı ilə ödəniş, yalnız Amerika Birləşmiş Ştatlarındakı müştərilər üçün əlçatandır. Bank hesabınızı doğrulamağınız tələb olunacaq. Növbəti 1-2 iş günü ərzində mikro depozit qoyacağıq. Bank hesabı doğrulanmadıqda ödəniş buraxılacaq və abunəliyiniz dayandırılacaq."
+  },
+  "verifyBankAccountWithStripe": {
+    "message": "Bank hesabınıza mikro depozit qoymuşuq. Bu, 1-2 iş günü çəkə bilər. Hesabınızda depoziti gördüyünüz zaman bank hesabınızı doğrulaya biləcəksiniz. Bank hesabı doğrulanmadıqda ödəniş buraxılacaq və abunəliyiniz dayandırılacaq."
+  },
+  "verifyNow": {
+    "message": "İndi doğrula."
+  },
+  "additionalStorageGB": {
+    "message": "Əlavə anbar sahəsi GB"
+  },
+  "additionalServiceAccountsV2": {
+    "message": "Əlavə maşın hesabları"
+  },
+  "secretsManagerSeats": {
+    "message": "Sirr Meneceri yerləri"
+  },
+  "additionalStorage": {
+    "message": "Əlavə anbar sahəsi"
+  },
+  "expandPurchaseDetails": {
+    "message": "Satın alma detallarını genişləndir"
+  },
+  "collapsePurchaseDetails": {
+    "message": "Satın alma detallarını yığcamlaşdır"
+  },
+  "familiesMembership": {
+    "message": "Ailə üzvlüyü"
+  },
+  "planDescPremium": {
+    "message": "Tam onlayn təhlükəsizlik"
+  },
+  "planDescFamiliesV2": {
+    "message": "Ailəniz üçün Premium təhlükəsizlik"
+  },
+  "planDescFreeV2": {
+    "message": "Digər $COUNT$ istifadəçi ilə paylaş",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "planDescEnterpriseV2": {
+    "message": "Hər bir təşkilat üçün qabaqcıl imkanlar"
+  },
+  "planNameCustom": {
+    "message": "Özəl plan"
+  },
+  "planDescCustom": {
+    "message": "Bitwarden, parolların və həssas məlumatların təhlükəsizliyini təmin etmək üçün istənilən miqyaslı şirkətə uyğunlaşır. Əgər böyük bir müəssisənin bir hissəsisinizsə, qiymət təklifi üçün satış şöbəsi ilə əlaqə saxlayın."
+  },
+  "builtInAuthenticator": {
+    "message": "Daxili kimlik doğrulayıcı"
+  },
+  "breachMonitoring": {
+    "message": "Pozuntu monitorinqi"
+  },
+  "andMoreFeatures": {
+    "message": "Və daha çoxu!"
+  },
+  "secureFileStorage": {
+    "message": "Güvənli fayl anbarı"
+  },
+  "familiesUnlimitedSharing": {
+    "message": "Limitsiz paylaşım - kimin nəyi görəcəyini seçin"
+  },
+  "familiesUnlimitedCollections": {
+    "message": "Limitsiz ailə kolleksiyaları"
+  },
+  "familiesSharedStorage": {
+    "message": "Vacib ailə məlumatları üçün paylaşılan anbar sahəsi"
+  },
+  "limitedUsersV2": {
+    "message": "$COUNT$ üzvə qədər",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "limitedCollectionsV2": {
+    "message": "$COUNT$ kolleksiyaya qədər",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "alwaysFree": {
+    "message": "Həmişə ödənişsiz"
+  },
+  "twoSecretsIncluded": {
+    "message": "2 sirr"
+  },
+  "projectsIncludedV2": {
+    "message": "$COUNT$ layihə",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "secureItemSharing": {
+    "message": "Güvənli element paylaşımı"
+  },
+  "scimSupport": {
+    "message": "SCIM dəstəyi"
+  },
+  "includedMachineAccountsV2": {
+    "message": "$COUNT$ maşın hesabı",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
+  },
+  "enterpriseSecurityPolicies": {
+    "message": "Müəssisə təhlükəsizlik siyasətləri"
+  },
+  "selfHostOption": {
+    "message": "Self-host seçimi"
+  },
+  "complimentaryFamiliesPlan": {
+    "message": "Bütün istifadəçilər üçün ödənişsiz ailə planı"
+  },
+  "strengthenCybersecurity": {
+    "message": "Gücləndirilmiş kibertəhlükəsizlik"
+  },
+  "boostProductivity": {
+    "message": "Məhsuldarlığı artırın"
+  },
+  "seamlessIntegration": {
+    "message": "Problemsiz inteqrasiya"
   }
 }
-

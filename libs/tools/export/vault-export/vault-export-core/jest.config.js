@@ -7,7 +7,10 @@ module.exports = {
   testMatch: ["**/+(*.)+(spec).+(ts)"],
   preset: "ts-jest",
   testEnvironment: "jsdom",
-  moduleNameMapper: pathsToModuleNameMapper(compilerOptions?.paths || {}, {
-    prefix: "<rootDir>/../../../../../",
-  }),
+  moduleNameMapper: pathsToModuleNameMapper(
+    { "@bitwarden/common/spec": ["libs/common/spec"], ...(compilerOptions?.paths ?? {}) },
+    {
+      prefix: "<rootDir>/../../../../../",
+    },
+  ),
 };

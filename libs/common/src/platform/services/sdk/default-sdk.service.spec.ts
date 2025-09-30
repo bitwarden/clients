@@ -17,6 +17,7 @@ import { AccountInfo } from "../../../auth/abstractions/account.service";
 import { EncryptedString } from "../../../key-management/crypto/models/enc-string";
 import { UserId } from "../../../types/guid";
 import { UserKey } from "../../../types/key";
+import { ConfigService } from "../../abstractions/config/config.service";
 import { Environment, EnvironmentService } from "../../abstractions/environment.service";
 import { PlatformUtilsService } from "../../abstractions/platform-utils.service";
 import { SdkClientFactory } from "../../abstractions/sdk/sdk-client-factory";
@@ -43,6 +44,7 @@ describe("DefaultSdkService", () => {
     let kdfConfigService!: MockProxy<KdfConfigService>;
     let keyService!: MockProxy<KeyService>;
     let securityStateService!: MockProxy<SecurityStateService>;
+    let configService!: MockProxy<ConfigService>;
     let service!: DefaultSdkService;
     let accountService!: FakeAccountService;
     let fakeStateProvider!: FakeStateProvider;
@@ -59,6 +61,9 @@ describe("DefaultSdkService", () => {
       const mockUserId = Utils.newGuid() as UserId;
       accountService = mockAccountServiceWith(mockUserId);
       fakeStateProvider = new FakeStateProvider(accountService);
+      configService = mock<ConfigService>();
+
+      configService.serverConfig$ = new BehaviorSubject(null);
 
       // Can't use `of(mock<Environment>())` for some reason
       environmentService.environment$ = new BehaviorSubject(mock<Environment>());
@@ -72,6 +77,7 @@ describe("DefaultSdkService", () => {
         keyService,
         securityStateService,
         fakeStateProvider,
+        configService,
       );
     });
 

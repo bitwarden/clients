@@ -67,9 +67,10 @@ export class ProjectComponent implements OnInit, OnDestroy {
     );
 
     this.project$ = combineLatest([this.route.params, currentProjectEdited]).pipe(
-      switchMap(([params, _]) => this.projectService.getByProjectId(params.projectId)),
+      switchMap(([params, currentProj]) =>
+        this.projectService.getByProjectId(params.projectId, currentProj != null),
+      ),
     );
-
     const projectId$ = this.route.params.pipe(map((p) => p.projectId));
     const organization$ = this.route.params.pipe(
       concatMap((params) =>

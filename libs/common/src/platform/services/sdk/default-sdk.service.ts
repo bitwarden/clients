@@ -12,8 +12,11 @@ import {
   of,
   takeWhile,
   throwIfEmpty,
+  firstValueFrom,
 } from "rxjs";
 
+import { EncryptedOrganizationKeyData } from "@bitwarden/common/admin-console/models/data/encrypted-organization-key.data";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KeyService, KdfConfigService, KdfConfig, KdfType } from "@bitwarden/key-management";
@@ -25,7 +28,6 @@ import {
   UnsignedSharedKey,
 } from "@bitwarden/sdk-internal";
 
-import { EncryptedOrganizationKeyData } from "../../../admin-console/models/data/encrypted-organization-key.data";
 import { AccountInfo, AccountService } from "../../../auth/abstractions/account.service";
 import { DeviceType } from "../../../enums/device-type.enum";
 import { EncryptedString } from "../../../key-management/crypto/models/enc-string";
@@ -69,7 +71,9 @@ export class DefaultSdkService implements SdkService {
     concatMap(async (env) => {
       await SdkLoadService.Ready;
       const settings = this.toSettings(env);
-      return await this.sdkClientFactory.createSdkClient(new JsTokenProvider(), settings);
+      const client = await this.sdkClientFactory.createSdkClient(new JsTokenProvider(), settings);
+      await this.loadFeatureFlags(client);
+      return client;
     }),
     shareReplay({ refCount: true, bufferSize: 1 }),
   );
@@ -88,6 +92,7 @@ export class DefaultSdkService implements SdkService {
     private keyService: KeyService,
     private securityStateService: SecurityStateService,
     private stateProvider: StateProvider,
+    private configService: ConfigService,
     private userAgent: string | null = null,
   ) {}
 
@@ -255,14 +260,26 @@ export class DefaultSdkService implements SdkService {
     // null to make sure any existing org keys are cleared.
     await client.crypto().initialize_org_crypto({
       organizationKeys: new Map(
-        Object.entries(orgKeys ?? {})
-          .filter(([_, v]) => v.type === "organization")
-          .map(([k, v]) => [asUuid(k), v.key as UnsignedSharedKey]),
+        Object.entries(orgKeys).map(([k, v]) => [asUuid(k), v.toJSON() as UnsignedSharedKey]),
       ),
     });
 
     // Initialize the SDK managed database and the client managed repositories.
     await initializeState(userId, client.platform().state(), this.stateProvider);
+
+    await this.loadFeatureFlags(client);
+  }
+
+  private async loadFeatureFlags(client: BitwardenClient) {
+    const serverConfig = await firstValueFrom(this.configService.serverConfig$);
+
+    const featureFlagMap = new Map(
+      Object.entries(serverConfig?.featureStates ?? {})
+        .filter(([, value]) => typeof value === "boolean") // The SDK only supports boolean feature flags at this time
+        .map(([key, value]) => [key, value] as [string, boolean]),
+    );
+
+    client.platform().load_flags(featureFlagMap);
   }
 
   private toSettings(env: Environment): ClientSettings {

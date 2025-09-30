@@ -471,10 +471,10 @@
     "message": "Passphrase generated"
   },
   "usernameGenerated": {
-    "message": "Username generated"
+    "message": "已產生使用者名稱"
   },
   "emailGenerated": {
-    "message": "Email generated"
+    "message": "已產生電子郵件"
   },
   "regeneratePassword": {
     "message": "重新產生密碼"
@@ -550,11 +550,41 @@
   "resetSearch": {
     "message": "重設搜尋"
   },
+  "archive": {
+    "message": "Archive"
+  },
+  "unarchive": {
+    "message": "Unarchive"
+  },
+  "itemsInArchive": {
+    "message": "Items in archive"
+  },
+  "noItemsInArchive": {
+    "message": "No items in archive"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+  },
+  "itemSentToArchive": {
+    "message": "Item sent to archive"
+  },
+  "itemRemovedFromArchive": {
+    "message": "Item removed from archive"
+  },
+  "archiveItem": {
+    "message": "Archive item"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+  },
   "edit": {
     "message": "編輯"
   },
   "view": {
     "message": "檢視"
+  },
+  "viewLogin": {
+    "message": "View login"
   },
   "noItemsInList": {
     "message": "沒有可列出的項目。"
@@ -1046,10 +1076,10 @@
     "message": "於分頁頁面顯示身分以便於自動填入。"
   },
   "clickToAutofillOnVault": {
-    "message": "在密碼庫檢視中點擊項目來自動填入"
+    "message": "在密碼庫檢視中點選項目來自動填入"
   },
   "clickToAutofill": {
-    "message": "Click items in autofill suggestion to fill"
+    "message": "點選自動填入建議中的項目進行填入"
   },
   "clearClipboard": {
     "message": "清除剪貼簿",
@@ -1522,9 +1552,6 @@
   "selectTwoStepLoginMethod": {
     "message": "選擇兩步驟登入方法"
   },
-  "recoveryCodeDesc": {
-    "message": "無法使用任何雙因素提供程式嗎？請使用您的復原碼以停用您帳戶的所有雙因素提供程式。"
-  },
   "recoveryCodeTitle": {
     "message": "復原代碼"
   },
@@ -1562,16 +1589,16 @@
     "message": "輸入寄送到您電子郵件信箱的驗證碼。"
   },
   "selfHostedEnvironment": {
-    "message": "自我裝載環境"
+    "message": "自行部署環境"
   },
   "selfHostedBaseUrlHint": {
-    "message": "指定您自建的 Bitwarden 伺服器的網域 URL。例如：https://bitwarden.company.com"
+    "message": "指定您自架的 Bitwarden 伺服器的網域 URL。例如：https://bitwarden.company.com"
   },
   "selfHostedCustomEnvHeader": {
     "message": "適用於進階設定。您可以單獨指定各個服務的網域 URL。"
   },
   "selfHostedEnvFormInvalid": {
-    "message": "您必須新增伺服器網域 URL 或至少一個自定義環境。"
+    "message": "您必須新增伺服器網域 URL 或至少一個自訂環境。"
   },
   "customEnvironment": {
     "message": "自訂環境"
@@ -1580,7 +1607,7 @@
     "message": "伺服器 URL"
   },
   "selfHostBaseUrl": {
-    "message": "自建伺服器 URL",
+    "message": "自架伺服器 URL",
     "description": "Label for field requesting a self-hosted integration service URL"
   },
   "apiUrl": {
@@ -1683,9 +1710,6 @@
   "defaultAutoFillOnPageLoadDesc": {
     "message": "您可以從項目的編輯檢視中為單個登入項目關閉頁面載入時自動填入。"
   },
-  "itemAutoFillOnPageLoad": {
-    "message": "頁面載入時自動填入（如果已在選項中設定）"
-  },
   "autoFillOnPageLoadUseDefault": {
     "message": "使用預設設定"
   },
@@ -1757,17 +1781,8 @@
   "popup2faCloseMessage": {
     "message": "如果您點選彈出式視窗外的任意區域，將導致彈出式視窗關閉。您想在新視窗中開啟此彈出式視窗，以讓它不關閉嗎？"
   },
-  "popupU2fCloseMessage": {
-    "message": "此瀏覽器不能在彈出式視窗中處理 U2F 要求。是否在新視窗開啟此對話方塊，以便您能夠使用 U2F 登入？"
-  },
   "showIconsChangePasswordUrls": {
     "message": "Show website icons and retrieve change password URLs"
-  },
-  "enableBadgeCounter": {
-    "message": "顯示圖示計數器"
-  },
-  "badgeCounterDesc": {
-    "message": "顯示可用於目前網頁的登入資料數量。"
   },
   "cardholderName": {
     "message": "持卡人姓名"
@@ -1931,32 +1946,81 @@
   "typeNote": {
     "message": "Note"
   },
-  "newItemHeader": {
-    "message": "新增 $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderLogin": {
+    "message": "New Login",
+    "description": "Header for new login item type"
   },
-  "editItemHeader": {
-    "message": "編輯 $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderCard": {
+    "message": "New Card",
+    "description": "Header for new card item type"
   },
-  "viewItemHeader": {
-    "message": "檢視 $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderIdentity": {
+    "message": "New Identity",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "New Note",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "New SSH key",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderTextSend": {
+    "message": "New Text Send",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "New File Send",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderLogin": {
+    "message": "Edit Login",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Edit Card",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Edit Identity",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Edit Note",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "Edit SSH key",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Edit Text Send",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Edit File Send",
+    "description": "Header for edit file send"
+  },
+  "viewItemHeaderLogin": {
+    "message": "View Login",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "View Card",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "View Identity",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "View Note",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "View SSH key",
+    "description": "Header for view SSH key item type"
   },
   "passwordHistory": {
     "message": "密碼歷史記錄"
@@ -2231,7 +2295,7 @@
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "vaultCustomization": {
-    "message": "Vault customization"
+    "message": "密碼庫自訂"
   },
   "vaultTimeoutAction": {
     "message": "密碼庫逾時動作"
@@ -2528,7 +2592,7 @@
     "message": "您可以於設定中進行更改"
   },
   "change": {
-    "message": "Change"
+    "message": "變更"
   },
   "changePassword": {
     "message": "Change password",
@@ -3518,9 +3582,6 @@
   "autofillPageLoadPolicyActivated": {
     "message": "您的組織政策已啟用頁面載入時的自動填入功能。"
   },
-  "howToAutofill": {
-    "message": "如何使用自動填入功能"
-  },
   "autofillSelectInfoWithCommand": {
     "message": "從本畫面選擇一個項目，然後使用 $COMMAND$ 快速鍵，或是瞭解設定當中的其他選項。",
     "placeholders": {
@@ -3905,17 +3966,9 @@
   "aliasDomain": {
     "message": "別名網域"
   },
-  "passwordRepromptDisabledAutofillOnPageLoad": {
-    "message": "使用主密碼重新提示的項目無法在頁面載入時使用自動填入功能。已關閉頁面載入時的自動填入功能。",
-    "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
-  },
   "autofillOnPageLoadSetToDefault": {
     "message": "將頁面載入時使用自動填入功能設定為預設。",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "turnOffMasterPasswordPromptToEditField": {
-    "message": "關閉主密碼重新提示以編輯此欄位",
-    "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
   },
   "toggleSideNavigation": {
     "message": "切換側邊欄"
@@ -4185,9 +4238,6 @@
   },
   "passkeyNotCopiedAlert": {
     "message": "不會將密碼金鑰複製到拓製的項目中。您想繼續拓製該項目嗎？"
-  },
-  "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
-    "message": "發起站點需要驗證。沒有主密碼的帳戶尚未開通此功能。"
   },
   "logInWithPasskeyQuestion": {
     "message": "使用密碼金鑰登入？"
@@ -4874,9 +4924,6 @@
       }
     }
   },
-  "enableAnimations": {
-    "message": "啟用動畫"
-  },
   "showAnimations": {
     "message": "顯示動畫"
   },
@@ -5089,14 +5136,8 @@
   "itemLocation": {
     "message": "項目位置"
   },
-  "fileSend": {
-    "message": "檔案 Send"
-  },
   "fileSends": {
     "message": "檔案 Send"
-  },
-  "textSend": {
-    "message": "文字 Send"
   },
   "textSends": {
     "message": "文字 Sends"
@@ -5120,7 +5161,7 @@
     }
   },
   "showQuickCopyActions": {
-    "message": "在密碼庫中顯示快速複製"
+    "message": "在密碼庫中顯示快速複製圖示"
   },
   "systemDefault": {
     "message": "系統預設值"
@@ -5157,9 +5198,6 @@
   },
   "vaultCustomTimeoutMinimum": {
     "message": "自訂逾時時間最小為 1 分鐘。"
-  },
-  "additionalContentAvailable": {
-    "message": "以及更多內容"
   },
   "fileSavedToDevice": {
     "message": "檔案已儲存至裝置。在您的裝置中管理下載的檔案。"
@@ -5446,6 +5484,12 @@
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
+  },
   "settingsVaultOptions": {
     "message": "密碼庫選項"
   },
@@ -5493,6 +5537,18 @@
   },
   "hasItemsVaultNudgeTitle": {
     "message": "Welcome to your vault!"
+  },
+  "phishingPageTitle": {
+    "message": "Phishing website"
+  },
+  "phishingPageCloseTab": {
+    "message": "Close tab"
+  },
+  "phishingPageContinue": {
+    "message": "Continue"
+  },
+  "phishingPageLearnWhy": {
+    "message": "Why are you seeing this?"
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Autofill items for the current page"
@@ -5588,8 +5644,14 @@
   "showLess": {
     "message": "Show less"
   },
+  "next": {
+    "message": "Next"
+  },
   "moreBreadcrumbs": {
     "message": "More breadcrumbs",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Confirm Key Connector domain"
   }
 }

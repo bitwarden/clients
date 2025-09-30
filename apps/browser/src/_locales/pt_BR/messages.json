@@ -550,11 +550,41 @@
   "resetSearch": {
     "message": "Reset search"
   },
+  "archive": {
+    "message": "Archive"
+  },
+  "unarchive": {
+    "message": "Unarchive"
+  },
+  "itemsInArchive": {
+    "message": "Items in archive"
+  },
+  "noItemsInArchive": {
+    "message": "No items in archive"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+  },
+  "itemSentToArchive": {
+    "message": "Item sent to archive"
+  },
+  "itemRemovedFromArchive": {
+    "message": "Item removed from archive"
+  },
+  "archiveItem": {
+    "message": "Archive item"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+  },
   "edit": {
     "message": "Editar"
   },
   "view": {
     "message": "Ver"
+  },
+  "viewLogin": {
+    "message": "View login"
   },
   "noItemsInList": {
     "message": "Não há itens para listar."
@@ -1522,9 +1552,6 @@
   "selectTwoStepLoginMethod": {
     "message": "Escolher iniciar sessão em duas etapas"
   },
-  "recoveryCodeDesc": {
-    "message": "Perdeu o acesso a todos os seus provedores de duas etapas? Utilize o seu código de recuperação para desativar todos os provedores de duas etapas da sua conta."
-  },
   "recoveryCodeTitle": {
     "message": "Código de Recuperação"
   },
@@ -1683,9 +1710,6 @@
   "defaultAutoFillOnPageLoadDesc": {
     "message": "Você pode desativar o preenchimento automático no carregamento da página para credenciais individuais na tela de Editar do item."
   },
-  "itemAutoFillOnPageLoad": {
-    "message": "Preencher automaticamente ao carregar a página (se configurado nas Opções)"
-  },
   "autoFillOnPageLoadUseDefault": {
     "message": "Usar configuração padrão"
   },
@@ -1757,17 +1781,8 @@
   "popup2faCloseMessage": {
     "message": "Ao clicar fora da janela de pop-up para verificar seu e-mail para o seu código de verificação fará com que este pop-up feche. Você deseja abrir este pop-up em uma nova janela para que ele não seja fechado?"
   },
-  "popupU2fCloseMessage": {
-    "message": "Este navegador não pode processar requisições U2F nesta janela popup. Você quer abrir este popup em uma nova janela para que você possa entrar usando U2F?"
-  },
   "showIconsChangePasswordUrls": {
     "message": "Show website icons and retrieve change password URLs"
-  },
-  "enableBadgeCounter": {
-    "message": "Mostrar contador de insígnia"
-  },
-  "badgeCounterDesc": {
-    "message": "Indique quantos acessos você tem para a página “web” atual."
   },
   "cardholderName": {
     "message": "Titular do Cartão"
@@ -1931,32 +1946,81 @@
   "typeNote": {
     "message": "Nota"
   },
-  "newItemHeader": {
-    "message": "Nova $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderLogin": {
+    "message": "New Login",
+    "description": "Header for new login item type"
   },
-  "editItemHeader": {
-    "message": "Editar $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderCard": {
+    "message": "New Card",
+    "description": "Header for new card item type"
   },
-  "viewItemHeader": {
-    "message": "Visualizar $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderIdentity": {
+    "message": "New Identity",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "New Note",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "New SSH key",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderTextSend": {
+    "message": "New Text Send",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "New File Send",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderLogin": {
+    "message": "Edit Login",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Edit Card",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Edit Identity",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Edit Note",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "Edit SSH key",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Edit Text Send",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Edit File Send",
+    "description": "Header for edit file send"
+  },
+  "viewItemHeaderLogin": {
+    "message": "View Login",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "View Card",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "View Identity",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "View Note",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "View SSH key",
+    "description": "Header for view SSH key item type"
   },
   "passwordHistory": {
     "message": "Histórico de Senha"
@@ -3518,9 +3582,6 @@
   "autofillPageLoadPolicyActivated": {
     "message": "Suas políticas de organização ativaram o preenchimento automático ao carregar a página."
   },
-  "howToAutofill": {
-    "message": "Como preencher automaticamente"
-  },
   "autofillSelectInfoWithCommand": {
     "message": "Selecione um item desta tela, use o atalho $COMMAND$, ou explore outras opções nas configurações.",
     "placeholders": {
@@ -3905,17 +3966,9 @@
   "aliasDomain": {
     "message": "Alias do domínio"
   },
-  "passwordRepromptDisabledAutofillOnPageLoad": {
-    "message": "Os itens com confirmação de senha mestra não podem ser preenchidos automaticamente ao carregar a página. O preenchimento automático ao carregar a página será desativado.",
-    "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
-  },
   "autofillOnPageLoadSetToDefault": {
     "message": "O preenchimento automático ao carregar a página está usando a configuração padrão.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "turnOffMasterPasswordPromptToEditField": {
-    "message": "Desative a re-solicitação de senha mestra para editar este campo",
-    "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
   },
   "toggleSideNavigation": {
     "message": "Ativar/desativar navegação lateral"
@@ -4185,9 +4238,6 @@
   },
   "passkeyNotCopiedAlert": {
     "message": "A chave de acesso não será copiada para o item clonado. Deseja continuar clonando este item?"
-  },
-  "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
-    "message": "Verificação requerida pelo site que a iniciou. Esse recurso ainda não está implementado para contas sem senha mestra."
   },
   "logInWithPasskeyQuestion": {
     "message": "Fazer ‘login’ com chave de acesso?"
@@ -4874,9 +4924,6 @@
       }
     }
   },
-  "enableAnimations": {
-    "message": "Habilita animações"
-  },
   "showAnimations": {
     "message": "Exibir animações"
   },
@@ -5089,14 +5136,8 @@
   "itemLocation": {
     "message": "Localização do Item"
   },
-  "fileSend": {
-    "message": "Arquivo enviado"
-  },
   "fileSends": {
     "message": "Arquivos enviados"
-  },
-  "textSend": {
-    "message": "Enviar texto"
   },
   "textSends": {
     "message": "Texto enviado"
@@ -5157,9 +5198,6 @@
   },
   "vaultCustomTimeoutMinimum": {
     "message": "Tempo limite mínimo personalizado é 1 minuto."
-  },
-  "additionalContentAvailable": {
-    "message": "Conteúdo adicional está disponível"
   },
   "fileSavedToDevice": {
     "message": "Arquivo salvo no dispositivo. Gerencie a partir das transferências do seu dispositivo."
@@ -5446,6 +5484,12 @@
   "changeAtRiskPassword": {
     "message": "Alterar senhas vulneráveis"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
+  },
   "settingsVaultOptions": {
     "message": "Opções do cofre"
   },
@@ -5493,6 +5537,18 @@
   },
   "hasItemsVaultNudgeTitle": {
     "message": "Welcome to your vault!"
+  },
+  "phishingPageTitle": {
+    "message": "Phishing website"
+  },
+  "phishingPageCloseTab": {
+    "message": "Close tab"
+  },
+  "phishingPageContinue": {
+    "message": "Continue"
+  },
+  "phishingPageLearnWhy": {
+    "message": "Why are you seeing this?"
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Autofill items for the current page"
@@ -5588,8 +5644,14 @@
   "showLess": {
     "message": "Show less"
   },
+  "next": {
+    "message": "Next"
+  },
   "moreBreadcrumbs": {
     "message": "More breadcrumbs",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Confirm Key Connector domain"
   }
 }

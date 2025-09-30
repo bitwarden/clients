@@ -100,10 +100,19 @@ describe("ContentMessageHandler", () => {
     });
 
     it("forwards the message to the extension background if it is present in the forwardCommands list", () => {
-      sendMockExtensionMessage({ command: "bgUnlockPopoutOpened" });
+      const forwardCommands = [
+        "addToLockedVaultPendingNotifications",
+        "unlockCompleted",
+        "addedCipher",
+      ];
 
-      expect(sendMessageSpy).toHaveBeenCalledTimes(1);
-      expect(sendMessageSpy).toHaveBeenCalledWith({ command: "bgUnlockPopoutOpened" });
+      forwardCommands.forEach((command) => {
+        sendMockExtensionMessage({ command });
+
+        expect(sendMessageSpy).toHaveBeenCalledWith({ command });
+      });
+
+      expect(sendMessageSpy).toHaveBeenCalledTimes(forwardCommands.length);
     });
   });
 

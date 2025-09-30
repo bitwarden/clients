@@ -41,7 +41,13 @@ import {
 } from "@bitwarden/common/spec";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
-import { UserKey, MasterKey } from "@bitwarden/common/types/key";
+import {
+  UserKey,
+  MasterKey,
+  UserPublicKey,
+  OrgKey,
+  ProviderKey,
+} from "@bitwarden/common/types/key";
 
 import { KdfConfigService } from "./abstractions/kdf-config.service";
 import { UserPrivateKeyDecryptionFailedError } from "./abstractions/key.service";
@@ -1074,6 +1080,66 @@ describe("keyService", () => {
         mockUserId,
       );
       expect(result).toBe(false);
+    });
+  });
+
+  describe("makeOrgKey", () => {
+    const mockUserPublicKey = new Uint8Array(64) as UserPublicKey;
+    const shareKey = new SymmetricCryptoKey(new Uint8Array(64));
+    const mockEncapsulatedKey = new EncString("mockEncapsulatedKey");
+
+    beforeEach(() => {
+      keyService.userPublicKey$ = jest
+        .fn()
+        .mockReturnValueOnce(new BehaviorSubject(mockUserPublicKey));
+      keyGenerationService.createKey.mockResolvedValue(shareKey);
+      encryptService.encapsulateKeyUnsigned.mockResolvedValue(mockEncapsulatedKey);
+    });
+
+    it("creates a new OrgKey and encapsulates it with the user's public key", async () => {
+      const result = await keyService.makeOrgKey<OrgKey>(mockUserId);
+
+      expect(result).toEqual([mockEncapsulatedKey, shareKey as OrgKey]);
+      expect(keyService.userPublicKey$).toHaveBeenCalledWith(mockUserId);
+      expect(keyGenerationService.createKey).toHaveBeenCalledWith(512);
+      expect(encryptService.encapsulateKeyUnsigned).toHaveBeenCalledWith(
+        shareKey,
+        mockUserPublicKey,
+      );
+    });
+
+    it("creates a new ProviderKey and encapsulates it with the user's public key", async () => {
+      const result = await keyService.makeOrgKey<ProviderKey>(mockUserId);
+
+      expect(result).toEqual([mockEncapsulatedKey, shareKey as ProviderKey]);
+      expect(keyService.userPublicKey$).toHaveBeenCalledWith(mockUserId);
+      expect(keyGenerationService.createKey).toHaveBeenCalledWith(512);
+      expect(encryptService.encapsulateKeyUnsigned).toHaveBeenCalledWith(
+        shareKey,
+        mockUserPublicKey,
+      );
+    });
+
+    test.each([null as unknown as UserId, undefined as unknown as UserId])(
+      "throws when the provided userId is %s",
+      async (userId) => {
+        await expect(keyService.makeOrgKey(userId)).rejects.toThrow("UserId is required");
+
+        expect(keyService.userPublicKey$).not.toHaveBeenCalled();
+        expect(keyGenerationService.createKey).not.toHaveBeenCalled();
+        expect(encryptService.encapsulateKeyUnsigned).not.toHaveBeenCalled();
+      },
+    );
+
+    it("throws if the user's public key is not found", async () => {
+      keyService.userPublicKey$ = jest.fn().mockReturnValueOnce(new BehaviorSubject(null));
+
+      await expect(keyService.makeOrgKey(mockUserId)).rejects.toThrow(
+        "No public key found for user " + mockUserId,
+      );
+
+      expect(keyGenerationService.createKey).not.toHaveBeenCalled();
+      expect(encryptService.encapsulateKeyUnsigned).not.toHaveBeenCalled();
     });
   });
 

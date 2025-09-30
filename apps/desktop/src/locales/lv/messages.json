@@ -960,9 +960,6 @@
   "insertU2f": {
     "message": "Ievieto savu drošības atslēgu datora USB ligzdā! Ja tai ir poga, pieskaries tai!"
   },
-  "recoveryCodeDesc": {
-    "message": "Zaudēta piekļuve visiem divpakāpju nodrošinātājiem? Izmanto atkopes kodus, lai atspējotu visus sava konta divpakāpju nodrošinātājus!"
-  },
   "recoveryCodeTitle": {
     "message": "Atkopes kods"
   },
@@ -3588,6 +3585,12 @@
   "awaitingSSODesc": {
     "message": "Lūgums turpināt pieteikšanos ar savas apvienības pieteikšanās datiem."
   },
+  "importDirectlyFromBrowser": {
+    "message": "Ievietot tieši no pārlūka"
+  },
+  "browserProfile": {
+    "message": "Pārlūka profils"
+  },
   "seeDetailedInstructions": {
     "message": "Izvērstas norādes ir aplūkojamas mūsu palīdzības vietnē",
     "description": "This is followed a by a hyperlink to the help website."
@@ -3829,6 +3832,12 @@
   },
   "changeAtRiskPassword": {
     "message": "Mainīt riskam pakļautu paroli"
+  },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Šis pieteikšanās vienums ir pakļauts riskam, un tam nav norādīta tīmekļvietne. Lielākai drošībai jāpievieno tīmekļvietne un jānomaina parole."
+  },
+  "missingWebsite": {
+    "message": "Nav norādīta tīmekļvietne"
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "Nevar noņemt krājumus ar tiesībām \"Tikai skatīt\": $COLLECTIONS$",
@@ -4080,5 +4089,50 @@
   "moreBreadcrumbs": {
     "message": "Vairāk norāžu",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "next": {
+    "message": "Nākamais"
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Apstiprināt Key Connector domēnu"
+  },
+  "confirm": {
+    "message": "Apstiprināt"
+  },
+  "enableAutotypeTransitionKey": {
+    "message": "Iespējot automātiskās ievades saīsni"
+  },
+  "enableAutotypeDescriptionTransitionKey": {
+    "message": "Jāpārliecinās, ka pirms saīsnes izmantošanas kursors ir pareizajā laukā, lai izvairītos no datu ievadīšanas nepareizā vietā."
+  },
+  "editShortcut": {
+    "message": "Labot saīsni"
+  },
+  "archive": {
+    "message": "Arhivēt"
+  },
+  "unarchive": {
+    "message": "Atcelt arhivēšanu"
+  },
+  "itemsInArchive": {
+    "message": "Vienumi arhīvā"
+  },
+  "noItemsInArchive": {
+    "message": "Arhīvā nav vienumu"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Šeit parādīsies arhivētie vienumi, un tie netiks iekļauti vispārējās meklēšanas iznākumos un automātiskās aizpildes ieteikumos."
+  },
+  "itemSentToArchive": {
+    "message": "Vienums ievietots arhīvā"
+  },
+  "itemRemovedFromArchive": {
+    "message": "Vienums izņemts no arhīva"
+  },
+  "archiveItem": {
+    "message": "Arhivēt vienumu"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Arhivētie vienumi netiek iekļauti vispārējās meklēšanas iznākumos un automātiskās aizpildes ieteikumos. Vai tiešām ahrivēt šo vienumu?"
   }
 }

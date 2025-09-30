@@ -4,32 +4,44 @@ import {
   ChangeDetectorRef,
   Component,
   DestroyRef,
+  inject,
   NgZone,
   OnDestroy,
   OnInit,
-  inject,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { NavigationEnd, Router, RouterOutlet } from "@angular/router";
 import {
-  Subject,
-  takeUntil,
-  firstValueFrom,
-  concatMap,
-  filter,
-  tap,
   catchError,
-  of,
+  concatMap,
+  distinctUntilChanged,
+  filter,
+  firstValueFrom,
   map,
+  of,
+  pairwise,
+  startWith,
+  Subject,
+  switchMap,
+  take,
+  takeUntil,
+  tap,
 } from "rxjs";
 
+import { LoginApprovalDialogComponent } from "@bitwarden/angular/auth/login-approval/login-approval-dialog.component";
 import { DeviceTrustToastService } from "@bitwarden/angular/auth/services/device-trust-toast.service.abstraction";
 import { DocumentLangSetter } from "@bitwarden/angular/platform/i18n";
-import { LogoutReason, UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
+import {
+  AuthRequestServiceAbstraction,
+  LogoutReason,
+  UserDecryptionOptionsServiceAbstraction,
+} from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AuthRequestAnsweringServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
 import { AnimationControlService } from "@bitwarden/common/platform/abstractions/animation-control.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -57,28 +69,7 @@ import { DesktopSyncVerificationDialogComponent } from "./components/desktop-syn
   selector: "app-root",
   styles: [],
   animations: [routerTransition],
-  template: `
-    @if (showSdkWarning | async) {
-      <div class="tw-h-screen tw-flex tw-justify-center tw-items-center tw-p-4">
-        <bit-callout type="danger">
-          {{ "wasmNotSupported" | i18n }}
-          <a
-            bitLink
-            href="https://bitwarden.com/help/wasm-not-supported/"
-            target="_blank"
-            rel="noreferrer"
-          >
-            {{ "learnMore" | i18n }}
-          </a>
-        </bit-callout>
-      </div>
-    } @else {
-      <div [@routerTransition]="getRouteElevation(outlet)">
-        <router-outlet #outlet="outlet"></router-outlet>
-      </div>
-      <bit-toast-container></bit-toast-container>
-    }
-  `,
+  templateUrl: "app.component.html",
   standalone: false,
 })
 export class AppComponent implements OnInit, OnDestroy {
@@ -88,6 +79,7 @@ export class AppComponent implements OnInit, OnDestroy {
   private lastActivity: Date;
   private activeUserId: UserId;
   private routerAnimations = false;
+  private processingPendingAuth = false;
 
   private destroy$ = new Subject<void>();
 
@@ -120,6 +112,9 @@ export class AppComponent implements OnInit, OnDestroy {
     private readonly documentLangSetter: DocumentLangSetter,
     private popupSizeService: PopupSizeService,
     private logService: LogService,
+    private authRequestService: AuthRequestServiceAbstraction,
+    private pendingAuthRequestsState: PendingAuthRequestsStateService,
+    private authRequestAnsweringService: AuthRequestAnsweringServiceAbstraction,
   ) {
     this.deviceTrustToastService.setupListeners$.pipe(takeUntilDestroyed()).subscribe();
 
@@ -137,6 +132,23 @@ export class AppComponent implements OnInit, OnDestroy {
       this.activeUserId = account?.id;
     });
 
+    // Trigger processing auth requests when the active user is in an unlocked state. Runs once when
+    // the popup is open.
+    this.accountService.activeAccount$
+      .pipe(
+        map((a) => a?.id), // Extract active userId
+        distinctUntilChanged(), // Only when userId actually changes
+        filter((userId) => userId != null), // Require a valid userId
+        switchMap((userId) => this.authService.authStatusFor$(userId).pipe(take(1))), // Get current auth status once for new user
+        filter((status) => status === AuthenticationStatus.Unlocked), // Only when the new user is Unlocked
+        tap(() => {
+          // Trigger processing when switching users while popup is open
+          void this.authRequestAnsweringService.processPendingAuthRequests();
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe();
+
     this.authService.activeAccountStatus$
       .pipe(
         filter((status) => status === AuthenticationStatus.Unlocked),
@@ -146,6 +158,23 @@ export class AppComponent implements OnInit, OnDestroy {
         takeUntil(this.destroy$),
       )
       .subscribe();
+
+    // When the popup is already open and the active account transitions to Unlocked,
+    // process any pending auth requests for the active user. The above subscription does not handle
+    // this case.
+    this.authService.activeAccountStatus$
+      .pipe(
+        startWith(null as unknown as AuthenticationStatus), // Seed previous value to handle initial emission
+        pairwise(), // Compare previous and current statuses
+        filter(
+          ([prev, curr]) =>
+            prev !== AuthenticationStatus.Unlocked && curr === AuthenticationStatus.Unlocked, // Fire on transitions into Unlocked (incl. initial)
+        ),
+        takeUntil(this.destroy$),
+      )
+      .subscribe(() => {
+        void this.authRequestAnsweringService.processPendingAuthRequests();
+      });
 
     this.ngZone.runOutsideAngular(() => {
       window.onmousedown = () => this.recordActivity();
@@ -200,6 +229,39 @@ export class AppComponent implements OnInit, OnDestroy {
             }
 
             await this.router.navigate(["lock"]);
+          } else if (msg.command === "openLoginApproval") {
+            if (this.processingPendingAuth) {
+              return;
+            }
+            this.processingPendingAuth = true;
+            try {
+              // Always query server for all pending requests and open a dialog for each
+              const pendingList = await firstValueFrom(
+                this.authRequestService.getPendingAuthRequests$(),
+              );
+              if (Array.isArray(pendingList) && pendingList.length > 0) {
+                const respondedIds = new Set<string>();
+                for (const req of pendingList) {
+                  if (req?.id == null) {
+                    continue;
+                  }
+                  const dialogRef = LoginApprovalDialogComponent.open(this.dialogService, {
+                    notificationId: req.id,
+                  });
+
+                  const result = await firstValueFrom(dialogRef.closed);
+
+                  if (result !== undefined && typeof result === "boolean") {
+                    respondedIds.add(req.id);
+                    if (respondedIds.size === pendingList.length && this.activeUserId != null) {
+                      await this.pendingAuthRequestsState.clear(this.activeUserId);
+                    }
+                  }
+                }
+              }
+            } finally {
+              this.processingPendingAuth = false;
+            }
           } else if (msg.command === "showDialog") {
             // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
