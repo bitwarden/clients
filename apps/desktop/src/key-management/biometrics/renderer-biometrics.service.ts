@@ -84,4 +84,12 @@ export class RendererBiometricsService extends DesktopBiometricsService {
   async isWindowsV2BiometricsEnabled(): Promise<boolean> {
     return await ipc.keyManagement.biometric.isWindowsV2BiometricsEnabled();
   }
+
+  async enableLinuxV2Biometrics(): Promise<void> {
+    return await ipc.keyManagement.biometric.enableLinuxV2Biometrics();
+  }
+
+  async isLinuxV2BiometricsEnabled(): Promise<boolean> {
+    return await ipc.keyManagement.biometric.isLinuxV2BiometricsEnabled();
+  }
 }

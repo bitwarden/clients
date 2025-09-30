@@ -34,6 +34,7 @@ export enum FeatureFlag {
   EnrollAeadOnKeyRotation = "enroll-aead-on-key-rotation",
   ForceUpdateKDFSettings = "pm-18021-force-update-kdf-settings",
   WindowsBiometricsV2 = "pm-25373-windows-biometrics-v2",
+  LinuxBiometricsV2 = "pm-26340-linux-biometrics-v2",
 
   /* Tools */
   DesktopSendUIRefresh = "desktop-send-ui-refresh",
@@ -114,6 +115,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.EnrollAeadOnKeyRotation]: FALSE,
   [FeatureFlag.ForceUpdateKDFSettings]: FALSE,
   [FeatureFlag.WindowsBiometricsV2]: FALSE,
+  [FeatureFlag.LinuxBiometricsV2]: FALSE,
 
   /* Platform */
   [FeatureFlag.IpcChannelFramework]: FALSE,
