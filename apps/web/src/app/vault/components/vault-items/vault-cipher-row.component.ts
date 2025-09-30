@@ -10,6 +10,7 @@ import {
   CipherViewLike,
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
+import { CopyCipherFieldService } from "@bitwarden/vault";
 
 import {
   convertToPermission,
@@ -65,7 +66,13 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
   ];
   protected organization?: Organization;
 
-  constructor(private i18nService: I18nService) {}
+  /** Boolean tracking if TOTP generation is allowed for a cipher and user. */
+  private canCopyTotp: boolean;
+
+  constructor(
+    private i18nService: I18nService,
+    private copyCipherFieldService: CopyCipherFieldService,
+  ) {}
 
   /**
    * Lifecycle hook for component initialization.
@@ -74,6 +81,8 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     if (this.cipher.organizationId != null) {
       this.organization = this.organizations.find((o) => o.id === this.cipher.organizationId);
     }
+
+    this.canCopyTotp = await this.copyCipherFieldService.totpAllowed(this.cipher);
   }
 
   protected get clickAction() {
@@ -140,21 +149,6 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     return this.useEvents && this.cipher.organizationId;
   }
 
-  protected get isNotDeletedLoginCipher() {
-    return (
-      CipherViewLikeUtils.getType(this.cipher) === this.CipherType.Login &&
-      !CipherViewLikeUtils.isDeleted(this.cipher)
-    );
-  }
-
-  protected get hasPasswordToCopy() {
-    return CipherViewLikeUtils.hasCopyableValue(this.cipher, "password");
-  }
-
-  protected get hasUsernameToCopy() {
-    return CipherViewLikeUtils.hasCopyableValue(this.cipher, "username");
-  }
-
   protected get permissionText() {
     if (!this.cipher.organizationId || this.cipher.collectionIds.length === 0) {
       return this.i18nService.t("manageCollection");
@@ -189,34 +183,107 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     return this.i18nService.t("noAccess");
   }
 
-  protected get showCopyUsername(): boolean {
-    const usernameCopy = CipherViewLikeUtils.hasCopyableValue(this.cipher, "username");
-    return this.isNotDeletedLoginCipher && usernameCopy;
-  }
-
-  protected get showCopyPassword(): boolean {
-    const passwordCopy = CipherViewLikeUtils.hasCopyableValue(this.cipher, "password");
-    return this.isNotDeletedLoginCipher && this.cipher.viewPassword && passwordCopy;
-  }
-
-  protected get showCopyTotp(): boolean {
-    return this.isNotDeletedLoginCipher && this.showTotpCopyButton;
-  }
-
   protected get showLaunchUri(): boolean {
-    return this.isNotDeletedLoginCipher && this.canLaunch;
+    return (
+      !this.isDeleted &&
+      CipherViewLikeUtils.getType(this.cipher) === CipherType.Login &&
+      this.canLaunch
+    );
   }
 
   protected get isDeletedCanRestore(): boolean {
     return CipherViewLikeUtils.isDeleted(this.cipher) && this.canRestoreCipher;
   }
 
+  /** Returns true when:
+   * - The cipher is not deleted
+   * - Has at least one copyable login value (username, password, totp)
+   * - OR the cipher has a launchable URL
+   */
+  protected get showLoginMenuOptions(): boolean {
+    if (this.isDeleted || CipherViewLikeUtils.getType(this.cipher) !== CipherType.Login) {
+      return false;
+    }
+
+    return (
+      [
+        this.hasCopyableValue("username"),
+        this.hasCopyableValue("password", true),
+        this.hasCopyableValue("totp") && this.canCopyTotp,
+      ].some(Boolean) || this.showLaunchUri
+    );
+  }
+
+  /**
+   * Returns true when:
+   * - The cipher is not deleted
+   * - The cipher is of card type
+   * - Has at least one copyable card value
+   */
+  protected get showCardMenuOptions(): boolean {
+    if (this.isDeleted || CipherViewLikeUtils.getType(this.cipher) !== CipherType.Card) {
+      return false;
+    }
+
+    return [this.hasCopyableValue("cardNumber"), this.hasCopyableValue("securityCode")].some(
+      Boolean,
+    );
+  }
+
+  /**
+   * Returns true when:
+   * - The cipher is not deleted
+   * - The cipher is of identity type
+   * - Has at least one copyable identity value
+   */
+  protected get showIdentityMenuOptions(): boolean {
+    if (this.isDeleted || CipherViewLikeUtils.getType(this.cipher) !== CipherType.Identity) {
+      return false;
+    }
+
+    return [
+      this.hasCopyableValue("email"),
+      this.hasCopyableValue("phone"),
+      this.hasCopyableValue("address"),
+    ].some(Boolean);
+  }
+
+  /**
+   * Returns true when:
+   * - The cipher is not deleted
+   * - The cipher is of note type (all cipher types can have notes)
+   * - Has at least one copyable note value
+   */
+  protected get showNoteMenuOptions(): boolean {
+    if (this.isDeleted || CipherViewLikeUtils.getType(this.cipher) !== CipherType.SecureNote) {
+      return false;
+    }
+
+    return [this.hasCopyableValue("secureNote")].some(Boolean);
+  }
+
+  /**
+   * Determines if the cipher has a copyable value.
+   * When `isSensitiveValue` is true, the user must have permission to `viewPassword`s on the cipher to
+   * also have the ability to copy the value.
+   *
+   * Passthrough for {@link CipherViewLikeUtils.hasCopyableValue}
+   */
+  protected hasCopyableValue(field: string, isSensitiveValue = false): boolean {
+    if (isSensitiveValue && !this.cipher.viewPassword) {
+      return false;
+    }
+
+    return CipherViewLikeUtils.hasCopyableValue(this.cipher, field);
+  }
+
   protected get hideMenu() {
     return !(
       this.isDeletedCanRestore ||
-      this.showCopyUsername ||
-      this.showCopyPassword ||
-      this.showCopyTotp ||
+      this.showLoginMenuOptions ||
+      this.showCardMenuOptions ||
+      this.showIdentityMenuOptions ||
+      this.showNoteMenuOptions ||
       this.showLaunchUri ||
       this.showAttachments ||
       this.showClone ||
@@ -224,7 +291,18 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     );
   }
 
-  protected copy(field: "username" | "password" | "totp") {
+  protected copy(
+    field:
+      | "username"
+      | "password"
+      | "totp"
+      | "cardNumber"
+      | "securityCode"
+      | "email"
+      | "phone"
+      | "address"
+      | "notes",
+  ) {
     this.onEvent.emit({ type: "copyField", item: this.cipher, field });
   }
 
@@ -244,12 +322,20 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     this.onEvent.emit({ type: "delete", items: [{ cipher: this.cipher }] });
   }
 
+  protected edit() {
+    this.onEvent.emit({ type: "edit", item: this.cipher });
+  }
+
   protected attachments() {
     this.onEvent.emit({ type: "viewAttachments", item: this.cipher });
   }
 
   protected assignToCollections() {
     this.onEvent.emit({ type: "assignToCollections", items: [this.cipher] });
+  }
+
+  protected toggleFavorite() {
+    this.onEvent.emit({ type: "toggleFavorite", item: this.cipher });
   }
 
   protected get showCheckbox() {

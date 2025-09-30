@@ -18,6 +18,21 @@ export type VaultItemEvent<C extends CipherViewLike> =
   | { type: "clone"; item: C }
   | { type: "restore"; items: C[] }
   | { type: "delete"; items: VaultItem<C>[] }
-  | { type: "copyField"; item: C; field: "username" | "password" | "totp" }
+  | {
+      type: "copyField";
+      item: C;
+      field:
+        | "username"
+        | "password"
+        | "totp"
+        | "cardNumber"
+        | "securityCode"
+        | "email"
+        | "phone"
+        | "address"
+        | "notes";
+    }
   | { type: "moveToFolder"; items: C[] }
-  | { type: "assignToCollections"; items: C[] };
+  | { type: "assignToCollections"; items: C[] }
+  | { type: "toggleFavorite"; item: C }
+  | { type: "edit"; item: C };

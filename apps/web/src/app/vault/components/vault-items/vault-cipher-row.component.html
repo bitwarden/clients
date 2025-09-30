@@ -104,16 +104,31 @@
       label="{{ 'options' | i18n }}"
     ></button>
     <bit-menu #cipherOptions>
-      <ng-container *ngIf="isNotDeletedLoginCipher">
-        <button bitMenuItem type="button" (click)="copy('username')" *ngIf="hasUsernameToCopy">
+      <ng-container *ngIf="showLoginMenuOptions">
+        <button
+          bitMenuItem
+          type="button"
+          (click)="copy('username')"
+          *ngIf="hasCopyableValue('username')"
+        >
           <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
           {{ "copyUsername" | i18n }}
         </button>
-        <button bitMenuItem type="button" (click)="copy('password')" *ngIf="hasPasswordToCopy">
+        <button
+          bitMenuItem
+          type="button"
+          (click)="copy('password')"
+          *ngIf="hasCopyableValue('password', true)"
+        >
           <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
           {{ "copyPassword" | i18n }}
         </button>
-        <button bitMenuItem type="button" (click)="copy('totp')" *ngIf="showTotpCopyButton">
+        <button
+          bitMenuItem
+          type="button"
+          (click)="copy('totp')"
+          *ngIf="hasCopyableValue('totp', true)"
+        >
           <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
           {{ "copyVerificationCode" | i18n }}
         </button>
@@ -130,6 +145,83 @@
         </a>
       </ng-container>
 
+      <ng-container *ngIf="showCardMenuOptions">
+        <button
+          bitMenuItem
+          type="button"
+          (click)="copy('cardNumber')"
+          *ngIf="hasCopyableValue('cardNumber')"
+        >
+          <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
+          {{ "copyNumber" | i18n }}
+        </button>
+        <button
+          bitMenuItem
+          type="button"
+          (click)="copy('securityCode')"
+          *ngIf="hasCopyableValue('securityCode')"
+        >
+          <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
+          {{ "copySecurityCode" | i18n }}
+        </button>
+      </ng-container>
+
+      <ng-container *ngIf="showIdentityMenuOptions">
+        <button
+          bitMenuItem
+          type="button"
+          (click)="copy('username')"
+          *ngIf="hasCopyableValue('username')"
+        >
+          <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
+          {{ "copyUsername" | i18n }}
+        </button>
+        <button bitMenuItem type="button" (click)="copy('email')" *ngIf="hasCopyableValue('email')">
+          <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
+          {{ "copyEmail" | i18n }}
+        </button>
+        <button bitMenuItem type="button" (click)="copy('phone')" *ngIf="hasCopyableValue('phone')">
+          <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
+          {{ "copyPhone" | i18n }}
+        </button>
+        <button
+          bitMenuItem
+          type="button"
+          (click)="copy('address')"
+          *ngIf="hasCopyableValue('address')"
+        >
+          <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
+          {{ "copyAddress" | i18n }}
+        </button>
+      </ng-container>
+      <ng-container *ngIf="showNoteMenuOptions">
+        <button
+          bitMenuItem
+          type="button"
+          (click)="copy('notes')"
+          *ngIf="hasCopyableValue('secureNote')"
+        >
+          <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
+          {{ "copyNotes" | i18n }}
+        </button>
+      </ng-container>
+
+      <bit-menu-divider
+        *ngIf="
+          showIdentityMenuOptions ||
+          showCardMenuOptions ||
+          showLoginMenuOptions ||
+          showNoteMenuOptions
+        "
+      ></bit-menu-divider>
+      <button bitMenuItem type="button" (click)="toggleFavorite()" *ngIf="!isDeleted">
+        <i class="bwi bwi-fw" [ngClass]="'bwi-star'" aria-hidden="true"></i>
+        {{ cipher.favorite ? ("unfavorite" | i18n) : ("favorite" | i18n) }}
+      </button>
+      <button bitMenuItem type="button" (click)="edit()" *ngIf="!isDeleted && canEditCipher">
+        <i class="bwi bwi-fw bwi-pencil-square" aria-hidden="true"></i>
+        {{ "edit" | i18n }}
+      </button>
       <button bitMenuItem *ngIf="showAttachments" type="button" (click)="attachments()">
         <i class="bwi bwi-fw bwi-paperclip" aria-hidden="true"></i>
         {{ "attachments" | i18n }}
