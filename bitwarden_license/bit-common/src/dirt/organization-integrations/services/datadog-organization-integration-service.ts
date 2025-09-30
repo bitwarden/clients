@@ -1,5 +1,6 @@
 import { BehaviorSubject, firstValueFrom, map, Subject, switchMap, takeUntil, zip } from "rxjs";
 
+import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import {
   OrganizationId,
   OrganizationIntegrationId,
@@ -19,6 +20,11 @@ import { OrganizationIntegrationType } from "../models/organization-integration-
 
 import { OrganizationIntegrationApiService } from "./organization-integration-api.service";
 import { OrganizationIntegrationConfigurationApiService } from "./organization-integration-configuration-api.service";
+
+export type DatadogModificationFailureReason = {
+  mustBeOwner: boolean;
+  success: boolean;
+};
 
 export class DatadogOrganizationIntegrationService {
   private organizationId$ = new BehaviorSubject<OrganizationId | null>(null);
@@ -71,34 +77,42 @@ export class DatadogOrganizationIntegrationService {
     service: OrganizationIntegrationServiceType,
     url: string,
     apiKey: string,
-  ) {
+  ): Promise<DatadogModificationFailureReason> {
     if (organizationId != this.organizationId$.getValue()) {
       throw new Error("Organization ID mismatch");
     }
 
-    const datadogConfig = new DatadogConfiguration(url, apiKey, service);
-    const newIntegrationResponse = await this.integrationApiService.createOrganizationIntegration(
-      organizationId,
-      new OrganizationIntegrationRequest(
-        OrganizationIntegrationType.Datadog,
-        datadogConfig.toString(),
-      ),
-    );
-
-    const newTemplate = new DatadogTemplate(service);
-    const newIntegrationConfigResponse =
-      await this.integrationConfigurationApiService.createOrganizationIntegrationConfiguration(
+    try {
+      const datadogConfig = new DatadogConfiguration(url, apiKey, service);
+      const newIntegrationResponse = await this.integrationApiService.createOrganizationIntegration(
         organizationId,
-        newIntegrationResponse.id,
-        new OrganizationIntegrationConfigurationRequest(null, null, null, newTemplate.toString()),
+        new OrganizationIntegrationRequest(
+          OrganizationIntegrationType.Datadog,
+          datadogConfig.toString(),
+        ),
       );
 
-    const newIntegration = this.mapResponsesToOrganizationIntegration(
-      newIntegrationResponse,
-      newIntegrationConfigResponse,
-    );
-    if (newIntegration !== null) {
-      this._integrations$.next([...this._integrations$.getValue(), newIntegration]);
+      const newTemplate = new DatadogTemplate(service);
+      const newIntegrationConfigResponse =
+        await this.integrationConfigurationApiService.createOrganizationIntegrationConfiguration(
+          organizationId,
+          newIntegrationResponse.id,
+          new OrganizationIntegrationConfigurationRequest(null, null, null, newTemplate.toString()),
+        );
+
+      const newIntegration = this.mapResponsesToOrganizationIntegration(
+        newIntegrationResponse,
+        newIntegrationConfigResponse,
+      );
+      if (newIntegration !== null) {
+        this._integrations$.next([...this._integrations$.getValue(), newIntegration]);
+      }
+      return { mustBeOwner: false, success: true };
+    } catch (error) {
+      if (error instanceof ErrorResponse && error.statusCode === 404) {
+        return { mustBeOwner: true, success: false };
+      }
+      throw error;
     }
   }
 
@@ -118,43 +132,51 @@ export class DatadogOrganizationIntegrationService {
     service: OrganizationIntegrationServiceType,
     url: string,
     apiKey: string,
-  ) {
+  ): Promise<DatadogModificationFailureReason> {
     if (organizationId != this.organizationId$.getValue()) {
       throw new Error("Organization ID mismatch");
     }
 
-    const datadogConfig = new DatadogConfiguration(url, apiKey, service);
-    const updatedIntegrationResponse =
-      await this.integrationApiService.updateOrganizationIntegration(
-        organizationId,
-        OrganizationIntegrationId,
-        new OrganizationIntegrationRequest(
-          OrganizationIntegrationType.Datadog,
-          datadogConfig.toString(),
-        ),
+    try {
+      const datadogConfig = new DatadogConfiguration(url, apiKey, service);
+      const updatedIntegrationResponse =
+        await this.integrationApiService.updateOrganizationIntegration(
+          organizationId,
+          OrganizationIntegrationId,
+          new OrganizationIntegrationRequest(
+            OrganizationIntegrationType.Datadog,
+            datadogConfig.toString(),
+          ),
+        );
+
+      const updatedTemplate = new DatadogTemplate(service);
+      const updatedIntegrationConfigResponse =
+        await this.integrationConfigurationApiService.updateOrganizationIntegrationConfiguration(
+          organizationId,
+          OrganizationIntegrationId,
+          OrganizationIntegrationConfigurationId,
+          new OrganizationIntegrationConfigurationRequest(
+            null,
+            null,
+            null,
+            updatedTemplate.toString(),
+          ),
+        );
+
+      const updatedIntegration = this.mapResponsesToOrganizationIntegration(
+        updatedIntegrationResponse,
+        updatedIntegrationConfigResponse,
       );
 
-    const updatedTemplate = new DatadogTemplate(service);
-    const updatedIntegrationConfigResponse =
-      await this.integrationConfigurationApiService.updateOrganizationIntegrationConfiguration(
-        organizationId,
-        OrganizationIntegrationId,
-        OrganizationIntegrationConfigurationId,
-        new OrganizationIntegrationConfigurationRequest(
-          null,
-          null,
-          null,
-          updatedTemplate.toString(),
-        ),
-      );
-
-    const updatedIntegration = this.mapResponsesToOrganizationIntegration(
-      updatedIntegrationResponse,
-      updatedIntegrationConfigResponse,
-    );
-
-    if (updatedIntegration !== null) {
-      this._integrations$.next([...this._integrations$.getValue(), updatedIntegration]);
+      if (updatedIntegration !== null) {
+        this._integrations$.next([...this._integrations$.getValue(), updatedIntegration]);
+      }
+      return { mustBeOwner: false, success: true };
+    } catch (error) {
+      if (error instanceof ErrorResponse && error.statusCode === 404) {
+        return { mustBeOwner: true, success: false };
+      }
+      throw error;
     }
   }
 
@@ -162,28 +184,38 @@ export class DatadogOrganizationIntegrationService {
     organizationId: OrganizationId,
     OrganizationIntegrationId: OrganizationIntegrationId,
     OrganizationIntegrationConfigurationId: OrganizationIntegrationConfigurationId,
-  ) {
+  ): Promise<DatadogModificationFailureReason> {
     if (organizationId != this.organizationId$.getValue()) {
       throw new Error("Organization ID mismatch");
     }
-    // delete the configuration first due to foreign key constraint
-    await this.integrationConfigurationApiService.deleteOrganizationIntegrationConfiguration(
-      organizationId,
-      OrganizationIntegrationId,
-      OrganizationIntegrationConfigurationId,
-    );
 
-    // delete the integration
-    await this.integrationApiService.deleteOrganizationIntegration(
-      organizationId,
-      OrganizationIntegrationId,
-    );
+    try {
+      // delete the configuration first due to foreign key constraint
+      await this.integrationConfigurationApiService.deleteOrganizationIntegrationConfiguration(
+        organizationId,
+        OrganizationIntegrationId,
+        OrganizationIntegrationConfigurationId,
+      );
 
-    // update the local observable
-    const updatedIntegrations = this._integrations$
-      .getValue()
-      .filter((i) => i.id !== OrganizationIntegrationId);
-    this._integrations$.next(updatedIntegrations);
+      // delete the integration
+      await this.integrationApiService.deleteOrganizationIntegration(
+        organizationId,
+        OrganizationIntegrationId,
+      );
+
+      // update the local observable
+      const updatedIntegrations = this._integrations$
+        .getValue()
+        .filter((i) => i.id !== OrganizationIntegrationId);
+      this._integrations$.next(updatedIntegrations);
+
+      return { mustBeOwner: false, success: true };
+    } catch (error) {
+      if (error instanceof ErrorResponse && error.statusCode === 404) {
+        return { mustBeOwner: true, success: false };
+      }
+      throw error;
+    }
   }
 
   /**
@@ -270,7 +302,7 @@ export class DatadogOrganizationIntegrationService {
   }
 
   // Could possibly be moved to a base service. All services would then assume that the
-  // integration configuration would always be an array and this hec specific service
+  // integration configuration would always be an array and this datadog specific service
   // would just assume a single entry.
   private setIntegrations(orgId: OrganizationId) {
     const results$ = zip(this.integrationApiService.getOrganizationIntegrations(orgId)).pipe(
@@ -283,7 +315,7 @@ export class DatadogOrganizationIntegrationService {
             const promise = this.integrationConfigurationApiService
               .getOrganizationIntegrationConfigurations(orgId, integration.id)
               .then((response) => {
-                // Hec events will only have one OrganizationIntegrationConfiguration
+                // datadog events will only have one OrganizationIntegrationConfiguration
                 const config = response[0];
 
                 const orgIntegration = this.mapResponsesToOrganizationIntegration(

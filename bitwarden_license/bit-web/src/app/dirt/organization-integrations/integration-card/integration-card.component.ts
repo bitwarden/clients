@@ -293,14 +293,6 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
     });
   }
 
-  private showMustBeOwnerToast() {
-    this.toastService.showToast({
-      variant: "error",
-      title: "",
-      message: this.i18nService.t("mustBeOrgOwnerToPerformAction"),
-    });
-  }
-
   async saveDatadog(result: DatadogConnectDialogResult) {
     if (this.isUpdateAvailable) {
       // retrieve org integration and configuration ids
@@ -346,16 +338,29 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
       throw Error("Organization Integration ID or Configuration ID is missing");
     }
 
-    await this.datadogOrganizationIntegrationService.deleteDatadog(
+    const response = await this.datadogOrganizationIntegrationService.deleteDatadog(
       this.organizationId,
       orgIntegrationId,
       orgIntegrationConfigurationId,
     );
 
+    if (response.mustBeOwner) {
+      this.showMustBeOwnerToast();
+      return;
+    }
+
     this.toastService.showToast({
       variant: "success",
       title: "",
       message: this.i18nService.t("success"),
+    });
+  }
+
+  private showMustBeOwnerToast() {
+    this.toastService.showToast({
+      variant: "error",
+      title: "",
+      message: this.i18nService.t("mustBeOrgOwnerToPerformAction"),
     });
   }
 }
