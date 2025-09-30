@@ -49,7 +49,7 @@
         <i class="bwi bwi-star"></i>
         {{
           "criticalApplicationsWithCount"
-            | i18n: (this.dataService.criticalApps$ | async)?.length ?? 0
+            | i18n: (dataService.criticalReportResults$ | async)?.reportData?.length ?? 0
         }}
       </ng-template>
       <dirt-critical-applications></dirt-critical-applications>

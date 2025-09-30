@@ -6,6 +6,7 @@ import {
   filter,
   finalize,
   map,
+  shareReplay,
   switchMap,
   tap,
   withLatestFrom,
@@ -49,21 +50,6 @@ export class RiskInsightsDataService {
   private LEGACY_dataLastUpdatedSubject = new BehaviorSubject<Date | null>(null);
   dataLastUpdated$ = this.LEGACY_dataLastUpdatedSubject.asObservable();
 
-  // --------------------------- Critical Apps proxies ---------------------
-  criticalApps$ = this.criticalAppsService.criticalAppsList$;
-
-  saveCriticalApps(selectedUrls: string[]) {
-    return this.organizationDetails$.pipe(
-      exhaustMap(({ organizationId }) => {
-        return this.criticalAppsService.setCriticalApps(organizationId, selectedUrls);
-      }),
-      catchError((error: unknown) => {
-        this.errorSubject.next("Failed to save critical apps");
-        return throwError(() => error);
-      }),
-    );
-  }
-
   // --------------------------- UI State ------------------------------------
   private isLoadingSubject = new BehaviorSubject<boolean>(false);
   isLoading$ = this.isLoadingSubject.asObservable();
@@ -94,12 +80,48 @@ export class RiskInsightsDataService {
   private isRunningReportSubject = new BehaviorSubject<boolean>(false);
   isRunningReport$ = this.isRunningReportSubject.asObservable();
 
+  // --------------------------- Critical Application data ---------------------
+  criticalReportResults$ = new Observable<RiskInsightsEnrichedData | null>(null);
+
   constructor(
     private accountService: AccountService,
     private criticalAppsService: CriticalAppsService,
     private organizationService: OrganizationService,
     private reportService: RiskInsightsReportService,
-  ) {}
+  ) {
+    // Reload report if critical applications change
+    // This also handles the original report load
+    this.criticalAppsService.criticalAppsList$
+      .pipe(
+        withLatestFrom(this.organizationDetails$, this.userId$),
+        filter(
+          ([_criticalApps, organizationDetails, _userId]) => !!organizationDetails?.organizationId,
+        ),
+      )
+      .subscribe({
+        next: ([_criticalApps, organizationDetails, userId]) => {
+          this.fetchLastReport(organizationDetails?.organizationId, userId);
+        },
+      });
+
+    // Setup critical application data and summary generation for live critical application usage
+    this.criticalReportResults$ = this.reportResults$.pipe(
+      filter((report) => !!report),
+      map((r) => {
+        const criticalApplications = r.reportData.filter(
+          (application) => application.isMarkedAsCritical,
+        );
+        const summary = this.reportService.generateApplicationsSummary(criticalApplications);
+
+        return {
+          ...r,
+          summaryData: summary,
+          reportData: criticalApplications,
+        };
+      }),
+      shareReplay({ bufferSize: 1, refCount: true }),
+    );
+  }
 
   async initializeForOrganization(organizationId: OrganizationId) {
     // Fetch current user
@@ -122,9 +144,6 @@ export class RiskInsightsDataService {
 
     // Load critical applications for organization
     await this.criticalAppsService.loadOrganizationContext(organizationId, userId);
-
-    // Load existing report
-    this.fetchLastReport(organizationId, userId);
 
     // Setup new report generation
     this._runApplicationsReport().subscribe({
@@ -181,7 +200,7 @@ export class RiskInsightsDataService {
     // TODO Compare applications on report to updated critical applications
     // TODO Compare applications on report to any new applications
     return of(applications).pipe(
-      withLatestFrom(this.organizationDetails$, this.criticalApps$),
+      withLatestFrom(this.organizationDetails$, this.criticalAppsService.criticalAppsList$),
       switchMap(async ([apps, orgDetails, criticalApps]) => {
         if (!orgDetails) {
           return [];
@@ -397,6 +416,32 @@ export class RiskInsightsDataService {
             });
           }),
         );
+      }),
+    );
+  }
+
+  // ------------------------------ Critical application methods --------------
+
+  saveCriticalApplications(selectedUrls: string[]) {
+    return this.organizationDetails$.pipe(
+      exhaustMap(({ organizationId }) => {
+        return this.criticalAppsService.setCriticalApps(organizationId, selectedUrls);
+      }),
+      catchError((error: unknown) => {
+        this.errorSubject.next("Failed to save critical applications");
+        return throwError(() => error);
+      }),
+    );
+  }
+
+  removeCriticalApplication(hostname: string) {
+    return this.organizationDetails$.pipe(
+      exhaustMap(({ organizationId }) => {
+        return this.criticalAppsService.dropCriticalApp(organizationId, hostname);
+      }),
+      catchError((error: unknown) => {
+        this.errorSubject.next("Failed to remove critical application");
+        return throwError(() => error);
       }),
     );
   }

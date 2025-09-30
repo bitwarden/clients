@@ -99,7 +99,7 @@ export class AllApplicationsComponent implements OnInit {
     this.markingAsCritical = true;
 
     this.dataService
-      .saveCriticalApps(Array.from(this.selectedUrls))
+      .saveCriticalApplications(Array.from(this.selectedUrls))
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {

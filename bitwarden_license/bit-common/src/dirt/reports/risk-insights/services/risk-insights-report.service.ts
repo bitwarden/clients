@@ -1,5 +1,4 @@
 import {
-  BehaviorSubject,
   catchError,
   concatMap,
   EMPTY,
@@ -21,7 +20,6 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import {
   createNewReportData,
-  createNewSummaryData,
   flattenMemberDetails,
   getApplicationReportDetail,
   getFlattenedCipherDetails,
@@ -57,14 +55,6 @@ import { RiskInsightsApiService } from "./risk-insights-api.service";
 import { RiskInsightsEncryptionService } from "./risk-insights-encryption.service";
 
 export class RiskInsightsReportService {
-  private riskInsightsReportSubject = new BehaviorSubject<ApplicationHealthReportDetail[]>([]);
-  riskInsightsReport$ = this.riskInsightsReportSubject.asObservable();
-
-  private riskInsightsSummarySubject = new BehaviorSubject<OrganizationReportSummary>(
-    createNewSummaryData(),
-  );
-  riskInsightsSummary$ = this.riskInsightsSummarySubject.asObservable();
-
   // [FIXME] CipherData
   // Cipher data
   // private _ciphersSubject = new BehaviorSubject<CipherView[] | null>(null);
@@ -239,12 +229,12 @@ export class RiskInsightsReportService {
     // TODO: totalCriticalMemberCount, totalCriticalAtRiskMemberCount, totalCriticalApplicationCount, totalCriticalAtRiskApplicationCount, and newApplications will be handled with future logic implementation
     return {
       totalMemberCount: uniqueMembers.length,
-      totalCriticalMemberCount: 0,
       totalAtRiskMemberCount: uniqueAtRiskMembers.length,
-      totalCriticalAtRiskMemberCount: 0,
       totalApplicationCount: reports.length,
-      totalCriticalApplicationCount: 0,
       totalAtRiskApplicationCount: reports.filter((app) => app.atRiskPasswordCount > 0).length,
+      totalCriticalMemberCount: 0,
+      totalCriticalAtRiskMemberCount: 0,
+      totalCriticalApplicationCount: 0,
       totalCriticalAtRiskApplicationCount: 0,
       newApplications: [],
     };
