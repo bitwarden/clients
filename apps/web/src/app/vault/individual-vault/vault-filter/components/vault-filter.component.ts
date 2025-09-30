@@ -19,12 +19,12 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { CipherArchiveService } from "@bitwarden/vault";
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 
 import { VaultFilterService } from "../services/abstractions/vault-filter.service";
@@ -208,15 +208,6 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
   }
 
   applyOrganizationFilter = async (orgNode: TreeNode<OrganizationFilter>): Promise<void> => {
-    if (!orgNode?.node.enabled) {
-      this.toastService.showToast({
-        variant: "error",
-        message: this.i18nService.t("disabledOrganizationFilterError"),
-      });
-      await firstValueFrom(
-        this.organizationWarningsService.showInactiveSubscriptionDialog$(orgNode.node),
-      );
-    }
     const filter = this.activeFilter;
     if (orgNode?.node.id === "AllVaults") {
       filter.resetOrganization();
