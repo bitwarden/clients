@@ -172,6 +172,9 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     clientOwnerEmail: ["", [Validators.email]],
     plan: [this.plan],
     productTier: [this.productTier],
+  });
+
+  billingFormGroup = this.formBuilder.group({
     paymentMethod: EnterPaymentMethodComponent.getFormGroup(),
     billingAddress: EnterBillingAddressComponent.getFormGroup(),
   });
@@ -315,9 +318,9 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     }
 
     combineLatest([
-      this.formGroup.controls.billingAddress.controls.country.valueChanges,
-      this.formGroup.controls.billingAddress.controls.postalCode.valueChanges,
-      this.formGroup.controls.billingAddress.controls.taxId.valueChanges,
+      this.billingFormGroup.controls.billingAddress.controls.country.valueChanges,
+      this.billingFormGroup.controls.billingAddress.controls.postalCode.valueChanges,
+      this.billingFormGroup.controls.billingAddress.controls.taxId.valueChanges,
     ])
       .pipe(
         debounceTime(1000),
@@ -746,7 +749,8 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
 
   submit = async () => {
     this.formGroup.markAllAsTouched();
-    if (this.formGroup.invalid) {
+    this.billingFormGroup.markAllAsTouched();
+    if (this.formGroup.invalid || (this.billingFormGroup.invalid && !this.paymentMethod)) {
       return;
     }
 
@@ -798,7 +802,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
 
   private async restartSubscription() {
     const paymentMethod = await this.enterPaymentMethodComponent.tokenize();
-    const billingAddress = getBillingAddressFromForm(this.formGroup.controls.billingAddress);
+    const billingAddress = getBillingAddressFromForm(this.billingFormGroup.controls.billingAddress);
     await this.subscriberBillingClient.restartSubscription(
       { type: "organization", data: this.organization },
       paymentMethod,
@@ -820,8 +824,9 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
       this.formGroup.controls.premiumAccessAddon.value;
     request.planType = this.selectedPlan.type;
     if (this.showPayment) {
-      request.billingAddressCountry = this.formGroup.controls.billingAddress.value.country;
-      request.billingAddressPostalCode = this.formGroup.controls.billingAddress.value.postalCode;
+      request.billingAddressCountry = this.billingFormGroup.controls.billingAddress.value.country;
+      request.billingAddressPostalCode =
+        this.billingFormGroup.controls.billingAddress.value.postalCode;
     }
 
     // Secrets Manager
@@ -829,7 +834,9 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
 
     if (this.upgradeRequiresPaymentMethod || this.showPayment || !this.paymentMethod) {
       const paymentMethod = await this.enterPaymentMethodComponent.tokenize();
-      const billingAddress = getBillingAddressFromForm(this.formGroup.controls.billingAddress);
+      const billingAddress = getBillingAddressFromForm(
+        this.billingFormGroup.controls.billingAddress,
+      );
 
       const subscriber: BitwardenSubscriber = { type: "organization", data: this.organization };
       await Promise.all([
@@ -991,7 +998,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   }
 
   private async refreshSalesTax(): Promise<void> {
-    if (this.formGroup.controls.billingAddress.invalid && !this.billingAddress) {
+    if (this.billingFormGroup.controls.billingAddress.invalid && !this.billingAddress) {
       return;
     }
 
@@ -1010,8 +1017,8 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
       }
     };
 
-    const billingAddress = this.formGroup.controls.billingAddress.valid
-      ? getBillingAddressFromForm(this.formGroup.controls.billingAddress)
+    const billingAddress = this.billingFormGroup.controls.billingAddress.valid
+      ? getBillingAddressFromForm(this.billingFormGroup.controls.billingAddress)
       : this.billingAddress;
 
     const taxAmounts = await this.taxClient.previewTaxForOrganizationSubscriptionPlanChange(

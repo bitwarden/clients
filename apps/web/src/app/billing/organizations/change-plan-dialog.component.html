@@ -375,10 +375,10 @@
           <a></a>
         </p>
         <ng-container *ngIf="canUpdatePaymentInformation()">
-          <app-enter-payment-method [group]="formGroup.controls.paymentMethod">
+          <app-enter-payment-method [group]="billingFormGroup.controls.paymentMethod">
           </app-enter-payment-method>
           <app-enter-billing-address
-            [group]="formGroup.controls.billingAddress"
+            [group]="billingFormGroup.controls.billingAddress"
             [scenario]="{ type: 'checkout', supportsTaxId }"
           >
           </app-enter-billing-address>
