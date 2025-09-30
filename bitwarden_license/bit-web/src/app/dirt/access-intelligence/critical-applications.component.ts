@@ -8,6 +8,7 @@ import { combineLatest, debounceTime, firstValueFrom, map, switchMap } from "rxj
 
 import { Security } from "@bitwarden/assets/svg";
 import {
+  AllActivitiesService,
   CriticalAppsService,
   RiskInsightsDataService,
   RiskInsightsReportService,
@@ -99,6 +100,7 @@ export class CriticalApplicationsComponent implements OnInit {
             this.dataSource.data = applications;
             this.applicationSummary = this.reportService.generateApplicationsSummary(applications);
             this.enableRequestPasswordChange = this.applicationSummary.totalAtRiskMemberCount > 0;
+            this.allActivitiesService.setCriticalAppsReportSummary(this.applicationSummary);
           }
         });
     }
@@ -176,6 +178,7 @@ export class CriticalApplicationsComponent implements OnInit {
     private configService: ConfigService,
     private adminTaskService: DefaultAdminTaskService,
     private accountService: AccountService,
+    private allActivitiesService: AllActivitiesService,
   ) {
     this.searchControl.valueChanges
       .pipe(debounceTime(200), takeUntilDestroyed())
@@ -200,11 +203,5 @@ export class CriticalApplicationsComponent implements OnInit {
   showOrgAtRiskApps = async (invokerId: string) => {
     const data = this.reportService.generateAtRiskApplicationList(this.dataSource.data);
     this.dataService.setDrawerForOrgAtRiskApps(data, invokerId);
-  };
-
-  isDrawerOpenForTableRow = (applicationName: string) => {
-    // Note: This function will be replaced by PR #16523 with openApplication binding
-    // Using private access to BehaviorSubject value for backward compatibility
-    return (this.dataService as any).drawerDetailsSubject?.value?.invokerId === applicationName;
   };
 }

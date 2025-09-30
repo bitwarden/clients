@@ -1363,7 +1363,7 @@
     "message": "确认隐藏到托盘"
   },
   "confirmTrayDesc": {
-    "message": "关闭此设置也将关闭其他与托盘相关的设置。"
+    "message": "停用此设置也将停用其他与托盘相关的设置。"
   },
   "language": {
     "message": "语言"
@@ -4081,7 +4081,7 @@
     "message": "显示更少"
   },
   "enableAutotype": {
-    "message": "启用自动填写"
+    "message": "启用自动输入"
   },
   "enableAutotypeDescription": {
     "message": "Bitwarden 不会验证输入位置，在使用快捷键之前，请确保您位于正确的窗口和字段中。"

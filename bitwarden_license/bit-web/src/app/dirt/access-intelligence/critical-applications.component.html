@@ -82,21 +82,21 @@
         </dirt-card>
       </button>
     </div>
-  }
-  <div class="tw-flex tw-mt-8 tw-mb-4 tw-gap-4">
-    <bit-search
-      [placeholder]="'searchApps' | i18n"
-      class="tw-grow"
-      [formControl]="searchControl"
-    ></bit-search>
-  </div>
+    <div class="tw-flex tw-mt-8 tw-mb-4 tw-gap-4">
+      <bit-search
+        [placeholder]="'searchApps' | i18n"
+        class="tw-grow"
+        [formControl]="searchControl"
+      ></bit-search>
+    </div>
 
-  <app-table-row-scrollable
-    [dataSource]="dataSource"
-    [showRowCheckBox]="false"
-    [showRowMenuForCriticalApps]="true"
-    [isDrawerIsOpenForThisRecord]="isDrawerOpenForTableRow"
-    [showAppAtRiskMembers]="showAppAtRiskMembers"
-    [unmarkAsCritical]="unmarkAsCritical"
-  ></app-table-row-scrollable>
+    <app-table-row-scrollable
+      [dataSource]="dataSource"
+      [showRowCheckBox]="false"
+      [showRowMenuForCriticalApps]="true"
+      [openApplication]="drawerDetails.invokerId || ''"
+      [showAppAtRiskMembers]="showAppAtRiskMembers"
+      [unmarkAsCritical]="unmarkAsCritical"
+    ></app-table-row-scrollable>
+  }
 </div>

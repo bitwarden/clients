@@ -551,31 +551,31 @@
     "message": "Axtarışı sıfırla"
   },
   "archive": {
-    "message": "Archive"
+    "message": "Arxivlə"
   },
   "unarchive": {
-    "message": "Unarchive"
+    "message": "Arxivdən çıxart"
   },
   "itemsInArchive": {
-    "message": "Items in archive"
+    "message": "Arxivdəki elementlər"
   },
   "noItemsInArchive": {
-    "message": "No items in archive"
+    "message": "Arxivdə element yoxdur"
   },
   "noItemsInArchiveDesc": {
-    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+    "message": "Arxivlənmiş elementlər burada görünəcək, ümumi axtarış nəticələrindən və avto-doldurma təkliflərindən xaric ediləcək."
   },
   "itemSentToArchive": {
-    "message": "Item sent to archive"
+    "message": "Element arxivə göndərildi"
   },
   "itemRemovedFromArchive": {
-    "message": "Item removed from archive"
+    "message": "Element arxivdən çıxarıldı"
   },
   "archiveItem": {
-    "message": "Archive item"
+    "message": "Elementi arxivlə"
   },
   "archiveItemConfirmDesc": {
-    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+    "message": "Arxivlənmiş elementlər ümumi axtarış nəticələrindən və avto-doldurma təkliflərindən xaric ediləcək. Bu elementi arxivləmək istədiyinizə əminsiniz?"
   },
   "edit": {
     "message": "Düzəliş et"
