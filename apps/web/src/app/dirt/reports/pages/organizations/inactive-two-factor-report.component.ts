@@ -4,6 +4,7 @@ import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { firstValueFrom, map } from "rxjs";
 
+import { CollectionService } from "@bitwarden/admin-console/common";
 import {
   getOrganizationById,
   OrganizationService,
@@ -56,6 +57,7 @@ export class InactiveTwoFactorReportComponent
     syncService: SyncService,
     cipherFormConfigService: CipherFormConfigService,
     adminConsoleCipherFormConfigService: AdminConsoleCipherFormConfigService,
+    collectionService: CollectionService,
   ) {
     super(
       cipherService,
@@ -68,6 +70,7 @@ export class InactiveTwoFactorReportComponent
       syncService,
       cipherFormConfigService,
       adminConsoleCipherFormConfigService,
+      collectionService,
     );
   }
 

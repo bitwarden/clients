@@ -32,7 +32,7 @@ export class UnsecuredWebsitesReportComponent extends CipherReportComponent impl
     passwordRepromptService: PasswordRepromptService,
     i18nService: I18nService,
     syncService: SyncService,
-    private collectionService: CollectionService,
+    collectionService: CollectionService,
     cipherFormConfigService: CipherFormConfigService,
     adminConsoleCipherFormConfigService: AdminConsoleCipherFormConfigService,
   ) {
@@ -46,6 +46,7 @@ export class UnsecuredWebsitesReportComponent extends CipherReportComponent impl
       syncService,
       cipherFormConfigService,
       adminConsoleCipherFormConfigService,
+      collectionService,
     );
   }
 

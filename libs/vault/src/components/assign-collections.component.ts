@@ -330,7 +330,8 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
         );
       })
       .map((c) => ({
-        icon: "bwi-collection-shared",
+        icon:
+          c.type === CollectionTypes.DefaultUserCollection ? "bwi-user" : "bwi-collection-shared",
         id: c.id,
         labelName: c.name,
         listName: c.name,

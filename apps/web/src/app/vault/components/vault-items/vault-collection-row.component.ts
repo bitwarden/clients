@@ -2,7 +2,12 @@
 // @ts-strict-ignore
 import { Component, EventEmitter, Input, Output } from "@angular/core";
 
-import { CollectionAdminView, Unassigned, CollectionView } from "@bitwarden/admin-console/common";
+import {
+  CollectionAdminView,
+  Unassigned,
+  CollectionView,
+  CollectionTypes,
+} from "@bitwarden/admin-console/common";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
@@ -26,6 +31,7 @@ export class VaultCollectionRowComponent<C extends CipherViewLike> {
   protected RowHeightClass = RowHeightClass;
   protected Unassigned = "unassigned";
   protected CollectionPermission = CollectionPermission;
+  protected DefaultCollectionType = CollectionTypes.DefaultUserCollection;
 
   @Input() disabled: boolean;
   @Input() collection: CollectionView;
