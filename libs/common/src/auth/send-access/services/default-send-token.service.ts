@@ -190,7 +190,13 @@ export class DefaultSendTokenService implements SendTokenServiceAbstraction {
         },
         {
           // only update if the value is different (to avoid unnecessary writes)
-          shouldUpdate: (dict) => dict?.[sendId] !== sendAccessToken,
+          shouldUpdate: (prevDict) => {
+            const prevSendAccessToken = prevDict?.[sendId];
+            return (
+              prevSendAccessToken?.token !== sendAccessToken.token ||
+              prevSendAccessToken?.expiresAt !== sendAccessToken.expiresAt
+            );
+          },
         },
       );
     }
