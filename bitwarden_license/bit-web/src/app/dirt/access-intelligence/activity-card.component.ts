@@ -3,7 +3,7 @@ import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { Router } from "@angular/router";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { ButtonModule, LinkModule, TypographyModule } from "@bitwarden/components";
+import { ButtonModule, ButtonType, LinkModule, TypographyModule } from "@bitwarden/components";
 
 @Component({
   selector: "dirt-activity-card",
@@ -66,7 +66,7 @@ export class ActivityCardComponent {
   /**
    * Button type (e.g., "primary", "secondary")
    */
-  @Input() buttonType: "primary" | "secondary" | "danger" = "primary";
+  @Input() buttonType: ButtonType = "primary";
 
   /**
    * Event emitted when button is clicked

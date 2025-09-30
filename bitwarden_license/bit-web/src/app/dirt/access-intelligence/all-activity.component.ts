@@ -77,8 +77,12 @@ export class AllActivityComponent implements OnInit {
     return `/organizations/${organizationId}/access-intelligence/risk-insights?tabIndex=${tabIndex}`;
   }
 
+  /**
+   * Handles the review new applications button click.
+   * Shows a toast notification as a placeholder until the dialog is implemented.
+   * TODO: Implement dialog for reviewing new applications (follow-up task)
+   */
   onReviewNewApplications = () => {
-    // TODO: Implement dialog for reviewing new applications (follow-up task)
     this.toastService.showToast({
       variant: "info",
       title: this.i18nService.t("applicationsNeedingReview"),
