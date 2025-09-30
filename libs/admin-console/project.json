@@ -1,0 +1,29 @@
+{
+  "name": "@bitwarden/admin-console",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/admin-console/src",
+  "projectType": "library",
+  "tags": ["scope:admin-console", "type:lib"],
+  "targets": {
+    "build": {
+      "executor": "nx:run-script",
+      "dependsOn": [],
+      "options": {
+        "script": "build"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["libs/admin-console/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "nx:run-script",
+      "options": {
+        "script": "test"
+      }
+    }
+  }
+}

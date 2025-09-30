@@ -35,6 +35,7 @@ export default {
           useFactory: () => {
             return new I18nMockService({
               moreBreadcrumbs: "More breadcrumbs",
+              loading: "Loading",
             });
           },
         },
