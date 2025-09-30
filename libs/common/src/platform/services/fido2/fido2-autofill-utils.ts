@@ -27,8 +27,8 @@ export async function getCredentialsForAutofill(
         cipherId: cipher.id,
         credentialId: credId,
         rpId: credential.rpId,
-        userHandle: credential.userHandle,
-        userName: credential.userName,
-      } as Fido2CredentialAutofillView;
+        userHandle: credential.userHandle!,
+        userName: credential.userName!,
+      } satisfies Fido2CredentialAutofillView;
     });
 }
