@@ -16,7 +16,44 @@ export default {
       providers: [
         {
           provide: I18nService,
-          useValue: { t: (key: string) => key },
+          useValue: {
+            t: (key: string) => {
+              switch (key) {
+                case "month":
+                  return "month";
+                case "year":
+                  return "year";
+                case "members":
+                  return "Members";
+                case "additionalStorageGB":
+                  return "Additional storage GB";
+                case "additionalServiceAccountsV2":
+                  return "Additional machine accounts";
+                case "secretsManagerSeats":
+                  return "Secrets Manager seats";
+                case "passwordManager":
+                  return "Password Manager";
+                case "secretsManager":
+                  return "Secrets Manager";
+                case "additionalStorage":
+                  return "Additional Storage";
+                case "estimatedTax":
+                  return "Estimated tax";
+                case "total":
+                  return "Total";
+                case "expandPurchaseDetails":
+                  return "Expand purchase details";
+                case "collapsePurchaseDetails":
+                  return "Collapse purchase details";
+                case "familiesMembership":
+                  return "Families membership";
+                case "premiumMembership":
+                  return "Premium membership";
+                default:
+                  return key;
+              }
+            },
+          },
         },
       ],
     }),
@@ -24,7 +61,7 @@ export default {
   args: {
     passwordManager: {
       quantity: 5,
-      name: "Members",
+      name: "members",
       cost: 50.0,
       cadence: "month",
     },
@@ -46,7 +83,7 @@ export const WithAdditionalStorage: Story = {
     ...Default.args,
     additionalStorage: {
       quantity: 2,
-      name: "Additional storage GB",
+      name: "additionalStorageGB",
       cost: 10.0,
       cadence: "month",
     },
@@ -58,7 +95,7 @@ export const PasswordManagerYearlyCadence: Story = {
   args: {
     passwordManager: {
       quantity: 5,
-      name: "Members",
+      name: "members",
       cost: 500.0,
       cadence: "year",
     },
@@ -72,7 +109,7 @@ export const SecretsManagerSeatsOnly: Story = {
     secretsManager: {
       seats: {
         quantity: 3,
-        name: "Members",
+        name: "members",
         cost: 30.0,
         cadence: "month",
       },
@@ -87,13 +124,13 @@ export const SecretsManagerSeatsAndServiceAccounts: Story = {
     secretsManager: {
       seats: {
         quantity: 3,
-        name: "Members",
+        name: "members",
         cost: 30.0,
         cadence: "month",
       },
       additionalServiceAccounts: {
         quantity: 2,
-        name: "Additional machine accounts",
+        name: "additionalServiceAccountsV2",
         cost: 6.0,
         cadence: "month",
       },
@@ -107,20 +144,20 @@ export const AllProducts: Story = {
     ...Default.args,
     additionalStorage: {
       quantity: 2,
-      name: "Additional storage GB",
+      name: "additionalStorageGB",
       cost: 10.0,
       cadence: "month",
     },
     secretsManager: {
       seats: {
         quantity: 3,
-        name: "Members",
+        name: "members",
         cost: 30.0,
         cadence: "month",
       },
       additionalServiceAccounts: {
         quantity: 2,
-        name: "Additional machine accounts",
+        name: "additionalServiceAccountsV2",
         cost: 6.0,
         cadence: "month",
       },
@@ -133,7 +170,7 @@ export const FamiliesPlan: Story = {
   args: {
     passwordManager: {
       quantity: 1,
-      name: "Families membership",
+      name: "familiesMembership",
       cost: 40.0,
       cadence: "year",
     },
@@ -145,7 +182,7 @@ export const PremiumPlan: Story = {
   args: {
     passwordManager: {
       quantity: 1,
-      name: "Premium membership",
+      name: "premiumMembership",
       cost: 10.0,
       cadence: "year",
     },

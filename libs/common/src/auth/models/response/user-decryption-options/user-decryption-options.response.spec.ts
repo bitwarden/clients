@@ -1,14 +1,12 @@
 // eslint-disable-next-line no-restricted-imports
 import { KdfType } from "@bitwarden/key-management";
 
-import { makeEncString } from "../../../../../spec";
-
 import { UserDecryptionOptionsResponse } from "./user-decryption-options.response";
 
 describe("UserDecryptionOptionsResponse", () => {
   it("should create response when master password unlock is present", () => {
     const salt = "test@example.com";
-    const encryptedUserKey = makeEncString("testUserKey");
+    const encryptedUserKey = "testUserKey";
 
     const response = new UserDecryptionOptionsResponse({
       HasMasterPassword: true,
@@ -18,7 +16,7 @@ describe("UserDecryptionOptionsResponse", () => {
           KdfType: KdfType.PBKDF2_SHA256,
           Iterations: 600_000,
         },
-        MasterKeyEncryptedUserKey: encryptedUserKey.encryptedString,
+        MasterKeyEncryptedUserKey: encryptedUserKey,
       },
     });
 

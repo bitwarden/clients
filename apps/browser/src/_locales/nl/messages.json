@@ -550,6 +550,33 @@
   "resetSearch": {
     "message": "Zoekopdracht resetten"
   },
+  "archive": {
+    "message": "Archiveren"
+  },
+  "unarchive": {
+    "message": "Dearchiveren"
+  },
+  "itemsInArchive": {
+    "message": "Items in archief"
+  },
+  "noItemsInArchive": {
+    "message": "Geen items in archief"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Gearchiveerde items verschijnen hier en worden uitgesloten van algemene zoekresultaten en automatisch invulsuggesties."
+  },
+  "itemSentToArchive": {
+    "message": "Item naar archief verzonden"
+  },
+  "itemRemovedFromArchive": {
+    "message": "Item verwijderd uit archief"
+  },
+  "archiveItem": {
+    "message": "Item archiveren"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Gearchiveerde items worden uitgesloten van algemene zoekresultaten en automatische invulsuggesties. Weet je zeker dat je dit item wilt archiveren?"
+  },
   "edit": {
     "message": "Bewerken"
   },
@@ -5510,6 +5537,18 @@
   },
   "hasItemsVaultNudgeTitle": {
     "message": "Welkom in je kluis!"
+  },
+  "phishingPageTitle": {
+    "message": "Kwaadaardige website"
+  },
+  "phishingPageCloseTab": {
+    "message": "Tabblad sluiten"
+  },
+  "phishingPageContinue": {
+    "message": "Doorgaan"
+  },
+  "phishingPageLearnWhy": {
+    "message": "Waarom zie je dit?"
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Automatisch invullen van items voor de huidige pagina"

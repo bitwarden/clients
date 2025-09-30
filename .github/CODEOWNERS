@@ -43,6 +43,7 @@ apps/web/src/app/dirt @bitwarden/team-data-insights-and-reporting-dev
 bitwarden_license/bit-common/src/dirt @bitwarden/team-data-insights-and-reporting-dev
 bitwarden_license/bit-web/src/app/dirt @bitwarden/team-data-insights-and-reporting-dev
 libs/dirt @bitwarden/team-data-insights-and-reporting-dev
+libs/common/src/dirt @bitwarden/team-data-insights-and-reporting-dev
 
 ## Localization/Crowdin (Platform and Tools team)
 apps/browser/src/_locales @bitwarden/team-tools-dev @bitwarden/team-platform-dev
@@ -203,10 +204,11 @@ apps/web/src/locales/en/messages.json
 .github/workflows/release-desktop.yml @bitwarden/dept-bre
 .github/workflows/release-web.yml @bitwarden/dept-bre
 
-## Docker files have shared ownership ##
+## Docker-related files
 **/Dockerfile @bitwarden/team-appsec @bitwarden/dept-bre
 **/*.Dockerfile @bitwarden/team-appsec @bitwarden/dept-bre
 **/*.dockerignore @bitwarden/team-appsec @bitwarden/dept-bre
+**/docker-compose.yml @bitwarden/team-appsec @bitwarden/dept-bre
 **/entrypoint.sh @bitwarden/team-appsec @bitwarden/dept-bre
 
 ## Overrides

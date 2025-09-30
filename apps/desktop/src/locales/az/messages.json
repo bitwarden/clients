@@ -4087,7 +4087,7 @@
     "message": "Bitwarden, giriş yerlərini doğrulamır, qısayolu istifadə etməzdən əvvəl doğru pəncərədə və xanada olduğunuza əmin olun."
   },
   "moreBreadcrumbs": {
-    "message": "More breadcrumbs",
+    "message": "Daha çox naviqasiya yolu",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   },
   "next": {
@@ -4107,5 +4107,32 @@
   },
   "editShortcut": {
     "message": "Qısayola düzəliş et"
+  },
+  "archive": {
+    "message": "Arxivlə"
+  },
+  "unarchive": {
+    "message": "Arxivdən çıxart"
+  },
+  "itemsInArchive": {
+    "message": "Arxivdəki elementlər"
+  },
+  "noItemsInArchive": {
+    "message": "Arxivdə element yoxdur"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Arxivlənmiş elementlər burada görünəcək, ümumi axtarış nəticələrindən və avto-doldurma təkliflərindən xaric ediləcək."
+  },
+  "itemSentToArchive": {
+    "message": "Element arxivə göndərildi"
+  },
+  "itemRemovedFromArchive": {
+    "message": "Element arxivdən çıxarıldı"
+  },
+  "archiveItem": {
+    "message": "Elementi arxivlə"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Arxivlənmiş elementlər ümumi axtarış nəticələrindən və avto-doldurma təkliflərindən xaric ediləcək. Bu elementi arxivləmək istədiyinizə əminsiniz?"
   }
 }

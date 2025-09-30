@@ -6,11 +6,11 @@
     "message": "Bitwarden logó"
   },
   "extName": {
-    "message": "Bitwarden Password Manager",
+    "message": "Bitwarden Jelszókezelő",
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
   },
   "extDesc": {
-    "message": "At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information",
+    "message": "Legyen otthon, munkában, vagy úton, a Bitwarden könnyen biztosítja jelszavát, kulcsait, és kényes információit",
     "description": "Extension description, MUST be less than 112 characters (Safari restriction)"
   },
   "loginOrCreateNewAccount": {
@@ -550,6 +550,33 @@
   "resetSearch": {
     "message": "Keresés visszaállítása"
   },
+  "archive": {
+    "message": "Archívum"
+  },
+  "unarchive": {
+    "message": "Visszavétel archívumból"
+  },
+  "itemsInArchive": {
+    "message": "Archívum elemek száma"
+  },
+  "noItemsInArchive": {
+    "message": "Nincs elem az archívumban."
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Az archivált elemek itt jelennek meg és kizárásra kerülnek az általános keresési eredményekből és az automatikus kitöltési javaslatokból."
+  },
+  "itemSentToArchive": {
+    "message": "Archívumba küldött elemek száma"
+  },
+  "itemRemovedFromArchive": {
+    "message": "Az elem kikerült a kedvencekből."
+  },
+  "archiveItem": {
+    "message": "Elem archiválása"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Az archivált elemek ki vannak zárva az általános keresési eredményekből és az automatikus kitöltési javaslatokból. Biztosan archiválni szeretnénk ezt az elemet?"
+  },
   "edit": {
     "message": "Szerkesztés"
   },
@@ -866,13 +893,13 @@
     "message": "Kijelentkezett"
   },
   "loggedOutDesc": {
-    "message": "You have been logged out of your account."
+    "message": "Kijelentkezett fiókjából."
   },
   "loginExpired": {
     "message": "Bejelentkezési munkamenete lejárt."
   },
   "logIn": {
-    "message": "Log in"
+    "message": "Bejelentkezés"
   },
   "logInToBitwarden": {
     "message": "Bejelentkezés a Bitwardenbe"
@@ -896,16 +923,16 @@
     "message": "Kövessük az alábbi lépéseket a biztonsági kulccsal bejelentkezés befejezéséhez."
   },
   "restartRegistration": {
-    "message": "Restart registration"
+    "message": "Regisztráció újraindítása"
   },
   "expiredLink": {
-    "message": "Expired link"
+    "message": "Lejárt hivatkozás"
   },
   "pleaseRestartRegistrationOrTryLoggingIn": {
-    "message": "Please restart registration or try logging in."
+    "message": "Kérem kezdje újra a regisztrációt, vagy próbáljon meg bejelentkezni."
   },
   "youMayAlreadyHaveAnAccount": {
-    "message": "You may already have an account"
+    "message": "Lehetséges, hogy már rendelkezik fiókkal"
   },
   "logOutConfirmation": {
     "message": "Biztos benne, hogy ki szeretnél jelentkezni?"
@@ -1176,7 +1203,7 @@
     "description": "Error message shown when the system fails to save login details."
   },
   "saveFailureDetails": {
-    "message": "Oh no! We couldn't save this. Try entering the details manually.",
+    "message": "Ja ne! Nem tudtuk elmenteni. Próbálja meg beírni a kézzel.",
     "description": "Detailed error message shown when saving login details fails."
   },
   "changePasswordWarning": {
@@ -1606,7 +1633,7 @@
     "description": "Represents the message for allowing the user to enable the autofill overlay"
   },
   "autofillSuggestionsSectionTitle": {
-    "message": "Autofill suggestions"
+    "message": "Automatikus kitöltés javaslatok"
   },
   "autofillSpotlightTitle": {
     "message": "Az automatikus kitöltési javaslatok könnyű megtalálása"
@@ -5510,6 +5537,18 @@
   },
   "hasItemsVaultNudgeTitle": {
     "message": "Üdvözlet a széfben!"
+  },
+  "phishingPageTitle": {
+    "message": "Adathalász webhely"
+  },
+  "phishingPageCloseTab": {
+    "message": "Fül bezárása"
+  },
+  "phishingPageContinue": {
+    "message": "Folytatás"
+  },
+  "phishingPageLearnWhy": {
+    "message": "Miért látható ez?"
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Az aktuális oldal elemeinek automatikus kitöltése"

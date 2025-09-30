@@ -550,6 +550,33 @@
   "resetSearch": {
     "message": "Nollställ sökning"
   },
+  "archive": {
+    "message": "Arkivera"
+  },
+  "unarchive": {
+    "message": "Packa upp"
+  },
+  "itemsInArchive": {
+    "message": "Objekt i arkiv"
+  },
+  "noItemsInArchive": {
+    "message": "Inga objekt i arkivet"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+  },
+  "itemSentToArchive": {
+    "message": "Item sent to archive"
+  },
+  "itemRemovedFromArchive": {
+    "message": "Item removed from archive"
+  },
+  "archiveItem": {
+    "message": "Arkivera objekt"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+  },
   "edit": {
     "message": "Redigera"
   },
@@ -5510,6 +5537,18 @@
   },
   "hasItemsVaultNudgeTitle": {
     "message": "Välkommen till ditt valv!"
+  },
+  "phishingPageTitle": {
+    "message": "Webbsida för nätfiske"
+  },
+  "phishingPageCloseTab": {
+    "message": "Stäng flik"
+  },
+  "phishingPageContinue": {
+    "message": "Fortsätt"
+  },
+  "phishingPageLearnWhy": {
+    "message": "Varför ser du detta?"
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Autofyll objekt för den aktuella sidan"

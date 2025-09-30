@@ -550,6 +550,33 @@
   "resetSearch": {
     "message": "Atiestatīt meklēšanu"
   },
+  "archive": {
+    "message": "Arhivēt"
+  },
+  "unarchive": {
+    "message": "Atcelt arhivēšanu"
+  },
+  "itemsInArchive": {
+    "message": "Vienumi arhīvā"
+  },
+  "noItemsInArchive": {
+    "message": "Arhīvā nav vienumu"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Šeit parādīsies arhivētie vienumi, un tie netiks iekļauti vispārējās meklēšanas iznākumos un automātiskās aizpildes ieteikumos."
+  },
+  "itemSentToArchive": {
+    "message": "Vienums ievietots arhīvā"
+  },
+  "itemRemovedFromArchive": {
+    "message": "Vienums izņemts no arhīva"
+  },
+  "archiveItem": {
+    "message": "Arhivēt vienumu"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Arhivētie vienumi netiek iekļauti vispārējās meklēšanas iznākumos un automātiskās aizpildes ieteikumos. Vai tiešām ahrivēt šo vienumu?"
+  },
   "edit": {
     "message": "Labot"
   },
@@ -5510,6 +5537,18 @@
   },
   "hasItemsVaultNudgeTitle": {
     "message": "Laipni lūdzam Tavā glabātavā!"
+  },
+  "phishingPageTitle": {
+    "message": "Pikšķerēšanas tīmekļvietne"
+  },
+  "phishingPageCloseTab": {
+    "message": "Aizvērt cilni"
+  },
+  "phishingPageContinue": {
+    "message": "Turpināt"
+  },
+  "phishingPageLearnWhy": {
+    "message": "Kāpēc šis ir redzams?"
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Automātiska pašreizējās lapas vienumu aizpildīšana"

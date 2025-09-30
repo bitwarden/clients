@@ -186,6 +186,11 @@ export class ItemDetailsSectionComponent implements OnInit {
   }
 
   get showOwnership() {
+    // Don't show ownership field for archived ciphers
+    if (this.originalCipherView?.isArchived) {
+      return false;
+    }
+
     // Show ownership field when editing with available orgs
     const isEditingWithOrgs = this.organizations.length > 0 && this.config.mode === "edit";
 
@@ -401,6 +406,17 @@ export class ItemDetailsSectionComponent implements OnInit {
       this.showCollectionsControl = true;
     }
 
+    /**
+     * Determine if the the cipher is only assigned to shared collections.
+     * i.e. The cipher is not assigned to a default collections.
+     * Note: `.every` will return true for an empty array
+     */
+    const cipherIsOnlyInOrgCollections =
+      (this.originalCipherView?.collectionIds ?? []).length > 0 &&
+      this.originalCipherView.collectionIds.every(
+        (cId) =>
+          this.collections.find((c) => c.id === cId)?.type === CollectionTypes.SharedCollection,
+      );
     this.collectionOptions = this.collections
       .filter((c) => {
         // The collection belongs to the organization
@@ -418,10 +434,17 @@ export class ItemDetailsSectionComponent implements OnInit {
           return true;
         }
 
+        // When the cipher is only assigned to shared collections, do not allow a user to
+        // move it back to a default collection. Exclude the default collection from the list.
+        if (cipherIsOnlyInOrgCollections && c.type === CollectionTypes.DefaultUserCollection) {
+          return false;
+        }
+
         // Non-admins can only select assigned collections that are not read only. (Non-AC)
         return c.assigned && !c.readOnly;
       })
       .sort((a, b) => {
+        // Show default collection first
         const aIsDefaultCollection = a.type === CollectionTypes.DefaultUserCollection ? -1 : 0;
         const bIsDefaultCollection = b.type === CollectionTypes.DefaultUserCollection ? -1 : 0;
         return aIsDefaultCollection - bIsDefaultCollection;

@@ -1,6 +1,5 @@
 import { TestBed } from "@angular/core/testing";
-import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, firstValueFrom, of, take, timeout } from "rxjs";
+import { BehaviorSubject, firstValueFrom, take, timeout } from "rxjs";
 
 import { AuthRequestServiceAbstraction } from "@bitwarden/auth/common";
 import { AccountInfo, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -9,7 +8,6 @@ import { DeviceView } from "@bitwarden/common/auth/abstractions/devices/views/de
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { DeviceType } from "@bitwarden/common/enums";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { StateProvider } from "@bitwarden/common/platform/state";
@@ -36,14 +34,11 @@ describe("VaultBannersService", () => {
   });
   const devices$ = new BehaviorSubject<DeviceView[]>([]);
   const pendingAuthRequests$ = new BehaviorSubject<Array<AuthRequestResponse>>([]);
-  let configService: MockProxy<ConfigService>;
 
   beforeEach(() => {
     lastSync$.next(new Date("2024-05-14"));
     isSelfHost.mockClear();
     getEmailVerified.mockClear().mockResolvedValue(true);
-    configService = mock<ConfigService>();
-    configService.getFeatureFlag$.mockImplementation(() => of(true));
 
     TestBed.configureTestingModule({
       providers: [
@@ -79,10 +74,6 @@ describe("VaultBannersService", () => {
         {
           provide: AuthRequestServiceAbstraction,
           useValue: { getPendingAuthRequests$: () => pendingAuthRequests$ },
-        },
-        {
-          provide: ConfigService,
-          useValue: configService,
         },
       ],
     });

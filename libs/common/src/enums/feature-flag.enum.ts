@@ -15,7 +15,7 @@ export enum FeatureFlag {
   CollectionVaultRefactor = "pm-25030-resolve-ts-upgrade-errors",
 
   /* Auth */
-  PM14938_BrowserExtensionLoginApproval = "pm-14938-browser-extension-login-approvals",
+  PM22110_DisableAlternateLoginMethods = "pm-22110-disable-alternate-login-methods",
 
   /* Autofill */
   MacOsNativeCredentialSync = "macos-native-credential-sync",
@@ -53,6 +53,9 @@ export enum FeatureFlag {
   IpcChannelFramework = "ipc-channel-framework",
   InactiveUserServerNotification = "pm-25130-receive-push-notifications-for-inactive-users",
   PushNotificationsWhenLocked = "pm-19388-push-notifications-when-locked",
+
+  /* Innovation */
+  PM19148_InnovationArchive = "pm-19148-innovation-archive",
 }
 
 export type AllowedFeatureFlagTypes = boolean | number | string;
@@ -94,7 +97,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM22136_SdkCipherEncryption]: FALSE,
 
   /* Auth */
-  [FeatureFlag.PM14938_BrowserExtensionLoginApproval]: FALSE,
+  [FeatureFlag.PM22110_DisableAlternateLoginMethods]: FALSE,
 
   /* Billing */
   [FeatureFlag.TrialPaymentOptional]: FALSE,
@@ -112,6 +115,9 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.IpcChannelFramework]: FALSE,
   [FeatureFlag.InactiveUserServerNotification]: FALSE,
   [FeatureFlag.PushNotificationsWhenLocked]: FALSE,
+
+  /* Innovation */
+  [FeatureFlag.PM19148_InnovationArchive]: FALSE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;
