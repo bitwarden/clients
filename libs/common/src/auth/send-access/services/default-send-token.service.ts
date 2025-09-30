@@ -181,24 +181,34 @@ export class DefaultSendTokenService implements SendTokenServiceAbstraction {
     sendAccessToken: SendAccessToken,
   ): Promise<void> {
     if (this.sendAccessTokenDictGlobalState != null) {
-      await this.sendAccessTokenDictGlobalState.update((sendAccessTokenDict) => {
-        sendAccessTokenDict ??= {}; // Initialize if undefined
+      await this.sendAccessTokenDictGlobalState.update(
+        (sendAccessTokenDict) => {
+          sendAccessTokenDict ??= {}; // Initialize if undefined
 
-        sendAccessTokenDict[sendId] = sendAccessToken;
-        return sendAccessTokenDict;
-      });
+          sendAccessTokenDict[sendId] = sendAccessToken;
+          return sendAccessTokenDict;
+        },
+        {
+          // only update if the value is different (to avoid unnecessary writes)
+          shouldUpdate: (dict) => dict?.[sendId] !== sendAccessToken,
+        },
+      );
     }
   }
 
   private async clearSendAccessTokenFromStorage(sendId: string): Promise<void> {
     if (this.sendAccessTokenDictGlobalState != null) {
-      await this.sendAccessTokenDictGlobalState.update((sendAccessTokenDict) => {
-        if (sendAccessTokenDict) {
-          // only delete if dict exists
-          delete sendAccessTokenDict[sendId];
-        }
-        return sendAccessTokenDict;
-      });
+      await this.sendAccessTokenDictGlobalState.update(
+        (sendAccessTokenDict) => {
+          if (sendAccessTokenDict) {
+            // only delete if dict exists
+            delete sendAccessTokenDict[sendId];
+          }
+          return sendAccessTokenDict;
+        },
+        // only update if the sendId exists in the dict
+        { shouldUpdate: (dict) => dict?.[sendId] != null },
+      );
     }
   }
 
