@@ -84,11 +84,6 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     }
   }
 
-  // what buttons to hide here and how?
-  // if item has archivedDate but userCanArchive is false ONLY SHOW
-  // Edit, Unarchive, Trash
-  // make a "isArchivedItem" getter?
-
   protected get showArchiveButton() {
     return (
       this.userCanArchive &&
