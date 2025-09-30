@@ -59,8 +59,8 @@
   "createNewLoginItem": {
     "message": "Create new login item"
   },
-  "onceYouMarkCriticalApplicationsActivityDescription": {
-    "message": "Once you mark applications critical, they will display here."
+  "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
+    "message": "Once you mark applications critical, they will display here"
   },
   "viewAtRiskMembers": {
     "message": "View at-risk members"
@@ -165,8 +165,8 @@
   "membersAtRiskActivityDescription":{
     "message": "Members with edit access to at-risk items for critical applications"
   },
-  "membersAtRisk": {
-    "message": "$COUNT$ members at risk",
+  "membersAtRiskCount": {
+    "message": "$COUNT$ members at-risk",
     "placeholders": {
       "count": {
         "content": "$1",
