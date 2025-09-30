@@ -70,8 +70,8 @@ describe("RiskInsightsEncryptionService", () => {
       );
       expect(result).toEqual({
         organizationId: orgId,
-        encryptedData: ENCRYPTED_TEXT,
-        encryptionKey: ENCRYPTED_KEY,
+        encryptedData: new EncString(ENCRYPTED_TEXT),
+        contentEncryptionKey: new EncString(ENCRYPTED_KEY),
       });
     });
 
