@@ -59,7 +59,7 @@ export class MasterPasswordLockComponent {
     );
   });
 
-  successfulUnlock = output<UserKey>();
+  successfulUnlock = output<{ userKey: UserKey; masterPassword: string }>();
   logOut = output<void>();
 
   formGroup = new FormGroup({
@@ -95,7 +95,7 @@ export class MasterPasswordLockComponent {
         masterPassword,
         activeUserId,
       );
-      this.successfulUnlock.emit(userKey);
+      this.successfulUnlock.emit({ userKey, masterPassword });
     } catch (error) {
       this.logService.error(
         "[MasterPasswordLockComponent] Failed to unlock via master password",

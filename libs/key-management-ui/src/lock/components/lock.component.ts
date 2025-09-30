@@ -76,6 +76,13 @@ const clientTypeToSuccessRouteRecord: Partial<Record<ClientType, string>> = {
   [ClientType.Browser]: "/tabs/current",
 };
 
+type AfterUnlockActions = {
+  passwordEvaluation?: {
+    masterPassword: string;
+    shouldEvaluate: boolean;
+  };
+};
+
 /// The minimum amount of time to wait after a process reload for a biometrics auto prompt to be possible
 /// Fixes safari autoprompt behavior
 const AUTOPROMPT_BIOMETRICS_PROCESS_RELOAD_DELAY = 5000;
@@ -389,7 +396,7 @@ export class LockComponent implements OnInit, OnDestroy {
 
       // If user cancels biometric prompt, userKey is undefined.
       if (userKey) {
-        await this.setUserKeyAndContinue(userKey, false);
+        await this.setUserKeyAndContinue(userKey);
       }
 
       this.unlockingViaBiometrics = false;
@@ -581,10 +588,34 @@ export class LockComponent implements OnInit, OnDestroy {
       return;
     }
 
-    await this.setUserKeyAndContinue(userKey, true);
+    await this.setUserKeyAndContinue(userKey, {
+      passwordEvaluation: { masterPassword, shouldEvaluate: true },
+    });
   }
 
-  protected async setUserKeyAndContinue(key: UserKey, evaluatePasswordAfterUnlock = false) {
+  async successfulMasterPasswordUnlock(event: {
+    userKey: UserKey;
+    masterPassword: string;
+  }): Promise<void> {
+    if (event.userKey == null || !event.masterPassword) {
+      this.logService.error(
+        "[LockComponent] successfulMasterPasswordUnlock called with invalid data.",
+      );
+      return;
+    }
+
+    await this.setUserKeyAndContinue(event.userKey, {
+      passwordEvaluation: {
+        masterPassword: event.masterPassword,
+        shouldEvaluate: true,
+      },
+    });
+  }
+
+  protected async setUserKeyAndContinue(
+    key: UserKey,
+    afterUnlockActions: AfterUnlockActions = {},
+  ): Promise<void> {
     if (this.activeAccount == null) {
       throw new Error("No active user.");
     }
@@ -598,10 +629,10 @@ export class LockComponent implements OnInit, OnDestroy {
     // need to establish trust on the current device
     await this.deviceTrustService.trustDeviceIfRequired(this.activeAccount.id);
 
-    await this.doContinue(evaluatePasswordAfterUnlock);
+    await this.doContinue(afterUnlockActions);
   }
 
-  private async doContinue(evaluatePasswordAfterUnlock: boolean) {
+  private async doContinue(afterUnlockActions: AfterUnlockActions) {
     if (this.activeAccount == null) {
       throw new Error("No active user.");
     }
@@ -609,7 +640,7 @@ export class LockComponent implements OnInit, OnDestroy {
     await this.biometricStateService.resetUserPromptCancelled();
     this.messagingService.send("unlocked");
 
-    if (evaluatePasswordAfterUnlock) {
+    if (afterUnlockActions.passwordEvaluation?.shouldEvaluate) {
       const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
       if (userId == null) {
         throw new Error("No active user.");
@@ -626,7 +657,7 @@ export class LockComponent implements OnInit, OnDestroy {
           );
         }
 
-        if (this.requirePasswordChange()) {
+        if (this.requirePasswordChange(afterUnlockActions.passwordEvaluation.masterPassword)) {
           await this.masterPasswordService.setForceSetPasswordReason(
             ForceSetPasswordReason.WeakMasterPassword,
             userId,
@@ -682,17 +713,14 @@ export class LockComponent implements OnInit, OnDestroy {
    * Checks if the master password meets the enforced policy requirements
    * If not, returns false
    */
-  private requirePasswordChange(): boolean {
+  private requirePasswordChange(masterPassword: string): boolean {
     if (
       this.enforcedMasterPasswordOptions == undefined ||
       !this.enforcedMasterPasswordOptions.enforceOnLogin ||
-      this.formGroup == null ||
       this.activeAccount == null
     ) {
       return false;
     }
-
-    const masterPassword = this.formGroup.controls.masterPassword.value;
 
     const passwordStrength = this.passwordStrengthService.getPasswordStrength(
       masterPassword,

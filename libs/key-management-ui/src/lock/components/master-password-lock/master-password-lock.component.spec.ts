@@ -452,14 +452,17 @@ describe("MasterPasswordLockComponent", () => {
       masterPasswordUnlockService.unlockWithMasterPassword.mockResolvedValue(mockUserKey);
       accountService.activeAccount$ = of(activeAccount);
       component.formGroup.controls.masterPassword.setValue(mockMasterPassword);
-      let emittedUserKey: UserKey | undefined;
-      component.successfulUnlock.subscribe((userKey: UserKey) => {
-        emittedUserKey = userKey;
-      });
+      let emittedEvent: { userKey: UserKey; masterPassword: string } | undefined;
+      component.successfulUnlock.subscribe(
+        (event: { userKey: UserKey; masterPassword: string }) => {
+          emittedEvent = event;
+        },
+      );
 
       await component.submit();
 
-      expect(emittedUserKey).toEqual(mockUserKey);
+      expect(emittedEvent?.userKey).toEqual(mockUserKey);
+      expect(emittedEvent?.masterPassword).toEqual(mockMasterPassword);
       expect(masterPasswordUnlockService.unlockWithMasterPassword).toHaveBeenCalledWith(
         mockMasterPassword,
         activeAccount.id,
