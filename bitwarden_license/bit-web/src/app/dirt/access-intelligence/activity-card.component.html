@@ -1,12 +1,22 @@
 <div class="tw-flex-col">
   <span bitTypography="h6" class="tw-flex tw-text-main">{{ title }}</span>
   <div class="tw-flex tw-items-baseline tw-gap-2">
+    @if (showIcon) {
+      <i class="bwi {{ iconClass }} tw-text-muted" aria-hidden="true"></i>
+    }
     <span bitTypography="h3">{{ cardMetrics }}</span>
   </div>
   <div class="tw-flex tw-items-baseline tw-mt-4 tw-gap-2">
     <span bitTypography="body2">{{ metricDescription }}</span>
   </div>
-  @if (showNavigationLink) {
+  @if (showButton) {
+    <div class="tw-flex tw-items-baseline tw-mt-4 tw-gap-2">
+      <button type="button" bitButton [buttonType]="buttonType" (click)="onButtonClick()">
+        {{ buttonText }}
+      </button>
+    </div>
+  }
+  @if (showNavigationLink && !showButton) {
     <div class="tw-flex tw-items-baseline tw-mt-4 tw-gap-2">
       <p bitTypography="body1">
         <a bitLink (click)="navigateToLink(navigationLink)" rel="noreferrer">
