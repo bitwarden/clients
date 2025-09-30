@@ -11,7 +11,9 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { getById } from "@bitwarden/common/platform/misc";
+import { ToastService } from "@bitwarden/components";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 import { ActivityCardComponent } from "./activity-card.component";
@@ -30,6 +32,7 @@ export class AllActivityComponent implements OnInit {
   totalCriticalAppsAtRiskMemberCount = 0;
   totalCriticalAppsCount = 0;
   totalCriticalAppsAtRiskCount = 0;
+  newApplicationsCount = 0;
 
   destroyRef = inject(DestroyRef);
 
@@ -50,6 +53,7 @@ export class AllActivityComponent implements OnInit {
           this.totalCriticalAppsAtRiskMemberCount = summary.totalCriticalAtRiskMemberCount;
           this.totalCriticalAppsCount = summary.totalCriticalApplicationCount;
           this.totalCriticalAppsAtRiskCount = summary.totalCriticalAtRiskApplicationCount;
+          this.newApplicationsCount = summary.newApplications.length;
         });
     }
   }
@@ -60,6 +64,8 @@ export class AllActivityComponent implements OnInit {
     protected organizationService: OrganizationService,
     protected dataService: RiskInsightsDataService,
     protected allActivitiesService: AllActivitiesService,
+    private toastService: ToastService,
+    private i18nService: I18nService,
   ) {}
 
   get RiskInsightsTabType() {
@@ -70,4 +76,13 @@ export class AllActivityComponent implements OnInit {
     const organizationId = this.activatedRoute.snapshot.paramMap.get("organizationId");
     return `/organizations/${organizationId}/access-intelligence/risk-insights?tabIndex=${tabIndex}`;
   }
+
+  onReviewNewApplications = () => {
+    // TODO: Implement dialog for reviewing new applications (follow-up task)
+    this.toastService.showToast({
+      variant: "info",
+      title: this.i18nService.t("applicationsNeedingReview"),
+      message: this.i18nService.t("newApplicationsWithCount", this.newApplicationsCount.toString()),
+    });
+  };
 }
