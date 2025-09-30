@@ -1,0 +1,132 @@
+{
+  "extraMetadata": {
+    "name": "bitwarden-beta"
+  },
+  "productName": "Bitwarden Beta",
+  "appId": "com.bitwarden.desktop.beta",
+  "buildDependenciesFromSource": true,
+  "copyright": "Copyright © 2015-2025 Bitwarden Inc.",
+  "directories": {
+    "buildResources": "resources",
+    "output": "dist",
+    "app": "build"
+  },
+  "afterSign": "scripts/after-sign.js",
+  "afterPack": "scripts/after-pack.js",
+  "asarUnpack": ["**/*.node"],
+  "files": [
+    "**/*",
+    "!**/node_modules/@bitwarden/desktop-napi/**/*",
+    "**/node_modules/@bitwarden/desktop-napi/index.js",
+    "**/node_modules/@bitwarden/desktop-napi/desktop_napi.${platform}-${arch}*.node"
+  ],
+  "electronVersion": "36.8.1",
+  "generateUpdatesFilesForAllChannels": true,
+  "publish": {
+    "provider": "generic",
+    "url": "https://artifacts.bitwarden.com/desktop"
+  },
+  "win": {
+    "electronUpdaterCompatibility": ">=0.0.1",
+    "target": ["portable", "nsis-web", "appx"],
+    "signtoolOptions": {
+      "sign": "./sign.js"
+    },
+    "extraFiles": [
+      {
+        "from": "desktop_native/dist/desktop_proxy.${platform}-${arch}.exe",
+        "to": "desktop_proxy.exe"
+      }
+    ]
+  },
+  "nsisWeb": {
+    "oneClick": false,
+    "perMachine": false,
+    "allowToChangeInstallationDirectory": false,
+    "artifactName": "${productName}-Installer-${version}.${ext}",
+    "uninstallDisplayName": "${productName}",
+    "deleteAppDataOnUninstall": true,
+    "include": "installer.nsh"
+  },
+  "portable": {
+    "artifactName": "${productName}-Portable-${version}.${ext}"
+  },
+  "appx": {
+    "artifactName": "${productName}-${version}-${arch}.${ext}",
+    "backgroundColor": "#175DDC",
+    "applicationId": "BitwardenBeta",
+    "identityName": "8bitSolutionsLLC.BitwardenBeta",
+    "publisher": "CN=14D52771-DE3C-4886-B8BF-825BA7690418",
+    "publisherDisplayName": "Bitwarden Inc",
+    "languages": [
+      "en-US",
+      "af",
+      "ar",
+      "az-latn",
+      "be",
+      "bg",
+      "bn",
+      "bs",
+      "ca",
+      "cs",
+      "cy",
+      "da",
+      "de",
+      "el",
+      "en-gb",
+      "en-in",
+      "es",
+      "et",
+      "eu",
+      "fa",
+      "fi",
+      "fil",
+      "fr",
+      "gl",
+      "he",
+      "hi",
+      "hr",
+      "hu",
+      "id",
+      "it",
+      "ja",
+      "ka",
+      "km",
+      "kn",
+      "ko",
+      "lt",
+      "lv",
+      "ml",
+      "mr",
+      "nb",
+      "ne",
+      "nl",
+      "nn",
+      "or",
+      "pl",
+      "pt-br",
+      "pt-pt",
+      "ro",
+      "ru",
+      "si",
+      "sk",
+      "sl",
+      "sr-cyrl",
+      "sv",
+      "ta",
+      "te",
+      "th",
+      "tr",
+      "uk",
+      "vi",
+      "zh-cn",
+      "zh-tw"
+    ]
+  },
+  "protocols": [
+    {
+      "name": "Bitwarden",
+      "schemes": ["bitwarden"]
+    }
+  ]
+}

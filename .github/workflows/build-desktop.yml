@@ -684,7 +684,7 @@ jobs:
       - name: Check out repo
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
-          ref: ${{  github.event.pull_request.head.sha }}
+          ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Set up Node
         uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
@@ -768,20 +768,12 @@ jobs:
         working-directory: apps/desktop/desktop_native
         run: node build.js cross-platform
 
-      - name: Configure for beta build
-        run: |
-          $config = Get-Content electron-builder.json | ConvertFrom-Json
-          $config.productName = "Bitwarden-Beta"
-          $config.extraMetadata.name = "bitwarden-beta"
-          $config.appx.identityName = "8bitSolutionsLLC.BitwardenBeta"
-          $config | ConvertTo-Json -Depth 32 | Set-Content electron-builder.json
-
       - name: Build
         run: npm run build
 
       - name: Pack
         if: ${{ needs.setup.outputs.has_secrets == 'false' }}
-        run: npm run pack:win
+        run: npm run pack:win:beta
 
       - name: Pack & Sign
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
@@ -792,7 +784,7 @@ jobs:
           SIGNING_TENANT_ID: ${{ steps.retrieve-secrets.outputs.code-signing-tenant-id }}
           SIGNING_CLIENT_SECRET: ${{ steps.retrieve-secrets.outputs.code-signing-client-secret }}
           SIGNING_CERT_NAME: ${{ steps.retrieve-secrets.outputs.code-signing-cert-name }}
-        run: npm run pack:win
+        run: npm run pack:win:beta
 
       - name: Test
         if: always()
