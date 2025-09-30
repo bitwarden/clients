@@ -58,6 +58,7 @@ import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.se
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
@@ -81,7 +82,6 @@ import {
   AttachmentDialogCloseResult,
   AttachmentDialogResult,
   AttachmentsV2Component,
-  CipherArchiveService,
   CipherFormConfig,
   CollectionAssignmentResult,
   DecryptionFailureDialogComponent,
