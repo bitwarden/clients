@@ -3,6 +3,7 @@ import { NgModule } from "@angular/core";
 import { safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
 import { CriticalAppsService } from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import {
+  AllActivitiesService,
   CriticalAppsApiService,
   MemberCipherDetailsApiService,
   PasswordHealthService,
@@ -72,6 +73,11 @@ import { RiskInsightsComponent } from "./risk-insights.component";
       provide: CriticalAppsApiService,
       useClass: CriticalAppsApiService,
       deps: [ApiService],
+    }),
+    safeProvider({
+      provide: AllActivitiesService,
+      useClass: AllActivitiesService,
+      deps: [],
     }),
   ],
 })
