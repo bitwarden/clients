@@ -198,23 +198,29 @@ export class DefaultSendTokenService implements SendTokenServiceAbstraction {
 
   private async clearSendAccessTokenFromStorage(sendId: string): Promise<void> {
     if (this.sendAccessTokenDictGlobalState != null) {
-      await this.sendAccessTokenDictGlobalState.update((sendAccessTokenDict) => {
-        if (!sendAccessTokenDict) {
-          // If the dict is empty or undefined, there's nothing to clear
-          return sendAccessTokenDict;
-        }
+      await this.sendAccessTokenDictGlobalState.update(
+        (sendAccessTokenDict) => {
+          if (!sendAccessTokenDict) {
+            // If the dict is empty or undefined, there's nothing to clear
+            return sendAccessTokenDict;
+          }
 
-        if (sendAccessTokenDict[sendId] == null) {
-          // If the specific sendId does not exist, nothing to clear
-          return sendAccessTokenDict;
-        }
+          if (sendAccessTokenDict[sendId] == null) {
+            // If the specific sendId does not exist, nothing to clear
+            return sendAccessTokenDict;
+          }
 
-        // Destructure to omit the specific sendId and get new reference for the rest of the dict for an immutable update
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { [sendId]: _, ...rest } = sendAccessTokenDict;
+          // Destructure to omit the specific sendId and get new reference for the rest of the dict for an immutable update
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { [sendId]: _, ...rest } = sendAccessTokenDict;
 
-        return rest;
-      });
+          return rest;
+        },
+        {
+          // only update if the value is defined (to avoid unnecessary reads)
+          shouldUpdate: (dict) => dict?.[sendId] != null,
+        },
+      );
     }
   }
 
