@@ -26,6 +26,7 @@ export const loaders = [
     document.fonts.add(font);
 
     await document.fonts.ready;
+    document.body.append("font should be ready");
 
     await new Promise((resolve) => setTimeout(resolve, 100));
 
