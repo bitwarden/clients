@@ -144,6 +144,7 @@ const plugins = [
       { from: "./src/browserconfig.xml" },
       { from: "./src/app-id.json" },
       { from: "./src/images", to: "images" },
+      { from: "./src/videos", to: "videos" },
       { from: "./src/locales", to: "locales" },
       { from: "../../node_modules/qrious/dist/qrious.min.js", to: "scripts" },
       { from: "../../node_modules/braintree-web-drop-in/dist/browser/dropin.js", to: "scripts" },

@@ -6,16 +6,14 @@ import { Integration } from "@bitwarden/bit-common/dirt/organization-integration
 import { OrganizationIntegrationServiceType } from "@bitwarden/bit-common/dirt/organization-integrations/models/organization-integration-service-type";
 import { DatadogOrganizationIntegrationService } from "@bitwarden/bit-common/dirt/organization-integrations/services/datadog-organization-integration-service";
 import { HecOrganizationIntegrationService } from "@bitwarden/bit-common/dirt/organization-integrations/services/hec-organization-integration-service";
-import {
-  getOrganizationById,
-  OrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { IntegrationType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { getById } from "@bitwarden/common/platform/misc";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
@@ -219,7 +217,7 @@ export class AdminConsoleIntegrationsComponent implements OnInit, OnDestroy {
     this.organization$ = this.route.params.pipe(
       switchMap((params) =>
         this.organizationService.organizations$(userId).pipe(
-          getOrganizationById(params.organizationId),
+          getById(params.organizationId),
           // Filter out undefined values
           takeWhile((org: Organization | undefined) => !!org),
         ),
@@ -231,6 +229,24 @@ export class AdminConsoleIntegrationsComponent implements OnInit, OnDestroy {
       this.hecOrganizationIntegrationService.setOrganizationIntegrations(org.id);
       this.datadogOrganizationIntegrationService.setOrganizationIntegrations(org.id);
     });
+
+    // For all existing event based configurations loop through and assign the
+    // organizationIntegration for the correct services.
+    this.hecOrganizationIntegrationService.integrations$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((integrations) => {
+        // reset all integrations to null first - in case one was deleted
+        this.integrationsList.forEach((i) => {
+          i.organizationIntegration = null;
+        });
+
+        integrations.map((integration) => {
+          const item = this.integrationsList.find((i) => i.name === integration.serviceType);
+          if (item) {
+            item.organizationIntegration = integration;
+          }
+        });
+      });
   }
 
   constructor(

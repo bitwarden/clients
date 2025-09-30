@@ -7,6 +7,7 @@ import { SYSTEM_THEME_OBSERVABLE } from "@bitwarden/angular/services/injection-t
 import { OrganizationIntegrationServiceType } from "@bitwarden/bit-common/dirt/organization-integrations/models/organization-integration-service-type";
 import { DatadogOrganizationIntegrationService } from "@bitwarden/bit-common/dirt/organization-integrations/services/datadog-organization-integration-service";
 import { HecOrganizationIntegrationService } from "@bitwarden/bit-common/dirt/organization-integrations/services/hec-organization-integration-service";
+import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ThemeType } from "@bitwarden/common/platform/enums";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
@@ -317,7 +318,7 @@ describe("IntegrationCardComponent", () => {
 
       jest.spyOn(component, "isUpdateAvailable", "get").mockReturnValue(false);
 
-      mockIntegrationService.saveHec.mockResolvedValue(undefined);
+      mockIntegrationService.saveHec.mockResolvedValue({ mustBeOwner: false, success: true });
 
       await component.setupConnection();
 
@@ -343,7 +344,7 @@ describe("IntegrationCardComponent", () => {
         }),
       });
 
-      mockIntegrationService.deleteHec.mockResolvedValue(undefined);
+      mockIntegrationService.deleteHec.mockResolvedValue({ mustBeOwner: false, success: true });
 
       await component.setupConnection();
 
@@ -371,7 +372,7 @@ describe("IntegrationCardComponent", () => {
         }),
       });
 
-      mockIntegrationService.deleteHec.mockResolvedValue(undefined);
+      mockIntegrationService.deleteHec.mockResolvedValue({ mustBeOwner: false, success: true });
 
       await component.setupConnection();
 
@@ -410,6 +411,52 @@ describe("IntegrationCardComponent", () => {
       });
     });
 
+    it("should show mustBeOwner toast on error while inserting data", async () => {
+      (openHecConnectDialog as jest.Mock).mockReturnValue({
+        closed: of({
+          success: HecConnectDialogResultStatus.Edited,
+          url: "test-url",
+          bearerToken: "token",
+          index: "index",
+        }),
+      });
+
+      jest.spyOn(component, "isUpdateAvailable", "get").mockReturnValue(true);
+      mockIntegrationService.updateHec.mockRejectedValue(new ErrorResponse("Not Found", 404));
+
+      await component.setupConnection();
+
+      expect(mockIntegrationService.updateHec).toHaveBeenCalled();
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        title: "",
+        message: mockI18nService.t("mustBeOrgOwnerToPerformAction"),
+      });
+    });
+
+    it("should show mustBeOwner toast on error while updating data", async () => {
+      (openHecConnectDialog as jest.Mock).mockReturnValue({
+        closed: of({
+          success: HecConnectDialogResultStatus.Edited,
+          url: "test-url",
+          bearerToken: "token",
+          index: "index",
+        }),
+      });
+
+      jest.spyOn(component, "isUpdateAvailable", "get").mockReturnValue(true);
+      mockIntegrationService.updateHec.mockRejectedValue(new ErrorResponse("Not Found", 404));
+
+      await component.setupConnection();
+
+      expect(mockIntegrationService.updateHec).toHaveBeenCalled();
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        title: "",
+        message: mockI18nService.t("mustBeOrgOwnerToPerformAction"),
+      });
+    });
+
     it("should show toast on error while deleting", async () => {
       (openHecConnectDialog as jest.Mock).mockReturnValue({
         closed: of({
@@ -430,6 +477,29 @@ describe("IntegrationCardComponent", () => {
         variant: "error",
         title: "",
         message: mockI18nService.t("failedToDeleteIntegration"),
+      });
+    });
+
+    it("should show mustbeOwner toast on 404 while deleting", async () => {
+      (openHecConnectDialog as jest.Mock).mockReturnValue({
+        closed: of({
+          success: HecConnectDialogResultStatus.Delete,
+          url: "test-url",
+          bearerToken: "token",
+          index: "index",
+        }),
+      });
+
+      jest.spyOn(component, "isUpdateAvailable", "get").mockReturnValue(true);
+      mockIntegrationService.deleteHec.mockRejectedValue(new ErrorResponse("Not Found", 404));
+
+      await component.setupConnection();
+
+      expect(mockIntegrationService.deleteHec).toHaveBeenCalled();
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        title: "",
+        message: mockI18nService.t("mustBeOrgOwnerToPerformAction"),
       });
     });
   });
