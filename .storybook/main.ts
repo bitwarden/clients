@@ -64,11 +64,7 @@ const config: StorybookConfig = {
     return config;
   },
   docs: {},
-  staticDirs: [
-    "../apps/web/src/images",
-    "../libs/components/src/webfonts",
-    { from: "../libs/components/src/webfonts", to: "/fonts" },
-  ],
+  staticDirs: ["../apps/web/src/images", { from: "../libs/components/src/webfonts", to: "/fonts" }],
 };
 
 export default config;
