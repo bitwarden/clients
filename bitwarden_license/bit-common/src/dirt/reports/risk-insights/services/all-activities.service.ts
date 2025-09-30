@@ -2,6 +2,8 @@ import { BehaviorSubject } from "rxjs";
 
 import { OrganizationReportSummary } from "../models/report-models";
 
+import { RiskInsightsDataService } from "./risk-insights-data.service";
+
 export class AllActivitiesService {
   /// This class is used to manage the summary of all applications
   /// and critical applications.
@@ -21,6 +23,21 @@ export class AllActivitiesService {
   });
 
   reportSummary$ = this.reportSummarySubject$.asObservable();
+
+  constructor(private dataService: RiskInsightsDataService) {
+    // All application summary changes
+    this.dataService.reportResults$.subscribe((report) => {
+      if (report) {
+        this.setAllAppsReportSummary(report.summaryData);
+      }
+    });
+    // Critical application summary changes
+    this.dataService.criticalReportResults$.subscribe((report) => {
+      if (report) {
+        this.setCriticalAppsReportSummary(report.summaryData);
+      }
+    });
+  }
 
   setCriticalAppsReportSummary(summary: OrganizationReportSummary) {
     this.reportSummarySubject$.next({
