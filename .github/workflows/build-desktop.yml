@@ -772,6 +772,7 @@ jobs:
         run: |
           $config = Get-Content electron-builder.json | ConvertFrom-Json
           $config.productName = "Bitwarden-Beta"
+          $config.extraMetadata.name = "bitwarden-beta"
           $config.appx.identityName = "8bitSolutionsLLC.BitwardenBeta"
           $config | ConvertTo-Json -Depth 32 | Set-Content electron-builder.json
 
