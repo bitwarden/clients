@@ -12,27 +12,21 @@ import {
   CipherBulkUnarchiveRequest,
 } from "@bitwarden/common/vault/models/request/cipher-bulk-archive.request";
 import { CipherResponse } from "@bitwarden/common/vault/models/response/cipher.response";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   CipherViewLike,
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
-import { DialogService } from "@bitwarden/components";
 
 import { CipherArchiveService } from "../abstractions/cipher-archive.service";
-import { DecryptionFailureDialogComponent } from "../components/decryption-failure-dialog/decryption-failure-dialog.component";
-
-import { PasswordRepromptService } from "./password-reprompt.service";
 
 export class DefaultCipherArchiveService implements CipherArchiveService {
   constructor(
     private cipherService: CipherService,
     private apiService: ApiService,
-    private dialogService: DialogService,
-    private passwordRepromptService: PasswordRepromptService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private configService: ConfigService,
   ) {}
+
   /**
    * Observable that contains the list of ciphers that have been archived.
    */
@@ -124,22 +118,5 @@ export class DefaultCipherArchiveService implements CipherArchiveService {
     }
 
     await this.cipherService.replace(currentCiphers, userId);
-  }
-
-  /**
-   * Check if the user is able to interact with the cipher
-   * (password re-prompt / decryption failure checks).
-   * @param cipher
-   * @private
-   */
-  async canInteract(cipher: CipherView) {
-    if (cipher.decryptionFailure) {
-      DecryptionFailureDialogComponent.open(this.dialogService, {
-        cipherIds: [cipher.id as CipherId],
-      });
-      return false;
-    }
-
-    return await this.passwordRepromptService.passwordRepromptCheck(cipher);
   }
 }
