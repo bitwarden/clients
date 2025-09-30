@@ -1,59 +1,20 @@
 @if (fido2PopoutSessionData$ | async) {
   <div class="tw-flex tw-items-center tw-justify-center tw-p-2">
-    <button
-      bitButton
-      type="button"
-      (click)="toggle()"
-      cdkOverlayOrigin
-      #trigger="cdkOverlayOrigin"
-      aria-haspopup="dialog"
-      aria-controls="cdk-overlay-container"
-    >
+    <button bitButton type="button" [bitMenuTriggerFor]="deviceMenu" aria-haspopup="dialog">
       <span bitTypography="body2">
         {{ "useDeviceOrHardwareKey" | i18n }}
       </span>
       <i class="bwi bwi-fw bwi-sm bwi-angle-down" aria-hidden="true"></i>
     </button>
+    <bit-menu #deviceMenu>
+      <button type="button" bitMenuItem (click)="abort(false)">
+        {{ "justOnce" | i18n }}
+      </button>
+      <button type="button" bitMenuItem (click)="abort()">
+        {{ "alwaysForThisSite" | i18n }}
+      </button>
+    </bit-menu>
   </div>
-
-  <ng-template
-    cdkConnectedOverlay
-    [cdkConnectedOverlayOrigin]="trigger"
-    [cdkConnectedOverlayOpen]="isOpen"
-    [cdkConnectedOverlayPositions]="overlayPosition"
-    [cdkConnectedOverlayHasBackdrop]="true"
-    [cdkConnectedOverlayBackdropClass]="'cdk-overlay-transparent-backdrop'"
-    (backdropClick)="isOpen = false"
-    (detach)="close()"
-  >
-    <div
-      class="tw-bg-background tw-rounded tw-shadow-lg tw-border tw-border-secondary-300 tw-min-w-48 tw-max-w-xs"
-    >
-      <div
-        class="tw-py-2"
-        [@transformPanel]="'open'"
-        cdkTrapFocus
-        cdkTrapFocusAutoCapture
-        role="dialog"
-        aria-modal="true"
-      >
-        <button
-          type="button"
-          class="tw-flex tw-px-3 tw-py-2 tw-rounded-md tw-text-main !tw-no-underline hover:tw-bg-secondary-100 tw-w-full tw-text-left tw-transition-colors tw-duration-150"
-          (click)="abort(false)"
-        >
-          <span>{{ "justOnce" | i18n }}</span>
-        </button>
-        <button
-          type="button"
-          class="tw-flex tw-px-3 tw-py-2 tw-rounded-md tw-text-main !tw-no-underline hover:tw-bg-secondary-100 tw-w-full tw-text-left tw-transition-colors tw-duration-150"
-          (click)="abort()"
-        >
-          <span>{{ "alwaysForThisSite" | i18n }}</span>
-        </button>
-      </div>
-    </div>
-  </ng-template>
 
   @if (showOverlay) {
     <div
