@@ -162,7 +162,7 @@ enum AddAccessStatusType {
     { provide: CipherFormConfigService, useClass: AdminConsoleCipherFormConfigService },
   ],
 })
-export class vNextVaultComponent implements OnInit, OnDestroy {
+export class VaultComponent implements OnInit, OnDestroy {
   protected Unassigned = Unassigned;
 
   trashCleanupWarning: string = this.i18nService.t(
