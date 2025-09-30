@@ -7,21 +7,12 @@ import { debounceTime } from "rxjs";
 import { Security } from "@bitwarden/assets/svg";
 import {
   ApplicationHealthReportDetailEnriched,
-  AllActivitiesService,
-  CriticalAppsService,
   RiskInsightsDataService,
-  RiskInsightsReportService,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import { createNewSummaryData } from "@bitwarden/bit-common/dirt/reports/risk-insights/helpers";
 import { OrganizationReportSummary } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/report-models";
-import { RiskInsightsEncryptionService } from "@bitwarden/bit-common/dirt/reports/risk-insights/services/risk-insights-encryption.service";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { OrganizationId } from "@bitwarden/common/types/guid";
-import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import {
   IconButtonModule,
   NoItemsModule,
@@ -64,18 +55,11 @@ export class AllApplicationsComponent implements OnInit {
   destroyRef = inject(DestroyRef);
 
   constructor(
-    protected cipherService: CipherService,
     protected i18nService: I18nService,
     protected activatedRoute: ActivatedRoute,
     protected toastService: ToastService,
-    protected configService: ConfigService,
     protected dataService: RiskInsightsDataService,
-    protected organizationService: OrganizationService,
-    protected reportService: RiskInsightsReportService,
-    private accountService: AccountService,
-    protected criticalAppsService: CriticalAppsService,
-    protected riskInsightsEncryptionService: RiskInsightsEncryptionService,
-    protected allActivitiesService: AllActivitiesService,
+    // protected allActivitiesService: AllActivitiesService,
   ) {
     this.searchControl.valueChanges
       .pipe(debounceTime(200), takeUntilDestroyed())
@@ -113,41 +97,31 @@ export class AllApplicationsComponent implements OnInit {
   markAppsAsCritical = async () => {
     this.markingAsCritical = true;
 
-    try {
-      await this.criticalAppsService.setCriticalApps(
-        this.organization.id as OrganizationId,
-        Array.from(this.selectedUrls),
-      );
-
-      this.toastService.showToast({
-        variant: "success",
-        title: "",
-        message: this.i18nService.t("applicationsMarkedAsCriticalSuccess"),
+    this.dataService
+      .saveCriticalApps(Array.from(this.selectedUrls))
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.toastService.showToast({
+            variant: "success",
+            title: "",
+            message: this.i18nService.t("applicationsMarkedAsCriticalSuccess"),
+          });
+          this.selectedUrls.clear();
+          this.markingAsCritical = false;
+        },
+        error: () => {
+          this.toastService.showToast({
+            variant: "error",
+            title: "",
+            message: this.i18nService.t("applicationsMarkedAsCriticalFail"),
+          });
+        },
       });
-    } finally {
-      this.selectedUrls.clear();
-      this.markingAsCritical = false;
-    }
   };
 
   showAppAtRiskMembers = async (applicationName: string) => {
-    const info = {
-      members:
-        this.dataSource.data.find((app) => app.applicationName === applicationName)
-          ?.atRiskMemberDetails ?? [],
-      applicationName,
-    };
-    this.dataService.setDrawerForAppAtRiskMembers(info, applicationName);
-  };
-
-  showOrgAtRiskMembers = async (invokerId: string) => {
-    const dialogData = this.reportService.generateAtRiskMemberList(this.dataSource.data);
-    this.dataService.setDrawerForOrgAtRiskMembers(dialogData, invokerId);
-  };
-
-  showOrgAtRiskApps = async (invokerId: string) => {
-    const data = this.reportService.generateAtRiskApplicationList(this.dataSource.data);
-    this.dataService.setDrawerForOrgAtRiskApps(data, invokerId);
+    await this.dataService.setDrawerForAppAtRiskMembers(applicationName);
   };
 
   onCheckboxChange = (applicationName: string, event: Event) => {

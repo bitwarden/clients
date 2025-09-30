@@ -1,4 +1,4 @@
-import { BehaviorSubject, EMPTY, firstValueFrom, Observable, of } from "rxjs";
+import { BehaviorSubject, EMPTY, firstValueFrom, Observable, of, throwError } from "rxjs";
 import {
   catchError,
   distinctUntilChanged,
@@ -20,14 +20,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 
 import { ApplicationHealthReportDetailEnriched, RiskInsightsEnrichedData } from "../models";
-import {
-  AppAtRiskMembersDialogParams,
-  AtRiskApplicationDetail,
-  AtRiskMemberDetail,
-  DrawerType,
-  DrawerDetails,
-  ApplicationHealthReportDetail,
-} from "../models/report-models";
+import { DrawerType, DrawerDetails, ApplicationHealthReportDetail } from "../models/report-models";
 
 import { CriticalAppsService } from "./critical-apps.service";
 import { RiskInsightsReportService } from "./risk-insights-report.service";
@@ -56,7 +49,20 @@ export class RiskInsightsDataService {
   private LEGACY_dataLastUpdatedSubject = new BehaviorSubject<Date | null>(null);
   dataLastUpdated$ = this.LEGACY_dataLastUpdatedSubject.asObservable();
 
+  // --------------------------- Critical Apps proxies ---------------------
   criticalApps$ = this.criticalAppsService.criticalAppsList$;
+
+  saveCriticalApps(selectedUrls: string[]) {
+    return this.organizationDetails$.pipe(
+      exhaustMap(({ organizationId }) => {
+        return this.criticalAppsService.setCriticalApps(organizationId, selectedUrls);
+      }),
+      catchError((error: unknown) => {
+        this.errorSubject.next("Failed to save critical apps");
+        return throwError(() => error);
+      }),
+    );
+  }
 
   // --------------------------- UI State ------------------------------------
   private isLoadingSubject = new BehaviorSubject<boolean>(false);
@@ -96,7 +102,6 @@ export class RiskInsightsDataService {
     private reportService: RiskInsightsReportService,
   ) {}
 
-  // [FIXME] PM-25612 - Call Initialization in RiskInsightsComponent instead of child components
   async initializeForOrganization(organizationId: OrganizationId) {
     // Fetch current user
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
@@ -202,19 +207,11 @@ export class RiskInsightsDataService {
     );
   }
 
-  // ------------------------------- Drawer management methods -------------------------------
   // ------------------------- Drawer functions -----------------------------
-
-  isActiveDrawerType$ = (drawerType: DrawerType): Observable<boolean> => {
-    return this.drawerDetails$.pipe(map((details) => details.activeDrawerType === drawerType));
-  };
   isActiveDrawerType = (drawerType: DrawerType): boolean => {
     return this.drawerDetailsSubject.value.activeDrawerType === drawerType;
   };
 
-  isDrawerOpenForInvoker$ = (applicationName: string) => {
-    return this.drawerDetails$.pipe(map((details) => details.invokerId === applicationName));
-  };
   isDrawerOpenForInvoker = (applicationName: string): boolean => {
     return this.drawerDetailsSubject.value.invokerId === applicationName;
   };
@@ -230,10 +227,7 @@ export class RiskInsightsDataService {
     });
   };
 
-  setDrawerForOrgAtRiskMembers = (
-    atRiskMemberDetails: AtRiskMemberDetail[],
-    invokerId: string = "",
-  ): void => {
+  setDrawerForOrgAtRiskMembers = async (invokerId: string = ""): Promise<void> => {
     const { open, activeDrawerType, invokerId: currentInvokerId } = this.drawerDetailsSubject.value;
     const shouldClose =
       open && activeDrawerType === DrawerType.OrgAtRiskMembers && currentInvokerId === invokerId;
@@ -241,6 +235,11 @@ export class RiskInsightsDataService {
     if (shouldClose) {
       this.closeDrawer();
     } else {
+      const reportResults = await firstValueFrom(this.reportResults$);
+      const atRiskMemberDetails = this.reportService.generateAtRiskMemberList(
+        reportResults.reportData,
+      );
+
       this.drawerDetailsSubject.next({
         open: true,
         invokerId,
@@ -252,10 +251,7 @@ export class RiskInsightsDataService {
     }
   };
 
-  setDrawerForAppAtRiskMembers = (
-    atRiskMembersDialogParams: AppAtRiskMembersDialogParams,
-    invokerId: string = "",
-  ): void => {
+  setDrawerForAppAtRiskMembers = async (invokerId: string = ""): Promise<void> => {
     const { open, activeDrawerType, invokerId: currentInvokerId } = this.drawerDetailsSubject.value;
     const shouldClose =
       open && activeDrawerType === DrawerType.AppAtRiskMembers && currentInvokerId === invokerId;
@@ -263,21 +259,25 @@ export class RiskInsightsDataService {
     if (shouldClose) {
       this.closeDrawer();
     } else {
+      const reportResults = await firstValueFrom(this.reportResults$);
+      const atRiskMembers = {
+        members:
+          reportResults.reportData.find((app) => app.applicationName === invokerId)
+            ?.atRiskMemberDetails ?? [],
+        applicationName: invokerId,
+      };
       this.drawerDetailsSubject.next({
         open: true,
         invokerId,
         activeDrawerType: DrawerType.AppAtRiskMembers,
         atRiskMemberDetails: [],
-        appAtRiskMembers: atRiskMembersDialogParams,
+        appAtRiskMembers: atRiskMembers,
         atRiskAppDetails: null,
       });
     }
   };
 
-  setDrawerForOrgAtRiskApps = (
-    atRiskApps: AtRiskApplicationDetail[],
-    invokerId: string = "",
-  ): void => {
+  setDrawerForOrgAtRiskApps = async (invokerId: string = ""): Promise<void> => {
     const { open, activeDrawerType, invokerId: currentInvokerId } = this.drawerDetailsSubject.value;
     const shouldClose =
       open && activeDrawerType === DrawerType.OrgAtRiskApps && currentInvokerId === invokerId;
@@ -285,13 +285,18 @@ export class RiskInsightsDataService {
     if (shouldClose) {
       this.closeDrawer();
     } else {
+      const reportResults = await firstValueFrom(this.reportResults$);
+      const atRiskAppDetails = this.reportService.generateAtRiskApplicationList(
+        reportResults.reportData,
+      );
+
       this.drawerDetailsSubject.next({
         open: true,
         invokerId,
         activeDrawerType: DrawerType.OrgAtRiskApps,
         atRiskMemberDetails: [],
         appAtRiskMembers: null,
-        atRiskAppDetails: atRiskApps,
+        atRiskAppDetails,
       });
     }
   };

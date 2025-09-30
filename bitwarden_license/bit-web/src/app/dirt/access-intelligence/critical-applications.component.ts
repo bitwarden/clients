@@ -186,22 +186,6 @@ export class CriticalApplicationsComponent implements OnInit {
   }
 
   showAppAtRiskMembers = async (applicationName: string) => {
-    const data = {
-      members:
-        this.dataSource.data.find((app) => app.applicationName === applicationName)
-          ?.atRiskMemberDetails ?? [],
-      applicationName,
-    };
-    this.dataService.setDrawerForAppAtRiskMembers(data, applicationName);
-  };
-
-  showOrgAtRiskMembers = async (invokerId: string) => {
-    const data = this.reportService.generateAtRiskMemberList(this.dataSource.data);
-    this.dataService.setDrawerForOrgAtRiskMembers(data, invokerId);
-  };
-
-  showOrgAtRiskApps = async (invokerId: string) => {
-    const data = this.reportService.generateAtRiskApplicationList(this.dataSource.data);
-    this.dataService.setDrawerForOrgAtRiskApps(data, invokerId);
+    await this.dataService.setDrawerForAppAtRiskMembers(applicationName);
   };
 }

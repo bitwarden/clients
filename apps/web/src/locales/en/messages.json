@@ -144,6 +144,9 @@
   "applicationsMarkedAsCriticalSuccess": {
     "message": "Applications marked as critical"
   },
+  "applicationsMarkedAsCriticalFail": {
+    "message": "Failed to mark applications as critical"
+  },
   "application": {
     "message": "Application"
   },
