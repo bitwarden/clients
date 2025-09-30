@@ -15,9 +15,27 @@ const wrapperDecorator = componentWrapperDecorator((story) => {
   `;
 });
 
-const fontLoader = async () => ({
-  fonts: await document.fonts.ready,
-});
+export const loaders = [
+  async () => {
+    const font = new FontFace(
+      "YourCustomFont",
+      'url("/inter.0336a89fb4e7fc1d.woff2") format("woff2")',
+      {
+        weight: "100 900",
+        featureSettings: '"ss02"',
+      },
+    );
+
+    await font.load();
+    document.fonts.add(font);
+
+    await document.fonts.ready;
+
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    return {};
+  },
+];
 
 const preview: Preview = {
   decorators: [
@@ -57,7 +75,7 @@ const preview: Preview = {
     },
   },
   tags: ["autodocs"],
-  loaders: isChromatic() ? [fontLoader] : [],
+  loaders,
 };
 
 export default preview;
