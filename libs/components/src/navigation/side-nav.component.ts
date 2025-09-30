@@ -14,7 +14,7 @@ import { SideNavService } from "./side-nav.service";
 
 export type SideNavVariant = "primary" | "secondary";
 
-const DEFAULT_OPEN_WIDTH = 275;
+const DEFAULT_OPEN_WIDTH = 288;
 const DEFAULT_CLOSED_WIDTH = 64;
 const MIN_OPEN_WIDTH = 240;
 const MAX_OPEN_WIDTH = 384;
