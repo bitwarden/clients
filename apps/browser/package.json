@@ -1,6 +1,6 @@
 {
   "name": "@bitwarden/browser",
-  "version": "2025.7.1",
+  "version": "2025.8.2",
   "scripts": {
     "build": "npm run build:chrome",
     "build:chrome": "cross-env BROWSER=chrome MANIFEST_VERSION=3 NODE_OPTIONS=\"--max-old-space-size=8192\" webpack",
@@ -14,6 +14,8 @@
     "build:watch:firefox": "npm run build:firefox -- --watch",
     "build:watch:opera": "npm run build:opera -- --watch",
     "build:watch:safari": "npm run build:safari -- --watch",
+    "build:watch:firefox:mv3": "cross-env MANIFEST_VERSION=3 npm run build:firefox -- --watch",
+    "build:watch:safari:mv3": "cross-env MANIFEST_VERSION=3 npm run build:safari -- --watch",
     "build:prod:chrome": "cross-env NODE_ENV=production npm run build:chrome",
     "build:prod:edge": "cross-env NODE_ENV=production npm run build:edge",
     "build:prod:firefox": "cross-env NODE_ENV=production npm run build:firefox",

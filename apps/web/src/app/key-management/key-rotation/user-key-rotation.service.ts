@@ -20,6 +20,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SdkClientFactory } from "@bitwarden/common/platform/abstractions/sdk/sdk-client-factory";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
+import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { EncryptionType, HashPurpose } from "@bitwarden/common/platform/enums";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
@@ -305,7 +306,7 @@ export class UserKeyRotationService {
     // Initialize an SDK with the current cryptographic state
     const sdk = await this.sdkClientFactory.createSdkClient(new NoopTokenProvider());
     await sdk.crypto().initialize_user_crypto({
-      userId: userId,
+      userId: asUuid(userId),
       kdfParams: kdfConfig.toSdkConfig(),
       email: email,
       privateKey: cryptographicStateParameters.publicKeyEncryptionKeyPair.wrappedPrivateKey,
@@ -331,7 +332,7 @@ export class UserKeyRotationService {
     // Initialize an SDK with the current cryptographic state
     const sdk = await this.sdkClientFactory.createSdkClient(new NoopTokenProvider());
     await sdk.crypto().initialize_user_crypto({
-      userId: userId,
+      userId: asUuid(userId),
       kdfParams: kdfConfig.toSdkConfig(),
       email: email,
       privateKey: cryptographicStateParameters.publicKeyEncryptionKeyPair.wrappedPrivateKey,

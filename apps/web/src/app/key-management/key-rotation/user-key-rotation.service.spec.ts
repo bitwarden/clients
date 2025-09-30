@@ -306,7 +306,7 @@ describe("KeyRotationService", () => {
       mockTrustedPublicKeys.map((key) => {
         return {
           publicKey: key,
-          id: "mockId",
+          id: "00000000-0000-0000-0000-000000000000" as UserId,
           granteeId: "mockGranteeId",
           name: "mockName",
           email: "mockEmail",
@@ -669,7 +669,7 @@ describe("KeyRotationService", () => {
         securityVersion: 2,
       });
       const result = await keyRotationService.getNewAccountKeysV2(
-        "userid" as UserId,
+        "00000000-0000-0000-0000-000000000000" as UserId,
         new PBKDF2KdfConfig(600_000),
         "mockuseremail",
         {
@@ -713,7 +713,7 @@ describe("KeyRotationService", () => {
         securityVersion: 2,
       });
       const result = await keyRotationService.getNewAccountKeysV2(
-        "userid" as UserId,
+        "00000000-0000-0000-0000-000000000000" as UserId,
         new PBKDF2KdfConfig(600_000),
         "mockuseremail",
         {

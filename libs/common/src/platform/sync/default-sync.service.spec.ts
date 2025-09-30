@@ -38,7 +38,6 @@ import { CipherService } from "../../vault/abstractions/cipher.service";
 import { FolderApiServiceAbstraction } from "../../vault/abstractions/folder/folder-api.service.abstraction";
 import { InternalFolderService } from "../../vault/abstractions/folder/folder.service.abstraction";
 import { LogService } from "../abstractions/log.service";
-import { StateService } from "../abstractions/state.service";
 import { MessageSender } from "../messaging";
 import { StateProvider } from "../state";
 
@@ -59,7 +58,6 @@ describe("DefaultSyncService", () => {
   let sendService: MockProxy<InternalSendService>;
   let logService: MockProxy<LogService>;
   let keyConnectorService: MockProxy<KeyConnectorService>;
-  let stateService: MockProxy<StateService>;
   let providerService: MockProxy<ProviderService>;
   let folderApiService: MockProxy<FolderApiServiceAbstraction>;
   let organizationService: MockProxy<InternalOrganizationServiceAbstraction>;
@@ -89,7 +87,6 @@ describe("DefaultSyncService", () => {
     sendService = mock();
     logService = mock();
     keyConnectorService = mock();
-    stateService = mock();
     providerService = mock();
     folderApiService = mock();
     organizationService = mock();
@@ -117,7 +114,6 @@ describe("DefaultSyncService", () => {
       sendService,
       logService,
       keyConnectorService,
-      stateService,
       providerService,
       folderApiService,
       organizationService,
