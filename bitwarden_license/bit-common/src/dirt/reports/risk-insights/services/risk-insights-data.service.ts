@@ -93,7 +93,6 @@ export class RiskInsightsDataService {
   // Is a report being generated
   private isRunningReportSubject = new BehaviorSubject<boolean>(false);
   isRunningReport$ = this.isRunningReportSubject.asObservable();
-  // The error from report generation if there was an error
 
   constructor(
     private accountService: AccountService,

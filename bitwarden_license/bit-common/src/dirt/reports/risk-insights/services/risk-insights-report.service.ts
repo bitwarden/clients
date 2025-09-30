@@ -155,6 +155,7 @@ export class RiskInsightsReportService {
   /**
    * Report data for the aggregation of uris to like uris and getting password/member counts,
    * members, and at risk statuses.
+   *
    * @param organizationId Id of the organization
    * @returns The all applications health report data
    */
@@ -519,6 +520,13 @@ export class RiskInsightsReportService {
     const applicationMap = new Map<string, CipherHealthReport[]>();
 
     cipherHealthData.forEach((cipher: CipherHealthReport) => {
+      // Warning: Currently does not show ciphers with NO Application
+      // if (cipher.applications.length === 0) {
+      //   const existingApplication = applicationMap.get("None") || [];
+      //   existingApplication.push(cipher);
+      //   applicationMap.set("None", existingApplication);
+      // }
+
       cipher.applications.forEach((application) => {
         const existingApplication = applicationMap.get(application) || [];
         existingApplication.push(cipher);

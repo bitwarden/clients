@@ -38,11 +38,11 @@
   <bit-tab-group [(selectedIndex)]="tabIndex" (selectedIndexChange)="onTabChange($event)">
     @if (isRiskInsightsActivityTabFeatureEnabled) {
       <bit-tab label="{{ 'activity' | i18n }}">
-        <tools-all-activity></tools-all-activity>
+        <dirt-all-activity></dirt-all-activity>
       </bit-tab>
     }
     <bit-tab label="{{ 'allApplicationsWithCount' | i18n: appsCount }}">
-      <tools-all-applications></tools-all-applications>
+      <dirt-all-applications></dirt-all-applications>
     </bit-tab>
     <bit-tab>
       <ng-template bitTabLabel>
@@ -52,7 +52,7 @@
             | i18n: (this.dataService.criticalApps$ | async)?.length ?? 0
         }}
       </ng-template>
-      <tools-critical-applications></tools-critical-applications>
+      <dirt-critical-applications></dirt-critical-applications>
     </bit-tab>
   </bit-tab-group>
 

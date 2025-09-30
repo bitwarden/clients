@@ -37,7 +37,7 @@ import { AppTableRowScrollableComponent } from "./app-table-row-scrollable.compo
 import { RiskInsightsTabType } from "./risk-insights.component";
 
 @Component({
-  selector: "tools-critical-applications",
+  selector: "dirt-critical-applications",
   templateUrl: "./critical-applications.component.html",
   imports: [
     CardComponent,

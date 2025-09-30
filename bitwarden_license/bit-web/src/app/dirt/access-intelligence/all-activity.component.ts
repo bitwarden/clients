@@ -19,7 +19,7 @@ import { ApplicationsLoadingComponent } from "./risk-insights-loading.component"
 import { RiskInsightsTabType } from "./risk-insights.component";
 
 @Component({
-  selector: "tools-all-activity",
+  selector: "dirt-all-activity",
   imports: [ApplicationsLoadingComponent, SharedModule, ActivityCardComponent],
   templateUrl: "./all-activity.component.html",
 })

@@ -29,7 +29,7 @@ import { AppTableRowScrollableComponent } from "./app-table-row-scrollable.compo
 import { ApplicationsLoadingComponent } from "./risk-insights-loading.component";
 
 @Component({
-  selector: "tools-all-applications",
+  selector: "dirt-all-applications",
   templateUrl: "./all-applications.component.html",
   imports: [
     ApplicationsLoadingComponent,
@@ -69,6 +69,7 @@ export class AllApplicationsComponent implements OnInit {
   async ngOnInit() {
     this.dataService.reportResults$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (report) => {
+        this.applicationSummary = report?.summaryData ?? createNewSummaryData();
         this.dataSource.data = report?.reportData ?? [];
       },
       error: () => {
