@@ -115,7 +115,7 @@ export class RiskInsightsComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((report) => {
         this.appsCount = report?.reportData.length ?? 0;
-        this.dataLastUpdated = report?.creationDate;
+        this.dataLastUpdated = report?.creationDate ?? null;
       });
 
     // Subscribe to drawer state changes

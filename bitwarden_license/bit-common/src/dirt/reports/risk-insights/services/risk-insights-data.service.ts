@@ -81,7 +81,7 @@ export class RiskInsightsDataService {
   isRunningReport$ = this.isRunningReportSubject.asObservable();
 
   // --------------------------- Critical Application data ---------------------
-  criticalReportResults$ = new Observable<RiskInsightsEnrichedData | null>(null);
+  criticalReportResults$: Observable<RiskInsightsEnrichedData | null> = of(null);
 
   constructor(
     private accountService: AccountService,
@@ -92,15 +92,12 @@ export class RiskInsightsDataService {
     // Reload report if critical applications change
     // This also handles the original report load
     this.criticalAppsService.criticalAppsList$
-      .pipe(
-        withLatestFrom(this.organizationDetails$, this.userId$),
-        filter(
-          ([_criticalApps, organizationDetails, _userId]) => !!organizationDetails?.organizationId,
-        ),
-      )
+      .pipe(withLatestFrom(this.organizationDetails$, this.userId$))
       .subscribe({
         next: ([_criticalApps, organizationDetails, userId]) => {
-          this.fetchLastReport(organizationDetails?.organizationId, userId);
+          if (organizationDetails?.organizationId && userId) {
+            this.fetchLastReport(organizationDetails?.organizationId, userId);
+          }
         },
       });
 
@@ -254,6 +251,10 @@ export class RiskInsightsDataService {
       this.closeDrawer();
     } else {
       const reportResults = await firstValueFrom(this.reportResults$);
+      if (!reportResults) {
+        return;
+      }
+
       const atRiskMemberDetails = this.reportService.generateAtRiskMemberList(
         reportResults.reportData,
       );
@@ -278,6 +279,10 @@ export class RiskInsightsDataService {
       this.closeDrawer();
     } else {
       const reportResults = await firstValueFrom(this.reportResults$);
+      if (!reportResults) {
+        return;
+      }
+
       const atRiskMembers = {
         members:
           reportResults.reportData.find((app) => app.applicationName === invokerId)
@@ -304,6 +309,9 @@ export class RiskInsightsDataService {
       this.closeDrawer();
     } else {
       const reportResults = await firstValueFrom(this.reportResults$);
+      if (!reportResults) {
+        return;
+      }
       const atRiskAppDetails = this.reportService.generateAtRiskApplicationList(
         reportResults.reportData,
       );
@@ -424,8 +432,14 @@ export class RiskInsightsDataService {
 
   saveCriticalApplications(selectedUrls: string[]) {
     return this.organizationDetails$.pipe(
-      exhaustMap(({ organizationId }) => {
-        return this.criticalAppsService.setCriticalApps(organizationId, selectedUrls);
+      exhaustMap((organizationDetails) => {
+        if (!organizationDetails?.organizationId) {
+          return EMPTY;
+        }
+        return this.criticalAppsService.setCriticalApps(
+          organizationDetails?.organizationId,
+          selectedUrls,
+        );
       }),
       catchError((error: unknown) => {
         this.errorSubject.next("Failed to save critical applications");
@@ -436,8 +450,14 @@ export class RiskInsightsDataService {
 
   removeCriticalApplication(hostname: string) {
     return this.organizationDetails$.pipe(
-      exhaustMap(({ organizationId }) => {
-        return this.criticalAppsService.dropCriticalApp(organizationId, hostname);
+      exhaustMap((organizationDetails) => {
+        if (!organizationDetails?.organizationId) {
+          return EMPTY;
+        }
+        return this.criticalAppsService.dropCriticalApp(
+          organizationDetails?.organizationId,
+          hostname,
+        );
       }),
       catchError((error: unknown) => {
         this.errorSubject.next("Failed to remove critical application");
