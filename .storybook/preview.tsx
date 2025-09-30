@@ -2,6 +2,7 @@ import { setCompodocJson } from "@storybook/addon-docs/angular";
 import { withThemeByClassName } from "@storybook/addon-themes";
 import { componentWrapperDecorator } from "@storybook/angular";
 import type { Preview } from "@storybook/angular";
+import isChromatic from "chromatic/isChromatic";
 
 import docJson from "../documentation.json";
 setCompodocJson(docJson);
@@ -12,6 +13,10 @@ const wrapperDecorator = componentWrapperDecorator((story) => {
       ${story}
     </div>
   `;
+});
+
+const fontLoader = async () => ({
+  fonts: await document.fonts.ready,
 });
 
 const preview: Preview = {
@@ -52,6 +57,7 @@ const preview: Preview = {
     },
   },
   tags: ["autodocs"],
+  loaders: isChromatic() ? [fontLoader] : [],
 };
 
 export default preview;
