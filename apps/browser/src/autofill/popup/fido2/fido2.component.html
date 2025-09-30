@@ -44,7 +44,7 @@
             }
           }
           @if (!displayedCiphers.length) {
-            <bit-no-items class="tw-text-main" [icon]="noResultsIcon">
+            <bit-no-items [icon]="noResultsIcon">
               <ng-container slot="title">{{
                 (hasSearched ? "noItemsMatchSearch" : "noMatchingLoginsForSite") | i18n
               }}</ng-container>
