@@ -1,4 +1,4 @@
-import { CommonModule } from "@angular/common";
+import { CommonModule, Location } from "@angular/common";
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
@@ -71,6 +71,7 @@ export class NewDeviceVerificationComponent implements OnInit, OnDestroy {
     private accountService: AccountService,
     private masterPasswordService: MasterPasswordServiceAbstraction,
     private newDeviceVerificationComponentService: NewDeviceVerificationComponentService,
+    private location: Location,
   ) {}
 
   async ngOnInit() {
@@ -185,6 +186,6 @@ export class NewDeviceVerificationComponent implements OnInit, OnDestroy {
   };
 
   protected goBack() {
-    history.back();
+    this.location.back();
   }
 }
