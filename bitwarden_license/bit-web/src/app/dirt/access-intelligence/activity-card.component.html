@@ -11,7 +11,13 @@
   </div>
   @if (showButton) {
     <div class="tw-flex tw-items-baseline tw-mt-4 tw-gap-2">
-      <button type="button" bitButton [buttonType]="buttonType" (click)="onButtonClick()">
+      <button
+        type="button"
+        bitButton
+        size="small"
+        [buttonType]="buttonType"
+        (click)="onButtonClick()"
+      >
         {{ buttonText }}
       </button>
     </div>
