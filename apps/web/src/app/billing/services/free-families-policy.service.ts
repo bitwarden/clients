@@ -137,8 +137,8 @@ export class FreeFamiliesPolicyService {
         this.policyService.policiesByType$(PolicyType.FreeFamiliesSponsorshipPolicy, userId),
       ),
       map((policies) => ({
-        isFreeFamilyPolicyEnabled: policies.some(
-          (policy) => enterpriseOrgIds.includes(policy.organizationId) && policy.enabled,
+        isFreeFamilyPolicyEnabled: enterpriseOrgIds.every((orgId) =>
+          policies.some((policy) => policy.organizationId === orgId && policy.enabled),
         ),
         belongToOneEnterpriseOrgs,
         belongToMultipleEnterpriseOrgs,
