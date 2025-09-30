@@ -43,16 +43,16 @@
     "oneClick": false,
     "perMachine": false,
     "allowToChangeInstallationDirectory": false,
-    "artifactName": "${productName}-Installer-${version}.${ext}",
+    "artifactName": "Bitwarden-Beta-Installer-${version}.${ext}",
     "uninstallDisplayName": "${productName}",
     "deleteAppDataOnUninstall": true,
     "include": "installer.nsh"
   },
   "portable": {
-    "artifactName": "${productName}-Portable-${version}.${ext}"
+    "artifactName": "Bitwarden-Beta-Portable-${version}.${ext}"
   },
   "appx": {
-    "artifactName": "${productName}-${version}-${arch}.${ext}",
+    "artifactName": "Bitwarden-Beta-${version}-${arch}.${ext}",
     "backgroundColor": "#175DDC",
     "applicationId": "BitwardenBeta",
     "identityName": "8bitSolutionsLLC.BitwardenBeta",
