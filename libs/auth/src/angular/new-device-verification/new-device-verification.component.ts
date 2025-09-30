@@ -146,8 +146,9 @@ export class NewDeviceVerificationComponent implements OnInit, OnDestroy {
       }
 
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // TODO
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.loginSuccessHandlerService.run(authResult.userId);
+      this.loginSuccessHandlerService.run(authResult.userId, authResult.masterPassword);
 
       // TODO: PM-22663 use the new service to handle routing.
       const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));

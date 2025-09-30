@@ -52,8 +52,6 @@ export const DEVICE_TRUST_DISK_LOCAL = new StateDefinition("deviceTrust", "disk"
   web: "disk-local",
   browser: "disk-backup-local-storage",
 });
-export const KDF_CONFIG_DISK = new StateDefinition("kdfConfig", "disk");
-export const KEY_CONNECTOR_DISK = new StateDefinition("keyConnector", "disk");
 export const LOGIN_EMAIL_DISK = new StateDefinition("loginEmail", "disk", {
   web: "disk-local",
 });
@@ -113,13 +111,10 @@ export const APPLICATION_ID_DISK = new StateDefinition("applicationId", "disk", 
 export const BADGE_MEMORY = new StateDefinition("badge", "memory", {
   browser: "memory-large-object",
 });
-export const BIOMETRIC_SETTINGS_DISK = new StateDefinition("biometricSettings", "disk");
 export const CLEAR_EVENT_DISK = new StateDefinition("clearEvent", "disk");
 export const CONFIG_DISK = new StateDefinition("config", "disk", {
   web: "disk-local",
 });
-export const CRYPTO_DISK = new StateDefinition("crypto", "disk");
-export const CRYPTO_MEMORY = new StateDefinition("crypto", "memory");
 export const DESKTOP_SETTINGS_DISK = new StateDefinition("desktopSettings", "disk");
 export const ENVIRONMENT_DISK = new StateDefinition("environment", "disk");
 export const ENVIRONMENT_MEMORY = new StateDefinition("environment", "memory");
@@ -219,3 +214,12 @@ export const VAULT_BROWSER_INTRO_CAROUSEL = new StateDefinition(
   "vaultBrowserIntroCarousel",
   "disk",
 );
+
+// KM
+
+export const BIOMETRIC_SETTINGS_DISK = new StateDefinition("biometricSettings", "disk");
+export const ENCRYPTED_MIGRATION_DISK = new StateDefinition("encryptedMigration", "disk");
+export const CRYPTO_DISK = new StateDefinition("crypto", "disk");
+export const CRYPTO_MEMORY = new StateDefinition("crypto", "memory");
+export const KDF_CONFIG_DISK = new StateDefinition("kdfConfig", "disk");
+export const KEY_CONNECTOR_DISK = new StateDefinition("keyConnector", "disk");
