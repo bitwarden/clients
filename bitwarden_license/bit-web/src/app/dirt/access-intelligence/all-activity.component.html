@@ -50,6 +50,20 @@
         [showNavigationLink]="totalCriticalAppsAtRiskCount > 0"
       >
       </dirt-activity-card>
+
+      <dirt-activity-card
+        class="tw-col-span-2"
+        [title]="'applicationsNeedingReview' | i18n"
+        [cardMetrics]="'newApplicationsWithCount' | i18n: newApplicationsCount"
+        [metricDescription]="'newApplicationsDescription' | i18n"
+        [showIcon]="true"
+        [iconClass]="'bwi-exclamation-triangle'"
+        [showButton]="true"
+        [buttonText]="'reviewNow' | i18n"
+        [buttonType]="'primary'"
+        (buttonClick)="onReviewNewApplications()"
+      >
+      </dirt-activity-card>
     </div>
   </div>
 }
