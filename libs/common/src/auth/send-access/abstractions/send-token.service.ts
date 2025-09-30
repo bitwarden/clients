@@ -13,10 +13,10 @@ export abstract class SendTokenService {
   /**
    * Attempts to retrieve a {@link SendAccessToken} for the given sendId.
    * If the access token is found in session storage and is not expired, then it returns the token.
-   * If the access token is expired, then it returns a {@link SendTokenRetrievalError} expired error.
+   * If the access token is expired, then it returns a {@link TryGetSendAccessTokenError} expired error.
    * If an access token is not found in storage, then it attempts to retrieve it from the server (will succeed for sends that don't require any credentials to view).
    * If the access token is successfully retrieved from the server, then it stores the token in session storage and returns it.
-   * If an access token cannot be granted b/c the send requires credentials, then it returns a {@link SendTokenRetrievalError} indicating which credentials are required.
+   * If an access token cannot be granted b/c the send requires credentials, then it returns a {@link TryGetSendAccessTokenError} indicating which credentials are required.
    * Any submissions of credentials will be handled by the getSendAccessToken$ method.
    * @param sendId The ID of the send to retrieve the access token for.
    * @returns An observable that emits a SendAccessToken if successful, or a TryGetSendAccessTokenError if not.
