@@ -124,13 +124,13 @@
           </div>
           <button
             bitButton
+            block
             buttonType="primary"
             type="button"
-            class="tw-w-full"
             (click)="abort(false)"
+            [loading]="loading"
           >
-            <span [hidden]="loading">{{ "close" | i18n }}</span>
-            <i class="bwi bwi-spinner bwi-lg bwi-spin" [hidden]="!loading" aria-hidden="true"></i>
+            {{ "close" | i18n }}
           </button>
         </bit-section>
       }
