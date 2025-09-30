@@ -4081,7 +4081,7 @@
     "message": "Afficher moins"
   },
   "enableAutotype": {
-    "message": "Activer le type automatique"
+    "message": "Activer la Saisie Auto"
   },
   "enableAutotypeDescription": {
     "message": "Bitwarden ne valide pas les emplacements d'entrée, assurez-vous d'être dans la bonne fenêtre et le bon champ avant d'utiliser le raccourci."
@@ -4100,10 +4100,10 @@
     "message": "Confirmer"
   },
   "enableAutotypeTransitionKey": {
-    "message": "Enable autotype shortcut"
+    "message": "Activer le raccourci de la Saisie Auto"
   },
   "enableAutotypeDescriptionTransitionKey": {
-    "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."
+    "message": "Assurez-vous d'être dans le bon champ avant d'utiliser le raccourci pour éviter de remplir les données au mauvais endroit."
   },
   "editShortcut": {
     "message": "Modifier le raccourci"
@@ -4112,27 +4112,27 @@
     "message": "Archive"
   },
   "unarchive": {
-    "message": "Unarchive"
+    "message": "Désarchiver"
   },
   "itemsInArchive": {
-    "message": "Items in archive"
+    "message": "Éléments dans l'archive"
   },
   "noItemsInArchive": {
-    "message": "No items in archive"
+    "message": "Aucun élément dans l'archive"
   },
   "noItemsInArchiveDesc": {
-    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+    "message": "Les éléments archivés apparaîtront ici et seront exclus des résultats de recherche généraux et des suggestions de remplissage automatique."
   },
   "itemSentToArchive": {
-    "message": "Item sent to archive"
+    "message": "Élément envoyé à l'archive"
   },
   "itemRemovedFromArchive": {
-    "message": "Item removed from archive"
+    "message": "Élément retiré de l'archive"
   },
   "archiveItem": {
-    "message": "Archive item"
+    "message": "Archiver l'élément"
   },
   "archiveItemConfirmDesc": {
-    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+    "message": "Les éléments archivés sont exclus des résultats de recherche généraux et des suggestions de remplissage automatique. Êtes-vous sûr de vouloir archiver cet élément ?"
   }
 }

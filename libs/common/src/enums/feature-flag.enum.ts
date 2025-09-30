@@ -15,7 +15,6 @@ export enum FeatureFlag {
   CollectionVaultRefactor = "pm-25030-resolve-ts-upgrade-errors",
 
   /* Auth */
-  PM14938_BrowserExtensionLoginApproval = "pm-14938-browser-extension-login-approvals",
   PM22110_DisableAlternateLoginMethods = "pm-22110-disable-alternate-login-methods",
 
   /* Autofill */
@@ -98,7 +97,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM22136_SdkCipherEncryption]: FALSE,
 
   /* Auth */
-  [FeatureFlag.PM14938_BrowserExtensionLoginApproval]: FALSE,
   [FeatureFlag.PM22110_DisableAlternateLoginMethods]: FALSE,
 
   /* Billing */

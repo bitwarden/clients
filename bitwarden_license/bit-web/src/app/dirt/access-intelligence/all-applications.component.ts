@@ -7,6 +7,7 @@ import { debounceTime } from "rxjs";
 import { Security } from "@bitwarden/assets/svg";
 import {
   ApplicationHealthReportDetailEnriched,
+  AllActivitiesService,
   CriticalAppsService,
   RiskInsightsDataService,
   RiskInsightsReportService,
@@ -74,6 +75,7 @@ export class AllApplicationsComponent implements OnInit {
     private accountService: AccountService,
     protected criticalAppsService: CriticalAppsService,
     protected riskInsightsEncryptionService: RiskInsightsEncryptionService,
+    protected allActivitiesService: AllActivitiesService,
   ) {
     this.searchControl.valueChanges
       .pipe(debounceTime(200), takeUntilDestroyed())
@@ -89,6 +91,10 @@ export class AllApplicationsComponent implements OnInit {
         this.dataSource.data = [];
       },
     });
+
+    // TODO
+    // this.applicationSummary = this.reportService.generateApplicationsSummary(data);
+    // this.allActivitiesService.setAllAppsReportSummary(this.applicationSummary);
   }
 
   goToCreateNewLoginItem = async () => {
@@ -151,11 +157,5 @@ export class AllApplicationsComponent implements OnInit {
     } else {
       this.selectedUrls.delete(applicationName);
     }
-  };
-
-  isDrawerOpenForTableRow = (applicationName: string): boolean => {
-    // Note: This function will be replaced by PR #16523 with openApplication binding
-    // Using private access to BehaviorSubject value for backward compatibility
-    return (this.dataService as any).drawerDetailsSubject?.value?.invokerId === applicationName;
   };
 }
