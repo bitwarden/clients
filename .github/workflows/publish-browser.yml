@@ -1,0 +1,187 @@
+name: Publish browser
+run-name: Publish browser ${{ inputs.publish_type }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      publish_type:
+        description: 'Publish Options'
+        required: true
+        default: 'Initial Publish'
+        type: choice
+        options:
+          - Initial Publish
+          - Republish
+          - Dry Run
+      version:
+        description: 'Version to publish (default: latest browser release)'
+        required: true
+        type: string
+        default: latest
+      chrome_publish:
+        description: 'Publish to Chrome Web Store'
+        required: true
+        default: true
+        type: boolean
+      rollout_percentage:
+        description: 'Staged Rollout Percentage'
+        required: true
+        default: '10'
+        type: string
+
+defaults:
+  run:
+    working-directory: apps/browser
+
+jobs:
+  setup:
+    name: Setup
+    runs-on: ubuntu-24.04
+    outputs:
+      release_version: ${{ steps.version-output.outputs.version }}
+      deployment_id: ${{ steps.deployment.outputs.deployment_id }}
+    defaults:
+      run:
+        working-directory: .
+    steps:
+      - name: Branch check
+        if: ${{ inputs.publish_type != 'Dry Run' }}
+        run: |
+          if [[ "$GITHUB_REF" != "refs/heads/rc" ]] && [[ "$GITHUB_REF" != "refs/heads/hotfix-rc-browser" ]]; then
+            echo "==================================="
+            echo "[!] Can only publish from the 'rc' or 'hotfix-rc-browser' branches"
+            echo "==================================="
+            exit 1
+          fi
+
+      - name: Version output
+        id: version-output
+        run: |
+          if [[ "${{ inputs.version }}" == "latest" || "${{ inputs.version }}" == "" ]]; then
+            VERSION=$(curl  "https://api.github.com/repos/bitwarden/clients/releases" | jq -c '.[] | select(.tag_name | contains("browser")) | .tag_name' | head -1 | grep -ohE '20[0-9]{2}\.([1-9]|1[0-2])\.[0-9]+')
+            echo "Latest Released Version: $VERSION"
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
+          else
+            echo "Release Version: ${{ inputs.version }}"
+            echo "version=${{ inputs.version }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create GitHub deployment
+        if: ${{ inputs.publish_type != 'Dry Run' }}
+        uses: chrnorm/deployment-action@55729fcebec3d284f60f5bcabbd8376437d696b1 # v2.0.7
+        id: deployment
+        with:
+          token: '${{ secrets.GITHUB_TOKEN }}'
+          initial-status: 'in_progress'
+          environment: 'Browser - Production'
+          description: 'Deployment ${{ steps.version-output.outputs.version }} from branch ${{ github.ref_name }}'
+          task: release
+
+  chrome:
+    name: Publish to Chrome Web Store
+    runs-on: ubuntu-24.04
+    needs: setup
+    if: ${{ inputs.chrome_publish && inputs.publish_type != 'Dry Run' }}
+    steps:
+      - name: Login to Azure
+        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
+        with:
+          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+
+      - name: Retrieve secrets
+        id: retrieve-secrets
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: "bitwarden-ci"
+          secrets: "CHROME_CLIENT_ID,CHROME_CLIENT_SECRET,CHROME_REFRESH_TOKEN,CHROME_EXTENSION_ID"
+
+      - name: Download artifact
+        run: |
+          wget https://github.com/bitwarden/clients/releases/download/browser-v${{ env._PKG_VERSION }}/dist-chrome-${{ env._PKG_VERSION }}.zip
+
+      - name: Get OAuth token
+        id: auth
+        env:
+            CHROME_CLIENT_ID: ${{ steps.retrieve-secrets.outputs.CHROME_CLIENT_ID }}
+            CHROME_CLIENT_SECRET: ${{ steps.retrieve-secrets.outputs.CHROME_CLIENT_SECRET }}
+            CHROME_REFRESH_TOKEN: ${{ steps.retrieve-secrets.outputs.CHROME_REFRESH_TOKEN }}
+        run: |
+          ACCESS_TOKEN=$(curl -s -X POST \
+            "https://oauth2.googleapis.com/token" \
+            -H "Content-Type: application/x-www-form-urlencoded" \
+            -d "client_id=$CHROME_CLIENT_ID" \
+            -d "client_secret=$CHROME_CLIENT_SECRET" \
+            -d "refresh_token=$CHROME_REFRESH_TOKEN" \
+            -d "grant_type=refresh_token" | \
+            jq -r '.access_token')
+
+          echo "access_token=$ACCESS_TOKEN" >> $GITHUB_OUTPUT
+
+      - name: Upload artifact to Chrome Web Store
+        env:
+            ACCESS_TOKEN: ${{ steps.auth.outputs.access_token }}
+            CHROME_EXTENSION_ID: ${{ steps.retrieve-secrets.outputs.CHROME_EXTENSION_ID }}
+        run: |
+            curl -s -X PUT \
+                "https://www.googleapis.com/upload/chromewebstore/v1.1/items/$CHROME_EXTENSION_ID" \
+                -H "Authorization: Bearer ${ACCESS_TOKEN}" \
+                -H "x-goog-api-version: 2" \
+                -T "dist-chrome-${{ env._PKG_VERSION }}.zip"
+
+            UPLOAD_STATUS=$(echo "${UPLOAD_RESPONSE}" | jq -r '.uploadState // "FAILED"')
+            if [ "${UPLOAD_STATUS}" != "SUCCESS" ]; then
+                echo "Upload failed: ${UPLOAD_RESPONSE}"
+                exit 1
+            fi
+
+            echo "Extension uploaded successfully"
+
+      - name: Publish extension for review
+        env:
+            ACCESS_TOKEN: ${{ steps.auth.outputs.access_token }}
+            CHROME_EXTENSION_ID: ${{ steps.retrieve-secrets.outputs.CHROME_EXTENSION_ID }}
+            ROLLOUT_PERCENTAGE: ${{ inputs.rollout_percentage }}
+        run: |
+            echo "Submitting extension for review..."
+            PUBLISH_RESPONSE=$(curl -s -X POST \
+            "https://www.googleapis.com/chromewebstore/v1.1/items/${CHROME_EXTENSION_ID}/publish?deployPercentage=${ROLLOUT_PERCENTAGE}" \
+            -H "Authorization: Bearer ${ACCESS_TOKEN}" \
+            -H "x-goog-api-version: 2" )
+ 
+            # Check publish status
+            PUBLISH_STATUS=$(echo "${PUBLISH_RESPONSE}" | jq -r '.status[0] // "FAILED"')
+            if [ "${PUBLISH_STATUS}" != "OK" ] && [ "${PUBLISH_STATUS}" != "ITEM_PENDING_REVIEW" ]; then
+                echo "Publish failed: ${PUBLISH_RESPONSE}"
+                exit 1
+            fi
+
+            echo "Extension submitted for review successfully. Publish status: ${PUBLISH_STATUS}"
+
+
+  update-deployment:
+    name: Update Deployment Status
+    runs-on: ubuntu-24.04
+    needs:
+      - setup
+      - chrome
+    if: ${{ always() && inputs.publish_type != 'Dry Run' }}
+    steps:
+      - name: Check if any job failed
+        if: contains(needs.*.result, 'failure')
+        run: exit 1
+
+      - name: Update deployment status to Success
+        if: ${{ inputs.publish_type != 'Dry Run' && success() }}
+        uses: chrnorm/deployment-status@9a72af4586197112e0491ea843682b5dc280d806 # v2.0.3
+        with:
+          token: '${{ secrets.GITHUB_TOKEN }}'
+          state: 'success'
+          deployment-id: ${{ needs.setup.outputs.deployment_id }}
+
+      - name: Update deployment status to Failure
+        if: ${{ inputs.publish_type != 'Dry Run' && failure() }}
+        uses: chrnorm/deployment-status@9a72af4586197112e0491ea843682b5dc280d806 # v2.0.3
+        with:
+          token: '${{ secrets.GITHUB_TOKEN }}'
+          state: 'failure'
+          deployment-id: ${{ needs.setup.outputs.deployment_id }}
