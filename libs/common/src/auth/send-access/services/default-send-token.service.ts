@@ -218,7 +218,7 @@ export class DefaultSendTokenService implements SendTokenServiceAbstraction {
         },
         {
           // only update if the value is defined (to avoid unnecessary reads)
-          shouldUpdate: (dict) => dict?.[sendId] != null,
+          shouldUpdate: (prevDict) => prevDict?.[sendId] != null,
         },
       );
     }
