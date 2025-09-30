@@ -1,8 +1,12 @@
 import { Injectable } from "@angular/core";
+import { defaultIfEmpty, find, map, mergeMap, Observable, switchMap } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { OrganizationResponse } from "@bitwarden/common/admin-console/models/response/organization.response";
-import { Account } from "@bitwarden/common/auth/abstractions/account.service";
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import {
   OrganizationBillingServiceAbstraction,
   SubscriptionInformation,
@@ -58,7 +62,27 @@ export class UpgradePaymentService {
     private logService: LogService,
     private apiService: ApiService,
     private syncService: SyncService,
+    private organizationService: OrganizationService,
+    private accountService: AccountService,
   ) {}
+
+  userIsOwnerOfFreeOrg$: Observable<boolean> = this.accountService.activeAccount$.pipe(
+    getUserId,
+    switchMap((id) => this.organizationService.organizations$(id)),
+    mergeMap((userOrganizations) => userOrganizations),
+    find((org) => org.isFreeOrg && org.isOwner),
+    defaultIfEmpty(false),
+    map((value) => value instanceof Organization),
+  );
+
+  adminConsoleRouteForOwnedOrganization$: Observable<string> =
+    this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((id) => this.organizationService.organizations$(id)),
+      mergeMap((userOrganizations) => userOrganizations),
+      find((org) => org.isFreeOrg && org.isOwner),
+      map((org) => `/organizations/${org!.id}/billing/subscription`),
+    );
 
   /**
    * Calculate estimated tax for the selected plan

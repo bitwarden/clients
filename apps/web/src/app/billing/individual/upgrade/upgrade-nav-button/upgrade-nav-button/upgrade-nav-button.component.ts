@@ -15,6 +15,6 @@ export class UpgradeNavButtonComponent {
     this.upgradeFlowService = inject(UpgradeFlowService);
   }
   openUpgradeDialog = async () => {
-    await this.upgradeFlowService.startUpgradeFlow();
+    await this.upgradeFlowService.startUpgradeFlow(true, "upgradeYourPlan");
   };
 }

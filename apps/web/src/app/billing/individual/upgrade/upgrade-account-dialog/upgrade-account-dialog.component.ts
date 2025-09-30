@@ -1,9 +1,16 @@
-import { Component, DestroyRef, OnInit } from "@angular/core";
+import { DialogConfig } from "@angular/cdk/dialog";
+import { Component, DestroyRef, Inject, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
-import { ButtonType, DialogModule, DialogRef, DialogService } from "@bitwarden/components";
+import {
+  ButtonType,
+  DIALOG_DATA,
+  DialogModule,
+  DialogRef,
+  DialogService,
+} from "@bitwarden/components";
 import { PricingCardComponent } from "@bitwarden/pricing";
 
 import { SharedModule } from "../../../../shared";
@@ -27,6 +34,13 @@ export type UpgradeAccountDialogStatus = UnionOfValues<typeof UpgradeAccountDial
 export type UpgradeAccountDialogResult = {
   status: UpgradeAccountDialogStatus;
   plan: PersonalSubscriptionPricingTierId | null;
+};
+
+/**
+ * Parameters for upgrade account dialog
+ */
+export type UpgradeAccountDialogParams = {
+  dialogTitleMessageOverride?: string;
 };
 
 type CardDetails = {
@@ -55,7 +69,12 @@ export class UpgradeAccountDialogComponent implements OnInit {
     private i18nService: I18nService,
     private subscriptionPricingService: SubscriptionPricingService,
     private destroyRef: DestroyRef,
+    @Inject(DIALOG_DATA) private dialogParams: UpgradeAccountDialogParams,
   ) {}
+
+  dialogTitle: string = this.dialogParams.dialogTitleMessageOverride
+    ? this.dialogParams.dialogTitleMessageOverride
+    : "individualUpgradeWelcomeMessage";
 
   ngOnInit(): void {
     this.subscriptionPricingService
@@ -130,7 +149,13 @@ export class UpgradeAccountDialogComponent implements OnInit {
     this.dialogRef.close(result);
   }
 
-  static open(dialogService: DialogService): DialogRef<UpgradeAccountDialogResult> {
-    return dialogService.open<UpgradeAccountDialogResult>(UpgradeAccountDialogComponent);
+  static open(
+    dialogService: DialogService,
+    dialogConfig: DialogConfig<UpgradeAccountDialogParams>,
+  ): DialogRef<UpgradeAccountDialogResult> {
+    return dialogService.open<UpgradeAccountDialogResult>(
+      UpgradeAccountDialogComponent,
+      dialogConfig,
+    );
   }
 }

@@ -9,6 +9,7 @@ import { DialogRef, DialogService } from "@bitwarden/components";
 import { BitwardenSubscriber, mapAccountToSubscriber } from "../../../types";
 import {
   UpgradeAccountDialogComponent,
+  UpgradeAccountDialogParams,
   UpgradeAccountDialogResult,
   UpgradeAccountDialogStatus,
 } from "../upgrade-account-dialog/upgrade-account-dialog.component";
@@ -54,15 +55,22 @@ export class UpgradeFlowService {
    * it will navigate to the appropriate subscription page.
    *
    * @param autoNavigate Whether to automatically navigate on success (default: true)
+   * @param upgradeAccountDialogTitleMessageOverride String value to override the upgrade account
+   *  dialog's title with, if provided
    * @returns A promise resolving to the upgrade flow result
    */
-  async startUpgradeFlow(autoNavigate = true): Promise<UpgradeFlowResult> {
+  async startUpgradeFlow(
+    autoNavigate = true,
+    upgradeAccountDialogTitleMessageOverride?: string,
+  ): Promise<UpgradeFlowResult> {
     if (!this.subscriber) {
       throw new Error("No active subscriber found for upgrade flow");
     }
 
     while (true) {
-      const accountResult = await this.openUpgradeAccountDialog();
+      const accountResult = await this.openUpgradeAccountDialog(
+        upgradeAccountDialogTitleMessageOverride,
+      );
       if (
         !accountResult ||
         accountResult.status !== UpgradeAccountDialogStatus.ProceededToPayment
@@ -83,8 +91,14 @@ export class UpgradeFlowService {
     }
   }
 
-  private async openUpgradeAccountDialog(): Promise<UpgradeAccountDialogResult | undefined> {
-    this.upgradeToPremiumDialogRef = UpgradeAccountDialogComponent.open(this.dialogService);
+  private async openUpgradeAccountDialog(
+    dialogTitleMessageOverride?: string,
+  ): Promise<UpgradeAccountDialogResult | undefined> {
+    this.upgradeToPremiumDialogRef = UpgradeAccountDialogComponent.open(this.dialogService, {
+      data: {
+        dialogTitleMessageOverride: dialogTitleMessageOverride,
+      } as UpgradeAccountDialogParams,
+    });
     const result = await lastValueFrom(this.upgradeToPremiumDialogRef.closed);
     this.upgradeToPremiumDialogRef = undefined;
     return result;

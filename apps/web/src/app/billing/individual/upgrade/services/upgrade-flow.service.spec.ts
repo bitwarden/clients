@@ -107,7 +107,11 @@ describe("UpgradeFlowService", () => {
 
       // Assert
       expect(result).toBe(UpgradeFlowResult.Cancelled);
-      expect(UpgradeAccountDialogComponent.open).toHaveBeenCalledWith(dialogService);
+      expect(UpgradeAccountDialogComponent.open).toHaveBeenCalledWith(dialogService, {
+        data: {
+          dialogTitleMessageOverride: undefined,
+        },
+      });
       expect(UpgradePaymentDialogComponent.open).not.toHaveBeenCalled();
     });
 
@@ -131,7 +135,11 @@ describe("UpgradeFlowService", () => {
 
       // Assert
       expect(result).toBe(UpgradeFlowResult.Upgraded);
-      expect(UpgradeAccountDialogComponent.open).toHaveBeenCalledWith(dialogService);
+      expect(UpgradeAccountDialogComponent.open).toHaveBeenCalledWith(dialogService, {
+        data: {
+          dialogTitleMessageOverride: undefined,
+        },
+      });
       expect(UpgradePaymentDialogComponent.open).toHaveBeenCalledWith(
         dialogService,
         expect.objectContaining({
@@ -165,7 +173,11 @@ describe("UpgradeFlowService", () => {
 
       // Assert
       expect(result).toBe(UpgradeFlowResult.Upgraded);
-      expect(UpgradeAccountDialogComponent.open).toHaveBeenCalledWith(dialogService);
+      expect(UpgradeAccountDialogComponent.open).toHaveBeenCalledWith(dialogService, {
+        data: {
+          dialogTitleMessageOverride: undefined,
+        },
+      });
       expect(UpgradePaymentDialogComponent.open).toHaveBeenCalledWith(
         dialogService,
         expect.objectContaining({
@@ -214,8 +226,16 @@ describe("UpgradeFlowService", () => {
       expect(result).toBe(UpgradeFlowResult.Cancelled);
       expect(UpgradeAccountDialogComponent.open).toHaveBeenCalledTimes(2);
       expect(UpgradePaymentDialogComponent.open).toHaveBeenCalledTimes(1);
-      expect(UpgradeAccountDialogComponent.open).toHaveBeenNthCalledWith(1, dialogService);
-      expect(UpgradeAccountDialogComponent.open).toHaveBeenNthCalledWith(2, dialogService);
+      expect(UpgradeAccountDialogComponent.open).toHaveBeenNthCalledWith(1, dialogService, {
+        data: {
+          dialogTitleMessageOverride: undefined,
+        },
+      });
+      expect(UpgradeAccountDialogComponent.open).toHaveBeenNthCalledWith(2, dialogService, {
+        data: {
+          dialogTitleMessageOverride: undefined,
+        },
+      });
       expect(UpgradePaymentDialogComponent.open).toHaveBeenNthCalledWith(1, dialogService, {
         data: {
           plan: PersonalSubscriptionPricingTierIds.Premium,
@@ -266,8 +286,16 @@ describe("UpgradeFlowService", () => {
       expect(result).toBe(UpgradeFlowResult.Upgraded);
       expect(UpgradeAccountDialogComponent.open).toHaveBeenCalledTimes(2);
       expect(UpgradePaymentDialogComponent.open).toHaveBeenCalledTimes(2);
-      expect(UpgradeAccountDialogComponent.open).toHaveBeenNthCalledWith(1, dialogService);
-      expect(UpgradeAccountDialogComponent.open).toHaveBeenNthCalledWith(2, dialogService);
+      expect(UpgradeAccountDialogComponent.open).toHaveBeenNthCalledWith(1, dialogService, {
+        data: {
+          dialogTitleMessageOverride: undefined,
+        },
+      });
+      expect(UpgradeAccountDialogComponent.open).toHaveBeenNthCalledWith(2, dialogService, {
+        data: {
+          dialogTitleMessageOverride: undefined,
+        },
+      });
       expect(UpgradePaymentDialogComponent.open).toHaveBeenNthCalledWith(1, dialogService, {
         data: {
           plan: PersonalSubscriptionPricingTierIds.Premium,
@@ -326,7 +354,11 @@ describe("UpgradeFlowService", () => {
 
       // Assert
       expect(result).toBe(UpgradeFlowResult.Cancelled);
-      expect(UpgradeAccountDialogComponent.open).toHaveBeenCalledWith(dialogService);
+      expect(UpgradeAccountDialogComponent.open).toHaveBeenCalledWith(dialogService, {
+        data: {
+          dialogTitleMessageOverride: undefined,
+        },
+      });
       expect(UpgradePaymentDialogComponent.open).not.toHaveBeenCalled();
     });
 
@@ -347,7 +379,11 @@ describe("UpgradeFlowService", () => {
 
       // Assert
       expect(result).toBe(UpgradeFlowResult.Cancelled);
-      expect(UpgradeAccountDialogComponent.open).toHaveBeenCalledWith(dialogService);
+      expect(UpgradeAccountDialogComponent.open).toHaveBeenCalledWith(dialogService, {
+        data: {
+          dialogTitleMessageOverride: undefined,
+        },
+      });
       expect(UpgradePaymentDialogComponent.open).toHaveBeenCalledWith(
         dialogService,
         expect.objectContaining({

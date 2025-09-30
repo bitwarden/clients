@@ -4,7 +4,7 @@ import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { DialogRef, DialogService } from "@bitwarden/components";
+import { DIALOG_DATA, DialogRef, DialogService } from "@bitwarden/components";
 import { PricingCardComponent } from "@bitwarden/pricing";
 
 import { BillingServicesModule } from "../../../services";
@@ -65,6 +65,7 @@ describe("UpgradeAccountDialogComponent", () => {
         { provide: DialogRef, useValue: mockDialogRef },
         { provide: I18nService, useValue: mockI18nService },
         { provide: SubscriptionPricingService, useValue: mockSubscriptionPricingService },
+        { provide: DIALOG_DATA, useValue: {} },
       ],
     })
       .overrideComponent(UpgradeAccountDialogComponent, {
@@ -139,9 +140,13 @@ describe("UpgradeAccountDialogComponent", () => {
   it("should return a DialogRef when open static method is called", () => {
     mockDialogService.open.mockReturnValue(mockDialogRef);
 
-    const result = UpgradeAccountDialogComponent.open(mockDialogService);
+    const dialogConfig = { data: {} };
+    const result = UpgradeAccountDialogComponent.open(mockDialogService, dialogConfig);
 
-    expect(mockDialogService.open).toHaveBeenCalledWith(UpgradeAccountDialogComponent);
+    expect(mockDialogService.open).toHaveBeenCalledWith(
+      UpgradeAccountDialogComponent,
+      dialogConfig,
+    );
     expect(result).toBe(mockDialogRef);
   });
 
@@ -154,6 +159,36 @@ describe("UpgradeAccountDialogComponent", () => {
     it("should return false for premium plan", () => {
       const result = sut["isFamiliesPlan"](PersonalSubscriptionPricingTierIds.Premium);
       expect(result).toBe(false);
+    });
+  });
+
+  describe("dialogTitle", () => {
+    it("should use default title when no override is provided", () => {
+      expect(sut.dialogTitle).toBe("individualUpgradeWelcomeMessage");
+    });
+
+    it("should use override title when provided in dialog config", async () => {
+      TestBed.resetTestingModule();
+
+      await TestBed.configureTestingModule({
+        imports: [NoopAnimationsModule, UpgradeAccountDialogComponent, PricingCardComponent],
+        providers: [
+          { provide: DialogRef, useValue: mockDialogRef },
+          { provide: I18nService, useValue: mockI18nService },
+          { provide: SubscriptionPricingService, useValue: mockSubscriptionPricingService },
+          { provide: DIALOG_DATA, useValue: { dialogTitleMessageOverride: "customTitleKey" } },
+        ],
+      })
+        .overrideComponent(UpgradeAccountDialogComponent, {
+          remove: { imports: [BillingServicesModule] },
+        })
+        .compileComponents();
+
+      const customFixture = TestBed.createComponent(UpgradeAccountDialogComponent);
+      const customComponent = customFixture.componentInstance;
+      customFixture.detectChanges();
+
+      expect(customComponent.dialogTitle).toBe("customTitleKey");
     });
   });
 });

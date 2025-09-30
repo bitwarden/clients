@@ -1,9 +1,14 @@
 import { TestBed } from "@angular/core/testing";
 import { mock, mockReset } from "jest-mock-extended";
+import { of } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
+import { OrganizationData } from "@bitwarden/common/admin-console/models/data/organization.data";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { OrganizationResponse } from "@bitwarden/common/admin-console/models/response/organization.response";
-import { Account } from "@bitwarden/common/auth/abstractions/account.service";
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { OrganizationBillingServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { TaxServiceAbstraction } from "@bitwarden/common/billing/abstractions/tax.service.abstraction";
 import { PaymentMethodType, PlanType } from "@bitwarden/common/billing/enums";
@@ -26,6 +31,8 @@ describe("UpgradePaymentService", () => {
   const mockLogService = mock<LogService>();
   const mockApiService = mock<ApiService>();
   const mockSyncService = mock<SyncService>();
+  const mockOrganizationService = mock<OrganizationService>();
+  const mockAccountService = mock<AccountService>();
 
   mockApiService.refreshIdentityToken.mockResolvedValue({});
   mockSyncService.fullSync.mockResolvedValue(true);
@@ -94,6 +101,11 @@ describe("UpgradePaymentService", () => {
     mockReset(mockSubscriberBillingClient);
     mockReset(mockTaxService);
     mockReset(mockLogService);
+    mockReset(mockOrganizationService);
+    mockReset(mockAccountService);
+
+    mockAccountService.activeAccount$ = of(null);
+    mockOrganizationService.organizations$.mockReturnValue(of([]));
 
     TestBed.configureTestingModule({
       providers: [
@@ -108,10 +120,202 @@ describe("UpgradePaymentService", () => {
         { provide: LogService, useValue: mockLogService },
         { provide: ApiService, useValue: mockApiService },
         { provide: SyncService, useValue: mockSyncService },
+        { provide: OrganizationService, useValue: mockOrganizationService },
+        { provide: AccountService, useValue: mockAccountService },
       ],
     });
 
     sut = TestBed.inject(UpgradePaymentService);
+  });
+
+  describe("userIsOwnerOfFreeOrg$", () => {
+    it("should return true when user is owner of a free organization", (done) => {
+      // Arrange
+      mockReset(mockAccountService);
+      mockReset(mockOrganizationService);
+
+      const mockAccount: Account = {
+        id: "user-id" as UserId,
+        email: "test@example.com",
+        name: "Test User",
+        emailVerified: true,
+      };
+
+      const paidOrgData = {
+        id: "org-1",
+        name: "Paid Org",
+        useTotp: true, // useTotp = true means NOT free
+        type: OrganizationUserType.Owner,
+      } as OrganizationData;
+
+      const freeOrgData = {
+        id: "org-2",
+        name: "Free Org",
+        useTotp: false, // useTotp = false means IS free
+        type: OrganizationUserType.Owner,
+      } as OrganizationData;
+
+      const paidOrg = new Organization(paidOrgData);
+      const freeOrg = new Organization(freeOrgData);
+      const mockOrganizations = [paidOrg, freeOrg];
+
+      mockAccountService.activeAccount$ = of(mockAccount);
+      mockOrganizationService.organizations$.mockReturnValue(of(mockOrganizations));
+
+      const service = new UpgradePaymentService(
+        mockOrganizationBillingService,
+        mockSubscriberBillingClient,
+        mockTaxService,
+        mockLogService,
+        mockApiService,
+        mockSyncService,
+        mockOrganizationService,
+        mockAccountService,
+      );
+
+      // Act & Assert
+      service.userIsOwnerOfFreeOrg$.subscribe((result) => {
+        expect(result).toBe(true);
+        done();
+      });
+    });
+
+    it("should return false when user is not owner of any free organization", (done) => {
+      // Arrange
+      mockReset(mockAccountService);
+      mockReset(mockOrganizationService);
+
+      const mockAccount: Account = {
+        id: "user-id" as UserId,
+        email: "test@example.com",
+        name: "Test User",
+        emailVerified: true,
+      };
+
+      const paidOrgData = {
+        id: "org-1",
+        name: "Paid Org",
+        useTotp: true, // useTotp = true means NOT free
+        type: OrganizationUserType.Owner,
+      } as OrganizationData;
+
+      const freeOrgData = {
+        id: "org-2",
+        name: "Free Org",
+        useTotp: false, // useTotp = false means IS free
+        type: OrganizationUserType.User, // Not owner
+      } as OrganizationData;
+
+      const paidOrg = new Organization(paidOrgData);
+      const freeOrg = new Organization(freeOrgData);
+      const mockOrganizations = [paidOrg, freeOrg];
+
+      mockAccountService.activeAccount$ = of(mockAccount);
+      mockOrganizationService.organizations$.mockReturnValue(of(mockOrganizations));
+
+      const service = new UpgradePaymentService(
+        mockOrganizationBillingService,
+        mockSubscriberBillingClient,
+        mockTaxService,
+        mockLogService,
+        mockApiService,
+        mockSyncService,
+        mockOrganizationService,
+        mockAccountService,
+      );
+
+      // Act & Assert
+      service.userIsOwnerOfFreeOrg$.subscribe((result) => {
+        expect(result).toBe(false);
+        done();
+      });
+    });
+
+    it("should return false when user has no organizations", (done) => {
+      // Arrange
+      mockReset(mockAccountService);
+      mockReset(mockOrganizationService);
+
+      const mockAccount: Account = {
+        id: "user-id" as UserId,
+        email: "test@example.com",
+        name: "Test User",
+        emailVerified: true,
+      };
+
+      mockAccountService.activeAccount$ = of(mockAccount);
+      mockOrganizationService.organizations$.mockReturnValue(of([]));
+
+      const service = new UpgradePaymentService(
+        mockOrganizationBillingService,
+        mockSubscriberBillingClient,
+        mockTaxService,
+        mockLogService,
+        mockApiService,
+        mockSyncService,
+        mockOrganizationService,
+        mockAccountService,
+      );
+
+      // Act & Assert
+      service.userIsOwnerOfFreeOrg$.subscribe((result) => {
+        expect(result).toBe(false);
+        done();
+      });
+    });
+  });
+
+  describe("adminConsoleRouteForOwnedOrganization$", () => {
+    it("should return the admin console route for the first free organization the user owns", (done) => {
+      // Arrange
+      mockReset(mockAccountService);
+      mockReset(mockOrganizationService);
+
+      const mockAccount: Account = {
+        id: "user-id" as UserId,
+        email: "test@example.com",
+        name: "Test User",
+        emailVerified: true,
+      };
+
+      const paidOrgData = {
+        id: "org-1",
+        name: "Paid Org",
+        useTotp: true, // useTotp = true means NOT free
+        type: OrganizationUserType.Owner,
+      } as OrganizationData;
+
+      const freeOrgData = {
+        id: "org-2",
+        name: "Free Org",
+        useTotp: false, // useTotp = false means IS free
+        type: OrganizationUserType.Owner,
+      } as OrganizationData;
+
+      const paidOrg = new Organization(paidOrgData);
+      const freeOrg = new Organization(freeOrgData);
+      const mockOrganizations = [paidOrg, freeOrg];
+
+      mockAccountService.activeAccount$ = of(mockAccount);
+      mockOrganizationService.organizations$.mockReturnValue(of(mockOrganizations));
+
+      const service = new UpgradePaymentService(
+        mockOrganizationBillingService,
+        mockSubscriberBillingClient,
+        mockTaxService,
+        mockLogService,
+        mockApiService,
+        mockSyncService,
+        mockOrganizationService,
+        mockAccountService,
+      );
+
+      // Act & Assert
+      service.adminConsoleRouteForOwnedOrganization$.subscribe((result) => {
+        expect(result).toBe("/organizations/org-2/billing/subscription");
+        done();
+      });
+    });
   });
 
   describe("calculateEstimatedTax", () => {
