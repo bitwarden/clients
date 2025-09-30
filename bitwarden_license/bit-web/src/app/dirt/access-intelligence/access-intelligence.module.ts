@@ -28,20 +28,24 @@ import { RiskInsightsComponent } from "./risk-insights.component";
 @NgModule({
   imports: [RiskInsightsComponent, AccessIntelligenceRoutingModule],
   providers: [
-    {
+    safeProvider({
       provide: MemberCipherDetailsApiService,
+      useClass: MemberCipherDetailsApiService,
       deps: [ApiService],
-    },
-    {
+    }),
+    safeProvider({
       provide: PasswordHealthService,
+      useClass: PasswordHealthService,
       deps: [PasswordStrengthServiceAbstraction, AuditService],
-    },
-    {
+    }),
+    safeProvider({
       provide: RiskInsightsApiService,
+      useClass: RiskInsightsApiService,
       deps: [ApiService],
-    },
-    {
+    }),
+    safeProvider({
       provide: RiskInsightsReportService,
+      useClass: RiskInsightsReportService,
       deps: [
         CipherService,
         MemberCipherDetailsApiService,
@@ -49,7 +53,7 @@ import { RiskInsightsComponent } from "./risk-insights.component";
         RiskInsightsApiService,
         RiskInsightsEncryptionService,
       ],
-    },
+    }),
     safeProvider({
       provide: RiskInsightsDataService,
       deps: [
@@ -77,7 +81,7 @@ import { RiskInsightsComponent } from "./risk-insights.component";
     safeProvider({
       provide: AllActivitiesService,
       useClass: AllActivitiesService,
-      deps: [],
+      deps: [RiskInsightsDataService],
     }),
   ],
 })
