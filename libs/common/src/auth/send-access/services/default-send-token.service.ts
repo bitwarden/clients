@@ -223,7 +223,7 @@ export class DefaultSendTokenService implements SendTokenServiceAbstraction {
           return rest;
         },
         {
-          // only update if the value is defined (to avoid unnecessary reads)
+          // only update if the value is defined (to avoid unnecessary writes)
           shouldUpdate: (prevDict) => prevDict?.[sendId] != null,
         },
       );
