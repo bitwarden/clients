@@ -17,6 +17,10 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { TooltipPosition, TooltipPositionIdentifier, tooltipPositions } from "./tooltip-positions";
 import { TooltipComponent, TOOLTIP_DATA } from "./tooltip.component";
 
+/**
+ * Directive to add a tooltip to any element. The tooltip content is provided via the `bitTooltip` input.
+ * The position of the tooltip can be set via the `tooltipPosition` input. Default position is "above-center".
+ */
 @Directive({
   selector: "[bitTooltip]",
   standalone: true,

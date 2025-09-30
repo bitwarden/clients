@@ -57,6 +57,12 @@ export default {
       control: "select",
       options: tooltipPositions.map((position: TooltipPosition) => position.id),
       description: "Position of the tooltip relative to the element",
+      table: {
+        type: {
+          summary: tooltipPositions.map((position: TooltipPosition) => position.id).join(" | "),
+        },
+        defaultValue: { summary: "above-center" },
+      },
     },
   },
 } as Meta<TooltipDirective>;
