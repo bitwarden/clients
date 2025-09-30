@@ -3,8 +3,6 @@ import { BehaviorSubject, firstValueFrom, take, timeout } from "rxjs";
 
 import { AuthRequestServiceAbstraction } from "@bitwarden/auth/common";
 import { AccountInfo, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { DevicesServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices/devices.service.abstraction";
-import { DeviceView } from "@bitwarden/common/auth/abstractions/devices/views/device.view";
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { DeviceType } from "@bitwarden/common/enums";
@@ -32,7 +30,6 @@ describe("VaultBannersService", () => {
   const accounts$ = new BehaviorSubject<Record<UserId, AccountInfo>>({
     [userId]: { email: "test@bitwarden.com", emailVerified: true, name: "name" } as AccountInfo,
   });
-  const devices$ = new BehaviorSubject<DeviceView[]>([]);
   const pendingAuthRequests$ = new BehaviorSubject<Array<AuthRequestResponse>>([]);
 
   beforeEach(() => {
@@ -56,20 +53,12 @@ describe("VaultBannersService", () => {
           useValue: fakeStateProvider,
         },
         {
-          provide: PlatformUtilsService,
-          useValue: { isSelfHost },
-        },
-        {
           provide: AccountService,
           useValue: { accounts$ },
         },
         {
           provide: SyncService,
           useValue: { lastSync$: () => lastSync$ },
-        },
-        {
-          provide: DevicesServiceAbstraction,
-          useValue: { getDevices$: () => devices$ },
         },
         {
           provide: AuthRequestServiceAbstraction,
