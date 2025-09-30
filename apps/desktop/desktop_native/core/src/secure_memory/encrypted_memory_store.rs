@@ -16,6 +16,9 @@ pub(crate) struct EncryptedMemoryStore {
     key: SecureMemoryEncryptionKey,
 }
 
+unsafe impl Sync for EncryptedMemoryStore {}
+unsafe impl Send for EncryptedMemoryStore {}
+
 impl EncryptedMemoryStore {
     #[allow(unused)]
     pub(crate) fn new() -> Self {

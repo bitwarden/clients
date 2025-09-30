@@ -7,12 +7,19 @@ use linux_keyutils::{KeyRing, KeyRingIdentifier};
 /// The keys are bound to the process keyring. The kernel enforces only the correct process can read them, and they
 /// do not live in process memory space and cannot be dumped. `https://man7.org/linux/man-pages/man1/keyctl.1.html`
 const KEY_RING_IDENTIFIER: KeyRingIdentifier = KeyRingIdentifier::Process;
+
 /// This is a global static ID counter. Each new key gets a new ID.
 static COUNTER: std::sync::Mutex<u64> = std::sync::Mutex::new(0);
+fn generate_id() -> String {
+    let mut counter = COUNTER.lock().expect("should lock counter");
+    *counter += 1;
+    format!("bitwarden_desktop_{}_{}", rand::random::<i64>(), *counter)
+}
 
 /// A secure key container that uses the Linux kernel keyctl API to store the key.
+/// `https://man7.org/linux/man-pages/man1/keyctl.1.html`
 pub(super) struct KeyctlSecureKeyContainer {
-    /// The kernel has an identifier for the key. This is randomly generated on construction.
+    /// The kernel has a string identifier for the key. This is randomly generated on construction.
     id: String,
 }
 
@@ -27,11 +34,7 @@ impl SecureKeyContainer for KeyctlSecureKeyContainer {
     }
 
     fn from_key(data: MemoryEncryptionKey) -> Self {
-        let id = {
-            let mut counter = COUNTER.lock().expect("should lock counter");
-            *counter += 1;
-            format!("bitwarden_desktop_{}_{}", rand::random::<i64>(), *counter)
-        };
+        let id = generate_id();
         let ring = KeyRing::from_special_id(KEY_RING_IDENTIFIER, true)
             .expect("should get process keyring");
         ring.add_key(&id, &data).expect("should add key");
