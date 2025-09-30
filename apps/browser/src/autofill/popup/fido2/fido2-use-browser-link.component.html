@@ -1,4 +1,4 @@
-@if (fido2PopoutSessionData$ | async) {
+@if ((fido2PopoutSessionData$ | async).fallbackSupported) {
   <div class="tw-flex tw-items-center tw-justify-center tw-p-2">
     <button type="button" [bitMenuTriggerFor]="deviceMenu">
       <span bitTypography="body2">
