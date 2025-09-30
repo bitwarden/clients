@@ -79,7 +79,6 @@ const clientTypeToSuccessRouteRecord: Partial<Record<ClientType, string>> = {
 type AfterUnlockActions = {
   passwordEvaluation?: {
     masterPassword: string;
-    shouldEvaluate: boolean;
   };
 };
 
@@ -589,7 +588,7 @@ export class LockComponent implements OnInit, OnDestroy {
     }
 
     await this.setUserKeyAndContinue(userKey, {
-      passwordEvaluation: { masterPassword, shouldEvaluate: true },
+      passwordEvaluation: { masterPassword },
     });
   }
 
@@ -607,7 +606,6 @@ export class LockComponent implements OnInit, OnDestroy {
     await this.setUserKeyAndContinue(event.userKey, {
       passwordEvaluation: {
         masterPassword: event.masterPassword,
-        shouldEvaluate: true,
       },
     });
   }
@@ -640,7 +638,7 @@ export class LockComponent implements OnInit, OnDestroy {
     await this.biometricStateService.resetUserPromptCancelled();
     this.messagingService.send("unlocked");
 
-    if (afterUnlockActions.passwordEvaluation?.shouldEvaluate) {
+    if (afterUnlockActions.passwordEvaluation) {
       const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
       if (userId == null) {
         throw new Error("No active user.");
