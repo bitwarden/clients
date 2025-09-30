@@ -4,6 +4,7 @@ import { firstValueFrom, Observable, Subject, switchMap, takeUntil, takeWhile } 
 
 import { Integration } from "@bitwarden/bit-common/dirt/organization-integrations/models/integration";
 import { OrganizationIntegrationServiceType } from "@bitwarden/bit-common/dirt/organization-integrations/models/organization-integration-service-type";
+import { DatadogOrganizationIntegrationService } from "@bitwarden/bit-common/dirt/organization-integrations/services/datadog-organization-integration-service";
 import { HecOrganizationIntegrationService } from "@bitwarden/bit-common/dirt/organization-integrations/services/hec-organization-integration-service";
 import {
   getOrganizationById,
@@ -228,6 +229,7 @@ export class AdminConsoleIntegrationsComponent implements OnInit, OnDestroy {
     // Sets the organization ID which also loads the integrations$
     this.organization$.pipe(takeUntil(this.destroy$)).subscribe((org) => {
       this.hecOrganizationIntegrationService.setOrganizationIntegrations(org.id);
+      this.datadogOrganizationIntegrationService.setOrganizationIntegrations(org.id);
     });
   }
 
@@ -237,6 +239,7 @@ export class AdminConsoleIntegrationsComponent implements OnInit, OnDestroy {
     private accountService: AccountService,
     private configService: ConfigService,
     private hecOrganizationIntegrationService: HecOrganizationIntegrationService,
+    private datadogOrganizationIntegrationService: DatadogOrganizationIntegrationService,
   ) {
     this.configService
       .getFeatureFlag$(FeatureFlag.EventBasedOrganizationIntegrations)
@@ -254,6 +257,7 @@ export class AdminConsoleIntegrationsComponent implements OnInit, OnDestroy {
         type: IntegrationType.EVENT,
         description: "crowdstrikeEventIntegrationDesc",
         canSetupConnection: true,
+        integrationType: 5, // Assuming 5 corresponds to CrowdStrike in OrganizationIntegrationType
       };
 
       this.integrationsList.push(crowdstrikeIntegration);
@@ -261,11 +265,12 @@ export class AdminConsoleIntegrationsComponent implements OnInit, OnDestroy {
       const datadogIntegration: Integration = {
         name: OrganizationIntegrationServiceType.Datadog,
         // TODO: Update link when help article is published
-        linkURL: "https://bitwarden.com/help/non-native-siem/",
+        linkURL: "",
         image: "../../../../../../../images/integrations/logo-datadog-color.svg",
         type: IntegrationType.EVENT,
         description: "datadogEventIntegrationDesc",
         canSetupConnection: true,
+        integrationType: 6, // Assuming 6 corresponds to Datadog in OrganizationIntegrationType
       };
 
       this.integrationsList.push(datadogIntegration);
@@ -274,6 +279,22 @@ export class AdminConsoleIntegrationsComponent implements OnInit, OnDestroy {
     // For all existing event based configurations loop through and assign the
     // organizationIntegration for the correct services.
     this.hecOrganizationIntegrationService.integrations$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((integrations) => {
+        // reset all integrations to null first - in case one was deleted
+        this.integrationsList.forEach((i) => {
+          i.organizationIntegration = null;
+        });
+
+        integrations.map((integration) => {
+          const item = this.integrationsList.find((i) => i.name === integration.serviceType);
+          if (item) {
+            item.organizationIntegration = integration;
+          }
+        });
+      });
+
+    this.datadogOrganizationIntegrationService.integrations$
       .pipe(takeUntil(this.destroy$))
       .subscribe((integrations) => {
         // reset all integrations to null first - in case one was deleted
