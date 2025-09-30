@@ -1,6 +1,6 @@
 @if (fido2PopoutSessionData$ | async) {
   <div class="tw-flex tw-items-center tw-justify-center tw-p-2">
-    <button bitButton type="button" [bitMenuTriggerFor]="deviceMenu" aria-haspopup="dialog">
+    <button type="button" [bitMenuTriggerFor]="deviceMenu">
       <span bitTypography="body2">
         {{ "useDeviceOrHardwareKey" | i18n }}
       </span>
