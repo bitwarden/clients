@@ -4122,9 +4122,8 @@
     "message": "Archive",
     "descripton": "Noun"
   },
-  "unArchiveVerb": {
-    "message": "Unarchive",
-    "descripton": "Verb"
+  "unArchive": {
+    "message": "Unarchive"
   },
   "itemsInArchive": {
     "message": "Items in archive"
