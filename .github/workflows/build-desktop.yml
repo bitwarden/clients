@@ -801,18 +801,6 @@ jobs:
           Copy-Item "./dist/Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-arm64.appx" `
             -Destination "./dist/Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-arm64-store.appx"
 
-      - name: Package for Chocolatey
-        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        run: |
-          Copy-Item -Path ./stores/chocolatey -Destination ./dist/chocolatey -Recurse
-          Copy-Item -Path ./dist/nsis-web/Bitwarden-Beta-Installer-${{ env._PACKAGE_VERSION }}.exe `
-          -Destination ./dist/chocolatey
-
-          $checksum = checksum -t sha256 ./dist/chocolatey/Bitwarden-Beta-Installer-${{ env._PACKAGE_VERSION }}.exe
-          $chocoInstall = "./dist/chocolatey/tools/chocolateyinstall.ps1"
-          (Get-Content $chocoInstall).replace('__version__', "$env:_PACKAGE_VERSION").replace('__checksum__', $checksum) | Set-Content $chocoInstall
-          choco pack ./dist/chocolatey/bitwarden.nuspec --version "$env:_PACKAGE_VERSION" --out ./dist/chocolatey
-
       - name: Fix NSIS artifact names for auto-updater
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         run: |
@@ -908,14 +896,6 @@ jobs:
         with:
           name: bitwarden-beta-${{ env._PACKAGE_VERSION }}-arm64.nsis.7z
           path: apps/desktop/dist/nsis-web/bitwarden-beta-${{ env._PACKAGE_VERSION }}-arm64.nsis.7z
-          if-no-files-found: error
-
-      - name: Upload nupkg artifact
-        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
-        with:
-          name: bitwarden.${{ env._PACKAGE_VERSION }}.nupkg
-          path: apps/desktop/dist/chocolatey/bitwarden.${{ env._PACKAGE_VERSION }}.nupkg
           if-no-files-found: error
 
       - name: Upload auto-update artifact
