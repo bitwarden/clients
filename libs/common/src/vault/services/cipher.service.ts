@@ -1194,7 +1194,9 @@ export class CipherService implements CipherServiceAbstraction {
       .getUser(userId, ENCRYPTED_CIPHERS)
       .update(() => proposed);
 
-    await new Promise((r) => setTimeout(r, 0));
+    // Some state storage providers (e.g. Electron) don't update the state immediately, wait for next tick
+    // Otherwise, subscribers to cipherViews$ can get stale data
+    await new Promise((resolve) => setTimeout(resolve, 0));
     return updatedCiphers;
   }
 
