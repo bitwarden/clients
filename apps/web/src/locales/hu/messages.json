@@ -5557,6 +5557,13 @@
   "personalOwnershipSubmitError": {
     "message": "Egy vállalati házirend miatt korlátozásra került az elemek személyes tárolóba történő mentése. Módosítsuk a Tulajdon opciót egy szervezetre és válasszunk az elérhető gyűjtemények közül."
   },
+  "desktopAutotypePolicy": {
+    "message": "Asztali automatikus típus aapértelmezett beállítás"
+  },
+  "desktopAutotypePolicyDesc": {
+    "message": "Az asztali atumatikus típus alapértelmezés szerint bekapcsolásra kerül a tagok számára. A tagok manuálisan kikapcsolhatják az automatikus típus funkciót az Asztal kliensben.",
+    "description": "This policy will enable Desktop Autotype by default for members on Unlock."
+  },
   "disableSend": {
     "message": "Send letiltása"
   },
@@ -6720,6 +6727,15 @@
   },
   "disabledSso": {
     "message": "Az SSO bekapcsolásra került."
+  },
+  "emailMustLoginWithSso": {
+    "message": "$EMAIL$ segítségével be kell jelentkezni egyszeri bejelentkezéssel.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
   },
   "enabledKeyConnector": {
     "message": "Bekapcsolt kulcskapcsoló"
@@ -11005,6 +11021,18 @@
   "cannotCreateCollection": {
     "message": "Az ingyenes szervezeteknek legfeljebb 2 gyűjteményük lehet. Térjünk át egy fizetett csomagra további gyűjtemények hozzáadásához."
   },
+  "searchArchive": {
+    "message": "Keresés archívum"
+  },
+  "archive": {
+    "message": "Archívum"
+  },
+  "noItemsInArchive": {
+    "message": "Nincs elem az archívumban."
+  },
+  "archivedItemsDescription": {
+    "message": "Az archivált elemek itt jelennek meg és kizárásra kerülnek az általános keresési eredményekből és az automatikus kitöltési javaslatokból."
+  },
   "businessUnit": {
     "message": "Üzleti egység"
   },
@@ -11337,5 +11365,137 @@
   },
   "verifyNow": {
     "message": "Ellenőrzés most"
+  },
+  "additionalStorageGB": {
+    "message": "Kiegészítő tárhely (GB)"
+  },
+  "additionalServiceAccountsV2": {
+    "message": "Kiegészítő gépi fiókok"
+  },
+  "secretsManagerSeats": {
+    "message": "Titkos kód kezelő helyek"
+  },
+  "additionalStorage": {
+    "message": "Kiegészítő tárhely"
+  },
+  "expandPurchaseDetails": {
+    "message": "Vásárlás részletek kinyitása"
+  },
+  "collapsePurchaseDetails": {
+    "message": "Vásárlás részletek összezárása"
+  },
+  "familiesMembership": {
+    "message": "Családi tagság"
+  },
+  "planDescPremium": {
+    "message": "Teljes körű online biztonság"
+  },
+  "planDescFamiliesV2": {
+    "message": "Prémium biztonság a család számára"
+  },
+  "planDescFreeV2": {
+    "message": "Megosztás $COUNT$ másik felhasználóval",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "planDescEnterpriseV2": {
+    "message": "Fejlett képességek bármely szervezet számára"
+  },
+  "planNameCustom": {
+    "message": "Egyedi csomag"
+  },
+  "planDescCustom": {
+    "message": "A Bitwarden bármilyen méretű vállalkozásra kiterjed a jelszavak és érzékeny információk biztonsága érdekében. Ha egy nagyvállalat tagja vagyunk, lépjünk kapcsolatba az értékesítéssel ajánlat kéréshez."
+  },
+  "builtInAuthenticator": {
+    "message": "Beépített hitelesítés"
+  },
+  "breachMonitoring": {
+    "message": "Adatszivárgás figyelés"
+  },
+  "andMoreFeatures": {
+    "message": "És sok más!"
+  },
+  "secureFileStorage": {
+    "message": "Biztonságos fájl tárolás"
+  },
+  "familiesUnlimitedSharing": {
+    "message": "Korlátlan megosztás - válasszuk ki, ki mit láthat"
+  },
+  "familiesUnlimitedCollections": {
+    "message": "Korlátlan családi gyűjtemény"
+  },
+  "familiesSharedStorage": {
+    "message": "Megosztott tárhely a fontos családi információkhoz"
+  },
+  "limitedUsersV2": {
+    "message": "Legfeljebb $COUNT$ tag részére",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "limitedCollectionsV2": {
+    "message": "Legfeljebb $COUNT$ gyűjtemény",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "alwaysFree": {
+    "message": "Mindig ingyenes"
+  },
+  "twoSecretsIncluded": {
+    "message": "2 titkos kód"
+  },
+  "projectsIncludedV2": {
+    "message": "$COUNT$ projekt",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "secureItemSharing": {
+    "message": "Biztonságos elem megosztás"
+  },
+  "scimSupport": {
+    "message": "SCIM támogatás"
+  },
+  "includedMachineAccountsV2": {
+    "message": "$COUNT$ gépi fiók",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
+  },
+  "enterpriseSecurityPolicies": {
+    "message": "Vállalati biztonsági irányelvek"
+  },
+  "selfHostOption": {
+    "message": "Öntároló opció"
+  },
+  "complimentaryFamiliesPlan": {
+    "message": "Kiegészítő családi csomag minden felhasználó számára"
+  },
+  "strengthenCybersecurity": {
+    "message": "A kiberbiztonság megerősítése"
+  },
+  "boostProductivity": {
+    "message": "Produktivitás növelése"
+  },
+  "seamlessIntegration": {
+    "message": "Zökkenőmentes integráció"
   }
 }
