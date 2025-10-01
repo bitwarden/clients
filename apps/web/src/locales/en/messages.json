@@ -1508,6 +1508,30 @@
   "noItemsInList": {
     "message": "There are no items to list."
   },
+  "noItemsInTrash": {
+    "message": "No items in trash"
+  },
+  "noItemsInTrashDesc": {
+    "message": "Items you delete will appear here and be permanently deleted after 30 days"
+  },
+  "noItemsInVault": {
+    "message": "No items in the vault"
+  },
+  "emptyVaultDescription": {
+    "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
+  },
+  "emptyFavorites": {
+    "message": "You haven't favorited any items"
+  },
+  "emptyFavoritesDesc": {
+    "message": "Add frequently used items to favorites for quick access."
+  },
+  "noSearchResults": {
+    "message": "No search results returned"
+  },
+  "clearFiltersOrTryAnother": {
+    "message": "Clear filters or try another search term"
+  },
   "noPermissionToViewAllCollectionItems": {
     "message": "You do not have permission to view all items in this collection."
   },
@@ -4804,6 +4828,12 @@
   "organizationIsDisabled": {
     "message": "Organization suspended"
   },
+  "organizationIsSuspended": {
+    "message": "Organization is suspended"
+  },
+  "organizationIsSuspendedDesc": {
+    "message": "Items in suspended organizations cannot be accessed. Contact your organization owner for assistance."
+  },
   "secretsAccessSuspended": {
     "message": "Suspended organizations cannot be accessed. Please contact your organization owner for assistance."
   },
@@ -4815,9 +4845,6 @@
   },
   "serviceAccountsCannotCreate": {
     "message": "Service accounts cannot be created in suspended organizations. Please contact your organization owner for assistance."
-  },
-  "disabledOrganizationFilterError": {
-    "message": "Items in suspended organizations cannot be accessed. Contact your organization owner for assistance."
   },
   "licenseIsExpired": {
     "message": "License is expired."

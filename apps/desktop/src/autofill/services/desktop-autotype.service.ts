@@ -1,6 +1,6 @@
 import { combineLatest, filter, firstValueFrom, map, Observable, of, switchMap } from "rxjs";
 
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
@@ -109,9 +109,9 @@ export class DesktopAutotypeService {
           switchMap((userId) => this.authService.authStatusFor$(userId)),
         ),
         this.accountService.activeAccount$.pipe(
-          map((activeAccount) => activeAccount?.id),
-          switchMap((userId) =>
-            this.billingAccountProfileStateService.hasPremiumFromAnySource$(userId),
+          filter((account): account is Account => !!account),
+          switchMap((account) =>
+            this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
           ),
         ),
       ]).pipe(
