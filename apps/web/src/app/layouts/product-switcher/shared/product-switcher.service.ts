@@ -2,7 +2,16 @@
 // @ts-strict-ignore
 import { Injectable } from "@angular/core";
 import { ActivatedRoute, NavigationEnd, NavigationStart, ParamMap, Router } from "@angular/router";
-import { combineLatest, filter, map, Observable, ReplaySubject, startWith, switchMap } from "rxjs";
+import {
+  combineLatest,
+  filter,
+  map,
+  Observable,
+  of,
+  ReplaySubject,
+  startWith,
+  switchMap,
+} from "rxjs";
 
 import {
   canAccessOrgAdmin,
@@ -15,6 +24,9 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
@@ -99,6 +111,8 @@ export class ProductSwitcherService {
     private platformUtilsService: PlatformUtilsService,
     private policyService: PolicyService,
     private i18nService: I18nService,
+    private billingAccountProfileStateService: BillingAccountProfileStateService,
+    private configService: ConfigService,
   ) {
     this.pollUntilSynced();
   }
@@ -116,6 +130,20 @@ export class ProductSwitcherService {
   userHasSingleOrgPolicy$ = this.accountService.activeAccount$.pipe(
     getUserId,
     switchMap((userId) => this.policyService.policyAppliesToUser$(PolicyType.SingleOrg, userId)),
+  );
+
+  shouldShowPremiumUpgradeButton$: Observable<boolean> = combineLatest([
+    this.configService.getFeatureFlag$(FeatureFlag.PM24032_NewNavigationPremiumUpgradeButton),
+    this.accountService.activeAccount$,
+  ]).pipe(
+    switchMap(([featureFlag, account]) => {
+      if (!featureFlag || !account) {
+        return of(false);
+      }
+      return this.billingAccountProfileStateService
+        .hasPremiumFromAnySource$(account.id)
+        .pipe(map((hasPremium) => !hasPremium));
+    }),
   );
 
   products$: Observable<{

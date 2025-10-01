@@ -98,6 +98,10 @@ export class UpgradePaymentDialogComponent implements OnInit, AfterViewInit {
     @Inject(DIALOG_DATA) private dialogParams: UpgradePaymentDialogParams,
   ) {}
 
+  protected userIsOwnerOfFreeOrg$ = this.upgradePaymentService.userIsOwnerOfFreeOrg$;
+  protected adminConsoleRouteForOwnedOrganization$ =
+    this.upgradePaymentService.adminConsoleRouteForOwnedOrganization$;
+
   async ngOnInit(): Promise<void> {
     if (!this.isFamiliesPlan) {
       this.formGroup.controls.organizationName.disable();
