@@ -1,0 +1,33 @@
+<form [bitSubmit]="submit" [formGroup]="setShortcutForm">
+  <bit-dialog>
+    <div class="tw-font-semibold" bitDialogTitle>
+      {{ "typeShortcut" | i18n }}
+    </div>
+    <div bitDialogContent>
+      <p>
+        {{ "editAutotypeShortcutDescription" | i18n }}
+      </p>
+      <bit-form-field>
+        <bit-label>{{ "typeShortcut" | i18n }}</bit-label>
+        <input
+          class="tw-font-mono"
+          bitInput
+          type="text"
+          formControlName="shortcut"
+          (keydown)="onShortcutKeydown($event)"
+          autocomplete="off"
+          autocorrect="off"
+          autocapitalize="off"
+        />
+      </bit-form-field>
+    </div>
+    <ng-container bitDialogFooter>
+      <button type="submit" bitButton bitFormButton buttonType="primary">
+        <span>{{ "save" | i18n }}</span>
+      </button>
+      <button type="button" bitButton bitFormButton buttonType="secondary" bitDialogClose>
+        {{ "cancel" | i18n }}
+      </button>
+    </ng-container>
+  </bit-dialog>
+</form>
