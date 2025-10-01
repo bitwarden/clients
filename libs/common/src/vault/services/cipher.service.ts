@@ -1163,6 +1163,13 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   async replace(ciphers: { [id: string]: CipherData }, userId: UserId): Promise<any> {
+    const current = (await firstValueFrom(this.encryptedCiphersState(userId).state$)) ?? {};
+
+    // If nothing changed, do nothing
+    if (JSON.stringify(current) === JSON.stringify(ciphers)) {
+      return ciphers;
+    }
+
     await this.updateEncryptedCipherState(() => ciphers, userId);
   }
 
@@ -1177,22 +1184,14 @@ export class CipherService implements CipherServiceAbstraction {
   ): Promise<Record<CipherId, CipherData>> {
     userId ||= await firstValueFrom(this.stateProvider.activeUserId$);
 
-    const current = (await firstValueFrom(this.encryptedCiphersState(userId).state$)) ?? {};
-
-    // run the update against a clone to protect against mutating updaters
-    const clonedCurrent = JSON.parse(JSON.stringify(current));
-    const proposed = update(clonedCurrent) ?? clonedCurrent;
-
-    // If nothing changed, do nothing
-    if (JSON.stringify(current) === JSON.stringify(proposed)) {
-      return current;
-    }
-
     await this.clearCache(userId);
 
     const updatedCiphers = await this.stateProvider
       .getUser(userId, ENCRYPTED_CIPHERS)
-      .update(() => proposed);
+      .update((current) => {
+        const result = update(current ?? {});
+        return result;
+      });
 
     // Some state storage providers (e.g. Electron) don't update the state immediately, wait for next tick
     // Otherwise, subscribers to cipherViews$ can get stale data
