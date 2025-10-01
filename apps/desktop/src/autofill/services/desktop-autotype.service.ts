@@ -73,7 +73,9 @@ export class DesktopAutotypeService {
 
   async init() {
     this.autotypeEnabledUserSetting$ = this.autotypeEnabledState.state$;
-    this.autotypeKeyboardShortcut$ = this.autotypeKeyboardShortcut.state$;
+    this.autotypeKeyboardShortcut$ = this.autotypeKeyboardShortcut.state$.pipe(
+      map((shortcut) => shortcut ?? defaultWindowsAutotypeKeyboardShortcut),
+    );
 
     // Currently Autotype is only supported for Windows
     if (this.platformUtilsService.getDevice() === DeviceType.WindowsDesktop) {
