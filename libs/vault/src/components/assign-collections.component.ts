@@ -372,7 +372,7 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
           collection.id !== this.params.activeCollection?.id,
       )
       .map((collection) => ({
-        icon: "bwi-collection-shared",
+        icon: collection.icon,
         id: collection.id,
         labelName: collection.labelName,
         listName: collection.listName,
@@ -436,7 +436,8 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
       )
       .subscribe((collections) => {
         this.availableCollections = collections.map((c) => ({
-          icon: "bwi-collection-shared",
+          icon:
+            c.type === CollectionTypes.DefaultUserCollection ? "bwi-user" : "bwi-collection-shared",
           id: c.id,
           labelName: c.name,
           listName: c.name,

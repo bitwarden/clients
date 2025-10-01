@@ -2,7 +2,6 @@
 // @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
 
-import { CollectionService, CollectionTypes } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -27,7 +26,6 @@ export class ReusedPasswordsReportComponent extends CipherReportComponent implem
   ciphersToCheckForReusedPasswords: CipherView[] = [];
   passwordUseMap: Map<string, number>;
   disabled = true;
-  DefaultUserCollectionType = CollectionTypes.DefaultUserCollection;
 
   constructor(
     protected cipherService: CipherService,
@@ -39,7 +37,6 @@ export class ReusedPasswordsReportComponent extends CipherReportComponent implem
     syncService: SyncService,
     cipherFormConfigService: CipherFormConfigService,
     adminConsoleCipherFormConfigService: AdminConsoleCipherFormConfigService,
-    collectionService: CollectionService,
   ) {
     super(
       cipherService,
@@ -51,7 +48,6 @@ export class ReusedPasswordsReportComponent extends CipherReportComponent implem
       syncService,
       cipherFormConfigService,
       adminConsoleCipherFormConfigService,
-      collectionService,
     );
   }
 

@@ -2,7 +2,6 @@
 // @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
 
-import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -44,7 +43,6 @@ export class WeakPasswordsReportComponent extends CipherReportComponent implemen
     syncService: SyncService,
     cipherFormConfigService: CipherFormConfigService,
     protected adminConsoleCipherFormConfigService: AdminConsoleCipherFormConfigService,
-    protected collectionService: CollectionService,
   ) {
     super(
       cipherService,
@@ -56,7 +54,6 @@ export class WeakPasswordsReportComponent extends CipherReportComponent implemen
       syncService,
       cipherFormConfigService,
       adminConsoleCipherFormConfigService,
-      collectionService,
     );
   }
 

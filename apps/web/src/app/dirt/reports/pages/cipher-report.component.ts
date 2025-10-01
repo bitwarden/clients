@@ -11,11 +11,6 @@ import {
   takeUntil,
 } from "rxjs";
 
-import {
-  CollectionService,
-  CollectionTypes,
-  CollectionView,
-} from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -54,7 +49,6 @@ export class CipherReportComponent implements OnDestroy {
   organization: Organization;
   organizations: Organization[];
   organizations$: Observable<Organization[]>;
-  collections: CollectionView[] = [];
 
   filterStatus: any = [0];
   showFilterToggle: boolean = false;
@@ -74,7 +68,6 @@ export class CipherReportComponent implements OnDestroy {
     private syncService: SyncService,
     private cipherFormConfigService: CipherFormConfigService,
     protected adminConsoleCipherFormConfigService: AdminConsoleCipherFormConfigService,
-    protected collectionService: CollectionService,
   ) {
     this.organizations$ = this.accountService.activeAccount$.pipe(
       getUserId,
@@ -84,18 +77,6 @@ export class CipherReportComponent implements OnDestroy {
     this.organizations$.pipe(takeUntil(this.destroyed$)).subscribe((orgs) => {
       this.organizations = orgs;
     });
-
-    this.accountService.activeAccount$
-      .pipe(getUserId)
-      .pipe(takeUntil(this.destroyed$))
-      .pipe(
-        switchMap((userId) =>
-          this.collectionService.decryptedCollections$(userId).pipe(takeUntil(this.destroyed$)),
-        ),
-      )
-      .subscribe((collections) => {
-        this.collections = collections;
-      });
   }
 
   ngOnDestroy(): void {
@@ -319,11 +300,7 @@ export class CipherReportComponent implements OnDestroy {
       } else if (this.filterStatus.indexOf(1) === -1 && ciph.organizationId == null) {
         this.filterStatus.splice(1, 0, 1);
       }
-      const collections = this.collections.filter((col) => ciph.collectionIds.includes(col.id));
-      const icon = collections.find((col) => col.type === CollectionTypes.DefaultUserCollection)
-        ? "bwi-user"
-        : "bwi-collection-shared";
-      return { ...ciph, icon } as ReportCipherView;
+      return ciph;
     });
     this.dataSource.data = this.ciphers;
 

@@ -4,7 +4,6 @@ import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
-import { CollectionService } from "@bitwarden/admin-console/common";
 import {
   getOrganizationById,
   OrganizationService,
@@ -57,7 +56,6 @@ export class WeakPasswordsReportComponent
     cipherFormConfigService: CipherFormConfigService,
     protected accountService: AccountService,
     adminConsoleCipherFormConfigService: AdminConsoleCipherFormConfigService,
-    protected collectionService: CollectionService,
   ) {
     super(
       cipherService,
@@ -70,7 +68,6 @@ export class WeakPasswordsReportComponent
       syncService,
       cipherFormConfigService,
       adminConsoleCipherFormConfigService,
-      collectionService,
     );
   }
 

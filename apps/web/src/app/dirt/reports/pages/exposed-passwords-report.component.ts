@@ -1,6 +1,5 @@
 import { Component, OnInit } from "@angular/core";
 
-import { CollectionService } from "@bitwarden/admin-console/common";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -38,7 +37,6 @@ export class ExposedPasswordsReportComponent extends CipherReportComponent imple
     syncService: SyncService,
     cipherFormConfigService: CipherFormConfigService,
     adminConsoleCipherFormConfigService: AdminConsoleCipherFormConfigService,
-    collectionService: CollectionService,
   ) {
     super(
       cipherService,
@@ -50,7 +48,6 @@ export class ExposedPasswordsReportComponent extends CipherReportComponent imple
       syncService,
       cipherFormConfigService,
       adminConsoleCipherFormConfigService,
-      collectionService,
     );
   }
 

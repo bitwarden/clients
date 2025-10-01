@@ -46,7 +46,6 @@ export class UnsecuredWebsitesReportComponent extends CipherReportComponent impl
       syncService,
       cipherFormConfigService,
       adminConsoleCipherFormConfigService,
-      collectionService,
     );
   }
 
