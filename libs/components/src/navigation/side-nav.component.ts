@@ -1,10 +1,11 @@
 import { CdkTrapFocus } from "@angular/cdk/a11y";
 import { DragDropModule, CdkDragMove } from "@angular/cdk/drag-drop";
 import { CommonModule } from "@angular/common";
-import { Component, ElementRef, input, OnDestroy, signal, viewChild } from "@angular/core";
-import { Subject } from "rxjs";
-import { takeUntil } from "rxjs/operators";
+import { Component, ElementRef, inject, input, OnDestroy, viewChild } from "@angular/core";
+import { Observable, Subject } from "rxjs";
+import { map, takeUntil } from "rxjs/operators";
 
+import { BIT_SIDE_NAV_DISK, GlobalStateProvider, KeyDefinition } from "@bitwarden/state";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { BitIconButtonComponent } from "../icon-button/icon-button.component";
@@ -15,9 +16,11 @@ import { SideNavService } from "./side-nav.service";
 export type SideNavVariant = "primary" | "secondary";
 
 const DEFAULT_OPEN_WIDTH = 288;
-const DEFAULT_CLOSED_WIDTH = 64;
 const MIN_OPEN_WIDTH = 240;
 const MAX_OPEN_WIDTH = 384;
+const BIT_SIDE_NAV_WIDTH_KEY_DEF = new KeyDefinition<number>(BIT_SIDE_NAV_DISK, "side-nav-width", {
+  deserializer: (s) => s,
+});
 
 @Component({
   selector: "bit-side-nav",
@@ -37,16 +40,21 @@ export class SideNavComponent implements OnDestroy {
   private readonly toggleButton = viewChild("toggleButton", { read: ElementRef });
 
   protected lastOpenWidth = DEFAULT_OPEN_WIDTH;
-  protected currentWidth = signal(DEFAULT_OPEN_WIDTH);
+  private readonly state = inject(GlobalStateProvider).get(BIT_SIDE_NAV_WIDTH_KEY_DEF);
+  readonly width$: Observable<number> = this.state.state$.pipe(
+    map((state) => state ?? DEFAULT_OPEN_WIDTH),
+  );
+
+  async setWidth(width: number) {
+    await this.state.update(() => width);
+  }
+
   private readonly destroy$ = new Subject<void>();
 
   constructor(protected sideNavService: SideNavService) {
-    sideNavService.open$.pipe(takeUntil(this.destroy$)).subscribe((isOpen) => {
-      if (isOpen) {
-        this.currentWidth.set(this.lastOpenWidth);
-      } else {
-        this.lastOpenWidth = this.currentWidth();
-        this.currentWidth.set(DEFAULT_CLOSED_WIDTH);
+    this.width$.pipe(takeUntil(this.destroy$)).subscribe((width) => {
+      if (this.sideNavService.open) {
+        this.lastOpenWidth = width;
       }
     });
   }
@@ -67,9 +75,7 @@ export class SideNavComponent implements OnDestroy {
   };
 
   protected onDragMoved(event: CdkDragMove) {
-    this.currentWidth.set(
-      Math.min(Math.max(event.pointerPosition.x, MIN_OPEN_WIDTH), MAX_OPEN_WIDTH),
-    );
+    void this.setWidth(Math.min(Math.max(event.pointerPosition.x, MIN_OPEN_WIDTH), MAX_OPEN_WIDTH));
     const element = event.source.element.nativeElement;
     element.style.transform = "none";
   }
