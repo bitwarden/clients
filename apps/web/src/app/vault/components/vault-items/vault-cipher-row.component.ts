@@ -150,7 +150,11 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     return CipherViewLikeUtils.decryptionFailure(this.cipher);
   }
 
+  // Do Not show Assign to Collections option if item is archived
   protected get showAssignToCollections() {
+    if (CipherViewLikeUtils.isArchived(this.cipher)) {
+      return false;
+    }
     return (
       this.organizations?.length &&
       this.canAssignCollections &&
@@ -158,7 +162,7 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     );
   }
 
-  // Do NOT show clone button if:
+  // Do NOT show clone option if:
   // item is archived AND user is not premium user
   // item is archived AND enforce org data ownership policy is on
   protected get showClone() {

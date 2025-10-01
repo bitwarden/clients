@@ -11080,11 +11080,11 @@
   },
   "archiveNoun": {
     "message": "Archive",
-    "descripton": "Noun"
+    "description": "Noun"
   },
   "archiveVerb": {
     "message": "Archive",
-    "descripton": "Verb"
+    "description": "Verb"
   },
   "unArchive": {
     "message": "Unarchive"
@@ -11111,10 +11111,18 @@
     "message": "Items unarchived"
   },
   "archiveItem": {
-    "message": "Archive item"
+    "message": "Archive item",
+    "description": "Verb"
   },
   "archiveItemConfirmDesc": {
     "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+  },
+  "archiveBulkItems": {
+    "message": "Archive items",
+    "description": "Verb"
+  },
+  "archiveBulkItemsConfirmDesc": {
+    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive these items?"
   },
   "businessUnit": {
     "message": "Business Unit"

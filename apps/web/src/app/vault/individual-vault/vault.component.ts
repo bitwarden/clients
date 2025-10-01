@@ -703,12 +703,14 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       variant: "success",
       message: this.i18nService.t("itemWasSentToArchive"),
     });
+
+    this.refresh();
   }
 
   async bulkArchive(ciphers: C[]) {
     const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "archiveItem" },
-      content: { key: "archiveItemConfirmDesc" },
+      title: { key: "archiveBulkItems" },
+      content: { key: "archiveBulkItemsConfirmDesc" },
       type: "info",
     });
 
@@ -744,6 +746,8 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       variant: "success",
       message: this.i18nService.t("itemUnarchived"),
     });
+
+    this.refresh();
   }
 
   async bulkUnarchive(ciphers: C[]) {
