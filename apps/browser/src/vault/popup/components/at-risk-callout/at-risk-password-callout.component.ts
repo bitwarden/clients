@@ -1,32 +1,25 @@
 import { CommonModule } from "@angular/common";
 import { Component, inject } from "@angular/core";
-import { RouterModule } from "@angular/router";
+import { Router } from "@angular/router";
 import { firstValueFrom, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { AnchorLinkDirective, CalloutModule, BannerModule } from "@bitwarden/components";
+import { CalloutModule, BannerModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { AtRiskPasswordCalloutData, AtRiskPasswordCalloutService } from "@bitwarden/vault";
 
 @Component({
   selector: "vault-at-risk-password-callout",
-  imports: [
-    CommonModule,
-    AnchorLinkDirective,
-    RouterModule,
-    CalloutModule,
-    I18nPipe,
-    BannerModule,
-    JslibModule,
-  ],
+  imports: [CommonModule, CalloutModule, I18nPipe, BannerModule, JslibModule],
   providers: [AtRiskPasswordCalloutService],
   templateUrl: "./at-risk-password-callout.component.html",
 })
 export class AtRiskPasswordCalloutComponent {
   private activeAccount$ = inject(AccountService).activeAccount$.pipe(getUserId);
   private atRiskPasswordCalloutService = inject(AtRiskPasswordCalloutService);
+  private router = inject(Router);
 
   showTasksBanner$ = this.activeAccount$.pipe(
     switchMap((userId) => this.atRiskPasswordCalloutService.showCompletedTasksBanner$(userId)),
@@ -43,5 +36,9 @@ export class AtRiskPasswordCalloutComponent {
     };
     const userId = await firstValueFrom(this.activeAccount$);
     this.atRiskPasswordCalloutService.updateAtRiskPasswordState(userId, updateObject);
+  }
+
+  async navigateToAtRiskPasswords() {
+    await this.router.navigate(["/at-risk-passwords"]);
   }
 }
