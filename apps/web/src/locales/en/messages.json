@@ -11078,13 +11078,13 @@
   "searchArchive": {
     "message": "Search archive"
   },
-  "archiveVerb": {
-    "message": "Archive",
-    "descripton": "Verb"
-  },
   "archiveNoun": {
     "message": "Archive",
     "descripton": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "descripton": "Verb"
   },
   "unArchive": {
     "message": "Unarchive"

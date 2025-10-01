@@ -4114,13 +4114,13 @@
   "editShortcut": {
     "message": "Edit shortcut"
   },
-  "archiveVerb": {
-    "message": "Archive",
-    "descripton": "Verb"
-  },
   "archiveNoun": {
     "message": "Archive",
-    "descripton": "Noun"
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
   },
   "unArchive": {
     "message": "Unarchive"
