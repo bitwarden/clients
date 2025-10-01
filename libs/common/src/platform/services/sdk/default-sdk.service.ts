@@ -15,7 +15,6 @@ import {
   firstValueFrom,
 } from "rxjs";
 
-import { EncryptedOrganizationKeyData } from "@bitwarden/common/admin-console/models/data/encrypted-organization-key.data";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -30,7 +29,7 @@ import {
 
 import { AccountInfo, AccountService } from "../../../auth/abstractions/account.service";
 import { DeviceType } from "../../../enums/device-type.enum";
-import { EncryptedString } from "../../../key-management/crypto/models/enc-string";
+import { EncryptedString, EncString } from "../../../key-management/crypto/models/enc-string";
 import { SecurityStateService } from "../../../key-management/security-state/abstractions/security-state.service";
 import { SignedSecurityState, WrappedSigningKey } from "../../../key-management/types";
 import { OrganizationId, UserId } from "../../../types/guid";
@@ -235,7 +234,7 @@ export class DefaultSdkService implements SdkService {
     userKey: UserKey,
     signingKey: WrappedSigningKey | null,
     securityState: SignedSecurityState | null,
-    orgKeys: Record<OrganizationId, EncryptedOrganizationKeyData> | null,
+    orgKeys: Record<OrganizationId, EncString> | null,
   ) {
     await client.crypto().initialize_user_crypto({
       userId: asUuid(userId),
