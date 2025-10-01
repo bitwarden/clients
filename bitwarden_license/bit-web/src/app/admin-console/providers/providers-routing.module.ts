@@ -7,13 +7,11 @@ import { AnonLayoutWrapperComponent } from "@bitwarden/components";
 import { FrontendLayoutComponent } from "@bitwarden/web-vault/app/layouts/frontend-layout.component";
 import { UserLayoutComponent } from "@bitwarden/web-vault/app/layouts/user-layout.component";
 
-import {
-  ManageClientsComponent,
-  ProviderSubscriptionComponent,
-  ProviderBillingHistoryComponent,
-} from "../../billing/providers";
+import { ProviderBillingHistoryComponent } from "../../billing/providers/billing-history/provider-billing-history.component";
+import { ManageClientsComponent } from "../../billing/providers/clients/manage-clients.component";
 import { ProviderPaymentDetailsComponent } from "../../billing/providers/payment-details/provider-payment-details.component";
 import { SetupBusinessUnitComponent } from "../../billing/providers/setup/setup-business-unit.component";
+import { ProviderSubscriptionComponent } from "../../billing/providers/subscription/provider-subscription.component";
 
 import { providerPermissionsGuard } from "./guards/provider-permissions.guard";
 import { AcceptProviderComponent } from "./manage/accept-provider.component";
