@@ -205,16 +205,14 @@ export class VaultItemsComponent<C extends CipherViewLike> {
     );
   }
 
+  // Bulk Unarchive button should appear for Archive vault even if user does not have archive permissions
   get bulkUnarchiveAllowed() {
-    if (this.selection.selected.length === 0 || !this.userCanArchive) {
+    if (this.selection.selected.length === 0) {
       return false;
     }
 
-    return (
-      this.userCanArchive &&
-      !this.selection.selected.find(
-        (item) => !item.cipher.archivedDate || item.cipher.organizationId,
-      )
+    return !this.selection.selected.find(
+      (item) => !item.cipher.archivedDate || item.cipher.organizationId,
     );
   }
 
