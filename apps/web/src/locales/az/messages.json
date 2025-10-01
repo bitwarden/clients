@@ -5557,6 +5557,13 @@
   "personalOwnershipSubmitError": {
     "message": "Müəssisə siyasətinə görə, elementləri şəxsi seyfinizdə saxlamağınız məhdudlaşdırılıb. Sahiblik seçimini təşkilat olaraq dəyişdirin və mövcud kolleksiyalar arasından seçim edin."
   },
+  "desktopAutotypePolicy": {
+    "message": "Masaüstü avto-yazma ilkin ayarı"
+  },
+  "desktopAutotypePolicyDesc": {
+    "message": "Üzvlər üçün Masaüstü avto-yazma ayarını ilkin olaraq işə salın. Üzvlər Masaüstü client-ində avto-yazma ayarını manual olaraq söndürə bilər.",
+    "description": "This policy will enable Desktop Autotype by default for members on Unlock."
+  },
   "disableSend": {
     "message": "\"Send\"i sıradan çıxart"
   },
@@ -6720,6 +6727,15 @@
   },
   "disabledSso": {
     "message": "SSO sıradan çıxarılıb"
+  },
+  "emailMustLoginWithSso": {
+    "message": "$EMAIL$, Vahid Daxil olma üsulu ilə giriş etməlidir",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
   },
   "enabledKeyConnector": {
     "message": "Key Connector aktivdir"
@@ -11005,6 +11021,18 @@
   "cannotCreateCollection": {
     "message": "Ödənişsiz təşkilatların ən çox 2 kolleksiyası ola bilər. Daha çox kolleksiya əlavə etmək üçün ödənişli bir plana yüksəldin."
   },
+  "searchArchive": {
+    "message": "Arxivdə axtar"
+  },
+  "archive": {
+    "message": "Arxiv"
+  },
+  "noItemsInArchive": {
+    "message": "Arxivdə element yoxdur"
+  },
+  "archivedItemsDescription": {
+    "message": "Arxivlənmiş elementlər burada görünəcək, ümumi axtarış nəticələrindən və avto-doldurma təkliflərindən xaric ediləcək."
+  },
   "businessUnit": {
     "message": "Biznes vahidi"
   },
@@ -11337,5 +11365,137 @@
   },
   "verifyNow": {
     "message": "İndi doğrula."
+  },
+  "additionalStorageGB": {
+    "message": "Əlavə anbar sahəsi GB"
+  },
+  "additionalServiceAccountsV2": {
+    "message": "Əlavə maşın hesabları"
+  },
+  "secretsManagerSeats": {
+    "message": "Sirr Meneceri yerləri"
+  },
+  "additionalStorage": {
+    "message": "Əlavə anbar sahəsi"
+  },
+  "expandPurchaseDetails": {
+    "message": "Satın alma detallarını genişləndir"
+  },
+  "collapsePurchaseDetails": {
+    "message": "Satın alma detallarını yığcamlaşdır"
+  },
+  "familiesMembership": {
+    "message": "Ailə üzvlüyü"
+  },
+  "planDescPremium": {
+    "message": "Tam onlayn təhlükəsizlik"
+  },
+  "planDescFamiliesV2": {
+    "message": "Ailəniz üçün Premium təhlükəsizlik"
+  },
+  "planDescFreeV2": {
+    "message": "Digər $COUNT$ istifadəçi ilə paylaş",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "planDescEnterpriseV2": {
+    "message": "Hər bir təşkilat üçün qabaqcıl imkanlar"
+  },
+  "planNameCustom": {
+    "message": "Özəl plan"
+  },
+  "planDescCustom": {
+    "message": "Bitwarden, parolların və həssas məlumatların təhlükəsizliyini təmin etmək üçün istənilən miqyaslı şirkətə uyğunlaşır. Əgər böyük bir müəssisənin bir hissəsisinizsə, qiymət təklifi üçün satış şöbəsi ilə əlaqə saxlayın."
+  },
+  "builtInAuthenticator": {
+    "message": "Daxili kimlik doğrulayıcı"
+  },
+  "breachMonitoring": {
+    "message": "Pozuntu monitorinqi"
+  },
+  "andMoreFeatures": {
+    "message": "Və daha çoxu!"
+  },
+  "secureFileStorage": {
+    "message": "Güvənli fayl anbarı"
+  },
+  "familiesUnlimitedSharing": {
+    "message": "Limitsiz paylaşım - kimin nəyi görəcəyini seçin"
+  },
+  "familiesUnlimitedCollections": {
+    "message": "Limitsiz ailə kolleksiyaları"
+  },
+  "familiesSharedStorage": {
+    "message": "Vacib ailə məlumatları üçün paylaşılan anbar sahəsi"
+  },
+  "limitedUsersV2": {
+    "message": "$COUNT$ üzvə qədər",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "limitedCollectionsV2": {
+    "message": "$COUNT$ kolleksiyaya qədər",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "alwaysFree": {
+    "message": "Həmişə ödənişsiz"
+  },
+  "twoSecretsIncluded": {
+    "message": "2 sirr"
+  },
+  "projectsIncludedV2": {
+    "message": "$COUNT$ layihə",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "secureItemSharing": {
+    "message": "Güvənli element paylaşımı"
+  },
+  "scimSupport": {
+    "message": "SCIM dəstəyi"
+  },
+  "includedMachineAccountsV2": {
+    "message": "$COUNT$ maşın hesabı",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
+  },
+  "enterpriseSecurityPolicies": {
+    "message": "Müəssisə təhlükəsizlik siyasətləri"
+  },
+  "selfHostOption": {
+    "message": "Self-host seçimi"
+  },
+  "complimentaryFamiliesPlan": {
+    "message": "Bütün istifadəçilər üçün ödənişsiz ailə planı"
+  },
+  "strengthenCybersecurity": {
+    "message": "Gücləndirilmiş kibertəhlükəsizlik"
+  },
+  "boostProductivity": {
+    "message": "Məhsuldarlığı artırın"
+  },
+  "seamlessIntegration": {
+    "message": "Problemsiz inteqrasiya"
   }
 }

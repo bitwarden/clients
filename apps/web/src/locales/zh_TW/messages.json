@@ -5557,6 +5557,13 @@
   "personalOwnershipSubmitError": {
     "message": "由於某個企業原則，您被限制為儲存項目至您的個人密碼庫。將擁有權變更為組織，並從可用的集合中選擇。"
   },
+  "desktopAutotypePolicy": {
+    "message": "Desktop Autotype Default Setting"
+  },
+  "desktopAutotypePolicyDesc": {
+    "message": "Turn Desktop Autotype ON by default for members. Members can turn Autotype off manually in the Desktop client.",
+    "description": "This policy will enable Desktop Autotype by default for members on Unlock."
+  },
   "disableSend": {
     "message": "停用 Send"
   },
@@ -6701,7 +6708,7 @@
     "message": "Key Connector"
   },
   "memberDecryptionKeyConnectorDescStart": {
-    "message": "將 SSO 登入連接到您的自我裝載解密金鑰伺服器。使用此選項，成員無需使用其主密碼來解密密碼庫資料。需要",
+    "message": "將 SSO 登入連結至您的自架解密金鑰伺服器。使用此選項，成員無需使用其主密碼來解密密碼庫資料。需要",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Connect login with SSO to your self-hosted decryption key server. Using this option, members won’t need to use their master passwords to decrypt vault data. The require SSO authentication and single organization policies are required to set up Key Connector decryption. Contact Bitwarden Support for set up assistance.'"
   },
   "memberDecryptionKeyConnectorDescLink": {
@@ -6709,7 +6716,7 @@
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Connect login with SSO to your self-hosted decryption key server. Using this option, members won’t need to use their master passwords to decrypt vault data. The require SSO authentication and single organization policies are required to set up Key Connector decryption. Contact Bitwarden Support for set up assistance.'"
   },
   "memberDecryptionKeyConnectorDescEnd": {
-    "message": "以用於設定 Key Connector 解密。聯絡 Bitwarden 支援以獲取設定協助。",
+    "message": "以用於設定 Key Connector 解密。聯絡 Bitwarden 支援以取得設定協助。",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Connect login with SSO to your self-hosted decryption key server. Using this option, members won’t need to use their master passwords to decrypt vault data. The require SSO authentication and single organization policies are required to set up Key Connector decryption. Contact Bitwarden Support for set up assistance.'"
   },
   "keyConnectorPolicyRestriction": {
@@ -6720,6 +6727,15 @@
   },
   "disabledSso": {
     "message": "已停用 SSO"
+  },
+  "emailMustLoginWithSso": {
+    "message": "$EMAIL$ must login with Single Sign-on",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
   },
   "enabledKeyConnector": {
     "message": "已啟用 Key Connector"
@@ -6770,7 +6786,7 @@
     "message": "Generate billing token"
   },
   "copyPasteBillingSync": {
-    "message": "請將本權杖複製後，貼至您自我裝載組織的「計費同步」設定當中。"
+    "message": "請將本權杖複製後，貼至您自架組織的「計費同步」設定當中。"
   },
   "billingSyncCanAccess": {
     "message": "您的計費同步權杖可以讀取及編輯此組織的訂閱設定。"
@@ -6788,25 +6804,25 @@
     "message": "輪換權杖"
   },
   "rotateBillingSyncTokenWarning": {
-    "message": "如果繼續，您需要重新在自我裝載伺服器上設定計費同步。"
+    "message": "如果繼續，您需要重新在自架伺服器上設定計費同步。"
   },
   "rotateBillingSyncTokenTitle": {
     "message": "輪換「計費同步權杖」會導致之前的權杖失效。"
   },
   "selfHostedServer": {
-    "message": "自建"
+    "message": "自架"
   },
   "customEnvironment": {
     "message": "自訂環境"
   },
   "selfHostedBaseUrlHint": {
-    "message": "Specify the base URL of your on-premises hosted Bitwarden installation. Example: https://bitwarden.company.com"
+    "message": "指定您自架的 Bitwarden 伺服器的網域 URL。例如：https://bitwarden.company.com"
   },
   "selfHostedCustomEnvHeader": {
-    "message": "For advanced configuration, you can specify the base URL of each service independently."
+    "message": "適用於進階設定。您可以單獨指定各個服務的網域 URL。"
   },
   "selfHostedEnvFormInvalid": {
-    "message": "You must add either the base Server URL or at least one custom environment."
+    "message": "您必須新增伺服器網域 URL 或至少一個自訂環境。"
   },
   "apiUrl": {
     "message": "API 伺服器網址"
@@ -6827,10 +6843,10 @@
     "message": "環境網址已儲存"
   },
   "selfHostingTitle": {
-    "message": "自我裝載"
+    "message": "自架"
   },
   "selfHostingEnterpriseOrganizationSectionCopy": {
-    "message": "若要在您自己的伺服器上設定組織，您需要上傳授權檔案。若要使您的自我裝載組織支援「免費家庭」方案及進階計費功能，您需要設定計費同步。"
+    "message": "若要在您自己的伺服器上設定組織，您需要上傳授權檔案。若要使您的自架組織支援「免費家庭」方案及進階計費功能，您需要設定計費同步。"
   },
   "billingSyncApiKeyRotated": {
     "message": "權杖已輪換"
@@ -7129,7 +7145,7 @@
     }
   },
   "awaitingSyncSingular": {
-    "message": "權杖已在 $DAYS$ 天前輪換。請在您的自我裝載組織設定中，更新計費同步權杖。",
+    "message": "權杖已在 $DAYS$ 天前輪換。請在您的自架組織設定中，更新計費同步權杖。",
     "placeholders": {
       "days": {
         "content": "$1",
@@ -7138,7 +7154,7 @@
     }
   },
   "awaitingSyncPlural": {
-    "message": "權杖已在 $DAYS$ 天前輪換。請在您的自我裝載組織設定中，更新計費同步權杖。",
+    "message": "權杖已在 $DAYS$ 天前輪換。請在您的自架組織設定中，更新計費同步權杖。",
     "placeholders": {
       "days": {
         "content": "$1",
@@ -7151,7 +7167,7 @@
     "description": "Used as a prefix to indicate the last time a sync occurred. Example \"Last sync 1968-11-16 00:00:00\""
   },
   "sponsorshipsSynced": {
-    "message": "已同步自我裝載贊助。"
+    "message": "已同步自架贊助。"
   },
   "billingManagedByProvider": {
     "message": "由 $PROVIDER$ 管理",
@@ -9074,7 +9090,7 @@
     "message": "伺服器網址"
   },
   "selfHostBaseUrl": {
-    "message": "Self-host server URL",
+    "message": "自架伺服器 URL",
     "description": "Label for field requesting a self-hosted integration service URL"
   },
   "alreadyHaveAccount": {
@@ -10542,7 +10558,7 @@
     "message": "To host Bitwarden on your own server, you will need to upload your license file. To support Free Families plans and advanced billing capabilities for your self-hosted organization, you will need to set up automatic sync in your self-hosted organization."
   },
   "selfHostingTitleProper": {
-    "message": "Self-Hosting"
+    "message": "自架"
   },
   "claim-domain-single-org-warning": {
     "message": "Claiming a domain will turn on the single organization policy."
@@ -11005,6 +11021,18 @@
   "cannotCreateCollection": {
     "message": "Free organizations may have up to 2 collections. Upgrade to a paid plan to add more collections."
   },
+  "searchArchive": {
+    "message": "Search archive"
+  },
+  "archive": {
+    "message": "Archive"
+  },
+  "noItemsInArchive": {
+    "message": "No items in archive"
+  },
+  "archivedItemsDescription": {
+    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+  },
   "businessUnit": {
     "message": "Business Unit"
   },
@@ -11337,5 +11365,137 @@
   },
   "verifyNow": {
     "message": "Verify now."
+  },
+  "additionalStorageGB": {
+    "message": "Additional storage GB"
+  },
+  "additionalServiceAccountsV2": {
+    "message": "Additional machine accounts"
+  },
+  "secretsManagerSeats": {
+    "message": "Secrets Manager seats"
+  },
+  "additionalStorage": {
+    "message": "Additional Storage"
+  },
+  "expandPurchaseDetails": {
+    "message": "Expand purchase details"
+  },
+  "collapsePurchaseDetails": {
+    "message": "Collapse purchase details"
+  },
+  "familiesMembership": {
+    "message": "Families membership"
+  },
+  "planDescPremium": {
+    "message": "Complete online security"
+  },
+  "planDescFamiliesV2": {
+    "message": "Premium security for your family"
+  },
+  "planDescFreeV2": {
+    "message": "Share with $COUNT$ other user",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "planDescEnterpriseV2": {
+    "message": "Advanced capabilities for any organization"
+  },
+  "planNameCustom": {
+    "message": "Custom plan"
+  },
+  "planDescCustom": {
+    "message": "Bitwarden scales with businesses of all sizes to secure passwords and sensitive information. If you're part of a large enterprise, contact sales to request a quote."
+  },
+  "builtInAuthenticator": {
+    "message": "Built-in authenticator"
+  },
+  "breachMonitoring": {
+    "message": "Breach monitoring"
+  },
+  "andMoreFeatures": {
+    "message": "And more!"
+  },
+  "secureFileStorage": {
+    "message": "Secure file storage"
+  },
+  "familiesUnlimitedSharing": {
+    "message": "Unlimited sharing - choose who sees what"
+  },
+  "familiesUnlimitedCollections": {
+    "message": "Unlimited family collections"
+  },
+  "familiesSharedStorage": {
+    "message": "Shared storage for important family info"
+  },
+  "limitedUsersV2": {
+    "message": "Up to $COUNT$ members",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "limitedCollectionsV2": {
+    "message": "Up to $COUNT$ collections",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "alwaysFree": {
+    "message": "Always free"
+  },
+  "twoSecretsIncluded": {
+    "message": "2 secrets"
+  },
+  "projectsIncludedV2": {
+    "message": "$COUNT$ project(s)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "secureItemSharing": {
+    "message": "Secure item sharing"
+  },
+  "scimSupport": {
+    "message": "SCIM support"
+  },
+  "includedMachineAccountsV2": {
+    "message": "$COUNT$ machine accounts",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
+  },
+  "enterpriseSecurityPolicies": {
+    "message": "Enterprise security policies"
+  },
+  "selfHostOption": {
+    "message": "Self-host option"
+  },
+  "complimentaryFamiliesPlan": {
+    "message": "Complimentary families plan for all users"
+  },
+  "strengthenCybersecurity": {
+    "message": "Strengthen cybersecurity"
+  },
+  "boostProductivity": {
+    "message": "Boost productivity"
+  },
+  "seamlessIntegration": {
+    "message": "Seamless integration"
   }
 }

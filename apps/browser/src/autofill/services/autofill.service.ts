@@ -434,7 +434,15 @@ export default class AutofillService implements AutofillServiceInterface {
           return;
         }
 
-        const fillScript = await this.generateFillScript(pd.details, {
+        // If we have a focused form, filter the page details to only include fields from that form
+        const details = options.focusedFieldForm
+          ? {
+              ...pd.details,
+              fields: pd.details.fields.filter((f) => f.form === options.focusedFieldForm),
+            }
+          : pd.details;
+
+        const fillScript = await this.generateFillScript(details, {
           skipUsernameOnlyFill: options.skipUsernameOnlyFill || false,
           onlyEmptyFields: options.onlyEmptyFields || false,
           fillNewPassword: options.fillNewPassword || false,
@@ -964,7 +972,7 @@ export default class AutofillService implements AutofillServiceInterface {
       fillScript.autosubmit = Array.from(formElementsSet);
     }
 
-    if (options.allowTotpAutofill) {
+    if (options.allowTotpAutofill && login?.totp) {
       await Promise.all(
         totps.map(async (t, i) => {
           if (Object.prototype.hasOwnProperty.call(filledFields, t.opid)) {
@@ -972,10 +980,10 @@ export default class AutofillService implements AutofillServiceInterface {
           }
 
           filledFields[t.opid] = t;
-          const totpResponse = await firstValueFrom(
-            this.totpService.getCode$(options.cipher.login.totp),
-          );
+
+          const totpResponse = await firstValueFrom(this.totpService.getCode$(login.totp));
           let totpValue = totpResponse.code;
+
           if (totpValue.length == totps.length) {
             totpValue = totpValue.charAt(i);
           }
