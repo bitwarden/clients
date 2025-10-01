@@ -249,6 +249,15 @@
   "reviewNow": {
     "message": "Review now"
   },
+  "prioritizeCriticalApplications": {
+    "message": "Prioritize critical applications"
+  },
+  "atRiskItems": {
+    "message": "At-risk items"
+  },
+  "markAsCriticalPlaceholder": {
+    "message": "Mark as critical functionality will be implemented in a future update"
+  },
   "unmarkAsCritical": {
     "message": "Unmark as critical"
   },
