@@ -11199,6 +11199,12 @@
   "bitwardenExtensionInstalled": {
     "message": "Bitwarden extension installed!"
   },
+  "openTheBitwardenExtension": {
+    "message": "Open the Bitwarden extension"
+  },
+  "bitwardenExtensionInstalledOpenExtension": {
+    "message": "The Bitwarden extension is installed! Open the extension to log in and start autofilling."
+  },
   "openExtensionToAutofill": {
     "message": "Open the extension to log in and start autofilling."
   },
