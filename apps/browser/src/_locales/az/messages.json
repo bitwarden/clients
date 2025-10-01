@@ -550,8 +550,13 @@
   "resetSearch": {
     "message": "Axtarışı sıfırla"
   },
-  "archive": {
-    "message": "Arxivlə"
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
   },
   "unarchive": {
     "message": "Arxivdən çıxart"

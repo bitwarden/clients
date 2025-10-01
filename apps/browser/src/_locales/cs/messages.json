@@ -550,8 +550,13 @@
   "resetSearch": {
     "message": "Resetovat hledání"
   },
-  "archive": {
-    "message": "Archivovat"
+  "archiveNoun": {
+    "message": "Archiv",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archivovat",
+    "description": "Verb"
   },
   "unarchive": {
     "message": "Odebrat z archivu"
