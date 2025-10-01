@@ -26,6 +26,7 @@ export const tooltipPositions: TooltipPosition[] = [
     originY: "center",
     overlayX: "start",
     overlayY: "center",
+    panelClass: ["bit-tooltip-right-center"],
   },
   // ... to left of trigger
   {
@@ -35,6 +36,7 @@ export const tooltipPositions: TooltipPosition[] = [
     originY: "center",
     overlayX: "end",
     overlayY: "center",
+    panelClass: ["bit-tooltip-left-center"],
   },
   // ... below trigger
   {
@@ -44,6 +46,7 @@ export const tooltipPositions: TooltipPosition[] = [
     originY: "bottom",
     overlayX: "center",
     overlayY: "top",
+    panelClass: ["bit-tooltip-below-center"],
   },
   // ... above trigger
   {
@@ -53,5 +56,6 @@ export const tooltipPositions: TooltipPosition[] = [
     originY: "top",
     overlayX: "center",
     overlayY: "bottom",
+    panelClass: ["bit-tooltip-above-center"],
   },
 ];

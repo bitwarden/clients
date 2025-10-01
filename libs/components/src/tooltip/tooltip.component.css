@@ -48,8 +48,8 @@
     z-index: 1000;
   }
 
-  &[data-position^="above"],
-  &[data-position^="below"] {
+  .bit-tooltip-above-center &,
+  .bit-tooltip-below-center & {
     &::before,
     &::after {
       inset-inline-start: 50%;
@@ -58,7 +58,7 @@
     }
   }
 
-  &[data-position^="above"] {
+  .bit-tooltip-above-center & {
     &::after {
       filter: drop-shadow(0 3px 5px var(--tooltip-shadow))
         drop-shadow(0 1px 3px var(--tooltip-shadow));
@@ -70,7 +70,7 @@
     }
   }
 
-  &[data-position^="below"] {
+  .bit-tooltip-below-center & {
     &::after {
       display: none;
     }
@@ -82,8 +82,8 @@
     }
   }
 
-  &[data-position^="left"],
-  &[data-position^="right"] {
+  .bit-tooltip-left-center &,
+  .bit-tooltip-right-center & {
     &::after,
     &::before {
       inset-block-start: 50%;
@@ -92,7 +92,7 @@
     }
   }
 
-  &[data-position^="left"] {
+  .bit-tooltip-left-center & {
     &::after {
       filter: drop-shadow(-3px 1px 3px var(--tooltip-shadow))
         drop-shadow(-1px 2px 3px var(--tooltip-shadow));
@@ -105,7 +105,7 @@
     }
   }
 
-  &[data-position^="right"] {
+  .bit-tooltip-right-center & {
     &::after {
       filter: drop-shadow(2px -4px 2px var(--tooltip-shadow))
         drop-shadow(0 -1px 3px var(--tooltip-shadow));

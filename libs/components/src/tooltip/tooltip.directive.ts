@@ -1,4 +1,4 @@
-import { ConnectionPositionPair, Overlay, OverlayConfig, OverlayRef } from "@angular/cdk/overlay";
+import { Overlay, OverlayConfig, OverlayRef } from "@angular/cdk/overlay";
 import { ComponentPortal } from "@angular/cdk/portal";
 import {
   Directive,
@@ -6,15 +6,13 @@ import {
   inject,
   OnInit,
   ElementRef,
-  ComponentRef,
   Injector,
   input,
   effect,
   signal,
 } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 
-import { TooltipPosition, TooltipPositionIdentifier, tooltipPositions } from "./tooltip-positions";
+import { TooltipPositionIdentifier, tooltipPositions } from "./tooltip-positions";
 import { TooltipComponent, TOOLTIP_DATA } from "./tooltip.component";
 
 /**
@@ -42,14 +40,12 @@ export class TooltipDirective implements OnInit {
    */
   readonly tooltipPosition = input<TooltipPositionIdentifier>("above-center");
 
-  private _tooltipPosition = signal<TooltipPositionIdentifier>(this.tooltipPosition());
   private isVisible = signal(false);
   private overlayRef: OverlayRef | undefined;
   private elementRef = inject(ElementRef);
   private overlay = inject(Overlay);
   private viewContainerRef = inject(ViewContainerRef);
   private injector = inject(Injector);
-  private tooltipRef: ComponentRef<TooltipComponent> | undefined;
   private positionStrategy = this.overlay
     .position()
     .flexibleConnectedTo(this.elementRef)
@@ -66,7 +62,7 @@ export class TooltipDirective implements OnInit {
           useValue: {
             content: this.bitTooltip,
             isVisible: this.isVisible,
-            tooltipPosition: this._tooltipPosition,
+            tooltipPosition: this.tooltipPosition,
           },
         },
       ],
@@ -94,16 +90,6 @@ export class TooltipDirective implements OnInit {
     };
   }
 
-  constructor() {
-    this.positionStrategy.positionChanges.pipe(takeUntilDestroyed()).subscribe((change) => {
-      const connectionPair = change.connectionPair as ConnectionPositionPair & {
-        id: TooltipPosition["id"];
-      };
-
-      this._tooltipPosition.set(connectionPair.id);
-    });
-  }
-
   ngOnInit() {
     this.positionStrategy.withPositions(this.computePositions(this.tooltipPosition()));
 
@@ -112,7 +98,7 @@ export class TooltipDirective implements OnInit {
       positionStrategy: this.positionStrategy,
     });
 
-    this.tooltipRef = this.overlayRef.attach(this.tooltipPortal);
+    this.overlayRef.attach(this.tooltipPortal);
 
     effect(
       () => {

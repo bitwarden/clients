@@ -1,5 +1,6 @@
 import { signal } from "@angular/core";
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
+import { getByRole, userEvent } from "@storybook/test";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
@@ -78,21 +79,6 @@ export const Default: Story = {
     props: args,
     template: `
       <div class="tw-p-4">
-        <bit-tooltip content="This is a tooltip" isVisible="true" />
-      </div>
-    `,
-  }),
-};
-
-export const BasicUsage: Story = {
-  args: {
-    bitTooltip: "This is a tooltip",
-    tooltipPosition: "above-center",
-  },
-  render: (args) => ({
-    props: args,
-    template: `
-      <div class="tw-p-4">
         <button
           bitIconButton="bwi-ellipsis-v"
           ${formatArgsForCodeSnippet<TooltipDirective>(args)}
@@ -102,6 +88,12 @@ export const BasicUsage: Story = {
       </div>
     `,
   }),
+  play: async (context) => {
+    const canvasEl = context.canvasElement;
+    const button = getByRole(canvasEl, "button");
+
+    await userEvent.hover(button);
+  },
 };
 
 export const AllPositions: Story = {
