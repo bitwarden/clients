@@ -19,15 +19,14 @@ type TooltipData = {
 
 export const TOOLTIP_DATA = new InjectionToken<TooltipData>("TOOLTIP_DATA");
 
+/**
+ * tooltip component used internally by the tooltip.directive. Not meant to be used explicitly
+ */
 @Component({
   selector: "bit-tooltip",
   templateUrl: "./tooltip.component.html",
   imports: [CommonModule],
 })
-
-/**
- * tooltip component used internally by the tooltip.directive. Not meant to be used explicitly
- */
 export class TooltipComponent {
   readonly templateRef = viewChild.required(TemplateRef);
 
