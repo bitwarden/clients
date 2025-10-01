@@ -4080,11 +4080,17 @@
   "showLess": {
     "message": "Thu gọn"
   },
-  "enableAutotype": {
-    "message": "Bật tính năng Tự động nhập liệu"
-  },
   "enableAutotypeDescription": {
     "message": "Bitwarden không kiểm tra vị trí nhập liệu, hãy đảm bảo bạn đang ở trong đúng cửa sổ và trường nhập liệu trước khi dùng phím tắt."
+  },
+  "typeShortcut": {
+    "message": "Type shortcut"
+  },
+  "editAutotypeShortcutDescription": {
+    "message": "Include one or two of the following modifiers: Ctrl, Alt, Win, or Shift, and a letter."
+  },
+  "invalidShortcut": {
+    "message": "Invalid shortcut"
   },
   "moreBreadcrumbs": {
     "message": "Thêm mục điều hướng",
@@ -4099,8 +4105,8 @@
   "confirm": {
     "message": "Xác nhận"
   },
-  "enableAutotypeTransitionKey": {
-    "message": "Bật phím tắt tự động điền"
+  "enableAutotypeShortcutPreview": {
+    "message": "Enable autotype shortcut (Feature Preview)"
   },
   "enableAutotypeDescriptionTransitionKey": {
     "message": "Hãy đảm bảo bạn đang ở đúng trường trước khi sử dụng phím tắt để tránh điền dữ liệu vào chỗ không đúng."
@@ -4108,8 +4114,13 @@
   "editShortcut": {
     "message": "Chỉnh sửa phím tắt"
   },
-  "archive": {
-    "message": "Lưu trữ"
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
   },
   "unarchive": {
     "message": "Hủy lưu trữ"
