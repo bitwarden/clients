@@ -562,7 +562,7 @@ jobs:
       - name: Fix NSIS artifact names for auto-updater
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         run: |
-          Rename-Item -Path .\dist\nsis-web\Bitwarden-$$env:_PACKAGE_VERSION-ia32.nsis.7z `
+          Rename-Item -Path .\dist\nsis-web\Bitwarden-$env:_PACKAGE_VERSION-ia32.nsis.7z `
             -NewName bitwarden-$env:_PACKAGE_VERSION-ia32.nsis.7z
           Rename-Item -Path .\dist\nsis-web\Bitwarden-$env:_PACKAGE_VERSION-x64.nsis.7z `
             -NewName bitwarden-$env:_PACKAGE_VERSION-x64.nsis.7z
