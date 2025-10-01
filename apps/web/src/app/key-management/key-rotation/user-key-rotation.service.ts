@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, Observable } from "rxjs";
 
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -644,8 +644,8 @@ export class UserKeyRotationService {
             wrappedPrivateKey: currentUserKeyWrappedPrivateKey,
             publicKey: publicKey,
           },
-          signingKey: signingKey!,
-          securityState: securityState!,
+          signingKey: signingKey,
+          securityState: securityState,
         },
       };
     }
@@ -661,7 +661,7 @@ export class UserKeyRotationService {
     if (result == null) {
       throw new Error(`Failed to get ${name}`);
     }
-    return result;
+    return result as T;
   }
 }
 
