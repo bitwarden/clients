@@ -278,7 +278,12 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private async buildAutofillFieldsData(
     formFieldElements: FormFieldElement[],
   ): Promise<AutofillField[]> {
-    const autofillFieldElements = this.getAutofillFieldElements(100, formFieldElements);
+    // Maximum number of form fields to process for autofill to prevent performance issues on pages with excessive fields
+    const autofillFieldsLimit = 200;
+    const autofillFieldElements = this.getAutofillFieldElements(
+      autofillFieldsLimit,
+      formFieldElements,
+    );
     const autofillFieldDataPromises = autofillFieldElements.map(this.buildAutofillFieldItem);
 
     return Promise.all(autofillFieldDataPromises);
