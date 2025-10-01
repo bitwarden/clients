@@ -234,7 +234,7 @@ export class DefaultSdkService implements SdkService {
     userKey: UserKey,
     signingKey: WrappedSigningKey | null,
     securityState: SignedSecurityState | null,
-    orgKeys: Record<OrganizationId, EncString> | null,
+    orgKeys: Record<OrganizationId, EncString>,
   ) {
     await client.crypto().initialize_user_crypto({
       userId: asUuid(userId),

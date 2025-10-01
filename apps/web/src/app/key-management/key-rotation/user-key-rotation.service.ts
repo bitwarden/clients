@@ -644,8 +644,8 @@ export class UserKeyRotationService {
             wrappedPrivateKey: currentUserKeyWrappedPrivateKey,
             publicKey: publicKey,
           },
-          signingKey: signingKey,
-          securityState: securityState,
+          signingKey: signingKey!,
+          securityState: securityState!,
         },
       };
     }
