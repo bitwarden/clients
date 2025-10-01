@@ -6,7 +6,7 @@ use oo7::XDG_SCHEMA_ATTRIBUTE;
 
 use crate::chromium::{BrowserConfig, CryptoService, LocalState};
 
-mod util;
+use crate::util;
 
 //
 // Public API

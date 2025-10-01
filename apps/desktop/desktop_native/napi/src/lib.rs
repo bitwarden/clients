@@ -1033,6 +1033,18 @@ pub mod chromium_importer {
 }
 
 #[napi]
+pub mod chromium_importer_metadata {
+    #[napi]
+    /// Returns OS aware metadata describing supported Chromium based importers as a JSON string.
+    pub fn get_metadata_as_json() -> napi::Result<String> {
+        let map = bitwarden_chromium_importer::metadata::get_supported_importers();
+        serde_json::to_string(&map).map_err(|e| {
+            napi::Error::from_reason(format!("Failed to serialize importer metadata: {e}"))
+        })
+    }
+}
+
+#[napi]
 pub mod autotype {
     #[napi]
     pub fn get_foreground_window_title() -> napi::Result<String, napi::Status> {
