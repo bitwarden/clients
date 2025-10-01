@@ -1,15 +1,13 @@
-const path = require("path");
 const { buildConfig } = require("../../apps/browser/webpack.base");
 
 module.exports = buildConfig({
   configName: "Commercial",
   popup: {
-    entry: "./src/popup/main.ts",
+    entry: "../../bitwarden_license/bit-browser/src/popup/main.ts",
     entryModule: "../../bitwarden_license/bit-browser/src/popup/app.module#AppModule",
   },
   background: {
-    entry: "./src/platform/background.ts",
+    entry: "../../bitwarden_license/bit-browser/src/platform/background.ts",
   },
-  tsConfig: "./tsconfig.json",
-  contextPath: __dirname,
+  tsConfig: "../../bitwarden_license/bit-browser/tsconfig.json",
 });

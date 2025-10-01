@@ -29,8 +29,7 @@ module.exports.getEnv = function getEnv() {
  *    entry: string;
  *  };
  *  tsConfig: string;
- *  additionalEntries?: { [outputPath: string]: string };
- *  contextPath?: string;
+ *  additionalEntries?: { [outputPath: string]: string }
  * }} params - The input parameters for building the config.
  */
 module.exports.buildConfig = function buildConfig(params) {
@@ -41,15 +40,6 @@ module.exports.buildConfig = function buildConfig(params) {
   const { ENV, manifestVersion, browser } = module.exports.getEnv();
 
   console.log(`Building Manifest Version ${manifestVersion} app - ${params.configName} version`);
-
-  // Resolve paths dynamically based on context
-  const contextPath = params.contextPath || __dirname;
-  const resolveFromContext = (relativePath) => {
-    if (path.isAbsolute(relativePath)) {
-      return relativePath;
-    }
-    return path.resolve(contextPath, relativePath);
-  };
 
   const envConfig = configurator.load(ENV);
   configurator.log(envConfig);
@@ -184,7 +174,7 @@ module.exports.buildConfig = function buildConfig(params) {
       chunkFilename: "chunk-[id].css",
     }),
     new AngularWebpackPlugin({
-      tsconfig: resolveFromContext(params.tsConfig),
+      tsconfig: params.tsConfig,
       entryModule: params.popup.entryModule,
       sourceMap: true,
     }),
@@ -207,8 +197,8 @@ module.exports.buildConfig = function buildConfig(params) {
     mode: ENV,
     devtool: false,
     entry: {
-      "popup/polyfills": resolveFromContext("./src/popup/polyfills.ts"),
-      "popup/main": resolveFromContext(params.popup.entry),
+      "popup/polyfills": "./src/popup/polyfills.ts",
+      "popup/main": params.popup.entry,
       "content/trigger-autofill-script-injection":
         "./src/autofill/content/trigger-autofill-script-injection.ts",
       "content/bootstrap-autofill": "./src/autofill/content/bootstrap-autofill.ts",
@@ -353,7 +343,7 @@ module.exports.buildConfig = function buildConfig(params) {
 
     // Manifest V2 background pages can be run through the regular build pipeline.
     // Since it's a standard webpage.
-    mainConfig.entry.background = resolveFromContext(params.background.entry);
+    mainConfig.entry.background = params.background.entry;
     mainConfig.entry["content/fido2-page-script-delay-append-mv2"] =
       "./src/autofill/fido2/content/fido2-page-script-delay-append.mv2.ts";
 
@@ -382,7 +372,7 @@ module.exports.buildConfig = function buildConfig(params) {
       name: "background",
       mode: ENV,
       devtool: false,
-      entry: resolveFromContext(params.background.entry),
+      entry: params.background.entry,
       target: target,
       output: {
         filename: "background.js",
