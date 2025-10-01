@@ -168,19 +168,25 @@ describe("WebAuthnLoginStrategy", () => {
   const userDecryptionOptsServerResponseWithWebAuthnPrfOption: IUserDecryptionOptionsServerResponse =
     {
       HasMasterPassword: true,
-      WebAuthnPrfOption: {
-        EncryptedPrivateKey: mockEncPrfPrivateKey,
-        EncryptedUserKey: mockEncUserKey,
-      },
+      WebAuthnPrfOptions: [
+        {
+          EncryptedPrivateKey: mockEncPrfPrivateKey,
+          EncryptedUserKey: mockEncUserKey,
+          CredentialId: "mockCredentialId",
+          Transports: ["usb", "nfc"],
+        },
+      ],
     };
 
   const mockIdTokenResponseWithModifiedWebAuthnPrfOption = (key: string, value: any) => {
     const userDecryptionOpts: IUserDecryptionOptionsServerResponse = {
       ...userDecryptionOptsServerResponseWithWebAuthnPrfOption,
-      WebAuthnPrfOption: {
-        ...userDecryptionOptsServerResponseWithWebAuthnPrfOption.WebAuthnPrfOption,
-        [key]: value,
-      },
+      WebAuthnPrfOptions: [
+        {
+          ...userDecryptionOptsServerResponseWithWebAuthnPrfOption.WebAuthnPrfOptions[0],
+          [key]: value,
+        },
+      ],
     };
     return identityTokenResponseFactory(null, userDecryptionOpts);
   };
@@ -249,12 +255,12 @@ describe("WebAuthnLoginStrategy", () => {
 
     expect(encryptService.unwrapDecapsulationKey).toHaveBeenCalledTimes(1);
     expect(encryptService.unwrapDecapsulationKey).toHaveBeenCalledWith(
-      idTokenResponse.userDecryptionOptions.webAuthnPrfOption.encryptedPrivateKey,
+      idTokenResponse.userDecryptionOptions.webAuthnPrfOptions[0].encryptedPrivateKey,
       webAuthnCredentials.prfKey,
     );
     expect(encryptService.decapsulateKeyUnsigned).toHaveBeenCalledTimes(1);
     expect(encryptService.decapsulateKeyUnsigned).toHaveBeenCalledWith(
-      idTokenResponse.userDecryptionOptions.webAuthnPrfOption.encryptedUserKey,
+      idTokenResponse.userDecryptionOptions.webAuthnPrfOptions[0].encryptedUserKey,
       mockPrfPrivateKey,
     );
     expect(keyService.setUserKey).toHaveBeenCalledWith(mockUserKey, userId);

@@ -50,6 +50,7 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import {
+  WebAuthnPrfUnlockServiceAbstraction,
   KeyService,
   BiometricStateService,
   BiometricsService,
@@ -134,6 +135,7 @@ export class LockComponent implements OnInit, OnDestroy {
   defaultUnlockOptionSetForUser = false;
 
   unlockingViaBiometrics = false;
+  unlockingViaPrf = false;
 
   constructor(
     private accountService: AccountService,
@@ -160,6 +162,7 @@ export class LockComponent implements OnInit, OnDestroy {
     private logoutService: LogoutService,
     private lockComponentService: LockComponentService,
     private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
+    private webAuthnPrfUnlockService: WebAuthnPrfUnlockServiceAbstraction,
     // desktop deps
     private broadcasterService: BroadcasterService,
   ) {}
@@ -420,6 +423,55 @@ export class LockComponent implements OnInit, OnDestroy {
       }
 
       this.unlockingViaBiometrics = false;
+    }
+  }
+
+  async unlockViaPrf(): Promise<void> {
+    if (!this.activeAccount?.id || !this.unlockOptions?.prf.enabled) {
+      return;
+    }
+
+    this.unlockingViaPrf = true;
+
+    try {
+      const success = await this.webAuthnPrfUnlockService.unlockVaultWithPrf(this.activeAccount.id);
+
+      if (success) {
+        // If successful, the service has already set the user key
+        await this.doContinue(false);
+      } else {
+        // Show error message
+        await this.dialogService.openSimpleDialog({
+          title: { key: "error" },
+          content: { key: "prfUnlockFailed" },
+          acceptButtonText: { key: "tryAgain" },
+          type: "danger",
+        });
+      }
+    } catch (error) {
+      this.logService.error("[LockComponent] Failed to unlock via PRF:", error);
+
+      let errorMessage = this.i18nService.t("unexpectedError");
+
+      // Handle specific PRF error cases
+      if (error instanceof Error) {
+        if (error.message.includes("No PRF credentials")) {
+          errorMessage = this.i18nService.t("noPrfCredentialsAvailable");
+        } else if (error.message.includes("canceled")) {
+          // User canceled the operation, don't show error
+          this.unlockingViaPrf = false;
+          return;
+        }
+      }
+
+      await this.dialogService.openSimpleDialog({
+        title: { key: "error" },
+        content: errorMessage,
+        acceptButtonText: { key: "ok" },
+        type: "danger",
+      });
+    } finally {
+      this.unlockingViaPrf = false;
     }
   }
 

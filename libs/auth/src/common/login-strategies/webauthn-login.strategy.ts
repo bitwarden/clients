@@ -72,10 +72,22 @@ export class WebAuthnLoginStrategy extends LoginStrategy {
 
     const userDecryptionOptions = idTokenResponse?.userDecryptionOptions;
 
-    if (userDecryptionOptions?.webAuthnPrfOption) {
-      const webAuthnPrfOption = idTokenResponse.userDecryptionOptions?.webAuthnPrfOption;
-
+    if (
+      userDecryptionOptions?.webAuthnPrfOptions &&
+      userDecryptionOptions.webAuthnPrfOptions.length > 0
+    ) {
       const credentials = this.cache.value.credentials;
+      const credentialId = credentials.deviceResponse.id;
+
+      // Find the matching WebAuthn PRF option for this credential
+      const webAuthnPrfOption = userDecryptionOptions.webAuthnPrfOptions.find(
+        (option) => option.credentialId === credentialId,
+      );
+
+      if (!webAuthnPrfOption) {
+        throw new Error("No matching WebAuthn PRF option found for this credential");
+      }
+
       // confirm we still have the prf key
       if (!credentials.prfKey) {
         return;

@@ -13,6 +13,7 @@ import {
   BiometricsService,
   BiometricsStatus,
   BiometricStateService,
+  WebAuthnPrfUnlockServiceAbstraction,
 } from "@bitwarden/key-management";
 import { UnlockOptions } from "@bitwarden/key-management-ui";
 
@@ -34,6 +35,7 @@ describe("ExtensionLockComponentService", () => {
   let vaultTimeoutSettingsService: MockProxy<VaultTimeoutSettingsService>;
   let routerService: MockProxy<BrowserRouterService>;
   let biometricStateService: MockProxy<BiometricStateService>;
+  let webAuthnPrfUnlockService: MockProxy<WebAuthnPrfUnlockServiceAbstraction>;
 
   beforeEach(() => {
     userDecryptionOptionsService = mock<UserDecryptionOptionsServiceAbstraction>();
@@ -43,6 +45,7 @@ describe("ExtensionLockComponentService", () => {
     vaultTimeoutSettingsService = mock<VaultTimeoutSettingsService>();
     routerService = mock<BrowserRouterService>();
     biometricStateService = mock<BiometricStateService>();
+    webAuthnPrfUnlockService = mock<WebAuthnPrfUnlockServiceAbstraction>();
 
     TestBed.configureTestingModule({
       providers: [
@@ -74,6 +77,10 @@ describe("ExtensionLockComponentService", () => {
         {
           provide: BiometricStateService,
           useValue: biometricStateService,
+        },
+        {
+          provide: WebAuthnPrfUnlockServiceAbstraction,
+          useValue: webAuthnPrfUnlockService,
         },
       ],
     });
@@ -212,6 +219,9 @@ describe("ExtensionLockComponentService", () => {
             enabled: true,
             biometricsStatus: BiometricsStatus.Available,
           },
+          prf: {
+            enabled: false,
+          },
         },
       ],
       [
@@ -233,6 +243,9 @@ describe("ExtensionLockComponentService", () => {
           biometrics: {
             enabled: true,
             biometricsStatus: BiometricsStatus.Available,
+          },
+          prf: {
+            enabled: false,
           },
         },
       ],
@@ -256,6 +269,9 @@ describe("ExtensionLockComponentService", () => {
             enabled: true,
             biometricsStatus: BiometricsStatus.Available,
           },
+          prf: {
+            enabled: false,
+          },
         },
       ],
       [
@@ -277,6 +293,9 @@ describe("ExtensionLockComponentService", () => {
           biometrics: {
             enabled: true,
             biometricsStatus: BiometricsStatus.Available,
+          },
+          prf: {
+            enabled: false,
           },
         },
       ],
@@ -300,6 +319,9 @@ describe("ExtensionLockComponentService", () => {
             enabled: false,
             biometricsStatus: BiometricsStatus.UnlockNeeded,
           },
+          prf: {
+            enabled: false,
+          },
         },
       ],
       [
@@ -322,6 +344,9 @@ describe("ExtensionLockComponentService", () => {
             enabled: false,
             biometricsStatus: BiometricsStatus.NotEnabledInConnectedDesktopApp,
           },
+          prf: {
+            enabled: false,
+          },
         },
       ],
       [
@@ -343,6 +368,9 @@ describe("ExtensionLockComponentService", () => {
           biometrics: {
             enabled: false,
             biometricsStatus: BiometricsStatus.HardwareUnavailable,
+          },
+          prf: {
+            enabled: false,
           },
         },
       ],
@@ -373,6 +401,10 @@ describe("ExtensionLockComponentService", () => {
 
       //  PIN
       pinService.isPinDecryptionAvailable.mockResolvedValue(mockInputs.pinDecryptionAvailable);
+
+      // PRF
+      webAuthnPrfUnlockService.isPrfUnlockAvailable.mockResolvedValue(false);
+      webAuthnPrfUnlockService.getPrfUnlockCredentials.mockResolvedValue([]);
 
       const unlockOptions = await firstValueFrom(service.getAvailableUnlockOptions$(userId));
 
