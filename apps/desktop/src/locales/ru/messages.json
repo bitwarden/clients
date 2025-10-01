@@ -3834,10 +3834,10 @@
     "message": "Изменить пароль, подверженный риску"
   },
   "changeAtRiskPasswordAndAddWebsite": {
-    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+    "message": "Этот логин находится под угрозой и у него отсутствует веб-сайт. Добавьте веб-сайт и смените пароль для большей безопасности."
   },
   "missingWebsite": {
-    "message": "Missing website"
+    "message": "Отсутствует сайт"
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "Вы не можете удалить коллекции с правами только на просмотр: $COLLECTIONS$",
@@ -4087,7 +4087,7 @@
     "message": "Bitwarden не проверяет местоположение ввода, поэтому, прежде чем использовать ярлык, убедитесь, что вы находитесь в нужном окне и поле."
   },
   "moreBreadcrumbs": {
-    "message": "More breadcrumbs",
+    "message": "Больше хлебных крошек",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   },
   "next": {
@@ -4107,5 +4107,32 @@
   },
   "editShortcut": {
     "message": "Изменить ярлык"
+  },
+  "archive": {
+    "message": "Архив"
+  },
+  "unarchive": {
+    "message": "Разархивировать"
+  },
+  "itemsInArchive": {
+    "message": "Элементы в архиве"
+  },
+  "noItemsInArchive": {
+    "message": "В архиве нет элементов"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Архивированные элементы появятся здесь и будут исключены из общих результатов поиска и предложений автозаполнения."
+  },
+  "itemSentToArchive": {
+    "message": "Элемент отправлен в архив"
+  },
+  "itemRemovedFromArchive": {
+    "message": "Элемент удален из архива"
+  },
+  "archiveItem": {
+    "message": "Архивировать элемент"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Архивированные элементы исключены из общих результатов поиска и предложений автозаполнения. Вы уверены, что хотите архивировать этот элемент?"
   }
 }

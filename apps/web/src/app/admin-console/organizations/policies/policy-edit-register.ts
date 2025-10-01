@@ -1,5 +1,6 @@
 import { BasePolicyEditDefinition } from "./base-policy-edit.component";
 import {
+  DesktopAutotypeDefaultSettingPolicy,
   DisableSendPolicy,
   MasterPasswordPolicy,
   OrganizationDataOwnershipPolicy,
@@ -31,4 +32,5 @@ export const ossPolicyEditRegister: BasePolicyEditDefinition[] = [
   new DisableSendPolicy(),
   new SendOptionsPolicy(),
   new RestrictedItemTypesPolicy(),
+  new DesktopAutotypeDefaultSettingPolicy(),
 ];
