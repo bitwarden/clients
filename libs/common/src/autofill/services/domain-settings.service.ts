@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { combineLatest, map, Observable, switchMap } from "rxjs";
+import { combineLatest, map, Observable, switchMap, of } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums/policy-type.enum";
@@ -156,14 +156,18 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
       map((x) => x ?? UriMatchStrategy.Domain),
     );
 
-    this.defaultUriMatchStrategyPolicy$ = this.accountService.activeAccount$.pipe(
-      getUserId,
-      switchMap((userId) =>
-        this.policyService.policiesByType$(PolicyType.UriMatchDefaults, userId),
-      ),
-      getFirstPolicy,
-      map((policy) => (policy !== null && policy?.enabled && policy?.data ? policy.data : null)),
-    );
+    if (this.accountService?.activeAccount$) {
+      this.defaultUriMatchStrategyPolicy$ = this.accountService.activeAccount$.pipe(
+        getUserId,
+        switchMap((userId) =>
+          this.policyService.policiesByType$(PolicyType.UriMatchDefaults, userId),
+        ),
+        getFirstPolicy,
+        map((policy) => (policy !== null && policy?.enabled && policy?.data ? policy.data : null)),
+      );
+    } else {
+      this.defaultUriMatchStrategyPolicy$ = of(null as UriMatchStrategySetting);
+    }
 
     this.resolvedDefaultUriMatchStrategy$ = combineLatest([
       this.defaultUriMatchStrategy$,
