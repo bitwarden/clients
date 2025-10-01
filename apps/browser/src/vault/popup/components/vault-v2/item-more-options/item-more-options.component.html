@@ -40,7 +40,7 @@
     </ng-container>
     @if (canArchive$ | async) {
       <button type="button" bitMenuItem (click)="archive()" *ngIf="canArchive$ | async">
-        {{ "archive" | i18n }}
+        {{ "archiveVerb" | i18n }}
       </button>
     }
   </bit-menu>
