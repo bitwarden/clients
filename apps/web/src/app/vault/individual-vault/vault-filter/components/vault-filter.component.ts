@@ -424,7 +424,7 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
         [
           {
             id: "archive",
-            name: this.i18nService.t("archive"),
+            name: this.i18nService.t("archiveNoun"),
             type: "archive",
             icon: "bwi-archive",
           },

@@ -140,7 +140,7 @@ export class VaultHeaderComponent {
     }
 
     if (this.filter.type === "archive") {
-      return this.i18nService.t("archive");
+      return this.i18nService.t("archiveNoun");
     }
 
     const activeOrganization = this.activeOrganization;
