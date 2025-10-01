@@ -27,8 +27,6 @@ import { AddExistingOrganizationDialogComponent } from "../../billing/providers/
 import { SetupBusinessUnitComponent } from "../../billing/providers/setup/setup-business-unit.component";
 import { ProviderWarningsModule } from "../../billing/providers/warnings/provider-warnings.module";
 
-import { AddOrganizationComponent } from "./clients/add-organization.component";
-import { CreateOrganizationComponent } from "./clients/create-organization.component";
 import { AcceptProviderComponent } from "./manage/accept-provider.component";
 import { AddEditMemberDialogComponent } from "./manage/dialogs/add-edit-member-dialog.component";
 import { BulkConfirmDialogComponent } from "./manage/dialogs/bulk-confirm-dialog.component";
@@ -65,10 +63,8 @@ import { VerifyRecoverDeleteProviderComponent } from "./verify-recover-delete-pr
   declarations: [
     AcceptProviderComponent,
     AccountComponent,
-    AddOrganizationComponent,
     BulkConfirmDialogComponent,
     BulkRemoveDialogComponent,
-    CreateOrganizationComponent,
     EventsComponent,
     MembersComponent,
     SetupComponent,
