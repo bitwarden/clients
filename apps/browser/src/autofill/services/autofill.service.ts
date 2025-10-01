@@ -2270,6 +2270,8 @@ export default class AutofillService implements AutofillServiceInterface {
     withoutForm: boolean,
   ): AutofillField | null {
     let usernameField: AutofillField = null;
+    let usernameFieldInSameForm: AutofillField = null;
+
     for (let i = 0; i < pageDetails.fields.length; i++) {
       const f = pageDetails.fields[i];
       if (AutofillService.forCustomFieldsOnly(f)) {
@@ -2282,22 +2284,33 @@ export default class AutofillService implements AutofillServiceInterface {
 
       const includesUsernameFieldName =
         this.findMatchingFieldIndex(f, AutoFillConstants.UsernameFieldNames) > -1;
+      const isInSameForm = f.form === passwordField.form;
 
       if (
         !f.disabled &&
         (canBeReadOnly || !f.readonly) &&
-        (withoutForm || f.form === passwordField.form || includesUsernameFieldName) &&
+        (withoutForm || isInSameForm || includesUsernameFieldName) &&
         (canBeHidden || f.viewable) &&
         (f.type === "text" || f.type === "email" || f.type === "tel")
       ) {
-        usernameField = f;
-        // We found an exact match. No need to keep looking.
-        if (includesUsernameFieldName) {
-          break;
+        // Prioritize fields in the same form as the password field
+        if (isInSameForm) {
+          usernameFieldInSameForm = f;
+          if (includesUsernameFieldName) {
+            return f;
+          }
+        } else {
+          usernameField = f;
+        }
+
+        if (includesUsernameFieldName && !isInSameForm) {
+          usernameField = f;
         }
       }
     }
-    return usernameField;
+
+    // Prefer username field in same form, fall back to any username field
+    return usernameFieldInSameForm || usernameField;
   }
 
   /**
