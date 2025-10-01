@@ -35,7 +35,7 @@ export class TooltipDirective implements OnInit {
    */
   readonly bitTooltip = input.required<string>();
   /**
-   * The value of this input is forwarded to the tooltip.component to set it's position explicitly.
+   * The value of this input is forwarded to the tooltip.component to set its position explicitly.
    * @default "above-center"
    */
   readonly tooltipPosition = input<TooltipPositionIdentifier>("above-center");
