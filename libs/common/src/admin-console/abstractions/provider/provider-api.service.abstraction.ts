@@ -4,6 +4,8 @@ import { ProviderSetupRequest } from "../../models/request/provider/provider-set
 import { ProviderUpdateRequest } from "../../models/request/provider/provider-update.request";
 import { ProviderVerifyRecoverDeleteRequest } from "../../models/request/provider/provider-verify-recover-delete.request";
 import { ProviderResponse } from "../../models/response/provider/provider.response";
+import { ListResponse } from "@bitwarden/common/models/response/list.response";
+import { ProviderOrganizationOrganizationDetailsResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-organization.response";
 
 export abstract class ProviderApiServiceAbstraction {
   abstract postProviderSetup(id: string, request: ProviderSetupRequest): Promise<ProviderResponse>;
@@ -14,6 +16,9 @@ export abstract class ProviderApiServiceAbstraction {
     request: ProviderVerifyRecoverDeleteRequest,
   ): Promise<any>;
   abstract deleteProvider(id: string): Promise<void>;
+  abstract getProviderOrganizations(
+    providerId: string,
+  ): Promise<ListResponse<ProviderOrganizationOrganizationDetailsResponse>>;
   abstract getProviderAddableOrganizations(
     providerId: string,
   ): Promise<AddableOrganizationResponse[]>;

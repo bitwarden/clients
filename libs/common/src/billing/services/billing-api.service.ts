@@ -3,7 +3,6 @@
 
 import { ApiService } from "../../abstractions/api.service";
 import { OrganizationCreateRequest } from "../../admin-console/models/request/organization-create.request";
-import { ProviderOrganizationOrganizationDetailsResponse } from "../../admin-console/models/response/provider/provider-organization.response";
 import { ListResponse } from "../../models/response/list.response";
 import { BillingApiServiceAbstraction } from "../abstractions";
 import { CreateClientOrganizationRequest } from "../models/request/create-client-organization.request";
@@ -75,19 +74,6 @@ export class BillingApiService implements BillingApiServiceAbstraction {
       true,
     );
     return response as string;
-  }
-
-  async getProviderClientOrganizations(
-    providerId: string,
-  ): Promise<ListResponse<ProviderOrganizationOrganizationDetailsResponse>> {
-    const response = await this.apiService.send(
-      "GET",
-      "/providers/" + providerId + "/organizations",
-      null,
-      true,
-      true,
-    );
-    return new ListResponse(response, ProviderOrganizationOrganizationDetailsResponse);
   }
 
   async getProviderInvoices(providerId: string): Promise<InvoicesResponse> {

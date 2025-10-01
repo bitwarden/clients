@@ -1,25 +1,21 @@
-import { Component } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { Component, OnDestroy, OnInit } from "@angular/core";
 import { FormControl } from "@angular/forms";
-import { ActivatedRoute, Router } from "@angular/router";
+import { ActivatedRoute } from "@angular/router";
 import {
   firstValueFrom,
-  from,
   lastValueFrom,
   map,
   combineLatest,
   switchMap,
   Observable,
+  Subject,
+  takeUntil,
 } from "rxjs";
 import { debounceTime, first } from "rxjs/operators";
 
+import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider/provider-api.service.abstraction";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
-import {
-  ProviderStatusType,
-  ProviderType,
-  ProviderUserType,
-} from "@bitwarden/common/admin-console/enums";
-import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
+import { ProviderType, ProviderUserType } from "@bitwarden/common/admin-console/enums";
 import { ProviderOrganizationOrganizationDetailsResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-organization.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -40,26 +36,26 @@ import { SharedOrganizationModule } from "@bitwarden/web-vault/app/admin-console
 import { BillingNotificationService } from "@bitwarden/web-vault/app/billing/services/billing-notification.service";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 
-import { WebProviderService } from "../../../admin-console/providers/services/web-provider.service";
 
 import {
   AddExistingOrganizationDialogComponent,
   AddExistingOrganizationDialogResultType,
-} from "./add-existing-organization-dialog.component";
+} from "../../../billing/providers/clients/add-existing-organization-dialog.component";
 import {
   CreateClientDialogResultType,
   openCreateClientDialog,
-} from "./create-client-dialog.component";
+} from "../../../billing/providers/clients/create-client-dialog.component";
 import {
   ManageClientNameDialogResultType,
   openManageClientNameDialog,
-} from "./manage-client-name-dialog.component";
+} from "../../../billing/providers/clients/manage-client-name-dialog.component";
 import {
   ManageClientSubscriptionDialogResultType,
   openManageClientSubscriptionDialog,
-} from "./manage-client-subscription-dialog.component";
-import { NoClientsComponent } from "./no-clients.component";
-import { ReplacePipe } from "./replace.pipe";
+} from "../../../billing/providers/clients/manage-client-subscription-dialog.component";
+import { NoClientsComponent } from "../../../billing/providers/clients/no-clients.component";
+import { ReplacePipe } from "../../../billing/providers/clients/replace.pipe";
+import { WebProviderService } from "../services/web-provider.service";
 
 @Component({
   templateUrl: "manage-clients.component.html",
@@ -72,7 +68,7 @@ import { ReplacePipe } from "./replace.pipe";
     ReplacePipe,
   ],
 })
-export class ManageClientsComponent {
+export class ManageClientsComponent implements OnInit, OnDestroy {
   loading = true;
   dataSource: TableDataSource<ProviderOrganizationOrganizationDetailsResponse> =
     new TableDataSource();
@@ -117,10 +113,11 @@ export class ManageClientsComponent {
     ),
   );
 
+  private destroy$ = new Subject<void>();
+
   constructor(
     private billingApiService: BillingApiServiceAbstraction,
     private providerService: ProviderService,
-    private router: Router,
     private activatedRoute: ActivatedRoute,
     private dialogService: DialogService,
     private i18nService: I18nService,
@@ -130,33 +127,29 @@ export class ManageClientsComponent {
     private billingNotificationService: BillingNotificationService,
     private configService: ConfigService,
     private accountService: AccountService,
-  ) {
-    this.activatedRoute.queryParams.pipe(first(), takeUntilDestroyed()).subscribe((queryParams) => {
-      this.searchControl.setValue(queryParams.search);
-    });
+    private providerApiService: ProviderApiServiceAbstraction,
+  ) {}
 
-    this.provider$
-      .pipe(
-        map((provider: Provider | undefined) => {
-          if (provider?.providerStatus !== ProviderStatusType.Billable) {
-            return from(
-              this.router.navigate(["../clients"], {
-                relativeTo: this.activatedRoute,
-              }),
-            );
-          }
-          return from(this.load());
-        }),
-        takeUntilDestroyed(),
-      )
-      .subscribe();
+  async ngOnInit() {
+    this.activatedRoute.queryParams
+      .pipe(first(), takeUntil(this.destroy$))
+      .subscribe((queryParams) => {
+        this.searchControl.setValue(queryParams.search);
+      });
+
+    await this.load();
 
     this.searchControl.valueChanges
-      .pipe(debounceTime(200), takeUntilDestroyed())
+      .pipe(debounceTime(200), takeUntil(this.destroy$))
       .subscribe((searchText) => {
         this.dataSource.filter = (data) =>
           data.organizationName.toLowerCase().indexOf(searchText.toLowerCase()) > -1;
       });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   async load() {
@@ -170,7 +163,7 @@ export class ManageClientsComponent {
         this.newClientButtonLabel = this.i18nService.t("newBusinessUnit");
       }
       this.dataSource.data = (
-        await this.billingApiService.getProviderClientOrganizations(providerId)
+        await this.providerApiService.getProviderOrganizations(providerId)
       ).data;
       this.plans = (await this.billingApiService.getPlans()).data;
       this.loading = false;

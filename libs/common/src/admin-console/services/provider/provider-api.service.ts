@@ -6,6 +6,8 @@ import { ProviderSetupRequest } from "../../models/request/provider/provider-set
 import { ProviderUpdateRequest } from "../../models/request/provider/provider-update.request";
 import { ProviderVerifyRecoverDeleteRequest } from "../../models/request/provider/provider-verify-recover-delete.request";
 import { ProviderResponse } from "../../models/response/provider/provider.response";
+import { ListResponse } from "@bitwarden/common/models/response/list.response";
+import { ProviderOrganizationOrganizationDetailsResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-organization.response";
 
 export class ProviderApiService implements ProviderApiServiceAbstraction {
   constructor(private apiService: ApiService) {}
@@ -45,6 +47,19 @@ export class ProviderApiService implements ProviderApiServiceAbstraction {
 
   async deleteProvider(id: string): Promise<void> {
     await this.apiService.send("DELETE", "/providers/" + id, null, true, false);
+  }
+
+  async getProviderOrganizations(
+    providerId: string,
+  ): Promise<ListResponse<ProviderOrganizationOrganizationDetailsResponse>> {
+    const response = await this.apiService.send(
+      "GET",
+      "/providers/" + providerId + "/organizations",
+      null,
+      true,
+      true,
+    );
+    return new ListResponse(response, ProviderOrganizationOrganizationDetailsResponse);
   }
 
   async getProviderAddableOrganizations(
