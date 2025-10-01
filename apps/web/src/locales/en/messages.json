@@ -11078,8 +11078,13 @@
   "searchArchive": {
     "message": "Search archive"
   },
-  "archive": {
-    "message": "Archive"
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
   },
   "noItemsInArchive": {
     "message": "No items in archive"
