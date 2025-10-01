@@ -21,7 +21,6 @@ import { TooltipComponent, TOOLTIP_DATA } from "./tooltip.component";
  */
 @Directive({
   selector: "[bitTooltip]",
-  standalone: true,
   host: {
     "(mouseenter)": "showTooltip()",
     "(mouseleave)": "hideTooltip()",
