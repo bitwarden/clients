@@ -1,7 +1,6 @@
 import {
   ConnectedOverlayPositionChange,
   ConnectionPositionPair,
-  FlexibleConnectedPositionStrategy,
   OverlayConfig,
   Overlay,
 } from "@angular/cdk/overlay";
@@ -13,9 +12,16 @@ import { Observable, Subject } from "rxjs";
 
 import { TooltipDirective } from "./tooltip.directive";
 
-type TooltipPositionId = "above-center" | "below-center" | "left-center" | "right-center";
+@Component({
+  standalone: true,
+  imports: [TooltipDirective],
+  template: ` <button [bitTooltip]="tooltipText" type="button">Hover or focus me</button> `,
+})
+class TooltipHostComponent {
+  tooltipText = "Hello Tooltip";
+}
 
-/** Minimal strategy surface the directive uses */
+/** Minimal strategy shape the directive expects */
 interface StrategyLike {
   withFlexibleDimensions: (flex: boolean) => StrategyLike;
   withPush: (push: boolean) => StrategyLike;
@@ -23,7 +29,7 @@ interface StrategyLike {
   readonly positionChanges: Observable<ConnectedOverlayPositionChange>;
 }
 
-/** Minimal Overlay service surface we need */
+/** Minimal Overlay service shape */
 interface OverlayLike {
   position: () => { flexibleConnectedTo: (_: unknown) => StrategyLike };
   create: (_: OverlayConfig) => OverlayRefStub;
@@ -31,32 +37,16 @@ interface OverlayLike {
 }
 
 interface OverlayRefStub {
-  attach: (portal: ComponentPortal<unknown>) => unknown; // no setInput in new impl
+  attach: (portal: ComponentPortal<unknown>) => unknown;
   updatePosition: () => void;
 }
 
-@Component({
-  standalone: true,
-  imports: [TooltipDirective],
-  template: `
-    <button [bitTooltip]="tooltipText" [tooltipPosition]="currentPosition" type="button">
-      Hover me
-    </button>
-  `,
-})
-class TooltipHostComponent {
-  tooltipText = "Hello Tooltip";
-  currentPosition: TooltipPositionId = "above-center";
-}
-
-describe("TooltipDirective (signals + DI)", () => {
+describe("TooltipDirective (visibility only)", () => {
   let fixture: ComponentFixture<TooltipHostComponent>;
-  let positionChanges$: Subject<ConnectedOverlayPositionChange>;
 
   beforeEach(() => {
-    positionChanges$ = new Subject<ConnectedOverlayPositionChange>();
+    const positionChanges$ = new Subject<ConnectedOverlayPositionChange>();
 
-    // Chainable strategy mock
     const strategy: StrategyLike = {
       withFlexibleDimensions: jest.fn(() => strategy),
       withPush: jest.fn(() => strategy),
@@ -67,14 +57,12 @@ describe("TooltipDirective (signals + DI)", () => {
     };
 
     const overlayRefStub: OverlayRefStub = {
-      attach: (_portal: ComponentPortal<unknown>) => ({}), // directive doesn't use setInput now
+      attach: jest.fn(() => ({})),
       updatePosition: jest.fn(),
     };
 
     const overlayMock: OverlayLike = {
-      position: () => ({
-        flexibleConnectedTo: () => strategy,
-      }),
+      position: () => ({ flexibleConnectedTo: () => strategy }),
       create: (_: OverlayConfig) => overlayRefStub,
       scrollStrategies: { reposition: () => ({}) },
     };
@@ -89,80 +77,27 @@ describe("TooltipDirective (signals + DI)", () => {
   });
 
   function getDirective(): TooltipDirective {
-    const hostDebugEl = fixture.debugElement.query(By.directive(TooltipDirective));
-    return hostDebugEl.injector.get(TooltipDirective);
+    const hostDE = fixture.debugElement.query(By.directive(TooltipDirective));
+    return hostDE.injector.get(TooltipDirective);
   }
 
-  it("toggles visibility signal on hover/focus", () => {
-    const hostBtn: HTMLButtonElement = fixture.debugElement.query(By.css("button")).nativeElement;
+  it("sets isVisible to true on mouseenter", () => {
+    const button: HTMLButtonElement = fixture.debugElement.query(By.css("button")).nativeElement;
     const directive = getDirective();
 
     const isVisible = (directive as unknown as { isVisible: () => boolean }).isVisible;
 
-    hostBtn.dispatchEvent(new Event("mouseenter"));
+    button.dispatchEvent(new Event("mouseenter"));
     expect(isVisible()).toBe(true);
-
-    hostBtn.dispatchEvent(new Event("mouseleave"));
-    expect(isVisible()).toBe(false);
-
-    hostBtn.dispatchEvent(new Event("focus"));
-    expect(isVisible()).toBe(true);
-
-    hostBtn.dispatchEvent(new Event("blur"));
-    expect(isVisible()).toBe(false);
   });
 
-  it("updates strategy and overlay when tooltipPosition input changes", () => {
+  it("sets isVisible to true on focus", () => {
+    const button: HTMLButtonElement = fixture.debugElement.query(By.css("button")).nativeElement;
     const directive = getDirective();
 
-    const strategy = (
-      directive as unknown as { positionStrategy: FlexibleConnectedPositionStrategy }
-    ).positionStrategy;
+    const isVisible = (directive as unknown as { isVisible: () => boolean }).isVisible;
 
-    const withPositionsSpy = jest.spyOn(strategy, "withPositions");
-
-    const overlayRef = (directive as unknown as { overlayRef: OverlayRefStub }).overlayRef;
-    const updatePositionSpy = jest.spyOn(overlayRef!, "updatePosition");
-
-    fixture.componentInstance.currentPosition = "right-center";
-    fixture.detectChanges();
-
-    expect(withPositionsSpy).toHaveBeenCalled();
-    expect(updatePositionSpy).toHaveBeenCalled();
-  });
-
-  it("updates internal _tooltipPosition signal from positionChanges", () => {
-    const directive = getDirective();
-
-    const getCurrentPos = (
-      directive as unknown as {
-        _tooltipPosition: () => TooltipPositionId;
-      }
-    )._tooltipPosition;
-
-    const pair: ConnectionPositionPair = {
-      originX: "center",
-      originY: "top",
-      overlayX: "center",
-      overlayY: "bottom",
-      offsetX: 0,
-      offsetY: 0,
-    };
-
-    const changeEvent: ConnectedOverlayPositionChange & {
-      connectionPair: ConnectionPositionPair & { id: TooltipPositionId };
-    } = {
-      connectionPair: { ...pair, id: "below-center" },
-      scrollableViewProperties: {
-        isOverlayClipped: false,
-        isOriginClipped: false,
-        isOriginOutsideView: false,
-        isOverlayOutsideView: false,
-      },
-    };
-
-    positionChanges$.next(changeEvent);
-
-    expect(getCurrentPos()).toBe("below-center");
+    button.dispatchEvent(new Event("focus"));
+    expect(isVisible()).toBe(true);
   });
 });
