@@ -1,0 +1,42 @@
+<form [formGroup]="formGroup" [bitSubmit]="submit">
+  <bit-dialog dialogSize="large" [loading]="loading">
+    <span bitDialogTitle class="tw-font-semibold">{{ upgradeToMessage }}</span>
+
+    <ng-container bitDialogContent>
+      <section class="tw-pb-4">
+        @if (isFamiliesPlan) {
+          <div class="tw-mb-4">
+            <bit-form-field>
+              <bit-label>{{ "organizationName" | i18n }}</bit-label>
+              <input bitInput type="text" formControlName="organizationName" required />
+            </bit-form-field>
+          </div>
+        }
+
+        <app-enter-payment-method
+          [group]="formGroup.controls.paymentForm"
+          [includeBillingAddress]="true"
+          #paymentComponent
+        ></app-enter-payment-method>
+      </section>
+
+      <section>
+        @if (passwordManager) {
+          <billing-cart-summary
+            [passwordManager]="passwordManager"
+            [estimatedTax]="estimatedTax"
+          ></billing-cart-summary>
+        }
+      </section>
+    </ng-container>
+
+    <ng-container bitDialogFooter>
+      <button bitButton bitFormButton buttonType="primary" [disabled]="loading" type="submit">
+        {{ "upgrade" | i18n }}
+      </button>
+      <button bitButton type="button" buttonType="secondary" (click)="back()">
+        {{ "back" | i18n }}
+      </button>
+    </ng-container>
+  </bit-dialog>
+</form>

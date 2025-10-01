@@ -29,6 +29,7 @@ export interface PricingSummaryData {
   storageGb?: number;
   isSecretsManagerTrial?: boolean;
   estimatedTax?: number;
+  customPasswordManagerTitle?: string;
 }
 
 @Component({

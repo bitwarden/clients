@@ -45,9 +45,9 @@ class SecretsManager {
 class TaxInformation {
   postalCode: string;
   country: string;
-  taxId: string;
+  taxId: string | null;
 
-  constructor(postalCode: string, country: string, taxId: string) {
+  constructor(postalCode: string, country: string, taxId: string | null) {
     this.postalCode = postalCode;
     this.country = country;
     this.taxId = taxId;

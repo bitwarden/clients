@@ -60,6 +60,7 @@ import { VerifyBankAccountComponent } from "./verify-bank-account/verify-bank-ac
     PaymentComponent,
     IndividualSelfHostingLicenseUploaderComponent,
     OrganizationSelfHostingLicenseUploaderComponent,
+    PricingSummaryComponent,
   ],
 })
 export class BillingSharedModule {}

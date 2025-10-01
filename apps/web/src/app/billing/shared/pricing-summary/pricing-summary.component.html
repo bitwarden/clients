@@ -37,7 +37,9 @@
           <ng-container
             *ngIf="!summaryData.isSecretsManagerTrial || summaryData.organization.useSecretsManager"
           >
-            <p class="tw-font-semibold tw-mt-3 tw-mb-1">{{ "passwordManager" | i18n }}</p>
+            <p class="tw-font-semibold tw-mt-3 tw-mb-1">
+              {{ summaryData.customPasswordManagerTitle || ("passwordManager" | i18n) }}
+            </p>
 
             <!-- Base Price -->
             <ng-container *ngIf="summaryData.selectedPlan.PasswordManager.basePrice">

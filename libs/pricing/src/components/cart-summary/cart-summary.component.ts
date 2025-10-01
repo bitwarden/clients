@@ -29,7 +29,7 @@ export class CartSummaryComponent {
   estimatedTax = input.required<number>();
 
   // UI state
-  isExpanded = signal(true);
+  isExpanded = signal(false);
 
   /**
    * Calculates total for password manager line item

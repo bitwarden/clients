@@ -52,6 +52,18 @@
   "submit": {
     "message": "Submit"
   },
+  "upgrade": {
+    "message": "Upgrade"
+  },
+  "upgradeToPremium": {
+    "message": "Upgrade to Premium"
+  },
+  "upgradeToFamilies": {
+    "message": "Upgrade to Families"
+  },
+  "familiesUpgradeSuccess": {
+    "message": "You've upgrade to Families!"
+  },
   "emailAddress": {
     "message": "Email address"
   },
@@ -3135,6 +3147,9 @@
   },
   "organizationName": {
     "message": "Organization name"
+  },
+  "organizationNameDescription": {
+    "message": "Your organization name will appear in invitations you send to members."
   },
   "keyConnectorDomain": {
     "message": "Key Connector domain"

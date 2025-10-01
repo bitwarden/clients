@@ -103,6 +103,7 @@ import {
   CollectionDialogTabType,
   openCollectionDialog,
 } from "../../admin-console/organizations/shared/components/collection-dialog";
+import { UpgradeFlowService } from "../../billing/individual/upgrade/services/upgrade-flow.service";
 import { SharedModule } from "../../shared/shared.module";
 import { AssignCollectionsWebComponent } from "../components/assign-collections";
 import {
@@ -167,6 +168,7 @@ type EmptyStateMap = Record<EmptyStateType, EmptyStateItem>;
     RoutedVaultFilterService,
     RoutedVaultFilterBridgeService,
     DefaultCipherFormConfigService,
+    UpgradeFlowService,
   ],
 })
 export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestroy {
@@ -306,6 +308,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     private restrictedItemTypesService: RestrictedItemTypesService,
     private cipherArchiveService: CipherArchiveService,
     private organizationWarningsService: OrganizationWarningsService,
+    private upgradeFlowService: UpgradeFlowService,
   ) {}
 
   async ngOnInit() {
@@ -606,6 +609,11 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
           this.changeDetectorRef.markForCheck();
         },
       );
+    await this.openUpgradeDialog();
+  }
+
+  private async openUpgradeDialog() {
+    await this.upgradeFlowService.startUpgradeFlow();
   }
 
   ngOnDestroy() {
