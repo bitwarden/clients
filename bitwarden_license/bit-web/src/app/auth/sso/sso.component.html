@@ -30,8 +30,8 @@
         <bit-label>{{ "ssoIdentifier" | i18n }}</bit-label>
         <input bitInput type="text" formControlName="ssoIdentifier" />
         <bit-hint>
-          {{ "ssoIdentifierHintPartOne" | i18n }}
-          <a bitLink routerLink="../domain-verification">{{ "claimedDomains" | i18n }}</a>
+          {{ "ssoIdentifierHint" | i18n }}
+          <a bitLink routerLink="../domain-verification">{{ "claimedDomainsLearnMore" | i18n }}</a>
         </bit-hint>
       </bit-form-field>
 
@@ -209,7 +209,14 @@
 
         <bit-form-field>
           <bit-label>{{ "clientSecret" | i18n }}</bit-label>
-          <input bitInput type="text" formControlName="clientSecret" appInputStripSpaces />
+          <input bitInput type="password" formControlName="clientSecret" appInputStripSpaces />
+          <button
+            type="button"
+            bitIconButton
+            bitSuffix
+            bitPasswordInputToggle
+            [(toggled)]="showClientSecret"
+          ></button>
         </bit-form-field>
 
         <bit-form-field>
@@ -488,7 +495,6 @@
             formControlName="idpSingleSignOnServiceUrl"
             appInputStripSpaces
           />
-          <bit-hint>{{ "idpSingleSignOnServiceUrlRequired" | i18n }}</bit-hint>
         </bit-form-field>
 
         <bit-form-field>
