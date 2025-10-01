@@ -22,7 +22,7 @@
       <dirt-activity-card
         class="tw-col-span-2 tw-cursor-pointer"
         [title]="'atRiskMembers' | i18n"
-        [cardMetrics]="'membersAtRisk' | i18n: totalCriticalAppsAtRiskMemberCount"
+        [cardMetrics]="'membersAtRiskCount' | i18n: totalCriticalAppsAtRiskMemberCount"
         [metricDescription]="'membersAtRiskActivityDescription' | i18n"
         navigationText="{{ 'viewAtRiskMembers' | i18n }}"
         navigationLink="{{ getLinkForRiskInsightsTab(RiskInsightsTabType.AllApps) }}"
@@ -37,11 +37,11 @@
         [cardMetrics]="
           totalCriticalAppsCount === 0
             ? ('countOfCriticalApplications' | i18n: totalCriticalAppsCount)
-            : ('countOfApplicationsAtRisk' | i18n: totalCriticalAppsCount)
+            : ('countOfApplicationsAtRisk' | i18n: totalCriticalAppsAtRiskCount)
         "
         [metricDescription]="
           totalCriticalAppsCount === 0
-            ? ('onceYouMarkCriticalApplicationsActivityDescription' | i18n)
+            ? ('onceYouMarkApplicationsCriticalTheyWillDisplayHere' | i18n)
             : ('criticalApplicationsAreAtRisk'
               | i18n: totalCriticalAppsAtRiskCount : totalCriticalAppsCount)
         "
