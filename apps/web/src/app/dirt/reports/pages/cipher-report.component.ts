@@ -35,15 +35,13 @@ import {
 } from "../../../vault/components/vault-item-dialog/vault-item-dialog.component";
 import { AdminConsoleCipherFormConfigService } from "../../../vault/org-vault/services/admin-console-cipher-form-config.service";
 
-type ReportCipherView = CipherView & { icon?: string };
-
 @Directive()
 export class CipherReportComponent implements OnDestroy {
   isAdminConsoleActive = false;
 
   loading = false;
   hasLoaded = false;
-  ciphers: ReportCipherView[] = [];
+  ciphers: CipherView[] = [];
   allCiphers: CipherView[] = [];
   dataSource = new TableDataSource<CipherView>();
   organization: Organization;
