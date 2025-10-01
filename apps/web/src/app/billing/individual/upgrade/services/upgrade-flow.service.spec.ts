@@ -420,5 +420,33 @@ describe("UpgradeFlowService", () => {
       expect(result).toBe(UpgradeFlowResult.Upgraded);
       expect(router.navigate).not.toHaveBeenCalled();
     });
+
+    it("should pass title message override to upgrade account dialog when provided", async () => {
+      // Arrange
+      const titleOverride = "Custom Premium Upgrade Title";
+      const mockUpgradeDialogRef = createMockDialogRef<UpgradeAccountDialogResult>({
+        status: UpgradeAccountDialogStatus.ProceededToPayment,
+        plan: PersonalSubscriptionPricingTierIds.Premium,
+      });
+
+      const mockPaymentDialogRef = createMockDialogRef<UpgradePaymentDialogResult>({
+        status: UpgradePaymentDialogStatus.UpgradedToPremium,
+        organizationId: null,
+      });
+
+      mockDialogOpenMethod(UpgradeAccountDialogComponent, mockUpgradeDialogRef);
+      mockDialogOpenMethod(UpgradePaymentDialogComponent, mockPaymentDialogRef);
+
+      // Act
+      const result = await sut.startUpgradeFlow(true, titleOverride);
+
+      // Assert
+      expect(result).toBe(UpgradeFlowResult.Upgraded);
+      expect(UpgradeAccountDialogComponent.open).toHaveBeenCalledWith(dialogService, {
+        data: {
+          dialogTitleMessageOverride: titleOverride,
+        },
+      });
+    });
   });
 });
