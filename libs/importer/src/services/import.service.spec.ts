@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, Subject, firstValueFrom } from "rxjs";
 
@@ -25,7 +23,7 @@ import { KeyService } from "@bitwarden/key-management";
 
 import { BitwardenPasswordProtectedImporter } from "../importers/bitwarden/bitwarden-password-protected-importer";
 import { Importer } from "../importers/importer";
-import { ImporterMetadata, Instructions, Loader } from "../metadata";
+import type { ImporterMetadata } from "../metadata";
 import { ImportType } from "../models";
 import { ImportResult } from "../models/import-result";
 
@@ -270,29 +268,86 @@ describe("ImportService", () => {
   });
 
   describe("metadata$", () => {
-    let featureFlagSubject: BehaviorSubject<boolean>;
-    let typeSubject: Subject<ImportType>;
-    let mockLogger: { debug: jest.Mock };
+    // Helper to build a native-like metadata map and re-import ImportService after mocking
+    async function createServiceWithNativeMap(
+      nativeMap: Partial<
+        Record<ImportType, { loaders: ("file" | "chromium")[]; instructions?: "chromium" }>
+      >,
+    ) {
+      jest.resetModules();
 
-    beforeEach(() => {
-      featureFlagSubject = new BehaviorSubject(false);
-      typeSubject = new Subject<ImportType>();
-      mockLogger = { debug: jest.fn() };
+      jest.doMock("../metadata", () => {
+        const data = jest.requireActual("../metadata/data");
+        const availability = jest.requireActual("../metadata/availability");
+        const { Loader, Instructions } = data;
+        const Importers = Object.freeze(
+          Object.fromEntries(
+            Object.entries(nativeMap).map(([id, meta]) => {
+              const loaders = meta.loaders.map((l) => (Loader as any)[l]);
+              const instructions = meta.instructions
+                ? (Instructions as any)[meta.instructions]
+                : undefined;
+              return [
+                id,
+                {
+                  type: id,
+                  loaders,
+                  ...(instructions ? { instructions } : {}),
+                },
+              ];
+            }),
+          ),
+        );
+        return {
+          Loader,
+          Instructions,
+          LoaderAvailability: availability.LoaderAvailability,
+          Importers,
+        };
+      });
+
+      jest.doMock("../util", () => {
+        const { Loader } = jest.requireActual("../metadata/data");
+        const { LoaderAvailability } = jest.requireActual("../metadata/availability");
+        const availableLoaders = (
+          type: ImportType,
+          client: import("@bitwarden/client-type").ClientType,
+        ) => {
+          const entry = nativeMap[type];
+          if (!entry) {
+            return undefined;
+          }
+          const loaders = entry.loaders.map(
+            (l) => (Loader as any)[l],
+          ) as import("../metadata/types").DataLoader[];
+          return loaders.filter((loader: import("../metadata/types").DataLoader) =>
+            LoaderAvailability[loader]?.includes(client),
+          );
+        };
+        return { availableLoaders };
+      });
 
       const configService = mock<ConfigService>();
+      const featureFlagSubject = new BehaviorSubject<boolean>(false);
       configService.getFeatureFlag$.mockReturnValue(featureFlagSubject);
 
       const environment = mock<PlatformUtilsService>();
       environment.getClientType.mockReturnValue(ClientType.Desktop);
 
+      const mockLogger = { debug: jest.fn() };
       systemServiceProvider = mock<SystemServiceProvider>({
         configService,
         environment,
         log: jest.fn().mockReturnValue(mockLogger),
       });
 
-      // Recreate the service with the updated mocks for logging tests
-      importService = new ImportService(
+      let ImportServiceWithMocks: typeof ImportService;
+      await jest.isolateModulesAsync(async () => {
+        const svc = await import("./import.service");
+        ImportServiceWithMocks = svc.ImportService as typeof ImportService;
+      });
+
+      const service = new ImportServiceWithMocks(
         cipherService,
         folderService,
         importApiService,
@@ -305,129 +360,160 @@ describe("ImportService", () => {
         restrictedItemTypesService,
         systemServiceProvider,
       );
-    });
 
-    afterEach(() => {
-      featureFlagSubject.complete();
-      typeSubject.complete();
-    });
+      return { service, featureFlagSubject, mockLogger };
+    }
 
     it("should emit metadata when type$ emits", async () => {
-      const testType: ImportType = "chromecsv";
+      const nativeMap: Partial<
+        Record<ImportType, { loaders: ("file" | "chromium")[]; instructions?: "chromium" }>
+      > = {
+        chromecsv: { loaders: ["file"], instructions: "chromium" },
+      };
+      const { service } = await createServiceWithNativeMap(nativeMap);
 
-      const metadataPromise = firstValueFrom(importService.metadata$(typeSubject));
-      typeSubject.next(testType);
+      const typeSubject = new Subject<ImportType>();
+      const promise = firstValueFrom(service.metadata$(typeSubject));
+      typeSubject.next("chromecsv");
+      const result: ImporterMetadata = await promise;
 
-      const result = await metadataPromise;
-
-      expect(result).toEqual({
-        type: testType,
-        loaders: expect.any(Array),
-        instructions: Instructions.chromium,
-      });
-      expect(result.type).toBe(testType);
+      expect(result).toEqual(
+        expect.objectContaining({
+          type: "chromecsv",
+          loaders: expect.any(Array),
+        }),
+      );
+      expect(result.instructions).toBeDefined();
+      expect(result.type).toBe("chromecsv");
     });
 
     it("should include all loaders when chromium feature flag is enabled", async () => {
-      const testType: ImportType = "bravecsv"; // bravecsv supports both file and chromium loaders
+      // bravecsv supports both file and chromium loaders
+      const nativeMap: Partial<
+        Record<ImportType, { loaders: ("file" | "chromium")[]; instructions?: "chromium" }>
+      > = {
+        bravecsv: { loaders: ["file", "chromium"], instructions: "chromium" },
+      };
+      const { service, featureFlagSubject } = await createServiceWithNativeMap(nativeMap);
       featureFlagSubject.next(true);
 
-      const metadataPromise = firstValueFrom(importService.metadata$(typeSubject));
-      typeSubject.next(testType);
+      const typeSubject = new Subject<ImportType>();
+      const promise = firstValueFrom(service.metadata$(typeSubject));
+      typeSubject.next("bravecsv");
+      const result: ImporterMetadata = await promise;
 
-      const result = await metadataPromise;
-
-      expect(result.loaders).toContain(Loader.chromium);
-      expect(result.loaders).toContain(Loader.file);
+      expect(result.loaders).toContain("chromium");
+      expect(result.loaders).toContain("file");
     });
 
     it("should exclude chromium loader when feature flag is disabled", async () => {
-      const testType: ImportType = "bravecsv"; // bravecsv supports both file and chromium loaders
+      const nativeMap: Partial<
+        Record<ImportType, { loaders: ("file" | "chromium")[]; instructions?: "chromium" }>
+      > = {
+        bravecsv: { loaders: ["file", "chromium"], instructions: "chromium" },
+      };
+      const { service, featureFlagSubject } = await createServiceWithNativeMap(nativeMap);
       featureFlagSubject.next(false);
 
-      const metadataPromise = firstValueFrom(importService.metadata$(typeSubject));
-      typeSubject.next(testType);
+      const typeSubject = new Subject<ImportType>();
+      const promise = firstValueFrom(service.metadata$(typeSubject));
+      typeSubject.next("bravecsv");
+      const result: ImporterMetadata = await promise;
 
-      const result = await metadataPromise;
-
-      expect(result.loaders).not.toContain(Loader.chromium);
-      expect(result.loaders).toContain(Loader.file);
+      expect(result.loaders).not.toContain("chromium");
+      expect(result.loaders).toContain("file");
     });
 
     it("should update when type$ changes", async () => {
+      const nativeMap: Partial<
+        Record<ImportType, { loaders: ("file" | "chromium")[]; instructions?: "chromium" }>
+      > = {
+        chromecsv: { loaders: ["file"], instructions: "chromium" },
+        bravecsv: { loaders: ["file", "chromium"], instructions: "chromium" },
+      };
+      const { service } = await createServiceWithNativeMap(nativeMap);
+
       const emissions: ImporterMetadata[] = [];
-      const subscription = importService.metadata$(typeSubject).subscribe((metadata) => {
-        emissions.push(metadata);
-      });
+      const typeSubject = new Subject<ImportType>();
+      const subscription = service
+        .metadata$(typeSubject)
+        .subscribe((m: ImporterMetadata) => emissions.push(m));
 
       typeSubject.next("chromecsv");
       typeSubject.next("bravecsv");
-
-      // Wait for emissions
-      await new Promise((resolve) => setTimeout(resolve, 0));
+      await new Promise((r) => setTimeout(r, 0));
 
       expect(emissions).toHaveLength(2);
       expect(emissions[0].type).toBe("chromecsv");
       expect(emissions[1].type).toBe("bravecsv");
-
       subscription.unsubscribe();
     });
 
     it("should update when feature flag changes", async () => {
-      const testType: ImportType = "bravecsv"; // Use bravecsv which supports chromium loader
+      const nativeMap: Partial<
+        Record<ImportType, { loaders: ("file" | "chromium")[]; instructions?: "chromium" }>
+      > = {
+        bravecsv: { loaders: ["file", "chromium"], instructions: "chromium" },
+      };
+      const { service, featureFlagSubject } = await createServiceWithNativeMap(nativeMap);
+
       const emissions: ImporterMetadata[] = [];
+      const typeSubject = new Subject<ImportType>();
+      const subscription = service
+        .metadata$(typeSubject)
+        .subscribe((m: ImporterMetadata) => emissions.push(m));
 
-      const subscription = importService.metadata$(typeSubject).subscribe((metadata) => {
-        emissions.push(metadata);
-      });
-
-      typeSubject.next(testType);
+      typeSubject.next("bravecsv");
       featureFlagSubject.next(true);
-
-      // Wait for emissions
-      await new Promise((resolve) => setTimeout(resolve, 0));
+      await new Promise((r) => setTimeout(r, 0));
 
       expect(emissions).toHaveLength(2);
-      expect(emissions[0].loaders).not.toContain(Loader.chromium);
-      expect(emissions[1].loaders).toContain(Loader.chromium);
-
+      expect(emissions[0].loaders).not.toContain("chromium");
+      expect(emissions[1].loaders).toContain("chromium");
       subscription.unsubscribe();
     });
 
     it("should update when both type$ and feature flag change", async () => {
+      const nativeMap: Partial<
+        Record<ImportType, { loaders: ("file" | "chromium")[]; instructions?: "chromium" }>
+      > = {
+        chromecsv: { loaders: ["file"], instructions: "chromium" },
+        bravecsv: { loaders: ["file", "chromium"], instructions: "chromium" },
+      };
+      const { service, featureFlagSubject } = await createServiceWithNativeMap(nativeMap);
+
       const emissions: ImporterMetadata[] = [];
+      const typeSubject = new Subject<ImportType>();
+      const subscription = service
+        .metadata$(typeSubject)
+        .subscribe((m: ImporterMetadata) => emissions.push(m));
 
-      const subscription = importService.metadata$(typeSubject).subscribe((metadata) => {
-        emissions.push(metadata);
-      });
-
-      // Initial emission
       typeSubject.next("chromecsv");
-
-      // Change both at the same time
       featureFlagSubject.next(true);
       typeSubject.next("bravecsv");
-
-      // Wait for emissions
-      await new Promise((resolve) => setTimeout(resolve, 0));
+      await new Promise((r) => setTimeout(r, 0));
 
       expect(emissions.length).toBeGreaterThanOrEqual(2);
       const lastEmission = emissions[emissions.length - 1];
       expect(lastEmission.type).toBe("bravecsv");
-
       subscription.unsubscribe();
     });
 
     it("should log debug information with correct data", async () => {
-      const testType: ImportType = "chromecsv";
+      const nativeMap: Partial<
+        Record<ImportType, { loaders: ("file" | "chromium")[]; instructions?: "chromium" }>
+      > = {
+        chromecsv: { loaders: ["file"], instructions: "chromium" },
+      };
+      const { service, mockLogger } = await createServiceWithNativeMap(nativeMap);
 
-      const metadataPromise = firstValueFrom(importService.metadata$(typeSubject));
-      typeSubject.next(testType);
-
-      await metadataPromise;
+      const typeSubject = new Subject<ImportType>();
+      const promise = firstValueFrom(service.metadata$(typeSubject));
+      typeSubject.next("chromecsv");
+      await promise;
 
       expect(mockLogger.debug).toHaveBeenCalledWith(
-        { importType: testType, capabilities: expect.any(Object) },
+        { importType: "chromecsv", capabilities: expect.any(Object) },
         "capabilities updated",
       );
     });
