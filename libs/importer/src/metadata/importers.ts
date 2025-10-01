@@ -26,8 +26,6 @@ try {
     }
   }
 } catch {
-  // guaranteed to occur in import.service.ts and util.spec.ts, mocks have been added there
-  // TODO remove those mocks and test Rust code using Rust code
   chromium_importer_metadata = undefined;
 }
 
