@@ -1,6 +1,7 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
+import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -30,6 +31,7 @@ describe("CipherReportComponent", () => {
       password: "test-password",
       totp: "123",
     },
+    icon: "bwi-collection-shared",
     decrypt: jest.fn().mockResolvedValue({ id: "cipher1", name: "Updated" }),
   } as unknown as Cipher;
   const mockCipherService = mock<CipherService>();
@@ -53,6 +55,7 @@ describe("CipherReportComponent", () => {
       mock<SyncService>(),
       mock<CipherFormConfigService>(),
       mockAdminConsoleCipherFormConfigService,
+      mock<CollectionService>(),
     );
     component.ciphers = [];
     component.allCiphers = [];
@@ -66,7 +69,7 @@ describe("CipherReportComponent", () => {
 
     await component.refresh(VaultItemDialogResult.Deleted, cipherToDelete);
 
-    expect(component.ciphers).toEqual([{ id: "cipher2" }]);
+    expect(component.ciphers).toEqual([{ id: "cipher2", icon: "bwi-collection-shared" }]);
     expect(component.determinedUpdatedCipherReportStatus).toHaveBeenCalledWith(
       VaultItemDialogResult.Deleted,
       cipherToDelete,

@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
+import { CollectionService } from "@bitwarden/admin-console/common";
 import { I18nPipe } from "@bitwarden/angular/platform/pipes/i18n.pipe";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -81,6 +82,10 @@ describe("WeakPasswordsReportComponent", () => {
         {
           provide: AdminConsoleCipherFormConfigService,
           useValue: adminConsoleCipherFormConfigServiceMock,
+        },
+        {
+          provide: CollectionService,
+          useValue: mock<CollectionService>(),
         },
       ],
       schemas: [],
