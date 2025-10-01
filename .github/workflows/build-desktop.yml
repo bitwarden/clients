@@ -696,9 +696,6 @@ jobs:
       - name: Install AST
         run: dotnet tool install --global AzureSignTool --version 4.0.1
 
-      - name: Set up environment
-        run: choco install checksum --no-progress
-
       - name: Print environment
         run: |
           node --version
@@ -785,11 +782,6 @@ jobs:
           SIGNING_CLIENT_SECRET: ${{ steps.retrieve-secrets.outputs.code-signing-client-secret }}
           SIGNING_CERT_NAME: ${{ steps.retrieve-secrets.outputs.code-signing-cert-name }}
         run: npm run pack:win:beta
-
-      - name: Test
-        if: always()
-        shell: bash
-        run: ls -alhR ./dist/
 
       - name: Rename appx files for store
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
