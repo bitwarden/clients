@@ -426,11 +426,28 @@ async fn run() -> Result<String> {
     debug!("Running as admin");
 
     // Impersonate a SYSTEM process to be able to decrypt data encrypted for the machine
-    let (_guard, pid) = ImpersonateGuard::start(None, None)?;
-    debug!("Impersonating system process with PID {}", pid);
+    let system_decrypted_base64 = {
+        let (_guard, pid) = ImpersonateGuard::start(None, None)?;
+        debug!("Impersonating system process with PID {}", pid);
 
-    let system_decrypted_base64 = decrypt_data_base64(&args.encrypted, true)?;
-    debug!("Decrypted data with system");
+        let system_decrypted_base64 = decrypt_data_base64(&args.encrypted, true)?;
+        debug!("Decrypted data with system");
+
+        system_decrypted_base64
+    };
+
+    // This is just to check that we're decrypting Chrome keys and not something else sent to us by a malicious actor.
+    // Now that we're back from SYSTEM, we need to decrypt one more time just to verify.
+    // Chrome keys are double encrypted: once at SYSTEM level and once at USER level.
+    // When the decryption fails, it means that we're decrypting something unexpected.
+    // We don't send this result back since the library will decrypt again at USER level.
+
+    _ = decrypt_data_base64(&system_decrypted_base64, false).map_err(|e| {
+        debug!("User level decryption check failed: {}", e);
+        e
+    })?;
+
+    debug!("User level decryption check passed");
 
     Ok(system_decrypted_base64)
 }
