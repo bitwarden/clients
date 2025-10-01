@@ -9,7 +9,7 @@
             <th bitTypography="body2" class="tw-text-left tw-py-3 tw-px-2 tw-font-semibold">
               {{ "application" | i18n }}
             </th>
-            <th bitTypography="body2" class="tw-text-left tw-py-3 tw-px-2 tw-font-semibold">
+            <th bitTypography="body2" class="tw-text-right tw-py-3 tw-px-2 tw-font-semibold">
               {{ "atRiskItems" | i18n }}
             </th>
           </tr>
@@ -27,7 +27,7 @@
               <td bitTypography="body1" class="tw-py-3 tw-px-2">
                 {{ app }}
               </td>
-              <td bitTypography="body1" class="tw-py-3 tw-px-2 tw-text-muted">—</td>
+              <td bitTypography="body1" class="tw-py-3 tw-px-2 tw-text-right tw-text-muted">—</td>
             </tr>
           }
         </tbody>
@@ -38,6 +38,7 @@
     <button
       type="button"
       bitButton
+      size="small"
       buttonType="primary"
       (click)="onMarkAsCritical()"
       [attr.aria-label]="'markAppAsCritical' | i18n"
@@ -47,6 +48,7 @@
     <button
       type="button"
       bitButton
+      size="small"
       buttonType="secondary"
       [bitDialogClose]
       [attr.aria-label]="'cancel' | i18n"
