@@ -550,8 +550,13 @@
   "resetSearch": {
     "message": "重設搜尋"
   },
-  "archive": {
-    "message": "Archive"
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
   },
   "unarchive": {
     "message": "Unarchive"
@@ -3541,7 +3546,7 @@
     "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
   },
   "device": {
-    "message": "Device"
+    "message": "裝置"
   },
   "loginStatus": {
     "message": "Login status"
@@ -3640,7 +3645,7 @@
     "message": "記住此裝置來讓未來的登入體驗更簡易"
   },
   "manageDevices": {
-    "message": "Manage devices"
+    "message": "管理裝置"
   },
   "currentSession": {
     "message": "Current session"
@@ -3683,7 +3688,7 @@
     "message": "Needs approval"
   },
   "devices": {
-    "message": "Devices"
+    "message": "裝置"
   },
   "accessAttemptBy": {
     "message": "Access attempt by $EMAIL$",
@@ -3704,7 +3709,7 @@
     "message": "Time"
   },
   "deviceType": {
-    "message": "Device Type"
+    "message": "裝置類型"
   },
   "loginRequest": {
     "message": "Login request"
@@ -5434,10 +5439,10 @@
     "message": "擴充套件寬度"
   },
   "wide": {
-    "message": "寬度"
+    "message": "寬"
   },
   "extraWide": {
-    "message": "更寬"
+    "message": "超寬"
   },
   "sshKeyWrongPassword": {
     "message": "The password you entered is incorrect."

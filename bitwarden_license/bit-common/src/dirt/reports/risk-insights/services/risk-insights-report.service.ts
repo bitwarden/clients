@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe
-// @ts-strict-ignore
 import {
   BehaviorSubject,
   concatMap,
@@ -11,15 +9,17 @@ import {
   Observable,
   of,
   switchMap,
+  throwError,
   zip,
 } from "rxjs";
 
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import {
+  createNewReportData,
+  createNewSummaryData,
   flattenMemberDetails,
   getApplicationReportDetail,
   getFlattenedCipherDetails,
@@ -27,6 +27,10 @@ import {
   getTrimmedCipherUris,
   getUniqueMembers,
 } from "../helpers/risk-insights-data-mappers";
+import {
+  isSaveRiskInsightsReportResponse,
+  SaveRiskInsightsReportResponse,
+} from "../models/api-models.types";
 import {
   LEGACY_CipherHealthReportDetail,
   LEGACY_CipherHealthReportUriDetail,
@@ -53,17 +57,9 @@ export class RiskInsightsReportService {
   private riskInsightsReportSubject = new BehaviorSubject<ApplicationHealthReportDetail[]>([]);
   riskInsightsReport$ = this.riskInsightsReportSubject.asObservable();
 
-  private riskInsightsSummarySubject = new BehaviorSubject<OrganizationReportSummary>({
-    totalMemberCount: 0,
-    totalAtRiskMemberCount: 0,
-    totalApplicationCount: 0,
-    totalAtRiskApplicationCount: 0,
-    totalCriticalMemberCount: 0,
-    totalCriticalAtRiskMemberCount: 0,
-    totalCriticalApplicationCount: 0,
-    totalCriticalAtRiskApplicationCount: 0,
-    newApplications: [],
-  });
+  private riskInsightsSummarySubject = new BehaviorSubject<OrganizationReportSummary>(
+    createNewSummaryData(),
+  );
   riskInsightsSummary$ = this.riskInsightsSummarySubject.asObservable();
 
   // [FIXME] CipherData
@@ -189,11 +185,8 @@ export class RiskInsightsReportService {
 
     cipherHealthReportDetails.forEach((app) => {
       app.atRiskMemberDetails.forEach((member) => {
-        if (memberRiskMap.has(member.email)) {
-          memberRiskMap.set(member.email, memberRiskMap.get(member.email) + 1);
-        } else {
-          memberRiskMap.set(member.email, 1);
-        }
+        const currentCount = memberRiskMap.get(member.email) ?? 0;
+        memberRiskMap.set(member.email, currentCount + 1);
       });
     });
 
@@ -206,25 +199,24 @@ export class RiskInsightsReportService {
   generateAtRiskApplicationList(
     cipherHealthReportDetails: ApplicationHealthReportDetail[],
   ): AtRiskApplicationDetail[] {
-    const appsRiskMap = new Map<string, number>();
+    const applicationPasswordRiskMap = new Map<string, number>();
 
     cipherHealthReportDetails
       .filter((app) => app.atRiskPasswordCount > 0)
       .forEach((app) => {
-        if (appsRiskMap.has(app.applicationName)) {
-          appsRiskMap.set(
-            app.applicationName,
-            appsRiskMap.get(app.applicationName) + app.atRiskPasswordCount,
-          );
-        } else {
-          appsRiskMap.set(app.applicationName, app.atRiskPasswordCount);
-        }
+        const atRiskPasswordCount = applicationPasswordRiskMap.get(app.applicationName) ?? 0;
+        applicationPasswordRiskMap.set(
+          app.applicationName,
+          atRiskPasswordCount + app.atRiskPasswordCount,
+        );
       });
 
-    return Array.from(appsRiskMap.entries()).map(([applicationName, atRiskPasswordCount]) => ({
-      applicationName,
-      atRiskPasswordCount,
-    }));
+    return Array.from(applicationPasswordRiskMap.entries()).map(
+      ([applicationName, atRiskPasswordCount]) => ({
+        applicationName,
+        atRiskPasswordCount,
+      }),
+    );
   }
 
   /**
@@ -270,78 +262,88 @@ export class RiskInsightsReportService {
     return dataWithCiphers;
   }
 
-  getRiskInsightsReport(organizationId: OrganizationId, userId: UserId): void {
-    this.riskInsightsApiService
-      .getRiskInsightsReport$(organizationId)
-      .pipe(
-        switchMap((response) => {
-          if (!response) {
-            // Return an empty report and summary if response is falsy
-            return of<RiskInsightsReportData>({
-              data: [],
-              summary: {
-                totalMemberCount: 0,
-                totalAtRiskMemberCount: 0,
-                totalApplicationCount: 0,
-                totalAtRiskApplicationCount: 0,
-                totalCriticalMemberCount: 0,
-                totalCriticalAtRiskMemberCount: 0,
-                totalCriticalApplicationCount: 0,
-                totalCriticalAtRiskApplicationCount: 0,
-                newApplications: [],
-              },
-            });
-          }
-          return from(
-            this.riskInsightsEncryptionService.decryptRiskInsightsReport<RiskInsightsReportData>(
-              organizationId,
-              userId,
-              new EncString(response.reportData),
-              new EncString(response.contentEncryptionKey),
-              (data) => data as RiskInsightsReportData,
-            ),
-          );
-        }),
-      )
-      .subscribe({
-        next: (decryptRiskInsightsReport) => {
-          this.riskInsightsReportSubject.next(decryptRiskInsightsReport.data);
-          this.riskInsightsSummarySubject.next(decryptRiskInsightsReport.summary);
-        },
-      });
-  }
-
-  async saveRiskInsightsReport(
+  /**
+   * Gets the risk insights report for a specific organization and user.
+   *
+   * @param organizationId
+   * @param userId
+   * @returns An observable that emits the decrypted risk insights report data.
+   */
+  getRiskInsightsReport$(
     organizationId: OrganizationId,
     userId: UserId,
+  ): Observable<RiskInsightsReportData> {
+    return this.riskInsightsApiService.getRiskInsightsReport$(organizationId).pipe(
+      switchMap((response): Observable<RiskInsightsReportData> => {
+        if (!response) {
+          // Return an empty report and summary if response is falsy
+          return of<RiskInsightsReportData>(createNewReportData());
+        }
+        if (!response.contentEncryptionKey || response.contentEncryptionKey.data == "") {
+          return throwError(() => new Error("Report key not found"));
+        }
+        if (!response.reportData) {
+          return throwError(() => new Error("Report data not found"));
+        }
+        return from(
+          this.riskInsightsEncryptionService.decryptRiskInsightsReport<RiskInsightsReportData>(
+            organizationId,
+            userId,
+            response.reportData,
+            response.contentEncryptionKey,
+            (data) => data as RiskInsightsReportData,
+          ),
+        ).pipe(map((decryptedReport) => decryptedReport ?? createNewReportData()));
+      }),
+    );
+  }
+
+  /**
+   * Encrypts the risk insights report data for a specific organization.
+   * @param organizationId The ID of the organization.
+   * @param userId The ID of the user.
+   * @param report The report data to encrypt.
+   * @returns A promise that resolves to an object containing the encrypted data and encryption key.
+   */
+  saveRiskInsightsReport$(
     report: ApplicationHealthReportDetail[],
-  ): Promise<void> {
-    const riskReport = {
-      data: report,
-    };
-
-    const encryptedReport = await this.riskInsightsEncryptionService.encryptRiskInsightsReport(
-      organizationId,
-      userId,
-      riskReport,
+    summary: OrganizationReportSummary,
+    encryptionParameters: {
+      organizationId: OrganizationId;
+      userId: UserId;
+    },
+  ): Observable<SaveRiskInsightsReportResponse> {
+    return from(
+      this.riskInsightsEncryptionService.encryptRiskInsightsReport(
+        encryptionParameters.organizationId,
+        encryptionParameters.userId,
+        {
+          data: report,
+          summary: summary,
+        },
+      ),
+    ).pipe(
+      map(({ encryptedData, contentEncryptionKey }) => ({
+        data: {
+          organizationId: encryptionParameters.organizationId,
+          date: new Date().toISOString(),
+          reportData: encryptedData.toSdk(),
+          contentEncryptionKey: contentEncryptionKey.toSdk(),
+        },
+      })),
+      switchMap((encryptedReport) =>
+        this.riskInsightsApiService.saveRiskInsightsReport$(
+          encryptedReport,
+          encryptionParameters.organizationId,
+        ),
+      ),
+      map((response) => {
+        if (!isSaveRiskInsightsReportResponse(response)) {
+          throw new Error("Invalid response from API");
+        }
+        return response;
+      }),
     );
-
-    const saveRequest = {
-      data: {
-        organizationId: organizationId,
-        date: new Date().toISOString(),
-        reportData: encryptedReport.encryptedData,
-        reportKey: encryptedReport.encryptionKey,
-      },
-    };
-
-    const response = await firstValueFrom(
-      this.riskInsightsApiService.saveRiskInsightsReport$(saveRequest, organizationId),
-    );
-
-    if (response && response.id) {
-      this.riskInsightsReportSubject.next(report);
-    }
   }
 
   /**
@@ -374,7 +376,7 @@ export class RiskInsightsReportService {
           passwordUseMap.set(cipher.login.password, 1);
         }
 
-        const exposedPassword = exposedDetails.find((x) => x.cipherId === cipher.id);
+        const exposedPassword = exposedDetails.find((x) => x?.cipherId === cipher.id);
 
         // Get the cipher members
         const cipherMembers = memberDetails.filter((x) => x.cipherId === cipher.id);
@@ -599,7 +601,7 @@ export class RiskInsightsReportService {
     return this.passwordHealthService.auditPasswordLeaks$(validCiphers).pipe(
       map((exposedDetails) => {
         return validCiphers.map((cipher) => {
-          const exposedPassword = exposedDetails.find((x) => x.cipherId === cipher.id);
+          const exposedPassword = exposedDetails.find((x) => x?.cipherId === cipher.id);
           const cipherMembers = memberDetails.filter((x) => x.cipherId === cipher.id);
 
           const result = {

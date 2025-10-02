@@ -550,8 +550,13 @@
   "resetSearch": {
     "message": "重置搜索"
   },
-  "archive": {
-    "message": "归档"
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
   },
   "unarchive": {
     "message": "取消归档"
@@ -1134,7 +1139,7 @@
     "description": "Shown to user after item is updated."
   },
   "selectItemAriaLabel": {
-    "message": "选择 $ITEMTYPE$，$ITEMNAME$",
+    "message": "选择 $ITEMNAME$ 中的 $ITEMTYPE$",
     "description": "Used by screen readers. $1 is the item type (like vault or folder), $2 is the selected item name.",
     "placeholders": {
       "itemType": {
@@ -4622,7 +4627,7 @@
     }
   },
   "copyFieldCipherName": {
-    "message": "复制 $CIPHERNAME$ 的 $FIELD$",
+    "message": "复制 $CIPHERNAME$ 中的 $FIELD$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {

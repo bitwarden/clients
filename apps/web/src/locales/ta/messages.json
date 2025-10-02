@@ -59,8 +59,27 @@
   "createNewLoginItem": {
     "message": "புதிய உள்நுழைவு உருப்படியை உருவாக்கவும்"
   },
-  "criticalApplicationsActivityDescription": {
-    "message": "Once you mark applications critical, they will display here."
+  "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
+    "message": "Once you mark applications critical, they will display here"
+  },
+  "viewAtRiskMembers": {
+    "message": "View at-risk members"
+  },
+  "viewAtRiskApplications": {
+    "message": "View at-risk applications"
+  },
+  "criticalApplicationsAreAtRisk": {
+    "message": "$COUNT$ out of $TOTAL$ critical applications are at-risk due to at-risk passwords",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "total": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
   },
   "criticalApplicationsWithCount": {
     "message": "முக்கியமான பயன்பாடுகள் ($COUNT$)",
@@ -73,6 +92,15 @@
   },
   "countOfCriticalApplications": {
     "message": "$COUNT$ critical applications",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfApplicationsAtRisk": {
+    "message": "$COUNT$ applications at-risk",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -137,8 +165,8 @@
   "membersAtRiskActivityDescription": {
     "message": "Members with edit access to at-risk items for critical applications"
   },
-  "membersAtRisk": {
-    "message": "$COUNT$ members at risk",
+  "membersAtRiskCount": {
+    "message": "$COUNT$ members at-risk",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1479,6 +1507,30 @@
   },
   "noItemsInList": {
     "message": "பட்டியலிட உருப்படிகள் எதுவும் இல்லை."
+  },
+  "noItemsInTrash": {
+    "message": "No items in trash"
+  },
+  "noItemsInTrashDesc": {
+    "message": "Items you delete will appear here and be permanently deleted after 30 days"
+  },
+  "noItemsInVault": {
+    "message": "No items in the vault"
+  },
+  "emptyVaultDescription": {
+    "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
+  },
+  "emptyFavorites": {
+    "message": "You haven't favorited any items"
+  },
+  "emptyFavoritesDesc": {
+    "message": "Add frequently used items to favorites for quick access."
+  },
+  "noSearchResults": {
+    "message": "No search results returned"
+  },
+  "clearFiltersOrTryAnother": {
+    "message": "Clear filters or try another search term"
   },
   "noPermissionToViewAllCollectionItems": {
     "message": "இந்தத் தொகுப்பிலுள்ள எல்லா உருப்படிகளையும் பார்க்க உங்களுக்கு அனுமதி இல்லை."
@@ -4772,6 +4824,12 @@
   "organizationIsDisabled": {
     "message": "நிறுவனம் இடைநிறுத்தப்பட்டது"
   },
+  "organizationIsSuspended": {
+    "message": "Organization is suspended"
+  },
+  "organizationIsSuspendedDesc": {
+    "message": "Items in suspended organizations cannot be accessed. Contact your organization owner for assistance."
+  },
   "secretsAccessSuspended": {
     "message": "இடைநிறுத்தப்பட்ட நிறுவனங்களை அணுக முடியாது. உதவிக்கு உங்கள் நிறுவன உரிமையாளரைத் தொடர்புகொள்ளவும்."
   },
@@ -4783,9 +4841,6 @@
   },
   "serviceAccountsCannotCreate": {
     "message": "இடைநிறுத்தப்பட்ட நிறுவனங்களில் சேவை கணக்குகளை உருவாக்க முடியாது. உதவிக்கு உங்கள் நிறுவன உரிமையாளரைத் தொடர்புகொள்ளவும்."
-  },
-  "disabledOrganizationFilterError": {
-    "message": "இடைநிறுத்தப்பட்ட நிறுவனங்களில் உள்ள பொருட்களை அணுக முடியாது. உதவிக்கு உங்கள் நிறுவன உரிமையாளரைத் தொடர்புகொள்ளவும்."
   },
   "licenseIsExpired": {
     "message": "உரிமம் காலாவதியாகிவிட்டது."
@@ -5160,9 +5215,13 @@
   "ssoIdentifier": {
     "message": "SSO அடையாளங்காட்டி"
   },
-  "ssoIdentifierHintPartOne": {
-    "message": "SSO உடன் உள்நுழைய இந்த ஐடியை உங்கள் உறுப்பினர்களுக்கு வழங்கவும். இந்த படியைத் தவிர்க்க, அமைக்கவும் ",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Provide this ID to your members to login with SSO. To bypass this step, set up Domain verification'"
+  "ssoIdentifierHint": {
+    "message": "Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. ",
+    "description": "This will be used as part of a larger sentence, broken up to include a link. The full sentence will read 'Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. Learn more'"
+  },
+  "claimedDomainsLearnMore": {
+    "message": "Learn more",
+    "description": "This will be used as part of a larger sentence, broken up to include a link. The full sentence will read 'Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. Learn more'"
   },
   "unlinkSso": {
     "message": "SSO இணைப்பை நீக்கு"
@@ -8376,12 +8435,6 @@
   "groupSlashUser": {
     "message": "குழு/பயனர்"
   },
-  "lowKdfIterations": {
-    "message": "குறைந்த KDF இட்டரேஷன்ஸ்"
-  },
-  "updateLowKdfIterationsDesc": {
-    "message": "புதிய பாதுகாப்புப் பரிந்துரைகளை பூர்த்தி செய்யவும் மற்றும் கணக்கு பாதுகாப்பை மேம்படுத்தவும் உங்கள் குறியாக்க அமைப்புகளைப் புதுப்பிக்கவும்."
-  },
   "kdfSettingsChangeLogoutWarning": {
     "message": "தொடர்வது அனைத்து செயலில் உள்ள அமர்வுகளிலிருந்தும் உங்களை வெளியேற்றும். நீங்கள் மீண்டும் உள்நுழைய வேண்டும் மற்றும் இரண்டு-படி உள்நுழைவை முடிக்க வேண்டும், ஏதேனும் இருந்தால். தரவு இழப்பைத் தடுக்க உங்கள் குறியாக்க அமைப்புகளை மாற்றுவதற்கு முன் உங்கள் பெட்டகத்தை ஏற்றுமதி செய்யுமாறு பரிந்துரைக்கிறோம்."
   },
@@ -9755,6 +9808,9 @@
   "failedToSaveIntegration": {
     "message": "ஒருங்கிணைப்பைச் சேமிக்கத் தவறிவிட்டது. பின்னர் மீண்டும் முயற்சிக்கவும்."
   },
+  "mustBeOrgOwnerToPerformAction": {
+    "message": "You must be the organization owner to perform this action."
+  },
   "failedToDeleteIntegration": {
     "message": "Failed to delete integration. Please try again later."
   },
@@ -9995,12 +10051,6 @@
         "example": "2"
       }
     }
-  },
-  "lowKDFIterationsBanner": {
-    "message": "குறைந்த KDF இட்டரேஷன்கள். உங்கள் கணக்கின் பாதுகாப்பை மேம்படுத்த, உங்கள் இட்டரேஷன்களை அதிகரிக்கவும்."
-  },
-  "changeKDFSettings": {
-    "message": "KDF அமைப்புகளை மாற்றவும்"
   },
   "secureYourInfrastructure": {
     "message": "உங்கள் கட்டமைப்பைப் பாதுகாக்கவும்"
@@ -11024,8 +11074,13 @@
   "searchArchive": {
     "message": "Search archive"
   },
-  "archive": {
-    "message": "Archive"
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
   },
   "noItemsInArchive": {
     "message": "No items in archive"

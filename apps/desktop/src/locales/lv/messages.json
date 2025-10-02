@@ -4080,11 +4080,17 @@
   "showLess": {
     "message": "Rādīt mazāk"
   },
-  "enableAutotype": {
-    "message": "Iespējot automātisko ievadi"
-  },
   "enableAutotypeDescription": {
     "message": "Bitwarden nepārbauda ievades atrašanās vietas, jāpārliecinās, ka atrodies pareizajā logā un laukā, pirms saīsnes izmantošanas."
+  },
+  "typeShortcut": {
+    "message": "Ievadīt īsinājumtaustiņus"
+  },
+  "editAutotypeShortcutDescription": {
+    "message": "Jāiekļauj viens vai divi no šiem taustiņiem - Ctrl, Alt, Win vai Shift - un burts."
+  },
+  "invalidShortcut": {
+    "message": "Nederīgi īsinājumtaustiņi"
   },
   "moreBreadcrumbs": {
     "message": "Vairāk norāžu",
@@ -4099,8 +4105,8 @@
   "confirm": {
     "message": "Apstiprināt"
   },
-  "enableAutotypeTransitionKey": {
-    "message": "Iespējot automātiskās ievades saīsni"
+  "enableAutotypeShortcutPreview": {
+    "message": "Iespējot automātiskās ievades īsinājumtaustiņus (iespējas priekšskatījums)"
   },
   "enableAutotypeDescriptionTransitionKey": {
     "message": "Jāpārliecinās, ka pirms saīsnes izmantošanas kursors ir pareizajā laukā, lai izvairītos no datu ievadīšanas nepareizā vietā."
@@ -4108,8 +4114,13 @@
   "editShortcut": {
     "message": "Labot saīsni"
   },
-  "archive": {
-    "message": "Arhivēt"
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
   },
   "unarchive": {
     "message": "Atcelt arhivēšanu"
