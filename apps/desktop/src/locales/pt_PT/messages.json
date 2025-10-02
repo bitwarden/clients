@@ -1369,13 +1369,13 @@
     "message": "Idioma"
   },
   "languageDesc": {
-    "message": "Alterar o idioma utilizado pela aplicação. É necessário reiniciar."
+    "message": "Altere o idioma utilizado pela aplicação. É necessário reiniciar."
   },
   "theme": {
     "message": "Tema"
   },
   "themeDesc": {
-    "message": "Altere o tema de cores da aplicação."
+    "message": "Altere o tema da aplicação."
   },
   "dark": {
     "message": "Escuro",
@@ -4080,11 +4080,17 @@
   "showLess": {
     "message": "Mostrar menos"
   },
-  "enableAutotype": {
-    "message": "Ativar digitação automática"
-  },
   "enableAutotypeDescription": {
     "message": "O Bitwarden não valida a introdução de localizações. Certifique-se de que está na janela e no campo corretos antes de utilizar o atalho."
+  },
+  "typeShortcut": {
+    "message": "Introduzir atalho"
+  },
+  "editAutotypeShortcutDescription": {
+    "message": "Inclua um ou dois dos seguintes modificadores: Ctrl, Alt, Win, ou Shift, e uma letra."
+  },
+  "invalidShortcut": {
+    "message": "Atalho inválido"
   },
   "moreBreadcrumbs": {
     "message": "Mais da navegação estrutural",
@@ -4099,13 +4105,45 @@
   "confirm": {
     "message": "Confirmar"
   },
-  "enableAutotypeTransitionKey": {
-    "message": "Ativar o atalho de introdução automática"
+  "enableAutotypeShortcutPreview": {
+    "message": "Ativar o atalho de digitação automática (Pré-visualização da funcionalidade)"
   },
   "enableAutotypeDescriptionTransitionKey": {
     "message": "Certifique-se de que está no campo correto antes de utilizar o atalho para evitar preencher dados no local errado."
   },
   "editShortcut": {
     "message": "Editar atalho"
+  },
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
+  },
+  "unarchive": {
+    "message": "Desarquivar"
+  },
+  "itemsInArchive": {
+    "message": "Itens no arquivo"
+  },
+  "noItemsInArchive": {
+    "message": "Nenhum item no arquivo"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Os itens arquivados aparecerão aqui e serão excluídos dos resultados gerais da pesquisa e das sugestões de preenchimento automático."
+  },
+  "itemSentToArchive": {
+    "message": "Item movido para o arquivo"
+  },
+  "itemRemovedFromArchive": {
+    "message": "Item removido do arquivo"
+  },
+  "archiveItem": {
+    "message": "Arquivar item"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Os itens arquivados são excluídos dos resultados gerais da pesquisa e das sugestões de preenchimento automático. Tem a certeza de que pretende arquivar este item?"
   }
 }

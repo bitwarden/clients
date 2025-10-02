@@ -1303,7 +1303,7 @@
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
   "showIconsChangePasswordUrls": {
-    "message": "Show website icons and retrieve change password URLs"
+    "message": "Hiển thị biểu tượng trang web và truy xuất các URL đổi mật khẩu"
   },
   "enableMinToTray": {
     "message": "Thu nhỏ vào khay hệ thống"
@@ -3935,10 +3935,10 @@
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
   "aboutThisSetting": {
-    "message": "About this setting"
+    "message": "Về cài đặt này"
   },
   "permitCipherDetailsDescription": {
-    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+    "message": "Bitwarden sẽ sử dụng URI đăng nhập đã lưu để xác định biểu tượng hoặc URL đổi mật khẩu nào cần dùng nhằm cải thiện trải nghiệm của bạn. Không có thông tin nào được thu thập hay lưu lại khi bạn sử dụng dịch vụ này."
   },
   "assignToCollections": {
     "message": "Gán vào bộ sưu tập"
@@ -4080,11 +4080,17 @@
   "showLess": {
     "message": "Thu gọn"
   },
-  "enableAutotype": {
-    "message": "Bật tính năng Tự động nhập liệu"
-  },
   "enableAutotypeDescription": {
     "message": "Bitwarden không kiểm tra vị trí nhập liệu, hãy đảm bảo bạn đang ở trong đúng cửa sổ và trường nhập liệu trước khi dùng phím tắt."
+  },
+  "typeShortcut": {
+    "message": "Type shortcut"
+  },
+  "editAutotypeShortcutDescription": {
+    "message": "Include one or two of the following modifiers: Ctrl, Alt, Win, or Shift, and a letter."
+  },
+  "invalidShortcut": {
+    "message": "Invalid shortcut"
   },
   "moreBreadcrumbs": {
     "message": "Thêm mục điều hướng",
@@ -4099,13 +4105,45 @@
   "confirm": {
     "message": "Xác nhận"
   },
-  "enableAutotypeTransitionKey": {
-    "message": "Bật phím tắt tự động điền"
+  "enableAutotypeShortcutPreview": {
+    "message": "Enable autotype shortcut (Feature Preview)"
   },
   "enableAutotypeDescriptionTransitionKey": {
     "message": "Hãy đảm bảo bạn đang ở đúng trường trước khi sử dụng phím tắt để tránh điền dữ liệu vào chỗ không đúng."
   },
   "editShortcut": {
     "message": "Chỉnh sửa phím tắt"
+  },
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
+  },
+  "unarchive": {
+    "message": "Hủy lưu trữ"
+  },
+  "itemsInArchive": {
+    "message": "Các mục trong kho lưu trữ"
+  },
+  "noItemsInArchive": {
+    "message": "Không có mục nào trong kho lưu trữ"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Các mục đã lưu trữ sẽ hiển thị ở đây và sẽ bị loại khỏi kết quả tìm kiếm và gợi ý tự động điền."
+  },
+  "itemSentToArchive": {
+    "message": "Mục đã được gửi đến kho lưu trữ"
+  },
+  "itemRemovedFromArchive": {
+    "message": "Mục đã được gỡ khỏi kho lưu trữ"
+  },
+  "archiveItem": {
+    "message": "Lưu trữ mục"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Các mục đã lưu trữ sẽ bị loại khỏi kết quả tìm kiếm chung và gợi ý tự động điền. Bạn có chắc chắn muốn lưu trữ mục này không?"
   }
 }

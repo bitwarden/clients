@@ -1303,7 +1303,7 @@
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
   "showIconsChangePasswordUrls": {
-    "message": "Show website icons and retrieve change password URLs"
+    "message": "Прикажи иконе веб локација и преузмите линкове промене лозинке"
   },
   "enableMinToTray": {
     "message": "Минимизирај као иконицу у системској траци"
@@ -3834,10 +3834,10 @@
     "message": "Променити ризичну лозинку"
   },
   "changeAtRiskPasswordAndAddWebsite": {
-    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+    "message": "Ова пријава је ризична и недостаје веб локација. Додајте веб страницу и промените лозинку за јачу сигурност."
   },
   "missingWebsite": {
-    "message": "Missing website"
+    "message": "Недостаје веб страница"
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "Не можете уклонити колекције са дозволама само за приказ: $COLLECTIONS$",
@@ -3935,10 +3935,10 @@
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
   "aboutThisSetting": {
-    "message": "About this setting"
+    "message": "О овом подешавању"
   },
   "permitCipherDetailsDescription": {
-    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+    "message": "Bitwarden ће користити сачуване URI-јеве за пријаву да би одредио коју икону или URL за промену лозинке треба користити како би побољшао ваше искуство. Никакви подаци нису сакупљени нити сачувани приликом коришћења ове услуге."
   },
   "assignToCollections": {
     "message": "Додели колекцијама"
@@ -4080,11 +4080,17 @@
   "showLess": {
     "message": "Прикажи мање"
   },
-  "enableAutotype": {
-    "message": "Упали ауто-унос"
-  },
   "enableAutotypeDescription": {
     "message": "Bitwarden не потврђује локације уноса, будите сигурни да сте у добром прозору и поље пре употребе пречице."
+  },
+  "typeShortcut": {
+    "message": "Type shortcut"
+  },
+  "editAutotypeShortcutDescription": {
+    "message": "Include one or two of the following modifiers: Ctrl, Alt, Win, or Shift, and a letter."
+  },
+  "invalidShortcut": {
+    "message": "Invalid shortcut"
   },
   "moreBreadcrumbs": {
     "message": "Више мрвица",
@@ -4099,13 +4105,45 @@
   "confirm": {
     "message": "Потврди"
   },
-  "enableAutotypeTransitionKey": {
-    "message": "Enable autotype shortcut"
+  "enableAutotypeShortcutPreview": {
+    "message": "Enable autotype shortcut (Feature Preview)"
   },
   "enableAutotypeDescriptionTransitionKey": {
-    "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."
+    "message": "Будите сигурни да сте у исправном пољу пре употребе пречице да бисте избегли попуњавање података на погрешно место."
   },
   "editShortcut": {
-    "message": "Edit shortcut"
+    "message": "Уреди пречицу"
+  },
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
+  },
+  "unarchive": {
+    "message": "Врати из архиве"
+  },
+  "itemsInArchive": {
+    "message": "Ставке у архиви"
+  },
+  "noItemsInArchive": {
+    "message": "Нема ставка у архиви"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Архивиране ставке ће се овде појавити и бити искључени из општих резултата претраге и сугестија о ауто-пуњењу."
+  },
+  "itemSentToArchive": {
+    "message": "Ставка је послата у архиву"
+  },
+  "itemRemovedFromArchive": {
+    "message": "Ставка је уклоњена из архиве"
+  },
+  "archiveItem": {
+    "message": "Архивирај ставку"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Архивиране ставке су искључене из општих резултата претраге и предлога за ауто попуњавање. Јесте ли сигурни да желите да архивирате ову ставку?"
   }
 }

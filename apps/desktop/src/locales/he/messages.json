@@ -4080,11 +4080,17 @@
   "showLess": {
     "message": "הצג פחות"
   },
-  "enableAutotype": {
-    "message": "הפעל הקלדה אוטומטית"
-  },
   "enableAutotypeDescription": {
     "message": "Bitwarden לא מאמת את מקומות הקלט, נא לוודא שזה החלון והשדה הנכונים בטרם שימוש בקיצור הדרך."
+  },
+  "typeShortcut": {
+    "message": "Type shortcut"
+  },
+  "editAutotypeShortcutDescription": {
+    "message": "Include one or two of the following modifiers: Ctrl, Alt, Win, or Shift, and a letter."
+  },
+  "invalidShortcut": {
+    "message": "Invalid shortcut"
   },
   "moreBreadcrumbs": {
     "message": "עוד סימני דרך",
@@ -4099,13 +4105,45 @@
   "confirm": {
     "message": "אשר"
   },
-  "enableAutotypeTransitionKey": {
-    "message": "הפעל קיצור דרך להקלדה אוטומטית"
+  "enableAutotypeShortcutPreview": {
+    "message": "Enable autotype shortcut (Feature Preview)"
   },
   "enableAutotypeDescriptionTransitionKey": {
     "message": "וודא שאתה נמצא בשדה הנכון לפני השימוש בקיצור הדרך כדי להימנע ממילוי נתונים במקום הלא נכון."
   },
   "editShortcut": {
     "message": "ערוך קיצור דרך"
+  },
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
+  },
+  "unarchive": {
+    "message": "Unarchive"
+  },
+  "itemsInArchive": {
+    "message": "Items in archive"
+  },
+  "noItemsInArchive": {
+    "message": "No items in archive"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+  },
+  "itemSentToArchive": {
+    "message": "Item sent to archive"
+  },
+  "itemRemovedFromArchive": {
+    "message": "Item removed from archive"
+  },
+  "archiveItem": {
+    "message": "Archive item"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
   }
 }

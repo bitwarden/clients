@@ -550,6 +550,38 @@
   "resetSearch": {
     "message": "Сбросить поиск"
   },
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
+  },
+  "unarchive": {
+    "message": "Разархивировать"
+  },
+  "itemsInArchive": {
+    "message": "Элементы в архиве"
+  },
+  "noItemsInArchive": {
+    "message": "В архиве нет элементов"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Архивированные элементы появятся здесь и будут исключены из общих результатов поиска и предложений автозаполнения."
+  },
+  "itemSentToArchive": {
+    "message": "Элемент отправлен в архив"
+  },
+  "itemRemovedFromArchive": {
+    "message": "Элемент удален из архива"
+  },
+  "archiveItem": {
+    "message": "Архивировать элемент"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Архивированные элементы исключены из общих результатов поиска и предложений автозаполнения. Вы уверены, что хотите архивировать этот элемент?"
+  },
   "edit": {
     "message": "Изменить"
   },

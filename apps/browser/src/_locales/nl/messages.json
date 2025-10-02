@@ -550,6 +550,38 @@
   "resetSearch": {
     "message": "Zoekopdracht resetten"
   },
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
+  },
+  "unarchive": {
+    "message": "Dearchiveren"
+  },
+  "itemsInArchive": {
+    "message": "Items in archief"
+  },
+  "noItemsInArchive": {
+    "message": "Geen items in archief"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Gearchiveerde items verschijnen hier en worden uitgesloten van algemene zoekresultaten en automatisch invulsuggesties."
+  },
+  "itemSentToArchive": {
+    "message": "Item naar archief verzonden"
+  },
+  "itemRemovedFromArchive": {
+    "message": "Item verwijderd uit archief"
+  },
+  "archiveItem": {
+    "message": "Item archiveren"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Gearchiveerde items worden uitgesloten van algemene zoekresultaten en automatische invulsuggesties. Weet je zeker dat je dit item wilt archiveren?"
+  },
   "edit": {
     "message": "Bewerken"
   },
@@ -3405,10 +3437,10 @@
     "message": "Premium-abonnement vereist"
   },
   "organizationIsDisabled": {
-    "message": "Organisatie is uitgeschakeld."
+    "message": "Organisatie opgeschort."
   },
   "disabledOrganizationFilterError": {
-    "message": "Je kunt uitgeschakelde items in een organisatie niet benaderen. Neem contact op met de eigenaar van je organisatie voor hulp."
+    "message": "Je kunt items in opgeschorte organisaties niet benaderen. Neem contact op met de eigenaar van je organisatie voor hulp."
   },
   "loggingInTo": {
     "message": "Inloggen op $DOMAIN$",

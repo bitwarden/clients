@@ -29,7 +29,11 @@ import { combineLatestWith, filter, map, switchMap, takeUntil } from "rxjs/opera
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
+import {
+  CollectionService,
+  CollectionTypes,
+  CollectionView,
+} from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
   getOrganizationById,
@@ -103,6 +107,8 @@ import { ImportLastPassComponent } from "./lastpass";
   providers: ImporterProviders,
 })
 export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
+  DefaultCollectionType = CollectionTypes.DefaultUserCollection;
+
   featuredImportOptions: ImportOption[];
   importOptions: ImportOption[];
   format: ImportType = null;

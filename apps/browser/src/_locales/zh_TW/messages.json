@@ -550,6 +550,38 @@
   "resetSearch": {
     "message": "重設搜尋"
   },
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
+  },
+  "unarchive": {
+    "message": "Unarchive"
+  },
+  "itemsInArchive": {
+    "message": "Items in archive"
+  },
+  "noItemsInArchive": {
+    "message": "No items in archive"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+  },
+  "itemSentToArchive": {
+    "message": "Item sent to archive"
+  },
+  "itemRemovedFromArchive": {
+    "message": "Item removed from archive"
+  },
+  "archiveItem": {
+    "message": "Archive item"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+  },
   "edit": {
     "message": "編輯"
   },
@@ -1049,10 +1081,10 @@
     "message": "於分頁頁面顯示身分以便於自動填入。"
   },
   "clickToAutofillOnVault": {
-    "message": "在密碼庫檢視中點擊項目來自動填入"
+    "message": "在密碼庫檢視中點選項目來自動填入"
   },
   "clickToAutofill": {
-    "message": "Click items in autofill suggestion to fill"
+    "message": "點選自動填入建議中的項目進行填入"
   },
   "clearClipboard": {
     "message": "清除剪貼簿",
@@ -1562,16 +1594,16 @@
     "message": "輸入寄送到您電子郵件信箱的驗證碼。"
   },
   "selfHostedEnvironment": {
-    "message": "自我裝載環境"
+    "message": "自行部署環境"
   },
   "selfHostedBaseUrlHint": {
-    "message": "指定您自建的 Bitwarden 伺服器的網域 URL。例如：https://bitwarden.company.com"
+    "message": "指定您自架的 Bitwarden 伺服器的網域 URL。例如：https://bitwarden.company.com"
   },
   "selfHostedCustomEnvHeader": {
     "message": "適用於進階設定。您可以單獨指定各個服務的網域 URL。"
   },
   "selfHostedEnvFormInvalid": {
-    "message": "您必須新增伺服器網域 URL 或至少一個自定義環境。"
+    "message": "您必須新增伺服器網域 URL 或至少一個自訂環境。"
   },
   "customEnvironment": {
     "message": "自訂環境"
@@ -1580,7 +1612,7 @@
     "message": "伺服器 URL"
   },
   "selfHostBaseUrl": {
-    "message": "自建伺服器 URL",
+    "message": "自架伺服器 URL",
     "description": "Label for field requesting a self-hosted integration service URL"
   },
   "apiUrl": {
@@ -3514,7 +3546,7 @@
     "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
   },
   "device": {
-    "message": "Device"
+    "message": "裝置"
   },
   "loginStatus": {
     "message": "Login status"
@@ -3613,7 +3645,7 @@
     "message": "記住此裝置來讓未來的登入體驗更簡易"
   },
   "manageDevices": {
-    "message": "Manage devices"
+    "message": "管理裝置"
   },
   "currentSession": {
     "message": "Current session"
@@ -3656,7 +3688,7 @@
     "message": "Needs approval"
   },
   "devices": {
-    "message": "Devices"
+    "message": "裝置"
   },
   "accessAttemptBy": {
     "message": "Access attempt by $EMAIL$",
@@ -3677,7 +3709,7 @@
     "message": "Time"
   },
   "deviceType": {
-    "message": "Device Type"
+    "message": "裝置類型"
   },
   "loginRequest": {
     "message": "Login request"
@@ -5134,7 +5166,7 @@
     }
   },
   "showQuickCopyActions": {
-    "message": "在密碼庫中顯示快速複製"
+    "message": "在密碼庫中顯示快速複製圖示"
   },
   "systemDefault": {
     "message": "系統預設值"
@@ -5407,10 +5439,10 @@
     "message": "擴充套件寬度"
   },
   "wide": {
-    "message": "寬度"
+    "message": "寬"
   },
   "extraWide": {
-    "message": "更寬"
+    "message": "超寬"
   },
   "sshKeyWrongPassword": {
     "message": "The password you entered is incorrect."

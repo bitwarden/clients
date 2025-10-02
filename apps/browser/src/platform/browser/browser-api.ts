@@ -685,29 +685,27 @@ export class BrowserApi {
    */
   static executeScriptInTab(
     tabId: number,
-    details: chrome.tabs.InjectDetails,
+    details: chrome.extensionTypes.InjectDetails,
     scriptingApiDetails?: {
       world: chrome.scripting.ExecutionWorld;
     },
   ): Promise<unknown> {
     if (BrowserApi.isManifestVersion(3)) {
-      const target: chrome.scripting.InjectionTarget = {
-        tabId,
-      };
+      let target: chrome.scripting.InjectionTarget;
 
       if (typeof details.frameId === "number") {
-        target.frameIds = [details.frameId];
-      }
-
-      if (!target.frameIds?.length && details.allFrames) {
-        target.allFrames = details.allFrames;
+        target = { tabId, frameIds: [details.frameId] };
+      } else if (details.allFrames) {
+        target = { tabId, allFrames: true };
+      } else {
+        target = { tabId };
       }
 
       return chrome.scripting.executeScript({
         target,
         files: details.file ? [details.file] : null,
         injectImmediately: details.runAt === "document_start",
-        world: scriptingApiDetails?.world || "ISOLATED",
+        world: scriptingApiDetails?.world || chrome.scripting.ExecutionWorld.ISOLATED,
       });
     }
 
