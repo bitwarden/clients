@@ -550,8 +550,13 @@
   "resetSearch": {
     "message": "Atiestatīt meklēšanu"
   },
-  "archive": {
-    "message": "Arhivēt"
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
   },
   "unarchive": {
     "message": "Atcelt arhivēšanu"

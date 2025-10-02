@@ -4080,11 +4080,17 @@
   "showLess": {
     "message": "Zobrazit méně"
   },
-  "enableAutotype": {
-    "message": "Povolit automatický zápis"
-  },
   "enableAutotypeDescription": {
     "message": "Bitwarden neověřuje umístění vstupu. Před použitím zkratky se ujistěte, že jste ve správném okně a poli."
+  },
+  "typeShortcut": {
+    "message": "Napsat zkratku"
+  },
+  "editAutotypeShortcutDescription": {
+    "message": "Zahrňte jeden nebo dva z následujících modifikátorů: Ctrl, Alt, Win nebo Shift a písmeno."
+  },
+  "invalidShortcut": {
+    "message": "Neplatná zkratka"
   },
   "moreBreadcrumbs": {
     "message": "Více...",
@@ -4099,8 +4105,8 @@
   "confirm": {
     "message": "Potvrdit"
   },
-  "enableAutotypeTransitionKey": {
-    "message": "Povolit zkratku automatického psaní"
+  "enableAutotypeShortcutPreview": {
+    "message": "Povolit zkratku Autotype (náhled funkce)"
   },
   "enableAutotypeDescriptionTransitionKey": {
     "message": "Před použitím zkratky se ujistěte, že jste ve správném poli, abyste se vyhnuli vyplnění dat na nesprávné místo."
@@ -4108,8 +4114,13 @@
   "editShortcut": {
     "message": "Upravit zkratku"
   },
-  "archive": {
-    "message": "Archivovat"
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
   },
   "unarchive": {
     "message": "Odebrat z archivu"

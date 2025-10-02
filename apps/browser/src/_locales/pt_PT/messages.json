@@ -550,8 +550,13 @@
   "resetSearch": {
     "message": "Repor pesquisa"
   },
-  "archive": {
-    "message": "Arquivar"
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
   },
   "unarchive": {
     "message": "Desarquivar"
