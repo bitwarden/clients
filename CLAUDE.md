@@ -16,9 +16,7 @@
 
 **Service Location (CRITICAL for code organization):**
 
-- `libs/common` - Multi-platform services (NO Angular decorators)
-- `libs/angular` - Angular-only services (can use `@Injectable`)
-- `apps/<name>` - App-specific services
+TBD - How best do we do describe the behavior for code organization here (or in other Claude.md files)?
 
 **Dependency Injection:**
 
