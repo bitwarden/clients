@@ -26,6 +26,7 @@ describe("ChangeKdfService", () => {
   let sut: DefaultChangeKdfService;
 
   const mockNewKdfConfig = new PBKDF2KdfConfig(200000);
+  const mockOldKdfConfig = new PBKDF2KdfConfig(100000);
   const mockOldHash = "oldHash" as MasterPasswordAuthenticationHash;
   const mockNewHash = "newHash" as MasterPasswordAuthenticationHash;
   const mockUserId = "00000000-0000-0000-0000-000000000000" as UserId;
@@ -57,14 +58,17 @@ describe("ChangeKdfService", () => {
   describe("updateUserKdfParams", () => {
     const mockUpdateKdfResult = {
       masterPasswordAuthenticationData: {
+        kdf: mockNewKdfConfig,
         salt: mockSalt,
         masterPasswordAuthenticationHash: mockNewHash,
       },
       masterPasswordUnlockData: {
+        kdf: mockNewKdfConfig,
         salt: mockSalt,
         masterKeyWrappedUserKey: mockWrappedUserKey.encryptedString,
       },
       oldMasterPasswordAuthenticationData: {
+        kdf: mockNewKdfConfig,
         salt: mockSalt,
         masterPasswordAuthenticationHash: mockOldHash,
       },
@@ -154,7 +158,7 @@ describe("ChangeKdfService", () => {
       );
       expectedRequest.authenticateWith({
         salt: mockSalt,
-        kdf: mockNewKdfConfig,
+        kdf: mockOldKdfConfig,
         masterPasswordAuthenticationHash: mockOldHash,
       });
 
