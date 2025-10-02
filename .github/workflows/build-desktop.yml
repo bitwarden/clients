@@ -475,11 +475,11 @@ jobs:
       - name: Update version
         shell: bash
         run: |
-          VERSION=$(jq '.version' "package.json")
-          jq '.version = "${VERSION}.${{ github.run_number }}"' package.json > temp.json && mv temp.json package.json
-          jq '.version = "${VERSION}.${{ github.run_number }}"' src/package.json > temp.json && mv temp.json src/package.json
-          jq '.version = "${VERSION}.${{ github.run_number }}"' src/package-lock.json > temp.json && mv temp.json src/package-lock.json
-          jq '.packages."".version = "${VERSION}.${{ github.run_number }}"' src/package-lock.json > temp.json && mv temp.json src/package-lock.json
+          NEW_VERSION=$(jq '.version' "package.json")
+          jq --arg version "$NEW_VERSION" '.version = $version + ".${{ github.run_number }}"' package.json > temp.json && mv temp.json package.json
+          jq --arg version "$NEW_VERSION" '.version = $version + ".${{ github.run_number }}"' src/package.json > temp.json && mv temp.json src/package.json
+          jq --arg version "$NEW_VERSION" '.version = $version + ".${{ github.run_number }}"' src/package-lock.json > temp.json && mv temp.json src/package-lock.json
+          jq --arg version "$NEW_VERSION" '.packages."".version = $version + ".${{ github.run_number }}"' src/package-lock.json > temp.json && mv temp.json src/package-lock.json
 
           cat package.json
           echo "#########################################################"
