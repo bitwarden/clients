@@ -128,7 +128,6 @@ describe("ChangeKdfService", () => {
 
     it("should call SDK update_kdf with correct parameters", async () => {
       const masterPassword = "masterPassword";
-      jest.spyOn(mockNewKdfConfig, "toSdkConfig").mockReturnValue({} as any);
 
       await sut.updateUserKdfParams(masterPassword, mockNewKdfConfig, mockUserId);
 
