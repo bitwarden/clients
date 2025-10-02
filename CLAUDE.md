@@ -2,69 +2,86 @@
 
 ## Critical Rules
 
-- **NEVER** edit: `/build/`, `/dist/`, `/.git/`, `/.vs/`, `/node_modules/` which are generated files
 - **NEVER** use code regions: If complexity suggests regions, refactor for better readability
-- **NEVER** compromise zero-knowledge principles: User vault data must remain encrypted and inaccessible to Bitwarden
-- **NEVER** log or expose sensitive data: No PII, passwords, keys, or vault data in logs or error messages
-- **ALWAYS** use secure communication channels: Enforce confidentiality, integrity, and authenticity
-- **ALWAYS** encrypt sensitive data: All vault data must be encrypted at rest, in transit, and in use
-- **ALWAYS** prioritize cryptographic integrity and data protection
-- **ALWAYS** add unit tests (with mocking) for any new feature development
 
-## Project Context
+- **CRITICAL**: Use `EncString` type for all encrypted vault data
+  - Import from: `@bitwarden/common/key-management/crypto/models/enc-string`
+  - Never use raw `string` types for passwords, notes, or vault fields
+  - Never decrypt without user's CryptoService context
 
-- **Architecture**: Feature and team-based organization
-- **Framework**: Angular
-- **Testing**: Jest
-- **Container**: Docker, Docker Compose, Kubernetes/Helm deployable
+- **NEVER** send unencrypted vault data to API services
+  - Encrypt with CryptoService BEFORE passing to API layer
+  - API services should only receive/return EncString types for vault data
 
-## Project Structure
+- **NEVER** log decrypted data, encryption keys, or PII
+  - No vault data in error messages or console logs
+  - Log encrypted data identifiers only (cipher IDs, not contents)
 
-- **Browser Extension**: `apps/browser` - Web Extension API and Angular
-- **Command-line Interface**: `apps/cli` - TypeScript and Node.js
-- **Desktop Application**: `apps/desktop` - Electron and Angular
-- **Web Vault**: `apps/web` - Angular
+- **NEVER** call CryptoService directly in components
+  - Use domain services that handle encryption/decryption
+  - Components work with decrypted ViewModels only
 
-## Security Requirements
+## Mono-Repo Architecture
 
-- **Compliance**: SOC 2 Type II, SOC 3, HIPAA, ISO 27001, GDPR, CCPA
-- **Principles**: Zero-knowledge, end-to-end encryption, secure defaults
-- **Validation**: Input sanitization, parameterized queries, rate limiting
-- **Logging**: Structured logs, no PII/sensitive data in logs
+**Service Location (CRITICAL for code organization):**
 
-## Common Commands
+- `libs/common` - Multi-platform services (NO Angular decorators)
+- `libs/angular` - Angular-only services (can use `@Injectable`)
+- `apps/<name>` - App-specific services
 
-- Web Vault: `npm install`, `npm run build:bit:watch`, `npm run build:watch`, `npm run test`
-- Lint: `npm run lint`, `npm run lint:fix"`
-- Browser extension: `npm run build:extension`
-- CLI: `npm run build:oss:debug`, `npm run build:bit:watch`
-- Electron: `npm run build:electron`, `npm run start:electron`
-- Storybook: `npm run storybook`
+**Dependency Injection:**
 
-## Code Review Checklist
+- **ALWAYS** use `safeProvider()` when configuring Angular providers (compile-time type safety)
+- **NEVER** use Angular decorators (`@Injectable`) in `libs/common` services (breaks non-Angular clients)
+- Non-Angular contexts: manually instantiate dependencies **in correct order** (wrong order = null injection errors)
 
-- Security impact assessed
-- Jest tests added / updated
-- Performance impact considered
-- Error handling implemented
-- Breaking changes documented
-- CI passes: build, test, lint
-- Feature flags considered for new features
-- CODEOWNERS file respected
+## Angular Architecture Patterns
 
-## Key Architectural Decisions
+**Observable Data Services (ADR-0003):**
 
-- Adopt Observable Data Services for Angular (AR 003)
-- Scalable Angular Clients folder structure (AR 0011)
-- Angular Reactive Forms (ADR 0024)
-- Deprecate TypeScript Enum Types (AR 0025)
+- Services expose RxJS Observable streams for state management
+- Components subscribe using `async` pipe (NOT explicit subscriptions in most cases)
 
-## References
+Pattern:
 
-- [Server architecture](https://contributing.bitwarden.com/architecture/server/)
-- [Architectural Decision Records (ADRs)](https://contributing.bitwarden.com/architecture/adr/)
-- [Contributing guidelines](https://contributing.bitwarden.com/contributing/)
-- [Setup guide](https://contributing.bitwarden.com/getting-started/clients/)
-- [Code style](https://contributing.bitwarden.com/contributing/code-style/)
-- [Bitwarden security whitepaper](https://bitwarden.com/help/bitwarden-security-white-paper/)
-- [Bitwarden security definitions](https://contributing.bitwarden.com/architecture/security/definitions)
+```typescript
+// Service
+private _folders = new BehaviorSubject<Folder[]>([]);
+readonly folders$ = this._folders.asObservable();
+
+// Component
+folders$ = this.folderService.folders$;
+// Template: <div *ngFor="let folder of folders$ | async">
+```
+
+For explicit subscriptions, MUST use `takeUntilDestroyed()`:
+
+```typescript
+constructor() {
+  this.observable$.pipe(takeUntilDestroyed()).subscribe(...);
+}
+```
+
+**NO TypeScript Enums (ADR-0025):**
+
+- Use const objects with type aliases instead
+- Legacy enums exist but don't add new ones
+
+Pattern:
+
+```typescript
+// ✅ DO
+export const CipherType = Object.freeze({
+  Login: 1,
+  SecureNote: 2,
+} as const);
+export type CipherType = (typeof CipherType)[keyof typeof CipherType];
+
+// ❌ DON'T
+enum CipherType {
+  Login = 1,
+  SecureNote = 2,
+}
+```
+
+Example: `/libs/common/src/vault/enums/cipher-type.ts`
