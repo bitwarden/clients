@@ -1,12 +1,7 @@
-const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
+const { buildConfig } = require("../../apps/cli/webpack.base");
 
-// Re-use the OSS CLI webpack config
-const webpackConfig = require("../../apps/cli/webpack.config");
-
-// Update paths to use the bit-cli entrypoint and tsconfig
-webpackConfig.entry = { bw: "../../bitwarden_license/bit-cli/src/bw.ts" };
-webpackConfig.resolve.plugins = [
-  new TsconfigPathsPlugin({ configFile: "../../bitwarden_license/bit-cli/tsconfig.json" }),
-];
-
-module.exports = webpackConfig;
+module.exports = buildConfig({
+  configName: "Commercial",
+  entry: "../../bitwarden_license/bit-cli/src/bw.ts",
+  tsConfig: "../../bitwarden_license/bit-cli/tsconfig.json",
+});
