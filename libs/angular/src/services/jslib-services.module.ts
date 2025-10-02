@@ -1046,9 +1046,7 @@ const safeProviders: SafeProvider[] = [
     useClass: MasterPasswordService,
     deps: [
       StateProvider,
-      StateServiceAbstraction,
       KeyGenerationService,
-      EncryptService,
       LogService,
       CryptoFunctionServiceAbstraction,
       AccountServiceAbstraction,

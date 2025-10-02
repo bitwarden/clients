@@ -689,9 +689,7 @@ export default class MainBackground {
 
     this.masterPasswordService = new MasterPasswordService(
       this.stateProvider,
-      this.stateService,
       this.keyGenerationService,
-      this.encryptService,
       this.logService,
       this.cryptoFunctionService,
       this.accountService,
