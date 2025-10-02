@@ -1,8 +1,18 @@
 import { Jsonify, Opaque } from "type-fest";
 
 // eslint-disable-next-line no-restricted-imports
-import { Argon2KdfConfig, KdfConfig, KdfType, PBKDF2KdfConfig } from "@bitwarden/key-management";
-import { EncString } from "@bitwarden/sdk-internal";
+import {
+  fromSdkKdfConfig,
+  Argon2KdfConfig,
+  KdfConfig,
+  KdfType,
+  PBKDF2KdfConfig,
+} from "@bitwarden/key-management";
+import {
+  EncString,
+  MasterPasswordUnlockData as SdkMasterPasswordUnlockData,
+  MasterPasswordAuthenticationData as SdkMasterPasswordAuthenticationData,
+} from "@bitwarden/sdk-internal";
 
 /**
  * The Base64-encoded master password authentication hash, that is sent to the server for authentication.
@@ -23,6 +33,14 @@ export class MasterPasswordUnlockData {
     readonly kdf: KdfConfig,
     readonly masterKeyWrappedUserKey: MasterKeyWrappedUserKey,
   ) {}
+
+  static fromSdk(sdkData: SdkMasterPasswordUnlockData): MasterPasswordUnlockData {
+    return new MasterPasswordUnlockData(
+      sdkData.salt as MasterPasswordSalt,
+      fromSdkKdfConfig(sdkData.kdf),
+      sdkData.masterKeyWrappedUserKey as MasterKeyWrappedUserKey,
+    );
+  }
 
   toJSON(): any {
     return {
@@ -55,3 +73,14 @@ export type MasterPasswordAuthenticationData = {
   kdf: KdfConfig;
   masterPasswordAuthenticationHash: MasterPasswordAuthenticationHash;
 };
+
+export function fromSdkAuthenticationData(
+  sdkData: SdkMasterPasswordAuthenticationData,
+): MasterPasswordAuthenticationData {
+  return {
+    salt: sdkData.salt as MasterPasswordSalt,
+    kdf: fromSdkKdfConfig(sdkData.kdf),
+    masterPasswordAuthenticationHash:
+      sdkData.masterPasswordAuthenticationHash as MasterPasswordAuthenticationHash,
+  };
+}

@@ -1251,7 +1251,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: ChangeKdfService,
     useClass: DefaultChangeKdfService,
-    deps: [MasterPasswordServiceAbstraction, KeyService, KdfConfigService, ChangeKdfApiService],
+    deps: [ChangeKdfApiService, SdkService],
   }),
   safeProvider({
     provide: AuthRequestServiceAbstraction,
