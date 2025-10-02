@@ -9,12 +9,6 @@
   - Use preload scripts or IPC to access Node.js functionality
   - See `/apps/desktop/src/*/preload.ts` files for patterns
 
-- **ALWAYS** use platform-specific biometrics services
-  - Windows: `OsBiometricsWindowsService`
-  - macOS: `OsBiometricsMacService`
-  - Linux: `OsBiometricsLinuxService`
-  - DON'T assume cross-platform biometric API compatibility
-
 ## Angular Patterns
 
 - **ALWAYS** use Observable Data Services (ADR-0003)
