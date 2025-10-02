@@ -68,7 +68,7 @@ const preview: Preview = {
     },
   },
   tags: ["autodocs"],
-  loaders,
+  // loaders,
 };
 
 export default preview;
