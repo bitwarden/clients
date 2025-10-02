@@ -580,8 +580,8 @@ jobs:
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
-          name: Bitwarden-Installer-$env:_PACKAGE_VERSION.exe
-          path: apps/desktop/dist/nsis-web/Bitwarden-Installer-$env:_PACKAGE_VERSION.exe
+          name: Bitwarden-Installer-${{ env._PACKAGE_VERSION }}..exe
+          path: apps/desktop/dist/nsis-web/Bitwarden-Installer-${{ env._PACKAGE_VERSION }}.exe
           if-no-files-found: error
 
       - name: Upload appx ia32 artifact
