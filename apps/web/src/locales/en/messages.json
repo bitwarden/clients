@@ -68,8 +68,8 @@
       }
     }
   },
-  "passwordsChanged": {
-    "message": "$COUNT$ out of $TOTAL$ passwords changed",
+  "securityTasksCompleted": {
+    "message": "$COUNT$ out of $TOTAL$ security tasks completed",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -135,6 +135,15 @@
   },
   "countOfApplicationsAtRisk": {
     "message": "$COUNT$ applications at-risk",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfAtRiskPasswords": {
+    "message": "$COUNT$ passwords at-risk",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -9416,6 +9425,9 @@
   },
   "assign": {
     "message": "Assign"
+  },
+  "assignTasks": {
+    "message": "Assign tasks"
   },
   "assignToCollections": {
     "message": "Assign to collections"

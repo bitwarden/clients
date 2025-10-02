@@ -36,6 +36,7 @@ export class AllActivityComponent implements OnInit {
   totalCriticalAppsAtRiskMemberCount = 0;
   totalCriticalAppsCount = 0;
   totalCriticalAppsAtRiskCount = 0;
+  passwordChangeMetricHasProgressBar = false;
 
   destroyRef = inject(DestroyRef);
 
@@ -56,6 +57,12 @@ export class AllActivityComponent implements OnInit {
           this.totalCriticalAppsAtRiskMemberCount = summary.totalCriticalAtRiskMemberCount;
           this.totalCriticalAppsCount = summary.totalCriticalApplicationCount;
           this.totalCriticalAppsAtRiskCount = summary.totalCriticalAtRiskApplicationCount;
+        });
+
+      this.allActivitiesService.passwordChangeProgressMetricHasProgressBar$
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe((hasProgressBar) => {
+          this.passwordChangeMetricHasProgressBar = hasProgressBar;
         });
     }
   }
