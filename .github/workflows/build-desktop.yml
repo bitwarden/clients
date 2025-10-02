@@ -476,10 +476,9 @@ jobs:
         shell: bash
         run: |
           NEW_VERSION=$(jq -r '.version' "package.json")
-          jq --arg version "$NEW_VERSION" '.version = $version + ".${{ github.run_number }}"' package.json > temp.json && mv temp.json package.json
-          jq --arg version "$NEW_VERSION" '.version = $version + ".${{ github.run_number }}"' src/package.json > temp.json && mv temp.json src/package.json
-          jq --arg version "$NEW_VERSION" '.version = $version + ".${{ github.run_number }}"' src/package-lock.json > temp.json && mv temp.json src/package-lock.json
-          jq --arg version "$NEW_VERSION" '.packages."".version = $version + ".${{ github.run_number }}"' src/package-lock.json > temp.json && mv temp.json src/package-lock.json
+          jq --arg version "$NEW_VERSION" '.win.buildVersion = $version + ".${{ github.run_number }}"' electron-builder.json > temp.json
+          mv temp.json electron-builder.json
+          cat electron-builder.json
 
       - name: Install Node dependencies
         run: npm ci
