@@ -4080,11 +4080,17 @@
   "showLess": {
     "message": "Mostrar menos"
   },
-  "enableAutotype": {
-    "message": "Ativar digitação automática"
-  },
   "enableAutotypeDescription": {
     "message": "O Bitwarden não valida a introdução de localizações. Certifique-se de que está na janela e no campo corretos antes de utilizar o atalho."
+  },
+  "typeShortcut": {
+    "message": "Introduzir atalho"
+  },
+  "editAutotypeShortcutDescription": {
+    "message": "Inclua um ou dois dos seguintes modificadores: Ctrl, Alt, Win, ou Shift, e uma letra."
+  },
+  "invalidShortcut": {
+    "message": "Atalho inválido"
   },
   "moreBreadcrumbs": {
     "message": "Mais da navegação estrutural",
@@ -4099,8 +4105,8 @@
   "confirm": {
     "message": "Confirmar"
   },
-  "enableAutotypeTransitionKey": {
-    "message": "Ativar o atalho de introdução automática"
+  "enableAutotypeShortcutPreview": {
+    "message": "Ativar o atalho de digitação automática (Pré-visualização da funcionalidade)"
   },
   "enableAutotypeDescriptionTransitionKey": {
     "message": "Certifique-se de que está no campo correto antes de utilizar o atalho para evitar preencher dados no local errado."
@@ -4108,8 +4114,13 @@
   "editShortcut": {
     "message": "Editar atalho"
   },
-  "archive": {
-    "message": "Arquivar"
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
   },
   "unarchive": {
     "message": "Desarquivar"

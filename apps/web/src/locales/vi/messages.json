@@ -59,8 +59,27 @@
   "createNewLoginItem": {
     "message": "Tạo mục đăng nhập mới"
   },
-  "criticalApplicationsActivityDescription": {
-    "message": "Khi bạn đánh dấu các ứng dụng là quan trọng, chúng sẽ hiển thị tại đây."
+  "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
+    "message": "Once you mark applications critical, they will display here"
+  },
+  "viewAtRiskMembers": {
+    "message": "View at-risk members"
+  },
+  "viewAtRiskApplications": {
+    "message": "View at-risk applications"
+  },
+  "criticalApplicationsAreAtRisk": {
+    "message": "$COUNT$ out of $TOTAL$ critical applications are at-risk due to at-risk passwords",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "total": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
   },
   "criticalApplicationsWithCount": {
     "message": "Ứng dụng quan trọng ($COUNT$)",
@@ -73,6 +92,15 @@
   },
   "countOfCriticalApplications": {
     "message": "$COUNT$ ứng dụng quan trọng",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfApplicationsAtRisk": {
+    "message": "$COUNT$ applications at-risk",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -137,8 +165,8 @@
   "membersAtRiskActivityDescription": {
     "message": "Thành viên có quyền chỉnh sửa đối với các mục có nguy cơ cho các ứng dụng quan trọng"
   },
-  "membersAtRisk": {
-    "message": "$COUNT$ thành viên có nguy cơ",
+  "membersAtRiskCount": {
+    "message": "$COUNT$ members at-risk",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1479,6 +1507,30 @@
   },
   "noItemsInList": {
     "message": "Chưa có mục nào."
+  },
+  "noItemsInTrash": {
+    "message": "No items in trash"
+  },
+  "noItemsInTrashDesc": {
+    "message": "Items you delete will appear here and be permanently deleted after 30 days"
+  },
+  "noItemsInVault": {
+    "message": "No items in the vault"
+  },
+  "emptyVaultDescription": {
+    "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
+  },
+  "emptyFavorites": {
+    "message": "You haven't favorited any items"
+  },
+  "emptyFavoritesDesc": {
+    "message": "Add frequently used items to favorites for quick access."
+  },
+  "noSearchResults": {
+    "message": "No search results returned"
+  },
+  "clearFiltersOrTryAnother": {
+    "message": "Clear filters or try another search term"
   },
   "noPermissionToViewAllCollectionItems": {
     "message": "Bạn không có quyền xem tất cả mục trong bộ sưu tập này."
@@ -4772,6 +4824,12 @@
   "organizationIsDisabled": {
     "message": "Tổ chức đã bị tạm ngưng"
   },
+  "organizationIsSuspended": {
+    "message": "Organization is suspended"
+  },
+  "organizationIsSuspendedDesc": {
+    "message": "Items in suspended organizations cannot be accessed. Contact your organization owner for assistance."
+  },
   "secretsAccessSuspended": {
     "message": "Không thể truy cập các tổ chức đã bị tạm ngưng. Vui lòng liên hệ với chủ sở hữu tổ chức của bạn để được hỗ trợ."
   },
@@ -4783,9 +4841,6 @@
   },
   "serviceAccountsCannotCreate": {
     "message": "Không thể tạo tài khoản dịch vụ trong các tổ chức đã bị tạm ngưng. Vui lòng liên hệ với chủ sở hữu tổ chức của bạn để được hỗ trợ."
-  },
-  "disabledOrganizationFilterError": {
-    "message": "Không thể truy cập các mục trong tổ chức đã bị tạm ngưng. Vui lòng liên hệ với chủ sở hữu tổ chức của bạn để được hỗ trợ."
   },
   "licenseIsExpired": {
     "message": "Giấy phép đã hết hạn."
@@ -5160,9 +5215,13 @@
   "ssoIdentifier": {
     "message": "Mã định danh SSO"
   },
-  "ssoIdentifierHintPartOne": {
-    "message": "Cung cấp ID này cho các thành viên của bạn để đăng nhập bằng SSO. Để bỏ qua bước này, hãy thiết lập ",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Provide this ID to your members to login with SSO. To bypass this step, set up Domain verification'"
+  "ssoIdentifierHint": {
+    "message": "Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. ",
+    "description": "This will be used as part of a larger sentence, broken up to include a link. The full sentence will read 'Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. Learn more'"
+  },
+  "claimedDomainsLearnMore": {
+    "message": "Learn more",
+    "description": "This will be used as part of a larger sentence, broken up to include a link. The full sentence will read 'Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. Learn more'"
   },
   "unlinkSso": {
     "message": "Hủy liên kết SSO"
@@ -8376,12 +8435,6 @@
   "groupSlashUser": {
     "message": "Nhóm/Người dùng"
   },
-  "lowKdfIterations": {
-    "message": "Số vòng lặp KDF thấp"
-  },
-  "updateLowKdfIterationsDesc": {
-    "message": "Cập nhật cài đặt mã hóa của bạn để đáp ứng các khuyến nghị bảo mật mới và cải thiện bảo vệ tài khoản."
-  },
   "kdfSettingsChangeLogoutWarning": {
     "message": "Tiếp tục sẽ đăng xuất bạn khỏi tất cả các phiên hoạt động. Bạn sẽ cần đăng nhập lại và hoàn tất đăng nhập hai bước (nếu có). Chúng tôi khuyến nghị xuất kho mật khẩu của bạn trước khi thay đổi cài đặt mã hóa để tránh mất dữ liệu."
   },
@@ -9755,6 +9808,9 @@
   "failedToSaveIntegration": {
     "message": "Không thể lưu tích hợp. Vui lòng thử lại sau."
   },
+  "mustBeOrgOwnerToPerformAction": {
+    "message": "You must be the organization owner to perform this action."
+  },
   "failedToDeleteIntegration": {
     "message": "Không thể xóa tích hợp. Vui lòng thử lại sau."
   },
@@ -9995,12 +10051,6 @@
         "example": "2"
       }
     }
-  },
-  "lowKDFIterationsBanner": {
-    "message": "Số vòng lặp KDF thấp. Tăng số vòng lặp để cải thiện bảo mật cho tài khoản của bạn."
-  },
-  "changeKDFSettings": {
-    "message": "Thay đổi cài đặt KDF"
   },
   "secureYourInfrastructure": {
     "message": "Bảo vệ hạ tầng của bạn"
@@ -11024,8 +11074,13 @@
   "searchArchive": {
     "message": "Tìm kiếm kho lưu trữ"
   },
-  "archive": {
-    "message": "Lưu trữ"
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
   },
   "noItemsInArchive": {
     "message": "Không có mục nào trong kho lưu trữ"
