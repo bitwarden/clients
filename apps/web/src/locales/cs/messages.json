@@ -59,8 +59,27 @@
   "createNewLoginItem": {
     "message": "Vytvořit novou položku přihlášení"
   },
-  "criticalApplicationsActivityDescription": {
-    "message": "Jakmile označíte aplikace jako kritické, zobrazí se zde."
+  "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
+    "message": "Jakmile označíte aplikace jako kritické, zobrazí se zde"
+  },
+  "viewAtRiskMembers": {
+    "message": "Zobrazit ohrožené členy"
+  },
+  "viewAtRiskApplications": {
+    "message": "Zobrazit ohrožené aplikace"
+  },
+  "criticalApplicationsAreAtRisk": {
+    "message": "$COUNT$ z $TOTAL$ kritických aplikací je ohrožených kvůli ohroženým heslům",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "total": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
   },
   "criticalApplicationsWithCount": {
     "message": "Kritické aplikace ($COUNT$)",
@@ -73,6 +92,15 @@
   },
   "countOfCriticalApplications": {
     "message": "$COUNT$ kritických aplikací",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfApplicationsAtRisk": {
+    "message": "$COUNT$ ohrožených aplikací",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -137,7 +165,7 @@
   "membersAtRiskActivityDescription": {
     "message": "Členové, kteří upravují přístup k rizikovým položkám pro kritické aplikace"
   },
-  "membersAtRisk": {
+  "membersAtRiskCount": {
     "message": "$COUNT$ členů v ohrožení",
     "placeholders": {
       "count": {
@@ -1479,6 +1507,30 @@
   },
   "noItemsInList": {
     "message": "Žádné položky k zobrazení."
+  },
+  "noItemsInTrash": {
+    "message": "Žádné položky v koši"
+  },
+  "noItemsInTrashDesc": {
+    "message": "Položky, které smažete, se zde zobrazí a budou trvale smazány po 30 dnech"
+  },
+  "noItemsInVault": {
+    "message": "Žádné položky v trezoru"
+  },
+  "emptyVaultDescription": {
+    "message": "Trezor chrání více než jen Vaše hesla. Bezpečně zde uložte zabezpečená přihlášení, ID, karty a poznámky."
+  },
+  "emptyFavorites": {
+    "message": "Nemáte oblíbené žádné položky"
+  },
+  "emptyFavoritesDesc": {
+    "message": "Přidejte často používané položky do oblíbených pro rychlý přístup."
+  },
+  "noSearchResults": {
+    "message": "Nebyly vráceny žádné výsledky hledání"
+  },
+  "clearFiltersOrTryAnother": {
+    "message": "Vymažte filtry nebo zkuste jiný hledaný výraz"
   },
   "noPermissionToViewAllCollectionItems": {
     "message": "Nemáte oprávnění k zobrazení všech položek v této sbírce."
@@ -4772,6 +4824,12 @@
   "organizationIsDisabled": {
     "message": "Organizace byla deaktivována"
   },
+  "organizationIsSuspended": {
+    "message": "Organizace je deaktivována"
+  },
+  "organizationIsSuspendedDesc": {
+    "message": "K položkám v deaktivované organizaci nemáte přístup. Požádejte o pomoc vlastníka organizace."
+  },
   "secretsAccessSuspended": {
     "message": "K deaktivované organizaci nemáte přístup. Požádejte o pomoc vlastníka organizace."
   },
@@ -4783,9 +4841,6 @@
   },
   "serviceAccountsCannotCreate": {
     "message": "Servisní účty nelze vytvořit v pozastavených organizacích. Požádejte o pomoc vlastníka organizace."
-  },
-  "disabledOrganizationFilterError": {
-    "message": "K položkám v deaktivované organizaci nemáte přístup. Požádejte o pomoc vlastníka organizace."
   },
   "licenseIsExpired": {
     "message": "Licence vypršela."
@@ -5160,9 +5215,13 @@
   "ssoIdentifier": {
     "message": "SSO identifikátor"
   },
-  "ssoIdentifierHintPartOne": {
-    "message": "Poskytněte toto ID Vašim členům pro přihlášení pomocí SSO. Chcete-li obejít tento krok, nastavte ",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Provide this ID to your members to login with SSO. To bypass this step, set up Domain verification'"
+  "ssoIdentifierHint": {
+    "message": "Zadejte toto ID svým členům a přihlaste se pomocí SSO. Členové mohou přeskočit zadání tohoto identifikátoru během SSO, pokud je nastavena požadovaná doména. ",
+    "description": "This will be used as part of a larger sentence, broken up to include a link. The full sentence will read 'Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. Learn more'"
+  },
+  "claimedDomainsLearnMore": {
+    "message": "Dozvědět se více",
+    "description": "This will be used as part of a larger sentence, broken up to include a link. The full sentence will read 'Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. Learn more'"
   },
   "unlinkSso": {
     "message": "Zrušit propojení s SSO"
@@ -5556,6 +5615,13 @@
   },
   "personalOwnershipSubmitError": {
     "message": "Z důvodu podnikových zásad nemůžete ukládat položky do svého osobního trezoru. Změňte vlastnictví položky na organizaci a poté si vyberte z dostupných sbírek."
+  },
+  "desktopAutotypePolicy": {
+    "message": "Výchozí nastavení Desktop Autotype"
+  },
+  "desktopAutotypePolicyDesc": {
+    "message": "Ve výchozím nastavení pro členy zapne Desktop Autotype. Uživatelé mohou v klientovi na počítači vypnout Desktop Autotype ručně.",
+    "description": "This policy will enable Desktop Autotype by default for members on Unlock."
   },
   "disableSend": {
     "message": "Odebrat Send"
@@ -6720,6 +6786,15 @@
   },
   "disabledSso": {
     "message": "SSO je vypnuto"
+  },
+  "emailMustLoginWithSso": {
+    "message": "$EMAIL$ se musí přihlásit jednotným přihlášením",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
   },
   "enabledKeyConnector": {
     "message": "Je aktivován Key Connector"
@@ -8360,12 +8435,6 @@
   "groupSlashUser": {
     "message": "Skupina/Uživatel"
   },
-  "lowKdfIterations": {
-    "message": "Nízke iterace KDF"
-  },
-  "updateLowKdfIterationsDesc": {
-    "message": "Aktualizujte své nastavení šifrování tak, aby splňovalo nová bezpečnostní doporučení a zlepšilo ochranu účtu."
-  },
   "kdfSettingsChangeLogoutWarning": {
     "message": "Pokračováním se odhlásíte ze všech aktivních relací. Budete se muset znovu přihlásit a dokončit nastavení dvoufázového přihlášení, pokud nějaké máte. Před změnou nastavení šifrování doporučujeme exportovat trezor, aby nedošlo ke ztrátě dat."
   },
@@ -9739,6 +9808,9 @@
   "failedToSaveIntegration": {
     "message": "Nepodařilo se uložit integraci. Opakujte akci později."
   },
+  "mustBeOrgOwnerToPerformAction": {
+    "message": "Pro provedení této akce musíte být vlastníkem organizace."
+  },
   "failedToDeleteIntegration": {
     "message": "Nepodařilo se smazat integraci. Opakujte akci později."
   },
@@ -9979,12 +10051,6 @@
         "example": "2"
       }
     }
-  },
-  "lowKDFIterationsBanner": {
-    "message": "Nízké iterace KDF. Zvyšte iterace pro zvýšení bezpečnosti Vašeho účtu."
-  },
-  "changeKDFSettings": {
-    "message": "Změnit nastavení KDF"
   },
   "secureYourInfrastructure": {
     "message": "Zabezpečte Vaši infrastrukturu"
@@ -11005,6 +11071,23 @@
   "cannotCreateCollection": {
     "message": "Bezplatné organizace mohou mít až 2 sbírky. Chcete-li přidat více sbírek, přejděte na placený tarif."
   },
+  "searchArchive": {
+    "message": "Hledat v archivu"
+  },
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
+  },
+  "noItemsInArchive": {
+    "message": "Žádné položky v archivu"
+  },
+  "archivedItemsDescription": {
+    "message": "Zde se zobrazí archivované položky a budou vyloučeny z obecných výsledků vyhledávání a návrhů automatického vyplňování."
+  },
   "businessUnit": {
     "message": "Obchodní jednotka"
   },
@@ -11337,5 +11420,137 @@
   },
   "verifyNow": {
     "message": "Ověřit nyní"
+  },
+  "additionalStorageGB": {
+    "message": "Další úložiště (GB)"
+  },
+  "additionalServiceAccountsV2": {
+    "message": "Další strojové účty"
+  },
+  "secretsManagerSeats": {
+    "message": "Uživatelé Správce tajných klíčů"
+  },
+  "additionalStorage": {
+    "message": "Další úložiště"
+  },
+  "expandPurchaseDetails": {
+    "message": "Rozbalit podrobnosti o nákupu"
+  },
+  "collapsePurchaseDetails": {
+    "message": "Sbalit podrobnosti o nákupu"
+  },
+  "familiesMembership": {
+    "message": "Členství v rodinách"
+  },
+  "planDescPremium": {
+    "message": "Dokončit online zabezpečení"
+  },
+  "planDescFamiliesV2": {
+    "message": "Prémiové zabezpečení pro Vaši rodinu"
+  },
+  "planDescFreeV2": {
+    "message": "Sdílet s dalšími $COUNT$ uživateli",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "planDescEnterpriseV2": {
+    "message": "Pokročilé funkce pro jakékoli organizace"
+  },
+  "planNameCustom": {
+    "message": "Vlastní plán"
+  },
+  "planDescCustom": {
+    "message": "Bitwarden se přizpůsobí firmám všech velikostí a zajistí bezpečnost hesel a citlivých informací. Pokud jste součástí velké společnosti, kontaktujte obchodní oddělení a požádejte o cenovou nabídku."
+  },
+  "builtInAuthenticator": {
+    "message": "Vestavěný autentifikátor"
+  },
+  "breachMonitoring": {
+    "message": "Sledování úniků"
+  },
+  "andMoreFeatures": {
+    "message": "A ještě více!"
+  },
+  "secureFileStorage": {
+    "message": "Zabezpečené úložiště souborů"
+  },
+  "familiesUnlimitedSharing": {
+    "message": "Neomezené sdílení - vyberte kdo co vidí"
+  },
+  "familiesUnlimitedCollections": {
+    "message": "Neomezené rodinné sbírky"
+  },
+  "familiesSharedStorage": {
+    "message": "Sdílené úložiště pro důležité rodinné informace"
+  },
+  "limitedUsersV2": {
+    "message": "Pro až $COUNT$ členů",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "limitedCollectionsV2": {
+    "message": "Pro až $COUNT$ sbírek",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "alwaysFree": {
+    "message": "Vždy zdarma"
+  },
+  "twoSecretsIncluded": {
+    "message": "2 tajné klíče"
+  },
+  "projectsIncludedV2": {
+    "message": "$COUNT$ projektů",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "secureItemSharing": {
+    "message": "Zabezpečené sdílení položek"
+  },
+  "scimSupport": {
+    "message": "Podpora SCIM"
+  },
+  "includedMachineAccountsV2": {
+    "message": "$COUNT$ strojových účtů",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
+  },
+  "enterpriseSecurityPolicies": {
+    "message": "Bezpečnosti zásady podniků"
+  },
+  "selfHostOption": {
+    "message": "Volba vlastního hostitele"
+  },
+  "complimentaryFamiliesPlan": {
+    "message": "Bezplatný rodinný plán pro všechny uživatele"
+  },
+  "strengthenCybersecurity": {
+    "message": "Posílená kybernetická bezpečnost"
+  },
+  "boostProductivity": {
+    "message": "Zvýšená produktivita"
+  },
+  "seamlessIntegration": {
+    "message": "Hladká integrace"
   }
 }

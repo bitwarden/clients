@@ -1,7 +1,15 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, ElementRef, Inject, OnDestroy, OnInit, ViewChild } from "@angular/core";
+import {
+  Component,
+  ElementRef,
+  forwardRef,
+  Inject,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+} from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
 import { firstValueFrom, Subject, switchMap } from "rxjs";
@@ -56,10 +64,10 @@ import {
 } from "@bitwarden/vault";
 
 import { SharedModule } from "../../../shared/shared.module";
-import { WebVaultPremiumUpgradePromptService } from "../../../vault/services/web-premium-upgrade-prompt.service";
 import { RoutedVaultFilterService } from "../../individual-vault/vault-filter/services/routed-vault-filter.service";
 import { RoutedVaultFilterModel } from "../../individual-vault/vault-filter/shared/models/routed-vault-filter.model";
 import { WebCipherFormGenerationService } from "../../services/web-cipher-form-generation.service";
+import { WebVaultPremiumUpgradePromptService } from "../../services/web-premium-upgrade-prompt.service";
 
 export type VaultItemDialogMode = "view" | "form";
 
@@ -136,7 +144,10 @@ export type VaultItemDialogResult = UnionOfValues<typeof VaultItemDialogResult>;
     PremiumBadgeComponent,
   ],
   providers: [
-    { provide: PremiumUpgradePromptService, useClass: WebVaultPremiumUpgradePromptService },
+    {
+      provide: PremiumUpgradePromptService,
+      useClass: forwardRef(() => WebVaultPremiumUpgradePromptService),
+    },
     { provide: ViewPasswordHistoryService, useClass: VaultViewPasswordHistoryService },
     { provide: CipherFormGenerationService, useClass: WebCipherFormGenerationService },
     RoutedVaultFilterService,

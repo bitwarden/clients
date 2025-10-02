@@ -4080,11 +4080,17 @@
   "showLess": {
     "message": "Visa mindre"
   },
-  "enableAutotype": {
-    "message": "Aktivera automatisk inmatning"
-  },
   "enableAutotypeDescription": {
     "message": "Bitwarden validerar inte inmatningsplatser, så se till att du är i rätt fönster och fält innan du använder genvägen."
+  },
+  "typeShortcut": {
+    "message": "Type shortcut"
+  },
+  "editAutotypeShortcutDescription": {
+    "message": "Inkludera en eller två av följande modifierare: Ctrl, Alt, Win, eller Skift och en bokstav."
+  },
+  "invalidShortcut": {
+    "message": "Ogiltig genväg"
   },
   "moreBreadcrumbs": {
     "message": "Fler länkstigar",
@@ -4099,13 +4105,45 @@
   "confirm": {
     "message": "Bekräfta"
   },
-  "enableAutotypeTransitionKey": {
-    "message": "Aktivera genväg för automatisk inmatning"
+  "enableAutotypeShortcutPreview": {
+    "message": "Enable autotype shortcut (Feature Preview)"
   },
   "enableAutotypeDescriptionTransitionKey": {
     "message": "Försäkra dig om att du befinner dig i rätt fält innan du använder genvägen för att undvika att fylla i data på fel ställe."
   },
   "editShortcut": {
     "message": "Redigera genväg"
+  },
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
+  },
+  "unarchive": {
+    "message": "Packa upp"
+  },
+  "itemsInArchive": {
+    "message": "Objekt i arkivet"
+  },
+  "noItemsInArchive": {
+    "message": "Inga objekt i arkivet"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Arkiverade objekt kommer att visas här och kommer att uteslutas från allmänna sökresultat och förslag för autofyll."
+  },
+  "itemSentToArchive": {
+    "message": "Objekt skickat till arkiv"
+  },
+  "itemRemovedFromArchive": {
+    "message": "Objekt borttaget från arkiv"
+  },
+  "archiveItem": {
+    "message": "Arkivera objekt"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Arkiverade objekt är uteslutna från allmänna sökresultat och förslag för autofyll. Är du säker på att du vill arkivera detta objekt?"
   }
 }

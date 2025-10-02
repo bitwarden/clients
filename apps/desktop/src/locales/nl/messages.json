@@ -4080,11 +4080,17 @@
   "showLess": {
     "message": "Minder weergeven"
   },
-  "enableAutotype": {
-    "message": "Autotypen inschakelen"
-  },
   "enableAutotypeDescription": {
     "message": "Bitwarden valideert de invoerlocaties niet, zorg ervoor dat je je in het juiste venster en veld bevindt voordat je de snelkoppeling gebruikt."
+  },
+  "typeShortcut": {
+    "message": "Typ de sneltoets"
+  },
+  "editAutotypeShortcutDescription": {
+    "message": "Voeg een of twee van de volgende toetsen toe: Ctrl, Alt, Win of Shift, en een letter."
+  },
+  "invalidShortcut": {
+    "message": "Ongeldige sneltoets"
   },
   "moreBreadcrumbs": {
     "message": "Meer broodkruimels",
@@ -4099,13 +4105,45 @@
   "confirm": {
     "message": "Bevestigen"
   },
-  "enableAutotypeTransitionKey": {
-    "message": "Snelkoppeling autotype inschakelen"
+  "enableAutotypeShortcutPreview": {
+    "message": "Autotype sneltoets inschakelen (Feature Preview)"
   },
   "enableAutotypeDescriptionTransitionKey": {
     "message": "Zorg ervoor dat je je in het juiste veld bevindt voordat je de snelkoppeling gebruikt om te voorkomen dat je de gegevens op de verkeerde plaats invult."
   },
   "editShortcut": {
     "message": "Snelkoppeling bewerken"
+  },
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
+  },
+  "unarchive": {
+    "message": "Dearchiveren"
+  },
+  "itemsInArchive": {
+    "message": "Items in archief"
+  },
+  "noItemsInArchive": {
+    "message": "Geen items in archief"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Gearchiveerde items verschijnen hier en worden uitgesloten van algemene zoekresultaten en automatisch invulsuggesties."
+  },
+  "itemSentToArchive": {
+    "message": "Item naar archief verzonden"
+  },
+  "itemRemovedFromArchive": {
+    "message": "Item verwijderd uit archief"
+  },
+  "archiveItem": {
+    "message": "Item archiveren"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Gearchiveerde items worden uitgesloten van algemene zoekresultaten en automatische invulsuggesties. Weet je zeker dat je dit item wilt archiveren?"
   }
 }
