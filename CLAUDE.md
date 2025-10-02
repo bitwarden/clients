@@ -4,22 +4,13 @@
 
 - **NEVER** use code regions: If complexity suggests regions, refactor for better readability
 
-- **CRITICAL**: Use `EncString` type for all encrypted vault data
-  - Import from: `@bitwarden/common/key-management/crypto/models/enc-string`
-  - Never use raw `string` types for passwords, notes, or vault fields
-  - Never decrypt without user's CryptoService context
+- **CRITICAL**: new encryption logic should not be added to this repo.
 
 - **NEVER** send unencrypted vault data to API services
-  - Encrypt with CryptoService BEFORE passing to API layer
-  - API services should only receive/return EncString types for vault data
 
 - **NEVER** log decrypted data, encryption keys, or PII
   - No vault data in error messages or console logs
   - Log encrypted data identifiers only (cipher IDs, not contents)
-
-- **NEVER** call CryptoService directly in components
-  - Use domain services that handle encryption/decryption
-  - Components work with decrypted ViewModels only
 
 ## Mono-Repo Architecture
 
