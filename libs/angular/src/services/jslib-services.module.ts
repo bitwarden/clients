@@ -142,6 +142,7 @@ import {
 } from "@bitwarden/common/billing/abstractions";
 import { AccountBillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/account/account-billing-api.service.abstraction";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
 import { OrganizationBillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/organizations/organization-billing-api.service.abstraction";
 import { OrganizationSponsorshipApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/organizations/organization-sponsorship-api.service.abstraction";
 import { AccountBillingApiService } from "@bitwarden/common/billing/services/account/account-billing-api.service";
@@ -150,6 +151,7 @@ import { BillingApiService } from "@bitwarden/common/billing/services/billing-ap
 import { OrganizationBillingApiService } from "@bitwarden/common/billing/services/organization/organization-billing-api.service";
 import { OrganizationSponsorshipApiService } from "@bitwarden/common/billing/services/organization/organization-sponsorship-api.service";
 import { OrganizationBillingService } from "@bitwarden/common/billing/services/organization-billing.service";
+import { DefaultOrganizationMetadataService } from "@bitwarden/common/billing/services/organization-metadata.service";
 import { HibpApiService } from "@bitwarden/common/dirt/services/hibp-api.service";
 import {
   DefaultKeyGenerationService,
@@ -1395,6 +1397,11 @@ const safeProviders: SafeProvider[] = [
     provide: BillingApiServiceAbstraction,
     useClass: BillingApiService,
     deps: [ApiServiceAbstraction],
+  }),
+  safeProvider({
+    provide: OrganizationMetadataServiceAbstraction,
+    useClass: DefaultOrganizationMetadataService,
+    deps: [BillingApiServiceAbstraction, ConfigService],
   }),
   safeProvider({
     provide: BillingAccountProfileStateService,
