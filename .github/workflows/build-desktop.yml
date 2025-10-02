@@ -481,14 +481,6 @@ jobs:
           jq --arg version "$NEW_VERSION" '.version = $version + ".${{ github.run_number }}"' src/package-lock.json > temp.json && mv temp.json src/package-lock.json
           jq --arg version "$NEW_VERSION" '.packages."".version = $version + ".${{ github.run_number }}"' src/package-lock.json > temp.json && mv temp.json src/package-lock.json
 
-          cat package.json
-          echo "#########################################################"
-          cat src/package.json
-          echo "#########################################################"
-          cat src/package-lock.json
-
-          exit 1
-
       - name: Install Node dependencies
         run: npm ci
         working-directory: ./
