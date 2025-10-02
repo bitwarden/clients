@@ -8,11 +8,8 @@
  */
 @font-face {
   font-family: Inter;
-  src:
-    url("https://cdn.jsdelivr.net/fontsource/fonts/inter:vf@latest/latin-wght-italic.woff2")
-      format("woff2 supports variations"),
-    url("https://cdn.jsdelivr.net/fontsource/fonts/inter:vf@latest/latin-wght-italic.woff2")
-      format("woff2-variations");
+  src: url("./webfonts/inter.woff2") format("woff2-variations");
+  /* url("./webfonts/inter.woff2") format("woff2-variations"); */
   font-weight: 100 900;
   font-feature-settings: "ss02";
 }

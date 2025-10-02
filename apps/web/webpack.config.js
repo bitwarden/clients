@@ -49,7 +49,12 @@ const moduleRules = [
         loader: MiniCssExtractPlugin.loader,
       },
       "css-loader",
-      "resolve-url-loader",
+      {
+        loader: "resolve-url-loader",
+        options: {
+          debug: true,
+        },
+      },
       {
         loader: "sass-loader",
         options: {
@@ -64,8 +69,19 @@ const moduleRules = [
       {
         loader: MiniCssExtractPlugin.loader,
       },
-      "css-loader",
-      "resolve-url-loader",
+      {
+        loader: "css-loader",
+        options: {
+          importLoaders: 2,
+        },
+      },
+      {
+        loader: "resolve-url-loader",
+        options: {
+          debug: true,
+          removeCR: true,
+        },
+      },
       {
         loader: "postcss-loader",
         options: {
