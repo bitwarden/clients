@@ -353,8 +353,10 @@
                   {{ "enableAutotypeDescriptionTransitionKey" | i18n }}
                   <span
                     class="settings-link"
+                    tabindex="0"
                     *ngIf="this.form.value.enableAutotype"
                     (click)="saveAutotypeShortcut()"
+                    (keydown.enter)="saveAutotypeShortcut(); $event.preventDefault()"
                   >
                     {{ "editShortcut" | i18n }}
                   </span></small

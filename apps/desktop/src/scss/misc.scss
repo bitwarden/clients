@@ -365,6 +365,14 @@ form,
     color: themed("primaryColor");
   }
   font-weight: bold;
+  cursor: pointer;
+
+  &:hover,
+  &:focus {
+    @include themify($themes) {
+      color: darken(themed("primaryColor"), 6%);
+    }
+  }
 }
 
 app-root > #loading,
