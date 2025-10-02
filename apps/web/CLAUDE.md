@@ -12,15 +12,6 @@
   - Web vault may run in environments that clear storage aggressively
   - DON'T rely on localStorage/sessionStorage for security-critical data
 
-## Angular Patterns
-
-- **ALWAYS** use Observable Data Services (ADR-0003)
-  - Components use `async` pipe for subscriptions
-  - If explicit subscription needed, use `takeUntilDestroyed()`
-
-- **NEVER** create TypeScript enums (ADR-0025)
-  - Use `Object.freeze({ Key: value } as const)` pattern
-
 ## Development Commands
 
 - `npm run build:bit:watch` - Bitwarden-branded build with hot reload

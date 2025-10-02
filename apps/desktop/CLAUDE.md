@@ -9,15 +9,6 @@
   - Use preload scripts or IPC to access Node.js functionality
   - See `/apps/desktop/src/*/preload.ts` files for patterns
 
-## Angular Patterns
-
-- **ALWAYS** use Observable Data Services (ADR-0003)
-  - Components use `async` pipe for subscriptions
-  - If explicit subscription needed, use `takeUntilDestroyed()`
-
-- **NEVER** create TypeScript enums (ADR-0025)
-  - Use `Object.freeze({ Key: value } as const)` pattern
-
 ## Development Commands
 
 - `npm run build:electron` - Build Electron desktop app
