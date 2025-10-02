@@ -134,7 +134,7 @@ describe("ChangeKdfService", () => {
 
       expect(mockSdkClient.crypto().make_update_kdf).toHaveBeenCalledWith(
         masterPassword,
-        expect.any(Object), // the SDK config
+        mockNewKdfConfig.toSdkConfig(),
       );
     });
 
