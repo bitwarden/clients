@@ -325,24 +325,13 @@ export class LoginComponent implements OnInit, OnDestroy {
         case HttpStatusCode.BadRequest: {
           if (error.message?.toLowerCase().includes("username or password is incorrect")) {
             const env = await firstValueFrom(this.environmentService.environment$);
-            const isCloud = env.isCloud();
+            const host = Utils.getHost(env.getWebVaultUrl());
 
-            if (isCloud) {
-              const host = Utils.getHost(env.getWebVaultUrl());
-
-              this.formGroup.controls.masterPassword.setErrors({
-                error: {
-                  message: this.i18nService.t("invalidMasterPasswordConfirmEmailAndHost", host),
-                },
-              });
-            } else {
-              // Is self-hosted environment
-              this.formGroup.controls.masterPassword.setErrors({
-                error: {
-                  message: this.i18nService.t("invalidMasterPassword"),
-                },
-              });
-            }
+            this.formGroup.controls.masterPassword.setErrors({
+              error: {
+                message: this.i18nService.t("invalidMasterPasswordConfirmEmailAndHost", host),
+              },
+            });
           } else {
             // Allow other 400 responses to be handled by toast
             this.validationService.showError(error);

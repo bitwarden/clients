@@ -375,15 +375,8 @@ export class LoginCommand {
         e.message === "Username or password is incorrect. Try again."
       ) {
         const env = await firstValueFrom(this.environmentService.environment$);
-        const isCloud = env.isCloud();
-
-        if (isCloud) {
-          const host = Utils.getHost(env.getWebVaultUrl());
-
-          return Response.error(
-            this.i18nService.t("invalidMasterPasswordConfirmEmailAndHost", host),
-          );
-        }
+        const host = Utils.getHost(env.getWebVaultUrl());
+        return Response.error(this.i18nService.t("invalidMasterPasswordConfirmEmailAndHost", host));
       }
 
       return Response.error(e);
