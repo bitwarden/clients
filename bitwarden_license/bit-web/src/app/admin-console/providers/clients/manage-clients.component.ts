@@ -36,10 +36,6 @@ import { SharedOrganizationModule } from "@bitwarden/web-vault/app/admin-console
 import { BillingNotificationService } from "@bitwarden/web-vault/app/billing/services/billing-notification.service";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 
-import {
-  ManageClientSubscriptionDialogResultType,
-  openManageClientSubscriptionDialog,
-} from "../../../billing/providers/clients/manage-client-subscription-dialog.component";
 import { WebProviderService } from "../services/web-provider.service";
 
 import {
@@ -54,6 +50,10 @@ import {
   ManageClientNameDialogResultType,
   openManageClientNameDialog,
 } from "./manage-client-name-dialog.component";
+import {
+  ManageClientSubscriptionDialogResultType,
+  openManageClientSubscriptionDialog,
+} from "./manage-client-subscription-dialog.component";
 import { NoClientsComponent } from "./no-clients.component";
 import { ReplacePipe } from "./replace.pipe";
 
