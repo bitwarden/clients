@@ -44,8 +44,6 @@ import {
   ManageClientSubscriptionDialogResultType,
   openManageClientSubscriptionDialog,
 } from "../../../billing/providers/clients/manage-client-subscription-dialog.component";
-import { NoClientsComponent } from "../../../billing/providers/clients/no-clients.component";
-import { ReplacePipe } from "../../../billing/providers/clients/replace.pipe";
 import { WebProviderService } from "../services/web-provider.service";
 
 import {
@@ -56,6 +54,8 @@ import {
   ManageClientNameDialogResultType,
   openManageClientNameDialog,
 } from "./manage-client-name-dialog.component";
+import { NoClientsComponent } from "./no-clients.component";
+import { ReplacePipe } from "./replace.pipe";
 
 @Component({
   templateUrl: "manage-clients.component.html",
