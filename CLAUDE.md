@@ -51,6 +51,22 @@ constructor() {
 }
 ```
 
+**Angular Signals (ADR-0027):**
+
+Encourage the use of Signals **only** in Angular components and presentational services.
+
+**NEVER** use signals in:
+
+- Shared services (must work in non-Angular contexts like CLI/Electron)
+- Business logic used across multiple clients
+- Cross-platform state management
+
+Use **RxJS** for:
+
+- Services used across Angular and non-Angular clients
+- Complex reactive workflows
+- Interop with existing Observable-based code
+
 **NO TypeScript Enums (ADR-0025):**
 
 - Use const objects with type aliases instead
