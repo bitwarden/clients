@@ -19,19 +19,23 @@
       },
       "configurations": {
         "oss": {
-          "mode": "production"
+          "mode": "production",
+          "outputPath": "dist/apps/cli/oss"
         },
         "oss-dev": {
-          "mode": "development"
+          "mode": "development",
+          "outputPath": "dist/apps/cli/oss-dev"
         },
         "bit": {
           "mode": "production",
+          "outputPath": "dist/apps/cli/bit",
           "webpackConfig": "bitwarden_license/bit-cli/webpack.config.js",
           "main": "bitwarden_license/bit-cli/src/bw.ts",
           "tsConfig": "bitwarden_license/bit-cli/tsconfig.json"
         },
         "bit-dev": {
           "mode": "development",
+          "outputPath": "dist/apps/cli/bit-dev",
           "webpackConfig": "bitwarden_license/bit-cli/webpack.config.js",
           "main": "bitwarden_license/bit-cli/src/bw.ts",
           "tsConfig": "bitwarden_license/bit-cli/tsconfig.json"
@@ -52,10 +56,12 @@
       },
       "configurations": {
         "oss-dev": {
-          "mode": "development"
+          "mode": "development",
+          "outputPath": "dist/apps/cli/oss-dev"
         },
         "bit-dev": {
           "mode": "development",
+          "outputPath": "dist/apps/cli/bit-dev",
           "webpackConfig": "bitwarden_license/bit-cli/webpack.config.js",
           "main": "bitwarden_license/bit-cli/src/bw.ts",
           "tsConfig": "bitwarden_license/bit-cli/tsconfig.json"

@@ -30,6 +30,11 @@ npx nx build cli --configuration=bit-dev
 
 # If you need a production build drop the "dev" suffix
 npx nx build cli --configuration=oss # or "bit"
+
+# Outputs are distrubuted in a root level /dist/ folder
+
+# Run a locally built CLI
+node dist/apps/cli/oss-dev/bw.js
 ```
 
 ### Global Commands
