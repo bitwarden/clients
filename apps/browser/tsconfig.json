@@ -4,5 +4,6 @@
     "src",
     "../../libs/common/src/autofill/constants",
     "../../libs/common/custom-matchers.d.ts"
-  ]
+  ],
+  "exclude": ["**/*.stories.*"]
 }
