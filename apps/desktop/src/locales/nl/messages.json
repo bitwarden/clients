@@ -4080,11 +4080,17 @@
   "showLess": {
     "message": "Minder weergeven"
   },
-  "enableAutotype": {
-    "message": "Autotypen inschakelen"
-  },
   "enableAutotypeDescription": {
     "message": "Bitwarden valideert de invoerlocaties niet, zorg ervoor dat je je in het juiste venster en veld bevindt voordat je de snelkoppeling gebruikt."
+  },
+  "typeShortcut": {
+    "message": "Typ de sneltoets"
+  },
+  "editAutotypeShortcutDescription": {
+    "message": "Voeg een of twee van de volgende toetsen toe: Ctrl, Alt, Win of Shift, en een letter."
+  },
+  "invalidShortcut": {
+    "message": "Ongeldige sneltoets"
   },
   "moreBreadcrumbs": {
     "message": "Meer broodkruimels",
@@ -4099,8 +4105,8 @@
   "confirm": {
     "message": "Bevestigen"
   },
-  "enableAutotypeTransitionKey": {
-    "message": "Snelkoppeling autotype inschakelen"
+  "enableAutotypeShortcutPreview": {
+    "message": "Autotype sneltoets inschakelen (Feature Preview)"
   },
   "enableAutotypeDescriptionTransitionKey": {
     "message": "Zorg ervoor dat je je in het juiste veld bevindt voordat je de snelkoppeling gebruikt om te voorkomen dat je de gegevens op de verkeerde plaats invult."
@@ -4108,8 +4114,13 @@
   "editShortcut": {
     "message": "Snelkoppeling bewerken"
   },
-  "archive": {
-    "message": "Archiveren"
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
   },
   "unarchive": {
     "message": "Dearchiveren"

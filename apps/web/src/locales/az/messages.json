@@ -59,8 +59,27 @@
   "createNewLoginItem": {
     "message": "Yeni giriş elementi yarat"
   },
-  "criticalApplicationsActivityDescription": {
-    "message": "Tətbiqləri kritik olaraq işarələsəniz, onlar burada nümayiş olunacaq."
+  "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
+    "message": "Once you mark applications critical, they will display here"
+  },
+  "viewAtRiskMembers": {
+    "message": "View at-risk members"
+  },
+  "viewAtRiskApplications": {
+    "message": "View at-risk applications"
+  },
+  "criticalApplicationsAreAtRisk": {
+    "message": "$COUNT$ out of $TOTAL$ critical applications are at-risk due to at-risk passwords",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "total": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
   },
   "criticalApplicationsWithCount": {
     "message": "Kritik tətbiqlər ($COUNT$)",
@@ -73,6 +92,15 @@
   },
   "countOfCriticalApplications": {
     "message": "$COUNT$ kritik tətbiq",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfApplicationsAtRisk": {
+    "message": "$COUNT$ applications at-risk",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -137,8 +165,8 @@
   "membersAtRiskActivityDescription": {
     "message": "Kritik tətbiqlər üçün risk altındakı elementlərə düzəliş erişimi olan üzvlər"
   },
-  "membersAtRisk": {
-    "message": "$COUNT$ üzv riskdədir",
+  "membersAtRiskCount": {
+    "message": "$COUNT$ members at-risk",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1479,6 +1507,30 @@
   },
   "noItemsInList": {
     "message": "Sadalanacaq heç bir element yoxdur."
+  },
+  "noItemsInTrash": {
+    "message": "No items in trash"
+  },
+  "noItemsInTrashDesc": {
+    "message": "Items you delete will appear here and be permanently deleted after 30 days"
+  },
+  "noItemsInVault": {
+    "message": "No items in the vault"
+  },
+  "emptyVaultDescription": {
+    "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
+  },
+  "emptyFavorites": {
+    "message": "You haven't favorited any items"
+  },
+  "emptyFavoritesDesc": {
+    "message": "Add frequently used items to favorites for quick access."
+  },
+  "noSearchResults": {
+    "message": "No search results returned"
+  },
+  "clearFiltersOrTryAnother": {
+    "message": "Clear filters or try another search term"
   },
   "noPermissionToViewAllCollectionItems": {
     "message": "Bu kolleksiyadakı bütün elementlərə baxmaq üçün icazəniz yoxdur."
@@ -4772,6 +4824,12 @@
   "organizationIsDisabled": {
     "message": "Təşkilat sıradan çıxarıldı."
   },
+  "organizationIsSuspended": {
+    "message": "Organization is suspended"
+  },
+  "organizationIsSuspendedDesc": {
+    "message": "Items in suspended organizations cannot be accessed. Contact your organization owner for assistance."
+  },
   "secretsAccessSuspended": {
     "message": "Fəaliyyəti dayandırılmış təşkilatlara erişilə bilməz. Lütfən kömək üçün təşkilatınızın sahibi ilə əlaqə saxlayın."
   },
@@ -4783,9 +4841,6 @@
   },
   "serviceAccountsCannotCreate": {
     "message": "Xidmət hesabları dayandırılmış təşkilatlarda yaradıla bilməz. Lütfən kömək üçün təşkilatınızın sahibi ilə əlaqə saxlayın."
-  },
-  "disabledOrganizationFilterError": {
-    "message": "Fəaliyyəti dayandırılmış təşkilatlardakı elementlərə erişilə bilməz. Kömək üçün təşkilatınızın sahibi ilə əlaqə saxlayın."
   },
   "licenseIsExpired": {
     "message": "Lisenziyanın vaxtı bitib."
@@ -5160,9 +5215,13 @@
   "ssoIdentifier": {
     "message": "SSO identifikatoru"
   },
-  "ssoIdentifierHintPartOne": {
-    "message": "SSO ilə giriş etmələri üçün üzvlərinizi bu kimliklə təmin edin. Bu addımı ötürmək üçün, quraşdırın ",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Provide this ID to your members to login with SSO. To bypass this step, set up Domain verification'"
+  "ssoIdentifierHint": {
+    "message": "Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. ",
+    "description": "This will be used as part of a larger sentence, broken up to include a link. The full sentence will read 'Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. Learn more'"
+  },
+  "claimedDomainsLearnMore": {
+    "message": "Learn more",
+    "description": "This will be used as part of a larger sentence, broken up to include a link. The full sentence will read 'Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. Learn more'"
   },
   "unlinkSso": {
     "message": "SSO əlaqəsini kəs"
@@ -5558,10 +5617,10 @@
     "message": "Müəssisə siyasətinə görə, elementləri şəxsi seyfinizdə saxlamağınız məhdudlaşdırılıb. Sahiblik seçimini təşkilat olaraq dəyişdirin və mövcud kolleksiyalar arasından seçim edin."
   },
   "desktopAutotypePolicy": {
-    "message": "Desktop Autotype Default Setting"
+    "message": "Masaüstü avto-yazma ilkin ayarı"
   },
   "desktopAutotypePolicyDesc": {
-    "message": "Turn Desktop Autotype ON by default for members. Members can turn Autotype off manually in the Desktop client.",
+    "message": "Üzvlər üçün Masaüstü avto-yazma ayarını ilkin olaraq işə salın. Üzvlər Masaüstü client-ində avto-yazma ayarını manual olaraq söndürə bilər.",
     "description": "This policy will enable Desktop Autotype by default for members on Unlock."
   },
   "disableSend": {
@@ -6729,7 +6788,7 @@
     "message": "SSO sıradan çıxarılıb"
   },
   "emailMustLoginWithSso": {
-    "message": "$EMAIL$ must login with Single Sign-on",
+    "message": "$EMAIL$, Vahid Daxil olma üsulu ilə giriş etməlidir",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -8376,12 +8435,6 @@
   "groupSlashUser": {
     "message": "Qrup/İstifadəçi"
   },
-  "lowKdfIterations": {
-    "message": "Aşağı KDF iterasiyaları"
-  },
-  "updateLowKdfIterationsDesc": {
-    "message": "Yeni güvənlik tövsiyələrini qarşılamaq və hesab qorumasını təkmilləşdirmək üçün şifrələmə ayarlarınızı güncəlləyin."
-  },
   "kdfSettingsChangeLogoutWarning": {
     "message": "Davam etsəniz, bütün aktiv seanslardan çıxış edəcəksiniz. Təkrar giriş etməyiniz və əgər varsa iki addımlı girişi tamamlamağınız lazım olacaq. Veri itkisini önləmək üçün şifrələmə ayarlarınızı dəyişdirməzdən əvvəl seyfinizi xaricə köçürməyinizi tövsiyə edirik."
   },
@@ -9755,6 +9808,9 @@
   "failedToSaveIntegration": {
     "message": "İnteqrasiya saxlanılmadı. Lütfən daha sonra yenidən sınayın."
   },
+  "mustBeOrgOwnerToPerformAction": {
+    "message": "You must be the organization owner to perform this action."
+  },
   "failedToDeleteIntegration": {
     "message": "İnteqrasiya silinmədi. Lütfən daha sonra yenidən sınayın."
   },
@@ -9995,12 +10051,6 @@
         "example": "2"
       }
     }
-  },
-  "lowKDFIterationsBanner": {
-    "message": "Aşağı KDF iterasiyaları. Hesabınızın güvənliyini təkmilləşdirmək üçün iterasiyaları artırın."
-  },
-  "changeKDFSettings": {
-    "message": "KDF ayarlarını dəyişdir"
   },
   "secureYourInfrastructure": {
     "message": "İnfrastrukturunuzu qoruyun"
@@ -11022,16 +11072,21 @@
     "message": "Ödənişsiz təşkilatların ən çox 2 kolleksiyası ola bilər. Daha çox kolleksiya əlavə etmək üçün ödənişli bir plana yüksəldin."
   },
   "searchArchive": {
-    "message": "Search archive"
+    "message": "Arxivdə axtar"
   },
-  "archive": {
-    "message": "Archive"
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
   },
   "noItemsInArchive": {
-    "message": "No items in archive"
+    "message": "Arxivdə element yoxdur"
   },
   "archivedItemsDescription": {
-    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+    "message": "Arxivlənmiş elementlər burada görünəcək, ümumi axtarış nəticələrindən və avto-doldurma təkliflərindən xaric ediləcək."
   },
   "businessUnit": {
     "message": "Biznes vahidi"
@@ -11367,34 +11422,34 @@
     "message": "İndi doğrula."
   },
   "additionalStorageGB": {
-    "message": "Additional storage GB"
+    "message": "Əlavə anbar sahəsi GB"
   },
   "additionalServiceAccountsV2": {
-    "message": "Additional machine accounts"
+    "message": "Əlavə maşın hesabları"
   },
   "secretsManagerSeats": {
-    "message": "Secrets Manager seats"
+    "message": "Sirr Meneceri yerləri"
   },
   "additionalStorage": {
-    "message": "Additional Storage"
+    "message": "Əlavə anbar sahəsi"
   },
   "expandPurchaseDetails": {
-    "message": "Expand purchase details"
+    "message": "Satın alma detallarını genişləndir"
   },
   "collapsePurchaseDetails": {
-    "message": "Collapse purchase details"
+    "message": "Satın alma detallarını yığcamlaşdır"
   },
   "familiesMembership": {
-    "message": "Families membership"
+    "message": "Ailə üzvlüyü"
   },
   "planDescPremium": {
-    "message": "Complete online security"
+    "message": "Tam onlayn təhlükəsizlik"
   },
   "planDescFamiliesV2": {
-    "message": "Premium security for your family"
+    "message": "Ailəniz üçün Premium təhlükəsizlik"
   },
   "planDescFreeV2": {
-    "message": "Share with $COUNT$ other user",
+    "message": "Digər $COUNT$ istifadəçi ilə paylaş",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -11403,37 +11458,37 @@
     }
   },
   "planDescEnterpriseV2": {
-    "message": "Advanced capabilities for any organization"
+    "message": "Hər bir təşkilat üçün qabaqcıl imkanlar"
   },
   "planNameCustom": {
-    "message": "Custom plan"
+    "message": "Özəl plan"
   },
   "planDescCustom": {
-    "message": "Bitwarden scales with businesses of all sizes to secure passwords and sensitive information. If you're part of a large enterprise, contact sales to request a quote."
+    "message": "Bitwarden, parolların və həssas məlumatların təhlükəsizliyini təmin etmək üçün istənilən miqyaslı şirkətə uyğunlaşır. Əgər böyük bir müəssisənin bir hissəsisinizsə, qiymət təklifi üçün satış şöbəsi ilə əlaqə saxlayın."
   },
   "builtInAuthenticator": {
-    "message": "Built-in authenticator"
+    "message": "Daxili kimlik doğrulayıcı"
   },
   "breachMonitoring": {
-    "message": "Breach monitoring"
+    "message": "Pozuntu monitorinqi"
   },
   "andMoreFeatures": {
-    "message": "And more!"
+    "message": "Və daha çoxu!"
   },
   "secureFileStorage": {
-    "message": "Secure file storage"
+    "message": "Güvənli fayl anbarı"
   },
   "familiesUnlimitedSharing": {
-    "message": "Unlimited sharing - choose who sees what"
+    "message": "Limitsiz paylaşım - kimin nəyi görəcəyini seçin"
   },
   "familiesUnlimitedCollections": {
-    "message": "Unlimited family collections"
+    "message": "Limitsiz ailə kolleksiyaları"
   },
   "familiesSharedStorage": {
-    "message": "Shared storage for important family info"
+    "message": "Vacib ailə məlumatları üçün paylaşılan anbar sahəsi"
   },
   "limitedUsersV2": {
-    "message": "Up to $COUNT$ members",
+    "message": "$COUNT$ üzvə qədər",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -11442,7 +11497,7 @@
     }
   },
   "limitedCollectionsV2": {
-    "message": "Up to $COUNT$ collections",
+    "message": "$COUNT$ kolleksiyaya qədər",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -11451,13 +11506,13 @@
     }
   },
   "alwaysFree": {
-    "message": "Always free"
+    "message": "Həmişə ödənişsiz"
   },
   "twoSecretsIncluded": {
-    "message": "2 secrets"
+    "message": "2 sirr"
   },
   "projectsIncludedV2": {
-    "message": "$COUNT$ project(s)",
+    "message": "$COUNT$ layihə",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -11466,13 +11521,13 @@
     }
   },
   "secureItemSharing": {
-    "message": "Secure item sharing"
+    "message": "Güvənli element paylaşımı"
   },
   "scimSupport": {
-    "message": "SCIM support"
+    "message": "SCIM dəstəyi"
   },
   "includedMachineAccountsV2": {
-    "message": "$COUNT$ machine accounts",
+    "message": "$COUNT$ maşın hesabı",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -11481,21 +11536,21 @@
     }
   },
   "enterpriseSecurityPolicies": {
-    "message": "Enterprise security policies"
+    "message": "Müəssisə təhlükəsizlik siyasətləri"
   },
   "selfHostOption": {
-    "message": "Self-host option"
+    "message": "Self-host seçimi"
   },
   "complimentaryFamiliesPlan": {
-    "message": "Complimentary families plan for all users"
+    "message": "Bütün istifadəçilər üçün ödənişsiz ailə planı"
   },
   "strengthenCybersecurity": {
-    "message": "Strengthen cybersecurity"
+    "message": "Gücləndirilmiş kibertəhlükəsizlik"
   },
   "boostProductivity": {
-    "message": "Boost productivity"
+    "message": "Məhsuldarlığı artırın"
   },
   "seamlessIntegration": {
-    "message": "Seamless integration"
+    "message": "Problemsiz inteqrasiya"
   }
 }

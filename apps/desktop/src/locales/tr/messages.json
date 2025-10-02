@@ -4080,11 +4080,17 @@
   "showLess": {
     "message": "Daha az göster"
   },
-  "enableAutotype": {
-    "message": "Otomatik yazmayı etkinleştir"
-  },
   "enableAutotypeDescription": {
     "message": "Bitwarden giriş konumlarını doğrulamaz, kısayolu kullanmadan önce doğru pencerede ve alanda olduğunuzdan emin olun."
+  },
+  "typeShortcut": {
+    "message": "Kısayolu yazın"
+  },
+  "editAutotypeShortcutDescription": {
+    "message": "Include one or two of the following modifiers: Ctrl, Alt, Win, or Shift, and a letter."
+  },
+  "invalidShortcut": {
+    "message": "Geçersiz kısayol"
   },
   "moreBreadcrumbs": {
     "message": "Daha fazla gezinme izi",
@@ -4099,8 +4105,8 @@
   "confirm": {
     "message": "Onayla"
   },
-  "enableAutotypeTransitionKey": {
-    "message": "Otomatik yazma kısayolunu etkinleştir"
+  "enableAutotypeShortcutPreview": {
+    "message": "Enable autotype shortcut (Feature Preview)"
   },
   "enableAutotypeDescriptionTransitionKey": {
     "message": "Verilerin yanlış yere doldurulmasını önlemek için kısayolu kullanmadan önce doğru alanda olduğunuzdan emin olun."
@@ -4108,8 +4114,13 @@
   "editShortcut": {
     "message": "Kısayolu düzenle"
   },
-  "archive": {
-    "message": "Arşivle"
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
   },
   "unarchive": {
     "message": "Arşivden çıkar"

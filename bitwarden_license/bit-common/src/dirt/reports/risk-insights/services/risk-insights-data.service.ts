@@ -1,5 +1,14 @@
-import { BehaviorSubject, firstValueFrom, Observable, of } from "rxjs";
-import { finalize, switchMap, withLatestFrom } from "rxjs/operators";
+import { BehaviorSubject, EMPTY, firstValueFrom, Observable, of } from "rxjs";
+import {
+  distinctUntilChanged,
+  exhaustMap,
+  filter,
+  finalize,
+  map,
+  switchMap,
+  tap,
+  withLatestFrom,
+} from "rxjs/operators";
 
 import {
   getOrganizationById,
@@ -14,8 +23,10 @@ import {
   AtRiskApplicationDetail,
   AtRiskMemberDetail,
   DrawerType,
+  DrawerDetails,
   ApplicationHealthReportDetail,
   ApplicationHealthReportDetailEnriched,
+  ReportDetailsAndSummary,
 } from "../models/report-models";
 
 import { CriticalAppsService } from "./critical-apps.service";
@@ -53,12 +64,26 @@ export class RiskInsightsDataService {
   private errorSubject = new BehaviorSubject<string | null>(null);
   error$ = this.errorSubject.asObservable();
 
-  openDrawer = false;
-  drawerInvokerId: string = "";
-  activeDrawerType: DrawerType = DrawerType.None;
-  atRiskMemberDetails: AtRiskMemberDetail[] = [];
-  appAtRiskMembers: AppAtRiskMembersDialogParams | null = null;
-  atRiskAppDetails: AtRiskApplicationDetail[] | null = null;
+  // ------------------------- Drawer Variables ----------------
+  // Drawer variables unified into a single BehaviorSubject
+  private drawerDetailsSubject = new BehaviorSubject<DrawerDetails>({
+    open: false,
+    invokerId: "",
+    activeDrawerType: DrawerType.None,
+    atRiskMemberDetails: [],
+    appAtRiskMembers: null,
+    atRiskAppDetails: null,
+  });
+  drawerDetails$ = this.drawerDetailsSubject.asObservable();
+
+  // ------------------------- Report Variables ----------------
+  // The last run report details
+  private reportResultsSubject = new BehaviorSubject<ReportDetailsAndSummary | null>(null);
+  reportResults$ = this.reportResultsSubject.asObservable();
+  // Is a report being generated
+  private isRunningReportSubject = new BehaviorSubject<boolean>(false);
+  isRunningReport$ = this.isRunningReportSubject.asObservable();
+  // The error from report generation if there was an error
 
   constructor(
     private accountService: AccountService,
@@ -75,7 +100,7 @@ export class RiskInsightsDataService {
       this.userIdSubject.next(userId);
     }
 
-    // [FIXME] getOrganizationById is now deprecated - update when we can
+    // [FIXME] getOrganizationById is now deprecated - replace with appropriate method
     // Fetch organization details
     const org = await firstValueFrom(
       this.organizationService.organizations$(userId).pipe(getOrganizationById(organizationId)),
@@ -90,20 +115,18 @@ export class RiskInsightsDataService {
     // Load critical applications for organization
     await this.criticalAppsService.loadOrganizationContext(organizationId, userId);
 
-    // TODO: PM-25613
-    // // Load existing report
+    // Load existing report
+    this.fetchLastReport(organizationId, userId);
 
-    // this.fetchLastReport(organizationId, userId);
-
-    // // Setup new report generation
-    // this._runApplicationsReport().subscribe({
-    //   next: (result) => {
-    //     this.isRunningReportSubject.next(false);
-    //   },
-    //   error: () => {
-    //     this.errorSubject.next("Failed to save report");
-    //   },
-    // });
+    // Setup new report generation
+    this._runApplicationsReport().subscribe({
+      next: (result) => {
+        this.isRunningReportSubject.next(false);
+      },
+      error: () => {
+        this.errorSubject.next("Failed to save report");
+      },
+    });
   }
 
   /**
@@ -178,56 +201,180 @@ export class RiskInsightsDataService {
   }
 
   // ------------------------------- Drawer management methods -------------------------------
+  // ------------------------- Drawer functions -----------------------------
+
+  isActiveDrawerType$ = (drawerType: DrawerType): Observable<boolean> => {
+    return this.drawerDetails$.pipe(map((details) => details.activeDrawerType === drawerType));
+  };
   isActiveDrawerType = (drawerType: DrawerType): boolean => {
-    return this.activeDrawerType === drawerType;
+    return this.drawerDetailsSubject.value.activeDrawerType === drawerType;
+  };
+
+  isDrawerOpenForInvoker$ = (applicationName: string) => {
+    return this.drawerDetails$.pipe(map((details) => details.invokerId === applicationName));
+  };
+  isDrawerOpenForInvoker = (applicationName: string): boolean => {
+    return this.drawerDetailsSubject.value.invokerId === applicationName;
+  };
+
+  closeDrawer = (): void => {
+    this.drawerDetailsSubject.next({
+      open: false,
+      invokerId: "",
+      activeDrawerType: DrawerType.None,
+      atRiskMemberDetails: [],
+      appAtRiskMembers: null,
+      atRiskAppDetails: null,
+    });
   };
 
   setDrawerForOrgAtRiskMembers = (
     atRiskMemberDetails: AtRiskMemberDetail[],
     invokerId: string = "",
   ): void => {
-    this.resetDrawer(DrawerType.OrgAtRiskMembers);
-    this.activeDrawerType = DrawerType.OrgAtRiskMembers;
-    this.drawerInvokerId = invokerId;
-    this.atRiskMemberDetails = atRiskMemberDetails;
-    this.openDrawer = !this.openDrawer;
+    const { open, activeDrawerType, invokerId: currentInvokerId } = this.drawerDetailsSubject.value;
+    const shouldClose =
+      open && activeDrawerType === DrawerType.OrgAtRiskMembers && currentInvokerId === invokerId;
+
+    if (shouldClose) {
+      this.closeDrawer();
+    } else {
+      this.drawerDetailsSubject.next({
+        open: true,
+        invokerId,
+        activeDrawerType: DrawerType.OrgAtRiskMembers,
+        atRiskMemberDetails,
+        appAtRiskMembers: null,
+        atRiskAppDetails: null,
+      });
+    }
   };
 
   setDrawerForAppAtRiskMembers = (
     atRiskMembersDialogParams: AppAtRiskMembersDialogParams,
     invokerId: string = "",
   ): void => {
-    this.resetDrawer(DrawerType.None);
-    this.activeDrawerType = DrawerType.AppAtRiskMembers;
-    this.drawerInvokerId = invokerId;
-    this.appAtRiskMembers = atRiskMembersDialogParams;
-    this.openDrawer = !this.openDrawer;
+    const { open, activeDrawerType, invokerId: currentInvokerId } = this.drawerDetailsSubject.value;
+    const shouldClose =
+      open && activeDrawerType === DrawerType.AppAtRiskMembers && currentInvokerId === invokerId;
+
+    if (shouldClose) {
+      this.closeDrawer();
+    } else {
+      this.drawerDetailsSubject.next({
+        open: true,
+        invokerId,
+        activeDrawerType: DrawerType.AppAtRiskMembers,
+        atRiskMemberDetails: [],
+        appAtRiskMembers: atRiskMembersDialogParams,
+        atRiskAppDetails: null,
+      });
+    }
   };
 
   setDrawerForOrgAtRiskApps = (
     atRiskApps: AtRiskApplicationDetail[],
     invokerId: string = "",
   ): void => {
-    this.resetDrawer(DrawerType.OrgAtRiskApps);
-    this.activeDrawerType = DrawerType.OrgAtRiskApps;
-    this.drawerInvokerId = invokerId;
-    this.atRiskAppDetails = atRiskApps;
-    this.openDrawer = !this.openDrawer;
-  };
+    const { open, activeDrawerType, invokerId: currentInvokerId } = this.drawerDetailsSubject.value;
+    const shouldClose =
+      open && activeDrawerType === DrawerType.OrgAtRiskApps && currentInvokerId === invokerId;
 
-  closeDrawer = (): void => {
-    this.resetDrawer(DrawerType.None);
-  };
-
-  private resetDrawer = (drawerType: DrawerType): void => {
-    if (this.activeDrawerType !== drawerType) {
-      this.openDrawer = false;
+    if (shouldClose) {
+      this.closeDrawer();
+    } else {
+      this.drawerDetailsSubject.next({
+        open: true,
+        invokerId,
+        activeDrawerType: DrawerType.OrgAtRiskApps,
+        atRiskMemberDetails: [],
+        appAtRiskMembers: null,
+        atRiskAppDetails: atRiskApps,
+      });
     }
-
-    this.activeDrawerType = DrawerType.None;
-    this.atRiskMemberDetails = [];
-    this.appAtRiskMembers = null;
-    this.atRiskAppDetails = null;
-    this.drawerInvokerId = "";
   };
+
+  // ------------------- Trigger Report Generation -------------------
+  /** Trigger generating a report based on the current applications */
+  triggerReport(): void {
+    this.isRunningReportSubject.next(true);
+  }
+
+  /**
+   * Fetches the applications report and updates the applicationsSubject.
+   * @param organizationId The ID of the organization.
+   */
+  fetchLastReport(organizationId: OrganizationId, userId: UserId): void {
+    this.isLoadingSubject.next(true);
+
+    this.reportService
+      .getRiskInsightsReport$(organizationId, userId)
+      .pipe(
+        switchMap((report) => {
+          return this.enrichReportData$(report.data).pipe(
+            map((enrichedReport) => ({
+              data: enrichedReport,
+              summary: report.summary,
+            })),
+          );
+        }),
+        finalize(() => {
+          this.isLoadingSubject.next(false);
+        }),
+      )
+      .subscribe({
+        next: ({ data, summary }) => {
+          this.reportResultsSubject.next({
+            data,
+            summary,
+            dateCreated: new Date(),
+          });
+          this.errorSubject.next(null);
+          this.isLoadingSubject.next(false);
+        },
+        error: () => {
+          this.errorSubject.next("Failed to fetch report");
+          this.reportResultsSubject.next(null);
+          this.isLoadingSubject.next(false);
+        },
+      });
+  }
+
+  private _runApplicationsReport() {
+    return this.isRunningReport$.pipe(
+      distinctUntilChanged(),
+      filter((isRunning) => isRunning),
+      withLatestFrom(this.organizationDetails$, this.userId$),
+      exhaustMap(([_, organizationDetails, userId]) => {
+        const organizationId = organizationDetails?.organizationId;
+        if (!organizationId || !userId) {
+          return EMPTY;
+        }
+
+        // Generate the report
+        return this.reportService.generateApplicationsReport$(organizationId).pipe(
+          map((data) => ({
+            data,
+            summary: this.reportService.generateApplicationsSummary(data),
+          })),
+          switchMap(({ data, summary }) =>
+            this.enrichReportData$(data).pipe(
+              map((enrichedData) => ({ data: enrichedData, summary })),
+            ),
+          ),
+          tap(({ data, summary }) => {
+            this.reportResultsSubject.next({ data, summary, dateCreated: new Date() });
+            this.errorSubject.next(null);
+          }),
+          switchMap(({ data, summary }) => {
+            // Just returns ID
+            return this.reportService.saveRiskInsightsReport$(data, summary, {
+              organizationId,
+              userId,
+            });
+          }),
+        );
+      }),
+    );
+  }
 }

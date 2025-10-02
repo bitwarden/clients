@@ -59,8 +59,27 @@
   "createNewLoginItem": {
     "message": "Créer un nouvel élément de connexion"
   },
-  "criticalApplicationsActivityDescription": {
-    "message": "Une fois que vous avez marqué des applications comme critiques, elles s'afficheront ici."
+  "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
+    "message": "Une fois que vous avez marqué des applications comme critiques, elles s'afficheront ici"
+  },
+  "viewAtRiskMembers": {
+    "message": "Afficher les membres à risque"
+  },
+  "viewAtRiskApplications": {
+    "message": "Afficher les applications à risque"
+  },
+  "criticalApplicationsAreAtRisk": {
+    "message": "$COUNT$ sur $TOTAL$ applications critiques sont à risque en raison de mots de passe à risque",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "total": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
   },
   "criticalApplicationsWithCount": {
     "message": "Applications critiques ($COUNT$)",
@@ -73,6 +92,15 @@
   },
   "countOfCriticalApplications": {
     "message": "$COUNT$ applications critiques",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfApplicationsAtRisk": {
+    "message": "$COUNT$ applications à risque",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -137,7 +165,7 @@
   "membersAtRiskActivityDescription": {
     "message": "Membres pouvant modifier les éléments à risque pour les applications critiques"
   },
-  "membersAtRisk": {
+  "membersAtRiskCount": {
     "message": "$COUNT$ membres à risque",
     "placeholders": {
       "count": {
@@ -1479,6 +1507,30 @@
   },
   "noItemsInList": {
     "message": "Aucun élément à afficher."
+  },
+  "noItemsInTrash": {
+    "message": "Aucun élément dans la corbeille"
+  },
+  "noItemsInTrashDesc": {
+    "message": "Les éléments que vous supprimez apparaîtront ici et seront définitivement supprimés après 30 jours"
+  },
+  "noItemsInVault": {
+    "message": "Aucun élément dans le coffre"
+  },
+  "emptyVaultDescription": {
+    "message": "Le coffre protège bien plus que vos mots de passe. Stockez vos identifiants, IDs, cartes et notes en toute sécurité ici."
+  },
+  "emptyFavorites": {
+    "message": "Vous n'avez mis aucun élément en favori"
+  },
+  "emptyFavoritesDesc": {
+    "message": "Ajouter les éléments fréquemment utilisés aux favoris pour un accès rapide."
+  },
+  "noSearchResults": {
+    "message": "Aucun résultat de recherche retourné"
+  },
+  "clearFiltersOrTryAnother": {
+    "message": "Effacer les filtres ou essayer un autre terme de recherche"
   },
   "noPermissionToViewAllCollectionItems": {
     "message": "Vous n'avez pas l'autorisation d'afficher tous les éléments de cette collection."
@@ -4772,6 +4824,12 @@
   "organizationIsDisabled": {
     "message": "L'organisation est désactivée."
   },
+  "organizationIsSuspended": {
+    "message": "L'organisation est suspendue"
+  },
+  "organizationIsSuspendedDesc": {
+    "message": "Les éléments des organisations suspendues ne sont pas accessibles. Contactez le propriétaire de votre organisation pour obtenir de l'aide."
+  },
   "secretsAccessSuspended": {
     "message": "Impossible d'accéder aux organisations suspendues. Veuillez contacter le propriétaire de votre organisation pour obtenir de l'aide."
   },
@@ -4783,9 +4841,6 @@
   },
   "serviceAccountsCannotCreate": {
     "message": "Les comptes de service ne peuvent pas être créés dans les organisations suspendues. Veuillez contacter le propriétaire de votre organisation pour obtenir de l'aide."
-  },
-  "disabledOrganizationFilterError": {
-    "message": "Les éléments des Organisations désactivées ne sont pas accessibles. Contactez le propriétaire de votre Organisation pour obtenir de l'aide."
   },
   "licenseIsExpired": {
     "message": "La licence a expiré."
@@ -5160,9 +5215,13 @@
   "ssoIdentifier": {
     "message": "Identifiant SSO"
   },
-  "ssoIdentifierHintPartOne": {
-    "message": "Fournir cet ID à vos membres pour se connecter avec SSO. Pour contourner cette étape, configurer ",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Provide this ID to your members to login with SSO. To bypass this step, set up Domain verification'"
+  "ssoIdentifierHint": {
+    "message": "Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. ",
+    "description": "This will be used as part of a larger sentence, broken up to include a link. The full sentence will read 'Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. Learn more'"
+  },
+  "claimedDomainsLearnMore": {
+    "message": "Learn more",
+    "description": "This will be used as part of a larger sentence, broken up to include a link. The full sentence will read 'Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. Learn more'"
   },
   "unlinkSso": {
     "message": "Délier SSO"
@@ -5558,10 +5617,10 @@
     "message": "En raison d'une politique de sécurité Entreprise, il vous est interdit d'enregistrer des éléments dans votre coffre personnel. Sélectionnez une organisation dans l'option Propriété et choisissez parmi les collections disponibles."
   },
   "desktopAutotypePolicy": {
-    "message": "Desktop Autotype Default Setting"
+    "message": "Réglage par Défaut de la Saisie Auto pour le Bureau"
   },
   "desktopAutotypePolicyDesc": {
-    "message": "Turn Desktop Autotype ON by default for members. Members can turn Autotype off manually in the Desktop client.",
+    "message": "Activer la Saisie Auto pour le Bureau par défaut pour les membres. Les membres peuvent désactiver la Saisie Automatique manuellement dans l'application du Bureau.",
     "description": "This policy will enable Desktop Autotype by default for members on Unlock."
   },
   "disableSend": {
@@ -8376,12 +8435,6 @@
   "groupSlashUser": {
     "message": "Groupe/Utilisateur"
   },
-  "lowKdfIterations": {
-    "message": "Itérations KDF basses"
-  },
-  "updateLowKdfIterationsDesc": {
-    "message": "Mettez à jour vos paramètres de chiffrement pour répondre à de nouvelles recommandations de sécurité et améliorer la protection de votre compte."
-  },
   "kdfSettingsChangeLogoutWarning": {
     "message": "Effectuer cette action vous déconnectera de toutes les sessions actives. Vous devrez vous connecter à nouveau et compléter votre authentification à 2 facteurs, s'il y a lieu. Nous vous recommandons d'exporter votre coffre avant de modifier vos paramètres de chiffrement pour prévenir la perte de vos données."
   },
@@ -9755,6 +9808,9 @@
   "failedToSaveIntegration": {
     "message": "Impossible d'enregistrer l'intégration. Veuillez réessayer plus tard."
   },
+  "mustBeOrgOwnerToPerformAction": {
+    "message": "Vous devez être le propriétaire de l'organisation pour effectuer cette action."
+  },
   "failedToDeleteIntegration": {
     "message": "La suppression de l'intégration échouée. Veuillez réessayer plus tard."
   },
@@ -9995,12 +10051,6 @@
         "example": "2"
       }
     }
-  },
-  "lowKDFIterationsBanner": {
-    "message": "Nombres d'itérations KDF bas. Augmentez vos itérations pour améliorer la sécurité de votre compte."
-  },
-  "changeKDFSettings": {
-    "message": "Modifier les paramètres KDF"
   },
   "secureYourInfrastructure": {
     "message": "Sécurisez votre infrastructure"
@@ -11024,8 +11074,13 @@
   "searchArchive": {
     "message": "Rechercher dans l'archive"
   },
-  "archive": {
-    "message": "Archive"
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
   },
   "noItemsInArchive": {
     "message": "Aucun élément dans l'archive"

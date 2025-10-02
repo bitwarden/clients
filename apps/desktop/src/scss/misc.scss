@@ -360,6 +360,13 @@ form,
   }
 }
 
+.settings-link {
+  @include themify($themes) {
+    color: themed("primaryColor");
+  }
+  font-weight: bold;
+}
+
 app-root > #loading,
 .loading {
   display: flex;

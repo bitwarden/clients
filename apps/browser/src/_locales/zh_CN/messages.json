@@ -550,8 +550,13 @@
   "resetSearch": {
     "message": "重置搜索"
   },
-  "archive": {
-    "message": "归档"
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
   },
   "unarchive": {
     "message": "取消归档"
@@ -1134,7 +1139,7 @@
     "description": "Shown to user after item is updated."
   },
   "selectItemAriaLabel": {
-    "message": "选择 $ITEMTYPE$，$ITEMNAME$",
+    "message": "选择 $ITEMNAME$ 中的 $ITEMTYPE$",
     "description": "Used by screen readers. $1 is the item type (like vault or folder), $2 is the selected item name.",
     "placeholders": {
       "itemType": {
@@ -1639,10 +1644,10 @@
     "message": "轻松找到自动填充建议"
   },
   "autofillSpotlightDesc": {
-    "message": "关闭浏览器的自动填充设置，以免与 Bitwarden 产生冲突。"
+    "message": "停用您浏览器的自动填充设置，以免与 Bitwarden 产生冲突。"
   },
   "turnOffBrowserAutofill": {
-    "message": "关闭 $BROWSER$ 的自动填充",
+    "message": "停用 $BROWSER$ 自动填充",
     "placeholders": {
       "browser": {
         "content": "$1",
@@ -1651,7 +1656,7 @@
     }
   },
   "turnOffAutofill": {
-    "message": "关闭自动填充"
+    "message": "停用自动填充"
   },
   "showInlineMenuLabel": {
     "message": "在表单字段中显示自动填充建议"
@@ -4622,7 +4627,7 @@
     }
   },
   "copyFieldCipherName": {
-    "message": "复制 $CIPHERNAME$ 的 $FIELD$",
+    "message": "复制 $CIPHERNAME$ 中的 $FIELD$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {

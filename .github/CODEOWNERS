@@ -162,6 +162,7 @@ apps/desktop/desktop_native/core/src/ssh_agent @bitwarden/team-autofill-desktop-
 libs/components @bitwarden/team-ui-foundation
 libs/assets @bitwarden/team-ui-foundation
 libs/ui @bitwarden/team-ui-foundation
+libs/angular/src/scss @bitwarden/team-ui-foundation
 apps/browser/src/platform/popup/layout @bitwarden/team-ui-foundation
 apps/browser/src/popup/app-routing.animations.ts @bitwarden/team-ui-foundation
 apps/browser/src/popup/components/extension-anon-layout-wrapper @bitwarden/team-ui-foundation
@@ -204,10 +205,11 @@ apps/web/src/locales/en/messages.json
 .github/workflows/release-desktop.yml @bitwarden/dept-bre
 .github/workflows/release-web.yml @bitwarden/dept-bre
 
-## Docker files have shared ownership ##
+## Docker-related files
 **/Dockerfile @bitwarden/team-appsec @bitwarden/dept-bre
 **/*.Dockerfile @bitwarden/team-appsec @bitwarden/dept-bre
 **/*.dockerignore @bitwarden/team-appsec @bitwarden/dept-bre
+**/docker-compose.yml @bitwarden/team-appsec @bitwarden/dept-bre
 **/entrypoint.sh @bitwarden/team-appsec @bitwarden/dept-bre
 
 ## Overrides

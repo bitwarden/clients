@@ -4080,14 +4080,20 @@
   "showLess": {
     "message": "Меньше"
   },
-  "enableAutotype": {
-    "message": "Включить автоввод"
-  },
   "enableAutotypeDescription": {
     "message": "Bitwarden не проверяет местоположение ввода, поэтому, прежде чем использовать ярлык, убедитесь, что вы находитесь в нужном окне и поле."
   },
+  "typeShortcut": {
+    "message": "Type shortcut"
+  },
+  "editAutotypeShortcutDescription": {
+    "message": "Include one or two of the following modifiers: Ctrl, Alt, Win, or Shift, and a letter."
+  },
+  "invalidShortcut": {
+    "message": "Invalid shortcut"
+  },
   "moreBreadcrumbs": {
-    "message": "More breadcrumbs",
+    "message": "Больше хлебных крошек",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   },
   "next": {
@@ -4099,8 +4105,8 @@
   "confirm": {
     "message": "Подтвердить"
   },
-  "enableAutotypeTransitionKey": {
-    "message": "Включить ярлык автоввода"
+  "enableAutotypeShortcutPreview": {
+    "message": "Enable autotype shortcut (Feature Preview)"
   },
   "enableAutotypeDescriptionTransitionKey": {
     "message": "Прежде чем использовать ярлык, убедитесь, что вы поставили курсор в нужное поле, чтобы избежать ввода данных в неправильное место."
@@ -4108,8 +4114,13 @@
   "editShortcut": {
     "message": "Изменить ярлык"
   },
-  "archive": {
-    "message": "Архив"
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
   },
   "unarchive": {
     "message": "Разархивировать"
