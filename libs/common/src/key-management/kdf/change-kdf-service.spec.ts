@@ -58,17 +58,17 @@ describe("ChangeKdfService", () => {
   describe("updateUserKdfParams", () => {
     const mockUpdateKdfResult = {
       masterPasswordAuthenticationData: {
-        kdf: mockNewKdfConfig,
+        kdf: mockNewKdfConfig.toSdkConfig(),
         salt: mockSalt,
         masterPasswordAuthenticationHash: mockNewHash,
       },
       masterPasswordUnlockData: {
-        kdf: mockNewKdfConfig,
+        kdf: mockNewKdfConfig.toSdkConfig(),
         salt: mockSalt,
         masterKeyWrappedUserKey: mockWrappedUserKey.encryptedString,
       },
       oldMasterPasswordAuthenticationData: {
-        kdf: mockNewKdfConfig,
+        kdf: mockOldKdfConfig.toSdkConfig(),
         salt: mockSalt,
         masterPasswordAuthenticationHash: mockOldHash,
       },
@@ -140,7 +140,6 @@ describe("ChangeKdfService", () => {
 
     it("should call changeKdfApiService.updateUserKdfParams with correct request", async () => {
       const masterPassword = "masterPassword";
-      jest.spyOn(mockNewKdfConfig, "toSdkConfig").mockReturnValue({} as any);
 
       await sut.updateUserKdfParams(masterPassword, mockNewKdfConfig, mockUserId);
 
