@@ -489,7 +489,7 @@ jobs:
       - name: Zip NPM Build Artifact
         env:
           _PACKAGE_VERSION: ${{ env._PACKAGE_VERSION }}
-        run: Get-ChildItem -Path .\build | Compress-Archive -DestinationPath ".\bitwarden-cli-$_PACKAGE_VERSION-npm-build.zip"
+        run: Get-ChildItem -Path .\build | Compress-Archive -DestinationPath ".\bitwarden-cli-${env:_PACKAGE_VERSION}-npm-build.zip"
 
       - name: Upload NPM Build Directory asset
         if: matrix.license_type.build_prefix == 'bit'
