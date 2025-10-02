@@ -8,11 +8,11 @@ import { FrontendLayoutComponent } from "@bitwarden/web-vault/app/layouts/fronte
 import { UserLayoutComponent } from "@bitwarden/web-vault/app/layouts/user-layout.component";
 
 import { ProviderBillingHistoryComponent } from "../../billing/providers/billing-history/provider-billing-history.component";
-import { ManageClientsComponent } from "./clients/manage-clients.component";
 import { ProviderPaymentDetailsComponent } from "../../billing/providers/payment-details/provider-payment-details.component";
 import { SetupBusinessUnitComponent } from "../../billing/providers/setup/setup-business-unit.component";
 import { ProviderSubscriptionComponent } from "../../billing/providers/subscription/provider-subscription.component";
 
+import { ManageClientsComponent } from "./clients/manage-clients.component";
 import { providerPermissionsGuard } from "./guards/provider-permissions.guard";
 import { AcceptProviderComponent } from "./manage/accept-provider.component";
 import { EventsComponent } from "./manage/events.component";
