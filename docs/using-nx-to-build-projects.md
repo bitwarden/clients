@@ -11,25 +11,33 @@ Please note: the Nx implementation is a work in progress. Not all apps support N
 ```bash
 # Build a project
 npx nx build cli
-npx nx build @bitwarden/common
+npx nx build state # Modern libs and apps have simple, all lowercase target names
+npx nx build @bitwarden/common # Legacy libs have a special naming convention and include the @bitwarden prefix
 
 # Test a project
 npx nx test cli
-npx nx test @bitwarden/common
 
 # Lint a project
 npx nx lint cli
-npx nx lint @bitwarden/common
 
-# Serve/watch a project (for apps with serve targets)
+# Serve/watch a project (for projects with serve targets)
 npx nx serve cli
 
+# Build all projects that differ from origin/main
+nx affected --target=build --base=origin/main
+
+# Build, lint, and test every project at once
+npx nx run-many --target=build,test,lint --all
 
 # Most projects default to the "oss-dev" build, so if you need the bitwarden license build add a --configuration
 npx nx build cli --configuration=bit-dev
 
 # If you need a production build drop the "dev" suffix
 npx nx build cli --configuration=oss # or "bit"
+
+# Configurations can also be passed to run-many
+# For example: to run all Bitwarden licensed builds
+npx nx run-many --target=build,test,lint --all --configuration=bit
 
 # Outputs are distrubuted in a root level /dist/ folder
 
