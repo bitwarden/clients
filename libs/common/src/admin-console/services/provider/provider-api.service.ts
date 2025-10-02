@@ -1,13 +1,15 @@
 import { AddableOrganizationResponse } from "@bitwarden/common/admin-console/models/response/addable-organization.response";
+import { ProviderOrganizationOrganizationDetailsResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-organization.response";
+import { ListResponse } from "@bitwarden/common/models/response/list.response";
 
 import { ApiService } from "../../../abstractions/api.service";
 import { ProviderApiServiceAbstraction } from "../../abstractions/provider/provider-api.service.abstraction";
 import { ProviderSetupRequest } from "../../models/request/provider/provider-setup.request";
 import { ProviderUpdateRequest } from "../../models/request/provider/provider-update.request";
 import { ProviderVerifyRecoverDeleteRequest } from "../../models/request/provider/provider-verify-recover-delete.request";
+import { UpdateProviderOrganizationRequest } from "../../models/request/update-provider-organization.request";
 import { ProviderResponse } from "../../models/response/provider/provider.response";
-import { ListResponse } from "@bitwarden/common/models/response/list.response";
-import { ProviderOrganizationOrganizationDetailsResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-organization.response";
+
 
 export class ProviderApiService implements ProviderApiServiceAbstraction {
   constructor(private apiService: ApiService) {}
@@ -86,6 +88,20 @@ export class ProviderApiService implements ProviderApiServiceAbstraction {
     return this.apiService.send(
       "POST",
       "/providers/" + providerId + "/clients/existing",
+      request,
+      true,
+      false,
+    );
+  }
+
+  async updateProviderOrganization(
+    providerId: string,
+    organizationId: string,
+    request: UpdateProviderOrganizationRequest,
+  ): Promise<any> {
+    return await this.apiService.send(
+      "PUT",
+      "/providers/" + providerId + "/clients/" + organizationId,
       request,
       true,
       false,

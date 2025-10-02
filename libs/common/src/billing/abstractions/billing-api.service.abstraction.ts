@@ -4,7 +4,6 @@ import { OrganizationBillingMetadataResponse } from "../../billing/models/respon
 import { PlanResponse } from "../../billing/models/response/plan.response";
 import { ListResponse } from "../../models/response/list.response";
 import { CreateClientOrganizationRequest } from "../models/request/create-client-organization.request";
-import { UpdateClientOrganizationRequest } from "../models/request/update-client-organization.request";
 import { InvoicesResponse } from "../models/response/invoices.response";
 import { ProviderSubscriptionResponse } from "../models/response/provider-subscription-response";
 
@@ -32,12 +31,6 @@ export abstract class BillingApiServiceAbstraction {
   abstract getProviderInvoices(providerId: string): Promise<InvoicesResponse>;
 
   abstract getProviderSubscription(providerId: string): Promise<ProviderSubscriptionResponse>;
-
-  abstract updateProviderClientOrganization(
-    providerId: string,
-    organizationId: string,
-    request: UpdateClientOrganizationRequest,
-  ): Promise<any>;
 
   abstract restartSubscription(
     organizationId: string,

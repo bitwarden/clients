@@ -1,11 +1,13 @@
 import { AddableOrganizationResponse } from "@bitwarden/common/admin-console/models/response/addable-organization.response";
+import { ProviderOrganizationOrganizationDetailsResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-organization.response";
+import { ListResponse } from "@bitwarden/common/models/response/list.response";
 
 import { ProviderSetupRequest } from "../../models/request/provider/provider-setup.request";
 import { ProviderUpdateRequest } from "../../models/request/provider/provider-update.request";
 import { ProviderVerifyRecoverDeleteRequest } from "../../models/request/provider/provider-verify-recover-delete.request";
+import { UpdateProviderOrganizationRequest } from "../../models/request/update-provider-organization.request";
 import { ProviderResponse } from "../../models/response/provider/provider.response";
-import { ListResponse } from "@bitwarden/common/models/response/list.response";
-import { ProviderOrganizationOrganizationDetailsResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-organization.response";
+
 
 export abstract class ProviderApiServiceAbstraction {
   abstract postProviderSetup(id: string, request: ProviderSetupRequest): Promise<ProviderResponse>;
@@ -29,4 +31,10 @@ export abstract class ProviderApiServiceAbstraction {
       organizationId: string;
     },
   ): Promise<void>;
+
+  abstract updateProviderOrganization(
+    providerId: string,
+    organizationId: string,
+    request: UpdateProviderOrganizationRequest,
+  ): Promise<any>;
 }

@@ -7,7 +7,6 @@ import { ListResponse } from "../../models/response/list.response";
 import { BillingApiServiceAbstraction } from "../abstractions";
 import { CreateClientOrganizationRequest } from "../models/request/create-client-organization.request";
 import { SubscriptionCancellationRequest } from "../models/request/subscription-cancellation.request";
-import { UpdateClientOrganizationRequest } from "../models/request/update-client-organization.request";
 import { InvoicesResponse } from "../models/response/invoices.response";
 import { OrganizationBillingMetadataResponse } from "../models/response/organization-billing-metadata.response";
 import { PlanResponse } from "../models/response/plan.response";
@@ -96,20 +95,6 @@ export class BillingApiService implements BillingApiServiceAbstraction {
       true,
     );
     return new ProviderSubscriptionResponse(response);
-  }
-
-  async updateProviderClientOrganization(
-    providerId: string,
-    organizationId: string,
-    request: UpdateClientOrganizationRequest,
-  ): Promise<any> {
-    return await this.apiService.send(
-      "PUT",
-      "/providers/" + providerId + "/clients/" + organizationId,
-      request,
-      true,
-      false,
-    );
   }
 
   async restartSubscription(

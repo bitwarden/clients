@@ -41,10 +41,6 @@ import {
   openCreateClientDialog,
 } from "../../../billing/providers/clients/create-client-dialog.component";
 import {
-  ManageClientNameDialogResultType,
-  openManageClientNameDialog,
-} from "../../../billing/providers/clients/manage-client-name-dialog.component";
-import {
   ManageClientSubscriptionDialogResultType,
   openManageClientSubscriptionDialog,
 } from "../../../billing/providers/clients/manage-client-subscription-dialog.component";
@@ -56,6 +52,10 @@ import {
   AddExistingOrganizationDialogComponent,
   AddExistingOrganizationDialogResultType,
 } from "./add-existing-organization-dialog.component";
+import {
+  ManageClientNameDialogResultType,
+  openManageClientNameDialog,
+} from "./manage-client-name-dialog.component";
 
 @Component({
   templateUrl: "manage-clients.component.html",
