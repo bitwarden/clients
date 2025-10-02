@@ -4080,11 +4080,17 @@
   "showLess": {
     "message": "குறைவாகக் காட்டு"
   },
-  "enableAutotype": {
-    "message": "தானியங்கு வகையை இயக்கு"
-  },
   "enableAutotypeDescription": {
     "message": "Bitwarden உள்ளீட்டு இடங்களைச் சரிபார்க்காது, ஷார்ட்கட்டைப் பயன்படுத்துவதற்கு முன் சரியான சாளரம் மற்றும் புலத்தில் நீங்கள் இருக்கிறீர்கள் என்பதை உறுதிப்படுத்திக் கொள்ளுங்கள்."
+  },
+  "typeShortcut": {
+    "message": "Type shortcut"
+  },
+  "editAutotypeShortcutDescription": {
+    "message": "Include one or two of the following modifiers: Ctrl, Alt, Win, or Shift, and a letter."
+  },
+  "invalidShortcut": {
+    "message": "Invalid shortcut"
   },
   "moreBreadcrumbs": {
     "message": "மேலும் பிரெட்க்ரம்புகள்",
@@ -4099,8 +4105,8 @@
   "confirm": {
     "message": "உறுதிப்படுத்து"
   },
-  "enableAutotypeTransitionKey": {
-    "message": "தானியங்கு வகை குறுக்குவழியை இயக்கு"
+  "enableAutotypeShortcutPreview": {
+    "message": "Enable autotype shortcut (Feature Preview)"
   },
   "enableAutotypeDescriptionTransitionKey": {
     "message": "தவறான இடத்தில் தரவை நிரப்புவதைத் தவிர்க்க, குறுக்குவழியைப் பயன்படுத்துவதற்கு முன்பு நீங்கள் சரியான புலத்தில் இருப்பதை உறுதிப்படுத்திக் கொள்ளுங்கள்."
@@ -4108,8 +4114,13 @@
   "editShortcut": {
     "message": "குறுக்குவழியைத் திருத்து"
   },
-  "archive": {
-    "message": "Archive"
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
   },
   "unarchive": {
     "message": "Unarchive"

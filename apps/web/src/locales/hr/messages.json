@@ -59,8 +59,27 @@
   "createNewLoginItem": {
     "message": "Stvori novu stavku prijave"
   },
-  "criticalApplicationsActivityDescription": {
-    "message": "Aplikacije označene kao kritične će biti prikazane ovdje."
+  "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
+    "message": "Once you mark applications critical, they will display here"
+  },
+  "viewAtRiskMembers": {
+    "message": "Rizični korisnici"
+  },
+  "viewAtRiskApplications": {
+    "message": "Rizične aplikacije"
+  },
+  "criticalApplicationsAreAtRisk": {
+    "message": "$COUNT$ od $TOTAL$ kritilčnih aplikacija su ugrožene zbog rizičnih lozinki",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "total": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
   },
   "criticalApplicationsWithCount": {
     "message": "Kritične aplikacije ($COUNT$)",
@@ -73,6 +92,15 @@
   },
   "countOfCriticalApplications": {
     "message": "Kritičnih aplikacija: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfApplicationsAtRisk": {
+    "message": "$COUNT$ aplikacija/e ugroženo",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -137,8 +165,8 @@
   "membersAtRiskActivityDescription": {
     "message": "Članovi koji mogu uređivati stavke za aplikacije označene kao kritične"
   },
-  "membersAtRisk": {
-    "message": "Rizičnih članova: $COUNT$",
+  "membersAtRiskCount": {
+    "message": "$COUNT$ members at-risk",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1479,6 +1507,30 @@
   },
   "noItemsInList": {
     "message": "Nema stavki za prikaz."
+  },
+  "noItemsInTrash": {
+    "message": "No items in trash"
+  },
+  "noItemsInTrashDesc": {
+    "message": "Items you delete will appear here and be permanently deleted after 30 days"
+  },
+  "noItemsInVault": {
+    "message": "No items in the vault"
+  },
+  "emptyVaultDescription": {
+    "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
+  },
+  "emptyFavorites": {
+    "message": "You haven't favorited any items"
+  },
+  "emptyFavoritesDesc": {
+    "message": "Add frequently used items to favorites for quick access."
+  },
+  "noSearchResults": {
+    "message": "No search results returned"
+  },
+  "clearFiltersOrTryAnother": {
+    "message": "Clear filters or try another search term"
   },
   "noPermissionToViewAllCollectionItems": {
     "message": "Nemaš prava vidjeti sve stavke u ovoj zbirci."
@@ -4772,6 +4824,12 @@
   "organizationIsDisabled": {
     "message": "Organizacija suspendirana"
   },
+  "organizationIsSuspended": {
+    "message": "Organization is suspended"
+  },
+  "organizationIsSuspendedDesc": {
+    "message": "Items in suspended organizations cannot be accessed. Contact your organization owner for assistance."
+  },
   "secretsAccessSuspended": {
     "message": "Stavkama u suspendiranoj Organizaciji se ne može pristupiti. Kontaktiraj vlasnika Organizacije za pomoć."
   },
@@ -4783,9 +4841,6 @@
   },
   "serviceAccountsCannotCreate": {
     "message": "Nije moguće stvoriti Servisne račune u suspendiranim organizacijama. Kontaktiraj vlasnika tvoje organizacije za pomoć."
-  },
-  "disabledOrganizationFilterError": {
-    "message": "Stavkama u suspendiranoj Organizaciji se ne može pristupiti. Kontaktiraj vlasnika Organizacije za pomoć."
   },
   "licenseIsExpired": {
     "message": "Licenca je istekla."
@@ -5160,9 +5215,13 @@
   "ssoIdentifier": {
     "message": "SSO identifikator"
   },
-  "ssoIdentifierHintPartOne": {
-    "message": "Dajte ovaj ID svojim članovima za prijavu putem SSO-a. Za zaobilazak ovog koraka, postavi ",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Provide this ID to your members to login with SSO. To bypass this step, set up Domain verification'"
+  "ssoIdentifierHint": {
+    "message": "Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. ",
+    "description": "This will be used as part of a larger sentence, broken up to include a link. The full sentence will read 'Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. Learn more'"
+  },
+  "claimedDomainsLearnMore": {
+    "message": "Learn more",
+    "description": "This will be used as part of a larger sentence, broken up to include a link. The full sentence will read 'Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. Learn more'"
   },
   "unlinkSso": {
     "message": "Odspoji SSO"
@@ -5558,10 +5617,10 @@
     "message": "Pravila tvrtke onemogućuju spremanje stavki u osobni trezor. Promijeni vlasništvo stavke na tvrtku i odaberi dostupnu Zbirku."
   },
   "desktopAutotypePolicy": {
-    "message": "Desktop Autotype Default Setting"
+    "message": "Zadana postavka automatskog tipkanja na radnoj površini"
   },
   "desktopAutotypePolicyDesc": {
-    "message": "Turn Desktop Autotype ON by default for members. Members can turn Autotype off manually in the Desktop client.",
+    "message": "Uključi automatsko tipkanje na radnoj površini prema zadanim postavkama za članove. Članovi mogu ručno isključiti automatsko tipkanje u klijentu za radnu površinu.",
     "description": "This policy will enable Desktop Autotype by default for members on Unlock."
   },
   "disableSend": {
@@ -8376,12 +8435,6 @@
   "groupSlashUser": {
     "message": "Grupa/korisnik"
   },
-  "lowKdfIterations": {
-    "message": "Niske KDF iteracije"
-  },
-  "updateLowKdfIterationsDesc": {
-    "message": "Ažuriraj svoje postavke enkripcije kako bi zadovoljili nove sigurnosne preporuke i poboljšali zaštitu računa."
-  },
   "kdfSettingsChangeLogoutWarning": {
     "message": "Nastavkom ćeš se odjaviti iz svih aktivnih sesija. Morat ćeš se ponovno prijaviti i izvršiti dvostruku autentifikaciju, ako je aktivna. Preporučujemo izvoz tvog trezora prije promjene postavki enkripcije kako bi spriječili gubitak podataka."
   },
@@ -9755,6 +9808,9 @@
   "failedToSaveIntegration": {
     "message": "Spremanje integracije nije uspjelo. Pokušaj ponovno kasnije."
   },
+  "mustBeOrgOwnerToPerformAction": {
+    "message": "Za ovo, moraš biti vlasnik organizacije."
+  },
   "failedToDeleteIntegration": {
     "message": "Brisanje integracije nije uspjelo. Pokušaj ponovno kasnije."
   },
@@ -9995,12 +10051,6 @@
         "example": "2"
       }
     }
-  },
-  "lowKDFIterationsBanner": {
-    "message": "Niske KDF iteracije. Povećaj svoje iteracije za poboljšanje sigurnost računa."
-  },
-  "changeKDFSettings": {
-    "message": "Promijeni KDF postavke"
   },
   "secureYourInfrastructure": {
     "message": "Osiguraj svoju infrastrukturu"
@@ -11024,8 +11074,13 @@
   "searchArchive": {
     "message": "Pretraži arhivu"
   },
-  "archive": {
-    "message": "Arhiva"
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
   },
   "noItemsInArchive": {
     "message": "Nema stavki u arhivi"
