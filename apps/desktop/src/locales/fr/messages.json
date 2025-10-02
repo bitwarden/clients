@@ -4080,11 +4080,17 @@
   "showLess": {
     "message": "Afficher moins"
   },
-  "enableAutotype": {
-    "message": "Activer la Saisie Auto"
-  },
   "enableAutotypeDescription": {
     "message": "Bitwarden ne valide pas les emplacements d'entrée, assurez-vous d'être dans la bonne fenêtre et le bon champ avant d'utiliser le raccourci."
+  },
+  "typeShortcut": {
+    "message": "Type shortcut"
+  },
+  "editAutotypeShortcutDescription": {
+    "message": "Include one or two of the following modifiers: Ctrl, Alt, Win, or Shift, and a letter."
+  },
+  "invalidShortcut": {
+    "message": "Invalid shortcut"
   },
   "moreBreadcrumbs": {
     "message": "Plus de fil d'Ariane",
@@ -4099,8 +4105,8 @@
   "confirm": {
     "message": "Confirmer"
   },
-  "enableAutotypeTransitionKey": {
-    "message": "Activer le raccourci de la Saisie Auto"
+  "enableAutotypeShortcutPreview": {
+    "message": "Enable autotype shortcut (Feature Preview)"
   },
   "enableAutotypeDescriptionTransitionKey": {
     "message": "Assurez-vous d'être dans le bon champ avant d'utiliser le raccourci pour éviter de remplir les données au mauvais endroit."
@@ -4108,8 +4114,13 @@
   "editShortcut": {
     "message": "Modifier le raccourci"
   },
-  "archive": {
-    "message": "Archive"
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
   },
   "unarchive": {
     "message": "Désarchiver"
