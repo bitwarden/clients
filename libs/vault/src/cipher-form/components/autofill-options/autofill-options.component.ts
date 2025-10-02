@@ -6,7 +6,7 @@ import { AsyncPipe, NgForOf, NgIf } from "@angular/common";
 import { Component, OnInit, QueryList, ViewChildren } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
-import { filter, Subject, switchMap, take, of, Observable } from "rxjs";
+import { filter, Subject, switchMap, take, Observable } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
@@ -99,15 +99,10 @@ export class AutofillOptionsComponent implements OnInit {
     private autofillSettingsService: AutofillSettingsServiceAbstraction,
     private platformUtilsService: PlatformUtilsService,
   ) {
-    if (this.domainSettingsService?.resolvedDefaultUriMatchStrategy$?.pipe) {
-      this.defaultMatchDetection$ =
-        this.domainSettingsService.resolvedDefaultUriMatchStrategy$.pipe(
-          // The default match detection should only be shown when used on the browser
-          filter(() => this.platformUtilsService.getClientType() == ClientType.Browser),
-        );
-    } else {
-      this.defaultMatchDetection$ = of(null);
-    }
+    this.defaultMatchDetection$ = this.domainSettingsService.resolvedDefaultUriMatchStrategy$.pipe(
+      // The default match detection should only be shown when used on the browser
+      filter(() => this.platformUtilsService.getClientType() == ClientType.Browser),
+    );
 
     this.cipherFormContainer.registerChildForm("autoFillOptions", this.autofillOptionsForm);
 
