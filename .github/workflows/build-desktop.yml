@@ -472,6 +472,23 @@ jobs:
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: bitwarden/gh-actions/azure-logout@main
 
+      - name: Update version
+        shell: bash
+        run: |
+          VERSION=$(jq '.version' "package.json")
+          jq '.version = "${VERSION}.${{ github.run_number }}"' package.json > temp.json && mv temp.json package.json
+          jq '.version = "${VERSION}.${{ github.run_number }}"' src/package.json > temp.json && mv temp.json src/package.json
+          jq '.version = "${VERSION}.${{ github.run_number }}"' src/package-lock.json > temp.json && mv temp.json src/package-lock.json
+          jq '.packages."".version = "${VERSION}.${{ github.run_number }}"' src/package-lock.json > temp.json && mv temp.json src/package-lock.json
+
+          cat package.json
+          echo "#########################################################"
+          cat src/package.json
+          echo "#########################################################"
+          cat src/package-lock.json
+
+          exit 1
+
       - name: Install Node dependencies
         run: npm ci
         working-directory: ./
