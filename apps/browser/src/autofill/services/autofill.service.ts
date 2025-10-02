@@ -2299,8 +2299,6 @@ export default class AutofillService implements AutofillServiceInterface {
           if (includesUsernameFieldName) {
             return f;
           }
-        } else {
-          usernameField = f;
         }
 
         if (includesUsernameFieldName && !isInSameForm) {
