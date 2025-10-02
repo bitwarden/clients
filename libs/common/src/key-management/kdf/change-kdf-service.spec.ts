@@ -5,11 +5,10 @@ import { KdfRequest } from "@bitwarden/common/models/request/kdf.request";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { UserId } from "@bitwarden/common/types/guid";
 // eslint-disable-next-line no-restricted-imports
-import { KdfConfigService, KeyService, PBKDF2KdfConfig } from "@bitwarden/key-management";
+import { PBKDF2KdfConfig } from "@bitwarden/key-management";
 
 import { makeEncString } from "../../../spec";
 import { EncString } from "../crypto/models/enc-string";
-import { MasterPasswordServiceAbstraction } from "../master-password/abstractions/master-password.service.abstraction";
 import {
   MasterKeyWrappedUserKey,
   MasterPasswordAuthenticationHash,
@@ -22,9 +21,6 @@ import { DefaultChangeKdfService } from "./change-kdf-service";
 
 describe("ChangeKdfService", () => {
   const changeKdfApiService = mock<ChangeKdfApiService>();
-  const masterPasswordService = mock<MasterPasswordServiceAbstraction>();
-  const keyService = mock<KeyService>();
-  const kdfConfigService = mock<KdfConfigService>();
   const sdkService = mock<SdkService>();
 
   let sut: DefaultChangeKdfService;
@@ -51,13 +47,7 @@ describe("ChangeKdfService", () => {
 
   beforeEach(() => {
     sdkService.userClient$ = jest.fn((userId: UserId) => of(mockSdk)) as any;
-    sut = new DefaultChangeKdfService(
-      masterPasswordService,
-      keyService,
-      kdfConfigService,
-      changeKdfApiService,
-      sdkService,
-    );
+    sut = new DefaultChangeKdfService(changeKdfApiService, sdkService);
   });
 
   afterEach(() => {
