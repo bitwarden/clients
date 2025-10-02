@@ -36,11 +36,6 @@ import { SharedOrganizationModule } from "@bitwarden/web-vault/app/admin-console
 import { BillingNotificationService } from "@bitwarden/web-vault/app/billing/services/billing-notification.service";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 
-
-import {
-  AddExistingOrganizationDialogComponent,
-  AddExistingOrganizationDialogResultType,
-} from "../../../billing/providers/clients/add-existing-organization-dialog.component";
 import {
   CreateClientDialogResultType,
   openCreateClientDialog,
@@ -56,6 +51,11 @@ import {
 import { NoClientsComponent } from "../../../billing/providers/clients/no-clients.component";
 import { ReplacePipe } from "../../../billing/providers/clients/replace.pipe";
 import { WebProviderService } from "../services/web-provider.service";
+
+import {
+  AddExistingOrganizationDialogComponent,
+  AddExistingOrganizationDialogResultType,
+} from "./add-existing-organization-dialog.component";
 
 @Component({
   templateUrl: "manage-clients.component.html",

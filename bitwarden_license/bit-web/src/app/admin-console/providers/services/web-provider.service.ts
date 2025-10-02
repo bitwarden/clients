@@ -7,9 +7,6 @@ import { switchMap } from "rxjs/operators";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider/provider-api.service.abstraction";
 import { OrganizationKeysRequest } from "@bitwarden/common/admin-console/models/request/organization-keys.request";
-import { ProviderAddOrganizationRequest } from "@bitwarden/common/admin-console/models/request/provider/provider-add-organization.request";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { PlanType } from "@bitwarden/common/billing/enums";
 import { CreateClientOrganizationRequest } from "@bitwarden/common/billing/models/request/create-client-organization.request";
@@ -32,31 +29,9 @@ export class WebProviderService {
     private billingApiService: BillingApiServiceAbstraction,
     private stateProvider: StateProvider,
     private providerApiService: ProviderApiServiceAbstraction,
-    private accountService: AccountService,
   ) {}
 
-  async addOrganizationToProvider(providerId: string, organizationId: string) {
-    const orgKey = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(
-        getUserId,
-        switchMap((userId) => this.keyService.orgKeys$(userId)),
-        map((orgKeys) => orgKeys[organizationId as OrganizationId] ?? null),
-      ),
-    );
-    const providerKey = await this.keyService.getProviderKey(providerId);
-
-    const encryptedOrgKey = await this.encryptService.wrapSymmetricKey(orgKey, providerKey);
-
-    const request = new ProviderAddOrganizationRequest();
-    request.organizationId = organizationId;
-    request.key = encryptedOrgKey.encryptedString;
-
-    const response = await this.apiService.postProviderAddOrganization(providerId, request);
-    await this.syncService.fullSync(true);
-    return response;
-  }
-
-  async addOrganizationToProviderVNext(providerId: string, organizationId: string): Promise<void> {
+  async addOrganizationToProvider(providerId: string, organizationId: string): Promise<void> {
     const orgKey = await firstValueFrom(
       this.stateProvider.activeUserId$.pipe(
         switchMap((userId) => this.keyService.orgKeys$(userId)),

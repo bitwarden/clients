@@ -16,7 +16,6 @@ import { OssModule } from "@bitwarden/web-vault/app/oss.module";
 import { InvoicesComponent } from "../../billing/providers/billing-history/invoices.component";
 import { NoInvoicesComponent } from "../../billing/providers/billing-history/no-invoices.component";
 import { ProviderBillingHistoryComponent } from "../../billing/providers/billing-history/provider-billing-history.component";
-import { AddExistingOrganizationDialogComponent } from "../../billing/providers/clients/add-existing-organization-dialog.component";
 import { CreateClientDialogComponent } from "../../billing/providers/clients/create-client-dialog.component";
 import { ManageClientNameDialogComponent } from "../../billing/providers/clients/manage-client-name-dialog.component";
 import { ManageClientSubscriptionDialogComponent } from "../../billing/providers/clients/manage-client-subscription-dialog.component";
@@ -25,6 +24,7 @@ import { ProviderSubscriptionStatusComponent } from "../../billing/providers/sub
 import { ProviderSubscriptionComponent } from "../../billing/providers/subscription/provider-subscription.component";
 import { ProviderWarningsModule } from "../../billing/providers/warnings/provider-warnings.module";
 
+import { AddExistingOrganizationDialogComponent } from "./clients/add-existing-organization-dialog.component";
 import { AcceptProviderComponent } from "./manage/accept-provider.component";
 import { AddEditMemberDialogComponent } from "./manage/dialogs/add-edit-member-dialog.component";
 import { BulkConfirmDialogComponent } from "./manage/dialogs/bulk-confirm-dialog.component";
