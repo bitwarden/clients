@@ -351,7 +351,7 @@
                 <small class="help-block" *ngIf="form.value.enableAutotype">
                   <b>{{ "important" | i18n }}</b>
                   {{ "enableAutotypeDescriptionTransitionKey" | i18n }}
-                  <span
+                  <a
                     class="settings-link"
                     tabindex="0"
                     *ngIf="this.form.value.enableAutotype"
@@ -359,7 +359,7 @@
                     (keydown.enter)="saveAutotypeShortcut(); $event.preventDefault()"
                   >
                     {{ "editShortcut" | i18n }}
-                  </span></small
+                  </a></small
                 >
               </div>
               <div class="form-group">
