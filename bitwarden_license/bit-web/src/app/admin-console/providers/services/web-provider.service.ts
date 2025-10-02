@@ -6,10 +6,9 @@ import { switchMap } from "rxjs/operators";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider/provider-api.service.abstraction";
+import { CreateProviderOrganizationRequest } from "@bitwarden/common/admin-console/models/request/create-provider-organization.request";
 import { OrganizationKeysRequest } from "@bitwarden/common/admin-console/models/request/organization-keys.request";
-import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { PlanType } from "@bitwarden/common/billing/enums";
-import { CreateClientOrganizationRequest } from "@bitwarden/common/billing/models/request/create-client-organization.request";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { StateProvider } from "@bitwarden/common/platform/state";
@@ -26,7 +25,6 @@ export class WebProviderService {
     private apiService: ApiService,
     private i18nService: I18nService,
     private encryptService: EncryptService,
-    private billingApiService: BillingApiServiceAbstraction,
     private stateProvider: StateProvider,
     private providerApiService: ProviderApiServiceAbstraction,
   ) {}
@@ -71,7 +69,7 @@ export class WebProviderService {
       providerKey,
     );
 
-    const request = new CreateClientOrganizationRequest();
+    const request = new CreateProviderOrganizationRequest();
     request.name = name;
     request.ownerEmail = ownerEmail;
     request.planType = planType;
@@ -81,7 +79,7 @@ export class WebProviderService {
     request.keyPair = new OrganizationKeysRequest(publicKey, encryptedPrivateKey.encryptedString);
     request.collectionName = encryptedCollectionName.encryptedString;
 
-    await this.billingApiService.createProviderClientOrganization(providerId, request);
+    await this.providerApiService.createProviderOrganization(providerId, request);
 
     await this.apiService.refreshIdentityToken();
 

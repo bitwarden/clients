@@ -5,7 +5,6 @@ import { ApiService } from "../../abstractions/api.service";
 import { OrganizationCreateRequest } from "../../admin-console/models/request/organization-create.request";
 import { ListResponse } from "../../models/response/list.response";
 import { BillingApiServiceAbstraction } from "../abstractions";
-import { CreateClientOrganizationRequest } from "../models/request/create-client-organization.request";
 import { SubscriptionCancellationRequest } from "../models/request/subscription-cancellation.request";
 import { InvoicesResponse } from "../models/response/invoices.response";
 import { OrganizationBillingMetadataResponse } from "../models/response/organization-billing-metadata.response";
@@ -30,19 +29,6 @@ export class BillingApiService implements BillingApiServiceAbstraction {
 
   cancelPremiumUserSubscription(request: SubscriptionCancellationRequest): Promise<void> {
     return this.apiService.send("POST", "/accounts/cancel", request, true, false);
-  }
-
-  createProviderClientOrganization(
-    providerId: string,
-    request: CreateClientOrganizationRequest,
-  ): Promise<void> {
-    return this.apiService.send(
-      "POST",
-      "/providers/" + providerId + "/clients",
-      request,
-      true,
-      false,
-    );
   }
 
   async getOrganizationBillingMetadata(

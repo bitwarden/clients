@@ -4,7 +4,6 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider/provider-api.service.abstraction";
 import { OrganizationKeysRequest } from "@bitwarden/common/admin-console/models/request/organization-keys.request";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { PlanType } from "@bitwarden/common/billing/enums";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
@@ -26,7 +25,6 @@ describe("WebProviderService", () => {
   let apiService: MockProxy<ApiService>;
   let i18nService: MockProxy<I18nService>;
   let encryptService: MockProxy<EncryptService>;
-  let billingApiService: MockProxy<BillingApiServiceAbstraction>;
   let stateProvider: MockProxy<StateProvider>;
   let providerApiService: MockProxy<ProviderApiServiceAbstraction>;
   let accountService: MockProxy<AccountService>;
@@ -37,7 +35,6 @@ describe("WebProviderService", () => {
     apiService = mock();
     i18nService = mock();
     encryptService = mock();
-    billingApiService = mock();
     stateProvider = mock();
     providerApiService = mock();
     accountService = mock();
@@ -48,7 +45,6 @@ describe("WebProviderService", () => {
       apiService,
       i18nService,
       encryptService,
-      billingApiService,
       stateProvider,
       providerApiService,
       accountService,
@@ -99,7 +95,7 @@ describe("WebProviderService", () => {
       expect(keyService.getProviderKey).toHaveBeenCalledWith(providerId);
       expect(encryptService.wrapSymmetricKey).toHaveBeenCalledWith(mockOrgKey, mockProviderKey);
 
-      expect(billingApiService.createProviderClientOrganization).toHaveBeenCalledWith(
+      expect(providerApiService.createProviderOrganization).toHaveBeenCalledWith(
         providerId,
         expect.objectContaining({
           name,

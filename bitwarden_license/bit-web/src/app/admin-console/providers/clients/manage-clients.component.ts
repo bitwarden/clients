@@ -37,10 +37,6 @@ import { BillingNotificationService } from "@bitwarden/web-vault/app/billing/ser
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 
 import {
-  CreateClientDialogResultType,
-  openCreateClientDialog,
-} from "../../../billing/providers/clients/create-client-dialog.component";
-import {
   ManageClientSubscriptionDialogResultType,
   openManageClientSubscriptionDialog,
 } from "../../../billing/providers/clients/manage-client-subscription-dialog.component";
@@ -50,6 +46,10 @@ import {
   AddExistingOrganizationDialogComponent,
   AddExistingOrganizationDialogResultType,
 } from "./add-existing-organization-dialog.component";
+import {
+  CreateClientDialogResultType,
+  openCreateClientDialog,
+} from "./create-client-dialog.component";
 import {
   ManageClientNameDialogResultType,
   openManageClientNameDialog,

@@ -3,7 +3,6 @@ import { SubscriptionCancellationRequest } from "../../billing/models/request/su
 import { OrganizationBillingMetadataResponse } from "../../billing/models/response/organization-billing-metadata.response";
 import { PlanResponse } from "../../billing/models/response/plan.response";
 import { ListResponse } from "../../models/response/list.response";
-import { CreateClientOrganizationRequest } from "../models/request/create-client-organization.request";
 import { InvoicesResponse } from "../models/response/invoices.response";
 import { ProviderSubscriptionResponse } from "../models/response/provider-subscription-response";
 
@@ -14,11 +13,6 @@ export abstract class BillingApiServiceAbstraction {
   ): Promise<void>;
 
   abstract cancelPremiumUserSubscription(request: SubscriptionCancellationRequest): Promise<void>;
-
-  abstract createProviderClientOrganization(
-    providerId: string,
-    request: CreateClientOrganizationRequest,
-  ): Promise<void>;
 
   abstract getOrganizationBillingMetadata(
     organizationId: string,
