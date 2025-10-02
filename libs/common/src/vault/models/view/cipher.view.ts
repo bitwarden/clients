@@ -329,7 +329,7 @@ export class CipherView implements View, InitializerMetadata {
       organizationUseTotp: this.organizationUseTotp ?? false,
       permissions: this.permissions?.toSdkCipherPermissions(),
       edit: this.edit ?? true,
-      viewPassword: this.viewPassword ?? false,
+      viewPassword: this.viewPassword ?? true,
       localData: toSdkLocalData(this.localData),
       attachments: this.attachments?.map((a) => a.toSdkAttachmentView()),
       fields: this.fields?.map((f) => f.toSdkFieldView()),
