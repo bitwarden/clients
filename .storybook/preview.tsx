@@ -17,10 +17,14 @@ const wrapperDecorator = componentWrapperDecorator((story) => {
 
 const loaders = [
   async () => {
-    const font = new FontFace("Inter", 'url("/inter.0336a89fb4e7fc1d.woff2") format("woff2")', {
-      weight: "100 900",
-      featureSettings: '"ss02"',
-    });
+    const font = new FontFace(
+      "Inter",
+      'url("/inter.0336a89fb4e7fc1d.woff2") format("woff2-variations")',
+      {
+        weight: "100 900",
+        featureSettings: '"ss02"',
+      },
+    );
     await font.load();
     document.fonts.add(font);
     await document.fonts.ready;
@@ -68,7 +72,7 @@ const preview: Preview = {
     },
   },
   tags: ["autodocs"],
-  // loaders,
+  loaders,
 };
 
 export default preview;
