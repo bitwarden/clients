@@ -23,7 +23,7 @@ main directories are:
 - `apps/` – Contains all application projects (e.g., browser, cli, desktop, web). Each app is
   self-contained with its own configuration, source code, and tests.
 - `libs/` – Contains shared libraries and modules used across multiple apps. Libraries are organized
-  by domain or functionality (e.g., common, ui, platform, key-management).
+  by team name, domain, functionality (e.g., common, ui, platform, key-management).
 
 **Strict boundaries** must be maintained between apps and libraries. Do not introduce
 cross-dependencies that violate the intended modular structure. Always consult and respect the
