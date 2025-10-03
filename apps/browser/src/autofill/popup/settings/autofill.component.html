@@ -265,6 +265,9 @@
                 [disabled]="option.disabled"
               ></bit-option>
             </bit-select>
+            <bit-hint *ngIf="isDefaultUriMatchDisabledByPolicy">
+              {{ "settingDisabledByPolicy" | i18n }}
+            </bit-hint>
             <bit-hint *ngIf="getMatchHints() as hints">
               {{ hints[0] | i18n }}
               <ng-container *ngIf="hints.length > 1">
