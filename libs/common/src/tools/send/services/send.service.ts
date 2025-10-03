@@ -2,6 +2,7 @@
 // @ts-strict-ignore
 import { Observable, concatMap, distinctUntilChanged, firstValueFrom, map } from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { PBKDF2KdfConfig, KeyService } from "@bitwarden/key-management";
@@ -41,6 +42,7 @@ export class SendService implements InternalSendServiceAbstraction {
   );
 
   constructor(
+    private accountService: AccountService,
     private keyService: KeyService,
     private i18nService: I18nService,
     private keyGenerationService: KeyGenerationService,
@@ -90,7 +92,8 @@ export class SendService implements InternalSendServiceAbstraction {
       send.password = passwordKey.keyB64;
     }
     if (userKey == null) {
-      userKey = await this.keyService.getUserKey();
+      const account = await firstValueFrom(this.accountService.activeAccount$);
+      userKey = await firstValueFrom(this.keyService.userKey$(account.id));
     }
     // Key is not a SymmetricCryptoKey, but key material used to derive the cryptoKey
     send.key = await this.encryptService.encryptBytes(model.key, userKey);
@@ -208,6 +211,9 @@ export class SendService implements InternalSendServiceAbstraction {
   }
 
   async getAllDecryptedFromState(userId: UserId): Promise<SendView[]> {
+    if (!userId) {
+      throw new Error("User ID must not be null or undefined");
+    }
     let decSends = await this.stateProvider.getDecryptedSends();
     if (decSends != null) {
       return decSends;
@@ -222,7 +228,7 @@ export class SendService implements InternalSendServiceAbstraction {
     const promises: Promise<any>[] = [];
     const sends = await this.getAll();
     sends.forEach((send) => {
-      promises.push(send.decrypt().then((f) => decSends.push(f)));
+      promises.push(send.decrypt(userId).then((f) => decSends.push(f)));
     });
 
     await Promise.all(promises);
@@ -339,8 +345,12 @@ export class SendService implements InternalSendServiceAbstraction {
     data: ArrayBuffer,
     key: SymmetricCryptoKey,
   ): Promise<[EncString, EncArrayBuffer]> {
+    const userId = await firstValueFrom(
+      this.stateProvider.encryptedState$.pipe(map(([userId]) => userId)),
+    );
+
     if (key == null) {
-      key = await this.keyService.getUserKey();
+      key = await firstValueFrom(this.keyService.userKey$(userId));
     }
     const encFileName = await this.encryptService.encryptString(fileName, key);
     const encFileData = await this.encryptService.encryptFileData(new Uint8Array(data), key);
@@ -348,7 +358,10 @@ export class SendService implements InternalSendServiceAbstraction {
   }
 
   private async decryptSends(sends: Send[]) {
-    const decryptSendPromises = sends.map((s) => s.decrypt());
+    const userId = await firstValueFrom(
+      this.stateProvider.encryptedState$.pipe(map(([userId]) => userId)),
+    );
+    const decryptSendPromises = sends.map((s) => s.decrypt(userId));
     const decryptedSends = await Promise.all(decryptSendPromises);
 
     decryptedSends.sort(Utils.getSortFunction(this.i18nService, "name"));

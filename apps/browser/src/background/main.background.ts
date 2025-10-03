@@ -983,6 +983,7 @@ export default class MainBackground {
 
     this.sendStateProvider = new SendStateProvider(this.stateProvider);
     this.sendService = new SendService(
+      this.accountService,
       this.keyService,
       this.i18nService,
       this.keyGenerationService,
