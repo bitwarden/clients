@@ -82,6 +82,24 @@ export class SubscriberBillingClient {
     return data ? new MaskedPaymentMethodResponse(data).value : null;
   };
 
+  restartSubscription = async (
+    subscriber: BitwardenSubscriber,
+    paymentMethod: TokenizedPaymentMethod,
+    billingAddress: BillingAddress,
+  ): Promise<void> => {
+    const path = `${this.getEndpoint(subscriber)}/subscription/restart`;
+    await this.apiService.send(
+      "POST",
+      path,
+      {
+        paymentMethod,
+        billingAddress,
+      },
+      true,
+      false,
+    );
+  };
+
   updateBillingAddress = async (
     subscriber: BitwardenSubscriber,
     billingAddress: BillingAddress,

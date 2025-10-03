@@ -1,4 +1,4 @@
-import { CommonModule } from "@angular/common";
+import { CommonModule, Location } from "@angular/common";
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
@@ -11,7 +11,6 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
@@ -25,6 +24,8 @@ import {
 } from "@bitwarden/components";
 
 import { LoginStrategyServiceAbstraction } from "../../common/abstractions/login-strategy.service";
+
+import { NewDeviceVerificationComponentService } from "./new-device-verification-component.service";
 
 /**
  * Component for verifying a new device via a one-time password (OTP).
@@ -57,6 +58,7 @@ export class NewDeviceVerificationComponent implements OnInit, OnDestroy {
   protected disableRequestOTP = false;
   private destroy$ = new Subject<void>();
   protected authenticationSessionTimeoutRoute = "/authentication-timeout";
+  protected showBackButton = true;
 
   constructor(
     private router: Router,
@@ -66,12 +68,15 @@ export class NewDeviceVerificationComponent implements OnInit, OnDestroy {
     private logService: LogService,
     private i18nService: I18nService,
     private loginSuccessHandlerService: LoginSuccessHandlerService,
-    private configService: ConfigService,
     private accountService: AccountService,
     private masterPasswordService: MasterPasswordServiceAbstraction,
+    private newDeviceVerificationComponentService: NewDeviceVerificationComponentService,
+    private location: Location,
   ) {}
 
   async ngOnInit() {
+    this.showBackButton = this.newDeviceVerificationComponentService.showBackButton();
+
     // Redirect to timeout route if session expires
     this.loginStrategyService.authenticationSessionTimeout$
       .pipe(takeUntil(this.destroy$))
@@ -179,4 +184,8 @@ export class NewDeviceVerificationComponent implements OnInit, OnDestroy {
       codeControl.markAsTouched();
     }
   };
+
+  protected goBack() {
+    this.location.back();
+  }
 }

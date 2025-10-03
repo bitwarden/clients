@@ -550,8 +550,13 @@
   "resetSearch": {
     "message": "Нулиране на търсенето"
   },
-  "archive": {
-    "message": "Архивиране"
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
   },
   "unarchive": {
     "message": "Изваждане от архива"

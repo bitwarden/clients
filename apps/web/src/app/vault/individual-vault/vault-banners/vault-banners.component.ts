@@ -5,8 +5,6 @@ import { filter, firstValueFrom, map, Observable, switchMap } from "rxjs";
 
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { MessageListener } from "@bitwarden/common/platform/messaging";
 import { UserId } from "@bitwarden/common/types/guid";
 import { BannerModule } from "@bitwarden/components";
@@ -41,7 +39,6 @@ export class VaultBannersComponent implements OnInit {
     private router: Router,
     private accountService: AccountService,
     private messageListener: MessageListener,
-    private configService: ConfigService,
   ) {
     this.premiumBannerVisible$ = this.activeUserId$.pipe(
       filter((userId): userId is UserId => userId != null),
@@ -75,16 +72,12 @@ export class VaultBannersComponent implements OnInit {
   }
 
   async navigateToPaymentMethod(organizationId: string): Promise<void> {
-    const managePaymentDetailsOutsideCheckout = await this.configService.getFeatureFlag(
-      FeatureFlag.PM21881_ManagePaymentDetailsOutsideCheckout,
-    );
-    const route = managePaymentDetailsOutsideCheckout ? "payment-details" : "payment-method";
     const navigationExtras = {
       state: { launchPaymentModalAutomatically: true },
     };
 
     await this.router.navigate(
-      ["organizations", organizationId, "billing", route],
+      ["organizations", organizationId, "billing", "payment-details"],
       navigationExtras,
     );
   }
@@ -100,14 +93,12 @@ export class VaultBannersComponent implements OnInit {
     const showBrowserOutdated =
       await this.vaultBannerService.shouldShowUpdateBrowserBanner(activeUserId);
     const showVerifyEmail = await this.vaultBannerService.shouldShowVerifyEmailBanner(activeUserId);
-    const showLowKdf = await this.vaultBannerService.shouldShowLowKDFBanner(activeUserId);
     const showPendingAuthRequest =
       await this.vaultBannerService.shouldShowPendingAuthRequestBanner(activeUserId);
 
     this.visibleBanners = [
       showBrowserOutdated ? VisibleVaultBanner.OutdatedBrowser : null,
       showVerifyEmail ? VisibleVaultBanner.VerifyEmail : null,
-      showLowKdf ? VisibleVaultBanner.KDFSettings : null,
       showPendingAuthRequest ? VisibleVaultBanner.PendingAuthRequest : null,
     ].filter((banner) => banner !== null);
   }

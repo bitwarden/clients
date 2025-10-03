@@ -1,5 +1,14 @@
-import { BehaviorSubject, firstValueFrom, Observable, of } from "rxjs";
-import { finalize, switchMap, withLatestFrom, map } from "rxjs/operators";
+import { BehaviorSubject, EMPTY, firstValueFrom, Observable, of } from "rxjs";
+import {
+  distinctUntilChanged,
+  exhaustMap,
+  filter,
+  finalize,
+  map,
+  switchMap,
+  tap,
+  withLatestFrom,
+} from "rxjs/operators";
 
 import {
   getOrganizationById,
@@ -17,6 +26,7 @@ import {
   DrawerDetails,
   ApplicationHealthReportDetail,
   ApplicationHealthReportDetailEnriched,
+  ReportDetailsAndSummary,
 } from "../models/report-models";
 
 import { CriticalAppsService } from "./critical-apps.service";
@@ -66,6 +76,15 @@ export class RiskInsightsDataService {
   });
   drawerDetails$ = this.drawerDetailsSubject.asObservable();
 
+  // ------------------------- Report Variables ----------------
+  // The last run report details
+  private reportResultsSubject = new BehaviorSubject<ReportDetailsAndSummary | null>(null);
+  reportResults$ = this.reportResultsSubject.asObservable();
+  // Is a report being generated
+  private isRunningReportSubject = new BehaviorSubject<boolean>(false);
+  isRunningReport$ = this.isRunningReportSubject.asObservable();
+  // The error from report generation if there was an error
+
   constructor(
     private accountService: AccountService,
     private criticalAppsService: CriticalAppsService,
@@ -81,7 +100,7 @@ export class RiskInsightsDataService {
       this.userIdSubject.next(userId);
     }
 
-    // [FIXME] getOrganizationById is now deprecated - update when we can
+    // [FIXME] getOrganizationById is now deprecated - replace with appropriate method
     // Fetch organization details
     const org = await firstValueFrom(
       this.organizationService.organizations$(userId).pipe(getOrganizationById(organizationId)),
@@ -96,20 +115,18 @@ export class RiskInsightsDataService {
     // Load critical applications for organization
     await this.criticalAppsService.loadOrganizationContext(organizationId, userId);
 
-    // TODO: PM-25613
-    // // Load existing report
+    // Load existing report
+    this.fetchLastReport(organizationId, userId);
 
-    // this.fetchLastReport(organizationId, userId);
-
-    // // Setup new report generation
-    // this._runApplicationsReport().subscribe({
-    //   next: (result) => {
-    //     this.isRunningReportSubject.next(false);
-    //   },
-    //   error: () => {
-    //     this.errorSubject.next("Failed to save report");
-    //   },
-    // });
+    // Setup new report generation
+    this._runApplicationsReport().subscribe({
+      next: (result) => {
+        this.isRunningReportSubject.next(false);
+      },
+      error: () => {
+        this.errorSubject.next("Failed to save report");
+      },
+    });
   }
 
   /**
@@ -276,4 +293,88 @@ export class RiskInsightsDataService {
       });
     }
   };
+
+  // ------------------- Trigger Report Generation -------------------
+  /** Trigger generating a report based on the current applications */
+  triggerReport(): void {
+    this.isRunningReportSubject.next(true);
+  }
+
+  /**
+   * Fetches the applications report and updates the applicationsSubject.
+   * @param organizationId The ID of the organization.
+   */
+  fetchLastReport(organizationId: OrganizationId, userId: UserId): void {
+    this.isLoadingSubject.next(true);
+
+    this.reportService
+      .getRiskInsightsReport$(organizationId, userId)
+      .pipe(
+        switchMap((report) => {
+          return this.enrichReportData$(report.data).pipe(
+            map((enrichedReport) => ({
+              data: enrichedReport,
+              summary: report.summary,
+            })),
+          );
+        }),
+        finalize(() => {
+          this.isLoadingSubject.next(false);
+        }),
+      )
+      .subscribe({
+        next: ({ data, summary }) => {
+          this.reportResultsSubject.next({
+            data,
+            summary,
+            dateCreated: new Date(),
+          });
+          this.errorSubject.next(null);
+          this.isLoadingSubject.next(false);
+        },
+        error: () => {
+          this.errorSubject.next("Failed to fetch report");
+          this.reportResultsSubject.next(null);
+          this.isLoadingSubject.next(false);
+        },
+      });
+  }
+
+  private _runApplicationsReport() {
+    return this.isRunningReport$.pipe(
+      distinctUntilChanged(),
+      filter((isRunning) => isRunning),
+      withLatestFrom(this.organizationDetails$, this.userId$),
+      exhaustMap(([_, organizationDetails, userId]) => {
+        const organizationId = organizationDetails?.organizationId;
+        if (!organizationId || !userId) {
+          return EMPTY;
+        }
+
+        // Generate the report
+        return this.reportService.generateApplicationsReport$(organizationId).pipe(
+          map((data) => ({
+            data,
+            summary: this.reportService.generateApplicationsSummary(data),
+          })),
+          switchMap(({ data, summary }) =>
+            this.enrichReportData$(data).pipe(
+              map((enrichedData) => ({ data: enrichedData, summary })),
+            ),
+          ),
+          tap(({ data, summary }) => {
+            this.reportResultsSubject.next({ data, summary, dateCreated: new Date() });
+            this.errorSubject.next(null);
+          }),
+          switchMap(({ data, summary }) => {
+            // Just returns ID
+            return this.reportService.saveRiskInsightsReport$(data, summary, {
+              organizationId,
+              userId,
+            });
+          }),
+        );
+      }),
+    );
+  }
 }

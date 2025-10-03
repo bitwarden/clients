@@ -550,8 +550,13 @@
   "resetSearch": {
     "message": "Zresetuj wyszukiwanie"
   },
-  "archive": {
-    "message": "Archive"
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
   },
   "unarchive": {
     "message": "Usuń z archiwum"
