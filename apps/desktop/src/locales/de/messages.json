@@ -415,7 +415,7 @@
     "message": "Authenticator-Schlüssel"
   },
   "autofillOptions": {
-    "message": "Auto-Ausfüllen-Optionen"
+    "message": "Optionen für automatisches Ausfüllen"
   },
   "websiteUri": {
     "message": "Website (URI)"
@@ -1221,6 +1221,15 @@
   },
   "invalidMasterPassword": {
     "message": "Ungültiges Master-Passwort"
+  },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
   },
   "twoStepLoginConfirmation": {
     "message": "Mit der Zwei-Faktor-Authentifizierung wird dein Konto zusätzlich abgesichert, da jede Anmeldung mit einem anderen Gerät wie einem Sicherheitsschlüssel, einer Authentifizierungs-App, einer SMS, einem Anruf oder einer E-Mail verifiziert werden muss. Die Zwei-Faktor-Authentifizierung kann im bitwarden.com Web-Tresor aktiviert werden. Möchtest du die Website jetzt öffnen?"
@@ -2651,6 +2660,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Nur der mit $ORGANIZATION$ verknüpfte Organisations-Tresor wird exportiert.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Nur der mit $ORGANIZATION$ verknüpfte Organisations-Tresor wird exportiert. Meine Eintrags-Sammlungen werden nicht eingeschlossen.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },
@@ -4115,11 +4142,11 @@
     "message": "Verknüpfung bearbeiten"
   },
   "archiveNoun": {
-    "message": "Archive",
+    "message": "Archiv",
     "description": "Noun"
   },
   "archiveVerb": {
-    "message": "Archive",
+    "message": "Archivieren",
     "description": "Verb"
   },
   "unarchive": {
@@ -4132,7 +4159,7 @@
     "message": "Keine Einträge im Archiv"
   },
   "noItemsInArchiveDesc": {
-    "message": "Archivierte Einträge werden hier angezeigt und von allgemeinen Ergebnissen der Suche sowie Autofill-Vorschlägen ausgeschlossen."
+    "message": "Archivierte Einträge werden hier angezeigt und von allgemeinen Suchergebnissen sowie Auto-Ausfüllen-Vorschlägen ausgeschlossen."
   },
   "itemSentToArchive": {
     "message": "Eintrag an das Archiv gesendet"
@@ -4144,6 +4171,6 @@
     "message": "Eintrag archivieren"
   },
   "archiveItemConfirmDesc": {
-    "message": "Archivierte Einträge werden von allgemeinen Suchergebnissen und Autofill-Vorschlägen ausgeschlossen. Sind Sie sicher, dass Sie diesen Eintrag archivieren möchten?"
+    "message": "Archivierte Einträge werden von allgemeinen Suchergebnissen sowie Vorschlägen zum automatischen Ausfüllen ausgeschlossen. Bist du sicher, dass du diesen Eintrag archivieren möchtest?"
   }
 }
