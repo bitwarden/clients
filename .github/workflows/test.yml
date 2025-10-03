@@ -125,7 +125,7 @@ jobs:
 
       - name: Test Windows
         if: ${{ matrix.os=='windows-2022'}}
-        working-directory: ./apps/desktop/desktop_native/core
+        working-directory: ./apps/desktop/desktop_native
         run: cargo test -- --test-threads=1
 
   rust-coverage:
