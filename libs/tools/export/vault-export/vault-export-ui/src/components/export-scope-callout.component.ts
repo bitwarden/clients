@@ -9,7 +9,6 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { getById } from "@bitwarden/common/platform/misc/rxjs-operators";
-import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CalloutModule } from "@bitwarden/components";
 import { ExportFormat } from "@bitwarden/vault-export-core";
 

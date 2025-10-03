@@ -4080,11 +4080,17 @@
   "showLess": {
     "message": "Daha az göstər"
   },
-  "enableAutotype": {
-    "message": "Avto-yazmanı fəallaşdır"
-  },
   "enableAutotypeDescription": {
     "message": "Bitwarden, giriş yerlərini doğrulamır, qısayolu istifadə etməzdən əvvəl doğru pəncərədə və xanada olduğunuza əmin olun."
+  },
+  "typeShortcut": {
+    "message": "Type shortcut"
+  },
+  "editAutotypeShortcutDescription": {
+    "message": "Include one or two of the following modifiers: Ctrl, Alt, Win, or Shift, and a letter."
+  },
+  "invalidShortcut": {
+    "message": "Invalid shortcut"
   },
   "moreBreadcrumbs": {
     "message": "Daha çox naviqasiya yolu",
@@ -4099,8 +4105,8 @@
   "confirm": {
     "message": "Təsdiqlə"
   },
-  "enableAutotypeTransitionKey": {
-    "message": "Avto-yazma qısayolunu fəallaşdır"
+  "enableAutotypeShortcutPreview": {
+    "message": "Enable autotype shortcut (Feature Preview)"
   },
   "enableAutotypeDescriptionTransitionKey": {
     "message": "Veriləri yanlış yerə doldurmamaq üçün qısayolu istifadə etməzdən əvvəl doğru xanada olduğunuza əmin olun."
@@ -4108,31 +4114,36 @@
   "editShortcut": {
     "message": "Qısayola düzəliş et"
   },
-  "archive": {
-    "message": "Archive"
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
   },
   "unarchive": {
-    "message": "Unarchive"
+    "message": "Arxivdən çıxart"
   },
   "itemsInArchive": {
-    "message": "Items in archive"
+    "message": "Arxivdəki elementlər"
   },
   "noItemsInArchive": {
-    "message": "No items in archive"
+    "message": "Arxivdə element yoxdur"
   },
   "noItemsInArchiveDesc": {
-    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+    "message": "Arxivlənmiş elementlər burada görünəcək, ümumi axtarış nəticələrindən və avto-doldurma təkliflərindən xaric ediləcək."
   },
   "itemSentToArchive": {
-    "message": "Item sent to archive"
+    "message": "Element arxivə göndərildi"
   },
   "itemRemovedFromArchive": {
-    "message": "Item removed from archive"
+    "message": "Element arxivdən çıxarıldı"
   },
   "archiveItem": {
-    "message": "Archive item"
+    "message": "Elementi arxivlə"
   },
   "archiveItemConfirmDesc": {
-    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+    "message": "Arxivlənmiş elementlər ümumi axtarış nəticələrindən və avto-doldurma təkliflərindən xaric ediləcək. Bu elementi arxivləmək istədiyinizə əminsiniz?"
   }
 }
