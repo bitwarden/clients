@@ -86,16 +86,21 @@ export class PinStateService implements PinStateServiceAbstraction {
     assertNonNullish(pinProtectedUserKeyEnvelope, "pinProtectedUserKeyEnvelope");
     assertNonNullish(pinLockType, "pinLockType");
 
-    let keyDefinition;
     if (pinLockType === "EPHEMERAL") {
-      keyDefinition = PIN_PROTECTED_USER_KEY_ENVELOPE_EPHEMERAL;
+      await this.stateProvider.setUserState(
+        PIN_PROTECTED_USER_KEY_ENVELOPE_EPHEMERAL,
+        pinProtectedUserKeyEnvelope,
+        userId,
+      );
     } else if (pinLockType === "PERSISTENT") {
-      keyDefinition = PIN_PROTECTED_USER_KEY_ENVELOPE_PERSISTENT;
+      await this.stateProvider.setUserState(
+        PIN_PROTECTED_USER_KEY_ENVELOPE_PERSISTENT,
+        pinProtectedUserKeyEnvelope,
+        userId,
+      );
     } else {
       throw new Error(`Cannot set up PIN with pin lock type ${pinLockType}`);
     }
-
-    await this.stateProvider.setUserState(keyDefinition, pinProtectedUserKeyEnvelope, userId);
 
     await this.stateProvider.setUserState(USER_KEY_ENCRYPTED_PIN, userKeyEncryptedPin, userId);
   }
