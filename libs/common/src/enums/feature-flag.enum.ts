@@ -80,7 +80,7 @@ export const DefaultFeatureFlagValue = {
   /* Tools */
   [FeatureFlag.DesktopSendUIRefresh]: FALSE,
   [FeatureFlag.UseSdkPasswordGenerators]: FALSE,
-  [FeatureFlag.UseChromiumImporter]: FALSE,
+  [FeatureFlag.UseChromiumImporter]: true,
 
   /* DIRT */
   [FeatureFlag.EventBasedOrganizationIntegrations]: FALSE,

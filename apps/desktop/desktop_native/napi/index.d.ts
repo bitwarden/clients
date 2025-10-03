@@ -232,6 +232,10 @@ export declare namespace chromium_importer {
   export function getAvailableProfiles(browser: string): Array<ProfileInfo>
   export function importLogins(browser: string, profileId: string): Promise<Array<LoginImportResult>>
 }
+export declare namespace chromium_importer_metadata {
+  /** Returns OS aware metadata describing supported Chromium based importers as a JSON string. */
+  export function getMetadataAsJson(): string
+}
 export declare namespace autotype {
   export function getForegroundWindowTitle(): string
   export function typeInput(input: Array<number>, keyboardShortcut: Array<string>): void
