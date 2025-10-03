@@ -7,16 +7,16 @@ use winapi::shared::minwindef::{BOOL, BYTE, DWORD};
 use winapi::um::{dpapi::CryptUnprotectData, wincrypt::DATA_BLOB};
 use windows::Win32::Foundation::{LocalFree, HLOCAL};
 
-use crate::chromium::{BrowserConfig, CryptoService, LocalState};
-
-#[allow(dead_code)]
-mod util;
+use crate::{
+    chromium::{BrowserConfig, CryptoService, LocalState},
+    util,
+};
 
 //
 // Public API
 //
 
-pub const SUPPORTED_BROWSERS: [BrowserConfig; 6] = [
+pub(crate) const SUPPORTED_BROWSERS: [BrowserConfig; 6] = [
     BrowserConfig {
         name: "Chrome",
         data_dir: "AppData/Local/Google/Chrome/User Data",
@@ -43,7 +43,7 @@ pub const SUPPORTED_BROWSERS: [BrowserConfig; 6] = [
     },
 ];
 
-pub fn get_crypto_service(
+pub(crate) fn get_crypto_service(
     _browser_name: &str,
     local_state: &LocalState,
 ) -> Result<Box<dyn CryptoService>> {
