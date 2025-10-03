@@ -61,6 +61,8 @@ export class MemberAccessReportService {
       );
       const aggregatedData = {
         userGuid: userGuid,
+        userId: userDataArray[0].userId ?? undefined,
+        avatarColor: userDataArray[0].avatarColor ?? undefined,
         name: userDataArray[0].userName,
         email: userDataArray[0].email,
         collectionsCount: collectionCount,
