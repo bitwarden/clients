@@ -7,17 +7,12 @@ import { AnonLayoutWrapperComponent } from "@bitwarden/components";
 import { FrontendLayoutComponent } from "@bitwarden/web-vault/app/layouts/frontend-layout.component";
 import { UserLayoutComponent } from "@bitwarden/web-vault/app/layouts/user-layout.component";
 
-import {
-  ManageClientsComponent,
-  ProviderSubscriptionComponent,
-  hasConsolidatedBilling,
-  ProviderBillingHistoryComponent,
-} from "../../billing/providers";
+import { ProviderBillingHistoryComponent } from "../../billing/providers/billing-history/provider-billing-history.component";
 import { ProviderPaymentDetailsComponent } from "../../billing/providers/payment-details/provider-payment-details.component";
 import { SetupBusinessUnitComponent } from "../../billing/providers/setup/setup-business-unit.component";
+import { ProviderSubscriptionComponent } from "../../billing/providers/subscription/provider-subscription.component";
 
-import { ClientsComponent } from "./clients/clients.component";
-import { CreateOrganizationComponent } from "./clients/create-organization.component";
+import { ManageClientsComponent } from "./clients/manage-clients.component";
 import { providerPermissionsGuard } from "./guards/provider-permissions.guard";
 import { AcceptProviderComponent } from "./manage/accept-provider.component";
 import { EventsComponent } from "./manage/events.component";
@@ -88,14 +83,7 @@ const routes: Routes = [
         canActivate: [providerPermissionsGuard()],
         children: [
           { path: "", pathMatch: "full", redirectTo: "clients" },
-          { path: "clients/create", component: CreateOrganizationComponent },
-          { path: "clients", component: ClientsComponent, data: { titleId: "clients" } },
-          {
-            path: "manage-client-organizations",
-            canActivate: [hasConsolidatedBilling],
-            component: ManageClientsComponent,
-            data: { titleId: "clients" },
-          },
+          { path: "clients", component: ManageClientsComponent, data: { titleId: "clients" } },
           {
             path: "manage",
             children: [
@@ -128,7 +116,7 @@ const routes: Routes = [
           },
           {
             path: "billing",
-            canActivate: [hasConsolidatedBilling],
+            canActivate: [providerPermissionsGuard()],
             children: [
               {
                 path: "",
@@ -138,7 +126,6 @@ const routes: Routes = [
               {
                 path: "subscription",
                 component: ProviderSubscriptionComponent,
-                canActivate: [providerPermissionsGuard()],
                 data: {
                   titleId: "subscription",
                 },
@@ -146,7 +133,6 @@ const routes: Routes = [
               {
                 path: "payment-details",
                 component: ProviderPaymentDetailsComponent,
-                canActivate: [providerPermissionsGuard()],
                 data: {
                   titleId: "paymentDetails",
                 },
@@ -154,7 +140,6 @@ const routes: Routes = [
               {
                 path: "history",
                 component: ProviderBillingHistoryComponent,
-                canActivate: [providerPermissionsGuard()],
                 data: {
                   titleId: "billingHistory",
                 },

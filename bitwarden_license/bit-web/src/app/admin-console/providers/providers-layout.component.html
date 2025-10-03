@@ -9,7 +9,7 @@
     <bit-nav-item
       icon="bwi-provider"
       [text]="clientsTranslationKey$ | async | i18n"
-      [route]="(isBillable | async) ? 'manage-client-organizations' : 'clients'"
+      route="clients"
     >
       <i
         *ngIf="!provider.enabled && (providerPortalTakeover$ | async)"

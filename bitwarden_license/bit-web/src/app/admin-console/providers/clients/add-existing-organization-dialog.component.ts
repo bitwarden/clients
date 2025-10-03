@@ -12,7 +12,7 @@ import {
   ToastService,
 } from "@bitwarden/components";
 
-import { WebProviderService } from "../../../admin-console/providers/services/web-provider.service";
+import { WebProviderService } from "../services/web-provider.service";
 
 export type AddExistingOrganizationDialogParams = {
   provider: Provider;
@@ -55,7 +55,7 @@ export class AddExistingOrganizationDialogComponent implements OnInit {
 
   addExistingOrganization = async (): Promise<void> => {
     if (this.selectedOrganization) {
-      await this.webProviderService.addOrganizationToProviderVNext(
+      await this.webProviderService.addOrganizationToProvider(
         this.dialogParams.provider.id,
         this.selectedOrganization.id,
       );
