@@ -476,7 +476,7 @@ jobs:
         shell: bash
         run: |
           NEW_VERSION=$(jq -r '.version' "package.json")
-          jq '.appx.setBuildNumber = "${{ github.run_number }}"' electron-builder.json > temp.json
+          jq '.appx.setBuildNumber = "true"' electron-builder.json > temp.json
           mv temp.json electron-builder.json
           cat electron-builder.json
 
