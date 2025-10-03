@@ -1499,6 +1499,15 @@
   "invalidMasterPassword": {
     "message": "Грешна главна парола"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "invalidFilePassword": {
     "message": "Неправилна парола за файла. Използвайте паролата, която сте въвели при създаването на изнесения файл."
   },
@@ -7034,6 +7043,24 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Ще бъдат изнесени само записите от трезора свързан с $ORGANIZATION$.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Ще бъдат изнесени само записите от трезора свързан с $ORGANIZATION$. Моите колекции няма да бъдат включени.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "accessDenied": {
     "message": "Достъпът е отказан. Нямате право за преглед на тази страница."
   },
@@ -11075,11 +11102,11 @@
     "message": "Търсене в архива"
   },
   "archiveNoun": {
-    "message": "Archive",
+    "message": "Архив",
     "description": "Noun"
   },
   "archiveVerb": {
-    "message": "Archive",
+    "message": "Архивиране",
     "description": "Verb"
   },
   "noItemsInArchive": {
@@ -11194,6 +11221,12 @@
   },
   "bitwardenExtensionInstalled": {
     "message": "Добавката на Битуорден е инсталирана!"
+  },
+  "openTheBitwardenExtension": {
+    "message": "Отварете добавката на Битуорден"
+  },
+  "bitwardenExtensionInstalledOpenExtension": {
+    "message": "Добавката на Битуорден е инсталирана! Отворете я, за да се впишете и да можете да се вписвате автоматично."
   },
   "openExtensionToAutofill": {
     "message": "Отворете добавката, за да се впишете и да можете да използвате автоматичното попълване."

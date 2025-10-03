@@ -1499,6 +1499,15 @@
   "invalidMasterPassword": {
     "message": "A mesterjelszó érvénytelen."
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "invalidFilePassword": {
     "message": "Érvénytelen a fájl jelszó. Használjuk az exportálás fájl létrehozásakor megadott jelszót."
   },
@@ -7034,6 +7043,24 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Csak a $ORGANIZATION$ szervezetehez kapcsolódó szervezeti széf kerül exportálásra.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Csak a $ORGANIZATION$ szervezethez kapcsolódó szervezeti széf kerül exportálásra. A saját elem gyűjtemények nem lesznek benne.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "accessDenied": {
     "message": "A hozzáférés megtagadásra került. Nincs jogosultság az oldal megtekintésére."
   },
@@ -11075,11 +11102,11 @@
     "message": "Keresés archívum"
   },
   "archiveNoun": {
-    "message": "Archive",
+    "message": "Archívum",
     "description": "Noun"
   },
   "archiveVerb": {
-    "message": "Archive",
+    "message": "Archívum",
     "description": "Verb"
   },
   "noItemsInArchive": {
@@ -11194,6 +11221,12 @@
   },
   "bitwardenExtensionInstalled": {
     "message": "Bitwarden extension installed!"
+  },
+  "openTheBitwardenExtension": {
+    "message": "A Bitwarden bővítmény megnyitása"
+  },
+  "bitwardenExtensionInstalledOpenExtension": {
+    "message": "A Bitwarden bővítmény telepítve van! Nyissuk meg a bővítményt a bejelentkezéshez és az automatikus kitöltés megkezdéséhez."
   },
   "openExtensionToAutofill": {
     "message": "Open the extension to log in and start autofilling."

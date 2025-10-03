@@ -1499,6 +1499,15 @@
   "invalidMasterPassword": {
     "message": "தவறான முதன்மை கடவுச்சொல்"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "invalidFilePassword": {
     "message": "தவறான கோப்பு கடவுச்சொல், ஏற்றுமதி கோப்பை உருவாக்கியபோது நீங்கள் உள்ளிட்ட கடவுச்சொல்லைப் பயன்படுத்தவும்."
   },
@@ -7034,6 +7043,24 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "accessDenied": {
     "message": "அணுகல் மறுக்கப்பட்டது. இந்தப் பக்கத்தைப் பார்க்க உங்களுக்கு அனுமதி இல்லை."
   },
@@ -11194,6 +11221,12 @@
   },
   "bitwardenExtensionInstalled": {
     "message": "Bitwarden நீட்டிப்பு நிறுவப்பட்டது!"
+  },
+  "openTheBitwardenExtension": {
+    "message": "Open the Bitwarden extension"
+  },
+  "bitwardenExtensionInstalledOpenExtension": {
+    "message": "The Bitwarden extension is installed! Open the extension to log in and start autofilling."
   },
   "openExtensionToAutofill": {
     "message": "உள்நுழைந்து தானாக நிரப்பத் தொடங்க நீட்டிப்பைத் திறக்கவும்."
