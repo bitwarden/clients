@@ -550,8 +550,13 @@
   "resetSearch": {
     "message": "Đặt lại tìm kiếm"
   },
-  "archive": {
-    "message": "Lưu trữ"
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
   },
   "unarchive": {
     "message": "Hủy lưu trữ"

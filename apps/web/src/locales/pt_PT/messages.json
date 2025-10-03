@@ -59,8 +59,27 @@
   "createNewLoginItem": {
     "message": "Criar nova credencial"
   },
-  "criticalApplicationsActivityDescription": {
-    "message": "Depois de marcar as aplicações como críticas, estas serão apresentadas aqui."
+  "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
+    "message": "Depois de marcar as aplicações como críticas, estas serão apresentadas aqui"
+  },
+  "viewAtRiskMembers": {
+    "message": "Ver membros em risco"
+  },
+  "viewAtRiskApplications": {
+    "message": "Ver aplicações em risco"
+  },
+  "criticalApplicationsAreAtRisk": {
+    "message": "$COUNT$ de $TOTAL$ aplicações críticas estão em risco devido a palavras-passe em risco",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "total": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
   },
   "criticalApplicationsWithCount": {
     "message": "Aplicações críticas ($COUNT$)",
@@ -73,6 +92,15 @@
   },
   "countOfCriticalApplications": {
     "message": "$COUNT$ aplicações críticas",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfApplicationsAtRisk": {
+    "message": "$COUNT$ aplicações em risco",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -137,7 +165,7 @@
   "membersAtRiskActivityDescription": {
     "message": "Membros com acesso de edição a itens em risco para aplicações críticas"
   },
-  "membersAtRisk": {
+  "membersAtRiskCount": {
     "message": "$COUNT$ membros em risco",
     "placeholders": {
       "count": {
@@ -1479,6 +1507,30 @@
   },
   "noItemsInList": {
     "message": "Não existem itens para listar."
+  },
+  "noItemsInTrash": {
+    "message": "Nenhum item no lixo"
+  },
+  "noItemsInTrashDesc": {
+    "message": "Os itens que eliminar aparecerão aqui e serão permanentemente eliminados após 30 dias"
+  },
+  "noItemsInVault": {
+    "message": "Nenhum item no cofre"
+  },
+  "emptyVaultDescription": {
+    "message": "O cofre protege mais do que apenas as suas palavras-passe. Guarde aqui credenciais, IDs, cartões e notas de forma segura."
+  },
+  "emptyFavorites": {
+    "message": "Não adicionou nenhum item aos favoritos"
+  },
+  "emptyFavoritesDesc": {
+    "message": "Adicione itens utilizados frequentemente aos favoritos para um acesso rápido."
+  },
+  "noSearchResults": {
+    "message": "Não foram apresentados resultados de pesquisa"
+  },
+  "clearFiltersOrTryAnother": {
+    "message": "Limpe os filtros ou tente outro termo de pesquisa"
   },
   "noPermissionToViewAllCollectionItems": {
     "message": "Não tem permissão para ver todos os itens desta coleção."
@@ -4772,6 +4824,12 @@
   "organizationIsDisabled": {
     "message": "Organização suspensa"
   },
+  "organizationIsSuspended": {
+    "message": "A organização está suspensa"
+  },
+  "organizationIsSuspendedDesc": {
+    "message": "Não é possível aceder aos itens de organizações suspensas. Contacte o proprietário da organização para obter assistência."
+  },
   "secretsAccessSuspended": {
     "message": "Não é possível aceder a organizações suspensas. Por favor, contacte o proprietário da organização para obter assistência."
   },
@@ -4783,9 +4841,6 @@
   },
   "serviceAccountsCannotCreate": {
     "message": "As contas de serviço não podem ser criadas em organizações suspensas. Por favor, contacte o proprietário da organização para obter assistência."
-  },
-  "disabledOrganizationFilterError": {
-    "message": "Não é possível aceder aos itens de organizações suspensas. Contacte o proprietário da organização para obter assistência."
   },
   "licenseIsExpired": {
     "message": "A licença expirou."
@@ -5160,9 +5215,13 @@
   "ssoIdentifier": {
     "message": "Identificador SSO"
   },
-  "ssoIdentifierHintPartOne": {
-    "message": "Forneça este ID aos seus membros para iniciarem sessão com o SSO. Para ignorar este passo, configure a ",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Provide this ID to your members to login with SSO. To bypass this step, set up Domain verification'"
+  "ssoIdentifierHint": {
+    "message": "Forneça este ID aos seus membros para iniciarem sessão com o SSO. Os membros podem ignorar a introdução deste identificador durante o SSO se estiver configurado um domínio reivindicado. ",
+    "description": "This will be used as part of a larger sentence, broken up to include a link. The full sentence will read 'Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. Learn more'"
+  },
+  "claimedDomainsLearnMore": {
+    "message": "Saiba mais",
+    "description": "This will be used as part of a larger sentence, broken up to include a link. The full sentence will read 'Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. Learn more'"
   },
   "unlinkSso": {
     "message": "Desvincular SSO"
@@ -8376,12 +8435,6 @@
   "groupSlashUser": {
     "message": "Grupo/Utilizador"
   },
-  "lowKdfIterations": {
-    "message": "Iterações KDF baixas"
-  },
-  "updateLowKdfIterationsDesc": {
-    "message": "Atualize as suas definições de encriptação para cumprir as novas recomendações de segurança e melhorar a proteção da conta."
-  },
   "kdfSettingsChangeLogoutWarning": {
     "message": "Ao prosseguir, sairá de todas as sessões ativas. Terá de voltar a iniciar sessão e concluir a verificação de dois passos, caso exista. Recomendamos que exporte o seu cofre antes de alterar as definições de encriptação para evitar a perda de dados."
   },
@@ -9755,6 +9808,9 @@
   "failedToSaveIntegration": {
     "message": "Falha ao guardar a integração. Por favor, tente novamente mais tarde."
   },
+  "mustBeOrgOwnerToPerformAction": {
+    "message": "Precisa de ser o proprietário da organização para executar esta ação."
+  },
   "failedToDeleteIntegration": {
     "message": "Falha ao eliminar a integração. Por favor, tente novamente mais tarde."
   },
@@ -9995,12 +10051,6 @@
         "example": "2"
       }
     }
-  },
-  "lowKDFIterationsBanner": {
-    "message": "Baixa quantidade de iterações do KDF. Aumente as suas iterações para melhorar a segurança da sua conta."
-  },
-  "changeKDFSettings": {
-    "message": "Alterar as definições do KDF"
   },
   "secureYourInfrastructure": {
     "message": "Proteja a sua infraestrutura"
@@ -11024,8 +11074,13 @@
   "searchArchive": {
     "message": "Procurar no arquivo"
   },
-  "archive": {
-    "message": "Arquivar"
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
   },
   "noItemsInArchive": {
     "message": "Nenhum item no arquivo"
