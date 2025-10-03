@@ -25,13 +25,18 @@ import { SearchBarService } from "../../layout/search/search-bar.service";
 
 import { AddEditComponent } from "./add-edit.component";
 
-// FIXME: update to use a const object instead of a typescript enum
-// eslint-disable-next-line @bitwarden/platform/no-enums
-enum Action {
-  None = "",
-  Add = "add",
-  Edit = "edit",
-}
+/** An action that can be performed in the Send UI. */
+export const Action = Object.freeze({
+  /** No action is currently active. */
+  None: "",
+  /** The user is adding a new Send. */
+  Add: "add",
+  /** The user is editing an existing Send. */
+  Edit: "edit",
+} as const);
+
+/** An action that can be performed in the Send UI. */
+export type Action = (typeof Action)[keyof typeof Action];
 
 const BroadcasterSubscriptionId = "SendComponent";
 
