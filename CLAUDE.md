@@ -13,7 +13,7 @@
 - **NEVER** log decrypted data, encryption keys, or PII
   - No vault data in error messages or console logs
 
--- **ALWAYS** Respect configuration files at the root and within each app/library (e.g., `eslint.config.mjs`, `jest.config.js`, `tsconfig.json`).
+- **ALWAYS** Respect configuration files at the root and within each app/library (e.g., `eslint.config.mjs`, `jest.config.js`, `tsconfig.json`).
 
 ## Mono-Repo Architecture
 
