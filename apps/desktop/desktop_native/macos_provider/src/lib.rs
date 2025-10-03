@@ -9,6 +9,11 @@ use std::{
 use futures::FutureExt;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use tracing::{error, info};
+use tracing_subscriber::{
+    filter::{EnvFilter, LevelFilter},
+    layer::SubscriberExt,
+    util::SubscriberInitExt,
+};
 
 uniffi::setup_scaffolding!();
 
@@ -65,8 +70,17 @@ impl MacOSProviderClient {
     #[allow(clippy::unwrap_used)]
     #[uniffi::constructor]
     pub fn connect() -> Self {
-        let _ = oslog::OsLogger::new("com.bitwarden.desktop.autofill-extension")
-            .level_filter(log::LevelFilter::Trace)
+        let filter = EnvFilter::builder()
+            // Everything logs at `TRACE`
+            .with_default_directive(LevelFilter::TRACE.into())
+            .from_env_lossy();
+
+        tracing_subscriber::registry()
+            .with(filter)
+            .with(tracing_oslog::OsLogger::new(
+                "com.bitwarden.desktop.autofill-extension",
+                "default",
+            ))
             .init();
 
         let (from_server_send, mut from_server_recv) = tokio::sync::mpsc::channel(32);
