@@ -35,7 +35,6 @@ dependency rules defined in `eslint.config.mjs`, `nx.json`, and other configurat
 
 - Services expose RxJS Observable streams for state management
 - Components subscribe using `async` pipe (NOT explicit subscriptions in most cases)
-- Services are generally root-scoped and will **not** execute an `OnDestroy`
   Pattern:
 
 ```typescript
@@ -59,12 +58,6 @@ constructor() {
 **Angular Signals (ADR-0027):**
 
 Encourage the use of Signals **only** in Angular components and presentational services.
-
-**NEVER** use signals in:
-
-- Shared services (must work in non-Angular contexts like CLI/Electron)
-- Business logic used across multiple clients
-- Cross-platform state management
 
 Use **RxJS** for:
 
