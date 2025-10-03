@@ -15,12 +15,18 @@ import { getById } from "@bitwarden/common/platform/misc";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 import { ActivityCardComponent } from "./activity-card.component";
+import { PasswordChangeMetricComponent } from "./activity-cards/password-change-metric.component";
 import { ApplicationsLoadingComponent } from "./risk-insights-loading.component";
 import { RiskInsightsTabType } from "./risk-insights.component";
 
 @Component({
   selector: "tools-all-activity",
-  imports: [ApplicationsLoadingComponent, SharedModule, ActivityCardComponent],
+  imports: [
+    ApplicationsLoadingComponent,
+    SharedModule,
+    ActivityCardComponent,
+    PasswordChangeMetricComponent,
+  ],
   templateUrl: "./all-activity.component.html",
 })
 export class AllActivityComponent implements OnInit {
@@ -30,6 +36,7 @@ export class AllActivityComponent implements OnInit {
   totalCriticalAppsAtRiskMemberCount = 0;
   totalCriticalAppsCount = 0;
   totalCriticalAppsAtRiskCount = 0;
+  passwordChangeMetricHasProgressBar = false;
 
   destroyRef = inject(DestroyRef);
 
@@ -50,6 +57,12 @@ export class AllActivityComponent implements OnInit {
           this.totalCriticalAppsAtRiskMemberCount = summary.totalCriticalAtRiskMemberCount;
           this.totalCriticalAppsCount = summary.totalCriticalApplicationCount;
           this.totalCriticalAppsAtRiskCount = summary.totalCriticalAtRiskApplicationCount;
+        });
+
+      this.allActivitiesService.passwordChangeProgressMetricHasProgressBar$
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe((hasProgressBar) => {
+          this.passwordChangeMetricHasProgressBar = hasProgressBar;
         });
     }
   }

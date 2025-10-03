@@ -1499,6 +1499,15 @@
   "invalidMasterPassword": {
     "message": "Palavra-passe mestra inválida"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "invalidFilePassword": {
     "message": "Palavra-passe de ficheiro inválida, utilize a palavra-passe que introduziu quando criou o ficheiro de exportação."
   },
@@ -7034,6 +7043,24 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "accessDenied": {
     "message": "Acesso negado. Não tem permissão para ver esta página."
   },
@@ -11075,11 +11102,11 @@
     "message": "Procurar no arquivo"
   },
   "archiveNoun": {
-    "message": "Archive",
+    "message": "Arquivo",
     "description": "Noun"
   },
   "archiveVerb": {
-    "message": "Archive",
+    "message": "Arquivar",
     "description": "Verb"
   },
   "noItemsInArchive": {
@@ -11194,6 +11221,12 @@
   },
   "bitwardenExtensionInstalled": {
     "message": "Extensão Bitwarden instalada!"
+  },
+  "openTheBitwardenExtension": {
+    "message": "Abrir a extensão Bitwarden"
+  },
+  "bitwardenExtensionInstalledOpenExtension": {
+    "message": "A extensão Bitwarden está instalada! Abra a extensão para iniciar sessão e começar o preenchimento automático."
   },
   "openExtensionToAutofill": {
     "message": "Abra a extensão para iniciar sessão e começar o preenchimento automático."
