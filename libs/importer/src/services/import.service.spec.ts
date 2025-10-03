@@ -45,7 +45,6 @@ describe("ImportService", () => {
   let accountService: MockProxy<AccountService>;
   let restrictedItemTypesService: MockProxy<RestrictedItemTypesService>;
   let systemServiceProvider: MockProxy<SystemServiceProvider>;
-  let platformUtilsService: MockProxy<PlatformUtilsService>;
 
   beforeEach(() => {
     cipherService = mock<CipherService>();
@@ -57,7 +56,6 @@ describe("ImportService", () => {
     encryptService = mock<EncryptService>();
     pinService = mock<PinServiceAbstraction>();
     restrictedItemTypesService = mock<RestrictedItemTypesService>();
-    platformUtilsService = mock<PlatformUtilsService>();
 
     const configService = mock<ConfigService>();
     configService.getFeatureFlag$.mockReturnValue(new BehaviorSubject(false));
@@ -83,7 +81,6 @@ describe("ImportService", () => {
       accountService,
       restrictedItemTypesService,
       systemServiceProvider,
-      platformUtilsService,
     );
   });
 
@@ -307,7 +304,6 @@ describe("ImportService", () => {
         accountService,
         restrictedItemTypesService,
         systemServiceProvider,
-        platformUtilsService,
       );
     });
 

@@ -1099,7 +1099,6 @@ export default class MainBackground {
         this.platformUtilsService,
         this.configService,
       ),
-      this.platformUtilsService,
     );
 
     this.individualVaultExportService = new IndividualVaultExportService(

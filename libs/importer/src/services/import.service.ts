@@ -19,7 +19,6 @@ import { ImportOrganizationCiphersRequest } from "@bitwarden/common/models/reque
 import { KvpRequest } from "@bitwarden/common/models/request/kvp.request";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SemanticLogger } from "@bitwarden/common/tools/log";
 import { SystemServiceProvider } from "@bitwarden/common/tools/providers";
@@ -130,7 +129,6 @@ export class ImportService implements ImportServiceAbstraction {
     private accountService: AccountService,
     private restrictedItemTypesService: RestrictedItemTypesService,
     private system: SystemServiceProvider,
-    private platformUtilsService: PlatformUtilsService,
   ) {
     this.logger = system.log({ type: "ImportService" });
   }
@@ -154,7 +152,7 @@ export class ImportService implements ImportServiceAbstraction {
           try {
             const device = this.system.environment.getDevice();
             const isWindowsDesktop = device === DeviceType.WindowsDesktop;
-            if (isWindowsDesktop || this.platformUtilsService.isMacAppStore()) {
+            if (isWindowsDesktop || this.system.environment.isMacAppStore()) {
               isUnsupported = true;
             }
           } catch {
