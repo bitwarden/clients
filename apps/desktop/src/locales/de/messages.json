@@ -449,7 +449,7 @@
     "message": "Feld bearbeiten"
   },
   "permanentlyDeleteAttachmentConfirmation": {
-    "message": "Bist du sicher, dass du diesen Anhang dauerhaft löschen möchtest?"
+    "message": "Sind Sie sicher, dass Sie diesen Anhang dauerhaft löschen möchten?"
   },
   "fieldType": {
     "message": "Feldtyp"
@@ -703,10 +703,10 @@
     "message": "Anhang gespeichert"
   },
   "addAttachment": {
-    "message": "Add attachment"
+    "message": "Anhang hinzufügen"
   },
   "maxFileSizeSansPunctuation": {
-    "message": "Maximum file size is 500 MB"
+    "message": "Die maximale Dateigröße beträgt 500 MB"
   },
   "file": {
     "message": "Datei"
@@ -1303,7 +1303,7 @@
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
   "showIconsChangePasswordUrls": {
-    "message": "Show website icons and retrieve change password URLs"
+    "message": "Website-Symbole anzeigen und URLs zum Ändern von Passwörtern abrufen"
   },
   "enableMinToTray": {
     "message": "In Infobereich-Symbol minimieren"
@@ -3486,10 +3486,10 @@
     "message": "Sammlung auswählen"
   },
   "importTargetHintCollection": {
-    "message": "Select this option if you want the imported file contents moved to a collection"
+    "message": "Wählen Sie diese Option, wenn die Inhalte der Import-Datei in eine Sammlung verschoben werden sollen"
   },
   "importTargetHintFolder": {
-    "message": "Select this option if you want the imported file contents moved to a folder"
+    "message": "Wählen Sie diese Option, wenn die Inhalte der Import-Datei in einen Ordner verschoben werden sollen"
   },
   "importUnassignedItemsError": {
     "message": "Die Datei enthält nicht zugewiesene Einträge."
@@ -3586,10 +3586,10 @@
     "message": "Bitte melde dich weiterhin mit deinen Firmenzugangsdaten an."
   },
   "importDirectlyFromBrowser": {
-    "message": "Import directly from browser"
+    "message": "Direkter Import aus dem Browser"
   },
   "browserProfile": {
-    "message": "Browser Profile"
+    "message": "Browser-Profil"
   },
   "seeDetailedInstructions": {
     "message": "Detaillierte Anleitungen auf unserer Hilfeseite unter",
@@ -3834,10 +3834,10 @@
     "message": "Gefährdetes Passwort ändern"
   },
   "changeAtRiskPasswordAndAddWebsite": {
-    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+    "message": "Diese Zugangsdaten sind gefährdet und enthalten keine Website. Fügen Sie eine Website hinzu und ändern Sie das Passwort für mehr Sicherheit."
   },
   "missingWebsite": {
-    "message": "Missing website"
+    "message": "Fehlende Webseite"
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "Du kannst Sammlungen mit Leseberechtigung nicht entfernen: $COLLECTIONS$",
@@ -3935,10 +3935,10 @@
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
   "aboutThisSetting": {
-    "message": "About this setting"
+    "message": "Über diese Einstellung"
   },
   "permitCipherDetailsDescription": {
-    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+    "message": "Bitwarden verwendet gespeicherte Zugangsdaten-URIs, um zu bestimmen, welches Symbol oder welche Passwort-Ändern-URL verwendet werden soll, um Ihr Erlebnis zu verbessern. Es werden keine Informationen erfasst oder gespeichert, wenn Sie diesen Dienst nutzen."
   },
   "assignToCollections": {
     "message": "Sammlungen zuweisen"
@@ -4080,59 +4080,70 @@
   "showLess": {
     "message": "Weniger anzeigen"
   },
-  "enableAutotype": {
-    "message": "Autotype aktivieren"
-  },
   "enableAutotypeDescription": {
     "message": "Bitwarden überprüft die Eingabestellen nicht. Vergewissere dich, dass du dich im richtigen Fenster und Feld befindest, bevor du die Tastenkombination verwendest."
   },
+  "typeShortcut": {
+    "message": "Typ-Verknüpfung"
+  },
+  "editAutotypeShortcutDescription": {
+    "message": "Fügen Sie einen oder zwei der folgenden Modifikatoren ein: Strg, Alt, Win oder Umschalt, sowie einen Buchstaben."
+  },
+  "invalidShortcut": {
+    "message": "Ungültige Verknüpfung"
+  },
   "moreBreadcrumbs": {
-    "message": "More breadcrumbs",
+    "message": "Weitere Navigationspfade",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   },
   "next": {
-    "message": "Next"
+    "message": "Weiter"
   },
   "confirmKeyConnectorDomain": {
-    "message": "Confirm Key Connector domain"
+    "message": "Key Connector-Domain bestätigen"
   },
   "confirm": {
-    "message": "Confirm"
+    "message": "Bestätigen"
   },
-  "enableAutotypeTransitionKey": {
-    "message": "Enable autotype shortcut"
+  "enableAutotypeShortcutPreview": {
+    "message": "Autotype-Shortcut aktivieren (Funktionsvorschau)"
   },
   "enableAutotypeDescriptionTransitionKey": {
-    "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."
+    "message": "Stellen Sie sicher, dass Sie sich im richtigen Feld befinden, bevor Sie die Verknüpfung verwenden, um zu vermeiden, dass Daten an der falschen Stelle ausgefüllt werden."
   },
   "editShortcut": {
-    "message": "Edit shortcut"
+    "message": "Verknüpfung bearbeiten"
   },
-  "archive": {
-    "message": "Archive"
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
   },
   "unarchive": {
-    "message": "Unarchive"
+    "message": "Archivierung aufheben"
   },
   "itemsInArchive": {
-    "message": "Items in archive"
+    "message": "Einträge im Archiv"
   },
   "noItemsInArchive": {
-    "message": "No items in archive"
+    "message": "Keine Einträge im Archiv"
   },
   "noItemsInArchiveDesc": {
-    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+    "message": "Archivierte Einträge werden hier angezeigt und von allgemeinen Ergebnissen der Suche sowie Autofill-Vorschlägen ausgeschlossen."
   },
   "itemSentToArchive": {
-    "message": "Item sent to archive"
+    "message": "Eintrag an das Archiv gesendet"
   },
   "itemRemovedFromArchive": {
-    "message": "Item removed from archive"
+    "message": "Eintrag aus dem Archiv entfernt"
   },
   "archiveItem": {
-    "message": "Archive item"
+    "message": "Eintrag archivieren"
   },
   "archiveItemConfirmDesc": {
-    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+    "message": "Archivierte Einträge werden von allgemeinen Suchergebnissen und Autofill-Vorschlägen ausgeschlossen. Sind Sie sicher, dass Sie diesen Eintrag archivieren möchten?"
   }
 }
