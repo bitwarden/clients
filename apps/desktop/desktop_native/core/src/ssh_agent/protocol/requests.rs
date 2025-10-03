@@ -3,9 +3,10 @@
 
 use byteorder::ReadBytesExt;
 use bytes::{Buf, Bytes};
+use log::info;
 use num_enum::{IntoPrimitive, TryFromPrimitive};
 
-use crate::ssh_agent::agent::agent::SshPublicKey;
+use crate::ssh_agent::protocol::types::{PublicKey, RsaSigningScheme, SessionId, Signature};
 
 /// `https://www.ietf.org/archive/id/draft-miller-ssh-agent-11.html#name-protocol-messages`
 /// The different types of requests that a client can send to the SSH agent.
@@ -74,6 +75,11 @@ impl TryFrom<&[u8]> for Request {
             RequestType::SSH_AGENTC_SIGN_REQUEST => {
                 Ok(Request::SignRequest(contents.as_slice().try_into()?))
             }
+            RequestType::SSH_AGENTC_EXTENSION => {
+                let _extension_request: SessionBindRequest = contents.as_slice().try_into()?;
+                info!("Received extension request: {:?}", _extension_request);
+                Err(anyhow::anyhow!("Unsupported extension request"))
+            }
             _ => Err(anyhow::anyhow!("Unsupported request type: {:?}", r#type)),
         }
     }
@@ -84,7 +90,7 @@ impl TryFrom<&[u8]> for Request {
 /// requests or SSHSIG requests. There are also flags supported that control signing behavior.
 #[derive(Debug)]
 pub(crate) struct SshSignRequest {
-    public_key: SshPublicKey,
+    public_key: PublicKey,
     payload_to_sign: Vec<u8>,
     parsed_sign_request: ParsedSignRequest,
     flags: u32,
@@ -95,7 +101,17 @@ impl SshSignRequest {
         (self.flags & (flag as u32)) != 0
     }
 
-    pub fn public_key(&self) -> &SshPublicKey {
+    pub fn signing_scheme(&self) -> Option<RsaSigningScheme> {
+        if self.is_flag_set(SshSignFlags::SSH_AGENT_RSA_SHA2_256) {
+            Some(RsaSigningScheme::Pkcs1v15Sha256)
+        } else if self.is_flag_set(SshSignFlags::SSH_AGENT_RSA_SHA2_512) {
+            Some(RsaSigningScheme::Pkcs1v15Sha512)
+        } else {
+            None
+        }
+    }
+
+    pub fn public_key(&self) -> &PublicKey {
         &self.public_key
     }
 
@@ -128,7 +144,7 @@ impl TryFrom<&[u8]> for SshSignRequest {
             .map_err(|e| anyhow::anyhow!("Failed to read flags from sign request: {e}"))?;
 
         Ok(SshSignRequest {
-            public_key: public_key_blob.into(),
+            public_key: public_key_blob.try_into()?,
             payload_to_sign: data.clone(),
             parsed_sign_request: data.as_slice().try_into()?,
             flags,
@@ -169,8 +185,19 @@ impl<'a> TryFrom<&'a [u8]> for ParsedSignRequest {
     }
 }
 
+fn read_bool(data: &mut &[u8]) -> Result<bool, anyhow::Error> {
+    let byte = data
+        .read_u8()
+        .map_err(|e| anyhow::anyhow!("Failed to read bool: {e}"))?;
+    match byte {
+        0 => Ok(false),
+        1 => Ok(true),
+        _ => Err(anyhow::anyhow!("Invalid boolean value")),
+    }
+}
+
 /// A helper function to read a length prefixed byte array
-fn read_bytes(data: &mut &[u8]) -> Result<Vec<u8>, anyhow::Error> {
+pub(super) fn read_bytes(data: &mut &[u8]) -> Result<Vec<u8>, anyhow::Error> {
     let length = data
         .read_u32::<byteorder::BigEndian>()
         .map_err(|e| anyhow::anyhow!("Failed to read length: {e}"))?;
@@ -183,6 +210,60 @@ fn read_bytes(data: &mut &[u8]) -> Result<Vec<u8>, anyhow::Error> {
     std::io::Read::read_exact(data, &mut buf)
         .map_err(|e| anyhow::anyhow!("Failed to read exact bytes: {e}"))?;
     Ok(buf)
+}
+
+enum Extension {
+    SessionBind,
+    Unsupported,
+}
+
+impl From<String> for Extension {
+    fn from(value: String) -> Self {
+        match value.as_str() {
+            "session-bind@openssh.com" => Extension::SessionBind,
+            _ => Extension::Unsupported,
+        }
+    }
+}
+
+/// https://www.openssh.com/agent-restrict.html
+/// byte            SSH_AGENTC_EXTENSION (0x1b)
+/// string          session-bind@openssh.com
+/// string          hostkey
+/// string          session identifier
+/// string          signature
+/// bool            is_forwarding
+#[derive(Debug)]
+struct SessionBindRequest {
+    host_key: PublicKey,
+    session_id: SessionId,
+    signature: Signature,
+    is_forwarding: bool,
+}
+
+impl TryFrom<&[u8]> for SessionBindRequest {
+    type Error = anyhow::Error;
+
+    fn try_from(mut message: &[u8]) -> Result<Self, Self::Error> {
+        let extension_name = String::from_utf8(read_bytes(&mut message)?)
+            .map_err(|_| anyhow::anyhow!("Invalid extension name"))?;
+        match Extension::from(extension_name) {
+            Extension::SessionBind => {
+                let host_key = read_bytes(&mut message)?.try_into()?;
+                let session_id = read_bytes(&mut message)?;
+                let signature = read_bytes(&mut message)?;
+                let is_forwarding = read_bool(&mut message)?;
+
+                Ok(SessionBindRequest {
+                    host_key,
+                    session_id: SessionId::from(session_id),
+                    signature: Signature::try_from(signature.as_slice())?,
+                    is_forwarding,
+                })
+            }
+            Extension::Unsupported => Err(anyhow::anyhow!("Unsupported extension")),
+        }
+    }
 }
 
 #[cfg(test)]

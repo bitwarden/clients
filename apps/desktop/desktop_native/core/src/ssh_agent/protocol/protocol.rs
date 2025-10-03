@@ -4,16 +4,17 @@ use tokio::{
     select,
 };
 use tokio_util::sync::CancellationToken;
+use tracing::{error, info};
 
 use crate::ssh_agent::{
-    agent::{
-        agent::Agent,
+    peerinfo::models::PeerInfo,
+    protocol::{
         async_stream_wrapper::AsyncStreamWrapper,
         connection::ConnectionInfo,
+        key_store::Agent,
         replies::{AgentFailure, IdentitiesReply, SshSignReply},
         requests::Request,
     },
-    peerinfo::models::PeerInfo,
 };
 
 pub async fn serve_listener<PeerStream, Listener>(
@@ -31,11 +32,11 @@ where
                 break;
             }
             Some(Ok((stream, peer_info))) = listener.next() => {
-                println!("[SSH Agent] Accepting connection");
                 let mut stream = AsyncStreamWrapper::new(stream);
                 let connection_info = ConnectionInfo::new(peer_info);
+                info!("Accepted connection {} from {:?}", connection_info.id(), connection_info.peer_info());
                 if let Err(e) = handle_connection(&agent, &mut stream, &connection_info).await {
-                    eprintln!("[SSH Agent] Error handling request: {e}");
+                    error!("Error handling request: {e}");
                 }
             }
         }
@@ -49,59 +50,54 @@ async fn handle_connection(
     connection: &ConnectionInfo,
 ) -> Result<(), anyhow::Error> {
     loop {
-        println!(
-            "[SSH Agent Connection {}] Waiting for request",
-            connection.id()
-        );
-        let request = Request::try_from(stream.read_message().await?.as_slice());
-        let Ok(request) = request else {
-            println!(
-                "[SSH Agent Connection {}] Failed to parse request with error {}",
-                connection.id(),
-                request.err().unwrap(),
-            );
-            let failure_reply = AgentFailure::new()
-                .try_into()
-                .expect("Should convert to failure reply");
-            stream.write_reply(&failure_reply).await?;
+        let span = tracing::info_span!("Connection", connection_id = connection.id());
+        span.in_scope(|| info!("Waiting for request"));
+
+        let request = match stream.read_message().await {
+            Ok(request) => request,
+            Err(_) => {
+                span.in_scope(|| info!("Connection closed"));
+                break;
+            }
+        };
+
+        span.in_scope(|| info!("Request {:x?}", request));
+        let Ok(request) = Request::try_from(request.as_slice()) else {
+            span.in_scope(|| error!("Failed to parse request"));
+            stream.write_reply(&AgentFailure::new().into()).await?;
             continue;
         };
 
         let response = match request {
             Request::IdentitiesRequest => {
-                println!(
-                    "[SSH Agent Connection {}] Received IdentitiesRequest",
-                    connection.id()
-                );
+                span.in_scope(|| info!("Received IdentitiesRequest"));
                 IdentitiesReply::new(agent.list_keys().await?)
                     .encode()
                     .map_err(|e| anyhow::anyhow!("Failed to encode identities reply: {e}"))
             }
             Request::SignRequest(sign_request) => {
-                println!(
-                    "[SSH Agent Connection {}] Received SignRequest {:?}",
-                    connection.id(),
-                    sign_request,
-                );
+                span.in_scope(|| info!("Received SignRequest {:?}", sign_request));
                 let private_key = agent
-                    .get_private_key(sign_request.public_key())
+                    .find_private_key(sign_request.public_key())
                     .await
-                    .unwrap()
-                    .unwrap();
-                println!(
-                    "[SSH Agent Connection {}] Found private key for signing",
-                    connection.id()
-                );
-                SshSignReply::new(&private_key, &sign_request.payload_to_sign())
+                    .ok()
+                    .flatten();
+
+                if let Some(private_key) = private_key {
+                    SshSignReply::new(
+                        &private_key,
+                        &sign_request.payload_to_sign(),
+                        sign_request.signing_scheme(),
+                    )
                     .encode()
-                    .map_err(|e| anyhow::anyhow!("Failed to encode sign reply: {e}"))
+                } else {
+                    Ok(AgentFailure::new().into())
+                }
+                .map_err(|e| anyhow::anyhow!("Failed to create sign reply: {e}"))
             }
         }?;
-        println!(
-            "[SSH Agent Connection {}] Sending response",
-            connection.id()
-        );
 
+        span.in_scope(|| info!("Sending response"));
         stream.write_reply(&response).await?;
     }
     Ok(())

@@ -1,7 +1,7 @@
 use num_enum::{IntoPrimitive, TryFromPrimitive};
 use ssh_encoding::Encode;
 
-use crate::ssh_agent::agent::agent::{RsaSigningScheme, SshKeyPair, SshPrivateKey, SshSignature};
+use crate::ssh_agent::protocol::types::{KeyPair, PrivateKey, RsaSigningScheme, Signature};
 
 /// `https://www.ietf.org/archive/id/draft-miller-ssh-agent-11.html#name-protocol-messages`
 /// The different types of replies that the SSH agent can send to a client.
@@ -56,11 +56,11 @@ impl Into<Vec<u8>> for &ReplyFrame {
 }
 
 pub(crate) struct IdentitiesReply {
-    keys: Vec<SshKeyPair>,
+    keys: Vec<KeyPair>,
 }
 
 impl IdentitiesReply {
-    pub fn new(keys: Vec<SshKeyPair>) -> Self {
+    pub fn new(keys: Vec<KeyPair>) -> Self {
         Self { keys }
     }
 
@@ -79,23 +79,25 @@ impl IdentitiesReply {
             let mut reply_message = Vec::new();
             (self.keys.len() as u32).encode(&mut reply_message)?;
             for key in &self.keys {
-                key.public_key.encode(&mut reply_message)?;
-                key.name.encode(&mut reply_message)?;
+                key.public_key().encode(&mut reply_message)?;
+                key.name().encode(&mut reply_message)?;
             }
             reply_message
         }))
     }
 }
 
-pub(crate) struct SshSignReply(SshSignature);
+pub(crate) struct SshSignReply(Signature);
 
 impl SshSignReply {
-    pub fn new(private_key: &SshPrivateKey, data: &[u8]) -> Self {
+    pub fn new(
+        private_key: &PrivateKey,
+        data: &[u8],
+        requested_signing_scheme: Option<RsaSigningScheme>,
+    ) -> Self {
         Self(
             // Note, this should take into account the extension / signing scheme.
-            private_key
-                .sign(data, RsaSigningScheme::Pkcs1v15Sha512)
-                .unwrap(),
+            private_key.sign(data, requested_signing_scheme).unwrap(),
         )
     }
 
@@ -120,13 +122,8 @@ impl AgentFailure {
     }
 }
 
-impl TryFrom<AgentFailure> for ReplyFrame {
-    type Error = ssh_encoding::Error;
-
-    fn try_from(_value: AgentFailure) -> Result<Self, Self::Error> {
-        Ok(ReplyFrame::new(
-            ReplyType::SSH_AGENT_EXTENSION_FAILURE,
-            Vec::new(),
-        ))
+impl From<AgentFailure> for ReplyFrame {
+    fn from(_value: AgentFailure) -> Self {
+        ReplyFrame::new(ReplyType::SSH_AGENT_EXTENSION_FAILURE, Vec::new())
     }
 }

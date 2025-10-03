@@ -1,7 +1,7 @@
 use ssh_encoding::Decode;
 use tokio::io::{AsyncRead, AsyncReadExt, AsyncWrite, AsyncWriteExt};
 
-use crate::ssh_agent::agent::replies::ReplyFrame;
+use crate::ssh_agent::protocol::replies::ReplyFrame;
 
 pub(crate) struct AsyncStreamWrapper<PeerStream>
 where
