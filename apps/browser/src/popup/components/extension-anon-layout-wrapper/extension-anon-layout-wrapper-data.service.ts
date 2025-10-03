@@ -11,13 +11,15 @@ export class ExtensionAnonLayoutWrapperDataService
   extends DefaultAnonLayoutWrapperDataService
   implements AnonLayoutWrapperDataService
 {
-  protected override anonLayoutWrapperDataSubject = new Subject<ExtensionAnonLayoutWrapperData>();
+  protected override anonLayoutWrapperDataSubject = new Subject<
+    Partial<ExtensionAnonLayoutWrapperData>
+  >();
 
-  override setAnonLayoutWrapperData(data: ExtensionAnonLayoutWrapperData): void {
+  override setAnonLayoutWrapperData(data: Partial<ExtensionAnonLayoutWrapperData>): void {
     this.anonLayoutWrapperDataSubject.next(data);
   }
 
-  override anonLayoutWrapperData$(): Observable<ExtensionAnonLayoutWrapperData> {
+  override anonLayoutWrapperData$(): Observable<Partial<ExtensionAnonLayoutWrapperData>> {
     return this.anonLayoutWrapperDataSubject.asObservable();
   }
 }

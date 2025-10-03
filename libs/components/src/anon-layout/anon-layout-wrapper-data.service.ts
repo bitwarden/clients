@@ -11,10 +11,10 @@ export abstract class AnonLayoutWrapperDataService {
    *
    * @param data - The data to set on the AnonLayoutWrapperComponent to feed into the AnonLayoutComponent.
    */
-  abstract setAnonLayoutWrapperData(data: AnonLayoutWrapperData): void;
+  abstract setAnonLayoutWrapperData(data: Partial<AnonLayoutWrapperData>): void;
 
   /**
    * Reactively gets the current AnonLayoutWrapperData.
    */
-  abstract anonLayoutWrapperData$(): Observable<AnonLayoutWrapperData>;
+  abstract anonLayoutWrapperData$(): Observable<Partial<AnonLayoutWrapperData>>;
 }

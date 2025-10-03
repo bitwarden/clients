@@ -27,7 +27,6 @@ export interface ExtensionAnonLayoutWrapperData extends AnonLayoutWrapperData {
   showBackButton?: boolean;
   showLogo?: boolean;
   hideFooter?: boolean;
-  hideIcon?: boolean;
 }
 
 @Component({
@@ -50,7 +49,6 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
   protected showAcctSwitcher: boolean;
   protected showBackButton: boolean;
   protected showLogo: boolean = true;
-  protected hideIcon: boolean = false;
 
   protected pageTitle: string;
   protected pageSubtitle: string;
@@ -134,10 +132,6 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
       this.showLogo = Boolean(firstChildRouteData["showLogo"]);
     }
 
-    if (firstChildRouteData["hideIcon"] !== undefined) {
-      this.hideIcon = Boolean(firstChildRouteData["hideIcon"]);
-    }
-
     if (firstChildRouteData["hideCardWrapper"] !== undefined) {
       this.hideCardWrapper = Boolean(firstChildRouteData["hideCardWrapper"]);
     }
@@ -196,10 +190,6 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
     if (data.showLogo !== undefined) {
       this.showLogo = data.showLogo;
     }
-
-    if (data.hideIcon !== undefined) {
-      this.hideIcon = data.hideIcon;
-    }
   }
 
   private handleStringOrTranslation(value: string | Translation): string {
@@ -222,7 +212,6 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
     this.showLogo = null;
     this.maxWidth = null;
     this.hideFooter = null;
-    this.hideIcon = null;
     this.hideCardWrapper = null;
   }
 
