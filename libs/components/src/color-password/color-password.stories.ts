@@ -4,7 +4,7 @@ import { formatArgsForCodeSnippet } from "../../../../.storybook/format-args-for
 
 import { ColorPasswordComponent } from "./color-password.component";
 
-const examplePassword = "Wq$Jk😀7j  DX#rS5Sdi!z ";
+const examplePassword = "Wq$Jk😀7jlI  DX#rS5Sdi!z ";
 
 export default {
   title: "Component Library/Color Password",
@@ -17,6 +17,9 @@ export default {
     design: {
       type: "figma",
       url: "https://www.figma.com/design/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=21540-46261&t=b5tDKylm5sWm2yKo-4",
+    },
+    chromatic: {
+      delay: 500,
     },
   },
 } as Meta;
