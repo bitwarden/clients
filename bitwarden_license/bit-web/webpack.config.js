@@ -1,12 +1,10 @@
-const { AngularWebpackPlugin } = require("@ngtools/webpack");
+const { buildConfig } = require("../../apps/web/webpack.base");
 
-const webpackConfig = require("../../apps/web/webpack.config");
-
-webpackConfig.entry["app/main"] = "../../bitwarden_license/bit-web/src/main.ts";
-webpackConfig.plugins[webpackConfig.plugins.length - 1] = new AngularWebpackPlugin({
-  tsconfig: "../../bitwarden_license/bit-web/tsconfig.build.json",
-  entryModule: "bitwarden_license/src/app/app.module#AppModule",
-  sourceMap: true,
+module.exports = buildConfig({
+  configName: "Commercial",
+  app: {
+    entry: "../../bitwarden_license/bit-web/src/main.ts",
+    entryModule: "../../bitwarden_license/bit-web/src/app/app.module#AppModule",
+  },
+  tsConfig: "../../bitwarden_license/bit-web/tsconfig.build.json",
 });
-
-module.exports = webpackConfig;
