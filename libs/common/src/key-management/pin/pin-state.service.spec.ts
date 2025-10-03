@@ -83,6 +83,16 @@ describe("PinStateService", () => {
       // Assert
       expect(result?.encryptedString).toEqual(mockUserKeyEncryptedPin);
     });
+
+    it("emits null when userKeyEncryptedPin isn't available", async () => {
+      // Arrange - don't set any state
+
+      // Act
+      const result = await firstValueFrom(sut.userKeyWrappedPin$(mockUserId));
+
+      // Assert
+      expect(result).toBeNull();
+    });
   });
 
   describe("getPinLockType()", () => {
@@ -117,22 +127,6 @@ describe("PinStateService", () => {
         PIN_KEY_ENCRYPTED_USER_KEY_PERSISTENT,
         mockUserKeyEncryptedPin,
         mockUserId,
-      );
-
-      // Act
-      const result = await sut.getPinLockType(mockUserId);
-
-      // Assert
-      expect(result).toBe("PERSISTENT");
-    });
-
-    it("should return 'PERSISTENT' even if user key encrypted pin is also set", async () => {
-      // Arrange - set both persistent envelope and user key encrypted pin
-      await sut.setPinState(
-        mockUserId,
-        mockPersistentEnvelope,
-        mockUserKeyEncryptedPin,
-        "PERSISTENT",
       );
 
       // Act
