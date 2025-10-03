@@ -4,17 +4,19 @@
     {{ "reviewAtRiskPasswords" | i18n }}
   </div>
   <div
-    *ngIf="dataLastUpdated"
     class="tw-bg-primary-100 tw-rounded-lg tw-w-full tw-px-8 tw-py-4 tw-my-4 tw-flex tw-items-center"
   >
     <i
       class="bwi bwi-exclamation-triangle bwi-lg tw-text-[1.2rem] tw-text-muted"
       aria-hidden="true"
     ></i>
-    <span class="tw-mx-4">{{
-      "dataLastUpdated" | i18n: (dataLastUpdated | date: "MMMM d, y 'at' h:mm a")
-    }}</span>
-
+    @if (dataLastUpdated) {
+      <span class="tw-mx-4">{{
+        "dataLastUpdated" | i18n: (dataLastUpdated | date: "MMMM d, y 'at' h:mm a")
+      }}</span>
+    } @else {
+      <span class="tw-mx-4">{{ "noReportRan" | i18n }}</span>
+    }
     @let isRunningReport = dataService.isRunningReport$ | async;
     <span class="tw-flex tw-justify-center">
       <button
