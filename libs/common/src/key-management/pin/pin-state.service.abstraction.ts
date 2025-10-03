@@ -69,7 +69,7 @@ export abstract class PinStateServiceAbstraction {
   abstract clearPinState(userId: UserId): Promise<void>;
 
   /**
-   * Clears only the user's ephemeral PIN
+   * Clears only the user's ephemeral PIN. Persistent PIN state and UserKey wrapped PIN remains unchanged.
    * @param userId The user's id
    * @throws If the user id is not provided
    */
