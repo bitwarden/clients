@@ -1,11 +1,11 @@
 import { Jsonify } from "type-fest";
 
+import { SemanticLogger, LogProvider } from "@bitwarden/logging";
+
 import { LogService } from "../../platform/abstractions/log.service";
 
 import { DefaultSemanticLogger } from "./default-semantic-logger";
 import { DISABLED_LOGGER } from "./disabled-logger";
-import { SemanticLogger } from "./semantic-logger.abstraction";
-import { LogProvider } from "./types";
 import { warnLoggingEnabled } from "./util";
 
 /** Instantiates a semantic logger that emits nothing when a message

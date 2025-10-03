@@ -4,8 +4,8 @@
 // eslint-disable-next-line no-restricted-imports
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { safeProvider, SafeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
+import { LOG_PROVIDER } from "@bitwarden/angular/services/injection-tokens";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
@@ -17,16 +17,12 @@ import { KeyServiceLegacyEncryptorProvider } from "@bitwarden/common/tools/crypt
 import { LegacyEncryptorProvider } from "@bitwarden/common/tools/cryptography/legacy-encryptor-provider";
 import { ExtensionRegistry } from "@bitwarden/common/tools/extension/extension-registry.abstraction";
 import { buildExtensionRegistry } from "@bitwarden/common/tools/extension/factory";
-import {
-  createSystemServiceProvider,
-  SystemServiceProvider,
-} from "@bitwarden/common/tools/providers";
+import { disabledSemanticLoggerProvider, enableLogForTypes } from "@bitwarden/common/tools/log";
+import { DefaultEnvService, EnvService } from "@bitwarden/common/tools/providers";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { KeyService } from "@bitwarden/key-management";
-import { StateProvider } from "@bitwarden/state";
-import { SafeInjectionToken } from "@bitwarden/ui-common";
 
 import {
   ImportApiService,
@@ -34,10 +30,6 @@ import {
   ImportService,
   ImportServiceAbstraction,
 } from "../services";
-
-// FIXME: unify with `SYSTEM_SERVICE_PROVIDER` when migrating it from the generator component module
-//        to a general module.
-const SYSTEM_SERVICE_PROVIDER = new SafeInjectionToken<SystemServiceProvider>("SystemServices");
 
 /** Import service factories */
 export const ImporterProviders: SafeProvider[] = [
@@ -59,17 +51,20 @@ export const ImporterProviders: SafeProvider[] = [
     deps: [],
   }),
   safeProvider({
-    provide: SYSTEM_SERVICE_PROVIDER,
-    useFactory: createSystemServiceProvider,
-    deps: [
-      LegacyEncryptorProvider,
-      StateProvider,
-      PolicyService,
-      ExtensionRegistry,
-      LogService,
-      PlatformUtilsService,
-      ConfigService,
-    ],
+    provide: EnvService,
+    useClass: DefaultEnvService,
+    deps: [ConfigService, PlatformUtilsService],
+  }),
+  safeProvider({
+    provide: LOG_PROVIDER,
+    useFactory: (logger: LogService, env: EnvService) => {
+      if (env.isDev()) {
+        return enableLogForTypes(logger, []);
+      } else {
+        return disabledSemanticLoggerProvider;
+      }
+    },
+    deps: [LogService, EnvService],
   }),
   safeProvider({
     provide: ImportServiceAbstraction,
@@ -85,7 +80,8 @@ export const ImporterProviders: SafeProvider[] = [
       PinServiceAbstraction,
       AccountService,
       RestrictedItemTypesService,
-      SYSTEM_SERVICE_PROVIDER,
+      EnvService,
+      LOG_PROVIDER,
     ],
   }),
 ];

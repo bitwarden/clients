@@ -1,8 +1,9 @@
 import { Jsonify } from "type-fest";
 
+import { SemanticLogger } from "@bitwarden/logging";
+
 import { StateProvider } from "../../platform/state";
 import { LegacyEncryptorProvider } from "../cryptography/legacy-encryptor-provider";
-import { SemanticLogger } from "../log";
 
 /** Aggregates user state subject dependencies */
 export abstract class UserStateSubjectDependencyProvider {

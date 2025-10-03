@@ -1,9 +1,9 @@
 import { Jsonify } from "type-fest";
 
+import { SemanticLogger } from "@bitwarden/logging";
+
 import { LogService } from "../../platform/abstractions/log.service";
 import { LogLevelType } from "../../platform/enums";
-
-import { SemanticLogger } from "./semantic-logger.abstraction";
 
 /** Sends semantic logs to the console.
  *  @remarks the behavior of this logger is based on `LogService`; it

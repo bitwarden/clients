@@ -32,7 +32,6 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { VendorId } from "@bitwarden/common/tools/extension";
 import {
-  SemanticLogger,
   disabledSemanticLoggerProvider,
   ifEnabledSemanticLoggerProvider,
 } from "@bitwarden/common/tools/log";
@@ -55,6 +54,7 @@ import {
   Type,
 } from "@bitwarden/generator-core";
 import { GeneratorHistoryService } from "@bitwarden/generator-history";
+import { SemanticLogger } from "@bitwarden/logging";
 
 import { translate } from "./util";
 

@@ -16,13 +16,13 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import {
-  SemanticLogger,
   disabledSemanticLoggerProvider,
   ifEnabledSemanticLoggerProvider,
 } from "@bitwarden/common/tools/log";
 import { UserId } from "@bitwarden/common/types/guid";
 import { ButtonModule, DialogModule, DialogService } from "@bitwarden/components";
 import { GeneratorHistoryService } from "@bitwarden/generator-history";
+import { SemanticLogger } from "@bitwarden/logging";
 
 import { CredentialGeneratorHistoryComponent as CredentialGeneratorHistoryToolsComponent } from "./credential-generator-history.component";
 import { EmptyCredentialHistoryComponent } from "./empty-credential-history.component";

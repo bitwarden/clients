@@ -2,4 +2,5 @@ export { CredentialGeneratorHistoryComponent } from "./credential-generator-hist
 export { CredentialGeneratorHistoryDialogComponent } from "./credential-generator-history-dialog.component";
 export { EmptyCredentialHistoryComponent } from "./empty-credential-history.component";
 export { GeneratorModule } from "./generator.module";
-export { GeneratorServicesModule, SYSTEM_SERVICE_PROVIDER } from "./generator-services.module";
+export { GeneratorServicesModule } from "./generator-services.module";
+export { LOG_PROVIDER } from "@bitwarden/angular/services/injection-tokens";

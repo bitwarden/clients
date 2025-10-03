@@ -1,8 +1,8 @@
 import { Jsonify } from "type-fest";
 
-import { deepFreeze } from "../util";
+import { SemanticLogger } from "@bitwarden/logging";
 
-import { SemanticLogger } from "./semantic-logger.abstraction";
+import { deepFreeze } from "../util";
 
 /** All disabled loggers emitted by this module are `===` to this logger. */
 export const DISABLED_LOGGER: SemanticLogger = deepFreeze({

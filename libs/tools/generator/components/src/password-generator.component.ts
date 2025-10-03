@@ -28,7 +28,6 @@ import { Account, AccountService } from "@bitwarden/common/auth/abstractions/acc
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import {
-  SemanticLogger,
   disabledSemanticLoggerProvider,
   ifEnabledSemanticLoggerProvider,
 } from "@bitwarden/common/tools/log";
@@ -49,6 +48,7 @@ import {
   Profile,
 } from "@bitwarden/generator-core";
 import { GeneratorHistoryService } from "@bitwarden/generator-history";
+import { SemanticLogger } from "@bitwarden/logging";
 
 import { toAlgorithmInfo, translate } from "./util";
 
