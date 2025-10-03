@@ -22,28 +22,32 @@ aes = { workspace = true }
 anyhow = { workspace = true }
 arboard = { workspace = true, features = ["wayland-data-control"] }
 base64 = { workspace = true }
-bitwarden-russh = { workspace = true }
 byteorder = { workspace = true }
+env_logger = "*"
 bytes = { workspace = true }
 cbc = { workspace = true, features = ["alloc"] }
 dirs = { workspace = true }
 ed25519 = { workspace = true, features = ["pkcs8"] }
+ed25519-dalek = { version = "2.2.0", features = ["rand_core"] }
 futures = { workspace = true }
 homedir = { workspace = true }
 interprocess = { workspace = true, features = ["tokio"] }
+log = { workspace = true }
+num_enum = "0.7.4"
 pin-project = { workspace = true }
 pkcs8 = { workspace = true, features = ["alloc", "encryption", "pem"] }
 rand = { workspace = true }
-rsa = { workspace = true }
+rsa = { workspace = true, features = ["sha2"] }
 russh-cryptovec = { workspace = true }
 scopeguard = { workspace = true }
+sha1 = { version = "0.10.6", features = ["oid"] }
 secmem-proc = { workspace = true }
-sha2 = { workspace = true }
 ssh-encoding = { workspace = true }
 ssh-key = { workspace = true, features = [
     "encryption",
     "ed25519",
     "rsa",
+    "ecdsa",
     "getrandom",
 ] }
 sysinfo = { workspace = true, features = ["windows"] }
@@ -54,6 +58,14 @@ tokio-util = { workspace = true, features = ["codec"] }
 tracing = { workspace = true }
 typenum = { workspace = true }
 zeroizing-alloc = { workspace = true }
+signature = "3.0.0-rc.4"
+tracing-subscriber.workspace = true
+test-env-log = "0.2.8"
+test-log = { version = "0.2.18", features = ["trace"] }
+p256 = "0.13.2"
+p384 = "0.13.1"
+p521 = "0.13.3"
+sha2 = "0.10.9"
 
 [target.'cfg(windows)'.dependencies]
 widestring = { workspace = true, optional = true }

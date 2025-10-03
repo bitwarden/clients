@@ -36,7 +36,10 @@ impl Stream for PeercredUnixListenerStream {
                     },
                     Err(_) => return Poll::Ready(Some(Ok((stream, PeerInfo::unknown())))),
                 };
-                let peer_info = peerinfo::gather::get_peer_info(pid as u32);
+                let peer_info = peerinfo::gather::get_peer_info(
+                    pid as u32,
+                    peerinfo::models::PeerType::UnixSocket,
+                );
                 match peer_info {
                     Ok(info) => Poll::Ready(Some(Ok((stream, info)))),
                     Err(_) => Poll::Ready(Some(Ok((stream, PeerInfo::unknown())))),
