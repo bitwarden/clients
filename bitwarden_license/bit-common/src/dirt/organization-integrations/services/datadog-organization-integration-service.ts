@@ -7,8 +7,8 @@ import {
   OrganizationIntegrationConfigurationId,
 } from "@bitwarden/common/types/guid";
 
-import { HecConfiguration } from "../models/configuration/hec-configuration";
-import { HecTemplate } from "../models/integration-configuration-config/configuration-template/hec-template";
+import { DatadogConfiguration } from "../models/configuration/datadog-configuration";
+import { DatadogTemplate } from "../models/integration-configuration-config/configuration-template/datadog-template";
 import { OrganizationIntegration } from "../models/organization-integration";
 import { OrganizationIntegrationConfiguration } from "../models/organization-integration-configuration";
 import { OrganizationIntegrationConfigurationRequest } from "../models/organization-integration-configuration-request";
@@ -21,12 +21,12 @@ import { OrganizationIntegrationType } from "../models/organization-integration-
 import { OrganizationIntegrationApiService } from "./organization-integration-api.service";
 import { OrganizationIntegrationConfigurationApiService } from "./organization-integration-configuration-api.service";
 
-export type HecModificationFailureReason = {
+export type DatadogModificationFailureReason = {
   mustBeOwner: boolean;
   success: boolean;
 };
 
-export class HecOrganizationIntegrationService {
+export class DatadogOrganizationIntegrationService {
   private organizationId$ = new BehaviorSubject<OrganizationId | null>(null);
   private _integrations$ = new BehaviorSubject<OrganizationIntegration[]>([]);
   private destroy$ = new Subject<void>();
@@ -40,7 +40,7 @@ export class HecOrganizationIntegrationService {
           const data$ = await this.setIntegrations(orgId);
           return await firstValueFrom(data$);
         } else {
-          return [] as OrganizationIntegration[];
+          return this._integrations$.getValue();
         }
       }),
       takeUntil(this.destroy$),
@@ -62,10 +62,6 @@ export class HecOrganizationIntegrationService {
    * @param orgId
    */
   setOrganizationIntegrations(orgId: OrganizationId) {
-    if (orgId == this.organizationId$.getValue()) {
-      return;
-    }
-    this._integrations$.next([]);
     this.organizationId$.next(orgId);
   }
 
@@ -74,28 +70,29 @@ export class HecOrganizationIntegrationService {
    * @param organizationId id of the organization
    * @param service service type of the integration
    * @param url url of the service
-   * @param bearerToken api token
-   * @param index index in service
+   * @param apiKey api token
    */
-  async saveHec(
+  async saveDatadog(
     organizationId: OrganizationId,
     service: OrganizationIntegrationServiceType,
     url: string,
-    bearerToken: string,
-    index: string,
-  ): Promise<HecModificationFailureReason> {
+    apiKey: string,
+  ): Promise<DatadogModificationFailureReason> {
     if (organizationId != this.organizationId$.getValue()) {
       throw new Error("Organization ID mismatch");
     }
 
     try {
-      const hecConfig = new HecConfiguration(url, bearerToken, service);
+      const datadogConfig = new DatadogConfiguration(url, apiKey, service);
       const newIntegrationResponse = await this.integrationApiService.createOrganizationIntegration(
         organizationId,
-        new OrganizationIntegrationRequest(OrganizationIntegrationType.Hec, hecConfig.toString()),
+        new OrganizationIntegrationRequest(
+          OrganizationIntegrationType.Datadog,
+          datadogConfig.toString(),
+        ),
       );
 
-      const newTemplate = new HecTemplate(index, service);
+      const newTemplate = new DatadogTemplate(service);
       const newIntegrationConfigResponse =
         await this.integrationConfigurationApiService.createOrganizationIntegrationConfiguration(
           organizationId,
@@ -126,32 +123,33 @@ export class HecOrganizationIntegrationService {
    * @param OrganizationIntegrationConfigurationId id of the organization integration configuration
    * @param service service type of the integration
    * @param url url of the service
-   * @param bearerToken api token
-   * @param index index in service
+   * @param apiKey api token
    */
-  async updateHec(
+  async updateDatadog(
     organizationId: OrganizationId,
     OrganizationIntegrationId: OrganizationIntegrationId,
     OrganizationIntegrationConfigurationId: OrganizationIntegrationConfigurationId,
     service: OrganizationIntegrationServiceType,
     url: string,
-    bearerToken: string,
-    index: string,
-  ): Promise<HecModificationFailureReason> {
+    apiKey: string,
+  ): Promise<DatadogModificationFailureReason> {
     if (organizationId != this.organizationId$.getValue()) {
       throw new Error("Organization ID mismatch");
     }
 
     try {
-      const hecConfig = new HecConfiguration(url, bearerToken, service);
+      const datadogConfig = new DatadogConfiguration(url, apiKey, service);
       const updatedIntegrationResponse =
         await this.integrationApiService.updateOrganizationIntegration(
           organizationId,
           OrganizationIntegrationId,
-          new OrganizationIntegrationRequest(OrganizationIntegrationType.Hec, hecConfig.toString()),
+          new OrganizationIntegrationRequest(
+            OrganizationIntegrationType.Datadog,
+            datadogConfig.toString(),
+          ),
         );
 
-      const updatedTemplate = new HecTemplate(index, service);
+      const updatedTemplate = new DatadogTemplate(service);
       const updatedIntegrationConfigResponse =
         await this.integrationConfigurationApiService.updateOrganizationIntegrationConfiguration(
           organizationId,
@@ -182,11 +180,11 @@ export class HecOrganizationIntegrationService {
     }
   }
 
-  async deleteHec(
+  async deleteDatadog(
     organizationId: OrganizationId,
     OrganizationIntegrationId: OrganizationIntegrationId,
     OrganizationIntegrationConfigurationId: OrganizationIntegrationConfigurationId,
-  ): Promise<HecModificationFailureReason> {
+  ): Promise<DatadogModificationFailureReason> {
     if (organizationId != this.organizationId$.getValue()) {
       throw new Error("Organization ID mismatch");
     }
@@ -276,10 +274,12 @@ export class HecOrganizationIntegrationService {
     integrationResponse: OrganizationIntegrationResponse,
     configurationResponse: OrganizationIntegrationConfigurationResponse,
   ): OrganizationIntegration | null {
-    const hecConfig = this.convertToJson<HecConfiguration>(integrationResponse.configuration);
-    const template = this.convertToJson<HecTemplate>(configurationResponse.template);
+    const datadogConfig = this.convertToJson<DatadogConfiguration>(
+      integrationResponse.configuration,
+    );
+    const template = this.convertToJson<DatadogTemplate>(configurationResponse.template);
 
-    if (!hecConfig || !template) {
+    if (!datadogConfig || !template) {
       return null;
     }
 
@@ -295,14 +295,14 @@ export class HecOrganizationIntegrationService {
     return new OrganizationIntegration(
       integrationResponse.id,
       integrationResponse.type,
-      hecConfig.service,
-      hecConfig,
+      datadogConfig.service,
+      datadogConfig,
       [integrationConfig],
     );
   }
 
   // Could possibly be moved to a base service. All services would then assume that the
-  // integration configuration would always be an array and this hec specific service
+  // integration configuration would always be an array and this datadog specific service
   // would just assume a single entry.
   private setIntegrations(orgId: OrganizationId) {
     const results$ = zip(this.integrationApiService.getOrganizationIntegrations(orgId)).pipe(
@@ -311,11 +311,11 @@ export class HecOrganizationIntegrationService {
         const promises: Promise<void>[] = [];
 
         responses.forEach((integration) => {
-          if (integration.type === OrganizationIntegrationType.Hec) {
+          if (integration.type === OrganizationIntegrationType.Datadog) {
             const promise = this.integrationConfigurationApiService
               .getOrganizationIntegrationConfigurations(orgId, integration.id)
               .then((response) => {
-                // Hec events will only have one OrganizationIntegrationConfiguration
+                // datadog events will only have one OrganizationIntegrationConfiguration
                 const config = response[0];
 
                 const orgIntegration = this.mapResponsesToOrganizationIntegration(

@@ -1,6 +1,7 @@
 import { IntegrationType } from "@bitwarden/common/enums/integration-type.enum";
 
 import { OrganizationIntegration } from "./organization-integration";
+import { OrganizationIntegrationType } from "./organization-integration-type";
 
 /** Integration or SDK */
 export type Integration = {
@@ -23,6 +24,7 @@ export type Integration = {
   canSetupConnection?: boolean;
   configuration?: string;
   template?: string;
+  integrationType?: OrganizationIntegrationType | null;
 
   // OrganizationIntegration
   organizationIntegration?: OrganizationIntegration | null;
