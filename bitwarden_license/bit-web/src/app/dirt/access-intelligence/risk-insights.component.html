@@ -14,9 +14,11 @@
     <span class="tw-mx-4">{{
       "dataLastUpdated" | i18n: (dataLastUpdated | date: "MMMM d, y 'at' h:mm a")
     }}</span>
+
+    @let isRunningReport = dataService.isRunningReport$ | async;
     <span class="tw-flex tw-justify-center">
       <button
-        *ngIf="!(dataService.isRunningReport$ | async)"
+        *ngIf="!isRunningReport"
         type="button"
         bitButton
         buttonType="secondary"
@@ -28,7 +30,7 @@
       </button>
       <span>
         <i
-          *ngIf="dataService.isRunningReport$ | async"
+          *ngIf="isRunningReport"
           class="bwi bwi-spinner bwi-spin tw-text-muted tw-text-[1.2rem]"
           aria-hidden="true"
         ></i>
