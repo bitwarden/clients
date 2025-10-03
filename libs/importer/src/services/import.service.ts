@@ -146,13 +146,14 @@ export class ImportService implements ImportServiceAbstraction {
       map(([type, enabled]) => {
         let loaders = availableLoaders(type, client);
 
-        let isUnsupported = false;
+        // Mac App Store is currently disabled due to sandboxing.
+        let isUnsupported = !this.system.environment.isMacAppStore();
 
         if (enabled && type === "bravecsv") {
           try {
             const device = this.system.environment.getDevice();
             const isWindowsDesktop = device === DeviceType.WindowsDesktop;
-            if (isWindowsDesktop || this.system.environment.isMacAppStore()) {
+            if (isWindowsDesktop) {
               isUnsupported = true;
             }
           } catch {
