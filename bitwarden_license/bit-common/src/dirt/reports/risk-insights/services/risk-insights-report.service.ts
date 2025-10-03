@@ -232,7 +232,6 @@ export class RiskInsightsReportService {
     const atRiskMembers = reports.flatMap((x) => x.atRiskMemberDetails);
     const uniqueAtRiskMembers = getUniqueMembers(atRiskMembers);
 
-    // TODO: totalCriticalMemberCount, totalCriticalAtRiskMemberCount, totalCriticalApplicationCount, totalCriticalAtRiskApplicationCount, and newApplications will be handled with future logic implementation
     // TODO: Replace with actual new applications detection logic (PM-26185)
     const dummyNewApplications = [
       "github.com",
