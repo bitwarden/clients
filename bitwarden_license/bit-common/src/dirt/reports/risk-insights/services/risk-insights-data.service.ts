@@ -20,7 +20,8 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 
-import { ApplicationHealthReportDetailEnriched, RiskInsightsEnrichedData } from "../models";
+import { ApplicationHealthReportDetailEnriched } from "../models";
+import { RiskInsightsEnrichedData } from "../models/report-data-service.types";
 import { DrawerType, DrawerDetails, ApplicationHealthReportDetail } from "../models/report-models";
 
 import { CriticalAppsService } from "./critical-apps.service";

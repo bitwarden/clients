@@ -162,6 +162,7 @@ apps/desktop/desktop_native/core/src/ssh_agent @bitwarden/team-autofill-desktop-
 libs/components @bitwarden/team-ui-foundation
 libs/assets @bitwarden/team-ui-foundation
 libs/ui @bitwarden/team-ui-foundation
+libs/angular/src/scss @bitwarden/team-ui-foundation
 apps/browser/src/platform/popup/layout @bitwarden/team-ui-foundation
 apps/browser/src/popup/app-routing.animations.ts @bitwarden/team-ui-foundation
 apps/browser/src/popup/components/extension-anon-layout-wrapper @bitwarden/team-ui-foundation

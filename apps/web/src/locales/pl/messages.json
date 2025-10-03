@@ -59,8 +59,27 @@
   "createNewLoginItem": {
     "message": "Utwórz nowy element logowania"
   },
-  "criticalApplicationsActivityDescription": {
-    "message": "Once you mark applications critical, they will display here."
+  "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
+    "message": "Once you mark applications critical, they will display here"
+  },
+  "viewAtRiskMembers": {
+    "message": "View at-risk members"
+  },
+  "viewAtRiskApplications": {
+    "message": "View at-risk applications"
+  },
+  "criticalApplicationsAreAtRisk": {
+    "message": "$COUNT$ out of $TOTAL$ critical applications are at-risk due to at-risk passwords",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "total": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
   },
   "criticalApplicationsWithCount": {
     "message": "Aplikacje krytyczne ($COUNT$)",
@@ -73,6 +92,15 @@
   },
   "countOfCriticalApplications": {
     "message": "$COUNT$ critical applications",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfApplicationsAtRisk": {
+    "message": "$COUNT$ applications at-risk",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -137,8 +165,8 @@
   "membersAtRiskActivityDescription": {
     "message": "Members with edit access to at-risk items for critical applications"
   },
-  "membersAtRisk": {
-    "message": "$COUNT$ members at risk",
+  "membersAtRiskCount": {
+    "message": "$COUNT$ members at-risk",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1471,6 +1499,15 @@
   "invalidMasterPassword": {
     "message": "Hasło główne jest nieprawidłowe"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "invalidFilePassword": {
     "message": "Hasło pliku jest nieprawidłowe. Użyj prawidłowego hasła."
   },
@@ -1479,6 +1516,30 @@
   },
   "noItemsInList": {
     "message": "Brak elementów."
+  },
+  "noItemsInTrash": {
+    "message": "Brak elementów w koszu"
+  },
+  "noItemsInTrashDesc": {
+    "message": "Usunięte elementy pojawią się tutaj i zostaną trwale usunięte po 30 dniach"
+  },
+  "noItemsInVault": {
+    "message": "Brak elementów w sejfie"
+  },
+  "emptyVaultDescription": {
+    "message": "Sejf chroni nie tylko hasła. Przechowuj bezpiecznie dane logowania, identyfikatory, karty i notatki."
+  },
+  "emptyFavorites": {
+    "message": "Brak ulubionych elementów"
+  },
+  "emptyFavoritesDesc": {
+    "message": "Dodaj do ulubionych często używane elementy dla szybkiego dostępu."
+  },
+  "noSearchResults": {
+    "message": "Brak pasujących elementów"
+  },
+  "clearFiltersOrTryAnother": {
+    "message": "Wyczyść filtry lub użyj innej frazy"
   },
   "noPermissionToViewAllCollectionItems": {
     "message": "Nie masz uprawnień do przeglądania wszystkich elementów w tej kolekcji."
@@ -4772,6 +4833,12 @@
   "organizationIsDisabled": {
     "message": "Organizacja została zawieszona"
   },
+  "organizationIsSuspended": {
+    "message": "Organizacja została zawieszona"
+  },
+  "organizationIsSuspendedDesc": {
+    "message": "Nie można uzyskać dostępu do elementów w zawieszonych organizacjach. Skontaktuj się z właścicielem organizacji, aby uzyskać pomoc."
+  },
   "secretsAccessSuspended": {
     "message": "Nie można uzyskać dostępu do zawieszonych organizacji. Skontaktuj się z właścicielem organizacji, aby uzyskać pomoc."
   },
@@ -4783,9 +4850,6 @@
   },
   "serviceAccountsCannotCreate": {
     "message": "Konta serwisowe nie mogą być tworzone w zawieszonych organizacjach. Skontaktuj się z właścicielem organizacji, aby uzyskać pomoc."
-  },
-  "disabledOrganizationFilterError": {
-    "message": "Nie można uzyskać dostępu do elementów w zawieszonych organizacjach. Skontaktuj się z właścicielem organizacji, aby uzyskać pomoc."
   },
   "licenseIsExpired": {
     "message": "Licencja wygasła."
@@ -5160,9 +5224,13 @@
   "ssoIdentifier": {
     "message": "Identyfikator SSO"
   },
-  "ssoIdentifierHintPartOne": {
-    "message": "Podaj ten identyfikator swoim członkowm, aby zalogować się za pomocą SSO. Aby pominąć ten krok, ustaw ",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Provide this ID to your members to login with SSO. To bypass this step, set up Domain verification'"
+  "ssoIdentifierHint": {
+    "message": "Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. ",
+    "description": "This will be used as part of a larger sentence, broken up to include a link. The full sentence will read 'Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. Learn more'"
+  },
+  "claimedDomainsLearnMore": {
+    "message": "Dowiedz się więcej",
+    "description": "This will be used as part of a larger sentence, broken up to include a link. The full sentence will read 'Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. Learn more'"
   },
   "unlinkSso": {
     "message": "Odłącz logowanie jednokrotne SSO"
@@ -6975,6 +7043,24 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "accessDenied": {
     "message": "Odmowa dostępu. Nie masz uprawnień do przeglądania tej strony."
   },
@@ -8376,12 +8462,6 @@
   "groupSlashUser": {
     "message": "Grupa/Użytkownik"
   },
-  "lowKdfIterations": {
-    "message": "Niska liczba iteracji KDF"
-  },
-  "updateLowKdfIterationsDesc": {
-    "message": "Zaktualizuj ustawienia szyfrowania, aby spełnić nowe zalecenia bezpieczeństwa i poprawić ochronę konta."
-  },
   "kdfSettingsChangeLogoutWarning": {
     "message": "Kontynuowanie spowoduje wylogowanie ze wszystkich aktywnych sesji. Będzie trzeba zalogować się ponownie i wykonać logowanie dwuetapowe, jeśli jest włączone. Zalecamy wyeksportowanie sejfu przed zmianą ustawień szyfrowania, aby zapobiec utracie danych."
   },
@@ -9755,6 +9835,9 @@
   "failedToSaveIntegration": {
     "message": "Failed to save integration. Please try again later."
   },
+  "mustBeOrgOwnerToPerformAction": {
+    "message": "You must be the organization owner to perform this action."
+  },
   "failedToDeleteIntegration": {
     "message": "Failed to delete integration. Please try again later."
   },
@@ -9995,12 +10078,6 @@
         "example": "2"
       }
     }
-  },
-  "lowKDFIterationsBanner": {
-    "message": "Niska liczba iteracji KDF. Zwiększ liczbę iteracji, aby zwiększyć bezpieczeństwo Twojego konta."
-  },
-  "changeKDFSettings": {
-    "message": "Zmień ustawienia KDF"
   },
   "secureYourInfrastructure": {
     "message": "Zabezpiecz swoją infrastrukturę"
@@ -11024,8 +11101,13 @@
   "searchArchive": {
     "message": "Search archive"
   },
-  "archive": {
-    "message": "Archive"
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
   },
   "noItemsInArchive": {
     "message": "No items in archive"
@@ -11139,6 +11221,12 @@
   },
   "bitwardenExtensionInstalled": {
     "message": "Rozszerzenie Bitwarden zainstalowane!"
+  },
+  "openTheBitwardenExtension": {
+    "message": "Open the Bitwarden extension"
+  },
+  "bitwardenExtensionInstalledOpenExtension": {
+    "message": "The Bitwarden extension is installed! Open the extension to log in and start autofilling."
   },
   "openExtensionToAutofill": {
     "message": "Otwórz rozszerzenie, aby zalogować się i rozpocząć autouzupełnianie."

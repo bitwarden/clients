@@ -1222,6 +1222,15 @@
   "invalidMasterPassword": {
     "message": "Грешна главна парола"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "twoStepLoginConfirmation": {
     "message": "Двустепенното вписване защищава регистрацията ви като ви кара да потвърдите влизането си чрез устройство-ключ, приложение за идентификация, мобилно съобщение, телефонно обаждане или е-поща. Двустепенното вписване може да се включи чрез сайта bitwarden.com. Искате ли да го посетите?"
   },
@@ -2654,6 +2663,24 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Ще бъдат изнесени само записите от трезора свързан с $ORGANIZATION$.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "locked": {
     "message": "Заключено"
   },
@@ -4080,11 +4107,17 @@
   "showLess": {
     "message": "Показване на по-малко"
   },
-  "enableAutotype": {
-    "message": "Включване на автоматичното въвеждане"
-  },
   "enableAutotypeDescription": {
     "message": "Битуорден не проверява местата за въвеждане, така че се уверете, че сте в правилния прозорец, преди да ползвате клавишната комбинация."
+  },
+  "typeShortcut": {
+    "message": "Комбинация за въвеждане"
+  },
+  "editAutotypeShortcutDescription": {
+    "message": "Използвайте един или повече от модификаторите Ctrl, Alt, Win или Shift, заедно с някоя буква."
+  },
+  "invalidShortcut": {
+    "message": "Неправилна комбинация"
   },
   "moreBreadcrumbs": {
     "message": "Още елементи в пътечката",
@@ -4099,8 +4132,8 @@
   "confirm": {
     "message": "Потвърждаване"
   },
-  "enableAutotypeTransitionKey": {
-    "message": "Включване на клавишната комбинация за автоматично попълване"
+  "enableAutotypeShortcutPreview": {
+    "message": "Включване на комбинация за автоматично попълване (Функционалност в изпитание)"
   },
   "enableAutotypeDescriptionTransitionKey": {
     "message": "Уверете се, че сет в правилното поле, преди да използвате комбинацията, за да избегнете попълването на данните на грешното място."
@@ -4108,8 +4141,13 @@
   "editShortcut": {
     "message": "Редактиране на комбинацията"
   },
-  "archive": {
-    "message": "Архивиране"
+  "archiveNoun": {
+    "message": "Архив",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Архивиране",
+    "description": "Verb"
   },
   "unarchive": {
     "message": "Изваждане от архива"
