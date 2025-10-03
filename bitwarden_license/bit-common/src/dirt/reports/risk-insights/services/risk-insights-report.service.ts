@@ -367,13 +367,13 @@ export class RiskInsightsReportService {
         const weakPassword = this.passwordHealthService.findWeakPasswordDetails(cipher);
         // Looping over all ciphers needs to happen first to determine reused passwords over all ciphers.
         // Store in the set and evaluate later
-        if (passwordUseMap.has(cipher.login.password)) {
+        if (passwordUseMap.has(cipher.login.password!)) {
           passwordUseMap.set(
-            cipher.login.password,
-            (passwordUseMap.get(cipher.login.password) || 0) + 1,
+            cipher.login.password!,
+            (passwordUseMap.get(cipher.login.password!) || 0) + 1,
           );
         } else {
-          passwordUseMap.set(cipher.login.password, 1);
+          passwordUseMap.set(cipher.login.password!, 1);
         }
 
         const exposedPassword = exposedDetails.find((x) => x?.cipherId === cipher.id);
@@ -397,7 +397,7 @@ export class RiskInsightsReportService {
 
     // loop for reused passwords
     cipherHealthReports.forEach((detail) => {
-      detail.reusedPasswordCount = passwordUseMap.get(detail.login.password) ?? 0;
+      detail.reusedPasswordCount = passwordUseMap.get(detail.login.password!) ?? 0;
     });
     return cipherHealthReports;
   }
@@ -445,7 +445,7 @@ export class RiskInsightsReportService {
   private _buildPasswordUseMap(ciphers: CipherView[]): Map<string, number> {
     const passwordUseMap = new Map<string, number>();
     ciphers.forEach((cipher) => {
-      const password = cipher.login.password;
+      const password = cipher.login.password!;
       passwordUseMap.set(password, (passwordUseMap.get(password) || 0) + 1);
     });
     return passwordUseMap;
@@ -610,7 +610,7 @@ export class RiskInsightsReportService {
             healthData: {
               weakPasswordDetail: this.passwordHealthService.findWeakPasswordDetails(cipher),
               exposedPasswordDetail: exposedPassword,
-              reusedPasswordCount: passwordUseMap.get(cipher.login.password) ?? 0,
+              reusedPasswordCount: passwordUseMap.get(cipher.login.password!) ?? 0,
             },
             applications: getTrimmedCipherUris(cipher),
           } as CipherHealthReport;

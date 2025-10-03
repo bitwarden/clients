@@ -172,7 +172,7 @@ export class IdentitySectionComponent implements OnInit {
   populateFormData(cipherView: CipherView) {
     const { identity } = cipherView;
 
-    this.identityForm.setValue({
+    this.identityForm.patchValue({
       title: identity.title,
       firstName: identity.firstName,
       middleName: identity.middleName,

@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
 import { LoginUriView as SdkLoginUriView } from "@bitwarden/sdk-internal";
@@ -11,13 +9,13 @@ import { Utils } from "../../../platform/misc/utils";
 import { LoginUri } from "../domain/login-uri";
 
 export class LoginUriView implements View {
-  match: UriMatchStrategySetting = null;
+  match?: UriMatchStrategySetting;
 
-  private _uri: string = null;
-  private _domain: string = null;
-  private _hostname: string = null;
-  private _host: string = null;
-  private _canLaunch: boolean = null;
+  private _uri?: string;
+  private _domain?: string;
+  private _hostname?: string;
+  private _host?: string;
+  private _canLaunch?: boolean;
 
   constructor(u?: LoginUri) {
     if (!u) {
@@ -27,59 +25,59 @@ export class LoginUriView implements View {
     this.match = u.match;
   }
 
-  get uri(): string {
+  get uri(): string | undefined {
     return this._uri;
   }
-  set uri(value: string) {
+  set uri(value: string | undefined) {
     this._uri = value;
-    this._domain = null;
-    this._canLaunch = null;
+    this._domain = undefined;
+    this._canLaunch = undefined;
   }
 
-  get domain(): string {
+  get domain(): string | undefined {
     if (this._domain == null && this.uri != null) {
       this._domain = Utils.getDomain(this.uri);
       if (this._domain === "") {
-        this._domain = null;
+        this._domain = undefined;
       }
     }
 
     return this._domain;
   }
 
-  get hostname(): string {
+  get hostname(): string | undefined {
     if (this.match === UriMatchStrategy.RegularExpression) {
-      return null;
+      return undefined;
     }
     if (this._hostname == null && this.uri != null) {
       this._hostname = Utils.getHostname(this.uri);
       if (this._hostname === "") {
-        this._hostname = null;
+        this._hostname = undefined;
       }
     }
 
     return this._hostname;
   }
 
-  get host(): string {
+  get host(): string | undefined {
     if (this.match === UriMatchStrategy.RegularExpression) {
-      return null;
+      return undefined;
     }
     if (this._host == null && this.uri != null) {
       this._host = Utils.getHost(this.uri);
       if (this._host === "") {
-        this._host = null;
+        this._host = undefined;
       }
     }
 
     return this._host;
   }
 
-  get hostnameOrUri(): string {
+  get hostnameOrUri(): string | undefined {
     return this.hostname != null ? this.hostname : this.uri;
   }
 
-  get hostOrUri(): string {
+  get hostOrUri(): string | undefined {
     return this.host != null ? this.host : this.uri;
   }
 
@@ -104,7 +102,10 @@ export class LoginUriView implements View {
     return this._canLaunch;
   }
 
-  get launchUri(): string {
+  get launchUri(): string | undefined {
+    if (this.uri == null) {
+      return undefined;
+    }
     return this.uri.indexOf("://") < 0 && !Utils.isNullOrWhitespace(Utils.getDomain(this.uri))
       ? "http://" + this.uri
       : this.uri;
@@ -141,7 +142,7 @@ export class LoginUriView implements View {
   matchesUri(
     targetUri: string,
     equivalentDomains: Set<string>,
-    defaultUriMatch: UriMatchStrategySetting = null,
+    defaultUriMatch?: UriMatchStrategySetting,
     /** When present, will override the match strategy for the cipher if it is `Never` with `Domain` */
     overrideNeverMatchStrategy?: true,
   ): boolean {
@@ -198,7 +199,7 @@ export class LoginUriView implements View {
 
     if (Utils.DomainMatchBlacklist.has(this.domain)) {
       const domainUrlHost = Utils.getHost(targetUri);
-      return !Utils.DomainMatchBlacklist.get(this.domain).has(domainUrlHost);
+      return !Utils.DomainMatchBlacklist.get(this.domain)!.has(domainUrlHost);
     }
 
     return true;

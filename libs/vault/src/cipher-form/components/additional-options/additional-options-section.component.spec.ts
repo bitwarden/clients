@@ -86,7 +86,10 @@ describe("AdditionalOptionsSectionComponent", () => {
     expect(cipherFormProvider.patchCipher).toHaveBeenCalled();
     const patchFn = cipherFormProvider.patchCipher.mock.lastCall[0];
 
-    const updated = patchFn(new CipherView());
+    const newCipher = new CipherView();
+    newCipher.creationDate = newCipher.revisionDate = expectedCipher.creationDate;
+
+    const updated = patchFn(newCipher);
 
     expect(updated).toEqual(expectedCipher);
   });

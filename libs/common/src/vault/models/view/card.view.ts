@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
 import { CardView as SdkCardView } from "@bitwarden/sdk-internal";
@@ -12,45 +10,45 @@ import { ItemView } from "./item.view";
 
 export class CardView extends ItemView implements SdkCardView {
   @linkedFieldOption(LinkedId.CardholderName, { sortPosition: 0 })
-  cardholderName: string = null;
+  cardholderName: string | undefined;
   @linkedFieldOption(LinkedId.ExpMonth, { sortPosition: 3, i18nKey: "expirationMonth" })
-  expMonth: string = null;
+  expMonth: string | undefined;
   @linkedFieldOption(LinkedId.ExpYear, { sortPosition: 4, i18nKey: "expirationYear" })
-  expYear: string = null;
+  expYear: string | undefined;
   @linkedFieldOption(LinkedId.Code, { sortPosition: 5, i18nKey: "securityCode" })
-  code: string = null;
+  code: string | undefined;
 
-  private _brand: string = null;
-  private _number: string = null;
-  private _subTitle: string = null;
+  private _brand?: string;
+  private _number?: string;
+  private _subTitle?: string;
 
-  get maskedCode(): string {
-    return this.code != null ? "•".repeat(this.code.length) : null;
+  get maskedCode(): string | undefined {
+    return this.code != null ? "•".repeat(this.code.length) : undefined;
   }
 
-  get maskedNumber(): string {
-    return this.number != null ? "•".repeat(this.number.length) : null;
+  get maskedNumber(): string | undefined {
+    return this.number != null ? "•".repeat(this.number.length) : undefined;
   }
 
   @linkedFieldOption(LinkedId.Brand, { sortPosition: 2 })
-  get brand(): string {
+  get brand(): string | undefined {
     return this._brand;
   }
-  set brand(value: string) {
+  set brand(value: string | undefined) {
     this._brand = value;
-    this._subTitle = null;
+    this._subTitle = undefined;
   }
 
   @linkedFieldOption(LinkedId.Number, { sortPosition: 1 })
-  get number(): string {
+  get number(): string | undefined {
     return this._number;
   }
-  set number(value: string) {
+  set number(value: string | undefined) {
     this._number = value;
-    this._subTitle = null;
+    this._subTitle = undefined;
   }
 
-  get subTitle(): string {
+  get subTitle(): string | undefined {
     if (this._subTitle == null) {
       this._subTitle = this.brand;
       if (this.number != null && this.number.length >= 4) {
@@ -69,11 +67,11 @@ export class CardView extends ItemView implements SdkCardView {
     return this._subTitle;
   }
 
-  get expiration(): string {
-    const normalizedYear = normalizeExpiryYearFormat(this.expYear);
+  get expiration(): string | undefined {
+    const normalizedYear = this.expYear ? normalizeExpiryYearFormat(this.expYear) : undefined;
 
     if (!this.expMonth && !normalizedYear) {
-      return null;
+      return undefined;
     }
 
     let exp = this.expMonth != null ? ("0" + this.expMonth).slice(-2) : "__";
@@ -82,14 +80,14 @@ export class CardView extends ItemView implements SdkCardView {
     return exp;
   }
 
-  static fromJSON(obj: Partial<Jsonify<CardView>>): CardView {
+  static fromJSON(obj: Partial<Jsonify<CardView>> | undefined): CardView {
     return Object.assign(new CardView(), obj);
   }
 
   // ref https://stackoverflow.com/a/5911300
-  static getCardBrandByPatterns(cardNum: string): string {
+  static getCardBrandByPatterns(cardNum: string | undefined | null): string | undefined {
     if (cardNum == null || typeof cardNum !== "string" || cardNum.trim() === "") {
-      return null;
+      return undefined;
     }
 
     // Visa
@@ -146,25 +144,21 @@ export class CardView extends ItemView implements SdkCardView {
       return "Visa";
     }
 
-    return null;
+    return undefined;
   }
 
   /**
    * Converts an SDK CardView to a CardView.
    */
-  static fromSdkCardView(obj: SdkCardView): CardView | undefined {
-    if (obj == null) {
-      return undefined;
-    }
-
+  static fromSdkCardView(obj: SdkCardView): CardView {
     const cardView = new CardView();
 
-    cardView.cardholderName = obj.cardholderName ?? null;
-    cardView.brand = obj.brand ?? null;
-    cardView.number = obj.number ?? null;
-    cardView.expMonth = obj.expMonth ?? null;
-    cardView.expYear = obj.expYear ?? null;
-    cardView.code = obj.code ?? null;
+    cardView.cardholderName = obj.cardholderName;
+    cardView.brand = obj.brand;
+    cardView.number = obj.number;
+    cardView.expMonth = obj.expMonth;
+    cardView.expYear = obj.expYear;
+    cardView.code = obj.code;
 
     return cardView;
   }

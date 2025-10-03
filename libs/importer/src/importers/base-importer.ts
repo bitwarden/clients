@@ -193,7 +193,6 @@ export abstract class BaseImporter {
       if (this.isNullOrWhitespace(loginUri.uri)) {
         return null;
       }
-      loginUri.match = null;
       return [loginUri];
     }
 
@@ -205,7 +204,6 @@ export abstract class BaseImporter {
         if (this.isNullOrWhitespace(loginUri.uri)) {
           return;
         }
-        loginUri.match = null;
         returnArr.push(loginUri);
       });
       return returnArr.length === 0 ? null : returnArr;
@@ -236,7 +234,7 @@ export abstract class BaseImporter {
     return hostname.startsWith("www.") ? hostname.replace("www.", "") : hostname;
   }
 
-  protected isNullOrWhitespace(str: string): boolean {
+  protected isNullOrWhitespace(str: string | undefined | null): boolean {
     return Utils.isNullOrWhitespace(str);
   }
 

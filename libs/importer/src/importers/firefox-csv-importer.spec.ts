@@ -11,9 +11,6 @@ const CipherData = [
     title: "should parse password",
     csv: simplePasswordData,
     expected: Object.assign(new CipherView(), {
-      id: null,
-      organizationId: null,
-      folderId: null,
       name: "example.com",
       login: Object.assign(new LoginView(), {
         username: "foo",
@@ -24,7 +21,6 @@ const CipherData = [
           }),
         ],
       }),
-      notes: null,
       type: 1,
     }),
   },
@@ -32,9 +28,6 @@ const CipherData = [
     title: 'should skip "chrome://FirefoxAccounts"',
     csv: firefoxAccountsData,
     expected: Object.assign(new CipherView(), {
-      id: null,
-      organizationId: null,
-      folderId: null,
       name: "example.com",
       login: Object.assign(new LoginView(), {
         username: "foo",
@@ -45,7 +38,6 @@ const CipherData = [
           }),
         ],
       }),
-      notes: null,
       type: 1,
     }),
   },
@@ -54,6 +46,7 @@ const CipherData = [
 describe("Firefox CSV Importer", () => {
   CipherData.forEach((data) => {
     it(data.title, async () => {
+      jest.useFakeTimers().setSystemTime(data.expected.creationDate);
       const importer = new FirefoxCsvImporter();
       const result = await importer.parse(data.csv);
       expect(result != null).toBe(true);

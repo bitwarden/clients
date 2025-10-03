@@ -112,7 +112,6 @@ describe("Identity", () => {
     expect(view).toEqual({
       _firstName: "mockFirstName",
       _lastName: "mockLastName",
-      _subTitle: null,
       address1: "mockAddress1",
       address2: "mockAddress2",
       address3: "mockAddress3",

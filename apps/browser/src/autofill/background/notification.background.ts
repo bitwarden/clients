@@ -1221,7 +1221,6 @@ export default class NotificationBackground {
     cipherView.folderId = folderId;
     cipherView.type = CipherType.Login;
     cipherView.login = loginView;
-    cipherView.organizationId = null;
 
     return cipherView;
   }

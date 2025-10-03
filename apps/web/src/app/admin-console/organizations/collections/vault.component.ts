@@ -978,7 +978,7 @@ export class VaultComponent implements OnInit, OnDestroy {
 
     // Allow restore of an Unassigned Item
     try {
-      if (c.id == null) {
+      if (c.id == null || c.id === "") {
         throw new Error("Cipher must have an Id to be restored");
       }
       const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
@@ -1211,7 +1211,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       aType = "Password";
       value = cipher.login.password;
       typeI18nKey = "password";
-    } else if (field === "totp") {
+    } else if (field === "totp" && cipher.login.totp != null) {
       aType = "TOTP";
       const totpResponse = await firstValueFrom(this.totpService.getCode$(cipher.login.totp));
       value = totpResponse.code;
@@ -1232,7 +1232,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       return;
     }
 
-    if (!cipher.viewPassword) {
+    if (!cipher.viewPassword || value == null) {
       return;
     }
 

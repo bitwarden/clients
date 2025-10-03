@@ -133,19 +133,11 @@ describe("NotificationBackground", () => {
 
       expect(cipherView.name).toEqual("example.com");
       expect(cipherView.login).toEqual({
-        autofillOnPageLoad: null,
-        fido2Credentials: null,
+        fido2Credentials: [],
         password: message.password,
-        passwordRevisionDate: null,
-        totp: null,
         uris: [
           {
-            _canLaunch: null,
-            _domain: null,
-            _host: null,
-            _hostname: null,
             _uri: message.uri,
-            match: null,
           },
         ],
         username: message.username,
