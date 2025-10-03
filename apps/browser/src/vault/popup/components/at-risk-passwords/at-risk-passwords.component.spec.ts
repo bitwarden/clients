@@ -14,6 +14,9 @@ import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/s
 import { InlineMenuVisibilitySetting } from "@bitwarden/common/autofill/types";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { StateProvider } from "@bitwarden/common/platform/state";
+import { FakeAccountService, FakeStateProvider } from "@bitwarden/common/spec";
+import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { EndUserNotificationService } from "@bitwarden/common/vault/notifications";
@@ -24,6 +27,7 @@ import {
   ChangeLoginPasswordService,
   DefaultChangeLoginPasswordService,
   PasswordRepromptService,
+  AtRiskPasswordCalloutService,
 } from "@bitwarden/vault";
 
 import { PopupHeaderComponent } from "../../../../platform/popup/layout/popup-header.component";
@@ -68,6 +72,9 @@ describe("AtRiskPasswordsComponent", () => {
   let mockNotifications$: BehaviorSubject<NotificationView[]>;
   let mockInlineMenuVisibility$: BehaviorSubject<InlineMenuVisibilitySetting>;
   let calloutDismissed$: BehaviorSubject<boolean>;
+  let mockAtRiskPasswordCalloutService: any;
+  let stateProvider: FakeStateProvider;
+  let mockAccountService: FakeAccountService;
   const setInlineMenuVisibility = jest.fn();
   const mockToastService = mock<ToastService>();
   const mockAtRiskPasswordPageService = mock<AtRiskPasswordPageService>();
@@ -112,6 +119,11 @@ describe("AtRiskPasswordsComponent", () => {
     mockToastService.showToast.mockClear();
     mockDialogService.open.mockClear();
     mockAtRiskPasswordPageService.isCalloutDismissed.mockReturnValue(calloutDismissed$);
+    mockAccountService = {
+      activeAccount$: of({ id: "user" as UserId }),
+      activeUserId: "user" as UserId,
+    } as unknown as FakeAccountService;
+    stateProvider = new FakeStateProvider(mockAccountService);
 
     await TestBed.configureTestingModule({
       imports: [AtRiskPasswordsComponent],
@@ -141,7 +153,7 @@ describe("AtRiskPasswordsComponent", () => {
           },
         },
         { provide: I18nService, useValue: { t: (key: string) => key } },
-        { provide: AccountService, useValue: { activeAccount$: of({ id: "user" }) } },
+        { provide: AccountService, useValue: mockAccountService },
         { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
         { provide: PasswordRepromptService, useValue: mock<PasswordRepromptService>() },
         {
@@ -152,6 +164,8 @@ describe("AtRiskPasswordsComponent", () => {
           },
         },
         { provide: ToastService, useValue: mockToastService },
+        { provide: StateProvider, useValue: stateProvider },
+        { provide: AtRiskPasswordCalloutService, useValue: mockAtRiskPasswordCalloutService },
       ],
     })
       .overrideModule(JslibModule, {
