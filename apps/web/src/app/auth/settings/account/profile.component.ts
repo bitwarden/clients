@@ -56,7 +56,9 @@ export class ProfileComponent implements OnInit, OnDestroy {
     this.profile = await this.apiService.getProfile();
     const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     this.fingerprintMaterial = userId;
-    const publicKey = await firstValueFrom(this.keyService.userPublicKey$(userId));
+    const publicKey = (await firstValueFrom(
+      this.keyService.userPublicKey$(userId),
+    )) as UserPublicKey;
     if (publicKey == null) {
       this.logService.error(
         "[ProfileComponent] No public key available for the user: " +
