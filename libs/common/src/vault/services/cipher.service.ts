@@ -1165,7 +1165,10 @@ export class CipherService implements CipherServiceAbstraction {
   async replace(ciphers: { [id: string]: CipherData }, userId: UserId): Promise<any> {
     const current = (await firstValueFrom(this.encryptedCiphersState(userId).state$)) ?? {};
 
-    // If nothing changed, do nothing
+    // The extension relies on chrome.storage.StorageArea.onChanged to detect updates.
+    // If stored and provided data are identical, this event doesn’t fire and the ciphers$
+    // observable won’t emit a new value. In this case we can skip the update to avoid calling
+    // clearCache and causing an empty state.
     if (JSON.stringify(current) === JSON.stringify(ciphers)) {
       return ciphers;
     }
