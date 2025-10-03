@@ -14,9 +14,9 @@
     <span class="tw-mx-4">{{
       "dataLastUpdated" | i18n: (dataLastUpdated | date: "MMMM d, y 'at' h:mm a")
     }}</span>
-    <span class="tw-flex tw-justify-center tw-w-16">
+    <span class="tw-flex tw-justify-center">
       <button
-        *ngIf="!(isRefreshing$ | async)"
+        *ngIf="!(dataService.isRunningReport$ | async)"
         type="button"
         bitButton
         buttonType="secondary"
@@ -24,11 +24,11 @@
         tabindex="0"
         [bitAction]="refreshData.bind(this)"
       >
-        {{ "refresh" | i18n }}
+        {{ "riskInsightsRunReport" | i18n }}
       </button>
       <span>
         <i
-          *ngIf="isRefreshing$ | async"
+          *ngIf="dataService.isRunningReport$ | async"
           class="bwi bwi-spinner bwi-spin tw-text-muted tw-text-[1.2rem]"
           aria-hidden="true"
         ></i>

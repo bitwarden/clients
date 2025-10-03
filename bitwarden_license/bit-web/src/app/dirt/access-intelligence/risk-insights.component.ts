@@ -2,7 +2,7 @@ import { CommonModule } from "@angular/common";
 import { Component, DestroyRef, OnInit, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
-import { EMPTY, Observable } from "rxjs";
+import { EMPTY } from "rxjs";
 import { map, switchMap } from "rxjs/operators";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -64,7 +64,6 @@ export class RiskInsightsComponent implements OnInit {
 
   private organizationId: OrganizationId = "" as OrganizationId;
 
-  isRefreshing$: Observable<boolean> = new Observable<boolean>();
   dataLastUpdated: Date | null = null;
   refetching: boolean = false;
 
@@ -92,15 +91,12 @@ export class RiskInsightsComponent implements OnInit {
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         map((params) => params.get("organizationId")),
-        switchMap((orgId) => {
+        switchMap(async (orgId) => {
           if (orgId) {
             // Initialize Data Service
-            void this.dataService.initializeForOrganization(orgId as OrganizationId);
+            await this.dataService.initializeForOrganization(orgId as OrganizationId);
 
             this.organizationId = orgId as OrganizationId;
-            this.dataService.LEGACY_fetchApplicationsReport(this.organizationId);
-            this.isRefreshing$ = this.dataService.isRefreshing$;
-            return this.dataService.LEGACY_applications$;
           } else {
             return EMPTY;
           }
@@ -133,7 +129,6 @@ export class RiskInsightsComponent implements OnInit {
    */
   refreshData(): void {
     if (this.organizationId) {
-      // this.dataService.refreshApplicationsReport(this.organizationId);
       this.dataService.triggerReport();
     }
   }
