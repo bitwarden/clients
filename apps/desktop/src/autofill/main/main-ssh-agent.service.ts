@@ -37,7 +37,7 @@ export class MainSshAgentService {
   init() {
     // handle sign request passing to UI
     sshagent
-      .serve(async (err: Error, sshUiRequest: sshagent.SshUiRequest) => {
+      .serve(async (err: Error | null, sshUiRequest: sshagent.SshUiRequest): Promise<boolean> => {
         // clear all old (> SIGN_TIMEOUT) requests
         this.requestResponses = this.requestResponses.filter(
           (response) => response.timestamp > new Date(Date.now() - this.SIGN_TIMEOUT),
