@@ -59,8 +59,27 @@
   "createNewLoginItem": {
     "message": "צור פריט כניסה חדש"
   },
-  "criticalApplicationsActivityDescription": {
-    "message": "Once you mark applications critical, they will display here."
+  "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
+    "message": "Once you mark applications critical, they will display here"
+  },
+  "viewAtRiskMembers": {
+    "message": "View at-risk members"
+  },
+  "viewAtRiskApplications": {
+    "message": "View at-risk applications"
+  },
+  "criticalApplicationsAreAtRisk": {
+    "message": "$COUNT$ out of $TOTAL$ critical applications are at-risk due to at-risk passwords",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "total": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
   },
   "criticalApplicationsWithCount": {
     "message": "יישומים קריטיים ($COUNT$)",
@@ -73,6 +92,15 @@
   },
   "countOfCriticalApplications": {
     "message": "$COUNT$ critical applications",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfApplicationsAtRisk": {
+    "message": "$COUNT$ applications at-risk",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -137,8 +165,8 @@
   "membersAtRiskActivityDescription": {
     "message": "Members with edit access to at-risk items for critical applications"
   },
-  "membersAtRisk": {
-    "message": "$COUNT$ members at risk",
+  "membersAtRiskCount": {
+    "message": "$COUNT$ members at-risk",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1471,6 +1499,15 @@
   "invalidMasterPassword": {
     "message": "סיסמה ראשית שגויה"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "invalidFilePassword": {
     "message": "סיסמת קובץ שגויה, נא להשתמש בסיסמה שהזנת כשיצרת את קובץ הייצוא."
   },
@@ -1479,6 +1516,30 @@
   },
   "noItemsInList": {
     "message": "אין פריטים להצגה ברשימה."
+  },
+  "noItemsInTrash": {
+    "message": "No items in trash"
+  },
+  "noItemsInTrashDesc": {
+    "message": "Items you delete will appear here and be permanently deleted after 30 days"
+  },
+  "noItemsInVault": {
+    "message": "No items in the vault"
+  },
+  "emptyVaultDescription": {
+    "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
+  },
+  "emptyFavorites": {
+    "message": "You haven't favorited any items"
+  },
+  "emptyFavoritesDesc": {
+    "message": "Add frequently used items to favorites for quick access."
+  },
+  "noSearchResults": {
+    "message": "No search results returned"
+  },
+  "clearFiltersOrTryAnother": {
+    "message": "Clear filters or try another search term"
   },
   "noPermissionToViewAllCollectionItems": {
     "message": "אין לך הרשאה להציג את כל הפריטים באוסף זה."
@@ -4772,6 +4833,12 @@
   "organizationIsDisabled": {
     "message": "הארגון הושעה"
   },
+  "organizationIsSuspended": {
+    "message": "Organization is suspended"
+  },
+  "organizationIsSuspendedDesc": {
+    "message": "Items in suspended organizations cannot be accessed. Contact your organization owner for assistance."
+  },
   "secretsAccessSuspended": {
     "message": "לא ניתן לגשת אל ארגונים מושעים. נא לפנות לבעל הארגון שלך עבור סיוע."
   },
@@ -4783,9 +4850,6 @@
   },
   "serviceAccountsCannotCreate": {
     "message": "לא ניתן ליצור חשבונות שירות בארגונים מושעים. נא לפנות אל בעל הארגון שלך עבור סיוע."
-  },
-  "disabledOrganizationFilterError": {
-    "message": "לא ניתן לגשת לפריטים בארגון מושעה. פנה אל בעל הארגון שלך עבור סיוע."
   },
   "licenseIsExpired": {
     "message": "תוקף הרשיון הסתיים."
@@ -5160,9 +5224,13 @@
   "ssoIdentifier": {
     "message": "מזהה SSO"
   },
-  "ssoIdentifierHintPartOne": {
-    "message": "ספק את המזהה הזה לחברים שלך כדי שיכנסו עם SSO. כדי לעקוף את השלב הזה, הגדר ",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Provide this ID to your members to login with SSO. To bypass this step, set up Domain verification'"
+  "ssoIdentifierHint": {
+    "message": "Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. ",
+    "description": "This will be used as part of a larger sentence, broken up to include a link. The full sentence will read 'Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. Learn more'"
+  },
+  "claimedDomainsLearnMore": {
+    "message": "Learn more",
+    "description": "This will be used as part of a larger sentence, broken up to include a link. The full sentence will read 'Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. Learn more'"
   },
   "unlinkSso": {
     "message": "נתק SSO"
@@ -6975,6 +7043,24 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "accessDenied": {
     "message": "גישה נדחתה. אין לך הרשאות כדי לצפות בעמוד זה."
   },
@@ -8376,12 +8462,6 @@
   "groupSlashUser": {
     "message": "קבוצה/משתמש"
   },
-  "lowKdfIterations": {
-    "message": "חזרות KDF נמוכות"
-  },
-  "updateLowKdfIterationsDesc": {
-    "message": "שדרג את הגדרות ההצפנה שלך כדי לעמוד בהמלצות אבטחה חדשות ולשפר את הגנת החשבון."
-  },
   "kdfSettingsChangeLogoutWarning": {
     "message": "המשך התהליך יוציא אותך מכל ההפעלות הפעילות שלך. תידרש להיכנס חזרה כדי להמשיך כניסה דו-שלבית, אם ישנה. אנו ממליצים על ייצוא הכספת שלך לפני שינוי הגדרות ההצפנה שלך כדי למנוע איבוד נתונים."
   },
@@ -9755,6 +9835,9 @@
   "failedToSaveIntegration": {
     "message": "שמירת האינטגרציה נכשלה. נא לנסות שוב מאוחר יותר."
   },
+  "mustBeOrgOwnerToPerformAction": {
+    "message": "You must be the organization owner to perform this action."
+  },
   "failedToDeleteIntegration": {
     "message": "Failed to delete integration. Please try again later."
   },
@@ -9995,12 +10078,6 @@
         "example": "2"
       }
     }
-  },
-  "lowKDFIterationsBanner": {
-    "message": "חזרות KDF נמוכות. הגדל את מספר החזרות שלך כדי לשפר את האבטחה של חשבונך."
-  },
-  "changeKDFSettings": {
-    "message": "שנה הגדרות KDF"
   },
   "secureYourInfrastructure": {
     "message": "אבטח את התשתית שלך"
@@ -11024,8 +11101,13 @@
   "searchArchive": {
     "message": "Search archive"
   },
-  "archive": {
-    "message": "Archive"
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
   },
   "noItemsInArchive": {
     "message": "No items in archive"
@@ -11139,6 +11221,12 @@
   },
   "bitwardenExtensionInstalled": {
     "message": "הרחבת Bitwarden הותקנה!"
+  },
+  "openTheBitwardenExtension": {
+    "message": "Open the Bitwarden extension"
+  },
+  "bitwardenExtensionInstalledOpenExtension": {
+    "message": "The Bitwarden extension is installed! Open the extension to log in and start autofilling."
   },
   "openExtensionToAutofill": {
     "message": "פתח את ההרחבה כדי להיכנס ולהתחיל למלא אוטומטית."

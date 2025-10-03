@@ -1,5 +1,6 @@
 import { BehaviorSubject } from "rxjs";
 
+import { LEGACY_ApplicationHealthReportDetailWithCriticalFlagAndCipher } from "../models";
 import { OrganizationReportSummary } from "../models/report-models";
 
 export class AllActivitiesService {
@@ -22,6 +23,18 @@ export class AllActivitiesService {
 
   reportSummary$ = this.reportSummarySubject$.asObservable();
 
+  private allApplicationsDetailsSubject$: BehaviorSubject<
+    LEGACY_ApplicationHealthReportDetailWithCriticalFlagAndCipher[]
+  > = new BehaviorSubject<LEGACY_ApplicationHealthReportDetailWithCriticalFlagAndCipher[]>([]);
+  allApplicationsDetails$ = this.allApplicationsDetailsSubject$.asObservable();
+
+  private atRiskPasswordsCountSubject$ = new BehaviorSubject<number>(0);
+  atRiskPasswordsCount$ = this.atRiskPasswordsCountSubject$.asObservable();
+
+  private passwordChangeProgressMetricHasProgressBarSubject$ = new BehaviorSubject<boolean>(false);
+  passwordChangeProgressMetricHasProgressBar$ =
+    this.passwordChangeProgressMetricHasProgressBarSubject$.asObservable();
+
   setCriticalAppsReportSummary(summary: OrganizationReportSummary) {
     this.reportSummarySubject$.next({
       ...this.reportSummarySubject$.getValue(),
@@ -41,5 +54,21 @@ export class AllActivitiesService {
       totalAtRiskApplicationCount: summary.totalAtRiskApplicationCount,
       newApplications: summary.newApplications,
     });
+  }
+
+  setAllAppsReportDetails(
+    applications: LEGACY_ApplicationHealthReportDetailWithCriticalFlagAndCipher[],
+  ) {
+    const totalAtRiskPasswords = applications.reduce(
+      (sum, app) => sum + app.atRiskPasswordCount,
+      0,
+    );
+    this.atRiskPasswordsCountSubject$.next(totalAtRiskPasswords);
+
+    this.allApplicationsDetailsSubject$.next(applications);
+  }
+
+  setPasswordChangeProgressMetricHasProgressBar(hasProgressBar: boolean) {
+    this.passwordChangeProgressMetricHasProgressBarSubject$.next(hasProgressBar);
   }
 }

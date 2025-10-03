@@ -59,8 +59,27 @@
   "createNewLoginItem": {
     "message": "Yeni hesap kaydı oluştur"
   },
-  "criticalApplicationsActivityDescription": {
-    "message": "Uygulamaları kritik olarak işaretlediğinizde, bunlar burada görüntülenir."
+  "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
+    "message": "Kritik olarak işaretlediğiniz uygulamalar burada görünecektir"
+  },
+  "viewAtRiskMembers": {
+    "message": "View at-risk members"
+  },
+  "viewAtRiskApplications": {
+    "message": "View at-risk applications"
+  },
+  "criticalApplicationsAreAtRisk": {
+    "message": "$COUNT$ out of $TOTAL$ critical applications are at-risk due to at-risk passwords",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "total": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
   },
   "criticalApplicationsWithCount": {
     "message": "Kritik uygulamalar ($COUNT$)",
@@ -73,6 +92,15 @@
   },
   "countOfCriticalApplications": {
     "message": "$COUNT$ kritik uygulama",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfApplicationsAtRisk": {
+    "message": "$COUNT$ applications at-risk",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -137,7 +165,7 @@
   "membersAtRiskActivityDescription": {
     "message": "Kritik uygulamalar için risk altındaki kayıtlara düzenleme erişimi olan üyeler"
   },
-  "membersAtRisk": {
+  "membersAtRiskCount": {
     "message": "$COUNT$ üye risk altında",
     "placeholders": {
       "count": {
@@ -1471,6 +1499,15 @@
   "invalidMasterPassword": {
     "message": "Geçersiz ana parola"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "invalidFilePassword": {
     "message": "Geçersiz dosya parolası. Lütfen dışa aktardığınız dosyayı oluştururken girdiğiniz parolayı kullanın."
   },
@@ -1479,6 +1516,30 @@
   },
   "noItemsInList": {
     "message": "Listelenecek kayıt yok."
+  },
+  "noItemsInTrash": {
+    "message": "Çöp kutusunda hiç kayıt yok"
+  },
+  "noItemsInTrashDesc": {
+    "message": "Sildiğiniz kayıtlar burada görünecek ve 30 gün sonra kalıcı olarak silinecektir"
+  },
+  "noItemsInVault": {
+    "message": "Kasada hiç kayıt yok"
+  },
+  "emptyVaultDescription": {
+    "message": "Kasanız sadece parolalarınız için değil. Hesaplarınızı, kimliklerinizi, kredi kartlarınızı ve notlarınızı da güvenle burada depolayabilirsiniz."
+  },
+  "emptyFavorites": {
+    "message": "You haven't favorited any items"
+  },
+  "emptyFavoritesDesc": {
+    "message": "Add frequently used items to favorites for quick access."
+  },
+  "noSearchResults": {
+    "message": "No search results returned"
+  },
+  "clearFiltersOrTryAnother": {
+    "message": "Filtreleri temizleyin veya başka bir arama yapmayı deneyin"
   },
   "noPermissionToViewAllCollectionItems": {
     "message": "Bu koleksiyondaki tüm kayıtları görmek için izniniz yok."
@@ -4772,6 +4833,12 @@
   "organizationIsDisabled": {
     "message": "Kuruluş askıya alındı"
   },
+  "organizationIsSuspended": {
+    "message": "Kuruluş askıya alındı"
+  },
+  "organizationIsSuspendedDesc": {
+    "message": "Askıya alınmış kuruluşlardaki kayıtlara erişilemez. Destek almak için kuruluş sahibinizle iletişime geçin."
+  },
   "secretsAccessSuspended": {
     "message": "Askıya alınan kuruluşlara erişilemez. Lütfen yardım için kuruluşunuzun sahibiyle iletişime geçin."
   },
@@ -4783,9 +4850,6 @@
   },
   "serviceAccountsCannotCreate": {
     "message": "Askıya alınan kuruluşlarda hizmet hesapları oluşturulamaz. Lütfen yardım için kuruluşunuzun sahibiyle iletişime geçin."
-  },
-  "disabledOrganizationFilterError": {
-    "message": "Askıya alınmış kuruluşlardaki kayıtlara erişilemez. Destek almak için kuruluş sahibinizle iletişime geçin."
   },
   "licenseIsExpired": {
     "message": "Lisans süresi doldu."
@@ -5160,9 +5224,13 @@
   "ssoIdentifier": {
     "message": "SSO tanımlayıcı"
   },
-  "ssoIdentifierHintPartOne": {
-    "message": "SSO ile giriş yapmaları için bu kimliği üyelerinize sağlayın. Bu adımı atlamak için kurulum yapın ",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Provide this ID to your members to login with SSO. To bypass this step, set up Domain verification'"
+  "ssoIdentifierHint": {
+    "message": "Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. ",
+    "description": "This will be used as part of a larger sentence, broken up to include a link. The full sentence will read 'Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. Learn more'"
+  },
+  "claimedDomainsLearnMore": {
+    "message": "Learn more",
+    "description": "This will be used as part of a larger sentence, broken up to include a link. The full sentence will read 'Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. Learn more'"
   },
   "unlinkSso": {
     "message": "SSO bağlantısını kes"
@@ -6975,6 +7043,24 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "accessDenied": {
     "message": "Erişim engellendi. Bu sayfayı görüntüleme iznine sahip değilsiniz."
   },
@@ -8376,12 +8462,6 @@
   "groupSlashUser": {
     "message": "Grup/Kullanıcı"
   },
-  "lowKdfIterations": {
-    "message": "Düşük KDF iterasyonu"
-  },
-  "updateLowKdfIterationsDesc": {
-    "message": "Yeni güvenlik önerilerini karşılamak ve hesap korumasını iyileştirmek için şifreleme ayarlarınızı güncelleyin."
-  },
   "kdfSettingsChangeLogoutWarning": {
     "message": "Devam ettiğinizde tüm aktif oturumlardan çıkış yapacaksınız. Tekrar oturum açmanız ve varsa iki aşamalı oturum açma işlemini tamamlamanız gerekecektir. Veri kaybını önlemek için şifreleme ayarlarınızı değiştirmeden önce kasayı dışa aktarmanızı öneririz."
   },
@@ -9755,6 +9835,9 @@
   "failedToSaveIntegration": {
     "message": "Entegrasyon kaydedilemedi. Lütfen daha sonra tekrar deneyin."
   },
+  "mustBeOrgOwnerToPerformAction": {
+    "message": "You must be the organization owner to perform this action."
+  },
   "failedToDeleteIntegration": {
     "message": "Entegrasyon silinemedi. Lütfen daha sonra tekrar deneyin."
   },
@@ -9995,12 +10078,6 @@
         "example": "2"
       }
     }
-  },
-  "lowKDFIterationsBanner": {
-    "message": "Düşük KDF iterasyonları. Hesabınızın güvenliğini artırmak için iterasyonları artırın."
-  },
-  "changeKDFSettings": {
-    "message": "KDF ayarlarını değiştir"
   },
   "secureYourInfrastructure": {
     "message": "Altyapınızı güvence altına alın"
@@ -11024,8 +11101,13 @@
   "searchArchive": {
     "message": "Arşivde ara"
   },
-  "archive": {
-    "message": "Arşiv"
+  "archiveNoun": {
+    "message": "Arşiv",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Arşivle",
+    "description": "Verb"
   },
   "noItemsInArchive": {
     "message": "Arşivde kayıt yok"
@@ -11139,6 +11221,12 @@
   },
   "bitwardenExtensionInstalled": {
     "message": "Bitwarden uzantısı yüklendi!"
+  },
+  "openTheBitwardenExtension": {
+    "message": "Bitwarden uzantısını aç"
+  },
+  "bitwardenExtensionInstalledOpenExtension": {
+    "message": "The Bitwarden extension is installed! Open the extension to log in and start autofilling."
   },
   "openExtensionToAutofill": {
     "message": "Otomatik doldurmaya başlamak için uzantıyı açıp giriş yapın."

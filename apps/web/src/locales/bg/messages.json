@@ -59,8 +59,27 @@
   "createNewLoginItem": {
     "message": "Създаване на нов елемент за вписване"
   },
-  "criticalApplicationsActivityDescription": {
-    "message": "Когато отбележите някое приложение като важно, то ще се появи тук."
+  "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
+    "message": "Когато отбележите някое приложение като важно, то ще се появи тук"
+  },
+  "viewAtRiskMembers": {
+    "message": "Преглед на членовете в риск"
+  },
+  "viewAtRiskApplications": {
+    "message": "Преглед на приложенията в риск"
+  },
+  "criticalApplicationsAreAtRisk": {
+    "message": "$COUNT$ от $TOTAL$ важни приложения са в риск, тъй като има пароли в риск",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "total": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
   },
   "criticalApplicationsWithCount": {
     "message": "Важни приложения ($COUNT$)",
@@ -73,6 +92,15 @@
   },
   "countOfCriticalApplications": {
     "message": "$COUNT$ важни приложения",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfApplicationsAtRisk": {
+    "message": "$COUNT$ прилжения са в риск",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -137,7 +165,7 @@
   "membersAtRiskActivityDescription": {
     "message": "Членове с права за редактиране на елементи в риск за важни приложения"
   },
-  "membersAtRisk": {
+  "membersAtRiskCount": {
     "message": "$COUNT$ членове в риск",
     "placeholders": {
       "count": {
@@ -1471,6 +1499,15 @@
   "invalidMasterPassword": {
     "message": "Грешна главна парола"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "invalidFilePassword": {
     "message": "Неправилна парола за файла. Използвайте паролата, която сте въвели при създаването на изнесения файл."
   },
@@ -1479,6 +1516,30 @@
   },
   "noItemsInList": {
     "message": "Няма елементи за показване."
+  },
+  "noItemsInTrash": {
+    "message": "Няма елементи в кошчето"
+  },
+  "noItemsInTrashDesc": {
+    "message": "Елементите, които изтривате, ще бъдат премествани тук и изтривани окончателно след 30 дни"
+  },
+  "noItemsInVault": {
+    "message": "Няма елементи в трезора"
+  },
+  "emptyVaultDescription": {
+    "message": "Трезорът може да пази не само паролите Ви. Тум можете да съхранявате сигурно данни за вписване, идентификационни данни, карти и бележки."
+  },
+  "emptyFavorites": {
+    "message": "Все още нямате любими неща"
+  },
+  "emptyFavoritesDesc": {
+    "message": "Добавете често ползваните неща в любимите си, за бърз достъп."
+  },
+  "noSearchResults": {
+    "message": "Няма резултати от търсенето"
+  },
+  "clearFiltersOrTryAnother": {
+    "message": "Изчистете филтрите или опитайте да търсите нещо друго"
   },
   "noPermissionToViewAllCollectionItems": {
     "message": "Нямате права да преглеждате всички елементи в тази колекция."
@@ -4772,6 +4833,12 @@
   "organizationIsDisabled": {
     "message": "Организацията е изключена."
   },
+  "organizationIsSuspended": {
+    "message": "Организацията е с преустановен достъп"
+  },
+  "organizationIsSuspendedDesc": {
+    "message": "Записите в организации с преустановен достъп не са достъпни. Свържете се със собственика на организацията си за помощ."
+  },
   "secretsAccessSuspended": {
     "message": "Изключените организации са недостъпни. Свържете се със собственика на организацията си за помощ."
   },
@@ -4783,9 +4850,6 @@
   },
   "serviceAccountsCannotCreate": {
     "message": "В изключени организации не могат да се създават сервизни акаунти. Свържете се със собственика на организацията си за помощ."
-  },
-  "disabledOrganizationFilterError": {
-    "message": "Записите в изключени организации не са достъпни. Свържете се със собственика на организацията си за помощ."
   },
   "licenseIsExpired": {
     "message": "Изтекъл лиценз."
@@ -5160,9 +5224,13 @@
   "ssoIdentifier": {
     "message": "Идентификатор за еднократна идентификация"
   },
-  "ssoIdentifierHintPartOne": {
-    "message": "Дайте този идентификатор на членовете си, за да могат да се вписват чрез еднократно удостоверяване. Ако искате да пропуснете тази стъпка, настройте ",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Provide this ID to your members to login with SSO. To bypass this step, set up Domain verification'"
+  "ssoIdentifierHint": {
+    "message": "Дайте този идентификатор на членовете си, за да се вписват чрез еднократно удостоверяване. Членовете могат да пропуснат въвеждането та този идентификатор по време на еднократното удостоверяване, ако е настроен присвоен домейн. ",
+    "description": "This will be used as part of a larger sentence, broken up to include a link. The full sentence will read 'Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. Learn more'"
+  },
+  "claimedDomainsLearnMore": {
+    "message": "Научете повече",
+    "description": "This will be used as part of a larger sentence, broken up to include a link. The full sentence will read 'Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. Learn more'"
   },
   "unlinkSso": {
     "message": "Прекъсване на еднократна идентификация"
@@ -6975,6 +7043,24 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Ще бъдат изнесени само записите от трезора свързан с $ORGANIZATION$.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Ще бъдат изнесени само записите от трезора свързан с $ORGANIZATION$. Моите колекции няма да бъдат включени.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "accessDenied": {
     "message": "Достъпът е отказан. Нямате право за преглед на тази страница."
   },
@@ -8376,12 +8462,6 @@
   "groupSlashUser": {
     "message": "Група/потребител"
   },
-  "lowKdfIterations": {
-    "message": "Малко повторения за KDF"
-  },
-  "updateLowKdfIterationsDesc": {
-    "message": "Променете настройките си за шифроване, така че да отговарят на новите препоръки за сигурността и да подобрите защитата на регистрацията си."
-  },
   "kdfSettingsChangeLogoutWarning": {
     "message": "Ако продължите, ще излезете от всички активни сесии. Ще трябва да се впишете отново и да извършите двустепенно удостоверяване, ако такова е настроено. Препоръчително е да изнесете трезора си преди да променяте настройките за шифроване, за да избегнете загуба на данни."
   },
@@ -9755,6 +9835,9 @@
   "failedToSaveIntegration": {
     "message": "Интеграцията не беше запазена. Опитайте отново по-късно."
   },
+  "mustBeOrgOwnerToPerformAction": {
+    "message": "Трябва да бъдете собственик на организацията, за да извършите това действие."
+  },
   "failedToDeleteIntegration": {
     "message": "Интеграцията не беше изтрита. Опитайте отново по-късно."
   },
@@ -9995,12 +10078,6 @@
         "example": "2"
       }
     }
-  },
-  "lowKDFIterationsBanner": {
-    "message": "Малък брой повторения за KDF. Увеличете броя повторения, за да подсилите защитата на регистрацията си."
-  },
-  "changeKDFSettings": {
-    "message": "Промяна на настройките за KDF"
   },
   "secureYourInfrastructure": {
     "message": "Подсигурете инфраструктурата си"
@@ -11024,8 +11101,13 @@
   "searchArchive": {
     "message": "Търсене в архива"
   },
-  "archive": {
-    "message": "Архив"
+  "archiveNoun": {
+    "message": "Архив",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Архивиране",
+    "description": "Verb"
   },
   "noItemsInArchive": {
     "message": "Няма елементи в архива"
@@ -11139,6 +11221,12 @@
   },
   "bitwardenExtensionInstalled": {
     "message": "Добавката на Битуорден е инсталирана!"
+  },
+  "openTheBitwardenExtension": {
+    "message": "Отварете добавката на Битуорден"
+  },
+  "bitwardenExtensionInstalledOpenExtension": {
+    "message": "Добавката на Битуорден е инсталирана! Отворете я, за да се впишете и да можете да се вписвате автоматично."
   },
   "openExtensionToAutofill": {
     "message": "Отворете добавката, за да се впишете и да можете да използвате автоматичното попълване."

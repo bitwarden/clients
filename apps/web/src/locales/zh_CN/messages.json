@@ -59,8 +59,27 @@
   "createNewLoginItem": {
     "message": "创建新的登录项目"
   },
-  "criticalApplicationsActivityDescription": {
-    "message": "您将应用程序标记为关键后，它们将显示在这里。"
+  "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
+    "message": "您将应用程序标记为关键后，它们将显示在这里"
+  },
+  "viewAtRiskMembers": {
+    "message": "查看存在风险的成员"
+  },
+  "viewAtRiskApplications": {
+    "message": "查看存在风险的应用程序"
+  },
+  "criticalApplicationsAreAtRisk": {
+    "message": "总计 $TOTAL$ 个中的 $COUNT$ 个关键应用程序因密码风险而存在风险",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "total": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
   },
   "criticalApplicationsWithCount": {
     "message": "关键应用程序 ($COUNT$)",
@@ -73,6 +92,15 @@
   },
   "countOfCriticalApplications": {
     "message": "$COUNT$ 个关键应用程序",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfApplicationsAtRisk": {
+    "message": "$COUNT$ 个应用程序存在风险",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -137,7 +165,7 @@
   "membersAtRiskActivityDescription": {
     "message": "对关键应用程序中存在风险的项目具有编辑权限的成员"
   },
-  "membersAtRisk": {
+  "membersAtRiskCount": {
     "message": "$COUNT$ 个成员存在风险",
     "placeholders": {
       "count": {
@@ -959,7 +987,7 @@
     "message": "卡号"
   },
   "copyFieldCipherName": {
-    "message": "复制 $CIPHERNAME$ 的 $FIELD$",
+    "message": "复制 $CIPHERNAME$ 中的 $FIELD$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
@@ -1471,6 +1499,15 @@
   "invalidMasterPassword": {
     "message": "无效的主密码"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "invalidFilePassword": {
     "message": "无效的文件密码，请使用您创建导出文件时输入的密码。"
   },
@@ -1479,6 +1516,30 @@
   },
   "noItemsInList": {
     "message": "没有可列出的项目。"
+  },
+  "noItemsInTrash": {
+    "message": "No items in trash"
+  },
+  "noItemsInTrashDesc": {
+    "message": "Items you delete will appear here and be permanently deleted after 30 days"
+  },
+  "noItemsInVault": {
+    "message": "密码库中没有项目"
+  },
+  "emptyVaultDescription": {
+    "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
+  },
+  "emptyFavorites": {
+    "message": "You haven't favorited any items"
+  },
+  "emptyFavoritesDesc": {
+    "message": "Add frequently used items to favorites for quick access."
+  },
+  "noSearchResults": {
+    "message": "No search results returned"
+  },
+  "clearFiltersOrTryAnother": {
+    "message": "Clear filters or try another search term"
   },
   "noPermissionToViewAllCollectionItems": {
     "message": "您没有查看此集合中的所有项目的权限。"
@@ -4772,6 +4833,12 @@
   "organizationIsDisabled": {
     "message": "组织已暂停"
   },
+  "organizationIsSuspended": {
+    "message": "Organization is suspended"
+  },
+  "organizationIsSuspendedDesc": {
+    "message": "Items in suspended organizations cannot be accessed. Contact your organization owner for assistance."
+  },
   "secretsAccessSuspended": {
     "message": "无法访问已暂停的组织。请联系您的组织所有者寻求帮助。"
   },
@@ -4783,9 +4850,6 @@
   },
   "serviceAccountsCannotCreate": {
     "message": "无法在已暂停的组织中创建服务账户。请联系您的组织所有者寻求帮助。"
-  },
-  "disabledOrganizationFilterError": {
-    "message": "无法访问已暂停组织中的项目。请联系您的组织所有者寻求帮助。"
   },
   "licenseIsExpired": {
     "message": "授权已过期"
@@ -5160,9 +5224,13 @@
   "ssoIdentifier": {
     "message": "SSO 标识符"
   },
-  "ssoIdentifierHintPartOne": {
-    "message": "将此 ID 提供给您的成员以供 SSO 登录使用。要绕过此步骤，请设置 ",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Provide this ID to your members to login with SSO. To bypass this step, set up Domain verification'"
+  "ssoIdentifierHint": {
+    "message": "Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. ",
+    "description": "This will be used as part of a larger sentence, broken up to include a link. The full sentence will read 'Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. Learn more'"
+  },
+  "claimedDomainsLearnMore": {
+    "message": "Learn more",
+    "description": "This will be used as part of a larger sentence, broken up to include a link. The full sentence will read 'Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. Learn more'"
   },
   "unlinkSso": {
     "message": "取消链接 SSO"
@@ -6975,6 +7043,24 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "accessDenied": {
     "message": "访问被拒绝。您没有权限查看此页面。"
   },
@@ -8376,12 +8462,6 @@
   "groupSlashUser": {
     "message": "群组/用户"
   },
-  "lowKdfIterations": {
-    "message": "较低的 KDF 迭代"
-  },
-  "updateLowKdfIterationsDesc": {
-    "message": "更新您的加密设置以满足新的安全建议以及增强账户保护。"
-  },
   "kdfSettingsChangeLogoutWarning": {
     "message": "接下来将会注销您所有的活动会话。您需要重新登录并完成两步登录（如果有）。我们建议您在更改加密设置前导出密码库，以防止数据丢失。"
   },
@@ -8760,7 +8840,7 @@
     "description": "Used as a card title description on the set password page to explain why the user is there"
   },
   "cardMetrics": {
-    "message": "满分 $TOTAL$",
+    "message": "总计 $TOTAL$",
     "placeholders": {
       "total": {
         "content": "$1",
@@ -9755,6 +9835,9 @@
   "failedToSaveIntegration": {
     "message": "保存集成失败。请稍后再试。"
   },
+  "mustBeOrgOwnerToPerformAction": {
+    "message": "您必须是组织所有者才能执行此操作。"
+  },
   "failedToDeleteIntegration": {
     "message": "删除集成失败。请稍后再试。"
   },
@@ -9995,12 +10078,6 @@
         "example": "2"
       }
     }
-  },
-  "lowKDFIterationsBanner": {
-    "message": "KDF 迭代低。请增加迭代次数以提高您账户的安全性。"
-  },
-  "changeKDFSettings": {
-    "message": "更改 KDF 设置"
   },
   "secureYourInfrastructure": {
     "message": "保护您的基础设施"
@@ -11024,8 +11101,13 @@
   "searchArchive": {
     "message": "搜索归档"
   },
-  "archive": {
-    "message": "归档"
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
   },
   "noItemsInArchive": {
     "message": "归档中没有项目"
@@ -11139,6 +11221,12 @@
   },
   "bitwardenExtensionInstalled": {
     "message": "Bitwarden 扩展已安装！"
+  },
+  "openTheBitwardenExtension": {
+    "message": "Open the Bitwarden extension"
+  },
+  "bitwardenExtensionInstalledOpenExtension": {
+    "message": "The Bitwarden extension is installed! Open the extension to log in and start autofilling."
   },
   "openExtensionToAutofill": {
     "message": "打开扩展以登录并开始自动填充。"

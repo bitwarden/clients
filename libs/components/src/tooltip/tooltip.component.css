@@ -1,0 +1,132 @@
+:root {
+  --tooltip-shadow: rgb(0 0 0 / 0.1);
+}
+
+.cdk-overlay-pane:has(.bit-tooltip[data-visible="false"]) {
+  pointer-events: none;
+}
+
+.bit-tooltip-container {
+  position: relative;
+  max-width: 12rem;
+  opacity: 0;
+  width: max-content;
+  box-shadow:
+    0 4px 6px -1px var(--tooltip-shadow),
+    0 2px 4px -2px var(--tooltip-shadow);
+  border-radius: 0.75rem;
+  transition:
+    transform 100ms ease-in-out,
+    opacity 100ms ease-in-out;
+  transform: scale(0.95);
+  z-index: 1;
+
+  &::before,
+  &::after {
+    content: "";
+    position: absolute;
+    width: 1rem;
+    height: 1rem;
+    z-index: 1;
+    rotate: 45deg;
+    border-radius: 3px;
+  }
+
+  &::before {
+    background: linear-gradient(135deg, transparent 50%, rgb(var(--color-text-main)) 50%);
+    z-index: -1;
+  }
+
+  &::after {
+    background: rgb(var(--color-text-main));
+    z-index: -1;
+  }
+
+  &[data-visible="true"] {
+    opacity: 1;
+    transform: scale(1);
+    z-index: 1000;
+  }
+
+  .bit-tooltip-above-center &,
+  .bit-tooltip-below-center & {
+    &::before,
+    &::after {
+      inset-inline-start: 50%;
+      transform: translateX(-50%);
+      transform-origin: left;
+    }
+  }
+
+  .bit-tooltip-above-center & {
+    &::after {
+      filter: drop-shadow(0 3px 5px var(--tooltip-shadow))
+        drop-shadow(0 1px 3px var(--tooltip-shadow));
+    }
+
+    &::before,
+    &::after {
+      inset-block-end: -0.25rem;
+    }
+  }
+
+  .bit-tooltip-below-center & {
+    &::after {
+      display: none;
+    }
+
+    &::after,
+    &::before {
+      inset-block-start: -0.25rem;
+      rotate: -135deg;
+    }
+  }
+
+  .bit-tooltip-left-center &,
+  .bit-tooltip-right-center & {
+    &::after,
+    &::before {
+      inset-block-start: 50%;
+      transform: translateY(-50%);
+      transform-origin: top;
+    }
+  }
+
+  .bit-tooltip-left-center & {
+    &::after {
+      filter: drop-shadow(-3px 1px 3px var(--tooltip-shadow))
+        drop-shadow(-1px 2px 3px var(--tooltip-shadow));
+    }
+
+    &::after,
+    &::before {
+      inset-inline-end: -0.25rem;
+      rotate: -45deg;
+    }
+  }
+
+  .bit-tooltip-right-center & {
+    &::after {
+      filter: drop-shadow(2px -4px 2px var(--tooltip-shadow))
+        drop-shadow(0 -1px 3px var(--tooltip-shadow));
+    }
+
+    &::after,
+    &::before {
+      inset-inline-start: -0.25rem;
+      rotate: 135deg;
+    }
+  }
+}
+
+.bit-tooltip {
+  width: max-content;
+  max-width: 12rem;
+  background-color: rgb(var(--color-text-main));
+  color: rgb(var(--color-text-contrast));
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.75rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  z-index: 2;
+}
