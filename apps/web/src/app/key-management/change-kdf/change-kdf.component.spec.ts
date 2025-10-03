@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { FormBuilder, FormGroup } from "@angular/forms";
+import { FormBuilder, FormControl } from "@angular/forms";
 import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
@@ -35,55 +35,55 @@ describe("ChangeKdfComponent", () => {
   const mockUserId = "user-id" as UserId;
 
   // Helper functions for validation testing
-  function expectPBKDF2Validation(formGroup: FormGroup): void {
-    const iterationsControl = formGroup.get("kdfConfig.iterations");
-    const memoryControl = formGroup.get("kdfConfig.memory");
-    const parallelismControl = formGroup.get("kdfConfig.parallelism");
-
+  function expectPBKDF2Validation(
+    iterationsControl: FormControl<number | null>,
+    memoryControl: FormControl<number | null>,
+    parallelismControl: FormControl<number | null>,
+  ) {
     // Assert current validators state
-    expect(iterationsControl?.hasError("required")).toBe(false);
-    expect(iterationsControl?.hasError("min")).toBe(false);
-    expect(iterationsControl?.hasError("max")).toBe(false);
-    expect(memoryControl?.validator).toBeNull();
-    expect(parallelismControl?.validator).toBeNull();
+    expect(iterationsControl.hasError("required")).toBe(false);
+    expect(iterationsControl.hasError("min")).toBe(false);
+    expect(iterationsControl.hasError("max")).toBe(false);
+    expect(memoryControl.validator).toBeNull();
+    expect(parallelismControl.validator).toBeNull();
 
     // Test validation boundaries
-    iterationsControl?.setValue(PBKDF2KdfConfig.ITERATIONS.min - 1);
-    expect(iterationsControl?.hasError("min")).toBe(true);
+    iterationsControl.setValue(PBKDF2KdfConfig.ITERATIONS.min - 1);
+    expect(iterationsControl.hasError("min")).toBe(true);
 
-    iterationsControl?.setValue(PBKDF2KdfConfig.ITERATIONS.max + 1);
-    expect(iterationsControl?.hasError("max")).toBe(true);
+    iterationsControl.setValue(PBKDF2KdfConfig.ITERATIONS.max + 1);
+    expect(iterationsControl.hasError("max")).toBe(true);
   }
 
-  function expectArgon2Validation(formGroup: FormGroup): void {
-    const iterationsControl = formGroup.get("kdfConfig.iterations");
-    const memoryControl = formGroup.get("kdfConfig.memory");
-    const parallelismControl = formGroup.get("kdfConfig.parallelism");
-
+  function expectArgon2Validation(
+    iterationsControl: FormControl<number | null>,
+    memoryControl: FormControl<number | null>,
+    parallelismControl: FormControl<number | null>,
+  ) {
     // Assert current validators state
-    expect(iterationsControl?.hasError("required")).toBe(false);
-    expect(memoryControl?.hasError("required")).toBe(false);
-    expect(parallelismControl?.hasError("required")).toBe(false);
+    expect(iterationsControl.hasError("required")).toBe(false);
+    expect(memoryControl.hasError("required")).toBe(false);
+    expect(parallelismControl.hasError("required")).toBe(false);
 
     // Test validation boundaries - min values
-    iterationsControl?.setValue(Argon2KdfConfig.ITERATIONS.min - 1);
-    expect(iterationsControl?.hasError("min")).toBe(true);
+    iterationsControl.setValue(Argon2KdfConfig.ITERATIONS.min - 1);
+    expect(iterationsControl.hasError("min")).toBe(true);
 
-    memoryControl?.setValue(Argon2KdfConfig.MEMORY.min - 1);
-    expect(memoryControl?.hasError("min")).toBe(true);
+    memoryControl.setValue(Argon2KdfConfig.MEMORY.min - 1);
+    expect(memoryControl.hasError("min")).toBe(true);
 
-    parallelismControl?.setValue(Argon2KdfConfig.PARALLELISM.min - 1);
-    expect(parallelismControl?.hasError("min")).toBe(true);
+    parallelismControl.setValue(Argon2KdfConfig.PARALLELISM.min - 1);
+    expect(parallelismControl.hasError("min")).toBe(true);
 
     // Test validation boundaries - max values
-    iterationsControl?.setValue(Argon2KdfConfig.ITERATIONS.max + 1);
-    expect(iterationsControl?.hasError("max")).toBe(true);
+    iterationsControl.setValue(Argon2KdfConfig.ITERATIONS.max + 1);
+    expect(iterationsControl.hasError("max")).toBe(true);
 
-    memoryControl?.setValue(Argon2KdfConfig.MEMORY.max + 1);
-    expect(memoryControl?.hasError("max")).toBe(true);
+    memoryControl.setValue(Argon2KdfConfig.MEMORY.max + 1);
+    expect(memoryControl.hasError("max")).toBe(true);
 
-    parallelismControl?.setValue(Argon2KdfConfig.PARALLELISM.max + 1);
-    expect(parallelismControl?.hasError("max")).toBe(true);
+    parallelismControl.setValue(Argon2KdfConfig.PARALLELISM.max + 1);
+    expect(parallelismControl.hasError("max")).toBe(true);
   }
 
   beforeEach(() => {
@@ -164,14 +164,19 @@ describe("ChangeKdfComponent", () => {
         const formGroup = component["formGroup"];
 
         // Assert form values
-        expect(formGroup.get("kdf")?.value).toBe(KdfType.PBKDF2_SHA256);
-        expect(formGroup.get("kdfConfig.iterations")?.value).toBe(600_000);
-        expect(formGroup.get("kdfConfig.memory")?.value).toBeNull();
-        expect(formGroup.get("kdfConfig.parallelism")?.value).toBeNull();
+        expect(formGroup.controls.kdf.value).toBe(KdfType.PBKDF2_SHA256);
+        const kdfConfigFormGroup = formGroup.controls.kdfConfig;
+        expect(kdfConfigFormGroup.controls.iterations.value).toBe(600_000);
+        expect(kdfConfigFormGroup.controls.memory.value).toBeNull();
+        expect(kdfConfigFormGroup.controls.parallelism.value).toBeNull();
         expect(component.kdfConfig).toEqual(mockPBKDF2Config);
 
         // Assert validators
-        expectPBKDF2Validation(formGroup);
+        expectPBKDF2Validation(
+          kdfConfigFormGroup.controls.iterations,
+          kdfConfigFormGroup.controls.memory,
+          kdfConfigFormGroup.controls.parallelism,
+        );
       });
     });
 
@@ -190,14 +195,19 @@ describe("ChangeKdfComponent", () => {
         const formGroup = component["formGroup"];
 
         // Assert form values
-        expect(formGroup.get("kdf")?.value).toBe(KdfType.Argon2id);
-        expect(formGroup.get("kdfConfig.iterations")?.value).toBe(3);
-        expect(formGroup.get("kdfConfig.memory")?.value).toBe(64);
-        expect(formGroup.get("kdfConfig.parallelism")?.value).toBe(4);
+        expect(formGroup.controls.kdf.value).toBe(KdfType.Argon2id);
+        const kdfConfigFormGroup = formGroup.controls.kdfConfig;
+        expect(kdfConfigFormGroup.controls.iterations.value).toBe(3);
+        expect(kdfConfigFormGroup.controls.memory.value).toBe(64);
+        expect(kdfConfigFormGroup.controls.parallelism.value).toBe(4);
         expect(component.kdfConfig).toEqual(mockArgon2Config);
 
         // Assert validators
-        expectArgon2Validation(formGroup);
+        expectArgon2Validation(
+          kdfConfigFormGroup.controls.iterations,
+          kdfConfigFormGroup.controls.memory,
+          kdfConfigFormGroup.controls.parallelism,
+        );
       });
     });
 
@@ -250,28 +260,32 @@ describe("ChangeKdfComponent", () => {
       it("should update form structure and default values when KDF type changes to Argon2id", () => {
         // Arrange
         const formGroup = component["formGroup"];
-        const kdfControl = formGroup.get("kdf");
 
         // Act - change KDF type to Argon2id
-        kdfControl?.setValue(KdfType.Argon2id);
+        formGroup.controls.kdf.setValue(KdfType.Argon2id);
 
         // Assert form values update to Argon2id defaults
-        expect(formGroup.get("kdf")?.value).toBe(KdfType.Argon2id);
-        expect(formGroup.get("kdfConfig.iterations")?.value).toBe(3); // Argon2id default
-        expect(formGroup.get("kdfConfig.memory")?.value).toBe(64); // Argon2id default
-        expect(formGroup.get("kdfConfig.parallelism")?.value).toBe(4); // Argon2id default
+        expect(formGroup.controls.kdf.value).toBe(KdfType.Argon2id);
+        const kdfConfigFormGroup = formGroup.controls.kdfConfig;
+        expect(kdfConfigFormGroup.controls.iterations.value).toBe(3); // Argon2id default
+        expect(kdfConfigFormGroup.controls.memory.value).toBe(64); // Argon2id default
+        expect(kdfConfigFormGroup.controls.parallelism.value).toBe(4); // Argon2id default
       });
 
       it("should update validators when KDF type changes to Argon2id", () => {
         // Arrange
         const formGroup = component["formGroup"];
-        const kdfControl = formGroup.get("kdf");
 
         // Act - change KDF type to Argon2id
-        kdfControl?.setValue(KdfType.Argon2id);
+        formGroup.controls.kdf.setValue(KdfType.Argon2id);
 
         // Assert validators update to Argon2id validation rules
-        expectArgon2Validation(formGroup);
+        const kdfConfigFormGroup = formGroup.controls.kdfConfig;
+        expectArgon2Validation(
+          kdfConfigFormGroup.controls.iterations,
+          kdfConfigFormGroup.controls.memory,
+          kdfConfigFormGroup.controls.parallelism,
+        );
       });
     });
 
@@ -289,28 +303,32 @@ describe("ChangeKdfComponent", () => {
       it("should update form structure and default values when KDF type changes to PBKDF2", () => {
         // Arrange
         const formGroup = component["formGroup"];
-        const kdfControl = formGroup.get("kdf");
 
         // Act - change KDF type back to PBKDF2
-        kdfControl?.setValue(KdfType.PBKDF2_SHA256);
+        formGroup.controls.kdf.setValue(KdfType.PBKDF2_SHA256);
 
         // Assert form values update to PBKDF2 defaults
-        expect(formGroup.get("kdf")?.value).toBe(KdfType.PBKDF2_SHA256);
-        expect(formGroup.get("kdfConfig.iterations")?.value).toBe(600_000); // PBKDF2 default
-        expect(formGroup.get("kdfConfig.memory")?.value).toBeNull(); // PBKDF2 doesn't use memory
-        expect(formGroup.get("kdfConfig.parallelism")?.value).toBeNull(); // PBKDF2 doesn't use parallelism
+        expect(formGroup.controls.kdf.value).toBe(KdfType.PBKDF2_SHA256);
+        const kdfConfigFormGroup = formGroup.controls.kdfConfig;
+        expect(kdfConfigFormGroup.controls.iterations.value).toBe(600_000); // PBKDF2 default
+        expect(kdfConfigFormGroup.controls.memory.value).toBeNull(); // PBKDF2 doesn't use memory
+        expect(kdfConfigFormGroup.controls.parallelism.value).toBeNull(); // PBKDF2 doesn't use parallelism
       });
 
       it("should update validators when KDF type changes to PBKDF2", () => {
         // Arrange
         const formGroup = component["formGroup"];
-        const kdfControl = formGroup.get("kdf");
 
         // Act - change KDF type back to PBKDF2
-        kdfControl?.setValue(KdfType.PBKDF2_SHA256);
+        formGroup.controls.kdf.setValue(KdfType.PBKDF2_SHA256);
 
         // Assert validators update to PBKDF2 validation rules
-        expectPBKDF2Validation(formGroup);
+        const kdfConfigFormGroup = formGroup.controls.kdfConfig;
+        expectPBKDF2Validation(
+          kdfConfigFormGroup.controls.iterations,
+          kdfConfigFormGroup.controls.memory,
+          kdfConfigFormGroup.controls.parallelism,
+        );
       });
     });
   });
@@ -362,9 +380,7 @@ describe("ChangeKdfComponent", () => {
           }),
         );
       });
-    });
 
-    describe("when form is invalid", () => {
       it("should not open modal when form is invalid", async () => {
         // Arrange
         const mockPBKDF2Config = new PBKDF2KdfConfig(PBKDF2KdfConfig.ITERATIONS.min - 1);

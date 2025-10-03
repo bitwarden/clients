@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Component, Inject } from "@angular/core";
 import { FormGroup, FormControl, Validators } from "@angular/forms";
 import { firstValueFrom, Observable } from "rxjs";
@@ -23,7 +21,7 @@ export class ChangeKdfConfirmationComponent {
   kdfConfig: KdfConfig;
 
   form = new FormGroup({
-    masterPassword: new FormControl<string>(null, Validators.required),
+    masterPassword: new FormControl<string | null>(null, Validators.required),
   });
   showPassword = false;
   loading = false;
@@ -72,7 +70,7 @@ export class ChangeKdfConfirmationComponent {
   private async makeKeyAndSave() {
     const activeAccountId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
 
-    const masterPassword = this.form.value.masterPassword;
+    const masterPassword = this.form.value.masterPassword!;
 
     // Ensure the KDF config is valid.
     this.kdfConfig.validateKdfConfigForSetting();

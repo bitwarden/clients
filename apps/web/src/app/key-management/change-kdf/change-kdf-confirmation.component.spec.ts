@@ -115,9 +115,9 @@ describe("ChangeKdfConfirmationComponent", () => {
       const fixture = TestBed.createComponent(ChangeKdfConfirmationComponent);
       const component = fixture.componentInstance;
 
-      expect(component.form.get("masterPassword")?.value).toEqual(null);
-      expect(component.form.get("masterPassword")).toBeInstanceOf(FormControl);
-      expect(component.form.get("masterPassword")?.hasError("required")).toBe(true);
+      expect(component.form.controls.masterPassword).toBeInstanceOf(FormControl);
+      expect(component.form.controls.masterPassword.value).toEqual(null);
+      expect(component.form.controls.masterPassword.hasError("required")).toBe(true);
     });
   });
 
@@ -128,12 +128,12 @@ describe("ChangeKdfConfirmationComponent", () => {
     });
 
     it("should be invalid when master password is empty", () => {
-      component.form.get("masterPassword")?.setValue("");
+      component.form.controls.masterPassword.setValue("");
       expect(component.form.invalid).toBe(true);
     });
 
     it("should be valid when master password is provided", () => {
-      component.form.get("masterPassword")?.setValue(mockMasterPassword);
+      component.form.controls.masterPassword.setValue(mockMasterPassword);
       expect(component.form.valid).toBe(true);
     });
   });
@@ -144,12 +144,12 @@ describe("ChangeKdfConfirmationComponent", () => {
         fixture = TestBed.createComponent(ChangeKdfConfirmationComponent);
         component = fixture.componentInstance;
 
-        component.form.get("masterPassword")?.setValue(mockMasterPassword);
+        component.form.controls.masterPassword.setValue(mockMasterPassword);
       });
 
       it("when form is invalid", async () => {
         // Arrange
-        component.form.get("masterPassword")?.setValue("");
+        component.form.controls.masterPassword.setValue("");
         expect(component.form.invalid).toBe(true);
 
         // Act
@@ -172,7 +172,7 @@ describe("ChangeKdfConfirmationComponent", () => {
         component.kdfConfig = new PBKDF2KdfConfig(1);
 
         // Act
-        await expect(component.submit).rejects.toThrow();
+        await expect(component.submit()).rejects.toThrow();
 
         expect(mockChangeKdfService.updateUserKdfParams).not.toHaveBeenCalled();
       });
@@ -189,7 +189,7 @@ describe("ChangeKdfConfirmationComponent", () => {
         const fixture = TestBed.createComponent(ChangeKdfConfirmationComponent);
         const component = fixture.componentInstance;
 
-        component.form.get("masterPassword")?.setValue(mockMasterPassword);
+        component.form.controls.masterPassword.setValue(mockMasterPassword);
 
         // Act
         await component.submit();
@@ -198,14 +198,14 @@ describe("ChangeKdfConfirmationComponent", () => {
         expect(component.loading).toBe(false);
       });
 
-      it("not logout and close dialog when feature flag is enabled", async () => {
+      it("doesn't logout and closes the dialog when feature flag is enabled", async () => {
         // Arrange
         mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
 
         const fixture = TestBed.createComponent(ChangeKdfConfirmationComponent);
         const component = fixture.componentInstance;
 
-        component.form.get("masterPassword")?.setValue(mockMasterPassword);
+        component.form.controls.masterPassword.setValue(mockMasterPassword);
 
         // Act
         await component.submit();
@@ -224,12 +224,12 @@ describe("ChangeKdfConfirmationComponent", () => {
         expect(mockMessagingService.send).not.toHaveBeenCalled();
       });
 
-      it("with logout message and send logout when feature flag is enabled", async () => {
+      it("sends a logout and displays a log back in toast when feature flag is disabled", async () => {
         // Arrange
         const fixture = TestBed.createComponent(ChangeKdfConfirmationComponent);
         const component = fixture.componentInstance;
 
-        component.form.get("masterPassword")?.setValue(mockMasterPassword);
+        component.form.controls.masterPassword.setValue(mockMasterPassword);
 
         // Act
         await component.submit();
