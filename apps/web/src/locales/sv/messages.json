@@ -1499,6 +1499,15 @@
   "invalidMasterPassword": {
     "message": "Ogiltigt huvudlösenord"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "invalidFilePassword": {
     "message": "Ogiltigt fillösenord, använd lösenordet du angav när du skapade exportfilen."
   },
@@ -1509,28 +1518,28 @@
     "message": "Det finns inga objekt att visa."
   },
   "noItemsInTrash": {
-    "message": "No items in trash"
+    "message": "Inga objekt i papperskorgen"
   },
   "noItemsInTrashDesc": {
     "message": "Items you delete will appear here and be permanently deleted after 30 days"
   },
   "noItemsInVault": {
-    "message": "No items in the vault"
+    "message": "Inga objekt i valvet"
   },
   "emptyVaultDescription": {
     "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
   },
   "emptyFavorites": {
-    "message": "You haven't favorited any items"
+    "message": "Du har inga favoritobjekt"
   },
   "emptyFavoritesDesc": {
-    "message": "Add frequently used items to favorites for quick access."
+    "message": "Lägg till ofta använda objekt till favoriter för snabb åtkomst."
   },
   "noSearchResults": {
-    "message": "No search results returned"
+    "message": "Inga sökresultat returnerades"
   },
   "clearFiltersOrTryAnother": {
-    "message": "Clear filters or try another search term"
+    "message": "Töm filter eller försök med en annan sökterm"
   },
   "noPermissionToViewAllCollectionItems": {
     "message": "Du har inte behörighet att se alla objekt i denna samling."
@@ -4825,7 +4834,7 @@
     "message": "Organisationen är inaktiverad"
   },
   "organizationIsSuspended": {
-    "message": "Organization is suspended"
+    "message": "Organisationen är avstängd"
   },
   "organizationIsSuspendedDesc": {
     "message": "Items in suspended organizations cannot be accessed. Contact your organization owner for assistance."
@@ -5220,7 +5229,7 @@
     "description": "This will be used as part of a larger sentence, broken up to include a link. The full sentence will read 'Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. Learn more'"
   },
   "claimedDomainsLearnMore": {
-    "message": "Learn more",
+    "message": "Läs mer",
     "description": "This will be used as part of a larger sentence, broken up to include a link. The full sentence will read 'Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. Learn more'"
   },
   "unlinkSso": {
@@ -7027,6 +7036,24 @@
   },
   "exportingOrganizationVaultDesc": {
     "message": "Endast det organisationsvalv som är associerat med $ORGANIZATION$ exporteras. Objekt i enskilda valv eller andra organisationer kommer inte att inkluderas.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -11075,11 +11102,11 @@
     "message": "Sök i arkiv"
   },
   "archiveNoun": {
-    "message": "Archive",
+    "message": "Arkiv",
     "description": "Noun"
   },
   "archiveVerb": {
-    "message": "Archive",
+    "message": "Arkivera",
     "description": "Verb"
   },
   "noItemsInArchive": {
@@ -11194,6 +11221,12 @@
   },
   "bitwardenExtensionInstalled": {
     "message": "Bitvärdesförlängningen installerad!"
+  },
+  "openTheBitwardenExtension": {
+    "message": "Öppna Bitwarden-tillägget"
+  },
+  "bitwardenExtensionInstalledOpenExtension": {
+    "message": "The Bitwarden extension is installed! Open the extension to log in and start autofilling."
   },
   "openExtensionToAutofill": {
     "message": "Öppna tillägget för att logga in och starta autofyllning."

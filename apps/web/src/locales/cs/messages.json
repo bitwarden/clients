@@ -1499,6 +1499,15 @@
   "invalidMasterPassword": {
     "message": "Chybné hlavní heslo"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "invalidFilePassword": {
     "message": "Neplatné heslo souboru, použijte heslo zadané při vytvoření souboru exportu."
   },
@@ -7034,6 +7043,24 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Bude exportován jen trezor organizace přidružený k $ORGANIZATION$.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Bude exportován jen trezor organizace přidružený k $ORGANIZATION$. Položky mých sbírek nebudou zahrnuty.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "accessDenied": {
     "message": "Přístup byl odepřen. Nemáte oprávnění k zobrazení této stránky."
   },
@@ -11075,11 +11102,11 @@
     "message": "Hledat v archivu"
   },
   "archiveNoun": {
-    "message": "Archive",
+    "message": "Archiv",
     "description": "Noun"
   },
   "archiveVerb": {
-    "message": "Archive",
+    "message": "Archivovat",
     "description": "Verb"
   },
   "noItemsInArchive": {
@@ -11194,6 +11221,12 @@
   },
   "bitwardenExtensionInstalled": {
     "message": "Rozšíření Bitwarden nainstalováno!"
+  },
+  "openTheBitwardenExtension": {
+    "message": "Otevřít rozšíření Bitwarden"
+  },
+  "bitwardenExtensionInstalledOpenExtension": {
+    "message": "Rozšíření Bitwarden je nainstalováno! Otevřete rozšíření pro přihlášení a začněte používat automatické vyplňování."
   },
   "openExtensionToAutofill": {
     "message": "Otevřete rozšíření pro příhlášení a spuštění automatického vyplňování."
