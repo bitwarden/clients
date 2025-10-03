@@ -37,8 +37,10 @@ export interface PasswordHealthReportApplicationsRequest {
 export interface SaveRiskInsightsReportRequest {
   data: {
     organizationId: OrganizationId;
-    date: string;
+    creationDate: string;
     reportData: string;
+    summaryData: string;
+    applicationData: string;
     contentEncryptionKey: string;
   };
 }
@@ -58,9 +60,10 @@ export function isSaveRiskInsightsReportResponse(obj: any): obj is SaveRiskInsig
 export class GetRiskInsightsReportResponse extends BaseResponse {
   id: string;
   organizationId: OrganizationId;
-  // TODO Update to use creationDate from server
-  date: string;
+  creationDate: Date;
   reportData: EncString;
+  summaryData: EncString;
+  applicationData: EncString;
   contentEncryptionKey: EncString;
 
   constructor(response: any) {
@@ -68,8 +71,10 @@ export class GetRiskInsightsReportResponse extends BaseResponse {
 
     this.id = this.getResponseProperty("organizationId");
     this.organizationId = this.getResponseProperty("organizationId");
-    this.date = this.getResponseProperty("date");
+    this.creationDate = new Date(this.getResponseProperty("creationDate"));
     this.reportData = new EncString(this.getResponseProperty("reportData"));
+    this.summaryData = new EncString(this.getResponseProperty("summaryData"));
+    this.applicationData = new EncString(this.getResponseProperty("applicationData"));
     this.contentEncryptionKey = new EncString(this.getResponseProperty("contentEncryptionKey"));
   }
 }
@@ -77,7 +82,7 @@ export class GetRiskInsightsReportResponse extends BaseResponse {
 export class GetRiskInsightsSummaryResponse extends BaseResponse {
   id: string;
   organizationId: OrganizationId;
-  encryptedData: EncString; // Decrypted as OrganizationReportSummary
+  encryptedSummary: EncString; // Decrypted as OrganizationReportSummary
   contentEncryptionKey: EncString;
 
   constructor(response: any) {
@@ -85,7 +90,7 @@ export class GetRiskInsightsSummaryResponse extends BaseResponse {
     // TODO Handle taking array of summary data and converting to array
     this.id = this.getResponseProperty("id");
     this.organizationId = this.getResponseProperty("organizationId");
-    this.encryptedData = this.getResponseProperty("encryptedData");
+    this.encryptedSummary = this.getResponseProperty("encryptedData");
     this.contentEncryptionKey = this.getResponseProperty("contentEncryptionKey");
   }
 

@@ -7,6 +7,7 @@ import { ErrorResponse } from "@bitwarden/common/models/response/error.response"
 import { makeEncString } from "@bitwarden/common/spec";
 import { OrganizationId, OrganizationReportId } from "@bitwarden/common/types/guid";
 
+import { EncryptedDataWithKey } from "../models";
 import {
   GetRiskInsightsApplicationDataResponse,
   GetRiskInsightsReportResponse,
@@ -14,7 +15,7 @@ import {
   SaveRiskInsightsReportRequest,
   SaveRiskInsightsReportResponse,
 } from "../models/api-models.types";
-import { EncryptedDataWithKey } from "../models/password-health";
+import { mockApplicationData, mockReportData, mockSummaryData } from "../models/mock-data";
 
 import { RiskInsightsApiService } from "./risk-insights-api.service";
 
@@ -26,17 +27,21 @@ describe("RiskInsightsApiService", () => {
   const orgId = "org1" as OrganizationId;
   const mockReportId = "report-1";
   const mockKey = "encryption-key-1";
-  const mockData = "encrypted-data";
 
-  const reportData = makeEncString("test").encryptedString?.toString() ?? "";
-  const reportKey = makeEncString("test-key").encryptedString?.toString() ?? "";
+  const mockReportKey = makeEncString("test-key");
 
-  const saveRiskInsightsReportRequest: SaveRiskInsightsReportRequest = {
+  const mockReportEnc = makeEncString(JSON.stringify(mockReportData));
+  const mockSummaryEnc = makeEncString(JSON.stringify(mockSummaryData));
+  const mockApplicationsEnc = makeEncString(JSON.stringify(mockApplicationData));
+
+  const mockSaveRiskInsightsReportRequest: SaveRiskInsightsReportRequest = {
     data: {
       organizationId: orgId,
-      date: new Date().toISOString(),
-      reportData: reportData,
-      contentEncryptionKey: reportKey,
+      creationDate: new Date().toISOString(),
+      reportData: mockReportEnc.decryptedValue ?? "",
+      summaryData: mockReportEnc.decryptedValue ?? "",
+      applicationData: mockReportEnc.decryptedValue ?? "",
+      contentEncryptionKey: mockReportKey.decryptedValue ?? "",
     },
   };
 
@@ -53,7 +58,9 @@ describe("RiskInsightsApiService", () => {
       id: mockId,
       organizationId: orgId,
       date: new Date().toISOString(),
-      reportData: mockData,
+      reportData: mockReportEnc,
+      summaryData: mockSummaryEnc,
+      applicationData: mockApplicationsEnc,
       contentEncryptionKey: mockKey,
     };
 
@@ -96,17 +103,17 @@ describe("RiskInsightsApiService", () => {
   });
 
   it("saveRiskInsightsReport$ should call apiService.send with correct parameters", async () => {
-    mockApiService.send.mockReturnValue(Promise.resolve(saveRiskInsightsReportRequest));
+    mockApiService.send.mockReturnValue(Promise.resolve(mockSaveRiskInsightsReportRequest));
 
     const result = await firstValueFrom(
-      service.saveRiskInsightsReport$(saveRiskInsightsReportRequest, orgId),
+      service.saveRiskInsightsReport$(mockSaveRiskInsightsReportRequest, orgId),
     );
 
-    expect(result).toEqual(new SaveRiskInsightsReportResponse(saveRiskInsightsReportRequest));
+    expect(result).toEqual(new SaveRiskInsightsReportResponse(mockSaveRiskInsightsReportRequest));
     expect(mockApiService.send).toHaveBeenCalledWith(
       "POST",
       `/reports/organizations/${orgId.toString()}`,
-      saveRiskInsightsReportRequest.data,
+      mockSaveRiskInsightsReportRequest.data,
       true,
       true,
     );
@@ -117,13 +124,13 @@ describe("RiskInsightsApiService", () => {
     mockApiService.send.mockReturnValue(Promise.reject(error));
 
     await expect(
-      firstValueFrom(service.saveRiskInsightsReport$(saveRiskInsightsReportRequest, orgId)),
+      firstValueFrom(service.saveRiskInsightsReport$(mockSaveRiskInsightsReportRequest, orgId)),
     ).rejects.toEqual(error);
 
     expect(mockApiService.send).toHaveBeenCalledWith(
       "POST",
       `/reports/organizations/${orgId.toString()}`,
-      saveRiskInsightsReportRequest.data,
+      mockSaveRiskInsightsReportRequest.data,
       true,
       true,
     );
@@ -134,13 +141,13 @@ describe("RiskInsightsApiService", () => {
     mockApiService.send.mockReturnValue(Promise.reject(error));
 
     await expect(
-      firstValueFrom(service.saveRiskInsightsReport$(saveRiskInsightsReportRequest, orgId)),
+      firstValueFrom(service.saveRiskInsightsReport$(mockSaveRiskInsightsReportRequest, orgId)),
     ).rejects.toEqual(error);
 
     expect(mockApiService.send).toHaveBeenCalledWith(
       "POST",
       `/reports/organizations/${orgId.toString()}`,
-      saveRiskInsightsReportRequest.data,
+      mockSaveRiskInsightsReportRequest.data,
       true,
       true,
     );
@@ -153,7 +160,7 @@ describe("RiskInsightsApiService", () => {
       {
         reportId: mockReportId,
         organizationId: orgId,
-        encryptedData: mockData,
+        encryptedData: mockReportData,
         contentEncryptionKey: mockKey,
       },
     ];
@@ -175,8 +182,10 @@ describe("RiskInsightsApiService", () => {
   it("updateRiskInsightsSummary$ should call apiService.send with correct parameters and return an Observable", async () => {
     const data: EncryptedDataWithKey = {
       organizationId: orgId,
-      encryptedData: new EncString(mockData),
       contentEncryptionKey: new EncString(mockKey),
+      encryptedReportData: new EncString(JSON.stringify(mockReportData)),
+      encryptedSummaryData: new EncString(JSON.stringify(mockSummaryData)),
+      encryptedApplicationData: new EncString(JSON.stringify(mockApplicationData)),
     };
 
     const reportId = "report123" as OrganizationReportId;
@@ -199,7 +208,9 @@ describe("RiskInsightsApiService", () => {
     const reportId = "report123" as OrganizationReportId;
     const mockResponse: EncryptedDataWithKey | null = {
       organizationId: orgId,
-      encryptedData: new EncString(mockData),
+      encryptedReportData: new EncString(JSON.stringify(mockReportData)),
+      encryptedSummaryData: new EncString(JSON.stringify(mockSummaryData)),
+      encryptedApplicationData: new EncString(JSON.stringify(mockApplicationData)),
       contentEncryptionKey: new EncString(mockKey),
     };
 
@@ -217,21 +228,17 @@ describe("RiskInsightsApiService", () => {
   });
 
   it("updateRiskInsightsApplicationData$ should call apiService.send with correct parameters and return an Observable", async () => {
-    const applicationData: EncryptedDataWithKey = {
-      organizationId: orgId,
-      encryptedData: new EncString(mockData),
-      contentEncryptionKey: new EncString(mockKey),
-    };
     const reportId = "report123" as OrganizationReportId;
+    const mockApplication = mockApplicationData[0];
 
     mockApiService.send.mockResolvedValueOnce(undefined);
     const result = await firstValueFrom(
-      service.updateRiskInsightsApplicationData$(applicationData, orgId, reportId),
+      service.updateRiskInsightsApplicationData$(mockApplication, orgId, reportId),
     );
     expect(mockApiService.send).toHaveBeenCalledWith(
       "PATCH",
       `/reports/organizations/${orgId.toString()}/data/application/${reportId.toString()}`,
-      applicationData,
+      mockApplication,
       true,
       true,
     );

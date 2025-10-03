@@ -1,10 +1,12 @@
-import { BehaviorSubject, EMPTY, firstValueFrom, Observable, of } from "rxjs";
+import { BehaviorSubject, EMPTY, firstValueFrom, Observable, of, throwError } from "rxjs";
 import {
+  catchError,
   distinctUntilChanged,
   exhaustMap,
   filter,
   finalize,
   map,
+  shareReplay,
   switchMap,
   tap,
   withLatestFrom,
@@ -18,19 +20,13 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 
-import {
-  AppAtRiskMembersDialogParams,
-  AtRiskApplicationDetail,
-  AtRiskMemberDetail,
-  DrawerType,
-  DrawerDetails,
-  ApplicationHealthReportDetail,
-  ApplicationHealthReportDetailEnriched,
-  ReportDetailsAndSummary,
-} from "../models/report-models";
+import { ApplicationHealthReportDetailEnriched } from "../models";
+import { RiskInsightsEnrichedData } from "../models/report-data-service.types";
+import { DrawerType, DrawerDetails, ApplicationHealthReportDetail } from "../models/report-models";
 
 import { CriticalAppsService } from "./critical-apps.service";
 import { RiskInsightsReportService } from "./risk-insights-report.service";
+
 export class RiskInsightsDataService {
   // -------------------------- Context state --------------------------
   // Current user viewing risk insights
@@ -45,16 +41,17 @@ export class RiskInsightsDataService {
   organizationDetails$ = this.organizationDetailsSubject.asObservable();
 
   // -------------------------- Data ------------------------------------
-  private applicationsSubject = new BehaviorSubject<ApplicationHealthReportDetail[] | null>(null);
-  applications$ = this.applicationsSubject.asObservable();
+  // TODO: Remove. Will use report results
+  private LEGACY_applicationsSubject = new BehaviorSubject<ApplicationHealthReportDetail[] | null>(
+    null,
+  );
+  LEGACY_applications$ = this.LEGACY_applicationsSubject.asObservable();
 
-  private dataLastUpdatedSubject = new BehaviorSubject<Date | null>(null);
-  dataLastUpdated$ = this.dataLastUpdatedSubject.asObservable();
-
-  criticalApps$ = this.criticalAppsService.criticalAppsList$;
+  // TODO: Remove. Will use date from report results
+  private LEGACY_dataLastUpdatedSubject = new BehaviorSubject<Date | null>(null);
+  dataLastUpdated$ = this.LEGACY_dataLastUpdatedSubject.asObservable();
 
   // --------------------------- UI State ------------------------------------
-
   private isLoadingSubject = new BehaviorSubject<boolean>(false);
   isLoading$ = this.isLoadingSubject.asObservable();
 
@@ -78,21 +75,52 @@ export class RiskInsightsDataService {
 
   // ------------------------- Report Variables ----------------
   // The last run report details
-  private reportResultsSubject = new BehaviorSubject<ReportDetailsAndSummary | null>(null);
+  private reportResultsSubject = new BehaviorSubject<RiskInsightsEnrichedData | null>(null);
   reportResults$ = this.reportResultsSubject.asObservable();
   // Is a report being generated
   private isRunningReportSubject = new BehaviorSubject<boolean>(false);
   isRunningReport$ = this.isRunningReportSubject.asObservable();
-  // The error from report generation if there was an error
+
+  // --------------------------- Critical Application data ---------------------
+  criticalReportResults$: Observable<RiskInsightsEnrichedData | null> = of(null);
 
   constructor(
     private accountService: AccountService,
     private criticalAppsService: CriticalAppsService,
     private organizationService: OrganizationService,
     private reportService: RiskInsightsReportService,
-  ) {}
+  ) {
+    // Reload report if critical applications change
+    // This also handles the original report load
+    this.criticalAppsService.criticalAppsList$
+      .pipe(withLatestFrom(this.organizationDetails$, this.userId$))
+      .subscribe({
+        next: ([_criticalApps, organizationDetails, userId]) => {
+          if (organizationDetails?.organizationId && userId) {
+            this.fetchLastReport(organizationDetails?.organizationId, userId);
+          }
+        },
+      });
 
-  // [FIXME] PM-25612 - Call Initialization in RiskInsightsComponent instead of child components
+    // Setup critical application data and summary generation for live critical application usage
+    this.criticalReportResults$ = this.reportResults$.pipe(
+      filter((report) => !!report),
+      map((r) => {
+        const criticalApplications = r.reportData.filter(
+          (application) => application.isMarkedAsCritical,
+        );
+        const summary = this.reportService.generateApplicationsSummary(criticalApplications);
+
+        return {
+          ...r,
+          summaryData: summary,
+          reportData: criticalApplications,
+        };
+      }),
+      shareReplay({ bufferSize: 1, refCount: true }),
+    );
+  }
+
   async initializeForOrganization(organizationId: OrganizationId) {
     // Fetch current user
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
@@ -115,9 +143,6 @@ export class RiskInsightsDataService {
     // Load critical applications for organization
     await this.criticalAppsService.loadOrganizationContext(organizationId, userId);
 
-    // Load existing report
-    this.fetchLastReport(organizationId, userId);
-
     // Setup new report generation
     this._runApplicationsReport().subscribe({
       next: (result) => {
@@ -133,7 +158,7 @@ export class RiskInsightsDataService {
    * Fetches the applications report and updates the applicationsSubject.
    * @param organizationId The ID of the organization.
    */
-  fetchApplicationsReport(organizationId: OrganizationId, isRefresh?: boolean): void {
+  LEGACY_fetchApplicationsReport(organizationId: OrganizationId, isRefresh?: boolean): void {
     if (isRefresh) {
       this.isRefreshingSubject.next(true);
     } else {
@@ -145,22 +170,18 @@ export class RiskInsightsDataService {
         finalize(() => {
           this.isLoadingSubject.next(false);
           this.isRefreshingSubject.next(false);
-          this.dataLastUpdatedSubject.next(new Date());
+          this.LEGACY_dataLastUpdatedSubject.next(new Date());
         }),
       )
       .subscribe({
         next: (reports: ApplicationHealthReportDetail[]) => {
-          this.applicationsSubject.next(reports);
+          this.LEGACY_applicationsSubject.next(reports);
           this.errorSubject.next(null);
         },
         error: () => {
-          this.applicationsSubject.next([]);
+          this.LEGACY_applicationsSubject.next([]);
         },
       });
-  }
-
-  refreshApplicationsReport(organizationId: OrganizationId): void {
-    this.fetchApplicationsReport(organizationId, true);
   }
 
   // ------------------------------- Enrichment methods -------------------------------
@@ -174,8 +195,10 @@ export class RiskInsightsDataService {
   enrichReportData$(
     applications: ApplicationHealthReportDetail[],
   ): Observable<ApplicationHealthReportDetailEnriched[]> {
+    // TODO Compare applications on report to updated critical applications
+    // TODO Compare applications on report to any new applications
     return of(applications).pipe(
-      withLatestFrom(this.organizationDetails$, this.criticalApps$),
+      withLatestFrom(this.organizationDetails$, this.criticalAppsService.criticalAppsList$),
       switchMap(async ([apps, orgDetails, criticalApps]) => {
         if (!orgDetails) {
           return [];
@@ -200,19 +223,11 @@ export class RiskInsightsDataService {
     );
   }
 
-  // ------------------------------- Drawer management methods -------------------------------
   // ------------------------- Drawer functions -----------------------------
-
-  isActiveDrawerType$ = (drawerType: DrawerType): Observable<boolean> => {
-    return this.drawerDetails$.pipe(map((details) => details.activeDrawerType === drawerType));
-  };
   isActiveDrawerType = (drawerType: DrawerType): boolean => {
     return this.drawerDetailsSubject.value.activeDrawerType === drawerType;
   };
 
-  isDrawerOpenForInvoker$ = (applicationName: string) => {
-    return this.drawerDetails$.pipe(map((details) => details.invokerId === applicationName));
-  };
   isDrawerOpenForInvoker = (applicationName: string): boolean => {
     return this.drawerDetailsSubject.value.invokerId === applicationName;
   };
@@ -228,10 +243,7 @@ export class RiskInsightsDataService {
     });
   };
 
-  setDrawerForOrgAtRiskMembers = (
-    atRiskMemberDetails: AtRiskMemberDetail[],
-    invokerId: string = "",
-  ): void => {
+  setDrawerForOrgAtRiskMembers = async (invokerId: string = ""): Promise<void> => {
     const { open, activeDrawerType, invokerId: currentInvokerId } = this.drawerDetailsSubject.value;
     const shouldClose =
       open && activeDrawerType === DrawerType.OrgAtRiskMembers && currentInvokerId === invokerId;
@@ -239,6 +251,15 @@ export class RiskInsightsDataService {
     if (shouldClose) {
       this.closeDrawer();
     } else {
+      const reportResults = await firstValueFrom(this.reportResults$);
+      if (!reportResults) {
+        return;
+      }
+
+      const atRiskMemberDetails = this.reportService.generateAtRiskMemberList(
+        reportResults.reportData,
+      );
+
       this.drawerDetailsSubject.next({
         open: true,
         invokerId,
@@ -250,10 +271,7 @@ export class RiskInsightsDataService {
     }
   };
 
-  setDrawerForAppAtRiskMembers = (
-    atRiskMembersDialogParams: AppAtRiskMembersDialogParams,
-    invokerId: string = "",
-  ): void => {
+  setDrawerForAppAtRiskMembers = async (invokerId: string = ""): Promise<void> => {
     const { open, activeDrawerType, invokerId: currentInvokerId } = this.drawerDetailsSubject.value;
     const shouldClose =
       open && activeDrawerType === DrawerType.AppAtRiskMembers && currentInvokerId === invokerId;
@@ -261,21 +279,29 @@ export class RiskInsightsDataService {
     if (shouldClose) {
       this.closeDrawer();
     } else {
+      const reportResults = await firstValueFrom(this.reportResults$);
+      if (!reportResults) {
+        return;
+      }
+
+      const atRiskMembers = {
+        members:
+          reportResults.reportData.find((app) => app.applicationName === invokerId)
+            ?.atRiskMemberDetails ?? [],
+        applicationName: invokerId,
+      };
       this.drawerDetailsSubject.next({
         open: true,
         invokerId,
         activeDrawerType: DrawerType.AppAtRiskMembers,
         atRiskMemberDetails: [],
-        appAtRiskMembers: atRiskMembersDialogParams,
+        appAtRiskMembers: atRiskMembers,
         atRiskAppDetails: null,
       });
     }
   };
 
-  setDrawerForOrgAtRiskApps = (
-    atRiskApps: AtRiskApplicationDetail[],
-    invokerId: string = "",
-  ): void => {
+  setDrawerForOrgAtRiskApps = async (invokerId: string = ""): Promise<void> => {
     const { open, activeDrawerType, invokerId: currentInvokerId } = this.drawerDetailsSubject.value;
     const shouldClose =
       open && activeDrawerType === DrawerType.OrgAtRiskApps && currentInvokerId === invokerId;
@@ -283,13 +309,21 @@ export class RiskInsightsDataService {
     if (shouldClose) {
       this.closeDrawer();
     } else {
+      const reportResults = await firstValueFrom(this.reportResults$);
+      if (!reportResults) {
+        return;
+      }
+      const atRiskAppDetails = this.reportService.generateAtRiskApplicationList(
+        reportResults.reportData,
+      );
+
       this.drawerDetailsSubject.next({
         open: true,
         invokerId,
         activeDrawerType: DrawerType.OrgAtRiskApps,
         atRiskMemberDetails: [],
         appAtRiskMembers: null,
-        atRiskAppDetails: atRiskApps,
+        atRiskAppDetails,
       });
     }
   };
@@ -311,23 +345,31 @@ export class RiskInsightsDataService {
       .getRiskInsightsReport$(organizationId, userId)
       .pipe(
         switchMap((report) => {
-          return this.enrichReportData$(report.data).pipe(
+          // Take fetched report data and merge with critical applications
+          return this.enrichReportData$(report.reportData).pipe(
             map((enrichedReport) => ({
-              data: enrichedReport,
-              summary: report.summary,
+              report: enrichedReport,
+              summary: report.summaryData,
+              applications: report.applicationData,
+              creationDate: report.creationDate,
             })),
           );
+        }),
+        catchError((error: unknown) => {
+          // console.error("An error occurred when fetching the last report", error);
+          return EMPTY;
         }),
         finalize(() => {
           this.isLoadingSubject.next(false);
         }),
       )
       .subscribe({
-        next: ({ data, summary }) => {
+        next: ({ report, summary, applications, creationDate }) => {
           this.reportResultsSubject.next({
-            data,
-            summary,
-            dateCreated: new Date(),
+            reportData: report,
+            summaryData: summary,
+            applicationData: applications,
+            creationDate: creationDate,
           });
           this.errorSubject.next(null);
           this.isLoadingSubject.next(false);
@@ -343,6 +385,7 @@ export class RiskInsightsDataService {
   private _runApplicationsReport() {
     return this.isRunningReport$.pipe(
       distinctUntilChanged(),
+      // Only run this report if the flag for running is true
       filter((isRunning) => isRunning),
       withLatestFrom(this.organizationDetails$, this.userId$),
       exhaustMap(([_, organizationDetails, userId]) => {
@@ -353,27 +396,73 @@ export class RiskInsightsDataService {
 
         // Generate the report
         return this.reportService.generateApplicationsReport$(organizationId).pipe(
-          map((data) => ({
-            data,
-            summary: this.reportService.generateApplicationsSummary(data),
+          map((report) => ({
+            report,
+            summary: this.reportService.generateApplicationsSummary(report),
+            applications: this.reportService.generateOrganizationApplications(report),
           })),
-          switchMap(({ data, summary }) =>
-            this.enrichReportData$(data).pipe(
-              map((enrichedData) => ({ data: enrichedData, summary })),
+          // Enrich report with critical markings
+          switchMap(({ report, summary, applications }) =>
+            this.enrichReportData$(report).pipe(
+              map((enrichedReport) => ({ report: enrichedReport, summary, applications })),
             ),
           ),
-          tap(({ data, summary }) => {
-            this.reportResultsSubject.next({ data, summary, dateCreated: new Date() });
+          // Load the updated data into the UI
+          tap(({ report, summary, applications }) => {
+            this.reportResultsSubject.next({
+              reportData: report,
+              summaryData: summary,
+              applicationData: applications,
+              creationDate: new Date(),
+            });
             this.errorSubject.next(null);
           }),
-          switchMap(({ data, summary }) => {
-            // Just returns ID
-            return this.reportService.saveRiskInsightsReport$(data, summary, {
+          switchMap(({ report, summary, applications }) => {
+            // Save the generated data
+            return this.reportService.saveRiskInsightsReport$(report, summary, applications, {
               organizationId,
               userId,
             });
           }),
         );
+      }),
+    );
+  }
+
+  // ------------------------------ Critical application methods --------------
+
+  saveCriticalApplications(selectedUrls: string[]) {
+    return this.organizationDetails$.pipe(
+      exhaustMap((organizationDetails) => {
+        if (!organizationDetails?.organizationId) {
+          return EMPTY;
+        }
+        return this.criticalAppsService.setCriticalApps(
+          organizationDetails?.organizationId,
+          selectedUrls,
+        );
+      }),
+      catchError((error: unknown) => {
+        this.errorSubject.next("Failed to save critical applications");
+        return throwError(() => error);
+      }),
+    );
+  }
+
+  removeCriticalApplication(hostname: string) {
+    return this.organizationDetails$.pipe(
+      exhaustMap((organizationDetails) => {
+        if (!organizationDetails?.organizationId) {
+          return EMPTY;
+        }
+        return this.criticalAppsService.dropCriticalApp(
+          organizationDetails?.organizationId,
+          hostname,
+        );
+      }),
+      catchError((error: unknown) => {
+        this.errorSubject.next("Failed to remove critical application");
+        return throwError(() => error);
       }),
     );
   }

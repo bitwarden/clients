@@ -49,7 +49,7 @@
         type="button"
         class="tw-flex-1"
         tabindex="0"
-        (click)="showOrgAtRiskMembers('criticalAppsAtRiskMembers')"
+        (click)="dataService.setDrawerForOrgAtRiskMembers('criticalAppsAtRiskMembers')"
       >
         <dirt-card
           #criticalAppsAtRiskMembers
@@ -67,7 +67,7 @@
         type="button"
         class="tw-flex-1"
         tabindex="0"
-        (click)="showOrgAtRiskApps('criticalAppsAtRiskApplications')"
+        (click)="dataService.setDrawerForOrgAtRiskApps('criticalAppsAtRiskApplications')"
       >
         <dirt-card
           #criticalAppsAtRiskApplications
@@ -96,7 +96,7 @@
       [showRowMenuForCriticalApps]="true"
       [openApplication]="drawerDetails.invokerId || ''"
       [showAppAtRiskMembers]="showAppAtRiskMembers"
-      [unmarkAsCritical]="unmarkAsCritical"
+      [unmarkAsCritical]="removeCriticalApplication"
     ></app-table-row-scrollable>
   }
 </div>

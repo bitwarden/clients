@@ -4,7 +4,7 @@ import { Component } from "@angular/core";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 
 @Component({
-  selector: "tools-risk-insights-loading",
+  selector: "dirt-risk-insights-loading",
   imports: [CommonModule, JslibModule],
   templateUrl: "./risk-insights-loading.component.html",
 })

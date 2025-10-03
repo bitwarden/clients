@@ -1,7 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
-import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { BadgeVariant } from "@bitwarden/components";
 
@@ -32,16 +30,6 @@ export type ExposedPasswordDetail = {
   cipherId: string;
   exposedXTimes: number;
 } | null;
-
-/*
- * After data is encrypted, it is returned with the
- * encryption key used to encrypt the data.
- */
-export interface EncryptedDataWithKey {
-  organizationId: OrganizationId;
-  encryptedData: EncString;
-  contentEncryptionKey: EncString;
-}
 
 export type LEGACY_MemberDetailsFlat = {
   userGuid: string;
