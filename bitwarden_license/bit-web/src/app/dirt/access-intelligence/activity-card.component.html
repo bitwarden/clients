@@ -9,7 +9,7 @@
   <div class="tw-flex tw-items-baseline tw-mt-4 tw-gap-2">
     <span bitTypography="body2">{{ metricDescription }}</span>
   </div>
-  @if (buttonText) {
+  @if (buttonClick.observed && buttonText) {
     <div class="tw-flex tw-items-baseline tw-mt-4 tw-gap-2">
       <button
         type="button"
