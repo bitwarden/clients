@@ -93,7 +93,7 @@
   "sendReminders": {
     "message": "Send reminders"
   },
-  "criticalApplicationsActivityDescription": {
+  "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
     "message": "Once you mark applications critical, they will display here."
   },
   "viewAtRiskMembers": {

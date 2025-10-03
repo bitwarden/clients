@@ -4,19 +4,7 @@
   </div>
 }
 
-@if (!(isLoading$ | async) && (noData$ | async)) {
-  <div class="tw-mt-4">
-    <bit-no-items class="tw-text-main">
-      <ng-container slot="title">
-        <h2 class="tw-font-semibold tw-mt-4">
-          {{ "noAppsInOrgTitle" | i18n: organization?.name }}
-        </h2>
-      </ng-container>
-    </bit-no-items>
-  </div>
-}
-
-@if (!(isLoading$ | async) && !(noData$ | async)) {
+@if (!(isLoading$ | async)) {
   <ul
     class="tw-inline-grid tw-grid-cols-3 tw-gap-6 tw-m-0 tw-p-0 tw-w-full tw-auto-cols-auto tw-list-none"
   >
