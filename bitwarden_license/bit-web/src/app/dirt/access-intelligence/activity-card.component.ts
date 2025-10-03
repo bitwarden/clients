@@ -50,12 +50,7 @@ export class ActivityCardComponent {
   @Input() iconClass: string | null = null;
 
   /**
-   * Show button instead of link
-   */
-  @Input() showButton: boolean = false;
-
-  /**
-   * Button text
+   * Button text. If provided, a button will be displayed instead of a navigation link.
    */
   @Input() buttonText: string = "";
 

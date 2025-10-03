@@ -9,7 +9,7 @@
   <div class="tw-flex tw-items-baseline tw-mt-4 tw-gap-2">
     <span bitTypography="body2">{{ metricDescription }}</span>
   </div>
-  @if (showButton) {
+  @if (buttonText) {
     <div class="tw-flex tw-items-baseline tw-mt-4 tw-gap-2">
       <button
         type="button"
@@ -23,7 +23,7 @@
       </button>
     </div>
   }
-  @if (showNavigationLink && !showButton) {
+  @if (showNavigationLink && !buttonText) {
     <div class="tw-flex tw-items-baseline tw-mt-4 tw-gap-2">
       <p bitTypography="body1">
         <a bitLink (click)="navigateToLink(navigationLink)" rel="noreferrer">
