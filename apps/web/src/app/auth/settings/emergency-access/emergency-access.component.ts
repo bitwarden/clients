@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
-import { lastValueFrom, Observable, firstValueFrom, switchMap } from "rxjs";
+import { lastValueFrom, Observable, firstValueFrom, switchMap, map } from "rxjs";
 
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
@@ -165,7 +165,15 @@ export class EmergencyAccessComponent implements OnInit {
       });
       const result = await lastValueFrom(dialogRef.closed);
       if (result === EmergencyAccessConfirmDialogResult.Confirmed) {
-        await this.emergencyAccessService.confirm(contact.id, contact.granteeId, publicKey);
+        const activeUserId = await firstValueFrom(
+          this.accountService.activeAccount$.pipe(getUserId),
+        );
+        await this.emergencyAccessService.confirm(
+          contact.id,
+          contact.granteeId,
+          publicKey,
+          activeUserId,
+        );
         updateUser();
         this.toastService.showToast({
           variant: "success",
@@ -176,10 +184,14 @@ export class EmergencyAccessComponent implements OnInit {
       return;
     }
 
+    const activeUserId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+    );
     this.actionPromise = this.emergencyAccessService.confirm(
       contact.id,
       contact.granteeId,
       publicKey,
+      activeUserId,
     );
     await this.actionPromise;
     updateUser();
