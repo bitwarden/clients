@@ -721,9 +721,7 @@ export class VaultV2Component<C extends CipherViewLike>
 
     this.cipherId = cipher.id;
     this.cipher = cipher;
-    if (this.activeUserId) {
-      await this.cipherService.clearCache(this.activeUserId).catch(() => {});
-    }
+
     await this.vaultItemsComponent?.load(this.activeFilter.buildFilter()).catch(() => {});
     await this.go().catch(() => {});
     await this.vaultItemsComponent?.refresh().catch(() => {});
