@@ -1163,6 +1163,16 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   async replace(ciphers: { [id: string]: CipherData }, userId: UserId): Promise<any> {
+    const current = (await firstValueFrom(this.encryptedCiphersState(userId).state$)) ?? {};
+
+    // The extension relies on chrome.storage.StorageArea.onChanged to detect updates.
+    // If stored and provided data are identical, this event doesn’t fire and the ciphers$
+    // observable won’t emit a new value. In this case we can skip the update to avoid calling
+    // clearCache and causing an empty state.
+    if (JSON.stringify(current) === JSON.stringify(ciphers)) {
+      return ciphers;
+    }
+
     await this.updateEncryptedCipherState(() => ciphers, userId);
   }
 
@@ -1176,13 +1186,16 @@ export class CipherService implements CipherServiceAbstraction {
     userId: UserId = null,
   ): Promise<Record<CipherId, CipherData>> {
     userId ||= await firstValueFrom(this.stateProvider.activeUserId$);
+
     await this.clearCache(userId);
+
     const updatedCiphers = await this.stateProvider
       .getUser(userId, ENCRYPTED_CIPHERS)
       .update((current) => {
         const result = update(current ?? {});
         return result;
       });
+
     // Some state storage providers (e.g. Electron) don't update the state immediately, wait for next tick
     // Otherwise, subscribers to cipherViews$ can get stale data
     await new Promise((resolve) => setTimeout(resolve, 0));
