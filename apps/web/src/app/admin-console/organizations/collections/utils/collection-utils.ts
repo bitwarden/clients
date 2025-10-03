@@ -5,7 +5,6 @@ import {
   CollectionView,
   NestingDelimiter,
 } from "@bitwarden/admin-console/common";
-import { OrganizationId } from "@bitwarden/common/types/guid";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
 
@@ -27,23 +26,15 @@ export function getNestedCollectionTree(
     .sort((a, b) => a.name.localeCompare(b.name))
     .map(cloneCollection);
 
-  const all: TreeNode<CollectionView | CollectionAdminView>[] = [];
-  const groupedByOrg = new Map<OrganizationId, CollectionView[]>();
-  clonedCollections.map((c) => {
-    const key = c.organizationId;
-    (groupedByOrg.get(key) ?? groupedByOrg.set(key, []).get(key)!).push(c);
+  const nodes: TreeNode<CollectionView | CollectionAdminView>[] = [];
+  clonedCollections.forEach((collection) => {
+    const parts =
+      collection.name != null
+        ? collection.name.replace(/^\/+|\/+$/g, "").split(NestingDelimiter)
+        : [];
+    ServiceUtils.nestedTraverse(nodes, 0, parts, collection, null, NestingDelimiter);
   });
-
-  for (const group of groupedByOrg.values()) {
-    const nodes: TreeNode<CollectionView>[] = [];
-    for (const c of group) {
-      const collectionCopy = Object.assign(new CollectionView({ ...c, name: c.name }), c);
-      const parts = c.name ? c.name.replace(/^\/+|\/+$/g, "").split(NestingDelimiter) : [];
-      ServiceUtils.nestedTraverse(nodes, 0, parts, collectionCopy, undefined, NestingDelimiter);
-    }
-    all.push(...nodes);
-  }
-  return all;
+  return nodes;
 }
 
 export function cloneCollection(collection: CollectionView): CollectionView;
