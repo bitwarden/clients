@@ -10,13 +10,14 @@ import {
   CriticalAppsService,
   RiskInsightsDataService,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights";
+import { PasswordHealthReportApplicationsResponse } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/api-models.types";
 import {
   ApplicationHealthReportDetail,
   DrawerType,
-  PasswordHealthReportApplicationsResponse,
-} from "@bitwarden/bit-common/dirt/reports/risk-insights/models/password-health";
+} from "@bitwarden/bit-common/dirt/reports/risk-insights/models/report-models";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
@@ -29,15 +30,17 @@ import {
 } from "@bitwarden/components";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 
+import { AllActivityComponent } from "./all-activity.component";
 import { AllApplicationsComponent } from "./all-applications.component";
 import { CriticalApplicationsComponent } from "./critical-applications.component";
 
 // FIXME: update to use a const object instead of a typescript enum
 // eslint-disable-next-line @bitwarden/platform/no-enums
 export enum RiskInsightsTabType {
-  AllApps = 0,
-  CriticalApps = 1,
-  NotifiedMembers = 2,
+  AllActivity = 0,
+  AllApps = 1,
+  CriticalApps = 2,
+  NotifiedMembers = 3,
 }
 
 @Component({
@@ -54,10 +57,15 @@ export enum RiskInsightsTabType {
     DrawerComponent,
     DrawerBodyComponent,
     DrawerHeaderComponent,
+    AllActivityComponent,
   ],
 })
 export class RiskInsightsComponent implements OnInit {
+  private destroyRef = inject(DestroyRef);
+  private _isDrawerOpen: boolean = false;
+
   tabIndex: RiskInsightsTabType = RiskInsightsTabType.AllApps;
+  isRiskInsightsActivityTabFeatureEnabled: boolean = false;
 
   dataLastUpdated: Date = new Date();
 
@@ -68,7 +76,7 @@ export class RiskInsightsComponent implements OnInit {
   notifiedMembersCount: number = 0;
 
   private organizationId: OrganizationId = "" as OrganizationId;
-  private destroyRef = inject(DestroyRef);
+
   isLoading$: Observable<boolean> = new Observable<boolean>();
   isRefreshing$: Observable<boolean> = new Observable<boolean>();
   dataLastUpdated$: Observable<Date | null> = new Observable<Date | null>();
@@ -85,6 +93,14 @@ export class RiskInsightsComponent implements OnInit {
     this.route.queryParams.pipe(takeUntilDestroyed()).subscribe(({ tabIndex }) => {
       this.tabIndex = !isNaN(Number(tabIndex)) ? Number(tabIndex) : RiskInsightsTabType.AllApps;
     });
+
+    this.configService
+      .getFeatureFlag$(FeatureFlag.PM22887_RiskInsightsActivityTab)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((isEnabled) => {
+        this.isRiskInsightsActivityTabFeatureEnabled = isEnabled;
+        this.tabIndex = 0; // default to first tab
+      });
   }
 
   async ngOnInit() {
@@ -113,13 +129,26 @@ export class RiskInsightsComponent implements OnInit {
             this.appsCount = applications.length;
           }
 
-          this.criticalAppsService.setOrganizationId(this.organizationId as OrganizationId, userId);
+          this.criticalAppsService.loadOrganizationContext(
+            this.organizationId as OrganizationId,
+            userId,
+          );
           this.criticalApps$ = this.criticalAppsService.getAppsListForOrg(
             this.organizationId as OrganizationId,
           );
         },
       });
+
+    // Subscribe to drawer state changes
+    this.dataService.drawerDetails$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((details) => {
+        this._isDrawerOpen = details.open;
+      });
   }
+  runReport = () => {
+    this.dataService.triggerReport();
+  };
 
   /**
    * Refreshes the data by re-fetching the applications report.
@@ -145,5 +174,28 @@ export class RiskInsightsComponent implements OnInit {
   // Get a list of drawer types
   get drawerTypes(): typeof DrawerType {
     return DrawerType;
+  }
+
+  /**
+   * Special case getter for syncing drawer state from service to component.
+   * This allows the template to use two-way binding while staying reactive.
+   */
+  get isDrawerOpen() {
+    return this._isDrawerOpen;
+  }
+
+  /**
+   * Special case setter for syncing drawer state from component to service.
+   * When the drawer component closes the drawer, this syncs the state back to the service.
+   */
+  set isDrawerOpen(value: boolean) {
+    if (this._isDrawerOpen !== value) {
+      this._isDrawerOpen = value;
+
+      // Close the drawer in the service if the drawer component closed the drawer
+      if (!value) {
+        this.dataService.closeDrawer();
+      }
+    }
   }
 }

@@ -6,16 +6,17 @@ import { combineLatest, debounceTime, firstValueFrom, map, Observable, of, switc
 
 import { Security } from "@bitwarden/assets/svg";
 import {
+  AllActivitiesService,
   CriticalAppsService,
   RiskInsightsDataService,
   RiskInsightsReportService,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights";
+import { createNewSummaryData } from "@bitwarden/bit-common/dirt/reports/risk-insights/helpers";
 import {
-  ApplicationHealthReportDetail,
-  ApplicationHealthReportDetailWithCriticalFlag,
-  ApplicationHealthReportDetailWithCriticalFlagAndCipher,
-  ApplicationHealthReportSummary,
+  LEGACY_ApplicationHealthReportDetailWithCriticalFlag,
+  LEGACY_ApplicationHealthReportDetailWithCriticalFlagAndCipher,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/password-health";
+import { OrganizationReportSummary } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/report-models";
 import { RiskInsightsEncryptionService } from "@bitwarden/bit-common/dirt/reports/risk-insights/services/risk-insights-encryption.service";
 import {
   getOrganizationById,
@@ -60,19 +61,14 @@ import { ApplicationsLoadingComponent } from "./risk-insights-loading.component"
 })
 export class AllApplicationsComponent implements OnInit {
   protected dataSource =
-    new TableDataSource<ApplicationHealthReportDetailWithCriticalFlagAndCipher>();
+    new TableDataSource<LEGACY_ApplicationHealthReportDetailWithCriticalFlagAndCipher>();
   protected selectedUrls: Set<string> = new Set<string>();
   protected searchControl = new FormControl("", { nonNullable: true });
   protected loading = true;
   protected organization = new Organization();
   noItemsIcon = Security;
   protected markingAsCritical = false;
-  protected applicationSummary: ApplicationHealthReportSummary = {
-    totalMemberCount: 0,
-    totalAtRiskMemberCount: 0,
-    totalApplicationCount: 0,
-    totalAtRiskApplicationCount: 0,
-  };
+  protected applicationSummary: OrganizationReportSummary = createNewSummaryData();
 
   destroyRef = inject(DestroyRef);
   isLoading$: Observable<boolean> = of(false);
@@ -99,7 +95,7 @@ export class AllApplicationsComponent implements OnInit {
               const data = applications?.map((app) => ({
                 ...app,
                 isMarkedAsCritical: criticalUrls.includes(app.applicationName),
-              })) as ApplicationHealthReportDetailWithCriticalFlag[];
+              })) as LEGACY_ApplicationHealthReportDetailWithCriticalFlag[];
               return { data, organization };
             }
 
@@ -125,6 +121,7 @@ export class AllApplicationsComponent implements OnInit {
           if (data) {
             this.dataSource.data = data;
             this.applicationSummary = this.reportService.generateApplicationsSummary(data);
+            this.allActivitiesService.setAllAppsReportSummary(this.applicationSummary);
           }
           if (organization) {
             this.organization = organization;
@@ -147,6 +144,7 @@ export class AllApplicationsComponent implements OnInit {
     private accountService: AccountService,
     protected criticalAppsService: CriticalAppsService,
     protected riskInsightsEncryptionService: RiskInsightsEncryptionService,
+    protected allActivitiesService: AllActivitiesService,
   ) {
     this.searchControl.valueChanges
       .pipe(debounceTime(200), takeUntilDestroyed())
@@ -186,10 +184,6 @@ export class AllApplicationsComponent implements OnInit {
     }
   };
 
-  trackByFunction(_: number, item: ApplicationHealthReportDetail) {
-    return item.applicationName;
-  }
-
   showAppAtRiskMembers = async (applicationName: string) => {
     const info = {
       members:
@@ -217,11 +211,5 @@ export class AllApplicationsComponent implements OnInit {
     } else {
       this.selectedUrls.delete(applicationName);
     }
-  };
-
-  getSelectedUrls = () => Array.from(this.selectedUrls);
-
-  isDrawerOpenForTableRow = (applicationName: string): boolean => {
-    return this.dataService.drawerInvokerId === applicationName;
   };
 }

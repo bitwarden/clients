@@ -23,6 +23,7 @@ import { KitchenSinkSharedModule } from "../kitchen-sink-shared.module";
           inputMaxValue: (max) => `Input value must not exceed ${max}.`,
           inputMinValue: (min) => `Input value must be at least ${min}.`,
           inputRequired: "Input is required.",
+          loading: "Loading",
           multiSelectClearAll: "Clear all",
           multiSelectLoading: "Retrieving options...",
           multiSelectNotFound: "No items found",

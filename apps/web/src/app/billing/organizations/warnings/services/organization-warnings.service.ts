@@ -16,8 +16,6 @@ import { take } from "rxjs/operators";
 
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { DialogService } from "@bitwarden/components";
@@ -53,7 +51,6 @@ export class OrganizationWarningsService {
   taxIdWarningRefreshed$ = this.taxIdWarningRefreshedSubject.asObservable();
 
   constructor(
-    private configService: ConfigService,
     private dialogService: DialogService,
     private i18nService: I18nService,
     private organizationApiService: OrganizationApiServiceAbstraction,
@@ -63,6 +60,7 @@ export class OrganizationWarningsService {
 
   getFreeTrialWarning$ = (
     organization: Organization,
+    includeOrganizationNameInMessaging = false,
   ): Observable<OrganizationFreeTrialWarning | null> =>
     merge(
       this.getWarning$(organization, (response) => response.freeTrial),
@@ -80,20 +78,30 @@ export class OrganizationWarningsService {
         if (remainingTrialDays >= 2) {
           return {
             organization,
-            message: this.i18nService.t("freeTrialEndPromptCount", remainingTrialDays),
+            message: includeOrganizationNameInMessaging
+              ? this.i18nService.t(
+                  "freeTrialEndPromptMultipleDays",
+                  organization.name,
+                  remainingTrialDays,
+                )
+              : this.i18nService.t("freeTrialEndPromptCount", remainingTrialDays),
           };
         }
 
         if (remainingTrialDays == 1) {
           return {
             organization,
-            message: this.i18nService.t("freeTrialEndPromptTomorrowNoOrgName"),
+            message: includeOrganizationNameInMessaging
+              ? this.i18nService.t("freeTrialEndPromptTomorrow", organization.name)
+              : this.i18nService.t("freeTrialEndPromptTomorrowNoOrgName"),
           };
         }
 
         return {
           organization,
-          message: this.i18nService.t("freeTrialEndingTodayWithoutOrgName"),
+          message: includeOrganizationNameInMessaging
+            ? this.i18nService.t("freeTrialEndPromptToday", organization.name)
+            : this.i18nService.t("freeTrialEndingTodayWithoutOrgName"),
         };
       }),
     );
@@ -185,14 +193,8 @@ export class OrganizationWarningsService {
               cancelButtonText: this.i18nService.t("close"),
             });
             if (confirmed) {
-              const managePaymentDetailsOutsideCheckout = await this.configService.getFeatureFlag(
-                FeatureFlag.PM21881_ManagePaymentDetailsOutsideCheckout,
-              );
-              const route = managePaymentDetailsOutsideCheckout
-                ? "payment-details"
-                : "payment-method";
               await this.router.navigate(
-                ["organizations", `${organization.id}`, "billing", route],
+                ["organizations", `${organization.id}`, "billing", "payment-details"],
                 {
                   state: { launchPaymentModalAutomatically: true },
                 },

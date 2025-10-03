@@ -66,11 +66,13 @@ export const PIN_DISK = new StateDefinition("pinUnlock", "disk");
 export const PIN_MEMORY = new StateDefinition("pinUnlock", "memory");
 export const ROUTER_DISK = new StateDefinition("router", "disk");
 export const SSO_DISK = new StateDefinition("ssoLogin", "disk");
+export const SSO_DISK_LOCAL = new StateDefinition("ssoLoginLocal", "disk", { web: "disk-local" });
 export const TOKEN_DISK = new StateDefinition("token", "disk");
 export const TOKEN_DISK_LOCAL = new StateDefinition("tokenDiskLocal", "disk", {
   web: "disk-local",
 });
 export const TOKEN_MEMORY = new StateDefinition("token", "memory");
+export const SEND_ACCESS_DISK = new StateDefinition("sendAccess", "disk");
 export const TWO_FACTOR_MEMORY = new StateDefinition("twoFactor", "memory");
 export const USER_DECRYPTION_OPTIONS_DISK = new StateDefinition("userDecryptionOptions", "disk");
 export const ORGANIZATION_INVITE_DISK = new StateDefinition("organizationInvite", "disk");
@@ -108,9 +110,6 @@ export const NEW_WEB_LAYOUT_BANNER_DISK = new StateDefinition("newWebLayoutBanne
 
 export const APPLICATION_ID_DISK = new StateDefinition("applicationId", "disk", {
   web: "disk-local",
-});
-export const BADGE_MEMORY = new StateDefinition("badge", "memory", {
-  browser: "memory-large-object",
 });
 export const BIOMETRIC_SETTINGS_DISK = new StateDefinition("biometricSettings", "disk");
 export const CLEAR_EVENT_DISK = new StateDefinition("clearEvent", "disk");

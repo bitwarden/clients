@@ -2,16 +2,20 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import {
-  MemberDetailsFlat,
-  CipherHealthReportDetail,
-  CipherHealthReportUriDetail,
-  ApplicationHealthReportDetail,
+  LEGACY_MemberDetailsFlat,
+  LEGACY_CipherHealthReportDetail,
+  LEGACY_CipherHealthReportUriDetail,
 } from "../models/password-health";
+import {
+  ApplicationHealthReportDetail,
+  OrganizationReportSummary,
+  RiskInsightsReportData,
+} from "../models/report-models";
 import { MemberCipherDetailsResponse } from "../response/member-cipher-details.response";
 
 export function flattenMemberDetails(
   memberCiphers: MemberCipherDetailsResponse[],
-): MemberDetailsFlat[] {
+): LEGACY_MemberDetailsFlat[] {
   return memberCiphers.flatMap((member) =>
     member.cipherIds.map((cipherId) => ({
       userGuid: member.userGuid,
@@ -44,7 +48,9 @@ export function getTrimmedCipherUris(cipher: CipherView): string[] {
 }
 
 // Returns a deduplicated array of members by email
-export function getUniqueMembers(orgMembers: MemberDetailsFlat[]): MemberDetailsFlat[] {
+export function getUniqueMembers(
+  orgMembers: LEGACY_MemberDetailsFlat[],
+): LEGACY_MemberDetailsFlat[] {
   const existingEmails = new Set<string>();
   return orgMembers.filter((member) => {
     if (existingEmails.has(member.email)) {
@@ -68,7 +74,7 @@ export function getMemberDetailsFlat(
   userName: string,
   email: string,
   cipherId: string,
-): MemberDetailsFlat {
+): LEGACY_MemberDetailsFlat {
   return {
     userGuid: userGuid,
     userName: userName,
@@ -84,9 +90,9 @@ export function getMemberDetailsFlat(
  * @returns Flattened cipher health details to URI
  */
 export function getFlattenedCipherDetails(
-  detail: CipherHealthReportDetail,
+  detail: LEGACY_CipherHealthReportDetail,
   uri: string,
-): CipherHealthReportUriDetail {
+): LEGACY_CipherHealthReportUriDetail {
   return {
     cipherId: detail.id,
     reusedPasswordCount: detail.reusedPasswordCount,
@@ -107,7 +113,7 @@ export function getFlattenedCipherDetails(
  * @returns The new or updated application health report detail
  */
 export function getApplicationReportDetail(
-  newUriDetail: CipherHealthReportUriDetail,
+  newUriDetail: LEGACY_CipherHealthReportUriDetail,
   isAtRisk: boolean,
   existingUriDetail?: ApplicationHealthReportDetail,
 ): ApplicationHealthReportDetail {
@@ -141,4 +147,35 @@ export function getApplicationReportDetail(
   reportDetail.memberCount = reportDetail.memberDetails.length;
 
   return reportDetail;
+}
+
+/**
+ * Create a new Risk Insights Report
+ *
+ * @returns An empty report
+ */
+export function createNewReportData(): RiskInsightsReportData {
+  return {
+    data: [],
+    summary: createNewSummaryData(),
+  };
+}
+
+/**
+ * Create a new Risk Insights Report Summary
+ *
+ * @returns An empty report summary
+ */
+export function createNewSummaryData(): OrganizationReportSummary {
+  return {
+    totalMemberCount: 0,
+    totalAtRiskMemberCount: 0,
+    totalApplicationCount: 0,
+    totalAtRiskApplicationCount: 0,
+    totalCriticalMemberCount: 0,
+    totalCriticalAtRiskMemberCount: 0,
+    totalCriticalApplicationCount: 0,
+    totalCriticalAtRiskApplicationCount: 0,
+    newApplications: [],
+  };
 }
