@@ -27,9 +27,9 @@ export class ExportScopeCalloutComponent {
   };
 
   /* Optional OrganizationId, if not provided, it will display individual vault export message */
-  readonly organizationId = input<OrganizationId | undefined>();
+  readonly organizationId = input<OrganizationId>();
   /* Optional export format, determines which individual export description to display */
-  readonly exportFormat = input<ExportFormat | undefined>();
+  readonly exportFormat = input<ExportFormat>();
   /* The description key to use for organizational exports */
   readonly orgExportDescription = input<string>();
 
@@ -55,7 +55,7 @@ export class ExportScopeCalloutComponent {
   ): Promise<void> {
     const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
 
-    if (organizationId != null) {
+    if (organizationId) {
       // exporting from organizational vault
       const org = await firstValueFrom(
         this.organizationService.organizations$(userId).pipe(getById(organizationId)),
