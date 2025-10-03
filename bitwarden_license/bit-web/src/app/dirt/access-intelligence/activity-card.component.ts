@@ -1,9 +1,9 @@
 import { CommonModule } from "@angular/common";
-import { Component, Input } from "@angular/core";
+import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { Router } from "@angular/router";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { ButtonModule, LinkModule, TypographyModule } from "@bitwarden/components";
+import { ButtonModule, ButtonType, LinkModule, TypographyModule } from "@bitwarden/components";
 
 @Component({
   selector: "dirt-activity-card",
@@ -43,9 +43,43 @@ export class ActivityCardComponent {
    */
   @Input() showNavigationLink: boolean = false;
 
+  /**
+   * Show icon next to metrics
+   */
+  @Input() showIcon: boolean = false;
+
+  /**
+   * Icon class (e.g., "bwi-exclamation-triangle")
+   */
+  @Input() iconClass: string = "";
+
+  /**
+   * Show button instead of link
+   */
+  @Input() showButton: boolean = false;
+
+  /**
+   * Button text
+   */
+  @Input() buttonText: string = "";
+
+  /**
+   * Button type (e.g., "primary", "secondary")
+   */
+  @Input() buttonType: ButtonType = "primary";
+
+  /**
+   * Event emitted when button is clicked
+   */
+  @Output() buttonClick = new EventEmitter<void>();
+
   constructor(private router: Router) {}
 
   navigateToLink = async (navigationLink: string) => {
     await this.router.navigateByUrl(navigationLink);
+  };
+
+  onButtonClick = () => {
+    this.buttonClick.emit();
   };
 }

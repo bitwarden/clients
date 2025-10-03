@@ -233,6 +233,23 @@ export class RiskInsightsReportService {
     const uniqueAtRiskMembers = getUniqueMembers(atRiskMembers);
 
     // TODO: totalCriticalMemberCount, totalCriticalAtRiskMemberCount, totalCriticalApplicationCount, totalCriticalAtRiskApplicationCount, and newApplications will be handled with future logic implementation
+    // TODO: Replace with actual new applications detection logic (PM-26185)
+    const dummyNewApplications = [
+      "github.com",
+      "google.com",
+      "stackoverflow.com",
+      "gitlab.com",
+      "bitbucket.org",
+      "npmjs.com",
+      "docker.com",
+      "aws.amazon.com",
+      "azure.microsoft.com",
+      "jenkins.io",
+      "terraform.io",
+      "kubernetes.io",
+      "atlassian.net",
+    ];
+
     return {
       totalMemberCount: uniqueMembers.length,
       totalCriticalMemberCount: 0,
@@ -242,7 +259,7 @@ export class RiskInsightsReportService {
       totalCriticalApplicationCount: 0,
       totalAtRiskApplicationCount: reports.filter((app) => app.atRiskPasswordCount > 0).length,
       totalCriticalAtRiskApplicationCount: 0,
-      newApplications: [],
+      newApplications: dummyNewApplications,
     };
   }
 
