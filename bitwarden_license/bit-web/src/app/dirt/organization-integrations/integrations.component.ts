@@ -4,6 +4,7 @@ import { firstValueFrom, Observable, Subject, switchMap, takeUntil, takeWhile } 
 
 import { Integration } from "@bitwarden/bit-common/dirt/organization-integrations/models/integration";
 import { OrganizationIntegrationServiceType } from "@bitwarden/bit-common/dirt/organization-integrations/models/organization-integration-service-type";
+import { OrganizationIntegrationType } from "@bitwarden/bit-common/dirt/organization-integrations/models/organization-integration-type";
 import { DatadogOrganizationIntegrationService } from "@bitwarden/bit-common/dirt/organization-integrations/services/datadog-organization-integration-service";
 import { HecOrganizationIntegrationService } from "@bitwarden/bit-common/dirt/organization-integrations/services/hec-organization-integration-service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -299,7 +300,9 @@ export class AdminConsoleIntegrationsComponent implements OnInit, OnDestroy {
       .subscribe((integrations) => {
         // reset all integrations to null first - in case one was deleted
         this.integrationsList.forEach((i) => {
-          i.organizationIntegration = null;
+          if (i.integrationType === OrganizationIntegrationType.Hec) {
+            i.organizationIntegration = null;
+          }
         });
 
         integrations.map((integration) => {
@@ -315,7 +318,9 @@ export class AdminConsoleIntegrationsComponent implements OnInit, OnDestroy {
       .subscribe((integrations) => {
         // reset all integrations to null first - in case one was deleted
         this.integrationsList.forEach((i) => {
-          i.organizationIntegration = null;
+          if (i.integrationType === OrganizationIntegrationType.Datadog) {
+            i.organizationIntegration = null;
+          }
         });
 
         integrations.map((integration) => {
