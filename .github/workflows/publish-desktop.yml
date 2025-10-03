@@ -72,39 +72,47 @@ jobs:
 
       - name: Check Publish Version
         id: version
+        env:
+          _INPUT_VERSION: ${{ inputs.version }}
         run: |
-          if [[ "${{ inputs.version }}" == "latest" || "${{ inputs.version }}" == "" ]]; then
-            TAG_NAME=$(curl  "https://api.github.com/repos/bitwarden/clients/releases" | jq -c '.[] | select(.tag_name | contains("desktop")) | .tag_name' | head -1 | cut -d '"' -f 2)
-            VERSION=$(echo $TAG_NAME | sed "s/desktop-v//")
+          if [[ "$_INPUT_VERSION" == "latest" || "$_INPUT_VERSION" == "" ]]; then
+            TAG_NAME=$(curl  "https://api.github.com/repos/bitwarden/clients/releases" \
+              | jq -c '.[] | select(.tag_name | contains("desktop")) | .tag_name' \
+              | head -1 | cut -d '"' -f 2)
+            VERSION="${TAG_NAME#desktop-v}"
+
             echo "Latest Released Version: $VERSION"
-            echo "version=$VERSION" >> $GITHUB_OUTPUT
+            echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
             echo "Tag name: $TAG_NAME"
-            echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
+            echo "tag_name=$TAG_NAME" >> "$GITHUB_OUTPUT"
           else
-            echo "Release Version: ${{ inputs.version }}"
-            echo "version=${{ inputs.version }}"
+            VERSION="$_INPUT_VERSION"
+            TAG_NAME="desktop-v$VERSION"
 
-            TAG_NAME="desktop-v${{ inputs.version }}"
+            echo "Release Version: $VERSION"
+            echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
             echo "Tag name: $TAG_NAME"
-            echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
+            echo "tag_name=$TAG_NAME" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Get Version Channel
         id: release_channel
+        env:
+          _VERSION: ${{ steps.version.outputs.version }}
         run: |
-          case "${{ steps.version.outputs.version }}" in
+          case "${_VERSION}" in
             *"alpha"*)
-              echo "channel=alpha" >> $GITHUB_OUTPUT
+              echo "channel=alpha" >> "$GITHUB_OUTPUT"
               echo "[!] We do not yet support 'alpha'"
               exit 1
               ;;
             *"beta"*)
-              echo "channel=beta" >> $GITHUB_OUTPUT
+              echo "channel=beta" >> "$GITHUB_OUTPUT"
               ;;
             *)
-              echo "channel=latest" >> $GITHUB_OUTPUT
+              echo "channel=latest" >> "$GITHUB_OUTPUT"
               ;;
           esac
 
@@ -159,16 +167,16 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         working-directory: apps/desktop/artifacts
-        run: gh release download ${{ env._RELEASE_TAG }} -R bitwarden/clients
+        run: gh release download "$_RELEASE_TAG" -R bitwarden/clients
 
       - name: Set staged rollout percentage
         env:
           RELEASE_CHANNEL: ${{ needs.setup.outputs.release_channel }}
           ROLLOUT_PCT: ${{ inputs.electron_rollout_percentage }}
         run: |
-          echo "stagingPercentage: ${ROLLOUT_PCT}" >> apps/desktop/artifacts/${RELEASE_CHANNEL}.yml
-          echo "stagingPercentage: ${ROLLOUT_PCT}" >> apps/desktop/artifacts/${RELEASE_CHANNEL}-linux.yml
-          echo "stagingPercentage: ${ROLLOUT_PCT}" >> apps/desktop/artifacts/${RELEASE_CHANNEL}-mac.yml
+          echo "stagingPercentage: ${ROLLOUT_PCT}" >> "apps/desktop/artifacts/${RELEASE_CHANNEL}.yml"
+          echo "stagingPercentage: ${ROLLOUT_PCT}" >> "apps/desktop/artifacts/${RELEASE_CHANNEL}-linux.yml"
+          echo "stagingPercentage: ${ROLLOUT_PCT}" >> "apps/desktop/artifacts/${RELEASE_CHANNEL}-mac.yml"
 
       - name: Publish artifacts to S3
         if: ${{ inputs.publish_type != 'Dry Run' }}
@@ -179,7 +187,7 @@ jobs:
           AWS_S3_BUCKET_NAME: ${{ steps.retrieve-secrets.outputs.aws-electron-bucket-name }}
         working-directory: apps/desktop/artifacts
         run: |
-          aws s3 cp ./ $AWS_S3_BUCKET_NAME/desktop/ \
+          aws s3 cp ./ "$AWS_S3_BUCKET_NAME/desktop/" \
           --acl "public-read" \
           --recursive \
           --quiet
@@ -214,6 +222,8 @@ jobs:
     steps:
       - name: Checkout Repo
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
 
       - name: Log in to Azure
         uses: bitwarden/gh-actions/azure-login@main
@@ -241,14 +251,14 @@ jobs:
 
       - name: Download artifacts
         working-directory: apps/desktop/dist
-        run: wget https://github.com/bitwarden/clients/releases/download/${{ env._RELEASE_TAG }}/bitwarden_${{ env._PKG_VERSION }}_amd64.snap
+        run: wget "https://github.com/bitwarden/clients/releases/download/$_RELEASE_TAG/bitwarden_$_PKG_VERSION_amd64.snap"
 
       - name: Deploy to Snap Store
         if: ${{ inputs.publish_type != 'Dry Run' }}
         env:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ steps.retrieve-secrets.outputs.snapcraft-store-token }}
         run: |
-          snapcraft upload bitwarden_${{ env._PKG_VERSION }}_amd64.snap --release stable
+          snapcraft upload "bitwarden_$_PKG_VERSION_amd64.snap" --release stable
           snapcraft logout
         working-directory: apps/desktop/dist
 
@@ -266,6 +276,8 @@ jobs:
     steps:
       - name: Checkout Repo
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
 
       - name: Print Environment
         run: |
@@ -300,7 +312,7 @@ jobs:
 
       - name: Download artifacts
         working-directory: apps/desktop/dist
-        run: Invoke-WebRequest -Uri "https://github.com/bitwarden/clients/releases/download/${{ env._RELEASE_TAG }}/bitwarden.${{ env._PKG_VERSION }}.nupkg" -OutFile bitwarden.${{ env._PKG_VERSION }}.nupkg
+        run: Invoke-WebRequest -Uri "https://github.com/bitwarden/clients/releases/download/$_RELEASE_TAG/bitwarden.$_PKG_VERSION.nupkg" -OutFile "bitwarden.$_PKG_VERSION.nupkg"
 
       - name: Push to Chocolatey
         if: ${{ inputs.publish_type != 'Dry Run' }}
@@ -321,6 +333,8 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
 
       - name: Validate release notes for MAS
         if: inputs.mas_publish && (inputs.release_notes == '' || inputs.release_notes == null)
@@ -331,7 +345,7 @@ jobs:
 
       - name: Download MacOS App Store build number
         working-directory: apps/desktop
-        run: wget https://github.com/bitwarden/clients/releases/download/${{ env._RELEASE_TAG }}/macos-build-number.json
+        run: wget "https://github.com/bitwarden/clients/releases/download/$_RELEASE_TAG/macos-build-number.json"
 
       - name: Setup Ruby and Install Fastlane
         uses: ruby/setup-ruby@ca041f971d66735f3e5ff1e21cc13e2d51e7e535 # v1.233.0
@@ -365,12 +379,14 @@ jobs:
         env:
           APP_STORE_CONNECT_TEAM_ISSUER: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-TEAM-ISSUER }}
           APP_STORE_CONNECT_AUTH_KEY: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-KEY }}
+          _RELEASE_NOTES: ${{ inputs.release_notes }}
+          _PUBLISH_TYPE: ${{ inputs.publish_type }}
         working-directory: apps/desktop
         run: |
           BUILD_NUMBER=$(jq -r '.buildNumber' macos-build-number.json)
-          CHANGELOG="${{ inputs.release_notes }}"
-          IS_DRY_RUN="${{ inputs.publish_type == 'Dry Run' }}"
-          
+          CHANGELOG="$_RELEASE_NOTES"
+          IS_DRY_RUN="$_PUBLISH_TYPE == 'Dry Run'"
+
           if [ "$IS_DRY_RUN" = "true" ]; then
             echo "🧪 DRY RUN MODE - Testing without actual App Store submission"
             echo "📦 Would publish build $BUILD_NUMBER to Mac App Store"
@@ -388,10 +404,10 @@ jobs:
           fi
           
           fastlane publish --verbose \
-            app_version:"${{ env._PKG_VERSION }}" \
-            build_number:$BUILD_NUMBER \
+            app_version:"$PKG_VERSION" \
+            build_number:"$BUILD_NUMBER" \
             changelog:"$CHANGELOG" \
-            dry_run:$IS_DRY_RUN
+            dry_run:"$IS_DRY_RUN"
 
   update-deployment:
     name: Update Deployment Status
