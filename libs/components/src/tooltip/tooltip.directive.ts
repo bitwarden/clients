@@ -39,6 +39,8 @@ export class TooltipDirective implements OnInit {
    */
   readonly tooltipPosition = input<TooltipPositionIdentifier>("above-center");
 
+  readonly descriptionText = input<string>();
+
   private _bitTooltip = signal("");
 
   private resolvedTooltipText = computed(() => {
@@ -47,7 +49,7 @@ export class TooltipDirective implements OnInit {
 
   private isVisible = signal(false);
   private overlayRef: OverlayRef | undefined;
-  private elementRef = inject(ElementRef);
+  private elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
   private overlay = inject(Overlay);
   private viewContainerRef = inject(ViewContainerRef);
   private injector = inject(Injector);
@@ -87,8 +89,23 @@ export class TooltipDirective implements OnInit {
         positionStrategy: this.positionStrategy,
       });
 
-      this.overlayRef.attach(this.tooltipPortal);
+      const tooltipRef = this.overlayRef.attach(this.tooltipPortal);
+      tooltipRef.changeDetectorRef.detectChanges();
+
+      const hostEl = tooltipRef.location.nativeElement as HTMLElement;
+      const tooltipId = hostEl.querySelector("[role='tooltip']")?.id;
+      const currentDescribedBy = this.elementRef.nativeElement.getAttribute("aria-describedby");
+
+      if (currentDescribedBy) {
+        this.elementRef.nativeElement.setAttribute(
+          "aria-describedby",
+          `${currentDescribedBy} ${tooltipId}`,
+        );
+      } else {
+        this.elementRef.nativeElement.setAttribute("aria-describedby", tooltipId);
+      }
     }
+
     this.isVisible.set(true);
   };
 
