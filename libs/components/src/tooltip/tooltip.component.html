@@ -4,7 +4,7 @@
   [attr.data-position]="tooltipData.tooltipPosition()"
   [attr.data-visible]="tooltipData.isVisible()"
 >
-  <div role="tooltip" class="bit-tooltip">
+  <div role="tooltip" class="bit-tooltip" [attr.id]="id">
     <ng-content>{{ tooltipData.content() }}</ng-content>
   </div>
 </div>

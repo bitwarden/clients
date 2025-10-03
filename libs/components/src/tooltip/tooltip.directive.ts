@@ -8,8 +8,8 @@ import {
   ElementRef,
   Injector,
   input,
-  effect,
   signal,
+  computed,
 } from "@angular/core";
 
 import { TooltipPositionIdentifier, tooltipPositions } from "./tooltip-positions";
@@ -32,16 +32,24 @@ export class TooltipDirective implements OnInit {
   /**
    * The value of this input is forwarded to the tooltip.component to render
    */
-  readonly bitTooltip = input.required<string>();
+  readonly bitTooltip = input<string>();
   /**
    * The value of this input is forwarded to the tooltip.component to set its position explicitly.
    * @default "above-center"
    */
   readonly tooltipPosition = input<TooltipPositionIdentifier>("above-center");
 
+  readonly descriptionText = input<string>();
+
+  private _bitTooltip = signal("");
+
+  private resolvedTooltipText = computed(() => {
+    return this.bitTooltip() ?? this._bitTooltip();
+  });
+
   private isVisible = signal(false);
   private overlayRef: OverlayRef | undefined;
-  private elementRef = inject(ElementRef);
+  private elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
   private overlay = inject(Overlay);
   private viewContainerRef = inject(ViewContainerRef);
   private injector = inject(Injector);
@@ -59,7 +67,7 @@ export class TooltipDirective implements OnInit {
         {
           provide: TOOLTIP_DATA,
           useValue: {
-            content: this.bitTooltip,
+            content: this.resolvedTooltipText,
             isVisible: this.isVisible,
             tooltipPosition: this.tooltipPosition,
           },
@@ -68,12 +76,41 @@ export class TooltipDirective implements OnInit {
     }),
   );
 
+  private destroyTooltip = () => {
+    this.overlayRef?.dispose();
+    this.overlayRef = undefined;
+    this.isVisible.set(false);
+  };
+
   private showTooltip = () => {
+    if (!this.overlayRef) {
+      this.overlayRef = this.overlay.create({
+        ...this.defaultPopoverConfig,
+        positionStrategy: this.positionStrategy,
+      });
+
+      const tooltipRef = this.overlayRef.attach(this.tooltipPortal);
+      tooltipRef.changeDetectorRef.detectChanges();
+
+      const hostEl = tooltipRef.location.nativeElement as HTMLElement;
+      const tooltipId = hostEl.querySelector("[role='tooltip']")?.id;
+      const currentDescribedBy = this.elementRef.nativeElement.getAttribute("aria-describedby");
+
+      if (currentDescribedBy) {
+        this.elementRef.nativeElement.setAttribute(
+          "aria-describedby",
+          `${currentDescribedBy} ${tooltipId}`,
+        );
+      } else {
+        this.elementRef.nativeElement.setAttribute("aria-describedby", tooltipId);
+      }
+    }
+
     this.isVisible.set(true);
   };
 
   private hideTooltip = () => {
-    this.isVisible.set(false);
+    this.destroyTooltip();
   };
 
   private computePositions(tooltipPosition: TooltipPositionIdentifier) {
@@ -89,22 +126,11 @@ export class TooltipDirective implements OnInit {
     };
   }
 
+  setContent(text: string) {
+    this._bitTooltip.set(text);
+  }
+
   ngOnInit() {
     this.positionStrategy.withPositions(this.computePositions(this.tooltipPosition()));
-
-    this.overlayRef = this.overlay.create({
-      ...this.defaultPopoverConfig,
-      positionStrategy: this.positionStrategy,
-    });
-
-    this.overlayRef.attach(this.tooltipPortal);
-
-    effect(
-      () => {
-        this.positionStrategy.withPositions(this.computePositions(this.tooltipPosition()));
-        this.overlayRef?.updatePosition();
-      },
-      { injector: this.injector },
-    );
   }
 }
