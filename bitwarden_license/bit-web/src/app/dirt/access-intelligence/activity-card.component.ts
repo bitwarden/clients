@@ -44,14 +44,10 @@ export class ActivityCardComponent {
   @Input() showNavigationLink: boolean = false;
 
   /**
-   * Show icon next to metrics
+   * Icon class to display next to metrics (e.g., "bwi-exclamation-triangle").
+   * If null, no icon is displayed.
    */
-  @Input() showIcon: boolean = false;
-
-  /**
-   * Icon class (e.g., "bwi-exclamation-triangle")
-   */
-  @Input() iconClass: string = "";
+  @Input() iconClass: string | null = null;
 
   /**
    * Show button instead of link
