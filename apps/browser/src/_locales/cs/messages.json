@@ -550,6 +550,38 @@
   "resetSearch": {
     "message": "Resetovat hledání"
   },
+  "archiveNoun": {
+    "message": "Archiv",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archivovat",
+    "description": "Verb"
+  },
+  "unarchive": {
+    "message": "Odebrat z archivu"
+  },
+  "itemsInArchive": {
+    "message": "Položky v archivu"
+  },
+  "noItemsInArchive": {
+    "message": "Žádné položky v archivu"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Zde se zobrazí archivované položky a budou vyloučeny z obecných výsledků vyhledávání a návrhů automatického vyplňování."
+  },
+  "itemSentToArchive": {
+    "message": "Položka byla přesunuta do archivu"
+  },
+  "itemRemovedFromArchive": {
+    "message": "Položka byla odebrána z archivu"
+  },
+  "archiveItem": {
+    "message": "Archivovat položku"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Archivované položky jsou vyloučeny z obecných výsledků vyhledávání a z návrhů automatického vyplňování. Jste si jisti, že chcete tuto položku archivovat?"
+  },
   "edit": {
     "message": "Upravit"
   },
@@ -700,6 +732,15 @@
   },
   "invalidMasterPassword": {
     "message": "Chybné hlavní heslo"
+  },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
   },
   "vaultTimeout": {
     "message": "Časový limit trezoru"
@@ -3163,6 +3204,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Bude exportován jen trezor organizace přidružený k $ORGANIZATION$.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Bude exportován jen trezor organizace přidružený k $ORGANIZATION$. Položky mých sbírek nebudou zahrnuty.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },

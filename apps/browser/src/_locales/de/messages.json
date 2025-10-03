@@ -550,6 +550,38 @@
   "resetSearch": {
     "message": "Suche zurücksetzen"
   },
+  "archiveNoun": {
+    "message": "Archiv",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archivieren",
+    "description": "Verb"
+  },
+  "unarchive": {
+    "message": "Archivierung aufheben"
+  },
+  "itemsInArchive": {
+    "message": "Einträge im Archiv"
+  },
+  "noItemsInArchive": {
+    "message": "Kein Eintrag im Archiv"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Archivierte Einträge werden hier angezeigt und von allgemeinen Suchergebnissen sowie Vorschlägen zum automatischen Ausfüllen ausgeschlossen."
+  },
+  "itemSentToArchive": {
+    "message": "Eintrag an das Archiv gesendet"
+  },
+  "itemRemovedFromArchive": {
+    "message": "Eintrag aus dem Archiv entfernt"
+  },
+  "archiveItem": {
+    "message": "Eintrag archivieren"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Archivierte Einträge werden von allgemeinen Suchergebnissen sowie Vorschlägen zum automatischen Ausfüllen ausgeschlossen. Bist du sicher, dass du diesen Eintrag archivieren möchtest?"
+  },
   "edit": {
     "message": "Bearbeiten"
   },
@@ -700,6 +732,15 @@
   },
   "invalidMasterPassword": {
     "message": "Ungültiges Master-Passwort"
+  },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
   },
   "vaultTimeout": {
     "message": "Tresor-Timeout"
@@ -893,7 +934,7 @@
     "message": "Folge den Schritten unten, um die Anmeldung abzuschließen."
   },
   "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
-    "message": "Folge den Schritten unten, um die Anmeldung mit deinem Sicherheitsschlüssel abzuschließen."
+    "message": "Folge den untenstehenden Schritten, um die Anmeldung mit deinem Sicherheitsschlüssel abzuschließen."
   },
   "restartRegistration": {
     "message": "Registrierung neu starten"
@@ -1615,7 +1656,7 @@
     "message": "Deaktiviere die Auto-Ausfüllen-Einstellungen deines Browsers, damit sie nicht mit Bitwarden in Konflikt geraten."
   },
   "turnOffBrowserAutofill": {
-    "message": "$BROWSER$ Auto-Ausfüllen deaktivieren",
+    "message": "Deaktiviere das automatische Ausfüllen von $BROWSER$",
     "placeholders": {
       "browser": {
         "content": "$1",
@@ -1624,7 +1665,7 @@
     }
   },
   "turnOffAutofill": {
-    "message": "Auto-Ausfüllen deaktivieren"
+    "message": "Deaktiviere das automatische Ausfüllen"
   },
   "showInlineMenuLabel": {
     "message": "Vorschläge zum Auto-Ausfüllen in Formularfeldern anzeigen"
@@ -1755,7 +1796,7 @@
     "message": "Dieses Pop-up Fenster wird geschlossen, wenn du außerhalb des Fensters klickst um in deinen E-Mails nach dem Verifizierungscode zu suchen. Möchtest du, dass dieses Pop-up in einem separaten Fenster geöffnet wird, damit es nicht geschlossen wird?"
   },
   "showIconsChangePasswordUrls": {
-    "message": "Website Symbole anzeigen und URLs zum Ändern von Passwörtern abrufen"
+    "message": "Website-Symbole anzeigen und URLs zum Ändern von Passwörtern abrufen"
   },
   "cardholderName": {
     "message": "Name des Karteninhabers"
@@ -1940,11 +1981,11 @@
     "description": "Header for new SSH key item type"
   },
   "newItemHeaderTextSend": {
-    "message": "Neuen Text senden",
+    "message": "Neues Text-Send",
     "description": "Header for new text send"
   },
   "newItemHeaderFileSend": {
-    "message": "Neue Datei senden",
+    "message": "Neues Datei-Send",
     "description": "Header for new file send"
   },
   "editItemHeaderLogin": {
@@ -1968,11 +2009,11 @@
     "description": "Header for edit SSH key item type"
   },
   "editItemHeaderTextSend": {
-    "message": "Textversand bearbeiten",
+    "message": "Text-Send bearbeiten",
     "description": "Header for edit text send"
   },
   "editItemHeaderFileSend": {
-    "message": "Dateiversand bearbeiten",
+    "message": "Datei-Send bearbeiten",
     "description": "Header for edit file send"
   },
   "viewItemHeaderLogin": {
@@ -2200,7 +2241,7 @@
     "message": "Gebe deinen PIN-Code für das Entsperren von Bitwarden ein. Deine PIN-Einstellungen werden zurückgesetzt, wenn du dich vollständig von der Anwendung abmeldest."
   },
   "setPinCode": {
-    "message": "Du kannst diese PIN verwenden, um Bitwarden zu entsperren. Deine PIN wird zurückgesetzt, wenn du dich vollständig aus der Anwendung abmeldest."
+    "message": "Du kannst diese PIN verwenden, um Bitwarden zu entsperren. Deine PIN wird zurückgesetzt, wenn du dich einmal vollständig aus der Anwendung abmeldest."
   },
   "pinRequired": {
     "message": "PIN-Code ist erforderlich."
@@ -2618,7 +2659,7 @@
     }
   },
   "atRiskChangePrompt": {
-    "message": "Dein Passwort für diese Website ist gefährdet. $ORGANIZATION$ hat darum gebeten, dass du es änderst.",
+    "message": "Dein Passwort für diese Website ist gefährdet. $ORGANIZATION$ hat dich aufgefordert, es zu ändern.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2628,7 +2669,7 @@
     "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
   },
   "atRiskNavigatePrompt": {
-    "message": "$ORGANIZATION$ möchte, dass du dieses Passwort änderst, da es gefährdet ist. Wechsel zu deinen Kontoeinstellungen, um das Passwort zu ändern.",
+    "message": "$ORGANIZATION$ möchte, dass du dieses Passwort änderst, da es gefährdet ist. Gehe zu deinen Kontoeinstellungen, um das Passwort zu ändern.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3166,6 +3207,24 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Nur der mit $ORGANIZATION$ verknüpfte Organisations-Tresor wird exportiert.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Nur der mit $ORGANIZATION$ verknüpfte Organisations-Tresor wird exportiert. Meine Eintrags-Sammlungen werden nicht eingeschlossen.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "error": {
     "message": "Fehler"
   },
@@ -3511,7 +3570,7 @@
     }
   },
   "youDeniedLoginAttemptFromAnotherDevice": {
-    "message": "Du hast einen Anmeldeversuch von einem anderen Gerät abgelehnt. Wenn du das wirklich warst, versuche dich erneut mit dem Gerät anzumelden."
+    "message": "Du hast einen Zugangsdaten-Versuch von einem anderen Gerät abgelehnt. Falls du es warst, versuche dich erneut mit diesem Gerät anzumelden."
   },
   "device": {
     "message": "Gerät"
@@ -3725,7 +3784,7 @@
     "message": "Anmeldung kann nicht abgeschlossen werden"
   },
   "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
-    "message": "Du musst dich auf einem vertrauenswürdigen Gerät anmelden oder deinem Administrator bitten, dir ein Passwort zuzuweisen."
+    "message": "Du musst dich auf einem vertrauenswürdigen Gerät anmelden oder deinen Administrator bitten, dir ein Passwort zuzuweisen."
   },
   "ssoIdentifierRequired": {
     "message": "SSO-Kennung der Organisation erforderlich."
@@ -3801,13 +3860,13 @@
     "message": "Organisation ist nicht vertrauenswürdig"
   },
   "emergencyAccessTrustWarning": {
-    "message": "Bestätige zur Sicherheit deines Kontos nur, wenn du den Notfallzugriff diesem Benutzer gewährt hast und sein Fingerabdruck mit dem übereinstimmt, was in seinem Konto angezeigt wird"
+    "message": "Zur Sicherheit deines Kontos bestätige nur, wenn du diesem Benutzer Notfallzugriff gewährt hast und sein Fingerabdruck mit dem übereinstimmt, was in seinem Konto angezeigt wird"
   },
   "orgTrustWarning": {
     "message": "Fahre zur Sicherheit deines Kontos nur fort, wenn du ein Mitglied dieser Organisation bist, die Kontowiederherstellung aktiviert hast und der unten angezeigte Fingerabdruck mit dem Fingerabdruck der Organisation übereinstimmt."
   },
   "orgTrustWarning1": {
-    "message": "Diese Organisation hat eine Unternehmensrichtlinie, die dich für die Kontowiederherstellung registriert. Die Registrierung wird es den Administratoren der Organisation erlauben, dein Passwort zu ändern. Fahre nur fort, wenn du diese Organisation kennst und die unten angezeigte Fingerabdruck-Phrase mit der der Organisation übereinstimmt."
+    "message": "Diese Organisation hat eine Enterprise-Richtlinie, die dich für die Kontowiederherstellung registriert. Die Registrierung ermöglicht es den Organisations-Administratoren, dein Passwort zu ändern. Fahre nur fort, wenn du diese Organisation erkennst und die unten angezeigte Fingerabdruck-Phrase mit dem Fingerabdruck der Organisation übereinstimmt."
   },
   "trustUser": {
     "message": "Benutzer vertrauen"
@@ -4392,7 +4451,7 @@
     "description": "Label indicating the most common import formats"
   },
   "uriMatchDefaultStrategyHint": {
-    "message": "Die URI-Übereinstimmungserkennung ist die Methode, mit der Bitwarden Auto-Ausfüllen-Vorschläge erkennt.",
+    "message": "Die URI-Übereinstimmungserkennung ist die Methode, mit der Bitwarden Vorschläge zum automatischen Ausfüllen identifiziert.",
     "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
   },
   "regExAdvancedOptionWarning": {
@@ -5509,19 +5568,19 @@
     "message": "Jetzt importieren"
   },
   "hasItemsVaultNudgeTitle": {
-    "message": "Willkommen in deinem Tresor!"
+    "message": "Willkommen in Ihrem Tresor!"
   },
   "phishingPageTitle": {
-    "message": "Phishing website"
+    "message": "Phishing Webseite"
   },
   "phishingPageCloseTab": {
-    "message": "Close tab"
+    "message": "Tab schließen"
   },
   "phishingPageContinue": {
-    "message": "Continue"
+    "message": "Weiter"
   },
   "phishingPageLearnWhy": {
-    "message": "Why are you seeing this?"
+    "message": "Warum sehen Sie das?"
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Einträge für die aktuelle Seite automatisch ausfüllen"
@@ -5530,7 +5589,7 @@
     "message": "Favoriten-Einträge für einfachen Zugriff"
   },
   "hasItemsVaultNudgeBodyThree": {
-    "message": "Deinen Tresor nach etwas anderem durchsuchen"
+    "message": "Durchsuche deinen Tresor nach etwas anderem"
   },
   "newLoginNudgeTitle": {
     "message": "Spare Zeit mit Auto-Ausfüllen"
@@ -5546,7 +5605,7 @@
     "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newLoginNudgeBodyTwo": {
-    "message": "hinzu, damit diese Zugangsdaten als Auto-Ausfüllen-Vorschlag erscheinen.",
+    "message": "damit diese Zugangsdaten als Vorschlag zum automatischen Ausfüllen erscheinen.",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
     "example": "Include a Website so this login appears as an autofill suggestion."
   },
@@ -5563,16 +5622,16 @@
     "message": "Mit Identitäten kannst du lange Registrierungs- oder Kontaktformulare schnell automatisch ausfüllen."
   },
   "newNoteNudgeTitle": {
-    "message": "Bewahre deine sensiblen Daten sicher auf"
+    "message": "Halte deine sensiblen Daten sicher"
   },
   "newNoteNudgeBody": {
-    "message": "Mit Notizen speicherst du sensible Daten wie Bank- oder Versicherungs-Informationen."
+    "message": "Mit Notizen kannst du sensible Daten wie Bank- oder Versicherungsinformationen sicher speichern."
   },
   "newSshNudgeTitle": {
     "message": "Entwickler-freundlicher SSH-Zugriff"
   },
   "newSshNudgeBodyOne": {
-    "message": "Speicher deine Schlüssel und verbinden dich mit dem SSH-Agenten für eine schnelle und verschlüsselte Authentifizierung.",
+    "message": "Speichere deine Schlüssel und verbinde dich mit dem SSH-Agenten für eine schnelle, verschlüsselte Authentifizierung.",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
@@ -5602,13 +5661,13 @@
     "message": "Über diese Einstellung"
   },
   "permitCipherDetailsDescription": {
-    "message": "Bitwarden wird gespeicherte Login-URIs verwenden, um zu ermitteln, welches Symbol oder welche URL zum Ändern des Passworts verwendet werden soll, um Ihr Erlebnis zu verbessern. Bei der Nutzung dieses Dienstes werden keine Informationen erfasst oder gespeichert."
+    "message": "Bitwarden verwendet gespeicherte Zugangsdaten-URIs, um zu erkennen, welches Symbol oder welche Passwort-Ändern-URL verwendet werden soll, um dein Erlebnis zu verbessern. Es werden keine Informationen erfasst oder gespeichert, wenn du diesen Dienst nutzt."
   },
   "noPermissionsViewPage": {
-    "message": "Du hast keine Berechtigung, diese Seite anzuzeigen. Versuche dich mit einem anderen Konto anzumelden."
+    "message": "Du hast keine Berechtigung, diese Seite anzuzeigen. Versuche, dich mit einem anderen Konto anzumelden."
   },
   "wasmNotSupported": {
-    "message": "WebAssembly wird von deinem Browser nicht unterstützt oder ist nicht aktiviert. WebAssembly wird benötigt, um die Bitwarden-App nutzen zu können.",
+    "message": "WebAssembly wird in Ihrem Browser nicht unterstützt oder ist nicht aktiviert. WebAssembly ist erforderlich, um die Bitwarden-App zu verwenden.",
     "description": "'WebAssembly' is a technical term and should not be translated."
   },
   "showMore": {
