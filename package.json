@@ -215,7 +215,7 @@
       "eslint": "$eslint"
     },
     "tailwindcss": "$tailwindcss",
-    "parse5": "7.2.1",
+    "parse5": "8.0.0",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "@types/react": "18.3.20"
