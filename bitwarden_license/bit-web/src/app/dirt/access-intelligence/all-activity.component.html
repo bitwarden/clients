@@ -17,10 +17,15 @@
 }
 
 @if (!(isLoading$ | async) && !(noData$ | async)) {
-  <div class="tw-mt-4 tw-flex tw-flex-col">
-    <div class="tw-flex tw-gap-4 tw-col-span-6">
+  <ul
+    class="tw-inline-grid tw-grid-cols-3 tw-gap-6 tw-m-0 tw-p-0 tw-w-full tw-auto-cols-auto tw-list-none"
+  >
+    <li class="tw-col-span-1" [ngClass]="{ 'tw-col-span-2': passwordChangeMetricHasProgressBar }">
+      <dirt-password-change-metric></dirt-password-change-metric>
+    </li>
+
+    <li class="tw-col-span-1">
       <dirt-activity-card
-        class="tw-col-span-2 tw-cursor-pointer"
         [title]="'atRiskMembers' | i18n"
         [cardMetrics]="'membersAtRiskCount' | i18n: totalCriticalAppsAtRiskMemberCount"
         [metricDescription]="'membersAtRiskActivityDescription' | i18n"
@@ -29,10 +34,11 @@
         [showNavigationLink]="totalCriticalAppsAtRiskMemberCount > 0"
       >
       </dirt-activity-card>
+    </li>
 
+    <li class="tw-col-span-1">
       <dirt-activity-card
         #allAppsOrgAtRiskApplications
-        class="tw-col-span-2 tw-cursor-pointer"
         [title]="'criticalApplications' | i18n"
         [cardMetrics]="
           totalCriticalAppsCount === 0
@@ -50,6 +56,6 @@
         [showNavigationLink]="totalCriticalAppsAtRiskCount > 0"
       >
       </dirt-activity-card>
-    </div>
-  </div>
+    </li>
+  </ul>
 }
