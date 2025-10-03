@@ -57,5 +57,18 @@
       >
       </dirt-activity-card>
     </li>
+
+    <li class="tw-col-span-1">
+      <dirt-activity-card
+        [title]="'applicationsNeedingReview' | i18n"
+        [cardMetrics]="'newApplicationsWithCount' | i18n: newApplicationsCount"
+        [metricDescription]="'newApplicationsDescription' | i18n"
+        [iconClass]="'bwi-exclamation-triangle'"
+        [buttonText]="'reviewNow' | i18n"
+        [buttonType]="'primary'"
+        (buttonClick)="onReviewNewApplications()"
+      >
+      </dirt-activity-card>
+    </li>
   </ul>
 }
