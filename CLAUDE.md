@@ -8,21 +8,26 @@
 
 - **NEVER** send unencrypted vault data to API services
 
+- **NEVER** commit secrets, credentials, or sensitive information. Follow the guidelines in `SECURITY.md`.
+
 - **NEVER** log decrypted data, encryption keys, or PII
   - No vault data in error messages or console logs
-  - Log encrypted data identifiers only (cipher IDs, not contents)
+
+-- **ALWAYS** Respect configuration files at the root and within each app/library (e.g., `eslint.config.mjs`, `jest.config.js`, `tsconfig.json`).
 
 ## Mono-Repo Architecture
 
-**Service Location (CRITICAL for code organization):**
+This repository is organized as a **monorepo** containing multiple applications and libraries. The
+main directories are:
 
-TBD - How best do we do describe the behavior for code organization here (or in other Claude.md files)?
+- `apps/` – Contains all application projects (e.g., browser, cli, desktop, web). Each app is
+  self-contained with its own configuration, source code, and tests.
+- `libs/` – Contains shared libraries and modules used across multiple apps. Libraries are organized
+  by domain or functionality (e.g., common, ui, platform, key-management).
 
-**Dependency Injection:**
-
-- **ALWAYS** use `safeProvider()` when configuring Angular providers (compile-time type safety)
-- **NEVER** use Angular decorators (`@Injectable`) in `libs/common` services (breaks non-Angular clients)
-- Non-Angular contexts: manually instantiate dependencies **in correct order** (wrong order = null injection errors)
+**Strict boundaries** must be maintained between apps and libraries. Do not introduce
+cross-dependencies that violate the intended modular structure. Always consult and respect the
+dependency rules defined in `eslint.config.mjs`, `nx.json`, and other configuration files.
 
 ## Angular Architecture Patterns
 
@@ -30,8 +35,8 @@ TBD - How best do we do describe the behavior for code organization here (or in 
 
 - Services expose RxJS Observable streams for state management
 - Components subscribe using `async` pipe (NOT explicit subscriptions in most cases)
-
-Pattern:
+- Services are generally root-scoped and will **not** execute an `OnDestroy`
+  Pattern:
 
 ```typescript
 // Service

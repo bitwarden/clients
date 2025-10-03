@@ -20,9 +20,3 @@
   - DON'T assume background page persists indefinitely
   - Use message passing for communication between contexts
   - `chrome.extension.getBackgroundPage()` returns `null` in MV3
-
-## Development Commands
-
-- `npm run build:extension` - Build browser extension
-- `npm run test` - Run Jest tests
-- `npm run lint` / `npm run lint:fix` - Lint code

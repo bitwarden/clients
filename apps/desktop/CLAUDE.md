@@ -6,12 +6,6 @@
   - Use IPC (Inter-Process Communication) for cross-process communication
 
 - **NEVER** import Node.js modules directly in renderer process
+- **NEVER** import Angular modules in the main process
   - Use preload scripts or IPC to access Node.js functionality
   - See `/apps/desktop/src/*/preload.ts` files for patterns
-
-## Development Commands
-
-- `npm run build:electron` - Build Electron desktop app
-- `npm run start:electron` - Start desktop app in development mode
-- `npm run test` - Run Jest tests
-- `npm run lint` / `npm run lint:fix` - Lint code
