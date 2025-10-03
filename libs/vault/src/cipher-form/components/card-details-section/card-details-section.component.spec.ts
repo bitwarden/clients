@@ -20,7 +20,7 @@ describe("CardDetailsSectionComponent", () => {
   let registerChildFormSpy: jest.SpyInstance;
   let patchCipherSpy: jest.SpyInstance;
 
-  const getInitialCipherView = jest.fn(() => null);
+  const getInitialCipherView = jest.fn((): any => null);
 
   beforeEach(async () => {
     cipherFormProvider = mock<CipherFormContainer>({ getInitialCipherView });

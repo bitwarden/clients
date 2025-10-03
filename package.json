@@ -137,7 +137,7 @@
     "ts-loader": "9.5.2",
     "tsconfig-paths-webpack-plugin": "4.2.0",
     "type-fest": "2.19.0",
-    "typescript": "5.5.4",
+    "typescript": "5.8.3",
     "typescript-eslint": "8.31.0",
     "typescript-strict-plugin": "2.4.4",
     "url": "0.11.4",

@@ -42,7 +42,7 @@ describe("LoginDetailsSectionComponent", () => {
   let configService: MockProxy<ConfigService>;
 
   const collect = jest.fn().mockResolvedValue(null);
-  const getInitialCipherView = jest.fn(() => null);
+  const getInitialCipherView = jest.fn((): any => null);
 
   beforeEach(async () => {
     getInitialCipherView.mockClear();

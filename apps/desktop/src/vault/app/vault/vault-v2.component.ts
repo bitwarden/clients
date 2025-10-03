@@ -290,7 +290,7 @@ export class VaultV2Component<C extends CipherViewLike>
                 ) {
                   const value = await firstValueFrom(
                     this.totpService.getCode$(this.cipher.login.totp),
-                  ).catch(() => null);
+                  ).catch((): any => null);
                   if (value) {
                     this.copyValue(this.cipher, value.code, "verificationCodeTotp", "TOTP");
                   }
@@ -329,7 +329,7 @@ export class VaultV2Component<C extends CipherViewLike>
 
     this.activeUserId = await firstValueFrom(
       this.accountService.activeAccount$.pipe(getUserId),
-    ).catch(() => null);
+    ).catch((): any => null);
 
     if (this.activeUserId) {
       this.cipherService
@@ -448,7 +448,7 @@ export class VaultV2Component<C extends CipherViewLike>
     const dialogRef = AttachmentsV2Component.open(this.dialogService, {
       cipherId: this.cipherId as CipherId,
     });
-    const result = await firstValueFrom(dialogRef.closed).catch(() => null);
+    const result = await firstValueFrom(dialogRef.closed).catch((): any => null);
     if (
       result?.action === AttachmentDialogResult.Removed ||
       result?.action === AttachmentDialogResult.Uploaded
@@ -574,7 +574,7 @@ export class VaultV2Component<C extends CipherViewLike>
             click: async () => {
               const value = await firstValueFrom(
                 this.totpService.getCode$(cipher.login.totp),
-              ).catch(() => null);
+              ).catch((): any => null);
               if (value) {
                 this.copyValue(cipher, value.code, "verificationCodeTotp", "TOTP");
               }
@@ -617,7 +617,7 @@ export class VaultV2Component<C extends CipherViewLike>
   async buildFormConfig(action: CipherFormMode) {
     this.config = await this.formConfigService
       .buildConfig(action, this.cipherId as CipherId, this.addType)
-      .catch(() => null);
+      .catch((): any => null);
   }
 
   async editCipher(cipher: CipherView) {
