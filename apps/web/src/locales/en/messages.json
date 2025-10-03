@@ -93,7 +93,7 @@
   "sendReminders": {
     "message": "Send reminders"
   },
-  "criticalApplicationsActivityDescription": {
+  "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
     "message": "Once you mark applications critical, they will display here."
   },
   "viewAtRiskMembers": {
@@ -208,8 +208,8 @@
   "atRiskMembers": {
     "message": "At-risk members"
   },
-  "membersAtRiskActivityDescription":{
-    "message": "Members with edit access to at-risk items for critical applications"
+  "membersWithAccessToAtRiskItemsForCriticalApps": {
+    "message": "Members with access to at-risk items for critical applications"
   },
   "membersAtRiskCount": {
     "message": "$COUNT$ members at-risk",

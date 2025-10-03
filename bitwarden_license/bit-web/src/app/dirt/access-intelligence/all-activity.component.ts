@@ -1,7 +1,7 @@
 import { Component, DestroyRef, inject, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
-import { BehaviorSubject, firstValueFrom } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
 import {
   AllActivitiesService,
@@ -30,7 +30,6 @@ import { RiskInsightsTabType } from "./risk-insights.component";
   templateUrl: "./all-activity.component.html",
 })
 export class AllActivityComponent implements OnInit {
-  protected noData$ = new BehaviorSubject(true);
   organization: Organization | null = null;
   totalCriticalAppsAtRiskMemberCount = 0;
   totalCriticalAppsCount = 0;
@@ -52,7 +51,6 @@ export class AllActivityComponent implements OnInit {
       this.allActivitiesService.reportSummary$
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe((summary) => {
-          this.noData$.next(summary.totalApplicationCount === 0);
           this.totalCriticalAppsAtRiskMemberCount = summary.totalCriticalAtRiskMemberCount;
           this.totalCriticalAppsCount = summary.totalCriticalApplicationCount;
           this.totalCriticalAppsAtRiskCount = summary.totalCriticalAtRiskApplicationCount;
