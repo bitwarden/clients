@@ -39,7 +39,7 @@ describe("PinStateService", () => {
     expect(sut).not.toBeFalsy();
   });
 
-  describe("getUserKeyWrappedPin$", () => {
+  describe("userKeyWrappedPin$", () => {
     beforeEach(() => {
       jest.clearAllMocks();
     });
@@ -54,9 +54,7 @@ describe("PinStateService", () => {
       );
 
       // Act & Assert
-      expect(() => sut.getUserKeyWrappedPin$(userId as any)).toThrow(
-        "userId is null or undefined.",
-      );
+      expect(() => sut.userKeyWrappedPin$(userId as any)).toThrow("userId is null or undefined.");
     });
 
     test.each([null, undefined])("emits null if userKeyEncryptedPin is nullish", async (value) => {
@@ -64,7 +62,7 @@ describe("PinStateService", () => {
       await stateProvider.setUserState(USER_KEY_ENCRYPTED_PIN, value, mockUserId);
 
       // Act
-      const result = await firstValueFrom(sut.getUserKeyWrappedPin$(mockUserId));
+      const result = await firstValueFrom(sut.userKeyWrappedPin$(mockUserId));
 
       // Assert
       expect(result).toBe(null);
@@ -80,7 +78,7 @@ describe("PinStateService", () => {
       );
 
       // Act
-      const result = await firstValueFrom(sut.getUserKeyWrappedPin$(mockUserId));
+      const result = await firstValueFrom(sut.userKeyWrappedPin$(mockUserId));
 
       // Assert
       expect(result?.encryptedString).toEqual(mockUserKeyEncryptedPin);
@@ -403,7 +401,7 @@ describe("PinStateService", () => {
         expect(envelopeResult).toBe(mockEnvelope);
 
         // Assert - verify the user key encrypted PIN was set
-        const pinResult = await firstValueFrom(sut.getUserKeyWrappedPin$(mockUserId));
+        const pinResult = await firstValueFrom(sut.userKeyWrappedPin$(mockUserId));
         expect(pinResult?.encryptedString).toEqual(mockUserKeyEncryptedPin);
       },
     );
@@ -434,7 +432,7 @@ describe("PinStateService", () => {
       await sut.clearPinState(mockUserId);
 
       // Assert
-      const result = await firstValueFrom(sut.getUserKeyWrappedPin$(mockUserId));
+      const result = await firstValueFrom(sut.userKeyWrappedPin$(mockUserId));
       expect(result).toBeNull();
     });
 
@@ -509,7 +507,7 @@ describe("PinStateService", () => {
       );
 
       // Verify all state is set before clearing
-      expect(await firstValueFrom(sut.getUserKeyWrappedPin$(mockUserId))).not.toBeNull();
+      expect(await firstValueFrom(sut.userKeyWrappedPin$(mockUserId))).not.toBeNull();
       expect(await sut.getPinProtectedUserKeyEnvelope(mockUserId, "EPHEMERAL")).not.toBeNull();
       expect(await sut.getPinProtectedUserKeyEnvelope(mockUserId, "PERSISTENT")).not.toBeNull();
       expect(await sut.getLegacyPinKeyEncryptedUserKeyPersistent(mockUserId)).not.toBeNull();
@@ -518,7 +516,7 @@ describe("PinStateService", () => {
       await sut.clearPinState(mockUserId);
 
       // Assert - all PIN state should be cleared
-      expect(await firstValueFrom(sut.getUserKeyWrappedPin$(mockUserId))).toBeNull();
+      expect(await firstValueFrom(sut.userKeyWrappedPin$(mockUserId))).toBeNull();
       expect(await sut.getPinProtectedUserKeyEnvelope(mockUserId, "EPHEMERAL")).toBeNull();
       expect(await sut.getPinProtectedUserKeyEnvelope(mockUserId, "PERSISTENT")).toBeNull();
       expect(await sut.getLegacyPinKeyEncryptedUserKeyPersistent(mockUserId)).toBeNull();
@@ -550,7 +548,7 @@ describe("PinStateService", () => {
       await expect(sut.clearPinState(mockUserId)).resolves.not.toThrow();
 
       // Verify state remains cleared
-      expect(await firstValueFrom(sut.getUserKeyWrappedPin$(mockUserId))).toBeNull();
+      expect(await firstValueFrom(sut.userKeyWrappedPin$(mockUserId))).toBeNull();
       expect(await sut.getPinProtectedUserKeyEnvelope(mockUserId, "EPHEMERAL")).toBeNull();
       expect(await sut.getPinProtectedUserKeyEnvelope(mockUserId, "PERSISTENT")).toBeNull();
       expect(await sut.getLegacyPinKeyEncryptedUserKeyPersistent(mockUserId)).toBeNull();
@@ -600,7 +598,7 @@ describe("PinStateService", () => {
       await sut.clearEphemeralPinState(mockUserId);
 
       // Assert - user key encrypted PIN should still be present
-      const pinResult = await firstValueFrom(sut.getUserKeyWrappedPin$(mockUserId));
+      const pinResult = await firstValueFrom(sut.userKeyWrappedPin$(mockUserId));
       expect(pinResult?.encryptedString).toEqual(mockUserKeyEncryptedPin);
     });
 

@@ -16,7 +16,7 @@ export abstract class PinStateServiceAbstraction {
    * @param userId The user's id
    * @throws If the user id is not provided
    */
-  abstract getUserKeyWrappedPin$(userId: UserId): Observable<EncString | null>;
+  abstract userKeyWrappedPin$(userId: UserId): Observable<EncString | null>;
 
   /**
    * Gets the user's {@link PinLockType}

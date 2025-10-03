@@ -19,7 +19,7 @@ import {
 export class PinStateService implements PinStateServiceAbstraction {
   constructor(private stateProvider: StateProvider) {}
 
-  getUserKeyWrappedPin$(userId: UserId): Observable<EncString | null> {
+  userKeyWrappedPin$(userId: UserId): Observable<EncString | null> {
     assertNonNullish(userId, "userId");
 
     return this.stateProvider
