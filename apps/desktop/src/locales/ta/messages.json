@@ -1222,6 +1222,15 @@
   "invalidMasterPassword": {
     "message": "தவறான முதன்மை கடவுச்சொல்"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "twoStepLoginConfirmation": {
     "message": "இரண்டு-படி உள்நுழைவு உங்கள் கணக்கை ஒரு பாதுகாப்பு விசை, அங்கீகரிப்பான் செயலி, SMS, ஃபோன் அழைப்பு அல்லது மின்னஞ்சல் போன்ற மற்றொரு சாதனம் மூலம் உங்கள் உள்நுழைவை சரிபார்க்க கோருவதன் மூலம் அதை மேலும் பாதுகாக்கிறது. bitwarden.com இணைய பெட்டகத்தில் இரண்டு-படி உள்நுழைவை அமைக்கலாம். இப்போது இணையதளத்திற்குச் செல்ல விரும்புகிறீர்களா?"
   },
@@ -2651,6 +2660,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },
