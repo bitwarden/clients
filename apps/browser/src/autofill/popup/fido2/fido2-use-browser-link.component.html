@@ -1,52 +1,24 @@
-<ng-container *ngIf="(fido2PopoutSessionData$ | async).fallbackSupported">
-  <div class="useBrowserlink">
-    <button
-      type="button"
-      (click)="toggle()"
-      cdkOverlayOrigin
-      #trigger="cdkOverlayOrigin"
-      aria-haspopup="dialog"
-      aria-controls="cdk-overlay-container"
-    >
-      <span class="text-primary">
+@if ((fido2PopoutSessionData$ | async).fallbackSupported) {
+  <div class="tw-flex tw-items-center tw-justify-center tw-p-2">
+    <button type="button" [bitMenuTriggerFor]="deviceMenu">
+      <span bitTypography="body2">
         {{ "useDeviceOrHardwareKey" | i18n }}
       </span>
       <i class="bwi bwi-fw bwi-sm bwi-angle-down" aria-hidden="true"></i>
     </button>
+    <bit-menu #deviceMenu>
+      <button type="button" bitMenuItem (click)="abort(false)">
+        {{ "justOnce" | i18n }}
+      </button>
+      <button type="button" bitMenuItem (click)="abort()">
+        {{ "alwaysForThisSite" | i18n }}
+      </button>
+    </bit-menu>
   </div>
 
-  <ng-template
-    cdkConnectedOverlay
-    [cdkConnectedOverlayOrigin]="trigger"
-    [cdkConnectedOverlayOpen]="isOpen"
-    [cdkConnectedOverlayPositions]="overlayPosition"
-    [cdkConnectedOverlayHasBackdrop]="true"
-    [cdkConnectedOverlayBackdropClass]="'cdk-overlay-transparent-backdrop'"
-    (backdropClick)="isOpen = false"
-    (detach)="close()"
-  >
-    <div class="box-content">
-      <div
-        class="fido2-browser-selector-dropdown"
-        [@transformPanel]="'open'"
-        cdkTrapFocus
-        cdkTrapFocusAutoCapture
-        role="dialog"
-        aria-modal="true"
-      >
-        <button type="button" class="fido2-browser-selector-dropdown-item" (click)="abort(false)">
-          <span>{{ "justOnce" | i18n }}</span>
-        </button>
-        <br />
-        <button type="button" class="fido2-browser-selector-dropdown-item" (click)="abort()">
-          <span>{{ "alwaysForThisSite" | i18n }}</span>
-        </button>
-      </div>
-    </div>
-  </ng-template>
-
-  <div
-    *ngIf="showOverlay"
-    class="tw-absolute tw-size-full tw-bg-background-alt tw-inset-0 tw-bg-opacity-80 tw-z-50"
-  ></div>
-</ng-container>
+  @if (showOverlay) {
+    <div
+      class="tw-absolute tw-size-full tw-bg-background-alt tw-inset-0 tw-bg-opacity-80 tw-z-50"
+    ></div>
+  }
+}
