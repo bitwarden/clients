@@ -65,7 +65,7 @@ tokio-util = "=0.7.13"
 tracing = "=0.1.41"
 tracing-subscriber = { version = "=0.3.20", features = ["fmt", "env-filter"] }
 typenum = "=1.18.0"
-uniffi = "=0.28.3"
+uniffi = "=0.29.4"
 widestring = "=1.2.0"
 windows = "=0.61.1"
 windows-core = "=0.61.0"
