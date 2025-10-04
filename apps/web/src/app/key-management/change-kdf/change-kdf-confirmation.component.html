@@ -8,7 +8,7 @@
       @if (!(noLogoutOnKdfChangeFeatureFlag$ | async)) {
         <bit-callout type="warning">{{ "kdfSettingsChangeLogoutWarning" | i18n }}</bit-callout>
       }
-      <bit-form-field>
+      <bit-form-field disableMargin>
         <bit-label>{{ "masterPass" | i18n }}</bit-label>
         <input bitInput type="password" formControlName="masterPassword" appAutofocus />
         <button
