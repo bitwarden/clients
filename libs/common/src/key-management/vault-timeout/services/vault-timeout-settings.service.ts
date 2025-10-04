@@ -289,10 +289,6 @@ export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceA
     return availableActions;
   }
 
-  async clear(userId: UserId): Promise<void> {
-    await this.keyService.clearPinKeys(userId);
-  }
-
   private async userHasMasterPassword(userId: string): Promise<boolean> {
     if (userId) {
       const decryptionOptions = await firstValueFrom(
