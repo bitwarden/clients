@@ -47,7 +47,7 @@ export class SetPinComponent implements OnInit {
     }
 
     const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
-    const userKey = await this.keyService.getUserKey();
+    const userKey = await firstValueFrom(this.keyService.userKey$(userId));
 
     const userKeyEncryptedPin = await this.pinService.createUserKeyEncryptedPin(
       pinFormControl.value,
