@@ -69,12 +69,13 @@ import { MoveBiometricAutoPromptToAccount } from "./migrations/7-move-biometric-
 import { RemoveAcBannersDismissed } from "./migrations/70-remove-ac-banner-dismissed";
 import { RemoveNewCustomizationOptionsCalloutDismissed } from "./migrations/71-remove-new-customization-options-callout-dismissed";
 import { RemoveAccountDeprovisioningBannerDismissed } from "./migrations/72-remove-account-deprovisioning-banner-dismissed";
+import { AddMasterPasswordUnlockData } from "./migrations/73-add-master-password-unlock-data";
 import { MoveStateVersionMigrator } from "./migrations/8-move-state-version";
 import { MoveBrowserSettingsToGlobal } from "./migrations/9-move-browser-settings-to-global";
 import { MinVersionMigrator } from "./migrations/min-version";
 
 export const MIN_VERSION = 3;
-export const CURRENT_VERSION = 72;
+export const CURRENT_VERSION = 73;
 export type MinVersion = typeof MIN_VERSION;
 
 export function createMigrationBuilder() {
@@ -148,7 +149,8 @@ export function createMigrationBuilder() {
     .with(MigrateIncorrectFolderKey, 68, 69)
     .with(RemoveAcBannersDismissed, 69, 70)
     .with(RemoveNewCustomizationOptionsCalloutDismissed, 70, 71)
-    .with(RemoveAccountDeprovisioningBannerDismissed, 71, CURRENT_VERSION);
+    .with(RemoveAccountDeprovisioningBannerDismissed, 71, 72)
+    .with(AddMasterPasswordUnlockData, 72, CURRENT_VERSION);
 }
 
 export async function currentVersion(
