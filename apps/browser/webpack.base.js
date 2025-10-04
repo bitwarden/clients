@@ -28,6 +28,7 @@ module.exports.getEnv = function getEnv() {
  *  background: {
  *    entry: string;
  *  };
+ *  importAliases?: import("webpack").ResolveOptions["alias"];
  *  tsConfig: string;
  *  additionalEntries?: { [outputPath: string]: string }
  * }} params - The input parameters for building the config.
@@ -300,6 +301,7 @@ module.exports.buildConfig = function buildConfig(params) {
         fs: false,
         path: require.resolve("path-browserify"),
       },
+      alias: [...(params.importAliases ?? [])],
       cache: true,
     },
     output: {
@@ -415,6 +417,7 @@ module.exports.buildConfig = function buildConfig(params) {
           fs: false,
           path: require.resolve("path-browserify"),
         },
+        alias: [...(params.importAliases ?? [])],
         cache: true,
       },
       dependencies: ["main"],

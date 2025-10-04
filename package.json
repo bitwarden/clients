@@ -207,6 +207,9 @@
     "zone.js": "0.15.1",
     "zxcvbn": "4.4.2"
   },
+  "optionalDependencies": {
+    "@bitwarden/bit-sdk-internal": "file:../sdk/bitwarden_license/bit-bitwarden-wasm-internal/npm"
+  },
   "overrides": {
     "eslint-plugin-rxjs": {
       "eslint": "$eslint"
