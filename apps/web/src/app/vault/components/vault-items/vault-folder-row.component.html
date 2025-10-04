@@ -1,0 +1,73 @@
+<td bitCell [ngClass]="RowHeightClass" class="tw-min-w-fit">
+  @if (this.canEditFolder || this.canDeleteFolder) {
+    <input
+      type="checkbox"
+      bitCheckbox
+      appStopProp
+      [disabled]="disabled"
+      [checked]="checked"
+      (change)="$event ? this.checkedToggled.next() : null"
+      [attr.aria-label]="'folderItemSelect' | i18n"
+    />
+  }
+</td>
+<td bitCell [ngClass]="RowHeightClass" class="tw-min-w-fit">
+  <div aria-hidden="true">
+    <i class="bwi bwi-fw bwi-lg bwi-folder"></i>
+  </div>
+</td>
+<td bitCell [ngClass]="RowHeightClass">
+  <button
+    bitLink
+    [disabled]="disabled"
+    type="button"
+    class="tw-flex tw-w-full tw-text-start tw-leading-snug"
+    linkType="secondary"
+    title="{{ 'viewFolderWithName' | i18n: folderDisplayName }}"
+    [routerLink]="[]"
+    [queryParams]="{ folderId: folder.id }"
+    queryParamsHandling="merge"
+    appStopProp
+  >
+    <span class="tw-truncate tw-mr-1" [title]="folderPath">{{ folderDisplayName }}</span>
+  </button>
+</td>
+<td bitCell [ngClass]="RowHeightClass" *ngIf="showOwner" class="tw-hidden lg:tw-table-cell">
+  <!-- Folders don't have owners, leave empty -->
+</td>
+<td bitCell [ngClass]="RowHeightClass" *ngIf="showCollections">
+  <!-- Folders don't belong to collections, leave empty -->
+</td>
+<td bitCell [ngClass]="RowHeightClass" *ngIf="showGroups">
+  <!-- Folders don't have groups, leave empty -->
+</td>
+<td bitCell [ngClass]="RowHeightClass" *ngIf="showPermissionsColumn">
+  <!-- Folders don't have permissions in the same way, leave empty -->
+</td>
+<td bitCell [ngClass]="RowHeightClass" class="tw-text-right">
+  @if (canEditFolder || canDeleteFolder) {
+    <button
+      [disabled]="disabled"
+      [bitMenuTriggerFor]="folderOptions"
+      size="small"
+      bitIconButton="bwi-ellipsis-v"
+      type="button"
+      appA11yTitle="{{ 'options' | i18n }}"
+      appStopProp
+    ></button>
+  }
+  <bit-menu #folderOptions>
+    <ng-container *ngIf="canEditFolder">
+      <button type="button" bitMenuItem (click)="editFolder()">
+        <i class="bwi bwi-fw bwi-pencil-square" aria-hidden="true"></i>
+        {{ "editFolder" | i18n }}
+      </button>
+    </ng-container>
+    <button *ngIf="canDeleteFolder" type="button" bitMenuItem (click)="deleteFolder()">
+      <span class="tw-text-danger">
+        <i class="bwi bwi-fw bwi-trash" aria-hidden="true"></i>
+        {{ "delete" | i18n }}
+      </span>
+    </button>
+  </bit-menu>
+</td>
