@@ -1222,6 +1222,15 @@
   "invalidMasterPassword": {
     "message": "Mật khẩu chính không hợp lệ"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "twoStepLoginConfirmation": {
     "message": "Đăng nhập hai bước giúp tài khoản của bạn an toàn hơn bằng cách yêu cầu bạn xác minh việc đăng nhập bằng một thiết bị khác như khóa bảo mật, ứng dụng xác thực, SMS, cuộc gọi điện thoại hoặc email. Đăng nhập hai bước có thể được thiết lập trên bitwarden.com. Bạn có muốn truy cập trang web bây giờ không?"
   },
@@ -2651,6 +2660,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },
@@ -4084,13 +4111,13 @@
     "message": "Bitwarden không kiểm tra vị trí nhập liệu, hãy đảm bảo bạn đang ở trong đúng cửa sổ và trường nhập liệu trước khi dùng phím tắt."
   },
   "typeShortcut": {
-    "message": "Type shortcut"
+    "message": "Phím tắt nhập liệu"
   },
   "editAutotypeShortcutDescription": {
-    "message": "Include one or two of the following modifiers: Ctrl, Alt, Win, or Shift, and a letter."
+    "message": "Bao gồm một hoặc hai trong số các phím bổ trợ sau: Ctrl, Alt, Win hoặc Shift, và một chữ cái."
   },
   "invalidShortcut": {
-    "message": "Invalid shortcut"
+    "message": "Phím tắt không hợp lệ"
   },
   "moreBreadcrumbs": {
     "message": "Thêm mục điều hướng",
@@ -4106,7 +4133,7 @@
     "message": "Xác nhận"
   },
   "enableAutotypeShortcutPreview": {
-    "message": "Enable autotype shortcut (Feature Preview)"
+    "message": "Bật phím tắt tự động nhập (Xem trước tính năng)"
   },
   "enableAutotypeDescriptionTransitionKey": {
     "message": "Hãy đảm bảo bạn đang ở đúng trường trước khi sử dụng phím tắt để tránh điền dữ liệu vào chỗ không đúng."
@@ -4115,11 +4142,11 @@
     "message": "Chỉnh sửa phím tắt"
   },
   "archiveNoun": {
-    "message": "Archive",
+    "message": "Lưu trữ",
     "description": "Noun"
   },
   "archiveVerb": {
-    "message": "Archive",
+    "message": "Lưu trữ",
     "description": "Verb"
   },
   "unarchive": {

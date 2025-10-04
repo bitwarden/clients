@@ -232,10 +232,10 @@
     "message": "Anwendungen insgesamt"
   },
   "unmarkAsCritical": {
-    "message": "Als kritisch-Markierung aufheben"
+    "message": "Markierung als kritisch aufheben"
   },
   "criticalApplicationUnmarkedSuccessfully": {
-    "message": "Anwendung erfolgreich als kritisch-Markierung aufgehoben"
+    "message": "Markierung der Anwendung als kritisch erfolgreich aufgehoben"
   },
   "whatTypeOfItem": {
     "message": "Um welche Art von Eintrag handelt es sich hierbei?"
@@ -810,11 +810,11 @@
     "description": "Header for new SSH key item type"
   },
   "newItemHeaderTextSend": {
-    "message": "Neuen Text senden",
+    "message": "Neues Text-Send",
     "description": "Header for new text send"
   },
   "newItemHeaderFileSend": {
-    "message": "Neue Datei senden",
+    "message": "Neues Datei-Send",
     "description": "Header for new file send"
   },
   "editItemHeaderLogin": {
@@ -838,11 +838,11 @@
     "description": "Header for edit SSH key item type"
   },
   "editItemHeaderTextSend": {
-    "message": "Text bearbeiten Send",
+    "message": "Text-Send bearbeiten",
     "description": "Header for edit text send"
   },
   "editItemHeaderFileSend": {
-    "message": "Datei bearbeiten Send",
+    "message": "Datei-Send bearbeiten",
     "description": "Header for edit file send"
   },
   "viewItemHeaderLogin": {
@@ -1499,6 +1499,15 @@
   "invalidMasterPassword": {
     "message": "Ungültiges Master-Passwort"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "invalidFilePassword": {
     "message": "Ungültiges Dateipasswort. Bitte verwende das Passwort, das du beim Erstellen der Exportdatei eingegeben hast."
   },
@@ -1518,7 +1527,7 @@
     "message": "Keine Einträge im Tresor"
   },
   "emptyVaultDescription": {
-    "message": "Der Tresor schützt mehr als nur Ihre Passwörter. Speichern Sie hier sichere Zugangsdaten, Ausweise, Karten und Notizen."
+    "message": "Der Tresor schützt mehr als nur deine Passwörter. Speicher hier sichere Zugangsdaten, Identitäten, Karten und Notizen."
   },
   "emptyFavorites": {
     "message": "Du hast keine Einträge zu Favoriten hinzugefügt"
@@ -4825,10 +4834,10 @@
     "message": "Organisation ist deaktiviert"
   },
   "organizationIsSuspended": {
-    "message": "Organisation ist gesperrt"
+    "message": "Organisation ist deaktiviert"
   },
   "organizationIsSuspendedDesc": {
-    "message": "Auf Einträge in gesperrten Organisationen kann nicht zugegriffen werden. Wenden Sie sich an den Eigentümer Ihrer Organisation, um Unterstützung zu erhalten."
+    "message": "Auf Einträge in deaktivierten Organisationen kann nicht zugegriffen werden. Kontaktiere den Eigentümer deiner Organisation, um Unterstützung zu erhalten."
   },
   "secretsAccessSuspended": {
     "message": "Auf deaktivierte Organisationen kann nicht zugegriffen werden. Bitte wende dich an deinen Organisationseigentümer."
@@ -5216,11 +5225,11 @@
     "message": "SSO-Kennung"
   },
   "ssoIdentifierHint": {
-    "message": "Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. ",
+    "message": "Gib deinen Mitgliedern diese ID für die Anmeldung mit SSO. Mitglieder können die Eingabe dieser Kennung während des SSO überspringen, wenn eine beanspruchte Domain eingerichtet ist. ",
     "description": "This will be used as part of a larger sentence, broken up to include a link. The full sentence will read 'Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. Learn more'"
   },
   "claimedDomainsLearnMore": {
-    "message": "Learn more",
+    "message": "Mehr erfahren",
     "description": "This will be used as part of a larger sentence, broken up to include a link. The full sentence will read 'Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. Learn more'"
   },
   "unlinkSso": {
@@ -5620,7 +5629,7 @@
     "message": "Desktop-Autotype-Standard­einstellung"
   },
   "desktopAutotypePolicyDesc": {
-    "message": "Aktivieren Sie Desktop-Autotype standardmäßig für Mitglieder. Mitglieder können Autotype im Desktop-Client manuell deaktivieren.",
+    "message": "Aktiviere Desktop-Autotype standardmäßig für Mitglieder. Mitglieder können Autotype im Desktop-Client manuell deaktivieren.",
     "description": "This policy will enable Desktop Autotype by default for members on Unlock."
   },
   "disableSend": {
@@ -6788,7 +6797,7 @@
     "message": "SSO deaktiviert"
   },
   "emailMustLoginWithSso": {
-    "message": "$EMAIL$ muss sich mit Single Sign-on anmelden",
+    "message": "$EMAIL$ muss sich mit Single Sign-On anmelden",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -7034,6 +7043,24 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Nur der mit $ORGANIZATION$ verknüpfte Organisations-Tresor wird exportiert.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Nur der mit $ORGANIZATION$ verknüpfte Organisations-Tresor wird exportiert. Meine Eintrags-Sammlungen werden nicht eingeschlossen.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "accessDenied": {
     "message": "Zugriff verweigert. Du hast keine Berechtigung, diese Seite zu sehen."
   },
@@ -7189,7 +7216,7 @@
     "message": "Unbekanntes Geheimnis, möglicherweise müssen Sie eine Berechtigung anfordern, um auf dieses Geheimnis zuzugreifen."
   },
   "unknownProject": {
-    "message": "Unbekanntes Projekt, möglicherweise müssen Sie eine Berechtigung anfordern, um auf dieses Projekt zuzugreifen."
+    "message": "Unbekanntes Projekt. Du musst möglicherweise eine Berechtigung anfordern, um auf dieses Projekt zuzugreifen."
   },
   "cannotSponsorSelf": {
     "message": "Du kannst nicht für das aktive Konto einlösen. Gib eine andere E-Mail ein."
@@ -9081,19 +9108,19 @@
     "message": "Verwaltung der Sammlungen"
   },
   "collectionManagementDescription": {
-    "message": "Konfigurieren Sie das Sammlungsverhalten für die Organisation"
+    "message": "Konfiguriere das Sammlungs-Verhalten für die Organisation"
   },
   "allowAdminAccessToAllCollectionItemsDescription": {
-    "message": "Erlauben Sie Eigentümern und Administratoren, alle Sammlungen und Einträge über die Admin-Konsole zu verwalten"
+    "message": "Erlaube Eigentümern und Administratoren, alle Sammlungen und Einträge über die Admin-Konsole zu verwalten"
   },
   "restrictCollectionCreationDescription": {
-    "message": "Beschränken Sie die Erstellung von Sammlungen auf Eigentümer und Administratoren"
+    "message": "Beschränke die Erstellung von Sammlungen auf Eigentümer und Administratoren"
   },
   "restrictCollectionDeletionDescription": {
-    "message": "Beschränken Sie das Löschen von Sammlungen auf Eigentümer und Administratoren"
+    "message": "Beschränke das Löschen von Sammlungen auf Eigentümer und Administratoren"
   },
   "restrictItemDeletionDescriptionStart": {
-    "message": "Beschränken Sie das Löschen von Einträgen auf Mitglieder mit der ",
+    "message": "Beschränke das Löschen von Einträgen auf Mitglieder mit der ",
     "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
   },
   "restrictItemDeletionDescriptionEnd": {
@@ -9177,7 +9204,7 @@
     }
   },
   "limitCollectionCreationEnabled": {
-    "message": "Die Einstellung Sammlungserstellung einschränken wurde für $ID$ aktiviert.",
+    "message": "Die Einstellung Sammlungs-Erstellung einschränken wurde für $ID$ aktiviert.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -9186,7 +9213,7 @@
     }
   },
   "limitCollectionCreationDisabled": {
-    "message": "Die Einstellung Sammlungserstellung einschränken wurde für $ID$ deaktiviert.",
+    "message": "Die Einstellung Sammlungs-Erstellung einschränken wurde für $ID$ deaktiviert.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -9195,7 +9222,7 @@
     }
   },
   "limitCollectionDeletionEnabled": {
-    "message": "Die Einstellung Sammlungslöschung einschränken wurde für $ID$ aktiviert.",
+    "message": "Die Einstellung Sammlungs-Löschung einschränken wurde für $ID$ aktiviert.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -9204,7 +9231,7 @@
     }
   },
   "limitCollectionDeletionDisabled": {
-    "message": "Die Einstellung Sammlungslöschung einschränken wurde für $ID$ deaktiviert.",
+    "message": "Die Einstellung Sammlungs-Löschung einschränken wurde für $ID$ deaktiviert.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -9213,7 +9240,7 @@
     }
   },
   "limitItemDeletionEnabled": {
-    "message": "Die Einstellung Eintragslöschung einschränken wurde für $ID$ aktiviert.",
+    "message": "Die Einstellung Eintrags-Löschung einschränken wurde für $ID$ aktiviert.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -9222,7 +9249,7 @@
     }
   },
   "limitItemDeletionDisabled": {
-    "message": "Die Einstellung Eintragslöschung einschränken wurde für $ID$ deaktiviert.",
+    "message": "Die Einstellung Eintrags-Löschung einschränken wurde für $ID$ deaktiviert.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -9809,10 +9836,10 @@
     "message": "Fehler beim Speichern der Integration. Bitte versuche es später erneut."
   },
   "mustBeOrgOwnerToPerformAction": {
-    "message": "Sie müssen Eigentümer der Organisation sein, um diese Aktion auszuführen."
+    "message": "Du musst der Eigentümer der Organisation sein, um diese Aktion auszuführen."
   },
   "failedToDeleteIntegration": {
-    "message": "Löschen der Integration fehlgeschlagen. Bitte versuchen Sie es später erneut."
+    "message": "Löschen der Integration fehlgeschlagen. Bitte versuche es später erneut."
   },
   "deviceIdMissing": {
     "message": "Geräte-ID fehlt"
@@ -11045,7 +11072,7 @@
     "message": "Gefährdetes Passwort ändern"
   },
   "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Diese Zugangsdaten sind gefährdet und enthalten keine Website. Fügen Sie eine Website hinzu und ändern Sie das Passwort für mehr Sicherheit."
+    "message": "Diese Zugangsdaten sind gefährdet und es fehlt eine Website. Füge eine Website hinzu und ändere das Passwort für mehr Sicherheit."
   },
   "missingWebsite": {
     "message": "Fehlende Webseite"
@@ -11075,18 +11102,18 @@
     "message": "Archiv durchsuchen"
   },
   "archiveNoun": {
-    "message": "Archive",
+    "message": "Archiv",
     "description": "Noun"
   },
   "archiveVerb": {
-    "message": "Archive",
+    "message": "Archivieren",
     "description": "Verb"
   },
   "noItemsInArchive": {
     "message": "Keine Einträge im Archiv"
   },
   "archivedItemsDescription": {
-    "message": "Archivierte Einträge werden hier angezeigt und von allgemeinen Suchergebnissen sowie Autofill-Vorschlägen ausgeschlossen."
+    "message": "Archivierte Einträge werden hier angezeigt und von allgemeinen Suchergebnissen sowie Auto-Ausfüllen-Vorschlägen ausgeschlossen."
   },
   "businessUnit": {
     "message": "Geschäftsbereich"
@@ -11195,6 +11222,12 @@
   "bitwardenExtensionInstalled": {
     "message": "Bitwarden-Erweiterung installiert!"
   },
+  "openTheBitwardenExtension": {
+    "message": "Die Bitwarden-Erweiterung öffnen"
+  },
+  "bitwardenExtensionInstalledOpenExtension": {
+    "message": "Die Bitwarden-Erweiterung ist installiert! Öffne die Erweiterung, um dich anzumelden und das automatische Ausfüllen zu starten."
+  },
   "openExtensionToAutofill": {
     "message": "Öffne die Erweiterung, um dich anzumelden und Auto-Ausfüllen zu nutzen."
   },
@@ -11246,7 +11279,7 @@
     "message": "Über diese Einstellung"
   },
   "permitCipherDetailsDescription": {
-    "message": "Bitwarden verwendet gespeicherte Zugangsdaten-URIs, um zu bestimmen, welches Symbol oder welche Passwort-Ändern-URL verwendet werden soll, um Ihr Erlebnis zu verbessern. Es werden keine Informationen erfasst oder gespeichert, wenn Sie diesen Dienst nutzen."
+    "message": "Bitwarden verwendet gespeicherte Zugangsdaten-URIs, um zu bestimmen, welches Symbol oder welche Passwort-Ändern-URL verwendet werden soll, um dein Erlebnis zu verbessern. Es werden keine Informationen erfasst oder gespeichert, wenn du diesen Dienst nutzt."
   },
   "billingAddress": {
     "message": "Rechnungsadresse"
@@ -11413,10 +11446,10 @@
     "message": "Key Connector-Domain bestätigen"
   },
   "requiredToVerifyBankAccountWithStripe": {
-    "message": "Zahlungen mit einem Bankkonto sind nur für Kunden in den Vereinigten Staaten verfügbar. Sie müssen Ihr Bankkonto verifizieren. Wir werden innerhalb der nächsten 1–2 Werktage eine kleine Einzahlung vornehmen. Wenn das Bankkonto nicht verifiziert wird, führt dies zu einer verpassten Zahlung und die Abonnement wird ausgesetzt."
+    "message": "Zahlungen mit einem Bankkonto sind nur für Kunden in den Vereinigten Staaten verfügbar. Du musst dein Bankkonto verifizieren. Wir werden innerhalb der nächsten 1–2 Werktage eine geringfügige Einzahlung vornehmen. Wenn das Bankkonto nicht verifiziert wird, führt dies zu einer verpassten Zahlung und dein Abonnement wird ausgesetzt."
   },
   "verifyBankAccountWithStripe": {
-    "message": "Wir haben eine kleine Einzahlung auf Ihr Bankkonto vorgenommen. Dies kann 1–2 Werktage dauern. Sobald Sie die Einzahlung auf Ihrem Konto sehen, können Sie Ihr Bankkonto verifizieren. Wenn das Bankkonto nicht verifiziert wird, führt dies zu einer verpassten Zahlung und Ihr Abonnement wird ausgesetzt."
+    "message": "Wir haben eine geringfügige Einzahlung auf dein Bankkonto vorgenommen. Dies kann 1–2 Werktage dauern. Sobald du die Einzahlung auf deinem Konto siehst, kannst du dein Bankkonto verifizieren. Wenn das Bankkonto nicht verifiziert wird, führt dies zu einer verpassten Zahlung und dein Abonnement wird ausgesetzt."
   },
   "verifyNow": {
     "message": "Jetzt verifizieren."
@@ -11446,10 +11479,10 @@
     "message": "Umfassende Online-Sicherheit"
   },
   "planDescFamiliesV2": {
-    "message": "Premium-Sicherheit für Ihre Familie"
+    "message": "Premium-Sicherheit für deine Familie"
   },
   "planDescFreeV2": {
-    "message": "Mit $COUNT$ anderem Benutzer teilen",
+    "message": "Mit $COUNT$ anderen Benutzer teilen",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -11464,7 +11497,7 @@
     "message": "Individueller Plan"
   },
   "planDescCustom": {
-    "message": "Bitwarden wächst mit Unternehmen jeder Größe mit, um Passwörter und vertrauliche Informationen zu sichern. Wenn Sie Teil eines großen Unternehmens sind, kontaktieren Sie den Vertrieb, um ein Angebot anzufordern."
+    "message": "Bitwarden wächst mit Unternehmen jeder Größe mit, um Passwörter und vertrauliche Informationen zu sichern. Wenn du Teil eines großen Unternehmens bist, kontaktiere den Vertrieb, um ein Angebot anzufordern."
   },
   "builtInAuthenticator": {
     "message": "Integrierter Authenticator"
@@ -11479,7 +11512,7 @@
     "message": "Sicherer Dateispeicher"
   },
   "familiesUnlimitedSharing": {
-    "message": "Unbegrenztes Teilen – wählen Sie, wer was sieht"
+    "message": "Unbegrenztes Teilen – wähle, wer was sieht"
   },
   "familiesUnlimitedCollections": {
     "message": "Unbegrenzte Familiensammlungen"
@@ -11521,7 +11554,7 @@
     }
   },
   "secureItemSharing": {
-    "message": "Sicheres Eintrags-Teilen"
+    "message": "Sicheres Teilen von Einträgen"
   },
   "scimSupport": {
     "message": "SCIM-Unterstützung"
