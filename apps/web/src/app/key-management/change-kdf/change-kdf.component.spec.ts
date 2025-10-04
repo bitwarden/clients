@@ -96,43 +96,7 @@ describe("ChangeKdfComponent", () => {
 
     mockConfigService.getFeatureFlag$.mockReturnValue(of(false));
 
-    // Mock i18n service with switch statement for all keys
-    mockI18nService.t.mockImplementation((key: string) => {
-      switch (key) {
-        case "encKeySettings":
-          return "Encryption Key Settings";
-        case "kdfSettingsChangeLogoutWarning":
-          return "Proceeding will log you out of all active sessions. You will need to log back in and complete two-step login, if any. We recommend exporting your vault before changing your encryption settings to prevent data loss.";
-        case "encryptionKeySettingsHowShouldWeEncryptYourData":
-          return "How should we encrypt your data?";
-        case "encryptionKeySettingsIncreaseImproveSecurity":
-          return "Increase the number of iterations to improve security at the cost of slower login times.";
-        case "algorithm":
-          return "Algorithm";
-        case "kdfIterations":
-          return "KDF Iterations";
-        case "kdfIterationRecommends":
-          return "Minimum 100,000 iterations recommended.";
-        case "kdfMemory":
-          return "Memory (MB)";
-        case "kdfParallelism":
-          return "Parallelism";
-        case "updateEncryptionSettings":
-          return "Update Encryption Settings";
-        case "encryptionKeySettingsAlgorithmPopoverTitle":
-          return "Encryption Key Settings";
-        case "encryptionKeySettingsAlgorithmPopoverPBKDF2":
-          return "PBKDF2 SHA-256 is the default algorithm and is supported by all Bitwarden applications.";
-        case "encryptionKeySettingsAlgorithmPopoverArgon2Id":
-          return "Argon2id is a newer algorithm that is more secure but may not be supported by older Bitwarden applications.";
-        case "learnMoreAboutEncryptionAlgorithms":
-          return "Learn more about encryption algorithms";
-        case "learnMore":
-          return "Learn more";
-        default:
-          return key;
-      }
-    });
+    mockI18nService.t.mockImplementation((key) => `${key}-used-i18n`);
 
     TestBed.configureTestingModule({
       declarations: [ChangeKdfComponent],
@@ -230,13 +194,13 @@ describe("ChangeKdfComponent", () => {
 
         // Assert
         const calloutElement = fixture.debugElement.query((el) =>
-          el.nativeElement.textContent?.includes("Proceeding will log you out"),
+          el.nativeElement.textContent?.includes("kdfSettingsChangeLogoutWarning"),
         );
 
         if (showLogOutBanner) {
           expect(calloutElement).not.toBeNull();
           expect(calloutElement.nativeElement.textContent).toContain(
-            "Proceeding will log you out of all active sessions",
+            "kdfSettingsChangeLogoutWarning-used-i18n",
           );
         } else {
           expect(calloutElement).toBeNull();

@@ -45,17 +45,7 @@ describe("ChangeKdfConfirmationComponent", () => {
     accountService = mockAccountServiceWith(mockUserId, { email: mockEmail });
     mockChangeKdfService = mock<ChangeKdfService>();
 
-    // Mock i18n service
-    mockI18nService.t.mockImplementation((key: string) => {
-      switch (key) {
-        case "encKeySettingsChanged":
-          return "Encryption key settings changed";
-        case "logBackIn":
-          return "Please log back in";
-        default:
-          return key;
-      }
-    });
+    mockI18nService.t.mockImplementation((key) => `${key}-used-i18n`);
 
     // Mock config service feature flag
     mockConfigService.getFeatureFlag$.mockReturnValue(of(false));
@@ -218,7 +208,7 @@ describe("ChangeKdfConfirmationComponent", () => {
         );
         expect(mockToastService.showToast).toHaveBeenCalledWith({
           variant: "success",
-          message: "Encryption key settings changed",
+          message: "encKeySettingsChanged-used-i18n",
         });
         expect(mockDialogRef.close).toHaveBeenCalled();
         expect(mockMessagingService.send).not.toHaveBeenCalled();
@@ -242,8 +232,8 @@ describe("ChangeKdfConfirmationComponent", () => {
         );
         expect(mockToastService.showToast).toHaveBeenCalledWith({
           variant: "success",
-          title: "Encryption key settings changed",
-          message: "Please log back in",
+          title: "encKeySettingsChanged-used-i18n",
+          message: "logBackIn-used-i18n",
         });
         expect(mockMessagingService.send).toHaveBeenCalledWith("logout");
         expect(mockDialogRef.close).not.toHaveBeenCalled();
