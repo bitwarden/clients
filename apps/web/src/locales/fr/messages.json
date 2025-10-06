@@ -59,8 +59,42 @@
   "createNewLoginItem": {
     "message": "Créer un nouvel élément de connexion"
   },
+  "percentageCompleted": {
+    "message": "$PERCENT$% complété",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
+  "securityTasksCompleted": {
+    "message": "$COUNT$ sur $TOTAL$ tâches de sécurité terminées",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "total": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "passwordChangeProgress": {
+    "message": "Progression du changement de mot de passe"
+  },
+  "assignMembersTasksToMonitorProgress": {
+    "message": "Affecter des tâches aux membres pour surveiller la progression"
+  },
+  "onceYouReviewApplications": {
+    "message": "Une fois que vous avez évalué et marqué des applications comme critiques, elles s'afficheront ici."
+  },
+  "sendReminders": {
+    "message": "Envoyer des rappels"
+  },
   "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
-    "message": "Une fois que vous avez marqué des applications comme critiques, elles s'afficheront ici"
+    "message": "Une fois que vous avez marqué les applications critiques, elles s'afficheront ici."
   },
   "viewAtRiskMembers": {
     "message": "Afficher les membres à risque"
@@ -101,6 +135,15 @@
   },
   "countOfApplicationsAtRisk": {
     "message": "$COUNT$ applications à risque",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfAtRiskPasswords": {
+    "message": "$COUNT$ mots de passe à risque",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -162,8 +205,8 @@
   "atRiskMembers": {
     "message": "Membres à risque"
   },
-  "membersAtRiskActivityDescription": {
-    "message": "Membres pouvant modifier les éléments à risque pour les applications critiques"
+  "membersWithAccessToAtRiskItemsForCriticalApps": {
+    "message": "Les membres ayant accès aux éléments à risque pour les applications critiques"
   },
   "membersAtRiskCount": {
     "message": "$COUNT$ membres à risque",
@@ -1498,6 +1541,15 @@
   },
   "invalidMasterPassword": {
     "message": "Mot de passe principal invalide"
+  },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Mot de passe principal invalide. Confirmez que votre adresse courriel est correcte et que votre compte a été créé sur $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
   },
   "invalidFilePassword": {
     "message": "Mot de passe de fichier invalide, veuillez utiliser le mot de passe que vous avez entré lorsque vous avez créé le fichier d'exportation."
@@ -5216,11 +5268,11 @@
     "message": "Identifiant SSO"
   },
   "ssoIdentifierHint": {
-    "message": "Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. ",
+    "message": "Fournir cet ID à vos membres pour se connecter avec SSO. Les membres peuvent passer la saisie de cet identifiant pendant SSO si un domaine revendiqué est configuré. ",
     "description": "This will be used as part of a larger sentence, broken up to include a link. The full sentence will read 'Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. Learn more'"
   },
   "claimedDomainsLearnMore": {
-    "message": "Learn more",
+    "message": "En savoir plus",
     "description": "This will be used as part of a larger sentence, broken up to include a link. The full sentence will read 'Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. Learn more'"
   },
   "unlinkSso": {
@@ -7034,6 +7086,24 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Seul le coffre de l'organisation associé à $ORGANIZATION$ sera exporté.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Seul le coffre de l'organisation associé à $ORGANIZATION$ sera exporté. Mes éléments de mes collections ne seront pas inclus.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "accessDenied": {
     "message": "Accès Refusé. Vous n'avez pas l'autorisation d'afficher cette page."
   },
@@ -7187,6 +7257,9 @@
   },
   "unknownSecret": {
     "message": "Secret inconnu, vous devrez peut-être demander l'autorisation d'accéder à ce secret."
+  },
+  "unknownServiceAccount": {
+    "message": "Compte machine inconnu, vous devrez peut-être demander l'autorisation d'accéder à ce compte machine."
   },
   "unknownProject": {
     "message": "Projet inconnu, vous devrez peut-être demander l'autorisation d'accéder à ce projet."
@@ -8538,7 +8611,7 @@
       }
     }
   },
-  "accessedProjectWithId": {
+  "accessedProjectWithIdentifier": {
     "message": "A accédé à un projet avec l'identifiant : $PROJECT_ID$.",
     "placeholders": {
       "project_id": {
@@ -8565,10 +8638,89 @@
       }
     }
   },
+  "nameUnavailableServiceAccountDeleted": {
+    "message": "A supprimé le compte machine ID : $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "service_account_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
   "editedProjectWithId": {
     "message": "A modifié un projet avec l'identifiant : $PROJECT_ID$",
     "placeholders": {
       "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "addedUserToServiceAccountWithId": {
+    "message": "Utilisateur ajouté : $USER_ID$ au compte machine avec l'ID : $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "user_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "removedUserToServiceAccountWithId": {
+    "message": "A supprimé l'utilisateur : $USER_ID$ du compte machine avec l'ID : $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "user_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "removedGroupFromServiceAccountWithId": {
+    "message": "A supprimé le groupe : $GROUP_ID$ du compte machine avec l'ID : $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "group_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "serviceAccountCreatedWithId": {
+    "message": "A créé le compte machine avec l'ID : $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "service_account_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "addedGroupToServiceAccountId": {
+    "message": "A ajouté le groupe : $GROUP_ID$ du compte machine avec l'ID : $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "group_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "serviceAccountDeletedWithId": {
+    "message": "A supprimé le compte machine avec l'ID : $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "service_account_id": {
         "content": "$1",
         "example": "4d34e8a8"
       }
@@ -9409,6 +9561,9 @@
   },
   "assign": {
     "message": "Assigner"
+  },
+  "assignTasks": {
+    "message": "Assigner des tâches"
   },
   "assignToCollections": {
     "message": "Assigner aux collections"
@@ -11194,6 +11349,12 @@
   },
   "bitwardenExtensionInstalled": {
     "message": "L'extension Bitwarden est installée !"
+  },
+  "openTheBitwardenExtension": {
+    "message": "Ouvrir l'extension Bitwarden"
+  },
+  "bitwardenExtensionInstalledOpenExtension": {
+    "message": "L'extension Bitwarden est installée! Ouvrez l'extension pour vous connecter et démarrer le remplissage automatique."
   },
   "openExtensionToAutofill": {
     "message": "Ouvrez l'extension pour vous connecter et démarrer le remplissage automatique."

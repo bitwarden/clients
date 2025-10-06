@@ -1,7 +1,7 @@
 import { Component, DestroyRef, inject, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
-import { BehaviorSubject, firstValueFrom } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
 import {
   AllActivitiesService,
@@ -15,21 +15,26 @@ import { getById } from "@bitwarden/common/platform/misc";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 import { ActivityCardComponent } from "./activity-card.component";
+import { PasswordChangeMetricComponent } from "./activity-cards/password-change-metric.component";
 import { ApplicationsLoadingComponent } from "./risk-insights-loading.component";
 import { RiskInsightsTabType } from "./risk-insights.component";
 
 @Component({
-  selector: "tools-all-activity",
-  imports: [ApplicationsLoadingComponent, SharedModule, ActivityCardComponent],
+  selector: "dirt-all-activity",
+  imports: [
+    ApplicationsLoadingComponent,
+    SharedModule,
+    ActivityCardComponent,
+    PasswordChangeMetricComponent,
+  ],
   templateUrl: "./all-activity.component.html",
 })
 export class AllActivityComponent implements OnInit {
-  protected isLoading$ = this.dataService.isLoading$;
-  protected noData$ = new BehaviorSubject(true);
   organization: Organization | null = null;
   totalCriticalAppsAtRiskMemberCount = 0;
   totalCriticalAppsCount = 0;
   totalCriticalAppsAtRiskCount = 0;
+  passwordChangeMetricHasProgressBar = false;
 
   destroyRef = inject(DestroyRef);
 
@@ -46,10 +51,15 @@ export class AllActivityComponent implements OnInit {
       this.allActivitiesService.reportSummary$
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe((summary) => {
-          this.noData$.next(summary.totalApplicationCount === 0);
           this.totalCriticalAppsAtRiskMemberCount = summary.totalCriticalAtRiskMemberCount;
           this.totalCriticalAppsCount = summary.totalCriticalApplicationCount;
           this.totalCriticalAppsAtRiskCount = summary.totalCriticalAtRiskApplicationCount;
+        });
+
+      this.allActivitiesService.passwordChangeProgressMetricHasProgressBar$
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe((hasProgressBar) => {
+          this.passwordChangeMetricHasProgressBar = hasProgressBar;
         });
     }
   }

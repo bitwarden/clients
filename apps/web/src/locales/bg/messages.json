@@ -59,8 +59,42 @@
   "createNewLoginItem": {
     "message": "Създаване на нов елемент за вписване"
   },
+  "percentageCompleted": {
+    "message": "$PERCENT$% завършено",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
+  "securityTasksCompleted": {
+    "message": "$COUNT$ от $TOTAL$ задачи по сигурността за завършени",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "total": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "passwordChangeProgress": {
+    "message": "Напредък по смяната на паролата"
+  },
+  "assignMembersTasksToMonitorProgress": {
+    "message": "Назначете задачи на членовете, за да следите напредъка"
+  },
+  "onceYouReviewApplications": {
+    "message": "Когато прегледате приложенията и ги отбележите като важни, те ще се появят тук."
+  },
+  "sendReminders": {
+    "message": "Изпращане на напомняния"
+  },
   "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
-    "message": "Когато отбележите някое приложение като важно, то ще се появи тук"
+    "message": "Когато отбележите някое приложение като важно, то ще се появи тук."
   },
   "viewAtRiskMembers": {
     "message": "Преглед на членовете в риск"
@@ -101,6 +135,15 @@
   },
   "countOfApplicationsAtRisk": {
     "message": "$COUNT$ прилжения са в риск",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfAtRiskPasswords": {
+    "message": "$COUNT$ пароли в риск",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -162,8 +205,8 @@
   "atRiskMembers": {
     "message": "Членове в риск"
   },
-  "membersAtRiskActivityDescription": {
-    "message": "Членове с права за редактиране на елементи в риск за важни приложения"
+  "membersWithAccessToAtRiskItemsForCriticalApps": {
+    "message": "Членове с достъп до елементи в риск за важни приложения"
   },
   "membersAtRiskCount": {
     "message": "$COUNT$ членове в риск",
@@ -1498,6 +1541,15 @@
   },
   "invalidMasterPassword": {
     "message": "Грешна главна парола"
+  },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Грешна главна парола. Проверете дали е-пощата е правилна и дали акаунтът Ви е създаден в $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
   },
   "invalidFilePassword": {
     "message": "Неправилна парола за файла. Използвайте паролата, която сте въвели при създаването на изнесения файл."
@@ -7034,6 +7086,24 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Ще бъдат изнесени само записите от трезора свързан с $ORGANIZATION$.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Ще бъдат изнесени само записите от трезора свързан с $ORGANIZATION$. Моите колекции няма да бъдат включени.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "accessDenied": {
     "message": "Достъпът е отказан. Нямате право за преглед на тази страница."
   },
@@ -7187,6 +7257,9 @@
   },
   "unknownSecret": {
     "message": "Неизвестна тайна. Може да се нуждаете от правомощие за достъп до тази тайна."
+  },
+  "unknownServiceAccount": {
+    "message": "Неизвестен машинен акаунт. Може да се нуждаете от правомощие за достъп до този машинен акаунт."
   },
   "unknownProject": {
     "message": "Неизвестен проект. Може да се нуждаете от правомощие за достъп до този проект."
@@ -8538,7 +8611,7 @@
       }
     }
   },
-  "accessedProjectWithId": {
+  "accessedProjectWithIdentifier": {
     "message": "Осъществен е достъп до проект с идентификатор: $PROJECT_ID$.",
     "placeholders": {
       "project_id": {
@@ -8565,10 +8638,89 @@
       }
     }
   },
+  "nameUnavailableServiceAccountDeleted": {
+    "message": "Изтрит е машинен акаунт с идентификатор: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "service_account_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
   "editedProjectWithId": {
     "message": "Редактиран е проект с идентификатор: $PROJECT_ID$",
     "placeholders": {
       "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "addedUserToServiceAccountWithId": {
+    "message": "Добавен е потребител: $USER_ID$ към машинен акаунт с идентификатор: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "user_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "removedUserToServiceAccountWithId": {
+    "message": "Премахнат е потребител: $USER_ID$ от машинен акаунт с идентификатор: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "user_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "removedGroupFromServiceAccountWithId": {
+    "message": "Премахната е група: $GROUP_ID$ от машинен акаунт с идентификатор: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "group_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "serviceAccountCreatedWithId": {
+    "message": "Създаден е машинен акаунт с идентификатор: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "service_account_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "addedGroupToServiceAccountId": {
+    "message": "Създадена е група: $GROUP_ID$ към машинен акаунт с идентификатор: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "group_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "serviceAccountDeletedWithId": {
+    "message": "Изтрит е машинен акаунт с идентификатор: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "service_account_id": {
         "content": "$1",
         "example": "4d34e8a8"
       }
@@ -9409,6 +9561,9 @@
   },
   "assign": {
     "message": "Свързване"
+  },
+  "assignTasks": {
+    "message": "Назначаване на задачи"
   },
   "assignToCollections": {
     "message": "Свързване с колекции"
@@ -11075,11 +11230,11 @@
     "message": "Търсене в архива"
   },
   "archiveNoun": {
-    "message": "Archive",
+    "message": "Архив",
     "description": "Noun"
   },
   "archiveVerb": {
-    "message": "Archive",
+    "message": "Архивиране",
     "description": "Verb"
   },
   "noItemsInArchive": {
@@ -11194,6 +11349,12 @@
   },
   "bitwardenExtensionInstalled": {
     "message": "Добавката на Битуорден е инсталирана!"
+  },
+  "openTheBitwardenExtension": {
+    "message": "Отварете добавката на Битуорден"
+  },
+  "bitwardenExtensionInstalledOpenExtension": {
+    "message": "Добавката на Битуорден е инсталирана! Отворете я, за да се впишете и да можете да се вписвате автоматично."
   },
   "openExtensionToAutofill": {
     "message": "Отворете добавката, за да се впишете и да можете да използвате автоматичното попълване."

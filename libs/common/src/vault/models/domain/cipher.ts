@@ -349,7 +349,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
    */
   toSdkCipher(): SdkCipher {
     const sdkCipher: SdkCipher = {
-      id: asUuid(this.id),
+      id: this.id ? asUuid(this.id) : undefined,
       organizationId: this.organizationId ? asUuid(this.organizationId) : undefined,
       folderId: this.folderId ? asUuid(this.folderId) : undefined,
       collectionIds: this.collectionIds ? this.collectionIds.map(asUuid) : ([] as any),
