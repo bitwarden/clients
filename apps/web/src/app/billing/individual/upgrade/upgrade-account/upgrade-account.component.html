@@ -59,9 +59,11 @@
         <p bitTypography="helper" class="tw-text-muted tw-italic">
           {{ "individualUpgradeTaxInformationMessage" | i18n }}
         </p>
-        <button bitLink linkType="primary" type="button" (click)="closeClicked.emit(closeStatus)">
-          {{ "continueWithoutUpgrading" | i18n }}
-        </button>
+        @if (!hideContinueWithoutUpgradingButton()) {
+          <button bitLink linkType="primary" type="button" (click)="closeClicked.emit(closeStatus)">
+            {{ "continueWithoutUpgrading" | i18n }}
+          </button>
+        }
       </div>
     </div>
   </section>

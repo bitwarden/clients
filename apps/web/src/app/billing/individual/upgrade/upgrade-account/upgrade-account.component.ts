@@ -53,6 +53,7 @@ type CardDetails = {
 })
 export class UpgradeAccountComponent implements OnInit {
   dialogTitleMessageOverride = input<string | null>(null);
+  hideContinueWithoutUpgradingButton = input<boolean>(false);
   planSelected = output<PersonalSubscriptionPricingTierId>();
   closeClicked = output<UpgradeAccountStatus>();
   protected loading = signal(true);

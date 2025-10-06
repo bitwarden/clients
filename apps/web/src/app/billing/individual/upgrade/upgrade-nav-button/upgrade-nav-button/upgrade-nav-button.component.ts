@@ -27,6 +27,7 @@ export class UpgradeNavButtonComponent {
       data: {
         account,
         planSelectionStepTitleOverride: "upgradeYourPlan",
+        hideContinueWithoutUpgradingButton: true,
       },
     });
 

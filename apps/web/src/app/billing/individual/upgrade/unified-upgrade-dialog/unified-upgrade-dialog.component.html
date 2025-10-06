@@ -1,6 +1,7 @@
 @if (step() == PlanSelectionStep) {
   <app-upgrade-account
     [dialogTitleMessageOverride]="planSelectionStepTitleOverride()"
+    [hideContinueWithoutUpgradingButton]="hideContinueWithoutUpgradingButton()"
     (planSelected)="onPlanSelected($event)"
     (closeClicked)="onCloseClicked()"
   />

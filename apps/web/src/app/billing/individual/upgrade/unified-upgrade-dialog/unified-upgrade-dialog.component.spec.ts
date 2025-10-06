@@ -33,6 +33,7 @@ import {
 })
 class MockUpgradeAccountComponent {
   dialogTitleMessageOverride = input<string | null>(null);
+  hideContinueWithoutUpgradingButton = input<boolean>(false);
   planSelected = output<PersonalSubscriptionPricingTierId>();
   closeClicked = output<UpgradeAccountStatus>();
 }
@@ -194,6 +195,46 @@ describe("UnifiedUpgradeDialogComponent", () => {
 
       expect(component["step"]()).toBe(UnifiedUpgradeDialogStep.PlanSelection);
       expect(component["selectedPlan"]()).toBeNull();
+    });
+  });
+
+  describe("hideContinueWithoutUpgradingButton", () => {
+    it("should default to false when not provided", () => {
+      expect(component["hideContinueWithoutUpgradingButton"]()).toBe(false);
+    });
+
+    it("should be set to true when provided in dialog config", async () => {
+      TestBed.resetTestingModule();
+
+      const customDialogData: UnifiedUpgradeDialogParams = {
+        account: mockAccount,
+        initialStep: UnifiedUpgradeDialogStep.PlanSelection,
+        selectedPlan: null,
+        hideContinueWithoutUpgradingButton: true,
+      };
+
+      await TestBed.configureTestingModule({
+        imports: [NoopAnimationsModule, UnifiedUpgradeDialogComponent],
+        providers: [
+          { provide: DialogRef, useValue: mockDialogRef },
+          { provide: DIALOG_DATA, useValue: customDialogData },
+        ],
+      })
+        .overrideComponent(UnifiedUpgradeDialogComponent, {
+          remove: {
+            imports: [UpgradeAccountComponent, UpgradePaymentComponent],
+          },
+          add: {
+            imports: [MockUpgradeAccountComponent, MockUpgradePaymentComponent],
+          },
+        })
+        .compileComponents();
+
+      const customFixture = TestBed.createComponent(UnifiedUpgradeDialogComponent);
+      const customComponent = customFixture.componentInstance;
+      customFixture.detectChanges();
+
+      expect(customComponent["hideContinueWithoutUpgradingButton"]()).toBe(true);
     });
   });
 });
