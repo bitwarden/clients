@@ -1222,6 +1222,15 @@
   "invalidMasterPassword": {
     "message": "Neispravna glavna lozinka"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Nevažeća glavna lozinka. Provjeri je li tvoja adresa e-pošta ispravna i je li račun kreiran na $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "twoStepLoginConfirmation": {
     "message": "Prijava dvostrukom autentifikacijom čini tvoj račun još sigurnijim tako što će zahtijevati potvrdu prijave drugim uređajem kao što je sigurnosni ključ, autentifikatorska aplikacija, SMS, poziv ili e-pošta. Prijavu dvostrukom autentifikacijom možeš omogućiti na web trezoru. Želiš li sada posjetiti bitwarden.com?"
   },
@@ -2654,6 +2663,24 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Izvezt će se samo trezor organizacije povezan s $ORGANIZATION$.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Izvezt će se samo trezor organizacije povezan s $ORGANIZATION$. Zbirka mojih stavki neće biti uključena.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "locked": {
     "message": "Zaključano"
   },
@@ -4080,11 +4107,17 @@
   "showLess": {
     "message": "Pokaži manje"
   },
-  "enableAutotype": {
-    "message": "Omogući automatski unos"
-  },
   "enableAutotypeDescription": {
     "message": "Bitwarden ne provjerava lokacije unosa, prije korištenja prečaca provjeri da si u pravom prozoru i polju."
+  },
+  "typeShortcut": {
+    "message": "Vrsta prečaca"
+  },
+  "editAutotypeShortcutDescription": {
+    "message": "Uključi jedan ili dva modifikatora: Ctrl, Alt, Win ili Shift i slovo."
+  },
+  "invalidShortcut": {
+    "message": "Nevažeći prečac"
   },
   "moreBreadcrumbs": {
     "message": "Više mrvica",
@@ -4099,13 +4132,45 @@
   "confirm": {
     "message": "Potvrdi"
   },
-  "enableAutotypeTransitionKey": {
-    "message": "Omogući prečac za automatsko tipkanje"
+  "enableAutotypeShortcutPreview": {
+    "message": "Uključi prečac Autotype (Pretpregled značajke)"
   },
   "enableAutotypeDescriptionTransitionKey": {
     "message": "Prije korištenja prečaca provjeri nalaziš li se u ispravnom polju kako se podaci ne bi unijeli na pogrešno mjesto."
   },
   "editShortcut": {
     "message": "Uredi prečac"
+  },
+  "archiveNoun": {
+    "message": "Arhiva",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Arhiviraj",
+    "description": "Verb"
+  },
+  "unarchive": {
+    "message": "Poništi arhiviranje"
+  },
+  "itemsInArchive": {
+    "message": "Stavke u arhivi"
+  },
+  "noItemsInArchive": {
+    "message": "Nema stavki u arhivi"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Arhivirane stavke biti će prikazane ovdje i biti će izuzete iz rezultata općih pretraga i preporuka auto-ispune."
+  },
+  "itemSentToArchive": {
+    "message": "Stavka poslana u arhivu"
+  },
+  "itemRemovedFromArchive": {
+    "message": "Stavka maknute iz arhive"
+  },
+  "archiveItem": {
+    "message": "Arhiviraj stavku"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Arhivirane stavke biti će izuzete iz rezultata općih pretraga i preporuka auto-ispune. Sigurno želiš arhivirati?"
   }
 }

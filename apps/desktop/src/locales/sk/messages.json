@@ -1222,6 +1222,15 @@
   "invalidMasterPassword": {
     "message": "Neplatné hlavné heslo"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Neplatné hlavné heslo. Potvrďte, že váš e-mail je správny a účet bol vytvorený na $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "twoStepLoginConfirmation": {
     "message": "Dvojstupňové prihlasovanie robí váš účet bezpečnejším vďaka vyžadovaniu bezpečnostného kódu z overovacej aplikácie vždy, keď sa prihlásite. Dvojstupňové prihlasovanie môžete povoliť vo webovom trezore bitwarden.com. Chcete teraz navštíviť túto stránku?"
   },
@@ -2654,6 +2663,24 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Exportuje sa len trezor organizácie spojený s $ORGANIZATION$.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Exportuje sa len trezor organizácie spojený s $ORGANIZATION$. Moje zbierky položiek nebudú zahrnuté.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "locked": {
     "message": "Zamknutý"
   },
@@ -4080,11 +4107,17 @@
   "showLess": {
     "message": "Zobraziť menej"
   },
-  "enableAutotype": {
-    "message": "Povoliť automatické vpisovanie"
-  },
   "enableAutotypeDescription": {
     "message": "Bitwarden neoveruje miesto stupu, pred použitím skratky sa uistite, že ste v správnom okne a poli."
+  },
+  "typeShortcut": {
+    "message": "Zadajte klávesovú skratku"
+  },
+  "editAutotypeShortcutDescription": {
+    "message": "Použite jeden alebo dva z nasledujúcich modifikátorov: Ctrl, Alt, Win, alebo Shift a písmeno."
+  },
+  "invalidShortcut": {
+    "message": "Neplatná klávesová skratka"
   },
   "moreBreadcrumbs": {
     "message": "Viac",
@@ -4099,13 +4132,45 @@
   "confirm": {
     "message": "Potvrdiť"
   },
-  "enableAutotypeTransitionKey": {
-    "message": "Povoliť skratku automatického písania"
+  "enableAutotypeShortcutPreview": {
+    "message": "Povoliť skratku pre automatické vpisovanie (náhľad funkcie)"
   },
   "enableAutotypeDescriptionTransitionKey": {
     "message": "Pred použitím skratky sa uistite, že sa nachádzate v správnom poli, aby ste údaje nevyplnili na nesprávne miesto."
   },
   "editShortcut": {
     "message": "Upraviť skratku"
+  },
+  "archiveNoun": {
+    "message": "Archív",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archivovať",
+    "description": "Verb"
+  },
+  "unarchive": {
+    "message": "Zrušiť archiváciu"
+  },
+  "itemsInArchive": {
+    "message": "Položky v archíve"
+  },
+  "noItemsInArchive": {
+    "message": "Žiadne položky v archíve"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Tu sa zobrazia archivované položky, ktoré budú vylúčené zo všeobecného vyhľadávania a z návrhov automatického vypĺňania."
+  },
+  "itemSentToArchive": {
+    "message": "Položka bola archivovaná"
+  },
+  "itemRemovedFromArchive": {
+    "message": "Položka bola odobraná z archívu"
+  },
+  "archiveItem": {
+    "message": "Archivovať položku"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Archivované položky sú vylúčené zo všeobecného vyhľadávania a z návrhov automatického vypĺňania. Naozaj chcete archivovať túto položku?"
   }
 }

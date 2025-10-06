@@ -59,8 +59,61 @@
   "createNewLoginItem": {
     "message": "Izveidot jaunu pieteikšanās vienumu"
   },
-  "criticalApplicationsActivityDescription": {
+  "percentageCompleted": {
+    "message": "$PERCENT$% complete",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
+  "securityTasksCompleted": {
+    "message": "$COUNT$ out of $TOTAL$ security tasks completed",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "total": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "passwordChangeProgress": {
+    "message": "Password change progress"
+  },
+  "assignMembersTasksToMonitorProgress": {
+    "message": "Assign members tasks to monitor progress"
+  },
+  "onceYouReviewApplications": {
+    "message": "Once you review applications and mark them as critical, they will display here."
+  },
+  "sendReminders": {
+    "message": "Send reminders"
+  },
+  "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
     "message": "Tiklīz lietotnes tiks atzīmētas kā būtiskas, tās tiks parādītas šeit."
+  },
+  "viewAtRiskMembers": {
+    "message": "Apskatīt riskam pakļautos dalībniekus"
+  },
+  "viewAtRiskApplications": {
+    "message": "Apskatīt riskam pakļautās lietotnes"
+  },
+  "criticalApplicationsAreAtRisk": {
+    "message": "$COUNT$ no $TOTAL$ būtiskajām lietotnēm ir apdraudētas riskam pakļautu paroļu dēļ",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "total": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
   },
   "criticalApplicationsWithCount": {
     "message": "Kritiskās lietotnes ($COUNT$)",
@@ -73,6 +126,24 @@
   },
   "countOfCriticalApplications": {
     "message": "$COUNT$ būtiskas lietotnes",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfApplicationsAtRisk": {
+    "message": "$COUNT$ lietotnes ir pakļautas riskam",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfAtRiskPasswords": {
+    "message": "$COUNT$ passwords at-risk",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -134,11 +205,11 @@
   "atRiskMembers": {
     "message": "Riskam pakļautie dalībnieki"
   },
-  "membersAtRiskActivityDescription": {
-    "message": "Dalībnieki ar labošanas piekluvi riskam pakļautajiem vienumiem būtiskajām lietotnēm"
+  "membersWithAccessToAtRiskItemsForCriticalApps": {
+    "message": "Dalībnieki ar piekluvi riskam pakļautajiem vienumiem būtiskajām lietotnēm"
   },
-  "membersAtRisk": {
-    "message": "$COUNT$ riskam pakļauti dalībnieki",
+  "membersAtRiskCount": {
+    "message": "$COUNT$ dalībnieki ir pakļauti riskam",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1471,6 +1542,15 @@
   "invalidMasterPassword": {
     "message": "Nederīga galvenā parole"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Nederīga galvenā parole. Jāpārliecinās, ka e-pasta adrese ir pareiza un konts tika izveidots $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "invalidFilePassword": {
     "message": "Nederīga datnes parole, lūgums izmantot to paroli, kas tika ievadīta izgūšanas datnes izveidošanas brīdī."
   },
@@ -1479,6 +1559,30 @@
   },
   "noItemsInList": {
     "message": "Nav vienumu, ko parādīt."
+  },
+  "noItemsInTrash": {
+    "message": "Atkritnē nav vienumu"
+  },
+  "noItemsInTrashDesc": {
+    "message": "Izdzēstie vienumi parādīsies šeit, un tie tiks neatgriezeniski izdzēsti pēc 30 dienām"
+  },
+  "noItemsInVault": {
+    "message": "Glabātavā nav vienumu"
+  },
+  "emptyVaultDescription": {
+    "message": "Glabātava aizsargā vairāk kā tikai paroles. Drošā veidā glabā šeit pieteikšanās vienumus, identitātes, kartes un piezīmes!"
+  },
+  "emptyFavorites": {
+    "message": "Izlasē nav neviena vienuma"
+  },
+  "emptyFavoritesDesc": {
+    "message": "Šeit ir pievienojami bieži izmantoti vienumi ātrākai piekļuvei."
+  },
+  "noSearchResults": {
+    "message": "Nekas netika atrasts"
+  },
+  "clearFiltersOrTryAnother": {
+    "message": "Jānotīra atsijātāji vai jāmēģina cits meklēšanas vaicājums"
   },
   "noPermissionToViewAllCollectionItems": {
     "message": "Nav atļaujas apskatīt visus šī krājuma vienumus."
@@ -4772,6 +4876,12 @@
   "organizationIsDisabled": {
     "message": "Apvienība ir atspējota."
   },
+  "organizationIsSuspended": {
+    "message": "Apvienība ir apturēta"
+  },
+  "organizationIsSuspendedDesc": {
+    "message": "Apturētu apvienību vienumiem nevar piekļūt. Jāsazinās ar apvienības īpašnieku, lai iegūtu palīdzību."
+  },
   "secretsAccessSuspended": {
     "message": "Apturētām apvienībām nav iespējams piekļūt. Lūgums vērsties pie savas apvienības īpašnieka pēc palīdzības."
   },
@@ -4783,9 +4893,6 @@
   },
   "serviceAccountsCannotCreate": {
     "message": "Pakalpojumu kontus nav iespējams izveidot apturētās apvienībās. Lūgums vērsties pie savas apvienības īpašnieka pēc palīdzības."
-  },
-  "disabledOrganizationFilterError": {
-    "message": "Atspējotu apvienību vienumiem nevar piekļūt. Jāsazinās ar apvienības īpašnieku, lai iegūtu palīdzību."
   },
   "licenseIsExpired": {
     "message": "Ir beidzies licences izmantošanas laiks."
@@ -5160,9 +5267,13 @@
   "ssoIdentifier": {
     "message": "Vienotās pieteikšanās identifikators"
   },
-  "ssoIdentifierHintPartOne": {
-    "message": "Šis Id ir sniedzams dalībniekiem, lai pieteiktos ar vienoto pieteikšanos. Lai apietu šo soli, jāuzstāda ",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Provide this ID to your members to login with SSO. To bypass this step, set up Domain verification'"
+  "ssoIdentifierHint": {
+    "message": "Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. ",
+    "description": "This will be used as part of a larger sentence, broken up to include a link. The full sentence will read 'Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. Learn more'"
+  },
+  "claimedDomainsLearnMore": {
+    "message": "Learn more",
+    "description": "This will be used as part of a larger sentence, broken up to include a link. The full sentence will read 'Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. Learn more'"
   },
   "unlinkSso": {
     "message": "Atsaistīt SSO"
@@ -5556,6 +5667,13 @@
   },
   "personalOwnershipSubmitError": {
     "message": "Uzņēmuma nosacījumi liedz saglabāt vienumus privātajā glabātavā. Ir jānorāda piederība apvienībai un jāizvēlas kāds no pieejamajiem krājumiem."
+  },
+  "desktopAutotypePolicy": {
+    "message": "Darbvirsmas automātiskās ievades noklusējuma iestatījums"
+  },
+  "desktopAutotypePolicyDesc": {
+    "message": "Pēc noklusējuma IESLĒGT dalībniekiem darbvirsmas automātisko aizpildi. Dalībnieki var pašrocīgi izslēgt automātisko aizpildi darbvirsmas klientā.",
+    "description": "This policy will enable Desktop Autotype by default for members on Unlock."
   },
   "disableSend": {
     "message": "Noņemt Send"
@@ -6721,6 +6839,15 @@
   "disabledSso": {
     "message": "Atspējota vienotā pieteikšanās"
   },
+  "emailMustLoginWithSso": {
+    "message": "$EMAIL$ jāpiesakās ar vienoto pieteikšanos",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "enabledKeyConnector": {
     "message": "Iespējots Key Connector"
   },
@@ -6959,6 +7086,24 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "accessDenied": {
     "message": "Piekļuve liegta. Nav nepieciešamo atļauju, lai apskatītu šo lapu."
   },
@@ -7112,6 +7257,9 @@
   },
   "unknownSecret": {
     "message": "Nezināms noslēpums, var būt nepieciešams pieprasīt atļauju piekļūt tam."
+  },
+  "unknownServiceAccount": {
+    "message": "Unknown machine account, you may need to request permission to access this machine account."
   },
   "unknownProject": {
     "message": "Nezināms projekts, var būt nepieciešams pieprasīt atļauju piekļūt tam."
@@ -8360,12 +8508,6 @@
   "groupSlashUser": {
     "message": "Kopa/Lietotājs"
   },
-  "lowKdfIterations": {
-    "message": "Zems KDF atkārtojumu skaits"
-  },
-  "updateLowKdfIterationsDesc": {
-    "message": "Jāatjaunina šifrēšanas iestatījumi, lai atbilstu jaunajiem drošības ieteikumiem un uzlabotu konta aizsardzību."
-  },
   "kdfSettingsChangeLogoutWarning": {
     "message": "Turpinot notiks atteikšanās no visām esošajām sesijām. Būs atkārtoti jāpiesakās un jāpabeidz divpakāpju pieteikšanās, ja tāda ir. Mēs iesakām pirms šifrēšanas iestatījumu mainīšanas izgūt glabātavas saturu, lai novērstu datu zudumu."
   },
@@ -8469,8 +8611,8 @@
       }
     }
   },
-  "accessedProjectWithId": {
-    "message": "Piekļuva projektam ar Id: $PROJECT_ID$.",
+  "accessedProjectWithIdentifier": {
+    "message": "Accessed a project with identifier: $PROJECT_ID$.",
     "placeholders": {
       "project_id": {
         "content": "$1",
@@ -8496,10 +8638,89 @@
       }
     }
   },
+  "nameUnavailableServiceAccountDeleted": {
+    "message": "Deleted machine account Id: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "service_account_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
   "editedProjectWithId": {
     "message": "Laboja projektu ar identifikatoru: $PROJECT_ID$",
     "placeholders": {
       "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "addedUserToServiceAccountWithId": {
+    "message": "Added user: $USER_ID$ to machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "user_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "removedUserToServiceAccountWithId": {
+    "message": "Removed user: $USER_ID$ from machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "user_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "removedGroupFromServiceAccountWithId": {
+    "message": "Removed group: $GROUP_ID$ from machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "group_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "serviceAccountCreatedWithId": {
+    "message": "Created machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "service_account_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "addedGroupToServiceAccountId": {
+    "message": "Added group: $GROUP_ID$ to machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "group_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "serviceAccountDeletedWithId": {
+    "message": "Deleted machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "service_account_id": {
         "content": "$1",
         "example": "4d34e8a8"
       }
@@ -9341,6 +9562,9 @@
   "assign": {
     "message": "Piešķirt"
   },
+  "assignTasks": {
+    "message": "Assign tasks"
+  },
   "assignToCollections": {
     "message": "Piešķirt krājumiem"
   },
@@ -9739,6 +9963,9 @@
   "failedToSaveIntegration": {
     "message": "Neizdevās saglabāt iekļaušanu. Lūgums vēlāk mēģināt vēlreiz."
   },
+  "mustBeOrgOwnerToPerformAction": {
+    "message": "Jābūt apvienības īpašniekam, lai veiktu šo darbību."
+  },
   "failedToDeleteIntegration": {
     "message": "Neizdevās izdzēst iekļaušanu. Lūgums vēlāk mēģināt vēlreiz."
   },
@@ -9979,12 +10206,6 @@
         "example": "2"
       }
     }
-  },
-  "lowKDFIterationsBanner": {
-    "message": "Zems KDF atkārtojumu skaits. Tas jāpalielina, lai uzlabotu sava konta drošību."
-  },
-  "changeKDFSettings": {
-    "message": "Mainīt KDF iestatījumus"
   },
   "secureYourInfrastructure": {
     "message": "Nodrošini savu infrastruktūru"
@@ -11005,6 +11226,23 @@
   "cannotCreateCollection": {
     "message": "Apvienībās, kuras izmanto Bitwarden bez maksas, var būt līdz 2 krājumiem. Jāpāriet uz maksas plānu, lai pievienotu vairāk krājumu."
   },
+  "searchArchive": {
+    "message": "Meklēt arhīvā"
+  },
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
+  },
+  "noItemsInArchive": {
+    "message": "Arhīvā nav vienumu"
+  },
+  "archivedItemsDescription": {
+    "message": "Šeit parādīsies arhivētie vienumi, un tie netiks iekļauti vispārējās meklēšanas iznākumos un automātiskās aizpildes ieteikumos."
+  },
   "businessUnit": {
     "message": "Uzņēmējdarbības vienība"
   },
@@ -11111,6 +11349,12 @@
   },
   "bitwardenExtensionInstalled": {
     "message": "Bitwarden paplašinājums uzstādīts."
+  },
+  "openTheBitwardenExtension": {
+    "message": "Open the Bitwarden extension"
+  },
+  "bitwardenExtensionInstalledOpenExtension": {
+    "message": "The Bitwarden extension is installed! Open the extension to log in and start autofilling."
   },
   "openExtensionToAutofill": {
     "message": "Jāatver paplašinājums, lai pieteiktos un uzsāktu automātisko aizpildi."
@@ -11337,5 +11581,137 @@
   },
   "verifyNow": {
     "message": "Apliecini tagad!"
+  },
+  "additionalStorageGB": {
+    "message": "Papildu krātuve GB"
+  },
+  "additionalServiceAccountsV2": {
+    "message": "Papildu mašīnu konti"
+  },
+  "secretsManagerSeats": {
+    "message": "Noslēpumu pārvaldnieka vietas"
+  },
+  "additionalStorage": {
+    "message": "Papildu krātuve"
+  },
+  "expandPurchaseDetails": {
+    "message": "Izvērst informāciju par pirkumu"
+  },
+  "collapsePurchaseDetails": {
+    "message": "Sakļaut informāciju par pirkumu"
+  },
+  "familiesMembership": {
+    "message": "Dalība ģimeņu plānā"
+  },
+  "planDescPremium": {
+    "message": "Pilnīga drošība tiešsaistē"
+  },
+  "planDescFamiliesV2": {
+    "message": "Augstākā labuma drošība ģimenei"
+  },
+  "planDescFreeV2": {
+    "message": "Kopīgot ar $COUNT$ citiem lietotājiem",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "planDescEnterpriseV2": {
+    "message": "Papildu spējas jebkurai apvienībai"
+  },
+  "planNameCustom": {
+    "message": "Pielāgots plāns"
+  },
+  "planDescCustom": {
+    "message": "Bitwarden piemērojas visu lielumu uzņēmējdarbībai, lai aizsargātu paroles un jūtīgu informāciju. Ja esi daļa no liela uzņēmuma, sazinies ar pārdošanas nodaļu, lai pieprasītu cenu piedāvājumu!"
+  },
+  "builtInAuthenticator": {
+    "message": "Iebūvēts autentificētājs"
+  },
+  "breachMonitoring": {
+    "message": "Noplūžu pārraudzīšana"
+  },
+  "andMoreFeatures": {
+    "message": "Un vēl!"
+  },
+  "secureFileStorage": {
+    "message": "Droša datņu krātuve"
+  },
+  "familiesUnlimitedSharing": {
+    "message": "Neierobežota kopīgošana - izvēlies, ko kurš redz"
+  },
+  "familiesUnlimitedCollections": {
+    "message": "Neierobežoti ģimeņu krājumi"
+  },
+  "familiesSharedStorage": {
+    "message": "Koplietojama krātuve svarīgai ģimenes informācijai"
+  },
+  "limitedUsersV2": {
+    "message": "Līdz $COUNT$ dalībniekiem",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "limitedCollectionsV2": {
+    "message": "Līdz $COUNT$ krājumiem",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "alwaysFree": {
+    "message": "Vienmēr bez maksas"
+  },
+  "twoSecretsIncluded": {
+    "message": "2 noslēpumi"
+  },
+  "projectsIncludedV2": {
+    "message": "$COUNT$ projekts(i)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "secureItemSharing": {
+    "message": "Droša vienumu kopīgošana"
+  },
+  "scimSupport": {
+    "message": "SCIM atbalsts"
+  },
+  "includedMachineAccountsV2": {
+    "message": "$COUNT$ mašīnu konti",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
+  },
+  "enterpriseSecurityPolicies": {
+    "message": "Uzņēmumu drošības pamatnostādnes"
+  },
+  "selfHostOption": {
+    "message": "Pašmitināšanas iespēja"
+  },
+  "complimentaryFamiliesPlan": {
+    "message": "Bezmaksas ģimeņu plāns visiem lietotājiem"
+  },
+  "strengthenCybersecurity": {
+    "message": "Stiprini kiberdrošību"
+  },
+  "boostProductivity": {
+    "message": "Uzlabo ražīgumu"
+  },
+  "seamlessIntegration": {
+    "message": "Plūdena iekļaušana"
   }
 }
