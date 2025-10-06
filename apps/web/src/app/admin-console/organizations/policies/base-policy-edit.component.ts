@@ -9,6 +9,8 @@ import { PolicyRequest } from "@bitwarden/common/admin-console/models/request/po
 import { PolicyResponse } from "@bitwarden/common/admin-console/models/response/policy.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
+import { PolicyEditDialogComponent } from "./policy-edit-dialog.component";
+
 /**
  * A metadata class that defines how a policy is displayed in the Admin Console Policies page for editing.
  * Add this to the `ossPolicyRegister` or `bitPolicyRegister` file to register it in the application.
@@ -31,6 +33,12 @@ export abstract class BasePolicyEditDefinition {
    * The component used to edit this policy. See {@link BasePolicyEditComponent}.
    */
   abstract component: Constructor<BasePolicyEditComponent>;
+
+  /**
+   * The dialog that will be opened. This lets us customize the look and feel of each policy's
+   * dialog contents.
+   */
+  editDialogComponent: typeof PolicyEditDialogComponent = PolicyEditDialogComponent;
 
   /**
    * If true, the {@link description} will be reused in the policy edit modal. Set this to false if you
