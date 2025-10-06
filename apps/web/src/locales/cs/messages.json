@@ -59,8 +59,27 @@
   "createNewLoginItem": {
     "message": "Vytvořit novou položku přihlášení"
   },
-  "criticalApplicationsActivityDescription": {
-    "message": "Jakmile označíte aplikace jako kritické, zobrazí se zde."
+  "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
+    "message": "Jakmile označíte aplikace jako kritické, zobrazí se zde"
+  },
+  "viewAtRiskMembers": {
+    "message": "Zobrazit ohrožené členy"
+  },
+  "viewAtRiskApplications": {
+    "message": "Zobrazit ohrožené aplikace"
+  },
+  "criticalApplicationsAreAtRisk": {
+    "message": "$COUNT$ z $TOTAL$ kritických aplikací je ohrožených kvůli ohroženým heslům",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "total": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
   },
   "criticalApplicationsWithCount": {
     "message": "Kritické aplikace ($COUNT$)",
@@ -73,6 +92,15 @@
   },
   "countOfCriticalApplications": {
     "message": "$COUNT$ kritických aplikací",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfApplicationsAtRisk": {
+    "message": "$COUNT$ ohrožených aplikací",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -137,7 +165,7 @@
   "membersAtRiskActivityDescription": {
     "message": "Členové, kteří upravují přístup k rizikovým položkám pro kritické aplikace"
   },
-  "membersAtRisk": {
+  "membersAtRiskCount": {
     "message": "$COUNT$ členů v ohrožení",
     "placeholders": {
       "count": {
@@ -1479,6 +1507,30 @@
   },
   "noItemsInList": {
     "message": "Žádné položky k zobrazení."
+  },
+  "noItemsInTrash": {
+    "message": "Žádné položky v koši"
+  },
+  "noItemsInTrashDesc": {
+    "message": "Položky, které smažete, se zde zobrazí a budou trvale smazány po 30 dnech"
+  },
+  "noItemsInVault": {
+    "message": "Žádné položky v trezoru"
+  },
+  "emptyVaultDescription": {
+    "message": "Trezor chrání více než jen Vaše hesla. Bezpečně zde uložte zabezpečená přihlášení, ID, karty a poznámky."
+  },
+  "emptyFavorites": {
+    "message": "Nemáte oblíbené žádné položky"
+  },
+  "emptyFavoritesDesc": {
+    "message": "Přidejte často používané položky do oblíbených pro rychlý přístup."
+  },
+  "noSearchResults": {
+    "message": "Nebyly vráceny žádné výsledky hledání"
+  },
+  "clearFiltersOrTryAnother": {
+    "message": "Vymažte filtry nebo zkuste jiný hledaný výraz"
   },
   "noPermissionToViewAllCollectionItems": {
     "message": "Nemáte oprávnění k zobrazení všech položek v této sbírce."
@@ -4772,6 +4824,12 @@
   "organizationIsDisabled": {
     "message": "Organizace byla deaktivována"
   },
+  "organizationIsSuspended": {
+    "message": "Organizace je deaktivována"
+  },
+  "organizationIsSuspendedDesc": {
+    "message": "K položkám v deaktivované organizaci nemáte přístup. Požádejte o pomoc vlastníka organizace."
+  },
   "secretsAccessSuspended": {
     "message": "K deaktivované organizaci nemáte přístup. Požádejte o pomoc vlastníka organizace."
   },
@@ -4783,9 +4841,6 @@
   },
   "serviceAccountsCannotCreate": {
     "message": "Servisní účty nelze vytvořit v pozastavených organizacích. Požádejte o pomoc vlastníka organizace."
-  },
-  "disabledOrganizationFilterError": {
-    "message": "K položkám v deaktivované organizaci nemáte přístup. Požádejte o pomoc vlastníka organizace."
   },
   "licenseIsExpired": {
     "message": "Licence vypršela."
@@ -5160,9 +5215,13 @@
   "ssoIdentifier": {
     "message": "SSO identifikátor"
   },
-  "ssoIdentifierHintPartOne": {
-    "message": "Poskytněte toto ID Vašim členům pro přihlášení pomocí SSO. Chcete-li obejít tento krok, nastavte ",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Provide this ID to your members to login with SSO. To bypass this step, set up Domain verification'"
+  "ssoIdentifierHint": {
+    "message": "Zadejte toto ID svým členům a přihlaste se pomocí SSO. Členové mohou přeskočit zadání tohoto identifikátoru během SSO, pokud je nastavena požadovaná doména. ",
+    "description": "This will be used as part of a larger sentence, broken up to include a link. The full sentence will read 'Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. Learn more'"
+  },
+  "claimedDomainsLearnMore": {
+    "message": "Dozvědět se více",
+    "description": "This will be used as part of a larger sentence, broken up to include a link. The full sentence will read 'Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. Learn more'"
   },
   "unlinkSso": {
     "message": "Zrušit propojení s SSO"
@@ -8376,12 +8435,6 @@
   "groupSlashUser": {
     "message": "Skupina/Uživatel"
   },
-  "lowKdfIterations": {
-    "message": "Nízke iterace KDF"
-  },
-  "updateLowKdfIterationsDesc": {
-    "message": "Aktualizujte své nastavení šifrování tak, aby splňovalo nová bezpečnostní doporučení a zlepšilo ochranu účtu."
-  },
   "kdfSettingsChangeLogoutWarning": {
     "message": "Pokračováním se odhlásíte ze všech aktivních relací. Budete se muset znovu přihlásit a dokončit nastavení dvoufázového přihlášení, pokud nějaké máte. Před změnou nastavení šifrování doporučujeme exportovat trezor, aby nedošlo ke ztrátě dat."
   },
@@ -9755,6 +9808,9 @@
   "failedToSaveIntegration": {
     "message": "Nepodařilo se uložit integraci. Opakujte akci později."
   },
+  "mustBeOrgOwnerToPerformAction": {
+    "message": "Pro provedení této akce musíte být vlastníkem organizace."
+  },
   "failedToDeleteIntegration": {
     "message": "Nepodařilo se smazat integraci. Opakujte akci později."
   },
@@ -9995,12 +10051,6 @@
         "example": "2"
       }
     }
-  },
-  "lowKDFIterationsBanner": {
-    "message": "Nízké iterace KDF. Zvyšte iterace pro zvýšení bezpečnosti Vašeho účtu."
-  },
-  "changeKDFSettings": {
-    "message": "Změnit nastavení KDF"
   },
   "secureYourInfrastructure": {
     "message": "Zabezpečte Vaši infrastrukturu"
@@ -11024,8 +11074,13 @@
   "searchArchive": {
     "message": "Hledat v archivu"
   },
-  "archive": {
-    "message": "Archivovat"
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
   },
   "noItemsInArchive": {
     "message": "Žádné položky v archivu"
