@@ -19,6 +19,7 @@ import {
 import { PhishingDetectionService } from "../services/phishing-detection.service";
 
 @Component({
+  selector: "dirt-phishing-warning",
   standalone: true,
   templateUrl: "phishing-warning.component.html",
   imports: [

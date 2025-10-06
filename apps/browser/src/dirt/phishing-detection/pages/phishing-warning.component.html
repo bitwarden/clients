@@ -1,7 +1,7 @@
 <div class="tw-flex tw-flex-col tw-gap-2">
   <bit-form-field>
     <bit-label>{{ "phishingPageTitle" | i18n }}</bit-label>
-    <input bitInput disabled type="text" [value]="phishingHost$" />
+    <input bitInput disabled type="text" [value]="phishingHost$ | async" />
   </bit-form-field>
 
   <button type="button" (click)="closeTab()" bitButton buttonType="primary">
