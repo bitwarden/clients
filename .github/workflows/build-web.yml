@@ -313,12 +313,13 @@ jobs:
           DIGEST: ${{ steps.build-container.outputs.digest }}
           TAGS: ${{ steps.image-name.outputs.name }}
         run: |
-          IFS="," read -a tags <<< "${TAGS}"
-          images=""
-          for tag in "${tags[@]}"; do
-            images+="${tag}@${DIGEST} "
+          IFS=',' read -r -a tags_array <<< "${TAGS}"
+          images=()
+          for tag in "${tags_array[@]}"; do
+            images+=("${tag}@${DIGEST}")
           done
-          cosign sign --yes "${images}"
+          cosign sign --yes "${images[@]}"
+          echo "images=${images[*]}" >> "$GITHUB_OUTPUT"
 
       - name: Scan Docker image
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
