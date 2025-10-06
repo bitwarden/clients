@@ -6,5 +6,6 @@ export interface DomQueryService {
     mutationObserver?: MutationObserver,
     forceDeepQueryAttempt?: boolean,
   ): T[];
+  queryDeepSelector(root: Document | ShadowRoot | Element, selector: string): Element[];
   checkPageContainsShadowDom(): boolean;
 }
