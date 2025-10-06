@@ -1,1 +1,1 @@
-export { IconTileComponent as BitIconTileComponent } from "./icon-tile.component";
+export * from "./icon-tile.component";
