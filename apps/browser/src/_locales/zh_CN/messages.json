@@ -551,11 +551,11 @@
     "message": "重置搜索"
   },
   "archiveNoun": {
-    "message": "Archive",
+    "message": "归档",
     "description": "Noun"
   },
   "archiveVerb": {
-    "message": "Archive",
+    "message": "归档",
     "description": "Verb"
   },
   "unarchive": {
@@ -732,6 +732,15 @@
   },
   "invalidMasterPassword": {
     "message": "无效的主密码"
+  },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "无效的主密码。请确认您的电子邮箱正确无误，以及您的账户是在 $HOST$ 上创建的。",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
   },
   "vaultTimeout": {
     "message": "密码库超时时间"
@@ -3195,6 +3204,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "仅会导出与 $ORGANIZATION$ 关联的组织密码库。",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "仅会导出与 $ORGANIZATION$ 关联的组织密码库，不包括我的项目集合。",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },
