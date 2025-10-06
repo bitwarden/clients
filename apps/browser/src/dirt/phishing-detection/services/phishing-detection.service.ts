@@ -1,7 +1,18 @@
-import { concatMap, delay, Subject, Subscription } from "rxjs";
+import {
+  combineLatest,
+  concatMap,
+  delay,
+  EMPTY,
+  map,
+  Subject,
+  Subscription,
+  switchMap,
+} from "rxjs";
 
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -41,31 +52,44 @@ export class PhishingDetectionService {
   private static _lastUpdateTime: number = 0;
 
   static initialize(
-    configService: ConfigService,
+    accountService: AccountService,
     auditService: AuditService,
+    billingAccountProfileStateService: BillingAccountProfileStateService,
+    configService: ConfigService,
+    eventCollectionService: EventCollectionService,
     logService: LogService,
     storageService: AbstractStorageService,
     taskSchedulerService: TaskSchedulerService,
-    eventCollectionService: EventCollectionService,
   ): void {
     this._auditService = auditService;
     this._logService = logService;
     this._storageService = storageService;
     this._taskSchedulerService = taskSchedulerService;
 
-    logService.info("[PhishingDetectionService] Initialize called");
+    logService.info("[PhishingDetectionService] Initialize called. Checking prerequisites...");
 
-    configService
-      .getFeatureFlag$(FeatureFlag.PhishingDetection)
+    combineLatest([
+      accountService.activeAccount$,
+      configService.getFeatureFlag$(FeatureFlag.PhishingDetection),
+    ])
       .pipe(
-        concatMap(async (enabled) => {
-          if (!enabled) {
+        switchMap(([account, featureEnabled]) => {
+          if (!account) {
+            logService.info("[PhishingDetectionService] No active account.");
+            this._cleanup();
+            return EMPTY;
+          }
+          return billingAccountProfileStateService
+            .hasPremiumFromAnySource$(account.id)
+            .pipe(map((hasPremium) => ({ hasPremium, featureEnabled })));
+        }),
+        concatMap(async ({ hasPremium, featureEnabled }) => {
+          if (!hasPremium || !featureEnabled) {
             logService.info(
-              "[PhishingDetectionService] Phishing detection feature flag is disabled.",
+              "[PhishingDetectionService] User does not have access to phishing detection service.",
             );
             this._cleanup();
           } else {
-            // Enable phishing detection service
             logService.info("[PhishingDetectionService] Enabling phishing detection service");
             await this._setup();
           }

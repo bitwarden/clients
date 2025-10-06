@@ -1222,6 +1222,15 @@
   "invalidMasterPassword": {
     "message": "ಅಮಾನ್ಯ ಮಾಸ್ಟರ್ ಪಾಸ್‌ವರ್ಡ್"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "twoStepLoginConfirmation": {
     "message": "ಭದ್ರತಾ ಕೀ, ದೃಢೀಕರಣ ಅಪ್ಲಿಕೇಶನ್, ಎಸ್‌ಎಂಎಸ್, ಫೋನ್ ಕರೆ ಅಥವಾ ಇಮೇಲ್‌ನಂತಹ ಮತ್ತೊಂದು ಸಾಧನದೊಂದಿಗೆ ನಿಮ್ಮ ಲಾಗಿನ್ ಅನ್ನು ಪರಿಶೀಲಿಸುವ ಅಗತ್ಯವಿರುವ ಎರಡು ಹಂತದ ಲಾಗಿನ್ ನಿಮ್ಮ ಖಾತೆಯನ್ನು ಹೆಚ್ಚು ಸುರಕ್ಷಿತಗೊಳಿಸುತ್ತದೆ. ಬಿಟ್ವಾರ್ಡೆನ್.ಕಾಮ್ ವೆಬ್ ವಾಲ್ಟ್ನಲ್ಲಿ ಎರಡು-ಹಂತದ ಲಾಗಿನ್ ಅನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಬಹುದು. ನೀವು ಈಗ ವೆಬ್‌ಸೈಟ್‌ಗೆ ಭೇಟಿ ನೀಡಲು ಬಯಸುವಿರಾ?"
   },
@@ -2654,6 +2663,24 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "locked": {
     "message": "Locked"
   },
@@ -4080,11 +4107,17 @@
   "showLess": {
     "message": "Show less"
   },
-  "enableAutotype": {
-    "message": "Enable Autotype"
-  },
   "enableAutotypeDescription": {
     "message": "Bitwarden does not validate input locations, be sure you are in the right window and field before using the shortcut."
+  },
+  "typeShortcut": {
+    "message": "Type shortcut"
+  },
+  "editAutotypeShortcutDescription": {
+    "message": "Include one or two of the following modifiers: Ctrl, Alt, Win, or Shift, and a letter."
+  },
+  "invalidShortcut": {
+    "message": "Invalid shortcut"
   },
   "moreBreadcrumbs": {
     "message": "More breadcrumbs",
@@ -4099,8 +4132,8 @@
   "confirm": {
     "message": "Confirm"
   },
-  "enableAutotypeTransitionKey": {
-    "message": "Enable autotype shortcut"
+  "enableAutotypeShortcutPreview": {
+    "message": "Enable autotype shortcut (Feature Preview)"
   },
   "enableAutotypeDescriptionTransitionKey": {
     "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."
@@ -4108,8 +4141,13 @@
   "editShortcut": {
     "message": "Edit shortcut"
   },
-  "archive": {
-    "message": "Archive"
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
   },
   "unarchive": {
     "message": "Unarchive"

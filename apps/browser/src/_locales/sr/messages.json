@@ -550,32 +550,37 @@
   "resetSearch": {
     "message": "Ресетовати претрагу"
   },
-  "archive": {
-    "message": "Archive"
+  "archiveNoun": {
+    "message": "Архива",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Архива",
+    "description": "Verb"
   },
   "unarchive": {
-    "message": "Unarchive"
+    "message": "Врати из архиве"
   },
   "itemsInArchive": {
-    "message": "Items in archive"
+    "message": "Ставке у архиви"
   },
   "noItemsInArchive": {
-    "message": "No items in archive"
+    "message": "Нема ставка у архиви"
   },
   "noItemsInArchiveDesc": {
-    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+    "message": "Архивиране ставке ће се овде појавити и бити искључени из општих резултата претраге и сугестија о ауто-пуњењу."
   },
   "itemSentToArchive": {
-    "message": "Item sent to archive"
+    "message": "Ставка је послата у архиву"
   },
   "itemRemovedFromArchive": {
-    "message": "Item removed from archive"
+    "message": "Ставка је уклоњена из архиве"
   },
   "archiveItem": {
-    "message": "Archive item"
+    "message": "Архивирај ставку"
   },
   "archiveItemConfirmDesc": {
-    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+    "message": "Архивиране ставке су искључене из општих резултата претраге и предлога за ауто попуњавање. Јесте ли сигурни да желите да архивирате ову ставку?"
   },
   "edit": {
     "message": "Уреди"
@@ -727,6 +732,15 @@
   },
   "invalidMasterPassword": {
     "message": "Погрешна главна лозинка"
+  },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Неважећа главна лозинка. Потврдите да је ваш имејл тачан и ваш рачун је креиран на $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
   },
   "vaultTimeout": {
     "message": "Тајмаут сефа"
@@ -3190,6 +3204,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Извешће се само сеф организације повезана са $ORGANIZATION$.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Извешће се само сеф организације повезан са $ORGANIZATION$. Колекције мојих предмета неће бити укључене.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },

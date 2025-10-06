@@ -125,7 +125,15 @@ export const LongTitle: Story = {
   ...Default,
   args: {
     dialogSize: "small",
-    title: "Long_Title_That_Should_Be_Truncated",
+    title: "Incredibly_Super_Long_Title_That_Should_Be_Truncated",
+  },
+};
+
+export const LongTitleSentence: Story = {
+  ...Default,
+  args: {
+    dialogSize: "small",
+    title: "Very Long Sentence That Should Be Truncated After Two Lines",
   },
 };
 

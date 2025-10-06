@@ -7,7 +7,7 @@ import { toSignal } from "@angular/core/rxjs-interop";
 import { fromEvent, map, startWith } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
-import { CollectionView } from "@bitwarden/admin-console/common";
+import { CollectionTypes, CollectionView } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -102,7 +102,9 @@ export class ItemDetailsV2Component {
 
   getIconClass(item: Organization | CollectionView | FolderView): string {
     if (item instanceof CollectionView) {
-      return "bwi-collection-shared";
+      return item.type === CollectionTypes.DefaultUserCollection
+        ? "bwi-user"
+        : "bwi-collection-shared";
     } else if (item instanceof FolderView) {
       return "bwi-folder";
     }
