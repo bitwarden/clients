@@ -197,8 +197,17 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   async setupOverlayListeners(
     formFieldElement: ElementWithOpId<FormFieldElement>,
     autofillFieldData: AutofillField,
-    pageDetails: AutofillPageDetails,
+    pageDetails?: AutofillPageDetails,
   ) {
+    // This should get targeted fields only
+    if (formFieldElement && !pageDetails) {
+      this.formFieldElements.set(formFieldElement, autofillFieldData);
+      await this.setupFormFieldElementEventListeners(formFieldElement);
+      await this.triggerFormFieldFocusedAction(formFieldElement);
+
+      return;
+    }
+
     if (
       currentlyInSandboxedIframe() ||
       this.formFieldElements.has(formFieldElement) ||
@@ -1265,7 +1274,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    * @param formFieldElement - The form field element to set up the inline menu on.
    * @param autofillFieldData - Autofill field data captured from the form field element.
    */
-  private async setupOverlayListenersOnQualifiedField(
+  async setupOverlayListenersOnQualifiedField(
     formFieldElement: ElementWithOpId<FormFieldElement>,
     autofillFieldData: AutofillField,
   ) {

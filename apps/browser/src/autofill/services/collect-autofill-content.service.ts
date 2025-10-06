@@ -1,5 +1,8 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { CipherType } from "@bitwarden/common/vault/enums";
+
+import { AutofillFieldQualifierType } from "../enums/autofill-field.enums";
 import AutofillField from "../models/autofill-field";
 import AutofillForm from "../models/autofill-form";
 import AutofillPageDetails from "../models/autofill-page-details";
@@ -35,6 +38,8 @@ import {
 import { DomElementVisibilityService } from "./abstractions/dom-element-visibility.service";
 import { DomQueryService } from "./abstractions/dom-query.service";
 
+type TargetedFields = { [type in AutofillFieldQualifierType]?: Element };
+
 export class CollectAutofillContentService implements CollectAutofillContentServiceInterface {
   private readonly sendExtensionMessage = sendExtensionMessage;
   private readonly getAttributeBoolean = getAttributeBoolean;
@@ -44,6 +49,10 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private _autofillFormElements: AutofillFormElements = new Map();
   private autofillFieldElements: AutofillFieldElements = new Map();
   private currentLocationHref = "";
+  /**
+   * A value of `null` indicates the configuration has not been initialized, whereas an empty object indicates no set rules.
+   */
+  private readonly pageTargetingRules: null | { [type in AutofillFieldQualifierType]?: string } = {};
   private intersectionObserver: IntersectionObserver;
   private elementInitializingIntersectionObserver: Set<Element> = new Set();
   private mutationObserver: MutationObserver;
@@ -89,6 +98,33 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     // Set up listeners on top-layer candidates that predate Mutation Observer setup
     this.setupInitialTopLayerListeners();
 
+    const targetedFields = this.getTargetedFields();
+    const targetedFieldNames = Object.keys(targetedFields) as AutofillFieldQualifierType[];
+    if (targetedFieldNames.length) {
+      for (const fieldName of targetedFieldNames) {
+        const fieldNode = targetedFields[fieldName] as ElementWithOpId<FormFieldElement>;
+
+        void this.autofillOverlayContentService.setupOverlayListenersOnQualifiedField(
+          fieldNode,
+          {
+            // @TODO needs an opid and added to the list in order for autofill to work
+            opid: fieldNode.opid || `targeted_field_${fieldName}`,
+            elementNumber: 0, // Not relevant when using targeting rules
+            viewable: true,
+            htmlID: fieldNode.getAttribute('id'),
+            htmlName: fieldNode.getAttribute('name'),
+            htmlClass: fieldNode.getAttribute('class'),
+            tabindex: fieldNode.getAttribute('tabindex'),
+            title: fieldNode.getAttribute('title'),
+            inlineMenuFillType: CipherType.Login,
+            fieldQualifier: fieldName,
+          },
+        );
+      }
+
+      return {} as AutofillPageDetails;
+    }
+
     if (!this.mutationObserver) {
       this.setupMutationObserver();
     }
@@ -124,9 +160,38 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
 
     this.domRecentlyMutated = false;
     const pageDetails = this.getFormattedPageDetails(autofillFormsData, autofillFieldsData);
+
     this.setupOverlayListeners(pageDetails);
 
     return pageDetails;
+  }
+
+  getTargetedFields(): TargetedFields {
+    if (this.pageTargetingRules) {
+      const definedTargetingRuleFields = Object.keys(
+        this.pageTargetingRules,
+      ) as AutofillFieldQualifierType[];
+
+      // Note - potential bottleneck at async lookup (alternatively, promise map)
+      const foundTargetedFields = definedTargetingRuleFields.reduce((foundFields, fieldName) => {
+        const targetingRule = this.pageTargetingRules[fieldName];
+        const fieldMatches = this.domQueryService.queryDeepSelector(
+          globalThis.document,
+          targetingRule,
+        );
+
+        return fieldMatches.length
+          ? {
+              ...foundFields,
+              [fieldName]: fieldMatches[0],
+            }
+          : foundFields;
+      }, {});
+
+      return foundTargetedFields;
+    }
+
+    return {};
   }
 
   /**
@@ -1248,6 +1313,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       cancelIdleCallbackPolyfill(this.updateAfterMutationIdleCallback);
     }
 
+    // If page targeting rules are present, call `getFieldByQuery` for each field and bypass
     this.updateAfterMutationIdleCallback = requestIdleCallbackPolyfill(
       this.getPageDetails.bind(this),
       { timeout: this.updateAfterMutationTimeout },
@@ -1451,6 +1517,8 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * @param pageDetails - The page details to use for the inline menu listeners
    */
   private setupOverlayListeners(pageDetails: AutofillPageDetails) {
+    // if there are targeted rules for the page, get the nodes with those rules, and if successful, pass those to `autofillOverlayContentService.setupOverlayListeners`
+
     if (this.autofillOverlayContentService) {
       this.autofillFieldElements.forEach((autofillField, formFieldElement) => {
         this.setupOverlayOnField(formFieldElement, autofillField, pageDetails);
