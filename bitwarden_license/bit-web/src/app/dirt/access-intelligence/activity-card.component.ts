@@ -11,7 +11,7 @@ import { ButtonModule, ButtonType, LinkModule, TypographyModule } from "@bitward
   imports: [CommonModule, TypographyModule, JslibModule, LinkModule, ButtonModule],
   host: {
     class:
-      "tw-box-border tw-bg-background tw-block tw-text-main tw-border-solid tw-border tw-border-secondary-300 tw-border [&:not(bit-layout_*)]:tw-rounded-lg tw-rounded-lg tw-p-6",
+      "tw-box-border tw-bg-background tw-block tw-text-main tw-border-solid tw-border tw-border-secondary-300 tw-border [&:not(bit-layout_*)]:tw-rounded-lg tw-rounded-lg tw-p-6 tw-h-56 tw-max-h-56",
   },
 })
 export class ActivityCardComponent {
@@ -44,22 +44,13 @@ export class ActivityCardComponent {
   @Input() showNavigationLink: boolean = false;
 
   /**
-   * Show icon next to metrics
+   * Icon class to display next to metrics (e.g., "bwi-exclamation-triangle").
+   * If null, no icon is displayed.
    */
-  @Input() showIcon: boolean = false;
+  @Input() iconClass: string | null = null;
 
   /**
-   * Icon class (e.g., "bwi-exclamation-triangle")
-   */
-  @Input() iconClass: string = "";
-
-  /**
-   * Show button instead of link
-   */
-  @Input() showButton: boolean = false;
-
-  /**
-   * Button text
+   * Button text. If provided, a button will be displayed instead of a navigation link.
    */
   @Input() buttonText: string = "";
 
