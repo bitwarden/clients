@@ -54,6 +54,7 @@
     }
     <ng-content select="[slot=secondary]"></ng-content>
   </div>
+
   <footer *ngIf="!hideFooter()" class="tw-text-center tw-mt-4 sm:tw-mt-6">
     <div *ngIf="showReadonlyHostname()" bitTypography="body2">
       {{ "accessing" | i18n }} {{ hostname }}
