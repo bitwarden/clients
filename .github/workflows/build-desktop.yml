@@ -340,6 +340,7 @@ jobs:
           npm --version
           snap --version
           snapcraft --version || echo 'snapcraft unavailable'
+          dpkg -l libgcc-s1
 
       - name: Install Node dependencies
         run: npm ci
