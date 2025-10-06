@@ -59,6 +59,40 @@
   "createNewLoginItem": {
     "message": "Új bejelentkezési elem létrehozása"
   },
+  "percentageCompleted": {
+    "message": "$PERCENT$% kész",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
+  "securityTasksCompleted": {
+    "message": "$COUNT$ / $TOTAL$ biztonsági feladatok elvégzésre került.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "total": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "passwordChangeProgress": {
+    "message": "Jelszócsere feldolgozás"
+  },
+  "assignMembersTasksToMonitorProgress": {
+    "message": "Rendeljünk a tagokhoz feladatokat az előrehaladás monitorozására."
+  },
+  "onceYouReviewApplications": {
+    "message": "Az alkalmazások áttekintése és kritikusnak jelölése után ezek itt jelennek meg."
+  },
+  "sendReminders": {
+    "message": "Emlékeztető küldés"
+  },
   "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
     "message": "A kritikus alkalmazások megjelölésével azok itt jelennek meg."
   },
@@ -101,6 +135,15 @@
   },
   "countOfApplicationsAtRisk": {
     "message": "$COUNT$ kockázatos alkalmazás",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfAtRiskPasswords": {
+    "message": "$COUNT$ kockázatos jelszó",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -162,8 +205,8 @@
   "atRiskMembers": {
     "message": "Veszélyes tagok"
   },
-  "membersAtRiskActivityDescription": {
-    "message": "Tagok szerkesztési hozzáféréssel a kritikus alkalmazások veszélyeztetett elemeihez"
+  "membersWithAccessToAtRiskItemsForCriticalApps": {
+    "message": "Members with access to at-risk items for critical applications"
   },
   "membersAtRiskCount": {
     "message": "$COUNT$ kockázatos tag",
@@ -1500,7 +1543,7 @@
     "message": "A mesterjelszó érvénytelen."
   },
   "invalidMasterPasswordConfirmEmailAndHost": {
-    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "message": "A mesterjelszó érvénytelen. Erősítsük meg, hogy email cím helyes és a fiók létrehozásának helye: $HOST$.",
     "placeholders": {
       "host": {
         "content": "$1",
@@ -7215,6 +7258,9 @@
   "unknownSecret": {
     "message": "Ismeretlen a titkos kód, előfordulhat, hogy engedélyt kell kérni a titkos kód eléréséhez."
   },
+  "unknownServiceAccount": {
+    "message": "A gép fiók ismeeretlen, előfordulhat, hogy engedélyt kell kérni a gép fiók eléréséhez."
+  },
   "unknownProject": {
     "message": "Ismeretlen a projekt, előfordulhat, hogy engedélyt kell kérni a projekt eléréséhez."
   },
@@ -8565,8 +8611,8 @@
       }
     }
   },
-  "accessedProjectWithId": {
-    "message": "Egy projekt hozzáférésre került egy azonosítóval: $PROJECT_ID$.",
+  "accessedProjectWithIdentifier": {
+    "message": "Egy projekt elérése megtörtént egy azonosítóval: $PROJECT_ID$.",
     "placeholders": {
       "project_id": {
         "content": "$1",
@@ -8592,10 +8638,89 @@
       }
     }
   },
+  "nameUnavailableServiceAccountDeleted": {
+    "message": "A gép fiók törlésre került egy azonosítóval: $SERVICE_ACCOUNT_ID$.",
+    "placeholders": {
+      "service_account_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
   "editedProjectWithId": {
     "message": "Egy projekt szerkesztése megtörtént egy azonosítóval: $PROJECT_ID$",
     "placeholders": {
       "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "addedUserToServiceAccountWithId": {
+    "message": "Egy felhasználó került hozzáadásra: $USER_ID$ a gépi fiókhoz egy azonosítóval: $SERVICE_ACCOUNT_ID$.",
+    "placeholders": {
+      "user_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "removedUserToServiceAccountWithId": {
+    "message": "Egy felhasználó lett eltávolítva: $USER_ID$ a gépi fiókból egy azonosítóval: $SERVICE_ACCOUNT_ID$.",
+    "placeholders": {
+      "user_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "removedGroupFromServiceAccountWithId": {
+    "message": "Egy csoport lett eltávolítva: $GROUP_ID$ a gépi fiókból egy azonosítóval: $SERVICE_ACCOUNT_ID$.",
+    "placeholders": {
+      "group_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "serviceAccountCreatedWithId": {
+    "message": "Egy gép fiók lett létrehozva egy azonosítóval: $SERVICE_ACCOUNT_ID$.",
+    "placeholders": {
+      "service_account_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "addedGroupToServiceAccountId": {
+    "message": "Egy csoport lett hozzáadva: $GROUP_ID$ a gép fiókhoz egy azonosítóval: $SERVICE_ACCOUNT_ID$.",
+    "placeholders": {
+      "group_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "serviceAccountDeletedWithId": {
+    "message": "Egy gép fiók került tötlésre egy azonosítóval: $SERVICE_ACCOUNT_ID$.",
+    "placeholders": {
+      "service_account_id": {
         "content": "$1",
         "example": "4d34e8a8"
       }
@@ -9436,6 +9561,9 @@
   },
   "assign": {
     "message": "Hozzárendelés"
+  },
+  "assignTasks": {
+    "message": "Feladatok hozzárendelése"
   },
   "assignToCollections": {
     "message": "Hozzárendelés gyűjteményekhez"

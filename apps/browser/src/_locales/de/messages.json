@@ -559,13 +559,13 @@
     "description": "Verb"
   },
   "unarchive": {
-    "message": "Archivierung aufheben"
+    "message": "Nicht mehr archivieren"
   },
   "itemsInArchive": {
     "message": "Einträge im Archiv"
   },
   "noItemsInArchive": {
-    "message": "Kein Eintrag im Archiv"
+    "message": "Keine Einträge im Archiv"
   },
   "noItemsInArchiveDesc": {
     "message": "Archivierte Einträge werden hier angezeigt und von allgemeinen Suchergebnissen sowie Vorschlägen zum automatischen Ausfüllen ausgeschlossen."
@@ -589,7 +589,7 @@
     "message": "Anzeigen"
   },
   "viewLogin": {
-    "message": "Login ansehen"
+    "message": "Zugangsdaten anzeigen"
   },
   "noItemsInList": {
     "message": "Keine Einträge zum Anzeigen vorhanden."
@@ -734,7 +734,7 @@
     "message": "Ungültiges Master-Passwort"
   },
   "invalidMasterPasswordConfirmEmailAndHost": {
-    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "message": "Ungültiges Master-Passwort. Überprüfe, ob deine E-Mail-Adresse korrekt ist und dein Konto auf $HOST$ erstellt wurde.",
     "placeholders": {
       "host": {
         "content": "$1",
@@ -1656,7 +1656,7 @@
     "message": "Deaktiviere die Auto-Ausfüllen-Einstellungen deines Browsers, damit sie nicht mit Bitwarden in Konflikt geraten."
   },
   "turnOffBrowserAutofill": {
-    "message": "Deaktiviere das automatische Ausfüllen von $BROWSER$",
+    "message": "$BROWSER$ Auto-Ausfüllen deaktivieren",
     "placeholders": {
       "browser": {
         "content": "$1",
@@ -1665,7 +1665,7 @@
     }
   },
   "turnOffAutofill": {
-    "message": "Deaktiviere das automatische Ausfüllen"
+    "message": "Auto-Ausfüllen deaktivieren"
   },
   "showInlineMenuLabel": {
     "message": "Vorschläge zum Auto-Ausfüllen in Formularfeldern anzeigen"
@@ -1796,7 +1796,7 @@
     "message": "Dieses Pop-up Fenster wird geschlossen, wenn du außerhalb des Fensters klickst um in deinen E-Mails nach dem Verifizierungscode zu suchen. Möchtest du, dass dieses Pop-up in einem separaten Fenster geöffnet wird, damit es nicht geschlossen wird?"
   },
   "showIconsChangePasswordUrls": {
-    "message": "Website-Symbole anzeigen und URLs zum Ändern von Passwörtern abrufen"
+    "message": "Website-Symbole anzeigen und URLs zum Ändern von Passwörtern ermitteln"
   },
   "cardholderName": {
     "message": "Name des Karteninhabers"
@@ -3570,7 +3570,7 @@
     }
   },
   "youDeniedLoginAttemptFromAnotherDevice": {
-    "message": "Du hast einen Zugangsdaten-Versuch von einem anderen Gerät abgelehnt. Falls du es warst, versuche dich erneut mit diesem Gerät anzumelden."
+    "message": "Du hast einen Anmeldeversuch von einem anderen Gerät abgelehnt. Wenn du das wirklich warst, versuche dich erneut mit dem Gerät anzumelden."
   },
   "device": {
     "message": "Gerät"
@@ -3860,7 +3860,7 @@
     "message": "Organisation ist nicht vertrauenswürdig"
   },
   "emergencyAccessTrustWarning": {
-    "message": "Zur Sicherheit deines Kontos bestätige nur, wenn du diesem Benutzer Notfallzugriff gewährt hast und sein Fingerabdruck mit dem übereinstimmt, was in seinem Konto angezeigt wird"
+    "message": "Bestätige zur Sicherheit deines Kontos nur, wenn du den Notfallzugriff diesem Benutzer gewährt hast und sein Fingerabdruck mit dem übereinstimmt, was in seinem Konto angezeigt wird"
   },
   "orgTrustWarning": {
     "message": "Fahre zur Sicherheit deines Kontos nur fort, wenn du ein Mitglied dieser Organisation bist, die Kontowiederherstellung aktiviert hast und der unten angezeigte Fingerabdruck mit dem Fingerabdruck der Organisation übereinstimmt."
@@ -4211,10 +4211,10 @@
     "message": "Sammlung auswählen"
   },
   "importTargetHintCollection": {
-    "message": "Wählen Sie diese Option, wenn der importierte Dateiinhalt in eine Sammlung verschoben werden soll"
+    "message": "Wähle diese Option, wenn der importierte Dateiinhalt in eine Sammlung verschoben werden soll"
   },
   "importTargetHintFolder": {
-    "message": "Wählen Sie diese Option, wenn der importierte Dateiinhalt in einen Ordner verschoben werden soll"
+    "message": "Wähle diese Option, wenn der importierte Dateiinhalt in einen Ordner verschoben werden soll"
   },
   "importUnassignedItemsError": {
     "message": "Die Datei enthält nicht zugewiesene Einträge."
@@ -5517,10 +5517,10 @@
     "message": "Gefährdetes Passwort ändern"
   },
   "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Dieser Login ist gefährdet und es fehlt eine Website. Fügen Sie eine Website hinzu und ändern Sie das Passwort, um die Sicherheit zu erhöhen."
+    "message": "Diese Zugangsdaten sind gefährdet und es fehlt eine Website. Füge eine Website hinzu und ändere das Passwort für mehr Sicherheit."
   },
   "missingWebsite": {
-    "message": "Fehlende Webseite"
+    "message": "Fehlende Website"
   },
   "settingsVaultOptions": {
     "message": "Tresoroptionen"
@@ -5568,10 +5568,10 @@
     "message": "Jetzt importieren"
   },
   "hasItemsVaultNudgeTitle": {
-    "message": "Willkommen in Ihrem Tresor!"
+    "message": "Willkommen in deinem Tresor!"
   },
   "phishingPageTitle": {
-    "message": "Phishing Webseite"
+    "message": "Phishing-Website"
   },
   "phishingPageCloseTab": {
     "message": "Tab schließen"
@@ -5580,7 +5580,7 @@
     "message": "Weiter"
   },
   "phishingPageLearnWhy": {
-    "message": "Warum sehen Sie das?"
+    "message": "Warum wird dir das angezeigt?"
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Einträge für die aktuelle Seite automatisch ausfüllen"
@@ -5605,7 +5605,7 @@
     "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newLoginNudgeBodyTwo": {
-    "message": "damit diese Zugangsdaten als Vorschlag zum automatischen Ausfüllen erscheinen.",
+    "message": "hinzu, damit diese Zugangsdaten als Auto-Ausfüllen-Vorschlag erscheinen.",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
     "example": "Include a Website so this login appears as an autofill suggestion."
   },
@@ -5667,7 +5667,7 @@
     "message": "Du hast keine Berechtigung, diese Seite anzuzeigen. Versuche, dich mit einem anderen Konto anzumelden."
   },
   "wasmNotSupported": {
-    "message": "WebAssembly wird in Ihrem Browser nicht unterstützt oder ist nicht aktiviert. WebAssembly ist erforderlich, um die Bitwarden-App zu verwenden.",
+    "message": "WebAssembly wird von deinem Browser nicht unterstützt oder ist nicht aktiviert. WebAssembly wird benötigt, um die Bitwarden-App nutzen zu können.",
     "description": "'WebAssembly' is a technical term and should not be translated."
   },
   "showMore": {
@@ -5680,10 +5680,10 @@
     "message": "Weiter"
   },
   "moreBreadcrumbs": {
-    "message": "Mehr Breadcrumbs",
+    "message": "Dateipfad erweitern",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   },
   "confirmKeyConnectorDomain": {
-    "message": "Bestätige Key Connector Domäne"
+    "message": "Key Connector-Domain bestätigen"
   }
 }

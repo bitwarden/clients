@@ -59,8 +59,42 @@
   "createNewLoginItem": {
     "message": "Neuen Zugangsdaten-Eintrag erstellen"
   },
+  "percentageCompleted": {
+    "message": "Zu $PERCENT$% abgeschlossen",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
+  "securityTasksCompleted": {
+    "message": "$COUNT$ von $TOTAL$ Sicherheitsaufgaben abgeschlossen",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "total": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "passwordChangeProgress": {
+    "message": "Fortschritt der Passwortänderung"
+  },
+  "assignMembersTasksToMonitorProgress": {
+    "message": "Mitglieder Aufgaben zuweisen, um den Fortschritt zu überwachen"
+  },
+  "onceYouReviewApplications": {
+    "message": "Sobald du Anwendungen überprüft und als kritisch markiert hast, werden sie hier angezeigt."
+  },
+  "sendReminders": {
+    "message": "Erinnerungen senden"
+  },
   "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
-    "message": "Sobald du Anwendungen als kritisch markierst, werden sie hier angezeigt"
+    "message": "Sobald du Anwendungen als kritisch markierst, werden sie hier angezeigt."
   },
   "viewAtRiskMembers": {
     "message": "Gefährdete Mitglieder anzeigen"
@@ -101,6 +135,15 @@
   },
   "countOfApplicationsAtRisk": {
     "message": "$COUNT$ gefährdete Anwendungen",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfAtRiskPasswords": {
+    "message": "$COUNT$ Passwörter gefährdet",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -162,8 +205,8 @@
   "atRiskMembers": {
     "message": "Gefährdete Mitglieder"
   },
-  "membersAtRiskActivityDescription": {
-    "message": "Mitglieder mit Berechtigung zum Bearbeiten gefährdeter Einträge für kritische Anwendungen"
+  "membersWithAccessToAtRiskItemsForCriticalApps": {
+    "message": "Mitglieder mit Zugriff auf gefährdete Einträge für kritische Anwendungen"
   },
   "membersAtRiskCount": {
     "message": "$COUNT$ gefährdete Mitglieder",
@@ -1500,7 +1543,7 @@
     "message": "Ungültiges Master-Passwort"
   },
   "invalidMasterPasswordConfirmEmailAndHost": {
-    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "message": "Ungültiges Master-Passwort. Überprüfe, ob deine E-Mail-Adresse korrekt ist und dein Konto auf $HOST$ erstellt wurde.",
     "placeholders": {
       "host": {
         "content": "$1",
@@ -1539,7 +1582,7 @@
     "message": "Keine Suchergebnisse gefunden"
   },
   "clearFiltersOrTryAnother": {
-    "message": "Filter löschen oder einen anderen Suchbegriff versuchen"
+    "message": "Filter löschen oder es mit einem anderen Suchbegriff versuchen"
   },
   "noPermissionToViewAllCollectionItems": {
     "message": "Du hast nicht die Berechtigung, alle Einträge in dieser Sammlung anzuzeigen."
@@ -4837,7 +4880,7 @@
     "message": "Organisation ist deaktiviert"
   },
   "organizationIsSuspendedDesc": {
-    "message": "Auf Einträge in deaktivierten Organisationen kann nicht zugegriffen werden. Kontaktiere den Eigentümer deiner Organisation, um Unterstützung zu erhalten."
+    "message": "Auf Einträge in deaktivierten Organisationen kann nicht zugegriffen werden. Kontaktiere den Besitzer deiner Organisation, um Unterstützung zu erhalten."
   },
   "secretsAccessSuspended": {
     "message": "Auf deaktivierte Organisationen kann nicht zugegriffen werden. Bitte wende dich an deinen Organisationseigentümer."
@@ -7215,6 +7258,9 @@
   "unknownSecret": {
     "message": "Unbekanntes Geheimnis, möglicherweise müssen Sie eine Berechtigung anfordern, um auf dieses Geheimnis zuzugreifen."
   },
+  "unknownServiceAccount": {
+    "message": "Unbekanntes Gerätekonto. Du musst möglicherweise eine Berechtigung anfordern, um auf dieses Gerätekonto zuzugreifen."
+  },
   "unknownProject": {
     "message": "Unbekanntes Projekt. Du musst möglicherweise eine Berechtigung anfordern, um auf dieses Projekt zuzugreifen."
   },
@@ -8565,8 +8611,8 @@
       }
     }
   },
-  "accessedProjectWithId": {
-    "message": "Auf ein Projekt mit der ID $PROJECT_ID$ zugegriffen.",
+  "accessedProjectWithIdentifier": {
+    "message": "Auf ein Projekt zugegriffen mit der Kennung: $PROJECT_ID$.",
     "placeholders": {
       "project_id": {
         "content": "$1",
@@ -8592,10 +8638,89 @@
       }
     }
   },
+  "nameUnavailableServiceAccountDeleted": {
+    "message": "Gelöschtes Gerätekonto mit der Kennung: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "service_account_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
   "editedProjectWithId": {
     "message": "Ein Projekt mit der Kennung $PROJECT_ID$ bearbeitet",
     "placeholders": {
       "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "addedUserToServiceAccountWithId": {
+    "message": "Benutzer: $USER_ID$ hinzugefügt zu Gerätekonto mit der Kennung: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "user_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "removedUserToServiceAccountWithId": {
+    "message": "Benutzer: $USER_ID$ entfernt aus dem Gerätekonto mit der Kennung: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "user_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "removedGroupFromServiceAccountWithId": {
+    "message": "Gruppe: $GROUP_ID$ entfernt aus dem Gerätekonto mit der Kennung: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "group_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "serviceAccountCreatedWithId": {
+    "message": "Gerätekonto erstellt mit der Kennung: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "service_account_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "addedGroupToServiceAccountId": {
+    "message": "Gruppe: $GROUP_ID$ hinzugefügt zu Gerätekonto mit der Kennung: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "group_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "serviceAccountDeletedWithId": {
+    "message": "Gelöschtes Gerätekonto mit der Kennung: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "service_account_id": {
         "content": "$1",
         "example": "4d34e8a8"
       }
@@ -9111,13 +9236,13 @@
     "message": "Konfiguriere das Sammlungs-Verhalten für die Organisation"
   },
   "allowAdminAccessToAllCollectionItemsDescription": {
-    "message": "Erlaube Eigentümern und Administratoren, alle Sammlungen und Einträge über die Admin-Konsole zu verwalten"
+    "message": "Erlaube Besitzern und Administratoren, alle Sammlungen und Einträge über die Admin-Konsole zu verwalten"
   },
   "restrictCollectionCreationDescription": {
-    "message": "Beschränke die Erstellung von Sammlungen auf Eigentümer und Administratoren"
+    "message": "Beschränke die Erstellung von Sammlungen auf Besitzer und Administratoren"
   },
   "restrictCollectionDeletionDescription": {
-    "message": "Beschränke das Löschen von Sammlungen auf Eigentümer und Administratoren"
+    "message": "Beschränke das Löschen von Sammlungen auf Besitzer und Administratoren"
   },
   "restrictItemDeletionDescriptionStart": {
     "message": "Beschränke das Löschen von Einträgen auf Mitglieder mit der ",
@@ -9258,7 +9383,7 @@
     }
   },
   "allowAdminAccessToAllCollectionItemsEnabled": {
-    "message": "Die Einstellung Eigentümern und Administratoren erlauben, alle Sammlungen und Einträge zu verwalten wurde für $ID$ aktiviert.",
+    "message": "Die Einstellung Besitzern und Administratoren erlauben, alle Sammlungen und Einträge zu verwalten wurde für $ID$ aktiviert.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -9267,7 +9392,7 @@
     }
   },
   "allowAdminAccessToAllCollectionItemsDisabled": {
-    "message": "Die Einstellung Eigentümern und Administratoren erlauben, alle Sammlungen und Einträge zu verwalten wurde für $ID$ deaktiviert.",
+    "message": "Die Einstellung Besitzern und Administratoren erlauben, alle Sammlungen und Einträge zu verwalten wurde für $ID$ deaktiviert.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -9436,6 +9561,9 @@
   },
   "assign": {
     "message": "Zuweisen"
+  },
+  "assignTasks": {
+    "message": "Aufgaben zuweisen"
   },
   "assignToCollections": {
     "message": "Sammlungen zuweisen"
@@ -9836,7 +9964,7 @@
     "message": "Fehler beim Speichern der Integration. Bitte versuche es später erneut."
   },
   "mustBeOrgOwnerToPerformAction": {
-    "message": "Du musst der Eigentümer der Organisation sein, um diese Aktion auszuführen."
+    "message": "Du musst der Besitzer der Organisation sein, um diese Aktion auszuführen."
   },
   "failedToDeleteIntegration": {
     "message": "Löschen der Integration fehlgeschlagen. Bitte versuche es später erneut."
@@ -11458,7 +11586,7 @@
     "message": "Zusätzlicher Speicher GB"
   },
   "additionalServiceAccountsV2": {
-    "message": "Zusätzliche Maschinenkonten"
+    "message": "Zusätzliche Gerätekonten"
   },
   "secretsManagerSeats": {
     "message": "Secrets-Manager-Plätze"
@@ -11560,7 +11688,7 @@
     "message": "SCIM-Unterstützung"
   },
   "includedMachineAccountsV2": {
-    "message": "$COUNT$ Maschinenkonten",
+    "message": "$COUNT$ Gerätekonten",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -11569,10 +11697,10 @@
     }
   },
   "enterpriseSecurityPolicies": {
-    "message": "Enterprise-Sicherheitsrichtlinien"
+    "message": "Sicherheitsrichtlinien für Unternehmen"
   },
   "selfHostOption": {
-    "message": "Self-Host-Option"
+    "message": "Selbsthosting-Option"
   },
   "complimentaryFamiliesPlan": {
     "message": "Kostenloser Families-Plan für alle Benutzer"

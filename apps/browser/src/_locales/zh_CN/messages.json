@@ -551,11 +551,11 @@
     "message": "重置搜索"
   },
   "archiveNoun": {
-    "message": "Archive",
+    "message": "归档",
     "description": "Noun"
   },
   "archiveVerb": {
-    "message": "Archive",
+    "message": "归档",
     "description": "Verb"
   },
   "unarchive": {
@@ -734,7 +734,7 @@
     "message": "无效的主密码"
   },
   "invalidMasterPasswordConfirmEmailAndHost": {
-    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "message": "无效的主密码。请确认您的电子邮箱正确无误，以及您的账户是在 $HOST$ 上创建的。",
     "placeholders": {
       "host": {
         "content": "$1",
@@ -3208,7 +3208,7 @@
     }
   },
   "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
-    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "message": "仅会导出与 $ORGANIZATION$ 关联的组织密码库。",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3217,7 +3217,7 @@
     }
   },
   "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
-    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "message": "仅会导出与 $ORGANIZATION$ 关联的组织密码库，不包括我的项目集合。",
     "placeholders": {
       "organization": {
         "content": "$1",

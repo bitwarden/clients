@@ -59,8 +59,42 @@
   "createNewLoginItem": {
     "message": "Stvori novu stavku prijave"
   },
+  "percentageCompleted": {
+    "message": "$PERCENT$% complete",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
+  "securityTasksCompleted": {
+    "message": "$COUNT$ out of $TOTAL$ security tasks completed",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "total": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "passwordChangeProgress": {
+    "message": "Password change progress"
+  },
+  "assignMembersTasksToMonitorProgress": {
+    "message": "Assign members tasks to monitor progress"
+  },
+  "onceYouReviewApplications": {
+    "message": "Once you review applications and mark them as critical, they will display here."
+  },
+  "sendReminders": {
+    "message": "Send reminders"
+  },
   "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
-    "message": "Once you mark applications critical, they will display here"
+    "message": "Once you mark applications critical, they will display here."
   },
   "viewAtRiskMembers": {
     "message": "Rizični korisnici"
@@ -101,6 +135,15 @@
   },
   "countOfApplicationsAtRisk": {
     "message": "$COUNT$ aplikacija/e ugroženo",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfAtRiskPasswords": {
+    "message": "$COUNT$ passwords at-risk",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -162,11 +205,11 @@
   "atRiskMembers": {
     "message": "Rizični korisnici"
   },
-  "membersAtRiskActivityDescription": {
-    "message": "Članovi koji mogu uređivati stavke za aplikacije označene kao kritične"
+  "membersWithAccessToAtRiskItemsForCriticalApps": {
+    "message": "Members with access to at-risk items for critical applications"
   },
   "membersAtRiskCount": {
-    "message": "$COUNT$ members at-risk",
+    "message": "Rizičnih članova: $COUNT$",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1500,7 +1543,7 @@
     "message": "Neispravna glavna lozinka"
   },
   "invalidMasterPasswordConfirmEmailAndHost": {
-    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "message": "Nevažeća glavna lozinka. Provjeri je li tvoja adresa e-pošta ispravna i je li račun kreiran na $HOST$.",
     "placeholders": {
       "host": {
         "content": "$1",
@@ -1518,28 +1561,28 @@
     "message": "Nema stavki za prikaz."
   },
   "noItemsInTrash": {
-    "message": "No items in trash"
+    "message": "Nema stavki u smeću"
   },
   "noItemsInTrashDesc": {
-    "message": "Items you delete will appear here and be permanently deleted after 30 days"
+    "message": "Stavke koje obrišeš biti će premještene ovdje, a nakon 30 dana biti će trajno izbrisane"
   },
   "noItemsInVault": {
-    "message": "No items in the vault"
+    "message": "Nema stavaka u trezoru"
   },
   "emptyVaultDescription": {
-    "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
+    "message": "Trezor štiti više od lozinki. Sigurno spremi prijave, identitete, kartice i bilješke."
   },
   "emptyFavorites": {
-    "message": "You haven't favorited any items"
+    "message": "Niti jedna stavka nije dodana u favorite"
   },
   "emptyFavoritesDesc": {
-    "message": "Add frequently used items to favorites for quick access."
+    "message": "Za brzi pristup često korištenim stavkama dodaj ih u favorite."
   },
   "noSearchResults": {
-    "message": "No search results returned"
+    "message": "Nema rezultata pretrage"
   },
   "clearFiltersOrTryAnother": {
-    "message": "Clear filters or try another search term"
+    "message": "Očisti filtre ili pokušaj s drugačijom pretragom"
   },
   "noPermissionToViewAllCollectionItems": {
     "message": "Nemaš prava vidjeti sve stavke u ovoj zbirci."
@@ -4834,10 +4877,10 @@
     "message": "Organizacija suspendirana"
   },
   "organizationIsSuspended": {
-    "message": "Organization is suspended"
+    "message": "Organizacija je suspendirana"
   },
   "organizationIsSuspendedDesc": {
-    "message": "Items in suspended organizations cannot be accessed. Contact your organization owner for assistance."
+    "message": "Stavkama u suspendiranoj Organizaciji se ne može pristupiti. Kontaktiraj vlasnika Organizacije za pomoć."
   },
   "secretsAccessSuspended": {
     "message": "Stavkama u suspendiranoj Organizaciji se ne može pristupiti. Kontaktiraj vlasnika Organizacije za pomoć."
@@ -5225,11 +5268,11 @@
     "message": "SSO identifikator"
   },
   "ssoIdentifierHint": {
-    "message": "Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. ",
+    "message": "Daj ovaj ID svojim članovima za prijavu putem SSO-a. Članovi mogu preskočiti unos ovog identifikatora tijekom SSO-a ako je postavljena domena za koju su prijavljeni. ",
     "description": "This will be used as part of a larger sentence, broken up to include a link. The full sentence will read 'Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. Learn more'"
   },
   "claimedDomainsLearnMore": {
-    "message": "Learn more",
+    "message": "Saznaj više",
     "description": "This will be used as part of a larger sentence, broken up to include a link. The full sentence will read 'Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. Learn more'"
   },
   "unlinkSso": {
@@ -7044,7 +7087,7 @@
     }
   },
   "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
-    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "message": "Izvezt će se samo trezor organizacije povezan s $ORGANIZATION$.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -7053,7 +7096,7 @@
     }
   },
   "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
-    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "message": "Izvezt će se samo trezor organizacije povezan s $ORGANIZATION$. Zbirka mojih stavki neće biti uključena.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -7214,6 +7257,9 @@
   },
   "unknownSecret": {
     "message": "Nepoznata tajna. Možda trebaš tražiti dozvolu za pristup ovoj tajni."
+  },
+  "unknownServiceAccount": {
+    "message": "Nepoznati mašinski račun. Možda trebaš tražiti dozvolu za pristup ovom mašinskom računu."
   },
   "unknownProject": {
     "message": "Nepoznati projekt. Možda trebaš tražiti dozvolu za pristup ovom projektu."
@@ -8565,7 +8611,7 @@
       }
     }
   },
-  "accessedProjectWithId": {
+  "accessedProjectWithIdentifier": {
     "message": "Pristupljeno projektu s identifikatorom: $PROJECT_ID$.",
     "placeholders": {
       "project_id": {
@@ -8592,10 +8638,89 @@
       }
     }
   },
+  "nameUnavailableServiceAccountDeleted": {
+    "message": "Obrisan mašinski račun s id: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "service_account_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
   "editedProjectWithId": {
     "message": "Uređen projekt s identifikatorom: $PROJECT_ID$",
     "placeholders": {
       "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "addedUserToServiceAccountWithId": {
+    "message": "Korisnik: $USER_ID$ dodan mašinskom računu $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "user_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "removedUserToServiceAccountWithId": {
+    "message": "Korisnik $USER_ID$ uklonjen iz mašinskog računa $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "user_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "removedGroupFromServiceAccountWithId": {
+    "message": "Grupa $GROUP_ID$ uklonjena iz mašinskog računa$SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "group_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "serviceAccountCreatedWithId": {
+    "message": "Stvoren mašinski račun $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "service_account_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "addedGroupToServiceAccountId": {
+    "message": "Grupa $GROUP_ID$ dodana mašinskom računu $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "group_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "serviceAccountDeletedWithId": {
+    "message": "Obrisan mašinski račun $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "service_account_id": {
         "content": "$1",
         "example": "4d34e8a8"
       }
@@ -9436,6 +9561,9 @@
   },
   "assign": {
     "message": "Dodijeli"
+  },
+  "assignTasks": {
+    "message": "Assign tasks"
   },
   "assignToCollections": {
     "message": "Dodijeli zbirkama"
@@ -11102,11 +11230,11 @@
     "message": "Pretraži arhivu"
   },
   "archiveNoun": {
-    "message": "Archive",
+    "message": "Arhiva",
     "description": "Noun"
   },
   "archiveVerb": {
-    "message": "Archive",
+    "message": "Arhiviraj",
     "description": "Verb"
   },
   "noItemsInArchive": {
@@ -11223,10 +11351,10 @@
     "message": "Bitwarden proširenje je instalirano!"
   },
   "openTheBitwardenExtension": {
-    "message": "Open the Bitwarden extension"
+    "message": "Otvori Bitwarden proširenje"
   },
   "bitwardenExtensionInstalledOpenExtension": {
-    "message": "The Bitwarden extension is installed! Open the extension to log in and start autofilling."
+    "message": "Instalirano je Bitwarden proširenje! Otvori ga za prijavu i početak auto-ispune."
   },
   "openExtensionToAutofill": {
     "message": "Otvori proširenje i prijavi se za početak korištenja auto-ispune."
