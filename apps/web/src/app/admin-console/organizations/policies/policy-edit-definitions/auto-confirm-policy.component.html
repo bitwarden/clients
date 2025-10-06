@@ -1,0 +1,68 @@
+<ng-container [ngTemplateOutlet]="steps[step]()"></ng-container>
+
+<ng-template #step0>
+  <p>
+    {{ "autoConfirmPolicyEditDescription" | i18n }}
+  </p>
+
+  <div [formGroup]="data">
+    <bit-form-control>
+      <input type="checkbox" bitCheckbox formControlName="securityRisks" id="securityRisks" />
+      <bit-label>{{ "autoConfirmAcceptSecurityRisk" | i18n }}</bit-label>
+      <bit-hint>
+        {{ "autoConfirmAcceptSecurityRiskDescription" | i18n }}
+        <!-- @FIXME: need the real link here-->
+        <a
+          bitLink
+          href="https://bitwarden.com/resources/credential-lifecycle-management/"
+          target="_blank"
+        >
+          {{ "autoConfirmAcceptSecurityRiskLearnMore" | i18n }}
+        </a>
+      </bit-hint>
+    </bit-form-control>
+
+    @if (singleOrgEnabled$ | async) {
+      <bit-form-control>
+        <input
+          type="checkbox"
+          bitCheckbox
+          formControlName="singleOrgAccepted"
+          id="singleOrgAccepted"
+        />
+        <bit-label>{{ "autoConfirmRequireSingleOrg" | i18n }}</bit-label>
+        <bit-hint>
+          {{ "autoConfirmRequireSingleOrgDescription" | i18n }}
+        </bit-hint>
+      </bit-form-control>
+    } @else {
+      <bit-form-control>
+        <input
+          type="checkbox"
+          bitCheckbox
+          formControlName="singleOrgAccepted"
+          id="singleOrgAccepted"
+        />
+        <bit-label>{{ "autoConfirmTurnOnSingleOrg" | i18n }}</bit-label>
+        <bit-hint>
+          {{ "autoConfirmTurnOnSingleOrgDescription" | i18n }}
+        </bit-hint>
+      </bit-form-control>
+    }
+
+    <bit-form-control>
+      <input
+        type="checkbox"
+        bitCheckbox
+        formControlName="removeEmergencyAccess"
+        id="removeEmergencyAccess"
+      />
+      <bit-label>{{ "autoConfirmRemoveEmergencyAccess" | i18n }}</bit-label>
+      <bit-hint>
+        {{ "autoConfirmRemoveEmergencyAccessDescription" | i18n }}
+      </bit-hint>
+    </bit-form-control>
+  </div>
+</ng-template>
+
+<ng-template #step1> </ng-template>

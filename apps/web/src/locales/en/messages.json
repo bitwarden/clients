@@ -5672,6 +5672,44 @@
     "message": "Learn more about the ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about the credential lifecycle.'"
   },
+  "autoConfirm": {
+    "message": "Automatic user confirmation"
+  },
+  "autoConfirmDescription": {
+    "message": "This feature is available because an Acme administrator has requested it"
+  },
+  "autoConfirmPolicyEditDescription": {
+    "message": "Activating this feature will add a new setting to administrators' devices to control this automation. You must agree to the following to proceed:",
+    "description": "This is the description of the policy as it appears inside the policy edit dialog"
+  },
+  "autoConfirmAcceptSecurityRisk": {
+    "message": "Accept the security risks"
+  },
+  "autoConfirmAcceptSecurityRiskDescription": {
+    "message": "Automatic confirmation of users could pose a security risk to your organization’s data. "
+  },
+  "autoConfirmAcceptSecurityRiskLearnMore": {
+    "message": "Learn more about the risks",
+    "description": "The is the link copy for the first check box option in the edit policy dialog"
+  },
+  "autoConfirmTurnOnSingleOrg": {
+    "message": "Turn on the single organization policy"
+  },
+  "autoConfirmTurnOnSingleOrgDescription": {
+    "message": "Restrict all members, including owners and admins, from joining other organizations. Non-compliant members will be revoked until they leave all other organizations. "
+  },
+  "autoConfirmRequireSingleOrg": {
+    "message": "Require all members to comply with the single organization policy"
+  },
+  "autoConfirmRequireSingleOrgDescription": {
+    "message": "Restrict all members, including owners and admins, from joining other organizations. Non-compliant members will be revoked until they leave all other organizations. "
+  },
+  "autoConfirmRemoveEmergencyAccess": {
+    "message": "Remove emergency access"
+  },
+  "autoConfirmRemoveEmergencyAccessDescription": {
+    "message": "Emergency Access will be removed for all members of the organization."
+  },
   "personalOwnership": {
     "message": "Remove individual vault"
   },
