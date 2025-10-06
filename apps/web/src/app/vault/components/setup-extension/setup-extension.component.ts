@@ -36,6 +36,7 @@ export const SetupExtensionState = {
   Loading: "loading",
   NeedsExtension: "needs-extension",
   Success: "success",
+  AlreadyInstalled: "already-installed",
   ManualOpen: "manual-open",
 } as const;
 
@@ -99,9 +100,10 @@ export class SetupExtensionComponent implements OnInit, OnDestroy {
     this.webBrowserExtensionInteractionService.extensionInstalled$
       .pipe(takeUntilDestroyed(this.destroyRef), startWith(null), pairwise())
       .subscribe(([previousState, currentState]) => {
-        // Initial state transitioned to extension installed, redirect the user
+        // User landed on the page and the extension is already installed, show already installed state
         if (previousState === null && currentState) {
-          void this.router.navigate(["/vault"]);
+          void this.dismissExtensionPage();
+          this.state = SetupExtensionState.AlreadyInstalled;
         }
 
         // Extension was not installed and now it is, show success state

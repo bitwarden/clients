@@ -550,8 +550,13 @@
   "resetSearch": {
     "message": "Reset search"
   },
-  "archive": {
-    "message": "Archive"
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
   },
   "unarchive": {
     "message": "Unarchive"
@@ -727,6 +732,15 @@
   },
   "invalidMasterPassword": {
     "message": "Senha mestra inválida"
+  },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
   },
   "vaultTimeout": {
     "message": "Cofre - tempo esgotado"
@@ -3193,6 +3207,24 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "error": {
     "message": "Erro"
   },
@@ -3640,7 +3672,7 @@
     "message": "Lembrar deste dispositivo para permanecer conectado"
   },
   "manageDevices": {
-    "message": "Manage devices"
+    "message": "Gerenciar dispositivos"
   },
   "currentSession": {
     "message": "Current session"
@@ -3683,7 +3715,7 @@
     "message": "Needs approval"
   },
   "devices": {
-    "message": "Devices"
+    "message": "Dispositivos"
   },
   "accessAttemptBy": {
     "message": "Access attempt by $EMAIL$",

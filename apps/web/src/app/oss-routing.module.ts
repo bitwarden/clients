@@ -10,6 +10,7 @@ import {
   unauthGuardFn,
   activeAuthGuard,
 } from "@bitwarden/angular/auth/guards";
+import { LoginViaWebAuthnComponent } from "@bitwarden/angular/auth/login-via-webauthn/login-via-webauthn.component";
 import { ChangePasswordComponent } from "@bitwarden/angular/auth/password-management/change-password";
 import { SetInitialPasswordComponent } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.component";
 import {
@@ -17,6 +18,7 @@ import {
   RegistrationUserAddIcon,
   TwoFactorTimeoutIcon,
   TwoFactorAuthEmailIcon,
+  TwoFactorAuthSecurityKeyIcon,
   UserLockIcon,
   VaultIcon,
   SsoKeyIcon,
@@ -54,7 +56,6 @@ import { AcceptFamilySponsorshipComponent } from "./admin-console/organizations/
 import { FamiliesForEnterpriseSetupComponent } from "./admin-console/organizations/sponsorships/families-for-enterprise-setup.component";
 import { CreateOrganizationComponent } from "./admin-console/settings/create-organization.component";
 import { deepLinkGuard } from "./auth/guards/deep-link/deep-link.guard";
-import { LoginViaWebAuthnComponent } from "./auth/login/login-via-webauthn/login-via-webauthn.component";
 import { AcceptOrganizationComponent } from "./auth/organization-invite/accept-organization.component";
 import { RecoverDeleteComponent } from "./auth/recover-delete.component";
 import { RecoverTwoFactorComponent } from "./auth/recover-two-factor.component";
@@ -111,11 +112,6 @@ const routes: Routes = [
         children: [], // Children lets us have an empty component.
         canActivate: [redirectGuard()], // Redirects either to vault, login, or lock page.
       },
-      {
-        path: "login-with-passkey",
-        component: LoginViaWebAuthnComponent,
-        data: { titleId: "logInWithPasskey" } satisfies RouteDataProperties,
-      },
       { path: "verify-email", component: VerifyEmailTokenComponent },
       {
         path: "accept-organization",
@@ -145,6 +141,28 @@ const routes: Routes = [
     path: "",
     component: AnonLayoutWrapperComponent,
     children: [
+      {
+        path: "login-with-passkey",
+        canActivate: [unauthGuardFn()],
+        data: {
+          pageIcon: TwoFactorAuthSecurityKeyIcon,
+          titleId: "logInWithPasskey",
+          pageTitle: {
+            key: "logInWithPasskey",
+          },
+          pageSubtitle: {
+            key: "readingPasskeyLoadingInfo",
+          },
+        } satisfies RouteDataProperties & AnonLayoutWrapperData,
+        children: [
+          { path: "", component: LoginViaWebAuthnComponent },
+          {
+            path: "",
+            component: EnvironmentSelectorComponent,
+            outlet: "environment-selector",
+          },
+        ],
+      },
       {
         path: "signup",
         canActivate: [unauthGuardFn()],

@@ -93,14 +93,9 @@ describe("SetupExtensionComponent", () => {
   });
 
   describe("extensionInstalled$", () => {
-    it("redirects the user to the vault when the first emitted value is true", () => {
-      extensionInstalled$.next(true);
-
-      expect(navigate).toHaveBeenCalledWith(["/vault"]);
-    });
-
     describe("success state", () => {
       beforeEach(() => {
+        update.mockClear();
         // avoid initial redirect
         extensionInstalled$.next(false);
 

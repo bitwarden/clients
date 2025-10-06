@@ -4,43 +4,46 @@
   </div>
 }
 
-@if (!(isLoading$ | async) && (noData$ | async)) {
-  <div class="tw-mt-4">
-    <bit-no-items class="tw-text-main">
-      <ng-container slot="title">
-        <h2 class="tw-font-semibold tw-mt-4">
-          {{ "noAppsInOrgTitle" | i18n: organization?.name }}
-        </h2>
-      </ng-container>
-      <ng-container slot="description">
-        <div class="tw-flex tw-flex-col tw-mb-2">
-          <a class="tw-text-primary-600" routerLink="/login">{{ "learnMore" | i18n }}</a>
-        </div>
-      </ng-container>
-    </bit-no-items>
-  </div>
-}
+@if (!(isLoading$ | async)) {
+  <ul
+    class="tw-inline-grid tw-grid-cols-3 tw-gap-6 tw-m-0 tw-p-0 tw-w-full tw-auto-cols-auto tw-list-none"
+  >
+    <li class="tw-col-span-1" [ngClass]="{ 'tw-col-span-2': passwordChangeMetricHasProgressBar }">
+      <dirt-password-change-metric></dirt-password-change-metric>
+    </li>
 
-@if (!(isLoading$ | async) && !(noData$ | async)) {
-  <div class="tw-mt-4 tw-flex tw-flex-col">
-    <div class="tw-flex tw-gap-4 tw-col-span-6">
+    <li class="tw-col-span-1">
       <dirt-activity-card
-        class="tw-col-span-2 tw-cursor-pointer"
-        [title]="'atRiskMembers'"
-        [value]="atRiskMemberCount"
-        [cardMetrics]="'membersAtRisk'"
-        [metricDescription]="'membersAtRiskActivityDescription'"
+        [title]="'atRiskMembers' | i18n"
+        [cardMetrics]="'membersAtRiskCount' | i18n: totalCriticalAppsAtRiskMemberCount"
+        [metricDescription]="'membersWithAccessToAtRiskItemsForCriticalApps' | i18n"
+        navigationText="{{ 'viewAtRiskMembers' | i18n }}"
+        navigationLink="{{ getLinkForRiskInsightsTab(RiskInsightsTabType.AllApps) }}"
+        [showNavigationLink]="totalCriticalAppsAtRiskMemberCount > 0"
       >
       </dirt-activity-card>
+    </li>
+
+    <li class="tw-col-span-1">
       <dirt-activity-card
         #allAppsOrgAtRiskApplications
-        class="tw-col-span-2 tw-cursor-pointer"
-        [title]="'criticalApplications'"
-        [value]="criticalApplicationsCount"
-        [cardMetrics]="'countOfCriticalApplications'"
-        [metricDescription]="'criticalApplicationsActivityDescription'"
+        [title]="'criticalApplications' | i18n"
+        [cardMetrics]="
+          totalCriticalAppsCount === 0
+            ? ('countOfCriticalApplications' | i18n: totalCriticalAppsCount)
+            : ('countOfApplicationsAtRisk' | i18n: totalCriticalAppsAtRiskCount)
+        "
+        [metricDescription]="
+          totalCriticalAppsCount === 0
+            ? ('onceYouMarkApplicationsCriticalTheyWillDisplayHere' | i18n)
+            : ('criticalApplicationsAreAtRisk'
+              | i18n: totalCriticalAppsAtRiskCount : totalCriticalAppsCount)
+        "
+        navigationText="{{ 'viewAtRiskApplications' | i18n }}"
+        navigationLink="{{ getLinkForRiskInsightsTab(RiskInsightsTabType.CriticalApps) }}"
+        [showNavigationLink]="totalCriticalAppsAtRiskCount > 0"
       >
       </dirt-activity-card>
-    </div>
-  </div>
+    </li>
+  </ul>
 }
