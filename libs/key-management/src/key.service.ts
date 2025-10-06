@@ -400,8 +400,10 @@ export class DefaultKeyService implements KeyServiceAbstraction {
       throw new Error("No key provided");
     }
 
-    const newSymKey = await this.keyGenerationService.createKey(512);
-    return this.buildProtectedSymmetricKey(key, newSymKey);
+    // Content encryption key is AES256_CBC_HMAC
+    const cek = await this.keyGenerationService.createKey(512);
+    const wrappedCek = await this.encryptService.wrapSymmetricKey(cek, key);
+    return [cek, wrappedCek];
   }
 
   private async clearOrgKeys(userId: UserId): Promise<void> {
@@ -765,6 +767,10 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     return phrase;
   }
 
+  /**
+   * @deprecated
+   * This should only be used for wrapping the user key with a master key or stretched master key.
+   */
   private async buildProtectedSymmetricKey<T extends SymmetricCryptoKey>(
     encryptionKey: SymmetricCryptoKey,
     newSymKey: SymmetricCryptoKey,

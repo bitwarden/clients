@@ -237,8 +237,10 @@ export abstract class KeyService {
    */
   abstract getOrgKey(orgId: string): Promise<OrgKey | null>;
   /**
-   * Uses the org key to derive a new symmetric key for encrypting data
-   * @param key The organization's symmetric key
+   * Makes a fresh attachment content encryption key and returns it along with a wrapped (encrypted) version of it.
+   * @deprecated Do not use this for new code / new cryptographic designs.
+   * @param key The organization's symmetric key or the user's user key to wrap the attachment key with
+   * @returns The new attachment content encryption key and the wrapped version of it
    */
   abstract makeDataEncKey<T extends UserKey | OrgKey>(
     key: T,
