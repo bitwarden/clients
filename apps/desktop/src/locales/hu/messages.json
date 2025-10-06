@@ -1223,7 +1223,7 @@
     "message": "A mesterjelszó érvénytelen."
   },
   "invalidMasterPasswordConfirmEmailAndHost": {
-    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "message": "A mesterjelszó érvénytelen. Erősítsük meg, hogy email cím helyes és a fiók létrehozásának helye: $HOST$.",
     "placeholders": {
       "host": {
         "content": "$1",

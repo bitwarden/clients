@@ -1223,7 +1223,7 @@
     "message": "Palavra-passe mestra inválida"
   },
   "invalidMasterPasswordConfirmEmailAndHost": {
-    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "message": "Palavra-passe mestra inválida. Confirme se o seu e-mail está correto e se a sua conta foi criada em $HOST$.",
     "placeholders": {
       "host": {
         "content": "$1",
@@ -2664,7 +2664,7 @@
     }
   },
   "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
-    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "message": "Apenas o cofre da organização associado a $ORGANIZATION$ será exportado.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2673,7 +2673,7 @@
     }
   },
   "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
-    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "message": "Apenas o cofre da organização associado a $ORGANIZATION$ será exportado. As coleções dos meus itens não serão incluídas.",
     "placeholders": {
       "organization": {
         "content": "$1",

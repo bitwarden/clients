@@ -1223,7 +1223,7 @@
     "message": "Погрешна главна лозинка"
   },
   "invalidMasterPasswordConfirmEmailAndHost": {
-    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "message": "Неисправна главна лозинка. Потврдите да је адреса ваше е-поште исправна и да је ваш налог направљен на $HOST$.",
     "placeholders": {
       "host": {
         "content": "$1",
@@ -2664,7 +2664,7 @@
     }
   },
   "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
-    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "message": "Извешће се само сеф организације повезана са $ORGANIZATION$.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2673,7 +2673,7 @@
     }
   },
   "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
-    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "message": "Извешће се само сеф организације повезан са $ORGANIZATION$. Колекције мојих предмета неће бити укључене.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4111,13 +4111,13 @@
     "message": "Bitwarden не потврђује локације уноса, будите сигурни да сте у добром прозору и поље пре употребе пречице."
   },
   "typeShortcut": {
-    "message": "Type shortcut"
+    "message": "Унети пречицу"
   },
   "editAutotypeShortcutDescription": {
-    "message": "Include one or two of the following modifiers: Ctrl, Alt, Win, or Shift, and a letter."
+    "message": "Укључите један или два следећа модификатора: Ctrl, Alt, Win, или Shift, и слово."
   },
   "invalidShortcut": {
-    "message": "Invalid shortcut"
+    "message": "Неважећа пречица"
   },
   "moreBreadcrumbs": {
     "message": "Више мрвица",
@@ -4133,7 +4133,7 @@
     "message": "Потврди"
   },
   "enableAutotypeShortcutPreview": {
-    "message": "Enable autotype shortcut (Feature Preview)"
+    "message": "Омогућите пречицу ауто-уноса (преглед функције)"
   },
   "enableAutotypeDescriptionTransitionKey": {
     "message": "Будите сигурни да сте у исправном пољу пре употребе пречице да бисте избегли попуњавање података на погрешно место."
@@ -4142,11 +4142,11 @@
     "message": "Уреди пречицу"
   },
   "archiveNoun": {
-    "message": "Archive",
+    "message": "Архива",
     "description": "Noun"
   },
   "archiveVerb": {
-    "message": "Archive",
+    "message": "Архивирај",
     "description": "Verb"
   },
   "unarchive": {
