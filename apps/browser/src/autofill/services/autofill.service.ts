@@ -2283,11 +2283,16 @@ export default class AutofillService implements AutofillServiceInterface {
       const includesUsernameFieldName =
         this.findMatchingFieldIndex(f, AutoFillConstants.UsernameFieldNames) > -1;
 
+      // An email or tel field in the same form as the password field is likely a qualified
+      // candidate for autofill, even if visibility checks are unreliable
+      const isQualifiedUsernameField =
+        f.form === passwordField.form && (f.type === "email" || f.type === "tel");
+
       if (
         !f.disabled &&
         (canBeReadOnly || !f.readonly) &&
         (withoutForm || f.form === passwordField.form || includesUsernameFieldName) &&
-        (canBeHidden || f.viewable) &&
+        (canBeHidden || f.viewable || isQualifiedUsernameField) &&
         (f.type === "text" || f.type === "email" || f.type === "tel")
       ) {
         usernameField = f;
@@ -2297,6 +2302,7 @@ export default class AutofillService implements AutofillServiceInterface {
         }
       }
     }
+
     return usernameField;
   }
 
