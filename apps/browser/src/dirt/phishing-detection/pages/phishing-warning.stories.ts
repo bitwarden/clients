@@ -1,3 +1,4 @@
+// TODO: This needs to be dealt with by moving this folder or updating the lint rule.
 /* eslint-disable no-restricted-imports */
 import { ActivatedRoute, RouterModule } from "@angular/router";
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
@@ -54,8 +55,10 @@ export default {
             new I18nMockService({
               accessing: "Accessing",
               appLogoLabel: "Bitwarden logo",
-              phishingPageTitle: "Phishing Attempt Detected",
+              phishingPageTitle: "Phishing attempt detected",
               phishingPageCloseTab: "Close this tab",
+              phishingPageSummary:
+                "The site you are attempting to visit is a known malicious site and a security risk.",
               phishingPageContinue: "Continue to this site (not recommended)",
               phishingPageExplanation1: "This site was found in ",
               phishingPageExplanation2:
@@ -85,7 +88,6 @@ export default {
     template: /*html*/ `
       <auth-anon-layout
         [hideIcon]="true"
-        [showReadonlyHostname]="true"
         [hideBackgroundIllustration]="true"
       >
         <dirt-phishing-warning></dirt-phishing-warning>

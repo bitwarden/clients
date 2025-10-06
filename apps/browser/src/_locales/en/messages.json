@@ -5580,7 +5580,10 @@
     "message": "Welcome to your vault!"
   },
   "phishingPageTitle":{
-    "message": "Phishing Attempt Detected"
+    "message": "Phishing attempt detected"
+  },
+  "phishingPageSummary": {
+    "message": "The site you are attempting to visit is a known malicious site and a security risk."
   },
   "phishingPageCloseTab": {
     "message": "Close this tab"
@@ -5589,10 +5592,12 @@
     "message": "Continue to this site (not recommended)"
   },
   "phishingPageExplanation1": {
-    "message": "This site was found in "
+    "message": "This site was found in ",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name follows this."
   },
   "phishingPageExplanation2": {
-    "message": ", an open-source list of known phishing sites used for stealing personal and sensitive information."
+    "message": ", an open-source list of known phishing sites used for stealing personal and sensitive information.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name precedes this."
   },
   "phishingPageLearnMore" : {
     "message": "Learn more about phishing detection"
