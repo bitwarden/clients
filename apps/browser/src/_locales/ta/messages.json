@@ -550,6 +550,38 @@
   "resetSearch": {
     "message": "தேடலை மீட்டமை"
   },
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
+  },
+  "unarchive": {
+    "message": "Unarchive"
+  },
+  "itemsInArchive": {
+    "message": "Items in archive"
+  },
+  "noItemsInArchive": {
+    "message": "No items in archive"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+  },
+  "itemSentToArchive": {
+    "message": "Item sent to archive"
+  },
+  "itemRemovedFromArchive": {
+    "message": "Item removed from archive"
+  },
+  "archiveItem": {
+    "message": "Archive item"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+  },
   "edit": {
     "message": "திருத்து"
   },
@@ -700,6 +732,15 @@
   },
   "invalidMasterPassword": {
     "message": "தவறான முதன்மை கடவுச்சொல்"
+  },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
   },
   "vaultTimeout": {
     "message": "வால்ட் காலக்கெடு"
@@ -1525,9 +1566,6 @@
   "selectTwoStepLoginMethod": {
     "message": "டூ-ஸ்டெப் உள்நுழைவு முறையைத் தேர்ந்தெடுக்கவும்"
   },
-  "recoveryCodeDesc": {
-    "message": "உங்கள் டூ-ஃபாக்டர் வழங்குநர்கள் அனைவருக்கும் அணுகலை இழந்தீர்களா? உங்கள் கணக்கிலிருந்து அனைத்து டூ-ஃபாக்டர் வழங்குநர்களையும் முடக்க உங்கள் மீட்புக் குறியீட்டைப் பயன்படுத்தவும்."
-  },
   "recoveryCodeTitle": {
     "message": "மீட்புக் குறியீடு"
   },
@@ -1686,9 +1724,6 @@
   "defaultAutoFillOnPageLoadDesc": {
     "message": "உள்நுழைவு பொருட்களுக்கான டிஃபால்ட் ஆட்டோஃபில் அமைப்பை ஐட்டம்-இன் எடிட் வியூவிலிருந்து பக்க லோட்-இல் முடக்கலாம்."
   },
-  "itemAutoFillOnPageLoad": {
-    "message": "பக்கம் லோட் ஆகும்போது ஆட்டோஃபில் (விருப்பங்களில் அமைக்கப்பட்டிருந்தால்)"
-  },
   "autoFillOnPageLoadUseDefault": {
     "message": "டிஃபால்ட் அமைப்பைப் பயன்படுத்து"
   },
@@ -1760,17 +1795,8 @@
   "popup2faCloseMessage": {
     "message": "உங்கள் சரிபார்ப்புக் குறியீட்டிற்கான உங்கள் மின்னஞ்சலைச் சரிபார்க்க, பாப்அப் சாளரத்திற்கு வெளியே கிளிக் செய்வதால், இந்த பாப்அப் மூடப்படும். இந்த பாப்அப் மூடாமல் இருக்க, புதிய சாளரத்தில் திறக்க விரும்புகிறீர்களா?"
   },
-  "popupU2fCloseMessage": {
-    "message": "இந்த உலாவி இந்தப் பாப்அப் சாளரத்தில் U2F கோரிக்கைகளை செயலாக்க முடியாது. U2F ஐப் பயன்படுத்தி உள்நுழைய, இந்த பாப்அப்பை புதிய சாளரத்தில் திறக்க விரும்புகிறீர்களா?"
-  },
   "showIconsChangePasswordUrls": {
     "message": "Show website icons and retrieve change password URLs"
-  },
-  "enableBadgeCounter": {
-    "message": "பேட்ஜ் கவுண்டரைக் காட்டு"
-  },
-  "badgeCounterDesc": {
-    "message": "தற்போதைய இணையப் பக்கத்தில் உங்களிடம் உள்ள உள்நுழைவுகளின் எண்ணிக்கையைக் குறிக்கவும்."
   },
   "cardholderName": {
     "message": "அட்டைதாரர் பெயர்"
@@ -1934,32 +1960,81 @@
   "typeNote": {
     "message": "குறிப்பு"
   },
-  "newItemHeader": {
-    "message": "புதிய $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderLogin": {
+    "message": "New Login",
+    "description": "Header for new login item type"
   },
-  "editItemHeader": {
-    "message": "திருத்து $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderCard": {
+    "message": "New Card",
+    "description": "Header for new card item type"
   },
-  "viewItemHeader": {
-    "message": "பார்வை $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderIdentity": {
+    "message": "New Identity",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "New Note",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "New SSH key",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderTextSend": {
+    "message": "New Text Send",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "New File Send",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderLogin": {
+    "message": "Edit Login",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Edit Card",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Edit Identity",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Edit Note",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "Edit SSH key",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Edit Text Send",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Edit File Send",
+    "description": "Header for edit file send"
+  },
+  "viewItemHeaderLogin": {
+    "message": "View Login",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "View Card",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "View Identity",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "View Note",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "View SSH key",
+    "description": "Header for view SSH key item type"
   },
   "passwordHistory": {
     "message": "கடவுச்சொல் வரலாறு"
@@ -3132,6 +3207,24 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "error": {
     "message": "பிழை"
   },
@@ -3521,9 +3614,6 @@
   "autofillPageLoadPolicyActivated": {
     "message": "பக்கம் ஏற்றப்படும்போது தானியங்கு நிரப்புதலை உங்கள் நிறுவனக் கொள்கைகள் செயல்படுத்தியுள்ளன."
   },
-  "howToAutofill": {
-    "message": "தானியங்கு நிரப்புவது எப்படி"
-  },
   "autofillSelectInfoWithCommand": {
     "message": "இந்தத் திரையில் இருந்து ஒரு உருப்படியைத் தேர்ந்தெடுக்கவும், $COMMAND$ என்ற குறுக்குவழியைப் பயன்படுத்தவும் அல்லது அமைப்புகளில் பிற விருப்பங்களை ஆராயவும்.",
     "placeholders": {
@@ -3908,17 +3998,9 @@
   "aliasDomain": {
     "message": "புனைப்பெயர் டொமைன்"
   },
-  "passwordRepromptDisabledAutofillOnPageLoad": {
-    "message": "மாஸ்டர் கடவுச்சொல் மீண்டும் கோரப்பட்ட உருப்படிகளைப் பக்க ஏற்றத்தில் தானாக நிரப்ப முடியாது. பக்க ஏற்றத்தில் தானியங்கு நிரப்புதல் அணைக்கப்பட்டது.",
-    "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
-  },
   "autofillOnPageLoadSetToDefault": {
     "message": "பக்க ஏற்றத்தில் தானியங்கு நிரப்புதல் இயல்புநிலை அமைப்பைப் பயன்படுத்த அமைக்கப்பட்டுள்ளது.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "turnOffMasterPasswordPromptToEditField": {
-    "message": "இந்தப் புலத்தைத் திருத்த மாஸ்டர் கடவுச்சொல் மீண்டும் கோருதலை அணைக்கவும்",
-    "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
   },
   "toggleSideNavigation": {
     "message": "பக்க வழிசெலுத்தலை மாற்று"
@@ -4188,9 +4270,6 @@
   },
   "passkeyNotCopiedAlert": {
     "message": "பாஸ்கி குளோன் செய்யப்பட்ட உருப்படிக்கு நகலெடுக்கப்படாது. இந்த உருப்படியைக் குளோன் செய்வதைத் தொடர விரும்புகிறீர்களா?"
-  },
-  "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
-    "message": "தொடங்கும் தளம் சரிபார்க்கக் கோருகிறது. மாஸ்டர் கடவுச்சொல் இல்லாத கணக்குகளுக்கு இந்த அம்சம் இன்னும் செயல்படுத்தப்படவில்லை."
   },
   "logInWithPasskeyQuestion": {
     "message": "பாஸ்கியுடன் உள்நுழைய வேண்டுமா?"
@@ -4877,9 +4956,6 @@
       }
     }
   },
-  "enableAnimations": {
-    "message": "அசைவூட்டங்களை இயக்கு"
-  },
   "showAnimations": {
     "message": "அசைவூட்டங்களைக் காட்டு"
   },
@@ -5092,14 +5168,8 @@
   "itemLocation": {
     "message": "பொருளின் இருப்பிடம்"
   },
-  "fileSend": {
-    "message": "கோப்பு அனுப்பு"
-  },
   "fileSends": {
     "message": "கோப்பு அனுப்புகள்"
-  },
-  "textSend": {
-    "message": "உரை அனுப்பு"
   },
   "textSends": {
     "message": "உரை அனுப்புகள்"
@@ -5160,9 +5230,6 @@
   },
   "vaultCustomTimeoutMinimum": {
     "message": "குறைந்தபட்ச தனிப்பயன் காலக்கெடு 1 நிமிடம் ஆகும்."
-  },
-  "additionalContentAvailable": {
-    "message": "கூடுதல் உள்ளடக்கம் உள்ளது"
   },
   "fileSavedToDevice": {
     "message": "கோப்பு சாதனத்தில் சேமிக்கப்பட்டது. உங்கள் சாதன பதிவிறக்கங்களிலிருந்து நிர்வகிக்கவும்."
@@ -5502,6 +5569,18 @@
   },
   "hasItemsVaultNudgeTitle": {
     "message": "உங்கள் சேமிப்பு பெட்டகத்திற்கு நல்வரவு!"
+  },
+  "phishingPageTitle": {
+    "message": "Phishing website"
+  },
+  "phishingPageCloseTab": {
+    "message": "Close tab"
+  },
+  "phishingPageContinue": {
+    "message": "Continue"
+  },
+  "phishingPageLearnWhy": {
+    "message": "Why are you seeing this?"
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "தற்போதைய பக்கத்திற்கான தானாக நிரப்பு பொருள்கள்"

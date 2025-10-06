@@ -960,9 +960,6 @@
   "insertU2f": {
     "message": "Sartu zure segurtasun-gakoa ordenagailuaren USB atakan. Botoia badu, sakatu ezazu."
   },
-  "recoveryCodeDesc": {
-    "message": "Bi urratseko egiaztatzeko modu guztietarako sarbidea galdu duzu? Erabili zure berreskuratze-kodea zure kontuko bi urratseko egiaztatze hornitzaile guztiak desaktibatzeko."
-  },
   "recoveryCodeTitle": {
     "message": "Berreskuratze-kodea"
   },
@@ -1224,6 +1221,15 @@
   },
   "invalidMasterPassword": {
     "message": "Pasahitz nagusi baliogabea"
+  },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
   },
   "twoStepLoginConfirmation": {
     "message": "Bi urratseko saio hasiera dela eta, zure kontua seguruagoa da, beste aplikazio/gailu batekin saioa hastea eskatzen baitizu; adibidez, segurtasun-gako, autentifikazio-aplikazio, SMS, telefono dei edo email bidez. Bi urratseko saio hasiera bitwarden.com webgunean aktibatu daiteke. Orain joan nahi duzu webgunera?"
@@ -2657,6 +2663,24 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "locked": {
     "message": "Blokeatuta"
   },
@@ -4083,11 +4107,17 @@
   "showLess": {
     "message": "Show less"
   },
-  "enableAutotype": {
-    "message": "Enable Autotype"
-  },
   "enableAutotypeDescription": {
     "message": "Bitwarden does not validate input locations, be sure you are in the right window and field before using the shortcut."
+  },
+  "typeShortcut": {
+    "message": "Type shortcut"
+  },
+  "editAutotypeShortcutDescription": {
+    "message": "Include one or two of the following modifiers: Ctrl, Alt, Win, or Shift, and a letter."
+  },
+  "invalidShortcut": {
+    "message": "Invalid shortcut"
   },
   "moreBreadcrumbs": {
     "message": "More breadcrumbs",
@@ -4102,13 +4132,45 @@
   "confirm": {
     "message": "Confirm"
   },
-  "enableAutotypeTransitionKey": {
-    "message": "Enable autotype shortcut"
+  "enableAutotypeShortcutPreview": {
+    "message": "Enable autotype shortcut (Feature Preview)"
   },
   "enableAutotypeDescriptionTransitionKey": {
     "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."
   },
   "editShortcut": {
     "message": "Edit shortcut"
+  },
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
+  },
+  "unarchive": {
+    "message": "Unarchive"
+  },
+  "itemsInArchive": {
+    "message": "Items in archive"
+  },
+  "noItemsInArchive": {
+    "message": "No items in archive"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+  },
+  "itemSentToArchive": {
+    "message": "Item sent to archive"
+  },
+  "itemRemovedFromArchive": {
+    "message": "Item removed from archive"
+  },
+  "archiveItem": {
+    "message": "Archive item"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
   }
 }

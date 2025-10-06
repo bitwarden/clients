@@ -1,5 +1,6 @@
 import { CommonModule } from "@angular/common";
 import { Component, OnDestroy, OnInit } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { Router, RouterModule } from "@angular/router";
 import { firstValueFrom, switchMap } from "rxjs";
 
@@ -8,6 +9,7 @@ import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { BadgeComponent, ItemModule, ToastOptions, ToastService } from "@bitwarden/components";
 
@@ -32,6 +34,17 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
 })
 export class VaultSettingsV2Component implements OnInit, OnDestroy {
   lastSync = "--";
+  private userId$ = this.accountService.activeAccount$.pipe(getUserId);
+
+  // Check if user is premium user, they will be able to archive items
+  protected userCanArchive = toSignal(
+    this.userId$.pipe(switchMap((userId) => this.cipherArchiveService.userCanArchive$(userId))),
+  );
+
+  // Check if user has archived items (does not check if user is premium)
+  protected showArchiveFilter = toSignal(
+    this.userId$.pipe(switchMap((userId) => this.cipherArchiveService.showArchiveVault$(userId))),
+  );
 
   protected emptyVaultImportBadge$ = this.accountService.activeAccount$.pipe(
     getUserId,
@@ -47,6 +60,7 @@ export class VaultSettingsV2Component implements OnInit, OnDestroy {
     private i18nService: I18nService,
     private nudgeService: NudgesService,
     private accountService: AccountService,
+    private cipherArchiveService: CipherArchiveService,
   ) {}
 
   async ngOnInit() {

@@ -550,6 +550,38 @@
   "resetSearch": {
     "message": "Resetovať vyhľadávanie"
   },
+  "archiveNoun": {
+    "message": "Archív",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archivovať",
+    "description": "Verb"
+  },
+  "unarchive": {
+    "message": "Zrušiť archiváciu"
+  },
+  "itemsInArchive": {
+    "message": "Položky v archíve"
+  },
+  "noItemsInArchive": {
+    "message": "Žiadne položky v archíve"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Tu sa zobrazia archivované položky, ktoré budú vylúčené zo všeobecného vyhľadávania a z návrhov automatického vypĺňania."
+  },
+  "itemSentToArchive": {
+    "message": "Položka bola archivovaná"
+  },
+  "itemRemovedFromArchive": {
+    "message": "Položka bola odobraná z archívu"
+  },
+  "archiveItem": {
+    "message": "Archivovať položku"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Archivované položky sú vylúčené zo všeobecného vyhľadávania a z návrhov automatického vypĺňania. Naozaj chcete archivovať túto položku?"
+  },
   "edit": {
     "message": "Upraviť"
   },
@@ -700,6 +732,15 @@
   },
   "invalidMasterPassword": {
     "message": "Neplatné hlavné heslo"
+  },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Neplatné hlavné heslo. Potvrďte, že váš e-mail je správny a účet bol vytvorený na $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
   },
   "vaultTimeout": {
     "message": "Časový limit pre trezor"
@@ -1525,9 +1566,6 @@
   "selectTwoStepLoginMethod": {
     "message": "Vyberte metódu dvojstupňového prihlásenia"
   },
-  "recoveryCodeDesc": {
-    "message": "Stratili ste prístup ku všetkým vašim dvojstupňovým poskytovateľom? Použite váš záchranný kód pre vypnutie všetkých poskytovateľov vo vašom účte."
-  },
   "recoveryCodeTitle": {
     "message": "Záchranný kód"
   },
@@ -1686,9 +1724,6 @@
   "defaultAutoFillOnPageLoadDesc": {
     "message": "Pri úprave položky prihlásenia môžete individuálne zapnúť alebo vypnúť automatické vypĺňanie pri načítaní stránky pre danú položku."
   },
-  "itemAutoFillOnPageLoad": {
-    "message": "Automatické vypĺňanie pri načítaní stránky (ak je povolené v možnostiach)"
-  },
   "autoFillOnPageLoadUseDefault": {
     "message": "Pôvodné nastavenia"
   },
@@ -1760,17 +1795,8 @@
   "popup2faCloseMessage": {
     "message": "Kliknutie mimo popup okna na prezretie vášho emailu pre overovací kód spôsobí zavretie tohto popupu. Chcete otvoriť tento popup v novom okne tak, aby sa nezavrel?"
   },
-  "popupU2fCloseMessage": {
-    "message": "Tento prehliadač nedokáže spracovať U2F požiadavku v popup okne. Chcete ho otvoriť v novom okne aby ste sa mohli prihlásiť pomocou U2F?"
-  },
   "showIconsChangePasswordUrls": {
     "message": "Zobraziť ikony webových stránok a načítať adresy URL na zmenu hesla"
-  },
-  "enableBadgeCounter": {
-    "message": "Zobraziť počítadlo na ikone"
-  },
-  "badgeCounterDesc": {
-    "message": "Ukazuje, koľko prihlásení máte pre aktuálnu webovú stránku."
   },
   "cardholderName": {
     "message": "Meno vlastníka karty"
@@ -1934,32 +1960,81 @@
   "typeNote": {
     "message": "Poznámka"
   },
-  "newItemHeader": {
-    "message": "Nové $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderLogin": {
+    "message": "Nové prihlásenie",
+    "description": "Header for new login item type"
   },
-  "editItemHeader": {
-    "message": "Upraviť $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderCard": {
+    "message": "Nová karta",
+    "description": "Header for new card item type"
   },
-  "viewItemHeader": {
-    "message": "Zobraziť $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderIdentity": {
+    "message": "Nová identita",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "Nová poznámka",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "Nový kľúč SSH",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderTextSend": {
+    "message": "Nový textový Send",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "Nový súborový Send",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderLogin": {
+    "message": "Upraviť prihlásenie",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Upraviť kartu",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Upraviť identitu",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Upraviť poznámku",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "Upraviť kľúč SSH",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Upraviť textový Send",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Upraviť súborový Send",
+    "description": "Header for edit file send"
+  },
+  "viewItemHeaderLogin": {
+    "message": "Zobraziť prihlásenie",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "Zobraziť kartu",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "Zobraziť identitu",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "Zobraziť poznámku",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "Zobraziť kľúč SSH",
+    "description": "Header for view SSH key item type"
   },
   "passwordHistory": {
     "message": "História hesla"
@@ -3132,6 +3207,24 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Exportuje sa len trezor organizácie spojený s $ORGANIZATION$.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Exportuje sa len trezor organizácie spojený s $ORGANIZATION$. Moje zbierky položiek nebudú zahrnuté.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "error": {
     "message": "Chyba"
   },
@@ -3521,9 +3614,6 @@
   "autofillPageLoadPolicyActivated": {
     "message": "V pravidlách vašej organizácie je zapnuté automatické vypĺňanie pri načítaní stránky."
   },
-  "howToAutofill": {
-    "message": "Ako používať automatické vypĺňanie"
-  },
   "autofillSelectInfoWithCommand": {
     "message": "Vyberte položku z ponuky, použite klávesovú skratku $COMMAND$, alebo preskúmajte ďalšie možnosti nastavenia.",
     "placeholders": {
@@ -3908,17 +3998,9 @@
   "aliasDomain": {
     "message": "Alias doména"
   },
-  "passwordRepromptDisabledAutofillOnPageLoad": {
-    "message": "Položky, ktoré vyžadujú opätovné zadanie hlavného hesla sa nedajú automaticky vyplniť pri načítaní stránky. Automatické vypĺňanie pri načítaní stránky je vypnuté.",
-    "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
-  },
   "autofillOnPageLoadSetToDefault": {
     "message": "Automatické vypĺňanie pri načítaní stránky nastavené na pôvodnú predvoľbu.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "turnOffMasterPasswordPromptToEditField": {
-    "message": "Vypnite výzvu na opätovné zadanie hlavného hesla na úpravu tohto poľa",
-    "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
   },
   "toggleSideNavigation": {
     "message": "Prepnúť bočnú navigáciu"
@@ -4188,9 +4270,6 @@
   },
   "passkeyNotCopiedAlert": {
     "message": "Prístupový kľúč sa do klonovanej položky neskopíruje. Chcete pokračovať v klonovaní tejto položky?"
-  },
-  "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
-    "message": "Overenie požadované iniciujúcim webom. Táto funkcia zatiaľ nie je implementovaná pre účty bez hlavného hesla."
   },
   "logInWithPasskeyQuestion": {
     "message": "Prihlásiť sa s prístupovým kľúčom?"
@@ -4877,9 +4956,6 @@
       }
     }
   },
-  "enableAnimations": {
-    "message": "Povoliť animácie"
-  },
   "showAnimations": {
     "message": "Zobraziť animácie"
   },
@@ -5092,14 +5168,8 @@
   "itemLocation": {
     "message": "Umiestnenie položky"
   },
-  "fileSend": {
-    "message": "Send so súborom"
-  },
   "fileSends": {
     "message": "Sendy so súborom"
-  },
-  "textSend": {
-    "message": "Textový Send"
   },
   "textSends": {
     "message": "Textové Sendy"
@@ -5160,9 +5230,6 @@
   },
   "vaultCustomTimeoutMinimum": {
     "message": "Minimálny vlastný časový limit je 1 minúta."
-  },
-  "additionalContentAvailable": {
-    "message": "K dispozícii je ďalší obsah"
   },
   "fileSavedToDevice": {
     "message": "Súbor sa uložil do zariadenia. Spravujte stiahnuté súbory zo zariadenia."
@@ -5502,6 +5569,18 @@
   },
   "hasItemsVaultNudgeTitle": {
     "message": "Vitajte vo svojom trezore!"
+  },
+  "phishingPageTitle": {
+    "message": "Phishingová webová stránka"
+  },
+  "phishingPageCloseTab": {
+    "message": "Zavrieť kartu"
+  },
+  "phishingPageContinue": {
+    "message": "Pokračovať"
+  },
+  "phishingPageLearnWhy": {
+    "message": "Prečo to vidíte?"
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Položky na automatické vypĺňanie pre aktuálnu stránku"

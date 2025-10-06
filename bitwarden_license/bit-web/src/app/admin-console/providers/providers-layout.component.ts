@@ -11,6 +11,8 @@ import { BusinessUnitPortalLogo, Icon, ProviderPortalLogo } from "@bitwarden/ass
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { ProviderStatusType, ProviderType } from "@bitwarden/common/admin-console/enums";
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { IconModule } from "@bitwarden/components";
@@ -45,7 +47,6 @@ export class ProvidersLayoutComponent implements OnInit, OnDestroy {
   protected canAccessBilling$: Observable<boolean>;
 
   protected clientsTranslationKey$: Observable<string>;
-  protected managePaymentDetailsOutsideCheckout$: Observable<boolean>;
   protected providerPortalTakeover$: Observable<boolean>;
 
   protected subscriber$: Observable<NonIndividualSubscriber>;
@@ -56,6 +57,7 @@ export class ProvidersLayoutComponent implements OnInit, OnDestroy {
     private providerService: ProviderService,
     private configService: ConfigService,
     private providerWarningsService: ProviderWarningsService,
+    private accountService: AccountService,
   ) {}
 
   ngOnInit() {
@@ -65,8 +67,11 @@ export class ProvidersLayoutComponent implements OnInit, OnDestroy {
       map((params) => params.providerId),
     );
 
-    this.provider$ = providerId$.pipe(
-      switchMap((providerId) => this.providerService.get$(providerId)),
+    this.provider$ = combineLatest([
+      providerId$,
+      this.accountService.activeAccount$.pipe(getUserId),
+    ]).pipe(
+      switchMap(([providerId, userId]) => this.providerService.get$(providerId, userId)),
       takeUntil(this.destroy$),
     );
 
@@ -92,10 +97,6 @@ export class ProvidersLayoutComponent implements OnInit, OnDestroy {
       map((provider) =>
         provider.providerType === ProviderType.BusinessUnit ? "businessUnits" : "clients",
       ),
-    );
-
-    this.managePaymentDetailsOutsideCheckout$ = this.configService.getFeatureFlag$(
-      FeatureFlag.PM21881_ManagePaymentDetailsOutsideCheckout,
     );
 
     this.provider$

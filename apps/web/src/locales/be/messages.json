@@ -2,6 +2,9 @@
   "allApplications": {
     "message": "Усе праграмы"
   },
+  "activity": {
+    "message": "Activity"
+  },
   "appLogoLabel": {
     "message": "Bitwarden logo"
   },
@@ -56,8 +59,48 @@
   "createNewLoginItem": {
     "message": "Стварыць новы элемент запісу ўваходу"
   },
+  "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
+    "message": "Once you mark applications critical, they will display here"
+  },
+  "viewAtRiskMembers": {
+    "message": "View at-risk members"
+  },
+  "viewAtRiskApplications": {
+    "message": "View at-risk applications"
+  },
+  "criticalApplicationsAreAtRisk": {
+    "message": "$COUNT$ out of $TOTAL$ critical applications are at-risk due to at-risk passwords",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "total": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
   "criticalApplicationsWithCount": {
     "message": "Крытычныя праграмы ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfCriticalApplications": {
+    "message": "$COUNT$ critical applications",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfApplicationsAtRisk": {
+    "message": "$COUNT$ applications at-risk",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -118,6 +161,18 @@
   },
   "atRiskMembers": {
     "message": "Удзельнікі ў зоне рызыкі"
+  },
+  "membersAtRiskActivityDescription": {
+    "message": "Members with edit access to at-risk items for critical applications"
+  },
+  "membersAtRiskCount": {
+    "message": "$COUNT$ members at-risk",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "atRiskMembersWithCount": {
     "message": "Удзельнікі ў зоне рызыкі ($COUNT$)",
@@ -734,32 +789,81 @@
   "viewItem": {
     "message": "Прагледзець элемент"
   },
-  "newItemHeader": {
-    "message": "New $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderLogin": {
+    "message": "New Login",
+    "description": "Header for new login item type"
   },
-  "editItemHeader": {
-    "message": "Edit $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderCard": {
+    "message": "New Card",
+    "description": "Header for new card item type"
   },
-  "viewItemType": {
-    "message": "View $ITEMTYPE$",
-    "placeholders": {
-      "itemtype": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderIdentity": {
+    "message": "New Identity",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "New Note",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "New SSH key",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderTextSend": {
+    "message": "New Text Send",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "New File Send",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderLogin": {
+    "message": "Edit Login",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Edit Card",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Edit Identity",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Edit Note",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "Edit SSH key",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Edit Text Send",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Edit File Send",
+    "description": "Header for edit file send"
+  },
+  "viewItemHeaderLogin": {
+    "message": "View Login",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "View Card",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "View Identity",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "View Note",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "View SSH key",
+    "description": "Header for view SSH key item type"
   },
   "new": {
     "message": "Новы",
@@ -1395,6 +1499,15 @@
   "invalidMasterPassword": {
     "message": "Памылковы асноўны пароль"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "invalidFilePassword": {
     "message": "Памылковы пароль файла. Скарыстайцеся паролем, які вы ўводзілі пры стварэнні файла экспартавання."
   },
@@ -1403,6 +1516,30 @@
   },
   "noItemsInList": {
     "message": "У спісе адсутнічаюць элементы."
+  },
+  "noItemsInTrash": {
+    "message": "No items in trash"
+  },
+  "noItemsInTrashDesc": {
+    "message": "Items you delete will appear here and be permanently deleted after 30 days"
+  },
+  "noItemsInVault": {
+    "message": "No items in the vault"
+  },
+  "emptyVaultDescription": {
+    "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
+  },
+  "emptyFavorites": {
+    "message": "You haven't favorited any items"
+  },
+  "emptyFavoritesDesc": {
+    "message": "Add frequently used items to favorites for quick access."
+  },
+  "noSearchResults": {
+    "message": "No search results returned"
+  },
+  "clearFiltersOrTryAnother": {
+    "message": "Clear filters or try another search term"
   },
   "noPermissionToViewAllCollectionItems": {
     "message": "У вас няма правоў для прагляду ўсіх элементаў у гэтай калекцыі."
@@ -1509,9 +1646,6 @@
   },
   "selectTwoStepLoginMethod": {
     "message": "Select two-step login method"
-  },
-  "recoveryCodeDesc": {
-    "message": "Згубілі доступ да ўсіх варыянтаў доступу пастаўшчыкоў двухэтапнай аўтэнтыфікацыі? Скарыстайцеся кодам аднаўлення, каб адключыць праверку пастаўшчыкоў двухэтапнай аўтэнтыфікацыі для вашага ўліковага запісу."
   },
   "recoveryCodeTitle": {
     "message": "Код аднаўлення"
@@ -4699,6 +4833,12 @@
   "organizationIsDisabled": {
     "message": "Арганізацыя адключана."
   },
+  "organizationIsSuspended": {
+    "message": "Organization is suspended"
+  },
+  "organizationIsSuspendedDesc": {
+    "message": "Items in suspended organizations cannot be accessed. Contact your organization owner for assistance."
+  },
   "secretsAccessSuspended": {
     "message": "Suspended organizations cannot be accessed. Please contact your organization owner for assistance."
   },
@@ -4710,9 +4850,6 @@
   },
   "serviceAccountsCannotCreate": {
     "message": "Service accounts cannot be created in suspended organizations. Please contact your organization owner for assistance."
-  },
-  "disabledOrganizationFilterError": {
-    "message": "Доступ да элементаў у адключаных арганізацыях немагчымы. Звяжыце з уладальнікам арганізацыі для атрымання дапамогі."
   },
   "licenseIsExpired": {
     "message": "Ліцэнзія пратэрмінавана."
@@ -5087,9 +5224,13 @@
   "ssoIdentifier": {
     "message": "Ідэнтыфікатар SSO"
   },
-  "ssoIdentifierHintPartOne": {
-    "message": "Provide this ID to your members to login with SSO. To bypass this step, set up ",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Provide this ID to your members to login with SSO. To bypass this step, set up Domain verification'"
+  "ssoIdentifierHint": {
+    "message": "Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. ",
+    "description": "This will be used as part of a larger sentence, broken up to include a link. The full sentence will read 'Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. Learn more'"
+  },
+  "claimedDomainsLearnMore": {
+    "message": "Learn more",
+    "description": "This will be used as part of a larger sentence, broken up to include a link. The full sentence will read 'Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. Learn more'"
   },
   "unlinkSso": {
     "message": "Адлучыць SSO"
@@ -5483,6 +5624,13 @@
   },
   "personalOwnershipSubmitError": {
     "message": "У адпаведнасці з палітыкай прадпрыемства вам забаронена захоўваць элементы ў асабістым сховішчы. Змяніце параметры ўласнасці на арганізацыю і выберыце з даступных калекцый."
+  },
+  "desktopAutotypePolicy": {
+    "message": "Desktop Autotype Default Setting"
+  },
+  "desktopAutotypePolicyDesc": {
+    "message": "Turn Desktop Autotype ON by default for members. Members can turn Autotype off manually in the Desktop client.",
+    "description": "This policy will enable Desktop Autotype by default for members on Unlock."
   },
   "disableSend": {
     "message": "Выдаліць Send"
@@ -6648,6 +6796,15 @@
   "disabledSso": {
     "message": "SSO адключаны"
   },
+  "emailMustLoginWithSso": {
+    "message": "$EMAIL$ must login with Single Sign-on",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "enabledKeyConnector": {
     "message": "Key Connector уключаны"
   },
@@ -6879,6 +7036,24 @@
   },
   "exportingOrganizationVaultDesc": {
     "message": "Толькі сховішча арганізацыі, якія звязаны з $ORGANIZATION$ будуць экспартаваны. Элементы асабістага сховішча і элементы з іншых арганізацый не будуць уключаны.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -8287,12 +8462,6 @@
   "groupSlashUser": {
     "message": "Група/Карыстальнік"
   },
-  "lowKdfIterations": {
-    "message": "Нізкае значэнне ітэрацыі KDF"
-  },
-  "updateLowKdfIterationsDesc": {
-    "message": "Абнавіце свае налады шыфравання, каб адпавядаць новым рэкамендацыям бяспекі і палепшыць абарону ўліковага запісу."
-  },
   "kdfSettingsChangeLogoutWarning": {
     "message": "Proceeding will log you out of all active sessions. You will need to log back in and complete two-step login, if any. We recommend exporting your vault before changing your encryption settings to prevent data loss."
   },
@@ -9666,6 +9835,12 @@
   "failedToSaveIntegration": {
     "message": "Failed to save integration. Please try again later."
   },
+  "mustBeOrgOwnerToPerformAction": {
+    "message": "You must be the organization owner to perform this action."
+  },
+  "failedToDeleteIntegration": {
+    "message": "Failed to delete integration. Please try again later."
+  },
   "deviceIdMissing": {
     "message": "Device ID is missing"
   },
@@ -9761,6 +9936,9 @@
   },
   "bearerToken": {
     "message": "Bearer Token"
+  },
+  "repositoryNameHint": {
+    "message": "Name of the repository to ingest into"
   },
   "index": {
     "message": "Index"
@@ -9900,12 +10078,6 @@
         "example": "2"
       }
     }
-  },
-  "lowKDFIterationsBanner": {
-    "message": "Low KDF iterations. Increase your iterations to improve the security of your account."
-  },
-  "changeKDFSettings": {
-    "message": "Change KDF settings"
   },
   "secureYourInfrastructure": {
     "message": "Secure your infrastructure"
@@ -10210,14 +10382,8 @@
   "learnMoreAboutApi": {
     "message": "Learn more about Bitwarden's API"
   },
-  "fileSend": {
-    "message": "File Send"
-  },
   "fileSends": {
     "message": "File Sends"
-  },
-  "textSend": {
-    "message": "Text Send"
   },
   "textSends": {
     "message": "Text Sends"
@@ -10932,6 +11098,23 @@
   "cannotCreateCollection": {
     "message": "Free organizations may have up to 2 collections. Upgrade to a paid plan to add more collections."
   },
+  "searchArchive": {
+    "message": "Search archive"
+  },
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
+  },
+  "noItemsInArchive": {
+    "message": "No items in archive"
+  },
+  "archivedItemsDescription": {
+    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+  },
   "businessUnit": {
     "message": "Business Unit"
   },
@@ -11038,6 +11221,12 @@
   },
   "bitwardenExtensionInstalled": {
     "message": "Bitwarden extension installed!"
+  },
+  "openTheBitwardenExtension": {
+    "message": "Open the Bitwarden extension"
+  },
+  "bitwardenExtensionInstalledOpenExtension": {
+    "message": "The Bitwarden extension is installed! Open the extension to log in and start autofilling."
   },
   "openExtensionToAutofill": {
     "message": "Open the extension to log in and start autofilling."
@@ -11264,5 +11453,137 @@
   },
   "verifyNow": {
     "message": "Verify now."
+  },
+  "additionalStorageGB": {
+    "message": "Additional storage GB"
+  },
+  "additionalServiceAccountsV2": {
+    "message": "Additional machine accounts"
+  },
+  "secretsManagerSeats": {
+    "message": "Secrets Manager seats"
+  },
+  "additionalStorage": {
+    "message": "Additional Storage"
+  },
+  "expandPurchaseDetails": {
+    "message": "Expand purchase details"
+  },
+  "collapsePurchaseDetails": {
+    "message": "Collapse purchase details"
+  },
+  "familiesMembership": {
+    "message": "Families membership"
+  },
+  "planDescPremium": {
+    "message": "Complete online security"
+  },
+  "planDescFamiliesV2": {
+    "message": "Premium security for your family"
+  },
+  "planDescFreeV2": {
+    "message": "Share with $COUNT$ other user",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "planDescEnterpriseV2": {
+    "message": "Advanced capabilities for any organization"
+  },
+  "planNameCustom": {
+    "message": "Custom plan"
+  },
+  "planDescCustom": {
+    "message": "Bitwarden scales with businesses of all sizes to secure passwords and sensitive information. If you're part of a large enterprise, contact sales to request a quote."
+  },
+  "builtInAuthenticator": {
+    "message": "Built-in authenticator"
+  },
+  "breachMonitoring": {
+    "message": "Breach monitoring"
+  },
+  "andMoreFeatures": {
+    "message": "And more!"
+  },
+  "secureFileStorage": {
+    "message": "Secure file storage"
+  },
+  "familiesUnlimitedSharing": {
+    "message": "Unlimited sharing - choose who sees what"
+  },
+  "familiesUnlimitedCollections": {
+    "message": "Unlimited family collections"
+  },
+  "familiesSharedStorage": {
+    "message": "Shared storage for important family info"
+  },
+  "limitedUsersV2": {
+    "message": "Up to $COUNT$ members",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "limitedCollectionsV2": {
+    "message": "Up to $COUNT$ collections",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "alwaysFree": {
+    "message": "Always free"
+  },
+  "twoSecretsIncluded": {
+    "message": "2 secrets"
+  },
+  "projectsIncludedV2": {
+    "message": "$COUNT$ project(s)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "secureItemSharing": {
+    "message": "Secure item sharing"
+  },
+  "scimSupport": {
+    "message": "SCIM support"
+  },
+  "includedMachineAccountsV2": {
+    "message": "$COUNT$ machine accounts",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
+  },
+  "enterpriseSecurityPolicies": {
+    "message": "Enterprise security policies"
+  },
+  "selfHostOption": {
+    "message": "Self-host option"
+  },
+  "complimentaryFamiliesPlan": {
+    "message": "Complimentary families plan for all users"
+  },
+  "strengthenCybersecurity": {
+    "message": "Strengthen cybersecurity"
+  },
+  "boostProductivity": {
+    "message": "Boost productivity"
+  },
+  "seamlessIntegration": {
+    "message": "Seamless integration"
   }
 }

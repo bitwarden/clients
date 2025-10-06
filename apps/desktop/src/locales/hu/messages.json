@@ -960,9 +960,6 @@
   "insertU2f": {
     "message": "A biztonsági kulcs beillesztése a számítógép USB portjába. Ha van rajta gomb, nyomjuk meg."
   },
-  "recoveryCodeDesc": {
-    "message": "Elveszett a hozzáférés az összes kétlépcsős szolgáltatóhoz? A visszaállítókód használatával letilthatók fiókból a kétlépcsős szolgáltatók."
-  },
   "recoveryCodeTitle": {
     "message": "Helyreállító kód"
   },
@@ -1225,6 +1222,15 @@
   "invalidMasterPassword": {
     "message": "A mesterjelszó érvénytelen."
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "A mesterjelszó érvénytelen. Erősítsük meg, hogy email cím helyes és a fiók létrehozásának helye: $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "twoStepLoginConfirmation": {
     "message": "A kétlépcsős bejelentkezés biztonságosabbá teszi a fiókot azzal, hogy meg kell erősíteni a bejelentkezést egy másik olyan eszközzel mint például biztonsági kulcs, hitelesítő alkalmazás, SMS, telefonhívás vagy email. A kétlépcsős bejelentkezést a bitwarden.com webes széfben lehet megváltoztatni. Szeretnénk felkeresni most a webhelyet?"
   },
@@ -1306,7 +1312,7 @@
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
   "showIconsChangePasswordUrls": {
-    "message": "Show website icons and retrieve change password URLs"
+    "message": "Webhelyikonok megjelenítése és jelszó webcímek módosításának lekérése"
   },
   "enableMinToTray": {
     "message": "Kicsinyítés tálcaikonná"
@@ -2657,6 +2663,24 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Csak a $ORGANIZATION$ szervezetehez kapcsolódó szervezeti széf kerül exportálásra.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Csak a $ORGANIZATION$ szervezethez kapcsolódó szervezeti széf kerül exportálásra. A saját elem gyűjtemények nem lesznek benne.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "locked": {
     "message": "Lezárva"
   },
@@ -3837,10 +3861,10 @@
     "message": "Kockázatos jelszó megváltoztatása"
   },
   "changeAtRiskPasswordAndAddWebsite": {
-    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+    "message": "Ez a bejelentkezés veszélyben van és hiányzik egy webhely. Adjunk hozzá egy webhelyet és módosítsuk a jelszót az erősebb biztonság érdekében."
   },
   "missingWebsite": {
-    "message": "Missing website"
+    "message": "Hiányzó webhely"
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "Nem távolíthatók el a csak megtekintési engedéllyel bíró gyűjtemények: $COLLECTIONS$",
@@ -3938,10 +3962,10 @@
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
   "aboutThisSetting": {
-    "message": "About this setting"
+    "message": "Információ erről a beállításról"
   },
   "permitCipherDetailsDescription": {
-    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+    "message": "A Bitwarden mentett bejelentkezési webcímeket használ annak azonosítására, hogy melyik ikont vagy jelszó webcímet kell használni az élmény javítása érdekében. A szolgáltatás használatakor nincs információ gyűjtés vagy mentés."
   },
   "assignToCollections": {
     "message": "Hozzárendelés gyűjteményekhez"
@@ -4083,11 +4107,17 @@
   "showLess": {
     "message": "Kevesebb megjelenítése"
   },
-  "enableAutotype": {
-    "message": "Autotípus engedélyezése"
-  },
   "enableAutotypeDescription": {
     "message": "A Bitwarden nem érvényesíti a beviteli helyeket, győződjünk meg róla, hogy a megfelelő ablakban és mezőben vagyunk, mielőtt a parancsikont használnánk."
+  },
+  "typeShortcut": {
+    "message": "Type shortcut"
+  },
+  "editAutotypeShortcutDescription": {
+    "message": "Include one or two of the following modifiers: Ctrl, Alt, Win, or Shift, and a letter."
+  },
+  "invalidShortcut": {
+    "message": "Invalid shortcut"
   },
   "moreBreadcrumbs": {
     "message": "További morzsamenük",
@@ -4102,13 +4132,45 @@
   "confirm": {
     "message": "Megerősítés"
   },
-  "enableAutotypeTransitionKey": {
-    "message": "Automatikus típusú parancsikon engedélyezése"
+  "enableAutotypeShortcutPreview": {
+    "message": "Enable autotype shortcut (Feature Preview)"
   },
   "enableAutotypeDescriptionTransitionKey": {
     "message": "Győződjünk meg arról, hogy a megfelelő mezőben vagyunk, mielőtt a parancsikont használnánk, hogy elkerüljük az adatok rossz helyre történő kitöltését."
   },
   "editShortcut": {
     "message": "Parancsikon szerkesztése"
+  },
+  "archiveNoun": {
+    "message": "Archívum",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archívum",
+    "description": "Verb"
+  },
+  "unarchive": {
+    "message": "Visszavétel archívumból"
+  },
+  "itemsInArchive": {
+    "message": "Archívum elemek száma"
+  },
+  "noItemsInArchive": {
+    "message": "Nincs elem az archívumban."
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Az archivált elemek itt jelennek meg és kizárásra kerülnek az általános keresési eredményekből és az automatikus kitöltési javaslatokból."
+  },
+  "itemSentToArchive": {
+    "message": "Archívumba küldött elemek száma"
+  },
+  "itemRemovedFromArchive": {
+    "message": "Az elem kikerült az archívumból."
+  },
+  "archiveItem": {
+    "message": "Elem archiválása"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Az archivált elemek ki vannak zárva az általános keresési eredményekből és az automatikus kitöltési javaslatokból. Biztosan archiválni szeretnénk ezt az elemet?"
   }
 }

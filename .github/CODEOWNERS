@@ -38,10 +38,12 @@ libs/importer @bitwarden/team-tools-dev
 libs/tools @bitwarden/team-tools-dev
 
 ## Dirt (Data Insights & Reporting) team files ##
+apps/browser/src/dirt @bitwarden/team-data-insights-and-reporting-dev
 apps/web/src/app/dirt @bitwarden/team-data-insights-and-reporting-dev
 bitwarden_license/bit-common/src/dirt @bitwarden/team-data-insights-and-reporting-dev
 bitwarden_license/bit-web/src/app/dirt @bitwarden/team-data-insights-and-reporting-dev
 libs/dirt @bitwarden/team-data-insights-and-reporting-dev
+libs/common/src/dirt @bitwarden/team-data-insights-and-reporting-dev
 
 ## Localization/Crowdin (Platform and Tools team)
 apps/browser/src/_locales @bitwarden/team-tools-dev @bitwarden/team-platform-dev
@@ -138,7 +140,7 @@ nx.json @bitwarden/team-platform-dev
 
 ## Autofill team files ##
 apps/browser/src/autofill @bitwarden/team-autofill-dev
-apps/desktop/src/autofill @bitwarden/team-autofill-dev
+apps/desktop/src/autofill @bitwarden/team-autofill-desktop-dev
 libs/common/src/autofill @bitwarden/team-autofill-dev
 apps/desktop/macos/autofill-extension @bitwarden/team-autofill-desktop-dev
 .github/workflows/test-browser-interactions.yml @bitwarden/team-autofill-dev
@@ -160,6 +162,7 @@ apps/desktop/desktop_native/core/src/ssh_agent @bitwarden/team-autofill-desktop-
 libs/components @bitwarden/team-ui-foundation
 libs/assets @bitwarden/team-ui-foundation
 libs/ui @bitwarden/team-ui-foundation
+libs/angular/src/scss @bitwarden/team-ui-foundation
 apps/browser/src/platform/popup/layout @bitwarden/team-ui-foundation
 apps/browser/src/popup/app-routing.animations.ts @bitwarden/team-ui-foundation
 apps/browser/src/popup/components/extension-anon-layout-wrapper @bitwarden/team-ui-foundation
@@ -202,10 +205,11 @@ apps/web/src/locales/en/messages.json
 .github/workflows/release-desktop.yml @bitwarden/dept-bre
 .github/workflows/release-web.yml @bitwarden/dept-bre
 
-## Docker files have shared ownership ##
+## Docker-related files
 **/Dockerfile @bitwarden/team-appsec @bitwarden/dept-bre
 **/*.Dockerfile @bitwarden/team-appsec @bitwarden/dept-bre
 **/*.dockerignore @bitwarden/team-appsec @bitwarden/dept-bre
+**/docker-compose.yml @bitwarden/team-appsec @bitwarden/dept-bre
 **/entrypoint.sh @bitwarden/team-appsec @bitwarden/dept-bre
 
 ## Overrides

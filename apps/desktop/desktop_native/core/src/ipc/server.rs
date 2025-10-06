@@ -7,12 +7,12 @@ use futures::{SinkExt, StreamExt, TryFutureExt};
 
 use anyhow::Result;
 use interprocess::local_socket::{tokio::prelude::*, GenericFilePath, ListenerOptions};
-use log::{error, info};
 use tokio::{
     io::{AsyncRead, AsyncWrite},
     sync::{broadcast, mpsc},
 };
 use tokio_util::sync::CancellationToken;
+use tracing::{error, info};
 
 use super::MESSAGE_CHANNEL_BUFFER;
 
@@ -143,11 +143,11 @@ async fn listen_incoming(
                             client_id
                         );
                         tokio::spawn(future.map_err(|e| {
-                            error!("Error handling connection: {}", e)
+                            error!(error = %e, "Error handling connection")
                         }));
                     },
                     Err(e) => {
-                        error!("Error accepting connection: {}", e);
+                        error!(error = %e, "Error accepting connection");
                         break;
                     },
                 }
@@ -176,7 +176,7 @@ async fn handle_connection(
     loop {
         tokio::select! {
             _ = cancel_token.cancelled() => {
-                info!("Client {client_id} cancelled.");
+                info!(client_id, "Client cancelled.");
                 break;
             },
 
@@ -187,7 +187,7 @@ async fn handle_connection(
                         client_stream.send(msg.into()).await?;
                     },
                     Err(e) => {
-                        info!("Error reading message: {}", e);
+                        error!(error = %e, "Error reading message");
                         break;
                     }
                 }
@@ -199,7 +199,7 @@ async fn handle_connection(
             result = client_stream.next() => {
                 match result {
                     Some(Err(e))  => {
-                        info!("Error reading from client {client_id}: {e}");
+                        error!(client_id, error = %e, "Error reading from client");
 
                         client_to_server_send.send(Message {
                             client_id,
@@ -209,7 +209,7 @@ async fn handle_connection(
                         break;
                     },
                     None => {
-                        info!("Client {client_id} disconnected.");
+                        info!(client_id, "Client disconnected.");
 
                         client_to_server_send.send(Message {
                             client_id,

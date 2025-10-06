@@ -550,6 +550,38 @@
   "resetSearch": {
     "message": "Επαναφορά αναζήτησης"
   },
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
+  },
+  "unarchive": {
+    "message": "Unarchive"
+  },
+  "itemsInArchive": {
+    "message": "Items in archive"
+  },
+  "noItemsInArchive": {
+    "message": "No items in archive"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+  },
+  "itemSentToArchive": {
+    "message": "Item sent to archive"
+  },
+  "itemRemovedFromArchive": {
+    "message": "Item removed from archive"
+  },
+  "archiveItem": {
+    "message": "Archive item"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+  },
   "edit": {
     "message": "Επεξεργασία"
   },
@@ -700,6 +732,15 @@
   },
   "invalidMasterPassword": {
     "message": "Μη έγκυρος κύριος κωδικός πρόσβασης"
+  },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
   },
   "vaultTimeout": {
     "message": "Χρόνος Λήξης Vault"
@@ -1525,9 +1566,6 @@
   "selectTwoStepLoginMethod": {
     "message": "Select two-step login method"
   },
-  "recoveryCodeDesc": {
-    "message": "Έχετε χάσει την πρόσβαση σε όλους τους παρόχους δύο παραγόντων; Χρησιμοποιήστε τον κωδικό ανάκτησης για να απενεργοποιήσετε όλους τους παρόχους δύο παραγόντων από το λογαριασμό σας."
-  },
   "recoveryCodeTitle": {
     "message": "Κωδικός ανάκτησης"
   },
@@ -1686,9 +1724,6 @@
   "defaultAutoFillOnPageLoadDesc": {
     "message": "Μπορείτε να απενεργοποιήσετε την αυτόματη συμπλήρωση κατά τη φόρτωση της σελίδας για μεμονωμένα αντικείμενα σύνδεσης από την προβολή Επεξεργασία αντικειμένου."
   },
-  "itemAutoFillOnPageLoad": {
-    "message": "Αυτόματη συμπλήρωση κατά τη φόρτωση της σελίδας (αν έχει ενεργοποιηθεί στις Επιλογές)"
-  },
   "autoFillOnPageLoadUseDefault": {
     "message": "Χρήση προεπιλεγμένης ρύθμισης"
   },
@@ -1760,17 +1795,8 @@
   "popup2faCloseMessage": {
     "message": "Εάν κάνετε κλικ έξω από το αναδυόμενο παράθυρο για να ελέγξετε το email για κωδικό επαλήθευσης, το αναδυόμενο παράθυρο θα κλείσει. Θέλετε να ανοίξετε αυτό το αναδυόμενο σε νέο παράθυρο ώστε να μην κλείνει;"
   },
-  "popupU2fCloseMessage": {
-    "message": "Αυτό το πρόγραμμα περιήγησης δεν μπορεί να επεξεργαστεί αιτήματα του U2F σε αυτό το αναδυόμενο παράθυρο. Θέλετε να ανοίξετε το αναδυόμενο σε νέο παράθυρο, ώστε να μπορείτε να συνδεθείτε χρησιμοποιώντας U2F;"
-  },
   "showIconsChangePasswordUrls": {
     "message": "Show website icons and retrieve change password URLs"
-  },
-  "enableBadgeCounter": {
-    "message": "Εμφάνιση μετρητή εμβλημάτων"
-  },
-  "badgeCounterDesc": {
-    "message": "Υποδείξτε πόσες συνδέσεις έχετε για την τρέχουσα ιστοσελίδα."
   },
   "cardholderName": {
     "message": "Όνομα κατόχου κάρτας"
@@ -1934,32 +1960,81 @@
   "typeNote": {
     "message": "Note"
   },
-  "newItemHeader": {
-    "message": "Νέα $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderLogin": {
+    "message": "New Login",
+    "description": "Header for new login item type"
   },
-  "editItemHeader": {
-    "message": "Επεξεργασία $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderCard": {
+    "message": "New Card",
+    "description": "Header for new card item type"
   },
-  "viewItemHeader": {
-    "message": "Εμφάνιση $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderIdentity": {
+    "message": "New Identity",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "New Note",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "New SSH key",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderTextSend": {
+    "message": "New Text Send",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "New File Send",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderLogin": {
+    "message": "Edit Login",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Edit Card",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Edit Identity",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Edit Note",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "Edit SSH key",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Edit Text Send",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Edit File Send",
+    "description": "Header for edit file send"
+  },
+  "viewItemHeaderLogin": {
+    "message": "View Login",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "View Card",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "View Identity",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "View Note",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "View SSH key",
+    "description": "Header for view SSH key item type"
   },
   "passwordHistory": {
     "message": "Ιστορικό κωδικού πρόσβασης"
@@ -3132,6 +3207,24 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "error": {
     "message": "Σφάλμα"
   },
@@ -3521,9 +3614,6 @@
   "autofillPageLoadPolicyActivated": {
     "message": "Οι πολιτικές του οργανισμού σας έχουν ενεργοποιήσει την αυτόματη συμπλήρωση με φόρτωση σελίδας."
   },
-  "howToAutofill": {
-    "message": "Πώς να συμπληρώσετε αυτόματα"
-  },
   "autofillSelectInfoWithCommand": {
     "message": "Επιλέξτε ένα αντικείμενο από αυτήν την οθόνη, χρησιμοποιήστε τη συντόμευση $COMMAND$, ή εξερευνήστε άλλες επιλογές στις ρυθμίσεις.",
     "placeholders": {
@@ -3908,17 +3998,9 @@
   "aliasDomain": {
     "message": "Ψευδώνυμο τομέα"
   },
-  "passwordRepromptDisabledAutofillOnPageLoad": {
-    "message": "Τα αντικείμενα με υπόδειξη κύριου κωδικού πρόσβασης δεν μπορούν να συμπληρωθούν αυτόματα κατά τη φόρτωση της σελίδας. Η αυτόματη συμπλήρωση έχει απενεργοποιηθεί κατά τη φόρτωση της σελίδας.",
-    "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
-  },
   "autofillOnPageLoadSetToDefault": {
     "message": "Η αυτόματη συμπλήρωση κατά τη φόρτωση της σελίδας ορίστηκε να χρησιμοποιεί τις προεπιλεγμένες ρυθμίσεις.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "turnOffMasterPasswordPromptToEditField": {
-    "message": "Απενεργοποιήστε την υπόδειξη κύριου κωδικού πρόσβασης για να επεξεργαστείτε αυτό το πεδίο",
-    "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
   },
   "toggleSideNavigation": {
     "message": "Εναλλαγή πλευρικής πλοήγησης"
@@ -4188,9 +4270,6 @@
   },
   "passkeyNotCopiedAlert": {
     "message": "Το κλειδί πρόσβασης δε θα αντιγραφεί στο κλωνοποιημένο αντικείμενο. Θέλετε να συνεχίσετε την κλωνοποίηση αυτού του αντικειμένου;"
-  },
-  "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
-    "message": "Απαιτείται επαλήθευση από τον ιστότοπο εκκίνησης. Αυτή η λειτουργία δεν έχει ακόμα υλοποιηθεί για λογαριασμούς χωρίς τον κύριο κωδικό πρόσβασης."
   },
   "logInWithPasskeyQuestion": {
     "message": "Σύνδεση με κλειδί πρόσβασης;"
@@ -4877,9 +4956,6 @@
       }
     }
   },
-  "enableAnimations": {
-    "message": "Ενεργοποίηση κινούμενων εικόνων"
-  },
   "showAnimations": {
     "message": "Εμφάνιση εφέ κίνησης"
   },
@@ -5092,14 +5168,8 @@
   "itemLocation": {
     "message": "Τοποθεσία Αντικειμένου"
   },
-  "fileSend": {
-    "message": "Δημιουργία Αποστολής"
-  },
   "fileSends": {
     "message": "Send αρχείων"
-  },
-  "textSend": {
-    "message": "Κείμενο Αποστολής"
   },
   "textSends": {
     "message": "Send κειμένων"
@@ -5160,9 +5230,6 @@
   },
   "vaultCustomTimeoutMinimum": {
     "message": "Το ελάχιστο προσαρμοσμένο χρονικό όριο λήξης είναι 1 λεπτό."
-  },
-  "additionalContentAvailable": {
-    "message": "Διατίθεται πρόσθετο περιεχόμενο"
   },
   "fileSavedToDevice": {
     "message": "Το αρχείο αποθηκεύτηκε στη συσκευή. Διαχειριστείτε το από τις λήψεις της συσκευής σας."
@@ -5502,6 +5569,18 @@
   },
   "hasItemsVaultNudgeTitle": {
     "message": "Welcome to your vault!"
+  },
+  "phishingPageTitle": {
+    "message": "Phishing website"
+  },
+  "phishingPageCloseTab": {
+    "message": "Close tab"
+  },
+  "phishingPageContinue": {
+    "message": "Continue"
+  },
+  "phishingPageLearnWhy": {
+    "message": "Why are you seeing this?"
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Autofill items for the current page"

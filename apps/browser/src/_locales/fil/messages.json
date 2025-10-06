@@ -550,6 +550,38 @@
   "resetSearch": {
     "message": "Reset search"
   },
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
+  },
+  "unarchive": {
+    "message": "Unarchive"
+  },
+  "itemsInArchive": {
+    "message": "Items in archive"
+  },
+  "noItemsInArchive": {
+    "message": "No items in archive"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+  },
+  "itemSentToArchive": {
+    "message": "Item sent to archive"
+  },
+  "itemRemovedFromArchive": {
+    "message": "Item removed from archive"
+  },
+  "archiveItem": {
+    "message": "Archive item"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+  },
   "edit": {
     "message": "I-edit"
   },
@@ -700,6 +732,15 @@
   },
   "invalidMasterPassword": {
     "message": "Hindi wasto ang master password"
+  },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
   },
   "vaultTimeout": {
     "message": "Vault timeout"
@@ -1525,9 +1566,6 @@
   "selectTwoStepLoginMethod": {
     "message": "Select two-step login method"
   },
-  "recoveryCodeDesc": {
-    "message": "Nawalan ka ng access sa lahat ng iyong mga two-factor provider? Gamitin ang iyong recovery code para i-off ang lahat ng two-factor providers mula sa iyong account."
-  },
   "recoveryCodeTitle": {
     "message": "Recovery code"
   },
@@ -1686,9 +1724,6 @@
   "defaultAutoFillOnPageLoadDesc": {
     "message": "Maaari mong i-off ang auto-fill sa pag-load ng pahina para sa indibidwal na login items mula sa view ng Edit ng item."
   },
-  "itemAutoFillOnPageLoad": {
-    "message": "Auto-fill sa pag-load ng pahina (kung naka-set up sa Options)"
-  },
   "autoFillOnPageLoadUseDefault": {
     "message": "Gamitin ang default na setting"
   },
@@ -1760,17 +1795,8 @@
   "popup2faCloseMessage": {
     "message": "Kapag ikaw ay mag-click sa labas ng popup window para tingnan ang iyong email para sa iyong code ng pagpapatunay, ang popup na ito ay magsasara. Nais mo bang buksan ang popup na ito sa isang bagong window upang hindi ito sarado?"
   },
-  "popupU2fCloseMessage": {
-    "message": "Ang browser na ito ay hindi maaaring prosesuhin ang mga hiling ng U2F sa popup window na ito. Nais mo bang buksan ang popup na ito sa isang bagong window upang ma-log in gamit ang U2F?"
-  },
   "showIconsChangePasswordUrls": {
     "message": "Show website icons and retrieve change password URLs"
-  },
-  "enableBadgeCounter": {
-    "message": "Ipakita ang badge counter"
-  },
-  "badgeCounterDesc": {
-    "message": "Ipahiwatig kung gaano karaming mga login ang mayroon ka para sa kasalukuyang pahina ng web."
   },
   "cardholderName": {
     "message": "Pangalan ng cardholder"
@@ -1934,32 +1960,81 @@
   "typeNote": {
     "message": "Note"
   },
-  "newItemHeader": {
-    "message": "New $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderLogin": {
+    "message": "New Login",
+    "description": "Header for new login item type"
   },
-  "editItemHeader": {
-    "message": "Edit $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderCard": {
+    "message": "New Card",
+    "description": "Header for new card item type"
   },
-  "viewItemHeader": {
-    "message": "View $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderIdentity": {
+    "message": "New Identity",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "New Note",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "New SSH key",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderTextSend": {
+    "message": "New Text Send",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "New File Send",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderLogin": {
+    "message": "Edit Login",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Edit Card",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Edit Identity",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Edit Note",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "Edit SSH key",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Edit Text Send",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Edit File Send",
+    "description": "Header for edit file send"
+  },
+  "viewItemHeaderLogin": {
+    "message": "View Login",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "View Card",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "View Identity",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "View Note",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "View SSH key",
+    "description": "Header for view SSH key item type"
   },
   "passwordHistory": {
     "message": "Kasaysayan ng Password"
@@ -3132,6 +3207,24 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "error": {
     "message": "Mali"
   },
@@ -3521,9 +3614,6 @@
   "autofillPageLoadPolicyActivated": {
     "message": "Ang mga patakaran ng iyong organisasyon ay nagbigay ng pag-automatikong pag-load sa pahina."
   },
-  "howToAutofill": {
-    "message": "Paano mag-auto-fill"
-  },
   "autofillSelectInfoWithCommand": {
     "message": "Select an item from this screen, use the shortcut $COMMAND$, or explore other options in settings.",
     "placeholders": {
@@ -3908,17 +3998,9 @@
   "aliasDomain": {
     "message": "Alias domain"
   },
-  "passwordRepromptDisabledAutofillOnPageLoad": {
-    "message": "Items with master password re-prompt cannot be autofilled on page load. Autofill on page load turned off.",
-    "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
-  },
   "autofillOnPageLoadSetToDefault": {
     "message": "Autofill on page load set to use default setting.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "turnOffMasterPasswordPromptToEditField": {
-    "message": "Turn off master password re-prompt to edit this field",
-    "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
   },
   "toggleSideNavigation": {
     "message": "Toggle side navigation"
@@ -4188,9 +4270,6 @@
   },
   "passkeyNotCopiedAlert": {
     "message": "The passkey will not be copied to the cloned item. Do you want to continue cloning this item?"
-  },
-  "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
-    "message": "Verification required by the initiating site. This feature is not yet implemented for accounts without master password."
   },
   "logInWithPasskeyQuestion": {
     "message": "Log in with passkey?"
@@ -4877,9 +4956,6 @@
       }
     }
   },
-  "enableAnimations": {
-    "message": "Enable animations"
-  },
   "showAnimations": {
     "message": "Show animations"
   },
@@ -5092,14 +5168,8 @@
   "itemLocation": {
     "message": "Item Location"
   },
-  "fileSend": {
-    "message": "File Send"
-  },
   "fileSends": {
     "message": "File Sends"
-  },
-  "textSend": {
-    "message": "Text Send"
   },
   "textSends": {
     "message": "Text Sends"
@@ -5160,9 +5230,6 @@
   },
   "vaultCustomTimeoutMinimum": {
     "message": "Minimum custom timeout is 1 minute."
-  },
-  "additionalContentAvailable": {
-    "message": "Additional content is available"
   },
   "fileSavedToDevice": {
     "message": "File saved to device. Manage from your device downloads."
@@ -5502,6 +5569,18 @@
   },
   "hasItemsVaultNudgeTitle": {
     "message": "Welcome to your vault!"
+  },
+  "phishingPageTitle": {
+    "message": "Phishing website"
+  },
+  "phishingPageCloseTab": {
+    "message": "Close tab"
+  },
+  "phishingPageContinue": {
+    "message": "Continue"
+  },
+  "phishingPageLearnWhy": {
+    "message": "Why are you seeing this?"
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Autofill items for the current page"

@@ -90,14 +90,10 @@ import {
 } from "../auth/models/response/two-factor-web-authn.response";
 import { TwoFactorYubiKeyResponse } from "../auth/models/response/two-factor-yubi-key.response";
 import { BitPayInvoiceRequest } from "../billing/models/request/bit-pay-invoice.request";
-import { PaymentRequest } from "../billing/models/request/payment.request";
-import { TaxInfoUpdateRequest } from "../billing/models/request/tax-info-update.request";
 import { BillingHistoryResponse } from "../billing/models/response/billing-history.response";
-import { BillingPaymentResponse } from "../billing/models/response/billing-payment.response";
 import { PaymentResponse } from "../billing/models/response/payment.response";
 import { PlanResponse } from "../billing/models/response/plan.response";
 import { SubscriptionResponse } from "../billing/models/response/subscription.response";
-import { TaxInfoResponse } from "../billing/models/response/tax-info.response";
 import { ClientType, DeviceType } from "../enums";
 import { KeyConnectorUserKeyRequest } from "../key-management/key-connector/models/key-connector-user-key.request";
 import { SetKeyConnectorKeyRequest } from "../key-management/key-connector/models/set-key-connector-key.request";
@@ -113,7 +109,6 @@ import { UpdateAvatarRequest } from "../models/request/update-avatar.request";
 import { UpdateDomainsRequest } from "../models/request/update-domains.request";
 import { VerifyDeleteRecoverRequest } from "../models/request/verify-delete-recover.request";
 import { VerifyEmailRequest } from "../models/request/verify-email.request";
-import { BreachAccountResponse } from "../models/response/breach-account.response";
 import { DomainsResponse } from "../models/response/domains.response";
 import { ErrorResponse } from "../models/response/error.response";
 import { EventResponse } from "../models/response/event.response";
@@ -295,11 +290,6 @@ export class ApiService implements ApiServiceAbstraction {
     return new SubscriptionResponse(r);
   }
 
-  async getTaxInfo(): Promise<TaxInfoResponse> {
-    const r = await this.send("GET", "/accounts/tax", null, true, true);
-    return new TaxInfoResponse(r);
-  }
-
   async putProfile(request: UpdateProfileRequest): Promise<ProfileResponse> {
     const r = await this.send("PUT", "/accounts/profile", request, true, true);
     return new ProfileResponse(r);
@@ -308,10 +298,6 @@ export class ApiService implements ApiServiceAbstraction {
   async putAvatar(request: UpdateAvatarRequest): Promise<ProfileResponse> {
     const r = await this.send("PUT", "/accounts/avatar", request, true, true);
     return new ProfileResponse(r);
-  }
-
-  putTaxInfo(request: TaxInfoUpdateRequest): Promise<any> {
-    return this.send("PUT", "/accounts/tax", request, true, false);
   }
 
   async postPrelogin(request: PreloginRequest): Promise<PreloginResponse> {
@@ -364,10 +350,6 @@ export class ApiService implements ApiServiceAbstraction {
   async postAccountStorage(request: StorageRequest): Promise<PaymentResponse> {
     const r = await this.send("POST", "/accounts/storage", request, true, true);
     return new PaymentResponse(r);
-  }
-
-  postAccountPayment(request: PaymentRequest): Promise<void> {
-    return this.send("POST", "/accounts/payment", request, true, false);
   }
 
   postAccountLicense(data: FormData): Promise<any> {
@@ -428,11 +410,6 @@ export class ApiService implements ApiServiceAbstraction {
   async getUserBillingHistory(): Promise<BillingHistoryResponse> {
     const r = await this.send("GET", "/accounts/billing/history", null, true, true);
     return new BillingHistoryResponse(r);
-  }
-
-  async getUserBillingPayment(): Promise<BillingPaymentResponse> {
-    const r = await this.send("GET", "/accounts/billing/payment-method", null, true, true);
-    return new BillingPaymentResponse(r);
   }
 
   // Cipher APIs
@@ -1295,6 +1272,28 @@ export class ApiService implements ApiServiceAbstraction {
     return new ListResponse(r, EventResponse);
   }
 
+  async getEventsServiceAccount(
+    orgId: string,
+    id: string,
+    start: string,
+    end: string,
+    token: string,
+  ): Promise<ListResponse<EventResponse>> {
+    const r = await this.send(
+      "GET",
+      this.addEventParameters(
+        "/organization/" + orgId + "/service-account/" + id + "/events",
+        start,
+        end,
+        token,
+      ),
+      null,
+      true,
+      true,
+    );
+    return new ListResponse(r, EventResponse);
+  }
+
   async getEventsProject(
     orgId: string,
     id: string,
@@ -1428,14 +1427,6 @@ export class ApiService implements ApiServiceAbstraction {
   async getUserPublicKey(id: string): Promise<UserKeyResponse> {
     const r = await this.send("GET", "/users/" + id + "/public-key", null, true, true);
     return new UserKeyResponse(r);
-  }
-
-  // HIBP APIs
-
-  async getHibpBreach(username: string): Promise<BreachAccountResponse[]> {
-    const encodedUsername = encodeURIComponent(username);
-    const r = await this.send("GET", "/hibp/breach?username=" + encodedUsername, null, true, true);
-    return r.map((a: any) => new BreachAccountResponse(a));
   }
 
   // Misc

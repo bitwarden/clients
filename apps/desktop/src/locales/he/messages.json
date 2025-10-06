@@ -960,9 +960,6 @@
   "insertU2f": {
     "message": "הכנס את מפתח האבטחה שלך אל כניסת ה-USB במחשבך. אם יש לו כפתור, גע בו."
   },
-  "recoveryCodeDesc": {
-    "message": "איבדת גישה לכל ספקי האימות הדו-שלבי שלך? השתמש בקוד שחזור כדי לבטל את כל הספקים הקיימים בחשבונך."
-  },
   "recoveryCodeTitle": {
     "message": "קוד שחזור"
   },
@@ -1225,6 +1222,15 @@
   "invalidMasterPassword": {
     "message": "סיסמה ראשית שגויה"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "twoStepLoginConfirmation": {
     "message": "אימות דו שלבי הופך את החשבון שלך למאובטח יותר בכך שתצטרך לאשר התחברות בעזרת מפתח אבטחה, תוכנת אימות, SMS, שיחת טלפון, או אימייל. ניתן להפעיל את \"אימות דו שלבי\" בכספת שבאתר bitwarden.com. האם ברצונך לפתוח את האתר כעת?"
   },
@@ -1306,7 +1312,7 @@
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
   "showIconsChangePasswordUrls": {
-    "message": "Show website icons and retrieve change password URLs"
+    "message": "הצג סמלי אתרי אינטרנט ואחזר כתובות URL לשינוי סיסמה"
   },
   "enableMinToTray": {
     "message": "מזער למגש המערכת"
@@ -2657,6 +2663,24 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "locked": {
     "message": "נעול"
   },
@@ -3837,10 +3861,10 @@
     "message": "שנה סיסמה בסיכון"
   },
   "changeAtRiskPasswordAndAddWebsite": {
-    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+    "message": "כניסה זו נמצאת בסיכון וחסר בה אתר אינטרנט. הוסף אתר אינטרנט ושנה את הסיסמה לאבטחה חזקה יותר."
   },
   "missingWebsite": {
-    "message": "Missing website"
+    "message": "לא נמצא אתר אינטרנט"
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "אינך יכול להסיר אוספים עם הרשאות הצגה בלבד: $COLLECTIONS$",
@@ -3938,10 +3962,10 @@
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
   "aboutThisSetting": {
-    "message": "About this setting"
+    "message": "אודות הגדרה זו"
   },
   "permitCipherDetailsDescription": {
-    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+    "message": "Bitwarden ישתמש בכתובות URI של כניסות שמורות כדי לזהות באיזה סמל או URL לשינוי סיסמה יש להשתמש על מנת לשפר את החוויה שלך. לא נאסף או נשמר מידע כלשהו כאשר אתה משתמש בשירות זה."
   },
   "assignToCollections": {
     "message": "הקצה לאוספים"
@@ -4083,11 +4107,17 @@
   "showLess": {
     "message": "הצג פחות"
   },
-  "enableAutotype": {
-    "message": "הפעל הקלדה אוטומטית"
-  },
   "enableAutotypeDescription": {
     "message": "Bitwarden לא מאמת את מקומות הקלט, נא לוודא שזה החלון והשדה הנכונים בטרם שימוש בקיצור הדרך."
+  },
+  "typeShortcut": {
+    "message": "Type shortcut"
+  },
+  "editAutotypeShortcutDescription": {
+    "message": "Include one or two of the following modifiers: Ctrl, Alt, Win, or Shift, and a letter."
+  },
+  "invalidShortcut": {
+    "message": "Invalid shortcut"
   },
   "moreBreadcrumbs": {
     "message": "עוד סימני דרך",
@@ -4102,13 +4132,45 @@
   "confirm": {
     "message": "אשר"
   },
-  "enableAutotypeTransitionKey": {
-    "message": "הפעל קיצור דרך להקלדה אוטומטית"
+  "enableAutotypeShortcutPreview": {
+    "message": "Enable autotype shortcut (Feature Preview)"
   },
   "enableAutotypeDescriptionTransitionKey": {
     "message": "וודא שאתה נמצא בשדה הנכון לפני השימוש בקיצור הדרך כדי להימנע ממילוי נתונים במקום הלא נכון."
   },
   "editShortcut": {
     "message": "ערוך קיצור דרך"
+  },
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
+  },
+  "unarchive": {
+    "message": "Unarchive"
+  },
+  "itemsInArchive": {
+    "message": "Items in archive"
+  },
+  "noItemsInArchive": {
+    "message": "No items in archive"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+  },
+  "itemSentToArchive": {
+    "message": "Item sent to archive"
+  },
+  "itemRemovedFromArchive": {
+    "message": "Item removed from archive"
+  },
+  "archiveItem": {
+    "message": "Archive item"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
   }
 }

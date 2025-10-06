@@ -550,6 +550,38 @@
   "resetSearch": {
     "message": "Reset search"
   },
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
+  },
+  "unarchive": {
+    "message": "Unarchive"
+  },
+  "itemsInArchive": {
+    "message": "Items in archive"
+  },
+  "noItemsInArchive": {
+    "message": "No items in archive"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+  },
+  "itemSentToArchive": {
+    "message": "Item sent to archive"
+  },
+  "itemRemovedFromArchive": {
+    "message": "Item removed from archive"
+  },
+  "archiveItem": {
+    "message": "Archive item"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+  },
   "edit": {
     "message": "ویرایش"
   },
@@ -700,6 +732,15 @@
   },
   "invalidMasterPassword": {
     "message": "کلمه عبور اصلی نامعتبر است"
+  },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
   },
   "vaultTimeout": {
     "message": "متوقف شدن گاو‌صندوق"
@@ -1525,9 +1566,6 @@
   "selectTwoStepLoginMethod": {
     "message": "انتخاب ورود دو مرحله‌ای"
   },
-  "recoveryCodeDesc": {
-    "message": "دسترسی به تمامی ارائه‌دهندگان دو مرحله‌ای را از دست داده‌اید؟ از کد بازیابی خود برای غیرفعال‌سازی ارائه‌دهندگان دو مرحله‌ای از حسابتان استفاده کنید."
-  },
   "recoveryCodeTitle": {
     "message": "کد بازیابی"
   },
@@ -1686,9 +1724,6 @@
   "defaultAutoFillOnPageLoadDesc": {
     "message": "می‌توانید پر کردن خودکار هنگام بارگیری صفحه را برای موارد ورود به سیستم از نمای ویرایش مورد خاموش کنید."
   },
-  "itemAutoFillOnPageLoad": {
-    "message": "پر کردن خودکار بارگذاری صفحه (درصورت فعال بودن در گزینه‌ها)"
-  },
   "autoFillOnPageLoadUseDefault": {
     "message": "استفاده از تنظیمات پیش‌فرض"
   },
@@ -1760,17 +1795,8 @@
   "popup2faCloseMessage": {
     "message": "در خارج از پنجره پاپ آپ کلیک کنید که ایمیل‌تان بررسی شود برای کد تأییدیه که باعث می‌شود این پنجره بسته شود. آیا می‌خواهید این پاپ آپ را در یک پنجره جدید باز کنید تا آن را نبندید؟"
   },
-  "popupU2fCloseMessage": {
-    "message": "این مرورگر نمی‌تواند درخواستهای U2F را در این پنجره پاپ آپ پردازش کند. آیا می‌خواهید این پنجره را در یک پنجره جدید باز کنید تا بتوانید با استفاده از U2F وارد شوید؟"
-  },
   "showIconsChangePasswordUrls": {
     "message": "Show website icons and retrieve change password URLs"
-  },
-  "enableBadgeCounter": {
-    "message": "نمایش شمارنده نشان"
-  },
-  "badgeCounterDesc": {
-    "message": "تعداد ورود به صفحه وب فعلی را مشخص کن."
   },
   "cardholderName": {
     "message": "نام صاحب کارت"
@@ -1934,32 +1960,81 @@
   "typeNote": {
     "message": "یادداشت"
   },
-  "newItemHeader": {
-    "message": "$TYPE$ جدید",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderLogin": {
+    "message": "New Login",
+    "description": "Header for new login item type"
   },
-  "editItemHeader": {
-    "message": "ویرایش $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderCard": {
+    "message": "New Card",
+    "description": "Header for new card item type"
   },
-  "viewItemHeader": {
-    "message": "مشاهده $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderIdentity": {
+    "message": "New Identity",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "New Note",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "New SSH key",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderTextSend": {
+    "message": "New Text Send",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "New File Send",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderLogin": {
+    "message": "Edit Login",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Edit Card",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Edit Identity",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Edit Note",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "Edit SSH key",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Edit Text Send",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Edit File Send",
+    "description": "Header for edit file send"
+  },
+  "viewItemHeaderLogin": {
+    "message": "View Login",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "View Card",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "View Identity",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "View Note",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "View SSH key",
+    "description": "Header for view SSH key item type"
   },
   "passwordHistory": {
     "message": "تاریخچه کلمه عبور"
@@ -3132,6 +3207,24 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "error": {
     "message": "خطا"
   },
@@ -3521,9 +3614,6 @@
   "autofillPageLoadPolicyActivated": {
     "message": "خط مشی‌های سازمان شما پر کردن خودکار هنگام بارگیری صفحه را روشن کرده است."
   },
-  "howToAutofill": {
-    "message": "نحوه پر کردن خودکار"
-  },
   "autofillSelectInfoWithCommand": {
     "message": "یک مورد را از این صفحه انتخاب کنید، از میان‌بر $COMMAND$ استفاده کنید، یا گزینه‌های دیگر را در تنظیمات بررسی کنید.",
     "placeholders": {
@@ -3908,17 +3998,9 @@
   "aliasDomain": {
     "message": "دامنه مستعار"
   },
-  "passwordRepromptDisabledAutofillOnPageLoad": {
-    "message": "موارد با درخواست مجدد کلمه عبور اصلی را نمی‌توان در بارگذاری صفحه به‌صورت خودکار پر کرد. پر کردن خودکار در بارگیری صفحه خاموش شد.",
-    "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
-  },
   "autofillOnPageLoadSetToDefault": {
     "message": "پر کردن خودکار در بارگیری صفحه برای استفاده از تنظیمات پیش‌فرض تنظیم شده است.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "turnOffMasterPasswordPromptToEditField": {
-    "message": "برای ویرایش این فیلد، درخواست مجدد کلمه عبور اصلی را خاموش کنید",
-    "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
   },
   "toggleSideNavigation": {
     "message": "تغییر وضعیت ناوبری کناری"
@@ -4188,9 +4270,6 @@
   },
   "passkeyNotCopiedAlert": {
     "message": "کلید عبور در مورد شبیه‌سازی شده کپی نمی‌شود. آیا می‌خواهید به شبیه‌سازی این مورد ادامه دهید؟"
-  },
-  "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
-    "message": "تأیید توسط سایت آغازگر الزامی است. این ویژگی هنوز برای حساب‌های کاربری بدون کلمه عبور اصلی اجرا نشده است."
   },
   "logInWithPasskeyQuestion": {
     "message": "با کلید عبور وارد می‌شوید؟"
@@ -4877,9 +4956,6 @@
       }
     }
   },
-  "enableAnimations": {
-    "message": "فعال‌سازی انیمیشن‌ها"
-  },
   "showAnimations": {
     "message": "نمایش انیمیشن‌ها"
   },
@@ -5092,14 +5168,8 @@
   "itemLocation": {
     "message": "مکان مورد"
   },
-  "fileSend": {
-    "message": "پرونده ارسال"
-  },
   "fileSends": {
     "message": "پرونده ارسال‌ها"
-  },
-  "textSend": {
-    "message": "ارسال متن"
   },
   "textSends": {
     "message": "ارسال‌های متن"
@@ -5160,9 +5230,6 @@
   },
   "vaultCustomTimeoutMinimum": {
     "message": "حداقل مهلت زمانی سفارشی ۱ دقیقه است."
-  },
-  "additionalContentAvailable": {
-    "message": "محتوای اضافی در دسترس است"
   },
   "fileSavedToDevice": {
     "message": "پرونده در دستگاه ذخیره شد. از بخش بارگیری‌های دستگاه خود مدیریت کنید."
@@ -5502,6 +5569,18 @@
   },
   "hasItemsVaultNudgeTitle": {
     "message": "به گاوصندوق خود خوش آمدید!"
+  },
+  "phishingPageTitle": {
+    "message": "Phishing website"
+  },
+  "phishingPageCloseTab": {
+    "message": "Close tab"
+  },
+  "phishingPageContinue": {
+    "message": "Continue"
+  },
+  "phishingPageLearnWhy": {
+    "message": "Why are you seeing this?"
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "پر کردن خودکار موارد برای صفحه فعلی"

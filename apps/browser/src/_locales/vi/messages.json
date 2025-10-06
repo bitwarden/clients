@@ -550,6 +550,38 @@
   "resetSearch": {
     "message": "Đặt lại tìm kiếm"
   },
+  "archiveNoun": {
+    "message": "Lưu trữ",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Lưu trữ",
+    "description": "Verb"
+  },
+  "unarchive": {
+    "message": "Hủy lưu trữ"
+  },
+  "itemsInArchive": {
+    "message": "Các mục trong kho lưu trữ"
+  },
+  "noItemsInArchive": {
+    "message": "Không có mục nào trong kho lưu trữ"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Các mục đã lưu trữ sẽ hiển thị ở đây và sẽ bị loại khỏi kết quả tìm kiếm và gợi ý tự động điền."
+  },
+  "itemSentToArchive": {
+    "message": "Mục đã được gửi đến kho lưu trữ"
+  },
+  "itemRemovedFromArchive": {
+    "message": "Mục đã được gỡ khỏi kho lưu trữ"
+  },
+  "archiveItem": {
+    "message": "Lưu trữ mục"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Các mục đã lưu trữ sẽ bị loại khỏi kết quả tìm kiếm chung và gợi ý tự động điền. Bạn có chắc chắn muốn lưu trữ mục này không?"
+  },
   "edit": {
     "message": "Sửa"
   },
@@ -700,6 +732,15 @@
   },
   "invalidMasterPassword": {
     "message": "Mật khẩu chính không hợp lệ"
+  },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Mật khẩu chính không hợp lệ. Xác nhận email của bạn là chính xác và tài khoản được tạo trên $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
   },
   "vaultTimeout": {
     "message": "Đóng kho sau"
@@ -1525,9 +1566,6 @@
   "selectTwoStepLoginMethod": {
     "message": "Chọn phương pháp đăng nhập hai bước"
   },
-  "recoveryCodeDesc": {
-    "message": "Bạn đã mất quyền truy cập vào tất cả các dịch vụ xác thực 2 lớp? Sử dụng mã khôi phục để tắt tất cả các phương pháp xác thực hai lớp trong tài khoản của bạn."
-  },
   "recoveryCodeTitle": {
     "message": "Mã khôi phục"
   },
@@ -1686,9 +1724,6 @@
   "defaultAutoFillOnPageLoadDesc": {
     "message": "Bạn có thể tắt tự động điền khi tải trang cho mục đăng nhập riêng lẻ từ chế độ xem Chỉnh sửa mục."
   },
-  "itemAutoFillOnPageLoad": {
-    "message": "Tự động điền khi tải trang (nếu được thiết lập trong Tùy chọn)"
-  },
   "autoFillOnPageLoadUseDefault": {
     "message": "Sử dụng thiết lập mặc định"
   },
@@ -1760,17 +1795,8 @@
   "popup2faCloseMessage": {
     "message": "Nhấp bên ngoài popup để xem mã xác thực trong email của bạn sẽ làm cho popup này đóng lại. Bạn có muốn mở popup này trong một cửa sổ mới để nó không bị đóng?"
   },
-  "popupU2fCloseMessage": {
-    "message": "Trình duyệt này không thể xử lý các yêu cầu U2F trong cửa sổ popup này. Bạn có muốn mở popup này trong cửa sổ mới để bạn có thể đăng nhập thông qua U2F?"
-  },
   "showIconsChangePasswordUrls": {
-    "message": "Show website icons and retrieve change password URLs"
-  },
-  "enableBadgeCounter": {
-    "message": "Hiển thị biểu tượng bộ đếm"
-  },
-  "badgeCounterDesc": {
-    "message": "Cho biết bạn có bao nhiêu thông tin đăng nhập cho trang web hiện tại."
+    "message": "Hiển thị biểu tượng trang web và truy xuất các URL đổi mật khẩu"
   },
   "cardholderName": {
     "message": "Tên chủ thẻ"
@@ -1934,32 +1960,81 @@
   "typeNote": {
     "message": "Ghi chú"
   },
-  "newItemHeader": {
-    "message": "$TYPE$ mới",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderLogin": {
+    "message": "Đăng nhập mới",
+    "description": "Header for new login item type"
   },
-  "editItemHeader": {
-    "message": "Chỉnh sửa $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderCard": {
+    "message": "Thẻ mới",
+    "description": "Header for new card item type"
   },
-  "viewItemHeader": {
-    "message": "Xem $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderIdentity": {
+    "message": "Danh tính mới",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "Ghi chú mới",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "Khóa SSH mới",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderTextSend": {
+    "message": "Send văn bản mới",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "Send tập tin mới",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderLogin": {
+    "message": "Chỉnh sửa đăng nhập",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Chỉnh sửa thẻ",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Chỉnh sửa danh tính",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Chỉnh sửa ghi chú",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "Sửa khóa SSH",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Sửa Send văn bản",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Sửa Send tập tin",
+    "description": "Header for edit file send"
+  },
+  "viewItemHeaderLogin": {
+    "message": "Xem đăng nhập",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "Xem thẻ",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "Xem danh tính",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "Xem ghi chú",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "Xem khóa SSH",
+    "description": "Header for view SSH key item type"
   },
   "passwordHistory": {
     "message": "Lịch sử mật khẩu"
@@ -3132,6 +3207,24 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Chỉ kho lưu trữ tổ chức liên kết với $ORGANIZATION$ sẽ được xuất.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Chỉ kho lưu trữ tổ chức liên kết với $ORGANIZATION$ được xuất. Bộ sưu tập mục của tôi sẽ không được bao gồm.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "error": {
     "message": "Lỗi"
   },
@@ -3521,9 +3614,6 @@
   "autofillPageLoadPolicyActivated": {
     "message": "Chính sách của tổ chức bạn đã kích hoạt tính năng tự động điền khi tải trang."
   },
-  "howToAutofill": {
-    "message": "Cách tự đồng điền"
-  },
   "autofillSelectInfoWithCommand": {
     "message": "Chọn một mục từ màn hình này, sử dụng phím tắt $COMMAND$, hoặc khám phá các tùy chọn khác trong cài đặt.",
     "placeholders": {
@@ -3908,17 +3998,9 @@
   "aliasDomain": {
     "message": "Tên miền thay thế"
   },
-  "passwordRepromptDisabledAutofillOnPageLoad": {
-    "message": "Các mục yêu cầu nhập lại mật khẩu chính không thể được tự động điền khi tải trang. Tự động điền khi tải trang đã bị tắt.",
-    "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
-  },
   "autofillOnPageLoadSetToDefault": {
     "message": "Tự động điền khi tải trang được đặt thành mặc định trong cài đặt.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "turnOffMasterPasswordPromptToEditField": {
-    "message": "Tắt yêu cầu nhập lại mật khẩu chính để chỉnh sửa trường này",
-    "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
   },
   "toggleSideNavigation": {
     "message": "Ẩn/hiện thanh điều hướng bên"
@@ -4188,9 +4270,6 @@
   },
   "passkeyNotCopiedAlert": {
     "message": "Bản sao sẽ không bao gồm mã khoá. Bạn có muốn tiếp tục tạo bản sao cho mục này?"
-  },
-  "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
-    "message": "Trang web yêu cầu xác minh. Tính năng này hiện chưa được hỗ trợ cho tài khoản không có mật khẩu chính."
   },
   "logInWithPasskeyQuestion": {
     "message": "Đăng nhập bằng mã khóa?"
@@ -4877,9 +4956,6 @@
       }
     }
   },
-  "enableAnimations": {
-    "message": "Bật hiệu ứng động"
-  },
   "showAnimations": {
     "message": "Hiện hiệu ứng động"
   },
@@ -5092,14 +5168,8 @@
   "itemLocation": {
     "message": "Vị trí mục"
   },
-  "fileSend": {
-    "message": "Gửi tệp"
-  },
   "fileSends": {
     "message": "Gửi tệp"
-  },
-  "textSend": {
-    "message": "Gửi văn bản"
   },
   "textSends": {
     "message": "Gửi văn bản"
@@ -5160,9 +5230,6 @@
   },
   "vaultCustomTimeoutMinimum": {
     "message": "Thời gian đóng kho tùy chỉnh tối thiểu là 1 phút."
-  },
-  "additionalContentAvailable": {
-    "message": "Nội dung bổ sung có sẵn"
   },
   "fileSavedToDevice": {
     "message": "Tệp đã được lưu vào thiết bị. Quản lý từ phần Tải về trên thiết bị của bạn."
@@ -5503,6 +5570,18 @@
   "hasItemsVaultNudgeTitle": {
     "message": "Chào mừng đến với kho lưu trữ của bạn!"
   },
+  "phishingPageTitle": {
+    "message": "Trang web lừa đảo"
+  },
+  "phishingPageCloseTab": {
+    "message": "Đóng tab"
+  },
+  "phishingPageContinue": {
+    "message": "Tiếp tục"
+  },
+  "phishingPageLearnWhy": {
+    "message": "Tại sao bạn thấy điều này?"
+  },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Tự động điền các mục cho trang hiện tại"
   },
@@ -5579,10 +5658,10 @@
     "description": "Aria label for the body content of the generator nudge"
   },
   "aboutThisSetting": {
-    "message": "About this setting"
+    "message": "Về cài đặt này"
   },
   "permitCipherDetailsDescription": {
-    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+    "message": "Bitwarden sẽ sử dụng URI đăng nhập đã lưu để xác định biểu tượng hoặc URL đổi mật khẩu nào cần dùng nhằm cải thiện trải nghiệm của bạn. Không có thông tin nào được thu thập hay lưu lại khi bạn sử dụng dịch vụ này."
   },
   "noPermissionsViewPage": {
     "message": "Bạn không có quyền truy cập vào trang này. Hãy thử đăng nhập bằng tài khoản khác."
