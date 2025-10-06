@@ -453,7 +453,7 @@ export class Utils {
     };
   }
 
-  static isNullOrWhitespace(str: string | undefined | null): boolean {
+  static isNullOrWhitespace(str: string | null | undefined): boolean {
     return str == null || typeof str !== "string" || str.trim() === "";
   }
 

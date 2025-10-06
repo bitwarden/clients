@@ -83,11 +83,6 @@ export class CriticalAppsService {
       .pipe(map((apps) => apps.filter((app) => app.organizationId === orgId)));
   }
 
-  // Reset the critical apps list
-  setAppsInListForOrg(apps: PasswordHealthReportApplicationsResponse[]) {
-    this.criticalAppsListSubject$.next(apps);
-  }
-
   // Save the selected critical apps for a given organization
   async setCriticalApps(orgId: OrganizationId, selectedUrls: string[]) {
     if (orgId != this.organizationId.value) {

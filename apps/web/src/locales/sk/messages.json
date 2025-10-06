@@ -59,8 +59,61 @@
   "createNewLoginItem": {
     "message": "Pridať novu položku s prihlásením"
   },
-  "criticalApplicationsActivityDescription": {
-    "message": "Tu sa zobrazia aplikácie, ktoré označíte za kritické."
+  "percentageCompleted": {
+    "message": "$PERCENT$% complete",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
+  "securityTasksCompleted": {
+    "message": "$COUNT$ out of $TOTAL$ security tasks completed",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "total": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "passwordChangeProgress": {
+    "message": "Password change progress"
+  },
+  "assignMembersTasksToMonitorProgress": {
+    "message": "Assign members tasks to monitor progress"
+  },
+  "onceYouReviewApplications": {
+    "message": "Once you review applications and mark them as critical, they will display here."
+  },
+  "sendReminders": {
+    "message": "Send reminders"
+  },
+  "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
+    "message": "Once you mark applications critical, they will display here."
+  },
+  "viewAtRiskMembers": {
+    "message": "Zobraziť ohrozených členov"
+  },
+  "viewAtRiskApplications": {
+    "message": "Zobraziť ohrozené aplikácie"
+  },
+  "criticalApplicationsAreAtRisk": {
+    "message": "$COUNT$ z $TOTAL$ kritických aplikácii je ohrozených nebezpečnými heslami",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "total": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
   },
   "criticalApplicationsWithCount": {
     "message": "Kritické aplikácie ($COUNT$)",
@@ -73,6 +126,24 @@
   },
   "countOfCriticalApplications": {
     "message": "$COUNT$ kritických aplikácií",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfApplicationsAtRisk": {
+    "message": "$COUNT$ aplikácií ohrozených",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfAtRiskPasswords": {
+    "message": "$COUNT$ passwords at-risk",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -134,10 +205,10 @@
   "atRiskMembers": {
     "message": "Ohrozených členov"
   },
-  "membersAtRiskActivityDescription": {
-    "message": "Členovia s oprávnením upravovať ohrozené položky kritických aplikácii"
+  "membersWithAccessToAtRiskItemsForCriticalApps": {
+    "message": "Members with access to at-risk items for critical applications"
   },
-  "membersAtRisk": {
+  "membersAtRiskCount": {
     "message": "$COUNT$ ohrozených členov",
     "placeholders": {
       "count": {
@@ -1471,6 +1542,15 @@
   "invalidMasterPassword": {
     "message": "Neplatné hlavné heslo"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "invalidFilePassword": {
     "message": "Neplatné heslo súboru, použite heslo, ktoré ste zadali pri vytváraní exportného súboru."
   },
@@ -1479,6 +1559,30 @@
   },
   "noItemsInList": {
     "message": "Neexistujú žiadne položky na zobrazenie."
+  },
+  "noItemsInTrash": {
+    "message": "V koši nie sú žiadne položky"
+  },
+  "noItemsInTrashDesc": {
+    "message": "Položky, ktoré odstránite, sa zobrazia tu a po 30 dňoch sa odstránia natrvalo"
+  },
+  "noItemsInVault": {
+    "message": "V trezore nie sú žiadne položky"
+  },
+  "emptyVaultDescription": {
+    "message": "Trezor chráni viac ako len heslá. Môžete tu bezpečne ukladať prihlasovacie údaje, identifikačné údaje, karty a poznámky."
+  },
+  "emptyFavorites": {
+    "message": "Neoznačili ste žiadnu položku za obľúbenú"
+  },
+  "emptyFavoritesDesc": {
+    "message": "Pre rýchly prístup, pridajte položky medzi obľúbené."
+  },
+  "noSearchResults": {
+    "message": "Nenašli sa žiadne výsledky vyhľadávania"
+  },
+  "clearFiltersOrTryAnother": {
+    "message": "Vymažte filtre alebo zmeňte vyhľadávaný výraz"
   },
   "noPermissionToViewAllCollectionItems": {
     "message": "Nemáte povolenie pre zobrazenie všetkých položiek v tejto zbierke."
@@ -4772,6 +4876,12 @@
   "organizationIsDisabled": {
     "message": "Organizácia je vypnutá."
   },
+  "organizationIsSuspended": {
+    "message": "Organizácia je pozastavená"
+  },
+  "organizationIsSuspendedDesc": {
+    "message": "K položkám v pozastavenej organizácii nie je možné pristupovať. Požiadajte o pomoc vlastníka organizácie."
+  },
   "secretsAccessSuspended": {
     "message": "K pozastaveným organizáciám nie je možné pristupovať. Požiadajte o pomoc vlastníka organizácie."
   },
@@ -4783,9 +4893,6 @@
   },
   "serviceAccountsCannotCreate": {
     "message": "V pozastavených organizáciám nie je možné vytvárať služobné kontá. Požiadajte o pomoc vlastníka organizácie."
-  },
-  "disabledOrganizationFilterError": {
-    "message": "K položkám vo vypnutej organizácii nie je možné pristupovať. Požiadajte o pomoc vlastníka organizácie."
   },
   "licenseIsExpired": {
     "message": "Licencia vypršala."
@@ -5160,9 +5267,13 @@
   "ssoIdentifier": {
     "message": "SSO identifikátor"
   },
-  "ssoIdentifierHintPartOne": {
-    "message": "Provide this ID to your members to login with SSO. To bypass this step, set up ",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Provide this ID to your members to login with SSO. To bypass this step, set up Domain verification'"
+  "ssoIdentifierHint": {
+    "message": "Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. ",
+    "description": "This will be used as part of a larger sentence, broken up to include a link. The full sentence will read 'Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. Learn more'"
+  },
+  "claimedDomainsLearnMore": {
+    "message": "Zistiť viac",
+    "description": "This will be used as part of a larger sentence, broken up to include a link. The full sentence will read 'Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. Learn more'"
   },
   "unlinkSso": {
     "message": "Odpojiť SSO"
@@ -6975,6 +7086,24 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "accessDenied": {
     "message": "Prístup zamietnutý. Nemáte oprávnenie na zobrazenie tejto stránky."
   },
@@ -7128,6 +7257,9 @@
   },
   "unknownSecret": {
     "message": "Neznáma položka možno potrebujete požiadať o prístup k tejto položke."
+  },
+  "unknownServiceAccount": {
+    "message": "Unknown machine account, you may need to request permission to access this machine account."
   },
   "unknownProject": {
     "message": "Neznámy projekt, možno potrebujete požiadať o prístup k tomuto projektu."
@@ -8376,12 +8508,6 @@
   "groupSlashUser": {
     "message": "Skupina/Používateľ"
   },
-  "lowKdfIterations": {
-    "message": "Nízky počet iterácií KDF"
-  },
-  "updateLowKdfIterationsDesc": {
-    "message": "Aktualizujte vaše nastavenie šifrovania aby ste boli v súlade s bezpečnostnými odporúčaniami a vylepšili si tak ochranu vášho konta."
-  },
   "kdfSettingsChangeLogoutWarning": {
     "message": "Proceeding will log you out of all active sessions. You will need to log back in and complete two-step login, if any. We recommend exporting your vault before changing your encryption settings to prevent data loss."
   },
@@ -8485,8 +8611,8 @@
       }
     }
   },
-  "accessedProjectWithId": {
-    "message": "Pristúp k projektu s identifikátorom: $PROJECT_ID$.",
+  "accessedProjectWithIdentifier": {
+    "message": "Accessed a project with identifier: $PROJECT_ID$.",
     "placeholders": {
       "project_id": {
         "content": "$1",
@@ -8512,10 +8638,89 @@
       }
     }
   },
+  "nameUnavailableServiceAccountDeleted": {
+    "message": "Deleted machine account Id: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "service_account_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
   "editedProjectWithId": {
     "message": "Upravený projekt s identifikátorom: $PROJECT_ID$",
     "placeholders": {
       "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "addedUserToServiceAccountWithId": {
+    "message": "Added user: $USER_ID$ to machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "user_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "removedUserToServiceAccountWithId": {
+    "message": "Removed user: $USER_ID$ from machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "user_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "removedGroupFromServiceAccountWithId": {
+    "message": "Removed group: $GROUP_ID$ from machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "group_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "serviceAccountCreatedWithId": {
+    "message": "Created machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "service_account_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "addedGroupToServiceAccountId": {
+    "message": "Added group: $GROUP_ID$ to machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "group_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "serviceAccountDeletedWithId": {
+    "message": "Deleted machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "service_account_id": {
         "content": "$1",
         "example": "4d34e8a8"
       }
@@ -9357,6 +9562,9 @@
   "assign": {
     "message": "Prideliť"
   },
+  "assignTasks": {
+    "message": "Assign tasks"
+  },
   "assignToCollections": {
     "message": "Prideliť k zbierkam"
   },
@@ -9755,6 +9963,9 @@
   "failedToSaveIntegration": {
     "message": "Nepodarilo sa uložiť integráciu. Prosím skúste to neskôr."
   },
+  "mustBeOrgOwnerToPerformAction": {
+    "message": "Pre vykonanie tejto akcie musíte by vlastník organizácie."
+  },
   "failedToDeleteIntegration": {
     "message": "Nepodarilo sa odstrániť integráciu. Prosím skúste to neskôr."
   },
@@ -9995,12 +10206,6 @@
         "example": "2"
       }
     }
-  },
-  "lowKDFIterationsBanner": {
-    "message": "Nízky počet iterácií KDF. Pre zlepšenie bezpečnosti vášho konta, zvýšte počet iterácií."
-  },
-  "changeKDFSettings": {
-    "message": "Zmeniť nastavenia KDF"
   },
   "secureYourInfrastructure": {
     "message": "Zabezpečte si infraštruktúru"
@@ -11024,8 +11229,13 @@
   "searchArchive": {
     "message": "Prehľadať archív"
   },
-  "archive": {
-    "message": "Archív"
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
   },
   "noItemsInArchive": {
     "message": "Žiadne položky v archíve"
@@ -11139,6 +11349,12 @@
   },
   "bitwardenExtensionInstalled": {
     "message": "Rozšírenie Bitwarden nainštalované!"
+  },
+  "openTheBitwardenExtension": {
+    "message": "Open the Bitwarden extension"
+  },
+  "bitwardenExtensionInstalledOpenExtension": {
+    "message": "The Bitwarden extension is installed! Open the extension to log in and start autofilling."
   },
   "openExtensionToAutofill": {
     "message": "Otvorte rozšírenie, prihláste sa a začnite automatické vypĺňanie."

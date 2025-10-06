@@ -1222,6 +1222,15 @@
   "invalidMasterPassword": {
     "message": "A mesterjelszó érvénytelen."
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "A mesterjelszó érvénytelen. Erősítsük meg, hogy email cím helyes és a fiók létrehozásának helye: $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "twoStepLoginConfirmation": {
     "message": "A kétlépcsős bejelentkezés biztonságosabbá teszi a fiókot azzal, hogy meg kell erősíteni a bejelentkezést egy másik olyan eszközzel mint például biztonsági kulcs, hitelesítő alkalmazás, SMS, telefonhívás vagy email. A kétlépcsős bejelentkezést a bitwarden.com webes széfben lehet megváltoztatni. Szeretnénk felkeresni most a webhelyet?"
   },
@@ -2654,6 +2663,24 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Csak a $ORGANIZATION$ szervezetehez kapcsolódó szervezeti széf kerül exportálásra.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Csak a $ORGANIZATION$ szervezethez kapcsolódó szervezeti széf kerül exportálásra. A saját elem gyűjtemények nem lesznek benne.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "locked": {
     "message": "Lezárva"
   },
@@ -4080,11 +4107,17 @@
   "showLess": {
     "message": "Kevesebb megjelenítése"
   },
-  "enableAutotype": {
-    "message": "Autotípus engedélyezése"
-  },
   "enableAutotypeDescription": {
     "message": "A Bitwarden nem érvényesíti a beviteli helyeket, győződjünk meg róla, hogy a megfelelő ablakban és mezőben vagyunk, mielőtt a parancsikont használnánk."
+  },
+  "typeShortcut": {
+    "message": "Type shortcut"
+  },
+  "editAutotypeShortcutDescription": {
+    "message": "Include one or two of the following modifiers: Ctrl, Alt, Win, or Shift, and a letter."
+  },
+  "invalidShortcut": {
+    "message": "Invalid shortcut"
   },
   "moreBreadcrumbs": {
     "message": "További morzsamenük",
@@ -4099,8 +4132,8 @@
   "confirm": {
     "message": "Megerősítés"
   },
-  "enableAutotypeTransitionKey": {
-    "message": "Automatikus típusú parancsikon engedélyezése"
+  "enableAutotypeShortcutPreview": {
+    "message": "Enable autotype shortcut (Feature Preview)"
   },
   "enableAutotypeDescriptionTransitionKey": {
     "message": "Győződjünk meg arról, hogy a megfelelő mezőben vagyunk, mielőtt a parancsikont használnánk, hogy elkerüljük az adatok rossz helyre történő kitöltését."
@@ -4108,8 +4141,13 @@
   "editShortcut": {
     "message": "Parancsikon szerkesztése"
   },
-  "archive": {
-    "message": "Archívum"
+  "archiveNoun": {
+    "message": "Archívum",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archívum",
+    "description": "Verb"
   },
   "unarchive": {
     "message": "Visszavétel archívumból"

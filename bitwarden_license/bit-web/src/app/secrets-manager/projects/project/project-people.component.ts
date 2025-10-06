@@ -41,7 +41,7 @@ export class ProjectPeopleComponent implements OnInit, OnDestroy {
         return convertToAccessPolicyItemViews(policies);
       }),
     ),
-    catchError(async () => {
+    catchError(async (): Promise<any> => {
       this.logService.info("Error fetching project people access policies.");
       await this.router.navigate(["/sm", this.organizationId, "projects"]);
       return undefined;

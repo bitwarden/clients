@@ -56,5 +56,12 @@ describe("Callout", () => {
       expect(component.titleComputed()).toBe("Error");
       expect(component.iconComputed()).toBe("bwi-error");
     });
+
+    it("default", () => {
+      fixture.componentRef.setInput("type", "default");
+      fixture.detectChanges();
+      expect(component.titleComputed()).toBeUndefined();
+      expect(component.iconComputed()).toBe("bwi-star");
+    });
   });
 });

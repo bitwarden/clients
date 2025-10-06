@@ -550,8 +550,13 @@
   "resetSearch": {
     "message": "Atiestatīt meklēšanu"
   },
-  "archive": {
-    "message": "Arhivēt"
+  "archiveNoun": {
+    "message": "Arhīvs",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Arhivēt",
+    "description": "Verb"
   },
   "unarchive": {
     "message": "Atcelt arhivēšanu"
@@ -727,6 +732,15 @@
   },
   "invalidMasterPassword": {
     "message": "Nederīga galvenā parole"
+  },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Nederīga galvenā parole. Jāpārliecinās, ka e-pasta adrese ir pareiza un konts tika izveidots $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
   },
   "vaultTimeout": {
     "message": "Glabātavas noildze"
@@ -3190,6 +3204,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },
