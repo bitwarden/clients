@@ -18,6 +18,7 @@ interface CollectAutofillContentService {
   autofillFormElements: AutofillFormElements;
   getPageDetails(): Promise<AutofillPageDetails>;
   getAutofillFieldElementByOpid(opid: string): HTMLElement | null;
+  getTargetedFields(): {[key: string]: Element} | null;
   destroy(): void;
 }
 
