@@ -59,8 +59,61 @@
   "createNewLoginItem": {
     "message": "Create new login item"
   },
-  "criticalApplicationsActivityDescription": {
+  "percentageCompleted": {
+    "message": "$PERCENT$% complete",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
+  "securityTasksCompleted": {
+    "message": "$COUNT$ out of $TOTAL$ security tasks completed",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "total": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "passwordChangeProgress": {
+    "message": "Password change progress"
+  },
+  "assignMembersTasksToMonitorProgress": {
+    "message": "Assign members tasks to monitor progress"
+  },
+  "onceYouReviewApplications": {
+    "message": "Once you review applications and mark them as critical, they will display here."
+  },
+  "sendReminders": {
+    "message": "Send reminders"
+  },
+  "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
     "message": "Once you mark applications critical, they will display here."
+  },
+  "viewAtRiskMembers": {
+    "message": "View at-risk members"
+  },
+  "viewAtRiskApplications": {
+    "message": "View at-risk applications"
+  },
+  "criticalApplicationsAreAtRisk": {
+    "message": "$COUNT$ out of $TOTAL$ critical applications are at-risk due to at-risk passwords",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "total": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
   },
   "criticalApplicationsWithCount": {
     "message": "Critical applications ($COUNT$)",
@@ -73,6 +126,24 @@
   },
   "countOfCriticalApplications": {
     "message": "$COUNT$ critical applications",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfApplicationsAtRisk": {
+    "message": "$COUNT$ applications at-risk",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfAtRiskPasswords": {
+    "message": "$COUNT$ passwords at-risk",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -134,11 +205,11 @@
   "atRiskMembers": {
     "message": "At-risk members"
   },
-  "membersAtRiskActivityDescription": {
-    "message": "Members with edit access to at-risk items for critical applications"
+  "membersWithAccessToAtRiskItemsForCriticalApps": {
+    "message": "Members with access to at-risk items for critical applications"
   },
-  "membersAtRisk": {
-    "message": "$COUNT$ members at risk",
+  "membersAtRiskCount": {
+    "message": "$COUNT$ members at-risk",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1471,6 +1542,15 @@
   "invalidMasterPassword": {
     "message": "არასწორი მთავარი პაროლი"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "invalidFilePassword": {
     "message": "არასწორი ფაილის პაროლი, გთხოვთ გამოიყენოთ პაროლი რომელიც თქვენ შეიყვანეთ როცა შექმენით ექსპორტ ფაილი."
   },
@@ -1479,6 +1559,30 @@
   },
   "noItemsInList": {
     "message": "არაა საგნები სიაში ჩამოსათველალდ."
+  },
+  "noItemsInTrash": {
+    "message": "No items in trash"
+  },
+  "noItemsInTrashDesc": {
+    "message": "Items you delete will appear here and be permanently deleted after 30 days"
+  },
+  "noItemsInVault": {
+    "message": "No items in the vault"
+  },
+  "emptyVaultDescription": {
+    "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
+  },
+  "emptyFavorites": {
+    "message": "You haven't favorited any items"
+  },
+  "emptyFavoritesDesc": {
+    "message": "Add frequently used items to favorites for quick access."
+  },
+  "noSearchResults": {
+    "message": "No search results returned"
+  },
+  "clearFiltersOrTryAnother": {
+    "message": "Clear filters or try another search term"
   },
   "noPermissionToViewAllCollectionItems": {
     "message": "თქვენ არ გაქვთ უფლება ნახოთ ყველა საგანი ამ კოლექციაში."
@@ -4772,6 +4876,12 @@
   "organizationIsDisabled": {
     "message": "Organization suspended"
   },
+  "organizationIsSuspended": {
+    "message": "Organization is suspended"
+  },
+  "organizationIsSuspendedDesc": {
+    "message": "Items in suspended organizations cannot be accessed. Contact your organization owner for assistance."
+  },
   "secretsAccessSuspended": {
     "message": "Suspended organizations cannot be accessed. Please contact your organization owner for assistance."
   },
@@ -4783,9 +4893,6 @@
   },
   "serviceAccountsCannotCreate": {
     "message": "Service accounts cannot be created in suspended organizations. Please contact your organization owner for assistance."
-  },
-  "disabledOrganizationFilterError": {
-    "message": "Items in suspended organizations cannot be accessed. Contact your organization owner for assistance."
   },
   "licenseIsExpired": {
     "message": "License is expired."
@@ -5160,9 +5267,13 @@
   "ssoIdentifier": {
     "message": "SSO identifier"
   },
-  "ssoIdentifierHintPartOne": {
-    "message": "Provide this ID to your members to login with SSO. To bypass this step, set up ",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Provide this ID to your members to login with SSO. To bypass this step, set up Domain verification'"
+  "ssoIdentifierHint": {
+    "message": "Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. ",
+    "description": "This will be used as part of a larger sentence, broken up to include a link. The full sentence will read 'Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. Learn more'"
+  },
+  "claimedDomainsLearnMore": {
+    "message": "Learn more",
+    "description": "This will be used as part of a larger sentence, broken up to include a link. The full sentence will read 'Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. Learn more'"
   },
   "unlinkSso": {
     "message": "Unlink SSO"
@@ -6975,6 +7086,24 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "accessDenied": {
     "message": "Access denied. You do not have permission to view this page."
   },
@@ -7128,6 +7257,9 @@
   },
   "unknownSecret": {
     "message": "Unknown secret, you may need to request permission to access this secret."
+  },
+  "unknownServiceAccount": {
+    "message": "Unknown machine account, you may need to request permission to access this machine account."
   },
   "unknownProject": {
     "message": "Unknown project, you may need to request permission to access this project."
@@ -8376,12 +8508,6 @@
   "groupSlashUser": {
     "message": "Group/User"
   },
-  "lowKdfIterations": {
-    "message": "Low KDF Iterations"
-  },
-  "updateLowKdfIterationsDesc": {
-    "message": "Update your encryption settings to meet new security recommendations and improve account protection."
-  },
   "kdfSettingsChangeLogoutWarning": {
     "message": "Proceeding will log you out of all active sessions. You will need to log back in and complete two-step login, if any. We recommend exporting your vault before changing your encryption settings to prevent data loss."
   },
@@ -8485,8 +8611,8 @@
       }
     }
   },
-  "accessedProjectWithId": {
-    "message": "Accessed a project with Id: $PROJECT_ID$.",
+  "accessedProjectWithIdentifier": {
+    "message": "Accessed a project with identifier: $PROJECT_ID$.",
     "placeholders": {
       "project_id": {
         "content": "$1",
@@ -8512,10 +8638,89 @@
       }
     }
   },
+  "nameUnavailableServiceAccountDeleted": {
+    "message": "Deleted machine account Id: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "service_account_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
   "editedProjectWithId": {
     "message": "Edited a project with identifier: $PROJECT_ID$",
     "placeholders": {
       "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "addedUserToServiceAccountWithId": {
+    "message": "Added user: $USER_ID$ to machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "user_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "removedUserToServiceAccountWithId": {
+    "message": "Removed user: $USER_ID$ from machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "user_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "removedGroupFromServiceAccountWithId": {
+    "message": "Removed group: $GROUP_ID$ from machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "group_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "serviceAccountCreatedWithId": {
+    "message": "Created machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "service_account_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "addedGroupToServiceAccountId": {
+    "message": "Added group: $GROUP_ID$ to machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "group_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "serviceAccountDeletedWithId": {
+    "message": "Deleted machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "service_account_id": {
         "content": "$1",
         "example": "4d34e8a8"
       }
@@ -9357,6 +9562,9 @@
   "assign": {
     "message": "Assign"
   },
+  "assignTasks": {
+    "message": "Assign tasks"
+  },
   "assignToCollections": {
     "message": "Assign to collections"
   },
@@ -9755,6 +9963,9 @@
   "failedToSaveIntegration": {
     "message": "Failed to save integration. Please try again later."
   },
+  "mustBeOrgOwnerToPerformAction": {
+    "message": "You must be the organization owner to perform this action."
+  },
   "failedToDeleteIntegration": {
     "message": "Failed to delete integration. Please try again later."
   },
@@ -9995,12 +10206,6 @@
         "example": "2"
       }
     }
-  },
-  "lowKDFIterationsBanner": {
-    "message": "Low KDF iterations. Increase your iterations to improve the security of your account."
-  },
-  "changeKDFSettings": {
-    "message": "Change KDF settings"
   },
   "secureYourInfrastructure": {
     "message": "Secure your infrastructure"
@@ -11024,8 +11229,13 @@
   "searchArchive": {
     "message": "Search archive"
   },
-  "archive": {
-    "message": "Archive"
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
   },
   "noItemsInArchive": {
     "message": "No items in archive"
@@ -11139,6 +11349,12 @@
   },
   "bitwardenExtensionInstalled": {
     "message": "Bitwarden extension installed!"
+  },
+  "openTheBitwardenExtension": {
+    "message": "Open the Bitwarden extension"
+  },
+  "bitwardenExtensionInstalledOpenExtension": {
+    "message": "The Bitwarden extension is installed! Open the extension to log in and start autofilling."
   },
   "openExtensionToAutofill": {
     "message": "Open the extension to log in and start autofilling."

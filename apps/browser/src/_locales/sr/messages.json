@@ -550,8 +550,13 @@
   "resetSearch": {
     "message": "Ресетовати претрагу"
   },
-  "archive": {
-    "message": "Архива"
+  "archiveNoun": {
+    "message": "Архива",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Архива",
+    "description": "Verb"
   },
   "unarchive": {
     "message": "Врати из архиве"
@@ -727,6 +732,15 @@
   },
   "invalidMasterPassword": {
     "message": "Погрешна главна лозинка"
+  },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Неважећа главна лозинка. Потврдите да је ваш имејл тачан и ваш рачун је креиран на $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
   },
   "vaultTimeout": {
     "message": "Тајмаут сефа"
@@ -3190,6 +3204,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Извешће се само сеф организације повезана са $ORGANIZATION$.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Извешће се само сеф организације повезан са $ORGANIZATION$. Колекције мојих предмета неће бити укључене.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },
