@@ -34,28 +34,32 @@ import { AccessIntelligenceSecurityTasksService } from "./shared/security-tasks.
 @NgModule({
   imports: [RiskInsightsComponent, AccessIntelligenceRoutingModule],
   providers: [
-    {
+    safeProvider({
       provide: MemberCipherDetailsApiService,
+      useClass: MemberCipherDetailsApiService,
       deps: [ApiService],
-    },
-    {
+    }),
+    safeProvider({
       provide: PasswordHealthService,
+      useClass: PasswordHealthService,
       deps: [PasswordStrengthServiceAbstraction, AuditService],
-    },
-    {
+    }),
+    safeProvider({
       provide: RiskInsightsApiService,
+      useClass: RiskInsightsApiService,
       deps: [ApiService],
-    },
-    {
+    }),
+    safeProvider({
       provide: RiskInsightsReportService,
+      useClass: RiskInsightsReportService,
       deps: [
         CipherService,
         MemberCipherDetailsApiService,
+        PasswordHealthService,
         RiskInsightsApiService,
         RiskInsightsEncryptionService,
-        PasswordHealthService,
       ],
-    },
+    }),
     safeProvider({
       provide: RiskInsightsDataService,
       deps: [
@@ -83,7 +87,7 @@ import { AccessIntelligenceSecurityTasksService } from "./shared/security-tasks.
     safeProvider({
       provide: AllActivitiesService,
       useClass: AllActivitiesService,
-      deps: [],
+      deps: [RiskInsightsDataService],
     }),
     safeProvider({
       provide: SecurityTasksApiService,

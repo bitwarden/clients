@@ -1,7 +1,9 @@
 import { BehaviorSubject } from "rxjs";
 
-import { LEGACY_ApplicationHealthReportDetailWithCriticalFlagAndCipher } from "../models";
+import { ApplicationHealthReportDetailEnriched } from "../models";
 import { OrganizationReportSummary } from "../models/report-models";
+
+import { RiskInsightsDataService } from "./risk-insights-data.service";
 
 export class AllActivitiesService {
   /// This class is used to manage the summary of all applications
@@ -20,12 +22,10 @@ export class AllActivitiesService {
     totalCriticalAtRiskApplicationCount: 0,
     newApplications: [],
   });
-
   reportSummary$ = this.reportSummarySubject$.asObservable();
 
-  private allApplicationsDetailsSubject$: BehaviorSubject<
-    LEGACY_ApplicationHealthReportDetailWithCriticalFlagAndCipher[]
-  > = new BehaviorSubject<LEGACY_ApplicationHealthReportDetailWithCriticalFlagAndCipher[]>([]);
+  private allApplicationsDetailsSubject$: BehaviorSubject<ApplicationHealthReportDetailEnriched[]> =
+    new BehaviorSubject<ApplicationHealthReportDetailEnriched[]>([]);
   allApplicationsDetails$ = this.allApplicationsDetailsSubject$.asObservable();
 
   private atRiskPasswordsCountSubject$ = new BehaviorSubject<number>(0);
@@ -37,6 +37,22 @@ export class AllActivitiesService {
 
   private taskCreatedCountSubject$ = new BehaviorSubject<number>(0);
   taskCreatedCount$ = this.taskCreatedCountSubject$.asObservable();
+
+  constructor(private dataService: RiskInsightsDataService) {
+    // All application summary changes
+    this.dataService.reportResults$.subscribe((report) => {
+      if (report) {
+        this.setAllAppsReportSummary(report.summaryData);
+        this.setAllAppsReportDetails(report.reportData);
+      }
+    });
+    // Critical application summary changes
+    this.dataService.criticalReportResults$.subscribe((report) => {
+      if (report) {
+        this.setCriticalAppsReportSummary(report.summaryData);
+      }
+    });
+  }
 
   setCriticalAppsReportSummary(summary: OrganizationReportSummary) {
     this.reportSummarySubject$.next({
@@ -58,9 +74,7 @@ export class AllActivitiesService {
     });
   }
 
-  setAllAppsReportDetails(
-    applications: LEGACY_ApplicationHealthReportDetailWithCriticalFlagAndCipher[],
-  ) {
+  setAllAppsReportDetails(applications: ApplicationHealthReportDetailEnriched[]) {
     const totalAtRiskPasswords = applications.reduce(
       (sum, app) => sum + app.atRiskPasswordCount,
       0,

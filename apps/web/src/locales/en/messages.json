@@ -35,6 +35,9 @@
       }
     }
   },
+  "noReportRan": {
+    "message": "You have not created a report yet"
+  },
   "notifiedMembers": {
     "message": "Notified members"
   },
@@ -186,6 +189,9 @@
   },
   "applicationsMarkedAsCriticalSuccess": {
     "message": "Applications marked as critical"
+  },
+  "applicationsMarkedAsCriticalFail": {
+    "message": "Failed to mark applications as critical"
   },
   "application": {
     "message": "Application"
@@ -4316,6 +4322,9 @@
   },
   "generatingYourRiskInsights": {
     "message": "Generating your Risk Insights..."
+  },
+  "riskInsightsRunReport": {
+    "message": "Run report"
   },
   "updateBrowserDesc": {
     "message": "You are using an unsupported web browser. The web vault may not function properly."

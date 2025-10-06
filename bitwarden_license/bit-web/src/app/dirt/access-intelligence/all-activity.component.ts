@@ -20,7 +20,7 @@ import { ApplicationsLoadingComponent } from "./risk-insights-loading.component"
 import { RiskInsightsTabType } from "./risk-insights.component";
 
 @Component({
-  selector: "tools-all-activity",
+  selector: "dirt-all-activity",
   imports: [
     ApplicationsLoadingComponent,
     SharedModule,
@@ -30,7 +30,6 @@ import { RiskInsightsTabType } from "./risk-insights.component";
   templateUrl: "./all-activity.component.html",
 })
 export class AllActivityComponent implements OnInit {
-  protected isLoading$ = this.dataService.isLoading$;
   organization: Organization | null = null;
   totalCriticalAppsAtRiskMemberCount = 0;
   totalCriticalAppsCount = 0;

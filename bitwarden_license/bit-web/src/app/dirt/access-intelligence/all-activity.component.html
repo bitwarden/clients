@@ -1,10 +1,6 @@
-@if (isLoading$ | async) {
-  <div *ngIf="isLoading$ | async">
-    <tools-risk-insights-loading></tools-risk-insights-loading>
-  </div>
-}
-
-@if (!(isLoading$ | async)) {
+@if (dataService.isLoading$ | async) {
+  <dirt-risk-insights-loading></dirt-risk-insights-loading>
+} @else {
   <ul
     class="tw-inline-grid tw-grid-cols-3 tw-gap-6 tw-m-0 tw-p-0 tw-w-full tw-auto-cols-auto tw-list-none"
   >
