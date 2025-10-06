@@ -4,7 +4,7 @@ import { Component, DestroyRef, inject, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { debounceTime } from "rxjs";
+import { debounceTime, EMPTY, map, switchMap } from "rxjs";
 
 import { Security } from "@bitwarden/assets/svg";
 import {
@@ -62,7 +62,6 @@ export class CriticalApplicationsComponent implements OnInit {
     protected dataService: RiskInsightsDataService,
     protected i18nService: I18nService,
     private adminTaskService: DefaultAdminTaskService,
-    // private allActivitiesService: AllActivitiesService,
   ) {
     this.searchControl.valueChanges
       .pipe(debounceTime(200), takeUntilDestroyed())
@@ -82,6 +81,19 @@ export class CriticalApplicationsComponent implements OnInit {
         this.enableRequestPasswordChange = false;
       },
     });
+    this.activatedRoute.paramMap
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        map((params) => params.get("organizationId")),
+        switchMap(async (orgId) => {
+          if (orgId) {
+            this.organizationId = orgId as OrganizationId;
+          } else {
+            return EMPTY;
+          }
+        }),
+      )
+      .subscribe();
   }
 
   goToAllAppsTab = async () => {
