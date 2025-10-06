@@ -59,8 +59,42 @@
   "createNewLoginItem": {
     "message": "Izveidot jaunu pieteikšanās vienumu"
   },
+  "percentageCompleted": {
+    "message": "$PERCENT$% complete",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
+  "securityTasksCompleted": {
+    "message": "$COUNT$ out of $TOTAL$ security tasks completed",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "total": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "passwordChangeProgress": {
+    "message": "Password change progress"
+  },
+  "assignMembersTasksToMonitorProgress": {
+    "message": "Assign members tasks to monitor progress"
+  },
+  "onceYouReviewApplications": {
+    "message": "Once you review applications and mark them as critical, they will display here."
+  },
+  "sendReminders": {
+    "message": "Send reminders"
+  },
   "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
-    "message": "Tikldīz lietotnes tiks atzīmētas kā būtiskas, tās tiks parādītas šeit"
+    "message": "Tiklīz lietotnes tiks atzīmētas kā būtiskas, tās tiks parādītas šeit."
   },
   "viewAtRiskMembers": {
     "message": "Apskatīt riskam pakļautos dalībniekus"
@@ -101,6 +135,15 @@
   },
   "countOfApplicationsAtRisk": {
     "message": "$COUNT$ lietotnes ir pakļautas riskam",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfAtRiskPasswords": {
+    "message": "$COUNT$ passwords at-risk",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -162,8 +205,8 @@
   "atRiskMembers": {
     "message": "Riskam pakļautie dalībnieki"
   },
-  "membersAtRiskActivityDescription": {
-    "message": "Dalībnieki ar labošanas piekluvi riskam pakļautajiem vienumiem būtiskajām lietotnēm"
+  "membersWithAccessToAtRiskItemsForCriticalApps": {
+    "message": "Dalībnieki ar piekluvi riskam pakļautajiem vienumiem būtiskajām lietotnēm"
   },
   "membersAtRiskCount": {
     "message": "$COUNT$ dalībnieki ir pakļauti riskam",
@@ -1500,7 +1543,7 @@
     "message": "Nederīga galvenā parole"
   },
   "invalidMasterPasswordConfirmEmailAndHost": {
-    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "message": "Nederīga galvenā parole. Jāpārliecinās, ka e-pasta adrese ir pareiza un konts tika izveidots $HOST$.",
     "placeholders": {
       "host": {
         "content": "$1",
@@ -7215,6 +7258,9 @@
   "unknownSecret": {
     "message": "Nezināms noslēpums, var būt nepieciešams pieprasīt atļauju piekļūt tam."
   },
+  "unknownServiceAccount": {
+    "message": "Unknown machine account, you may need to request permission to access this machine account."
+  },
   "unknownProject": {
     "message": "Nezināms projekts, var būt nepieciešams pieprasīt atļauju piekļūt tam."
   },
@@ -8565,8 +8611,8 @@
       }
     }
   },
-  "accessedProjectWithId": {
-    "message": "Piekļuva projektam ar Id: $PROJECT_ID$.",
+  "accessedProjectWithIdentifier": {
+    "message": "Accessed a project with identifier: $PROJECT_ID$.",
     "placeholders": {
       "project_id": {
         "content": "$1",
@@ -8592,10 +8638,89 @@
       }
     }
   },
+  "nameUnavailableServiceAccountDeleted": {
+    "message": "Deleted machine account Id: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "service_account_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
   "editedProjectWithId": {
     "message": "Laboja projektu ar identifikatoru: $PROJECT_ID$",
     "placeholders": {
       "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "addedUserToServiceAccountWithId": {
+    "message": "Added user: $USER_ID$ to machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "user_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "removedUserToServiceAccountWithId": {
+    "message": "Removed user: $USER_ID$ from machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "user_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "removedGroupFromServiceAccountWithId": {
+    "message": "Removed group: $GROUP_ID$ from machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "group_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "serviceAccountCreatedWithId": {
+    "message": "Created machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "service_account_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "addedGroupToServiceAccountId": {
+    "message": "Added group: $GROUP_ID$ to machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "group_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "serviceAccountDeletedWithId": {
+    "message": "Deleted machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "service_account_id": {
         "content": "$1",
         "example": "4d34e8a8"
       }
@@ -9436,6 +9561,9 @@
   },
   "assign": {
     "message": "Piešķirt"
+  },
+  "assignTasks": {
+    "message": "Assign tasks"
   },
   "assignToCollections": {
     "message": "Piešķirt krājumiem"

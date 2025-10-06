@@ -59,8 +59,42 @@
   "createNewLoginItem": {
     "message": "Nieuw login item aanmaken"
   },
+  "percentageCompleted": {
+    "message": "$PERCENT$% compleet",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
+  "securityTasksCompleted": {
+    "message": "$COUNT$ van $TOTAL$ beveiligingstaken voltooid",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "total": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "passwordChangeProgress": {
+    "message": "Voortgang veranderen wachtwoord"
+  },
+  "assignMembersTasksToMonitorProgress": {
+    "message": "Leden taken toewijzen om de voortgang te controleren"
+  },
+  "onceYouReviewApplications": {
+    "message": "Als je toepassingen als belangrijk markeert, verschijnen ze hier."
+  },
+  "sendReminders": {
+    "message": "Herinneringen versturen"
+  },
   "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
-    "message": "Als je toepassingen als belangrijk markeert, verschijnen ze hier"
+    "message": "Als je toepassingen als belangrijk markeert, verschijnen ze hier."
   },
   "viewAtRiskMembers": {
     "message": "Leden met risico bekijken"
@@ -101,6 +135,15 @@
   },
   "countOfApplicationsAtRisk": {
     "message": "$COUNT$ applicaties in gevaar",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfAtRiskPasswords": {
+    "message": "$COUNT$ wachtwoorden lopen risico",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -162,8 +205,8 @@
   "atRiskMembers": {
     "message": "Leden in gevaar"
   },
-  "membersAtRiskActivityDescription": {
-    "message": "Leden met toegang voor bewerken van risico-items voor belangrijke applicaties"
+  "membersWithAccessToAtRiskItemsForCriticalApps": {
+    "message": "Leden met toegang tot risico-items voor belangrijke applicaties"
   },
   "membersAtRiskCount": {
     "message": "$COUNT$ leden lopen risico",
@@ -1500,7 +1543,7 @@
     "message": "Ongeldig hoofdwachtwoord"
   },
   "invalidMasterPasswordConfirmEmailAndHost": {
-    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "message": "Ongeldig hoofdwachtwoord. Check of je e-mailadres klopt en of je account is aangemaakt op $HOST$.",
     "placeholders": {
       "host": {
         "content": "$1",
@@ -7215,6 +7258,9 @@
   "unknownSecret": {
     "message": "Onbekend secret, je moet misschien toegang vragen om dit secret te benaderen."
   },
+  "unknownServiceAccount": {
+    "message": "Onbekend machine-account, je moet misschien toegang vragen om dit machine-acount te benaderen."
+  },
   "unknownProject": {
     "message": "Onbekend project, je moet misschien toegang vragen om dit project te benaderen."
   },
@@ -8565,8 +8611,8 @@
       }
     }
   },
-  "accessedProjectWithId": {
-    "message": "Project gekoppeld met Id: $PROJECT_ID$.",
+  "accessedProjectWithIdentifier": {
+    "message": "Project bekeken met identifier: $PROJECT_ID$.",
     "placeholders": {
       "project_id": {
         "content": "$1",
@@ -8592,10 +8638,89 @@
       }
     }
   },
+  "nameUnavailableServiceAccountDeleted": {
+    "message": "Machine-account ID verwijderd: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "service_account_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
   "editedProjectWithId": {
     "message": "Project bewerkt met identifier: $PROJECT_ID$",
     "placeholders": {
       "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "addedUserToServiceAccountWithId": {
+    "message": "Gebruiker toegevoegd: $USER_ID$ naar machine-account met identificatie: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "user_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "removedUserToServiceAccountWithId": {
+    "message": "Gebruiker verwijderd: $USER_ID$ van machine-account met identificatie: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "user_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "removedGroupFromServiceAccountWithId": {
+    "message": "Groep verwijderd: $USER_ID$ van machine-account met identificatie: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "group_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "serviceAccountCreatedWithId": {
+    "message": "Machine-account aangemaakt met identificatie: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "service_account_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "addedGroupToServiceAccountId": {
+    "message": "Groep toegevoegd: $GROUP_ID$ van machine-account met identificatie: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "group_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "serviceAccountDeletedWithId": {
+    "message": "Machine-account verwijderd met identificatie: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "service_account_id": {
         "content": "$1",
         "example": "4d34e8a8"
       }
@@ -9436,6 +9561,9 @@
   },
   "assign": {
     "message": "Toewijzen"
+  },
+  "assignTasks": {
+    "message": "Taken toewijzen"
   },
   "assignToCollections": {
     "message": "Toewijzen aan collecties"
