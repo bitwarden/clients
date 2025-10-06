@@ -1,8 +1,10 @@
 import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
+import { of } from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { I18nMockService } from "@bitwarden/components";
-import { UpgradeFlowService } from "@bitwarden/web-vault/app/billing/individual/upgrade/services";
+import { UserId } from "@bitwarden/common/types/guid";
+import { DialogService, I18nMockService } from "@bitwarden/components";
 import { UpgradeNavButtonComponent } from "@bitwarden/web-vault/app/billing/individual/upgrade/upgrade-nav-button/upgrade-nav-button/upgrade-nav-button.component";
 
 export default {
@@ -20,9 +22,22 @@ export default {
           },
         },
         {
-          provide: UpgradeFlowService,
+          provide: DialogService,
           useValue: {
-            startUpgradeFlow: async () => {},
+            open: () => ({
+              closed: of({}),
+            }),
+          },
+        },
+        {
+          provide: AccountService,
+          useValue: {
+            activeAccount$: of({
+              id: "user-id" as UserId,
+              email: "test@example.com",
+              name: "Test User",
+              emailVerified: true,
+            }),
           },
         },
       ],

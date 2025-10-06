@@ -1,7 +1,11 @@
 import { Component, inject } from "@angular/core";
+import { firstValueFrom, lastValueFrom } from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { DialogService } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
-import { UpgradeFlowService } from "@bitwarden/web-vault/app/billing/individual/upgrade/services";
+
+import { UnifiedUpgradeDialogComponent } from "../../unified-upgrade-dialog/unified-upgrade-dialog.component";
 
 @Component({
   selector: "app-upgrade-nav-button",
@@ -10,11 +14,22 @@ import { UpgradeFlowService } from "@bitwarden/web-vault/app/billing/individual/
   standalone: true,
 })
 export class UpgradeNavButtonComponent {
-  private upgradeFlowService: UpgradeFlowService;
-  constructor() {
-    this.upgradeFlowService = inject(UpgradeFlowService);
-  }
+  private dialogService = inject(DialogService);
+  private accountService = inject(AccountService);
+
   openUpgradeDialog = async () => {
-    await this.upgradeFlowService.startUpgradeFlow(true, "upgradeYourPlan");
+    const account = await firstValueFrom(this.accountService.activeAccount$);
+    if (!account) {
+      return;
+    }
+
+    const dialogRef = UnifiedUpgradeDialogComponent.open(this.dialogService, {
+      data: {
+        account,
+        planSelectionStepTitleOverride: "upgradeYourPlan",
+      },
+    });
+
+    await lastValueFrom(dialogRef.closed);
   };
 }

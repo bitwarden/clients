@@ -32,7 +32,15 @@ import {
   Unassigned,
 } from "@bitwarden/admin-console/common";
 import { SearchPipe } from "@bitwarden/angular/pipes/search.pipe";
-import { NoResults } from "@bitwarden/assets/svg";
+import { VaultProfileService } from "@bitwarden/angular/vault/services/vault-profile.service";
+import {
+  NoResults,
+  DeactivatedOrg,
+  EmptyTrash,
+  FavoritesIcon,
+  ItemTypes,
+  Icon,
+} from "@bitwarden/assets/svg";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import {
@@ -45,7 +53,9 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { EventType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -54,6 +64,7 @@ import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.se
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
@@ -77,7 +88,6 @@ import {
   AttachmentDialogCloseResult,
   AttachmentDialogResult,
   AttachmentsV2Component,
-  CipherArchiveService,
   CipherFormConfig,
   CollectionAssignmentResult,
   DecryptionFailureDialogComponent,
@@ -96,6 +106,10 @@ import {
   CollectionDialogTabType,
   openCollectionDialog,
 } from "../../admin-console/organizations/shared/components/collection-dialog";
+import {
+  UnifiedUpgradeDialogComponent,
+  UnifiedUpgradeDialogResult,
+} from "../../billing/individual/upgrade/unified-upgrade-dialog/unified-upgrade-dialog.component";
 import { SharedModule } from "../../shared/shared.module";
 import { AssignCollectionsWebComponent } from "../components/assign-collections";
 import {
@@ -134,6 +148,16 @@ import { VaultOnboardingComponent } from "./vault-onboarding/vault-onboarding.co
 
 const BroadcasterSubscriptionId = "VaultComponent";
 
+type EmptyStateType = "trash" | "favorites" | "archive";
+
+type EmptyStateItem = {
+  title: string;
+  description: string;
+  icon: Icon;
+};
+
+type EmptyStateMap = Record<EmptyStateType, EmptyStateItem>;
+
 @Component({
   selector: "app-vault",
   templateUrl: "vault.component.html",
@@ -160,7 +184,11 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   kdfIterations: number;
   activeFilter: VaultFilter = new VaultFilter();
 
-  protected noItemIcon = NoResults;
+  protected deactivatedOrgIcon = DeactivatedOrg;
+  protected emptyTrashIcon = EmptyTrash;
+  protected favoritesIcon = FavoritesIcon;
+  protected itemTypesIcon = ItemTypes;
+  protected noResultsIcon = NoResults;
   protected performingInitialLoad = true;
   protected refreshing = false;
   protected processingEvent = false;
@@ -174,12 +202,18 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   protected isEmpty: boolean;
   protected selectedCollection: TreeNode<CollectionView> | undefined;
   protected canCreateCollections = false;
-  protected currentSearchText$: Observable<string>;
+  protected currentSearchText$: Observable<string> = this.route.queryParams.pipe(
+    map((queryParams) => queryParams.search),
+  );
   private searchText$ = new Subject<string>();
   private refresh$ = new BehaviorSubject<void>(null);
   private destroy$ = new Subject<void>();
 
   private vaultItemDialogRef?: DialogRef<VaultItemDialogResult> | undefined;
+  protected showAddCipherBtn: boolean = false;
+
+  private unifiedDialogRef?: DialogRef<UnifiedUpgradeDialogResult>;
+
   organizations$ = this.accountService.activeAccount$
     .pipe(map((a) => a?.id))
     .pipe(switchMap((id) => this.organizationService.organizations$(id)));
@@ -188,6 +222,64 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     getUserId,
     switchMap((userId) => {
       return this.cipherArchiveService.userCanArchive$(userId);
+    }),
+  );
+
+  emptyState$ = combineLatest([
+    this.currentSearchText$,
+    this.routedVaultFilterService.filter$,
+    this.organizations$,
+  ]).pipe(
+    map(([searchText, filter, organizations]) => {
+      const selectedOrg = organizations?.find((org) => org.id === filter.organizationId);
+      const isOrgDisabled = selectedOrg && !selectedOrg.enabled;
+
+      if (isOrgDisabled) {
+        this.showAddCipherBtn = false;
+        return {
+          title: "organizationIsSuspended",
+          description: "organizationIsSuspendedDesc",
+          icon: this.deactivatedOrgIcon,
+        };
+      }
+
+      if (searchText) {
+        return {
+          title: "noSearchResults",
+          description: "clearFiltersOrTryAnother",
+          icon: this.noResultsIcon,
+        };
+      }
+
+      const emptyStateMap: EmptyStateMap = {
+        trash: {
+          title: "noItemsInTrash",
+          description: "noItemsInTrashDesc",
+          icon: this.emptyTrashIcon,
+        },
+        favorites: {
+          title: "emptyFavorites",
+          description: "emptyFavoritesDesc",
+          icon: this.favoritesIcon,
+        },
+        archive: {
+          title: "noItemsInArchive",
+          description: "archivedItemsDescription",
+          icon: this.itemTypesIcon,
+        },
+      };
+
+      if (filter?.type && filter.type in emptyStateMap) {
+        this.showAddCipherBtn = false;
+        return emptyStateMap[filter.type as EmptyStateType];
+      }
+
+      this.showAddCipherBtn = true;
+      return {
+        title: "noItemsInVault",
+        description: "emptyVaultDescription",
+        icon: this.itemTypesIcon,
+      };
     }),
   );
 
@@ -223,6 +315,8 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     private restrictedItemTypesService: RestrictedItemTypesService,
     private cipherArchiveService: CipherArchiveService,
     private organizationWarningsService: OrganizationWarningsService,
+    private vaultProfileService: VaultProfileService,
+    private configService: ConfigService,
   ) {}
 
   async ngOnInit() {
@@ -297,8 +391,6 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
           replaceUrl: true,
         }),
       );
-
-    this.currentSearchText$ = this.route.queryParams.pipe(map((queryParams) => queryParams.search));
 
     const _ciphers = this.cipherService
       .cipherListViews$(activeUserId)
@@ -525,6 +617,58 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
           this.changeDetectorRef.markForCheck();
         },
       );
+
+    const showUpgradeDialog$: Observable<boolean> = combineLatest([
+      this.accountService.activeAccount$,
+      this.configService.getFeatureFlag$(FeatureFlag.PM24996_ImplementUpgradeFromFreeDialog),
+      this.billingAccountProfileStateService.hasPremiumFromAnySource$(activeUserId),
+    ]).pipe(
+      switchMap(async ([account, isFlagEnabled, hasPremium]) => {
+        // If user already has premium, no need to check profile age
+        if (hasPremium || !isFlagEnabled) {
+          return false;
+        }
+        const isProfileLessThanFiveMinutesOld = await this.isProfileLessThanFiveMinutesOld(
+          account?.id,
+        );
+
+        return isFlagEnabled && !hasPremium && isProfileLessThanFiveMinutesOld;
+      }),
+    );
+
+    showUpgradeDialog$.pipe(takeUntil(this.destroy$)).subscribe((show) => {
+      if (show && this.unifiedDialogRef == null) {
+        this.launchUpgradeDialogFlow().catch((err) => {
+          this.logService.error("Error in upgrade dialog flow", err);
+        });
+      }
+    });
+  }
+
+  private async isProfileLessThanFiveMinutesOld(userId: string): Promise<boolean> {
+    const createdAtDate = await this.vaultProfileService.getProfileCreationDate(userId);
+    if (!createdAtDate) {
+      return false;
+    }
+    const createdAtInMs = createdAtDate.getTime();
+    const nowInMs = new Date().getTime();
+
+    const differenceInMs = nowInMs - createdAtInMs;
+    const msInAMinute = 1000 * 60; // Milliseconds in a minute for conversion 1 minute = 60 seconds * 1000 ms
+    const differenceInMinutes = Math.round(differenceInMs / msInAMinute);
+
+    return differenceInMinutes <= 5;
+  }
+
+  private async launchUpgradeDialogFlow(): Promise<void> {
+    const account = await firstValueFrom(this.accountService.activeAccount$);
+
+    this.unifiedDialogRef = UnifiedUpgradeDialogComponent.open(this.dialogService, {
+      data: { account: account },
+    });
+
+    await lastValueFrom(this.unifiedDialogRef.closed);
+    this.unifiedDialogRef = undefined;
   }
 
   ngOnDestroy() {

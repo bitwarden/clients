@@ -975,12 +975,11 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
   }
 
   async navigateToPaymentMethod(organization: Organization) {
-    const managePaymentDetailsOutsideCheckout = await this.configService.getFeatureFlag(
-      FeatureFlag.PM21881_ManagePaymentDetailsOutsideCheckout,
+    await this.router.navigate(
+      ["organizations", `${organization.id}`, "billing", "payment-details"],
+      {
+        state: { launchPaymentModalAutomatically: true },
+      },
     );
-    const route = managePaymentDetailsOutsideCheckout ? "payment-details" : "payment-method";
-    await this.router.navigate(["organizations", `${organization.id}`, "billing", route], {
-      state: { launchPaymentModalAutomatically: true },
-    });
   }
 }
