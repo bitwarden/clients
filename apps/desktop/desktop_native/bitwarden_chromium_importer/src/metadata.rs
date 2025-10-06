@@ -1,7 +1,7 @@
 use serde::Serialize;
 use std::collections::{HashMap, HashSet};
 
-use crate::PLATFORM_SUPPORTED_BROWSERS;
+use crate::{chromium, PLATFORM_SUPPORTED_BROWSERS};
 
 #[derive(Serialize)]
 /// Mechanisms that load data into the importer
@@ -21,6 +21,9 @@ pub struct ImporterMetadata {
 pub fn get_supported_importers() -> HashMap<String, ImporterMetadata> {
     let mut map = HashMap::new();
 
+    // Check for installed browsers
+    let installed_browsers = chromium::get_installed_browsers().unwrap_or_default();
+
     const IMPORTERS: [(&str, &str); 6] = [
         ("chromecsv", "Chrome"),
         ("chromiumcsv", "Chromium"),
@@ -39,14 +42,16 @@ pub fn get_supported_importers() -> HashMap<String, ImporterMetadata> {
             loaders.push("chromium");
         }
 
-        map.insert(
-            id.to_string(),
-            ImporterMetadata {
-                id: id.to_string(),
-                loaders,
-                instructions: "chromium",
-            },
-        );
+        if installed_browsers.is_empty() || installed_browsers.contains(&browser_name.to_string()) {
+            map.insert(
+                id.to_string(),
+                ImporterMetadata {
+                    id: id.to_string(),
+                    loaders,
+                    instructions: "chromium",
+                },
+            );
+        }
     }
 
     map
