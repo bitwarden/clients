@@ -550,8 +550,13 @@
   "resetSearch": {
     "message": "Nollställ sökning"
   },
-  "archive": {
-    "message": "Arkivera"
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
   },
   "unarchive": {
     "message": "Packa upp"
@@ -566,10 +571,10 @@
     "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
   },
   "itemSentToArchive": {
-    "message": "Item sent to archive"
+    "message": "Objekt skickat till arkiv"
   },
   "itemRemovedFromArchive": {
-    "message": "Item removed from archive"
+    "message": "Objekt borttaget från arkiv"
   },
   "archiveItem": {
     "message": "Arkivera objekt"

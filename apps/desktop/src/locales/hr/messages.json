@@ -4080,11 +4080,17 @@
   "showLess": {
     "message": "Pokaži manje"
   },
-  "enableAutotype": {
-    "message": "Omogući automatski unos"
-  },
   "enableAutotypeDescription": {
     "message": "Bitwarden ne provjerava lokacije unosa, prije korištenja prečaca provjeri da si u pravom prozoru i polju."
+  },
+  "typeShortcut": {
+    "message": "Type shortcut"
+  },
+  "editAutotypeShortcutDescription": {
+    "message": "Include one or two of the following modifiers: Ctrl, Alt, Win, or Shift, and a letter."
+  },
+  "invalidShortcut": {
+    "message": "Invalid shortcut"
   },
   "moreBreadcrumbs": {
     "message": "Više mrvica",
@@ -4099,8 +4105,8 @@
   "confirm": {
     "message": "Potvrdi"
   },
-  "enableAutotypeTransitionKey": {
-    "message": "Omogući prečac za automatsko tipkanje"
+  "enableAutotypeShortcutPreview": {
+    "message": "Enable autotype shortcut (Feature Preview)"
   },
   "enableAutotypeDescriptionTransitionKey": {
     "message": "Prije korištenja prečaca provjeri nalaziš li se u ispravnom polju kako se podaci ne bi unijeli na pogrešno mjesto."
@@ -4108,8 +4114,13 @@
   "editShortcut": {
     "message": "Uredi prečac"
   },
-  "archive": {
-    "message": "Arhiviraj"
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
   },
   "unarchive": {
     "message": "Poništi arhiviranje"
