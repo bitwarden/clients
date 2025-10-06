@@ -734,7 +734,7 @@
     "message": "Ogiltigt huvudlösenord"
   },
   "invalidMasterPasswordConfirmEmailAndHost": {
-    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "message": "Ogiltigt huvudlösenord. Bekräfta att din e-postadress är korrekt och ditt konto skapades på $HOST$.",
     "placeholders": {
       "host": {
         "content": "$1",
