@@ -7,6 +7,7 @@ import {
   Unassigned,
   CollectionView,
   CollectionAdminService,
+  CollectionTypes,
 } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -152,9 +153,12 @@ export class VaultHeaderComponent {
   }
 
   protected get icon() {
-    return this.filter?.collectionId && this.filter.collectionId !== All
-      ? "bwi-collection-shared"
-      : "";
+    if (!this.filter?.collectionId || this.filter.collectionId === All) {
+      return "";
+    }
+    return this.collection?.node.type === CollectionTypes.DefaultUserCollection
+      ? "bwi-user"
+      : "bwi-collection-shared";
   }
 
   /**

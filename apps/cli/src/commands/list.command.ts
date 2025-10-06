@@ -304,14 +304,14 @@ export class ListCommand {
   }
 
   /**
-   * Checks if the cipher passes either the trash or the archive options.
-   * @returns true if the cipher passes *any* of the filters
+   * Checks if the cipher passes the state filter options.
+   * @returns true if the cipher matches the requested state
    */
   private matchesStateOptions(c: CipherView, options: Options): boolean {
-    const passesTrashFilter = options.trash && c.isDeleted;
-    const passesArchivedFilter = options.archived && c.isArchived;
+    const passesTrashFilter = options.trash === c.isDeleted;
+    const passesArchivedFilter = options.archived === c.isArchived;
 
-    return passesTrashFilter || passesArchivedFilter;
+    return passesTrashFilter && passesArchivedFilter;
   }
 }
 

@@ -104,6 +104,7 @@ import { UserVerificationService as UserVerificationServiceAbstraction } from "@
 import { WebAuthnLoginApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-api.service.abstraction";
 import { WebAuthnLoginPrfKeyServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-prf-key.service.abstraction";
 import { WebAuthnLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login.service.abstraction";
+import { SendTokenService, DefaultSendTokenService } from "@bitwarden/common/auth/send-access";
 import { AccountApiServiceImplementation } from "@bitwarden/common/auth/services/account-api.service";
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
 import { AnonymousHubService } from "@bitwarden/common/auth/services/anonymous-hub.service";
@@ -1587,6 +1588,11 @@ const safeProviders: SafeProvider[] = [
       ServerNotificationsService,
       MessageListener,
     ],
+  }),
+  safeProvider({
+    provide: SendTokenService,
+    useClass: DefaultSendTokenService,
+    deps: [GlobalStateProvider, SdkService, SendPasswordService],
   }),
   safeProvider({
     provide: EndUserNotificationService,

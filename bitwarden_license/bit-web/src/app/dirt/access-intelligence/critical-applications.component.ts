@@ -101,6 +101,7 @@ export class CriticalApplicationsComponent implements OnInit {
             this.applicationSummary = this.reportService.generateApplicationsSummary(applications);
             this.enableRequestPasswordChange = this.applicationSummary.totalAtRiskMemberCount > 0;
             this.allActivitiesService.setCriticalAppsReportSummary(this.applicationSummary);
+            this.allActivitiesService.setAllAppsReportDetails(applications);
           }
         });
     }

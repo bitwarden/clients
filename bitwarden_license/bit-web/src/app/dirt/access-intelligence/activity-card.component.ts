@@ -11,7 +11,7 @@ import { ButtonModule, LinkModule, TypographyModule } from "@bitwarden/component
   imports: [CommonModule, TypographyModule, JslibModule, LinkModule, ButtonModule],
   host: {
     class:
-      "tw-box-border tw-bg-background tw-block tw-text-main tw-border-solid tw-border tw-border-secondary-300 tw-border [&:not(bit-layout_*)]:tw-rounded-lg tw-rounded-lg tw-p-6",
+      "tw-box-border tw-bg-background tw-block tw-text-main tw-border-solid tw-border tw-border-secondary-300 tw-border [&:not(bit-layout_*)]:tw-rounded-lg tw-rounded-lg tw-p-6 tw-h-56 tw-max-h-56",
   },
 })
 export class ActivityCardComponent {
