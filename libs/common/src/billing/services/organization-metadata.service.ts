@@ -1,6 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-
 import { from, Observable, shareReplay } from "rxjs";
 
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions";
