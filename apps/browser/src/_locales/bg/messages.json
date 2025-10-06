@@ -734,7 +734,7 @@
     "message": "Грешна главна парола"
   },
   "invalidMasterPasswordConfirmEmailAndHost": {
-    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "message": "Грешна главна парола. Проверете дали е-пощата е правилна и дали акаунтът Ви е създаден в $HOST$.",
     "placeholders": {
       "host": {
         "content": "$1",

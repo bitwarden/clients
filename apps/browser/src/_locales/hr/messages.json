@@ -551,11 +551,11 @@
     "message": "Ponovno postavljanje pretraživanja"
   },
   "archiveNoun": {
-    "message": "Archive",
+    "message": "Arhiva",
     "description": "Noun"
   },
   "archiveVerb": {
-    "message": "Archive",
+    "message": "Arhiviraj",
     "description": "Verb"
   },
   "unarchive": {
@@ -734,7 +734,7 @@
     "message": "Neispravna glavna lozinka"
   },
   "invalidMasterPasswordConfirmEmailAndHost": {
-    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "message": "Nevažeća glavna lozinka. Provjeri je li tvoja adresa e-pošta ispravna i je li račun kreiran na $HOST$.",
     "placeholders": {
       "host": {
         "content": "$1",
@@ -3208,7 +3208,7 @@
     }
   },
   "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
-    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "message": "Izvezt će se samo trezor organizacije povezan s $ORGANIZATION$.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3217,7 +3217,7 @@
     }
   },
   "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
-    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "message": "Izvezt će se samo trezor organizacije povezan s $ORGANIZATION$. Zbirka mojih stavki neće biti uključena.",
     "placeholders": {
       "organization": {
         "content": "$1",

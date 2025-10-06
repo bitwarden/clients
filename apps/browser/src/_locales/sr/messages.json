@@ -551,11 +551,11 @@
     "message": "Ресетовати претрагу"
   },
   "archiveNoun": {
-    "message": "Archive",
+    "message": "Архива",
     "description": "Noun"
   },
   "archiveVerb": {
-    "message": "Archive",
+    "message": "Архива",
     "description": "Verb"
   },
   "unarchive": {
@@ -734,7 +734,7 @@
     "message": "Погрешна главна лозинка"
   },
   "invalidMasterPasswordConfirmEmailAndHost": {
-    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "message": "Неважећа главна лозинка. Потврдите да је ваш имејл тачан и ваш рачун је креиран на $HOST$.",
     "placeholders": {
       "host": {
         "content": "$1",
@@ -3208,7 +3208,7 @@
     }
   },
   "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
-    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "message": "Извешће се само сеф организације повезана са $ORGANIZATION$.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3217,7 +3217,7 @@
     }
   },
   "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
-    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "message": "Извешће се само сеф организације повезан са $ORGANIZATION$. Колекције мојих предмета неће бити укључене.",
     "placeholders": {
       "organization": {
         "content": "$1",
