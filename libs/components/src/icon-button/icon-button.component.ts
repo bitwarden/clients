@@ -16,7 +16,6 @@ import { AriaDisableDirective } from "../a11y";
 import { setA11yTitleAndAriaLabel } from "../a11y/set-a11y-title-and-aria-label";
 import { ButtonLikeAbstraction } from "../shared/button-like.abstraction";
 import { FocusableElement } from "../shared/focusable-element";
-import { BitwardenIcon } from "../shared/icon";
 import { SpinnerComponent } from "../spinner";
 import { ariaDisableElement } from "../utils";
 
@@ -102,7 +101,7 @@ const sizes: Record<IconButtonSize, string[]> = {
   hostDirectives: [AriaDisableDirective],
 })
 export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableElement {
-  readonly icon = model.required<BitwardenIcon>({ alias: "bitIconButton" });
+  readonly icon = model.required<string>({ alias: "bitIconButton" });
 
   readonly buttonType = input<IconButtonType>("main");
 
