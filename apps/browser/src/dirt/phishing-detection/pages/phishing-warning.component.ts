@@ -13,7 +13,10 @@ import {
   CheckboxModule,
   FormFieldModule,
   IconModule,
+  IconTileComponent,
   LinkModule,
+  CalloutComponent,
+  TypographyModule,
 } from "@bitwarden/components";
 
 import { PhishingDetectionService } from "../services/phishing-detection.service";
@@ -32,6 +35,9 @@ import { PhishingDetectionService } from "../services/phishing-detection.service
     CheckboxModule,
     ButtonModule,
     RouterModule,
+    IconTileComponent,
+    CalloutComponent,
+    TypographyModule,
   ],
 })
 export class PhishingWarning {

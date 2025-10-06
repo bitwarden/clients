@@ -10,8 +10,8 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { AnonLayoutComponent, I18nMockService } from "@bitwarden/components";
 
-import { LearnMoreComponent } from "./learn-more-component";
 import { PhishingWarning } from "./phishing-warning.component";
+import { ProtectedByComponent } from "./protected-by-component";
 
 class MockPlatformUtilsService implements Partial<PlatformUtilsService> {
   getApplicationVersion = () => Promise.resolve("Version 2024.1.1");
@@ -42,7 +42,7 @@ export default {
   component: PhishingWarning,
   decorators: [
     moduleMetadata({
-      imports: [AnonLayoutComponent, LearnMoreComponent, RouterModule],
+      imports: [AnonLayoutComponent, ProtectedByComponent, RouterModule],
       providers: [
         {
           provide: PlatformUtilsService,
@@ -54,11 +54,16 @@ export default {
             new I18nMockService({
               accessing: "Accessing",
               appLogoLabel: "Bitwarden logo",
-              phishingPageTitle: "Phishing website",
-              phishingPageCloseTab: "Close tab",
-              phishingPageContinue: "Continue",
-              phishingPageLearnWhy: "Why are you seeing this?",
+              phishingPageTitle: "Phishing Attempt Detected",
+              phishingPageCloseTab: "Close this tab",
+              phishingPageContinue: "Continue to this site (not recommended)",
+              phishingPageExplanation1: "This site was found in ",
+              phishingPageExplanation2:
+                ", an open-source list of known phishing sites used for stealing personal and sensitive information.",
+              phishingPageLearnMore: "Learn more about phishing detection",
+              protectedBy: (product) => `Protected by ${product}`,
               learnMore: "Learn more",
+              danger: "error",
             }),
         },
         {
@@ -79,14 +84,12 @@ export default {
     props: args,
     template: /*html*/ `
       <auth-anon-layout
-        title="Bitwarden blocked it!"
-        subtitle="Bitwarden blocked a known phishing site from loading."
-        [icon]="pageIcon"
+        [hideIcon]="true"
         [showReadonlyHostname]="true"
-        maxWidth="md"
+        [hideBackgroundIllustration]="true"
       >
         <dirt-phishing-warning></dirt-phishing-warning>
-        <dirt-phishing-learn-more slot="secondary"></dirt-phishing-learn-more>
+        <dirt-phishing-protected-by slot="secondary"></dirt-phishing-protected-by>
       </auth-anon-layout>
     `,
   }),

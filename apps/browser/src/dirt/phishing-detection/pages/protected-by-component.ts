@@ -7,11 +7,9 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ButtonModule, LinkModule } from "@bitwarden/components";
 
 @Component({
-  selector: "dirt-phishing-learn-more",
+  selector: "dirt-phishing-protected-by",
   standalone: true,
-  templateUrl: "learn-more-component.html",
+  templateUrl: "protected-by-component.html",
   imports: [CommonModule, CommonModule, JslibModule, ButtonModule, LinkModule],
 })
-export class LearnMoreComponent {
-  constructor() {}
-}
+export class ProtectedByComponent {}

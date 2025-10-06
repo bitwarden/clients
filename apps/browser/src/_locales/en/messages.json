@@ -5539,16 +5539,31 @@
     "message": "Welcome to your vault!"
   },
   "phishingPageTitle":{
-    "message": "Phishing website"
+    "message": "Phishing Attempt Detected"
   },
   "phishingPageCloseTab": {
-    "message": "Close tab"
+    "message": "Close this tab"
   },
   "phishingPageContinue": {
-    "message": "Continue"
+    "message": "Continue to this site (not recommended)"
   },
-  "phishingPageLearnWhy": {
-    "message": "Why are you seeing this?"
+  "phishingPageExplanation1": {
+    "message": "This site was found in "
+  },
+  "phishingPageExplanation2": {
+    "message": ", an open-source list of known phishing sites used for stealing personal and sensitive information."
+  },
+  "phishingPageLearnMore" : {
+    "message": "Learn more about phishing detection"
+  },
+  "protectedBy": {
+    "message": "Protected by $PRODUCT$",
+    "placeholders": {
+      "product": {
+        "content": "$1",
+        "example": "Bitwarden Phishing Blocker"
+      }
+    }
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Autofill items for the current page"

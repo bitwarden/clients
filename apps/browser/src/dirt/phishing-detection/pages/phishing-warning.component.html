@@ -1,13 +1,30 @@
 <div class="tw-flex tw-flex-col tw-gap-2">
-  <bit-form-field>
-    <bit-label>{{ "phishingPageTitle" | i18n }}</bit-label>
-    <input bitInput disabled type="text" [value]="phishingHost$ | async" />
-  </bit-form-field>
+  <div class="tw-flex tw-gap-2">
+    <bit-icon-tile icon="bwi-error" variant="danger"></bit-icon-tile>
+    <h1 bitTypography="h2">{{ "phishingPageTitle" | i18n }}</h1>
+  </div>
 
-  <button type="button" (click)="closeTab()" bitButton buttonType="primary">
-    {{ "phishingPageCloseTab" | i18n }}
-  </button>
-  <button type="button" (click)="continueAnyway()" bitButton buttonType="danger">
-    {{ "phishingPageContinue" | i18n }}
-  </button>
+  <hr class="h-px my-8 bg-gray-200 border-0 dark:bg-gray-700" />
+
+  <bit-callout type="danger" [title]="phishingHost$ | async" icon="bwi-globe"></bit-callout>
+
+  <bit-callout title="">
+    <div bitTypography="body1">
+      {{ "phishingPageExplanation1" | i18n }}<b>Phishing.Database</b
+      >{{ "phishingPageExplanation2" | i18n }}
+    </div>
+
+    <button type="button" (click)="continueAnyway()" bitLink linkType="primary">
+      {{ "phishingPageLearnMore" | i18n }}<i class="bwi bwi-angle-right" aria-hidden="true"></i>
+    </button>
+  </bit-callout>
+
+  <div class="tw-flex tw-flex-col tw-gap-4 tw-items-center">
+    <button type="button" (click)="closeTab()" bitButton buttonType="primary" [block]="true">
+      {{ "phishingPageCloseTab" | i18n }}
+    </button>
+    <button type="button" (click)="continueAnyway()" bitLink linkType="secondary">
+      {{ "phishingPageContinue" | i18n }}
+    </button>
+  </div>
 </div>
