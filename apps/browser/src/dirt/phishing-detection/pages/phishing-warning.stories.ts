@@ -55,11 +55,11 @@ export default {
             new I18nMockService({
               accessing: "Accessing",
               appLogoLabel: "Bitwarden logo",
-              phishingPageTitle: "Phishing attempt detected",
-              phishingPageCloseTab: "Close this tab",
+              phishingPageTitleV2: "Phishing attempt detected",
+              phishingPageCloseTabV2: "Close this tab",
               phishingPageSummary:
                 "The site you are attempting to visit is a known malicious site and a security risk.",
-              phishingPageContinue: "Continue to this site (not recommended)",
+              phishingPageContinueV2: "Continue to this site (not recommended)",
               phishingPageExplanation1: "This site was found in ",
               phishingPageExplanation2:
                 ", an open-source list of known phishing sites used for stealing personal and sensitive information.",
