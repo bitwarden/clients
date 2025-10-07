@@ -1,3 +1,4 @@
+/** @deprecated use `AutofillFieldQualifier` in `libs/common/src/autofill/constants` instead */
 export const AutofillFieldQualifier = {
   password: "password",
   newPassword: "newPassword",
@@ -26,5 +27,6 @@ export const AutofillFieldQualifier = {
   identityUsername: "identityUsername",
 } as const;
 
+/** @deprecated use `AutofillFieldQualifierType` in `libs/common/src/autofill/types` instead */
 export type AutofillFieldQualifierType =
   (typeof AutofillFieldQualifier)[keyof typeof AutofillFieldQualifier];
