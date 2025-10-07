@@ -68,7 +68,10 @@ export abstract class BaseProgram {
       }
     }
     if (exitImmediately) {
-      process.exit(0);
+      // Ensure stdout is flushed before exiting to prevent truncation of large outputs
+      process.stdout.write("", () => {
+        process.exit(0);
+      });
     } else {
       process.exitCode = 0;
     }

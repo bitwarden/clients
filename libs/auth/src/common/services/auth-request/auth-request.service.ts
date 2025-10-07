@@ -146,7 +146,7 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
 
   async setUserKeyAfterDecryptingSharedUserKey(
     authReqResponse: AuthRequestResponse,
-    authReqPrivateKey: Uint8Array,
+    authReqPrivateKey: ArrayBuffer,
     userId: UserId,
   ) {
     const userKey = await this.decryptPubKeyEncryptedUserKey(
@@ -158,7 +158,7 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
 
   async setKeysAfterDecryptingSharedMasterKeyAndHash(
     authReqResponse: AuthRequestResponse,
-    authReqPrivateKey: Uint8Array,
+    authReqPrivateKey: ArrayBuffer,
     userId: UserId,
   ) {
     const { masterKey, masterKeyHash } = await this.decryptPubKeyEncryptedMasterKeyAndHash(
@@ -180,11 +180,11 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
   // Decryption helpers
   async decryptPubKeyEncryptedUserKey(
     pubKeyEncryptedUserKey: string,
-    privateKey: Uint8Array,
+    privateKey: ArrayBuffer,
   ): Promise<UserKey> {
     const decryptedUserKey = await this.encryptService.decapsulateKeyUnsigned(
       new EncString(pubKeyEncryptedUserKey),
-      privateKey,
+      new Uint8Array(privateKey),
     );
 
     return decryptedUserKey as UserKey;
@@ -193,16 +193,18 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
   async decryptPubKeyEncryptedMasterKeyAndHash(
     pubKeyEncryptedMasterKey: string,
     pubKeyEncryptedMasterKeyHash: string,
-    privateKey: Uint8Array,
+    privateKey: ArrayBuffer,
   ): Promise<{ masterKey: MasterKey; masterKeyHash: string }> {
+    const privateKeyUint8Array = new Uint8Array(privateKey);
+
     const decryptedMasterKeyArrayBuffer = await this.encryptService.rsaDecrypt(
       new EncString(pubKeyEncryptedMasterKey),
-      privateKey,
+      privateKeyUint8Array,
     );
 
     const decryptedMasterKeyHashArrayBuffer = await this.encryptService.rsaDecrypt(
       new EncString(pubKeyEncryptedMasterKeyHash),
-      privateKey,
+      privateKeyUint8Array,
     );
 
     const masterKey = new SymmetricCryptoKey(decryptedMasterKeyArrayBuffer) as MasterKey;

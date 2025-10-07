@@ -9,7 +9,30 @@ import { ServiceContainer } from "./service-container/service-container";
 
 async function main() {
   const serviceContainer = new ServiceContainer();
-  await serviceContainer.init();
+
+  // Check command type for optimized initialization
+  const args = process.argv.slice(2);
+
+  const isSimpleCommand =
+    args.length === 0 ||
+    args.includes("--help") ||
+    args.includes("-h") ||
+    args.includes("--version") ||
+    args.includes("-v") ||
+    args[0] === "help";
+
+  const isVaultReadCommand =
+    args.length >= 2 &&
+    args[0] === "get" &&
+    ["item", "password", "username", "uri", "notes", "totp"].includes(args[1]);
+
+  if (isSimpleCommand) {
+    // No initialization needed
+  } else if (isVaultReadCommand) {
+    await serviceContainer.initForVaultRead();
+  } else {
+    await serviceContainer.init();
+  }
 
   await registerOssPrograms(serviceContainer);
 
