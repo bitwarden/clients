@@ -26,6 +26,15 @@ module.exports.getEnv = function getEnv() {
  * }} params
  */
 module.exports.buildConfig = function buildConfig(params) {
+  const DEFAULT_PARAMS = {
+    localesPath: "./src/locales",
+    modulesPath: [path.resolve("../../node_modules")],
+    externalsModulesDir: "../../node_modules",
+    outputPath: path.resolve(__dirname, "build"),
+    watch: false,
+  };
+
+  params = { ...DEFAULT_PARAMS, ...params };
   const ENV = params.env || module.exports.getEnv().ENV;
 
   const envConfig = config.load(ENV);
@@ -42,7 +51,7 @@ module.exports.buildConfig = function buildConfig(params) {
 
   const plugins = [
     new CopyWebpackPlugin({
-      patterns: [{ from: params.localesPath || "./src/locales", to: "locales" }],
+      patterns: [{ from: params.localesPath, to: "locales" }],
     }),
     new webpack.DefinePlugin({
       "process.env.BWCLI_ENV": JSON.stringify(ENV),
@@ -84,19 +93,19 @@ module.exports.buildConfig = function buildConfig(params) {
     resolve: {
       extensions: [".ts", ".js"],
       symlinks: false,
-      modules: params.modulesPath || [path.resolve("../../node_modules")],
+      modules: params.modulesPath,
       plugins: [new TsconfigPathsPlugin({ configFile: params.tsConfig })],
     },
     output: {
       filename: "[name].js",
-      path: params.outputPath ? path.resolve(params.outputPath) : path.resolve(__dirname, "build"),
+      path: path.resolve(params.outputPath),
       clean: true,
     },
     module: { rules: moduleRules },
     plugins: plugins,
     externals: [
       nodeExternals({
-        modulesDir: params.externalsModulesDir || "../../node_modules",
+        modulesDir: params.externalsModulesDir,
         allowlist: [/@bitwarden/],
       }),
     ],
