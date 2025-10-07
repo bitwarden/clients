@@ -56,6 +56,34 @@ describe("VaultFilter", () => {
       });
     });
 
+    describe("given a archived cipher", () => {
+      const cipher = createCipher({ archivedDate: new Date() });
+
+      it("should return true when filtering for archive", () => {
+        const filterFunction = createFilterFunction({ status: "archive" });
+
+        const result = filterFunction(cipher);
+
+        expect(result).toBe(true);
+      });
+
+      it("should return false when filtering for favorites", () => {
+        const filterFunction = createFilterFunction({ status: "favorites" });
+
+        const result = filterFunction(cipher);
+
+        expect(result).toBe(false);
+      });
+
+      it("should return false when filtering for trash", () => {
+        const filterFunction = createFilterFunction({ status: "trash" });
+
+        const result = filterFunction(cipher);
+
+        expect(result).toBe(false);
+      });
+    });
+
     describe("given a cipher with type", () => {
       it("should return true when filter matches cipher type", () => {
         const cipher = createCipher({ type: CipherType.Identity });
@@ -231,8 +259,9 @@ function createCipher(options: Partial<CipherView> = {}) {
 
   cipher.favorite = options.favorite ?? false;
   cipher.deletedDate = options.deletedDate ?? null;
+  cipher.archivedDate = options.archivedDate ?? null;
   cipher.type = options.type ?? CipherType.Login;
-  cipher.folderId = options.folderId ?? "";
+  cipher.folderId = options.folderId ?? undefined;
   cipher.collectionIds = options.collectionIds ?? [];
   cipher.organizationId = options.organizationId ?? undefined;
 
