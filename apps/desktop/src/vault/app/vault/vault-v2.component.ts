@@ -547,20 +547,7 @@ export class VaultV2Component<C extends CipherViewLike>
       menu.push({
         label: this.i18nService.t("archiveVerb"),
         click: async () => {
-          await this.cipherArchiveService
-            .archiveWithServer(cipher.id as CipherId, userId)
-            .then(() => {
-              this.toastService.showToast({
-                variant: "success",
-                message: this.i18nService.t("itemSentToArchive"),
-              });
-            })
-            .catch(() => {
-              this.toastService.showToast({
-                variant: "error",
-                message: this.i18nService.t("errorOccurred"),
-              });
-            });
+          await this.archiveCipher(cipher, userId);
         },
       });
     }
@@ -569,20 +556,7 @@ export class VaultV2Component<C extends CipherViewLike>
       menu.push({
         label: this.i18nService.t("unarchive"),
         click: async () => {
-          await this.cipherArchiveService
-            .unarchiveWithServer(cipher.id as CipherId, userId)
-            .then(() => {
-              this.toastService.showToast({
-                variant: "success",
-                message: this.i18nService.t("itemWasUnarchived"),
-              });
-            })
-            .catch(() => {
-              this.toastService.showToast({
-                variant: "error",
-                message: this.i18nService.t("errorOccurred"),
-              });
-            });
+          await this.unarchiveCipher(cipher, userId);
         },
       });
     }
@@ -1006,5 +980,49 @@ export class VaultV2Component<C extends CipherViewLike>
       this.cipherRepromptId = cipher.id;
     }
     return repromptResult;
+  }
+
+  private async archiveCipher(cipher: CipherView, userId: UserId) {
+    const repromptPassed = await this.passwordRepromptService.passwordRepromptCheck(cipher);
+    if (!repromptPassed) {
+      return;
+    }
+
+    await this.cipherArchiveService
+      .archiveWithServer(cipher.id as CipherId, userId)
+      .then(() => {
+        this.toastService.showToast({
+          variant: "success",
+          message: this.i18nService.t("itemSentToArchive"),
+        });
+      })
+      .catch(() => {
+        this.toastService.showToast({
+          variant: "error",
+          message: this.i18nService.t("errorOccurred"),
+        });
+      });
+  }
+
+  private async unarchiveCipher(cipher: CipherView, userId: UserId) {
+    const repromptPassed = await this.passwordRepromptService.passwordRepromptCheck(cipher);
+    if (!repromptPassed) {
+      return;
+    }
+
+    await this.cipherArchiveService
+      .unarchiveWithServer(cipher.id as CipherId, userId)
+      .then(() => {
+        this.toastService.showToast({
+          variant: "success",
+          message: this.i18nService.t("itemWasUnarchived"),
+        });
+      })
+      .catch(() => {
+        this.toastService.showToast({
+          variant: "error",
+          message: this.i18nService.t("errorOccurred"),
+        });
+      });
   }
 }
