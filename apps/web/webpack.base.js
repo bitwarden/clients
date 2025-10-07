@@ -9,15 +9,19 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
 const webpack = require("webpack");
 
-const config = require("./config.js");
-const pjson = require("./package.json");
+const config = require(path.resolve(__dirname, "config.js"));
+const pjson = require(path.resolve(__dirname, "package.json"));
 
-module.exports.getEnv = function getEnv() {
-  const ENV = process.env.ENV == null ? "development" : process.env.ENV;
+module.exports.getEnv = function getEnv(params) {
+  const ENV = params.env || (process.env.ENV == null ? "development" : process.env.ENV);
   const NODE_ENV = process.env.NODE_ENV == null ? "development" : process.env.NODE_ENV;
   const LOGGING = process.env.LOGGING != "false";
 
   return { ENV, NODE_ENV, LOGGING };
+};
+
+const DEFAULT_PARAMS = {
+  outputPath: path.resolve(__dirname, "build"),
 };
 
 /**
@@ -29,10 +33,14 @@ module.exports.getEnv = function getEnv() {
  *      entryModule: string;
  *  };
  *  tsConfig: string;
+ *  outputPath?: string;
+ *  mode?: string;
+ *  env?: string;
  * }} params
  */
 module.exports.buildConfig = function buildConfig(params) {
-  const { ENV, NODE_ENV, LOGGING } = module.exports.getEnv();
+  params = { ...DEFAULT_PARAMS, ...params };
+  const { ENV, NODE_ENV, LOGGING } = module.exports.getEnv(params);
 
   const envConfig = config.load(ENV);
   if (LOGGING) {
@@ -89,6 +97,9 @@ module.exports.buildConfig = function buildConfig(params) {
           loader: "postcss-loader",
           options: {
             sourceMap: true,
+            postcssOptions: {
+              config: path.resolve(__dirname, "postcss.config.js"),
+            },
           },
         },
       ],
@@ -99,7 +110,7 @@ module.exports.buildConfig = function buildConfig(params) {
         {
           loader: "babel-loader",
           options: {
-            configFile: "../../babel.config.json",
+            configFile: path.resolve(__dirname, "../../babel.config.json"),
             cacheDirectory: NODE_ENV !== "production",
           },
         },
@@ -113,43 +124,43 @@ module.exports.buildConfig = function buildConfig(params) {
 
   const plugins = [
     new HtmlWebpackPlugin({
-      template: "./src/index.html",
+      template: path.resolve(__dirname, "src/index.html"),
       filename: "index.html",
       chunks: ["theme_head", "app/polyfills", "app/vendor", "app/main", "styles"],
     }),
     new HtmlWebpackInjector(),
     new HtmlWebpackPlugin({
-      template: "./src/connectors/webauthn.html",
+      template: path.resolve(__dirname, "src/connectors/webauthn.html"),
       filename: "webauthn-connector.html",
       chunks: ["connectors/webauthn", "styles"],
     }),
     new HtmlWebpackPlugin({
-      template: "./src/connectors/webauthn-mobile.html",
+      template: path.resolve(__dirname, "src/connectors/webauthn-mobile.html"),
       filename: "webauthn-mobile-connector.html",
       chunks: ["connectors/webauthn", "styles"],
     }),
     new HtmlWebpackPlugin({
-      template: "./src/connectors/webauthn-fallback.html",
+      template: path.resolve(__dirname, "src/connectors/webauthn-fallback.html"),
       filename: "webauthn-fallback-connector.html",
       chunks: ["connectors/webauthn-fallback", "styles"],
     }),
     new HtmlWebpackPlugin({
-      template: "./src/connectors/sso.html",
+      template: path.resolve(__dirname, "src/connectors/sso.html"),
       filename: "sso-connector.html",
       chunks: ["connectors/sso", "styles"],
     }),
     new HtmlWebpackPlugin({
-      template: "./src/connectors/redirect.html",
+      template: path.resolve(__dirname, "src/connectors/redirect.html"),
       filename: "redirect-connector.html",
       chunks: ["connectors/redirect", "styles"],
     }),
     new HtmlWebpackPlugin({
-      template: "./src/connectors/duo-redirect.html",
+      template: path.resolve(__dirname, "src/connectors/duo-redirect.html"),
       filename: "duo-redirect-connector.html",
       chunks: ["connectors/duo-redirect", "styles"],
     }),
     new HtmlWebpackPlugin({
-      template: "./src/404.html",
+      template: path.resolve(__dirname, "src/404.html"),
       filename: "404.html",
       chunks: ["styles"],
       // 404 page is a wildcard, this ensures it uses absolute paths.
@@ -157,18 +168,28 @@ module.exports.buildConfig = function buildConfig(params) {
     }),
     new CopyWebpackPlugin({
       patterns: [
-        { from: "./src/.nojekyll" },
-        { from: "./src/manifest.json" },
-        { from: "./src/favicon.ico" },
-        { from: "./src/browserconfig.xml" },
-        { from: "./src/app-id.json" },
-        { from: "./src/images", to: "images" },
-        { from: "./src/videos", to: "videos" },
-        { from: "./src/locales", to: "locales" },
-        { from: "../../node_modules/qrious/dist/qrious.min.js", to: "scripts" },
-        { from: "../../node_modules/braintree-web-drop-in/dist/browser/dropin.js", to: "scripts" },
+        { from: path.resolve(__dirname, "src/.nojekyll") },
+        { from: path.resolve(__dirname, "src/manifest.json") },
+        { from: path.resolve(__dirname, "src/favicon.ico") },
+        { from: path.resolve(__dirname, "src/browserconfig.xml") },
+        { from: path.resolve(__dirname, "src/app-id.json") },
+        { from: path.resolve(__dirname, "src/images"), to: "images" },
+        { from: path.resolve(__dirname, "src/images/icons"), to: "images" },
+        { from: path.resolve(__dirname, "src/videos"), to: "videos" },
+        { from: path.resolve(__dirname, "src/locales"), to: "locales" },
         {
-          from: "./src/version.json",
+          from: path.resolve(__dirname, "../../node_modules/qrious/dist/qrious.min.js"),
+          to: "scripts",
+        },
+        {
+          from: path.resolve(
+            __dirname,
+            "../../node_modules/braintree-web-drop-in/dist/browser/dropin.js",
+          ),
+          to: "scripts",
+        },
+        {
+          from: path.resolve(__dirname, "src/version.json"),
           transform(content, path) {
             return content.toString().replace("process.env.APPLICATION_VERSION", pjson.version);
           },
@@ -203,7 +224,9 @@ module.exports.buildConfig = function buildConfig(params) {
   ];
 
   // ref: https://webpack.js.org/configuration/dev-server/#devserver
-  let certSuffix = fs.existsSync("dev-server.local.pem") ? ".local" : ".shared";
+  let certSuffix = fs.existsSync(path.resolve(__dirname, "dev-server.local.pem"))
+    ? ".local"
+    : ".shared";
   const devServer =
     NODE_ENV !== "development"
       ? {}
@@ -211,8 +234,8 @@ module.exports.buildConfig = function buildConfig(params) {
           server: {
             type: "https",
             options: {
-              key: fs.readFileSync("dev-server" + certSuffix + ".pem"),
-              cert: fs.readFileSync("dev-server" + certSuffix + ".pem"),
+              key: fs.readFileSync(path.resolve(__dirname, "dev-server" + certSuffix + ".pem")),
+              cert: fs.readFileSync(path.resolve(__dirname, "dev-server" + certSuffix + ".pem")),
             },
           },
           // host: '192.168.1.9',
@@ -332,12 +355,20 @@ module.exports.buildConfig = function buildConfig(params) {
           hot: false,
           port: envConfig.dev?.port ?? 8080,
           allowedHosts: envConfig.dev?.allowedHosts ?? "auto",
+          static: {
+            directory: path.resolve(params.outputPath || path.resolve(__dirname, "build")),
+            publicPath: "/",
+          },
+          devMiddleware: {
+            writeToDisk: true,
+          },
           client: {
             overlay: {
               errors: true,
               warnings: false,
               runtimeErrors: false,
             },
+            logging: "verbose",
           },
         };
 
@@ -347,15 +378,21 @@ module.exports.buildConfig = function buildConfig(params) {
     devServer: devServer,
     target: "web",
     entry: {
-      "app/polyfills": "./src/polyfills.ts",
+      "app/polyfills": path.resolve(__dirname, "src/polyfills.ts"),
       "app/main": params.app.entry,
-      "connectors/webauthn": "./src/connectors/webauthn.ts",
-      "connectors/webauthn-fallback": "./src/connectors/webauthn-fallback.ts",
-      "connectors/sso": "./src/connectors/sso.ts",
-      "connectors/duo-redirect": "./src/connectors/duo-redirect.ts",
-      "connectors/redirect": "./src/connectors/redirect.ts",
-      styles: ["./src/scss/styles.scss", "./src/scss/tailwind.css"],
-      theme_head: "./src/theme.ts",
+      "connectors/webauthn": path.resolve(__dirname, "src/connectors/webauthn.ts"),
+      "connectors/webauthn-fallback": path.resolve(
+        __dirname,
+        "src/connectors/webauthn-fallback.ts",
+      ),
+      "connectors/sso": path.resolve(__dirname, "src/connectors/sso.ts"),
+      "connectors/duo-redirect": path.resolve(__dirname, "src/connectors/duo-redirect.ts"),
+      "connectors/redirect": path.resolve(__dirname, "src/connectors/redirect.ts"),
+      styles: [
+        path.resolve(__dirname, "src/scss/styles.scss"),
+        path.resolve(__dirname, "src/scss/tailwind.css"),
+      ],
+      theme_head: path.resolve(__dirname, "src/theme.ts"),
     },
     cache:
       NODE_ENV === "production"
@@ -402,7 +439,13 @@ module.exports.buildConfig = function buildConfig(params) {
     resolve: {
       extensions: [".ts", ".js"],
       symlinks: false,
-      modules: [path.resolve("../../node_modules")],
+      modules: [
+        path.resolve(__dirname, "../../node_modules"),
+        path.resolve(process.cwd(), "node_modules"),
+      ],
+      alias: {
+        "~@bitwarden": path.resolve(__dirname, "../../libs"),
+      },
       fallback: {
         buffer: false,
         util: require.resolve("util/"),
@@ -415,7 +458,7 @@ module.exports.buildConfig = function buildConfig(params) {
     },
     output: {
       filename: "[name].[contenthash].js",
-      path: path.resolve(__dirname, "build"),
+      path: params.outputPath || path.resolve(__dirname, "build"),
       clean: true,
     },
     module: {
