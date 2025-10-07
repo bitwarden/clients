@@ -17,9 +17,12 @@ import {
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormGroup, ReactiveFormsModule } from "@angular/forms";
-import { BehaviorSubject, Subject } from "rxjs";
+import { BehaviorSubject, firstValueFrom, Subject, switchMap } from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherType, SecureNoteType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
@@ -301,6 +304,8 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
     private i18nService: I18nService,
     private changeDetectorRef: ChangeDetectorRef,
     private cipherFormCacheService: CipherFormCacheService,
+    private cipherArchiveService: CipherArchiveService,
+    private accountService: AccountService,
   ) {}
 
   /**
@@ -340,6 +345,18 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
       if (!shouldSubmit) {
         return;
       }
+    }
+
+    const userCanArchive = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(
+        getUserId,
+        switchMap((userId) => this.cipherArchiveService.userCanArchive$(userId)),
+      ),
+    );
+
+    // If the item is archived but user has lost archive permissions, unarchive the item.
+    if (!userCanArchive && this.updatedCipherView.archivedDate) {
+      this.updatedCipherView.archivedDate = null;
     }
 
     const savedCipher = await this.addEditFormService.saveCipher(

@@ -20,4 +20,6 @@ export type VaultItemEvent<C extends CipherViewLike> =
   | { type: "delete"; items: VaultItem<C>[] }
   | { type: "copyField"; item: C; field: "username" | "password" | "totp" }
   | { type: "moveToFolder"; items: C[] }
-  | { type: "assignToCollections"; items: C[] };
+  | { type: "assignToCollections"; items: C[] }
+  | { type: "archive"; items: C[] }
+  | { type: "unarchive"; items: C[] };
