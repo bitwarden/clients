@@ -637,6 +637,7 @@ export class ServiceContainer {
       this.apiService,
       this.stateProvider,
       this.authRequestApiService,
+      this.accountService,
     );
 
     this.billingAccountProfileStateService = new DefaultBillingAccountProfileStateService(

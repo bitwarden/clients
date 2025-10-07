@@ -621,7 +621,7 @@ export class LoginCommand {
     const newPasswordHash = await this.keyService.hashMasterKey(masterPassword, newMasterKey);
 
     // Grab user key
-    const userKey = await this.keyService.getUserKey();
+    const userKey = await firstValueFrom(this.keyService.userKey$(userId));
     if (!userKey) {
       throw new Error("User key not found.");
     }
