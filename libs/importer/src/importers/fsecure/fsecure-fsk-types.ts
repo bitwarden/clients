@@ -6,17 +6,10 @@ export interface Data {
   [key: string]: FskEntry;
 }
 
-// FIXME: update to use a const object instead of a typescript enum
-// eslint-disable-next-line @bitwarden/platform/no-enums
-export enum FskEntryTypesEnum {
-  Login = 1,
-  CreditCard = 2,
-}
-
 /**
  * Represents the different types of FSK entries.
  */
-export const FskEntryTypes = Object.freeze({
+export const FskEntryType = Object.freeze({
   Login: 1,
   CreditCard: 2,
 });
@@ -24,10 +17,10 @@ export const FskEntryTypes = Object.freeze({
 /**
  * Type representing valid FSK entry type values.
  */
-export type FskEntryType = (typeof FskEntryTypes)[keyof typeof FskEntryTypes];
+export type FskEntryType = (typeof FskEntryType)[keyof typeof FskEntryType];
 
-const namesByFskEntryType = new Map<FskEntryType, keyof typeof FskEntryTypes>(
-  Object.entries(FskEntryTypes).map(([key, value]) => [value, key as keyof typeof FskEntryTypes]),
+const namesByFskEntryType = new Map<FskEntryType, keyof typeof FskEntryType>(
+  Object.entries(FskEntryType).map(([key, value]) => [value, key as keyof typeof FskEntryType]),
 );
 
 /**
@@ -53,7 +46,7 @@ export function asFskEntryType(value: unknown): FskEntryType | undefined {
  * @param value - The FskEntryType value to get the name for.
  * @returns The name of the FskEntryType value, or undefined if not found.
  */
-export function nameOfFskEntryType(value: FskEntryType): keyof typeof FskEntryTypes | undefined {
+export function nameOfFskEntryType(value: FskEntryType): keyof typeof FskEntryType | undefined {
   return namesByFskEntryType.get(value);
 }
 
@@ -70,7 +63,7 @@ export interface FskEntry {
   rev: string | number;
   service: string;
   style: string;
-  type: FskEntryTypesEnum;
+  type: FskEntryType;
   url: string;
   username: string;
   createdDate: number; // UNIX timestamp

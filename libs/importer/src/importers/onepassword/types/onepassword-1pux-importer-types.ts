@@ -25,35 +25,10 @@ export interface VaultAttributes {
   type: string;
 }
 
-// FIXME: update to use a const object instead of a typescript enum
-// eslint-disable-next-line @bitwarden/platform/no-enums
-export enum CategoryEnum {
-  Login = "001",
-  CreditCard = "002",
-  SecureNote = "003",
-  Identity = "004",
-  Password = "005",
-  Document = "006",
-  SoftwareLicense = "100",
-  BankAccount = "101",
-  Database = "102",
-  DriversLicense = "103",
-  OutdoorLicense = "104",
-  Membership = "105",
-  Passport = "106",
-  RewardsProgram = "107",
-  SocialSecurityNumber = "108",
-  WirelessRouter = "109",
-  Server = "110",
-  EmailAccount = "111",
-  API_Credential = "112",
-  MedicalRecord = "113",
-}
-
 /**
  * Represents the different types of items that can be stored in 1Password.
  */
-export const Categories = Object.freeze({
+export const Category = Object.freeze({
   Login: "001",
   CreditCard: "002",
   SecureNote: "003",
@@ -79,36 +54,36 @@ export const Categories = Object.freeze({
 /**
  * Represents valid 1Password category values.
  */
-export type CategoryType = (typeof Categories)[keyof typeof Categories];
+export type Category = (typeof Category)[keyof typeof Category];
 
-const namesByCategory = new Map<CategoryType, keyof typeof Categories>(
-  Object.entries(Categories).map(([key, value]) => [value, key as keyof typeof Categories]),
+const namesByCategory = new Map<Category, keyof typeof Category>(
+  Object.entries(Category).map(([key, value]) => [value, key as keyof typeof Category]),
 );
 
 /**
- * Checks if a value is a valid 1Password CategoryType.
+ * Checks if a value is a valid 1Password Category.
  * @param value - The value to check.
- * @returns True if the value is a valid 1Password CategoryType, false otherwise.
+ * @returns True if the value is a valid 1Password Category, false otherwise.
  */
-export function isCategoryType(value: unknown): value is CategoryType {
-  return namesByCategory.has(value as CategoryType);
+export function isCategory(value: unknown): value is Category {
+  return namesByCategory.has(value as Category);
 }
 
 /**
- * Converts a value to a 1Password CategoryType if it is valid.
+ * Converts a value to a 1Password Category if it is valid.
  * @param value - The value to convert.
- * @returns The value as a CategoryType if valid, otherwise undefined.
+ * @returns The value as a Category if valid, otherwise undefined.
  */
-export function asCategoryType(value: unknown): CategoryType | undefined {
-  return isCategoryType(value) ? (value as CategoryType) : undefined;
+export function asCategory(value: unknown): Category | undefined {
+  return isCategory(value) ? (value as Category) : undefined;
 }
 
 /**
- * Gets the name of a 1Password CategoryType value.
- * @param value - The CategoryType value to get the name for.
- * @returns The name of the CategoryType value, or undefined if not found.
+ * Gets the name of a 1Password Category value.
+ * @param value - The Category value to get the name for.
+ * @returns The name of the Category value, or undefined if not found.
  */
-export function nameOfCategoryType(value: CategoryType): keyof typeof Categories | undefined {
+export function nameOfCategory(value: Category): keyof typeof Category | undefined {
   return namesByCategory.get(value);
 }
 
@@ -131,23 +106,10 @@ export interface Details {
   password?: string | null;
 }
 
-// FIXME: update to use a const object instead of a typescript enum
-// eslint-disable-next-line @bitwarden/platform/no-enums
-export enum LoginFieldTypeEnum {
-  TextOrHtml = "T",
-  EmailAddress = "E",
-  URL = "U",
-  Number = "N",
-  Password = "P",
-  TextArea = "A",
-  PhoneNumber = "TEL",
-  CheckBox = "C",
-}
-
 /**
  * Represents 1Password login field types that can be stored in login items.
  */
-export const LoginFieldTypes = Object.freeze({
+export const LoginFieldType = Object.freeze({
   TextOrHtml: "T",
   EmailAddress: "E",
   URL: "U",
@@ -161,13 +123,10 @@ export const LoginFieldTypes = Object.freeze({
 /**
  * Type representing valid 1Password login field type values.
  */
-export type LoginFieldType = (typeof LoginFieldTypes)[keyof typeof LoginFieldTypes];
+export type LoginFieldType = (typeof LoginFieldType)[keyof typeof LoginFieldType];
 
-const namesByLoginFieldType = new Map<LoginFieldType, keyof typeof LoginFieldTypes>(
-  Object.entries(LoginFieldTypes).map(([key, value]) => [
-    value,
-    key as keyof typeof LoginFieldTypes,
-  ]),
+const namesByLoginFieldType = new Map<LoginFieldType, keyof typeof LoginFieldType>(
+  Object.entries(LoginFieldType).map(([key, value]) => [value, key as keyof typeof LoginFieldType]),
 );
 
 /**
@@ -195,7 +154,7 @@ export function asLoginFieldType(value: unknown): LoginFieldType | undefined {
  */
 export function nameOfLoginFieldType(
   value: LoginFieldType,
-): keyof typeof LoginFieldTypes | undefined {
+): keyof typeof LoginFieldType | undefined {
   return namesByLoginFieldType.get(value);
 }
 
@@ -203,7 +162,7 @@ export interface LoginFieldsEntity {
   value: string;
   id: string;
   name: string;
-  fieldType: LoginFieldTypeEnum | string;
+  fieldType: LoginFieldType | string;
   designation?: string | null;
 }
 export interface SectionsEntity {

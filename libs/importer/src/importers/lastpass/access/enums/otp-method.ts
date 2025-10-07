@@ -1,15 +1,7 @@
-// FIXME: update to use a const object instead of a typescript enum
-// eslint-disable-next-line @bitwarden/platform/no-enums
-export enum OtpMethod {
-  GoogleAuth,
-  MicrosoftAuth,
-  Yubikey,
-}
-
 /**
  * Represents OTP authentication methods.
  */
-export const OtpMethods = Object.freeze({
+export const OtpMethod = Object.freeze({
   GoogleAuth: 0,
   MicrosoftAuth: 1,
   Yubikey: 2,
@@ -18,35 +10,35 @@ export const OtpMethods = Object.freeze({
 /**
  * Type representing valid OTP method values.
  */
-export type OtpMethodType = (typeof OtpMethods)[keyof typeof OtpMethods];
+export type OtpMethod = (typeof OtpMethod)[keyof typeof OtpMethod];
 
-const namesByOtpMethod = new Map<OtpMethodType, keyof typeof OtpMethods>(
-  Object.entries(OtpMethods).map(([key, value]) => [value, key as keyof typeof OtpMethods]),
+const namesByOtpMethod = new Map<OtpMethod, keyof typeof OtpMethod>(
+  Object.entries(OtpMethod).map(([key, value]) => [value, key as keyof typeof OtpMethod]),
 );
 
 /**
- * Checks if a value is a valid OtpMethodType.
+ * Checks if a value is a valid OtpMethod.
  * @param value - The value to check.
- * @returns True if the value is a valid OtpMethodType, false otherwise.
+ * @returns True if the value is a valid OtpMethod, false otherwise.
  */
-export function isOtpMethodType(value: unknown): value is OtpMethodType {
-  return namesByOtpMethod.has(value as OtpMethodType);
+export function isOtpMethod(value: unknown): value is OtpMethod {
+  return namesByOtpMethod.has(value as OtpMethod);
 }
 
 /**
- * Converts a value to a OtpMethodType if it is valid.
+ * Converts a value to a OtpMethod if it is valid.
  * @param value - The value to convert.
- * @returns The value as a OtpMethodType if valid, otherwise undefined.
+ * @returns The value as a OtpMethod if valid, otherwise undefined.
  */
-export function asOtpMethodType(value: unknown): OtpMethodType | undefined {
-  return isOtpMethodType(value) ? (value as OtpMethodType) : undefined;
+export function asOtpMethod(value: unknown): OtpMethod | undefined {
+  return isOtpMethod(value) ? (value as OtpMethod) : undefined;
 }
 
 /**
- * Gets the name of a OtpMethodType value.
- * @param value - The OtpMethodType value to get the name for.
- * @returns The name of the OtpMethodType value, or undefined if not found.
+ * Gets the name of a OtpMethod value.
+ * @param value - The OtpMethod value to get the name for.
+ * @returns The name of the OtpMethod value, or undefined if not found.
  */
-export function nameOfOtpMethodType(value: OtpMethodType): keyof typeof OtpMethods | undefined {
+export function nameOfOtpMethod(value: OtpMethod): keyof typeof OtpMethod | undefined {
   return namesByOtpMethod.get(value);
 }

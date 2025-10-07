@@ -8,7 +8,7 @@ import { ImportResult } from "../../models/import-result";
 import { BaseImporter } from "../base-importer";
 import { Importer } from "../importer";
 
-import { FskEntry, FskEntryTypesEnum, FskFile } from "./fsecure-fsk-types";
+import { FskEntry, FskEntryType, FskFile } from "./fsecure-fsk-types";
 
 export class FSecureFskImporter extends BaseImporter implements Importer {
   parse(data: string): Promise<ImportResult> {
@@ -41,10 +41,10 @@ export class FSecureFskImporter extends BaseImporter implements Importer {
     cipher.favorite = entry.favorite > 0;
 
     switch (entry.type) {
-      case FskEntryTypesEnum.Login:
+      case FskEntryType.Login:
         this.handleLoginEntry(entry, cipher);
         break;
-      case FskEntryTypesEnum.CreditCard:
+      case FskEntryType.CreditCard:
         this.handleCreditCardEntry(entry, cipher);
         break;
       default:

@@ -27,18 +27,11 @@ export type ProtonPassItem = {
   pinned: boolean;
 };
 
-// FIXME: update to use a const object instead of a typescript enum
-// eslint-disable-next-line @bitwarden/platform/no-enums
-export enum ProtonPassItemState {
-  ACTIVE = 1,
-  TRASHED = 2,
-}
-
 /**
  * Proton Pass item states as a const object.
  * Represents the different states an item can be in (active or trashed).
  */
-export const ProtonPassItemStates = Object.freeze({
+export const ProtonPassItemState = Object.freeze({
   ACTIVE: 1,
   TRASHED: 2,
 } as const);
@@ -46,45 +39,41 @@ export const ProtonPassItemStates = Object.freeze({
 /**
  * Type representing valid Proton Pass item state values.
  */
-export type ProtonPassItemStateType =
-  (typeof ProtonPassItemStates)[keyof typeof ProtonPassItemStates];
+export type ProtonPassItemState = (typeof ProtonPassItemState)[keyof typeof ProtonPassItemState];
 
-const namesByProtonPassItemState = new Map<
-  ProtonPassItemStateType,
-  keyof typeof ProtonPassItemStates
->(
-  Object.entries(ProtonPassItemStates).map(([key, value]) => [
+const namesByProtonPassItemState = new Map<ProtonPassItemState, keyof typeof ProtonPassItemState>(
+  Object.entries(ProtonPassItemState).map(([key, value]) => [
     value,
-    key as keyof typeof ProtonPassItemStates,
+    key as keyof typeof ProtonPassItemState,
   ]),
 );
 
 /**
- * Checks if a value is a valid ProtonPassItemStateType.
+ * Checks if a value is a valid ProtonPassItemState.
  * @param value - The value to check.
- * @returns True if the value is a valid ProtonPassItemStateType, false otherwise.
+ * @returns True if the value is a valid ProtonPassItemState, false otherwise.
  */
-export function isProtonPassItemStateType(value: unknown): value is ProtonPassItemStateType {
-  return namesByProtonPassItemState.has(value as ProtonPassItemStateType);
+export function isProtonPassItemState(value: unknown): value is ProtonPassItemState {
+  return namesByProtonPassItemState.has(value as ProtonPassItemState);
 }
 
 /**
- * Converts a value to a ProtonPassItemStateType if it is valid.
+ * Converts a value to a ProtonPassItemState if it is valid.
  * @param value - The value to convert.
- * @returns The value as a ProtonPassItemStateType if valid, otherwise undefined.
+ * @returns The value as a ProtonPassItemState if valid, otherwise undefined.
  */
-export function asProtonPassItemStateType(value: unknown): ProtonPassItemStateType | undefined {
-  return isProtonPassItemStateType(value) ? (value as ProtonPassItemStateType) : undefined;
+export function asProtonPassItemState(value: unknown): ProtonPassItemState | undefined {
+  return isProtonPassItemState(value) ? (value as ProtonPassItemState) : undefined;
 }
 
 /**
- * Gets the name of a ProtonPassItemStateType value.
- * @param value - The ProtonPassItemStateType value to get the name for.
- * @returns The name of the ProtonPassItemStateType value, or undefined if not found.
+ * Gets the name of a ProtonPassItemState value.
+ * @param value - The ProtonPassItemState value to get the name for.
+ * @returns The name of the ProtonPassItemState value, or undefined if not found.
  */
-export function nameOfProtonPassItemStateType(
-  value: ProtonPassItemStateType,
-): keyof typeof ProtonPassItemStates | undefined {
+export function nameOfProtonPassItemState(
+  value: ProtonPassItemState,
+): keyof typeof ProtonPassItemState | undefined {
   return namesByProtonPassItemState.get(value);
 }
 
