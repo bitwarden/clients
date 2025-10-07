@@ -1,4 +1,4 @@
-import { mock } from "jest-mock-extended";
+import { mock, mockReset } from "jest-mock-extended";
 import * as rxjs from "rxjs";
 import { of } from "rxjs";
 
@@ -78,6 +78,9 @@ describe("UnifiedUpgradePromptService", () => {
     beforeEach(async () => {
       mockAccountService.activeAccount$ = accountSubject.asObservable();
       mockDialogOpen.mockReset();
+      mockReset(mockConfigService);
+      mockReset(mockBillingService);
+      mockReset(mockVaultProfileService);
     });
     it("should not show dialog when feature flag is disabled", async () => {
       // Arrange
@@ -93,7 +96,7 @@ describe("UnifiedUpgradePromptService", () => {
     it("should not show dialog when user has premium", async () => {
       // Arrange
       mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
-      mockBillingService.hasPremiumFromAnyOrganization$.mockReturnValue(of(true));
+      mockBillingService.hasPremiumFromAnySource$.mockReturnValue(of(true));
       setupTestService();
 
       // Act
@@ -106,7 +109,7 @@ describe("UnifiedUpgradePromptService", () => {
     it("should not show dialog when profile is older than 5 minutes", async () => {
       // Arrange
       mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
-      mockBillingService.hasPremiumFromAnyOrganization$.mockReturnValue(of(false));
+      mockBillingService.hasPremiumFromAnySource$.mockReturnValue(of(false));
       const oldDate = new Date();
       oldDate.setMinutes(oldDate.getMinutes() - 10); // 10 minutes old
       mockVaultProfileService.getProfileCreationDate.mockResolvedValue(oldDate);
@@ -122,7 +125,7 @@ describe("UnifiedUpgradePromptService", () => {
     it("should show dialog when all conditions are met", async () => {
       //Arrange
       mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
-      mockBillingService.hasPremiumFromAnyOrganization$.mockReturnValue(of(false));
+      mockBillingService.hasPremiumFromAnySource$.mockReturnValue(of(false));
       const recentDate = new Date();
       recentDate.setMinutes(recentDate.getMinutes() - 3); // 3 minutes old
       mockVaultProfileService.getProfileCreationDate.mockResolvedValue(recentDate);
@@ -155,7 +158,7 @@ describe("UnifiedUpgradePromptService", () => {
     it("should not show dialog when profile creation date is unavailable", async () => {
       // Arrange
       mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
-      mockBillingService.hasPremiumFromAnyOrganization$.mockReturnValue(of(false));
+      mockBillingService.hasPremiumFromAnySource$.mockReturnValue(of(false));
       mockVaultProfileService.getProfileCreationDate.mockResolvedValue(null);
       setupTestService();
 

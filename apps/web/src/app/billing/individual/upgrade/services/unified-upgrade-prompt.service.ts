@@ -42,7 +42,7 @@ export class UnifiedUpgradePromptService {
 
       // Check if user has premium
       const hasPremium = await firstValueFrom(
-        this.billingAccountProfileStateService.hasPremiumFromAnyOrganization$(account.id),
+        this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
       );
 
       // Early return if user already has premium
