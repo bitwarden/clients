@@ -10,6 +10,14 @@ module.exports.getEnv = function getEnv() {
   return { ENV };
 };
 
+const DEFAULT_PARAMS = {
+  localesPath: "./src/locales",
+  modulesPath: [path.resolve("../../node_modules")],
+  externalsModulesDir: "../../node_modules",
+  outputPath: path.resolve(__dirname, "build"),
+  watch: false,
+};
+
 /**
  *
  * @param {{
@@ -26,14 +34,6 @@ module.exports.getEnv = function getEnv() {
  * }} params
  */
 module.exports.buildConfig = function buildConfig(params) {
-  const DEFAULT_PARAMS = {
-    localesPath: "./src/locales",
-    modulesPath: [path.resolve("../../node_modules")],
-    externalsModulesDir: "../../node_modules",
-    outputPath: path.resolve(__dirname, "build"),
-    watch: false,
-  };
-
   params = { ...DEFAULT_PARAMS, ...params };
   const ENV = params.env || module.exports.getEnv().ENV;
 
