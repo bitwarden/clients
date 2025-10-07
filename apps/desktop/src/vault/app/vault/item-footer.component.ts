@@ -1,5 +1,14 @@
 import { CommonModule } from "@angular/common";
-import { Input, Output, EventEmitter, Component, OnInit, ViewChild } from "@angular/core";
+import {
+  Input,
+  Output,
+  EventEmitter,
+  Component,
+  OnInit,
+  ViewChild,
+  OnChanges,
+  SimpleChanges,
+} from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -8,19 +17,20 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { UserId } from "@bitwarden/common/types/guid";
+import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { ButtonComponent, ButtonModule, DialogService, ToastService } from "@bitwarden/components";
-import { PasswordRepromptService } from "@bitwarden/vault";
+import { ArchiveCipherUtilitiesService, PasswordRepromptService } from "@bitwarden/vault";
 
 @Component({
   selector: "app-vault-item-footer",
   templateUrl: "item-footer.component.html",
   imports: [ButtonModule, CommonModule, JslibModule],
 })
-export class ItemFooterComponent implements OnInit {
+export class ItemFooterComponent implements OnInit, OnChanges {
   @Input({ required: true }) cipher: CipherView = new CipherView();
   @Input() collectionId: string | null = null;
   @Input({ required: true }) action: string = "view";
@@ -35,6 +45,8 @@ export class ItemFooterComponent implements OnInit {
   activeUserId: UserId | null = null;
   passwordReprompted: boolean = false;
 
+  protected showArchive = false;
+
   constructor(
     protected cipherService: CipherService,
     protected dialogService: DialogService,
@@ -44,11 +56,20 @@ export class ItemFooterComponent implements OnInit {
     protected toastService: ToastService,
     protected i18nService: I18nService,
     protected logService: LogService,
+    protected cipherArchiveService: CipherArchiveService,
+    protected archiveCipherUtilitiesService: ArchiveCipherUtilitiesService,
   ) {}
 
   async ngOnInit() {
     this.activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     this.passwordReprompted = this.masterPasswordAlreadyPrompted;
+    await this.checkArchiveState();
+  }
+
+  async ngOnChanges(changes: SimpleChanges) {
+    if (changes.cipher) {
+      await this.checkArchiveState();
+    }
   }
 
   async clone() {
@@ -77,7 +98,10 @@ export class ItemFooterComponent implements OnInit {
   }
 
   protected get hasFooterAction() {
-    return this.cipher.permissions.delete && (this.action === "edit" || this.action === "view");
+    return (
+      this.showArchive ||
+      (this.cipher.permissions.delete && (this.action === "edit" || this.action === "view"))
+    );
   }
 
   cancel() {
@@ -154,5 +178,22 @@ export class ItemFooterComponent implements OnInit {
     }
 
     return (this.passwordReprompted = await this.passwordRepromptService.showPasswordPrompt());
+  }
+
+  protected async archive() {
+    await this.archiveCipherUtilitiesService.archiveCipher(this.cipher);
+  }
+
+  protected async unarchive() {
+    await this.archiveCipherUtilitiesService.unarchiveCipher(this.cipher);
+  }
+
+  private async checkArchiveState() {
+    const cipherCanBeArchived = !this.cipher.isDeleted && this.cipher.organizationId == null;
+    const userCanArchive = await firstValueFrom(
+      this.cipherArchiveService.userCanArchive$(this.activeUserId!),
+    );
+
+    this.showArchive = cipherCanBeArchived && userCanArchive;
   }
 }

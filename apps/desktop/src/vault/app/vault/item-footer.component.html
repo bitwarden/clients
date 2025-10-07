@@ -49,6 +49,22 @@
   <div class="right" *ngIf="hasFooterAction">
     <button
       type="button"
+      *ngIf="showArchive && !cipher.isArchived"
+      (click)="archive()"
+      appA11yTitle="{{ 'archiveVerb' | i18n }}"
+    >
+      <i class="bwi bwi-archive bwi-lg bwi-fw" aria-hidden="true"></i>
+    </button>
+    <button
+      type="button"
+      *ngIf="cipher.isArchived"
+      (click)="unarchive()"
+      appA11yTitle="{{ 'unarchive' | i18n }}"
+    >
+      <i class="bwi bwi-unarchive bwi-lg bwi-fw" aria-hidden="true"></i>
+    </button>
+    <button
+      type="button"
       (click)="delete()"
       class="danger"
       appA11yTitle="{{ (cipher.isDeleted ? 'permanentlyDelete' : 'delete') | i18n }}"
