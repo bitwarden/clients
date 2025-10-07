@@ -71,6 +71,7 @@ export class AllActivitiesService {
       totalAtRiskMemberCount: summary.totalAtRiskMemberCount,
       totalApplicationCount: summary.totalApplicationCount,
       totalAtRiskApplicationCount: summary.totalAtRiskApplicationCount,
+      newApplications: summary.newApplications,
     });
   }
 
