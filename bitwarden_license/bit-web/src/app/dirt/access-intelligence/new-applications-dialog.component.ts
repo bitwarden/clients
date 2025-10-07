@@ -55,7 +55,7 @@ export class NewApplicationsDialogComponent {
   onMarkAsCritical = () => {
     this.toastService.showToast({
       variant: "info",
-      title: this.i18nService.t("markAppAsCritical"),
+      title: this.i18nService.t("markAsCritical"),
       message: this.i18nService.t("markAsCriticalPlaceholder"),
     });
   };

@@ -187,6 +187,9 @@
   "markAppAsCritical": {
     "message": "Mark app as critical"
   },
+  "markAsCritical": {
+    "message": "Mark as critical"
+  },
   "applicationsMarkedAsCriticalSuccess": {
     "message": "Applications marked as critical"
   },
