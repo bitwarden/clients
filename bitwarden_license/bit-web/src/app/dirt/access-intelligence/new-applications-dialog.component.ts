@@ -1,3 +1,4 @@
+import { CommonModule } from "@angular/common";
 import { Component, inject } from "@angular/core";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -16,10 +17,11 @@ export interface NewApplicationsDialogData {
 
 @Component({
   templateUrl: "./new-applications-dialog.component.html",
-  imports: [ButtonModule, DialogModule, TypographyModule, I18nPipe],
+  imports: [CommonModule, ButtonModule, DialogModule, TypographyModule, I18nPipe],
 })
 export class NewApplicationsDialogComponent {
   protected newApplications: string[] = [];
+  protected selectedApplications: Set<string> = new Set<string>();
 
   private toastService = inject(ToastService);
   private i18nService = inject(I18nService);
@@ -48,15 +50,37 @@ export class NewApplicationsDialogComponent {
   }
 
   /**
+   * Toggles the selection state of an application.
+   * @param applicationName The application to toggle
+   */
+  toggleSelection = (applicationName: string) => {
+    if (this.selectedApplications.has(applicationName)) {
+      this.selectedApplications.delete(applicationName);
+    } else {
+      this.selectedApplications.add(applicationName);
+    }
+  };
+
+  /**
+   * Checks if an application is currently selected.
+   * @param applicationName The application to check
+   * @returns True if selected, false otherwise
+   */
+  isSelected = (applicationName: string): boolean => {
+    return this.selectedApplications.has(applicationName);
+  };
+
+  /**
    * Placeholder handler for mark as critical functionality.
-   * Shows a toast notification indicating the feature is coming in a future update.
+   * Shows a toast notification with count of selected applications.
    * TODO: Implement actual mark as critical functionality (PM-26203 follow-up)
    */
   onMarkAsCritical = () => {
+    const selectedCount = this.selectedApplications.size;
     this.toastService.showToast({
       variant: "info",
       title: this.i18nService.t("markAsCritical"),
-      message: this.i18nService.t("markAsCriticalPlaceholder"),
+      message: `${selectedCount} ${this.i18nService.t("applicationsSelected")}`,
     });
   };
 }
