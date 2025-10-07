@@ -5,7 +5,7 @@ import { SharedModule } from "../shared/shared.module";
 import { SkeletonComponent } from "./skeleton.component";
 
 export default {
-  title: "Component Library/Skeleton",
+  title: "Component Library/Skeleton/Skeleton",
   component: SkeletonComponent,
   decorators: [
     moduleMetadata({

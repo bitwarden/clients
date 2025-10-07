@@ -30,6 +30,8 @@ import {
   SectionComponent,
   ScrollLayoutDirective,
   SkeletonComponent,
+  SkeletonTextComponent,
+  SkeletonGroupComponent,
 } from "@bitwarden/components";
 
 import { PopupRouterCacheService } from "../view-cache/popup-router-cache.service";
@@ -337,6 +339,8 @@ export default {
         IconButtonModule,
         BadgeModule,
         SkeletonComponent,
+        SkeletonTextComponent,
+        SkeletonGroupComponent,
       ],
       providers: [
         {
@@ -607,15 +611,12 @@ export const SkeletonLoading: Story = {
             <div>
               <div class="tw-sr-only" role="status">Loading...</div>
               <div class="tw-flex tw-flex-col tw-gap-4">
-                <bit-skeleton edgeShape="circle" class="tw-w-1/2 tw-h-3"></bit-skeleton>
+                <bit-skeleton-text class="tw-w-1/3"></bit-skeleton-text>
                 @for (num of data; track $index) {
-                <div class="tw-flex tw-gap-2">
-                  <bit-skeleton class="tw-size-8"></bit-skeleton>
-                  <div class="tw-w-full tw-flex tw-flex-col tw-gap-2">
-                    <bit-skeleton edgeShape="circle" class="tw-w-full tw-h-3"></bit-skeleton>
-                    <bit-skeleton edgeShape="circle" class="tw-w-1/2 tw-h-3"></bit-skeleton>
-                  </div>
-                </div>
+                <bit-skeleton-group>
+                  <bit-skeleton class="tw-size-8" slot="start"></bit-skeleton>
+                  <bit-skeleton-text [lines]="2" class="tw-w-1/2"></bit-skeleton-text>
+                </bit-skeleton-group>
                 <bit-skeleton class="tw-w-full tw-h-[1px]"></bit-skeleton>
                 }
               </div>
