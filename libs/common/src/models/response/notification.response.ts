@@ -41,8 +41,10 @@ export class NotificationResponse extends BaseResponse {
       case NotificationType.SyncOrganizations:
       case NotificationType.SyncOrgKeys:
       case NotificationType.SyncSettings:
-      case NotificationType.LogOut:
         this.payload = new UserNotification(payload);
+        break;
+      case NotificationType.LogOut:
+        this.payload = new LogOutNotification(payload);
         break;
       case NotificationType.SyncSendCreate:
       case NotificationType.SyncSendUpdate:
@@ -182,5 +184,16 @@ export class ProviderBankAccountVerifiedPushNotification extends BaseResponse {
     super(response);
     this.providerId = this.getResponseProperty("ProviderId");
     this.adminId = this.getResponseProperty("AdminId");
+  }
+}
+
+export class LogOutNotification extends BaseResponse {
+  userId: string;
+  reason?: string;
+
+  constructor(response: any) {
+    super(response);
+    this.userId = this.getResponseProperty("UserId");
+    this.reason = this.getResponseProperty("Reason");
   }
 }
