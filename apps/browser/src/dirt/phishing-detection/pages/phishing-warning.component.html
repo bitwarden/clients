@@ -18,10 +18,15 @@
       >{{ "phishingPageExplanation2" | i18n }}
     </p>
 
-    <!-- TODO: Get link action from Product -->
-    <button type="button" bitLink linkType="primary">
+    <a
+      bitLink
+      linkType="primary"
+      rel="noreferrer"
+      target="_blank"
+      href="https://bitwarden.com/help/phishing-blocked/"
+    >
       {{ "phishingPageLearnMore" | i18n }}<i class="bwi bwi-angle-right" aria-hidden="true"></i>
-    </button>
+    </a>
   </bit-callout>
 
   <div class="tw-flex tw-flex-col tw-gap-4 tw-items-center tw-mt-2">
