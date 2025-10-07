@@ -759,7 +759,11 @@ export class VaultV2Component<C extends CipherViewLike>
     );
     this.activeFilter = vaultFilter;
     await this.vaultItemsComponent
-      ?.reload(this.activeFilter.buildFilter(), vaultFilter.status === "trash")
+      ?.reload(
+        this.activeFilter.buildFilter(),
+        vaultFilter.status === "trash",
+        vaultFilter.status === "archive",
+      )
       .catch(() => {});
     await this.go().catch(() => {});
   }
