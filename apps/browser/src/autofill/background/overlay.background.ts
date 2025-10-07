@@ -3111,17 +3111,19 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
     const autogenerate$ = combineLatest([
       this.credential$,
-      this.generatorService.preferredAlgorithm$("password", {
-        account$: this.accountService.activeAccount$,
-      }),
+      // @TODO autofill/refactor/generator
+      // this.generatorService.preferredAlgorithm$("password", {
+      //   account$: this.accountService.activeAccount$,
+      // }),
     ]).pipe(
       map(
         ([
           credential,
-          {
-            capabilities: { autogenerate },
-          },
-        ]) => !credential && autogenerate,
+          // @TODO autofill/refactor/generator
+          // {
+          //   capabilities: { autogenerate },
+          // },
+        ]) => !credential, // && autogenerate,
       ),
     );
 
