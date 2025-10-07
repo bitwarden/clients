@@ -993,6 +993,16 @@ export class VaultV2Component<C extends CipherViewLike>
   }
 
   private async archiveCipher(cipher: CipherView, userId: UserId) {
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: { key: "archiveItem" },
+      content: { key: "archiveItemConfirmDesc" },
+      type: "info",
+    });
+
+    if (!confirmed) {
+      return;
+    }
+
     const repromptPassed = await this.passwordRepromptService.passwordRepromptCheck(cipher);
     if (!repromptPassed) {
       return;
