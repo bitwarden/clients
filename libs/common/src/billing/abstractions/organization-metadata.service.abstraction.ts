@@ -7,4 +7,6 @@ export abstract class OrganizationMetadataServiceAbstraction {
   abstract getOrganizationMetadata$(
     organizationId: OrganizationId,
   ): Observable<OrganizationBillingMetadataResponse>;
+
+  abstract refreshMetadataCache(): void;
 }
