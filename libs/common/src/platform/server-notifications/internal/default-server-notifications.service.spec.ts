@@ -340,4 +340,54 @@ describe("NotificationsService", () => {
     expect(webPushNotificationConnectionService.supportStatus$).toHaveBeenCalledTimes(1);
     subscription.unsubscribe();
   });
+
+  describe("processNotification", () => {
+    beforeEach(async () => {
+      appIdService.getAppId.mockResolvedValue("test-app-id");
+      activeAccount.next({ id: mockUser1, email: "email", name: "Test Name", emailVerified: true });
+    });
+
+    describe("NotificationType.LogOut", () => {
+      it.each([
+        { featureFlagEnabled: false, reason: undefined },
+        { featureFlagEnabled: true, reason: undefined },
+        { featureFlagEnabled: true, reason: "passwordChange" },
+        { featureFlagEnabled: false, reason: "kdfChange" },
+      ])(
+        "should call logout callback when featureFlag=$featureFlagEnabled and reason=$reason",
+        async ({ featureFlagEnabled, reason }) => {
+          configService.getFeatureFlag$.mockReturnValue(of(featureFlagEnabled));
+
+          const payload: any = { userId: mockUser1 };
+          if (reason !== undefined) {
+            payload.reason = reason;
+          }
+
+          const notification = new NotificationResponse({
+            type: NotificationType.LogOut,
+            payload,
+            contextId: "different-app-id",
+          });
+
+          await sut["processNotification"](notification, mockUser1);
+
+          expect(logoutCallback).toHaveBeenCalledWith("logoutNotification", mockUser1);
+        },
+      );
+
+      it("should skip logout when receiving kdfChange reason with feature flag enabled", async () => {
+        configService.getFeatureFlag$.mockReturnValue(of(true));
+
+        const notification = new NotificationResponse({
+          type: NotificationType.LogOut,
+          payload: { userId: mockUser1, reason: "kdfChange" },
+          contextId: "different-app-id",
+        });
+
+        await sut["processNotification"](notification, mockUser1);
+
+        expect(logoutCallback).not.toHaveBeenCalled();
+      });
+    });
+  });
 });
