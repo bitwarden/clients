@@ -20,6 +20,8 @@ import { AuthRequestServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -213,6 +215,7 @@ export class VaultV2Component<C extends CipherViewLike>
     private configService: ConfigService,
     private authRequestService: AuthRequestServiceAbstraction,
     private cipherArchiveService: CipherArchiveService,
+    private policyService: PolicyService,
   ) {}
 
   async ngOnInit() {
@@ -494,6 +497,9 @@ export class VaultV2Component<C extends CipherViewLike>
     const cipher = await this.cipherService.getFullCipherView(c);
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const userCanArchive = await firstValueFrom(this.cipherArchiveService.userCanArchive$(userId));
+    const orgOwnershipPolicy = await firstValueFrom(
+      this.policyService.policyAppliesToUser$(PolicyType.OrganizationDataOwnership, userId),
+    );
 
     const menu: RendererMenuItem[] = [
       {
@@ -519,7 +525,11 @@ export class VaultV2Component<C extends CipherViewLike>
           });
         },
       });
-      if (!cipher.organizationId) {
+
+      const archivedWithOrgOwnership = cipher.isArchived && orgOwnershipPolicy;
+      const canCloneArchived = cipher.isArchived ? cipher.isArchived && userCanArchive : true;
+
+      if (!cipher.organizationId && !archivedWithOrgOwnership && canCloneArchived) {
         menu.push({
           label: this.i18nService.t("clone"),
           click: () => {
