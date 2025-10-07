@@ -12,6 +12,8 @@
             formControlName="numWords"
             id="num-words"
             type="number"
+            [min]="numWordsMin"
+            [max]="numWordsMax"
             (change)="save('numWords')"
           />
           <bit-hint>{{ numWordsBoundariesHint$ | async }}</bit-hint>
