@@ -110,6 +110,23 @@
     <ng-template body let-rows$>
       <ng-container *cdkVirtualFor="let item of rows$; templateCacheSize: 0">
         <tr
+          *ngIf="item.folder"
+          bitRow
+          appVaultFolderRow
+          alignContent="middle"
+          [disabled]="disabled"
+          [folder]="item.folder"
+          [showOwner]="showOwner"
+          [showCollections]="showCollections"
+          [showGroups]="showGroups"
+          [showPermissionsColumn]="showPermissionsColumn"
+          [canDeleteFolder]="canDeleteFolder(item.folder)"
+          [canEditFolder]="canEditFolder(item.folder)"
+          [checked]="selection.isSelected(item)"
+          (checkedToggled)="selection.toggle(item)"
+          (onEvent)="event($event)"
+        ></tr>
+        <tr
           *ngIf="item.collection"
           bitRow
           appVaultCollectionRow
