@@ -9,7 +9,7 @@ import {
   OnChanges,
   SimpleChanges,
 } from "@angular/core";
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -191,7 +191,10 @@ export class ItemFooterComponent implements OnInit, OnChanges {
   private async checkArchiveState() {
     const cipherCanBeArchived = !this.cipher.isDeleted && this.cipher.organizationId == null;
     const userCanArchive = await firstValueFrom(
-      this.cipherArchiveService.userCanArchive$(this.activeUserId!),
+      this.accountService.activeAccount$.pipe(
+        getUserId,
+        switchMap((id) => this.cipherArchiveService.userCanArchive$(id)),
+      ),
     );
 
     this.showArchive = cipherCanBeArchived && userCanArchive;
