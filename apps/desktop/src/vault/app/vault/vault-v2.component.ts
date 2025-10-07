@@ -33,6 +33,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { getByIds } from "@bitwarden/common/platform/misc";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { CipherId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
@@ -211,6 +212,7 @@ export class VaultV2Component<C extends CipherViewLike>
     private folderService: FolderService,
     private configService: ConfigService,
     private authRequestService: AuthRequestServiceAbstraction,
+    private cipherArchiveService: CipherArchiveService,
   ) {}
 
   async ngOnInit() {
@@ -490,6 +492,9 @@ export class VaultV2Component<C extends CipherViewLike>
 
   async viewCipherMenu(c: CipherViewLike) {
     const cipher = await this.cipherService.getFullCipherView(c);
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    const userCanArchive = await firstValueFrom(this.cipherArchiveService.userCanArchive$(userId));
+
     const menu: RendererMenuItem[] = [
       {
         label: this.i18nService.t("view"),
@@ -536,6 +541,50 @@ export class VaultV2Component<C extends CipherViewLike>
             }),
         });
       }
+    }
+
+    if (userCanArchive && !cipher.organizationId && !cipher.isDeleted && !cipher.isArchived) {
+      menu.push({
+        label: this.i18nService.t("archiveVerb"),
+        click: async () => {
+          await this.cipherArchiveService
+            .archiveWithServer(cipher.id as CipherId, userId)
+            .then(() => {
+              this.toastService.showToast({
+                variant: "success",
+                message: this.i18nService.t("itemSentToArchive"),
+              });
+            })
+            .catch(() => {
+              this.toastService.showToast({
+                variant: "error",
+                message: this.i18nService.t("errorOccurred"),
+              });
+            });
+        },
+      });
+    }
+
+    if (cipher.isArchived) {
+      menu.push({
+        label: this.i18nService.t("unarchive"),
+        click: async () => {
+          await this.cipherArchiveService
+            .unarchiveWithServer(cipher.id as CipherId, userId)
+            .then(() => {
+              this.toastService.showToast({
+                variant: "success",
+                message: this.i18nService.t("itemWasUnarchived"),
+              });
+            })
+            .catch(() => {
+              this.toastService.showToast({
+                variant: "error",
+                message: this.i18nService.t("errorOccurred"),
+              });
+            });
+        },
+      });
     }
 
     switch (cipher.type) {
