@@ -76,6 +76,10 @@ export class ItemFooterComponent implements OnInit {
     this.onEdit.emit(this.cipher);
   }
 
+  protected get hasFooterAction() {
+    return this.cipher.permissions.delete && (this.action === "edit" || this.action === "view");
+  }
+
   cancel() {
     this.onCancel.emit(this.cipher);
   }
