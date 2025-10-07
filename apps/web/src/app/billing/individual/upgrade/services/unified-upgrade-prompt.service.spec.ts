@@ -3,7 +3,7 @@ import * as rxjs from "rxjs";
 import { of } from "rxjs";
 
 import { VaultProfileService } from "@bitwarden/angular/vault/services/vault-profile.service";
-import { AccountService , Account } from "@bitwarden/common/auth/abstractions/account.service";
+import { AccountService, Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
