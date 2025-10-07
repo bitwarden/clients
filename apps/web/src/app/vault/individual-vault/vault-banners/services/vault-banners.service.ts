@@ -1,10 +1,7 @@
 import { Injectable } from "@angular/core";
 import { Observable, combineLatest, firstValueFrom, map, filter, mergeMap, take } from "rxjs";
 
-import {
-  AuthRequestServiceAbstraction,
-  UserDecryptionOptionsServiceAbstraction,
-} from "@bitwarden/auth/common";
+import { AuthRequestServiceAbstraction } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -18,10 +15,8 @@ import {
 import { UserId } from "@bitwarden/common/types/guid";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
-import { PBKDF2KdfConfig, KdfConfigService, KdfType } from "@bitwarden/key-management";
 
 export const VisibleVaultBanner = {
-  KDFSettings: "kdf-settings",
   OutdatedBrowser: "outdated-browser",
   Premium: "premium",
   VerifyEmail: "verify-email",
@@ -64,9 +59,7 @@ export class VaultBannersService {
     private stateProvider: StateProvider,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private platformUtilsService: PlatformUtilsService,
-    private kdfConfigService: KdfConfigService,
     private syncService: SyncService,
-    private userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
     private authRequestService: AuthRequestServiceAbstraction,
   ) {}
 
@@ -131,21 +124,6 @@ export class VaultBannersService {
     );
 
     return needsVerification && !alreadyDismissed;
-  }
-
-  /** Returns true when the low KDF iteration banner should be shown */
-  async shouldShowLowKDFBanner(userId: UserId): Promise<boolean> {
-    const hasLowKDF = (
-      await firstValueFrom(this.userDecryptionOptionsService.userDecryptionOptionsById$(userId))
-    )?.hasMasterPassword
-      ? await this.isLowKdfIteration(userId)
-      : false;
-
-    const alreadyDismissed = (await this.getBannerDismissedState(userId)).includes(
-      VisibleVaultBanner.KDFSettings,
-    );
-
-    return hasLowKDF && !alreadyDismissed;
   }
 
   /** Dismiss the given banner and perform any respective side effects */
@@ -220,14 +198,5 @@ export class VaultBannersService {
         nextPromptDate: nextYear.getTime(),
       };
     });
-  }
-
-  private async isLowKdfIteration(userId: UserId) {
-    const kdfConfig = await firstValueFrom(this.kdfConfigService.getKdfConfig$(userId));
-    return (
-      kdfConfig != null &&
-      kdfConfig.kdfType === KdfType.PBKDF2_SHA256 &&
-      kdfConfig.iterations < PBKDF2KdfConfig.ITERATIONS.defaultValue
-    );
   }
 }

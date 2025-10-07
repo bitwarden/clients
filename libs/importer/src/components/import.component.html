@@ -49,7 +49,7 @@
               *ngFor="let c of collections$ | async"
               [value]="c"
               [label]="c.name"
-              icon="bwi-collection-shared"
+              [icon]="c.type === DefaultCollectionType ? 'bwi-user' : 'bwi-collection-shared'"
             />
           </ng-container>
         </bit-select>

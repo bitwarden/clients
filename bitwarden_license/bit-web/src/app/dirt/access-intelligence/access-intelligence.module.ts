@@ -10,6 +10,7 @@ import {
   RiskInsightsApiService,
   RiskInsightsDataService,
   RiskInsightsReportService,
+  SecurityTasksApiService,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights/services";
 import { RiskInsightsEncryptionService } from "@bitwarden/bit-common/dirt/reports/risk-insights/services/risk-insights-encryption.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -28,28 +29,32 @@ import { RiskInsightsComponent } from "./risk-insights.component";
 @NgModule({
   imports: [RiskInsightsComponent, AccessIntelligenceRoutingModule],
   providers: [
-    {
+    safeProvider({
       provide: MemberCipherDetailsApiService,
+      useClass: MemberCipherDetailsApiService,
       deps: [ApiService],
-    },
-    {
+    }),
+    safeProvider({
       provide: PasswordHealthService,
+      useClass: PasswordHealthService,
       deps: [PasswordStrengthServiceAbstraction, AuditService],
-    },
-    {
+    }),
+    safeProvider({
       provide: RiskInsightsApiService,
+      useClass: RiskInsightsApiService,
       deps: [ApiService],
-    },
-    {
+    }),
+    safeProvider({
       provide: RiskInsightsReportService,
+      useClass: RiskInsightsReportService,
       deps: [
         CipherService,
         MemberCipherDetailsApiService,
+        PasswordHealthService,
         RiskInsightsApiService,
         RiskInsightsEncryptionService,
-        PasswordHealthService,
       ],
-    },
+    }),
     safeProvider({
       provide: RiskInsightsDataService,
       deps: [
@@ -77,7 +82,12 @@ import { RiskInsightsComponent } from "./risk-insights.component";
     safeProvider({
       provide: AllActivitiesService,
       useClass: AllActivitiesService,
-      deps: [],
+      deps: [RiskInsightsDataService],
+    }),
+    safeProvider({
+      provide: SecurityTasksApiService,
+      useClass: SecurityTasksApiService,
+      deps: [ApiService],
     }),
   ],
 })

@@ -4,6 +4,7 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { OrganizationId, OrganizationReportId } from "@bitwarden/common/types/guid";
 
+import { EncryptedDataWithKey, OrganizationReportApplication } from "../models";
 import {
   GetRiskInsightsApplicationDataResponse,
   GetRiskInsightsReportResponse,
@@ -11,7 +12,6 @@ import {
   SaveRiskInsightsReportRequest,
   SaveRiskInsightsReportResponse,
 } from "../models/api-models.types";
-import { EncryptedDataWithKey } from "../models/password-health";
 
 export class RiskInsightsApiService {
   constructor(private apiService: ApiService) {}
@@ -102,7 +102,7 @@ export class RiskInsightsApiService {
   }
 
   updateRiskInsightsApplicationData$(
-    applicationData: EncryptedDataWithKey,
+    applicationData: OrganizationReportApplication,
     orgId: OrganizationId,
     reportId: OrganizationReportId,
   ): Observable<void> {
