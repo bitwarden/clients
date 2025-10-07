@@ -2,6 +2,7 @@
 // @ts-strict-ignore
 import {
   BehaviorSubject,
+  combineLatest,
   concatMap,
   debounceTime,
   firstValueFrom,
@@ -51,7 +52,7 @@ import { Fido2CredentialView } from "@bitwarden/common/vault/models/view/fido2-c
 import { IdentityView } from "@bitwarden/common/vault/models/view/identity.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
-import { GenerateRequest, Type } from "@bitwarden/generator-core";
+import { CredentialGeneratorService, GenerateRequest, Type } from "@bitwarden/generator-core";
 import { GeneratedCredential } from "@bitwarden/generator-history";
 
 // FIXME (PM-22628): Popup imports are forbidden in background
@@ -248,6 +249,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       $on: Observable<GenerateRequest>,
     ) => Observable<GeneratedCredential>,
     private trackCredentialHistory: (password: string) => Promise<void>,
+    protected generatorService: CredentialGeneratorService,
   ) {
     this.initOverlayEventObservables();
   }
@@ -268,6 +270,9 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     this.yieldedPassword$
       .pipe(
         concatMap(async (generated) => {
+          if (!generated) {
+            return;
+          }
           await this.trackCredentialHistory(generated.credential);
           return generated.credential;
         }),
@@ -3104,7 +3109,23 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       return false;
     }
 
-    if (!this.credential$.value) {
+    const autogenerate$ = combineLatest([
+      this.credential$,
+      this.generatorService.preferredAlgorithm$("password", {
+        account$: this.accountService.activeAccount$,
+      }),
+    ]).pipe(
+      map(
+        ([
+          credential,
+          {
+            capabilities: { autogenerate },
+          },
+        ]) => !credential && autogenerate,
+      ),
+    );
+
+    if (!(await firstValueFrom(autogenerate$))) {
       this.requestGeneratedPassword({ source: "inline-menu.init", type: Type.password });
     }
 
