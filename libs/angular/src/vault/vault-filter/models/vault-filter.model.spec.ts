@@ -103,12 +103,12 @@ describe("VaultFilter", () => {
     });
 
     describe("given a cipher without folder", () => {
-      const cipher = createCipher({ folderId: null });
+      const cipher = createCipher({ folderId: undefined });
 
       it("should return true when filtering on unassigned folder", () => {
         const filterFunction = createFilterFunction({
           selectedFolder: true,
-          selectedFolderId: null,
+          selectedFolderId: undefined,
         });
 
         const result = filterFunction(cipher);
@@ -175,7 +175,7 @@ describe("VaultFilter", () => {
       it("should return true when filtering for unassigned collection", () => {
         const filterFunction = createFilterFunction({
           selectedCollection: true,
-          selectedCollectionId: null,
+          selectedCollectionId: undefined,
         });
 
         const result = filterFunction(cipher);
@@ -195,12 +195,12 @@ describe("VaultFilter", () => {
     });
 
     describe("given an individual cipher (without organization or collection)", () => {
-      const cipher = createCipher({ organizationId: null, collectionIds: [] });
+      const cipher = createCipher({ organizationId: undefined, collectionIds: [] });
 
       it("should return false when filtering for unassigned collection", () => {
         const filterFunction = createFilterFunction({
           selectedCollection: true,
-          selectedCollectionId: null,
+          selectedCollectionId: undefined,
         });
 
         const result = filterFunction(cipher);
@@ -209,7 +209,7 @@ describe("VaultFilter", () => {
       });
 
       it("should return true when filtering for my vault only", () => {
-        const cipher = createCipher({ organizationId: null });
+        const cipher = createCipher({ organizationId: undefined });
         const filterFunction = createFilterFunction({
           myVaultOnly: true,
         });
@@ -230,11 +230,11 @@ function createCipher(options: Partial<CipherView> = {}) {
   const cipher = new CipherView();
 
   cipher.favorite = options.favorite ?? false;
-  cipher.deletedDate = options.deletedDate;
-  cipher.type = options.type;
-  cipher.folderId = options.folderId;
-  cipher.collectionIds = options.collectionIds;
-  cipher.organizationId = options.organizationId;
+  cipher.deletedDate = options.deletedDate ?? null;
+  cipher.type = options.type ?? CipherType.Login;
+  cipher.folderId = options.folderId ?? "";
+  cipher.collectionIds = options.collectionIds ?? [];
+  cipher.organizationId = options.organizationId ?? undefined;
 
   return cipher;
 }
