@@ -18,6 +18,7 @@ import {
   UserKeyDefinition,
 } from "../../platform/state";
 import { UserId } from "../../types/guid";
+import { AutofillTargetingRulesByDomain, AutofillTargetingRules } from "../types";
 
 const SHOW_FAVICONS = new KeyDefinition(DOMAIN_SETTINGS_DISK, "showFavicons", {
   deserializer: (value: boolean) => value ?? true,
@@ -51,10 +52,23 @@ const DEFAULT_URI_MATCH_STRATEGY = new UserKeyDefinition(
   },
 );
 
+const AUTOFILL_TARGETING_RULES = new UserKeyDefinition(
+  DOMAIN_SETTINGS_DISK,
+  "autofillTargetingRules",
+  {
+    deserializer: (value: AutofillTargetingRulesByDomain) => value ?? {},
+    clearOn: [],
+  },
+);
+
 /**
  * The Domain Settings service; provides client settings state for "active client view" URI concerns
  */
 export abstract class DomainSettingsService {
+  autofillTargetingRules$: Observable<AutofillTargetingRulesByDomain>;
+  setAutofillTargetingRules: (newValue: AutofillTargetingRulesByDomain) => Promise<void>;
+  getUrlAutofillTargetingRules$: (url: string) => Observable<AutofillTargetingRules>;
+
   /**
    * Indicates if the favicons for ciphers' URIs should be shown instead of a placeholder
    */
@@ -94,6 +108,9 @@ export abstract class DomainSettingsService {
 }
 
 export class DefaultDomainSettingsService implements DomainSettingsService {
+  private autofillTargetingRulesState: ActiveUserState<AutofillTargetingRulesByDomain>;
+  readonly autofillTargetingRules$: Observable<AutofillTargetingRulesByDomain>;
+
   private showFaviconsState: GlobalState<boolean>;
   readonly showFavicons$: Observable<boolean>;
 
@@ -110,6 +127,9 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
   readonly defaultUriMatchStrategy$: Observable<UriMatchStrategySetting>;
 
   constructor(private stateProvider: StateProvider) {
+    this.autofillTargetingRulesState = this.stateProvider.getActive(AUTOFILL_TARGETING_RULES);
+    this.autofillTargetingRules$ = this.autofillTargetingRulesState.state$.pipe(map((x) => (x && Object.keys(x).length) ? x : {}));
+
     this.showFaviconsState = this.stateProvider.getGlobal(SHOW_FAVICONS);
     this.showFavicons$ = this.showFaviconsState.state$.pipe(map((x) => x ?? true));
 
@@ -129,6 +149,10 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
     this.defaultUriMatchStrategy$ = this.defaultUriMatchStrategyState.state$.pipe(
       map((x) => x ?? UriMatchStrategy.Domain),
     );
+  }
+
+  async setAutofillTargetingRules(newValue: AutofillTargetingRulesByDomain): Promise<void> {
+    await this.autofillTargetingRulesState.update(() => newValue);
   }
 
   async setShowFavicons(newValue: boolean): Promise<void> {
@@ -166,5 +190,19 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
     );
 
     return domains$;
+  }
+
+  getUrlAutofillTargetingRules$(url: string): Observable<AutofillTargetingRules> {
+    return this.autofillTargetingRules$.pipe(
+      map((autofillTargetingRules) => {
+        const domain = Utils.getHostname(url);
+
+        if (domain == null) {
+          return {};
+        }
+
+        return autofillTargetingRules?.[domain] || {};
+      }),
+    );
   }
 }
