@@ -6,7 +6,11 @@ import {
   LEGACY_CipherHealthReportDetail,
   LEGACY_CipherHealthReportUriDetail,
 } from "../models/password-health";
-import { ApplicationHealthReportDetail } from "../models/report-models";
+import {
+  ApplicationHealthReportDetail,
+  OrganizationReportSummary,
+  RiskInsightsData,
+} from "../models/report-models";
 import { MemberCipherDetailsResponse } from "../response/member-cipher-details.response";
 
 export function flattenMemberDetails(
@@ -143,4 +147,37 @@ export function getApplicationReportDetail(
   reportDetail.memberCount = reportDetail.memberDetails.length;
 
   return reportDetail;
+}
+
+/**
+ * Create a new Risk Insights Report
+ *
+ * @returns An empty report
+ */
+export function createNewReportData(): RiskInsightsData {
+  return {
+    creationDate: new Date(),
+    reportData: [],
+    summaryData: createNewSummaryData(),
+    applicationData: [],
+  };
+}
+
+/**
+ * Create a new Risk Insights Report Summary
+ *
+ * @returns An empty report summary
+ */
+export function createNewSummaryData(): OrganizationReportSummary {
+  return {
+    totalMemberCount: 0,
+    totalAtRiskMemberCount: 0,
+    totalApplicationCount: 0,
+    totalAtRiskApplicationCount: 0,
+    totalCriticalMemberCount: 0,
+    totalCriticalAtRiskMemberCount: 0,
+    totalCriticalApplicationCount: 0,
+    totalCriticalAtRiskApplicationCount: 0,
+    newApplications: [],
+  };
 }

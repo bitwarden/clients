@@ -12,7 +12,7 @@ export * from "./deactivated-org";
 export * from "./devices.icon";
 export * from "./domain.icon";
 export * from "./empty-trash";
-export * from "./extension-bitwarden-logo.icon";
+export * from "./favorites.icon";
 export * from "./gear";
 export * from "./generator";
 export * from "./item-types";

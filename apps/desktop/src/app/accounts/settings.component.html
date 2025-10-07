@@ -339,22 +339,27 @@
                       formControlName="enableAutotype"
                       (change)="saveEnableAutotype()"
                     />
-                    {{ "enableAutotypeTransitionKey" | i18n }}
-                    <button
-                      type="button"
-                      bitBadge
-                      variant="success"
-                      (click)="openPremiumDialog()"
-                      *ngIf="!hasPremium"
-                    >
-                      {{ "premium" | i18n }}
-                    </button>
+                    <div class="tw-flex tw-items-center tw-gap-2">
+                      {{ "enableAutotypeShortcutPreview" | i18n }}
+                      <div>
+                        <code>{{ form.value.autotypeShortcut }}</code>
+                      </div>
+                      <app-premium-badge></app-premium-badge>
+                    </div>
                   </label>
                 </div>
                 <small class="help-block" *ngIf="form.value.enableAutotype">
                   <b>{{ "important" | i18n }}</b>
-                  {{ "enableAutotypeDescriptionTransitionKey" | i18n }}
-                  <b>{{ "editShortcut" | i18n }}</b></small
+                  {{ "enableAutotypeShortcutDescription" | i18n }}
+                  <a
+                    class="settings-link"
+                    tabindex="0"
+                    *ngIf="this.form.value.enableAutotype"
+                    (click)="saveAutotypeShortcut()"
+                    (keydown.enter)="saveAutotypeShortcut(); $event.preventDefault()"
+                  >
+                    {{ "editShortcut" | i18n }}
+                  </a></small
                 >
               </div>
               <div class="form-group">

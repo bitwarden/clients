@@ -16,6 +16,7 @@ import { AriaDisableDirective } from "../a11y";
 import { setA11yTitleAndAriaLabel } from "../a11y/set-a11y-title-and-aria-label";
 import { ButtonLikeAbstraction } from "../shared/button-like.abstraction";
 import { FocusableElement } from "../shared/focusable-element";
+import { SpinnerComponent } from "../spinner";
 import { ariaDisableElement } from "../utils";
 
 export type IconButtonType = "primary" | "danger" | "contrast" | "main" | "muted" | "nav-contrast";
@@ -87,7 +88,7 @@ const sizes: Record<IconButtonSize, string[]> = {
     { provide: ButtonLikeAbstraction, useExisting: BitIconButtonComponent },
     { provide: FocusableElement, useExisting: BitIconButtonComponent },
   ],
-  imports: [NgClass],
+  imports: [NgClass, SpinnerComponent],
   host: {
     /**
      * When the `bitIconButton` input is dynamic from a consumer, Angular doesn't put the
@@ -129,7 +130,11 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
       .concat(sizes[this.size()])
       .concat(
         this.showDisabledStyles() || this.disabled()
-          ? ["aria-disabled:tw-opacity-60", "aria-disabled:hover:!tw-bg-transparent"]
+          ? [
+              "aria-disabled:tw-opacity-60",
+              "aria-disabled:hover:!tw-bg-transparent",
+              "tw-cursor-default",
+            ]
           : [],
       );
   }
