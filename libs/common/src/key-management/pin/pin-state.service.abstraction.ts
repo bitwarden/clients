@@ -16,7 +16,7 @@ export abstract class PinStateServiceAbstraction {
    * @param userId The user's id
    * @throws If the user id is not provided
    */
-  abstract userKeyWrappedPin$(userId: UserId): Observable<EncString | null>;
+  abstract userKeyEncryptedPin$(userId: UserId): Observable<EncString | null>;
 
   /**
    * Gets the user's {@link PinLockType}
@@ -24,6 +24,12 @@ export abstract class PinStateServiceAbstraction {
    * @throws If the user id is not provided
    */
   abstract getPinLockType(userId: UserId): Promise<PinLockType>;
+
+  /**
+   * Checks if a user is enrolled into PIN unlock
+   * @param userId The user's id
+   */
+  abstract isPinSet(userId: UserId): Promise<boolean>;
 
   /**
    * Gets the user's PIN-protected UserKey envelope, either persistent or ephemeral based on the provided PinLockType

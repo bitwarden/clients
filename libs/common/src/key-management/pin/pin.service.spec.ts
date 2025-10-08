@@ -6,7 +6,7 @@ import { DEFAULT_KDF_CONFIG, KdfConfigService, KeyService } from "@bitwarden/key
 import { PasswordProtectedKeyEnvelope } from "@bitwarden/sdk-internal";
 
 import { MockSdkService } from "../..//platform/spec/mock-sdk.service";
-import { FakeAccountService, FakeStateProvider, mockAccountServiceWith } from "../../../spec";
+import { FakeAccountService, mockAccountServiceWith } from "../../../spec";
 import { LogService } from "../../platform/abstractions/log.service";
 import { Utils } from "../../platform/misc/utils";
 import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
@@ -16,6 +16,7 @@ import { KeyGenerationService } from "../crypto";
 import { EncryptService } from "../crypto/abstractions/encrypt.service";
 import { EncryptedString, EncString } from "../crypto/models/enc-string";
 
+import { PinStateServiceAbstraction } from "./pin-state.service.abstraction";
 import { PinService } from "./pin.service.implementation";
 import {
   USER_KEY_ENCRYPTED_PIN,
@@ -28,7 +29,6 @@ describe("PinService", () => {
   let sut: PinService;
 
   let accountService: FakeAccountService;
-  let stateProvider: FakeStateProvider;
 
   const encryptService = mock<EncryptService>();
   const kdfConfigService = mock<KdfConfigService>();
@@ -44,11 +44,11 @@ describe("PinService", () => {
   const mockPersistentEnvelope = "mock-persistent-envelope" as PasswordProtectedKeyEnvelope;
   const keyService = mock<KeyService>();
   const sdkService = new MockSdkService();
+  const pinStateService = mock<PinStateServiceAbstraction>();
   const behaviorSubject = new BehaviorSubject<{ userId: UserId; userKey: UserKey }>(null);
 
   beforeEach(() => {
     accountService = mockAccountServiceWith(mockUserId, { email: mockUserEmail });
-    stateProvider = new FakeStateProvider(accountService);
     (keyService as any)["unlockedUserKeys$"] = behaviorSubject
       .asObservable()
       .pipe(filter((x) => x != null));
@@ -62,9 +62,9 @@ describe("PinService", () => {
       kdfConfigService,
       keyGenerationService,
       logService,
-      stateProvider,
       keyService,
       sdkService,
+      pinStateService,
     );
   });
 

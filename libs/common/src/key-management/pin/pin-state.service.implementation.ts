@@ -19,12 +19,17 @@ import {
 export class PinStateService implements PinStateServiceAbstraction {
   constructor(private stateProvider: StateProvider) {}
 
-  userKeyWrappedPin$(userId: UserId): Observable<EncString | null> {
+  userKeyEncryptedPin$(userId: UserId): Observable<EncString | null> {
     assertNonNullish(userId, "userId");
 
     return this.stateProvider
       .getUserState$(USER_KEY_ENCRYPTED_PIN, userId)
       .pipe(map((value) => (value ? new EncString(value) : null)));
+  }
+
+  async isPinSet(userId: UserId): Promise<boolean> {
+    assertNonNullish(userId, "userId");
+    return (await this.getPinLockType(userId)) !== "DISABLED";
   }
 
   async getPinLockType(userId: UserId): Promise<PinLockType> {
