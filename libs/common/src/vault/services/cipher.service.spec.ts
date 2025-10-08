@@ -45,6 +45,7 @@ import { CipherView } from "../models/view/cipher.view";
 import { LoginUriView } from "../models/view/login-uri.view";
 
 import { CipherService } from "./cipher.service";
+import { ENCRYPTED_CIPHERS } from "./key-state/ciphers.state";
 
 const ENCRYPTED_TEXT = "This data has been encrypted";
 function encryptText(clearText: string | Uint8Array) {
@@ -815,6 +816,28 @@ describe("Cipher Service", () => {
 
       expect(successes).toHaveLength(2);
       expect(failures).toHaveLength(0);
+    });
+  });
+
+  describe("softDelete", () => {
+    it("clears archivedDate when soft deleting", async () => {
+      const cipherId = "cipher-id-1" as CipherId;
+      const archivedCipher = {
+        ...cipherData,
+        id: cipherId,
+        archivedDate: "2024-01-01T12:00:00.000Z",
+      } as CipherData;
+
+      const ciphers = { [cipherId]: archivedCipher } as Record<CipherId, CipherData>;
+      stateProvider.singleUser.getFake(mockUserId, ENCRYPTED_CIPHERS).nextState(ciphers);
+
+      await cipherService.softDelete(cipherId, mockUserId);
+
+      const result = await firstValueFrom(
+        stateProvider.singleUser.getFake(mockUserId, ENCRYPTED_CIPHERS).state$,
+      );
+      expect(result[cipherId].archivedDate).toBeNull();
+      expect(result[cipherId].deletedDate).toBeDefined();
     });
   });
 });
