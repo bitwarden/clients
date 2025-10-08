@@ -57,13 +57,15 @@ export class DefaultCipherFormConfigService implements CipherFormConfigService {
             ),
           ),
           this.organizationDataOwnershipDisabled$,
-          this.folderService.folders$(activeUserId).pipe(
-            switchMap((f) =>
-              this.folderService.folderViews$(activeUserId).pipe(
-                filter((d) => d.length - 1 === f.length), // -1 for "No Folder" in folderViews$
+          this.folderService
+            .folders$(activeUserId)
+            .pipe(
+              switchMap((f) =>
+                this.folderService
+                  .folderViews$(activeUserId)
+                  .pipe(filter((d) => d.length > 0 || f.length === 0)),
               ),
             ),
-          ),
           this.getCipher(activeUserId, cipherId),
         ]),
       );
