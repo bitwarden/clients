@@ -204,14 +204,16 @@ export class OrganizationWarningsService {
           }
           case "resubscribe": {
             const subscription = await this.organizationApiService.getSubscription(organization.id);
-            const dialogReference = openChangePlanDialog(this.dialogService, {
-              data: {
-                organizationId: organization.id,
-                subscription: subscription,
-                productTierType: organization.productTierType,
-              },
-            });
-            await lastValueFrom(dialogReference.closed);
+            if (!organization.enabled) {
+              const dialogReference = openChangePlanDialog(this.dialogService, {
+                data: {
+                  organizationId: organization.id,
+                  subscription: subscription,
+                  productTierType: organization.productTierType,
+                },
+              });
+              await lastValueFrom(dialogReference.closed);
+            }
             break;
           }
           case "contact_owner": {
