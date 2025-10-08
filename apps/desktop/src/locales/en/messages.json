@@ -4162,10 +4162,10 @@
     "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
   },
   "itemSentToArchive": {
-    "message": "Item sent to archive"
+    "message": "Item was sent to archive"
   },
   "itemWasUnarchived": {
-    "message": "Item was unarchived."
+    "message": "Item was unarchived"
   },
   "archiveItem": {
     "message": "Archive item"
