@@ -550,8 +550,13 @@
   "resetSearch": {
     "message": "重置搜索"
   },
-  "archive": {
-    "message": "归档"
+  "archiveNoun": {
+    "message": "归档",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "归档",
+    "description": "Verb"
   },
   "unarchive": {
     "message": "取消归档"
@@ -727,6 +732,15 @@
   },
   "invalidMasterPassword": {
     "message": "无效的主密码"
+  },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "无效的主密码。请确认您的电子邮箱正确无误，以及您的账户是在 $HOST$ 上创建的。",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
   },
   "vaultTimeout": {
     "message": "密码库超时时间"
@@ -1134,7 +1148,7 @@
     "description": "Shown to user after item is updated."
   },
   "selectItemAriaLabel": {
-    "message": "选择 $ITEMTYPE$，$ITEMNAME$",
+    "message": "选择 $ITEMNAME$ 中的 $ITEMTYPE$",
     "description": "Used by screen readers. $1 is the item type (like vault or folder), $2 is the selected item name.",
     "placeholders": {
       "itemType": {
@@ -1639,10 +1653,10 @@
     "message": "轻松找到自动填充建议"
   },
   "autofillSpotlightDesc": {
-    "message": "关闭浏览器的自动填充设置，以免与 Bitwarden 产生冲突。"
+    "message": "停用您浏览器的自动填充设置，以免与 Bitwarden 产生冲突。"
   },
   "turnOffBrowserAutofill": {
-    "message": "关闭 $BROWSER$ 的自动填充",
+    "message": "停用 $BROWSER$ 自动填充",
     "placeholders": {
       "browser": {
         "content": "$1",
@@ -1651,7 +1665,7 @@
     }
   },
   "turnOffAutofill": {
-    "message": "关闭自动填充"
+    "message": "停用自动填充"
   },
   "showInlineMenuLabel": {
     "message": "在表单字段中显示自动填充建议"
@@ -3193,6 +3207,24 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "仅会导出与 $ORGANIZATION$ 关联的组织密码库。",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "仅会导出与 $ORGANIZATION$ 关联的组织密码库，不包括我的项目集合。",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "error": {
     "message": "错误"
   },
@@ -4622,7 +4654,7 @@
     }
   },
   "copyFieldCipherName": {
-    "message": "复制 $CIPHERNAME$ 的 $FIELD$",
+    "message": "复制 $CIPHERNAME$ 中的 $FIELD$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
