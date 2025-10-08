@@ -840,7 +840,7 @@ describe("Cipher Service", () => {
       await tick();
     };
 
-    it("emits when current state is empty and replace({}) is called", async () => {
+    it("emits and calls updateEncryptedCipherState when current state is empty and replace({}) is called", async () => {
       // Ensure empty state
       await setEncryptedState({});
 
@@ -860,7 +860,7 @@ describe("Cipher Service", () => {
       sub.unsubscribe();
     });
 
-    it("does NOT emit (and does NOT call update) when state is non-empty and identical", async () => {
+    it("does NOT emit or call updateEncryptedCipherState when state is non-empty and identical", async () => {
       const A = makeCipher("A");
       await setEncryptedState({ [A.id as CipherId]: A });
 
@@ -880,7 +880,7 @@ describe("Cipher Service", () => {
       sub.unsubscribe();
     });
 
-    it("emits (and updates) when the provided state differs from current", async () => {
+    it("emits and calls updateEncryptedCipherState when the provided state differs from current", async () => {
       const A = makeCipher("A");
       await setEncryptedState({ [A.id as CipherId]: A });
 
