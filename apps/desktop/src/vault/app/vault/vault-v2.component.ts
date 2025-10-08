@@ -872,6 +872,20 @@ export class VaultV2Component<C extends CipherViewLike>
     }
   }
 
+  /** Refresh the current cipher object */
+  protected async refreshCurrentCipher() {
+    if (!this.cipher) {
+      return;
+    }
+
+    this.cipher = await firstValueFrom(
+      this.cipherService.cipherViews$(this.activeUserId!).pipe(
+        filter((c) => !!c),
+        map((ciphers) => ciphers.find((c) => c.id === this.cipherId) ?? null),
+      ),
+    );
+  }
+
   private dirtyInput(): boolean {
     return (
       (this.action === "add" || this.action === "edit" || this.action === "clone") &&

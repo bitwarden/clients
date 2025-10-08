@@ -40,6 +40,7 @@ export class ItemFooterComponent implements OnInit, OnChanges {
   @Output() onDelete = new EventEmitter<CipherView>();
   @Output() onRestore = new EventEmitter<CipherView>();
   @Output() onCancel = new EventEmitter<CipherView>();
+  @Output() onArchiveToggle = new EventEmitter<CipherView>();
   @ViewChild("submitBtn", { static: false }) submitBtn: ButtonComponent | null = null;
 
   activeUserId: UserId | null = null;
@@ -182,10 +183,12 @@ export class ItemFooterComponent implements OnInit, OnChanges {
 
   protected async archive() {
     await this.archiveCipherUtilitiesService.archiveCipher(this.cipher);
+    this.onArchiveToggle.emit();
   }
 
   protected async unarchive() {
     await this.archiveCipherUtilitiesService.unarchiveCipher(this.cipher);
+    this.onArchiveToggle.emit();
   }
 
   private async checkArchiveState() {
