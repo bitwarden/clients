@@ -472,16 +472,11 @@ jobs:
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: bitwarden/gh-actions/azure-logout@main
 
-      - name: Update version for appx
-        shell: pwsh
-        working-directory: apps/desktop
-        env:
-          BUILD_NUMBER: ${{ needs.setup.outputs.build_number }}
+      - name: Set build number for appx
+        shell: bash
         run: |
-          $package = Get-Content package.json | ConvertFrom-Json
-          $package | Add-Member -MemberType NoteProperty -Name buildVersion -Value "$env:BUILD_NUMBER"
-          $package | ConvertTo-Json -Depth 32 | Set-Content package.json
-          Write-Output "Updated package.json with buildVersion: $env:BUILD_NUMBER"
+          echo "BUILD_NUMBER=${{ needs.setup.outputs.build_number }}" >> $GITHUB_ENV
+          echo "Build number set to ${{ needs.setup.outputs.build_number }} for appx versioning"
 
       - name: Install Node dependencies
         run: npm ci
