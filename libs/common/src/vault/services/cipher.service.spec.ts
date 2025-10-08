@@ -45,6 +45,7 @@ import { CipherView } from "../models/view/cipher.view";
 import { LoginUriView } from "../models/view/login-uri.view";
 
 import { CipherService } from "./cipher.service";
+import { ENCRYPTED_CIPHERS } from "./key-state/ciphers.state";
 
 const ENCRYPTED_TEXT = "This data has been encrypted";
 function encryptText(clearText: string | Uint8Array) {
@@ -815,6 +816,89 @@ describe("Cipher Service", () => {
 
       expect(successes).toHaveLength(2);
       expect(failures).toHaveLength(0);
+    });
+  });
+
+  describe("replace (no upsert)", () => {
+    // In order to set up initial state we need to manually update the encrypted state
+    // which will result in an emission. All tests will have this baseline emission.
+    const TEST_BASELINE_EMISSIONS = 1;
+
+    const makeCipher = (id: string): CipherData =>
+      ({
+        ...cipherData,
+        id,
+        name: `Enc ${id}`,
+      }) as CipherData;
+
+    const tick = async () => new Promise((r) => setTimeout(r, 0));
+
+    const setEncryptedState = async (data: Record<CipherId, CipherData>, uid = userId) => {
+      // Directly set the encrypted state, this will result in a single emission
+      await stateProvider.getUser(uid, ENCRYPTED_CIPHERS).update(() => data);
+      // match service’s “next tick” behavior so subscribers see it
+      await tick();
+    };
+
+    it("emits when current state is empty and replace({}) is called", async () => {
+      // Ensure empty state
+      await setEncryptedState({});
+
+      const emissions: Array<Record<CipherId, CipherData>> = [];
+      const sub = cipherService.ciphers$(userId).subscribe((v) => emissions.push(v));
+      await tick();
+
+      const spy = jest.spyOn<any, any>(cipherService, "updateEncryptedCipherState");
+
+      // Calling replace with empty object MUST still update to trigger init emissions
+      await cipherService.replace({}, userId);
+      await tick();
+
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(emissions.length).toBeGreaterThanOrEqual(TEST_BASELINE_EMISSIONS + 1);
+
+      sub.unsubscribe();
+    });
+
+    it("does NOT emit (and does NOT call update) when state is non-empty and identical", async () => {
+      const A = makeCipher("A");
+      await setEncryptedState({ [A.id as CipherId]: A });
+
+      const emissions: Array<Record<CipherId, CipherData>> = [];
+      const sub = cipherService.ciphers$(userId).subscribe((v) => emissions.push(v));
+      await tick();
+
+      const spy = jest.spyOn<any, any>(cipherService, "updateEncryptedCipherState");
+
+      // identical snapshot → short-circuit path
+      await cipherService.replace({ [A.id as CipherId]: A }, userId);
+      await tick();
+
+      expect(spy).not.toHaveBeenCalled();
+      expect(emissions.length).toBe(TEST_BASELINE_EMISSIONS);
+
+      sub.unsubscribe();
+    });
+
+    it("emits (and updates) when the provided state differs from current", async () => {
+      const A = makeCipher("A");
+      await setEncryptedState({ [A.id as CipherId]: A });
+
+      const emissions: Array<Record<CipherId, CipherData>> = [];
+      const sub = cipherService.ciphers$(userId).subscribe((v) => emissions.push(v));
+      await tick();
+
+      const spy = jest.spyOn<any, any>(cipherService, "updateEncryptedCipherState");
+
+      const B = makeCipher("B");
+      await cipherService.replace({ [B.id as CipherId]: B }, userId);
+      await tick();
+
+      expect(spy).toHaveBeenCalledTimes(1);
+
+      expect(emissions.length).toBeGreaterThanOrEqual(TEST_BASELINE_EMISSIONS + 1);
+
+      sub.unsubscribe();
     });
   });
 });

@@ -1170,7 +1170,7 @@ export class CipherService implements CipherServiceAbstraction {
     // observable won’t emit a new value. In this case we can skip the update to avoid calling
     // clearCache and causing an empty state.
     // If the current state is empty (eg. for new users), we still want to perform the update to ensure
-    // we trigger an emission as many subscribers rely on it.
+    // we trigger an emission as many subscribers rely on it during initialization.
     if (Object.keys(current).length > 0 && JSON.stringify(current) === JSON.stringify(ciphers)) {
       return ciphers;
     }
