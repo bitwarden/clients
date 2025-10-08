@@ -161,7 +161,7 @@ export default class AutofillService implements AutofillServiceInterface {
 
     // Create a timeout observable that emits an empty array if pageDetailsFromTab$ hasn't emitted within 1 second.
     const pageDetailsTimeout$ = timer(1000).pipe(
-      map(() => []),
+      map((): any => []),
       takeUntil(sharedPageDetailsFromTab$),
     );
 
@@ -434,10 +434,17 @@ export default class AutofillService implements AutofillServiceInterface {
           return;
         }
 
-        const fillScript = await this.generateFillScript(pd.details, {
+        // If we have a focused form, filter the page details to only include fields from that form
+        const details = options.focusedFieldForm
+          ? {
+              ...pd.details,
+              fields: pd.details.fields.filter((f) => f.form === options.focusedFieldForm),
+            }
+          : pd.details;
+
+        const fillScript = await this.generateFillScript(details, {
           skipUsernameOnlyFill: options.skipUsernameOnlyFill || false,
           onlyEmptyFields: options.onlyEmptyFields || false,
-          onlyVisibleFields: options.onlyVisibleFields || false,
           fillNewPassword: options.fillNewPassword || false,
           allowTotpAutofill: options.allowTotpAutofill || false,
           autoSubmitLogin: options.autoSubmitLogin || false,
@@ -571,7 +578,6 @@ export default class AutofillService implements AutofillServiceInterface {
       skipLastUsed: !fromCommand,
       skipUsernameOnlyFill: !fromCommand,
       onlyEmptyFields: !fromCommand,
-      onlyVisibleFields: !fromCommand,
       fillNewPassword: fromCommand,
       allowUntrustedIframe: fromCommand,
       allowTotpAutofill: fromCommand,
@@ -676,7 +682,6 @@ export default class AutofillService implements AutofillServiceInterface {
       skipLastUsed: !fromCommand,
       skipUsernameOnlyFill: !fromCommand,
       onlyEmptyFields: !fromCommand,
-      onlyVisibleFields: !fromCommand,
       fillNewPassword: false,
       allowUntrustedIframe: fromCommand,
       allowTotpAutofill: false,
@@ -843,23 +848,13 @@ export default class AutofillService implements AutofillServiceInterface {
 
     fillScript.untrustedIframe = await this.inUntrustedIframe(pageDetails.url, options);
 
-    let passwordFields = AutofillService.loadPasswordFields(
+    const passwordFields = AutofillService.loadPasswordFields(
       pageDetails,
       false,
       false,
       options.onlyEmptyFields,
       options.fillNewPassword,
     );
-    if (!passwordFields.length && !options.onlyVisibleFields) {
-      // not able to find any viewable password fields. maybe there are some "hidden" ones?
-      passwordFields = AutofillService.loadPasswordFields(
-        pageDetails,
-        true,
-        true,
-        options.onlyEmptyFields,
-        options.fillNewPassword,
-      );
-    }
 
     for (const formKey in pageDetails.forms) {
       // eslint-disable-next-line
@@ -874,11 +869,6 @@ export default class AutofillService implements AutofillServiceInterface {
         if (login.username) {
           username = this.findUsernameField(pageDetails, pf, false, false, false);
 
-          if (!username && !options.onlyVisibleFields) {
-            // not able to find any viewable username fields. maybe there are some "hidden" ones?
-            username = this.findUsernameField(pageDetails, pf, true, true, false);
-          }
-
           if (username) {
             usernames.push(username);
           }
@@ -886,11 +876,6 @@ export default class AutofillService implements AutofillServiceInterface {
 
         if (options.allowTotpAutofill && login.totp) {
           totp = this.findTotpField(pageDetails, pf, false, false, false);
-
-          if (!totp && !options.onlyVisibleFields) {
-            // not able to find any viewable totp fields. maybe there are some "hidden" ones?
-            totp = this.findTotpField(pageDetails, pf, true, true, false);
-          }
 
           if (totp) {
             totps.push(totp);
@@ -909,11 +894,6 @@ export default class AutofillService implements AutofillServiceInterface {
       if (login.username && pf.elementNumber > 0) {
         username = this.findUsernameField(pageDetails, pf, false, false, true);
 
-        if (!username && !options.onlyVisibleFields) {
-          // not able to find any viewable username fields. maybe there are some "hidden" ones?
-          username = this.findUsernameField(pageDetails, pf, true, true, true);
-        }
-
         if (username) {
           usernames.push(username);
         }
@@ -921,11 +901,6 @@ export default class AutofillService implements AutofillServiceInterface {
 
       if (options.allowTotpAutofill && login.totp && pf.elementNumber > 0) {
         totp = this.findTotpField(pageDetails, pf, false, false, true);
-
-        if (!totp && !options.onlyVisibleFields) {
-          // not able to find any viewable username fields. maybe there are some "hidden" ones?
-          totp = this.findTotpField(pageDetails, pf, true, true, true);
-        }
 
         if (totp) {
           totps.push(totp);
@@ -997,7 +972,7 @@ export default class AutofillService implements AutofillServiceInterface {
       fillScript.autosubmit = Array.from(formElementsSet);
     }
 
-    if (options.allowTotpAutofill) {
+    if (options.allowTotpAutofill && login?.totp) {
       await Promise.all(
         totps.map(async (t, i) => {
           if (Object.prototype.hasOwnProperty.call(filledFields, t.opid)) {
@@ -1005,10 +980,10 @@ export default class AutofillService implements AutofillServiceInterface {
           }
 
           filledFields[t.opid] = t;
-          const totpResponse = await firstValueFrom(
-            this.totpService.getCode$(options.cipher.login.totp),
-          );
+
+          const totpResponse = await firstValueFrom(this.totpService.getCode$(login.totp));
           let totpValue = totpResponse.code;
+
           if (totpValue.length == totps.length) {
             totpValue = totpValue.charAt(i);
           }
@@ -2295,6 +2270,8 @@ export default class AutofillService implements AutofillServiceInterface {
     withoutForm: boolean,
   ): AutofillField | null {
     let usernameField: AutofillField = null;
+    let usernameFieldInSameForm: AutofillField = null;
+
     for (let i = 0; i < pageDetails.fields.length; i++) {
       const f = pageDetails.fields[i];
       if (AutofillService.forCustomFieldsOnly(f)) {
@@ -2307,22 +2284,29 @@ export default class AutofillService implements AutofillServiceInterface {
 
       const includesUsernameFieldName =
         this.findMatchingFieldIndex(f, AutoFillConstants.UsernameFieldNames) > -1;
+      const isInSameForm = f.form === passwordField.form;
 
       if (
         !f.disabled &&
         (canBeReadOnly || !f.readonly) &&
-        (withoutForm || f.form === passwordField.form || includesUsernameFieldName) &&
+        (withoutForm || isInSameForm || includesUsernameFieldName) &&
         (canBeHidden || f.viewable) &&
         (f.type === "text" || f.type === "email" || f.type === "tel")
       ) {
-        usernameField = f;
-        // We found an exact match. No need to keep looking.
-        if (includesUsernameFieldName) {
-          break;
+        // Prioritize fields in the same form as the password field
+        if (isInSameForm) {
+          usernameFieldInSameForm = f;
+          if (includesUsernameFieldName) {
+            return f;
+          }
+        } else {
+          usernameField = f;
         }
       }
     }
-    return usernameField;
+
+    // Prefer username field in same form, fall back to any username field
+    return usernameFieldInSameForm || usernameField;
   }
 
   /**
@@ -2546,6 +2530,7 @@ export default class AutofillService implements AutofillServiceInterface {
       "label-tag",
       "placeholder",
       "label-left",
+      "label-right",
       "label-top",
       "label-aria",
       "dataSetValues",
@@ -2642,7 +2627,7 @@ export default class AutofillService implements AutofillServiceInterface {
   }
 
   /**
-   * Updates a fill script to place the `cilck_on_opid`, `focus_on_opid`, and `fill_by_opid`
+   * Updates a fill script to place the `click_on_opid`, `focus_on_opid`, and `fill_by_opid`
    * fill script actions associated with the provided field.
    * @param {AutofillScript} fillScript
    * @param {AutofillField} field

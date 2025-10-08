@@ -4,6 +4,7 @@ use anyhow::anyhow;
 use bitwarden_russh::ssh_agent;
 use homedir::my_home;
 use tokio::{net::UnixListener, sync::Mutex};
+use tracing::{error, info};
 
 use crate::ssh_agent::peercred_unix_listener_stream::PeercredUnixListenerStream;
 
@@ -33,7 +34,7 @@ impl BitwardenDesktopAgent {
         // runtime, remove it before beginning anew.
         remove_path(&socket_path)?;
 
-        println!("[SSH Agent Native Module] Starting SSH Agent server {socket_path:?}");
+        info!(?socket_path, "Starting SSH Agent server");
 
         match UnixListener::bind(socket_path.clone()) {
             Ok(listener) => {
@@ -59,18 +60,18 @@ impl BitwardenDesktopAgent {
                         .is_running
                         .store(false, std::sync::atomic::Ordering::Relaxed);
 
-                    println!("[SSH Agent Native Module] SSH Agent server exited");
+                    info!("SSH Agent server exited");
                 });
 
                 agent_state
                     .is_running
                     .store(true, std::sync::atomic::Ordering::Relaxed);
 
-                println!("[SSH Agent Native Module] SSH Agent is running: {socket_path:?}");
+                info!(?socket_path, "SSH Agent is running.");
             }
-            Err(e) => {
-                eprintln!("[SSH Agent Native Module] Error while starting agent server: {e}");
-                return Err(e.into());
+            Err(error) => {
+                error!(%error, ?socket_path, "Unable to start start agent server");
+                return Err(error.into());
             }
         }
 
@@ -85,9 +86,7 @@ fn get_socket_path() -> Result<PathBuf, anyhow::Error> {
     if let Ok(path) = std::env::var(ENV_BITWARDEN_SSH_AUTH_SOCK) {
         Ok(PathBuf::from(path))
     } else {
-        println!(
-            "[SSH Agent Native Module] {ENV_BITWARDEN_SSH_AUTH_SOCK} not set, using default path"
-        );
+        info!("BITWARDEN_SSH_AUTH_SOCK not set, using default path");
         get_default_socket_path()
     }
 }
@@ -99,7 +98,7 @@ fn is_flatpak() -> bool {
 // use the $HOME directory
 fn get_default_socket_path() -> Result<PathBuf, anyhow::Error> {
     let Ok(Some(mut ssh_agent_directory)) = my_home() else {
-        println!("[SSH Agent Native Module] Could not determine home directory");
+        error!("Could not determine home directory");
         return Err(anyhow!("Could not determine home directory."));
     };
 

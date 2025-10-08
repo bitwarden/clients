@@ -41,12 +41,10 @@
     </bit-section>
   </ng-container>
 
-  <div class="tw-mt-8" *ngIf="currentAccount$ | async as currentAccount">
+  <div *ngIf="currentAccount$ | async as currentAccount">
     <bit-section>
       <bit-section-header>
-        <h2 bitTypography="h6" class="tw-font-semibold">
-          {{ "options" | i18n }}
-        </h2>
+        <h2 bitTypography="h6">{{ "options" | i18n }}</h2>
       </bit-section-header>
 
       <bit-item>

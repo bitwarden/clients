@@ -7,9 +7,9 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
@@ -51,10 +51,10 @@ export class VaultFilterComponent
     protected toastService: ToastService,
     protected billingApiService: BillingApiServiceAbstraction,
     protected dialogService: DialogService,
-    protected configService: ConfigService,
     protected accountService: AccountService,
     protected restrictedItemTypesService: RestrictedItemTypesService,
     protected cipherService: CipherService,
+    protected cipherArchiveService: CipherArchiveService,
   ) {
     super(
       vaultFilterService,
@@ -64,10 +64,10 @@ export class VaultFilterComponent
       toastService,
       billingApiService,
       dialogService,
-      configService,
       accountService,
       restrictedItemTypesService,
       cipherService,
+      cipherArchiveService,
     );
   }
 

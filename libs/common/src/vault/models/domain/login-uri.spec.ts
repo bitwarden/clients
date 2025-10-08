@@ -56,10 +56,6 @@ describe("LoginUri", () => {
     const view = await loginUri.decrypt(null);
 
     expect(view).toEqual({
-      _canLaunch: null,
-      _domain: null,
-      _host: null,
-      _hostname: null,
       _uri: "uri",
       match: 3,
     });

@@ -3,7 +3,8 @@
 import { CommonModule } from "@angular/common";
 import { booleanAttribute, Component, Input } from "@angular/core";
 import { Router, RouterModule } from "@angular/router";
-import { BehaviorSubject, combineLatest, filter, firstValueFrom, map, switchMap } from "rxjs";
+import { BehaviorSubject, combineLatest, firstValueFrom, map, switchMap } from "rxjs";
+import { filter } from "rxjs/operators";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -11,6 +12,8 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { CipherId } from "@bitwarden/common/types/guid";
+import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
@@ -103,6 +106,20 @@ export class ItemMoreOptionsComponent {
     }),
   );
 
+  /** Observable Boolean checking if item can show Archive menu option */
+  protected canArchive$ = combineLatest([
+    this._cipher$,
+    this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) => this.cipherArchiveService.userCanArchive$(userId)),
+    ),
+  ]).pipe(
+    filter(([cipher, userId]) => cipher != null && userId != null),
+    map(([cipher, canArchive]) => {
+      return canArchive && !CipherViewLikeUtils.isArchived(cipher) && cipher.organizationId == null;
+    }),
+  );
+
   constructor(
     private cipherService: CipherService,
     private passwordRepromptService: PasswordRepromptService,
@@ -116,6 +133,7 @@ export class ItemMoreOptionsComponent {
     private cipherAuthorizationService: CipherAuthorizationService,
     private collectionService: CollectionService,
     private restrictedItemTypesService: RestrictedItemTypesService,
+    private cipherArchiveService: CipherArchiveService,
   ) {}
 
   get canEdit() {
@@ -231,6 +249,25 @@ export class ItemMoreOptionsComponent {
 
     await this.router.navigate(["/assign-collections"], {
       queryParams: { cipherId: this.cipher.id },
+    });
+  }
+
+  async archive() {
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: { key: "archiveItem" },
+      content: { key: "archiveItemConfirmDesc" },
+      type: "info",
+    });
+
+    if (!confirmed) {
+      return;
+    }
+
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    await this.cipherArchiveService.archiveWithServer(this.cipher.id as CipherId, activeUserId);
+    this.toastService.showToast({
+      variant: "success",
+      message: this.i18nService.t("itemSentToArchive"),
     });
   }
 }

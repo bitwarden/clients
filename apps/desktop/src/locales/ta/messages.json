@@ -960,9 +960,6 @@
   "insertU2f": {
     "message": "உங்கள் கணினியின் USB போர்ட்டில் உங்கள் பாதுகாப்பு விசையைச் செருகவும். அதற்கு ஒரு பொத்தான் இருந்தால், அதைத் தொடவும்."
   },
-  "recoveryCodeDesc": {
-    "message": "உங்கள் இரண்டு-காரணி வழங்குநர்கள் அனைத்திற்கான அணுகலை இழந்தீர்களா? உங்கள் கணக்கில் உள்ள அனைத்து இரண்டு-காரணி வழங்குநர்களையும் முடக்க உங்கள் மீட்புக் குறியீட்டைப் பயன்படுத்தவும்."
-  },
   "recoveryCodeTitle": {
     "message": "மீட்புக் குறியீடு"
   },
@@ -1225,6 +1222,15 @@
   "invalidMasterPassword": {
     "message": "தவறான முதன்மை கடவுச்சொல்"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "twoStepLoginConfirmation": {
     "message": "இரண்டு-படி உள்நுழைவு உங்கள் கணக்கை ஒரு பாதுகாப்பு விசை, அங்கீகரிப்பான் செயலி, SMS, ஃபோன் அழைப்பு அல்லது மின்னஞ்சல் போன்ற மற்றொரு சாதனம் மூலம் உங்கள் உள்நுழைவை சரிபார்க்க கோருவதன் மூலம் அதை மேலும் பாதுகாக்கிறது. bitwarden.com இணைய பெட்டகத்தில் இரண்டு-படி உள்நுழைவை அமைக்கலாம். இப்போது இணையதளத்திற்குச் செல்ல விரும்புகிறீர்களா?"
   },
@@ -1305,11 +1311,8 @@
     "message": "உங்கள் கிளிப்போர்டில் இருந்து நகலெடுக்கப்பட்ட மதிப்புகளை தானாக அழிக்கவும்.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
-  "enableFavicon": {
-    "message": "வலைத்தள ஐகான்களைக் காட்டு"
-  },
-  "faviconDesc": {
-    "message": "ஒவ்வொரு உள்நுழைவுக்கும் அருகில் அடையாளம் காணக்கூடிய படத்தைக் காட்டு."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "enableMinToTray": {
     "message": "ட்ராய் ஐகானுக்கு சுருக்கவும்"
@@ -2660,6 +2663,24 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "locked": {
     "message": "பூட்டப்பட்டது"
   },
@@ -3839,6 +3860,12 @@
   "changeAtRiskPassword": {
     "message": "ஆபத்தில் உள்ள கடவுச்சொல்லை மாற்று"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "காட்சி மட்டும் அனுமதிகளுடன் உள்ள தொகுப்புகளை உங்களால் அகற்ற முடியாது: $COLLECTIONS$",
     "placeholders": {
@@ -3933,6 +3960,12 @@
     "message": "SSH முகவரைப் பற்றி மேலும் அறியவும்",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
   },
   "assignToCollections": {
     "message": "தொகுப்புகளுக்கு ஒதுக்கு"
@@ -4074,11 +4107,17 @@
   "showLess": {
     "message": "குறைவாகக் காட்டு"
   },
-  "enableAutotype": {
-    "message": "தானியங்கு வகையை இயக்கு"
-  },
   "enableAutotypeDescription": {
     "message": "Bitwarden உள்ளீட்டு இடங்களைச் சரிபார்க்காது, ஷார்ட்கட்டைப் பயன்படுத்துவதற்கு முன் சரியான சாளரம் மற்றும் புலத்தில் நீங்கள் இருக்கிறீர்கள் என்பதை உறுதிப்படுத்திக் கொள்ளுங்கள்."
+  },
+  "typeShortcut": {
+    "message": "Type shortcut"
+  },
+  "editAutotypeShortcutDescription": {
+    "message": "Include one or two of the following modifiers: Ctrl, Alt, Win, or Shift, and a letter."
+  },
+  "invalidShortcut": {
+    "message": "Invalid shortcut"
   },
   "moreBreadcrumbs": {
     "message": "மேலும் பிரெட்க்ரம்புகள்",
@@ -4093,13 +4132,45 @@
   "confirm": {
     "message": "உறுதிப்படுத்து"
   },
-  "enableAutotypeTransitionKey": {
-    "message": "தானியங்கு வகை குறுக்குவழியை இயக்கு"
+  "enableAutotypeShortcutPreview": {
+    "message": "Enable autotype shortcut (Feature Preview)"
   },
   "enableAutotypeDescriptionTransitionKey": {
     "message": "தவறான இடத்தில் தரவை நிரப்புவதைத் தவிர்க்க, குறுக்குவழியைப் பயன்படுத்துவதற்கு முன்பு நீங்கள் சரியான புலத்தில் இருப்பதை உறுதிப்படுத்திக் கொள்ளுங்கள்."
   },
   "editShortcut": {
     "message": "குறுக்குவழியைத் திருத்து"
+  },
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
+  },
+  "unarchive": {
+    "message": "Unarchive"
+  },
+  "itemsInArchive": {
+    "message": "Items in archive"
+  },
+  "noItemsInArchive": {
+    "message": "No items in archive"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+  },
+  "itemSentToArchive": {
+    "message": "Item sent to archive"
+  },
+  "itemRemovedFromArchive": {
+    "message": "Item removed from archive"
+  },
+  "archiveItem": {
+    "message": "Archive item"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
   }
 }

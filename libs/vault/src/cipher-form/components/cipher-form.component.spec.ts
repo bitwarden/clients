@@ -37,7 +37,7 @@ describe("CipherFormComponent", () => {
           provide: CipherFormCacheService,
           useValue: { init: jest.fn(), getCachedCipherView: jest.fn() },
         },
-        { provide: ViewCacheService, useValue: { signal: jest.fn(() => () => null) } },
+        { provide: ViewCacheService, useValue: { signal: jest.fn(() => (): any => null) } },
         { provide: ConfigService, useValue: mock<ConfigService>() },
       ],
     }).compileComponents();
@@ -120,6 +120,35 @@ describe("CipherFormComponent", () => {
       await component.ngOnInit();
 
       expect(component["updatedCipherView"]?.login.fido2Credentials).toBeNull();
+    });
+  });
+
+  describe("enableFormFields", () => {
+    beforeEach(() => {
+      // disable the form so enabling occurs
+      component.disableFormFields();
+    });
+
+    it("only enables the form when it is disabled", () => {
+      jest.spyOn(component["cipherForm"], "enable");
+      component.enableFormFields();
+
+      expect(component["cipherForm"].enable).toHaveBeenCalled();
+
+      component.enableFormFields();
+      component.enableFormFields();
+
+      // enable is only called once
+      expect(component["cipherForm"].enable).toHaveBeenCalledTimes(1);
+    });
+
+    it("emits formStatusChange$", (done) => {
+      component.formStatusChange$.subscribe((status) => {
+        expect(status).toBe("enabled");
+        done();
+      });
+
+      component.enableFormFields();
     });
   });
 });

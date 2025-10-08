@@ -576,7 +576,7 @@
     "message": "复制验证码 (TOTP)"
   },
   "copyFieldCipherName": {
-    "message": "复制 $CIPHERNAME$ 的 $FIELD$",
+    "message": "复制 $CIPHERNAME$ 中的 $FIELD$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
@@ -897,7 +897,7 @@
     "message": "您已登录！"
   },
   "masterPassSent": {
-    "message": "我们已经为您发送了包含主密码提示的电子邮件。"
+    "message": "我们已经向您发送了一封包含主密码提示的电子邮件。"
   },
   "unexpectedError": {
     "message": "发生意外错误。"
@@ -959,9 +959,6 @@
   },
   "insertU2f": {
     "message": "将您的安全密钥插入计算机的 USB 端口。如果它有按钮，请触摸它。"
-  },
-  "recoveryCodeDesc": {
-    "message": "无法访问您所有的双重身份提供程序吗？请使用您的恢复代码来停用您账户中所有的双重身份提供程序。"
   },
   "recoveryCodeTitle": {
     "message": "恢复代码"
@@ -1225,6 +1222,15 @@
   "invalidMasterPassword": {
     "message": "无效的主密码"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "无效的主密码。请确认您的电子邮箱正确无误，以及您的账户是在 $HOST$ 上创建的。",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "twoStepLoginConfirmation": {
     "message": "两步登录要求您从其他设备（例如安全密钥、验证器 App、短信、电话或者电子邮件）来验证您的登录，这能使您的账户更加安全。两步登录需要在 bitwarden.com 网页版密码库中设置。现在访问此网站吗？"
   },
@@ -1305,11 +1311,8 @@
     "message": "自动清除复制到剪贴板的值。",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
-  "enableFavicon": {
-    "message": "显示网站图标"
-  },
-  "faviconDesc": {
-    "message": "在每个登录项目旁边显示一个可识别的图像。"
+  "showIconsChangePasswordUrls": {
+    "message": "显示网站图标并获取更改密码的 URL"
   },
   "enableMinToTray": {
     "message": "最小化到托盘图标"
@@ -1369,7 +1372,7 @@
     "message": "确认隐藏到托盘"
   },
   "confirmTrayDesc": {
-    "message": "关闭此设置也将关闭其他与托盘相关的设置。"
+    "message": "停用此设置也将停用其他与托盘相关的设置。"
   },
   "language": {
     "message": "语言"
@@ -2660,6 +2663,24 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "仅会导出与 $ORGANIZATION$ 关联的组织密码库。",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "仅会导出与 $ORGANIZATION$ 关联的组织密码库，不包括我的项目集合。",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "locked": {
     "message": "已锁定"
   },
@@ -2946,10 +2967,10 @@
     "message": "需要高级版订阅"
   },
   "organizationIsDisabled": {
-    "message": "组织已停用"
+    "message": "组织已暂停"
   },
   "disabledOrganizationFilterError": {
-    "message": "无法访问已停用组织中的项目。请联系您的组织所有者寻求帮助。"
+    "message": "无法访问已暂停组织中的项目。请联系您的组织所有者寻求帮助。"
   },
   "neverLockWarning": {
     "message": "确定要使用「从不」选项吗？将锁定选项设置为「从不」会将密码库的加密密钥存储在您的设备上。如果使用此选项，您必须确保您的设备安全。"
@@ -3839,6 +3860,12 @@
   "changeAtRiskPassword": {
     "message": "更改有风险的密码"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "此登录存在风险且缺少网站。请添加网站并更改密码以增强安全性。"
+  },
+  "missingWebsite": {
+    "message": "缺少网站"
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "您无法移除仅具有「查看」权限的集合：$COLLECTIONS$",
     "placeholders": {
@@ -3933,6 +3960,12 @@
     "message": "进一步了解 SSH 代理",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "aboutThisSetting": {
+    "message": "关于此设置"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden 将使用已保存的登录 URI 来识别应使用哪个图标或更改密码的 URL 来改善您的体验。当您使用此服务时，不会收集或保存任何信息。"
   },
   "assignToCollections": {
     "message": "分配到集合"
@@ -4074,11 +4107,17 @@
   "showLess": {
     "message": "显示更少"
   },
-  "enableAutotype": {
-    "message": "启用自动填写"
-  },
   "enableAutotypeDescription": {
     "message": "Bitwarden 不会验证输入位置，在使用快捷键之前，请确保您位于正确的窗口和字段中。"
+  },
+  "typeShortcut": {
+    "message": "输入快捷键"
+  },
+  "editAutotypeShortcutDescription": {
+    "message": "包括以下一个或两个修饰符：Ctrl、Alt、Win 或 Shift，外加一个字母。"
+  },
+  "invalidShortcut": {
+    "message": "无效的快捷键"
   },
   "moreBreadcrumbs": {
     "message": "更多导航项",
@@ -4093,13 +4132,45 @@
   "confirm": {
     "message": "确认"
   },
-  "enableAutotypeTransitionKey": {
-    "message": "启用自动输入快捷键"
+  "enableAutotypeShortcutPreview": {
+    "message": "启用自动输入快捷键（功能预览）"
   },
   "enableAutotypeDescriptionTransitionKey": {
     "message": "在使用快捷键之前，请确保您位于正确的字段中，以避免将数据填入错误的地方。"
   },
   "editShortcut": {
     "message": "编辑快捷键"
+  },
+  "archiveNoun": {
+    "message": "归档",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "归档",
+    "description": "Verb"
+  },
+  "unarchive": {
+    "message": "取消归档"
+  },
+  "itemsInArchive": {
+    "message": "归档中的项目"
+  },
+  "noItemsInArchive": {
+    "message": "归档中没有项目"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "已归档的项目将显示在此处，并将被排除在一般搜索结果和自动填充建议之外。"
+  },
+  "itemSentToArchive": {
+    "message": "项目已归档"
+  },
+  "itemRemovedFromArchive": {
+    "message": "项目已取消归档"
+  },
+  "archiveItem": {
+    "message": "归档项目"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "已归档的项目将被排除在一般搜索结果和自动填充建议之外。确定要归档此项目吗？"
   }
 }

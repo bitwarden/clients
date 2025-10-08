@@ -550,6 +550,38 @@
   "resetSearch": {
     "message": "Suche zurücksetzen"
   },
+  "archiveNoun": {
+    "message": "Archiv",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archivieren",
+    "description": "Verb"
+  },
+  "unarchive": {
+    "message": "Nicht mehr archivieren"
+  },
+  "itemsInArchive": {
+    "message": "Einträge im Archiv"
+  },
+  "noItemsInArchive": {
+    "message": "Keine Einträge im Archiv"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Archivierte Einträge werden hier angezeigt und von allgemeinen Suchergebnissen sowie Vorschlägen zum automatischen Ausfüllen ausgeschlossen."
+  },
+  "itemSentToArchive": {
+    "message": "Eintrag an das Archiv gesendet"
+  },
+  "itemRemovedFromArchive": {
+    "message": "Eintrag aus dem Archiv entfernt"
+  },
+  "archiveItem": {
+    "message": "Eintrag archivieren"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Archivierte Einträge werden von allgemeinen Suchergebnissen sowie Vorschlägen zum automatischen Ausfüllen ausgeschlossen. Bist du sicher, dass du diesen Eintrag archivieren möchtest?"
+  },
   "edit": {
     "message": "Bearbeiten"
   },
@@ -557,7 +589,7 @@
     "message": "Anzeigen"
   },
   "viewLogin": {
-    "message": "Login ansehen"
+    "message": "Zugangsdaten anzeigen"
   },
   "noItemsInList": {
     "message": "Keine Einträge zum Anzeigen vorhanden."
@@ -700,6 +732,15 @@
   },
   "invalidMasterPassword": {
     "message": "Ungültiges Master-Passwort"
+  },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Ungültiges Master-Passwort. Überprüfe, ob deine E-Mail-Adresse korrekt ist und dein Konto auf $HOST$ erstellt wurde.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
   },
   "vaultTimeout": {
     "message": "Tresor-Timeout"
@@ -893,7 +934,7 @@
     "message": "Folge den Schritten unten, um die Anmeldung abzuschließen."
   },
   "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
-    "message": "Folge den Schritten unten, um die Anmeldung mit deinem Sicherheitsschlüssel abzuschließen."
+    "message": "Folge den untenstehenden Schritten, um die Anmeldung mit deinem Sicherheitsschlüssel abzuschließen."
   },
   "restartRegistration": {
     "message": "Registrierung neu starten"
@@ -1525,9 +1566,6 @@
   "selectTwoStepLoginMethod": {
     "message": "Zwei-Faktor-Authentifizierungsmethode auswählen"
   },
-  "recoveryCodeDesc": {
-    "message": "Zugang zu allen Zwei-Faktor Anbietern verloren? Benutze deinen Wiederherstellungscode, um alle Zwei-Faktor Anbieter in deinem Konto zu deaktivieren."
-  },
   "recoveryCodeTitle": {
     "message": "Wiederherstellungscode"
   },
@@ -1686,9 +1724,6 @@
   "defaultAutoFillOnPageLoadDesc": {
     "message": "Du kannst Auto-Ausfüllen beim Laden der Seite für einzelne Zugangsdaten-Einträge in der Bearbeiten-Ansicht des Eintrags deaktivieren."
   },
-  "itemAutoFillOnPageLoad": {
-    "message": "Auto-Ausfüllen beim Laden der Seite (wenn in Optionen aktiviert)"
-  },
   "autoFillOnPageLoadUseDefault": {
     "message": "Nutze Standardeinstellung"
   },
@@ -1760,23 +1795,8 @@
   "popup2faCloseMessage": {
     "message": "Dieses Pop-up Fenster wird geschlossen, wenn du außerhalb des Fensters klickst um in deinen E-Mails nach dem Verifizierungscode zu suchen. Möchtest du, dass dieses Pop-up in einem separaten Fenster geöffnet wird, damit es nicht geschlossen wird?"
   },
-  "popupU2fCloseMessage": {
-    "message": "Dieser Browser kann U2F-Anfragen in diesem Popup-Fenster nicht verarbeiten. Möchtest du dieses Popup in einem neuen Fenster öffnen, damit du dich mit U2F anmelden kannst?"
-  },
-  "enableFavicon": {
-    "message": "Website-Symbole anzeigen"
-  },
-  "faviconDesc": {
-    "message": "Ein wiedererkennbares Bild neben jedem Login anzeigen."
-  },
-  "faviconDescAlt": {
-    "message": "Ein wiedererkennbares Bild neben jedem Login anzeigen. Gilt für alle eingeloggten Konten."
-  },
-  "enableBadgeCounter": {
-    "message": "Badge-Zähler anzeigen"
-  },
-  "badgeCounterDesc": {
-    "message": "Zeigt an, wie viele Zugangsdaten du für die aktuelle Webseite besitzt."
+  "showIconsChangePasswordUrls": {
+    "message": "Website-Symbole anzeigen und URLs zum Ändern von Passwörtern ermitteln"
   },
   "cardholderName": {
     "message": "Name des Karteninhabers"
@@ -1940,32 +1960,81 @@
   "typeNote": {
     "message": "Notiz"
   },
-  "newItemHeader": {
-    "message": "Neue $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderLogin": {
+    "message": "Neue Zugangsdaten",
+    "description": "Header for new login item type"
   },
-  "editItemHeader": {
-    "message": "$TYPE$ bearbeiten",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderCard": {
+    "message": "Neue Karte",
+    "description": "Header for new card item type"
   },
-  "viewItemHeader": {
-    "message": "$TYPE$ ansehen",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderIdentity": {
+    "message": "Neue Identität",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "Neue Notiz",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "Neuer SSH-Schlüssel",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderTextSend": {
+    "message": "Neues Text-Send",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "Neues Datei-Send",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderLogin": {
+    "message": "Zugangsdaten bearbeiten",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Karte bearbeiten",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Identität bearbeiten",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Notiz bearbeiten",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "SSH-Schlüssel bearbeiten",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Text-Send bearbeiten",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Datei-Send bearbeiten",
+    "description": "Header for edit file send"
+  },
+  "viewItemHeaderLogin": {
+    "message": "Zugangsdaten anzeigen",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "Karte anzeigen",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "Identität anzeigen",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "Notiz anzeigen",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "SSH-Schlüssel anzeigen",
+    "description": "Header for view SSH key item type"
   },
   "passwordHistory": {
     "message": "Passwortverlauf"
@@ -2172,7 +2241,7 @@
     "message": "Gebe deinen PIN-Code für das Entsperren von Bitwarden ein. Deine PIN-Einstellungen werden zurückgesetzt, wenn du dich vollständig von der Anwendung abmeldest."
   },
   "setPinCode": {
-    "message": "Du kannst diese PIN verwenden, um Bitwarden zu entsperren. Deine PIN wird zurückgesetzt, wenn du dich vollständig aus der Anwendung abmeldest."
+    "message": "Du kannst diese PIN verwenden, um Bitwarden zu entsperren. Deine PIN wird zurückgesetzt, wenn du dich einmal vollständig aus der Anwendung abmeldest."
   },
   "pinRequired": {
     "message": "PIN-Code ist erforderlich."
@@ -2590,7 +2659,7 @@
     }
   },
   "atRiskChangePrompt": {
-    "message": "Dein Passwort für diese Website ist gefährdet. $ORGANIZATION$ hat darum gebeten, dass du es änderst.",
+    "message": "Dein Passwort für diese Website ist gefährdet. $ORGANIZATION$ hat dich aufgefordert, es zu ändern.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2600,7 +2669,7 @@
     "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
   },
   "atRiskNavigatePrompt": {
-    "message": "$ORGANIZATION$ möchte, dass du dieses Passwort änderst, da es gefährdet ist. Wechsel zu deinen Kontoeinstellungen, um das Passwort zu ändern.",
+    "message": "$ORGANIZATION$ möchte, dass du dieses Passwort änderst, da es gefährdet ist. Gehe zu deinen Kontoeinstellungen, um das Passwort zu ändern.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3138,6 +3207,24 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Nur der mit $ORGANIZATION$ verknüpfte Organisations-Tresor wird exportiert.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Nur der mit $ORGANIZATION$ verknüpfte Organisations-Tresor wird exportiert. Meine Eintrags-Sammlungen werden nicht eingeschlossen.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "error": {
     "message": "Fehler"
   },
@@ -3527,9 +3614,6 @@
   "autofillPageLoadPolicyActivated": {
     "message": "Deine Organisationsrichtlinien haben das automatische Ausfüllen beim Laden der Seite aktiviert."
   },
-  "howToAutofill": {
-    "message": "So funktioniert automatisches Ausfüllen"
-  },
   "autofillSelectInfoWithCommand": {
     "message": "Wähle einen Eintrag von dieser Bildschirmseite, verwende das Tastaturkürzel $COMMAND$ oder entdecke andere Optionen in den Einstellungen.",
     "placeholders": {
@@ -3700,7 +3784,7 @@
     "message": "Anmeldung kann nicht abgeschlossen werden"
   },
   "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
-    "message": "Du musst dich auf einem vertrauenswürdigen Gerät anmelden oder deinem Administrator bitten, dir ein Passwort zuzuweisen."
+    "message": "Du musst dich auf einem vertrauenswürdigen Gerät anmelden oder deinen Administrator bitten, dir ein Passwort zuzuweisen."
   },
   "ssoIdentifierRequired": {
     "message": "SSO-Kennung der Organisation erforderlich."
@@ -3782,7 +3866,7 @@
     "message": "Fahre zur Sicherheit deines Kontos nur fort, wenn du ein Mitglied dieser Organisation bist, die Kontowiederherstellung aktiviert hast und der unten angezeigte Fingerabdruck mit dem Fingerabdruck der Organisation übereinstimmt."
   },
   "orgTrustWarning1": {
-    "message": "Diese Organisation hat eine Unternehmensrichtlinie, die dich für die Kontowiederherstellung registriert. Die Registrierung wird es den Administratoren der Organisation erlauben, dein Passwort zu ändern. Fahre nur fort, wenn du diese Organisation kennst und die unten angezeigte Fingerabdruck-Phrase mit der der Organisation übereinstimmt."
+    "message": "Diese Organisation hat eine Enterprise-Richtlinie, die dich für die Kontowiederherstellung registriert. Die Registrierung ermöglicht es den Organisations-Administratoren, dein Passwort zu ändern. Fahre nur fort, wenn du diese Organisation erkennst und die unten angezeigte Fingerabdruck-Phrase mit dem Fingerabdruck der Organisation übereinstimmt."
   },
   "trustUser": {
     "message": "Benutzer vertrauen"
@@ -3914,17 +3998,9 @@
   "aliasDomain": {
     "message": "Alias-Domain"
   },
-  "passwordRepromptDisabledAutofillOnPageLoad": {
-    "message": "Einträge, die eine erneuten Abfrage des Master-Passworts verlangen, können nicht beim Laden einer Seite automatisch ausgefüllt werden. Auto-Ausfüllen beim Laden einer Seite deaktiviert.",
-    "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
-  },
   "autofillOnPageLoadSetToDefault": {
     "message": "Auto-Ausfüllen beim Laden einer Seite wurde auf die Standardeinstellung gesetzt.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "turnOffMasterPasswordPromptToEditField": {
-    "message": "Deaktiviere die erneute Abfrage des Master-Passworts, um dieses Feld zu bearbeiten",
-    "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
   },
   "toggleSideNavigation": {
     "message": "Seitennavigation umschalten"
@@ -4135,10 +4211,10 @@
     "message": "Sammlung auswählen"
   },
   "importTargetHintCollection": {
-    "message": "Wählen Sie diese Option, wenn der importierte Dateiinhalt in eine Sammlung verschoben werden soll"
+    "message": "Wähle diese Option, wenn der importierte Dateiinhalt in eine Sammlung verschoben werden soll"
   },
   "importTargetHintFolder": {
-    "message": "Wählen Sie diese Option, wenn der importierte Dateiinhalt in einen Ordner verschoben werden soll"
+    "message": "Wähle diese Option, wenn der importierte Dateiinhalt in einen Ordner verschoben werden soll"
   },
   "importUnassignedItemsError": {
     "message": "Die Datei enthält nicht zugewiesene Einträge."
@@ -4194,9 +4270,6 @@
   },
   "passkeyNotCopiedAlert": {
     "message": "Der Passkey wird nicht in den duplizierten Eintrag kopiert. Möchtest du mit dem Duplizieren dieses Eintrags fortfahren?"
-  },
-  "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
-    "message": "Überprüfung durch die initiierende Website erforderlich. Diese Funktion ist noch nicht für Konten ohne Master-Passwort implementiert."
   },
   "logInWithPasskeyQuestion": {
     "message": "Mit Passkey anmelden?"
@@ -4378,7 +4451,7 @@
     "description": "Label indicating the most common import formats"
   },
   "uriMatchDefaultStrategyHint": {
-    "message": "Die URI-Übereinstimmungserkennung ist die Methode, mit der Bitwarden Auto-Ausfüllen-Vorschläge erkennt.",
+    "message": "Die URI-Übereinstimmungserkennung ist die Methode, mit der Bitwarden Vorschläge zum automatischen Ausfüllen identifiziert.",
     "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
   },
   "regExAdvancedOptionWarning": {
@@ -4883,9 +4956,6 @@
       }
     }
   },
-  "enableAnimations": {
-    "message": "Animationen aktivieren"
-  },
   "showAnimations": {
     "message": "Animationen anzeigen"
   },
@@ -5098,14 +5168,8 @@
   "itemLocation": {
     "message": "Eintrags-Standort"
   },
-  "fileSend": {
-    "message": "Datei-Send"
-  },
   "fileSends": {
     "message": "Datei-Sends"
-  },
-  "textSend": {
-    "message": "Text-Send"
   },
   "textSends": {
     "message": "Text-Sends"
@@ -5166,9 +5230,6 @@
   },
   "vaultCustomTimeoutMinimum": {
     "message": "Das minimal benutzerdefinierte Timeout beträgt 1 Minute."
-  },
-  "additionalContentAvailable": {
-    "message": "Zusätzlicher Inhalt ist verfügbar"
   },
   "fileSavedToDevice": {
     "message": "Datei auf Gerät gespeichert. Greife darauf über die Downloads deines Geräts zu."
@@ -5456,10 +5517,10 @@
     "message": "Gefährdetes Passwort ändern"
   },
   "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Dieser Login ist gefährdet und es fehlt eine Website. Fügen Sie eine Website hinzu und ändern Sie das Passwort, um die Sicherheit zu erhöhen."
+    "message": "Diese Zugangsdaten sind gefährdet und es fehlt eine Website. Füge eine Website hinzu und ändere das Passwort für mehr Sicherheit."
   },
   "missingWebsite": {
-    "message": "Fehlende Webseite"
+    "message": "Fehlende Website"
   },
   "settingsVaultOptions": {
     "message": "Tresoroptionen"
@@ -5509,6 +5570,18 @@
   "hasItemsVaultNudgeTitle": {
     "message": "Willkommen in deinem Tresor!"
   },
+  "phishingPageTitle": {
+    "message": "Phishing-Website"
+  },
+  "phishingPageCloseTab": {
+    "message": "Tab schließen"
+  },
+  "phishingPageContinue": {
+    "message": "Weiter"
+  },
+  "phishingPageLearnWhy": {
+    "message": "Warum wird dir das angezeigt?"
+  },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Einträge für die aktuelle Seite automatisch ausfüllen"
   },
@@ -5516,7 +5589,7 @@
     "message": "Favoriten-Einträge für einfachen Zugriff"
   },
   "hasItemsVaultNudgeBodyThree": {
-    "message": "Deinen Tresor nach etwas anderem durchsuchen"
+    "message": "Durchsuche deinen Tresor nach etwas anderem"
   },
   "newLoginNudgeTitle": {
     "message": "Spare Zeit mit Auto-Ausfüllen"
@@ -5549,16 +5622,16 @@
     "message": "Mit Identitäten kannst du lange Registrierungs- oder Kontaktformulare schnell automatisch ausfüllen."
   },
   "newNoteNudgeTitle": {
-    "message": "Bewahre deine sensiblen Daten sicher auf"
+    "message": "Halte deine sensiblen Daten sicher"
   },
   "newNoteNudgeBody": {
-    "message": "Mit Notizen speicherst du sensible Daten wie Bank- oder Versicherungs-Informationen."
+    "message": "Mit Notizen kannst du sensible Daten wie Bank- oder Versicherungsinformationen sicher speichern."
   },
   "newSshNudgeTitle": {
     "message": "Entwickler-freundlicher SSH-Zugriff"
   },
   "newSshNudgeBodyOne": {
-    "message": "Speicher deine Schlüssel und verbinden dich mit dem SSH-Agenten für eine schnelle und verschlüsselte Authentifizierung.",
+    "message": "Speichere deine Schlüssel und verbinde dich mit dem SSH-Agenten für eine schnelle, verschlüsselte Authentifizierung.",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
@@ -5584,8 +5657,14 @@
     "message": "Generiere ganz einfach starke und einzigartige Passwörter, indem du auf den \"Passwort generieren\"-Button klickst, um dir zu helfen, deine Zugangsdaten sicher zu halten.",
     "description": "Aria label for the body content of the generator nudge"
   },
+  "aboutThisSetting": {
+    "message": "Über diese Einstellung"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden verwendet gespeicherte Zugangsdaten-URIs, um zu erkennen, welches Symbol oder welche Passwort-Ändern-URL verwendet werden soll, um dein Erlebnis zu verbessern. Es werden keine Informationen erfasst oder gespeichert, wenn du diesen Dienst nutzt."
+  },
   "noPermissionsViewPage": {
-    "message": "Du hast keine Berechtigung, diese Seite anzuzeigen. Versuche dich mit einem anderen Konto anzumelden."
+    "message": "Du hast keine Berechtigung, diese Seite anzuzeigen. Versuche, dich mit einem anderen Konto anzumelden."
   },
   "wasmNotSupported": {
     "message": "WebAssembly wird von deinem Browser nicht unterstützt oder ist nicht aktiviert. WebAssembly wird benötigt, um die Bitwarden-App nutzen zu können.",
@@ -5601,10 +5680,10 @@
     "message": "Weiter"
   },
   "moreBreadcrumbs": {
-    "message": "Mehr Breadcrumbs",
+    "message": "Dateipfad erweitern",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   },
   "confirmKeyConnectorDomain": {
-    "message": "Bestätige Key Connector Domäne"
+    "message": "Key Connector-Domain bestätigen"
   }
 }

@@ -7,8 +7,8 @@ use std::{
 };
 
 use futures::FutureExt;
-use log::{error, info};
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use tracing::{error, info};
 
 uniffi::setup_scaffolding!();
 
@@ -114,21 +114,21 @@ impl MacOSProviderClient {
                                 match value {
                                     Ok(value) => {
                                         if let Err(e) = cb.complete(value) {
-                                            error!("Error deserializing message: {e}");
+                                            error!(error = %e, "Error deserializing message");
                                         }
                                     }
                                     Err(e) => {
-                                        error!("Error processing message: {e:?}");
+                                        error!(error = ?e, "Error processing message");
                                         cb.error(e)
                                     }
                                 }
                             }
                             None => {
-                                error!("No callback found for sequence number: {sequence_number}")
+                                error!(sequence_number, "No callback found for sequence number")
                             }
                         },
                         Err(e) => {
-                            error!("Error deserializing message: {e}");
+                            error!(error = %e, "Error deserializing message");
                         }
                     };
                 }
