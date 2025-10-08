@@ -479,6 +479,7 @@ jobs:
       - name: Update version for appx Package Flight
         if: ${{ inputs.use_package_flight_version == true }}
         shell: bash
+        working-directory: ./
         run: |
           # Get current version from apps/desktop/package.json
           CURRENT_VERSION=$(jq -r '.version' apps/desktop/package.json)
@@ -494,26 +495,11 @@ jobs:
           NEW_VERSION="${MAJOR}.${MINOR}.${NEW_PATCH}"
           echo "New appx Package Flight version: $NEW_VERSION (incremented from $CURRENT_VERSION)"
 
-          # Update all required package.json files
-          echo "Updating package.json files..."
-
           # Root package.json
           jq ".version = \"$NEW_VERSION\"" package.json > temp.json && mv temp.json package.json
-          echo "✓ Updated package.json"
-
-          # apps/desktop/package.json
           jq ".version = \"$NEW_VERSION\"" apps/desktop/package.json > temp.json && mv temp.json apps/desktop/package.json
-          echo "✓ Updated apps/desktop/package.json"
-
-          # apps/desktop/src/package.json
           jq ".version = \"$NEW_VERSION\"" apps/desktop/src/package.json > temp.json && mv temp.json apps/desktop/src/package.json
-          echo "✓ Updated apps/desktop/src/package.json"
-
-          # apps/desktop/src/package-lock.json
           jq ".version = \"$NEW_VERSION\"" apps/desktop/src/package-lock.json > temp.json && mv temp.json apps/desktop/src/package-lock.json
-          echo "✓ Updated apps/desktop/src/package-lock.json"
-
-          echo "All package files updated for appx Package Flight build"
 
       - name: Install Node dependencies
         run: npm ci
