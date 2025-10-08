@@ -205,6 +205,10 @@ const actions = [
     usage: "delete action or trash area",
   },
   {
+    id: "bwi-unarchive",
+    usage: "remove item from archive",
+  },
+  {
     id: "bwi-undo",
     usage: "restore action",
   },
@@ -262,10 +266,6 @@ const directionalMenuIndicators = [
   {
     id: "bwi-numbered-list",
     usage: "toggle numbered list view",
-  },
-  {
-    id: "bwi-unarchive",
-    usage: "-",
   },
   {
     id: "bwi-up-down-btn",
