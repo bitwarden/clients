@@ -127,7 +127,8 @@ export class PoliciesComponent implements OnInit {
   }
 
   async edit(policy: BasePolicyEditDefinition) {
-    const dialogRef = PolicyEditDialogComponent.open(this.dialogService, {
+    const dialogComponent = policy.editDialogComponent ?? PolicyEditDialogComponent;
+    const dialogRef = dialogComponent.open(this.dialogService, {
       data: {
         policy: policy,
         organizationId: this.organizationId,

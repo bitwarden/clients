@@ -53,7 +53,6 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { EventType } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -94,6 +93,7 @@ import {
   DefaultCipherFormConfigService,
   PasswordRepromptService,
 } from "@bitwarden/vault";
+import { UnifiedUpgradePromptService } from "@bitwarden/web-vault/app/billing/individual/upgrade/services";
 import { OrganizationWarningsModule } from "@bitwarden/web-vault/app/billing/organizations/warnings/organization-warnings.module";
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 
@@ -106,10 +106,7 @@ import {
   CollectionDialogTabType,
   openCollectionDialog,
 } from "../../admin-console/organizations/shared/components/collection-dialog";
-import {
-  UnifiedUpgradeDialogComponent,
-  UnifiedUpgradeDialogResult,
-} from "../../billing/individual/upgrade/unified-upgrade-dialog/unified-upgrade-dialog.component";
+import { UnifiedUpgradeDialogResult } from "../../billing/individual/upgrade/unified-upgrade-dialog/unified-upgrade-dialog.component";
 import { SharedModule } from "../../shared/shared.module";
 import { AssignCollectionsWebComponent } from "../components/assign-collections";
 import {
@@ -317,6 +314,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     private organizationWarningsService: OrganizationWarningsService,
     private vaultProfileService: VaultProfileService,
     private configService: ConfigService,
+    private unifiedUpgradePromptService: UnifiedUpgradePromptService,
   ) {}
 
   async ngOnInit() {
@@ -617,58 +615,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
           this.changeDetectorRef.markForCheck();
         },
       );
-
-    const showUpgradeDialog$: Observable<boolean> = combineLatest([
-      this.accountService.activeAccount$,
-      this.configService.getFeatureFlag$(FeatureFlag.PM24996_ImplementUpgradeFromFreeDialog),
-      this.billingAccountProfileStateService.hasPremiumFromAnySource$(activeUserId),
-    ]).pipe(
-      switchMap(async ([account, isFlagEnabled, hasPremium]) => {
-        // If user already has premium, no need to check profile age
-        if (hasPremium || !isFlagEnabled) {
-          return false;
-        }
-        const isProfileLessThanFiveMinutesOld = await this.isProfileLessThanFiveMinutesOld(
-          account?.id,
-        );
-
-        return isFlagEnabled && !hasPremium && isProfileLessThanFiveMinutesOld;
-      }),
-    );
-
-    showUpgradeDialog$.pipe(takeUntil(this.destroy$)).subscribe((show) => {
-      if (show && this.unifiedDialogRef == null) {
-        this.launchUpgradeDialogFlow().catch((err) => {
-          this.logService.error("Error in upgrade dialog flow", err);
-        });
-      }
-    });
-  }
-
-  private async isProfileLessThanFiveMinutesOld(userId: string): Promise<boolean> {
-    const createdAtDate = await this.vaultProfileService.getProfileCreationDate(userId);
-    if (!createdAtDate) {
-      return false;
-    }
-    const createdAtInMs = createdAtDate.getTime();
-    const nowInMs = new Date().getTime();
-
-    const differenceInMs = nowInMs - createdAtInMs;
-    const msInAMinute = 1000 * 60; // Milliseconds in a minute for conversion 1 minute = 60 seconds * 1000 ms
-    const differenceInMinutes = Math.round(differenceInMs / msInAMinute);
-
-    return differenceInMinutes <= 5;
-  }
-
-  private async launchUpgradeDialogFlow(): Promise<void> {
-    const account = await firstValueFrom(this.accountService.activeAccount$);
-
-    this.unifiedDialogRef = UnifiedUpgradeDialogComponent.open(this.dialogService, {
-      data: { account: account },
-    });
-
-    await lastValueFrom(this.unifiedDialogRef.closed);
-    this.unifiedDialogRef = undefined;
+    await this.unifiedUpgradePromptService.displayUpgradePromptConditionally();
   }
 
   ngOnDestroy() {

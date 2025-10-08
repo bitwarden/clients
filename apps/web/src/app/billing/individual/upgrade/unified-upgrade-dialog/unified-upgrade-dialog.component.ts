@@ -117,9 +117,13 @@ export class UnifiedUpgradeDialogComponent implements OnInit {
   }
 
   protected previousStep(): void {
-    if (this.step() === UnifiedUpgradeDialogStep.Payment) {
+    // If we are on the payment step and there was no initial step, go back to plan selection this is to prevent
+    // going back to payment step if the dialog was opened directly to payment step
+    if (this.step() === UnifiedUpgradeDialogStep.Payment && this.params?.initialStep == null) {
       this.step.set(UnifiedUpgradeDialogStep.PlanSelection);
       this.selectedPlan.set(null);
+    } else {
+      this.close({ status: UnifiedUpgradeDialogStatus.Closed });
     }
   }
 

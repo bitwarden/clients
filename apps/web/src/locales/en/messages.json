@@ -35,6 +35,9 @@
       }
     }
   },
+  "noReportRan": {
+    "message": "You have not created a report yet"
+  },
   "notifiedMembers": {
     "message": "Notified members"
   },
@@ -187,6 +190,9 @@
   "applicationsMarkedAsCriticalSuccess": {
     "message": "Applications marked as critical"
   },
+  "applicationsMarkedAsCriticalFail": {
+    "message": "Failed to mark applications as critical"
+  },
   "application": {
     "message": "Application"
   },
@@ -273,6 +279,24 @@
   },
   "totalApplications": {
     "message": "Total applications"
+  },
+  "applicationsNeedingReview": {
+    "message": "Applications needing review"
+  },
+  "newApplicationsWithCount": {
+    "message": "$COUNT$ new applications",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "13"
+      }
+    }
+  },
+  "newApplicationsDescription": {
+    "message": "Review new applications to mark as critical and keep your organization secure"
+  },
+  "reviewNow": {
+    "message": "Review now"
   },
   "unmarkAsCritical": {
     "message": "Unmark as critical"
@@ -4316,6 +4340,9 @@
   },
   "generatingYourRiskInsights": {
     "message": "Generating your Risk Insights..."
+  },
+  "riskInsightsRunReport": {
+    "message": "Run report"
   },
   "updateBrowserDesc": {
     "message": "You are using an unsupported web browser. The web vault may not function properly."
@@ -9966,6 +9993,9 @@
   },
   "crowdstrikeEventIntegrationDesc": {
     "message": "Send event data to your Logscale instance"
+  },
+  "datadogEventIntegrationDesc": {
+    "message": "Send vault event data to your Datadog instance"
   },
   "failedToSaveIntegration": {
     "message": "Failed to save integration. Please try again later."
