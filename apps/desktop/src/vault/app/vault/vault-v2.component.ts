@@ -560,6 +560,7 @@ export class VaultV2Component<C extends CipherViewLike>
         label: this.i18nService.t("archiveVerb"),
         click: async () => {
           await this.archiveCipherUtilitiesService.archiveCipher(cipher);
+          await this.refreshCurrentCipher();
         },
       });
     }
@@ -569,6 +570,7 @@ export class VaultV2Component<C extends CipherViewLike>
         label: this.i18nService.t("unarchive"),
         click: async () => {
           await this.archiveCipherUtilitiesService.unarchiveCipher(cipher);
+          await this.refreshCurrentCipher();
         },
       });
     }
