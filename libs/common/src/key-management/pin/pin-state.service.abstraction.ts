@@ -13,6 +13,7 @@ import { PinLockType } from "./pin-lock-type";
 export abstract class PinStateServiceAbstraction {
   /**
    * Gets the user's UserKey encrypted PIN
+   * @deprecated - This is not a public API. DO NOT USE IT
    * @param userId The user's id
    * @throws If the user id is not provided
    */
@@ -33,6 +34,7 @@ export abstract class PinStateServiceAbstraction {
 
   /**
    * Gets the user's PIN-protected UserKey envelope, either persistent or ephemeral based on the provided PinLockType
+   * @deprecated - This is not a public API. DO NOT USE IT
    * @param userId The user's id
    * @param pinLockType User's {@link PinLockType}.
    * @throws if the user id is not provided
@@ -53,6 +55,7 @@ export abstract class PinStateServiceAbstraction {
 
   /**
    * Sets the PIN state for the user
+   * @deprecated - This is not a public API. DO NOT USE IT
    * @param userId The user's id
    * @param pinProtectedUserKeyEnvelope The user's PIN-protected UserKey envelope
    * @param userKeyEncryptedPin The user's UserKey-encrypted PIN
