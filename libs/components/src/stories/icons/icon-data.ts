@@ -66,6 +66,10 @@ const bitwardenObjects = [
     usage: "identity item type",
   },
   {
+    id: "bwi-premium",
+    usage: "upgrade to premium",
+  },
+  {
     id: "bwi-send",
     usage: "send action or feature",
   },
@@ -207,6 +211,10 @@ const actions = [
   {
     id: "bwi-trash",
     usage: "delete action or trash area",
+  },
+  {
+    id: "bwi-unarchive",
+    usage: "remove item from archive",
   },
   {
     id: "bwi-undo",
