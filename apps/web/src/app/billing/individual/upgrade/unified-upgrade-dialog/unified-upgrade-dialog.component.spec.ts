@@ -64,7 +64,7 @@ describe("UnifiedUpgradeDialogComponent", () => {
 
   const defaultDialogData: UnifiedUpgradeDialogParams = {
     account: mockAccount,
-    initialStep: UnifiedUpgradeDialogStep.PlanSelection,
+    initialStep: null,
     selectedPlan: null,
     planSelectionStepTitleOverride: null,
   };
@@ -208,7 +208,7 @@ describe("UnifiedUpgradeDialogComponent", () => {
 
       const customDialogData: UnifiedUpgradeDialogParams = {
         account: mockAccount,
-        initialStep: UnifiedUpgradeDialogStep.PlanSelection,
+        initialStep: null,
         selectedPlan: null,
         hideContinueWithoutUpgradingButton: true,
       };
