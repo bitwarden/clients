@@ -163,17 +163,23 @@ export class WindowMain {
             }
 
             if (isLinux()) {
-              if (await processisolations.isCoreDumpingDisabled()) {
-                this.logService.info("Coredumps are disabled in renderer process");
-              } else {
-                this.enableRendererProcessForceCrashReload = false;
-                this.logService.info("Disabling coredumps in main process");
-                try {
-                  await processisolations.disableCoredumps();
-                  this.enableRendererProcessForceCrashReload = true;
-                } catch (e) {
-                  this.logService.error("Failed to disable coredumps", e);
+              if (process.env["DISABLE_COREDUMPS"] != null) {
+                if (await processisolations.isCoreDumpingDisabled()) {
+                  this.logService.info("Coredumps are disabled in renderer process");
+                } else {
+                  this.enableRendererProcessForceCrashReload = false;
+                  this.logService.info("Disabling coredumps in main process");
+                  try {
+                    await processisolations.disableCoredumps();
+                    this.enableRendererProcessForceCrashReload = true;
+                  } catch (e) {
+                    this.logService.error("Failed to disable coredumps", e);
+                  }
                 }
+              } else {
+                this.logService.info(
+                  "Coredumps are enabled in renderer process, set DISABLE_COREDUMPS=1 to disable",
+                );
               }
             }
           }
