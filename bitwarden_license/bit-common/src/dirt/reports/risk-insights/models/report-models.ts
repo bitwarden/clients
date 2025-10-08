@@ -1,6 +1,5 @@
 import { Opaque } from "type-fest";
 
-import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { BadgeVariant } from "@bitwarden/components";
 
@@ -132,11 +131,6 @@ export type ApplicationHealthReportDetail = {
   cipherIds: string[];
 };
 
-export type ApplicationHealthReportDetailEnriched = ApplicationHealthReportDetail & {
-  isMarkedAsCritical: boolean;
-  ciphers: CipherView[];
-};
-
 /*
  * A list of applications and the count of
  * at risk passwords for each application
@@ -149,18 +143,6 @@ export type AtRiskApplicationDetail = {
 // -------------------- Password Health Report Models --------------------
 export type PasswordHealthReportApplicationId = Opaque<string, "PasswordHealthReportApplicationId">;
 
-// -------------------- Risk Insights Report Models --------------------
-export interface RiskInsightsReportData {
-  data: ApplicationHealthReportDetailEnriched[];
-  summary: OrganizationReportSummary;
-}
-export interface RiskInsightsReport {
-  organizationId: OrganizationId;
-  date: string;
-  reportData: string;
-  reportKey: string;
-}
-
 export type ReportScore = { label: string; badgeVariant: BadgeVariant; sortOrder: number };
 
 export type ReportResult = CipherView & {
@@ -169,8 +151,9 @@ export type ReportResult = CipherView & {
   scoreKey: number;
 };
 
-export type ReportDetailsAndSummary = {
-  data: ApplicationHealthReportDetailEnriched[];
-  summary: OrganizationReportSummary;
-  dateCreated: Date;
-};
+export interface RiskInsightsData {
+  creationDate: Date;
+  reportData: ApplicationHealthReportDetail[];
+  summaryData: OrganizationReportSummary;
+  applicationData: OrganizationReportApplication[];
+}

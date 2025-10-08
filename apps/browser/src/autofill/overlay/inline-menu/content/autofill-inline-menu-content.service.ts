@@ -237,8 +237,11 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
         }
       },
     );
+
     this.buttonElement = globalThis.document.createElement(customElementName);
     this.buttonElement.setAttribute("popover", "manual");
+
+    this.createInternalStyleNode(this.buttonElement);
   }
 
   /**
@@ -264,8 +267,33 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
         }
       },
     );
+
     this.listElement = globalThis.document.createElement(customElementName);
     this.listElement.setAttribute("popover", "manual");
+
+    this.createInternalStyleNode(this.listElement);
+  }
+
+  /**
+   * Builds and prepends an internal stylesheet to the container node with rules
+   * to prevent targeting by the host's global styling rules. This should only be
+   * used for pseudo elements such as `::backdrop` or `::before`. All other
+   * styles should be applied inline upon the parent container itself.
+   */
+  private createInternalStyleNode(parent: HTMLElement) {
+    const css = document.createTextNode(`
+      ${parent.tagName}::backdrop {
+        background: none !important;
+        pointer-events: none !important;
+      }
+      ${parent.tagName}::before, ${parent.tagName}::after {
+        content:"" !important;
+      }
+    `);
+    const style = globalThis.document.createElement("style");
+    style.setAttribute("type", "text/css");
+    style.appendChild(css);
+    parent.prepend(style);
   }
 
   /**

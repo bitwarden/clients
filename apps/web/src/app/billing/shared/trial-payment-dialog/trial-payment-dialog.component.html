@@ -86,17 +86,13 @@
     <ng-container>
       <h2 bitTypography="h4">{{ "paymentMethod" | i18n }}</h2>
       <ng-container bitDialogContent>
-        <app-payment
-          [showAccountCredit]="false"
-          [showBankAccount]="!!organizationId"
-          [initialPaymentMethod]="initialPaymentMethod"
-        ></app-payment>
-        <app-manage-tax-information
-          *ngIf="taxInformation"
-          [showTaxIdField]="showTaxIdField"
-          [startWith]="taxInformation"
-          (taxInformationChanged)="taxInformationChanged($event)"
-        />
+        <app-enter-payment-method [group]="formGroup.controls.paymentMethod">
+        </app-enter-payment-method>
+        <app-enter-billing-address
+          [group]="formGroup.controls.billingAddress"
+          [scenario]="{ type: 'checkout', supportsTaxId }"
+        >
+        </app-enter-billing-address>
       </ng-container>
       <!-- Pricing Breakdown -->
       <app-pricing-summary
