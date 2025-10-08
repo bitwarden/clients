@@ -3,30 +3,21 @@
 } @else {
   @let drawerDetails = dataService.drawerDetails$ | async;
   @if (!dataSource.data.length) {
-    <div class="tw-mt-4">
-      <bit-no-items [icon]="noItemsIcon" class="tw-text-main">
-        <ng-container slot="title">
-          <h2 class="tw-font-semibold tw-mt-4">
-            {{
-              "noAppsInOrgTitle"
-                | i18n: (dataService.organizationDetails$ | async)?.organizationName || ""
-            }}
-          </h2>
-        </ng-container>
-        <ng-container slot="description">
-          <div class="tw-flex tw-flex-col tw-mb-2">
-            <span class="tw-text-muted">
-              {{ "noAppsInOrgDescription" | i18n }}
-            </span>
-            <a class="tw-text-primary-600" routerLink="/login">{{ "learnMore" | i18n }}</a>
-          </div>
-        </ng-container>
-        <ng-container slot="button">
-          <button (click)="goToCreateNewLoginItem()" bitButton buttonType="primary" type="button">
-            {{ "createNewLoginItem" | i18n }}
-          </button>
-        </ng-container>
-      </bit-no-items>
+    <div class="tw-flex tw-justify-center tw-items-center tw-min-h-[70vh] tw-w-full">
+      <empty-state-card
+        [videoSrc]="emptyStateVideoSrc"
+        [title]="
+          shouldShowImportDataState
+            ? ('noApplicationsInOrgTitle'
+              | i18n: (dataService.organizationDetails$ | async)?.organizationName || '')
+            : emptyStateTitle
+        "
+        [description]="emptyStateDescription"
+        [benefits]="emptyStateBenefits"
+        [buttonText]="emptyStateButtonText"
+        [buttonIcon]="emptyStateButtonIcon"
+        [buttonAction]="emptyStateButtonAction"
+      ></empty-state-card>
     </div>
   } @else {
     <div class="tw-mt-4 tw-flex tw-flex-col">

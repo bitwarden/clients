@@ -133,6 +133,10 @@ export class RiskInsightsComponent implements OnInit {
     }
   }
 
+  get shouldShowTabs(): boolean {
+    return this.appsCount > 0;
+  }
+
   async onTabChange(newIndex: number): Promise<void> {
     await this.router.navigate([], {
       relativeTo: this.route,
