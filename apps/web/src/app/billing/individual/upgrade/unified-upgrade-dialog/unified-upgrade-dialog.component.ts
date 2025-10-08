@@ -158,7 +158,6 @@ export class UnifiedUpgradeDialogComponent implements OnInit {
   ): DialogRef<UnifiedUpgradeDialogResult> {
     return dialogService.open<UnifiedUpgradeDialogResult>(UnifiedUpgradeDialogComponent, {
       data: dialogConfig.data,
-      height: "auto",
     });
   }
 }

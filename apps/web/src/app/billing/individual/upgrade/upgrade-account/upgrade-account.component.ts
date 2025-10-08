@@ -64,7 +64,6 @@ export class UpgradeAccountComponent implements OnInit {
   protected premiumPlanType = PersonalSubscriptionPricingTierIds.Premium;
   protected closeStatus = UpgradeAccountStatus.Closed;
 
-  // Computed signal for the dialog title
   protected dialogTitle = computed(() => {
     return this.dialogTitleMessageOverride() || "individualUpgradeWelcomeMessage";
   });

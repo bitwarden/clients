@@ -32,7 +32,6 @@ import {
   Unassigned,
 } from "@bitwarden/admin-console/common";
 import { SearchPipe } from "@bitwarden/angular/pipes/search.pipe";
-import { VaultProfileService } from "@bitwarden/angular/vault/services/vault-profile.service";
 import {
   NoResults,
   DeactivatedOrg,
@@ -54,7 +53,6 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { EventType } from "@bitwarden/common/enums";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -106,7 +104,6 @@ import {
   CollectionDialogTabType,
   openCollectionDialog,
 } from "../../admin-console/organizations/shared/components/collection-dialog";
-import { UnifiedUpgradeDialogResult } from "../../billing/individual/upgrade/unified-upgrade-dialog/unified-upgrade-dialog.component";
 import { SharedModule } from "../../shared/shared.module";
 import { AssignCollectionsWebComponent } from "../components/assign-collections";
 import {
@@ -209,8 +206,6 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   private vaultItemDialogRef?: DialogRef<VaultItemDialogResult> | undefined;
   protected showAddCipherBtn: boolean = false;
 
-  private unifiedDialogRef?: DialogRef<UnifiedUpgradeDialogResult>;
-
   organizations$ = this.accountService.activeAccount$
     .pipe(map((a) => a?.id))
     .pipe(switchMap((id) => this.organizationService.organizations$(id)));
@@ -312,8 +307,6 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     private restrictedItemTypesService: RestrictedItemTypesService,
     private cipherArchiveService: CipherArchiveService,
     private organizationWarningsService: OrganizationWarningsService,
-    private vaultProfileService: VaultProfileService,
-    private configService: ConfigService,
     private unifiedUpgradePromptService: UnifiedUpgradePromptService,
   ) {}
 
