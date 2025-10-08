@@ -118,6 +118,7 @@ export class VaultProgram extends BaseProgram {
         }
 
         await this.exitIfLocked();
+        await this.serviceContainer.ensureInitialized();
         const command = new ListCommand(
           this.serviceContainer.cipherService,
           this.serviceContainer.folderService,
@@ -134,7 +135,7 @@ export class VaultProgram extends BaseProgram {
         );
         const response = await command.run(object, cmd);
 
-        this.processResponse(response);
+        this.processResponse(response, true); // Force immediate exit for CLI performance
       });
 
     if (isArchivedEnabled) {
@@ -197,6 +198,7 @@ export class VaultProgram extends BaseProgram {
         }
 
         await this.exitIfLocked();
+        await this.serviceContainer.ensureInitialized();
         const command = new GetCommand(
           this.serviceContainer.cipherService,
           this.serviceContainer.folderService,
@@ -214,7 +216,7 @@ export class VaultProgram extends BaseProgram {
           this.serviceContainer.cliRestrictedItemTypesService,
         );
         const response = await command.run(object, id, cmd);
-        this.processResponse(response);
+        this.processResponse(response, true); // Force immediate exit for CLI performance
       });
   }
 
@@ -247,6 +249,7 @@ export class VaultProgram extends BaseProgram {
         }
 
         await this.exitIfLocked();
+        await this.serviceContainer.ensureInitialized();
         const command = new CreateCommand(
           this.serviceContainer.cipherService,
           this.serviceContainer.folderService,
@@ -260,7 +263,7 @@ export class VaultProgram extends BaseProgram {
           this.serviceContainer.cliRestrictedItemTypesService,
         );
         const response = await command.run(object, encodedJson, cmd);
-        this.processResponse(response);
+        this.processResponse(response, true); // Force immediate exit for CLI performance
       });
   }
 
@@ -297,6 +300,7 @@ export class VaultProgram extends BaseProgram {
         }
 
         await this.exitIfLocked();
+        await this.serviceContainer.ensureInitialized();
         const command = new EditCommand(
           this.serviceContainer.cipherService,
           this.serviceContainer.folderService,
@@ -310,7 +314,7 @@ export class VaultProgram extends BaseProgram {
           this.serviceContainer.billingAccountProfileStateService,
         );
         const response = await command.run(object, id, encodedJson, cmd);
-        this.processResponse(response);
+        this.processResponse(response, true); // Force immediate exit for CLI performance
       });
   }
 
@@ -354,7 +358,7 @@ export class VaultProgram extends BaseProgram {
           this.serviceContainer.cliRestrictedItemTypesService,
         );
         const response = await command.run(object, id, cmd);
-        this.processResponse(response);
+        this.processResponse(response, true); // Force immediate exit for CLI performance
       });
   }
 
@@ -384,7 +388,7 @@ export class VaultProgram extends BaseProgram {
           this.serviceContainer.billingAccountProfileStateService,
         );
         const response = await command.run(object, id);
-        this.processResponse(response);
+        this.processResponse(response, true); // Force immediate exit for CLI performance
       });
   }
 
@@ -413,7 +417,7 @@ export class VaultProgram extends BaseProgram {
           this.serviceContainer.configService,
         );
         const response = await command.run(object, id);
-        this.processResponse(response);
+        this.processResponse(response, true); // Force immediate exit for CLI performance
       });
 
     if (isArchivedEnabled) {
@@ -462,7 +466,7 @@ export class VaultProgram extends BaseProgram {
           this.serviceContainer.accountService,
         );
         const response = await command.run(id, organizationId, encodedJson);
-        this.processResponse(response);
+        this.processResponse(response, true); // Force immediate exit for CLI performance
       });
   }
 
@@ -498,7 +502,7 @@ export class VaultProgram extends BaseProgram {
           this.serviceContainer.i18nService,
         );
         const response = await command.run(object, id, cmd);
-        this.processResponse(response);
+        this.processResponse(response, true); // Force immediate exit for CLI performance
       });
   }
 
@@ -528,7 +532,7 @@ export class VaultProgram extends BaseProgram {
           this.serviceContainer.accountService,
         );
         const response = await command.run(format, filepath, options);
-        this.processResponse(response);
+        this.processResponse(response, true); // Force immediate exit for CLI performance
       });
   }
 
@@ -576,7 +580,7 @@ export class VaultProgram extends BaseProgram {
           this.serviceContainer.accountService,
         );
         const response = await command.run(options);
-        this.processResponse(response);
+        this.processResponse(response, true); // Force immediate exit for CLI performance
       });
   }
 }

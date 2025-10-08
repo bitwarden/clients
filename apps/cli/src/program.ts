@@ -117,6 +117,7 @@ export class Program extends BaseProgram {
       .command("sdk-version")
       .description("Print the SDK version.")
       .action(async () => {
+        await this.serviceContainer.ensureInitialized();
         const sdkVersion = await firstValueFrom(this.serviceContainer.sdkService.version$);
         writeLn(sdkVersion, true);
       });
@@ -507,6 +508,7 @@ export class Program extends BaseProgram {
         writeLn("", true);
       })
       .action(async () => {
+        await this.serviceContainer.ensureInitialized();
         const command = new StatusCommand(
           this.serviceContainer.environmentService,
           this.serviceContainer.syncService,

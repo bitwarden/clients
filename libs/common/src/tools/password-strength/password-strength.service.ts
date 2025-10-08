@@ -1,7 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import * as zxcvbn from "zxcvbn";
-
 import { PasswordStrengthServiceAbstraction } from "./password-strength.service.abstraction";
 
 export class PasswordStrengthService implements PasswordStrengthServiceAbstraction {
@@ -15,7 +13,7 @@ export class PasswordStrengthService implements PasswordStrengthServiceAbstracti
     password: string,
     emailInput: string = null,
     userInputs: string[] = null,
-  ): zxcvbn.ZXCVBNResult {
+  ): any {
     if (password == null || password.length === 0) {
       return null;
     }
@@ -28,6 +26,10 @@ export class PasswordStrengthService implements PasswordStrengthServiceAbstracti
     ];
     // Use a hash set to get rid of any duplicate user inputs
     const finalUserInputs = Array.from(new Set(globalUserInputs));
+
+    // Lazy load zxcvbn only when needed
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const zxcvbn = require("zxcvbn");
     const result = zxcvbn(password, finalUserInputs);
     return result;
   }

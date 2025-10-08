@@ -119,13 +119,74 @@ export class GetCommand extends DownloadCommand {
         decCipher = await this.cipherService.decrypt(cipher, userId);
       }
     } else if (id.trim() !== "") {
-      let ciphers = await this.cipherService.getAllDecrypted(userId);
-      ciphers = this.searchService.searchCiphersBasic(ciphers, id);
-      if (ciphers.length > 1) {
-        return ciphers;
+      const encryptedCiphers = await this.cipherService.getAll(userId);
+      const searchTerm = id.toLowerCase();
+      const matches: CipherView[] = [];
+      let exactMatch: CipherView = null;
+
+      // Sort by likely matches (recently modified first, then by creation date)
+      const sortedCiphers = encryptedCiphers.sort((a, b) => {
+        const aTime = a.revisionDate?.getTime() || a.creationDate?.getTime() || 0;
+        const bTime = b.revisionDate?.getTime() || b.creationDate?.getTime() || 0;
+        return bTime - aTime;
+      });
+
+      // Decrypt in batches with early termination
+      const batchSize = 5;
+      let processed = 0;
+
+      for (let i = 0; i < sortedCiphers.length && !exactMatch; i += batchSize) {
+        const batch = sortedCiphers.slice(i, i + batchSize);
+
+        const batchPromises = batch.map(async (cipher) => {
+          try {
+            const decryptedCipher = await this.cipherService.decrypt(cipher, userId);
+            const name = decryptedCipher.name?.toLowerCase() || "";
+
+            if (name.includes(searchTerm)) {
+              return { cipher: decryptedCipher, isExact: name === searchTerm };
+            }
+            return null;
+          } catch {
+            return null;
+          }
+        });
+
+        const batchResults = await Promise.all(batchPromises);
+
+        for (const result of batchResults) {
+          if (result) {
+            if (result.isExact) {
+              exactMatch = result.cipher;
+              break;
+            } else {
+              matches.push(result.cipher);
+            }
+          }
+        }
+
+        if (exactMatch) {
+          break;
+        }
+
+        processed += batchSize;
+
+        if (matches.length >= 5 && processed >= 50) {
+          break; // Found enough matches after checking reasonable number
+        }
       }
-      if (ciphers.length > 0) {
-        decCipher = ciphers[0];
+
+      if (exactMatch) {
+        decCipher = exactMatch;
+      } else if (matches.length > 0) {
+        // Use existing search logic on the limited set of matches
+        const ciphers = this.searchService.searchCiphersBasic(matches, id);
+        if (ciphers.length > 1) {
+          return ciphers;
+        }
+        if (ciphers.length > 0) {
+          decCipher = ciphers[0];
+        }
       }
     }
 

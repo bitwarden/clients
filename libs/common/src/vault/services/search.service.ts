@@ -1,6 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import * as lunr from "lunr";
 import { Observable, firstValueFrom, map } from "rxjs";
 import { Jsonify } from "type-fest";
 
@@ -93,14 +92,6 @@ export class SearchService implements SearchServiceAbstraction {
         this.searchableMinLength = this.defaultSearchableMinLength;
       }
     });
-
-    // Currently have to ensure this is only done a single time. Lunr allows you to register a function
-    // multiple times but they will add a warning message to the console. The way they do that breaks when ran on a service worker.
-    if (!SearchService.registeredPipeline) {
-      SearchService.registeredPipeline = true;
-      //register lunr pipeline function
-      lunr.Pipeline.registerFunction(this.normalizeAccentsPipelineFunction, "normalizeAccents");
-    }
   }
 
   private searchIndexState(userId: UserId): SingleUserState<SerializedLunrIndex> {
@@ -110,9 +101,12 @@ export class SearchService implements SearchServiceAbstraction {
   private index$ = perUserCache$((userId: UserId) => {
     return this.searchIndexState(userId).state$.pipe(
       map((searchIndex) => {
-        let index: lunr.Index | null = null;
+        let index: any | null = null;
         if (searchIndex) {
           const loadTime = performance.now();
+          // Lazy load lunr only when needed
+          // eslint-disable-next-line @typescript-eslint/no-require-imports
+          const lunr = require("lunr");
           index = lunr.Index.load(searchIndex);
           this.logService.measure(loadTime, "Vault", "SearchService", "index load");
         }
@@ -173,6 +167,18 @@ export class SearchService implements SearchServiceAbstraction {
     const indexingStartTime = performance.now();
     await this.setIsIndexing(userId, true);
     await this.setIndexedEntityIdForSearch(userId, indexedEntityId as IndexedEntityId);
+
+    // Lazy load lunr only when needed
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const lunr = require("lunr");
+
+    // Register pipeline function if not already done
+    if (!SearchService.registeredPipeline) {
+      SearchService.registeredPipeline = true;
+      //register lunr pipeline function
+      lunr.Pipeline.registerFunction(this.normalizeAccentsPipelineFunction, "normalizeAccents");
+    }
+
     const builder = new lunr.Builder();
     builder.pipeline.add(this.normalizeAccentsPipelineFunction);
     builder.ref("id");
@@ -264,7 +270,7 @@ export class SearchService implements SearchServiceAbstraction {
     const ciphersMap = new Map<string, C>();
     ciphers.forEach((c) => ciphersMap.set(uuidAsString(c.id), c));
 
-    let searchResults: lunr.Index.Result[] = null;
+    let searchResults: any[] = null;
     const isQueryString = query != null && query.length > 1 && query.indexOf(">") === 0;
     if (isQueryString) {
       try {
@@ -273,9 +279,12 @@ export class SearchService implements SearchServiceAbstraction {
         this.logService.error(e);
       }
     } else {
+      // Lazy load lunr only when needed
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const lunr = require("lunr");
       const soWild = lunr.Query.wildcard.LEADING | lunr.Query.wildcard.TRAILING;
-      searchResults = index.query((q) => {
-        lunr.tokenizer(query).forEach((token) => {
+      searchResults = index.query((q: any) => {
+        lunr.tokenizer(query).forEach((token: any) => {
           const t = token.toString();
           q.term(t, { fields: ["name"], wildcard: soWild });
           q.term(t, { fields: ["subtitle"], wildcard: soWild });
@@ -362,7 +371,7 @@ export class SearchService implements SearchServiceAbstraction {
     return sendsMatched.concat(lowPriorityMatched);
   }
 
-  async getIndexForSearch(userId: UserId): Promise<lunr.Index | null> {
+  async getIndexForSearch(userId: UserId): Promise<any | null> {
     return await firstValueFrom(this.index$(userId));
   }
 
@@ -474,7 +483,7 @@ export class SearchService implements SearchServiceAbstraction {
     return uris.length > 0 ? uris : null;
   }
 
-  private normalizeAccentsPipelineFunction(token: lunr.Token): any {
+  private normalizeAccentsPipelineFunction(token: any): any {
     const searchableFields = ["name", "login.username", "subtitle", "notes"];
     const fields = (token as any).metadata["fields"];
     const checkFields = fields.every((i: any) => searchableFields.includes(i));

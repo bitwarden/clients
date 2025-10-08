@@ -29,7 +29,7 @@ export class CipherResponse extends CipherWithIdExport implements BaseResponse {
     if (o.creationDate != null) {
       this.creationDate = o.creationDate;
     }
-    this.deletedDate = o.deletedDate;
+    this.deletedDate = o.deletedDate ?? null;
     if (o.passwordHistory != null) {
       this.passwordHistory = o.passwordHistory.map((h) => new PasswordHistoryResponse(h));
     }

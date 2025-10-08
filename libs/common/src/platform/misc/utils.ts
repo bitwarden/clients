@@ -5,7 +5,6 @@ import * as path from "path";
 
 import { Buffer as BufferLib } from "buffer/";
 import { Observable, of, switchMap } from "rxjs";
-import { getHostname, parse } from "tldts";
 import { Merge } from "type-fest";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
@@ -356,6 +355,9 @@ export class Utils {
     }
 
     try {
+      // Lazy load tldts only when needed
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const { getHostname } = require("tldts");
       const hostname = getHostname(uriString, { validHosts: this.validHosts });
       if (hostname != null) {
         return hostname;
@@ -391,6 +393,9 @@ export class Utils {
     }
 
     try {
+      // Lazy load tldts only when needed
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const { parse } = require("tldts");
       const parseResult = parse(uriString, {
         validHosts: this.validHosts,
         allowPrivateDomains: true,

@@ -3,7 +3,6 @@
 import * as fs from "fs";
 import * as path from "path";
 
-import * as jsdom from "jsdom";
 import { firstValueFrom } from "rxjs";
 
 import {
@@ -201,8 +200,17 @@ import { NodeApiService } from "../platform/services/node-api.service";
 import { NodeEnvSecureStorageService } from "../platform/services/node-env-secure-storage.service";
 import { CliRestrictedItemTypesService } from "../vault/services/cli-restricted-item-types.service";
 
-// Polyfills
-global.DOMParser = new jsdom.JSDOM().window.DOMParser;
+// Polyfills - Lazy load jsdom only when DOMParser is actually used
+global.DOMParser = class LazyDOMParser {
+  parseFromString(str: string, type: DOMParserSupportedType): Document {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const jsdom = require("jsdom");
+    const realParser = new jsdom.JSDOM().window.DOMParser;
+    // Replace the lazy loader with the real DOMParser for future calls
+    global.DOMParser = realParser.constructor;
+    return realParser.parseFromString(str, type);
+  }
+} as any;
 
 // eslint-disable-next-line
 const packageJson = require("../../package.json");
@@ -241,16 +249,16 @@ export class ServiceContainer {
   passwordGenerationService: PasswordGenerationServiceAbstraction;
   passwordStrengthService: PasswordStrengthServiceAbstraction;
   userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction;
-  totpService: TotpService;
+  private _totpService?: TotpService;
   containerService: ContainerService;
   auditService: AuditService;
-  importService: ImportServiceAbstraction;
-  importApiService: ImportApiServiceAbstraction;
+  private _importService?: ImportServiceAbstraction;
+  private _importApiService?: ImportApiServiceAbstraction;
+  private _searchService?: SearchService;
   exportService: VaultExportServiceAbstraction;
   vaultExportApiService: VaultExportApiService;
   individualExportService: IndividualVaultExportServiceAbstraction;
   organizationExportService: OrganizationVaultExportServiceAbstraction;
-  searchService: SearchService;
   keyGenerationService: KeyGenerationService;
   cryptoFunctionService: NodeCryptoFunctionService;
   encryptService: EncryptServiceImplementation;
@@ -297,12 +305,12 @@ export class ServiceContainer {
   userAutoUnlockKeyService: UserAutoUnlockKeyService;
   kdfConfigService: KdfConfigService;
   taskSchedulerService: TaskSchedulerService;
-  sdkService: SdkService;
+  private _sdkService?: SdkService;
   sdkLoadService: SdkLoadService;
   cipherAuthorizationService: CipherAuthorizationService;
   ssoUrlService: SsoUrlService;
   masterPasswordApiService: MasterPasswordApiServiceAbstraction;
-  cipherEncryptionService: CipherEncryptionService;
+  private _cipherEncryptionService?: CipherEncryptionService;
   restrictedItemTypesService: RestrictedItemTypesService;
   cliRestrictedItemTypesService: CliRestrictedItemTypesService;
   cipherArchiveService: CipherArchiveService;
@@ -337,7 +345,7 @@ export class ServiceContainer {
       this.logService,
       true,
     );
-    this.storageService = new LowdbStorageService(this.logService, null, p, false, true);
+    this.storageService = new LowdbStorageService(this.logService, null, p, true, true);
     this.secureStorageService = new NodeEnvSecureStorageService(
       this.storageService,
       this.logService,
@@ -565,8 +573,6 @@ export class ServiceContainer {
       this.sendService,
     );
 
-    this.searchService = new SearchService(this.logService, this.i18nService, this.stateProvider);
-
     this.collectionService = new DefaultCollectionService(
       this.keyService,
       this.encryptService,
@@ -601,21 +607,8 @@ export class ServiceContainer {
       this.globalStateProvider,
     );
 
-    const sdkClientFactory = flagEnabled("sdk")
-      ? new DefaultSdkClientFactory()
-      : new NoopSdkClientFactory();
     this.sdkLoadService = new CliSdkLoadService();
-    this.sdkService = new DefaultSdkService(
-      sdkClientFactory,
-      this.environmentService,
-      this.platformUtilsService,
-      this.accountService,
-      this.kdfConfigService,
-      this.keyService,
-      this.stateProvider,
-      this.configService,
-      customUserAgent,
-    );
+    // SDK service will be lazy loaded when needed
 
     this.passwordStrengthService = new PasswordStrengthService();
 
@@ -711,10 +704,7 @@ export class ServiceContainer {
       this.restrictedItemTypesService,
     );
 
-    this.cipherEncryptionService = new DefaultCipherEncryptionService(
-      this.sdkService,
-      this.logService,
-    );
+    // Cipher encryption service will be lazy loaded when needed
 
     this.cipherService = new CipherService(
       this.keyService,
@@ -819,31 +809,10 @@ export class ServiceContainer {
       this.stateProvider,
     );
 
-    this.totpService = new TotpService(this.sdkService);
+    // TOTP service will be lazy loaded when needed
 
-    this.importApiService = new ImportApiService(this.apiService);
-
-    this.importService = new ImportService(
-      this.cipherService,
-      this.folderService,
-      this.importApiService,
-      this.i18nService,
-      this.collectionService,
-      this.keyService,
-      this.encryptService,
-      this.pinService,
-      this.accountService,
-      this.restrictedItemTypesService,
-      createSystemServiceProvider(
-        new KeyServiceLegacyEncryptorProvider(this.encryptService, this.keyService),
-        this.stateProvider,
-        this.policyService,
-        buildExtensionRegistry(),
-        this.logService,
-        this.platformUtilsService,
-        this.configService,
-      ),
-    );
+    // Import services are lazily loaded to avoid loading heavy dependencies
+    // (including jsdom) for commands that don't need import functionality
 
     this.individualExportService = new IndividualVaultExportService(
       this.folderService,
@@ -918,6 +887,98 @@ export class ServiceContainer {
     this.masterPasswordApiService = new MasterPasswordApiService(this.apiService, this.logService);
   }
 
+  // Lazy getters for import services to avoid loading heavy dependencies
+  // (including jsdom) for commands that don't need import functionality
+  get importApiService(): ImportApiServiceAbstraction {
+    if (!this._importApiService) {
+      this._importApiService = new ImportApiService(this.apiService);
+    }
+    return this._importApiService;
+  }
+
+  get importService(): ImportServiceAbstraction {
+    if (!this._importService) {
+      this._importService = new ImportService(
+        this.cipherService,
+        this.folderService,
+        this.importApiService,
+        this.i18nService,
+        this.collectionService,
+        this.keyService,
+        this.encryptService,
+        this.pinService,
+        this.accountService,
+        this.restrictedItemTypesService,
+        createSystemServiceProvider(
+          new KeyServiceLegacyEncryptorProvider(this.encryptService, this.keyService),
+          this.stateProvider,
+          this.policyService,
+          buildExtensionRegistry(),
+          this.logService,
+          this.platformUtilsService,
+          this.configService,
+        ),
+      );
+    }
+    return this._importService;
+  }
+
+  get searchService(): SearchService {
+    if (!this._searchService) {
+      this._searchService = new SearchService(
+        this.logService,
+        this.i18nService,
+        this.stateProvider,
+      );
+    }
+    return this._searchService;
+  }
+
+  get sdkService(): SdkService {
+    if (!this._sdkService) {
+      const sdkClientFactory = flagEnabled("sdk")
+        ? new DefaultSdkClientFactory()
+        : new NoopSdkClientFactory();
+
+      const customUserAgent =
+        "Bitwarden_CLI/" +
+        this.platformUtilsService.getApplicationVersionSync() +
+        " (" +
+        this.platformUtilsService.getDeviceString().toUpperCase() +
+        ")";
+
+      this._sdkService = new DefaultSdkService(
+        sdkClientFactory,
+        this.environmentService,
+        this.platformUtilsService,
+        this.accountService,
+        this.kdfConfigService,
+        this.keyService,
+        this.stateProvider,
+        this.configService,
+        customUserAgent,
+      );
+    }
+    return this._sdkService;
+  }
+
+  get cipherEncryptionService(): CipherEncryptionService {
+    if (!this._cipherEncryptionService) {
+      this._cipherEncryptionService = new DefaultCipherEncryptionService(
+        this.sdkService,
+        this.logService,
+      );
+    }
+    return this._cipherEncryptionService;
+  }
+
+  get totpService(): TotpService {
+    if (!this._totpService) {
+      this._totpService = new TotpService(this.sdkService);
+    }
+    return this._totpService;
+  }
+
   async logout() {
     this.authService.logOut(() => {
       /* Do nothing */
@@ -964,5 +1025,46 @@ export class ServiceContainer {
     }
 
     this.inited = true;
+  }
+
+  /**
+   * Optimized initialization for vault read operations like 'get item'
+   * Skips heavy services that aren't needed for simple vault access
+   */
+  async initForVaultRead() {
+    if (this.inited) {
+      this.logService.warning("ServiceContainer.initForVaultRead called but already inited");
+      return;
+    }
+
+    // Only initialize essential services for vault read operations
+    await this.storageService.init();
+    await this.migrationRunner.run();
+
+    // Initialize i18n service as it's needed for error messages
+    await this.i18nService.init();
+
+    // SDK is needed for TOTP and other crypto operations
+    await this.sdkLoadService.loadAndInit();
+
+    // Container service must be attached to global for decryption to work
+    this.containerService.attachToGlobal(global);
+
+    // Skip twoFactorService init for performance
+
+    // Still need user key setup for vault access
+    const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
+    if (activeAccount?.id) {
+      await this.userAutoUnlockKeyService.setUserKeyInMemoryIfAutoUserKeySet(activeAccount.id);
+    }
+
+    this.inited = true;
+  }
+
+  // Ensure initialization happens when services that require it are accessed
+  async ensureInitialized() {
+    if (!this.inited) {
+      await this.init();
+    }
   }
 }
