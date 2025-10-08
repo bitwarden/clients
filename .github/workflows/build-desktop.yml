@@ -472,13 +472,16 @@ jobs:
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: bitwarden/gh-actions/azure-logout@main
 
-      - name: Update version
-        shell: bash
+      - name: Update version for appx
+        shell: pwsh
+        working-directory: apps/desktop
+        env:
+          BUILD_NUMBER: ${{ needs.setup.outputs.build_number }}
         run: |
-          NEW_VERSION=$(jq -r '.version' "package.json")
-          jq '.appx.setBuildNumber = "true"' electron-builder.json > temp.json
-          mv temp.json electron-builder.json
-          cat electron-builder.json
+          $package = Get-Content package.json | ConvertFrom-Json
+          $package | Add-Member -MemberType NoteProperty -Name buildVersion -Value "$env:BUILD_NUMBER"
+          $package | ConvertTo-Json -Depth 32 | Set-Content package.json
+          Write-Output "Updated package.json with buildVersion: $env:BUILD_NUMBER"
 
       - name: Install Node dependencies
         run: npm ci
