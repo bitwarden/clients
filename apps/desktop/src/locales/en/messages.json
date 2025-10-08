@@ -4161,7 +4161,7 @@
   "noItemsInArchiveDesc": {
     "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
   },
-  "itemSentToArchive": {
+  "itemWasSentToArchive": {
     "message": "Item was sent to archive"
   },
   "itemWasUnarchived": {

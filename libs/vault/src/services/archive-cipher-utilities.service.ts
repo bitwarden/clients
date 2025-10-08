@@ -48,7 +48,7 @@ export class ArchiveCipherUtilitiesService {
       .then(() => {
         this.toastService.showToast({
           variant: "success",
-          message: this.i18nService.t("itemSentToArchive"),
+          message: this.i18nService.t("itemWasSentToArchive"),
         });
       })
       .catch(() => {
