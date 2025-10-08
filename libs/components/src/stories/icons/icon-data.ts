@@ -66,6 +66,10 @@ const bitwardenObjects = [
     usage: "identity item type",
   },
   {
+    id: "bwi-premium",
+    usage: "upgrade to premium",
+  },
+  {
     id: "bwi-send",
     usage: "send action or feature",
   },
