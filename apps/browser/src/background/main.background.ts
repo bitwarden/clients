@@ -294,6 +294,7 @@ import { BrowserActionsService } from "../platform/actions/browser-actions.servi
 import { DefaultBadgeBrowserApi } from "../platform/badge/badge-browser-api";
 import { BadgeService } from "../platform/badge/badge.service";
 import { BrowserApi } from "../platform/browser/browser-api";
+import BrowserPopupUtils from "../platform/browser/browser-popup-utils";
 import { flagEnabled } from "../platform/flags";
 import { IpcBackgroundService } from "../platform/ipc/ipc-background.service";
 import { IpcContentScriptManagerService } from "../platform/ipc/ipc-content-script-manager.service";
@@ -1214,6 +1215,12 @@ export default class MainBackground {
 
     const systemUtilsServiceReloadCallback = async () => {
       await this.taskSchedulerService.clearAllScheduledTasks();
+
+      // Close browser action popup before reloading to prevent zombie popup with invalidated context.
+      // The 'reloadProcess' message is sent by ProcessReloadService before this callback runs,
+      // and popups will close themselves upon receiving it. Poll to verify popup is actually closed.
+      await BrowserPopupUtils.waitForAllPopupsClose();
+
       BrowserApi.reloadExtension();
     };
 
