@@ -71,6 +71,7 @@ import { DeviceTrustService } from "@bitwarden/common/key-management/device-trus
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/services/key-connector.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { MasterPasswordService } from "@bitwarden/common/key-management/master-password/services/master-password.service";
+import { PinStateService } from "@bitwarden/common/key-management/pin/pin-state.service.implementation";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { PinService } from "@bitwarden/common/key-management/pin/pin.service.implementation";
 import {
@@ -459,15 +460,16 @@ export class ServiceContainer {
       this.kdfConfigService,
     );
 
+    const pinStateService = new PinStateService(this.stateProvider);
     this.pinService = new PinService(
       this.accountService,
       this.encryptService,
       this.kdfConfigService,
       this.keyGenerationService,
       this.logService,
-      this.stateProvider,
       this.keyService,
       this.sdkService,
+      pinStateService,
     );
 
     this.appIdService = new AppIdService(this.storageService, this.logService);
@@ -488,7 +490,7 @@ export class ServiceContainer {
 
     this.vaultTimeoutSettingsService = new DefaultVaultTimeoutSettingsService(
       this.accountService,
-      this.pinService,
+      pinStateService,
       this.userDecryptionOptionsService,
       this.keyService,
       this.tokenService,

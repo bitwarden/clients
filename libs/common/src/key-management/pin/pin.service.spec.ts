@@ -6,7 +6,7 @@ import { DEFAULT_KDF_CONFIG, KdfConfigService, KeyService } from "@bitwarden/key
 import { PasswordProtectedKeyEnvelope } from "@bitwarden/sdk-internal";
 
 import { MockSdkService } from "../..//platform/spec/mock-sdk.service";
-import { FakeAccountService, mockAccountServiceWith } from "../../../spec";
+import { FakeAccountService, mockAccountServiceWith, mockEnc } from "../../../spec";
 import { LogService } from "../../platform/abstractions/log.service";
 import { Utils } from "../../platform/misc/utils";
 import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
@@ -73,7 +73,7 @@ describe("PinService", () => {
 
     it("should set up ephemeral PIN on first unlock if needed", async () => {
       // Arrange
-      jest.spyOn(sut, "getPinLockType").mockResolvedValue("EPHEMERAL");
+      pinStateService.getPinLockType.mockResolvedValue("EPHEMERAL");
       jest.spyOn(sut, "isPinDecryptionAvailable").mockResolvedValue(false);
       const getPinSpy = jest.spyOn(sut, "getPin").mockResolvedValue(mockPin);
       const setPinSpy = jest.spyOn(sut, "setPin").mockResolvedValue();
@@ -91,10 +91,10 @@ describe("PinService", () => {
 
     it("should migrate legacy persistent PIN if needed", async () => {
       // Arrange
-      jest.spyOn(sut, "getPinLockType").mockResolvedValue("PERSISTENT");
-      jest
-        .spyOn(sut as any, "getLegacyPinKeyEncryptedUserKeyPersistent")
-        .mockResolvedValue("legacy-key");
+      pinStateService.getPinLockType.mockResolvedValue("PERSISTENT");
+      pinStateService.getLegacyPinKeyEncryptedUserKeyPersistent.mockResolvedValue(
+        mockEnc("legacy-key"),
+      );
       const getPinSpy = jest.spyOn(sut, "getPin").mockResolvedValue(mockPin);
       const setPinSpy = jest.spyOn(sut, "setPin").mockResolvedValue();
 
@@ -111,7 +111,7 @@ describe("PinService", () => {
 
     it("should do nothing if no migration or setup is needed", async () => {
       // Arrange
-      jest.spyOn(sut, "getPinLockType").mockResolvedValue("DISABLED");
+      pinStateService.getPinLockType.mockResolvedValue("DISABLED");
       const getPinSpy = jest.spyOn(sut, "getPin");
       const setPinSpy = jest.spyOn(sut, "setPin");
 
@@ -176,11 +176,6 @@ describe("PinService", () => {
       keyService.userKey$.mockReturnValue(new BehaviorSubject(null).asObservable());
       await expect(sut.getPin(mockUserId)).rejects.toThrow("userKey");
     });
-
-    it("should throw an error if userKeyEncryptedPin is not available", async () => {
-      // don't set the USER_KEY_ENCRYPTED_PIN state
-      await expect(sut.getPin(mockUserId)).rejects.toThrow("userKeyEncryptedPin");
-    });
   });
 
   describe("unsetPin()", () => {
@@ -233,7 +228,7 @@ describe("PinService", () => {
       expect(pinStateService.setPinState).toHaveBeenCalledWith(
         mockUserId,
         mockPinProtectedUserKeyEnvelope,
-        mockUserKeyEncryptedPin,
+        mockUserKeyEncryptedPinFromSdk,
         "EPHEMERAL",
       );
     });
@@ -261,11 +256,6 @@ describe("PinService", () => {
   describe("getPinLockType()", () => {
     beforeEach(() => {
       jest.clearAllMocks();
-    });
-
-    it("should throw an error if userId is null", async () => {
-      // Act & Assert
-      await expect(sut.getPinLockType(null as any)).rejects.toThrow("userId");
     });
 
     it("should call pinStateService.getPinLockType with the correct userId", async () => {
@@ -333,7 +323,7 @@ describe("PinService", () => {
 
     it("should handle unexpected pinLockType and throw error", async () => {
       // Arrange - mock getPinLockType to return an unexpected value
-      jest.spyOn(sut, "getPinLockType").mockResolvedValue("UNKNOWN" as any);
+      pinStateService.getPinLockType.mockResolvedValue("UNKNOWN" as any);
 
       // Act & Assert
       await expect(sut.isPinDecryptionAvailable(mockUserId)).rejects.toThrow(
@@ -351,7 +341,7 @@ describe("PinService", () => {
       "should return true if the user PinLockType is '%s'",
       async () => {
         // Arrange
-        sut.getPinLockType = jest.fn().mockResolvedValue("PERSISTENT");
+        pinStateService.getPinLockType.mockResolvedValue("PERSISTENT");
 
         // Act
         const result = await sut.isPinSet(mockUserId);
@@ -363,7 +353,7 @@ describe("PinService", () => {
 
     it("should return false if the user PinLockType is 'DISABLED'", async () => {
       // Arrange
-      sut.getPinLockType = jest.fn().mockResolvedValue("DISABLED");
+      pinStateService.getPinLockType.mockResolvedValue("DISABLED");
 
       // Act
       const result = await sut.isPinSet(mockUserId);

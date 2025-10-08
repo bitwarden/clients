@@ -32,6 +32,7 @@ export class PinService implements PinServiceAbstraction {
   ) {}
 
   getPinLockType(userId: UserId): Promise<PinLockType> {
+    assertNonNullish(userId, "userId");
     return this.pinStateService.getPinLockType(userId);
   }
 
