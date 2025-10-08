@@ -198,6 +198,7 @@ $icons: (
   "credit-card": "\e9a2",
   "desktop": "\e9a3",
   "archive": "\e9c1",
+  "unarchive": "\e918",
 );
 
 @each $name, $glyph in $icons {

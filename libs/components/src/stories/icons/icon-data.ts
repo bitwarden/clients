@@ -264,6 +264,10 @@ const directionalMenuIndicators = [
     usage: "toggle numbered list view",
   },
   {
+    id: "bwi-unarchive",
+    usage: "-",
+  },
+  {
     id: "bwi-up-down-btn",
     usage: "table sort order",
   },
