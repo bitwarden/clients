@@ -1,11 +1,12 @@
 import { CommonModule } from "@angular/common";
 import { Component, inject } from "@angular/core";
 import { Router } from "@angular/router";
-import { firstValueFrom, map, Observable, startWith, switchMap } from "rxjs";
+import { combineLatest, firstValueFrom, map, Observable, startWith, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherId, UserId } from "@bitwarden/common/types/guid";
@@ -22,6 +23,8 @@ import {
   SectionHeaderComponent,
   ToastService,
   TypographyModule,
+  CardComponent,
+  ButtonComponent,
 } from "@bitwarden/components";
 import {
   CanDeleteCipherDirective,
@@ -50,6 +53,8 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
     SectionComponent,
     SectionHeaderComponent,
     TypographyModule,
+    CardComponent,
+    ButtonComponent,
   ],
 })
 export class ArchiveComponent {
@@ -62,17 +67,28 @@ export class ArchiveComponent {
   private i18nService = inject(I18nService);
   private cipherArchiveService = inject(CipherArchiveService);
   private passwordRepromptService = inject(PasswordRepromptService);
-
+  private accountProfileService = inject(BillingAccountProfileStateService);
   private userId$: Observable<UserId> = this.accountService.activeAccount$.pipe(getUserId);
 
   protected archivedCiphers$ = this.userId$.pipe(
     switchMap((userId) => this.cipherArchiveService.archivedCiphers$(userId)),
   );
 
+  protected previouslyHadPremium$ = combineLatest([
+    this.userId$.pipe(
+      switchMap((userId) => this.accountProfileService.hasPremiumFromAnySource$(userId)),
+    ),
+    this.archivedCiphers$,
+  ]).pipe(map(([hasPremium, ciphers]) => !hasPremium && ciphers.length > 0));
+
   protected loading$ = this.archivedCiphers$.pipe(
     map(() => false),
     startWith(true),
   );
+
+  async navigateToPremium() {
+    await this.router.navigate(["/premium"]);
+  }
 
   async view(cipher: CipherView) {
     if (!(await this.canInteract(cipher))) {
