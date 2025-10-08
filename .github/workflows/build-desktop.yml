@@ -495,11 +495,15 @@ jobs:
           NEW_VERSION="${MAJOR}.${MINOR}.${NEW_PATCH}"
           echo "New appx Package Flight version: $NEW_VERSION (incremented from $CURRENT_VERSION)"
 
-          # Root package.json
+          # Update all package.json files
           jq ".version = \"$NEW_VERSION\"" package.json > temp.json && mv temp.json package.json
           jq ".version = \"$NEW_VERSION\"" apps/desktop/package.json > temp.json && mv temp.json apps/desktop/package.json
           jq ".version = \"$NEW_VERSION\"" apps/desktop/src/package.json > temp.json && mv temp.json apps/desktop/src/package.json
           jq ".version = \"$NEW_VERSION\"" apps/desktop/src/package-lock.json > temp.json && mv temp.json apps/desktop/src/package-lock.json
+
+          # Update the _PACKAGE_VERSION environment variable for subsequent steps
+          echo "_PACKAGE_VERSION=$NEW_VERSION" >> $GITHUB_ENV
+          echo "Updated _PACKAGE_VERSION environment variable to $NEW_VERSION"
 
       - name: Install Node dependencies
         run: npm ci
