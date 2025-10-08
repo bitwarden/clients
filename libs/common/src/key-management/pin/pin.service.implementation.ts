@@ -121,7 +121,7 @@ export class PinService implements PinServiceAbstraction {
       case "DISABLED":
         return false;
       case "PERSISTENT":
-        // The above getPinLockType call ensures that we have either a PinKeyEncryptedUserKey  set.
+        // The above getPinLockType call ensures that we have either a PinKeyEncryptedUserKey or PinProtectedKeyEnvelope set.
         return true;
       case "EPHEMERAL": {
         // The above getPinLockType call ensures that we have a UserKeyEncryptedPin set.
@@ -187,7 +187,7 @@ export class PinService implements PinServiceAbstraction {
           this.accountService.accounts$.pipe(map((accounts) => accounts[userId].email)),
         );
         const kdfConfig = await this.kdfConfigService.getKdfConfig(userId);
-        return await this.decryptUserKey(pin, email, kdfConfig, pinKeyEncryptedUserKey);
+        return await this.decryptUserKey(pin, email, kdfConfig, pinKeyEncryptedUserKey!);
       } catch (error) {
         this.logService.error(`Error decrypting user key with pin: ${error}`);
         return null;
