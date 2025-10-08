@@ -1410,6 +1410,7 @@ export class CipherService implements CipherServiceAbstraction {
         return;
       }
       ciphers[cipherId].deletedDate = new Date().toISOString();
+      ciphers[cipherId].archivedDate = null;
     };
 
     if (typeof id === "string") {
