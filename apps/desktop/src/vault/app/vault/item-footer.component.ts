@@ -200,6 +200,6 @@ export class ItemFooterComponent implements OnInit, OnChanges {
       ),
     );
 
-    this.showArchive = cipherCanBeArchived && userCanArchive;
+    this.showArchive = cipherCanBeArchived && userCanArchive && this.action === "view";
   }
 }
