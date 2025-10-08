@@ -479,27 +479,41 @@ jobs:
       - name: Update version for appx Package Flight
         if: ${{ inputs.use_package_flight_version == true }}
         shell: bash
-        working-directory: apps/desktop
-        env:
-          BUILD_NUMBER: ${{ needs.setup.outputs.build_number }}
         run: |
-          # Get current version from package.json
-          CURRENT_VERSION=$(jq -r '.version' package.json)
+          # Get current version from apps/desktop/package.json
+          CURRENT_VERSION=$(jq -r '.version' apps/desktop/package.json)
           echo "Current version: $CURRENT_VERSION"
 
-          # Extract major and minor version (e.g., 2025.9 from 2025.9.1)
+          # Extract major, minor, and patch (e.g., 2025, 9, 1 from 2025.9.1)
           MAJOR=$(echo $CURRENT_VERSION | cut -d. -f1)
           MINOR=$(echo $CURRENT_VERSION | cut -d. -f2)
+          PATCH=$(echo $CURRENT_VERSION | cut -d. -f3)
 
-          # Create new version with build number as patch: MAJOR.MINOR.BUILD_NUMBER
-          NEW_VERSION="${MAJOR}.${MINOR}.${BUILD_NUMBER}"
-          echo "New appx Package Flight version: $NEW_VERSION"
+          # Increment patch version by 1
+          NEW_PATCH=$((PATCH + 1))
+          NEW_VERSION="${MAJOR}.${MINOR}.${NEW_PATCH}"
+          echo "New appx Package Flight version: $NEW_VERSION (incremented from $CURRENT_VERSION)"
 
-          # Update package.json with new version
-          jq ".version = \"$NEW_VERSION\"" package.json > temp.json
-          mv temp.json package.json
+          # Update all required package.json files
+          echo "Updating package.json files..."
 
-          echo "Updated package.json for appx Package Flight build"
+          # Root package.json
+          jq ".version = \"$NEW_VERSION\"" package.json > temp.json && mv temp.json package.json
+          echo "✓ Updated package.json"
+
+          # apps/desktop/package.json
+          jq ".version = \"$NEW_VERSION\"" apps/desktop/package.json > temp.json && mv temp.json apps/desktop/package.json
+          echo "✓ Updated apps/desktop/package.json"
+
+          # apps/desktop/src/package.json
+          jq ".version = \"$NEW_VERSION\"" apps/desktop/src/package.json > temp.json && mv temp.json apps/desktop/src/package.json
+          echo "✓ Updated apps/desktop/src/package.json"
+
+          # apps/desktop/src/package-lock.json
+          jq ".version = \"$NEW_VERSION\"" apps/desktop/src/package-lock.json > temp.json && mv temp.json apps/desktop/src/package-lock.json
+          echo "✓ Updated apps/desktop/src/package-lock.json"
+
+          echo "All package files updated for appx Package Flight build"
 
       - name: Install Node dependencies
         run: npm ci
