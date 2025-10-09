@@ -9,6 +9,12 @@ const chromiumImporter = {
     ipcRenderer.invoke("chromium_importer.importLogins", browser, profileId),
 };
 
+const chromiumImporterMetadata = {
+  getMetadataAsJson: (): Promise<string> =>
+    ipcRenderer.invoke("chromium_importer_metadata.getMetadataAsJson"),
+};
+
 export default {
   chromiumImporter,
+  chromiumImporterMetadata,
 };
