@@ -22,7 +22,10 @@ import {
   EnterPaymentMethodComponent,
   getBillingAddressFromForm,
 } from "@bitwarden/web-vault/app/billing/payment/components";
-import { tokenizablePaymentMethodToLegacyEnum } from "@bitwarden/web-vault/app/billing/payment/types";
+import {
+  tokenizablePaymentMethodToLegacyEnum,
+  NonTokenizablePaymentMethods,
+} from "@bitwarden/web-vault/app/billing/payment/types";
 import { mapAccountToSubscriber } from "@bitwarden/web-vault/app/billing/types";
 
 @Component({
@@ -86,7 +89,7 @@ export class PremiumComponent {
     ]).pipe(
       map(([credit, formValue]) => {
         const selectedPaymentType = formValue.paymentMethod?.type;
-        if (selectedPaymentType !== "accountCredit") {
+        if (selectedPaymentType !== NonTokenizablePaymentMethods.accountCredit) {
           return true; // Not using account credit, so this check doesn't apply
         }
         return credit >= this.total;

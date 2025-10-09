@@ -9,6 +9,7 @@ import { PopoverModule, ToastService } from "@bitwarden/components";
 import { SharedModule } from "../../../shared";
 import { BillingServicesModule, BraintreeService, StripeService } from "../../services";
 import {
+  AccountCreditPaymentMethod,
   isTokenizablePaymentMethod,
   selectableCountries,
   TokenizablePaymentMethod,
@@ -17,7 +18,7 @@ import {
 
 import { PaymentLabelComponent } from "./payment-label.component";
 
-type PaymentMethodOption = TokenizablePaymentMethod | "accountCredit";
+type PaymentMethodOption = TokenizablePaymentMethod | AccountCreditPaymentMethod;
 
 type PaymentMethodFormGroup = FormGroup<{
   type: FormControl<PaymentMethodOption>;
