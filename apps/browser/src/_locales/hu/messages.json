@@ -551,11 +551,11 @@
     "message": "Keresés visszaállítása"
   },
   "archiveNoun": {
-    "message": "Archive",
+    "message": "Archívum",
     "description": "Noun"
   },
   "archiveVerb": {
-    "message": "Archive",
+    "message": "Archívum",
     "description": "Verb"
   },
   "unarchive": {
@@ -732,6 +732,15 @@
   },
   "invalidMasterPassword": {
     "message": "Hibás mesterjelszó"
+  },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "A mesterjelszó érvénytelen. Erősítsük meg, hogy email cím helyes és a fiók létrehozásának helye: $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
   },
   "vaultTimeout": {
     "message": "Széf időkifutás"
@@ -3195,6 +3204,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Csak a $ORGANIZATION$ szervezetehez kapcsolódó szervezeti széf kerül exportálásra.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Csak a $ORGANIZATION$ szervezethez kapcsolódó szervezeti széf kerül exportálásra. A saját elem gyűjtemények nem lesznek benne.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },

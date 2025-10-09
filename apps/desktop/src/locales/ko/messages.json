@@ -1222,6 +1222,15 @@
   "invalidMasterPassword": {
     "message": "잘못된 마스터 비밀번호"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "twoStepLoginConfirmation": {
     "message": "2단계 인증은 보안 키, 인증 앱, SMS, 전화 통화 등의 다른 기기로 사용자의 로그인 시도를 검증하여 사용자의 계정을 더욱 안전하게 만듭니다. 2단계 인증은 bitwarden.com 웹 보관함에서 활성화할 수 있습니다. 지금 웹 사이트를 방문하시겠습니까?"
   },
@@ -2651,6 +2660,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },

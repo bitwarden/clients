@@ -830,6 +830,7 @@ export default class MainBackground {
       this.accountService,
       this.kdfConfigService,
       this.keyService,
+      this.apiService,
       this.stateProvider,
       this.configService,
     );
@@ -1415,12 +1416,14 @@ export default class MainBackground {
     this.inlineMenuFieldQualificationService = new InlineMenuFieldQualificationService();
 
     PhishingDetectionService.initialize(
-      this.configService,
+      this.accountService,
       this.auditService,
+      this.billingAccountProfileStateService,
+      this.configService,
+      this.eventCollectionService,
       this.logService,
       this.storageService,
       this.taskSchedulerService,
-      this.eventCollectionService,
     );
 
     this.ipcContentScriptManagerService = new IpcContentScriptManagerService(this.configService);
@@ -1435,7 +1438,6 @@ export default class MainBackground {
     );
 
     this.badgeService = new BadgeService(
-      this.stateProvider,
       new DefaultBadgeBrowserApi(this.platformUtilsService),
       this.logService,
     );
@@ -1925,7 +1927,6 @@ export default class MainBackground {
       this.badgeService,
       this.accountService,
       this.cipherService,
-      this.logService,
       this.taskService,
     );
 

@@ -59,8 +59,42 @@
   "createNewLoginItem": {
     "message": "Создать новый логин"
   },
+  "percentageCompleted": {
+    "message": "Завершено: $PERCENT$%",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
+  "securityTasksCompleted": {
+    "message": "Завершено $COUNT$ из $TOTAL$ задач безопасности",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "total": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "passwordChangeProgress": {
+    "message": "Прогресс смены пароля"
+  },
+  "assignMembersTasksToMonitorProgress": {
+    "message": "Assign members tasks to monitor progress"
+  },
+  "onceYouReviewApplications": {
+    "message": "Once you review applications and mark them as critical, they will display here."
+  },
+  "sendReminders": {
+    "message": "Send reminders"
+  },
   "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
-    "message": "Once you mark applications critical, they will display here"
+    "message": "Once you mark applications critical, they will display here."
   },
   "viewAtRiskMembers": {
     "message": "View at-risk members"
@@ -101,6 +135,15 @@
   },
   "countOfApplicationsAtRisk": {
     "message": "$COUNT$ applications at-risk",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfAtRiskPasswords": {
+    "message": "$COUNT$ passwords at-risk",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -162,8 +205,8 @@
   "atRiskMembers": {
     "message": "Участники группы риска"
   },
-  "membersAtRiskActivityDescription": {
-    "message": "Members with edit access to at-risk items for critical applications"
+  "membersWithAccessToAtRiskItemsForCriticalApps": {
+    "message": "Members with access to at-risk items for critical applications"
   },
   "membersAtRiskCount": {
     "message": "$COUNT$ members at-risk",
@@ -1498,6 +1541,15 @@
   },
   "invalidMasterPassword": {
     "message": "Неверный мастер-пароль"
+  },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Неверный мастер-пароль. Подтвердите, что ваш адрес email указан верно и ваш аккаунт был создан на $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
   },
   "invalidFilePassword": {
     "message": "Неверный пароль к файлу. Используйте пароль, введенный при создании файла экспорта."
@@ -7034,6 +7086,24 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Будет экспортировано только хранилище организации, связанное с $ORGANIZATION$.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Будет экспортировано только хранилище организации, связанное с $ORGANIZATION$. Коллекции Мои элементы включены не будут.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "accessDenied": {
     "message": "Доступ запрещен. У вас нет разрешения на просмотр этой страницы."
   },
@@ -7187,6 +7257,9 @@
   },
   "unknownSecret": {
     "message": "Неизвестный секрет. Вам может потребоваться запросить разрешение на доступ к этому секрету."
+  },
+  "unknownServiceAccount": {
+    "message": "Unknown machine account, you may need to request permission to access this machine account."
   },
   "unknownProject": {
     "message": "Неизвестный проект. Вам может потребоваться запросить разрешение на доступ к этому проекту."
@@ -8538,8 +8611,8 @@
       }
     }
   },
-  "accessedProjectWithId": {
-    "message": "Получен доступ к проекту с ID: $PROJECT_ID$.",
+  "accessedProjectWithIdentifier": {
+    "message": "Accessed a project with identifier: $PROJECT_ID$.",
     "placeholders": {
       "project_id": {
         "content": "$1",
@@ -8565,10 +8638,89 @@
       }
     }
   },
+  "nameUnavailableServiceAccountDeleted": {
+    "message": "Deleted machine account Id: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "service_account_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
   "editedProjectWithId": {
     "message": "Изменен проект с идентификатором: $PROJECT_ID$",
     "placeholders": {
       "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "addedUserToServiceAccountWithId": {
+    "message": "Added user: $USER_ID$ to machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "user_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "removedUserToServiceAccountWithId": {
+    "message": "Removed user: $USER_ID$ from machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "user_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "removedGroupFromServiceAccountWithId": {
+    "message": "Removed group: $GROUP_ID$ from machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "group_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "serviceAccountCreatedWithId": {
+    "message": "Created machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "service_account_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "addedGroupToServiceAccountId": {
+    "message": "Added group: $GROUP_ID$ to machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "group_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "serviceAccountDeletedWithId": {
+    "message": "Deleted machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "service_account_id": {
         "content": "$1",
         "example": "4d34e8a8"
       }
@@ -9409,6 +9561,9 @@
   },
   "assign": {
     "message": "Назначить"
+  },
+  "assignTasks": {
+    "message": "Assign tasks"
   },
   "assignToCollections": {
     "message": "Назначить коллекциям"
@@ -11075,11 +11230,11 @@
     "message": "Поиск в архиве"
   },
   "archiveNoun": {
-    "message": "Archive",
+    "message": "Архив",
     "description": "Noun"
   },
   "archiveVerb": {
-    "message": "Archive",
+    "message": "Архивировать",
     "description": "Verb"
   },
   "noItemsInArchive": {
@@ -11194,6 +11349,12 @@
   },
   "bitwardenExtensionInstalled": {
     "message": "Расширение Bitwarden установлено!"
+  },
+  "openTheBitwardenExtension": {
+    "message": "Открыть расширение Bitwarden"
+  },
+  "bitwardenExtensionInstalledOpenExtension": {
+    "message": "Расширение Bitwarden установлено! Откройте расширение, чтобы авторизоваться и начать автозаполнение."
   },
   "openExtensionToAutofill": {
     "message": "Откройте расширение, чтобы авторизоваться и начать использовать автозаполнение."

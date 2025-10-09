@@ -59,17 +59,51 @@
   "createNewLoginItem": {
     "message": "Tạo mục đăng nhập mới"
   },
+  "percentageCompleted": {
+    "message": "$PERCENT$% complete",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
+  "securityTasksCompleted": {
+    "message": "$COUNT$ out of $TOTAL$ security tasks completed",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "total": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "passwordChangeProgress": {
+    "message": "Password change progress"
+  },
+  "assignMembersTasksToMonitorProgress": {
+    "message": "Assign members tasks to monitor progress"
+  },
+  "onceYouReviewApplications": {
+    "message": "Once you review applications and mark them as critical, they will display here."
+  },
+  "sendReminders": {
+    "message": "Send reminders"
+  },
   "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
-    "message": "Once you mark applications critical, they will display here"
+    "message": "Once you mark applications critical, they will display here."
   },
   "viewAtRiskMembers": {
-    "message": "View at-risk members"
+    "message": "Xem các thành viên gặp rủi ro"
   },
   "viewAtRiskApplications": {
-    "message": "View at-risk applications"
+    "message": "Xem các ứng dụng gặp rủi ro"
   },
   "criticalApplicationsAreAtRisk": {
-    "message": "$COUNT$ out of $TOTAL$ critical applications are at-risk due to at-risk passwords",
+    "message": "$COUNT$ trên tổng số $TOTAL$ ứng dụng quan trọng đang gặp rủi ro do mật khẩu không an toàn",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -100,7 +134,16 @@
     }
   },
   "countOfApplicationsAtRisk": {
-    "message": "$COUNT$ applications at-risk",
+    "message": "$COUNT$ ứng dụng gặp rủi ro",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfAtRiskPasswords": {
+    "message": "$COUNT$ passwords at-risk",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -162,11 +205,11 @@
   "atRiskMembers": {
     "message": "Các thành viên có rủi ro"
   },
-  "membersAtRiskActivityDescription": {
-    "message": "Thành viên có quyền chỉnh sửa đối với các mục có nguy cơ cho các ứng dụng quan trọng"
+  "membersWithAccessToAtRiskItemsForCriticalApps": {
+    "message": "Members with access to at-risk items for critical applications"
   },
   "membersAtRiskCount": {
-    "message": "$COUNT$ members at-risk",
+    "message": "$COUNT$ thành viên gặp rủi ro",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1499,6 +1542,15 @@
   "invalidMasterPassword": {
     "message": "Mật khẩu chính không hợp lệ"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Mật khẩu chính không hợp lệ. Xác nhận email của bạn là chính xác và tài khoản được tạo trên $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "invalidFilePassword": {
     "message": "Mật khẩu tập tin không hợp lệ, vui lòng sử dụng mật khẩu bạn đã nhập khi xuất tập tin."
   },
@@ -1509,28 +1561,28 @@
     "message": "Chưa có mục nào."
   },
   "noItemsInTrash": {
-    "message": "No items in trash"
+    "message": "Không có mục nào trong thùng rác"
   },
   "noItemsInTrashDesc": {
-    "message": "Items you delete will appear here and be permanently deleted after 30 days"
+    "message": "Các mục bạn xóa sẽ hiển thị tại đây và bị xóa vĩnh viễn sau 30 ngày"
   },
   "noItemsInVault": {
-    "message": "No items in the vault"
+    "message": "Không có mục nào trong kho lưu trữ"
   },
   "emptyVaultDescription": {
-    "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
+    "message": "Kho lưu trữ không chỉ bảo vệ mật khẩu của bạn. Bạn có thể lưu trữ an toàn các thông tin đăng nhập, ID, thẻ và ghi chú tại đây."
   },
   "emptyFavorites": {
-    "message": "You haven't favorited any items"
+    "message": "Bạn chưa đánh dấu mục nào là mục yêu thích"
   },
   "emptyFavoritesDesc": {
-    "message": "Add frequently used items to favorites for quick access."
+    "message": "Thêm các mục thường dùng vào mục yêu thích để truy cập nhanh."
   },
   "noSearchResults": {
-    "message": "No search results returned"
+    "message": "Không có kết quả tìm kiếm nào được trả về"
   },
   "clearFiltersOrTryAnother": {
-    "message": "Clear filters or try another search term"
+    "message": "Xóa bộ lọc hoặc thử cụm từ tìm kiếm khác"
   },
   "noPermissionToViewAllCollectionItems": {
     "message": "Bạn không có quyền xem tất cả mục trong bộ sưu tập này."
@@ -4825,10 +4877,10 @@
     "message": "Tổ chức đã bị tạm ngưng"
   },
   "organizationIsSuspended": {
-    "message": "Organization is suspended"
+    "message": "Tổ chức đã bị tạm dừng"
   },
   "organizationIsSuspendedDesc": {
-    "message": "Items in suspended organizations cannot be accessed. Contact your organization owner for assistance."
+    "message": "Không thể truy cập các mục trong tổ chức đã bị tạm ngưng. Vui lòng liên hệ với chủ sở hữu tổ chức của bạn để được hỗ trợ."
   },
   "secretsAccessSuspended": {
     "message": "Không thể truy cập các tổ chức đã bị tạm ngưng. Vui lòng liên hệ với chủ sở hữu tổ chức của bạn để được hỗ trợ."
@@ -5216,11 +5268,11 @@
     "message": "Mã định danh SSO"
   },
   "ssoIdentifierHint": {
-    "message": "Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. ",
+    "message": "Cung cấp ID này cho thành viên để đăng nhập bằng SSO. Thành viên có thể bỏ qua nhập định danh này trong SSO nếu một tên miền đã xác nhận được thiết lập. ",
     "description": "This will be used as part of a larger sentence, broken up to include a link. The full sentence will read 'Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. Learn more'"
   },
   "claimedDomainsLearnMore": {
-    "message": "Learn more",
+    "message": "Tìm hiểu thêm",
     "description": "This will be used as part of a larger sentence, broken up to include a link. The full sentence will read 'Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. Learn more'"
   },
   "unlinkSso": {
@@ -7034,6 +7086,24 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Chỉ kho lưu trữ tổ chức liên kết với $ORGANIZATION$ sẽ được xuất.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Chỉ kho lưu trữ tổ chức liên kết với $ORGANIZATION$ được xuất. Bộ sưu tập mục của tôi sẽ không được bao gồm.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "accessDenied": {
     "message": "Truy cập bị từ chối. Bạn không có quyền xem trang này."
   },
@@ -7187,6 +7257,9 @@
   },
   "unknownSecret": {
     "message": "Bí mật không xác định, bạn có thể cần yêu cầu quyền để truy cập bí mật này."
+  },
+  "unknownServiceAccount": {
+    "message": "Tài khoản máy không xác định, bạn có thể cần yêu cầu quyền truy cập vào tài khoản máy này."
   },
   "unknownProject": {
     "message": "Dự án không xác định, bạn có thể cần yêu cầu quyền để truy cập dự án này."
@@ -8538,8 +8611,8 @@
       }
     }
   },
-  "accessedProjectWithId": {
-    "message": "Đã truy cập một dự án với ID: $PROJECT_ID$.",
+  "accessedProjectWithIdentifier": {
+    "message": "Đã truy cập dự án với định danh: $PROJECT_ID$.",
     "placeholders": {
       "project_id": {
         "content": "$1",
@@ -8565,10 +8638,89 @@
       }
     }
   },
+  "nameUnavailableServiceAccountDeleted": {
+    "message": "Đã xóa Id tài khoản máy: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "service_account_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
   "editedProjectWithId": {
     "message": "Đã chỉnh sửa một dự án với định danh: $PROJECT_ID$",
     "placeholders": {
       "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "addedUserToServiceAccountWithId": {
+    "message": "Đã thêm người dùng: $USER_ID$ vào tài khoản máy với định danh: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "user_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "removedUserToServiceAccountWithId": {
+    "message": "Đã xóa người dùng: $USER_ID$ khỏi tài khoản máy với định danh: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "user_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "removedGroupFromServiceAccountWithId": {
+    "message": "Đã xóa nhóm: $GROUP_ID$ khỏi tài khoản máy với định danh: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "group_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "serviceAccountCreatedWithId": {
+    "message": "Đã tạo tài khoản máy với định danh: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "service_account_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "addedGroupToServiceAccountId": {
+    "message": "Đã thêm nhóm: $GROUP_ID$ vào tài khoản máy với định danh: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "group_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "serviceAccountDeletedWithId": {
+    "message": "Đã tạo tài khoản máy với định danh: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "service_account_id": {
         "content": "$1",
         "example": "4d34e8a8"
       }
@@ -9410,6 +9562,9 @@
   "assign": {
     "message": "Gán"
   },
+  "assignTasks": {
+    "message": "Assign tasks"
+  },
   "assignToCollections": {
     "message": "Gán vào bộ sưu tập"
   },
@@ -9809,7 +9964,7 @@
     "message": "Không thể lưu tích hợp. Vui lòng thử lại sau."
   },
   "mustBeOrgOwnerToPerformAction": {
-    "message": "You must be the organization owner to perform this action."
+    "message": "Bạn phải là chủ sở hữu tổ chức để thực hiện hành động này."
   },
   "failedToDeleteIntegration": {
     "message": "Không thể xóa tích hợp. Vui lòng thử lại sau."
@@ -11075,11 +11230,11 @@
     "message": "Tìm kiếm kho lưu trữ"
   },
   "archiveNoun": {
-    "message": "Archive",
+    "message": "Lưu trữ",
     "description": "Noun"
   },
   "archiveVerb": {
-    "message": "Archive",
+    "message": "Lưu trữ",
     "description": "Verb"
   },
   "noItemsInArchive": {
@@ -11194,6 +11349,12 @@
   },
   "bitwardenExtensionInstalled": {
     "message": "Đã cài đặt tiện ích mở rộng Bitwarden!"
+  },
+  "openTheBitwardenExtension": {
+    "message": "Mở tiện ích mở rộng Bitwarden"
+  },
+  "bitwardenExtensionInstalledOpenExtension": {
+    "message": "Tiện ích mở rộng Bitwarden đã được cài đặt! Mở tiện ích mở rộng để đăng nhập và bắt đầu tự động điền."
   },
   "openExtensionToAutofill": {
     "message": "Mở tiện ích mở rộng để đăng nhập và bắt đầu tự động điền."

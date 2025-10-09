@@ -34,6 +34,7 @@ import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/a
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -369,6 +370,15 @@ export class LoginCommand {
 
       return await this.handleSuccessResponse(response);
     } catch (e) {
+      if (
+        e instanceof ErrorResponse &&
+        e.message === "Username or password is incorrect. Try again."
+      ) {
+        const env = await firstValueFrom(this.environmentService.environment$);
+        const host = Utils.getHost(env.getWebVaultUrl());
+        return Response.error(this.i18nService.t("invalidMasterPasswordConfirmEmailAndHost", host));
+      }
+
       return Response.error(e);
     }
   }

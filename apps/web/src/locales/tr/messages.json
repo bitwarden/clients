@@ -59,8 +59,42 @@
   "createNewLoginItem": {
     "message": "Yeni hesap kaydı oluştur"
   },
+  "percentageCompleted": {
+    "message": "$PERCENT$% complete",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
+  "securityTasksCompleted": {
+    "message": "$COUNT$ out of $TOTAL$ security tasks completed",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "total": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "passwordChangeProgress": {
+    "message": "Password change progress"
+  },
+  "assignMembersTasksToMonitorProgress": {
+    "message": "Assign members tasks to monitor progress"
+  },
+  "onceYouReviewApplications": {
+    "message": "Once you review applications and mark them as critical, they will display here."
+  },
+  "sendReminders": {
+    "message": "Send reminders"
+  },
   "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
-    "message": "Once you mark applications critical, they will display here"
+    "message": "Once you mark applications critical, they will display here."
   },
   "viewAtRiskMembers": {
     "message": "View at-risk members"
@@ -101,6 +135,15 @@
   },
   "countOfApplicationsAtRisk": {
     "message": "$COUNT$ applications at-risk",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfAtRiskPasswords": {
+    "message": "$COUNT$ passwords at-risk",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -162,11 +205,11 @@
   "atRiskMembers": {
     "message": "Riskli üyeler"
   },
-  "membersAtRiskActivityDescription": {
-    "message": "Kritik uygulamalar için risk altındaki kayıtlara düzenleme erişimi olan üyeler"
+  "membersWithAccessToAtRiskItemsForCriticalApps": {
+    "message": "Kritik uygulamalar için risk altındaki kayıtlara erişimi olan üyeler"
   },
   "membersAtRiskCount": {
-    "message": "$COUNT$ members at-risk",
+    "message": "$COUNT$ üye risk altında",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1499,6 +1542,15 @@
   "invalidMasterPassword": {
     "message": "Geçersiz ana parola"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Ana parola geçersiz. E-posta adresinizin doğru olduğunu ve hesabınızın $HOST$ üzerinde oluşturulduğunu kontrol edin.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "invalidFilePassword": {
     "message": "Geçersiz dosya parolası. Lütfen dışa aktardığınız dosyayı oluştururken girdiğiniz parolayı kullanın."
   },
@@ -1509,16 +1561,16 @@
     "message": "Listelenecek kayıt yok."
   },
   "noItemsInTrash": {
-    "message": "No items in trash"
+    "message": "Çöp kutusunda hiç kayıt yok"
   },
   "noItemsInTrashDesc": {
-    "message": "Items you delete will appear here and be permanently deleted after 30 days"
+    "message": "Sildiğiniz kayıtlar burada görünecek ve 30 gün sonra kalıcı olarak silinecektir"
   },
   "noItemsInVault": {
-    "message": "No items in the vault"
+    "message": "Kasada hiç kayıt yok"
   },
   "emptyVaultDescription": {
-    "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
+    "message": "Kasanız sadece parolalarınız için değil. Hesaplarınızı, kimliklerinizi, kredi kartlarınızı ve notlarınızı da güvenle burada depolayabilirsiniz."
   },
   "emptyFavorites": {
     "message": "You haven't favorited any items"
@@ -1530,7 +1582,7 @@
     "message": "No search results returned"
   },
   "clearFiltersOrTryAnother": {
-    "message": "Clear filters or try another search term"
+    "message": "Filtreleri temizleyin veya başka bir arama yapmayı deneyin"
   },
   "noPermissionToViewAllCollectionItems": {
     "message": "Bu koleksiyondaki tüm kayıtları görmek için izniniz yok."
@@ -4825,10 +4877,10 @@
     "message": "Kuruluş askıya alındı"
   },
   "organizationIsSuspended": {
-    "message": "Organization is suspended"
+    "message": "Kuruluş askıya alındı"
   },
   "organizationIsSuspendedDesc": {
-    "message": "Items in suspended organizations cannot be accessed. Contact your organization owner for assistance."
+    "message": "Askıya alınmış kuruluşlardaki kayıtlara erişilemez. Destek almak için kuruluş sahibinizle iletişime geçin."
   },
   "secretsAccessSuspended": {
     "message": "Askıya alınan kuruluşlara erişilemez. Lütfen yardım için kuruluşunuzun sahibiyle iletişime geçin."
@@ -7034,6 +7086,24 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "accessDenied": {
     "message": "Erişim engellendi. Bu sayfayı görüntüleme iznine sahip değilsiniz."
   },
@@ -7187,6 +7257,9 @@
   },
   "unknownSecret": {
     "message": "Bilinmeyen sır, bu sırra erişmek için izin istemeniz gerekebilir."
+  },
+  "unknownServiceAccount": {
+    "message": "Unknown machine account, you may need to request permission to access this machine account."
   },
   "unknownProject": {
     "message": "Bilinmeyen proje, bu projeye erişmek için izin istemeniz gerekebilir."
@@ -8538,8 +8611,8 @@
       }
     }
   },
-  "accessedProjectWithId": {
-    "message": "Kimliği: $PROJECT_ID$ olan bir projeye erişildi.",
+  "accessedProjectWithIdentifier": {
+    "message": "Accessed a project with identifier: $PROJECT_ID$.",
     "placeholders": {
       "project_id": {
         "content": "$1",
@@ -8565,10 +8638,89 @@
       }
     }
   },
+  "nameUnavailableServiceAccountDeleted": {
+    "message": "Deleted machine account Id: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "service_account_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
   "editedProjectWithId": {
     "message": "Tanımlayıcısı: $PROJECT_ID$ olan bir proje düzenlendi",
     "placeholders": {
       "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "addedUserToServiceAccountWithId": {
+    "message": "Added user: $USER_ID$ to machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "user_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "removedUserToServiceAccountWithId": {
+    "message": "Removed user: $USER_ID$ from machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "user_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "removedGroupFromServiceAccountWithId": {
+    "message": "Removed group: $GROUP_ID$ from machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "group_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "serviceAccountCreatedWithId": {
+    "message": "Created machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "service_account_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "addedGroupToServiceAccountId": {
+    "message": "Added group: $GROUP_ID$ to machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "group_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "serviceAccountDeletedWithId": {
+    "message": "Deleted machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "service_account_id": {
         "content": "$1",
         "example": "4d34e8a8"
       }
@@ -9409,6 +9561,9 @@
   },
   "assign": {
     "message": "Ata"
+  },
+  "assignTasks": {
+    "message": "Assign tasks"
   },
   "assignToCollections": {
     "message": "Koleksiyonlara ata"
@@ -11194,6 +11349,12 @@
   },
   "bitwardenExtensionInstalled": {
     "message": "Bitwarden uzantısı yüklendi!"
+  },
+  "openTheBitwardenExtension": {
+    "message": "Bitwarden uzantısını aç"
+  },
+  "bitwardenExtensionInstalledOpenExtension": {
+    "message": "The Bitwarden extension is installed! Open the extension to log in and start autofilling."
   },
   "openExtensionToAutofill": {
     "message": "Otomatik doldurmaya başlamak için uzantıyı açıp giriş yapın."
