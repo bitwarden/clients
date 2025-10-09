@@ -515,11 +515,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
 
     if (!this.form.controls.vaultTimeout.valid) {
-      this.platformUtilsService.showToast(
-        "error",
-        null,
-        this.i18nService.t("vaultTimeoutTooLarge"),
-      );
       return;
     }
 
