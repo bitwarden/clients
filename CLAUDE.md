@@ -1,5 +1,15 @@
 # Bitwarden Clients - Claude Code Configuration
 
+## Project Context Files
+
+**Read these files before reviewing to ensure that you fully understand the project and contributing guidelines**
+
+1. `README.md`
+2. `SECURITY.md`.
+3. `CONTRIBUTING.md`
+4. `.github/PULL_REQUEST_TEMPLATE.md`
+5. `.github/CODEOWNERS`
+
 ## Critical Rules
 
 - **NEVER** use code regions: If complexity suggests regions, refactor for better readability
