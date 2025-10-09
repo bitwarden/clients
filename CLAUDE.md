@@ -5,10 +5,8 @@
 **Read these files before reviewing to ensure that you fully understand the project and contributing guidelines**
 
 1. `README.md`
-2. `SECURITY.md`.
-3. `CONTRIBUTING.md`
-4. `.github/PULL_REQUEST_TEMPLATE.md`
-5. `.github/CODEOWNERS`
+2. `CONTRIBUTING.md`
+3. `.github/PULL_REQUEST_TEMPLATE.md`
 
 ## Critical Rules
 
@@ -18,7 +16,7 @@
 
 - **NEVER** send unencrypted vault data to API services
 
-- **NEVER** commit secrets, credentials, or sensitive information. Follow the guidelines in `SECURITY.md`.
+- **NEVER** commit secrets, credentials, or sensitive information.
 
 - **NEVER** log decrypted data, encryption keys, or PII
   - No vault data in error messages or console logs
