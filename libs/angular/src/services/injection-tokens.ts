@@ -15,10 +15,12 @@ import {
 import { Theme } from "@bitwarden/common/platform/enums";
 import { Message } from "@bitwarden/common/platform/messaging";
 import { HttpOperations } from "@bitwarden/common/services/api.service";
+import { LogProvider } from "@bitwarden/logging";
 import { SafeInjectionToken } from "@bitwarden/ui-common";
 // Re-export the SafeInjectionToken from ui-common
 export { SafeInjectionToken } from "@bitwarden/ui-common";
 
+export const LOG_PROVIDER = new SafeInjectionToken<LogProvider>("LogProvider");
 export const WINDOW = new SafeInjectionToken<Window>("WINDOW");
 export const DOCUMENT = new SafeInjectionToken<Document>("DOCUMENT");
 export const OBSERVABLE_MEMORY_STORAGE = new SafeInjectionToken<

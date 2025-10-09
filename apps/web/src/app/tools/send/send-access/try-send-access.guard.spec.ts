@@ -2,9 +2,8 @@ import { TestBed } from "@angular/core/testing";
 import { ActivatedRouteSnapshot, RouterStateSnapshot, UrlTree } from "@angular/router";
 import { firstValueFrom, Observable, of } from "rxjs";
 
-import { SemanticLogger } from "@bitwarden/common/tools/log";
-import { SystemServiceProvider } from "@bitwarden/common/tools/providers";
-import { SYSTEM_SERVICE_PROVIDER } from "@bitwarden/generator-components";
+import { LOG_PROVIDER } from "@bitwarden/angular/services/injection-tokens";
+import { LogProvider, SemanticLogger } from "@bitwarden/logging";
 
 import { SendAccessService } from "./send-access-service.abstraction";
 import { trySendAccess } from "./try-send-access.guard";
@@ -22,10 +21,8 @@ function createMockLogger(): SemanticLogger {
   } as any as SemanticLogger;
 }
 
-function createMockSystemServiceProvider(): SystemServiceProvider {
-  return {
-    log: jest.fn().mockReturnValue(createMockLogger()),
-  } as any as SystemServiceProvider;
+function createMockLogProvider(): LogProvider {
+  return jest.fn().mockReturnValue(createMockLogger()) as any;
 }
 
 function createMockSendAccessService() {
@@ -38,18 +35,18 @@ function createMockSendAccessService() {
 
 describe("trySendAccess", () => {
   let mockSendAccessService: ReturnType<typeof createMockSendAccessService>;
-  let mockSystemServiceProvider: SystemServiceProvider;
+  let mockLogProvider: LogProvider;
   let mockRouterState: RouterStateSnapshot;
 
   beforeEach(() => {
     mockSendAccessService = createMockSendAccessService();
-    mockSystemServiceProvider = createMockSystemServiceProvider();
+    mockLogProvider = createMockLogProvider();
     mockRouterState = {} as RouterStateSnapshot;
 
     TestBed.configureTestingModule({
       providers: [
         { provide: SendAccessService, useValue: mockSendAccessService },
-        { provide: SYSTEM_SERVICE_PROVIDER, useValue: mockSystemServiceProvider },
+        { provide: LOG_PROVIDER, useValue: mockLogProvider },
       ],
     });
   });
@@ -97,7 +94,7 @@ describe("trySendAccess", () => {
         await expect(firstValueFrom(guardResult!)).resolves.toEqual(expectedUrlTree);
 
         // Logger methods should not be called for warnings or panics
-        const mockLogger = (mockSystemServiceProvider.log as jest.Mock).mock.results[0].value;
+        const mockLogger = (mockLogProvider as jest.Mock).mock.results[0].value;
         expect(mockLogger.warn).not.toHaveBeenCalled();
         expect(mockLogger.panic).not.toHaveBeenCalled();
       });
@@ -116,7 +113,7 @@ describe("trySendAccess", () => {
               sendIdValue === undefined ? { key } : { sendId: sendIdValue, key },
             );
             const mockLogger = createMockLogger();
-            (mockSystemServiceProvider.log as jest.Mock).mockReturnValue(mockLogger);
+            (mockLogProvider as jest.Mock).mockReturnValue(mockLogger);
 
             await expect(async () => {
               const result$ = TestBed.runInInjectionContext(() =>
@@ -125,7 +122,7 @@ describe("trySendAccess", () => {
               await firstValueFrom(result$);
             }).rejects.toThrow("Logger panic called");
 
-            expect(mockSystemServiceProvider.log).toHaveBeenCalledWith({
+            expect(mockLogProvider).toHaveBeenCalledWith({
               function: "trySendAccess",
             });
             expect(mockLogger.warn).toHaveBeenCalledWith(
@@ -142,7 +139,7 @@ describe("trySendAccess", () => {
           const key = "valid-key";
           const mockRoute = createMockRoute({ sendId: value, key });
           const mockLogger = createMockLogger();
-          (mockSystemServiceProvider.log as jest.Mock).mockReturnValue(mockLogger);
+          (mockLogProvider as jest.Mock).mockReturnValue(mockLogger);
 
           await expect(async () => {
             const result$ = TestBed.runInInjectionContext(() =>
@@ -151,7 +148,7 @@ describe("trySendAccess", () => {
             await firstValueFrom(result$);
           }).rejects.toThrow("Logger panic called");
 
-          expect(mockSystemServiceProvider.log).toHaveBeenCalledWith({ function: "trySendAccess" });
+          expect(mockLogProvider).toHaveBeenCalledWith({ function: "trySendAccess" });
           expect(mockLogger.panic).toHaveBeenCalledWith(
             { expected: "string", actual: type },
             "sendId has invalid type",
@@ -167,7 +164,7 @@ describe("trySendAccess", () => {
               invalidSendId === undefined ? { key } : { sendId: invalidSendId, key },
             );
             const mockLogger = createMockLogger();
-            (mockSystemServiceProvider.log as jest.Mock).mockReturnValue(mockLogger);
+            (mockLogProvider as jest.Mock).mockReturnValue(mockLogger);
 
             await expect(async () => {
               const result$ = TestBed.runInInjectionContext(() =>
@@ -189,7 +186,7 @@ describe("trySendAccess", () => {
             keyValue === undefined ? { sendId } : { sendId, key: keyValue },
           );
           const mockLogger = createMockLogger();
-          (mockSystemServiceProvider.log as jest.Mock).mockReturnValue(mockLogger);
+          (mockLogProvider as jest.Mock).mockReturnValue(mockLogger);
 
           await expect(async () => {
             const result$ = TestBed.runInInjectionContext(() =>
@@ -198,7 +195,7 @@ describe("trySendAccess", () => {
             await firstValueFrom(result$);
           }).rejects.toThrow("Logger panic called");
 
-          expect(mockSystemServiceProvider.log).toHaveBeenCalledWith({ function: "trySendAccess" });
+          expect(mockLogProvider).toHaveBeenCalledWith({ function: "trySendAccess" });
           expect(mockLogger.panic).toHaveBeenCalledWith("key missing from the route parameters");
         });
 
@@ -210,7 +207,7 @@ describe("trySendAccess", () => {
           const sendId = "valid-send-id";
           const mockRoute = createMockRoute({ sendId, key: value });
           const mockLogger = createMockLogger();
-          (mockSystemServiceProvider.log as jest.Mock).mockReturnValue(mockLogger);
+          (mockLogProvider as jest.Mock).mockReturnValue(mockLogger);
 
           await expect(async () => {
             const result$ = TestBed.runInInjectionContext(() =>
@@ -219,7 +216,7 @@ describe("trySendAccess", () => {
             await firstValueFrom(result$);
           }).rejects.toThrow("Logger panic called");
 
-          expect(mockSystemServiceProvider.log).toHaveBeenCalledWith({ function: "trySendAccess" });
+          expect(mockLogProvider).toHaveBeenCalledWith({ function: "trySendAccess" });
           expect(mockLogger.panic).toHaveBeenCalledWith(
             { expected: "string", actual: type },
             "key has invalid type",
@@ -235,7 +232,7 @@ describe("trySendAccess", () => {
               invalidKey === undefined ? { sendId } : { sendId, key: invalidKey },
             );
             const mockLogger = createMockLogger();
-            (mockSystemServiceProvider.log as jest.Mock).mockReturnValue(mockLogger);
+            (mockLogProvider as jest.Mock).mockReturnValue(mockLogger);
 
             await expect(async () => {
               const result$ = TestBed.runInInjectionContext(() =>

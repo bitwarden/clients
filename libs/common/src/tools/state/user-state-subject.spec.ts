@@ -2,6 +2,8 @@
 // @ts-strict-ignore
 import { BehaviorSubject, of, Subject } from "rxjs";
 
+import { disabledSemanticLoggerProvider } from "@bitwarden/logging";
+
 import {
   awaitAsync,
   FakeAccountService,
@@ -13,7 +15,6 @@ import { GENERATOR_DISK, UserKeyDefinition } from "../../platform/state";
 import { UserId } from "../../types/guid";
 import { LegacyEncryptorProvider } from "../cryptography/legacy-encryptor-provider";
 import { UserEncryptor } from "../cryptography/user-encryptor.abstraction";
-import { disabledSemanticLoggerProvider } from "../log";
 import { PrivateClassifier } from "../private-classifier";
 import { StateConstraints } from "../types";
 

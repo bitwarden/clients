@@ -31,11 +31,6 @@ import { Account, AccountService } from "@bitwarden/common/auth/abstractions/acc
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { VendorId } from "@bitwarden/common/tools/extension";
-import {
-  SemanticLogger,
-  disabledSemanticLoggerProvider,
-  ifEnabledSemanticLoggerProvider,
-} from "@bitwarden/common/tools/log";
 import { UserId } from "@bitwarden/common/types/guid";
 import { ToastService, Option } from "@bitwarden/components";
 import {
@@ -55,6 +50,11 @@ import {
   Type,
 } from "@bitwarden/generator-core";
 import { GeneratorHistoryService } from "@bitwarden/generator-history";
+import {
+  disabledSemanticLoggerProvider,
+  ifEnabledSemanticLoggerProvider,
+  SemanticLogger,
+} from "@bitwarden/logging";
 
 import { translate } from "./util";
 

@@ -8,12 +8,12 @@ import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { GENERATOR_DISK, UserKeyDefinition } from "@bitwarden/common/platform/state";
 import { LegacyEncryptorProvider } from "@bitwarden/common/tools/cryptography/legacy-encryptor-provider";
 import { UserEncryptor } from "@bitwarden/common/tools/cryptography/user-encryptor.abstraction";
-import { disabledSemanticLoggerProvider } from "@bitwarden/common/tools/log";
 import { PrivateClassifier } from "@bitwarden/common/tools/private-classifier";
 import { IdentityConstraint } from "@bitwarden/common/tools/state/identity-state-constraint";
 import { UserStateSubjectDependencyProvider } from "@bitwarden/common/tools/state/user-state-subject-dependency-provider";
 import { StateConstraints } from "@bitwarden/common/tools/types";
 import { OrganizationId, PolicyId, UserId } from "@bitwarden/common/types/guid";
+import { disabledSemanticLoggerProvider } from "@bitwarden/logging";
 
 import { FakeStateProvider, FakeAccountService, awaitAsync } from "../../../../../common/spec";
 import { CoreProfileMetadata, ProfileContext } from "../metadata/profile-metadata";

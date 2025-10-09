@@ -2,8 +2,8 @@ import { inject } from "@angular/core";
 import { ActivatedRouteSnapshot, CanActivateFn, RouterStateSnapshot } from "@angular/router";
 import { from, ignoreElements, concat } from "rxjs";
 
-import { SystemServiceProvider } from "@bitwarden/common/tools/providers";
-import { SYSTEM_SERVICE_PROVIDER } from "@bitwarden/generator-components";
+import { LOG_PROVIDER } from "@bitwarden/angular/services/injection-tokens";
+import { LogProvider } from "@bitwarden/logging";
 
 import { SendAccessService } from "./send-access-service.abstraction";
 
@@ -12,8 +12,8 @@ export const trySendAccess: CanActivateFn = (
   _state: RouterStateSnapshot,
 ) => {
   const sendAccess = inject(SendAccessService);
-  const system = inject<SystemServiceProvider>(SYSTEM_SERVICE_PROVIDER);
-  const logger = system.log({ function: "trySendAccess" });
+  const log = inject<LogProvider>(LOG_PROVIDER);
+  const logger = log({ function: "trySendAccess" });
 
   const { sendId, key } = route.params;
   if (!sendId) {

@@ -29,11 +29,12 @@ import {
   switchMap,
 } from "rxjs";
 
+import { SemanticLogger } from "@bitwarden/logging";
+
 import { Account } from "../../auth/abstractions/account.service";
 import { EncString } from "../../key-management/crypto/models/enc-string";
 import { SingleUserState, UserKeyDefinition } from "../../platform/state";
 import { UserEncryptor } from "../cryptography/user-encryptor.abstraction";
-import { SemanticLogger } from "../log";
 import { anyComplete, pin, ready, withLatestReady } from "../rx";
 import { Constraints, SubjectConstraints, WithConstraints } from "../types";
 

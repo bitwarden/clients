@@ -12,10 +12,10 @@ import {
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { BoundDependency } from "@bitwarden/common/tools/dependencies";
-import { SemanticLogger } from "@bitwarden/common/tools/log";
 import { anyComplete } from "@bitwarden/common/tools/rx";
 import { UserStateSubject } from "@bitwarden/common/tools/state/user-state-subject";
 import { UserStateSubjectDependencyProvider } from "@bitwarden/common/tools/state/user-state-subject-dependency-provider";
+import { SemanticLogger } from "@bitwarden/logging";
 
 import { ProfileContext, CoreProfileMetadata, ProfileMetadata } from "../metadata";
 import { GeneratorConstraints } from "../types/generator-constraints";

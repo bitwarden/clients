@@ -8,11 +8,6 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import {
-  SemanticLogger,
-  disabledSemanticLoggerProvider,
-  ifEnabledSemanticLoggerProvider,
-} from "@bitwarden/common/tools/log";
 import { UserId } from "@bitwarden/common/types/guid";
 import {
   ColorPasswordModule,
@@ -22,6 +17,11 @@ import {
 } from "@bitwarden/components";
 import { AlgorithmsByType, CredentialGeneratorService } from "@bitwarden/generator-core";
 import { GeneratedCredential, GeneratorHistoryService } from "@bitwarden/generator-history";
+import {
+  disabledSemanticLoggerProvider,
+  ifEnabledSemanticLoggerProvider,
+  SemanticLogger,
+} from "@bitwarden/logging";
 
 import { GeneratorModule } from "./generator.module";
 import { translate } from "./util";
