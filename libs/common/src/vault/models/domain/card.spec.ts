@@ -63,7 +63,6 @@ describe("Card", () => {
     expect(view).toEqual({
       _brand: "brand",
       _number: "number",
-      _subTitle: null,
       cardholderName: "cardHolder",
       code: "code",
       expMonth: "expMonth",
