@@ -183,9 +183,15 @@ type PaymentMethodFormGroup = FormGroup<{
         }
         @case ("accountCredit") {
           <ng-container>
-            <bit-callout type="info">
-              {{ "makeSureEnoughCredit" | i18n }}
-            </bit-callout>
+            @if (hasEnoughAccountCredit) {
+              <bit-callout type="info">
+                {{ "makeSureEnoughCredit" | i18n }}
+              </bit-callout>
+            } @else {
+              <bit-callout type="warning">
+                {{ "notEnoughAccountCredit" | i18n }}
+              </bit-callout>
+            }
           </ng-container>
         }
       }
@@ -230,6 +236,7 @@ export class EnterPaymentMethodComponent implements OnInit {
   @Input() private showBankAccount = true;
   @Input() showPayPal = true;
   @Input() showAccountCredit = false;
+  @Input() hasEnoughAccountCredit = true;
   @Input() includeBillingAddress = false;
 
   protected showBankAccount$!: Observable<boolean>;
