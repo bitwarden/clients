@@ -72,7 +72,11 @@ import {
 
 import { ImporterMetadata, DataLoader, Loader, Instructions } from "../metadata";
 import { ImportOption, ImportResult, ImportType } from "../models";
-import { ImportCollectionServiceAbstraction, ImportServiceAbstraction } from "../services";
+import {
+  ImportCollectionServiceAbstraction,
+  ImportMetadataServiceAbstraction,
+  ImportServiceAbstraction,
+} from "../services";
 
 import { ImportChromeComponent } from "./chrome";
 import {
@@ -236,6 +240,7 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     protected accountService: AccountService,
     private restrictedItemTypesService: RestrictedItemTypesService,
     private destroyRef: DestroyRef,
+    protected importMetadataService: ImportMetadataServiceAbstraction,
   ) {}
 
   protected get importBlockedByPolicy(): boolean {
@@ -254,9 +259,11 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   async ngOnInit() {
+    await this.importMetadataService.init();
+
     this.setImportOptions();
 
-    this.importService
+    this.importMetadataService
       .metadata$(this.formGroup.controls.format.valueChanges)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({

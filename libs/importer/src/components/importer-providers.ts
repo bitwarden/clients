@@ -85,7 +85,11 @@ export const ImporterProviders: SafeProvider[] = [
       PinServiceAbstraction,
       AccountService,
       RestrictedItemTypesService,
-      SYSTEM_SERVICE_PROVIDER,
     ],
   }),
+  // safeProvider({
+  //   provide: ImportMetadataServiceAbstraction,
+  //   useClass: DefaultImportMetadataService,
+  //   deps: [SYSTEM_SERVICE_PROVIDER],
+  // }),
 ];
