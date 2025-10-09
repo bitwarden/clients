@@ -4135,7 +4135,7 @@
   "enableAutotypeShortcutPreview": {
     "message": "Iespējot automātiskās ievades īsinājumtaustiņus (iespējas priekšskatījums)"
   },
-  "enableAutotypeDescriptionTransitionKey": {
+  "enableAutotypeShortcutDescription": {
     "message": "Jāpārliecinās, ka pirms saīsnes izmantošanas kursors ir pareizajā laukā, lai izvairītos no datu ievadīšanas nepareizā vietā."
   },
   "editShortcut": {
