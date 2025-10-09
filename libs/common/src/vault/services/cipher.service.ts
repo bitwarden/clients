@@ -450,7 +450,6 @@ export class CipherService implements CipherServiceAbstraction {
   async getAllDecrypted(userId: UserId): Promise<CipherView[]> {
     const decCiphers = await this.getDecryptedCiphers(userId);
     if (decCiphers != null && decCiphers.length !== 0) {
-      await this.assignLocalDataToCipherViews(decCiphers, userId);
       await this.reindexCiphers(userId);
       return decCiphers;
     }
@@ -1651,33 +1650,6 @@ export class CipherService implements CipherServiceAbstraction {
 
   // Helpers
 
-  /**
-   * Assigns local data to cipher views.
-   * @param cipherViews
-   * @param userId
-   * @returns A promise that resolves when the local data has been assigned.
-   */
-  private async assignLocalDataToCipherViews(
-    cipherViews: CipherView[],
-    userId: UserId,
-  ): Promise<void> {
-    if (!cipherViews?.length) {
-      return;
-    }
-
-    const localData = await firstValueFrom(this.localData$(userId));
-    if (!localData) {
-      return;
-    }
-
-    for (const view of cipherViews) {
-      const data = localData[view.id as CipherId];
-      if (data && view.localData !== data) {
-        view.localData = data;
-      }
-    }
-  }
-
   // In the case of a cipher that is being shared with an organization, we want to decrypt the
   // cipher key with the user's key and then re-encrypt it with the organization's key.
   private async encryptSharedCipher(model: CipherView, userId: UserId): Promise<EncryptionContext> {
@@ -1971,9 +1943,21 @@ export class CipherService implements CipherServiceAbstraction {
     autofillOnPageLoad: boolean,
   ): Promise<CipherView> {
     const cacheKey = autofillOnPageLoad ? "autofillOnPageLoad-" + url : url;
-
     if (!this.sortedCiphersCache.isCached(cacheKey)) {
       let ciphers = await this.getAllDecryptedForUrl(url, userId);
+
+      if (ciphers?.length) {
+        const localData = await firstValueFrom(this.localData$(userId));
+        if (localData) {
+          for (const view of ciphers) {
+            const data = localData[view.id as CipherId];
+            if (data && view.localData !== data) {
+              view.localData = data;
+            }
+          }
+        }
+      }
+
       if (!ciphers) {
         return null;
       }
@@ -2101,8 +2085,6 @@ export class CipherService implements CipherServiceAbstraction {
       userId,
     );
     const decryptedViews = await Promise.all(decrypted.map((c) => this.getFullCipherView(c)));
-
-    await this.assignLocalDataToCipherViews(decryptedViews, userId);
 
     const failedViews = failures.map((c) => {
       const cipher_view = new CipherView(c);
