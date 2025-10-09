@@ -1665,7 +1665,6 @@ export default class MainBackground {
     await Promise.all([
       this.keyService.clearKeys(userBeingLoggedOut),
       this.cipherService.clear(userBeingLoggedOut),
-      // ! DO NOT REMOVE folderService.clear ! For more information see PM-25660
       this.folderService.clear(userBeingLoggedOut),
       this.vaultTimeoutSettingsService.clear(userBeingLoggedOut),
       this.biometricStateService.logout(userBeingLoggedOut),

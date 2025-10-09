@@ -927,7 +927,6 @@ export class ServiceContainer {
       this.eventUploadService.uploadEvents(userId as UserId),
       this.keyService.clearKeys(userId),
       this.cipherService.clear(userId),
-      // ! DO NOT REMOVE folderService.clear ! For more information see PM-25660
       this.folderService.clear(userId),
     ]);
 
