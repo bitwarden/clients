@@ -393,7 +393,7 @@ describe("1Password 1Pux Importer", () => {
 
     const identity = cipher.identity;
     expect(identity.firstName).toEqual("Michael");
-    expect(identity.middleName).toBeNull();
+    expect(identity.middleName).toBeUndefined();
     expect(identity.lastName).toEqual("Scarn");
     expect(identity.address1).toEqual("2120 Mifflin Rd.");
     expect(identity.state).toEqual("Pennsylvania");
@@ -423,7 +423,7 @@ describe("1Password 1Pux Importer", () => {
 
     const identity = cipher.identity;
     expect(identity.firstName).toEqual("Cash");
-    expect(identity.middleName).toBeNull();
+    expect(identity.middleName).toBeUndefined();
     expect(identity.lastName).toEqual("Bandit");
     expect(identity.state).toEqual("Washington");
     expect(identity.country).toEqual("United States of America");
@@ -447,7 +447,7 @@ describe("1Password 1Pux Importer", () => {
 
     const identity = cipher.identity;
     expect(identity.firstName).toEqual("George");
-    expect(identity.middleName).toBeNull();
+    expect(identity.middleName).toBeUndefined();
     expect(identity.lastName).toEqual("Engels");
     expect(identity.company).toEqual("National Public Library");
     expect(identity.phone).toEqual("9995555555");
@@ -472,7 +472,7 @@ describe("1Password 1Pux Importer", () => {
 
     const identity = cipher.identity;
     expect(identity.firstName).toEqual("David");
-    expect(identity.middleName).toBeNull();
+    expect(identity.middleName).toBeUndefined();
     expect(identity.lastName).toEqual("Global");
     expect(identity.passportNumber).toEqual("76436847");
 
@@ -499,7 +499,7 @@ describe("1Password 1Pux Importer", () => {
 
     const identity = cipher.identity;
     expect(identity.firstName).toEqual("Chef");
-    expect(identity.middleName).toBeNull();
+    expect(identity.middleName).toBeUndefined();
     expect(identity.lastName).toEqual("Coldroom");
     expect(identity.company).toEqual("Super Cool Store Co.");
 
@@ -523,7 +523,7 @@ describe("1Password 1Pux Importer", () => {
 
     const identity = cipher.identity;
     expect(identity.firstName).toEqual("Jack");
-    expect(identity.middleName).toBeNull();
+    expect(identity.middleName).toBeUndefined();
     expect(identity.lastName).toEqual("Judd");
     expect(identity.ssn).toEqual("131-216-1900");
   });
@@ -682,12 +682,12 @@ describe("1Password 1Pux Importer", () => {
     expect(folders[3].name).toBe("Education");
     expect(folders[4].name).toBe("Starter Kit");
 
-    // Check that ciphers have a folder assigned to them
-    expect(result.ciphers.filter((c) => c.folderId === folders[0].id).length).toBeGreaterThan(0);
-    expect(result.ciphers.filter((c) => c.folderId === folders[1].id).length).toBeGreaterThan(0);
-    expect(result.ciphers.filter((c) => c.folderId === folders[2].id).length).toBeGreaterThan(0);
-    expect(result.ciphers.filter((c) => c.folderId === folders[3].id).length).toBeGreaterThan(0);
-    expect(result.ciphers.filter((c) => c.folderId === folders[4].id).length).toBeGreaterThan(0);
+    // Check that folder/cipher relationships
+    expect(result.folderRelationships.filter(([_, f]) => f == 0).length).toBeGreaterThan(0);
+    expect(result.folderRelationships.filter(([_, f]) => f == 1).length).toBeGreaterThan(0);
+    expect(result.folderRelationships.filter(([_, f]) => f == 2).length).toBeGreaterThan(0);
+    expect(result.folderRelationships.filter(([_, f]) => f == 3).length).toBeGreaterThan(0);
+    expect(result.folderRelationships.filter(([_, f]) => f == 4).length).toBeGreaterThan(0);
   });
 
   it("should create collections if part of an organization", async () => {

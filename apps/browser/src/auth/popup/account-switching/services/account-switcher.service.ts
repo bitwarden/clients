@@ -160,7 +160,7 @@ export class AccountSwitcherService {
             throwError(() => new Error(AccountSwitcherService.incompleteAccountSwitchError)),
         }),
       ),
-    ).catch((err) => {
+    ).catch((err): any => {
       if (
         err instanceof Error &&
         err.message === AccountSwitcherService.incompleteAccountSwitchError

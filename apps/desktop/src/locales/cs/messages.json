@@ -1223,7 +1223,7 @@
     "message": "Chybné hlavní heslo"
   },
   "invalidMasterPasswordConfirmEmailAndHost": {
-    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "message": "Neplatné hlavní heslo. Potvrďte správnost e-mailu a zda byl Váš účet vytvořen na $HOST$.",
     "placeholders": {
       "host": {
         "content": "$1",

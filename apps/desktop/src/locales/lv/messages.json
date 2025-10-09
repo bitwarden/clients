@@ -1223,7 +1223,7 @@
     "message": "Nederīga galvenā parole"
   },
   "invalidMasterPasswordConfirmEmailAndHost": {
-    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "message": "Nederīga galvenā parole. Jāpārliecinās, ka e-pasta adrese ir pareiza un konts tika izveidots $HOST$.",
     "placeholders": {
       "host": {
         "content": "$1",

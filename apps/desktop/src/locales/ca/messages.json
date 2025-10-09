@@ -3018,7 +3018,7 @@
     "message": "aplicació web"
   },
   "notificationSentDevicePart2": {
-    "message": "Assegura't que la frase d'empremta digital encaixa amb la d'aquí sota abans d'aprovar-la."
+    "message": "Assegureu-vos que la frase de l'empremta digital coincideix amb la que hi ha a continuació abans d'aprovar-la."
   },
   "needAnotherOptionV1": {
     "message": "Necessiteu una altra opció?"
@@ -3135,7 +3135,7 @@
     "message": "Aquesta sol·licitud ja no és vàlida."
   },
   "confirmAccessAttempt": {
-    "message": "Confirma l'intent d'accés de $EMAIL$",
+    "message": "Confirmeu l'intent d'accés de $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3147,7 +3147,7 @@
     "message": "S'ha sol·licitat inici de sessió"
   },
   "accountAccessRequested": {
-    "message": "Accés al compte demanat"
+    "message": "S'ha sol·licitat accés al compte"
   },
   "creatingAccountOn": {
     "message": "Creant compte en"
@@ -3798,7 +3798,7 @@
     "message": "Denega"
   },
   "sshkeyApprovalTitle": {
-    "message": "Confirma l'ús de la clau SSH"
+    "message": "Confirmeu l'ús de la clau SSH"
   },
   "agentForwardingWarningTitle": {
     "message": "Advertència: Reenviament de l'Agent"

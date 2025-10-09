@@ -836,6 +836,7 @@ export default class MainBackground {
       this.kdfConfigService,
       this.keyService,
       this.securityStateService,
+      this.apiService,
       this.stateProvider,
       this.configService,
     );
@@ -1421,12 +1422,14 @@ export default class MainBackground {
     this.inlineMenuFieldQualificationService = new InlineMenuFieldQualificationService();
 
     PhishingDetectionService.initialize(
-      this.configService,
+      this.accountService,
       this.auditService,
+      this.billingAccountProfileStateService,
+      this.configService,
+      this.eventCollectionService,
       this.logService,
       this.storageService,
       this.taskSchedulerService,
-      this.eventCollectionService,
     );
 
     this.ipcContentScriptManagerService = new IpcContentScriptManagerService(this.configService);

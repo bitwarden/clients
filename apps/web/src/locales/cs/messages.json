@@ -59,8 +59,42 @@
   "createNewLoginItem": {
     "message": "Vytvořit novou položku přihlášení"
   },
+  "percentageCompleted": {
+    "message": "$PERCENT$ % dokončeno",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
+  "securityTasksCompleted": {
+    "message": "$COUNT$ z $TOTAL$ bezpečnostních úkolů dokončeno",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "total": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "passwordChangeProgress": {
+    "message": "Probíhá změna hesla"
+  },
+  "assignMembersTasksToMonitorProgress": {
+    "message": "Přiřadit úkoly členů ke sledování průběhu"
+  },
+  "onceYouReviewApplications": {
+    "message": "Jakmile zkontrolujete a označíte aplikace jako kritické, zobrazí se zde."
+  },
+  "sendReminders": {
+    "message": "Odeslat připomenutí"
+  },
   "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
-    "message": "Jakmile označíte aplikace jako kritické, zobrazí se zde"
+    "message": "Jakmile označíte aplikace jako kritické, zobrazí se zde."
   },
   "viewAtRiskMembers": {
     "message": "Zobrazit ohrožené členy"
@@ -101,6 +135,15 @@
   },
   "countOfApplicationsAtRisk": {
     "message": "$COUNT$ ohrožených aplikací",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfAtRiskPasswords": {
+    "message": "$COUNT$ ohrožených hesel",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -162,8 +205,8 @@
   "atRiskMembers": {
     "message": "Ohrožení členové"
   },
-  "membersAtRiskActivityDescription": {
-    "message": "Členové, kteří upravují přístup k rizikovým položkám pro kritické aplikace"
+  "membersWithAccessToAtRiskItemsForCriticalApps": {
+    "message": "Členové s přístupem k rizikovým položkám pro kritické aplikace"
   },
   "membersAtRiskCount": {
     "message": "$COUNT$ členů v ohrožení",
@@ -1498,6 +1541,15 @@
   },
   "invalidMasterPassword": {
     "message": "Chybné hlavní heslo"
+  },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Neplatné hlavní heslo. Potvrďte správnost e-mailu a zda byl Váš účet vytvořen na $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
   },
   "invalidFilePassword": {
     "message": "Neplatné heslo souboru, použijte heslo zadané při vytvoření souboru exportu."
@@ -7034,6 +7086,24 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Bude exportován jen trezor organizace přidružený k $ORGANIZATION$.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Bude exportován jen trezor organizace přidružený k $ORGANIZATION$. Položky mých sbírek nebudou zahrnuty.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "accessDenied": {
     "message": "Přístup byl odepřen. Nemáte oprávnění k zobrazení této stránky."
   },
@@ -7187,6 +7257,9 @@
   },
   "unknownSecret": {
     "message": "Neznámý tajný klíč. Možná budete muset požádat o oprávnění pro přístup k tomuto tajnému klíči."
+  },
+  "unknownServiceAccount": {
+    "message": "Neznámý strojový účet. Možná budete muset požádat o oprávnění pro přístup k tomuto strojovému účtu."
   },
   "unknownProject": {
     "message": "Neznámý projekt. Možná budete muset požádat o oprávnění pro přístup k tomuto projektu."
@@ -8538,7 +8611,7 @@
       }
     }
   },
-  "accessedProjectWithId": {
+  "accessedProjectWithIdentifier": {
     "message": "Přístup k projektu s ID: $PROJECT_ID$.",
     "placeholders": {
       "project_id": {
@@ -8565,10 +8638,89 @@
       }
     }
   },
+  "nameUnavailableServiceAccountDeleted": {
+    "message": "ID smazaného strojového účtu: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "service_account_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
   "editedProjectWithId": {
     "message": "Úprava projektu s ID: $PROJECT_ID$",
     "placeholders": {
       "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "addedUserToServiceAccountWithId": {
+    "message": "Přidán uživatel $USER_ID$ do strojového účtu s ID $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "user_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "removedUserToServiceAccountWithId": {
+    "message": "Smazaný uživatel $USER_ID$ ze strojového účtu s ID $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "user_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "removedGroupFromServiceAccountWithId": {
+    "message": "Odebrána skupina $GROUP_ID$ ze strojového účtu s ID $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "group_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "serviceAccountCreatedWithId": {
+    "message": "Vytvořený strojový účet s ID $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "service_account_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "addedGroupToServiceAccountId": {
+    "message": "Přidána skupina $GROUP_ID$ do strojového účtu s ID $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "group_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "serviceAccountDeletedWithId": {
+    "message": "Smazán strojový účet s ID $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "service_account_id": {
         "content": "$1",
         "example": "4d34e8a8"
       }
@@ -9409,6 +9561,9 @@
   },
   "assign": {
     "message": "Přiřadit"
+  },
+  "assignTasks": {
+    "message": "Přiřadit úkoly"
   },
   "assignToCollections": {
     "message": "Přiřadit ke sbírkám"
@@ -11075,11 +11230,11 @@
     "message": "Hledat v archivu"
   },
   "archiveNoun": {
-    "message": "Archive",
+    "message": "Archiv",
     "description": "Noun"
   },
   "archiveVerb": {
-    "message": "Archive",
+    "message": "Archivovat",
     "description": "Verb"
   },
   "noItemsInArchive": {
@@ -11194,6 +11349,12 @@
   },
   "bitwardenExtensionInstalled": {
     "message": "Rozšíření Bitwarden nainstalováno!"
+  },
+  "openTheBitwardenExtension": {
+    "message": "Otevřít rozšíření Bitwarden"
+  },
+  "bitwardenExtensionInstalledOpenExtension": {
+    "message": "Rozšíření Bitwarden je nainstalováno! Otevřete rozšíření pro přihlášení a začněte používat automatické vyplňování."
   },
   "openExtensionToAutofill": {
     "message": "Otevřete rozšíření pro příhlášení a spuštění automatického vyplňování."
