@@ -311,22 +311,24 @@ export class HecOrganizationIntegrationService {
         const promises: Promise<void>[] = [];
 
         responses.forEach((integration) => {
-          const promise = this.integrationConfigurationApiService
-            .getOrganizationIntegrationConfigurations(orgId, integration.id)
-            .then((response) => {
-              // Hec events will only have one OrganizationIntegrationConfiguration
-              const config = response[0];
+          if (integration.type === OrganizationIntegrationType.Hec) {
+            const promise = this.integrationConfigurationApiService
+              .getOrganizationIntegrationConfigurations(orgId, integration.id)
+              .then((response) => {
+                // Hec events will only have one OrganizationIntegrationConfiguration
+                const config = response[0];
 
-              const orgIntegration = this.mapResponsesToOrganizationIntegration(
-                integration,
-                config,
-              );
+                const orgIntegration = this.mapResponsesToOrganizationIntegration(
+                  integration,
+                  config,
+                );
 
-              if (orgIntegration !== null) {
-                integrations.push(orgIntegration);
-              }
-            });
-          promises.push(promise);
+                if (orgIntegration !== null) {
+                  integrations.push(orgIntegration);
+                }
+              });
+            promises.push(promise);
+          }
         });
         return Promise.all(promises).then(() => {
           return integrations;

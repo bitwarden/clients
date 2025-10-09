@@ -190,7 +190,7 @@ type PaymentMethodFormGroup = FormGroup<{
         }
       }
       @if (showBillingDetails) {
-        <h5 bitTypography="h5">{{ "billingAddress" | i18n }}</h5>
+        <h5 bitTypography="h5" class="tw-pt-4">{{ "billingAddress" | i18n }}</h5>
         <div class="tw-grid tw-grid-cols-12 tw-gap-4">
           <div class="tw-col-span-6">
             <bit-form-field [disableMargin]="true">
