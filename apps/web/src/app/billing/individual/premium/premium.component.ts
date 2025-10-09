@@ -154,7 +154,7 @@ export class PremiumComponent {
     let paymentMethodType: number;
     let paymentToken: string;
 
-    if (selectedPaymentType === "accountCredit") {
+    if (selectedPaymentType === NonTokenizablePaymentMethods.accountCredit) {
       // Account credit doesn't need tokenization
       paymentMethodType = PaymentMethodType.Credit;
       paymentToken = "";
