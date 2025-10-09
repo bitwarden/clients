@@ -510,7 +510,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
 
     // Avoid saving 0 since it's useless as a timeout value.
-    if (this.form.value.vaultTimeout === 0) {
+    if (newValue === 0) {
       return;
     }
 
