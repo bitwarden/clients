@@ -1548,6 +1548,15 @@
   "readSecurityKey": {
     "message": "Přečíst bezpečnostní klíč"
   },
+  "readingPasskeyLoading": {
+    "message": "Načítání přístupového klíče..."
+  },
+  "passkeyAuthenticationFailed": {
+    "message": "Ověření přístupového klíče selhalo"
+  },
+  "useADifferentLogInMethod": {
+    "message": "Použít jinou metodu přihlášení"
+  },
   "awaitingSecurityKeyInteraction": {
     "message": "Čeká se na interakci s bezpečnostním klíčem..."
   },
