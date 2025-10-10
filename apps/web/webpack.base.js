@@ -360,6 +360,8 @@ module.exports.buildConfig = function buildConfig(params) {
             publicPath: "/",
           },
           devMiddleware: {
+            // when running `serve` locally this option writes all built files to `dist`
+            // files are still served from memory, this is just a helpful debug tool
             writeToDisk: true,
           },
           client: {
