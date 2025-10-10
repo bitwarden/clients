@@ -10,7 +10,6 @@ import {
   CollectionView,
 } from "@bitwarden/admin-console/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { DeviceType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
@@ -146,22 +145,7 @@ export class ImportService implements ImportServiceAbstraction {
       map(([type, enabled]) => {
         let loaders = availableLoaders(type, client);
 
-        // Mac App Store is currently disabled due to sandboxing.
-        let isUnsupported = this.system.environment.isMacAppStore();
-
-        if (enabled && type === "bravecsv") {
-          try {
-            const device = this.system.environment.getDevice();
-            const isWindowsDesktop = device === DeviceType.WindowsDesktop;
-            if (isWindowsDesktop) {
-              isUnsupported = true;
-            }
-          } catch {
-            isUnsupported = true;
-          }
-        }
-        // If the feature flag is disabled, or if the browser is unsupported, remove the chromium loader
-        if (!enabled || isUnsupported) {
+        if (!enabled) {
           loaders = loaders?.filter((loader) => loader !== Loader.chromium);
         }
 

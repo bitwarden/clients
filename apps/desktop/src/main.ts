@@ -33,6 +33,7 @@ import {
 } from "@bitwarden/state-internal";
 import { SerializedMemoryStorageService, StorageServiceProvider } from "@bitwarden/storage-core";
 
+import { ChromiumImporterMetadataService } from "./app/tools/import/chromium-importer-metadata.service";
 import { ChromiumImporterService } from "./app/tools/import/chromium-importer.service";
 import { MainDesktopAutotypeService } from "./autofill/main/main-desktop-autotype.service";
 import { MainSshAgentService } from "./autofill/main/main-ssh-agent.service";
@@ -302,6 +303,8 @@ export class Main {
     );
 
     new ChromiumImporterService();
+
+    new ChromiumImporterMetadataService();
 
     this.nativeAutofillMain = new NativeAutofillMain(this.logService, this.windowMain);
     void this.nativeAutofillMain.init();
