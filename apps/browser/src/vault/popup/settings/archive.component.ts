@@ -79,7 +79,7 @@ export class ArchiveComponent {
       switchMap((userId) => this.accountProfileService.hasPremiumFromAnySource$(userId)),
     ),
     this.archivedCiphers$,
-  ]).pipe(map(([hasPremium, ciphers]) => !hasPremium && ciphers.length > 0));
+  ]).pipe(map(([hasPremium, ciphers]) => hasPremium && ciphers.length > 0));
 
   protected loading$ = this.archivedCiphers$.pipe(
     map(() => false),

@@ -1,6 +1,11 @@
 <popup-page>
   <popup-header slot="header" [pageTitle]="headerText" showBackButton>
-    <app-pop-out slot="end" />
+    <ng-container slot="end">
+      <button *ngIf="cipher?.archivedDate" bitBadge type="button" variant="secondary">
+        {{ "archived" | i18n }}
+      </button>
+      <app-pop-out />
+    </ng-container>
   </popup-header>
 
   <app-cipher-view *ngIf="cipher" [cipher]="cipher"></app-cipher-view>

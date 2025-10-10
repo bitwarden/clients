@@ -11,6 +11,7 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { EventType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -29,6 +30,7 @@ import {
   IconButtonModule,
   DialogService,
   ToastService,
+  BadgeModule,
 } from "@bitwarden/components";
 import {
   CipherFormConfig,
@@ -154,12 +156,14 @@ export type AddEditQueryParams = Partial<Record<keyof QueryParams, string>>;
     AsyncActionsModule,
     PopOutComponent,
     IconButtonModule,
+    BadgeModule,
   ],
 })
 export class AddEditV2Component implements OnInit {
   headerText: string;
   config: CipherFormConfig;
   canDeleteCipher$: Observable<boolean>;
+  protected saveText = "save";
 
   get loading() {
     return this.config == null;
@@ -194,8 +198,22 @@ export class AddEditV2Component implements OnInit {
     private dialogService: DialogService,
     protected cipherAuthorizationService: CipherAuthorizationService,
     private accountService: AccountService,
+    private billingAccountProfileStateService: BillingAccountProfileStateService,
   ) {
     this.subscribeToParams();
+    this.accountService.activeAccount$
+      .pipe(
+        switchMap((account) =>
+          this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
+        ),
+        map((hasPremium) => {
+          if (hasPremium) {
+            this.saveText = "unarchiveAndSave";
+          }
+        }),
+        takeUntilDestroyed(),
+      )
+      .subscribe();
   }
 
   async ngOnInit() {

@@ -5,7 +5,17 @@
     [backAction]="handleBackButton"
     showBackButton
   >
-    <app-pop-out slot="end" />
+    <ng-container slot="end">
+      <button
+        *ngIf="config?.originalCipher?.archivedDate"
+        bitBadge
+        type="button"
+        variant="secondary"
+      >
+        {{ "archived" | i18n }}
+      </button>
+      <app-pop-out />
+    </ng-container>
   </popup-header>
 
   <vault-cipher-form
@@ -24,7 +34,7 @@
 
   <popup-footer slot="footer">
     <button bitButton type="submit" form="cipherForm" buttonType="primary" #submitBtn>
-      {{ "save" | i18n }}
+      {{ saveText | i18n }}
     </button>
 
     <button (click)="handleBackButton()" bitButton type="button" buttonType="secondary">
