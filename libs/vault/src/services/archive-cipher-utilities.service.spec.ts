@@ -78,7 +78,7 @@ describe("ArchiveCipherUtilitiesService", () => {
       );
       expect(toastService.showToast).toHaveBeenCalledWith({
         variant: "success",
-        message: "itemSentToArchive",
+        message: "itemWasSentToArchive",
       });
     });
 
