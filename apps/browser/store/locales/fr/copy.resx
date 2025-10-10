@@ -168,7 +168,8 @@ Applications multiplateformes
 Sécurisez et partagez des données sensibles dans votre coffre Bitwarden à partir de n'importe quel navigateur, appareil mobile ou système d'exploitation de bureau, et plus encore.
 
 Bitwarden sécurise bien plus que les mots de passe
-Les solutions de gestion de bout en bout des identifiants chiffrés de Bitwarden permettent aux organisations de tout sécuriser, y compris les secrets des développeurs et les expériences de clés de passe. Visitez Bitwarden.com pour en savoir plus sur Bitwarden Secrets Manager et Bitwarden Passwordless.dev !</value>
+Les solutions de gestion de bout en bout des identifiants chiffrés de Bitwarden permettent aux organisations de tout sécuriser, y compris les secrets des développeurs et les expériences de clés d'accès. Visitez Bitwarden.com pour en savoir plus sur Bitwarden Secrets Manager et Bitwarden Passwordless.dev !
+</value>
   </data>
   <data name="AssetTitle" xml:space="preserve">
     <value>À la maison, au travail ou en déplacement, Bitwarden sécurise facilement tous vos mots de passe, clés d'accès et informations sensibles.</value>

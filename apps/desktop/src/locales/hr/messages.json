@@ -4135,8 +4135,8 @@
   "enableAutotypeShortcutPreview": {
     "message": "Uključi prečac Autotype (Pretpregled značajke)"
   },
-  "enableAutotypeDescriptionTransitionKey": {
-    "message": "Prije korištenja prečaca provjeri nalaziš li se u ispravnom polju kako se podaci ne bi unijeli na pogrešno mjesto."
+  "enableAutotypeShortcutDescription": {
+    "message": "Prije korištenja prečaca provjeri jesi li u ispravnom polju kako podaci ne bi bili uneseni na pogrešno mjesto."
   },
   "editShortcut": {
     "message": "Uredi prečac"

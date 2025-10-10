@@ -1548,6 +1548,15 @@
   "readSecurityKey": {
     "message": "Läs säkerhetsnyckel"
   },
+  "readingPasskeyLoading": {
+    "message": "Läser inloggningsnyckel..."
+  },
+  "passkeyAuthenticationFailed": {
+    "message": "Autentisering med inloggningsnyckel misslyckades"
+  },
+  "useADifferentLogInMethod": {
+    "message": "Använd en annan inloggningsmetod"
+  },
   "awaitingSecurityKeyInteraction": {
     "message": "Väntar på interaktion med säkerhetsnyckel..."
   },

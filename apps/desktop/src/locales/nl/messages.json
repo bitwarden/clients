@@ -4135,8 +4135,8 @@
   "enableAutotypeShortcutPreview": {
     "message": "Autotype sneltoets inschakelen (Feature Preview)"
   },
-  "enableAutotypeDescriptionTransitionKey": {
-    "message": "Zorg ervoor dat je je in het juiste veld bevindt voordat je de snelkoppeling gebruikt om te voorkomen dat je de gegevens op de verkeerde plaats invult."
+  "enableAutotypeShortcutDescription": {
+    "message": "Zorg ervoor dat je je in het juiste veld staat voordat je de snelkoppeling gebruikt om te voorkomen dat je de gegevens op de verkeerde plaats invult."
   },
   "editShortcut": {
     "message": "Snelkoppeling bewerken"
