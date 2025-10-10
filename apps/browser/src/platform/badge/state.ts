@@ -1,6 +1,8 @@
 import { BadgeIcon } from "./icon";
 
-export const Unset = Symbol("Unset badge state");
+const UnsetValue = Symbol("Unset badge state");
+
+export const Unset = UnsetValue as typeof UnsetValue;
 export type Unset = typeof Unset;
 
 export type BadgeState = {

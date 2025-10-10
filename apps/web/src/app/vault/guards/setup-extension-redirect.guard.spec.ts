@@ -82,13 +82,6 @@ describe("setupExtensionRedirectGuard", () => {
     expect(await setupExtensionGuard()).toBe(true);
   });
 
-  it("returns `true` when the user has the extension installed", async () => {
-    state$.next(false);
-    extensionInstalled$.next(true);
-
-    expect(await setupExtensionGuard()).toBe(true);
-  });
-
   it('redirects the user to "/setup-extension" when all criteria do not pass', async () => {
     state$.next(false);
     extensionInstalled$.next(false);

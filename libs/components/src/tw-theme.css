@@ -5,6 +5,7 @@
 @import "./popover/popover.component.css";
 @import "./toast/toast.tokens.css";
 @import "./toast/toastr.css";
+@import "./tooltip/tooltip.component.css";
 @import "./search/search.component.css";
 
 @tailwind base;

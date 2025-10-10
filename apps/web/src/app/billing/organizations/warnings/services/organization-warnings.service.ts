@@ -16,8 +16,6 @@ import { take } from "rxjs/operators";
 
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { DialogService } from "@bitwarden/components";
@@ -48,12 +46,12 @@ export class OrganizationWarningsService {
 
   private refreshFreeTrialWarningTrigger = new Subject<void>();
   private refreshTaxIdWarningTrigger = new Subject<void>();
+  private refreshInactiveSubscriptionWarningTrigger = new Subject<void>();
 
   private taxIdWarningRefreshedSubject = new BehaviorSubject<TaxIdWarningType | null>(null);
   taxIdWarningRefreshed$ = this.taxIdWarningRefreshedSubject.asObservable();
 
   constructor(
-    private configService: ConfigService,
     private dialogService: DialogService,
     private i18nService: I18nService,
     private organizationApiService: OrganizationApiServiceAbstraction,
@@ -167,12 +165,24 @@ export class OrganizationWarningsService {
 
   refreshFreeTrialWarning = () => this.refreshFreeTrialWarningTrigger.next();
 
+  refreshInactiveSubscriptionWarning = () => this.refreshInactiveSubscriptionWarningTrigger.next();
+
   refreshTaxIdWarning = () => this.refreshTaxIdWarningTrigger.next();
 
   showInactiveSubscriptionDialog$ = (organization: Organization): Observable<void> =>
-    this.getWarning$(organization, (response) => response.inactiveSubscription).pipe(
-      filter((warning) => warning !== null),
+    merge(
+      this.getWarning$(organization, (response) => response.inactiveSubscription),
+      this.refreshInactiveSubscriptionWarningTrigger.pipe(
+        switchMap(() =>
+          this.getWarning$(organization, (response) => response.inactiveSubscription, true),
+        ),
+      ),
+    ).pipe(
       switchMap(async (warning) => {
+        if (!warning) {
+          return;
+        }
+
         switch (warning.resolution) {
           case "contact_provider": {
             await this.dialogService.openSimpleDialog({
@@ -196,14 +206,8 @@ export class OrganizationWarningsService {
               cancelButtonText: this.i18nService.t("close"),
             });
             if (confirmed) {
-              const managePaymentDetailsOutsideCheckout = await this.configService.getFeatureFlag(
-                FeatureFlag.PM21881_ManagePaymentDetailsOutsideCheckout,
-              );
-              const route = managePaymentDetailsOutsideCheckout
-                ? "payment-details"
-                : "payment-method";
               await this.router.navigate(
-                ["organizations", `${organization.id}`, "billing", route],
+                ["organizations", `${organization.id}`, "billing", "payment-details"],
                 {
                   state: { launchPaymentModalAutomatically: true },
                 },

@@ -34,6 +34,7 @@ import { ErrorResponse } from "@bitwarden/common/models/response/error.response"
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -138,6 +139,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     private loginSuccessHandlerService: LoginSuccessHandlerService,
     private configService: ConfigService,
     private ssoLoginService: SsoLoginServiceAbstraction,
+    private environmentService: EnvironmentService,
   ) {
     this.clientType = this.platformUtilsService.getClientType();
   }
@@ -307,7 +309,7 @@ export class LoginComponent implements OnInit, OnDestroy {
       await this.handleAuthResult(authResult);
     } catch (error) {
       this.logService.error(error);
-      this.handleSubmitError(error);
+      await this.handleSubmitError(error);
     }
   };
 
@@ -316,15 +318,18 @@ export class LoginComponent implements OnInit, OnDestroy {
    *
    * @param error The error object.
    */
-  private handleSubmitError(error: unknown) {
+  private async handleSubmitError(error: unknown) {
     // Handle error responses
     if (error instanceof ErrorResponse) {
       switch (error.statusCode) {
         case HttpStatusCode.BadRequest: {
           if (error.message?.toLowerCase().includes("username or password is incorrect")) {
+            const env = await firstValueFrom(this.environmentService.environment$);
+            const host = Utils.getHost(env.getWebVaultUrl());
+
             this.formGroup.controls.masterPassword.setErrors({
               error: {
-                message: this.i18nService.t("invalidMasterPassword"),
+                message: this.i18nService.t("invalidMasterPasswordConfirmEmailAndHost", host),
               },
             });
           } else {

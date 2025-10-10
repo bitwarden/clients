@@ -16,9 +16,9 @@ export class BitServeConfigurator extends OssServeConfigurator {
     super(serviceContainer);
   }
 
-  override configureRouter(router: koaRouter): void {
+  override async configureRouter(router: koaRouter): Promise<void> {
     // Register OSS endpoints
-    super.configureRouter(router);
+    await super.configureRouter(router);
 
     // Register bit endpoints
     this.serveDeviceApprovals(router);

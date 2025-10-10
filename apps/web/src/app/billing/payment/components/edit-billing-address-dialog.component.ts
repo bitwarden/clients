@@ -11,10 +11,7 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import { SubscriberBillingClient } from "@bitwarden/web-vault/app/billing/clients";
-import {
-  BillingAddress,
-  getTaxIdTypeForCountry,
-} from "@bitwarden/web-vault/app/billing/payment/types";
+import { BillingAddress } from "@bitwarden/web-vault/app/billing/payment/types";
 import { BitwardenSubscriber } from "@bitwarden/web-vault/app/billing/types";
 import {
   TaxIdWarningType,
@@ -22,7 +19,10 @@ import {
 } from "@bitwarden/web-vault/app/billing/warnings/types";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
-import { EnterBillingAddressComponent } from "./enter-billing-address.component";
+import {
+  EnterBillingAddressComponent,
+  getBillingAddressFromForm,
+} from "./enter-billing-address.component";
 
 type DialogParams = {
   subscriber: BitwardenSubscriber;
@@ -104,13 +104,7 @@ export class EditBillingAddressDialogComponent {
       return;
     }
 
-    const { taxId, ...addressFields } = this.formGroup.getRawValue();
-
-    const taxIdType = taxId ? getTaxIdTypeForCountry(addressFields.country) : null;
-
-    const billingAddress = taxIdType
-      ? { ...addressFields, taxId: { code: taxIdType.code, value: taxId! } }
-      : { ...addressFields, taxId: null };
+    const billingAddress = getBillingAddressFromForm(this.formGroup);
 
     const result = await this.billingClient.updateBillingAddress(
       this.dialogParams.subscriber,

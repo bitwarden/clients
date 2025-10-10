@@ -25,7 +25,6 @@ import {
 } from "../abstractions";
 import { PlanType } from "../enums";
 import { OrganizationNoPaymentMethodCreateRequest } from "../models/request/organization-no-payment-method-create-request";
-import { PaymentSourceResponse } from "../models/response/payment-source.response";
 
 interface OrganizationKeys {
   encryptedKey: EncString;
@@ -44,11 +43,6 @@ export class OrganizationBillingService implements OrganizationBillingServiceAbs
     private organizationApiService: OrganizationApiService,
     private syncService: SyncService,
   ) {}
-
-  async getPaymentSource(organizationId: string): Promise<PaymentSourceResponse> {
-    const paymentMethod = await this.billingApiService.getOrganizationPaymentMethod(organizationId);
-    return paymentMethod?.paymentSource;
-  }
 
   async purchaseSubscription(
     subscription: SubscriptionInformation,

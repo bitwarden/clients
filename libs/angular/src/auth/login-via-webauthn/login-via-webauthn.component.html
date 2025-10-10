@@ -1,0 +1,20 @@
+<div class="tw-flex tw-flex-col tw-items-center">
+  <ng-container *ngIf="currentState === 'assert'">
+    <p bitTypography="body1" class="tw-text-center">{{ "readingPasskeyLoading" | i18n }}</p>
+    <button type="button" bitButton block [loading]="true" buttonType="primary" class="tw-mb-4">
+      {{ "loading" | i18n }}
+    </button>
+  </ng-container>
+
+  <ng-container *ngIf="currentState === 'assertFailed'">
+    <p bitTypography="body1" class="tw-text-center">{{ "passkeyAuthenticationFailed" | i18n }}</p>
+    <button type="button" bitButton block buttonType="primary" class="tw-mb-4" (click)="retry()">
+      {{ "tryAgain" | i18n }}
+    </button>
+  </ng-container>
+
+  <p bitTypography="body1" class="tw-mb-0 tw-text-center">
+    {{ "troubleLoggingIn" | i18n }}<br />
+    <a bitLink routerLink="/login">{{ "useADifferentLogInMethod" | i18n }}</a>
+  </p>
+</div>

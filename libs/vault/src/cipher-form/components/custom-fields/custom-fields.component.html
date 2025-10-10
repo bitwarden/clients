@@ -107,7 +107,7 @@
           (keydown)="handleKeyDown($event, field.value.name, i)"
           data-testid="reorder-toggle-button"
           [disabled]="parentFormDisabled"
-          *ngIf="canEdit(field.value.type)"
+          *ngIf="canEdit(field.value.type) && fields.controls.length > 1"
         ></button>
       </div>
 

@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
 import { FieldView as SdkFieldView, FieldType as SdkFieldType } from "@bitwarden/sdk-internal";
@@ -9,13 +7,13 @@ import { FieldType, LinkedIdType } from "../../enums";
 import { Field } from "../domain/field";
 
 export class FieldView implements View {
-  name: string = null;
-  value: string = null;
-  type: FieldType = null;
+  name?: string;
+  value?: string;
+  type: FieldType = FieldType.Text;
   newField = false; // Marks if the field is new and hasn't been saved
   showValue = false;
   showCount = false;
-  linkedId: LinkedIdType = null;
+  linkedId?: LinkedIdType;
 
   constructor(f?: Field) {
     if (!f) {
@@ -26,8 +24,8 @@ export class FieldView implements View {
     this.linkedId = f.linkedId;
   }
 
-  get maskedValue(): string {
-    return this.value != null ? "••••••••" : null;
+  get maskedValue(): string | undefined {
+    return this.value != null ? "••••••••" : undefined;
   }
 
   static fromJSON(obj: Partial<Jsonify<FieldView>>): FieldView {

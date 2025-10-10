@@ -132,7 +132,6 @@ describe("DefaultServerNotificationsService (multi-user)", () => {
       const flagValueByFlag: Partial<Record<FeatureFlag, boolean>> = {
         [FeatureFlag.InactiveUserServerNotification]: true,
         [FeatureFlag.PushNotificationsWhenLocked]: true,
-        [FeatureFlag.PM14938_BrowserExtensionLoginApproval]: true,
       };
       return new BehaviorSubject(flagValueByFlag[flag] ?? false) as any;
     });

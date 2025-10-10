@@ -296,10 +296,18 @@ export class SearchService implements SearchServiceAbstraction {
     return results;
   }
 
-  searchCiphersBasic<C extends CipherViewLike>(ciphers: C[], query: string, deleted = false) {
+  searchCiphersBasic<C extends CipherViewLike>(
+    ciphers: C[],
+    query: string,
+    deleted = false,
+    archived = false,
+  ) {
     query = SearchService.normalizeSearchQuery(query.trim().toLowerCase());
     return ciphers.filter((c) => {
       if (deleted !== CipherViewLikeUtils.isDeleted(c)) {
+        return false;
+      }
+      if (archived !== CipherViewLikeUtils.isArchived(c)) {
         return false;
       }
       if (c.name != null && c.name.toLowerCase().indexOf(query) > -1) {

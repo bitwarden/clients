@@ -550,32 +550,37 @@
   "resetSearch": {
     "message": "Axtarışı sıfırla"
   },
-  "archive": {
-    "message": "Archive"
+  "archiveNoun": {
+    "message": "Arxiv",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Arxivlə",
+    "description": "Verb"
   },
   "unarchive": {
-    "message": "Unarchive"
+    "message": "Arxivdən çıxart"
   },
   "itemsInArchive": {
-    "message": "Items in archive"
+    "message": "Arxivdəki elementlər"
   },
   "noItemsInArchive": {
-    "message": "No items in archive"
+    "message": "Arxivdə element yoxdur"
   },
   "noItemsInArchiveDesc": {
-    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+    "message": "Arxivlənmiş elementlər burada görünəcək, ümumi axtarış nəticələrindən və avto-doldurma təkliflərindən xaric ediləcək."
   },
   "itemSentToArchive": {
-    "message": "Item sent to archive"
+    "message": "Element arxivə göndərildi"
   },
   "itemRemovedFromArchive": {
-    "message": "Item removed from archive"
+    "message": "Element arxivdən çıxarıldı"
   },
   "archiveItem": {
-    "message": "Archive item"
+    "message": "Elementi arxivlə"
   },
   "archiveItemConfirmDesc": {
-    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+    "message": "Arxivlənmiş elementlər ümumi axtarış nəticələrindən və avto-doldurma təkliflərindən xaric ediləcək. Bu elementi arxivləmək istədiyinizə əminsiniz?"
   },
   "edit": {
     "message": "Düzəliş et"
@@ -727,6 +732,15 @@
   },
   "invalidMasterPassword": {
     "message": "Yararsız ana parol"
+  },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Yararsız ana parol. E-poçtunuzun doğru olduğunu və hesabınızın $HOST$ üzərində yaradıldığını təsdiqləyin.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
   },
   "vaultTimeout": {
     "message": "Seyf vaxtının bitməsi"
@@ -1533,6 +1547,15 @@
   },
   "readSecurityKey": {
     "message": "Güvənlik açarını oxu"
+  },
+  "readingPasskeyLoading": {
+    "message": "Keçid açarı oxunur..."
+  },
+  "passkeyAuthenticationFailed": {
+    "message": "Keçid açarı kimlik doğrulaması uğursuzdur"
+  },
+  "useADifferentLogInMethod": {
+    "message": "Fərqli bir giriş üsulu istifadə edin"
   },
   "awaitingSecurityKeyInteraction": {
     "message": "Güvənlik açarı ilə əlaqə gözlənilir..."
@@ -3190,6 +3213,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Yalnız $ORGANIZATION$ ilə əlaqələndirilmiş təşkilat seyfi xaricə köçürüləcək.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Yalnız $ORGANIZATION$ ilə əlaqələndirilmiş təşkilat seyfi xaricə köçürüləcək. Element kolleksiyalarım daxil edilməyəcək.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },

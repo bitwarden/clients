@@ -1,0 +1,86 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "cli",
+  "projectType": "application",
+  "sourceRoot": "apps/cli/src",
+  "tags": ["scope:cli", "type:app"],
+  "targets": {
+    "build": {
+      "executor": "@nx/webpack:webpack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "oss-dev",
+      "options": {
+        "outputPath": "dist/apps/cli",
+        "webpackConfig": "apps/cli/webpack.config.js",
+        "tsConfig": "apps/cli/tsconfig.json",
+        "main": "apps/cli/src/bw.ts",
+        "target": "node",
+        "compiler": "tsc"
+      },
+      "configurations": {
+        "oss": {
+          "mode": "production",
+          "outputPath": "dist/apps/cli/oss"
+        },
+        "oss-dev": {
+          "mode": "development",
+          "outputPath": "dist/apps/cli/oss-dev"
+        },
+        "commercial": {
+          "mode": "production",
+          "outputPath": "dist/apps/cli/commercial",
+          "webpackConfig": "bitwarden_license/bit-cli/webpack.config.js",
+          "main": "bitwarden_license/bit-cli/src/bw.ts",
+          "tsConfig": "bitwarden_license/bit-cli/tsconfig.json"
+        },
+        "commercial-dev": {
+          "mode": "development",
+          "outputPath": "dist/apps/cli/commercial-dev",
+          "webpackConfig": "bitwarden_license/bit-cli/webpack.config.js",
+          "main": "bitwarden_license/bit-cli/src/bw.ts",
+          "tsConfig": "bitwarden_license/bit-cli/tsconfig.json"
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nx/webpack:webpack",
+      "defaultConfiguration": "oss-dev",
+      "options": {
+        "outputPath": "dist/apps/cli",
+        "webpackConfig": "apps/cli/webpack.config.js",
+        "tsConfig": "apps/cli/tsconfig.json",
+        "main": "apps/cli/src/bw.ts",
+        "target": "node",
+        "compiler": "tsc",
+        "watch": true
+      },
+      "configurations": {
+        "oss-dev": {
+          "mode": "development",
+          "outputPath": "dist/apps/cli/oss-dev"
+        },
+        "commercial-dev": {
+          "mode": "development",
+          "outputPath": "dist/apps/cli/commercial-dev",
+          "webpackConfig": "bitwarden_license/bit-cli/webpack.config.js",
+          "main": "bitwarden_license/bit-cli/src/bw.ts",
+          "tsConfig": "bitwarden_license/bit-cli/tsconfig.json"
+        }
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "apps/cli/jest.config.js"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/cli/**/*.ts"]
+      }
+    }
+  }
+}

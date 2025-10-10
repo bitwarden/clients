@@ -40,6 +40,6 @@ export class WebauthnLoginCredentialResponse extends BaseResponse {
   }
 
   hasPrfKeyset(): boolean {
-    return this.encryptedUserKey != null && this.encryptedPublicKey != null;
+    return this.prfStatus === WebauthnLoginCredentialPrfStatus.Enabled;
   }
 }

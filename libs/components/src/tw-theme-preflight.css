@@ -54,6 +54,14 @@
     display: none !important;
   }
 
+  dl {
+    @apply tw-mb-4;
+  }
+
+  dt {
+    @apply tw-font-bold;
+  }
+
   hr {
     border-color: rgba(0, 0, 0, 0.1);
   }

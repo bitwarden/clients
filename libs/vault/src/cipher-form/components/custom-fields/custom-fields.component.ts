@@ -386,7 +386,7 @@ export class CustomFieldsComponent implements OnInit, AfterViewInit {
       fieldView.type = field.type;
       fieldView.name = field.name;
       fieldView.value = value;
-      fieldView.linkedId = field.linkedId;
+      fieldView.linkedId = field.linkedId ?? undefined;
       return fieldView;
     });
 

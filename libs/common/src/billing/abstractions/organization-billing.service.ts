@@ -3,7 +3,6 @@ import { UserId } from "@bitwarden/user-core";
 import { OrganizationResponse } from "../../admin-console/models/response/organization.response";
 import { InitiationPath } from "../../models/request/reference-event.request";
 import { PaymentMethodType, PlanType } from "../enums";
-import { PaymentSourceResponse } from "../models/response/payment-source.response";
 
 export type OrganizationInformation = {
   name: string;
@@ -45,8 +44,6 @@ export type SubscriptionInformation = {
 };
 
 export abstract class OrganizationBillingServiceAbstraction {
-  abstract getPaymentSource(organizationId: string): Promise<PaymentSourceResponse>;
-
   abstract purchaseSubscription(
     subscription: SubscriptionInformation,
     activeUserId: UserId,

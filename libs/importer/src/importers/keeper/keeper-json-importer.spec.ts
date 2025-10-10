@@ -51,7 +51,7 @@ describe("Keeper Json Importer", () => {
     expect(result != null).toBe(true);
 
     const cipher = result.ciphers.shift();
-    expect(cipher.login.totp).toBeNull();
+    expect(cipher.login.totp).toBeUndefined();
 
     // 2nd Cipher
     const cipher2 = result.ciphers.shift();

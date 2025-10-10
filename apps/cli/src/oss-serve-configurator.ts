@@ -5,6 +5,8 @@ import * as koaRouter from "@koa/router";
 import * as koa from "koa";
 import { firstValueFrom, map } from "rxjs";
 
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+
 import { ConfirmCommand } from "./admin-console/commands/confirm.command";
 import { ShareCommand } from "./admin-console/commands/share.command";
 import { LockCommand } from "./auth/commands/lock.command";
@@ -26,6 +28,7 @@ import {
   SendListCommand,
   SendRemovePasswordCommand,
 } from "./tools/send";
+import { ArchiveCommand } from "./vault/archive.command";
 import { CreateCommand } from "./vault/create.command";
 import { DeleteCommand } from "./vault/delete.command";
 import { SyncCommand } from "./vault/sync.command";
@@ -40,6 +43,7 @@ export class OssServeConfigurator {
   private statusCommand: StatusCommand;
   private syncCommand: SyncCommand;
   private deleteCommand: DeleteCommand;
+  private archiveCommand: ArchiveCommand;
   private confirmCommand: ConfirmCommand;
   private restoreCommand: RestoreCommand;
   private lockCommand: LockCommand;
@@ -81,6 +85,7 @@ export class OssServeConfigurator {
       this.serviceContainer.accountService,
       this.serviceContainer.keyService,
       this.serviceContainer.cliRestrictedItemTypesService,
+      this.serviceContainer.cipherArchiveService,
     );
     this.createCommand = new CreateCommand(
       this.serviceContainer.cipherService,
@@ -104,6 +109,7 @@ export class OssServeConfigurator {
       this.serviceContainer.accountService,
       this.serviceContainer.cliRestrictedItemTypesService,
       this.serviceContainer.policyService,
+      this.serviceContainer.billingAccountProfileStateService,
     );
     this.generateCommand = new GenerateCommand(
       this.serviceContainer.passwordGenerationService,
@@ -127,6 +133,13 @@ export class OssServeConfigurator {
       this.serviceContainer.accountService,
       this.serviceContainer.cliRestrictedItemTypesService,
     );
+    this.archiveCommand = new ArchiveCommand(
+      this.serviceContainer.cipherService,
+      this.serviceContainer.accountService,
+      this.serviceContainer.configService,
+      this.serviceContainer.cipherArchiveService,
+      this.serviceContainer.billingAccountProfileStateService,
+    );
     this.confirmCommand = new ConfirmCommand(
       this.serviceContainer.apiService,
       this.serviceContainer.keyService,
@@ -140,6 +153,8 @@ export class OssServeConfigurator {
       this.serviceContainer.cipherService,
       this.serviceContainer.accountService,
       this.serviceContainer.cipherAuthorizationService,
+      this.serviceContainer.cipherArchiveService,
+      this.serviceContainer.configService,
     );
     this.shareCommand = new ShareCommand(
       this.serviceContainer.cipherService,
@@ -199,7 +214,7 @@ export class OssServeConfigurator {
     );
   }
 
-  configureRouter(router: koaRouter) {
+  async configureRouter(router: koaRouter) {
     router.get("/generate", async (ctx, next) => {
       const response = await this.generateCommand.run(ctx.request.query);
       this.processResponse(ctx.response, response);
@@ -401,6 +416,23 @@ export class OssServeConfigurator {
       this.processResponse(ctx.response, response);
       await next();
     });
+
+    const isArchivedEnabled = await this.serviceContainer.configService.getFeatureFlag(
+      FeatureFlag.PM19148_InnovationArchive,
+    );
+
+    if (isArchivedEnabled) {
+      router.post("/archive/:object/:id", async (ctx, next) => {
+        if (await this.errorIfLocked(ctx.response)) {
+          await next();
+          return;
+        }
+        let response: Response = null;
+        response = await this.archiveCommand.run(ctx.params.object, ctx.params.id);
+        this.processResponse(ctx.response, response);
+        await next();
+      });
+    }
   }
 
   protected processResponse(res: koa.Response, commandResponse: Response) {

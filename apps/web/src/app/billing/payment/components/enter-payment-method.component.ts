@@ -8,15 +8,17 @@ import { PopoverModule, ToastService } from "@bitwarden/components";
 
 import { SharedModule } from "../../../shared";
 import { BillingServicesModule, BraintreeService, StripeService } from "../../services";
-import { PaymentLabelComponent } from "../../shared/payment/payment-label.component";
 import {
+  AccountCreditPaymentMethod,
   isTokenizablePaymentMethod,
   selectableCountries,
   TokenizablePaymentMethod,
   TokenizedPaymentMethod,
 } from "../types";
 
-type PaymentMethodOption = TokenizablePaymentMethod | "accountCredit";
+import { PaymentLabelComponent } from "./payment-label.component";
+
+type PaymentMethodOption = TokenizablePaymentMethod | AccountCreditPaymentMethod;
 
 type PaymentMethodFormGroup = FormGroup<{
   type: FormControl<PaymentMethodOption>;
@@ -102,7 +104,7 @@ type PaymentMethodFormGroup = FormGroup<{
                 <button
                   [bitPopoverTriggerFor]="cardSecurityCodePopover"
                   type="button"
-                  class="tw-border-none tw-bg-transparent tw-text-primary-600 tw-p-0"
+                  class="tw-border-none tw-bg-transparent tw-text-primary-600 tw-pr-1"
                   [position]="'above-end'"
                 >
                   <i class="bwi bwi-question-circle tw-text-lg" aria-hidden="true"></i>
@@ -182,14 +184,20 @@ type PaymentMethodFormGroup = FormGroup<{
         }
         @case ("accountCredit") {
           <ng-container>
-            <bit-callout type="info">
-              {{ "makeSureEnoughCredit" | i18n }}
-            </bit-callout>
+            @if (hasEnoughAccountCredit) {
+              <bit-callout type="info">
+                {{ "makeSureEnoughCredit" | i18n }}
+              </bit-callout>
+            } @else {
+              <bit-callout type="warning">
+                {{ "notEnoughAccountCredit" | i18n }}
+              </bit-callout>
+            }
           </ng-container>
         }
       }
       @if (showBillingDetails) {
-        <h5 bitTypography="h5">{{ "billingAddress" | i18n }}</h5>
+        <h5 bitTypography="h5" class="tw-pt-4">{{ "billingAddress" | i18n }}</h5>
         <div class="tw-grid tw-grid-cols-12 tw-gap-4">
           <div class="tw-col-span-6">
             <bit-form-field [disableMargin]="true">
@@ -229,6 +237,7 @@ export class EnterPaymentMethodComponent implements OnInit {
   @Input() private showBankAccount = true;
   @Input() showPayPal = true;
   @Input() showAccountCredit = false;
+  @Input() hasEnoughAccountCredit = true;
   @Input() includeBillingAddress = false;
 
   protected showBankAccount$!: Observable<boolean>;
@@ -310,7 +319,7 @@ export class EnterPaymentMethodComponent implements OnInit {
   select = (paymentMethod: PaymentMethodOption) =>
     this.group.controls.type.patchValue(paymentMethod);
 
-  tokenize = async (): Promise<TokenizedPaymentMethod> => {
+  tokenize = async (): Promise<TokenizedPaymentMethod | null> => {
     const exchange = async (paymentMethod: TokenizablePaymentMethod) => {
       switch (paymentMethod) {
         case "bankAccount": {
@@ -351,13 +360,37 @@ export class EnterPaymentMethodComponent implements OnInit {
       const token = await exchange(this.selected);
       return { type: this.selected, token };
     } catch (error: unknown) {
-      this.logService.error(error);
-      this.toastService.showToast({
-        variant: "error",
-        title: "",
-        message: this.i18nService.t("problemSubmittingPaymentMethod"),
-      });
-      throw error;
+      if (error) {
+        this.logService.error(error);
+        switch (this.selected) {
+          case "card": {
+            if (
+              typeof error === "object" &&
+              "message" in error &&
+              typeof error.message === "string"
+            ) {
+              this.toastService.showToast({
+                variant: "error",
+                title: "",
+                message: error.message,
+              });
+            }
+            return null;
+          }
+          case "payPal": {
+            if (typeof error === "string" && error === "No payment method is available.") {
+              this.toastService.showToast({
+                variant: "error",
+                title: "",
+                message: this.i18nService.t("clickPayWithPayPal"),
+              });
+              return null;
+            }
+          }
+        }
+        throw error;
+      }
+      return null;
     }
   };
 

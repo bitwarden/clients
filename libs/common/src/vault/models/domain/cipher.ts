@@ -161,6 +161,8 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
 
     await this.decryptObj<Cipher, CipherView>(
       this,
+      // @ts-expect-error Ciphers have optional Ids which are getting swallowed by the ViewEncryptableKeys type
+      // The ViewEncryptableKeys type should be fixed to allow for optional Ids, but is out of scope for now.
       model,
       ["name", "notes"],
       this.organizationId,
@@ -349,7 +351,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
    */
   toSdkCipher(): SdkCipher {
     const sdkCipher: SdkCipher = {
-      id: asUuid(this.id),
+      id: this.id ? asUuid(this.id) : undefined,
       organizationId: this.organizationId ? asUuid(this.organizationId) : undefined,
       folderId: this.folderId ? asUuid(this.folderId) : undefined,
       collectionIds: this.collectionIds ? this.collectionIds.map(asUuid) : ([] as any),

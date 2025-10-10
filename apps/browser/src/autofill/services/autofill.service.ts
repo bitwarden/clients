@@ -161,7 +161,7 @@ export default class AutofillService implements AutofillServiceInterface {
 
     // Create a timeout observable that emits an empty array if pageDetailsFromTab$ hasn't emitted within 1 second.
     const pageDetailsTimeout$ = timer(1000).pipe(
-      map(() => []),
+      map((): any => []),
       takeUntil(sharedPageDetailsFromTab$),
     );
 
@@ -972,7 +972,7 @@ export default class AutofillService implements AutofillServiceInterface {
       fillScript.autosubmit = Array.from(formElementsSet);
     }
 
-    if (options.allowTotpAutofill) {
+    if (options.allowTotpAutofill && login?.totp) {
       await Promise.all(
         totps.map(async (t, i) => {
           if (Object.prototype.hasOwnProperty.call(filledFields, t.opid)) {
@@ -980,10 +980,10 @@ export default class AutofillService implements AutofillServiceInterface {
           }
 
           filledFields[t.opid] = t;
-          const totpResponse = await firstValueFrom(
-            this.totpService.getCode$(options.cipher.login.totp),
-          );
+
+          const totpResponse = await firstValueFrom(this.totpService.getCode$(login.totp));
           let totpValue = totpResponse.code;
+
           if (totpValue.length == totps.length) {
             totpValue = totpValue.charAt(i);
           }
@@ -2270,6 +2270,8 @@ export default class AutofillService implements AutofillServiceInterface {
     withoutForm: boolean,
   ): AutofillField | null {
     let usernameField: AutofillField = null;
+    let usernameFieldInSameForm: AutofillField = null;
+
     for (let i = 0; i < pageDetails.fields.length; i++) {
       const f = pageDetails.fields[i];
       if (AutofillService.forCustomFieldsOnly(f)) {
@@ -2282,22 +2284,29 @@ export default class AutofillService implements AutofillServiceInterface {
 
       const includesUsernameFieldName =
         this.findMatchingFieldIndex(f, AutoFillConstants.UsernameFieldNames) > -1;
+      const isInSameForm = f.form === passwordField.form;
 
       if (
         !f.disabled &&
         (canBeReadOnly || !f.readonly) &&
-        (withoutForm || f.form === passwordField.form || includesUsernameFieldName) &&
+        (withoutForm || isInSameForm || includesUsernameFieldName) &&
         (canBeHidden || f.viewable) &&
         (f.type === "text" || f.type === "email" || f.type === "tel")
       ) {
-        usernameField = f;
-        // We found an exact match. No need to keep looking.
-        if (includesUsernameFieldName) {
-          break;
+        // Prioritize fields in the same form as the password field
+        if (isInSameForm) {
+          usernameFieldInSameForm = f;
+          if (includesUsernameFieldName) {
+            return f;
+          }
+        } else {
+          usernameField = f;
         }
       }
     }
-    return usernameField;
+
+    // Prefer username field in same form, fall back to any username field
+    return usernameFieldInSameForm || usernameField;
   }
 
   /**

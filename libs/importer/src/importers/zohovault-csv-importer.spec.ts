@@ -11,9 +11,6 @@ const CipherData = [
     title: "should parse Zoho Vault CSV format",
     csv: samplezohovaultcsvdata,
     expected: Object.assign(new CipherView(), {
-      id: null,
-      organizationId: null,
-      folderId: null,
       name: "XYZ Test",
       login: Object.assign(new LoginView(), {
         username: "email@domain.de",
@@ -41,6 +38,7 @@ describe("Zoho Vault CSV Importer", () => {
 
   CipherData.forEach((data) => {
     it(data.title, async () => {
+      jest.useFakeTimers().setSystemTime(data.expected.creationDate);
       const importer = new ZohoVaultCsvImporter();
       const result = await importer.parse(data.csv);
       expect(result != null).toBe(true);

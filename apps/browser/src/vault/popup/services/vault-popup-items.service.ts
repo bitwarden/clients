@@ -26,6 +26,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
@@ -35,7 +36,6 @@ import {
   CipherViewLike,
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
-import { CipherArchiveService } from "@bitwarden/vault";
 
 import { runInsideAngular } from "../../../platform/browser/run-inside-angular.operator";
 import { PopupViewCacheService } from "../../../platform/popup/view-cache/popup-view-cache.service";
@@ -120,7 +120,7 @@ export class VaultPopupItemsService {
                 .cipherListViews$(userId)
                 .pipe(filter((ciphers) => ciphers != null)),
               this.cipherService.failedToDecryptCiphers$(userId),
-              this.restrictedItemTypesService.restricted$.pipe(startWith([])),
+              this.restrictedItemTypesService.restricted$,
             ]),
           ),
           map(([ciphers, failedToDecryptCiphers, restrictions]) => {

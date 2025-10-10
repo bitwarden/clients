@@ -14,7 +14,11 @@ import {
   take,
 } from "rxjs";
 
-import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
+import {
+  CollectionService,
+  CollectionTypes,
+  CollectionView,
+} from "@bitwarden/admin-console/common";
 import { ViewCacheService } from "@bitwarden/angular/platform/view-cache";
 import { DynamicTreeNode } from "@bitwarden/angular/vault/vault-filter/models/dynamic-tree-node.model";
 import { sortDefaultCollections } from "@bitwarden/angular/vault/vault-filter/services/vault-filter.service";
@@ -473,7 +477,14 @@ export class VaultPopupListFiltersService {
         });
       }),
       map((tree) =>
-        tree.nestedList.map((c) => this.convertToChipSelectOption(c, "bwi-collection-shared")),
+        tree.nestedList.map((c) =>
+          this.convertToChipSelectOption(
+            c,
+            c.node.type === CollectionTypes.DefaultUserCollection
+              ? "bwi-user"
+              : "bwi-collection-shared",
+          ),
+        ),
       ),
       shareReplay({ bufferSize: 1, refCount: true }),
     );

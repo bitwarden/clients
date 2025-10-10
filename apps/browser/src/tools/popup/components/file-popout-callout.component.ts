@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, OnInit } from "@angular/core";
 
@@ -15,10 +13,10 @@ import { FilePopoutUtilsService } from "../services/file-popout-utils.service";
   imports: [CommonModule, JslibModule, CalloutModule],
 })
 export class FilePopoutCalloutComponent implements OnInit {
-  protected showFilePopoutMessage: boolean;
-  protected showFirefoxFileWarning: boolean;
-  protected showSafariFileWarning: boolean;
-  protected showChromiumFileWarning: boolean;
+  protected showFilePopoutMessage: boolean = false;
+  protected showFirefoxFileWarning: boolean = false;
+  protected showSafariFileWarning: boolean = false;
+  protected showChromiumFileWarning: boolean = false;
 
   constructor(private filePopoutUtilsService: FilePopoutUtilsService) {}
 

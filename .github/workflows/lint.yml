@@ -49,6 +49,7 @@ jobs:
             ! -path "*/Cargo.toml" \
             ! -path "*/Cargo.lock" \
             ! -path "./apps/desktop/macos/*" \
+            ! -path "*/CLAUDE.md" \
             > tmp.txt
           diff <(sort .github/whitelist-capital-letters.txt) <(sort tmp.txt)
 

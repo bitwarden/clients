@@ -15,7 +15,7 @@ jobs:
     steps:
       - name: Get discussion label and template name
         id: discussion-label
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         with:
           script: |
             const discussion = context.payload.discussion;
@@ -29,7 +29,7 @@ jobs:
 
       - name: Get selected topic
         id: get_selected_topic
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         with:
           result-encoding: string
           script: |
@@ -45,7 +45,7 @@ jobs:
             }
 
       - name: Reply or close Discussion
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         env:
           TEMPLATE_NAME: ${{ steps.discussion-label.outputs.template_name }}
           TOPIC: ${{ steps.get_selected_topic.outputs.result }}

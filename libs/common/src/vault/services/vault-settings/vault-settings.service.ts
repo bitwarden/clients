@@ -1,4 +1,4 @@
-import { Observable, combineLatest, map, shareReplay, startWith } from "rxjs";
+import { Observable, combineLatest, map, shareReplay } from "rxjs";
 
 import { ActiveUserState, GlobalState, StateProvider } from "../../../platform/state";
 import { VaultSettingsService as VaultSettingsServiceAbstraction } from "../../abstractions/vault-settings/vault-settings.service";
@@ -31,7 +31,7 @@ export class VaultSettingsService implements VaultSettingsServiceAbstraction {
    */
   readonly showCardsCurrentTab$: Observable<boolean> = combineLatest([
     this.showCardsCurrentTabState.state$.pipe(map((x) => x ?? true)),
-    this.restrictedItemTypesService.restricted$.pipe(startWith([])),
+    this.restrictedItemTypesService.restricted$,
   ]).pipe(
     map(
       ([enabled, restrictions]) =>

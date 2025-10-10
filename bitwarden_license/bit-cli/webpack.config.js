@@ -1,12 +1,48 @@
-const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
+const path = require("path");
+const { buildConfig } = require("../../apps/cli/webpack.base");
 
-// Re-use the OSS CLI webpack config
-const webpackConfig = require("../../apps/cli/webpack.config");
+module.exports = (webpackConfig, context) => {
+  // Detect if called by Nx (context parameter exists)
+  const isNxBuild = context && context.options;
 
-// Update paths to use the bit-cli entrypoint and tsconfig
-webpackConfig.entry = { bw: "../../bitwarden_license/bit-cli/src/bw.ts" };
-webpackConfig.resolve.plugins = [
-  new TsconfigPathsPlugin({ configFile: "../../bitwarden_license/bit-cli/tsconfig.json" }),
-];
+  if (isNxBuild) {
+    // Nx build configuration
+    const mode = context.options.mode || "development";
+    if (process.env.NODE_ENV == null) {
+      process.env.NODE_ENV = mode;
+    }
+    const ENV = (process.env.ENV = process.env.NODE_ENV);
 
-module.exports = webpackConfig;
+    return buildConfig({
+      configName: "Commercial",
+      entry: context.options.main || "bitwarden_license/bit-cli/src/bw.ts",
+      tsConfig: "tsconfig.base.json",
+      outputPath: path.resolve(context.context.root, context.options.outputPath),
+      mode: mode,
+      env: ENV,
+      modulesPath: [path.resolve("node_modules")],
+      localesPath: "apps/cli/src/locales",
+      externalsModulesDir: "node_modules",
+      watch: context.options.watch || false,
+    });
+  } else {
+    // npm build configuration
+    if (process.env.NODE_ENV == null) {
+      process.env.NODE_ENV = "development";
+    }
+    const ENV = (process.env.ENV = process.env.NODE_ENV);
+    const mode = ENV;
+
+    return buildConfig({
+      configName: "Commercial",
+      entry: "../../bitwarden_license/bit-cli/src/bw.ts",
+      tsConfig: "../../bitwarden_license/bit-cli/tsconfig.json",
+      outputPath: path.resolve(__dirname, "../../apps/cli/build"),
+      mode: mode,
+      env: ENV,
+      modulesPath: [path.resolve("../../node_modules")],
+      localesPath: "../../apps/cli/src/locales",
+      externalsModulesDir: "../../node_modules",
+    });
+  }
+};

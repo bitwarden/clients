@@ -20,6 +20,7 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
+import { Folder } from "@bitwarden/common/vault/models/domain/folder";
 import { KeyService } from "@bitwarden/key-management";
 
 import { OrganizationCollectionRequest } from "../admin-console/models/request/organization-collection.request";
@@ -183,8 +184,8 @@ export class CreateCommand {
     const userKey = await this.keyService.getUserKey(activeUserId);
     const folder = await this.folderService.encrypt(FolderExport.toView(req), userKey);
     try {
-      await this.folderApiService.save(folder, activeUserId);
-      const newFolder = await this.folderService.get(folder.id, activeUserId);
+      const folderData = await this.folderApiService.save(folder, activeUserId);
+      const newFolder = new Folder(folderData);
       const decFolder = await newFolder.decrypt();
       const res = new FolderResponse(decFolder);
       return Response.success(res);

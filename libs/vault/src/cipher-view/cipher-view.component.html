@@ -12,7 +12,6 @@
   </bit-callout>
 
   <bit-callout *ngIf="hasLoginUri && hadPendingChangePasswordTask" type="warning" [title]="''">
-    <i class="bwi bwi-exclamation-triangle tw-text-warning" aria-hidden="true"></i>
     <a bitLink href="#" appStopClick (click)="launchChangePassword()">
       {{ "changeAtRiskPassword" | i18n }}
       <i class="bwi bwi-external-link tw-ml-1" aria-hidden="true"></i>

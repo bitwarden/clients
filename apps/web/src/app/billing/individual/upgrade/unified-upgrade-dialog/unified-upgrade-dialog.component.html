@@ -1,0 +1,10 @@
+@if (step() == PlanSelectionStep) {
+  <app-upgrade-account (planSelected)="onPlanSelected($event)" (closeClicked)="onCloseClicked()" />
+} @else if (step() == PaymentStep && selectedPlan() !== null) {
+  <app-upgrade-payment
+    [selectedPlanId]="selectedPlan()"
+    [account]="account()"
+    (goBack)="previousStep()"
+    (complete)="onComplete($event)"
+  />
+}

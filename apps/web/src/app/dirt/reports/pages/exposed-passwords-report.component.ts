@@ -89,6 +89,9 @@ export class ExposedPasswordsReportComponent extends CipherReportComponent imple
 
   private async isPasswordExposed(cv: CipherView): Promise<ReportResult | null> {
     const { login } = cv;
+    if (login.password == null) {
+      return null;
+    }
     return await this.auditService.passwordLeaked(login.password).then((exposedCount) => {
       if (exposedCount > 0) {
         return { ...cv, exposedXTimes: exposedCount } as ReportResult;

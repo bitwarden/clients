@@ -82,9 +82,10 @@ describe("CriticalAppsService", () => {
   });
 
   it("should exclude records that already exist", async () => {
+    const privateCriticalAppsSubject = service["criticalAppsListSubject$"];
     // arrange
     // one record already exists
-    service.setAppsInListForOrg([
+    privateCriticalAppsSubject.next([
       {
         id: randomUUID() as PasswordHealthReportApplicationId,
         organizationId: SomeOrganization,
@@ -145,6 +146,7 @@ describe("CriticalAppsService", () => {
 
   it("should get by org id", () => {
     const orgId = "some organization" as OrganizationId;
+    const privateCriticalAppsSubject = service["criticalAppsListSubject$"];
     const response = [
       { id: "id1", organizationId: "some organization", uri: "https://example.com" },
       { id: "id2", organizationId: "some organization", uri: "https://example.org" },
@@ -155,13 +157,14 @@ describe("CriticalAppsService", () => {
     const orgKey$ = new BehaviorSubject(OrgRecords);
     keyService.orgKeys$.mockReturnValue(orgKey$);
     service.loadOrganizationContext(SomeOrganization, SomeUser);
-    service.setAppsInListForOrg(response);
+    privateCriticalAppsSubject.next(response);
     service.getAppsListForOrg(orgId as OrganizationId).subscribe((res) => {
       expect(res).toHaveLength(2);
     });
   });
 
   it("should drop a critical app", async () => {
+    const privateCriticalAppsSubject = service["criticalAppsListSubject$"];
     // arrange
     const selectedUrl = "https://example.com";
 
@@ -175,7 +178,7 @@ describe("CriticalAppsService", () => {
 
     service.loadOrganizationContext(SomeOrganization, SomeUser);
 
-    service.setAppsInListForOrg(initialList);
+    privateCriticalAppsSubject.next(initialList);
 
     // act
     await service.dropCriticalApp(SomeOrganization, selectedUrl);
@@ -193,6 +196,7 @@ describe("CriticalAppsService", () => {
   });
 
   it("should not drop a critical app if it does not exist", async () => {
+    const privateCriticalAppsSubject = service["criticalAppsListSubject$"];
     // arrange
     const selectedUrl = "https://nonexistent.com";
 
@@ -206,7 +210,7 @@ describe("CriticalAppsService", () => {
 
     service.loadOrganizationContext(SomeOrganization, SomeUser);
 
-    service.setAppsInListForOrg(initialList);
+    privateCriticalAppsSubject.next(initialList);
 
     // act
     await service.dropCriticalApp(SomeOrganization, selectedUrl);

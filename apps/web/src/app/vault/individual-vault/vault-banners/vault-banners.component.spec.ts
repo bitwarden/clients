@@ -35,7 +35,6 @@ describe("VaultBannersComponent", () => {
     shouldShowPremiumBanner$: jest.fn((userId: UserId) => premiumBanner$),
     shouldShowUpdateBrowserBanner: jest.fn(),
     shouldShowVerifyEmailBanner: jest.fn(),
-    shouldShowLowKDFBanner: jest.fn(),
     shouldShowPendingAuthRequestBanner: jest.fn((userId: UserId) =>
       Promise.resolve(pendingAuthRequest$.value),
     ),
@@ -48,7 +47,6 @@ describe("VaultBannersComponent", () => {
     messageSubject = new Subject<{ command: string }>();
     bannerService.shouldShowUpdateBrowserBanner.mockResolvedValue(false);
     bannerService.shouldShowVerifyEmailBanner.mockResolvedValue(false);
-    bannerService.shouldShowLowKDFBanner.mockResolvedValue(false);
     pendingAuthRequest$.next(false);
     premiumBanner$.next(false);
 
@@ -136,11 +134,6 @@ describe("VaultBannersComponent", () => {
         name: "VerifyEmail",
         method: bannerService.shouldShowVerifyEmailBanner,
         banner: VisibleVaultBanner.VerifyEmail,
-      },
-      {
-        name: "LowKDF",
-        method: bannerService.shouldShowLowKDFBanner,
-        banner: VisibleVaultBanner.KDFSettings,
       },
     ].forEach(({ name, method, banner }) => {
       describe(name, () => {

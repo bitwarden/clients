@@ -1,0 +1,87 @@
+@if (!(prices$ | async)) {
+  <ng-container *ngTemplateOutlet="loadingSpinner" />
+} @else {
+  @let prices = prices$ | async;
+  <form [formGroup]="formGroup" [bitSubmit]="submit">
+    <div class="tw-container tw-mb-3">
+      <!-- Cadence -->
+      <div class="tw-mb-6">
+        <h2 class="tw-mb-3 tw-text-base tw-font-semibold">{{ "billingPlanLabel" | i18n }}</h2>
+        <bit-radio-group [formControl]="formGroup.controls.cadence">
+          <div class="tw-mb-1 tw-items-center">
+            <bit-radio-button id="annual-cadence-button" [value]="'annually'">
+              <bit-label>
+                {{ "annual" | i18n }} -
+                {{ prices.annually | currency: "$" }}
+                /{{ "yr" | i18n }}
+              </bit-label>
+            </bit-radio-button>
+          </div>
+          @if (prices.monthly) {
+            <div class="tw-mb-1 tw-items-center">
+              <bit-radio-button id="monthly-cadence-button" [value]="'monthly'">
+                <bit-label>
+                  {{ "monthly" | i18n }} -
+                  {{ prices.monthly | currency: "$" }}
+                  /{{ "monthAbbr" | i18n }}
+                </bit-label>
+              </bit-radio-button>
+            </div>
+          }
+        </bit-radio-group>
+      </div>
+      <!-- Payment -->
+      <div class="tw-mb-4">
+        <h2 class="tw-mb-3 tw-text-base tw-font-semibold">{{ "paymentType" | i18n }}</h2>
+        <app-enter-payment-method
+          [group]="formGroup.controls.paymentMethod"
+        ></app-enter-payment-method>
+        <app-enter-billing-address
+          [group]="formGroup.controls.billingAddress"
+          [scenario]="{ type: 'checkout', supportsTaxId: trial().tier !== 'families' }"
+        ></app-enter-billing-address>
+
+        @if (trial().length === 0) {
+          @let label =
+            trial().product === "passwordManager"
+              ? "passwordManagerPlanPrice"
+              : "secretsManagerPlanPrice";
+          <div id="price" class="tw-my-4">
+            @let selectionTaxAmounts = selectionCosts$ | async;
+            <div class="tw-text-muted tw-text-base">
+              {{ label | i18n }}: {{ selectionPrice$ | async | currency: "USD $" }}
+              <div>
+                {{ "estimatedTax" | i18n }}:
+                {{ selectionTaxAmounts.tax | currency: "USD $" }}
+              </div>
+            </div>
+            <hr class="tw-my-1 tw-grid tw-grid-cols-3 tw-ml-0" />
+            <p class="tw-text-lg">
+              <strong>{{ "total" | i18n }}: </strong>
+              @let interval = formGroup.value.cadence === "annually" ? "year" : "month";
+              {{ selectionTaxAmounts.total | currency: "USD $" }}/{{ interval | i18n }}
+            </p>
+          </div>
+        }
+      </div>
+      <!-- Submit -->
+      <div class="tw-flex tw-space-x-2">
+        <button bitButton bitFormButton buttonType="primary" type="submit">
+          {{ (trial().length > 0 ? "startTrial" : "submit") | i18n }}
+        </button>
+        <button bitButton type="button" buttonType="secondary" (click)="stepBack()">
+          {{ "back" | i18n }}
+        </button>
+      </div>
+    </div>
+  </form>
+}
+
+<ng-template #loadingSpinner>
+  <i
+    class="bwi bwi-spinner bwi-spin tw-text-muted"
+    title="{{ 'loading' | i18n }}"
+    aria-hidden="true"
+  ></i>
+  <span class="tw-sr-only">{{ "loading" | i18n }}</span>
+</ng-template>
