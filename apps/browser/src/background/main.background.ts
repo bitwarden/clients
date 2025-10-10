@@ -21,6 +21,7 @@ import {
   AuthRequestServiceAbstraction,
   DefaultAuthRequestApiService,
   DefaultLockService,
+  DefaultLogoutService,
   InternalUserDecryptionOptionsServiceAbstraction,
   LoginEmailServiceAbstraction,
   LogoutReason,
@@ -1361,11 +1362,13 @@ export default class MainBackground {
 
     this.contextMenusBackground = new ContextMenusBackground(contextMenuClickedHandler);
 
+    const logoutService = new DefaultLogoutService(this.messagingService);
     this.idleBackground = new IdleBackground(
       this.vaultTimeoutService,
       this.serverNotificationsService,
       this.accountService,
       this.vaultTimeoutSettingsService,
+      logoutService,
     );
 
     this.usernameGenerationService = legacyUsernameGenerationServiceFactory(
