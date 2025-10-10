@@ -2,7 +2,7 @@
 
 <bit-container>
   <p bitTypography="body1">{{ "preferencesDesc" | i18n }}</p>
-  <form [formGroup]="form" [bitSubmit]="submit" class="tw-w-full tw-max-w-xl">
+  <form [formGroup]="form" [bitSubmit]="submit" class="tw-w-full tw-max-w-md">
     <bit-callout type="info" *ngIf="vaultTimeoutPolicyCallout | async as policy">
       <span *ngIf="policy.timeout && policy.action">
         {{
