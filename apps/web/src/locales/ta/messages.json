@@ -35,6 +35,9 @@
       }
     }
   },
+  "noReportRan": {
+    "message": "You have not created a report yet"
+  },
   "notifiedMembers": {
     "message": "அறிவிக்கப்பட்ட உறுப்பினர்கள்"
   },
@@ -184,8 +187,23 @@
   "markAppAsCritical": {
     "message": "பயன்பாட்டை முக்கியமானதாகக் குறியிடு"
   },
+  "markAsCritical": {
+    "message": "Mark as critical"
+  },
+  "applicationsSelected": {
+    "message": "applications selected"
+  },
+  "selectApplication": {
+    "message": "Select application"
+  },
+  "unselectApplication": {
+    "message": "Unselect application"
+  },
   "applicationsMarkedAsCriticalSuccess": {
     "message": "பயன்பாடுகள் முக்கியமானதாகக் குறியிடப்பட்டன"
+  },
+  "applicationsMarkedAsCriticalFail": {
+    "message": "Failed to mark applications as critical"
   },
   "application": {
     "message": "பயன்பாடு"
@@ -273,6 +291,33 @@
   },
   "totalApplications": {
     "message": "மொத்த பயன்பாடுகள்"
+  },
+  "applicationsNeedingReview": {
+    "message": "Applications needing review"
+  },
+  "newApplicationsWithCount": {
+    "message": "$COUNT$ new applications",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "13"
+      }
+    }
+  },
+  "newApplicationsDescription": {
+    "message": "Review new applications to mark as critical and keep your organization secure"
+  },
+  "reviewNow": {
+    "message": "Review now"
+  },
+  "prioritizeCriticalApplications": {
+    "message": "Prioritize critical applications"
+  },
+  "atRiskItems": {
+    "message": "At-risk items"
+  },
+  "markAsCriticalPlaceholder": {
+    "message": "Mark as critical functionality will be implemented in a future update"
   },
   "unmarkAsCritical": {
     "message": "முக்கியமானதாக இருந்து குறியீட்டை நீக்கு"
@@ -1247,6 +1292,9 @@
   },
   "readingPasskeyLoadingInfo": {
     "message": "இந்த சாளரத்தை திறந்து வைத்து, உங்கள் உலாவியில் கேட்கப்படும் வழிமுறைகளைப் பின்பற்றவும்."
+  },
+  "passkeyAuthenticationFailed": {
+    "message": "Passkey authentication failed. Please try again."
   },
   "useADifferentLogInMethod": {
     "message": "வேறு உள்நுழைவு முறையைப் பயன்படுத்து"
@@ -2902,6 +2950,9 @@
   "makeSureEnoughCredit": {
     "message": "இந்த வாங்குதலுக்கு உங்கள் கணக்கில் போதுமான கடன் இருப்பதை உறுதிசெய்யவும். உங்கள் கணக்கில் போதுமான கடன் இல்லையென்றால், வேறுபாட்டிற்கு கோப்பில் உள்ள உங்கள் இயல்புநிலை கட்டண முறை பயன்படுத்தப்படும். பில்லிங் பக்கத்திலிருந்து உங்கள் கணக்கில் நீங்கள் கடனைச் சேர்க்கலாம்."
   },
+  "notEnoughAccountCredit": {
+    "message": "You do not have enough account credit for this purchase. You can add credit to your account from the Billing page."
+  },
   "creditAppliedDesc": {
     "message": "உங்கள் கணக்கின் கடனை வாங்குதல்களுக்குப் பயன்படுத்தலாம். கிடைக்கக்கூடிய எந்தக் கடனும் இந்த கணக்கிற்காக உருவாக்கப்பட்ட பில்களுக்கு தானாகவே பயன்படுத்தப்படும்."
   },
@@ -4309,6 +4360,9 @@
   },
   "generatingYourRiskInsights": {
     "message": "உங்கள் இடர் நுண்ணறிவுகளை உருவாக்குகிறது..."
+  },
+  "riskInsightsRunReport": {
+    "message": "Run report"
   },
   "updateBrowserDesc": {
     "message": "ஆதரிக்கப்படாத இணைய உலாவியைப் பயன்படுத்துகிறீர்கள். இணையப் பெட்டகம் சரியாகச் செயல்படாமல் போகலாம்."
@@ -9960,6 +10014,9 @@
   "crowdstrikeEventIntegrationDesc": {
     "message": "உங்கள் Logscale இன்ஸ்டன்ஸுக்கு நிகழ்வுத் தரவை அனுப்பவும்"
   },
+  "datadogEventIntegrationDesc": {
+    "message": "Send vault event data to your Datadog instance"
+  },
   "failedToSaveIntegration": {
     "message": "ஒருங்கிணைப்பைச் சேமிக்கத் தவறிவிட்டது. பின்னர் மீண்டும் முயற்சிக்கவும்."
   },
@@ -11713,5 +11770,38 @@
   },
   "seamlessIntegration": {
     "message": "Seamless integration"
+  },
+  "families": {
+    "message": "Families"
+  },
+  "upgradeToFamilies": {
+    "message": "Upgrade to Families"
+  },
+  "upgradeToPremium": {
+    "message": "Upgrade to Premium"
+  },
+  "familiesUpdated": {
+    "message": "You've upgraded to Families!"
+  },
+  "taxCalculationError": {
+    "message": "There was an error calculating tax for your location. Please try again."
+  },
+  "individualUpgradeWelcomeMessage": {
+    "message": "Welcome to Bitwarden"
+  },
+  "individualUpgradeDescriptionMessage": {
+    "message": "Unlock more security features with Premium, or start sharing items with Families"
+  },
+  "individualUpgradeTaxInformationMessage": {
+    "message": "Prices exclude tax and are billed annually."
+  },
+  "organizationNameDescription": {
+    "message": "Your organization name will appear in invitations you send to members."
+  },
+  "continueWithoutUpgrading": {
+    "message": "Continue without upgrading"
+  },
+  "upgradeErrorMessage": {
+    "message": "We encountered an error while processing your upgrade. Please try again."
   }
 }

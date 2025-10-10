@@ -4135,8 +4135,8 @@
   "enableAutotypeShortcutPreview": {
     "message": "Bật phím tắt tự động nhập (Xem trước tính năng)"
   },
-  "enableAutotypeDescriptionTransitionKey": {
-    "message": "Hãy đảm bảo bạn đang ở đúng trường trước khi sử dụng phím tắt để tránh điền dữ liệu vào chỗ không đúng."
+  "enableAutotypeShortcutDescription": {
+    "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."
   },
   "editShortcut": {
     "message": "Chỉnh sửa phím tắt"

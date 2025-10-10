@@ -35,6 +35,9 @@
       }
     }
   },
+  "noReportRan": {
+    "message": "Még nem készült jelentés."
+  },
   "notifiedMembers": {
     "message": "Értesített tagok"
   },
@@ -184,8 +187,23 @@
   "markAppAsCritical": {
     "message": "Alkalmazások megjelölése kritikusként"
   },
+  "markAsCritical": {
+    "message": "Mark as critical"
+  },
+  "applicationsSelected": {
+    "message": "applications selected"
+  },
+  "selectApplication": {
+    "message": "Select application"
+  },
+  "unselectApplication": {
+    "message": "Unselect application"
+  },
   "applicationsMarkedAsCriticalSuccess": {
     "message": "Kritikusként megjelölt alkalmazások"
+  },
+  "applicationsMarkedAsCriticalFail": {
+    "message": "Nem sikerült kritikusként megjelölni a kérelmeket."
   },
   "application": {
     "message": "Alkalmazás"
@@ -273,6 +291,33 @@
   },
   "totalApplications": {
     "message": "Összes alkalmazás"
+  },
+  "applicationsNeedingReview": {
+    "message": "Felülvizsgálatot igénylő kérelmek"
+  },
+  "newApplicationsWithCount": {
+    "message": "$COUNT$ új alkalmazás",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "13"
+      }
+    }
+  },
+  "newApplicationsDescription": {
+    "message": "Tekintsük át az új alkalmazásokat a kritikusként megjelöléshez és tartsuk biztonságban szervezetet."
+  },
+  "reviewNow": {
+    "message": "Áttekintés most"
+  },
+  "prioritizeCriticalApplications": {
+    "message": "Prioritize critical applications"
+  },
+  "atRiskItems": {
+    "message": "At-risk items"
+  },
+  "markAsCriticalPlaceholder": {
+    "message": "Mark as critical functionality will be implemented in a future update"
   },
   "unmarkAsCritical": {
     "message": "Ktritkus jelölés eltávolítása"
@@ -1247,6 +1292,9 @@
   },
   "readingPasskeyLoadingInfo": {
     "message": "Tartsuk nyitva ezt az ablakot és kövessük a böngésző utasításait."
+  },
+  "passkeyAuthenticationFailed": {
+    "message": "A hozzáférési kulcs hitelesítés sikertelen volt. Próbáljuk újra."
   },
   "useADifferentLogInMethod": {
     "message": "Más bejelentkezési mód használata"
@@ -2902,6 +2950,9 @@
   "makeSureEnoughCredit": {
     "message": "Ellenőrizzük, hogy a fióknak elég hitelkerete van a vásárláshoz. Ha nincs elég keret, akkor az alapértelmezett fizetési mód kerül használatba a különbségnél. Hitelkeretet a Számlázás oldalon adhatunk hozzá."
   },
+  "notEnoughAccountCredit": {
+    "message": "You do not have enough account credit for this purchase. You can add credit to your account from the Billing page."
+  },
   "creditAppliedDesc": {
     "message": "A fiók hitelkeret vásárlásra használható. A rendelkezésre álló keret automatikusan ehhez a fiókhoz generálódó számlákra kerül alkalmazásra."
   },
@@ -4309,6 +4360,9 @@
   },
   "generatingYourRiskInsights": {
     "message": "A kockázati betekintések generálása..."
+  },
+  "riskInsightsRunReport": {
+    "message": "Jelentés futtatása"
   },
   "updateBrowserDesc": {
     "message": "Nem támogatott böngészőt használunk. Előfordulhat, hogy a webes széf nem működik megfelelően."
@@ -9960,6 +10014,9 @@
   "crowdstrikeEventIntegrationDesc": {
     "message": "Eseményadatok küldése a Logscale példánynak"
   },
+  "datadogEventIntegrationDesc": {
+    "message": "Széf eseményadatok küldése a Datadog példánynak"
+  },
   "failedToSaveIntegration": {
     "message": "Nem sikerült menteni az integrációt. Próbáljuk újra később."
   },
@@ -11713,5 +11770,38 @@
   },
   "seamlessIntegration": {
     "message": "Zökkenőmentes integráció"
+  },
+  "families": {
+    "message": "Családok"
+  },
+  "upgradeToFamilies": {
+    "message": "Áttérés Családok csomagra"
+  },
+  "upgradeToPremium": {
+    "message": "Áttérés Prémium csomagra"
+  },
+  "familiesUpdated": {
+    "message": "Megtörtént az áttérés a Családok csomagra."
+  },
+  "taxCalculationError": {
+    "message": "Hiba történt a tartózkodási helyre vonatkozó adó kiszámításakor. Próbáljuk újra."
+  },
+  "individualUpgradeWelcomeMessage": {
+    "message": "Üdvözlet a Bitwardenben"
+  },
+  "individualUpgradeDescriptionMessage": {
+    "message": "Szabadítsunk fel meg több biztonsági funkciót a Prémium segítségével vagy kezdjük el megosztani az elemeket a Családok csomaggal."
+  },
+  "individualUpgradeTaxInformationMessage": {
+    "message": "Az árak nem tartalmazzák az adót és évente kerülnek számlázásra."
+  },
+  "organizationNameDescription": {
+    "message": "A szervezet neve megjelenik a tagoknak küldött meghívókban."
+  },
+  "continueWithoutUpgrading": {
+    "message": "Folytatás áttérés nélkül"
+  },
+  "upgradeErrorMessage": {
+    "message": "Hiba történt az áttérés feldolgozása közben. Próbáljuk újra."
   }
 }
