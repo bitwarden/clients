@@ -7,7 +7,7 @@ export default {
   component: TypographyDirective,
 } as Meta;
 
-export const Default: StoryObj<TypographyDirective & { text: string }> = {
+export const Deprecated: StoryObj<TypographyDirective & { text: string }> = {
   render: (args) => ({
     props: args,
     template: /*html*/ `

@@ -10,26 +10,26 @@
 
 @layer base {
   body {
-    @apply tw-text-base tw-text-main;
+    @apply !tw-text-base tw-text-main;
   }
 
   h1 {
-    @apply tw-text-3xl tw-font-semibold tw-text-main tw-mb-2;
+    @apply tw-text-3xl tw-text-main tw-mb-2;
   }
   h2 {
-    @apply tw-text-2xl tw-font-semibold tw-text-main tw-mb-2;
+    @apply tw-text-2xl tw-text-main tw-mb-2;
   }
   h3 {
-    @apply tw-text-xl tw-font-semibold tw-text-main tw-mb-2;
+    @apply tw-text-xl tw-text-main tw-mb-2;
   }
   h4 {
-    @apply tw-text-lg tw-font-semibold tw-text-main tw-mb-2;
+    @apply tw-text-lg tw-text-main tw-mb-2;
   }
   h5 {
-    @apply tw-text-base tw-font-bold tw-text-main tw-mb-1.5;
+    @apply tw-text-base tw-text-main tw-mb-1.5;
   }
   h6 {
-    @apply tw-text-sm tw-font-bold tw-text-main tw-mb-1.5;
+    @apply tw-text-sm tw-text-main tw-mb-1.5;
   }
 
   code {

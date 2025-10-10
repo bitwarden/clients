@@ -1,0 +1,47 @@
+.bit-typography-h1 {
+  @apply !tw-text-3xl tw-text-main tw-mb-2;
+}
+
+.bit-typography-h2 {
+  @apply !tw-text-2xl tw-text-main tw-mb-2;
+}
+
+.bit-typography-h3 {
+  @apply !tw-text-xl tw-text-main tw-mb-2;
+}
+
+.bit-typography-h4 {
+  @apply !tw-text-lg tw-text-main tw-mb-2;
+}
+
+.bit-typography-h5 {
+  @apply !tw-text-base tw-text-main tw-mb-1.5;
+}
+
+.bit-typography-h6 {
+  @apply !tw-text-sm tw-text-main tw-mb-1.5;
+}
+
+.bit-typography-body {
+  @apply !tw-text-base tw-text-main;
+}
+
+.bit-typography-body-sm {
+  @apply !tw-text-sm tw-text-main;
+}
+
+.bit-typography-helper {
+  @apply !tw-text-xs tw-text-main;
+}
+
+.bit-typography-code {
+  @apply !tw-text-base tw-text-code tw-font-mono;
+}
+
+.bit-typography-code-sm {
+  @apply !tw-text-sm tw-text-code tw-font-mono;
+}
+
+.bit-typography-code-helper {
+  @apply !tw-text-xs tw-text-code tw-font-mono;
+}
