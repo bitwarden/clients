@@ -265,6 +265,14 @@ export default class RuntimeBackground {
           this.messagingService.send("lockAllFinished", { requestId: msg.requestId });
         }
         break;
+      case "lockUser":
+        {
+          await this.lockService.lock(msg.userId);
+          this.messagingService.send("lockUserFinished", {
+            requestId: msg.requestId,
+          });
+        }
+        break;
       case "logout":
         await this.main.logout(msg.expired, msg.userId);
         break;
