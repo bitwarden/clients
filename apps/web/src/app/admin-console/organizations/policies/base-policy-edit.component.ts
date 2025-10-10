@@ -23,8 +23,6 @@ export interface PolicyDialogComponent {
   ) => DialogRef<PolicyEditDialogResult>;
 }
 
-import type { PolicyEditDialogComponent } from "./policy-edit-dialog.component";
-
 /**
  * A metadata class that defines how a policy is displayed in the Admin Console Policies page for editing.
  * Add this to the `ossPolicyRegister` or `bitPolicyRegister` file to register it in the application.

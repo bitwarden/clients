@@ -1,17 +1,18 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
 import {
   combineLatest,
   firstValueFrom,
-  lastValueFrom,
   Observable,
   of,
   switchMap,
   first,
   map,
   withLatestFrom,
+  tap,
 } from "rxjs";
 
 import {
@@ -19,9 +20,11 @@ import {
   OrganizationService,
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { PolicyResponse } from "@bitwarden/common/admin-console/models/response/policy.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { DialogService } from "@bitwarden/components";
 import { safeProvider } from "@bitwarden/ui-common";
@@ -59,8 +62,18 @@ export class PoliciesComponent implements OnInit {
     private policyApiService: PolicyApiServiceAbstraction,
     private policyListService: PolicyListService,
     private dialogService: DialogService,
+    private policyService: PolicyService,
     protected configService: ConfigService,
-  ) {}
+  ) {
+    this.accountService.activeAccount$
+      .pipe(
+        getUserId,
+        switchMap((userId) => this.policyService.policies$(userId)),
+        tap(async () => await this.load()),
+        takeUntilDestroyed(),
+      )
+      .subscribe();
+  }
 
   async ngOnInit() {
     // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
@@ -129,16 +142,11 @@ export class PoliciesComponent implements OnInit {
   async edit(policy: BasePolicyEditDefinition) {
     const dialogComponent: PolicyDialogComponent =
       policy.editDialogComponent ?? PolicyEditDialogComponent;
-    const dialogRef = dialogComponent.open(this.dialogService, {
+    dialogComponent.open(this.dialogService, {
       data: {
         policy: policy,
         organizationId: this.organizationId,
       },
     });
-
-    const result = await lastValueFrom(dialogRef.closed);
-    if (result == "saved") {
-      await this.load();
-    }
   }
 }
