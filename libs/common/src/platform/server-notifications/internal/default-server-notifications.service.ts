@@ -22,7 +22,7 @@ import { trackedMerge } from "@bitwarden/common/platform/misc";
 import { AccountInfo, AccountService } from "../../../auth/abstractions/account.service";
 import { AuthService } from "../../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
-import { NotificationType } from "../../../enums";
+import { NotificationType, PushNotificationLogOutReasonType } from "../../../enums";
 import {
   LogOutNotification,
   NotificationResponse,
@@ -271,7 +271,10 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
         const noLogoutOnKdfChange = await firstValueFrom(
           this.configService.getFeatureFlag$(FeatureFlag.NoLogoutOnKdfChange),
         );
-        if (noLogoutOnKdfChange && logOutNotification.reason === "kdfChange") {
+        if (
+          noLogoutOnKdfChange &&
+          logOutNotification.reason === PushNotificationLogOutReasonType.KdfChange
+        ) {
           this.logService.info(
             "[Notifications Service] Skipping logout due to no logout KDF change",
           );

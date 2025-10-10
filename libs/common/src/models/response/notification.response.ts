@@ -1,6 +1,6 @@
 import { NotificationViewResponse as EndUserNotificationResponse } from "@bitwarden/common/vault/notifications/models";
 
-import { NotificationType } from "../../enums";
+import { NotificationType, PushNotificationLogOutReasonType } from "../../enums";
 
 import { BaseResponse } from "./base.response";
 
@@ -189,7 +189,7 @@ export class ProviderBankAccountVerifiedPushNotification extends BaseResponse {
 
 export class LogOutNotification extends BaseResponse {
   userId: string;
-  reason?: string;
+  reason?: PushNotificationLogOutReasonType;
 
   constructor(response: any) {
     super(response);

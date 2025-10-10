@@ -11,7 +11,7 @@ import { Matrix } from "../../../../spec/matrix";
 import { AccountService } from "../../../auth/abstractions/account.service";
 import { AuthService } from "../../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
-import { NotificationType } from "../../../enums";
+import { NotificationType, PushNotificationLogOutReasonType } from "../../../enums";
 import { NotificationResponse } from "../../../models/response/notification.response";
 import { UserId } from "../../../types/guid";
 import { AppIdService } from "../../abstractions/app-id.service";
@@ -351,16 +351,18 @@ describe("NotificationsService", () => {
       it.each([
         { featureFlagEnabled: false, reason: undefined },
         { featureFlagEnabled: true, reason: undefined },
-        { featureFlagEnabled: true, reason: "passwordChange" },
-        { featureFlagEnabled: false, reason: "kdfChange" },
+        { featureFlagEnabled: false, reason: PushNotificationLogOutReasonType.KdfChange },
       ])(
         "should call logout callback when featureFlag=$featureFlagEnabled and reason=$reason",
         async ({ featureFlagEnabled, reason }) => {
           configService.getFeatureFlag$.mockReturnValue(of(featureFlagEnabled));
 
-          const payload: any = { userId: mockUser1 };
-          if (reason !== undefined) {
-            payload.reason = reason;
+          const payload: { UserId: UserId; Reason?: PushNotificationLogOutReasonType } = {
+            UserId: mockUser1,
+            Reason: undefined,
+          };
+          if (reason != null) {
+            payload.Reason = reason;
           }
 
           const notification = new NotificationResponse({
@@ -375,12 +377,12 @@ describe("NotificationsService", () => {
         },
       );
 
-      it("should skip logout when receiving kdfChange reason with feature flag enabled", async () => {
+      it("should skip logout when receiving KDF change reason with feature flag enabled", async () => {
         configService.getFeatureFlag$.mockReturnValue(of(true));
 
         const notification = new NotificationResponse({
           type: NotificationType.LogOut,
-          payload: { userId: mockUser1, reason: "kdfChange" },
+          payload: { UserId: mockUser1, Reason: PushNotificationLogOutReasonType.KdfChange },
           contextId: "different-app-id",
         });
 
