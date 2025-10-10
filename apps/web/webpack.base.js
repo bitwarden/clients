@@ -356,7 +356,7 @@ module.exports.buildConfig = function buildConfig(params) {
           port: envConfig.dev?.port ?? 8080,
           allowedHosts: envConfig.dev?.allowedHosts ?? "auto",
           static: {
-            directory: path.resolve(params.outputPath || path.resolve(__dirname, "build")),
+            directory: path.resolve(params.outputPath),
             publicPath: "/",
           },
           devMiddleware: {
@@ -456,7 +456,7 @@ module.exports.buildConfig = function buildConfig(params) {
     },
     output: {
       filename: "[name].[contenthash].js",
-      path: params.outputPath || path.resolve(__dirname, "build"),
+      path: params.outputPath,
       clean: true,
     },
     module: {
