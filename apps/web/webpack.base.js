@@ -370,7 +370,6 @@ module.exports.buildConfig = function buildConfig(params) {
               warnings: false,
               runtimeErrors: false,
             },
-            logging: "verbose",
           },
         };
 
