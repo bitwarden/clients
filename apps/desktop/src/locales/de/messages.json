@@ -4135,7 +4135,7 @@
   "enableAutotypeShortcutPreview": {
     "message": "Autotype-Tastaturkürzel aktivieren (Funktionsvorschau)"
   },
-  "enableAutotypeDescriptionTransitionKey": {
+  "enableAutotypeShortcutDescription": {
     "message": "Stell sicher, dass du dich im richtigen Feld befindest, bevor du das Tastaturkürzel benutzt, um zu vermeiden, dass Daten an der falschen Stelle ausgefüllt werden."
   },
   "editShortcut": {
