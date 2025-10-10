@@ -10,15 +10,15 @@ module.exports = (webpackConfig, context) => {
       renderer: {
         entry: path.resolve(__dirname, "src/app/main.ts"),
         entryModule: "src/app/app.module#AppModule",
-        tsConfig: "apps/desktop/tsconfig.renderer.json",
+        tsConfig: path.resolve(context.context.root, "apps/desktop/tsconfig.renderer.json"),
       },
       main: {
         entry: path.resolve(__dirname, "src/entry.ts"),
-        tsConfig: "apps/desktop/tsconfig.json",
+        tsConfig: path.resolve(context.context.root, "apps/desktop/tsconfig.json"),
       },
       preload: {
         entry: path.resolve(__dirname, "src/preload.ts"),
-        tsConfig: "apps/desktop/tsconfig.json",
+        tsConfig: path.resolve(context.context.root, "apps/desktop/tsconfig.json"),
       },
       outputPath: path.resolve(context.context.root, context.options.outputPath),
     });
@@ -26,17 +26,17 @@ module.exports = (webpackConfig, context) => {
     return buildConfig({
       configName: "OSS",
       renderer: {
-        entry: "./src/app/main.ts",
+        entry: path.resolve(__dirname, "src/app/main.ts"),
         entryModule: "src/app/app.module#AppModule",
-        tsConfig: "./tsconfig.renderer.json",
+        tsConfig: path.resolve(__dirname, "tsconfig.renderer.json"),
       },
       main: {
-        entry: "./src/entry.ts",
-        tsConfig: "./tsconfig.json",
+        entry: path.resolve(__dirname, "src/entry.ts"),
+        tsConfig: path.resolve(__dirname, "tsconfig.json"),
       },
       preload: {
-        entry: "./src/preload.ts",
-        tsConfig: "./tsconfig.json",
+        entry: path.resolve(__dirname, "src/preload.ts"),
+        tsConfig: path.resolve(__dirname, "tsconfig.json"),
       },
     });
   }

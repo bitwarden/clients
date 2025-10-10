@@ -8,7 +8,7 @@ const { AngularWebpackPlugin } = require("@ngtools/webpack");
 const TerserPlugin = require("terser-webpack-plugin");
 const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
 const { EnvironmentPlugin, DefinePlugin } = require("webpack");
-const configurator = require("./config/config");
+const configurator = require(path.resolve(__dirname, "config/config"));
 
 module.exports.getEnv = function getEnv() {
   const NODE_ENV = process.env.NODE_ENV == null ? "development" : process.env.NODE_ENV;
@@ -105,9 +105,9 @@ module.exports.buildConfig = function buildConfig(params) {
     plugins: [
       new CopyWebpackPlugin({
         patterns: [
-          "./src/package.json",
-          { from: "./src/images", to: "images" },
-          { from: "./src/locales", to: "locales" },
+          path.resolve(__dirname, "src/package.json"),
+          { from: path.resolve(__dirname, "src/images"), to: "images" },
+          { from: path.resolve(__dirname, "src/locales"), to: "locales" },
         ],
       }),
       new DefinePlugin({
@@ -209,7 +209,7 @@ module.exports.buildConfig = function buildConfig(params) {
             {
               loader: "babel-loader",
               options: {
-                configFile: "../../babel.config.json",
+                configFile: path.resolve(__dirname, "../../babel.config.json"),
               },
             },
           ],
@@ -302,7 +302,7 @@ module.exports.buildConfig = function buildConfig(params) {
         path.resolve(__dirname, "./src"),
       ),
       new HtmlWebpackPlugin({
-        template: "./src/index.html",
+        template: path.resolve(__dirname, "src/index.html"),
         filename: "index.html",
         chunks: ["app/vendor", "app/main"],
       }),

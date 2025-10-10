@@ -1,0 +1,77 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "desktop",
+  "projectType": "application",
+  "sourceRoot": "apps/desktop/src",
+  "tags": ["scope:desktop", "type:app"],
+  "targets": {
+    "build-native": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "cd desktop_native && node build.js",
+        "cwd": "apps/desktop"
+      }
+    },
+    "build-webpack": {
+      "executor": "@nx/webpack:webpack",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/apps/desktop",
+        "webpackConfig": "apps/desktop/webpack.config.js",
+        "tsConfig": "apps/desktop/tsconfig.json",
+        "main": "apps/desktop/src/entry.ts"
+      },
+      "configurations": {
+        "development": {
+          "mode": "development"
+        },
+        "production": {
+          "mode": "production"
+        }
+      }
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["build-native"],
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "parallel": false,
+        "commands": ["nx run desktop:build-webpack"],
+        "outputPath": "dist/apps/desktop"
+      },
+      "configurations": {
+        "development": {
+          "commands": ["nx run desktop:build-webpack --configuration=development"]
+        },
+        "production": {
+          "commands": ["nx run desktop:build-webpack --configuration=production"]
+        }
+      }
+    },
+    "serve": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["build-native"],
+      "options": {
+        "parallel": true,
+        "commands": [
+          "nx run desktop:build-webpack --watch --configuration=development",
+          "wait-on dist/apps/desktop/main.js && electron dist/apps/desktop --inspect=5858"
+        ]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/apps/desktop"],
+      "options": {
+        "jestConfig": "apps/desktop/jest.config.js"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/desktop/**/*.ts", "apps/desktop/**/*.html"]
+      }
+    }
+  }
+}
