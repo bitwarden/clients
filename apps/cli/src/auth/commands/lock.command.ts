@@ -1,15 +1,20 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { VaultTimeoutService } from "@bitwarden/common/key-management/vault-timeout";
+import { firstValueFrom } from "rxjs";
+
+import { LockService } from "@bitwarden/auth/common";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 
 import { Response } from "../../models/response";
 import { MessageResponse } from "../../models/response/message.response";
 
 export class LockCommand {
-  constructor(private vaultTimeoutService: VaultTimeoutService) {}
+  constructor(
+    private lockService: LockService,
+    private accountService: AccountService,
+  ) {}
 
   async run() {
-    await this.vaultTimeoutService.lock();
+    const activeAccountId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
+    await this.lockService.lock(activeAccountId);
     process.env.BW_SESSION = null;
     const res = new MessageResponse("Your vault is locked.", null);
     return Response.success(res);

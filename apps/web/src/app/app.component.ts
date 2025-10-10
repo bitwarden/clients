@@ -8,6 +8,7 @@ import { Subject, filter, firstValueFrom, map, timeout } from "rxjs";
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { DeviceTrustToastService } from "@bitwarden/angular/auth/services/device-trust-toast.service.abstraction";
 import { DocumentLangSetter } from "@bitwarden/angular/platform/i18n";
+import { LockService } from "@bitwarden/auth/common";
 import { EventUploadService } from "@bitwarden/common/abstractions/event/event-upload.service";
 import { InternalOrganizationServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -74,6 +75,7 @@ export class AppComponent implements OnDestroy, OnInit {
     private readonly destroy: DestroyRef,
     private readonly documentLangSetter: DocumentLangSetter,
     private readonly tokenService: TokenService,
+    private readonly lockService: LockService,
   ) {
     this.deviceTrustToastService.setupListeners$.pipe(takeUntilDestroyed()).subscribe();
 
@@ -111,12 +113,11 @@ export class AppComponent implements OnDestroy, OnInit {
             // note: the message.logoutReason isn't consumed anymore because of the process reload clearing any toasts.
             await this.logOut(message.redirect);
             break;
-          case "lockVault":
-            await this.vaultTimeoutService.lock();
+          case "lockVault": {
+            const activeUserId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
+            await this.lockService.lock(activeUserId);
             break;
-          case "locked":
-            await this.processReloadService.startProcessReload();
-            break;
+          }
           case "lockedUrl":
             break;
           case "syncStarted":
