@@ -12,10 +12,8 @@ import { ServerConfig } from "../platform/abstractions/config/server-config";
 export enum FeatureFlag {
   /* Admin Console Team */
   CreateDefaultLocation = "pm-19467-create-default-location",
-  CollectionVaultRefactor = "pm-25030-resolve-ts-upgrade-errors",
 
   /* Auth */
-  PM14938_BrowserExtensionLoginApproval = "pm-14938-browser-extension-login-approvals",
   PM22110_DisableAlternateLoginMethods = "pm-22110-disable-alternate-login-methods",
 
   /* Autofill */
@@ -25,9 +23,9 @@ export enum FeatureFlag {
   /* Billing */
   TrialPaymentOptional = "PM-8163-trial-payment",
   PM17772_AdminInitiatedSponsorships = "pm-17772-admin-initiated-sponsorships",
-  PM21881_ManagePaymentDetailsOutsideCheckout = "pm-21881-manage-payment-details-outside-checkout",
   PM21821_ProviderPortalTakeover = "pm-21821-provider-portal-takeover",
   PM22415_TaxIDWarnings = "pm-22415-tax-id-warnings",
+  PM24996_ImplementUpgradeFromFreeDialog = "pm-24996-implement-upgrade-from-free-dialog",
 
   /* Key Management */
   PrivateKeyRegeneration = "pm-12241-private-key-regeneration",
@@ -37,7 +35,6 @@ export enum FeatureFlag {
   /* Tools */
   DesktopSendUIRefresh = "desktop-send-ui-refresh",
   UseSdkPasswordGenerators = "pm-19976-use-sdk-password-generators",
-  UseChromiumImporter = "pm-23982-chromium-importer",
 
   /* DIRT */
   EventBasedOrganizationIntegrations = "event-based-organization-integrations",
@@ -75,7 +72,6 @@ const FALSE = false as boolean;
 export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
   [FeatureFlag.CreateDefaultLocation]: FALSE,
-  [FeatureFlag.CollectionVaultRefactor]: FALSE,
 
   /* Autofill */
   [FeatureFlag.MacOsNativeCredentialSync]: FALSE,
@@ -84,7 +80,6 @@ export const DefaultFeatureFlagValue = {
   /* Tools */
   [FeatureFlag.DesktopSendUIRefresh]: FALSE,
   [FeatureFlag.UseSdkPasswordGenerators]: FALSE,
-  [FeatureFlag.UseChromiumImporter]: FALSE,
 
   /* DIRT */
   [FeatureFlag.EventBasedOrganizationIntegrations]: FALSE,
@@ -98,15 +93,14 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM22136_SdkCipherEncryption]: FALSE,
 
   /* Auth */
-  [FeatureFlag.PM14938_BrowserExtensionLoginApproval]: FALSE,
   [FeatureFlag.PM22110_DisableAlternateLoginMethods]: FALSE,
 
   /* Billing */
   [FeatureFlag.TrialPaymentOptional]: FALSE,
   [FeatureFlag.PM17772_AdminInitiatedSponsorships]: FALSE,
-  [FeatureFlag.PM21881_ManagePaymentDetailsOutsideCheckout]: FALSE,
   [FeatureFlag.PM21821_ProviderPortalTakeover]: FALSE,
   [FeatureFlag.PM22415_TaxIDWarnings]: FALSE,
+  [FeatureFlag.PM24996_ImplementUpgradeFromFreeDialog]: FALSE,
 
   /* Key Management */
   [FeatureFlag.PrivateKeyRegeneration]: FALSE,

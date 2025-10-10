@@ -87,7 +87,7 @@ export class ProductSwitcherService {
       startWith(null), // Start with a null event to trigger the initial combineLatest
       filter((e) => e instanceof NavigationEnd || e instanceof NavigationStart || e === null),
     ),
-  ]).pipe(map(() => null));
+  ]).pipe(map((): any => null));
 
   constructor(
     private organizationService: OrganizationService,

@@ -73,6 +73,8 @@ import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-
 import { MasterPasswordService } from "@bitwarden/common/key-management/master-password/services/master-password.service";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { PinService } from "@bitwarden/common/key-management/pin/pin.service.implementation";
+import { SecurityStateService } from "@bitwarden/common/key-management/security-state/abstractions/security-state.service";
+import { DefaultSecurityStateService } from "@bitwarden/common/key-management/security-state/services/security-state.service";
 import {
   DefaultVaultTimeoutService,
   DefaultVaultTimeoutSettingsService,
@@ -125,6 +127,7 @@ import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.s
 import { SendStateProvider } from "@bitwarden/common/tools/send/services/send-state.provider";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service";
 import { UserId } from "@bitwarden/common/types/guid";
+import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherEncryptionService } from "@bitwarden/common/vault/abstractions/cipher-encryption.service";
 import { InternalFolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import {
@@ -132,6 +135,7 @@ import {
   DefaultCipherAuthorizationService,
 } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { CipherService } from "@bitwarden/common/vault/services/cipher.service";
+import { DefaultCipherArchiveService } from "@bitwarden/common/vault/services/default-cipher-archive.service";
 import { DefaultCipherEncryptionService } from "@bitwarden/common/vault/services/default-cipher-encryption.service";
 import { CipherFileUploadService } from "@bitwarden/common/vault/services/file-upload/cipher-file-upload.service";
 import { FolderApiService } from "@bitwarden/common/vault/services/folder/folder-api.service";
@@ -303,6 +307,8 @@ export class ServiceContainer {
   cipherEncryptionService: CipherEncryptionService;
   restrictedItemTypesService: RestrictedItemTypesService;
   cliRestrictedItemTypesService: CliRestrictedItemTypesService;
+  securityStateService: SecurityStateService;
+  cipherArchiveService: CipherArchiveService;
 
   constructor() {
     let p = null;
@@ -402,6 +408,8 @@ export class ServiceContainer {
       this.globalStateProvider,
       this.derivedStateProvider,
     );
+
+    this.securityStateService = new DefaultSecurityStateService(this.stateProvider);
 
     this.environmentService = new DefaultEnvironmentService(
       this.stateProvider,
@@ -609,6 +617,8 @@ export class ServiceContainer {
       this.accountService,
       this.kdfConfigService,
       this.keyService,
+      this.securityStateService,
+      this.apiService,
       this.stateProvider,
       this.configService,
       customUserAgent,
@@ -730,6 +740,13 @@ export class ServiceContainer {
       this.messagingService,
     );
 
+    this.cipherArchiveService = new DefaultCipherArchiveService(
+      this.cipherService,
+      this.apiService,
+      this.billingAccountProfileStateService,
+      this.configService,
+    );
+
     this.folderService = new FolderService(
       this.keyService,
       this.encryptService,
@@ -807,6 +824,7 @@ export class ServiceContainer {
       this.tokenService,
       this.authService,
       this.stateProvider,
+      this.securityStateService,
     );
 
     this.totpService = new TotpService(this.sdkService);

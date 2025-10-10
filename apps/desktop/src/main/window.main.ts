@@ -500,9 +500,9 @@ export class WindowMain {
         displayBounds.x !== state.displayBounds.x ||
         displayBounds.y !== state.displayBounds.y
       ) {
-        state.x = undefined;
-        state.y = undefined;
         displayBounds = screen.getPrimaryDisplay().bounds;
+        state.x = displayBounds.x + displayBounds.width / 2 - state.width / 2;
+        state.y = displayBounds.y + displayBounds.height / 2 - state.height / 2;
       }
     }
 
