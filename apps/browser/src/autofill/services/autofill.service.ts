@@ -400,7 +400,7 @@ export default class AutofillService implements AutofillServiceInterface {
    * Gets the default URI match strategy setting from the domain settings service.
    */
   async getDefaultUriMatchStrategy(): Promise<UriMatchStrategySetting> {
-    return await firstValueFrom(this.domainSettingsService.defaultUriMatchStrategy$);
+    return await firstValueFrom(this.domainSettingsService.resolvedDefaultUriMatchStrategy$);
   }
 
   /**

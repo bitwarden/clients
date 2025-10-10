@@ -1,4 +1,7 @@
+import { mock } from "jest-mock-extended";
 import { firstValueFrom, of } from "rxjs";
+
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 
 import { FakeStateProvider, FakeAccountService, mockAccountServiceWith } from "../../../spec";
 import { Utils } from "../../platform/misc/utils";
@@ -10,6 +13,7 @@ describe("DefaultDomainSettingsService", () => {
   let domainSettingsService: DomainSettingsService;
   const mockUserId = Utils.newGuid() as UserId;
   const accountService: FakeAccountService = mockAccountServiceWith(mockUserId);
+  const policyService = mock<PolicyService>();
   const fakeStateProvider: FakeStateProvider = new FakeStateProvider(accountService);
 
   const mockEquivalentDomains = [
@@ -19,7 +23,11 @@ describe("DefaultDomainSettingsService", () => {
   ];
 
   beforeEach(() => {
-    domainSettingsService = new DefaultDomainSettingsService(fakeStateProvider);
+    domainSettingsService = new DefaultDomainSettingsService(
+      fakeStateProvider,
+      policyService,
+      accountService,
+    );
 
     jest.spyOn(domainSettingsService, "getUrlEquivalentDomains");
     domainSettingsService.equivalentDomains$ = of(mockEquivalentDomains);
