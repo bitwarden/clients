@@ -17,6 +17,10 @@ module.exports.getEnv = function getEnv() {
   return { NODE_ENV, ENV };
 };
 
+const DEFAULT_PARAMS = {
+  outputPath: path.resolve(__dirname, "build"),
+};
+
 /**
  * @param {{
  *  configName: string;
@@ -33,9 +37,11 @@ module.exports.getEnv = function getEnv() {
  *    entry: string;
  *    tsConfig: string;
  *  };
+ *  outputPath?: string;
  * }} params
  */
 module.exports.buildConfig = function buildConfig(params) {
+  params = { ...DEFAULT_PARAMS, ...params };
   const { NODE_ENV, ENV } = module.exports.getEnv();
 
   console.log(`Building ${params.configName} Desktop App`);
@@ -47,13 +53,16 @@ module.exports.buildConfig = function buildConfig(params) {
     resolve: {
       extensions: [".tsx", ".ts", ".js"],
       symlinks: false,
-      modules: [path.resolve("../../node_modules")],
+      modules: [
+        path.resolve(__dirname, "../../node_modules"),
+        path.resolve(process.cwd(), "node_modules"),
+      ],
     },
   };
 
   const getOutputConfig = (isDev) => ({
     filename: "[name].js",
-    path: path.resolve(__dirname, "build"),
+    path: params.outputPath,
     ...(isDev && { devtoolModuleFilenameTemplate: "[absolute-resource-path]" }),
   });
 
@@ -164,7 +173,7 @@ module.exports.buildConfig = function buildConfig(params) {
     },
     output: {
       filename: "[name].js",
-      path: path.resolve(__dirname, "build"),
+      path: params.outputPath,
     },
     optimization: {
       minimizer: [
