@@ -35,7 +35,7 @@ interface NotificationQueueMessage {
 }
 
 type ChangePasswordNotificationData = {
-  cipherId: CipherView["id"];
+  cipherIds: CipherView["id"][];
   newPassword: string;
 };
 

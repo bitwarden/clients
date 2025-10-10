@@ -576,7 +576,7 @@
     "message": "复制验证码 (TOTP)"
   },
   "copyFieldCipherName": {
-    "message": "复制 $CIPHERNAME$ 的 $FIELD$",
+    "message": "复制 $CIPHERNAME$ 中的 $FIELD$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
@@ -1042,7 +1042,7 @@
     "message": "身份验证超时"
   },
   "authenticationSessionTimedOut": {
-    "message": "身份验证会话超时。请重新启动登录过程。"
+    "message": "身份验证会话超时。请重新开始登录过程。"
   },
   "selfHostBaseUrl": {
     "message": "自托管服务器 URL",
@@ -1221,6 +1221,15 @@
   },
   "invalidMasterPassword": {
     "message": "无效的主密码"
+  },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "无效的主密码。请确认您的电子邮箱正确无误，以及您的账户是在 $HOST$ 上创建的。",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
   },
   "twoStepLoginConfirmation": {
     "message": "两步登录要求您从其他设备（例如安全密钥、验证器 App、短信、电话或者电子邮件）来验证您的登录，这能使您的账户更加安全。两步登录需要在 bitwarden.com 网页版密码库中设置。现在访问此网站吗？"
@@ -2654,6 +2663,24 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "仅会导出与 $ORGANIZATION$ 关联的组织密码库。",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "仅会导出与 $ORGANIZATION$ 关联的组织密码库，不包括我的项目集合。",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "locked": {
     "message": "已锁定"
   },
@@ -4080,11 +4107,17 @@
   "showLess": {
     "message": "显示更少"
   },
-  "enableAutotype": {
-    "message": "启用自动输入"
-  },
   "enableAutotypeDescription": {
     "message": "Bitwarden 不会验证输入位置，在使用快捷键之前，请确保您位于正确的窗口和字段中。"
+  },
+  "typeShortcut": {
+    "message": "输入快捷键"
+  },
+  "editAutotypeShortcutDescription": {
+    "message": "包含以下一个或两个修饰符：Ctrl、Alt、Win 或 Shift，外加一个字母。"
+  },
+  "invalidShortcut": {
+    "message": "无效的快捷键"
   },
   "moreBreadcrumbs": {
     "message": "更多导航项",
@@ -4099,17 +4132,22 @@
   "confirm": {
     "message": "确认"
   },
-  "enableAutotypeTransitionKey": {
-    "message": "启用自动输入快捷键"
+  "enableAutotypeShortcutPreview": {
+    "message": "启用自动输入快捷键（功能预览）"
   },
-  "enableAutotypeDescriptionTransitionKey": {
+  "enableAutotypeShortcutDescription": {
     "message": "在使用快捷键之前，请确保您位于正确的字段中，以避免将数据填入错误的地方。"
   },
   "editShortcut": {
     "message": "编辑快捷键"
   },
-  "archive": {
-    "message": "归档"
+  "archiveNoun": {
+    "message": "归档",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "归档",
+    "description": "Verb"
   },
   "unarchive": {
     "message": "取消归档"

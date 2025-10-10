@@ -11,6 +11,7 @@ Thumbs.db
 .settings/
 *.sublime-workspace
 .claude
+.serena
 
 # Visual Studio Code
 .vscode/*
