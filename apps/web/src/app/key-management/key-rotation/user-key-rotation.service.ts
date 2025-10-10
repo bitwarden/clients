@@ -1,6 +1,7 @@
 import { Injectable } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
+import { LogoutService } from "@bitwarden/auth/common";
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
@@ -8,7 +9,6 @@ import { EncryptService } from "@bitwarden/common/key-management/crypto/abstract
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { firstValueFromOrThrow } from "@bitwarden/common/key-management/utils";
-import { VaultTimeoutService } from "@bitwarden/common/key-management/vault-timeout";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -63,7 +63,7 @@ export class UserKeyRotationService {
     private syncService: SyncService,
     private webauthnLoginAdminService: WebauthnLoginAdminService,
     private logService: LogService,
-    private vaultTimeoutService: VaultTimeoutService,
+    private logoutService: LogoutService,
     private toastService: ToastService,
     private i18nService: I18nService,
     private dialogService: DialogService,
@@ -181,8 +181,7 @@ export class UserKeyRotationService {
       timeout: 15000,
     });
 
-    // temporary until userkey can be better verified
-    await this.vaultTimeoutService.logOut();
+    await this.logoutService.logout(user.id);
   }
 
   protected async ensureIsAllowedToRotateUserKey(): Promise<void> {

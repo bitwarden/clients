@@ -13,8 +13,4 @@ export class ForegroundVaultTimeoutService implements BaseVaultTimeoutService {
   async lock(userId?: UserId): Promise<void> {
     this.messagingService.send("lockVault", { userId });
   }
-
-  async logOut(userId?: string): Promise<void> {
-    this.messagingService.send("logout", { userId });
-  }
 }
