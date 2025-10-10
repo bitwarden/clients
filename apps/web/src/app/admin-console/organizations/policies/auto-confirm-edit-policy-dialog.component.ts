@@ -29,6 +29,7 @@ import { KeyService } from "@bitwarden/key-management";
 
 import { SharedModule } from "../../../shared";
 
+import { AutoConfirmPolicyEditComponent } from "./policy-edit-definitions/auto-confirm-policy.component";
 import {
   SingleOrgPolicy,
   SingleOrgPolicyComponent,
@@ -40,7 +41,7 @@ import {
 } from "./policy-edit-dialog.component";
 
 export type MultiStepSubmit = {
-  sideEffect: () => any | undefined;
+  sideEffect: () => Promise<void>;
   content: Signal<TemplateRef<any> | undefined>;
 };
 
@@ -62,6 +63,8 @@ export class AutoConfirmPolicyDialogComponent
   implements AfterViewInit
 {
   policyType = PolicyType;
+
+  override policyComponent: AutoConfirmPolicyEditComponent;
 
   protected firstTimeDialog: boolean;
   protected currentStep: number = 0;
@@ -98,6 +101,7 @@ export class AutoConfirmPolicyDialogComponent
     );
 
     this.firstTimeDialog = data.firstTimeDialog ?? false;
+    this.policyComponent = new AutoConfirmPolicyEditComponent();
   }
 
   /**
@@ -112,38 +116,35 @@ export class AutoConfirmPolicyDialogComponent
       map((policies) => policies.find((p) => p.type === PolicyType.SingleOrg && p.enabled)),
       map((singleOrgPolicy) => [
         {
-          sideEffect: async () => {
-            await this.handleSubmit(singleOrgPolicy?.enabled ?? false);
-          },
+          sideEffect: () => this.handleSubmit(singleOrgPolicy?.enabled ?? false),
           content: this.submitPolicy,
         },
         {
-          sideEffect: async () => this.openBrowserExtension(),
+          sideEffect: () => this.openBrowserExtension(),
           content: this.openExtension,
         },
       ]),
     );
   }
 
-  private async handleSubmit(enabled: boolean): Promise<void> {
+  private async handleSubmit(enabled: boolean) {
     if (!enabled) {
       await this.submitSingleOrg();
     }
     await this.submitAutoConfirm();
   }
 
-  private async openBrowserExtension() {
-    await this.router.navigate(["/browser-extension-prompt"], {
-      queryParams: { autoConfirm: true },
-    });
-  }
-
-  private async submitAutoConfirm(): Promise<void> {
+  /**
+   *  Triggers policy submission for auto confirm.
+   *  @returns boolean: true if multi-submit workflow should continue, false otherwise.
+   */
+  private async submitAutoConfirm() {
     if (!this.policyComponent) {
       throw new Error("PolicyComponent not initialized.");
     }
 
     const autoConfirmRequest = await this.policyComponent.buildRequest();
+
     await this.policyApiService.putPolicy(
       this.data.organizationId,
       this.data.policy.type,
@@ -154,18 +155,29 @@ export class AutoConfirmPolicyDialogComponent
       variant: "success",
       message: this.i18nService.t("editedPolicyId", this.i18nService.t(this.data.policy.name)),
     });
+
+    if (!this.policyComponent.enabled.value) {
+      this.dialogRef.close("saved");
+    }
   }
 
-  private async submitSingleOrg(): Promise<void> {
+  private async submitSingleOrg() {
     const singleOrg = new SingleOrgPolicyComponent();
     singleOrg.policy = new SingleOrgPolicy();
     const singleOrgRequest = await singleOrg.buildRequest();
     singleOrgRequest.enabled = true;
+
     await this.policyApiService.putPolicy(
       this.data.organizationId,
       PolicyType.SingleOrg,
       singleOrgRequest,
     );
+  }
+
+  private async openBrowserExtension() {
+    await this.router.navigate(["/browser-extension-prompt"], {
+      queryParams: { autoConfirm: true },
+    });
   }
 
   submit = async () => {
@@ -186,6 +198,8 @@ export class AutoConfirmPolicyDialogComponent
         this.dialogRef.close("saved");
         return;
       }
+
+      this.policyComponent.setStep(++this.currentStep);
     } catch (error: any) {
       this.toastService.showToast({
         variant: "error",

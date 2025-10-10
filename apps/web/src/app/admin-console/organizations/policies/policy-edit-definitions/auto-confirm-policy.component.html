@@ -1,0 +1,50 @@
+<ng-container [ngTemplateOutlet]="steps[step]()"></ng-container>
+
+<ng-template #step0>
+  <p>
+    {{ "autoConfirmPolicyEditDescription" | i18n }}
+  </p>
+
+  <ul>
+    <li>
+      <span class="tw-font-bold">
+        {{ "autoConfirmAcceptSecurityRiskTitle" | i18n }}
+      </span>
+      {{ "autoConfirmAcceptSecurityRiskDescription" | i18n }}
+      <a
+        bitLink
+        href="https://bitwarden.com/resources/credential-lifecycle-management/"
+        target="_blank"
+      >
+        {{ "autoConfirmAcceptSecurityRiskLearnMore" | i18n }}
+        <i class="bwi bwi-external-link bwi-fw"></i>
+      </a>
+    </li>
+
+    <li>
+      @if (singleOrgEnabled$ | async) {
+        <span class="tw-font-bold">
+          {{ "autoConfirmSingleOrgExemption" | i18n }}
+        </span>
+        {{ "autoConfirmSingleOrgExemptionDescription" | i18n }}
+      } @else {
+        <span class="tw-font-bold">
+          {{ "autoConfirmSingleOrgRequired" | i18n }}
+        </span>
+        {{ "autoConfirmSingleOrgRequiredDescription" | i18n }}
+      }
+    </li>
+
+    <li>
+      <span class="tw-font-bold">
+        {{ "autoConfirmNoEmergencyAccess" | i18n }}
+      </span>
+      {{ "autoConfirmNoEmergencyAccessDescription" | i18n }}
+    </li>
+  </ul>
+
+  <input type="checkbox" bitCheckbox [formControl]="enabled" id="enabled" />
+  <bit-label>{{ "autoConfirmCheckBoxLabel" | i18n }}</bit-label>
+</ng-template>
+
+<ng-template #step1> </ng-template>
