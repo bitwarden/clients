@@ -3,14 +3,13 @@ import { Router, UrlTree } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { firstValueFrom, NEVER } from "rxjs";
 
+import { LOG_PROVIDER } from "@bitwarden/angular/services/injection-tokens";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { mockAccountServiceWith, FakeStateProvider } from "@bitwarden/common/spec";
-import { SemanticLogger } from "@bitwarden/common/tools/log";
-import { SystemServiceProvider } from "@bitwarden/common/tools/providers";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { UserId } from "@bitwarden/common/types/guid";
-import { SYSTEM_SERVICE_PROVIDER } from "@bitwarden/generator-components";
+import { LogProvider, SemanticLogger } from "@bitwarden/logging";
 
 import { DefaultSendAccessService } from "./default-send-access-service";
 import { SEND_RESPONSE_KEY, SEND_CONTEXT_KEY } from "./send-access-memory";
@@ -21,7 +20,7 @@ describe("DefaultSendAccessService", () => {
   let sendApiService: MockProxy<SendApiService>;
   let router: MockProxy<Router>;
   let logger: MockProxy<SemanticLogger>;
-  let systemServiceProvider: MockProxy<SystemServiceProvider>;
+  let logProvider: LogProvider;
 
   beforeEach(() => {
     const accountService = mockAccountServiceWith("user-id" as UserId);
@@ -29,9 +28,7 @@ describe("DefaultSendAccessService", () => {
     sendApiService = mock<SendApiService>();
     router = mock<Router>();
     logger = mock<SemanticLogger>();
-    systemServiceProvider = mock<SystemServiceProvider>();
-
-    systemServiceProvider.log.mockReturnValue(logger);
+    logProvider = jest.fn().mockReturnValue(logger) as any;
 
     TestBed.configureTestingModule({
       providers: [
@@ -39,7 +36,7 @@ describe("DefaultSendAccessService", () => {
         { provide: StateProvider, useValue: stateProvider },
         { provide: SendApiService, useValue: sendApiService },
         { provide: Router, useValue: router },
-        { provide: SYSTEM_SERVICE_PROVIDER, useValue: systemServiceProvider },
+        { provide: LOG_PROVIDER, useValue: logProvider },
       ],
     });
 
@@ -48,7 +45,7 @@ describe("DefaultSendAccessService", () => {
 
   describe("constructor", () => {
     it("creates logger with type 'SendAccessAuthenticationService' when initialized", () => {
-      expect(systemServiceProvider.log).toHaveBeenCalledWith({
+      expect(logProvider).toHaveBeenCalledWith({
         type: "SendAccessAuthenticationService",
       });
     });

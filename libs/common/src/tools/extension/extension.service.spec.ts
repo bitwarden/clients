@@ -1,13 +1,14 @@
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, firstValueFrom } from "rxjs";
 
+import { disabledSemanticLoggerProvider } from "@bitwarden/logging";
+
 import { FakeAccountService, FakeStateProvider, awaitAsync } from "../../../spec";
 import { Account } from "../../auth/abstractions/account.service";
 import { EXTENSION_DISK, UserKeyDefinition } from "../../platform/state";
 import { UserId } from "../../types/guid";
 import { LegacyEncryptorProvider } from "../cryptography/legacy-encryptor-provider";
 import { UserEncryptor } from "../cryptography/user-encryptor.abstraction";
-import { disabledSemanticLoggerProvider } from "../log";
 import { UserStateSubjectDependencyProvider } from "../state/user-state-subject-dependency-provider";
 
 import { Site } from "./data";

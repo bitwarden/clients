@@ -16,15 +16,15 @@ import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import {
-  SemanticLogger,
-  disabledSemanticLoggerProvider,
-  ifEnabledSemanticLoggerProvider,
-} from "@bitwarden/common/tools/log";
-import {
   CredentialGeneratorService,
   PassphraseGenerationOptions,
   BuiltIn,
 } from "@bitwarden/generator-core";
+import {
+  disabledSemanticLoggerProvider,
+  ifEnabledSemanticLoggerProvider,
+  SemanticLogger,
+} from "@bitwarden/logging";
 
 const Controls = Object.freeze({
   numWords: "numWords",

@@ -1,5 +1,7 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
+import { disabledSemanticLoggerProvider } from "@bitwarden/logging";
+
 import { PolicyService } from "../admin-console/abstractions/policy/policy.service.abstraction";
 import { ConfigService } from "../platform/abstractions/config/config.service";
 import { LogService } from "../platform/abstractions/log.service";
@@ -9,7 +11,6 @@ import { StateProvider } from "../platform/state";
 import { LegacyEncryptorProvider } from "./cryptography/legacy-encryptor-provider";
 import { ExtensionRegistry } from "./extension/extension-registry.abstraction";
 import { ExtensionService } from "./extension/extension.service";
-import { disabledSemanticLoggerProvider } from "./log";
 import { createSystemServiceProvider } from "./providers";
 
 describe("SystemServiceProvider", () => {

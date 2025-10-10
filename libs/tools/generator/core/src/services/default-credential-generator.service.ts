@@ -18,10 +18,10 @@ import {
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { BoundDependency, OnDependency } from "@bitwarden/common/tools/dependencies";
 import { VendorId } from "@bitwarden/common/tools/extension";
-import { SemanticLogger } from "@bitwarden/common/tools/log";
-import { SystemServiceProvider } from "@bitwarden/common/tools/providers";
+import { ExtensionService } from "@bitwarden/common/tools/extension/extension.service";
 import { anyComplete, memoizedMap } from "@bitwarden/common/tools/rx";
 import { UserStateSubject } from "@bitwarden/common/tools/state/user-state-subject";
+import { LogProvider, SemanticLogger } from "@bitwarden/logging";
 
 import { CredentialGeneratorService } from "../abstractions";
 import {
@@ -43,13 +43,15 @@ const THREE_MINUTES = 3 * 60 * 1000;
 export class DefaultCredentialGeneratorService implements CredentialGeneratorService {
   /** Instantiate the `DefaultCredentialGeneratorService`.
    *  @param provide application services required by the credential generator.
-   *  @param system low-level services required by the credential generator.
+   *  @param extension service for managing forwarder extensions.
+   *  @param log factory for creating semantic loggers.
    */
   constructor(
     private readonly provide: CredentialGeneratorProviders,
-    private readonly system: SystemServiceProvider,
+    private readonly extension: ExtensionService,
+    log: LogProvider,
   ) {
-    this.log = system.log({ type: "DefaultCredentialGeneratorService" });
+    this.log = log({ type: "DefaultCredentialGeneratorService" });
   }
 
   private readonly log: SemanticLogger;
@@ -192,7 +194,7 @@ export class DefaultCredentialGeneratorService implements CredentialGeneratorSer
       }
 
       this.log.info({ profile, vendor, site: activeProfile.site }, "loading extension profile");
-      settings = this.system.extension.settings(activeProfile, vendor, dependencies);
+      settings = this.extension.settings(activeProfile, vendor, dependencies);
     } else {
       this.log.info({ profile, algorithm: metadata.id }, "loading generator profile");
       settings = this.provide.profile.settings(activeProfile, dependencies);

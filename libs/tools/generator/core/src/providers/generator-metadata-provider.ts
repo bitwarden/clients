@@ -1,14 +1,15 @@
 import { Observable, distinctUntilChanged, map, shareReplay, switchMap, takeUntil } from "rxjs";
 
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { BoundDependency } from "@bitwarden/common/tools/dependencies";
 import { ExtensionSite } from "@bitwarden/common/tools/extension";
-import { SemanticLogger } from "@bitwarden/common/tools/log";
-import { SystemServiceProvider } from "@bitwarden/common/tools/providers";
+import { ExtensionService } from "@bitwarden/common/tools/extension/extension.service";
 import { anyComplete, memoizedMap, pin } from "@bitwarden/common/tools/rx";
 import { UserStateSubject } from "@bitwarden/common/tools/state/user-state-subject";
 import { UserStateSubjectDependencyProvider } from "@bitwarden/common/tools/state/user-state-subject-dependency-provider";
+import { SemanticLogger } from "@bitwarden/logging";
 
 import {
   GeneratorMetadata,
@@ -37,16 +38,18 @@ import { PREFERENCES } from "./credential-preferences";
 export class GeneratorMetadataProvider {
   /** Instantiates the context provider
    *  @param system dependency providers for user state subjects
-   *  @param application dependency providers for system services
+   *  @param policy dependency for policy service
+   *  @param extension dependency for extension service
    */
   constructor(
     private readonly system: UserStateSubjectDependencyProvider,
-    private readonly application: SystemServiceProvider,
+    private readonly policy: PolicyService,
+    private readonly extension: ExtensionService,
     algorithms: ReadonlyArray<GeneratorMetadata<object>>,
   ) {
     this.log = system.log({ type: "GeneratorMetadataProvider" });
 
-    const site = application.extension.site("forwarder");
+    const site = extension.site("forwarder");
     if (!site) {
       this.log.panic("forwarder extension site not found");
     }
@@ -137,21 +140,19 @@ export class GeneratorMetadataProvider {
 
     const available$ = id$.pipe(
       switchMap((id) => {
-        const policies$ = this.application.policy
-          .policiesByType$(PolicyType.PasswordGenerator, id)
-          .pipe(
-            map((p) =>
-              availableAlgorithms(p)
-                .filter((a) => this._metadata.has(a))
-                .sort(),
-            ),
-            // interning the set transformation lets `distinctUntilChanged()` eliminate
-            // repeating policy emissions using reference equality
-            memoizedMap((a) => new Set(a), { key: (a) => a.join(":") }),
-            distinctUntilChanged(),
-            // complete policy emissions otherwise `switchMap` holds `available$` open indefinitely
-            takeUntil(anyComplete(id$)),
-          );
+        const policies$ = this.policy.policiesByType$(PolicyType.PasswordGenerator, id).pipe(
+          map((p) =>
+            availableAlgorithms(p)
+              .filter((a) => this._metadata.has(a))
+              .sort(),
+          ),
+          // interning the set transformation lets `distinctUntilChanged()` eliminate
+          // repeating policy emissions using reference equality
+          memoizedMap((a) => new Set(a), { key: (a) => a.join(":") }),
+          distinctUntilChanged(),
+          // complete policy emissions otherwise `switchMap` holds `available$` open indefinitely
+          takeUntil(anyComplete(id$)),
+        );
         return policies$;
       }),
       map(

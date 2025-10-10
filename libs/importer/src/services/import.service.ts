@@ -20,8 +20,7 @@ import { KvpRequest } from "@bitwarden/common/models/request/kvp.request";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SemanticLogger } from "@bitwarden/common/tools/log";
-import { SystemServiceProvider } from "@bitwarden/common/tools/providers";
+import { EnvService } from "@bitwarden/common/tools/providers";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -32,6 +31,7 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { KeyService } from "@bitwarden/key-management";
+import { LogProvider, SemanticLogger } from "@bitwarden/logging";
 
 import {
   AscendoCsvImporter,
@@ -128,9 +128,10 @@ export class ImportService implements ImportServiceAbstraction {
     private pinService: PinServiceAbstraction,
     private accountService: AccountService,
     private restrictedItemTypesService: RestrictedItemTypesService,
-    private system: SystemServiceProvider,
+    private env: EnvService,
+    log: LogProvider,
   ) {
-    this.logger = system.log({ type: "ImportService" });
+    this.logger = log({ type: "ImportService" });
   }
 
   getImportOptions(): ImportOption[] {
@@ -138,20 +139,18 @@ export class ImportService implements ImportServiceAbstraction {
   }
 
   metadata$(type$: Observable<ImportType>): Observable<ImporterMetadata> {
-    const browserEnabled$ = this.system.configService.getFeatureFlag$(
-      FeatureFlag.UseChromiumImporter,
-    );
-    const client = this.system.environment.getClientType();
+    const browserEnabled$ = this.env.getFeatureFlag$(FeatureFlag.UseChromiumImporter);
+    const client = this.env.getClientType();
     const capabilities$ = combineLatest([type$, browserEnabled$]).pipe(
       map(([type, enabled]) => {
         let loaders = availableLoaders(type, client);
 
         // Mac App Store is currently disabled due to sandboxing.
-        let isUnsupported = this.system.environment.isMacAppStore();
+        let isUnsupported = this.env.isMacAppStore();
 
         if (enabled && type === "bravecsv") {
           try {
-            const device = this.system.environment.getDevice();
+            const device = this.env.getDevice();
             const isWindowsDesktop = device === DeviceType.WindowsDesktop;
             if (isWindowsDesktop) {
               isUnsupported = true;

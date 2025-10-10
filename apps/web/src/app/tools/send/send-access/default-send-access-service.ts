@@ -2,13 +2,12 @@ import { Injectable, Inject } from "@angular/core";
 import { Router, UrlTree } from "@angular/router";
 import { map, of, from, catchError, timeout } from "rxjs";
 
+import { LOG_PROVIDER } from "@bitwarden/angular/services/injection-tokens";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { StateProvider } from "@bitwarden/common/platform/state";
-import { SemanticLogger } from "@bitwarden/common/tools/log";
-import { SystemServiceProvider } from "@bitwarden/common/tools/providers";
 import { SendAccessRequest } from "@bitwarden/common/tools/send/models/request/send-access.request";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
-import { SYSTEM_SERVICE_PROVIDER } from "@bitwarden/generator-components";
+import { LogProvider, SemanticLogger } from "@bitwarden/logging";
 
 import { SEND_RESPONSE_KEY, SEND_CONTEXT_KEY } from "./send-access-memory";
 import { SendAccessService } from "./send-access-service.abstraction";
@@ -24,9 +23,9 @@ export class DefaultSendAccessService implements SendAccessService {
     private readonly state: StateProvider,
     private readonly api: SendApiService,
     private readonly router: Router,
-    @Inject(SYSTEM_SERVICE_PROVIDER) system: SystemServiceProvider,
+    @Inject(LOG_PROVIDER) log: LogProvider,
   ) {
-    this.logger = system.log({ type: "SendAccessAuthenticationService" });
+    this.logger = log({ type: "SendAccessAuthenticationService" });
   }
 
   redirect$(sendId: string) {

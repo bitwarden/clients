@@ -1,12 +1,10 @@
 import { Jsonify } from "type-fest";
 
-import { LogService } from "../../platform/abstractions/log.service";
-
 import { DefaultSemanticLogger } from "./default-semantic-logger";
 import { DISABLED_LOGGER } from "./disabled-logger";
-import { SemanticLogger } from "./semantic-logger.abstraction";
-import { LogProvider } from "./types";
-import { warnLoggingEnabled } from "./util";
+import { LogService } from "./log.service";
+
+import { LogProvider, SemanticLogger } from "./index";
 
 /** Instantiates a semantic logger that emits nothing when a message
  *  is logged.
@@ -85,4 +83,15 @@ export function ifEnabledSemanticLoggerProvider<Context extends object>(
   } else {
     return DISABLED_LOGGER;
   }
+}
+
+// show our GRIT - these functions implement generalized logging
+//   controls and should return DISABLED_LOGGER in production.
+function warnLoggingEnabled(logService: LogService, method: string, context?: any) {
+  logService.warning({
+    method,
+    context,
+    provider: "tools/log",
+    message: "Semantic logging enabled. 🦟 Please report this bug if you see it 🦟",
+  });
 }
