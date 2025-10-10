@@ -1946,20 +1946,18 @@ export class CipherService implements CipherServiceAbstraction {
     if (!this.sortedCiphersCache.isCached(cacheKey)) {
       let ciphers = await this.getAllDecryptedForUrl(url, userId);
 
-      if (ciphers?.length) {
-        const localData = await firstValueFrom(this.localData$(userId));
-        if (localData) {
-          for (const view of ciphers) {
-            const data = localData[view.id as CipherId];
-            if (data && view.localData !== data) {
-              view.localData = data;
-            }
-          }
-        }
+      if (!ciphers?.length) {
+        return null;
       }
 
-      if (!ciphers) {
-        return null;
+      const localData = await firstValueFrom(this.localData$(userId));
+      if (localData) {
+        for (const view of ciphers) {
+          const data = localData[view.id as CipherId];
+          if (data) {
+            view.localData = data;
+          }
+        }
       }
 
       if (autofillOnPageLoad) {
