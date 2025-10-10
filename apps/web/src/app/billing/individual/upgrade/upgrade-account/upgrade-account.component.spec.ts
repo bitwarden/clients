@@ -146,4 +146,46 @@ describe("UpgradeAccountComponent", () => {
       expect(result).toBe(false);
     });
   });
+
+  describe("hideContinueWithoutUpgradingButton", () => {
+    it("should show the continue without upgrading button by default", () => {
+      const button = fixture.nativeElement.querySelector('button[bitLink][linkType="primary"]');
+      expect(button).toBeTruthy();
+    });
+
+    it("should hide the continue without upgrading button when input is true", async () => {
+      TestBed.resetTestingModule();
+
+      mockI18nService.t.mockImplementation((key) => key);
+      mockSubscriptionPricingService.getPersonalSubscriptionPricingTiers$.mockReturnValue(
+        of(mockPricingTiers),
+      );
+
+      await TestBed.configureTestingModule({
+        imports: [
+          NoopAnimationsModule,
+          UpgradeAccountComponent,
+          PricingCardComponent,
+          CdkTrapFocus,
+        ],
+        providers: [
+          { provide: I18nService, useValue: mockI18nService },
+          { provide: SubscriptionPricingService, useValue: mockSubscriptionPricingService },
+        ],
+      })
+        .overrideComponent(UpgradeAccountComponent, {
+          remove: { imports: [BillingServicesModule] },
+        })
+        .compileComponents();
+
+      const customFixture = TestBed.createComponent(UpgradeAccountComponent);
+      customFixture.componentRef.setInput("hideContinueWithoutUpgradingButton", true);
+      customFixture.detectChanges();
+
+      const button = customFixture.nativeElement.querySelector(
+        'button[bitLink][linkType="primary"]',
+      );
+      expect(button).toBeNull();
+    });
+  });
 });

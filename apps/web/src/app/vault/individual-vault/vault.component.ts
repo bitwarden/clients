@@ -91,6 +91,7 @@ import {
   DefaultCipherFormConfigService,
   PasswordRepromptService,
 } from "@bitwarden/vault";
+import { UnifiedUpgradePromptService } from "@bitwarden/web-vault/app/billing/individual/upgrade/services";
 import { OrganizationWarningsModule } from "@bitwarden/web-vault/app/billing/organizations/warnings/organization-warnings.module";
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 
@@ -103,7 +104,6 @@ import {
   CollectionDialogTabType,
   openCollectionDialog,
 } from "../../admin-console/organizations/shared/components/collection-dialog";
-import { UnifiedUpgradePromptService } from "../../billing/individual/upgrade/services/unified-upgrade-prompt.service";
 import { SharedModule } from "../../shared/shared.module";
 import { AssignCollectionsWebComponent } from "../components/assign-collections";
 import {

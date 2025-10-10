@@ -85,6 +85,10 @@ const bitwardenObjects = [
     id: "bwi-vault",
     usage: "general vault",
   },
+  {
+    id: "bwi-premium",
+    usage: "upgrade to premium",
+  },
 ];
 
 const actions = [

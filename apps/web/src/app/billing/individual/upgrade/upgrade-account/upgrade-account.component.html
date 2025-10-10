@@ -17,7 +17,7 @@
     <div class="tw-px-14 tw-pb-8">
       <div class="tw-flex tw-text-center tw-flex-col tw-pb-4">
         <h1 class="tw-font-semibold tw-text-[32px]">
-          {{ "individualUpgradeWelcomeMessage" | i18n }}
+          {{ dialogTitle() | i18n }}
         </h1>
         <p bitTypography="body1" class="tw-text-muted">
           {{ "individualUpgradeDescriptionMessage" | i18n }}
@@ -59,9 +59,11 @@
         <p bitTypography="helper" class="tw-text-muted tw-italic">
           {{ "individualUpgradeTaxInformationMessage" | i18n }}
         </p>
-        <button bitLink linkType="primary" type="button" (click)="closeClicked.emit(closeStatus)">
-          {{ "continueWithoutUpgrading" | i18n }}
-        </button>
+        @if (!hideContinueWithoutUpgradingButton()) {
+          <button bitLink linkType="primary" type="button" (click)="closeClicked.emit(closeStatus)">
+            {{ "continueWithoutUpgrading" | i18n }}
+          </button>
+        }
       </div>
     </div>
   </section>

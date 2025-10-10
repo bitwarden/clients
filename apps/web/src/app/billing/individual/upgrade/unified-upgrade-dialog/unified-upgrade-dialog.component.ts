@@ -48,11 +48,15 @@ export type UnifiedUpgradeDialogResult = {
  * @property {Account} account - The user account information.
  * @property {UnifiedUpgradeDialogStep | null} [initialStep] - The initial step to show in the dialog, if any.
  * @property {PersonalSubscriptionPricingTierId | null} [selectedPlan] - Pre-selected subscription plan, if any.
+ * @property {string | null} [dialogTitleMessageOverride] - Optional custom i18n key to override the default dialog title.
+ * @property {boolean} [hideContinueWithoutUpgradingButton] - Whether to hide the "Continue without upgrading" button.
  */
 export type UnifiedUpgradeDialogParams = {
   account: Account;
   initialStep?: UnifiedUpgradeDialogStep | null;
   selectedPlan?: PersonalSubscriptionPricingTierId | null;
+  planSelectionStepTitleOverride?: string | null;
+  hideContinueWithoutUpgradingButton?: boolean;
 };
 
 @Component({
@@ -73,6 +77,8 @@ export class UnifiedUpgradeDialogComponent implements OnInit {
   protected step = signal<UnifiedUpgradeDialogStep>(UnifiedUpgradeDialogStep.PlanSelection);
   protected selectedPlan = signal<PersonalSubscriptionPricingTierId | null>(null);
   protected account = signal<Account | null>(null);
+  protected planSelectionStepTitleOverride = signal<string | null>(null);
+  protected hideContinueWithoutUpgradingButton = signal<boolean>(false);
 
   protected readonly PaymentStep = UnifiedUpgradeDialogStep.Payment;
   protected readonly PlanSelectionStep = UnifiedUpgradeDialogStep.PlanSelection;
@@ -86,6 +92,10 @@ export class UnifiedUpgradeDialogComponent implements OnInit {
     this.account.set(this.params.account);
     this.step.set(this.params.initialStep ?? UnifiedUpgradeDialogStep.PlanSelection);
     this.selectedPlan.set(this.params.selectedPlan ?? null);
+    this.planSelectionStepTitleOverride.set(this.params.planSelectionStepTitleOverride ?? null);
+    this.hideContinueWithoutUpgradingButton.set(
+      this.params.hideContinueWithoutUpgradingButton ?? false,
+    );
   }
 
   protected onPlanSelected(planId: PersonalSubscriptionPricingTierId): void {

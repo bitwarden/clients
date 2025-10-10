@@ -1,19 +1,25 @@
 <div class="tw-mt-auto">
-  <!-- [attr.icon] is used to keep the icon attribute on the bit-nav-item after prod mode is enabled. Matches other navigation items and assists in automated testing. -->
-  <bit-nav-item
-    *ngFor="let product of accessibleProducts$ | async"
-    [icon]="product.icon"
-    [text]="product.name"
-    [route]="product.appRoute"
-    [attr.icon]="product.icon"
-    [forceActiveStyles]="product.isActive"
-  >
-  </bit-nav-item>
-  <ng-container *ngIf="moreProducts$ | async as moreProducts">
-    <section
-      *ngIf="moreProducts.length > 0"
-      class="tw-mt-2 tw-flex tw-w-full tw-flex-col tw-gap-2 tw-border-0"
+  @let accessibleProducts = accessibleProducts$ | async;
+  @if (accessibleProducts && accessibleProducts.length > 1) {
+    <!-- [attr.icon] is used to keep the icon attribute on the bit-nav-item after prod mode is enabled. Matches other navigation items and assists in automated testing. -->
+    <bit-nav-item
+      *ngFor="let product of accessibleProducts"
+      [icon]="product.icon"
+      [text]="product.name"
+      [route]="product.appRoute"
+      [attr.icon]="product.icon"
+      [forceActiveStyles]="product.isActive"
     >
+    </bit-nav-item>
+  }
+
+  @if (shouldShowPremiumUpgradeButton$ | async) {
+    <app-upgrade-nav-button></app-upgrade-nav-button>
+  }
+
+  @let moreProducts = moreProducts$ | async;
+  @if (moreProducts && moreProducts.length > 0) {
+    <section class="tw-mt-2 tw-flex tw-w-full tw-flex-col tw-gap-2 tw-border-0">
       <span class="tw-text-xs !tw-text-alt2 tw-p-2 tw-pb-0">{{ "moreFromBitwarden" | i18n }}</span>
       <ng-container *ngFor="let more of moreProducts">
         <div class="tw-ps-2 tw-pe-2">
@@ -57,5 +63,5 @@
         </div>
       </ng-container>
     </section>
-  </ng-container>
+  }
 </div>
