@@ -187,6 +187,18 @@
   "markAppAsCritical": {
     "message": "Mark app as critical"
   },
+  "markAsCritical": {
+    "message": "Mark as critical"
+  },
+  "applicationsSelected": {
+    "message": "applications selected"
+  },
+  "selectApplication": {
+    "message": "Select application"
+  },
+  "unselectApplication": {
+    "message": "Unselect application"
+  },
   "applicationsMarkedAsCriticalSuccess": {
     "message": "Applications marked as critical"
   },
@@ -279,6 +291,33 @@
   },
   "totalApplications": {
     "message": "Total applications"
+  },
+  "applicationsNeedingReview": {
+    "message": "Applications needing review"
+  },
+  "newApplicationsWithCount": {
+    "message": "$COUNT$ new applications",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "13"
+      }
+    }
+  },
+  "newApplicationsDescription": {
+    "message": "Review new applications to mark as critical and keep your organization secure"
+  },
+  "reviewNow": {
+    "message": "Review now"
+  },
+  "prioritizeCriticalApplications": {
+    "message": "Prioritize critical applications"
+  },
+  "atRiskItems": {
+    "message": "At-risk items"
+  },
+  "markAsCriticalPlaceholder": {
+    "message": "Mark as critical functionality will be implemented in a future update"
   },
   "unmarkAsCritical": {
     "message": "Unmark as critical"
@@ -2911,6 +2950,9 @@
   },
   "makeSureEnoughCredit": {
     "message": "Please make sure that your account has enough credit available for this purchase. If your account does not have enough credit available, your default payment method on file will be used for the difference. You can add credit to your account from the Billing page."
+  },
+  "notEnoughAccountCredit": {
+    "message": "You do not have enough account credit for this purchase. You can add credit to your account from the Billing page."
   },
   "creditAppliedDesc": {
     "message": "Your account's credit can be used to make purchases. Any available credit will be automatically applied towards invoices generated for this account."
@@ -5672,18 +5714,22 @@
     "message": "Learn more about the ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about the credential lifecycle.'"
   },
+  "availableNow": {
+    "message": "Available now"
+  },
   "autoConfirm": {
-    "message": "Automatic user confirmation"
+    "message": "Automatic confirmation of new users"
   },
   "autoConfirmDescription": {
-    "message": "This feature is available because an Acme administrator has requested it"
+    "message": "New users invited to the organization will be automatically confirmed when an admin’s device is unlocked.",
+    "description": "This is the description of the policy as it appears in the 'Policies' page"
   },
   "autoConfirmPolicyEditDescription": {
-    "message": "Activating this feature will add a new setting to administrators' devices to control this automation. You must agree to the following to proceed:",
+    "message": "New users invited to the organization will be automatically confirmed when an admin’s device is unlocked. To continue, please review and agree to the following:",
     "description": "This is the description of the policy as it appears inside the policy edit dialog"
   },
-  "autoConfirmAcceptSecurityRisk": {
-    "message": "Accept the security risks"
+  "autoConfirmAcceptSecurityRiskTitle": {
+    "message": "Potential security risk. "
   },
   "autoConfirmAcceptSecurityRiskDescription": {
     "message": "Automatic confirmation of users could pose a security risk to your organization’s data. "
@@ -5692,23 +5738,26 @@
     "message": "Learn more about the risks",
     "description": "The is the link copy for the first check box option in the edit policy dialog"
   },
-  "autoConfirmTurnOnSingleOrg": {
-    "message": "Turn on the single organization policy"
+  "autoConfirmSingleOrgRequired": {
+    "message": "Single organization policy required. "
   },
-  "autoConfirmTurnOnSingleOrgDescription": {
-    "message": "Restrict all members, including owners and admins, from joining other organizations. Non-compliant members will be revoked until they leave all other organizations. "
+  "autoConfirmSingleOrgRequiredDescription": {
+    "message": "Members can belong to only one organization. Anyone part of more than one organization will have their access revoked until they leave the others."
   },
-  "autoConfirmRequireSingleOrg": {
-    "message": "Require all members to comply with the single organization policy"
+  "autoConfirmSingleOrgExemption": {
+    "message": "Single organization policy will extend to all roles. "
   },
-  "autoConfirmRequireSingleOrgDescription": {
-    "message": "Restrict all members, including owners and admins, from joining other organizations. Non-compliant members will be revoked until they leave all other organizations. "
+  "autoConfirmSingleOrgExemptionDescription": {
+    "message": "Members can belong to only one organization. Anyone part of more than one organization will have their access revoked until they leave the others."
   },
-  "autoConfirmRemoveEmergencyAccess": {
-    "message": "Remove emergency access"
+  "autoConfirmNoEmergencyAccess": {
+    "message": "No emergency access. "
   },
-  "autoConfirmRemoveEmergencyAccessDescription": {
-    "message": "Emergency Access will be removed for all members of the organization."
+  "autoConfirmNoEmergencyAccessDescription": {
+    "message": "Emergency Access will be removed for everyone."
+  },
+  "autoConfirmCheckBoxLabel": {
+    "message": "Turn on and accept these risks and policy updates"
   },
   "personalOwnership": {
     "message": "Remove individual vault"
@@ -10014,6 +10063,9 @@
   "crowdstrikeEventIntegrationDesc": {
     "message": "Send event data to your Logscale instance"
   },
+  "datadogEventIntegrationDesc": {
+    "message": "Send vault event data to your Datadog instance"
+  },
   "failedToSaveIntegration": {
     "message": "Failed to save integration. Please try again later."
   },
@@ -11767,5 +11819,38 @@
   },
   "seamlessIntegration": {
     "message": "Seamless integration"
+  },
+  "families": {
+    "message": "Families"
+  },
+  "upgradeToFamilies": {
+    "message": "Upgrade to Families"
+  },
+  "upgradeToPremium": {
+    "message": "Upgrade to Premium"
+  },
+  "familiesUpdated": {
+    "message": "You've upgraded to Families!"
+  },
+  "taxCalculationError": {
+    "message": "There was an error calculating tax for your location. Please try again."
+  },
+  "individualUpgradeWelcomeMessage": {
+    "message": "Welcome to Bitwarden"
+  },
+  "individualUpgradeDescriptionMessage": {
+    "message": "Unlock more security features with Premium, or start sharing items with Families"
+  },
+  "individualUpgradeTaxInformationMessage": {
+    "message": "Prices exclude tax and are billed annually."
+  },
+  "organizationNameDescription": {
+    "message": "Your organization name will appear in invitations you send to members."
+  },
+  "continueWithoutUpgrading": {
+    "message": "Continue without upgrading"
+  },
+  "upgradeErrorMessage": {
+    "message": "We encountered an error while processing your upgrade. Please try again."
   }
 }

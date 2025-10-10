@@ -612,6 +612,7 @@ export class ServiceContainer {
       this.accountService,
       this.kdfConfigService,
       this.keyService,
+      this.apiService,
       this.stateProvider,
       this.configService,
       customUserAgent,

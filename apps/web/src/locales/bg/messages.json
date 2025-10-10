@@ -35,6 +35,9 @@
       }
     }
   },
+  "noReportRan": {
+    "message": "Все още не сте създали нито един доклад"
+  },
   "notifiedMembers": {
     "message": "Известени членове"
   },
@@ -184,8 +187,23 @@
   "markAppAsCritical": {
     "message": "Отбелязване на приложението като важно"
   },
+  "markAsCritical": {
+    "message": "Mark as critical"
+  },
+  "applicationsSelected": {
+    "message": "applications selected"
+  },
+  "selectApplication": {
+    "message": "Select application"
+  },
+  "unselectApplication": {
+    "message": "Unselect application"
+  },
   "applicationsMarkedAsCriticalSuccess": {
     "message": "Applications marked as critical"
+  },
+  "applicationsMarkedAsCriticalFail": {
+    "message": "Приложенията не успяха да бъдат отбелязани като важни"
   },
   "application": {
     "message": "Приложение"
@@ -273,6 +291,33 @@
   },
   "totalApplications": {
     "message": "Общо приложения"
+  },
+  "applicationsNeedingReview": {
+    "message": "Приложения, които имат нужда от преглед"
+  },
+  "newApplicationsWithCount": {
+    "message": "$COUNT$ нови приложения",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "13"
+      }
+    }
+  },
+  "newApplicationsDescription": {
+    "message": "Прегледайте новите приложения, за да ги отбележите като важни, ако е необходимо – така ще се затвърдите сигурността на организацията си"
+  },
+  "reviewNow": {
+    "message": "Преглеждане сега"
+  },
+  "prioritizeCriticalApplications": {
+    "message": "Prioritize critical applications"
+  },
+  "atRiskItems": {
+    "message": "At-risk items"
+  },
+  "markAsCriticalPlaceholder": {
+    "message": "Mark as critical functionality will be implemented in a future update"
   },
   "unmarkAsCritical": {
     "message": "Премахване от важните"
@@ -1247,6 +1292,9 @@
   },
   "readingPasskeyLoadingInfo": {
     "message": "Дръжте този прозорец отворен и следвайте инструкциите в браузъра си."
+  },
+  "passkeyAuthenticationFailed": {
+    "message": "Удостоверяването чрез секретен ключ беше неуспешно. Моля, опитайте отново."
   },
   "useADifferentLogInMethod": {
     "message": "Използване на друг метод на вписване"
@@ -2902,6 +2950,9 @@
   "makeSureEnoughCredit": {
     "message": "Проверете дали към абонамента си имате достатъчно средства за тази покупка. В противен случай разликата от наличното и необходимото се изисква от основния ви метод за плащане, който сте задали."
   },
+  "notEnoughAccountCredit": {
+    "message": "You do not have enough account credit for this purchase. You can add credit to your account from the Billing page."
+  },
   "creditAppliedDesc": {
     "message": "Може да използвате кредитите към абонамента си за покупки. Кредитите се използват за покриването на издадените фактури към абонамента."
   },
@@ -4309,6 +4360,9 @@
   },
   "generatingYourRiskInsights": {
     "message": "Създаване на Вашата информация относно рисковете…"
+  },
+  "riskInsightsRunReport": {
+    "message": "Изпълнение на доклада"
   },
   "updateBrowserDesc": {
     "message": "Ползвате неподдържан браузър. Трезорът по уеб може да не сработи правилно."
@@ -9960,6 +10014,9 @@
   "crowdstrikeEventIntegrationDesc": {
     "message": "Изпращане на данни за събитията до Вашата инстанция на Logscale"
   },
+  "datadogEventIntegrationDesc": {
+    "message": "Изпращане на данните за събитията в трезора към Вашата инсталация на Datadog"
+  },
   "failedToSaveIntegration": {
     "message": "Интеграцията не беше запазена. Опитайте отново по-късно."
   },
@@ -11713,5 +11770,38 @@
   },
   "seamlessIntegration": {
     "message": "Безпроблемна интеграция"
+  },
+  "families": {
+    "message": "Семейства"
+  },
+  "upgradeToFamilies": {
+    "message": "Надградете до Семейния план"
+  },
+  "upgradeToPremium": {
+    "message": "Надградете до Платения план"
+  },
+  "familiesUpdated": {
+    "message": "Вече ползвате Семейния абонамент!"
+  },
+  "taxCalculationError": {
+    "message": "Възникна грешка при изчисляването на данъка за Вашето местоположение. Моля, опитайте отново."
+  },
+  "individualUpgradeWelcomeMessage": {
+    "message": "Добре дошли в Битуорден"
+  },
+  "individualUpgradeDescriptionMessage": {
+    "message": "Отключете още функционалности свързани със сигурността, с Платения план; или започнете да споделяте данните в трезора си със Семейния план"
+  },
+  "individualUpgradeTaxInformationMessage": {
+    "message": "Цените не включват данък и се заплащат веднъж годишно."
+  },
+  "organizationNameDescription": {
+    "message": "Името на организацията Ви ще се вижда в поканите за присъединяване, които изпращате."
+  },
+  "continueWithoutUpgrading": {
+    "message": "Продължаване без надграждане"
+  },
+  "upgradeErrorMessage": {
+    "message": "Възникна грешка при надграждането. Моля, опитайте отново."
   }
 }

@@ -4135,7 +4135,7 @@
   "enableAutotypeShortcutPreview": {
     "message": "Ativar o atalho de digitação automática (Pré-visualização da funcionalidade)"
   },
-  "enableAutotypeDescriptionTransitionKey": {
+  "enableAutotypeShortcutDescription": {
     "message": "Certifique-se de que está no campo correto antes de utilizar o atalho para evitar preencher dados no local errado."
   },
   "editShortcut": {

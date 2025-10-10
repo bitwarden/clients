@@ -9,24 +9,25 @@ import { debounceTime, EMPTY, map, switchMap } from "rxjs";
 import { Security } from "@bitwarden/assets/svg";
 import {
   ApplicationHealthReportDetailEnriched,
+  CriticalAppsService,
   RiskInsightsDataService,
+  RiskInsightsReportService,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import { createNewSummaryData } from "@bitwarden/bit-common/dirt/reports/risk-insights/helpers";
 import { OrganizationReportSummary } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/report-models";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { CipherId, OrganizationId } from "@bitwarden/common/types/guid";
-import { SecurityTaskType } from "@bitwarden/common/vault/tasks";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { NoItemsModule, SearchModule, TableDataSource, ToastService } from "@bitwarden/components";
 import { CardComponent } from "@bitwarden/dirt-card";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 import { PipesModule } from "@bitwarden/web-vault/app/vault/individual-vault/pipes/pipes.module";
 
-import { CreateTasksRequest } from "../../vault/services/abstractions/admin-task.abstraction";
 import { DefaultAdminTaskService } from "../../vault/services/default-admin-task.service";
 
 import { AppTableRowScrollableComponent } from "./app-table-row-scrollable.component";
 import { RiskInsightsTabType } from "./risk-insights.component";
+import { AccessIntelligenceSecurityTasksService } from "./shared/security-tasks.service";
 
 @Component({
   selector: "dirt-critical-applications",
@@ -40,7 +41,7 @@ import { RiskInsightsTabType } from "./risk-insights.component";
     SharedModule,
     AppTableRowScrollableComponent,
   ],
-  providers: [DefaultAdminTaskService],
+  providers: [AccessIntelligenceSecurityTasksService, DefaultAdminTaskService],
 })
 export class CriticalApplicationsComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
@@ -60,8 +61,10 @@ export class CriticalApplicationsComponent implements OnInit {
     protected router: Router,
     protected toastService: ToastService,
     protected dataService: RiskInsightsDataService,
+    protected criticalAppsService: CriticalAppsService,
+    protected reportService: RiskInsightsReportService,
     protected i18nService: I18nService,
-    private adminTaskService: DefaultAdminTaskService,
+    private accessIntelligenceSecurityTasksService: AccessIntelligenceSecurityTasksService,
   ) {
     this.searchControl.valueChanges
       .pipe(debounceTime(200), takeUntilDestroyed())
@@ -128,33 +131,12 @@ export class CriticalApplicationsComponent implements OnInit {
   };
 
   async requestPasswordChange() {
-    const apps = this.dataSource.data;
-    const cipherIds = apps
-      .filter((_) => _.atRiskPasswordCount > 0)
-      .flatMap((app) => app.atRiskCipherIds);
-
-    const distinctCipherIds = Array.from(new Set(cipherIds));
-
-    const tasks: CreateTasksRequest[] = distinctCipherIds.map((cipherId) => ({
-      cipherId: cipherId as CipherId,
-      type: SecurityTaskType.UpdateAtRiskCredential,
-    }));
-
-    try {
-      await this.adminTaskService.bulkCreateTasks(this.organizationId as OrganizationId, tasks);
-      this.toastService.showToast({
-        message: this.i18nService.t("notifiedMembers"),
-        variant: "success",
-        title: this.i18nService.t("success"),
-      });
-    } catch {
-      this.toastService.showToast({
-        message: this.i18nService.t("unexpectedError"),
-        variant: "error",
-        title: this.i18nService.t("error"),
-      });
-    }
+    await this.accessIntelligenceSecurityTasksService.assignTasks(
+      this.organizationId,
+      this.dataSource.data,
+    );
   }
+
   showAppAtRiskMembers = async (applicationName: string) => {
     await this.dataService.setDrawerForAppAtRiskMembers(applicationName);
   };
