@@ -35,6 +35,9 @@
       }
     }
   },
+  "noReportRan": {
+    "message": "You have not created a report yet"
+  },
   "notifiedMembers": {
     "message": "Notified members"
   },
@@ -60,7 +63,7 @@
     "message": "Pridať novu položku s prihlásením"
   },
   "percentageCompleted": {
-    "message": "$PERCENT$% complete",
+    "message": "$PERCENT$% splnených",
     "placeholders": {
       "percent": {
         "content": "$1",
@@ -69,7 +72,7 @@
     }
   },
   "securityTasksCompleted": {
-    "message": "$COUNT$ out of $TOTAL$ security tasks completed",
+    "message": "$COUNT$ z $TOTAL$ bezpečnostných úloh splnených",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -82,19 +85,19 @@
     }
   },
   "passwordChangeProgress": {
-    "message": "Password change progress"
+    "message": "Progres pri zmene hesla"
   },
   "assignMembersTasksToMonitorProgress": {
-    "message": "Assign members tasks to monitor progress"
+    "message": "Pre sledovanie progresu, priraďte členom úlohy"
   },
   "onceYouReviewApplications": {
-    "message": "Once you review applications and mark them as critical, they will display here."
+    "message": "Tu sa zobrazia aplikácie, ktoré pri kontrole označíte za kritické."
   },
   "sendReminders": {
-    "message": "Send reminders"
+    "message": "Poslať upomienky"
   },
   "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
-    "message": "Once you mark applications critical, they will display here."
+    "message": "Tu sa zobrazia aplikácie, ktoré označíte za kritické."
   },
   "viewAtRiskMembers": {
     "message": "Zobraziť ohrozených členov"
@@ -143,7 +146,7 @@
     }
   },
   "countOfAtRiskPasswords": {
-    "message": "$COUNT$ passwords at-risk",
+    "message": "$COUNT$ ohrozených hesiel",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -184,8 +187,23 @@
   "markAppAsCritical": {
     "message": "Označiť aplikáciu ako kritickú"
   },
+  "markAsCritical": {
+    "message": "Mark as critical"
+  },
+  "applicationsSelected": {
+    "message": "applications selected"
+  },
+  "selectApplication": {
+    "message": "Select application"
+  },
+  "unselectApplication": {
+    "message": "Unselect application"
+  },
   "applicationsMarkedAsCriticalSuccess": {
     "message": "Aplikácie označené ako kritické"
+  },
+  "applicationsMarkedAsCriticalFail": {
+    "message": "Failed to mark applications as critical"
   },
   "application": {
     "message": "Aplikácia"
@@ -206,7 +224,7 @@
     "message": "Ohrozených členov"
   },
   "membersWithAccessToAtRiskItemsForCriticalApps": {
-    "message": "Members with access to at-risk items for critical applications"
+    "message": "Členovia s prístupom k ohrozeným položkám kritických aplikácii"
   },
   "membersAtRiskCount": {
     "message": "$COUNT$ ohrozených členov",
@@ -273,6 +291,33 @@
   },
   "totalApplications": {
     "message": "Všetkých aplikácii"
+  },
+  "applicationsNeedingReview": {
+    "message": "Applications needing review"
+  },
+  "newApplicationsWithCount": {
+    "message": "$COUNT$ new applications",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "13"
+      }
+    }
+  },
+  "newApplicationsDescription": {
+    "message": "Review new applications to mark as critical and keep your organization secure"
+  },
+  "reviewNow": {
+    "message": "Review now"
+  },
+  "prioritizeCriticalApplications": {
+    "message": "Prioritize critical applications"
+  },
+  "atRiskItems": {
+    "message": "At-risk items"
+  },
+  "markAsCriticalPlaceholder": {
+    "message": "Mark as critical functionality will be implemented in a future update"
   },
   "unmarkAsCritical": {
     "message": "Zrušiť označenie za kritické"
@@ -1248,6 +1293,9 @@
   "readingPasskeyLoadingInfo": {
     "message": "Ponechajte toto okno otvorené a nasledujte pokyny vášho prehliadača."
   },
+  "passkeyAuthenticationFailed": {
+    "message": "Overenie prístupovým kľúčom zlyhalo. Skúste to znova."
+  },
   "useADifferentLogInMethod": {
     "message": "Použiť iný spôsob prihlásenia"
   },
@@ -1543,7 +1591,7 @@
     "message": "Neplatné hlavné heslo"
   },
   "invalidMasterPasswordConfirmEmailAndHost": {
-    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "message": "Neplatné hlavné heslo. Overte, že váš e-mail je správny a účet bol vytvorený na $HOST$.",
     "placeholders": {
       "host": {
         "content": "$1",
@@ -2901,6 +2949,9 @@
   },
   "makeSureEnoughCredit": {
     "message": "Prosím uistite sa, že váš účet má k dispozícii dostatok kreditu pre tento nákup. Ak konto nemá k dispozícii dostatok kreditu, rozdiel sa zaplatí vašou predvolenou platobnou metódou. Kredit si môžete pridať na stránke fakturácie."
+  },
+  "notEnoughAccountCredit": {
+    "message": "You do not have enough account credit for this purchase. You can add credit to your account from the Billing page."
   },
   "creditAppliedDesc": {
     "message": "Kredit na vašom účte sa dá použiť na nákupy. Akýkoľvek dostupný kredit bude automaticky použitý na zaplatenie faktúr pre tento účet."
@@ -4310,6 +4361,9 @@
   "generatingYourRiskInsights": {
     "message": "Generuje sa váš prehľad o rizikách..."
   },
+  "riskInsightsRunReport": {
+    "message": "Run report"
+  },
   "updateBrowserDesc": {
     "message": "Používate nepodporovaný prehliadač. Webový trezor nemusí úplne fungovať."
   },
@@ -5268,7 +5322,7 @@
     "message": "SSO identifikátor"
   },
   "ssoIdentifierHint": {
-    "message": "Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. ",
+    "message": "Zdieľajte toto ID s vašimi členmi pre prihlásenie prostredníctvom SSO. Ak nastavíte privlastnenú doménu, členovia sa môžu prihlásiť prostredníctvom SSO bez zadávania tohto identifikátora. ",
     "description": "This will be used as part of a larger sentence, broken up to include a link. The full sentence will read 'Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. Learn more'"
   },
   "claimedDomainsLearnMore": {
@@ -7087,7 +7141,7 @@
     }
   },
   "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
-    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "message": "Exportuje sa len trezor organizácie spojený s $ORGANIZATION$.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -7096,7 +7150,7 @@
     }
   },
   "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
-    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "message": "Exportuje sa len trezor organizácie spojený s $ORGANIZATION$. Moje zbierky položiek nebudú zahrnuté.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -7259,7 +7313,7 @@
     "message": "Neznáma položka možno potrebujete požiadať o prístup k tejto položke."
   },
   "unknownServiceAccount": {
-    "message": "Unknown machine account, you may need to request permission to access this machine account."
+    "message": "Neznáme strojové konto, možno potrebujete požiadať o prístup k tomuto kontu."
   },
   "unknownProject": {
     "message": "Neznámy projekt, možno potrebujete požiadať o prístup k tomuto projektu."
@@ -8612,7 +8666,7 @@
     }
   },
   "accessedProjectWithIdentifier": {
-    "message": "Accessed a project with identifier: $PROJECT_ID$.",
+    "message": "Pristúp k projektu s identifikátorom: $PROJECT_ID$.",
     "placeholders": {
       "project_id": {
         "content": "$1",
@@ -8639,7 +8693,7 @@
     }
   },
   "nameUnavailableServiceAccountDeleted": {
-    "message": "Deleted machine account Id: $SERVICE_ACCOUNT_ID$",
+    "message": "Vymazané strojové konto s identifikátorom: $SERVICE_ACCOUNT_ID$",
     "placeholders": {
       "service_account_id": {
         "content": "$1",
@@ -8657,7 +8711,7 @@
     }
   },
   "addedUserToServiceAccountWithId": {
-    "message": "Added user: $USER_ID$ to machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "message": "Pridaný používateľ: $USER_ID$ k strojovému účtu s identifikátorom: $SERVICE_ACCOUNT_ID$",
     "placeholders": {
       "user_id": {
         "content": "$1",
@@ -8670,7 +8724,7 @@
     }
   },
   "removedUserToServiceAccountWithId": {
-    "message": "Removed user: $USER_ID$ from machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "message": "Odstránený používateľ: $USER_ID$ zo strojového účtu s identifikátorom: $SERVICE_ACCOUNT_ID$",
     "placeholders": {
       "user_id": {
         "content": "$1",
@@ -8683,7 +8737,7 @@
     }
   },
   "removedGroupFromServiceAccountWithId": {
-    "message": "Removed group: $GROUP_ID$ from machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "message": "Odstránená skupina: $GROUP_ID$ zo strojového účtu s identifikátorom: $SERVICE_ACCOUNT_ID$",
     "placeholders": {
       "group_id": {
         "content": "$1",
@@ -8696,7 +8750,7 @@
     }
   },
   "serviceAccountCreatedWithId": {
-    "message": "Created machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "message": "Vytvorený strojový účet s identifikátorom: $SERVICE_ACCOUNT_ID$",
     "placeholders": {
       "service_account_id": {
         "content": "$1",
@@ -8705,7 +8759,7 @@
     }
   },
   "addedGroupToServiceAccountId": {
-    "message": "Added group: $GROUP_ID$ to machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "message": "Pridaná skupina: $GROUP_ID$ do strojového účtu s identifikátorom: $SERVICE_ACCOUNT_ID$",
     "placeholders": {
       "group_id": {
         "content": "$1",
@@ -8718,7 +8772,7 @@
     }
   },
   "serviceAccountDeletedWithId": {
-    "message": "Deleted machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "message": "Odstránený strojový účet s identifikátorom: $SERVICE_ACCOUNT_ID$",
     "placeholders": {
       "service_account_id": {
         "content": "$1",
@@ -9563,7 +9617,7 @@
     "message": "Prideliť"
   },
   "assignTasks": {
-    "message": "Assign tasks"
+    "message": "Priradiť úlohy"
   },
   "assignToCollections": {
     "message": "Prideliť k zbierkam"
@@ -9959,6 +10013,9 @@
   },
   "crowdstrikeEventIntegrationDesc": {
     "message": "Pošlite dáta z denníka udalostí do vašej inštancie Logscale"
+  },
+  "datadogEventIntegrationDesc": {
+    "message": "Send vault event data to your Datadog instance"
   },
   "failedToSaveIntegration": {
     "message": "Nepodarilo sa uložiť integráciu. Prosím skúste to neskôr."
@@ -11230,11 +11287,11 @@
     "message": "Prehľadať archív"
   },
   "archiveNoun": {
-    "message": "Archive",
+    "message": "Archív",
     "description": "Noun"
   },
   "archiveVerb": {
-    "message": "Archive",
+    "message": "Archivovať",
     "description": "Verb"
   },
   "noItemsInArchive": {
@@ -11351,10 +11408,10 @@
     "message": "Rozšírenie Bitwarden nainštalované!"
   },
   "openTheBitwardenExtension": {
-    "message": "Open the Bitwarden extension"
+    "message": "Otvoriť rozšírenie Bitwarden"
   },
   "bitwardenExtensionInstalledOpenExtension": {
-    "message": "The Bitwarden extension is installed! Open the extension to log in and start autofilling."
+    "message": "Rozšírenie Bitwarden je nainštalované! Otvorte rozšírenie, prihláste sa a začnite automaticky vypĺňať."
   },
   "openExtensionToAutofill": {
     "message": "Otvorte rozšírenie, prihláste sa a začnite automatické vypĺňanie."
@@ -11713,5 +11770,38 @@
   },
   "seamlessIntegration": {
     "message": "Seamless integration"
+  },
+  "families": {
+    "message": "Families"
+  },
+  "upgradeToFamilies": {
+    "message": "Upgrade to Families"
+  },
+  "upgradeToPremium": {
+    "message": "Upgrade to Premium"
+  },
+  "familiesUpdated": {
+    "message": "You've upgraded to Families!"
+  },
+  "taxCalculationError": {
+    "message": "There was an error calculating tax for your location. Please try again."
+  },
+  "individualUpgradeWelcomeMessage": {
+    "message": "Welcome to Bitwarden"
+  },
+  "individualUpgradeDescriptionMessage": {
+    "message": "Unlock more security features with Premium, or start sharing items with Families"
+  },
+  "individualUpgradeTaxInformationMessage": {
+    "message": "Prices exclude tax and are billed annually."
+  },
+  "organizationNameDescription": {
+    "message": "Your organization name will appear in invitations you send to members."
+  },
+  "continueWithoutUpgrading": {
+    "message": "Continue without upgrading"
+  },
+  "upgradeErrorMessage": {
+    "message": "We encountered an error while processing your upgrade. Please try again."
   }
 }
