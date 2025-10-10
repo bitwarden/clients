@@ -444,9 +444,6 @@ module.exports.buildConfig = function buildConfig(params) {
         path.resolve(__dirname, "../../node_modules"),
         path.resolve(process.cwd(), "node_modules"),
       ],
-      alias: {
-        "~@bitwarden": path.resolve(__dirname, "../../libs"),
-      },
       fallback: {
         buffer: false,
         util: require.resolve("util/"),
