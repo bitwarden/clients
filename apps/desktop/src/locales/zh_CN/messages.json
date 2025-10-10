@@ -1042,7 +1042,7 @@
     "message": "身份验证超时"
   },
   "authenticationSessionTimedOut": {
-    "message": "身份验证会话超时。请重新启动登录过程。"
+    "message": "身份验证会话超时。请重新开始登录过程。"
   },
   "selfHostBaseUrl": {
     "message": "自托管服务器 URL",
@@ -4114,7 +4114,7 @@
     "message": "输入快捷键"
   },
   "editAutotypeShortcutDescription": {
-    "message": "包括以下一个或两个修饰符：Ctrl、Alt、Win 或 Shift，外加一个字母。"
+    "message": "包含以下一个或两个修饰符：Ctrl、Alt、Win 或 Shift，外加一个字母。"
   },
   "invalidShortcut": {
     "message": "无效的快捷键"
@@ -4135,7 +4135,7 @@
   "enableAutotypeShortcutPreview": {
     "message": "启用自动输入快捷键（功能预览）"
   },
-  "enableAutotypeDescriptionTransitionKey": {
+  "enableAutotypeShortcutDescription": {
     "message": "在使用快捷键之前，请确保您位于正确的字段中，以避免将数据填入错误的地方。"
   },
   "editShortcut": {
