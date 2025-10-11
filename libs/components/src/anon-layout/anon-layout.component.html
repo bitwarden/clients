@@ -14,13 +14,15 @@
   </a>
 
   <div class="tw-text-center tw-mb-4 sm:tw-mb-6 tw-mx-auto" [ngClass]="maxWidthClass">
+    @let iconInput = icon();
+
     <!-- In some scenarios this icon's size is not limited by container width correctly -->
     <!-- Targeting the SVG here to try and ensure it never grows too large in even the media queries are not working as expected -->
     <div
-      *ngIf="!hideIcon()"
+      *ngIf="iconInput !== null"
       class="tw-size-20 sm:tw-size-24 [&_svg]:tw-w-full [&_svg]:tw-max-w-24 tw-mx-auto tw-content-center"
     >
-      <bit-icon [icon]="icon()"></bit-icon>
+      <bit-icon [icon]="iconInput"></bit-icon>
     </div>
 
     <ng-container *ngIf="title()">
