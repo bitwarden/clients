@@ -9,7 +9,9 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { getById } from "@bitwarden/common/platform/misc/rxjs-operators";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CalloutModule } from "@bitwarden/components";
+import { ExportFormat } from "@bitwarden/vault-export-core";
 
 @Component({
   selector: "tools-export-scope-callout",
@@ -25,9 +27,9 @@ export class ExportScopeCalloutComponent {
   };
 
   /* Optional OrganizationId, if not provided, it will display individual vault export message */
-  readonly organizationId = input<string>();
+  readonly organizationId = input<OrganizationId>();
   /* Optional export format, determines which individual export description to display */
-  readonly exportFormat = input<string>();
+  readonly exportFormat = input<ExportFormat>();
   /* The description key to use for organizational exports */
   readonly orgExportDescription = input<string>();
 
@@ -47,13 +49,13 @@ export class ExportScopeCalloutComponent {
   }
 
   private async getScopeMessage(
-    organizationId: string,
-    exportFormat: string,
+    organizationId: OrganizationId | undefined,
+    exportFormat: ExportFormat | undefined,
     orgExportDescription: string,
   ): Promise<void> {
     const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
 
-    if (organizationId != null) {
+    if (organizationId) {
       // exporting from organizational vault
       const org = await firstValueFrom(
         this.organizationService.organizations$(userId).pipe(getById(organizationId)),
@@ -64,18 +66,19 @@ export class ExportScopeCalloutComponent {
         description: orgExportDescription,
         scopeIdentifier: org?.name ?? "",
       };
-    } else {
-      this.scopeConfig = {
-        // exporting from individual vault
-        title: "exportingPersonalVaultTitle",
-        description:
-          exportFormat === "zip"
-            ? "exportingIndividualVaultWithAttachmentsDescription"
-            : "exportingIndividualVaultDescription",
-        scopeIdentifier:
-          (await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.email)))) ??
-          "",
-      };
+
+      return;
     }
+
+    // exporting from individual vault
+    this.scopeConfig = {
+      title: "exportingPersonalVaultTitle",
+      description:
+        exportFormat === "zip"
+          ? "exportingIndividualVaultWithAttachmentsDescription"
+          : "exportingIndividualVaultDescription",
+      scopeIdentifier:
+        (await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.email)))) ?? "",
+    };
   }
 }
