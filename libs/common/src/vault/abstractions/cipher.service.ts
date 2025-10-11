@@ -68,6 +68,7 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
     /** When true, will override the match strategy for the cipher if it is Never. */
     overrideNeverMatchStrategy?: true,
   ): Promise<CipherView[]>;
+  abstract getAllDecryptedForIds(userId: UserId, ids: string[]): Promise<CipherView[]>;
   abstract filterCiphersForUrl<C extends CipherViewLike = CipherView>(
     ciphers: C[],
     url: string,
