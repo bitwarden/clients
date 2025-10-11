@@ -4,8 +4,6 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { MessageSender } from "@bitwarden/common/platform/messaging";
 import { powermonitors } from "@bitwarden/desktop-napi";
 
-import { isSnapStore } from "../utils";
-
 // tslint:disable-next-line
 const IdleLockSeconds = 5 * 60; // 5 minutes
 const IdleCheckInterval = 30 * 1000; // 30 seconds
@@ -19,13 +17,9 @@ export class PowerMonitorMain {
   ) {}
 
   init() {
-    // ref: https://github.com/electron/electron/issues/13767
-    if (!isSnapStore()) {
-      // System sleep
-      powerMonitor.on("suspend", () => {
-        this.messagingService.send("systemSuspended");
-      });
-    }
+    powerMonitor.on("suspend", () => {
+      this.messagingService.send("systemSuspended");
+    });
 
     if (process.platform !== "linux") {
       // System locked
