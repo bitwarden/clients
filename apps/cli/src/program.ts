@@ -175,7 +175,7 @@ export class Program extends BaseProgram {
           const command = new LoginCommand(
             this.serviceContainer.loginStrategyService,
             this.serviceContainer.authService,
-            this.serviceContainer.apiService,
+            this.serviceContainer.twoFactorApiService,
             this.serviceContainer.masterPasswordApiService,
             this.serviceContainer.cryptoFunctionService,
             this.serviceContainer.environmentService,
