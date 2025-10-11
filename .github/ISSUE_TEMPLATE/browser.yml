@@ -8,6 +8,15 @@ body:
         Thanks for taking the time to fill out this bug report!
 
         Please do not submit feature requests. The [Community Forums](https://community.bitwarden.com) has a section for submitting, voting for, and discussing product feature requests.
+  - type: checkboxes
+    id: prerequisites
+    attributes:
+      label: Prerequisites
+      description: |
+        Please confirm you have completed the following before submitting an issue:
+      options:
+        - label: I have searched **Closed** _AND_ **Open** [Issues](https://github.com/bitwarden/clients/issues?q=is%3Aissue%20)
+          required: true
   - type: textarea
     id: reproduce
     attributes:
