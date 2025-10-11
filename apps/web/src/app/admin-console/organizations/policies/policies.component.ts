@@ -29,7 +29,7 @@ import { safeProvider } from "@bitwarden/ui-common";
 import { HeaderModule } from "../../../layouts/header/header.module";
 import { SharedModule } from "../../../shared";
 
-import { BasePolicyEditDefinition } from "./base-policy-edit.component";
+import { BasePolicyEditDefinition, PolicyDialogComponent } from "./base-policy-edit.component";
 import { PolicyEditDialogComponent } from "./policy-edit-dialog.component";
 import { PolicyListService } from "./policy-list.service";
 import { POLICY_EDIT_REGISTER } from "./policy-register-token";
@@ -127,7 +127,8 @@ export class PoliciesComponent implements OnInit {
   }
 
   async edit(policy: BasePolicyEditDefinition) {
-    const dialogComponent = policy.editDialogComponent ?? PolicyEditDialogComponent;
+    const dialogComponent: PolicyDialogComponent =
+      policy.editDialogComponent ?? PolicyEditDialogComponent;
     const dialogRef = dialogComponent.open(this.dialogService, {
       data: {
         policy: policy,
