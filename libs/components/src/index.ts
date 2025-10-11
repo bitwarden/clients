@@ -21,6 +21,7 @@ export * from "./drawer";
 export * from "./form-field";
 export * from "./icon-button";
 export * from "./icon";
+export * from "./icon-tile";
 export * from "./input";
 export * from "./item";
 export * from "./layout";

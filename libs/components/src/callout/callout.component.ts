@@ -36,11 +36,17 @@ let nextId = 0;
 export class CalloutComponent {
   readonly type = input<CalloutTypes>("info");
   readonly icon = input<string>();
-  readonly title = input<string>();
+  readonly title = input<string | null>();
   readonly useAlertRole = input(false);
-  readonly iconComputed = computed(() => this.icon() ?? defaultIcon[this.type()]);
+  readonly iconComputed = computed(() =>
+    this.icon() === undefined ? defaultIcon[this.type()] : this.icon(),
+  );
   readonly titleComputed = computed(() => {
     const title = this.title();
+    if (title === null) {
+      return undefined;
+    }
+
     const type = this.type();
     if (title == null && defaultI18n[type] != null) {
       return this.i18nService.t(defaultI18n[type]);

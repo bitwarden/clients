@@ -116,15 +116,15 @@ export class PhishingDetectionService {
   /**
    * Sends a message to the phishing detection service to close the warning page
    */
-  static requestClosePhishingWarningPage(): void {
-    void chrome.runtime.sendMessage({ command: PhishingDetectionMessage.Close });
+  static async requestClosePhishingWarningPage() {
+    await chrome.runtime.sendMessage({ command: PhishingDetectionMessage.Close });
   }
 
   /**
    * Sends a message to the phishing detection service to continue to the caught url
    */
   static async requestContinueToDangerousUrl() {
-    void chrome.runtime.sendMessage({ command: PhishingDetectionMessage.Continue });
+    await chrome.runtime.sendMessage({ command: PhishingDetectionMessage.Continue });
   }
 
   /**
