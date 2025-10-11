@@ -1,0 +1,122 @@
+<bit-dialog dialogSize="large">
+  <span bitDialogTitle class="tw-text-xl tw-font-semibold">
+    {{ totalDuplicateItemCount }} {{ "duplicatesFound" | i18n }}
+  </span>
+  <div bitDialogContent>
+    <div class="tw-space-y-4 tw-w-full tw-max-w-full tw-overflow-x-hidden tw-min-w-0">
+      <ng-template
+        #duplicateSummary
+        let-totalDuplicateItemCount="totalDuplicateItemCount"
+        let-duplicateSetsLength="duplicateSetsLength"
+      >
+        <div class="tw-text-sm tw-font-medium">
+          {{ "found" | i18n }}
+          {{ totalDuplicateItemCount }}
+          {{ "duplicateItemsIn" | i18n }}
+          {{ duplicateSetsLength }}
+          {{ "sets" | i18n }}.
+        </div>
+      </ng-template>
+      <ng-container *ngIf="dataSource.data?.length">
+        <ng-container
+          *ngTemplateOutlet="
+            duplicateSummary;
+            context: {
+              totalDuplicateItemCount: totalDuplicateItemCount,
+              duplicateSetsLength: dataSource.data.length,
+            }
+          "
+        ></ng-container>
+      </ng-container>
+
+      <ng-container *ngIf="dataSource.data?.length">
+        <div
+          class="tw-border tw-rounded tw-divide-y tw-bg-background tw-w-full tw-max-w-full tw-overflow-x-hidden tw-min-w-0 tw-max-h-[80vh] tw-overflow-y-auto"
+        >
+          <div
+            *ngFor="let set of dataSource.data; let i = index; trackBy: trackBySet"
+            class="tw-p-3 tw-space-y-2 tw-bg-background-alt tw-max-w-full tw-min-w-0 tw-box-border"
+          >
+            <div class="tw-text-base tw-font-semibold tw-break-words">
+              {{ i + 1 }}. {{ set.displayKey }}
+            </div>
+            <div class="tw-text-xs tw-text-muted">
+              {{ set.ciphers.length }}
+              {{ set.ciphers.length === 1 ? ("item" | i18n) : ("items" | i18n) }}
+            </div>
+            <div
+              class="tw-overflow-x-hidden tw-grid tw-grid-cols-1 tw-gap-3 tw-text-sm tw-w-full tw-max-w-full tw-min-w-0 tw-box-border"
+              role="list"
+            >
+              <bit-card
+                *ngFor="let row of set.ciphers; trackBy: trackByCipher"
+                role="listitem"
+                class="tw-w-full tw-p-3 tw-space-y-2 tw-min-w-0"
+              >
+                <div class="tw-flex tw-items-start tw-gap-2">
+                  <input
+                    id="duplicate-review-dialog_input_select-{{ row.id }}"
+                    type="checkbox"
+                    [ngModel]="selection[row.id]"
+                    (ngModelChange)="onSelectChange(row.id, $event)"
+                    [ngModelOptions]="{ standalone: true }"
+                    class="tw-mt-0.5"
+                  />
+                  <div class="tw-flex-1 tw-min-w-0">
+                    <div
+                      [ngClass]="{ 'tw-font-semibold': row.id === set.ciphers[0]?.id }"
+                      class="tw-break-words"
+                    >
+                      {{ row.name }}
+                    </div>
+                    <div *ngIf="row.isDeleted" class="tw-italic tw-text-xs tw-text-muted">
+                      ({{ "itemInTrash" | i18n }})
+                    </div>
+                  </div>
+                </div>
+
+                <div
+                  class="tw-grid tw-grid-cols-2 tw-gap-x-4 tw-gap-y-1 tw-text-xs tw-text-muted tw-min-w-0"
+                >
+                  <div>
+                    <div class="tw-text-base tw-font-semibold">{{ "username" | i18n }}:</div>
+                    <div class="tw-text-foreground tw-break-words">
+                      {{ row.login?.username || ("noValue" | i18n) }}
+                    </div>
+                  </div>
+                  <div>
+                    <div class="tw-text-base tw-font-semibold">{{ "websiteUri" | i18n }}:</div>
+                    <div class="tw-text-foreground tw-break-words">
+                      {{ getCipherUris(row) || ("noValue" | i18n) }}
+                    </div>
+                  </div>
+                </div>
+              </bit-card>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+  <ng-container bitDialogFooter>
+    <button
+      id="duplicate-review-dialog_button_cancel"
+      bitButton
+      buttonType="secondary"
+      type="button"
+      (click)="cancel()"
+    >
+      {{ "cancel" | i18n }}
+    </button>
+    <button
+      id="duplicate-review-dialog_button_delete-selected"
+      bitButton
+      buttonType="danger"
+      type="button"
+      (click)="confirm()"
+      [disabled]="!anySelected"
+    >
+      {{ "delete" | i18n }}
+    </button>
+  </ng-container>
+</bit-dialog>
