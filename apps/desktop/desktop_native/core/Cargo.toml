@@ -46,6 +46,7 @@ ssh-key = { workspace = true, features = [
     "rsa",
     "getrandom",
 ] }
+swift-rs = { version = "1.0.7", features = ["build"] }
 sysinfo = { workspace = true, features = ["windows"] }
 thiserror = { workspace = true }
 tokio = { workspace = true, features = ["io-util", "sync", "macros", "net"] }
@@ -87,6 +88,10 @@ ashpd = { workspace = true }
 
 zbus = { workspace = true, optional = true }
 zbus_polkit = { workspace = true, optional = true }
+
+
+[build-dependencies]
+swift-rs = { version = "1.0.5", features = ["build"] }
 
 [lints]
 workspace = true
