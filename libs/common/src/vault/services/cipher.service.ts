@@ -1944,11 +1944,21 @@ export class CipherService implements CipherServiceAbstraction {
     autofillOnPageLoad: boolean,
   ): Promise<CipherView> {
     const cacheKey = autofillOnPageLoad ? "autofillOnPageLoad-" + url : url;
-
     if (!this.sortedCiphersCache.isCached(cacheKey)) {
       let ciphers = await this.getAllDecryptedForUrl(url, userId);
-      if (!ciphers) {
+
+      if (!ciphers?.length) {
         return null;
+      }
+
+      const localData = await firstValueFrom(this.localData$(userId));
+      if (localData) {
+        for (const view of ciphers) {
+          const data = localData[view.id as CipherId];
+          if (data) {
+            view.localData = data;
+          }
+        }
       }
 
       if (autofillOnPageLoad) {
@@ -2074,6 +2084,7 @@ export class CipherService implements CipherServiceAbstraction {
       userId,
     );
     const decryptedViews = await Promise.all(decrypted.map((c) => this.getFullCipherView(c)));
+
     const failedViews = failures.map((c) => {
       const cipher_view = new CipherView(c);
       cipher_view.name = "[error: cannot decrypt]";
