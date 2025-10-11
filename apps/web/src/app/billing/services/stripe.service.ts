@@ -226,7 +226,7 @@ export class StripeService {
         base: {
           color: null,
           fontFamily:
-            'Roboto, "Helvetica Neue", Helvetica, Arial, sans-serif, ' +
+            'Inter, "Helvetica Neue", Helvetica, Arial, sans-serif, ' +
             '"Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"',
           fontSize: "16px",
           fontSmoothing: "antialiased",

@@ -7,12 +7,13 @@
  * Font faces
  */
 @font-face {
-  font-family: Roboto;
+  font-family: Inter;
   src:
-    url("~@bitwarden/components/src/webfonts/roboto.woff2") format("woff2 supports variations"),
-    url("~@bitwarden/components/src/webfonts/roboto.woff2") format("woff2-variations");
+    url("~@bitwarden/components/src/webfonts/inter.woff2") format("woff2 supports variations"),
+    url("~@bitwarden/components/src/webfonts/inter.woff2") format("woff2-variations");
   font-display: swap;
   font-weight: 100 900;
+  font-feature-settings: "ss02";
 }
 
 /**
@@ -20,7 +21,7 @@
  */
 :root {
   --font-sans:
-    Roboto, "Helvetica Neue", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+    Inter, "Helvetica Neue", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
     "Segoe UI Symbol", "Noto Color Emoji";
   --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
   --font-mono: Menlo, SFMono-Regular, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
