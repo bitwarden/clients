@@ -11,7 +11,10 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -33,6 +36,10 @@ import { PasswordRepromptService } from "@bitwarden/vault";
 
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
 import { AddEditQueryParams } from "../add-edit/add-edit-v2.component";
+import {
+  AutofillConfirmationDialogComponent,
+  AutofillConfirmationDialogResult,
+} from "../autofill-confirmation-dialog/autofill-confirmation-dialog.component";
 
 @Component({
   selector: "app-item-more-options",
@@ -138,6 +145,7 @@ export class ItemMoreOptionsComponent {
     private collectionService: CollectionService,
     private restrictedItemTypesService: RestrictedItemTypesService,
     private cipherArchiveService: CipherArchiveService,
+    private configService: ConfigService,
   ) {}
 
   get canEdit() {
@@ -176,6 +184,33 @@ export class ItemMoreOptionsComponent {
 
   async doAutofillAndSave() {
     const cipher = await this.cipherService.getFullCipherView(this.cipher);
+
+    const isFeatureFlagEnabled = await firstValueFrom(
+      this.configService.getFeatureFlag$(FeatureFlag.AutofillConfirmation),
+    );
+
+    if (!isFeatureFlagEnabled) {
+      const currentTab = await firstValueFrom(this.vaultPopupAutofillService.currentAutofillTab$);
+      const currentUri = Utils.getHostname(currentTab.url);
+
+      const ref = AutofillConfirmationDialogComponent.open(this.dialogService, {
+        data: {
+          currentUri,
+        },
+      });
+
+      const result = await firstValueFrom(ref.closed);
+
+      if (!result || result === AutofillConfirmationDialogResult.Canceled) {
+        return;
+      }
+
+      if (result === AutofillConfirmationDialogResult.AutofilledOnly) {
+        await this.vaultPopupAutofillService.doAutofill(cipher);
+        return;
+      }
+    }
+
     await this.vaultPopupAutofillService.doAutofillAndSave(cipher, false);
   }
 
