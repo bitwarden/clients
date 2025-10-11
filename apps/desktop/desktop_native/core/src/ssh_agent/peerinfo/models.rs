@@ -1,26 +1,37 @@
+use std::fmt::Debug;
 use std::sync::{atomic::AtomicBool, Arc, Mutex};
 
 /**
 * Peerinfo represents the information of a peer process connecting over a socket.
 * This can be later extended to include more information (icon, app name) for the corresponding application.
 */
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct PeerInfo {
     uid: u32,
     pid: u32,
     process_name: String,
+    #[deprecated(note = "Moved to connection info")]
     is_forwarding: Arc<AtomicBool>,
+    #[deprecated(note = "Moved to connection info")]
     host_key: Arc<Mutex<Vec<u8>>>,
+    peer_type: PeerType,
+}
+
+#[derive(Clone, Copy, Debug)]
+pub enum PeerType {
+    NamedPipe,
+    UnixSocket,
 }
 
 impl PeerInfo {
-    pub fn new(uid: u32, pid: u32, process_name: String) -> Self {
+    pub fn new(uid: u32, pid: u32, process_name: String, peer_type: PeerType) -> Self {
         Self {
             uid,
             pid,
             process_name,
             is_forwarding: Arc::new(AtomicBool::new(false)),
             host_key: Arc::new(Mutex::new(Vec::new())),
+            peer_type,
         }
     }
 
@@ -31,6 +42,7 @@ impl PeerInfo {
             process_name: "Unknown application".to_string(),
             is_forwarding: Arc::new(AtomicBool::new(false)),
             host_key: Arc::new(Mutex::new(Vec::new())),
+            peer_type: PeerType::UnixSocket,
         }
     }
 
@@ -63,5 +75,16 @@ impl PeerInfo {
 
     pub fn host_key(&self) -> Vec<u8> {
         self.host_key.lock().expect("Mutex is not poisoned").clone()
+    }
+}
+
+impl Debug for PeerInfo {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("PeerInfo")
+            .field("uid", &self.uid)
+            .field("pid", &self.pid)
+            .field("process_name", &self.process_name)
+            .field("peer_type", &self.peer_type)
+            .finish()
     }
 }

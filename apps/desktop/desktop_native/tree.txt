@@ -1,0 +1,784 @@
+autotype v0.0.0 (/Users/quexten/projects/clients/apps/desktop/desktop_native/autotype)
+
+bitwarden_chromium_importer v0.0.0 (/Users/quexten/projects/clients/apps/desktop/desktop_native/bitwarden_chromium_importer)
+├── aes v0.8.4
+│   ├── cfg-if v1.0.0
+│   ├── cipher v0.4.4
+│   │   ├── crypto-common v0.1.6
+│   │   │   ├── generic-array v0.14.7
+│   │   │   │   ├── typenum v1.18.0
+│   │   │   │   └── zeroize v1.8.1
+│   │   │   │   [build-dependencies]
+│   │   │   │   └── version_check v0.9.5
+│   │   │   ├── rand_core v0.6.4
+│   │   │   │   └── getrandom v0.2.16
+│   │   │   │       ├── cfg-if v1.0.0
+│   │   │   │       └── libc v0.2.172
+│   │   │   └── typenum v1.18.0
+│   │   └── inout v0.1.4
+│   │       ├── block-padding v0.3.3
+│   │       │   └── generic-array v0.14.7 (*)
+│   │       └── generic-array v0.14.7 (*)
+│   └── cpufeatures v0.2.17
+│       └── libc v0.2.172
+├── aes-gcm v0.10.3
+│   ├── aead v0.5.2
+│   │   ├── crypto-common v0.1.6 (*)
+│   │   └── generic-array v0.14.7 (*)
+│   ├── aes v0.8.4 (*)
+│   ├── cipher v0.4.4 (*)
+│   ├── ctr v0.9.2
+│   │   └── cipher v0.4.4 (*)
+│   ├── ghash v0.5.1
+│   │   ├── opaque-debug v0.3.1
+│   │   └── polyval v0.6.2
+│   │       ├── cfg-if v1.0.0
+│   │       ├── cpufeatures v0.2.17 (*)
+│   │       ├── opaque-debug v0.3.1
+│   │       └── universal-hash v0.5.1
+│   │           ├── crypto-common v0.1.6 (*)
+│   │           └── subtle v2.6.1
+│   └── subtle v2.6.1
+├── anyhow v1.0.94
+├── async-trait v0.1.88 (proc-macro)
+│   ├── proc-macro2 v1.0.95
+│   │   └── unicode-ident v1.0.18
+│   ├── quote v1.0.40
+│   │   └── proc-macro2 v1.0.95 (*)
+│   └── syn v2.0.101
+│       ├── proc-macro2 v1.0.95 (*)
+│       ├── quote v1.0.40 (*)
+│       └── unicode-ident v1.0.18
+├── base64 v0.22.1
+├── cbc v0.1.2
+│   └── cipher v0.4.4 (*)
+├── hex v0.4.3
+├── homedir v0.3.4
+│   ├── cfg-if v1.0.0
+│   └── nix v0.29.0
+│       ├── bitflags v2.9.0
+│       ├── cfg-if v1.0.0
+│       └── libc v0.2.172
+│       [build-dependencies]
+│       └── cfg_aliases v0.2.1
+├── pbkdf2 v0.12.2
+│   ├── digest v0.10.7
+│   │   ├── block-buffer v0.10.4
+│   │   │   └── generic-array v0.14.7 (*)
+│   │   ├── const-oid v0.9.6
+│   │   ├── crypto-common v0.1.6 (*)
+│   │   └── subtle v2.6.1
+│   └── hmac v0.12.1
+│       └── digest v0.10.7 (*)
+├── rand v0.9.1
+│   ├── rand_chacha v0.9.0
+│   │   ├── ppv-lite86 v0.2.21
+│   │   │   └── zerocopy v0.8.25
+│   │   └── rand_core v0.9.3
+│   │       └── getrandom v0.3.3
+│   │           ├── cfg-if v1.0.0
+│   │           └── libc v0.2.172
+│   └── rand_core v0.9.3 (*)
+├── rusqlite v0.37.0
+│   ├── bitflags v2.9.0
+│   ├── fallible-iterator v0.3.0
+│   ├── fallible-streaming-iterator v0.1.9
+│   ├── hashlink v0.10.0
+│   │   └── hashbrown v0.15.3
+│   │       └── foldhash v0.1.5
+│   ├── libsqlite3-sys v0.35.0
+│   │   [build-dependencies]
+│   │   ├── cc v1.2.4
+│   │   │   └── shlex v1.3.0
+│   │   ├── pkg-config v0.3.32
+│   │   └── vcpkg v0.2.15
+│   └── smallvec v1.15.0
+├── security-framework v3.5.0
+│   ├── bitflags v2.9.0
+│   ├── core-foundation v0.10.1
+│   │   ├── core-foundation-sys v0.8.7
+│   │   └── libc v0.2.172
+│   ├── core-foundation-sys v0.8.7
+│   ├── libc v0.2.172
+│   └── security-framework-sys v2.15.0
+│       ├── core-foundation-sys v0.8.7
+│       └── libc v0.2.172
+├── serde v1.0.209
+│   └── serde_derive v1.0.209 (proc-macro)
+│       ├── proc-macro2 v1.0.95 (*)
+│       ├── quote v1.0.40 (*)
+│       └── syn v2.0.101 (*)
+├── serde_json v1.0.127
+│   ├── itoa v1.0.15
+│   ├── memchr v2.7.4
+│   ├── ryu v1.0.20
+│   └── serde v1.0.209 (*)
+└── sha1 v0.10.6
+    ├── cfg-if v1.0.0
+    ├── cpufeatures v0.2.17 (*)
+    └── digest v0.10.7 (*)
+
+desktop_core v0.0.0 (/Users/quexten/projects/clients/apps/desktop/desktop_native/core)
+├── aes v0.8.4 (*)
+├── anyhow v1.0.94
+├── arboard v3.6.0
+│   ├── objc2 v0.6.1
+│   │   └── objc2-encode v4.1.0
+│   ├── objc2-app-kit v0.3.1
+│   │   ├── bitflags v2.9.0
+│   │   ├── objc2 v0.6.1 (*)
+│   │   ├── objc2-core-graphics v0.3.1
+│   │   │   ├── bitflags v2.9.0
+│   │   │   ├── objc2 v0.6.1 (*)
+│   │   │   └── objc2-core-foundation v0.3.1
+│   │   │       ├── bitflags v2.9.0
+│   │   │       └── objc2 v0.6.1 (*)
+│   │   └── objc2-foundation v0.3.1
+│   │       ├── bitflags v2.9.0
+│   │       ├── objc2 v0.6.1 (*)
+│   │       └── objc2-core-foundation v0.3.1 (*)
+│   └── objc2-foundation v0.3.1 (*)
+├── base64 v0.22.1
+├── byteorder v1.5.0
+├── bytes v1.10.1
+├── cbc v0.1.2 (*)
+├── core-foundation v0.10.1 (*)
+├── desktop_objc v0.0.0 (/Users/quexten/projects/clients/apps/desktop/desktop_native/objc)
+│   ├── anyhow v1.0.94
+│   ├── core-foundation v0.10.1 (*)
+│   ├── thiserror v2.0.12
+│   │   └── thiserror-impl v2.0.12 (proc-macro)
+│   │       ├── proc-macro2 v1.0.95 (*)
+│   │       ├── quote v1.0.40 (*)
+│   │       └── syn v2.0.101 (*)
+│   ├── tokio v1.45.0
+│   │   ├── bytes v1.10.1
+│   │   ├── libc v0.2.172
+│   │   ├── mio v1.0.3
+│   │   │   └── libc v0.2.172
+│   │   ├── pin-project-lite v0.2.16
+│   │   ├── socket2 v0.5.9
+│   │   │   └── libc v0.2.172
+│   │   └── tokio-macros v2.5.0 (proc-macro)
+│   │       ├── proc-macro2 v1.0.95 (*)
+│   │       ├── quote v1.0.40 (*)
+│   │       └── syn v2.0.101 (*)
+│   └── tracing v0.1.41
+│       ├── pin-project-lite v0.2.16
+│       ├── tracing-attributes v0.1.28 (proc-macro)
+│       │   ├── proc-macro2 v1.0.95 (*)
+│       │   ├── quote v1.0.40 (*)
+│       │   └── syn v2.0.101 (*)
+│       └── tracing-core v0.1.33
+│           └── once_cell v1.21.3
+│   [build-dependencies]
+│   ├── cc v1.2.4 (*)
+│   └── glob v0.3.2
+├── dirs v6.0.0
+│   └── dirs-sys v0.5.0
+│       ├── libc v0.2.172
+│       └── option-ext v0.2.0
+├── ed25519 v2.2.3
+│   ├── pkcs8 v0.10.2
+│   │   ├── der v0.7.10
+│   │   │   ├── const-oid v0.9.6
+│   │   │   ├── pem-rfc7468 v0.7.0
+│   │   │   │   └── base64ct v1.7.3
+│   │   │   └── zeroize v1.8.1
+│   │   ├── pkcs5 v0.7.1
+│   │   │   ├── aes v0.8.4 (*)
+│   │   │   ├── cbc v0.1.2 (*)
+│   │   │   ├── der v0.7.10 (*)
+│   │   │   ├── pbkdf2 v0.12.2 (*)
+│   │   │   ├── scrypt v0.11.0
+│   │   │   │   ├── pbkdf2 v0.12.2 (*)
+│   │   │   │   ├── salsa20 v0.10.2
+│   │   │   │   │   └── cipher v0.4.4 (*)
+│   │   │   │   └── sha2 v0.10.8
+│   │   │   │       ├── cfg-if v1.0.0
+│   │   │   │       ├── cpufeatures v0.2.17 (*)
+│   │   │   │       └── digest v0.10.7 (*)
+│   │   │   ├── sha2 v0.10.8 (*)
+│   │   │   └── spki v0.7.3
+│   │   │       └── der v0.7.10 (*)
+│   │   ├── rand_core v0.6.4 (*)
+│   │   └── spki v0.7.3 (*)
+│   └── signature v2.2.0
+│       ├── digest v0.10.7 (*)
+│       └── rand_core v0.6.4 (*)
+├── ed25519-dalek v2.2.0
+│   ├── curve25519-dalek v4.1.3
+│   │   ├── cfg-if v1.0.0
+│   │   ├── digest v0.10.7 (*)
+│   │   ├── subtle v2.6.1
+│   │   └── zeroize v1.8.1
+│   │   [build-dependencies]
+│   │   └── rustc_version v0.4.1
+│   │       └── semver v1.0.26
+│   │           └── serde v1.0.209 (*)
+│   ├── ed25519 v2.2.3 (*)
+│   ├── rand_core v0.6.4 (*)
+│   ├── sha2 v0.10.8 (*)
+│   ├── subtle v2.6.1
+│   └── zeroize v1.8.1
+├── env_logger v0.11.8
+│   ├── anstream v0.6.18
+│   │   ├── anstyle v1.0.10
+│   │   ├── anstyle-parse v0.2.6
+│   │   │   └── utf8parse v0.2.2
+│   │   ├── anstyle-query v1.1.2
+│   │   ├── colorchoice v1.0.3
+│   │   ├── is_terminal_polyfill v1.70.1
+│   │   └── utf8parse v0.2.2
+│   ├── anstyle v1.0.10
+│   ├── env_filter v0.1.3
+│   │   ├── log v0.4.25
+│   │   └── regex v1.11.1
+│   │       ├── aho-corasick v1.1.3
+│   │       │   └── memchr v2.7.4
+│   │       ├── memchr v2.7.4
+│   │       ├── regex-automata v0.4.9
+│   │       │   ├── aho-corasick v1.1.3 (*)
+│   │       │   ├── memchr v2.7.4
+│   │       │   └── regex-syntax v0.8.5
+│   │       └── regex-syntax v0.8.5
+│   ├── jiff v0.2.15
+│   └── log v0.4.25
+├── futures v0.3.31
+│   ├── futures-channel v0.3.31
+│   │   ├── futures-core v0.3.31
+│   │   └── futures-sink v0.3.31
+│   ├── futures-core v0.3.31
+│   ├── futures-executor v0.3.31
+│   │   ├── futures-core v0.3.31
+│   │   ├── futures-task v0.3.31
+│   │   └── futures-util v0.3.31
+│   │       ├── futures-channel v0.3.31 (*)
+│   │       ├── futures-core v0.3.31
+│   │       ├── futures-io v0.3.31
+│   │       ├── futures-macro v0.3.31 (proc-macro)
+│   │       │   ├── proc-macro2 v1.0.95 (*)
+│   │       │   ├── quote v1.0.40 (*)
+│   │       │   └── syn v2.0.101 (*)
+│   │       ├── futures-sink v0.3.31
+│   │       ├── futures-task v0.3.31
+│   │       ├── memchr v2.7.4
+│   │       ├── pin-project-lite v0.2.16
+│   │       ├── pin-utils v0.1.0
+│   │       └── slab v0.4.9
+│   │           [build-dependencies]
+│   │           └── autocfg v1.4.0
+│   ├── futures-io v0.3.31
+│   ├── futures-sink v0.3.31
+│   ├── futures-task v0.3.31
+│   └── futures-util v0.3.31 (*)
+├── homedir v0.3.4 (*)
+├── interprocess v2.2.1
+│   ├── doctest-file v1.0.0 (proc-macro)
+│   ├── futures-core v0.3.31
+│   ├── libc v0.2.172
+│   └── tokio v1.45.0 (*)
+├── log v0.4.25
+├── num_enum v0.7.4
+│   ├── num_enum_derive v0.7.4 (proc-macro)
+│   │   ├── proc-macro-crate v3.3.0
+│   │   │   └── toml_edit v0.22.26
+│   │   │       ├── indexmap v2.9.0
+│   │   │       │   ├── equivalent v1.0.2
+│   │   │       │   └── hashbrown v0.15.3
+│   │   │       ├── toml_datetime v0.6.9
+│   │   │       └── winnow v0.7.10
+│   │   ├── proc-macro2 v1.0.95 (*)
+│   │   ├── quote v1.0.40 (*)
+│   │   └── syn v2.0.101 (*)
+│   └── rustversion v1.0.20 (proc-macro)
+├── p256 v0.13.2
+│   ├── ecdsa v0.16.9
+│   │   ├── der v0.7.10 (*)
+│   │   ├── digest v0.10.7 (*)
+│   │   ├── elliptic-curve v0.13.8
+│   │   │   ├── base16ct v0.2.0
+│   │   │   ├── crypto-bigint v0.5.5
+│   │   │   │   ├── generic-array v0.14.7 (*)
+│   │   │   │   ├── rand_core v0.6.4 (*)
+│   │   │   │   ├── subtle v2.6.1
+│   │   │   │   └── zeroize v1.8.1
+│   │   │   ├── digest v0.10.7 (*)
+│   │   │   ├── ff v0.13.1
+│   │   │   │   ├── rand_core v0.6.4 (*)
+│   │   │   │   └── subtle v2.6.1
+│   │   │   ├── generic-array v0.14.7 (*)
+│   │   │   ├── group v0.13.0
+│   │   │   │   ├── ff v0.13.1 (*)
+│   │   │   │   ├── rand_core v0.6.4 (*)
+│   │   │   │   └── subtle v2.6.1
+│   │   │   ├── hkdf v0.12.4
+│   │   │   │   └── hmac v0.12.1 (*)
+│   │   │   ├── pem-rfc7468 v0.7.0 (*)
+│   │   │   ├── pkcs8 v0.10.2 (*)
+│   │   │   ├── rand_core v0.6.4 (*)
+│   │   │   ├── sec1 v0.7.3
+│   │   │   │   ├── base16ct v0.2.0
+│   │   │   │   ├── der v0.7.10 (*)
+│   │   │   │   ├── generic-array v0.14.7 (*)
+│   │   │   │   ├── pkcs8 v0.10.2 (*)
+│   │   │   │   ├── subtle v2.6.1
+│   │   │   │   └── zeroize v1.8.1
+│   │   │   ├── subtle v2.6.1
+│   │   │   └── zeroize v1.8.1
+│   │   ├── rfc6979 v0.4.0
+│   │   │   ├── hmac v0.12.1 (*)
+│   │   │   └── subtle v2.6.1
+│   │   ├── signature v2.2.0 (*)
+│   │   └── spki v0.7.3 (*)
+│   ├── elliptic-curve v0.13.8 (*)
+│   ├── primeorder v0.13.6
+│   │   └── elliptic-curve v0.13.8 (*)
+│   └── sha2 v0.10.8 (*)
+├── p384 v0.13.1
+│   ├── ecdsa v0.16.9 (*)
+│   ├── elliptic-curve v0.13.8 (*)
+│   ├── primeorder v0.13.6 (*)
+│   └── sha2 v0.10.8 (*)
+├── p521 v0.13.3
+│   ├── base16ct v0.2.0
+│   ├── ecdsa v0.16.9 (*)
+│   ├── elliptic-curve v0.13.8 (*)
+│   ├── primeorder v0.13.6 (*)
+│   ├── rand_core v0.6.4 (*)
+│   └── sha2 v0.10.8 (*)
+├── pin-project v1.1.10
+│   └── pin-project-internal v1.1.10 (proc-macro)
+│       ├── proc-macro2 v1.0.95 (*)
+│       ├── quote v1.0.40 (*)
+│       └── syn v2.0.101 (*)
+├── pkcs8 v0.10.2 (*)
+├── rand v0.9.1 (*)
+├── rsa v0.10.0-rc.8
+│   ├── const-oid v0.10.1
+│   ├── crypto-bigint v0.7.0-rc.8
+│   │   ├── num-traits v0.2.19
+│   │   │   [build-dependencies]
+│   │   │   └── autocfg v1.4.0
+│   │   ├── rand_core v0.9.3 (*)
+│   │   ├── subtle v2.6.1
+│   │   └── zeroize v1.8.1
+│   ├── crypto-primes v0.7.0-pre.3
+│   │   ├── crypto-bigint v0.7.0-rc.8 (*)
+│   │   ├── libm v0.2.15
+│   │   └── rand_core v0.9.3 (*)
+│   ├── digest v0.11.0-rc.3
+│   │   ├── block-buffer v0.11.0-rc.5
+│   │   │   └── hybrid-array v0.4.5
+│   │   │       └── typenum v1.18.0
+│   │   ├── const-oid v0.10.1
+│   │   ├── crypto-common v0.2.0-rc.4
+│   │   │   └── hybrid-array v0.4.5 (*)
+│   │   └── subtle v2.6.1
+│   ├── pkcs1 v0.8.0-rc.4
+│   │   ├── der v0.8.0-rc.9
+│   │   │   ├── const-oid v0.10.1
+│   │   │   ├── pem-rfc7468 v1.0.0-rc.3
+│   │   │   │   └── base64ct v1.7.3
+│   │   │   └── zeroize v1.8.1
+│   │   └── spki v0.8.0-rc.4
+│   │       └── der v0.8.0-rc.9 (*)
+│   ├── pkcs8 v0.11.0-rc.7
+│   │   ├── der v0.8.0-rc.9 (*)
+│   │   └── spki v0.8.0-rc.4 (*)
+│   ├── rand_core v0.9.3 (*)
+│   ├── sha2 v0.11.0-rc.2
+│   │   ├── cfg-if v1.0.0
+│   │   ├── cpufeatures v0.2.17 (*)
+│   │   └── digest v0.11.0-rc.3 (*)
+│   ├── signature v3.0.0-rc.4
+│   │   ├── digest v0.11.0-rc.3 (*)
+│   │   └── rand_core v0.9.3 (*)
+│   ├── spki v0.8.0-rc.4 (*)
+│   ├── subtle v2.6.1
+│   └── zeroize v1.8.1
+├── russh-cryptovec v0.7.3
+│   └── libc v0.2.172
+├── scopeguard v1.2.0
+├── secmem-proc v0.3.7
+│   ├── anyhow v1.0.94
+│   ├── cfg-if v1.0.0
+│   ├── libc v0.2.172
+│   ├── rustix v1.0.7
+│   │   ├── bitflags v2.9.0
+│   │   ├── errno v0.3.11
+│   │   │   └── libc v0.2.172
+│   │   └── libc v0.2.172
+│   └── thiserror v2.0.12 (*)
+├── security-framework v3.5.0 (*)
+├── security-framework-sys v2.15.0 (*)
+├── sha1 v0.10.6 (*)
+├── sha2 v0.10.8 (*)
+├── signature v3.0.0-rc.4 (*)
+├── ssh-encoding v0.3.0-rc.2
+│   ├── base64ct v1.7.3
+│   ├── crypto-bigint v0.7.0-rc.8 (*)
+│   ├── digest v0.11.0-rc.3 (*)
+│   ├── pem-rfc7468 v1.0.0-rc.3 (*)
+│   ├── subtle v2.6.1
+│   └── zeroize v1.8.1
+├── ssh-key v0.7.0-rc.3
+│   ├── bcrypt-pbkdf v0.11.0-rc.1
+│   │   ├── blowfish v0.10.0-rc.1
+│   │   │   ├── byteorder v1.5.0
+│   │   │   └── cipher v0.5.0-rc.1
+│   │   │       ├── block-buffer v0.11.0-rc.5 (*)
+│   │   │       ├── crypto-common v0.2.0-rc.4 (*)
+│   │   │       └── inout v0.2.0-rc.6
+│   │   │           ├── block-padding v0.4.0-rc.4
+│   │   │           │   └── hybrid-array v0.4.5 (*)
+│   │   │           └── hybrid-array v0.4.5 (*)
+│   │   ├── pbkdf2 v0.13.0-rc.1
+│   │   │   └── digest v0.11.0-rc.3 (*)
+│   │   └── sha2 v0.11.0-rc.2 (*)
+│   ├── ed25519-dalek v3.0.0-pre.1
+│   │   ├── curve25519-dalek v5.0.0-pre.1
+│   │   │   ├── cfg-if v1.0.0
+│   │   │   ├── digest v0.11.0-rc.3 (*)
+│   │   │   └── subtle v2.6.1
+│   │   │   [build-dependencies]
+│   │   │   └── rustc_version v0.4.1 (*)
+│   │   ├── ed25519 v3.0.0-rc.1
+│   │   │   └── signature v3.0.0-rc.4 (*)
+│   │   ├── sha2 v0.11.0-rc.2 (*)
+│   │   └── subtle v2.6.1
+│   ├── rand_core v0.9.3 (*)
+│   ├── rsa v0.10.0-rc.8 (*)
+│   ├── sec1 v0.8.0-rc.10
+│   │   ├── base16ct v0.3.0
+│   │   └── hybrid-array v0.4.5 (*)
+│   ├── sha2 v0.11.0-rc.2 (*)
+│   ├── signature v3.0.0-rc.4 (*)
+│   ├── ssh-cipher v0.3.0-rc.3
+│   │   ├── aead v0.6.0-rc.2
+│   │   │   ├── crypto-common v0.2.0-rc.4 (*)
+│   │   │   └── inout v0.2.0-rc.6 (*)
+│   │   ├── aes v0.9.0-rc.1
+│   │   │   ├── cfg-if v1.0.0
+│   │   │   ├── cipher v0.5.0-rc.1 (*)
+│   │   │   ├── cpufeatures v0.2.17 (*)
+│   │   │   └── zeroize v1.8.1
+│   │   ├── aes-gcm v0.11.0-rc.1
+│   │   │   ├── aead v0.6.0-rc.2 (*)
+│   │   │   ├── aes v0.9.0-rc.1 (*)
+│   │   │   ├── cipher v0.5.0-rc.1 (*)
+│   │   │   ├── ctr v0.10.0-rc.1
+│   │   │   │   └── cipher v0.5.0-rc.1 (*)
+│   │   │   ├── ghash v0.6.0-rc.2
+│   │   │   │   └── polyval v0.7.0-rc.2
+│   │   │   │       ├── cfg-if v1.0.0
+│   │   │   │       ├── cpufeatures v0.2.17 (*)
+│   │   │   │       └── universal-hash v0.6.0-rc.2
+│   │   │   │           ├── crypto-common v0.2.0-rc.4 (*)
+│   │   │   │           └── subtle v2.6.1
+│   │   │   ├── subtle v2.6.1
+│   │   │   └── zeroize v1.8.1
+│   │   ├── cbc v0.2.0-rc.1
+│   │   │   └── cipher v0.5.0-rc.1 (*)
+│   │   ├── chacha20 v0.10.0-rc.2
+│   │   │   ├── cfg-if v1.0.0
+│   │   │   ├── cipher v0.5.0-rc.1 (*)
+│   │   │   └── zeroize v1.8.1
+│   │   ├── cipher v0.5.0-rc.1 (*)
+│   │   ├── ctr v0.10.0-rc.1 (*)
+│   │   ├── poly1305 v0.9.0-rc.2
+│   │   │   ├── universal-hash v0.6.0-rc.2 (*)
+│   │   │   └── zeroize v1.8.1
+│   │   ├── ssh-encoding v0.3.0-rc.2 (*)
+│   │   ├── subtle v2.6.1
+│   │   └── zeroize v1.8.1
+│   ├── ssh-encoding v0.3.0-rc.2 (*)
+│   ├── subtle v2.6.1
+│   └── zeroize v1.8.1
+├── sysinfo v0.35.0
+│   ├── libc v0.2.172
+│   ├── memchr v2.7.4
+│   ├── objc2-core-foundation v0.3.1 (*)
+│   └── objc2-io-kit v0.3.1
+│       ├── libc v0.2.172
+│       └── objc2-core-foundation v0.3.1 (*)
+├── test-env-log v0.2.8 (proc-macro)
+│   ├── proc-macro2 v1.0.95 (*)
+│   ├── quote v1.0.40 (*)
+│   └── syn v1.0.109
+│       ├── proc-macro2 v1.0.95 (*)
+│       ├── quote v1.0.40 (*)
+│       └── unicode-ident v1.0.18
+├── test-log v0.2.18
+│   ├── env_logger v0.11.8 (*)
+│   ├── test-log-macros v0.2.18 (proc-macro)
+│   │   ├── proc-macro2 v1.0.95 (*)
+│   │   ├── quote v1.0.40 (*)
+│   │   └── syn v2.0.101 (*)
+│   └── tracing-subscriber v0.3.20
+│       ├── matchers v0.2.0
+│       │   └── regex-automata v0.4.9 (*)
+│       ├── nu-ansi-term v0.50.1
+│       ├── once_cell v1.21.3
+│       ├── regex-automata v0.4.9 (*)
+│       ├── sharded-slab v0.1.7
+│       │   └── lazy_static v1.5.0
+│       ├── smallvec v1.15.0
+│       ├── thread_local v1.1.9
+│       │   └── cfg-if v1.0.0
+│       ├── tracing v0.1.41 (*)
+│       ├── tracing-core v0.1.33 (*)
+│       └── tracing-log v0.2.0
+│           ├── log v0.4.25
+│           ├── once_cell v1.21.3
+│           └── tracing-core v0.1.33 (*)
+├── thiserror v2.0.12 (*)
+├── tokio v1.45.0 (*)
+├── tokio-stream v0.1.15
+│   ├── futures-core v0.3.31
+│   ├── pin-project-lite v0.2.16
+│   └── tokio v1.45.0 (*)
+├── tokio-util v0.7.13
+│   ├── bytes v1.10.1
+│   ├── futures-core v0.3.31
+│   ├── futures-sink v0.3.31
+│   ├── pin-project-lite v0.2.16
+│   └── tokio v1.45.0 (*)
+├── tracing v0.1.41 (*)
+├── tracing-subscriber v0.3.20 (*)
+├── typenum v1.18.0
+└── zeroizing-alloc v0.1.0
+
+desktop_napi v0.0.0 (/Users/quexten/projects/clients/apps/desktop/desktop_native/napi)
+├── anyhow v1.0.94
+├── autotype v0.0.0 (/Users/quexten/projects/clients/apps/desktop/desktop_native/autotype)
+├── base64 v0.22.1
+├── bitwarden_chromium_importer v0.0.0 (/Users/quexten/projects/clients/apps/desktop/desktop_native/bitwarden_chromium_importer) (*)
+├── desktop_core v0.0.0 (/Users/quexten/projects/clients/apps/desktop/desktop_native/core) (*)
+├── hex v0.4.3
+├── napi v2.16.17
+│   ├── bitflags v2.9.0
+│   ├── ctor v0.2.9 (proc-macro)
+│   │   ├── quote v1.0.40 (*)
+│   │   └── syn v2.0.101 (*)
+│   ├── napi-sys v2.4.0
+│   ├── once_cell v1.21.3
+│   └── tokio v1.45.0 (*)
+├── napi-derive v2.16.13 (proc-macro)
+│   ├── cfg-if v1.0.0
+│   ├── convert_case v0.6.0
+│   │   └── unicode-segmentation v1.12.0
+│   ├── napi-derive-backend v1.0.75
+│   │   ├── convert_case v0.6.0 (*)
+│   │   ├── once_cell v1.21.3
+│   │   ├── proc-macro2 v1.0.95 (*)
+│   │   ├── quote v1.0.40 (*)
+│   │   ├── regex v1.11.1
+│   │   │   ├── aho-corasick v1.1.3 (*)
+│   │   │   ├── memchr v2.7.4
+│   │   │   ├── regex-automata v0.4.9
+│   │   │   │   ├── aho-corasick v1.1.3 (*)
+│   │   │   │   ├── memchr v2.7.4
+│   │   │   │   └── regex-syntax v0.8.5
+│   │   │   └── regex-syntax v0.8.5
+│   │   ├── semver v1.0.26 (*)
+│   │   └── syn v2.0.101 (*)
+│   ├── proc-macro2 v1.0.95 (*)
+│   ├── quote v1.0.40 (*)
+│   └── syn v2.0.101 (*)
+├── serde v1.0.209 (*)
+├── serde_json v1.0.127 (*)
+├── tokio v1.45.0 (*)
+├── tokio-stream v0.1.15 (*)
+├── tokio-util v0.7.13 (*)
+├── tracing v0.1.41 (*)
+└── tracing-subscriber v0.3.20 (*)
+[build-dependencies]
+└── napi-build v2.2.0
+
+desktop_objc v0.0.0 (/Users/quexten/projects/clients/apps/desktop/desktop_native/objc) (*)
+
+desktop_proxy v0.0.0 (/Users/quexten/projects/clients/apps/desktop/desktop_native/proxy)
+├── anyhow v1.0.94
+├── desktop_core v0.0.0 (/Users/quexten/projects/clients/apps/desktop/desktop_native/core) (*)
+├── embed_plist v1.2.2
+├── futures v0.3.31 (*)
+├── log v0.4.25
+├── simplelog v0.12.2
+│   ├── log v0.4.25
+│   ├── termcolor v1.4.1
+│   └── time v0.3.41
+│       ├── deranged v0.4.0
+│       │   └── powerfmt v0.2.0
+│       ├── itoa v1.0.15
+│       ├── libc v0.2.172
+│       ├── num-conv v0.1.0
+│       ├── num_threads v0.1.7
+│       │   └── libc v0.2.172
+│       ├── powerfmt v0.2.0
+│       ├── time-core v0.1.4
+│       └── time-macros v0.2.22 (proc-macro)
+│           ├── num-conv v0.1.0
+│           └── time-core v0.1.4
+├── tokio v1.45.0 (*)
+└── tokio-util v0.7.13 (*)
+
+macos_provider v0.0.0 (/Users/quexten/projects/clients/apps/desktop/desktop_native/macos_provider)
+├── desktop_core v0.0.0 (/Users/quexten/projects/clients/apps/desktop/desktop_native/core) (*)
+├── futures v0.3.31 (*)
+├── log v0.4.25
+├── oslog v0.2.0
+│   ├── dashmap v5.5.3
+│   │   ├── cfg-if v1.0.0
+│   │   ├── hashbrown v0.14.5
+│   │   ├── lock_api v0.4.12
+│   │   │   └── scopeguard v1.2.0
+│   │   │   [build-dependencies]
+│   │   │   └── autocfg v1.4.0
+│   │   ├── once_cell v1.21.3
+│   │   └── parking_lot_core v0.9.10
+│   │       ├── cfg-if v1.0.0
+│   │       ├── libc v0.2.172
+│   │       └── smallvec v1.15.0
+│   └── log v0.4.25
+│   [build-dependencies]
+│   └── cc v1.2.4 (*)
+├── serde v1.0.209 (*)
+├── serde_json v1.0.127 (*)
+├── tokio v1.45.0 (*)
+├── tokio-util v0.7.13 (*)
+├── tracing v0.1.41 (*)
+└── uniffi v0.28.3
+    ├── anyhow v1.0.94
+    ├── camino v1.1.9
+    │   └── serde v1.0.209 (*)
+    ├── cargo_metadata v0.15.4
+    │   ├── camino v1.1.9 (*)
+    │   ├── cargo-platform v0.1.9
+    │   │   └── serde v1.0.209 (*)
+    │   ├── semver v1.0.26 (*)
+    │   ├── serde v1.0.209 (*)
+    │   ├── serde_json v1.0.127 (*)
+    │   └── thiserror v1.0.69
+    │       └── thiserror-impl v1.0.69 (proc-macro)
+    │           ├── proc-macro2 v1.0.95 (*)
+    │           ├── quote v1.0.40 (*)
+    │           └── syn v2.0.101 (*)
+    ├── clap v4.5.40
+    │   ├── clap_builder v4.5.40
+    │   │   ├── anstream v0.6.18 (*)
+    │   │   ├── anstyle v1.0.10
+    │   │   ├── clap_lex v0.7.4
+    │   │   └── strsim v0.11.1
+    │   └── clap_derive v4.5.40 (proc-macro)
+    │       ├── heck v0.5.0
+    │       ├── proc-macro2 v1.0.95 (*)
+    │       ├── quote v1.0.40 (*)
+    │       └── syn v2.0.101 (*)
+    ├── uniffi_bindgen v0.28.3
+    │   ├── anyhow v1.0.94
+    │   ├── askama v0.12.1
+    │   │   ├── askama_derive v0.12.5 (proc-macro)
+    │   │   │   ├── askama_parser v0.2.1
+    │   │   │   │   └── nom v7.1.3
+    │   │   │   │       ├── memchr v2.7.4
+    │   │   │   │       └── minimal-lexical v0.2.1
+    │   │   │   ├── basic-toml v0.1.10
+    │   │   │   │   └── serde v1.0.209 (*)
+    │   │   │   ├── mime v0.3.17
+    │   │   │   ├── mime_guess v2.0.5
+    │   │   │   │   ├── mime v0.3.17
+    │   │   │   │   └── unicase v2.8.1
+    │   │   │   │   [build-dependencies]
+    │   │   │   │   └── unicase v2.8.1
+    │   │   │   ├── proc-macro2 v1.0.95 (*)
+    │   │   │   ├── quote v1.0.40 (*)
+    │   │   │   ├── serde v1.0.209 (*)
+    │   │   │   └── syn v2.0.101 (*)
+    │   │   └── askama_escape v0.10.3
+    │   ├── camino v1.1.9 (*)
+    │   ├── cargo_metadata v0.15.4 (*)
+    │   ├── fs-err v2.11.0
+    │   │   [build-dependencies]
+    │   │   └── autocfg v1.4.0
+    │   ├── glob v0.3.2
+    │   ├── goblin v0.8.2
+    │   │   ├── log v0.4.25
+    │   │   ├── plain v0.2.3
+    │   │   └── scroll v0.12.0
+    │   │       └── scroll_derive v0.12.1 (proc-macro)
+    │   │           ├── proc-macro2 v1.0.95 (*)
+    │   │           ├── quote v1.0.40 (*)
+    │   │           └── syn v2.0.101 (*)
+    │   ├── heck v0.5.0
+    │   ├── once_cell v1.21.3
+    │   ├── paste v1.0.15 (proc-macro)
+    │   ├── serde v1.0.209 (*)
+    │   ├── textwrap v0.16.2
+    │   │   └── smawk v0.3.2
+    │   ├── toml v0.5.11
+    │   │   └── serde v1.0.209 (*)
+    │   ├── uniffi_meta v0.28.3
+    │   │   ├── anyhow v1.0.94
+    │   │   ├── bytes v1.10.1
+    │   │   ├── siphasher v0.3.11
+    │   │   └── uniffi_checksum_derive v0.28.3 (proc-macro)
+    │   │       ├── quote v1.0.40 (*)
+    │   │       └── syn v2.0.101 (*)
+    │   └── uniffi_udl v0.28.3
+    │       ├── anyhow v1.0.94
+    │       ├── textwrap v0.16.2 (*)
+    │       ├── uniffi_meta v0.28.3 (*)
+    │       ├── uniffi_testing v0.28.3
+    │       │   ├── anyhow v1.0.94
+    │       │   ├── camino v1.1.9 (*)
+    │       │   ├── cargo_metadata v0.15.4 (*)
+    │       │   ├── fs-err v2.11.0 (*)
+    │       │   └── once_cell v1.21.3
+    │       └── weedle2 v5.0.0
+    │           └── nom v7.1.3 (*)
+    ├── uniffi_core v0.28.3
+    │   ├── anyhow v1.0.94
+    │   ├── bytes v1.10.1
+    │   ├── log v0.4.25
+    │   ├── once_cell v1.21.3
+    │   ├── paste v1.0.15 (proc-macro)
+    │   └── static_assertions v1.1.0
+    └── uniffi_macros v0.28.3 (proc-macro)
+        ├── bincode v1.3.3
+        │   └── serde v1.0.209 (*)
+        ├── camino v1.1.9 (*)
+        ├── fs-err v2.11.0 (*)
+        ├── once_cell v1.21.3
+        ├── proc-macro2 v1.0.95 (*)
+        ├── quote v1.0.40 (*)
+        ├── serde v1.0.209 (*)
+        ├── syn v2.0.101 (*)
+        ├── toml v0.5.11 (*)
+        └── uniffi_meta v0.28.3 (*)
+[build-dependencies]
+└── uniffi v0.28.3
+    ├── anyhow v1.0.94
+    ├── cargo_metadata v0.15.4 (*)
+    ├── uniffi_build v0.28.3
+    │   ├── anyhow v1.0.94
+    │   ├── camino v1.1.9 (*)
+    │   └── uniffi_bindgen v0.28.3
+    │       ├── anyhow v1.0.94
+    │       ├── askama v0.12.1 (*)
+    │       ├── camino v1.1.9 (*)
+    │       ├── fs-err v2.11.0 (*)
+    │       ├── glob v0.3.2
+    │       ├── goblin v0.8.2 (*)
+    │       ├── heck v0.5.0
+    │       ├── once_cell v1.21.3
+    │       ├── paste v1.0.15 (proc-macro)
+    │       ├── serde v1.0.209 (*)
+    │       ├── textwrap v0.16.2 (*)
+    │       ├── toml v0.5.11 (*)
+    │       ├── uniffi_meta v0.28.3 (*)
+    │       └── uniffi_udl v0.28.3 (*)
+    ├── uniffi_core v0.28.3 (*)
+    └── uniffi_macros v0.28.3 (proc-macro) (*)
+
+windows_plugin_authenticator v0.0.0 (/Users/quexten/projects/clients/apps/desktop/desktop_native/windows_plugin_authenticator)

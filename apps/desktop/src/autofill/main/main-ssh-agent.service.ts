@@ -93,6 +93,7 @@ export class MainSshAgentService {
     ipcMain.handle(
       "sshagent.setkeys",
       async (event: any, keys: { name: string; privateKey: string; cipherId: string }[]) => {
+        //this.logService.info(`Setting ${keys.length} SSH keys in agent`);
         if (this.agentState != null && (await sshagent.isRunning(this.agentState))) {
           sshagent.setKeys(this.agentState, keys);
         }
