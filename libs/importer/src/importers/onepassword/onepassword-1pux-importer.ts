@@ -14,12 +14,12 @@ import { BaseImporter } from "../base-importer";
 import { Importer } from "../importer";
 
 import {
-  CategoryEnum,
+  Category,
   Details,
   ExportData,
   FieldsEntity,
   Item,
-  LoginFieldTypeEnum,
+  LoginFieldType,
   Overview,
   PasswordHistoryEntity,
   SectionsEntity,
@@ -45,38 +45,38 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
 
         const cipher = this.initLoginCipher();
 
-        const category = item.categoryUuid as CategoryEnum;
+        const category = item.categoryUuid as Category;
         switch (category) {
-          case CategoryEnum.Login:
-          case CategoryEnum.Database:
-          case CategoryEnum.Password:
-          case CategoryEnum.WirelessRouter:
-          case CategoryEnum.Server:
-          case CategoryEnum.API_Credential:
+          case Category.Login:
+          case Category.Database:
+          case Category.Password:
+          case Category.WirelessRouter:
+          case Category.Server:
+          case Category.API_Credential:
             cipher.type = CipherType.Login;
             cipher.login = new LoginView();
             break;
-          case CategoryEnum.CreditCard:
-          case CategoryEnum.BankAccount:
+          case Category.CreditCard:
+          case Category.BankAccount:
             cipher.type = CipherType.Card;
             cipher.card = new CardView();
             break;
-          case CategoryEnum.SecureNote:
-          case CategoryEnum.SoftwareLicense:
-          case CategoryEnum.EmailAccount:
-          case CategoryEnum.MedicalRecord:
+          case Category.SecureNote:
+          case Category.SoftwareLicense:
+          case Category.EmailAccount:
+          case Category.MedicalRecord:
             // case CategoryEnum.Document:
             cipher.type = CipherType.SecureNote;
             cipher.secureNote = new SecureNoteView();
             cipher.secureNote.type = SecureNoteType.Generic;
             break;
-          case CategoryEnum.Identity:
-          case CategoryEnum.DriversLicense:
-          case CategoryEnum.OutdoorLicense:
-          case CategoryEnum.Membership:
-          case CategoryEnum.Passport:
-          case CategoryEnum.RewardsProgram:
-          case CategoryEnum.SocialSecurityNumber:
+          case Category.Identity:
+          case Category.DriversLicense:
+          case Category.OutdoorLicense:
+          case Category.Membership:
+          case Category.Passport:
+          case Category.RewardsProgram:
+          case Category.SocialSecurityNumber:
             cipher.type = CipherType.Identity;
             cipher.identity = new IdentityView();
             break;
@@ -166,10 +166,10 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
       let fieldValue = loginField.value;
       let fieldType: FieldType = FieldType.Text;
       switch (loginField.fieldType) {
-        case LoginFieldTypeEnum.Password:
+        case LoginFieldType.Password:
           fieldType = FieldType.Hidden;
           break;
-        case LoginFieldTypeEnum.CheckBox:
+        case LoginFieldType.CheckBox:
           fieldValue = loginField.value !== "" ? "true" : "false";
           fieldType = FieldType.Boolean;
           break;
@@ -180,8 +180,8 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
     });
   }
 
-  private processDetails(category: CategoryEnum, details: Details, cipher: CipherView) {
-    if (category !== CategoryEnum.Password) {
+  private processDetails(category: Category, details: Details, cipher: CipherView) {
+    if (category !== Category.Password) {
       return;
     }
 
@@ -191,7 +191,7 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
     cipher.login.password = details.password;
   }
 
-  private processSections(category: CategoryEnum, sections: SectionsEntity[], cipher: CipherView) {
+  private processSections(category: Category, sections: SectionsEntity[], cipher: CipherView) {
     if (sections == null || sections.length === 0) {
       return;
     }
@@ -206,7 +206,7 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
   }
 
   private parseSectionFields(
-    category: CategoryEnum,
+    category: Category,
     fields: FieldsEntity[],
     cipher: CipherView,
     sectionTitle: string,
@@ -232,20 +232,20 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
         }
 
         switch (category) {
-          case CategoryEnum.Login:
-          case CategoryEnum.Database:
-          case CategoryEnum.EmailAccount:
-          case CategoryEnum.WirelessRouter:
+          case Category.Login:
+          case Category.Database:
+          case Category.EmailAccount:
+          case Category.WirelessRouter:
             break;
 
-          case CategoryEnum.Server:
+          case Category.Server:
             if (this.isNullOrWhitespace(cipher.login.uri) && field.id === "url") {
               cipher.login.uris = this.makeUriArray(fieldValue);
               return;
             }
             break;
 
-          case CategoryEnum.API_Credential:
+          case Category.API_Credential:
             if (this.fillApiCredentials(field, fieldValue, cipher)) {
               return;
             }
@@ -258,7 +258,7 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
           return;
         }
 
-        if (category === CategoryEnum.BankAccount) {
+        if (category === Category.BankAccount) {
           if (this.fillBankAccount(field, fieldValue, cipher)) {
             return;
           }
@@ -281,34 +281,34 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
         }
 
         switch (category) {
-          case CategoryEnum.Identity:
+          case Category.Identity:
             break;
-          case CategoryEnum.DriversLicense:
+          case Category.DriversLicense:
             if (this.fillDriversLicense(field, fieldValue, cipher)) {
               return;
             }
             break;
-          case CategoryEnum.OutdoorLicense:
+          case Category.OutdoorLicense:
             if (this.fillOutdoorLicense(field, fieldValue, cipher)) {
               return;
             }
             break;
-          case CategoryEnum.Membership:
+          case Category.Membership:
             if (this.fillMembership(field, fieldValue, cipher)) {
               return;
             }
             break;
-          case CategoryEnum.Passport:
+          case Category.Passport:
             if (this.fillPassport(field, fieldValue, cipher)) {
               return;
             }
             break;
-          case CategoryEnum.RewardsProgram:
+          case Category.RewardsProgram:
             if (this.fillRewardsProgram(field, fieldValue, cipher)) {
               return;
             }
             break;
-          case CategoryEnum.SocialSecurityNumber:
+          case Category.SocialSecurityNumber:
             if (this.fillSSN(field, fieldValue, cipher)) {
               return;
             }

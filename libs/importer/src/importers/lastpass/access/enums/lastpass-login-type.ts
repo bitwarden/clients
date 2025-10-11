@@ -1,7 +1,13 @@
-// FIXME: update to use a const object instead of a typescript enum
-// eslint-disable-next-line @bitwarden/platform/no-enums
-export enum LastpassLoginType {
-  MasterPassword = 0,
+/**
+ * Represents LastPass login types.
+ */
+export const LastpassLoginType = Object.freeze({
+  MasterPassword: 0,
   // Not sure what Types 1 and 2 are?
-  Federated = 3,
-}
+  Federated: 3,
+} as const);
+
+/**
+ * Type representing valid LastPass login type values.
+ */
+export type LastpassLoginType = (typeof LastpassLoginType)[keyof typeof LastpassLoginType];
