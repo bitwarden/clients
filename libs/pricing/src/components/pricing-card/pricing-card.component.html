@@ -14,7 +14,7 @@
   </div>
 
   <!-- Tagline with consistent height (exactly 2 lines) -->
-  <div class="tw-mb-6 tw-h-12">
+  <div class="tw-mb-6 tw-h-6">
     <p bitTypography="helper" class="tw-text-muted tw-m-0 tw-leading-relaxed tw-line-clamp-2">
       {{ tagline() }}
     </p>
@@ -25,7 +25,7 @@
     <div class="tw-mb-6">
       <div class="tw-flex tw-items-baseline tw-gap-1 tw-flex-wrap">
         <span class="tw-text-3xl tw-font-bold tw-leading-none tw-m-0">{{
-          priceValue.amount | currency: "USD" : "symbol"
+          priceValue.amount | currency: "$"
         }}</span>
         <span bitTypography="helper" class="tw-text-muted">
           / {{ priceValue.cadence }}

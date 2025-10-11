@@ -1,6 +1,7 @@
 import { DIALOG_DATA } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
 import { Component, Inject, OnInit, signal } from "@angular/core";
+import { Router } from "@angular/router";
 
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
@@ -48,11 +49,13 @@ export type UnifiedUpgradeDialogResult = {
  * @property {Account} account - The user account information.
  * @property {UnifiedUpgradeDialogStep | null} [initialStep] - The initial step to show in the dialog, if any.
  * @property {PersonalSubscriptionPricingTierId | null} [selectedPlan] - Pre-selected subscription plan, if any.
+ * @property {string | null} [redirectUrl] - URL to redirect to after successful upgrade. For Families upgrades, use "families-redirect" to automatically redirect to `/organizations/{organizationId}/vault`.
  */
 export type UnifiedUpgradeDialogParams = {
   account: Account;
   initialStep?: UnifiedUpgradeDialogStep | null;
   selectedPlan?: PersonalSubscriptionPricingTierId | null;
+  redirectUrl?: string | null;
 };
 
 @Component({
@@ -80,6 +83,7 @@ export class UnifiedUpgradeDialogComponent implements OnInit {
   constructor(
     private dialogRef: DialogRef<UnifiedUpgradeDialogResult>,
     @Inject(DIALOG_DATA) private params: UnifiedUpgradeDialogParams,
+    private router: Router,
   ) {}
 
   ngOnInit(): void {
@@ -132,7 +136,30 @@ export class UnifiedUpgradeDialogComponent implements OnInit {
       default:
         status = UnifiedUpgradeDialogStatus.Closed;
     }
+
     this.close({ status, organizationId: result.organizationId });
+
+    if (
+      this.params.redirectUrl &&
+      (status === UnifiedUpgradeDialogStatus.UpgradedToPremium ||
+        status === UnifiedUpgradeDialogStatus.UpgradedToFamilies)
+    ) {
+      let redirectUrl: string;
+
+      if (status === UnifiedUpgradeDialogStatus.UpgradedToPremium) {
+        redirectUrl = this.params.redirectUrl;
+      } else if (status === UnifiedUpgradeDialogStatus.UpgradedToFamilies) {
+        if (this.params.redirectUrl === "families-redirect") {
+          redirectUrl = `/organizations/${result.organizationId}/vault`;
+        } else {
+          redirectUrl = this.params.redirectUrl;
+        }
+      } else {
+        redirectUrl = this.params.redirectUrl;
+      }
+
+      void this.router.navigate([redirectUrl]);
+    }
   }
 
   /**
