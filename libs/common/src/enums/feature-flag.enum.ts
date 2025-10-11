@@ -26,6 +26,7 @@ export enum FeatureFlag {
   PM21821_ProviderPortalTakeover = "pm-21821-provider-portal-takeover",
   PM22415_TaxIDWarnings = "pm-22415-tax-id-warnings",
   PM24996_ImplementUpgradeFromFreeDialog = "pm-24996-implement-upgrade-from-free-dialog",
+  PremiumUpgradeNewDesign = "pm-24033-updat-premium-subscription-page",
 
   /* Key Management */
   PrivateKeyRegeneration = "pm-12241-private-key-regeneration",
@@ -101,6 +102,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM21821_ProviderPortalTakeover]: FALSE,
   [FeatureFlag.PM22415_TaxIDWarnings]: FALSE,
   [FeatureFlag.PM24996_ImplementUpgradeFromFreeDialog]: FALSE,
+  [FeatureFlag.PremiumUpgradeNewDesign]: FALSE,
 
   /* Key Management */
   [FeatureFlag.PrivateKeyRegeneration]: FALSE,
