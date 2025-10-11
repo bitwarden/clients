@@ -160,6 +160,22 @@ module.exports = {
       container: {
         "@5xl": "1100px",
       },
+      keyframes: {
+        slideUp: {
+          "0%": { opacity: "0", transform: "translateY(50px)" },
+          "50%": { opacity: "1" },
+          "100%": { transform: "translateY(0)" },
+        },
+        slideDown: {
+          "0%": { opacity: "0", transform: "translateY(-50px)" },
+          "50%": { opacity: "1" },
+          "100%": { transform: "translateY(0)" },
+        },
+      },
+      animation: {
+        "slide-up": "slideUp 0.3s ease-out",
+        "slide-down": "slideDown 0.3s ease-out",
+      },
     },
   },
   plugins: [
