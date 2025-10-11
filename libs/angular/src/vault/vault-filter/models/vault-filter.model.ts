@@ -50,6 +50,9 @@ export class VaultFilter {
       if (this.status === "trash" && cipherPassesFilter) {
         cipherPassesFilter = CipherViewLikeUtils.isDeleted(cipher);
       }
+      if (this.status === "archive" && cipherPassesFilter) {
+        cipherPassesFilter = CipherViewLikeUtils.isArchived(cipher);
+      }
       if (this.cipherType != null && cipherPassesFilter) {
         cipherPassesFilter = CipherViewLikeUtils.getType(cipher) === this.cipherType;
       }

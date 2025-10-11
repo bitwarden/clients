@@ -9,11 +9,12 @@ import { VaultFilter } from "../models/vault-filter.model";
 export class StatusFilterComponent {
   @Input() hideFavorites = false;
   @Input() hideTrash = false;
+  @Input() hideArchive = false;
   @Output() onFilterChange: EventEmitter<VaultFilter> = new EventEmitter<VaultFilter>();
   @Input() activeFilter: VaultFilter;
 
   get show() {
-    return !(this.hideFavorites && this.hideTrash);
+    return !(this.hideFavorites && this.hideTrash && this.hideArchive);
   }
 
   applyFilter(cipherStatus: CipherStatus) {
