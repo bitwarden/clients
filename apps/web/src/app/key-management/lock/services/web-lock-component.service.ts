@@ -1,16 +1,14 @@
 import { inject } from "@angular/core";
-import { map, Observable } from "rxjs";
+import { combineLatest, defer, map, Observable } from "rxjs";
 
-import {
-  UserDecryptionOptions,
-  UserDecryptionOptionsServiceAbstraction,
-} from "@bitwarden/auth/common";
+import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { UserId } from "@bitwarden/common/types/guid";
-import { BiometricsStatus } from "@bitwarden/key-management";
+import { WebAuthnPrfUnlockServiceAbstraction, BiometricsStatus } from "@bitwarden/key-management";
 import { LockComponentService, UnlockOptions } from "@bitwarden/key-management-ui";
 
 export class WebLockComponentService implements LockComponentService {
   private readonly userDecryptionOptionsService = inject(UserDecryptionOptionsServiceAbstraction);
+  private readonly webAuthnPrfUnlockService = inject(WebAuthnPrfUnlockServiceAbstraction);
 
   constructor() {}
 
@@ -43,8 +41,19 @@ export class WebLockComponentService implements LockComponentService {
   }
 
   getAvailableUnlockOptions$(userId: UserId): Observable<UnlockOptions | null> {
-    return this.userDecryptionOptionsService.userDecryptionOptionsById$(userId)?.pipe(
-      map((userDecryptionOptions: UserDecryptionOptions) => {
+    return combineLatest([
+      this.userDecryptionOptionsService.userDecryptionOptionsById$(userId),
+      defer(async () => {
+        try {
+          const available = await this.webAuthnPrfUnlockService.isPrfUnlockAvailable(userId);
+
+          return { available };
+        } catch {
+          return { available: false };
+        }
+      }),
+    ]).pipe(
+      map(([userDecryptionOptions, prfUnlockInfo]) => {
         const unlockOpts: UnlockOptions = {
           masterPassword: {
             enabled: userDecryptionOptions.hasMasterPassword,
@@ -55,6 +64,9 @@ export class WebLockComponentService implements LockComponentService {
           biometrics: {
             enabled: false,
             biometricsStatus: BiometricsStatus.PlatformUnsupported,
+          },
+          prf: {
+            enabled: prfUnlockInfo.available,
           },
         };
         return unlockOpts;

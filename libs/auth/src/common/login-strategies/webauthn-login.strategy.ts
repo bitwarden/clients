@@ -73,13 +73,14 @@ export class WebAuthnLoginStrategy extends LoginStrategy {
     const userDecryptionOptions = idTokenResponse?.userDecryptionOptions;
 
     if (userDecryptionOptions?.webAuthnPrfOption) {
-      const webAuthnPrfOption = idTokenResponse.userDecryptionOptions?.webAuthnPrfOption;
-
       const credentials = this.cache.value.credentials;
+
       // confirm we still have the prf key
       if (!credentials.prfKey) {
         return;
       }
+
+      const webAuthnPrfOption = userDecryptionOptions.webAuthnPrfOption;
 
       // decrypt prf encrypted private key
       const privateKey = await this.encryptService.unwrapDecapsulationKey(

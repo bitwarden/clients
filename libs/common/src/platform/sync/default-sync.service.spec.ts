@@ -9,7 +9,7 @@ import { CollectionService } from "@bitwarden/admin-console/common";
 import {
   LogoutReason,
   UserDecryptionOptions,
-  UserDecryptionOptionsServiceAbstraction,
+  InternalUserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { SecurityStateService } from "@bitwarden/common/key-management/security-state/abstractions/security-state.service";
@@ -67,7 +67,7 @@ describe("DefaultSyncService", () => {
   let folderApiService: MockProxy<FolderApiServiceAbstraction>;
   let organizationService: MockProxy<InternalOrganizationServiceAbstraction>;
   let sendApiService: MockProxy<SendApiService>;
-  let userDecryptionOptionsService: MockProxy<UserDecryptionOptionsServiceAbstraction>;
+  let userDecryptionOptionsService: MockProxy<InternalUserDecryptionOptionsServiceAbstraction>;
   let avatarService: MockProxy<AvatarService>;
   let logoutCallback: jest.Mock<Promise<void>, [logoutReason: LogoutReason, userId?: UserId]>;
   let billingAccountProfileStateService: MockProxy<BillingAccountProfileStateService>;

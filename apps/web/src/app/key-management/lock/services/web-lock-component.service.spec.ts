@@ -4,7 +4,7 @@ import { firstValueFrom, of } from "rxjs";
 
 import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { UserId } from "@bitwarden/common/types/guid";
-import { BiometricsStatus } from "@bitwarden/key-management";
+import { BiometricsStatus, WebAuthnPrfUnlockServiceAbstraction } from "@bitwarden/key-management";
 
 import { WebLockComponentService } from "./web-lock-component.service";
 
@@ -12,9 +12,11 @@ describe("WebLockComponentService", () => {
   let service: WebLockComponentService;
 
   let userDecryptionOptionsService: MockProxy<UserDecryptionOptionsServiceAbstraction>;
+  let webAuthnPrfUnlockService: MockProxy<WebAuthnPrfUnlockServiceAbstraction>;
 
   beforeEach(() => {
     userDecryptionOptionsService = mock<UserDecryptionOptionsServiceAbstraction>();
+    webAuthnPrfUnlockService = mock<WebAuthnPrfUnlockServiceAbstraction>();
 
     TestBed.configureTestingModule({
       providers: [
@@ -22,6 +24,10 @@ describe("WebLockComponentService", () => {
         {
           provide: UserDecryptionOptionsServiceAbstraction,
           useValue: userDecryptionOptionsService,
+        },
+        {
+          provide: WebAuthnPrfUnlockServiceAbstraction,
+          useValue: webAuthnPrfUnlockService,
         },
       ],
     });
@@ -91,6 +97,7 @@ describe("WebLockComponentService", () => {
       userDecryptionOptionsService.userDecryptionOptionsById$.mockReturnValueOnce(
         of(userDecryptionOptions),
       );
+      webAuthnPrfUnlockService.isPrfUnlockAvailable.mockResolvedValue(false);
 
       const unlockOptions = await firstValueFrom(service.getAvailableUnlockOptions$(userId));
 
@@ -104,6 +111,9 @@ describe("WebLockComponentService", () => {
         biometrics: {
           enabled: false,
           biometricsStatus: BiometricsStatus.PlatformUnsupported,
+        },
+        prf: {
+          enabled: false,
         },
       });
     });

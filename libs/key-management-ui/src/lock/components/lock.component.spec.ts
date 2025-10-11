@@ -51,6 +51,7 @@ import {
   KeyService,
   PBKDF2KdfConfig,
   UserAsymmetricKeysRegenerationService,
+  WebAuthnPrfUnlockServiceAbstraction,
 } from "@bitwarden/key-management";
 
 import {
@@ -91,6 +92,7 @@ describe("LockComponent", () => {
   const mockLockComponentService = mock<LockComponentService>();
   const mockAnonLayoutWrapperDataService = mock<AnonLayoutWrapperDataService>();
   const mockBroadcasterService = mock<BroadcasterService>();
+  const mockWebAuthnPrfUnlockService = mock<WebAuthnPrfUnlockServiceAbstraction>();
 
   beforeEach(async () => {
     jest.clearAllMocks();
@@ -148,6 +150,7 @@ describe("LockComponent", () => {
         { provide: LockComponentService, useValue: mockLockComponentService },
         { provide: AnonLayoutWrapperDataService, useValue: mockAnonLayoutWrapperDataService },
         { provide: BroadcasterService, useValue: mockBroadcasterService },
+        { provide: WebAuthnPrfUnlockServiceAbstraction, useValue: mockWebAuthnPrfUnlockService },
       ],
     })
       .overrideProvider(DialogService, { useValue: mockDialogService })
@@ -168,6 +171,7 @@ describe("LockComponent", () => {
           enabled: false,
           biometricsStatus: BiometricsStatus.NotEnabledLocally,
         },
+        prf: { enabled: false },
       };
 
       component.activeUnlockOption = UnlockOption.MasterPassword;
