@@ -665,6 +665,239 @@ jobs:
           path: apps/desktop/dist/nsis-web/${{ needs.setup.outputs.release_channel }}.yml
           if-no-files-found: error
 
+  windows-beta:
+    name: Windows Beta Build
+    runs-on: windows-2022
+    needs: setup
+    permissions:
+        contents: read
+        id-token: write
+    defaults:
+      run:
+        shell: pwsh
+        working-directory: apps/desktop
+    env:
+      _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
+      _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
+      NODE_OPTIONS: --max_old_space_size=4096
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Set up Node
+        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+        with:
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
+          node-version: ${{ env._NODE_VERSION }}
+
+      - name: Install AST
+        run: dotnet tool install --global AzureSignTool --version 4.0.1
+
+      - name: Print environment
+        run: |
+          node --version
+          npm --version
+          choco --version
+          rustup show
+
+      - name: Log in to Azure
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        uses: bitwarden/gh-actions/azure-login@main
+        with:
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
+
+      - name: Retrieve secrets
+        id: retrieve-secrets
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: "bitwarden-ci"
+          secrets: "code-signing-vault-url,
+            code-signing-client-id,
+            code-signing-tenant-id,
+            code-signing-client-secret,
+            code-signing-cert-name"
+
+      - name: Log out from Azure
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        uses: bitwarden/gh-actions/azure-logout@main
+
+      - name: Install Node dependencies
+        run: npm ci
+        working-directory: ./
+
+      - name: Download SDK Artifacts
+        if: ${{ inputs.sdk_branch != '' && needs.setup.outputs.has_secrets == 'true' }}
+        uses: bitwarden/gh-actions/download-artifacts@main
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: build-wasm-internal.yml
+          workflow_conclusion: success
+          branch: ${{ inputs.sdk_branch }}
+          artifacts: sdk-internal
+          repo: bitwarden/sdk-internal
+          path: ../sdk-internal
+          if_no_artifact_found: fail
+
+      - name: Override SDK
+        if: ${{ inputs.sdk_branch != '' && needs.setup.outputs.has_secrets == 'true' }}
+        working-directory: ./
+        run: |
+          ls -l ../
+          npm link ../sdk-internal
+
+      - name: Cache Native Module
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        id: cache
+        with:
+          path: |
+            apps/desktop/desktop_native/napi/*.node
+            apps/desktop/desktop_native/dist/*
+          key: rust-${{ runner.os }}-${{ hashFiles('apps/desktop/desktop_native/**/*') }}
+
+      - name: Build Native Module
+        if: steps.cache.outputs.cache-hit != 'true'
+        working-directory: apps/desktop/desktop_native
+        run: node build.js cross-platform
+
+      - name: Build
+        run: npm run build
+
+      - name: Pack
+        if: ${{ needs.setup.outputs.has_secrets == 'false' }}
+        run: npm run pack:win:beta
+
+      - name: Pack & Sign
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        env:
+          ELECTRON_BUILDER_SIGN: 1
+          SIGNING_VAULT_URL: ${{ steps.retrieve-secrets.outputs.code-signing-vault-url }}
+          SIGNING_CLIENT_ID: ${{ steps.retrieve-secrets.outputs.code-signing-client-id }}
+          SIGNING_TENANT_ID: ${{ steps.retrieve-secrets.outputs.code-signing-tenant-id }}
+          SIGNING_CLIENT_SECRET: ${{ steps.retrieve-secrets.outputs.code-signing-client-secret }}
+          SIGNING_CERT_NAME: ${{ steps.retrieve-secrets.outputs.code-signing-cert-name }}
+        run: npm run pack:win:beta
+
+      - name: Rename appx files for store
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        run: |
+          Copy-Item "./dist/Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-ia32.appx" `
+            -Destination "./dist/Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-ia32-store.appx"
+          Copy-Item "./dist/Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-x64.appx" `
+            -Destination "./dist/Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-x64-store.appx"
+          Copy-Item "./dist/Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-arm64.appx" `
+            -Destination "./dist/Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-arm64-store.appx"
+
+      - name: Fix NSIS artifact names for auto-updater
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        run: |
+          Rename-Item -Path .\dist\nsis-web\Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-ia32.nsis.7z `
+            -NewName bitwarden-beta-${{ env._PACKAGE_VERSION }}-ia32.nsis.7z
+          Rename-Item -Path .\dist\nsis-web\Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-x64.nsis.7z `
+            -NewName bitwarden-beta-${{ env._PACKAGE_VERSION }}-x64.nsis.7z
+          Rename-Item -Path .\dist\nsis-web\Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-arm64.nsis.7z `
+            -NewName bitwarden-beta-${{ env._PACKAGE_VERSION }}-arm64.nsis.7z
+
+      - name: Upload portable exe artifact
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        with:
+          name: Bitwarden-Beta-Portable-${{ env._PACKAGE_VERSION }}.exe
+          path: apps/desktop/dist/Bitwarden-Beta-Portable-${{ env._PACKAGE_VERSION }}.exe
+          if-no-files-found: error
+
+      - name: Upload installer exe artifact
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        with:
+          name: Bitwarden-Beta-Installer-${{ env._PACKAGE_VERSION }}.exe
+          path: apps/desktop/dist/nsis-web/Bitwarden-Beta-Installer-${{ env._PACKAGE_VERSION }}.exe
+          if-no-files-found: error
+
+      - name: Upload appx ia32 artifact
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        with:
+          name: Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-ia32.appx
+          path: apps/desktop/dist/Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-ia32.appx
+          if-no-files-found: error
+
+      - name: Upload store appx ia32 artifact
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        with:
+          name: Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-ia32-store.appx
+          path: apps/desktop/dist/Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-ia32-store.appx
+          if-no-files-found: error
+
+      - name: Upload NSIS ia32 artifact
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        with:
+          name: bitwarden-beta-${{ env._PACKAGE_VERSION }}-ia32.nsis.7z
+          path: apps/desktop/dist/nsis-web/bitwarden-beta-${{ env._PACKAGE_VERSION }}-ia32.nsis.7z
+          if-no-files-found: error
+
+      - name: Upload appx x64 artifact
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        with:
+          name: Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-x64.appx
+          path: apps/desktop/dist/Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-x64.appx
+          if-no-files-found: error
+
+      - name: Upload store appx x64 artifact
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        with:
+          name: Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-x64-store.appx
+          path: apps/desktop/dist/Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-x64-store.appx
+          if-no-files-found: error
+
+      - name: Upload NSIS x64 artifact
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        with:
+          name: bitwarden-beta-${{ env._PACKAGE_VERSION }}-x64.nsis.7z
+          path: apps/desktop/dist/nsis-web/bitwarden-beta-${{ env._PACKAGE_VERSION }}-x64.nsis.7z
+          if-no-files-found: error
+
+      - name: Upload appx ARM64 artifact
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        with:
+          name: Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-arm64.appx
+          path: apps/desktop/dist/Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-arm64.appx
+          if-no-files-found: error
+
+      - name: Upload store appx ARM64 artifact
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        with:
+          name: Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-arm64-store.appx
+          path: apps/desktop/dist/Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-arm64-store.appx
+          if-no-files-found: error
+
+      - name: Upload NSIS ARM64 artifact
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        with:
+          name: bitwarden-beta-${{ env._PACKAGE_VERSION }}-arm64.nsis.7z
+          path: apps/desktop/dist/nsis-web/bitwarden-beta-${{ env._PACKAGE_VERSION }}-arm64.nsis.7z
+          if-no-files-found: error
+
+      - name: Upload auto-update artifact
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        with:
+          name: ${{ needs.setup.outputs.release_channel }}-beta.yml
+          path: apps/desktop/dist/nsis-web/${{ needs.setup.outputs.release_channel }}.yml
+          if-no-files-found: error
+
 
   macos-build:
     name: MacOS Build

@@ -13,7 +13,7 @@ exports.default = async function (configuration) {
         `-fd ${configuration.hash} ` +
         `-du ${configuration.site} ` +
         `-tr http://timestamp.digicert.com ` +
-        `${configuration.path}`,
+        `"${configuration.path}"`,
       {
         stdio: "inherit",
       },
