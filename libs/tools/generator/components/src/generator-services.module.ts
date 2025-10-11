@@ -199,7 +199,10 @@ export const SYSTEM_SERVICE_PROVIDER = new SafeInjectionToken<SystemServiceProvi
     }),
     safeProvider({
       provide: CredentialGeneratorService,
-      useClass: DefaultCredentialGeneratorService,
+      useFactory: (
+        providers: providers.CredentialGeneratorProviders,
+        system: SystemServiceProvider,
+      ) => new DefaultCredentialGeneratorService(providers, system.extension, system.log),
       deps: [GENERATOR_SERVICE_PROVIDER, SYSTEM_SERVICE_PROVIDER],
     }),
   ],

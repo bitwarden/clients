@@ -1,8 +1,9 @@
 import { shareReplay } from "rxjs";
 
+import { SemanticLogger } from "@bitwarden/logging";
+
 import { Account } from "../../auth/abstractions/account.service";
 import { BoundDependency } from "../dependencies";
-import { SemanticLogger } from "../log";
 import { UserStateSubject } from "../state/user-state-subject";
 import { UserStateSubjectDependencyProvider } from "../state/user-state-subject-dependency-provider";
 

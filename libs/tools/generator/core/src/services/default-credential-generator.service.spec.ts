@@ -1,12 +1,12 @@
+import { mock } from "jest-mock-extended";
 import { BehaviorSubject, Subject, firstValueFrom, of } from "rxjs";
 
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
-import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
 import { Site, VendorId } from "@bitwarden/common/tools/extension";
 import { Bitwarden } from "@bitwarden/common/tools/extension/vendor/bitwarden";
 import { Vendor } from "@bitwarden/common/tools/extension/vendor/data";
-import { SemanticLogger, ifEnabledSemanticLoggerProvider } from "@bitwarden/common/tools/log";
 import { UserId } from "@bitwarden/common/types/guid";
+import { LogProvider, SemanticLogger } from "@bitwarden/logging";
 
 import { awaitAsync } from "../../../../../common/spec";
 import {
@@ -40,16 +40,20 @@ type MockTwoLevelPartial<T> = {
 describe("DefaultCredentialGeneratorService", () => {
   let service: DefaultCredentialGeneratorService;
   let providers: MockTwoLevelPartial<CredentialGeneratorProviders>;
-  let system: any;
-  let log: SemanticLogger;
   let mockExtension: { settings: jest.Mock };
+  let mockLogger: SemanticLogger;
+  let logProvider: LogProvider;
   let account: Account;
   let createService: (overrides?: any) => DefaultCredentialGeneratorService;
 
   beforeEach(() => {
-    log = ifEnabledSemanticLoggerProvider(false, new ConsoleLogService(true), {
-      from: "DefaultCredentialGeneratorService tests",
-    });
+    mockLogger = mock<SemanticLogger>();
+    // Override panic to throw errors as expected by tests
+    mockLogger.panic = jest.fn((context: any, msg?: string) => {
+      const errorMsg = msg || (typeof context === "string" ? context : context?.message || "panic");
+      throw new Error(errorMsg);
+    }) as any;
+    logProvider = () => mockLogger;
 
     mockExtension = { settings: jest.fn() };
 
@@ -59,11 +63,6 @@ describe("DefaultCredentialGeneratorService", () => {
       emailVerified: true,
       email: "test@example.com",
       name: "Test User",
-    };
-
-    system = {
-      log: jest.fn().mockReturnValue(log),
-      extension: mockExtension,
     };
 
     providers = {
@@ -87,7 +86,11 @@ describe("DefaultCredentialGeneratorService", () => {
       // similar to how the overrides are applied
       const providersCast = providers as unknown as CredentialGeneratorProviders;
 
-      const instance = new DefaultCredentialGeneratorService(providersCast, system);
+      const instance = new DefaultCredentialGeneratorService(
+        providersCast,
+        mockExtension as any,
+        logProvider,
+      );
       Object.assign(instance, overrides);
       return instance;
     };

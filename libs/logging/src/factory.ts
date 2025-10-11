@@ -1,6 +1,6 @@
 import { Jsonify } from "type-fest";
 
-import { LogService } from "../../platform/abstractions/log.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
 import { DefaultSemanticLogger } from "./default-semantic-logger";
 import { DISABLED_LOGGER } from "./disabled-logger";

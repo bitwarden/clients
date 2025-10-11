@@ -1,7 +1,7 @@
 import { mock } from "jest-mock-extended";
 
-import { LogService } from "../../platform/abstractions/log.service";
-import { LogLevelType } from "../../platform/enums";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { LogLevelType } from "@bitwarden/common/platform/enums";
 
 import { DefaultSemanticLogger } from "./default-semantic-logger";
 

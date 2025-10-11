@@ -1,6 +1,6 @@
 import { Jsonify } from "type-fest";
 
-import { deepFreeze } from "../util";
+import { deepFreeze } from "@bitwarden/common/tools/util";
 
 import { SemanticLogger } from "./semantic-logger.abstraction";
 

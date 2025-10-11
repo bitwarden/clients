@@ -6,6 +6,7 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { LegacyEncryptorProvider } from "@bitwarden/common/tools/cryptography/legacy-encryptor-provider";
 import { UserEncryptor } from "@bitwarden/common/tools/cryptography/user-encryptor.abstraction";
 import {
@@ -17,13 +18,11 @@ import {
 } from "@bitwarden/common/tools/extension";
 import { ExtensionService } from "@bitwarden/common/tools/extension/extension.service";
 import { Bitwarden } from "@bitwarden/common/tools/extension/vendor/bitwarden";
-import { disabledSemanticLoggerProvider } from "@bitwarden/common/tools/log";
-import { SystemServiceProvider } from "@bitwarden/common/tools/providers";
 import { UserStateSubject } from "@bitwarden/common/tools/state/user-state-subject";
 import { UserStateSubjectDependencyProvider } from "@bitwarden/common/tools/state/user-state-subject-dependency-provider";
 import { deepFreeze } from "@bitwarden/common/tools/util";
 import { UserId } from "@bitwarden/common/types/guid";
-import { BitwardenClient } from "@bitwarden/sdk-internal";
+import { disabledSemanticLoggerProvider } from "@bitwarden/logging";
 
 import { FakeAccountService, FakeStateProvider } from "../../../../../common/spec";
 import { Algorithm, AlgorithmsByType, CredentialAlgorithm, Type, Types } from "../metadata";
@@ -91,26 +90,13 @@ const SomePolicyService = mock<PolicyService>();
 
 const SomeExtensionService = mock<ExtensionService>();
 
-const SomeConfigService = mock<ConfigService>;
-
-const SomeSdkService = mock<BitwardenClient>;
-
-const ApplicationProvider = {
-  /** Policy configured by the administrative console */
+const SomeSystemServiceProvider = {
   policy: SomePolicyService,
-
-  /** Client extension metadata and profile access */
   extension: SomeExtensionService,
-
-  /** Event monitoring and diagnostic interfaces */
   log: disabledSemanticLoggerProvider,
-
-  /** Feature flag retrieval */
-  configService: SomeConfigService,
-
-  /** SDK access for password generation */
-  sdk: SomeSdkService,
-} as unknown as SystemServiceProvider;
+  configService: mock<ConfigService>(),
+  environment: mock<PlatformUtilsService>(),
+};
 
 describe("GeneratorMetadataProvider", () => {
   beforeEach(() => {
@@ -121,15 +107,15 @@ describe("GeneratorMetadataProvider", () => {
   describe("constructor", () => {
     it("throws when the forwarder site isn't defined by the extension service", () => {
       SomeExtensionService.site.mockReturnValue(undefined);
-      expect(() => new GeneratorMetadataProvider(SystemProvider, ApplicationProvider, [])).toThrow(
-        "forwarder extension site not found",
-      );
+      expect(
+        () => new GeneratorMetadataProvider(SystemProvider, SomeSystemServiceProvider, []),
+      ).toThrow("forwarder extension site not found");
     });
   });
 
   describe("metadata", () => {
     it("returns algorithm metadata", async () => {
-      const provider = new GeneratorMetadataProvider(SystemProvider, ApplicationProvider, [
+      const provider = new GeneratorMetadataProvider(SystemProvider, SomeSystemServiceProvider, [
         password,
       ]);
 
@@ -145,13 +131,14 @@ describe("GeneratorMetadataProvider", () => {
         host: { authentication: true, selfHost: "maybe", baseUrl: "https://www.example.com" },
         requestedFields: [],
       };
-      const application = {
-        ...ApplicationProvider,
-        extension: mock<ExtensionService>({
-          site: () => new ExtensionSite(SomeSite, new Map([[Bitwarden.id, extensionMetadata]])),
-        }),
+      const extension = mock<ExtensionService>({
+        site: () => new ExtensionSite(SomeSite, new Map([[Bitwarden.id, extensionMetadata]])),
+      });
+      const systemProvider = {
+        ...SomeSystemServiceProvider,
+        extension,
       };
-      const provider = new GeneratorMetadataProvider(SystemProvider, application, []);
+      const provider = new GeneratorMetadataProvider(SystemProvider, systemProvider, []);
 
       const metadata = provider.metadata({ forwarder: Bitwarden.id });
 
@@ -159,13 +146,13 @@ describe("GeneratorMetadataProvider", () => {
     });
 
     it("panics when metadata not found", async () => {
-      const provider = new GeneratorMetadataProvider(SystemProvider, ApplicationProvider, []);
+      const provider = new GeneratorMetadataProvider(SystemProvider, SomeSystemServiceProvider, []);
 
       expect(() => provider.metadata("not found" as any)).toThrow("metadata not found");
     });
 
     it("panics when an extension not found", async () => {
-      const provider = new GeneratorMetadataProvider(SystemProvider, ApplicationProvider, []);
+      const provider = new GeneratorMetadataProvider(SystemProvider, SomeSystemServiceProvider, []);
 
       expect(() => provider.metadata({ forwarder: "not found" as any })).toThrow(
         "extension not found",
@@ -175,7 +162,7 @@ describe("GeneratorMetadataProvider", () => {
 
   describe("types", () => {
     it("returns the credential types", async () => {
-      const provider = new GeneratorMetadataProvider(SystemProvider, ApplicationProvider, []);
+      const provider = new GeneratorMetadataProvider(SystemProvider, SomeSystemServiceProvider, []);
 
       const result = provider.types();
 
@@ -185,7 +172,7 @@ describe("GeneratorMetadataProvider", () => {
 
   describe("algorithms", () => {
     it("returns the password category's algorithms", () => {
-      const provider = new GeneratorMetadataProvider(SystemProvider, ApplicationProvider, []);
+      const provider = new GeneratorMetadataProvider(SystemProvider, SomeSystemServiceProvider, []);
 
       const result = provider.algorithms({ type: Type.password });
 
@@ -193,7 +180,7 @@ describe("GeneratorMetadataProvider", () => {
     });
 
     it("returns the username category's algorithms", () => {
-      const provider = new GeneratorMetadataProvider(SystemProvider, ApplicationProvider, []);
+      const provider = new GeneratorMetadataProvider(SystemProvider, SomeSystemServiceProvider, []);
 
       const result = provider.algorithms({ type: Type.username });
 
@@ -201,7 +188,7 @@ describe("GeneratorMetadataProvider", () => {
     });
 
     it("returns the email category's algorithms", () => {
-      const provider = new GeneratorMetadataProvider(SystemProvider, ApplicationProvider, []);
+      const provider = new GeneratorMetadataProvider(SystemProvider, SomeSystemServiceProvider, []);
 
       const result = provider.algorithms({ type: Type.email });
 
@@ -215,13 +202,14 @@ describe("GeneratorMetadataProvider", () => {
         host: { authentication: true, selfHost: "maybe", baseUrl: "https://www.example.com" },
         requestedFields: [],
       };
-      const application = {
-        ...ApplicationProvider,
-        extension: mock<ExtensionService>({
-          site: () => new ExtensionSite(SomeSite, new Map([[Bitwarden.id, extensionMetadata]])),
-        }),
+      const extension = mock<ExtensionService>({
+        site: () => new ExtensionSite(SomeSite, new Map([[Bitwarden.id, extensionMetadata]])),
+      });
+      const systemProvider = {
+        ...SomeSystemServiceProvider,
+        extension,
       };
-      const provider = new GeneratorMetadataProvider(SystemProvider, application, []);
+      const provider = new GeneratorMetadataProvider(SystemProvider, systemProvider, []);
 
       const result = provider.algorithms({ type: Type.email });
 
@@ -235,7 +223,7 @@ describe("GeneratorMetadataProvider", () => {
       [Algorithm.plusAddress],
       [Algorithm.username],
     ])("returns explicit algorithms (=%p)", (algorithm) => {
-      const provider = new GeneratorMetadataProvider(SystemProvider, ApplicationProvider, []);
+      const provider = new GeneratorMetadataProvider(SystemProvider, SomeSystemServiceProvider, []);
 
       const result = provider.algorithms({ algorithm });
 
@@ -249,13 +237,14 @@ describe("GeneratorMetadataProvider", () => {
         host: { authentication: true, selfHost: "maybe", baseUrl: "https://www.example.com" },
         requestedFields: [],
       };
-      const application = {
-        ...ApplicationProvider,
-        extension: mock<ExtensionService>({
-          site: () => new ExtensionSite(SomeSite, new Map([[Bitwarden.id, extensionMetadata]])),
-        }),
+      const extension = mock<ExtensionService>({
+        site: () => new ExtensionSite(SomeSite, new Map([[Bitwarden.id, extensionMetadata]])),
+      });
+      const systemProvider = {
+        ...SomeSystemServiceProvider,
+        extension,
       };
-      const provider = new GeneratorMetadataProvider(SystemProvider, application, []);
+      const provider = new GeneratorMetadataProvider(SystemProvider, systemProvider, []);
 
       const result = provider.algorithms({ algorithm: { forwarder: Bitwarden.id } });
 
@@ -263,7 +252,7 @@ describe("GeneratorMetadataProvider", () => {
     });
 
     it("returns an empty array when the algorithm is invalid", () => {
-      const provider = new GeneratorMetadataProvider(SystemProvider, ApplicationProvider, []);
+      const provider = new GeneratorMetadataProvider(SystemProvider, SomeSystemServiceProvider, []);
 
       // `any` cast required because this test subverts the type system
       const result = provider.algorithms({ algorithm: "an invalid algorithm" as any });
@@ -278,13 +267,14 @@ describe("GeneratorMetadataProvider", () => {
         host: { authentication: true, selfHost: "maybe", baseUrl: "https://www.example.com" },
         requestedFields: [],
       };
-      const application = {
-        ...ApplicationProvider,
-        extension: mock<ExtensionService>({
-          site: () => new ExtensionSite(SomeSite, new Map([[Bitwarden.id, extensionMetadata]])),
-        }),
+      const extension = mock<ExtensionService>({
+        site: () => new ExtensionSite(SomeSite, new Map([[Bitwarden.id, extensionMetadata]])),
+      });
+      const systemProvider = {
+        ...SomeSystemServiceProvider,
+        extension,
       };
-      const provider = new GeneratorMetadataProvider(SystemProvider, application, []);
+      const provider = new GeneratorMetadataProvider(SystemProvider, systemProvider, []);
 
       // `any` cast required because this test subverts the type system
       const result = provider.algorithms({
@@ -295,7 +285,7 @@ describe("GeneratorMetadataProvider", () => {
     });
 
     it("panics when neither an algorithm nor a category is specified", () => {
-      const provider = new GeneratorMetadataProvider(SystemProvider, ApplicationProvider, []);
+      const provider = new GeneratorMetadataProvider(SystemProvider, SomeSystemServiceProvider, []);
 
       // `any` cast required because this test subverts the type system
       expect(() => provider.algorithms({} as any)).toThrow("algorithm or type required");
@@ -309,7 +299,7 @@ describe("GeneratorMetadataProvider", () => {
       [Algorithm.password, password],
     ])("gets a specific algorithm", async (algorithm, metadata) => {
       SomePolicyService.policiesByType$.mockReturnValue(new BehaviorSubject([]));
-      const provider = new GeneratorMetadataProvider(SystemProvider, ApplicationProvider, [
+      const provider = new GeneratorMetadataProvider(SystemProvider, SomeSystemServiceProvider, [
         metadata,
       ]);
       const result = new ReplaySubject<CredentialAlgorithm[]>(1);
@@ -325,7 +315,11 @@ describe("GeneratorMetadataProvider", () => {
       [Type.password, [password, passphrase]],
     ])("gets a category of algorithms", async (category, metadata) => {
       SomePolicyService.policiesByType$.mockReturnValue(new BehaviorSubject([]));
-      const provider = new GeneratorMetadataProvider(SystemProvider, ApplicationProvider, metadata);
+      const provider = new GeneratorMetadataProvider(
+        SystemProvider,
+        SomeSystemServiceProvider,
+        metadata,
+      );
       const result = new ReplaySubject<CredentialAlgorithm[]>(1);
 
       provider.algorithms$({ type: category }, { account$: SomeAccount$ }).subscribe(result);
@@ -344,7 +338,11 @@ describe("GeneratorMetadataProvider", () => {
       } as any);
       SomePolicyService.policiesByType$.mockReturnValue(new BehaviorSubject([policy]));
       const metadata = [password, passphrase];
-      const provider = new GeneratorMetadataProvider(SystemProvider, ApplicationProvider, metadata);
+      const provider = new GeneratorMetadataProvider(
+        SystemProvider,
+        SomeSystemServiceProvider,
+        metadata,
+      );
       const algorithmResult = new ReplaySubject<CredentialAlgorithm[]>(1);
       const categoryResult = new ReplaySubject<CredentialAlgorithm[]>(1);
 
@@ -361,7 +359,7 @@ describe("GeneratorMetadataProvider", () => {
 
     it("omits algorithms whose metadata is unavailable", async () => {
       SomePolicyService.policiesByType$.mockReturnValue(new BehaviorSubject([]));
-      const provider = new GeneratorMetadataProvider(SystemProvider, ApplicationProvider, [
+      const provider = new GeneratorMetadataProvider(SystemProvider, SomeSystemServiceProvider, [
         password,
       ]);
       const algorithmResult = new ReplaySubject<CredentialAlgorithm[]>(1);
@@ -379,7 +377,7 @@ describe("GeneratorMetadataProvider", () => {
     });
 
     it("panics when neither algorithm nor category are specified", () => {
-      const provider = new GeneratorMetadataProvider(SystemProvider, ApplicationProvider, []);
+      const provider = new GeneratorMetadataProvider(SystemProvider, SomeSystemServiceProvider, []);
 
       expect(() => provider.algorithms$({} as any, { account$: SomeAccount$ })).toThrow(
         "algorithm or type required",
@@ -403,7 +401,7 @@ describe("GeneratorMetadataProvider", () => {
       [Type.password, password],
     ])("emits the user's %s preference", async (type, metadata) => {
       SomePolicyService.policiesByType$.mockReturnValue(new BehaviorSubject([]));
-      const provider = new GeneratorMetadataProvider(SystemProvider, ApplicationProvider, [
+      const provider = new GeneratorMetadataProvider(SystemProvider, SomeSystemServiceProvider, [
         metadata,
       ]);
       const result = new ReplaySubject<CredentialAlgorithm | undefined>(1);
@@ -415,7 +413,7 @@ describe("GeneratorMetadataProvider", () => {
 
     it("emits a default when the user's preference is unavailable", async () => {
       SomePolicyService.policiesByType$.mockReturnValue(new BehaviorSubject([]));
-      const provider = new GeneratorMetadataProvider(SystemProvider, ApplicationProvider, [
+      const provider = new GeneratorMetadataProvider(SystemProvider, SomeSystemServiceProvider, [
         plusAddress,
       ]);
       const result = new ReplaySubject<CredentialAlgorithm | undefined>(1);
@@ -430,7 +428,7 @@ describe("GeneratorMetadataProvider", () => {
 
     it("emits the original preference when the user's preference is unavailable and there is no metadata", async () => {
       SomePolicyService.policiesByType$.mockReturnValue(new BehaviorSubject([]));
-      const provider = new GeneratorMetadataProvider(SystemProvider, ApplicationProvider, []);
+      const provider = new GeneratorMetadataProvider(SystemProvider, SomeSystemServiceProvider, []);
       const result = new ReplaySubject<CredentialAlgorithm | undefined>(1);
 
       provider.preference$(Type.email, { account$: SomeAccount$ }).subscribe(result);
@@ -441,7 +439,7 @@ describe("GeneratorMetadataProvider", () => {
 
   describe("preferences", () => {
     it("returns a user state subject", () => {
-      const provider = new GeneratorMetadataProvider(SystemProvider, ApplicationProvider, []);
+      const provider = new GeneratorMetadataProvider(SystemProvider, SomeSystemServiceProvider, []);
 
       const subject = provider.preferences({ account$: SomeAccount$ });
 
