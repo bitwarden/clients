@@ -6,6 +6,7 @@ import * as path from "path";
 import { firstValueFrom, switchMap } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
@@ -142,7 +143,8 @@ export class SendCreateCommand {
 
       await this.sendApiService.save([encSend, fileData]);
       const newSend = await this.sendService.getFromState(encSend.id);
-      const decSend = await newSend.decrypt();
+      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      const decSend = await newSend.decrypt(activeUserId);
       const env = await firstValueFrom(this.environmentService.environment$);
       const res = new SendResponse(decSend, env.getWebVaultUrl());
       return Response.success(res);
