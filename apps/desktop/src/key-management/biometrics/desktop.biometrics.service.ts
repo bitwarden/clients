@@ -13,4 +13,9 @@ export abstract class DesktopBiometricsService extends BiometricsService {
   ): Promise<void>;
   abstract deleteBiometricUnlockKeyForUser(userId: UserId): Promise<void>;
   abstract setupBiometrics(): Promise<void>;
+  abstract enrollPersistent(userId: UserId, key: SymmetricCryptoKey): Promise<void>;
+  abstract hasPersistentKey(userId: UserId): Promise<boolean>;
+  /* Enables the v2 biometrics re-write. This will stay enabled until the application is restarted. */
+  abstract enableWindowsV2Biometrics(): Promise<void>;
+  abstract isWindowsV2BiometricsEnabled(): Promise<boolean>;
 }
