@@ -29,6 +29,9 @@ import {
   SearchModule,
   SectionComponent,
   ScrollLayoutDirective,
+  SkeletonComponent,
+  SkeletonTextComponent,
+  SkeletonGroupComponent,
 } from "@bitwarden/components";
 
 import { PopupRouterCacheService } from "../view-cache/popup-router-cache.service";
@@ -335,6 +338,9 @@ export default {
         SectionComponent,
         IconButtonModule,
         BadgeModule,
+        SkeletonComponent,
+        SkeletonTextComponent,
+        SkeletonGroupComponent,
       ],
       providers: [
         {
@@ -587,6 +593,34 @@ export const Loading: Story = {
           <popup-page [loading]="true">
             <popup-header slot="header" pageTitle="Page Header"></popup-header>
             Content would go here
+          </popup-page>
+        </popup-tab-navigation>
+      </extension-container>
+    `,
+  }),
+};
+
+export const SkeletonLoading: Story = {
+  render: (args) => ({
+    props: { ...args, data: Array(8) },
+    template: /* HTML */ `
+      <extension-container>
+        <popup-tab-navigation>
+          <popup-page>
+            <popup-header slot="header" pageTitle="Page Header"></popup-header>
+            <div>
+              <div class="tw-sr-only" role="status">Loading...</div>
+              <div class="tw-flex tw-flex-col tw-gap-4">
+                <bit-skeleton-text class="tw-w-1/3"></bit-skeleton-text>
+                @for (num of data; track $index) {
+                <bit-skeleton-group>
+                  <bit-skeleton class="tw-size-8" slot="start"></bit-skeleton>
+                  <bit-skeleton-text [lines]="2" class="tw-w-1/2"></bit-skeleton-text>
+                </bit-skeleton-group>
+                <bit-skeleton class="tw-w-full tw-h-[1px]"></bit-skeleton>
+                }
+              </div>
+            </div>
           </popup-page>
         </popup-tab-navigation>
       </extension-container>
