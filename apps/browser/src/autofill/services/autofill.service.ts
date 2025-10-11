@@ -856,13 +856,28 @@ export default class AutofillService implements AutofillServiceInterface {
       options.fillNewPassword,
     );
 
+    const loginPasswordFields: AutofillField[] = [];
+    const registrationPasswordFields: AutofillField[] = [];
+
+    passwordFields.forEach((passField) => {
+      if (this.isRegistrationPasswordField(pageDetails, passField)) {
+        registrationPasswordFields.push(passField);
+      } else {
+        loginPasswordFields.push(passField);
+      }
+    });
+
+    // Prefer login fields over registration fields
+    const prioritizedPasswordFields =
+      loginPasswordFields.length > 0 ? loginPasswordFields : registrationPasswordFields;
+
     for (const formKey in pageDetails.forms) {
       // eslint-disable-next-line
       if (!pageDetails.forms.hasOwnProperty(formKey)) {
         continue;
       }
 
-      passwordFields.forEach((passField) => {
+      prioritizedPasswordFields.forEach((passField) => {
         pf = passField;
         passwords.push(pf);
 
@@ -887,8 +902,7 @@ export default class AutofillService implements AutofillServiceInterface {
     if (passwordFields.length && !passwords.length) {
       // The page does not have any forms with password fields. Use the first password field on the page and the
       // input field just before it as the username.
-
-      pf = passwordFields[0];
+      pf = prioritizedPasswordFields[0];
       passwords.push(pf);
 
       if (login.username && pf.elementNumber > 0) {
@@ -2249,6 +2263,38 @@ export default class AutofillService implements AutofillServiceInterface {
     });
 
     return arr;
+  }
+
+  /**
+   * Determines if a password field is part of a registration/signup form.
+   * @param {AutofillPageDetails} pageDetails
+   * @param {AutofillField} passwordField
+   * @returns {boolean}
+   * @private
+   */
+  private isRegistrationPasswordField(
+    pageDetails: AutofillPageDetails,
+    passwordField: AutofillField,
+  ): boolean {
+    if (!passwordField.form || !pageDetails.forms) {
+      return false;
+    }
+
+    const form = pageDetails.forms[passwordField.form];
+    if (!form) {
+      return false;
+    }
+
+    const formIdentifierValues = [
+      form.htmlID?.toLowerCase?.(),
+      form.htmlName?.toLowerCase?.(),
+      passwordField?.htmlID?.toLowerCase?.(),
+      passwordField?.htmlName?.toLowerCase?.(),
+    ].filter(Boolean);
+
+    return formIdentifierValues.some((value) =>
+      AutoFillConstants.RegistrationKeywords.some((keyword) => value.includes(keyword)),
+    );
   }
 
   /**
