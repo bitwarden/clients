@@ -3586,7 +3586,7 @@ describe("OverlayBackground", () => {
 
     describe("refreshGeneratedPassword", () => {
       it("refreshes the generated password", async () => {
-        overlayBackground["generatedPassword"] = "populated";
+        overlayBackground["credential$"].next("populated");
 
         sendPortMessage(listMessageConnectorSpy, { command: "refreshGeneratedPassword", portKey });
         await flushPromises();
@@ -3595,12 +3595,15 @@ describe("OverlayBackground", () => {
       });
 
       it("sends a message to the list port indicating that the generated password should be updated", async () => {
+        overlayBackground["credential$"].next("refresh");
+
         sendPortMessage(listMessageConnectorSpy, { command: "refreshGeneratedPassword", portKey });
+
         await flushPromises();
 
         expect(listPortSpy.postMessage).toHaveBeenCalledWith({
           command: "updateAutofillInlineMenuGeneratedPassword",
-          generatedPassword,
+          generatedPassword: "refresh",
           refreshPassword: true,
         });
       });
@@ -3620,7 +3623,7 @@ describe("OverlayBackground", () => {
           },
           sender,
         );
-        overlayBackground["generatedPassword"] = generatedPassword;
+        overlayBackground["credential$"].next(generatedPassword);
         overlayBackground["pageDetailsForTab"][sender.tab.id] = new Map([
           [sender.frameId, createPageDetailMock()],
         ]);
@@ -3628,7 +3631,7 @@ describe("OverlayBackground", () => {
 
       describe("skipping filling the generated password", () => {
         it("skips filling when the password has not been created", () => {
-          overlayBackground["generatedPassword"] = "";
+          overlayBackground["credential$"].next(null);
 
           sendPortMessage(listMessageConnectorSpy, { command: "fillGeneratedPassword", portKey });
 
