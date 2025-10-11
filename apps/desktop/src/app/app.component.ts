@@ -229,7 +229,7 @@ export class AppComponent implements OnInit, OnDestroy {
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
             this.updateAppMenu();
             await this.systemService.clearPendingClipboard();
-            await this.processReloadService.startProcessReload(this.authService);
+            await this.processReloadService.startProcessReload();
             break;
           case "authBlocked":
             // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
@@ -270,12 +270,12 @@ export class AppComponent implements OnInit, OnDestroy {
             }
             await this.updateAppMenu();
             await this.systemService.clearPendingClipboard();
-            await this.processReloadService.startProcessReload(this.authService);
+            await this.processReloadService.startProcessReload();
             break;
           case "startProcessReload":
             // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            this.processReloadService.startProcessReload(this.authService);
+            this.processReloadService.startProcessReload();
             break;
           case "cancelProcessReload":
             this.processReloadService.cancelProcessReload();
