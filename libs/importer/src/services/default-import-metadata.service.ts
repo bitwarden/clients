@@ -1,7 +1,6 @@
-import { combineLatest, map, Observable } from "rxjs";
+import { map, Observable } from "rxjs";
 
 import { DeviceType } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { SemanticLogger } from "@bitwarden/common/tools/log";
 import { SystemServiceProvider } from "@bitwarden/common/tools/providers";
 
@@ -24,12 +23,9 @@ export class DefaultImportMetadataService implements ImportMetadataServiceAbstra
   }
 
   metadata$(type$: Observable<ImportType>): Observable<ImporterMetadata> {
-    const browserEnabled$ = this.system.configService.getFeatureFlag$(
-      FeatureFlag.UseChromiumImporter,
-    );
     const client = this.system.environment.getClientType();
-    const capabilities$ = combineLatest([type$, browserEnabled$]).pipe(
-      map(([type, enabled]) => {
+    const capabilities$ = type$.pipe(
+      map((type) => {
         if (!this.importers) {
           return undefined;
         }
@@ -38,7 +34,8 @@ export class DefaultImportMetadataService implements ImportMetadataServiceAbstra
 
         let isUnsupported = false;
 
-        if (enabled && type === "bravecsv") {
+        // FIXME Likely needs to be extended for Chrome and Edge as well
+        if (type === "bravecsv") {
           try {
             const device = this.system.environment.getDevice();
             const isWindowsDesktop = device === DeviceType.WindowsDesktop;
@@ -51,7 +48,7 @@ export class DefaultImportMetadataService implements ImportMetadataServiceAbstra
         }
 
         // If the feature flag is disabled, or if the browser is unsupported, remove the chromium loader
-        if (!enabled || isUnsupported) {
+        if (isUnsupported) {
           loaders = loaders?.filter((loader) => loader !== Loader.chromium);
         }
 
