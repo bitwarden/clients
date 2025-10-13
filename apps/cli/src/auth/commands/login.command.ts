@@ -14,6 +14,7 @@ import {
   SsoUrlService,
   UserApiLoginCredentials,
 } from "@bitwarden/auth/common";
+import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -28,7 +29,6 @@ import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/ide
 import { PasswordRequest } from "@bitwarden/common/auth/models/request/password.request";
 import { TwoFactorEmailRequest } from "@bitwarden/common/auth/models/request/two-factor-email.request";
 import { UpdateTempPasswordRequest } from "@bitwarden/common/auth/models/request/update-temp-password.request";
-import { TwoFactorApiService } from "@bitwarden/common/auth/two-factor";
 import { ClientType } from "@bitwarden/common/enums";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
@@ -62,7 +62,7 @@ export class LoginCommand {
   constructor(
     protected loginStrategyService: LoginStrategyServiceAbstraction,
     protected authService: AuthService,
-    protected twoFactorApiService: TwoFactorApiService,
+    protected apiService: ApiService,
     protected masterPasswordApiService: MasterPasswordApiService,
     protected cryptoFunctionService: CryptoFunctionService,
     protected environmentService: EnvironmentService,
@@ -279,7 +279,7 @@ export class LoginCommand {
           const emailReq = new TwoFactorEmailRequest();
           emailReq.email = await this.loginStrategyService.getEmail();
           emailReq.masterPasswordHash = await this.loginStrategyService.getMasterPasswordHash();
-          await this.twoFactorApiService.postTwoFactorEmail(emailReq);
+          await this.apiService.postTwoFactorEmail(emailReq);
         }
 
         if (twoFactorToken == null) {

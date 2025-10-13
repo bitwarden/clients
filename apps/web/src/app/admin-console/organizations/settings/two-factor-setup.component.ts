@@ -5,6 +5,7 @@ import { ActivatedRoute } from "@angular/router";
 import { concatMap, takeUntil, map, lastValueFrom, firstValueFrom } from "rxjs";
 import { first, tap } from "rxjs/operators";
 
+import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import {
   getOrganizationById,
   OrganizationService,
@@ -14,7 +15,6 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { TwoFactorDuoResponse } from "@bitwarden/common/auth/models/response/two-factor-duo.response";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { TwoFactorApiService } from "@bitwarden/common/auth/two-factor";
 import { AuthResponse } from "@bitwarden/common/auth/types/auth-response";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -35,7 +35,7 @@ export class TwoFactorSetupComponent extends BaseTwoFactorSetupComponent impleme
   tabbedHeader = false;
   constructor(
     dialogService: DialogService,
-    twoFactorApiService: TwoFactorApiService,
+    apiService: ApiService,
     messagingService: MessagingService,
     policyService: PolicyService,
     private route: ActivatedRoute,
@@ -47,7 +47,7 @@ export class TwoFactorSetupComponent extends BaseTwoFactorSetupComponent impleme
   ) {
     super(
       dialogService,
-      twoFactorApiService,
+      apiService,
       messagingService,
       policyService,
       billingAccountProfileStateService,
@@ -116,7 +116,7 @@ export class TwoFactorSetupComponent extends BaseTwoFactorSetupComponent impleme
   }
 
   protected getTwoFactorProviders() {
-    return this.twoFactorApiService.getTwoFactorOrganizationProviders(this.organizationId);
+    return this.apiService.getTwoFactorOrganizationProviders(this.organizationId);
   }
 
   protected filterProvider(type: TwoFactorProviderType): boolean {

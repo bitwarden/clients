@@ -7,7 +7,6 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { TwoFactorProviderResponse } from "@bitwarden/common/auth/models/response/two-factor-provider.response";
-import { TwoFactorApiService } from "@bitwarden/common/auth/two-factor";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -23,14 +22,12 @@ describe("ChangeEmailComponent", () => {
   let fixture: ComponentFixture<ChangeEmailComponent>;
 
   let apiService: MockProxy<ApiService>;
-  let twoFactorApiService: MockProxy<TwoFactorApiService>;
   let accountService: FakeAccountService;
   let keyService: MockProxy<KeyService>;
   let kdfConfigService: MockProxy<KdfConfigService>;
 
   beforeEach(async () => {
     apiService = mock<ApiService>();
-    twoFactorApiService = mock<TwoFactorApiService>();
     keyService = mock<KeyService>();
     kdfConfigService = mock<KdfConfigService>();
     accountService = mockAccountServiceWith("UserId" as UserId);
@@ -40,7 +37,6 @@ describe("ChangeEmailComponent", () => {
       providers: [
         { provide: AccountService, useValue: accountService },
         { provide: ApiService, useValue: apiService },
-        { provide: TwoFactorApiService, useValue: twoFactorApiService },
         { provide: I18nService, useValue: { t: (key: string) => key } },
         { provide: KeyService, useValue: keyService },
         { provide: MessagingService, useValue: mock<MessagingService>() },
@@ -61,7 +57,7 @@ describe("ChangeEmailComponent", () => {
 
   describe("ngOnInit", () => {
     beforeEach(() => {
-      twoFactorApiService.getTwoFactorProviders.mockResolvedValue({
+      apiService.getTwoFactorProviders.mockResolvedValue({
         data: [{ type: TwoFactorProviderType.Email, enabled: true } as TwoFactorProviderResponse],
       } as ListResponse<TwoFactorProviderResponse>);
     });

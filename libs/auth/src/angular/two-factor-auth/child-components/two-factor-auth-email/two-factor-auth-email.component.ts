@@ -4,10 +4,10 @@ import { ReactiveFormsModule, FormsModule, FormControl } from "@angular/forms";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { LoginStrategyServiceAbstraction } from "@bitwarden/auth/common";
+import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { TwoFactorEmailRequest } from "@bitwarden/common/auth/models/request/two-factor-email.request";
-import { TwoFactorApiService } from "@bitwarden/common/auth/two-factor";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -62,7 +62,7 @@ export class TwoFactorAuthEmailComponent implements OnInit {
     protected loginStrategyService: LoginStrategyServiceAbstraction,
     protected platformUtilsService: PlatformUtilsService,
     protected logService: LogService,
-    protected twoFactorApiService: TwoFactorApiService,
+    protected apiService: ApiService,
     protected appIdService: AppIdService,
     private toastService: ToastService,
     private cacheService: TwoFactorAuthEmailComponentCacheService,
@@ -131,7 +131,7 @@ export class TwoFactorAuthEmailComponent implements OnInit {
       request.deviceIdentifier = await this.appIdService.getAppId();
       request.authRequestAccessCode = (await this.loginStrategyService.getAccessCode()) ?? "";
       request.authRequestId = (await this.loginStrategyService.getAuthRequestId()) ?? "";
-      this.emailPromise = this.twoFactorApiService.postTwoFactorEmail(request);
+      this.emailPromise = this.apiService.postTwoFactorEmail(request);
       await this.emailPromise;
 
       this.emailSent = true;

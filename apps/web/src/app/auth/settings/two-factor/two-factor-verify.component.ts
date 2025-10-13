@@ -2,11 +2,11 @@ import { Component, EventEmitter, Inject, Output } from "@angular/core";
 import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
 
 import { UserVerificationFormInputComponent } from "@bitwarden/auth/angular";
+import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { VerificationType } from "@bitwarden/common/auth/enums/verification-type";
 import { SecretVerificationRequest } from "@bitwarden/common/auth/models/request/secret-verification.request";
-import { TwoFactorApiService } from "@bitwarden/common/auth/two-factor";
 import { AuthResponse } from "@bitwarden/common/auth/types/auth-response";
 import { TwoFactorResponse } from "@bitwarden/common/auth/types/two-factor-response";
 import { Verification } from "@bitwarden/common/auth/types/verification";
@@ -55,7 +55,7 @@ export class TwoFactorVerifyComponent {
   constructor(
     @Inject(DIALOG_DATA) protected data: TwoFactorVerifyDialogData,
     private dialogRef: DialogRef,
-    private twoFactorApiService: TwoFactorApiService,
+    private apiService: ApiService,
     private i18nService: I18nService,
     private userVerificationService: UserVerificationService,
   ) {
@@ -116,22 +116,22 @@ export class TwoFactorVerifyComponent {
   private apiCall(request: SecretVerificationRequest): Promise<TwoFactorResponse> {
     switch (this.type) {
       case -1 as TwoFactorProviderType:
-        return this.twoFactorApiService.getTwoFactorRecover(request);
+        return this.apiService.getTwoFactorRecover(request);
       case TwoFactorProviderType.Duo:
       case TwoFactorProviderType.OrganizationDuo:
         if (this.organizationId != null) {
-          return this.twoFactorApiService.getTwoFactorOrganizationDuo(this.organizationId, request);
+          return this.apiService.getTwoFactorOrganizationDuo(this.organizationId, request);
         } else {
-          return this.twoFactorApiService.getTwoFactorDuo(request);
+          return this.apiService.getTwoFactorDuo(request);
         }
       case TwoFactorProviderType.Email:
-        return this.twoFactorApiService.getTwoFactorEmail(request);
+        return this.apiService.getTwoFactorEmail(request);
       case TwoFactorProviderType.WebAuthn:
-        return this.twoFactorApiService.getTwoFactorWebAuthn(request);
+        return this.apiService.getTwoFactorWebAuthn(request);
       case TwoFactorProviderType.Authenticator:
-        return this.twoFactorApiService.getTwoFactorAuthenticator(request);
+        return this.apiService.getTwoFactorAuthenticator(request);
       case TwoFactorProviderType.Yubikey:
-        return this.twoFactorApiService.getTwoFactorYubiKey(request);
+        return this.apiService.getTwoFactorYubiKey(request);
       default:
         throw new Error(`Unknown two-factor type: ${this.type}`);
     }
