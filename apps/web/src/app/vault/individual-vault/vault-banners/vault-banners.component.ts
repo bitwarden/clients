@@ -48,11 +48,11 @@ export class VaultBannersComponent implements OnInit {
       switchMap((userId) =>
         combineLatest([
           this.vaultBannerService.shouldShowPremiumBanner$(userId),
-          this.configService.getFeatureFlag$(FeatureFlag.PremiumUpgradeNewDesign),
+          this.configService.getFeatureFlag$(FeatureFlag.PM24996_ImplementUpgradeFromFreeDialog),
         ]).pipe(
           map(
-            ([shouldShowBanner, premiumUpgradeNewDesignEnabled]) =>
-              shouldShowBanner && !premiumUpgradeNewDesignEnabled,
+            ([shouldShowBanner, PM24996_ImplementUpgradeFromFreeDialogEnabled]) =>
+              shouldShowBanner && !PM24996_ImplementUpgradeFromFreeDialogEnabled,
           ),
         ),
       ),

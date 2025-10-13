@@ -30,7 +30,7 @@ describe("VaultBannersComponent", () => {
   let messageSubject: Subject<{ command: string }>;
   const premiumBanner$ = new BehaviorSubject<boolean>(false);
   const pendingAuthRequest$ = new BehaviorSubject<boolean>(false);
-  const premiumUpgradeNewDesignFlag$ = new BehaviorSubject<boolean>(false);
+  const PM24996_ImplementUpgradeFromFreeDialogFlag$ = new BehaviorSubject<boolean>(false);
   const mockUserId = Utils.newGuid() as UserId;
 
   const bannerService = mock<VaultBannersService>({
@@ -92,8 +92,8 @@ describe("VaultBannersComponent", () => {
           provide: ConfigService,
           useValue: mock<ConfigService>({
             getFeatureFlag$: jest.fn((flag: FeatureFlag) => {
-              if (flag === FeatureFlag.PremiumUpgradeNewDesign) {
-                return premiumUpgradeNewDesignFlag$;
+              if (flag === FeatureFlag.PM24996_ImplementUpgradeFromFreeDialog) {
+                return PM24996_ImplementUpgradeFromFreeDialogFlag$;
               }
               return new BehaviorSubject(false);
             }),
@@ -115,12 +115,12 @@ describe("VaultBannersComponent", () => {
   describe("premiumBannerVisible$", () => {
     beforeEach(() => {
       // Reset feature flag to default (false) before each test
-      premiumUpgradeNewDesignFlag$.next(false);
+      PM24996_ImplementUpgradeFromFreeDialogFlag$.next(false);
     });
 
     it("shows premium banner when shouldShowPremiumBanner is true and feature flag is off", async () => {
       premiumBanner$.next(true);
-      premiumUpgradeNewDesignFlag$.next(false);
+      PM24996_ImplementUpgradeFromFreeDialogFlag$.next(false);
 
       fixture.detectChanges();
 
@@ -130,7 +130,7 @@ describe("VaultBannersComponent", () => {
 
     it("hides premium banner when feature flag is enabled", async () => {
       premiumBanner$.next(true);
-      premiumUpgradeNewDesignFlag$.next(true);
+      PM24996_ImplementUpgradeFromFreeDialogFlag$.next(true);
 
       fixture.detectChanges();
 
@@ -140,7 +140,7 @@ describe("VaultBannersComponent", () => {
 
     it("dismisses premium banner when shouldShowPremiumBanner is false", async () => {
       premiumBanner$.next(false);
-      premiumUpgradeNewDesignFlag$.next(false);
+      PM24996_ImplementUpgradeFromFreeDialogFlag$.next(false);
 
       fixture.detectChanges();
 
@@ -150,7 +150,7 @@ describe("VaultBannersComponent", () => {
 
     it("hides premium banner when both shouldShowPremiumBanner is false and feature flag is enabled", async () => {
       premiumBanner$.next(false);
-      premiumUpgradeNewDesignFlag$.next(true);
+      PM24996_ImplementUpgradeFromFreeDialogFlag$.next(true);
 
       fixture.detectChanges();
 
