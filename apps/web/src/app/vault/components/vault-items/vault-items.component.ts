@@ -7,6 +7,7 @@ import { Observable, combineLatest, map, of, startWith, switchMap } from "rxjs";
 
 import { CollectionView, Unassigned, CollectionAdminView } from "@bitwarden/admin-console/common";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import {
   RestrictedCipherType,
@@ -85,6 +86,15 @@ export class VaultItemsComponent<C extends CipherViewLike> {
     this.refreshItems();
   }
 
+  private _folders?: FolderView[] = [];
+  @Input() get folders(): FolderView[] {
+    return this._folders;
+  }
+  set folders(value: FolderView[] | undefined) {
+    this._folders = value ?? [];
+    this.refreshItems();
+  }
+
   @Output() onEvent = new EventEmitter<VaultItemEvent<C>>();
 
   protected editableItems: VaultItem<C>[] = [];
@@ -118,8 +128,14 @@ export class VaultItemsComponent<C extends CipherViewLike> {
           .filter((item) => item.collection)
           .every((item) => item.collection && this.canDeleteCollection(item.collection));
 
+        const canDeleteFolders = this.selection.selected
+          .filter((item) => item.folder)
+          .every((item) => item.folder && this.canDeleteFolder(item.folder));
+
         const canDelete$ = combineLatest(canDeleteCiphers$).pipe(
-          map((results) => results.every((item) => item) && canDeleteCollections),
+          map(
+            (results) => results.every((item) => item) && canDeleteCollections && canDeleteFolders,
+          ),
         );
 
         return canDelete$;
@@ -187,7 +203,9 @@ export class VaultItemsComponent<C extends CipherViewLike> {
 
   get bulkMoveAllowed() {
     return (
-      this.showBulkMove && this.selection.selected.filter((item) => item.collection).length === 0
+      this.showBulkMove &&
+      this.selection.selected.filter((item) => item.collection).length === 0 &&
+      this.selection.selected.filter((item) => item.folder).length === 0
     );
   }
 
@@ -208,7 +226,12 @@ export class VaultItemsComponent<C extends CipherViewLike> {
       .filter((item) => item.collection)
       .every((item) => item.collection && this.canDeleteCollection(item.collection));
 
-    const userCanDeleteAccess = canManageCollectionCiphers && canDeleteCollections;
+    const canDeleteFolders = this.selection.selected
+      .filter((item) => item.folder)
+      .every((item) => item.folder && this.canDeleteFolder(item.folder));
+
+    const userCanDeleteAccess =
+      canManageCollectionCiphers && canDeleteCollections && canDeleteFolders;
 
     if (
       userCanDeleteAccess ||
@@ -249,6 +272,18 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   protected canViewCollectionInfo(collection: CollectionView) {
     const organization = this.allOrganizations.find((o) => o.id === collection.organizationId);
     return collection.canViewCollectionInfo(organization);
+  }
+
+  protected canEditFolder(folder: FolderView): boolean {
+    // For individual vault, users can always edit their own folders
+    // For org vault, folder editing would depend on permissions (not implemented yet)
+    return true;
+  }
+
+  protected canDeleteFolder(folder: FolderView): boolean {
+    // For individual vault, users can always delete their own folders
+    // For org vault, folder deletion would depend on permissions (not implemented yet)
+    return true;
   }
 
   protected toggleAll() {
@@ -370,6 +405,7 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   }
 
   private refreshItems() {
+    const folders: VaultItem<C>[] = this.folders.map((folder) => ({ folder }));
     const collections: VaultItem<C>[] = this.collections.map((collection) => ({ collection }));
     const ciphers: VaultItem<C>[] = this.ciphers
       .filter(
@@ -377,12 +413,13 @@ export class VaultItemsComponent<C extends CipherViewLike> {
           !this.restrictedItemTypesService.isCipherRestricted(cipher, this.restrictedTypes),
       )
       .map((cipher) => ({ cipher }));
-    const items: VaultItem<C>[] = [].concat(collections).concat(ciphers);
+    const items: VaultItem<C>[] = [].concat(folders).concat(collections).concat(ciphers);
 
-    // All ciphers are selectable, collections only if they can be edited or deleted
+    // All ciphers are selectable, collections only if they can be edited or deleted, folders always selectable
     this.editableItems = items.filter(
       (item) =>
         item.cipher !== undefined ||
+        item.folder !== undefined ||
         (item.collection !== undefined &&
           (this.canEditCollection(item.collection) || this.canDeleteCollection(item.collection))),
     );

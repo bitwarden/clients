@@ -13,6 +13,7 @@ import { PipesModule } from "../../individual-vault/pipes/pipes.module";
 
 import { VaultCipherRowComponent } from "./vault-cipher-row.component";
 import { VaultCollectionRowComponent } from "./vault-collection-row.component";
+import { VaultFolderRowComponent } from "./vault-folder-row.component";
 import { VaultItemsComponent } from "./vault-items.component";
 
 @NgModule({
@@ -28,7 +29,12 @@ import { VaultItemsComponent } from "./vault-items.component";
     PipesModule,
     ScrollLayoutDirective,
   ],
-  declarations: [VaultItemsComponent, VaultCipherRowComponent, VaultCollectionRowComponent],
+  declarations: [
+    VaultItemsComponent,
+    VaultCipherRowComponent,
+    VaultCollectionRowComponent,
+    VaultFolderRowComponent,
+  ],
   exports: [VaultItemsComponent],
 })
 export class VaultItemsModule {}
