@@ -406,24 +406,6 @@ describe("ImportService", () => {
       expect(result.loaders).toContain("file");
     });
 
-    it("should exclude chromium loader when feature flag is disabled", async () => {
-      const nativeMap: Partial<
-        Record<ImportType, { loaders: ("file" | "chromium")[]; instructions?: "chromium" }>
-      > = {
-        bravecsv: { loaders: ["file", "chromium"], instructions: "chromium" },
-      };
-      const { service, featureFlagSubject } = await createServiceWithNativeMap(nativeMap);
-      featureFlagSubject.next(false);
-
-      const typeSubject = new Subject<ImportType>();
-      const promise = firstValueFrom(service.metadata$(typeSubject));
-      typeSubject.next("bravecsv");
-      const result: ImporterMetadata = await promise;
-
-      expect(result.loaders).not.toContain("chromium");
-      expect(result.loaders).toContain("file");
-    });
-
     it("should update when type$ changes", async () => {
       const nativeMap: Partial<
         Record<ImportType, { loaders: ("file" | "chromium")[]; instructions?: "chromium" }>
@@ -446,30 +428,6 @@ describe("ImportService", () => {
       expect(emissions).toHaveLength(2);
       expect(emissions[0].type).toBe("chromecsv");
       expect(emissions[1].type).toBe("bravecsv");
-      subscription.unsubscribe();
-    });
-
-    it("should update when feature flag changes", async () => {
-      const nativeMap: Partial<
-        Record<ImportType, { loaders: ("file" | "chromium")[]; instructions?: "chromium" }>
-      > = {
-        bravecsv: { loaders: ["file", "chromium"], instructions: "chromium" },
-      };
-      const { service, featureFlagSubject } = await createServiceWithNativeMap(nativeMap);
-
-      const emissions: ImporterMetadata[] = [];
-      const typeSubject = new Subject<ImportType>();
-      const subscription = service
-        .metadata$(typeSubject)
-        .subscribe((m: ImporterMetadata) => emissions.push(m));
-
-      typeSubject.next("bravecsv");
-      featureFlagSubject.next(true);
-      await new Promise((r) => setTimeout(r, 0));
-
-      expect(emissions).toHaveLength(2);
-      expect(emissions[0].loaders).not.toContain("chromium");
-      expect(emissions[1].loaders).toContain("chromium");
       subscription.unsubscribe();
     });
 

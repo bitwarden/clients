@@ -4135,7 +4135,7 @@
   "enableAutotypeShortcutPreview": {
     "message": "Povolit zkratku Autotype (náhled funkce)"
   },
-  "enableAutotypeDescriptionTransitionKey": {
+  "enableAutotypeShortcutDescription": {
     "message": "Před použitím zkratky se ujistěte, že jste ve správném poli, abyste se vyhnuli vyplnění dat na nesprávné místo."
   },
   "editShortcut": {
