@@ -66,6 +66,7 @@ mod tests {
     use super::*;
     use std::collections::HashSet;
 
+    #[cfg(target_os = "macos")]
     fn map_keys(map: &HashMap<String, ImporterMetadata>) -> HashSet<String> {
         map.keys().cloned().collect()
     }
