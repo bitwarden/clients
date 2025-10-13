@@ -1332,7 +1332,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       variant: "success",
       title: null,
       message: this.i18nService.t(
-        cipher.favorite ? "itemAddedToFavorites" : "itemRemovedFromFavorites",
+        cipherFullView.favorite ? "itemAddedToFavorites" : "itemRemovedFromFavorites",
       ),
     });
 

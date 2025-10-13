@@ -127,12 +127,12 @@ export class VaultCollectionRowComponent<C extends CipherViewLike> {
   }
 
   @HostListener("contextmenu", ["$event"])
-  protected async onRightClick(event: MouseEvent) {
+  protected onRightClick(event: MouseEvent) {
     if (event.shiftKey && event.ctrlKey) {
       return;
     }
 
-    if (!this.disabled) {
+    if (!this.disabled && this.menuTrigger) {
       this.menuTrigger.toggleMenuOnRightClick(event);
     }
   }

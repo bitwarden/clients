@@ -87,6 +87,7 @@ export class MenuTriggerForDirective implements OnDestroy {
   };
   private closedEventsSub: Subscription | null = null;
   private keyDownEventsSub: Subscription | null = null;
+  private menuCloseListenerSub: Subscription | null = null;
 
   constructor(
     private elementRef: ElementRef<HTMLElement>,
@@ -137,7 +138,8 @@ export class MenuTriggerForDirective implements OnDestroy {
     const templatePortal = new TemplatePortal(menu.templateRef(), this.viewContainerRef);
     this.overlayRef.attach(templatePortal);
 
-    this.setupClosingActions();
+    const isContextMenu = !!event;
+    this.setupClosingActions(isContextMenu);
     this.setupMenuCloseListener();
 
     if (menu.keyManager) {
@@ -184,7 +186,7 @@ export class MenuTriggerForDirective implements OnDestroy {
     this.menu().closed.emit();
   }
 
-  private setupClosingActions() {
+  private setupClosingActions(isContextMenu: boolean) {
     if (!this.overlayRef) {
       return;
     }
@@ -195,12 +197,14 @@ export class MenuTriggerForDirective implements OnDestroy {
         return keys.includes(event.key);
       }),
     );
-
-    const backdrop = this.overlayRef.backdropClick();
     const menuClosed = this.menu().closed;
     const detachments = this.overlayRef.detachments();
 
-    this.closedEventsSub = merge(detachments, escKey, backdrop, menuClosed)
+    const closeEvents = isContextMenu
+      ? merge(detachments, escKey, menuClosed)
+      : merge(detachments, escKey, this.overlayRef.backdropClick(), menuClosed);
+
+    this.closedEventsSub = closeEvents
       .pipe(takeUntil(this.overlayRef.detachments()))
       .subscribe((event) => {
         // Closing the menu is handled in this.destroyMenu, so we want to prevent the escape key
@@ -223,8 +227,12 @@ export class MenuTriggerForDirective implements OnDestroy {
    * considered an outside click event, which would immediately close the menu
    */
   private setupMenuCloseListener() {
-    this.overlayRef
-      ?.outsidePointerEvents()
+    if (!this.overlayRef) {
+      return;
+    }
+
+    this.menuCloseListenerSub = this.overlayRef
+      .outsidePointerEvents()
       .pipe(skip(1), takeUntil(this.overlayRef.detachments()))
       .subscribe((_) => {
         this.destroyMenu();
@@ -234,6 +242,7 @@ export class MenuTriggerForDirective implements OnDestroy {
   private disposeAll() {
     this.closedEventsSub?.unsubscribe();
     this.keyDownEventsSub?.unsubscribe();
+    this.menuCloseListenerSub?.unsubscribe();
     this.overlayRef?.dispose();
   }
 }
