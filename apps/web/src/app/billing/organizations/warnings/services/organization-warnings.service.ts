@@ -46,6 +46,7 @@ export class OrganizationWarningsService {
 
   private refreshFreeTrialWarningTrigger = new Subject<void>();
   private refreshTaxIdWarningTrigger = new Subject<void>();
+  private refreshInactiveSubscriptionWarningTrigger = new Subject<void>();
 
   private taxIdWarningRefreshedSubject = new BehaviorSubject<TaxIdWarningType | null>(null);
   taxIdWarningRefreshed$ = this.taxIdWarningRefreshedSubject.asObservable();
@@ -164,12 +165,24 @@ export class OrganizationWarningsService {
 
   refreshFreeTrialWarning = () => this.refreshFreeTrialWarningTrigger.next();
 
+  refreshInactiveSubscriptionWarning = () => this.refreshInactiveSubscriptionWarningTrigger.next();
+
   refreshTaxIdWarning = () => this.refreshTaxIdWarningTrigger.next();
 
   showInactiveSubscriptionDialog$ = (organization: Organization): Observable<void> =>
-    this.getWarning$(organization, (response) => response.inactiveSubscription).pipe(
-      filter((warning) => warning !== null),
+    merge(
+      this.getWarning$(organization, (response) => response.inactiveSubscription),
+      this.refreshInactiveSubscriptionWarningTrigger.pipe(
+        switchMap(() =>
+          this.getWarning$(organization, (response) => response.inactiveSubscription, true),
+        ),
+      ),
+    ).pipe(
       switchMap(async (warning) => {
+        if (!warning) {
+          return;
+        }
+
         switch (warning.resolution) {
           case "contact_provider": {
             await this.dialogService.openSimpleDialog({

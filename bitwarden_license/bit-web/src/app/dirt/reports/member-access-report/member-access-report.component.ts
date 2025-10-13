@@ -9,6 +9,7 @@ import { BehaviorSubject, debounceTime, firstValueFrom, lastValueFrom } from "rx
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions";
+import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
@@ -56,6 +57,7 @@ export class MemberAccessReportComponent implements OnInit {
     protected dialogService: DialogService,
     protected userNamePipe: UserNamePipe,
     protected billingApiService: BillingApiServiceAbstraction,
+    protected organizationMetadataService: OrganizationMetadataServiceAbstraction,
   ) {
     // Connect the search input to the table dataSource filter input
     this.searchControl.valueChanges
@@ -69,8 +71,8 @@ export class MemberAccessReportComponent implements OnInit {
     const params = await firstValueFrom(this.route.params);
     this.organizationId = params.organizationId;
 
-    const billingMetadata = await this.billingApiService.getOrganizationBillingMetadata(
-      this.organizationId,
+    const billingMetadata = await firstValueFrom(
+      this.organizationMetadataService.getOrganizationMetadata$(this.organizationId),
     );
 
     this.orgIsOnSecretsManagerStandalone = billingMetadata.isOnSecretsManagerStandalone;

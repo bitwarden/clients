@@ -550,8 +550,13 @@
   "resetSearch": {
     "message": "Zresetuj wyszukiwanie"
   },
-  "archive": {
-    "message": "Archive"
+  "archiveNoun": {
+    "message": "Archiwum",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archiwizuj",
+    "description": "Verb"
   },
   "unarchive": {
     "message": "Usuń z archiwum"
@@ -727,6 +732,15 @@
   },
   "invalidMasterPassword": {
     "message": "Hasło główne jest nieprawidłowe"
+  },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
   },
   "vaultTimeout": {
     "message": "Blokowanie sejfu"
@@ -1534,6 +1548,15 @@
   "readSecurityKey": {
     "message": "Odczytaj klucz bezpieczeństwa"
   },
+  "readingPasskeyLoading": {
+    "message": "Odczytywanie klucza dostępu..."
+  },
+  "passkeyAuthenticationFailed": {
+    "message": "Passkey authentication failed"
+  },
+  "useADifferentLogInMethod": {
+    "message": "Użyj innej metody logowania"
+  },
   "awaitingSecurityKeyInteraction": {
     "message": "Oczekiwanie na klucz bezpieczeństwa..."
   },
@@ -2174,7 +2197,7 @@
     "description": "ex. Date this item was created"
   },
   "datePasswordUpdated": {
-    "message": "Hasło zostało zaktualizowane",
+    "message": "Ostatnia aktualizacja hasła",
     "description": "ex. Date this password was updated"
   },
   "neverLockWarning": {
@@ -3190,6 +3213,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Tylko sejf organizacji $ORGANIZATION$ zostanie wyeksportowany.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Tylko sejf organizacji $ORGANIZATION$ zostanie wyeksportowany. Twoje kolekcje nie zostaną uwzględnione.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },

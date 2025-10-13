@@ -45,7 +45,7 @@ describe("CipherFormComponent", () => {
           provide: CipherFormCacheService,
           useValue: { init: jest.fn(), getCachedCipherView: jest.fn() },
         },
-        { provide: ViewCacheService, useValue: { signal: jest.fn(() => () => null) } },
+        { provide: ViewCacheService, useValue: { signal: jest.fn(() => (): any => null) } },
         { provide: ConfigService, useValue: mock<ConfigService>() },
         { provide: AccountService, useValue: mockAccountService },
         { provide: CipherArchiveService, useValue: mockCipherArchiveService },

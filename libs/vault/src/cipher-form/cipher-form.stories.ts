@@ -276,6 +276,12 @@ export default {
             policiesByType$: new BehaviorSubject([]),
           },
         },
+        {
+          provide: CipherArchiveService,
+          useValue: {
+            archiveWithServer: () => Promise.resolve(),
+          },
+        },
       ],
     }),
     componentWrapperDecorator(

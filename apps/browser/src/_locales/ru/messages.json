@@ -550,8 +550,13 @@
   "resetSearch": {
     "message": "Сбросить поиск"
   },
-  "archive": {
-    "message": "Архив"
+  "archiveNoun": {
+    "message": "Архив",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Архивировать",
+    "description": "Verb"
   },
   "unarchive": {
     "message": "Разархивировать"
@@ -727,6 +732,15 @@
   },
   "invalidMasterPassword": {
     "message": "Неверный мастер-пароль"
+  },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Неверный мастер-пароль. Подтвердите, что ваш адрес email указан верно и ваш аккаунт был создан на $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
   },
   "vaultTimeout": {
     "message": "Тайм-аут хранилища"
@@ -1533,6 +1547,15 @@
   },
   "readSecurityKey": {
     "message": "Считать ключ безопасности"
+  },
+  "readingPasskeyLoading": {
+    "message": "Чтение passkey..."
+  },
+  "passkeyAuthenticationFailed": {
+    "message": "Не удалось выполнить аутентификацию с помощью passkey"
+  },
+  "useADifferentLogInMethod": {
+    "message": "Использовать другой способ авторизации"
   },
   "awaitingSecurityKeyInteraction": {
     "message": "Ожидание взаимодействия с ключом безопасности..."
@@ -3190,6 +3213,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Будет экспортировано только хранилище организации, связанное с $ORGANIZATION$.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Будет экспортировано только хранилище организации, связанное с $ORGANIZATION$. Коллекции Мои элементы включены не будут.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },

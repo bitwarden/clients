@@ -163,7 +163,7 @@ export abstract class ApiService {
   ): Promise<
     IdentityTokenResponse | IdentityTwoFactorResponse | IdentityDeviceVerificationResponse
   >;
-  abstract refreshIdentityToken(): Promise<any>;
+  abstract refreshIdentityToken(userId?: UserId): Promise<any>;
 
   abstract getProfile(): Promise<ProfileResponse>;
   abstract getUserSubscription(): Promise<SubscriptionResponse>;
@@ -455,6 +455,13 @@ export abstract class ApiService {
   ): Promise<ListResponse<EventResponse>>;
 
   abstract getEventsSecret(
+    orgId: string,
+    id: string,
+    start: string,
+    end: string,
+    token: string,
+  ): Promise<ListResponse<EventResponse>>;
+  abstract getEventsServiceAccount(
     orgId: string,
     id: string,
     start: string,

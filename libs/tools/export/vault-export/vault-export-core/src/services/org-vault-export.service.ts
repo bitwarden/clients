@@ -15,6 +15,7 @@ import { EncryptService } from "@bitwarden/common/key-management/crypto/abstract
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { CipherWithIdExport, CollectionWithIdExport } from "@bitwarden/common/models/export";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -22,6 +23,7 @@ import { CipherData } from "@bitwarden/common/vault/models/data/cipher.data";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
+import { newGuid } from "@bitwarden/guid";
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 
 import {
@@ -112,7 +114,7 @@ export class OrganizationVaultExportService
         type: "text/plain",
         data: onlyManagedCollections
           ? await this.getEncryptedManagedExport(userId, organizationId)
-          : await this.getOrganizationEncryptedExport(organizationId),
+          : await this.getOrganizationEncryptedExport(userId, organizationId),
         fileName: ExportHelper.getFileName("org", "encrypted_json"),
       } as ExportedVaultAsString;
     }
@@ -184,7 +186,10 @@ export class OrganizationVaultExportService
     return this.buildJsonExport(decCollections, decCiphers);
   }
 
-  private async getOrganizationEncryptedExport(organizationId: OrganizationId): Promise<string> {
+  private async getOrganizationEncryptedExport(
+    userId: UserId,
+    organizationId: OrganizationId,
+  ): Promise<string> {
     const collections: Collection[] = [];
     const ciphers: Cipher[] = [];
 
@@ -215,7 +220,7 @@ export class OrganizationVaultExportService
           }
         });
     }
-    return this.BuildEncryptedExport(organizationId, collections, ciphers);
+    return this.BuildEncryptedExport(userId, organizationId, collections, ciphers);
   }
 
   private async getDecryptedManagedExport(
@@ -295,16 +300,21 @@ export class OrganizationVaultExportService
         !this.restrictedItemTypesService.isCipherRestricted(f, restrictions),
     );
 
-    return this.BuildEncryptedExport(organizationId, encCollections, encCiphers);
+    return this.BuildEncryptedExport(activeUserId, organizationId, encCollections, encCiphers);
   }
 
   private async BuildEncryptedExport(
+    activeUserId: UserId,
     organizationId: OrganizationId,
     collections: Collection[],
     ciphers: Cipher[],
   ): Promise<string> {
-    const orgKey = await this.keyService.getOrgKey(organizationId);
-    const encKeyValidation = await this.encryptService.encryptString(Utils.newGuid(), orgKey);
+    const orgKeys = await firstValueFrom(this.keyService.orgKeys$(activeUserId));
+    const keyForEncryption: SymmetricCryptoKey = orgKeys?.[organizationId];
+    if (keyForEncryption == null) {
+      throw new Error("No encryption key found for organization");
+    }
+    const encKeyValidation = await this.encryptService.encryptString(newGuid(), keyForEncryption);
 
     const jsonDoc: BitwardenEncryptedOrgJsonExport = {
       encrypted: true,

@@ -1222,6 +1222,15 @@
   "invalidMasterPassword": {
     "message": "Contrasenya mestra no vàlida"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "twoStepLoginConfirmation": {
     "message": "L'inici de sessió en dues passes fa que el vostre compte siga més segur, ja que obliga a comprovar el vostre inici de sessió amb un altre dispositiu, com ara una clau de seguretat, una aplicació autenticadora, un SMS, una trucada telefònica o un correu electrònic. Es pot habilitar l'inici de sessió en dues passes a la caixa forta web de bitwarden.com. Voleu visitar el lloc web ara?"
   },
@@ -2371,7 +2380,7 @@
     "message": "Autenticar WebAuthn"
   },
   "readSecurityKey": {
-    "message": "Llegeix clau de seguretat"
+    "message": "Llig la clau de seguretat"
   },
   "awaitingSecurityKeyInteraction": {
     "message": "S'està esperant la interacció amb la clau de seguretat..."
@@ -2654,6 +2663,24 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "locked": {
     "message": "Bloquejat"
   },
@@ -2887,7 +2914,7 @@
     }
   },
   "forwarderNoDomain": {
-    "message": "Domini de $SERVICENAME$ invàlid.",
+    "message": "Domini de $SERVICENAME$ no vàlid.",
     "description": "Displayed when the domain is empty or domain authorization failed at the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -2991,7 +3018,7 @@
     "message": "aplicació web"
   },
   "notificationSentDevicePart2": {
-    "message": "Assegura't que la frase d'empremta digital encaixa amb la d'aquí sota abans d'aprovar-la."
+    "message": "Assegureu-vos que la frase de l'empremta digital coincideix amb la que hi ha a continuació abans d'aprovar-la."
   },
   "needAnotherOptionV1": {
     "message": "Necessiteu una altra opció?"
@@ -3108,7 +3135,7 @@
     "message": "Aquesta sol·licitud ja no és vàlida."
   },
   "confirmAccessAttempt": {
-    "message": "Confirma l'intent d'accés de $EMAIL$",
+    "message": "Confirmeu l'intent d'accés de $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3120,7 +3147,7 @@
     "message": "S'ha sol·licitat inici de sessió"
   },
   "accountAccessRequested": {
-    "message": "Accés al compte demanat"
+    "message": "S'ha sol·licitat accés al compte"
   },
   "creatingAccountOn": {
     "message": "Creant compte en"
@@ -3771,7 +3798,7 @@
     "message": "Denega"
   },
   "sshkeyApprovalTitle": {
-    "message": "Confirma l'ús de la clau SSH"
+    "message": "Confirmeu l'ús de la clau SSH"
   },
   "agentForwardingWarningTitle": {
     "message": "Advertència: Reenviament de l'Agent"
@@ -4080,11 +4107,17 @@
   "showLess": {
     "message": "Show less"
   },
-  "enableAutotype": {
-    "message": "Enable Autotype"
-  },
   "enableAutotypeDescription": {
     "message": "Bitwarden does not validate input locations, be sure you are in the right window and field before using the shortcut."
+  },
+  "typeShortcut": {
+    "message": "Type shortcut"
+  },
+  "editAutotypeShortcutDescription": {
+    "message": "Include one or two of the following modifiers: Ctrl, Alt, Win, or Shift, and a letter."
+  },
+  "invalidShortcut": {
+    "message": "Invalid shortcut"
   },
   "moreBreadcrumbs": {
     "message": "More breadcrumbs",
@@ -4099,17 +4132,22 @@
   "confirm": {
     "message": "Confirm"
   },
-  "enableAutotypeTransitionKey": {
-    "message": "Enable autotype shortcut"
+  "enableAutotypeShortcutPreview": {
+    "message": "Enable autotype shortcut (Feature Preview)"
   },
-  "enableAutotypeDescriptionTransitionKey": {
+  "enableAutotypeShortcutDescription": {
     "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."
   },
   "editShortcut": {
     "message": "Edit shortcut"
   },
-  "archive": {
-    "message": "Archive"
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
   },
   "unarchive": {
     "message": "Unarchive"

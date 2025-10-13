@@ -1222,6 +1222,15 @@
   "invalidMasterPassword": {
     "message": "Погрешна главна лозинка"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Неисправна главна лозинка. Потврдите да је адреса ваше е-поште исправна и да је ваш налог направљен на $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "twoStepLoginConfirmation": {
     "message": "Пријава у два корака чини ваш налог сигурнијим захтевом да верификујете своје податке помоћу другог уређаја, као што су безбедносни кључ, апликација, СМС-а, телефонски позив или имејл. Пријављивање у два корака може се омогућити на веб сефу. Да ли желите да посетите веб страницу сада?"
   },
@@ -2654,6 +2663,24 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Извешће се само сеф организације повезана са $ORGANIZATION$.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Извешће се само сеф организације повезан са $ORGANIZATION$. Колекције мојих предмета неће бити укључене.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "locked": {
     "message": "Закључано"
   },
@@ -4080,11 +4107,17 @@
   "showLess": {
     "message": "Прикажи мање"
   },
-  "enableAutotype": {
-    "message": "Упали ауто-унос"
-  },
   "enableAutotypeDescription": {
     "message": "Bitwarden не потврђује локације уноса, будите сигурни да сте у добром прозору и поље пре употребе пречице."
+  },
+  "typeShortcut": {
+    "message": "Унети пречицу"
+  },
+  "editAutotypeShortcutDescription": {
+    "message": "Укључите један или два следећа модификатора: Ctrl, Alt, Win, или Shift, и слово."
+  },
+  "invalidShortcut": {
+    "message": "Неважећа пречица"
   },
   "moreBreadcrumbs": {
     "message": "Више мрвица",
@@ -4099,17 +4132,22 @@
   "confirm": {
     "message": "Потврди"
   },
-  "enableAutotypeTransitionKey": {
-    "message": "Омогућава пречицу за аутоматски унос"
+  "enableAutotypeShortcutPreview": {
+    "message": "Омогућите пречицу ауто-уноса (преглед функције)"
   },
-  "enableAutotypeDescriptionTransitionKey": {
-    "message": "Будите сигурни да сте у исправном пољу пре употребе пречице да бисте избегли попуњавање података на погрешно место."
+  "enableAutotypeShortcutDescription": {
+    "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."
   },
   "editShortcut": {
     "message": "Уреди пречицу"
   },
-  "archive": {
-    "message": "Архива"
+  "archiveNoun": {
+    "message": "Архива",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Архивирај",
+    "description": "Verb"
   },
   "unarchive": {
     "message": "Врати из архиве"
