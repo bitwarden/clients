@@ -138,6 +138,7 @@ export class MenuTriggerForDirective implements OnDestroy {
     const templatePortal = new TemplatePortal(menu.templateRef(), this.viewContainerRef);
     this.overlayRef.attach(templatePortal);
 
+    // Context menus are opened with a MouseEvent
     const isContextMenu = !!event;
     this.setupClosingActions(isContextMenu);
     this.setupMenuCloseListener();
