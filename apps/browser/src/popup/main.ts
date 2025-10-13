@@ -20,6 +20,7 @@ if (process.env.ENV === "production") {
 }
 
 function init() {
+  performance.mark("angular-bootstrap-start");
   void platformBrowserDynamic().bootstrapModule(AppModule);
 }
 
