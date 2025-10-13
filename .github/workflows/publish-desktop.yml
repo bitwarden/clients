@@ -213,7 +213,7 @@ jobs:
       _RELEASE_TAG: ${{ needs.setup.outputs.tag_name }}
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
       - name: Log in to Azure
         uses: bitwarden/gh-actions/azure-login@main
@@ -265,7 +265,7 @@ jobs:
       _RELEASE_TAG: ${{ needs.setup.outputs.tag_name }}
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
       - name: Print Environment
         run: |
@@ -320,7 +320,7 @@ jobs:
       _RELEASE_TAG: ${{ needs.setup.outputs.tag_name }}
     steps:
       - name: Checkout repo
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
       - name: Validate release notes for MAS
         if: inputs.mas_publish && (inputs.release_notes == '' || inputs.release_notes == null)
