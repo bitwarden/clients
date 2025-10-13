@@ -50,18 +50,26 @@ pub enum LoginImportResult {
     Failure(LoginImportFailure),
 }
 
-// TODO: Make thus async
-pub fn get_installed_browsers() -> Result<Vec<String>> {
-    let mut browsers = Vec::with_capacity(SUPPORTED_BROWSER_MAP.len());
+pub trait InstalledBrowserRetriever {
+    fn get_installed_browsers() -> Result<Vec<String>>;
+}
 
-    for (browser, config) in SUPPORTED_BROWSER_MAP.iter() {
-        let data_dir = get_browser_data_dir(config)?;
-        if data_dir.exists() {
-            browsers.push((*browser).to_string());
+pub struct DefaultInstalledBrowserRetriever {}
+
+impl InstalledBrowserRetriever for DefaultInstalledBrowserRetriever {
+    // TODO: Make thus async
+    fn get_installed_browsers() -> Result<Vec<String>> {
+        let mut browsers = Vec::with_capacity(SUPPORTED_BROWSER_MAP.len());
+
+        for (browser, config) in SUPPORTED_BROWSER_MAP.iter() {
+            let data_dir = get_browser_data_dir(config)?;
+            if data_dir.exists() {
+                browsers.push((*browser).to_string());
+            }
         }
-    }
 
-    Ok(browsers)
+        Ok(browsers)
+    }
 }
 
 // TODO: Make thus async
@@ -110,7 +118,7 @@ pub struct BrowserConfig {
     pub data_dir: &'static str,
 }
 
-static SUPPORTED_BROWSER_MAP: LazyLock<
+pub static SUPPORTED_BROWSER_MAP: LazyLock<
     std::collections::HashMap<&'static str, &'static BrowserConfig>,
 > = LazyLock::new(|| {
     platform::SUPPORTED_BROWSERS
