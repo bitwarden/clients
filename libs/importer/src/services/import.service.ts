@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { combineLatest, firstValueFrom, map, Observable } from "rxjs";
+import { firstValueFrom, map } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -10,7 +10,6 @@ import {
   CollectionView,
 } from "@bitwarden/admin-console/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { ImportCiphersRequest } from "@bitwarden/common/models/request/import-ciphers.request";
@@ -19,8 +18,6 @@ import { KvpRequest } from "@bitwarden/common/models/request/kvp.request";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SemanticLogger } from "@bitwarden/common/tools/log";
-import { SystemServiceProvider } from "@bitwarden/common/tools/providers";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -97,7 +94,6 @@ import {
   PasswordDepot17XmlImporter,
 } from "../importers";
 import { Importer } from "../importers/importer";
-import { ImporterMetadata, Importers, Loader } from "../metadata";
 import {
   featuredImportOptions,
   ImportOption,
@@ -107,14 +103,11 @@ import {
 import { ImportResult } from "../models/import-result";
 import { ImportApiServiceAbstraction } from "../services/import-api.service.abstraction";
 import { ImportServiceAbstraction } from "../services/import.service.abstraction";
-import { availableLoaders as availableLoaders } from "../util";
 
 export class ImportService implements ImportServiceAbstraction {
   featuredImportOptions = featuredImportOptions as readonly ImportOption[];
 
   regularImportOptions = regularImportOptions as readonly ImportOption[];
-
-  private logger: SemanticLogger;
 
   constructor(
     private cipherService: CipherService,
@@ -127,40 +120,10 @@ export class ImportService implements ImportServiceAbstraction {
     private pinService: PinServiceAbstraction,
     private accountService: AccountService,
     private restrictedItemTypesService: RestrictedItemTypesService,
-    private system: SystemServiceProvider,
-  ) {
-    this.logger = system.log({ type: "ImportService" });
-  }
+  ) {}
 
   getImportOptions(): ImportOption[] {
     return this.featuredImportOptions.concat(this.regularImportOptions);
-  }
-
-  metadata$(type$: Observable<ImportType>): Observable<ImporterMetadata> {
-    const browserEnabled$ = this.system.configService.getFeatureFlag$(
-      FeatureFlag.UseChromiumImporter,
-    );
-    const client = this.system.environment.getClientType();
-    const capabilities$ = combineLatest([type$, browserEnabled$]).pipe(
-      map(([type, enabled]) => {
-        let loaders = availableLoaders(type, client);
-
-        if (!enabled) {
-          loaders = loaders?.filter((loader) => loader !== Loader.chromium);
-        }
-
-        const capabilities: ImporterMetadata = { type, loaders };
-        if (type in Importers) {
-          capabilities.instructions = Importers[type].instructions;
-        }
-
-        this.logger.debug({ importType: type, capabilities }, "capabilities updated");
-
-        return capabilities;
-      }),
-    );
-
-    return capabilities$;
   }
 
   async import(
