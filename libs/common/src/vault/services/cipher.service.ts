@@ -1743,15 +1743,24 @@ export class CipherService implements CipherServiceAbstraction {
       new Uint8Array(decBuf),
       dataEncKey[0],
     );
+    const cipher = await firstValueFrom(
+      this.cipherViews$(activeUserId.id).pipe(
+        filterOutNullish(),
+        map((ciphers) => ciphers.find((c) => c.id === cipherId)),
+      ),
+    );
+    const lastKnownRevisionDate = cipher.revisionDate;
 
     const fd = new FormData();
     try {
       const blob = new Blob([encData.buffer], { type: "application/octet-stream" });
       fd.append("key", dataEncKey[1].encryptedString);
       fd.append("data", blob, encFileName.encryptedString);
+      fd.append("lastKnownRevisionDate", lastKnownRevisionDate.toISOString());
     } catch (e) {
       if (Utils.isNode && !Utils.isBrowser) {
         fd.append("key", dataEncKey[1].encryptedString);
+        fd.append("lastKnownRevisionDate", lastKnownRevisionDate.toISOString());
         fd.append(
           "data",
           Buffer.from(encData.buffer) as any,
