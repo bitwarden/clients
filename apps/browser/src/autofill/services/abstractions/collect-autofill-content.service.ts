@@ -1,3 +1,5 @@
+import { AutofillFieldQualifierType } from "@bitwarden/common/autofill/types";
+
 import AutofillField from "../../models/autofill-field";
 import AutofillForm from "../../models/autofill-form";
 import AutofillPageDetails from "../../models/autofill-page-details";
@@ -14,11 +16,13 @@ type UpdateAutofillDataAttributeParams = {
   dataTargetKey?: string;
 };
 
+type TargetedFields = { [type in AutofillFieldQualifierType | "totp"]?: Element };
+
 interface CollectAutofillContentService {
   autofillFormElements: AutofillFormElements;
   getPageDetails(): Promise<AutofillPageDetails>;
   getAutofillFieldElementByOpid(opid: string): HTMLElement | null;
-  getTargetedFields(): {[key: string]: Element} | null;
+  getTargetedFields(): TargetedFields;
   destroy(): void;
 }
 
@@ -27,4 +31,5 @@ export {
   AutofillFieldElements,
   UpdateAutofillDataAttributeParams,
   CollectAutofillContentService,
+  TargetedFields,
 };

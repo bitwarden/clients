@@ -1,8 +1,8 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { AutofillFieldQualifierType } from "@bitwarden/common/autofill/types";
 import { CipherType } from "@bitwarden/common/vault/enums";
 
-import { AutofillFieldQualifierType } from "../enums/autofill-field.enums";
 import AutofillField from "../models/autofill-field";
 import AutofillForm from "../models/autofill-form";
 import AutofillPageDetails from "../models/autofill-page-details";
@@ -34,11 +34,10 @@ import {
   AutofillFormElements,
   CollectAutofillContentService as CollectAutofillContentServiceInterface,
   UpdateAutofillDataAttributeParams,
+  TargetedFields,
 } from "./abstractions/collect-autofill-content.service";
 import { DomElementVisibilityService } from "./abstractions/dom-element-visibility.service";
 import { DomQueryService } from "./abstractions/dom-query.service";
-
-type TargetedFields = { [type in AutofillFieldQualifierType]?: Element };
 
 export class CollectAutofillContentService implements CollectAutofillContentServiceInterface {
   private readonly sendExtensionMessage = sendExtensionMessage;
@@ -52,7 +51,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   /**
    * A value of `null` indicates the configuration has not been initialized, whereas an empty object indicates no set rules.
    */
-  private readonly pageTargetingRules: null | { [type in AutofillFieldQualifierType]?: string } = {};
+  private pageTargetingRules: null | { [type in AutofillFieldQualifierType]?: string } = null;
   private intersectionObserver: IntersectionObserver;
   private elementInitializingIntersectionObserver: Set<Element> = new Set();
   private mutationObserver: MutationObserver;
@@ -81,6 +80,10 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       inputQuery += `:not([type="${type}"])`;
     }
     this.formFieldQueryString = `${inputQuery}, textarea:not([data-bwignore]), select:not([data-bwignore]), span[data-bwautofill]`;
+
+    void sendExtensionMessage("getUrlAutofillTargetingRules").then((targetingRules) => {
+      this.pageTargetingRules = targetingRules?.result ?? null;
+    });
   }
 
   get autofillFormElements(): AutofillFormElements {
@@ -99,31 +102,8 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     this.setupInitialTopLayerListeners();
 
     const targetedFields = this.getTargetedFields();
-    const targetedFieldNames = Object.keys(targetedFields) as AutofillFieldQualifierType[];
-    if (targetedFieldNames.length) {
-      for (const fieldName of targetedFieldNames) {
-        const fieldNode = targetedFields[fieldName] as ElementWithOpId<FormFieldElement>;
 
-        void this.autofillOverlayContentService.setupOverlayListenersOnQualifiedField(
-          fieldNode,
-          {
-            // @TODO needs an opid and added to the list in order for autofill to work
-            opid: fieldNode.opid || `targeted_field_${fieldName}`,
-            elementNumber: 0, // Not relevant when using targeting rules
-            viewable: true,
-            htmlID: fieldNode.getAttribute('id'),
-            htmlName: fieldNode.getAttribute('name'),
-            htmlClass: fieldNode.getAttribute('class'),
-            tabindex: fieldNode.getAttribute('tabindex'),
-            title: fieldNode.getAttribute('title'),
-            inlineMenuFillType: CipherType.Login,
-            fieldQualifier: fieldName,
-          },
-        );
-      }
-
-      return {} as AutofillPageDetails;
-    }
+    const targetedFieldNames = Object.keys(targetedFields) as Array<AutofillFieldQualifierType>;
 
     if (!this.mutationObserver) {
       this.setupMutationObserver();
@@ -149,7 +129,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     const { formElements, formFieldElements } = this.queryAutofillFormAndFieldElements();
     const autofillFormsData: Record<string, AutofillForm> =
       this.buildAutofillFormsData(formElements);
-    const autofillFieldsData: AutofillField[] = (
+    let autofillFieldsData: AutofillField[] = (
       await this.buildAutofillFieldsData(formFieldElements as FormFieldElement[])
     ).filter((field) => !!field);
     this.sortAutofillFieldElementsMap();
@@ -160,6 +140,35 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
 
     this.domRecentlyMutated = false;
     const pageDetails = this.getFormattedPageDetails(autofillFormsData, autofillFieldsData);
+
+    if (targetedFieldNames.length) {
+      autofillFieldsData = [];
+      this.noFieldsFound = false;
+
+      for (const fieldName of targetedFieldNames) {
+        const fieldNode = targetedFields[fieldName] as ElementWithOpId<FormFieldElement>;
+        const autofillField = {
+          opid: `targeted_field_${fieldName}`,
+          elementNumber: 0, // Not relevant when using targeting rules
+          viewable: true,
+          htmlID: fieldNode.getAttribute("id"),
+          htmlName: fieldNode.getAttribute("name"),
+          htmlClass: fieldNode.getAttribute("class"),
+          tabindex: fieldNode.getAttribute("tabindex"),
+          title: fieldNode.getAttribute("title"),
+          inlineMenuFillType: CipherType.Login,
+          fieldQualifier: fieldName,
+        };
+        autofillFieldsData = [...autofillFieldsData, autofillField];
+
+        void this.autofillOverlayContentService.setupOverlayListenersOnQualifiedField(
+          fieldNode,
+          autofillField,
+        );
+      }
+
+      return { ...pageDetails, fields: autofillFieldsData } as AutofillPageDetails;
+    }
 
     this.setupOverlayListeners(pageDetails);
 
@@ -186,12 +195,12 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
               [fieldName]: fieldMatches[0],
             }
           : foundFields;
-      }, {});
+      }, {} as TargetedFields);
 
       return foundTargetedFields;
     }
 
-    return {};
+    return {} as TargetedFields;
   }
 
   /**
