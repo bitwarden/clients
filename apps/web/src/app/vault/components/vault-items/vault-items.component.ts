@@ -247,7 +247,17 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   }
 
   get bulkAssignToCollectionsAllowed() {
-    return this.showBulkAddToCollections && this.ciphers.length > 0;
+    return (
+      this.showBulkAddToCollections &&
+      this.ciphers.length > 0 &&
+      !this.anySelectedCiphersAreArchived
+    );
+  }
+
+  get anySelectedCiphersAreArchived() {
+    return this.selection.selected.some(
+      (item) => item.cipher && CipherViewLikeUtils.isArchived(item.cipher),
+    );
   }
 
   protected canEditCollection(collection: CollectionView): boolean {
