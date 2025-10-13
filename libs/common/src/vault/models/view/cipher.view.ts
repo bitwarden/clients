@@ -196,7 +196,19 @@ export class CipherView implements View, InitializerMetadata {
     const view = new CipherView();
     view.type = obj.type ?? CipherType.Login;
     view.id = obj.id ?? "";
+    view.organizationId = obj.organizationId ?? undefined;
+    view.folderId = obj.folderId ?? undefined;
+    view.collectionIds = obj.collectionIds ?? [];
     view.name = obj.name ?? "";
+    view.notes = obj.notes;
+    view.edit = obj.edit ?? false;
+    view.viewPassword = obj.viewPassword ?? true;
+    view.favorite = obj.favorite ?? false;
+    view.organizationUseTotp = obj.organizationUseTotp ?? false;
+    view.localData = obj.localData ? obj.localData : undefined;
+    view.permissions = obj.permissions ? CipherPermissionsApi.fromJSON(obj.permissions) : undefined;
+    view.reprompt = obj.reprompt ?? CipherRepromptType.None;
+    view.decryptionFailure = obj.decryptionFailure ?? false;
     if (obj.creationDate) {
       view.creationDate = new Date(obj.creationDate);
     }
@@ -209,7 +221,6 @@ export class CipherView implements View, InitializerMetadata {
     view.fields = obj.fields?.map((f: any) => FieldView.fromJSON(f)) ?? [];
     view.passwordHistory =
       obj.passwordHistory?.map((ph: any) => PasswordHistoryView.fromJSON(ph)) ?? [];
-    view.permissions = obj.permissions ? CipherPermissionsApi.fromJSON(obj.permissions) : undefined;
 
     if (obj.key != null) {
       let key: EncString | undefined;

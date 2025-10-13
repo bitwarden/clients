@@ -101,6 +101,8 @@ import { MasterPasswordService } from "@bitwarden/common/key-management/master-p
 import { PinStateService } from "@bitwarden/common/key-management/pin/pin-state.service.implementation";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { PinService } from "@bitwarden/common/key-management/pin/pin.service.implementation";
+import { SecurityStateService } from "@bitwarden/common/key-management/security-state/abstractions/security-state.service";
+import { DefaultSecurityStateService } from "@bitwarden/common/key-management/security-state/services/security-state.service";
 import { DefaultProcessReloadService } from "@bitwarden/common/key-management/services/default-process-reload.service";
 import {
   DefaultVaultTimeoutSettingsService,
@@ -453,6 +455,7 @@ export default class MainBackground {
   taskService: TaskService;
   cipherEncryptionService: CipherEncryptionService;
   private restrictedItemTypesService: RestrictedItemTypesService;
+  private securityStateService: SecurityStateService;
 
   ipcContentScriptManagerService: IpcContentScriptManagerService;
   ipcService: IpcService;
@@ -669,6 +672,8 @@ export default class MainBackground {
       logoutCallback,
     );
 
+    this.securityStateService = new DefaultSecurityStateService(this.stateProvider);
+
     this.popupViewCacheBackgroundService = new PopupViewCacheBackgroundService(
       messageListener,
       this.globalStateProvider,
@@ -834,6 +839,8 @@ export default class MainBackground {
       this.accountService,
       this.kdfConfigService,
       this.keyService,
+      this.securityStateService,
+      this.apiService,
       this.stateProvider,
       this.configService,
     );
@@ -1002,7 +1009,6 @@ export default class MainBackground {
     this.avatarService = new AvatarService(this.apiService, this.stateProvider);
 
     this.providerService = new ProviderService(this.stateProvider);
-
     this.syncService = new DefaultSyncService(
       this.masterPasswordService,
       this.accountService,
@@ -1028,6 +1034,7 @@ export default class MainBackground {
       this.tokenService,
       this.authService,
       this.stateProvider,
+      this.securityStateService,
     );
 
     this.syncServiceListener = new SyncServiceListener(

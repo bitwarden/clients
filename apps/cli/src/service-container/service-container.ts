@@ -74,6 +74,8 @@ import { MasterPasswordService } from "@bitwarden/common/key-management/master-p
 import { PinStateService } from "@bitwarden/common/key-management/pin/pin-state.service.implementation";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { PinService } from "@bitwarden/common/key-management/pin/pin.service.implementation";
+import { SecurityStateService } from "@bitwarden/common/key-management/security-state/abstractions/security-state.service";
+import { DefaultSecurityStateService } from "@bitwarden/common/key-management/security-state/services/security-state.service";
 import {
   DefaultVaultTimeoutService,
   DefaultVaultTimeoutSettingsService,
@@ -306,6 +308,7 @@ export class ServiceContainer {
   cipherEncryptionService: CipherEncryptionService;
   restrictedItemTypesService: RestrictedItemTypesService;
   cliRestrictedItemTypesService: CliRestrictedItemTypesService;
+  securityStateService: SecurityStateService;
   cipherArchiveService: CipherArchiveService;
 
   constructor() {
@@ -406,6 +409,8 @@ export class ServiceContainer {
       this.globalStateProvider,
       this.derivedStateProvider,
     );
+
+    this.securityStateService = new DefaultSecurityStateService(this.stateProvider);
 
     this.environmentService = new DefaultEnvironmentService(
       this.stateProvider,
@@ -614,6 +619,8 @@ export class ServiceContainer {
       this.accountService,
       this.kdfConfigService,
       this.keyService,
+      this.securityStateService,
+      this.apiService,
       this.stateProvider,
       this.configService,
       customUserAgent,
@@ -819,6 +826,7 @@ export class ServiceContainer {
       this.tokenService,
       this.authService,
       this.stateProvider,
+      this.securityStateService,
     );
 
     this.totpService = new TotpService(this.sdkService);

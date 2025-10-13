@@ -1548,6 +1548,15 @@
   "readSecurityKey": {
     "message": "Prečítať bezpečnostný kľúč"
   },
+  "readingPasskeyLoading": {
+    "message": "Načítava sa prístupový kľúč…"
+  },
+  "passkeyAuthenticationFailed": {
+    "message": "Overenie prístupovým kľúčom zlyhalo"
+  },
+  "useADifferentLogInMethod": {
+    "message": "Použiť iný spôsob prihlásenia"
+  },
   "awaitingSecurityKeyInteraction": {
     "message": "Čaká sa na interakciu s bezpečnostným kľúčom..."
   },
