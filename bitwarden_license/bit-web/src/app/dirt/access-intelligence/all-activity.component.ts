@@ -11,16 +11,19 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { getById } from "@bitwarden/common/platform/misc";
+import { ToastService, DialogService } from "@bitwarden/components";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 import { ActivityCardComponent } from "./activity-card.component";
 import { PasswordChangeMetricComponent } from "./activity-cards/password-change-metric.component";
+import { NewApplicationsDialogComponent } from "./new-applications-dialog.component";
 import { ApplicationsLoadingComponent } from "./risk-insights-loading.component";
 import { RiskInsightsTabType } from "./risk-insights.component";
 
 @Component({
-  selector: "tools-all-activity",
+  selector: "dirt-all-activity",
   imports: [
     ApplicationsLoadingComponent,
     SharedModule,
@@ -30,11 +33,12 @@ import { RiskInsightsTabType } from "./risk-insights.component";
   templateUrl: "./all-activity.component.html",
 })
 export class AllActivityComponent implements OnInit {
-  protected isLoading$ = this.dataService.isLoading$;
   organization: Organization | null = null;
   totalCriticalAppsAtRiskMemberCount = 0;
   totalCriticalAppsCount = 0;
   totalCriticalAppsAtRiskCount = 0;
+  newApplicationsCount = 0;
+  newApplications: string[] = [];
   passwordChangeMetricHasProgressBar = false;
 
   destroyRef = inject(DestroyRef);
@@ -55,6 +59,8 @@ export class AllActivityComponent implements OnInit {
           this.totalCriticalAppsAtRiskMemberCount = summary.totalCriticalAtRiskMemberCount;
           this.totalCriticalAppsCount = summary.totalCriticalApplicationCount;
           this.totalCriticalAppsAtRiskCount = summary.totalCriticalAtRiskApplicationCount;
+          this.newApplications = summary.newApplications;
+          this.newApplicationsCount = summary.newApplications.length;
         });
 
       this.allActivitiesService.passwordChangeProgressMetricHasProgressBar$
@@ -71,6 +77,9 @@ export class AllActivityComponent implements OnInit {
     protected organizationService: OrganizationService,
     protected dataService: RiskInsightsDataService,
     protected allActivitiesService: AllActivitiesService,
+    private toastService: ToastService,
+    private i18nService: I18nService,
+    private dialogService: DialogService,
   ) {}
 
   get RiskInsightsTabType() {
@@ -81,4 +90,16 @@ export class AllActivityComponent implements OnInit {
     const organizationId = this.activatedRoute.snapshot.paramMap.get("organizationId");
     return `/organizations/${organizationId}/access-intelligence/risk-insights?tabIndex=${tabIndex}`;
   }
+
+  /**
+   * Handles the review new applications button click.
+   * Opens a dialog showing the list of new applications that can be marked as critical.
+   */
+  onReviewNewApplications = async () => {
+    const dialogRef = NewApplicationsDialogComponent.open(this.dialogService, {
+      newApplications: this.newApplications,
+    });
+
+    await firstValueFrom(dialogRef.closed);
+  };
 }
