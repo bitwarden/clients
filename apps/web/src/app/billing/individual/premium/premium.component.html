@@ -105,6 +105,7 @@
         [group]="formGroup.controls.paymentMethod"
         [showBankAccount]="false"
         [showAccountCredit]="true"
+        [hasEnoughAccountCredit]="hasEnoughAccountCredit$ | async"
       >
       </app-enter-payment-method>
       <app-enter-billing-address
@@ -123,7 +124,13 @@
     <p bitTypography="body1">
       <strong>{{ "total" | i18n }}:</strong> {{ total | currency: "USD $" }}/{{ "year" | i18n }}
     </p>
-    <button type="submit" buttonType="primary" bitButton bitFormButton>
+    <button
+      type="submit"
+      buttonType="primary"
+      bitButton
+      bitFormButton
+      [disabled]="!(hasEnoughAccountCredit$ | async)"
+    >
       {{ "submit" | i18n }}
     </button>
   </bit-section>

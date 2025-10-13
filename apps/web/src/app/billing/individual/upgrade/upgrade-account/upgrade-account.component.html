@@ -1,6 +1,6 @@
 @if (!loading()) {
   <section
-    class="tw-bg-background tw-rounded-xl tw-shadow-lg tw-max-w-5xl tw-min-w-[332px] tw-w-[870px] tw-border-secondary-100 tw-border-solid tw-border"
+    class="tw-w-screen tw-max-h-screen tw-min-w-[332px] md:tw-max-w-4xl tw-overflow-y-auto tw-self-center tw-bg-background tw-rounded-xl tw-shadow-lg tw-border-secondary-100 tw-border-solid tw-border"
     cdkTrapFocus
     cdkTrapFocusAutoCapture
   >
@@ -24,10 +24,10 @@
         </p>
       </div>
 
-      <div class="tw-flex tw-flex-row tw-gap-6 tw-mb-4">
+      <div class="tw-grid tw-grid-cols-1 sm:tw-grid-cols-2 tw-gap-5 tw-mb-4">
         @if (premiumCardDetails) {
           <billing-pricing-card
-            class="tw-flex-1 tw-basis-0 tw-min-w-0"
+            class="tw-w-full tw-min-w-[216px] tw-max-w-[456px]"
             [tagline]="premiumCardDetails.tagline"
             [price]="premiumCardDetails.price"
             [button]="premiumCardDetails.button"
@@ -42,7 +42,7 @@
 
         @if (familiesCardDetails) {
           <billing-pricing-card
-            class="tw-flex-1 tw-basis-0 tw-min-w-0"
+            class="tw-w-full tw-min-w-[216px] tw-max-w-[456px]"
             [tagline]="familiesCardDetails.tagline"
             [price]="familiesCardDetails.price"
             [button]="familiesCardDetails.button"

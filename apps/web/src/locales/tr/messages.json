@@ -35,6 +35,9 @@
       }
     }
   },
+  "noReportRan": {
+    "message": "You have not created a report yet"
+  },
   "notifiedMembers": {
     "message": "Bildirilen üyeler"
   },
@@ -184,8 +187,23 @@
   "markAppAsCritical": {
     "message": "Uygulamayı kritik olarak işaretle"
   },
+  "markAsCritical": {
+    "message": "Kritik olarak işaretle"
+  },
+  "applicationsSelected": {
+    "message": "applications selected"
+  },
+  "selectApplication": {
+    "message": "Select application"
+  },
+  "unselectApplication": {
+    "message": "Unselect application"
+  },
   "applicationsMarkedAsCriticalSuccess": {
     "message": "Kritik olarak işaretlenmiş uygulamalar"
+  },
+  "applicationsMarkedAsCriticalFail": {
+    "message": "Failed to mark applications as critical"
   },
   "application": {
     "message": "Uygulama"
@@ -273,6 +291,33 @@
   },
   "totalApplications": {
     "message": "Toplam uygulama"
+  },
+  "applicationsNeedingReview": {
+    "message": "Applications needing review"
+  },
+  "newApplicationsWithCount": {
+    "message": "$COUNT$ new applications",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "13"
+      }
+    }
+  },
+  "newApplicationsDescription": {
+    "message": "Review new applications to mark as critical and keep your organization secure"
+  },
+  "reviewNow": {
+    "message": "Review now"
+  },
+  "prioritizeCriticalApplications": {
+    "message": "Prioritize critical applications"
+  },
+  "atRiskItems": {
+    "message": "At-risk items"
+  },
+  "markAsCriticalPlaceholder": {
+    "message": "Mark as critical functionality will be implemented in a future update"
   },
   "unmarkAsCritical": {
     "message": "Kritik olarak işaretlemeyi kaldır"
@@ -1247,6 +1292,9 @@
   },
   "readingPasskeyLoadingInfo": {
     "message": "Bu pencereyi açık tutun ve tarayıcınızdan gelen talimatları uygulayın."
+  },
+  "passkeyAuthenticationFailed": {
+    "message": "Passkey authentication failed. Please try again."
   },
   "useADifferentLogInMethod": {
     "message": "Başka bir giriş yöntemi kullan"
@@ -2902,6 +2950,9 @@
   "makeSureEnoughCredit": {
     "message": "Lütfen hesabınızda bu ödemeyi yapabilecek kadar kredi olduğundan emin olun. Eğer hesabınızda yeteri kadar kredi yoksa, aradaki fark varsayılan ödeme yöntemizinden karşılanacaktır. Faturalandırma sayfasından hesabınıza kredi ekleyebilirsiniz."
   },
+  "notEnoughAccountCredit": {
+    "message": "You do not have enough account credit for this purchase. You can add credit to your account from the Billing page."
+  },
   "creditAppliedDesc": {
     "message": "Hesabınızdaki krediyi satın alımlarda kullanabilirsiniz. Mevcut krediniz bu hesap için oluşturulan faturalardan otomatik olarak düşülecektir."
   },
@@ -4309,6 +4360,9 @@
   },
   "generatingYourRiskInsights": {
     "message": "Risk içgörüleriniz oluşturuluyor..."
+  },
+  "riskInsightsRunReport": {
+    "message": "Run report"
   },
   "updateBrowserDesc": {
     "message": "Desteklenmeyen bir web tarayıcısı kullanıyorsunuz. Web kasası düzgün çalışmayabilir."
@@ -9960,6 +10014,9 @@
   "crowdstrikeEventIntegrationDesc": {
     "message": "Etkinlik verilerini Logscale'e gönderin"
   },
+  "datadogEventIntegrationDesc": {
+    "message": "Send vault event data to your Datadog instance"
+  },
   "failedToSaveIntegration": {
     "message": "Entegrasyon kaydedilemedi. Lütfen daha sonra tekrar deneyin."
   },
@@ -11713,5 +11770,38 @@
   },
   "seamlessIntegration": {
     "message": "Sorunsuz entegrasyon"
+  },
+  "families": {
+    "message": "Families"
+  },
+  "upgradeToFamilies": {
+    "message": "Upgrade to Families"
+  },
+  "upgradeToPremium": {
+    "message": "Upgrade to Premium"
+  },
+  "familiesUpdated": {
+    "message": "You've upgraded to Families!"
+  },
+  "taxCalculationError": {
+    "message": "There was an error calculating tax for your location. Please try again."
+  },
+  "individualUpgradeWelcomeMessage": {
+    "message": "Welcome to Bitwarden"
+  },
+  "individualUpgradeDescriptionMessage": {
+    "message": "Unlock more security features with Premium, or start sharing items with Families"
+  },
+  "individualUpgradeTaxInformationMessage": {
+    "message": "Prices exclude tax and are billed annually."
+  },
+  "organizationNameDescription": {
+    "message": "Your organization name will appear in invitations you send to members."
+  },
+  "continueWithoutUpgrading": {
+    "message": "Continue without upgrading"
+  },
+  "upgradeErrorMessage": {
+    "message": "We encountered an error while processing your upgrade. Please try again."
   }
 }
