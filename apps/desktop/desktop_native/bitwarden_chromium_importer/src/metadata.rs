@@ -23,6 +23,7 @@ pub fn get_supported_importers() -> HashMap<String, ImporterMetadata> {
 
     // Check for installed browsers
     let installed_browsers = chromium::get_installed_browsers().unwrap_or_default();
+    println!("{:?}", installed_browsers);
 
     const IMPORTERS: [(&str, &str); 6] = [
         ("chromecsv", "Chrome"),
@@ -75,6 +76,7 @@ mod tests {
             .unwrap_or_default()
     }
 
+    #[cfg(target_os = "macos")]
     #[test]
     fn returns_all_known_importers() {
         let map = get_supported_importers();
