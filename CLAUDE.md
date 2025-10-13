@@ -1,5 +1,13 @@
 # Bitwarden Clients - Claude Code Configuration
 
+## Project Context Files
+
+**Read these files before reviewing to ensure that you fully understand the project and contributing guidelines**
+
+1. @README.md
+2. @CONTRIBUTING.md
+3. @.github/PULL_REQUEST_TEMPLATE.md
+
 ## Critical Rules
 
 - **NEVER** use code regions: If complexity suggests regions, refactor for better readability
@@ -8,7 +16,7 @@
 
 - **NEVER** send unencrypted vault data to API services
 
-- **NEVER** commit secrets, credentials, or sensitive information. Follow the guidelines in `SECURITY.md`.
+- **NEVER** commit secrets, credentials, or sensitive information.
 
 - **NEVER** log decrypted data, encryption keys, or PII
   - No vault data in error messages or console logs
@@ -88,3 +96,13 @@ enum CipherType {
 ```
 
 Example: `/libs/common/src/vault/enums/cipher-type.ts`
+
+## References
+
+- [Web Clients Architecture](https://contributing.bitwarden.com/architecture/clients)
+- [Architectural Decision Records (ADRs)](https://contributing.bitwarden.com/architecture/adr/)
+- [Contributing Guide](https://contributing.bitwarden.com/)
+- [Web Clients Setup Guide](https://contributing.bitwarden.com/getting-started/clients/)
+- [Code Style](https://contributing.bitwarden.com/contributing/code-style/)
+- [Security Whitepaper](https://bitwarden.com/help/bitwarden-security-white-paper/)
+- [Security Definitions](https://contributing.bitwarden.com/architecture/security/definitions)

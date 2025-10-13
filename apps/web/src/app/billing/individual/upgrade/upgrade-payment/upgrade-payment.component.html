@@ -42,6 +42,7 @@
       <section>
         @if (passwordManager) {
           <billing-cart-summary
+            #cartSummaryComponent
             [passwordManager]="passwordManager"
             [estimatedTax]="estimatedTax"
           ></billing-cart-summary>
