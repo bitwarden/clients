@@ -96,3 +96,13 @@ enum CipherType {
 ```
 
 Example: `/libs/common/src/vault/enums/cipher-type.ts`
+
+## References
+
+- [Web Clients Architecture](https://contributing.bitwarden.com/architecture/clients)
+- [Architectural Decision Records (ADRs)](https://contributing.bitwarden.com/architecture/adr/)
+- [Contributing Guide](https://contributing.bitwarden.com/)
+- [Web Clients Setup Guide](https://contributing.bitwarden.com/getting-started/clients/)
+- [Code Style](https://contributing.bitwarden.com/contributing/code-style/)
+- [Security Whitepaper](https://bitwarden.com/help/bitwarden-security-white-paper/)
+- [Security Definitions](https://contributing.bitwarden.com/architecture/security/definitions)
