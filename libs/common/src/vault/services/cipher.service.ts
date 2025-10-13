@@ -1720,6 +1720,12 @@ export class CipherService implements CipherServiceAbstraction {
     cipherId: string,
     organizationId: string,
   ): Promise<any> {
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$);
+
+    const ciphers = await firstValueFrom(this.ciphers$(activeUserId.id));
+    const cipher = ciphers[cipherId as CipherId];
+    const lastKnownRevisionDate = cipher?.revisionDate;
+
     const attachmentResponse = await this.apiService.nativeFetch(
       new Request(attachmentView.url, { cache: "no-store" }),
     );
@@ -1728,7 +1734,6 @@ export class CipherService implements CipherServiceAbstraction {
     }
 
     const encBuf = await EncArrayBuffer.fromResponse(attachmentResponse);
-    const activeUserId = await firstValueFrom(this.accountService.activeAccount$);
     const userKey = await this.keyService.getUserKey(activeUserId.id);
     const decBuf = await this.encryptService.decryptFileData(encBuf, userKey);
 
@@ -1743,13 +1748,6 @@ export class CipherService implements CipherServiceAbstraction {
       new Uint8Array(decBuf),
       dataEncKey[0],
     );
-    const cipher = await firstValueFrom(
-      this.cipherViews$(activeUserId.id).pipe(
-        filterOutNullish(),
-        map((ciphers) => ciphers.find((c) => c.id === cipherId)),
-      ),
-    );
-    const lastKnownRevisionDate = cipher.revisionDate;
 
     const fd = new FormData();
     try {
