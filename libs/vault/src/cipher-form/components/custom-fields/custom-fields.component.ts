@@ -150,7 +150,9 @@ export class CustomFieldsComponent implements OnInit, AfterViewInit {
   canEdit(type: FieldType): boolean {
     return (
       !this.isPartialEdit &&
-      (type !== FieldType.Hidden || this.cipherFormContainer.originalCipherView?.viewPassword)
+      (type !== FieldType.Hidden ||
+        this.cipherFormContainer.originalCipherView === null ||
+        this.cipherFormContainer.originalCipherView.viewPassword)
     );
   }
 
@@ -384,7 +386,7 @@ export class CustomFieldsComponent implements OnInit, AfterViewInit {
       fieldView.type = field.type;
       fieldView.name = field.name;
       fieldView.value = value;
-      fieldView.linkedId = field.linkedId;
+      fieldView.linkedId = field.linkedId ?? undefined;
       return fieldView;
     });
 

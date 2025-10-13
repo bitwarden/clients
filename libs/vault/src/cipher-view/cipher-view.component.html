@@ -4,11 +4,14 @@
   </bit-callout>
 
   <bit-callout
-    *ngIf="cipher?.login.uris.length > 0 && hadPendingChangePasswordTask"
+    *ngIf="!hasLoginUri && hadPendingChangePasswordTask"
     type="warning"
-    [title]="''"
+    [title]="'missingWebsite' | i18n"
   >
-    <i class="bwi bwi-exclamation-triangle tw-text-warning" aria-hidden="true"></i>
+    {{ "changeAtRiskPasswordAndAddWebsite" | i18n }}
+  </bit-callout>
+
+  <bit-callout *ngIf="hasLoginUri && hadPendingChangePasswordTask" type="warning" [title]="''">
     <a bitLink href="#" appStopClick (click)="launchChangePassword()">
       {{ "changeAtRiskPassword" | i18n }}
       <i class="bwi bwi-external-link tw-ml-1" aria-hidden="true"></i>
@@ -39,7 +42,7 @@
     *ngIf="hasLogin"
     [cipher]="cipher"
     [activeUserId]="activeUserId$ | async"
-    [hadPendingChangePasswordTask]="hadPendingChangePasswordTask"
+    [hadPendingChangePasswordTask]="hadPendingChangePasswordTask && cipher?.login.uris.length > 0"
     (handleChangePassword)="launchChangePassword()"
   ></app-login-credentials-view>
 

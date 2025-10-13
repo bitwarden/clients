@@ -1,9 +1,11 @@
+@import "theme.css";
 @import "@angular/cdk/a11y-prebuilt.css";
 @import "@angular/cdk/text-field-prebuilt.css";
 @import "./reset.css";
 @import "./popover/popover.component.css";
 @import "./toast/toast.tokens.css";
 @import "./toast/toastr.css";
+@import "./tooltip/tooltip.component.css";
 @import "./search/search.component.css";
 
 @tailwind base;
@@ -49,10 +51,6 @@
 
   --color-notification-100: 255 225 247;
   --color-notification-600: 192 17 118;
-
-  /*art styles deprecated, use 'illustration' instead*/
-  --color-art-primary: 2 15 102;
-  --color-art-accent: 44 221 223;
 
   --color-text-main: 27 32 41;
   --color-text-muted: 96 109 145;
@@ -120,10 +118,6 @@
 
   --color-notification-100: 117 37 83;
   --color-notification-600: 255 143 208;
-
-  /*art styles deprecated, use 'illustration' instead*/
-  --color-art-primary: 243 246 249;
-  --color-art-accent: 44 221 233;
 
   --color-text-main: 243 246 249;
   --color-text-muted: 136 152 181;

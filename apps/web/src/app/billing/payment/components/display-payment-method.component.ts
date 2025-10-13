@@ -5,10 +5,9 @@ import { DialogService } from "@bitwarden/components";
 
 import { SharedModule } from "../../../shared";
 import { BitwardenSubscriber } from "../../types";
-import { MaskedPaymentMethod } from "../types";
+import { getCardBrandIcon, MaskedPaymentMethod } from "../types";
 
 import { ChangePaymentMethodDialogComponent } from "./change-payment-method-dialog.component";
-import { VerifyBankAccountComponent } from "./verify-bank-account.component";
 
 @Component({
   selector: "app-display-payment-method",
@@ -18,27 +17,32 @@ import { VerifyBankAccountComponent } from "./verify-bank-account.component";
       @if (paymentMethod) {
         @switch (paymentMethod.type) {
           @case ("bankAccount") {
-            @if (!paymentMethod.verified) {
-              <app-verify-bank-account
-                [subscriber]="subscriber"
-                (verified)="onBankAccountVerified($event)"
-              >
-              </app-verify-bank-account>
+            @if (paymentMethod.hostedVerificationUrl) {
+              <p>
+                {{ "verifyBankAccountWithStripe" | i18n }}
+                <a
+                  bitLink
+                  rel="noreferrer"
+                  target="_blank"
+                  [attr.href]="paymentMethod.hostedVerificationUrl"
+                  >{{ "verifyNow" | i18n }}</a
+                >
+              </p>
             }
 
             <p>
               <i class="bwi bwi-fw bwi-billing"></i>
               {{ paymentMethod.bankName }}, *{{ paymentMethod.last4 }}
-              @if (!paymentMethod.verified) {
+              @if (paymentMethod.hostedVerificationUrl) {
                 <span>- {{ "unverified" | i18n }}</span>
               }
             </p>
           }
           @case ("card") {
             <p class="tw-flex tw-items-center tw-gap-2">
-              @let brandIcon = getBrandIconForCard();
-              @if (brandIcon !== null) {
-                <i class="bwi bwi-fw credit-card-icon {{ brandIcon }}"></i>
+              @let cardBrandIcon = getCardBrandIcon();
+              @if (cardBrandIcon !== null) {
+                <i class="bwi bwi-fw credit-card-icon {{ cardBrandIcon }}"></i>
               } @else {
                 <i class="bwi bwi-fw bwi-credit-card"></i>
               }
@@ -63,22 +67,12 @@ import { VerifyBankAccountComponent } from "./verify-bank-account.component";
     </bit-section>
   `,
   standalone: true,
-  imports: [SharedModule, VerifyBankAccountComponent],
+  imports: [SharedModule],
 })
 export class DisplayPaymentMethodComponent {
   @Input({ required: true }) subscriber!: BitwardenSubscriber;
   @Input({ required: true }) paymentMethod!: MaskedPaymentMethod | null;
   @Output() updated = new EventEmitter<MaskedPaymentMethod>();
-
-  protected availableCardIcons: Record<string, string> = {
-    amex: "card-amex",
-    diners: "card-diners-club",
-    discover: "card-discover",
-    jcb: "card-jcb",
-    mastercard: "card-mastercard",
-    unionpay: "card-unionpay",
-    visa: "card-visa",
-  };
 
   constructor(private dialogService: DialogService) {}
 
@@ -96,15 +90,5 @@ export class DisplayPaymentMethodComponent {
     }
   };
 
-  onBankAccountVerified = (paymentMethod: MaskedPaymentMethod) => this.updated.emit(paymentMethod);
-
-  protected getBrandIconForCard = (): string | null => {
-    if (this.paymentMethod?.type !== "card") {
-      return null;
-    }
-
-    return this.paymentMethod.brand in this.availableCardIcons
-      ? this.availableCardIcons[this.paymentMethod.brand]
-      : null;
-  };
+  protected getCardBrandIcon = () => getCardBrandIcon(this.paymentMethod);
 }

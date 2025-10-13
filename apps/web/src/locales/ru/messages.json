@@ -2,6 +2,9 @@
   "allApplications": {
     "message": "Все приложения"
   },
+  "activity": {
+    "message": "Активность"
+  },
   "appLogoLabel": {
     "message": "Логотип Bitwarden"
   },
@@ -32,6 +35,9 @@
       }
     }
   },
+  "noReportRan": {
+    "message": "Вы еще не создали отчет"
+  },
   "notifiedMembers": {
     "message": "Уведомленные участники"
   },
@@ -56,8 +62,91 @@
   "createNewLoginItem": {
     "message": "Создать новый логин"
   },
+  "percentageCompleted": {
+    "message": "Завершено: $PERCENT$%",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
+  "securityTasksCompleted": {
+    "message": "Завершено $COUNT$ из $TOTAL$ задач безопасности",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "total": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "passwordChangeProgress": {
+    "message": "Прогресс смены пароля"
+  },
+  "assignMembersTasksToMonitorProgress": {
+    "message": "Assign members tasks to monitor progress"
+  },
+  "onceYouReviewApplications": {
+    "message": "Once you review applications and mark them as critical, they will display here."
+  },
+  "sendReminders": {
+    "message": "Send reminders"
+  },
+  "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
+    "message": "Once you mark applications critical, they will display here."
+  },
+  "viewAtRiskMembers": {
+    "message": "View at-risk members"
+  },
+  "viewAtRiskApplications": {
+    "message": "View at-risk applications"
+  },
+  "criticalApplicationsAreAtRisk": {
+    "message": "$COUNT$ out of $TOTAL$ critical applications are at-risk due to at-risk passwords",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "total": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
   "criticalApplicationsWithCount": {
     "message": "Критичные приложения ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfCriticalApplications": {
+    "message": "$COUNT$ critical applications",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfApplicationsAtRisk": {
+    "message": "$COUNT$ applications at-risk",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfAtRiskPasswords": {
+    "message": "$COUNT$ passwords at-risk",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -86,20 +175,35 @@
   "noAppsInOrgDescription": {
     "message": "По мере сохранения пользователями логинов, здесь отображаются приложения, с подверженными риску паролями. Отметьте критичные приложения и уведомите пользователей об необходимости обновления пароля."
   },
-  "noCriticalAppsTitle": {
+  "noCriticalApplicationsTitle": {
     "message": "Вы не отметили ни одного приложения в качестве критичного"
   },
-  "noCriticalAppsDescription": {
-    "message": "Выберите наиболее важные приложения, чтобы обнаружить пароли, подверженные риску, и уведомить пользователей о необходимости сменить эти пароли."
+  "noCriticalApplicationsDescription": {
+    "message": "Выберите наиболее критичные приложения, чтобы определить приоритетность действий по обеспечению безопасности для ваших пользователей при обработке паролей, подверженных риску."
   },
-  "markCriticalApps": {
-    "message": "Отметить критичные приложения"
+  "markCriticalApplications": {
+    "message": "Выбрать критичные приложения"
   },
   "markAppAsCritical": {
     "message": "Пометить приложение как критическое"
   },
+  "markAsCritical": {
+    "message": "Mark as critical"
+  },
+  "applicationsSelected": {
+    "message": "applications selected"
+  },
+  "selectApplication": {
+    "message": "Select application"
+  },
+  "unselectApplication": {
+    "message": "Unselect application"
+  },
   "applicationsMarkedAsCriticalSuccess": {
     "message": "Приложения помечены как критические"
+  },
+  "applicationsMarkedAsCriticalFail": {
+    "message": "Failed to mark applications as critical"
   },
   "application": {
     "message": "Приложение"
@@ -118,6 +222,18 @@
   },
   "atRiskMembers": {
     "message": "Участники группы риска"
+  },
+  "membersWithAccessToAtRiskItemsForCriticalApps": {
+    "message": "Members with access to at-risk items for critical applications"
+  },
+  "membersAtRiskCount": {
+    "message": "$COUNT$ members at-risk",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "atRiskMembersWithCount": {
     "message": "Пользователи повышенного риска ($COUNT$)",
@@ -176,11 +292,38 @@
   "totalApplications": {
     "message": "Всего приложений"
   },
-  "unmarkAsCriticalApp": {
-    "message": "Снять отметку критического приложения"
+  "applicationsNeedingReview": {
+    "message": "Applications needing review"
   },
-  "criticalApplicationSuccessfullyUnmarked": {
-    "message": "Отметка критического приложения успешно снята"
+  "newApplicationsWithCount": {
+    "message": "$COUNT$ new applications",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "13"
+      }
+    }
+  },
+  "newApplicationsDescription": {
+    "message": "Review new applications to mark as critical and keep your organization secure"
+  },
+  "reviewNow": {
+    "message": "Review now"
+  },
+  "prioritizeCriticalApplications": {
+    "message": "Prioritize critical applications"
+  },
+  "atRiskItems": {
+    "message": "At-risk items"
+  },
+  "markAsCriticalPlaceholder": {
+    "message": "Mark as critical functionality will be implemented in a future update"
+  },
+  "unmarkAsCritical": {
+    "message": "Снять отметку критического"
+  },
+  "criticalApplicationUnmarkedSuccessfully": {
+    "message": "Приложение больше не является критичным"
   },
   "whatTypeOfItem": {
     "message": "Выберите тип элемента"
@@ -734,32 +877,81 @@
   "viewItem": {
     "message": "Просмотр элемента"
   },
-  "newItemHeader": {
-    "message": "Новый $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderLogin": {
+    "message": "Новый логин",
+    "description": "Header for new login item type"
   },
-  "editItemHeader": {
-    "message": "Изменить $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderCard": {
+    "message": "Новая карта",
+    "description": "Header for new card item type"
   },
-  "viewItemType": {
-    "message": "Просмотр $ITEMTYPE$",
-    "placeholders": {
-      "itemtype": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderIdentity": {
+    "message": "Новая личная информация",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "Новая заметка",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "Новый ключ SSH",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderTextSend": {
+    "message": "Новая текстовая Send",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "Новая файловая Send",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderLogin": {
+    "message": "Изменить логин",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Редактировать карту",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Редактировать личную информацию",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Редактировать заметку",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "Редактировать ключ SSH",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Изменить тестовую Send",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Изменить файловую Send",
+    "description": "Header for edit file send"
+  },
+  "viewItemHeaderLogin": {
+    "message": "Просмотр логина",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "Просмотр карты",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "Просмотр личной информации",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "Просмотр заметки",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "Просмотр ключа SSH",
+    "description": "Header for view SSH key item type"
   },
   "new": {
     "message": "Новый",
@@ -866,6 +1058,15 @@
   },
   "copyLicenseNumber": {
     "message": "Скопировать номер лицензии"
+  },
+  "copyPrivateKey": {
+    "message": "Скопировать приватный ключ"
+  },
+  "copyPublicKey": {
+    "message": "Скопировать публичный ключ"
+  },
+  "copyFingerprint": {
+    "message": "Скопировать отпечаток"
   },
   "copyName": {
     "message": "Скопировать имя"
@@ -1091,6 +1292,9 @@
   },
   "readingPasskeyLoadingInfo": {
     "message": "Не закрывайте это окно и следуйте запросам браузера."
+  },
+  "passkeyAuthenticationFailed": {
+    "message": "Не удалось выполнить аутентификацию с помощью passkey. Попробуйте еще раз."
   },
   "useADifferentLogInMethod": {
     "message": "Использовать другой способ авторизации"
@@ -1386,6 +1590,15 @@
   "invalidMasterPassword": {
     "message": "Неверный мастер-пароль"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Неверный мастер-пароль. Подтвердите, что ваш адрес email указан верно и ваш аккаунт был создан на $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "invalidFilePassword": {
     "message": "Неверный пароль к файлу. Используйте пароль, введенный при создании файла экспорта."
   },
@@ -1394,6 +1607,30 @@
   },
   "noItemsInList": {
     "message": "Нет элементов для отображения."
+  },
+  "noItemsInTrash": {
+    "message": "Нет элементов в корзине"
+  },
+  "noItemsInTrashDesc": {
+    "message": "Элементы, которые вы удаляете, появятся здесь и будут удалены навсегда через 30 дней"
+  },
+  "noItemsInVault": {
+    "message": "В хранилище нет элементов"
+  },
+  "emptyVaultDescription": {
+    "message": "Хранилище защищает не только ваши пароли. Логины, идентификаторы, карты и заметки в нем надежно защищены."
+  },
+  "emptyFavorites": {
+    "message": "В избранном нет элементов"
+  },
+  "emptyFavoritesDesc": {
+    "message": "Добавляйте часто используемые элементы в избранное для быстрого доступа."
+  },
+  "noSearchResults": {
+    "message": "Поиск не дал результатов"
+  },
+  "clearFiltersOrTryAnother": {
+    "message": "Очистите фильтры или попробуйте другой поисковый запрос"
   },
   "noPermissionToViewAllCollectionItems": {
     "message": "У вас нет разрешения на просмотр всех элементов этой коллекции."
@@ -1501,11 +1738,11 @@
   "selectTwoStepLoginMethod": {
     "message": "Выбрать другой метод двухэтапной аутентификации"
   },
-  "recoveryCodeDesc": {
-    "message": "Потеряли доступ ко всем вариантам двухэтапной аутентификации? Используйте код восстановления, чтобы отключить ее для вашего аккаунта."
-  },
   "recoveryCodeTitle": {
     "message": "Код восстановления"
+  },
+  "invalidRecoveryCode": {
+    "message": "Неверный код восстановления"
   },
   "authenticatorAppTitle": {
     "message": "Приложение-аутентификатор"
@@ -2102,11 +2339,8 @@
   "languageDesc": {
     "message": "Изменение языка, используемого веб-хранилищем."
   },
-  "enableFavicon": {
-    "message": "Показать значки сайтов"
-  },
-  "faviconDesc": {
-    "message": "Отображать узнаваемое изображение рядом с каждым логином."
+  "showIconsChangePasswordUrls": {
+    "message": "Показывать значки сайтов и извлекать URL изменения пароля"
   },
   "default": {
     "message": "По умолчанию"
@@ -2715,6 +2949,9 @@
   },
   "makeSureEnoughCredit": {
     "message": "Убедитесь, что на вашем счету достаточно средств для этой покупки. Если на вашем счете недостаточно средств, то для покрытия разницы будет использован ваш метод оплаты по умолчанию. Вы можете добавить денежные средства в свой аккаунт на странице оплаты."
+  },
+  "notEnoughAccountCredit": {
+    "message": "У вас недостаточно средств для этой покупки. Вы можете сделать пополнение на странице выставления счета."
   },
   "creditAppliedDesc": {
     "message": "Средства на вашем счете могут быть использованы для совершения платежей. Любой доступный остаток будет автоматически использован для оплаты счетов, выставленных этому аккаунту."
@@ -4124,6 +4361,9 @@
   "generatingYourRiskInsights": {
     "message": "Генерация информации о рисках..."
   },
+  "riskInsightsRunReport": {
+    "message": "Запустить отчет"
+  },
   "updateBrowserDesc": {
     "message": "Вы используете неподдерживаемый браузер. Веб-хранилище может работать некорректно."
   },
@@ -4690,6 +4930,12 @@
   "organizationIsDisabled": {
     "message": "Организация приостановлена"
   },
+  "organizationIsSuspended": {
+    "message": "Организация приостановлена"
+  },
+  "organizationIsSuspendedDesc": {
+    "message": "Доступ к элементам в отключенных организациях невозможен. Обратитесь за помощью к владельцу организации."
+  },
   "secretsAccessSuspended": {
     "message": "Доступ к отключенным организациям невозможен. Обратитесь за помощью к владельцу организации."
   },
@@ -4701,9 +4947,6 @@
   },
   "serviceAccountsCannotCreate": {
     "message": "Сервисные аккаунты не могут быть созданы в отключенных организациях. Обратитесь за помощью к владельцу организации."
-  },
-  "disabledOrganizationFilterError": {
-    "message": "Доступ к элементам в отключенных организациях невозможен. Обратитесь за помощью к владельцу организации."
   },
   "licenseIsExpired": {
     "message": "Срок действия лицензии истек."
@@ -5078,9 +5321,13 @@
   "ssoIdentifier": {
     "message": "SSO идентификатор"
   },
-  "ssoIdentifierHintPartOne": {
-    "message": "Предоставьте этот ID пользователям для авторизации с помощью SSO. Чтобы обойти этот шаг, настройте ",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Provide this ID to your members to login with SSO. To bypass this step, set up Domain verification'"
+  "ssoIdentifierHint": {
+    "message": "Предоставьте этот ID своим пользователям для авторизации при помощи единого входа. Пользователи могут не вводить этот идентификатор во время единого входа, если настроен заявленный домен. ",
+    "description": "This will be used as part of a larger sentence, broken up to include a link. The full sentence will read 'Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. Learn more'"
+  },
+  "claimedDomainsLearnMore": {
+    "message": "Подробнее",
+    "description": "This will be used as part of a larger sentence, broken up to include a link. The full sentence will read 'Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. Learn more'"
   },
   "unlinkSso": {
     "message": "Отключить SSO"
@@ -5474,6 +5721,13 @@
   },
   "personalOwnershipSubmitError": {
     "message": "В соответствии с корпоративной политикой вам запрещено сохранять элементы в личном хранилище. Измените владельца на организацию и выберите из доступных Коллекций."
+  },
+  "desktopAutotypePolicy": {
+    "message": "Desktop Autotype Default Setting"
+  },
+  "desktopAutotypePolicyDesc": {
+    "message": "Turn Desktop Autotype ON by default for members. Members can turn Autotype off manually in the Desktop client.",
+    "description": "This policy will enable Desktop Autotype by default for members on Unlock."
   },
   "disableSend": {
     "message": "Отключить Send"
@@ -6639,6 +6893,15 @@
   "disabledSso": {
     "message": "SSO отключен"
   },
+  "emailMustLoginWithSso": {
+    "message": "$EMAIL$ должен авторизоваться с использованием SSO",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "enabledKeyConnector": {
     "message": "Соединитель ключей активирован"
   },
@@ -6877,6 +7140,24 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Будет экспортировано только хранилище организации, связанное с $ORGANIZATION$.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Будет экспортировано только хранилище организации, связанное с $ORGANIZATION$. Коллекции Мои элементы включены не будут.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "accessDenied": {
     "message": "Доступ запрещен. У вас нет разрешения на просмотр этой страницы."
   },
@@ -7030,6 +7311,9 @@
   },
   "unknownSecret": {
     "message": "Неизвестный секрет. Вам может потребоваться запросить разрешение на доступ к этому секрету."
+  },
+  "unknownServiceAccount": {
+    "message": "Unknown machine account, you may need to request permission to access this machine account."
   },
   "unknownProject": {
     "message": "Неизвестный проект. Вам может потребоваться запросить разрешение на доступ к этому проекту."
@@ -7420,6 +7704,9 @@
   },
   "off": {
     "message": "Выкл"
+  },
+  "connected": {
+    "message": "Подключено"
   },
   "members": {
     "message": "Участники"
@@ -8275,12 +8562,6 @@
   "groupSlashUser": {
     "message": "Группа/Пользователь"
   },
-  "lowKdfIterations": {
-    "message": "Низкие итерации KDF"
-  },
-  "updateLowKdfIterationsDesc": {
-    "message": "Обновите настройки шифрования в соответствии с новыми рекомендациями по безопасности и улучшите защиту аккаунта."
-  },
   "kdfSettingsChangeLogoutWarning": {
     "message": "При продолжении все активные сессии будут завершены. Вам потребуется авторизоваться повторно и выполнить двухэтапную аутентификацию, если она включена. Мы рекомендуем экспортировать хранилище перед изменением настроек шифрования, чтобы предотвратить потерю данных."
   },
@@ -8384,8 +8665,8 @@
       }
     }
   },
-  "accessedProjectWithId": {
-    "message": "Получен доступ к проекту с ID: $PROJECT_ID$.",
+  "accessedProjectWithIdentifier": {
+    "message": "Accessed a project with identifier: $PROJECT_ID$.",
     "placeholders": {
       "project_id": {
         "content": "$1",
@@ -8411,10 +8692,89 @@
       }
     }
   },
+  "nameUnavailableServiceAccountDeleted": {
+    "message": "Deleted machine account Id: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "service_account_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
   "editedProjectWithId": {
     "message": "Изменен проект с идентификатором: $PROJECT_ID$",
     "placeholders": {
       "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "addedUserToServiceAccountWithId": {
+    "message": "Added user: $USER_ID$ to machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "user_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "removedUserToServiceAccountWithId": {
+    "message": "Removed user: $USER_ID$ from machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "user_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "removedGroupFromServiceAccountWithId": {
+    "message": "Removed group: $GROUP_ID$ from machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "group_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "serviceAccountCreatedWithId": {
+    "message": "Created machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "service_account_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "addedGroupToServiceAccountId": {
+    "message": "Added group: $GROUP_ID$ to machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "group_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "serviceAccountDeletedWithId": {
+    "message": "Deleted machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "service_account_id": {
         "content": "$1",
         "example": "4d34e8a8"
       }
@@ -8926,20 +9286,25 @@
   "collectionManagement": {
     "message": "Управление коллекцией"
   },
-  "collectionManagementDesc": {
-    "message": "Управление настройками коллекций для организации"
+  "collectionManagementDescription": {
+    "message": "Конфигурация коллекций для организации"
   },
-  "limitCollectionCreationDesc": {
-    "message": "Ограничить создание коллекций владельцам и администраторам"
+  "allowAdminAccessToAllCollectionItemsDescription": {
+    "message": "Разрешить владельцам и администраторам управлять всеми коллекциями и элементами из консоли администратора"
   },
-  "limitCollectionDeletionDesc": {
-    "message": "Ограничить удаление коллекций владельцам и администраторам"
+  "restrictCollectionCreationDescription": {
+    "message": "Ограничить создание коллекций владельцами и администраторами"
   },
-  "limitItemDeletionDescription": {
-    "message": "Ограничить удаление элементов для пользователей с правами на управление коллекцией"
+  "restrictCollectionDeletionDescription": {
+    "message": "Ограничить удаление коллекций владельцами и администраторами"
   },
-  "allowAdminAccessToAllCollectionItemsDesc": {
-    "message": "Владельцы и администраторы могут управлять всеми коллекциями и элементами"
+  "restrictItemDeletionDescriptionStart": {
+    "message": "Ограничить удаление элемента пользователями с ",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
+  },
+  "restrictItemDeletionDescriptionEnd": {
+    "message": " разрешением",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
   },
   "updatedCollectionManagement": {
     "message": "Настройки управления коллекцией обновлены"
@@ -9010,6 +9375,78 @@
   },
   "modifiedCollectionManagement": {
     "message": "Изменена настройка управления коллекцией $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationEnabled": {
+    "message": "Включен параметр ограничения создания коллекции $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationDisabled": {
+    "message": "Отключен параметр ограничения создания коллекции $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionEnabled": {
+    "message": "Включен параметр ограничения удаления коллекции $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionDisabled": {
+    "message": "Отключен параметр ограничения удаления коллекции $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionEnabled": {
+    "message": "Включен параметр ограничения удаления элемента $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionDisabled": {
+    "message": "Отключен параметр ограничения удаления элемента $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsEnabled": {
+    "message": "Включен параметр Разрешить владельцам и администраторам управлять всеми настройками коллекций и элементов $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsDisabled": {
+    "message": "Отключен параметр Разрешить владельцам и администраторам управлять всеми настройками коллекций и элементов $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -9178,6 +9615,9 @@
   },
   "assign": {
     "message": "Назначить"
+  },
+  "assignTasks": {
+    "message": "Assign tasks"
   },
   "assignToCollections": {
     "message": "Назначить коллекциям"
@@ -9574,8 +10014,17 @@
   "crowdstrikeEventIntegrationDesc": {
     "message": "Отправлять данные о событиях в ваш инстанс Logscale"
   },
+  "datadogEventIntegrationDesc": {
+    "message": "Отправляйте данные о событиях хранилища в ваш экземпляр Datadog"
+  },
   "failedToSaveIntegration": {
     "message": "Не удалось сохранить интеграцию. Пожалуйста, повторите попытку позже."
+  },
+  "mustBeOrgOwnerToPerformAction": {
+    "message": "Для выполнения этого действия вы должны быть владельцем организации."
+  },
+  "failedToDeleteIntegration": {
+    "message": "Не удалось удалить интеграцию. Пожалуйста, повторите попытку позже."
   },
   "deviceIdMissing": {
     "message": "ID устройства отсутствует"
@@ -9594,6 +10043,15 @@
   },
   "connectIntegrationButtonDesc": {
     "message": "Подключить $INTEGRATION$",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
+  },
+  "updateIntegrationButtonDesc": {
+    "message": "Обновить $INTEGRATION$",
     "placeholders": {
       "integration": {
         "content": "$1",
@@ -9663,6 +10121,9 @@
   },
   "bearerToken": {
     "message": "Токен на предъявителя"
+  },
+  "repositoryNameHint": {
+    "message": "Name of the repository to ingest into"
   },
   "index": {
     "message": "Индекс"
@@ -9802,12 +10263,6 @@
         "example": "2"
       }
     }
-  },
-  "lowKDFIterationsBanner": {
-    "message": "Низкое количество итераций KDF. Увеличьте количество итераций, чтобы повысить защищенность вашего аккаунта."
-  },
-  "changeKDFSettings": {
-    "message": "Изменить параметры KDF"
   },
   "secureYourInfrastructure": {
     "message": "Защитите вашу инфраструктуру"
@@ -10112,14 +10567,8 @@
   "learnMoreAboutApi": {
     "message": "Узнайте больше об API Bitwarden"
   },
-  "fileSend": {
-    "message": "Файловая Send"
-  },
   "fileSends": {
     "message": "Файловая Send"
-  },
-  "textSend": {
-    "message": "Текстовая Send"
   },
   "textSends": {
     "message": "Текстовая Send"
@@ -10807,6 +11256,12 @@
   "changeAtRiskPassword": {
     "message": "Изменить пароль, подверженный риску"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
+  },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Отключить разблокировку PIN-кодом"
   },
@@ -10827,6 +11282,23 @@
   },
   "cannotCreateCollection": {
     "message": "В бесплатных организациях может быть до 2 коллекций. Перейдите на платный план, чтобы добавить больше коллекций."
+  },
+  "searchArchive": {
+    "message": "Поиск в архиве"
+  },
+  "archiveNoun": {
+    "message": "Архив",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Архивировать",
+    "description": "Verb"
+  },
+  "noItemsInArchive": {
+    "message": "В архиве нет элементов"
+  },
+  "archivedItemsDescription": {
+    "message": "Архивированные элементы появятся здесь и будут исключены из общих результатов поиска и предложений автозаполнения."
   },
   "businessUnit": {
     "message": "Бизнес-единица"
@@ -10935,6 +11407,12 @@
   "bitwardenExtensionInstalled": {
     "message": "Расширение Bitwarden установлено!"
   },
+  "openTheBitwardenExtension": {
+    "message": "Открыть расширение Bitwarden"
+  },
+  "bitwardenExtensionInstalledOpenExtension": {
+    "message": "Расширение Bitwarden установлено! Откройте расширение, чтобы авторизоваться и начать автозаполнение."
+  },
   "openExtensionToAutofill": {
     "message": "Откройте расширение, чтобы авторизоваться и начать использовать автозаполнение."
   },
@@ -10981,6 +11459,12 @@
   "billingAddressRequiredToAddCredit": {
     "message": "Для пополнения счета необходим платежный адрес.",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
+  },
+  "aboutThisSetting": {
+    "message": "Об этой настройке"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden будет использовать сохраненные URI логинов, чтобы определить, какой значок или URL для смены пароля следует использовать для улучшения вашего взаимодействия. При использовании этого сервиса никакая информация не собирается и не сохраняется."
   },
   "billingAddress": {
     "message": "Платежный адрес"
@@ -11142,6 +11626,182 @@
         "example": "92873837267"
       }
     }
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Подтвердите домен соединителя ключей"
+  },
+  "requiredToVerifyBankAccountWithStripe": {
+    "message": "Оплата с помощью банковского счета доступна только для клиентов в США. Вам потребуется подтвердить свой банковский счет. Мы сделаем микродепозит в течение следующих 1-2 рабочих дней. Неподтверждение банковского счета приведет к пропуску платежа и приостановке подписки."
+  },
+  "verifyBankAccountWithStripe": {
+    "message": "Мы перевели микродепозит на ваш банковский счет. Это может занять 1-2 рабочих дня. Когда увидите пополнение вашего счета, вы сможете подтвердить его. Если вы не подтвердите банковский счет, это приведет к пропуску платежа и приостановке подписки."
+  },
+  "verifyNow": {
+    "message": "Подтвердить сейчас."
+  },
+  "additionalStorageGB": {
+    "message": "Дополнительные ГБ хранилища"
+  },
+  "additionalServiceAccountsV2": {
+    "message": "Дополнительные аккаунты компьютеров"
+  },
+  "secretsManagerSeats": {
+    "message": "Места менеджера секретов"
+  },
+  "additionalStorage": {
+    "message": "Дополнительное хранилище"
+  },
+  "expandPurchaseDetails": {
+    "message": "Отобразить информацию о покупке"
+  },
+  "collapsePurchaseDetails": {
+    "message": "Скрыть информацию о покупке"
+  },
+  "familiesMembership": {
+    "message": "Членство Families"
+  },
+  "planDescPremium": {
+    "message": "Полная онлайн-защищенность"
+  },
+  "planDescFamiliesV2": {
+    "message": "Премиальная защищенность \n для вашей семьи"
+  },
+  "planDescFreeV2": {
+    "message": "Поделиться с другими пользователями: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "planDescEnterpriseV2": {
+    "message": "Расширенные возможности для любой организации"
+  },
+  "planNameCustom": {
+    "message": "Индивидуальный план"
+  },
+  "planDescCustom": {
+    "message": "Bitwarden сотрудничает с компаниями любого размера, чтобы обеспечить защищенность паролей и конфиденциальной информации. Если вы являетесь частью крупного предприятия, обратитесь в отдел продаж, чтобы запросить ценовое предложение."
+  },
+  "builtInAuthenticator": {
+    "message": "Встроенный аутентификатор"
+  },
+  "breachMonitoring": {
+    "message": "Мониторинг нарушений"
+  },
+  "andMoreFeatures": {
+    "message": "И многое другое!"
+  },
+  "secureFileStorage": {
+    "message": "Защищенное хранилище файлов"
+  },
+  "familiesUnlimitedSharing": {
+    "message": "Неограниченный доступ - выбирайте, кто и что видит"
+  },
+  "familiesUnlimitedCollections": {
+    "message": "Неограниченные семейные коллекции"
+  },
+  "familiesSharedStorage": {
+    "message": "Общее хранилище для важной семейной информации"
+  },
+  "limitedUsersV2": {
+    "message": "До $COUNT$ участников",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "limitedCollectionsV2": {
+    "message": "До $COUNT$ коллекций",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "alwaysFree": {
+    "message": "Всегда бесплатно"
+  },
+  "twoSecretsIncluded": {
+    "message": "2 секрета"
+  },
+  "projectsIncludedV2": {
+    "message": "$COUNT$ проектов",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "secureItemSharing": {
+    "message": "Защищенный обмен элементами"
+  },
+  "scimSupport": {
+    "message": "Поддержка SCIM"
+  },
+  "includedMachineAccountsV2": {
+    "message": "$COUNT$ аккаунтов компьютеров",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
+  },
+  "enterpriseSecurityPolicies": {
+    "message": "Политики безопасности предприятия"
+  },
+  "selfHostOption": {
+    "message": "Собственный хостинг"
+  },
+  "complimentaryFamiliesPlan": {
+    "message": "Бесплатный семейный тариф для всех пользователей"
+  },
+  "strengthenCybersecurity": {
+    "message": "Повышение кибербезопасности"
+  },
+  "boostProductivity": {
+    "message": "Повышение производительности"
+  },
+  "seamlessIntegration": {
+    "message": "Простая интеграция"
+  },
+  "families": {
+    "message": "Families"
+  },
+  "upgradeToFamilies": {
+    "message": "Upgrade to Families"
+  },
+  "upgradeToPremium": {
+    "message": "Upgrade to Premium"
+  },
+  "familiesUpdated": {
+    "message": "You've upgraded to Families!"
+  },
+  "taxCalculationError": {
+    "message": "There was an error calculating tax for your location. Please try again."
+  },
+  "individualUpgradeWelcomeMessage": {
+    "message": "Welcome to Bitwarden"
+  },
+  "individualUpgradeDescriptionMessage": {
+    "message": "Unlock more security features with Premium, or start sharing items with Families"
+  },
+  "individualUpgradeTaxInformationMessage": {
+    "message": "Prices exclude tax and are billed annually."
+  },
+  "organizationNameDescription": {
+    "message": "Your organization name will appear in invitations you send to members."
+  },
+  "continueWithoutUpgrading": {
+    "message": "Continue without upgrading"
+  },
+  "upgradeErrorMessage": {
+    "message": "We encountered an error while processing your upgrade. Please try again."
   }
 }
-

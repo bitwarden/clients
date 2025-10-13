@@ -44,7 +44,7 @@ import { VaultAutosizeReadOnlyTextArea } from "../../directives/readonly-textare
 export class CustomFieldV2Component implements OnInit, OnChanges {
   @Input({ required: true }) cipher!: CipherView;
   fieldType = FieldType;
-  fieldOptions: Map<number, LinkedMetadata> | null = null;
+  fieldOptions: Map<number, LinkedMetadata> | undefined;
 
   /** Indexes of hidden fields that are revealed */
   revealedHiddenFields: number[] = [];
@@ -124,7 +124,7 @@ export class CustomFieldV2Component implements OnInit, OnChanges {
       case CipherType.Identity:
         return IdentityView.prototype.linkedFieldOptions;
       default:
-        return null;
+        return undefined;
     }
   }
 }

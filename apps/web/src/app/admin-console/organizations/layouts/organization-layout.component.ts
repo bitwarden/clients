@@ -23,9 +23,6 @@ import { PolicyType, ProviderStatusType } from "@bitwarden/common/admin-console/
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { OrganizationBillingServiceAbstraction } from "@bitwarden/common/billing/abstractions";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { getById } from "@bitwarden/common/platform/misc";
 import { BannerModule, IconModule } from "@bitwarden/components";
@@ -68,14 +65,7 @@ export class OrganizationLayoutComponent implements OnInit {
   hideNewOrgButton$: Observable<boolean>;
   organizationIsUnmanaged$: Observable<boolean>;
 
-  protected isBreadcrumbEventLogsEnabled$: Observable<boolean>;
   protected showSponsoredFamiliesDropdown$: Observable<boolean>;
-  protected canShowPoliciesTab$: Observable<boolean>;
-
-  protected paymentDetailsPageData$: Observable<{
-    route: string;
-    textKey: string;
-  }>;
 
   protected subscriber$: Observable<NonIndividualSubscriber>;
   protected getTaxIdWarning$: () => Observable<TaxIdWarningType | null>;
@@ -84,19 +74,14 @@ export class OrganizationLayoutComponent implements OnInit {
     private route: ActivatedRoute,
     private organizationService: OrganizationService,
     private platformUtilsService: PlatformUtilsService,
-    private configService: ConfigService,
     private policyService: PolicyService,
     private providerService: ProviderService,
     private accountService: AccountService,
     private freeFamiliesPolicyService: FreeFamiliesPolicyService,
-    private organizationBillingService: OrganizationBillingServiceAbstraction,
     private organizationWarningsService: OrganizationWarningsService,
   ) {}
 
   async ngOnInit() {
-    this.isBreadcrumbEventLogsEnabled$ = this.configService.getFeatureFlag$(
-      FeatureFlag.PM12276_BreadcrumbEventLogs,
-    );
     document.body.classList.remove("layout_frontend");
 
     this.organization$ = this.route.params.pipe(
@@ -126,8 +111,13 @@ export class OrganizationLayoutComponent implements OnInit {
       switchMap((userId) => this.policyService.policyAppliesToUser$(PolicyType.SingleOrg, userId)),
     );
 
-    const provider$ = this.organization$.pipe(
-      switchMap((organization) => this.providerService.get$(organization.providerId)),
+    const provider$ = combineLatest([
+      this.organization$,
+      this.accountService.activeAccount$.pipe(getUserId),
+    ]).pipe(
+      switchMap(([organization, userId]) =>
+        this.providerService.get$(organization.providerId, userId),
+      ),
     );
 
     this.organizationIsUnmanaged$ = combineLatest([this.organization$, provider$]).pipe(
@@ -140,28 +130,6 @@ export class OrganizationLayoutComponent implements OnInit {
     );
 
     this.integrationPageEnabled$ = this.organization$.pipe(map((org) => org.canAccessIntegrations));
-
-    this.canShowPoliciesTab$ = this.organization$.pipe(
-      switchMap((organization) =>
-        this.organizationBillingService
-          .isBreadcrumbingPoliciesEnabled$(organization)
-          .pipe(
-            map(
-              (isBreadcrumbingEnabled) => isBreadcrumbingEnabled || organization.canManagePolicies,
-            ),
-          ),
-      ),
-    );
-
-    this.paymentDetailsPageData$ = this.configService
-      .getFeatureFlag$(FeatureFlag.PM21881_ManagePaymentDetailsOutsideCheckout)
-      .pipe(
-        map((managePaymentDetailsOutsideCheckout) =>
-          managePaymentDetailsOutsideCheckout
-            ? { route: "billing/payment-details", textKey: "paymentDetails" }
-            : { route: "billing/payment-method", textKey: "paymentMethod" },
-        ),
-      );
 
     this.subscriber$ = this.organization$.pipe(
       map((organization) => ({

@@ -2,6 +2,9 @@
   "allApplications": {
     "message": "Sve aplikacije"
   },
+  "activity": {
+    "message": "Aktivnost"
+  },
   "appLogoLabel": {
     "message": "Bitwarden logo"
   },
@@ -32,6 +35,9 @@
       }
     }
   },
+  "noReportRan": {
+    "message": "Nema stvorenih izvješčća"
+  },
   "notifiedMembers": {
     "message": "Obaviješteni članovi"
   },
@@ -56,8 +62,91 @@
   "createNewLoginItem": {
     "message": "Stvori novu stavku prijave"
   },
+  "percentageCompleted": {
+    "message": "dovršeno $PERCENT$ %",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
+  "securityTasksCompleted": {
+    "message": "završeni sigurnosni zadaci $COUNT$ od $TOTAL$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "total": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "passwordChangeProgress": {
+    "message": "Napredak promjene lozinke"
+  },
+  "assignMembersTasksToMonitorProgress": {
+    "message": "Dodijeli članovima zadatke za praćenje napretka"
+  },
+  "onceYouReviewApplications": {
+    "message": "Ako nakon pregleda aplikacije neku označiš kao kritičnu, biti će prikazane ovdje."
+  },
+  "sendReminders": {
+    "message": "Pošalji podsjetnike"
+  },
+  "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
+    "message": "Aplikacije označene kao kritične će biti prikazane ovdje."
+  },
+  "viewAtRiskMembers": {
+    "message": "Rizični korisnici"
+  },
+  "viewAtRiskApplications": {
+    "message": "Rizične aplikacije"
+  },
+  "criticalApplicationsAreAtRisk": {
+    "message": "$COUNT$ od $TOTAL$ kritilčnih aplikacija su ugrožene zbog rizičnih lozinki",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "total": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
   "criticalApplicationsWithCount": {
     "message": "Kritične aplikacije ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfCriticalApplications": {
+    "message": "Kritičnih aplikacija: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfApplicationsAtRisk": {
+    "message": "$COUNT$ aplikacija/e ugroženo",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfAtRiskPasswords": {
+    "message": "Rizičnih lozinki: $COUNT$",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -86,20 +175,35 @@
   "noAppsInOrgDescription": {
     "message": "Kako korisnici spremaju podatke za prijavu, ovdje se pojavljuju aplikacije koje prikazuju sve rizične lozinke. Označi kritične aplikacije i obavijesti korisnike da ažuriraju lozinke."
   },
-  "noCriticalAppsTitle": {
+  "noCriticalApplicationsTitle": {
     "message": "Niti jedna aplikacija nije označena kao kritična"
   },
-  "noCriticalAppsDescription": {
-    "message": "Odaberi svoje najkritičnije aplikacije za otkrivanje rizičnih lozinki i obavijesti korisnike da promijene te lozinke."
+  "noCriticalApplicationsDescription": {
+    "message": "Odaberite svoje kritične aplikacije kako bi se odredio prioritet sigurnosnih radnji za tvoje korisnike i riješili problemi s lozinkama koje su u riziku."
   },
-  "markCriticalApps": {
-    "message": "Označi kritične aplikacije"
+  "markCriticalApplications": {
+    "message": "Odaberi kritične aplikacije"
   },
   "markAppAsCritical": {
     "message": "Označi aplikacije kao kritične"
   },
+  "markAsCritical": {
+    "message": "Mark as critical"
+  },
+  "applicationsSelected": {
+    "message": "applications selected"
+  },
+  "selectApplication": {
+    "message": "Select application"
+  },
+  "unselectApplication": {
+    "message": "Unselect application"
+  },
   "applicationsMarkedAsCriticalSuccess": {
     "message": "Aplikacije označene kao kritične"
+  },
+  "applicationsMarkedAsCriticalFail": {
+    "message": "Nije uspjelo označavanje aplikacija kao kritičnih"
   },
   "application": {
     "message": "Aplikacija"
@@ -118,6 +222,18 @@
   },
   "atRiskMembers": {
     "message": "Rizični korisnici"
+  },
+  "membersWithAccessToAtRiskItemsForCriticalApps": {
+    "message": "Članovi koji imaju pristup stavkama za aplikacije označene kao kritične"
+  },
+  "membersAtRiskCount": {
+    "message": "Rizičnih članova: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "atRiskMembersWithCount": {
     "message": "Izloženi članovi ($COUNT$)",
@@ -176,11 +292,38 @@
   "totalApplications": {
     "message": "Ukupno aplikacija"
   },
-  "unmarkAsCriticalApp": {
-    "message": "Odznači kao kritičnu aplikaciju"
+  "applicationsNeedingReview": {
+    "message": "Aplikacije koje je potrebno pregledati"
   },
-  "criticalApplicationSuccessfullyUnmarked": {
-    "message": "Kritična aplikacija uspješno odznačena"
+  "newApplicationsWithCount": {
+    "message": "Novih aplikacija: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "13"
+      }
+    }
+  },
+  "newApplicationsDescription": {
+    "message": "Pregledaj nove aplikacije i po potrebi označi kritične za zaštitu svoje organizacije"
+  },
+  "reviewNow": {
+    "message": "Pregledaj sada"
+  },
+  "prioritizeCriticalApplications": {
+    "message": "Prioritize critical applications"
+  },
+  "atRiskItems": {
+    "message": "At-risk items"
+  },
+  "markAsCriticalPlaceholder": {
+    "message": "Mark as critical functionality will be implemented in a future update"
+  },
+  "unmarkAsCritical": {
+    "message": "Odznači kao kritično"
+  },
+  "criticalApplicationUnmarkedSuccessfully": {
+    "message": "Aplikacije uspješno odznačene kao kritične"
   },
   "whatTypeOfItem": {
     "message": "Koja je ovo vrsta stavke?"
@@ -734,32 +877,81 @@
   "viewItem": {
     "message": "Prikaz stavke"
   },
-  "newItemHeader": {
-    "message": "Novi $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderLogin": {
+    "message": "Nova prijava",
+    "description": "Header for new login item type"
   },
-  "editItemHeader": {
-    "message": "Uredi $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderCard": {
+    "message": "Nova kartica",
+    "description": "Header for new card item type"
   },
-  "viewItemType": {
-    "message": "Pogledaj $ITEMTYPE$",
-    "placeholders": {
-      "itemtype": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderIdentity": {
+    "message": "Novi identitet",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "Nova bilješka",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "Novi SSH ključ",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderTextSend": {
+    "message": "Novi teksutalni Send",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "Novi datotečni Send",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderLogin": {
+    "message": "Uredi prijavu",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Uredi karticu",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Uredi identitet",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Uređivanje bilješke",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "Uredi SSH ključ",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Uredi tekstualni Send",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Uredi datotečni Send",
+    "description": "Header for edit file send"
+  },
+  "viewItemHeaderLogin": {
+    "message": "Prikaži prijavu",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "Prikaži karticu",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "Prikaži identitet",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "Prikaži bilješku",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "Prikaži SSH ključ",
+    "description": "Header for view SSH key item type"
   },
   "new": {
     "message": "Novo",
@@ -866,6 +1058,15 @@
   },
   "copyLicenseNumber": {
     "message": "Kopiraj broj osobne"
+  },
+  "copyPrivateKey": {
+    "message": "Kopiraj privatni ključ"
+  },
+  "copyPublicKey": {
+    "message": "Kopiraj javni ključ"
+  },
+  "copyFingerprint": {
+    "message": "Kopiraj otisak prsta"
   },
   "copyName": {
     "message": "Kopiraj ime"
@@ -1091,6 +1292,9 @@
   },
   "readingPasskeyLoadingInfo": {
     "message": "Ostavi ovaj prozor otvorenim i slijedi upute preglednika."
+  },
+  "passkeyAuthenticationFailed": {
+    "message": "Autentifikacija pristupnim ključem nije uspjela. Pokušaj ponovno."
   },
   "useADifferentLogInMethod": {
     "message": "Koristi drugi način prijave"
@@ -1386,6 +1590,15 @@
   "invalidMasterPassword": {
     "message": "Neispravna glavna lozinka"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Nevažeća glavna lozinka. Provjeri je li tvoja adresa e-pošta ispravna i je li račun kreiran na $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "invalidFilePassword": {
     "message": "Nesipravna lozinka datoteke. Unesi lozinku izvozne datoteke."
   },
@@ -1394,6 +1607,30 @@
   },
   "noItemsInList": {
     "message": "Nema stavki za prikaz."
+  },
+  "noItemsInTrash": {
+    "message": "Nema stavki u smeću"
+  },
+  "noItemsInTrashDesc": {
+    "message": "Stavke koje obrišeš biti će premještene ovdje, a nakon 30 dana biti će trajno izbrisane"
+  },
+  "noItemsInVault": {
+    "message": "Nema stavaka u trezoru"
+  },
+  "emptyVaultDescription": {
+    "message": "Trezor štiti više od lozinki. Sigurno spremi prijave, identitete, kartice i bilješke."
+  },
+  "emptyFavorites": {
+    "message": "Niti jedna stavka nije dodana u favorite"
+  },
+  "emptyFavoritesDesc": {
+    "message": "Za brzi pristup često korištenim stavkama dodaj ih u favorite."
+  },
+  "noSearchResults": {
+    "message": "Nema rezultata pretrage"
+  },
+  "clearFiltersOrTryAnother": {
+    "message": "Očisti filtre ili pokušaj s drugačijom pretragom"
   },
   "noPermissionToViewAllCollectionItems": {
     "message": "Nemaš prava vidjeti sve stavke u ovoj zbirci."
@@ -1501,11 +1738,11 @@
   "selectTwoStepLoginMethod": {
     "message": "Odaberi način prijave dvostrukom autentifikacijom"
   },
-  "recoveryCodeDesc": {
-    "message": "Izgubljen je pristup uređaju za prijavu dvostrukom autentifikacijom? Koristi svoj kôd za oporavak za onemogućavanje svih pružatelja usluga prijave dvostrukom autentifikacijom na svom računu."
-  },
   "recoveryCodeTitle": {
     "message": "Kôd za oporavak"
+  },
+  "invalidRecoveryCode": {
+    "message": "Neispravni kôd za oporavak"
   },
   "authenticatorAppTitle": {
     "message": "Autentifikatorska aplikacija"
@@ -2051,10 +2288,10 @@
     "message": "Odaberi zbirku"
   },
   "importTargetHintCollection": {
-    "message": "Select this option if you want the imported file contents moved to a collection"
+    "message": "Odaberi ovu opciju ako sadržaj uvezene datoteke želiš premjestiti u zbirku"
   },
   "importTargetHintFolder": {
-    "message": "Select this option if you want the imported file contents moved to a folder"
+    "message": "Odaberi ovu opciju ako sadržaj uvezene datoteke želiš premjestiti u mapu"
   },
   "importUnassignedItemsError": {
     "message": "Datoteka sadrži nedodijeljene stavke."
@@ -2102,11 +2339,8 @@
   "languageDesc": {
     "message": "Promijeni jezik web trezora."
   },
-  "enableFavicon": {
-    "message": "Prikaži ikone mrežnih mjesta"
-  },
-  "faviconDesc": {
-    "message": "Prikaži prepoznatljivu sliku pored svake prijave."
+  "showIconsChangePasswordUrls": {
+    "message": "Prikaži ikone web mjesta i dohvati URL-ove za promjenu lozinki"
   },
   "default": {
     "message": "Zadano"
@@ -2716,6 +2950,9 @@
   "makeSureEnoughCredit": {
     "message": "Osiguraj da tvoj račun ima dovoljno raspoloživih sredstava za kupnju. Ako tvoj račun nema dovoljno sredstava za kupnju, sredstva će biti dopunjena iz tvojeg zadanog spremljenog načina plaćanja. Sredstva svojem računu možeš dodati na stranici Naplata."
   },
+  "notEnoughAccountCredit": {
+    "message": "You do not have enough account credit for this purchase. You can add credit to your account from the Billing page."
+  },
   "creditAppliedDesc": {
     "message": "Sredstva na tvojem računu mogu se koristiti za kupnju. Sva raspoloživa sredstva će automatski biti upotrijebljena za plaćanje kupnji napravljenih na tvojem računu."
   },
@@ -2818,10 +3055,10 @@
     }
   },
   "showPricingSummary": {
-    "message": "Show pricing summary"
+    "message": "Prikaži sažetak cijene"
   },
   "hidePricingSummary": {
-    "message": "Hide pricing summary"
+    "message": "Sakrij sažetak cijene"
   },
   "summary": {
     "message": "Sažetak"
@@ -4124,6 +4361,9 @@
   "generatingYourRiskInsights": {
     "message": "Stvaranje tvojih uvida u rizik..."
   },
+  "riskInsightsRunReport": {
+    "message": "Pokreni izvješće"
+  },
   "updateBrowserDesc": {
     "message": "Koristiš nepodržani preglednik. Web trezor možda neće ispravno raditi."
   },
@@ -4690,6 +4930,12 @@
   "organizationIsDisabled": {
     "message": "Organizacija suspendirana"
   },
+  "organizationIsSuspended": {
+    "message": "Organizacija je suspendirana"
+  },
+  "organizationIsSuspendedDesc": {
+    "message": "Stavkama u suspendiranoj Organizaciji se ne može pristupiti. Kontaktiraj vlasnika Organizacije za pomoć."
+  },
   "secretsAccessSuspended": {
     "message": "Stavkama u suspendiranoj Organizaciji se ne može pristupiti. Kontaktiraj vlasnika Organizacije za pomoć."
   },
@@ -4701,9 +4947,6 @@
   },
   "serviceAccountsCannotCreate": {
     "message": "Nije moguće stvoriti Servisne račune u suspendiranim organizacijama. Kontaktiraj vlasnika tvoje organizacije za pomoć."
-  },
-  "disabledOrganizationFilterError": {
-    "message": "Stavkama u suspendiranoj Organizaciji se ne može pristupiti. Kontaktiraj vlasnika Organizacije za pomoć."
   },
   "licenseIsExpired": {
     "message": "Licenca je istekla."
@@ -5078,9 +5321,13 @@
   "ssoIdentifier": {
     "message": "SSO identifikator"
   },
-  "ssoIdentifierHintPartOne": {
-    "message": "Dajte ovaj ID svojim članovima za prijavu putem SSO-a. Za zaobilazak ovog koraka, postavi ",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Provide this ID to your members to login with SSO. To bypass this step, set up Domain verification'"
+  "ssoIdentifierHint": {
+    "message": "Daj ovaj ID svojim članovima za prijavu putem SSO-a. Članovi mogu preskočiti unos ovog identifikatora tijekom SSO-a ako je postavljena domena za koju su prijavljeni. ",
+    "description": "This will be used as part of a larger sentence, broken up to include a link. The full sentence will read 'Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. Learn more'"
+  },
+  "claimedDomainsLearnMore": {
+    "message": "Saznaj više",
+    "description": "This will be used as part of a larger sentence, broken up to include a link. The full sentence will read 'Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. Learn more'"
   },
   "unlinkSso": {
     "message": "Odspoji SSO"
@@ -5474,6 +5721,13 @@
   },
   "personalOwnershipSubmitError": {
     "message": "Pravila tvrtke onemogućuju spremanje stavki u osobni trezor. Promijeni vlasništvo stavke na tvrtku i odaberi dostupnu Zbirku."
+  },
+  "desktopAutotypePolicy": {
+    "message": "Zadana postavka automatskog tipkanja na radnoj površini"
+  },
+  "desktopAutotypePolicyDesc": {
+    "message": "Uključi automatsko tipkanje na radnoj površini prema zadanim postavkama za članove. Članovi mogu ručno isključiti automatsko tipkanje u klijentu za radnu površinu.",
+    "description": "This policy will enable Desktop Autotype by default for members on Unlock."
   },
   "disableSend": {
     "message": "Onemogući Send"
@@ -6639,6 +6893,15 @@
   "disabledSso": {
     "message": "SSO onemogućen"
   },
+  "emailMustLoginWithSso": {
+    "message": "$EMAIL$ se mora prijavljivati sa SSO",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "enabledKeyConnector": {
     "message": "Konektor za ključ omogućen"
   },
@@ -6877,6 +7140,24 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Izvezt će se samo trezor organizacije povezan s $ORGANIZATION$.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Izvezt će se samo trezor organizacije povezan s $ORGANIZATION$. Zbirka mojih stavki neće biti uključena.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "accessDenied": {
     "message": "Pristup odbijen. Nemaš prava vijdeti ovu stranicu."
   },
@@ -7029,10 +7310,13 @@
     "message": "Nepoznata stavka. Možda trebaš tražiti dozvolu za pristup ovoj stavci."
   },
   "unknownSecret": {
-    "message": "Unknown secret, you may need to request permission to access this secret."
+    "message": "Nepoznata tajna. Možda trebaš tražiti dozvolu za pristup ovoj tajni."
+  },
+  "unknownServiceAccount": {
+    "message": "Nepoznati mašinski račun. Možda trebaš tražiti dozvolu za pristup ovom mašinskom računu."
   },
   "unknownProject": {
-    "message": "Unknown project, you may need to request permission to access this project."
+    "message": "Nepoznati projekt. Možda trebaš tražiti dozvolu za pristup ovom projektu."
   },
   "cannotSponsorSelf": {
     "message": "Ne možeš iskorisiti za aktivi račun. Unesi drugu adresu e-pošte."
@@ -7420,6 +7704,9 @@
   },
   "off": {
     "message": "Isključeno"
+  },
+  "connected": {
+    "message": "Spojeno"
   },
   "members": {
     "message": "Članovi"
@@ -8275,12 +8562,6 @@
   "groupSlashUser": {
     "message": "Grupa/korisnik"
   },
-  "lowKdfIterations": {
-    "message": "Niske KDF iteracije"
-  },
-  "updateLowKdfIterationsDesc": {
-    "message": "Ažuriraj svoje postavke enkripcije kako bi zadovoljili nove sigurnosne preporuke i poboljšali zaštitu računa."
-  },
   "kdfSettingsChangeLogoutWarning": {
     "message": "Nastavkom ćeš se odjaviti iz svih aktivnih sesija. Morat ćeš se ponovno prijaviti i izvršiti dvostruku autentifikaciju, ako je aktivna. Preporučujemo izvoz tvog trezora prije promjene postavki enkripcije kako bi spriječili gubitak podataka."
   },
@@ -8358,7 +8639,7 @@
     }
   },
   "permanentlyDeletedSecretWithId": {
-    "message": "Permanently deleted a secret with identifier: $SECRET_ID$",
+    "message": "Trajno izbrisana tajna s identifikatorom: $SECRET_ID$",
     "placeholders": {
       "secret_id": {
         "content": "$1",
@@ -8367,7 +8648,7 @@
     }
   },
   "restoredSecretWithId": {
-    "message": "Restored a secret with identifier: $SECRET_ID$",
+    "message": "Vraćena tajna s identifikatorom: $SECRET_ID$",
     "placeholders": {
       "secret_id": {
         "content": "$1",
@@ -8384,8 +8665,8 @@
       }
     }
   },
-  "accessedProjectWithId": {
-    "message": "Accessed a project with Id: $PROJECT_ID$.",
+  "accessedProjectWithIdentifier": {
+    "message": "Pristupljeno projektu s identifikatorom: $PROJECT_ID$.",
     "placeholders": {
       "project_id": {
         "content": "$1",
@@ -8394,7 +8675,7 @@
     }
   },
   "nameUnavailableProjectDeleted": {
-    "message": "Deleted project Id: $PROJECT_ID$",
+    "message": "Izbrisan projekt s identifikatorom: $PROJECT_ID$",
     "placeholders": {
       "project_id": {
         "content": "$1",
@@ -8403,7 +8684,7 @@
     }
   },
   "nameUnavailableSecretDeleted": {
-    "message": "Deleted secret Id: $SECRET_ID$",
+    "message": "Izbrisana tajna s identifkatorom: $SECRET_ID$",
     "placeholders": {
       "secret_id": {
         "content": "$1",
@@ -8411,8 +8692,17 @@
       }
     }
   },
+  "nameUnavailableServiceAccountDeleted": {
+    "message": "Obrisan mašinski račun s id: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "service_account_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
   "editedProjectWithId": {
-    "message": "Edited a project with identifier: $PROJECT_ID$",
+    "message": "Uređen projekt s identifikatorom: $PROJECT_ID$",
     "placeholders": {
       "project_id": {
         "content": "$1",
@@ -8420,8 +8710,78 @@
       }
     }
   },
+  "addedUserToServiceAccountWithId": {
+    "message": "Korisnik: $USER_ID$ dodan mašinskom računu $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "user_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "removedUserToServiceAccountWithId": {
+    "message": "Korisnik $USER_ID$ uklonjen iz mašinskog računa $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "user_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "removedGroupFromServiceAccountWithId": {
+    "message": "Grupa $GROUP_ID$ uklonjena iz mašinskog računa$SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "group_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "serviceAccountCreatedWithId": {
+    "message": "Stvoren mašinski račun $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "service_account_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "addedGroupToServiceAccountId": {
+    "message": "Grupa $GROUP_ID$ dodana mašinskom računu $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "group_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "serviceAccountDeletedWithId": {
+    "message": "Obrisan mašinski račun $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "service_account_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
   "deletedProjectWithId": {
-    "message": "Deleted a project with identifier: $PROJECT_ID$",
+    "message": "Izbrisan projekt s identifkatorom: $PROJECT_ID$",
     "placeholders": {
       "project_id": {
         "content": "$1",
@@ -8430,7 +8790,7 @@
     }
   },
   "createdProjectWithId": {
-    "message": "Created a new project with identifier: $PROJECT_ID$",
+    "message": "Stvoren novi projekt s identifikatorom: $PROJECT_ID$",
     "placeholders": {
       "project_id": {
         "content": "$1",
@@ -8926,20 +9286,25 @@
   "collectionManagement": {
     "message": "Upravljanje zbirkama"
   },
-  "collectionManagementDesc": {
-    "message": "Upravljaj ponašanjem zbirki za organizaciju"
+  "collectionManagementDescription": {
+    "message": "Postavi ponašanje zbirki za organizaciju"
   },
-  "limitCollectionCreationDesc": {
-    "message": "Omogući kreiranje zbirki samo vlasnicima i adminima"
+  "allowAdminAccessToAllCollectionItemsDescription": {
+    "message": "Omogući vlasnicima i administratorima upravljanje svim zbirkama i stavkama iz administratorske konzole"
   },
-  "limitCollectionDeletionDesc": {
-    "message": "Omogući brisanje zbirki samo vlasnicima i adminima"
+  "restrictCollectionCreationDescription": {
+    "message": "Ograniči stvaranje zbirki samo vlasnicima i adminima"
   },
-  "limitItemDeletionDescription": {
-    "message": "Ograniči brisanje stavke samo članovima koji imaju dozvolu „Moguće upravljanje”"
+  "restrictCollectionDeletionDescription": {
+    "message": "Ograniči brisanje zbirki samo vlasnicima i adminima"
   },
-  "allowAdminAccessToAllCollectionItemsDesc": {
-    "message": "Vlasnici i admini mogu upravljati svim zbirkama i stavkama"
+  "restrictItemDeletionDescriptionStart": {
+    "message": "Ograniči brisanje stavki samo korisnicima s ",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
+  },
+  "restrictItemDeletionDescriptionEnd": {
+    "message": " pravima",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
   },
   "updatedCollectionManagement": {
     "message": "Ažurirane postavke upravljanja zbirkama"
@@ -9010,6 +9375,78 @@
   },
   "modifiedCollectionManagement": {
     "message": "Izmijenjena postavka upravljanja zbirkom $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationEnabled": {
+    "message": "Uključena postavka Zabrane stvaranja zbirki $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationDisabled": {
+    "message": "Isključena postavka Zabrane stvaranja zbirki $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionEnabled": {
+    "message": "Uključena postavka Zabrane brisanja zbirki $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionDisabled": {
+    "message": "Isključena postavka Zabrane brisanja zbirki $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionEnabled": {
+    "message": "Uključena postavka Zabrane brisanja stavki $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionDisabled": {
+    "message": "Isključena postavka Zabrane brisanja stavki $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsEnabled": {
+    "message": "Uključena postavka Odobrenje vlasnicima i adminima za upravljanje svim zbirkama i postavkama stavki $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsDisabled": {
+    "message": "Isključena postavka Odobrenje vlasnicima i adminima za upravljanje svim zbirkama i postavkama stavki $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -9178,6 +9615,9 @@
   },
   "assign": {
     "message": "Dodijeli"
+  },
+  "assignTasks": {
+    "message": "Dodijeli zadatke"
   },
   "assignToCollections": {
     "message": "Dodijeli zbirkama"
@@ -9574,8 +10014,17 @@
   "crowdstrikeEventIntegrationDesc": {
     "message": "Pošaljite podatke o događajima svojoj Logscale instanci"
   },
+  "datadogEventIntegrationDesc": {
+    "message": "Send vault event data to your Datadog instance"
+  },
   "failedToSaveIntegration": {
     "message": "Spremanje integracije nije uspjelo. Pokušaj ponovno kasnije."
+  },
+  "mustBeOrgOwnerToPerformAction": {
+    "message": "Za ovo, moraš biti vlasnik organizacije."
+  },
+  "failedToDeleteIntegration": {
+    "message": "Brisanje integracije nije uspjelo. Pokušaj ponovno kasnije."
   },
   "deviceIdMissing": {
     "message": "Nedostaje ID uređaja"
@@ -9594,6 +10043,15 @@
   },
   "connectIntegrationButtonDesc": {
     "message": "Spoji $INTEGRATION$",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
+  },
+  "updateIntegrationButtonDesc": {
+    "message": "Ažuriraj $INTEGRATION$",
     "placeholders": {
       "integration": {
         "content": "$1",
@@ -9663,6 +10121,9 @@
   },
   "bearerToken": {
     "message": "Token nositelja"
+  },
+  "repositoryNameHint": {
+    "message": "Naziv repozitorija u koji se unosi"
   },
   "index": {
     "message": "Indeks"
@@ -9802,12 +10263,6 @@
         "example": "2"
       }
     }
-  },
-  "lowKDFIterationsBanner": {
-    "message": "Niske KDF iteracije. Povećaj svoje iteracije za poboljšanje sigurnost računa."
-  },
-  "changeKDFSettings": {
-    "message": "Promijeni KDF postavke"
   },
   "secureYourInfrastructure": {
     "message": "Osiguraj svoju infrastrukturu"
@@ -10112,14 +10567,8 @@
   "learnMoreAboutApi": {
     "message": "Saznaj više o Bitwarden API"
   },
-  "fileSend": {
-    "message": "Send datoteke"
-  },
   "fileSends": {
     "message": "Send datoteke"
-  },
-  "textSend": {
-    "message": "Send teksta"
   },
   "textSends": {
     "message": "Send tekstovi"
@@ -10807,6 +11256,12 @@
   "changeAtRiskPassword": {
     "message": "Promijeni rizičnu lozinku"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Ova prijava je ugrožena i nedostaje joj web-stranica. Dodaj web-stranicu i promijeni lozinku za veću sigurnost."
+  },
+  "missingWebsite": {
+    "message": "Nedostaje web-stranica"
+  },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Ukloni otključavanje PIN-om"
   },
@@ -10823,10 +11278,27 @@
     "message": "Ovi događaji su samo primjeri i ne odražavaju stvarne događaje unutar tvoje Bitwarden organizacije."
   },
   "viewEvents": {
-    "message": "View Events"
+    "message": "Pregled događaja"
   },
   "cannotCreateCollection": {
     "message": "Besplatne organizacije mogu imati do 2 zbirke. Nadogradi na plaćeni plan za dodavanje više zbirki."
+  },
+  "searchArchive": {
+    "message": "Pretraži arhivu"
+  },
+  "archiveNoun": {
+    "message": "Arhiva",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Arhiviraj",
+    "description": "Verb"
+  },
+  "noItemsInArchive": {
+    "message": "Nema stavki u arhivi"
+  },
+  "archivedItemsDescription": {
+    "message": "Arhivirane stavke biti će prikazane ovdje i biti će izuzete iz rezultata općih pretraga i preporuka auto-ispune."
   },
   "businessUnit": {
     "message": "Poslovna jedinica"
@@ -10935,6 +11407,12 @@
   "bitwardenExtensionInstalled": {
     "message": "Bitwarden proširenje je instalirano!"
   },
+  "openTheBitwardenExtension": {
+    "message": "Otvori Bitwarden proširenje"
+  },
+  "bitwardenExtensionInstalledOpenExtension": {
+    "message": "Instalirano je Bitwarden proširenje! Otvori ga za prijavu i početak auto-ispune."
+  },
   "openExtensionToAutofill": {
     "message": "Otvori proširenje i prijavi se za početak korištenja auto-ispune."
   },
@@ -10981,6 +11459,12 @@
   "billingAddressRequiredToAddCredit": {
     "message": "Za dodavanje kredita potrebna je adresa za naplatu.",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
+  },
+  "aboutThisSetting": {
+    "message": "O ovoj postavci"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden će koristiti spremljene URI-je za prijavu kako bi identificirao ikonu ili URL za promjenu lozinke koji treba koristiti za poboljšanje tvojeg iskustva. Nikakvi podaci se ne prikupljaju, niti spremaju kada koristiš ovu uslugu."
   },
   "billingAddress": {
     "message": "Adresa za naplatu"
@@ -11094,44 +11578,44 @@
     "message": "Pokaži manje"
   },
   "missingTaxId": {
-    "message": "Missing Tax ID"
+    "message": "Nedostaje porezni broj"
   },
   "missingTaxIdWarning": {
-    "message": "Action required: You're missing a Tax ID number in payment details. If a Tax ID is not added, your invoices may include additional tax."
+    "message": "Potrebna radnja: U podacima o plaćanju nedostaje porezni broj. Ako porezni broj nije dodan, tvoje fakture mogu sadržavati dodatni porez."
   },
   "moreBreadcrumbs": {
-    "message": "More breadcrumbs",
+    "message": "Više mrvica",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   },
   "addTaxId": {
-    "message": "Add a Tax ID"
+    "message": "Dodaj porezni broj"
   },
   "missingTaxIdCalloutTitle": {
-    "message": "Action required: Missing Tax ID"
+    "message": "Potrebna radnja: Nedostaje porezni broj"
   },
   "missingTaxIdCalloutDescription": {
-    "message": "If a Tax ID is not added, your invoices may include additional tax."
+    "message": "Ako porezni broj nije dodan, tvoje fakture mogu sadržavati dodatni porez."
   },
   "unverifiedTaxIdWarning": {
-    "message": "Action required: Your Tax ID number is unverified. If your Tax ID is left unverified, your invoices may include additional tax."
+    "message": "Potrebna radnja: Tvoj porezni broj nije provjeren. Ako porezni broj ostane neprovjeren, tvoje fakture mogu sadržavati dodatni porez."
   },
   "editTaxId": {
-    "message": "Edit your Tax ID"
+    "message": "Uredi porezni broj"
   },
   "unverifiedTaxIdCalloutTitle": {
-    "message": "Tax ID unverified"
+    "message": "Porezni broj nije provjeren"
   },
   "unverifiedTaxIdCalloutDescription": {
-    "message": "Check your Tax ID to verify the format is correct and there are no typos."
+    "message": "Provjeri da je unesen ispravan porezni broj."
   },
   "pendingVerification": {
-    "message": "Pending verification"
+    "message": "Čeka se provjera"
   },
   "checkInputFormat": {
-    "message": "Check input format for typos."
+    "message": "Potvrdi domenu kontektora ključa."
   },
   "exampleTaxIdFormat": {
-    "message": "Example $CODE$ format: $EXAMPLE$",
+    "message": "Primjer $CODE$ oblika: $EXAMPLE$",
     "placeholders": {
       "code": {
         "content": "$1",
@@ -11142,6 +11626,182 @@
         "example": "92873837267"
       }
     }
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Potvrdi domenu kontektora ključa"
+  },
+  "requiredToVerifyBankAccountWithStripe": {
+    "message": "Plaćanje putem bankovnog računa dostupno je samo kupcima u SAD-u. Bit će potrebno potvrditi bankovni račun. Izvršit ćemo mikrodepozit u roku od sljedećih 1 - 2 radna dana. Ako ne potvrdiš bankovni račun, to će rezultirati propuštenom uplatom i obustavom tvoje pretplate."
+  },
+  "verifyBankAccountWithStripe": {
+    "message": "Izvršili smo mikrodepozit na tvoj bankovni račun. To može potrajati 1 - 2 radna dana. Kada vidiš uplatu na svom računu, možeš ga potvrditi. Ako ne potvrdiš svoj bankovni račun, propuštena uplata će biti izvršena, a tvoja pretplata će biti obustavljena."
+  },
+  "verifyNow": {
+    "message": "Potvrdi sada."
+  },
+  "additionalStorageGB": {
+    "message": "Dodati GB pohrane"
+  },
+  "additionalServiceAccountsV2": {
+    "message": "Dodatni mašinski računi"
+  },
+  "secretsManagerSeats": {
+    "message": "Secret Manager licence"
+  },
+  "additionalStorage": {
+    "message": "Dodatna pohrana"
+  },
+  "expandPurchaseDetails": {
+    "message": "Proširi detalje kupnje"
+  },
+  "collapsePurchaseDetails": {
+    "message": "Skupi detalje kupnje"
+  },
+  "familiesMembership": {
+    "message": "Obiteljsko članstvo"
+  },
+  "planDescPremium": {
+    "message": "Dovrši online sigurnost"
+  },
+  "planDescFamiliesV2": {
+    "message": "Premium sigurnost za tvoju obitelj"
+  },
+  "planDescFreeV2": {
+    "message": "Podijeli s ovoliko korisnika: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "planDescEnterpriseV2": {
+    "message": "Napredne mogućnosti za bilo koju organizaciju"
+  },
+  "planNameCustom": {
+    "message": "Vlastiti plan"
+  },
+  "planDescCustom": {
+    "message": "Bitwarden se prilagođava tvrtkama svih veličina kako bi osigurao lozinke i osjetljive podatke. Ako si dio velike tvrtke, zatraži ponudu od odjela prodaje."
+  },
+  "builtInAuthenticator": {
+    "message": "Ugrađeni autentifikator"
+  },
+  "breachMonitoring": {
+    "message": "Nadzor proboja"
+  },
+  "andMoreFeatures": {
+    "message": "I više!"
+  },
+  "secureFileStorage": {
+    "message": "Sigurna pohrana datoteka"
+  },
+  "familiesUnlimitedSharing": {
+    "message": "Neograničeno dijeljenje - odaberi tko vidi što"
+  },
+  "familiesUnlimitedCollections": {
+    "message": "Neograničene obiteljske zbirke"
+  },
+  "familiesSharedStorage": {
+    "message": "Dijeljena pohrana za važbe obiteljske informacije"
+  },
+  "limitedUsersV2": {
+    "message": "Najveći broj članova: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "limitedCollectionsV2": {
+    "message": "Najveći broj zbirki: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "alwaysFree": {
+    "message": "Zauvijek besplatno"
+  },
+  "twoSecretsIncluded": {
+    "message": "2 tajne"
+  },
+  "projectsIncludedV2": {
+    "message": "Broj projekata: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "secureItemSharing": {
+    "message": "Sigurno dijeljenje stavki"
+  },
+  "scimSupport": {
+    "message": "SCIM podrška"
+  },
+  "includedMachineAccountsV2": {
+    "message": "Mašinskih računa: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
+  },
+  "enterpriseSecurityPolicies": {
+    "message": "Sigurnosne politike tvrtke"
+  },
+  "selfHostOption": {
+    "message": "Mogućnost samostalnog hostinga"
+  },
+  "complimentaryFamiliesPlan": {
+    "message": "Besplatni obiteljski plan za sve korisnike"
+  },
+  "strengthenCybersecurity": {
+    "message": "Jačanje kibernetičke sigurnosti"
+  },
+  "boostProductivity": {
+    "message": "Povećanje produktivnosti"
+  },
+  "seamlessIntegration": {
+    "message": "Jednostavna integracija"
+  },
+  "families": {
+    "message": "Families"
+  },
+  "upgradeToFamilies": {
+    "message": "Upgrade to Families"
+  },
+  "upgradeToPremium": {
+    "message": "Upgrade to Premium"
+  },
+  "familiesUpdated": {
+    "message": "You've upgraded to Families!"
+  },
+  "taxCalculationError": {
+    "message": "There was an error calculating tax for your location. Please try again."
+  },
+  "individualUpgradeWelcomeMessage": {
+    "message": "Welcome to Bitwarden"
+  },
+  "individualUpgradeDescriptionMessage": {
+    "message": "Unlock more security features with Premium, or start sharing items with Families"
+  },
+  "individualUpgradeTaxInformationMessage": {
+    "message": "Prices exclude tax and are billed annually."
+  },
+  "organizationNameDescription": {
+    "message": "Your organization name will appear in invitations you send to members."
+  },
+  "continueWithoutUpgrading": {
+    "message": "Continue without upgrading"
+  },
+  "upgradeErrorMessage": {
+    "message": "We encountered an error while processing your upgrade. Please try again."
   }
 }
-

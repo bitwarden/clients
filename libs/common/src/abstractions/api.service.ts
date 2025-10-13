@@ -24,7 +24,6 @@ import {
   OrganizationConnectionConfigApis,
   OrganizationConnectionResponse,
 } from "../admin-console/models/response/organization-connection.response";
-import { OrganizationExportResponse } from "../admin-console/models/response/organization-export.response";
 import { OrganizationSponsorshipSyncStatusResponse } from "../admin-console/models/response/organization-sponsorship-sync-status.response";
 import { PreValidateSponsorshipResponse } from "../admin-console/models/response/pre-validate-sponsorship.response";
 import {
@@ -78,14 +77,10 @@ import {
 } from "../auth/models/response/two-factor-web-authn.response";
 import { TwoFactorYubiKeyResponse } from "../auth/models/response/two-factor-yubi-key.response";
 import { BitPayInvoiceRequest } from "../billing/models/request/bit-pay-invoice.request";
-import { PaymentRequest } from "../billing/models/request/payment.request";
-import { TaxInfoUpdateRequest } from "../billing/models/request/tax-info-update.request";
 import { BillingHistoryResponse } from "../billing/models/response/billing-history.response";
-import { BillingPaymentResponse } from "../billing/models/response/billing-payment.response";
 import { PaymentResponse } from "../billing/models/response/payment.response";
 import { PlanResponse } from "../billing/models/response/plan.response";
 import { SubscriptionResponse } from "../billing/models/response/subscription.response";
-import { TaxInfoResponse } from "../billing/models/response/tax-info.response";
 import { KeyConnectorUserKeyRequest } from "../key-management/key-connector/models/key-connector-user-key.request";
 import { SetKeyConnectorKeyRequest } from "../key-management/key-connector/models/set-key-connector-key.request";
 import { DeleteRecoverRequest } from "../models/request/delete-recover.request";
@@ -98,7 +93,6 @@ import { UpdateAvatarRequest } from "../models/request/update-avatar.request";
 import { UpdateDomainsRequest } from "../models/request/update-domains.request";
 import { VerifyDeleteRecoverRequest } from "../models/request/verify-delete-recover.request";
 import { VerifyEmailRequest } from "../models/request/verify-email.request";
-import { BreachAccountResponse } from "../models/response/breach-account.response";
 import { DomainsResponse } from "../models/response/domains.response";
 import { EventResponse } from "../models/response/event.response";
 import { ListResponse } from "../models/response/list.response";
@@ -127,11 +121,34 @@ import { OptionalCipherResponse } from "../vault/models/response/optional-cipher
  * of this decision please read https://contributing.bitwarden.com/architecture/adr/refactor-api-service.
  */
 export abstract class ApiService {
+  /** @deprecated Use the overload accepting the user you want the request authenticated for. */
   abstract send(
     method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH",
     path: string,
     body: any,
-    authed: boolean,
+    authed: true,
+    hasResponse: boolean,
+    apiUrl?: string | null,
+    alterHeaders?: (header: Headers) => void,
+  ): Promise<any>;
+
+  /** Sends an unauthenticated API request. */
+  abstract send(
+    method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH",
+    path: string,
+    body: any,
+    authed: false,
+    hasResponse: boolean,
+    apiUrl?: string | null,
+    alterHeaders?: (header: Headers) => void,
+  ): Promise<any>;
+
+  /** Sends an API request authenticated with the given users ID. */
+  abstract send(
+    method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH",
+    path: string,
+    body: any,
+    userId: UserId,
     hasResponse: boolean,
     apiUrl?: string | null,
     alterHeaders?: (headers: Headers) => void,
@@ -146,14 +163,12 @@ export abstract class ApiService {
   ): Promise<
     IdentityTokenResponse | IdentityTwoFactorResponse | IdentityDeviceVerificationResponse
   >;
-  abstract refreshIdentityToken(): Promise<any>;
+  abstract refreshIdentityToken(userId?: UserId): Promise<any>;
 
   abstract getProfile(): Promise<ProfileResponse>;
   abstract getUserSubscription(): Promise<SubscriptionResponse>;
-  abstract getTaxInfo(): Promise<TaxInfoResponse>;
   abstract putProfile(request: UpdateProfileRequest): Promise<ProfileResponse>;
   abstract putAvatar(request: UpdateAvatarRequest): Promise<ProfileResponse>;
-  abstract putTaxInfo(request: TaxInfoUpdateRequest): Promise<any>;
   abstract postPrelogin(request: PreloginRequest): Promise<PreloginResponse>;
   abstract postEmailToken(request: EmailTokenRequest): Promise<any>;
   abstract postEmail(request: EmailRequest): Promise<any>;
@@ -164,7 +179,6 @@ export abstract class ApiService {
   abstract postPremium(data: FormData): Promise<PaymentResponse>;
   abstract postReinstatePremium(): Promise<any>;
   abstract postAccountStorage(request: StorageRequest): Promise<PaymentResponse>;
-  abstract postAccountPayment(request: PaymentRequest): Promise<void>;
   abstract postAccountLicense(data: FormData): Promise<any>;
   abstract postAccountKeys(request: KeysRequest): Promise<any>;
   abstract postAccountVerifyEmail(): Promise<any>;
@@ -188,7 +202,6 @@ export abstract class ApiService {
   abstract getLastAuthRequest(): Promise<AuthRequestResponse>;
 
   abstract getUserBillingHistory(): Promise<BillingHistoryResponse>;
-  abstract getUserBillingPayment(): Promise<BillingPaymentResponse>;
 
   abstract getCipher(id: string): Promise<CipherResponse>;
   abstract getFullCipherDetails(id: string): Promise<CipherResponse>;
@@ -448,6 +461,13 @@ export abstract class ApiService {
     end: string,
     token: string,
   ): Promise<ListResponse<EventResponse>>;
+  abstract getEventsServiceAccount(
+    orgId: string,
+    id: string,
+    start: string,
+    end: string,
+    token: string,
+  ): Promise<ListResponse<EventResponse>>;
   abstract getEventsProject(
     orgId: string,
     id: string,
@@ -494,12 +514,10 @@ export abstract class ApiService {
 
   abstract getUserPublicKey(id: string): Promise<UserKeyResponse>;
 
-  abstract getHibpBreach(username: string): Promise<BreachAccountResponse[]>;
-
   abstract postBitPayInvoice(request: BitPayInvoiceRequest): Promise<string>;
   abstract postSetupPayment(): Promise<string>;
 
-  abstract getActiveBearerToken(): Promise<string>;
+  abstract getActiveBearerToken(userId: UserId): Promise<string>;
   abstract fetch(request: Request): Promise<Response>;
   abstract nativeFetch(request: Request): Promise<Response>;
 
@@ -529,5 +547,4 @@ export abstract class ApiService {
     request: KeyConnectorUserKeyRequest,
   ): Promise<void>;
   abstract getKeyConnectorAlive(keyConnectorUrl: string): Promise<void>;
-  abstract getOrganizationExport(organizationId: string): Promise<OrganizationExportResponse>;
 }

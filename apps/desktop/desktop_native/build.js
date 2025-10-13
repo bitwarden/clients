@@ -35,7 +35,7 @@ function buildProxyBin(target, release = true) {
     const targetArg = target ? `--target ${target}` : "";
     const releaseArg = release ? "--release" : "";
     child_process.execSync(`cargo build --bin desktop_proxy ${releaseArg} ${targetArg}`, {stdio: 'inherit', cwd: path.join(__dirname, "proxy")});
-    
+
     if (target) {
         // Copy the resulting binary to the dist folder
         const targetFolder = release ? "release" : "debug";
@@ -43,6 +43,20 @@ function buildProxyBin(target, release = true) {
         const nodeArch = rustTargetsMap[target].nodeArch;
         fs.copyFileSync(path.join(__dirname, "target", target, targetFolder, `desktop_proxy${ext}`), path.join(__dirname, "dist", `desktop_proxy.${process.platform}-${nodeArch}${ext}`));
     }
+}
+
+function buildProcessIsolation() {
+    if (process.platform !== "linux") {
+        return;
+    }
+
+    child_process.execSync(`cargo build --release`, {
+        stdio: 'inherit',
+        cwd: path.join(__dirname, "process_isolation")
+    });
+
+    console.log("Copying process isolation library to dist folder");
+    fs.copyFileSync(path.join(__dirname, "target", "release", "libprocess_isolation.so"), path.join(__dirname, "dist", `libprocess_isolation.so`));
 }
 
 function installTarget(target) {
@@ -53,6 +67,7 @@ if (!crossPlatform && !target) {
     console.log(`Building native modules in ${mode} mode for the native architecture`);
     buildNapiModule(false, mode === "release");
     buildProxyBin(false, mode === "release");
+    buildProcessIsolation();
     return;
 }
 
@@ -61,6 +76,7 @@ if (target) {
     installTarget(target);
     buildNapiModule(target, mode === "release");
     buildProxyBin(target, mode === "release");
+    buildProcessIsolation();
     return;
 }
 
@@ -78,4 +94,5 @@ platformTargets.forEach(([target, _]) => {
     installTarget(target);
     buildNapiModule(target);
     buildProxyBin(target);
+    buildProcessIsolation();
 });

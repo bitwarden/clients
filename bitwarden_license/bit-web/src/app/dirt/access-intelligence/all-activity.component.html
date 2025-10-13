@@ -1,0 +1,58 @@
+@if (dataService.isLoading$ | async) {
+  <dirt-risk-insights-loading></dirt-risk-insights-loading>
+} @else {
+  <ul
+    class="tw-inline-grid tw-grid-cols-3 tw-gap-6 tw-m-0 tw-p-0 tw-w-full tw-auto-cols-auto tw-list-none"
+  >
+    <li class="tw-col-span-1" [ngClass]="{ 'tw-col-span-2': passwordChangeMetricHasProgressBar }">
+      <dirt-password-change-metric></dirt-password-change-metric>
+    </li>
+
+    <li class="tw-col-span-1">
+      <dirt-activity-card
+        [title]="'atRiskMembers' | i18n"
+        [cardMetrics]="'membersAtRiskCount' | i18n: totalCriticalAppsAtRiskMemberCount"
+        [metricDescription]="'membersWithAccessToAtRiskItemsForCriticalApps' | i18n"
+        navigationText="{{ 'viewAtRiskMembers' | i18n }}"
+        navigationLink="{{ getLinkForRiskInsightsTab(RiskInsightsTabType.AllApps) }}"
+        [showNavigationLink]="totalCriticalAppsAtRiskMemberCount > 0"
+      >
+      </dirt-activity-card>
+    </li>
+
+    <li class="tw-col-span-1">
+      <dirt-activity-card
+        #allAppsOrgAtRiskApplications
+        [title]="'criticalApplications' | i18n"
+        [cardMetrics]="
+          totalCriticalAppsCount === 0
+            ? ('countOfCriticalApplications' | i18n: totalCriticalAppsCount)
+            : ('countOfApplicationsAtRisk' | i18n: totalCriticalAppsAtRiskCount)
+        "
+        [metricDescription]="
+          totalCriticalAppsCount === 0
+            ? ('onceYouMarkApplicationsCriticalTheyWillDisplayHere' | i18n)
+            : ('criticalApplicationsAreAtRisk'
+              | i18n: totalCriticalAppsAtRiskCount : totalCriticalAppsCount)
+        "
+        navigationText="{{ 'viewAtRiskApplications' | i18n }}"
+        navigationLink="{{ getLinkForRiskInsightsTab(RiskInsightsTabType.CriticalApps) }}"
+        [showNavigationLink]="totalCriticalAppsAtRiskCount > 0"
+      >
+      </dirt-activity-card>
+    </li>
+
+    <li class="tw-col-span-1">
+      <dirt-activity-card
+        [title]="'applicationsNeedingReview' | i18n"
+        [cardMetrics]="'newApplicationsWithCount' | i18n: newApplicationsCount"
+        [metricDescription]="'newApplicationsDescription' | i18n"
+        [iconClass]="'bwi-exclamation-triangle'"
+        [buttonText]="'reviewNow' | i18n"
+        [buttonType]="'primary'"
+        (buttonClick)="onReviewNewApplications()"
+      >
+      </dirt-activity-card>
+    </li>
+  </ul>
+}

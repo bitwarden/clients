@@ -9,15 +9,16 @@ import {
   Validators,
 } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
-import { concatMap, firstValueFrom, Subject, takeUntil } from "rxjs";
+import { concatMap, firstValueFrom, Subject, switchMap, takeUntil } from "rxjs";
 
 import { ControlsOf } from "@bitwarden/angular/types/controls-of";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import {
   getOrganizationById,
-  OrganizationService,
+  InternalOrganizationServiceAbstraction,
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { OrganizationData } from "@bitwarden/common/admin-console/models/data/organization.data";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import {
@@ -33,6 +34,7 @@ import { OrganizationSsoRequest } from "@bitwarden/common/auth/models/request/or
 import { OrganizationSsoResponse } from "@bitwarden/common/auth/models/response/organization-sso.response";
 import { SsoConfigView } from "@bitwarden/common/auth/models/view/sso-config.view";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -120,6 +122,8 @@ export class SsoComponent implements OnInit, OnDestroy {
   spMetadataUrl: string;
   spAcsUrl: string;
 
+  showClientSecret = false;
+
   protected openIdForm = this.formBuilder.group<ControlsOf<SsoConfigView["openId"]>>(
     {
       authority: new FormControl("", Validators.required),
@@ -155,7 +159,7 @@ export class SsoComponent implements OnInit, OnDestroy {
 
       idpEntityId: new FormControl("", Validators.required),
       idpBindingType: new FormControl(Saml2BindingType.HttpRedirect),
-      idpSingleSignOnServiceUrl: new FormControl(),
+      idpSingleSignOnServiceUrl: new FormControl("", Validators.required),
       idpSingleLogoutServiceUrl: new FormControl(),
       idpX509PublicCert: new FormControl("", Validators.required),
       idpOutboundSigningAlgorithm: new FormControl(defaultSigningAlgorithm),
@@ -196,10 +200,11 @@ export class SsoComponent implements OnInit, OnDestroy {
     private apiService: ApiService,
     private platformUtilsService: PlatformUtilsService,
     private i18nService: I18nService,
-    private organizationService: OrganizationService,
+    private organizationService: InternalOrganizationServiceAbstraction,
     private accountService: AccountService,
     private organizationApiService: OrganizationApiServiceAbstraction,
     private toastService: ToastService,
+    private environmentService: EnvironmentService,
   ) {}
 
   async ngOnInit() {
@@ -250,6 +255,32 @@ export class SsoComponent implements OnInit, OnDestroy {
       .subscribe();
 
     this.showKeyConnectorOptions = this.platformUtilsService.isSelfHost();
+
+    // Only setup listener if key connector is a possible selection
+    if (this.showKeyConnectorOptions) {
+      this.listenForKeyConnectorSelection();
+    }
+  }
+
+  listenForKeyConnectorSelection() {
+    this.ssoConfigForm?.controls?.memberDecryptionType.valueChanges
+      .pipe(
+        switchMap(async (memberDecryptionType) => {
+          if (memberDecryptionType === MemberDecryptionType.KeyConnector) {
+            // Pre-populate a default key connector URL (user can still change it)
+            const env = await firstValueFrom(this.environmentService.environment$);
+            const webVaultUrl = env.getWebVaultUrl();
+            const defaultKeyConnectorUrl = webVaultUrl + "/key-connector/";
+
+            this.ssoConfigForm.controls.keyConnectorUrl.setValue(defaultKeyConnectorUrl);
+          } else {
+            // Otherwise clear the key connector URL
+            this.ssoConfigForm.controls.keyConnectorUrl.setValue("");
+          }
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe();
   }
 
   ngOnDestroy(): void {
@@ -297,6 +328,8 @@ export class SsoComponent implements OnInit, OnDestroy {
 
     const response = await this.organizationApiService.updateSso(this.organizationId, request);
     this.populateForm(response);
+
+    await this.upsertOrganizationWithSsoChanges(request);
 
     this.toastService.showToast({
       variant: "success",
@@ -398,5 +431,26 @@ export class SsoComponent implements OnInit, OnDestroy {
     }
 
     document.body.append(div);
+  }
+
+  private async upsertOrganizationWithSsoChanges(
+    organizationSsoRequest: OrganizationSsoRequest,
+  ): Promise<void> {
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const currentOrganization = await firstValueFrom(
+      this.organizationService
+        .organizations$(userId)
+        .pipe(getOrganizationById(this.organizationId)),
+    );
+
+    if (currentOrganization) {
+      const updatedOrganization: OrganizationData = {
+        ...currentOrganization,
+        ssoEnabled: organizationSsoRequest.enabled,
+        ssoMemberDecryptionType: organizationSsoRequest.data.memberDecryptionType,
+      };
+
+      await this.organizationService.upsert(updatedOrganization, userId);
+    }
   }
 }

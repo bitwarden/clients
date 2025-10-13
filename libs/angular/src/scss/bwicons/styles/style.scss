@@ -124,6 +124,7 @@ $icons: (
   "collection": "\e915",
   "collection-shared": "\e916",
   "clone": "\e917",
+  "dashboard": "\e9bf",
   "dollar": "\e919",
   "down-solid": "\e91a",
   "download": "\e91b",
@@ -167,6 +168,7 @@ $icons: (
   "plus-circle": "\e942",
   "plus": "\e943",
   "popout": "\e944",
+  "premium": "\e90d",
   "provider": "\e945",
   "puzzle": "\e946",
   "question-circle": "\e947",
@@ -197,6 +199,7 @@ $icons: (
   "credit-card": "\e9a2",
   "desktop": "\e9a3",
   "archive": "\e9c1",
+  "unarchive": "\e918",
 );
 
 @each $name, $glyph in $icons {

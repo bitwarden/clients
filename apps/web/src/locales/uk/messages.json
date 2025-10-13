@@ -2,6 +2,9 @@
   "allApplications": {
     "message": "Всі програми"
   },
+  "activity": {
+    "message": "Activity"
+  },
   "appLogoLabel": {
     "message": "Логотип Bitwarden"
   },
@@ -32,6 +35,9 @@
       }
     }
   },
+  "noReportRan": {
+    "message": "You have not created a report yet"
+  },
   "notifiedMembers": {
     "message": "Сповіщення учасників"
   },
@@ -56,8 +62,91 @@
   "createNewLoginItem": {
     "message": "Створити новий запис"
   },
+  "percentageCompleted": {
+    "message": "$PERCENT$% complete",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
+  "securityTasksCompleted": {
+    "message": "$COUNT$ out of $TOTAL$ security tasks completed",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "total": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "passwordChangeProgress": {
+    "message": "Password change progress"
+  },
+  "assignMembersTasksToMonitorProgress": {
+    "message": "Assign members tasks to monitor progress"
+  },
+  "onceYouReviewApplications": {
+    "message": "Once you review applications and mark them as critical, they will display here."
+  },
+  "sendReminders": {
+    "message": "Send reminders"
+  },
+  "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
+    "message": "Once you mark applications critical, they will display here."
+  },
+  "viewAtRiskMembers": {
+    "message": "View at-risk members"
+  },
+  "viewAtRiskApplications": {
+    "message": "View at-risk applications"
+  },
+  "criticalApplicationsAreAtRisk": {
+    "message": "$COUNT$ out of $TOTAL$ critical applications are at-risk due to at-risk passwords",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "total": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
   "criticalApplicationsWithCount": {
     "message": "Критичні програми ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfCriticalApplications": {
+    "message": "$COUNT$ critical applications",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfApplicationsAtRisk": {
+    "message": "$COUNT$ applications at-risk",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfAtRiskPasswords": {
+    "message": "$COUNT$ passwords at-risk",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -86,20 +175,35 @@
   "noAppsInOrgDescription": {
     "message": "Коли користувачі зберігатимуть записи, тут з'являтимуться програми з ризикованими паролями. Позначте критичні програми та сповіщайте користувачів про необхідність зміни паролів."
   },
-  "noCriticalAppsTitle": {
-    "message": "Ви не позначили жодної критичної програми"
+  "noCriticalApplicationsTitle": {
+    "message": "Ви не відмітили жодного додатку в якості критичного"
   },
-  "noCriticalAppsDescription": {
-    "message": "Виберіть найбільш критичні програми, для яких виявлятимуться ризиковані паролі, та сповіщайте користувачів про необхідність їх заміни."
+  "noCriticalApplicationsDescription": {
+    "message": "Select your most critical applications to prioritize security actions for your users to address at-risk passwords."
   },
-  "markCriticalApps": {
-    "message": "Позначити критичні програми"
+  "markCriticalApplications": {
+    "message": "Вибрати критичні додатки"
   },
   "markAppAsCritical": {
     "message": "Позначити програму критичною"
   },
+  "markAsCritical": {
+    "message": "Mark as critical"
+  },
+  "applicationsSelected": {
+    "message": "applications selected"
+  },
+  "selectApplication": {
+    "message": "Select application"
+  },
+  "unselectApplication": {
+    "message": "Unselect application"
+  },
   "applicationsMarkedAsCriticalSuccess": {
     "message": "Позначені критичні програми"
+  },
+  "applicationsMarkedAsCriticalFail": {
+    "message": "Failed to mark applications as critical"
   },
   "application": {
     "message": "Програма"
@@ -118,6 +222,18 @@
   },
   "atRiskMembers": {
     "message": "Ризиковані учасники"
+  },
+  "membersWithAccessToAtRiskItemsForCriticalApps": {
+    "message": "Members with access to at-risk items for critical applications"
+  },
+  "membersAtRiskCount": {
+    "message": "$COUNT$ members at-risk",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "atRiskMembersWithCount": {
     "message": "Учасники з ризиком ($COUNT$)",
@@ -176,11 +292,38 @@
   "totalApplications": {
     "message": "Всього програм"
   },
-  "unmarkAsCriticalApp": {
-    "message": "Зняти позначку критичної програми"
+  "applicationsNeedingReview": {
+    "message": "Applications needing review"
   },
-  "criticalApplicationSuccessfullyUnmarked": {
-    "message": "Позначку критичної програми знято"
+  "newApplicationsWithCount": {
+    "message": "$COUNT$ new applications",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "13"
+      }
+    }
+  },
+  "newApplicationsDescription": {
+    "message": "Review new applications to mark as critical and keep your organization secure"
+  },
+  "reviewNow": {
+    "message": "Review now"
+  },
+  "prioritizeCriticalApplications": {
+    "message": "Prioritize critical applications"
+  },
+  "atRiskItems": {
+    "message": "At-risk items"
+  },
+  "markAsCriticalPlaceholder": {
+    "message": "Mark as critical functionality will be implemented in a future update"
+  },
+  "unmarkAsCritical": {
+    "message": "Unmark as critical"
+  },
+  "criticalApplicationUnmarkedSuccessfully": {
+    "message": "Successfully unmarked application as critical"
   },
   "whatTypeOfItem": {
     "message": "Який це тип запису?"
@@ -734,32 +877,81 @@
   "viewItem": {
     "message": "Переглянути запис"
   },
-  "newItemHeader": {
-    "message": "Новий $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderLogin": {
+    "message": "New Login",
+    "description": "Header for new login item type"
   },
-  "editItemHeader": {
-    "message": "Редагувати $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderCard": {
+    "message": "New Card",
+    "description": "Header for new card item type"
   },
-  "viewItemType": {
-    "message": "Переглянути $ITEMTYPE$",
-    "placeholders": {
-      "itemtype": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderIdentity": {
+    "message": "New Identity",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "New Note",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "New SSH key",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderTextSend": {
+    "message": "New Text Send",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "New File Send",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderLogin": {
+    "message": "Edit Login",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Edit Card",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Edit Identity",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Edit Note",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "Edit SSH key",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Edit Text Send",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Edit File Send",
+    "description": "Header for edit file send"
+  },
+  "viewItemHeaderLogin": {
+    "message": "View Login",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "View Card",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "View Identity",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "View Note",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "View SSH key",
+    "description": "Header for view SSH key item type"
   },
   "new": {
     "message": "Новий",
@@ -866,6 +1058,15 @@
   },
   "copyLicenseNumber": {
     "message": "Копіювати номер ліцензії"
+  },
+  "copyPrivateKey": {
+    "message": "Копіювати закритий ключ"
+  },
+  "copyPublicKey": {
+    "message": "Копіювати відкритий ключ"
+  },
+  "copyFingerprint": {
+    "message": "Копіювати відбиток"
   },
   "copyName": {
     "message": "Копіювати ім'я"
@@ -1091,6 +1292,9 @@
   },
   "readingPasskeyLoadingInfo": {
     "message": "Не закривайте це вікно та дотримуйтесь підказок у браузері."
+  },
+  "passkeyAuthenticationFailed": {
+    "message": "Passkey authentication failed. Please try again."
   },
   "useADifferentLogInMethod": {
     "message": "Використати інший спосіб входу"
@@ -1386,6 +1590,15 @@
   "invalidMasterPassword": {
     "message": "Неправильний головний пароль"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "invalidFilePassword": {
     "message": "Неправильний пароль файлу. Використайте пароль, який ви вводили під час створення експортованого файлу."
   },
@@ -1394,6 +1607,30 @@
   },
   "noItemsInList": {
     "message": "Немає записів."
+  },
+  "noItemsInTrash": {
+    "message": "No items in trash"
+  },
+  "noItemsInTrashDesc": {
+    "message": "Items you delete will appear here and be permanently deleted after 30 days"
+  },
+  "noItemsInVault": {
+    "message": "No items in the vault"
+  },
+  "emptyVaultDescription": {
+    "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
+  },
+  "emptyFavorites": {
+    "message": "You haven't favorited any items"
+  },
+  "emptyFavoritesDesc": {
+    "message": "Add frequently used items to favorites for quick access."
+  },
+  "noSearchResults": {
+    "message": "No search results returned"
+  },
+  "clearFiltersOrTryAnother": {
+    "message": "Clear filters or try another search term"
   },
   "noPermissionToViewAllCollectionItems": {
     "message": "У вас немає повноважень на перегляд усіх записів у цій збірці."
@@ -1501,11 +1738,11 @@
   "selectTwoStepLoginMethod": {
     "message": "Виберіть спосіб двоетапної перевірки"
   },
-  "recoveryCodeDesc": {
-    "message": "Втратили доступ до всіх провайдерів двоетапної перевірки? Скористайтеся кодом відновлення, щоб вимкнути двоетапну перевірку для свого облікового запису."
-  },
   "recoveryCodeTitle": {
     "message": "Код відновлення"
+  },
+  "invalidRecoveryCode": {
+    "message": "Invalid recovery code"
   },
   "authenticatorAppTitle": {
     "message": "Програма автентифікації"
@@ -2051,10 +2288,10 @@
     "message": "Вибрати збірку"
   },
   "importTargetHintCollection": {
-    "message": "Select this option if you want the imported file contents moved to a collection"
+    "message": "Оберіть цю опцію, якщо ви хочете, щоб вміст імпортованого файлу було збережено до збірки"
   },
   "importTargetHintFolder": {
-    "message": "Select this option if you want the imported file contents moved to a folder"
+    "message": "Оберіть цю опцію, якщо ви хочете, щоб вміст імпортованого файлу було збережено до теки"
   },
   "importUnassignedItemsError": {
     "message": "Файл містить непризначені записи."
@@ -2102,11 +2339,8 @@
   "languageDesc": {
     "message": "Змінити мову інтерфейсу вебсховища."
   },
-  "enableFavicon": {
-    "message": "Показувати піктограми вебсайтів"
-  },
-  "faviconDesc": {
-    "message": "Показувати зображення біля кожного запису."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "default": {
     "message": "Типово"
@@ -2715,6 +2949,9 @@
   },
   "makeSureEnoughCredit": {
     "message": "Будь ласка, переконайтеся, що на вашому рахунку достатньо коштів для цієї покупки. Якщо на вашому рахунку недостатньо коштів, то різниця спишеться з використанням вашого типового способу оплати. Ви можете додати кошти до свого рахунку на сторінці Оплата."
+  },
+  "notEnoughAccountCredit": {
+    "message": "You do not have enough account credit for this purchase. You can add credit to your account from the Billing page."
   },
   "creditAppliedDesc": {
     "message": "Кредит вашого рахунку можна використовувати для покупок. Будь-який наявний кредит автоматично використовуватиметься для рахунків, згенерованих для цього облікового запису."
@@ -4124,6 +4361,9 @@
   "generatingYourRiskInsights": {
     "message": "Генерується інформація щодо ризиків..."
   },
+  "riskInsightsRunReport": {
+    "message": "Run report"
+  },
   "updateBrowserDesc": {
     "message": "Ви використовуєте непідтримуваний браузер. Вебсховище може працювати неправильно."
   },
@@ -4690,6 +4930,12 @@
   "organizationIsDisabled": {
     "message": "Організацію призупинено"
   },
+  "organizationIsSuspended": {
+    "message": "Organization is suspended"
+  },
+  "organizationIsSuspendedDesc": {
+    "message": "Items in suspended organizations cannot be accessed. Contact your organization owner for assistance."
+  },
   "secretsAccessSuspended": {
     "message": "До призупинених організацій не можна отримати доступ. Зверніться до власника вашої організації для отримання допомоги."
   },
@@ -4701,9 +4947,6 @@
   },
   "serviceAccountsCannotCreate": {
     "message": "У призупинених організаціях не можна створювати службові облікові записи. Зверніться до власника вашої організації для отримання допомоги."
-  },
-  "disabledOrganizationFilterError": {
-    "message": "Записи у призупинених організаціях недоступні. Зверніться до власника вашої організації для отримання допомоги."
   },
   "licenseIsExpired": {
     "message": "Термін дії ліцензії завершився."
@@ -5078,9 +5321,13 @@
   "ssoIdentifier": {
     "message": "SSO-ідентифікатор"
   },
-  "ssoIdentifierHintPartOne": {
-    "message": "Надайте цей ID своїм учасникам для входу з використанням SSO. Щоб обійти цей крок, налаштуйте ",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Provide this ID to your members to login with SSO. To bypass this step, set up Domain verification'"
+  "ssoIdentifierHint": {
+    "message": "Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. ",
+    "description": "This will be used as part of a larger sentence, broken up to include a link. The full sentence will read 'Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. Learn more'"
+  },
+  "claimedDomainsLearnMore": {
+    "message": "Learn more",
+    "description": "This will be used as part of a larger sentence, broken up to include a link. The full sentence will read 'Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. Learn more'"
   },
   "unlinkSso": {
     "message": "Від'єднати SSO"
@@ -5269,7 +5516,7 @@
     "description": "Title of the Send password authentication screen."
   },
   "sendAccessContentTitle": {
-    "message": "View Send",
+    "message": "Переглянути відправлення",
     "description": "Title of the Send view content screen."
   },
   "sendAccessUnavailable": {
@@ -5474,6 +5721,13 @@
   },
   "personalOwnershipSubmitError": {
     "message": "У зв'язку з політикою компанії, вам не дозволено зберігати записи до особистого сховища. Змініть налаштування власності на організацію та виберіть серед доступних збірок."
+  },
+  "desktopAutotypePolicy": {
+    "message": "Desktop Autotype Default Setting"
+  },
+  "desktopAutotypePolicyDesc": {
+    "message": "Turn Desktop Autotype ON by default for members. Members can turn Autotype off manually in the Desktop client.",
+    "description": "This policy will enable Desktop Autotype by default for members on Unlock."
   },
   "disableSend": {
     "message": "Вилучити відправлення"
@@ -6639,6 +6893,15 @@
   "disabledSso": {
     "message": "SSO вимкнено"
   },
+  "emailMustLoginWithSso": {
+    "message": "$EMAIL$ must login with Single Sign-on",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "enabledKeyConnector": {
     "message": "Key Connector увімкнено"
   },
@@ -6877,6 +7140,24 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "accessDenied": {
     "message": "Доступ заборонено. У вас немає дозволу на перегляд цієї сторінки."
   },
@@ -6987,7 +7268,7 @@
     "message": "Адреса е-пошти Catch-all"
   },
   "catchallEmailDesc": {
-    "message": "Використовуйте свою скриньку вхідних Catch-All власного домену."
+    "message": "Використовуйте можливості Catch-All власного домену."
   },
   "useThisEmail": {
     "message": "Використати цю е-пошту"
@@ -7030,6 +7311,9 @@
   },
   "unknownSecret": {
     "message": "Unknown secret, you may need to request permission to access this secret."
+  },
+  "unknownServiceAccount": {
+    "message": "Unknown machine account, you may need to request permission to access this machine account."
   },
   "unknownProject": {
     "message": "Unknown project, you may need to request permission to access this project."
@@ -7420,6 +7704,9 @@
   },
   "off": {
     "message": "Вимк"
+  },
+  "connected": {
+    "message": "Connected"
   },
   "members": {
     "message": "Учасники"
@@ -8275,12 +8562,6 @@
   "groupSlashUser": {
     "message": "Група/Користувач"
   },
-  "lowKdfIterations": {
-    "message": "Низьке значення ітерацій KDF"
-  },
-  "updateLowKdfIterationsDesc": {
-    "message": "Оновіть свої налаштування шифрування згідно з новими рекомендаціями щодо безпеки для вдосконалення захисту облікового запису."
-  },
   "kdfSettingsChangeLogoutWarning": {
     "message": "Продовжуючи, ви вийдете з усіх активних сеансів. Необхідно буде повторно виконати вхід і пройти двоетапну перевірку, якщо вона увімкнена. Перед зміною налаштувань шифрування ми рекомендуємо експортувати ваше сховище, щоб запобігти можливій втраті даних."
   },
@@ -8384,8 +8665,8 @@
       }
     }
   },
-  "accessedProjectWithId": {
-    "message": "Accessed a project with Id: $PROJECT_ID$.",
+  "accessedProjectWithIdentifier": {
+    "message": "Accessed a project with identifier: $PROJECT_ID$.",
     "placeholders": {
       "project_id": {
         "content": "$1",
@@ -8411,10 +8692,89 @@
       }
     }
   },
+  "nameUnavailableServiceAccountDeleted": {
+    "message": "Deleted machine account Id: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "service_account_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
   "editedProjectWithId": {
     "message": "Edited a project with identifier: $PROJECT_ID$",
     "placeholders": {
       "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "addedUserToServiceAccountWithId": {
+    "message": "Added user: $USER_ID$ to machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "user_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "removedUserToServiceAccountWithId": {
+    "message": "Removed user: $USER_ID$ from machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "user_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "removedGroupFromServiceAccountWithId": {
+    "message": "Removed group: $GROUP_ID$ from machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "group_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "serviceAccountCreatedWithId": {
+    "message": "Created machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "service_account_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "addedGroupToServiceAccountId": {
+    "message": "Added group: $GROUP_ID$ to machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "group_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "serviceAccountDeletedWithId": {
+    "message": "Deleted machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "service_account_id": {
         "content": "$1",
         "example": "4d34e8a8"
       }
@@ -8926,20 +9286,25 @@
   "collectionManagement": {
     "message": "Керування збіркою"
   },
-  "collectionManagementDesc": {
-    "message": "Керувати налаштуваннями збірок для організації"
+  "collectionManagementDescription": {
+    "message": "Configure the collection behavior for the organization"
   },
-  "limitCollectionCreationDesc": {
-    "message": "Дозволити створення збірок лише власникам та адміністраторам"
+  "allowAdminAccessToAllCollectionItemsDescription": {
+    "message": "Allow owners and admins to manage all collections and items from the Admin Console"
   },
-  "limitCollectionDeletionDesc": {
-    "message": "Дозволити видалення збірок лише власникам та адміністраторам"
+  "restrictCollectionCreationDescription": {
+    "message": "Restrict collection creation to owners and admins"
   },
-  "limitItemDeletionDescription": {
-    "message": "Обмежити видалення записів для учасників, які мають дозвіл на керування збірками"
+  "restrictCollectionDeletionDescription": {
+    "message": "Restrict collection deletion to owners and admins"
   },
-  "allowAdminAccessToAllCollectionItemsDesc": {
-    "message": "Власники та адміністратори можуть керувати всіма збірками та записами"
+  "restrictItemDeletionDescriptionStart": {
+    "message": "Restrict item deletion to members with the ",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
+  },
+  "restrictItemDeletionDescriptionEnd": {
+    "message": " permission",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
   },
   "updatedCollectionManagement": {
     "message": "Оновлено налаштування керування збірками"
@@ -9010,6 +9375,78 @@
   },
   "modifiedCollectionManagement": {
     "message": "Змінено налаштування керування збіркою $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationEnabled": {
+    "message": "Turned on Restrict collection creation setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationDisabled": {
+    "message": "Turned off Restrict collection creation setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionEnabled": {
+    "message": "Turned on Restrict collection deletion setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionDisabled": {
+    "message": "Turned off Restrict collection deletion setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionEnabled": {
+    "message": "Turned on Restrict item deletion setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionDisabled": {
+    "message": "Turned off Restrict item deletion setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsEnabled": {
+    "message": "Turned on Allow owners and admins to manage all collections and items setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsDisabled": {
+    "message": "Turned off Allow owners and admins to manage all collections and items setting $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -9178,6 +9615,9 @@
   },
   "assign": {
     "message": "Призначити"
+  },
+  "assignTasks": {
+    "message": "Assign tasks"
   },
   "assignToCollections": {
     "message": "Призначити до збірок"
@@ -9574,8 +10014,17 @@
   "crowdstrikeEventIntegrationDesc": {
     "message": "Send event data to your Logscale instance"
   },
+  "datadogEventIntegrationDesc": {
+    "message": "Send vault event data to your Datadog instance"
+  },
   "failedToSaveIntegration": {
     "message": "Failed to save integration. Please try again later."
+  },
+  "mustBeOrgOwnerToPerformAction": {
+    "message": "You must be the organization owner to perform this action."
+  },
+  "failedToDeleteIntegration": {
+    "message": "Failed to delete integration. Please try again later."
   },
   "deviceIdMissing": {
     "message": "Відсутній ID пристрою"
@@ -9594,6 +10043,15 @@
   },
   "connectIntegrationButtonDesc": {
     "message": "Connect $INTEGRATION$",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
+  },
+  "updateIntegrationButtonDesc": {
+    "message": "Update $INTEGRATION$",
     "placeholders": {
       "integration": {
         "content": "$1",
@@ -9663,6 +10121,9 @@
   },
   "bearerToken": {
     "message": "Bearer Token"
+  },
+  "repositoryNameHint": {
+    "message": "Name of the repository to ingest into"
   },
   "index": {
     "message": "Index"
@@ -9802,12 +10263,6 @@
         "example": "2"
       }
     }
-  },
-  "lowKDFIterationsBanner": {
-    "message": "Низьке значення ітерацій KDF. Збільште значення для посилення безпеки свого облікового запису."
-  },
-  "changeKDFSettings": {
-    "message": "Змінити налаштування KDF"
   },
   "secureYourInfrastructure": {
     "message": "Захистіть свою інфраструктуру"
@@ -10112,14 +10567,8 @@
   "learnMoreAboutApi": {
     "message": "Докладніше про Bitwarden API"
   },
-  "fileSend": {
-    "message": "Відправлення файлу"
-  },
   "fileSends": {
     "message": "Відправлення файлів"
-  },
-  "textSend": {
-    "message": "Відправлення тексту"
   },
   "textSends": {
     "message": "Відправлення тексту"
@@ -10807,6 +11256,12 @@
   "changeAtRiskPassword": {
     "message": "Змінити ризикований пароль"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
+  },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Вилучити розблокування з PIN-кодом"
   },
@@ -10827,6 +11282,23 @@
   },
   "cannotCreateCollection": {
     "message": "Безплатні організації можуть мати до 2 збірок. Передплатіть тарифний план, щоб додати більше збірок."
+  },
+  "searchArchive": {
+    "message": "Search archive"
+  },
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
+  },
+  "noItemsInArchive": {
+    "message": "No items in archive"
+  },
+  "archivedItemsDescription": {
+    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
   },
   "businessUnit": {
     "message": "Бізнес-підрозділ"
@@ -10935,6 +11407,12 @@
   "bitwardenExtensionInstalled": {
     "message": "Розширення Bitwarden встановлено!"
   },
+  "openTheBitwardenExtension": {
+    "message": "Open the Bitwarden extension"
+  },
+  "bitwardenExtensionInstalledOpenExtension": {
+    "message": "The Bitwarden extension is installed! Open the extension to log in and start autofilling."
+  },
   "openExtensionToAutofill": {
     "message": "Відкрийте розширення, щоб увійти й користуватися автозаповненням."
   },
@@ -10981,6 +11459,12 @@
   "billingAddressRequiredToAddCredit": {
     "message": "Щоб додати кредит, необхідно ввести платіжну адресу.",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
+  },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
   },
   "billingAddress": {
     "message": "Платіжна адреса"
@@ -11082,16 +11566,16 @@
     "message": "Unlimited secrets and projects"
   },
   "providersubscriptionCanceled": {
-    "message": "Subscription canceled"
+    "message": "Передплату скасовано"
   },
   "providersubCanceledmessage": {
     "message": "To resubscribe, contact Bitwarden Customer Support."
   },
   "showMore": {
-    "message": "Show more"
+    "message": "Розгорнути"
   },
   "showLess": {
-    "message": "Show less"
+    "message": "Згорнути"
   },
   "missingTaxId": {
     "message": "Missing Tax ID"
@@ -11142,6 +11626,182 @@
         "example": "92873837267"
       }
     }
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Confirm Key Connector domain"
+  },
+  "requiredToVerifyBankAccountWithStripe": {
+    "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
+  },
+  "verifyBankAccountWithStripe": {
+    "message": "We have made a micro-deposit to your bank account. This may take 1-2 business days. When you see the deposit in your account, you can verify your bank account. Failure to verify your bank account will result in a missed payment and your subscription will be suspended."
+  },
+  "verifyNow": {
+    "message": "Verify now."
+  },
+  "additionalStorageGB": {
+    "message": "Additional storage GB"
+  },
+  "additionalServiceAccountsV2": {
+    "message": "Additional machine accounts"
+  },
+  "secretsManagerSeats": {
+    "message": "Secrets Manager seats"
+  },
+  "additionalStorage": {
+    "message": "Additional Storage"
+  },
+  "expandPurchaseDetails": {
+    "message": "Expand purchase details"
+  },
+  "collapsePurchaseDetails": {
+    "message": "Collapse purchase details"
+  },
+  "familiesMembership": {
+    "message": "Families membership"
+  },
+  "planDescPremium": {
+    "message": "Complete online security"
+  },
+  "planDescFamiliesV2": {
+    "message": "Premium security for your family"
+  },
+  "planDescFreeV2": {
+    "message": "Share with $COUNT$ other user",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "planDescEnterpriseV2": {
+    "message": "Advanced capabilities for any organization"
+  },
+  "planNameCustom": {
+    "message": "Custom plan"
+  },
+  "planDescCustom": {
+    "message": "Bitwarden scales with businesses of all sizes to secure passwords and sensitive information. If you're part of a large enterprise, contact sales to request a quote."
+  },
+  "builtInAuthenticator": {
+    "message": "Built-in authenticator"
+  },
+  "breachMonitoring": {
+    "message": "Breach monitoring"
+  },
+  "andMoreFeatures": {
+    "message": "And more!"
+  },
+  "secureFileStorage": {
+    "message": "Secure file storage"
+  },
+  "familiesUnlimitedSharing": {
+    "message": "Unlimited sharing - choose who sees what"
+  },
+  "familiesUnlimitedCollections": {
+    "message": "Unlimited family collections"
+  },
+  "familiesSharedStorage": {
+    "message": "Shared storage for important family info"
+  },
+  "limitedUsersV2": {
+    "message": "Up to $COUNT$ members",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "limitedCollectionsV2": {
+    "message": "Up to $COUNT$ collections",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "alwaysFree": {
+    "message": "Always free"
+  },
+  "twoSecretsIncluded": {
+    "message": "2 secrets"
+  },
+  "projectsIncludedV2": {
+    "message": "$COUNT$ project(s)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "secureItemSharing": {
+    "message": "Secure item sharing"
+  },
+  "scimSupport": {
+    "message": "SCIM support"
+  },
+  "includedMachineAccountsV2": {
+    "message": "$COUNT$ machine accounts",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
+  },
+  "enterpriseSecurityPolicies": {
+    "message": "Enterprise security policies"
+  },
+  "selfHostOption": {
+    "message": "Self-host option"
+  },
+  "complimentaryFamiliesPlan": {
+    "message": "Complimentary families plan for all users"
+  },
+  "strengthenCybersecurity": {
+    "message": "Strengthen cybersecurity"
+  },
+  "boostProductivity": {
+    "message": "Boost productivity"
+  },
+  "seamlessIntegration": {
+    "message": "Seamless integration"
+  },
+  "families": {
+    "message": "Families"
+  },
+  "upgradeToFamilies": {
+    "message": "Upgrade to Families"
+  },
+  "upgradeToPremium": {
+    "message": "Upgrade to Premium"
+  },
+  "familiesUpdated": {
+    "message": "You've upgraded to Families!"
+  },
+  "taxCalculationError": {
+    "message": "There was an error calculating tax for your location. Please try again."
+  },
+  "individualUpgradeWelcomeMessage": {
+    "message": "Welcome to Bitwarden"
+  },
+  "individualUpgradeDescriptionMessage": {
+    "message": "Unlock more security features with Premium, or start sharing items with Families"
+  },
+  "individualUpgradeTaxInformationMessage": {
+    "message": "Prices exclude tax and are billed annually."
+  },
+  "organizationNameDescription": {
+    "message": "Your organization name will appear in invitations you send to members."
+  },
+  "continueWithoutUpgrading": {
+    "message": "Continue without upgrading"
+  },
+  "upgradeErrorMessage": {
+    "message": "We encountered an error while processing your upgrade. Please try again."
   }
 }
-

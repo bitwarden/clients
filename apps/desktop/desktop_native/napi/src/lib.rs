@@ -110,6 +110,7 @@ pub mod biometrics {
     /// If the iv is provided, it will be used as the challenge. Otherwise a random challenge will be generated.
     ///
     /// `format!("<key_base64>|<iv_base64>")`
+    #[allow(clippy::unused_async)] // FIXME: Remove unused async!
     #[napi]
     pub async fn derive_key_material(iv: Option<String>) -> napi::Result<OsDerivedKey> {
         Biometric::derive_key_material(iv.as_deref())
@@ -150,11 +151,13 @@ pub mod biometrics {
 
 #[napi]
 pub mod clipboards {
+    #[allow(clippy::unused_async)] // FIXME: Remove unused async!
     #[napi]
     pub async fn read() -> napi::Result<String> {
         desktop_core::clipboard::read().map_err(|e| napi::Error::from_reason(e.to_string()))
     }
 
+    #[allow(clippy::unused_async)] // FIXME: Remove unused async!
     #[napi]
     pub async fn write(text: String, password: bool) -> napi::Result<()> {
         desktop_core::clipboard::write(&text, password)
@@ -172,6 +175,7 @@ pub mod sshagent {
         threadsafe_function::{ErrorStrategy::CalleeHandled, ThreadsafeFunction},
     };
     use tokio::{self, sync::Mutex};
+    use tracing::error;
 
     #[napi]
     pub struct SshAgentState {
@@ -201,6 +205,7 @@ pub mod sshagent {
         pub namespace: Option<String>,
     }
 
+    #[allow(clippy::unused_async)] // FIXME: Remove unused async!
     #[napi]
     pub async fn serve(
         callback: ThreadsafeFunction<SshUIRequest, CalleeHandled>,
@@ -238,7 +243,7 @@ pub mod sshagent {
                                     .expect("should be able to send auth response to agent");
                             }
                             Err(e) => {
-                                println!("[SSH Agent Native Module] calling UI callback promise was rejected: {e}");
+                                error!(error = %e, "Calling UI callback promise was rejected");
                                 let _ = auth_response_tx_arc
                                     .lock()
                                     .await
@@ -247,7 +252,7 @@ pub mod sshagent {
                             }
                         },
                         Err(e) => {
-                            println!("[SSH Agent Native Module] calling UI callback could not create promise: {e}");
+                            error!(error = %e, "Calling UI callback could not create promise");
                             let _ = auth_response_tx_arc
                                 .lock()
                                 .await
@@ -262,9 +267,7 @@ pub mod sshagent {
         match desktop_core::ssh_agent::BitwardenDesktopAgent::start_server(
             auth_request_tx,
             Arc::new(Mutex::new(auth_response_rx)),
-        )
-        .await
-        {
+        ) {
             Ok(state) => Ok(SshAgentState { state }),
             Err(e) => Err(napi::Error::from_reason(e.to_string())),
         }
@@ -319,19 +322,24 @@ pub mod sshagent {
 
 #[napi]
 pub mod processisolations {
+    #[allow(clippy::unused_async)] // FIXME: Remove unused async!
     #[napi]
     pub async fn disable_coredumps() -> napi::Result<()> {
         desktop_core::process_isolation::disable_coredumps()
             .map_err(|e| napi::Error::from_reason(e.to_string()))
     }
+
+    #[allow(clippy::unused_async)] // FIXME: Remove unused async!
     #[napi]
     pub async fn is_core_dumping_disabled() -> napi::Result<bool> {
         desktop_core::process_isolation::is_core_dumping_disabled()
             .map_err(|e| napi::Error::from_reason(e.to_string()))
     }
+
+    #[allow(clippy::unused_async)] // FIXME: Remove unused async!
     #[napi]
-    pub async fn disable_memory_access() -> napi::Result<()> {
-        desktop_core::process_isolation::disable_memory_access()
+    pub async fn isolate_process() -> napi::Result<()> {
+        desktop_core::process_isolation::isolate_process()
             .map_err(|e| napi::Error::from_reason(e.to_string()))
     }
 }
@@ -367,12 +375,14 @@ pub mod powermonitors {
 
 #[napi]
 pub mod windows_registry {
+    #[allow(clippy::unused_async)] // FIXME: Remove unused async!
     #[napi]
     pub async fn create_key(key: String, subkey: String, value: String) -> napi::Result<()> {
         crate::registry::create_key(&key, &subkey, &value)
             .map_err(|e| napi::Error::from_reason(e.to_string()))
     }
 
+    #[allow(clippy::unused_async)] // FIXME: Remove unused async!
     #[napi]
     pub async fn delete_key(key: String, subkey: String) -> napi::Result<()> {
         crate::registry::delete_key(&key, &subkey)
@@ -432,6 +442,7 @@ pub mod ipc {
         ///
         /// @param name The endpoint name to listen on. This name uniquely identifies the IPC connection and must be the same for both the server and client.
         /// @param callback This function will be called whenever a message is received from a client.
+        #[allow(clippy::unused_async)] // FIXME: Remove unused async!
         #[napi(factory)]
         pub async fn listen(
             name: String,
@@ -503,6 +514,7 @@ pub mod autofill {
         ErrorStrategy, ThreadsafeFunction, ThreadsafeFunctionCallMode,
     };
     use serde::{de::DeserializeOwned, Deserialize, Serialize};
+    use tracing::error;
 
     #[napi]
     pub async fn run_command(value: String) -> napi::Result<String> {
@@ -609,12 +621,15 @@ pub mod autofill {
         server: desktop_core::ipc::server::Server,
     }
 
+    // FIXME: Remove unwraps! They panic and terminate the whole application.
+    #[allow(clippy::unwrap_used)]
     #[napi]
     impl IpcServer {
         /// Create and start the IPC server without blocking.
         ///
         /// @param name The endpoint name to listen on. This name uniquely identifies the IPC connection and must be the same for both the server and client.
         /// @param callback This function will be called whenever a message is received from a client.
+        #[allow(clippy::unused_async)] // FIXME: Remove unused async!
         #[napi(factory)]
         pub async fn listen(
             name: String,
@@ -655,7 +670,7 @@ pub mod autofill {
                         MessageType::Connected | MessageType::Disconnected => continue,
                         MessageType::Message => {
                             let Some(message) = message else {
-                                println!("[ERROR] Message is empty");
+                                error!("Message is empty");
                                 continue;
                             };
 
@@ -673,7 +688,7 @@ pub mod autofill {
                                     continue;
                                 }
                                 Err(e) => {
-                                    println!("[ERROR] Error deserializing message1: {e}");
+                                    error!(error = %e, "Error deserializing message1");
                                 }
                             }
 
@@ -692,7 +707,7 @@ pub mod autofill {
                                     continue;
                                 }
                                 Err(e) => {
-                                    println!("[ERROR] Error deserializing message1: {e}");
+                                    error!(error = %e, "Error deserializing message1");
                                 }
                             }
 
@@ -709,11 +724,11 @@ pub mod autofill {
                                     continue;
                                 }
                                 Err(e) => {
-                                    println!("[ERROR] Error deserializing message2: {e}");
+                                    error!(error = %e, "Error deserializing message2");
                                 }
                             }
 
-                            println!("[ERROR] Received an unknown message2: {message:?}");
+                            error!(message, "Received an unknown message2");
                         }
                     }
                 }
@@ -810,11 +825,28 @@ pub mod passkey_authenticator {
 
 #[napi]
 pub mod logging {
-    use log::{Level, Metadata, Record};
+    //! `logging` is the interface between the native desktop's usage of the `tracing` crate
+    //!  for logging, to intercept events and write to the JS space.
+    //!
+    //! # Example
+    //!
+    //! [Elec] 14:34:03.517 › [NAPI] [INFO] desktop_core::ssh_agent::platform_ssh_agent: Starting SSH Agent server {socket=/Users/foo/.bitwarden-ssh-agent.sock}
+
+    use std::fmt::Write;
+    use std::sync::OnceLock;
+
     use napi::threadsafe_function::{
         ErrorStrategy::CalleeHandled, ThreadsafeFunction, ThreadsafeFunctionCallMode,
     };
-    use std::sync::OnceLock;
+    use tracing::Level;
+    use tracing_subscriber::fmt::format::{DefaultVisitor, Writer};
+    use tracing_subscriber::{
+        filter::{EnvFilter, LevelFilter},
+        layer::SubscriberExt,
+        util::SubscriberInitExt,
+        Layer,
+    };
+
     struct JsLogger(OnceLock<ThreadsafeFunction<(LogLevel, String), CalleeHandled>>);
     static JS_LOGGER: JsLogger = JsLogger(OnceLock::new());
 
@@ -827,42 +859,176 @@ pub mod logging {
         Error,
     }
 
-    impl From<Level> for LogLevel {
-        fn from(level: Level) -> Self {
-            match level {
-                Level::Trace => LogLevel::Trace,
-                Level::Debug => LogLevel::Debug,
-                Level::Info => LogLevel::Info,
-                Level::Warn => LogLevel::Warn,
-                Level::Error => LogLevel::Error,
+    impl From<&Level> for LogLevel {
+        fn from(level: &Level) -> Self {
+            match *level {
+                Level::TRACE => LogLevel::Trace,
+                Level::DEBUG => LogLevel::Debug,
+                Level::INFO => LogLevel::Info,
+                Level::WARN => LogLevel::Warn,
+                Level::ERROR => LogLevel::Error,
             }
+        }
+    }
+
+    // JsLayer lets us intercept events and write them to the JS Logger.
+    struct JsLayer;
+
+    impl<S> Layer<S> for JsLayer
+    where
+        S: tracing::Subscriber,
+    {
+        // This function builds a log message buffer from the event data and
+        // calls the JS logger with it.
+        //
+        // For example, this log call:
+        //
+        // ```
+        // mod supreme {
+        //   mod module {
+        //     let foo = "bar";
+        //     info!(best_variable_name = %foo, "Foo done it again.");
+        //   }
+        // }
+        // ```
+        //
+        // , results in the following string:
+        //
+        // [INFO] supreme::module: Foo done it again. {best_variable_name=bar}
+        fn on_event(
+            &self,
+            event: &tracing::Event<'_>,
+            _ctx: tracing_subscriber::layer::Context<'_, S>,
+        ) {
+            let mut buffer = String::new();
+
+            // create the preamble text that precedes the message and vars. e.g.:
+            //     [INFO] desktop_core::ssh_agent::platform_ssh_agent:
+            let level = event.metadata().level().as_str();
+            let module_path = event.metadata().module_path().unwrap_or_default();
+
+            write!(&mut buffer, "[{level}] {module_path}:")
+                .expect("Failed to write tracing event to buffer");
+
+            let writer = Writer::new(&mut buffer);
+
+            // DefaultVisitor adds the message and variables to the buffer
+            let mut visitor = DefaultVisitor::new(writer, false);
+            event.record(&mut visitor);
+
+            let msg = (event.metadata().level().into(), buffer);
+
+            if let Some(logger) = JS_LOGGER.0.get() {
+                let _ = logger.call(Ok(msg), ThreadsafeFunctionCallMode::NonBlocking);
+            };
         }
     }
 
     #[napi]
     pub fn init_napi_log(js_log_fn: ThreadsafeFunction<(LogLevel, String), CalleeHandled>) {
         let _ = JS_LOGGER.0.set(js_log_fn);
-        let _ = log::set_logger(&JS_LOGGER);
-        log::set_max_level(log::LevelFilter::Debug);
+
+        let filter = EnvFilter::builder()
+            // set the default log level to INFO.
+            .with_default_directive(LevelFilter::INFO.into())
+            // parse directives from the RUST_LOG environment variable,
+            // overriding the default directive for matching targets.
+            .from_env_lossy();
+
+        tracing_subscriber::registry()
+            .with(filter)
+            .with(JsLayer)
+            .init();
+    }
+}
+
+#[napi]
+pub mod chromium_importer {
+    use bitwarden_chromium_importer::chromium::LoginImportResult as _LoginImportResult;
+    use bitwarden_chromium_importer::chromium::ProfileInfo as _ProfileInfo;
+
+    #[napi(object)]
+    pub struct ProfileInfo {
+        pub id: String,
+        pub name: String,
     }
 
-    impl log::Log for JsLogger {
-        fn enabled(&self, metadata: &Metadata) -> bool {
-            metadata.level() <= log::max_level()
-        }
+    #[napi(object)]
+    pub struct Login {
+        pub url: String,
+        pub username: String,
+        pub password: String,
+        pub note: String,
+    }
 
-        fn log(&self, record: &Record) {
-            if !self.enabled(record.metadata()) {
-                return;
+    #[napi(object)]
+    pub struct LoginImportFailure {
+        pub url: String,
+        pub username: String,
+        pub error: String,
+    }
+
+    #[napi(object)]
+    pub struct LoginImportResult {
+        pub login: Option<Login>,
+        pub failure: Option<LoginImportFailure>,
+    }
+
+    impl From<_LoginImportResult> for LoginImportResult {
+        fn from(l: _LoginImportResult) -> Self {
+            match l {
+                _LoginImportResult::Success(l) => LoginImportResult {
+                    login: Some(Login {
+                        url: l.url,
+                        username: l.username,
+                        password: l.password,
+                        note: l.note,
+                    }),
+                    failure: None,
+                },
+                _LoginImportResult::Failure(l) => LoginImportResult {
+                    login: None,
+                    failure: Some(LoginImportFailure {
+                        url: l.url,
+                        username: l.username,
+                        error: l.error,
+                    }),
+                },
             }
-            let Some(logger) = self.0.get() else {
-                return;
-            };
-            let msg = (record.level().into(), record.args().to_string());
-            let _ = logger.call(Ok(msg), ThreadsafeFunctionCallMode::NonBlocking);
         }
+    }
 
-        fn flush(&self) {}
+    impl From<_ProfileInfo> for ProfileInfo {
+        fn from(p: _ProfileInfo) -> Self {
+            ProfileInfo {
+                id: p.folder,
+                name: p.name,
+            }
+        }
+    }
+
+    #[napi]
+    pub fn get_installed_browsers() -> napi::Result<Vec<String>> {
+        bitwarden_chromium_importer::chromium::get_installed_browsers()
+            .map_err(|e| napi::Error::from_reason(e.to_string()))
+    }
+
+    #[napi]
+    pub fn get_available_profiles(browser: String) -> napi::Result<Vec<ProfileInfo>> {
+        bitwarden_chromium_importer::chromium::get_available_profiles(&browser)
+            .map(|profiles| profiles.into_iter().map(ProfileInfo::from).collect())
+            .map_err(|e| napi::Error::from_reason(e.to_string()))
+    }
+
+    #[napi]
+    pub async fn import_logins(
+        browser: String,
+        profile_id: String,
+    ) -> napi::Result<Vec<LoginImportResult>> {
+        bitwarden_chromium_importer::chromium::import_logins(&browser, &profile_id)
+            .await
+            .map(|logins| logins.into_iter().map(LoginImportResult::from).collect())
+            .map_err(|e| napi::Error::from_reason(e.to_string()))
     }
 }
 
@@ -878,8 +1044,11 @@ pub mod autotype {
     }
 
     #[napi]
-    pub fn type_input(input: Vec<u16>) -> napi::Result<(), napi::Status> {
-        autotype::type_input(input).map_err(|_| {
+    pub fn type_input(
+        input: Vec<u16>,
+        keyboard_shortcut: Vec<String>,
+    ) -> napi::Result<(), napi::Status> {
+        autotype::type_input(input, keyboard_shortcut).map_err(|_| {
             napi::Error::from_reason("Autotype Error: failed to type input".to_string())
         })
     }

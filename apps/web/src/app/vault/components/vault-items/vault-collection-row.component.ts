@@ -2,7 +2,12 @@
 // @ts-strict-ignore
 import { Component, EventEmitter, HostListener, Input, Output, ViewChild } from "@angular/core";
 
-import { CollectionAdminView, Unassigned, CollectionView } from "@bitwarden/admin-console/common";
+import {
+  CollectionAdminView,
+  Unassigned,
+  CollectionView,
+  CollectionTypes,
+} from "@bitwarden/admin-console/common";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
@@ -11,6 +16,7 @@ import { MenuTriggerForDirective } from "@bitwarden/components";
 import { GroupView } from "../../../admin-console/organizations/core";
 
 import {
+  CollectionPermission,
   convertToPermission,
   getPermissionList,
 } from "./../../../admin-console/organizations/shared/components/access-selector/access-selector.models";
@@ -25,6 +31,8 @@ import { RowHeightClass } from "./vault-items.component";
 export class VaultCollectionRowComponent<C extends CipherViewLike> {
   protected RowHeightClass = RowHeightClass;
   protected Unassigned = "unassigned";
+  protected CollectionPermission = CollectionPermission;
+  protected DefaultCollectionType = CollectionTypes.DefaultUserCollection;
 
   @ViewChild(MenuTriggerForDirective, { static: false }) menuTrigger: MenuTriggerForDirective;
 
@@ -103,6 +111,15 @@ export class VaultCollectionRowComponent<C extends CipherViewLike> {
 
   protected access(readonly: boolean) {
     this.onEvent.next({ type: "viewCollectionAccess", item: this.collection, readonly: readonly });
+  }
+
+  protected addAccess(initialPermission: CollectionPermission) {
+    this.onEvent.next({
+      type: "viewCollectionAccess",
+      item: this.collection,
+      readonly: false,
+      initialPermission,
+    });
   }
 
   protected deleteCollection() {

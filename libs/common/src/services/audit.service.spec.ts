@@ -1,4 +1,5 @@
 import { ApiService } from "../abstractions/api.service";
+import { HibpApiService } from "../dirt/services/hibp-api.service";
 import { CryptoFunctionService } from "../key-management/crypto/abstractions/crypto-function.service";
 import { ErrorResponse } from "../models/response/error.response";
 
@@ -17,6 +18,7 @@ describe("AuditService", () => {
   let auditService: AuditService;
   let mockCrypto: jest.Mocked<CryptoFunctionService>;
   let mockApi: jest.Mocked<ApiService>;
+  let mockHibpApi: jest.Mocked<HibpApiService>;
 
   beforeEach(() => {
     mockCrypto = {
@@ -27,10 +29,13 @@ describe("AuditService", () => {
       nativeFetch: jest.fn().mockResolvedValue({
         text: jest.fn().mockResolvedValue(`CDDEEFF:4\nDDEEFF:2\n123456:1`),
       }),
-      getHibpBreach: jest.fn(),
     } as unknown as jest.Mocked<ApiService>;
 
-    auditService = new AuditService(mockCrypto, mockApi, 2);
+    mockHibpApi = {
+      getHibpBreach: jest.fn(),
+    } as unknown as jest.Mocked<HibpApiService>;
+
+    auditService = new AuditService(mockCrypto, mockApi, mockHibpApi, 2);
   });
 
   it("should not exceed max concurrent passwordLeaked requests", async () => {
@@ -69,13 +74,13 @@ describe("AuditService", () => {
   });
 
   it("should return empty array for breachedAccounts on 404", async () => {
-    mockApi.getHibpBreach.mockRejectedValueOnce({ statusCode: 404 } as ErrorResponse);
+    mockHibpApi.getHibpBreach.mockRejectedValueOnce({ statusCode: 404 } as ErrorResponse);
     const result = await auditService.breachedAccounts("user@example.com");
     expect(result).toEqual([]);
   });
 
   it("should throw error for breachedAccounts on non-404 error", async () => {
-    mockApi.getHibpBreach.mockRejectedValueOnce({ statusCode: 500 } as ErrorResponse);
+    mockHibpApi.getHibpBreach.mockRejectedValueOnce({ statusCode: 500 } as ErrorResponse);
     await expect(auditService.breachedAccounts("user@example.com")).rejects.toThrow();
   });
 });

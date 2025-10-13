@@ -1,6 +1,5 @@
 import { Observable } from "rxjs";
 
-import { EncryptedOrganizationKeyData } from "@bitwarden/common/admin-console/models/data/encrypted-organization-key.data";
 import { ProfileOrganizationResponse } from "@bitwarden/common/admin-console/models/response/profile-organization.response";
 import { ProfileProviderOrganizationResponse } from "@bitwarden/common/admin-console/models/response/profile-provider-organization.response";
 import { ProfileProviderResponse } from "@bitwarden/common/admin-console/models/response/profile-provider.response";
@@ -8,6 +7,7 @@ import {
   EncryptedString,
   EncString,
 } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { WrappedSigningKey } from "@bitwarden/common/key-management/types";
 import { KeySuffixOptions, HashPurpose } from "@bitwarden/common/platform/enums";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
@@ -237,8 +237,10 @@ export abstract class KeyService {
    */
   abstract getOrgKey(orgId: string): Promise<OrgKey | null>;
   /**
-   * Uses the org key to derive a new symmetric key for encrypting data
-   * @param key The organization's symmetric key
+   * Makes a fresh attachment content encryption key and returns it along with a wrapped (encrypted) version of it.
+   * @deprecated Do not use this for new code / new cryptographic designs.
+   * @param key The organization's symmetric key or the user's user key to wrap the attachment key with
+   * @returns The new attachment content encryption key and the wrapped version of it
    */
   abstract makeDataEncKey<T extends UserKey | OrgKey>(
     key: T,
@@ -260,11 +262,12 @@ export abstract class KeyService {
   /**
    * Creates a new organization key and encrypts it with the user's public key.
    * This method can also return Provider keys for creating new Provider users.
-   *
-   * @throws Error when no active user or user have no public key
-   * @returns The new encrypted org key and the decrypted key itself
+   * @param userId The user id of the target user's public key to use.
+   * @throws Error when userId is null or undefined.
+   * @throws Error when no public key is found for the target user.
+   * @returns The new encrypted OrgKey | ProviderKey and the decrypted key itself
    */
-  abstract makeOrgKey<T extends OrgKey | ProviderKey>(): Promise<[EncString, T]>;
+  abstract makeOrgKey<T extends OrgKey | ProviderKey>(userId: UserId): Promise<[EncString, T]>;
   /**
    * Sets the user's encrypted private key in storage and
    * clears the decrypted private key from memory
@@ -272,6 +275,14 @@ export abstract class KeyService {
    * @param encPrivateKey An encrypted private key
    */
   abstract setPrivateKey(encPrivateKey: string, userId: UserId): Promise<void>;
+  /**
+   * Sets the user's encrypted signing key in storage
+   * In contrast to the private key, the decrypted signing key
+   * is not stored in memory outside of the SDK.
+   * @param encryptedSigningKey An encrypted signing key
+   * @param userId The user id of the user to set the signing key for
+   */
+  abstract setUserSigningKey(encryptedSigningKey: WrappedSigningKey, userId: UserId): Promise<void>;
 
   /**
    * Gets an observable stream of the given users decrypted private key, will emit null if the user
@@ -406,9 +417,7 @@ export abstract class KeyService {
    * @deprecated Temporary function to allow the SDK to be initialized after the login process, it
    * will be removed when auth has been migrated to the SDK.
    */
-  abstract encryptedOrgKeys$(
-    userId: UserId,
-  ): Observable<Record<OrganizationId, EncryptedOrganizationKeyData> | null>;
+  abstract encryptedOrgKeys$(userId: UserId): Observable<Record<OrganizationId, EncString>>;
 
   /**
    * Gets an observable stream of the users public key. If the user is does not have
@@ -418,7 +427,13 @@ export abstract class KeyService {
    *
    * @throws If an invalid user id is passed in.
    */
-  abstract userPublicKey$(userId: UserId): Observable<UserPublicKey | null>;
+  abstract userPublicKey$(userId: UserId): Observable<Uint8Array | null>;
+
+  /**
+   * Gets a users signing keys from local state.
+   * The observable will emit null, exactly if the local state returns null.
+   */
+  abstract userSigningKey$(userId: UserId): Observable<WrappedSigningKey | null>;
 
   /**
    * Validates that a userkey is correct for a given user

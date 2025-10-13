@@ -17,6 +17,7 @@ import {
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { SortDirection, TableDataSource } from "@bitwarden/components";
+import { OrganizationId } from "@bitwarden/sdk-internal";
 
 import { GroupView } from "../../../admin-console/organizations/core";
 
@@ -310,7 +311,7 @@ export class VaultItemsComponent<C extends CipherViewLike> {
     const orgCollections = this.allCollections.filter((c) => c.organizationId === org.id);
 
     for (const collection of orgCollections) {
-      if (vaultItem.cipher.collectionIds.includes(collection.id) && collection.manage) {
+      if (vaultItem.cipher.collectionIds.includes(collection.id as any) && collection.manage) {
         return true;
       }
     }
@@ -364,7 +365,7 @@ export class VaultItemsComponent<C extends CipherViewLike> {
     }
 
     return this.allCollections
-      .filter((c) => cipher.collectionIds.includes(c.id))
+      .filter((c) => cipher.collectionIds.includes(c.id as any))
       .some((collection) => collection.manage);
   }
 
@@ -579,7 +580,7 @@ export class VaultItemsComponent<C extends CipherViewLike> {
       .every(({ cipher }) => cipher?.edit && cipher?.viewPassword);
   }
 
-  private getUniqueOrganizationIds(): Set<string> {
+  private getUniqueOrganizationIds(): Set<string | [] | OrganizationId> {
     return new Set(this.selection.selected.flatMap((i) => i.cipher?.organizationId ?? []));
   }
 

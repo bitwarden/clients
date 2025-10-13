@@ -1,75 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-
-import { Opaque } from "type-fest";
-
-import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { BadgeVariant } from "@bitwarden/components";
 
-/**
- * All applications report summary. The total members,
- * total at risk members, application, and at risk application
- * counts. Aggregated from all calculated applications
- */
-export type ApplicationHealthReportSummary = {
-  totalMemberCount: number;
-  totalAtRiskMemberCount: number;
-  totalApplicationCount: number;
-  totalAtRiskApplicationCount: number;
-};
-
-/**
- * All applications report detail. Application is the cipher
- * uri. Has the at risk, password, and member information
- */
-export type ApplicationHealthReportDetail = {
-  applicationName: string;
-  passwordCount: number;
-  atRiskPasswordCount: number;
-  atRiskCipherIds: string[];
-  memberCount: number;
-  atRiskMemberCount: number;
-  memberDetails: MemberDetailsFlat[];
-  atRiskMemberDetails: MemberDetailsFlat[];
-  cipherIds: string[];
-};
-
-export type ApplicationHealthReportDetailWithCriticalFlag = ApplicationHealthReportDetail & {
-  isMarkedAsCritical: boolean;
-};
-
-export type ApplicationHealthReportDetailWithCriticalFlagAndCipher =
-  ApplicationHealthReportDetailWithCriticalFlag & {
-    ciphers: CipherView[];
-  };
-
-/**
- * Breaks the cipher health info out by uri and passes
- * along the password health and member info
- */
-export type CipherHealthReportUriDetail = {
-  cipherId: string;
-  reusedPasswordCount: number;
-  weakPasswordDetail: WeakPasswordDetail;
-  exposedPasswordDetail: ExposedPasswordDetail;
-  cipherMembers: MemberDetailsFlat[];
-  trimmedUri: string;
-  cipher: CipherView;
-};
-
-/**
- * Associates a cipher with it's essential information.
- * Gets the password health details, cipher members, and
- * the trimmed uris for the cipher
- */
-export type CipherHealthReportDetail = CipherView & {
-  reusedPasswordCount: number;
-  weakPasswordDetail: WeakPasswordDetail;
-  exposedPasswordDetail: ExposedPasswordDetail;
-  cipherMembers: MemberDetailsFlat[];
-  trimmedUris: string[];
-};
+import { ApplicationHealthReportDetail } from "./report-models";
 
 /**
  * Weak password details containing the score
@@ -97,81 +31,36 @@ export type ExposedPasswordDetail = {
   exposedXTimes: number;
 } | null;
 
-/**
- * Flattened member details that associates an
- * organization member to a cipher
- */
-export type MemberDetailsFlat = {
+export type LEGACY_MemberDetailsFlat = {
   userGuid: string;
   userName: string;
   email: string;
   cipherId: string;
 };
 
-/**
- * Member email with the number of at risk passwords
- * At risk member detail that contains the email
- * and the count of at risk ciphers
- */
-export type AtRiskMemberDetail = {
-  email: string;
-  atRiskPasswordCount: number;
+export type LEGACY_ApplicationHealthReportDetailWithCriticalFlag = ApplicationHealthReportDetail & {
+  isMarkedAsCritical: boolean;
 };
 
-/*
- * A list of applications and the count of
- * at risk passwords for each application
- */
-export type AtRiskApplicationDetail = {
-  applicationName: string;
-  atRiskPasswordCount: number;
+export type LEGACY_ApplicationHealthReportDetailWithCriticalFlagAndCipher =
+  LEGACY_ApplicationHealthReportDetailWithCriticalFlag & {
+    ciphers: CipherView[];
+  };
+
+export type LEGACY_CipherHealthReportDetail = CipherView & {
+  reusedPasswordCount: number;
+  weakPasswordDetail: WeakPasswordDetail;
+  exposedPasswordDetail: ExposedPasswordDetail;
+  cipherMembers: LEGACY_MemberDetailsFlat[];
+  trimmedUris: string[];
 };
 
-export type AppAtRiskMembersDialogParams = {
-  members: MemberDetailsFlat[];
-  applicationName: string;
+export type LEGACY_CipherHealthReportUriDetail = {
+  cipherId: string;
+  reusedPasswordCount: number;
+  weakPasswordDetail: WeakPasswordDetail;
+  exposedPasswordDetail: ExposedPasswordDetail;
+  cipherMembers: LEGACY_MemberDetailsFlat[];
+  trimmedUri: string;
+  cipher: CipherView;
 };
-
-/**
- * Request to drop a password health report application
- * Model is expected by the API endpoint
- */
-export interface PasswordHealthReportApplicationDropRequest {
-  organizationId: OrganizationId;
-  passwordHealthReportApplicationIds: string[];
-}
-
-/**
- * Response from the API after marking an app as critical
- */
-export interface PasswordHealthReportApplicationsResponse {
-  id: PasswordHealthReportApplicationId;
-  organizationId: OrganizationId;
-  uri: string;
-}
-/*
- * Request to save a password health report application
- * Model is expected by the API endpoint
- */
-export interface PasswordHealthReportApplicationsRequest {
-  organizationId: OrganizationId;
-  url: string;
-}
-
-export interface EncryptedDataModel {
-  organizationId: OrganizationId;
-  encryptedData: string;
-  encryptionKey: string;
-  date: Date;
-}
-
-// FIXME: update to use a const object instead of a typescript enum
-// eslint-disable-next-line @bitwarden/platform/no-enums
-export enum DrawerType {
-  None = 0,
-  AppAtRiskMembers = 1,
-  OrgAtRiskMembers = 2,
-  OrgAtRiskApps = 3,
-}
-
-export type PasswordHealthReportApplicationId = Opaque<string, "PasswordHealthReportApplicationId">;

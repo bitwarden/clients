@@ -7,6 +7,7 @@ import { RouterModule } from "@angular/router";
 import { BehaviorSubject, Observable, Subject, combineLatest, firstValueFrom, of } from "rxjs";
 import { concatMap, map, pairwise, startWith, switchMap, takeUntil, timeout } from "rxjs/operators";
 
+import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { VaultTimeoutInputComponent } from "@bitwarden/auth/angular";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -17,6 +18,7 @@ import { UserVerificationService as UserVerificationServiceAbstraction } from "@
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { DeviceType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
@@ -38,6 +40,7 @@ import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums/theme-type.e
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { UserId } from "@bitwarden/common/types/guid";
+import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import {
   CheckboxModule,
   DialogService,
@@ -55,17 +58,25 @@ import { KeyService, BiometricStateService, BiometricsStatus } from "@bitwarden/
 import { PermitCipherDetailsPopoverComponent } from "@bitwarden/vault";
 
 import { SetPinComponent } from "../../auth/components/set-pin.component";
+import { AutotypeShortcutComponent } from "../../autofill/components/autotype-shortcut.component";
 import { SshAgentPromptType } from "../../autofill/models/ssh-agent-setting";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
 import { DesktopAutotypeService } from "../../autofill/services/desktop-autotype.service";
 import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
+import { DesktopPremiumUpgradePromptService } from "../../services/desktop-premium-upgrade-prompt.service";
 import { NativeMessagingManifestService } from "../services/native-messaging-manifest.service";
 
 @Component({
   selector: "app-settings",
   templateUrl: "settings.component.html",
   standalone: true,
+  providers: [
+    {
+      provide: PremiumUpgradePromptService,
+      useClass: DesktopPremiumUpgradePromptService,
+    },
+  ],
   imports: [
     CheckboxModule,
     CommonModule,
@@ -83,6 +94,7 @@ import { NativeMessagingManifestService } from "../services/native-messaging-man
     TypographyModule,
     VaultTimeoutInputComponent,
     PermitCipherDetailsPopoverComponent,
+    PremiumBadgeComponent,
   ],
 })
 export class SettingsComponent implements OnInit, OnDestroy {
@@ -100,6 +112,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   requireEnableTray = false;
   showDuckDuckGoIntegrationOption = false;
   showEnableAutotype = false;
+  autotypeShortcut: string;
   showOpenAtLoginOption = false;
   isWindows: boolean;
   isLinux: boolean;
@@ -158,7 +171,11 @@ export class SettingsComponent implements OnInit, OnDestroy {
     sshAgentPromptBehavior: SshAgentPromptType.Always,
     allowScreenshots: false,
     enableDuckDuckGoBrowserIntegration: false,
-    enableAutotype: false,
+    enableAutotype: this.formBuilder.control<boolean>({
+      value: false,
+      disabled: true,
+    }),
+    autotypeShortcut: [null as string | null],
     theme: [null as Theme | null],
     locale: [null as string | null],
   });
@@ -193,6 +210,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     private validationService: ValidationService,
     private changeDetectorRef: ChangeDetectorRef,
     private toastService: ToastService,
+    private billingAccountProfileStateService: BillingAccountProfileStateService,
   ) {
     this.isMac = this.platformUtilsService.getDevice() === DeviceType.MacOsDesktop;
     this.isLinux = this.platformUtilsService.getDevice() === DeviceType.LinuxDesktop;
@@ -268,10 +286,14 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
     // Autotype is for Windows initially
     const isWindows = this.platformUtilsService.getDevice() === DeviceType.WindowsDesktop;
-    const windowsDesktopAutotypeFeatureFlag = await this.configService.getFeatureFlag(
-      FeatureFlag.WindowsDesktopAutotype,
-    );
-    this.showEnableAutotype = isWindows && windowsDesktopAutotypeFeatureFlag;
+    if (isWindows) {
+      this.configService
+        .getFeatureFlag$(FeatureFlag.WindowsDesktopAutotype)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe((enabled) => {
+          this.showEnableAutotype = enabled;
+        });
+    }
 
     this.userHasMasterPassword = await this.userVerificationService.hasMasterPassword();
 
@@ -377,7 +399,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
         this.desktopSettingsService.sshAgentPromptBehavior$,
       ),
       allowScreenshots: !(await firstValueFrom(this.desktopSettingsService.preventScreenshots$)),
-      enableAutotype: await firstValueFrom(this.desktopAutotypeService.autotypeEnabled$),
+      enableAutotype: await firstValueFrom(this.desktopAutotypeService.autotypeEnabledUserSetting$),
+      autotypeShortcut: this.getFormattedAutotypeShortcutText(
+        (await firstValueFrom(this.desktopAutotypeService.autotypeKeyboardShortcut$)) ?? [],
+      ),
       theme: await firstValueFrom(this.themeStateService.selectedTheme$),
       locale: await firstValueFrom(this.i18nService.userSetLocale$),
     };
@@ -401,6 +426,17 @@ export class SettingsComponent implements OnInit, OnDestroy {
       .subscribe((action) => {
         this.form.controls.vaultTimeoutAction.setValue(action, { emitEvent: false });
       });
+
+    if (isWindows) {
+      this.billingAccountProfileStateService
+        .hasPremiumFromAnySource$(activeAccount.id)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe((hasPremium) => {
+          if (hasPremium) {
+            this.form.controls.enableAutotype.enable();
+          }
+        });
+    }
 
     // Form events
     this.form.controls.vaultTimeout.valueChanges
@@ -867,6 +903,29 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   async saveEnableAutotype() {
     await this.desktopAutotypeService.setAutotypeEnabledState(this.form.value.enableAutotype);
+    const currentShortcut = await firstValueFrom(
+      this.desktopAutotypeService.autotypeKeyboardShortcut$,
+    );
+    if (currentShortcut) {
+      this.form.controls.autotypeShortcut.setValue(
+        this.getFormattedAutotypeShortcutText(currentShortcut),
+      );
+    }
+  }
+
+  async saveAutotypeShortcut() {
+    const dialogRef = AutotypeShortcutComponent.open(this.dialogService);
+
+    const newShortcutArray = await firstValueFrom(dialogRef.closed);
+
+    if (!newShortcutArray) {
+      return;
+    }
+
+    this.form.controls.autotypeShortcut.setValue(
+      this.getFormattedAutotypeShortcutText(newShortcutArray),
+    );
+    await this.desktopAutotypeService.setAutotypeKeyboardShortcutState(newShortcutArray);
   }
 
   private async generateVaultTimeoutOptions(): Promise<VaultTimeoutOption[]> {
@@ -913,5 +972,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
       default:
         throw new Error("Unsupported platform");
     }
+  }
+
+  getFormattedAutotypeShortcutText(shortcut: string[]) {
+    return shortcut ? shortcut.join("+").replace("Super", "Win") : null;
   }
 }

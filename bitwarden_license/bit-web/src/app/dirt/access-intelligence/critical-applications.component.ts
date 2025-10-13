@@ -4,37 +4,33 @@ import { Component, DestroyRef, inject, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { combineLatest, debounceTime, map, switchMap } from "rxjs";
+import { debounceTime, EMPTY, map, switchMap } from "rxjs";
 
 import { Security } from "@bitwarden/assets/svg";
 import {
+  ApplicationHealthReportDetailEnriched,
   CriticalAppsService,
   RiskInsightsDataService,
   RiskInsightsReportService,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights";
-import {
-  ApplicationHealthReportDetailWithCriticalFlag,
-  ApplicationHealthReportDetailWithCriticalFlagAndCipher,
-  ApplicationHealthReportSummary,
-} from "@bitwarden/bit-common/dirt/reports/risk-insights/models/password-health";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { createNewSummaryData } from "@bitwarden/bit-common/dirt/reports/risk-insights/helpers";
+import { OrganizationReportSummary } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/report-models";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { CipherId, OrganizationId } from "@bitwarden/common/types/guid";
-import { SecurityTaskType } from "@bitwarden/common/vault/tasks";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { NoItemsModule, SearchModule, TableDataSource, ToastService } from "@bitwarden/components";
 import { CardComponent } from "@bitwarden/dirt-card";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 import { PipesModule } from "@bitwarden/web-vault/app/vault/individual-vault/pipes/pipes.module";
 
-import { CreateTasksRequest } from "../../vault/services/abstractions/admin-task.abstraction";
 import { DefaultAdminTaskService } from "../../vault/services/default-admin-task.service";
 
 import { AppTableRowScrollableComponent } from "./app-table-row-scrollable.component";
 import { RiskInsightsTabType } from "./risk-insights.component";
+import { AccessIntelligenceSecurityTasksService } from "./shared/security-tasks.service";
 
 @Component({
-  selector: "tools-critical-applications",
+  selector: "dirt-critical-applications",
   templateUrl: "./critical-applications.component.html",
   imports: [
     CardComponent,
@@ -45,55 +41,62 @@ import { RiskInsightsTabType } from "./risk-insights.component";
     SharedModule,
     AppTableRowScrollableComponent,
   ],
-  providers: [DefaultAdminTaskService],
+  providers: [AccessIntelligenceSecurityTasksService, DefaultAdminTaskService],
 })
 export class CriticalApplicationsComponent implements OnInit {
-  protected dataSource =
-    new TableDataSource<ApplicationHealthReportDetailWithCriticalFlagAndCipher>();
-  protected selectedIds: Set<number> = new Set<number>();
-  protected searchControl = new FormControl("", { nonNullable: true });
   private destroyRef = inject(DestroyRef);
   protected loading = false;
-  protected organizationId: string;
-  protected applicationSummary = {} as ApplicationHealthReportSummary;
+  protected enableRequestPasswordChange = false;
+  protected organizationId: OrganizationId;
   noItemsIcon = Security;
-  enableRequestPasswordChange = false;
+
+  protected dataSource = new TableDataSource<ApplicationHealthReportDetailEnriched>();
+  protected applicationSummary = {} as OrganizationReportSummary;
+
+  protected selectedIds: Set<number> = new Set<number>();
+  protected searchControl = new FormControl("", { nonNullable: true });
+
+  constructor(
+    protected activatedRoute: ActivatedRoute,
+    protected router: Router,
+    protected toastService: ToastService,
+    protected dataService: RiskInsightsDataService,
+    protected criticalAppsService: CriticalAppsService,
+    protected reportService: RiskInsightsReportService,
+    protected i18nService: I18nService,
+    private accessIntelligenceSecurityTasksService: AccessIntelligenceSecurityTasksService,
+  ) {
+    this.searchControl.valueChanges
+      .pipe(debounceTime(200), takeUntilDestroyed())
+      .subscribe((v) => (this.dataSource.filter = v));
+  }
 
   async ngOnInit() {
-    this.organizationId = this.activatedRoute.snapshot.paramMap.get("organizationId") ?? "";
-
-    combineLatest([
-      this.dataService.applications$,
-      this.criticalAppsService.getAppsListForOrg(this.organizationId),
-    ])
+    this.dataService.criticalReportResults$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (criticalReport) => {
+        this.dataSource.data = criticalReport?.reportData ?? [];
+        this.applicationSummary = criticalReport?.summaryData ?? createNewSummaryData();
+        this.enableRequestPasswordChange = criticalReport?.summaryData?.totalAtRiskMemberCount > 0;
+      },
+      error: () => {
+        this.dataSource.data = [];
+        this.applicationSummary = createNewSummaryData();
+        this.enableRequestPasswordChange = false;
+      },
+    });
+    this.activatedRoute.paramMap
       .pipe(
         takeUntilDestroyed(this.destroyRef),
-        map(([applications, criticalApps]) => {
-          const criticalUrls = criticalApps.map((ca) => ca.uri);
-          const data = applications?.map((app) => ({
-            ...app,
-            isMarkedAsCritical: criticalUrls.includes(app.applicationName),
-          })) as ApplicationHealthReportDetailWithCriticalFlag[];
-          return data?.filter((app) => app.isMarkedAsCritical);
-        }),
-        switchMap(async (data) => {
-          if (data) {
-            const dataWithCiphers = await this.reportService.identifyCiphers(
-              data,
-              this.organizationId,
-            );
-            return dataWithCiphers;
+        map((params) => params.get("organizationId")),
+        switchMap(async (orgId) => {
+          if (orgId) {
+            this.organizationId = orgId as OrganizationId;
+          } else {
+            return EMPTY;
           }
-          return null;
         }),
       )
-      .subscribe((applications) => {
-        if (applications) {
-          this.dataSource.data = applications;
-          this.applicationSummary = this.reportService.generateApplicationsSummary(applications);
-          this.enableRequestPasswordChange = this.applicationSummary.totalAtRiskMemberCount > 0;
-        }
-      });
+      .subscribe();
   }
 
   goToAllAppsTab = async () => {
@@ -106,98 +109,35 @@ export class CriticalApplicationsComponent implements OnInit {
     );
   };
 
-  unmarkAsCritical = async (hostname: string) => {
-    try {
-      await this.criticalAppsService.dropCriticalApp(
-        this.organizationId as OrganizationId,
-        hostname,
-      );
-    } catch {
-      this.toastService.showToast({
-        message: this.i18nService.t("unexpectedError"),
-        variant: "error",
-        title: this.i18nService.t("error"),
+  removeCriticalApplication = async (hostname: string) => {
+    this.dataService
+      .removeCriticalApplication(hostname)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.toastService.showToast({
+            message: this.i18nService.t("criticalApplicationUnmarkedSuccessfully"),
+            variant: "success",
+          });
+        },
+        error: () => {
+          this.toastService.showToast({
+            message: this.i18nService.t("unexpectedError"),
+            variant: "error",
+            title: this.i18nService.t("error"),
+          });
+        },
       });
-      return;
-    }
-
-    this.toastService.showToast({
-      message: this.i18nService.t("criticalApplicationSuccessfullyUnmarked"),
-      variant: "success",
-      title: this.i18nService.t("success"),
-    });
-    this.dataSource.data = this.dataSource.data.filter((app) => app.applicationName !== hostname);
   };
 
   async requestPasswordChange() {
-    const apps = this.dataSource.data;
-    const cipherIds = apps
-      .filter((_) => _.atRiskPasswordCount > 0)
-      .flatMap((app) => app.atRiskCipherIds);
-
-    const distinctCipherIds = Array.from(new Set(cipherIds));
-
-    const tasks: CreateTasksRequest[] = distinctCipherIds.map((cipherId) => ({
-      cipherId: cipherId as CipherId,
-      type: SecurityTaskType.UpdateAtRiskCredential,
-    }));
-
-    try {
-      await this.adminTaskService.bulkCreateTasks(this.organizationId as OrganizationId, tasks);
-      this.toastService.showToast({
-        message: this.i18nService.t("notifiedMembers"),
-        variant: "success",
-        title: this.i18nService.t("success"),
-      });
-    } catch {
-      this.toastService.showToast({
-        message: this.i18nService.t("unexpectedError"),
-        variant: "error",
-        title: this.i18nService.t("error"),
-      });
-    }
-  }
-
-  constructor(
-    protected activatedRoute: ActivatedRoute,
-    protected router: Router,
-    protected toastService: ToastService,
-    protected dataService: RiskInsightsDataService,
-    protected criticalAppsService: CriticalAppsService,
-    protected reportService: RiskInsightsReportService,
-    protected i18nService: I18nService,
-    private configService: ConfigService,
-    private adminTaskService: DefaultAdminTaskService,
-  ) {
-    this.searchControl.valueChanges
-      .pipe(debounceTime(200), takeUntilDestroyed())
-      .subscribe((v) => (this.dataSource.filter = v));
+    await this.accessIntelligenceSecurityTasksService.assignTasks(
+      this.organizationId,
+      this.dataSource.data,
+    );
   }
 
   showAppAtRiskMembers = async (applicationName: string) => {
-    const data = {
-      members:
-        this.dataSource.data.find((app) => app.applicationName === applicationName)
-          ?.atRiskMemberDetails ?? [],
-      applicationName,
-    };
-    this.dataService.setDrawerForAppAtRiskMembers(data, applicationName);
-  };
-
-  showOrgAtRiskMembers = async (invokerId: string) => {
-    const data = this.reportService.generateAtRiskMemberList(this.dataSource.data);
-    this.dataService.setDrawerForOrgAtRiskMembers(data, invokerId);
-  };
-
-  showOrgAtRiskApps = async (invokerId: string) => {
-    const data = this.reportService.generateAtRiskApplicationList(this.dataSource.data);
-    this.dataService.setDrawerForOrgAtRiskApps(data, invokerId);
-  };
-
-  trackByFunction(_: number, item: ApplicationHealthReportDetailWithCriticalFlag) {
-    return item.applicationName;
-  }
-  isDrawerOpenForTableRow = (applicationName: string) => {
-    return this.dataService.drawerInvokerId === applicationName;
+    await this.dataService.setDrawerForAppAtRiskMembers(applicationName);
   };
 }
