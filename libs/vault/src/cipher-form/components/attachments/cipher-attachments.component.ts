@@ -222,6 +222,20 @@ export class CipherAttachmentsComponent implements OnInit, AfterViewInit {
       this.onUploadSuccess.emit();
     } catch (e) {
       this.logService.error(e);
+
+      // Extract error message from server response, fallback to generic message
+      let errorMessage = this.i18nService.t("unexpectedError");
+      if (typeof e === "string") {
+        errorMessage = e;
+      } else if (e?.message) {
+        errorMessage = e.message;
+      }
+
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: errorMessage,
+      });
     }
   };
 
