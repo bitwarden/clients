@@ -1754,11 +1754,11 @@ export class CipherService implements CipherServiceAbstraction {
       const blob = new Blob([encData.buffer], { type: "application/octet-stream" });
       fd.append("key", dataEncKey[1].encryptedString);
       fd.append("data", blob, encFileName.encryptedString);
-      fd.append("lastKnownRevisionDate", lastKnownRevisionDate.toISOString());
+      fd.append("lastKnownRevisionDate", lastKnownRevisionDate);
     } catch (e) {
       if (Utils.isNode && !Utils.isBrowser) {
         fd.append("key", dataEncKey[1].encryptedString);
-        fd.append("lastKnownRevisionDate", lastKnownRevisionDate.toISOString());
+        fd.append("lastKnownRevisionDate", lastKnownRevisionDate);
         fd.append(
           "data",
           Buffer.from(encData.buffer) as any,
