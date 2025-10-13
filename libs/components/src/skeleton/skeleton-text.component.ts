@@ -27,5 +27,5 @@ export class SkeletonTextComponent {
   /**
    * Array-transformed version of the `lines` to loop over
    */
-  protected linesArray = computed(() => Array.from(Array(this.lines()).keys()));
+  protected linesArray = computed(() => [...Array(this.lines()).keys()]);
 }

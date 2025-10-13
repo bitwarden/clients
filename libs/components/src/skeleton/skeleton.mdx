@@ -18,23 +18,61 @@ There are three components that can be used to create a skeleton loading page.
 
 ### Skeleton
 
-Basic skeleton loading component that can be used to represent content that is loading. The shape of
-the edges is configurable to be either squared or round. Use for non-text shapes.
+Basic skeleton loading component that can be used to represent content that is loading. Use for
+non-text shapes.
+
+#### Customizing
+
+The basic skeleton component is fully customizable in shape and edge appearance to allow consumers
+to more accurately represent the content.
+
+**Inputs**
+
+| Input       | Description                                         | Accepted options | Default |
+| ----------- | --------------------------------------------------- | ---------------- | ------- |
+| `edgeShape` | configure whether corners are fully rounded or boxy | `box`, `circle`  | `box`   |
+
+**Classes**
+
+Customize the shape's size by applying tailwind size classes to the `bit-skeleton` element (example
+`tw-h-3 tw-w-12`). Please refer to the tailwind docs for all height/width options, and note that
+custom values are possible with tailwind as well.
 
 <Canvas of={skeletonStories.Square} />
 <Canvas of={skeletonStories.Circle} />
 
 ### Skeleton Text
 
-Specific skeleton component used to represent lines of text. The number of lines is configurable.
+Specific skeleton component used to represent lines of text.
+
+#### Customizing
+
+The number of lines of text in the skeleton is configurable.
+
+**Inputs**
+
+| Input   | Description                                   | Accepted options | Default |
+| ------- | --------------------------------------------- | ---------------- | ------- |
+| `lines` | configure how many lines of text are rendered | any `number`     | `1`     |
 
 <Canvas of={skeletonTextStories.Text} />
 <Canvas of={skeletonTextStories.TextMultiline} />
 
 ### Skeleton Group
 
-Arranges skeleton loaders into a pre-arranged group that mimics the table and item components. It
-uses start, default, and end slots to allow any skeleton content to be rendered.
+Arranges skeleton loaders into a pre-arranged group that mimics the table and item components.
+
+#### Customizing
+
+**Slots**
+
+Use the following slots to render `<bit-skeleton>` and/or `bit-skeleton-text` elements.
+
+| Slot           | Description                                                                                     |
+| -------------- | ----------------------------------------------------------------------------------------------- |
+| `slot="start"` | content that should appear horizontally before the default content; will not grow to fill space |
+| default        | main content area; grows to fill the horizontal space                                           |
+| `slot="end"`   | content that should appear horizontally after the default content; will not grow to fill space  |
 
 <Canvas of={skeletonGroupStories.Default} />
 

@@ -1,5 +1,6 @@
 import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 
+import { formatArgsForCodeSnippet } from "../../../../.storybook/format-args-for-code-snippet";
 import { SharedModule } from "../shared/shared.module";
 
 import { SkeletonComponent } from "./skeleton.component";
@@ -29,7 +30,7 @@ export const Square: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
-      <bit-skeleton [edgeShape]="edgeShape" class="tw-size-32"></bit-skeleton>
+      <bit-skeleton ${formatArgsForCodeSnippet<SkeletonComponent>(args)} class="tw-size-32"></bit-skeleton>
     `,
   }),
   args: {
@@ -41,7 +42,7 @@ export const Rectangle: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
-      <bit-skeleton [edgeShape]="edgeShape" class="tw-w-40 tw-h-5"></bit-skeleton>
+      <bit-skeleton ${formatArgsForCodeSnippet<SkeletonComponent>(args)} class="tw-w-40 tw-h-5"></bit-skeleton>
     `,
   }),
   args: {
@@ -53,7 +54,7 @@ export const Circle: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
-      <bit-skeleton [edgeShape]="edgeShape" class="tw-size-32"></bit-skeleton>
+      <bit-skeleton ${formatArgsForCodeSnippet<SkeletonComponent>(args)} class="tw-size-32"></bit-skeleton>
     `,
   }),
   args: {
@@ -65,7 +66,7 @@ export const Oval: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
-      <bit-skeleton [edgeShape]="edgeShape" class="tw-w-40 tw-h-5"></bit-skeleton>
+      <bit-skeleton ${formatArgsForCodeSnippet<SkeletonComponent>(args)} class="tw-w-40 tw-h-5"></bit-skeleton>
     `,
   }),
   args: {

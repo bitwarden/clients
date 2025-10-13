@@ -4,6 +4,8 @@ import { SharedModule } from "../shared/shared.module";
 
 import { SkeletonTextComponent } from "./skeleton-text.component";
 
+import { formatArgsForCodeSnippet } from ".storybook/format-args-for-code-snippet";
+
 export default {
   title: "Component Library/Skeleton/Skeleton Text",
   component: SkeletonTextComponent,
@@ -28,7 +30,7 @@ export const Text: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
-      <bit-skeleton-text [lines]="lines"></bit-skeleton-text>
+      <bit-skeleton-text ${formatArgsForCodeSnippet<SkeletonTextComponent>(args)}></bit-skeleton-text>
     `,
   }),
 };
@@ -37,7 +39,7 @@ export const TextMultiline: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
-      <bit-skeleton-text [lines]="lines"></bit-skeleton-text>
+      <bit-skeleton-text ${formatArgsForCodeSnippet<SkeletonTextComponent>(args)}></bit-skeleton-text>
     `,
   }),
   args: {
