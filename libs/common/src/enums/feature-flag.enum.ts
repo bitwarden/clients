@@ -102,7 +102,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM17772_AdminInitiatedSponsorships]: FALSE,
   [FeatureFlag.PM21821_ProviderPortalTakeover]: FALSE,
   [FeatureFlag.PM22415_TaxIDWarnings]: FALSE,
-  [FeatureFlag.PM24996_ImplementUpgradeFromFreeDialog]: FALSE,
   [FeatureFlag.PremiumUpgradeNewDesign]: FALSE,
 
   /* Key Management */
