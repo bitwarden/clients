@@ -104,7 +104,7 @@
       label="{{ 'options' | i18n }}"
     ></button>
     <bit-menu #cipherOptions>
-      <ng-container *ngIf="isNotDeletedLoginCipher">
+      <ng-container *ngIf="isActiveLoginCipher">
         <button bitMenuItem type="button" (click)="copy('username')" *ngIf="hasUsernameToCopy">
           <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
           {{ "copyUsername" | i18n }}

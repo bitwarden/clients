@@ -180,10 +180,11 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     return this.useEvents && this.cipher.organizationId;
   }
 
-  protected get isNotDeletedLoginCipher() {
+  protected get isActiveLoginCipher() {
     return (
       CipherViewLikeUtils.getType(this.cipher) === this.CipherType.Login &&
-      !CipherViewLikeUtils.isDeleted(this.cipher)
+      !CipherViewLikeUtils.isDeleted(this.cipher) &&
+      !CipherViewLikeUtils.isArchived(this.cipher)
     );
   }
 
@@ -231,20 +232,20 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
 
   protected get showCopyUsername(): boolean {
     const usernameCopy = CipherViewLikeUtils.hasCopyableValue(this.cipher, "username");
-    return this.isNotDeletedLoginCipher && usernameCopy;
+    return this.isActiveLoginCipher && usernameCopy;
   }
 
   protected get showCopyPassword(): boolean {
     const passwordCopy = CipherViewLikeUtils.hasCopyableValue(this.cipher, "password");
-    return this.isNotDeletedLoginCipher && this.cipher.viewPassword && passwordCopy;
+    return this.isActiveLoginCipher && this.cipher.viewPassword && passwordCopy;
   }
 
   protected get showCopyTotp(): boolean {
-    return this.isNotDeletedLoginCipher && this.showTotpCopyButton;
+    return this.isActiveLoginCipher && this.showTotpCopyButton;
   }
 
   protected get showLaunchUri(): boolean {
-    return this.isNotDeletedLoginCipher && this.canLaunch;
+    return this.isActiveLoginCipher && this.canLaunch;
   }
 
   protected get isDeletedCanRestore(): boolean {
