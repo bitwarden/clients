@@ -2,6 +2,7 @@
 // @ts-strict-ignore
 import { Observable } from "rxjs";
 
+import { AutofillTargetingRules } from "@bitwarden/common/autofill/types";
 import { UriMatchStrategySetting } from "@bitwarden/common/models/domain/domain-service";
 import { CommandDefinition } from "@bitwarden/common/platform/messaging";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -49,6 +50,7 @@ export interface GenerateFillScriptOptions {
   cipher: CipherView;
   tabUrl: string;
   defaultUriMatch: UriMatchStrategySetting;
+  pageTargetingRules?: AutofillTargetingRules;
 }
 
 export type CollectPageDetailsResponseMessage = {
@@ -73,6 +75,7 @@ export abstract class AutofillService {
     triggeringOnPageLoad?: boolean,
   ) => Promise<void>;
   getFormsWithPasswordFields: (pageDetails: AutofillPageDetails) => FormData[];
+  getPageTagetingRules: (url: chrome.tabs.Tab["url"]) => Promise<AutofillTargetingRules>;
   doAutoFill: (options: AutoFillOptions) => Promise<string | null>;
   doAutoFillOnTab: (
     pageDetails: PageDetail[],
