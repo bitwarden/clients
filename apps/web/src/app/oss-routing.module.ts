@@ -599,6 +599,9 @@ const routes: Routes = [
         path: "change-password",
         component: ChangePasswordComponent,
         canActivate: [authGuard],
+        data: {
+          pageIcon: LockIcon,
+        } satisfies AnonLayoutWrapperData,
       },
       {
         path: "setup-extension",
