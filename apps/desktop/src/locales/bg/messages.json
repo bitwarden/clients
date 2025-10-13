@@ -1223,7 +1223,7 @@
     "message": "Грешна главна парола"
   },
   "invalidMasterPasswordConfirmEmailAndHost": {
-    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "message": "Грешна главна парола. Проверете дали е-пощата е правилна и дали акаунтът Ви е създаден в $HOST$.",
     "placeholders": {
       "host": {
         "content": "$1",
@@ -2673,7 +2673,7 @@
     }
   },
   "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
-    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "message": "Само трезора свързан с $ORGANIZATION$ ще бъде експортиран. Моите записи няма да бъдат включени.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4135,8 +4135,8 @@
   "enableAutotypeShortcutPreview": {
     "message": "Включване на комбинация за автоматично попълване (Функционалност в изпитание)"
   },
-  "enableAutotypeDescriptionTransitionKey": {
-    "message": "Уверете се, че сет в правилното поле, преди да използвате комбинацията, за да избегнете попълването на данните на грешното място."
+  "enableAutotypeShortcutDescription": {
+    "message": "Уверете се, че сте в правилното поле, преди да използвате комбинацията, за да избегнете попълването на данните на грешното място."
   },
   "editShortcut": {
     "message": "Редактиране на комбинацията"

@@ -1223,7 +1223,7 @@
     "message": "Neispravna glavna lozinka"
   },
   "invalidMasterPasswordConfirmEmailAndHost": {
-    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "message": "Nevažeća glavna lozinka. Provjeri je li tvoja adresa e-pošta ispravna i je li račun kreiran na $HOST$.",
     "placeholders": {
       "host": {
         "content": "$1",
@@ -2664,7 +2664,7 @@
     }
   },
   "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
-    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "message": "Izvezt će se samo trezor organizacije povezan s $ORGANIZATION$.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2673,7 +2673,7 @@
     }
   },
   "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
-    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "message": "Izvezt će se samo trezor organizacije povezan s $ORGANIZATION$. Zbirka mojih stavki neće biti uključena.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4111,13 +4111,13 @@
     "message": "Bitwarden ne provjerava lokacije unosa, prije korištenja prečaca provjeri da si u pravom prozoru i polju."
   },
   "typeShortcut": {
-    "message": "Type shortcut"
+    "message": "Vrsta prečaca"
   },
   "editAutotypeShortcutDescription": {
-    "message": "Include one or two of the following modifiers: Ctrl, Alt, Win, or Shift, and a letter."
+    "message": "Uključi jedan ili dva modifikatora: Ctrl, Alt, Win ili Shift i slovo."
   },
   "invalidShortcut": {
-    "message": "Invalid shortcut"
+    "message": "Nevažeći prečac"
   },
   "moreBreadcrumbs": {
     "message": "Više mrvica",
@@ -4133,20 +4133,20 @@
     "message": "Potvrdi"
   },
   "enableAutotypeShortcutPreview": {
-    "message": "Enable autotype shortcut (Feature Preview)"
+    "message": "Uključi prečac Autotype (Pretpregled značajke)"
   },
-  "enableAutotypeDescriptionTransitionKey": {
-    "message": "Prije korištenja prečaca provjeri nalaziš li se u ispravnom polju kako se podaci ne bi unijeli na pogrešno mjesto."
+  "enableAutotypeShortcutDescription": {
+    "message": "Prije korištenja prečaca provjeri jesi li u ispravnom polju kako podaci ne bi bili uneseni na pogrešno mjesto."
   },
   "editShortcut": {
     "message": "Uredi prečac"
   },
   "archiveNoun": {
-    "message": "Archive",
+    "message": "Arhiva",
     "description": "Noun"
   },
   "archiveVerb": {
-    "message": "Archive",
+    "message": "Arhiviraj",
     "description": "Verb"
   },
   "unarchive": {

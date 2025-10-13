@@ -551,11 +551,11 @@
     "message": "Zoekopdracht resetten"
   },
   "archiveNoun": {
-    "message": "Archive",
+    "message": "Archief",
     "description": "Noun"
   },
   "archiveVerb": {
-    "message": "Archive",
+    "message": "Archiveren",
     "description": "Verb"
   },
   "unarchive": {
@@ -732,6 +732,15 @@
   },
   "invalidMasterPassword": {
     "message": "Ongeldig hoofdwachtwoord"
+  },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Ongeldig hoofdwachtwoord. Check of je e-mailadres klopt en of je account is aangemaakt op $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
   },
   "vaultTimeout": {
     "message": "Time-out van de kluis"
@@ -1538,6 +1547,15 @@
   },
   "readSecurityKey": {
     "message": "Beveiligingssleutel lezen"
+  },
+  "readingPasskeyLoading": {
+    "message": "Passkey uitlezen..."
+  },
+  "passkeyAuthenticationFailed": {
+    "message": "Passkey-authenticatie mislukt"
+  },
+  "useADifferentLogInMethod": {
+    "message": "Gebruik een andere loginmethode"
   },
   "awaitingSecurityKeyInteraction": {
     "message": "Wacht op interactie met beveiligingssleutel…"
@@ -3195,6 +3213,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Alleen de organisatiekluis die gekoppeld is aan $ORGANIZATION$ wordt geëxporteerd.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Exporteert alleen de organisatiekluis van $ORGANIZATION$. Geen persoonlijke kluis-items.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },

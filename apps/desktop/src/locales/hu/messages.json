@@ -1223,7 +1223,7 @@
     "message": "A mesterjelszó érvénytelen."
   },
   "invalidMasterPasswordConfirmEmailAndHost": {
-    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "message": "A mesterjelszó érvénytelen. Erősítsük meg, hogy email cím helyes és a fiók létrehozásának helye: $HOST$.",
     "placeholders": {
       "host": {
         "content": "$1",
@@ -4135,7 +4135,7 @@
   "enableAutotypeShortcutPreview": {
     "message": "Enable autotype shortcut (Feature Preview)"
   },
-  "enableAutotypeDescriptionTransitionKey": {
+  "enableAutotypeShortcutDescription": {
     "message": "Győződjünk meg arról, hogy a megfelelő mezőben vagyunk, mielőtt a parancsikont használnánk, hogy elkerüljük az adatok rossz helyre történő kitöltését."
   },
   "editShortcut": {

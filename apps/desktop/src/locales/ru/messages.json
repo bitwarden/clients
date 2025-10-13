@@ -1223,7 +1223,7 @@
     "message": "Неверный мастер-пароль"
   },
   "invalidMasterPasswordConfirmEmailAndHost": {
-    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "message": "Неверный мастер-пароль. Подтвердите, что ваш адрес email указан верно и ваш аккаунт был создан на $HOST$.",
     "placeholders": {
       "host": {
         "content": "$1",
@@ -4135,7 +4135,7 @@
   "enableAutotypeShortcutPreview": {
     "message": "Enable autotype shortcut (Feature Preview)"
   },
-  "enableAutotypeDescriptionTransitionKey": {
+  "enableAutotypeShortcutDescription": {
     "message": "Прежде чем использовать ярлык, убедитесь, что вы поставили курсор в нужное поле, чтобы избежать ввода данных в неправильное место."
   },
   "editShortcut": {

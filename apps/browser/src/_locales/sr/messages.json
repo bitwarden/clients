@@ -551,11 +551,11 @@
     "message": "Ресетовати претрагу"
   },
   "archiveNoun": {
-    "message": "Archive",
+    "message": "Архива",
     "description": "Noun"
   },
   "archiveVerb": {
-    "message": "Archive",
+    "message": "Архива",
     "description": "Verb"
   },
   "unarchive": {
@@ -732,6 +732,15 @@
   },
   "invalidMasterPassword": {
     "message": "Погрешна главна лозинка"
+  },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Неважећа главна лозинка. Потврдите да је ваш имејл тачан и ваш рачун је креиран на $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
   },
   "vaultTimeout": {
     "message": "Тајмаут сефа"
@@ -1538,6 +1547,15 @@
   },
   "readSecurityKey": {
     "message": "Читај сигурносни кључ"
+  },
+  "readingPasskeyLoading": {
+    "message": "Reading passkey..."
+  },
+  "passkeyAuthenticationFailed": {
+    "message": "Passkey authentication failed"
+  },
+  "useADifferentLogInMethod": {
+    "message": "Use a different log in method"
   },
   "awaitingSecurityKeyInteraction": {
     "message": "Чека се интеракција сигурносног кључа..."
@@ -3195,6 +3213,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Извешће се само сеф организације повезана са $ORGANIZATION$.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Извешће се само сеф организације повезан са $ORGANIZATION$. Колекције мојих предмета неће бити укључене.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },

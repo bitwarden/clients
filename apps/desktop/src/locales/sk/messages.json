@@ -1223,7 +1223,7 @@
     "message": "Neplatné hlavné heslo"
   },
   "invalidMasterPasswordConfirmEmailAndHost": {
-    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "message": "Neplatné hlavné heslo. Potvrďte, že váš e-mail je správny a účet bol vytvorený na $HOST$.",
     "placeholders": {
       "host": {
         "content": "$1",
@@ -4135,7 +4135,7 @@
   "enableAutotypeShortcutPreview": {
     "message": "Povoliť skratku pre automatické vpisovanie (náhľad funkcie)"
   },
-  "enableAutotypeDescriptionTransitionKey": {
+  "enableAutotypeShortcutDescription": {
     "message": "Pred použitím skratky sa uistite, že sa nachádzate v správnom poli, aby ste údaje nevyplnili na nesprávne miesto."
   },
   "editShortcut": {

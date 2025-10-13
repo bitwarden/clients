@@ -1,6 +1,8 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+
 import { CartSummaryComponent, LineItem } from "./cart-summary.component";
 
 describe("CartSummaryComponent", () => {
@@ -9,14 +11,14 @@ describe("CartSummaryComponent", () => {
 
   const mockPasswordManager: LineItem = {
     quantity: 5,
-    name: "Password Manager",
+    name: "members",
     cost: 50,
     cadence: "month",
   };
 
   const mockAdditionalStorage: LineItem = {
     quantity: 2,
-    name: "Additional Storage",
+    name: "additionalStorageGB",
     cost: 10,
     cadence: "month",
   };
@@ -24,46 +26,26 @@ describe("CartSummaryComponent", () => {
   const mockSecretsManager = {
     seats: {
       quantity: 3,
-      name: "Secrets Manager Seats",
+      name: "secretsManagerSeats",
       cost: 30,
-      cadence: "month" as "month" | "year",
+      cadence: "month",
     },
     additionalServiceAccounts: {
       quantity: 2,
-      name: "Additional Service Accounts",
+      name: "additionalServiceAccountsV2",
       cost: 6,
-      cadence: "month" as "month" | "year",
+      cadence: "month",
     },
   };
 
   const mockEstimatedTax = 9.6;
 
-  function setupComponent(
-    options: {
-      passwordManager?: LineItem;
-      additionalStorage?: LineItem | null;
-      secretsManager?: { seats: LineItem; additionalServiceAccounts?: LineItem } | null;
-      estimatedTax?: number;
-    } = {},
-  ) {
-    const pm = options.passwordManager ?? mockPasswordManager;
-    const storage =
-      options.additionalStorage !== null
-        ? (options.additionalStorage ?? mockAdditionalStorage)
-        : undefined;
-    const sm =
-      options.secretsManager !== null ? (options.secretsManager ?? mockSecretsManager) : undefined;
-    const tax = options.estimatedTax ?? mockEstimatedTax;
-
+  function setupComponent() {
     // Set input values
-    fixture.componentRef.setInput("passwordManager", pm);
-    if (storage !== undefined) {
-      fixture.componentRef.setInput("additionalStorage", storage);
-    }
-    if (sm !== undefined) {
-      fixture.componentRef.setInput("secretsManager", sm);
-    }
-    fixture.componentRef.setInput("estimatedTax", tax);
+    fixture.componentRef.setInput("passwordManager", mockPasswordManager);
+    fixture.componentRef.setInput("additionalStorage", mockAdditionalStorage);
+    fixture.componentRef.setInput("secretsManager", mockSecretsManager);
+    fixture.componentRef.setInput("estimatedTax", mockEstimatedTax);
 
     fixture.detectChanges();
   }
@@ -71,6 +53,49 @@ describe("CartSummaryComponent", () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [CartSummaryComponent],
+      providers: [
+        {
+          provide: I18nService,
+          useValue: {
+            t: (key: string) => {
+              switch (key) {
+                case "month":
+                  return "month";
+                case "year":
+                  return "year";
+                case "members":
+                  return "Members";
+                case "additionalStorageGB":
+                  return "Additional storage GB";
+                case "additionalServiceAccountsV2":
+                  return "Additional machine accounts";
+                case "secretsManagerSeats":
+                  return "Secrets Manager seats";
+                case "passwordManager":
+                  return "Password Manager";
+                case "secretsManager":
+                  return "Secrets Manager";
+                case "additionalStorage":
+                  return "Additional Storage";
+                case "estimatedTax":
+                  return "Estimated tax";
+                case "total":
+                  return "Total";
+                case "expandPurchaseDetails":
+                  return "Expand purchase details";
+                case "collapsePurchaseDetails":
+                  return "Collapse purchase details";
+                case "familiesMembership":
+                  return "Families membership";
+                case "premiumMembership":
+                  return "Premium membership";
+                default:
+                  return key;
+              }
+            },
+          },
+        },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(CartSummaryComponent);
@@ -116,7 +141,7 @@ describe("CartSummaryComponent", () => {
       fixture.detectChanges();
 
       // Act / Assert
-      const detailsSection = fixture.debugElement.query(By.css(".tw-mb-4.tw-pb-4.tw-text-muted"));
+      const detailsSection = fixture.debugElement.query(By.css('[id="purchase-summary-details"]'));
       expect(detailsSection).toBeFalsy();
     });
 
@@ -126,7 +151,7 @@ describe("CartSummaryComponent", () => {
       fixture.detectChanges();
 
       // Act / Assert
-      const detailsSection = fixture.debugElement.query(By.css(".tw-mb-4.tw-pb-4.tw-text-muted"));
+      const detailsSection = fixture.debugElement.query(By.css('[id="purchase-summary-details"]'));
       expect(detailsSection).toBeTruthy();
     });
   });
@@ -134,10 +159,10 @@ describe("CartSummaryComponent", () => {
   describe("Content Rendering", () => {
     it("should display correct password manager information", () => {
       // Arrange
-      const pmSection = fixture.debugElement.query(By.css(".tw-mb-3.tw-border-b"));
-      const pmHeading = pmSection.query(By.css(".tw-font-semibold"));
-      const pmLineItem = pmSection.query(By.css(".tw-flex-1 .tw-text-sm"));
-      const pmTotal = pmSection.query(By.css(".tw-text-sm:not(.tw-flex-1 *)"));
+      const pmSection = fixture.debugElement.query(By.css('[id="password-manager"]'));
+      const pmHeading = pmSection.query(By.css("h3"));
+      const pmLineItem = pmSection.query(By.css(".tw-flex-1 .tw-text-muted"));
+      const pmTotal = pmSection.query(By.css("[data-testid='password-manager-total']"));
 
       // Act/ Assert
       expect(pmSection).toBeTruthy();
@@ -150,55 +175,49 @@ describe("CartSummaryComponent", () => {
 
     it("should display correct additional storage information", () => {
       // Arrange
-      const storageItem = fixture.debugElement.query(
-        By.css(".tw-mb-3.tw-border-b .tw-flex-justify-between:nth-of-type(3)"),
-      );
-      const storageText = fixture.debugElement.query(By.css(".tw-mb-3.tw-border-b")).nativeElement
-        .textContent;
+      const storageItem = fixture.debugElement.query(By.css("[id='additional-storage']"));
+      const storageText = storageItem.nativeElement.textContent;
       // Act/Assert
 
       expect(storageItem).toBeTruthy();
-      expect(storageText).toContain("2 Additional GB");
+      expect(storageText).toContain("2 Additional storage GB");
       expect(storageText).toContain("$10.00");
       expect(storageText).toContain("$20.00");
     });
 
     it("should display correct secrets manager information", () => {
       // Arrange
-      const smSection = fixture.debugElement.queryAll(By.css(".tw-mb-3.tw-border-b"))[1];
-      const smHeading = smSection.query(By.css(".tw-font-semibold"));
-      const sectionText = smSection.nativeElement.textContent;
+      const smSection = fixture.debugElement.query(By.css('[id="secrets-manager"]'));
+      const smHeading = smSection.query(By.css("h3"));
+      const sectionText = fixture.debugElement.query(By.css('[id="secrets-manager-members"]'))
+        .nativeElement.textContent;
+      const additionalSA = fixture.debugElement.query(By.css('[id="additional-service-accounts"]'))
+        .nativeElement.textContent;
 
       // Act/ Assert
       expect(smSection).toBeTruthy();
       expect(smHeading.nativeElement.textContent.trim()).toBe("Secrets Manager");
 
       // Check seats line item
-      expect(sectionText).toContain("3 Members");
+      expect(sectionText).toContain("3 Secrets Manager seats");
       expect(sectionText).toContain("$30.00");
       expect(sectionText).toContain("$90.00"); // 3 * $30
 
       // Check additional service accounts
-      expect(sectionText).toContain("2 Additional machine accounts");
-      expect(sectionText).toContain("$6.00");
-      expect(sectionText).toContain("$12.00"); // 2 * $6
+      expect(additionalSA).toContain("2 Additional machine accounts");
+      expect(additionalSA).toContain("$6.00");
+      expect(additionalSA).toContain("$12.00"); // 2 * $6
     });
 
     it("should display correct tax and total", () => {
       // Arrange
-      const taxSection = fixture.debugElement.query(
-        By.css(".tw-flex.tw-justify-between.tw-mb-3.tw-border-b:last-of-type"),
-      );
+      const taxSection = fixture.debugElement.query(By.css('[id="estimated-tax-section"]'));
       const expectedTotal = "$381.60"; // 250 + 20 + 90 + 12 + 9.6
       const topTotal = fixture.debugElement.query(By.css("h2"));
-      const bottomTotal = fixture.debugElement.query(
-        By.css(
-          ".tw-flex.tw-justify-between.tw-items-center:last-child .tw-font-semibold:last-child",
-        ),
-      );
+      const bottomTotal = fixture.debugElement.query(By.css("[data-testid='final-total']"));
 
       // Act / Assert
-      expect(taxSection.nativeElement.textContent).toContain("Estimated Tax");
+      expect(taxSection.nativeElement.textContent).toContain("Estimated tax");
       expect(taxSection.nativeElement.textContent).toContain("$9.60");
 
       expect(topTotal.nativeElement.textContent).toContain(expectedTotal);

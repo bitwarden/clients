@@ -551,11 +551,11 @@
     "message": "Ponovno postavljanje pretraživanja"
   },
   "archiveNoun": {
-    "message": "Archive",
+    "message": "Arhiva",
     "description": "Noun"
   },
   "archiveVerb": {
-    "message": "Archive",
+    "message": "Arhiviraj",
     "description": "Verb"
   },
   "unarchive": {
@@ -732,6 +732,15 @@
   },
   "invalidMasterPassword": {
     "message": "Neispravna glavna lozinka"
+  },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Nevažeća glavna lozinka. Provjeri je li tvoja adresa e-pošta ispravna i je li račun kreiran na $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
   },
   "vaultTimeout": {
     "message": "Istek trezora"
@@ -1538,6 +1547,15 @@
   },
   "readSecurityKey": {
     "message": "Pročitaj sigurnosni ključ"
+  },
+  "readingPasskeyLoading": {
+    "message": "Čitanje pristupnog ključa..."
+  },
+  "passkeyAuthenticationFailed": {
+    "message": "Autentifikacija pristupnog ključa nije uspjela"
+  },
+  "useADifferentLogInMethod": {
+    "message": "Koristi drugi način prijave"
   },
   "awaitingSecurityKeyInteraction": {
     "message": "Čekanje na interakciju sa sigurnosnim ključem..."
@@ -3195,6 +3213,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Izvezt će se samo trezor organizacije povezan s $ORGANIZATION$.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Izvezt će se samo trezor organizacije povezan s $ORGANIZATION$. Zbirka mojih stavki neće biti uključena.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },

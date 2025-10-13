@@ -2664,7 +2664,7 @@
     }
   },
   "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
-    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "message": "Only the organisation vault associated with $ORGANIZATION$ will be exported.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2673,7 +2673,7 @@
     }
   },
   "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
-    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "message": "Only the organisation vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4135,7 +4135,7 @@
   "enableAutotypeShortcutPreview": {
     "message": "Enable autotype shortcut (Feature Preview)"
   },
-  "enableAutotypeDescriptionTransitionKey": {
+  "enableAutotypeShortcutDescription": {
     "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."
   },
   "editShortcut": {

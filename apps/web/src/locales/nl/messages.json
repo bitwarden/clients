@@ -35,6 +35,9 @@
       }
     }
   },
+  "noReportRan": {
+    "message": "Je hebt nog geen rapport aangemaakt"
+  },
   "notifiedMembers": {
     "message": "Geînformeerde leden"
   },
@@ -59,8 +62,42 @@
   "createNewLoginItem": {
     "message": "Nieuw login item aanmaken"
   },
+  "percentageCompleted": {
+    "message": "$PERCENT$% compleet",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
+  "securityTasksCompleted": {
+    "message": "$COUNT$ van $TOTAL$ beveiligingstaken voltooid",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "total": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "passwordChangeProgress": {
+    "message": "Voortgang veranderen wachtwoord"
+  },
+  "assignMembersTasksToMonitorProgress": {
+    "message": "Leden taken toewijzen om de voortgang te controleren"
+  },
+  "onceYouReviewApplications": {
+    "message": "Als je toepassingen als belangrijk markeert, verschijnen ze hier."
+  },
+  "sendReminders": {
+    "message": "Herinneringen versturen"
+  },
   "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
-    "message": "Als je toepassingen als belangrijk markeert, verschijnen ze hier"
+    "message": "Als je toepassingen als belangrijk markeert, verschijnen ze hier."
   },
   "viewAtRiskMembers": {
     "message": "Leden met risico bekijken"
@@ -108,6 +145,15 @@
       }
     }
   },
+  "countOfAtRiskPasswords": {
+    "message": "$COUNT$ wachtwoorden lopen risico",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "notifiedMembersWithCount": {
     "message": "Geînformeerde leden ($COUNT$)",
     "placeholders": {
@@ -141,8 +187,23 @@
   "markAppAsCritical": {
     "message": "App aanwijzen als belangrijk"
   },
+  "markAsCritical": {
+    "message": "App aanwijzen als belangrijk"
+  },
+  "applicationsSelected": {
+    "message": "applicaties geselecteerd"
+  },
+  "selectApplication": {
+    "message": "Applicatie selecteren"
+  },
+  "unselectApplication": {
+    "message": "Applicatie deselecteren"
+  },
   "applicationsMarkedAsCriticalSuccess": {
     "message": "Als belangrijk gemarkeerde applicaties"
+  },
+  "applicationsMarkedAsCriticalFail": {
+    "message": "Kon applicaties niet als kritiek markeren"
   },
   "application": {
     "message": "Applicatie"
@@ -162,8 +223,8 @@
   "atRiskMembers": {
     "message": "Leden in gevaar"
   },
-  "membersAtRiskActivityDescription": {
-    "message": "Leden met toegang voor bewerken van risico-items voor belangrijke applicaties"
+  "membersWithAccessToAtRiskItemsForCriticalApps": {
+    "message": "Leden met toegang tot risico-items voor belangrijke applicaties"
   },
   "membersAtRiskCount": {
     "message": "$COUNT$ leden lopen risico",
@@ -230,6 +291,33 @@
   },
   "totalApplications": {
     "message": "Totaal applicaties"
+  },
+  "applicationsNeedingReview": {
+    "message": "Aanvragen die herzien moeten worden"
+  },
+  "newApplicationsWithCount": {
+    "message": "$COUNT$ nieuwe applicaties",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "13"
+      }
+    }
+  },
+  "newApplicationsDescription": {
+    "message": "Controleer nieuwe applicaties om ze als kritiek te markeren en je organisatie veilig te houden"
+  },
+  "reviewNow": {
+    "message": "Nu beoordelen"
+  },
+  "prioritizeCriticalApplications": {
+    "message": "Belangrijke applicaties prioriteren"
+  },
+  "atRiskItems": {
+    "message": "Items in gevaar"
+  },
+  "markAsCriticalPlaceholder": {
+    "message": "Markeren als kritieke functionaliteit wordt geïmplementeerd in een toekomstige update"
   },
   "unmarkAsCritical": {
     "message": "Markeren als belangrijk ongedaan maken"
@@ -1205,6 +1293,9 @@
   "readingPasskeyLoadingInfo": {
     "message": "Houd dit venster open en volg de aanwijzingen van je browser."
   },
+  "passkeyAuthenticationFailed": {
+    "message": "Passkey-authenticatie mislukt. Probeer het opnieuw."
+  },
   "useADifferentLogInMethod": {
     "message": "Gebruik een andere loginmethode"
   },
@@ -1498,6 +1589,15 @@
   },
   "invalidMasterPassword": {
     "message": "Ongeldig hoofdwachtwoord"
+  },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Ongeldig hoofdwachtwoord. Check of je e-mailadres klopt en of je account is aangemaakt op $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
   },
   "invalidFilePassword": {
     "message": "Onjuist bestandswachtwoord, gebruik het wachtwoord dat je hebt ingevoerd bij het aanmaken van het exportbestand."
@@ -2849,6 +2949,9 @@
   },
   "makeSureEnoughCredit": {
     "message": "Verzeker jezelf ervan dat je account voldoende krediet voor deze aankoop beschikbaar heeft. Als je account niet genoeg krediet heeft, zal je standaard betaalmethode worden gebruikt voor het verschil. Je kunt krediet aan je account toevoegen vanaf de factuurpagina."
+  },
+  "notEnoughAccountCredit": {
+    "message": "Je hebt niet genoeg accountkrediet voor deze aankoop. Je kunt krediet aan je account toevoegen vanaf de factuurpagina."
   },
   "creditAppliedDesc": {
     "message": "Je kunt het krediet van je account voor aankopen gebruiken. Elk beschikbaar krediet zal automatisch worden toegepast op facturen die gegenereerd zijn voor dit account."
@@ -4257,6 +4360,9 @@
   },
   "generatingYourRiskInsights": {
     "message": "Je risico-inzichten genereren..."
+  },
+  "riskInsightsRunReport": {
+    "message": "Rapport uitvoeren"
   },
   "updateBrowserDesc": {
     "message": "Je maakt gebruik van webbrowser die we niet ondersteunen. De webkluis werkt mogelijk niet goed."
@@ -7034,6 +7140,24 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Alleen de organisatiekluis die gekoppeld is aan $ORGANIZATION$ wordt geëxporteerd.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Exporteert alleen de organisatiekluis van $ORGANIZATION$. Geen persoonlijke kluis-items.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "accessDenied": {
     "message": "Toegang geweigerd. Je hebt geen toestemming om deze pagina te bekijken."
   },
@@ -7187,6 +7311,9 @@
   },
   "unknownSecret": {
     "message": "Onbekend secret, je moet misschien toegang vragen om dit secret te benaderen."
+  },
+  "unknownServiceAccount": {
+    "message": "Onbekend machine-account, je moet misschien toegang vragen om dit machine-acount te benaderen."
   },
   "unknownProject": {
     "message": "Onbekend project, je moet misschien toegang vragen om dit project te benaderen."
@@ -8538,8 +8665,8 @@
       }
     }
   },
-  "accessedProjectWithId": {
-    "message": "Project gekoppeld met Id: $PROJECT_ID$.",
+  "accessedProjectWithIdentifier": {
+    "message": "Project bekeken met identifier: $PROJECT_ID$.",
     "placeholders": {
       "project_id": {
         "content": "$1",
@@ -8565,10 +8692,89 @@
       }
     }
   },
+  "nameUnavailableServiceAccountDeleted": {
+    "message": "Machine-account ID verwijderd: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "service_account_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
   "editedProjectWithId": {
     "message": "Project bewerkt met identifier: $PROJECT_ID$",
     "placeholders": {
       "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "addedUserToServiceAccountWithId": {
+    "message": "Gebruiker toegevoegd: $USER_ID$ naar machine-account met identificatie: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "user_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "removedUserToServiceAccountWithId": {
+    "message": "Gebruiker verwijderd: $USER_ID$ van machine-account met identificatie: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "user_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "removedGroupFromServiceAccountWithId": {
+    "message": "Groep verwijderd: $USER_ID$ van machine-account met identificatie: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "group_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "serviceAccountCreatedWithId": {
+    "message": "Machine-account aangemaakt met identificatie: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "service_account_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "addedGroupToServiceAccountId": {
+    "message": "Groep toegevoegd: $GROUP_ID$ van machine-account met identificatie: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "group_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "serviceAccountDeletedWithId": {
+    "message": "Machine-account verwijderd met identificatie: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "service_account_id": {
         "content": "$1",
         "example": "4d34e8a8"
       }
@@ -9410,6 +9616,9 @@
   "assign": {
     "message": "Toewijzen"
   },
+  "assignTasks": {
+    "message": "Taken toewijzen"
+  },
   "assignToCollections": {
     "message": "Toewijzen aan collecties"
   },
@@ -9804,6 +10013,9 @@
   },
   "crowdstrikeEventIntegrationDesc": {
     "message": "Stuur eventgegevens naar je Logscale-instantie"
+  },
+  "datadogEventIntegrationDesc": {
+    "message": "Stuur gebeurtenisgegevens van je kluis naar je Datadog-instance"
   },
   "failedToSaveIntegration": {
     "message": "Opslaan van integratie mislukt. Probeer het later opnieuw."
@@ -11075,11 +11287,11 @@
     "message": "Search archive"
   },
   "archiveNoun": {
-    "message": "Archive",
+    "message": "Archief",
     "description": "Noun"
   },
   "archiveVerb": {
-    "message": "Archive",
+    "message": "Archiveren",
     "description": "Verb"
   },
   "noItemsInArchive": {
@@ -11194,6 +11406,12 @@
   },
   "bitwardenExtensionInstalled": {
     "message": "Bitwarden extensie geïnstalleerd!"
+  },
+  "openTheBitwardenExtension": {
+    "message": "De Bitwarden-extensie openen"
+  },
+  "bitwardenExtensionInstalledOpenExtension": {
+    "message": "De Bitwarden-extensie is geïnstalleerd! Open de extensie om in te loggen en te beginnen met automatisch invullen."
   },
   "openExtensionToAutofill": {
     "message": "Open de extensie om in te loggen en te beginnen met automatisch invullen."
@@ -11552,5 +11770,38 @@
   },
   "seamlessIntegration": {
     "message": "Naadloze integratie"
+  },
+  "families": {
+    "message": "Families"
+  },
+  "upgradeToFamilies": {
+    "message": "Opwaarderen naar Families"
+  },
+  "upgradeToPremium": {
+    "message": "Opwaarderen naar Premium"
+  },
+  "familiesUpdated": {
+    "message": "Je hebt opgewaardeerd naar Families!"
+  },
+  "taxCalculationError": {
+    "message": "Er is een fout opgetreden bij het berekenen van de belasting voor je locatie. Probeer het opnieuw."
+  },
+  "individualUpgradeWelcomeMessage": {
+    "message": "Welkom bij Bitwarden"
+  },
+  "individualUpgradeDescriptionMessage": {
+    "message": "Ontgrendel meer beveiligingsfuncties met Premium, of begin met het delen van items met Families"
+  },
+  "individualUpgradeTaxInformationMessage": {
+    "message": "Prijzen exclusief btw en worden jaarlijks gefactureerd."
+  },
+  "organizationNameDescription": {
+    "message": "De naam van je organisatie verschijnt in uitnodigingen die je aan leden verstuurt."
+  },
+  "continueWithoutUpgrading": {
+    "message": "Doorgaan zonder opwaarderen"
+  },
+  "upgradeErrorMessage": {
+    "message": "Er is een fout opgetreden tijdens het verwerken van het opwaarderen. Probeer het opnieuw."
   }
 }

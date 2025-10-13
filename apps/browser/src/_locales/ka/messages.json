@@ -162,7 +162,7 @@
     "message": "Copy passport number"
   },
   "copyLicenseNumber": {
-    "message": "Copy license number"
+    "message": "დააკოპირეთ ლიცენზიის ნომერი"
   },
   "copyPrivateKey": {
     "message": "Copy private key"
@@ -732,6 +732,15 @@
   },
   "invalidMasterPassword": {
     "message": "Invalid master password"
+  },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
   },
   "vaultTimeout": {
     "message": "Vault timeout"
@@ -1538,6 +1547,15 @@
   },
   "readSecurityKey": {
     "message": "Read security key"
+  },
+  "readingPasskeyLoading": {
+    "message": "Reading passkey..."
+  },
+  "passkeyAuthenticationFailed": {
+    "message": "Passkey authentication failed"
+  },
+  "useADifferentLogInMethod": {
+    "message": "Use a different log in method"
   },
   "awaitingSecurityKeyInteraction": {
     "message": "Awaiting security key interaction..."
@@ -3195,6 +3213,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },

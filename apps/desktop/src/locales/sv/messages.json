@@ -1223,7 +1223,7 @@
     "message": "Ogiltigt huvudlösenord"
   },
   "invalidMasterPasswordConfirmEmailAndHost": {
-    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "message": "Ogiltigt huvudlösenord. Bekräfta att din e-postadress är korrekt och ditt konto skapades på $HOST$.",
     "placeholders": {
       "host": {
         "content": "$1",
@@ -4111,7 +4111,7 @@
     "message": "Bitwarden validerar inte inmatningsplatser, så se till att du är i rätt fönster och fält innan du använder genvägen."
   },
   "typeShortcut": {
-    "message": "Type shortcut"
+    "message": "Inmatningsgenväg"
   },
   "editAutotypeShortcutDescription": {
     "message": "Inkludera en eller två av följande modifierare: Ctrl, Alt, Win, eller Skift och en bokstav."
@@ -4133,9 +4133,9 @@
     "message": "Bekräfta"
   },
   "enableAutotypeShortcutPreview": {
-    "message": "Enable autotype shortcut (Feature Preview)"
+    "message": "Aktivera inmatningsgenväg (förhandsvisning av funktion)"
   },
-  "enableAutotypeDescriptionTransitionKey": {
+  "enableAutotypeShortcutDescription": {
     "message": "Försäkra dig om att du befinner dig i rätt fält innan du använder genvägen för att undvika att fylla i data på fel ställe."
   },
   "editShortcut": {

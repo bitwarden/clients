@@ -551,11 +551,11 @@
     "message": "Atiestatīt meklēšanu"
   },
   "archiveNoun": {
-    "message": "Archive",
+    "message": "Arhīvs",
     "description": "Noun"
   },
   "archiveVerb": {
-    "message": "Archive",
+    "message": "Arhivēt",
     "description": "Verb"
   },
   "unarchive": {
@@ -732,6 +732,15 @@
   },
   "invalidMasterPassword": {
     "message": "Nederīga galvenā parole"
+  },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Nederīga galvenā parole. Jāpārliecinās, ka e-pasta adrese ir pareiza un konts tika izveidots $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
   },
   "vaultTimeout": {
     "message": "Glabātavas noildze"
@@ -1538,6 +1547,15 @@
   },
   "readSecurityKey": {
     "message": "Nolasīt drošības atslēgu"
+  },
+  "readingPasskeyLoading": {
+    "message": "Nolasa piekļuves atslēgu..."
+  },
+  "passkeyAuthenticationFailed": {
+    "message": "Autentificēšanās ar piekļuves atslēgu neizdevās"
+  },
+  "useADifferentLogInMethod": {
+    "message": "Jāizmanto cits pieteikšanās veids"
   },
   "awaitingSecurityKeyInteraction": {
     "message": "Gaida mijiedarbību ar drošības atslēgu..."
@@ -3195,6 +3213,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },

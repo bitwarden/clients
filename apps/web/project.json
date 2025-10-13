@@ -1,0 +1,215 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "web",
+  "projectType": "application",
+  "sourceRoot": "apps/web/src",
+  "tags": ["scope:web", "type:app"],
+  "targets": {
+    "build": {
+      "executor": "@nx/webpack:webpack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "oss",
+      "options": {
+        "outputPath": "dist/apps/web",
+        "webpackConfig": "apps/web/webpack.config.js",
+        "tsConfig": "apps/web/tsconfig.json",
+        "main": "apps/web/src/main.ts",
+        "target": "web",
+        "compiler": "tsc"
+      },
+      "configurations": {
+        "oss": {
+          "mode": "production",
+          "outputPath": "dist/apps/web/oss"
+        },
+        "oss-dev": {
+          "mode": "development",
+          "outputPath": "dist/apps/web/oss-dev",
+          "env": {
+            "NODE_ENV": "development",
+            "ENV": "development"
+          }
+        },
+        "commercial": {
+          "mode": "production",
+          "outputPath": "dist/apps/web/commercial",
+          "webpackConfig": "bitwarden_license/bit-web/webpack.config.js",
+          "main": "bitwarden_license/bit-web/src/main.ts"
+        },
+        "commercial-dev": {
+          "mode": "development",
+          "outputPath": "dist/apps/web/commercial-dev",
+          "webpackConfig": "bitwarden_license/bit-web/webpack.config.js",
+          "main": "bitwarden_license/bit-web/src/main.ts",
+          "env": {
+            "NODE_ENV": "development",
+            "ENV": "development"
+          }
+        },
+        "commercial-qa": {
+          "mode": "production",
+          "outputPath": "dist/apps/web/commercial-qa",
+          "webpackConfig": "bitwarden_license/bit-web/webpack.config.js",
+          "main": "bitwarden_license/bit-web/src/main.ts",
+          "env": {
+            "NODE_ENV": "production",
+            "ENV": "qa"
+          }
+        },
+        "commercial-cloud": {
+          "mode": "production",
+          "outputPath": "dist/apps/web/commercial-cloud",
+          "webpackConfig": "bitwarden_license/bit-web/webpack.config.js",
+          "main": "bitwarden_license/bit-web/src/main.ts",
+          "env": {
+            "NODE_ENV": "production",
+            "ENV": "cloud"
+          }
+        },
+        "commercial-euprd": {
+          "mode": "production",
+          "outputPath": "dist/apps/web/commercial-euprd",
+          "webpackConfig": "bitwarden_license/bit-web/webpack.config.js",
+          "main": "bitwarden_license/bit-web/src/main.ts",
+          "env": {
+            "NODE_ENV": "production",
+            "ENV": "euprd"
+          }
+        },
+        "commercial-euqa": {
+          "mode": "production",
+          "outputPath": "dist/apps/web/commercial-euqa",
+          "webpackConfig": "bitwarden_license/bit-web/webpack.config.js",
+          "main": "bitwarden_license/bit-web/src/main.ts",
+          "env": {
+            "NODE_ENV": "production",
+            "ENV": "euqa"
+          }
+        },
+        "commercial-usdev": {
+          "mode": "production",
+          "outputPath": "dist/apps/web/commercial-usdev",
+          "webpackConfig": "bitwarden_license/bit-web/webpack.config.js",
+          "main": "bitwarden_license/bit-web/src/main.ts",
+          "env": {
+            "NODE_ENV": "production",
+            "ENV": "usdev"
+          }
+        },
+        "commercial-ee": {
+          "mode": "production",
+          "outputPath": "dist/apps/web/commercial-ee",
+          "webpackConfig": "bitwarden_license/bit-web/webpack.config.js",
+          "main": "bitwarden_license/bit-web/src/main.ts",
+          "env": {
+            "NODE_ENV": "production",
+            "ENV": "ee"
+          }
+        },
+        "oss-selfhost": {
+          "mode": "production",
+          "outputPath": "dist/apps/web/oss-selfhost",
+          "env": {
+            "ENV": "selfhosted",
+            "NODE_ENV": "production"
+          }
+        },
+        "oss-selfhost-dev": {
+          "mode": "development",
+          "outputPath": "dist/apps/web/oss-selfhost-dev",
+          "env": {
+            "NODE_ENV": "development",
+            "ENV": "selfhosted"
+          }
+        },
+        "commercial-selfhost": {
+          "mode": "production",
+          "outputPath": "dist/apps/web/commercial-selfhost",
+          "webpackConfig": "bitwarden_license/bit-web/webpack.config.js",
+          "main": "bitwarden_license/bit-web/src/main.ts",
+          "env": {
+            "ENV": "selfhosted",
+            "NODE_ENV": "production"
+          }
+        },
+        "commercial-selfhost-dev": {
+          "mode": "development",
+          "outputPath": "dist/apps/web/commercial-selfhost-dev",
+          "webpackConfig": "bitwarden_license/bit-web/webpack.config.js",
+          "main": "bitwarden_license/bit-web/src/main.ts",
+          "env": {
+            "NODE_ENV": "development",
+            "ENV": "selfhosted"
+          }
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nx/webpack:dev-server",
+      "defaultConfiguration": "oss-dev",
+      "options": {
+        "buildTarget": "web:build",
+        "host": "localhost",
+        "port": 8080
+      },
+      "configurations": {
+        "oss": {
+          "buildTarget": "web:build:oss"
+        },
+        "oss-dev": {
+          "buildTarget": "web:build:oss-dev"
+        },
+        "commercial": {
+          "buildTarget": "web:build:commercial"
+        },
+        "commercial-dev": {
+          "buildTarget": "web:build:commercial-dev"
+        },
+        "commercial-qa": {
+          "buildTarget": "web:build:commercial-qa"
+        },
+        "commercial-cloud": {
+          "buildTarget": "web:build:commercial-cloud"
+        },
+        "commercial-euprd": {
+          "buildTarget": "web:build:commercial-euprd"
+        },
+        "commercial-euqa": {
+          "buildTarget": "web:build:commercial-euqa"
+        },
+        "commercial-usdev": {
+          "buildTarget": "web:build:commercial-usdev"
+        },
+        "commercial-ee": {
+          "buildTarget": "web:build:commercial-ee"
+        },
+        "oss-selfhost": {
+          "buildTarget": "web:build:oss-selfhost"
+        },
+        "oss-selfhost-dev": {
+          "buildTarget": "web:build:oss-selfhost-dev"
+        },
+        "commercial-selfhost": {
+          "buildTarget": "web:build:commercial-selfhost"
+        },
+        "commercial-selfhost-dev": {
+          "buildTarget": "web:build:commercial-selfhost-dev"
+        }
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "apps/web/jest.config.js"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/web/**/*.ts", "apps/web/**/*.html"]
+      }
+    }
+  }
+}

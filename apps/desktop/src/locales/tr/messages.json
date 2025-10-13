@@ -1223,7 +1223,7 @@
     "message": "Geçersiz ana parola"
   },
   "invalidMasterPasswordConfirmEmailAndHost": {
-    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "message": "Ana parola geçersiz. E-posta adresinizin doğru olduğunu ve hesabınızın $HOST$ üzerinde oluşturulduğunu kontrol edin.",
     "placeholders": {
       "host": {
         "content": "$1",
@@ -4135,7 +4135,7 @@
   "enableAutotypeShortcutPreview": {
     "message": "Enable autotype shortcut (Feature Preview)"
   },
-  "enableAutotypeDescriptionTransitionKey": {
+  "enableAutotypeShortcutDescription": {
     "message": "Verilerin yanlış yere doldurulmasını önlemek için kısayolu kullanmadan önce doğru alanda olduğunuzdan emin olun."
   },
   "editShortcut": {

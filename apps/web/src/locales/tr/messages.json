@@ -35,6 +35,9 @@
       }
     }
   },
+  "noReportRan": {
+    "message": "You have not created a report yet"
+  },
   "notifiedMembers": {
     "message": "Bildirilen üyeler"
   },
@@ -59,8 +62,42 @@
   "createNewLoginItem": {
     "message": "Yeni hesap kaydı oluştur"
   },
+  "percentageCompleted": {
+    "message": "$PERCENT$% complete",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
+  "securityTasksCompleted": {
+    "message": "$COUNT$ out of $TOTAL$ security tasks completed",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "total": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "passwordChangeProgress": {
+    "message": "Password change progress"
+  },
+  "assignMembersTasksToMonitorProgress": {
+    "message": "Assign members tasks to monitor progress"
+  },
+  "onceYouReviewApplications": {
+    "message": "Once you review applications and mark them as critical, they will display here."
+  },
+  "sendReminders": {
+    "message": "Send reminders"
+  },
   "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
-    "message": "Once you mark applications critical, they will display here"
+    "message": "Once you mark applications critical, they will display here."
   },
   "viewAtRiskMembers": {
     "message": "View at-risk members"
@@ -108,6 +145,15 @@
       }
     }
   },
+  "countOfAtRiskPasswords": {
+    "message": "$COUNT$ passwords at-risk",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "notifiedMembersWithCount": {
     "message": "Bildirilen üyeler ($COUNT$)",
     "placeholders": {
@@ -141,8 +187,23 @@
   "markAppAsCritical": {
     "message": "Uygulamayı kritik olarak işaretle"
   },
+  "markAsCritical": {
+    "message": "Kritik olarak işaretle"
+  },
+  "applicationsSelected": {
+    "message": "applications selected"
+  },
+  "selectApplication": {
+    "message": "Select application"
+  },
+  "unselectApplication": {
+    "message": "Unselect application"
+  },
   "applicationsMarkedAsCriticalSuccess": {
     "message": "Kritik olarak işaretlenmiş uygulamalar"
+  },
+  "applicationsMarkedAsCriticalFail": {
+    "message": "Failed to mark applications as critical"
   },
   "application": {
     "message": "Uygulama"
@@ -162,11 +223,11 @@
   "atRiskMembers": {
     "message": "Riskli üyeler"
   },
-  "membersAtRiskActivityDescription": {
-    "message": "Kritik uygulamalar için risk altındaki kayıtlara düzenleme erişimi olan üyeler"
+  "membersWithAccessToAtRiskItemsForCriticalApps": {
+    "message": "Kritik uygulamalar için risk altındaki kayıtlara erişimi olan üyeler"
   },
   "membersAtRiskCount": {
-    "message": "$COUNT$ members at-risk",
+    "message": "$COUNT$ üye risk altında",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -230,6 +291,33 @@
   },
   "totalApplications": {
     "message": "Toplam uygulama"
+  },
+  "applicationsNeedingReview": {
+    "message": "Applications needing review"
+  },
+  "newApplicationsWithCount": {
+    "message": "$COUNT$ new applications",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "13"
+      }
+    }
+  },
+  "newApplicationsDescription": {
+    "message": "Review new applications to mark as critical and keep your organization secure"
+  },
+  "reviewNow": {
+    "message": "Review now"
+  },
+  "prioritizeCriticalApplications": {
+    "message": "Prioritize critical applications"
+  },
+  "atRiskItems": {
+    "message": "At-risk items"
+  },
+  "markAsCriticalPlaceholder": {
+    "message": "Mark as critical functionality will be implemented in a future update"
   },
   "unmarkAsCritical": {
     "message": "Kritik olarak işaretlemeyi kaldır"
@@ -1205,6 +1293,9 @@
   "readingPasskeyLoadingInfo": {
     "message": "Bu pencereyi açık tutun ve tarayıcınızdan gelen talimatları uygulayın."
   },
+  "passkeyAuthenticationFailed": {
+    "message": "Passkey authentication failed. Please try again."
+  },
   "useADifferentLogInMethod": {
     "message": "Başka bir giriş yöntemi kullan"
   },
@@ -1499,6 +1590,15 @@
   "invalidMasterPassword": {
     "message": "Geçersiz ana parola"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Ana parola geçersiz. E-posta adresinizin doğru olduğunu ve hesabınızın $HOST$ üzerinde oluşturulduğunu kontrol edin.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "invalidFilePassword": {
     "message": "Geçersiz dosya parolası. Lütfen dışa aktardığınız dosyayı oluştururken girdiğiniz parolayı kullanın."
   },
@@ -1509,16 +1609,16 @@
     "message": "Listelenecek kayıt yok."
   },
   "noItemsInTrash": {
-    "message": "No items in trash"
+    "message": "Çöp kutusunda hiç kayıt yok"
   },
   "noItemsInTrashDesc": {
-    "message": "Items you delete will appear here and be permanently deleted after 30 days"
+    "message": "Sildiğiniz kayıtlar burada görünecek ve 30 gün sonra kalıcı olarak silinecektir"
   },
   "noItemsInVault": {
-    "message": "No items in the vault"
+    "message": "Kasada hiç kayıt yok"
   },
   "emptyVaultDescription": {
-    "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
+    "message": "Kasanız sadece parolalarınız için değil. Hesaplarınızı, kimliklerinizi, kredi kartlarınızı ve notlarınızı da güvenle burada depolayabilirsiniz."
   },
   "emptyFavorites": {
     "message": "You haven't favorited any items"
@@ -1530,7 +1630,7 @@
     "message": "No search results returned"
   },
   "clearFiltersOrTryAnother": {
-    "message": "Clear filters or try another search term"
+    "message": "Filtreleri temizleyin veya başka bir arama yapmayı deneyin"
   },
   "noPermissionToViewAllCollectionItems": {
     "message": "Bu koleksiyondaki tüm kayıtları görmek için izniniz yok."
@@ -2849,6 +2949,9 @@
   },
   "makeSureEnoughCredit": {
     "message": "Lütfen hesabınızda bu ödemeyi yapabilecek kadar kredi olduğundan emin olun. Eğer hesabınızda yeteri kadar kredi yoksa, aradaki fark varsayılan ödeme yöntemizinden karşılanacaktır. Faturalandırma sayfasından hesabınıza kredi ekleyebilirsiniz."
+  },
+  "notEnoughAccountCredit": {
+    "message": "You do not have enough account credit for this purchase. You can add credit to your account from the Billing page."
   },
   "creditAppliedDesc": {
     "message": "Hesabınızdaki krediyi satın alımlarda kullanabilirsiniz. Mevcut krediniz bu hesap için oluşturulan faturalardan otomatik olarak düşülecektir."
@@ -4258,6 +4361,9 @@
   "generatingYourRiskInsights": {
     "message": "Risk içgörüleriniz oluşturuluyor..."
   },
+  "riskInsightsRunReport": {
+    "message": "Run report"
+  },
   "updateBrowserDesc": {
     "message": "Desteklenmeyen bir web tarayıcısı kullanıyorsunuz. Web kasası düzgün çalışmayabilir."
   },
@@ -4825,10 +4931,10 @@
     "message": "Kuruluş askıya alındı"
   },
   "organizationIsSuspended": {
-    "message": "Organization is suspended"
+    "message": "Kuruluş askıya alındı"
   },
   "organizationIsSuspendedDesc": {
-    "message": "Items in suspended organizations cannot be accessed. Contact your organization owner for assistance."
+    "message": "Askıya alınmış kuruluşlardaki kayıtlara erişilemez. Destek almak için kuruluş sahibinizle iletişime geçin."
   },
   "secretsAccessSuspended": {
     "message": "Askıya alınan kuruluşlara erişilemez. Lütfen yardım için kuruluşunuzun sahibiyle iletişime geçin."
@@ -7034,6 +7140,24 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "accessDenied": {
     "message": "Erişim engellendi. Bu sayfayı görüntüleme iznine sahip değilsiniz."
   },
@@ -7187,6 +7311,9 @@
   },
   "unknownSecret": {
     "message": "Bilinmeyen sır, bu sırra erişmek için izin istemeniz gerekebilir."
+  },
+  "unknownServiceAccount": {
+    "message": "Unknown machine account, you may need to request permission to access this machine account."
   },
   "unknownProject": {
     "message": "Bilinmeyen proje, bu projeye erişmek için izin istemeniz gerekebilir."
@@ -8538,8 +8665,8 @@
       }
     }
   },
-  "accessedProjectWithId": {
-    "message": "Kimliği: $PROJECT_ID$ olan bir projeye erişildi.",
+  "accessedProjectWithIdentifier": {
+    "message": "Accessed a project with identifier: $PROJECT_ID$.",
     "placeholders": {
       "project_id": {
         "content": "$1",
@@ -8565,10 +8692,89 @@
       }
     }
   },
+  "nameUnavailableServiceAccountDeleted": {
+    "message": "Deleted machine account Id: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "service_account_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
   "editedProjectWithId": {
     "message": "Tanımlayıcısı: $PROJECT_ID$ olan bir proje düzenlendi",
     "placeholders": {
       "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "addedUserToServiceAccountWithId": {
+    "message": "Added user: $USER_ID$ to machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "user_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "removedUserToServiceAccountWithId": {
+    "message": "Removed user: $USER_ID$ from machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "user_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "removedGroupFromServiceAccountWithId": {
+    "message": "Removed group: $GROUP_ID$ from machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "group_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "serviceAccountCreatedWithId": {
+    "message": "Created machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "service_account_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "addedGroupToServiceAccountId": {
+    "message": "Added group: $GROUP_ID$ to machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "group_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "serviceAccountDeletedWithId": {
+    "message": "Deleted machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "service_account_id": {
         "content": "$1",
         "example": "4d34e8a8"
       }
@@ -9410,6 +9616,9 @@
   "assign": {
     "message": "Ata"
   },
+  "assignTasks": {
+    "message": "Assign tasks"
+  },
   "assignToCollections": {
     "message": "Koleksiyonlara ata"
   },
@@ -9804,6 +10013,9 @@
   },
   "crowdstrikeEventIntegrationDesc": {
     "message": "Etkinlik verilerini Logscale'e gönderin"
+  },
+  "datadogEventIntegrationDesc": {
+    "message": "Send vault event data to your Datadog instance"
   },
   "failedToSaveIntegration": {
     "message": "Entegrasyon kaydedilemedi. Lütfen daha sonra tekrar deneyin."
@@ -11195,6 +11407,12 @@
   "bitwardenExtensionInstalled": {
     "message": "Bitwarden uzantısı yüklendi!"
   },
+  "openTheBitwardenExtension": {
+    "message": "Bitwarden uzantısını aç"
+  },
+  "bitwardenExtensionInstalledOpenExtension": {
+    "message": "The Bitwarden extension is installed! Open the extension to log in and start autofilling."
+  },
   "openExtensionToAutofill": {
     "message": "Otomatik doldurmaya başlamak için uzantıyı açıp giriş yapın."
   },
@@ -11552,5 +11770,38 @@
   },
   "seamlessIntegration": {
     "message": "Sorunsuz entegrasyon"
+  },
+  "families": {
+    "message": "Families"
+  },
+  "upgradeToFamilies": {
+    "message": "Upgrade to Families"
+  },
+  "upgradeToPremium": {
+    "message": "Upgrade to Premium"
+  },
+  "familiesUpdated": {
+    "message": "You've upgraded to Families!"
+  },
+  "taxCalculationError": {
+    "message": "There was an error calculating tax for your location. Please try again."
+  },
+  "individualUpgradeWelcomeMessage": {
+    "message": "Welcome to Bitwarden"
+  },
+  "individualUpgradeDescriptionMessage": {
+    "message": "Unlock more security features with Premium, or start sharing items with Families"
+  },
+  "individualUpgradeTaxInformationMessage": {
+    "message": "Prices exclude tax and are billed annually."
+  },
+  "organizationNameDescription": {
+    "message": "Your organization name will appear in invitations you send to members."
+  },
+  "continueWithoutUpgrading": {
+    "message": "Continue without upgrading"
+  },
+  "upgradeErrorMessage": {
+    "message": "We encountered an error while processing your upgrade. Please try again."
   }
 }

@@ -733,6 +733,15 @@
   "invalidMasterPassword": {
     "message": "Chybné hlavní heslo"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Neplatné hlavní heslo. Potvrďte správnost e-mailu a zda byl Váš účet vytvořen na $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "vaultTimeout": {
     "message": "Časový limit trezoru"
   },
@@ -1538,6 +1547,15 @@
   },
   "readSecurityKey": {
     "message": "Přečíst bezpečnostní klíč"
+  },
+  "readingPasskeyLoading": {
+    "message": "Načítání přístupového klíče..."
+  },
+  "passkeyAuthenticationFailed": {
+    "message": "Ověření přístupového klíče selhalo"
+  },
+  "useADifferentLogInMethod": {
+    "message": "Použít jinou metodu přihlášení"
   },
   "awaitingSecurityKeyInteraction": {
     "message": "Čeká se na interakci s bezpečnostním klíčem..."
@@ -3195,6 +3213,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Bude exportován jen trezor organizace přidružený k $ORGANIZATION$.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Bude exportován jen trezor organizace přidružený k $ORGANIZATION$. Položky mých sbírek nebudou zahrnuty.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },

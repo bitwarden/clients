@@ -1223,7 +1223,7 @@
     "message": "Ongeldig hoofdwachtwoord"
   },
   "invalidMasterPasswordConfirmEmailAndHost": {
-    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "message": "Ongeldig hoofdwachtwoord. Check of je e-mailadres klopt en of je account is aangemaakt op $HOST$.",
     "placeholders": {
       "host": {
         "content": "$1",
@@ -4135,8 +4135,8 @@
   "enableAutotypeShortcutPreview": {
     "message": "Autotype sneltoets inschakelen (Feature Preview)"
   },
-  "enableAutotypeDescriptionTransitionKey": {
-    "message": "Zorg ervoor dat je je in het juiste veld bevindt voordat je de snelkoppeling gebruikt om te voorkomen dat je de gegevens op de verkeerde plaats invult."
+  "enableAutotypeShortcutDescription": {
+    "message": "Zorg ervoor dat je je in het juiste veld staat voordat je de snelkoppeling gebruikt om te voorkomen dat je de gegevens op de verkeerde plaats invult."
   },
   "editShortcut": {
     "message": "Snelkoppeling bewerken"

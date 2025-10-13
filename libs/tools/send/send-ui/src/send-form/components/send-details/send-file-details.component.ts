@@ -1,7 +1,5 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, Input, OnInit } from "@angular/core";
+import { Component, input, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, Validators, ReactiveFormsModule, FormsModule } from "@angular/forms";
 
@@ -34,8 +32,8 @@ import { SendFormContainer } from "../../send-form-container";
   ],
 })
 export class SendFileDetailsComponent implements OnInit {
-  @Input() config: SendFormConfig;
-  @Input() originalSendView?: SendView;
+  config = input.required<SendFormConfig>();
+  originalSendView = input<SendView>();
 
   sendFileDetailsForm = this.formBuilder.group({
     file: this.formBuilder.control<SendFileView | null>(null, Validators.required),
@@ -69,13 +67,13 @@ export class SendFileDetailsComponent implements OnInit {
   };
 
   ngOnInit() {
-    if (this.originalSendView) {
+    if (this.originalSendView()) {
       this.sendFileDetailsForm.patchValue({
-        file: this.originalSendView.file,
+        file: this.originalSendView()?.file,
       });
     }
 
-    if (!this.config.areSendsAllowed) {
+    if (!this.config().areSendsAllowed) {
       this.sendFileDetailsForm.disable();
     }
   }

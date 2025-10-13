@@ -9,6 +9,7 @@ import { PopoverModule, ToastService } from "@bitwarden/components";
 import { SharedModule } from "../../../shared";
 import { BillingServicesModule, BraintreeService, StripeService } from "../../services";
 import {
+  AccountCreditPaymentMethod,
   isTokenizablePaymentMethod,
   selectableCountries,
   TokenizablePaymentMethod,
@@ -17,7 +18,7 @@ import {
 
 import { PaymentLabelComponent } from "./payment-label.component";
 
-type PaymentMethodOption = TokenizablePaymentMethod | "accountCredit";
+type PaymentMethodOption = TokenizablePaymentMethod | AccountCreditPaymentMethod;
 
 type PaymentMethodFormGroup = FormGroup<{
   type: FormControl<PaymentMethodOption>;
@@ -183,14 +184,20 @@ type PaymentMethodFormGroup = FormGroup<{
         }
         @case ("accountCredit") {
           <ng-container>
-            <bit-callout type="info">
-              {{ "makeSureEnoughCredit" | i18n }}
-            </bit-callout>
+            @if (hasEnoughAccountCredit) {
+              <bit-callout type="info">
+                {{ "makeSureEnoughCredit" | i18n }}
+              </bit-callout>
+            } @else {
+              <bit-callout type="warning">
+                {{ "notEnoughAccountCredit" | i18n }}
+              </bit-callout>
+            }
           </ng-container>
         }
       }
       @if (showBillingDetails) {
-        <h5 bitTypography="h5">{{ "billingAddress" | i18n }}</h5>
+        <h5 bitTypography="h5" class="tw-pt-4">{{ "billingAddress" | i18n }}</h5>
         <div class="tw-grid tw-grid-cols-12 tw-gap-4">
           <div class="tw-col-span-6">
             <bit-form-field [disableMargin]="true">
@@ -230,6 +237,7 @@ export class EnterPaymentMethodComponent implements OnInit {
   @Input() private showBankAccount = true;
   @Input() showPayPal = true;
   @Input() showAccountCredit = false;
+  @Input() hasEnoughAccountCredit = true;
   @Input() includeBillingAddress = false;
 
   protected showBankAccount$!: Observable<boolean>;

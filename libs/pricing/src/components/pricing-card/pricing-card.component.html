@@ -24,9 +24,9 @@
   @if (price(); as priceValue) {
     <div class="tw-mb-6">
       <div class="tw-flex tw-items-baseline tw-gap-1 tw-flex-wrap">
-        <span class="tw-text-3xl tw-font-bold tw-leading-none tw-m-0"
-          >${{ priceValue.amount }}</span
-        >
+        <span class="tw-text-3xl tw-font-bold tw-leading-none tw-m-0">{{
+          priceValue.amount | currency: "USD" : "symbol"
+        }}</span>
         <span bitTypography="helper" class="tw-text-muted">
           / {{ priceValue.cadence }}
           @if (priceValue.showPerUser) {
