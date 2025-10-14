@@ -11,11 +11,7 @@
         {{ "autoConfirmAcceptSecurityRiskTitle" | i18n }}
       </span>
       {{ "autoConfirmAcceptSecurityRiskDescription" | i18n }}
-      <a
-        bitLink
-        href="https://bitwarden.com/resources/credential-lifecycle-management/"
-        target="_blank"
-      >
+      <a bitLink href="https://bitwarden.com/help/automatic-confirmation/" target="_blank">
         {{ "autoConfirmAcceptSecurityRiskLearnMore" | i18n }}
         <i class="bwi bwi-external-link bwi-fw"></i>
       </a>
@@ -47,4 +43,16 @@
   <bit-label>{{ "autoConfirmCheckBoxLabel" | i18n }}</bit-label>
 </ng-template>
 
-<ng-template #step1> </ng-template>
+<ng-template #step1>
+  <ol>
+    <bit-icon [icon]="autoConfirmSvg"></bit-icon>
+    <li>1. {{ "autoConfirmStep1" | i18n }}</li>
+
+    <li>
+      2. {{ "autoConfirmStep2a" | i18n }}
+      <strong>
+        {{ "autoConfirmStep2b" | i18n }}
+      </strong>
+    </li>
+  </ol>
+</ng-template>
