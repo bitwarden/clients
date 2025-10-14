@@ -201,7 +201,7 @@ export class VaultItemsComponent<C extends CipherViewLike> {
     return (
       this.userCanArchive &&
       !this.selection.selected.find(
-        (item) => item.cipher.organizationId || item.cipher.archivedDate,
+        (item) => item.cipher && (item.cipher.organizationId || item.cipher.archivedDate),
       )
     );
   }
