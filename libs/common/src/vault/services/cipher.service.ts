@@ -1724,7 +1724,10 @@ export class CipherService implements CipherServiceAbstraction {
 
     const ciphers = await firstValueFrom(this.ciphers$(activeUserId.id));
     const cipher = ciphers[cipherId as CipherId];
-    const lastKnownRevisionDate = cipher?.revisionDate;
+    if (!cipher) {
+      throw new Error("Failed to share attachment: Cipher not found");
+    }
+    const lastKnownRevisionDate = cipher.revisionDate;
 
     const attachmentResponse = await this.apiService.nativeFetch(
       new Request(attachmentView.url, { cache: "no-store" }),
