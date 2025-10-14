@@ -5724,7 +5724,7 @@
     "message": "New users invited to the organization will be automatically confirmed when an admin’s device is unlocked.",
     "description": "This is the description of the policy as it appears in the 'Policies' page"
   },
-  "howToTrunOnAutoConfirm": {
+  "howToTurnOnAutoConfirm": {
     "message": "How to turn on automatic user confirmation"
   },
   "autoConfirmStep1": {
@@ -5759,19 +5759,16 @@
     "message": "Single organization policy required. "
   },
   "autoConfirmSingleOrgRequiredDescription": {
-    "message": "Members can belong to only one organization. Anyone part of more than one organization will have their access revoked until they leave the others."
+    "message": "Anyone part of more than one organization will have their access revoked until they leave the other organizations."
   },
   "autoConfirmSingleOrgExemption": {
     "message": "Single organization policy will extend to all roles. "
-  },
-  "autoConfirmSingleOrgExemptionDescription": {
-    "message": "Members can belong to only one organization. Anyone part of more than one organization will have their access revoked until they leave the others."
   },
   "autoConfirmNoEmergencyAccess": {
     "message": "No emergency access. "
   },
   "autoConfirmNoEmergencyAccessDescription": {
-    "message": "Emergency Access will be removed for everyone."
+    "message": "Emergency Access will be removed."
   },
   "autoConfirmCheckBoxLabel": {
     "message": "Turn on and accept these risks and policy updates"

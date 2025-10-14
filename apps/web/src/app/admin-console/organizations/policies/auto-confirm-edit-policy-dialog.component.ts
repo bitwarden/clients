@@ -10,7 +10,7 @@ import {
 } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { Router } from "@angular/router";
-import { firstValueFrom, map, Observable, of, switchMap } from "rxjs";
+import { firstValueFrom, map, Observable, of, switchMap, tap } from "rxjs";
 
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -31,6 +31,7 @@ import { KeyService } from "@bitwarden/key-management";
 
 import { SharedModule } from "../../../shared";
 
+import { AutoConfirmPolicyEditComponent } from "./policy-edit-definitions/auto-confirm-policy.component";
 import {
   PolicyEditDialogComponent,
   PolicyEditDialogData,
@@ -49,7 +50,7 @@ export type AutoConfirmPolicyDialogData = PolicyEditDialogData & {
 
 /**
  * Custom policy dialog component for Auto-Confirm policy.
- * Satisfies the PolicyDialogComponent interface structually
+ * Satisfies the PolicyDialogComponent interface structurally
  * via its static open() function.
  */
 @Component({
@@ -71,6 +72,8 @@ export class AutoConfirmPolicyDialogComponent
 
   private submitPolicyTitle: Signal<TemplateRef<unknown> | undefined> = viewChild("step0Title");
   private openExtensionTitle: Signal<TemplateRef<unknown> | undefined> = viewChild("step1Title");
+
+  override policyComponent: AutoConfirmPolicyEditComponent | undefined;
 
   constructor(
     @Inject(DIALOG_DATA) protected data: AutoConfirmPolicyDialogData,
@@ -111,10 +114,13 @@ export class AutoConfirmPolicyDialogComponent
     this.multiStepSubmit = this.accountService.activeAccount$.pipe(
       getUserId,
       switchMap((userId) => this.policyService.policies$(userId)),
-      map((policies) => policies.find((p) => p.type === PolicyType.SingleOrg && p.enabled)),
-      map((singleOrgPolicy) => [
+      map((policies) => policies.find((p) => p.type === PolicyType.SingleOrg)?.enabled ?? false),
+      tap((singleOrgPolicyEnabled) =>
+        this.policyComponent?.setSingleOrgEnabled(singleOrgPolicyEnabled),
+      ),
+      map((singleOrgPolicyEnabled) => [
         {
-          sideEffect: () => this.handleSubmit(singleOrgPolicy?.enabled ?? false),
+          sideEffect: () => this.handleSubmit(singleOrgPolicyEnabled ?? false),
           footerContent: this.submitPolicy,
           titleContent: this.submitPolicyTitle,
         },
