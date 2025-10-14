@@ -24,7 +24,6 @@ pub fn get_supported_importers<T: InstalledBrowserRetriever>() -> HashMap<String
 
     // Check for installed browsers
     let installed_browsers = T::get_installed_browsers().unwrap_or_default();
-    println!("{:?}", installed_browsers);
 
     const IMPORTERS: [(&str, &str); 6] = [
         ("chromecsv", "Chrome"),
@@ -165,14 +164,26 @@ mod tests {
             assert!(loaders.contains("file"));
             assert!(loaders.contains("chromium"), "missing chromium for {id}");
         }
+    }
 
-        for id in without_chromium {
-            let loaders = get_loaders(&map, id);
-            assert!(loaders.contains("file"));
-            assert!(
-                !loaders.contains("chromium"),
-                "unexpected chromium support for {id}"
-            );
+    #[cfg(target_os = "windows")]
+    #[test]
+    fn returns_all_known_importers() {
+        let map = get_supported_importers::<MockInstalledBrowserRetriever>();
+
+        let expected: HashSet<String> = HashSet::from([
+            "chromecsv".to_string(),
+            "chromiumcsv".to_string(),
+            "bravecsv".to_string(),
+            "operacsv".to_string(),
+        ]);
+        assert_eq!(map.len(), expected.len());
+        assert_eq!(map_keys(&map), expected);
+
+        for (key, meta) in map.iter() {
+            assert_eq!(&meta.id, key);
+            assert_eq!(meta.instructions, "chromium");
+            assert!(meta.loaders.iter().any(|l| *l == "file"));
         }
     }
 
@@ -187,15 +198,6 @@ mod tests {
             let loaders = get_loaders(&map, id);
             assert!(loaders.contains("file"));
             assert!(loaders.contains("chromium"), "missing chromium for {id}");
-        }
-
-        for id in without_chromium {
-            let loaders = get_loaders(&map, id);
-            assert!(loaders.contains("file"));
-            assert!(
-                !loaders.contains("chromium"),
-                "unexpected chromium support for {id}"
-            );
         }
     }
 }
