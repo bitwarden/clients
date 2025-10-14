@@ -4,16 +4,17 @@ use anyhow::{anyhow, Result};
 use async_trait::async_trait;
 use oo7::XDG_SCHEMA_ATTRIBUTE;
 
-use crate::chromium::{BrowserConfig, CryptoService, LocalState};
-
-mod util;
+use crate::{
+    chromium::{BrowserConfig, CryptoService, LocalState},
+    util,
+};
 
 //
 // Public API
 //
 
 // TODO: It's possible that there might be multiple possible data directories, depending on the installation method (e.g., snap, flatpak, etc.).
-pub const SUPPORTED_BROWSERS: [BrowserConfig; 4] = [
+pub(crate) const SUPPORTED_BROWSERS: [BrowserConfig; 4] = [
     BrowserConfig {
         name: "Chrome",
         data_dir: ".config/google-chrome",
@@ -32,7 +33,7 @@ pub const SUPPORTED_BROWSERS: [BrowserConfig; 4] = [
     },
 ];
 
-pub fn get_crypto_service(
+pub(crate) fn get_crypto_service(
     browser_name: &String,
     _local_state: &LocalState,
 ) -> Result<Box<dyn CryptoService>> {
