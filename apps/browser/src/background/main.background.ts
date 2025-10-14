@@ -221,8 +221,10 @@ import {
   UsernameGenerationServiceAbstraction,
 } from "@bitwarden/generator-legacy";
 import {
+  DefaultImportMetadataService,
   ImportApiService,
   ImportApiServiceAbstraction,
+  ImportMetadataServiceAbstraction,
   ImportService,
   ImportServiceAbstraction,
 } from "@bitwarden/importer-core";
@@ -368,6 +370,7 @@ export default class MainBackground {
   authService: AuthServiceAbstraction;
   loginEmailService: LoginEmailServiceAbstraction;
   importApiService: ImportApiServiceAbstraction;
+  importMetadataService: ImportMetadataServiceAbstraction;
   importService: ImportServiceAbstraction;
   exportApiService: VaultExportApiService;
   exportService: VaultExportServiceAbstraction;
@@ -1086,6 +1089,18 @@ export default class MainBackground {
 
     this.importApiService = new ImportApiService(this.apiService);
 
+    this.importMetadataService = new DefaultImportMetadataService(
+      createSystemServiceProvider(
+        new KeyServiceLegacyEncryptorProvider(this.encryptService, this.keyService),
+        this.stateProvider,
+        this.policyService,
+        buildExtensionRegistry(),
+        this.logService,
+        this.platformUtilsService,
+        this.configService,
+      ),
+    );
+
     this.importService = new ImportService(
       this.cipherService,
       this.folderService,
@@ -1097,15 +1112,6 @@ export default class MainBackground {
       this.pinService,
       this.accountService,
       this.restrictedItemTypesService,
-      createSystemServiceProvider(
-        new KeyServiceLegacyEncryptorProvider(this.encryptService, this.keyService),
-        this.stateProvider,
-        this.policyService,
-        buildExtensionRegistry(),
-        this.logService,
-        this.platformUtilsService,
-        this.configService,
-      ),
     );
 
     this.individualVaultExportService = new IndividualVaultExportService(

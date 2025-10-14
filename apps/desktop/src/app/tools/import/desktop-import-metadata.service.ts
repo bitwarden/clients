@@ -1,0 +1,69 @@
+import { SystemServiceProvider } from "@bitwarden/common/tools/providers";
+import {
+  ImportType,
+  DefaultImportMetadataService,
+  ImportMetadataServiceAbstraction,
+  DataLoader,
+  ImporterMetadata,
+  InstructionLink,
+  Instructions,
+  Loader,
+} from "@bitwarden/importer-core";
+
+type NativeImporter = {
+  id: string;
+  loaders: string[];
+  instructions: string;
+};
+
+export class DesktopImportMetadataService
+  extends DefaultImportMetadataService
+  implements ImportMetadataServiceAbstraction
+{
+  constructor(system: SystemServiceProvider) {
+    super(system);
+  }
+
+  async init(): Promise<void> {
+    const metadataJson = await ipc.tools.chromiumImporterMetadata.getMetadataAsJson();
+    await this.parseNativeMetaData(metadataJson);
+    await super.init();
+  }
+
+  private async parseNativeMetaData(rawJson: string) {
+    const raw: Record<string, NativeImporter> = JSON.parse(rawJson);
+
+    const entries = Object.entries(raw).map(([id, meta]) => {
+      const loaders = meta.loaders.map(this.mapLoader);
+      const instructions = this.mapInstructions(meta.instructions);
+      const mapped: ImporterMetadata = {
+        type: id as ImportType,
+        loaders,
+        ...(instructions ? { instructions } : {}),
+      };
+      return [id, mapped] as const;
+    });
+
+    this.importers = Object.fromEntries(entries);
+  }
+
+  private mapLoader(name: string): DataLoader {
+    switch (name) {
+      case "file":
+        return Loader.file;
+      case "chromium":
+        return Loader.chromium;
+      default:
+        throw new Error(`Unknown loader from native module: ${name}`);
+    }
+  }
+
+  private mapInstructions(name: string): InstructionLink | undefined {
+    switch (name) {
+      case "chromium":
+        return Instructions.chromium;
+      default:
+        return undefined;
+    }
+  }
+}
