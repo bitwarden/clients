@@ -1,18 +1,11 @@
 <form [formGroup]="formGroup" [bitSubmit]="submit">
   <bit-dialog [loading]="loading">
-    <div bitDialogTitle class="tw-flex tw-flex-col">
-      @if (firstTimeDialog) {
-        <span bitBadge variant="info" class="tw-w-28 tw-my-2"> {{ "availableNow" | i18n }}</span>
+    <ng-container bitDialogTitle>
+      @let title = (multiStepSubmit | async)[currentStep()]?.titleContent();
+      @if (title) {
+        <ng-container [ngTemplateOutlet]="title"></ng-container>
       }
-      <span>
-        {{ (firstTimeDialog ? "autoConfirm" : "editPolicy") | i18n }}
-        @if (!firstTimeDialog) {
-          <span class="tw-text-muted tw-font-normal tw-text-sm">
-            {{ policy.name | i18n }}
-          </span>
-        }
-      </span>
-    </div>
+    </ng-container>
 
     <ng-container bitDialogContent>
       <div *ngIf="loading">
@@ -31,13 +24,33 @@
       <ng-template #policyForm></ng-template>
     </ng-container>
     <ng-container bitDialogFooter>
-      @let templateContent = (multiStepSubmit | async)[currentStep]?.content();
-      @if (templateContent) {
-        <ng-container [ngTemplateOutlet]="templateContent"></ng-container>
+      @let footer = (multiStepSubmit | async)[currentStep()]?.footerContent();
+      @if (footer) {
+        <ng-container [ngTemplateOutlet]="footer"></ng-container>
       }
     </ng-container>
   </bit-dialog>
 </form>
+
+<ng-template #step0Title>
+  <div class="tw-flex tw-flex-col">
+    @if (firstTimeDialog) {
+      <span bitBadge variant="info" class="tw-w-28 tw-my-2"> {{ "availableNow" | i18n }}</span>
+    }
+    <span>
+      {{ (firstTimeDialog ? "autoConfirm" : "editPolicy") | i18n }}
+      @if (!firstTimeDialog) {
+        <span class="tw-text-muted tw-font-normal tw-text-sm">
+          {{ policy.name | i18n }}
+        </span>
+      }
+    </span>
+  </div>
+</ng-template>
+
+<ng-template #step1Title>
+  {{ "howToTurnOnAutoConfirm" | i18n }}
+</ng-template>
 
 <ng-template #step0>
   <button
@@ -63,8 +76,9 @@
     type="submit"
   >
     {{ "openExtension" | i18n }}
+    <i class="bwi bwi-external-link tw-ml-1" aria-hidden="true"></i>
   </button>
   <button bitButton buttonType="secondary" bitDialogClose type="button">
-    {{ "cancel" | i18n }}
+    {{ "close" | i18n }}
   </button>
 </ng-template>

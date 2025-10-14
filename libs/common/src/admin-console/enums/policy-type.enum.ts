@@ -18,5 +18,5 @@ export enum PolicyType {
   RemoveUnlockWithPin = 14, // Do not allow members to unlock their account with a PIN.
   RestrictedItemTypes = 15, // Restricts item types that can be created within an organization
   AutotypeDefaultSetting = 17, // Sets the default autotype setting for desktop app
-  AutoConfirm = 18, // Allows logged in admins to auto confirm users and removes exemptions from single org
+  AutoConfirm = 18, // Enables the auto confirmation feature for admins to enable in their client
 }

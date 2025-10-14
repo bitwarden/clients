@@ -3,6 +3,7 @@ import {
   ChangeDetectorRef,
   Component,
   Inject,
+  signal,
   Signal,
   TemplateRef,
   viewChild,
@@ -14,6 +15,7 @@ import { firstValueFrom, map, Observable, of, switchMap } from "rxjs";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { PolicyRequest } from "@bitwarden/common/admin-console/models/request/policy.request";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -29,11 +31,6 @@ import { KeyService } from "@bitwarden/key-management";
 
 import { SharedModule } from "../../../shared";
 
-import { AutoConfirmPolicyEditComponent } from "./policy-edit-definitions/auto-confirm-policy.component";
-import {
-  SingleOrgPolicy,
-  SingleOrgPolicyComponent,
-} from "./policy-edit-definitions/single-org.component";
 import {
   PolicyEditDialogComponent,
   PolicyEditDialogData,
@@ -42,7 +39,8 @@ import {
 
 export type MultiStepSubmit = {
   sideEffect: () => Promise<void>;
-  content: Signal<TemplateRef<any> | undefined>;
+  footerContent: Signal<TemplateRef<unknown> | undefined>;
+  titleContent: Signal<TemplateRef<unknown> | undefined>;
 };
 
 export type AutoConfirmPolicyDialogData = PolicyEditDialogData & {
@@ -64,14 +62,15 @@ export class AutoConfirmPolicyDialogComponent
 {
   policyType = PolicyType;
 
-  override policyComponent: AutoConfirmPolicyEditComponent;
-
-  protected firstTimeDialog: boolean;
-  protected currentStep: number = 0;
+  protected firstTimeDialog = signal(false);
+  protected currentStep = signal(0);
   protected multiStepSubmit: Observable<MultiStepSubmit[]> = of([]);
 
-  private submitPolicy: Signal<TemplateRef<any> | undefined> = viewChild("step0");
-  private openExtension: Signal<TemplateRef<any> | undefined> = viewChild("step1");
+  private submitPolicy: Signal<TemplateRef<unknown> | undefined> = viewChild("step0");
+  private openExtension: Signal<TemplateRef<unknown> | undefined> = viewChild("step1");
+
+  private submitPolicyTitle: Signal<TemplateRef<unknown> | undefined> = viewChild("step0Title");
+  private openExtensionTitle: Signal<TemplateRef<unknown> | undefined> = viewChild("step1Title");
 
   constructor(
     @Inject(DIALOG_DATA) protected data: AutoConfirmPolicyDialogData,
@@ -100,8 +99,7 @@ export class AutoConfirmPolicyDialogComponent
       keyService,
     );
 
-    this.firstTimeDialog = data.firstTimeDialog ?? false;
-    this.policyComponent = new AutoConfirmPolicyEditComponent();
+    this.firstTimeDialog.set(data.firstTimeDialog ?? false);
   }
 
   /**
@@ -117,11 +115,13 @@ export class AutoConfirmPolicyDialogComponent
       map((singleOrgPolicy) => [
         {
           sideEffect: () => this.handleSubmit(singleOrgPolicy?.enabled ?? false),
-          content: this.submitPolicy,
+          footerContent: this.submitPolicy,
+          titleContent: this.submitPolicyTitle,
         },
         {
           sideEffect: () => this.openBrowserExtension(),
-          content: this.openExtension,
+          footerContent: this.openExtension,
+          titleContent: this.openExtensionTitle,
         },
       ]),
     );
@@ -144,7 +144,6 @@ export class AutoConfirmPolicyDialogComponent
     }
 
     const autoConfirmRequest = await this.policyComponent.buildRequest();
-
     await this.policyApiService.putPolicy(
       this.data.organizationId,
       this.data.policy.type,
@@ -161,11 +160,12 @@ export class AutoConfirmPolicyDialogComponent
     }
   }
 
-  private async submitSingleOrg() {
-    const singleOrg = new SingleOrgPolicyComponent();
-    singleOrg.policy = new SingleOrgPolicy();
-    const singleOrgRequest = await singleOrg.buildRequest();
-    singleOrgRequest.enabled = true;
+  private async submitSingleOrg(): Promise<void> {
+    const singleOrgRequest: PolicyRequest = {
+      type: PolicyType.SingleOrg,
+      enabled: true,
+      data: null,
+    };
 
     await this.policyApiService.putPolicy(
       this.data.organizationId,
@@ -176,7 +176,7 @@ export class AutoConfirmPolicyDialogComponent
 
   private async openBrowserExtension() {
     await this.router.navigate(["/browser-extension-prompt"], {
-      queryParams: { autoConfirm: true },
+      queryParams: { url: "AutoConfirm" },
     });
   }
 
@@ -192,14 +192,14 @@ export class AutoConfirmPolicyDialogComponent
 
     try {
       const multiStepSubmit = await firstValueFrom(this.multiStepSubmit);
-      await multiStepSubmit[this.currentStep].sideEffect();
+      await multiStepSubmit[this.currentStep()].sideEffect();
 
-      if (this.currentStep === multiStepSubmit.length - 1) {
+      if (this.currentStep() === multiStepSubmit.length - 1) {
         this.dialogRef.close("saved");
         return;
       }
 
-      this.policyComponent.setStep(++this.currentStep);
+      this.currentStep.update((step) => step++);
     } catch (error: any) {
       this.toastService.showToast({
         variant: "error",
