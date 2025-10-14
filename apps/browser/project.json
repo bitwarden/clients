@@ -12,7 +12,7 @@
       "options": {
         "outputPath": "dist/apps/browser",
         "webpackConfig": "apps/browser/webpack.config.js",
-        "tsConfig": "apps/browser/tsconfig.build.json",
+        "tsConfig": "apps/browser/tsconfig.json",
         "main": "apps/browser/src/popup/main.ts",
         "target": "web",
         "compiler": "tsc"
@@ -149,7 +149,7 @@
           "outputPath": "dist/apps/browser/commercial-chrome",
           "webpackConfig": "bitwarden_license/bit-browser/webpack.config.js",
           "main": "bitwarden_license/bit-browser/src/popup/main.ts",
-          "tsConfig": "bitwarden_license/bit-browser/tsconfig.build.json",
+          "tsConfig": "bitwarden_license/bit-browser/tsconfig.json",
           "env": {
             "BROWSER": "chrome",
             "MANIFEST_VERSION": "3",
@@ -161,7 +161,7 @@
           "outputPath": "dist/apps/browser/commercial-chrome-dev",
           "webpackConfig": "bitwarden_license/bit-browser/webpack.config.js",
           "main": "bitwarden_license/bit-browser/src/popup/main.ts",
-          "tsConfig": "bitwarden_license/bit-browser/tsconfig.build.json",
+          "tsConfig": "bitwarden_license/bit-browser/tsconfig.json",
           "env": {
             "BROWSER": "chrome",
             "MANIFEST_VERSION": "3",
@@ -173,7 +173,7 @@
           "outputPath": "dist/apps/browser/commercial-edge",
           "webpackConfig": "bitwarden_license/bit-browser/webpack.config.js",
           "main": "bitwarden_license/bit-browser/src/popup/main.ts",
-          "tsConfig": "bitwarden_license/bit-browser/tsconfig.build.json",
+          "tsConfig": "bitwarden_license/bit-browser/tsconfig.json",
           "env": {
             "BROWSER": "edge",
             "MANIFEST_VERSION": "3",
@@ -185,7 +185,7 @@
           "outputPath": "dist/apps/browser/commercial-edge-dev",
           "webpackConfig": "bitwarden_license/bit-browser/webpack.config.js",
           "main": "bitwarden_license/bit-browser/src/popup/main.ts",
-          "tsConfig": "bitwarden_license/bit-browser/tsconfig.build.json",
+          "tsConfig": "bitwarden_license/bit-browser/tsconfig.json",
           "env": {
             "BROWSER": "edge",
             "MANIFEST_VERSION": "3",
@@ -197,7 +197,7 @@
           "outputPath": "dist/apps/browser/commercial-firefox",
           "webpackConfig": "bitwarden_license/bit-browser/webpack.config.js",
           "main": "bitwarden_license/bit-browser/src/popup/main.ts",
-          "tsConfig": "bitwarden_license/bit-browser/tsconfig.build.json",
+          "tsConfig": "bitwarden_license/bit-browser/tsconfig.json",
           "env": {
             "BROWSER": "firefox",
             "MANIFEST_VERSION": "3",
@@ -209,7 +209,7 @@
           "outputPath": "dist/apps/browser/commercial-firefox-dev",
           "webpackConfig": "bitwarden_license/bit-browser/webpack.config.js",
           "main": "bitwarden_license/bit-browser/src/popup/main.ts",
-          "tsConfig": "bitwarden_license/bit-browser/tsconfig.build.json",
+          "tsConfig": "bitwarden_license/bit-browser/tsconfig.json",
           "env": {
             "BROWSER": "firefox",
             "MANIFEST_VERSION": "3",
@@ -221,7 +221,7 @@
           "outputPath": "dist/apps/browser/commercial-firefox-mv2",
           "webpackConfig": "bitwarden_license/bit-browser/webpack.config.js",
           "main": "bitwarden_license/bit-browser/src/popup/main.ts",
-          "tsConfig": "bitwarden_license/bit-browser/tsconfig.build.json",
+          "tsConfig": "bitwarden_license/bit-browser/tsconfig.json",
           "env": {
             "BROWSER": "firefox",
             "MANIFEST_VERSION": "2",
@@ -233,7 +233,7 @@
           "outputPath": "dist/apps/browser/commercial-firefox-mv2-dev",
           "webpackConfig": "bitwarden_license/bit-browser/webpack.config.js",
           "main": "bitwarden_license/bit-browser/src/popup/main.ts",
-          "tsConfig": "bitwarden_license/bit-browser/tsconfig.build.json",
+          "tsConfig": "bitwarden_license/bit-browser/tsconfig.json",
           "env": {
             "BROWSER": "firefox",
             "MANIFEST_VERSION": "2",
@@ -245,7 +245,7 @@
           "outputPath": "dist/apps/browser/commercial-opera",
           "webpackConfig": "bitwarden_license/bit-browser/webpack.config.js",
           "main": "bitwarden_license/bit-browser/src/popup/main.ts",
-          "tsConfig": "bitwarden_license/bit-browser/tsconfig.build.json",
+          "tsConfig": "bitwarden_license/bit-browser/tsconfig.json",
           "env": {
             "BROWSER": "opera",
             "MANIFEST_VERSION": "3",
@@ -257,7 +257,7 @@
           "outputPath": "dist/apps/browser/commercial-opera-dev",
           "webpackConfig": "bitwarden_license/bit-browser/webpack.config.js",
           "main": "bitwarden_license/bit-browser/src/popup/main.ts",
-          "tsConfig": "bitwarden_license/bit-browser/tsconfig.build.json",
+          "tsConfig": "bitwarden_license/bit-browser/tsconfig.json",
           "env": {
             "BROWSER": "opera",
             "MANIFEST_VERSION": "3",
@@ -269,7 +269,7 @@
           "outputPath": "dist/apps/browser/commercial-safari",
           "webpackConfig": "bitwarden_license/bit-browser/webpack.config.js",
           "main": "bitwarden_license/bit-browser/src/popup/main.ts",
-          "tsConfig": "bitwarden_license/bit-browser/tsconfig.build.json",
+          "tsConfig": "bitwarden_license/bit-browser/tsconfig.json",
           "env": {
             "BROWSER": "safari",
             "MANIFEST_VERSION": "3",
@@ -281,7 +281,7 @@
           "outputPath": "dist/apps/browser/commercial-safari-dev",
           "webpackConfig": "bitwarden_license/bit-browser/webpack.config.js",
           "main": "bitwarden_license/bit-browser/src/popup/main.ts",
-          "tsConfig": "bitwarden_license/bit-browser/tsconfig.build.json",
+          "tsConfig": "bitwarden_license/bit-browser/tsconfig.json",
           "env": {
             "BROWSER": "safari",
             "MANIFEST_VERSION": "3",
@@ -293,7 +293,7 @@
           "outputPath": "dist/apps/browser/commercial-safari-mv2",
           "webpackConfig": "bitwarden_license/bit-browser/webpack.config.js",
           "main": "bitwarden_license/bit-browser/src/popup/main.ts",
-          "tsConfig": "bitwarden_license/bit-browser/tsconfig.build.json",
+          "tsConfig": "bitwarden_license/bit-browser/tsconfig.json",
           "env": {
             "BROWSER": "safari",
             "MANIFEST_VERSION": "2",
@@ -305,7 +305,7 @@
           "outputPath": "dist/apps/browser/commercial-safari-mv2-dev",
           "webpackConfig": "bitwarden_license/bit-browser/webpack.config.js",
           "main": "bitwarden_license/bit-browser/src/popup/main.ts",
-          "tsConfig": "bitwarden_license/bit-browser/tsconfig.build.json",
+          "tsConfig": "bitwarden_license/bit-browser/tsconfig.json",
           "env": {
             "BROWSER": "safari",
             "MANIFEST_VERSION": "2",
@@ -320,7 +320,7 @@
       "options": {
         "outputPath": "dist/apps/browser",
         "webpackConfig": "apps/browser/webpack.config.js",
-        "tsConfig": "apps/browser/tsconfig.build.json",
+        "tsConfig": "apps/browser/tsconfig.json",
         "main": "apps/browser/src/popup/main.ts",
         "target": "web",
         "compiler": "tsc",
@@ -395,7 +395,7 @@
           "outputPath": "dist/apps/browser/commercial-chrome-dev",
           "webpackConfig": "bitwarden_license/bit-browser/webpack.config.js",
           "main": "bitwarden_license/bit-browser/src/popup/main.ts",
-          "tsConfig": "bitwarden_license/bit-browser/tsconfig.build.json",
+          "tsConfig": "bitwarden_license/bit-browser/tsconfig.json",
           "env": {
             "BROWSER": "chrome",
             "MANIFEST_VERSION": "3",
@@ -407,7 +407,7 @@
           "outputPath": "dist/apps/browser/commercial-firefox-dev",
           "webpackConfig": "bitwarden_license/bit-browser/webpack.config.js",
           "main": "bitwarden_license/bit-browser/src/popup/main.ts",
-          "tsConfig": "bitwarden_license/bit-browser/tsconfig.build.json",
+          "tsConfig": "bitwarden_license/bit-browser/tsconfig.json",
           "env": {
             "BROWSER": "firefox",
             "MANIFEST_VERSION": "3",
@@ -419,7 +419,7 @@
           "outputPath": "dist/apps/browser/commercial-firefox-mv2-dev",
           "webpackConfig": "bitwarden_license/bit-browser/webpack.config.js",
           "main": "bitwarden_license/bit-browser/src/popup/main.ts",
-          "tsConfig": "bitwarden_license/bit-browser/tsconfig.build.json",
+          "tsConfig": "bitwarden_license/bit-browser/tsconfig.json",
           "env": {
             "BROWSER": "firefox",
             "MANIFEST_VERSION": "2",
@@ -431,7 +431,7 @@
           "outputPath": "dist/apps/browser/commercial-safari-dev",
           "webpackConfig": "bitwarden_license/bit-browser/webpack.config.js",
           "main": "bitwarden_license/bit-browser/src/popup/main.ts",
-          "tsConfig": "bitwarden_license/bit-browser/tsconfig.build.json",
+          "tsConfig": "bitwarden_license/bit-browser/tsconfig.json",
           "env": {
             "BROWSER": "safari",
             "MANIFEST_VERSION": "3",
@@ -443,7 +443,7 @@
           "outputPath": "dist/apps/browser/commercial-safari-mv2-dev",
           "webpackConfig": "bitwarden_license/bit-browser/webpack.config.js",
           "main": "bitwarden_license/bit-browser/src/popup/main.ts",
-          "tsConfig": "bitwarden_license/bit-browser/tsconfig.build.json",
+          "tsConfig": "bitwarden_license/bit-browser/tsconfig.json",
           "env": {
             "BROWSER": "safari",
             "MANIFEST_VERSION": "2",
@@ -455,7 +455,7 @@
           "outputPath": "dist/apps/browser/commercial-edge-dev",
           "webpackConfig": "bitwarden_license/bit-browser/webpack.config.js",
           "main": "bitwarden_license/bit-browser/src/popup/main.ts",
-          "tsConfig": "bitwarden_license/bit-browser/tsconfig.build.json",
+          "tsConfig": "bitwarden_license/bit-browser/tsconfig.json",
           "env": {
             "BROWSER": "edge",
             "MANIFEST_VERSION": "3",
@@ -467,7 +467,7 @@
           "outputPath": "dist/apps/browser/commercial-opera-dev",
           "webpackConfig": "bitwarden_license/bit-browser/webpack.config.js",
           "main": "bitwarden_license/bit-browser/src/popup/main.ts",
-          "tsConfig": "bitwarden_license/bit-browser/tsconfig.build.json",
+          "tsConfig": "bitwarden_license/bit-browser/tsconfig.json",
           "env": {
             "BROWSER": "opera",
             "MANIFEST_VERSION": "3",

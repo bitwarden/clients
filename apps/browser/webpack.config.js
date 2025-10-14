@@ -29,7 +29,7 @@ module.exports = (webpackConfig, context) => {
       background: {
         entry: path.resolve(__dirname, "src/platform/background.ts"),
       },
-      tsConfig: path.resolve(__dirname, "tsconfig.build.json"),
+      tsConfig: path.resolve(__dirname, "tsconfig.json"),
       outputPath:
         context.context && context.context.root
           ? path.resolve(context.context.root, context.options.outputPath)
