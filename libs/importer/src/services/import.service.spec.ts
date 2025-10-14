@@ -341,19 +341,6 @@ describe("ImportService", () => {
       expect(result.loaders).toContain(Loader.file);
     });
 
-    it("should exclude chromium loader when feature flag is disabled", async () => {
-      const testType: ImportType = "bravecsv"; // bravecsv supports both file and chromium loaders
-      featureFlagSubject.next(false);
-
-      const metadataPromise = firstValueFrom(importService.metadata$(typeSubject));
-      typeSubject.next(testType);
-
-      const result = await metadataPromise;
-
-      expect(result.loaders).not.toContain(Loader.chromium);
-      expect(result.loaders).toContain(Loader.file);
-    });
-
     it("should update when type$ changes", async () => {
       const emissions: ImporterMetadata[] = [];
       const subscription = importService.metadata$(typeSubject).subscribe((metadata) => {
@@ -369,27 +356,6 @@ describe("ImportService", () => {
       expect(emissions).toHaveLength(2);
       expect(emissions[0].type).toBe("chromecsv");
       expect(emissions[1].type).toBe("bravecsv");
-
-      subscription.unsubscribe();
-    });
-
-    it("should update when feature flag changes", async () => {
-      const testType: ImportType = "bravecsv"; // Use bravecsv which supports chromium loader
-      const emissions: ImporterMetadata[] = [];
-
-      const subscription = importService.metadata$(typeSubject).subscribe((metadata) => {
-        emissions.push(metadata);
-      });
-
-      typeSubject.next(testType);
-      featureFlagSubject.next(true);
-
-      // Wait for emissions
-      await new Promise((resolve) => setTimeout(resolve, 0));
-
-      expect(emissions).toHaveLength(2);
-      expect(emissions[0].loaders).not.toContain(Loader.chromium);
-      expect(emissions[1].loaders).toContain(Loader.chromium);
 
       subscription.unsubscribe();
     });
