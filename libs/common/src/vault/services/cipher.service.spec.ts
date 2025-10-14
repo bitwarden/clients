@@ -174,6 +174,37 @@ describe("Cipher Service", () => {
 
       expect(spy).toHaveBeenCalled();
     });
+
+    it("should include lastKnownRevisionDate in the upload request", async () => {
+      const fileName = "filename";
+      const fileData = new Uint8Array(10);
+      const testCipher = new Cipher(cipherData);
+      const expectedRevisionDate = "2022-01-31T12:00:00.000Z";
+
+      keyService.getOrgKey.mockReturnValue(
+        Promise.resolve<any>(new SymmetricCryptoKey(new Uint8Array(32)) as OrgKey),
+      );
+      keyService.makeDataEncKey.mockReturnValue(
+        Promise.resolve([
+          new SymmetricCryptoKey(new Uint8Array(32)),
+          new EncString("encrypted-key"),
+        ] as any),
+      );
+
+      configService.checkServerMeetsVersionRequirement$.mockReturnValue(of(false));
+      configService.getFeatureFlag
+        .calledWith(FeatureFlag.CipherKeyEncryption)
+        .mockResolvedValue(false);
+
+      const uploadSpy = jest.spyOn(cipherFileUploadService, "upload").mockResolvedValue({} as any);
+
+      await cipherService.saveAttachmentRawWithServer(testCipher, fileName, fileData, userId);
+
+      // Verify upload was called with cipher that has revisionDate
+      expect(uploadSpy).toHaveBeenCalled();
+      const cipherArg = uploadSpy.mock.calls[0][0];
+      expect(cipherArg.revisionDate).toEqual(new Date(expectedRevisionDate));
+    });
   });
 
   describe("createWithServer()", () => {
