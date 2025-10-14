@@ -11,7 +11,7 @@ import { availableLoaders } from "../util";
 import { ImportMetadataServiceAbstraction } from "./import-metadata.service.abstraction";
 
 export class DefaultImportMetadataService implements ImportMetadataServiceAbstraction {
-  protected importers: ImportersMetadata = undefined;
+  protected importers: ImportersMetadata = {};
   private logger: SemanticLogger;
 
   constructor(protected system: SystemServiceProvider) {
@@ -27,7 +27,7 @@ export class DefaultImportMetadataService implements ImportMetadataServiceAbstra
     const capabilities$ = type$.pipe(
       map((type) => {
         if (!this.importers) {
-          return undefined;
+          return { type, loaders: [] };
         }
 
         let loaders = availableLoaders(this.importers, type, client);
@@ -52,9 +52,13 @@ export class DefaultImportMetadataService implements ImportMetadataServiceAbstra
           loaders = loaders?.filter((loader) => loader !== Loader.chromium);
         }
 
+        if (!loaders || loaders.length === 0) {
+          return { type, loaders: [] };
+        }
+
         const capabilities: ImporterMetadata = { type, loaders };
         if (type in this.importers) {
-          capabilities.instructions = this.importers[type].instructions;
+          capabilities.instructions = this.importers[type]?.instructions;
         }
 
         this.logger.debug({ importType: type, capabilities }, "capabilities updated");
