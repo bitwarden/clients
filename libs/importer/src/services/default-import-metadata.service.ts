@@ -3,14 +3,14 @@ import { map, Observable } from "rxjs";
 import { SemanticLogger } from "@bitwarden/common/tools/log";
 import { SystemServiceProvider } from "@bitwarden/common/tools/providers";
 
-import { ImporterMetadata, ImportersMetadata } from "../metadata";
+import { ImporterMetadata, Importers, ImportersMetadata } from "../metadata";
 import { ImportType } from "../models/import-options";
 import { availableLoaders } from "../util";
 
 import { ImportMetadataServiceAbstraction } from "./import-metadata.service.abstraction";
 
 export class DefaultImportMetadataService implements ImportMetadataServiceAbstraction {
-  protected importers: ImportersMetadata = {};
+  protected importers: ImportersMetadata = Importers;
   private logger: SemanticLogger;
 
   constructor(protected system: SystemServiceProvider) {
