@@ -190,7 +190,7 @@ mod tests {
     #[test]
     fn windows_specific_loaders_match_const_array() {
         let map = get_supported_importers::<MockInstalledBrowserRetriever>();
-        let ids = ["chromiumcsv", "bravecsv", "operacsv", "vivaldicsv"];
+        let ids = ["chromiumcsv", "edgecsv", "operacsv", "vivaldicsv"];
 
         for id in ids {
             let loaders = get_loaders(&map, id);
