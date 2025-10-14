@@ -61,6 +61,7 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { DefaultBillingAccountProfileStateService } from "@bitwarden/common/billing/services/account/billing-account-profile-state.service";
 import { HibpApiService } from "@bitwarden/common/dirt/services/hibp-api.service";
 import { ClientType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import {
   DefaultKeyGenerationService,
   KeyGenerationService,
@@ -961,6 +962,14 @@ export class ServiceContainer {
     this.containerService.attachToGlobal(global);
     await this.i18nService.init();
     this.twoFactorService.init();
+
+    this.configService.serverConfig$.subscribe((newConfig) => {
+      if (newConfig != null) {
+        this.encryptService.setDisableType0Decryption(
+          newConfig.featureStates[FeatureFlag.PM25174_DisableType0Decryption] === true,
+        );
+      }
+    });
 
     // If a user has a BW_SESSION key stored in their env (not process.env.BW_SESSION),
     // this should set the user key to unlock the vault on init.

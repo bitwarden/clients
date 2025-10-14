@@ -13,11 +13,17 @@ import { PureCrypto } from "@bitwarden/sdk-internal";
 import { EncryptService } from "../abstractions/encrypt.service";
 
 export class EncryptServiceImplementation implements EncryptService {
+  private disableType0Decryption = false;
+
   constructor(
     protected cryptoFunctionService: CryptoFunctionService,
     protected logService: LogService,
     protected logMacFailures: boolean,
   ) {}
+
+  setDisableType0Decryption(disable: boolean): void {
+    this.disableType0Decryption = disable;
+  }
 
   async encryptString(plainValue: string, key: SymmetricCryptoKey): Promise<EncString> {
     if (plainValue == null) {
@@ -42,16 +48,25 @@ export class EncryptServiceImplementation implements EncryptService {
   }
 
   async decryptString(encString: EncString, key: SymmetricCryptoKey): Promise<string> {
+    if (this.disableType0Decryption && encString.encryptionType === EncryptionType.AesCbc256_B64) {
+      throw new Error("Decryption of AesCbc256_B64 encrypted data is disabled.");
+    }
     await SdkLoadService.Ready;
     return PureCrypto.symmetric_decrypt_string(encString.encryptedString, key.toEncoded());
   }
 
   async decryptBytes(encString: EncString, key: SymmetricCryptoKey): Promise<Uint8Array> {
+    if (this.disableType0Decryption && encString.encryptionType === EncryptionType.AesCbc256_B64) {
+      throw new Error("Decryption of AesCbc256_B64 encrypted data is disabled.");
+    }
     await SdkLoadService.Ready;
     return PureCrypto.symmetric_decrypt_bytes(encString.encryptedString, key.toEncoded());
   }
 
   async decryptFileData(encBuffer: EncArrayBuffer, key: SymmetricCryptoKey): Promise<Uint8Array> {
+    if (this.disableType0Decryption && encBuffer.encryptionType === EncryptionType.AesCbc256_B64) {
+      throw new Error("Decryption of AesCbc256_B64 encrypted data is disabled.");
+    }
     await SdkLoadService.Ready;
     return PureCrypto.symmetric_decrypt_filedata(encBuffer.buffer, key.toEncoded());
   }
@@ -121,6 +136,13 @@ export class EncryptServiceImplementation implements EncryptService {
       throw new Error("No wrappingKey provided for unwrapping.");
     }
 
+    if (
+      this.disableType0Decryption &&
+      wrappedDecapsulationKey.encryptionType === EncryptionType.AesCbc256_B64
+    ) {
+      throw new Error("Decryption of AesCbc256_B64 encrypted data is disabled.");
+    }
+
     await SdkLoadService.Ready;
     return PureCrypto.unwrap_decapsulation_key(
       wrappedDecapsulationKey.encryptedString,
@@ -136,6 +158,12 @@ export class EncryptServiceImplementation implements EncryptService {
     }
     if (wrappingKey == null) {
       throw new Error("No wrappingKey provided for unwrapping.");
+    }
+    if (
+      this.disableType0Decryption &&
+      wrappedEncapsulationKey.encryptionType === EncryptionType.AesCbc256_B64
+    ) {
+      throw new Error("Decryption of AesCbc256_B64 encrypted data is disabled.");
     }
 
     await SdkLoadService.Ready;
@@ -153,6 +181,12 @@ export class EncryptServiceImplementation implements EncryptService {
     }
     if (wrappingKey == null) {
       throw new Error("No wrappingKey provided for unwrapping.");
+    }
+    if (
+      this.disableType0Decryption &&
+      keyToBeUnwrapped.encryptionType === EncryptionType.AesCbc256_B64
+    ) {
+      throw new Error("Decryption of AesCbc256_B64 encrypted data is disabled.");
     }
 
     await SdkLoadService.Ready;
