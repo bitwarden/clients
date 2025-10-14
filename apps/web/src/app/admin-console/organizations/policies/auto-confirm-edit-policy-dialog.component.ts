@@ -63,7 +63,7 @@ export class AutoConfirmPolicyDialogComponent
   policyType = PolicyType;
 
   protected firstTimeDialog = signal(false);
-  protected currentStep = signal(0);
+  protected currentStep = 0;
   protected multiStepSubmit: Observable<MultiStepSubmit[]> = of([]);
 
   private submitPolicy: Signal<TemplateRef<unknown> | undefined> = viewChild("step0");
@@ -192,14 +192,14 @@ export class AutoConfirmPolicyDialogComponent
 
     try {
       const multiStepSubmit = await firstValueFrom(this.multiStepSubmit);
-      await multiStepSubmit[this.currentStep()].sideEffect();
+      await multiStepSubmit[this.currentStep].sideEffect();
 
-      if (this.currentStep() === multiStepSubmit.length - 1) {
+      if (this.currentStep === multiStepSubmit.length - 1) {
         this.dialogRef.close("saved");
         return;
       }
 
-      this.currentStep.update((step) => step++);
+      this.currentStep++;
     } catch (error: any) {
       this.toastService.showToast({
         variant: "error",
