@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
-import { BehaviorSubject } from "rxjs";
+import { ActivatedRoute } from "@angular/router";
+import { BehaviorSubject, of } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
@@ -14,15 +15,15 @@ import { BrowserExtensionPromptComponent } from "./browser-extension-prompt.comp
 describe("BrowserExtensionPromptComponent", () => {
   let fixture: ComponentFixture<BrowserExtensionPromptComponent>;
   let component: BrowserExtensionPromptComponent;
-  const start = jest.fn();
   const openExtension = jest.fn();
+  const registerPopupUrl = jest.fn();
   const pageState$ = new BehaviorSubject<BrowserPromptState>(BrowserPromptState.Loading);
   const setAttribute = jest.fn();
   const getAttribute = jest.fn().mockReturnValue("width=1010");
 
   beforeEach(async () => {
-    start.mockClear();
     openExtension.mockClear();
+    registerPopupUrl.mockClear();
     setAttribute.mockClear();
     getAttribute.mockClear();
 
@@ -41,11 +42,19 @@ describe("BrowserExtensionPromptComponent", () => {
       providers: [
         {
           provide: BrowserExtensionPromptService,
-          useValue: { start, openExtension, pageState$ },
+          useValue: { openExtension, registerPopupUrl, pageState$ },
         },
         {
           provide: I18nService,
           useValue: { t: (key: string) => key },
+        },
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            queryParamMap: of({
+              get: (key: string) => null,
+            }),
+          },
         },
       ],
     }).compileComponents();
@@ -57,10 +66,6 @@ describe("BrowserExtensionPromptComponent", () => {
 
   afterEach(() => {
     jest.restoreAllMocks();
-  });
-
-  it("calls start on initialization", () => {
-    expect(start).toHaveBeenCalledTimes(1);
   });
 
   describe("loading state", () => {
@@ -92,7 +97,7 @@ describe("BrowserExtensionPromptComponent", () => {
       button.click();
 
       expect(openExtension).toHaveBeenCalledTimes(1);
-      expect(openExtension).toHaveBeenCalledWith(true);
+      expect(openExtension).toHaveBeenCalledWith("openAtRiskPasswords", true);
     });
   });
 
