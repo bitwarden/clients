@@ -49,7 +49,7 @@
       </a>
     </bit-item>
     <bit-item>
-      <button type="button" bit-item-content (click)="sync()">
+      <button type="button" bit-item-content [disabled]="syncLoading" (click)="sync()">
         {{ "syncVaultNow" | i18n }}
         <span slot="secondary">{{ lastSync }}</span>
         <i slot="end" class="bwi bwi-refresh" aria-hidden="true"></i>
