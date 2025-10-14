@@ -15,6 +15,7 @@ import { BrowserExtensionPromptComponent } from "./browser-extension-prompt.comp
 describe("BrowserExtensionPromptComponent", () => {
   let fixture: ComponentFixture<BrowserExtensionPromptComponent>;
   let component: BrowserExtensionPromptComponent;
+  const start = jest.fn();
   const openExtension = jest.fn();
   const registerPopupUrl = jest.fn();
   const pageState$ = new BehaviorSubject<BrowserPromptState>(BrowserPromptState.Loading);
@@ -22,6 +23,7 @@ describe("BrowserExtensionPromptComponent", () => {
   const getAttribute = jest.fn().mockReturnValue("width=1010");
 
   beforeEach(async () => {
+    start.mockClear();
     openExtension.mockClear();
     registerPopupUrl.mockClear();
     setAttribute.mockClear();
@@ -42,7 +44,7 @@ describe("BrowserExtensionPromptComponent", () => {
       providers: [
         {
           provide: BrowserExtensionPromptService,
-          useValue: { openExtension, registerPopupUrl, pageState$ },
+          useValue: { start, openExtension, registerPopupUrl, pageState$ },
         },
         {
           provide: I18nService,
@@ -66,6 +68,10 @@ describe("BrowserExtensionPromptComponent", () => {
 
   afterEach(() => {
     jest.restoreAllMocks();
+  });
+
+  it("calls start on initialization", () => {
+    expect(start).toHaveBeenCalledTimes(1);
   });
 
   describe("loading state", () => {
