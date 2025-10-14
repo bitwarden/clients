@@ -1,4 +1,4 @@
-import { firstValueFrom, map } from "rxjs";
+import { firstValueFrom, switchMap } from "rxjs";
 
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import type {
@@ -34,7 +34,7 @@ export class DefaultCipherRiskService implements CipherRiskServiceAbstraction {
 
     return await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
-        map(async (sdk) => {
+        switchMap(async (sdk) => {
           using ref = sdk.take();
           const cipherRiskClient = ref.value.vault().cipher_risk();
           return await cipherRiskClient.compute_risk(
@@ -81,7 +81,7 @@ export class DefaultCipherRiskService implements CipherRiskServiceAbstraction {
 
     return await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
-        map(async (sdk) => {
+        switchMap(async (sdk) => {
           using ref = sdk.take();
           const cipherRiskClient = ref.value.vault().cipher_risk();
           return cipherRiskClient.password_reuse_map(loginDetails);
