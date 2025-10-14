@@ -730,7 +730,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     await this.cipherArchiveService.archiveWithServer(cipherIds as CipherId[], activeUserId);
     this.toastService.showToast({
       variant: "success",
-      message: this.i18nService.t("itemWasSentToArchive"),
+      message: this.i18nService.t("itemsWereSentToArchive"),
     });
 
     this.refresh();

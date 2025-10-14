@@ -11313,6 +11313,9 @@
   "itemWasSentToArchive": {
     "message": "Item was sent to archive"
   },
+  "itemsWereSentToArchive": {
+    "message": "Items were sent to archive"
+  },
   "itemUnarchived": {
     "message": "Item was unarchived"
   },
