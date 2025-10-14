@@ -104,6 +104,10 @@ export class UpgradePaymentComponent implements OnInit, AfterViewInit {
     private upgradePaymentService: UpgradePaymentService,
   ) {}
 
+  protected userIsOwnerOfFreeOrg$ = this.upgradePaymentService.userIsOwnerOfFreeOrg$;
+  protected adminConsoleRouteForOwnedOrganization$ =
+    this.upgradePaymentService.adminConsoleRouteForOwnedOrganization$;
+
   async ngOnInit(): Promise<void> {
     if (!this.isFamiliesPlan) {
       this.formGroup.controls.organizationName.disable();
@@ -118,26 +122,23 @@ export class UpgradePaymentComponent implements OnInit, AfterViewInit {
           tier: this.selectedPlanId(),
           details: planDetails,
         };
+        this.passwordManager = {
+          name: this.isFamiliesPlan ? "familiesMembership" : "premiumMembership",
+          cost: this.selectedPlan.details.passwordManager.annualPrice,
+          quantity: 1,
+          cadence: "year",
+        };
+
+        this.upgradeToMessage = this.i18nService.t(
+          this.isFamiliesPlan ? "upgradeToFamilies" : "upgradeToPremium",
+        );
+
+        this.estimatedTax = 0;
+      } else {
+        this.complete.emit({ status: UpgradePaymentStatus.Closed, organizationId: null });
+        return;
       }
     });
-
-    if (!this.selectedPlan) {
-      this.complete.emit({ status: UpgradePaymentStatus.Closed, organizationId: null });
-      return;
-    }
-
-    this.passwordManager = {
-      name: this.isFamiliesPlan ? "familiesMembership" : "premiumMembership",
-      cost: this.selectedPlan.details.passwordManager.annualPrice,
-      quantity: 1,
-      cadence: "year",
-    };
-
-    this.upgradeToMessage = this.i18nService.t(
-      this.isFamiliesPlan ? "upgradeToFamilies" : "upgradeToPremium",
-    );
-
-    this.estimatedTax = 0;
 
     this.formGroup.valueChanges
       .pipe(debounceTime(1000), takeUntilDestroyed(this.destroyRef))
@@ -146,7 +147,9 @@ export class UpgradePaymentComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.cartSummaryComponent.isExpanded.set(false);
+    if (this.cartSummaryComponent) {
+      this.cartSummaryComponent.isExpanded.set(false);
+    }
   }
 
   protected get isPremiumPlan(): boolean {

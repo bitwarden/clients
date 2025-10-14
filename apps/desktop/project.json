@@ -1,0 +1,115 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "desktop",
+  "projectType": "application",
+  "sourceRoot": "apps/desktop/src",
+  "tags": ["scope:desktop", "type:app"],
+  "targets": {
+    "build-native": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "cd desktop_native && node build.js",
+        "cwd": "apps/desktop"
+      }
+    },
+    "build-main": {
+      "executor": "nx:run-commands",
+      "outputs": ["{workspaceRoot}/dist/apps/desktop"],
+      "options": {
+        "command": "cross-env NODE_ENV=production webpack --config webpack.config.js --config-name main",
+        "cwd": "apps/desktop"
+      },
+      "configurations": {
+        "development": {
+          "command": "cross-env NODE_ENV=development webpack --config webpack.config.js --config-name main"
+        },
+        "production": {
+          "command": "cross-env NODE_ENV=production webpack --config webpack.config.js --config-name main"
+        }
+      }
+    },
+    "build-preload": {
+      "executor": "nx:run-commands",
+      "outputs": ["{workspaceRoot}/dist/apps/desktop"],
+      "options": {
+        "command": "cross-env NODE_ENV=production webpack --config webpack.config.js --config-name preload",
+        "cwd": "apps/desktop"
+      },
+      "configurations": {
+        "development": {
+          "command": "cross-env NODE_ENV=development webpack --config webpack.config.js --config-name preload"
+        },
+        "production": {
+          "command": "cross-env NODE_ENV=production webpack --config webpack.config.js --config-name preload"
+        }
+      }
+    },
+    "build-renderer": {
+      "executor": "nx:run-commands",
+      "outputs": ["{workspaceRoot}/dist/apps/desktop"],
+      "options": {
+        "command": "cross-env NODE_ENV=production webpack --config webpack.config.js --config-name renderer",
+        "cwd": "apps/desktop"
+      },
+      "configurations": {
+        "development": {
+          "command": "cross-env NODE_ENV=development webpack --config webpack.config.js --config-name renderer"
+        },
+        "production": {
+          "command": "cross-env NODE_ENV=production webpack --config webpack.config.js --config-name renderer"
+        }
+      }
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["build-native"],
+      "outputs": ["{workspaceRoot}/dist/apps/desktop"],
+      "options": {
+        "parallel": true,
+        "commands": [
+          "nx run desktop:build-main",
+          "nx run desktop:build-preload",
+          "nx run desktop:build-renderer"
+        ]
+      },
+      "configurations": {
+        "development": {
+          "commands": [
+            "nx run desktop:build-main --configuration=development",
+            "nx run desktop:build-preload --configuration=development",
+            "nx run desktop:build-renderer --configuration=development"
+          ]
+        },
+        "production": {
+          "commands": [
+            "nx run desktop:build-main --configuration=production",
+            "nx run desktop:build-preload --configuration=production",
+            "nx run desktop:build-renderer --configuration=production"
+          ]
+        }
+      }
+    },
+    "serve": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["build-native"],
+      "options": {
+        "command": "node scripts/nx-serve.js",
+        "cwd": "apps/desktop"
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/apps/desktop"],
+      "options": {
+        "jestConfig": "apps/desktop/jest.config.js"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/desktop/**/*.ts", "apps/desktop/**/*.html"]
+      }
+    }
+  }
+}

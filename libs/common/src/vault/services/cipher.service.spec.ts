@@ -819,6 +819,28 @@ describe("Cipher Service", () => {
     });
   });
 
+  describe("softDelete", () => {
+    it("clears archivedDate when soft deleting", async () => {
+      const cipherId = "cipher-id-1" as CipherId;
+      const archivedCipher = {
+        ...cipherData,
+        id: cipherId,
+        archivedDate: "2024-01-01T12:00:00.000Z",
+      } as CipherData;
+
+      const ciphers = { [cipherId]: archivedCipher } as Record<CipherId, CipherData>;
+      stateProvider.singleUser.getFake(mockUserId, ENCRYPTED_CIPHERS).nextState(ciphers);
+
+      await cipherService.softDelete(cipherId, mockUserId);
+
+      const result = await firstValueFrom(
+        stateProvider.singleUser.getFake(mockUserId, ENCRYPTED_CIPHERS).state$,
+      );
+      expect(result[cipherId].archivedDate).toBeNull();
+      expect(result[cipherId].deletedDate).toBeDefined();
+    });
+  });
+
   describe("replace (no upsert)", () => {
     // In order to set up initial state we need to manually update the encrypted state
     // which will result in an emission. All tests will have this baseline emission.
