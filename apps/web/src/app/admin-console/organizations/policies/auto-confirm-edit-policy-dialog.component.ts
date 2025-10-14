@@ -40,8 +40,9 @@ import {
 } from "./policy-edit-dialog.component";
 
 export type MultiStepSubmit = {
-  sideEffect: () => any | undefined;
-  content: Signal<TemplateRef<any> | undefined>;
+  sideEffect: () => Promise<void>;
+  footerContent: Signal<TemplateRef<any> | undefined>;
+  titleContent: Signal<TemplateRef<any> | undefined>;
 };
 
 export type AutoConfirmPolicyDialogData = PolicyEditDialogData & {
@@ -69,6 +70,9 @@ export class AutoConfirmPolicyDialogComponent
 
   private submitPolicy: Signal<TemplateRef<any> | undefined> = viewChild("step0");
   private openExtension: Signal<TemplateRef<any> | undefined> = viewChild("step1");
+
+  private submitPolicyTitle: Signal<TemplateRef<any> | undefined> = viewChild("step0Title");
+  private openExtensionTitle: Signal<TemplateRef<any> | undefined> = viewChild("step1Title");
 
   constructor(
     @Inject(DIALOG_DATA) protected data: AutoConfirmPolicyDialogData,
@@ -112,14 +116,14 @@ export class AutoConfirmPolicyDialogComponent
       map((policies) => policies.find((p) => p.type === PolicyType.SingleOrg && p.enabled)),
       map((singleOrgPolicy) => [
         {
-          sideEffect: async () => {
-            await this.handleSubmit(singleOrgPolicy?.enabled ?? false);
-          },
-          content: this.submitPolicy,
+          sideEffect: () => this.handleSubmit(singleOrgPolicy?.enabled ?? false),
+          footerContent: this.submitPolicy,
+          titleContent: this.submitPolicyTitle,
         },
         {
-          sideEffect: async () => this.openBrowserExtension(),
-          content: this.openExtension,
+          sideEffect: () => this.openBrowserExtension(),
+          footerContent: this.openExtension,
+          titleContent: this.openExtensionTitle,
         },
       ]),
     );
@@ -130,12 +134,6 @@ export class AutoConfirmPolicyDialogComponent
       await this.submitSingleOrg();
     }
     await this.submitAutoConfirm();
-  }
-
-  private async openBrowserExtension() {
-    await this.router.navigate(["/browser-extension-prompt"], {
-      queryParams: { autoConfirm: true },
-    });
   }
 
   private async submitAutoConfirm(): Promise<void> {
@@ -166,6 +164,12 @@ export class AutoConfirmPolicyDialogComponent
       PolicyType.SingleOrg,
       singleOrgRequest,
     );
+  }
+
+  private async openBrowserExtension() {
+    await this.router.navigate(["/browser-extension-prompt"], {
+      queryParams: { url: "AutoConfirm" },
+    });
   }
 
   submit = async () => {
