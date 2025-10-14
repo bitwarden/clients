@@ -263,20 +263,29 @@ export class SsoComponent implements OnInit, OnDestroy {
   }
 
   listenForKeyConnectorSelection() {
+    let prevMemberDecryptionType = this.ssoConfigForm?.controls?.memberDecryptionType.value;
+
     this.ssoConfigForm?.controls?.memberDecryptionType.valueChanges
       .pipe(
         switchMap(async (memberDecryptionType) => {
-          if (memberDecryptionType === MemberDecryptionType.KeyConnector) {
+          // Only pre-populate a default URL when changing TO Key Connector from a different decryption type.
+          // ValueChanges gets triggered during the submit() call, so we need a !== check
+          // to prevent a custom URL from getting overwritten back to the default on a submit().
+          if (
+            memberDecryptionType === MemberDecryptionType.KeyConnector &&
+            prevMemberDecryptionType !== MemberDecryptionType.KeyConnector
+          ) {
             // Pre-populate a default key connector URL (user can still change it)
             const env = await firstValueFrom(this.environmentService.environment$);
             const webVaultUrl = env.getWebVaultUrl();
-            const defaultKeyConnectorUrl = webVaultUrl + "/key-connector/";
+            const defaultKeyConnectorUrl = webVaultUrl + "/key-connector";
 
             this.ssoConfigForm.controls.keyConnectorUrl.setValue(defaultKeyConnectorUrl);
-          } else {
-            // Otherwise clear the key connector URL
+          } else if (memberDecryptionType !== MemberDecryptionType.KeyConnector) {
             this.ssoConfigForm.controls.keyConnectorUrl.setValue("");
           }
+
+          prevMemberDecryptionType = memberDecryptionType;
         }),
         takeUntil(this.destroy$),
       )
