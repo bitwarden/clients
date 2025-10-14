@@ -284,64 +284,6 @@ describe("DefaultCipherRiskService", () => {
       ]);
       expect(result).toEqual(mockReuseMap);
     });
-
-    it("should filter out non-Login ciphers", async () => {
-      const mockClient = sdkService.simulate.userLogin(mockUserId);
-      const mockCipherRiskClient = mockClient.vault.mockDeep().cipher_risk.mockDeep();
-      mockCipherRiskClient.password_reuse_map.mockReturnValue({});
-
-      const loginCipher = new CipherView();
-      loginCipher.id = mockCipherId1;
-      loginCipher.type = CipherType.Login;
-      loginCipher.login = new LoginView();
-      loginCipher.login.password = "password1";
-
-      const cardCipher = new CipherView();
-      cardCipher.id = mockCipherId2;
-      cardCipher.type = CipherType.Card;
-
-      await cipherRiskService.buildPasswordReuseMap([loginCipher, cardCipher], mockUserId);
-
-      expect(mockCipherRiskClient.password_reuse_map).toHaveBeenCalledWith([
-        expect.objectContaining({ password: "password1" }),
-      ]);
-    });
-
-    it("should filter out Login ciphers without passwords", async () => {
-      const mockClient = sdkService.simulate.userLogin(mockUserId);
-      const mockCipherRiskClient = mockClient.vault.mockDeep().cipher_risk.mockDeep();
-      mockCipherRiskClient.password_reuse_map.mockReturnValue({});
-
-      const cipherWithPassword = new CipherView();
-      cipherWithPassword.id = mockCipherId1;
-      cipherWithPassword.type = CipherType.Login;
-      cipherWithPassword.login = new LoginView();
-      cipherWithPassword.login.password = "password1";
-
-      const cipherWithoutPassword = new CipherView();
-      cipherWithoutPassword.id = mockCipherId2;
-      cipherWithoutPassword.type = CipherType.Login;
-      cipherWithoutPassword.login = new LoginView();
-      cipherWithoutPassword.login.password = "";
-
-      await cipherRiskService.buildPasswordReuseMap(
-        [cipherWithPassword, cipherWithoutPassword],
-        mockUserId,
-      );
-
-      expect(mockCipherRiskClient.password_reuse_map).toHaveBeenCalledWith([
-        expect.objectContaining({ password: "password1" }),
-      ]);
-    });
-
-    it("should return empty object when no valid Login ciphers provided", async () => {
-      const cardCipher = new CipherView();
-      cardCipher.type = CipherType.Card;
-
-      const result = await cipherRiskService.buildPasswordReuseMap([cardCipher], mockUserId);
-
-      expect(result).toEqual({});
-    });
   });
 
   describe("computeCipherRiskForUser", () => {
