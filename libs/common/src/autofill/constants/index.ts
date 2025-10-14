@@ -44,6 +44,7 @@ export const AUTOFILL_ID = "autofill";
 export const SHOW_AUTOFILL_BUTTON = "show-autofill-button";
 export const AUTOFILL_IDENTITY_ID = "autofill-identity";
 export const COPY_IDENTIFIER_ID = "copy-identifier";
+export const COPY_ELEMENT_PATH_ID = "copy-element-path";
 export const COPY_PASSWORD_ID = "copy-password";
 export const COPY_USERNAME_ID = "copy-username";
 export const COPY_VERIFICATION_CODE_ID = "copy-totp";

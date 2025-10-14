@@ -9,6 +9,7 @@ import {
   AUTOFILL_ID,
   AUTOFILL_IDENTITY_ID,
   COPY_IDENTIFIER_ID,
+  COPY_ELEMENT_PATH_ID,
   COPY_PASSWORD_ID,
   COPY_USERNAME_ID,
   COPY_VERIFICATION_CODE_ID,
@@ -93,6 +94,12 @@ export class MainContextMenuHandler {
       id: COPY_IDENTIFIER_ID,
       parentId: ROOT_ID,
       title: this.i18nService.t("copyElementIdentifier"),
+      requiresUnblockedUri: true,
+    },
+    {
+      id: COPY_ELEMENT_PATH_ID,
+      parentId: ROOT_ID,
+      title: "Copy element path",
       requiresUnblockedUri: true,
     },
   ];

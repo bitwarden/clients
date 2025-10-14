@@ -360,6 +360,9 @@ export default class RuntimeBackground {
       case "getClickedElementResponse":
         this.platformUtilsService.copyToClipboard(msg.identifier);
         break;
+      case "getClickedElementPathResponse":
+        this.platformUtilsService.copyToClipboard(msg.path);
+        break;
       case "switchAccount": {
         await this.main.switchAccount(msg.userId);
         break;
