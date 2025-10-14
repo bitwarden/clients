@@ -171,10 +171,10 @@ mod tests {
         let map = get_supported_importers::<MockInstalledBrowserRetriever>();
 
         let expected: HashSet<String> = HashSet::from([
-            "chromecsv".to_string(),
+            "vivaldicsv".to_string(),
             "chromiumcsv".to_string(),
-            "bravecsv".to_string(),
             "operacsv".to_string(),
+            "bravecsv".to_string(),
         ]);
         assert_eq!(map.len(), expected.len());
         assert_eq!(map_keys(&map), expected);
