@@ -1,0 +1,5 @@
+{
+  "extends": "./tsconfig.json",
+  "include": ["src", "../../libs/common/src/autofill/constants"],
+  "exclude": ["**/*.stories.*", "**/*.spec.ts"]
+}
