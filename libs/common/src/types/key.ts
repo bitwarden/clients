@@ -1,5 +1,6 @@
 import { Opaque } from "type-fest";
 
+import { UnsignedPublicKey } from "../key-management/types";
 import { SymmetricCryptoKey } from "../platform/models/domain/symmetric-crypto-key";
 
 // symmetric keys
@@ -15,4 +16,4 @@ export type CipherKey = Opaque<SymmetricCryptoKey, "CipherKey">;
 
 // asymmetric keys
 export type UserPrivateKey = Opaque<Uint8Array, "UserPrivateKey">;
-export type UserPublicKey = Opaque<Uint8Array, "UserPublicKey">;
+export type UserPublicKey = Opaque<UnsignedPublicKey, "UserPublicKey">;

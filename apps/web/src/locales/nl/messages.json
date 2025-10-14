@@ -35,6 +35,9 @@
       }
     }
   },
+  "noReportRan": {
+    "message": "Je hebt nog geen rapport aangemaakt"
+  },
   "notifiedMembers": {
     "message": "Geînformeerde leden"
   },
@@ -184,8 +187,23 @@
   "markAppAsCritical": {
     "message": "App aanwijzen als belangrijk"
   },
+  "markAsCritical": {
+    "message": "App aanwijzen als belangrijk"
+  },
+  "applicationsSelected": {
+    "message": "applicaties geselecteerd"
+  },
+  "selectApplication": {
+    "message": "Applicatie selecteren"
+  },
+  "unselectApplication": {
+    "message": "Applicatie deselecteren"
+  },
   "applicationsMarkedAsCriticalSuccess": {
     "message": "Als belangrijk gemarkeerde applicaties"
+  },
+  "applicationsMarkedAsCriticalFail": {
+    "message": "Kon applicaties niet als kritiek markeren"
   },
   "application": {
     "message": "Applicatie"
@@ -273,6 +291,33 @@
   },
   "totalApplications": {
     "message": "Totaal applicaties"
+  },
+  "applicationsNeedingReview": {
+    "message": "Aanvragen die herzien moeten worden"
+  },
+  "newApplicationsWithCount": {
+    "message": "$COUNT$ nieuwe applicaties",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "13"
+      }
+    }
+  },
+  "newApplicationsDescription": {
+    "message": "Controleer nieuwe applicaties om ze als kritiek te markeren en je organisatie veilig te houden"
+  },
+  "reviewNow": {
+    "message": "Nu beoordelen"
+  },
+  "prioritizeCriticalApplications": {
+    "message": "Belangrijke applicaties prioriteren"
+  },
+  "atRiskItems": {
+    "message": "Items in gevaar"
+  },
+  "markAsCriticalPlaceholder": {
+    "message": "Markeren als kritieke functionaliteit wordt geïmplementeerd in een toekomstige update"
   },
   "unmarkAsCritical": {
     "message": "Markeren als belangrijk ongedaan maken"
@@ -1247,6 +1292,9 @@
   },
   "readingPasskeyLoadingInfo": {
     "message": "Houd dit venster open en volg de aanwijzingen van je browser."
+  },
+  "passkeyAuthenticationFailed": {
+    "message": "Passkey-authenticatie mislukt. Probeer het opnieuw."
   },
   "useADifferentLogInMethod": {
     "message": "Gebruik een andere loginmethode"
@@ -2902,6 +2950,9 @@
   "makeSureEnoughCredit": {
     "message": "Verzeker jezelf ervan dat je account voldoende krediet voor deze aankoop beschikbaar heeft. Als je account niet genoeg krediet heeft, zal je standaard betaalmethode worden gebruikt voor het verschil. Je kunt krediet aan je account toevoegen vanaf de factuurpagina."
   },
+  "notEnoughAccountCredit": {
+    "message": "Je hebt niet genoeg accountkrediet voor deze aankoop. Je kunt krediet aan je account toevoegen vanaf de factuurpagina."
+  },
   "creditAppliedDesc": {
     "message": "Je kunt het krediet van je account voor aankopen gebruiken. Elk beschikbaar krediet zal automatisch worden toegepast op facturen die gegenereerd zijn voor dit account."
   },
@@ -4309,6 +4360,9 @@
   },
   "generatingYourRiskInsights": {
     "message": "Je risico-inzichten genereren..."
+  },
+  "riskInsightsRunReport": {
+    "message": "Rapport uitvoeren"
   },
   "updateBrowserDesc": {
     "message": "Je maakt gebruik van webbrowser die we niet ondersteunen. De webkluis werkt mogelijk niet goed."
@@ -9960,6 +10014,9 @@
   "crowdstrikeEventIntegrationDesc": {
     "message": "Stuur eventgegevens naar je Logscale-instantie"
   },
+  "datadogEventIntegrationDesc": {
+    "message": "Stuur gebeurtenisgegevens van je kluis naar je Datadog-instance"
+  },
   "failedToSaveIntegration": {
     "message": "Opslaan van integratie mislukt. Probeer het later opnieuw."
   },
@@ -11713,5 +11770,38 @@
   },
   "seamlessIntegration": {
     "message": "Naadloze integratie"
+  },
+  "families": {
+    "message": "Families"
+  },
+  "upgradeToFamilies": {
+    "message": "Opwaarderen naar Families"
+  },
+  "upgradeToPremium": {
+    "message": "Opwaarderen naar Premium"
+  },
+  "familiesUpdated": {
+    "message": "Je hebt opgewaardeerd naar Families!"
+  },
+  "taxCalculationError": {
+    "message": "Er is een fout opgetreden bij het berekenen van de belasting voor je locatie. Probeer het opnieuw."
+  },
+  "individualUpgradeWelcomeMessage": {
+    "message": "Welkom bij Bitwarden"
+  },
+  "individualUpgradeDescriptionMessage": {
+    "message": "Ontgrendel meer beveiligingsfuncties met Premium, of begin met het delen van items met Families"
+  },
+  "individualUpgradeTaxInformationMessage": {
+    "message": "Prijzen exclusief btw en worden jaarlijks gefactureerd."
+  },
+  "organizationNameDescription": {
+    "message": "De naam van je organisatie verschijnt in uitnodigingen die je aan leden verstuurt."
+  },
+  "continueWithoutUpgrading": {
+    "message": "Doorgaan zonder opwaarderen"
+  },
+  "upgradeErrorMessage": {
+    "message": "Er is een fout opgetreden tijdens het verwerken van het opwaarderen. Probeer het opnieuw."
   }
 }
