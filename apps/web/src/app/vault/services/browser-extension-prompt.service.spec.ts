@@ -50,23 +50,17 @@ describe("BrowserExtensionPromptService", () => {
     });
   });
 
-  describe("start", () => {
+  describe("registerPopupUrl", () => {
     it("posts message to check for extension", () => {
-      service.start();
+      service.registerPopupUrl(VaultMessages.OpenAtRiskPasswords);
 
       expect(window.postMessage).toHaveBeenCalledWith({
         command: VaultMessages.checkBwInstalled,
       });
     });
 
-    it("sets timeout for error state", () => {
-      service.start();
-
-      expect(service["extensionCheckTimeout"]).not.toBeNull();
-    });
-
     it("attempts to open the extension when installed", () => {
-      service.start();
+      service.registerPopupUrl(VaultMessages.OpenAtRiskPasswords);
 
       window.dispatchEvent(
         new MessageEvent("message", { data: { command: VaultMessages.HasBwInstalled } }),
@@ -82,9 +76,16 @@ describe("BrowserExtensionPromptService", () => {
     });
   });
 
-  describe("success state", () => {
-    beforeEach(() => {
+  describe("start", () => {
+    it("sets timeout for error state", () => {
       service.start();
+      expect(service["extensionCheckTimeout"]).not.toBeNull();
+    });
+  });
+
+  describe("success registerPopupUrl", () => {
+    beforeEach(() => {
+      service.registerPopupUrl(VaultMessages.OpenAtRiskPasswords);
 
       window.dispatchEvent(
         new MessageEvent("message", { data: { command: VaultMessages.PopupOpened } }),
@@ -163,7 +164,7 @@ describe("BrowserExtensionPromptService", () => {
 
   describe("error state", () => {
     beforeEach(() => {
-      service.start();
+      service.registerPopupUrl(VaultMessages.OpenAtRiskPasswords);
       jest.advanceTimersByTime(1000);
     });
 
