@@ -171,10 +171,10 @@ mod tests {
         let map = get_supported_importers::<MockInstalledBrowserRetriever>();
 
         let expected: HashSet<String> = HashSet::from([
-            "vivaldicsv".to_string(),
             "chromiumcsv".to_string(),
+            "edgecsv".to_string(),
             "operacsv".to_string(),
-            "bravecsv".to_string(),
+            "vivaldicsv".to_string(),
         ]);
         assert_eq!(map.len(), expected.len());
         assert_eq!(map_keys(&map), expected);
@@ -190,7 +190,7 @@ mod tests {
     #[test]
     fn windows_specific_loaders_match_const_array() {
         let map = get_supported_importers::<MockInstalledBrowserRetriever>();
-        let ids = ["chromiumcsv", "edgecsv", "operacsv", "vivaldicsv"];
+        let ids = ["chromiumcsv", "bravecsv", "operacsv", "vivaldicsv"];
 
         for id in ids {
             let loaders = get_loaders(&map, id);
