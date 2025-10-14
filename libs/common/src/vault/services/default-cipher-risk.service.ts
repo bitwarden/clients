@@ -1,5 +1,6 @@
 import { firstValueFrom, map } from "rxjs";
 
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import type {
   CipherLoginDetails,
   CipherRisk,
@@ -15,9 +16,12 @@ import { CipherType } from "../enums/cipher-type";
 import { CipherView } from "../models/view/cipher.view";
 
 export class DefaultCipherRiskService implements CipherRiskServiceAbstraction {
-  constructor(private sdkService: SdkService) {}
+  constructor(
+    private sdkService: SdkService,
+    private cipherService: CipherService,
+  ) {}
 
-  async computeRisk(
+  async computeRiskForCiphers(
     ciphers: CipherView[],
     userId: UserId,
     options?: CipherRiskOptions,
@@ -40,6 +44,32 @@ export class DefaultCipherRiskService implements CipherRiskServiceAbstraction {
         }),
       ),
     );
+  }
+
+  async computeCipherRiskForUser(
+    cipherId: CipherId,
+    userId: UserId,
+    checkExposed: boolean = true,
+  ): Promise<CipherRisk> {
+    // Get all ciphers for the user
+    const allCiphers = await firstValueFrom(this.cipherService.cipherViews$(userId));
+
+    // Find the specific cipher
+    const targetCipher = allCiphers?.find((c) => asUuid<CipherId>(c.id) === cipherId);
+    if (!targetCipher) {
+      throw new Error(`Cipher with id ${cipherId} not found`);
+    }
+
+    // Build fresh password reuse map from all ciphers
+    const passwordMap = await this.buildPasswordReuseMap(allCiphers);
+
+    // Call existing computeRiskForCiphers with single cipher and map
+    const results = await this.computeRiskForCiphers([targetCipher], userId, {
+      passwordMap,
+      checkExposed,
+    });
+
+    return results[0];
   }
 
   async buildPasswordReuseMap(ciphers: CipherView[]): Promise<PasswordReuseMap> {

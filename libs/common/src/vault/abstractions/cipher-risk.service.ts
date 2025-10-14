@@ -3,6 +3,7 @@ import type {
   CipherRiskOptions,
   ExposedPasswordResult,
   PasswordReuseMap,
+  CipherId,
 } from "@bitwarden/sdk-internal";
 
 import { UserId } from "../../types/guid";
@@ -18,11 +19,25 @@ export abstract class CipherRiskService {
    * @param options - Optional configuration for risk computation (passwordMap, checkExposed)
    * @returns Array of CipherRisk results from SDK containing password_strength, exposed_result, and reuse_count
    */
-  abstract computeRisk(
+  abstract computeRiskForCiphers(
     ciphers: CipherView[],
     userId: UserId,
     options?: CipherRiskOptions,
   ): Promise<CipherRisk[]>;
+
+  /**
+   * Compute password risk for a single cipher by its ID. Will automatically build a password reuse map
+   * from all the user's ciphers via the CipherService.
+   * @param cipherId
+   * @param userId
+   * @param checkExposed - Whether to check if the password has been exposed in data breaches via HIBP
+   * @returns CipherRisk result from SDK containing password_strength, exposed_result, and reuse_count
+   */
+  abstract computeCipherRiskForUser(
+    cipherId: CipherId,
+    userId: UserId,
+    checkExposed?: boolean,
+  ): Promise<CipherRisk>;
 
   /**
    * Build a password reuse map for the given ciphers.

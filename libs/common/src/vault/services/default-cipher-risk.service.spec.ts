@@ -1,7 +1,12 @@
-import { CipherRisk, CipherRiskOptions } from "@bitwarden/sdk-internal";
+import { mock } from "jest-mock-extended";
+import { BehaviorSubject } from "rxjs";
 
+import type { CipherRisk, CipherRiskOptions, CipherId } from "@bitwarden/sdk-internal";
+
+import { asUuid } from "../../platform/abstractions/sdk/sdk.service";
 import { MockSdkService } from "../../platform/spec/mock-sdk.service";
 import { UserId } from "../../types/guid";
+import { CipherService } from "../abstractions/cipher.service";
 import { CipherType } from "../enums/cipher-type";
 import { CipherView } from "../models/view/cipher.view";
 import { LoginView } from "../models/view/login.view";
@@ -11,6 +16,7 @@ import { DefaultCipherRiskService } from "./default-cipher-risk.service";
 describe("DefaultCipherRiskService", () => {
   let cipherRiskService: DefaultCipherRiskService;
   let sdkService: MockSdkService;
+  let mockCipherService: jest.Mocked<CipherService>;
 
   const mockUserId = "test-user-id" as UserId;
   const mockCipherId1 = "cbea34a8-bde4-46ad-9d19-b05001228ab2";
@@ -19,14 +25,15 @@ describe("DefaultCipherRiskService", () => {
 
   beforeEach(() => {
     sdkService = new MockSdkService();
-    cipherRiskService = new DefaultCipherRiskService(sdkService);
+    mockCipherService = mock<CipherService>();
+    cipherRiskService = new DefaultCipherRiskService(sdkService, mockCipherService);
   });
 
   afterEach(() => {
     jest.clearAllMocks();
   });
 
-  describe("computeRisk", () => {
+  describe("computeRiskForCiphers", () => {
     it("should call SDK cipher_risk().compute_risk() with correct parameters", async () => {
       const mockClient = sdkService.simulate.userLogin(mockUserId);
       const mockCipherRiskClient = mockClient.vault.mockDeep().cipher_risk.mockDeep();
@@ -55,7 +62,7 @@ describe("DefaultCipherRiskService", () => {
         hibpBaseUrl: undefined,
       };
 
-      const results = await cipherRiskService.computeRisk([cipher], mockUserId, options);
+      const results = await cipherRiskService.computeRiskForCiphers([cipher], mockUserId, options);
 
       expect(mockCipherRiskClient.compute_risk).toHaveBeenCalledWith(
         [
@@ -89,7 +96,10 @@ describe("DefaultCipherRiskService", () => {
       identityCipher.id = mockCipherId3;
       identityCipher.type = CipherType.Identity;
 
-      await cipherRiskService.computeRisk([loginCipher, cardCipher, identityCipher], mockUserId);
+      await cipherRiskService.computeRiskForCiphers(
+        [loginCipher, cardCipher, identityCipher],
+        mockUserId,
+      );
 
       expect(mockCipherRiskClient.compute_risk).toHaveBeenCalledWith(
         [
@@ -125,7 +135,7 @@ describe("DefaultCipherRiskService", () => {
       cipherWithEmptyPassword.login = new LoginView();
       cipherWithEmptyPassword.login.password = "";
 
-      await cipherRiskService.computeRisk(
+      await cipherRiskService.computeRiskForCiphers(
         [cipherWithPassword, cipherWithoutPassword, cipherWithEmptyPassword],
         mockUserId,
       );
@@ -144,7 +154,7 @@ describe("DefaultCipherRiskService", () => {
       const cardCipher = new CipherView();
       cardCipher.type = CipherType.Card;
 
-      const results = await cipherRiskService.computeRisk([cardCipher], mockUserId);
+      const results = await cipherRiskService.computeRiskForCiphers([cardCipher], mockUserId);
 
       expect(results).toEqual([]);
     });
@@ -184,7 +194,7 @@ describe("DefaultCipherRiskService", () => {
       cipher2.login.password = "password2";
       cipher2.login.username = "user2@example.com";
 
-      const results = await cipherRiskService.computeRisk([cipher1, cipher2], mockUserId);
+      const results = await cipherRiskService.computeRiskForCiphers([cipher1, cipher2], mockUserId);
 
       expect(mockCipherRiskClient.compute_risk).toHaveBeenCalledWith(
         [
@@ -207,7 +217,7 @@ describe("DefaultCipherRiskService", () => {
       cipher.login = new LoginView();
       cipher.login.password = "test-password";
 
-      await cipherRiskService.computeRisk([cipher], mockUserId);
+      await cipherRiskService.computeRiskForCiphers([cipher], mockUserId);
 
       expect(mockCipherRiskClient.compute_risk).toHaveBeenCalledWith(expect.any(Array), {
         checkExposed: false,
@@ -228,7 +238,7 @@ describe("DefaultCipherRiskService", () => {
       cipher.login.password = "test-password";
       cipher.login.username = undefined;
 
-      await cipherRiskService.computeRisk([cipher], mockUserId);
+      await cipherRiskService.computeRiskForCiphers([cipher], mockUserId);
 
       expect(mockCipherRiskClient.compute_risk).toHaveBeenCalledWith(
         [
@@ -325,6 +335,280 @@ describe("DefaultCipherRiskService", () => {
       const result = await cipherRiskService.buildPasswordReuseMap([cardCipher]);
 
       expect(result).toEqual({});
+    });
+  });
+
+  describe("computeCipherRiskForUser", () => {
+    it("should compute risk for a single cipher with password reuse map", async () => {
+      const mockClient = sdkService.simulate.userLogin(mockUserId);
+      const mockCipherRiskClient = mockClient.vault.mockDeep().cipher_risk.mockDeep();
+
+      // Also mock the non-user client for buildPasswordReuseMap
+      const mockVault = sdkService.client.vault.mockDeep();
+      const mockNonUserCipherRiskClient = mockVault.cipher_risk.mockDeep();
+
+      // Setup cipher data
+      const cipher1 = new CipherView();
+      cipher1.id = mockCipherId1;
+      cipher1.type = CipherType.Login;
+      cipher1.login = new LoginView();
+      cipher1.login.password = "password1";
+      cipher1.login.username = "user1@example.com";
+
+      const cipher2 = new CipherView();
+      cipher2.id = mockCipherId2;
+      cipher2.type = CipherType.Login;
+      cipher2.login = new LoginView();
+      cipher2.login.password = "password1"; // Same password as cipher1
+      cipher2.login.username = "user2@example.com";
+
+      const allCiphers = [cipher1, cipher2];
+
+      // Mock cipherViews$ observable
+      mockCipherService.cipherViews$.mockReturnValue(new BehaviorSubject(allCiphers));
+
+      // Mock password reuse map
+      const mockReuseMap = { password1: 2 };
+      mockNonUserCipherRiskClient.password_reuse_map.mockReturnValue(mockReuseMap);
+
+      // Mock compute_risk result
+      const mockRiskResult: CipherRisk = {
+        id: mockCipherId1 as any,
+        password_strength: 3,
+        exposed_result: { type: "NotChecked" },
+        reuse_count: 2,
+      };
+      mockCipherRiskClient.compute_risk.mockResolvedValue([mockRiskResult]);
+
+      const result = await cipherRiskService.computeCipherRiskForUser(
+        asUuid<CipherId>(mockCipherId1),
+        mockUserId,
+        true,
+      );
+
+      // Verify cipherViews$ was called
+      expect(mockCipherService.cipherViews$).toHaveBeenCalledWith(mockUserId);
+
+      // Verify password_reuse_map was called with all ciphers
+      expect(mockNonUserCipherRiskClient.password_reuse_map).toHaveBeenCalledWith([
+        expect.objectContaining({ password: "password1", username: "user1@example.com" }),
+        expect.objectContaining({ password: "password1", username: "user2@example.com" }),
+      ]);
+
+      // Verify compute_risk was called with target cipher and password map
+      expect(mockCipherRiskClient.compute_risk).toHaveBeenCalledWith(
+        [expect.objectContaining({ password: "password1", username: "user1@example.com" })],
+        {
+          passwordMap: mockReuseMap,
+          checkExposed: true,
+        },
+      );
+
+      expect(result).toEqual(mockRiskResult);
+    });
+
+    it("should throw error when cipher is not found", async () => {
+      const cipher1 = new CipherView();
+      cipher1.id = mockCipherId1;
+      cipher1.type = CipherType.Login;
+      cipher1.login = new LoginView();
+      cipher1.login.password = "password1";
+
+      mockCipherService.cipherViews$.mockReturnValue(new BehaviorSubject([cipher1]));
+
+      const nonExistentId = "00000000-0000-0000-0000-000000000000";
+      await expect(
+        cipherRiskService.computeCipherRiskForUser(asUuid<CipherId>(nonExistentId), mockUserId),
+      ).rejects.toThrow(`Cipher with id ${asUuid<CipherId>(nonExistentId)} not found`);
+    });
+
+    it("should use checkExposed parameter correctly", async () => {
+      const mockClient = sdkService.simulate.userLogin(mockUserId);
+      const mockCipherRiskClient = mockClient.vault.mockDeep().cipher_risk.mockDeep();
+
+      // Also mock the non-user client
+      const mockVault = sdkService.client.vault.mockDeep();
+      const mockNonUserCipherRiskClient = mockVault.cipher_risk.mockDeep();
+
+      const cipher = new CipherView();
+      cipher.id = mockCipherId1;
+      cipher.type = CipherType.Login;
+      cipher.login = new LoginView();
+      cipher.login.password = "password1";
+
+      mockCipherService.cipherViews$.mockReturnValue(new BehaviorSubject([cipher]));
+      mockNonUserCipherRiskClient.password_reuse_map.mockReturnValue({});
+      mockCipherRiskClient.compute_risk.mockResolvedValue([
+        {
+          id: mockCipherId1 as any,
+          password_strength: 4,
+          exposed_result: { type: "NotChecked" },
+          reuse_count: 1,
+        },
+      ]);
+
+      await cipherRiskService.computeCipherRiskForUser(
+        asUuid<CipherId>(mockCipherId1),
+        mockUserId,
+        false,
+      );
+
+      expect(mockCipherRiskClient.compute_risk).toHaveBeenCalledWith(expect.any(Array), {
+        passwordMap: expect.any(Object),
+        checkExposed: false,
+      });
+    });
+
+    it("should default checkExposed to true when not provided", async () => {
+      const mockClient = sdkService.simulate.userLogin(mockUserId);
+      const mockCipherRiskClient = mockClient.vault.mockDeep().cipher_risk.mockDeep();
+
+      // Also mock the non-user client
+      const mockVault = sdkService.client.vault.mockDeep();
+      const mockNonUserCipherRiskClient = mockVault.cipher_risk.mockDeep();
+
+      const cipher = new CipherView();
+      cipher.id = mockCipherId1;
+      cipher.type = CipherType.Login;
+      cipher.login = new LoginView();
+      cipher.login.password = "password1";
+
+      mockCipherService.cipherViews$.mockReturnValue(new BehaviorSubject([cipher]));
+      mockNonUserCipherRiskClient.password_reuse_map.mockReturnValue({});
+      mockCipherRiskClient.compute_risk.mockResolvedValue([
+        {
+          id: mockCipherId1 as any,
+          password_strength: 4,
+          exposed_result: { type: "Found", value: 10 },
+          reuse_count: 1,
+        },
+      ]);
+
+      await cipherRiskService.computeCipherRiskForUser(asUuid<CipherId>(mockCipherId1), mockUserId);
+
+      expect(mockCipherRiskClient.compute_risk).toHaveBeenCalledWith(expect.any(Array), {
+        passwordMap: expect.any(Object),
+        checkExposed: true,
+      });
+    });
+
+    it("should handle ciphers without passwords when building password map", async () => {
+      const mockClient = sdkService.simulate.userLogin(mockUserId);
+      const mockCipherRiskClient = mockClient.vault.mockDeep().cipher_risk.mockDeep();
+
+      // Also mock the non-user client
+      const mockVault = sdkService.client.vault.mockDeep();
+      const mockNonUserCipherRiskClient = mockVault.cipher_risk.mockDeep();
+
+      const cipherWithPassword = new CipherView();
+      cipherWithPassword.id = mockCipherId1;
+      cipherWithPassword.type = CipherType.Login;
+      cipherWithPassword.login = new LoginView();
+      cipherWithPassword.login.password = "password1";
+
+      const cipherWithoutPassword = new CipherView();
+      cipherWithoutPassword.id = mockCipherId2;
+      cipherWithoutPassword.type = CipherType.Login;
+      cipherWithoutPassword.login = new LoginView();
+      cipherWithoutPassword.login.password = "";
+
+      mockCipherService.cipherViews$.mockReturnValue(
+        new BehaviorSubject([cipherWithPassword, cipherWithoutPassword]),
+      );
+      mockNonUserCipherRiskClient.password_reuse_map.mockReturnValue({});
+      mockCipherRiskClient.compute_risk.mockResolvedValue([
+        {
+          id: mockCipherId1 as any,
+          password_strength: 4,
+          exposed_result: { type: "NotChecked" },
+          reuse_count: 1,
+        },
+      ]);
+
+      await cipherRiskService.computeCipherRiskForUser(asUuid<CipherId>(mockCipherId1), mockUserId);
+
+      // Verify password_reuse_map only received cipher with password
+      expect(mockNonUserCipherRiskClient.password_reuse_map).toHaveBeenCalledWith([
+        expect.objectContaining({ password: "password1" }),
+      ]);
+    });
+
+    it("should handle non-Login ciphers in vault when building password map", async () => {
+      const mockClient = sdkService.simulate.userLogin(mockUserId);
+      const mockCipherRiskClient = mockClient.vault.mockDeep().cipher_risk.mockDeep();
+
+      // Also mock the non-user client
+      const mockVault = sdkService.client.vault.mockDeep();
+      const mockNonUserCipherRiskClient = mockVault.cipher_risk.mockDeep();
+
+      const loginCipher = new CipherView();
+      loginCipher.id = mockCipherId1;
+      loginCipher.type = CipherType.Login;
+      loginCipher.login = new LoginView();
+      loginCipher.login.password = "password1";
+
+      const cardCipher = new CipherView();
+      cardCipher.id = mockCipherId2;
+      cardCipher.type = CipherType.Card;
+
+      const noteCipher = new CipherView();
+      noteCipher.id = mockCipherId3;
+      noteCipher.type = CipherType.SecureNote;
+
+      mockCipherService.cipherViews$.mockReturnValue(
+        new BehaviorSubject([loginCipher, cardCipher, noteCipher]),
+      );
+      mockNonUserCipherRiskClient.password_reuse_map.mockReturnValue({});
+      mockCipherRiskClient.compute_risk.mockResolvedValue([
+        {
+          id: mockCipherId1 as any,
+          password_strength: 4,
+          exposed_result: { type: "NotChecked" },
+          reuse_count: 1,
+        },
+      ]);
+
+      await cipherRiskService.computeCipherRiskForUser(asUuid<CipherId>(mockCipherId1), mockUserId);
+
+      // Verify password_reuse_map only received Login cipher
+      expect(mockNonUserCipherRiskClient.password_reuse_map).toHaveBeenCalledWith([
+        expect.objectContaining({ password: "password1" }),
+      ]);
+    });
+
+    it("should compute fresh password map on each call", async () => {
+      const mockClient = sdkService.simulate.userLogin(mockUserId);
+      const mockCipherRiskClient = mockClient.vault.mockDeep().cipher_risk.mockDeep();
+
+      // Also mock the non-user client
+      const mockVault = sdkService.client.vault.mockDeep();
+      const mockNonUserCipherRiskClient = mockVault.cipher_risk.mockDeep();
+
+      const cipher = new CipherView();
+      cipher.id = mockCipherId1;
+      cipher.type = CipherType.Login;
+      cipher.login = new LoginView();
+      cipher.login.password = "password1";
+
+      mockCipherService.cipherViews$.mockReturnValue(new BehaviorSubject([cipher]));
+      mockNonUserCipherRiskClient.password_reuse_map.mockReturnValue({ password1: 1 });
+      mockCipherRiskClient.compute_risk.mockResolvedValue([
+        {
+          id: mockCipherId1 as any,
+          password_strength: 4,
+          exposed_result: { type: "NotChecked" },
+          reuse_count: 1,
+        },
+      ]);
+
+      // First call
+      await cipherRiskService.computeCipherRiskForUser(asUuid<CipherId>(mockCipherId1), mockUserId);
+
+      // Second call
+      await cipherRiskService.computeCipherRiskForUser(asUuid<CipherId>(mockCipherId1), mockUserId);
+
+      // Verify password_reuse_map was called twice (fresh computation each time)
+      expect(mockNonUserCipherRiskClient.password_reuse_map).toHaveBeenCalledTimes(2);
     });
   });
 });
