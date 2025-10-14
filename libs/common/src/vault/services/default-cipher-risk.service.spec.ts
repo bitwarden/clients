@@ -254,7 +254,8 @@ describe("DefaultCipherRiskService", () => {
 
   describe("buildPasswordReuseMap", () => {
     it("should call SDK cipher_risk().password_reuse_map() with correct parameters", async () => {
-      const mockCipherRiskClient = sdkService.client.vault.mockDeep().cipher_risk.mockDeep();
+      const mockClient = sdkService.simulate.userLogin(mockUserId);
+      const mockCipherRiskClient = mockClient.vault.mockDeep().cipher_risk.mockDeep();
 
       const mockReuseMap = {
         password1: 2,
@@ -275,7 +276,7 @@ describe("DefaultCipherRiskService", () => {
       cipher2.login = new LoginView();
       cipher2.login.password = "password2";
 
-      const result = await cipherRiskService.buildPasswordReuseMap([cipher1, cipher2]);
+      const result = await cipherRiskService.buildPasswordReuseMap([cipher1, cipher2], mockUserId);
 
       expect(mockCipherRiskClient.password_reuse_map).toHaveBeenCalledWith([
         expect.objectContaining({ password: "password1" }),
@@ -285,7 +286,8 @@ describe("DefaultCipherRiskService", () => {
     });
 
     it("should filter out non-Login ciphers", async () => {
-      const mockCipherRiskClient = sdkService.client.vault.mockDeep().cipher_risk.mockDeep();
+      const mockClient = sdkService.simulate.userLogin(mockUserId);
+      const mockCipherRiskClient = mockClient.vault.mockDeep().cipher_risk.mockDeep();
       mockCipherRiskClient.password_reuse_map.mockReturnValue({});
 
       const loginCipher = new CipherView();
@@ -298,7 +300,7 @@ describe("DefaultCipherRiskService", () => {
       cardCipher.id = mockCipherId2;
       cardCipher.type = CipherType.Card;
 
-      await cipherRiskService.buildPasswordReuseMap([loginCipher, cardCipher]);
+      await cipherRiskService.buildPasswordReuseMap([loginCipher, cardCipher], mockUserId);
 
       expect(mockCipherRiskClient.password_reuse_map).toHaveBeenCalledWith([
         expect.objectContaining({ password: "password1" }),
@@ -306,7 +308,8 @@ describe("DefaultCipherRiskService", () => {
     });
 
     it("should filter out Login ciphers without passwords", async () => {
-      const mockCipherRiskClient = sdkService.client.vault.mockDeep().cipher_risk.mockDeep();
+      const mockClient = sdkService.simulate.userLogin(mockUserId);
+      const mockCipherRiskClient = mockClient.vault.mockDeep().cipher_risk.mockDeep();
       mockCipherRiskClient.password_reuse_map.mockReturnValue({});
 
       const cipherWithPassword = new CipherView();
@@ -321,7 +324,10 @@ describe("DefaultCipherRiskService", () => {
       cipherWithoutPassword.login = new LoginView();
       cipherWithoutPassword.login.password = "";
 
-      await cipherRiskService.buildPasswordReuseMap([cipherWithPassword, cipherWithoutPassword]);
+      await cipherRiskService.buildPasswordReuseMap(
+        [cipherWithPassword, cipherWithoutPassword],
+        mockUserId,
+      );
 
       expect(mockCipherRiskClient.password_reuse_map).toHaveBeenCalledWith([
         expect.objectContaining({ password: "password1" }),
@@ -332,7 +338,7 @@ describe("DefaultCipherRiskService", () => {
       const cardCipher = new CipherView();
       cardCipher.type = CipherType.Card;
 
-      const result = await cipherRiskService.buildPasswordReuseMap([cardCipher]);
+      const result = await cipherRiskService.buildPasswordReuseMap([cardCipher], mockUserId);
 
       expect(result).toEqual({});
     });
@@ -342,10 +348,6 @@ describe("DefaultCipherRiskService", () => {
     it("should compute risk for a single cipher with password reuse map", async () => {
       const mockClient = sdkService.simulate.userLogin(mockUserId);
       const mockCipherRiskClient = mockClient.vault.mockDeep().cipher_risk.mockDeep();
-
-      // Also mock the non-user client for buildPasswordReuseMap
-      const mockVault = sdkService.client.vault.mockDeep();
-      const mockNonUserCipherRiskClient = mockVault.cipher_risk.mockDeep();
 
       // Setup cipher data
       const cipher1 = new CipherView();
@@ -369,7 +371,7 @@ describe("DefaultCipherRiskService", () => {
 
       // Mock password reuse map
       const mockReuseMap = { password1: 2 };
-      mockNonUserCipherRiskClient.password_reuse_map.mockReturnValue(mockReuseMap);
+      mockCipherRiskClient.password_reuse_map.mockReturnValue(mockReuseMap);
 
       // Mock compute_risk result
       const mockRiskResult: CipherRisk = {
@@ -390,7 +392,7 @@ describe("DefaultCipherRiskService", () => {
       expect(mockCipherService.cipherViews$).toHaveBeenCalledWith(mockUserId);
 
       // Verify password_reuse_map was called with all ciphers
-      expect(mockNonUserCipherRiskClient.password_reuse_map).toHaveBeenCalledWith([
+      expect(mockCipherRiskClient.password_reuse_map).toHaveBeenCalledWith([
         expect.objectContaining({ password: "password1", username: "user1@example.com" }),
         expect.objectContaining({ password: "password1", username: "user2@example.com" }),
       ]);
@@ -426,10 +428,6 @@ describe("DefaultCipherRiskService", () => {
       const mockClient = sdkService.simulate.userLogin(mockUserId);
       const mockCipherRiskClient = mockClient.vault.mockDeep().cipher_risk.mockDeep();
 
-      // Also mock the non-user client
-      const mockVault = sdkService.client.vault.mockDeep();
-      const mockNonUserCipherRiskClient = mockVault.cipher_risk.mockDeep();
-
       const cipher = new CipherView();
       cipher.id = mockCipherId1;
       cipher.type = CipherType.Login;
@@ -437,7 +435,7 @@ describe("DefaultCipherRiskService", () => {
       cipher.login.password = "password1";
 
       mockCipherService.cipherViews$.mockReturnValue(new BehaviorSubject([cipher]));
-      mockNonUserCipherRiskClient.password_reuse_map.mockReturnValue({});
+      mockCipherRiskClient.password_reuse_map.mockReturnValue({});
       mockCipherRiskClient.compute_risk.mockResolvedValue([
         {
           id: mockCipherId1 as any,
@@ -463,10 +461,6 @@ describe("DefaultCipherRiskService", () => {
       const mockClient = sdkService.simulate.userLogin(mockUserId);
       const mockCipherRiskClient = mockClient.vault.mockDeep().cipher_risk.mockDeep();
 
-      // Also mock the non-user client
-      const mockVault = sdkService.client.vault.mockDeep();
-      const mockNonUserCipherRiskClient = mockVault.cipher_risk.mockDeep();
-
       const cipher = new CipherView();
       cipher.id = mockCipherId1;
       cipher.type = CipherType.Login;
@@ -474,7 +468,7 @@ describe("DefaultCipherRiskService", () => {
       cipher.login.password = "password1";
 
       mockCipherService.cipherViews$.mockReturnValue(new BehaviorSubject([cipher]));
-      mockNonUserCipherRiskClient.password_reuse_map.mockReturnValue({});
+      mockCipherRiskClient.password_reuse_map.mockReturnValue({});
       mockCipherRiskClient.compute_risk.mockResolvedValue([
         {
           id: mockCipherId1 as any,
@@ -496,10 +490,6 @@ describe("DefaultCipherRiskService", () => {
       const mockClient = sdkService.simulate.userLogin(mockUserId);
       const mockCipherRiskClient = mockClient.vault.mockDeep().cipher_risk.mockDeep();
 
-      // Also mock the non-user client
-      const mockVault = sdkService.client.vault.mockDeep();
-      const mockNonUserCipherRiskClient = mockVault.cipher_risk.mockDeep();
-
       const cipherWithPassword = new CipherView();
       cipherWithPassword.id = mockCipherId1;
       cipherWithPassword.type = CipherType.Login;
@@ -515,7 +505,7 @@ describe("DefaultCipherRiskService", () => {
       mockCipherService.cipherViews$.mockReturnValue(
         new BehaviorSubject([cipherWithPassword, cipherWithoutPassword]),
       );
-      mockNonUserCipherRiskClient.password_reuse_map.mockReturnValue({});
+      mockCipherRiskClient.password_reuse_map.mockReturnValue({});
       mockCipherRiskClient.compute_risk.mockResolvedValue([
         {
           id: mockCipherId1 as any,
@@ -528,7 +518,7 @@ describe("DefaultCipherRiskService", () => {
       await cipherRiskService.computeCipherRiskForUser(asUuid<CipherId>(mockCipherId1), mockUserId);
 
       // Verify password_reuse_map only received cipher with password
-      expect(mockNonUserCipherRiskClient.password_reuse_map).toHaveBeenCalledWith([
+      expect(mockCipherRiskClient.password_reuse_map).toHaveBeenCalledWith([
         expect.objectContaining({ password: "password1" }),
       ]);
     });
@@ -536,10 +526,6 @@ describe("DefaultCipherRiskService", () => {
     it("should handle non-Login ciphers in vault when building password map", async () => {
       const mockClient = sdkService.simulate.userLogin(mockUserId);
       const mockCipherRiskClient = mockClient.vault.mockDeep().cipher_risk.mockDeep();
-
-      // Also mock the non-user client
-      const mockVault = sdkService.client.vault.mockDeep();
-      const mockNonUserCipherRiskClient = mockVault.cipher_risk.mockDeep();
 
       const loginCipher = new CipherView();
       loginCipher.id = mockCipherId1;
@@ -558,7 +544,7 @@ describe("DefaultCipherRiskService", () => {
       mockCipherService.cipherViews$.mockReturnValue(
         new BehaviorSubject([loginCipher, cardCipher, noteCipher]),
       );
-      mockNonUserCipherRiskClient.password_reuse_map.mockReturnValue({});
+      mockCipherRiskClient.password_reuse_map.mockReturnValue({});
       mockCipherRiskClient.compute_risk.mockResolvedValue([
         {
           id: mockCipherId1 as any,
@@ -571,7 +557,7 @@ describe("DefaultCipherRiskService", () => {
       await cipherRiskService.computeCipherRiskForUser(asUuid<CipherId>(mockCipherId1), mockUserId);
 
       // Verify password_reuse_map only received Login cipher
-      expect(mockNonUserCipherRiskClient.password_reuse_map).toHaveBeenCalledWith([
+      expect(mockCipherRiskClient.password_reuse_map).toHaveBeenCalledWith([
         expect.objectContaining({ password: "password1" }),
       ]);
     });
@@ -580,10 +566,6 @@ describe("DefaultCipherRiskService", () => {
       const mockClient = sdkService.simulate.userLogin(mockUserId);
       const mockCipherRiskClient = mockClient.vault.mockDeep().cipher_risk.mockDeep();
 
-      // Also mock the non-user client
-      const mockVault = sdkService.client.vault.mockDeep();
-      const mockNonUserCipherRiskClient = mockVault.cipher_risk.mockDeep();
-
       const cipher = new CipherView();
       cipher.id = mockCipherId1;
       cipher.type = CipherType.Login;
@@ -591,7 +573,7 @@ describe("DefaultCipherRiskService", () => {
       cipher.login.password = "password1";
 
       mockCipherService.cipherViews$.mockReturnValue(new BehaviorSubject([cipher]));
-      mockNonUserCipherRiskClient.password_reuse_map.mockReturnValue({ password1: 1 });
+      mockCipherRiskClient.password_reuse_map.mockReturnValue({ password1: 1 });
       mockCipherRiskClient.compute_risk.mockResolvedValue([
         {
           id: mockCipherId1 as any,
@@ -608,7 +590,7 @@ describe("DefaultCipherRiskService", () => {
       await cipherRiskService.computeCipherRiskForUser(asUuid<CipherId>(mockCipherId1), mockUserId);
 
       // Verify password_reuse_map was called twice (fresh computation each time)
-      expect(mockNonUserCipherRiskClient.password_reuse_map).toHaveBeenCalledTimes(2);
+      expect(mockCipherRiskClient.password_reuse_map).toHaveBeenCalledTimes(2);
     });
   });
 });

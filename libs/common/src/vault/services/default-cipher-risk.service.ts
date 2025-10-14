@@ -61,7 +61,7 @@ export class DefaultCipherRiskService implements CipherRiskServiceAbstraction {
     }
 
     // Build fresh password reuse map from all ciphers
-    const passwordMap = await this.buildPasswordReuseMap(allCiphers);
+    const passwordMap = await this.buildPasswordReuseMap(allCiphers, userId);
 
     // Call existing computeRiskForCiphers with single cipher and map
     const results = await this.computeRiskForCiphers([targetCipher], userId, {
@@ -72,7 +72,7 @@ export class DefaultCipherRiskService implements CipherRiskServiceAbstraction {
     return results[0];
   }
 
-  async buildPasswordReuseMap(ciphers: CipherView[]): Promise<PasswordReuseMap> {
+  async buildPasswordReuseMap(ciphers: CipherView[], userId: UserId): Promise<PasswordReuseMap> {
     const loginDetails = this.mapToLoginDetails(ciphers);
 
     if (loginDetails.length === 0) {
@@ -80,9 +80,10 @@ export class DefaultCipherRiskService implements CipherRiskServiceAbstraction {
     }
 
     return await firstValueFrom(
-      this.sdkService.client$.pipe(
-        map((client) => {
-          const cipherRiskClient = client.vault().cipher_risk();
+      this.sdkService.userClient$(userId).pipe(
+        map(async (sdk) => {
+          using ref = sdk.take();
+          const cipherRiskClient = ref.value.vault().cipher_risk();
           return cipherRiskClient.password_reuse_map(loginDetails);
         }),
       ),

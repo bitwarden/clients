@@ -45,9 +45,10 @@ export abstract class CipherRiskService {
    * Only processes Login ciphers with passwords.
    *
    * @param ciphers - The ciphers to analyze for password reuse
+   * @param userId - The user ID for SDK client context
    * @returns A map of password to count of occurrences
    */
-  abstract buildPasswordReuseMap(ciphers: CipherView[]): Promise<PasswordReuseMap>;
+  abstract buildPasswordReuseMap(ciphers: CipherView[], userId: UserId): Promise<PasswordReuseMap>;
 }
 
 // Re-export SDK types for convenience
