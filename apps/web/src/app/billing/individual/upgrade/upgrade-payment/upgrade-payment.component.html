@@ -33,9 +33,14 @@
         <div class="tw-pb-8 !tw-mx-0">
           <app-enter-payment-method
             [group]="formGroup.controls.paymentForm"
-            [includeBillingAddress]="true"
+            [includeBillingAddress]="false"
             #paymentComponent
           ></app-enter-payment-method>
+          <app-enter-billing-address
+            [group]="formGroup.controls.billingAddress"
+            [scenario]="{ type: 'checkout', supportsTaxId: false }"
+          >
+          </app-enter-billing-address>
         </div>
       </section>
 
