@@ -1,7 +1,7 @@
 <form [formGroup]="formGroup" [bitSubmit]="submit">
   <bit-dialog [loading]="loading">
     <ng-container bitDialogTitle>
-      @let title = (multiStepSubmit | async)[currentStep]?.titleContent();
+      @let title = (multiStepSubmit | async)[currentStep()]?.titleContent();
       @if (title) {
         <ng-container [ngTemplateOutlet]="title"></ng-container>
       }
@@ -24,7 +24,7 @@
       <ng-template #policyForm></ng-template>
     </ng-container>
     <ng-container bitDialogFooter>
-      @let footer = (multiStepSubmit | async)[currentStep]?.footerContent();
+      @let footer = (multiStepSubmit | async)[currentStep()]?.footerContent();
       @if (footer) {
         <ng-container [ngTemplateOutlet]="footer"></ng-container>
       }
@@ -49,7 +49,7 @@
 </ng-template>
 
 <ng-template #step1Title>
-  {{ "howToTrunOnAutoConfirm" | i18n }}
+  {{ "howToTurnOnAutoConfirm" | i18n }}
 </ng-template>
 
 <ng-template #step0>
