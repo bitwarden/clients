@@ -154,6 +154,13 @@ export class PasswordSettingsComponent implements OnInit, OnChanges, OnDestroy {
       .subscribe(({ constraints }) => {
         this.policyInEffect = constraints.policyInEffect ?? false;
 
+        this.lengthMin = constraints.length.min;
+        this.lengthMax = constraints.length.max;
+        this.minNumberMin = constraints.minNumber.min;
+        this.minNumberMax = constraints.minNumber.max;
+        this.minSpecialMin = constraints.minSpecial.min;
+        this.minSpecialMax = constraints.minSpecial.max;
+
         const toggles = [
           [Controls.length, hasRangeOfValues(constraints.length?.min, constraints.length?.max)],
           [Controls.uppercase, !constraints.uppercase?.readonly],
@@ -242,6 +249,24 @@ export class PasswordSettingsComponent implements OnInit, OnChanges, OnDestroy {
   save(site: string = "component api call") {
     this.saveSettings.next(site);
   }
+
+  /** attribute binding for length[min] */
+  protected lengthMin: number;
+
+  /** attribute binding for length[max] */
+  protected lengthMax: number;
+
+  /** attribute binding for minNumber[min] */
+  protected minNumberMin: number;
+
+  /** attribute binding for minNumber[max] */
+  protected minNumberMax: number;
+
+  /** attribute binding for minSpecial[min] */
+  protected minSpecialMin: number;
+
+  /** attribute binding for minSpecial[max] */
+  protected minSpecialMax: number;
 
   /** display binding for enterprise policy notice */
   protected policyInEffect: boolean = false;
