@@ -1423,7 +1423,6 @@ export default class MainBackground {
 
     PhishingDetectionService.initialize(
       this.accountService,
-      this.auditService,
       this.billingAccountProfileStateService,
       this.configService,
       this.eventCollectionService,

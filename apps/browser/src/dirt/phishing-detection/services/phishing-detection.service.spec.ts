@@ -1,6 +1,5 @@
 import { of } from "rxjs";
 
-import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
@@ -13,7 +12,6 @@ import { PhishingDetectionService } from "./phishing-detection.service";
 
 describe("PhishingDetectionService", () => {
   let accountService: AccountService;
-  let auditService: AuditService;
   let billingAccountProfileStateService: BillingAccountProfileStateService;
   let configService: ConfigService;
   let eventCollectionService: EventCollectionService;
@@ -22,8 +20,7 @@ describe("PhishingDetectionService", () => {
   let taskSchedulerService: TaskSchedulerService;
 
   beforeEach(() => {
-    accountService = { getAccount$: jest.fn(() => of(null)) } as any;
-    auditService = { getKnownPhishingDomains: jest.fn() } as any;
+    accountService = { activeAccount$: of(null) } as any;
     billingAccountProfileStateService = {} as any;
     configService = { getFeatureFlag$: jest.fn(() => of(false)) } as any;
     eventCollectionService = {} as any;
@@ -36,7 +33,6 @@ describe("PhishingDetectionService", () => {
     expect(() => {
       PhishingDetectionService.initialize(
         accountService,
-        auditService,
         billingAccountProfileStateService,
         configService,
         eventCollectionService,
@@ -66,7 +62,6 @@ describe("PhishingDetectionService", () => {
     // Run the initialization
     PhishingDetectionService.initialize(
       accountService,
-      auditService,
       billingAccountProfileStateService,
       configService,
       eventCollectionService,
@@ -105,7 +100,6 @@ describe("PhishingDetectionService", () => {
     // Run the initialization
     PhishingDetectionService.initialize(
       accountService,
-      auditService,
       billingAccountProfileStateService,
       configService,
       eventCollectionService,
