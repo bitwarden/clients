@@ -701,13 +701,20 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       return;
     }
     const activeUserId = await firstValueFrom(this.userId$);
-    await this.cipherArchiveService.archiveWithServer(cipher.id as CipherId, activeUserId);
-    this.toastService.showToast({
-      variant: "success",
-      message: this.i18nService.t("itemWasSentToArchive"),
-    });
-
-    this.refresh();
+    try {
+      await this.cipherArchiveService.archiveWithServer(cipher.id as CipherId, activeUserId);
+      this.toastService.showToast({
+        variant: "success",
+        message: this.i18nService.t("itemWasSentToArchive"),
+      });
+      this.refresh();
+    } catch (e) {
+      this.logService.error("Error archiving cipher", e);
+      this.toastService.showToast({
+        variant: "error",
+        message: this.i18nService.t("errorOccurred"),
+      });
+    }
   }
 
   async bulkArchive(ciphers: C[]) {
@@ -727,13 +734,20 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
 
     const activeUserId = await firstValueFrom(this.userId$);
     const cipherIds = ciphers.map((c) => c.id as CipherId);
-    await this.cipherArchiveService.archiveWithServer(cipherIds as CipherId[], activeUserId);
-    this.toastService.showToast({
-      variant: "success",
-      message: this.i18nService.t("itemsWereSentToArchive"),
-    });
-
-    this.refresh();
+    try {
+      await this.cipherArchiveService.archiveWithServer(cipherIds as CipherId[], activeUserId);
+      this.toastService.showToast({
+        variant: "success",
+        message: this.i18nService.t("itemsWereSentToArchive"),
+      });
+      this.refresh();
+    } catch (e) {
+      this.logService.error("Error archiving ciphers", e);
+      this.toastService.showToast({
+        variant: "error",
+        message: this.i18nService.t("errorOccurred"),
+      });
+    }
   }
 
   async unarchive(cipher: C) {
@@ -743,14 +757,22 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     }
     const activeUserId = await firstValueFrom(this.userId$);
 
-    await this.cipherArchiveService.unarchiveWithServer(cipher.id as CipherId, activeUserId);
+    try {
+      await this.cipherArchiveService.unarchiveWithServer(cipher.id as CipherId, activeUserId);
 
-    this.toastService.showToast({
-      variant: "success",
-      message: this.i18nService.t("itemUnarchived"),
-    });
+      this.toastService.showToast({
+        variant: "success",
+        message: this.i18nService.t("itemUnarchived"),
+      });
 
-    this.refresh();
+      this.refresh();
+    } catch (e) {
+      this.logService.error("Error unarchiving cipher", e);
+      this.toastService.showToast({
+        variant: "error",
+        message: this.i18nService.t("errorOccurred"),
+      });
+    }
   }
 
   async bulkUnarchive(ciphers: C[]) {
@@ -760,13 +782,21 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
 
     const activeUserId = await firstValueFrom(this.userId$);
     const cipherIds = ciphers.map((c) => c.id as CipherId);
-    await this.cipherArchiveService.unarchiveWithServer(cipherIds as CipherId[], activeUserId);
-    this.toastService.showToast({
-      variant: "success",
-      message: this.i18nService.t("bulkUnarchiveItems"),
-    });
+    try {
+      await this.cipherArchiveService.unarchiveWithServer(cipherIds as CipherId[], activeUserId);
+      this.toastService.showToast({
+        variant: "success",
+        message: this.i18nService.t("bulkUnarchiveItems"),
+      });
 
-    this.refresh();
+      this.refresh();
+    } catch (e) {
+      this.logService.error("Error unarchiving ciphers", e);
+      this.toastService.showToast({
+        variant: "error",
+        message: this.i18nService.t("errorOccurred"),
+      });
+    }
   }
 
   async applyOrganizationFilter(orgId: string) {
