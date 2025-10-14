@@ -26,11 +26,15 @@ export default {
 
 type Story = StoryObj<SkeletonComponent>;
 
-export const Square: Story = {
+export const BoxEdgeShape: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
+    <div class="tw-mb-4">Examples of different size shapes with edgeShape={{ edgeShape }}</div>
+    <div class="tw-flex tw-flex-row tw-gap-8 tw-items-center">
       <bit-skeleton ${formatArgsForCodeSnippet<SkeletonComponent>(args)} class="tw-size-32"></bit-skeleton>
+      <bit-skeleton ${formatArgsForCodeSnippet<SkeletonComponent>(args)} class="tw-w-40 tw-h-5"></bit-skeleton>
+    </div>
     `,
   }),
   args: {
@@ -38,37 +42,8 @@ export const Square: Story = {
   },
 };
 
-export const Rectangle: Story = {
-  render: (args) => ({
-    props: args,
-    template: /*html*/ `
-      <bit-skeleton ${formatArgsForCodeSnippet<SkeletonComponent>(args)} class="tw-w-40 tw-h-5"></bit-skeleton>
-    `,
-  }),
-  args: {
-    edgeShape: "box",
-  },
-};
-
-export const Circle: Story = {
-  render: (args) => ({
-    props: args,
-    template: /*html*/ `
-      <bit-skeleton ${formatArgsForCodeSnippet<SkeletonComponent>(args)} class="tw-size-32"></bit-skeleton>
-    `,
-  }),
-  args: {
-    edgeShape: "circle",
-  },
-};
-
-export const Oval: Story = {
-  render: (args) => ({
-    props: args,
-    template: /*html*/ `
-      <bit-skeleton ${formatArgsForCodeSnippet<SkeletonComponent>(args)} class="tw-w-40 tw-h-5"></bit-skeleton>
-    `,
-  }),
+export const CircleEdgeShape: Story = {
+  ...BoxEdgeShape,
   args: {
     edgeShape: "circle",
   },
