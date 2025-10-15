@@ -174,7 +174,7 @@ jobs:
           ref: ${{  github.event.pull_request.head.sha }}
 
       - name: Set up Node
-        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
@@ -323,7 +323,7 @@ jobs:
           ref: ${{  github.event.pull_request.head.sha }}
 
       - name: Set up Node
-        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
@@ -429,7 +429,7 @@ jobs:
           ref: ${{  github.event.pull_request.head.sha }}
 
       - name: Set up Node
-        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
@@ -687,7 +687,7 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Set up Node
-        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
@@ -921,7 +921,7 @@ jobs:
           ref: ${{  github.event.pull_request.head.sha }}
 
       - name: Set up Node
-        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
@@ -1147,7 +1147,7 @@ jobs:
           ref: ${{  github.event.pull_request.head.sha }}
 
       - name: Set up Node
-        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
@@ -1405,7 +1405,7 @@ jobs:
           ref: ${{  github.event.pull_request.head.sha }}
 
       - name: Set up Node
-        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
