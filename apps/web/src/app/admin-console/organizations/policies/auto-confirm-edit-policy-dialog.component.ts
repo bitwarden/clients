@@ -10,7 +10,7 @@ import {
 } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { Router } from "@angular/router";
-import { firstValueFrom, map, Observable, of, switchMap, tap } from "rxjs";
+import { firstValueFrom, map, Observable, of, shareReplay, switchMap, tap } from "rxjs";
 
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -64,7 +64,7 @@ export class AutoConfirmPolicyDialogComponent
   policyType = PolicyType;
 
   protected firstTimeDialog = signal(false);
-  protected currentStep = 0;
+  protected currentStep = signal(0);
   protected multiStepSubmit: Observable<MultiStepSubmit[]> = of([]);
 
   private submitPolicy: Signal<TemplateRef<unknown> | undefined> = viewChild("step0");
@@ -130,6 +130,7 @@ export class AutoConfirmPolicyDialogComponent
           titleContent: this.openExtensionTitle,
         },
       ]),
+      shareReplay({ bufferSize: 1, refCount: true }),
     );
   }
 
@@ -190,14 +191,15 @@ export class AutoConfirmPolicyDialogComponent
 
     try {
       const multiStepSubmit = await firstValueFrom(this.multiStepSubmit);
-      await multiStepSubmit[this.currentStep].sideEffect();
+      await multiStepSubmit[this.currentStep()].sideEffect();
 
-      if (this.currentStep === multiStepSubmit.length - 1) {
+      if (this.currentStep() === multiStepSubmit.length - 1) {
         this.dialogRef.close("saved");
         return;
       }
 
-      this.policyComponent.setStep(++this.currentStep);
+      this.currentStep.update((value) => value + 1);
+      this.policyComponent.setStep(this.currentStep());
     } catch (error: any) {
       this.toastService.showToast({
         variant: "error",
