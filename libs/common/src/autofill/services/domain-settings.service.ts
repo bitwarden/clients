@@ -165,6 +165,8 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
       map((policy) => (policy !== null && policy?.enabled && policy?.data ? policy.data : null)),
     );
 
+    // This observable combines user settings with policy settings and is designed
+    // to live for the lifetime of the service. No cleanup needed.
     this.resolvedDefaultUriMatchStrategy$ = combineLatest([
       this.defaultUriMatchStrategy$,
       this.defaultUriMatchStrategyPolicy$,
