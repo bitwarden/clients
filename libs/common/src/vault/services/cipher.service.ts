@@ -934,7 +934,12 @@ export class CipherService implements CipherServiceAbstraction {
         cipher.attachments.forEach((attachment) => {
           if (attachment.key == null) {
             attachmentPromises.push(
-              this.shareAttachmentWithServer(attachment, cipher.id, organizationId),
+              this.shareAttachmentWithServer(
+                attachment,
+                cipher.id,
+                organizationId,
+                cipher.revisionDate,
+              ),
             );
           }
         });
@@ -1719,15 +1724,9 @@ export class CipherService implements CipherServiceAbstraction {
     attachmentView: AttachmentView,
     cipherId: string,
     organizationId: string,
+    lastKnownRevisionDate: Date,
   ): Promise<any> {
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$);
-
-    const ciphers = await firstValueFrom(this.ciphers$(activeUserId.id));
-    const cipher = ciphers[cipherId as CipherId];
-    if (!cipher) {
-      throw new Error("Failed to share attachment: Cipher not found");
-    }
-    const lastKnownRevisionDate = cipher.revisionDate;
 
     const attachmentResponse = await this.apiService.nativeFetch(
       new Request(attachmentView.url, { cache: "no-store" }),
@@ -1757,11 +1756,11 @@ export class CipherService implements CipherServiceAbstraction {
       const blob = new Blob([encData.buffer], { type: "application/octet-stream" });
       fd.append("key", dataEncKey[1].encryptedString);
       fd.append("data", blob, encFileName.encryptedString);
-      fd.append("lastKnownRevisionDate", lastKnownRevisionDate);
+      fd.append("lastKnownRevisionDate", lastKnownRevisionDate.toISOString());
     } catch (e) {
       if (Utils.isNode && !Utils.isBrowser) {
         fd.append("key", dataEncKey[1].encryptedString);
-        fd.append("lastKnownRevisionDate", lastKnownRevisionDate);
+        fd.append("lastKnownRevisionDate", lastKnownRevisionDate.toISOString());
         fd.append(
           "data",
           Buffer.from(encData.buffer) as any,
