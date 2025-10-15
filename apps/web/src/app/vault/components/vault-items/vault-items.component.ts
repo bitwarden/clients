@@ -64,6 +64,8 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   @Input() addAccessStatus: number;
   @Input() addAccessToggle: boolean;
   @Input() activeCollection: CollectionView | undefined;
+  @Input() userCanArchive: boolean;
+  @Input() enforceOrgDataOwnershipPolicy: boolean;
 
   private restrictedPolicies = toSignal(this.restrictedItemTypesService.restricted$);
 
@@ -191,6 +193,30 @@ export class VaultItemsComponent<C extends CipherViewLike> {
     );
   }
 
+  get bulkArchiveAllowed() {
+    if (this.selection.selected.length === 0 || !this.userCanArchive) {
+      return false;
+    }
+
+    return (
+      this.userCanArchive &&
+      !this.selection.selected.find(
+        (item) => item.cipher && (item.cipher.organizationId || item.cipher.archivedDate),
+      )
+    );
+  }
+
+  // Bulk Unarchive button should appear for Archive vault even if user does not have archive permissions
+  get bulkUnarchiveAllowed() {
+    if (this.selection.selected.length === 0) {
+      return false;
+    }
+
+    return !this.selection.selected.find(
+      (item) => !item.cipher.archivedDate || item.cipher.organizationId,
+    );
+  }
+
   //@TODO: remove this function when removing the limitItemDeletion$ feature flag.
   get showDelete(): boolean {
     if (this.selection.selected.length === 0) {
@@ -221,7 +247,17 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   }
 
   get bulkAssignToCollectionsAllowed() {
-    return this.showBulkAddToCollections && this.ciphers.length > 0;
+    return (
+      this.showBulkAddToCollections &&
+      this.ciphers.length > 0 &&
+      !this.anySelectedCiphersAreArchived
+    );
+  }
+
+  get anySelectedCiphersAreArchived() {
+    return this.selection.selected.some(
+      (item) => item.cipher && CipherViewLikeUtils.isArchived(item.cipher),
+    );
   }
 
   protected canEditCollection(collection: CollectionView): boolean {
@@ -264,6 +300,24 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   protected bulkMoveToFolder() {
     this.event({
       type: "moveToFolder",
+      items: this.selection.selected
+        .filter((item) => item.cipher !== undefined)
+        .map((item) => item.cipher),
+    });
+  }
+
+  protected bulkArchive() {
+    this.event({
+      type: "archive",
+      items: this.selection.selected
+        .filter((item) => item.cipher !== undefined)
+        .map((item) => item.cipher),
+    });
+  }
+
+  protected bulkUnarchive() {
+    this.event({
+      type: "unarchive",
       items: this.selection.selected
         .filter((item) => item.cipher !== undefined)
         .map((item) => item.cipher),
