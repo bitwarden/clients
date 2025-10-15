@@ -197,7 +197,7 @@ export class AutoConfirmPolicyDialogComponent
         return;
       }
 
-      this.currentStep++;
+      this.policyComponent.setStep(++this.currentStep);
     } catch (error: any) {
       this.toastService.showToast({
         variant: "error",
