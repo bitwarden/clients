@@ -104,6 +104,10 @@ export class UpgradePaymentComponent implements OnInit, AfterViewInit {
     private upgradePaymentService: UpgradePaymentService,
   ) {}
 
+  protected userIsOwnerOfFreeOrg$ = this.upgradePaymentService.userIsOwnerOfFreeOrg$;
+  protected adminConsoleRouteForOwnedOrganization$ =
+    this.upgradePaymentService.adminConsoleRouteForOwnedOrganization$;
+
   async ngOnInit(): Promise<void> {
     if (!this.isFamiliesPlan) {
       this.formGroup.controls.organizationName.disable();
