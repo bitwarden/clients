@@ -1,6 +1,6 @@
 import { CdkTrapFocus } from "@angular/cdk/a11y";
 import { CommonModule } from "@angular/common";
-import { Component, DestroyRef, OnInit, output, signal } from "@angular/core";
+import { Component, DestroyRef, OnInit, computed, input, output, signal } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -52,6 +52,8 @@ type CardDetails = {
   templateUrl: "./upgrade-account.component.html",
 })
 export class UpgradeAccountComponent implements OnInit {
+  dialogTitleMessageOverride = input<string | null>(null);
+  hideContinueWithoutUpgradingButton = input<boolean>(false);
   planSelected = output<PersonalSubscriptionPricingTierId>();
   closeClicked = output<UpgradeAccountStatus>();
   protected loading = signal(true);
@@ -61,6 +63,10 @@ export class UpgradeAccountComponent implements OnInit {
   protected familiesPlanType = PersonalSubscriptionPricingTierIds.Families;
   protected premiumPlanType = PersonalSubscriptionPricingTierIds.Premium;
   protected closeStatus = UpgradeAccountStatus.Closed;
+
+  protected dialogTitle = computed(() => {
+    return this.dialogTitleMessageOverride() || "individualUpgradeWelcomeMessage";
+  });
 
   constructor(
     private i18nService: I18nService,
