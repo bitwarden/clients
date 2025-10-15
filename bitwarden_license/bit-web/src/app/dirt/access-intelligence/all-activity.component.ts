@@ -13,11 +13,12 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { getById } from "@bitwarden/common/platform/misc";
-import { ToastService } from "@bitwarden/components";
+import { ToastService, DialogService } from "@bitwarden/components";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 import { ActivityCardComponent } from "./activity-card.component";
 import { PasswordChangeMetricComponent } from "./activity-cards/password-change-metric.component";
+import { NewApplicationsDialogComponent } from "./new-applications-dialog.component";
 import { ApplicationsLoadingComponent } from "./risk-insights-loading.component";
 import { RiskInsightsTabType } from "./risk-insights.component";
 
@@ -37,6 +38,7 @@ export class AllActivityComponent implements OnInit {
   totalCriticalAppsCount = 0;
   totalCriticalAppsAtRiskCount = 0;
   newApplicationsCount = 0;
+  newApplications: string[] = [];
   passwordChangeMetricHasProgressBar = false;
 
   destroyRef = inject(DestroyRef);
@@ -57,6 +59,7 @@ export class AllActivityComponent implements OnInit {
           this.totalCriticalAppsAtRiskMemberCount = summary.totalCriticalAtRiskMemberCount;
           this.totalCriticalAppsCount = summary.totalCriticalApplicationCount;
           this.totalCriticalAppsAtRiskCount = summary.totalCriticalAtRiskApplicationCount;
+          this.newApplications = summary.newApplications;
           this.newApplicationsCount = summary.newApplications.length;
         });
 
@@ -76,6 +79,7 @@ export class AllActivityComponent implements OnInit {
     protected allActivitiesService: AllActivitiesService,
     private toastService: ToastService,
     private i18nService: I18nService,
+    private dialogService: DialogService,
   ) {}
 
   get RiskInsightsTabType() {
@@ -89,14 +93,13 @@ export class AllActivityComponent implements OnInit {
 
   /**
    * Handles the review new applications button click.
-   * Shows a toast notification as a placeholder until the dialog is implemented.
-   * TODO: Implement dialog for reviewing new applications (follow-up task)
+   * Opens a dialog showing the list of new applications that can be marked as critical.
    */
-  onReviewNewApplications = () => {
-    this.toastService.showToast({
-      variant: "info",
-      title: this.i18nService.t("applicationsNeedingReview"),
-      message: this.i18nService.t("newApplicationsWithCount", this.newApplicationsCount.toString()),
+  onReviewNewApplications = async () => {
+    const dialogRef = NewApplicationsDialogComponent.open(this.dialogService, {
+      newApplications: this.newApplications,
     });
+
+    await firstValueFrom(dialogRef.closed);
   };
 }

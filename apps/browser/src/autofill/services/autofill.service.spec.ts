@@ -4111,6 +4111,7 @@ describe("AutofillService", () => {
       });
 
       it("returns null if the field cannot be hidden", () => {
+        usernameField.form = "differentFormId";
         const result = autofillService["findUsernameField"](
           pageDetails,
           passwordField,
@@ -4120,6 +4121,18 @@ describe("AutofillService", () => {
         );
 
         expect(result).toBe(null);
+      });
+
+      it("returns the field if the username field is in the form", () => {
+        const result = autofillService["findUsernameField"](
+          pageDetails,
+          passwordField,
+          false,
+          false,
+          false,
+        );
+
+        expect(result).toBe(usernameField);
       });
 
       it("returns the field if the field can be hidden", () => {
