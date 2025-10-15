@@ -1035,17 +1035,18 @@ pub mod chromium_importer {
 
 #[napi]
 pub mod chromium_importer_metadata {
-    use bitwarden_chromium_importer::chromium::DefaultInstalledBrowserRetriever;
+    use std::collections::HashMap;
+
+    use bitwarden_chromium_importer::{
+        chromium::DefaultInstalledBrowserRetriever, metadata::ImporterMetadata,
+    };
 
     #[napi]
     /// Returns OS aware metadata describing supported Chromium based importers as a JSON string.
-    pub fn get_metadata_as_json() -> napi::Result<String> {
-        let map = bitwarden_chromium_importer::metadata::get_supported_importers::<
+    pub fn get_metadata() -> HashMap<String, ImporterMetadata> {
+        bitwarden_chromium_importer::metadata::get_supported_importers::<
             DefaultInstalledBrowserRetriever,
-        >();
-        serde_json::to_string(&map).map_err(|e| {
-            napi::Error::from_reason(format!("Failed to serialize importer metadata: {e}"))
-        })
+        >()
     }
 }
 

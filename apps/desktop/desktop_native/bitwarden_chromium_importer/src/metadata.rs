@@ -1,9 +1,8 @@
-use serde::Serialize;
 use std::collections::{HashMap, HashSet};
 
 use crate::{chromium::InstalledBrowserRetriever, PLATFORM_SUPPORTED_BROWSERS};
 
-#[derive(Serialize)]
+#[napi(object)]
 /// Mechanisms that load data into the importer
 pub struct ImporterMetadata {
     /// Identifies the importer
