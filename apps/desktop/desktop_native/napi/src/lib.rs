@@ -948,7 +948,7 @@ pub mod chromium_importer {
     use bitwarden_chromium_importer::chromium::InstalledBrowserRetriever;
     use bitwarden_chromium_importer::chromium::LoginImportResult as _LoginImportResult;
     use bitwarden_chromium_importer::chromium::ProfileInfo as _ProfileInfo;
-    use bitwarden_chromium_importer::metadata::ImporterMetadata;
+    use bitwarden_chromium_importer::metadata::NativeImporterMetadata;
     use std::collections::HashMap;
 
     #[napi(object)]
@@ -1013,7 +1013,7 @@ pub mod chromium_importer {
 
     #[napi]
     /// Returns OS aware metadata describing supported Chromium based importers as a JSON string.
-    pub fn get_metadata() -> HashMap<String, ImporterMetadata> {
+    pub fn get_metadata() -> HashMap<String, NativeImporterMetadata> {
         bitwarden_chromium_importer::metadata::get_supported_importers::<
             DefaultInstalledBrowserRetriever,
         >()

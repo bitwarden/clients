@@ -1,9 +1,9 @@
 import { ipcRenderer } from "electron";
 
-import { NativeImporter } from "./import/desktop-import-metadata.service";
+import type { NativeImporterMetadata } from "@bitwarden/desktop-napi";
 
 const chromiumImporter = {
-  getMetadata: (): Promise<Record<string, NativeImporter>> =>
+  getMetadata: (): Promise<Record<string, NativeImporterMetadata>> =>
     ipcRenderer.invoke("chromium_importer.getMetadata"),
   getInstalledBrowsers: (): Promise<string[]> =>
     ipcRenderer.invoke("chromium_importer.getInstalledBrowsers"),
