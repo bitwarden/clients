@@ -944,10 +944,10 @@ pub mod logging {
 
 #[napi]
 pub mod chromium_importer {
+    use bitwarden_chromium_importer::chromium::DefaultInstalledBrowserRetriever;
     use bitwarden_chromium_importer::chromium::InstalledBrowserRetriever;
     use bitwarden_chromium_importer::chromium::LoginImportResult as _LoginImportResult;
     use bitwarden_chromium_importer::chromium::ProfileInfo as _ProfileInfo;
-    use bitwarden_chromium_importer::chromium::DefaultInstalledBrowserRetriever as DefaultInstalledBrowserRetriever;
     use bitwarden_chromium_importer::metadata::ImporterMetadata;
     use std::collections::HashMap;
 
@@ -1018,7 +1018,7 @@ pub mod chromium_importer {
             DefaultInstalledBrowserRetriever,
         >()
     }
-    
+
     #[napi]
     pub fn get_installed_browsers() -> napi::Result<Vec<String>> {
         bitwarden_chromium_importer::chromium::DefaultInstalledBrowserRetriever::get_installed_browsers()
