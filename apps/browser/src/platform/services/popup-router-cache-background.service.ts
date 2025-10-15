@@ -40,7 +40,7 @@ export class PopupRouterCacheBackgroundService {
               return state;
             }
 
-            // When the last route the last route has resetRouterCacheOnTabChange set
+            // When the last route has resetRouterCacheOnTabChange set
             // Reset the route history to empty to force the user to the default route
             if (lastRoute.options?.resetRouterCacheOnTabChange) {
               return [];
