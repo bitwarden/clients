@@ -163,7 +163,7 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
       ),
       getFirstPolicy,
       map((policy) =>
-        policy !== null && policy?.enabled && policy?.data && policy.data != null
+        policy?.enabled && policy?.data && policy.data != null && policy.data !== undefined
           ? policy.data
           : null,
       ),
