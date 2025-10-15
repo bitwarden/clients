@@ -1,11 +1,10 @@
-use serde::Serialize;
 use std::collections::{HashMap, HashSet};
 
 use crate::{chromium::InstalledBrowserRetriever, PLATFORM_SUPPORTED_BROWSERS};
 
-#[derive(Serialize)]
+#[napi(object)]
 /// Mechanisms that load data into the importer
-pub struct ImporterMetadata {
+pub struct NativeImporterMetadata {
     /// Identifies the importer
     pub id: String,
     /// Describes the strategies used to obtain imported data
@@ -18,8 +17,8 @@ pub struct ImporterMetadata {
 ///
 /// Only browsers listed in PLATFORM_SUPPORTED_BROWSERS will have the "chromium" loader.
 /// All importers will have the "file" loader.
-pub fn get_supported_importers<T: InstalledBrowserRetriever>() -> HashMap<String, ImporterMetadata>
-{
+pub fn get_supported_importers<T: InstalledBrowserRetriever>(
+) -> HashMap<String, NativeImporterMetadata> {
     let mut map = HashMap::new();
 
     // Check for installed browsers
@@ -46,7 +45,7 @@ pub fn get_supported_importers<T: InstalledBrowserRetriever>() -> HashMap<String
         if installed_browsers.is_empty() || installed_browsers.contains(&browser_name.to_string()) {
             map.insert(
                 id.to_string(),
-                ImporterMetadata {
+                NativeImporterMetadata {
                     id: id.to_string(),
                     loaders,
                     instructions: "chromium",
@@ -79,11 +78,14 @@ mod tests {
         }
     }
 
-    fn map_keys(map: &HashMap<String, ImporterMetadata>) -> HashSet<String> {
+    fn map_keys(map: &HashMap<String, NativeImporterMetadata>) -> HashSet<String> {
         map.keys().cloned().collect()
     }
 
-    fn get_loaders(map: &HashMap<String, ImporterMetadata>, id: &str) -> HashSet<&'static str> {
+    fn get_loaders(
+        map: &HashMap<String, NativeImporterMetadata>,
+        id: &str,
+    ) -> HashSet<&'static str> {
         map.get(id)
             .map(|m| m.loaders.iter().copied().collect::<HashSet<_>>())
             .unwrap_or_default()

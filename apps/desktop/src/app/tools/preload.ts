@@ -1,6 +1,10 @@
 import { ipcRenderer } from "electron";
 
+import type { NativeImporterMetadata } from "@bitwarden/desktop-napi";
+
 const chromiumImporter = {
+  getMetadata: (): Promise<Record<string, NativeImporterMetadata>> =>
+    ipcRenderer.invoke("chromium_importer.getMetadata"),
   getInstalledBrowsers: (): Promise<string[]> =>
     ipcRenderer.invoke("chromium_importer.getInstalledBrowsers"),
   getAvailableProfiles: (browser: string): Promise<any[]> =>
@@ -9,12 +13,6 @@ const chromiumImporter = {
     ipcRenderer.invoke("chromium_importer.importLogins", browser, profileId),
 };
 
-const chromiumImporterMetadata = {
-  getMetadataAsJson: (): Promise<string> =>
-    ipcRenderer.invoke("chromium_importer_metadata.getMetadataAsJson"),
-};
-
 export default {
   chromiumImporter,
-  chromiumImporterMetadata,
 };

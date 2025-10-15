@@ -1,4 +1,5 @@
 import { SystemServiceProvider } from "@bitwarden/common/tools/providers";
+import type { NativeImporterMetadata } from "@bitwarden/desktop-napi";
 import {
   ImportType,
   DefaultImportMetadataService,
@@ -10,12 +11,6 @@ import {
   Loader,
 } from "@bitwarden/importer-core";
 
-type NativeImporter = {
-  id: string;
-  loaders: string[];
-  instructions: string;
-};
-
 export class DesktopImportMetadataService
   extends DefaultImportMetadataService
   implements ImportMetadataServiceAbstraction
@@ -25,14 +20,12 @@ export class DesktopImportMetadataService
   }
 
   async init(): Promise<void> {
-    const metadataJson = await ipc.tools.chromiumImporterMetadata.getMetadataAsJson();
-    await this.parseNativeMetaData(metadataJson);
+    const metadata = await ipc.tools.chromiumImporter.getMetadata();
+    await this.parseNativeMetaData(metadata);
     await super.init();
   }
 
-  private async parseNativeMetaData(rawJson: string) {
-    const raw: Record<string, NativeImporter> = JSON.parse(rawJson);
-
+  private async parseNativeMetaData(raw: Record<string, NativeImporterMetadata>): Promise<void> {
     const entries = Object.entries(raw).map(([id, meta]) => {
       const loaders = meta.loaders.map(this.mapLoader);
       const instructions = this.mapInstructions(meta.instructions);
