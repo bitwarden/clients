@@ -1,5 +1,6 @@
 export * from "./active-send.icon";
 export { default as AdminConsoleLogo } from "./admin-console";
+export { default as AutoConfrimSvg } from "./auto-confirmation";
 export * from "./background-left-illustration";
 export * from "./background-right-illustration";
 export * from "./bitwarden-icon";

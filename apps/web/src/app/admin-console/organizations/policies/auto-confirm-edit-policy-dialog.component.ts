@@ -134,14 +134,18 @@ export class AutoConfirmPolicyDialogComponent
     );
   }
 
-  private async handleSubmit(enabled: boolean): Promise<void> {
+  private async handleSubmit(enabled: boolean) {
     if (!enabled) {
       await this.submitSingleOrg();
     }
     await this.submitAutoConfirm();
   }
 
-  private async submitAutoConfirm(): Promise<void> {
+  /**
+   *  Triggers policy submission for auto confirm.
+   *  @returns boolean: true if multi-submit workflow should continue, false otherwise.
+   */
+  private async submitAutoConfirm() {
     if (!this.policyComponent) {
       throw new Error("PolicyComponent not initialized.");
     }
@@ -157,6 +161,10 @@ export class AutoConfirmPolicyDialogComponent
       variant: "success",
       message: this.i18nService.t("editedPolicyId", this.i18nService.t(this.data.policy.name)),
     });
+
+    if (!this.policyComponent.enabled.value) {
+      this.dialogRef.close("saved");
+    }
   }
 
   private async submitSingleOrg(): Promise<void> {
