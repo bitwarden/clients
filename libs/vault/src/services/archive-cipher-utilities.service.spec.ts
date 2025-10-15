@@ -57,7 +57,7 @@ describe("ArchiveCipherUtilitiesService", () => {
 
       await service.archiveCipher(mockCipher);
 
-      expect(passwordRepromptService.passwordRepromptCheck).not.toHaveBeenCalled();
+      expect(passwordRepromptService.passwordRepromptCheck).toHaveBeenCalled();
       expect(cipherArchiveService.archiveWithServer).not.toHaveBeenCalled();
     });
 
