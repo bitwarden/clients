@@ -242,16 +242,13 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
   };
 
   async buildAllFilters(): Promise<VaultFilterList> {
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    const hasArchiveFlag = await firstValueFrom(this.cipherArchiveService.hasArchiveFlagEnabled$());
     const builderFilter = {} as VaultFilterList;
     builderFilter.organizationFilter = await this.addOrganizationFilter();
     builderFilter.typeFilter = await this.addTypeFilter();
     builderFilter.folderFilter = await this.addFolderFilter();
     builderFilter.collectionFilter = await this.addCollectionFilter();
-    if (
-      (await firstValueFrom(this.cipherArchiveService.userCanArchive$(userId))) ||
-      (await firstValueFrom(this.cipherArchiveService.showArchiveVault$(userId)))
-    ) {
+    if (hasArchiveFlag) {
       builderFilter.archiveFilter = await this.addArchiveFilter();
     }
     builderFilter.trashFilter = await this.addTrashFilter();
@@ -424,7 +421,7 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
         [
           {
             id: "archive",
-            name: this.i18nService.t("archive"),
+            name: this.i18nService.t("archiveNoun"),
             type: "archive",
             icon: "bwi-archive",
           },

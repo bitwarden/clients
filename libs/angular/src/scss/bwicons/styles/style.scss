@@ -100,6 +100,7 @@ $icomoon-font-path: "~@bitwarden/angular/src/scss/bwicons/fonts/" !default;
 }
 
 // For new icons - add their glyph name and value to the map below
+// Also add to `libs/components/src/shared/icon.ts`
 $icons: (
   "angle-down": "\e900",
   "angle-left": "\e901",
@@ -168,6 +169,7 @@ $icons: (
   "plus-circle": "\e942",
   "plus": "\e943",
   "popout": "\e944",
+  "premium": "\e90d",
   "provider": "\e945",
   "puzzle": "\e946",
   "question-circle": "\e947",
@@ -198,6 +200,7 @@ $icons: (
   "credit-card": "\e9a2",
   "desktop": "\e9a3",
   "archive": "\e9c1",
+  "unarchive": "\e918",
 );
 
 @each $name, $glyph in $icons {

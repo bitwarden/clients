@@ -1,7 +1,5 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, Input, OnInit } from "@angular/core";
+import { Component, input, OnInit } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
@@ -18,7 +16,7 @@ import { SendFilePopoutDialogComponent } from "./send-file-popout-dialog.compone
   imports: [JslibModule, CommonModule],
 })
 export class SendFilePopoutDialogContainerComponent implements OnInit {
-  @Input() config: SendFormConfig;
+  config = input.required<SendFormConfig>();
 
   constructor(
     private dialogService: DialogService,
@@ -27,8 +25,8 @@ export class SendFilePopoutDialogContainerComponent implements OnInit {
 
   ngOnInit() {
     if (
-      this.config?.sendType === SendType.File &&
-      this.config?.mode === "add" &&
+      this.config().sendType === SendType.File &&
+      this.config().mode === "add" &&
       this.filePopoutUtilsService.showFilePopoutMessage(window)
     ) {
       this.dialogService.open(SendFilePopoutDialogComponent);

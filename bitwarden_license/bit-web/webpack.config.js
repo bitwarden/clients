@@ -1,12 +1,31 @@
-const { AngularWebpackPlugin } = require("@ngtools/webpack");
+const path = require("path");
+const { buildConfig } = require(path.resolve(__dirname, "../../apps/web/webpack.base"));
 
-const webpackConfig = require("../../apps/web/webpack.config");
-
-webpackConfig.entry["app/main"] = "../../bitwarden_license/bit-web/src/main.ts";
-webpackConfig.plugins[webpackConfig.plugins.length - 1] = new AngularWebpackPlugin({
-  tsconfig: "../../bitwarden_license/bit-web/tsconfig.build.json",
-  entryModule: "bitwarden_license/src/app/app.module#AppModule",
-  sourceMap: true,
-});
-
-module.exports = webpackConfig;
+module.exports = (webpackConfig, context) => {
+  const isNxBuild = context && context.options;
+  if (isNxBuild) {
+    return buildConfig({
+      configName: "Commercial",
+      app: {
+        entry: context.options.main
+          ? path.resolve(context.context.root, context.options.main)
+          : path.resolve(__dirname, "src/main.ts"),
+        entryModule: "bitwarden_license/bit-web/src/app/app.module#AppModule",
+      },
+      tsConfig: "bitwarden_license/bit-web/tsconfig.build.json",
+      outputPath:
+        context.context && context.context.root
+          ? path.resolve(context.context.root, context.options.outputPath)
+          : context.options.outputPath,
+    });
+  } else {
+    return buildConfig({
+      configName: "Commercial",
+      app: {
+        entry: path.resolve(__dirname, "src/main.ts"),
+        entryModule: "bitwarden_license/bit-web/src/app/app.module#AppModule",
+      },
+      tsConfig: path.resolve(__dirname, "tsconfig.build.json"),
+    });
+  }
+};

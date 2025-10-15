@@ -41,6 +41,12 @@ automatically be checked.
 
 <Canvas of={stories.Info} />
 
+### Default
+
+Use for similar cases as the info callout but when content does not need to be as prominent.
+
+<Canvas of={stories.Default} />
+
 ### Warning
 
 Use a warning callout if the user is about to perform an action that may have unintended or
@@ -67,4 +73,8 @@ Use the `role=”alert”` only if the callout is appearing on a page after the 
 the content is static, do not use the alert role. This will cause a screen reader to announce the
 callout content on page load.
 
-Ensure the title's color contrast remains WCAG compliant with the callout's background.
+Ensure color contrast remains WCAG compliant with the callout's background. This is especially
+important when adding `bit-link` or `bit-button` to the content area since the callout background is
+colored. Currently only the `info` and `default` callouts are WCAG compliant for the `primary`
+styling of these elements. The `secondary` `bit-link` styling may be used with the remaining
+variants.

@@ -1,7 +1,6 @@
 import { NgModule } from "@angular/core";
 
 import { AuthModule } from "./auth";
-import { LoginModule } from "./auth/login/login.module";
 import { TrialInitiationModule } from "./billing/trial-initiation/trial-initiation.module";
 import { HeaderModule } from "./layouts/header/header.module";
 import { SharedModule } from "./shared";
@@ -21,7 +20,6 @@ import "./shared/locales";
     TrialInitiationModule,
     VaultFilterModule,
     OrganizationBadgeModule,
-    LoginModule,
     AuthModule,
     AccessComponent,
   ],
@@ -31,7 +29,6 @@ import "./shared/locales";
     TrialInitiationModule,
     VaultFilterModule,
     OrganizationBadgeModule,
-    LoginModule,
     AccessComponent,
   ],
   bootstrap: [],

@@ -35,6 +35,9 @@
       }
     }
   },
+  "noReportRan": {
+    "message": "Du har inte skapat en rapport än"
+  },
   "notifiedMembers": {
     "message": "Meddelade medlemmar"
   },
@@ -59,8 +62,61 @@
   "createNewLoginItem": {
     "message": "Skapa nytt inloggningsobjekt"
   },
-  "criticalApplicationsActivityDescription": {
+  "percentageCompleted": {
+    "message": "$PERCENT$% färdigt",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
+  "securityTasksCompleted": {
+    "message": "$COUNT$ av $TOTAL$ säkerhetsuppgifter slutförda",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "total": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "passwordChangeProgress": {
+    "message": "Password change progress"
+  },
+  "assignMembersTasksToMonitorProgress": {
+    "message": "Assign members tasks to monitor progress"
+  },
+  "onceYouReviewApplications": {
+    "message": "Once you review applications and mark them as critical, they will display here."
+  },
+  "sendReminders": {
+    "message": "Skicka påminnelser"
+  },
+  "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
     "message": "Once you mark applications critical, they will display here."
+  },
+  "viewAtRiskMembers": {
+    "message": "Visa medlemmar i riskzonen"
+  },
+  "viewAtRiskApplications": {
+    "message": "Visa applikationer i riskzonen"
+  },
+  "criticalApplicationsAreAtRisk": {
+    "message": "$COUNT$ av $TOTAL$ kritiska applikationer är i riskzonen på grund av lösenord i riskzonen",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "total": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
   },
   "criticalApplicationsWithCount": {
     "message": "Kritiska applikationer ($COUNT$)",
@@ -73,6 +129,24 @@
   },
   "countOfCriticalApplications": {
     "message": "$COUNT$ kritiska applikationer",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfApplicationsAtRisk": {
+    "message": "$COUNT$ applikationer i riskzonen",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfAtRiskPasswords": {
+    "message": "$COUNT$ passwords at-risk",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -113,8 +187,23 @@
   "markAppAsCritical": {
     "message": "Markera app som kritisk"
   },
+  "markAsCritical": {
+    "message": "Mark as critical"
+  },
+  "applicationsSelected": {
+    "message": "applications selected"
+  },
+  "selectApplication": {
+    "message": "Select application"
+  },
+  "unselectApplication": {
+    "message": "Unselect application"
+  },
   "applicationsMarkedAsCriticalSuccess": {
     "message": "Applikationer markerade som kritiska"
+  },
+  "applicationsMarkedAsCriticalFail": {
+    "message": "Failed to mark applications as critical"
   },
   "application": {
     "message": "Applikation"
@@ -134,11 +223,11 @@
   "atRiskMembers": {
     "message": "Riskutsatta medlemmar"
   },
-  "membersAtRiskActivityDescription": {
-    "message": "Members with edit access to at-risk items for critical applications"
+  "membersWithAccessToAtRiskItemsForCriticalApps": {
+    "message": "Members with access to at-risk items for critical applications"
   },
-  "membersAtRisk": {
-    "message": "$COUNT$ members at risk",
+  "membersAtRiskCount": {
+    "message": "$COUNT$ medlemmar i riskzonen",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -202,6 +291,33 @@
   },
   "totalApplications": {
     "message": "Totalt antal applikationer"
+  },
+  "applicationsNeedingReview": {
+    "message": "Applications needing review"
+  },
+  "newApplicationsWithCount": {
+    "message": "$COUNT$ new applications",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "13"
+      }
+    }
+  },
+  "newApplicationsDescription": {
+    "message": "Review new applications to mark as critical and keep your organization secure"
+  },
+  "reviewNow": {
+    "message": "Review now"
+  },
+  "prioritizeCriticalApplications": {
+    "message": "Prioritize critical applications"
+  },
+  "atRiskItems": {
+    "message": "At-risk items"
+  },
+  "markAsCriticalPlaceholder": {
+    "message": "Mark as critical functionality will be implemented in a future update"
   },
   "unmarkAsCritical": {
     "message": "Avmarkera som kritisk"
@@ -782,11 +898,11 @@
     "description": "Header for new SSH key item type"
   },
   "newItemHeaderTextSend": {
-    "message": "New Text Send",
+    "message": "Ny textsändning",
     "description": "Header for new text send"
   },
   "newItemHeaderFileSend": {
-    "message": "New File Send",
+    "message": "Ny filsändning",
     "description": "Header for new file send"
   },
   "editItemHeaderLogin": {
@@ -810,11 +926,11 @@
     "description": "Header for edit SSH key item type"
   },
   "editItemHeaderTextSend": {
-    "message": "Edit Text Send",
+    "message": "Redigera textsändning",
     "description": "Header for edit text send"
   },
   "editItemHeaderFileSend": {
-    "message": "Edit File Send",
+    "message": "Redigera filsändning",
     "description": "Header for edit file send"
   },
   "viewItemHeaderLogin": {
@@ -1177,6 +1293,9 @@
   "readingPasskeyLoadingInfo": {
     "message": "Håll det här fönstret öppet och följ anvisningarna från din webbläsare."
   },
+  "passkeyAuthenticationFailed": {
+    "message": "Passkey authentication failed. Please try again."
+  },
   "useADifferentLogInMethod": {
     "message": "Använd en annan inloggningsmetod"
   },
@@ -1471,6 +1590,15 @@
   "invalidMasterPassword": {
     "message": "Ogiltigt huvudlösenord"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Ogiltigt huvudlösenord. Bekräfta att din e-postadress är korrekt och ditt konto skapades på $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "invalidFilePassword": {
     "message": "Ogiltigt fillösenord, använd lösenordet du angav när du skapade exportfilen."
   },
@@ -1479,6 +1607,30 @@
   },
   "noItemsInList": {
     "message": "Det finns inga objekt att visa."
+  },
+  "noItemsInTrash": {
+    "message": "Inga objekt i papperskorgen"
+  },
+  "noItemsInTrashDesc": {
+    "message": "Items you delete will appear here and be permanently deleted after 30 days"
+  },
+  "noItemsInVault": {
+    "message": "Inga objekt i valvet"
+  },
+  "emptyVaultDescription": {
+    "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
+  },
+  "emptyFavorites": {
+    "message": "Du har inga favoritobjekt"
+  },
+  "emptyFavoritesDesc": {
+    "message": "Lägg till ofta använda objekt till favoriter för snabb åtkomst."
+  },
+  "noSearchResults": {
+    "message": "Inga sökresultat returnerades"
+  },
+  "clearFiltersOrTryAnother": {
+    "message": "Töm filter eller försök med en annan sökterm"
   },
   "noPermissionToViewAllCollectionItems": {
     "message": "Du har inte behörighet att se alla objekt i denna samling."
@@ -2797,6 +2949,9 @@
   },
   "makeSureEnoughCredit": {
     "message": "Se till att ditt konto har tillräckligt mycket tillgänglig kredit för detta köp. Om ditt konto inte har tillräckligt med tillgänglig kredit, kommer din sparade standardbetalningsmetod användas för skillnaden. Du kan lägga till kredit till ditt konto från faktureringssidan."
+  },
+  "notEnoughAccountCredit": {
+    "message": "You do not have enough account credit for this purchase. You can add credit to your account from the Billing page."
   },
   "creditAppliedDesc": {
     "message": "Kontots kredit kan användas för att göra köp. Tillgänglig kredit kommer automatiskt tillämpas mot fakturor som genereras för detta konto."
@@ -4206,6 +4361,9 @@
   "generatingYourRiskInsights": {
     "message": "Skapa din riskinsikt..."
   },
+  "riskInsightsRunReport": {
+    "message": "Run report"
+  },
   "updateBrowserDesc": {
     "message": "Du använder en webbläsare som inte stöds. Webbvalvet kanske inte fungerar som det ska."
   },
@@ -4772,6 +4930,12 @@
   "organizationIsDisabled": {
     "message": "Organisationen är inaktiverad"
   },
+  "organizationIsSuspended": {
+    "message": "Organisationen är avstängd"
+  },
+  "organizationIsSuspendedDesc": {
+    "message": "Items in suspended organizations cannot be accessed. Contact your organization owner for assistance."
+  },
   "secretsAccessSuspended": {
     "message": "Avstängda organisationer kan inte nås. Kontakta din organisationsägare för hjälp."
   },
@@ -4783,9 +4947,6 @@
   },
   "serviceAccountsCannotCreate": {
     "message": "Servicekonton kan inte skapas i avstängda organisationer. Kontakta din organisationsägare för att få hjälp."
-  },
-  "disabledOrganizationFilterError": {
-    "message": "Det går inte att komma åt objekt i avstängda organisationer. Kontakta din organisationsägare för hjälp."
   },
   "licenseIsExpired": {
     "message": "Licensen har upphört att gälla."
@@ -5160,9 +5321,13 @@
   "ssoIdentifier": {
     "message": "SSO-identifierare"
   },
-  "ssoIdentifierHintPartOne": {
-    "message": "Ge detta ID till dina medlemmar så att de kan logga in med SSO. För att kringgå detta steg, konfigurera ",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Provide this ID to your members to login with SSO. To bypass this step, set up Domain verification'"
+  "ssoIdentifierHint": {
+    "message": "Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. ",
+    "description": "This will be used as part of a larger sentence, broken up to include a link. The full sentence will read 'Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. Learn more'"
+  },
+  "claimedDomainsLearnMore": {
+    "message": "Läs mer",
+    "description": "This will be used as part of a larger sentence, broken up to include a link. The full sentence will read 'Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. Learn more'"
   },
   "unlinkSso": {
     "message": "Avlänka SSO"
@@ -6729,7 +6894,7 @@
     "message": "SSO inaktiverad"
   },
   "emailMustLoginWithSso": {
-    "message": "$EMAIL$ must login with Single Sign-on",
+    "message": "$EMAIL$ måste logga in med Single Sign-on",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -6975,6 +7140,24 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "accessDenied": {
     "message": "Åtkomst nekad. Du har inte behörighet att visa den här sidan."
   },
@@ -7128,6 +7311,9 @@
   },
   "unknownSecret": {
     "message": "Okänd hemlighet, du kan behöver begära behörighet för att komma åt denna hemlighet."
+  },
+  "unknownServiceAccount": {
+    "message": "Unknown machine account, you may need to request permission to access this machine account."
   },
   "unknownProject": {
     "message": "Okänt projekt, du kan behöver begära behörighet för att komma åt detta projekt."
@@ -7671,11 +7857,11 @@
     "description": "Label for a secret (key/value pair)"
   },
   "serviceAccount": {
-    "message": "Tjänstkonto",
+    "message": "Tjänstekonto",
     "description": "A machine user which can be used to automate processes and access secrets in the system."
   },
   "serviceAccounts": {
-    "message": "Tjänstkonton",
+    "message": "Tjänstekonton",
     "description": "The title for the section that deals with service accounts."
   },
   "secrets": {
@@ -7699,7 +7885,7 @@
     "description": "Title for creating a new secret."
   },
   "newServiceAccount": {
-    "message": "Nytt tjänstkonto",
+    "message": "Nytt tjänstekonto",
     "description": "Title for creating a new service account."
   },
   "secretsNoItemsTitle": {
@@ -7714,7 +7900,7 @@
     "message": "Det finns inga hemligheter i papperskorgen."
   },
   "serviceAccountsNoItemsMessage": {
-    "message": "Skapa ett nytt tjänstkonto för att komma igång med automatisering av hemlig åtkomst.",
+    "message": "Skapa ett nytt tjänstekonto för att komma igång med automatisering av hemlig åtkomst.",
     "description": "Message to encourage the user to start creating service accounts."
   },
   "serviceAccountsNoItemsTitle": {
@@ -7726,19 +7912,19 @@
     "description": "Placeholder text for searching secrets."
   },
   "deleteServiceAccounts": {
-    "message": "Ta bort tjänstkonton",
+    "message": "Ta bort tjänstekonton",
     "description": "Title for the action to delete one or multiple service accounts."
   },
   "deleteServiceAccount": {
-    "message": "Ta bort tjänstkonto",
+    "message": "Ta bort tjänstekonto",
     "description": "Title for the action to delete a single service account."
   },
   "viewServiceAccount": {
-    "message": "Visa tjänstkonto",
+    "message": "Visa tjänstekonto",
     "description": "Action to view the details of a service account."
   },
   "deleteServiceAccountDialogMessage": {
-    "message": "Att ta bort tjänstkontot $SERVICE_ACCOUNT$ är permanent och kan inte ångras.",
+    "message": "Att ta bort tjänstekontot $SERVICE_ACCOUNT$ är permanent och kan inte ångras.",
     "placeholders": {
       "service_account": {
         "content": "$1",
@@ -7747,7 +7933,7 @@
     }
   },
   "deleteServiceAccountsDialogMessage": {
-    "message": "Att ta bort tjänstkonton är permanent och kan inte ångras."
+    "message": "Att ta bort tjänstekonton är permanent och kan inte ångras."
   },
   "deleteServiceAccountsConfirmMessage": {
     "message": "Radera $COUNT$ tjänstkonton",
@@ -7762,14 +7948,14 @@
     "message": "Servicekonto raderat"
   },
   "deleteServiceAccountsToast": {
-    "message": "Tjänstkonton togs bort"
+    "message": "Tjänstekonton togs bort"
   },
   "searchServiceAccounts": {
-    "message": "Sök efter tjänstkonton",
+    "message": "Sök efter tjänstekonton",
     "description": "Placeholder text for searching service accounts."
   },
   "editServiceAccount": {
-    "message": "Redigera tjänstkonto",
+    "message": "Redigera tjänstekonto",
     "description": "Title for editing a service account."
   },
   "addProject": {
@@ -7822,15 +8008,15 @@
     "description": ""
   },
   "serviceAccountName": {
-    "message": "Tjänstkontonamn",
+    "message": "Tjänstekontonamn",
     "description": "Label for the name of a service account"
   },
   "serviceAccountCreated": {
-    "message": "Tjänstkonto skapat",
+    "message": "Tjänstekonto skapat",
     "description": "Notifies that a new service account has been created"
   },
   "serviceAccountUpdated": {
-    "message": "Tjänstkonto uppdaterat",
+    "message": "Tjänstekonto uppdaterat",
     "description": "Notifies that a service account has been updated"
   },
   "typeOrSelectProjects": {
@@ -8359,13 +8545,13 @@
     "message": "Lägg till personer eller grupper för att börja samarbeta"
   },
   "projectEmptyServiceAccountAccessPolicies": {
-    "message": "Lägg till tjänstkonton för att bevilja åtkomst"
+    "message": "Lägg till tjänstekonton för att bevilja åtkomst"
   },
   "serviceAccountPeopleDescription": {
     "message": "Ge grupper eller personer åtkomst till detta servicekonto."
   },
   "serviceAccountProjectsDescription": {
-    "message": "Tilldela projekt till detta tjänstkonto. "
+    "message": "Tilldela projekt till detta tjänstekonto. "
   },
   "serviceAccountEmptyProjectAccesspolicies": {
     "message": "Lägg till projekt för att bevilja åtkomst"
@@ -8375,12 +8561,6 @@
   },
   "groupSlashUser": {
     "message": "Grupp/Användare"
-  },
-  "lowKdfIterations": {
-    "message": "Låga KDF-iterationer"
-  },
-  "updateLowKdfIterationsDesc": {
-    "message": "Uppdatera dina krypteringsinställningar så att de uppfyller nya säkerhetsrekommendationer och förbättrar kontots skydd."
   },
   "kdfSettingsChangeLogoutWarning": {
     "message": "Om du fortsätter loggas du ut från alla aktiva sessioner. Du måste logga in igen och genomföra tvåstegsinloggning, om sådan finns. Vi rekommenderar att du exporterar ditt valv innan du ändrar dina krypteringsinställningar för att förhindra dataförlust."
@@ -8485,8 +8665,8 @@
       }
     }
   },
-  "accessedProjectWithId": {
-    "message": "Gick in i ett projekt med id: $PROJECT_ID$.",
+  "accessedProjectWithIdentifier": {
+    "message": "Accessed a project with identifier: $PROJECT_ID$.",
     "placeholders": {
       "project_id": {
         "content": "$1",
@@ -8512,10 +8692,89 @@
       }
     }
   },
+  "nameUnavailableServiceAccountDeleted": {
+    "message": "Deleted machine account Id: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "service_account_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
   "editedProjectWithId": {
     "message": "Redigerade ett projekt med identifieraren: $PROJECT_ID$",
     "placeholders": {
       "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "addedUserToServiceAccountWithId": {
+    "message": "Added user: $USER_ID$ to machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "user_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "removedUserToServiceAccountWithId": {
+    "message": "Removed user: $USER_ID$ from machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "user_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "removedGroupFromServiceAccountWithId": {
+    "message": "Removed group: $GROUP_ID$ from machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "group_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "serviceAccountCreatedWithId": {
+    "message": "Created machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "service_account_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "addedGroupToServiceAccountId": {
+    "message": "Added group: $GROUP_ID$ to machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "group_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "serviceAccountDeletedWithId": {
+    "message": "Deleted machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "service_account_id": {
         "content": "$1",
         "example": "4d34e8a8"
       }
@@ -8553,7 +8812,7 @@
     "message": "Skapa ett projekt"
   },
   "createServiceAccount": {
-    "message": "Skapa ett tjänstkonto"
+    "message": "Skapa ett tjänstekonto"
   },
   "downloadThe": {
     "message": "Ladda ner",
@@ -9357,6 +9616,9 @@
   "assign": {
     "message": "Tilldela"
   },
+  "assignTasks": {
+    "message": "Assign tasks"
+  },
   "assignToCollections": {
     "message": "Tilldela till samlingar"
   },
@@ -9752,8 +10014,14 @@
   "crowdstrikeEventIntegrationDesc": {
     "message": "Skicka händelsedata till din Logscale-instans"
   },
+  "datadogEventIntegrationDesc": {
+    "message": "Send vault event data to your Datadog instance"
+  },
   "failedToSaveIntegration": {
     "message": "Misslyckades med att spara integration. Försök igen senare."
+  },
+  "mustBeOrgOwnerToPerformAction": {
+    "message": "Du måste vara organisationens ägare för att utföra denna åtgärd."
   },
   "failedToDeleteIntegration": {
     "message": "Misslyckades med att ta bort integrationen. Försök igen senare."
@@ -9995,12 +10263,6 @@
         "example": "2"
       }
     }
-  },
-  "lowKDFIterationsBanner": {
-    "message": "Låga KDF-iterationer. Öka dina iterationer för att förbättra säkerheten för ditt konto."
-  },
-  "changeKDFSettings": {
-    "message": "Ändra KDF-inställningar"
   },
   "secureYourInfrastructure": {
     "message": "Säkra din infrastruktur"
@@ -11022,16 +11284,21 @@
     "message": "Gratisorganisationer kan ha upp till 2 samlingar. Uppgradera till en betald plan för att lägga till fler samlingar."
   },
   "searchArchive": {
-    "message": "Search archive"
+    "message": "Sök i arkiv"
   },
-  "archive": {
-    "message": "Archive"
+  "archiveNoun": {
+    "message": "Arkiv",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Arkivera",
+    "description": "Verb"
   },
   "noItemsInArchive": {
-    "message": "No items in archive"
+    "message": "Inga objekt i arkivet"
   },
   "archivedItemsDescription": {
-    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+    "message": "Arkiverade objekt kommer att visas här och kommer att uteslutas från allmänna sökresultat och förslag för autofyll."
   },
   "businessUnit": {
     "message": "Affärsenhet"
@@ -11139,6 +11406,12 @@
   },
   "bitwardenExtensionInstalled": {
     "message": "Bitvärdesförlängningen installerad!"
+  },
+  "openTheBitwardenExtension": {
+    "message": "Öppna Bitwarden-tillägget"
+  },
+  "bitwardenExtensionInstalledOpenExtension": {
+    "message": "The Bitwarden extension is installed! Open the extension to log in and start autofilling."
   },
   "openExtensionToAutofill": {
     "message": "Öppna tillägget för att logga in och starta autofyllning."
@@ -11370,7 +11643,7 @@
     "message": "Additional storage GB"
   },
   "additionalServiceAccountsV2": {
-    "message": "Additional machine accounts"
+    "message": "Ytterligare maskinkonton"
   },
   "secretsManagerSeats": {
     "message": "Secrets Manager seats"
@@ -11391,10 +11664,10 @@
     "message": "Complete online security"
   },
   "planDescFamiliesV2": {
-    "message": "Premium security for your family"
+    "message": "Premiumsäkerhet för din familj"
   },
   "planDescFreeV2": {
-    "message": "Share with $COUNT$ other user",
+    "message": "Dela med $COUNT$ annan användare",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -11403,37 +11676,37 @@
     }
   },
   "planDescEnterpriseV2": {
-    "message": "Advanced capabilities for any organization"
+    "message": "Avancerade förmågor för alla organisationer"
   },
   "planNameCustom": {
-    "message": "Custom plan"
+    "message": "Anpassad plan"
   },
   "planDescCustom": {
-    "message": "Bitwarden scales with businesses of all sizes to secure passwords and sensitive information. If you're part of a large enterprise, contact sales to request a quote."
+    "message": "Bitwarden skalar med företag i alla storlekar för att säkra lösenord och känslig information. Om du är en del av ett stort företag, kontakta vår försäljningsavdelning för att begära en offert."
   },
   "builtInAuthenticator": {
-    "message": "Built-in authenticator"
+    "message": "Inbyggd authenticator"
   },
   "breachMonitoring": {
-    "message": "Breach monitoring"
+    "message": "Intrångsmonitorering"
   },
   "andMoreFeatures": {
     "message": "Och mer!"
   },
   "secureFileStorage": {
-    "message": "Secure file storage"
+    "message": "Säker fillagring"
   },
   "familiesUnlimitedSharing": {
-    "message": "Unlimited sharing - choose who sees what"
+    "message": "Obegränsad delning - välj vem som ser vad"
   },
   "familiesUnlimitedCollections": {
-    "message": "Unlimited family collections"
+    "message": "Obegränsade familjesamlingar"
   },
   "familiesSharedStorage": {
-    "message": "Shared storage for important family info"
+    "message": "Delad lagring för viktig familjeinformation"
   },
   "limitedUsersV2": {
-    "message": "Up to $COUNT$ members",
+    "message": "Upp till $COUNT$ medlemmar",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -11442,7 +11715,7 @@
     }
   },
   "limitedCollectionsV2": {
-    "message": "Up to $COUNT$ collections",
+    "message": "Upp till $COUNT$ samlingar",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -11451,13 +11724,13 @@
     }
   },
   "alwaysFree": {
-    "message": "Always free"
+    "message": "Alltid gratis"
   },
   "twoSecretsIncluded": {
-    "message": "2 secrets"
+    "message": "2 hemligheter"
   },
   "projectsIncludedV2": {
-    "message": "$COUNT$ project(s)",
+    "message": "$COUNT$ projekt",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -11466,13 +11739,13 @@
     }
   },
   "secureItemSharing": {
-    "message": "Secure item sharing"
+    "message": "Säker objektdelning"
   },
   "scimSupport": {
-    "message": "SCIM support"
+    "message": "SCIM-stöd"
   },
   "includedMachineAccountsV2": {
-    "message": "$COUNT$ machine accounts",
+    "message": "$COUNT$ maskinkonton",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -11481,21 +11754,54 @@
     }
   },
   "enterpriseSecurityPolicies": {
-    "message": "Enterprise security policies"
+    "message": "Säkerhetspolicyer för företag"
   },
   "selfHostOption": {
     "message": "Self-host option"
   },
   "complimentaryFamiliesPlan": {
-    "message": "Complimentary families plan for all users"
+    "message": "Kostnadsfri familjeplan för alla användare"
   },
   "strengthenCybersecurity": {
-    "message": "Strengthen cybersecurity"
+    "message": "Förbättrad cybersäkerhet"
   },
   "boostProductivity": {
-    "message": "Boost productivity"
+    "message": "Maximera produktiviteten"
   },
   "seamlessIntegration": {
-    "message": "Seamless integration"
+    "message": "Sömlös integration"
+  },
+  "families": {
+    "message": "Families"
+  },
+  "upgradeToFamilies": {
+    "message": "Upgrade to Families"
+  },
+  "upgradeToPremium": {
+    "message": "Upgrade to Premium"
+  },
+  "familiesUpdated": {
+    "message": "You've upgraded to Families!"
+  },
+  "taxCalculationError": {
+    "message": "There was an error calculating tax for your location. Please try again."
+  },
+  "individualUpgradeWelcomeMessage": {
+    "message": "Welcome to Bitwarden"
+  },
+  "individualUpgradeDescriptionMessage": {
+    "message": "Unlock more security features with Premium, or start sharing items with Families"
+  },
+  "individualUpgradeTaxInformationMessage": {
+    "message": "Prices exclude tax and are billed annually."
+  },
+  "organizationNameDescription": {
+    "message": "Your organization name will appear in invitations you send to members."
+  },
+  "continueWithoutUpgrading": {
+    "message": "Continue without upgrading"
+  },
+  "upgradeErrorMessage": {
+    "message": "We encountered an error while processing your upgrade. Please try again."
   }
 }
