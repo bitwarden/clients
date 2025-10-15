@@ -64,6 +64,8 @@ import {
   UnlockOptionValue,
 } from "../services/lock-component.service";
 
+import { UnlockViaPrfComponent } from "./unlock-via-prf.component";
+
 const BroadcasterSubscriptionId = "LockComponent";
 
 const clientTypeToSuccessRouteRecord: Partial<Record<ClientType, string>> = {
@@ -87,6 +89,7 @@ const AUTOPROMPT_BIOMETRICS_PROCESS_RELOAD_DELAY = 5000;
     FormFieldModule,
     AsyncActionsModule,
     IconButtonModule,
+    UnlockViaPrfComponent,
   ],
 })
 export class LockComponent implements OnInit, OnDestroy {
@@ -421,6 +424,11 @@ export class LockComponent implements OnInit, OnDestroy {
 
       this.unlockingViaBiometrics = false;
     }
+  }
+
+  async onPrfUnlockSuccess(): Promise<void> {
+    // If successful, the service has already set the user key
+    await this.doContinue(false);
   }
 
   togglePassword() {
