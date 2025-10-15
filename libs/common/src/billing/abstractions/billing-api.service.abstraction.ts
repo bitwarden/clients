@@ -1,3 +1,5 @@
+import { PremiumPlanResponse } from "@bitwarden/common/billing/models/response/premium-plan.response";
+
 import { OrganizationCreateRequest } from "../../admin-console/models/request/organization-create.request";
 import { ProviderOrganizationOrganizationDetailsResponse } from "../../admin-console/models/response/provider/provider-organization.response";
 import { SubscriptionCancellationRequest } from "../../billing/models/request/subscription-cancellation.request";
@@ -32,6 +34,8 @@ export abstract class BillingApiServiceAbstraction {
   ): Promise<OrganizationBillingMetadataResponse>;
 
   abstract getPlans(): Promise<ListResponse<PlanResponse>>;
+
+  abstract getPremiumPlan(): Promise<PremiumPlanResponse>;
 
   abstract getProviderClientInvoiceReport(providerId: string, invoiceId: string): Promise<string>;
 

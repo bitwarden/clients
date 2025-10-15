@@ -1,11 +1,14 @@
 import { Injectable } from "@angular/core";
-import { combineLatest, from, map, Observable, of, shareReplay } from "rxjs";
+import { combineLatest, from, map, Observable, of, shareReplay, switchMap } from "rxjs";
 import { catchError } from "rxjs/operators";
 
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { PlanType } from "@bitwarden/common/billing/enums";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
+import { PremiumPlanResponse } from "@bitwarden/common/billing/models/response/premium-plan.response";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ToastService } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
@@ -21,7 +24,8 @@ import {
 @Injectable({ providedIn: BillingServicesModule })
 export class SubscriptionPricingService {
   constructor(
-    private apiService: ApiService,
+    private billingApiService: BillingApiServiceAbstraction,
+    private configService: ConfigService,
     private i18nService: I18nService,
     private logService: LogService,
     private toastService: ToastService,
@@ -55,33 +59,48 @@ export class SubscriptionPricingService {
     );
 
   private plansResponse$: Observable<ListResponse<PlanResponse>> = from(
-    this.apiService.getPlans(),
+    this.billingApiService.getPlans(),
   ).pipe(shareReplay({ bufferSize: 1, refCount: false }));
 
-  private premium$: Observable<PersonalSubscriptionPricingTier> = of({
-    // premium plan is not configured server-side so for now, hardcode it
-    basePrice: 10,
-    additionalStoragePricePerGb: 4,
-  }).pipe(
-    map((details) => ({
-      id: PersonalSubscriptionPricingTierIds.Premium,
-      name: this.i18nService.t("premium"),
-      description: this.i18nService.t("planDescPremium"),
-      availableCadences: [SubscriptionCadenceIds.Annually],
-      passwordManager: {
-        type: "standalone",
-        annualPrice: details.basePrice,
-        annualPricePerAdditionalStorageGB: details.additionalStoragePricePerGb,
-        features: [
-          this.featureTranslations.builtInAuthenticator(),
-          this.featureTranslations.secureFileStorage(),
-          this.featureTranslations.emergencyAccess(),
-          this.featureTranslations.breachMonitoring(),
-          this.featureTranslations.andMoreFeatures(),
-        ],
-      },
-    })),
-  );
+  private premiumPlanResponse$: Observable<PremiumPlanResponse> = from(
+    this.billingApiService.getPremiumPlan(),
+  ).pipe(shareReplay({ bufferSize: 1, refCount: false }));
+
+  private premium$: Observable<PersonalSubscriptionPricingTier> = this.configService
+    .getFeatureFlag$(FeatureFlag.PM26793_FetchPremiumPriceFromPricingService)
+    .pipe(
+      switchMap((fetchPremiumFromPricingService) =>
+        fetchPremiumFromPricingService
+          ? this.premiumPlanResponse$.pipe(
+              map((premiumPlan) => ({
+                seat: premiumPlan.seat.price,
+                storage: premiumPlan.storage.price,
+              })),
+            )
+          : of({
+              seat: 10,
+              storage: 4,
+            }),
+      ),
+      map((premiumPrices) => ({
+        id: PersonalSubscriptionPricingTierIds.Premium,
+        name: this.i18nService.t("premium"),
+        description: this.i18nService.t("planDescPremium"),
+        availableCadences: [SubscriptionCadenceIds.Annually],
+        passwordManager: {
+          type: "standalone",
+          annualPrice: premiumPrices.seat,
+          annualPricePerAdditionalStorageGB: premiumPrices.storage,
+          features: [
+            this.featureTranslations.builtInAuthenticator(),
+            this.featureTranslations.secureFileStorage(),
+            this.featureTranslations.emergencyAccess(),
+            this.featureTranslations.breachMonitoring(),
+            this.featureTranslations.andMoreFeatures(),
+          ],
+        },
+      })),
+    );
 
   private families$: Observable<PersonalSubscriptionPricingTier> = this.plansResponse$.pipe(
     map((plans) => {
