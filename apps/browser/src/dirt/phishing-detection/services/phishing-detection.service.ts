@@ -9,7 +9,6 @@ import {
   switchMap,
 } from "rxjs";
 
-import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
@@ -23,6 +22,9 @@ import { TaskSchedulerService } from "@bitwarden/common/platform/scheduling/task
 
 import { BrowserApi } from "../../../platform/browser/browser-api";
 
+import { CDNPhishingService, ICloudPhishingDomainQuery } from "./cdn-phishing.service";
+import { PhishingChecksumService } from "./phishing-checksum.service";
+import { PhishingDataParserService } from "./phishing-data-parser.service";
 import {
   CaughtPhishingDomain,
   isPhishingDetectionMessage,
@@ -36,14 +38,25 @@ export class PhishingDetectionService {
   private static readonly _RETRY_INTERVAL = 5 * 60 * 1000; // 5 minutes
   private static readonly _MAX_RETRIES = 3;
   private static readonly _STORAGE_KEY = "phishing_domains_cache";
-  private static _auditService: AuditService;
   private static _logService: LogService;
   private static _storageService: AbstractStorageService;
   private static _taskSchedulerService: TaskSchedulerService;
+  private static _cloudPhishingDomainQuery: ICloudPhishingDomainQuery | null;
+  private static _checksumService: PhishingChecksumService | null;
+  private static _parserService: PhishingDataParserService | null;
   private static _updateCacheSubscription: Subscription | null = null;
   private static _retrySubscription: Subscription | null = null;
   private static _navigationEventsSubject = new Subject<PhishingDetectionNavigationEvent>();
   private static _navigationEvents: Subscription | null = null;
+  // Store bound listener references to remove them correctly during cleanup
+  private static _onMessageHandler:
+    | ((message: unknown, sender: chrome.runtime.MessageSender) => boolean)
+    | null = null;
+  private static _onReplacedHandler: ((newTabId: number, originalTabId: number) => boolean) | null =
+    null;
+  private static _onUpdatedHandler:
+    | ((tabId: number, changeInfo: chrome.tabs.OnUpdatedInfo, tab: chrome.tabs.Tab) => boolean)
+    | null = null;
   private static _knownPhishingDomains = new Set<string>();
   private static _caughtTabs: Map<PhishingDetectionTabId, CaughtPhishingDomain> = new Map();
   private static _isInitialized = false;
@@ -53,7 +66,6 @@ export class PhishingDetectionService {
 
   static initialize(
     accountService: AccountService,
-    auditService: AuditService,
     billingAccountProfileStateService: BillingAccountProfileStateService,
     configService: ConfigService,
     eventCollectionService: EventCollectionService,
@@ -61,10 +73,18 @@ export class PhishingDetectionService {
     storageService: AbstractStorageService,
     taskSchedulerService: TaskSchedulerService,
   ): void {
-    this._auditService = auditService;
     this._logService = logService;
     this._storageService = storageService;
     this._taskSchedulerService = taskSchedulerService;
+
+    // Initialize CDN services
+    this._parserService = new PhishingDataParserService(logService);
+    this._checksumService = new PhishingChecksumService(logService, storageService);
+    this._cloudPhishingDomainQuery = new CDNPhishingService(
+      logService,
+      this._parserService!,
+      this._checksumService!,
+    );
 
     logService.info("[PhishingDetectionService] Initialize called. Checking prerequisites...");
 
@@ -76,7 +96,7 @@ export class PhishingDetectionService {
         switchMap(([account, featureEnabled]) => {
           if (!account) {
             logService.info("[PhishingDetectionService] No active account.");
-            this._cleanup();
+            void this._cleanup();
             return EMPTY;
           }
           return billingAccountProfileStateService
@@ -88,7 +108,7 @@ export class PhishingDetectionService {
             logService.info(
               "[PhishingDetectionService] User does not have access to phishing detection service.",
             );
-            this._cleanup();
+            await this._cleanup();
           } else {
             logService.info("[PhishingDetectionService] Enabling phishing detection service");
             await this._setup();
@@ -123,7 +143,7 @@ export class PhishingDetectionService {
   /**
    * Sends a message to the phishing detection service to continue to the caught url
    */
-  static async requestContinueToDangerousUrl() {
+  static requestContinueToDangerousUrl(): void {
     void chrome.runtime.sendMessage({ command: PhishingDetectionMessage.Continue });
   }
 
@@ -163,7 +183,8 @@ export class PhishingDetectionService {
       ScheduledTaskNames.phishingDomainUpdate,
       async () => {
         try {
-          await this._fetchKnownPhishingDomains();
+          // Fetch from CDN
+          await this._fetchFromGitHubCDN();
         } catch (error) {
           this._logService.error(
             "[PhishingDetectionService] Failed to update phishing domains in task handler:",
@@ -186,9 +207,16 @@ export class PhishingDetectionService {
    */
   private static _setupListeners(): void {
     // Setup listeners from web page/content script
-    BrowserApi.addListener(chrome.runtime.onMessage, this._handleExtensionMessage.bind(this));
-    BrowserApi.addListener(chrome.tabs.onReplaced, this._handleReplacementEvent.bind(this));
-    BrowserApi.addListener(chrome.tabs.onUpdated, this._handleNavigationEvent.bind(this));
+    this._onMessageHandler = this._handleExtensionMessage.bind(this) as unknown as (
+      message: unknown,
+      sender: chrome.runtime.MessageSender,
+    ) => boolean;
+    this._onReplacedHandler = this._handleReplacementEvent.bind(this);
+    this._onUpdatedHandler = this._handleNavigationEvent.bind(this);
+
+    BrowserApi.addListener(chrome.runtime.onMessage, this._onMessageHandler as any);
+    BrowserApi.addListener(chrome.tabs.onReplaced, this._onReplacedHandler as any);
+    BrowserApi.addListener(chrome.tabs.onUpdated, this._onUpdatedHandler as any);
 
     // When a navigation event occurs, check if a replace event for the same tabId exists,
     // and call the replace handler before handling navigation.
@@ -362,7 +390,7 @@ export class PhishingDetectionService {
   private static _continueToCaughtDomain(tabId: PhishingDetectionTabId) {
     const caughtDomain = this._caughtTabs.get(tabId);
     const hasRequestedContinue = caughtDomain?.requestedContinue;
-    return caughtDomain && hasRequestedContinue;
+    return !!hasRequestedContinue;
   }
 
   /**
@@ -544,8 +572,8 @@ export class PhishingDetectionService {
       if (cachedData) {
         this._logService.info("[PhishingDetectionService] Phishing cachedData exists");
         const phishingDomains = cachedData.domains || [];
-
         this._setKnownPhishingDomains(phishingDomains);
+        this._lastUpdateTime = cachedData.timestamp || 0;
         this._handleTestUrls();
       }
 
@@ -554,7 +582,8 @@ export class PhishingDetectionService {
         this._knownPhishingDomains.size === 0 ||
         Date.now() - this._lastUpdateTime >= this._UPDATE_INTERVAL
       ) {
-        await this._fetchKnownPhishingDomains();
+        // Fetch from CDN
+        await this._fetchFromGitHubCDN();
       }
     } catch (error) {
       this._logService.error(
@@ -566,12 +595,10 @@ export class PhishingDetectionService {
   }
 
   /**
-   * Fetches the latest known phishing domains from the audit service
-   * Updates the cache and handles retries if necessary
+   * Fetches the latest known phishing domains from GitHub CDN
+   * Implements checksum-based updates
    */
-  static async _fetchKnownPhishingDomains(): Promise<void> {
-    let domains: string[] = [];
-
+  static async _fetchFromGitHubCDN(): Promise<void> {
     // Prevent concurrent updates
     if (this._isUpdating) {
       this._logService.warning(
@@ -580,21 +607,66 @@ export class PhishingDetectionService {
       return;
     }
 
-    try {
-      this._logService.info("[PhishingDetectionService] Starting phishing domains update...");
-      this._isUpdating = true;
-      domains = await this._auditService.getKnownPhishingDomains();
-      this._setKnownPhishingDomains(domains);
+    // Check for service initialization failures (non-transient errors)
+    if (!this._cloudPhishingDomainQuery || !this._checksumService || !this._parserService) {
+      this._logService.error(
+        "[PhishingDetectionService] Services not initialized properly. Cannot fetch phishing domains.",
+      );
+      return; // Don't retry for initialization failures
+    }
 
+    try {
+      this._logService.info(
+        "[PhishingDetectionService] Starting phishing domains update from GitHub CDN...",
+      );
+      this._isUpdating = true;
+
+      // 1. Get remote checksum first
+      const remoteChecksum = await this._cloudPhishingDomainQuery.getRemoteChecksumAsync();
+      if (!remoteChecksum) {
+        throw new Error("Failed to get remote checksum from GitHub CDN");
+      }
+
+      // 2. Get current checksum
+      const currentChecksum = await this._checksumService.getCurrentChecksum();
+
+      // 3. Compare checksums
+      if (this._checksumService.compareChecksums(currentChecksum, remoteChecksum)) {
+        this._logService.info(
+          `[PhishingDetectionService] Phishing domains list is up to date (checksum: ${currentChecksum}). Skipping update.`,
+        );
+        this._isUpdating = false;
+        return;
+      }
+
+      this._logService.info(
+        `[PhishingDetectionService] Checksums differ (current: ${currentChecksum}, remote: ${remoteChecksum}). Updating phishing domains from GitHub CDN.`,
+      );
+
+      // 4. Fetch and use domains only when checksum changed
+      const fetchedDomains = await this._cloudPhishingDomainQuery.getPhishingDomainsAsync();
+      if (!fetchedDomains || fetchedDomains.length === 0) {
+        throw new Error("No valid domains found in the response from GitHub CDN");
+      }
+
+      // 5. Validate and filter domains
+      const validDomains = this._parserService.validateAndFilterDomains(fetchedDomains);
+      this._setKnownPhishingDomains(validDomains);
+
+      // 6. Save domains and checksum
+      this._lastUpdateTime = Date.now();
       await this._saveDomains();
+      await this._checksumService.saveChecksum(remoteChecksum);
 
       this._resetRetry();
       this._isUpdating = false;
 
-      this._logService.info("[PhishingDetectionService] Successfully fetched domains");
+      this._logService.info(
+        `[PhishingDetectionService] Successfully updated ${validDomains.length} phishing domains with checksum ${remoteChecksum}`,
+      );
     } catch (error) {
       this._logService.error(
-        "[PhishingDetectionService] Failed to fetch known phishing domains.",
+        "[PhishingDetectionService] Failed to fetch known phishing domains from GitHub CDN.",
         error,
       );
 
@@ -614,7 +686,7 @@ export class PhishingDetectionService {
       // Cache the updated domains
       await this._storageService.save(this._STORAGE_KEY, {
         domains: Array.from(this._knownPhishingDomains),
-        timestamp: this._lastUpdateTime,
+        timestamp: this._lastUpdateTime || Date.now(),
       });
       this._logService.info(
         `[PhishingDetectionService] Updated phishing domains cache with ${this._knownPhishingDomains.size} domains`,
@@ -663,14 +735,36 @@ export class PhishingDetectionService {
         this._knownPhishingDomains.add(domain);
       }
     });
-    this._lastUpdateTime = Date.now();
   }
 
   /**
    * Cleans up the phishing detection service
    * Unsubscribes from all subscriptions and clears caches
+   * Waits for any ongoing update to complete before cleaning up
    */
-  private static _cleanup() {
+  private static async _cleanup(): Promise<void> {
+    // Wait for any ongoing update to complete before cleaning up
+    if (this._isUpdating) {
+      this._logService.warning(
+        "[PhishingDetectionService] Cleanup called while update in progress, waiting for completion...",
+      );
+
+      // Wait up to 5 seconds for update to complete
+      const maxWaitTime = 5000;
+      const startTime = Date.now();
+
+      while (this._isUpdating && Date.now() - startTime < maxWaitTime) {
+        await new Promise((resolve) => setTimeout(resolve, 100));
+      }
+
+      if (this._isUpdating) {
+        this._logService.warning(
+          "[PhishingDetectionService] Update did not complete within timeout, forcing cleanup",
+        );
+        this._isUpdating = false;
+      }
+    }
+
     if (this._updateCacheSubscription) {
       this._updateCacheSubscription.unsubscribe();
       this._updateCacheSubscription = null;
@@ -689,21 +783,39 @@ export class PhishingDetectionService {
     this._isUpdating = false;
     this._isInitialized = false;
     this._retryCount = 0;
+    if (this._cloudPhishingDomainQuery) {
+      this._cloudPhishingDomainQuery = null;
+    }
+    if (this._checksumService) {
+      this._checksumService = null;
+    }
+    if (this._parserService) {
+      this._parserService = null;
+    }
 
     // Manually type cast to satisfy the listener signature due to the mixture
     // of static and instance methods in this class. To be fixed when refactoring
     // this class to be instance-based while providing a singleton instance in usage
-    BrowserApi.removeListener(
-      chrome.runtime.onMessage,
-      PhishingDetectionService._handleExtensionMessage as (...args: readonly unknown[]) => unknown,
-    );
-    BrowserApi.removeListener(
-      chrome.tabs.onReplaced,
-      PhishingDetectionService._handleReplacementEvent as (...args: readonly unknown[]) => unknown,
-    );
-    BrowserApi.removeListener(
-      chrome.tabs.onUpdated,
-      PhishingDetectionService._handleNavigationEvent as (...args: readonly unknown[]) => unknown,
-    );
+    if (this._onMessageHandler) {
+      BrowserApi.removeListener(
+        chrome.runtime.onMessage,
+        this._onMessageHandler as (...args: readonly unknown[]) => unknown,
+      );
+      this._onMessageHandler = null;
+    }
+    if (this._onReplacedHandler) {
+      BrowserApi.removeListener(
+        chrome.tabs.onReplaced,
+        this._onReplacedHandler as (...args: readonly unknown[]) => unknown,
+      );
+      this._onReplacedHandler = null;
+    }
+    if (this._onUpdatedHandler) {
+      BrowserApi.removeListener(
+        chrome.tabs.onUpdated,
+        this._onUpdatedHandler as (...args: readonly unknown[]) => unknown,
+      );
+      this._onUpdatedHandler = null;
+    }
   }
 }
