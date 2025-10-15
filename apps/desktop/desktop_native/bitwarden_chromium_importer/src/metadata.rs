@@ -17,8 +17,8 @@ pub struct NativeImporterMetadata {
 ///
 /// Only browsers listed in PLATFORM_SUPPORTED_BROWSERS will have the "chromium" loader.
 /// All importers will have the "file" loader.
-pub fn get_supported_importers<T: InstalledBrowserRetriever>() -> HashMap<String, NativeImporterMetadata>
-{
+pub fn get_supported_importers<T: InstalledBrowserRetriever>(
+) -> HashMap<String, NativeImporterMetadata> {
     let mut map = HashMap::new();
 
     // Check for installed browsers
@@ -82,7 +82,10 @@ mod tests {
         map.keys().cloned().collect()
     }
 
-    fn get_loaders(map: &HashMap<String, NativeImporterMetadata>, id: &str) -> HashSet<&'static str> {
+    fn get_loaders(
+        map: &HashMap<String, NativeImporterMetadata>,
+        id: &str,
+    ) -> HashSet<&'static str> {
         map.get(id)
             .map(|m| m.loaders.iter().copied().collect::<HashSet<_>>())
             .unwrap_or_default()
