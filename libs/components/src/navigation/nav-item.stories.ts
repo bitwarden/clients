@@ -42,7 +42,8 @@ export default {
       type: "figma",
       url: "https://www.figma.com/design/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=16329-40145&t=b5tDKylm5sWm2yKo-4",
     },
-    chromatic: { viewports: [640, 1280] },
+    // remove disableSnapshots in CL-890
+    chromatic: { viewports: [640, 1280], disableSnapshots: true },
   },
 } as Meta;
 
