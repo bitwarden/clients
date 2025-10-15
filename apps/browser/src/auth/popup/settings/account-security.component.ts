@@ -172,7 +172,9 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     }
 
     const showOnLocked =
-      !this.platformUtilsService.isFirefox() && !this.platformUtilsService.isSafari();
+      !this.platformUtilsService.isFirefox() &&
+      !this.platformUtilsService.isSafari() &&
+      !(this.platformUtilsService.isOpera() && navigator.platform === "MacIntel");
 
     this.vaultTimeoutOptions = [
       { name: this.i18nService.t("immediately"), value: 0 },
