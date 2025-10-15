@@ -252,7 +252,6 @@ describe("CipherAttachmentsComponent", () => {
 
         expect(showToast).toHaveBeenCalledWith({
           variant: "error",
-          title: "errorOccurred",
           message: "Cipher has been modified by another client",
         });
       });
@@ -267,7 +266,6 @@ describe("CipherAttachmentsComponent", () => {
 
         expect(showToast).toHaveBeenCalledWith({
           variant: "error",
-          title: "errorOccurred",
           message: "unexpectedError",
         });
       });
@@ -282,7 +280,6 @@ describe("CipherAttachmentsComponent", () => {
 
         expect(showToast).toHaveBeenCalledWith({
           variant: "error",
-          title: "errorOccurred",
           message: "Network connection failed",
         });
       });

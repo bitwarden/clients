@@ -233,7 +233,6 @@ export class CipherAttachmentsComponent implements OnInit, AfterViewInit {
 
       this.toastService.showToast({
         variant: "error",
-        title: this.i18nService.t("errorOccurred"),
         message: errorMessage,
       });
     }
