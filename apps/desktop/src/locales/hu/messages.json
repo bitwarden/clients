@@ -4135,7 +4135,7 @@
   "enableAutotypeShortcutPreview": {
     "message": "Enable autotype shortcut (Feature Preview)"
   },
-  "enableAutotypeDescriptionTransitionKey": {
+  "enableAutotypeShortcutDescription": {
     "message": "Győződjünk meg arról, hogy a megfelelő mezőben vagyunk, mielőtt a parancsikont használnánk, hogy elkerüljük az adatok rossz helyre történő kitöltését."
   },
   "editShortcut": {

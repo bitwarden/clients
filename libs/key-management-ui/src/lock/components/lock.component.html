@@ -120,73 +120,87 @@
   </ng-container>
 
   <!-- MP Unlock -->
-  <ng-container
-    *ngIf="
-      unlockOptions.masterPassword.enabled && activeUnlockOption === UnlockOption.MasterPassword
-    "
-  >
-    <form [bitSubmit]="submit" [formGroup]="formGroup">
-      <bit-form-field>
-        <bit-label>{{ "masterPass" | i18n }}</bit-label>
-        <input
-          type="password"
-          formControlName="masterPassword"
-          bitInput
-          appAutofocus
-          name="masterPassword"
-          class="tw-font-mono"
-          required
-          appInputVerbatim
-        />
-        <button
-          type="button"
-          bitIconButton
-          bitSuffix
-          bitPasswordInputToggle
-          [(toggled)]="showPassword"
-        ></button>
-
-        <!-- [attr.aria-pressed]="showPassword" -->
-      </bit-form-field>
-
-      <div class="tw-flex tw-flex-col tw-space-y-3">
-        <button type="submit" bitButton bitFormButton buttonType="primary" block>
-          {{ "unlock" | i18n }}
-        </button>
-
-        <p class="tw-text-center">{{ "or" | i18n }}</p>
-
-        <ng-container *ngIf="showBiometrics">
+  @if (
+    (unlockWithMasterPasswordUnlockDataFlag$ | async) &&
+    unlockOptions.masterPassword.enabled &&
+    activeUnlockOption === UnlockOption.MasterPassword
+  ) {
+    <bit-master-password-lock
+      [(activeUnlockOption)]="activeUnlockOption"
+      [unlockOptions]="unlockOptions"
+      [biometricUnlockBtnText]="biometricUnlockBtnText"
+      (successfulUnlock)="successfulMasterPasswordUnlock($event)"
+      (logOut)="logOut()"
+    ></bit-master-password-lock>
+  } @else {
+    <ng-container
+      *ngIf="
+        unlockOptions.masterPassword.enabled && activeUnlockOption === UnlockOption.MasterPassword
+      "
+    >
+      <form [bitSubmit]="submit" [formGroup]="formGroup">
+        <bit-form-field>
+          <bit-label>{{ "masterPass" | i18n }}</bit-label>
+          <input
+            type="password"
+            formControlName="masterPassword"
+            bitInput
+            appAutofocus
+            name="masterPassword"
+            class="tw-font-mono"
+            required
+            appInputVerbatim
+          />
           <button
             type="button"
-            bitButton
-            bitFormButton
-            buttonType="secondary"
-            [disabled]="!biometricsAvailable"
-            block
-            (click)="activeUnlockOption = UnlockOption.Biometrics"
-          >
-            <span> {{ biometricUnlockBtnText | i18n }}</span>
-          </button>
-        </ng-container>
+            bitIconButton
+            bitSuffix
+            bitPasswordInputToggle
+            [(toggled)]="showPassword"
+          ></button>
 
-        <ng-container *ngIf="unlockOptions.pin.enabled">
-          <button
-            type="button"
-            bitButton
-            bitFormButton
-            buttonType="secondary"
-            block
-            (click)="activeUnlockOption = UnlockOption.Pin"
-          >
-            {{ "unlockWithPin" | i18n }}
-          </button>
-        </ng-container>
+          <!-- [attr.aria-pressed]="showPassword" -->
+        </bit-form-field>
 
-        <button type="button" bitButton bitFormButton block (click)="logOut()">
-          {{ "logOut" | i18n }}
-        </button>
-      </div>
-    </form>
-  </ng-container>
+        <div class="tw-flex tw-flex-col tw-space-y-3">
+          <button type="submit" bitButton bitFormButton buttonType="primary" block>
+            {{ "unlock" | i18n }}
+          </button>
+
+          <p class="tw-text-center">{{ "or" | i18n }}</p>
+
+          <ng-container *ngIf="showBiometrics">
+            <button
+              type="button"
+              bitButton
+              bitFormButton
+              buttonType="secondary"
+              [disabled]="!biometricsAvailable"
+              block
+              (click)="activeUnlockOption = UnlockOption.Biometrics"
+            >
+              <span> {{ biometricUnlockBtnText | i18n }}</span>
+            </button>
+          </ng-container>
+
+          <ng-container *ngIf="unlockOptions.pin.enabled">
+            <button
+              type="button"
+              bitButton
+              bitFormButton
+              buttonType="secondary"
+              block
+              (click)="activeUnlockOption = UnlockOption.Pin"
+            >
+              {{ "unlockWithPin" | i18n }}
+            </button>
+          </ng-container>
+
+          <button type="button" bitButton bitFormButton block (click)="logOut()">
+            {{ "logOut" | i18n }}
+          </button>
+        </div>
+      </form>
+    </ng-container>
+  }
 </ng-container>

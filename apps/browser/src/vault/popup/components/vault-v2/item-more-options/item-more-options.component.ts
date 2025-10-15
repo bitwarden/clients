@@ -120,6 +120,10 @@ export class ItemMoreOptionsComponent {
     }),
   );
 
+  protected canDelete$ = this._cipher$.pipe(
+    switchMap((cipher) => this.cipherAuthorizationService.canDeleteCipher$(cipher)),
+  );
+
   constructor(
     private cipherService: CipherService,
     private passwordRepromptService: PasswordRepromptService,
@@ -252,6 +256,37 @@ export class ItemMoreOptionsComponent {
     });
   }
 
+  protected async edit() {
+    if (this.cipher.reprompt && !(await this.passwordRepromptService.showPasswordPrompt())) {
+      return;
+    }
+
+    await this.router.navigate(["/edit-cipher"], {
+      queryParams: { cipherId: this.cipher.id, type: CipherViewLikeUtils.getType(this.cipher) },
+    });
+  }
+
+  protected async delete() {
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: { key: "deleteItem" },
+      content: { key: "deleteItemConfirmation" },
+      type: "warning",
+    });
+
+    if (!confirmed) {
+      return;
+    }
+
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
+    await this.cipherService.softDeleteWithServer(this.cipher.id as CipherId, activeUserId);
+
+    this.toastService.showToast({
+      variant: "success",
+      message: this.i18nService.t("deletedItem"),
+    });
+  }
+
   async archive() {
     const confirmed = await this.dialogService.openSimpleDialog({
       title: { key: "archiveItem" },
@@ -267,7 +302,7 @@ export class ItemMoreOptionsComponent {
     await this.cipherArchiveService.archiveWithServer(this.cipher.id as CipherId, activeUserId);
     this.toastService.showToast({
       variant: "success",
-      message: this.i18nService.t("itemSentToArchive"),
+      message: this.i18nService.t("itemWasSentToArchive"),
     });
   }
 }
