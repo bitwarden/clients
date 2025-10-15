@@ -17,6 +17,7 @@ import { MessageSender } from "@bitwarden/common/platform/messaging";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
+import { CipherListView } from "@bitwarden/sdk-internal";
 
 import { ApiService } from "../../abstractions/api.service";
 import { AccountService } from "../../auth/abstractions/account.service";
@@ -158,9 +159,9 @@ export class CipherService implements CipherServiceAbstraction {
             ),
           ),
           switchMap(async (ciphers) => {
-            const [decrypted, failures] = await this.decryptCiphersWithSdk(ciphers, userId);
+            const [decrypted, failures] = await this.decryptCiphersWithSdk(ciphers, userId, false);
             await this.setFailedDecryptedCiphers(failures, userId);
-            return decrypted.sort(this.getLocaleSortingFunction());
+            return decrypted;
           }),
         );
       }),
@@ -489,7 +490,7 @@ export class CipherService implements CipherServiceAbstraction {
     if (await this.configService.getFeatureFlag(FeatureFlag.PM19941MigrateCipherDomainToSdk)) {
       const decryptStartTime = performance.now();
 
-      const result = await this.decryptCiphersWithSdk(ciphers, userId);
+      const result = await this.decryptCiphersWithSdk(ciphers, userId, true);
 
       this.logService.measure(decryptStartTime, "Vault", "CipherService", "decrypt complete", [
         ["Items", ciphers.length],
@@ -1163,6 +1164,18 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   async replace(ciphers: { [id: string]: CipherData }, userId: UserId): Promise<any> {
+    const current = (await firstValueFrom(this.encryptedCiphersState(userId).state$)) ?? {};
+
+    // The extension relies on chrome.storage.StorageArea.onChanged to detect updates.
+    // If stored and provided data are identical, this event doesn’t fire and the ciphers$
+    // observable won’t emit a new value. In this case we can skip the update to avoid calling
+    // clearCache and causing an empty state.
+    // If the current state is empty (eg. for new users), we still want to perform the update to ensure
+    // we trigger an emission as many subscribers rely on it during initialization.
+    if (Object.keys(current).length > 0 && JSON.stringify(current) === JSON.stringify(ciphers)) {
+      return;
+    }
+
     await this.updateEncryptedCipherState(() => ciphers, userId);
   }
 
@@ -1176,13 +1189,16 @@ export class CipherService implements CipherServiceAbstraction {
     userId: UserId = null,
   ): Promise<Record<CipherId, CipherData>> {
     userId ||= await firstValueFrom(this.stateProvider.activeUserId$);
+
     await this.clearCache(userId);
+
     const updatedCiphers = await this.stateProvider
       .getUser(userId, ENCRYPTED_CIPHERS)
       .update((current) => {
         const result = update(current ?? {});
         return result;
       });
+
     // Some state storage providers (e.g. Electron) don't update the state immediately, wait for next tick
     // Otherwise, subscribers to cipherViews$ can get stale data
     await new Promise((resolve) => setTimeout(resolve, 0));
@@ -1397,6 +1413,7 @@ export class CipherService implements CipherServiceAbstraction {
         return;
       }
       ciphers[cipherId].deletedDate = new Date().toISOString();
+      ciphers[cipherId].archivedDate = null;
     };
 
     if (typeof id === "string") {
@@ -2043,21 +2060,50 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   /**
-   * Decrypts the provided ciphers using the SDK.
-   * @param ciphers The ciphers to decrypt.
-   * @param userId The user ID to use for decryption.
-   * @returns The decrypted ciphers.
+   * Decrypts the provided ciphers using the SDK with full CipherView decryption.
+   * @param ciphers The encrypted ciphers to decrypt.
+   * @param userId The user ID to use for decryption keys.
+   * @param fullDecryption When true, returns full CipherView objects with all fields decrypted.
+   * @returns A tuple containing:
+   *          - Array of fully decrypted CipherView objects, sorted by locale
+   *          - Array of CipherView objects that failed to decrypt (marked with decryptionFailure flag)
    * @private
    */
   private async decryptCiphersWithSdk(
     ciphers: Cipher[],
     userId: UserId,
-  ): Promise<[CipherView[], CipherView[]]> {
+    fullDecryption: true,
+  ): Promise<[CipherView[], CipherView[]]>;
+  /**
+   * Decrypts the provided ciphers using the SDK with lightweight CipherListView decryption.
+   * @param ciphers The encrypted ciphers to decrypt.
+   * @param userId The user ID to use for decryption keys.
+   * @param fullDecryption When false, returns lightweight CipherListView objects for better performance.
+   * @returns A tuple containing:
+   *          - Array of lightweight CipherListView objects, sorted by locale
+   *          - Array of CipherView objects that failed to decrypt (marked with decryptionFailure flag)
+   * @private
+   */
+  private async decryptCiphersWithSdk(
+    ciphers: Cipher[],
+    userId: UserId,
+    fullDecryption: false,
+  ): Promise<[CipherListView[], CipherView[]]>;
+
+  private async decryptCiphersWithSdk(
+    ciphers: Cipher[],
+    userId: UserId,
+    fullDecryption: boolean = true,
+  ): Promise<[CipherViewLike[], CipherView[]]> {
     const [decrypted, failures] = await this.cipherEncryptionService.decryptManyWithFailures(
       ciphers,
       userId,
     );
-    const decryptedViews = await Promise.all(decrypted.map((c) => this.getFullCipherView(c)));
+
+    const decryptedViews = fullDecryption
+      ? await Promise.all(decrypted.map((c) => this.getFullCipherView(c)))
+      : decrypted;
+
     const failedViews = failures.map((c) => {
       const cipher_view = new CipherView(c);
       cipher_view.name = "[error: cannot decrypt]";

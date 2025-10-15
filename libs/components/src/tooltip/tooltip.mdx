@@ -1,0 +1,31 @@
+import { Meta, Canvas, Source, Primary, Controls, Title, Description } from "@storybook/addon-docs";
+
+import * as stories from "./tooltip.stories";
+
+<Meta of={stories} />
+
+```ts
+import { TooltipDirective } from "@bitwarden/components";
+```
+
+<Title />
+<Description />
+
+NOTE: The `TooltipComponent` can't be used on its own. It must be applied via the `TooltipDirective`
+
+<Primary />
+<Controls />
+
+## Stories
+
+### All available positions
+
+<Canvas of={stories.AllPositions} />
+
+### Used with a long content
+
+<Canvas of={stories.LongContent} />
+
+### On disabled element
+
+<Canvas of={stories.OnDisabledButton} />

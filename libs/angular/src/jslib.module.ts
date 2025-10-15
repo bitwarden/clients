@@ -3,12 +3,6 @@ import { NgModule } from "@angular/core";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 
 import {
-  AddAccountCreditDialogComponent,
-  InvoicesComponent,
-  NoInvoicesComponent,
-  ManageTaxInformationComponent,
-} from "@bitwarden/angular/billing/components";
-import {
   AsyncActionsModule,
   AutofocusDirective,
   ButtonModule,
@@ -112,10 +106,6 @@ import { IconComponent } from "./vault/components/icon.component";
     UserTypePipe,
     IfFeatureDirective,
     FingerprintPipe,
-    AddAccountCreditDialogComponent,
-    InvoicesComponent,
-    NoInvoicesComponent,
-    ManageTaxInformationComponent,
     TwoFactorIconComponent,
   ],
   exports: [
@@ -146,10 +136,6 @@ import { IconComponent } from "./vault/components/icon.component";
     UserTypePipe,
     IfFeatureDirective,
     FingerprintPipe,
-    AddAccountCreditDialogComponent,
-    InvoicesComponent,
-    NoInvoicesComponent,
-    ManageTaxInformationComponent,
     TwoFactorIconComponent,
     TextDragDirective,
   ],

@@ -110,7 +110,7 @@ export class SubscriptionPricingService {
   );
 
   private free$: Observable<BusinessSubscriptionPricingTier> = this.plansResponse$.pipe(
-    map((plans) => {
+    map((plans): BusinessSubscriptionPricingTier => {
       const freePlan = plans.data.find((plan) => plan.type === PlanType.Free)!;
 
       return {
@@ -215,20 +215,22 @@ export class SubscriptionPricingService {
   );
 
   private custom$: Observable<BusinessSubscriptionPricingTier> = this.plansResponse$.pipe(
-    map(() => ({
-      id: BusinessSubscriptionPricingTierIds.Custom,
-      name: this.i18nService.t("planNameCustom"),
-      description: this.i18nService.t("planDescCustom"),
-      availableCadences: [],
-      passwordManager: {
-        type: "custom",
-        features: [
-          this.featureTranslations.strengthenCybersecurity(),
-          this.featureTranslations.boostProductivity(),
-          this.featureTranslations.seamlessIntegration(),
-        ],
-      },
-    })),
+    map(
+      (): BusinessSubscriptionPricingTier => ({
+        id: BusinessSubscriptionPricingTierIds.Custom,
+        name: this.i18nService.t("planNameCustom"),
+        description: this.i18nService.t("planDescCustom"),
+        availableCadences: [],
+        passwordManager: {
+          type: "custom",
+          features: [
+            this.featureTranslations.strengthenCybersecurity(),
+            this.featureTranslations.boostProductivity(),
+            this.featureTranslations.seamlessIntegration(),
+          ],
+        },
+      }),
+    ),
   );
 
   private showUnexpectedErrorToast() {

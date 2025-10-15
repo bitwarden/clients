@@ -44,9 +44,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { EventType } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -239,7 +237,6 @@ export class VaultComponent implements OnInit, OnDestroy {
     private totpService: TotpService,
     private apiService: ApiService,
     private toastService: ToastService,
-    private configService: ConfigService,
     private cipherFormConfigService: CipherFormConfigService,
     protected billingApiService: BillingApiServiceAbstraction,
     private accountService: AccountService,
@@ -710,14 +707,13 @@ export class VaultComponent implements OnInit, OnDestroy {
   }
 
   async navigateToPaymentMethod() {
-    const managePaymentDetailsOutsideCheckout = await this.configService.getFeatureFlag(
-      FeatureFlag.PM21881_ManagePaymentDetailsOutsideCheckout,
-    );
-    const route = managePaymentDetailsOutsideCheckout ? "payment-details" : "payment-method";
     const organizationId = await firstValueFrom(this.organizationId$);
-    await this.router.navigate(["organizations", `${organizationId}`, "billing", route], {
-      state: { launchPaymentModalAutomatically: true },
-    });
+    await this.router.navigate(
+      ["organizations", `${organizationId}`, "billing", "payment-details"],
+      {
+        state: { launchPaymentModalAutomatically: true },
+      },
+    );
   }
 
   addAccessToggle(e: AddAccessStatusType) {
@@ -982,7 +978,7 @@ export class VaultComponent implements OnInit, OnDestroy {
 
     // Allow restore of an Unassigned Item
     try {
-      if (c.id == null) {
+      if (c.id == null || c.id === "") {
         throw new Error("Cipher must have an Id to be restored");
       }
       const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
@@ -1215,7 +1211,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       aType = "Password";
       value = cipher.login.password;
       typeI18nKey = "password";
-    } else if (field === "totp") {
+    } else if (field === "totp" && cipher.login.totp != null) {
       aType = "TOTP";
       const totpResponse = await firstValueFrom(this.totpService.getCode$(cipher.login.totp));
       value = totpResponse.code;
@@ -1236,7 +1232,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       return;
     }
 
-    if (!cipher.viewPassword) {
+    if (!cipher.viewPassword || value == null) {
       return;
     }
 
