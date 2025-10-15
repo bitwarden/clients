@@ -44,7 +44,11 @@ export class DesktopImportMetadataService
       return [id, mapped] as const;
     });
 
-    this.importers = Object.fromEntries(entries);
+    // Do not overwrite existing importers, just add new ones or update existing ones
+    this.importers = {
+      ...this.importers,
+      ...Object.fromEntries(entries),
+    };
   }
 
   private mapLoader(name: string): DataLoader {
