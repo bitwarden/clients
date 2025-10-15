@@ -1,6 +1,7 @@
 import { DIALOG_DATA } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
 import { Component, Inject, OnInit, signal } from "@angular/core";
+import { Router } from "@angular/router";
 
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
@@ -50,6 +51,7 @@ export type UnifiedUpgradeDialogResult = {
  * @property {PersonalSubscriptionPricingTierId | null} [selectedPlan] - Pre-selected subscription plan, if any.
  * @property {string | null} [dialogTitleMessageOverride] - Optional custom i18n key to override the default dialog title.
  * @property {boolean} [hideContinueWithoutUpgradingButton] - Whether to hide the "Continue without upgrading" button.
+ * @property {boolean} [redirectOnCompletion] - Whether to redirect after successful upgrade. Premium upgrades redirect to subscription settings, Families upgrades redirect to organization vault.
  */
 export type UnifiedUpgradeDialogParams = {
   account: Account;
@@ -57,6 +59,7 @@ export type UnifiedUpgradeDialogParams = {
   selectedPlan?: PersonalSubscriptionPricingTierId | null;
   planSelectionStepTitleOverride?: string | null;
   hideContinueWithoutUpgradingButton?: boolean;
+  redirectOnCompletion?: boolean;
 };
 
 @Component({
@@ -86,6 +89,7 @@ export class UnifiedUpgradeDialogComponent implements OnInit {
   constructor(
     private dialogRef: DialogRef<UnifiedUpgradeDialogResult>,
     @Inject(DIALOG_DATA) private params: UnifiedUpgradeDialogParams,
+    private router: Router,
   ) {}
 
   ngOnInit(): void {
@@ -142,7 +146,20 @@ export class UnifiedUpgradeDialogComponent implements OnInit {
       default:
         status = UnifiedUpgradeDialogStatus.Closed;
     }
+
     this.close({ status, organizationId: result.organizationId });
+
+    if (
+      this.params.redirectOnCompletion &&
+      (status === UnifiedUpgradeDialogStatus.UpgradedToPremium ||
+        status === UnifiedUpgradeDialogStatus.UpgradedToFamilies)
+    ) {
+      const redirectUrl =
+        status === UnifiedUpgradeDialogStatus.UpgradedToFamilies
+          ? `/organizations/${result.organizationId}/vault`
+          : "/settings/subscription/user-subscription";
+      void this.router.navigate([redirectUrl]);
+    }
   }
 
   /**
