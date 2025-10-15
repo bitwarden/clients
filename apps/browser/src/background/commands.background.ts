@@ -1,9 +1,12 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { firstValueFrom } from "rxjs";
+
+import { LockService } from "@bitwarden/auth/common";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { ExtensionCommand, ExtensionCommandType } from "@bitwarden/common/autofill/constants";
-import { VaultTimeoutService } from "@bitwarden/common/key-management/vault-timeout";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
 // FIXME (PM-22628): Popup imports are forbidden in background
@@ -21,9 +24,10 @@ export default class CommandsBackground {
   constructor(
     private main: MainBackground,
     private platformUtilsService: PlatformUtilsService,
-    private vaultTimeoutService: VaultTimeoutService,
     private authService: AuthService,
     private generatePasswordToClipboard: () => Promise<void>,
+    private accountService: AccountService,
+    private lockService: LockService,
   ) {
     this.isSafari = this.platformUtilsService.isSafari();
     this.isVivaldi = this.platformUtilsService.isVivaldi();
@@ -72,9 +76,11 @@ export default class CommandsBackground {
       case "open_popup":
         await this.openPopup();
         break;
-      case "lock_vault":
-        await this.vaultTimeoutService.lock();
+      case "lock_vault": {
+        const activeUserId = (await firstValueFrom(this.accountService.activeAccount$)).id;
+        await this.lockService.lock(activeUserId);
         break;
+      }
       default:
         break;
     }

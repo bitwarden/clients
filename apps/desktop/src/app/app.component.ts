@@ -32,6 +32,7 @@ import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { FingerprintDialogComponent } from "@bitwarden/auth/angular";
 import {
   DESKTOP_SSO_CALLBACK,
+  LockService,
   LogoutReason,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
@@ -179,6 +180,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private restrictedItemTypesService: RestrictedItemTypesService,
     private readonly tokenService: TokenService,
     private desktopAutotypeDefaultSettingPolicy: DesktopAutotypeDefaultSettingPolicy,
+    private readonly lockService: LockService,
   ) {
     this.deviceTrustToastService.setupListeners$.pipe(takeUntilDestroyed()).subscribe();
 
@@ -242,21 +244,10 @@ export class AppComponent implements OnInit, OnDestroy {
             this.loading = false;
             break;
           case "lockVault":
-            await this.vaultTimeoutService.lock(message.userId);
+            await this.lockService.lock(message.userId);
             break;
           case "lockAllVaults": {
-            const currentUser = await firstValueFrom(
-              this.accountService.activeAccount$.pipe(map((a) => a.id)),
-            );
-            const accounts = await firstValueFrom(this.accountService.accounts$);
-            await this.vaultTimeoutService.lock(currentUser);
-            for (const account of Object.keys(accounts)) {
-              if (account === currentUser) {
-                continue;
-              }
-
-              await this.vaultTimeoutService.lock(account);
-            }
+            await this.lockService.lockAll();
             break;
           }
           case "locked":
@@ -803,7 +794,7 @@ export class AppComponent implements OnInit, OnDestroy {
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
         options[1] === "logOut"
           ? this.logOut("vaultTimeout", userId as UserId)
-          : await this.vaultTimeoutService.lock(userId);
+          : await this.lockService.lock(userId as UserId);
       }
     }
   }
