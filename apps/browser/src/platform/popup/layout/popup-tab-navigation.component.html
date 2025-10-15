@@ -8,7 +8,7 @@
         <li *ngFor="let button of navButtons" class="tw-flex-1 tw-list-none tw-relative">
           <button
             class="tw-w-full tw-flex tw-flex-col tw-items-center tw-px-0.5 tw-py-2 bit-compact:tw-py-1 tw-bg-transparent tw-no-underline hover:tw-no-underline hover:tw-text-primary-600 tw-group/tab-nav-btn hover:tw-bg-hover-default tw-border-2 tw-border-solid tw-border-transparent focus-visible:tw-rounded-lg focus-visible:tw-border-primary-600"
-            [ngClass]="rla.isActive ? 'tw-font-bold tw-text-primary-600' : 'tw-text-muted'"
+            [ngClass]="rla.isActive ? 'tw-font-medium tw-text-primary-600' : 'tw-text-muted'"
             title="{{ button.label | i18n }}"
             [routerLink]="button.page"
             [appA11yTitle]="buttonTitle(button)"
