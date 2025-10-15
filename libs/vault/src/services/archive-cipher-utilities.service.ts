@@ -27,6 +27,11 @@ export class ArchiveCipherUtilitiesService {
 
   /** Archive a cipher, with confirmation dialog and password reprompt checks. */
   async archiveCipher(cipher: CipherView) {
+    const repromptPassed = await this.passwordRepromptService.passwordRepromptCheck(cipher);
+    if (!repromptPassed) {
+      return;
+    }
+
     const confirmed = await this.dialogService.openSimpleDialog({
       title: { key: "archiveItem" },
       content: { key: "archiveItemConfirmDesc" },
@@ -34,11 +39,6 @@ export class ArchiveCipherUtilitiesService {
     });
 
     if (!confirmed) {
-      return;
-    }
-
-    const repromptPassed = await this.passwordRepromptService.passwordRepromptCheck(cipher);
-    if (!repromptPassed) {
       return;
     }
 
