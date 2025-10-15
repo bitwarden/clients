@@ -29,17 +29,17 @@ import { StateProvider } from "@bitwarden/state";
 import { SafeInjectionToken } from "@bitwarden/ui-common";
 
 import {
-  DefaultImportMetadataService,
   ImportApiService,
   ImportApiServiceAbstraction,
-  ImportMetadataServiceAbstraction,
   ImportService,
   ImportServiceAbstraction,
 } from "../services";
 
 // FIXME: unify with `SYSTEM_SERVICE_PROVIDER` when migrating it from the generator component module
 //        to a general module.
-const SYSTEM_SERVICE_PROVIDER = new SafeInjectionToken<SystemServiceProvider>("SystemServices");
+export const SYSTEM_SERVICE_PROVIDER = new SafeInjectionToken<SystemServiceProvider>(
+  "SystemServices",
+);
 
 /** Import service factories */
 export const ImporterProviders: SafeProvider[] = [
@@ -88,10 +88,5 @@ export const ImporterProviders: SafeProvider[] = [
       AccountService,
       RestrictedItemTypesService,
     ],
-  }),
-  safeProvider({
-    provide: ImportMetadataServiceAbstraction,
-    useClass: DefaultImportMetadataService,
-    deps: [SYSTEM_SERVICE_PROVIDER],
   }),
 ];
