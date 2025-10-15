@@ -49,6 +49,7 @@ import { TokenService } from "@bitwarden/common/auth/services/token.service";
 import { TwoFactorService } from "@bitwarden/common/auth/services/two-factor.service";
 import { UserVerificationApiService } from "@bitwarden/common/auth/services/user-verification/user-verification-api.service";
 import { UserVerificationService } from "@bitwarden/common/auth/services/user-verification/user-verification.service";
+import { TwoFactorApiService, DefaultTwoFactorApiService } from "@bitwarden/common/auth/two-factor";
 import {
   AutofillSettingsService,
   AutofillSettingsServiceAbstraction,
@@ -230,6 +231,7 @@ export class ServiceContainer {
   tokenService: TokenService;
   appIdService: AppIdService;
   apiService: NodeApiService;
+  twoFactorApiService: TwoFactorApiService;
   hibpApiService: HibpApiService;
   environmentService: EnvironmentService;
   cipherService: CipherService;
@@ -535,6 +537,8 @@ export class ServiceContainer {
     this.containerService = new ContainerService(this.keyService, this.encryptService);
 
     this.configApiService = new ConfigApiService(this.apiService);
+
+    this.twoFactorApiService = new DefaultTwoFactorApiService(this.apiService);
 
     this.authService = new AuthService(
       this.accountService,
