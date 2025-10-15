@@ -1,7 +1,7 @@
 import { Component, OnInit, Signal, TemplateRef, viewChild } from "@angular/core";
 import { BehaviorSubject, map, Observable } from "rxjs";
 
-import { AutoConfrimSvg } from "@bitwarden/assets/svg";
+import { AutoConfirmSvg } from "@bitwarden/assets/svg";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -32,7 +32,7 @@ export class AutoConfirmPolicy extends BasePolicyEditDefinition {
   imports: [SharedModule],
 })
 export class AutoConfirmPolicyEditComponent extends BasePolicyEditComponent implements OnInit {
-  protected readonly autoConfirmSvg = AutoConfrimSvg;
+  protected readonly autoConfirmSvg = AutoConfirmSvg;
   private policyForm: Signal<TemplateRef<any> | undefined> = viewChild("step0");
   private extensionButton: Signal<TemplateRef<any> | undefined> = viewChild("step1");
 
@@ -47,9 +47,5 @@ export class AutoConfirmPolicyEditComponent extends BasePolicyEditComponent impl
 
   setStep(step: number) {
     this.step = step;
-  }
-
-  ngOnInit(): void {
-    super.ngOnInit();
   }
 }

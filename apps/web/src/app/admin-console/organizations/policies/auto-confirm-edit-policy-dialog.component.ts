@@ -134,8 +134,8 @@ export class AutoConfirmPolicyDialogComponent
     );
   }
 
-  private async handleSubmit(enabled: boolean) {
-    if (!enabled) {
+  private async handleSubmit(singleOrgEnabled: boolean) {
+    if (!singleOrgEnabled) {
       await this.submitSingleOrg();
     }
     await this.submitAutoConfirm();

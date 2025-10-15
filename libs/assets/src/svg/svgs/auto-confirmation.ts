@@ -1,6 +1,6 @@
 import { svgIcon } from "../icon-service";
 
-const AutoConfirmSvg = svgIcon`
+export const AutoConfirmSvg = svgIcon`
 <svg width="224" height="275" viewBox="0 0 224 275" fill="none" xmlns="http://www.w3.org/2000/svg">
 <g filter="url(#filter0_dd_6402_15183)">
 <g clip-path="url(#clip0_6402_15183)">
@@ -150,5 +150,3 @@ const AutoConfirmSvg = svgIcon`
 </defs>
 </svg>
 `;
-
-export default AutoConfirmSvg;
