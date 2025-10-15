@@ -162,7 +162,11 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
         this.policyService.policiesByType$(PolicyType.UriMatchDefaults, userId),
       ),
       getFirstPolicy,
-      map((policy) => (policy !== null && policy?.enabled && policy?.data ? policy.data : null)),
+      map((policy) =>
+        policy !== null && policy?.enabled && policy?.data && policy.data != null
+          ? policy.data
+          : null,
+      ),
     );
 
     // This observable combines user settings with policy settings and is designed
