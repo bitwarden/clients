@@ -9,7 +9,15 @@ import {
   Validators,
 } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
-import { concatMap, firstValueFrom, Subject, switchMap, takeUntil } from "rxjs";
+import {
+  concatMap,
+  firstValueFrom,
+  pairwise,
+  startWith,
+  Subject,
+  switchMap,
+  takeUntil,
+} from "rxjs";
 
 import { ControlsOf } from "@bitwarden/angular/types/controls-of";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -263,17 +271,19 @@ export class SsoComponent implements OnInit, OnDestroy {
   }
 
   listenForKeyConnectorSelection() {
-    let prevMemberDecryptionType = this.ssoConfigForm?.controls?.memberDecryptionType.value;
+    const memberDecryptionTypeOnInit = this.ssoConfigForm?.controls?.memberDecryptionType.value;
 
     this.ssoConfigForm?.controls?.memberDecryptionType.valueChanges
       .pipe(
-        switchMap(async (memberDecryptionType) => {
+        startWith(memberDecryptionTypeOnInit),
+        pairwise(),
+        switchMap(async ([prevMemberDecryptionType, newMemberDecryptionType]) => {
           // Only pre-populate a default URL when changing TO Key Connector from a different decryption type.
-          // ValueChanges gets triggered during the submit() call, so we need a !== check
+          // ValueChanges gets re-triggered during the submit() call, so we need a !== check
           // to prevent a custom URL from getting overwritten back to the default on a submit().
           if (
-            memberDecryptionType === MemberDecryptionType.KeyConnector &&
-            prevMemberDecryptionType !== MemberDecryptionType.KeyConnector
+            prevMemberDecryptionType !== MemberDecryptionType.KeyConnector &&
+            newMemberDecryptionType === MemberDecryptionType.KeyConnector
           ) {
             // Pre-populate a default key connector URL (user can still change it)
             const env = await firstValueFrom(this.environmentService.environment$);
@@ -281,11 +291,9 @@ export class SsoComponent implements OnInit, OnDestroy {
             const defaultKeyConnectorUrl = webVaultUrl + "/key-connector";
 
             this.ssoConfigForm.controls.keyConnectorUrl.setValue(defaultKeyConnectorUrl);
-          } else if (memberDecryptionType !== MemberDecryptionType.KeyConnector) {
+          } else if (newMemberDecryptionType !== MemberDecryptionType.KeyConnector) {
             this.ssoConfigForm.controls.keyConnectorUrl.setValue("");
           }
-
-          prevMemberDecryptionType = memberDecryptionType;
         }),
         takeUntil(this.destroy$),
       )
