@@ -74,6 +74,7 @@ export default {
           [hideCardWrapper]="hideCardWrapper"
           [hideLogo]="hideLogo"
           [hideFooter]="hideFooter"
+          [hideBackgroundIllustration]="hideBackgroundIllustration"
         >
           <ng-container [ngSwitch]="contentLength">
             <div *ngSwitchCase="'thin'" class="tw-text-center">  <div class="tw-font-bold">Thin Content</div></div>
@@ -114,6 +115,7 @@ export default {
     hideCardWrapper: { control: "boolean" },
     hideLogo: { control: "boolean" },
     hideFooter: { control: "boolean" },
+    hideBackgroundIllustration: { control: "boolean" },
 
     contentLength: {
       control: "radio",
@@ -133,6 +135,7 @@ export default {
     hideCardWrapper: false,
     hideLogo: false,
     hideFooter: false,
+    hideBackgroundIllustration: false,
     contentLength: "normal",
     showSecondary: false,
   },
@@ -205,6 +208,10 @@ export const NoFooter: Story = {
   args: { hideFooter: true },
 };
 
+export const NoBackgroundIllustration: Story = {
+  args: { hideBackgroundIllustration: true },
+};
+
 export const ReadonlyHostname: Story = {
   args: { showReadonlyHostname: true },
 };
@@ -218,5 +225,6 @@ export const MinimalState: Story = {
     icon: null,
     hideLogo: true,
     hideFooter: true,
+    hideBackgroundIllustration: true,
   },
 };

@@ -49,6 +49,7 @@ export class AnonLayoutComponent implements OnInit, OnChanges {
   readonly hideLogo = input<boolean>(false);
   readonly hideFooter = input<boolean>(false);
   readonly hideCardWrapper = input<boolean>(false);
+  readonly hideBackgroundIllustration = input<boolean>(false);
 
   /**
    * Max width of the anon layout title, subtitle, and content areas.

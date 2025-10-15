@@ -70,16 +70,18 @@
     </ng-container>
   </footer>
 
-  <div
-    class="tw-hidden md:tw-block [&_svg]:tw-absolute tw-z-[1] tw-opacity-[.11] [&_svg]:tw-bottom-0 [&_svg]:tw-start-0 [&_svg]:tw-w-[35%] [&_svg]:tw-max-w-[450px]"
-  >
-    <bit-icon [icon]="leftIllustration"></bit-icon>
-  </div>
-  <div
-    class="tw-hidden md:tw-block [&_svg]:tw-absolute tw-z-[1] tw-opacity-[.11] [&_svg]:tw-bottom-0 [&_svg]:tw-end-0 [&_svg]:tw-w-[35%] [&_svg]:tw-max-w-[450px]"
-  >
-    <bit-icon [icon]="rightIllustration"></bit-icon>
-  </div>
+  @if (!hideBackgroundIllustration()) {
+    <div
+      class="tw-hidden md:tw-block [&_svg]:tw-absolute tw-z-[1] tw-opacity-[.11] [&_svg]:tw-bottom-0 [&_svg]:tw-start-0 [&_svg]:tw-w-[35%] [&_svg]:tw-max-w-[450px]"
+    >
+      <bit-icon [icon]="leftIllustration"></bit-icon>
+    </div>
+    <div
+      class="tw-hidden md:tw-block [&_svg]:tw-absolute tw-z-[1] tw-opacity-[.11] [&_svg]:tw-bottom-0 [&_svg]:tw-end-0 [&_svg]:tw-w-[35%] [&_svg]:tw-max-w-[450px]"
+    >
+      <bit-icon [icon]="rightIllustration"></bit-icon>
+    </div>
+  }
 </main>
 
 <ng-template #defaultContent>
