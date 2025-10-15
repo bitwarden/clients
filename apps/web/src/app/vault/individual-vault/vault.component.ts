@@ -46,6 +46,8 @@ import {
   getOrganizationById,
   OrganizationService,
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -210,7 +212,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     .pipe(map((a) => a?.id))
     .pipe(switchMap((id) => this.organizationService.organizations$(id)));
 
-  private userCanArchive$ = this.accountService.activeAccount$.pipe(
+  protected userCanArchive$ = this.accountService.activeAccount$.pipe(
     getUserId,
     switchMap((userId) => {
       return this.cipherArchiveService.userCanArchive$(userId);
@@ -256,7 +258,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         },
         archive: {
           title: "noItemsInArchive",
-          description: "archivedItemsDescription",
+          description: "noItemsInArchiveDesc",
           icon: this.itemTypesIcon,
         },
       };
@@ -274,6 +276,15 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       };
     }),
   );
+
+  protected enforceOrgDataOwnershipPolicy$ = this.accountService.activeAccount$.pipe(
+    getUserId,
+    switchMap((userId) =>
+      this.policyService.policyAppliesToUser$(PolicyType.OrganizationDataOwnership, userId),
+    ),
+  );
+
+  private userId$ = this.accountService.activeAccount$.pipe(getUserId);
 
   constructor(
     private syncService: SyncService,
@@ -307,6 +318,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     private restrictedItemTypesService: RestrictedItemTypesService,
     private cipherArchiveService: CipherArchiveService,
     private organizationWarningsService: OrganizationWarningsService,
+    private policyService: PolicyService,
     private unifiedUpgradePromptService: UnifiedUpgradePromptService,
   ) {}
 
@@ -405,7 +417,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       allowedCiphers$,
       filter$,
       this.currentSearchText$,
-      this.userCanArchive$,
+      this.cipherArchiveService.hasArchiveFlagEnabled$(),
     ]).pipe(
       filter(([ciphers, filter]) => ciphers != undefined && filter != undefined),
       concatMap(async ([ciphers, filter, searchText, archiveEnabled]) => {
@@ -653,9 +665,137 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         case "assignToCollections":
           await this.bulkAssignToCollections(event.items);
           break;
+        case "archive":
+          if (event.items.length === 1) {
+            await this.archive(event.items[0]);
+          } else {
+            await this.bulkArchive(event.items);
+          }
+          break;
+        case "unarchive":
+          if (event.items.length === 1) {
+            await this.unarchive(event.items[0]);
+          } else {
+            await this.bulkUnarchive(event.items);
+          }
+          break;
       }
     } finally {
       this.processingEvent = false;
+    }
+  }
+
+  async archive(cipher: C) {
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: { key: "archiveItem" },
+      content: { key: "archiveItemConfirmDesc" },
+      type: "info",
+    });
+
+    if (!confirmed) {
+      return;
+    }
+
+    const repromptPassed = await this.passwordRepromptService.passwordRepromptCheck(cipher);
+    if (!repromptPassed) {
+      return;
+    }
+    const activeUserId = await firstValueFrom(this.userId$);
+    try {
+      await this.cipherArchiveService.archiveWithServer(cipher.id as CipherId, activeUserId);
+      this.toastService.showToast({
+        variant: "success",
+        message: this.i18nService.t("itemWasSentToArchive"),
+      });
+      this.refresh();
+    } catch (e) {
+      this.logService.error("Error archiving cipher", e);
+      this.toastService.showToast({
+        variant: "error",
+        message: this.i18nService.t("errorOccurred"),
+      });
+    }
+  }
+
+  async bulkArchive(ciphers: C[]) {
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: { key: "archiveBulkItems" },
+      content: { key: "archiveBulkItemsConfirmDesc" },
+      type: "info",
+    });
+
+    if (!confirmed) {
+      return;
+    }
+
+    if (!(await this.repromptCipher(ciphers))) {
+      return;
+    }
+
+    const activeUserId = await firstValueFrom(this.userId$);
+    const cipherIds = ciphers.map((c) => c.id as CipherId);
+    try {
+      await this.cipherArchiveService.archiveWithServer(cipherIds as CipherId[], activeUserId);
+      this.toastService.showToast({
+        variant: "success",
+        message: this.i18nService.t("itemsWereSentToArchive"),
+      });
+      this.refresh();
+    } catch (e) {
+      this.logService.error("Error archiving ciphers", e);
+      this.toastService.showToast({
+        variant: "error",
+        message: this.i18nService.t("errorOccurred"),
+      });
+    }
+  }
+
+  async unarchive(cipher: C) {
+    const repromptPassed = await this.passwordRepromptService.passwordRepromptCheck(cipher);
+    if (!repromptPassed) {
+      return;
+    }
+    const activeUserId = await firstValueFrom(this.userId$);
+
+    try {
+      await this.cipherArchiveService.unarchiveWithServer(cipher.id as CipherId, activeUserId);
+
+      this.toastService.showToast({
+        variant: "success",
+        message: this.i18nService.t("itemUnarchived"),
+      });
+
+      this.refresh();
+    } catch (e) {
+      this.logService.error("Error unarchiving cipher", e);
+      this.toastService.showToast({
+        variant: "error",
+        message: this.i18nService.t("errorOccurred"),
+      });
+    }
+  }
+
+  async bulkUnarchive(ciphers: C[]) {
+    if (!(await this.repromptCipher(ciphers))) {
+      return;
+    }
+
+    const activeUserId = await firstValueFrom(this.userId$);
+    const cipherIds = ciphers.map((c) => c.id as CipherId);
+    try {
+      await this.cipherArchiveService.unarchiveWithServer(cipherIds as CipherId[], activeUserId);
+      this.toastService.showToast({
+        variant: "success",
+        message: this.i18nService.t("bulkUnarchiveItems"),
+      });
+
+      this.refresh();
+    } catch (e) {
+      this.logService.error("Error unarchiving ciphers", e);
+      this.toastService.showToast({
+        variant: "error",
+        message: this.i18nService.t("errorOccurred"),
+      });
     }
   }
 
