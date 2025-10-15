@@ -237,13 +237,11 @@ export declare namespace chromium_importer {
     login?: Login
     failure?: LoginImportFailure
   }
+  /** Returns OS aware metadata describing supported Chromium based importers as a JSON string. */
+  export function getMetadata(): Record<string, ImporterMetadata>
   export function getInstalledBrowsers(): Array<string>
   export function getAvailableProfiles(browser: string): Array<ProfileInfo>
   export function importLogins(browser: string, profileId: string): Promise<Array<LoginImportResult>>
-}
-export declare namespace chromium_importer_metadata {
-  /** Returns OS aware metadata describing supported Chromium based importers as a JSON string. */
-  export function getMetadata(): Record<string, ImporterMetadata>
 }
 export declare namespace autotype {
   export function getForegroundWindowTitle(): string
