@@ -33,6 +33,7 @@
         <div class="tw-pb-8 !tw-mx-0">
           <h5 bitTypography="h5">{{ "paymentMethod" | i18n }}</h5>
           <app-enter-payment-method
+            [showBankAccount]="isFamiliesPlan"
             [group]="formGroup.controls.paymentForm"
             [includeBillingAddress]="false"
             #paymentComponent
