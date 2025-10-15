@@ -11,6 +11,7 @@ import {
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
+import { UserId } from "@bitwarden/user-core";
 
 import { OrganizationApiServiceAbstraction } from "../../admin-console/abstractions/organization/organization-api.service.abstraction";
 import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
@@ -53,7 +54,7 @@ export class PasswordResetEnrollmentServiceImplementation
 
     userId =
       userId ?? (await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id))));
-    userKey = userKey ?? (await this.keyService.getUserKey(userId));
+    userKey = userKey ?? (await firstValueFrom(this.keyService.userKey$(userId as UserId)));
     // RSA Encrypt user's userKey.key with organization public key
     const encryptedKey = await this.encryptService.encapsulateKeyUnsigned(userKey, orgPublicKey);
 

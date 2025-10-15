@@ -123,6 +123,7 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
   async approveOrDenyAuthRequest(
     approve: boolean,
     authRequest: AuthRequestResponse,
+    userId: UserId,
   ): Promise<AuthRequestResponse> {
     if (!authRequest.id) {
       throw new Error("Auth request has no id");
@@ -132,7 +133,7 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
     }
     const pubKey = Utils.fromB64ToArray(authRequest.publicKey);
 
-    const keyToEncrypt = await this.keyService.getUserKey();
+    const keyToEncrypt = await firstValueFrom(this.keyService.userKey$(userId));
     const encryptedKey = await this.encryptService.encapsulateKeyUnsigned(keyToEncrypt, pubKey);
 
     const response = new PasswordlessAuthRequest(
