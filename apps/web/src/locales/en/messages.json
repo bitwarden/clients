@@ -11298,11 +11298,46 @@
     "message": "Archive",
     "description": "Verb"
   },
+  "unArchive": {
+    "message": "Unarchive"
+  },
+  "itemsInArchive": {
+    "message": "Items in archive"
+  },
   "noItemsInArchive": {
     "message": "No items in archive"
   },
-  "archivedItemsDescription": {
+  "noItemsInArchiveDesc": {
     "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+  },
+  "itemWasSentToArchive": {
+    "message": "Item was sent to archive"
+  },
+  "itemsWereSentToArchive": {
+    "message": "Items were sent to archive"
+  },
+  "itemUnarchived": {
+    "message": "Item was unarchived"
+  },
+  "bulkArchiveItems": {
+    "message": "Items archived"
+  },
+  "bulkUnarchiveItems": {
+    "message": "Items unarchived"
+  },
+  "archiveItem": {
+    "message": "Archive item",
+    "description": "Verb"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+  },
+  "archiveBulkItems": {
+    "message": "Archive items",
+    "description": "Verb"
+  },
+  "archiveBulkItemsConfirmDesc": {
+    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive these items?"
   },
   "businessUnit": {
     "message": "Business Unit"
@@ -11804,6 +11839,15 @@
   },
   "continueWithoutUpgrading": {
     "message": "Continue without upgrading"
+  },
+  "upgradeYourPlan": {
+    "message": "Upgrade your plan"
+  },
+  "upgradeNow": {
+    "message": "Upgrade now"
+  },
+  "formWillCreateNewFamiliesOrgMessage": {
+    "message": "Completing this form will create a new Families organization. You can upgrade your Free organization from the Admin Console."
   },
   "upgradeErrorMessage": {
     "message": "We encountered an error while processing your upgrade. Please try again."
