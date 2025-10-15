@@ -211,6 +211,7 @@ export class OssServeConfigurator {
       this.serviceContainer.sendService,
       this.serviceContainer.sendApiService,
       this.serviceContainer.environmentService,
+      this.serviceContainer.accountService,
     );
   }
 
