@@ -216,6 +216,8 @@ export default {
           provide: DomainSettingsService,
           useValue: {
             resolvedDefaultUriMatchStrategy$: new BehaviorSubject(UriMatchStrategy.StartsWith),
+            defaultUriMatchStrategy$: new BehaviorSubject(UriMatchStrategy.Domain),
+            defaultUriMatchStrategyPolicy$: new BehaviorSubject(null),
           },
         },
         {
