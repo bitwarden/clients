@@ -213,7 +213,7 @@ export class VaultItemsComponent<C extends CipherViewLike> {
     }
 
     return !this.selection.selected.find(
-      (item) => !item.cipher.archivedDate || item.cipher.organizationId,
+      (item) => !item.cipher?.archivedDate || item.cipher?.organizationId,
     );
   }
 
