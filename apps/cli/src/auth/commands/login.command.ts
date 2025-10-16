@@ -14,7 +14,6 @@ import {
   SsoUrlService,
   UserApiLoginCredentials,
 } from "@bitwarden/auth/common";
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -29,6 +28,7 @@ import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/ide
 import { PasswordRequest } from "@bitwarden/common/auth/models/request/password.request";
 import { TwoFactorEmailRequest } from "@bitwarden/common/auth/models/request/two-factor-email.request";
 import { UpdateTempPasswordRequest } from "@bitwarden/common/auth/models/request/update-temp-password.request";
+import { TwoFactorApiService } from "@bitwarden/common/auth/two-factor";
 import { ClientType } from "@bitwarden/common/enums";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
@@ -62,7 +62,7 @@ export class LoginCommand {
   constructor(
     protected loginStrategyService: LoginStrategyServiceAbstraction,
     protected authService: AuthService,
-    protected apiService: ApiService,
+    protected twoFactorApiService: TwoFactorApiService,
     protected masterPasswordApiService: MasterPasswordApiService,
     protected cryptoFunctionService: CryptoFunctionService,
     protected environmentService: EnvironmentService,
@@ -279,7 +279,7 @@ export class LoginCommand {
           const emailReq = new TwoFactorEmailRequest();
           emailReq.email = await this.loginStrategyService.getEmail();
           emailReq.masterPasswordHash = await this.loginStrategyService.getMasterPasswordHash();
-          await this.apiService.postTwoFactorEmail(emailReq);
+          await this.twoFactorApiService.postTwoFactorEmail(emailReq);
         }
 
         if (twoFactorToken == null) {
@@ -621,7 +621,7 @@ export class LoginCommand {
     const newPasswordHash = await this.keyService.hashMasterKey(masterPassword, newMasterKey);
 
     // Grab user key
-    const userKey = await this.keyService.getUserKey();
+    const userKey = await firstValueFrom(this.keyService.userKey$(userId));
     if (!userKey) {
       throw new Error("User key not found.");
     }

@@ -1,0 +1,112 @@
+import { Meta, Canvas, Source } from "@storybook/addon-docs";
+
+import * as skeletonStories from "./skeleton.stories";
+import * as skeletonTextStories from "./skeleton-text.stories";
+import * as skeletonGroupStories from "./skeleton-group.stories";
+
+<Meta title="Component Library/Skeleton" />
+
+# Skeleton Loading
+
+The skeleton component can be used as an alternative loading indicator to the spinner by mimicking
+the content that will be loaded such as text, images, or video. It can be used to represent layout
+components as well, but should not be used for interactive elements like form controls or buttons.
+
+## Skeleton Loading Components
+
+There are three components that can be used to create a skeleton loading page.
+
+### Skeleton
+
+Basic skeleton loading component that can be used to represent content that is loading. Use for
+non-text shapes.
+
+#### Customizing
+
+The basic skeleton component is fully customizable in shape and edge appearance to allow consumers
+to more accurately represent the content.
+
+**Inputs**
+
+| Input       | Description                                         | Accepted options | Default |
+| ----------- | --------------------------------------------------- | ---------------- | ------- |
+| `edgeShape` | configure whether corners are fully rounded or boxy | `box`, `circle`  | `box`   |
+
+**Classes**
+
+Customize the shape's size by applying tailwind size classes to the `bit-skeleton` element (example
+`tw-h-3 tw-w-12`). Please refer to the tailwind docs for all height/width options, and note that
+custom values are possible with tailwind as well.
+
+<Canvas of={skeletonStories.BoxEdgeShape} />
+<Canvas of={skeletonStories.CircleEdgeShape} />
+
+### Skeleton Text
+
+Specific skeleton component used to represent lines of text.
+
+#### Customizing
+
+The number of lines of text in the skeleton is configurable.
+
+**Inputs**
+
+| Input   | Description                                   | Accepted options | Default |
+| ------- | --------------------------------------------- | ---------------- | ------- |
+| `lines` | configure how many lines of text are rendered | any `number`     | `1`     |
+
+<Canvas of={skeletonTextStories.Text} />
+<Canvas of={skeletonTextStories.TextMultiline} />
+
+### Skeleton Group
+
+Arranges skeleton loaders into a pre-arranged group that mimics the table and item components.
+
+#### Customizing
+
+**Slots**
+
+Use the following slots to render `<bit-skeleton>` and/or `bit-skeleton-text` elements.
+
+| Slot           | Description                                                                                     |
+| -------------- | ----------------------------------------------------------------------------------------------- |
+| `slot="start"` | content that should appear horizontally before the default content; will not grow to fill space |
+| default        | main content area; grows to fill the horizontal space                                           |
+| `slot="end"`   | content that should appear horizontally after the default content; will not grow to fill space  |
+
+<Canvas of={skeletonGroupStories.Default} />
+
+## Display Considerations
+
+For pages that load quickly, we want to avoid the skeleton flashing in and out. To avoid this, we
+recommend the following display guidelines:
+
+- After the loading is initiated (by page load or by user action), wait 1 second to display the
+  skeleton loader.
+- After waiting 1s, render the loading skeleton.
+- Ideally the skeleton disappears after 10 seconds, but we do not enforce a max duration. Add a max
+  duration at your discretion.
+
+## Accessibility
+
+Because there are typically multiple skeleton loaders present on a page that is using skeleton
+loading, the individual skeleton loaders should not announce themselves or be present to
+screenreaders, as this would overwhelm the user with multiple identical announcements. Thus, the
+skeleton components are hidden from screenreaders.
+
+Instead, the recommended strategy is to use a page-level announcement for screenreaders:
+
+- We recommend using the
+  [Angular CDK LiveAnnouncer](https://material.angular.dev/cdk/a11y/overview#liveannouncer) to first
+  announce that content is loading when the skeleton loader is displayed, and then to announce that
+  content has loaded. The announcements should be localized, and the politeness level should be set
+  to `polite`.
+
+- Alternatively, you may wish to render your own `role="status"` element or a custom `aria-live`
+  region in the template to accomplish the announcements detailed above.
+
+## Example with Browser Extension
+
+To see a full-page example of what skeleton loading might look like using all three skeleton
+components, check the
+[Popup Layout Skeleton Loading story](?path=/docs/browser-popup-layout--skeleton-loading).

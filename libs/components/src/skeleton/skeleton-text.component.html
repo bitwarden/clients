@@ -1,0 +1,11 @@
+<div class="tw-w-full tw-flex tw-flex-col tw-gap-2">
+  @for (line of this.linesArray(); track $index; let last = $last, first = $first) {
+    <bit-skeleton
+      class="tw-h-3"
+      [ngClass]="{
+        'tw-w-full': first || !last,
+        'tw-w-1/3': !first && last,
+      }"
+    ></bit-skeleton>
+  }
+</div>

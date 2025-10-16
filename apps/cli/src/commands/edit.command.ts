@@ -261,8 +261,13 @@ export class EditCommand {
 
   /** Prompt the user to accept movement of their cipher back to the their vault. */
   private async promptForArchiveEdit(): Promise<boolean> {
-    // When running in serve or no interaction mode, automatically accept the prompt
-    if (process.env.BW_SERVE === "true" || process.env.BW_NOINTERACTION === "true") {
+    // When user has disabled interactivity or does not have the ability to prompt,
+    // automatically move the item back to the vault and inform them.
+    if (
+      process.env.BW_SERVE === "true" ||
+      process.env.BW_NOINTERACTION === "true" ||
+      !process.stdin.isTTY
+    ) {
       CliUtils.writeLn(
         "Archive is only available with a Premium subscription, which has ended. Your edit was saved and the item was moved back to your vault.",
       );
