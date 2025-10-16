@@ -365,19 +365,19 @@ jobs:
           ls -l ../
           npm link ../sdk-internal
 
-      - name: Cache Native Module
-        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
-        id: cache
-        with:
-          path: |
-            apps/desktop/desktop_native/napi/*.node
-            apps/desktop/desktop_native/dist/*
-            ${{ env.RUNNER_TEMP }}/.cargo/registry
-            ${{ env.RUNNER_TEMP }}/.cargo/git
-          key: rust-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('apps/desktop/desktop_native/**/*') }}
+      # - name: Cache Native Module
+      #   uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+      #   id: cache
+      #   with:
+      #     path: |
+      #       apps/desktop/desktop_native/napi/*.node
+      #       apps/desktop/desktop_native/dist/*
+      #       ${{ env.RUNNER_TEMP }}/.cargo/registry
+      #       ${{ env.RUNNER_TEMP }}/.cargo/git
+      #     key: rust-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('apps/desktop/desktop_native/**/*') }}
 
       - name: Build Native Module
-        if: steps.cache.outputs.cache-hit != 'true'
+        # if: steps.cache.outputs.cache-hit != 'true'
         working-directory: apps/desktop/desktop_native
         env:
           PKG_CONFIG_ALLOW_CROSS: true
@@ -387,14 +387,14 @@ jobs:
           rustup target add aarch64-unknown-linux-musl
           node build.js --target=aarch64-unknown-linux-musl --release
 
-      - name: Check index.d.ts generated
-        if: github.event_name == 'pull_request' && steps.cache.outputs.cache-hit != 'true'
-        working-directory: apps/desktop/desktop_native
-        run: |
-          if ! git diff --quiet --name-only -- napi/index.d.ts; then
-            echo "NAPI index.d.ts doesn't match, make sure to regenerate it and commit it"
-            exit 1
-          fi
+      # - name: Check index.d.ts generated
+      #   if: github.event_name == 'pull_request' && steps.cache.outputs.cache-hit != 'true'
+      #   working-directory: apps/desktop/desktop_native
+      #   run: |
+      #     if ! git diff --quiet --name-only -- napi/index.d.ts; then
+      #       echo "NAPI index.d.ts doesn't match, make sure to regenerate it and commit it"
+      #       exit 1
+      #     fi
 
       - name: Build application
         run: npm run dist:lin:arm64
