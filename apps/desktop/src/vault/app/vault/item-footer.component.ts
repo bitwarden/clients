@@ -9,7 +9,7 @@ import {
   OnChanges,
   SimpleChanges,
 } from "@angular/core";
-import { firstValueFrom, switchMap } from "rxjs";
+import { combineLatest, firstValueFrom, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -46,7 +46,8 @@ export class ItemFooterComponent implements OnInit, OnChanges {
   activeUserId: UserId | null = null;
   passwordReprompted: boolean = false;
 
-  protected showArchive = false;
+  protected showArchiveButton = false;
+  protected showUnarchiveButton = false;
 
   constructor(
     protected cipherService: CipherService,
@@ -100,7 +101,8 @@ export class ItemFooterComponent implements OnInit, OnChanges {
 
   protected get hasFooterAction() {
     return (
-      this.showArchive ||
+      this.showArchiveButton ||
+      this.showUnarchiveButton ||
       (this.cipher.permissions?.delete && (this.action === "edit" || this.action === "view"))
     );
   }
@@ -193,13 +195,23 @@ export class ItemFooterComponent implements OnInit, OnChanges {
 
   private async checkArchiveState() {
     const cipherCanBeArchived = !this.cipher.isDeleted && this.cipher.organizationId == null;
-    const userCanArchive = await firstValueFrom(
+    const [userCanArchive, hasArchiveFlagEnabled] = await firstValueFrom(
       this.accountService.activeAccount$.pipe(
         getUserId,
-        switchMap((id) => this.cipherArchiveService.userCanArchive$(id)),
+        switchMap((id) =>
+          combineLatest([
+            this.cipherArchiveService.userCanArchive$(id),
+            this.cipherArchiveService.hasArchiveFlagEnabled$(),
+          ]),
+        ),
       ),
     );
 
-    this.showArchive = cipherCanBeArchived && userCanArchive && this.action === "view";
+    this.showArchiveButton =
+      cipherCanBeArchived && userCanArchive && this.action === "view" && !this.cipher.isArchived;
+
+    // A user should always be able to unarchive an archived item
+    this.showUnarchiveButton =
+      hasArchiveFlagEnabled && this.action === "view" && this.cipher.isArchived;
   }
 }

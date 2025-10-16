@@ -49,7 +49,7 @@
   <div class="right" *ngIf="hasFooterAction">
     <button
       type="button"
-      *ngIf="showArchive && !cipher.isArchived"
+      *ngIf="showArchiveButton"
       (click)="archive()"
       appA11yTitle="{{ 'archiveVerb' | i18n }}"
     >
@@ -57,7 +57,7 @@
     </button>
     <button
       type="button"
-      *ngIf="cipher.isArchived"
+      *ngIf="showUnarchiveButton"
       (click)="unarchive()"
       appA11yTitle="{{ 'unarchive' | i18n }}"
     >
