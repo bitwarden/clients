@@ -727,7 +727,7 @@ const routes: Routes = [
           },
         ],
         data: {
-          hideIcon: true,
+          pageIcon: null,
           hideBackgroundIllustration: true,
           showReadonlyHostname: true,
         } satisfies AnonLayoutWrapperData,
