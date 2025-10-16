@@ -297,6 +297,7 @@ export class SendProgram extends BaseProgram {
           this.serviceContainer.sendService,
           this.serviceContainer.sendApiService,
           this.serviceContainer.environmentService,
+          this.serviceContainer.accountService,
         );
         const response = await cmd.run(id);
         this.processResponse(response);

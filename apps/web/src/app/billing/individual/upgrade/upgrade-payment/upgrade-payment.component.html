@@ -4,6 +4,22 @@
     <ng-container bitDialogContent>
       <section>
         @if (isFamiliesPlan) {
+          @if (userIsOwnerOfFreeOrg$ | async) {
+            <div class="tw-pb-2">
+              <bit-callout type="info">
+                {{ "formWillCreateNewFamiliesOrgMessage" | i18n }}
+                <a
+                  bitLink
+                  bitDialogClose
+                  linkType="primary"
+                  [routerLink]="adminConsoleRouteForOwnedOrganization$ | async"
+                >
+                  {{ "upgradeNow" | i18n }}
+                  <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
+                </a>
+              </bit-callout>
+            </div>
+          }
           <div class="tw-pb-4">
             <bit-form-field class="!tw-mb-0">
               <bit-label>{{ "organizationName" | i18n }}</bit-label>
@@ -26,6 +42,7 @@
       <section>
         @if (passwordManager) {
           <billing-cart-summary
+            #cartSummaryComponent
             [passwordManager]="passwordManager"
             [estimatedTax]="estimatedTax"
           ></billing-cart-summary>

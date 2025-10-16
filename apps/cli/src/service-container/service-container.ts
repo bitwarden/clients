@@ -49,6 +49,7 @@ import { TokenService } from "@bitwarden/common/auth/services/token.service";
 import { TwoFactorService } from "@bitwarden/common/auth/services/two-factor.service";
 import { UserVerificationApiService } from "@bitwarden/common/auth/services/user-verification/user-verification-api.service";
 import { UserVerificationService } from "@bitwarden/common/auth/services/user-verification/user-verification.service";
+import { TwoFactorApiService, DefaultTwoFactorApiService } from "@bitwarden/common/auth/two-factor";
 import {
   AutofillSettingsService,
   AutofillSettingsServiceAbstraction,
@@ -69,10 +70,14 @@ import { EncryptServiceImplementation } from "@bitwarden/common/key-management/c
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { DeviceTrustService } from "@bitwarden/common/key-management/device-trust/services/device-trust.service.implementation";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/services/key-connector.service";
+import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { DefaultMasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/services/default-master-password-unlock.service";
 import { MasterPasswordService } from "@bitwarden/common/key-management/master-password/services/master-password.service";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { PinService } from "@bitwarden/common/key-management/pin/pin.service.implementation";
+import { SecurityStateService } from "@bitwarden/common/key-management/security-state/abstractions/security-state.service";
+import { DefaultSecurityStateService } from "@bitwarden/common/key-management/security-state/services/security-state.service";
 import {
   DefaultVaultTimeoutService,
   DefaultVaultTimeoutSettingsService,
@@ -226,6 +231,7 @@ export class ServiceContainer {
   tokenService: TokenService;
   appIdService: AppIdService;
   apiService: NodeApiService;
+  twoFactorApiService: TwoFactorApiService;
   hibpApiService: HibpApiService;
   environmentService: EnvironmentService;
   cipherService: CipherService;
@@ -305,6 +311,8 @@ export class ServiceContainer {
   cipherEncryptionService: CipherEncryptionService;
   restrictedItemTypesService: RestrictedItemTypesService;
   cliRestrictedItemTypesService: CliRestrictedItemTypesService;
+  securityStateService: SecurityStateService;
+  masterPasswordUnlockService: MasterPasswordUnlockService;
   cipherArchiveService: CipherArchiveService;
 
   constructor() {
@@ -406,6 +414,8 @@ export class ServiceContainer {
       this.derivedStateProvider,
     );
 
+    this.securityStateService = new DefaultSecurityStateService(this.stateProvider);
+
     this.environmentService = new DefaultEnvironmentService(
       this.stateProvider,
       this.accountService,
@@ -473,6 +483,11 @@ export class ServiceContainer {
       this.kdfConfigService,
     );
 
+    this.masterPasswordUnlockService = new DefaultMasterPasswordUnlockService(
+      this.masterPasswordService,
+      this.keyService,
+    );
+
     this.appIdService = new AppIdService(this.storageService, this.logService);
 
     const customUserAgent =
@@ -523,6 +538,8 @@ export class ServiceContainer {
 
     this.configApiService = new ConfigApiService(this.apiService);
 
+    this.twoFactorApiService = new DefaultTwoFactorApiService(this.apiService);
+
     this.authService = new AuthService(
       this.accountService,
       this.messagingService,
@@ -547,6 +564,7 @@ export class ServiceContainer {
     this.sendStateProvider = new SendStateProvider(this.stateProvider);
 
     this.sendService = new SendService(
+      this.accountService,
       this.keyService,
       this.i18nService,
       this.keyGenerationService,
@@ -612,6 +630,7 @@ export class ServiceContainer {
       this.accountService,
       this.kdfConfigService,
       this.keyService,
+      this.securityStateService,
       this.apiService,
       this.stateProvider,
       this.configService,
@@ -818,6 +837,7 @@ export class ServiceContainer {
       this.tokenService,
       this.authService,
       this.stateProvider,
+      this.securityStateService,
     );
 
     this.totpService = new TotpService(this.sdkService);
