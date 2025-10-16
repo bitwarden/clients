@@ -529,7 +529,7 @@ export class VaultV2Component<C extends CipherViewLike>
       });
 
       const archivedWithOrgOwnership = cipher.isArchived && orgOwnershipPolicy;
-      const canCloneArchived = cipher.isArchived ? cipher.isArchived && userCanArchive : true;
+      const canCloneArchived = !cipher.isArchived || userCanArchive;
 
       if (!cipher.organizationId && !archivedWithOrgOwnership && canCloneArchived) {
         menu.push({
