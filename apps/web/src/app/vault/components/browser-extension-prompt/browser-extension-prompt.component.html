@@ -22,14 +22,7 @@
   <ng-container *ngIf="pageState === BrowserPromptState.Success">
     <i class="bwi tw-text-2xl bwi-check-circle tw-text-success-700" aria-hidden="true"></i>
     <p bitTypography="body1" class="tw-mb-4 tw-text-xl">
-      @switch (page) {
-        @case (VaultMessages.OpenAtRiskPasswords) {
-          {{ "openedExtensionViewAtRiskPasswords" | i18n }}
-        }
-        @case (ExtensionPageUrls.AutoConfirm) {
-          {{ "autoConfirmExtensionOpened" | i18n }}
-        }
-      }
+      {{ pageToI18nKeyMap[page] | i18n }}
     </p>
   </ng-container>
 

@@ -4,7 +4,6 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
 import { map, Observable, of, tap } from "rxjs";
 
-import { ExtensionPageUrls } from "@bitwarden/common/vault/enums";
 import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum";
 import { ButtonComponent, IconModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -22,7 +21,6 @@ import { ManuallyOpenExtensionComponent } from "../manually-open-extension/manua
 })
 export class BrowserExtensionPromptComponent implements OnInit, OnDestroy {
   protected VaultMessages = VaultMessages;
-  protected ExtensionPageUrls = ExtensionPageUrls;
 
   /** Current state of the prompt page */
   protected pageState$ = this.browserExtensionPromptService.pageState$;
@@ -32,6 +30,12 @@ export class BrowserExtensionPromptComponent implements OnInit, OnDestroy {
 
   /** Content of the meta[name="viewport"] element */
   private viewportContent: string | null = null;
+
+  /** Map of extension page identifiers to their i18n keys */
+  protected readonly pageToI18nKeyMap: Record<string, string> = {
+    [VaultMessages.OpenAtRiskPasswords]: "openedExtensionViewAtRiskPasswords",
+    AutoConfirm: "autoConfirmExtensionOpened",
+  } as const;
 
   protected extensionPage$: Observable<string> = of(VaultMessages.OpenAtRiskPasswords);
 
