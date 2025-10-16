@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { combineLatest, map, Observable, switchMap } from "rxjs";
+import { combineLatest, map, Observable, switchMap, shareReplay } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums/policy-type.enum";
@@ -167,6 +167,7 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
           ? policy.data
           : null,
       ),
+      shareReplay({ bufferSize: 1, refCount: true }),
     );
 
     // This observable combines user settings with policy settings and is designed
@@ -176,6 +177,7 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
       this.defaultUriMatchStrategyPolicy$,
     ]).pipe(
       map(([userSettingValue, policySettingValue]) => policySettingValue || userSettingValue),
+      shareReplay({ bufferSize: 1, refCount: true }),
     );
   }
 
