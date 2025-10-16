@@ -1,7 +1,7 @@
 import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
 import { ActivatedRoute, Router } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -12,6 +12,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
+import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
@@ -87,6 +88,10 @@ describe("AddEditV2Component", () => {
           },
         },
         { provide: AccountService, useValue: mockAccountServiceWith("UserId" as UserId) },
+        {
+          provide: CipherArchiveService,
+          useValue: { userCanArchive$: jest.fn().mockReturnValue(of(false)) },
+        },
       ],
     })
       .overrideProvider(CipherFormConfigService, {
@@ -354,6 +359,41 @@ describe("AddEditV2Component", () => {
 
       expect(back).toHaveBeenCalled();
     });
+  });
+
+  describe("submitBtnI18nKey", () => {
+    it("sets it to 'save' by default", fakeAsync(() => {
+      buildConfigResponse.originalCipher = {} as Cipher;
+
+      queryParams$.next({});
+
+      tick();
+
+      expect(component["submitBtnI18nKey"]).toBe("save");
+    }));
+
+    it("sets it to 'unarchiveAndSave' when the user can not archive and the item is archived", fakeAsync(() => {
+      buildConfigResponse.originalCipher = { archivedDate: new Date() } as Cipher;
+
+      queryParams$.next({});
+
+      tick();
+
+      expect(component["submitBtnI18nKey"]).toBe("unarchiveAndSave");
+    }));
+
+    it("sets it to 'save' when the user is able to archive the item", fakeAsync(() => {
+      const archiveService = TestBed.inject(CipherArchiveService);
+      (archiveService.userCanArchive$ as jest.Mock).mockReturnValue(of(true));
+
+      buildConfigResponse.originalCipher = {} as Cipher;
+
+      queryParams$.next({});
+
+      tick();
+
+      expect(component["submitBtnI18nKey"]).toBe("save");
+    }));
   });
 
   describe("delete", () => {

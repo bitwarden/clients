@@ -201,17 +201,6 @@ export class AddEditV2Component implements OnInit {
     private archiveService: CipherArchiveService,
   ) {
     this.subscribeToParams();
-    this.accountService.activeAccount$
-      .pipe(
-        getUserId,
-        switchMap((userId) => this.archiveService.userCanArchive$(userId)),
-      )
-      .pipe(takeUntilDestroyed())
-      .subscribe((canArchive) => {
-        if (!canArchive) {
-          this.submitBtnI18nKey = "unarchiveAndSave";
-        }
-      });
   }
 
   async ngOnInit() {
@@ -344,6 +333,14 @@ export class AddEditV2Component implements OnInit {
               false,
               config.originalCipher.organizationId,
             );
+          }
+
+          const canArchive = await firstValueFrom(
+            this.archiveService.userCanArchive$(activeUserId),
+          );
+
+          if (!canArchive && config.originalCipher?.archivedDate) {
+            this.submitBtnI18nKey = "unarchiveAndSave";
           }
 
           return config;
