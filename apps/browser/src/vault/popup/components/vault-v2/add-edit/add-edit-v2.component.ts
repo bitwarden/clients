@@ -5,18 +5,18 @@ import { Component, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Params, Router } from "@angular/router";
-import { firstValueFrom, map, Observable, switchMap } from "rxjs";
+import { async, firstValueFrom, map, Observable, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { EventType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { CipherType, toCipherType } from "@bitwarden/common/vault/enums";
@@ -61,6 +61,8 @@ import {
 } from "../../../utils/fido2-popout-session-data";
 import { VaultPopoutType } from "../../../utils/vault-popout-window";
 import { OpenAttachmentsComponent } from "../attachments/open-attachments/open-attachments.component";
+import { cipher } from "node-forge";
+import { type } from "os";
 
 /**
  * Helper class to parse query parameters for the AddEdit route.
@@ -198,22 +200,20 @@ export class AddEditV2Component implements OnInit {
     private dialogService: DialogService,
     protected cipherAuthorizationService: CipherAuthorizationService,
     private accountService: AccountService,
-    private billingAccountProfileStateService: BillingAccountProfileStateService,
+    private archiveService: CipherArchiveService,
   ) {
     this.subscribeToParams();
     this.accountService.activeAccount$
       .pipe(
-        switchMap((account) =>
-          this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
-        ),
-        map((hasPremium) => {
-          if (hasPremium) {
-            this.saveText = "unarchiveAndSave";
-          }
-        }),
-        takeUntilDestroyed(),
+        getUserId,
+        switchMap((userId) => this.archiveService.userCanArchive$(userId)),
       )
-      .subscribe();
+      .pipe(takeUntilDestroyed())
+      .subscribe((canArchive) => {
+        if (!canArchive) {
+          this.saveText = "unarchiveAndSave";
+        }
+      });
   }
 
   async ngOnInit() {

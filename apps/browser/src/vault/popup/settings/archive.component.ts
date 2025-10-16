@@ -75,11 +75,9 @@ export class ArchiveComponent {
   );
 
   protected previouslyHadPremium$ = combineLatest([
-    this.userId$.pipe(
-      switchMap((userId) => this.accountProfileService.hasPremiumFromAnySource$(userId)),
-    ),
+    this.userId$.pipe(switchMap((userId) => this.cipherArchiveService.userCanArchive$(userId))),
     this.archivedCiphers$,
-  ]).pipe(map(([hasPremium, ciphers]) => hasPremium && ciphers.length > 0));
+  ]).pipe(map(([canArchive, ciphers]) => !canArchive && ciphers.length > 0));
 
   protected loading$ = this.archivedCiphers$.pipe(
     map(() => false),

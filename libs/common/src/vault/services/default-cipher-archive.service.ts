@@ -18,6 +18,7 @@ import {
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 
 import { CipherArchiveService } from "../abstractions/cipher-archive.service";
+import { CipherData } from "../models/data/cipher.data";
 
 export class DefaultCipherArchiveService implements CipherArchiveService {
   constructor(
@@ -89,8 +90,11 @@ export class DefaultCipherArchiveService implements CipherArchiveService {
 
     const currentCiphers = await firstValueFrom(this.cipherService.ciphers$(userId));
 
+    // prevent mutating ciphers$ state
+    const localCiphers = JSON.parse(JSON.stringify(currentCiphers)) as { [id: string]: CipherData };
+
     for (const cipher of response.data) {
-      const localCipher = currentCiphers[cipher.id as CipherId];
+      const localCipher = localCiphers[cipher.id as CipherId];
 
       if (localCipher == null) {
         continue;
@@ -100,7 +104,7 @@ export class DefaultCipherArchiveService implements CipherArchiveService {
       localCipher.revisionDate = cipher.revisionDate;
     }
 
-    await this.cipherService.replace(currentCiphers, userId);
+    await this.cipherService.replace(localCiphers, userId);
   }
 
   async unarchiveWithServer(ids: CipherId | CipherId[], userId: UserId): Promise<void> {
@@ -110,8 +114,11 @@ export class DefaultCipherArchiveService implements CipherArchiveService {
 
     const currentCiphers = await firstValueFrom(this.cipherService.ciphers$(userId));
 
+    // prevent mutating ciphers$ state
+    const localCiphers = JSON.parse(JSON.stringify(currentCiphers)) as { [id: string]: CipherData };
+
     for (const cipher of response.data) {
-      const localCipher = currentCiphers[cipher.id as CipherId];
+      const localCipher = localCiphers[cipher.id as CipherId];
 
       if (localCipher == null) {
         continue;
@@ -121,6 +128,6 @@ export class DefaultCipherArchiveService implements CipherArchiveService {
       localCipher.revisionDate = cipher.revisionDate;
     }
 
-    await this.cipherService.replace(currentCiphers, userId);
+    await this.cipherService.replace(localCiphers, userId);
   }
 }
