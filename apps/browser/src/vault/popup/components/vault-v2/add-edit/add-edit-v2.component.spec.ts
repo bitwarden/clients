@@ -372,6 +372,19 @@ describe("AddEditV2Component", () => {
       expect(component["submitBtnI18nKey"]).toBe("save");
     }));
 
+    it("sets it to 'save' when the user is able to archive the item", fakeAsync(() => {
+      const archiveService = TestBed.inject(CipherArchiveService);
+      (archiveService.userCanArchive$ as jest.Mock).mockReturnValue(of(true));
+
+      buildConfigResponse.originalCipher = { archivedDate: new Date() } as Cipher;
+
+      queryParams$.next({});
+
+      tick();
+
+      expect(component["submitBtnI18nKey"]).toBe("save");
+    }));
+
     it("sets it to 'unarchiveAndSave' when the user can not archive and the item is archived", fakeAsync(() => {
       buildConfigResponse.originalCipher = { archivedDate: new Date() } as Cipher;
 
@@ -380,19 +393,6 @@ describe("AddEditV2Component", () => {
       tick();
 
       expect(component["submitBtnI18nKey"]).toBe("unarchiveAndSave");
-    }));
-
-    it("sets it to 'save' when the user is able to archive the item", fakeAsync(() => {
-      const archiveService = TestBed.inject(CipherArchiveService);
-      (archiveService.userCanArchive$ as jest.Mock).mockReturnValue(of(true));
-
-      buildConfigResponse.originalCipher = {} as Cipher;
-
-      queryParams$.next({});
-
-      tick();
-
-      expect(component["submitBtnI18nKey"]).toBe("save");
     }));
   });
 
