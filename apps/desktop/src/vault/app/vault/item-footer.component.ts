@@ -101,7 +101,7 @@ export class ItemFooterComponent implements OnInit, OnChanges {
   protected get hasFooterAction() {
     return (
       this.showArchive ||
-      (this.cipher.permissions.delete && (this.action === "edit" || this.action === "view"))
+      (this.cipher.permissions?.delete && (this.action === "edit" || this.action === "view"))
     );
   }
 
