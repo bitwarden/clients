@@ -170,8 +170,6 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
       shareReplay({ bufferSize: 1, refCount: true }),
     );
 
-    // This observable combines user settings with policy settings and is designed
-    // to live for the lifetime of the service. No cleanup needed.
     this.resolvedDefaultUriMatchStrategy$ = combineLatest([
       this.defaultUriMatchStrategy$,
       this.defaultUriMatchStrategyPolicy$,
