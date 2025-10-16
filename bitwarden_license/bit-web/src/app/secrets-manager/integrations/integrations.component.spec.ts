@@ -74,7 +74,13 @@ describe("IntegrationsComponent", () => {
       (integrationList.componentInstance as IntegrationGridComponent).integrations.map(
         (i) => i.name,
       ),
-    ).toEqual(["GitHub Actions", "GitLab CI/CD", "Ansible", "Kubernetes Operator"]);
+    ).toEqual([
+      "GitHub Actions",
+      "GitLab CI/CD",
+      "Ansible",
+      "Kubernetes Operator",
+      "Terraform Provider",
+    ]);
 
     expect(
       (sdkList.componentInstance as IntegrationGridComponent).integrations.map((i) => i.name),
