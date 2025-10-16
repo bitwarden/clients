@@ -36,7 +36,8 @@ const DEFAULT_PARAMS = {
  *  outputPath?: string;
  *  mode?: string;
  *  env?: string;
- *  additionalEntries?: { [outputPath: string]: string }
+ *  additionalEntries?: { [outputPath: string]: string };
+ *  importAliases?: import("webpack").ResolveOptions["alias"];
  * }} params - The input parameters for building the config.
  */
 module.exports.buildConfig = function buildConfig(params) {
@@ -362,6 +363,7 @@ module.exports.buildConfig = function buildConfig(params) {
         path: require.resolve("path-browserify"),
       },
       cache: true,
+      alias: params.importAliases,
     },
     output: {
       filename: "[name].js",
@@ -482,6 +484,7 @@ module.exports.buildConfig = function buildConfig(params) {
           path: require.resolve("path-browserify"),
         },
         cache: true,
+        alias: params.importAliases,
       },
       dependencies: ["main"],
       plugins: [...requiredPlugins, new AngularCheckPlugin()],

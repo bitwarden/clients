@@ -209,6 +209,9 @@
     "zone.js": "0.15.1",
     "zxcvbn": "4.4.2"
   },
+  "optionalDependencies": {
+    "@bitwarden/commercial-sdk-internal": "0.2.0-main.311"
+  },
   "overrides": {
     "eslint-plugin-rxjs": {
       "eslint": "$eslint"
