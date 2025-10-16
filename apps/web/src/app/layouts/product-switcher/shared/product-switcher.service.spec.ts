@@ -11,6 +11,8 @@ import { ProviderService } from "@bitwarden/common/admin-console/abstractions/pr
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -27,6 +29,8 @@ describe("ProductSwitcherService", () => {
   let providerService: MockProxy<ProviderService>;
   let accountService: FakeAccountService;
   let platformUtilsService: MockProxy<PlatformUtilsService>;
+  let billingAccountProfileStateService: MockProxy<BillingAccountProfileStateService>;
+  let configService: MockProxy<ConfigService>;
   let activeRouteParams = convertToParamMap({ organizationId: "1234" });
   let singleOrgPolicyEnabled = false;
   const getLastSync = jest.fn().mockResolvedValue(new Date("2024-05-14"));
@@ -48,6 +52,8 @@ describe("ProductSwitcherService", () => {
     providerService = mock<ProviderService>();
     accountService = mockAccountServiceWith(userId);
     platformUtilsService = mock<PlatformUtilsService>();
+    billingAccountProfileStateService = mock<BillingAccountProfileStateService>();
+    configService = mock<ConfigService>();
 
     router.url = "/";
     router.events = of({});
@@ -85,6 +91,8 @@ describe("ProductSwitcherService", () => {
             policyAppliesToUser$: () => of(singleOrgPolicyEnabled),
           },
         },
+        { provide: BillingAccountProfileStateService, useValue: billingAccountProfileStateService },
+        { provide: ConfigService, useValue: configService },
       ],
     });
   });
@@ -324,5 +332,58 @@ describe("ProductSwitcherService", () => {
     const { appRoute } = products.bento.find((p) => p.name === "Admin Console");
 
     expect(appRoute).toEqual(["/organizations", "111-22-33"]);
+  });
+
+  describe("shouldShowPremiumUpgradeButton$", () => {
+    it("returns false when feature flag is disabled", async () => {
+      configService.getFeatureFlag$.mockReturnValue(of(false));
+      billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(false));
+
+      initiateService();
+
+      const shouldShow = await firstValueFrom(service.shouldShowPremiumUpgradeButton$);
+
+      expect(shouldShow).toBe(false);
+    });
+
+    it("returns false when there is no active account", async () => {
+      configService.getFeatureFlag$.mockReturnValue(of(true));
+      accountService.activeAccount$ = of(null);
+      billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(false));
+
+      initiateService();
+
+      const shouldShow = await firstValueFrom(service.shouldShowPremiumUpgradeButton$);
+
+      expect(shouldShow).toBe(false);
+    });
+
+    it("returns true when feature flag is enabled, account exists, and user has no premium", async () => {
+      configService.getFeatureFlag$.mockReturnValue(of(true));
+      billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(false));
+
+      initiateService();
+
+      const shouldShow = await firstValueFrom(service.shouldShowPremiumUpgradeButton$);
+
+      expect(shouldShow).toBe(true);
+      expect(billingAccountProfileStateService.hasPremiumFromAnySource$).toHaveBeenCalledWith(
+        userId,
+      );
+    });
+
+    it("returns false when feature flag is enabled, account exists, but user has premium", async () => {
+      configService.getFeatureFlag$.mockReturnValue(of(true));
+      billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(true));
+
+      initiateService();
+
+      const shouldShow = await firstValueFrom(service.shouldShowPremiumUpgradeButton$);
+
+      expect(shouldShow).toBe(false);
+      expect(billingAccountProfileStateService.hasPremiumFromAnySource$).toHaveBeenCalledWith(
+        userId,
+      );
+    });
   });
 });

@@ -35,6 +35,9 @@
       }
     }
   },
+  "noReportRan": {
+    "message": "Vēl nav izveidota neviena atskaite"
+  },
   "notifiedMembers": {
     "message": "Apziņotie dalībnieki"
   },
@@ -184,8 +187,23 @@
   "markAppAsCritical": {
     "message": "Atzīmēt lietotni kā kritisku"
   },
+  "markAsCritical": {
+    "message": "Mark as critical"
+  },
+  "applicationsSelected": {
+    "message": "applications selected"
+  },
+  "selectApplication": {
+    "message": "Select application"
+  },
+  "unselectApplication": {
+    "message": "Unselect application"
+  },
   "applicationsMarkedAsCriticalSuccess": {
     "message": "Lietotnes, kas atzīmētas kā kritiskas"
+  },
+  "applicationsMarkedAsCriticalFail": {
+    "message": "Neizdevās lietotnes atzīmēt kā būtiskas"
   },
   "application": {
     "message": "Lietotne"
@@ -273,6 +291,33 @@
   },
   "totalApplications": {
     "message": "Kopējais lietotņu skaits"
+  },
+  "applicationsNeedingReview": {
+    "message": "Lietotnes, kuras ir nepieciešams izskatīt"
+  },
+  "newApplicationsWithCount": {
+    "message": "$COUNT$ jaunas lietotnes",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "13"
+      }
+    }
+  },
+  "newApplicationsDescription": {
+    "message": "Jaunu lietotņu izskatīšana, lai atzīmētu tās kā būtiskas un uzturētu apvienību drošu"
+  },
+  "reviewNow": {
+    "message": "Izskatīt tagad"
+  },
+  "prioritizeCriticalApplications": {
+    "message": "Prioritize critical applications"
+  },
+  "atRiskItems": {
+    "message": "At-risk items"
+  },
+  "markAsCriticalPlaceholder": {
+    "message": "Mark as critical functionality will be implemented in a future update"
   },
   "unmarkAsCritical": {
     "message": "Noņemt kritiskuma atzīmi"
@@ -1247,6 +1292,9 @@
   },
   "readingPasskeyLoadingInfo": {
     "message": "Šis logs ir jāpatur atvērts un jāseko uzvednēm pārlūkā."
+  },
+  "passkeyAuthenticationFailed": {
+    "message": "Autentificēšanās ar piekļuves atslēgu neizdevās. Lūgums mēģināt vēlreiz."
   },
   "useADifferentLogInMethod": {
     "message": "Jāizmanto cits pieteikšanās veids"
@@ -2902,6 +2950,9 @@
   "makeSureEnoughCredit": {
     "message": "Lūgums pārliecināties, ka kontā ir pieejams pietiekami daudz kredīta šim pirkumam. Ja kontā nav pieejams pietiekami daudz kredīta, tiks izmantots noklusējuma norēķinu veids, lai segtu starpību. Kredītu kontam var pievienot norēķinu sadaļā."
   },
+  "notEnoughAccountCredit": {
+    "message": "You do not have enough account credit for this purchase. You can add credit to your account from the Billing page."
+  },
   "creditAppliedDesc": {
     "message": "Konta kredīts var tikt izmantots, lai veiktu pirkumus. Viss pieejamais kredīts tiks automātiski izmantots kontam veidotajiem rēķiniem."
   },
@@ -4309,6 +4360,9 @@
   },
   "generatingYourRiskInsights": {
     "message": "Tiek veidots ieskats par riskiem..."
+  },
+  "riskInsightsRunReport": {
+    "message": "Izveidot atskaiti"
   },
   "updateBrowserDesc": {
     "message": "Tiek izmantots neatbalstīts tīmekļa pārlūks. Tīmekļa glabātava var nedarboties pareizi."
@@ -9960,6 +10014,9 @@
   "crowdstrikeEventIntegrationDesc": {
     "message": "Nosūtīt notikum udatus uz savu Logscale instanci"
   },
+  "datadogEventIntegrationDesc": {
+    "message": "Nosūtīt glabātavas notikumu datus uz savu Datadog serveri"
+  },
   "failedToSaveIntegration": {
     "message": "Neizdevās saglabāt iekļaušanu. Lūgums vēlāk mēģināt vēlreiz."
   },
@@ -11713,5 +11770,38 @@
   },
   "seamlessIntegration": {
     "message": "Plūdena iekļaušana"
+  },
+  "families": {
+    "message": "Families"
+  },
+  "upgradeToFamilies": {
+    "message": "Upgrade to Families"
+  },
+  "upgradeToPremium": {
+    "message": "Upgrade to Premium"
+  },
+  "familiesUpdated": {
+    "message": "You've upgraded to Families!"
+  },
+  "taxCalculationError": {
+    "message": "There was an error calculating tax for your location. Please try again."
+  },
+  "individualUpgradeWelcomeMessage": {
+    "message": "Welcome to Bitwarden"
+  },
+  "individualUpgradeDescriptionMessage": {
+    "message": "Unlock more security features with Premium, or start sharing items with Families"
+  },
+  "individualUpgradeTaxInformationMessage": {
+    "message": "Prices exclude tax and are billed annually."
+  },
+  "organizationNameDescription": {
+    "message": "Your organization name will appear in invitations you send to members."
+  },
+  "continueWithoutUpgrading": {
+    "message": "Continue without upgrading"
+  },
+  "upgradeErrorMessage": {
+    "message": "We encountered an error while processing your upgrade. Please try again."
   }
 }

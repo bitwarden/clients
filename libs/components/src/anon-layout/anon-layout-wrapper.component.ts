@@ -44,6 +44,10 @@ export interface AnonLayoutWrapperData {
    * Hide the card that wraps the default content. Defaults to false.
    */
   hideCardWrapper?: boolean;
+  /**
+   * Hides the background illustration. Defaults to false.
+   */
+  hideBackgroundIllustration?: boolean;
 }
 
 @Component({
@@ -60,6 +64,7 @@ export class AnonLayoutWrapperComponent implements OnInit {
   protected maxWidth?: AnonLayoutMaxWidth | null;
   protected hideCardWrapper?: boolean | null;
   protected hideIcon?: boolean | null;
+  protected hideBackgroundIllustration?: boolean | null;
 
   constructor(
     private router: Router,
@@ -117,6 +122,7 @@ export class AnonLayoutWrapperComponent implements OnInit {
     this.showReadonlyHostname = Boolean(firstChildRouteData["showReadonlyHostname"]);
     this.maxWidth = firstChildRouteData["maxWidth"];
     this.hideCardWrapper = Boolean(firstChildRouteData["hideCardWrapper"]);
+    this.hideBackgroundIllustration = Boolean(firstChildRouteData["hideBackgroundIllustration"]);
   }
 
   private listenForServiceDataChanges() {
@@ -157,6 +163,10 @@ export class AnonLayoutWrapperComponent implements OnInit {
       this.hideCardWrapper = data.hideCardWrapper;
     }
 
+    if (data.hideBackgroundIllustration !== undefined) {
+      this.hideBackgroundIllustration = data.hideBackgroundIllustration;
+    }
+
     if (data.hideIcon !== undefined) {
       this.hideIcon = data.hideIcon;
     }
@@ -188,5 +198,6 @@ export class AnonLayoutWrapperComponent implements OnInit {
     this.maxWidth = null;
     this.hideCardWrapper = null;
     this.hideIcon = null;
+    this.hideBackgroundIllustration = null;
   }
 }

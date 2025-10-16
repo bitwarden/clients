@@ -35,6 +35,9 @@ export class AllActivitiesService {
   passwordChangeProgressMetricHasProgressBar$ =
     this.passwordChangeProgressMetricHasProgressBarSubject$.asObservable();
 
+  private taskCreatedCountSubject$ = new BehaviorSubject<number>(0);
+  taskCreatedCount$ = this.taskCreatedCountSubject$.asObservable();
+
   constructor(private dataService: RiskInsightsDataService) {
     // All application summary changes
     this.dataService.reportResults$.subscribe((report) => {
@@ -84,5 +87,9 @@ export class AllActivitiesService {
 
   setPasswordChangeProgressMetricHasProgressBar(hasProgressBar: boolean) {
     this.passwordChangeProgressMetricHasProgressBarSubject$.next(hasProgressBar);
+  }
+
+  setTaskCreatedCount(count: number) {
+    this.taskCreatedCountSubject$.next(count);
   }
 }

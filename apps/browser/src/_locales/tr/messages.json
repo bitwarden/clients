@@ -1548,6 +1548,15 @@
   "readSecurityKey": {
     "message": "Güvenlik anahtarını oku"
   },
+  "readingPasskeyLoading": {
+    "message": "Geçiş anahtarı okunuyor..."
+  },
+  "passkeyAuthenticationFailed": {
+    "message": "Geçiş anahtarı doğrulaması başarısız oldu"
+  },
+  "useADifferentLogInMethod": {
+    "message": "Başka bir giriş yöntemi kullan"
+  },
   "awaitingSecurityKeyInteraction": {
     "message": "Güvenlik anahtarı etkileşimi bekleniyor…"
   },

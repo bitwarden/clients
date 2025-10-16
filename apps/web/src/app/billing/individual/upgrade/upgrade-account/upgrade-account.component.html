@@ -1,0 +1,70 @@
+@if (!loading()) {
+  <section
+    class="tw-w-screen tw-max-h-screen tw-min-w-[332px] md:tw-max-w-4xl tw-overflow-y-auto tw-self-center tw-bg-background tw-rounded-xl tw-shadow-lg tw-border-secondary-100 tw-border-solid tw-border"
+    cdkTrapFocus
+    cdkTrapFocusAutoCapture
+  >
+    <header class="tw-flex tw-items-center tw-justify-end tw-pl-6 tw-pt-3 tw-pr-2">
+      <button
+        type="button"
+        bitIconButton="bwi-close"
+        buttonType="main"
+        size="default"
+        [label]="'close' | i18n"
+        (click)="closeClicked.emit(closeStatus)"
+      ></button>
+    </header>
+    <div class="tw-px-14 tw-pb-8">
+      <div class="tw-flex tw-text-center tw-flex-col tw-pb-4">
+        <h1 class="tw-font-semibold tw-text-[32px]">
+          {{ dialogTitle() | i18n }}
+        </h1>
+        <p bitTypography="body1" class="tw-text-muted">
+          {{ "individualUpgradeDescriptionMessage" | i18n }}
+        </p>
+      </div>
+
+      <div class="tw-grid tw-grid-cols-1 sm:tw-grid-cols-2 tw-gap-5 tw-mb-4">
+        @if (premiumCardDetails) {
+          <billing-pricing-card
+            class="tw-w-full tw-min-w-[216px] tw-max-w-[456px]"
+            [tagline]="premiumCardDetails.tagline"
+            [price]="premiumCardDetails.price"
+            [button]="premiumCardDetails.button"
+            [features]="premiumCardDetails.features"
+            (buttonClick)="planSelected.emit(premiumPlanType)"
+          >
+            <h3 slot="title" class="tw-m-0" bitTypography="h3">
+              {{ premiumCardDetails.title }}
+            </h3>
+          </billing-pricing-card>
+        }
+
+        @if (familiesCardDetails) {
+          <billing-pricing-card
+            class="tw-w-full tw-min-w-[216px] tw-max-w-[456px]"
+            [tagline]="familiesCardDetails.tagline"
+            [price]="familiesCardDetails.price"
+            [button]="familiesCardDetails.button"
+            [features]="familiesCardDetails.features"
+            (buttonClick)="planSelected.emit(familiesPlanType)"
+          >
+            <h3 slot="title" class="tw-m-0" bitTypography="h3">
+              {{ familiesCardDetails.title }}
+            </h3>
+          </billing-pricing-card>
+        }
+      </div>
+      <div class="tw-text-center tw-w-full">
+        <p bitTypography="helper" class="tw-text-muted tw-italic">
+          {{ "individualUpgradeTaxInformationMessage" | i18n }}
+        </p>
+        @if (!hideContinueWithoutUpgradingButton()) {
+          <button bitLink linkType="primary" type="button" (click)="closeClicked.emit(closeStatus)">
+            {{ "continueWithoutUpgrading" | i18n }}
+          </button>
+        }
+      </div>
+    </div>
+  </section>
+}

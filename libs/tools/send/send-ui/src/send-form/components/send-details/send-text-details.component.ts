@@ -1,7 +1,5 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, Input, OnInit } from "@angular/core";
+import { Component, input, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormControl, Validators, ReactiveFormsModule } from "@angular/forms";
 
@@ -25,8 +23,8 @@ import { SendFormContainer } from "../../send-form-container";
   ],
 })
 export class SendTextDetailsComponent implements OnInit {
-  @Input() config: SendFormConfig;
-  @Input() originalSendView?: SendView;
+  config = input.required<SendFormConfig>();
+  originalSendView = input<SendView>();
 
   sendTextDetailsForm = this.formBuilder.group({
     text: new FormControl("", Validators.required),
@@ -51,15 +49,13 @@ export class SendTextDetailsComponent implements OnInit {
     });
   }
 
-  ngOnInit() {
-    if (this.originalSendView) {
-      this.sendTextDetailsForm.patchValue({
-        text: this.originalSendView.text?.text || "",
-        hidden: this.originalSendView.text?.hidden || false,
-      });
-    }
+  async ngOnInit(): Promise<void> {
+    this.sendTextDetailsForm.patchValue({
+      text: this.originalSendView()?.text?.text || "",
+      hidden: this.originalSendView()?.text?.hidden || false,
+    });
 
-    if (!this.config.areSendsAllowed) {
+    if (!this.config().areSendsAllowed) {
       this.sendTextDetailsForm.disable();
     }
   }

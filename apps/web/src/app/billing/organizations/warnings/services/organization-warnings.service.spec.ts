@@ -421,11 +421,9 @@ describe("OrganizationWarningsService", () => {
     it("should not show dialog when no inactive subscription warning exists", (done) => {
       organizationBillingClient.getWarnings.mockResolvedValue({} as OrganizationWarningsResponse);
 
-      service.showInactiveSubscriptionDialog$(organization).subscribe({
-        complete: () => {
-          expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
-          done();
-        },
+      service.showInactiveSubscriptionDialog$(organization).subscribe(() => {
+        expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
+        done();
       });
     });
 
@@ -437,20 +435,18 @@ describe("OrganizationWarningsService", () => {
 
       dialogService.openSimpleDialog.mockResolvedValue(true);
 
-      service.showInactiveSubscriptionDialog$(organization).subscribe({
-        complete: () => {
-          expect(dialogService.openSimpleDialog).toHaveBeenCalledWith({
-            title: "Test Organization subscription suspended",
-            content: {
-              key: "suspendedManagedOrgMessage",
-              placeholders: ["Test Reseller Inc"],
-            },
-            type: "danger",
-            acceptButtonText: "Close",
-            cancelButtonText: null,
-          });
-          done();
-        },
+      service.showInactiveSubscriptionDialog$(organization).subscribe(() => {
+        expect(dialogService.openSimpleDialog).toHaveBeenCalledWith({
+          title: "Test Organization subscription suspended",
+          content: {
+            key: "suspendedManagedOrgMessage",
+            placeholders: ["Test Reseller Inc"],
+          },
+          type: "danger",
+          acceptButtonText: "Close",
+          cancelButtonText: null,
+        });
+        done();
       });
     });
 
@@ -463,21 +459,19 @@ describe("OrganizationWarningsService", () => {
       dialogService.openSimpleDialog.mockResolvedValue(true);
       router.navigate.mockResolvedValue(true);
 
-      service.showInactiveSubscriptionDialog$(organization).subscribe({
-        complete: () => {
-          expect(dialogService.openSimpleDialog).toHaveBeenCalledWith({
-            title: "Test Organization subscription suspended",
-            content: { key: "suspendedOwnerOrgMessage" },
-            type: "danger",
-            acceptButtonText: "Continue",
-            cancelButtonText: "Close",
-          });
-          expect(router.navigate).toHaveBeenCalledWith(
-            ["organizations", "org-id-123", "billing", "payment-details"],
-            { state: { launchPaymentModalAutomatically: true } },
-          );
-          done();
-        },
+      service.showInactiveSubscriptionDialog$(organization).subscribe(() => {
+        expect(dialogService.openSimpleDialog).toHaveBeenCalledWith({
+          title: "Test Organization subscription suspended",
+          content: { key: "suspendedOwnerOrgMessage" },
+          type: "danger",
+          acceptButtonText: "Continue",
+          cancelButtonText: "Close",
+        });
+        expect(router.navigate).toHaveBeenCalledWith(
+          ["organizations", "org-id-123", "billing", "payment-details"],
+          { state: { launchPaymentModalAutomatically: true } },
+        );
+        done();
       });
     });
 
@@ -490,14 +484,12 @@ describe("OrganizationWarningsService", () => {
       dialogService.openSimpleDialog.mockResolvedValue(true);
       router.navigate.mockResolvedValue(true);
 
-      service.showInactiveSubscriptionDialog$(organization).subscribe({
-        complete: () => {
-          expect(router.navigate).toHaveBeenCalledWith(
-            ["organizations", "org-id-123", "billing", "payment-details"],
-            { state: { launchPaymentModalAutomatically: true } },
-          );
-          done();
-        },
+      service.showInactiveSubscriptionDialog$(organization).subscribe(() => {
+        expect(router.navigate).toHaveBeenCalledWith(
+          ["organizations", "org-id-123", "billing", "payment-details"],
+          { state: { launchPaymentModalAutomatically: true } },
+        );
+        done();
       });
     });
 
@@ -509,12 +501,10 @@ describe("OrganizationWarningsService", () => {
 
       dialogService.openSimpleDialog.mockResolvedValue(false);
 
-      service.showInactiveSubscriptionDialog$(organization).subscribe({
-        complete: () => {
-          expect(dialogService.openSimpleDialog).toHaveBeenCalled();
-          expect(router.navigate).not.toHaveBeenCalled();
-          done();
-        },
+      service.showInactiveSubscriptionDialog$(organization).subscribe(() => {
+        expect(dialogService.openSimpleDialog).toHaveBeenCalled();
+        expect(router.navigate).not.toHaveBeenCalled();
+        done();
       });
     });
 
@@ -534,18 +524,16 @@ describe("OrganizationWarningsService", () => {
 
       (openChangePlanDialog as jest.Mock).mockReturnValue(mockDialogRef);
 
-      service.showInactiveSubscriptionDialog$(organization).subscribe({
-        complete: () => {
-          expect(organizationApiService.getSubscription).toHaveBeenCalledWith(organization.id);
-          expect(openChangePlanDialog).toHaveBeenCalledWith(dialogService, {
-            data: {
-              organizationId: organization.id,
-              subscription: subscription,
-              productTierType: organization.productTierType,
-            },
-          });
-          done();
-        },
+      service.showInactiveSubscriptionDialog$(organization).subscribe(() => {
+        expect(organizationApiService.getSubscription).toHaveBeenCalledWith(organization.id);
+        expect(openChangePlanDialog).toHaveBeenCalledWith(dialogService, {
+          data: {
+            organizationId: organization.id,
+            subscription: subscription,
+            productTierType: organization.productTierType,
+          },
+        });
+        done();
       });
     });
 
@@ -557,17 +545,15 @@ describe("OrganizationWarningsService", () => {
 
       dialogService.openSimpleDialog.mockResolvedValue(true);
 
-      service.showInactiveSubscriptionDialog$(organization).subscribe({
-        complete: () => {
-          expect(dialogService.openSimpleDialog).toHaveBeenCalledWith({
-            title: "Test Organization subscription suspended",
-            content: { key: "suspendedUserOrgMessage" },
-            type: "danger",
-            acceptButtonText: "Close",
-            cancelButtonText: null,
-          });
-          done();
-        },
+      service.showInactiveSubscriptionDialog$(organization).subscribe(() => {
+        expect(dialogService.openSimpleDialog).toHaveBeenCalledWith({
+          title: "Test Organization subscription suspended",
+          content: { key: "suspendedUserOrgMessage" },
+          type: "danger",
+          acceptButtonText: "Close",
+          cancelButtonText: null,
+        });
+        done();
       });
     });
   });

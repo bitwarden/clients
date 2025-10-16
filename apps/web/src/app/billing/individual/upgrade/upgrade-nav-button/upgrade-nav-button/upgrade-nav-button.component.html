@@ -1,0 +1,14 @@
+<div class="tw-px-2 tw-mt-3 tw-mb-2 tw-h-10">
+  <div class="tw-rounded-full tw-bg-primary-100 tw-size-full">
+    <!-- Note that this is a custom button style for premium upgrade because the style desired
+      is not supported by the button in the CL. -->
+    <button
+      type="button"
+      class="tw-py-1.5 tw-px-4 tw-flex tw-gap-2 tw-items-center tw-size-full focus-visible:tw-ring-2 focus-visible:tw-ring-offset-0 focus:tw-outline-none focus-visible:tw-outline-none focus-visible:tw-ring-text-alt2 focus-visible:tw-z-10 tw-font-semibold tw-rounded-full tw-transition tw-border tw-border-solid tw-text-left tw-bg-primary-100 tw-text-primary-600 tw-border-primary-600 hover:tw-bg-hover-default hover:tw-text-primary-700 hover:tw-border-primary-700"
+      (click)="openUpgradeDialog()"
+    >
+      <i class="bwi bwi-premium" aria-hidden="true"></i>
+      {{ "upgradeYourPlan" | i18n }}
+    </button>
+  </div>
+</div>

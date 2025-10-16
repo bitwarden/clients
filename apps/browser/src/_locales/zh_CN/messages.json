@@ -1515,7 +1515,7 @@
     "message": "身份验证超时"
   },
   "authenticationSessionTimedOut": {
-    "message": "身份验证会话超时。请重新启动登录过程。"
+    "message": "身份验证会话超时。请重新开始登录过程。"
   },
   "verificationCodeEmailSent": {
     "message": "验证邮件已发送到 $EMAIL$。",
@@ -1547,6 +1547,15 @@
   },
   "readSecurityKey": {
     "message": "读取安全密钥"
+  },
+  "readingPasskeyLoading": {
+    "message": "正在读取通行密钥..."
+  },
+  "passkeyAuthenticationFailed": {
+    "message": "通行密钥验证失败"
+  },
+  "useADifferentLogInMethod": {
+    "message": "使用其他登录方式"
   },
   "awaitingSecurityKeyInteraction": {
     "message": "等待安全密钥交互..."

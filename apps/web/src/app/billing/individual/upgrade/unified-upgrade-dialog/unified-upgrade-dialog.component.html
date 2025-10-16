@@ -1,0 +1,15 @@
+@if (step() == PlanSelectionStep) {
+  <app-upgrade-account
+    [dialogTitleMessageOverride]="planSelectionStepTitleOverride()"
+    [hideContinueWithoutUpgradingButton]="hideContinueWithoutUpgradingButton()"
+    (planSelected)="onPlanSelected($event)"
+    (closeClicked)="onCloseClicked()"
+  />
+} @else if (step() == PaymentStep && selectedPlan() !== null && account() !== null) {
+  <app-upgrade-payment
+    [selectedPlanId]="selectedPlan()"
+    [account]="account()"
+    (goBack)="previousStep()"
+    (complete)="onComplete($event)"
+  />
+}

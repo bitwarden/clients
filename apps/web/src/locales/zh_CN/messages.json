@@ -35,6 +35,9 @@
       }
     }
   },
+  "noReportRan": {
+    "message": "您还没有创建报告"
+  },
   "notifiedMembers": {
     "message": "已通知的成员"
   },
@@ -82,7 +85,7 @@
     }
   },
   "passwordChangeProgress": {
-    "message": "密码修改进度"
+    "message": "密码更改进度"
   },
   "assignMembersTasksToMonitorProgress": {
     "message": "分配成员任务以监测进度"
@@ -184,8 +187,23 @@
   "markAppAsCritical": {
     "message": "标记应用程序为关键"
   },
+  "markAsCritical": {
+    "message": "Mark as critical"
+  },
+  "applicationsSelected": {
+    "message": "applications selected"
+  },
+  "selectApplication": {
+    "message": "Select application"
+  },
+  "unselectApplication": {
+    "message": "Unselect application"
+  },
   "applicationsMarkedAsCriticalSuccess": {
     "message": "标记为关键的应用程序"
+  },
+  "applicationsMarkedAsCriticalFail": {
+    "message": "无法将应用程序标记为关键"
   },
   "application": {
     "message": "应用程序"
@@ -273,6 +291,33 @@
   },
   "totalApplications": {
     "message": "总的应用程序"
+  },
+  "applicationsNeedingReview": {
+    "message": "应用程序需要审查"
+  },
+  "newApplicationsWithCount": {
+    "message": "$COUNT$ 个新应用程序",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "13"
+      }
+    }
+  },
+  "newApplicationsDescription": {
+    "message": "审查新应用程序并将其标记为关键，以确保您的组织安全"
+  },
+  "reviewNow": {
+    "message": "立即审查"
+  },
+  "prioritizeCriticalApplications": {
+    "message": "Prioritize critical applications"
+  },
+  "atRiskItems": {
+    "message": "At-risk items"
+  },
+  "markAsCriticalPlaceholder": {
+    "message": "Mark as critical functionality will be implemented in a future update"
   },
   "unmarkAsCritical": {
     "message": "取消标记为关键"
@@ -1248,6 +1293,9 @@
   "readingPasskeyLoadingInfo": {
     "message": "保持此窗口打开然后按照浏览器的提示操作。"
   },
+  "passkeyAuthenticationFailed": {
+    "message": "通行密钥验证失败。请重试。"
+  },
   "useADifferentLogInMethod": {
     "message": "使用其他登录方式"
   },
@@ -1375,7 +1423,7 @@
     "message": "身份验证超时"
   },
   "authenticationSessionTimedOut": {
-    "message": "身份验证会话超时。请重新启动登录过程。"
+    "message": "身份验证会话超时。请重新开始登录过程。"
   },
   "verifyYourIdentity": {
     "message": "验证您的身份"
@@ -2902,6 +2950,9 @@
   "makeSureEnoughCredit": {
     "message": "请确保您的账户有足够的信用额度来用于此购买。如果您的账户信用额度不足，您的默认付款方式将用于补足差额。您可以从「计费」页面向您的账户添加信用额度。"
   },
+  "notEnoughAccountCredit": {
+    "message": "You do not have enough account credit for this purchase. You can add credit to your account from the Billing page."
+  },
   "creditAppliedDesc": {
     "message": "您账户的信用额度可用于进行消费。任何可用的信用额度将用于自动抵扣此账户的账单。"
   },
@@ -4309,6 +4360,9 @@
   },
   "generatingYourRiskInsights": {
     "message": "正在生成风险洞察..."
+  },
+  "riskInsightsRunReport": {
+    "message": "运行报告"
   },
   "updateBrowserDesc": {
     "message": "您使用的是不受支持的网页浏览器。网页密码库可能无法正常运行。"
@@ -9960,6 +10014,9 @@
   "crowdstrikeEventIntegrationDesc": {
     "message": "将事件数据发送到您的 Logscale 实例"
   },
+  "datadogEventIntegrationDesc": {
+    "message": "将密码库事件数据发送到您的 Datadog 实例"
+  },
   "failedToSaveIntegration": {
     "message": "保存集成失败。请稍后再试。"
   },
@@ -11713,5 +11770,38 @@
   },
   "seamlessIntegration": {
     "message": "无缝集成"
+  },
+  "families": {
+    "message": "家庭版"
+  },
+  "upgradeToFamilies": {
+    "message": "升级为家庭版"
+  },
+  "upgradeToPremium": {
+    "message": "升级为高级版"
+  },
+  "familiesUpdated": {
+    "message": "您已升级为家庭版！"
+  },
+  "taxCalculationError": {
+    "message": "计算您所在位置的税费时出错。请重试。"
+  },
+  "individualUpgradeWelcomeMessage": {
+    "message": "欢迎使用 Bitwarden"
+  },
+  "individualUpgradeDescriptionMessage": {
+    "message": "使用高级版解锁更多安全功能，或使用家庭版开始分享项目"
+  },
+  "individualUpgradeTaxInformationMessage": {
+    "message": "价格不含税，按年计费。"
+  },
+  "organizationNameDescription": {
+    "message": "您的组织名称将出现在您发送给成员的邀请中。"
+  },
+  "continueWithoutUpgrading": {
+    "message": "继续但不升级"
+  },
+  "upgradeErrorMessage": {
+    "message": "我们在处理您的升级时遇到错误。请重试。"
   }
 }

@@ -50,6 +50,7 @@ import {
   SubscriberBillingClient,
   TaxClient,
 } from "@bitwarden/web-vault/app/billing/clients";
+import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 import {
   EnterBillingAddressComponent,
   EnterPaymentMethodComponent,
@@ -221,6 +222,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     private billingNotificationService: BillingNotificationService,
     private subscriberBillingClient: SubscriberBillingClient,
     private taxClient: TaxClient,
+    private organizationWarningsService: OrganizationWarningsService,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -808,6 +810,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
       paymentMethod,
       billingAddress,
     );
+    this.organizationWarningsService.refreshInactiveSubscriptionWarning();
   }
 
   private async updateOrganization() {

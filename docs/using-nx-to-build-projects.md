@@ -2,7 +2,7 @@
 
 Bitwarden uses [Nx](https://nx.dev/) to make building projects from the monorepo easier. To build, lint, or test a project you'll want to reference the project's `project.json` file for availible commands and their names. Then you'll run `npx nx [your_command] [your_project] [your_options]`. Run `npx nx --help` to see availible options, there are many.
 
-Please note: the Nx implementation is a work in progress. Not all apps support Nx yet, CI still uses the old npm builds, and we have many "legacy" libraries that use hacks to get them into the Nx project graph.
+Please note: the Nx implementation is a work in progress. CI still uses the old npm builds, and we have many "legacy" libraries that use hacks to get them into the Nx project graph.
 
 ## Quick Start
 
@@ -11,6 +11,7 @@ Please note: the Nx implementation is a work in progress. Not all apps support N
 ```bash
 # Build a project
 npx nx build cli
+npx nx build-native desktop # Some apps have special build commands
 npx nx build state # Modern libs and apps have simple, all lowercase target names
 npx nx build @bitwarden/common # Legacy libs have a special naming convention and include the @bitwarden prefix
 
@@ -203,6 +204,6 @@ npx nx reset
 
 ## Additional Resources
 
-- [Nx Documentation](https://nx.dev/getting-started/intro)
-- [Nx CLI Reference](https://nx.dev/packages/nx/documents/cli)
+- [Nx Intro Documentation](https://nx.dev/getting-started/intro)
+- [Nx CLI Commands Reference](https://nx.dev/docs/reference/nx-commands)
 - [Nx Workspace Configuration](https://nx.dev/reference/project-configuration)

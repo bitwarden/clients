@@ -104,7 +104,7 @@
       label="{{ 'options' | i18n }}"
     ></button>
     <bit-menu #cipherOptions>
-      <ng-container *ngIf="isNotDeletedLoginCipher">
+      <ng-container *ngIf="isActiveLoginCipher">
         <button bitMenuItem type="button" (click)="copy('username')" *ngIf="hasUsernameToCopy">
           <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
           {{ "copyUsername" | i18n }}
@@ -151,6 +151,20 @@
         <i class="bwi bwi-fw bwi-file-text" aria-hidden="true"></i>
         {{ "eventLogs" | i18n }}
       </button>
+      @if (showArchiveButton) {
+        <button bitMenuItem (click)="archive()" type="button">
+          <i class="bwi bwi-fw bwi-archive" aria-hidden="true"></i>
+          {{ "archiveVerb" | i18n }}
+        </button>
+      }
+
+      @if (showUnArchiveButton) {
+        <button bitMenuItem (click)="unarchive()" type="button">
+          <i class="bwi bwi-fw bwi-unarchive" aria-hidden="true"></i>
+          {{ "unArchive" | i18n }}
+        </button>
+      }
+
       <button bitMenuItem (click)="restore()" type="button" *ngIf="isDeleted && canRestoreCipher">
         <i class="bwi bwi-fw bwi-undo" aria-hidden="true"></i>
         {{ "restore" | i18n }}

@@ -1,10 +1,10 @@
 <bit-section [formGroup]="sendFileDetailsForm">
-  <div *ngIf="config.mode === 'edit'">
+  <div *ngIf="config().mode === 'edit'">
     <div bitTypography="body2" class="tw-text-muted">{{ "file" | i18n }}</div>
-    <div data-testid="file-name">{{ originalSendView.file.fileName }}</div>
-    <div data-testid="file-size" class="tw-text-muted">{{ originalSendView.file.sizeName }}</div>
+    <div data-testid="file-name">{{ originalSendView().file.fileName }}</div>
+    <div data-testid="file-size" class="tw-text-muted">{{ originalSendView().file.sizeName }}</div>
   </div>
-  <bit-form-field *ngIf="config.mode !== 'edit'">
+  <bit-form-field *ngIf="config().mode !== 'edit'">
     <bit-label for="file">{{ "fileToShare" | i18n }}</bit-label>
     <div class="tw-flex tw-mt-2 tw-mb-1">
       <button bitButton type="button" buttonType="secondary" (click)="fileSelector.click()">

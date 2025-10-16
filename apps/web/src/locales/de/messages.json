@@ -35,6 +35,9 @@
       }
     }
   },
+  "noReportRan": {
+    "message": "Du hast bis jetzt noch keinen Bericht erstellt"
+  },
   "notifiedMembers": {
     "message": "Benachrichtigte Mitglieder"
   },
@@ -184,8 +187,23 @@
   "markAppAsCritical": {
     "message": "Anwendung als kritisch markieren"
   },
+  "markAsCritical": {
+    "message": "Als kritisch markieren"
+  },
+  "applicationsSelected": {
+    "message": "ausgewählte Anwendungen"
+  },
+  "selectApplication": {
+    "message": "Anwendung auswählen"
+  },
+  "unselectApplication": {
+    "message": "Anwendung abwählen"
+  },
   "applicationsMarkedAsCriticalSuccess": {
     "message": "Als kritisch markierte Anwendungen"
+  },
+  "applicationsMarkedAsCriticalFail": {
+    "message": "Anwendungen konnten nicht als kritisch markiert werden"
   },
   "application": {
     "message": "Anwendung"
@@ -273,6 +291,33 @@
   },
   "totalApplications": {
     "message": "Anwendungen insgesamt"
+  },
+  "applicationsNeedingReview": {
+    "message": "Anwendungen, die geprüft werden müssen"
+  },
+  "newApplicationsWithCount": {
+    "message": "$COUNT$ neue Anwendungen",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "13"
+      }
+    }
+  },
+  "newApplicationsDescription": {
+    "message": "Überprüfe neue Anwendungen, um sie als kritisch zu markieren und deine Organisation sicher zu halten"
+  },
+  "reviewNow": {
+    "message": "Jetzt prüfen"
+  },
+  "prioritizeCriticalApplications": {
+    "message": "Kritische Anwendungen priorisieren"
+  },
+  "atRiskItems": {
+    "message": "Gefährdete Einträge"
+  },
+  "markAsCriticalPlaceholder": {
+    "message": "Die Funktion \"Als kritisch markieren\" wird in einer zukünftigen Aktualisierung implementiert"
   },
   "unmarkAsCritical": {
     "message": "Markierung als kritisch aufheben"
@@ -1247,6 +1292,9 @@
   },
   "readingPasskeyLoadingInfo": {
     "message": "Behalte dieses Fenster geöffnet und folge den Anweisungen deines Browsers."
+  },
+  "passkeyAuthenticationFailed": {
+    "message": "Passkey-Authentifizierung fehlgeschlagen. Bitte versuche es erneut."
   },
   "useADifferentLogInMethod": {
     "message": "Eine andere Anmeldemethode verwenden"
@@ -2902,6 +2950,9 @@
   "makeSureEnoughCredit": {
     "message": "Bitte vergewissere dich, dass auf deinem Konto genügend Guthaben für diesen Kauf vorhanden ist. Wenn dein Konto nicht über genügend Guthaben verfügt, wird die Differenz mit deiner Standardzahlungsmethode beglichen. Du kannst deinem Konto auf der Seite \"Abrechnung\" Guthaben hinzufügen."
   },
+  "notEnoughAccountCredit": {
+    "message": "Du hast nicht genug Guthaben für diesen Kauf. Du kannst auf der Seite „Abrechnung“ Guthaben auf dein Konto laden."
+  },
   "creditAppliedDesc": {
     "message": "Das Guthaben deines Kontos kann für Einkäufe verwendet werden. Das verfügbare Guthaben wird automatisch auf die für dieses Konto erstellten Rechnungen angerechnet."
   },
@@ -4309,6 +4360,9 @@
   },
   "generatingYourRiskInsights": {
     "message": "Dein Risiko-Überblick wird generiert..."
+  },
+  "riskInsightsRunReport": {
+    "message": "Bericht ausführen"
   },
   "updateBrowserDesc": {
     "message": "Du verwendest einen nicht unterstützten Webbrowser. Der Web-Tresor funktioniert möglicherweise nicht richtig."
@@ -9960,6 +10014,9 @@
   "crowdstrikeEventIntegrationDesc": {
     "message": "Ereignisdaten an deine Logscale-Instanz senden"
   },
+  "datadogEventIntegrationDesc": {
+    "message": "Tresor-Ereignisdaten an deine Datadog-Instanz senden"
+  },
   "failedToSaveIntegration": {
     "message": "Fehler beim Speichern der Integration. Bitte versuche es später erneut."
   },
@@ -11713,5 +11770,38 @@
   },
   "seamlessIntegration": {
     "message": "Nahtlose Integration"
+  },
+  "families": {
+    "message": "Families"
+  },
+  "upgradeToFamilies": {
+    "message": "Upgrade auf Families"
+  },
+  "upgradeToPremium": {
+    "message": "Upgrade auf Premium"
+  },
+  "familiesUpdated": {
+    "message": "Du hast ein Upgrade auf Families durchgeführt!"
+  },
+  "taxCalculationError": {
+    "message": "Es gab einen Fehler bei der Berechnung der Steuer für deinen Standort. Bitte versuche es erneut."
+  },
+  "individualUpgradeWelcomeMessage": {
+    "message": "Willkommen bei Bitwarden"
+  },
+  "individualUpgradeDescriptionMessage": {
+    "message": "Schalte mehr Sicherheitsfunktionen mit Premium frei oder teile Einträge mit Families"
+  },
+  "individualUpgradeTaxInformationMessage": {
+    "message": "Die Preise enthalten keine Steuern und werden jährlich in Rechnung gestellt."
+  },
+  "organizationNameDescription": {
+    "message": "Dein Organisationsname wird in Einladungen angezeigt, die du an Mitglieder sendest."
+  },
+  "continueWithoutUpgrading": {
+    "message": "Fortfahren, ohne ein Upgrade durchzuführen"
+  },
+  "upgradeErrorMessage": {
+    "message": "Bei der Verarbeitung deines Upgrades ist ein Fehler aufgetreten. Bitte versuche es erneut."
   }
 }

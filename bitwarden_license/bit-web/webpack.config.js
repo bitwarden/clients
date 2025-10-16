@@ -1,10 +1,31 @@
-const { buildConfig } = require("../../apps/web/webpack.base");
+const path = require("path");
+const { buildConfig } = require(path.resolve(__dirname, "../../apps/web/webpack.base"));
 
-module.exports = buildConfig({
-  configName: "Commercial",
-  app: {
-    entry: "../../bitwarden_license/bit-web/src/main.ts",
-    entryModule: "../../bitwarden_license/bit-web/src/app/app.module#AppModule",
-  },
-  tsConfig: "../../bitwarden_license/bit-web/tsconfig.build.json",
-});
+module.exports = (webpackConfig, context) => {
+  const isNxBuild = context && context.options;
+  if (isNxBuild) {
+    return buildConfig({
+      configName: "Commercial",
+      app: {
+        entry: context.options.main
+          ? path.resolve(context.context.root, context.options.main)
+          : path.resolve(__dirname, "src/main.ts"),
+        entryModule: "bitwarden_license/bit-web/src/app/app.module#AppModule",
+      },
+      tsConfig: "bitwarden_license/bit-web/tsconfig.build.json",
+      outputPath:
+        context.context && context.context.root
+          ? path.resolve(context.context.root, context.options.outputPath)
+          : context.options.outputPath,
+    });
+  } else {
+    return buildConfig({
+      configName: "Commercial",
+      app: {
+        entry: path.resolve(__dirname, "src/main.ts"),
+        entryModule: "bitwarden_license/bit-web/src/app/app.module#AppModule",
+      },
+      tsConfig: path.resolve(__dirname, "tsconfig.build.json"),
+    });
+  }
+};

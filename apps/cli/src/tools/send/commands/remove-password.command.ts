@@ -2,6 +2,8 @@
 // @ts-strict-ignore
 import { firstValueFrom } from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { SendService } from "@bitwarden/common/tools/send/services//send.service.abstraction";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
@@ -14,6 +16,7 @@ export class SendRemovePasswordCommand {
     private sendService: SendService,
     private sendApiService: SendApiService,
     private environmentService: EnvironmentService,
+    private accountService: AccountService,
   ) {}
 
   async run(id: string) {
@@ -21,7 +24,8 @@ export class SendRemovePasswordCommand {
       await this.sendApiService.removePassword(id);
 
       const updatedSend = await firstValueFrom(this.sendService.get$(id));
-      const decSend = await updatedSend.decrypt();
+      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      const decSend = await updatedSend.decrypt(activeUserId);
       const env = await firstValueFrom(this.environmentService.environment$);
       const webVaultUrl = env.getWebVaultUrl();
       const res = new SendResponse(decSend, webVaultUrl);

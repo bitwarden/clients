@@ -1548,6 +1548,15 @@
   "readSecurityKey": {
     "message": "Sicherheitsschlüssel auslesen"
   },
+  "readingPasskeyLoading": {
+    "message": "Passkey wird gelesen..."
+  },
+  "passkeyAuthenticationFailed": {
+    "message": "Passkey-Authentifizierung fehlgeschlagen"
+  },
+  "useADifferentLogInMethod": {
+    "message": "Eine andere Anmeldemethode verwenden"
+  },
   "awaitingSecurityKeyInteraction": {
     "message": "Warte auf Sicherheitsschlüssel-Interaktion..."
   },

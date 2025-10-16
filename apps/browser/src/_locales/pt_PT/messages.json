@@ -1548,6 +1548,15 @@
   "readSecurityKey": {
     "message": "Ler chave de segurança"
   },
+  "readingPasskeyLoading": {
+    "message": "A ler chave de acesso..."
+  },
+  "passkeyAuthenticationFailed": {
+    "message": "Falha na autenticação da chave de acesso"
+  },
+  "useADifferentLogInMethod": {
+    "message": "Utilizar um método de início de sessão diferente"
+  },
   "awaitingSecurityKeyInteraction": {
     "message": "A aguardar interação da chave de segurança..."
   },

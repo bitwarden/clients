@@ -4,13 +4,12 @@ import { CommonModule } from "@angular/common";
 import { Component } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { ButtonModule } from "@bitwarden/components";
+import { ButtonModule, LinkModule } from "@bitwarden/components";
 
 @Component({
+  selector: "dirt-phishing-protected-by",
   standalone: true,
-  templateUrl: "learn-more-component.html",
-  imports: [CommonModule, CommonModule, JslibModule, ButtonModule],
+  templateUrl: "protected-by-component.html",
+  imports: [CommonModule, CommonModule, JslibModule, ButtonModule, LinkModule],
 })
-export class LearnMoreComponent {
-  constructor() {}
-}
+export class ProtectedByComponent {}

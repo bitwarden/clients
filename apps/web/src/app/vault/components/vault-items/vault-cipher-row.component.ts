@@ -48,6 +48,14 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
    * uses new permission restore logic from PM-15493
    */
   @Input() canRestoreCipher: boolean;
+  /**
+   * user has archive permissions
+   */
+  @Input() userCanArchive: boolean;
+  /**
+   * Enforge Org Data Ownership Policy Status
+   */
+  @Input() enforceOrgDataOwnershipPolicy: boolean;
 
   @Output() onEvent = new EventEmitter<VaultItemEvent<C>>();
 
@@ -76,6 +84,20 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     }
   }
 
+  protected get showArchiveButton() {
+    return (
+      this.userCanArchive &&
+      !CipherViewLikeUtils.isArchived(this.cipher) &&
+      !CipherViewLikeUtils.isDeleted(this.cipher) &&
+      !this.cipher.organizationId
+    );
+  }
+
+  // If item is archived always show unarchive button, even if user is not premium
+  protected get showUnArchiveButton() {
+    return CipherViewLikeUtils.isArchived(this.cipher);
+  }
+
   protected get clickAction() {
     if (this.decryptionFailure) {
       return "showFailedToDecrypt";
@@ -100,7 +122,12 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     return CipherViewLikeUtils.hasAttachments(this.cipher);
   }
 
+  // Do not show attachments button if:
+  // item is archived AND user is not premium user
   protected get showAttachments() {
+    if (CipherViewLikeUtils.isArchived(this.cipher) && !this.userCanArchive) {
+      return false;
+    }
     return this.canEditCipher || this.hasAttachments;
   }
 
@@ -124,7 +151,11 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     return CipherViewLikeUtils.decryptionFailure(this.cipher);
   }
 
+  // Do Not show Assign to Collections option if item is archived
   protected get showAssignToCollections() {
+    if (CipherViewLikeUtils.isArchived(this.cipher)) {
+      return false;
+    }
     return (
       this.organizations?.length &&
       this.canAssignCollections &&
@@ -132,7 +163,16 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     );
   }
 
+  // Do NOT show clone option if:
+  // item is archived AND user is not premium user
+  // item is archived AND enforce org data ownership policy is on
   protected get showClone() {
+    if (
+      CipherViewLikeUtils.isArchived(this.cipher) &&
+      (!this.userCanArchive || this.enforceOrgDataOwnershipPolicy)
+    ) {
+      return false;
+    }
     return this.cloneable && !CipherViewLikeUtils.isDeleted(this.cipher);
   }
 
@@ -140,10 +180,11 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     return this.useEvents && this.cipher.organizationId;
   }
 
-  protected get isNotDeletedLoginCipher() {
+  protected get isActiveLoginCipher() {
     return (
       CipherViewLikeUtils.getType(this.cipher) === this.CipherType.Login &&
-      !CipherViewLikeUtils.isDeleted(this.cipher)
+      !CipherViewLikeUtils.isDeleted(this.cipher) &&
+      !CipherViewLikeUtils.isArchived(this.cipher)
     );
   }
 
@@ -191,20 +232,20 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
 
   protected get showCopyUsername(): boolean {
     const usernameCopy = CipherViewLikeUtils.hasCopyableValue(this.cipher, "username");
-    return this.isNotDeletedLoginCipher && usernameCopy;
+    return this.isActiveLoginCipher && usernameCopy;
   }
 
   protected get showCopyPassword(): boolean {
     const passwordCopy = CipherViewLikeUtils.hasCopyableValue(this.cipher, "password");
-    return this.isNotDeletedLoginCipher && this.cipher.viewPassword && passwordCopy;
+    return this.isActiveLoginCipher && this.cipher.viewPassword && passwordCopy;
   }
 
   protected get showCopyTotp(): boolean {
-    return this.isNotDeletedLoginCipher && this.showTotpCopyButton;
+    return this.isActiveLoginCipher && this.showTotpCopyButton;
   }
 
   protected get showLaunchUri(): boolean {
-    return this.isNotDeletedLoginCipher && this.canLaunch;
+    return this.isActiveLoginCipher && this.canLaunch;
   }
 
   protected get isDeletedCanRestore(): boolean {
@@ -234,6 +275,14 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
 
   protected events() {
     this.onEvent.emit({ type: "viewEvents", item: this.cipher });
+  }
+
+  protected archive() {
+    this.onEvent.emit({ type: "archive", items: [this.cipher] });
+  }
+
+  protected unarchive() {
+    this.onEvent.emit({ type: "unarchive", items: [this.cipher] });
   }
 
   protected restore() {

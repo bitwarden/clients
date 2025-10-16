@@ -1548,6 +1548,15 @@
   "readSecurityKey": {
     "message": "Biztonsági kulcs olvasása"
   },
+  "readingPasskeyLoading": {
+    "message": "Hozzáférési kulcs beolvasása..."
+  },
+  "passkeyAuthenticationFailed": {
+    "message": "A hozzáférési kulcs hitelesítés sikertelen volt."
+  },
+  "useADifferentLogInMethod": {
+    "message": "Más bejelentkezési mód használata"
+  },
   "awaitingSecurityKeyInteraction": {
     "message": "Várakozás a biztonsági kulcs interakciójára..."
   },

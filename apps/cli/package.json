@@ -1,7 +1,7 @@
 {
   "name": "@bitwarden/cli",
   "description": "A secure and free password manager for all of your devices.",
-  "version": "2025.10.0",
+  "version": "2025.10.1",
   "keywords": [
     "bitwarden",
     "password",
