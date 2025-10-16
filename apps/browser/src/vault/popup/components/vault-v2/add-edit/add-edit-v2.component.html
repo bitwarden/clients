@@ -34,7 +34,7 @@
 
   <popup-footer slot="footer">
     <button bitButton type="submit" form="cipherForm" buttonType="primary" #submitBtn>
-      {{ saveText | i18n }}
+      {{ submitBtnI18nKey | i18n }}
     </button>
 
     <button (click)="handleBackButton()" bitButton type="button" buttonType="secondary">

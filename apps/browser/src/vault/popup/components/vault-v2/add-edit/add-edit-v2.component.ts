@@ -5,7 +5,7 @@ import { Component, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Params, Router } from "@angular/router";
-import { async, firstValueFrom, map, Observable, switchMap } from "rxjs";
+import { firstValueFrom, map, Observable, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
@@ -61,8 +61,6 @@ import {
 } from "../../../utils/fido2-popout-session-data";
 import { VaultPopoutType } from "../../../utils/vault-popout-window";
 import { OpenAttachmentsComponent } from "../attachments/open-attachments/open-attachments.component";
-import { cipher } from "node-forge";
-import { type } from "os";
 
 /**
  * Helper class to parse query parameters for the AddEdit route.
@@ -165,7 +163,7 @@ export class AddEditV2Component implements OnInit {
   headerText: string;
   config: CipherFormConfig;
   canDeleteCipher$: Observable<boolean>;
-  protected saveText = "save";
+  protected submitBtnI18nKey = "save";
 
   get loading() {
     return this.config == null;
@@ -211,7 +209,7 @@ export class AddEditV2Component implements OnInit {
       .pipe(takeUntilDestroyed())
       .subscribe((canArchive) => {
         if (!canArchive) {
-          this.saveText = "unarchiveAndSave";
+          this.submitBtnI18nKey = "unarchiveAndSave";
         }
       });
   }
