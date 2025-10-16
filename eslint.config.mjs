@@ -322,7 +322,12 @@ export default tseslint.config(
   },
   // Tailwind migrated clients & libs
   {
-    files: ["apps/web/**/*.html", "bitwarden_license/bit-web/**/*.html", "libs/**/*.html"],
+    files: [
+      "apps/web/**/*.html",
+      "apps/browser/**/*.html",
+      "bitwarden_license/bit-web/**/*.html",
+      "libs/**/*.html",
+    ],
     rules: {
       "tailwindcss/no-custom-classname": [
         "error",
