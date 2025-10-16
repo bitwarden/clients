@@ -162,11 +162,14 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
         this.policyService.policiesByType$(PolicyType.UriMatchDefaults, userId),
       ),
       getFirstPolicy,
-      map((policy) =>
-        policy?.enabled && policy?.data && policy.data != null && policy.data !== undefined
-          ? policy.data
-          : null,
-      ),
+      map((policy) => {
+        if (!policy?.enabled || policy?.data == null) {
+          return null;
+        }
+        const data = policy.data?.defaultUriMatchStrategy;
+        // Validate that data is a valid UriMatchStrategy value
+        return Object.values(UriMatchStrategy).includes(data) ? data : null;
+      }),
       shareReplay({ bufferSize: 1, refCount: true }),
     );
 
