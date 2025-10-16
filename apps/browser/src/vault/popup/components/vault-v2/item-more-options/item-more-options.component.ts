@@ -267,7 +267,8 @@ export class ItemMoreOptionsComponent {
   }
 
   protected async delete() {
-    if (this.cipher.reprompt && !(await this.passwordRepromptService.showPasswordPrompt())) {
+    const repromptPassed = await this.passwordRepromptService.passwordRepromptCheck(this.cipher);
+    if (!repromptPassed) {
       return;
     }
 
