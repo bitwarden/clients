@@ -24,6 +24,8 @@ import {
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CommandDefinition, MessageListener } from "@bitwarden/common/platform/messaging";
@@ -46,7 +48,7 @@ export class SshAgentService implements OnDestroy {
 
   private authorizedSshKeys: Record<string, Date> = {};
 
-  private isFeatureFlagEnabled = false;
+  private isFeatureFlagEnabled = true;
 
   private destroy$ = new Subject<void>();
 
@@ -60,6 +62,7 @@ export class SshAgentService implements OnDestroy {
     private i18nService: I18nService,
     private desktopSettingsService: DesktopSettingsService,
     private accountService: AccountService,
+    private configService: ConfigService,
   ) {}
 
   async init() {
@@ -67,7 +70,14 @@ export class SshAgentService implements OnDestroy {
       .pipe(
         concatMap(async (enabled) => {
           if (!(await ipc.platform.sshAgent.isLoaded()) && enabled) {
-            await ipc.platform.sshAgent.init();
+            const isV2FeatureFlagEnabled = await this.configService.getFeatureFlag(
+              FeatureFlag.SshAgentV2,
+            );
+            await ipc.platform.sshAgent.init(isV2FeatureFlagEnabled ? 2 : 1);
+          }
+
+          if (!enabled) {
+            await ipc.platform.sshAgent.stop();
           }
         }),
         takeUntil(this.destroy$),

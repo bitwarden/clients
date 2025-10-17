@@ -49,8 +49,8 @@ const clipboard = {
 };
 
 const sshAgent = {
-  init: async () => {
-    await ipcRenderer.invoke("sshagent.init");
+  init: async (version: number) => {
+    await ipcRenderer.invoke("sshagent.init", { version });
   },
   setKeys: (keys: { name: string; privateKey: string; cipherId: string }[]): Promise<void> =>
     ipcRenderer.invoke("sshagent.setkeys", keys),
@@ -62,6 +62,9 @@ const sshAgent = {
   },
   clearKeys: async () => {
     return await ipcRenderer.invoke("sshagent.clearkeys");
+  },
+  stop: async () => {
+    return await ipcRenderer.invoke("sshagent.stop");
   },
   isLoaded(): Promise<boolean> {
     return ipcRenderer.invoke("sshagent.isloaded");

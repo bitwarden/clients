@@ -247,3 +247,29 @@ export declare namespace autotype {
   export function getForegroundWindowTitle(): string
   export function typeInput(input: Array<number>, keyboardShortcut: Array<string>): void
 }
+export declare namespace sshagent_v2 {
+  export interface PrivateKey {
+    privateKey: string
+    name: string
+    cipherId: string
+  }
+  export interface SshKey {
+    privateKey: string
+    publicKey: string
+    keyFingerprint: string
+  }
+  export interface SshUiRequest {
+    cipherId?: string
+    isList: boolean
+    processName: string
+    isForwarding: boolean
+    namespace?: string
+  }
+  export function serve(callback: (err: Error | null, arg: SshUiRequest) => any): Promise<SshAgentState>
+  export function stop(agentState: SshAgentState): void
+  export function isRunning(agentState: SshAgentState): boolean
+  export function setKeys(agentState: SshAgentState, newKeys: Array<PrivateKey>): void
+  export function lock(agentState: SshAgentState): void
+  export function clearKeys(agentState: SshAgentState): void
+  export class SshAgentState {   }
+}

@@ -1,0 +1,54 @@
+[package]
+name = "ssh_agent"
+edition = { workspace = true }
+license = { workspace = true }
+version = { workspace = true }
+publish = { workspace = true }
+
+[features]
+default = ["dep:windows"]
+manual_test = []
+
+[target.'cfg(windows)'.dependencies]
+windows = { workspace = true, features = [
+    "Win32_System_Pipes",
+], optional = true }
+windows-future = { workspace = true }
+
+[dependencies]
+anyhow = { workspace = true }
+base64 = { workspace = true }
+block-padding = { version = "=0.4.0-rc.4" }
+byteorder = { workspace = true }
+bytes = { workspace = true }
+ed25519 = { workspace = true, features = ["pkcs8"] }
+ed25519-dalek = { version = "2.2.0", features = ["rand_core"] }
+futures = { workspace = true }
+homedir = { workspace = true }
+inout = { version = "=0.2.0-rc.6" }
+log = { workspace = true }
+num_enum = "0.7.4"
+p256 = "0.13.2"
+p384 = "0.13.1"
+p521 = "0.13.3"
+pin-project = { workspace = true }
+rsa = { version = "=0.10.0-rc.8", features = ["sha2"] }
+sha2 = "0.10.9"
+signature = "3.0.0-rc.4"
+ssh-encoding = "=0.3.0-rc.2"
+ssh-key = { version = "=0.7.0-rc.3", features = [
+    "encryption",
+    "ed25519",
+    "rsa",
+    "ecdsa",
+    "getrandom",
+] }
+sysinfo = { workspace = true, features = ["windows"] }
+test-log = "0.2.18"
+tokio = { workspace = true, features = ["io-util", "sync", "macros", "net", "full"] }
+tokio-util = { workspace = true, features = ["codec"] }
+tracing = { workspace = true }
+tracing-subscriber.workspace = true
+
+[lints]
+workspace = true
