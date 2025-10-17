@@ -17,7 +17,8 @@ import {
 } from "@bitwarden/common/platform/system-notifications/system-notifications.service";
 import { UserId } from "@bitwarden/user-core";
 
-import { AuthRequestAnsweringService } from "./auth-request-answering.service";
+import { AuthRequestAnsweringService } from "../../abstractions/auth-request-answering/auth-request-answering.service.abstraction";
+
 import { PendingAuthRequestsStateService } from "./pending-auth-requests.state";
 
 describe("AuthRequestAnsweringService", () => {

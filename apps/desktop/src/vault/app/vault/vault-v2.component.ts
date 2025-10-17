@@ -320,14 +320,14 @@ export class VaultV2Component<C extends CipherViewLike>
     this.searchBarService.setEnabled(true);
     this.searchBarService.setPlaceholderText(this.i18nService.t("searchVault"));
 
-    const authRequests = await firstValueFrom(
-      this.authRequestService.getLatestPendingAuthRequest$()!,
-    );
-    if (authRequests != null) {
-      this.messagingService.send("openLoginApproval", {
-        notificationId: authRequests.id,
-      });
-    }
+    // const authRequests = await firstValueFrom(
+    //   this.authRequestService.getLatestPendingAuthRequest$()!,
+    // );
+    // if (authRequests != null) {
+    //   this.messagingService.send("openLoginApproval", {
+    //     notificationId: authRequests.id,
+    //   });
+    // }
 
     this.activeUserId = await firstValueFrom(
       this.accountService.activeAccount$.pipe(getUserId),

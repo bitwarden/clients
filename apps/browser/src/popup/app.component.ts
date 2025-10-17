@@ -37,7 +37,7 @@ import {
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { AuthRequestAnsweringServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
+import { AuthRequestAnsweringService } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
@@ -114,7 +114,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private logService: LogService,
     private authRequestService: AuthRequestServiceAbstraction,
     private pendingAuthRequestsState: PendingAuthRequestsStateService,
-    private authRequestAnsweringService: AuthRequestAnsweringServiceAbstraction,
+    private authRequestAnsweringService: AuthRequestAnsweringService,
   ) {
     this.deviceTrustToastService.setupListeners$.pipe(takeUntilDestroyed()).subscribe();
 
