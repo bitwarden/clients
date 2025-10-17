@@ -35,18 +35,54 @@ export interface SendItemDialogParams {
   disableForm?: boolean;
 }
 
-// FIXME: update to use a const object instead of a typescript enum
-// eslint-disable-next-line @bitwarden/platform/no-enums
-export enum SendItemDialogResult {
-  /**
-   * A Send was saved (created or updated).
-   */
-  Saved = "saved",
+/** A result of the Send add/edit dialog. */
+export const SendItemDialogResult = Object.freeze({
+  /** The send item was created or updated. */
+  Saved: "saved",
+  /** The send item was deleted. */
+  Deleted: "deleted",
+} as const);
 
-  /**
-   * A Send was deleted.
-   */
-  Deleted = "deleted",
+/** A result of the Send add/edit dialog. */
+export type SendItemDialogResult = (typeof SendItemDialogResult)[keyof typeof SendItemDialogResult];
+
+const namesBySendItemDialogResult = new Map<
+  SendItemDialogResult,
+  keyof typeof SendItemDialogResult
+>(
+  Object.entries(SendItemDialogResult).map(([k, v]) => [
+    v as SendItemDialogResult,
+    k as keyof typeof SendItemDialogResult,
+  ]),
+);
+
+/**
+ * Checks if a value is a valid SendItemDialogResult.
+ * @param value - The value to check.
+ * @returns True if the value is a valid SendItemDialogResult, false otherwise.
+ */
+export function isSendItemDialogResult(value: unknown): value is SendItemDialogResult {
+  return namesBySendItemDialogResult.has(value as SendItemDialogResult);
+}
+
+/**
+ * Converts a value to a SendItemDialogResult if it is valid.
+ * @param value - The value to convert.
+ * @returns The value as a SendItemDialogResult if valid, otherwise undefined.
+ */
+export function asSendItemDialogResult(value: unknown): SendItemDialogResult | undefined {
+  return isSendItemDialogResult(value) ? (value as SendItemDialogResult) : undefined;
+}
+
+/**
+ * Gets the name of a SendItemDialogResult value.
+ * @param value - The SendItemDialogResult value to get the name for.
+ * @returns The name of the SendItemDialogResult value, or undefined if not found.
+ */
+export function nameOfSendItemDialogResult(
+  value: SendItemDialogResult,
+): keyof typeof SendItemDialogResult | undefined {
+  return namesBySendItemDialogResult.get(value);
 }
 
 /**
