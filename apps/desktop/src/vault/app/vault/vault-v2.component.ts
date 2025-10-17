@@ -567,7 +567,7 @@ export class VaultV2Component<C extends CipherViewLike>
 
     if (cipher.isArchived) {
       menu.push({
-        label: this.i18nService.t("unarchive"),
+        label: this.i18nService.t("unArchive"),
         click: async () => {
           await this.archiveCipherUtilitiesService.unarchiveCipher(cipher);
           await this.refreshCurrentCipher();
