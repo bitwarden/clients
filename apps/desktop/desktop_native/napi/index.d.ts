@@ -58,6 +58,18 @@ export declare namespace biometrics {
     ivB64: string
   }
 }
+export declare namespace biometrics_v2 {
+  export function initBiometricSystem(): BiometricLockSystem
+  export function authenticate(biometricLockSystem: BiometricLockSystem, hwnd: Buffer, message: string): Promise<boolean>
+  export function authenticateAvailable(biometricLockSystem: BiometricLockSystem): Promise<boolean>
+  export function enrollPersistent(biometricLockSystem: BiometricLockSystem, userId: string, key: Buffer): Promise<void>
+  export function provideKey(biometricLockSystem: BiometricLockSystem, userId: string, key: Buffer): Promise<void>
+  export function unlock(biometricLockSystem: BiometricLockSystem, userId: string, hwnd: Buffer): Promise<Buffer>
+  export function unlockAvailable(biometricLockSystem: BiometricLockSystem, userId: string): Promise<boolean>
+  export function hasPersistent(biometricLockSystem: BiometricLockSystem, userId: string): Promise<boolean>
+  export function unenroll(biometricLockSystem: BiometricLockSystem, userId: string): Promise<void>
+  export class BiometricLockSystem {   }
+}
 export declare namespace clipboards {
   export function read(): Promise<string>
   export function write(text: string, password: boolean): Promise<void>
