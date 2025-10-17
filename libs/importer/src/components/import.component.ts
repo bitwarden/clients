@@ -35,10 +35,7 @@ import {
   CollectionView,
 } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import {
-  getOrganizationById,
-  OrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -464,7 +461,7 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
         importContents,
         this.organizationId,
         this.formGroup.controls.targetSelector.value,
-        (await this.canAccessImport(this.organizationId)) && this.isFromAC,
+        this.organization?.canAccessImport && this.isFromAC,
       );
 
       //No errors, display success message
@@ -482,20 +479,6 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
       });
       this.logService.error(e);
     }
-  }
-
-  private async canAccessImport(organizationId?: string): Promise<boolean> {
-    if (!organizationId) {
-      return false;
-    }
-    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-    return (
-      await firstValueFrom(
-        this.organizationService
-          .organizations$(userId)
-          .pipe(getOrganizationById(this.organizationId)),
-      )
-    )?.canAccessImport;
   }
 
   getFormatInstructionTitle() {
