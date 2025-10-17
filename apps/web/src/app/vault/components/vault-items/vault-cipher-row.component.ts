@@ -1,15 +1,25 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
+import {
+  Component,
+  EventEmitter,
+  HostListener,
+  Input,
+  OnInit,
+  Output,
+  ViewChild,
+} from "@angular/core";
 
 import { CollectionView } from "@bitwarden/admin-console/common";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import {
   CipherViewLike,
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
+import { MenuTriggerForDirective } from "@bitwarden/components";
 
 import {
   convertToPermission,
@@ -25,6 +35,8 @@ import { RowHeightClass } from "./vault-items.component";
 })
 export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit {
   protected RowHeightClass = RowHeightClass;
+
+  @ViewChild(MenuTriggerForDirective, { static: false }) menuTrigger: MenuTriggerForDirective;
 
   @Input() disabled: boolean;
   @Input() cipher: C;
@@ -73,7 +85,10 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
   ];
   protected organization?: Organization;
 
-  constructor(private i18nService: I18nService) {}
+  constructor(
+    private i18nService: I18nService,
+    private vaultSettingsService: VaultSettingsService,
+  ) {}
 
   /**
    * Lifecycle hook for component initialization.
@@ -180,7 +195,7 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     return this.useEvents && this.cipher.organizationId;
   }
 
-  protected get isActiveLoginCipher() {
+  protected get isLoginCipher() {
     return (
       CipherViewLikeUtils.getType(this.cipher) === this.CipherType.Login &&
       !CipherViewLikeUtils.isDeleted(this.cipher) &&
@@ -230,43 +245,63 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     return this.i18nService.t("noAccess");
   }
 
-  protected get showCopyUsername(): boolean {
-    const usernameCopy = CipherViewLikeUtils.hasCopyableValue(this.cipher, "username");
-    return this.isActiveLoginCipher && usernameCopy;
-  }
-
-  protected get showCopyPassword(): boolean {
-    const passwordCopy = CipherViewLikeUtils.hasCopyableValue(this.cipher, "password");
-    return this.isActiveLoginCipher && this.cipher.viewPassword && passwordCopy;
-  }
-
-  protected get showCopyTotp(): boolean {
-    return this.isActiveLoginCipher && this.showTotpCopyButton;
-  }
-
-  protected get showLaunchUri(): boolean {
-    return this.isActiveLoginCipher && this.canLaunch;
-  }
-
-  protected get isDeletedCanRestore(): boolean {
-    return CipherViewLikeUtils.isDeleted(this.cipher) && this.canRestoreCipher;
-  }
-
-  protected get hideMenu() {
-    return !(
-      this.isDeletedCanRestore ||
-      this.showCopyUsername ||
-      this.showCopyPassword ||
-      this.showCopyTotp ||
-      this.showLaunchUri ||
-      this.showAttachments ||
-      this.showClone ||
-      this.canEditCipher
+  protected get hasVisibleLoginOptions() {
+    return (
+      this.isLoginCipher &&
+      (CipherViewLikeUtils.hasCopyableValue(this.cipher, "username") ||
+        (this.cipher.viewPassword &&
+          CipherViewLikeUtils.hasCopyableValue(this.cipher, "password")) ||
+        this.showTotpCopyButton ||
+        this.canLaunch)
     );
   }
 
-  protected copy(field: "username" | "password" | "totp") {
-    this.onEvent.emit({ type: "copyField", item: this.cipher, field });
+  protected get isCardCipher(): boolean {
+    return CipherViewLikeUtils.getType(this.cipher) === this.CipherType.Card && !this.isDeleted;
+  }
+
+  protected get hasVisibleCardOptions(): boolean {
+    return (
+      this.isCardCipher &&
+      (CipherViewLikeUtils.hasCopyableValue(this.cipher, "cardNumber") ||
+        CipherViewLikeUtils.hasCopyableValue(this.cipher, "securityCode"))
+    );
+  }
+
+  protected get isIdentityCipher() {
+    return CipherViewLikeUtils.getType(this.cipher) === this.CipherType.Identity && !this.isDeleted;
+  }
+
+  protected get hasVisibleIdentityOptions(): boolean {
+    return (
+      this.isIdentityCipher &&
+      (CipherViewLikeUtils.hasCopyableValue(this.cipher, "address") ||
+        CipherViewLikeUtils.hasCopyableValue(this.cipher, "email") ||
+        CipherViewLikeUtils.hasCopyableValue(this.cipher, "username") ||
+        CipherViewLikeUtils.hasCopyableValue(this.cipher, "phone"))
+    );
+  }
+
+  protected get isSecureNoteCipher() {
+    return (
+      CipherViewLikeUtils.getType(this.cipher) === this.CipherType.SecureNote &&
+      !(this.isDeleted && this.canRestoreCipher)
+    );
+  }
+
+  protected get hasVisibleSecureNoteOptions(): boolean {
+    return (
+      this.isSecureNoteCipher && CipherViewLikeUtils.hasCopyableValue(this.cipher, "secureNote")
+    );
+  }
+
+  protected get showMenuDivider() {
+    return (
+      this.hasVisibleLoginOptions ||
+      this.hasVisibleCardOptions ||
+      this.hasVisibleIdentityOptions ||
+      this.hasVisibleSecureNoteOptions
+    );
   }
 
   protected clone() {
@@ -307,5 +342,27 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     }
 
     return this.organization.canEditAllCiphers || (this.cipher.edit && this.cipher.viewPassword);
+  }
+
+  protected toggleFavorite() {
+    this.onEvent.emit({
+      type: "toggleFavorite",
+      item: this.cipher,
+    });
+  }
+
+  protected editCipher() {
+    this.onEvent.emit({ type: "editCipher", item: this.cipher });
+  }
+
+  @HostListener("contextmenu", ["$event"])
+  protected onRightClick(event: MouseEvent) {
+    if (event.shiftKey && event.ctrlKey) {
+      return;
+    }
+
+    if (!this.disabled && this.menuTrigger) {
+      this.menuTrigger.toggleMenuOnRightClick(event);
+    }
   }
 }
