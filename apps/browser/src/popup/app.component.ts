@@ -36,6 +36,7 @@ import {
   LogoutReason,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
+import { BrowserApi } from "@bitwarden/browser/platform/browser/browser-api";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthRequestAnsweringServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
@@ -58,6 +59,7 @@ import {
 } from "@bitwarden/components";
 import { BiometricsService, BiometricStateService, KeyService } from "@bitwarden/key-management";
 
+import BrowserPopupUtils from "../platform/browser/browser-popup-utils";
 import { PopupCompactModeService } from "../platform/popup/layout/popup-compact-mode.service";
 import { PopupSizeService } from "../platform/popup/layout/popup-size.service";
 import { initPopupClosedListener } from "../platform/services/popup-view-cache-background.service";
@@ -286,6 +288,13 @@ export class AppComponent implements OnInit, OnDestroy {
                 await this.biometricStateService.updateLastProcessReload();
                 window.location.reload();
               }, 2000);
+            } else {
+              // Close browser action popup before extension reload to prevent zombie popup with invalidated context.
+              // This issue occurs in Chromium-based browsers (Chrome, Vivaldi, etc.) where chrome.runtime.reload()
+              // invalidates extension contexts before popup can close naturally
+              if (BrowserPopupUtils.inPopup(window)) {
+                BrowserApi.closePopup(window);
+              }
             }
           } else if (msg.command === "reloadPopup") {
             // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
