@@ -134,11 +134,13 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   @Input() set organizationId(value: OrganizationId | string | undefined) {
     if (Utils.isNullOrEmpty(value)) {
       this._organizationId = undefined;
+      this.organization = undefined;
       return;
     }
 
     if (!isId<OrganizationId>(value)) {
       this._organizationId = undefined;
+      this.organization = undefined;
       return;
     }
 
