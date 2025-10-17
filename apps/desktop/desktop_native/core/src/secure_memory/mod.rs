@@ -1,6 +1,9 @@
 #[cfg(target_os = "windows")]
 pub(crate) mod dpapi;
 
+mod encrypted_memory_store;
+mod secure_key;
+
 /// The secure memory store provides an ephemeral key-value store for sensitive data.
 /// Data stored in this store is prevented from being swapped to disk and zeroed out. Additionally,
 /// platform-specific protections are applied to prevent memory dumps or debugger access from
