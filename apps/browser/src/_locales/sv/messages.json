@@ -558,8 +558,8 @@
     "message": "Arkivera",
     "description": "Verb"
   },
-  "unarchive": {
-    "message": "Packa upp"
+  "unArchive": {
+    "message": "Avarkivera"
   },
   "itemsInArchive": {
     "message": "Objekt i arkiv"
@@ -570,11 +570,11 @@
   "noItemsInArchiveDesc": {
     "message": "Arkiverade objekt kommer att visas här och kommer att uteslutas från allmänna sökresultat och förslag för autofyll."
   },
-  "itemSentToArchive": {
-    "message": "Objekt skickat till arkiv"
+  "itemWasSentToArchive": {
+    "message": "Objektet skickades till arkivet"
   },
-  "itemRemovedFromArchive": {
-    "message": "Objekt borttaget från arkiv"
+  "itemUnarchived": {
+    "message": "Objektet har avarkiverats"
   },
   "archiveItem": {
     "message": "Arkivera objekt"
@@ -5579,17 +5579,37 @@
   "hasItemsVaultNudgeTitle": {
     "message": "Välkommen till ditt valv!"
   },
-  "phishingPageTitle": {
-    "message": "Webbsida för nätfiske"
+  "phishingPageTitleV2": {
+    "message": "Försök till nätfiske upptäcktes"
   },
-  "phishingPageCloseTab": {
-    "message": "Stäng flik"
+  "phishingPageSummary": {
+    "message": "Webbplatsen som du försöker besöka är en känd skadlig webbplats och en säkerhetsrisk."
   },
-  "phishingPageContinue": {
-    "message": "Fortsätt"
+  "phishingPageCloseTabV2": {
+    "message": "Stäng denna flik"
   },
-  "phishingPageLearnWhy": {
-    "message": "Varför ser du detta?"
+  "phishingPageContinueV2": {
+    "message": "Fortsätt till denna webbplats (rekommenderas inte)"
+  },
+  "phishingPageExplanation1": {
+    "message": "Denna webbplats hittades i ",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name follows this."
+  },
+  "phishingPageExplanation2": {
+    "message": ", en öppen källkodslista över kända nätfiskeplatser som används för att stjäla personlig och känslig information.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name precedes this."
+  },
+  "phishingPageLearnMore": {
+    "message": "Läs mer om nätfiskedetektering"
+  },
+  "protectedBy": {
+    "message": "Skyddad av $PRODUCT$",
+    "placeholders": {
+      "product": {
+        "content": "$1",
+        "example": "Bitwarden Phishing Blocker"
+      }
+    }
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Autofyll objekt för den aktuella sidan"
