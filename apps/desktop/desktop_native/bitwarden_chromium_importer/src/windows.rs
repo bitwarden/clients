@@ -16,7 +16,15 @@ use crate::util;
 //
 
 // IMPORTANT adjust array size when enabling / disabling chromium importers here
-pub const SUPPORTED_BROWSERS: [BrowserConfig; 4] = [
+pub const SUPPORTED_BROWSERS: [BrowserConfig; 6] = [
+    BrowserConfig {
+        name: "Brave",
+        data_dir: "AppData/Local/BraveSoftware/Brave-Browser/User Data",
+    },
+    BrowserConfig {
+        name: "Chrome",
+        data_dir: "AppData/Local/Google/Chrome/User Data",
+    },
     BrowserConfig {
         name: "Chromium",
         data_dir: "AppData/Local/Chromium/User Data",
