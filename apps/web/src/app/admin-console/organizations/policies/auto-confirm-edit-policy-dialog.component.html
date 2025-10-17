@@ -63,7 +63,11 @@
     bitFormButton
     type="submit"
   >
-    {{ "continue" | i18n }}
+    @if (autoConfirmEnabled$ | async) {
+      {{ "save" | i18n }}
+    } @else {
+      {{ "continue" | i18n }}
+    }
   </button>
   <button bitButton buttonType="secondary" bitDialogClose type="button">
     {{ "cancel" | i18n }}

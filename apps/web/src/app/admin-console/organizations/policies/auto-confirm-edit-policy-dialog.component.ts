@@ -10,7 +10,17 @@ import {
 } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { Router } from "@angular/router";
-import { firstValueFrom, map, Observable, of, shareReplay, switchMap, tap } from "rxjs";
+import {
+  combineLatest,
+  firstValueFrom,
+  map,
+  Observable,
+  of,
+  shareReplay,
+  startWith,
+  switchMap,
+  tap,
+} from "rxjs";
 
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -66,6 +76,11 @@ export class AutoConfirmPolicyDialogComponent
   protected firstTimeDialog = signal(false);
   protected currentStep = signal(0);
   protected multiStepSubmit: Observable<MultiStepSubmit[]> = of([]);
+  protected autoConfirmEnabled$: Observable<boolean> = this.accountService.activeAccount$.pipe(
+    getUserId,
+    switchMap((userId) => this.policyService.policies$(userId)),
+    map((policies) => policies.find((p) => p.type === PolicyType.AutoConfirm)?.enabled ?? false),
+  );
 
   private submitPolicy: Signal<TemplateRef<unknown> | undefined> = viewChild("step0");
   private openExtension: Signal<TemplateRef<unknown> | undefined> = viewChild("step1");
@@ -110,6 +125,15 @@ export class AutoConfirmPolicyDialogComponent
    */
   async ngAfterViewInit() {
     await super.ngAfterViewInit();
+
+    if (this.policyComponent) {
+      this.saveDisabled$ = combineLatest([
+        this.autoConfirmEnabled$,
+        this.policyComponent.enabled.valueChanges.pipe(
+          startWith(this.policyComponent.enabled.value),
+        ),
+      ]).pipe(map(([policyEnabled, value]) => !policyEnabled && !value));
+    }
 
     this.multiStepSubmit = this.accountService.activeAccount$.pipe(
       getUserId,

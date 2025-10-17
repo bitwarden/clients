@@ -1,11 +1,11 @@
 <ng-container [ngTemplateOutlet]="steps[step]()"></ng-container>
 
 <ng-template #step0>
-  <p>
+  <p class="tw-mb-6">
     {{ "autoConfirmPolicyEditDescription" | i18n }}
   </p>
 
-  <ul>
+  <ul class="tw-mb-6">
     <li>
       <span class="tw-font-bold">
         {{ "autoConfirmAcceptSecurityRiskTitle" | i18n }}
@@ -43,8 +43,10 @@
 </ng-template>
 
 <ng-template #step1>
+  <div class="tw-flex tw-justify-center tw-mb-6">
+    <bit-icon class="tw-w-[233px]" [icon]="autoConfirmSvg"></bit-icon>
+  </div>
   <ol>
-    <bit-icon [icon]="autoConfirmSvg"></bit-icon>
     <li>1. {{ "autoConfirmStep1" | i18n }}</li>
 
     <li>
