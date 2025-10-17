@@ -48,7 +48,9 @@ import { ClientType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { getById } from "@bitwarden/common/platform/misc";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { isId, OrganizationId } from "@bitwarden/common/types/guid";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
@@ -122,21 +124,32 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   collections$: Observable<CollectionView[]>;
   organizations$: Observable<Organization[]>;
 
-  private _organizationId: string;
+  private _organizationId: OrganizationId | undefined;
 
-  get organizationId(): string {
+  get organizationId(): OrganizationId | undefined {
     return this._organizationId;
   }
 
-  @Input() set organizationId(value: string) {
+  /**
+   * Enables the hosting control to pass in an organizationId
+   * If a organizationId is provided, the organization selection is disabled.
+   */
+  @Input() set organizationId(value: OrganizationId | string | undefined) {
+    if (Utils.isNullOrEmpty(value)) {
+      this._organizationId = undefined;
+      return;
+    }
+
+    if (!isId<OrganizationId>(value)) {
+      this._organizationId = undefined;
+      return;
+    }
+
     this._organizationId = value;
+
     getUserId(this.accountService.activeAccount$)
       .pipe(
-        switchMap((userId) =>
-          this.organizationService
-            .organizations$(userId)
-            .pipe(getOrganizationById(this._organizationId)),
-        ),
+        switchMap((userId) => this.organizationService.organizations$(userId).pipe(getById(value))),
       )
       .pipe(takeUntil(this.destroy$))
       .subscribe((organization) => {
@@ -151,7 +164,7 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   @Input()
   onImportFromBrowser: (browser: string, profile: string) => Promise<any[]>;
 
-  protected organization: Organization;
+  protected organization: Organization | undefined = undefined;
   protected destroy$ = new Subject<void>();
 
   protected readonly isCardTypeRestricted$: Observable<boolean> =
