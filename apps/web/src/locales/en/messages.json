@@ -5721,7 +5721,7 @@
     "message": "Automatic confirmation of new users"
   },
   "autoConfirmDescription": {
-    "message": "New users invited to the organization will be automatically confirmed when an admin’s device is unlocked. Before turning on this policy, please review and agree to the following:",
+    "message": "New users invited to the organization will be automatically confirmed when an admin’s device is unlocked.",
     "description": "This is the description of the policy as it appears in the 'Policies' page"
   },
   "howToTurnOnAutoConfirm": {
@@ -5742,7 +5742,7 @@
     "message": "Successfully opened the Bitwarden browser extension. You can now activate the automatic user confirmation setting."
   },
   "autoConfirmPolicyEditDescription": {
-    "message": "New users invited to the organization will be automatically confirmed when an admin’s device is unlocked. To continue, please review and agree to the following:",
+    "message": "New users invited to the organization will be automatically confirmed when an admin’s device is unlocked. Before turning on this policy, please review and agree to the following: ",
     "description": "This is the description of the policy as it appears inside the policy edit dialog"
   },
   "autoConfirmAcceptSecurityRiskTitle": {
@@ -5752,7 +5752,7 @@
     "message": "Automatic user confirmation could pose a security risk to your organization’s data."
   },
   "autoConfirmAcceptSecurityRiskLearnMore": {
-    "message": "Learn more about the risks",
+    "message": "Learn about the risks",
     "description": "The is the link copy for the first check box option in the edit policy dialog"
   },
   "autoConfirmSingleOrgRequired": {
