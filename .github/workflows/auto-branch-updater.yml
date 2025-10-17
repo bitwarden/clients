@@ -27,17 +27,20 @@ jobs:
     steps:
       - name: Setup
         id: setup
-        run: echo "branch=${GITHUB_REF#refs/heads/}" >> $GITHUB_OUTPUT
+        run: echo "branch=${GITHUB_REF#refs/heads/}" >> "$GITHUB_OUTPUT"
 
       - name: Checkout repo
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           ref: 'eu-web-${{ steps.setup.outputs.branch }}'
           fetch-depth: 0
+          persist-credentials: true
 
       - name: Merge ${{ steps.setup.outputs.branch }}
+        env:
+          _BRANCH: ${{ steps.setup.outputs.branch }}
         run: |
-          git config --local user.email "${{ env._BOT_EMAIL }}"
-          git config --local user.name "${{ env._BOT_NAME }}"
-          git merge origin/${{ steps.setup.outputs.branch }}
+          git config --local user.email "$_BOT_EMAIL"
+          git config --local user.name "$_BOT_NAME"
+          git merge "origin/$_BRANCH"
           git push
