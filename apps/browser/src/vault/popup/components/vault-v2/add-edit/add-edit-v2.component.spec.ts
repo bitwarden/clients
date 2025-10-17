@@ -1,4 +1,5 @@
 import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
 import { ActivatedRoute, Router } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
@@ -412,17 +413,20 @@ describe("AddEditV2Component", () => {
   });
 
   it("shows the archive badge when the cipher is archived", fakeAsync(() => {
+    // keep the form from rendering
+    const loadingSpy = jest.spyOn(component as any, "loading", "get").mockReturnValue(true);
+
     buildConfigResponse.originalCipher = { archivedDate: new Date() } as Cipher;
 
     queryParams$.next({});
-
     tick();
     fixture.detectChanges();
 
-    const archivedButton = Array.from(fixture.nativeElement.querySelectorAll("button")).find(
-      (el) => (el as HTMLElement)?.textContent === "archived",
-    );
-    expect(archivedButton).toBeTruthy();
+    const badge = fixture.debugElement.query(By.css("button[bitBadge]"));
+    expect(badge).toBeTruthy();
+    expect(badge.nativeElement.textContent.trim()).toBe("archived");
+
+    loadingSpy.mockRestore();
   }));
 
   describe("delete", () => {
