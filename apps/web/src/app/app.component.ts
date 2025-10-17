@@ -115,7 +115,7 @@ export class AppComponent implements OnDestroy, OnInit {
             await this.vaultTimeoutService.lock();
             break;
           case "locked":
-            await this.processReloadService.startProcessReload(this.authService);
+            await this.processReloadService.startProcessReload();
             break;
           case "lockedUrl":
             break;
@@ -277,7 +277,7 @@ export class AppComponent implements OnDestroy, OnInit {
         await this.router.navigate(["/"]);
       }
 
-      await this.processReloadService.startProcessReload(this.authService);
+      await this.processReloadService.startProcessReload();
 
       // Normally we would need to reset the loading state to false or remove the layout_frontend
       // class from the body here, but the process reload completely reloads the app so

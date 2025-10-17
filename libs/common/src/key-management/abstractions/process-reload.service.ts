@@ -1,6 +1,4 @@
-import { AuthService } from "../../auth/abstractions/auth.service";
-
 export abstract class ProcessReloadServiceAbstraction {
-  abstract startProcessReload(authService: AuthService): Promise<void>;
+  abstract startProcessReload(): Promise<void>;
   abstract cancelProcessReload(): void;
 }
