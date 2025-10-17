@@ -1,3 +1,4 @@
+import { Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { ActivatedRoute, RouterModule } from "@angular/router";
@@ -14,6 +15,13 @@ import { NavItemComponent } from "@bitwarden/components/src/navigation/nav-item.
 import { ProductSwitcherItem, ProductSwitcherService } from "../shared/product-switcher.service";
 
 import { NavigationProductSwitcherComponent } from "./navigation-switcher.component";
+
+@Component({
+  selector: "app-upgrade-nav-button",
+  template: "<div>Upgrade Nav Button</div>",
+  standalone: true,
+})
+class MockUpgradeNavButtonComponent {}
 
 Object.defineProperty(window, "matchMedia", {
   writable: true,
@@ -41,13 +49,16 @@ describe("NavigationProductSwitcherComponent", () => {
     other: [],
   });
 
+  const mockShouldShowPremiumUpgradeButton$ = new BehaviorSubject<boolean>(false);
+
   beforeEach(async () => {
     productSwitcherService = mock<ProductSwitcherService>();
     productSwitcherService.products$ = mockProducts$;
+    productSwitcherService.shouldShowPremiumUpgradeButton$ = mockShouldShowPremiumUpgradeButton$;
     mockProducts$.next({ bento: [], other: [] });
 
     await TestBed.configureTestingModule({
-      imports: [RouterModule, NavigationModule, IconButtonModule],
+      imports: [RouterModule, NavigationModule, IconButtonModule, MockUpgradeNavButtonComponent],
       declarations: [NavigationProductSwitcherComponent, I18nPipe],
       providers: [
         { provide: ProductSwitcherService, useValue: productSwitcherService },
@@ -187,15 +198,23 @@ describe("NavigationProductSwitcherComponent", () => {
             },
             isActive: true,
           },
+          {
+            name: "Test Product",
+            icon: "bwi-lock",
+            marketingRoute: {
+              route: "https://www.example.com/",
+              external: true,
+            },
+          },
         ],
         other: [],
       });
 
       fixture.detectChanges();
 
-      const navItem = fixture.debugElement.query(By.directive(NavItemComponent));
+      const navItem = fixture.debugElement.queryAll(By.directive(NavItemComponent));
 
-      expect(navItem.componentInstance.forceActiveStyles()).toBe(true);
+      expect(navItem[0].componentInstance.forceActiveStyles()).toBe(true);
     });
   });
 
@@ -218,18 +237,56 @@ describe("NavigationProductSwitcherComponent", () => {
       expect(links[0].textContent).toContain("Password Manager");
       expect(links[1].textContent).toContain("Secret Manager");
     });
+
+    it("does not show products list when there is only one item", () => {
+      mockProducts$.next({
+        bento: [{ isActive: true, name: "Password Manager", icon: "bwi-lock", appRoute: "/vault" }],
+        other: [],
+      });
+
+      fixture.detectChanges();
+
+      const navItems = fixture.debugElement.queryAll(By.directive(NavItemComponent));
+
+      expect(navItems.length).toBe(0);
+    });
   });
 
   it("links to `appRoute`", () => {
     mockProducts$.next({
-      bento: [{ isActive: false, name: "Password Manager", icon: "bwi-lock", appRoute: "/vault" }],
+      bento: [
+        { isActive: true, name: "Password Manager", icon: "bwi-lock", appRoute: "/vault" },
+        { isActive: false, name: "Secret Manager", icon: "bwi-lock", appRoute: "/sm" },
+      ],
       other: [],
     });
 
     fixture.detectChanges();
 
-    const link = fixture.nativeElement.querySelector("a");
+    const links = fixture.nativeElement.querySelectorAll("a");
 
-    expect(link.getAttribute("href")).toBe("/vault");
+    expect(links[0].getAttribute("href")).toBe("/vault");
+  });
+
+  describe("upgrade nav button", () => {
+    it("shows upgrade nav button when shouldShowPremiumUpgradeButton$ is true", () => {
+      mockShouldShowPremiumUpgradeButton$.next(true);
+      mockProducts$.next({
+        bento: [],
+        other: [
+          {
+            name: "Organizations",
+            icon: "bwi-lock",
+            marketingRoute: { route: "https://www.example.com/", external: true },
+          },
+        ],
+      });
+
+      fixture.detectChanges();
+
+      const upgradeButton = fixture.nativeElement.querySelector("app-upgrade-nav-button");
+
+      expect(upgradeButton).toBeTruthy();
+    });
   });
 });

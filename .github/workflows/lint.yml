@@ -49,6 +49,7 @@ jobs:
             ! -path "*/Cargo.toml" \
             ! -path "*/Cargo.lock" \
             ! -path "./apps/desktop/macos/*" \
+            ! -path "*/CLAUDE.md" \
             > tmp.txt
           diff <(sort .github/whitelist-capital-letters.txt) <(sort tmp.txt)
 
@@ -60,7 +61,7 @@ jobs:
           echo "node_version=$NODE_VERSION" >> $GITHUB_OUTPUT
 
       - name: Set up Node
-        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'

@@ -34,7 +34,7 @@ jobs:
           echo "node_version=$NODE_VERSION" >> $GITHUB_OUTPUT
 
       - name: Set up Node
-        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
@@ -125,8 +125,8 @@ jobs:
 
       - name: Test Windows
         if: ${{ matrix.os=='windows-2022'}}
-        working-directory: ./apps/desktop/desktop_native/core
-        run: cargo test -- --test-threads=1
+        working-directory: ./apps/desktop/desktop_native
+        run: cargo test --workspace --exclude=desktop_napi -- --test-threads=1
 
   rust-coverage:
     name: Rust Coverage
