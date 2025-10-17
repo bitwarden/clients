@@ -1,11 +1,9 @@
-import { TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { ToastService } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
 
 import {
@@ -14,14 +12,13 @@ import {
   SubscriptionCadenceIds,
 } from "../types/subscription-pricing-tier";
 
-import { SubscriptionPricingService } from "./subscription-pricing.service";
+import { DefaultSubscriptionPricingService } from "./subscription-pricing.service";
 
-describe("SubscriptionPricingService", () => {
-  let service: SubscriptionPricingService;
+describe("DefaultSubscriptionPricingService", () => {
+  let service: DefaultSubscriptionPricingService;
   let apiService: MockProxy<ApiService>;
   let i18nService: MockProxy<I18nService>;
   let logService: MockProxy<LogService>;
-  let toastService: MockProxy<ToastService>;
 
   const mockFamiliesPlan = {
     type: PlanType.FamiliesAnnually,
@@ -220,7 +217,6 @@ describe("SubscriptionPricingService", () => {
   beforeAll(() => {
     i18nService = mock<I18nService>();
     logService = mock<LogService>();
-    toastService = mock<ToastService>();
 
     i18nService.t.mockImplementation((key: string, ...args: any[]) => {
       switch (key) {
@@ -311,8 +307,6 @@ describe("SubscriptionPricingService", () => {
           return "Boost productivity";
         case "seamlessIntegration":
           return "Seamless integration";
-        case "unexpectedError":
-          return "An unexpected error has occurred.";
         default:
           return key;
       }
@@ -324,17 +318,7 @@ describe("SubscriptionPricingService", () => {
 
     apiService.getPlans.mockResolvedValue(mockPlansResponse);
 
-    TestBed.configureTestingModule({
-      providers: [
-        SubscriptionPricingService,
-        { provide: ApiService, useValue: apiService },
-        { provide: I18nService, useValue: i18nService },
-        { provide: LogService, useValue: logService },
-        { provide: ToastService, useValue: toastService },
-      ],
-    });
-
-    service = TestBed.inject(SubscriptionPricingService);
+    service = new DefaultSubscriptionPricingService(apiService, i18nService, logService);
   });
 
   describe("getPersonalSubscriptionPricingTiers$", () => {
@@ -405,42 +389,33 @@ describe("SubscriptionPricingService", () => {
       });
     });
 
-    it("should handle API errors by logging and showing toast", (done) => {
+    it("should handle API errors by logging and throwing error", (done) => {
       const errorApiService = mock<ApiService>();
       const errorI18nService = mock<I18nService>();
       const errorLogService = mock<LogService>();
-      const errorToastService = mock<ToastService>();
 
       const testError = new Error("API error");
       errorApiService.getPlans.mockRejectedValue(testError);
 
-      errorI18nService.t.mockImplementation((key: string) => {
-        if (key === "unexpectedError") {
-          return "An unexpected error has occurred.";
-        }
-        return key;
-      });
+      errorI18nService.t.mockImplementation((key: string) => key);
 
-      const errorService = new SubscriptionPricingService(
+      const errorService = new DefaultSubscriptionPricingService(
         errorApiService,
         errorI18nService,
         errorLogService,
-        errorToastService,
       );
 
       errorService.getPersonalSubscriptionPricingTiers$().subscribe({
-        next: (tiers) => {
-          expect(tiers).toEqual([]);
-          expect(errorLogService.error).toHaveBeenCalledWith(testError);
-          expect(errorToastService.showToast).toHaveBeenCalledWith({
-            variant: "error",
-            title: "",
-            message: "An unexpected error has occurred.",
-          });
-          done();
+        next: () => {
+          fail("Observable should error, not return a value");
         },
-        error: () => {
-          fail("Observable should not error, it should return empty array");
+        error: (error: unknown) => {
+          expect(errorLogService.error).toHaveBeenCalledWith(
+            "Failed to load personal subscription pricing tiers",
+            testError,
+          );
+          expect(error).toBe(testError);
+          done();
         },
       });
     });
@@ -590,42 +565,33 @@ describe("SubscriptionPricingService", () => {
       });
     });
 
-    it("should handle API errors by logging and showing toast", (done) => {
+    it("should handle API errors by logging and throwing error", (done) => {
       const errorApiService = mock<ApiService>();
       const errorI18nService = mock<I18nService>();
       const errorLogService = mock<LogService>();
-      const errorToastService = mock<ToastService>();
 
       const testError = new Error("API error");
       errorApiService.getPlans.mockRejectedValue(testError);
 
-      errorI18nService.t.mockImplementation((key: string) => {
-        if (key === "unexpectedError") {
-          return "An unexpected error has occurred.";
-        }
-        return key;
-      });
+      errorI18nService.t.mockImplementation((key: string) => key);
 
-      const errorService = new SubscriptionPricingService(
+      const errorService = new DefaultSubscriptionPricingService(
         errorApiService,
         errorI18nService,
         errorLogService,
-        errorToastService,
       );
 
       errorService.getBusinessSubscriptionPricingTiers$().subscribe({
-        next: (tiers) => {
-          expect(tiers).toEqual([]);
-          expect(errorLogService.error).toHaveBeenCalledWith(testError);
-          expect(errorToastService.showToast).toHaveBeenCalledWith({
-            variant: "error",
-            title: "",
-            message: "An unexpected error has occurred.",
-          });
-          done();
+        next: () => {
+          fail("Observable should error, not return a value");
         },
-        error: () => {
-          fail("Observable should not error, it should return empty array");
+        error: (error: unknown) => {
+          expect(errorLogService.error).toHaveBeenCalledWith(
+            "Failed to load business subscription pricing tiers",
+            testError,
+          );
+          expect(error).toBe(testError);
+          done();
         },
       });
     });
@@ -830,42 +796,33 @@ describe("SubscriptionPricingService", () => {
       });
     });
 
-    it("should handle API errors by logging and showing toast", (done) => {
+    it("should handle API errors by logging and throwing error", (done) => {
       const errorApiService = mock<ApiService>();
       const errorI18nService = mock<I18nService>();
       const errorLogService = mock<LogService>();
-      const errorToastService = mock<ToastService>();
 
       const testError = new Error("API error");
       errorApiService.getPlans.mockRejectedValue(testError);
 
-      errorI18nService.t.mockImplementation((key: string) => {
-        if (key === "unexpectedError") {
-          return "An unexpected error has occurred.";
-        }
-        return key;
-      });
+      errorI18nService.t.mockImplementation((key: string) => key);
 
-      const errorService = new SubscriptionPricingService(
+      const errorService = new DefaultSubscriptionPricingService(
         errorApiService,
         errorI18nService,
         errorLogService,
-        errorToastService,
       );
 
       errorService.getDeveloperSubscriptionPricingTiers$().subscribe({
-        next: (tiers) => {
-          expect(tiers).toEqual([]);
-          expect(errorLogService.error).toHaveBeenCalledWith(testError);
-          expect(errorToastService.showToast).toHaveBeenCalledWith({
-            variant: "error",
-            title: "",
-            message: "An unexpected error has occurred.",
-          });
-          done();
+        next: () => {
+          fail("Observable should error, not return a value");
         },
-        error: () => {
-          fail("Observable should not error, it should return empty array");
+        error: (error: unknown) => {
+          expect(errorLogService.error).toHaveBeenCalledWith(
+            "Failed to load developer subscription pricing tiers",
+            testError,
+          );
+          expect(error).toBe(testError);
+          done();
         },
       });
     });

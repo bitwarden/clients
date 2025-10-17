@@ -11,13 +11,13 @@ import { OrganizationResponse } from "@bitwarden/common/admin-console/models/res
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { OrganizationBillingServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { PaymentMethodType, PlanType } from "@bitwarden/common/billing/enums";
+import { PersonalSubscriptionPricingTierIds } from "@bitwarden/common/billing/types/subscription-pricing-tier";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { UserId } from "@bitwarden/common/types/guid";
 import { LogService } from "@bitwarden/logging";
 
 import { AccountBillingClient, TaxAmounts, TaxClient } from "../../../../clients";
 import { BillingAddress, TokenizedPaymentMethod } from "../../../../payment/types";
-import { PersonalSubscriptionPricingTierIds } from "../../../../types/subscription-pricing-tier";
 
 import { UpgradePaymentService, PlanDetails } from "./upgrade-payment.service";
 

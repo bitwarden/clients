@@ -1,0 +1,38 @@
+@if (!(loading$ | async)) {
+  <section
+    class="tw-min-w-[332px] md:tw-max-w-sm tw-overflow-y-auto tw-self-center tw-bg-background tw-rounded-xl tw-shadow-lg tw-border-secondary-100 tw-border-solid tw-border"
+    cdkTrapFocus
+    cdkTrapFocusAutoCapture
+  >
+    <header
+      class="tw-flex tw-items-center tw-justify-end tw-pl-6 tw-pt-3 tw-pr-2 !tw-bg-background !tw-border-none"
+    >
+      <button
+        type="button"
+        bitIconButton="bwi-close"
+        buttonType="main"
+        size="default"
+        [label]="'close' | i18n"
+        (click)="close()"
+      ></button>
+    </header>
+    <div class="tw-flex tw-justify-center tw-mb-6">
+      @if (cardDetails$ | async; as cardDetails) {
+        <billing-pricing-card
+          class="tw-w-full tw-max-w-md"
+          [tagline]="cardDetails.tagline"
+          [price]="cardDetails.price"
+          [button]="cardDetails.button"
+          [features]="cardDetails.features"
+          [disableVerticalPadding]="true"
+          [disableCardBorder]="true"
+          (buttonClick)="upgrade()"
+        >
+          <h3 slot="title" class="tw-m-0" bitTypography="h3">
+            {{ "upgradeToPremium" | i18n }}
+          </h3>
+        </billing-pricing-card>
+      }
+    </div>
+  </section>
+}

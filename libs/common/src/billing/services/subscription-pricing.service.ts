@@ -1,5 +1,4 @@
-import { Injectable } from "@angular/core";
-import { combineLatest, from, map, Observable, of, shareReplay } from "rxjs";
+import { combineLatest, from, map, Observable, of, shareReplay, throwError } from "rxjs";
 import { catchError } from "rxjs/operators";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -7,50 +6,57 @@ import { PlanType } from "@bitwarden/common/billing/enums";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { ToastService } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
-import { BillingServicesModule } from "@bitwarden/web-vault/app/billing/services/billing-services.module";
+
+import { SubscriptionPricingServiceAbstraction } from "../abstractions/subscription-pricing.service.abstraction";
 import {
   BusinessSubscriptionPricingTier,
   BusinessSubscriptionPricingTierIds,
   PersonalSubscriptionPricingTier,
   PersonalSubscriptionPricingTierIds,
   SubscriptionCadenceIds,
-} from "@bitwarden/web-vault/app/billing/types/subscription-pricing-tier";
+} from "../types/subscription-pricing-tier";
 
-@Injectable({ providedIn: BillingServicesModule })
-export class SubscriptionPricingService {
+export class DefaultSubscriptionPricingService implements SubscriptionPricingServiceAbstraction {
   constructor(
     private apiService: ApiService,
     private i18nService: I18nService,
     private logService: LogService,
-    private toastService: ToastService,
   ) {}
 
+  /**
+   * Gets personal subscription pricing tiers (Premium and Families).
+   * @returns An observable of an array of personal subscription pricing tiers.
+   */
   getPersonalSubscriptionPricingTiers$ = (): Observable<PersonalSubscriptionPricingTier[]> =>
     combineLatest([this.premium$, this.families$]).pipe(
       catchError((error: unknown) => {
-        this.logService.error(error);
-        this.showUnexpectedErrorToast();
-        return of([]);
+        this.logService.error("Failed to load personal subscription pricing tiers", error);
+        return throwError(() => error);
       }),
     );
 
+  /**
+   * Gets business subscription pricing tiers (Teams, Enterprise, and Custom).
+   * @returns An observable of an array of business subscription pricing tiers.
+   */
   getBusinessSubscriptionPricingTiers$ = (): Observable<BusinessSubscriptionPricingTier[]> =>
     combineLatest([this.teams$, this.enterprise$, this.custom$]).pipe(
       catchError((error: unknown) => {
-        this.logService.error(error);
-        this.showUnexpectedErrorToast();
-        return of([]);
+        this.logService.error("Failed to load business subscription pricing tiers", error);
+        return throwError(() => error);
       }),
     );
 
+  /**
+   * Gets developer subscription pricing tiers (Free, Teams, and Enterprise).
+   * @returns An observable of an array of business subscription pricing tiers for developers.
+   */
   getDeveloperSubscriptionPricingTiers$ = (): Observable<BusinessSubscriptionPricingTier[]> =>
     combineLatest([this.free$, this.teams$, this.enterprise$]).pipe(
       catchError((error: unknown) => {
-        this.logService.error(error);
-        this.showUnexpectedErrorToast();
-        return of([]);
+        this.logService.error("Failed to load developer subscription pricing tiers", error);
+        return throwError(() => error);
       }),
     );
 
@@ -232,14 +238,6 @@ export class SubscriptionPricingService {
       }),
     ),
   );
-
-  private showUnexpectedErrorToast() {
-    this.toastService.showToast({
-      variant: "error",
-      title: "",
-      message: this.i18nService.t("unexpectedError"),
-    });
-  }
 
   private featureTranslations = {
     builtInAuthenticator: () => ({

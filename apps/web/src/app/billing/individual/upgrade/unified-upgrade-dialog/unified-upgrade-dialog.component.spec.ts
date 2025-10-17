@@ -4,13 +4,13 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { mock } from "jest-mock-extended";
 
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
-import { UserId } from "@bitwarden/common/types/guid";
-import { DIALOG_DATA, DialogRef } from "@bitwarden/components";
-
 import {
   PersonalSubscriptionPricingTierId,
   PersonalSubscriptionPricingTierIds,
-} from "../../../types/subscription-pricing-tier";
+} from "@bitwarden/common/billing/types/subscription-pricing-tier";
+import { UserId } from "@bitwarden/common/types/guid";
+import { DIALOG_DATA, DialogRef } from "@bitwarden/components";
+
 import {
   UpgradeAccountComponent,
   UpgradeAccountStatus,
