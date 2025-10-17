@@ -1,3 +1,5 @@
+#![deny(clippy::pedantic, warnings)]
+
 use std::sync::{
     atomic::{AtomicBool, AtomicU32},
     Arc,
@@ -103,7 +105,7 @@ impl ssh_agent::Agent<peerinfo::models::PeerInfo, BitwardenSshKey>
             request_parser::SshAgentSignRequest::SshSigRequest(ref req) => {
                 Some(req.namespace.clone())
             }
-            _ => None,
+            request_parser::SshAgentSignRequest::SignRequest(_) => None,
         };
 
         info!(
@@ -180,6 +182,9 @@ impl ssh_agent::Agent<peerinfo::models::PeerInfo, BitwardenSshKey>
 }
 
 impl BitwardenDesktopAgent<BitwardenSshKey> {
+    /// # Panics
+    ///
+    /// This function panics if the underlying `RwLock` is poisoned.
     pub fn stop(&self) {
         if !self.is_running() {
             error!("Tried to stop agent while it is not running");
@@ -195,9 +200,17 @@ impl BitwardenDesktopAgent<BitwardenSshKey> {
             .clear();
     }
 
+    /// # Errors
+    ///
+    /// This function returns an error if the agent is not running.
+    ///
+    /// # Panics
+    ///
+    /// This function panics if the underlying `RwLock` is poisoned or
+    /// if the cipher's public key is not serializable to bytes.
     pub fn set_keys(
         &mut self,
-        new_keys: Vec<(String, String, String)>,
+        new_keys: &[(&String, &String, &String)],
     ) -> Result<(), anyhow::Error> {
         if !self.is_running() {
             return Err(anyhow::anyhow!(
@@ -211,7 +224,7 @@ impl BitwardenDesktopAgent<BitwardenSshKey> {
         self.needs_unlock
             .store(true, std::sync::atomic::Ordering::Relaxed);
 
-        for (key, name, cipher_id) in new_keys.iter() {
+        for (key, name, cipher_id) in new_keys {
             match parse_key_safe(key) {
                 Ok(private_key) => {
                     let public_key_bytes = private_key
@@ -222,8 +235,8 @@ impl BitwardenDesktopAgent<BitwardenSshKey> {
                         public_key_bytes,
                         BitwardenSshKey {
                             private_key: Some(private_key),
-                            name: name.clone(),
-                            cipher_uuid: cipher_id.clone(),
+                            name: (*name).to_string(),
+                            cipher_uuid: (*cipher_id).to_string(),
                         },
                     );
                 }
@@ -236,6 +249,13 @@ impl BitwardenDesktopAgent<BitwardenSshKey> {
         Ok(())
     }
 
+    /// # Errors
+    ///
+    /// This function returns an error if the agent is not running.
+    ///
+    /// # Panics
+    ///
+    /// This function panics if the underlying `RwLock` is poisoned.
     pub fn lock(&mut self) -> Result<(), anyhow::Error> {
         if !self.is_running() {
             return Err(anyhow::anyhow!(
@@ -255,13 +275,14 @@ impl BitwardenDesktopAgent<BitwardenSshKey> {
         Ok(())
     }
 
-    pub fn clear_keys(&mut self) -> Result<(), anyhow::Error> {
+    /// # Panics
+    ///
+    /// This function panics if the underlying `RwLock` is poisoned.
+    pub fn clear_keys(&mut self) {
         let keystore = &mut self.keystore;
         keystore.0.write().expect("RwLock is not poisoned").clear();
         self.needs_unlock
             .store(true, std::sync::atomic::Ordering::Relaxed);
-
-        Ok(())
     }
 
     fn get_request_id(&self) -> u32 {
@@ -274,6 +295,7 @@ impl BitwardenDesktopAgent<BitwardenSshKey> {
             .fetch_add(1, std::sync::atomic::Ordering::Relaxed)
     }
 
+    #[must_use]
     pub fn is_running(&self) -> bool {
         self.is_running.load(std::sync::atomic::Ordering::Relaxed)
     }
