@@ -7,5 +7,7 @@ export type MemberAccessReportView = {
   groupsCount: number;
   itemsCount: number;
   userGuid: Guid;
+  userId?: string;
+  avatarColor?: string;
   usesKeyConnector: boolean;
 };
