@@ -1,7 +1,6 @@
 import { CommonModule } from "@angular/common";
 import { Component, DestroyRef, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { ActivatedRoute, Router } from "@angular/router";
 import { combineLatest, firstValueFrom, map, Observable, of, shareReplay, switchMap } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -22,7 +21,6 @@ import { PricingCardComponent } from "@bitwarden/pricing";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { SubscriptionPricingService } from "../../services/subscription-pricing.service";
-import { BillingSharedModule } from "../../shared/billing-shared.module";
 import { BitwardenSubscriber, mapAccountToSubscriber } from "../../types";
 import {
   PersonalSubscriptionPricingTier,
@@ -47,7 +45,6 @@ import {
     LinkModule,
     I18nPipe,
     PricingCardComponent,
-    BillingSharedModule,
   ],
 })
 export class PremiumVNextComponent {
@@ -80,8 +77,6 @@ export class PremiumVNextComponent {
     private toastService: ToastService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private subscriptionPricingService: SubscriptionPricingService,
-    private router: Router,
-    private activatedRoute: ActivatedRoute,
   ) {
     this.isSelfHost = this.platformUtilsService.isSelfHost();
 
@@ -150,18 +145,6 @@ export class PremiumVNextComponent {
     await this.apiService.refreshIdentityToken();
     await this.syncService.fullSync(true);
   };
-
-  protected async onLicenseFileSelectedChanged(): Promise<void> {
-    this.toastService.showToast({
-      variant: "success",
-      title: null,
-      message: this.i18nService.t("premiumUpdated"),
-    });
-    await this.navigateToSubscriptionPage();
-  }
-
-  navigateToSubscriptionPage = (): Promise<boolean> =>
-    this.router.navigate(["../user-subscription"], { relativeTo: this.activatedRoute });
 
   protected async openUpgradeDialog(planType: "Premium" | "Families"): Promise<void> {
     const account = await firstValueFrom(this.accountService.activeAccount$);

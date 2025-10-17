@@ -65,11 +65,4 @@
       </a>
     </div>
   </bit-section>
-
-  <!-- Self-hosted license upload section -->
-  <bit-section *ngIf="isSelfHost">
-    <individual-self-hosting-license-uploader
-      (onLicenseFileUploaded)="onLicenseFileSelectedChanged()"
-    />
-  </bit-section>
 </div>
