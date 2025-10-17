@@ -1,4 +1,4 @@
-import { LogService } from "../../platform/abstractions/log.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
 // show our GRIT - these functions implement generalized logging
 //   controls and should return DISABLED_LOGGER in production.

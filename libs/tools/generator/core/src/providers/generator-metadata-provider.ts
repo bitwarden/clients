@@ -4,11 +4,11 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { BoundDependency } from "@bitwarden/common/tools/dependencies";
 import { ExtensionSite } from "@bitwarden/common/tools/extension";
-import { SemanticLogger } from "@bitwarden/common/tools/log";
 import { SystemServiceProvider } from "@bitwarden/common/tools/providers";
 import { anyComplete, memoizedMap, pin } from "@bitwarden/common/tools/rx";
 import { UserStateSubject } from "@bitwarden/common/tools/state/user-state-subject";
 import { UserStateSubjectDependencyProvider } from "@bitwarden/common/tools/state/user-state-subject-dependency-provider";
+import { SemanticLogger } from "@bitwarden/logging";
 
 import {
   GeneratorMetadata,

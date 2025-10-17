@@ -22,11 +22,6 @@ import { DefaultFields, DefaultSites, Extension } from "@bitwarden/common/tools/
 import { RuntimeExtensionRegistry } from "@bitwarden/common/tools/extension/runtime-extension-registry";
 import { VendorExtensions, Vendors } from "@bitwarden/common/tools/extension/vendor";
 import { RestClient } from "@bitwarden/common/tools/integration/rpc";
-import {
-  LogProvider,
-  disabledSemanticLoggerProvider,
-  enableLogForTypes,
-} from "@bitwarden/common/tools/log";
 import { SystemServiceProvider } from "@bitwarden/common/tools/providers";
 import { UserStateSubjectDependencyProvider } from "@bitwarden/common/tools/state/user-state-subject-dependency-provider";
 import {
@@ -38,6 +33,7 @@ import {
   DefaultCredentialGeneratorService,
 } from "@bitwarden/generator-core";
 import { KeyService } from "@bitwarden/key-management";
+import { LogProvider, disabledSemanticLoggerProvider, enableLogForTypes } from "@bitwarden/logging";
 
 export const RANDOMIZER = new SafeInjectionToken<Randomizer>("Randomizer");
 const GENERATOR_SERVICE_PROVIDER = new SafeInjectionToken<providers.CredentialGeneratorProviders>(
@@ -199,7 +195,10 @@ export const SYSTEM_SERVICE_PROVIDER = new SafeInjectionToken<SystemServiceProvi
     }),
     safeProvider({
       provide: CredentialGeneratorService,
-      useClass: DefaultCredentialGeneratorService,
+      useFactory: (
+        providers: providers.CredentialGeneratorProviders,
+        system: SystemServiceProvider,
+      ) => new DefaultCredentialGeneratorService(providers, system.extension, system.log),
       deps: [GENERATOR_SERVICE_PROVIDER, SYSTEM_SERVICE_PROVIDER],
     }),
   ],

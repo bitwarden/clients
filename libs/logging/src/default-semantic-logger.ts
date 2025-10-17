@@ -1,8 +1,7 @@
 import { Jsonify } from "type-fest";
 
-import { LogService } from "../../platform/abstractions/log.service";
-import { LogLevelType } from "../../platform/enums";
-
+import { LogLevel } from "./log-level";
+import { LogService } from "./log.service";
 import { SemanticLogger } from "./semantic-logger.abstraction";
 
 /** Sends semantic logs to the console.
@@ -26,29 +25,29 @@ export class DefaultSemanticLogger<Context extends object> implements SemanticLo
   readonly context: object;
 
   debug<T>(content: Jsonify<T>, message?: string): void {
-    this.log(content, LogLevelType.Debug, message);
+    this.log(content, LogLevel.Debug, message);
   }
 
   info<T>(content: Jsonify<T>, message?: string): void {
-    this.log(content, LogLevelType.Info, message);
+    this.log(content, LogLevel.Info, message);
   }
 
   warn<T>(content: Jsonify<T>, message?: string): void {
-    this.log(content, LogLevelType.Warning, message);
+    this.log(content, LogLevel.Warning, message);
   }
 
   error<T>(content: Jsonify<T>, message?: string): void {
-    this.log(content, LogLevelType.Error, message);
+    this.log(content, LogLevel.Error, message);
   }
 
   panic<T>(content: Jsonify<T>, message?: string): never {
-    this.log(content, LogLevelType.Error, message);
+    this.log(content, LogLevel.Error, message);
     const panicMessage =
       message ?? (typeof content === "string" ? content : "a fatal error occurred");
     throw new Error(panicMessage);
   }
 
-  private log<T>(content: Jsonify<T>, level: LogLevelType, message?: string) {
+  private log<T>(content: Jsonify<T>, level: LogLevel, message?: string) {
     const log = {
       ...this.context,
       message,
@@ -66,15 +65,15 @@ export class DefaultSemanticLogger<Context extends object> implements SemanticLo
   }
 }
 
-function stringifyLevel(level: LogLevelType) {
+function stringifyLevel(level: LogLevel) {
   switch (level) {
-    case LogLevelType.Debug:
+    case LogLevel.Debug:
       return "debug";
-    case LogLevelType.Info:
+    case LogLevel.Info:
       return "information";
-    case LogLevelType.Warning:
+    case LogLevel.Warning:
       return "warning";
-    case LogLevelType.Error:
+    case LogLevel.Error:
       return "error";
     default:
       return `${level}`;

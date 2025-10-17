@@ -1,9 +1,8 @@
 import { Jsonify } from "type-fest";
 
-import { LogService } from "../../platform/abstractions/log.service";
-
 import { DefaultSemanticLogger } from "./default-semantic-logger";
 import { DISABLED_LOGGER } from "./disabled-logger";
+import { LogService } from "./log.service";
 import { SemanticLogger } from "./semantic-logger.abstraction";
 import { LogProvider } from "./types";
 import { warnLoggingEnabled } from "./util";

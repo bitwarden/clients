@@ -1,9 +1,8 @@
 import { mock } from "jest-mock-extended";
 
-import { LogService } from "../../platform/abstractions/log.service";
-import { LogLevelType } from "../../platform/enums";
-
 import { DefaultSemanticLogger } from "./default-semantic-logger";
+import { LogLevel } from "./log-level";
+import { LogService } from "./log.service";
 
 const logger = mock<LogService>();
 
@@ -18,7 +17,7 @@ describe("DefaultSemanticLogger", () => {
 
       log.debug("this is a debug message");
 
-      expect(logger.write).toHaveBeenCalledWith(LogLevelType.Debug, {
+      expect(logger.write).toHaveBeenCalledWith(LogLevel.Debug, {
         "@timestamp": 0,
         message: "this is a debug message",
         level: "debug",
@@ -30,7 +29,7 @@ describe("DefaultSemanticLogger", () => {
 
       log.debug({ example: "this is content" });
 
-      expect(logger.write).toHaveBeenCalledWith(LogLevelType.Debug, {
+      expect(logger.write).toHaveBeenCalledWith(LogLevel.Debug, {
         "@timestamp": 0,
         content: { example: "this is content" },
         level: "debug",
@@ -42,7 +41,7 @@ describe("DefaultSemanticLogger", () => {
 
       log.info({ example: "this is content" }, "this is a message");
 
-      expect(logger.write).toHaveBeenCalledWith(LogLevelType.Info, {
+      expect(logger.write).toHaveBeenCalledWith(LogLevel.Info, {
         "@timestamp": 0,
         content: { example: "this is content" },
         message: "this is a message",
@@ -57,7 +56,7 @@ describe("DefaultSemanticLogger", () => {
 
       log.info("this is an info message");
 
-      expect(logger.write).toHaveBeenCalledWith(LogLevelType.Info, {
+      expect(logger.write).toHaveBeenCalledWith(LogLevel.Info, {
         "@timestamp": 0,
         message: "this is an info message",
         level: "information",
@@ -69,7 +68,7 @@ describe("DefaultSemanticLogger", () => {
 
       log.info({ example: "this is content" });
 
-      expect(logger.write).toHaveBeenCalledWith(LogLevelType.Info, {
+      expect(logger.write).toHaveBeenCalledWith(LogLevel.Info, {
         "@timestamp": 0,
         content: { example: "this is content" },
         level: "information",
@@ -81,7 +80,7 @@ describe("DefaultSemanticLogger", () => {
 
       log.info({ example: "this is content" }, "this is a message");
 
-      expect(logger.write).toHaveBeenCalledWith(LogLevelType.Info, {
+      expect(logger.write).toHaveBeenCalledWith(LogLevel.Info, {
         "@timestamp": 0,
         content: { example: "this is content" },
         message: "this is a message",
@@ -96,7 +95,7 @@ describe("DefaultSemanticLogger", () => {
 
       log.warn("this is a warning message");
 
-      expect(logger.write).toHaveBeenCalledWith(LogLevelType.Warning, {
+      expect(logger.write).toHaveBeenCalledWith(LogLevel.Warning, {
         "@timestamp": 0,
         message: "this is a warning message",
         level: "warning",
@@ -108,7 +107,7 @@ describe("DefaultSemanticLogger", () => {
 
       log.warn({ example: "this is content" });
 
-      expect(logger.write).toHaveBeenCalledWith(LogLevelType.Warning, {
+      expect(logger.write).toHaveBeenCalledWith(LogLevel.Warning, {
         "@timestamp": 0,
         content: { example: "this is content" },
         level: "warning",
@@ -120,7 +119,7 @@ describe("DefaultSemanticLogger", () => {
 
       log.warn({ example: "this is content" }, "this is a message");
 
-      expect(logger.write).toHaveBeenCalledWith(LogLevelType.Warning, {
+      expect(logger.write).toHaveBeenCalledWith(LogLevel.Warning, {
         "@timestamp": 0,
         content: { example: "this is content" },
         message: "this is a message",
@@ -135,7 +134,7 @@ describe("DefaultSemanticLogger", () => {
 
       log.error("this is an error message");
 
-      expect(logger.write).toHaveBeenCalledWith(LogLevelType.Error, {
+      expect(logger.write).toHaveBeenCalledWith(LogLevel.Error, {
         "@timestamp": 0,
         message: "this is an error message",
         level: "error",
@@ -147,7 +146,7 @@ describe("DefaultSemanticLogger", () => {
 
       log.error({ example: "this is content" });
 
-      expect(logger.write).toHaveBeenCalledWith(LogLevelType.Error, {
+      expect(logger.write).toHaveBeenCalledWith(LogLevel.Error, {
         "@timestamp": 0,
         content: { example: "this is content" },
         level: "error",
@@ -159,7 +158,7 @@ describe("DefaultSemanticLogger", () => {
 
       log.error({ example: "this is content" }, "this is a message");
 
-      expect(logger.write).toHaveBeenCalledWith(LogLevelType.Error, {
+      expect(logger.write).toHaveBeenCalledWith(LogLevel.Error, {
         "@timestamp": 0,
         content: { example: "this is content" },
         message: "this is a message",
@@ -174,7 +173,7 @@ describe("DefaultSemanticLogger", () => {
 
       expect(() => log.panic("this is an error message")).toThrow("this is an error message");
 
-      expect(logger.write).toHaveBeenCalledWith(LogLevelType.Error, {
+      expect(logger.write).toHaveBeenCalledWith(LogLevel.Error, {
         "@timestamp": 0,
         message: "this is an error message",
         level: "error",
@@ -188,7 +187,7 @@ describe("DefaultSemanticLogger", () => {
         "this is an error message",
       );
 
-      expect(logger.write).toHaveBeenCalledWith(LogLevelType.Error, {
+      expect(logger.write).toHaveBeenCalledWith(LogLevel.Error, {
         "@timestamp": 0,
         content: { example: "this is content" },
         message: "this is an error message",
@@ -203,7 +202,7 @@ describe("DefaultSemanticLogger", () => {
         "this is an error message",
       );
 
-      expect(logger.write).toHaveBeenCalledWith(LogLevelType.Error, {
+      expect(logger.write).toHaveBeenCalledWith(LogLevel.Error, {
         "@timestamp": 0,
         content: "this is content",
         message: "this is an error message",
