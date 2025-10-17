@@ -12,6 +12,7 @@
     [selected]="status"
     (selectedChange)="statusToggle.next($event)"
     [attr.aria-label]="'memberStatusFilter' | i18n"
+    [smallScreenQuery]="'(max-width: 550px)'"
   >
     <bit-toggle [value]="null">
       {{ "all" | i18n }}
