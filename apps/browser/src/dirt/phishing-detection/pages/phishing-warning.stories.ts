@@ -87,7 +87,7 @@ export default {
     props: args,
     template: /*html*/ `
       <auth-anon-layout
-        [hideIcon]="true"
+        [icon]="null"
         [hideBackgroundIllustration]="true"
       >
         <dirt-phishing-warning></dirt-phishing-warning>

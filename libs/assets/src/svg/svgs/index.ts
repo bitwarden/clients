@@ -1,3 +1,4 @@
+export * from "./account-warning.icon";
 export * from "./active-send.icon";
 export { default as AdminConsoleLogo } from "./admin-console";
 export * from "./background-left-illustration";
@@ -6,6 +7,7 @@ export * from "./bitwarden-icon";
 export * from "./bitwarden-logo.icon";
 export * from "./browser-extension";
 export { default as BusinessUnitPortalLogo } from "./business-unit-portal";
+export * from "./business-welcome.icon";
 export * from "./carousel-icon";
 export * from "./credit-card.icon";
 export * from "./deactivated-org";
