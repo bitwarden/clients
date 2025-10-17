@@ -16,6 +16,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { CipherType, toCipherType } from "@bitwarden/common/vault/enums";
@@ -29,6 +30,7 @@ import {
   IconButtonModule,
   DialogService,
   ToastService,
+  BadgeModule,
 } from "@bitwarden/components";
 import {
   CipherFormConfig,
@@ -154,12 +156,14 @@ export type AddEditQueryParams = Partial<Record<keyof QueryParams, string>>;
     AsyncActionsModule,
     PopOutComponent,
     IconButtonModule,
+    BadgeModule,
   ],
 })
 export class AddEditV2Component implements OnInit {
   headerText: string;
   config: CipherFormConfig;
   canDeleteCipher$: Observable<boolean>;
+  protected submitBtnI18nKey = "save";
 
   get loading() {
     return this.config == null;
@@ -194,6 +198,7 @@ export class AddEditV2Component implements OnInit {
     private dialogService: DialogService,
     protected cipherAuthorizationService: CipherAuthorizationService,
     private accountService: AccountService,
+    private archiveService: CipherArchiveService,
   ) {
     this.subscribeToParams();
   }
@@ -328,6 +333,14 @@ export class AddEditV2Component implements OnInit {
               false,
               config.originalCipher.organizationId,
             );
+          }
+
+          const canArchive = await firstValueFrom(
+            this.archiveService.userCanArchive$(activeUserId),
+          );
+
+          if (!canArchive && config.originalCipher?.archivedDate) {
+            this.submitBtnI18nKey = "unarchiveAndSave";
           }
 
           return config;

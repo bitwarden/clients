@@ -1,9 +1,24 @@
 <popup-page [loading]="loading$ | async">
-  <popup-header slot="header" [pageTitle]="'archive' | i18n" showBackButton>
+  <popup-header slot="header" [pageTitle]="'archiveNoun' | i18n" showBackButton>
     <ng-container slot="end">
       <app-pop-out></app-pop-out>
     </ng-container>
   </popup-header>
+
+  @if (previouslyHadPremium$ | async; as previouslyHadPremium) {
+    <bit-card class="tw-mb-4">
+      <div class="tw-flex tw-gap-2 tw-items-baseline">
+        <i class="bwi bwi-info-circle" aria-hidden="true"></i>
+        <h3 class="tw-font-[500]" bitTypography="h5">{{ "premiumSubscriptionEnded" | i18n }}</h3>
+      </div>
+      <p bitTypography="body2" class="tw-mb-3">
+        {{ "archivePremiumRestart" | i18n }}
+      </p>
+      <button type="button" bitButton (click)="navigateToPremium()" buttonType="primary">
+        {{ "restartPremium" | i18n }}
+      </button>
+    </bit-card>
+  }
 
   @if (archivedCiphers$ | async; as archivedItems) {
     @if (archivedItems.length) {
@@ -45,9 +60,11 @@
                   <button type="button" bitMenuItem (click)="edit(cipher)">
                     {{ "edit" | i18n }}
                   </button>
-                  <button type="button" bitMenuItem (click)="clone(cipher)">
-                    {{ "clone" | i18n }}
-                  </button>
+                  @if (!previouslyHadPremium) {
+                    <button type="button" bitMenuItem (click)="clone(cipher)">
+                      {{ "clone" | i18n }}
+                    </button>
+                  }
                   <button type="button" bitMenuItem (click)="unarchive(cipher)">
                     {{ "unArchive" | i18n }}
                   </button>

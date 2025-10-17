@@ -1,7 +1,7 @@
 import { CommonModule } from "@angular/common";
 import { Component, inject } from "@angular/core";
 import { Router } from "@angular/router";
-import { firstValueFrom, map, Observable, startWith, switchMap } from "rxjs";
+import { combineLatest, firstValueFrom, map, Observable, startWith, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -22,6 +22,8 @@ import {
   SectionHeaderComponent,
   ToastService,
   TypographyModule,
+  CardComponent,
+  ButtonComponent,
 } from "@bitwarden/components";
 import {
   CanDeleteCipherDirective,
@@ -50,6 +52,8 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
     SectionComponent,
     SectionHeaderComponent,
     TypographyModule,
+    CardComponent,
+    ButtonComponent,
   ],
 })
 export class ArchiveComponent {
@@ -62,17 +66,25 @@ export class ArchiveComponent {
   private i18nService = inject(I18nService);
   private cipherArchiveService = inject(CipherArchiveService);
   private passwordRepromptService = inject(PasswordRepromptService);
-
   private userId$: Observable<UserId> = this.accountService.activeAccount$.pipe(getUserId);
 
   protected archivedCiphers$ = this.userId$.pipe(
     switchMap((userId) => this.cipherArchiveService.archivedCiphers$(userId)),
   );
 
+  protected previouslyHadPremium$ = combineLatest([
+    this.userId$.pipe(switchMap((userId) => this.cipherArchiveService.userCanArchive$(userId))),
+    this.archivedCiphers$,
+  ]).pipe(map(([canArchive, ciphers]) => !canArchive && ciphers.length > 0));
+
   protected loading$ = this.archivedCiphers$.pipe(
     map(() => false),
     startWith(true),
   );
+
+  async navigateToPremium() {
+    await this.router.navigate(["/premium"]);
+  }
 
   async view(cipher: CipherView) {
     if (!(await this.canInteract(cipher))) {
