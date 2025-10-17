@@ -89,7 +89,7 @@ export class UnsecuredWebsitesReportComponent
   }
 
   getAllCiphers(): Promise<CipherView[]> {
-    return this.cipherService.getAllFromApiForOrganization(this.organization.id);
+    return this.cipherService.getAllFromApiForOrganization(this.organization.id, true);
   }
 
   protected canManageCipher(c: CipherView): boolean {

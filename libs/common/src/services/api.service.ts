@@ -408,14 +408,15 @@ export class ApiService implements ApiServiceAbstraction {
     return new CipherResponse(r);
   }
 
-  async getCiphersOrganization(organizationId: string): Promise<ListResponse<CipherResponse>> {
-    const r = await this.send(
-      "GET",
-      "/ciphers/organization-details?organizationId=" + organizationId,
-      null,
-      true,
-      true,
-    );
+  async getCiphersOrganization(
+    organizationId: string,
+    includeMemberItems?: boolean,
+  ): Promise<ListResponse<CipherResponse>> {
+    let url = "/ciphers/organization-details?organizationId=" + organizationId;
+    if (includeMemberItems) {
+      url += `&includeMemberItems=${includeMemberItems}`;
+    }
+    const r = await this.send("GET", url, null, true, true);
     return new ListResponse(r, CipherResponse);
   }
 

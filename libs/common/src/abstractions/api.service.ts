@@ -194,7 +194,10 @@ export abstract class ApiService {
     cipherId: string,
     attachmentId: string,
   ): Promise<AttachmentResponse>;
-  abstract getCiphersOrganization(organizationId: string): Promise<ListResponse<CipherResponse>>;
+  abstract getCiphersOrganization(
+    organizationId: string,
+    includeMemberItems?: boolean,
+  ): Promise<ListResponse<CipherResponse>>;
   abstract postCipher(request: CipherRequest): Promise<CipherResponse>;
   abstract postCipherCreate(request: CipherCreateRequest): Promise<CipherResponse>;
   abstract postCipherAdmin(request: CipherCreateRequest): Promise<CipherResponse>;
