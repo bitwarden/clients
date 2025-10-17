@@ -42,7 +42,7 @@ pub fn get_supported_importers<T: InstalledBrowserRetriever>(
             loaders.push("chromium");
         }
 
-        if installed_browsers.is_empty() || installed_browsers.contains(&browser_name.to_string()) {
+        if installed_browsers.contains(&browser_name.to_string()) {
             map.insert(
                 id.to_string(),
                 NativeImporterMetadata {
