@@ -620,6 +620,15 @@ export class CipherService implements CipherServiceAbstraction {
     );
   }
 
+  async getAllDecryptedForIds(userId: UserId, ids: string[]): Promise<CipherView[]> {
+    return firstValueFrom(
+      this.cipherViews$(userId).pipe(
+        filter((ciphers) => ciphers != null),
+        map((ciphers) => ciphers.filter((cipher) => ids.includes(cipher.id))),
+      ),
+    );
+  }
+
   async filterCiphersForUrl<C extends CipherViewLike>(
     ciphers: C[],
     url: string,
