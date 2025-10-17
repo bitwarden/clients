@@ -6,7 +6,6 @@ import { combineLatest, firstValueFrom, map, Observable, startWith, switchMap } 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherId, UserId } from "@bitwarden/common/types/guid";
@@ -67,7 +66,6 @@ export class ArchiveComponent {
   private i18nService = inject(I18nService);
   private cipherArchiveService = inject(CipherArchiveService);
   private passwordRepromptService = inject(PasswordRepromptService);
-  private accountProfileService = inject(BillingAccountProfileStateService);
   private userId$: Observable<UserId> = this.accountService.activeAccount$.pipe(getUserId);
 
   protected archivedCiphers$ = this.userId$.pipe(

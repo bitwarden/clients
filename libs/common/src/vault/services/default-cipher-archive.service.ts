@@ -18,7 +18,6 @@ import {
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 
 import { CipherArchiveService } from "../abstractions/cipher-archive.service";
-import { CipherData } from "../models/data/cipher.data";
 
 export class DefaultCipherArchiveService implements CipherArchiveService {
   constructor(
@@ -91,7 +90,7 @@ export class DefaultCipherArchiveService implements CipherArchiveService {
     const currentCiphers = await firstValueFrom(this.cipherService.ciphers$(userId));
 
     // prevent mutating ciphers$ state
-    const localCiphers = JSON.parse(JSON.stringify(currentCiphers)) as { [id: string]: CipherData };
+    const localCiphers = structuredClone(currentCiphers);
 
     for (const cipher of response.data) {
       const localCipher = localCiphers[cipher.id as CipherId];
@@ -115,7 +114,7 @@ export class DefaultCipherArchiveService implements CipherArchiveService {
     const currentCiphers = await firstValueFrom(this.cipherService.ciphers$(userId));
 
     // prevent mutating ciphers$ state
-    const localCiphers = JSON.parse(JSON.stringify(currentCiphers)) as { [id: string]: CipherData };
+    const localCiphers = structuredClone(currentCiphers);
 
     for (const cipher of response.data) {
       const localCipher = localCiphers[cipher.id as CipherId];

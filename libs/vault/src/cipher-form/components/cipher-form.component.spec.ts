@@ -6,6 +6,7 @@ import { of } from "rxjs";
 
 import { ViewCacheService } from "@bitwarden/angular/platform/view-cache";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
@@ -49,6 +50,10 @@ describe("CipherFormComponent", () => {
         { provide: ConfigService, useValue: mock<ConfigService>() },
         { provide: AccountService, useValue: mockAccountService },
         { provide: CipherArchiveService, useValue: mockCipherArchiveService },
+        {
+          provide: BillingAccountProfileStateService,
+          useValue: mock<BillingAccountProfileStateService>(),
+        },
       ],
     }).compileComponents();
   });

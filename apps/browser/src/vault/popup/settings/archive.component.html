@@ -5,7 +5,7 @@
     </ng-container>
   </popup-header>
 
-  @if (previouslyHadPremium$ | async) {
+  @if (previouslyHadPremium$ | async; as previouslyHadPremium) {
     <bit-card class="tw-mb-4">
       <div class="tw-flex tw-gap-2 tw-items-baseline">
         <i class="bwi bwi-info-circle" aria-hidden="true"></i>
@@ -60,7 +60,7 @@
                   <button type="button" bitMenuItem (click)="edit(cipher)">
                     {{ "edit" | i18n }}
                   </button>
-                  @if (!(previouslyHadPremium$ | async)) {
+                  @if (!previouslyHadPremium) {
                     <button type="button" bitMenuItem (click)="clone(cipher)">
                       {{ "clone" | i18n }}
                     </button>

@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
+import { ViewCacheService } from "@bitwarden/angular/platform/view-cache";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { EventType } from "@bitwarden/common/enums";
@@ -18,6 +19,7 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
+import { TaskService } from "@bitwarden/common/vault/tasks";
 import { AddEditCipherInfo } from "@bitwarden/common/vault/types/add-edit-cipher-info";
 import {
   CipherFormConfig,
@@ -91,6 +93,14 @@ describe("AddEditV2Component", () => {
         {
           provide: CipherArchiveService,
           useValue: { userCanArchive$: jest.fn().mockReturnValue(of(false)) },
+        },
+        {
+          provide: TaskService,
+          useValue: mock<TaskService>(),
+        },
+        {
+          provide: ViewCacheService,
+          useValue: { signal: jest.fn(() => (): any => null) },
         },
       ],
     })
@@ -395,6 +405,20 @@ describe("AddEditV2Component", () => {
       expect(component["submitBtnI18nKey"]).toBe("unarchiveAndSave");
     }));
   });
+
+  it.only("shows the archive badge when the cipher is archived", fakeAsync(() => {
+    buildConfigResponse.originalCipher = { archivedDate: new Date() } as Cipher;
+
+    queryParams$.next({});
+
+    tick();
+    fixture.detectChanges();
+
+    const archivedButton = Array.from(fixture.nativeElement.querySelectorAll("button")).find(
+      (el) => (el as HTMLElement)?.textContent === "archived",
+    );
+    expect(archivedButton).toBeTruthy();
+  }));
 
   describe("delete", () => {
     it("dialogService openSimpleDialog called when deleteBtn is hit", async () => {
