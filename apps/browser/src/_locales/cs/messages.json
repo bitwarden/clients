@@ -558,7 +558,7 @@
     "message": "Archivovat",
     "description": "Verb"
   },
-  "unarchive": {
+  "unArchive": {
     "message": "Odebrat z archivu"
   },
   "itemsInArchive": {
@@ -570,10 +570,10 @@
   "noItemsInArchiveDesc": {
     "message": "Zde se zobrazí archivované položky a budou vyloučeny z obecných výsledků vyhledávání a návrhů automatického vyplňování."
   },
-  "itemSentToArchive": {
+  "itemWasSentToArchive": {
     "message": "Položka byla přesunuta do archivu"
   },
-  "itemRemovedFromArchive": {
+  "itemUnarchived": {
     "message": "Položka byla odebrána z archivu"
   },
   "archiveItem": {
@@ -5579,17 +5579,37 @@
   "hasItemsVaultNudgeTitle": {
     "message": "Vítejte ve Vašem trezoru!"
   },
-  "phishingPageTitle": {
-    "message": "Phishingové webová stránka"
+  "phishingPageTitleV2": {
+    "message": "Zjištěn pokus o phishing"
   },
-  "phishingPageCloseTab": {
-    "message": "Zavřít kartu"
+  "phishingPageSummary": {
+    "message": "Stránka, kterou se pokoušíte navštívit, je známá škodlivá stránka a bezpečnostní riziko."
   },
-  "phishingPageContinue": {
-    "message": "Pokračovat"
+  "phishingPageCloseTabV2": {
+    "message": "Zavřít tuto kartu"
   },
-  "phishingPageLearnWhy": {
-    "message": "Proč to vidíte?"
+  "phishingPageContinueV2": {
+    "message": "Pokračovat na tuto stránku (nedoporučeno)"
+  },
+  "phishingPageExplanation1": {
+    "message": "Tato stránka byla nalezena v ",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name follows this."
+  },
+  "phishingPageExplanation2": {
+    "message": ", open-source seznamu známých phishingových stránek používaných pro krádež osobních a citlivých informací.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name precedes this."
+  },
+  "phishingPageLearnMore": {
+    "message": "Další informace o detekci phishingu"
+  },
+  "protectedBy": {
+    "message": "Chráněno produktem $PRODUCT$",
+    "placeholders": {
+      "product": {
+        "content": "$1",
+        "example": "Bitwarden Phishing Blocker"
+      }
+    }
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Položky automatického vyplňování aktuální stránky"

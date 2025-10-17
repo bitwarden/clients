@@ -2549,6 +2549,9 @@
       }
     }
   },
+  "vaultCustomTimeoutMinimum": {
+    "message": "Minimale aangepaste time-out is 1 minuut."
+  },
   "inviteAccepted": {
     "message": "Uitnodiging geaccepteerd"
   },
@@ -4149,7 +4152,7 @@
     "message": "Archiveren",
     "description": "Verb"
   },
-  "unarchive": {
+  "unArchive": {
     "message": "Dearchiveren"
   },
   "itemsInArchive": {
@@ -4161,11 +4164,11 @@
   "noItemsInArchiveDesc": {
     "message": "Gearchiveerde items verschijnen hier en worden uitgesloten van algemene zoekresultaten en automatisch invulsuggesties."
   },
-  "itemSentToArchive": {
+  "itemWasSentToArchive": {
     "message": "Item naar archief verzonden"
   },
-  "itemRemovedFromArchive": {
-    "message": "Item verwijderd uit archief"
+  "itemUnarchived": {
+    "message": "Item uit het archief gehaald"
   },
   "archiveItem": {
     "message": "Item archiveren"

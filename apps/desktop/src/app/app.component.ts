@@ -47,6 +47,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import {
   VaultTimeout,
   VaultTimeoutAction,
@@ -177,6 +178,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private readonly destroyRef: DestroyRef,
     private readonly documentLangSetter: DocumentLangSetter,
     private restrictedItemTypesService: RestrictedItemTypesService,
+    private pinService: PinServiceAbstraction,
     private readonly tokenService: TokenService,
     private desktopAutotypeDefaultSettingPolicy: DesktopAutotypeDefaultSettingPolicy,
   ) {
@@ -692,8 +694,8 @@ export class AppComponent implements OnInit, OnDestroy {
       await this.keyService.clearKeys(userBeingLoggedOut);
       await this.cipherService.clear(userBeingLoggedOut);
       await this.folderService.clear(userBeingLoggedOut);
-      await this.vaultTimeoutSettingsService.clear(userBeingLoggedOut);
       await this.biometricStateService.logout(userBeingLoggedOut);
+      await this.pinService.logout(userBeingLoggedOut);
 
       await this.stateEventRunnerService.handleEvent("logout", userBeingLoggedOut);
 

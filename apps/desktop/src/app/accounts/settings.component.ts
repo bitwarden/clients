@@ -588,7 +588,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
       this.form.controls.pin.setValue(this.userHasPinSet, { emitEvent: false });
     } else {
       const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-      await this.vaultTimeoutSettingsService.clear(userId);
+      await this.pinService.unsetPin(userId);
     }
   }
 

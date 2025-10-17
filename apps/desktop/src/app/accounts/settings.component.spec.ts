@@ -390,7 +390,7 @@ describe("SettingsComponent", () => {
         await component.updatePinHandler(false);
 
         expect(component.form.controls.pin.value).toBe(false);
-        expect(vaultTimeoutSettingsService.clear).toHaveBeenCalled();
+        expect(vaultTimeoutSettingsService.clear).not.toHaveBeenCalled();
         expect(messagingService.send).toHaveBeenCalledWith("redrawMenu");
       });
     });

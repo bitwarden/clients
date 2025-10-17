@@ -90,8 +90,8 @@
   "assignMembersTasksToMonitorProgress": {
     "message": "Přiřadit úkoly členů ke sledování průběhu"
   },
-  "onceYouReviewApplications": {
-    "message": "Jakmile zkontrolujete a označíte aplikace jako kritické, zobrazí se zde."
+  "onceYouReviewApps": {
+    "message": "Jakmile zkontrolujete aplikace a označíte je jako kritické, můžete přidělit členům úkoly k řešení ohrožených položek a sledovat průběh zde"
   },
   "sendReminders": {
     "message": "Odeslat připomenutí"
@@ -11294,11 +11294,46 @@
     "message": "Archivovat",
     "description": "Verb"
   },
+  "unArchive": {
+    "message": "Odebrat z archivu"
+  },
+  "itemsInArchive": {
+    "message": "Položky v archivu"
+  },
   "noItemsInArchive": {
     "message": "Žádné položky v archivu"
   },
-  "archivedItemsDescription": {
+  "noItemsInArchiveDesc": {
     "message": "Zde se zobrazí archivované položky a budou vyloučeny z obecných výsledků vyhledávání a návrhů automatického vyplňování."
+  },
+  "itemWasSentToArchive": {
+    "message": "Položka byla přesunuta do archivu"
+  },
+  "itemsWereSentToArchive": {
+    "message": "Položky byly přesunuty do archivu"
+  },
+  "itemUnarchived": {
+    "message": "Položka byla odebrána z archivu"
+  },
+  "bulkArchiveItems": {
+    "message": "Archivované položky"
+  },
+  "bulkUnarchiveItems": {
+    "message": "Položky odebrané z archivu"
+  },
+  "archiveItem": {
+    "message": "Archivovat položku",
+    "description": "Verb"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Archivované položky jsou vyloučeny z obecných výsledků vyhledávání a z návrhů automatického vyplňování. Jste si jisti, že chcete tuto položku archivovat?"
+  },
+  "archiveBulkItems": {
+    "message": "Archivovat položky",
+    "description": "Verb"
+  },
+  "archiveBulkItemsConfirmDesc": {
+    "message": "Archivované položky jsou vyloučeny z obecných výsledků vyhledávání a z návrhů automatického vyplňování. Jste si jisti, že chcete tyto položky archivovat?"
   },
   "businessUnit": {
     "message": "Obchodní jednotka"
@@ -11801,7 +11836,25 @@
   "continueWithoutUpgrading": {
     "message": "Pokračovat bez aktualizace"
   },
+  "upgradeYourPlan": {
+    "message": "Aktualizovat plán"
+  },
+  "upgradeNow": {
+    "message": "Aktualizovat nyní"
+  },
+  "formWillCreateNewFamiliesOrgMessage": {
+    "message": "Vyplněním tohoto formuláře vytvoříte novou organizaci Rodin. Můžete vylepšit svou bezplatnou organizaci z konzole správce."
+  },
   "upgradeErrorMessage": {
     "message": "Při zpracování aktualizace došlo k chybě. Zkuste to znovu."
+  },
+  "bitwardenFreeplanMessage": {
+    "message": "Máte bezplatný plán Bitwarden"
+  },
+  "upgradeCompleteSecurity": {
+    "message": "Aktualizujte pro úplné zabezpečení"
+  },
+  "viewbusinessplans": {
+    "message": "Zobrazit obchodní plány"
   }
 }

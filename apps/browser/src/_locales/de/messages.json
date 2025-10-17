@@ -558,7 +558,7 @@
     "message": "Archivieren",
     "description": "Verb"
   },
-  "unarchive": {
+  "unArchive": {
     "message": "Nicht mehr archivieren"
   },
   "itemsInArchive": {
@@ -570,11 +570,11 @@
   "noItemsInArchiveDesc": {
     "message": "Archivierte Einträge werden hier angezeigt und von allgemeinen Suchergebnissen sowie Vorschlägen zum automatischen Ausfüllen ausgeschlossen."
   },
-  "itemSentToArchive": {
-    "message": "Eintrag an das Archiv gesendet"
+  "itemWasSentToArchive": {
+    "message": "Eintrag wurde ins Archiv verschoben"
   },
-  "itemRemovedFromArchive": {
-    "message": "Eintrag aus dem Archiv entfernt"
+  "itemUnarchived": {
+    "message": "Eintrag wird nicht mehr archiviert"
   },
   "archiveItem": {
     "message": "Eintrag archivieren"
@@ -5579,17 +5579,37 @@
   "hasItemsVaultNudgeTitle": {
     "message": "Willkommen in deinem Tresor!"
   },
-  "phishingPageTitle": {
-    "message": "Phishing-Website"
+  "phishingPageTitleV2": {
+    "message": "Phishing attempt detected"
   },
-  "phishingPageCloseTab": {
-    "message": "Tab schließen"
+  "phishingPageSummary": {
+    "message": "The site you are attempting to visit is a known malicious site and a security risk."
   },
-  "phishingPageContinue": {
-    "message": "Weiter"
+  "phishingPageCloseTabV2": {
+    "message": "Close this tab"
   },
-  "phishingPageLearnWhy": {
-    "message": "Warum wird dir das angezeigt?"
+  "phishingPageContinueV2": {
+    "message": "Continue to this site (not recommended)"
+  },
+  "phishingPageExplanation1": {
+    "message": "This site was found in ",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name follows this."
+  },
+  "phishingPageExplanation2": {
+    "message": ", an open-source list of known phishing sites used for stealing personal and sensitive information.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name precedes this."
+  },
+  "phishingPageLearnMore": {
+    "message": "Learn more about phishing detection"
+  },
+  "protectedBy": {
+    "message": "Protected by $PRODUCT$",
+    "placeholders": {
+      "product": {
+        "content": "$1",
+        "example": "Bitwarden Phishing Blocker"
+      }
+    }
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Einträge für die aktuelle Seite automatisch ausfüllen"
