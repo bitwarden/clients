@@ -5,6 +5,7 @@ import { homedir, userInfo } from "os";
 import * as path from "path";
 
 import { ipcMain } from "electron";
+import { Subject } from "rxjs";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ipc, windows_registry } from "@bitwarden/desktop-napi";
@@ -16,6 +17,9 @@ import { WindowMain } from "./window.main";
 export class NativeMessagingMain {
   private ipcServer: ipc.IpcServer | null;
   private connected: number[] = [];
+
+  private _messages$ = new Subject<ipc.IpcMessage>();
+  readonly messages$ = this._messages$.asObservable();
 
   constructor(
     private logService: LogService,
@@ -98,6 +102,7 @@ export class NativeMessagingMain {
           try {
             const msgJson = JSON.parse(msg.message);
             this.logService.debug("Native messaging message:", msgJson);
+            this._messages$.next(msg);
             this.windowMain.win?.webContents.send("nativeMessaging", msgJson);
           } catch (e) {
             this.logService.warning("Error processing message:", e, msg.message);
