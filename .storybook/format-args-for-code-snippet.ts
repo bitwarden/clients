@@ -25,6 +25,11 @@ export const formatArgsForCodeSnippet = <ComponentType extends Record<string, an
         const formattedArray = value.map((v) => `'${v}'`).join(", ");
         return `[${key}]="[${formattedArray}]"`;
       }
+
+      if (typeof value === "number") {
+        return `[${key}]="${value}"`;
+      }
+
       return `${key}="${value}"`;
     })
     .join(" ");

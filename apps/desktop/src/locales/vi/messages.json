@@ -1222,6 +1222,15 @@
   "invalidMasterPassword": {
     "message": "Mật khẩu chính không hợp lệ"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Mật khẩu chính không hợp lệ. Xác nhận email của bạn là chính xác và tài khoản được tạo trên $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "twoStepLoginConfirmation": {
     "message": "Đăng nhập hai bước giúp tài khoản của bạn an toàn hơn bằng cách yêu cầu bạn xác minh việc đăng nhập bằng một thiết bị khác như khóa bảo mật, ứng dụng xác thực, SMS, cuộc gọi điện thoại hoặc email. Đăng nhập hai bước có thể được thiết lập trên bitwarden.com. Bạn có muốn truy cập trang web bây giờ không?"
   },
@@ -2540,6 +2549,9 @@
       }
     }
   },
+  "vaultCustomTimeoutMinimum": {
+    "message": "Thời gian đóng kho tùy chỉnh tối thiểu là 1 phút."
+  },
   "inviteAccepted": {
     "message": "Đã chấp nhận lời mời"
   },
@@ -2651,6 +2663,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Chỉ kho lưu trữ tổ chức liên kết với $ORGANIZATION$ sẽ được xuất.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Chỉ kho lưu trữ tổ chức liên kết với $ORGANIZATION$ được xuất. Bộ sưu tập mục của tôi sẽ không được bao gồm.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },
@@ -4080,11 +4110,17 @@
   "showLess": {
     "message": "Thu gọn"
   },
-  "enableAutotype": {
-    "message": "Bật tính năng Tự động nhập liệu"
-  },
   "enableAutotypeDescription": {
     "message": "Bitwarden không kiểm tra vị trí nhập liệu, hãy đảm bảo bạn đang ở trong đúng cửa sổ và trường nhập liệu trước khi dùng phím tắt."
+  },
+  "typeShortcut": {
+    "message": "Phím tắt nhập liệu"
+  },
+  "editAutotypeShortcutDescription": {
+    "message": "Bao gồm một hoặc hai trong số các phím bổ trợ sau: Ctrl, Alt, Win hoặc Shift, và một chữ cái."
+  },
+  "invalidShortcut": {
+    "message": "Phím tắt không hợp lệ"
   },
   "moreBreadcrumbs": {
     "message": "Thêm mục điều hướng",
@@ -4099,19 +4135,24 @@
   "confirm": {
     "message": "Xác nhận"
   },
-  "enableAutotypeTransitionKey": {
-    "message": "Bật phím tắt tự động điền"
+  "enableAutotypeShortcutPreview": {
+    "message": "Bật phím tắt tự động nhập (Xem trước tính năng)"
   },
-  "enableAutotypeDescriptionTransitionKey": {
-    "message": "Hãy đảm bảo bạn đang ở đúng trường trước khi sử dụng phím tắt để tránh điền dữ liệu vào chỗ không đúng."
+  "enableAutotypeShortcutDescription": {
+    "message": "Hãy đảm bảo bạn đang ở đúng trường trước khi sử dụng phím tắt để tránh điền dữ liệu vào sai chỗ."
   },
   "editShortcut": {
     "message": "Chỉnh sửa phím tắt"
   },
-  "archive": {
-    "message": "Lưu trữ"
+  "archiveNoun": {
+    "message": "Lưu trữ",
+    "description": "Noun"
   },
-  "unarchive": {
+  "archiveVerb": {
+    "message": "Lưu trữ",
+    "description": "Verb"
+  },
+  "unArchive": {
     "message": "Hủy lưu trữ"
   },
   "itemsInArchive": {
@@ -4123,11 +4164,11 @@
   "noItemsInArchiveDesc": {
     "message": "Các mục đã lưu trữ sẽ hiển thị ở đây và sẽ bị loại khỏi kết quả tìm kiếm và gợi ý tự động điền."
   },
-  "itemSentToArchive": {
-    "message": "Mục đã được gửi đến kho lưu trữ"
+  "itemWasSentToArchive": {
+    "message": "Mục đã được chuyển vào kho lưu trữ"
   },
-  "itemRemovedFromArchive": {
-    "message": "Mục đã được gỡ khỏi kho lưu trữ"
+  "itemUnarchived": {
+    "message": "Mục đã được bỏ lưu trữ"
   },
   "archiveItem": {
     "message": "Lưu trữ mục"

@@ -1,3 +1,4 @@
+import { CurrencyPipe } from "@angular/common";
 import { Component, EventEmitter, input, Output } from "@angular/core";
 
 import {
@@ -17,7 +18,7 @@ import {
 @Component({
   selector: "billing-pricing-card",
   templateUrl: "./pricing-card.component.html",
-  imports: [BadgeModule, ButtonModule, IconModule, TypographyModule],
+  imports: [BadgeModule, ButtonModule, IconModule, TypographyModule, CurrencyPipe],
 })
 export class PricingCardComponent {
   tagline = input.required<string>();

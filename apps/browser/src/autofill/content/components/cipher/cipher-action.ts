@@ -4,8 +4,10 @@ import { BadgeButton } from "../../../content/components/buttons/badge-button";
 import { EditButton } from "../../../content/components/buttons/edit-button";
 import { NotificationTypes } from "../../../notification/abstractions/notification-bar";
 import { I18n } from "../common-types";
+import { selectedCipher as selectedCipherSignal } from "../signals/selected-cipher";
 
 export type CipherActionProps = {
+  cipherId: string;
   handleAction?: (e: Event) => void;
   i18n: I18n;
   itemName: string;
@@ -15,6 +17,7 @@ export type CipherActionProps = {
 };
 
 export function CipherAction({
+  cipherId,
   handleAction = () => {
     /* no-op */
   },
@@ -24,9 +27,17 @@ export function CipherAction({
   theme,
   username,
 }: CipherActionProps) {
+  const selectCipherHandleAction = (e: Event) => {
+    selectedCipherSignal.set(cipherId);
+    try {
+      handleAction(e);
+    } finally {
+      selectedCipherSignal.set(null);
+    }
+  };
   return notificationType === NotificationTypes.Change
     ? BadgeButton({
-        buttonAction: handleAction,
+        buttonAction: selectCipherHandleAction,
         buttonText: i18n.notificationUpdate,
         itemName,
         theme,

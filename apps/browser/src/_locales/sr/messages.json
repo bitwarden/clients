@@ -550,10 +550,15 @@
   "resetSearch": {
     "message": "Ресетовати претрагу"
   },
-  "archive": {
-    "message": "Архива"
+  "archiveNoun": {
+    "message": "Архива",
+    "description": "Noun"
   },
-  "unarchive": {
+  "archiveVerb": {
+    "message": "Архива",
+    "description": "Verb"
+  },
+  "unArchive": {
     "message": "Врати из архиве"
   },
   "itemsInArchive": {
@@ -565,11 +570,11 @@
   "noItemsInArchiveDesc": {
     "message": "Архивиране ставке ће се овде појавити и бити искључени из општих резултата претраге и сугестија о ауто-пуњењу."
   },
-  "itemSentToArchive": {
+  "itemWasSentToArchive": {
     "message": "Ставка је послата у архиву"
   },
-  "itemRemovedFromArchive": {
-    "message": "Ставка је уклоњена из архиве"
+  "itemUnarchived": {
+    "message": "Ставка враћена из архиве"
   },
   "archiveItem": {
     "message": "Архивирај ставку"
@@ -727,6 +732,15 @@
   },
   "invalidMasterPassword": {
     "message": "Погрешна главна лозинка"
+  },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Неважећа главна лозинка. Потврдите да је ваш имејл тачан и ваш рачун је креиран на $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
   },
   "vaultTimeout": {
     "message": "Тајмаут сефа"
@@ -1533,6 +1547,15 @@
   },
   "readSecurityKey": {
     "message": "Читај сигурносни кључ"
+  },
+  "readingPasskeyLoading": {
+    "message": "Читање притупачног кључа..."
+  },
+  "passkeyAuthenticationFailed": {
+    "message": "Потврда приступачног кључа"
+  },
+  "useADifferentLogInMethod": {
+    "message": "Користи други начин пријављивања"
   },
   "awaitingSecurityKeyInteraction": {
     "message": "Чека се интеракција сигурносног кључа..."
@@ -3190,6 +3213,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Извешће се само сеф организације повезана са $ORGANIZATION$.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Извешће се само сеф организације повезан са $ORGANIZATION$. Колекције мојих предмета неће бити укључене.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },
@@ -5538,17 +5579,37 @@
   "hasItemsVaultNudgeTitle": {
     "message": "Добродошли у ваш сеф!"
   },
-  "phishingPageTitle": {
-    "message": "Пронађен злонамеран сајт"
+  "phishingPageTitleV2": {
+    "message": "Откривен је покушај „пецања“"
   },
-  "phishingPageCloseTab": {
-    "message": "Затвори језичак"
+  "phishingPageSummary": {
+    "message": "Сајт који покушавате да посетите је позната злонамерна локација и представља безбедносни ризик."
   },
-  "phishingPageContinue": {
-    "message": "Настави"
+  "phishingPageCloseTabV2": {
+    "message": "Затвори ову картицу"
   },
-  "phishingPageLearnWhy": {
-    "message": "Зашто видите ово?"
+  "phishingPageContinueV2": {
+    "message": "Настави до овог сајта (не препоручује се)"
+  },
+  "phishingPageExplanation1": {
+    "message": "Овај сајт је нађен у ",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name follows this."
+  },
+  "phishingPageExplanation2": {
+    "message": ", листа отвореног кода познатих сајтова за крађу идентитета који се користе за крађу личних и осетљивих информација.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name precedes this."
+  },
+  "phishingPageLearnMore": {
+    "message": "Сазнајте више о откривању „пецања“"
+  },
+  "protectedBy": {
+    "message": "Заштићено са $PRODUCT$",
+    "placeholders": {
+      "product": {
+        "content": "$1",
+        "example": "Bitwarden Phishing Blocker"
+      }
+    }
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Ауто-пуњење предмета за тренутну страницу"

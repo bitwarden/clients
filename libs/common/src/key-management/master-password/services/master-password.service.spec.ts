@@ -2,13 +2,14 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { firstValueFrom } from "rxjs";
 import { Jsonify } from "type-fest";
 
+import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 // eslint-disable-next-line no-restricted-imports
 import { Argon2KdfConfig, KdfConfig, KdfType, PBKDF2KdfConfig } from "@bitwarden/key-management";
 import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import {
   FakeAccountService,
-  FakeSingleUserState,
   FakeStateProvider,
   makeEncString,
   makeSymmetricCryptoKey,
@@ -16,14 +17,12 @@ import {
 } from "../../../../spec";
 import { ForceSetPasswordReason } from "../../../auth/models/domain/force-set-password-reason";
 import { LogService } from "../../../platform/abstractions/log.service";
-import { SdkLoadService } from "../../../platform/abstractions/sdk/sdk-load.service";
-import { Utils } from "../../../platform/misc/utils";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { UserId } from "../../../types/guid";
 import { MasterKey, UserKey } from "../../../types/key";
 import { KeyGenerationService } from "../../crypto";
 import { CryptoFunctionService } from "../../crypto/abstractions/crypto-function.service";
-import { EncryptedString, EncString } from "../../crypto/models/enc-string";
+import { EncString } from "../../crypto/models/enc-string";
 import {
   MasterKeyWrappedUserKey,
   MasterPasswordSalt,
@@ -41,43 +40,28 @@ import {
 describe("MasterPasswordService", () => {
   let sut: MasterPasswordService;
 
-  let stateProvider: FakeStateProvider;
   let keyGenerationService: MockProxy<KeyGenerationService>;
   let logService: MockProxy<LogService>;
   let cryptoFunctionService: MockProxy<CryptoFunctionService>;
   let accountService: FakeAccountService;
-  let masterKeyState: FakeSingleUserState<MasterKey>;
-  let forceSetPasswordReasonState: FakeSingleUserState<ForceSetPasswordReason>;
-  let masterKeyEncryptedUserKeyState: FakeSingleUserState<EncryptedString>;
-  let masterPasswordUnlockKeyState: FakeSingleUserState<MasterPasswordUnlockData>;
+  let stateProvider: FakeStateProvider;
 
   const userId = "00000000-0000-0000-0000-000000000000" as UserId;
 
+  const kdfPBKDF2: KdfConfig = new PBKDF2KdfConfig(600_000);
+  const kdfArgon2: KdfConfig = new Argon2KdfConfig(4, 64, 3);
+  const salt = "test@bitwarden.com" as MasterPasswordSalt;
+  const userKey = makeSymmetricCryptoKey(64, 2) as UserKey;
   const testMasterKeyEncryptedKey =
     "0.gbauOANURUHqvhLTDnva1A==|nSW+fPumiuTaDB/s12+JO88uemV6rhwRSR+YR1ZzGr5j6Ei3/h+XEli2Unpz652NlZ9NTuRpHxeOqkYYJtp7J+lPMoclgteXuAzUu9kqlRc=";
-
   const sdkLoadServiceReady = jest.fn();
 
   beforeEach(() => {
-    accountService = mockAccountServiceWith(userId);
-    stateProvider = new FakeStateProvider(accountService);
     keyGenerationService = mock<KeyGenerationService>();
     logService = mock<LogService>();
     cryptoFunctionService = mock<CryptoFunctionService>();
-
-    masterKeyState = stateProvider.singleUser.getFake(userId, MASTER_KEY);
-    forceSetPasswordReasonState = stateProvider.singleUser.getFake(
-      userId,
-      FORCE_SET_PASSWORD_REASON,
-    );
-    masterKeyEncryptedUserKeyState = stateProvider.singleUser.getFake(
-      userId,
-      MASTER_KEY_ENCRYPTED_USER_KEY,
-    );
-    masterPasswordUnlockKeyState = stateProvider.singleUser.getFake(
-      userId,
-      MASTER_PASSWORD_UNLOCK_KEY,
-    );
+    accountService = mockAccountServiceWith(userId);
+    stateProvider = new FakeStateProvider(accountService);
 
     sut = new MasterPasswordService(
       stateProvider,
@@ -95,6 +79,10 @@ describe("MasterPasswordService", () => {
       }),
       configurable: true,
     });
+  });
+
+  afterEach(() => {
+    jest.resetAllMocks();
   });
 
   describe("saltForUser$", () => {
@@ -120,7 +108,10 @@ describe("MasterPasswordService", () => {
 
       await sut.setForceSetPasswordReason(reason, userId);
 
-      expect(forceSetPasswordReasonState.nextMock).toHaveBeenCalledWith(reason);
+      const state = await firstValueFrom(
+        stateProvider.getUser(userId, FORCE_SET_PASSWORD_REASON).state$,
+      );
+      expect(state).toEqual(reason);
     });
 
     it("throws an error if reason is null", async () => {
@@ -136,21 +127,29 @@ describe("MasterPasswordService", () => {
     });
 
     it("does not overwrite AdminForcePasswordReset with other reasons except None", async () => {
-      forceSetPasswordReasonState.nextState(ForceSetPasswordReason.AdminForcePasswordReset);
+      stateProvider.singleUser
+        .getFake(userId, FORCE_SET_PASSWORD_REASON)
+        .nextState(ForceSetPasswordReason.AdminForcePasswordReset);
 
       await sut.setForceSetPasswordReason(ForceSetPasswordReason.WeakMasterPassword, userId);
 
-      expect(forceSetPasswordReasonState.nextMock).not.toHaveBeenCalled();
+      const state = await firstValueFrom(
+        stateProvider.getUser(userId, FORCE_SET_PASSWORD_REASON).state$,
+      );
+      expect(state).toEqual(ForceSetPasswordReason.AdminForcePasswordReset);
     });
 
     it("allows overwriting AdminForcePasswordReset with None", async () => {
-      forceSetPasswordReasonState.nextState(ForceSetPasswordReason.AdminForcePasswordReset);
+      stateProvider.singleUser
+        .getFake(userId, FORCE_SET_PASSWORD_REASON)
+        .nextState(ForceSetPasswordReason.AdminForcePasswordReset);
 
       await sut.setForceSetPasswordReason(ForceSetPasswordReason.None, userId);
 
-      expect(forceSetPasswordReasonState.nextMock).toHaveBeenCalledWith(
-        ForceSetPasswordReason.None,
+      const state = await firstValueFrom(
+        stateProvider.getUser(userId, FORCE_SET_PASSWORD_REASON).state$,
       );
+      expect(state).toEqual(ForceSetPasswordReason.None);
     });
   });
 
@@ -200,7 +199,7 @@ describe("MasterPasswordService", () => {
     });
 
     it("returns error when master key is null", async () => {
-      masterKeyState.nextState(null);
+      stateProvider.singleUser.getFake(userId, MASTER_KEY).nextState(null);
 
       await expect(
         sut.decryptUserKeyWithMasterKey(
@@ -242,7 +241,10 @@ describe("MasterPasswordService", () => {
 
       await sut.setMasterKeyEncryptedUserKey(encryptedKey, userId);
 
-      expect(masterKeyEncryptedUserKeyState.nextMock).toHaveBeenCalledWith(encryptedKey.toJSON());
+      const state = await firstValueFrom(
+        stateProvider.getUser(userId, MASTER_KEY_ENCRYPTED_USER_KEY).state$,
+      );
+      expect(state).toEqual(encryptedKey.toJSON());
     });
   });
 
@@ -340,11 +342,6 @@ describe("MasterPasswordService", () => {
   });
 
   describe("setMasterPasswordUnlockData", () => {
-    const kdfPBKDF2: KdfConfig = new PBKDF2KdfConfig(600_000);
-    const kdfArgon2: KdfConfig = new Argon2KdfConfig(4, 64, 3);
-    const salt = "test@bitwarden.com" as MasterPasswordSalt;
-    const userKey = makeSymmetricCryptoKey(64, 2) as UserKey;
-
     it.each([kdfPBKDF2, kdfArgon2])(
       "sets the master password unlock data kdf %o in the state",
       async (kdfConfig) => {
@@ -357,9 +354,10 @@ describe("MasterPasswordService", () => {
 
         await sut.setMasterPasswordUnlockData(masterPasswordUnlockData, userId);
 
-        expect(masterPasswordUnlockKeyState.nextMock).toHaveBeenCalledWith(
-          masterPasswordUnlockData.toJSON(),
+        const state = await firstValueFrom(
+          stateProvider.getUser(userId, MASTER_PASSWORD_UNLOCK_KEY).state$,
         );
+        expect(state).toEqual(masterPasswordUnlockData.toJSON());
       },
     );
 
@@ -381,6 +379,40 @@ describe("MasterPasswordService", () => {
         sut.setMasterPasswordUnlockData(masterPasswordUnlockData, null as unknown as UserId),
       ).rejects.toThrow("userId is null or undefined.");
     });
+  });
+
+  describe("masterPasswordUnlockData$", () => {
+    test.each([null as unknown as UserId, undefined as unknown as UserId])(
+      "throws when the provided userId is %s",
+      async (userId) => {
+        expect(() => sut.masterPasswordUnlockData$(userId)).toThrow("userId is null or undefined.");
+      },
+    );
+
+    it("returns null when no data is set", async () => {
+      stateProvider.singleUser.getFake(userId, MASTER_PASSWORD_UNLOCK_KEY).nextState(null);
+
+      const result = await firstValueFrom(sut.masterPasswordUnlockData$(userId));
+
+      expect(result).toBeNull();
+    });
+
+    it.each([kdfPBKDF2, kdfArgon2])(
+      "returns the master password unlock data for kdf %o from state",
+      async (kdfConfig) => {
+        const masterPasswordUnlockData = await sut.makeMasterPasswordUnlockData(
+          "test-password",
+          kdfConfig,
+          salt,
+          userKey,
+        );
+        await sut.setMasterPasswordUnlockData(masterPasswordUnlockData, userId);
+
+        const result = await firstValueFrom(sut.masterPasswordUnlockData$(userId));
+
+        expect(result).toEqual(masterPasswordUnlockData.toJSON());
+      },
+    );
   });
 
   describe("MASTER_PASSWORD_UNLOCK_KEY", () => {

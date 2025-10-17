@@ -1222,6 +1222,15 @@
   "invalidMasterPassword": {
     "message": "Nederīga galvenā parole"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Nederīga galvenā parole. Jāpārliecinās, ka e-pasta adrese ir pareiza un konts tika izveidots $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "twoStepLoginConfirmation": {
     "message": "Divpakāpju pieteikšanās padara kontu krietni drošāku, pieprasot apstiprināt pieteikšanos ar tādu citu ierīču vai pakalpojumu starpniecību kā drošības atslēga, autentificētāja lietotne, īsziņa, tālruņa zvans vai e-pasts. Divpakāpju pieteikšanos var iespējot bitwarden.com tīmekļa glabātavā. Vai tagad apmeklēt tīmekļvietni?"
   },
@@ -2540,6 +2549,9 @@
       }
     }
   },
+  "vaultCustomTimeoutMinimum": {
+    "message": "Mazākā pieļaujamā pielāgotā noildze ir 1 minūte."
+  },
   "inviteAccepted": {
     "message": "Uzaicinājums apstiprināts"
   },
@@ -2651,6 +2663,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },
@@ -4080,11 +4110,17 @@
   "showLess": {
     "message": "Rādīt mazāk"
   },
-  "enableAutotype": {
-    "message": "Iespējot automātisko ievadi"
-  },
   "enableAutotypeDescription": {
     "message": "Bitwarden nepārbauda ievades atrašanās vietas, jāpārliecinās, ka atrodies pareizajā logā un laukā, pirms saīsnes izmantošanas."
+  },
+  "typeShortcut": {
+    "message": "Ievadīt īsinājumtaustiņus"
+  },
+  "editAutotypeShortcutDescription": {
+    "message": "Jāiekļauj viens vai divi no šiem taustiņiem - Ctrl, Alt, Win vai Shift - un burts."
+  },
+  "invalidShortcut": {
+    "message": "Nederīgi īsinājumtaustiņi"
   },
   "moreBreadcrumbs": {
     "message": "Vairāk norāžu",
@@ -4099,19 +4135,24 @@
   "confirm": {
     "message": "Apstiprināt"
   },
-  "enableAutotypeTransitionKey": {
-    "message": "Iespējot automātiskās ievades saīsni"
+  "enableAutotypeShortcutPreview": {
+    "message": "Iespējot automātiskās ievades īsinājumtaustiņus (iespējas priekšskatījums)"
   },
-  "enableAutotypeDescriptionTransitionKey": {
+  "enableAutotypeShortcutDescription": {
     "message": "Jāpārliecinās, ka pirms saīsnes izmantošanas kursors ir pareizajā laukā, lai izvairītos no datu ievadīšanas nepareizā vietā."
   },
   "editShortcut": {
     "message": "Labot saīsni"
   },
-  "archive": {
-    "message": "Arhivēt"
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
   },
-  "unarchive": {
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
+  },
+  "unArchive": {
     "message": "Atcelt arhivēšanu"
   },
   "itemsInArchive": {
@@ -4123,11 +4164,11 @@
   "noItemsInArchiveDesc": {
     "message": "Šeit parādīsies arhivētie vienumi, un tie netiks iekļauti vispārējās meklēšanas iznākumos un automātiskās aizpildes ieteikumos."
   },
-  "itemSentToArchive": {
-    "message": "Vienums ievietots arhīvā"
+  "itemWasSentToArchive": {
+    "message": "Vienums tika ievietots arhīvā"
   },
-  "itemRemovedFromArchive": {
-    "message": "Vienums izņemts no arhīva"
+  "itemUnarchived": {
+    "message": "Vienums tika izņemts no arhīva"
   },
   "archiveItem": {
     "message": "Arhivēt vienumu"

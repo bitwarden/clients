@@ -550,10 +550,15 @@
   "resetSearch": {
     "message": "Đặt lại tìm kiếm"
   },
-  "archive": {
-    "message": "Lưu trữ"
+  "archiveNoun": {
+    "message": "Lưu trữ",
+    "description": "Noun"
   },
-  "unarchive": {
+  "archiveVerb": {
+    "message": "Lưu trữ",
+    "description": "Verb"
+  },
+  "unArchive": {
     "message": "Hủy lưu trữ"
   },
   "itemsInArchive": {
@@ -565,11 +570,11 @@
   "noItemsInArchiveDesc": {
     "message": "Các mục đã lưu trữ sẽ hiển thị ở đây và sẽ bị loại khỏi kết quả tìm kiếm và gợi ý tự động điền."
   },
-  "itemSentToArchive": {
-    "message": "Mục đã được gửi đến kho lưu trữ"
+  "itemWasSentToArchive": {
+    "message": "Mục đã được chuyển vào kho lưu trữ"
   },
-  "itemRemovedFromArchive": {
-    "message": "Mục đã được gỡ khỏi kho lưu trữ"
+  "itemUnarchived": {
+    "message": "Mục đã được bỏ lưu trữ"
   },
   "archiveItem": {
     "message": "Lưu trữ mục"
@@ -727,6 +732,15 @@
   },
   "invalidMasterPassword": {
     "message": "Mật khẩu chính không hợp lệ"
+  },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Mật khẩu chính không hợp lệ. Xác nhận email của bạn là chính xác và tài khoản được tạo trên $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
   },
   "vaultTimeout": {
     "message": "Đóng kho sau"
@@ -1533,6 +1547,15 @@
   },
   "readSecurityKey": {
     "message": "Đọc khóa bảo mật"
+  },
+  "readingPasskeyLoading": {
+    "message": "Đang đọc mã khoá..."
+  },
+  "passkeyAuthenticationFailed": {
+    "message": "Xác thực mã khóa thất bại"
+  },
+  "useADifferentLogInMethod": {
+    "message": "Dùng phương thức đăng nhập khác"
   },
   "awaitingSecurityKeyInteraction": {
     "message": "Đang chờ tương tác với khóa bảo mật..."
@@ -3190,6 +3213,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Chỉ kho lưu trữ tổ chức liên kết với $ORGANIZATION$ sẽ được xuất.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Chỉ kho lưu trữ tổ chức liên kết với $ORGANIZATION$ được xuất. Bộ sưu tập mục của tôi sẽ không được bao gồm.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },
@@ -5538,17 +5579,37 @@
   "hasItemsVaultNudgeTitle": {
     "message": "Chào mừng đến với kho lưu trữ của bạn!"
   },
-  "phishingPageTitle": {
-    "message": "Trang web lừa đảo"
+  "phishingPageTitleV2": {
+    "message": "Phishing attempt detected"
   },
-  "phishingPageCloseTab": {
-    "message": "Đóng tab"
+  "phishingPageSummary": {
+    "message": "The site you are attempting to visit is a known malicious site and a security risk."
   },
-  "phishingPageContinue": {
-    "message": "Tiếp tục"
+  "phishingPageCloseTabV2": {
+    "message": "Close this tab"
   },
-  "phishingPageLearnWhy": {
-    "message": "Tại sao bạn thấy điều này?"
+  "phishingPageContinueV2": {
+    "message": "Continue to this site (not recommended)"
+  },
+  "phishingPageExplanation1": {
+    "message": "This site was found in ",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name follows this."
+  },
+  "phishingPageExplanation2": {
+    "message": ", an open-source list of known phishing sites used for stealing personal and sensitive information.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name precedes this."
+  },
+  "phishingPageLearnMore": {
+    "message": "Learn more about phishing detection"
+  },
+  "protectedBy": {
+    "message": "Protected by $PRODUCT$",
+    "placeholders": {
+      "product": {
+        "content": "$1",
+        "example": "Bitwarden Phishing Blocker"
+      }
+    }
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Tự động điền các mục cho trang hiện tại"

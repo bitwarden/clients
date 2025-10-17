@@ -1222,6 +1222,15 @@
   "invalidMasterPassword": {
     "message": "Yararsız ana parol"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Yararsız ana parol. E-poçtunuzun doğru olduğunu və hesabınızın $HOST$ üzərində yaradıldığını təsdiqləyin.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "twoStepLoginConfirmation": {
     "message": "İki addımlı giriş, güvənlik açarı, kimlik doğrulayıcı tətbiq, SMS, telefon zəngi və ya e-poçt kimi digər cihazlarla girişinizi doğrulamanızı tələb edərək hesabınızı daha da güvənli edir. İki addımlı giriş, bitwarden.com veb seyfində qurula bilər. Veb saytı indi ziyarət etmək istəyirsiniz?"
   },
@@ -2540,6 +2549,9 @@
       }
     }
   },
+  "vaultCustomTimeoutMinimum": {
+    "message": "Minimum custom timeout is 1 minute."
+  },
   "inviteAccepted": {
     "message": "Dəvət qəbul edildi"
   },
@@ -2651,6 +2663,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Yalnız $ORGANIZATION$ ilə əlaqələndirilmiş təşkilat seyfi xaricə köçürüləcək.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Yalnız $ORGANIZATION$ ilə əlaqələndirilmiş təşkilat seyfi xaricə köçürüləcək. Element kolleksiyalarım daxil edilməyəcək.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },
@@ -4080,11 +4110,17 @@
   "showLess": {
     "message": "Daha az göstər"
   },
-  "enableAutotype": {
-    "message": "Avto-yazmanı fəallaşdır"
-  },
   "enableAutotypeDescription": {
     "message": "Bitwarden, giriş yerlərini doğrulamır, qısayolu istifadə etməzdən əvvəl doğru pəncərədə və xanada olduğunuza əmin olun."
+  },
+  "typeShortcut": {
+    "message": "Yazma qısayolu"
+  },
+  "editAutotypeShortcutDescription": {
+    "message": "Aşağıdakı dəyişdiricilərdən birini və ya ikisini daxil edin: Ctrl, Alt, Win və ya Shift və bir hərf."
+  },
+  "invalidShortcut": {
+    "message": "Yararsız qısayol"
   },
   "moreBreadcrumbs": {
     "message": "Daha çox naviqasiya yolu",
@@ -4099,19 +4135,24 @@
   "confirm": {
     "message": "Təsdiqlə"
   },
-  "enableAutotypeTransitionKey": {
-    "message": "Avto-yazma qısayolunu fəallaşdır"
+  "enableAutotypeShortcutPreview": {
+    "message": "Avto-yazma qısayolunu fəallaşdır (Özəllik önizləməsi)"
   },
-  "enableAutotypeDescriptionTransitionKey": {
+  "enableAutotypeShortcutDescription": {
     "message": "Veriləri yanlış yerə doldurmamaq üçün qısayolu istifadə etməzdən əvvəl doğru xanada olduğunuza əmin olun."
   },
   "editShortcut": {
     "message": "Qısayola düzəliş et"
   },
-  "archive": {
-    "message": "Arxivlə"
+  "archiveNoun": {
+    "message": "Arxiv",
+    "description": "Noun"
   },
-  "unarchive": {
+  "archiveVerb": {
+    "message": "Arxivlə",
+    "description": "Verb"
+  },
+  "unArchive": {
     "message": "Arxivdən çıxart"
   },
   "itemsInArchive": {
@@ -4123,10 +4164,10 @@
   "noItemsInArchiveDesc": {
     "message": "Arxivlənmiş elementlər burada görünəcək, ümumi axtarış nəticələrindən və avto-doldurma təkliflərindən xaric ediləcək."
   },
-  "itemSentToArchive": {
+  "itemWasSentToArchive": {
     "message": "Element arxivə göndərildi"
   },
-  "itemRemovedFromArchive": {
+  "itemUnarchived": {
     "message": "Element arxivdən çıxarıldı"
   },
   "archiveItem": {
