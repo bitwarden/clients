@@ -6,6 +6,7 @@ import { BehaviorSubject, of } from "rxjs";
 import { ViewCacheService } from "@bitwarden/angular/platform/view-cache";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { EventType } from "@bitwarden/common/enums";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -101,6 +102,8 @@ describe("AddEditV2Component", () => {
         {
           provide: ViewCacheService,
           useValue: { signal: jest.fn(() => (): any => null) },
+          provide: BillingAccountProfileStateService,
+          useValue: mock<BillingAccountProfileStateService>(),
         },
       ],
     })
@@ -406,7 +409,7 @@ describe("AddEditV2Component", () => {
     }));
   });
 
-  it.only("shows the archive badge when the cipher is archived", fakeAsync(() => {
+  it("shows the archive badge when the cipher is archived", fakeAsync(() => {
     buildConfigResponse.originalCipher = { archivedDate: new Date() } as Cipher;
 
     queryParams$.next({});
