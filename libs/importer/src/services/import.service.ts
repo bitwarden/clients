@@ -55,7 +55,7 @@ import {
   KeePass2XmlImporter,
   KeePassXCsvImporter,
   KeeperCsvImporter,
-  // KeeperJsonImporter,
+  KeeperJsonImporter,
   LastPassCsvImporter,
   LogMeOnceCsvImporter,
   MSecureCsvImporter,
@@ -282,8 +282,8 @@ export class ImportService implements ImportServiceAbstraction {
         return new OnePasswordMacCsvImporter();
       case "keepercsv":
         return new KeeperCsvImporter();
-      // case "keeperjson":
-      //   return new KeeperJsonImporter();
+      case "keeperjson":
+        return new KeeperJsonImporter();
       case "passworddragonxml":
         return new PasswordDragonXmlImporter();
       case "enpasscsv":
