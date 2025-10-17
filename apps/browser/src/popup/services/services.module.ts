@@ -75,7 +75,6 @@ import {
   InternalMasterPasswordServiceAbstraction,
   MasterPasswordServiceAbstraction,
 } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
-import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import {
   VaultTimeoutService,
   VaultTimeoutStringType,
@@ -271,7 +270,6 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: KeyService,
     useFactory: (
-      pinService: PinServiceAbstraction,
       masterPasswordService: InternalMasterPasswordServiceAbstraction,
       keyGenerationService: KeyGenerationService,
       cryptoFunctionService: CryptoFunctionService,
@@ -284,7 +282,6 @@ const safeProviders: SafeProvider[] = [
       kdfConfigService: KdfConfigService,
     ) => {
       const keyService = new DefaultKeyService(
-        pinService,
         masterPasswordService,
         keyGenerationService,
         cryptoFunctionService,
@@ -300,7 +297,6 @@ const safeProviders: SafeProvider[] = [
       return keyService;
     },
     deps: [
-      PinServiceAbstraction,
       InternalMasterPasswordServiceAbstraction,
       KeyGenerationService,
       CryptoFunctionService,
