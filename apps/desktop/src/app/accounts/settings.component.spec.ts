@@ -390,7 +390,7 @@ describe("SettingsComponent", () => {
         await component.updatePinHandler(false);
 
         expect(component.form.controls.pin.value).toBe(false);
-        expect(vaultTimeoutSettingsService.clear).toHaveBeenCalled();
+        expect(vaultTimeoutSettingsService.clear).not.toHaveBeenCalled();
         expect(messagingService.send).toHaveBeenCalledWith("redrawMenu");
       });
     });
@@ -629,7 +629,6 @@ describe("SettingsComponent", () => {
     });
 
     it("should not save vault timeout when vault timeout is invalid", async () => {
-      i18nService.t.mockReturnValue("Number too large test error");
       component["form"].controls.vaultTimeout.setErrors({}, { emitEvent: false });
       await component.saveVaultTimeout(DEFAULT_VAULT_TIMEOUT, 999_999_999);
 
@@ -639,11 +638,6 @@ describe("SettingsComponent", () => {
         DEFAULT_VAULT_TIMEOUT_ACTION,
       );
       expect(component["form"].getRawValue().vaultTimeout).toEqual(DEFAULT_VAULT_TIMEOUT);
-      expect(platformUtilsService.showToast).toHaveBeenCalledWith(
-        "error",
-        null,
-        "Number too large test error",
-      );
     });
   });
 

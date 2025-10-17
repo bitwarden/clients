@@ -634,7 +634,9 @@ export class CipherService implements CipherServiceAbstraction {
     const equivalentDomains = await firstValueFrom(
       this.domainSettingsService.getUrlEquivalentDomains(url),
     );
-    defaultMatch ??= await firstValueFrom(this.domainSettingsService.defaultUriMatchStrategy$);
+    defaultMatch ??= await firstValueFrom(
+      this.domainSettingsService.resolvedDefaultUriMatchStrategy$,
+    );
 
     const archiveFeatureEnabled = await this.configService.getFeatureFlag(
       FeatureFlag.PM19148_InnovationArchive,

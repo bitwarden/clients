@@ -2549,6 +2549,9 @@
       }
     }
   },
+  "vaultCustomTimeoutMinimum": {
+    "message": "Minimum custom timeout is 1 minute."
+  },
   "inviteAccepted": {
     "message": "Dəvət qəbul edildi"
   },
@@ -4149,7 +4152,7 @@
     "message": "Arxivlə",
     "description": "Verb"
   },
-  "unarchive": {
+  "unArchive": {
     "message": "Arxivdən çıxart"
   },
   "itemsInArchive": {
@@ -4161,10 +4164,10 @@
   "noItemsInArchiveDesc": {
     "message": "Arxivlənmiş elementlər burada görünəcək, ümumi axtarış nəticələrindən və avto-doldurma təkliflərindən xaric ediləcək."
   },
-  "itemSentToArchive": {
+  "itemWasSentToArchive": {
     "message": "Element arxivə göndərildi"
   },
-  "itemRemovedFromArchive": {
+  "itemUnarchived": {
     "message": "Element arxivdən çıxarıldı"
   },
   "archiveItem": {

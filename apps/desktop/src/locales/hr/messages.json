@@ -2549,6 +2549,9 @@
       }
     }
   },
+  "vaultCustomTimeoutMinimum": {
+    "message": "Minimum custom timeout is 1 minute."
+  },
   "inviteAccepted": {
     "message": "Pozivnica prihvaćena"
   },
@@ -4149,8 +4152,8 @@
     "message": "Arhiviraj",
     "description": "Verb"
   },
-  "unarchive": {
-    "message": "Poništi arhiviranje"
+  "unArchive": {
+    "message": "Unarchive"
   },
   "itemsInArchive": {
     "message": "Stavke u arhivi"
@@ -4161,11 +4164,11 @@
   "noItemsInArchiveDesc": {
     "message": "Arhivirane stavke biti će prikazane ovdje i biti će izuzete iz rezultata općih pretraga i preporuka auto-ispune."
   },
-  "itemSentToArchive": {
-    "message": "Stavka poslana u arhivu"
+  "itemWasSentToArchive": {
+    "message": "Item was sent to archive"
   },
-  "itemRemovedFromArchive": {
-    "message": "Stavka maknute iz arhive"
+  "itemUnarchived": {
+    "message": "Item was unarchived"
   },
   "archiveItem": {
     "message": "Arhiviraj stavku"

@@ -450,6 +450,8 @@ dependencies = [
  "cbc",
  "hex",
  "homedir",
+ "napi",
+ "napi-derive",
  "oo7",
  "pbkdf2",
  "rand 0.9.1",

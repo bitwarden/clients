@@ -2549,6 +2549,9 @@
       }
     }
   },
+  "vaultCustomTimeoutMinimum": {
+    "message": "A minimális egyedi időkifutás 1 perc."
+  },
   "inviteAccepted": {
     "message": "A meghívás elfogadásra került."
   },
@@ -4149,7 +4152,7 @@
     "message": "Archívum",
     "description": "Verb"
   },
-  "unarchive": {
+  "unArchive": {
     "message": "Visszavétel archívumból"
   },
   "itemsInArchive": {
@@ -4161,11 +4164,11 @@
   "noItemsInArchiveDesc": {
     "message": "Az archivált elemek itt jelennek meg és kizárásra kerülnek az általános keresési eredményekből és az automatikus kitöltési javaslatokból."
   },
-  "itemSentToArchive": {
-    "message": "Archívumba küldött elemek száma"
+  "itemWasSentToArchive": {
+    "message": "Az elem az archivumba került."
   },
-  "itemRemovedFromArchive": {
-    "message": "Az elem kikerült az archívumból."
+  "itemUnarchived": {
+    "message": "Az elem visszavéelre került az archivumból."
   },
   "archiveItem": {
     "message": "Elem archiválása"
