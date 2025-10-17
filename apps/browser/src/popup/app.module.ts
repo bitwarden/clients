@@ -39,7 +39,6 @@ import { FilePopoutCalloutComponent } from "../tools/popup/components/file-popou
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
 import { ExtensionAnonLayoutWrapperComponent } from "./components/extension-anon-layout-wrapper/extension-anon-layout-wrapper.component";
-import { UserVerificationComponent } from "./components/user-verification.component";
 import { ServicesModule } from "./services/services.module";
 import { TabsV2Component } from "./tabs-v2.component";
 
@@ -91,7 +90,6 @@ import "../platform/popup/locales";
     ColorPasswordPipe,
     ColorPasswordCountPipe,
     TabsV2Component,
-    UserVerificationComponent,
     RemovePasswordComponent,
   ],
   exports: [],
