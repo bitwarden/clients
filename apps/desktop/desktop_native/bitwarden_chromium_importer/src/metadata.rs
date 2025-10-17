@@ -174,7 +174,7 @@ mod tests {
 
         let expected: HashSet<String> = HashSet::from([
             "bravecsv".to_string(),
-            "chromecsv".to_string(),            
+            "chromecsv".to_string(),
             "chromiumcsv".to_string(),
             "edgecsv".to_string(),
             "operacsv".to_string(),
@@ -194,7 +194,14 @@ mod tests {
     #[test]
     fn windows_specific_loaders_match_const_array() {
         let map = get_supported_importers::<MockInstalledBrowserRetriever>();
-        let ids = ["bravecsv", "chromecsv", "chromiumcsv", "edgecsv", "operacsv", "vivaldicsv"];
+        let ids = [
+            "bravecsv",
+            "chromecsv",
+            "chromiumcsv",
+            "edgecsv",
+            "operacsv",
+            "vivaldicsv",
+        ];
 
         for id in ids {
             let loaders = get_loaders(&map, id);
