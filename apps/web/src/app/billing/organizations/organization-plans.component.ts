@@ -707,7 +707,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
         passwordManager: {
           seats: passwordManagerSeats,
           additionalStorage: this.formGroup.value.additionalStorage,
-          sponsored: false,
+          sponsored: this.acceptingSponsorship,
         },
         secretsManager: this.formGroup.value.secretsManager.enabled
           ? {
