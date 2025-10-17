@@ -467,7 +467,7 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
     }
 
     const userDecryptionOpts = await firstValueFrom(
-      this.userDecryptionOptionsService.userDecryptionOptions$,
+      this.userDecryptionOptionsService.userDecryptionOptionsById$(authResult.userId),
     );
 
     const tdeEnabled = await this.isTrustedDeviceEncEnabled(userDecryptionOpts.trustedDeviceOption);

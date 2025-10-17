@@ -53,9 +53,11 @@ describe("VaultTimeoutSettingsService", () => {
     policyService = mock<PolicyService>();
 
     userDecryptionOptionsSubject = new BehaviorSubject(null);
-    userDecryptionOptionsService.userDecryptionOptions$ = userDecryptionOptionsSubject;
-    userDecryptionOptionsService.hasMasterPassword$ = userDecryptionOptionsSubject.pipe(
-      map((options) => options?.hasMasterPassword ?? false),
+    userDecryptionOptionsService.userDecryptionOptionsById$.mockReturnValue(
+      userDecryptionOptionsSubject,
+    );
+    userDecryptionOptionsService.hasMasterPasswordById$.mockReturnValue(
+      userDecryptionOptionsSubject.pipe(map((options) => options?.hasMasterPassword ?? false)),
     );
     userDecryptionOptionsService.userDecryptionOptionsById$.mockReturnValue(
       userDecryptionOptionsSubject,

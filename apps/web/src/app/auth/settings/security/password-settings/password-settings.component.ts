@@ -5,6 +5,7 @@ import { firstValueFrom } from "rxjs";
 import { ChangePasswordComponent } from "@bitwarden/angular/auth/password-management/change-password";
 import { InputPasswordFlow } from "@bitwarden/auth/angular";
 import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { CalloutModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -22,12 +23,17 @@ export class PasswordSettingsComponent implements OnInit {
   constructor(
     private router: Router,
     private userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
+    private accountService: AccountService,
   ) {}
 
   async ngOnInit() {
-    const userHasMasterPassword = await firstValueFrom(
-      this.userDecryptionOptionsService.hasMasterPassword$,
-    );
+    const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
+    const userHasMasterPassword = activeAccount
+      ? await firstValueFrom(
+          this.userDecryptionOptionsService.hasMasterPasswordById$(activeAccount.id),
+        )
+      : false;
+
     if (!userHasMasterPassword) {
       await this.router.navigate(["/settings/security/two-factor"]);
       return;

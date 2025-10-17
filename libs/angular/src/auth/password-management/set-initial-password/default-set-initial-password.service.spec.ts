@@ -149,7 +149,9 @@ describe("DefaultSetInitialPasswordService", () => {
 
       userDecryptionOptions = new UserDecryptionOptions({ hasMasterPassword: true });
       userDecryptionOptionsSubject = new BehaviorSubject(userDecryptionOptions);
-      userDecryptionOptionsService.userDecryptionOptions$ = userDecryptionOptionsSubject;
+      userDecryptionOptionsService.userDecryptionOptionsById$.mockReturnValue(
+        userDecryptionOptionsSubject,
+      );
 
       setPasswordRequest = new SetPasswordRequest(
         credentials.newServerMasterKeyHash,
@@ -362,7 +364,8 @@ describe("DefaultSetInitialPasswordService", () => {
 
           // Assert
           expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
-          expect(userDecryptionOptionsService.setUserDecryptionOptions).toHaveBeenCalledWith(
+          expect(userDecryptionOptionsService.setUserDecryptionOptionsById).toHaveBeenCalledWith(
+            userId,
             userDecryptionOptions,
           );
           expect(kdfConfigService.setKdfConfig).toHaveBeenCalledWith(userId, credentials.kdfConfig);
@@ -560,7 +563,8 @@ describe("DefaultSetInitialPasswordService", () => {
 
           // Assert
           expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
-          expect(userDecryptionOptionsService.setUserDecryptionOptions).toHaveBeenCalledWith(
+          expect(userDecryptionOptionsService.setUserDecryptionOptionsById).toHaveBeenCalledWith(
+            userId,
             userDecryptionOptions,
           );
           expect(kdfConfigService.setKdfConfig).toHaveBeenCalledWith(userId, credentials.kdfConfig);

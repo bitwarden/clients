@@ -133,7 +133,7 @@ export class LoginDecryptionOptionsComponent implements OnInit {
 
     try {
       const userDecryptionOptions = await firstValueFrom(
-        this.userDecryptionOptionsService.userDecryptionOptions$,
+        this.userDecryptionOptionsService.userDecryptionOptionsById$(this.activeAccountId),
       );
 
       if (
