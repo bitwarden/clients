@@ -184,6 +184,10 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       // Note - potential bottleneck at async lookup (alternatively, promise map)
       const foundTargetedFields = definedTargetingRuleFields.reduce((foundFields, fieldName) => {
         const targetingRule = this.pageTargetingRules[fieldName];
+        if (!targetingRule) {
+          return foundFields;
+        }
+
         const fieldMatches = this.domQueryService.queryDeepSelector(
           globalThis.document,
           targetingRule,

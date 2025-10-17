@@ -1,0 +1,205 @@
+<popup-page>
+  <popup-header slot="header" pageTitle="Autofill Targeting Rules" showBackButton>
+    <ng-container slot="end">
+      <app-pop-out></app-pop-out>
+    </ng-container>
+  </popup-header>
+
+  <div class="tw-bg-background-alt">
+    <bit-section>
+      <p class="tw-m-0">
+        Override which inputs should be autofilled on a page using query selectors.
+      </p>
+      <a
+        bitLink
+        linkType="primary"
+        rel="noreferrer"
+        target="_blank"
+        href="https://bitwarden.com/help/blocking-uris/"
+        >Learn more about Autofill Targeting Rules</a
+      >
+    </bit-section>
+    <bit-section *ngIf="!isLoading">
+      <bit-section-header>
+        <h2 bitTypography="h6">{{ "domainsTitle" | i18n }}</h2>
+        <span bitTypography="body2" slot="end">{{
+          viewTargetingRulesDomains.length + domainForms.value.length
+        }}</span>
+      </bit-section-header>
+      <bit-item
+        *ngFor="let domain of viewTargetingRulesDomains; let i = index; trackBy: trackByFunction"
+      >
+        <bit-item-content *ngIf="i < fieldsEditThreshold">
+          <div id="uriTargetingRules{{ i }}">{{ domain }}</div>
+          <div
+            *ngIf="targetingRulesDomainsViewState[domain].username"
+            title="{{ targetingRulesDomainsViewState[domain].username }}"
+            style="padding-left: 12px"
+          >
+            <div style="font-size: 0.8rem; font-weight: bold">Username:</div>
+            <div
+              style="
+                font-size: 0.7rem;
+                font-weight: lighter;
+                font-family: monospace;
+                text-overflow: ellipsis;
+                overflow-y: clip;
+              "
+            >
+              {{ targetingRulesDomainsViewState[domain].username }}
+            </div>
+          </div>
+          <div
+            *ngIf="targetingRulesDomainsViewState[domain].password"
+            title="{{ targetingRulesDomainsViewState[domain].password }}"
+            style="padding-left: 12px"
+          >
+            <div style="font-size: 0.8rem; font-weight: bold">Password:</div>
+            <div
+              style="
+                font-size: 0.7rem;
+                font-weight: lighter;
+                font-family: monospace;
+                text-overflow: ellipsis;
+                overflow-y: clip;
+              "
+            >
+              {{ targetingRulesDomainsViewState[domain].password }}
+            </div>
+          </div>
+          <div
+            *ngIf="targetingRulesDomainsViewState[domain].totp"
+            title="{{ targetingRulesDomainsViewState[domain].totp }}"
+            style="padding-left: 12px"
+          >
+            <div style="font-size: 0.8rem; font-weight: bold">TOTP:</div>
+            <div
+              style="
+                font-size: 0.7rem;
+                font-weight: lighter;
+                font-family: monospace;
+                text-overflow: ellipsis;
+                overflow-y: clip;
+              "
+            >
+              {{ targetingRulesDomainsViewState[domain].totp }}
+            </div>
+          </div>
+        </bit-item-content>
+        <button
+          *ngIf="i < fieldsEditThreshold && domain"
+          label="{{ 'remove' | i18n }}"
+          bitIconButton="bwi-minus-circle"
+          buttonType="danger"
+          size="small"
+          slot="end"
+          type="button"
+          (click)="removeDomain(i)"
+        ></button>
+      </bit-item>
+      <form [formGroup]="domainListForm">
+        <bit-card
+          formArrayName="domains"
+          *ngFor="let domain of domainForms.controls; let i = index"
+        >
+          <div [formGroupName]="i">
+            <bit-form-field>
+              <bit-label>
+                {{ "websiteItemLabel" | i18n: i + fieldsEditThreshold + 1 }}
+              </bit-label>
+              <input
+                #uriInput
+                appInputVerbatim
+                bitInput
+                id="targeting-rules-uri-{{ i + fieldsEditThreshold }}"
+                inputmode="url"
+                name="targeting-rules-uri-{{ i + fieldsEditThreshold }}"
+                type="text"
+                (change)="fieldChange()"
+                formControlName="domain"
+              />
+            </bit-form-field>
+            <div style="display: flex; align-content: center; flex-wrap: wrap; row-gap: 3px">
+              <!-- Username field -->
+              <div
+                class="field-row"
+                style="gap: 15px; display: flex; justify-content: flex-end; width: 100%"
+              >
+                <label style="flex: 1 1 25%">Username: </label>
+                <input
+                  style="
+                    flex: 1 1 75%;
+                    font-family: monospace;
+                    font-size: 0.75rem;
+                    font-weight: light;
+                  "
+                  appInputVerbatim
+                  type="text"
+                  formControlName="username"
+                  (change)="fieldChange()"
+                />
+              </div>
+
+              <!-- Password field -->
+              <div
+                class="field-row"
+                style="gap: 15px; display: flex; justify-content: flex-end; width: 100%"
+              >
+                <label style="flex: 1 1 25%">Password: </label>
+                <input
+                  style="
+                    flex: 1 1 75%;
+                    font-size: 0.75rem;
+                    font-weight: light;
+                    font-family: monospace;
+                  "
+                  appInputVerbatim
+                  type="text"
+                  formControlName="password"
+                  (change)="fieldChange()"
+                />
+              </div>
+
+              <!-- TOTP field -->
+              <div
+                class="field-row"
+                style="gap: 15px; display: flex; justify-content: flex-end; width: 100%"
+              >
+                <label style="flex: 1 1 25%">TOTP: </label>
+                <input
+                  style="
+                    flex: 1 1 75%;
+                    font-size: 0.75rem;
+                    font-weight: light;
+                    font-family: monospace;
+                  "
+                  appInputVerbatim
+                  type="text"
+                  formControlName="totp"
+                  (change)="fieldChange()"
+                />
+              </div>
+            </div>
+          </div>
+        </bit-card>
+        <button bitLink class="tw-pt-2" type="button" linkType="primary" (click)="addNewDomain()">
+          <i class="bwi bwi-plus-circle bwi-fw" aria-hidden="true"></i> {{ "addDomain" | i18n }}
+        </button>
+      </form>
+    </bit-section>
+  </div>
+  <popup-footer slot="footer">
+    <button
+      bitButton
+      buttonType="primary"
+      type="submit"
+      [disabled]="dataIsPristine"
+      (click)="saveChanges()"
+    >
+      {{ "save" | i18n }}
+    </button>
+    <button (click)="goBack()" bitButton type="button" buttonType="secondary">
+      {{ "cancel" | i18n }}
+    </button>
+  </popup-footer>
+</popup-page>
