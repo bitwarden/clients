@@ -1,0 +1,68 @@
+<app-header></app-header>
+
+<bit-container>
+  <div class="tw-flex tw-flex-col tw-gap-4">
+    <h1 bitTypography="h1" class="tw-m-0">{{ "deDuplicateVault" | i18n }}</h1>
+    <bit-callout type="info" [title]="'deDuplicateVault' | i18n">
+      {{ "deDuplicationToolDescription" | i18n }}
+    </bit-callout>
+
+    <bit-callout *ngIf="callout" [type]="callout.type" [title]="callout.title">
+      {{ callout.message }}
+    </bit-callout>
+
+    <bit-callout
+      *ngIf="warningsCallout"
+      [type]="warningsCallout.type"
+      [title]="warningsCallout.title"
+    >
+      <div class="tw-flex tw-items-start tw-justify-between tw-gap-2">
+        <div class="tw-flex-1">{{ warningsCallout.message }}</div>
+        <button
+          *ngIf="warningsCallout.detailsButtonText"
+          type="button"
+          id="de-duplicate_button_view-warnings-details"
+          bitButton
+          buttonType="secondary"
+          (click)="openWarningsDetails()"
+        >
+          {{ warningsCallout.detailsButtonText }}
+        </button>
+      </div>
+    </bit-callout>
+
+    <div class="tw-flex tw-flex-col tw-gap-4">
+      <bit-form-field class="tw-max-w-[28rem]">
+        <bit-label>{{ "uriMatchingStrategy" | i18n }}</bit-label>
+        <bit-select
+          id="de-duplicate_select_uri-matching-strategy"
+          [items]="strategyOptions"
+          [(ngModel)]="selectedStrategy"
+        ></bit-select>
+        <bit-hint>
+          {{ "uriMatchingStrategyHelp" | i18n }}
+          <a
+            class="tw-ml-1"
+            href="https://bitwarden.com/help/uri-match-detection/#match-detection-options"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {{ "learnMoreAboutMatchDetection" | i18n }}
+          </a>
+        </bit-hint>
+      </bit-form-field>
+
+      <div class="tw-flex tw-gap-2">
+        <button
+          id="de-duplicate_button_find-duplicates"
+          type="button"
+          buttonType="primary"
+          bitButton
+          [bitAction]="findDuplicates"
+        >
+          {{ "findDuplicates" | i18n }}
+        </button>
+      </div>
+    </div>
+  </div>
+</bit-container>
