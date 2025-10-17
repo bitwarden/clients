@@ -102,6 +102,8 @@ describe("AddEditV2Component", () => {
         {
           provide: ViewCacheService,
           useValue: { signal: jest.fn(() => (): any => null) },
+        },
+        {
           provide: BillingAccountProfileStateService,
           useValue: mock<BillingAccountProfileStateService>(),
         },
