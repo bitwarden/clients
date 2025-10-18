@@ -46,7 +46,23 @@
       <i class="bwi bwi-files bwi-fw bwi-lg" aria-hidden="true"></i>
     </button>
   </ng-container>
-  <div class="right" *ngIf="cipher.permissions.delete && (action === 'edit' || action === 'view')">
+  <div class="right" *ngIf="hasFooterAction">
+    <button
+      type="button"
+      *ngIf="showArchiveButton"
+      (click)="archive()"
+      appA11yTitle="{{ 'archiveVerb' | i18n }}"
+    >
+      <i class="bwi bwi-archive bwi-lg bwi-fw" aria-hidden="true"></i>
+    </button>
+    <button
+      type="button"
+      *ngIf="showUnarchiveButton"
+      (click)="unarchive()"
+      appA11yTitle="{{ 'unarchive' | i18n }}"
+    >
+      <i class="bwi bwi-unarchive bwi-lg bwi-fw" aria-hidden="true"></i>
+    </button>
     <button
       type="button"
       (click)="delete()"
