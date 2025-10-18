@@ -1,6 +1,8 @@
 import { Injectable } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { BehaviorSubject, Observable, combineLatest, fromEvent, map, startWith } from "rxjs";
+import { BehaviorSubject, combineLatest, map } from "rxjs";
+
+import { media } from "../utils/media-query";
 
 @Injectable({
   providedIn: "root",
@@ -44,11 +46,3 @@ export class SideNavService {
     }
   }
 }
-
-export const media = (query: string): Observable<boolean> => {
-  const mediaQuery = window.matchMedia(query);
-  return fromEvent<MediaQueryList>(mediaQuery, "change").pipe(
-    startWith(mediaQuery),
-    map((list: MediaQueryList) => list.matches),
-  );
-};

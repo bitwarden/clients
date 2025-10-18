@@ -29,6 +29,7 @@
     <bit-toggle-group
       [selected]="status"
       (selectedChange)="statusToggle.next($event)"
+      [smallScreenQuery]="'(max-width: 550px)'"
       [attr.aria-label]="'memberStatusFilter' | i18n"
       *ngIf="showUserManagementControls()"
     >
