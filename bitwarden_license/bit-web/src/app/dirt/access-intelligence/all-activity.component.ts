@@ -102,4 +102,20 @@ export class AllActivityComponent implements OnInit {
 
     await firstValueFrom(dialogRef.closed);
   };
+
+  /**
+   * Handles the "View at-risk members" link click.
+   * Opens the at-risk members drawer for critical applications only.
+   */
+  onViewAtRiskMembers = async () => {
+    await this.dataService.setDrawerForCriticalAtRiskMembers("activityTabAtRiskMembers");
+  };
+
+  /**
+   * Handles the "View at-risk applications" link click.
+   * Opens the at-risk applications drawer for critical applications only.
+   */
+  onViewAtRiskApplications = async () => {
+    await this.dataService.setDrawerForCriticalAtRiskApps("activityTabAtRiskApplications");
+  };
 }

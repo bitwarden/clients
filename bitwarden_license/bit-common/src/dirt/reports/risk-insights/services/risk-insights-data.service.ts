@@ -271,6 +271,37 @@ export class RiskInsightsDataService {
     }
   };
 
+  setDrawerForCriticalAtRiskMembers = async (invokerId: string = ""): Promise<void> => {
+    const { open, activeDrawerType, invokerId: currentInvokerId } = this.drawerDetailsSubject.value;
+    const shouldClose =
+      open && activeDrawerType === DrawerType.OrgAtRiskMembers && currentInvokerId === invokerId;
+
+    if (shouldClose) {
+      this.closeDrawer();
+    } else {
+      const reportResults = await firstValueFrom(this.reportResults$);
+      if (!reportResults) {
+        return;
+      }
+
+      // Get enriched data that includes critical app status
+      const enrichedData = await firstValueFrom(this.enrichReportData$(reportResults.reportData));
+
+      // Filter for critical applications only, then generate at-risk member list
+      const criticalApps = enrichedData.filter((app) => app.isMarkedAsCritical);
+      const atRiskMemberDetails = this.reportService.generateAtRiskMemberList(criticalApps);
+
+      this.drawerDetailsSubject.next({
+        open: true,
+        invokerId,
+        activeDrawerType: DrawerType.OrgAtRiskMembers,
+        atRiskMemberDetails,
+        appAtRiskMembers: null,
+        atRiskAppDetails: null,
+      });
+    }
+  };
+
   setDrawerForAppAtRiskMembers = async (invokerId: string = ""): Promise<void> => {
     const { open, activeDrawerType, invokerId: currentInvokerId } = this.drawerDetailsSubject.value;
     const shouldClose =
@@ -324,6 +355,41 @@ export class RiskInsightsDataService {
         atRiskMemberDetails: [],
         appAtRiskMembers: null,
         atRiskAppDetails,
+      });
+    }
+  };
+
+  setDrawerForCriticalAtRiskApps = async (invokerId: string = ""): Promise<void> => {
+    const { open, activeDrawerType, invokerId: currentInvokerId } = this.drawerDetailsSubject.value;
+    const shouldClose =
+      open && activeDrawerType === DrawerType.OrgAtRiskApps && currentInvokerId === invokerId;
+
+    if (shouldClose) {
+      this.closeDrawer();
+    } else {
+      const reportResults = await firstValueFrom(this.reportResults$);
+      if (!reportResults) {
+        return;
+      }
+
+      // Get enriched data that includes critical app status
+      const enrichedData = await firstValueFrom(this.enrichReportData$(reportResults.reportData));
+
+      // Filter for critical applications that have at-risk passwords
+      const criticalAtRiskApps = enrichedData
+        .filter((app) => app.isMarkedAsCritical && app.atRiskPasswordCount > 0)
+        .map((app) => ({
+          applicationName: app.applicationName,
+          atRiskPasswordCount: app.atRiskPasswordCount,
+        }));
+
+      this.drawerDetailsSubject.next({
+        open: true,
+        invokerId,
+        activeDrawerType: DrawerType.OrgAtRiskApps,
+        atRiskMemberDetails: [],
+        appAtRiskMembers: null,
+        atRiskAppDetails: criticalAtRiskApps,
       });
     }
   };
