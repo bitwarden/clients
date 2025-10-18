@@ -52,8 +52,10 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
    * user has archive permissions
    */
   @Input() userCanArchive: boolean;
+  /** Archive feature is enabled */
+  @Input({ required: true }) archiveEnabled: boolean;
   /**
-   * Enforge Org Data Ownership Policy Status
+   * Enforce Org Data Ownership Policy Status
    */
   @Input() enforceOrgDataOwnershipPolicy: boolean;
 
@@ -85,8 +87,11 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
   }
 
   protected get showArchiveButton() {
+    if (!this.archiveEnabled) {
+      return false;
+    }
+
     return (
-      this.userCanArchive &&
       !CipherViewLikeUtils.isArchived(this.cipher) &&
       !CipherViewLikeUtils.isDeleted(this.cipher) &&
       !this.cipher.organizationId
@@ -95,6 +100,10 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
 
   // If item is archived always show unarchive button, even if user is not premium
   protected get showUnArchiveButton() {
+    if (!this.archiveEnabled) {
+      return false;
+    }
+
     return CipherViewLikeUtils.isArchived(this.cipher);
   }
 
