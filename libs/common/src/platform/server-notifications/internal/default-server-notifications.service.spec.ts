@@ -11,7 +11,7 @@ import { Matrix } from "../../../../spec/matrix";
 import { AccountService } from "../../../auth/abstractions/account.service";
 import { AuthService } from "../../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
-import { NotificationType } from "../../../enums";
+import { NotificationType, PushNotificationLogOutReasonType } from "../../../enums";
 import { NotificationResponse } from "../../../models/response/notification.response";
 import { UserId } from "../../../types/guid";
 import { AppIdService } from "../../abstractions/app-id.service";
@@ -339,5 +339,57 @@ describe("NotificationsService", () => {
 
     expect(webPushNotificationConnectionService.supportStatus$).toHaveBeenCalledTimes(1);
     subscription.unsubscribe();
+  });
+
+  describe("processNotification", () => {
+    beforeEach(async () => {
+      appIdService.getAppId.mockResolvedValue("test-app-id");
+      activeAccount.next({ id: mockUser1, email: "email", name: "Test Name", emailVerified: true });
+    });
+
+    describe("NotificationType.LogOut", () => {
+      it.each([
+        { featureFlagEnabled: false, reason: undefined },
+        { featureFlagEnabled: true, reason: undefined },
+        { featureFlagEnabled: false, reason: PushNotificationLogOutReasonType.KdfChange },
+      ])(
+        "should call logout callback when featureFlag=$featureFlagEnabled and reason=$reason",
+        async ({ featureFlagEnabled, reason }) => {
+          configService.getFeatureFlag$.mockReturnValue(of(featureFlagEnabled));
+
+          const payload: { UserId: UserId; Reason?: PushNotificationLogOutReasonType } = {
+            UserId: mockUser1,
+            Reason: undefined,
+          };
+          if (reason != null) {
+            payload.Reason = reason;
+          }
+
+          const notification = new NotificationResponse({
+            type: NotificationType.LogOut,
+            payload,
+            contextId: "different-app-id",
+          });
+
+          await sut["processNotification"](notification, mockUser1);
+
+          expect(logoutCallback).toHaveBeenCalledWith("logoutNotification", mockUser1);
+        },
+      );
+
+      it("should skip logout when receiving KDF change reason with feature flag enabled", async () => {
+        configService.getFeatureFlag$.mockReturnValue(of(true));
+
+        const notification = new NotificationResponse({
+          type: NotificationType.LogOut,
+          payload: { UserId: mockUser1, Reason: PushNotificationLogOutReasonType.KdfChange },
+          contextId: "different-app-id",
+        });
+
+        await sut["processNotification"](notification, mockUser1);
+
+        expect(logoutCallback).not.toHaveBeenCalled();
+      });
+    });
   });
 });
