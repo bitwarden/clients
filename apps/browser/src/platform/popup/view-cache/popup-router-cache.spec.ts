@@ -96,11 +96,31 @@ describe("Popup router cache guard", () => {
     // wait for router events subscription
     await flushPromises();
 
-    expect(await firstValueFrom(service.history$())).toEqual(["/a", "/b"]);
+    expect(await firstValueFrom(service.history$())).toEqual([
+      {
+        options: {
+          resetRouterCacheOnTabChange: false,
+        },
+        url: "/a",
+      },
+      {
+        options: {
+          resetRouterCacheOnTabChange: false,
+        },
+        url: "/b",
+      },
+    ]);
 
     await service.back();
 
-    expect(await firstValueFrom(service.history$())).toEqual(["/a"]);
+    expect(await firstValueFrom(service.history$())).toEqual([
+      {
+        options: {
+          resetRouterCacheOnTabChange: false,
+        },
+        url: "/a",
+      },
+    ]);
   });
 
   it("does not save ignored routes", async () => {
@@ -121,6 +141,13 @@ describe("Popup router cache guard", () => {
 
     await flushPromises();
 
-    expect(await firstValueFrom(service.history$())).toEqual(["/a"]);
+    expect(await firstValueFrom(service.history$())).toEqual([
+      {
+        options: {
+          resetRouterCacheOnTabChange: false,
+        },
+        url: "/a",
+      },
+    ]);
   });
 });
