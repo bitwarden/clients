@@ -12,6 +12,7 @@ import {
   SendOptionsPolicy,
   SingleOrgPolicy,
   TwoFactorAuthenticationPolicy,
+  UriMatchDefaultPolicy,
   vNextOrganizationDataOwnershipPolicy,
 } from "./policy-edit-definitions";
 
@@ -33,4 +34,5 @@ export const ossPolicyEditRegister: BasePolicyEditDefinition[] = [
   new SendOptionsPolicy(),
   new RestrictedItemTypesPolicy(),
   new DesktopAutotypeDefaultSettingPolicy(),
+  new UriMatchDefaultPolicy(),
 ];
