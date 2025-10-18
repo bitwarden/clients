@@ -20,6 +20,8 @@ import { PopupFooterComponent } from "../../../../platform/popup/layout/popup-fo
 import { PopupHeaderComponent } from "../../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../../platform/popup/layout/popup-page.component";
 
+import { ImportFilePopoutDialogContainerComponent } from "./import-file-popout-dialog-container.component";
+
 @Component({
   templateUrl: "import-browser-v2.component.html",
   imports: [
@@ -33,6 +35,7 @@ import { PopupPageComponent } from "../../../../platform/popup/layout/popup-page
     PopupFooterComponent,
     PopupHeaderComponent,
     PopOutComponent,
+    ImportFilePopoutDialogContainerComponent,
   ],
   providers: [
     ...ImporterProviders,

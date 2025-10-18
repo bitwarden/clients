@@ -5718,5 +5718,8 @@
   "settingDisabledByPolicy": {
     "message": "This setting is disabled by your organization's policy.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
+  }, 
+  "importPopoutDialogDesc": {
+    "message": "To import from a file, you need to pop out the extension to a new window."
   }
 }
