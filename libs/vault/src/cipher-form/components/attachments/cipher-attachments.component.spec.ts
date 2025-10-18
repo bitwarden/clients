@@ -240,6 +240,49 @@ describe("CipherAttachmentsComponent", () => {
           message: "maxFileSize",
         });
       });
+
+      it("shows error toast with server message when saveAttachmentWithServer fails", async () => {
+        const file = { size: 100 } as File;
+        component.attachmentForm.controls.file.setValue(file);
+
+        const serverError = new Error("Cipher has been modified by another client");
+        saveAttachmentWithServer.mockRejectedValue(serverError);
+
+        await component.submit();
+
+        expect(showToast).toHaveBeenCalledWith({
+          variant: "error",
+          message: "Cipher has been modified by another client",
+        });
+      });
+
+      it("shows error toast with fallback message when error has no message property", async () => {
+        const file = { size: 100 } as File;
+        component.attachmentForm.controls.file.setValue(file);
+
+        saveAttachmentWithServer.mockRejectedValue({ code: "UNKNOWN_ERROR" });
+
+        await component.submit();
+
+        expect(showToast).toHaveBeenCalledWith({
+          variant: "error",
+          message: "unexpectedError",
+        });
+      });
+
+      it("shows error toast with string error message", async () => {
+        const file = { size: 100 } as File;
+        component.attachmentForm.controls.file.setValue(file);
+
+        saveAttachmentWithServer.mockRejectedValue("Network connection failed");
+
+        await component.submit();
+
+        expect(showToast).toHaveBeenCalledWith({
+          variant: "error",
+          message: "Network connection failed",
+        });
+      });
     });
 
     describe("success", () => {
