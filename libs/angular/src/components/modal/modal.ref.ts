@@ -1,5 +1,4 @@
-import { Observable, Subject } from "rxjs";
-import { first } from "rxjs/operators";
+import { Observable, Subject, firstValueFrom } from "rxjs";
 
 export class ModalRef {
   onCreated: Observable<HTMLElement>; // Modal added to the DOM.
@@ -20,7 +19,8 @@ export class ModalRef {
     this.onClose = this._onClose.asObservable();
     this.onClosed = this._onClosed.asObservable();
     this.onShow = this._onShow.asObservable();
-    this.onShown = this._onShow.asObservable();
+  // BUGFIX: Wire onShown to the correct Subject (_onShown)
+  this.onShown = this._onShown.asObservable();
   }
 
   show() {
@@ -45,6 +45,7 @@ export class ModalRef {
   }
 
   onClosedPromise(): Promise<any> {
-    return this.onClosed.pipe(first()).toPromise();
+  // Replace deprecated toPromise() with firstValueFrom for RxJS 7+
+  return firstValueFrom(this.onClosed);
   }
 }
