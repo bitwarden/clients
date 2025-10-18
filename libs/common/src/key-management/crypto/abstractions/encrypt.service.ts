@@ -166,4 +166,6 @@ export abstract class EncryptService {
     value: string | Uint8Array,
     algorithm: "sha1" | "sha256" | "sha512",
   ): Promise<string>;
+
+  abstract setDisableType0Decryption(disable: boolean): void;
 }
