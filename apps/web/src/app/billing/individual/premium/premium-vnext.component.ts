@@ -1,6 +1,7 @@
 import { CommonModule } from "@angular/common";
 import { Component, DestroyRef, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { ActivatedRoute, Router } from "@angular/router";
 import { combineLatest, firstValueFrom, map, Observable, of, shareReplay, switchMap } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -11,7 +12,6 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { SyncService } from "@bitwarden/common/platform/sync";
 import {
   DialogService,
-  ToastService,
   SectionComponent,
   BadgeModule,
   TypographyModule,
@@ -34,6 +34,13 @@ import {
   UnifiedUpgradeDialogStep,
 } from "../upgrade/unified-upgrade-dialog/unified-upgrade-dialog.component";
 
+const RouteParams = {
+  callToAction: "callToAction",
+} as const;
+const RouteParamValues = {
+  upgradeToPremium: "upgradeToPremium",
+} as const;
+
 @Component({
   templateUrl: "./premium-vnext.component.html",
   standalone: true,
@@ -48,9 +55,8 @@ import {
   ],
 })
 export class PremiumVNextComponent {
-  protected hasPremiumFromAnyOrganization$: Observable<boolean>;
-  protected hasPremiumPersonally$: Observable<boolean>;
-  protected shouldShowNewDesign$: Observable<boolean>;
+  protected hasPremiumFromAnySource$: Observable<boolean>;
+  protected shouldShowUpgradeDialogOnInit$: Observable<boolean>;
   protected personalPricingTiers$: Observable<PersonalSubscriptionPricingTier[]>;
   protected premiumCardData$: Observable<{
     tier: PersonalSubscriptionPricingTier | undefined;
@@ -62,7 +68,6 @@ export class PremiumVNextComponent {
     price: number;
     features: string[];
   }>;
-
   protected subscriber!: BitwardenSubscriber;
   protected isSelfHost = false;
   private destroyRef = inject(DestroyRef);
@@ -74,24 +79,17 @@ export class PremiumVNextComponent {
     private dialogService: DialogService,
     private platformUtilsService: PlatformUtilsService,
     private syncService: SyncService,
-    private toastService: ToastService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private subscriptionPricingService: SubscriptionPricingService,
+    private activatedRoute: ActivatedRoute,
+    private router: Router,
   ) {
     this.isSelfHost = this.platformUtilsService.isSelfHost();
 
-    this.hasPremiumFromAnyOrganization$ = this.accountService.activeAccount$.pipe(
+    this.hasPremiumFromAnySource$ = this.accountService.activeAccount$.pipe(
       switchMap((account) =>
         account
-          ? this.billingAccountProfileStateService.hasPremiumFromAnyOrganization$(account.id)
-          : of(false),
-      ),
-    );
-
-    this.hasPremiumPersonally$ = this.accountService.activeAccount$.pipe(
-      switchMap((account) =>
-        account
-          ? this.billingAccountProfileStateService.hasPremiumPersonally$(account.id)
+          ? this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id)
           : of(false),
       ),
     );
@@ -102,10 +100,15 @@ export class PremiumVNextComponent {
         this.subscriber = subscriber;
       });
 
-    this.shouldShowNewDesign$ = combineLatest([
-      this.hasPremiumFromAnyOrganization$,
-      this.hasPremiumPersonally$,
-    ]).pipe(map(([hasOrgPremium, hasPersonalPremium]) => !hasOrgPremium && !hasPersonalPremium));
+    this.shouldShowUpgradeDialogOnInit$ = combineLatest([
+      this.hasPremiumFromAnySource$,
+      this.activatedRoute.queryParams,
+    ]).pipe(
+      map(([hasPremium, queryParams]) => {
+        const cta = queryParams[RouteParams.callToAction];
+        return !hasPremium && cta === RouteParamValues.upgradeToPremium;
+      }),
+    );
 
     this.personalPricingTiers$ =
       this.subscriptionPricingService.getPersonalSubscriptionPricingTiers$();
@@ -139,6 +142,20 @@ export class PremiumVNextComponent {
       }),
       shareReplay({ bufferSize: 1, refCount: true }),
     );
+
+    combineLatest([this.hasPremiumFromAnySource$, this.shouldShowUpgradeDialogOnInit$])
+      .pipe(
+        switchMap(async ([hasPremiumFromAnySource, shouldShowUpgradeDialogOnInit]) => {
+          // In any case that the user has premium, we want to redirect them to the subscription settings page.
+          if (hasPremiumFromAnySource) {
+            await this.router.navigate(["/settings/subscription/user-subscription"]);
+          } else if (shouldShowUpgradeDialogOnInit) {
+            await this.openUpgradeDialog("Premium");
+          }
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
   }
 
   finalizeUpgrade = async () => {
