@@ -267,6 +267,11 @@ export class ItemMoreOptionsComponent {
   }
 
   protected async delete() {
+    const repromptPassed = await this.passwordRepromptService.passwordRepromptCheck(this.cipher);
+    if (!repromptPassed) {
+      return;
+    }
+
     const confirmed = await this.dialogService.openSimpleDialog({
       title: { key: "deleteItem" },
       content: { key: "deleteItemConfirmation" },
