@@ -1,0 +1,45 @@
+<bit-dialog>
+  <span bitDialogTitle>{{ "confirmAutofill" | i18n }}</span>
+  <div bitDialogContent>
+    <p bitTypography="body2">
+      {{ "confirmAutofillDesc" | i18n }}
+    </p>
+    <p class="tw-text-muted tw-text-xs tw-uppercase tw-mt-4 tw-font-semibold">
+      {{ "currentWebsite" | i18n }}
+    </p>
+    <bit-callout title="" type="warning" icon="bwi-globe" class="tw-mb-2 tw-truncate">{{
+      currentUrl
+    }}</bit-callout>
+    <div class="tw-flex tw-my-6">
+      <a
+        bitLink
+        class="!tw-text-muted tw-flex"
+        target="_blank"
+        rel="noreferrer"
+        href="TODO: Add phishing link"
+      >
+        <i class="bwi bwi-sm bwi-question-circle tw-mr-2"></i>
+        <p class="tw-text-xs">
+          {{ "howDoesBitwardenProtectFromPhishing" | i18n }}
+        </p>
+      </a>
+    </div>
+    <div class="tw-flex tw-justify-center tw-flex-col tw-gap-3">
+      <button type="button" bitButton buttonType="primary" (click)="autofillAndAddUrl()">
+        {{ "autofillAndAddWebsite" | i18n }}
+      </button>
+      <button type="button" bitButton buttonType="secondary" (click)="autofillOnly()">
+        {{ "autofillWithoutAdding" | i18n }}
+      </button>
+      <button
+        type="button"
+        class="tw-border-none tw-mt-2"
+        bitButton
+        buttonType="unstyled"
+        (click)="close()"
+      >
+        {{ "doNotAutofill" | i18n }}
+      </button>
+    </div>
+  </div>
+</bit-dialog>

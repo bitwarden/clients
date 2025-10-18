@@ -122,3 +122,71 @@ export const WithTextButton: Story = {
     icon: "",
   },
 };
+
+export const WithWrappingContent: Story = {
+  render: (args) => ({
+    props: args,
+    template: `
+      <bit-callout ${formatArgsForCodeSnippet<CalloutComponent>(args)}>
+        This is a really long callout that should wrap when it reaches the end of the container. This is a really long callout that should wrap when it reaches the end of the container.
+        This is a really long callout that should wrap when it reaches the end of the container. This is a really long callout that should wrap when it reaches the end of the container.
+        This is a really long callout that should wrap when it reaches the end of the container. This is a really long callout that should wrap when it reaches the end of the container.
+      </bit-callout>
+    `,
+  }),
+  args: {
+    type: "default",
+    icon: "bwi-globe",
+  },
+};
+
+export const Truncate: Story = {
+  render: (args) => ({
+    props: args,
+    template: `
+      <div style="width: 300px;">
+        <bit-callout ${formatArgsForCodeSnippet<CalloutComponent>(args)}>
+          This is a really long callout that should truncate when it reaches the end of the container. This is a really long title that should truncate. Like really, really, really, ridiculously long content.
+        </bit-callout>
+      </div>
+    `,
+  }),
+  args: {
+    title:
+      "This is a really long title that should truncate. Like really, really, really, ridiculously long title",
+    truncate: true,
+  },
+};
+
+export const TruncateOnlyContent: Story = {
+  render: (args) => ({
+    props: args,
+    template: `
+      <div style="width: 300px;">
+        <bit-callout ${formatArgsForCodeSnippet<CalloutComponent>(args)}>
+          This is a really long callout that should truncate when it reaches the end of the container. This is a really long title that should truncate. Like really, really, really, ridiculously long content.
+        </bit-callout>
+      </div>
+    `,
+  }),
+  args: {
+    truncate: true,
+  },
+};
+
+export const TruncateOnlyTitle: Story = {
+  render: (args) => ({
+    props: args,
+    template: `
+      <div style="width: 300px;">
+        <bit-callout ${formatArgsForCodeSnippet<CalloutComponent>(args)}>
+        </bit-callout>
+      </div>
+    `,
+  }),
+  args: {
+    title:
+      "This is a really long title that should truncate. Like really, really, really, ridiculously long title",
+    truncate: true,
+  },
+};
