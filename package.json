@@ -89,7 +89,6 @@
     "autoprefixer": "10.4.21",
     "axe-playwright": "2.1.0",
     "babel-loader": "9.2.1",
-    "base64-loader": "1.0.0",
     "browserslist": "4.23.2",
     "chromatic": "13.1.2",
     "concurrently": "9.2.0",
@@ -132,7 +131,6 @@
     "sass": "1.88.0",
     "sass-loader": "16.0.4",
     "storybook": "8.6.12",
-    "style-loader": "4.0.0",
     "tailwindcss": "3.4.17",
     "ts-jest": "29.3.4",
     "ts-loader": "9.5.2",
@@ -204,7 +202,6 @@
     "semver": "7.7.2",
     "tabbable": "6.2.0",
     "tldts": "7.0.1",
-    "ts-node": "10.9.2",
     "utf-8-validate": "6.0.5",
     "zone.js": "0.15.1",
     "zxcvbn": "4.4.2"
