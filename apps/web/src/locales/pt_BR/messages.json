@@ -91,7 +91,7 @@
     "message": "Atribuir tarefas a membros para monitorar progresso"
   },
   "onceYouReviewApps": {
-    "message": "Once you review applications and mark them as critical, you can assign tasks to members to resolve at-risk items and monitor progress here"
+    "message": "Ao revisar aplicativos e marcá-los como críticos, você pode atribuir traferas a membros para resolver itens em risco e monitorar o progresso aqui"
   },
   "sendReminders": {
     "message": "Enviar lembretes"
@@ -5953,7 +5953,7 @@
     "message": "visualize e selecione os membros que você deseja dar acesso ao Gerenciador de Segredos."
   },
   "openYourOrganizations": {
-    "message": "Abrir o da sua organização"
+    "message": "Abra o da sua organização"
   },
   "usingTheMenuSelect": {
     "message": "Usando o menu, selecione"
@@ -5970,7 +5970,7 @@
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about Bitwarden Send **or** sign up to try it today.'"
   },
   "sendAccessTaglineSignUp": {
-    "message": "registre-se",
+    "message": "cadastre-se",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about Bitwarden Send or **sign up** to try it today.'"
   },
   "sendAccessTaglineTryToday": {
@@ -5987,7 +5987,7 @@
     }
   },
   "viewSend": {
-    "message": "Visualizar Send",
+    "message": "Ver Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewSendHiddenEmailWarning": {

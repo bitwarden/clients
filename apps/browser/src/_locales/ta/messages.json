@@ -5714,5 +5714,9 @@
   },
   "confirmKeyConnectorDomain": {
     "message": "Key Connector டொமைனை உறுதிப்படுத்து"
+  },
+  "settingDisabledByPolicy": {
+    "message": "This setting is disabled by your organization's policy.",
+    "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
   }
 }
