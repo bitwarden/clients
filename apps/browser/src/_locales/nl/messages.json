@@ -5714,5 +5714,9 @@
   },
   "confirmKeyConnectorDomain": {
     "message": "Key Connector-domein bevestigen"
+  },
+  "settingDisabledByPolicy": {
+    "message": "Deze instelling is uitgeschakeld door het beleid van uw organisatie.",
+    "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
   }
 }
