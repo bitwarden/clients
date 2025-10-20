@@ -11295,45 +11295,45 @@
     "description": "Verb"
   },
   "unArchive": {
-    "message": "Unarchive"
+    "message": "取消封存"
   },
   "itemsInArchive": {
-    "message": "Items in archive"
+    "message": "封存中的項目"
   },
   "noItemsInArchive": {
     "message": "封存中沒有項目"
   },
   "noItemsInArchiveDesc": {
-    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+    "message": "封存的項目會顯示在此處，且不會出現在一般搜尋結果或自動填入建議中。"
   },
   "itemWasSentToArchive": {
-    "message": "Item was sent to archive"
+    "message": "項目已移至封存"
   },
   "itemsWereSentToArchive": {
-    "message": "Items were sent to archive"
+    "message": "項目已移至封存"
   },
   "itemUnarchived": {
-    "message": "Item was unarchived"
+    "message": "項目取消封存"
   },
   "bulkArchiveItems": {
-    "message": "Items archived"
+    "message": "項目已封存"
   },
   "bulkUnarchiveItems": {
-    "message": "Items unarchived"
+    "message": "項目已取消封存"
   },
   "archiveItem": {
-    "message": "Archive item",
+    "message": "封存項目",
     "description": "Verb"
   },
   "archiveItemConfirmDesc": {
-    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+    "message": "封存的項目將不會出現在一般搜尋結果或自動填入建議中。確定要封存此項目嗎？"
   },
   "archiveBulkItems": {
-    "message": "Archive items",
+    "message": "封存項目",
     "description": "Verb"
   },
   "archiveBulkItemsConfirmDesc": {
-    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive these items?"
+    "message": "封存的項目將不會出現在一般搜尋結果或自動填入建議中。確定要封存此項目嗎？"
   },
   "businessUnit": {
     "message": "營業單位"
@@ -11837,24 +11837,24 @@
     "message": "不更新繼續"
   },
   "upgradeYourPlan": {
-    "message": "Upgrade your plan"
+    "message": "升級你的方案"
   },
   "upgradeNow": {
-    "message": "Upgrade now"
+    "message": "立即升級"
   },
   "formWillCreateNewFamiliesOrgMessage": {
-    "message": "Completing this form will create a new Families organization. You can upgrade your Free organization from the Admin Console."
+    "message": "填寫此表單將建立新的家庭組織。你可以從管理主控台升級你的免費組織。"
   },
   "upgradeErrorMessage": {
     "message": "處理你的升級時發生錯誤。請再試一次。"
   },
   "bitwardenFreeplanMessage": {
-    "message": "You have the Bitwarden Free plan"
+    "message": "你目前使用 Bitwarden 免費方案"
   },
   "upgradeCompleteSecurity": {
-    "message": "Upgrade for complete security"
+    "message": "升級以獲得完整的安全防護"
   },
   "viewbusinessplans": {
-    "message": "View business plans"
+    "message": "檢視商業方案"
   }
 }
