@@ -592,6 +592,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "chacha20poly1305"
+version = "0.10.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "10cd79432192d1c0f4e1a0fef9527696cc039165d729fb41b3f4f4f354c2dc35"
+dependencies = [
+ "aead",
+ "chacha20",
+ "cipher",
+ "poly1305",
+ "zeroize",
+]
+
+[[package]]
 name = "cipher"
 version = "0.4.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -904,6 +917,7 @@ dependencies = [
  "byteorder",
  "bytes",
  "cbc",
+ "chacha20poly1305",
  "core-foundation",
  "desktop_objc",
  "dirs",
@@ -923,6 +937,8 @@ dependencies = [
  "secmem-proc",
  "security-framework",
  "security-framework-sys",
+ "serde",
+ "serde_json",
  "sha2",
  "ssh-encoding",
  "ssh-key",
@@ -1817,13 +1833,14 @@ version = "0.0.0"
 dependencies = [
  "desktop_core",
  "futures",
- "log",
  "oslog",
  "serde",
  "serde_json",
  "tokio",
  "tokio-util",
  "tracing",
+ "tracing-oslog",
+ "tracing-subscriber",
  "uniffi",
 ]
 
@@ -3411,6 +3428,18 @@ dependencies = [
  "log",
  "once_cell",
  "tracing-core",
+]
+
+[[package]]
+name = "tracing-oslog"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d76902d2a8d5f9f55a81155c08971734071968c90f2d9bfe645fe700579b2950"
+dependencies = [
+ "cc",
+ "cfg-if",
+ "tracing-core",
+ "tracing-subscriber",
 ]
 
 [[package]]
