@@ -3,7 +3,6 @@ import { inject, Inject, Injectable } from "@angular/core";
 
 import { AbstractThemingService } from "@bitwarden/angular/platform/services/theming/theming.service.abstraction";
 import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -45,13 +44,7 @@ export class InitService {
       this.twoFactorService.init();
       await this.viewCacheService.init();
       await this.sizeService.init();
-      this.configService.serverConfig$.subscribe((newConfig) => {
-        if (newConfig != null) {
-          this.encryptService.setDisableType0Decryption(
-            newConfig.featureStates[FeatureFlag.PM25174_DisableType0Decryption] === true,
-          );
-        }
-      });
+      this.encryptService.init(this.configService);
 
       const htmlEl = window.document.documentElement;
       this.themingService.applyThemeChangesTo(this.document);

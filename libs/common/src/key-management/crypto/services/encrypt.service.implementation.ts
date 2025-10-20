@@ -1,7 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { EncryptionType } from "@bitwarden/common/platform/enums";
@@ -20,6 +22,16 @@ export class EncryptServiceImplementation implements EncryptService {
     protected logService: LogService,
     protected logMacFailures: boolean,
   ) {}
+
+  init(configService: ConfigService): void {
+    configService.serverConfig$.subscribe((newConfig) => {
+      if (newConfig != null) {
+        this.setDisableType0Decryption(
+          newConfig.featureStates[FeatureFlag.PM25174_DisableType0Decryption] === true,
+        );
+      }
+    });
+  }
 
   setDisableType0Decryption(disable: boolean): void {
     this.disableType0Decryption = disable;

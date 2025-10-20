@@ -7,7 +7,6 @@ import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
 import { EventUploadService as EventUploadServiceAbstraction } from "@bitwarden/common/abstractions/event/event-upload.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TwoFactorService as TwoFactorServiceAbstraction } from "@bitwarden/common/auth/abstractions/two-factor.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { DefaultVaultTimeoutService } from "@bitwarden/common/key-management/vault-timeout";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -51,14 +50,7 @@ export class InitService {
     return async () => {
       await this.sdkLoadService.loadAndInit();
       await this.migrationRunner.run();
-
-      this.configService.serverConfig$.subscribe((newConfig) => {
-        if (newConfig != null) {
-          this.encryptService.setDisableType0Decryption(
-            newConfig.featureStates[FeatureFlag.PM25174_DisableType0Decryption] === true,
-          );
-        }
-      });
+      this.encryptService.init(this.configService);
 
       const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
       if (activeAccount) {

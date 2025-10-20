@@ -1,8 +1,16 @@
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+
 import { EncArrayBuffer } from "../../../platform/models/domain/enc-array-buffer";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { EncString } from "../models/enc-string";
 
 export abstract class EncryptService {
+  /**
+   * A temporary init method to make the encrypt service listen to feature-flag changes.
+   * This will be removed once the feature flag has been rolled out.
+   */
+  abstract init(configService: ConfigService): void;
+
   /**
    * Encrypts a string to an EncString
    * @param plainValue - The value to encrypt
@@ -166,6 +174,4 @@ export abstract class EncryptService {
     value: string | Uint8Array,
     algorithm: "sha1" | "sha256" | "sha512",
   ): Promise<string>;
-
-  abstract setDisableType0Decryption(disable: boolean): void;
 }
