@@ -1222,6 +1222,15 @@
   "invalidMasterPassword": {
     "message": "Contrasenya mestra no vàlida"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "twoStepLoginConfirmation": {
     "message": "L'inici de sessió en dues passes fa que el vostre compte siga més segur, ja que obliga a comprovar el vostre inici de sessió amb un altre dispositiu, com ara una clau de seguretat, una aplicació autenticadora, un SMS, una trucada telefònica o un correu electrònic. Es pot habilitar l'inici de sessió en dues passes a la caixa forta web de bitwarden.com. Voleu visitar el lloc web ara?"
   },
@@ -2540,6 +2549,9 @@
       }
     }
   },
+  "vaultCustomTimeoutMinimum": {
+    "message": "Minimum custom timeout is 1 minute."
+  },
   "inviteAccepted": {
     "message": "Invitació acceptada"
   },
@@ -2651,6 +2663,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },
@@ -2991,7 +3021,7 @@
     "message": "aplicació web"
   },
   "notificationSentDevicePart2": {
-    "message": "Assegura't que la frase d'empremta digital encaixa amb la d'aquí sota abans d'aprovar-la."
+    "message": "Assegureu-vos que la frase de l'empremta digital coincideix amb la que hi ha a continuació abans d'aprovar-la."
   },
   "needAnotherOptionV1": {
     "message": "Necessiteu una altra opció?"
@@ -3108,7 +3138,7 @@
     "message": "Aquesta sol·licitud ja no és vàlida."
   },
   "confirmAccessAttempt": {
-    "message": "Confirma l'intent d'accés de $EMAIL$",
+    "message": "Confirmeu l'intent d'accés de $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3120,7 +3150,7 @@
     "message": "S'ha sol·licitat inici de sessió"
   },
   "accountAccessRequested": {
-    "message": "Accés al compte demanat"
+    "message": "S'ha sol·licitat accés al compte"
   },
   "creatingAccountOn": {
     "message": "Creant compte en"
@@ -3771,7 +3801,7 @@
     "message": "Denega"
   },
   "sshkeyApprovalTitle": {
-    "message": "Confirma l'ús de la clau SSH"
+    "message": "Confirmeu l'ús de la clau SSH"
   },
   "agentForwardingWarningTitle": {
     "message": "Advertència: Reenviament de l'Agent"
@@ -4108,7 +4138,7 @@
   "enableAutotypeShortcutPreview": {
     "message": "Enable autotype shortcut (Feature Preview)"
   },
-  "enableAutotypeDescriptionTransitionKey": {
+  "enableAutotypeShortcutDescription": {
     "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."
   },
   "editShortcut": {
@@ -4122,7 +4152,7 @@
     "message": "Archive",
     "description": "Verb"
   },
-  "unarchive": {
+  "unArchive": {
     "message": "Unarchive"
   },
   "itemsInArchive": {
@@ -4134,11 +4164,11 @@
   "noItemsInArchiveDesc": {
     "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
   },
-  "itemSentToArchive": {
-    "message": "Item sent to archive"
+  "itemWasSentToArchive": {
+    "message": "Item was sent to archive"
   },
-  "itemRemovedFromArchive": {
-    "message": "Item removed from archive"
+  "itemUnarchived": {
+    "message": "Item was unarchived"
   },
   "archiveItem": {
     "message": "Archive item"

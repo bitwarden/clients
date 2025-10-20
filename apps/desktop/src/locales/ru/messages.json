@@ -1222,6 +1222,15 @@
   "invalidMasterPassword": {
     "message": "Неверный мастер-пароль"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Неверный мастер-пароль. Подтвердите, что ваш адрес email указан верно и ваш аккаунт был создан на $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "twoStepLoginConfirmation": {
     "message": "Двухэтапная аутентификация делает аккаунт более защищенным, поскольку требуется подтверждение входа при помощи другого устройства, например, ключа безопасности, приложения-аутентификатора, SMS, телефонного звонка или электронной почты. Двухэтапная аутентификация включается на bitwarden.com. Перейти на сайт сейчас?"
   },
@@ -2540,6 +2549,9 @@
       }
     }
   },
+  "vaultCustomTimeoutMinimum": {
+    "message": "Минимальный пользовательский тайм-аут составляет 1 минуту."
+  },
   "inviteAccepted": {
     "message": "Приглашение принято"
   },
@@ -2651,6 +2663,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Будет экспортировано только хранилище организации, связанное с $ORGANIZATION$.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Будет экспортировано только хранилище организации, связанное с $ORGANIZATION$. Коллекции Мои элементы включены не будут.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },
@@ -4108,21 +4138,21 @@
   "enableAutotypeShortcutPreview": {
     "message": "Enable autotype shortcut (Feature Preview)"
   },
-  "enableAutotypeDescriptionTransitionKey": {
+  "enableAutotypeShortcutDescription": {
     "message": "Прежде чем использовать ярлык, убедитесь, что вы поставили курсор в нужное поле, чтобы избежать ввода данных в неправильное место."
   },
   "editShortcut": {
     "message": "Изменить ярлык"
   },
   "archiveNoun": {
-    "message": "Archive",
+    "message": "Архив",
     "description": "Noun"
   },
   "archiveVerb": {
-    "message": "Archive",
+    "message": "Архивировать",
     "description": "Verb"
   },
-  "unarchive": {
+  "unArchive": {
     "message": "Разархивировать"
   },
   "itemsInArchive": {
@@ -4134,11 +4164,11 @@
   "noItemsInArchiveDesc": {
     "message": "Архивированные элементы появятся здесь и будут исключены из общих результатов поиска и предложений автозаполнения."
   },
-  "itemSentToArchive": {
-    "message": "Элемент отправлен в архив"
+  "itemWasSentToArchive": {
+    "message": "Элемент был отправлен в архив"
   },
-  "itemRemovedFromArchive": {
-    "message": "Элемент удален из архива"
+  "itemUnarchived": {
+    "message": "Элемент был разархивирован"
   },
   "archiveItem": {
     "message": "Архивировать элемент"

@@ -1222,6 +1222,15 @@
   "invalidMasterPassword": {
     "message": "Hasło główne jest nieprawidłowe"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "twoStepLoginConfirmation": {
     "message": "Logowanie dwustopniowe zwiększa bezpieczeństwo konta, wymagając weryfikacji logowania za pomocą innego urządzenia, takiego jak klucz bezpieczeństwa, aplikacja uwierzytelniająca, wiadomość SMS, połączenie telefoniczne lub wiadomość e-mail. Logowanie dwustopniowe możesz skonfigurować w sejfie internetowym bitwarden.com. Czy chcesz przejść do strony?"
   },
@@ -1706,7 +1715,7 @@
     "description": "ex. Date this item was created"
   },
   "datePasswordUpdated": {
-    "message": "Hasło zostało zaktualizowane",
+    "message": "Ostatnia aktualizacja hasła",
     "description": "ex. Date this password was updated"
   },
   "exportFrom": {
@@ -2540,6 +2549,9 @@
       }
     }
   },
+  "vaultCustomTimeoutMinimum": {
+    "message": "Minimalny niestandardowy czas to 1 minuta."
+  },
   "inviteAccepted": {
     "message": "Zaproszenie zostało zaakceptowane"
   },
@@ -2651,6 +2663,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Tylko sejf organizacji $ORGANIZATION$ zostanie wyeksportowany.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Tylko sejf organizacji $ORGANIZATION$ zostanie wyeksportowany. Twoje kolekcje nie zostaną uwzględnione.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },
@@ -4084,13 +4114,13 @@
     "message": "Bitwarden does not validate input locations, be sure you are in the right window and field before using the shortcut."
   },
   "typeShortcut": {
-    "message": "Type shortcut"
+    "message": "Rodzaj skrótu"
   },
   "editAutotypeShortcutDescription": {
     "message": "Include one or two of the following modifiers: Ctrl, Alt, Win, or Shift, and a letter."
   },
   "invalidShortcut": {
-    "message": "Invalid shortcut"
+    "message": "Skrót jest nieprawidłowy"
   },
   "moreBreadcrumbs": {
     "message": "Więcej nawigacji",
@@ -4108,21 +4138,21 @@
   "enableAutotypeShortcutPreview": {
     "message": "Enable autotype shortcut (Feature Preview)"
   },
-  "enableAutotypeDescriptionTransitionKey": {
+  "enableAutotypeShortcutDescription": {
     "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."
   },
   "editShortcut": {
     "message": "Edytuj skrót"
   },
   "archiveNoun": {
-    "message": "Archive",
+    "message": "Archiwum",
     "description": "Noun"
   },
   "archiveVerb": {
-    "message": "Archive",
+    "message": "Archiwizuj",
     "description": "Verb"
   },
-  "unarchive": {
+  "unArchive": {
     "message": "Usuń z archiwum"
   },
   "itemsInArchive": {
@@ -4134,16 +4164,16 @@
   "noItemsInArchiveDesc": {
     "message": "Zarchiwizowane elementy pojawią się tutaj i zostaną wykluczone z wyników wyszukiwania i sugestii autouzupełniania."
   },
-  "itemSentToArchive": {
+  "itemWasSentToArchive": {
     "message": "Element został przeniesiony do archiwum"
   },
-  "itemRemovedFromArchive": {
+  "itemUnarchived": {
     "message": "Element został usunięty z archiwum"
   },
   "archiveItem": {
     "message": "Archiwizuj element"
   },
   "archiveItemConfirmDesc": {
-    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+    "message": "Zarchiwizowane elementy są wykluczone z wyników wyszukiwania i sugestii autouzupełniania. Czy na pewno chcesz archiwizować element?"
   }
 }

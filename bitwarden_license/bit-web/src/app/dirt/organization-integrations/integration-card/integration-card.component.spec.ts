@@ -5,6 +5,7 @@ import { BehaviorSubject, of } from "rxjs";
 
 import { SYSTEM_THEME_OBSERVABLE } from "@bitwarden/angular/services/injection-tokens";
 import { OrganizationIntegrationServiceType } from "@bitwarden/bit-common/dirt/organization-integrations/models/organization-integration-service-type";
+import { DatadogOrganizationIntegrationService } from "@bitwarden/bit-common/dirt/organization-integrations/services/datadog-organization-integration-service";
 import { HecOrganizationIntegrationService } from "@bitwarden/bit-common/dirt/organization-integrations/services/hec-organization-integration-service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -29,6 +30,7 @@ describe("IntegrationCardComponent", () => {
   const mockI18nService = mock<I18nService>();
   const activatedRoute = mock<ActivatedRoute>();
   const mockIntegrationService = mock<HecOrganizationIntegrationService>();
+  const mockDatadogIntegrationService = mock<DatadogOrganizationIntegrationService>();
   const dialogService = mock<DialogService>();
   const toastService = mock<ToastService>();
 
@@ -53,6 +55,7 @@ describe("IntegrationCardComponent", () => {
         { provide: I18nService, useValue: mockI18nService },
         { provide: ActivatedRoute, useValue: activatedRoute },
         { provide: HecOrganizationIntegrationService, useValue: mockIntegrationService },
+        { provide: DatadogOrganizationIntegrationService, useValue: mockDatadogIntegrationService },
         { provide: ToastService, useValue: toastService },
         { provide: DialogService, useValue: dialogService },
       ],
