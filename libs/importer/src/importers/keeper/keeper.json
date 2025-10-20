@@ -1,4 +1,3 @@
-// TODO: Remove this file when done!
 {
   "records": [
     {
@@ -24,13 +23,37 @@
       ]
     },
     {
+      "title": "Production Server SSH Key",
+      "uid": "UXCMaub5a8iTgjv36RL5Rw",
+      "login": "deploy_user",
+      "password": "SecurePass#SSH2024",
+      "notes": "SSH key for production server deployment - RSA 4096 bit",
+      "$type": "sshKeys",
+      "last_modified": 1760720727,
+      "custom_fields": {
+        "$keyPair": {
+          "publicKey": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDExamplePublicKeyData123456789",
+          "privateKey": "-----BEGIN RSA PRIVATE KEY-----\nMIIEpAIBAAKCAQEA...ExamplePrivateKeyData...\n-----END RSA PRIVATE KEY-----"
+        },
+        "$host": {
+          "hostName": "prod-server.company.com",
+          "port": "22"
+        }
+      },
+      "folders": [
+        {
+          "folder": "Development\\Name/with\\\\both/slashes\\Android"
+        }
+      ]
+    },
+    {
       "title": "Wells Fargo Checking",
       "uid": "mE2JzdGnoin2_w5GzL9lfg",
       "login": "m.thompson@email.com",
       "password": "BankS3cur3!Pass",
       "notes": "Primary checking account for direct deposit and bill payments",
       "$type": "bankAccount",
-      "last_modified": 1760718278,
+      "last_modified": 1760954383,
       "custom_fields": {
         "$bankAccount": {
           "accountType": "Checking",
@@ -42,7 +65,8 @@
           "first": "Michael",
           "middle": "James",
           "last": "Thompson"
-        }
+        },
+        "$oneTimeCode": "otpauth://totp/totp%40authenticationtest.com?secret=I65VU7K5ZQL7WB4E&issuer=&algorithm=SHA1&digits=6&period=30"
       },
       "folders": [
         {
@@ -51,23 +75,19 @@
       ]
     },
     {
-      "title": "Chase Visa",
-      "uid": "8ZtwIV-XGCwrLEeWzUGqoA",
-      "notes": "Primary credit card for everyday purchases and rewards",
-      "$type": "bankCard",
-      "last_modified": 1760718111,
+      "title": "Adobe Creative Cloud",
+      "uid": "6w0WbGtUj7nrzNBwEF9GHg",
+      "notes": "Annual subscription - full access to Photoshop, Illustrator, Premiere Pro",
+      "$type": "softwareLicense",
+      "last_modified": 1760718781,
       "custom_fields": {
-        "$paymentCard": {
-          "cardNumber": "4532123456789010",
-          "cardExpirationDate": "06/2030",
-          "cardSecurityCode": "347"
-        },
-        "$text:cardholderName": "Sarah Johnson",
-        "$pinCode": "8426"
+        "$licenseNumber": "ACDB-7849-2635-1947-8520",
+        "$expirationDate": 1767135600000,
+        "$date:dateActive": 1705273200000
       },
       "folders": [
         {
-          "folder": "Work\\Projects\\2025\\Q4"
+          "folder": "Clients\\Enterprise"
         }
       ]
     },
@@ -88,6 +108,42 @@
       "folders": [
         {
           "folder": "Work\\Documents"
+        }
+      ]
+    },
+    {
+      "title": "Family Vacation 2024",
+      "uid": "DwQpg-ZD8JQ7Yf5f_-Wc5g",
+      "notes": "Summer vacation photos from Hawaii trip - scenic beach views",
+      "$type": "photo",
+      "last_modified": 1760720284,
+      "folders": [
+        {
+          "folder": "Work"
+        }
+      ]
+    },
+    {
+      "title": "Production MySQL Database",
+      "uid": "P4qUSq1Z_hPy3m67IxPtrw",
+      "login": "db_admin",
+      "password": "SecureDb#2024$Pass",
+      "notes": "Production database server for main application - handle with care",
+      "$type": "databaseCredentials",
+      "last_modified": 1760720414,
+      "custom_fields": {
+        "$text:type": "MySQL",
+        "$host": {
+          "hostName": "db.production.company.com",
+          "port": "3306"
+        }
+      },
+      "folders": [
+        {
+          "folder": "Development\\Name/with\\\\both/slashes\\Name/with/forward/slashes\\Name\\\\with\\\\backslashes"
+        },
+        {
+          "folder": "Development\\Name/with\\\\both/slashes\\Name/with/forward/slashes"
         }
       ]
     },
@@ -116,26 +172,22 @@
       ]
     },
     {
-      "title": "Production MySQL Database",
-      "uid": "P4qUSq1Z_hPy3m67IxPtrw",
-      "login": "db_admin",
-      "password": "SecureDb#2024$Pass",
-      "notes": "Production database server for main application - handle with care",
-      "$type": "databaseCredentials",
-      "last_modified": 1760720414,
+      "title": "National Identity Card",
+      "uid": "SiL6SEYxeH0ICQlTJTMXzA",
+      "notes": "National identification card - Valid through 2028",
+      "$type": "ssnCard",
+      "last_modified": 1760720635,
       "custom_fields": {
-        "$text:type": "MySQL",
-        "$host": {
-          "hostName": "db.production.company.com",
-          "port": "3306"
+        "$accountNumber:identityNumber": "ID-7849521",
+        "$name": {
+          "first": "Sarah",
+          "middle": "Elizabeth",
+          "last": "Johnson"
         }
       },
       "folders": [
         {
           "folder": "Development\\Name/with\\\\both/slashes\\Name/with/forward/slashes\\Name\\\\with\\\\backslashes"
-        },
-        {
-          "folder": "Development\\Name/with\\\\both/slashes\\Name/with/forward/slashes"
         }
       ]
     },
@@ -165,22 +217,6 @@
       ]
     },
     {
-      "title": "Important Meeting Notes",
-      "uid": "SkusuSOOV1zTh5L7mQPXZA",
-      "notes": "Confidential meeting with executive team - requires follow-up by end of month",
-      "$type": "encryptedNotes",
-      "last_modified": 1760720560,
-      "custom_fields": {
-        "$note": "Q4 2024 Strategic Planning - Discussed budget allocations, team restructuring, and new product launch timeline",
-        "$date": 1728943200000
-      },
-      "folders": [
-        {
-          "folder": "Personal\\Finance"
-        }
-      ]
-    },
-    {
       "title": "Project Proposal Document",
       "uid": "E7vSjrlwqm4nCfB-PRQZaA",
       "notes": "Annual project proposal for Q1 2025 business development initiatives",
@@ -189,20 +225,6 @@
       "folders": [
         {
           "folder": "Development\\Name/with\\\\both/slashes\\Android"
-        }
-      ]
-    },
-    {
-      "title": "General Information Record",
-      "uid": "1aw4XOFcnZ17_bYwt8mLGQ",
-      "login": "general_user@example.com",
-      "password": "GeneralPass#2024!Secure",
-      "login_url": "https://general.example.com",
-      "notes": "General purpose record for miscellaneous information and credentials",
-      "last_modified": 1760720842,
-      "folders": [
-        {
-          "folder": "Personal\\Finance\\Banking\\Accounts"
         }
       ]
     },
@@ -226,42 +248,6 @@
       "folders": [
         {
           "folder": "Work\\Projects\\2025\\Q4"
-        }
-      ]
-    },
-    {
-      "title": "Amazon Account",
-      "uid": "bwK3qyU5fwPegzg7raj0Ig",
-      "login": "john.martinez@email.com",
-      "password": "Sp@rkl3Sun!2024",
-      "login_url": "https://www.amazon.com",
-      "notes": "Primary Amazon account for online shopping and Prime membership",
-      "$type": "login",
-      "last_modified": 1760718017,
-      "folders": [
-        {
-          "folder": "Education"
-        }
-      ]
-    },
-    {
-      "title": "LA Fitness Gym",
-      "uid": "CaHflKwWZZdhSoG0c2NrwA",
-      "password": "FitLife2024!Strong",
-      "notes": "Annual membership - full gym access including pool and classes",
-      "$type": "membership",
-      "last_modified": 1760718685,
-      "custom_fields": {
-        "$accountNumber": "LAF-987654321",
-        "$name": {
-          "first": "Lisa",
-          "middle": "Marie",
-          "last": "Rodriguez"
-        }
-      },
-      "folders": [
-        {
-          "folder": "Personal\\Finance\\Banking"
         }
       ]
     },
@@ -290,16 +276,54 @@
       ]
     },
     {
-      "title": "Family Vacation 2024",
-      "uid": "DwQpg-ZD8JQ7Yf5f_-Wc5g",
-      "notes": "Summer vacation photos from Hawaii trip - scenic beach views",
-      "$type": "photo",
-      "last_modified": 1760720284,
+      "title": "Amazon Account",
+      "uid": "bwK3qyU5fwPegzg7raj0Ig",
+      "login": "john.martinez@email.com",
+      "password": "Sp@rkl3Sun!2024",
+      "login_url": "https://www.amazon.com",
+      "notes": "Primary Amazon account for online shopping and Prime membership",
+      "$type": "login",
+      "last_modified": 1760953997,
+      "custom_fields": {
+        "$oneTimeCode": "otpauth://totp/totp%40authenticationtest.com?secret=I65VU7K5ZQL7WB4E&issuer=&algorithm=SHA1&digits=6&period=30"
+      },
       "folders": [
         {
-          "folder": "Work"
+          "folder": "Education"
         }
       ]
+    },
+    {
+      "title": "Chase Visa",
+      "uid": "8ZtwIV-XGCwrLEeWzUGqoA",
+      "notes": "Primary credit card for everyday purchases and rewards",
+      "$type": "bankCard",
+      "last_modified": 1760718111,
+      "custom_fields": {
+        "$paymentCard": {
+          "cardNumber": "4532123456789010",
+          "cardExpirationDate": "06/2030",
+          "cardSecurityCode": "347"
+        },
+        "$text:cardholderName": "Sarah Johnson",
+        "$pinCode": "8426"
+      },
+      "folders": [
+        {
+          "folder": "Work\\Projects\\2025\\Q4"
+        }
+      ]
+    },
+    {
+      "title": "Home Wi-Fi",
+      "uid": "T0F7BbljmomvlBXmXo9TBw",
+      "password": "mega-secure-password-123",
+      "notes": "My cozy home wi-fi",
+      "$type": "wifiCredentials",
+      "last_modified": 1760952076,
+      "custom_fields": {
+        "$text:SSID": "cozy-home-netz"
+      }
     },
     {
       "title": "Web Server - Production",
@@ -325,76 +349,58 @@
       ]
     },
     {
-      "title": "Adobe Creative Cloud",
-      "uid": "6w0WbGtUj7nrzNBwEF9GHg",
-      "notes": "Annual subscription - full access to Photoshop, Illustrator, Premiere Pro",
-      "$type": "softwareLicense",
-      "last_modified": 1760718781,
+      "title": "General Information Record",
+      "uid": "1aw4XOFcnZ17_bYwt8mLGQ",
+      "login": "general_user@example.com",
+      "password": "GeneralPass#2024!Secure",
+      "login_url": "https://general.example.com",
+      "notes": "General purpose record for miscellaneous information and credentials",
+      "last_modified": 1760954394,
       "custom_fields": {
-        "$licenseNumber": "ACDB-7849-2635-1947-8520",
-        "$expirationDate": 1767135600000,
-        "$date:dateActive": 1705273200000
+        "$oneTimeCode": "otpauth://totp/totp%40authenticationtest.com?secret=I65VU7K5ZQL7WB4E&issuer=&algorithm=SHA1&digits=6&period=30"
       },
       "folders": [
         {
-          "folder": "Clients\\Enterprise"
+          "folder": "Personal\\Finance\\Banking\\Accounts"
         }
       ]
     },
     {
-      "title": "Production Server SSH Key",
-      "uid": "UXCMaub5a8iTgjv36RL5Rw",
-      "login": "deploy_user",
-      "password": "SecurePass#SSH2024",
-      "notes": "SSH key for production server deployment - RSA 4096 bit",
-      "$type": "sshKeys",
-      "last_modified": 1760720727,
+      "title": "Important Meeting Notes",
+      "uid": "SkusuSOOV1zTh5L7mQPXZA",
+      "notes": "Confidential meeting with executive team - requires follow-up by end of month",
+      "$type": "encryptedNotes",
+      "last_modified": 1760720560,
       "custom_fields": {
-        "$keyPair": {
-          "publicKey": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDExamplePublicKeyData123456789",
-          "privateKey": "-----BEGIN RSA PRIVATE KEY-----\nMIIEpAIBAAKCAQEA...ExamplePrivateKeyData...\n-----END RSA PRIVATE KEY-----"
-        },
-        "$host": {
-          "hostName": "prod-server.company.com",
-          "port": "22"
-        }
+        "$note": "Q4 2024 Strategic Planning - Discussed budget allocations, team restructuring, and new product launch timeline",
+        "$date": 1728943200000
       },
       "folders": [
         {
-          "folder": "Development\\Name/with\\\\both/slashes\\Android"
+          "folder": "Personal\\Finance"
         }
       ]
     },
     {
-      "title": "National Identity Card",
-      "uid": "SiL6SEYxeH0ICQlTJTMXzA",
-      "notes": "National identification card - Valid through 2028",
-      "$type": "ssnCard",
-      "last_modified": 1760720635,
+      "title": "LA Fitness Gym",
+      "uid": "CaHflKwWZZdhSoG0c2NrwA",
+      "password": "FitLife2024!Strong",
+      "notes": "Annual membership - full gym access including pool and classes",
+      "$type": "membership",
+      "last_modified": 1760718685,
       "custom_fields": {
-        "$accountNumber:identityNumber": "ID-7849521",
+        "$accountNumber": "LAF-987654321",
         "$name": {
-          "first": "Sarah",
-          "middle": "Elizabeth",
-          "last": "Johnson"
+          "first": "Lisa",
+          "middle": "Marie",
+          "last": "Rodriguez"
         }
       },
       "folders": [
         {
-          "folder": "Development\\Name/with\\\\both/slashes\\Name/with/forward/slashes\\Name\\\\with\\\\backslashes"
+          "folder": "Personal\\Finance\\Banking"
         }
       ]
-    },
-    {
-      "title": "Home Wi-Fi",
-      "uid": "T0F7BbljmomvlBXmXo9TBw",
-      "password": "mega-secure-password-123",
-      "notes": "My cozy home wi-fi",
-      "$type": "wifiCredentials",
-      "last_modified": 1760952076,
-      "custom_fields": {
-        "$text:SSID": "cozy-home-netz"
-      }
     }
   ]
 }

@@ -58,7 +58,7 @@ export class KeeperJsonImporter extends BaseImporter implements Importer {
     for (const [key, value] of Object.entries(customFields)) {
       // TODO: Add more known custom fields here as needed
       // Process known custom fields
-      if (key.startsWith("$oneTimeCode:")) {
+      if (key.startsWith("$oneTimeCode")) {
         cipher.login.totp = this.getStringOrFirstFromArray(value ?? "");
       } else {
         // Add the rest as custom fields
