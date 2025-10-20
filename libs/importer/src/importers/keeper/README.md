@@ -27,7 +27,7 @@ handle some of the type conversion manually. Should the conversion types be forc
 - [ ] photo
 - [ ] serverCredentials
 - [ ] softwareLicense
-- [ ] sshKeys -> `SshKey`
+- [x] sshKeys -> `SshKey`
 - [ ] ssnCard
 - [ ] wifiCredentials
 
@@ -39,9 +39,12 @@ handle some of the type conversion manually. Should the conversion types be forc
 - [ ] Should `last_modified` be set on the cipher?
 - [ ] The base importer has a special way of handling custom fields, not used in this importer.
       Figure this out!
+- [ ] No fingerprint on ssh keys
+- [ ] login/password on ssh keys are stored as username/passphrase extra fields
 
 ### Missing features
 
+- [ ] Shared folders
 - [ ] File attachments
 - [ ] PAM record types
 - [ ] Some more enterprise record types

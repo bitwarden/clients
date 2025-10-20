@@ -154,9 +154,10 @@ describe("Keeper Json Importer", () => {
     expect(databaseCredentials.login.password).toEqual("SecureDb#2024$Pass");
 
     // Fields
-    expect(databaseCredentials.fields.length).toEqual(2);
+    expect(databaseCredentials.fields.length).toEqual(3);
     expect(getField(databaseCredentials, "$text:type")).toBeDefined();
-    expect(getField(databaseCredentials, "$host")).toBeDefined();
+    expect(getField(databaseCredentials, "hostname")?.value).toEqual("db.production.company.com");
+    expect(getField(databaseCredentials, "port")?.value).toEqual("3306");
   });
 
   it("should parse driverLicense", async () => {
@@ -353,8 +354,9 @@ describe("Keeper Json Importer", () => {
     expect(serverCredentials.login.password).toEqual("Srv#Prod2024!Sec");
 
     // Fields
-    expect(serverCredentials.fields.length).toEqual(1);
-    expect(getField(serverCredentials, "$host")).toBeDefined();
+    expect(serverCredentials.fields.length).toEqual(2);
+    expect(getField(serverCredentials, "hostname")?.value).toEqual("web01.company.com");
+    expect(getField(serverCredentials, "port")?.value).toEqual("22");
   });
 
   it("should parse softwareLicense", async () => {
@@ -383,17 +385,17 @@ describe("Keeper Json Importer", () => {
     // Cipher
     const sshKey = getCipher(result, "Production Server SSH Key");
     expect(sshKey).toBeDefined();
-    expect(sshKey.type).toEqual(CipherType.Login);
+    expect(sshKey.type).toEqual(CipherType.SshKey);
 
     // Properties
     expect(sshKey.notes).toEqual("SSH key for production server deployment - RSA 4096 bit");
-    expect(sshKey.login.username).toEqual("deploy_user");
-    expect(sshKey.login.password).toEqual("SecurePass#SSH2024");
 
     // Fields
-    expect(sshKey.fields.length).toEqual(2);
-    expect(getField(sshKey, "$keyPair")).toBeDefined();
-    expect(getField(sshKey, "$host")).toBeDefined();
+    expect(sshKey.fields.length).toEqual(4);
+    expect(getField(sshKey, "username")?.value).toEqual("deploy_user");
+    expect(getField(sshKey, "passphrase")?.value).toEqual("SecurePass#SSH2024");
+    expect(getField(sshKey, "hostname")?.value).toEqual("prod-server.company.com");
+    expect(getField(sshKey, "port")?.value).toEqual("22");
   });
 
   it("should parse ssnCard", async () => {
