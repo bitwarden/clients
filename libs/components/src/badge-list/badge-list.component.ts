@@ -8,6 +8,8 @@ function transformMaxItems(value: number | undefined) {
   return value == undefined ? undefined : Math.max(1, value);
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-badge-list",
   templateUrl: "badge-list.component.html",
