@@ -11028,6 +11028,15 @@
   "domainClaimed": {
     "message": "Domain claimed"
   },
+  "itemAddedToFavorites": {
+    "message": "Item added to favorites"
+  },
+  "itemRemovedFromFavorites": {
+    "message": "Item removed from favorites"
+  },
+  "copyNote": {
+    "message": "Copy note"
+  },
   "organizationNameMaxLength": {
     "message": "Organization name cannot exceed 50 characters."
   },

@@ -83,6 +83,7 @@ module.exports = {
         contrast: "var(--color-hover-contrast)",
       },
       "marketing-logo": rgba("--color-marketing-logo"),
+      "bw-blue": rgba("--color-bw-blue"),
       illustration: {
         outline: rgba("--color-illustration-outline"),
         "bg-primary": rgba("--color-illustration-bg-primary"),

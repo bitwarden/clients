@@ -17,6 +17,7 @@ import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey, MasterKey, UserPrivateKey } from "@bitwarden/common/types/key";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { newGuid } from "@bitwarden/guid";
 import { Argon2KdfConfig, KdfType, KeyService, PBKDF2KdfConfig } from "@bitwarden/key-management";
 
 import { EmergencyAccessStatusType } from "../enums/emergency-access-status-type";
@@ -44,6 +45,7 @@ describe("EmergencyAccessService", () => {
 
   const mockNewUserKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
   const mockTrustedPublicKeys = [Utils.fromUtf8ToArray("trustedPublicKey")];
+  const mockUserId = newGuid() as UserId;
 
   beforeAll(() => {
     emergencyAccessApiService = mock<EmergencyAccessApiService>();
@@ -125,7 +127,7 @@ describe("EmergencyAccessService", () => {
           "mockUserPublicKeyEncryptedUserKey",
         );
 
-        keyService.getUserKey.mockResolvedValueOnce(mockUserKey);
+        keyService.userKey$.mockReturnValue(of(mockUserKey));
 
         encryptService.encapsulateKeyUnsigned.mockResolvedValueOnce(
           mockUserPublicKeyEncryptedUserKey,
@@ -134,7 +136,7 @@ describe("EmergencyAccessService", () => {
         emergencyAccessApiService.postEmergencyAccessConfirm.mockResolvedValueOnce();
 
         // Act
-        await emergencyAccessService.confirm(id, granteeId, publicKey);
+        await emergencyAccessService.confirm(id, granteeId, publicKey, mockUserId);
 
         // Assert
         expect(emergencyAccessApiService.postEmergencyAccessConfirm).toHaveBeenCalledWith(id, {

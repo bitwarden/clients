@@ -23,6 +23,7 @@ import {
   UserLockIcon,
   VaultIcon,
   LockIcon,
+  DomainIcon,
   TwoFactorAuthSecurityKeyIcon,
 } from "@bitwarden/assets/svg";
 import {
@@ -565,6 +566,8 @@ const routes: Routes = [
             key: "verifyYourIdentity",
           },
           showBackButton: true,
+          // `TwoFactorAuthComponent` manually sets its icon based on the 2fa type
+          pageIcon: null,
         } satisfies RouteDataProperties & ExtensionAnonLayoutWrapperData,
       },
       {
@@ -572,6 +575,7 @@ const routes: Routes = [
         data: {
           elevation: 1,
           hideFooter: true,
+          pageIcon: LockIcon,
         } satisfies RouteDataProperties & ExtensionAnonLayoutWrapperData,
         children: [
           {
@@ -617,9 +621,9 @@ const routes: Routes = [
         path: "",
         component: IntroCarouselComponent,
         data: {
-          hideIcon: true,
+          pageIcon: null,
           hideFooter: true,
-        },
+        } satisfies ExtensionAnonLayoutWrapperData,
       },
     ],
   },
@@ -637,6 +641,7 @@ const routes: Routes = [
             key: "confirmKeyConnectorDomain",
           },
           showBackButton: true,
+          pageIcon: DomainIcon,
         } satisfies ExtensionAnonLayoutWrapperData,
       },
     ],
@@ -722,7 +727,7 @@ const routes: Routes = [
           },
         ],
         data: {
-          hideIcon: true,
+          pageIcon: null,
           hideBackgroundIllustration: true,
           showReadonlyHostname: true,
         } satisfies AnonLayoutWrapperData,

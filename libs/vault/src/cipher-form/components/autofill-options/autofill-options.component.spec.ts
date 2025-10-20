@@ -43,7 +43,7 @@ describe("AutofillOptionsComponent", () => {
     liveAnnouncer = mock<LiveAnnouncer>();
     platformUtilsService = mock<PlatformUtilsService>();
     domainSettingsService = mock<DomainSettingsService>();
-    domainSettingsService.defaultUriMatchStrategy$ = new BehaviorSubject(null);
+    domainSettingsService.resolvedDefaultUriMatchStrategy$ = new BehaviorSubject(null);
 
     autofillSettingsService = mock<AutofillSettingsServiceAbstraction>();
     autofillSettingsService.autofillOnPageLoadDefault$ = new BehaviorSubject(false);

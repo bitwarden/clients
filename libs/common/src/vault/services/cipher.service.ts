@@ -634,7 +634,9 @@ export class CipherService implements CipherServiceAbstraction {
     const equivalentDomains = await firstValueFrom(
       this.domainSettingsService.getUrlEquivalentDomains(url),
     );
-    defaultMatch ??= await firstValueFrom(this.domainSettingsService.defaultUriMatchStrategy$);
+    defaultMatch ??= await firstValueFrom(
+      this.domainSettingsService.resolvedDefaultUriMatchStrategy$,
+    );
 
     const archiveFeatureEnabled = await this.configService.getFeatureFlag(
       FeatureFlag.PM19148_InnovationArchive,
@@ -1945,11 +1947,21 @@ export class CipherService implements CipherServiceAbstraction {
     autofillOnPageLoad: boolean,
   ): Promise<CipherView> {
     const cacheKey = autofillOnPageLoad ? "autofillOnPageLoad-" + url : url;
-
     if (!this.sortedCiphersCache.isCached(cacheKey)) {
       let ciphers = await this.getAllDecryptedForUrl(url, userId);
-      if (!ciphers) {
+
+      if (!ciphers?.length) {
         return null;
+      }
+
+      const localData = await firstValueFrom(this.localData$(userId));
+      if (localData) {
+        for (const view of ciphers) {
+          const data = localData[view.id as CipherId];
+          if (data) {
+            view.localData = data;
+          }
+        }
       }
 
       if (autofillOnPageLoad) {
