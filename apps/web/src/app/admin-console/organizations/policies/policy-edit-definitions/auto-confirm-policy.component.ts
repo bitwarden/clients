@@ -20,10 +20,9 @@ export class AutoConfirmPolicy extends BasePolicyEditDefinition {
   editDialogComponent = AutoConfirmPolicyDialogComponent;
 
   override display$(organization: Organization, configService: ConfigService): Observable<boolean> {
-    return configService.getFeatureFlag$(FeatureFlag.AutoConfirm).pipe(
-      // @FIXME: this should use the organization plan feature check "userAutoConfirm" which is still in progress
-      map((a) => a && true),
-    );
+    return configService
+      .getFeatureFlag$(FeatureFlag.AutoConfirm)
+      .pipe(map((enabled) => enabled && organization.useAutomaticUserConfirmation));
   }
 }
 
