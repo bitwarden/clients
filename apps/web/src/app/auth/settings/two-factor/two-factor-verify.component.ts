@@ -28,6 +28,8 @@ type TwoFactorVerifyDialogData = {
   organizationId: string;
 };
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+ 
 @Component({
   selector: "app-two-factor-verify",
   templateUrl: "two-factor-verify.component.html",
@@ -43,6 +45,8 @@ type TwoFactorVerifyDialogData = {
 export class TwoFactorVerifyComponent {
   type: TwoFactorProviderType;
   organizationId: string;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+   
   @Output() onAuthed = new EventEmitter<AuthResponse<TwoFactorResponse>>();
 
   formPromise: Promise<TwoFactorResponse> | undefined;

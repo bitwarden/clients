@@ -54,6 +54,8 @@ function selfHostedEnvSettingsFormValidator(): ValidatorFn {
 /**
  * Dialog for configuring self-hosted environment settings.
  */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+ 
 @Component({
   selector: "self-hosted-env-config-dialog",
   templateUrl: "self-hosted-env-config-dialog.component.html",

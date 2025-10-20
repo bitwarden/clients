@@ -30,6 +30,8 @@ export type TwoFactorOptionsDialogResult = {
   type: TwoFactorProviderType;
 };
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+ 
 @Component({
   selector: "app-two-factor-options",
   templateUrl: "two-factor-options.component.html",

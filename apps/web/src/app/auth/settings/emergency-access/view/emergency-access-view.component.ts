@@ -14,6 +14,8 @@ import { EmergencyAccessService } from "../../../emergency-access";
 
 import { EmergencyViewDialogComponent } from "./emergency-view-dialog.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+ 
 @Component({
   templateUrl: "emergency-access-view.component.html",
   providers: [{ provide: CipherFormConfigService, useClass: DefaultCipherFormConfigService }],

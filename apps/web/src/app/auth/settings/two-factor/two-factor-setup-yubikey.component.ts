@@ -44,6 +44,8 @@ interface Key {
   existingKey: string;
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+ 
 @Component({
   selector: "app-two-factor-setup-yubikey",
   templateUrl: "two-factor-setup-yubikey.component.html",

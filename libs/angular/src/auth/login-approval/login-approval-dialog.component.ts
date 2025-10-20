@@ -33,6 +33,8 @@ export interface LoginApprovalDialogParams {
   notificationId: string;
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+ 
 @Component({
   templateUrl: "login-approval-dialog.component.html",
   imports: [AsyncActionsModule, ButtonModule, CommonModule, DialogModule, JslibModule],

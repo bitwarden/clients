@@ -10,6 +10,8 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 import { WebauthnLoginSettingsModule } from "../../webauthn-login-settings";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+ 
 @Component({
   selector: "app-password-settings",
   templateUrl: "password-settings.component.html",

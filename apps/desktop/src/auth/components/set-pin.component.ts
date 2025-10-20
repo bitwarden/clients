@@ -12,6 +12,8 @@ import {
   FormFieldModule,
   IconButtonModule,
 } from "@bitwarden/components";
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+ 
 @Component({
   templateUrl: "set-pin.component.html",
   imports: [

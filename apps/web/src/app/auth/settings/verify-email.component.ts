@@ -16,6 +16,8 @@ import {
   ToastService,
 } from "@bitwarden/components";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+ 
 @Component({
   selector: "app-verify-email",
   templateUrl: "verify-email.component.html",
@@ -24,7 +26,11 @@ import {
 export class VerifyEmailComponent {
   actionPromise: Promise<unknown>;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+   
   @Output() onVerified = new EventEmitter<boolean>();
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+   
   @Output() onDismiss = new EventEmitter<void>();
 
   constructor(

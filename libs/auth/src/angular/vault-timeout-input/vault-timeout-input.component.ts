@@ -44,6 +44,8 @@ type VaultTimeoutForm = FormGroup<{
 
 type VaultTimeoutFormValue = VaultTimeoutForm["value"];
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+ 
 @Component({
   selector: "auth-vault-timeout-input",
   templateUrl: "vault-timeout-input.component.html",
@@ -110,6 +112,8 @@ export class VaultTimeoutInputComponent
     }),
   });
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+   
   @Input() vaultTimeoutOptions: VaultTimeoutOption[];
 
   vaultTimeoutPolicy: Policy;

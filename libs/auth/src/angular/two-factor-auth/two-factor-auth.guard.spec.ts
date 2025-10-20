@@ -11,6 +11,8 @@ import { LoginStrategyServiceAbstraction } from "../../common";
 
 import { TwoFactorAuthGuard } from "./two-factor-auth.guard";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+ 
 @Component({ template: "", standalone: true })
 export class EmptyComponent {}
 

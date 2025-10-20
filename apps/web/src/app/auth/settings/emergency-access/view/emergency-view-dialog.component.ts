@@ -35,6 +35,8 @@ class PremiumUpgradePromptNoop implements PremiumUpgradePromptService {
   }
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+ 
 @Component({
   selector: "app-emergency-view-dialog",
   templateUrl: "emergency-view-dialog.component.html",

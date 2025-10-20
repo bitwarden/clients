@@ -30,6 +30,8 @@ import {
 } from "./user-verification-dialog.types";
 import { UserVerificationFormInputComponent } from "./user-verification-form-input.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+ 
 @Component({
   templateUrl: "user-verification-dialog.component.html",
   imports: [

@@ -45,6 +45,8 @@ import {
   SetInitialPasswordUserType,
 } from "./set-initial-password.service.abstraction";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+ 
 @Component({
   standalone: true,
   templateUrl: "set-initial-password.component.html",

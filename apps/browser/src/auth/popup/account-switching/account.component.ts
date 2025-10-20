@@ -13,13 +13,19 @@ import { BiometricsService } from "@bitwarden/key-management";
 
 import { AccountSwitcherService, AvailableAccount } from "./services/account-switcher.service";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+ 
 @Component({
   selector: "auth-account",
   templateUrl: "account.component.html",
   imports: [CommonModule, JslibModule, AvatarModule, ItemModule],
 })
 export class AccountComponent {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+   
   @Input() account: AvailableAccount;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+   
   @Output() loading = new EventEmitter<boolean>();
 
   constructor(

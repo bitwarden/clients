@@ -26,6 +26,8 @@ import {
 
 import { TwoFactorAuthEmailComponentCacheService } from "./two-factor-auth-email-component-cache.service";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+ 
 @Component({
   selector: "app-two-factor-auth-email",
   templateUrl: "two-factor-auth-email.component.html",
@@ -49,7 +51,11 @@ import { TwoFactorAuthEmailComponentCacheService } from "./two-factor-auth-email
   ],
 })
 export class TwoFactorAuthEmailComponent implements OnInit {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+   
   @Input({ required: true }) tokenFormControl: FormControl | undefined = undefined;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+   
   @Output() tokenChange = new EventEmitter<{ token: string }>();
 
   twoFactorEmail: string | undefined = undefined;

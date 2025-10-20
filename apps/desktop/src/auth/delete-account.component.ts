@@ -20,6 +20,8 @@ import {
 
 import { UserVerificationComponent } from "../app/components/user-verification.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+ 
 @Component({
   selector: "app-delete-account",
   templateUrl: "delete-account.component.html",

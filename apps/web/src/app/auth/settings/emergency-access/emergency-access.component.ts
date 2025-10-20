@@ -42,6 +42,8 @@ import {
   EmergencyAccessTakeoverDialogResultType,
 } from "./takeover/emergency-access-takeover-dialog.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+ 
 @Component({
   templateUrl: "emergency-access.component.html",
   imports: [SharedModule, HeaderModule, PremiumBadgeComponent],

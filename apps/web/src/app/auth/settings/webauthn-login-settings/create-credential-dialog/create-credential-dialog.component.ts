@@ -32,6 +32,8 @@ type Step =
   | "credentialCreationFailed"
   | "credentialNaming";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+ 
 @Component({
   templateUrl: "create-credential-dialog.component.html",
   standalone: false,

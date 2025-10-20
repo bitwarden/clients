@@ -5,6 +5,8 @@ import { UserVerificationService } from "@bitwarden/common/auth/abstractions/use
 import { HeaderModule } from "../../../layouts/header/header.module";
 import { SharedModule } from "../../../shared";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+ 
 @Component({
   templateUrl: "security.component.html",
   imports: [SharedModule, HeaderModule],

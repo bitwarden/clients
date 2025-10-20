@@ -19,6 +19,8 @@ import { DeleteAccountDialogComponent } from "./delete-account-dialog.component"
 import { ProfileComponent } from "./profile.component";
 import { SetAccountVerifyDevicesDialogComponent } from "./set-account-verify-devices-dialog.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+ 
 @Component({
   templateUrl: "account.component.html",
   imports: [

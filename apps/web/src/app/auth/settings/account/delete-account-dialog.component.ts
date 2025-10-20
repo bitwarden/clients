@@ -12,6 +12,8 @@ import { DialogRef, DialogService, ToastService } from "@bitwarden/components";
 
 import { SharedModule } from "../../../shared";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+ 
 @Component({
   templateUrl: "delete-account-dialog.component.html",
   imports: [SharedModule, UserVerificationFormInputComponent],

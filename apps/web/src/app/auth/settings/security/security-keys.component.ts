@@ -13,6 +13,8 @@ import { SharedModule } from "../../../shared";
 
 import { ApiKeyComponent } from "./api-key.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+ 
 @Component({
   templateUrl: "security-keys.component.html",
   imports: [SharedModule, ChangeKdfModule],

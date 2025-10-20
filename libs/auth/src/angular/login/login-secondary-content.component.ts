@@ -8,6 +8,8 @@ import { DefaultServerSettingsService } from "@bitwarden/common/platform/service
 // eslint-disable-next-line no-restricted-imports
 import { LinkModule } from "@bitwarden/components";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+ 
 @Component({
   imports: [CommonModule, JslibModule, LinkModule, RouterModule],
   template: `

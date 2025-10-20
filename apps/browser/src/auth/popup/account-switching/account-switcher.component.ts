@@ -33,6 +33,8 @@ import { AccountComponent } from "./account.component";
 import { CurrentAccountComponent } from "./current-account.component";
 import { AccountSwitcherService } from "./services/account-switcher.service";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+ 
 @Component({
   templateUrl: "account-switcher.component.html",
   imports: [

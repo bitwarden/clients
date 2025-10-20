@@ -30,6 +30,8 @@ import { NewDeviceVerificationComponentService } from "./new-device-verification
 /**
  * Component for verifying a new device via a one-time password (OTP).
  */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+ 
 @Component({
   selector: "app-new-device-verification",
   templateUrl: "./new-device-verification.component.html",

@@ -15,6 +15,8 @@ import {
 import { DeviceDisplayData } from "./device-management.component";
 
 /** Displays user devices in a sortable table view */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+ 
 @Component({
   standalone: true,
   selector: "auth-device-management-table",
@@ -22,7 +24,11 @@ import { DeviceDisplayData } from "./device-management.component";
   imports: [BadgeModule, ButtonModule, CommonModule, JslibModule, LinkModule, TableModule],
 })
 export class DeviceManagementTableComponent implements OnChanges {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+   
   @Input() devices: DeviceDisplayData[] = [];
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+   
   @Output() onAuthRequestAnswered = new EventEmitter<DevicePendingAuthRequest>();
 
   protected tableDataSource = new TableDataSource<DeviceDisplayData>();

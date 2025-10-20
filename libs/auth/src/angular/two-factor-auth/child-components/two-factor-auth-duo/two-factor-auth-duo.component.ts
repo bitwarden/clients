@@ -25,6 +25,8 @@ import {
   TwoFactorAuthDuoComponentService,
 } from "./two-factor-auth-duo-component.service";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+ 
 @Component({
   selector: "app-two-factor-auth-duo",
   template: "",
@@ -43,7 +45,11 @@ import {
   providers: [],
 })
 export class TwoFactorAuthDuoComponent implements OnInit {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+   
   @Output() tokenEmitter = new EventEmitter<string>();
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+   
   @Input() providerData: any;
 
   duoFramelessUrl: string | undefined = undefined;

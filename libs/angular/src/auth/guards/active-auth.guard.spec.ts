@@ -13,6 +13,8 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 
 import { activeAuthGuard } from "./active-auth.guard";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+ 
 @Component({ template: "", standalone: false })
 class EmptyComponent {}
 

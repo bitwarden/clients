@@ -99,6 +99,8 @@ interface InputPasswordForm {
   rotateUserKey?: FormControl<boolean>;
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+ 
 @Component({
   selector: "auth-input-password",
   templateUrl: "./input-password.component.html",
@@ -118,24 +120,48 @@ interface InputPasswordForm {
   ],
 })
 export class InputPasswordComponent implements OnInit {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+   
   @ViewChild(PasswordStrengthV2Component) passwordStrengthComponent:
     | PasswordStrengthV2Component
     | undefined = undefined;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+   
   @Output() onPasswordFormSubmit = new EventEmitter<PasswordInputResult>();
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+   
   @Output() onSecondaryButtonClick = new EventEmitter<void>();
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+   
   @Output() isSubmitting = new EventEmitter<boolean>();
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+   
   @Input({ required: true }) flow!: InputPasswordFlow;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+   
   @Input({ transform: (val: string) => val?.trim().toLowerCase() }) email?: string;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+   
   @Input() userId?: UserId;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+   
   @Input() loading = false;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+   
   @Input() masterPasswordPolicyOptions?: MasterPasswordPolicyOptions;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+   
   @Input() inlineButtons = false;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+   
   @Input() primaryButtonText?: Translation;
   protected primaryButtonTextStr: string = "";
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+   
   @Input() secondaryButtonText?: Translation;
   protected secondaryButtonTextStr: string = "";
 

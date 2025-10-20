@@ -62,6 +62,8 @@ interface QueryParams {
 /**
  * This component handles the SSO flow.
  */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+ 
 @Component({
   templateUrl: "sso.component.html",
   imports: [

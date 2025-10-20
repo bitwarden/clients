@@ -48,6 +48,8 @@ export type EmergencyAccessTakeoverDialogResultType =
  *
  * @link https://bitwarden.com/help/emergency-access/
  */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+ 
 @Component({
   selector: "auth-emergency-access-takeover-dialog",
   templateUrl: "./emergency-access-takeover-dialog.component.html",
@@ -61,6 +63,8 @@ export type EmergencyAccessTakeoverDialogResultType =
   ],
 })
 export class EmergencyAccessTakeoverDialogComponent implements OnInit {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+   
   @ViewChild(InputPasswordComponent)
   inputPasswordComponent: InputPasswordComponent | undefined = undefined;
 

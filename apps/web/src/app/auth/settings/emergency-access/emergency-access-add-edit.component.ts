@@ -35,6 +35,8 @@ export enum EmergencyAccessAddEditDialogResult {
   Canceled = "canceled",
   Deleted = "deleted",
 }
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+ 
 @Component({
   templateUrl: "emergency-access-add-edit.component.html",
   imports: [SharedModule, PremiumBadgeComponent],

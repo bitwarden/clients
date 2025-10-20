@@ -50,6 +50,8 @@ export interface DeviceDisplayData {
  * - Medium to Large screens = `bit-table` view
  * - Small screens = `bit-item-group` view
  */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+ 
 @Component({
   standalone: true,
   selector: "auth-device-management",

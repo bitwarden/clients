@@ -40,6 +40,8 @@ const DEFAULT_MARKETING_EMAILS_PREF_BY_REGION: Record<Region, boolean> = {
   [Region.SelfHosted]: false,
 };
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+ 
 @Component({
   selector: "auth-registration-start",
   templateUrl: "./registration-start.component.html",
@@ -57,6 +59,8 @@ const DEFAULT_MARKETING_EMAILS_PREF_BY_REGION: Record<Region, boolean> = {
   ],
 })
 export class RegistrationStartComponent implements OnInit, OnDestroy {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+   
   @Output() registrationStartStateChange = new EventEmitter<RegistrationStartState>();
 
   state: RegistrationStartState = RegistrationStartState.USER_DATA_ENTRY;

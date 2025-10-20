@@ -56,6 +56,8 @@ const matchOptions: IsActiveMatchOptions = {
   matrixParams: "ignored",
 };
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+ 
 @Component({
   templateUrl: "./login-via-auth-request.component.html",
   imports: [ButtonModule, CommonModule, JslibModule, LinkModule, RouterModule],

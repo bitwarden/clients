@@ -32,6 +32,8 @@ export interface WebAuthnResult {
   remember?: boolean;
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+ 
 @Component({
   selector: "app-two-factor-auth-webauthn",
   templateUrl: "two-factor-auth-webauthn.component.html",
@@ -50,7 +52,11 @@ export interface WebAuthnResult {
   providers: [],
 })
 export class TwoFactorAuthWebAuthnComponent implements OnInit, OnDestroy {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+   
   @Output() webAuthnResultEmitter = new EventEmitter<WebAuthnResult>();
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+   
   @Output() webAuthnInNewTabEmitter = new EventEmitter<boolean>();
 
   webAuthnReady = false;

@@ -12,6 +12,8 @@ import { SharedModule } from "../../../shared";
 import { EmergencyAccessModule } from "../emergency-access.module";
 import { EmergencyAccessService } from "../services/emergency-access.service";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+ 
 @Component({
   imports: [SharedModule, EmergencyAccessModule],
   templateUrl: "accept-emergency.component.html",

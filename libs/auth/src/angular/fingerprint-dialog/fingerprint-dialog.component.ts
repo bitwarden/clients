@@ -9,6 +9,8 @@ export type FingerprintDialogData = {
   fingerprint: string[];
 };
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+ 
 @Component({
   templateUrl: "fingerprint-dialog.component.html",
   imports: [JslibModule, ButtonModule, DialogModule],

@@ -46,6 +46,8 @@ import { TwoFactorAuthComponentCacheService } from "./two-factor-auth-component-
 import { TwoFactorAuthComponentService } from "./two-factor-auth-component.service";
 import { TwoFactorAuthComponent } from "./two-factor-auth.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+ 
 @Component({ standalone: false })
 class TestTwoFactorComponent extends TwoFactorAuthComponent {}
 
