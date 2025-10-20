@@ -21,6 +21,8 @@ import {
   ServiceAccountView,
 } from "../models/view/service-account.view";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "sm-service-accounts-list",
   templateUrl: "./service-accounts-list.component.html",
@@ -29,6 +31,8 @@ import {
 export class ServiceAccountsListComponent implements OnDestroy, OnInit {
   protected dataSource = new TableDataSource<ServiceAccountSecretsDetailsView>();
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   get serviceAccounts(): ServiceAccountSecretsDetailsView[] {
     return this._serviceAccounts;
@@ -40,15 +44,25 @@ export class ServiceAccountsListComponent implements OnDestroy, OnInit {
   }
   private _serviceAccounts: ServiceAccountSecretsDetailsView[];
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   set search(search: string) {
     this.selection.clear();
     this.dataSource.filter = search;
   }
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() newServiceAccountEvent = new EventEmitter();
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() deleteServiceAccountsEvent = new EventEmitter<ServiceAccountView[]>();
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onServiceAccountCheckedEvent = new EventEmitter<string[]>();
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() editServiceAccountEvent = new EventEmitter<string>();
 
   private destroy$: Subject<void> = new Subject<void>();

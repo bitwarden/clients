@@ -7,6 +7,8 @@ import { Directive, ElementRef, Input, OnInit, Renderer2 } from "@angular/core";
   standalone: false,
 })
 export class InputVerbatimDirective implements OnInit {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() set appInputVerbatim(condition: boolean | string) {
     this.disableComplete = condition === "" || condition === true;
   }

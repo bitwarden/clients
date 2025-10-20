@@ -20,12 +20,16 @@ import { ProjectService } from "../projects/project.service";
 
 import { projectAccessGuard } from "./project-access.guard";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template: "",
   standalone: false,
 })
 export class GuardedRouteTestComponent {}
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template: "",
   standalone: false,

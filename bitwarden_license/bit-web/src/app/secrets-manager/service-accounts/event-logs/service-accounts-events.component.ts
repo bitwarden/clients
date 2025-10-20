@@ -17,6 +17,8 @@ import { EventExportService } from "@bitwarden/web-vault/app/tools/event-export"
 
 import { ServiceAccountEventLogApiService } from "./service-account-event-log-api.service";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "sm-service-accounts-events",
   templateUrl: "./service-accounts-events.component.html",
