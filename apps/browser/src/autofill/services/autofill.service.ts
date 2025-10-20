@@ -400,7 +400,7 @@ export default class AutofillService implements AutofillServiceInterface {
    * Gets the default URI match strategy setting from the domain settings service.
    */
   async getDefaultUriMatchStrategy(): Promise<UriMatchStrategySetting> {
-    return await firstValueFrom(this.domainSettingsService.defaultUriMatchStrategy$);
+    return await firstValueFrom(this.domainSettingsService.resolvedDefaultUriMatchStrategy$);
   }
 
   /**
@@ -2286,11 +2286,16 @@ export default class AutofillService implements AutofillServiceInterface {
         this.findMatchingFieldIndex(f, AutoFillConstants.UsernameFieldNames) > -1;
       const isInSameForm = f.form === passwordField.form;
 
+      // An email or tel field in the same form as the password field is likely a qualified
+      // candidate for autofill, even if visibility checks are unreliable
+      const isQualifiedUsernameField =
+        f.form === passwordField.form && (f.type === "email" || f.type === "tel");
+
       if (
         !f.disabled &&
         (canBeReadOnly || !f.readonly) &&
         (withoutForm || isInSameForm || includesUsernameFieldName) &&
-        (canBeHidden || f.viewable) &&
+        (canBeHidden || f.viewable || isQualifiedUsernameField) &&
         (f.type === "text" || f.type === "email" || f.type === "tel")
       ) {
         // Prioritize fields in the same form as the password field

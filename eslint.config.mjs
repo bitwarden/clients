@@ -78,7 +78,7 @@ export default tseslint.config(
 
       "@bitwarden/platform/required-using": "error",
       "@bitwarden/platform/no-enums": "error",
-      "@bitwarden/components/require-theme-colors-in-svg": "warn",
+      "@bitwarden/components/require-theme-colors-in-svg": "error",
 
       "@typescript-eslint/explicit-member-accessibility": ["error", { accessibility: "no-public" }],
       "@typescript-eslint/no-explicit-any": "off", // TODO: This should be re-enabled
@@ -335,6 +335,7 @@ export default tseslint.config(
             "file-selector",
             "mfaType.*",
             "filter.*", // Temporary until filters are migrated
+            "tw-@container",
           ],
         },
       ],

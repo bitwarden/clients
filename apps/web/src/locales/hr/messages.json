@@ -35,6 +35,9 @@
       }
     }
   },
+  "noReportRan": {
+    "message": "Nema stvorenih izvješčća"
+  },
   "notifiedMembers": {
     "message": "Obaviješteni članovi"
   },
@@ -60,7 +63,7 @@
     "message": "Stvori novu stavku prijave"
   },
   "percentageCompleted": {
-    "message": "$PERCENT$% complete",
+    "message": "dovršeno $PERCENT$ %",
     "placeholders": {
       "percent": {
         "content": "$1",
@@ -69,7 +72,7 @@
     }
   },
   "securityTasksCompleted": {
-    "message": "$COUNT$ out of $TOTAL$ security tasks completed",
+    "message": "završeni sigurnosni zadaci $COUNT$ od $TOTAL$",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -82,19 +85,19 @@
     }
   },
   "passwordChangeProgress": {
-    "message": "Password change progress"
+    "message": "Napredak promjene lozinke"
   },
   "assignMembersTasksToMonitorProgress": {
-    "message": "Assign members tasks to monitor progress"
+    "message": "Dodijeli članovima zadatke za praćenje napretka"
   },
-  "onceYouReviewApplications": {
-    "message": "Once you review applications and mark them as critical, they will display here."
+  "onceYouReviewApps": {
+    "message": "Nakon što pregledaš prijave i označiš kritične, možeš dodijeliti zadatke članovima za rješavanje rizičnih stavki i ovdje pratiti napredak"
   },
   "sendReminders": {
-    "message": "Send reminders"
+    "message": "Pošalji podsjetnike"
   },
   "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
-    "message": "Once you mark applications critical, they will display here."
+    "message": "Aplikacije označene kao kritične će biti prikazane ovdje."
   },
   "viewAtRiskMembers": {
     "message": "Rizični korisnici"
@@ -143,7 +146,7 @@
     }
   },
   "countOfAtRiskPasswords": {
-    "message": "$COUNT$ passwords at-risk",
+    "message": "Rizičnih lozinki: $COUNT$",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -184,8 +187,23 @@
   "markAppAsCritical": {
     "message": "Označi aplikacije kao kritične"
   },
+  "markAsCritical": {
+    "message": "Označi kao kritično"
+  },
+  "applicationsSelected": {
+    "message": "odabranih aplikacija"
+  },
+  "selectApplication": {
+    "message": "Odaberi aplikaciju"
+  },
+  "unselectApplication": {
+    "message": "Poništi odabir aplikacije"
+  },
   "applicationsMarkedAsCriticalSuccess": {
     "message": "Aplikacije označene kao kritične"
+  },
+  "applicationsMarkedAsCriticalFail": {
+    "message": "Nije uspjelo označavanje aplikacija kao kritičnih"
   },
   "application": {
     "message": "Aplikacija"
@@ -206,7 +224,7 @@
     "message": "Rizični korisnici"
   },
   "membersWithAccessToAtRiskItemsForCriticalApps": {
-    "message": "Members with access to at-risk items for critical applications"
+    "message": "Članovi koji imaju pristup stavkama za aplikacije označene kao kritične"
   },
   "membersAtRiskCount": {
     "message": "Rizičnih članova: $COUNT$",
@@ -273,6 +291,33 @@
   },
   "totalApplications": {
     "message": "Ukupno aplikacija"
+  },
+  "applicationsNeedingReview": {
+    "message": "Aplikacije koje je potrebno pregledati"
+  },
+  "newApplicationsWithCount": {
+    "message": "Novih aplikacija: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "13"
+      }
+    }
+  },
+  "newApplicationsDescription": {
+    "message": "Pregledaj nove aplikacije i po potrebi označi kritične za zaštitu svoje organizacije"
+  },
+  "reviewNow": {
+    "message": "Pregledaj sada"
+  },
+  "prioritizeCriticalApplications": {
+    "message": "Daj prioritet kritičnim aplikacijama"
+  },
+  "atRiskItems": {
+    "message": "Rizične stavke"
+  },
+  "markAsCriticalPlaceholder": {
+    "message": "Funkcionalnost „Označi kao kritično” bit će implementirana u budućem ažuriranju"
   },
   "unmarkAsCritical": {
     "message": "Odznači kao kritično"
@@ -1247,6 +1292,9 @@
   },
   "readingPasskeyLoadingInfo": {
     "message": "Ostavi ovaj prozor otvorenim i slijedi upute preglednika."
+  },
+  "passkeyAuthenticationFailed": {
+    "message": "Autentifikacija pristupnim ključem nije uspjela. Pokušaj ponovno."
   },
   "useADifferentLogInMethod": {
     "message": "Koristi drugi način prijave"
@@ -2902,6 +2950,9 @@
   "makeSureEnoughCredit": {
     "message": "Osiguraj da tvoj račun ima dovoljno raspoloživih sredstava za kupnju. Ako tvoj račun nema dovoljno sredstava za kupnju, sredstva će biti dopunjena iz tvojeg zadanog spremljenog načina plaćanja. Sredstva svojem računu možeš dodati na stranici Naplata."
   },
+  "notEnoughAccountCredit": {
+    "message": "Nemaš dovoljno kredita na računu za ovu kupnju. Kredit možeš dodati na svoj račun na stranici Naplata."
+  },
   "creditAppliedDesc": {
     "message": "Sredstva na tvojem računu mogu se koristiti za kupnju. Sva raspoloživa sredstva će automatski biti upotrijebljena za plaćanje kupnji napravljenih na tvojem računu."
   },
@@ -4309,6 +4360,9 @@
   },
   "generatingYourRiskInsights": {
     "message": "Stvaranje tvojih uvida u rizik..."
+  },
+  "riskInsightsRunReport": {
+    "message": "Pokreni izvješće"
   },
   "updateBrowserDesc": {
     "message": "Koristiš nepodržani preglednik. Web trezor možda neće ispravno raditi."
@@ -9563,7 +9617,7 @@
     "message": "Dodijeli"
   },
   "assignTasks": {
-    "message": "Assign tasks"
+    "message": "Dodijeli zadatke"
   },
   "assignToCollections": {
     "message": "Dodijeli zbirkama"
@@ -9959,6 +10013,9 @@
   },
   "crowdstrikeEventIntegrationDesc": {
     "message": "Pošaljite podatke o događajima svojoj Logscale instanci"
+  },
+  "datadogEventIntegrationDesc": {
+    "message": "Pošalji podatke o događajima trezora svojoj Datadog instanci"
   },
   "failedToSaveIntegration": {
     "message": "Spremanje integracije nije uspjelo. Pokušaj ponovno kasnije."
@@ -11237,11 +11294,46 @@
     "message": "Arhiviraj",
     "description": "Verb"
   },
+  "unArchive": {
+    "message": "Unarchive"
+  },
+  "itemsInArchive": {
+    "message": "Items in archive"
+  },
   "noItemsInArchive": {
     "message": "Nema stavki u arhivi"
   },
-  "archivedItemsDescription": {
-    "message": "Arhivirane stavke biti će prikazane ovdje i biti će izuzete iz rezultata općih pretraga i preporuka auto-ispune."
+  "noItemsInArchiveDesc": {
+    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+  },
+  "itemWasSentToArchive": {
+    "message": "Item was sent to archive"
+  },
+  "itemsWereSentToArchive": {
+    "message": "Items were sent to archive"
+  },
+  "itemUnarchived": {
+    "message": "Item was unarchived"
+  },
+  "bulkArchiveItems": {
+    "message": "Items archived"
+  },
+  "bulkUnarchiveItems": {
+    "message": "Items unarchived"
+  },
+  "archiveItem": {
+    "message": "Archive item",
+    "description": "Verb"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+  },
+  "archiveBulkItems": {
+    "message": "Archive items",
+    "description": "Verb"
+  },
+  "archiveBulkItemsConfirmDesc": {
+    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive these items?"
   },
   "businessUnit": {
     "message": "Poslovna jedinica"
@@ -11713,5 +11805,56 @@
   },
   "seamlessIntegration": {
     "message": "Jednostavna integracija"
+  },
+  "families": {
+    "message": "Families"
+  },
+  "upgradeToFamilies": {
+    "message": "Nadogradi na Families"
+  },
+  "upgradeToPremium": {
+    "message": " Nadogradi na Premium"
+  },
+  "familiesUpdated": {
+    "message": "Families nadogradnja uspješna!"
+  },
+  "taxCalculationError": {
+    "message": "Došlo je do pogreške prilikom izračuna poreza za tvoju lokaciju. Pokušaj ponovno."
+  },
+  "individualUpgradeWelcomeMessage": {
+    "message": "Dobrodošli u Bitwarden"
+  },
+  "individualUpgradeDescriptionMessage": {
+    "message": "Otključaj više sigurnosnih značajki uz Premium ili počni dijeliti stavke s obitelji pomoću Families"
+  },
+  "individualUpgradeTaxInformationMessage": {
+    "message": "Cijene ne uključuju porez i naplaćuju se godišnje."
+  },
+  "organizationNameDescription": {
+    "message": "Naziv tvoje organizacije prikazivat će se u pozivnicama koje pošalješ članovima."
+  },
+  "continueWithoutUpgrading": {
+    "message": "Nastavi bez nadogradnje"
+  },
+  "upgradeYourPlan": {
+    "message": "Upgrade your plan"
+  },
+  "upgradeNow": {
+    "message": "Upgrade now"
+  },
+  "formWillCreateNewFamiliesOrgMessage": {
+    "message": "Completing this form will create a new Families organization. You can upgrade your Free organization from the Admin Console."
+  },
+  "upgradeErrorMessage": {
+    "message": "Došlo je do pogreške prilikom obrade nadogradnje. Pokušaj ponovno."
+  },
+  "bitwardenFreeplanMessage": {
+    "message": "You have the Bitwarden Free plan"
+  },
+  "upgradeCompleteSecurity": {
+    "message": "Upgrade for complete security"
+  },
+  "viewbusinessplans": {
+    "message": "View business plans"
   }
 }

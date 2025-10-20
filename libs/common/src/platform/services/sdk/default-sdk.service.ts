@@ -27,9 +27,12 @@ import {
   UnsignedSharedKey,
 } from "@bitwarden/sdk-internal";
 
+import { ApiService } from "../../../abstractions/api.service";
 import { AccountInfo, AccountService } from "../../../auth/abstractions/account.service";
 import { DeviceType } from "../../../enums/device-type.enum";
 import { EncryptedString, EncString } from "../../../key-management/crypto/models/enc-string";
+import { SecurityStateService } from "../../../key-management/security-state/abstractions/security-state.service";
+import { SignedSecurityState, WrappedSigningKey } from "../../../key-management/types";
 import { OrganizationId, UserId } from "../../../types/guid";
 import { UserKey } from "../../../types/key";
 import { Environment, EnvironmentService } from "../../abstractions/environment.service";
@@ -43,7 +46,7 @@ import { StateProvider } from "../../state";
 
 import { initializeState } from "./client-managed-state";
 
-// A symbol that represents an overriden client that is explicitly set to undefined,
+// A symbol that represents an overridden client that is explicitly set to undefined,
 // blocking the creation of an internal client for that user.
 const UnsetClient = Symbol("UnsetClient");
 
@@ -51,10 +54,17 @@ const UnsetClient = Symbol("UnsetClient");
  * A token provider that exposes the access token to the SDK.
  */
 class JsTokenProvider implements TokenProvider {
-  constructor() {}
+  constructor(
+    private apiService: ApiService,
+    private userId?: UserId,
+  ) {}
 
   async get_access_token(): Promise<string | undefined> {
-    return undefined;
+    if (this.userId == null) {
+      return undefined;
+    }
+
+    return await this.apiService.getActiveBearerToken(this.userId);
   }
 }
 
@@ -68,7 +78,10 @@ export class DefaultSdkService implements SdkService {
     concatMap(async (env) => {
       await SdkLoadService.Ready;
       const settings = this.toSettings(env);
-      const client = await this.sdkClientFactory.createSdkClient(new JsTokenProvider(), settings);
+      const client = await this.sdkClientFactory.createSdkClient(
+        new JsTokenProvider(this.apiService),
+        settings,
+      );
       await this.loadFeatureFlags(client);
       return client;
     }),
@@ -87,6 +100,8 @@ export class DefaultSdkService implements SdkService {
     private accountService: AccountService,
     private kdfConfigService: KdfConfigService,
     private keyService: KeyService,
+    private securityStateService: SecurityStateService,
+    private apiService: ApiService,
     private stateProvider: StateProvider,
     private configService: ConfigService,
     private userAgent: string | null = null,
@@ -148,10 +163,14 @@ export class DefaultSdkService implements SdkService {
     const privateKey$ = this.keyService
       .userEncryptedPrivateKey$(userId)
       .pipe(distinctUntilChanged());
+    const signingKey$ = this.keyService.userSigningKey$(userId).pipe(distinctUntilChanged());
     const userKey$ = this.keyService.userKey$(userId).pipe(distinctUntilChanged());
     const orgKeys$ = this.keyService.encryptedOrgKeys$(userId).pipe(
       distinctUntilChanged(compareValues), // The upstream observable emits different objects with the same values
     );
+    const securityState$ = this.securityStateService
+      .accountSecurityState$(userId)
+      .pipe(distinctUntilChanged(compareValues));
 
     const client$ = combineLatest([
       this.environmentService.getEnvironment$(userId),
@@ -159,51 +178,57 @@ export class DefaultSdkService implements SdkService {
       kdfParams$,
       privateKey$,
       userKey$,
+      signingKey$,
       orgKeys$,
+      securityState$,
       SdkLoadService.Ready, // Makes sure we wait (once) for the SDK to be loaded
     ]).pipe(
       // switchMap is required to allow the clean-up logic to be executed when `combineLatest` emits a new value.
-      switchMap(([env, account, kdfParams, privateKey, userKey, orgKeys]) => {
-        // Create our own observable to be able to implement clean-up logic
-        return new Observable<Rc<BitwardenClient>>((subscriber) => {
-          const createAndInitializeClient = async () => {
-            if (env == null || kdfParams == null || privateKey == null || userKey == null) {
-              return undefined;
-            }
+      switchMap(
+        ([env, account, kdfParams, privateKey, userKey, signingKey, orgKeys, securityState]) => {
+          // Create our own observable to be able to implement clean-up logic
+          return new Observable<Rc<BitwardenClient>>((subscriber) => {
+            const createAndInitializeClient = async () => {
+              if (env == null || kdfParams == null || privateKey == null || userKey == null) {
+                return undefined;
+              }
 
-            const settings = this.toSettings(env);
-            const client = await this.sdkClientFactory.createSdkClient(
-              new JsTokenProvider(),
-              settings,
-            );
+              const settings = this.toSettings(env);
+              const client = await this.sdkClientFactory.createSdkClient(
+                new JsTokenProvider(this.apiService, userId),
+                settings,
+              );
 
-            await this.initializeClient(
-              userId,
-              client,
-              account,
-              kdfParams,
-              privateKey,
-              userKey,
-              orgKeys,
-            );
+              await this.initializeClient(
+                userId,
+                client,
+                account,
+                kdfParams,
+                privateKey,
+                userKey,
+                signingKey,
+                securityState,
+                orgKeys,
+              );
 
-            return client;
-          };
+              return client;
+            };
 
-          let client: Rc<BitwardenClient> | undefined;
-          createAndInitializeClient()
-            .then((c) => {
-              client = c === undefined ? undefined : new Rc(c);
+            let client: Rc<BitwardenClient> | undefined;
+            createAndInitializeClient()
+              .then((c) => {
+                client = c === undefined ? undefined : new Rc(c);
 
-              subscriber.next(client);
-            })
-            .catch((e) => {
-              subscriber.error(e);
-            });
+                subscriber.next(client);
+              })
+              .catch((e) => {
+                subscriber.error(e);
+              });
 
-          return () => client?.markForDisposal();
-        });
-      }),
+            return () => client?.markForDisposal();
+          });
+        },
+      ),
       tap({ finalize: () => this.sdkClientCache.delete(userId) }),
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
@@ -219,6 +244,8 @@ export class DefaultSdkService implements SdkService {
     kdfParams: KdfConfig,
     privateKey: EncryptedString,
     userKey: UserKey,
+    signingKey: WrappedSigningKey | null,
+    securityState: SignedSecurityState | null,
     orgKeys: Record<OrganizationId, EncString>,
   ) {
     await client.crypto().initialize_user_crypto({
@@ -236,8 +263,8 @@ export class DefaultSdkService implements SdkService {
               },
             },
       privateKey,
-      signingKey: undefined,
-      securityState: undefined,
+      signingKey: signingKey || undefined,
+      securityState: securityState || undefined,
     });
 
     // We initialize the org crypto even if the org_keys are

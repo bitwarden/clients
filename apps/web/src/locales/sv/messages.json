@@ -35,6 +35,9 @@
       }
     }
   },
+  "noReportRan": {
+    "message": "Du har inte skapat en rapport än"
+  },
   "notifiedMembers": {
     "message": "Meddelade medlemmar"
   },
@@ -87,14 +90,14 @@
   "assignMembersTasksToMonitorProgress": {
     "message": "Assign members tasks to monitor progress"
   },
-  "onceYouReviewApplications": {
-    "message": "Once you review applications and mark them as critical, they will display here."
+  "onceYouReviewApps": {
+    "message": "Once you review applications and mark them as critical, you can assign tasks to members to resolve at-risk items and monitor progress here"
   },
   "sendReminders": {
     "message": "Skicka påminnelser"
   },
   "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
-    "message": "Once you mark applications critical, they will display here."
+    "message": "När du markerar applikationer som kritiska kommer de att visas här."
   },
   "viewAtRiskMembers": {
     "message": "Visa medlemmar i riskzonen"
@@ -143,7 +146,7 @@
     }
   },
   "countOfAtRiskPasswords": {
-    "message": "$COUNT$ passwords at-risk",
+    "message": "$COUNT$ lösenord i riskzonen",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -184,8 +187,23 @@
   "markAppAsCritical": {
     "message": "Markera app som kritisk"
   },
+  "markAsCritical": {
+    "message": "Markera som kritisk"
+  },
+  "applicationsSelected": {
+    "message": "applikationer markerade"
+  },
+  "selectApplication": {
+    "message": "Välj applikation"
+  },
+  "unselectApplication": {
+    "message": "Avmarkera applikation"
+  },
   "applicationsMarkedAsCriticalSuccess": {
     "message": "Applikationer markerade som kritiska"
+  },
+  "applicationsMarkedAsCriticalFail": {
+    "message": "Misslyckades med att markera applikationer som kritiska"
   },
   "application": {
     "message": "Applikation"
@@ -273,6 +291,33 @@
   },
   "totalApplications": {
     "message": "Totalt antal applikationer"
+  },
+  "applicationsNeedingReview": {
+    "message": "Applikationer som behöver granskning"
+  },
+  "newApplicationsWithCount": {
+    "message": "$COUNT$ nya applikationer",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "13"
+      }
+    }
+  },
+  "newApplicationsDescription": {
+    "message": "Granska nya applikationer för att markera som kritiska och hålla din organisation säker"
+  },
+  "reviewNow": {
+    "message": "Granska nu"
+  },
+  "prioritizeCriticalApplications": {
+    "message": "Prioritera kritiska applikationer"
+  },
+  "atRiskItems": {
+    "message": "Objekt i riskzonen"
+  },
+  "markAsCriticalPlaceholder": {
+    "message": "Markera som kritisk funktionalitet kommer att implementeras i en framtida uppdatering"
   },
   "unmarkAsCritical": {
     "message": "Avmarkera som kritisk"
@@ -1248,6 +1293,9 @@
   "readingPasskeyLoadingInfo": {
     "message": "Håll det här fönstret öppet och följ anvisningarna från din webbläsare."
   },
+  "passkeyAuthenticationFailed": {
+    "message": "Autentisering med inloggningsnyckel misslyckades. Försök igen."
+  },
   "useADifferentLogInMethod": {
     "message": "Använd en annan inloggningsmetod"
   },
@@ -1564,7 +1612,7 @@
     "message": "Inga objekt i papperskorgen"
   },
   "noItemsInTrashDesc": {
-    "message": "Items you delete will appear here and be permanently deleted after 30 days"
+    "message": "Objekt som du tar bort kommer att visas här och raderas permanent efter 30 dagar"
   },
   "noItemsInVault": {
     "message": "Inga objekt i valvet"
@@ -2901,6 +2949,9 @@
   },
   "makeSureEnoughCredit": {
     "message": "Se till att ditt konto har tillräckligt mycket tillgänglig kredit för detta köp. Om ditt konto inte har tillräckligt med tillgänglig kredit, kommer din sparade standardbetalningsmetod användas för skillnaden. Du kan lägga till kredit till ditt konto från faktureringssidan."
+  },
+  "notEnoughAccountCredit": {
+    "message": "You do not have enough account credit for this purchase. You can add credit to your account from the Billing page."
   },
   "creditAppliedDesc": {
     "message": "Kontots kredit kan användas för att göra köp. Tillgänglig kredit kommer automatiskt tillämpas mot fakturor som genereras för detta konto."
@@ -4309,6 +4360,9 @@
   },
   "generatingYourRiskInsights": {
     "message": "Skapa din riskinsikt..."
+  },
+  "riskInsightsRunReport": {
+    "message": "Kör rapport"
   },
   "updateBrowserDesc": {
     "message": "Du använder en webbläsare som inte stöds. Webbvalvet kanske inte fungerar som det ska."
@@ -9563,7 +9617,7 @@
     "message": "Tilldela"
   },
   "assignTasks": {
-    "message": "Assign tasks"
+    "message": "Tilldela uppgifter"
   },
   "assignToCollections": {
     "message": "Tilldela till samlingar"
@@ -9959,6 +10013,9 @@
   },
   "crowdstrikeEventIntegrationDesc": {
     "message": "Skicka händelsedata till din Logscale-instans"
+  },
+  "datadogEventIntegrationDesc": {
+    "message": "Send vault event data to your Datadog instance"
   },
   "failedToSaveIntegration": {
     "message": "Misslyckades med att spara integration. Försök igen senare."
@@ -11237,11 +11294,46 @@
     "message": "Arkivera",
     "description": "Verb"
   },
+  "unArchive": {
+    "message": "Unarchive"
+  },
+  "itemsInArchive": {
+    "message": "Objekt i arkivet"
+  },
   "noItemsInArchive": {
     "message": "Inga objekt i arkivet"
   },
-  "archivedItemsDescription": {
-    "message": "Arkiverade objekt kommer att visas här och kommer att uteslutas från allmänna sökresultat och förslag för autofyll."
+  "noItemsInArchiveDesc": {
+    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+  },
+  "itemWasSentToArchive": {
+    "message": "Objektet skickades till arkivet"
+  },
+  "itemsWereSentToArchive": {
+    "message": "Items were sent to archive"
+  },
+  "itemUnarchived": {
+    "message": "Item was unarchived"
+  },
+  "bulkArchiveItems": {
+    "message": "Objekt arkiverade"
+  },
+  "bulkUnarchiveItems": {
+    "message": "Objekt avarkiverade"
+  },
+  "archiveItem": {
+    "message": "Arkivera objekt",
+    "description": "Verb"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+  },
+  "archiveBulkItems": {
+    "message": "Arkivera objekt",
+    "description": "Verb"
+  },
+  "archiveBulkItemsConfirmDesc": {
+    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive these items?"
   },
   "businessUnit": {
     "message": "Affärsenhet"
@@ -11713,5 +11805,56 @@
   },
   "seamlessIntegration": {
     "message": "Sömlös integration"
+  },
+  "families": {
+    "message": "Familjer"
+  },
+  "upgradeToFamilies": {
+    "message": "Uppgradera till Familjer"
+  },
+  "upgradeToPremium": {
+    "message": "Uppgradera till Premium"
+  },
+  "familiesUpdated": {
+    "message": "Du har uppgraderat till Familjer!"
+  },
+  "taxCalculationError": {
+    "message": "There was an error calculating tax for your location. Please try again."
+  },
+  "individualUpgradeWelcomeMessage": {
+    "message": "Välkommen till Bitwarden"
+  },
+  "individualUpgradeDescriptionMessage": {
+    "message": "Unlock more security features with Premium, or start sharing items with Families"
+  },
+  "individualUpgradeTaxInformationMessage": {
+    "message": "Priser exklusive moms och faktureras årligen."
+  },
+  "organizationNameDescription": {
+    "message": "Your organization name will appear in invitations you send to members."
+  },
+  "continueWithoutUpgrading": {
+    "message": "Fortsätt utan att uppgradera"
+  },
+  "upgradeYourPlan": {
+    "message": "Uppgradera ditt abonnemang"
+  },
+  "upgradeNow": {
+    "message": "Uppgradera nu"
+  },
+  "formWillCreateNewFamiliesOrgMessage": {
+    "message": "Completing this form will create a new Families organization. You can upgrade your Free organization from the Admin Console."
+  },
+  "upgradeErrorMessage": {
+    "message": "Vi stötte på ett fel vid bearbetningen av din uppgradering. Försök igen."
+  },
+  "bitwardenFreeplanMessage": {
+    "message": "You have the Bitwarden Free plan"
+  },
+  "upgradeCompleteSecurity": {
+    "message": "Uppgradera för fullständig säkerhet"
+  },
+  "viewbusinessplans": {
+    "message": "Visa prismodeller"
   }
 }
