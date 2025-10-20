@@ -4,6 +4,7 @@ import { of } from "rxjs";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { DialogService, I18nMockService } from "@bitwarden/components";
@@ -52,6 +53,12 @@ export default {
           provide: SyncService,
           useValue: {
             fullSync: () => {},
+          },
+        },
+        {
+          provide: PlatformUtilsService,
+          useValue: {
+            isSelfHost: () => false,
           },
         },
       ],
