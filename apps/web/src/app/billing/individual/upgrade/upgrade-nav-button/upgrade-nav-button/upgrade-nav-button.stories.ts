@@ -1,9 +1,11 @@
 import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { of } from "rxjs";
 
+import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { UserId } from "@bitwarden/common/types/guid";
+import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { DialogService, I18nMockService } from "@bitwarden/components";
 import { UpgradeNavButtonComponent } from "@bitwarden/web-vault/app/billing/individual/upgrade/upgrade-nav-button/upgrade-nav-button/upgrade-nav-button.component";
 
@@ -38,6 +40,18 @@ export default {
               name: "Test User",
               emailVerified: true,
             }),
+          },
+        },
+        {
+          provide: ApiService,
+          useValue: {
+            refreshIdentityToken: () => {},
+          },
+        },
+        {
+          provide: SyncService,
+          useValue: {
+            fullSync: () => {},
           },
         },
       ],
