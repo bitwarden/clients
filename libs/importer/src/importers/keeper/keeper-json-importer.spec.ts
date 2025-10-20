@@ -228,6 +228,7 @@ describe("Keeper Json Importer", () => {
     );
     expect(general.login.username).toEqual("general_user@example.com");
     expect(general.login.password).toEqual("GeneralPass#2024!Secure");
+    expect(general.login.uri).toEqual("https://general.example.com");
     expect(general.login.totp).toContain("otpauth://totp/");
 
     // Fields
@@ -248,6 +249,7 @@ describe("Keeper Json Importer", () => {
     );
     expect(healthInsurance.login.username).toEqual("david.martinez@email.com");
     expect(healthInsurance.login.password).toEqual("Health$ecure789");
+    expect(healthInsurance.login.uri).toEqual("https://www.bcbs.com");
 
     // Fields
     expect(healthInsurance.fields.length).toEqual(2);
@@ -268,6 +270,14 @@ describe("Keeper Json Importer", () => {
     expect(login.notes).toEqual("Primary Amazon account for online shopping and Prime membership");
     expect(login.login.username).toEqual("john.martinez@email.com");
     expect(login.login.password).toEqual("Sp@rkl3Sun!2024");
+    expect(login.login.uri).toEqual("https://www.amazon.com");
+    expect(login.login.uris.map((x) => x.uri)).toEqual([
+      "https://www.amazon.com",
+      "https://login.amazon.com",
+      "https://logout.amazon.com",
+      "https://account.amazon.com",
+      "https://profile.amazon.com",
+    ]);
 
     // Fields
     expect(login.fields.length).toEqual(0);
@@ -418,19 +428,6 @@ describe("Keeper Json Importer", () => {
     // Fields
     expect(wifiCredentials.fields.length).toEqual(1);
     expect(getField(wifiCredentials, "$text:SSID")).toBeDefined();
-  });
-
-  it.skip("should import TOTP when present", async () => {
-    const result = await expectParse();
-
-    const cipher = result.ciphers.shift();
-    expect(cipher.login.totp).toBeUndefined();
-
-    // 2nd Cipher
-    const cipher2 = result.ciphers.shift();
-    expect(cipher2.login.totp).toEqual(
-      "otpauth://totp/Amazon:me@company.com?secret=JBSWY3DPEHPK3PXP&issuer=Amazon&algorithm=SHA1&digits=6&period=30",
-    );
   });
 
   it("should create folders and assigned ciphers to them", async () => {

@@ -283,9 +283,12 @@
       "login_url": "https://www.amazon.com",
       "notes": "Primary Amazon account for online shopping and Prime membership",
       "$type": "login",
-      "last_modified": 1760953997,
+      "last_modified": 1760961162,
       "custom_fields": {
-        "$oneTimeCode": "otpauth://totp/totp%40authenticationtest.com?secret=I65VU7K5ZQL7WB4E&issuer=&algorithm=SHA1&digits=6&period=30"
+        "$oneTimeCode": "otpauth://totp/totp%40authenticationtest.com?secret=I65VU7K5ZQL7WB4E&issuer=&algorithm=SHA1&digits=6&period=30",
+        "$url": ["https://login.amazon.com", "https://logout.amazon.com"],
+        "$url:account": "https://account.amazon.com",
+        "$url:profile url": "https://profile.amazon.com"
       },
       "folders": [
         {
