@@ -47,6 +47,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import {
   VaultTimeout,
   VaultTimeoutAction,
@@ -77,6 +78,7 @@ import { KeyService, BiometricStateService } from "@bitwarden/key-management";
 import { AddEditFolderDialogComponent, AddEditFolderDialogResult } from "@bitwarden/vault";
 
 import { DeleteAccountComponent } from "../auth/delete-account.component";
+import { DesktopAutotypeDefaultSettingPolicy } from "../autofill/services/desktop-autotype-policy.service";
 import { PremiumComponent } from "../billing/app/accounts/premium.component";
 import { MenuAccount, MenuUpdateRequest } from "../main/menu/menu.updater";
 
@@ -176,7 +178,9 @@ export class AppComponent implements OnInit, OnDestroy {
     private readonly destroyRef: DestroyRef,
     private readonly documentLangSetter: DocumentLangSetter,
     private restrictedItemTypesService: RestrictedItemTypesService,
+    private pinService: PinServiceAbstraction,
     private readonly tokenService: TokenService,
+    private desktopAutotypeDefaultSettingPolicy: DesktopAutotypeDefaultSettingPolicy,
   ) {
     this.deviceTrustToastService.setupListeners$.pipe(takeUntilDestroyed()).subscribe();
 
@@ -295,7 +299,7 @@ export class AppComponent implements OnInit, OnDestroy {
             await this.openModal<SettingsComponent>(SettingsComponent, this.settingsRef);
             break;
           case "openPremium":
-            await this.openModal<PremiumComponent>(PremiumComponent, this.premiumRef);
+            this.dialogService.open(PremiumComponent);
             break;
           case "showFingerprintPhrase": {
             const activeUserId = await firstValueFrom(
@@ -689,10 +693,9 @@ export class AppComponent implements OnInit, OnDestroy {
       await this.eventUploadService.uploadEvents(userBeingLoggedOut);
       await this.keyService.clearKeys(userBeingLoggedOut);
       await this.cipherService.clear(userBeingLoggedOut);
-      // ! DO NOT REMOVE folderService.clear ! For more information see PM-25660
       await this.folderService.clear(userBeingLoggedOut);
-      await this.vaultTimeoutSettingsService.clear(userBeingLoggedOut);
       await this.biometricStateService.logout(userBeingLoggedOut);
+      await this.pinService.logout(userBeingLoggedOut);
 
       await this.stateEventRunnerService.handleEvent("logout", userBeingLoggedOut);
 

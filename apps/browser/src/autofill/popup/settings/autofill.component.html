@@ -265,6 +265,9 @@
                 [disabled]="option.disabled"
               ></bit-option>
             </bit-select>
+            <bit-hint *ngIf="isDefaultUriMatchDisabledByPolicy">
+              {{ "settingDisabledByPolicy" | i18n }}
+            </bit-hint>
             <bit-hint *ngIf="getMatchHints() as hints">
               {{ hints[0] | i18n }}
               <ng-container *ngIf="hints.length > 1">
@@ -279,7 +282,7 @@
     <bit-section disableMargin>
       <bit-item>
         <a bit-item-content routerLink="/blocked-domains">{{ "blockedDomains" | i18n }}</a>
-        <i slot="end" class="bwi bwi-angle-right bwi-lg row-sub-icon" aria-hidden="true"></i>
+        <i slot="end" class="bwi bwi-angle-right bwi-lg" aria-hidden="true"></i>
       </bit-item>
     </bit-section>
   </div>

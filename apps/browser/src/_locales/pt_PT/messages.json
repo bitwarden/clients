@@ -550,6 +550,38 @@
   "resetSearch": {
     "message": "Repor pesquisa"
   },
+  "archiveNoun": {
+    "message": "Arquivo",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Arquivar",
+    "description": "Verb"
+  },
+  "unArchive": {
+    "message": "Desarquivar"
+  },
+  "itemsInArchive": {
+    "message": "Itens no arquivo"
+  },
+  "noItemsInArchive": {
+    "message": "Nenhum item no arquivo"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Os itens arquivados aparecerão aqui e serão excluídos dos resultados gerais da pesquisa e das sugestões de preenchimento automático."
+  },
+  "itemWasSentToArchive": {
+    "message": "O item foi movido para o arquivo"
+  },
+  "itemUnarchived": {
+    "message": "O item foi desarquivado"
+  },
+  "archiveItem": {
+    "message": "Arquivar item"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Os itens arquivados são excluídos dos resultados gerais da pesquisa e das sugestões de preenchimento automático. Tem a certeza de que pretende arquivar este item?"
+  },
   "edit": {
     "message": "Editar"
   },
@@ -700,6 +732,15 @@
   },
   "invalidMasterPassword": {
     "message": "Palavra-passe mestra inválida"
+  },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Palavra-passe mestra inválida. Confirme se o seu e-mail está correto e se a sua conta foi criada em $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
   },
   "vaultTimeout": {
     "message": "Tempo limite do cofre"
@@ -1235,10 +1276,10 @@
     "message": "Tema"
   },
   "themeDesc": {
-    "message": "Altere o tema de cores da aplicação."
+    "message": "Altere o tema da aplicação."
   },
   "themeDescAlt": {
-    "message": "Altere o tema de cores da aplicação. Aplica-se a todas as contas com sessão iniciada."
+    "message": "Altere o tema da aplicação. Aplica-se a todas as contas com sessão iniciada."
   },
   "dark": {
     "message": "Escuro",
@@ -1506,6 +1547,15 @@
   },
   "readSecurityKey": {
     "message": "Ler chave de segurança"
+  },
+  "readingPasskeyLoading": {
+    "message": "A ler chave de acesso..."
+  },
+  "passkeyAuthenticationFailed": {
+    "message": "Falha na autenticação da chave de acesso"
+  },
+  "useADifferentLogInMethod": {
+    "message": "Utilizar um método de início de sessão diferente"
   },
   "awaitingSecurityKeyInteraction": {
     "message": "A aguardar interação da chave de segurança..."
@@ -3163,6 +3213,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Apenas o cofre da organização associado a $ORGANIZATION$ será exportado.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Apenas o cofre da organização associado a $ORGANIZATION$ será exportado. As coleções dos meus itens não serão incluídas.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },
@@ -5510,6 +5578,38 @@
   },
   "hasItemsVaultNudgeTitle": {
     "message": "Bem-vindo ao seu cofre!"
+  },
+  "phishingPageTitleV2": {
+    "message": "Tentativa de phishing detetada"
+  },
+  "phishingPageSummary": {
+    "message": "O site que está a tentar visitar é um site malicioso conhecido e um risco de segurança."
+  },
+  "phishingPageCloseTabV2": {
+    "message": "Fechar este separador"
+  },
+  "phishingPageContinueV2": {
+    "message": "Continuar para este site (não recomendado)"
+  },
+  "phishingPageExplanation1": {
+    "message": "Este site foi encontrado em ",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name follows this."
+  },
+  "phishingPageExplanation2": {
+    "message": ", uma lista de fonte aberta de sites de phishing conhecidos, utilizados para roubar informações pessoais e sensíveis.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name precedes this."
+  },
+  "phishingPageLearnMore": {
+    "message": "Saiba mais sobre a deteção de phishing"
+  },
+  "protectedBy": {
+    "message": "Protegido por $PRODUCT$",
+    "placeholders": {
+      "product": {
+        "content": "$1",
+        "example": "Bitwarden Phishing Blocker"
+      }
+    }
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Preenchimento automático de itens para a página atual"

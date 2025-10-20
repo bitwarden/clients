@@ -550,6 +550,38 @@
   "resetSearch": {
     "message": "Ponovno postavljanje pretraživanja"
   },
+  "archiveNoun": {
+    "message": "Arhiva",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Arhiviraj",
+    "description": "Verb"
+  },
+  "unArchive": {
+    "message": "Unarchive"
+  },
+  "itemsInArchive": {
+    "message": "Stavke u arhivi"
+  },
+  "noItemsInArchive": {
+    "message": "Nema stavki u arhivi"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Arhivirane stavke biti će prikazane ovdje i biti će izuzete iz rezultata općih pretraga i preporuka auto-ispune."
+  },
+  "itemWasSentToArchive": {
+    "message": "Item was sent to archive"
+  },
+  "itemUnarchived": {
+    "message": "Item was unarchived"
+  },
+  "archiveItem": {
+    "message": "Arhiviraj stavku"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Arhivirane stavke biti će izuzete iz rezultata općih pretraga i preporuka auto-ispune. Sigurno želiš arhivirati?"
+  },
   "edit": {
     "message": "Uredi"
   },
@@ -700,6 +732,15 @@
   },
   "invalidMasterPassword": {
     "message": "Neispravna glavna lozinka"
+  },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Nevažeća glavna lozinka. Provjeri je li tvoja adresa e-pošta ispravna i je li račun kreiran na $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
   },
   "vaultTimeout": {
     "message": "Istek trezora"
@@ -1506,6 +1547,15 @@
   },
   "readSecurityKey": {
     "message": "Pročitaj sigurnosni ključ"
+  },
+  "readingPasskeyLoading": {
+    "message": "Čitanje pristupnog ključa..."
+  },
+  "passkeyAuthenticationFailed": {
+    "message": "Autentifikacija pristupnog ključa nije uspjela"
+  },
+  "useADifferentLogInMethod": {
+    "message": "Koristi drugi način prijave"
   },
   "awaitingSecurityKeyInteraction": {
     "message": "Čekanje na interakciju sa sigurnosnim ključem..."
@@ -3163,6 +3213,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Izvezt će se samo trezor organizacije povezan s $ORGANIZATION$.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Izvezt će se samo trezor organizacije povezan s $ORGANIZATION$. Zbirka mojih stavki neće biti uključena.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },
@@ -5510,6 +5578,38 @@
   },
   "hasItemsVaultNudgeTitle": {
     "message": "Dobrodošli u svoj trezor!"
+  },
+  "phishingPageTitleV2": {
+    "message": "Phishing attempt detected"
+  },
+  "phishingPageSummary": {
+    "message": "The site you are attempting to visit is a known malicious site and a security risk."
+  },
+  "phishingPageCloseTabV2": {
+    "message": "Close this tab"
+  },
+  "phishingPageContinueV2": {
+    "message": "Continue to this site (not recommended)"
+  },
+  "phishingPageExplanation1": {
+    "message": "This site was found in ",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name follows this."
+  },
+  "phishingPageExplanation2": {
+    "message": ", an open-source list of known phishing sites used for stealing personal and sensitive information.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name precedes this."
+  },
+  "phishingPageLearnMore": {
+    "message": "Learn more about phishing detection"
+  },
+  "protectedBy": {
+    "message": "Protected by $PRODUCT$",
+    "placeholders": {
+      "product": {
+        "content": "$1",
+        "example": "Bitwarden Phishing Blocker"
+      }
+    }
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Auto-ispuni stavke za trenutnu stranicu"

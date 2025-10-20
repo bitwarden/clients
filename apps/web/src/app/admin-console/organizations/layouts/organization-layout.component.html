@@ -71,10 +71,9 @@
     >
       <bit-nav-item [text]="'subscription' | i18n" route="billing/subscription"></bit-nav-item>
       <ng-container *ngIf="(showPaymentAndHistory$ | async) && (organizationIsUnmanaged$ | async)">
-        @let paymentDetailsPageData = paymentDetailsPageData$ | async;
         <bit-nav-item
-          [text]="paymentDetailsPageData.textKey | i18n"
-          [route]="paymentDetailsPageData.route"
+          [text]="'paymentDetails' | i18n"
+          route="billing/payment-details"
         ></bit-nav-item>
         <bit-nav-item [text]="'billingHistory' | i18n" route="billing/history"></bit-nav-item>
       </ng-container>
@@ -140,11 +139,7 @@
   </app-side-nav>
 
   <ng-container *ngIf="organization$ | async as organization">
-    <bit-banner
-      *ngIf="organization.isProviderUser"
-      [showClose]="false"
-      class="-tw-m-6 tw-flex tw-flex-col tw-pb-6"
-    >
+    <bit-banner *ngIf="organization.isProviderUser" [showClose]="false">
       {{ "accessingUsingProvider" | i18n: organization.providerName }}
     </bit-banner>
     <app-tax-id-warning

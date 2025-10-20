@@ -7,6 +7,7 @@ import {
   Unassigned,
   CollectionView,
   CollectionAdminService,
+  CollectionTypes,
 } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -139,6 +140,10 @@ export class VaultHeaderComponent {
       return this.i18nService.t("myVault");
     }
 
+    if (this.filter.type === "archive") {
+      return this.i18nService.t("archiveNoun");
+    }
+
     const activeOrganization = this.activeOrganization;
     if (activeOrganization) {
       return `${activeOrganization.name} ${this.i18nService.t("vault").toLowerCase()}`;
@@ -148,9 +153,12 @@ export class VaultHeaderComponent {
   }
 
   protected get icon() {
-    return this.filter?.collectionId && this.filter.collectionId !== All
-      ? "bwi-collection-shared"
-      : "";
+    if (!this.filter?.collectionId || this.filter.collectionId === All) {
+      return "";
+    }
+    return this.collection?.node.type === CollectionTypes.DefaultUserCollection
+      ? "bwi-user"
+      : "bwi-collection-shared";
   }
 
   /**

@@ -550,6 +550,38 @@
   "resetSearch": {
     "message": "Reset search"
   },
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
+  },
+  "unArchive": {
+    "message": "Unarchive"
+  },
+  "itemsInArchive": {
+    "message": "Items in archive"
+  },
+  "noItemsInArchive": {
+    "message": "No items in archive"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+  },
+  "itemWasSentToArchive": {
+    "message": "Item was sent to archive"
+  },
+  "itemUnarchived": {
+    "message": "Item was unarchived"
+  },
+  "archiveItem": {
+    "message": "Archive item"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+  },
   "edit": {
     "message": "തിരുത്തുക"
   },
@@ -700,6 +732,15 @@
   },
   "invalidMasterPassword": {
     "message": "അസാധുവായ പ്രാഥമിക പാസ്‌വേഡ്"
+  },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
   },
   "vaultTimeout": {
     "message": "വാൾട് ടൈംഔട്ട്"
@@ -1506,6 +1547,15 @@
   },
   "readSecurityKey": {
     "message": "Read security key"
+  },
+  "readingPasskeyLoading": {
+    "message": "Reading passkey..."
+  },
+  "passkeyAuthenticationFailed": {
+    "message": "Passkey authentication failed"
+  },
+  "useADifferentLogInMethod": {
+    "message": "Use a different log in method"
   },
   "awaitingSecurityKeyInteraction": {
     "message": "Awaiting security key interaction..."
@@ -3163,6 +3213,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },
@@ -5510,6 +5578,38 @@
   },
   "hasItemsVaultNudgeTitle": {
     "message": "Welcome to your vault!"
+  },
+  "phishingPageTitleV2": {
+    "message": "Phishing attempt detected"
+  },
+  "phishingPageSummary": {
+    "message": "The site you are attempting to visit is a known malicious site and a security risk."
+  },
+  "phishingPageCloseTabV2": {
+    "message": "Close this tab"
+  },
+  "phishingPageContinueV2": {
+    "message": "Continue to this site (not recommended)"
+  },
+  "phishingPageExplanation1": {
+    "message": "This site was found in ",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name follows this."
+  },
+  "phishingPageExplanation2": {
+    "message": ", an open-source list of known phishing sites used for stealing personal and sensitive information.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name precedes this."
+  },
+  "phishingPageLearnMore": {
+    "message": "Learn more about phishing detection"
+  },
+  "protectedBy": {
+    "message": "Protected by $PRODUCT$",
+    "placeholders": {
+      "product": {
+        "content": "$1",
+        "example": "Bitwarden Phishing Blocker"
+      }
+    }
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Autofill items for the current page"

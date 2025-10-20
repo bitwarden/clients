@@ -1,7 +1,7 @@
 import { Component, Directive, importProvidersFrom, Input } from "@angular/core";
 import { RouterModule } from "@angular/router";
 import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
-import { BehaviorSubject, firstValueFrom, Observable, of } from "rxjs";
+import { BehaviorSubject, Observable, of } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -10,6 +10,9 @@ import { ProviderService } from "@bitwarden/common/admin-console/abstractions/pr
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
 import { AccountService, Account } from "@bitwarden/common/auth/abstractions/account.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { FeatureFlag, FeatureFlagValueType } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
@@ -47,8 +50,8 @@ class MockOrganizationService implements Partial<OrganizationService> {
 class MockProviderService implements Partial<ProviderService> {
   private static _providers = new BehaviorSubject<Provider[]>([]);
 
-  async getAll() {
-    return await firstValueFrom(MockProviderService._providers);
+  providers$() {
+    return MockProviderService._providers.asObservable();
   }
 
   @Input()
@@ -75,6 +78,18 @@ class MockAccountService implements Partial<AccountService> {
 class MockPlatformUtilsService implements Partial<PlatformUtilsService> {
   isSelfHost() {
     return false;
+  }
+}
+
+class MockBillingAccountProfileStateService implements Partial<BillingAccountProfileStateService> {
+  hasPremiumFromAnySource$(userId: UserId): Observable<boolean> {
+    return of(false);
+  }
+}
+
+class MockConfigService implements Partial<ConfigService> {
+  getFeatureFlag$<Flag extends FeatureFlag>(key: Flag): Observable<FeatureFlagValueType<Flag>> {
+    return of(false);
   }
 }
 
@@ -114,6 +129,11 @@ export default {
         MockProviderService,
         { provide: SyncService, useClass: MockSyncService },
         { provide: PlatformUtilsService, useClass: MockPlatformUtilsService },
+        {
+          provide: BillingAccountProfileStateService,
+          useClass: MockBillingAccountProfileStateService,
+        },
+        { provide: ConfigService, useClass: MockConfigService },
         MockPlatformUtilsService,
         ProductSwitcherService,
         {
@@ -124,6 +144,7 @@ export default {
               switchProducts: "Switch Products",
               secureYourInfrastructure: "Secure your infrastructure",
               protectYourFamilyOrBusiness: "Protect your family or business",
+              loading: "Loading",
             });
           },
         },

@@ -550,6 +550,38 @@
   "resetSearch": {
     "message": "Axtarışı sıfırla"
   },
+  "archiveNoun": {
+    "message": "Arxiv",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Arxivlə",
+    "description": "Verb"
+  },
+  "unArchive": {
+    "message": "Arxivdən çıxart"
+  },
+  "itemsInArchive": {
+    "message": "Arxivdəki elementlər"
+  },
+  "noItemsInArchive": {
+    "message": "Arxivdə element yoxdur"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Arxivlənmiş elementlər burada görünəcək, ümumi axtarış nəticələrindən və avto-doldurma təkliflərindən xaric ediləcək."
+  },
+  "itemWasSentToArchive": {
+    "message": "Element arxivə göndərildi"
+  },
+  "itemUnarchived": {
+    "message": "Element arxivdən çıxarıldı"
+  },
+  "archiveItem": {
+    "message": "Elementi arxivlə"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Arxivlənmiş elementlər ümumi axtarış nəticələrindən və avto-doldurma təkliflərindən xaric ediləcək. Bu elementi arxivləmək istədiyinizə əminsiniz?"
+  },
   "edit": {
     "message": "Düzəliş et"
   },
@@ -700,6 +732,15 @@
   },
   "invalidMasterPassword": {
     "message": "Yararsız ana parol"
+  },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Yararsız ana parol. E-poçtunuzun doğru olduğunu və hesabınızın $HOST$ üzərində yaradıldığını təsdiqləyin.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
   },
   "vaultTimeout": {
     "message": "Seyf vaxtının bitməsi"
@@ -1507,6 +1548,15 @@
   "readSecurityKey": {
     "message": "Güvənlik açarını oxu"
   },
+  "readingPasskeyLoading": {
+    "message": "Keçid açarı oxunur..."
+  },
+  "passkeyAuthenticationFailed": {
+    "message": "Keçid açarı kimlik doğrulaması uğursuzdur"
+  },
+  "useADifferentLogInMethod": {
+    "message": "Fərqli bir giriş üsulu istifadə edin"
+  },
   "awaitingSecurityKeyInteraction": {
     "message": "Güvənlik açarı ilə əlaqə gözlənilir..."
   },
@@ -1920,79 +1970,79 @@
     "message": "Not"
   },
   "newItemHeaderLogin": {
-    "message": "New Login",
+    "message": "Yeni giriş",
     "description": "Header for new login item type"
   },
   "newItemHeaderCard": {
-    "message": "New Card",
+    "message": "Yeni kart",
     "description": "Header for new card item type"
   },
   "newItemHeaderIdentity": {
-    "message": "New Identity",
+    "message": "Yeni kimlik",
     "description": "Header for new identity item type"
   },
   "newItemHeaderNote": {
-    "message": "New Note",
+    "message": "Yeni not",
     "description": "Header for new note item type"
   },
   "newItemHeaderSshKey": {
-    "message": "New SSH key",
+    "message": "Yeni SSH açarı",
     "description": "Header for new SSH key item type"
   },
   "newItemHeaderTextSend": {
-    "message": "New Text Send",
+    "message": "Yeni Send mətni",
     "description": "Header for new text send"
   },
   "newItemHeaderFileSend": {
-    "message": "New File Send",
+    "message": "Yeni Send faylı",
     "description": "Header for new file send"
   },
   "editItemHeaderLogin": {
-    "message": "Edit Login",
+    "message": "Girişə düzəliş et",
     "description": "Header for edit login item type"
   },
   "editItemHeaderCard": {
-    "message": "Edit Card",
+    "message": "Karta düzəliş et",
     "description": "Header for edit card item type"
   },
   "editItemHeaderIdentity": {
-    "message": "Edit Identity",
+    "message": "Kimliyə düzəliş et",
     "description": "Header for edit identity item type"
   },
   "editItemHeaderNote": {
-    "message": "Edit Note",
+    "message": "Nota düzəliş et",
     "description": "Header for edit note item type"
   },
   "editItemHeaderSshKey": {
-    "message": "Edit SSH key",
+    "message": "SSH açarına düzəliş et",
     "description": "Header for edit SSH key item type"
   },
   "editItemHeaderTextSend": {
-    "message": "Edit Text Send",
+    "message": "Send mətninə düzəliş et",
     "description": "Header for edit text send"
   },
   "editItemHeaderFileSend": {
-    "message": "Edit File Send",
+    "message": "Send faylına düzəliş et",
     "description": "Header for edit file send"
   },
   "viewItemHeaderLogin": {
-    "message": "View Login",
+    "message": "Girişə bax",
     "description": "Header for view login item type"
   },
   "viewItemHeaderCard": {
-    "message": "View Card",
+    "message": "Karta bax",
     "description": "Header for view card item type"
   },
   "viewItemHeaderIdentity": {
-    "message": "View Identity",
+    "message": "Kimliyə bax",
     "description": "Header for view identity item type"
   },
   "viewItemHeaderNote": {
-    "message": "View Note",
+    "message": "Nota bax",
     "description": "Header for view note item type"
   },
   "viewItemHeaderSshKey": {
-    "message": "View SSH key",
+    "message": "SSH açarına bax",
     "description": "Header for view SSH key item type"
   },
   "passwordHistory": {
@@ -3163,6 +3213,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Yalnız $ORGANIZATION$ ilə əlaqələndirilmiş təşkilat seyfi xaricə köçürüləcək.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Yalnız $ORGANIZATION$ ilə əlaqələndirilmiş təşkilat seyfi xaricə köçürüləcək. Element kolleksiyalarım daxil edilməyəcək.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },
@@ -5511,6 +5579,38 @@
   "hasItemsVaultNudgeTitle": {
     "message": "Seyfinizə xoş gəlmisiniz!"
   },
+  "phishingPageTitleV2": {
+    "message": "Fişinq cəhdi aşkarlandı"
+  },
+  "phishingPageSummary": {
+    "message": "Ziyarət etməyə cəhd etdiyiniz sayt, zərərli sayt kimi tanınır və təhlükəsizlik baxımından risklidir."
+  },
+  "phishingPageCloseTabV2": {
+    "message": "Bu vərəqi bağla"
+  },
+  "phishingPageContinueV2": {
+    "message": "Bu sayta davam et (tövsiyə olunmur)"
+  },
+  "phishingPageExplanation1": {
+    "message": "Bu sayt burada üzə çıxdı ",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name follows this."
+  },
+  "phishingPageExplanation2": {
+    "message": "Bu mənbədə fərdi və həssas məlumatların oğurlanması üçün istifadə olunan məlum fişinq saytların açıq mənbəli siyahısıdır.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name precedes this."
+  },
+  "phishingPageLearnMore": {
+    "message": "Fişinq aşkarlaması haqqında daha ətraflı"
+  },
+  "protectedBy": {
+    "message": "$PRODUCT$ tərəfindən qorunur",
+    "placeholders": {
+      "product": {
+        "content": "$1",
+        "example": "Bitwarden Phishing Blocker"
+      }
+    }
+  },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Hazırkı səhifə üçün elementləri avto-doldur"
   },
@@ -5609,7 +5709,7 @@
     "message": "Növbəti"
   },
   "moreBreadcrumbs": {
-    "message": "More breadcrumbs",
+    "message": "Daha çox naviqasiya yolu",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   },
   "confirmKeyConnectorDomain": {

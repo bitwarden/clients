@@ -48,8 +48,6 @@ import {
 import { SelectionReadOnlyResponse } from "../admin-console/models/response/selection-read-only.response";
 import { AccountService } from "../auth/abstractions/account.service";
 import { TokenService } from "../auth/abstractions/token.service";
-import { DeviceVerificationRequest } from "../auth/models/request/device-verification.request";
-import { DisableTwoFactorAuthenticatorRequest } from "../auth/models/request/disable-two-factor-authenticator.request";
 import { EmailTokenRequest } from "../auth/models/request/email-token.request";
 import { EmailRequest } from "../auth/models/request/email.request";
 import { DeviceRequest } from "../auth/models/request/identity-token/device.request";
@@ -61,43 +59,20 @@ import { WebAuthnLoginTokenRequest } from "../auth/models/request/identity-token
 import { PasswordHintRequest } from "../auth/models/request/password-hint.request";
 import { PasswordlessAuthRequest } from "../auth/models/request/passwordless-auth.request";
 import { SecretVerificationRequest } from "../auth/models/request/secret-verification.request";
-import { TwoFactorEmailRequest } from "../auth/models/request/two-factor-email.request";
-import { TwoFactorProviderRequest } from "../auth/models/request/two-factor-provider.request";
 import { UpdateProfileRequest } from "../auth/models/request/update-profile.request";
-import { UpdateTwoFactorAuthenticatorRequest } from "../auth/models/request/update-two-factor-authenticator.request";
-import { UpdateTwoFactorDuoRequest } from "../auth/models/request/update-two-factor-duo.request";
-import { UpdateTwoFactorEmailRequest } from "../auth/models/request/update-two-factor-email.request";
-import { UpdateTwoFactorWebAuthnDeleteRequest } from "../auth/models/request/update-two-factor-web-authn-delete.request";
-import { UpdateTwoFactorWebAuthnRequest } from "../auth/models/request/update-two-factor-web-authn.request";
-import { UpdateTwoFactorYubikeyOtpRequest } from "../auth/models/request/update-two-factor-yubikey-otp.request";
 import { ApiKeyResponse } from "../auth/models/response/api-key.response";
 import { AuthRequestResponse } from "../auth/models/response/auth-request.response";
-import { DeviceVerificationResponse } from "../auth/models/response/device-verification.response";
 import { IdentityDeviceVerificationResponse } from "../auth/models/response/identity-device-verification.response";
 import { IdentityTokenResponse } from "../auth/models/response/identity-token.response";
 import { IdentityTwoFactorResponse } from "../auth/models/response/identity-two-factor.response";
 import { KeyConnectorUserKeyResponse } from "../auth/models/response/key-connector-user-key.response";
 import { PreloginResponse } from "../auth/models/response/prelogin.response";
 import { SsoPreValidateResponse } from "../auth/models/response/sso-pre-validate.response";
-import { TwoFactorAuthenticatorResponse } from "../auth/models/response/two-factor-authenticator.response";
-import { TwoFactorDuoResponse } from "../auth/models/response/two-factor-duo.response";
-import { TwoFactorEmailResponse } from "../auth/models/response/two-factor-email.response";
-import { TwoFactorProviderResponse } from "../auth/models/response/two-factor-provider.response";
-import { TwoFactorRecoverResponse } from "../auth/models/response/two-factor-recover.response";
-import {
-  ChallengeResponse,
-  TwoFactorWebAuthnResponse,
-} from "../auth/models/response/two-factor-web-authn.response";
-import { TwoFactorYubiKeyResponse } from "../auth/models/response/two-factor-yubi-key.response";
 import { BitPayInvoiceRequest } from "../billing/models/request/bit-pay-invoice.request";
-import { PaymentRequest } from "../billing/models/request/payment.request";
-import { TaxInfoUpdateRequest } from "../billing/models/request/tax-info-update.request";
 import { BillingHistoryResponse } from "../billing/models/response/billing-history.response";
-import { BillingPaymentResponse } from "../billing/models/response/billing-payment.response";
 import { PaymentResponse } from "../billing/models/response/payment.response";
 import { PlanResponse } from "../billing/models/response/plan.response";
 import { SubscriptionResponse } from "../billing/models/response/subscription.response";
-import { TaxInfoResponse } from "../billing/models/response/tax-info.response";
 import { ClientType, DeviceType } from "../enums";
 import { KeyConnectorUserKeyRequest } from "../key-management/key-connector/models/key-connector-user-key.request";
 import { SetKeyConnectorKeyRequest } from "../key-management/key-connector/models/set-key-connector-key.request";
@@ -113,7 +88,6 @@ import { UpdateAvatarRequest } from "../models/request/update-avatar.request";
 import { UpdateDomainsRequest } from "../models/request/update-domains.request";
 import { VerifyDeleteRecoverRequest } from "../models/request/verify-delete-recover.request";
 import { VerifyEmailRequest } from "../models/request/verify-email.request";
-import { BreachAccountResponse } from "../models/response/breach-account.response";
 import { DomainsResponse } from "../models/response/domains.response";
 import { ErrorResponse } from "../models/response/error.response";
 import { EventResponse } from "../models/response/event.response";
@@ -295,11 +269,6 @@ export class ApiService implements ApiServiceAbstraction {
     return new SubscriptionResponse(r);
   }
 
-  async getTaxInfo(): Promise<TaxInfoResponse> {
-    const r = await this.send("GET", "/accounts/tax", null, true, true);
-    return new TaxInfoResponse(r);
-  }
-
   async putProfile(request: UpdateProfileRequest): Promise<ProfileResponse> {
     const r = await this.send("PUT", "/accounts/profile", request, true, true);
     return new ProfileResponse(r);
@@ -308,10 +277,6 @@ export class ApiService implements ApiServiceAbstraction {
   async putAvatar(request: UpdateAvatarRequest): Promise<ProfileResponse> {
     const r = await this.send("PUT", "/accounts/avatar", request, true, true);
     return new ProfileResponse(r);
-  }
-
-  putTaxInfo(request: TaxInfoUpdateRequest): Promise<any> {
-    return this.send("PUT", "/accounts/tax", request, true, false);
   }
 
   async postPrelogin(request: PreloginRequest): Promise<PreloginResponse> {
@@ -364,10 +329,6 @@ export class ApiService implements ApiServiceAbstraction {
   async postAccountStorage(request: StorageRequest): Promise<PaymentResponse> {
     const r = await this.send("POST", "/accounts/storage", request, true, true);
     return new PaymentResponse(r);
-  }
-
-  postAccountPayment(request: PaymentRequest): Promise<void> {
-    return this.send("POST", "/accounts/payment", request, true, false);
   }
 
   postAccountLicense(data: FormData): Promise<any> {
@@ -428,11 +389,6 @@ export class ApiService implements ApiServiceAbstraction {
   async getUserBillingHistory(): Promise<BillingHistoryResponse> {
     const r = await this.send("GET", "/accounts/billing/history", null, true, true);
     return new BillingHistoryResponse(r);
-  }
-
-  async getUserBillingPayment(): Promise<BillingPaymentResponse> {
-    const r = await this.send("GET", "/accounts/billing/payment-method", null, true, true);
-    return new BillingPaymentResponse(r);
   }
 
   // Cipher APIs
@@ -832,205 +788,6 @@ export class ApiService implements ApiServiceAbstraction {
     return new SyncResponse(r);
   }
 
-  // Two-factor APIs
-
-  async getTwoFactorProviders(): Promise<ListResponse<TwoFactorProviderResponse>> {
-    const r = await this.send("GET", "/two-factor", null, true, true);
-    return new ListResponse(r, TwoFactorProviderResponse);
-  }
-
-  async getTwoFactorOrganizationProviders(
-    organizationId: string,
-  ): Promise<ListResponse<TwoFactorProviderResponse>> {
-    const r = await this.send(
-      "GET",
-      "/organizations/" + organizationId + "/two-factor",
-      null,
-      true,
-      true,
-    );
-    return new ListResponse(r, TwoFactorProviderResponse);
-  }
-
-  async getTwoFactorAuthenticator(
-    request: SecretVerificationRequest,
-  ): Promise<TwoFactorAuthenticatorResponse> {
-    const r = await this.send("POST", "/two-factor/get-authenticator", request, true, true);
-    return new TwoFactorAuthenticatorResponse(r);
-  }
-
-  async getTwoFactorEmail(request: SecretVerificationRequest): Promise<TwoFactorEmailResponse> {
-    const r = await this.send("POST", "/two-factor/get-email", request, true, true);
-    return new TwoFactorEmailResponse(r);
-  }
-
-  async getTwoFactorDuo(request: SecretVerificationRequest): Promise<TwoFactorDuoResponse> {
-    const r = await this.send("POST", "/two-factor/get-duo", request, true, true);
-    return new TwoFactorDuoResponse(r);
-  }
-
-  async getTwoFactorOrganizationDuo(
-    organizationId: string,
-    request: SecretVerificationRequest,
-  ): Promise<TwoFactorDuoResponse> {
-    const r = await this.send(
-      "POST",
-      "/organizations/" + organizationId + "/two-factor/get-duo",
-      request,
-      true,
-      true,
-    );
-    return new TwoFactorDuoResponse(r);
-  }
-
-  async getTwoFactorYubiKey(request: SecretVerificationRequest): Promise<TwoFactorYubiKeyResponse> {
-    const r = await this.send("POST", "/two-factor/get-yubikey", request, true, true);
-    return new TwoFactorYubiKeyResponse(r);
-  }
-
-  async getTwoFactorWebAuthn(
-    request: SecretVerificationRequest,
-  ): Promise<TwoFactorWebAuthnResponse> {
-    const r = await this.send("POST", "/two-factor/get-webauthn", request, true, true);
-    return new TwoFactorWebAuthnResponse(r);
-  }
-
-  async getTwoFactorWebAuthnChallenge(
-    request: SecretVerificationRequest,
-  ): Promise<ChallengeResponse> {
-    const r = await this.send("POST", "/two-factor/get-webauthn-challenge", request, true, true);
-    return new ChallengeResponse(r);
-  }
-
-  async getTwoFactorRecover(request: SecretVerificationRequest): Promise<TwoFactorRecoverResponse> {
-    const r = await this.send("POST", "/two-factor/get-recover", request, true, true);
-    return new TwoFactorRecoverResponse(r);
-  }
-
-  async putTwoFactorAuthenticator(
-    request: UpdateTwoFactorAuthenticatorRequest,
-  ): Promise<TwoFactorAuthenticatorResponse> {
-    const r = await this.send("PUT", "/two-factor/authenticator", request, true, true);
-    return new TwoFactorAuthenticatorResponse(r);
-  }
-
-  async deleteTwoFactorAuthenticator(
-    request: DisableTwoFactorAuthenticatorRequest,
-  ): Promise<TwoFactorProviderResponse> {
-    const r = await this.send("DELETE", "/two-factor/authenticator", request, true, true);
-    return new TwoFactorProviderResponse(r);
-  }
-
-  async putTwoFactorEmail(request: UpdateTwoFactorEmailRequest): Promise<TwoFactorEmailResponse> {
-    const r = await this.send("PUT", "/two-factor/email", request, true, true);
-    return new TwoFactorEmailResponse(r);
-  }
-
-  async putTwoFactorDuo(request: UpdateTwoFactorDuoRequest): Promise<TwoFactorDuoResponse> {
-    const r = await this.send("PUT", "/two-factor/duo", request, true, true);
-    return new TwoFactorDuoResponse(r);
-  }
-
-  async putTwoFactorOrganizationDuo(
-    organizationId: string,
-    request: UpdateTwoFactorDuoRequest,
-  ): Promise<TwoFactorDuoResponse> {
-    const r = await this.send(
-      "PUT",
-      "/organizations/" + organizationId + "/two-factor/duo",
-      request,
-      true,
-      true,
-    );
-    return new TwoFactorDuoResponse(r);
-  }
-
-  async putTwoFactorYubiKey(
-    request: UpdateTwoFactorYubikeyOtpRequest,
-  ): Promise<TwoFactorYubiKeyResponse> {
-    const r = await this.send("PUT", "/two-factor/yubikey", request, true, true);
-    return new TwoFactorYubiKeyResponse(r);
-  }
-
-  async putTwoFactorWebAuthn(
-    request: UpdateTwoFactorWebAuthnRequest,
-  ): Promise<TwoFactorWebAuthnResponse> {
-    const response = request.deviceResponse.response as AuthenticatorAttestationResponse;
-    const data: any = Object.assign({}, request);
-
-    data.deviceResponse = {
-      id: request.deviceResponse.id,
-      rawId: btoa(request.deviceResponse.id),
-      type: request.deviceResponse.type,
-      extensions: request.deviceResponse.getClientExtensionResults(),
-      response: {
-        AttestationObject: Utils.fromBufferToB64(response.attestationObject),
-        clientDataJson: Utils.fromBufferToB64(response.clientDataJSON),
-      },
-    };
-
-    const r = await this.send("PUT", "/two-factor/webauthn", data, true, true);
-    return new TwoFactorWebAuthnResponse(r);
-  }
-
-  async deleteTwoFactorWebAuthn(
-    request: UpdateTwoFactorWebAuthnDeleteRequest,
-  ): Promise<TwoFactorWebAuthnResponse> {
-    const r = await this.send("DELETE", "/two-factor/webauthn", request, true, true);
-    return new TwoFactorWebAuthnResponse(r);
-  }
-
-  async putTwoFactorDisable(request: TwoFactorProviderRequest): Promise<TwoFactorProviderResponse> {
-    const r = await this.send("PUT", "/two-factor/disable", request, true, true);
-    return new TwoFactorProviderResponse(r);
-  }
-
-  async putTwoFactorOrganizationDisable(
-    organizationId: string,
-    request: TwoFactorProviderRequest,
-  ): Promise<TwoFactorProviderResponse> {
-    const r = await this.send(
-      "PUT",
-      "/organizations/" + organizationId + "/two-factor/disable",
-      request,
-      true,
-      true,
-    );
-    return new TwoFactorProviderResponse(r);
-  }
-
-  postTwoFactorEmailSetup(request: TwoFactorEmailRequest): Promise<any> {
-    return this.send("POST", "/two-factor/send-email", request, true, false);
-  }
-
-  postTwoFactorEmail(request: TwoFactorEmailRequest): Promise<any> {
-    return this.send("POST", "/two-factor/send-email-login", request, false, false);
-  }
-
-  async getDeviceVerificationSettings(): Promise<DeviceVerificationResponse> {
-    const r = await this.send(
-      "GET",
-      "/two-factor/get-device-verification-settings",
-      null,
-      true,
-      true,
-    );
-    return new DeviceVerificationResponse(r);
-  }
-
-  async putDeviceVerificationSettings(
-    request: DeviceVerificationRequest,
-  ): Promise<DeviceVerificationResponse> {
-    const r = await this.send(
-      "PUT",
-      "/two-factor/device-verification-settings",
-      request,
-      true,
-      true,
-    );
-    return new DeviceVerificationResponse(r);
-  }
-
   // Organization APIs
 
   async getCloudCommunicationsEnabled(): Promise<boolean> {
@@ -1295,6 +1052,28 @@ export class ApiService implements ApiServiceAbstraction {
     return new ListResponse(r, EventResponse);
   }
 
+  async getEventsServiceAccount(
+    orgId: string,
+    id: string,
+    start: string,
+    end: string,
+    token: string,
+  ): Promise<ListResponse<EventResponse>> {
+    const r = await this.send(
+      "GET",
+      this.addEventParameters(
+        "/organization/" + orgId + "/service-account/" + id + "/events",
+        start,
+        end,
+        token,
+      ),
+      null,
+      true,
+      true,
+    );
+    return new ListResponse(r, EventResponse);
+  }
+
   async getEventsProject(
     orgId: string,
     id: string,
@@ -1428,14 +1207,6 @@ export class ApiService implements ApiServiceAbstraction {
   async getUserPublicKey(id: string): Promise<UserKeyResponse> {
     const r = await this.send("GET", "/users/" + id + "/public-key", null, true, true);
     return new UserKeyResponse(r);
-  }
-
-  // HIBP APIs
-
-  async getHibpBreach(username: string): Promise<BreachAccountResponse[]> {
-    const encodedUsername = encodeURIComponent(username);
-    const r = await this.send("GET", "/hibp/breach?username=" + encodedUsername, null, true, true);
-    return r.map((a: any) => new BreachAccountResponse(a));
   }
 
   // Misc

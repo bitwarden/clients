@@ -6,11 +6,11 @@
     "message": "Bitwarden logó"
   },
   "extName": {
-    "message": "Bitwarden Password Manager",
+    "message": "Bitwarden Jelszókezelő",
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
   },
   "extDesc": {
-    "message": "At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information",
+    "message": "Legyen otthon, munkában, vagy úton, a Bitwarden könnyen biztosítja jelszavát, kulcsait, és kényes információit",
     "description": "Extension description, MUST be less than 112 characters (Safari restriction)"
   },
   "loginOrCreateNewAccount": {
@@ -550,6 +550,38 @@
   "resetSearch": {
     "message": "Keresés visszaállítása"
   },
+  "archiveNoun": {
+    "message": "Archívum",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archívum",
+    "description": "Verb"
+  },
+  "unArchive": {
+    "message": "Visszavétel archívumból"
+  },
+  "itemsInArchive": {
+    "message": "Archívum elemek száma"
+  },
+  "noItemsInArchive": {
+    "message": "Nincs elem az archívumban."
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Az archivált elemek itt jelennek meg és kizárásra kerülnek az általános keresési eredményekből és az automatikus kitöltési javaslatokból."
+  },
+  "itemWasSentToArchive": {
+    "message": "Az elem az archivumba került."
+  },
+  "itemUnarchived": {
+    "message": "Az elemek visszavéelre kerültek az archivumból."
+  },
+  "archiveItem": {
+    "message": "Elem archiválása"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Az archivált elemek ki vannak zárva az általános keresési eredményekből és az automatikus kitöltési javaslatokból. Biztosan archiválni szeretnénk ezt az elemet?"
+  },
   "edit": {
     "message": "Szerkesztés"
   },
@@ -700,6 +732,15 @@
   },
   "invalidMasterPassword": {
     "message": "Hibás mesterjelszó"
+  },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "A mesterjelszó érvénytelen. Erősítsük meg, hogy email cím helyes és a fiók létrehozásának helye: $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
   },
   "vaultTimeout": {
     "message": "Széf időkifutás"
@@ -866,13 +907,13 @@
     "message": "Kijelentkezett"
   },
   "loggedOutDesc": {
-    "message": "You have been logged out of your account."
+    "message": "Kijelentkezett fiókjából."
   },
   "loginExpired": {
     "message": "Bejelentkezési munkamenete lejárt."
   },
   "logIn": {
-    "message": "Log in"
+    "message": "Bejelentkezés"
   },
   "logInToBitwarden": {
     "message": "Bejelentkezés a Bitwardenbe"
@@ -896,16 +937,16 @@
     "message": "Kövessük az alábbi lépéseket a biztonsági kulccsal bejelentkezés befejezéséhez."
   },
   "restartRegistration": {
-    "message": "Restart registration"
+    "message": "Regisztráció újraindítása"
   },
   "expiredLink": {
-    "message": "Expired link"
+    "message": "Lejárt hivatkozás"
   },
   "pleaseRestartRegistrationOrTryLoggingIn": {
-    "message": "Please restart registration or try logging in."
+    "message": "Kérem kezdje újra a regisztrációt, vagy próbáljon meg bejelentkezni."
   },
   "youMayAlreadyHaveAnAccount": {
-    "message": "You may already have an account"
+    "message": "Lehetséges, hogy már rendelkezik fiókkal"
   },
   "logOutConfirmation": {
     "message": "Biztos benne, hogy ki szeretnél jelentkezni?"
@@ -1176,7 +1217,7 @@
     "description": "Error message shown when the system fails to save login details."
   },
   "saveFailureDetails": {
-    "message": "Oh no! We couldn't save this. Try entering the details manually.",
+    "message": "Ja ne! Nem tudtuk elmenteni. Próbálja meg beírni a kézzel.",
     "description": "Detailed error message shown when saving login details fails."
   },
   "changePasswordWarning": {
@@ -1507,6 +1548,15 @@
   "readSecurityKey": {
     "message": "Biztonsági kulcs olvasása"
   },
+  "readingPasskeyLoading": {
+    "message": "Hozzáférési kulcs beolvasása..."
+  },
+  "passkeyAuthenticationFailed": {
+    "message": "A hozzáférési kulcs hitelesítés sikertelen volt."
+  },
+  "useADifferentLogInMethod": {
+    "message": "Más bejelentkezési mód használata"
+  },
   "awaitingSecurityKeyInteraction": {
     "message": "Várakozás a biztonsági kulcs interakciójára..."
   },
@@ -1606,7 +1656,7 @@
     "description": "Represents the message for allowing the user to enable the autofill overlay"
   },
   "autofillSuggestionsSectionTitle": {
-    "message": "Autofill suggestions"
+    "message": "Automatikus kitöltés javaslatok"
   },
   "autofillSpotlightTitle": {
     "message": "Az automatikus kitöltési javaslatok könnyű megtalálása"
@@ -1627,7 +1677,7 @@
     "message": "Automat kitöltés bekapcsolása"
   },
   "showInlineMenuLabel": {
-    "message": "Show autofill suggestions on form fields"
+    "message": "Automatikus kitöltési javaslatok megjelenítése űrlapmezőknél"
   },
   "showInlineMenuIdentitiesLabel": {
     "message": "Az identitások megjelenítése javaslatként"
@@ -1636,10 +1686,10 @@
     "message": "A kártyák megjelenítése javaslatként"
   },
   "showInlineMenuOnIconSelectionLabel": {
-    "message": "Display suggestions when icon is selected"
+    "message": "Javaslatok megjelenítése a az ikon kiválasztásakor"
   },
   "showInlineMenuOnFormFieldsDescAlt": {
-    "message": "Applies to all logged in accounts."
+    "message": "Minden bejelentkezett fiókra vonatkozik."
   },
   "turnOffBrowserBuiltInPasswordManagerSettings": {
     "message": "Az ütközések elkerülése érdekében kapcsoljuk ki a böngésző beépített jelszókezelő beállításait."
@@ -1652,7 +1702,7 @@
     "description": "Overlay setting select option for disabling autofill overlay"
   },
   "autofillOverlayVisibilityOnFieldFocus": {
-    "message": "When field is selected (on focus)",
+    "message": "Amikor a mező kiválasztásra kerül (fókuszoláskor)",
     "description": "Overlay appearance select option for showing the field on focus of the input element"
   },
   "autofillOverlayVisibilityOnButtonClick": {
@@ -1660,7 +1710,7 @@
     "description": "Overlay appearance select option for showing the field on click of the overlay icon"
   },
   "enableAutoFillOnPageLoadSectionTitle": {
-    "message": "Autofill on page load"
+    "message": "Automatikus kitöltés az oldal betöltésénél"
   },
   "enableAutoFillOnPageLoad": {
     "message": "Automatikus kitöltés engedélyezése oldal betöltéskor"
@@ -1672,7 +1722,7 @@
     "message": "Az oldalbetöltésnél automatikus kitöltést a feltört vagy nem megbízhatató weboldalak kihasználhatják."
   },
   "learnMoreAboutAutofillOnPageLoadLinkText": {
-    "message": "Learn more about risks"
+    "message": "Bővebben a kockázatokról"
   },
   "learnMoreAboutAutofill": {
     "message": "További információk az automatikus kitöltésről"
@@ -2396,7 +2446,7 @@
     "message": "Az új mesterjelszó nem felel meg a szabály követelményeknek."
   },
   "receiveMarketingEmailsV2": {
-    "message": "Get advice, announcements, and research opportunities from Bitwarden in your inbox."
+    "message": "Tanácsokat, bejelentéseket, kutatási lehetőségeket kaphat a Bitwarden-től a postaládájába."
   },
   "unsubscribe": {
     "message": "Leiratkozás"
@@ -2432,10 +2482,10 @@
     "message": "Ok"
   },
   "errorRefreshingAccessToken": {
-    "message": "Access Token Refresh Error"
+    "message": "Hozzáférési Token Frissítés Hiba"
   },
   "errorRefreshingAccessTokenDesc": {
-    "message": "No refresh token or API keys found. Please try logging out and logging back in."
+    "message": "Nem található token vagy API kulcs. Próbáljon meg ki-, majd újra bejelentkezni."
   },
   "desktopSyncVerificationTitle": {
     "message": "Asztali szinkronizálás ellenőrzés"
@@ -3166,6 +3216,24 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Csak a $ORGANIZATION$ szervezetehez kapcsolódó szervezeti széf kerül exportálásra.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Csak a $ORGANIZATION$ szervezethez kapcsolódó szervezeti széf kerül exportálásra. A saját elem gyűjtemények nem lesznek benne.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "error": {
     "message": "Hiba"
   },
@@ -3556,7 +3624,7 @@
     "message": "A szervezeti szabályzat bekapcsolta az automatikus kitöltést az oldalbetöltéskor."
   },
   "autofillSelectInfoWithCommand": {
-    "message": "Select an item from this screen, use the shortcut $COMMAND$, or explore other options in settings.",
+    "message": "Válasszon ki egy elemet a képernyőről, használja a $COMMAND$ kombinációt, vagy tekintse meg a többi lehetőséget a beállításokban.",
     "placeholders": {
       "command": {
         "content": "$1",
@@ -3565,7 +3633,7 @@
     }
   },
   "autofillSelectInfoWithoutCommand": {
-    "message": "Select an item from this screen, or explore other options in settings."
+    "message": "Válasszon ki egy elemet a képernyőről, vagy tekintse meg a többi lehetőséget a beállításokban."
   },
   "gotIt": {
     "message": "Rendben"
@@ -3574,10 +3642,10 @@
     "message": "Automatikus kitöltés beállítások"
   },
   "autofillKeyboardShortcutSectionTitle": {
-    "message": "Autofill shortcut"
+    "message": "Automatikus kitöltés gyorselérés"
   },
   "autofillKeyboardShortcutUpdateLabel": {
-    "message": "Change shortcut"
+    "message": "Billentyűparancs változtatás"
   },
   "autofillKeyboardManagerShortcutsLabel": {
     "message": "Bullenytűparancsok kezelése"
@@ -3944,17 +4012,17 @@
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
   },
   "toggleSideNavigation": {
-    "message": "Toggle side navigation"
+    "message": "Oldalnavigáció váltás"
   },
   "skipToContent": {
     "message": "Ugrás a tartalomra"
   },
   "bitwardenOverlayButton": {
-    "message": "Bitwarden autofill menu button",
+    "message": "Bitwarden automatikus kitöltés menü gomb",
     "description": "Page title for the iframe containing the overlay button"
   },
   "toggleBitwardenVaultOverlay": {
-    "message": "Toggle Bitwarden autofill menu",
+    "message": "Bitwarden automatikus kitöltés menü váltás",
     "description": "Screen reader and tool tip label for the overlay button"
   },
   "bitwardenVault": {
@@ -3962,7 +4030,7 @@
     "description": "Page title in overlay"
   },
   "unlockYourAccountToViewMatchingLogins": {
-    "message": "Unlock your account to view matching logins",
+    "message": "Az összeillő belépések megtekintéséhez oldja fel fiókját",
     "description": "Text to display in overlay when the account is locked."
   },
   "unlockYourAccountToViewAutofillSuggestions": {
@@ -4030,7 +4098,7 @@
     "description": "Screen reader text (aria-label) for new identity button within inline menu"
   },
   "bitwardenOverlayMenuAvailable": {
-    "message": "Bitwarden autofill menu available. Press the down arrow key to select.",
+    "message": "Bitwarden automatikus kitöltés menü elérhető. Nyomja meg a lefele nyilat a kiválasztáshoz.",
     "description": "Screen reader text for announcing when the overlay opens on the page"
   },
   "turnOn": {
@@ -4116,7 +4184,7 @@
     }
   },
   "duoHealthCheckResultsInNullAuthUrlError": {
-    "message": "Error connecting with the Duo service. Use a different two-step login method or contact Duo for assistance."
+    "message": "Hiba a Duo szolgáltatáshoz való kapcsolódáskor. Használjon másféle kétlépcsős bejelentkezést, vagy keresse fel a Duo ügyfélszolgálatot."
   },
   "duoRequiredForAccount": {
     "message": "A fiókhoz kétlépcsős DUO bejelentkezés szükséges."
@@ -4412,27 +4480,27 @@
     "description": "Advanced option placeholder for uri option component"
   },
   "confirmContinueToBrowserSettingsTitle": {
-    "message": "Continue to browser settings?",
+    "message": "Továbblépés a böngésző beállításokhoz?",
     "description": "Title for dialog which asks if the user wants to proceed to a relevant browser settings page"
   },
   "confirmContinueToHelpCenter": {
-    "message": "Continue to Help Center?",
+    "message": "Továbblépés a Segítség Központba?",
     "description": "Title for dialog which asks if the user wants to proceed to a relevant Help Center page"
   },
   "confirmContinueToHelpCenterPasswordManagementContent": {
-    "message": "Change your browser's autofill and password management settings.",
+    "message": "A böngésző automatikus kitöltés és jelszókezelési beállításainak módosítása.",
     "description": "Body content for dialog which asks if the user wants to proceed to the Help Center's page about browser password management settings"
   },
   "confirmContinueToHelpCenterKeyboardShortcutsContent": {
-    "message": "You can view and set extension shortcuts in your browser's settings.",
+    "message": "Megtekintheti vagy beállíthatja a bővítmény billentyűparancsokat a böngésző beállításoknál.",
     "description": "Body content for dialog which asks if the user wants to proceed to the Help Center's page about browser keyboard shortcut settings"
   },
   "confirmContinueToBrowserPasswordManagementSettingsContent": {
-    "message": "Change your browser's autofill and password management settings.",
+    "message": "A böngésző automatikus kitöltési és jelszókezelési beállításainak módosítása.",
     "description": "Body content for dialog which asks if the user wants to proceed to the browser's password management settings page"
   },
   "confirmContinueToBrowserKeyboardShortcutSettingsContent": {
-    "message": "You can view and set extension shortcuts in your browser's settings.",
+    "message": "Megtekintheti vagy beállíthatja a bővítmény billentyűparancsokat a böngésző beállításoknál.",
     "description": "Body content for dialog which asks if the user wants to proceed to the browser's keyboard shortcut settings page"
   },
   "overrideDefaultBrowserAutofillTitle": {
@@ -4612,7 +4680,7 @@
     "message": "Nincsenek másolandó értékek."
   },
   "assignToCollections": {
-    "message": "Assign to collections"
+    "message": "Hozzárendelés gyűjteményhez"
   },
   "copyEmail": {
     "message": "Email cím másolása"
@@ -4675,7 +4743,7 @@
     }
   },
   "itemsWithNoFolder": {
-    "message": "Items with no folder"
+    "message": "Be nem mappázott elemek"
   },
   "itemDetails": {
     "message": "Elem részletek"
@@ -4684,7 +4752,7 @@
     "message": "Elem neve"
   },
   "organizationIsDeactivated": {
-    "message": "Organization is deactivated"
+    "message": "A szervezet deaktiválásra került"
   },
   "owner": {
     "message": "Tulajdonos"
@@ -4694,7 +4762,7 @@
     "description": "Used as a label to indicate that the user is the owner of an item."
   },
   "contactYourOrgAdmin": {
-    "message": "Items in deactivated organizations cannot be accessed. Contact your organization owner for assistance."
+    "message": "A deaktivált szervezetek elemeit nem lehet elérni. Keresse fel további segítségért a szervezet tulajdonosát."
   },
   "additionalInformation": {
     "message": "További információ"
@@ -4922,7 +4990,7 @@
     "description": "ARIA label for the inline menu button that logs in with a passkey."
   },
   "assign": {
-    "message": "Assign"
+    "message": "Hozzárendelés"
   },
   "bulkCollectionAssignmentDialogDescriptionSingular": {
     "message": "Csak az ezekhez a gyűjteményekhez hozzáféréssel rendelkező szervezeti tagok láthatják az elemet."
@@ -4931,7 +4999,7 @@
     "message": "Csak az ezekhez a gyűjteményekhez hozzáféréssel rendelkező szervezeti tagok láthatják az elemeket."
   },
   "bulkCollectionAssignmentWarning": {
-    "message": "You have selected $TOTAL_COUNT$ items. You cannot update $READONLY_COUNT$ of the items because you do not have edit permissions.",
+    "message": "$TOTAL_COUNT$ elemeket jelölt ki. Nem frissítheti a $READONLY_COUNT$ részét, mert nem rendelkezik szerkesztési jogosultsággal.",
     "placeholders": {
       "total_count": {
         "content": "$1",
@@ -5029,13 +5097,13 @@
     }
   },
   "selectCollectionsToAssign": {
-    "message": "Select collections to assign"
+    "message": "A hozzárendeléshez jelöljön ki gyűjteményeket"
   },
   "personalItemTransferWarningSingular": {
-    "message": "1 item will be permanently transferred to the selected organization. You will no longer own this item."
+    "message": "1 elem véglegesen áthelyezésre kerül a szervezethez. Többé nem Önhöz fog tartozni az elem."
   },
   "personalItemsTransferWarningPlural": {
-    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected organization. You will no longer own these items.",
+    "message": "$PERSONAL_ITEMS_COUNT$ elemek véglegesen áthelyezésre kerülnek a kiválasztott szervezethez. Többé nem Önhöz fognak tartozni az elemek.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -5044,7 +5112,7 @@
     }
   },
   "personalItemWithOrgTransferWarningSingular": {
-    "message": "1 item will be permanently transferred to $ORG$. You will no longer own this item.",
+    "message": "Ez az 1 elem véglegesen áthelyezésre kerül a $ORG$ szervezethez. Többé nem az Öné lesz az elem.",
     "placeholders": {
       "org": {
         "content": "$1",
@@ -5053,7 +5121,7 @@
     }
   },
   "personalItemsWithOrgTransferWarningPlural": {
-    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to $ORG$. You will no longer own these items.",
+    "message": "$PERSONAL_ITEMS_COUNT$ elem véglegesen áthelyezésre kerül a $ORG$ szervezethez. Többé nem az Öné lesz az elem.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -5066,13 +5134,13 @@
     }
   },
   "successfullyAssignedCollections": {
-    "message": "Successfully assigned collections"
+    "message": "Sikerült a gyűjteményhez való hozzárendelés"
   },
   "nothingSelected": {
-    "message": "You have not selected anything."
+    "message": "Nem választott ki semmit."
   },
   "itemsMovedToOrg": {
-    "message": "Items moved to $ORGNAME$",
+    "message": "Elemek áthelyezve a $ORGNAME$ szervezethez",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -5081,7 +5149,7 @@
     }
   },
   "itemMovedToOrg": {
-    "message": "Item moved to $ORGNAME$",
+    "message": "Elem áthelyezve a $ORGNAME$ szervezethez",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -5242,7 +5310,7 @@
     "message": "Feloldás biometrikusan"
   },
   "authenticating": {
-    "message": "Authenticating"
+    "message": "Hitelesítés"
   },
   "fillGeneratedPassword": {
     "message": "Generált jelszó kitöltés",
@@ -5510,6 +5578,38 @@
   },
   "hasItemsVaultNudgeTitle": {
     "message": "Üdvözlet a széfben!"
+  },
+  "phishingPageTitleV2": {
+    "message": "Adathalászati kísérlet lett észlelve."
+  },
+  "phishingPageSummary": {
+    "message": "A meglátogatni kívánt webhely ismert rosszindulatú webhely és biztonsági kockázatot jelent."
+  },
+  "phishingPageCloseTabV2": {
+    "message": "Fül bezárása"
+  },
+  "phishingPageContinueV2": {
+    "message": "Tovább erre a webhelyre (nem ajánlott)"
+  },
+  "phishingPageExplanation1": {
+    "message": "Ez a webhely megtalálható volt ",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name follows this."
+  },
+  "phishingPageExplanation2": {
+    "message": "listán, egy személyes és érzékeny információk ellopására használt ismert adathalász webhelyek nyílt forráskódú listáján.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name precedes this."
+  },
+  "phishingPageLearnMore": {
+    "message": "További információ az adathalászat észleléséről"
+  },
+  "protectedBy": {
+    "message": "$PRODUCT$ által védett",
+    "placeholders": {
+      "product": {
+        "content": "$1",
+        "example": "Bitwarden Phishing Blocker"
+      }
+    }
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Az aktuális oldal elemeinek automatikus kitöltése"

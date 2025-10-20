@@ -12,10 +12,9 @@ import { ServerConfig } from "../platform/abstractions/config/server-config";
 export enum FeatureFlag {
   /* Admin Console Team */
   CreateDefaultLocation = "pm-19467-create-default-location",
-  CollectionVaultRefactor = "pm-25030-resolve-ts-upgrade-errors",
 
   /* Auth */
-  PM14938_BrowserExtensionLoginApproval = "pm-14938-browser-extension-login-approvals",
+  PM22110_DisableAlternateLoginMethods = "pm-22110-disable-alternate-login-methods",
 
   /* Autofill */
   MacOsNativeCredentialSync = "macos-native-credential-sync",
@@ -24,23 +23,26 @@ export enum FeatureFlag {
   /* Billing */
   TrialPaymentOptional = "PM-8163-trial-payment",
   PM17772_AdminInitiatedSponsorships = "pm-17772-admin-initiated-sponsorships",
-  UseOrganizationWarningsService = "use-organization-warnings-service",
-  PM21881_ManagePaymentDetailsOutsideCheckout = "pm-21881-manage-payment-details-outside-checkout",
   PM21821_ProviderPortalTakeover = "pm-21821-provider-portal-takeover",
   PM22415_TaxIDWarnings = "pm-22415-tax-id-warnings",
+  PM24032_NewNavigationPremiumUpgradeButton = "pm-24032-new-navigation-premium-upgrade-button",
+  PM25379_UseNewOrganizationMetadataStructure = "pm-25379-use-new-organization-metadata-structure",
+  PM24996_ImplementUpgradeFromFreeDialog = "pm-24996-implement-upgrade-from-free-dialog",
+  PM24033PremiumUpgradeNewDesign = "pm-24033-updat-premium-subscription-page",
 
   /* Key Management */
   PrivateKeyRegeneration = "pm-12241-private-key-regeneration",
   EnrollAeadOnKeyRotation = "enroll-aead-on-key-rotation",
   ForceUpdateKDFSettings = "pm-18021-force-update-kdf-settings",
+  UnlockWithMasterPasswordUnlockData = "pm-23246-unlock-with-master-password-unlock-data",
 
   /* Tools */
   DesktopSendUIRefresh = "desktop-send-ui-refresh",
   UseSdkPasswordGenerators = "pm-19976-use-sdk-password-generators",
-  UseChromiumImporter = "pm-23982-chromium-importer",
 
   /* DIRT */
   EventBasedOrganizationIntegrations = "event-based-organization-integrations",
+  PhishingDetection = "phishing-detection",
   PM22887_RiskInsightsActivityTab = "pm-22887-risk-insights-activity-tab",
 
   /* Vault */
@@ -53,6 +55,9 @@ export enum FeatureFlag {
   IpcChannelFramework = "ipc-channel-framework",
   InactiveUserServerNotification = "pm-25130-receive-push-notifications-for-inactive-users",
   PushNotificationsWhenLocked = "pm-19388-push-notifications-when-locked",
+
+  /* Innovation */
+  PM19148_InnovationArchive = "pm-19148-innovation-archive",
 }
 
 export type AllowedFeatureFlagTypes = boolean | number | string;
@@ -71,7 +76,6 @@ const FALSE = false as boolean;
 export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
   [FeatureFlag.CreateDefaultLocation]: FALSE,
-  [FeatureFlag.CollectionVaultRefactor]: FALSE,
 
   /* Autofill */
   [FeatureFlag.MacOsNativeCredentialSync]: FALSE,
@@ -80,10 +84,10 @@ export const DefaultFeatureFlagValue = {
   /* Tools */
   [FeatureFlag.DesktopSendUIRefresh]: FALSE,
   [FeatureFlag.UseSdkPasswordGenerators]: FALSE,
-  [FeatureFlag.UseChromiumImporter]: FALSE,
 
   /* DIRT */
   [FeatureFlag.EventBasedOrganizationIntegrations]: FALSE,
+  [FeatureFlag.PhishingDetection]: FALSE,
   [FeatureFlag.PM22887_RiskInsightsActivityTab]: FALSE,
 
   /* Vault */
@@ -93,25 +97,31 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM22136_SdkCipherEncryption]: FALSE,
 
   /* Auth */
-  [FeatureFlag.PM14938_BrowserExtensionLoginApproval]: FALSE,
+  [FeatureFlag.PM22110_DisableAlternateLoginMethods]: FALSE,
 
   /* Billing */
   [FeatureFlag.TrialPaymentOptional]: FALSE,
   [FeatureFlag.PM17772_AdminInitiatedSponsorships]: FALSE,
-  [FeatureFlag.UseOrganizationWarningsService]: FALSE,
-  [FeatureFlag.PM21881_ManagePaymentDetailsOutsideCheckout]: FALSE,
   [FeatureFlag.PM21821_ProviderPortalTakeover]: FALSE,
   [FeatureFlag.PM22415_TaxIDWarnings]: FALSE,
+  [FeatureFlag.PM24032_NewNavigationPremiumUpgradeButton]: FALSE,
+  [FeatureFlag.PM25379_UseNewOrganizationMetadataStructure]: FALSE,
+  [FeatureFlag.PM24996_ImplementUpgradeFromFreeDialog]: FALSE,
+  [FeatureFlag.PM24033PremiumUpgradeNewDesign]: FALSE,
 
   /* Key Management */
   [FeatureFlag.PrivateKeyRegeneration]: FALSE,
   [FeatureFlag.EnrollAeadOnKeyRotation]: FALSE,
   [FeatureFlag.ForceUpdateKDFSettings]: FALSE,
+  [FeatureFlag.UnlockWithMasterPasswordUnlockData]: FALSE,
 
   /* Platform */
   [FeatureFlag.IpcChannelFramework]: FALSE,
   [FeatureFlag.InactiveUserServerNotification]: FALSE,
   [FeatureFlag.PushNotificationsWhenLocked]: FALSE,
+
+  /* Innovation */
+  [FeatureFlag.PM19148_InnovationArchive]: FALSE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;

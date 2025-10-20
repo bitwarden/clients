@@ -29,6 +29,7 @@ import {
   TwoFactorAuthDuoComponentService,
   TwoFactorAuthWebAuthnComponentService,
   SsoComponentService,
+  NewDeviceVerificationComponentService,
 } from "@bitwarden/auth/angular";
 import {
   LockService,
@@ -36,6 +37,7 @@ import {
   SsoUrlService,
   LogoutService,
 } from "@bitwarden/auth/common";
+import { ExtensionNewDeviceVerificationComponentService } from "@bitwarden/browser/auth/services/new-device-verification/extension-new-device-verification-component.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService as EventCollectionServiceAbstraction } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -73,7 +75,6 @@ import {
   InternalMasterPasswordServiceAbstraction,
   MasterPasswordServiceAbstraction,
 } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
-import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import {
   VaultTimeoutService,
   VaultTimeoutStringType,
@@ -119,10 +120,12 @@ import { SystemNotificationsService } from "@bitwarden/common/platform/system-no
 import { UnsupportedSystemNotificationsService } from "@bitwarden/common/platform/system-notifications/unsupported-system-notifications.service";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { InternalSendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
+import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
 import { InternalFolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { TotpService as TotpServiceAbstraction } from "@bitwarden/common/vault/abstractions/totp.service";
+import { DefaultCipherArchiveService } from "@bitwarden/common/vault/services/default-cipher-archive.service";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { TotpService } from "@bitwarden/common/vault/services/totp.service";
 import {
@@ -267,7 +270,6 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: KeyService,
     useFactory: (
-      pinService: PinServiceAbstraction,
       masterPasswordService: InternalMasterPasswordServiceAbstraction,
       keyGenerationService: KeyGenerationService,
       cryptoFunctionService: CryptoFunctionService,
@@ -280,7 +282,6 @@ const safeProviders: SafeProvider[] = [
       kdfConfigService: KdfConfigService,
     ) => {
       const keyService = new DefaultKeyService(
-        pinService,
         masterPasswordService,
         keyGenerationService,
         cryptoFunctionService,
@@ -296,7 +297,6 @@ const safeProviders: SafeProvider[] = [
       return keyService;
     },
     deps: [
-      PinServiceAbstraction,
       InternalMasterPasswordServiceAbstraction,
       KeyGenerationService,
       CryptoFunctionService,
@@ -364,7 +364,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: DomainSettingsService,
     useClass: DefaultDomainSettingsService,
-    deps: [StateProvider],
+    deps: [StateProvider, PolicyService, AccountService],
   }),
   safeProvider({
     provide: AbstractStorageService,
@@ -701,6 +701,16 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: DeviceManagementComponentServiceAbstraction,
     useClass: ExtensionDeviceManagementComponentService,
+    deps: [],
+  }),
+  safeProvider({
+    provide: CipherArchiveService,
+    useClass: DefaultCipherArchiveService,
+    deps: [CipherService, ApiService, BillingAccountProfileStateService, ConfigService],
+  }),
+  safeProvider({
+    provide: NewDeviceVerificationComponentService,
+    useClass: ExtensionNewDeviceVerificationComponentService,
     deps: [],
   }),
 ];

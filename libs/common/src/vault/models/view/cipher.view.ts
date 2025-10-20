@@ -1,7 +1,6 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { asUuid, uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import { ItemView } from "@bitwarden/common/vault/models/view/item.view";
 import { CipherView as SdkCipherView } from "@bitwarden/sdk-internal";
 
 import { View } from "../../../models/view/view";
@@ -26,18 +25,18 @@ import { SshKeyView } from "./ssh-key.view";
 export class CipherView implements View, InitializerMetadata {
   readonly initializerKey = InitializerKey.CipherView;
 
-  id: string = null;
-  organizationId: string | undefined = null;
-  folderId: string = null;
-  name: string = null;
-  notes: string = null;
-  type: CipherType = null;
+  id: string = "";
+  organizationId?: string;
+  folderId?: string;
+  name: string = "";
+  notes?: string;
+  type: CipherType = CipherType.Login;
   favorite = false;
   organizationUseTotp = false;
-  permissions: CipherPermissionsApi = new CipherPermissionsApi();
+  permissions?: CipherPermissionsApi = new CipherPermissionsApi();
   edit = false;
   viewPassword = true;
-  localData: LocalData;
+  localData?: LocalData;
   login = new LoginView();
   identity = new IdentityView();
   card = new CardView();
@@ -46,10 +45,11 @@ export class CipherView implements View, InitializerMetadata {
   attachments: AttachmentView[] = [];
   fields: FieldView[] = [];
   passwordHistory: PasswordHistoryView[] = [];
-  collectionIds: string[] = null;
-  revisionDate: Date = null;
-  creationDate: Date = null;
-  deletedDate: Date = null;
+  collectionIds: string[] = [];
+  revisionDate: Date;
+  creationDate: Date;
+  deletedDate?: Date;
+  archivedDate?: Date;
   reprompt: CipherRepromptType = CipherRepromptType.None;
   // We need a copy of the encrypted key so we can pass it to
   // the SdkCipherView during encryption
@@ -62,6 +62,7 @@ export class CipherView implements View, InitializerMetadata {
 
   constructor(c?: Cipher) {
     if (!c) {
+      this.creationDate = this.revisionDate = new Date();
       return;
     }
 
@@ -79,12 +80,13 @@ export class CipherView implements View, InitializerMetadata {
     this.revisionDate = c.revisionDate;
     this.creationDate = c.creationDate;
     this.deletedDate = c.deletedDate;
+    this.archivedDate = c.archivedDate;
     // Old locally stored ciphers might have reprompt == null. If so set it to None.
     this.reprompt = c.reprompt ?? CipherRepromptType.None;
     this.key = c.key;
   }
 
-  private get item() {
+  private get item(): ItemView | undefined {
     switch (this.type) {
       case CipherType.Login:
         return this.login;
@@ -100,10 +102,10 @@ export class CipherView implements View, InitializerMetadata {
         break;
     }
 
-    return null;
+    return undefined;
   }
 
-  get subTitle(): string {
+  get subTitle(): string | undefined {
     return this.item?.subTitle;
   }
 
@@ -112,7 +114,7 @@ export class CipherView implements View, InitializerMetadata {
   }
 
   get hasAttachments(): boolean {
-    return this.attachments && this.attachments.length > 0;
+    return !!this.attachments && this.attachments.length > 0;
   }
 
   get hasOldAttachments(): boolean {
@@ -130,17 +132,21 @@ export class CipherView implements View, InitializerMetadata {
     return this.fields && this.fields.length > 0;
   }
 
-  get passwordRevisionDisplayDate(): Date {
+  get passwordRevisionDisplayDate(): Date | undefined {
     if (this.type !== CipherType.Login || this.login == null) {
-      return null;
+      return undefined;
     } else if (this.login.password == null || this.login.password === "") {
-      return null;
+      return undefined;
     }
     return this.login.passwordRevisionDate;
   }
 
   get isDeleted(): boolean {
     return this.deletedDate != null;
+  }
+
+  get isArchived(): boolean {
+    return this.archivedDate != null;
   }
 
   get linkedFieldOptions() {
@@ -164,23 +170,17 @@ export class CipherView implements View, InitializerMetadata {
    * Determines if the cipher can be launched in a new browser tab.
    */
   get canLaunch(): boolean {
-    return this.type === CipherType.Login && this.login.canLaunch;
+    return this.type === CipherType.Login && this.login!.canLaunch;
   }
 
   linkedFieldValue(id: LinkedIdType) {
     const linkedFieldOption = this.linkedFieldOptions?.get(id);
-    if (linkedFieldOption == null) {
-      return null;
+    const item = this.item;
+    if (linkedFieldOption == null || item == null) {
+      return undefined;
     }
 
-    // FIXME: Remove when updating file. Eslint update
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const item = this.item;
-    return this.item[linkedFieldOption.propertyKey as keyof typeof item];
-  }
-
-  linkedFieldI18nKey(id: LinkedIdType): string {
-    return this.linkedFieldOptions.get(id)?.i18nKey;
+    return item[linkedFieldOption.propertyKey as keyof typeof item];
   }
 
   // This is used as a marker to indicate that the cipher view object still has its prototype
@@ -188,22 +188,42 @@ export class CipherView implements View, InitializerMetadata {
     return this;
   }
 
-  static fromJSON(obj: Partial<DeepJsonify<CipherView>>): CipherView {
+  static fromJSON(obj: Partial<DeepJsonify<CipherView>>): CipherView | null {
     if (obj == null) {
       return null;
     }
 
     const view = new CipherView();
-    const creationDate = obj.creationDate == null ? null : new Date(obj.creationDate);
-    const revisionDate = obj.revisionDate == null ? null : new Date(obj.revisionDate);
-    const deletedDate = obj.deletedDate == null ? null : new Date(obj.deletedDate);
-    const attachments = obj.attachments?.map((a: any) => AttachmentView.fromJSON(a));
-    const fields = obj.fields?.map((f: any) => FieldView.fromJSON(f));
-    const passwordHistory = obj.passwordHistory?.map((ph: any) => PasswordHistoryView.fromJSON(ph));
-    const permissions = CipherPermissionsApi.fromJSON(obj.permissions);
-    let key: EncString | undefined;
+    view.type = obj.type ?? CipherType.Login;
+    view.id = obj.id ?? "";
+    view.organizationId = obj.organizationId ?? undefined;
+    view.folderId = obj.folderId ?? undefined;
+    view.collectionIds = obj.collectionIds ?? [];
+    view.name = obj.name ?? "";
+    view.notes = obj.notes;
+    view.edit = obj.edit ?? false;
+    view.viewPassword = obj.viewPassword ?? true;
+    view.favorite = obj.favorite ?? false;
+    view.organizationUseTotp = obj.organizationUseTotp ?? false;
+    view.localData = obj.localData ? obj.localData : undefined;
+    view.permissions = obj.permissions ? CipherPermissionsApi.fromJSON(obj.permissions) : undefined;
+    view.reprompt = obj.reprompt ?? CipherRepromptType.None;
+    view.decryptionFailure = obj.decryptionFailure ?? false;
+    if (obj.creationDate) {
+      view.creationDate = new Date(obj.creationDate);
+    }
+    if (obj.revisionDate) {
+      view.revisionDate = new Date(obj.revisionDate);
+    }
+    view.deletedDate = obj.deletedDate == null ? undefined : new Date(obj.deletedDate);
+    view.archivedDate = obj.archivedDate == null ? undefined : new Date(obj.archivedDate);
+    view.attachments = obj.attachments?.map((a: any) => AttachmentView.fromJSON(a)) ?? [];
+    view.fields = obj.fields?.map((f: any) => FieldView.fromJSON(f)) ?? [];
+    view.passwordHistory =
+      obj.passwordHistory?.map((ph: any) => PasswordHistoryView.fromJSON(ph)) ?? [];
 
     if (obj.key != null) {
+      let key: EncString | undefined;
       if (typeof obj.key === "string") {
         // If the key is a string, we need to parse it as EncString
         key = EncString.fromJSON(obj.key);
@@ -211,18 +231,8 @@ export class CipherView implements View, InitializerMetadata {
         // If the key is already an EncString instance, we can use it directly
         key = obj.key;
       }
+      view.key = key;
     }
-
-    Object.assign(view, obj, {
-      creationDate: creationDate,
-      revisionDate: revisionDate,
-      deletedDate: deletedDate,
-      attachments: attachments,
-      fields: fields,
-      passwordHistory: passwordHistory,
-      permissions: permissions,
-      key: key,
-    });
 
     switch (obj.type) {
       case CipherType.Card:
@@ -256,45 +266,54 @@ export class CipherView implements View, InitializerMetadata {
     }
 
     const cipherView = new CipherView();
-    cipherView.id = uuidAsString(obj.id) ?? null;
-    cipherView.organizationId = uuidAsString(obj.organizationId) ?? null;
-    cipherView.folderId = uuidAsString(obj.folderId) ?? null;
+    cipherView.id = uuidAsString(obj.id);
+    cipherView.organizationId = uuidAsString(obj.organizationId);
+    cipherView.folderId = uuidAsString(obj.folderId);
     cipherView.name = obj.name;
-    cipherView.notes = obj.notes ?? null;
+    cipherView.notes = obj.notes;
     cipherView.type = obj.type;
     cipherView.favorite = obj.favorite;
     cipherView.organizationUseTotp = obj.organizationUseTotp;
-    cipherView.permissions = CipherPermissionsApi.fromSdkCipherPermissions(obj.permissions);
+    cipherView.permissions = obj.permissions
+      ? CipherPermissionsApi.fromSdkCipherPermissions(obj.permissions)
+      : undefined;
     cipherView.edit = obj.edit;
     cipherView.viewPassword = obj.viewPassword;
     cipherView.localData = fromSdkLocalData(obj.localData);
     cipherView.attachments =
-      obj.attachments?.map((a) => AttachmentView.fromSdkAttachmentView(a)) ?? [];
-    cipherView.fields = obj.fields?.map((f) => FieldView.fromSdkFieldView(f)) ?? [];
+      obj.attachments?.map((a) => AttachmentView.fromSdkAttachmentView(a)!) ?? [];
+    cipherView.fields = obj.fields?.map((f) => FieldView.fromSdkFieldView(f)!) ?? [];
     cipherView.passwordHistory =
-      obj.passwordHistory?.map((ph) => PasswordHistoryView.fromSdkPasswordHistoryView(ph)) ?? [];
+      obj.passwordHistory?.map((ph) => PasswordHistoryView.fromSdkPasswordHistoryView(ph)!) ?? [];
     cipherView.collectionIds = obj.collectionIds?.map((i) => uuidAsString(i)) ?? [];
-    cipherView.revisionDate = obj.revisionDate == null ? null : new Date(obj.revisionDate);
-    cipherView.creationDate = obj.creationDate == null ? null : new Date(obj.creationDate);
-    cipherView.deletedDate = obj.deletedDate == null ? null : new Date(obj.deletedDate);
+    cipherView.revisionDate = new Date(obj.revisionDate);
+    cipherView.creationDate = new Date(obj.creationDate);
+    cipherView.deletedDate = obj.deletedDate == null ? undefined : new Date(obj.deletedDate);
+    cipherView.archivedDate = obj.archivedDate == null ? undefined : new Date(obj.archivedDate);
     cipherView.reprompt = obj.reprompt ?? CipherRepromptType.None;
-    cipherView.key = EncString.fromJSON(obj.key);
+    cipherView.key = obj.key ? EncString.fromJSON(obj.key) : undefined;
 
     switch (obj.type) {
       case CipherType.Card:
-        cipherView.card = CardView.fromSdkCardView(obj.card);
+        cipherView.card = obj.card ? CardView.fromSdkCardView(obj.card) : new CardView();
         break;
       case CipherType.Identity:
-        cipherView.identity = IdentityView.fromSdkIdentityView(obj.identity);
+        cipherView.identity = obj.identity
+          ? IdentityView.fromSdkIdentityView(obj.identity)
+          : new IdentityView();
         break;
       case CipherType.Login:
-        cipherView.login = LoginView.fromSdkLoginView(obj.login);
+        cipherView.login = obj.login ? LoginView.fromSdkLoginView(obj.login) : new LoginView();
         break;
       case CipherType.SecureNote:
-        cipherView.secureNote = SecureNoteView.fromSdkSecureNoteView(obj.secureNote);
+        cipherView.secureNote = obj.secureNote
+          ? SecureNoteView.fromSdkSecureNoteView(obj.secureNote)
+          : new SecureNoteView();
         break;
       case CipherType.SshKey:
-        cipherView.sshKey = SshKeyView.fromSdkSshKeyView(obj.sshKey);
+        cipherView.sshKey = obj.sshKey
+          ? SshKeyView.fromSdkSshKeyView(obj.sshKey)
+          : new SshKeyView();
         break;
       default:
         break;
@@ -316,11 +335,11 @@ export class CipherView implements View, InitializerMetadata {
       name: this.name ?? "",
       notes: this.notes,
       type: this.type ?? CipherType.Login,
-      favorite: this.favorite,
-      organizationUseTotp: this.organizationUseTotp,
+      favorite: this.favorite ?? false,
+      organizationUseTotp: this.organizationUseTotp ?? false,
       permissions: this.permissions?.toSdkCipherPermissions(),
-      edit: this.edit,
-      viewPassword: this.viewPassword,
+      edit: this.edit ?? true,
+      viewPassword: this.viewPassword ?? true,
       localData: toSdkLocalData(this.localData),
       attachments: this.attachments?.map((a) => a.toSdkAttachmentView()),
       fields: this.fields?.map((f) => f.toSdkFieldView()),
@@ -330,6 +349,7 @@ export class CipherView implements View, InitializerMetadata {
       revisionDate: (this.revisionDate ?? new Date()).toISOString(),
       creationDate: (this.creationDate ?? new Date()).toISOString(),
       deletedDate: this.deletedDate?.toISOString(),
+      archivedDate: this.archivedDate?.toISOString(),
       reprompt: this.reprompt ?? CipherRepromptType.None,
       key: this.key?.toSdk(),
       // Cipher type specific properties are set in the switch statement below
@@ -344,19 +364,19 @@ export class CipherView implements View, InitializerMetadata {
 
     switch (this.type) {
       case CipherType.Card:
-        sdkCipherView.card = this.card.toSdkCardView();
+        sdkCipherView.card = this.card?.toSdkCardView();
         break;
       case CipherType.Identity:
-        sdkCipherView.identity = this.identity.toSdkIdentityView();
+        sdkCipherView.identity = this.identity?.toSdkIdentityView();
         break;
       case CipherType.Login:
-        sdkCipherView.login = this.login.toSdkLoginView();
+        sdkCipherView.login = this.login?.toSdkLoginView();
         break;
       case CipherType.SecureNote:
-        sdkCipherView.secureNote = this.secureNote.toSdkSecureNoteView();
+        sdkCipherView.secureNote = this.secureNote?.toSdkSecureNoteView();
         break;
       case CipherType.SshKey:
-        sdkCipherView.sshKey = this.sshKey.toSdkSshKeyView();
+        sdkCipherView.sshKey = this.sshKey?.toSdkSshKeyView();
         break;
       default:
         break;

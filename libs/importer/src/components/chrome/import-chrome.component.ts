@@ -114,7 +114,11 @@ export class ImportChromeComponent implements OnInit, OnDestroy {
           this.formGroup.controls.profile.value,
         );
         if (logins.length === 0) {
-          throw "nothing to import";
+          return {
+            errors: {
+              message: this.i18nService.t("importNothingError"),
+            },
+          };
         }
         const chromeLogins: ChromeLogin[] = [];
         for (const l of logins) {

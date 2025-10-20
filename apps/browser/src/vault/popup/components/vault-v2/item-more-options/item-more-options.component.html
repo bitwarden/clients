@@ -26,6 +26,11 @@
     <button type="button" bitMenuItem (click)="toggleFavorite()">
       {{ favoriteText | i18n }}
     </button>
+    @if (canEdit) {
+      <button type="button" bitMenuItem (click)="edit()">
+        {{ "edit" | i18n }}
+      </button>
+    }
     <ng-container *ngIf="canEdit && canViewPassword">
       <a bitMenuItem (click)="clone()" *ngIf="canClone$ | async">
         {{ "clone" | i18n }}
@@ -38,5 +43,17 @@
         {{ "assignToCollections" | i18n }}
       </a>
     </ng-container>
+    @if (canArchive$ | async) {
+      <button type="button" bitMenuItem (click)="archive()" *ngIf="canArchive$ | async">
+        {{ "archiveVerb" | i18n }}
+      </button>
+    }
+    @if (canDelete$ | async) {
+      <button type="button" bitMenuItem (click)="delete()">
+        <span class="tw-text-danger">
+          {{ "delete" | i18n }}
+        </span>
+      </button>
+    }
   </bit-menu>
 </bit-item-action>

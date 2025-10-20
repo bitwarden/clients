@@ -13,6 +13,7 @@ import { firstValueFrom, Subject, takeUntil, switchMap, lastValueFrom, Observabl
 import { filter, map, take } from "rxjs/operators";
 
 import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
+import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { VaultViewPasswordHistoryService } from "@bitwarden/angular/services/view-password-history.service";
 import { VaultFilter } from "@bitwarden/angular/vault/vault-filter/models/vault-filter.model";
 import { AuthRequestServiceAbstraction } from "@bitwarden/auth/common";
@@ -24,7 +25,6 @@ import { Account, AccountService } from "@bitwarden/common/auth/abstractions/acc
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EventType } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -45,6 +45,7 @@ import {
   CipherViewLike,
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
+import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 import {
   BadgeModule,
   ButtonModule,
@@ -101,6 +102,7 @@ const BroadcasterSubscriptionId = "VaultComponent";
     I18nPipe,
     ItemModule,
     ButtonModule,
+    PremiumBadgeComponent,
     NavComponent,
     VaultFilterModule,
     VaultItemsV2Component,
@@ -167,6 +169,7 @@ export class VaultV2Component<C extends CipherViewLike>
 
   private organizations$: Observable<Organization[]> = this.accountService.activeAccount$.pipe(
     map((a) => a?.id),
+    filterOutNullish(),
     switchMap((id) => this.organizationService.organizations$(id)),
   );
 
@@ -289,7 +292,7 @@ export class VaultV2Component<C extends CipherViewLike>
                 ) {
                   const value = await firstValueFrom(
                     this.totpService.getCode$(this.cipher.login.totp),
-                  ).catch(() => null);
+                  ).catch((): any => null);
                   if (value) {
                     this.copyValue(this.cipher, value.code, "verificationCodeTotp", "TOTP");
                   }
@@ -317,31 +320,18 @@ export class VaultV2Component<C extends CipherViewLike>
     this.searchBarService.setEnabled(true);
     this.searchBarService.setPlaceholderText(this.i18nService.t("searchVault"));
 
-    if (
-      (await firstValueFrom(
-        this.configService.getFeatureFlag$(FeatureFlag.PM14938_BrowserExtensionLoginApproval),
-      )) === true
-    ) {
-      const authRequests = await firstValueFrom(
-        this.authRequestService.getLatestPendingAuthRequest$(),
-      );
-      if (authRequests != null) {
-        this.messagingService.send("openLoginApproval", {
-          notificationId: authRequests.id,
-        });
-      }
-    } else {
-      const authRequest = await this.apiService.getLastAuthRequest();
-      if (authRequest != null) {
-        this.messagingService.send("openLoginApproval", {
-          notificationId: authRequest.id,
-        });
-      }
+    const authRequests = await firstValueFrom(
+      this.authRequestService.getLatestPendingAuthRequest$()!,
+    );
+    if (authRequests != null) {
+      this.messagingService.send("openLoginApproval", {
+        notificationId: authRequests.id,
+      });
     }
 
     this.activeUserId = await firstValueFrom(
       this.accountService.activeAccount$.pipe(getUserId),
-    ).catch(() => null);
+    ).catch((): any => null);
 
     if (this.activeUserId) {
       this.cipherService
@@ -455,13 +445,12 @@ export class VaultV2Component<C extends CipherViewLike>
 
   async openAttachmentsDialog() {
     if (!this.userHasPremiumAccess) {
-      await this.premiumUpgradePromptService.promptForPremium();
       return;
     }
     const dialogRef = AttachmentsV2Component.open(this.dialogService, {
       cipherId: this.cipherId as CipherId,
     });
-    const result = await firstValueFrom(dialogRef.closed).catch(() => null);
+    const result = await firstValueFrom(dialogRef.closed).catch((): any => null);
     if (
       result?.action === AttachmentDialogResult.Removed ||
       result?.action === AttachmentDialogResult.Uploaded
@@ -587,7 +576,7 @@ export class VaultV2Component<C extends CipherViewLike>
             click: async () => {
               const value = await firstValueFrom(
                 this.totpService.getCode$(cipher.login.totp),
-              ).catch(() => null);
+              ).catch((): any => null);
               if (value) {
                 this.copyValue(cipher, value.code, "verificationCodeTotp", "TOTP");
               }
@@ -630,7 +619,7 @@ export class VaultV2Component<C extends CipherViewLike>
   async buildFormConfig(action: CipherFormMode) {
     this.config = await this.formConfigService
       .buildConfig(action, this.cipherId as CipherId, this.addType)
-      .catch(() => null);
+      .catch((): any => null);
   }
 
   async editCipher(cipher: CipherView) {
@@ -734,9 +723,7 @@ export class VaultV2Component<C extends CipherViewLike>
 
     this.cipherId = cipher.id;
     this.cipher = cipher;
-    if (this.activeUserId) {
-      await this.cipherService.clearCache(this.activeUserId).catch(() => {});
-    }
+
     await this.vaultItemsComponent?.load(this.activeFilter.buildFilter()).catch(() => {});
     await this.go().catch(() => {});
     await this.vaultItemsComponent?.refresh().catch(() => {});
@@ -901,9 +888,7 @@ export class VaultV2Component<C extends CipherViewLike>
           title: undefined,
           message: this.i18nService.t("valueCopied", this.i18nService.t(labelI18nKey)),
         });
-        if (this.action === "view") {
-          this.messagingService.send("minimizeOnCopy");
-        }
+        this.messagingService.send("minimizeOnCopy");
       })().catch(() => {});
     });
   }

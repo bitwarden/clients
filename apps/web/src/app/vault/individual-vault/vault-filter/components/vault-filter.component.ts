@@ -1,5 +1,4 @@
 import { Component, EventEmitter, inject, Input, OnDestroy, OnInit, Output } from "@angular/core";
-import { Router } from "@angular/router";
 import {
   combineLatest,
   distinctUntilChanged,
@@ -18,16 +17,16 @@ import { getFirstPolicy } from "@bitwarden/common/admin-console/services/policy/
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { DialogService, ToastService } from "@bitwarden/components";
+import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 
-import { TrialFlowService } from "../../../../billing/services/trial-flow.service";
 import { VaultFilterService } from "../services/abstractions/vault-filter.service";
 import {
   VaultFilterList,
@@ -61,10 +60,11 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
   isLoaded = false;
 
   protected destroy$: Subject<void> = new Subject<void>();
-  private router = inject(Router);
   get filtersList() {
     return this.filters ? Object.values(this.filters) : [];
   }
+
+  protected organizationWarningsService = inject(OrganizationWarningsService);
 
   allTypeFilters: CipherTypeFilter[] = [
     {
@@ -112,6 +112,9 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     if (this.activeFilter.isDeleted) {
       return "searchTrash";
     }
+    if (this.activeFilter.isArchived) {
+      return "searchArchive";
+    }
     if (this.activeFilter.cipherType === CipherType.Login) {
       return "searchLogin";
     }
@@ -143,7 +146,6 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     return "searchVault";
   }
 
-  private trialFlowService = inject(TrialFlowService);
   protected activeUserId$ = this.accountService.activeAccount$.pipe(getUserId);
 
   constructor(
@@ -154,10 +156,10 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     protected toastService: ToastService,
     protected billingApiService: BillingApiServiceAbstraction,
     protected dialogService: DialogService,
-    protected configService: ConfigService,
     protected accountService: AccountService,
     protected restrictedItemTypesService: RestrictedItemTypesService,
     protected cipherService: CipherService,
+    protected cipherArchiveService: CipherArchiveService,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -206,14 +208,6 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
   }
 
   applyOrganizationFilter = async (orgNode: TreeNode<OrganizationFilter>): Promise<void> => {
-    if (!orgNode?.node.enabled) {
-      this.toastService.showToast({
-        variant: "error",
-        message: this.i18nService.t("disabledOrganizationFilterError"),
-      });
-      const metadata = await this.billingApiService.getOrganizationBillingMetadata(orgNode.node.id);
-      await this.trialFlowService.handleUnpaidSubscriptionDialog(orgNode.node, metadata);
-    }
     const filter = this.activeFilter;
     if (orgNode?.node.id === "AllVaults") {
       filter.resetOrganization();
@@ -248,11 +242,15 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
   };
 
   async buildAllFilters(): Promise<VaultFilterList> {
+    const hasArchiveFlag = await firstValueFrom(this.cipherArchiveService.hasArchiveFlagEnabled$());
     const builderFilter = {} as VaultFilterList;
     builderFilter.organizationFilter = await this.addOrganizationFilter();
     builderFilter.typeFilter = await this.addTypeFilter();
     builderFilter.folderFilter = await this.addFolderFilter();
     builderFilter.collectionFilter = await this.addCollectionFilter();
+    if (hasArchiveFlag) {
+      builderFilter.archiveFilter = await this.addArchiveFilter();
+    }
     builderFilter.trashFilter = await this.addTrashFilter();
     return builderFilter;
   }
@@ -336,9 +334,7 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
           .map((r) => r.cipherType);
 
         const toExclude = [...excludeTypes, ...restrictedForUser];
-        return this.allTypeFilters.filter(
-          (f) => typeof f.type === "string" || !toExclude.includes(f.type),
-        );
+        return this.allTypeFilters.filter((f) => !toExclude.includes(f.type));
       }),
       switchMap((allowed) => this.vaultFilterService.buildTypeTree(allFilter, allowed)),
       distinctUntilChanged(),
@@ -411,5 +407,32 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
       action: this.applyTypeFilter as (filterNode: TreeNode<VaultFilterType>) => Promise<void>,
     };
     return trashFilterSection;
+  }
+
+  protected async addArchiveFilter(): Promise<VaultFilterSection> {
+    const archiveFilterSection: VaultFilterSection = {
+      data$: this.vaultFilterService.buildTypeTree(
+        {
+          id: "headArchive",
+          name: "HeadArchive",
+          type: "archive",
+          icon: "bwi-archive",
+        },
+        [
+          {
+            id: "archive",
+            name: this.i18nService.t("archiveNoun"),
+            type: "archive",
+            icon: "bwi-archive",
+          },
+        ],
+      ),
+      header: {
+        showHeader: false,
+        isSelectable: true,
+      },
+      action: this.applyTypeFilter as (filterNode: TreeNode<VaultFilterType>) => Promise<void>,
+    };
+    return archiveFilterSection;
   }
 }

@@ -15,18 +15,14 @@ use crate::chromium::{BrowserConfig, CryptoService, LocalState};
 
 mod abe;
 
-#[allow(dead_code)]
-mod util;
+use crate::util;
 
 //
 // Public API
 //
 
-pub const SUPPORTED_BROWSERS: [BrowserConfig; 6] = [
-    BrowserConfig {
-        name: "Chrome",
-        data_dir: "AppData/Local/Google/Chrome/User Data",
-    },
+// IMPORTANT adjust array size when enabling / disabling chromium importers here
+pub const SUPPORTED_BROWSERS: [BrowserConfig; 4] = [
     BrowserConfig {
         name: "Chromium",
         data_dir: "AppData/Local/Chromium/User Data",
@@ -34,10 +30,6 @@ pub const SUPPORTED_BROWSERS: [BrowserConfig; 6] = [
     BrowserConfig {
         name: "Microsoft Edge",
         data_dir: "AppData/Local/Microsoft/Edge/User Data",
-    },
-    BrowserConfig {
-        name: "Brave",
-        data_dir: "AppData/Local/BraveSoftware/Brave-Browser/User Data",
     },
     BrowserConfig {
         name: "Opera",

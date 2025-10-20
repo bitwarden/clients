@@ -47,6 +47,7 @@ import { OrganizationKeysRequest } from "@bitwarden/common/admin-console/models/
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
+import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
 import { isNotSelfUpgradable, ProductTierType } from "@bitwarden/common/billing/enums";
 import { OrganizationBillingMetadataResponse } from "@bitwarden/common/billing/models/response/organization-billing-metadata.response";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -146,6 +147,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     private groupService: GroupApiService,
     private collectionService: CollectionService,
     private billingApiService: BillingApiServiceAbstraction,
+    private organizationMetadataService: OrganizationMetadataServiceAbstraction,
     protected deleteManagedMemberWarningService: DeleteManagedMemberWarningService,
     private configService: ConfigService,
     private organizationUserService: OrganizationUserService,
@@ -257,7 +259,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
 
     this.billingMetadata$ = combineLatest([this.refreshBillingMetadata$, organization$]).pipe(
       switchMap(([_, organization]) =>
-        this.billingApiService.getOrganizationBillingMetadata(organization.id),
+        this.organizationMetadataService.getOrganizationMetadata$(organization.id),
       ),
       takeUntilDestroyed(),
       shareReplay({ bufferSize: 1, refCount: false }),
@@ -975,12 +977,11 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
   }
 
   async navigateToPaymentMethod(organization: Organization) {
-    const managePaymentDetailsOutsideCheckout = await this.configService.getFeatureFlag(
-      FeatureFlag.PM21881_ManagePaymentDetailsOutsideCheckout,
+    await this.router.navigate(
+      ["organizations", `${organization.id}`, "billing", "payment-details"],
+      {
+        state: { launchPaymentModalAutomatically: true },
+      },
     );
-    const route = managePaymentDetailsOutsideCheckout ? "payment-details" : "payment-method";
-    await this.router.navigate(["organizations", `${organization.id}`, "billing", route], {
-      state: { launchPaymentModalAutomatically: true },
-    });
   }
 }

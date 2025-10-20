@@ -38,7 +38,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { FakeAccountService, makeEncString, mockAccountServiceWith } from "@bitwarden/common/spec";
+import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import {
   PasswordStrengthServiceAbstraction,
   PasswordStrengthService,
@@ -61,7 +61,7 @@ const masterPassword = "password";
 const deviceId = Utils.newGuid();
 const accessToken = "ACCESS_TOKEN";
 const refreshToken = "REFRESH_TOKEN";
-const encryptedUserKey = makeEncString("USER_KEY");
+const encryptedUserKey = "USER_KEY";
 const privateKey = "PRIVATE_KEY";
 const kdf = 0;
 const kdfIterations = 10000;
@@ -76,7 +76,7 @@ const defaultUserDecryptionOptionsServerResponse: IUserDecryptionOptionsServerRe
       KdfType: kdf,
       Iterations: kdfIterations,
     },
-    MasterKeyEncryptedUserKey: encryptedUserKey.encryptedString,
+    MasterKeyEncryptedUserKey: encryptedUserKey,
   },
 };
 
@@ -99,7 +99,7 @@ export function identityTokenResponseFactory(
     ForcePasswordReset: false,
     Kdf: kdf,
     KdfIterations: kdfIterations,
-    Key: encryptedUserKey.encryptedString,
+    Key: encryptedUserKey,
     PrivateKey: privateKey,
     ResetMasterPassword: false,
     access_token: accessToken,
@@ -337,7 +337,7 @@ describe("LoginStrategy", () => {
       const tokenResponse = identityTokenResponseFactory();
       tokenResponse.privateKey = null;
       keyService.makeKeyPair.mockResolvedValue(["PUBLIC_KEY", new EncString("PRIVATE_KEY")]);
-      keyService.getUserKey.mockResolvedValue(userKey);
+      keyService.userKey$.mockReturnValue(new BehaviorSubject<UserKey>(userKey).asObservable());
 
       apiService.postIdentityToken.mockResolvedValue(tokenResponse);
       masterPasswordService.masterKeySubject.next(masterKey);
@@ -356,9 +356,11 @@ describe("LoginStrategy", () => {
     });
 
     it("throws if userKey is CoseEncrypt0 (V2 encryption) in createKeyPairForOldAccount", async () => {
-      keyService.getUserKey.mockResolvedValue({
-        inner: () => ({ type: 7 }),
-      } as UserKey);
+      keyService.userKey$.mockReturnValue(
+        new BehaviorSubject<UserKey>({
+          inner: () => ({ type: 7 }),
+        } as unknown as UserKey).asObservable(),
+      );
       await expect(passwordLoginStrategy["createKeyPairForOldAccount"](userId)).resolves.toBe(
         undefined,
       );

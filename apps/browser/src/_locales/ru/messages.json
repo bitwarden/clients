@@ -550,6 +550,38 @@
   "resetSearch": {
     "message": "Сбросить поиск"
   },
+  "archiveNoun": {
+    "message": "Архив",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Архивировать",
+    "description": "Verb"
+  },
+  "unArchive": {
+    "message": "Разархивировать"
+  },
+  "itemsInArchive": {
+    "message": "Элементы в архиве"
+  },
+  "noItemsInArchive": {
+    "message": "В архиве нет элементов"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Архивированные элементы появятся здесь и будут исключены из общих результатов поиска и предложений автозаполнения."
+  },
+  "itemWasSentToArchive": {
+    "message": "Элемент был отправлен в архив"
+  },
+  "itemUnarchived": {
+    "message": "Элемент был разархивирован"
+  },
+  "archiveItem": {
+    "message": "Архивировать элемент"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Архивированные элементы исключены из общих результатов поиска и предложений автозаполнения. Вы уверены, что хотите архивировать этот элемент?"
+  },
   "edit": {
     "message": "Изменить"
   },
@@ -700,6 +732,15 @@
   },
   "invalidMasterPassword": {
     "message": "Неверный мастер-пароль"
+  },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Неверный мастер-пароль. Подтвердите, что ваш адрес email указан верно и ваш аккаунт был создан на $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
   },
   "vaultTimeout": {
     "message": "Тайм-аут хранилища"
@@ -1506,6 +1547,15 @@
   },
   "readSecurityKey": {
     "message": "Считать ключ безопасности"
+  },
+  "readingPasskeyLoading": {
+    "message": "Чтение passkey..."
+  },
+  "passkeyAuthenticationFailed": {
+    "message": "Не удалось выполнить аутентификацию с помощью passkey"
+  },
+  "useADifferentLogInMethod": {
+    "message": "Использовать другой способ авторизации"
   },
   "awaitingSecurityKeyInteraction": {
     "message": "Ожидание взаимодействия с ключом безопасности..."
@@ -3163,6 +3213,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Будет экспортировано только хранилище организации, связанное с $ORGANIZATION$.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Будет экспортировано только хранилище организации, связанное с $ORGANIZATION$. Коллекции Мои элементы включены не будут.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },
@@ -5510,6 +5578,38 @@
   },
   "hasItemsVaultNudgeTitle": {
     "message": "Добро пожаловать в ваше хранилище!"
+  },
+  "phishingPageTitleV2": {
+    "message": "Обнаружена попытка фишинга"
+  },
+  "phishingPageSummary": {
+    "message": "Сайт, который вы пытаетесь посетить, является заведомо вредоносным сайтом и представляет угрозу безопасности."
+  },
+  "phishingPageCloseTabV2": {
+    "message": "Закрыть эту вкладку"
+  },
+  "phishingPageContinueV2": {
+    "message": "Перейти на этот сайт (не рекомендуется)"
+  },
+  "phishingPageExplanation1": {
+    "message": "Этот сайт был найден в ",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name follows this."
+  },
+  "phishingPageExplanation2": {
+    "message": ", списке известных фишинговых сайтов, используемых для кражи персональной и конфиденциальной информации.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name precedes this."
+  },
+  "phishingPageLearnMore": {
+    "message": "Узнайте больше об обнаружении фишинга"
+  },
+  "protectedBy": {
+    "message": "Защищено $PRODUCT$",
+    "placeholders": {
+      "product": {
+        "content": "$1",
+        "example": "Bitwarden Phishing Blocker"
+      }
+    }
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Автозаполнение элементов на текущей странице"

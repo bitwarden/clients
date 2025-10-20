@@ -2,21 +2,12 @@ import { CommonModule } from "@angular/common";
 import { Component, DestroyRef, OnInit, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
-import { EMPTY, firstValueFrom, Observable } from "rxjs";
+import { EMPTY } from "rxjs";
 import { map, switchMap } from "rxjs/operators";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import {
-  CriticalAppsService,
-  RiskInsightsDataService,
-} from "@bitwarden/bit-common/dirt/reports/risk-insights";
-import { PasswordHealthReportApplicationsResponse } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/api-models.types";
-import {
-  ApplicationHealthReportDetail,
-  DrawerType,
-} from "@bitwarden/bit-common/dirt/reports/risk-insights/models/report-models";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { RiskInsightsDataService } from "@bitwarden/bit-common/dirt/reports/risk-insights";
+import { DrawerType } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/report-models";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
@@ -61,23 +52,19 @@ export enum RiskInsightsTabType {
   ],
 })
 export class RiskInsightsComponent implements OnInit {
+  private destroyRef = inject(DestroyRef);
+  private _isDrawerOpen: boolean = false;
+
   tabIndex: RiskInsightsTabType = RiskInsightsTabType.AllApps;
   isRiskInsightsActivityTabFeatureEnabled: boolean = false;
 
-  dataLastUpdated: Date = new Date();
-
-  criticalApps$: Observable<PasswordHealthReportApplicationsResponse[]> = new Observable();
-
   appsCount: number = 0;
-  criticalAppsCount: number = 0;
-  notifiedMembersCount: number = 0;
+  // Leaving this commented because it's not used but seems important
+  // notifiedMembersCount: number = 0;
 
   private organizationId: OrganizationId = "" as OrganizationId;
-  private destroyRef = inject(DestroyRef);
 
-  isLoading$: Observable<boolean> = new Observable<boolean>();
-  isRefreshing$: Observable<boolean> = new Observable<boolean>();
-  dataLastUpdated$: Observable<Date | null> = new Observable<Date | null>();
+  dataLastUpdated: Date | null = null;
   refetching: boolean = false;
 
   constructor(
@@ -85,8 +72,6 @@ export class RiskInsightsComponent implements OnInit {
     private router: Router,
     private configService: ConfigService,
     protected dataService: RiskInsightsDataService,
-    private criticalAppsService: CriticalAppsService,
-    private accountService: AccountService,
   ) {
     this.route.queryParams.pipe(takeUntilDestroyed()).subscribe(({ tabIndex }) => {
       this.tabIndex = !isNaN(Number(tabIndex)) ? Number(tabIndex) : RiskInsightsTabType.AllApps;
@@ -102,38 +87,41 @@ export class RiskInsightsComponent implements OnInit {
   }
 
   async ngOnInit() {
-    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-
     this.route.paramMap
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         map((params) => params.get("organizationId")),
-        switchMap((orgId) => {
+        switchMap(async (orgId) => {
           if (orgId) {
+            // Initialize Data Service
+            await this.dataService.initializeForOrganization(orgId as OrganizationId);
+
             this.organizationId = orgId as OrganizationId;
-            this.dataService.fetchApplicationsReport(this.organizationId);
-            this.isLoading$ = this.dataService.isLoading$;
-            this.isRefreshing$ = this.dataService.isRefreshing$;
-            this.dataLastUpdated$ = this.dataService.dataLastUpdated$;
-            return this.dataService.applications$;
           } else {
             return EMPTY;
           }
         }),
       )
-      .subscribe({
-        next: (applications: ApplicationHealthReportDetail[] | null) => {
-          if (applications) {
-            this.appsCount = applications.length;
-          }
+      .subscribe();
 
-          this.criticalAppsService.setOrganizationId(this.organizationId as OrganizationId, userId);
-          this.criticalApps$ = this.criticalAppsService.getAppsListForOrg(
-            this.organizationId as OrganizationId,
-          );
-        },
+    // Subscribe to report result details
+    this.dataService.reportResults$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((report) => {
+        this.appsCount = report?.reportData.length ?? 0;
+        this.dataLastUpdated = report?.creationDate ?? null;
+      });
+
+    // Subscribe to drawer state changes
+    this.dataService.drawerDetails$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((details) => {
+        this._isDrawerOpen = details.open;
       });
   }
+  runReport = () => {
+    this.dataService.triggerReport();
+  };
 
   /**
    * Refreshes the data by re-fetching the applications report.
@@ -141,7 +129,7 @@ export class RiskInsightsComponent implements OnInit {
    */
   refreshData(): void {
     if (this.organizationId) {
-      this.dataService.refreshApplicationsReport(this.organizationId);
+      this.dataService.triggerReport();
     }
   }
 
@@ -159,5 +147,28 @@ export class RiskInsightsComponent implements OnInit {
   // Get a list of drawer types
   get drawerTypes(): typeof DrawerType {
     return DrawerType;
+  }
+
+  /**
+   * Special case getter for syncing drawer state from service to component.
+   * This allows the template to use two-way binding while staying reactive.
+   */
+  get isDrawerOpen() {
+    return this._isDrawerOpen;
+  }
+
+  /**
+   * Special case setter for syncing drawer state from component to service.
+   * When the drawer component closes the drawer, this syncs the state back to the service.
+   */
+  set isDrawerOpen(value: boolean) {
+    if (this._isDrawerOpen !== value) {
+      this._isDrawerOpen = value;
+
+      // Close the drawer in the service if the drawer component closed the drawer
+      if (!value) {
+        this.dataService.closeDrawer();
+      }
+    }
   }
 }

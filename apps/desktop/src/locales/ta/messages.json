@@ -1222,6 +1222,15 @@
   "invalidMasterPassword": {
     "message": "தவறான முதன்மை கடவுச்சொல்"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "twoStepLoginConfirmation": {
     "message": "இரண்டு-படி உள்நுழைவு உங்கள் கணக்கை ஒரு பாதுகாப்பு விசை, அங்கீகரிப்பான் செயலி, SMS, ஃபோன் அழைப்பு அல்லது மின்னஞ்சல் போன்ற மற்றொரு சாதனம் மூலம் உங்கள் உள்நுழைவை சரிபார்க்க கோருவதன் மூலம் அதை மேலும் பாதுகாக்கிறது. bitwarden.com இணைய பெட்டகத்தில் இரண்டு-படி உள்நுழைவை அமைக்கலாம். இப்போது இணையதளத்திற்குச் செல்ல விரும்புகிறீர்களா?"
   },
@@ -2540,6 +2549,9 @@
       }
     }
   },
+  "vaultCustomTimeoutMinimum": {
+    "message": "Minimum custom timeout is 1 minute."
+  },
   "inviteAccepted": {
     "message": "அழைப்பு ஏற்கப்பட்டது"
   },
@@ -2651,6 +2663,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },
@@ -4080,11 +4110,17 @@
   "showLess": {
     "message": "குறைவாகக் காட்டு"
   },
-  "enableAutotype": {
-    "message": "தானியங்கு வகையை இயக்கு"
-  },
   "enableAutotypeDescription": {
     "message": "Bitwarden உள்ளீட்டு இடங்களைச் சரிபார்க்காது, ஷார்ட்கட்டைப் பயன்படுத்துவதற்கு முன் சரியான சாளரம் மற்றும் புலத்தில் நீங்கள் இருக்கிறீர்கள் என்பதை உறுதிப்படுத்திக் கொள்ளுங்கள்."
+  },
+  "typeShortcut": {
+    "message": "Type shortcut"
+  },
+  "editAutotypeShortcutDescription": {
+    "message": "Include one or two of the following modifiers: Ctrl, Alt, Win, or Shift, and a letter."
+  },
+  "invalidShortcut": {
+    "message": "Invalid shortcut"
   },
   "moreBreadcrumbs": {
     "message": "மேலும் பிரெட்க்ரம்புகள்",
@@ -4099,13 +4135,45 @@
   "confirm": {
     "message": "உறுதிப்படுத்து"
   },
-  "enableAutotypeTransitionKey": {
-    "message": "தானியங்கு வகை குறுக்குவழியை இயக்கு"
+  "enableAutotypeShortcutPreview": {
+    "message": "Enable autotype shortcut (Feature Preview)"
   },
-  "enableAutotypeDescriptionTransitionKey": {
-    "message": "தவறான இடத்தில் தரவை நிரப்புவதைத் தவிர்க்க, குறுக்குவழியைப் பயன்படுத்துவதற்கு முன்பு நீங்கள் சரியான புலத்தில் இருப்பதை உறுதிப்படுத்திக் கொள்ளுங்கள்."
+  "enableAutotypeShortcutDescription": {
+    "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."
   },
   "editShortcut": {
     "message": "குறுக்குவழியைத் திருத்து"
+  },
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
+  },
+  "unArchive": {
+    "message": "Unarchive"
+  },
+  "itemsInArchive": {
+    "message": "Items in archive"
+  },
+  "noItemsInArchive": {
+    "message": "No items in archive"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+  },
+  "itemWasSentToArchive": {
+    "message": "Item was sent to archive"
+  },
+  "itemUnarchived": {
+    "message": "Item was unarchived"
+  },
+  "archiveItem": {
+    "message": "Archive item"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
   }
 }

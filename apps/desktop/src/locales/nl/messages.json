@@ -1222,6 +1222,15 @@
   "invalidMasterPassword": {
     "message": "Ongeldig hoofdwachtwoord"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Ongeldig hoofdwachtwoord. Check of je e-mailadres klopt en of je account is aangemaakt op $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "twoStepLoginConfirmation": {
     "message": "Tweestapsaanmelding beschermt je account door je inlogpoging te bevestigen met een ander apparaat zoals een beveiligingssleutel, authenticatie-app, SMS, spraakoproep of e-mail. Je kunt Tweestapsaanmelding inschakelen in de webkluis op bitwarden.com. Wil je de website nu bezoeken?"
   },
@@ -2540,6 +2549,9 @@
       }
     }
   },
+  "vaultCustomTimeoutMinimum": {
+    "message": "Minimale aangepaste time-out is 1 minuut."
+  },
   "inviteAccepted": {
     "message": "Uitnodiging geaccepteerd"
   },
@@ -2651,6 +2663,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Alleen de organisatiekluis die gekoppeld is aan $ORGANIZATION$ wordt geëxporteerd.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Exporteert alleen de organisatiekluis van $ORGANIZATION$. Geen persoonlijke kluis-items.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },
@@ -4080,11 +4110,17 @@
   "showLess": {
     "message": "Minder weergeven"
   },
-  "enableAutotype": {
-    "message": "Autotypen inschakelen"
-  },
   "enableAutotypeDescription": {
     "message": "Bitwarden valideert de invoerlocaties niet, zorg ervoor dat je je in het juiste venster en veld bevindt voordat je de snelkoppeling gebruikt."
+  },
+  "typeShortcut": {
+    "message": "Typ de sneltoets"
+  },
+  "editAutotypeShortcutDescription": {
+    "message": "Voeg een of twee van de volgende toetsen toe: Ctrl, Alt, Win of Shift, en een letter."
+  },
+  "invalidShortcut": {
+    "message": "Ongeldige sneltoets"
   },
   "moreBreadcrumbs": {
     "message": "Meer broodkruimels",
@@ -4099,13 +4135,45 @@
   "confirm": {
     "message": "Bevestigen"
   },
-  "enableAutotypeTransitionKey": {
-    "message": "Snelkoppeling autotype inschakelen"
+  "enableAutotypeShortcutPreview": {
+    "message": "Autotype sneltoets inschakelen (Feature Preview)"
   },
-  "enableAutotypeDescriptionTransitionKey": {
-    "message": "Zorg ervoor dat je je in het juiste veld bevindt voordat je de snelkoppeling gebruikt om te voorkomen dat je de gegevens op de verkeerde plaats invult."
+  "enableAutotypeShortcutDescription": {
+    "message": "Zorg ervoor dat je je in het juiste veld staat voordat je de snelkoppeling gebruikt om te voorkomen dat je de gegevens op de verkeerde plaats invult."
   },
   "editShortcut": {
     "message": "Snelkoppeling bewerken"
+  },
+  "archiveNoun": {
+    "message": "Archief",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archiveren",
+    "description": "Verb"
+  },
+  "unArchive": {
+    "message": "Dearchiveren"
+  },
+  "itemsInArchive": {
+    "message": "Items in archief"
+  },
+  "noItemsInArchive": {
+    "message": "Geen items in archief"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Gearchiveerde items verschijnen hier en worden uitgesloten van algemene zoekresultaten en automatisch invulsuggesties."
+  },
+  "itemWasSentToArchive": {
+    "message": "Item naar archief verzonden"
+  },
+  "itemUnarchived": {
+    "message": "Item uit het archief gehaald"
+  },
+  "archiveItem": {
+    "message": "Item archiveren"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Gearchiveerde items worden uitgesloten van algemene zoekresultaten en automatische invulsuggesties. Weet je zeker dat je dit item wilt archiveren?"
   }
 }
