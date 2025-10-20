@@ -47,6 +47,7 @@ export class Attachment extends Domain {
   ): Promise<AttachmentView> {
     const view = await this.decryptObj<Attachment, AttachmentView>(
       this,
+      // @ts-expect-error ViewEncryptableKeys type should be fixed to allow for optional values, but is out of scope for now.
       new AttachmentView(this),
       ["fileName"],
       orgId,

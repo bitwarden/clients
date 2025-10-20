@@ -35,6 +35,9 @@
       }
     }
   },
+  "noReportRan": {
+    "message": "Még nem készült jelentés."
+  },
   "notifiedMembers": {
     "message": "Értesített tagok"
   },
@@ -58,6 +61,40 @@
   },
   "createNewLoginItem": {
     "message": "Új bejelentkezési elem létrehozása"
+  },
+  "percentageCompleted": {
+    "message": "$PERCENT$% kész",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
+  "securityTasksCompleted": {
+    "message": "$COUNT$ / $TOTAL$ biztonsági feladatok elvégzésre került.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "total": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "passwordChangeProgress": {
+    "message": "Jelszócsere feldolgozás"
+  },
+  "assignMembersTasksToMonitorProgress": {
+    "message": "Rendeljünk a tagokhoz feladatokat az előrehaladás monitorozására."
+  },
+  "onceYouReviewApps": {
+    "message": "Miután az alkalmazásokat áttekintettük és kritikusként jelöltük meg azokat, feladatokat rendelhetünk a tagokhoz a kockázatos elemek megoldására és itt nyomon követhetjük a feldolgozást."
+  },
+  "sendReminders": {
+    "message": "Emlékeztető küldés"
   },
   "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
     "message": "A kritikus alkalmazások megjelölésével azok itt jelennek meg."
@@ -108,6 +145,15 @@
       }
     }
   },
+  "countOfAtRiskPasswords": {
+    "message": "$COUNT$ kockázatos jelszó",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "notifiedMembersWithCount": {
     "message": "Értesített tagok ($COUNT$)",
     "placeholders": {
@@ -130,7 +176,7 @@
     "message": "Amint a felhasználók elmentik a bejelentkezéseket, itt megjelennek az alkalmazások és megjelenítik a veszélyeztetett jelszavakat. Jelöljük meg a kritikus alkalmazásokat és értesítsük a felhasználókat a jelszavak frissítéséről."
   },
   "noCriticalApplicationsTitle": {
-    "message": "You haven’t marked any applications as critical"
+    "message": "Egyetlen alkalmazás sem lett megjelölve kritikusként."
   },
   "noCriticalApplicationsDescription": {
     "message": "Select your most critical applications to prioritize security actions for your users to address at-risk passwords."
@@ -141,8 +187,23 @@
   "markAppAsCritical": {
     "message": "Alkalmazások megjelölése kritikusként"
   },
+  "markAsCritical": {
+    "message": "Megjelölés kritikusként"
+  },
+  "applicationsSelected": {
+    "message": "alkalmazás lett kiválasztva."
+  },
+  "selectApplication": {
+    "message": "Alkalmazás kiválasztása"
+  },
+  "unselectApplication": {
+    "message": "Alkalmazás kiválasztás negszüntetése"
+  },
   "applicationsMarkedAsCriticalSuccess": {
     "message": "Kritikusként megjelölt alkalmazások"
+  },
+  "applicationsMarkedAsCriticalFail": {
+    "message": "Nem sikerült kritikusként megjelölni a kérelmeket."
   },
   "application": {
     "message": "Alkalmazás"
@@ -162,8 +223,8 @@
   "atRiskMembers": {
     "message": "Veszélyes tagok"
   },
-  "membersAtRiskActivityDescription": {
-    "message": "Tagok szerkesztési hozzáféréssel a kritikus alkalmazások veszélyeztetett elemeihez"
+  "membersWithAccessToAtRiskItemsForCriticalApps": {
+    "message": "Members with access to at-risk items for critical applications"
   },
   "membersAtRiskCount": {
     "message": "$COUNT$ kockázatos tag",
@@ -230,6 +291,33 @@
   },
   "totalApplications": {
     "message": "Összes alkalmazás"
+  },
+  "applicationsNeedingReview": {
+    "message": "Felülvizsgálatot igénylő kérelmek"
+  },
+  "newApplicationsWithCount": {
+    "message": "$COUNT$ új alkalmazás",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "13"
+      }
+    }
+  },
+  "newApplicationsDescription": {
+    "message": "Tekintsük át az új alkalmazásokat a kritikusként megjelöléshez és tartsuk biztonságban szervezetet."
+  },
+  "reviewNow": {
+    "message": "Áttekintés most"
+  },
+  "prioritizeCriticalApplications": {
+    "message": "Kritikus alkalmazások rangsorolása"
+  },
+  "atRiskItems": {
+    "message": "Kockázatos elemek"
+  },
+  "markAsCriticalPlaceholder": {
+    "message": "A kritikus funkcióként megjelölés egy jövőbeli frissítésben lesz megvalósítva."
   },
   "unmarkAsCritical": {
     "message": "Ktritkus jelölés eltávolítása"
@@ -1205,6 +1293,9 @@
   "readingPasskeyLoadingInfo": {
     "message": "Tartsuk nyitva ezt az ablakot és kövessük a böngésző utasításait."
   },
+  "passkeyAuthenticationFailed": {
+    "message": "A hozzáférési kulcs hitelesítés sikertelen volt. Próbáljuk újra."
+  },
   "useADifferentLogInMethod": {
     "message": "Más bejelentkezési mód használata"
   },
@@ -1498,6 +1589,15 @@
   },
   "invalidMasterPassword": {
     "message": "A mesterjelszó érvénytelen."
+  },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "A mesterjelszó érvénytelen. Erősítsük meg, hogy email cím helyes és a fiók létrehozásának helye: $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
   },
   "invalidFilePassword": {
     "message": "Érvénytelen a fájl jelszó. Használjuk az exportálás fájl létrehozásakor megadott jelszót."
@@ -2849,6 +2949,9 @@
   },
   "makeSureEnoughCredit": {
     "message": "Ellenőrizzük, hogy a fióknak elég hitelkerete van a vásárláshoz. Ha nincs elég keret, akkor az alapértelmezett fizetési mód kerül használatba a különbségnél. Hitelkeretet a Számlázás oldalon adhatunk hozzá."
+  },
+  "notEnoughAccountCredit": {
+    "message": "Nincs elegendő fiók egyenleg ehhez a vásárláshoz. Feltölthetjük az egyenleget a Számlázás oldalon."
   },
   "creditAppliedDesc": {
     "message": "A fiók hitelkeret vásárlásra használható. A rendelkezésre álló keret automatikusan ehhez a fiókhoz generálódó számlákra kerül alkalmazásra."
@@ -4257,6 +4360,9 @@
   },
   "generatingYourRiskInsights": {
     "message": "A kockázati betekintések generálása..."
+  },
+  "riskInsightsRunReport": {
+    "message": "Jelentés futtatása"
   },
   "updateBrowserDesc": {
     "message": "Nem támogatott böngészőt használunk. Előfordulhat, hogy a webes széf nem működik megfelelően."
@@ -7034,6 +7140,24 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Csak a $ORGANIZATION$ szervezetehez kapcsolódó szervezeti széf kerül exportálásra.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Csak a $ORGANIZATION$ szervezethez kapcsolódó szervezeti széf kerül exportálásra. A saját elem gyűjtemények nem lesznek benne.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "accessDenied": {
     "message": "A hozzáférés megtagadásra került. Nincs jogosultság az oldal megtekintésére."
   },
@@ -7187,6 +7311,9 @@
   },
   "unknownSecret": {
     "message": "Ismeretlen a titkos kód, előfordulhat, hogy engedélyt kell kérni a titkos kód eléréséhez."
+  },
+  "unknownServiceAccount": {
+    "message": "A gép fiók ismeeretlen, előfordulhat, hogy engedélyt kell kérni a gép fiók eléréséhez."
   },
   "unknownProject": {
     "message": "Ismeretlen a projekt, előfordulhat, hogy engedélyt kell kérni a projekt eléréséhez."
@@ -8538,8 +8665,8 @@
       }
     }
   },
-  "accessedProjectWithId": {
-    "message": "Egy projekt hozzáférésre került egy azonosítóval: $PROJECT_ID$.",
+  "accessedProjectWithIdentifier": {
+    "message": "Egy projekt elérése megtörtént egy azonosítóval: $PROJECT_ID$.",
     "placeholders": {
       "project_id": {
         "content": "$1",
@@ -8565,10 +8692,89 @@
       }
     }
   },
+  "nameUnavailableServiceAccountDeleted": {
+    "message": "A gép fiók törlésre került egy azonosítóval: $SERVICE_ACCOUNT_ID$.",
+    "placeholders": {
+      "service_account_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
   "editedProjectWithId": {
     "message": "Egy projekt szerkesztése megtörtént egy azonosítóval: $PROJECT_ID$",
     "placeholders": {
       "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "addedUserToServiceAccountWithId": {
+    "message": "Egy felhasználó került hozzáadásra: $USER_ID$ a gépi fiókhoz egy azonosítóval: $SERVICE_ACCOUNT_ID$.",
+    "placeholders": {
+      "user_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "removedUserToServiceAccountWithId": {
+    "message": "Egy felhasználó lett eltávolítva: $USER_ID$ a gépi fiókból egy azonosítóval: $SERVICE_ACCOUNT_ID$.",
+    "placeholders": {
+      "user_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "removedGroupFromServiceAccountWithId": {
+    "message": "Egy csoport lett eltávolítva: $GROUP_ID$ a gépi fiókból egy azonosítóval: $SERVICE_ACCOUNT_ID$.",
+    "placeholders": {
+      "group_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "serviceAccountCreatedWithId": {
+    "message": "Egy gép fiók lett létrehozva egy azonosítóval: $SERVICE_ACCOUNT_ID$.",
+    "placeholders": {
+      "service_account_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "addedGroupToServiceAccountId": {
+    "message": "Egy csoport lett hozzáadva: $GROUP_ID$ a gép fiókhoz egy azonosítóval: $SERVICE_ACCOUNT_ID$.",
+    "placeholders": {
+      "group_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "serviceAccountDeletedWithId": {
+    "message": "Egy gép fiók került tötlésre egy azonosítóval: $SERVICE_ACCOUNT_ID$.",
+    "placeholders": {
+      "service_account_id": {
         "content": "$1",
         "example": "4d34e8a8"
       }
@@ -9410,6 +9616,9 @@
   "assign": {
     "message": "Hozzárendelés"
   },
+  "assignTasks": {
+    "message": "Feladatok hozzárendelése"
+  },
   "assignToCollections": {
     "message": "Hozzárendelés gyűjteményekhez"
   },
@@ -9805,6 +10014,9 @@
   "crowdstrikeEventIntegrationDesc": {
     "message": "Eseményadatok küldése a Logscale példánynak"
   },
+  "datadogEventIntegrationDesc": {
+    "message": "Széf eseményadatok küldése a Datadog példánynak"
+  },
   "failedToSaveIntegration": {
     "message": "Nem sikerült menteni az integrációt. Próbáljuk újra később."
   },
@@ -9929,7 +10141,7 @@
     "message": "hónap tagonként éves számlázással"
   },
   "seats": {
-    "message": "Seats"
+    "message": "Helyek"
   },
   "addOrganization": {
     "message": "Szervezet hozzáadása"
@@ -11075,18 +11287,53 @@
     "message": "Keresés archívum"
   },
   "archiveNoun": {
-    "message": "Archive",
+    "message": "Archívum",
     "description": "Noun"
   },
   "archiveVerb": {
-    "message": "Archive",
+    "message": "Archívum",
     "description": "Verb"
+  },
+  "unArchive": {
+    "message": "Visszavétel archívumból"
+  },
+  "itemsInArchive": {
+    "message": "Archiválandó elemek"
   },
   "noItemsInArchive": {
     "message": "Nincs elem az archívumban."
   },
-  "archivedItemsDescription": {
+  "noItemsInArchiveDesc": {
     "message": "Az archivált elemek itt jelennek meg és kizárásra kerülnek az általános keresési eredményekből és az automatikus kitöltési javaslatokból."
+  },
+  "itemWasSentToArchive": {
+    "message": "Az elem az archivumba került."
+  },
+  "itemsWereSentToArchive": {
+    "message": "Az elemek az archivumba kerültek."
+  },
+  "itemUnarchived": {
+    "message": "Az elemek visszavéelre kerültek az archivumból."
+  },
+  "bulkArchiveItems": {
+    "message": "Az elemek archiválásra kerültek."
+  },
+  "bulkUnarchiveItems": {
+    "message": "Az elemek visszavéelre kerültek az archivumból."
+  },
+  "archiveItem": {
+    "message": "Elem archiválása",
+    "description": "Verb"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Az archivált elemek ki vannak zárva az általános keresési eredményekből és az automatikus kitöltési javaslatokból. Biztosan archiválni szeretnénk ezt az elemet?"
+  },
+  "archiveBulkItems": {
+    "message": "Elemek archiválása",
+    "description": "Verb"
+  },
+  "archiveBulkItemsConfirmDesc": {
+    "message": "Az archivált elemek ki vannak zárva az általános keresési eredményekből és az automatikus kitöltési javaslatokból. Biztosan archiválni szeretnénk ezeket az elemeket?"
   },
   "businessUnit": {
     "message": "Üzleti egység"
@@ -11194,6 +11441,12 @@
   },
   "bitwardenExtensionInstalled": {
     "message": "Bitwarden extension installed!"
+  },
+  "openTheBitwardenExtension": {
+    "message": "A Bitwarden bővítmény megnyitása"
+  },
+  "bitwardenExtensionInstalledOpenExtension": {
+    "message": "A Bitwarden bővítmény telepítve van! Nyissuk meg a bővítményt a bejelentkezéshez és az automatikus kitöltés megkezdéséhez."
   },
   "openExtensionToAutofill": {
     "message": "Open the extension to log in and start autofilling."
@@ -11552,5 +11805,56 @@
   },
   "seamlessIntegration": {
     "message": "Zökkenőmentes integráció"
+  },
+  "families": {
+    "message": "Családok"
+  },
+  "upgradeToFamilies": {
+    "message": "Áttérés Családok csomagra"
+  },
+  "upgradeToPremium": {
+    "message": "Áttérés Prémium csomagra"
+  },
+  "familiesUpdated": {
+    "message": "Megtörtént az áttérés a Családok csomagra."
+  },
+  "taxCalculationError": {
+    "message": "Hiba történt a tartózkodási helyre vonatkozó adó kiszámításakor. Próbáljuk újra."
+  },
+  "individualUpgradeWelcomeMessage": {
+    "message": "Üdvözlet a Bitwardenben"
+  },
+  "individualUpgradeDescriptionMessage": {
+    "message": "Szabadítsunk fel meg több biztonsági funkciót a Prémium segítségével vagy kezdjük el megosztani az elemeket a Családok csomaggal."
+  },
+  "individualUpgradeTaxInformationMessage": {
+    "message": "Az árak nem tartalmazzák az adót és évente kerülnek számlázásra."
+  },
+  "organizationNameDescription": {
+    "message": "A szervezet neve megjelenik a tagoknak küldött meghívókban."
+  },
+  "continueWithoutUpgrading": {
+    "message": "Folytatás áttérés nélkül"
+  },
+  "upgradeYourPlan": {
+    "message": "Csomag áttérés"
+  },
+  "upgradeNow": {
+    "message": "Áttérés most"
+  },
+  "formWillCreateNewFamiliesOrgMessage": {
+    "message": "Az űrlap kitöltésével egy új Családok szervezet jön létre. Az Adminisztrációs konzolban lehet áttérni az Ingyenes szervezetről."
+  },
+  "upgradeErrorMessage": {
+    "message": "Hiba történt az áttérés feldolgozása közben. Próbáljuk újra."
+  },
+  "bitwardenFreeplanMessage": {
+    "message": "Jelenleg a Bitwarden Ingyenes csomaggal rendelkezünk."
+  },
+  "upgradeCompleteSecurity": {
+    "message": "Áttérés a teljes biztonságért"
+  },
+  "viewbusinessplans": {
+    "message": "Üzleti csomagok megtekintése"
   }
 }

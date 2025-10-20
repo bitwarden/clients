@@ -35,6 +35,9 @@
       }
     }
   },
+  "noReportRan": {
+    "message": "您还没有创建报告"
+  },
   "notifiedMembers": {
     "message": "已通知的成员"
   },
@@ -59,8 +62,42 @@
   "createNewLoginItem": {
     "message": "创建新的登录项目"
   },
+  "percentageCompleted": {
+    "message": "完成 $PERCENT$%",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
+  "securityTasksCompleted": {
+    "message": "总计 $TOTAL$ 个中的 $COUNT$ 个安全任务已完成",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "total": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "passwordChangeProgress": {
+    "message": "密码更改进度"
+  },
+  "assignMembersTasksToMonitorProgress": {
+    "message": "分配成员任务以监测进度"
+  },
+  "onceYouReviewApps": {
+    "message": "审查新应用程序并将其标记为关键后，您可以在这里将任务分配给成员以解决存在风险的项目并监测进度"
+  },
+  "sendReminders": {
+    "message": "发送提醒"
+  },
   "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
-    "message": "您将应用程序标记为关键后，它们将显示在这里"
+    "message": "您将应用程序标记为关键后，它们将显示在这里。"
   },
   "viewAtRiskMembers": {
     "message": "查看存在风险的成员"
@@ -108,6 +145,15 @@
       }
     }
   },
+  "countOfAtRiskPasswords": {
+    "message": "$COUNT$ 个密码存在风险",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "notifiedMembersWithCount": {
     "message": "已通知的成员 ($COUNT$)",
     "placeholders": {
@@ -141,8 +187,23 @@
   "markAppAsCritical": {
     "message": "标记应用程序为关键"
   },
+  "markAsCritical": {
+    "message": "标记为关键"
+  },
+  "applicationsSelected": {
+    "message": "已选择的应用程序"
+  },
+  "selectApplication": {
+    "message": "选择应用程序"
+  },
+  "unselectApplication": {
+    "message": "取消选择应用程序"
+  },
   "applicationsMarkedAsCriticalSuccess": {
     "message": "标记为关键的应用程序"
+  },
+  "applicationsMarkedAsCriticalFail": {
+    "message": "无法将应用程序标记为关键"
   },
   "application": {
     "message": "应用程序"
@@ -162,8 +223,8 @@
   "atRiskMembers": {
     "message": "存在风险的成员"
   },
-  "membersAtRiskActivityDescription": {
-    "message": "对关键应用程序中存在风险的项目具有编辑权限的成员"
+  "membersWithAccessToAtRiskItemsForCriticalApps": {
+    "message": "对关键应用程序中存在风险的项目具有访问权限的成员"
   },
   "membersAtRiskCount": {
     "message": "$COUNT$ 个成员存在风险",
@@ -230,6 +291,33 @@
   },
   "totalApplications": {
     "message": "总的应用程序"
+  },
+  "applicationsNeedingReview": {
+    "message": "应用程序需要审查"
+  },
+  "newApplicationsWithCount": {
+    "message": "$COUNT$ 个新应用程序",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "13"
+      }
+    }
+  },
+  "newApplicationsDescription": {
+    "message": "审查新应用程序并将其标记为关键，以确保您的组织安全"
+  },
+  "reviewNow": {
+    "message": "立即审查"
+  },
+  "prioritizeCriticalApplications": {
+    "message": "关键应用程序优先"
+  },
+  "atRiskItems": {
+    "message": "存在风险的项目"
+  },
+  "markAsCriticalPlaceholder": {
+    "message": "标记为关键功能将在未来更新中实现"
   },
   "unmarkAsCritical": {
     "message": "取消标记为关键"
@@ -763,7 +851,7 @@
     "message": "州 / 省"
   },
   "zipPostalCode": {
-    "message": "邮政编码"
+    "message": "ZIP / 邮政编码"
   },
   "country": {
     "message": "国家"
@@ -1205,6 +1293,9 @@
   "readingPasskeyLoadingInfo": {
     "message": "保持此窗口打开然后按照浏览器的提示操作。"
   },
+  "passkeyAuthenticationFailed": {
+    "message": "通行密钥验证失败。请重试。"
+  },
   "useADifferentLogInMethod": {
     "message": "使用其他登录方式"
   },
@@ -1332,7 +1423,7 @@
     "message": "身份验证超时"
   },
   "authenticationSessionTimedOut": {
-    "message": "身份验证会话超时。请重新启动登录过程。"
+    "message": "身份验证会话超时。请重新开始登录过程。"
   },
   "verifyYourIdentity": {
     "message": "验证您的身份"
@@ -1499,6 +1590,15 @@
   "invalidMasterPassword": {
     "message": "无效的主密码"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "无效的主密码。请确认您的电子邮箱正确无误，以及您的账户是在 $HOST$ 上创建的。",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "invalidFilePassword": {
     "message": "无效的文件密码，请使用您创建导出文件时输入的密码。"
   },
@@ -1509,28 +1609,28 @@
     "message": "没有可列出的项目。"
   },
   "noItemsInTrash": {
-    "message": "No items in trash"
+    "message": "回收站中没有项目"
   },
   "noItemsInTrashDesc": {
-    "message": "Items you delete will appear here and be permanently deleted after 30 days"
+    "message": "您删除的项目将显示在这里，并在 30 天后永久删除"
   },
   "noItemsInVault": {
     "message": "密码库中没有项目"
   },
   "emptyVaultDescription": {
-    "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
+    "message": "密码库不仅保护您的密码。在这里还可以安全地存储登录、ID、支付卡和笔记。"
   },
   "emptyFavorites": {
-    "message": "You haven't favorited any items"
+    "message": "您没有收藏任何项目"
   },
   "emptyFavoritesDesc": {
-    "message": "Add frequently used items to favorites for quick access."
+    "message": "将常用项目添加到收藏夹以便快速访问。"
   },
   "noSearchResults": {
-    "message": "No search results returned"
+    "message": "未返回搜索结果"
   },
   "clearFiltersOrTryAnother": {
-    "message": "Clear filters or try another search term"
+    "message": "清除筛选或尝试其他搜索词"
   },
   "noPermissionToViewAllCollectionItems": {
     "message": "您没有查看此集合中的所有项目的权限。"
@@ -2849,6 +2949,9 @@
   },
   "makeSureEnoughCredit": {
     "message": "请确保您的账户有足够的信用额度来用于此购买。如果您的账户信用额度不足，您的默认付款方式将用于补足差额。您可以从「计费」页面向您的账户添加信用额度。"
+  },
+  "notEnoughAccountCredit": {
+    "message": "您没有足够的账户信用额度来用于此购买。您可以从「计费」页面向您的账户添加信用额度。"
   },
   "creditAppliedDesc": {
     "message": "您账户的信用额度可用于进行消费。任何可用的信用额度将用于自动抵扣此账户的账单。"
@@ -4258,6 +4361,9 @@
   "generatingYourRiskInsights": {
     "message": "正在生成风险洞察..."
   },
+  "riskInsightsRunReport": {
+    "message": "运行报告"
+  },
   "updateBrowserDesc": {
     "message": "您使用的是不受支持的网页浏览器。网页密码库可能无法正常运行。"
   },
@@ -4825,10 +4931,10 @@
     "message": "组织已暂停"
   },
   "organizationIsSuspended": {
-    "message": "Organization is suspended"
+    "message": "组织已暂停"
   },
   "organizationIsSuspendedDesc": {
-    "message": "Items in suspended organizations cannot be accessed. Contact your organization owner for assistance."
+    "message": "无法访问已暂停组织中的项目。请联系您的组织所有者寻求帮助。"
   },
   "secretsAccessSuspended": {
     "message": "无法访问已暂停的组织。请联系您的组织所有者寻求帮助。"
@@ -5216,11 +5322,11 @@
     "message": "SSO 标识符"
   },
   "ssoIdentifierHint": {
-    "message": "Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. ",
+    "message": "请将此 ID 提供给您的成员以用于 SSO 登录。如果已设置声明域名，成员可以在 SSO 期间跳过输入此标识符。",
     "description": "This will be used as part of a larger sentence, broken up to include a link. The full sentence will read 'Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. Learn more'"
   },
   "claimedDomainsLearnMore": {
-    "message": "Learn more",
+    "message": "进一步了解",
     "description": "This will be used as part of a larger sentence, broken up to include a link. The full sentence will read 'Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. Learn more'"
   },
   "unlinkSso": {
@@ -7034,6 +7140,24 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "仅会导出与 $ORGANIZATION$ 关联的组织密码库。",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "仅会导出与 $ORGANIZATION$ 关联的组织密码库，不包括我的项目集合。",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "accessDenied": {
     "message": "访问被拒绝。您没有权限查看此页面。"
   },
@@ -7187,6 +7311,9 @@
   },
   "unknownSecret": {
     "message": "未知的机密，您可能需要请求权限才能访问此机密。"
+  },
+  "unknownServiceAccount": {
+    "message": "未知的机器账户，您可能需要请求权限才能访问此机器账户。"
   },
   "unknownProject": {
     "message": "未知的工程，您可能需要请求权限才能访问此工程。"
@@ -8538,8 +8665,8 @@
       }
     }
   },
-  "accessedProjectWithId": {
-    "message": "访问了 ID 为 $PROJECT_ID$ 的工程。",
+  "accessedProjectWithIdentifier": {
+    "message": "访问了标识符为 $PROJECT_ID$ 的工程。",
     "placeholders": {
       "project_id": {
         "content": "$1",
@@ -8565,10 +8692,89 @@
       }
     }
   },
+  "nameUnavailableServiceAccountDeleted": {
+    "message": "删除了 ID 为 $SERVICE_ACCOUNT_ID$ 的机器账户",
+    "placeholders": {
+      "service_account_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
   "editedProjectWithId": {
     "message": "编辑了标识符为 $PROJECT_ID$ 的工程",
     "placeholders": {
       "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "addedUserToServiceAccountWithId": {
+    "message": "向标识符为 $SERVICE_ACCOUNT_ID$ 的机器账户添加了用户 $USER_ID$",
+    "placeholders": {
+      "user_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "removedUserToServiceAccountWithId": {
+    "message": "从标识符为 $SERVICE_ACCOUNT_ID$ 的机器账户移除了用户 $USER_ID$",
+    "placeholders": {
+      "user_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "removedGroupFromServiceAccountWithId": {
+    "message": "从标识符为 $SERVICE_ACCOUNT_ID$ 的机器账户移除了群组 $GROUP_ID$",
+    "placeholders": {
+      "group_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "serviceAccountCreatedWithId": {
+    "message": "创建了标识符为 $SERVICE_ACCOUNT_ID$ 的机器账户",
+    "placeholders": {
+      "service_account_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "addedGroupToServiceAccountId": {
+    "message": "向标识符为 $SERVICE_ACCOUNT_ID$ 的机器账户添加了群组 $GROUP_ID$",
+    "placeholders": {
+      "group_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "serviceAccountDeletedWithId": {
+    "message": "删除了标识符为 $SERVICE_ACCOUNT_ID$ 的机器账户",
+    "placeholders": {
+      "service_account_id": {
         "content": "$1",
         "example": "4d34e8a8"
       }
@@ -9410,6 +9616,9 @@
   "assign": {
     "message": "分配"
   },
+  "assignTasks": {
+    "message": "分配任务"
+  },
   "assignToCollections": {
     "message": "分配到集合"
   },
@@ -9804,6 +10013,9 @@
   },
   "crowdstrikeEventIntegrationDesc": {
     "message": "将事件数据发送到您的 Logscale 实例"
+  },
+  "datadogEventIntegrationDesc": {
+    "message": "将密码库事件数据发送到您的 Datadog 实例"
   },
   "failedToSaveIntegration": {
     "message": "保存集成失败。请稍后再试。"
@@ -11075,18 +11287,53 @@
     "message": "搜索归档"
   },
   "archiveNoun": {
-    "message": "Archive",
+    "message": "归档",
     "description": "Noun"
   },
   "archiveVerb": {
-    "message": "Archive",
+    "message": "归档",
     "description": "Verb"
+  },
+  "unArchive": {
+    "message": "取消归档"
+  },
+  "itemsInArchive": {
+    "message": "归档中的项目"
   },
   "noItemsInArchive": {
     "message": "归档中没有项目"
   },
-  "archivedItemsDescription": {
+  "noItemsInArchiveDesc": {
     "message": "已归档的项目将显示在此处，并将被排除在一般搜索结果和自动填充建议之外。"
+  },
+  "itemWasSentToArchive": {
+    "message": "项目已发送到归档"
+  },
+  "itemsWereSentToArchive": {
+    "message": "项目已发送到归档"
+  },
+  "itemUnarchived": {
+    "message": "项目已取消归档"
+  },
+  "bulkArchiveItems": {
+    "message": "项目已归档"
+  },
+  "bulkUnarchiveItems": {
+    "message": "项目已取消归档"
+  },
+  "archiveItem": {
+    "message": "归档项目",
+    "description": "Verb"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "已归档的项目将被排除在一般搜索结果和自动填充建议之外。确定要归档此项目吗？"
+  },
+  "archiveBulkItems": {
+    "message": "归档项目",
+    "description": "Verb"
+  },
+  "archiveBulkItemsConfirmDesc": {
+    "message": "已归档的项目将被排除在一般搜索结果和自动填充建议之外。确定要归档这些项目吗？"
   },
   "businessUnit": {
     "message": "业务单元"
@@ -11194,6 +11441,12 @@
   },
   "bitwardenExtensionInstalled": {
     "message": "Bitwarden 扩展已安装！"
+  },
+  "openTheBitwardenExtension": {
+    "message": "打开 Bitwarden 扩展"
+  },
+  "bitwardenExtensionInstalledOpenExtension": {
+    "message": "Bitwarden 扩展已安装！请打开扩展登录并开始自动填充。"
   },
   "openExtensionToAutofill": {
     "message": "打开扩展以登录并开始自动填充。"
@@ -11552,5 +11805,56 @@
   },
   "seamlessIntegration": {
     "message": "无缝集成"
+  },
+  "families": {
+    "message": "家庭版"
+  },
+  "upgradeToFamilies": {
+    "message": "升级为家庭版"
+  },
+  "upgradeToPremium": {
+    "message": "升级为高级版"
+  },
+  "familiesUpdated": {
+    "message": "您已升级为家庭版！"
+  },
+  "taxCalculationError": {
+    "message": "计算您所在位置的税费时出错。请重试。"
+  },
+  "individualUpgradeWelcomeMessage": {
+    "message": "欢迎使用 Bitwarden"
+  },
+  "individualUpgradeDescriptionMessage": {
+    "message": "使用高级版解锁更多安全功能，或使用家庭版开始分享项目"
+  },
+  "individualUpgradeTaxInformationMessage": {
+    "message": "价格不含税，按年计费。"
+  },
+  "organizationNameDescription": {
+    "message": "您的组织名称将出现在您发送给成员的邀请中。"
+  },
+  "continueWithoutUpgrading": {
+    "message": "继续但不升级"
+  },
+  "upgradeYourPlan": {
+    "message": "升级您的方案"
+  },
+  "upgradeNow": {
+    "message": "立即升级"
+  },
+  "formWillCreateNewFamiliesOrgMessage": {
+    "message": "完成此表单将创建一个新的家庭组织。您可以从管理控制台升级您的免费组织。"
+  },
+  "upgradeErrorMessage": {
+    "message": "我们在处理您的升级时遇到错误。请重试。"
+  },
+  "bitwardenFreeplanMessage": {
+    "message": "您拥有 Bitwarden 免费方案"
+  },
+  "upgradeCompleteSecurity": {
+    "message": "升级以获得全面的安全防护"
+  },
+  "viewbusinessplans": {
+    "message": "查看商业方案"
   }
 }

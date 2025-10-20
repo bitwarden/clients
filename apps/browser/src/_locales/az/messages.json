@@ -551,14 +551,14 @@
     "message": "Axtarışı sıfırla"
   },
   "archiveNoun": {
-    "message": "Archive",
+    "message": "Arxiv",
     "description": "Noun"
   },
   "archiveVerb": {
-    "message": "Archive",
+    "message": "Arxivlə",
     "description": "Verb"
   },
-  "unarchive": {
+  "unArchive": {
     "message": "Arxivdən çıxart"
   },
   "itemsInArchive": {
@@ -570,10 +570,10 @@
   "noItemsInArchiveDesc": {
     "message": "Arxivlənmiş elementlər burada görünəcək, ümumi axtarış nəticələrindən və avto-doldurma təkliflərindən xaric ediləcək."
   },
-  "itemSentToArchive": {
+  "itemWasSentToArchive": {
     "message": "Element arxivə göndərildi"
   },
-  "itemRemovedFromArchive": {
+  "itemUnarchived": {
     "message": "Element arxivdən çıxarıldı"
   },
   "archiveItem": {
@@ -732,6 +732,15 @@
   },
   "invalidMasterPassword": {
     "message": "Yararsız ana parol"
+  },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Yararsız ana parol. E-poçtunuzun doğru olduğunu və hesabınızın $HOST$ üzərində yaradıldığını təsdiqləyin.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
   },
   "vaultTimeout": {
     "message": "Seyf vaxtının bitməsi"
@@ -1538,6 +1547,15 @@
   },
   "readSecurityKey": {
     "message": "Güvənlik açarını oxu"
+  },
+  "readingPasskeyLoading": {
+    "message": "Keçid açarı oxunur..."
+  },
+  "passkeyAuthenticationFailed": {
+    "message": "Keçid açarı kimlik doğrulaması uğursuzdur"
+  },
+  "useADifferentLogInMethod": {
+    "message": "Fərqli bir giriş üsulu istifadə edin"
   },
   "awaitingSecurityKeyInteraction": {
     "message": "Güvənlik açarı ilə əlaqə gözlənilir..."
@@ -3195,6 +3213,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Yalnız $ORGANIZATION$ ilə əlaqələndirilmiş təşkilat seyfi xaricə köçürüləcək.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Yalnız $ORGANIZATION$ ilə əlaqələndirilmiş təşkilat seyfi xaricə köçürüləcək. Element kolleksiyalarım daxil edilməyəcək.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },
@@ -5543,17 +5579,37 @@
   "hasItemsVaultNudgeTitle": {
     "message": "Seyfinizə xoş gəlmisiniz!"
   },
-  "phishingPageTitle": {
-    "message": "Fişinq veb sayt"
+  "phishingPageTitleV2": {
+    "message": "Fişinq cəhdi aşkarlandı"
   },
-  "phishingPageCloseTab": {
-    "message": "Vərəqi bağla"
+  "phishingPageSummary": {
+    "message": "Ziyarət etməyə cəhd etdiyiniz sayt, zərərli sayt kimi tanınır və təhlükəsizlik baxımından risklidir."
   },
-  "phishingPageContinue": {
-    "message": "Davam"
+  "phishingPageCloseTabV2": {
+    "message": "Bu vərəqi bağla"
   },
-  "phishingPageLearnWhy": {
-    "message": "Bunu niyə görürürsünüz?"
+  "phishingPageContinueV2": {
+    "message": "Bu sayta davam et (tövsiyə olunmur)"
+  },
+  "phishingPageExplanation1": {
+    "message": "Bu sayt burada üzə çıxdı ",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name follows this."
+  },
+  "phishingPageExplanation2": {
+    "message": "Bu mənbədə fərdi və həssas məlumatların oğurlanması üçün istifadə olunan məlum fişinq saytların açıq mənbəli siyahısıdır.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name precedes this."
+  },
+  "phishingPageLearnMore": {
+    "message": "Fişinq aşkarlaması haqqında daha ətraflı"
+  },
+  "protectedBy": {
+    "message": "$PRODUCT$ tərəfindən qorunur",
+    "placeholders": {
+      "product": {
+        "content": "$1",
+        "example": "Bitwarden Phishing Blocker"
+      }
+    }
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Hazırkı səhifə üçün elementləri avto-doldur"

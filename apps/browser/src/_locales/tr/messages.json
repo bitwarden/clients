@@ -362,7 +362,7 @@
     "message": "Ücretsiz Bitwarden Aile"
   },
   "freeBitwardenFamiliesPageDesc": {
-    "message": "Ücretsiz Bitwarden Aile Paketi’nden faydalanmaya hak kazandınız. Bu teklifi bugün web uygulaması üzerinden kullanın."
+    "message": "Ücretsiz Bitwarden Aileleri için uygunsun. Bu teklifi bugün web uygulamasında kullan."
   },
   "version": {
     "message": "Sürüm"
@@ -558,29 +558,29 @@
     "message": "Arşivle",
     "description": "Verb"
   },
-  "unarchive": {
+  "unArchive": {
     "message": "Arşivden çıkar"
   },
   "itemsInArchive": {
-    "message": "Items in archive"
+    "message": "Arşivdeki kayıtlar"
   },
   "noItemsInArchive": {
-    "message": "No items in archive"
+    "message": "Arşivde kayıt yok"
   },
   "noItemsInArchiveDesc": {
-    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+    "message": "Arşivlenmiş kayıtlar burada görünecek ve genel arama sonuçlarından ile otomatik doldurma önerilerinden hariç tutulacaktır."
   },
-  "itemSentToArchive": {
-    "message": "Item sent to archive"
+  "itemWasSentToArchive": {
+    "message": "Kayıt arşive gönderildi"
   },
-  "itemRemovedFromArchive": {
-    "message": "Item removed from archive"
+  "itemUnarchived": {
+    "message": "Kayıt arşivden çıkarıldı"
   },
   "archiveItem": {
-    "message": "Archive item"
+    "message": "Kaydı arşivle"
   },
   "archiveItemConfirmDesc": {
-    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+    "message": "Arşivlenmiş kayıtlar genel arama sonuçları ve otomatik doldurma önerilerinden hariç tutulur. Bu kaydı arşivlemek istediğine emin misin?"
   },
   "edit": {
     "message": "Düzenle"
@@ -733,6 +733,15 @@
   "invalidMasterPassword": {
     "message": "Geçersiz ana parola"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Ana parola geçersiz. E-posta adresinizin doğru olduğunu ve hesabınızın $HOST$ üzerinde oluşturulduğunu kontrol edin.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "vaultTimeout": {
     "message": "Kasa zaman aşımı"
   },
@@ -880,13 +889,13 @@
     "message": "Mevcut web sayfasındaki kimlik doğrulayıcı QR kodunu tarayın"
   },
   "totpHelperTitle": {
-    "message": "2 adımlı doğrulamayı sorunsuz hale getirin"
+    "message": "2 adımlı doğrulamayı sorunsuz hale getir"
   },
   "totpHelper": {
-    "message": "Bitwarden, 2 adımlı doğrulama kodlarını saklayabilir ve otomatik olarak doldurabilir. Anahtarı kopyalayıp bu alana yapıştırın."
+    "message": "Bitwarden 2 adımlı doğrulama kodlarını saklayabilir ve doldurabilir. Anahtarı bu alana kopyala ve yapıştır."
   },
   "totpHelperWithCapture": {
-    "message": "Bitwarden, iki adımlı doğrulama kodlarını saklayabilir ve otomatik olarak doldurabilir. Bu web sitesinin doğrulayıcı QR kodunun ekran görüntüsünü almak için kamera simgesini seçin veya anahtarı bu alana kopyalayıp yapıştırın."
+    "message": "Bitwarden 2 adımlı doğrulama kodlarını saklayabilir ve doldurabilir. Bu web sitesinin kimlik doğrulayıcı QR kodunun ekran görüntüsünü almak için kamera simgesini seç veya anahtarı bu alana kopyala ve yapıştır."
   },
   "learnMoreAboutAuthenticators": {
     "message": "Kimlik doğrulayıcılar hakkında bilgi alın"
@@ -1539,6 +1548,15 @@
   "readSecurityKey": {
     "message": "Güvenlik anahtarını oku"
   },
+  "readingPasskeyLoading": {
+    "message": "Geçiş anahtarı okunuyor..."
+  },
+  "passkeyAuthenticationFailed": {
+    "message": "Geçiş anahtarı doğrulaması başarısız oldu"
+  },
+  "useADifferentLogInMethod": {
+    "message": "Başka bir giriş yöntemi kullan"
+  },
   "awaitingSecurityKeyInteraction": {
     "message": "Güvenlik anahtarı etkileşimi bekleniyor…"
   },
@@ -1597,7 +1615,7 @@
     "message": "Şirket içinde barındırılan ortam"
   },
   "selfHostedBaseUrlHint": {
-    "message": "Yerel sunucunuzda barındırılan Bitwarden kurulumunuzun temel URL’sini belirtin. Örnek: https://bitwarden.sirketiniz.com"
+    "message": "Şirket içinde barındırılan Bitwarden kurulumunun temel URL’sini belirt. Örnek: https://bitwarden.company.com"
   },
   "selfHostedCustomEnvHeader": {
     "message": "İleri düzey yapılandırma için her hizmetin taban URL'sini bağımsız olarak belirleyebilirsiniz."
@@ -2563,7 +2581,7 @@
     "message": "Bir kuruluş ilkesi, kayıtları kişisel kasanıza içe aktarmayı engelledi."
   },
   "restrictCardTypeImport": {
-    "message": "Kart öge türleri içe aktarılamıyor"
+    "message": "Kart kayıt türleri içe aktarılamıyor"
   },
   "restrictCardTypeImportDesc": {
     "message": "1 veya daha fazla kuruluş tarafından belirlenen bir ilke, kasalarınıza kart aktarmanızı engelliyor."
@@ -2694,14 +2712,14 @@
     "message": "Risk altındaki parolaları inceleyin"
   },
   "reviewAtRiskLoginsSlideDesc": {
-    "message": "Organizasyonunuzun parolaları zayıf, tekrar kullanılmış ve/veya açığa çıkmış olduğu için risk altındadır.",
+    "message": "Kuruluş parolaların zayıf, yeniden kullanılmış ve/veya ele geçirilmiş olduğundan risk altındadır.",
     "description": "Description of the review at-risk login slide on the at-risk password page carousel"
   },
   "reviewAtRiskLoginSlideImgAltPeriod": {
     "message": "Risk altındaki hesap listesinin illüstrasyonu."
   },
   "generatePasswordSlideDesc": {
-    "message": "Risk altındaki sitede Bitwarden otomatik doldurma menüsü ile hızlıca güçlü ve benzersiz bir parola oluşturun.",
+    "message": "Riskli sitede Bitwarden otomatik doldurma menüsünü kullanarak hızlıca güçlü ve benzersiz bir parola oluştur.",
     "description": "Description of the generate password slide on the at-risk password page carousel"
   },
   "generatePasswordSlideImgAltPeriod": {
@@ -3195,6 +3213,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Yalnızca $ORGANIZATION$ ile ilişkili kuruluş kasası dışa aktarılacaktır.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Yalnızca $ORGANIZATION$ ile ilişkili kuruluş kasası dışa aktarılacaktır. Kayıt koleksiyonlarım dahil edilmeyecektir.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },
@@ -5543,17 +5579,37 @@
   "hasItemsVaultNudgeTitle": {
     "message": "Kasanıza hoş geldiniz!"
   },
-  "phishingPageTitle": {
-    "message": "Dolandırıcılık web sitesi"
+  "phishingPageTitleV2": {
+    "message": "Phishing attempt detected"
   },
-  "phishingPageCloseTab": {
-    "message": "Sekmeyi kapat"
+  "phishingPageSummary": {
+    "message": "The site you are attempting to visit is a known malicious site and a security risk."
   },
-  "phishingPageContinue": {
-    "message": "Devam et"
+  "phishingPageCloseTabV2": {
+    "message": "Bu sekmeyi kapat"
   },
-  "phishingPageLearnWhy": {
-    "message": "Bunu neden görüyorsunuz?"
+  "phishingPageContinueV2": {
+    "message": "Continue to this site (not recommended)"
+  },
+  "phishingPageExplanation1": {
+    "message": "This site was found in ",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name follows this."
+  },
+  "phishingPageExplanation2": {
+    "message": ", an open-source list of known phishing sites used for stealing personal and sensitive information.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name precedes this."
+  },
+  "phishingPageLearnMore": {
+    "message": "Learn more about phishing detection"
+  },
+  "protectedBy": {
+    "message": "Protected by $PRODUCT$",
+    "placeholders": {
+      "product": {
+        "content": "$1",
+        "example": "Bitwarden Phishing Blocker"
+      }
+    }
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Geçerli sayfada kayıtları otomatik doldurun"
@@ -5634,7 +5690,7 @@
     "message": "Bu ayar hakkında"
   },
   "permitCipherDetailsDescription": {
-    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+    "message": "Bitwarden, deneyimini iyileştirmek için hangi simgenin veya parola değiştirme URL’sinin kullanılacağını belirlemek amacıyla kaydedilmiş hesap URI’lerini kullanır. Bu hizmeti kullandığında hiçbir bilgi toplanmaz veya kaydedilmez."
   },
   "noPermissionsViewPage": {
     "message": "Bu sayfayı görüntüleme izniniz yok. Farklı bir hesapla giriş yapmayı deneyin."

@@ -104,6 +104,7 @@ import { UserVerificationService as UserVerificationServiceAbstraction } from "@
 import { WebAuthnLoginApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-api.service.abstraction";
 import { WebAuthnLoginPrfKeyServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-prf-key.service.abstraction";
 import { WebAuthnLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login.service.abstraction";
+import { SendTokenService, DefaultSendTokenService } from "@bitwarden/common/auth/send-access";
 import { AccountApiServiceImplementation } from "@bitwarden/common/auth/services/account-api.service";
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
 import { AnonymousHubService } from "@bitwarden/common/auth/services/anonymous-hub.service";
@@ -126,6 +127,7 @@ import { UserVerificationService } from "@bitwarden/common/auth/services/user-ve
 import { WebAuthnLoginApiService } from "@bitwarden/common/auth/services/webauthn-login/webauthn-login-api.service";
 import { WebAuthnLoginPrfKeyService } from "@bitwarden/common/auth/services/webauthn-login/webauthn-login-prf-key.service";
 import { WebAuthnLoginService } from "@bitwarden/common/auth/services/webauthn-login/webauthn-login.service";
+import { TwoFactorApiService, DefaultTwoFactorApiService } from "@bitwarden/common/auth/two-factor";
 import {
   AutofillSettingsService,
   AutofillSettingsServiceAbstraction,
@@ -144,12 +146,14 @@ import {
 } from "@bitwarden/common/billing/abstractions";
 import { AccountBillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/account/account-billing-api.service.abstraction";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
 import { OrganizationBillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/organizations/organization-billing-api.service.abstraction";
 import { OrganizationSponsorshipApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/organizations/organization-sponsorship-api.service.abstraction";
 import { AccountBillingApiService } from "@bitwarden/common/billing/services/account/account-billing-api.service";
 import { DefaultBillingAccountProfileStateService } from "@bitwarden/common/billing/services/account/billing-account-profile-state.service";
 import { BillingApiService } from "@bitwarden/common/billing/services/billing-api.service";
 import { OrganizationBillingApiService } from "@bitwarden/common/billing/services/organization/organization-billing-api.service";
+import { DefaultOrganizationMetadataService } from "@bitwarden/common/billing/services/organization/organization-metadata.service";
 import { OrganizationSponsorshipApiService } from "@bitwarden/common/billing/services/organization/organization-sponsorship-api.service";
 import { OrganizationBillingService } from "@bitwarden/common/billing/services/organization-billing.service";
 import { HibpApiService } from "@bitwarden/common/dirt/services/hibp-api.service";
@@ -169,13 +173,21 @@ import { DefaultChangeKdfService } from "@bitwarden/common/key-management/kdf/ch
 import { ChangeKdfService } from "@bitwarden/common/key-management/kdf/change-kdf-service.abstraction";
 import { KeyConnectorService as KeyConnectorServiceAbstraction } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/services/key-connector.service";
+import { KeyApiService } from "@bitwarden/common/key-management/keys/services/abstractions/key-api-service.abstraction";
+import { DefaultKeyApiService } from "@bitwarden/common/key-management/keys/services/default-key-api-service.service";
+import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
 import {
   InternalMasterPasswordServiceAbstraction,
   MasterPasswordServiceAbstraction,
 } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { DefaultMasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/services/default-master-password-unlock.service";
 import { MasterPasswordService } from "@bitwarden/common/key-management/master-password/services/master-password.service";
+import { PinStateServiceAbstraction } from "@bitwarden/common/key-management/pin/pin-state.service.abstraction";
+import { PinStateService } from "@bitwarden/common/key-management/pin/pin-state.service.implementation";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { PinService } from "@bitwarden/common/key-management/pin/pin.service.implementation";
+import { SecurityStateService } from "@bitwarden/common/key-management/security-state/abstractions/security-state.service";
+import { DefaultSecurityStateService } from "@bitwarden/common/key-management/security-state/services/security-state.service";
 import {
   SendPasswordService,
   DefaultSendPasswordService,
@@ -534,7 +546,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: DomainSettingsService,
     useClass: DefaultDomainSettingsService,
-    deps: [StateProvider],
+    deps: [StateProvider, PolicyServiceAbstraction, AccountService],
   }),
   safeProvider({
     provide: CipherServiceAbstraction,
@@ -688,7 +700,6 @@ const safeProviders: SafeProvider[] = [
     provide: KeyService,
     useClass: DefaultKeyService,
     deps: [
-      PinServiceAbstraction,
       InternalMasterPasswordServiceAbstraction,
       KeyGenerationService,
       CryptoFunctionServiceAbstraction,
@@ -700,6 +711,11 @@ const safeProviders: SafeProvider[] = [
       StateProvider,
       KdfConfigService,
     ],
+  }),
+  safeProvider({
+    provide: SecurityStateService,
+    useClass: DefaultSecurityStateService,
+    deps: [StateProvider],
   }),
   safeProvider({
     provide: RestrictedItemTypesService,
@@ -779,6 +795,7 @@ const safeProviders: SafeProvider[] = [
     provide: InternalSendService,
     useClass: SendService,
     deps: [
+      AccountServiceAbstraction,
       KeyService,
       I18nServiceAbstraction,
       KeyGenerationService,
@@ -795,6 +812,11 @@ const safeProviders: SafeProvider[] = [
     provide: SendApiServiceAbstraction,
     useClass: SendApiService,
     deps: [ApiServiceAbstraction, FileUploadServiceAbstraction, InternalSendService],
+  }),
+  safeProvider({
+    provide: KeyApiService,
+    useClass: DefaultKeyApiService,
+    deps: [ApiServiceAbstraction],
   }),
   safeProvider({
     provide: SyncService,
@@ -824,6 +846,7 @@ const safeProviders: SafeProvider[] = [
       TokenServiceAbstraction,
       AuthServiceAbstraction,
       StateProvider,
+      SecurityStateService,
     ],
   }),
   safeProvider({
@@ -836,7 +859,7 @@ const safeProviders: SafeProvider[] = [
     useClass: DefaultVaultTimeoutSettingsService,
     deps: [
       AccountServiceAbstraction,
-      PinServiceAbstraction,
+      PinStateServiceAbstraction,
       UserDecryptionOptionsServiceAbstraction,
       KeyService,
       TokenServiceAbstraction,
@@ -1046,9 +1069,7 @@ const safeProviders: SafeProvider[] = [
     useClass: MasterPasswordService,
     deps: [
       StateProvider,
-      StateServiceAbstraction,
       KeyGenerationService,
-      EncryptService,
       LogService,
       CryptoFunctionServiceAbstraction,
       AccountServiceAbstraction,
@@ -1057,6 +1078,11 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: MasterPasswordServiceAbstraction,
     useExisting: InternalMasterPasswordServiceAbstraction,
+  }),
+  safeProvider({
+    provide: MasterPasswordUnlockService,
+    useClass: DefaultMasterPasswordUnlockService,
+    deps: [InternalMasterPasswordServiceAbstraction, KeyService],
   }),
   safeProvider({
     provide: KeyConnectorServiceAbstraction,
@@ -1264,19 +1290,26 @@ const safeProviders: SafeProvider[] = [
       ApiServiceAbstraction,
       StateProvider,
       AuthRequestApiServiceAbstraction,
+      AccountServiceAbstraction,
     ],
+  }),
+  safeProvider({
+    provide: PinStateServiceAbstraction,
+    useClass: PinStateService,
+    deps: [StateProvider],
   }),
   safeProvider({
     provide: PinServiceAbstraction,
     useClass: PinService,
     deps: [
       AccountServiceAbstraction,
-      CryptoFunctionServiceAbstraction,
       EncryptService,
       KdfConfigService,
       KeyGenerationService,
       LogService,
-      StateProvider,
+      KeyService,
+      SdkService,
+      PinStateServiceAbstraction,
     ],
   }),
   safeProvider({
@@ -1399,6 +1432,11 @@ const safeProviders: SafeProvider[] = [
     deps: [ApiServiceAbstraction],
   }),
   safeProvider({
+    provide: OrganizationMetadataServiceAbstraction,
+    useClass: DefaultOrganizationMetadataService,
+    deps: [BillingApiServiceAbstraction, ConfigService],
+  }),
+  safeProvider({
     provide: BillingAccountProfileStateService,
     useClass: DefaultBillingAccountProfileStateService,
     deps: [StateProvider, PlatformUtilsServiceAbstraction, ApiServiceAbstraction],
@@ -1497,6 +1535,11 @@ const safeProviders: SafeProvider[] = [
     deps: [],
   }),
   safeProvider({
+    provide: TwoFactorApiService,
+    useClass: DefaultTwoFactorApiService,
+    deps: [ApiServiceAbstraction],
+  }),
+  safeProvider({
     provide: ViewCacheService,
     useExisting: NoopViewCacheService,
     deps: [],
@@ -1522,6 +1565,8 @@ const safeProviders: SafeProvider[] = [
       AccountServiceAbstraction,
       KdfConfigService,
       KeyService,
+      SecurityStateService,
+      ApiServiceAbstraction,
       StateProvider,
       ConfigService,
     ],
@@ -1587,6 +1632,11 @@ const safeProviders: SafeProvider[] = [
       ServerNotificationsService,
       MessageListener,
     ],
+  }),
+  safeProvider({
+    provide: SendTokenService,
+    useClass: DefaultSendTokenService,
+    deps: [GlobalStateProvider, SdkService, SendPasswordService],
   }),
   safeProvider({
     provide: EndUserNotificationService,
