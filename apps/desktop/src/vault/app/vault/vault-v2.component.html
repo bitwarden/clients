@@ -19,6 +19,7 @@
       (onClone)="cloneCipher($event)"
       (onDelete)="deleteCipher()"
       (onCancel)="cancelCipher($event)"
+      (onArchiveToggle)="refreshCurrentCipher()"
       [masterPasswordAlreadyPrompted]="cipherRepromptId === cipherId"
     ></app-vault-item-footer>
     <div class="content">

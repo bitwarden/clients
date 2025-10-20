@@ -2550,7 +2550,7 @@
     }
   },
   "vaultCustomTimeoutMinimum": {
-    "message": "Minimum custom timeout is 1 minute."
+    "message": "Minimum özəl bitmə vaxtı 1 dəqiqədir."
   },
   "inviteAccepted": {
     "message": "Dəvət qəbul edildi"

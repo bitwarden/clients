@@ -11295,10 +11295,10 @@
     "description": "Verb"
   },
   "unArchive": {
-    "message": "Nicht mehr archivieren"
+    "message": "Archivieren rück­gän­gig ma­chen"
   },
   "itemsInArchive": {
-    "message": "Einträge im Archiv"
+    "message": "Archiveinträge"
   },
   "noItemsInArchive": {
     "message": "Keine Einträge im Archiv"

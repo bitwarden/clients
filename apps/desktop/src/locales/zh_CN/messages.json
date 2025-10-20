@@ -2676,7 +2676,7 @@
     }
   },
   "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
-    "message": "仅会导出与 $ORGANIZATION$ 关联的组织密码库，不包括我的项目集合。",
+    "message": "仅会导出与 $ORGANIZATION$ 关联的组织密码库。不包括「我的项目」集合。",
     "placeholders": {
       "organization": {
         "content": "$1",
