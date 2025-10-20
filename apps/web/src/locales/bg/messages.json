@@ -90,8 +90,8 @@
   "assignMembersTasksToMonitorProgress": {
     "message": "Назначете задачи на членовете, за да следите напредъка"
   },
-  "onceYouReviewApplications": {
-    "message": "Когато прегледате приложенията и ги отбележите като важни, те ще се появят тук."
+  "onceYouReviewApps": {
+    "message": "След като прегледате приложенията и отбележите някои като важни, можете да зададете задачи на членовете, така че те да се занимаят с нещата в риск, а Вие да следите напредъка тук"
   },
   "sendReminders": {
     "message": "Изпращане на напомняния"
@@ -188,10 +188,10 @@
     "message": "Отбелязване на приложението като важно"
   },
   "markAsCritical": {
-    "message": "Mark as critical"
+    "message": "Отбелязване като важно"
   },
   "applicationsSelected": {
-    "message": "applications selected"
+    "message": "избрани приложения"
   },
   "selectApplication": {
     "message": "Select application"
@@ -311,13 +311,13 @@
     "message": "Преглеждане сега"
   },
   "prioritizeCriticalApplications": {
-    "message": "Prioritize critical applications"
+    "message": "Даване на приоритет на важните приложения"
   },
   "atRiskItems": {
-    "message": "At-risk items"
+    "message": "Елементи в риск"
   },
   "markAsCriticalPlaceholder": {
-    "message": "Mark as critical functionality will be implemented in a future update"
+    "message": "Функционалността за отбелязване на нещо като важно ще бъде добавена в бъдеща версия"
   },
   "unmarkAsCritical": {
     "message": "Премахване от важните"
@@ -2951,7 +2951,7 @@
     "message": "Проверете дали към абонамента си имате достатъчно средства за тази покупка. В противен случай разликата от наличното и необходимото се изисква от основния ви метод за плащане, който сте задали."
   },
   "notEnoughAccountCredit": {
-    "message": "You do not have enough account credit for this purchase. You can add credit to your account from the Billing page."
+    "message": "Нямате достатъчно средства в акаунта за тази покупка. Можете да добавите средства в акаунта си на страницата за плащанията."
   },
   "creditAppliedDesc": {
     "message": "Може да използвате кредитите към абонамента си за покупки. Кредитите се използват за покриването на издадените фактури към абонамента."
@@ -7150,7 +7150,7 @@
     }
   },
   "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
-    "message": "Ще бъдат изнесени само записите от трезора свързан с $ORGANIZATION$. Моите колекции няма да бъдат включени.",
+    "message": "Ще бъдат изнесени само записите от трезора свързан с $ORGANIZATION$. Колекциите от вида „Моите записи“ няма да бъдат включени.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -11294,11 +11294,46 @@
     "message": "Архивиране",
     "description": "Verb"
   },
+  "unArchive": {
+    "message": "Изваждане от архива"
+  },
+  "itemsInArchive": {
+    "message": "Елементи в архива"
+  },
   "noItemsInArchive": {
     "message": "Няма елементи в архива"
   },
-  "archivedItemsDescription": {
+  "noItemsInArchiveDesc": {
     "message": "Архивираните елементи ще се показват тук и ще бъдат изключени от общите резултати при търсене и от предложенията за автоматично попълване."
+  },
+  "itemWasSentToArchive": {
+    "message": "Елементът беше преместен в архива"
+  },
+  "itemsWereSentToArchive": {
+    "message": "Елементите бяха преместени в архива"
+  },
+  "itemUnarchived": {
+    "message": "Елементът беше изваден от архива"
+  },
+  "bulkArchiveItems": {
+    "message": "Елементите са архивирани"
+  },
+  "bulkUnarchiveItems": {
+    "message": "Елементите са извадени от архива"
+  },
+  "archiveItem": {
+    "message": "Архивиране на елемента",
+    "description": "Verb"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Архивираните елементи са изключени от общите резултати при търсене и от предложенията за автоматично попълване. Наистина ли искате да архивирате този елемент?"
+  },
+  "archiveBulkItems": {
+    "message": "Архивиране на елементите",
+    "description": "Verb"
+  },
+  "archiveBulkItemsConfirmDesc": {
+    "message": "Архивираните елементи са изключени от общите резултати при търсене и от предложенията за автоматично попълване. Наистина ли искате да архивирате тези елементи?"
   },
   "businessUnit": {
     "message": "Бизнес единица"
@@ -11801,7 +11836,25 @@
   "continueWithoutUpgrading": {
     "message": "Продължаване без надграждане"
   },
+  "upgradeYourPlan": {
+    "message": "Надградете плана си"
+  },
+  "upgradeNow": {
+    "message": "Надграждане сега"
+  },
+  "formWillCreateNewFamiliesOrgMessage": {
+    "message": "Чрез попълването на този формуляр ще създадете нова Семейна организация. Можете да надградите безплатната си организация от Администраторската конзола."
+  },
   "upgradeErrorMessage": {
     "message": "Възникна грешка при надграждането. Моля, опитайте отново."
+  },
+  "bitwardenFreeplanMessage": {
+    "message": "Имате безплатния план на Битуорден"
+  },
+  "upgradeCompleteSecurity": {
+    "message": "Надградете, за да се възползвате от пълна защита"
+  },
+  "viewbusinessplans": {
+    "message": "Преглед на плановете за компании"
   }
 }

@@ -199,6 +199,7 @@ jobs:
       
       - name: Get Node version
         id: retrieve-node-version
+        working-directory: ./
         run: |
           NODE_NVMRC=$(cat .nvmrc)
           NODE_VERSION=${NODE_NVMRC/v/''}
@@ -208,8 +209,12 @@ jobs:
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
           node-version: ${{ steps.retrieve-node-version.outputs.node_version }}
-          npm-version: "11.5.1" # FIXME: npm 11.5.1 or later is required to publish w/ OIDC; move version management to somewhere maintainable by automation
           registry-url: "https://registry.npmjs.org/"
+
+      - name: Install NPM
+        run: |
+          npm install -g npm@latest # npm 11.5.1 or later is required to publish w/ OIDC
+          npm --version
 
       - name: Download and set up artifact
         run: |
