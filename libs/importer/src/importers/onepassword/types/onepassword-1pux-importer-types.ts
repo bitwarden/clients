@@ -25,30 +25,36 @@ export interface VaultAttributes {
   type: string;
 }
 
-// FIXME: update to use a const object instead of a typescript enum
-// eslint-disable-next-line @bitwarden/platform/no-enums
-export enum CategoryEnum {
-  Login = "001",
-  CreditCard = "002",
-  SecureNote = "003",
-  Identity = "004",
-  Password = "005",
-  Document = "006",
-  SoftwareLicense = "100",
-  BankAccount = "101",
-  Database = "102",
-  DriversLicense = "103",
-  OutdoorLicense = "104",
-  Membership = "105",
-  Passport = "106",
-  RewardsProgram = "107",
-  SocialSecurityNumber = "108",
-  WirelessRouter = "109",
-  Server = "110",
-  EmailAccount = "111",
-  API_Credential = "112",
-  MedicalRecord = "113",
-}
+/**
+ * Represents the different types of items that can be stored in 1Password.
+ */
+export const Category = Object.freeze({
+  Login: "001",
+  CreditCard: "002",
+  SecureNote: "003",
+  Identity: "004",
+  Password: "005",
+  Document: "006",
+  SoftwareLicense: "100",
+  BankAccount: "101",
+  Database: "102",
+  DriversLicense: "103",
+  OutdoorLicense: "104",
+  Membership: "105",
+  Passport: "106",
+  RewardsProgram: "107",
+  SocialSecurityNumber: "108",
+  WirelessRouter: "109",
+  Server: "110",
+  EmailAccount: "111",
+  API_Credential: "112",
+  MedicalRecord: "113",
+} as const);
+
+/**
+ * Represents valid 1Password category values.
+ */
+export type Category = (typeof Category)[keyof typeof Category];
 
 export interface Item {
   uuid: string;
@@ -69,23 +75,30 @@ export interface Details {
   password?: string | null;
 }
 
-// FIXME: update to use a const object instead of a typescript enum
-// eslint-disable-next-line @bitwarden/platform/no-enums
-export enum LoginFieldTypeEnum {
-  TextOrHtml = "T",
-  EmailAddress = "E",
-  URL = "U",
-  Number = "N",
-  Password = "P",
-  TextArea = "A",
-  PhoneNumber = "TEL",
-  CheckBox = "C",
-}
+/**
+ * Represents 1Password login field types that can be stored in login items.
+ */
+export const LoginFieldType = Object.freeze({
+  TextOrHtml: "T",
+  EmailAddress: "E",
+  URL: "U",
+  Number: "N",
+  Password: "P",
+  TextArea: "A",
+  PhoneNumber: "TEL",
+  CheckBox: "C",
+} as const);
+
+/**
+ * Type representing valid 1Password login field type values.
+ */
+export type LoginFieldType = (typeof LoginFieldType)[keyof typeof LoginFieldType];
+
 export interface LoginFieldsEntity {
   value: string;
   id: string;
   name: string;
-  fieldType: LoginFieldTypeEnum | string;
+  fieldType: LoginFieldType | string;
   designation?: string | null;
 }
 export interface SectionsEntity {

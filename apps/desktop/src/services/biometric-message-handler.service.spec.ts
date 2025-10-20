@@ -13,13 +13,9 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { FakeAccountService } from "@bitwarden/common/spec";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { UserId } from "@bitwarden/common/types/guid";
-import { DialogService, I18nMockService } from "@bitwarden/components";
-import {
-  KeyService,
-  BiometricsService,
-  BiometricStateService,
-  BiometricsCommands,
-} from "@bitwarden/key-management";
+import { DialogService } from "@bitwarden/components";
+import { KeyService, BiometricsService, BiometricsCommands } from "@bitwarden/key-management";
+import { ConfigService } from "@bitwarden/services/config.service";
 
 import { DesktopSettingsService } from "../platform/services/desktop-settings.service";
 
@@ -47,15 +43,14 @@ describe("BiometricMessageHandlerService", () => {
   let keyService: MockProxy<KeyService>;
   let encryptService: MockProxy<EncryptService>;
   let logService: MockProxy<LogService>;
+  let configService: MockProxy<ConfigService>;
   let messagingService: MockProxy<MessagingService>;
   let desktopSettingsService: DesktopSettingsService;
-  let biometricStateService: BiometricStateService;
   let biometricsService: MockProxy<BiometricsService>;
   let dialogService: MockProxy<DialogService>;
   let accountService: AccountService;
   let authService: MockProxy<AuthService>;
   let ngZone: MockProxy<NgZone>;
-  let i18nService: MockProxy<I18nMockService>;
 
   beforeEach(() => {
     cryptoFunctionService = mock<CryptoFunctionService>();
@@ -64,14 +59,13 @@ describe("BiometricMessageHandlerService", () => {
     logService = mock<LogService>();
     messagingService = mock<MessagingService>();
     desktopSettingsService = mock<DesktopSettingsService>();
-    biometricStateService = mock<BiometricStateService>();
+    configService = mock<ConfigService>();
     biometricsService = mock<BiometricsService>();
     dialogService = mock<DialogService>();
 
     accountService = new FakeAccountService(accounts);
     authService = mock<AuthService>();
     ngZone = mock<NgZone>();
-    i18nService = mock<I18nMockService>();
 
     desktopSettingsService.browserIntegrationEnabled$ = of(false);
     desktopSettingsService.browserIntegrationFingerprintEnabled$ = of(false);
@@ -94,7 +88,7 @@ describe("BiometricMessageHandlerService", () => {
     cryptoFunctionService.rsaEncrypt.mockResolvedValue(
       Utils.fromUtf8ToArray("encrypted") as CsprngArray,
     );
-
+    configService.getFeatureFlag.mockResolvedValue(false);
     service = new BiometricMessageHandlerService(
       cryptoFunctionService,
       keyService,
@@ -102,13 +96,12 @@ describe("BiometricMessageHandlerService", () => {
       logService,
       messagingService,
       desktopSettingsService,
-      biometricStateService,
       biometricsService,
       dialogService,
       accountService,
       authService,
       ngZone,
-      i18nService,
+      configService,
     );
   });
 
@@ -160,13 +153,12 @@ describe("BiometricMessageHandlerService", () => {
         logService,
         messagingService,
         desktopSettingsService,
-        biometricStateService,
         biometricsService,
         dialogService,
         accountService,
         authService,
         ngZone,
-        i18nService,
+        configService,
       );
     });
 
@@ -510,5 +502,20 @@ describe("BiometricMessageHandlerService", () => {
         }
       },
     );
+  });
+
+  describe("init", () => {
+    it("enables Windows v2 biometrics when feature flag enabled", async () => {
+      configService.getFeatureFlag.mockReturnValue(true);
+
+      await service.init();
+      expect(biometricsService.enableWindowsV2Biometrics).toHaveBeenCalled();
+    });
+    it("does not enable Windows v2 biometrics when feature flag disabled", async () => {
+      configService.getFeatureFlag.mockReturnValue(false);
+
+      await service.init();
+      expect(biometricsService.enableWindowsV2Biometrics).not.toHaveBeenCalled();
+    });
   });
 });

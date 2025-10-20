@@ -25,17 +25,22 @@ export enum FeatureFlag {
   PM17772_AdminInitiatedSponsorships = "pm-17772-admin-initiated-sponsorships",
   PM21821_ProviderPortalTakeover = "pm-21821-provider-portal-takeover",
   PM22415_TaxIDWarnings = "pm-22415-tax-id-warnings",
+  PM24032_NewNavigationPremiumUpgradeButton = "pm-24032-new-navigation-premium-upgrade-button",
+  PM25379_UseNewOrganizationMetadataStructure = "pm-25379-use-new-organization-metadata-structure",
   PM24996_ImplementUpgradeFromFreeDialog = "pm-24996-implement-upgrade-from-free-dialog",
+  PM24033PremiumUpgradeNewDesign = "pm-24033-updat-premium-subscription-page",
 
   /* Key Management */
   PrivateKeyRegeneration = "pm-12241-private-key-regeneration",
   EnrollAeadOnKeyRotation = "enroll-aead-on-key-rotation",
   ForceUpdateKDFSettings = "pm-18021-force-update-kdf-settings",
+  PM25174_DisableType0Decryption = "pm-25174-disable-type-0-decryption",
+  WindowsBiometricsV2 = "pm-25373-windows-biometrics-v2",
+  UnlockWithMasterPasswordUnlockData = "pm-23246-unlock-with-master-password-unlock-data",
 
   /* Tools */
   DesktopSendUIRefresh = "desktop-send-ui-refresh",
   UseSdkPasswordGenerators = "pm-19976-use-sdk-password-generators",
-  UseChromiumImporter = "pm-23982-chromium-importer",
 
   /* DIRT */
   EventBasedOrganizationIntegrations = "event-based-organization-integrations",
@@ -81,7 +86,6 @@ export const DefaultFeatureFlagValue = {
   /* Tools */
   [FeatureFlag.DesktopSendUIRefresh]: FALSE,
   [FeatureFlag.UseSdkPasswordGenerators]: FALSE,
-  [FeatureFlag.UseChromiumImporter]: FALSE,
 
   /* DIRT */
   [FeatureFlag.EventBasedOrganizationIntegrations]: FALSE,
@@ -102,12 +106,18 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM17772_AdminInitiatedSponsorships]: FALSE,
   [FeatureFlag.PM21821_ProviderPortalTakeover]: FALSE,
   [FeatureFlag.PM22415_TaxIDWarnings]: FALSE,
+  [FeatureFlag.PM24032_NewNavigationPremiumUpgradeButton]: FALSE,
+  [FeatureFlag.PM25379_UseNewOrganizationMetadataStructure]: FALSE,
   [FeatureFlag.PM24996_ImplementUpgradeFromFreeDialog]: FALSE,
+  [FeatureFlag.PM24033PremiumUpgradeNewDesign]: FALSE,
 
   /* Key Management */
   [FeatureFlag.PrivateKeyRegeneration]: FALSE,
   [FeatureFlag.EnrollAeadOnKeyRotation]: FALSE,
   [FeatureFlag.ForceUpdateKDFSettings]: FALSE,
+  [FeatureFlag.PM25174_DisableType0Decryption]: FALSE,
+  [FeatureFlag.WindowsBiometricsV2]: FALSE,
+  [FeatureFlag.UnlockWithMasterPasswordUnlockData]: FALSE,
 
   /* Platform */
   [FeatureFlag.IpcChannelFramework]: FALSE,
