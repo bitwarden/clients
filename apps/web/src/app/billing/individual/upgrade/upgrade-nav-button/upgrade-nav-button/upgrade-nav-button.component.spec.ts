@@ -6,6 +6,7 @@ import { BehaviorSubject, of } from "rxjs";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { DialogRef, DialogService } from "@bitwarden/components";
@@ -26,6 +27,7 @@ describe("UpgradeNavButtonComponent", () => {
   let mockApiService: MockProxy<ApiService>;
   let mockRouter: MockProxy<Router>;
   let mockI18nService: MockProxy<I18nService>;
+  let mockPlatformUtilsService: MockProxy<PlatformUtilsService>;
   let activeAccount$: BehaviorSubject<Account | null>;
 
   const mockAccount: Account = {
@@ -42,10 +44,12 @@ describe("UpgradeNavButtonComponent", () => {
     mockApiService = mock<ApiService>();
     mockRouter = mock<Router>();
     mockI18nService = mock<I18nService>();
+    mockPlatformUtilsService = mock<PlatformUtilsService>();
 
     activeAccount$ = new BehaviorSubject<Account | null>(mockAccount);
     mockAccountService.activeAccount$ = activeAccount$;
     mockI18nService.t.mockImplementation((key) => key);
+    mockPlatformUtilsService.isSelfHost.mockReturnValue(false);
 
     await TestBed.configureTestingModule({
       imports: [UpgradeNavButtonComponent],
@@ -56,6 +60,7 @@ describe("UpgradeNavButtonComponent", () => {
         { provide: ApiService, useValue: mockApiService },
         { provide: Router, useValue: mockRouter },
         { provide: I18nService, useValue: mockI18nService },
+        { provide: PlatformUtilsService, useValue: mockPlatformUtilsService },
       ],
     }).compileComponents();
 
@@ -68,69 +73,90 @@ describe("UpgradeNavButtonComponent", () => {
     expect(component).toBeTruthy();
   });
 
-  describe("openUpgradeDialog", () => {
-    it("should return early if no active account exists", async () => {
-      activeAccount$.next(null);
-
-      await component.openUpgradeDialog();
-
-      expect(mockDialogService.open).not.toHaveBeenCalled();
-    });
-
-    it("should open upgrade dialog with correct configuration", async () => {
-      const mockDialogRef = mock<DialogRef<UnifiedUpgradeDialogResult>>();
-      mockDialogRef.closed = of({ status: UnifiedUpgradeDialogStatus.Closed });
-      mockDialogService.open.mockReturnValue(mockDialogRef);
-
-      await component.openUpgradeDialog();
-
-      expect(mockDialogService.open).toHaveBeenCalledWith(
-        expect.anything(),
-        expect.objectContaining({
-          data: {
-            account: mockAccount,
-            planSelectionStepTitleOverride: "upgradeYourPlan",
-            hideContinueWithoutUpgradingButton: true,
-          },
-        }),
-      );
-    });
-
-    it("should refresh token and sync after upgrading to premium", async () => {
-      const mockDialogRef = mock<DialogRef<UnifiedUpgradeDialogResult>>();
-      mockDialogRef.closed = of({ status: UnifiedUpgradeDialogStatus.UpgradedToPremium });
-      mockDialogService.open.mockReturnValue(mockDialogRef);
-
-      await component.openUpgradeDialog();
-
-      expect(mockApiService.refreshIdentityToken).toHaveBeenCalled();
-      expect(mockSyncService.fullSync).toHaveBeenCalledWith(true);
-    });
-
-    it("should navigate to organization vault after upgrading to families", async () => {
-      const organizationId = "org-123";
-      const mockDialogRef = mock<DialogRef<UnifiedUpgradeDialogResult>>();
-      mockDialogRef.closed = of({
-        status: UnifiedUpgradeDialogStatus.UpgradedToFamilies,
-        organizationId,
+  describe("upgrade()", () => {
+    describe("when self-hosted", () => {
+      beforeEach(() => {
+        mockPlatformUtilsService.isSelfHost.mockReturnValue(true);
       });
-      mockDialogService.open.mockReturnValue(mockDialogRef);
 
-      await component.openUpgradeDialog();
+      it("should navigate to subscription page", async () => {
+        await component.upgrade();
 
-      expect(mockRouter.navigate).toHaveBeenCalledWith([`/organizations/${organizationId}/vault`]);
+        expect(mockRouter.navigate).toHaveBeenCalledWith(["/settings/subscription/premium"]);
+        expect(mockDialogService.open).not.toHaveBeenCalled();
+      });
     });
 
-    it("should do nothing when dialog closes without upgrade", async () => {
-      const mockDialogRef = mock<DialogRef<UnifiedUpgradeDialogResult>>();
-      mockDialogRef.closed = of({ status: UnifiedUpgradeDialogStatus.Closed });
-      mockDialogService.open.mockReturnValue(mockDialogRef);
+    describe("when not self-hosted", () => {
+      beforeEach(() => {
+        mockPlatformUtilsService.isSelfHost.mockReturnValue(false);
+      });
 
-      await component.openUpgradeDialog();
+      it("should return early if no active account exists", async () => {
+        activeAccount$.next(null);
 
-      expect(mockApiService.refreshIdentityToken).not.toHaveBeenCalled();
-      expect(mockSyncService.fullSync).not.toHaveBeenCalled();
-      expect(mockRouter.navigate).not.toHaveBeenCalled();
+        await component.upgrade();
+
+        expect(mockDialogService.open).not.toHaveBeenCalled();
+      });
+
+      it("should open upgrade dialog with correct configuration", async () => {
+        const mockDialogRef = mock<DialogRef<UnifiedUpgradeDialogResult>>();
+        mockDialogRef.closed = of({ status: UnifiedUpgradeDialogStatus.Closed });
+        mockDialogService.open.mockReturnValue(mockDialogRef);
+
+        await component.upgrade();
+
+        expect(mockDialogService.open).toHaveBeenCalledWith(
+          expect.anything(),
+          expect.objectContaining({
+            data: {
+              account: mockAccount,
+              planSelectionStepTitleOverride: "upgradeYourPlan",
+              hideContinueWithoutUpgradingButton: true,
+            },
+          }),
+        );
+      });
+
+      it("should refresh token and sync after upgrading to premium", async () => {
+        const mockDialogRef = mock<DialogRef<UnifiedUpgradeDialogResult>>();
+        mockDialogRef.closed = of({ status: UnifiedUpgradeDialogStatus.UpgradedToPremium });
+        mockDialogService.open.mockReturnValue(mockDialogRef);
+
+        await component.upgrade();
+
+        expect(mockApiService.refreshIdentityToken).toHaveBeenCalled();
+        expect(mockSyncService.fullSync).toHaveBeenCalledWith(true);
+      });
+
+      it("should navigate to organization vault after upgrading to families", async () => {
+        const organizationId = "org-123";
+        const mockDialogRef = mock<DialogRef<UnifiedUpgradeDialogResult>>();
+        mockDialogRef.closed = of({
+          status: UnifiedUpgradeDialogStatus.UpgradedToFamilies,
+          organizationId,
+        });
+        mockDialogService.open.mockReturnValue(mockDialogRef);
+
+        await component.upgrade();
+
+        expect(mockRouter.navigate).toHaveBeenCalledWith([
+          `/organizations/${organizationId}/vault`,
+        ]);
+      });
+
+      it("should do nothing when dialog closes without upgrade", async () => {
+        const mockDialogRef = mock<DialogRef<UnifiedUpgradeDialogResult>>();
+        mockDialogRef.closed = of({ status: UnifiedUpgradeDialogStatus.Closed });
+        mockDialogService.open.mockReturnValue(mockDialogRef);
+
+        await component.upgrade();
+
+        expect(mockApiService.refreshIdentityToken).not.toHaveBeenCalled();
+        expect(mockSyncService.fullSync).not.toHaveBeenCalled();
+        expect(mockRouter.navigate).not.toHaveBeenCalled();
+      });
     });
   });
 });

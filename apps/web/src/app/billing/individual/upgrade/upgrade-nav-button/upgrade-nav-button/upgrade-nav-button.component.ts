@@ -4,6 +4,7 @@ import { firstValueFrom, lastValueFrom } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { DialogService } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -25,8 +26,22 @@ export class UpgradeNavButtonComponent {
   private syncService = inject(SyncService);
   private apiService = inject(ApiService);
   private router = inject(Router);
+  private platformUtilsService = inject(PlatformUtilsService);
 
-  openUpgradeDialog = async () => {
+  upgrade = async () => {
+    if (this.platformUtilsService.isSelfHost()) {
+      await this.navigateToSelfHostSubscriptionPage();
+    } else {
+      await this.openUpgradeDialog();
+    }
+  };
+
+  private async navigateToSelfHostSubscriptionPage(): Promise<void> {
+    const subscriptionUrl = "/settings/subscription/premium";
+    await this.router.navigate([subscriptionUrl]);
+  }
+
+  private async openUpgradeDialog() {
     const account = await firstValueFrom(this.accountService.activeAccount$);
     if (!account) {
       return;
@@ -47,7 +62,7 @@ export class UpgradeNavButtonComponent {
       await this.syncService.fullSync(true);
     } else if (result?.status === UnifiedUpgradeDialogStatus.UpgradedToFamilies) {
       const redirectUrl = `/organizations/${result.organizationId}/vault`;
-      void this.router.navigate([redirectUrl]);
+      await this.router.navigate([redirectUrl]);
     }
-  };
+  }
 }
