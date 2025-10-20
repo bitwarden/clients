@@ -2549,6 +2549,9 @@
       }
     }
   },
+  "vaultCustomTimeoutMinimum": {
+    "message": "Minimum custom timeout is 1 minute."
+  },
   "inviteAccepted": {
     "message": "Zaproszenie zostało zaakceptowane"
   },
@@ -4149,8 +4152,8 @@
     "message": "Archiwizuj",
     "description": "Verb"
   },
-  "unarchive": {
-    "message": "Usuń z archiwum"
+  "unArchive": {
+    "message": "Unarchive"
   },
   "itemsInArchive": {
     "message": "Elementy w archiwum"
@@ -4161,11 +4164,11 @@
   "noItemsInArchiveDesc": {
     "message": "Zarchiwizowane elementy pojawią się tutaj i zostaną wykluczone z wyników wyszukiwania i sugestii autouzupełniania."
   },
-  "itemSentToArchive": {
-    "message": "Element został przeniesiony do archiwum"
+  "itemWasSentToArchive": {
+    "message": "Item was sent to archive"
   },
-  "itemRemovedFromArchive": {
-    "message": "Element został usunięty z archiwum"
+  "itemUnarchived": {
+    "message": "Item was unarchived"
   },
   "archiveItem": {
     "message": "Archiwizuj element"

@@ -311,12 +311,8 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
       .pipe(
         concatMap(async (value) => {
           const userId = (await firstValueFrom(this.accountService.activeAccount$)).id;
-          const pinKeyEncryptedUserKey =
-            (await this.pinService.getPinKeyEncryptedUserKeyPersistent(userId)) ||
-            (await this.pinService.getPinKeyEncryptedUserKeyEphemeral(userId));
-          await this.pinService.clearPinKeyEncryptedUserKeyPersistent(userId);
-          await this.pinService.clearPinKeyEncryptedUserKeyEphemeral(userId);
-          await this.pinService.storePinKeyEncryptedUserKey(pinKeyEncryptedUserKey, value, userId);
+          const pin = await this.pinService.getPin(userId);
+          await this.pinService.setPin(pin, value ? "EPHEMERAL" : "PERSISTENT", userId);
           this.refreshTimeoutSettings$.next();
         }),
         takeUntil(this.destroy$),
@@ -486,7 +482,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
       }
     } else {
       const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-      await this.vaultTimeoutSettingsService.clear(userId);
+      await this.pinService.unsetPin(userId);
     }
   }
 

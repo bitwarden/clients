@@ -2549,6 +2549,9 @@
       }
     }
   },
+  "vaultCustomTimeoutMinimum": {
+    "message": "Минимално прилагођено временско ограничење је 1 минут."
+  },
   "inviteAccepted": {
     "message": "Позив прихваћен"
   },
@@ -4136,7 +4139,7 @@
     "message": "Омогућите пречицу ауто-уноса (преглед функције)"
   },
   "enableAutotypeShortcutDescription": {
-    "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."
+    "message": "Будите сигурни да сте у исправном пољу пре употребе пречице да бисте избегли попуњавање података на погрешно место."
   },
   "editShortcut": {
     "message": "Уреди пречицу"
@@ -4149,7 +4152,7 @@
     "message": "Архивирај",
     "description": "Verb"
   },
-  "unarchive": {
+  "unArchive": {
     "message": "Врати из архиве"
   },
   "itemsInArchive": {
@@ -4161,11 +4164,11 @@
   "noItemsInArchiveDesc": {
     "message": "Архивиране ставке ће се овде појавити и бити искључени из општих резултата претраге и сугестија о ауто-пуњењу."
   },
-  "itemSentToArchive": {
+  "itemWasSentToArchive": {
     "message": "Ставка је послата у архиву"
   },
-  "itemRemovedFromArchive": {
-    "message": "Ставка је уклоњена из архиве"
+  "itemUnarchived": {
+    "message": "Ставка враћена из архиве"
   },
   "archiveItem": {
     "message": "Архивирај ставку"

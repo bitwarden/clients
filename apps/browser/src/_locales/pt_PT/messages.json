@@ -558,7 +558,7 @@
     "message": "Arquivar",
     "description": "Verb"
   },
-  "unarchive": {
+  "unArchive": {
     "message": "Desarquivar"
   },
   "itemsInArchive": {
@@ -570,11 +570,11 @@
   "noItemsInArchiveDesc": {
     "message": "Os itens arquivados aparecerão aqui e serão excluídos dos resultados gerais da pesquisa e das sugestões de preenchimento automático."
   },
-  "itemSentToArchive": {
-    "message": "Item movido para o arquivo"
+  "itemWasSentToArchive": {
+    "message": "O item foi movido para o arquivo"
   },
-  "itemRemovedFromArchive": {
-    "message": "Item removido do arquivo"
+  "itemUnarchived": {
+    "message": "O item foi desarquivado"
   },
   "archiveItem": {
     "message": "Arquivar item"
@@ -5579,17 +5579,37 @@
   "hasItemsVaultNudgeTitle": {
     "message": "Bem-vindo ao seu cofre!"
   },
-  "phishingPageTitle": {
-    "message": "Site de phishing"
+  "phishingPageTitleV2": {
+    "message": "Tentativa de phishing detetada"
   },
-  "phishingPageCloseTab": {
-    "message": "Fechar separador"
+  "phishingPageSummary": {
+    "message": "O site que está a tentar visitar é um site malicioso conhecido e um risco de segurança."
   },
-  "phishingPageContinue": {
-    "message": "Continuar"
+  "phishingPageCloseTabV2": {
+    "message": "Fechar este separador"
   },
-  "phishingPageLearnWhy": {
-    "message": "Porque é que está a ver isto?"
+  "phishingPageContinueV2": {
+    "message": "Continuar para este site (não recomendado)"
+  },
+  "phishingPageExplanation1": {
+    "message": "Este site foi encontrado em ",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name follows this."
+  },
+  "phishingPageExplanation2": {
+    "message": ", uma lista de fonte aberta de sites de phishing conhecidos, utilizados para roubar informações pessoais e sensíveis.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name precedes this."
+  },
+  "phishingPageLearnMore": {
+    "message": "Saiba mais sobre a deteção de phishing"
+  },
+  "protectedBy": {
+    "message": "Protegido por $PRODUCT$",
+    "placeholders": {
+      "product": {
+        "content": "$1",
+        "example": "Bitwarden Phishing Blocker"
+      }
+    }
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Preenchimento automático de itens para a página atual"

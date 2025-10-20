@@ -510,16 +510,11 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
 
     // Avoid saving 0 since it's useless as a timeout value.
-    if (this.form.value.vaultTimeout === 0) {
+    if (newValue === 0) {
       return;
     }
 
     if (!this.form.controls.vaultTimeout.valid) {
-      this.platformUtilsService.showToast(
-        "error",
-        null,
-        this.i18nService.t("vaultTimeoutTooLarge"),
-      );
       return;
     }
 
@@ -593,7 +588,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
       this.form.controls.pin.setValue(this.userHasPinSet, { emitEvent: false });
     } else {
       const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-      await this.vaultTimeoutSettingsService.clear(userId);
+      await this.pinService.unsetPin(userId);
     }
   }
 
