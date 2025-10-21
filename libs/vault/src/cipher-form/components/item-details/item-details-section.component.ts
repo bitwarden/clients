@@ -125,7 +125,7 @@ export class ItemDetailsSectionComponent implements OnInit {
       this.itemDetailsForm.controls.organizationId.disabled ||
       (!this.allowPersonalOwnership &&
         this.config.originalCipher &&
-        this.itemDetailsForm.controls.organizationId.value === null)
+        this.itemDetailsForm.controls.organizationId.value == null)
     );
   }
 
@@ -252,7 +252,7 @@ export class ItemDetailsSectionComponent implements OnInit {
       // When editing a cipher and the user cannot have personal ownership
       // and the cipher is is not within the organization - force the user to
       // move the cipher within the organization first before editing any other field
-      if (this.itemDetailsForm.controls.organizationId.value === null) {
+      if (this.itemDetailsForm.controls.organizationId.value == null) {
         this.cipherFormContainer.disableFormFields();
         this.itemDetailsForm.controls.organizationId.enable();
         this.favoriteButtonDisabled = true;
