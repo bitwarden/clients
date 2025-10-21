@@ -33,8 +33,9 @@ export class AccessIntelligenceSecurityTasksService {
     organizationId: OrganizationId,
     apps: LEGACY_ApplicationHealthReportDetailWithCriticalFlagAndCipher[],
   ): Promise<number> {
+    // Only create tasks for CRITICAL applications with at-risk passwords
     const cipherIds = apps
-      .filter((_) => _.atRiskPasswordCount > 0)
+      .filter((_) => _.isMarkedAsCritical && _.atRiskPasswordCount > 0)
       .flatMap((app) => app.atRiskCipherIds);
 
     const distinctCipherIds = Array.from(new Set(cipherIds));

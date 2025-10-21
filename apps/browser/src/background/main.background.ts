@@ -21,6 +21,7 @@ import {
   AuthRequestServiceAbstraction,
   DefaultAuthRequestApiService,
   DefaultLockService,
+  DefaultLogoutService,
   InternalUserDecryptionOptionsServiceAbstraction,
   LoginEmailServiceAbstraction,
   LogoutReason,
@@ -976,6 +977,7 @@ export default class MainBackground {
       this.restrictedItemTypesService,
     );
 
+    const logoutService = new DefaultLogoutService(this.messagingService);
     this.vaultTimeoutService = new VaultTimeoutService(
       this.accountService,
       this.masterPasswordService,
@@ -994,7 +996,7 @@ export default class MainBackground {
       this.logService,
       this.biometricsService,
       lockedCallback,
-      logoutCallback,
+      logoutService,
     );
     this.containerService = new ContainerService(this.keyService, this.encryptService);
 
@@ -1386,6 +1388,7 @@ export default class MainBackground {
       this.serverNotificationsService,
       this.accountService,
       this.vaultTimeoutSettingsService,
+      logoutService,
     );
 
     this.usernameGenerationService = legacyUsernameGenerationServiceFactory(
