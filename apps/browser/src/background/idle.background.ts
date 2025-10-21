@@ -1,5 +1,6 @@
 import { firstValueFrom } from "rxjs";
 
+import { LogoutService } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import {
   VaultTimeoutAction,
@@ -8,6 +9,7 @@ import {
   VaultTimeoutStringType,
 } from "@bitwarden/common/key-management/vault-timeout";
 import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
+import { UserId } from "@bitwarden/user-core";
 
 const IdleInterval = 60 * 5; // 5 minutes
 
@@ -21,6 +23,7 @@ export default class IdleBackground {
     private serverNotificationsService: ServerNotificationsService,
     private accountService: AccountService,
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
+    private logoutService: LogoutService,
   ) {
     this.idle = chrome.idle || (browser != null ? browser.idle : null);
   }
@@ -61,7 +64,7 @@ export default class IdleBackground {
                   this.vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$(userId),
                 );
                 if (action === VaultTimeoutAction.LogOut) {
-                  await this.vaultTimeoutService.logOut(userId);
+                  await this.logoutService.logout(userId as UserId, "vaultTimeout");
                 } else {
                   await this.vaultTimeoutService.lock(userId);
                 }
