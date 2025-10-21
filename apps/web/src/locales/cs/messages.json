@@ -35,6 +35,9 @@
       }
     }
   },
+  "noReportRan": {
+    "message": "Zatím jste nevytvořili hlášení"
+  },
   "notifiedMembers": {
     "message": "Obeznámení členové"
   },
@@ -87,8 +90,8 @@
   "assignMembersTasksToMonitorProgress": {
     "message": "Přiřadit úkoly členů ke sledování průběhu"
   },
-  "onceYouReviewApplications": {
-    "message": "Jakmile zkontrolujete a označíte aplikace jako kritické, zobrazí se zde."
+  "onceYouReviewApps": {
+    "message": "Jakmile zkontrolujete aplikace a označíte je jako kritické, můžete přidělit členům úkoly k řešení ohrožených položek a sledovat průběh zde"
   },
   "sendReminders": {
     "message": "Odeslat připomenutí"
@@ -184,8 +187,23 @@
   "markAppAsCritical": {
     "message": "Označit aplikaci jako kritickou"
   },
+  "markAsCritical": {
+    "message": "Označit jako kritické"
+  },
+  "applicationsSelected": {
+    "message": "vybraných aplikací"
+  },
+  "selectApplication": {
+    "message": "Vybrat aplikaci"
+  },
+  "unselectApplication": {
+    "message": "Zrušit výběr aplikace"
+  },
   "applicationsMarkedAsCriticalSuccess": {
     "message": "Aplikace označené jako kritické"
+  },
+  "applicationsMarkedAsCriticalFail": {
+    "message": "Nepodařilo se označit aplikace jako kritické"
   },
   "application": {
     "message": "Aplikace"
@@ -273,6 +291,33 @@
   },
   "totalApplications": {
     "message": "Celkem aplikací"
+  },
+  "applicationsNeedingReview": {
+    "message": "Aplikace, které vyžadují kontrolu"
+  },
+  "newApplicationsWithCount": {
+    "message": "$COUNT$ nových aplikací",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "13"
+      }
+    }
+  },
+  "newApplicationsDescription": {
+    "message": "Zkontrolujte nové aplikace a označte je jako kritické a udržujte v bezpečí Vaši organizaci"
+  },
+  "reviewNow": {
+    "message": "Zkontrolovat nyní"
+  },
+  "prioritizeCriticalApplications": {
+    "message": "Upřednostnit kritické aplikace"
+  },
+  "atRiskItems": {
+    "message": "Položky v ohrožení"
+  },
+  "markAsCriticalPlaceholder": {
+    "message": "Funkce označení jako kritické bude implementována v budoucí aktualizaci"
   },
   "unmarkAsCritical": {
     "message": "Zrušit označení jako kritické"
@@ -1247,6 +1292,9 @@
   },
   "readingPasskeyLoadingInfo": {
     "message": "Ponechte toto okno otevřené a postupujte podle dotazů z Vašeho prohlížeče."
+  },
+  "passkeyAuthenticationFailed": {
+    "message": "Ověření přístupového klíče se nezdařilo. Zkuste to znovu."
   },
   "useADifferentLogInMethod": {
     "message": "Použít jinou metodu přihlášení"
@@ -2902,6 +2950,9 @@
   "makeSureEnoughCredit": {
     "message": "Ujistěte se, že je na Vašem účtu dostatečný kredit pro provedení tohoto nákupu. Nemáte-li na účtu dostatečný kredit, bude pro doplacení rozdílu použita Vaše výchozí platební metoda. Kredit si můžete navýšit prostřednictvím stránky Fakturace."
   },
+  "notEnoughAccountCredit": {
+    "message": "Pro tento nákup nemáte na účtu dostatek prostředků. Prostředky na účet můžete přidat na stránce Fakturace."
+  },
   "creditAppliedDesc": {
     "message": "Pro nákupy bude použit kredit z Vašeho účtu. Jakýkoli dostupný kredit bude automaticky použit pro faktury vystavené pro tento účet."
   },
@@ -4309,6 +4360,9 @@
   },
   "generatingYourRiskInsights": {
     "message": "Generování poznatků o rizicích..."
+  },
+  "riskInsightsRunReport": {
+    "message": "Spustit hlášení"
   },
   "updateBrowserDesc": {
     "message": "Používáte nepodporovaný webový prohlížeč. Webový trezor nemusí pracovat správně."
@@ -9960,6 +10014,9 @@
   "crowdstrikeEventIntegrationDesc": {
     "message": "Odeslat data události do Vaší instance Logscale"
   },
+  "datadogEventIntegrationDesc": {
+    "message": "Odeslat data o trezoru do Vaší instance Datadog"
+  },
   "failedToSaveIntegration": {
     "message": "Nepodařilo se uložit integraci. Opakujte akci později."
   },
@@ -11237,11 +11294,46 @@
     "message": "Archivovat",
     "description": "Verb"
   },
+  "unArchive": {
+    "message": "Odebrat z archivu"
+  },
+  "itemsInArchive": {
+    "message": "Položky v archivu"
+  },
   "noItemsInArchive": {
     "message": "Žádné položky v archivu"
   },
-  "archivedItemsDescription": {
+  "noItemsInArchiveDesc": {
     "message": "Zde se zobrazí archivované položky a budou vyloučeny z obecných výsledků vyhledávání a návrhů automatického vyplňování."
+  },
+  "itemWasSentToArchive": {
+    "message": "Položka byla přesunuta do archivu"
+  },
+  "itemsWereSentToArchive": {
+    "message": "Položky byly přesunuty do archivu"
+  },
+  "itemUnarchived": {
+    "message": "Položka byla odebrána z archivu"
+  },
+  "bulkArchiveItems": {
+    "message": "Archivované položky"
+  },
+  "bulkUnarchiveItems": {
+    "message": "Položky odebrané z archivu"
+  },
+  "archiveItem": {
+    "message": "Archivovat položku",
+    "description": "Verb"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Archivované položky jsou vyloučeny z obecných výsledků vyhledávání a z návrhů automatického vyplňování. Jste si jisti, že chcete tuto položku archivovat?"
+  },
+  "archiveBulkItems": {
+    "message": "Archivovat položky",
+    "description": "Verb"
+  },
+  "archiveBulkItemsConfirmDesc": {
+    "message": "Archivované položky jsou vyloučeny z obecných výsledků vyhledávání a z návrhů automatického vyplňování. Jste si jisti, že chcete tyto položky archivovat?"
   },
   "businessUnit": {
     "message": "Obchodní jednotka"
@@ -11713,5 +11805,56 @@
   },
   "seamlessIntegration": {
     "message": "Hladká integrace"
+  },
+  "families": {
+    "message": "Rodiny"
+  },
+  "upgradeToFamilies": {
+    "message": "Aktualizovat na Rodiny"
+  },
+  "upgradeToPremium": {
+    "message": "Aktualizovat na Premium"
+  },
+  "familiesUpdated": {
+    "message": "Aktualizovali jste na Rodiny!"
+  },
+  "taxCalculationError": {
+    "message": "Došlo k chybě při výpočtu daně pro Vaši polohu. Zkuste to znovu."
+  },
+  "individualUpgradeWelcomeMessage": {
+    "message": "Vítejte v Bitwardenu"
+  },
+  "individualUpgradeDescriptionMessage": {
+    "message": "Odemkněte více bezpečnostních funkcí s lidencí Premium, nebo začněte sdílet položky s Rodinami"
+  },
+  "individualUpgradeTaxInformationMessage": {
+    "message": "Ceny nezahrnují daň a účtují se každoročně."
+  },
+  "organizationNameDescription": {
+    "message": "Název Vaší organizace se zobrazí v pozvánkách, které posíláte členům."
+  },
+  "continueWithoutUpgrading": {
+    "message": "Pokračovat bez aktualizace"
+  },
+  "upgradeYourPlan": {
+    "message": "Aktualizovat plán"
+  },
+  "upgradeNow": {
+    "message": "Aktualizovat nyní"
+  },
+  "formWillCreateNewFamiliesOrgMessage": {
+    "message": "Vyplněním tohoto formuláře vytvoříte novou organizaci Rodin. Můžete vylepšit svou bezplatnou organizaci z konzole správce."
+  },
+  "upgradeErrorMessage": {
+    "message": "Při zpracování aktualizace došlo k chybě. Zkuste to znovu."
+  },
+  "bitwardenFreeplanMessage": {
+    "message": "Máte bezplatný plán Bitwarden"
+  },
+  "upgradeCompleteSecurity": {
+    "message": "Aktualizujte pro úplné zabezpečení"
+  },
+  "viewbusinessplans": {
+    "message": "Zobrazit obchodní plány"
   }
 }

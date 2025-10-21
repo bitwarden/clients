@@ -2549,6 +2549,9 @@
       }
     }
   },
+  "vaultCustomTimeoutMinimum": {
+    "message": "Minsta anpassade tidsgräns är 1 minut."
+  },
   "inviteAccepted": {
     "message": "Inbjudan accepterad"
   },
@@ -4111,7 +4114,7 @@
     "message": "Bitwarden validerar inte inmatningsplatser, så se till att du är i rätt fönster och fält innan du använder genvägen."
   },
   "typeShortcut": {
-    "message": "Type shortcut"
+    "message": "Inmatningsgenväg"
   },
   "editAutotypeShortcutDescription": {
     "message": "Inkludera en eller två av följande modifierare: Ctrl, Alt, Win, eller Skift och en bokstav."
@@ -4133,9 +4136,9 @@
     "message": "Bekräfta"
   },
   "enableAutotypeShortcutPreview": {
-    "message": "Enable autotype shortcut (Feature Preview)"
+    "message": "Aktivera inmatningsgenväg (förhandsvisning av funktion)"
   },
-  "enableAutotypeDescriptionTransitionKey": {
+  "enableAutotypeShortcutDescription": {
     "message": "Försäkra dig om att du befinner dig i rätt fält innan du använder genvägen för att undvika att fylla i data på fel ställe."
   },
   "editShortcut": {
@@ -4149,8 +4152,8 @@
     "message": "Arkivera",
     "description": "Verb"
   },
-  "unarchive": {
-    "message": "Packa upp"
+  "unArchive": {
+    "message": "Avarkivera"
   },
   "itemsInArchive": {
     "message": "Objekt i arkivet"
@@ -4161,11 +4164,11 @@
   "noItemsInArchiveDesc": {
     "message": "Arkiverade objekt kommer att visas här och kommer att uteslutas från allmänna sökresultat och förslag för autofyll."
   },
-  "itemSentToArchive": {
-    "message": "Objekt skickat till arkiv"
+  "itemWasSentToArchive": {
+    "message": "Objektet skickades till arkivet"
   },
-  "itemRemovedFromArchive": {
-    "message": "Objekt borttaget från arkiv"
+  "itemUnarchived": {
+    "message": "Objektet har avarkiverats"
   },
   "archiveItem": {
     "message": "Arkivera objekt"

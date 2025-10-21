@@ -90,8 +90,8 @@
   "assignMembersTasksToMonitorProgress": {
     "message": "Assign members tasks to monitor progress"
   },
-  "onceYouReviewApplications": {
-    "message": "Once you review applications and mark them as critical, they will display here."
+  "onceYouReviewApps": {
+    "message": "Once you review applications and mark them as critical, you can assign tasks to members to resolve at-risk items and monitor progress here"
   },
   "sendReminders": {
     "message": "Send reminders"
@@ -186,6 +186,18 @@
   },
   "markAppAsCritical": {
     "message": "Mark app as critical"
+  },
+  "markAsCritical": {
+    "message": "Mark as critical"
+  },
+  "applicationsSelected": {
+    "message": "applications selected"
+  },
+  "selectApplication": {
+    "message": "Select application"
+  },
+  "unselectApplication": {
+    "message": "Unselect application"
   },
   "applicationsMarkedAsCriticalSuccess": {
     "message": "Applications marked as critical"
@@ -297,6 +309,15 @@
   },
   "reviewNow": {
     "message": "Review now"
+  },
+  "prioritizeCriticalApplications": {
+    "message": "Prioritize critical applications"
+  },
+  "atRiskItems": {
+    "message": "At-risk items"
+  },
+  "markAsCriticalPlaceholder": {
+    "message": "Mark as critical functionality will be implemented in a future update"
   },
   "unmarkAsCritical": {
     "message": "Unmark as critical"
@@ -2929,6 +2950,9 @@
   },
   "makeSureEnoughCredit": {
     "message": "Please make sure that your account has enough credit available for this purchase. If your account does not have enough credit available, your default payment method on file will be used for the difference. You can add credit to your account from the Billing page."
+  },
+  "notEnoughAccountCredit": {
+    "message": "You do not have enough account credit for this purchase. You can add credit to your account from the Billing page."
   },
   "creditAppliedDesc": {
     "message": "Your account's credit can be used to make purchases. Any available credit will be automatically applied towards invoices generated for this account."
@@ -11004,6 +11028,15 @@
   "domainClaimed": {
     "message": "Domain claimed"
   },
+  "itemAddedToFavorites": {
+    "message": "Item added to favorites"
+  },
+  "itemRemovedFromFavorites": {
+    "message": "Item removed from favorites"
+  },
+  "copyNote": {
+    "message": "Copy note"
+  },
   "organizationNameMaxLength": {
     "message": "Organization name cannot exceed 50 characters."
   },
@@ -11274,11 +11307,46 @@
     "message": "Archive",
     "description": "Verb"
   },
+  "unArchive": {
+    "message": "Unarchive"
+  },
+  "itemsInArchive": {
+    "message": "Items in archive"
+  },
   "noItemsInArchive": {
     "message": "No items in archive"
   },
-  "archivedItemsDescription": {
+  "noItemsInArchiveDesc": {
     "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+  },
+  "itemWasSentToArchive": {
+    "message": "Item was sent to archive"
+  },
+  "itemsWereSentToArchive": {
+    "message": "Items were sent to archive"
+  },
+  "itemUnarchived": {
+    "message": "Item was unarchived"
+  },
+  "bulkArchiveItems": {
+    "message": "Items archived"
+  },
+  "bulkUnarchiveItems": {
+    "message": "Items unarchived"
+  },
+  "archiveItem": {
+    "message": "Archive item",
+    "description": "Verb"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+  },
+  "archiveBulkItems": {
+    "message": "Archive items",
+    "description": "Verb"
+  },
+  "archiveBulkItemsConfirmDesc": {
+    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive these items?"
   },
   "businessUnit": {
     "message": "Business Unit"
@@ -11781,7 +11849,25 @@
   "continueWithoutUpgrading": {
     "message": "Continue without upgrading"
   },
+  "upgradeYourPlan": {
+    "message": "Upgrade your plan"
+  },
+  "upgradeNow": {
+    "message": "Upgrade now"
+  },
+  "formWillCreateNewFamiliesOrgMessage": {
+    "message": "Completing this form will create a new Families organization. You can upgrade your Free organization from the Admin Console."
+  },
   "upgradeErrorMessage": {
     "message": "We encountered an error while processing your upgrade. Please try again."
+  },
+  "bitwardenFreeplanMessage": {
+    "message": "You have the Bitwarden Free plan"
+  },
+  "upgradeCompleteSecurity": {
+    "message": "Upgrade for complete security"
+  },
+  "viewbusinessplans": {
+    "message": "View business plans"
   }
 }

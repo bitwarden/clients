@@ -2549,6 +2549,9 @@
       }
     }
   },
+  "vaultCustomTimeoutMinimum": {
+    "message": "Minimum custom timeout is 1 minute."
+  },
   "inviteAccepted": {
     "message": "ההזמנה התקבלה"
   },
@@ -4135,8 +4138,8 @@
   "enableAutotypeShortcutPreview": {
     "message": "Enable autotype shortcut (Feature Preview)"
   },
-  "enableAutotypeDescriptionTransitionKey": {
-    "message": "וודא שאתה נמצא בשדה הנכון לפני השימוש בקיצור הדרך כדי להימנע ממילוי נתונים במקום הלא נכון."
+  "enableAutotypeShortcutDescription": {
+    "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."
   },
   "editShortcut": {
     "message": "ערוך קיצור דרך"
@@ -4149,7 +4152,7 @@
     "message": "Archive",
     "description": "Verb"
   },
-  "unarchive": {
+  "unArchive": {
     "message": "Unarchive"
   },
   "itemsInArchive": {
@@ -4161,11 +4164,11 @@
   "noItemsInArchiveDesc": {
     "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
   },
-  "itemSentToArchive": {
-    "message": "Item sent to archive"
+  "itemWasSentToArchive": {
+    "message": "Item was sent to archive"
   },
-  "itemRemovedFromArchive": {
-    "message": "Item removed from archive"
+  "itemUnarchived": {
+    "message": "Item was unarchived"
   },
   "archiveItem": {
     "message": "Archive item"

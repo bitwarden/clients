@@ -35,6 +35,9 @@
       }
     }
   },
+  "noReportRan": {
+    "message": "Још увек нисте направили извештај"
+  },
   "notifiedMembers": {
     "message": "Обавештени чланови"
   },
@@ -87,8 +90,8 @@
   "assignMembersTasksToMonitorProgress": {
     "message": "Доделите задатке чланова да прате напредак"
   },
-  "onceYouReviewApplications": {
-    "message": "Једном када прегледате апликације и означите их као критичне, оне ће се овде приказати."
+  "onceYouReviewApps": {
+    "message": "Када прегледате апликације и означите их као критичне, можете доделити задатке члановима за решавање ризичних ставки и пратити напредак овде"
   },
   "sendReminders": {
     "message": "Пошаљи подсетнике"
@@ -184,8 +187,23 @@
   "markAppAsCritical": {
     "message": "Означите апликацију као критичну"
   },
+  "markAsCritical": {
+    "message": "Постави као критично"
+  },
+  "applicationsSelected": {
+    "message": "applications selected"
+  },
+  "selectApplication": {
+    "message": "Бирање апликације"
+  },
+  "unselectApplication": {
+    "message": "Скини одабирања апликације"
+  },
   "applicationsMarkedAsCriticalSuccess": {
     "message": "Апликације означене као критичне"
+  },
+  "applicationsMarkedAsCriticalFail": {
+    "message": "Означавање апликација као критичних није успело"
   },
   "application": {
     "message": "Апликација"
@@ -273,6 +291,33 @@
   },
   "totalApplications": {
     "message": "Укупно апликација"
+  },
+  "applicationsNeedingReview": {
+    "message": "Апликације које треба прегледати"
+  },
+  "newApplicationsWithCount": {
+    "message": "$COUNT$ new applications",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "13"
+      }
+    }
+  },
+  "newApplicationsDescription": {
+    "message": "Прегледајте нове апликације да бисте их означили као критичне и заштитили своју организацију"
+  },
+  "reviewNow": {
+    "message": "Прегледај сада"
+  },
+  "prioritizeCriticalApplications": {
+    "message": "Дајте приоритет критичним апликацијама"
+  },
+  "atRiskItems": {
+    "message": "Ставке под ризиком"
+  },
+  "markAsCriticalPlaceholder": {
+    "message": "Означи као критичну функционалност ће бити имплементирана у будућем ажурирању"
   },
   "unmarkAsCritical": {
     "message": "Уклони као критично"
@@ -1247,6 +1292,9 @@
   },
   "readingPasskeyLoadingInfo": {
     "message": "Држите овај прозор отворен и пратите упутства из прегледача."
+  },
+  "passkeyAuthenticationFailed": {
+    "message": "Потврда приступачног кључа није успела. Покушајте поново."
   },
   "useADifferentLogInMethod": {
     "message": "Користи други начин пријављивања"
@@ -2902,6 +2950,9 @@
   "makeSureEnoughCredit": {
     "message": "Уверите се да је на вашем рачуну доступно довољно кредита за ову куповину. Ако на вашем рачуну нема довољно кредита, за разлику ће се користити ваш подразумевани начин плаћања у евиденцији. На свој рачун можете да додате кредит на страници Обрачун."
   },
+  "notEnoughAccountCredit": {
+    "message": "Немате довољно кредита на рачуну за ову куповину. Можете да додате кредит на свој налог са странице Обрачун."
+  },
   "creditAppliedDesc": {
     "message": "Кредит вашег рачуна може се користити за куповину. Сав расположиви кредит аутоматски ће се применити на фактуре генерисане за овај рачун."
   },
@@ -4309,6 +4360,9 @@
   },
   "generatingYourRiskInsights": {
     "message": "Генерисање прегледа вашег ризика..."
+  },
+  "riskInsightsRunReport": {
+    "message": "Покрените извештај"
   },
   "updateBrowserDesc": {
     "message": "Користите неподржани веб прегледач. Веб сеф можда неће правилно функционисати."
@@ -9960,6 +10014,9 @@
   "crowdstrikeEventIntegrationDesc": {
     "message": "Пошаљите податке о догађају на вашу инстанцу Logscale-а"
   },
+  "datadogEventIntegrationDesc": {
+    "message": "Send vault event data to your Datadog instance"
+  },
   "failedToSaveIntegration": {
     "message": "Није успело сачувавање интеграције. Покушајте поново касније."
   },
@@ -11237,11 +11294,46 @@
     "message": "Архива",
     "description": "Verb"
   },
+  "unArchive": {
+    "message": "Unarchive"
+  },
+  "itemsInArchive": {
+    "message": "Items in archive"
+  },
   "noItemsInArchive": {
     "message": "Нема ставка у архиви"
   },
-  "archivedItemsDescription": {
-    "message": "Архивиране ставке ће се овде појавити и бити искључени из општих резултата претраге и сугестија о ауто-пуњењу."
+  "noItemsInArchiveDesc": {
+    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+  },
+  "itemWasSentToArchive": {
+    "message": "Item was sent to archive"
+  },
+  "itemsWereSentToArchive": {
+    "message": "Items were sent to archive"
+  },
+  "itemUnarchived": {
+    "message": "Item was unarchived"
+  },
+  "bulkArchiveItems": {
+    "message": "Items archived"
+  },
+  "bulkUnarchiveItems": {
+    "message": "Items unarchived"
+  },
+  "archiveItem": {
+    "message": "Archive item",
+    "description": "Verb"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+  },
+  "archiveBulkItems": {
+    "message": "Archive items",
+    "description": "Verb"
+  },
+  "archiveBulkItemsConfirmDesc": {
+    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive these items?"
   },
   "businessUnit": {
     "message": "Пословна јединица"
@@ -11713,5 +11805,56 @@
   },
   "seamlessIntegration": {
     "message": "Бешавна интеграција"
+  },
+  "families": {
+    "message": "Families"
+  },
+  "upgradeToFamilies": {
+    "message": "Upgrade to Families"
+  },
+  "upgradeToPremium": {
+    "message": "Upgrade to Premium"
+  },
+  "familiesUpdated": {
+    "message": "You've upgraded to Families!"
+  },
+  "taxCalculationError": {
+    "message": "There was an error calculating tax for your location. Please try again."
+  },
+  "individualUpgradeWelcomeMessage": {
+    "message": "Welcome to Bitwarden"
+  },
+  "individualUpgradeDescriptionMessage": {
+    "message": "Unlock more security features with Premium, or start sharing items with Families"
+  },
+  "individualUpgradeTaxInformationMessage": {
+    "message": "Prices exclude tax and are billed annually."
+  },
+  "organizationNameDescription": {
+    "message": "Your organization name will appear in invitations you send to members."
+  },
+  "continueWithoutUpgrading": {
+    "message": "Continue without upgrading"
+  },
+  "upgradeYourPlan": {
+    "message": "Upgrade your plan"
+  },
+  "upgradeNow": {
+    "message": "Upgrade now"
+  },
+  "formWillCreateNewFamiliesOrgMessage": {
+    "message": "Completing this form will create a new Families organization. You can upgrade your Free organization from the Admin Console."
+  },
+  "upgradeErrorMessage": {
+    "message": "We encountered an error while processing your upgrade. Please try again."
+  },
+  "bitwardenFreeplanMessage": {
+    "message": "You have the Bitwarden Free plan"
+  },
+  "upgradeCompleteSecurity": {
+    "message": "Upgrade for complete security"
+  },
+  "viewbusinessplans": {
+    "message": "View business plans"
   }
 }

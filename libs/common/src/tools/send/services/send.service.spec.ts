@@ -86,6 +86,7 @@ describe("SendService", () => {
     decryptedState.nextState([testSendViewData("1", "Test Send")]);
 
     sendService = new SendService(
+      accountService,
       keyService,
       i18nService,
       keyGenerationService,

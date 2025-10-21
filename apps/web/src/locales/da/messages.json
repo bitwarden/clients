@@ -35,6 +35,9 @@
       }
     }
   },
+  "noReportRan": {
+    "message": "You have not created a report yet"
+  },
   "notifiedMembers": {
     "message": "Underrettede medlemmer"
   },
@@ -87,8 +90,8 @@
   "assignMembersTasksToMonitorProgress": {
     "message": "Assign members tasks to monitor progress"
   },
-  "onceYouReviewApplications": {
-    "message": "Once you review applications and mark them as critical, they will display here."
+  "onceYouReviewApps": {
+    "message": "Once you review applications and mark them as critical, you can assign tasks to members to resolve at-risk items and monitor progress here"
   },
   "sendReminders": {
     "message": "Send reminders"
@@ -184,8 +187,23 @@
   "markAppAsCritical": {
     "message": "Markér app som kritisk"
   },
+  "markAsCritical": {
+    "message": "Mark as critical"
+  },
+  "applicationsSelected": {
+    "message": "applications selected"
+  },
+  "selectApplication": {
+    "message": "Select application"
+  },
+  "unselectApplication": {
+    "message": "Unselect application"
+  },
   "applicationsMarkedAsCriticalSuccess": {
     "message": "Applications marked as critical"
+  },
+  "applicationsMarkedAsCriticalFail": {
+    "message": "Failed to mark applications as critical"
   },
   "application": {
     "message": "Applikation"
@@ -273,6 +291,33 @@
   },
   "totalApplications": {
     "message": "Applikationer i alt"
+  },
+  "applicationsNeedingReview": {
+    "message": "Applications needing review"
+  },
+  "newApplicationsWithCount": {
+    "message": "$COUNT$ new applications",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "13"
+      }
+    }
+  },
+  "newApplicationsDescription": {
+    "message": "Review new applications to mark as critical and keep your organization secure"
+  },
+  "reviewNow": {
+    "message": "Review now"
+  },
+  "prioritizeCriticalApplications": {
+    "message": "Prioritize critical applications"
+  },
+  "atRiskItems": {
+    "message": "At-risk items"
+  },
+  "markAsCriticalPlaceholder": {
+    "message": "Mark as critical functionality will be implemented in a future update"
   },
   "unmarkAsCritical": {
     "message": "Unmark as critical"
@@ -1247,6 +1292,9 @@
   },
   "readingPasskeyLoadingInfo": {
     "message": "Hold dette vindue åbent, og følg prompterne fra webbrowseren."
+  },
+  "passkeyAuthenticationFailed": {
+    "message": "Passkey authentication failed. Please try again."
   },
   "useADifferentLogInMethod": {
     "message": "Benyt en anden login-metode"
@@ -2902,6 +2950,9 @@
   "makeSureEnoughCredit": {
     "message": "Sørg for, at din konto har tilstrækkelig indestående til rådighed for dette køb. Hvis din konto ikke har tilstrækkelig indestående til rådighed, bruges din normale betalingsmetode til at dække forskellen. Du kan indbetale til din konto på faktureringssiden."
   },
+  "notEnoughAccountCredit": {
+    "message": "You do not have enough account credit for this purchase. You can add credit to your account from the Billing page."
+  },
   "creditAppliedDesc": {
     "message": "Din kontos indestående kan bruges til at foretage køb. Ledig indestående vil automatisk blive anvendt til fakturaer for denne konto."
   },
@@ -4309,6 +4360,9 @@
   },
   "generatingYourRiskInsights": {
     "message": "Generating your Risk Insights..."
+  },
+  "riskInsightsRunReport": {
+    "message": "Run report"
   },
   "updateBrowserDesc": {
     "message": "Du bruger en ikke-understøttet webbrowser. Web-boksen fungerer muligvis ikke korrekt."
@@ -9960,6 +10014,9 @@
   "crowdstrikeEventIntegrationDesc": {
     "message": "Send event data to your Logscale instance"
   },
+  "datadogEventIntegrationDesc": {
+    "message": "Send vault event data to your Datadog instance"
+  },
   "failedToSaveIntegration": {
     "message": "Failed to save integration. Please try again later."
   },
@@ -11237,11 +11294,46 @@
     "message": "Archive",
     "description": "Verb"
   },
+  "unArchive": {
+    "message": "Unarchive"
+  },
+  "itemsInArchive": {
+    "message": "Items in archive"
+  },
   "noItemsInArchive": {
     "message": "No items in archive"
   },
-  "archivedItemsDescription": {
+  "noItemsInArchiveDesc": {
     "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+  },
+  "itemWasSentToArchive": {
+    "message": "Item was sent to archive"
+  },
+  "itemsWereSentToArchive": {
+    "message": "Items were sent to archive"
+  },
+  "itemUnarchived": {
+    "message": "Item was unarchived"
+  },
+  "bulkArchiveItems": {
+    "message": "Items archived"
+  },
+  "bulkUnarchiveItems": {
+    "message": "Items unarchived"
+  },
+  "archiveItem": {
+    "message": "Archive item",
+    "description": "Verb"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+  },
+  "archiveBulkItems": {
+    "message": "Archive items",
+    "description": "Verb"
+  },
+  "archiveBulkItemsConfirmDesc": {
+    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive these items?"
   },
   "businessUnit": {
     "message": "Business Unit"
@@ -11713,5 +11805,56 @@
   },
   "seamlessIntegration": {
     "message": "Seamless integration"
+  },
+  "families": {
+    "message": "Families"
+  },
+  "upgradeToFamilies": {
+    "message": "Upgrade to Families"
+  },
+  "upgradeToPremium": {
+    "message": "Upgrade to Premium"
+  },
+  "familiesUpdated": {
+    "message": "You've upgraded to Families!"
+  },
+  "taxCalculationError": {
+    "message": "There was an error calculating tax for your location. Please try again."
+  },
+  "individualUpgradeWelcomeMessage": {
+    "message": "Welcome to Bitwarden"
+  },
+  "individualUpgradeDescriptionMessage": {
+    "message": "Unlock more security features with Premium, or start sharing items with Families"
+  },
+  "individualUpgradeTaxInformationMessage": {
+    "message": "Prices exclude tax and are billed annually."
+  },
+  "organizationNameDescription": {
+    "message": "Your organization name will appear in invitations you send to members."
+  },
+  "continueWithoutUpgrading": {
+    "message": "Continue without upgrading"
+  },
+  "upgradeYourPlan": {
+    "message": "Upgrade your plan"
+  },
+  "upgradeNow": {
+    "message": "Upgrade now"
+  },
+  "formWillCreateNewFamiliesOrgMessage": {
+    "message": "Completing this form will create a new Families organization. You can upgrade your Free organization from the Admin Console."
+  },
+  "upgradeErrorMessage": {
+    "message": "We encountered an error while processing your upgrade. Please try again."
+  },
+  "bitwardenFreeplanMessage": {
+    "message": "You have the Bitwarden Free plan"
+  },
+  "upgradeCompleteSecurity": {
+    "message": "Upgrade for complete security"
+  },
+  "viewbusinessplans": {
+    "message": "View business plans"
   }
 }

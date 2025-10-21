@@ -1,130 +1,132 @@
-<bit-section>
-  <h2 *ngIf="!isSelfHost" bitTypography="h2">{{ "goPremium" | i18n }}</h2>
-  <bit-callout
-    type="info"
-    *ngIf="hasPremiumFromAnyOrganization$ | async"
-    title="{{ 'youHavePremiumAccess' | i18n }}"
-    icon="bwi bwi-star-f"
-  >
-    {{ "alreadyPremiumFromOrg" | i18n }}
-  </bit-callout>
-  <bit-callout type="success">
-    <p>{{ "premiumUpgradeUnlockFeatures" | i18n }}</p>
-    <ul class="bwi-ul">
-      <li>
-        <i class="bwi bwi-check tw-text-success bwi-li" aria-hidden="true"></i>
-        {{ "premiumSignUpStorage" | i18n }}
-      </li>
-      <li>
-        <i class="bwi bwi-check tw-text-success bwi-li" aria-hidden="true"></i>
-        {{ "premiumSignUpTwoStepOptions" | i18n }}
-      </li>
-      <li>
-        <i class="bwi bwi-check tw-text-success bwi-li" aria-hidden="true"></i>
-        {{ "premiumSignUpEmergency" | i18n }}
-      </li>
-      <li>
-        <i class="bwi bwi-check tw-text-success bwi-li" aria-hidden="true"></i>
-        {{ "premiumSignUpReports" | i18n }}
-      </li>
-      <li>
-        <i class="bwi bwi-check tw-text-success bwi-li" aria-hidden="true"></i>
-        {{ "premiumSignUpTotp" | i18n }}
-      </li>
-      <li>
-        <i class="bwi bwi-check tw-text-success bwi-li" aria-hidden="true"></i>
-        {{ "premiumSignUpSupport" | i18n }}
-      </li>
-      <li>
-        <i class="bwi bwi-check tw-text-success bwi-li" aria-hidden="true"></i>
-        {{ "premiumSignUpFuture" | i18n }}
-      </li>
-    </ul>
-    <p bitTypography="body1" [ngClass]="{ 'tw-mb-0': !isSelfHost }">
-      {{
-        "premiumPriceWithFamilyPlan" | i18n: (premiumPrice | currency: "$") : familyPlanMaxUserCount
-      }}
-      <a
-        bitLink
-        linkType="primary"
-        routerLink="/create-organization"
-        [queryParams]="{ plan: 'families' }"
-      >
-        {{ "bitwardenFamiliesPlan" | i18n }}
-      </a>
-    </p>
-    <a
-      bitButton
-      href="{{ premiumURL }}"
-      target="_blank"
-      rel="noreferrer"
-      buttonType="secondary"
-      *ngIf="isSelfHost"
+<bit-container>
+  <bit-section>
+    <h2 *ngIf="!isSelfHost" bitTypography="h2">{{ "goPremium" | i18n }}</h2>
+    <bit-callout
+      type="info"
+      *ngIf="hasPremiumFromAnyOrganization$ | async"
+      title="{{ 'youHavePremiumAccess' | i18n }}"
+      icon="bwi bwi-star-f"
     >
-      {{ "purchasePremium" | i18n }}
-    </a>
-  </bit-callout>
-</bit-section>
-<bit-section *ngIf="isSelfHost">
-  <individual-self-hosting-license-uploader
-    (onLicenseFileUploaded)="onLicenseFileSelectedChanged()"
-  />
-</bit-section>
-<form *ngIf="!isSelfHost" [formGroup]="formGroup" [bitSubmit]="submitPayment">
-  <bit-section>
-    <h2 bitTypography="h2">{{ "addons" | i18n }}</h2>
-    <div class="tw-grid tw-grid-cols-12 tw-gap-4">
-      <bit-form-field class="tw-col-span-6">
-        <bit-label>{{ "additionalStorageGb" | i18n }}</bit-label>
-        <input
-          bitInput
-          formControlName="additionalStorage"
-          type="number"
-          step="1"
-          placeholder="{{ 'additionalStorageGbDesc' | i18n }}"
-        />
-        <bit-hint>{{
-          "additionalStorageIntervalDesc"
-            | i18n: "1 GB" : (storageGBPrice | currency: "$") : ("year" | i18n)
-        }}</bit-hint>
-      </bit-form-field>
-    </div>
-  </bit-section>
-  <bit-section>
-    <h2 bitTypography="h2">{{ "summary" | i18n }}</h2>
-    {{ "premiumMembership" | i18n }}: {{ premiumPrice | currency: "$" }} <br />
-    {{ "additionalStorageGb" | i18n }}: {{ formGroup.value.additionalStorage || 0 }} GB &times;
-    {{ storageGBPrice | currency: "$" }} =
-    {{ additionalStorageCost | currency: "$" }}
-    <hr class="tw-my-3" />
-  </bit-section>
-  <bit-section>
-    <h3 bitTypography="h2">{{ "paymentInformation" | i18n }}</h3>
-    <div class="tw-mb-4">
-      <app-enter-payment-method
-        [group]="formGroup.controls.paymentMethod"
-        [showBankAccount]="false"
-        [showAccountCredit]="true"
+      {{ "alreadyPremiumFromOrg" | i18n }}
+    </bit-callout>
+    <bit-callout type="success">
+      <p>{{ "premiumUpgradeUnlockFeatures" | i18n }}</p>
+      <ul class="bwi-ul">
+        <li>
+          <i class="bwi bwi-check tw-text-success bwi-li" aria-hidden="true"></i>
+          {{ "premiumSignUpStorage" | i18n }}
+        </li>
+        <li>
+          <i class="bwi bwi-check tw-text-success bwi-li" aria-hidden="true"></i>
+          {{ "premiumSignUpTwoStepOptions" | i18n }}
+        </li>
+        <li>
+          <i class="bwi bwi-check tw-text-success bwi-li" aria-hidden="true"></i>
+          {{ "premiumSignUpEmergency" | i18n }}
+        </li>
+        <li>
+          <i class="bwi bwi-check tw-text-success bwi-li" aria-hidden="true"></i>
+          {{ "premiumSignUpReports" | i18n }}
+        </li>
+        <li>
+          <i class="bwi bwi-check tw-text-success bwi-li" aria-hidden="true"></i>
+          {{ "premiumSignUpTotp" | i18n }}
+        </li>
+        <li>
+          <i class="bwi bwi-check tw-text-success bwi-li" aria-hidden="true"></i>
+          {{ "premiumSignUpSupport" | i18n }}
+        </li>
+        <li>
+          <i class="bwi bwi-check tw-text-success bwi-li" aria-hidden="true"></i>
+          {{ "premiumSignUpFuture" | i18n }}
+        </li>
+      </ul>
+      <p bitTypography="body1" [ngClass]="{ 'tw-mb-0': !isSelfHost }">
+        {{
+          "premiumPriceWithFamilyPlan"
+            | i18n: (premiumPrice | currency: "$") : familyPlanMaxUserCount
+        }}
+        <a
+          bitLink
+          linkType="primary"
+          routerLink="/create-organization"
+          [queryParams]="{ plan: 'families' }"
+        >
+          {{ "bitwardenFamiliesPlan" | i18n }}
+        </a>
+      </p>
+      <a
+        bitButton
+        href="{{ premiumURL }}"
+        target="_blank"
+        rel="noreferrer"
+        buttonType="secondary"
+        *ngIf="isSelfHost"
       >
-      </app-enter-payment-method>
-      <app-enter-billing-address
-        [group]="formGroup.controls.billingAddress"
-        [scenario]="{ type: 'checkout', supportsTaxId: false }"
-      >
-      </app-enter-billing-address>
-    </div>
-    <div class="tw-mb-4">
-      <div class="tw-text-muted tw-text-sm tw-flex tw-flex-col">
-        <span>{{ "planPrice" | i18n }}: {{ subtotal | currency: "USD $" }}</span>
-        <span>{{ "estimatedTax" | i18n }}: {{ estimatedTax | currency: "USD $" }}</span>
+        {{ "purchasePremium" | i18n }}
+      </a>
+    </bit-callout>
+  </bit-section>
+  <bit-section *ngIf="isSelfHost">
+    <individual-self-hosting-license-uploader
+      (onLicenseFileUploaded)="onLicenseFileSelectedChanged()"
+    />
+  </bit-section>
+  <form *ngIf="!isSelfHost" [formGroup]="formGroup" [bitSubmit]="submitPayment">
+    <bit-section>
+      <h2 bitTypography="h2">{{ "addons" | i18n }}</h2>
+      <div class="tw-grid tw-grid-cols-12 tw-gap-4">
+        <bit-form-field class="tw-col-span-6">
+          <bit-label>{{ "additionalStorageGb" | i18n }}</bit-label>
+          <input
+            bitInput
+            formControlName="additionalStorage"
+            type="number"
+            step="1"
+            placeholder="{{ 'additionalStorageGbDesc' | i18n }}"
+          />
+          <bit-hint>{{
+            "additionalStorageIntervalDesc"
+              | i18n: "1 GB" : (storageGBPrice | currency: "$") : ("year" | i18n)
+          }}</bit-hint>
+        </bit-form-field>
       </div>
-    </div>
-    <hr class="tw-my-1 tw-w-1/4 tw-ml-0" />
-    <p bitTypography="body1">
-      <strong>{{ "total" | i18n }}:</strong> {{ total | currency: "USD $" }}/{{ "year" | i18n }}
-    </p>
-    <button type="submit" buttonType="primary" bitButton bitFormButton>
-      {{ "submit" | i18n }}
-    </button>
-  </bit-section>
-</form>
+    </bit-section>
+    <bit-section>
+      <h2 bitTypography="h2">{{ "summary" | i18n }}</h2>
+      {{ "premiumMembership" | i18n }}: {{ premiumPrice | currency: "$" }} <br />
+      {{ "additionalStorageGb" | i18n }}: {{ formGroup.value.additionalStorage || 0 }} GB &times;
+      {{ storageGBPrice | currency: "$" }} =
+      {{ additionalStorageCost | currency: "$" }}
+      <hr class="tw-my-3" />
+    </bit-section>
+    <bit-section>
+      <h3 bitTypography="h2">{{ "paymentInformation" | i18n }}</h3>
+      <div class="tw-mb-4">
+        <app-enter-payment-method
+          [group]="formGroup.controls.paymentMethod"
+          [showBankAccount]="false"
+        >
+        </app-enter-payment-method>
+        <app-enter-billing-address
+          [group]="formGroup.controls.billingAddress"
+          [scenario]="{ type: 'checkout', supportsTaxId: false }"
+        >
+        </app-enter-billing-address>
+      </div>
+      <div class="tw-mb-4">
+        <div class="tw-text-muted tw-text-sm tw-flex tw-flex-col">
+          <span>{{ "planPrice" | i18n }}: {{ subtotal | currency: "USD $" }}</span>
+          <span>{{ "estimatedTax" | i18n }}: {{ estimatedTax | currency: "USD $" }}</span>
+        </div>
+      </div>
+      <hr class="tw-my-1 tw-w-1/4 tw-ml-0" />
+      <p bitTypography="body1">
+        <strong>{{ "total" | i18n }}:</strong> {{ total | currency: "USD $" }}/{{ "year" | i18n }}
+      </p>
+      <button type="submit" buttonType="primary" bitButton bitFormButton>
+        {{ "submit" | i18n }}
+      </button>
+    </bit-section>
+  </form>
+</bit-container>

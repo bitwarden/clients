@@ -35,6 +35,9 @@
       }
     }
   },
+  "noReportRan": {
+    "message": "Все още не сте създали нито един доклад"
+  },
   "notifiedMembers": {
     "message": "Известени членове"
   },
@@ -87,8 +90,8 @@
   "assignMembersTasksToMonitorProgress": {
     "message": "Назначете задачи на членовете, за да следите напредъка"
   },
-  "onceYouReviewApplications": {
-    "message": "Когато прегледате приложенията и ги отбележите като важни, те ще се появят тук."
+  "onceYouReviewApps": {
+    "message": "След като прегледате приложенията и отбележите някои като важни, можете да зададете задачи на членовете, така че те да се занимаят с нещата в риск, а Вие да следите напредъка тук"
   },
   "sendReminders": {
     "message": "Изпращане на напомняния"
@@ -184,8 +187,23 @@
   "markAppAsCritical": {
     "message": "Отбелязване на приложението като важно"
   },
+  "markAsCritical": {
+    "message": "Отбелязване като важно"
+  },
+  "applicationsSelected": {
+    "message": "избрани приложения"
+  },
+  "selectApplication": {
+    "message": "Select application"
+  },
+  "unselectApplication": {
+    "message": "Unselect application"
+  },
   "applicationsMarkedAsCriticalSuccess": {
     "message": "Applications marked as critical"
+  },
+  "applicationsMarkedAsCriticalFail": {
+    "message": "Приложенията не успяха да бъдат отбелязани като важни"
   },
   "application": {
     "message": "Приложение"
@@ -273,6 +291,33 @@
   },
   "totalApplications": {
     "message": "Общо приложения"
+  },
+  "applicationsNeedingReview": {
+    "message": "Приложения, които имат нужда от преглед"
+  },
+  "newApplicationsWithCount": {
+    "message": "$COUNT$ нови приложения",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "13"
+      }
+    }
+  },
+  "newApplicationsDescription": {
+    "message": "Прегледайте новите приложения, за да ги отбележите като важни, ако е необходимо – така ще се затвърдите сигурността на организацията си"
+  },
+  "reviewNow": {
+    "message": "Преглеждане сега"
+  },
+  "prioritizeCriticalApplications": {
+    "message": "Даване на приоритет на важните приложения"
+  },
+  "atRiskItems": {
+    "message": "Елементи в риск"
+  },
+  "markAsCriticalPlaceholder": {
+    "message": "Функционалността за отбелязване на нещо като важно ще бъде добавена в бъдеща версия"
   },
   "unmarkAsCritical": {
     "message": "Премахване от важните"
@@ -1247,6 +1292,9 @@
   },
   "readingPasskeyLoadingInfo": {
     "message": "Дръжте този прозорец отворен и следвайте инструкциите в браузъра си."
+  },
+  "passkeyAuthenticationFailed": {
+    "message": "Удостоверяването чрез секретен ключ беше неуспешно. Моля, опитайте отново."
   },
   "useADifferentLogInMethod": {
     "message": "Използване на друг метод на вписване"
@@ -2902,6 +2950,9 @@
   "makeSureEnoughCredit": {
     "message": "Проверете дали към абонамента си имате достатъчно средства за тази покупка. В противен случай разликата от наличното и необходимото се изисква от основния ви метод за плащане, който сте задали."
   },
+  "notEnoughAccountCredit": {
+    "message": "Нямате достатъчно средства в акаунта за тази покупка. Можете да добавите средства в акаунта си на страницата за плащанията."
+  },
   "creditAppliedDesc": {
     "message": "Може да използвате кредитите към абонамента си за покупки. Кредитите се използват за покриването на издадените фактури към абонамента."
   },
@@ -4309,6 +4360,9 @@
   },
   "generatingYourRiskInsights": {
     "message": "Създаване на Вашата информация относно рисковете…"
+  },
+  "riskInsightsRunReport": {
+    "message": "Изпълнение на доклада"
   },
   "updateBrowserDesc": {
     "message": "Ползвате неподдържан браузър. Трезорът по уеб може да не сработи правилно."
@@ -7096,7 +7150,7 @@
     }
   },
   "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
-    "message": "Ще бъдат изнесени само записите от трезора свързан с $ORGANIZATION$. Моите колекции няма да бъдат включени.",
+    "message": "Ще бъдат изнесени само записите от трезора свързан с $ORGANIZATION$. Колекциите от вида „Моите записи“ няма да бъдат включени.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -9960,6 +10014,9 @@
   "crowdstrikeEventIntegrationDesc": {
     "message": "Изпращане на данни за събитията до Вашата инстанция на Logscale"
   },
+  "datadogEventIntegrationDesc": {
+    "message": "Изпращане на данните за събитията в трезора към Вашата инсталация на Datadog"
+  },
   "failedToSaveIntegration": {
     "message": "Интеграцията не беше запазена. Опитайте отново по-късно."
   },
@@ -11237,11 +11294,46 @@
     "message": "Архивиране",
     "description": "Verb"
   },
+  "unArchive": {
+    "message": "Изваждане от архива"
+  },
+  "itemsInArchive": {
+    "message": "Елементи в архива"
+  },
   "noItemsInArchive": {
     "message": "Няма елементи в архива"
   },
-  "archivedItemsDescription": {
+  "noItemsInArchiveDesc": {
     "message": "Архивираните елементи ще се показват тук и ще бъдат изключени от общите резултати при търсене и от предложенията за автоматично попълване."
+  },
+  "itemWasSentToArchive": {
+    "message": "Елементът беше преместен в архива"
+  },
+  "itemsWereSentToArchive": {
+    "message": "Елементите бяха преместени в архива"
+  },
+  "itemUnarchived": {
+    "message": "Елементът беше изваден от архива"
+  },
+  "bulkArchiveItems": {
+    "message": "Елементите са архивирани"
+  },
+  "bulkUnarchiveItems": {
+    "message": "Елементите са извадени от архива"
+  },
+  "archiveItem": {
+    "message": "Архивиране на елемента",
+    "description": "Verb"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Архивираните елементи са изключени от общите резултати при търсене и от предложенията за автоматично попълване. Наистина ли искате да архивирате този елемент?"
+  },
+  "archiveBulkItems": {
+    "message": "Архивиране на елементите",
+    "description": "Verb"
+  },
+  "archiveBulkItemsConfirmDesc": {
+    "message": "Архивираните елементи са изключени от общите резултати при търсене и от предложенията за автоматично попълване. Наистина ли искате да архивирате тези елементи?"
   },
   "businessUnit": {
     "message": "Бизнес единица"
@@ -11713,5 +11805,56 @@
   },
   "seamlessIntegration": {
     "message": "Безпроблемна интеграция"
+  },
+  "families": {
+    "message": "Семейства"
+  },
+  "upgradeToFamilies": {
+    "message": "Надградете до Семейния план"
+  },
+  "upgradeToPremium": {
+    "message": "Надградете до Платения план"
+  },
+  "familiesUpdated": {
+    "message": "Вече ползвате Семейния абонамент!"
+  },
+  "taxCalculationError": {
+    "message": "Възникна грешка при изчисляването на данъка за Вашето местоположение. Моля, опитайте отново."
+  },
+  "individualUpgradeWelcomeMessage": {
+    "message": "Добре дошли в Битуорден"
+  },
+  "individualUpgradeDescriptionMessage": {
+    "message": "Отключете още функционалности свързани със сигурността, с Платения план; или започнете да споделяте данните в трезора си със Семейния план"
+  },
+  "individualUpgradeTaxInformationMessage": {
+    "message": "Цените не включват данък и се заплащат веднъж годишно."
+  },
+  "organizationNameDescription": {
+    "message": "Името на организацията Ви ще се вижда в поканите за присъединяване, които изпращате."
+  },
+  "continueWithoutUpgrading": {
+    "message": "Продължаване без надграждане"
+  },
+  "upgradeYourPlan": {
+    "message": "Надградете плана си"
+  },
+  "upgradeNow": {
+    "message": "Надграждане сега"
+  },
+  "formWillCreateNewFamiliesOrgMessage": {
+    "message": "Чрез попълването на този формуляр ще създадете нова Семейна организация. Можете да надградите безплатната си организация от Администраторската конзола."
+  },
+  "upgradeErrorMessage": {
+    "message": "Възникна грешка при надграждането. Моля, опитайте отново."
+  },
+  "bitwardenFreeplanMessage": {
+    "message": "Имате безплатния план на Битуорден"
+  },
+  "upgradeCompleteSecurity": {
+    "message": "Надградете, за да се възползвате от пълна защита"
+  },
+  "viewbusinessplans": {
+    "message": "Преглед на плановете за компании"
   }
 }
