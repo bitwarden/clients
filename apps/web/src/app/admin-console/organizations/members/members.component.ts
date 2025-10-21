@@ -105,14 +105,14 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
   memberTab = MemberDialogTab;
   protected dataSource = new MembersTableDataSource();
 
-  organization: Signal<Organization | undefined>;
+  readonly organization: Signal<Organization | undefined>;
   status: OrganizationUserStatusType | undefined;
   orgResetPasswordPolicyEnabled = false;
 
-  protected canUseSecretsManager: Signal<boolean> = computed(
+  protected readonly canUseSecretsManager: Signal<boolean> = computed(
     () => this.organization()?.useSecretsManager ?? false,
   );
-  protected showUserManagementControls: Signal<boolean> = computed(
+  protected readonly showUserManagementControls: Signal<boolean> = computed(
     () => this.organization()?.canManageUsers ?? false,
   );
   private refreshBillingMetadata$: BehaviorSubject<null> = new BehaviorSubject(null);

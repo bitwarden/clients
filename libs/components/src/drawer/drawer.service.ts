@@ -3,7 +3,7 @@ import { Injectable, signal } from "@angular/core";
 
 @Injectable({ providedIn: "root" })
 export class DrawerService {
-  private _portal = signal<Portal<unknown> | undefined>(undefined);
+  private readonly _portal = signal<Portal<unknown> | undefined>(undefined);
 
   /** The portal to display */
   portal = this._portal.asReadonly();

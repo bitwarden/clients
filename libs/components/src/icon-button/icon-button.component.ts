@@ -81,6 +81,8 @@ const sizes: Record<IconButtonSize, string[]> = {
 
   * Similar to the main button components, spacing between multiple icon buttons should be .5rem.
  */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "button[bitIconButton]:not(button[bitButton])",
   templateUrl: "icon-button.component.html",
@@ -143,7 +145,7 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
     return [this.icon(), "!tw-m-0"];
   }
 
-  protected disabledAttr = computed(() => {
+  protected readonly disabledAttr = computed(() => {
     const disabled = this.disabled() != null && this.disabled() !== false;
     return disabled || this.loading();
   });
@@ -156,7 +158,7 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
    * We can't use `disabledAttr` for this, because it returns `true` when `loading` is `true`.
    * We only want to show disabled styles during loading if `showLoadingStyles` is `true`.
    */
-  protected showDisabledStyles = computed(() => {
+  protected readonly showDisabledStyles = computed(() => {
     return this.showLoadingStyle() || (this.disabledAttr() && this.loading() === false);
   });
 
@@ -174,7 +176,7 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
    * This pattern of converting a signal to an observable and back to a signal is not
    * recommended. TODO -- find better way to use debounce with signals (CL-596)
    */
-  protected showLoadingStyle = toSignal(
+  protected readonly showLoadingStyle = toSignal(
     toObservable(this.loading).pipe(debounce((isLoading) => interval(isLoading ? 75 : 0))),
   );
 

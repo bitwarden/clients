@@ -11849,12 +11849,12 @@
     "message": "Yüksəltmə prosesiniz emal olunarkən xəta ilə üzləşdik. Lütfən yenidən sınayın."
   },
   "bitwardenFreeplanMessage": {
-    "message": "You have the Bitwarden Free plan"
+    "message": "Bitwarden Ödənişsiz planınız var"
   },
   "upgradeCompleteSecurity": {
-    "message": "Upgrade for complete security"
+    "message": "Tam təhlükəsizlik üçün yüksəldin"
   },
   "viewbusinessplans": {
-    "message": "View business plans"
+    "message": "Biznes planlarına bax"
   }
 }

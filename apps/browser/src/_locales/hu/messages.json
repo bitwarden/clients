@@ -5714,5 +5714,9 @@
   },
   "confirmKeyConnectorDomain": {
     "message": "A Key Connector tartomány megerősítése"
+  },
+  "settingDisabledByPolicy": {
+    "message": "Ezt a beállítást a szervezet házirendje letiltotta.",
+    "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
   }
 }
