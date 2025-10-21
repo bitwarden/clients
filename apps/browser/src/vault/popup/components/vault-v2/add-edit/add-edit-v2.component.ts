@@ -169,6 +169,18 @@ export class AddEditV2Component implements OnInit {
     return this.config?.originalCipher?.id as CipherId;
   }
 
+  get cipher(): CipherView {
+    return new CipherView(this.config?.originalCipher);
+  }
+
+  get canCipherBeArchived(): boolean {
+    return this.cipher?.canBeArchived;
+  }
+
+  get isCipherArchived(): boolean {
+    return this.cipher?.isArchived;
+  }
+
   private fido2PopoutSessionData$ = fido2PopoutSessionData$();
   private fido2PopoutSessionData: Fido2SessionData;
 
@@ -179,6 +191,16 @@ export class AddEditV2Component implements OnInit {
   private get inSingleActionPopout() {
     return BrowserPopupUtils.inSingleActionPopout(window, VaultPopoutType.addEditVaultItem);
   }
+
+  protected archiveFlagEnabled$ = this.archiveService.hasArchiveFlagEnabled$();
+
+  /**
+   * Flag to indicate if the user can archive items.
+   * @protected
+   */
+  protected userCanArchive$ = this.accountService.activeAccount$.pipe(
+    switchMap((account) => this.archiveService.userCanArchive$(account.id)),
+  );
 
   constructor(
     private route: ActivatedRoute,
@@ -272,6 +294,10 @@ export class AddEditV2Component implements OnInit {
       await this.popupRouterCacheService.setHistory([]);
     }
     await BrowserApi.sendMessage("addEditCipherSubmitted");
+  }
+
+  get isEditMode(): boolean {
+    return ["edit", "partial-edit"].includes(this.config?.mode);
   }
 
   subscribeToParams(): void {
@@ -381,6 +407,58 @@ export class AddEditV2Component implements OnInit {
     };
     return this.i18nService.t(translation[type]);
   }
+
+  archive = async () => {
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: { key: "archiveItem" },
+      content: { key: "archiveItemConfirmDesc" },
+      type: "info",
+    });
+
+    if (!confirmed) {
+      return false;
+    }
+
+    try {
+      await this.archiveService.archiveWithServer(this.cipher.id as CipherId, activeUserId);
+      this.config.originalCipher.archivedDate = new Date();
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("itemWasSentToArchive"),
+      });
+    } catch (e) {
+      this.logService.error("Error archiving cipher", e);
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: this.i18nService.t("errorOccurred"),
+      });
+    }
+  };
+
+  unarchive = async () => {
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
+    try {
+      await this.archiveService.unarchiveWithServer(this.cipher.id as CipherId, activeUserId);
+      this.config.originalCipher.archivedDate = null;
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("itemUnarchived"),
+      });
+    } catch (e) {
+      this.logService.error("Error unarchiving cipher", e);
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: this.i18nService.t("errorOccurred"),
+      });
+    }
+  };
 
   delete = async () => {
     const confirmed = await this.dialogService.openSimpleDialog({

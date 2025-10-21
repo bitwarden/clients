@@ -258,13 +258,11 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     return this.showCipherView && !this.isTrashFilter && !this.showRestore;
   }
 
-  protected get showDelete() {
-    // Don't show the delete button when cloning a cipher
-    if (this.params.mode == "form" && this.formConfig.mode === "clone") {
+  protected get showFooterButtons() {
+    // Don't show the footer buttons for new ciphers or when cloning a cipher
+    if (this.cipher == null || (this.params.mode == "form" && this.formConfig.mode === "clone")) {
       return false;
     }
-    // Never show the delete button for new ciphers
-    return this.cipher != null;
   }
 
   protected get showCipherView() {
