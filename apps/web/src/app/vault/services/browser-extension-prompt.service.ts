@@ -66,10 +66,9 @@ export class BrowserExtensionPromptService {
   async openExtension(url: string, setManualErrorTimeout = false) {
     if (url == VaultMessages.OpenAtRiskPasswords) {
       window.postMessage({ command: url });
+    } else {
+      await this.webBrowserInteractionService.openExtension(ExtensionPageUrls[url]);
     }
-
-    await this.webBrowserInteractionService.openExtension(ExtensionPageUrls[url]);
-
     // Optionally, configure timeout to show the manual open error state if
     // the extension does not open within one second.
     if (setManualErrorTimeout) {
