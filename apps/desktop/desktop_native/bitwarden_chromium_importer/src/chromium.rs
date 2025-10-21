@@ -108,7 +108,7 @@ pub async fn import_logins(
     Ok(results)
 }
 
-pub fn configure_windows_crypto_service(admin_exe_path: &String) {
+pub fn configure_windows_crypto_service(admin_exe_path: &str) {
     platform::configure_windows_crypto_service(admin_exe_path);
 }
 
