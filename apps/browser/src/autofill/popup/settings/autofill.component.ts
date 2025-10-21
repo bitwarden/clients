@@ -26,6 +26,7 @@ import {
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
 import { SpotlightComponent } from "@bitwarden/angular/vault/components/spotlight/spotlight.component";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import {
@@ -140,6 +141,8 @@ export class AutofillComponent implements OnInit {
     defaultUriMatch: new FormControl(),
   });
 
+  protected isDefaultUriMatchDisabledByPolicy = false;
+
   advancedOptionWarningMap: Partial<Record<UriMatchStrategySetting, string>>;
   enableAutofillOnPageLoad: boolean = false;
   enableInlineMenu: boolean = false;
@@ -174,6 +177,7 @@ export class AutofillComponent implements OnInit {
     private accountService: AccountService,
     private autofillBrowserSettingsService: AutofillBrowserSettingsService,
     private restrictedItemTypesService: RestrictedItemTypesService,
+    private policyService: PolicyService,
   ) {
     this.autofillOnPageLoadOptions = [
       { name: this.i18nService.t("autoFillOnPageLoadYes"), value: true },
@@ -302,13 +306,15 @@ export class AutofillComponent implements OnInit {
     });
 
     const defaultUriMatch = await firstValueFrom(
-      this.domainSettingsService.defaultUriMatchStrategy$,
+      this.domainSettingsService.resolvedDefaultUriMatchStrategy$,
     );
     this.defaultUriMatch = defaultUriMatch == null ? UriMatchStrategy.Domain : defaultUriMatch;
 
     this.additionalOptionsForm.controls.defaultUriMatch.patchValue(this.defaultUriMatch, {
       emitEvent: false,
     });
+
+    this.applyUriMatchPolicy();
 
     this.additionalOptionsForm.controls.enableContextMenuItem.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -523,6 +529,20 @@ export class AutofillComponent implements OnInit {
     this.defaultBrowserAutofillDisabled = true;
     await this.updateDefaultBrowserAutofillDisabled();
   };
+
+  private applyUriMatchPolicy() {
+    this.domainSettingsService.defaultUriMatchStrategyPolicy$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => {
+        if (value !== null) {
+          this.isDefaultUriMatchDisabledByPolicy = true;
+          this.additionalOptionsForm.controls.defaultUriMatch.disable({ emitEvent: false });
+        } else {
+          this.isDefaultUriMatchDisabledByPolicy = false;
+          this.additionalOptionsForm.controls.defaultUriMatch.enable({ emitEvent: false });
+        }
+      });
+  }
 
   private async handleAdvancedMatch(
     previous: UriMatchStrategySetting | null,

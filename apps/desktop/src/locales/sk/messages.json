@@ -1223,7 +1223,7 @@
     "message": "Neplatné hlavné heslo"
   },
   "invalidMasterPasswordConfirmEmailAndHost": {
-    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "message": "Neplatné hlavné heslo. Potvrďte, že váš e-mail je správny a účet bol vytvorený na $HOST$.",
     "placeholders": {
       "host": {
         "content": "$1",
@@ -2548,6 +2548,9 @@
         "example": "5"
       }
     }
+  },
+  "vaultCustomTimeoutMinimum": {
+    "message": "Minimálny vlastný časový limit je 1 minúta."
   },
   "inviteAccepted": {
     "message": "Pozvánka prijatá"
@@ -4135,7 +4138,7 @@
   "enableAutotypeShortcutPreview": {
     "message": "Povoliť skratku pre automatické vpisovanie (náhľad funkcie)"
   },
-  "enableAutotypeDescriptionTransitionKey": {
+  "enableAutotypeShortcutDescription": {
     "message": "Pred použitím skratky sa uistite, že sa nachádzate v správnom poli, aby ste údaje nevyplnili na nesprávne miesto."
   },
   "editShortcut": {
@@ -4149,7 +4152,7 @@
     "message": "Archivovať",
     "description": "Verb"
   },
-  "unarchive": {
+  "unArchive": {
     "message": "Zrušiť archiváciu"
   },
   "itemsInArchive": {
@@ -4161,10 +4164,10 @@
   "noItemsInArchiveDesc": {
     "message": "Tu sa zobrazia archivované položky, ktoré budú vylúčené zo všeobecného vyhľadávania a z návrhov automatického vypĺňania."
   },
-  "itemSentToArchive": {
+  "itemWasSentToArchive": {
     "message": "Položka bola archivovaná"
   },
-  "itemRemovedFromArchive": {
+  "itemUnarchived": {
     "message": "Položka bola odobraná z archívu"
   },
   "archiveItem": {

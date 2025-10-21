@@ -1223,7 +1223,7 @@
     "message": "Palavra-passe mestra inválida"
   },
   "invalidMasterPasswordConfirmEmailAndHost": {
-    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "message": "Palavra-passe mestra inválida. Confirme se o seu e-mail está correto e se a sua conta foi criada em $HOST$.",
     "placeholders": {
       "host": {
         "content": "$1",
@@ -2549,6 +2549,9 @@
       }
     }
   },
+  "vaultCustomTimeoutMinimum": {
+    "message": "O tempo limite mínimo personalizado é de 1 minuto."
+  },
   "inviteAccepted": {
     "message": "Convite aceite"
   },
@@ -2664,7 +2667,7 @@
     }
   },
   "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
-    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "message": "Apenas o cofre da organização associado a $ORGANIZATION$ será exportado.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2673,7 +2676,7 @@
     }
   },
   "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
-    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "message": "Apenas o cofre da organização associado a $ORGANIZATION$ será exportado. As coleções dos meus itens não serão incluídas.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4135,7 +4138,7 @@
   "enableAutotypeShortcutPreview": {
     "message": "Ativar o atalho de digitação automática (Pré-visualização da funcionalidade)"
   },
-  "enableAutotypeDescriptionTransitionKey": {
+  "enableAutotypeShortcutDescription": {
     "message": "Certifique-se de que está no campo correto antes de utilizar o atalho para evitar preencher dados no local errado."
   },
   "editShortcut": {
@@ -4149,7 +4152,7 @@
     "message": "Arquivar",
     "description": "Verb"
   },
-  "unarchive": {
+  "unArchive": {
     "message": "Desarquivar"
   },
   "itemsInArchive": {
@@ -4161,11 +4164,11 @@
   "noItemsInArchiveDesc": {
     "message": "Os itens arquivados aparecerão aqui e serão excluídos dos resultados gerais da pesquisa e das sugestões de preenchimento automático."
   },
-  "itemSentToArchive": {
-    "message": "Item movido para o arquivo"
+  "itemWasSentToArchive": {
+    "message": "O item foi movido para o arquivo"
   },
-  "itemRemovedFromArchive": {
-    "message": "Item removido do arquivo"
+  "itemUnarchived": {
+    "message": "O item foi desarquivado"
   },
   "archiveItem": {
     "message": "Arquivar item"

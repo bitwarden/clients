@@ -558,7 +558,7 @@
     "message": "Archivovať",
     "description": "Verb"
   },
-  "unarchive": {
+  "unArchive": {
     "message": "Zrušiť archiváciu"
   },
   "itemsInArchive": {
@@ -570,10 +570,10 @@
   "noItemsInArchiveDesc": {
     "message": "Tu sa zobrazia archivované položky, ktoré budú vylúčené zo všeobecného vyhľadávania a z návrhov automatického vypĺňania."
   },
-  "itemSentToArchive": {
+  "itemWasSentToArchive": {
     "message": "Položka bola archivovaná"
   },
-  "itemRemovedFromArchive": {
+  "itemUnarchived": {
     "message": "Položka bola odobraná z archívu"
   },
   "archiveItem": {
@@ -734,7 +734,7 @@
     "message": "Neplatné hlavné heslo"
   },
   "invalidMasterPasswordConfirmEmailAndHost": {
-    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "message": "Neplatné hlavné heslo. Potvrďte, že váš e-mail je správny a účet bol vytvorený na $HOST$.",
     "placeholders": {
       "host": {
         "content": "$1",
@@ -1547,6 +1547,15 @@
   },
   "readSecurityKey": {
     "message": "Prečítať bezpečnostný kľúč"
+  },
+  "readingPasskeyLoading": {
+    "message": "Načítava sa prístupový kľúč…"
+  },
+  "passkeyAuthenticationFailed": {
+    "message": "Overenie prístupovým kľúčom zlyhalo"
+  },
+  "useADifferentLogInMethod": {
+    "message": "Použiť iný spôsob prihlásenia"
   },
   "awaitingSecurityKeyInteraction": {
     "message": "Čaká sa na interakciu s bezpečnostným kľúčom..."
@@ -5570,17 +5579,37 @@
   "hasItemsVaultNudgeTitle": {
     "message": "Vitajte vo svojom trezore!"
   },
-  "phishingPageTitle": {
-    "message": "Phishingová webová stránka"
+  "phishingPageTitleV2": {
+    "message": "Bol zaznamenaný pokus o phising"
   },
-  "phishingPageCloseTab": {
-    "message": "Zavrieť kartu"
+  "phishingPageSummary": {
+    "message": "Stránka, ktorú sa pokúšate navštíviť je známa ako podvodná stránka a nesie bezpečnostné riziko."
   },
-  "phishingPageContinue": {
-    "message": "Pokračovať"
+  "phishingPageCloseTabV2": {
+    "message": "Zatvoriť túto kartu"
   },
-  "phishingPageLearnWhy": {
-    "message": "Prečo to vidíte?"
+  "phishingPageContinueV2": {
+    "message": "Pokračovať na stránku (neodporúča sa)"
+  },
+  "phishingPageExplanation1": {
+    "message": "Táto stránka sa našla v ",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name follows this."
+  },
+  "phishingPageExplanation2": {
+    "message": ", otvorený zoznam známych phisingových stránok, ktoré sa používajú na krádež osobných a citlivých informácií.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name precedes this."
+  },
+  "phishingPageLearnMore": {
+    "message": "Viac informácií o detekcii phishingu"
+  },
+  "protectedBy": {
+    "message": "Chráni $PRODUCT$",
+    "placeholders": {
+      "product": {
+        "content": "$1",
+        "example": "Bitwarden Phishing Blocker"
+      }
+    }
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Položky na automatické vypĺňanie pre aktuálnu stránku"
@@ -5685,5 +5714,9 @@
   },
   "confirmKeyConnectorDomain": {
     "message": "Potvrdiť doménu Key Connectora"
+  },
+  "settingDisabledByPolicy": {
+    "message": "Politika organizácie vypla toto nastavenie.",
+    "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
   }
 }

@@ -19,38 +19,47 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { AccountService as AccountServiceAbstraction } from "@bitwarden/common/auth/abstractions/account.service";
 import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength/password-strength.service.abstraction";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+
+import { DefaultAdminTaskService } from "../../vault/services/default-admin-task.service";
 
 import { AccessIntelligenceRoutingModule } from "./access-intelligence-routing.module";
 import { RiskInsightsComponent } from "./risk-insights.component";
+import { AccessIntelligenceSecurityTasksService } from "./shared/security-tasks.service";
 
 @NgModule({
   imports: [RiskInsightsComponent, AccessIntelligenceRoutingModule],
   providers: [
-    {
+    safeProvider({
       provide: MemberCipherDetailsApiService,
+      useClass: MemberCipherDetailsApiService,
       deps: [ApiService],
-    },
-    {
+    }),
+    safeProvider({
       provide: PasswordHealthService,
+      useClass: PasswordHealthService,
       deps: [PasswordStrengthServiceAbstraction, AuditService],
-    },
-    {
+    }),
+    safeProvider({
       provide: RiskInsightsApiService,
+      useClass: RiskInsightsApiService,
       deps: [ApiService],
-    },
-    {
+    }),
+    safeProvider({
       provide: RiskInsightsReportService,
+      useClass: RiskInsightsReportService,
       deps: [
         CipherService,
         MemberCipherDetailsApiService,
+        PasswordHealthService,
         RiskInsightsApiService,
         RiskInsightsEncryptionService,
-        PasswordHealthService,
       ],
-    },
+    }),
     safeProvider({
       provide: RiskInsightsDataService,
       deps: [
@@ -78,12 +87,17 @@ import { RiskInsightsComponent } from "./risk-insights.component";
     safeProvider({
       provide: AllActivitiesService,
       useClass: AllActivitiesService,
-      deps: [],
+      deps: [RiskInsightsDataService],
     }),
     safeProvider({
       provide: SecurityTasksApiService,
       useClass: SecurityTasksApiService,
       deps: [ApiService],
+    }),
+    safeProvider({
+      provide: AccessIntelligenceSecurityTasksService,
+      useClass: AccessIntelligenceSecurityTasksService,
+      deps: [AllActivitiesService, DefaultAdminTaskService, ToastService, I18nService],
     }),
   ],
 })

@@ -260,12 +260,19 @@ export class AddEditComponent implements OnInit, OnDestroy {
       });
 
       if (this.editMode) {
-        this.sendService
-          .get$(this.sendId)
+        this.accountService.activeAccount$
           .pipe(
-            //Promise.reject will complete the BehaviourSubject, if desktop starts relying only on BehaviourSubject, this should be changed.
-            concatMap((s) =>
-              s instanceof Send ? s.decrypt() : Promise.reject(new Error("Failed to load send.")),
+            getUserId,
+            switchMap((userId) =>
+              this.sendService
+                .get$(this.sendId)
+                .pipe(
+                  concatMap((s) =>
+                    s instanceof Send
+                      ? s.decrypt(userId)
+                      : Promise.reject(new Error("Failed to load send.")),
+                  ),
+                ),
             ),
             takeUntil(this.destroy$),
           )

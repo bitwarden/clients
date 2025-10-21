@@ -9,7 +9,7 @@ import {
 import {
   ApplicationHealthReportDetail,
   OrganizationReportSummary,
-  RiskInsightsReportData,
+  RiskInsightsData,
 } from "../models/report-models";
 import { MemberCipherDetailsResponse } from "../response/member-cipher-details.response";
 
@@ -40,7 +40,7 @@ export function getTrimmedCipherUris(cipher: CipherView): string[] {
 
   const uniqueDomains = new Set<string>();
 
-  uris.forEach((u: { uri: string }) => {
+  uris.forEach((u: { uri: string | undefined }) => {
     const domain = Utils.getDomain(u.uri) ?? u.uri;
     uniqueDomains.add(domain);
   });
@@ -154,10 +154,12 @@ export function getApplicationReportDetail(
  *
  * @returns An empty report
  */
-export function createNewReportData(): RiskInsightsReportData {
+export function createNewReportData(): RiskInsightsData {
   return {
-    data: [],
-    summary: createNewSummaryData(),
+    creationDate: new Date(),
+    reportData: [],
+    summaryData: createNewSummaryData(),
+    applicationData: [],
   };
 }
 

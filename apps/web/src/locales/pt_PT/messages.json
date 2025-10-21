@@ -35,6 +35,9 @@
       }
     }
   },
+  "noReportRan": {
+    "message": "Ainda não criou um relatório"
+  },
   "notifiedMembers": {
     "message": "Membros notificados"
   },
@@ -59,8 +62,42 @@
   "createNewLoginItem": {
     "message": "Criar nova credencial"
   },
+  "percentageCompleted": {
+    "message": "$PERCENT$% concluído",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
+  "securityTasksCompleted": {
+    "message": "$COUNT$ de $TOTAL$ tarefas de segurança concluídas",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "total": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "passwordChangeProgress": {
+    "message": "Progresso da alteração da palavra-passe"
+  },
+  "assignMembersTasksToMonitorProgress": {
+    "message": "Atribuir tarefas aos membros para monitorizar o progresso"
+  },
+  "onceYouReviewApps": {
+    "message": "Depois de analisar as aplicações e marcá-las como críticas, pode atribuir tarefas aos membros para resolver itens em risco e monitorizar o progresso aqui"
+  },
+  "sendReminders": {
+    "message": "Enviar lembretes"
+  },
   "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
-    "message": "Depois de marcar as aplicações como críticas, estas serão apresentadas aqui"
+    "message": "Depois de marcar as aplicações como críticas, estas serão apresentadas aqui."
   },
   "viewAtRiskMembers": {
     "message": "Ver membros em risco"
@@ -108,6 +145,15 @@
       }
     }
   },
+  "countOfAtRiskPasswords": {
+    "message": "$COUNT$ palavras-passe em risco",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "notifiedMembersWithCount": {
     "message": "Membros notificados ($COUNT$)",
     "placeholders": {
@@ -141,8 +187,23 @@
   "markAppAsCritical": {
     "message": "Marcar a app como crítica"
   },
+  "markAsCritical": {
+    "message": "Marcar como crítica"
+  },
+  "applicationsSelected": {
+    "message": "aplicações selecionadas"
+  },
+  "selectApplication": {
+    "message": "Selecionar aplicação"
+  },
+  "unselectApplication": {
+    "message": "Desmarcar aplicação"
+  },
   "applicationsMarkedAsCriticalSuccess": {
     "message": "Aplicações marcadas como críticas"
+  },
+  "applicationsMarkedAsCriticalFail": {
+    "message": "Falha ao marcar aplicações como críticas"
   },
   "application": {
     "message": "Aplicação"
@@ -162,8 +223,8 @@
   "atRiskMembers": {
     "message": "Membros em risco"
   },
-  "membersAtRiskActivityDescription": {
-    "message": "Membros com acesso de edição a itens em risco para aplicações críticas"
+  "membersWithAccessToAtRiskItemsForCriticalApps": {
+    "message": "Membros com acesso a itens em risco para aplicações críticas"
   },
   "membersAtRiskCount": {
     "message": "$COUNT$ membros em risco",
@@ -230,6 +291,33 @@
   },
   "totalApplications": {
     "message": "Todas de aplicações"
+  },
+  "applicationsNeedingReview": {
+    "message": "Aplicações que necessitam de análise"
+  },
+  "newApplicationsWithCount": {
+    "message": "$COUNT$ novas aplicações",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "13"
+      }
+    }
+  },
+  "newApplicationsDescription": {
+    "message": "Analise novas aplicações para marcar como críticas e manter a sua organização segura"
+  },
+  "reviewNow": {
+    "message": "Analisar agora"
+  },
+  "prioritizeCriticalApplications": {
+    "message": "Dê prioridade a aplicações críticas"
+  },
+  "atRiskItems": {
+    "message": "Itens em risco"
+  },
+  "markAsCriticalPlaceholder": {
+    "message": "A funcionalidade marcada como crítica será implementada numa atualização futura"
   },
   "unmarkAsCritical": {
     "message": "Desmarcar como crítica"
@@ -1205,6 +1293,9 @@
   "readingPasskeyLoadingInfo": {
     "message": "Mantenha esta janela aberta e siga as indicações do seu navegador."
   },
+  "passkeyAuthenticationFailed": {
+    "message": "Falha na autenticação da chave de acesso. Por favor, tente novamente."
+  },
   "useADifferentLogInMethod": {
     "message": "Utilizar um método de início de sessão diferente"
   },
@@ -1500,7 +1591,7 @@
     "message": "Palavra-passe mestra inválida"
   },
   "invalidMasterPasswordConfirmEmailAndHost": {
-    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "message": "Palavra-passe mestra inválida. Confirme se o seu e-mail está correto e se a sua conta foi criada em $HOST$.",
     "placeholders": {
       "host": {
         "content": "$1",
@@ -2858,6 +2949,9 @@
   },
   "makeSureEnoughCredit": {
     "message": "Por favor, certifique-se de que a sua conta tem crédito suficiente disponível para esta compra. Se a sua conta não tiver crédito suficiente disponível, será utilizado o seu método de pagamento predefinido registado para cobrir a diferença. Pode adicionar crédito à sua conta a partir da página de faturação."
+  },
+  "notEnoughAccountCredit": {
+    "message": "Não tem crédito suficiente na sua conta para esta compra. Pode adicionar crédito à sua conta na página Faturação."
   },
   "creditAppliedDesc": {
     "message": "O crédito da sua conta pode ser utilizado para efetuar compras. Qualquer crédito disponível será automaticamente aplicado às faturas geradas para esta conta."
@@ -4266,6 +4360,9 @@
   },
   "generatingYourRiskInsights": {
     "message": "A gerar as suas perceções de riscos..."
+  },
+  "riskInsightsRunReport": {
+    "message": "Executar relatório"
   },
   "updateBrowserDesc": {
     "message": "Está a utilizar um navegador web não suportado. O cofre web pode não funcionar corretamente."
@@ -7044,7 +7141,7 @@
     }
   },
   "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
-    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "message": "Apenas o cofre da organização associado a $ORGANIZATION$ será exportado.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -7053,7 +7150,7 @@
     }
   },
   "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
-    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "message": "Apenas o cofre da organização associado a $ORGANIZATION$ será exportado. As coleções dos meus itens não serão incluídas.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -7214,6 +7311,9 @@
   },
   "unknownSecret": {
     "message": "Segredo desconhecido, poderá ser necessário pedir autorização para aceder a este segredo."
+  },
+  "unknownServiceAccount": {
+    "message": "Conta automática desconhecida, poderá precisar de pedir autorização para aceder a esta conta automática."
   },
   "unknownProject": {
     "message": "Projeto desconhecido, poderá ser necessário pedir autorização para aceder a este projeto."
@@ -8565,8 +8665,8 @@
       }
     }
   },
-  "accessedProjectWithId": {
-    "message": "Acedeu a um projeto com o ID: $PROJECT_ID$.",
+  "accessedProjectWithIdentifier": {
+    "message": "Acedeu a um projeto com o identificador: $PROJECT_ID$.",
     "placeholders": {
       "project_id": {
         "content": "$1",
@@ -8592,10 +8692,89 @@
       }
     }
   },
+  "nameUnavailableServiceAccountDeleted": {
+    "message": "ID da conta automática eliminada: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "service_account_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
   "editedProjectWithId": {
     "message": "Editou um projeto com o identificador: $PROJECT_ID$",
     "placeholders": {
       "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "addedUserToServiceAccountWithId": {
+    "message": "Utilizador adicionado: $USER_ID$ à conta automática com o identificador: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "user_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "removedUserToServiceAccountWithId": {
+    "message": "Utilizador removido: $USER_ID$ da conta automática com o identificador: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "user_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "removedGroupFromServiceAccountWithId": {
+    "message": "Grupo removido: $GROUP_ID$ da conta automática com o identificador: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "group_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "serviceAccountCreatedWithId": {
+    "message": "Conta automática criada com o identificador: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "service_account_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "addedGroupToServiceAccountId": {
+    "message": "Grupo adicionado: $GROUP_ID$ à conta automática com o identificador: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "group_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "serviceAccountDeletedWithId": {
+    "message": "Conta automática eliminada com o identificador: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "service_account_id": {
         "content": "$1",
         "example": "4d34e8a8"
       }
@@ -9437,6 +9616,9 @@
   "assign": {
     "message": "Atribuir"
   },
+  "assignTasks": {
+    "message": "Atribuir tarefas"
+  },
   "assignToCollections": {
     "message": "Atribuir às coleções"
   },
@@ -9831,6 +10013,9 @@
   },
   "crowdstrikeEventIntegrationDesc": {
     "message": "Enviar dados de eventos para a sua instância Logscale"
+  },
+  "datadogEventIntegrationDesc": {
+    "message": "Envie dados de eventos do cofre para a sua instância da Datadog"
   },
   "failedToSaveIntegration": {
     "message": "Falha ao guardar a integração. Por favor, tente novamente mais tarde."
@@ -11109,11 +11294,46 @@
     "message": "Arquivar",
     "description": "Verb"
   },
+  "unArchive": {
+    "message": "Desarquivar"
+  },
+  "itemsInArchive": {
+    "message": "Itens no arquivo"
+  },
   "noItemsInArchive": {
     "message": "Nenhum item no arquivo"
   },
-  "archivedItemsDescription": {
+  "noItemsInArchiveDesc": {
     "message": "Os itens arquivados aparecerão aqui e serão excluídos dos resultados gerais da pesquisa e das sugestões de preenchimento automático."
+  },
+  "itemWasSentToArchive": {
+    "message": "O item foi movido para o arquivo"
+  },
+  "itemsWereSentToArchive": {
+    "message": "Os itens foram movidos para o arquivo"
+  },
+  "itemUnarchived": {
+    "message": "O item foi desarquivado"
+  },
+  "bulkArchiveItems": {
+    "message": "Itens arquivados"
+  },
+  "bulkUnarchiveItems": {
+    "message": "Itens desarquivados"
+  },
+  "archiveItem": {
+    "message": "Arquivar item",
+    "description": "Verb"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Os itens arquivados são excluídos dos resultados gerais da pesquisa e das sugestões de preenchimento automático. Tem a certeza de que pretende arquivar este item?"
+  },
+  "archiveBulkItems": {
+    "message": "Arquivar itens",
+    "description": "Verb"
+  },
+  "archiveBulkItemsConfirmDesc": {
+    "message": "Os itens arquivados são excluídos dos resultados gerais da pesquisa e das sugestões de preenchimento automático. Tem a certeza de que pretende arquivar estes itens?"
   },
   "businessUnit": {
     "message": "Unidade de negócio"
@@ -11585,5 +11805,56 @@
   },
   "seamlessIntegration": {
     "message": "Integração perfeita"
+  },
+  "families": {
+    "message": "Familiar"
+  },
+  "upgradeToFamilies": {
+    "message": "Atualizar para o Familiar"
+  },
+  "upgradeToPremium": {
+    "message": "Atualizar para o Premium"
+  },
+  "familiesUpdated": {
+    "message": "Atualizou para o Familiar!"
+  },
+  "taxCalculationError": {
+    "message": "Ocorreu um erro ao calcular o imposto para a sua localização. Por favor, tente novamente."
+  },
+  "individualUpgradeWelcomeMessage": {
+    "message": "Bem-vindo ao Bitwarden"
+  },
+  "individualUpgradeDescriptionMessage": {
+    "message": "Desbloqueie mais funcionalidades de segurança com o Premium ou comece a partilhar itens com o Familiar"
+  },
+  "individualUpgradeTaxInformationMessage": {
+    "message": "Os preços não incluem impostos e são cobrados anualmente."
+  },
+  "organizationNameDescription": {
+    "message": "O nome da sua organização aparecerá nos convites que enviar aos membros."
+  },
+  "continueWithoutUpgrading": {
+    "message": "Continuar sem atualizar"
+  },
+  "upgradeYourPlan": {
+    "message": "Atualize o seu plano"
+  },
+  "upgradeNow": {
+    "message": "Atualizar agora"
+  },
+  "formWillCreateNewFamiliesOrgMessage": {
+    "message": "Ao preencher este formulário, será criada uma nova organização Familiar. Pode atualizar a sua organização gratuita a partir da Consola de administração."
+  },
+  "upgradeErrorMessage": {
+    "message": "Ocorreu um erro durante o processamento da sua atualização. Por favor, tente novamente."
+  },
+  "bitwardenFreeplanMessage": {
+    "message": "Tem o plano gratuito do Bitwarden"
+  },
+  "upgradeCompleteSecurity": {
+    "message": "Atualize para segurança total"
+  },
+  "viewbusinessplans": {
+    "message": "Ver planos empresariais"
   }
 }

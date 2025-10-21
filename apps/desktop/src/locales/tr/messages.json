@@ -1223,7 +1223,7 @@
     "message": "Geçersiz ana parola"
   },
   "invalidMasterPasswordConfirmEmailAndHost": {
-    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "message": "Ana parola geçersiz. E-posta adresinizin doğru olduğunu ve hesabınızın $HOST$ üzerinde oluşturulduğunu kontrol edin.",
     "placeholders": {
       "host": {
         "content": "$1",
@@ -2548,6 +2548,9 @@
         "example": "5"
       }
     }
+  },
+  "vaultCustomTimeoutMinimum": {
+    "message": "Minimum özel zaman aşımı 1 dakikadır."
   },
   "inviteAccepted": {
     "message": "Davet kabul edildi"
@@ -4135,7 +4138,7 @@
   "enableAutotypeShortcutPreview": {
     "message": "Enable autotype shortcut (Feature Preview)"
   },
-  "enableAutotypeDescriptionTransitionKey": {
+  "enableAutotypeShortcutDescription": {
     "message": "Verilerin yanlış yere doldurulmasını önlemek için kısayolu kullanmadan önce doğru alanda olduğunuzdan emin olun."
   },
   "editShortcut": {
@@ -4149,7 +4152,7 @@
     "message": "Arşivle",
     "description": "Verb"
   },
-  "unarchive": {
+  "unArchive": {
     "message": "Arşivden çıkar"
   },
   "itemsInArchive": {
@@ -4161,11 +4164,11 @@
   "noItemsInArchiveDesc": {
     "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
   },
-  "itemSentToArchive": {
-    "message": "Item sent to archive"
+  "itemWasSentToArchive": {
+    "message": "Kayıt arşive gönderildi"
   },
-  "itemRemovedFromArchive": {
-    "message": "Item removed from archive"
+  "itemUnarchived": {
+    "message": "Kayıt arşivden çıkarıldı"
   },
   "archiveItem": {
     "message": "Archive item"

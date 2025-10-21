@@ -20,7 +20,7 @@
     "**/node_modules/@bitwarden/desktop-napi/index.js",
     "**/node_modules/@bitwarden/desktop-napi/desktop_napi.${platform}-${arch}*.node"
   ],
-  "electronVersion": "38.2.0",
+  "electronVersion": "36.9.3",
   "generateUpdatesFilesForAllChannels": true,
   "publish": {
     "provider": "generic",
@@ -106,6 +106,10 @@
       {
         "from": "desktop_native/dist/desktop_proxy.${platform}-${arch}",
         "to": "desktop_proxy"
+      },
+      {
+        "from": "desktop_native/dist/libprocess_isolation.so",
+        "to": "libprocess_isolation.so"
       }
     ],
     "target": ["deb", "freebsd", "rpm", "AppImage", "snap"],

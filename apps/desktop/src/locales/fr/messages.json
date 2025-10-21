@@ -1223,7 +1223,7 @@
     "message": "Mot de passe principal invalide"
   },
   "invalidMasterPasswordConfirmEmailAndHost": {
-    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "message": "Mot de passe principal invalide. Confirmez que votre adresse courriel est correcte et que votre compte a été créé sur $HOST$.",
     "placeholders": {
       "host": {
         "content": "$1",
@@ -2549,6 +2549,9 @@
       }
     }
   },
+  "vaultCustomTimeoutMinimum": {
+    "message": "Minimum custom timeout is 1 minute."
+  },
   "inviteAccepted": {
     "message": "Invitation acceptée"
   },
@@ -2664,7 +2667,7 @@
     }
   },
   "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
-    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "message": "Seul le coffre de l'organisation associé à $ORGANIZATION$ sera exporté.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2673,7 +2676,7 @@
     }
   },
   "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
-    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "message": "Seul le coffre de l'organisation associé à $ORGANIZATION$ sera exporté. Mes éléments de mes collections ne seront pas inclus.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4111,13 +4114,13 @@
     "message": "Bitwarden ne valide pas les emplacements d'entrée, assurez-vous d'être dans la bonne fenêtre et le bon champ avant d'utiliser le raccourci."
   },
   "typeShortcut": {
-    "message": "Type shortcut"
+    "message": "Saisir le raccourci"
   },
   "editAutotypeShortcutDescription": {
-    "message": "Include one or two of the following modifiers: Ctrl, Alt, Win, or Shift, and a letter."
+    "message": "Inclure un ou deux des modificateurs suivants : Ctrl, Alt, Win, ou Shift, et une lettre."
   },
   "invalidShortcut": {
-    "message": "Invalid shortcut"
+    "message": "Raccourci invalide"
   },
   "moreBreadcrumbs": {
     "message": "Plus de fil d'Ariane",
@@ -4133,9 +4136,9 @@
     "message": "Confirmer"
   },
   "enableAutotypeShortcutPreview": {
-    "message": "Enable autotype shortcut (Feature Preview)"
+    "message": "Activer le raccourci autotype (aperçu de la fonctionnalité)"
   },
-  "enableAutotypeDescriptionTransitionKey": {
+  "enableAutotypeShortcutDescription": {
     "message": "Assurez-vous d'être dans le bon champ avant d'utiliser le raccourci pour éviter de remplir les données au mauvais endroit."
   },
   "editShortcut": {
@@ -4146,11 +4149,11 @@
     "description": "Noun"
   },
   "archiveVerb": {
-    "message": "Archive",
+    "message": "Archiver",
     "description": "Verb"
   },
-  "unarchive": {
-    "message": "Désarchiver"
+  "unArchive": {
+    "message": "Unarchive"
   },
   "itemsInArchive": {
     "message": "Éléments dans l'archive"
@@ -4161,11 +4164,11 @@
   "noItemsInArchiveDesc": {
     "message": "Les éléments archivés apparaîtront ici et seront exclus des résultats de recherche généraux et des suggestions de remplissage automatique."
   },
-  "itemSentToArchive": {
-    "message": "Élément envoyé à l'archive"
+  "itemWasSentToArchive": {
+    "message": "Item was sent to archive"
   },
-  "itemRemovedFromArchive": {
-    "message": "Élément retiré de l'archive"
+  "itemUnarchived": {
+    "message": "Item was unarchived"
   },
   "archiveItem": {
     "message": "Archiver l'élément"

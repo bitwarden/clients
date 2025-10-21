@@ -558,7 +558,7 @@
     "message": "Archiwizuj",
     "description": "Verb"
   },
-  "unarchive": {
+  "unArchive": {
     "message": "Usuń z archiwum"
   },
   "itemsInArchive": {
@@ -570,10 +570,10 @@
   "noItemsInArchiveDesc": {
     "message": "Zarchiwizowane elementy pojawią się tutaj i zostaną wykluczone z wyników wyszukiwania i sugestii autouzupełniania."
   },
-  "itemSentToArchive": {
+  "itemWasSentToArchive": {
     "message": "Element został przeniesiony do archiwum"
   },
-  "itemRemovedFromArchive": {
+  "itemUnarchived": {
     "message": "Element został usunięty z archiwum"
   },
   "archiveItem": {
@@ -1548,6 +1548,15 @@
   "readSecurityKey": {
     "message": "Odczytaj klucz bezpieczeństwa"
   },
+  "readingPasskeyLoading": {
+    "message": "Odczytywanie klucza dostępu..."
+  },
+  "passkeyAuthenticationFailed": {
+    "message": "Passkey authentication failed"
+  },
+  "useADifferentLogInMethod": {
+    "message": "Użyj innej metody logowania"
+  },
   "awaitingSecurityKeyInteraction": {
     "message": "Oczekiwanie na klucz bezpieczeństwa..."
   },
@@ -2188,7 +2197,7 @@
     "description": "ex. Date this item was created"
   },
   "datePasswordUpdated": {
-    "message": "Hasło zostało zaktualizowane",
+    "message": "Ostatnia aktualizacja hasła",
     "description": "ex. Date this password was updated"
   },
   "neverLockWarning": {
@@ -3208,7 +3217,7 @@
     }
   },
   "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
-    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "message": "Tylko sejf organizacji $ORGANIZATION$ zostanie wyeksportowany.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3217,7 +3226,7 @@
     }
   },
   "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
-    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "message": "Tylko sejf organizacji $ORGANIZATION$ zostanie wyeksportowany. Twoje kolekcje nie zostaną uwzględnione.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -5570,17 +5579,37 @@
   "hasItemsVaultNudgeTitle": {
     "message": "Witaj w sejfie!"
   },
-  "phishingPageTitle": {
-    "message": "Witryna phishingowa"
+  "phishingPageTitleV2": {
+    "message": "Phishing attempt detected"
   },
-  "phishingPageCloseTab": {
+  "phishingPageSummary": {
+    "message": "The site you are attempting to visit is a known malicious site and a security risk."
+  },
+  "phishingPageCloseTabV2": {
     "message": "Zamknij kartę"
   },
-  "phishingPageContinue": {
-    "message": "Kontynuuj"
+  "phishingPageContinueV2": {
+    "message": "Continue to this site (not recommended)"
   },
-  "phishingPageLearnWhy": {
-    "message": "Dlaczego to widzę?"
+  "phishingPageExplanation1": {
+    "message": "This site was found in ",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name follows this."
+  },
+  "phishingPageExplanation2": {
+    "message": ", an open-source list of known phishing sites used for stealing personal and sensitive information.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name precedes this."
+  },
+  "phishingPageLearnMore": {
+    "message": "Learn more about phishing detection"
+  },
+  "protectedBy": {
+    "message": "Protected by $PRODUCT$",
+    "placeholders": {
+      "product": {
+        "content": "$1",
+        "example": "Bitwarden Phishing Blocker"
+      }
+    }
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Uzupełniaj elementy na stronie internetowej"
@@ -5685,5 +5714,9 @@
   },
   "confirmKeyConnectorDomain": {
     "message": "Potwierdź domenę Key Connector"
+  },
+  "settingDisabledByPolicy": {
+    "message": "This setting is disabled by your organization's policy.",
+    "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
   }
 }
