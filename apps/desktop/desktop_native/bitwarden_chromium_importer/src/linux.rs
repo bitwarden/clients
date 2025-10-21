@@ -44,6 +44,8 @@ pub fn get_crypto_service(
     Ok(Box::new(service))
 }
 
+// Need to allow this to match the signature on other platforms. On Linux this is a no-op.
+#[allow(clippy::ptr_arg)]
 pub fn configure_windows_crypto_service(_admin_exe_path: &String) {
     // Do nothing on Linux
 }
