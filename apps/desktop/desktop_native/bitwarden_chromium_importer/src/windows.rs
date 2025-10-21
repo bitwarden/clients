@@ -49,7 +49,7 @@ pub fn get_crypto_service(
 }
 
 pub fn configure_windows_crypto_service(admin_exe_path: &str) {
-    *ADMIN_EXE_PATH.lock().unwrap() = Some(admin_exe_path.clone());
+    *ADMIN_EXE_PATH.lock().unwrap() = Some(admin_exe_path.to_string());
 }
 
 //
