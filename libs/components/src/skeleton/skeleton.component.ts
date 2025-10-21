@@ -10,6 +10,8 @@ import { Component, input } from "@angular/core";
  *
  * If you're looking to represent lines of text, use the `bit-skeleton-text` helper component.
  */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-skeleton",
   templateUrl: "./skeleton.component.html",
