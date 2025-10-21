@@ -558,7 +558,7 @@
     "message": "Arşivle",
     "description": "Verb"
   },
-  "unarchive": {
+  "unArchive": {
     "message": "Arşivden çıkar"
   },
   "itemsInArchive": {
@@ -570,10 +570,10 @@
   "noItemsInArchiveDesc": {
     "message": "Arşivlenmiş kayıtlar burada görünecek ve genel arama sonuçlarından ile otomatik doldurma önerilerinden hariç tutulacaktır."
   },
-  "itemSentToArchive": {
+  "itemWasSentToArchive": {
     "message": "Kayıt arşive gönderildi"
   },
-  "itemRemovedFromArchive": {
+  "itemUnarchived": {
     "message": "Kayıt arşivden çıkarıldı"
   },
   "archiveItem": {
@@ -5579,17 +5579,37 @@
   "hasItemsVaultNudgeTitle": {
     "message": "Kasanıza hoş geldiniz!"
   },
-  "phishingPageTitle": {
-    "message": "Dolandırıcılık web sitesi"
+  "phishingPageTitleV2": {
+    "message": "Phishing attempt detected"
   },
-  "phishingPageCloseTab": {
-    "message": "Sekmeyi kapat"
+  "phishingPageSummary": {
+    "message": "The site you are attempting to visit is a known malicious site and a security risk."
   },
-  "phishingPageContinue": {
-    "message": "Devam et"
+  "phishingPageCloseTabV2": {
+    "message": "Bu sekmeyi kapat"
   },
-  "phishingPageLearnWhy": {
-    "message": "Bunu neden görüyorsunuz?"
+  "phishingPageContinueV2": {
+    "message": "Continue to this site (not recommended)"
+  },
+  "phishingPageExplanation1": {
+    "message": "This site was found in ",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name follows this."
+  },
+  "phishingPageExplanation2": {
+    "message": ", an open-source list of known phishing sites used for stealing personal and sensitive information.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name precedes this."
+  },
+  "phishingPageLearnMore": {
+    "message": "Learn more about phishing detection"
+  },
+  "protectedBy": {
+    "message": "Protected by $PRODUCT$",
+    "placeholders": {
+      "product": {
+        "content": "$1",
+        "example": "Bitwarden Phishing Blocker"
+      }
+    }
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Geçerli sayfada kayıtları otomatik doldurun"
@@ -5694,5 +5714,9 @@
   },
   "confirmKeyConnectorDomain": {
     "message": "Key Connector alan adını doğrulayın"
+  },
+  "settingDisabledByPolicy": {
+    "message": "This setting is disabled by your organization's policy.",
+    "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
   }
 }

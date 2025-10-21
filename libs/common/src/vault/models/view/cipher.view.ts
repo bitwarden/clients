@@ -160,6 +160,10 @@ export class CipherView implements View, InitializerMetadata {
   }
 
   get canAssignToCollections(): boolean {
+    if (this.isArchived) {
+      return false;
+    }
+
     if (this.organizationId == null) {
       return true;
     }

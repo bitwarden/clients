@@ -12,7 +12,6 @@ import { RouterModule } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
 import {
-  AnonLayoutBitwardenShield,
   BackgroundLeftIllustration,
   BackgroundRightIllustration,
   BitwardenLogo,
@@ -45,12 +44,12 @@ export class AnonLayoutComponent implements OnInit, OnChanges {
 
   readonly title = input<string>();
   readonly subtitle = input<string>();
-  readonly icon = model<Icon>();
+  readonly icon = model.required<Icon | null>();
   readonly showReadonlyHostname = input<boolean>(false);
   readonly hideLogo = input<boolean>(false);
   readonly hideFooter = input<boolean>(false);
-  readonly hideIcon = input<boolean>(false);
   readonly hideCardWrapper = input<boolean>(false);
+  readonly hideBackgroundIllustration = input<boolean>(false);
 
   /**
    * Max width of the anon layout title, subtitle, and content areas.
@@ -98,11 +97,6 @@ export class AnonLayoutComponent implements OnInit, OnChanges {
     this.maxWidth.set(this.maxWidth() ?? "md");
     this.hostname = (await firstValueFrom(this.environmentService.environment$)).getHostname();
     this.version = await this.platformUtilsService.getApplicationVersion();
-
-    // If there is no icon input, then use the default icon
-    if (this.icon() == null) {
-      this.icon.set(AnonLayoutBitwardenShield);
-    }
   }
 
   async ngOnChanges(changes: SimpleChanges) {

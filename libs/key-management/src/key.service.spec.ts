@@ -10,7 +10,7 @@ import {
   EncryptedString,
 } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
-import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
+import { UnsignedPublicKey, WrappedSigningKey } from "@bitwarden/common/key-management/types";
 import { VaultTimeoutStringType } from "@bitwarden/common/key-management/vault-timeout";
 import { VAULT_TIMEOUT } from "@bitwarden/common/key-management/vault-timeout/services/vault-timeout-settings.state";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -25,6 +25,7 @@ import {
   USER_ENCRYPTED_PRIVATE_KEY,
   USER_EVER_HAD_USER_KEY,
   USER_KEY,
+  USER_KEY_ENCRYPTED_SIGNING_KEY,
 } from "@bitwarden/common/platform/services/key-state/user-key.state";
 import { UserKeyDefinition } from "@bitwarden/common/platform/state";
 import {
@@ -55,7 +56,6 @@ import { KdfConfig } from "./models/kdf-config";
 describe("keyService", () => {
   let keyService: DefaultKeyService;
 
-  const pinService = mock<PinServiceAbstraction>();
   const keyGenerationService = mock<KeyGenerationService>();
   const cryptoFunctionService = mock<CryptoFunctionService>();
   const encryptService = mock<EncryptService>();
@@ -75,7 +75,6 @@ describe("keyService", () => {
     stateProvider = new FakeStateProvider(accountService);
 
     keyService = new DefaultKeyService(
-      pinService,
       masterPasswordService,
       keyGenerationService,
       cryptoFunctionService,
@@ -254,54 +253,6 @@ describe("keyService", () => {
         "No userId provided.",
       );
     });
-
-    describe("Pin Key refresh", () => {
-      const mockPinKeyEncryptedUserKey = new EncString(
-        "2.AAAw2vTUePO+CCyokcIfVw==|DTBNlJ5yVsV2Bsk3UU3H6Q==|YvFBff5gxWqM+UsFB6BKimKxhC32AtjF3IStpU1Ijwg=",
-      );
-      const mockUserKeyEncryptedPin = new EncString(
-        "2.BBBw2vTUePO+CCyokcIfVw==|DTBNlJ5yVsV2Bsk3UU3H6Q==|YvFBff5gxWqM+UsFB6BKimKxhC32AtjF3IStpU1Ijwg=",
-      );
-
-      it("sets a pinKeyEncryptedUserKeyPersistent if a userKeyEncryptedPin and pinKeyEncryptedUserKey is set", async () => {
-        pinService.createPinKeyEncryptedUserKey.mockResolvedValue(mockPinKeyEncryptedUserKey);
-        pinService.getUserKeyEncryptedPin.mockResolvedValue(mockUserKeyEncryptedPin);
-        pinService.getPinKeyEncryptedUserKeyPersistent.mockResolvedValue(
-          mockPinKeyEncryptedUserKey,
-        );
-
-        await keyService.setUserKey(mockUserKey, mockUserId);
-
-        expect(pinService.storePinKeyEncryptedUserKey).toHaveBeenCalledWith(
-          mockPinKeyEncryptedUserKey,
-          false,
-          mockUserId,
-        );
-      });
-
-      it("sets a pinKeyEncryptedUserKeyEphemeral if a userKeyEncryptedPin is set, but a pinKeyEncryptedUserKey is not set", async () => {
-        pinService.createPinKeyEncryptedUserKey.mockResolvedValue(mockPinKeyEncryptedUserKey);
-        pinService.getUserKeyEncryptedPin.mockResolvedValue(mockUserKeyEncryptedPin);
-        pinService.getPinKeyEncryptedUserKeyPersistent.mockResolvedValue(null);
-
-        await keyService.setUserKey(mockUserKey, mockUserId);
-
-        expect(pinService.storePinKeyEncryptedUserKey).toHaveBeenCalledWith(
-          mockPinKeyEncryptedUserKey,
-          true,
-          mockUserId,
-        );
-      });
-
-      it("clears the pinKeyEncryptedUserKeyPersistent and pinKeyEncryptedUserKeyEphemeral if the UserKeyEncryptedPin is not set", async () => {
-        pinService.getUserKeyEncryptedPin.mockResolvedValue(null);
-
-        await keyService.setUserKey(mockUserKey, mockUserId);
-
-        expect(pinService.clearPinKeyEncryptedUserKeyPersistent).toHaveBeenCalledWith(mockUserId);
-        expect(pinService.clearPinKeyEncryptedUserKeyEphemeral).toHaveBeenCalledWith(mockUserId);
-      });
-    });
   });
 
   describe("setUserKeys", () => {
@@ -386,36 +337,22 @@ describe("keyService", () => {
       const invalidUserIdTestCases = [
         { keySuffix: KeySuffixOptions.Auto, userId: null as unknown as UserId },
         { keySuffix: KeySuffixOptions.Auto, userId: undefined as unknown as UserId },
-        { keySuffix: KeySuffixOptions.Pin, userId: null as unknown as UserId },
-        { keySuffix: KeySuffixOptions.Pin, userId: undefined as unknown as UserId },
       ];
       test.each(invalidUserIdTestCases)(
         "throws when keySuffix is $keySuffix and userId is $userId",
         async ({ keySuffix, userId }) => {
-          await expect(keyService.clearStoredUserKey(keySuffix, userId)).rejects.toThrow(
-            "UserId is required",
-          );
+          await expect(keyService.clearStoredUserKey(userId)).rejects.toThrow("UserId is required");
         },
       );
     });
 
     describe("with Auto key suffix", () => {
       it("UserKeyAutoUnlock is cleared and pin keys are not cleared", async () => {
-        await keyService.clearStoredUserKey(KeySuffixOptions.Auto, mockUserId);
+        await keyService.clearStoredUserKey(mockUserId);
 
         expect(stateService.setUserKeyAutoUnlock).toHaveBeenCalledWith(null, {
           userId: mockUserId,
         });
-        expect(pinService.clearPinKeyEncryptedUserKeyEphemeral).not.toHaveBeenCalled();
-      });
-    });
-
-    describe("with PIN key suffix", () => {
-      it("pin keys are cleared and user key auto unlock not", async () => {
-        await keyService.clearStoredUserKey(KeySuffixOptions.Pin, mockUserId);
-
-        expect(stateService.setUserKeyAutoUnlock).not.toHaveBeenCalled();
-        expect(pinService.clearPinKeyEncryptedUserKeyEphemeral).toHaveBeenCalledWith(mockUserId);
       });
     });
   });
@@ -432,6 +369,7 @@ describe("keyService", () => {
       USER_ENCRYPTED_ORGANIZATION_KEYS,
       USER_ENCRYPTED_PROVIDER_KEYS,
       USER_ENCRYPTED_PRIVATE_KEY,
+      USER_KEY_ENCRYPTED_SIGNING_KEY,
       USER_KEY,
     ])("key removal", (key: UserKeyDefinition<unknown>) => {
       it(`clears ${key.key} for the specified user when specified`, async () => {
@@ -442,24 +380,6 @@ describe("keyService", () => {
         expect(encryptedOrgKeyState.nextMock).toHaveBeenCalledTimes(1);
         expect(encryptedOrgKeyState.nextMock).toHaveBeenCalledWith(null);
       });
-    });
-  });
-
-  describe("clearPinKeys", () => {
-    test.each([null as unknown as UserId, undefined as unknown as UserId])(
-      "throws when the provided userId is %s",
-      async (userId) => {
-        await expect(keyService.clearPinKeys(userId)).rejects.toThrow("UserId is required");
-      },
-    );
-    it("calls pin service to clear", async () => {
-      const userId = "someOtherUser" as UserId;
-
-      await keyService.clearPinKeys(userId);
-
-      expect(pinService.clearPinKeyEncryptedUserKeyPersistent).toHaveBeenCalledWith(userId);
-      expect(pinService.clearPinKeyEncryptedUserKeyEphemeral).toHaveBeenCalledWith(userId);
-      expect(pinService.clearUserKeyEncryptedPin).toHaveBeenCalledWith(userId);
     });
   });
 
@@ -537,6 +457,51 @@ describe("keyService", () => {
       result = await firstValueFrom(keyService.userPrivateKey$(mockUserId));
 
       expect(result).toBeNull();
+    });
+  });
+
+  describe("userSigningKey$", () => {
+    it("returns the signing key when the user has a signing key set", async () => {
+      const fakeSigningKey = "" as WrappedSigningKey;
+      const fakeSigningKeyState = stateProvider.singleUser.getFake(
+        mockUserId,
+        USER_KEY_ENCRYPTED_SIGNING_KEY,
+      );
+      fakeSigningKeyState.nextState(fakeSigningKey);
+
+      const signingKey = await firstValueFrom(keyService.userSigningKey$(mockUserId));
+
+      expect(signingKey).toEqual(fakeSigningKey);
+    });
+
+    it("returns null when the user does not have a signing key set", async () => {
+      const signingKey = await firstValueFrom(keyService.userSigningKey$(mockUserId));
+
+      expect(signingKey).toBeFalsy();
+    });
+  });
+
+  describe("setUserSigningKey", () => {
+    it("throws if the signing key is null", async () => {
+      await expect(keyService.setUserSigningKey(null as any, mockUserId)).rejects.toThrow(
+        "No user signing key provided.",
+      );
+    });
+    it("throws if the userId is null", async () => {
+      await expect(
+        keyService.setUserSigningKey("" as WrappedSigningKey, null as unknown as UserId),
+      ).rejects.toThrow("No userId provided.");
+    });
+    it("sets the signing key for the user", async () => {
+      const fakeSigningKey = "" as WrappedSigningKey;
+      const fakeSigningKeyState = stateProvider.singleUser.getFake(
+        mockUserId,
+        USER_KEY_ENCRYPTED_SIGNING_KEY,
+      );
+      fakeSigningKeyState.nextState(null);
+      await keyService.setUserSigningKey(fakeSigningKey, mockUserId);
+      expect(fakeSigningKeyState.nextMock).toHaveBeenCalledTimes(1);
+      expect(fakeSigningKeyState.nextMock).toHaveBeenCalledWith(fakeSigningKey);
     });
   });
 
@@ -1132,12 +1097,12 @@ describe("keyService", () => {
 
       keyService.userPrivateKey$ = jest.fn().mockReturnValue(new BehaviorSubject("private key"));
       cryptoFunctionService.rsaExtractPublicKey.mockResolvedValue(
-        Utils.fromUtf8ToArray("public key"),
+        Utils.fromUtf8ToArray("public key") as UnsignedPublicKey,
       );
       const key = await firstValueFrom(keyService.userEncryptionKeyPair$(mockUserId));
       expect(key).toEqual({
         privateKey: "private key",
-        publicKey: Utils.fromUtf8ToArray("public key"),
+        publicKey: Utils.fromUtf8ToArray("public key") as UnsignedPublicKey,
       });
     });
   });
@@ -1214,7 +1179,6 @@ describe("keyService", () => {
         expect(result).toEqual(mockUserKey);
         expect(validateUserKeySpy).toHaveBeenCalledWith(mockUserKey, mockUserId);
         expect(logService.warning).toHaveBeenCalledWith("Invalid key, throwing away stored keys");
-        expect(pinService.clearPinKeyEncryptedUserKeyEphemeral).toHaveBeenCalledWith(mockUserId);
         expect(stateService.setUserKeyAutoUnlock).toHaveBeenCalledWith(null, {
           userId: mockUserId,
         });

@@ -11,6 +11,9 @@ import { ProductSwitcherItem, ProductSwitcherService } from "../shared/product-s
 export class NavigationProductSwitcherComponent {
   constructor(private productSwitcherService: ProductSwitcherService) {}
 
+  protected readonly shouldShowPremiumUpgradeButton$: Observable<boolean> =
+    this.productSwitcherService.shouldShowPremiumUpgradeButton$;
+
   protected readonly accessibleProducts$: Observable<ProductSwitcherItem[]> =
     this.productSwitcherService.products$.pipe(map((products) => products.bento ?? []));
 

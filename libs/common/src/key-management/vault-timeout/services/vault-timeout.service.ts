@@ -141,7 +141,6 @@ export class VaultTimeoutService implements VaultTimeoutServiceAbstraction {
 
     await this.searchService.clearIndex(lockingUserId);
 
-    // ! DO NOT REMOVE folderService.clearDecryptedFolderState ! For more information see PM-25660
     await this.folderService.clearDecryptedFolderState(lockingUserId);
     await this.masterPasswordService.clearMasterKey(lockingUserId);
 
