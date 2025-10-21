@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 
 import { SideNavService } from "./side-nav.service";
 
@@ -7,6 +7,7 @@ import { SideNavService } from "./side-nav.service";
   selector: "bit-nav-divider",
   templateUrl: "./nav-divider.component.html",
   imports: [CommonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NavDividerComponent {
   constructor(protected sideNavService: SideNavService) {}

@@ -9,6 +9,7 @@ import {
   input,
   model,
   contentChildren,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -27,6 +28,7 @@ import { SideNavService } from "./side-nav.service";
     { provide: NavGroupAbstraction, useExisting: NavGroupComponent },
   ],
   imports: [CommonModule, NavItemComponent, IconButtonModule, I18nPipe],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NavGroupComponent extends NavBaseComponent {
   readonly nestedNavComponents = contentChildren(NavBaseComponent, { descendants: true });

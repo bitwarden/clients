@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, HostListener, Optional, input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, HostListener, Optional, input } from "@angular/core";
 import { RouterModule } from "@angular/router";
 import { BehaviorSubject, map } from "rxjs";
 
@@ -18,6 +18,7 @@ export abstract class NavGroupAbstraction {
   templateUrl: "./nav-item.component.html",
   providers: [{ provide: NavBaseComponent, useExisting: NavItemComponent }],
   imports: [CommonModule, IconButtonModule, RouterModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NavItemComponent extends NavBaseComponent {
   /** Forces active styles to be shown, regardless of the `routerLinkActiveOptions` */

@@ -1,4 +1,4 @@
-import { Directive, EventEmitter, Output, input } from "@angular/core";
+import { Directive, input, output } from "@angular/core";
 import { RouterLink, RouterLinkActive } from "@angular/router";
 
 /**
@@ -61,5 +61,5 @@ export abstract class NavBaseComponent {
   /**
    * Fires when main content is clicked
    */
-  @Output() mainContentClicked: EventEmitter<MouseEvent> = new EventEmitter();
+  mainContentClicked = output();
 }

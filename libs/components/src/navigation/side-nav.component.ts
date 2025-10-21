@@ -1,6 +1,6 @@
 import { CdkTrapFocus } from "@angular/cdk/a11y";
 import { CommonModule } from "@angular/common";
-import { Component, ElementRef, input, viewChild } from "@angular/core";
+import { ChangeDetectionStrategy, Component, ElementRef, input, viewChild } from "@angular/core";
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -15,6 +15,7 @@ export type SideNavVariant = "primary" | "secondary";
   selector: "bit-side-nav",
   templateUrl: "side-nav.component.html",
   imports: [CommonModule, CdkTrapFocus, NavDividerComponent, BitIconButtonComponent, I18nPipe],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SideNavComponent {
   readonly variant = input<SideNavVariant>("primary");
