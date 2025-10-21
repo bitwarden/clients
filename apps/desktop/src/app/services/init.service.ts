@@ -28,6 +28,7 @@ import { DesktopAutotypeService } from "../../autofill/services/desktop-autotype
 import { SshAgentService } from "../../autofill/services/ssh-agent.service";
 import { I18nRendererService } from "../../platform/services/i18n.renderer.service";
 import { VersionService } from "../../platform/services/version.service";
+import { BiometricMessageHandlerService } from "../../services/biometric-message-handler.service";
 import { NativeMessagingService } from "../../services/native-messaging.service";
 
 @Injectable()
@@ -53,6 +54,7 @@ export class InitService {
     private autofillService: DesktopAutofillService,
     private autotypeService: DesktopAutotypeService,
     private sdkLoadService: SdkLoadService,
+    private biometricMessageHandlerService: BiometricMessageHandlerService,
     private configService: ConfigService,
     @Inject(DOCUMENT) private document: Document,
     private readonly migrationRunner: MigrationRunner,
@@ -95,6 +97,7 @@ export class InitService {
       const containerService = new ContainerService(this.keyService, this.encryptService);
       containerService.attachToGlobal(this.win);
 
+      await this.biometricMessageHandlerService.init();
       await this.autofillService.init();
       await this.autotypeService.init();
     };
