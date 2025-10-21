@@ -77,7 +77,9 @@ export type UnifiedUpgradeDialogParams = {
 })
 export class UnifiedUpgradeDialogComponent implements OnInit {
   // Use signals for dialog state because inputs depend on parent component
-  protected readonly step = signal<UnifiedUpgradeDialogStep>(UnifiedUpgradeDialogStep.PlanSelection);
+  protected readonly step = signal<UnifiedUpgradeDialogStep>(
+    UnifiedUpgradeDialogStep.PlanSelection,
+  );
   protected readonly selectedPlan = signal<PersonalSubscriptionPricingTierId | null>(null);
   protected readonly account = signal<Account | null>(null);
   protected readonly planSelectionStepTitleOverride = signal<string | null>(null);

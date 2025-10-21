@@ -22,7 +22,11 @@ import {
 })
 export class PricingCardComponent {
   readonly tagline = input.required<string>();
-  readonly price = input<{ amount: number; cadence: "monthly" | "annually"; showPerUser?: boolean }>();
+  readonly price = input<{
+    amount: number;
+    cadence: "monthly" | "annually";
+    showPerUser?: boolean;
+  }>();
   readonly button = input<{
     type: ButtonType;
     text: string;
