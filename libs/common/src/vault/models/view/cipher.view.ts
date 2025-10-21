@@ -109,6 +109,10 @@ export class CipherView implements View, InitializerMetadata {
     return this.item?.subTitle;
   }
 
+  get canBeArchived(): boolean {
+    return !this.isDeleted && this.organizationId == null && !this.isArchived;
+  }
+
   get hasPasswordHistory(): boolean {
     return this.passwordHistory && this.passwordHistory.length > 0;
   }

@@ -24,7 +24,8 @@ import {
 import { EventType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { UserId } from "@bitwarden/common/types/guid";
+import { CipherId, UserId } from "@bitwarden/common/types/guid";
+import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { ViewPasswordHistoryService } from "@bitwarden/common/vault/abstractions/view-password-history.service";
@@ -112,6 +113,10 @@ export class ViewV2Component {
   senderTabId?: number;
 
   protected showFooter$: Observable<boolean>;
+  protected userCanArchive$ = this.accountService.activeAccount$
+    .pipe(getUserId)
+    .pipe(switchMap((userId) => this.archiveService.userCanArchive$(userId)));
+  protected archiveFlagEnabled$ = this.archiveService.hasArchiveFlagEnabled$();
 
   constructor(
     private passwordRepromptService: PasswordRepromptService,
@@ -129,6 +134,7 @@ export class ViewV2Component {
     protected cipherAuthorizationService: CipherAuthorizationService,
     private copyCipherFieldService: CopyCipherFieldService,
     private popupScrollPositionService: VaultPopupScrollPositionService,
+    private archiveService: CipherArchiveService,
   ) {
     this.subscribeToParams();
   }
@@ -268,6 +274,54 @@ export class ViewV2Component {
       title: null,
       message: this.i18nService.t("restoredItem"),
     });
+  };
+
+  archive = async () => {
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: { key: "archiveItem" },
+      content: { key: "archiveItemConfirmDesc" },
+      type: "info",
+    });
+
+    if (!confirmed) {
+      return false;
+    }
+
+    try {
+      await this.archiveService.archiveWithServer(this.cipher.id as CipherId, this.activeUserId);
+      this.cipher.archivedDate = new Date();
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("itemWasSentToArchive"),
+      });
+    } catch (e) {
+      this.logService.error("Error archiving cipher", e);
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: this.i18nService.t("errorOccurred"),
+      });
+    }
+  };
+
+  unarchive = async () => {
+    try {
+      await this.archiveService.unarchiveWithServer(this.cipher.id as CipherId, this.activeUserId);
+      this.cipher.archivedDate = null;
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("itemUnarchived"),
+      });
+    } catch (e) {
+      this.logService.error("Error unarchiving cipher", e);
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: this.i18nService.t("errorOccurred"),
+      });
+    }
   };
 
   protected deleteCipher() {

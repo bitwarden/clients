@@ -67,6 +67,22 @@
     </button>
     <div class="tw-ml-auto" *ngIf="showFooterButtons">
       <button
+        type="button"
+        *ngIf="(archiveFlagEnabled$ | async) && cipher.isArchived"
+        class="tw-mr-1"
+        [bitAction]="unarchive"
+        bitIconButton="bwi-unarchive"
+        appA11yTitle="{{ 'unarchive' | i18n }}"
+      ></button>
+      <button
+        type="button"
+        *ngIf="(userCanArchive$ | async) && cipher.canBeArchived"
+        class="tw-mr-1"
+        [bitAction]="archive"
+        bitIconButton="bwi-archive"
+        appA11yTitle="{{ 'archiveVerb' | i18n }}"
+      ></button>
+      <button
         bitIconButton="bwi-trash"
         type="button"
         buttonType="danger"

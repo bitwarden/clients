@@ -29,6 +29,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { CipherId, CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
+import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { ViewPasswordHistoryService } from "@bitwarden/common/vault/abstractions/view-password-history.service";
@@ -224,6 +225,16 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     ),
   );
 
+  protected archiveFlagEnabled$ = this.archiveService.hasArchiveFlagEnabled$();
+
+  /**
+   * Flag to indicate if the user can archive items.
+   * @protected
+   */
+  protected userCanArchive$ = this.accountService.activeAccount$.pipe(
+    switchMap((account) => this.archiveService.userCanArchive$(account.id)),
+  );
+
   protected get isTrashFilter() {
     return this.filter?.type === "trash";
   }
@@ -306,6 +317,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     private apiService: ApiService,
     private eventCollectionService: EventCollectionService,
     private routedVaultFilterService: RoutedVaultFilterService,
+    private archiveService: CipherArchiveService,
   ) {
     this.updateTitle();
     this.premiumUpgradeService.upgradeConfirmed$
@@ -533,6 +545,56 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
 
     // We're in Form mode, and we have a cipher, switch back to View mode.
     await this.changeMode("view");
+  };
+
+  archive = async () => {
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: { key: "archiveItem" },
+      content: { key: "archiveItemConfirmDesc" },
+      type: "info",
+    });
+
+    if (!confirmed) {
+      return false;
+    }
+
+    try {
+      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      await this.archiveService.archiveWithServer(this.cipher.id as CipherId, activeUserId);
+      this.cipher.archivedDate = new Date();
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("itemWasSentToArchive"),
+      });
+    } catch (e) {
+      this.logService.error("Error archiving cipher", e);
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: this.i18nService.t("errorOccurred"),
+      });
+    }
+  };
+
+  unarchive = async () => {
+    try {
+      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      await this.archiveService.unarchiveWithServer(this.cipher.id as CipherId, activeUserId);
+      this.cipher.archivedDate = null;
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("itemUnarchived"),
+      });
+    } catch (e) {
+      this.logService.error("Error unarchiving cipher", e);
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: this.i18nService.t("errorOccurred"),
+      });
+    }
   };
 
   private async getDecryptedCipherView(config: CipherFormConfig) {
