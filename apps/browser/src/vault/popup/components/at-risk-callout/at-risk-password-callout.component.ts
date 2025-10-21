@@ -28,7 +28,7 @@ export class AtRiskPasswordCalloutComponent {
   private activeAccount$ = inject(AccountService).activeAccount$.pipe(getUserId);
   private atRiskPasswordCalloutService = inject(AtRiskPasswordCalloutService);
 
-  showTasksBanner$ = this.activeAccount$.pipe(
+  showCompletedTasksBanner$ = this.activeAccount$.pipe(
     switchMap((userId) => this.atRiskPasswordCalloutService.showCompletedTasksBanner$(userId)),
   );
 
