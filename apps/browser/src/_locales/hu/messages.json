@@ -551,14 +551,14 @@
     "message": "Keresés visszaállítása"
   },
   "archiveNoun": {
-    "message": "Archive",
+    "message": "Archívum",
     "description": "Noun"
   },
   "archiveVerb": {
-    "message": "Archive",
+    "message": "Archívum",
     "description": "Verb"
   },
-  "unarchive": {
+  "unArchive": {
     "message": "Visszavétel archívumból"
   },
   "itemsInArchive": {
@@ -570,11 +570,11 @@
   "noItemsInArchiveDesc": {
     "message": "Az archivált elemek itt jelennek meg és kizárásra kerülnek az általános keresési eredményekből és az automatikus kitöltési javaslatokból."
   },
-  "itemSentToArchive": {
-    "message": "Archívumba küldött elemek száma"
+  "itemWasSentToArchive": {
+    "message": "Az elem az archivumba került."
   },
-  "itemRemovedFromArchive": {
-    "message": "Az elem kikerült a kedvencekből."
+  "itemUnarchived": {
+    "message": "Az elemek visszavéelre kerültek az archivumból."
   },
   "archiveItem": {
     "message": "Elem archiválása"
@@ -732,6 +732,15 @@
   },
   "invalidMasterPassword": {
     "message": "Hibás mesterjelszó"
+  },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "A mesterjelszó érvénytelen. Erősítsük meg, hogy email cím helyes és a fiók létrehozásának helye: $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
   },
   "vaultTimeout": {
     "message": "Széf időkifutás"
@@ -1538,6 +1547,15 @@
   },
   "readSecurityKey": {
     "message": "Biztonsági kulcs olvasása"
+  },
+  "readingPasskeyLoading": {
+    "message": "Hozzáférési kulcs beolvasása..."
+  },
+  "passkeyAuthenticationFailed": {
+    "message": "A hozzáférési kulcs hitelesítés sikertelen volt."
+  },
+  "useADifferentLogInMethod": {
+    "message": "Más bejelentkezési mód használata"
   },
   "awaitingSecurityKeyInteraction": {
     "message": "Várakozás a biztonsági kulcs interakciójára..."
@@ -3195,6 +3213,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Csak a $ORGANIZATION$ szervezetehez kapcsolódó szervezeti széf kerül exportálásra.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Csak a $ORGANIZATION$ szervezethez kapcsolódó szervezeti széf kerül exportálásra. A saját elem gyűjtemények nem lesznek benne.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },
@@ -5543,17 +5579,37 @@
   "hasItemsVaultNudgeTitle": {
     "message": "Üdvözlet a széfben!"
   },
-  "phishingPageTitle": {
-    "message": "Adathalász webhely"
+  "phishingPageTitleV2": {
+    "message": "Adathalászati kísérlet lett észlelve."
   },
-  "phishingPageCloseTab": {
+  "phishingPageSummary": {
+    "message": "A meglátogatni kívánt webhely ismert rosszindulatú webhely és biztonsági kockázatot jelent."
+  },
+  "phishingPageCloseTabV2": {
     "message": "Fül bezárása"
   },
-  "phishingPageContinue": {
-    "message": "Folytatás"
+  "phishingPageContinueV2": {
+    "message": "Tovább erre a webhelyre (nem ajánlott)"
   },
-  "phishingPageLearnWhy": {
-    "message": "Miért látható ez?"
+  "phishingPageExplanation1": {
+    "message": "Ez a webhely megtalálható volt ",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name follows this."
+  },
+  "phishingPageExplanation2": {
+    "message": "listán, egy személyes és érzékeny információk ellopására használt ismert adathalász webhelyek nyílt forráskódú listáján.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name precedes this."
+  },
+  "phishingPageLearnMore": {
+    "message": "További információ az adathalászat észleléséről"
+  },
+  "protectedBy": {
+    "message": "$PRODUCT$ által védett",
+    "placeholders": {
+      "product": {
+        "content": "$1",
+        "example": "Bitwarden Phishing Blocker"
+      }
+    }
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Az aktuális oldal elemeinek automatikus kitöltése"
@@ -5658,5 +5714,9 @@
   },
   "confirmKeyConnectorDomain": {
     "message": "A Key Connector tartomány megerősítése"
+  },
+  "settingDisabledByPolicy": {
+    "message": "Ezt a beállítást a szervezet házirendje letiltotta.",
+    "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
   }
 }

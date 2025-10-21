@@ -25,16 +25,18 @@ jobs:
     steps:
       - name: Check out repo
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
 
       - name: Get Node Version
         id: retrieve-node-version
         run: |
           NODE_NVMRC=$(cat .nvmrc)
           NODE_VERSION=${NODE_NVMRC/v/''}
-          echo "node_version=$NODE_VERSION" >> $GITHUB_OUTPUT
+          echo "node_version=$NODE_VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Set up Node
-        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
@@ -102,6 +104,8 @@ jobs:
 
       - name: Check out repo
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
 
       - name: Build
         working-directory: ./apps/desktop/desktop_native
@@ -125,8 +129,8 @@ jobs:
 
       - name: Test Windows
         if: ${{ matrix.os=='windows-2022'}}
-        working-directory: ./apps/desktop/desktop_native/core
-        run: cargo test -- --test-threads=1
+        working-directory: ./apps/desktop/desktop_native
+        run: cargo test --workspace --exclude=desktop_napi -- --test-threads=1
 
   rust-coverage:
     name: Rust Coverage
@@ -134,6 +138,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
 
       - name: Install rust
         uses: dtolnay/rust-toolchain@b3b07ba8b418998c39fb20f53e8b695cdcc8de1b # stable
@@ -168,6 +174,8 @@ jobs:
     steps:
       - name: Check out repo
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
 
       - name: Download jest coverage
         uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0

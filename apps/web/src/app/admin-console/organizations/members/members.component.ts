@@ -47,6 +47,7 @@ import { OrganizationKeysRequest } from "@bitwarden/common/admin-console/models/
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
+import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
 import { isNotSelfUpgradable, ProductTierType } from "@bitwarden/common/billing/enums";
 import { OrganizationBillingMetadataResponse } from "@bitwarden/common/billing/models/response/organization-billing-metadata.response";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -104,14 +105,14 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
   memberTab = MemberDialogTab;
   protected dataSource = new MembersTableDataSource();
 
-  organization: Signal<Organization | undefined>;
+  readonly organization: Signal<Organization | undefined>;
   status: OrganizationUserStatusType | undefined;
   orgResetPasswordPolicyEnabled = false;
 
-  protected canUseSecretsManager: Signal<boolean> = computed(
+  protected readonly canUseSecretsManager: Signal<boolean> = computed(
     () => this.organization()?.useSecretsManager ?? false,
   );
-  protected showUserManagementControls: Signal<boolean> = computed(
+  protected readonly showUserManagementControls: Signal<boolean> = computed(
     () => this.organization()?.canManageUsers ?? false,
   );
   private refreshBillingMetadata$: BehaviorSubject<null> = new BehaviorSubject(null);
@@ -146,6 +147,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     private groupService: GroupApiService,
     private collectionService: CollectionService,
     private billingApiService: BillingApiServiceAbstraction,
+    private organizationMetadataService: OrganizationMetadataServiceAbstraction,
     protected deleteManagedMemberWarningService: DeleteManagedMemberWarningService,
     private configService: ConfigService,
     private organizationUserService: OrganizationUserService,
@@ -257,7 +259,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
 
     this.billingMetadata$ = combineLatest([this.refreshBillingMetadata$, organization$]).pipe(
       switchMap(([_, organization]) =>
-        this.billingApiService.getOrganizationBillingMetadata(organization.id),
+        this.organizationMetadataService.getOrganizationMetadata$(organization.id),
       ),
       takeUntilDestroyed(),
       shareReplay({ bufferSize: 1, refCount: false }),

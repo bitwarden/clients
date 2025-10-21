@@ -19,6 +19,8 @@ import {
 } from "@bitwarden/generator-core";
 
 /** Options group for plus-addressed emails */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "tools-subaddress-settings",
   templateUrl: "subaddress-settings.component.html",
@@ -38,6 +40,8 @@ export class SubaddressSettingsComponent implements OnInit, OnChanges, OnDestroy
    *  @remarks this is initialized to null but since it's a required input it'll
    *     never have that value in practice.
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true })
   account: Account = null!;
 
@@ -54,6 +58,8 @@ export class SubaddressSettingsComponent implements OnInit, OnChanges, OnDestroy
    *   to receive live settings updates including the initial update,
    *   use `CredentialGeneratorService.settings(...)` instead.
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output()
   readonly onUpdated = new EventEmitter<SubaddressGenerationOptions>();
 

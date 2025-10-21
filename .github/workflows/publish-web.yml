@@ -29,6 +29,8 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
 
       - name: Branch check
         if: ${{ inputs.publish_type != 'Dry Run' }}
@@ -73,6 +75,8 @@ jobs:
 
       - name: Checkout repo
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
 
       ########## ACR ##########
       - name: Log in to Azure
@@ -100,33 +104,33 @@ jobs:
       - name: Pull branch image
         run: |
           if [[ "${{ inputs.publish_type }}" == "Dry Run" ]]; then
-            docker pull $_AZ_REGISTRY/web:latest
+            docker pull "$_AZ_REGISTRY/web:latest"
           else
-            docker pull $_AZ_REGISTRY/web:$_BRANCH_NAME
+            docker pull "$_AZ_REGISTRY/web:$_BRANCH_NAME"
           fi
 
       - name: Tag version
         run: |
           if [[ "${{ inputs.publish_type }}" == "Dry Run" ]]; then
-            docker tag $_AZ_REGISTRY/web:latest $_AZ_REGISTRY/web:dryrun
-            docker tag $_AZ_REGISTRY/web:latest $_AZ_REGISTRY/web-sh:dryrun
+            docker tag "$_AZ_REGISTRY/web:latest" "$_AZ_REGISTRY/web:dryrun"
+            docker tag "$_AZ_REGISTRY/web:latest" "$_AZ_REGISTRY/web-sh:dryrun"
           else
-            docker tag $_AZ_REGISTRY/web:$_BRANCH_NAME $_AZ_REGISTRY/web:$_RELEASE_VERSION
-            docker tag $_AZ_REGISTRY/web:$_BRANCH_NAME $_AZ_REGISTRY/web-sh:$_RELEASE_VERSION
-            docker tag $_AZ_REGISTRY/web:$_BRANCH_NAME $_AZ_REGISTRY/web:latest
-            docker tag $_AZ_REGISTRY/web:$_BRANCH_NAME $_AZ_REGISTRY/web-sh:latest
+            docker tag "$_AZ_REGISTRY/web:$_BRANCH_NAME" "$_AZ_REGISTRY/web:$_RELEASE_VERSION"
+            docker tag "$_AZ_REGISTRY/web:$_BRANCH_NAME" "$_AZ_REGISTRY/web-sh:$_RELEASE_VERSION"
+            docker tag "$_AZ_REGISTRY/web:$_BRANCH_NAME" "$_AZ_REGISTRY/web:latest"
+            docker tag "$_AZ_REGISTRY/web:$_BRANCH_NAME" "$_AZ_REGISTRY/web-sh:latest"
           fi
 
       - name: Push version
         run: |
           if [[ "${{ inputs.publish_type }}" == "Dry Run" ]]; then
-            docker push $_AZ_REGISTRY/web:dryrun
-            docker push $_AZ_REGISTRY/web-sh:dryrun
+            docker push "$_AZ_REGISTRY/web:dryrun"
+            docker push "$_AZ_REGISTRY/web-sh:dryrun"
           else
-            docker push $_AZ_REGISTRY/web:$_RELEASE_VERSION
-            docker push $_AZ_REGISTRY/web-sh:$_RELEASE_VERSION
-            docker push $_AZ_REGISTRY/web:latest
-            docker push $_AZ_REGISTRY/web-sh:latest
+            docker push "$_AZ_REGISTRY/web:$_RELEASE_VERSION"
+            docker push "$_AZ_REGISTRY/web-sh:$_RELEASE_VERSION"
+            docker push "$_AZ_REGISTRY/web:latest"
+            docker push "$_AZ_REGISTRY/web-sh:latest"
           fi
 
       - name: Log out from Azure
@@ -179,7 +183,7 @@ jobs:
         uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Trigger self-host build
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         with:
           github-token: ${{ steps.retrieve-secret-pat.outputs.github-pat-bitwarden-devops-bot-repo-scope }}
           script: |

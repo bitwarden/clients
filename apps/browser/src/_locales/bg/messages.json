@@ -551,14 +551,14 @@
     "message": "Нулиране на търсенето"
   },
   "archiveNoun": {
-    "message": "Archive",
+    "message": "Архив",
     "description": "Noun"
   },
   "archiveVerb": {
-    "message": "Archive",
+    "message": "Архивиране",
     "description": "Verb"
   },
-  "unarchive": {
+  "unArchive": {
     "message": "Изваждане от архива"
   },
   "itemsInArchive": {
@@ -570,11 +570,11 @@
   "noItemsInArchiveDesc": {
     "message": "Архивираните елементи ще се показват тук и ще бъдат изключени от общите резултати при търсене и от предложенията за автоматично попълване."
   },
-  "itemSentToArchive": {
-    "message": "Елементът е преместен в архива"
+  "itemWasSentToArchive": {
+    "message": "Елементът беше преместен в архива"
   },
-  "itemRemovedFromArchive": {
-    "message": "Елементът е изваден от архива"
+  "itemUnarchived": {
+    "message": "Елементът беше изваден от архива"
   },
   "archiveItem": {
     "message": "Архивиране на елемента"
@@ -732,6 +732,15 @@
   },
   "invalidMasterPassword": {
     "message": "Грешна главна парола"
+  },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Грешна главна парола. Проверете дали е-пощата е правилна и дали акаунтът Ви е създаден в $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
   },
   "vaultTimeout": {
     "message": "Време за достъп"
@@ -1538,6 +1547,15 @@
   },
   "readSecurityKey": {
     "message": "Прочитане на ключа за сигурност"
+  },
+  "readingPasskeyLoading": {
+    "message": "Прочитане на секретния ключ…"
+  },
+  "passkeyAuthenticationFailed": {
+    "message": "Удостоверяването чрез секретен ключ беше неуспешно"
+  },
+  "useADifferentLogInMethod": {
+    "message": "Използване на друг метод на вписване"
   },
   "awaitingSecurityKeyInteraction": {
     "message": "Изчакване на действие с ключ за сигурност…"
@@ -3195,6 +3213,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Ще бъдат изнесени само записите от трезора свързан с $ORGANIZATION$.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Само трезорът свързан с $ORGANIZATION$ ще бъде експортиран. Моите записи няма да бъдат включени.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },
@@ -5543,17 +5579,37 @@
   "hasItemsVaultNudgeTitle": {
     "message": "Добре дошли в трезора си!"
   },
-  "phishingPageTitle": {
-    "message": "Измамен уеб сайт"
+  "phishingPageTitleV2": {
+    "message": "Засечен е опит за измама"
   },
-  "phishingPageCloseTab": {
-    "message": "Затваряне на раздела"
+  "phishingPageSummary": {
+    "message": "Уеб сайтът, който се опитвате да посетите, е известен като злонамерен и може да представлява риск за сигурността."
   },
-  "phishingPageContinue": {
-    "message": "Продължаване"
+  "phishingPageCloseTabV2": {
+    "message": "Затваряне на този раздел"
   },
-  "phishingPageLearnWhy": {
-    "message": "Защо виждате това?"
+  "phishingPageContinueV2": {
+    "message": "Продължаване към уеб сайта (не се препоръчва)"
+  },
+  "phishingPageExplanation1": {
+    "message": "Този уеб сайт е открит в ",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name follows this."
+  },
+  "phishingPageExplanation2": {
+    "message": ", отворен списък с известни измамни уеб сайтове, които могат да отмъкнат Вашите лични или поверителни данни.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name precedes this."
+  },
+  "phishingPageLearnMore": {
+    "message": "Научете повече относно разпознаването на измамни уеб сайтове"
+  },
+  "protectedBy": {
+    "message": "Защитено от $PRODUCT$",
+    "placeholders": {
+      "product": {
+        "content": "$1",
+        "example": "Bitwarden Phishing Blocker"
+      }
+    }
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Попълвайте автоматично елементи в текущата страница"
@@ -5658,5 +5714,9 @@
   },
   "confirmKeyConnectorDomain": {
     "message": "Потвърждаване на домейна на конектора за ключове"
+  },
+  "settingDisabledByPolicy": {
+    "message": "Тази настройка е изключена съгласно политиката на организацията Ви.",
+    "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
   }
 }

@@ -4,6 +4,7 @@
 import { ApiService } from "../../abstractions/api.service";
 import { OrganizationCreateRequest } from "../../admin-console/models/request/organization-create.request";
 import { ListResponse } from "../../models/response/list.response";
+import { OrganizationId } from "../../types/guid";
 import { BillingApiServiceAbstraction } from "../abstractions";
 import { SubscriptionCancellationRequest } from "../models/request/subscription-cancellation.request";
 import { InvoicesResponse } from "../models/response/invoices.response";
@@ -32,11 +33,25 @@ export class BillingApiService implements BillingApiServiceAbstraction {
   }
 
   async getOrganizationBillingMetadata(
-    organizationId: string,
+    organizationId: OrganizationId,
   ): Promise<OrganizationBillingMetadataResponse> {
     const r = await this.apiService.send(
       "GET",
       "/organizations/" + organizationId + "/billing/metadata",
+      null,
+      true,
+      true,
+    );
+
+    return new OrganizationBillingMetadataResponse(r);
+  }
+
+  async getOrganizationBillingMetadataVNext(
+    organizationId: OrganizationId,
+  ): Promise<OrganizationBillingMetadataResponse> {
+    const r = await this.apiService.send(
+      "GET",
+      "/organizations/" + organizationId + "/billing/vnext/metadata",
       null,
       true,
       true,

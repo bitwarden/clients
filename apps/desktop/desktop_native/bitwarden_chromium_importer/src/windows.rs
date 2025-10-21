@@ -9,14 +9,18 @@ use windows::Win32::Foundation::{LocalFree, HLOCAL};
 
 use crate::chromium::{BrowserConfig, CryptoService, LocalState};
 
-#[allow(dead_code)]
-mod util;
+use crate::util;
 
 //
 // Public API
 //
 
+// IMPORTANT adjust array size when enabling / disabling chromium importers here
 pub const SUPPORTED_BROWSERS: [BrowserConfig; 6] = [
+    BrowserConfig {
+        name: "Brave",
+        data_dir: "AppData/Local/BraveSoftware/Brave-Browser/User Data",
+    },
     BrowserConfig {
         name: "Chrome",
         data_dir: "AppData/Local/Google/Chrome/User Data",
@@ -28,10 +32,6 @@ pub const SUPPORTED_BROWSERS: [BrowserConfig; 6] = [
     BrowserConfig {
         name: "Microsoft Edge",
         data_dir: "AppData/Local/Microsoft/Edge/User Data",
-    },
-    BrowserConfig {
-        name: "Brave",
-        data_dir: "AppData/Local/BraveSoftware/Brave-Browser/User Data",
     },
     BrowserConfig {
         name: "Opera",

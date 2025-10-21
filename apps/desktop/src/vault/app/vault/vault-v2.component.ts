@@ -20,6 +20,8 @@ import { AuthRequestServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -33,6 +35,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { getByIds } from "@bitwarden/common/platform/misc";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { CipherId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
@@ -45,6 +48,7 @@ import {
   CipherViewLike,
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
+import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 import {
   BadgeModule,
   ButtonModule,
@@ -73,6 +77,7 @@ import {
   DefaultCipherFormConfigService,
   PasswordRepromptService,
   CipherFormComponent,
+  ArchiveCipherUtilitiesService,
 } from "@bitwarden/vault";
 
 import { NavComponent } from "../../../app/layout/nav.component";
@@ -168,6 +173,7 @@ export class VaultV2Component<C extends CipherViewLike>
 
   private organizations$: Observable<Organization[]> = this.accountService.activeAccount$.pipe(
     map((a) => a?.id),
+    filterOutNullish(),
     switchMap((id) => this.organizationService.organizations$(id)),
   );
 
@@ -209,6 +215,9 @@ export class VaultV2Component<C extends CipherViewLike>
     private folderService: FolderService,
     private configService: ConfigService,
     private authRequestService: AuthRequestServiceAbstraction,
+    private cipherArchiveService: CipherArchiveService,
+    private policyService: PolicyService,
+    private archiveCipherUtilitiesService: ArchiveCipherUtilitiesService,
   ) {}
 
   async ngOnInit() {
@@ -290,7 +299,7 @@ export class VaultV2Component<C extends CipherViewLike>
                 ) {
                   const value = await firstValueFrom(
                     this.totpService.getCode$(this.cipher.login.totp),
-                  ).catch(() => null);
+                  ).catch((): any => null);
                   if (value) {
                     this.copyValue(this.cipher, value.code, "verificationCodeTotp", "TOTP");
                   }
@@ -319,7 +328,7 @@ export class VaultV2Component<C extends CipherViewLike>
     this.searchBarService.setPlaceholderText(this.i18nService.t("searchVault"));
 
     const authRequests = await firstValueFrom(
-      this.authRequestService.getLatestPendingAuthRequest$(),
+      this.authRequestService.getLatestPendingAuthRequest$()!,
     );
     if (authRequests != null) {
       this.messagingService.send("openLoginApproval", {
@@ -329,7 +338,7 @@ export class VaultV2Component<C extends CipherViewLike>
 
     this.activeUserId = await firstValueFrom(
       this.accountService.activeAccount$.pipe(getUserId),
-    ).catch(() => null);
+    ).catch((): any => null);
 
     if (this.activeUserId) {
       this.cipherService
@@ -448,7 +457,7 @@ export class VaultV2Component<C extends CipherViewLike>
     const dialogRef = AttachmentsV2Component.open(this.dialogService, {
       cipherId: this.cipherId as CipherId,
     });
-    const result = await firstValueFrom(dialogRef.closed).catch(() => null);
+    const result = await firstValueFrom(dialogRef.closed).catch((): any => null);
     if (
       result?.action === AttachmentDialogResult.Removed ||
       result?.action === AttachmentDialogResult.Uploaded
@@ -488,6 +497,12 @@ export class VaultV2Component<C extends CipherViewLike>
 
   async viewCipherMenu(c: CipherViewLike) {
     const cipher = await this.cipherService.getFullCipherView(c);
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    const userCanArchive = await firstValueFrom(this.cipherArchiveService.userCanArchive$(userId));
+    const orgOwnershipPolicy = await firstValueFrom(
+      this.policyService.policyAppliesToUser$(PolicyType.OrganizationDataOwnership, userId),
+    );
+
     const menu: RendererMenuItem[] = [
       {
         label: this.i18nService.t("view"),
@@ -512,7 +527,11 @@ export class VaultV2Component<C extends CipherViewLike>
           });
         },
       });
-      if (!cipher.organizationId) {
+
+      const archivedWithOrgOwnership = cipher.isArchived && orgOwnershipPolicy;
+      const canCloneArchived = !cipher.isArchived || userCanArchive;
+
+      if (!cipher.organizationId && !archivedWithOrgOwnership && canCloneArchived) {
         menu.push({
           label: this.i18nService.t("clone"),
           click: () => {
@@ -534,6 +553,26 @@ export class VaultV2Component<C extends CipherViewLike>
             }),
         });
       }
+    }
+
+    if (userCanArchive && !cipher.organizationId && !cipher.isDeleted && !cipher.isArchived) {
+      menu.push({
+        label: this.i18nService.t("archiveVerb"),
+        click: async () => {
+          await this.archiveCipherUtilitiesService.archiveCipher(cipher);
+          await this.refreshCurrentCipher();
+        },
+      });
+    }
+
+    if (cipher.isArchived) {
+      menu.push({
+        label: this.i18nService.t("unArchive"),
+        click: async () => {
+          await this.archiveCipherUtilitiesService.unarchiveCipher(cipher);
+          await this.refreshCurrentCipher();
+        },
+      });
     }
 
     switch (cipher.type) {
@@ -574,7 +613,7 @@ export class VaultV2Component<C extends CipherViewLike>
             click: async () => {
               const value = await firstValueFrom(
                 this.totpService.getCode$(cipher.login.totp),
-              ).catch(() => null);
+              ).catch((): any => null);
               if (value) {
                 this.copyValue(cipher, value.code, "verificationCodeTotp", "TOTP");
               }
@@ -617,7 +656,7 @@ export class VaultV2Component<C extends CipherViewLike>
   async buildFormConfig(action: CipherFormMode) {
     this.config = await this.formConfigService
       .buildConfig(action, this.cipherId as CipherId, this.addType)
-      .catch(() => null);
+      .catch((): any => null);
   }
 
   async editCipher(cipher: CipherView) {
@@ -721,10 +760,6 @@ export class VaultV2Component<C extends CipherViewLike>
 
     this.cipherId = cipher.id;
     this.cipher = cipher;
-    if (this.activeUserId) {
-      await this.cipherService.clearCache(this.activeUserId).catch(() => {});
-    }
-    await this.vaultItemsComponent?.load(this.activeFilter.buildFilter()).catch(() => {});
     await this.go().catch(() => {});
     await this.vaultItemsComponent?.refresh().catch(() => {});
   }
@@ -757,7 +792,11 @@ export class VaultV2Component<C extends CipherViewLike>
     );
     this.activeFilter = vaultFilter;
     await this.vaultItemsComponent
-      ?.reload(this.activeFilter.buildFilter(), vaultFilter.status === "trash")
+      ?.reload(
+        this.activeFilter.buildFilter(),
+        vaultFilter.status === "trash",
+        vaultFilter.status === "archive",
+      )
       .catch(() => {});
     await this.go().catch(() => {});
   }
@@ -829,6 +868,20 @@ export class VaultV2Component<C extends CipherViewLike>
     ) {
       await this.vaultFilterComponent?.reloadCollectionsAndFolders(this.activeFilter);
     }
+  }
+
+  /** Refresh the current cipher object */
+  protected async refreshCurrentCipher() {
+    if (!this.cipher) {
+      return;
+    }
+
+    this.cipher = await firstValueFrom(
+      this.cipherService.cipherViews$(this.activeUserId!).pipe(
+        filter((c) => !!c),
+        map((ciphers) => ciphers.find((c) => c.id === this.cipherId) ?? null),
+      ),
+    );
   }
 
   private dirtyInput(): boolean {

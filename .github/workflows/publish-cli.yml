@@ -65,14 +65,16 @@ jobs:
 
       - name: Version output
         id: version-output
+        env:
+          _INPUT_VERSION: ${{ inputs.version }}
         run: |
-          if [[ "${{ inputs.version }}" == "latest" || "${{ inputs.version }}" == "" ]]; then
+          if [[ "$_INPUT_VERSION" == "latest" || "$_INPUT_VERSION" == "" ]]; then
             VERSION=$(curl  "https://api.github.com/repos/bitwarden/clients/releases" | jq -c '.[] | select(.tag_name | contains("cli")) | .tag_name' | head -1 | grep -ohE '20[0-9]{2}\.([1-9]|1[0-2])\.[0-9]+')
             echo "Latest Released Version: $VERSION"
-            echo "version=$VERSION" >> $GITHUB_OUTPUT
+            echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           else
-            echo "Release Version: ${{ inputs.version }}"
-            echo "version=${{ inputs.version }}" >> $GITHUB_OUTPUT
+            echo "Release Version: $_INPUT_VERSION"
+            echo "version=$_INPUT_VERSION" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Create GitHub deployment
@@ -100,6 +102,8 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
 
       - name: Log in to Azure
         uses: bitwarden/gh-actions/azure-login@main
@@ -119,17 +123,17 @@ jobs:
         uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Install Snap
-        uses: samuelmeuli/action-snapcraft@d33c176a9b784876d966f80fb1b461808edc0641  # v2.1.1
+        uses: samuelmeuli/action-snapcraft@fceeb3c308e76f3487e72ef608618de625fb7fe8  # v3.0.1
 
       - name: Download artifacts
-        run: wget https://github.com/bitwarden/clients/releases/download/cli-v${{ env._PKG_VERSION }}/bw_${{ env._PKG_VERSION }}_amd64.snap
+        run: wget "https://github.com/bitwarden/clients/releases/download/cli-v$_PKG_VERSION/bw_$_PKG_VERSION_amd64.snap"
 
       - name: Publish Snap & logout
         if: ${{ inputs.publish_type != 'Dry Run' }}
         env:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ steps.retrieve-secrets.outputs.snapcraft-store-token }}
         run: |
-          snapcraft upload bw_${{ env._PKG_VERSION }}_amd64.snap --release stable
+          snapcraft upload "bw_$_PKG_VERSION_amd64.snap" --release stable
           snapcraft logout
 
   choco:
@@ -146,6 +150,8 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
 
       - name: Log in to Azure
         uses: bitwarden/gh-actions/azure-login@main
@@ -173,7 +179,7 @@ jobs:
         run: New-Item -ItemType directory -Path ./dist
 
       - name: Download artifacts
-        run: Invoke-WebRequest -Uri "https://github.com/bitwarden/clients/releases/download/cli-v${{ env._PKG_VERSION }}/bitwarden-cli.${{ env._PKG_VERSION }}.nupkg" -OutFile bitwarden-cli.${{ env._PKG_VERSION }}.nupkg
+        run: Invoke-WebRequest -Uri "https://github.com/bitwarden/clients/releases/download/cli-v$_PKG_VERSION/bitwarden-cli.$_PKG_VERSION.nupkg" -OutFile bitwarden-cli.$_PKG_VERSION.nupkg
         working-directory: apps/cli/dist
 
       - name: Push to Chocolatey
@@ -196,26 +202,33 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
       
       - name: Get Node version
         id: retrieve-node-version
+        working-directory: ./
         run: |
           NODE_NVMRC=$(cat .nvmrc)
           NODE_VERSION=${NODE_NVMRC/v/''}
-          echo "node_version=$NODE_VERSION" >> $GITHUB_OUTPUT
+          echo "node_version=$NODE_VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Set up Node
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
           node-version: ${{ steps.retrieve-node-version.outputs.node_version }}
-          npm-version: "11.5.1" # FIXME: npm 11.5.1 or later is required to publish w/ OIDC; move version management to somewhere maintainable by automation
           registry-url: "https://registry.npmjs.org/"
+
+      - name: Install NPM
+        run: |
+          npm install -g npm@latest # npm 11.5.1 or later is required to publish w/ OIDC
+          npm --version
 
       - name: Download and set up artifact
         run: |
           mkdir -p build
-          wget https://github.com/bitwarden/clients/releases/download/cli-v${{ env._PKG_VERSION }}/bitwarden-cli-${{ env._PKG_VERSION }}-npm-build.zip
-          unzip bitwarden-cli-${{ env._PKG_VERSION }}-npm-build.zip -d build
+          wget "https://github.com/bitwarden/clients/releases/download/cli-v$_PKG_VERSION/bitwarden-cli-$_PKG_VERSION-npm-build.zip"
+          unzip "bitwarden-cli-$_PKG_VERSION-npm-build.zip" -d build
 
       - name: Publish NPM
         if: ${{ inputs.publish_type != 'Dry Run' }}

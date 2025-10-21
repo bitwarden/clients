@@ -10,13 +10,19 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { ButtonModule, ButtonType, MenuModule } from "@bitwarden/components";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "tools-new-send-dropdown",
   templateUrl: "new-send-dropdown.component.html",
   imports: [JslibModule, CommonModule, ButtonModule, RouterLink, MenuModule, PremiumBadgeComponent],
 })
 export class NewSendDropdownComponent implements OnInit {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() hideIcon: boolean = false;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() buttonType: ButtonType = "primary";
 
   sendType = SendType;

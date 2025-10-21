@@ -39,6 +39,7 @@ export class Field extends Domain {
   decrypt(orgId: string, encKey?: SymmetricCryptoKey): Promise<FieldView> {
     return this.decryptObj<Field, FieldView>(
       this,
+      // @ts-expect-error ViewEncryptableKeys type should be fixed to allow for optional values, but is out of scope for now.
       new FieldView(this),
       ["name", "value"],
       orgId,

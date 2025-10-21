@@ -12,7 +12,11 @@ import {
   switchMap,
 } from "rxjs";
 
-import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
+import {
+  CollectionService,
+  CollectionTypes,
+  CollectionView,
+} from "@bitwarden/admin-console/common";
 import { sortDefaultCollections } from "@bitwarden/angular/vault/vault-filter/services/vault-filter.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -257,7 +261,8 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
         const collectionCopy = cloneCollection(
           new CollectionView({ ...c, name: c.name }),
         ) as CollectionFilter;
-        collectionCopy.icon = "bwi-collection-shared";
+        collectionCopy.icon =
+          c.type === CollectionTypes.DefaultUserCollection ? "bwi-user" : "bwi-collection-shared";
         const parts = c.name ? c.name.replace(/^\/+|\/+$/g, "").split(NestingDelimiter) : [];
         ServiceUtils.nestedTraverse(nodes, 0, parts, collectionCopy, undefined, NestingDelimiter);
       }
