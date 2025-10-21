@@ -6,7 +6,9 @@ import { BehaviorSubject, Observable, combineLatest, fromEvent, map, startWith }
   providedIn: "root",
 })
 export class SideNavService {
-  private _open$ = new BehaviorSubject<boolean>(!window.matchMedia("(max-width: 768px)").matches);
+  private _open$ = new BehaviorSubject<boolean>(
+    typeof window !== "undefined" ? !window.matchMedia("(max-width: 768px)").matches : true,
+  );
   open$ = this._open$.asObservable();
 
   private isSmallScreen$ = media("(max-width: 768px)");
