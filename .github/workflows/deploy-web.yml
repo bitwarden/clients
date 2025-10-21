@@ -390,7 +390,7 @@ jobs:
         env:
           AZCOPY_AUTO_LOGIN_TYPE: AZCLI
           AZCOPY_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-          _VAULT_NAME: ${{ steps.retrieve-secrets-azcopy.outputs.sa-bitwarden-web-vault-name }}.
+          _VAULT_NAME: ${{ steps.retrieve-secrets-azcopy.outputs.sa-bitwarden-web-vault-name }}
         run: |
           azcopy sync ./build "https://$_VAULT_NAME.blob.core.windows.net/$web/" \
             --delete-destination="${{ inputs.force-delete-destination }}" --compare-hash="MD5"
