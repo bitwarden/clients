@@ -36,7 +36,7 @@
     }
   },
   "noReportRan": {
-    "message": "You have not created a report yet"
+    "message": "Још увек нисте направили извештај"
   },
   "notifiedMembers": {
     "message": "Обавештени чланови"
@@ -90,8 +90,8 @@
   "assignMembersTasksToMonitorProgress": {
     "message": "Доделите задатке чланова да прате напредак"
   },
-  "onceYouReviewApplications": {
-    "message": "Једном када прегледате апликације и означите их као критичне, оне ће се овде приказати."
+  "onceYouReviewApps": {
+    "message": "Када прегледате апликације и означите их као критичне, можете доделити задатке члановима за решавање ризичних ставки и пратити напредак овде"
   },
   "sendReminders": {
     "message": "Пошаљи подсетнике"
@@ -188,22 +188,22 @@
     "message": "Означите апликацију као критичну"
   },
   "markAsCritical": {
-    "message": "Mark as critical"
+    "message": "Постави као критично"
   },
   "applicationsSelected": {
     "message": "applications selected"
   },
   "selectApplication": {
-    "message": "Select application"
+    "message": "Бирање апликације"
   },
   "unselectApplication": {
-    "message": "Unselect application"
+    "message": "Скини одабирања апликације"
   },
   "applicationsMarkedAsCriticalSuccess": {
     "message": "Апликације означене као критичне"
   },
   "applicationsMarkedAsCriticalFail": {
-    "message": "Failed to mark applications as critical"
+    "message": "Означавање апликација као критичних није успело"
   },
   "application": {
     "message": "Апликација"
@@ -293,7 +293,7 @@
     "message": "Укупно апликација"
   },
   "applicationsNeedingReview": {
-    "message": "Applications needing review"
+    "message": "Апликације које треба прегледати"
   },
   "newApplicationsWithCount": {
     "message": "$COUNT$ new applications",
@@ -305,19 +305,19 @@
     }
   },
   "newApplicationsDescription": {
-    "message": "Review new applications to mark as critical and keep your organization secure"
+    "message": "Прегледајте нове апликације да бисте их означили као критичне и заштитили своју организацију"
   },
   "reviewNow": {
-    "message": "Review now"
+    "message": "Прегледај сада"
   },
   "prioritizeCriticalApplications": {
-    "message": "Prioritize critical applications"
+    "message": "Дајте приоритет критичним апликацијама"
   },
   "atRiskItems": {
-    "message": "At-risk items"
+    "message": "Ставке под ризиком"
   },
   "markAsCriticalPlaceholder": {
-    "message": "Mark as critical functionality will be implemented in a future update"
+    "message": "Означи као критичну функционалност ће бити имплементирана у будућем ажурирању"
   },
   "unmarkAsCritical": {
     "message": "Уклони као критично"
@@ -1294,7 +1294,7 @@
     "message": "Држите овај прозор отворен и пратите упутства из прегледача."
   },
   "passkeyAuthenticationFailed": {
-    "message": "Passkey authentication failed. Please try again."
+    "message": "Потврда приступачног кључа није успела. Покушајте поново."
   },
   "useADifferentLogInMethod": {
     "message": "Користи други начин пријављивања"
@@ -2951,7 +2951,7 @@
     "message": "Уверите се да је на вашем рачуну доступно довољно кредита за ову куповину. Ако на вашем рачуну нема довољно кредита, за разлику ће се користити ваш подразумевани начин плаћања у евиденцији. На свој рачун можете да додате кредит на страници Обрачун."
   },
   "notEnoughAccountCredit": {
-    "message": "You do not have enough account credit for this purchase. You can add credit to your account from the Billing page."
+    "message": "Немате довољно кредита на рачуну за ову куповину. Можете да додате кредит на свој налог са странице Обрачун."
   },
   "creditAppliedDesc": {
     "message": "Кредит вашег рачуна може се користити за куповину. Сав расположиви кредит аутоматски ће се применити на фактуре генерисане за овај рачун."
@@ -4362,7 +4362,7 @@
     "message": "Генерисање прегледа вашег ризика..."
   },
   "riskInsightsRunReport": {
-    "message": "Run report"
+    "message": "Покрените извештај"
   },
   "updateBrowserDesc": {
     "message": "Користите неподржани веб прегледач. Веб сеф можда неће правилно функционисати."
@@ -11294,11 +11294,46 @@
     "message": "Архива",
     "description": "Verb"
   },
+  "unArchive": {
+    "message": "Unarchive"
+  },
+  "itemsInArchive": {
+    "message": "Items in archive"
+  },
   "noItemsInArchive": {
     "message": "Нема ставка у архиви"
   },
-  "archivedItemsDescription": {
-    "message": "Архивиране ставке ће се овде појавити и бити искључени из општих резултата претраге и сугестија о ауто-пуњењу."
+  "noItemsInArchiveDesc": {
+    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+  },
+  "itemWasSentToArchive": {
+    "message": "Item was sent to archive"
+  },
+  "itemsWereSentToArchive": {
+    "message": "Items were sent to archive"
+  },
+  "itemUnarchived": {
+    "message": "Item was unarchived"
+  },
+  "bulkArchiveItems": {
+    "message": "Items archived"
+  },
+  "bulkUnarchiveItems": {
+    "message": "Items unarchived"
+  },
+  "archiveItem": {
+    "message": "Archive item",
+    "description": "Verb"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+  },
+  "archiveBulkItems": {
+    "message": "Archive items",
+    "description": "Verb"
+  },
+  "archiveBulkItemsConfirmDesc": {
+    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive these items?"
   },
   "businessUnit": {
     "message": "Пословна јединица"
@@ -11801,7 +11836,25 @@
   "continueWithoutUpgrading": {
     "message": "Continue without upgrading"
   },
+  "upgradeYourPlan": {
+    "message": "Upgrade your plan"
+  },
+  "upgradeNow": {
+    "message": "Upgrade now"
+  },
+  "formWillCreateNewFamiliesOrgMessage": {
+    "message": "Completing this form will create a new Families organization. You can upgrade your Free organization from the Admin Console."
+  },
   "upgradeErrorMessage": {
     "message": "We encountered an error while processing your upgrade. Please try again."
+  },
+  "bitwardenFreeplanMessage": {
+    "message": "You have the Bitwarden Free plan"
+  },
+  "upgradeCompleteSecurity": {
+    "message": "Upgrade for complete security"
+  },
+  "viewbusinessplans": {
+    "message": "View business plans"
   }
 }

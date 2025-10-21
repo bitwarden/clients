@@ -302,7 +302,7 @@ export class ItemMoreOptionsComponent {
     await this.cipherArchiveService.archiveWithServer(this.cipher.id as CipherId, activeUserId);
     this.toastService.showToast({
       variant: "success",
-      message: this.i18nService.t("itemSentToArchive"),
+      message: this.i18nService.t("itemWasSentToArchive"),
     });
   }
 }

@@ -90,8 +90,8 @@
   "assignMembersTasksToMonitorProgress": {
     "message": "Affecter des tâches aux membres pour surveiller la progression"
   },
-  "onceYouReviewApplications": {
-    "message": "Une fois que vous avez évalué et marqué des applications comme critiques, elles s'afficheront ici."
+  "onceYouReviewApps": {
+    "message": "Une fois que vous examinez les applications et marquez comme critiques, vous pouvez assigner des tâches aux membres pour résoudre les éléments à risque et suivre les progrès ici"
   },
   "sendReminders": {
     "message": "Envoyer des rappels"
@@ -1318,7 +1318,7 @@
     "message": "Utilisez une clé d'accès générée qui vous connectera automatiquement sans mot de passe. La biométrie, comme la reconnaissance faciale ou les empreintes digitales, ou une autre méthode de sécurité FIDO2 vérifiera votre identité."
   },
   "newPasskey": {
-    "message": "Nouvelle clé d'identification (passkey)"
+    "message": "Nouvelle clé d'accès"
   },
   "learnMoreAboutPasswordless": {
     "message": "En savoir plus sur l'identification sans mots de passe"
@@ -11294,11 +11294,46 @@
     "message": "Archive",
     "description": "Verb"
   },
+  "unArchive": {
+    "message": "Désarchiver"
+  },
+  "itemsInArchive": {
+    "message": "Éléments dans l'archive"
+  },
   "noItemsInArchive": {
     "message": "Aucun élément dans l'archive"
   },
-  "archivedItemsDescription": {
+  "noItemsInArchiveDesc": {
     "message": "Les éléments archivés apparaîtront ici et seront exclus des résultats de recherche généraux et des suggestions de remplissage automatique."
+  },
+  "itemWasSentToArchive": {
+    "message": "L'élément a été envoyé à l'archive"
+  },
+  "itemsWereSentToArchive": {
+    "message": "Les éléments ont été envoyés à l'archive"
+  },
+  "itemUnarchived": {
+    "message": "L'élément a été désarchivé"
+  },
+  "bulkArchiveItems": {
+    "message": "Éléments archivés"
+  },
+  "bulkUnarchiveItems": {
+    "message": "Éléments désarchivés"
+  },
+  "archiveItem": {
+    "message": "Archiver l'élément",
+    "description": "Verb"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Les éléments archivés sont exclus des résultats de recherche généraux et des suggestions de remplissage automatique. Êtes-vous sûr de vouloir archiver cet élément ?"
+  },
+  "archiveBulkItems": {
+    "message": "Archiver les éléments",
+    "description": "Verb"
+  },
+  "archiveBulkItemsConfirmDesc": {
+    "message": "Les éléments archivés sont exclus des résultats de recherche généraux et des suggestions de remplissage automatique. Êtes-vous sûr de vouloir archiver ces éléments ?"
   },
   "businessUnit": {
     "message": "Unité d'affaires"
@@ -11801,7 +11836,25 @@
   "continueWithoutUpgrading": {
     "message": "Continuer sans mettre à niveau"
   },
+  "upgradeYourPlan": {
+    "message": "Mettez votre forfait à niveau"
+  },
+  "upgradeNow": {
+    "message": "Mettre à niveau maintenant"
+  },
+  "formWillCreateNewFamiliesOrgMessage": {
+    "message": "Compléter ce formulaire créera une nouvelle organisation Familles. Vous pouvez mettre à niveau votre organisation gratuite à partir de la Console Admin."
+  },
   "upgradeErrorMessage": {
     "message": "Nous avons rencontré une erreur lors du traitement de votre mise à niveau. Veuillez réessayer."
+  },
+  "bitwardenFreeplanMessage": {
+    "message": "Vous avez le forfait Bitwarden Gratuit"
+  },
+  "upgradeCompleteSecurity": {
+    "message": "Passez au forfait supérieur pour une sécurité complète"
+  },
+  "viewbusinessplans": {
+    "message": "Voir les forfaits d'affaires"
   }
 }

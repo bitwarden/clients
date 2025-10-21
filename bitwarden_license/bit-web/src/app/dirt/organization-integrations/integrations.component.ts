@@ -269,25 +269,24 @@ export class AdminConsoleIntegrationsComponent implements OnInit, OnDestroy {
     if (this.isEventBasedIntegrationsEnabled) {
       const crowdstrikeIntegration: Integration = {
         name: OrganizationIntegrationServiceType.CrowdStrike,
-        linkURL: "",
+        linkURL: "https://bitwarden.com/help/crowdstrike-siem/",
         image: "../../../../../../../images/integrations/logo-crowdstrike-black.svg",
         type: IntegrationType.EVENT,
         description: "crowdstrikeEventIntegrationDesc",
         canSetupConnection: true,
-        integrationType: 5, // Assuming 5 corresponds to CrowdStrike in OrganizationIntegrationType
+        integrationType: OrganizationIntegrationType.Hec,
       };
 
       this.integrationsList.push(crowdstrikeIntegration);
 
       const datadogIntegration: Integration = {
         name: OrganizationIntegrationServiceType.Datadog,
-        // TODO: Update link when help article is published
-        linkURL: "",
+        linkURL: "https://bitwarden.com/help/datadog-siem/",
         image: "../../../../../../../images/integrations/logo-datadog-color.svg",
         type: IntegrationType.EVENT,
         description: "datadogEventIntegrationDesc",
         canSetupConnection: true,
-        integrationType: 6, // Assuming 6 corresponds to Datadog in OrganizationIntegrationType
+        integrationType: OrganizationIntegrationType.Datadog,
       };
 
       this.integrationsList.push(datadogIntegration);

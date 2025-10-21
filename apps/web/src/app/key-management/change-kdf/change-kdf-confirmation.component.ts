@@ -12,6 +12,8 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { DIALOG_DATA, ToastService } from "@bitwarden/components";
 import { KdfConfig, KdfType } from "@bitwarden/key-management";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-change-kdf-confirmation",
   templateUrl: "change-kdf-confirmation.component.html",

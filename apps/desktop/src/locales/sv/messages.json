@@ -2549,6 +2549,9 @@
       }
     }
   },
+  "vaultCustomTimeoutMinimum": {
+    "message": "Minsta anpassade tidsgräns är 1 minut."
+  },
   "inviteAccepted": {
     "message": "Inbjudan accepterad"
   },
@@ -4149,8 +4152,8 @@
     "message": "Arkivera",
     "description": "Verb"
   },
-  "unarchive": {
-    "message": "Packa upp"
+  "unArchive": {
+    "message": "Avarkivera"
   },
   "itemsInArchive": {
     "message": "Objekt i arkivet"
@@ -4161,11 +4164,11 @@
   "noItemsInArchiveDesc": {
     "message": "Arkiverade objekt kommer att visas här och kommer att uteslutas från allmänna sökresultat och förslag för autofyll."
   },
-  "itemSentToArchive": {
-    "message": "Objekt skickat till arkiv"
+  "itemWasSentToArchive": {
+    "message": "Objektet skickades till arkivet"
   },
-  "itemRemovedFromArchive": {
-    "message": "Objekt borttaget från arkiv"
+  "itemUnarchived": {
+    "message": "Objektet har avarkiverats"
   },
   "archiveItem": {
     "message": "Arkivera objekt"

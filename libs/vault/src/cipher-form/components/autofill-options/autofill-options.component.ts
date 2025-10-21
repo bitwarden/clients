@@ -76,10 +76,12 @@ export class AutofillOptionsComponent implements OnInit {
     return this.cipherFormContainer.config.mode === "partial-edit";
   }
 
-  protected defaultMatchDetection$ = this.domainSettingsService.defaultUriMatchStrategy$.pipe(
-    // The default match detection should only be shown when used on the browser
-    filter(() => this.platformUtilsService.getClientType() == ClientType.Browser),
-  );
+  protected defaultMatchDetection$ =
+    this.domainSettingsService.resolvedDefaultUriMatchStrategy$.pipe(
+      // The default match detection should only be shown when used on the browser
+      filter(() => this.platformUtilsService.getClientType() == ClientType.Browser),
+    );
+
   protected autofillOnPageLoadEnabled$ = this.autofillSettingsService.autofillOnPageLoad$;
 
   protected autofillOptions: { label: string; value: boolean | null }[] = [

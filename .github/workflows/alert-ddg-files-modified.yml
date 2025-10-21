@@ -17,6 +17,7 @@ jobs:
       uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       with:
         fetch-depth: 0
+        persist-credentials: false
 
     - name: Get changed files
       id: changed-files
@@ -68,9 +69,11 @@ jobs:
     - name: Comment on PR if monitored files changed
       if: steps.changed-files.outputs.monitored == 'true'
       uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+      env:
+        _MONITORED_FILES: ${{ steps.changed-files.outputs.monitored_files }}
       with:
         script: |
-          const changedFiles = `${{ steps.changed-files.outputs.monitored_files }}`.split(' ').filter(file => file.trim() !== '');
+          const changedFiles = `$_MONITORED_FILES`.split(' ').filter(file => file.trim() !== '');
 
           const message = `<!-- comment_tag: ddg-test-warning -->
           ⚠️🦆 **DuckDuckGo Integration files have been modified in this PR:**

@@ -3,11 +3,13 @@
 import { CommonModule, DatePipe } from "@angular/common";
 import { Component } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
+import { firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AddEditComponent as BaseAddEditComponent } from "@bitwarden/angular/tools/send/add-edit.component";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -19,6 +21,8 @@ import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.s
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { CalloutModule, DialogService, ToastService } from "@bitwarden/components";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-send-add-edit",
   templateUrl: "add-edit.component.html",
@@ -63,7 +67,8 @@ export class AddEditComponent extends BaseAddEditComponent {
 
   async refresh() {
     const send = await this.loadSend();
-    this.send = await send.decrypt();
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    this.send = await send.decrypt(userId);
     this.updateFormValues();
     this.hasPassword = this.send.password != null && this.send.password.trim() !== "";
   }

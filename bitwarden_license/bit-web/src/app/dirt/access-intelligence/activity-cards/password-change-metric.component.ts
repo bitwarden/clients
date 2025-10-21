@@ -9,6 +9,7 @@ import {
   LEGACY_ApplicationHealthReportDetailWithCriticalFlagAndCipher,
   SecurityTasksApiService,
   TaskMetrics,
+  OrganizationReportSummary,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { ButtonModule, ProgressModule, TypographyModule } from "@bitwarden/components";
@@ -73,25 +74,8 @@ export class PasswordChangeMetricComponent implements OnInit {
         this.totalTasks = taskMetrics.totalTasks;
         this.allApplicationsDetails = allApplicationsDetails;
 
-        // No critical apps setup
-        this.renderMode =
-          summary.totalCriticalApplicationCount === 0 ? RenderMode.noCriticalApps : this.renderMode;
-
-        // Critical apps setup with at-risk apps but no tasks
-        this.renderMode =
-          summary.totalCriticalApplicationCount > 0 &&
-          summary.totalCriticalAtRiskApplicationCount >= 0 &&
-          taskMetrics.totalTasks === 0
-            ? RenderMode.criticalAppsWithAtRiskAppsAndNoTasks
-            : this.renderMode;
-
-        // Critical apps setup with at-risk apps and tasks
-        this.renderMode =
-          summary.totalAtRiskApplicationCount > 0 &&
-          summary.totalCriticalAtRiskApplicationCount >= 0 &&
-          taskMetrics.totalTasks > 0
-            ? RenderMode.criticalAppsWithAtRiskAppsAndTasks
-            : this.renderMode;
+        // Determine render mode based on state
+        this.renderMode = this.determineRenderMode(summary, taskMetrics, atRiskPasswordsCount);
 
         this.allActivitiesService.setPasswordChangeProgressMetricHasProgressBar(
           this.renderMode === RenderMode.criticalAppsWithAtRiskAppsAndTasks,
@@ -105,6 +89,38 @@ export class PasswordChangeMetricComponent implements OnInit {
     private allActivitiesService: AllActivitiesService,
     protected accessIntelligenceSecurityTasksService: AccessIntelligenceSecurityTasksService,
   ) {}
+
+  private determineRenderMode(
+    summary: OrganizationReportSummary,
+    taskMetrics: TaskMetrics,
+    atRiskPasswordsCount: number,
+  ): RenderMode {
+    // State 1: No critical apps setup
+    if (summary.totalCriticalApplicationCount === 0) {
+      return RenderMode.noCriticalApps;
+    }
+
+    // State 2: Critical apps with at-risk passwords but no tasks assigned yet
+    // OR tasks exist but NEW at-risk passwords detected (more at-risk passwords than tasks)
+    if (
+      summary.totalCriticalApplicationCount > 0 &&
+      (taskMetrics.totalTasks === 0 || atRiskPasswordsCount > taskMetrics.totalTasks)
+    ) {
+      return RenderMode.criticalAppsWithAtRiskAppsAndNoTasks;
+    }
+
+    // State 3: Critical apps with at-risk apps and tasks (progress tracking)
+    if (
+      summary.totalCriticalApplicationCount > 0 &&
+      taskMetrics.totalTasks > 0 &&
+      atRiskPasswordsCount <= taskMetrics.totalTasks
+    ) {
+      return RenderMode.criticalAppsWithAtRiskAppsAndTasks;
+    }
+
+    // Default to no critical apps
+    return RenderMode.noCriticalApps;
+  }
 
   get completedPercent(): number {
     if (this.totalTasks === 0) {
@@ -144,7 +160,19 @@ export class PasswordChangeMetricComponent implements OnInit {
   }
 
   get canAssignTasks(): boolean {
-    return this.atRiskAppsCount > this.totalTasks ? true : false;
+    return this.atRiskPasswordsCount > this.totalTasks;
+  }
+
+  get hasExistingTasks(): boolean {
+    return this.totalTasks > 0;
+  }
+
+  get newAtRiskPasswordsCount(): number {
+    // Calculate new at-risk passwords as the difference between current count and tasks created
+    if (this.atRiskPasswordsCount > this.totalTasks) {
+      return this.atRiskPasswordsCount - this.totalTasks;
+    }
+    return 0;
   }
 
   get renderModes() {
