@@ -88,13 +88,17 @@ export class CipherViewComponent {
     private cipherService: CipherService,
     private logService: LogService,
   ) {
-    effect(() => {
+    effect(async () => {
       const cipher = this.cipher();
       if (cipher == null) {
         return;
       }
 
-      void this.loadCipherData();
+      const userId = await firstValueFrom(this.activeUserId$);
+
+      if (cipher.type === CipherType.Login && cipher.organizationId) {
+        await this.checkPendingChangePasswordTasks(userId);
+      }
     });
   }
 
@@ -186,19 +190,6 @@ export class CipherViewComponent {
     const cipher = this.cipher();
     return cipher?.login?.hasUris;
   });
-
-  private async loadCipherData() {
-    const cipher = this.cipher();
-    if (!cipher) {
-      return;
-    }
-
-    const userId = await firstValueFrom(this.activeUserId$);
-
-    if (cipher.type === CipherType.Login && cipher.organizationId) {
-      await this.checkPendingChangePasswordTasks(userId);
-    }
-  }
 
   private async checkPendingChangePasswordTasks(userId: UserId): Promise<void> {
     const cipher = this.cipher();
