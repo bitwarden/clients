@@ -58,6 +58,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           ref: ${{  github.event.pull_request.head.sha }}
+          persist-credentials: false
 
       - name: Verify
         run: |
@@ -90,35 +91,38 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           ref: ${{  github.event.pull_request.head.sha }}
+          persist-credentials: true
 
       - name: Get Package Version
         id: retrieve-version
         run: |
           PKG_VERSION=$(jq -r .version src/package.json)
           echo "Setting version number to $PKG_VERSION"
-          echo "package_version=$PKG_VERSION" >> $GITHUB_OUTPUT
+          echo "package_version=$PKG_VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Increment Version
         id: increment-version
         run: |
-          BUILD_NUMBER=$(expr 3000 + $GITHUB_RUN_NUMBER)
+          BUILD_NUMBER=$((3000 + GITHUB_RUN_NUMBER))
           echo "Setting build number to $BUILD_NUMBER"
-          echo "build_number=$BUILD_NUMBER" >> $GITHUB_OUTPUT
+          echo "build_number=$BUILD_NUMBER" >> "$GITHUB_OUTPUT"
 
       - name: Get Version Channel
         id: release-channel
+        env:
+          _PACKAGE_VERSION: ${{ steps.retrieve-version.outputs.package_version }}
         run: |
-          case "${{ steps.retrieve-version.outputs.package_version }}" in
+          case "$_PACKAGE_VERSION" in
             *"alpha"*)
-              echo "channel=alpha" >> $GITHUB_OUTPUT
+              echo "channel=alpha" >> "$GITHUB_OUTPUT"
               echo "[!] We do not yet support 'alpha'"
               exit 1
               ;;
             *"beta"*)
-              echo "channel=beta" >> $GITHUB_OUTPUT
+              echo "channel=beta" >> "$GITHUB_OUTPUT"
               ;;
             *)
-              echo "channel=latest" >> $GITHUB_OUTPUT
+              echo "channel=latest" >> "$GITHUB_OUTPUT"
               ;;
           esac
 
@@ -126,15 +130,15 @@ jobs:
         id: branch-check
         run: |
           if [[ $(git ls-remote --heads origin rc) ]]; then
-            echo "rc_branch_exists=1" >> $GITHUB_OUTPUT
+            echo "rc_branch_exists=1" >> "$GITHUB_OUTPUT"
           else
-            echo "rc_branch_exists=0" >> $GITHUB_OUTPUT
+            echo "rc_branch_exists=0" >> "$GITHUB_OUTPUT"
           fi
 
           if [[ $(git ls-remote --heads origin hotfix-rc-desktop) ]]; then
-            echo "hotfix_branch_exists=1" >> $GITHUB_OUTPUT
+            echo "hotfix_branch_exists=1" >> "$GITHUB_OUTPUT"
           else
-            echo "hotfix_branch_exists=0" >> $GITHUB_OUTPUT
+            echo "hotfix_branch_exists=0" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Get Node Version
@@ -143,13 +147,13 @@ jobs:
         run: |
           NODE_NVMRC=$(cat .nvmrc)
           NODE_VERSION=${NODE_NVMRC/v/''}
-          echo "node_version=$NODE_VERSION" >> $GITHUB_OUTPUT
+          echo "node_version=$NODE_VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Check secrets
         id: check-secrets
         run: |
           has_secrets=${{ secrets.AZURE_CLIENT_ID != '' }}
-          echo "has_secrets=$has_secrets" >> $GITHUB_OUTPUT
+          echo "has_secrets=$has_secrets" >> "$GITHUB_OUTPUT"
 
   linux:
     name: Linux Build
@@ -172,6 +176,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           ref: ${{  github.event.pull_request.head.sha }}
+          persist-credentials: false
 
       - name: Set up Node
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
@@ -321,6 +326,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           ref: ${{  github.event.pull_request.head.sha }}
+          persist-credentials: false
 
       - name: Set up Node
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
@@ -427,6 +433,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           ref: ${{  github.event.pull_request.head.sha }}
+          persist-credentials: false
 
       - name: Set up Node
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
@@ -533,21 +540,21 @@ jobs:
       - name: Rename appx files for store
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         run: |
-          Copy-Item "./dist/Bitwarden-${{ env._PACKAGE_VERSION }}-ia32.appx" `
-            -Destination "./dist/Bitwarden-${{ env._PACKAGE_VERSION }}-ia32-store.appx"
-          Copy-Item "./dist/Bitwarden-${{ env._PACKAGE_VERSION }}-x64.appx" `
-            -Destination "./dist/Bitwarden-${{ env._PACKAGE_VERSION }}-x64-store.appx"
-          Copy-Item "./dist/Bitwarden-${{ env._PACKAGE_VERSION }}-arm64.appx" `
-            -Destination "./dist/Bitwarden-${{ env._PACKAGE_VERSION }}-arm64-store.appx"
+          Copy-Item "./dist/Bitwarden-$env:_PACKAGE_VERSION-ia32.appx" `
+            -Destination "./dist/Bitwarden-$env:_PACKAGE_VERSION-ia32-store.appx"
+          Copy-Item "./dist/Bitwarden-$env:_PACKAGE_VERSION-x64.appx" `
+            -Destination "./dist/Bitwarden-$env:_PACKAGE_VERSION-x64-store.appx"
+          Copy-Item "./dist/Bitwarden-$env:_PACKAGE_VERSION-arm64.appx" `
+            -Destination "./dist/Bitwarden-$env:_PACKAGE_VERSION-arm64-store.appx"
 
       - name: Package for Chocolatey
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         run: |
           Copy-Item -Path ./stores/chocolatey -Destination ./dist/chocolatey -Recurse
-          Copy-Item -Path ./dist/nsis-web/Bitwarden-Installer-${{ env._PACKAGE_VERSION }}.exe `
+          Copy-Item -Path ./dist/nsis-web/Bitwarden-Installer-$env:_PACKAGE_VERSION.exe `
           -Destination ./dist/chocolatey
 
-          $checksum = checksum -t sha256 ./dist/chocolatey/Bitwarden-Installer-${{ env._PACKAGE_VERSION }}.exe
+          $checksum = checksum -t sha256 ./dist/chocolatey/Bitwarden-Installer-$env:_PACKAGE_VERSION.exe
           $chocoInstall = "./dist/chocolatey/tools/chocolateyinstall.ps1"
           (Get-Content $chocoInstall).replace('__version__', "$env:_PACKAGE_VERSION").replace('__checksum__', $checksum) | Set-Content $chocoInstall
           choco pack ./dist/chocolatey/bitwarden.nuspec --version "$env:_PACKAGE_VERSION" --out ./dist/chocolatey
@@ -555,12 +562,12 @@ jobs:
       - name: Fix NSIS artifact names for auto-updater
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         run: |
-          Rename-Item -Path .\dist\nsis-web\Bitwarden-${{ env._PACKAGE_VERSION }}-ia32.nsis.7z `
-            -NewName bitwarden-${{ env._PACKAGE_VERSION }}-ia32.nsis.7z
-          Rename-Item -Path .\dist\nsis-web\Bitwarden-${{ env._PACKAGE_VERSION }}-x64.nsis.7z `
-            -NewName bitwarden-${{ env._PACKAGE_VERSION }}-x64.nsis.7z
-          Rename-Item -Path .\dist\nsis-web\Bitwarden-${{ env._PACKAGE_VERSION }}-arm64.nsis.7z `
-            -NewName bitwarden-${{ env._PACKAGE_VERSION }}-arm64.nsis.7z
+          Rename-Item -Path .\dist\nsis-web\Bitwarden-$env:_PACKAGE_VERSION-ia32.nsis.7z `
+            -NewName bitwarden-$env:_PACKAGE_VERSION-ia32.nsis.7z
+          Rename-Item -Path .\dist\nsis-web\Bitwarden-$env:_PACKAGE_VERSION-x64.nsis.7z `
+            -NewName bitwarden-$env:_PACKAGE_VERSION-x64.nsis.7z
+          Rename-Item -Path .\dist\nsis-web\Bitwarden-$env:_PACKAGE_VERSION-arm64.nsis.7z `
+            -NewName bitwarden-$env:_PACKAGE_VERSION-arm64.nsis.7z
 
       - name: Upload portable exe artifact
         uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
@@ -573,7 +580,7 @@ jobs:
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
-          name: Bitwarden-Installer-${{ env._PACKAGE_VERSION }}.exe
+          name: Bitwarden-Installer-${{ env._PACKAGE_VERSION }}..exe
           path: apps/desktop/dist/nsis-web/Bitwarden-Installer-${{ env._PACKAGE_VERSION }}.exe
           if-no-files-found: error
 
@@ -919,6 +926,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           ref: ${{  github.event.pull_request.head.sha }}
+          persist-credentials: false
 
       - name: Set up Node
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
@@ -974,40 +982,40 @@ jobs:
           ACCOUNT_NAME: bitwardenci
           CONTAINER_NAME: profiles
         run: |
-          mkdir -p $HOME/secrets
+          mkdir -p "$HOME/secrets"
 
-          az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME \
+          az storage blob download --account-name "$ACCOUNT_NAME" --container-name "$CONTAINER_NAME" \
             --name bitwarden_desktop_appstore.provisionprofile \
-            --file $HOME/secrets/bitwarden_desktop_appstore.provisionprofile \
+            --file "$HOME/secrets/bitwarden_desktop_appstore.provisionprofile" \
             --output none
 
-          az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME \
+          az storage blob download --account-name "$ACCOUNT_NAME" --container-name "$CONTAINER_NAME" \
             --name bitwarden_desktop_autofill_app_store_2024.provisionprofile \
-            --file $HOME/secrets/bitwarden_desktop_autofill_app_store_2024.provisionprofile \
+            --file "$HOME/secrets/bitwarden_desktop_autofill_app_store_2024.provisionprofile" \
             --output none
 
       - name: Get certificates
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         run: |
-          mkdir -p $HOME/certificates
+          mkdir -p "$HOME/certificates"
 
           az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/bitwarden-desktop-key |
-            jq -r .value | base64 -d > $HOME/certificates/bitwarden-desktop-key.p12
+            jq -r .value | base64 -d > "$HOME/certificates/bitwarden-desktop-key.p12"
 
           az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/appstore-app-cert |
-            jq -r .value | base64 -d > $HOME/certificates/appstore-app-cert.p12
+            jq -r .value | base64 -d > "$HOME/certificates/appstore-app-cert.p12"
 
           az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/appstore-installer-cert |
-            jq -r .value | base64 -d > $HOME/certificates/appstore-installer-cert.p12
+            jq -r .value | base64 -d > "$HOME/certificates/appstore-installer-cert.p12"
 
           az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/devid-app-cert |
-            jq -r .value | base64 -d > $HOME/certificates/devid-app-cert.p12
+            jq -r .value | base64 -d > "$HOME/certificates/devid-app-cert.p12"
 
           az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/devid-installer-cert |
-            jq -r .value | base64 -d > $HOME/certificates/devid-installer-cert.p12
+            jq -r .value | base64 -d > "$HOME/certificates/devid-installer-cert.p12"
 
           az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/macdev-cert |
-            jq -r .value | base64 -d > $HOME/certificates/macdev-cert.p12
+            jq -r .value | base64 -d > "$HOME/certificates/macdev-cert.p12"
 
       - name: Log out from Azure
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
@@ -1018,9 +1026,9 @@ jobs:
         env:
           KEYCHAIN_PASSWORD: ${{ steps.get-kv-secrets.outputs.KEYCHAIN-PASSWORD }}
         run: |
-          security create-keychain -p $KEYCHAIN_PASSWORD build.keychain
+          security create-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
           security default-keychain -s build.keychain
-          security unlock-keychain -p $KEYCHAIN_PASSWORD build.keychain
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
           security set-keychain-settings -lut 1200 build.keychain
 
           security import "$HOME/certificates/bitwarden-desktop-key.p12" -k build.keychain -P "" \
@@ -1041,22 +1049,22 @@ jobs:
           security import "$HOME/certificates/macdev-cert.p12" -k build.keychain -P "" \
             -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
 
-          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $KEYCHAIN_PASSWORD build.keychain
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" build.keychain
 
       - name: Set up provisioning profiles
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         run: |
-          cp $HOME/secrets/bitwarden_desktop_appstore.provisionprofile \
-            $GITHUB_WORKSPACE/apps/desktop/bitwarden_desktop_appstore.provisionprofile
+          cp "$HOME/secrets/bitwarden_desktop_appstore.provisionprofile" \
+            "$GITHUB_WORKSPACE/apps/desktop/bitwarden_desktop_appstore.provisionprofile"
 
-          mkdir -p $HOME/Library/MobileDevice/Provisioning\ Profiles
-          export APP_UUID=`grep UUID -A1 -a $HOME/secrets/bitwarden_desktop_appstore.provisionprofile | grep -io "[-A-Z0-9]\{36\}"`
-          export AUTOFILL_UUID=`grep UUID -A1 -a $HOME/secrets/bitwarden_desktop_autofill_app_store_2024.provisionprofile | grep -io "[-A-Z0-9]\{36\}"`
+          mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
+          APP_UUID=$(grep UUID -A1 -a "$HOME/secrets/bitwarden_desktop_appstore.provisionprofile" | grep -io "[-A-Z0-9]\{36\}")
+          AUTOFILL_UUID=$(grep UUID -A1 -a "$HOME/secrets/bitwarden_desktop_autofill_app_store_2024.provisionprofile" | grep -io "[-A-Z0-9]\{36\}")
 
-          cp $HOME/secrets/bitwarden_desktop_appstore.provisionprofile \
-            $HOME/Library/MobileDevice/Provisioning\ Profiles/$APP_UUID.provisionprofile
-          cp $HOME/secrets/bitwarden_desktop_autofill_app_store_2024.provisionprofile \
-            $HOME/Library/MobileDevice/Provisioning\ Profiles/$AUTOFILL_UUID.provisionprofile
+          cp "$HOME/secrets/bitwarden_desktop_appstore.provisionprofile" \
+            "$HOME/Library/MobileDevice/Provisioning Profiles/$APP_UUID.provisionprofile"
+          cp "$HOME/secrets/bitwarden_desktop_autofill_app_store_2024.provisionprofile" \
+            "$HOME/Library/MobileDevice/Provisioning Profiles/$AUTOFILL_UUID.provisionprofile"
 
       - name: Increment version
         shell: pwsh
@@ -1145,6 +1153,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           ref: ${{  github.event.pull_request.head.sha }}
+          persist-credentials: false
 
       - name: Set up Node
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
@@ -1197,39 +1206,39 @@ jobs:
           ACCOUNT_NAME: bitwardenci
           CONTAINER_NAME: profiles
         run: |
-          mkdir -p $HOME/secrets
+          mkdir -p "$HOME/secrets"
 
-          az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME \
+          az storage blob download --account-name "$ACCOUNT_NAME" --container-name "$CONTAINER_NAME" \
             --name bitwarden_desktop_developer_id.provisionprofile \
-            --file $HOME/secrets/bitwarden_desktop_developer_id.provisionprofile \
+            --file "$HOME/secrets/bitwarden_desktop_developer_id.provisionprofile" \
             --output none
 
-          az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME \
+          az storage blob download --account-name "$ACCOUNT_NAME" --container-name "$CONTAINER_NAME" \
             --name bitwarden_desktop_autofill_developer_id.provisionprofile \
-            --file $HOME/secrets/bitwarden_desktop_autofill_developer_id.provisionprofile \
+            --file "$HOME/secrets/bitwarden_desktop_autofill_developer_id.provisionprofile" \
             --output none
 
       - name: Get certificates
         run: |
-          mkdir -p $HOME/certificates
+          mkdir -p "$HOME/certificates"
 
           az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/bitwarden-desktop-key |
-            jq -r .value | base64 -d > $HOME/certificates/bitwarden-desktop-key.p12
+            jq -r .value | base64 -d > "$HOME/certificates/bitwarden-desktop-key.p12"
 
           az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/appstore-app-cert |
-            jq -r .value | base64 -d > $HOME/certificates/appstore-app-cert.p12
+            jq -r .value | base64 -d > "$HOME/certificates/appstore-app-cert.p12"
 
           az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/appstore-installer-cert |
-            jq -r .value | base64 -d > $HOME/certificates/appstore-installer-cert.p12
+            jq -r .value | base64 -d > "$HOME/certificates/appstore-installer-cert.p12"
 
           az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/devid-app-cert |
-            jq -r .value | base64 -d > $HOME/certificates/devid-app-cert.p12
+            jq -r .value | base64 -d > "$HOME/certificates/devid-app-cert.p12"
 
           az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/devid-installer-cert |
-            jq -r .value | base64 -d > $HOME/certificates/devid-installer-cert.p12
+            jq -r .value | base64 -d > "$HOME/certificates/devid-installer-cert.p12"
 
           az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/macdev-cert |
-            jq -r .value | base64 -d > $HOME/certificates/macdev-cert.p12
+            jq -r .value | base64 -d > "$HOME/certificates/macdev-cert.p12"
 
       - name: Log out from Azure
         uses: bitwarden/gh-actions/azure-logout@main
@@ -1238,9 +1247,9 @@ jobs:
         env:
           KEYCHAIN_PASSWORD: ${{ steps.get-kv-secrets.outputs.KEYCHAIN-PASSWORD }}
         run: |
-          security create-keychain -p $KEYCHAIN_PASSWORD build.keychain
+          security create-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
           security default-keychain -s build.keychain
-          security unlock-keychain -p $KEYCHAIN_PASSWORD build.keychain
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
           security set-keychain-settings -lut 1200 build.keychain
 
           security import "$HOME/certificates/bitwarden-desktop-key.p12" -k build.keychain -P "" \
@@ -1252,21 +1261,21 @@ jobs:
           security import "$HOME/certificates/devid-installer-cert.p12" -k build.keychain -P "" \
             -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
 
-          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $KEYCHAIN_PASSWORD build.keychain
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" build.keychain
 
       - name: Set up provisioning profiles
         run: |
-          cp $HOME/secrets/bitwarden_desktop_developer_id.provisionprofile \
-            $GITHUB_WORKSPACE/apps/desktop/bitwarden_desktop_developer_id.provisionprofile
+          cp "$HOME/secrets/bitwarden_desktop_developer_id.provisionprofile" \
+            "$GITHUB_WORKSPACE/apps/desktop/bitwarden_desktop_developer_id.provisionprofile"
 
-          mkdir -p $HOME/Library/MobileDevice/Provisioning\ Profiles
-          export APP_UUID=`grep UUID -A1 -a $HOME/secrets/bitwarden_desktop_developer_id.provisionprofile | grep -io "[-A-Z0-9]\{36\}"`
-          export AUTOFILL_UUID=`grep UUID -A1 -a $HOME/secrets/bitwarden_desktop_autofill_developer_id.provisionprofile | grep -io "[-A-Z0-9]\{36\}"`
+          mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
+          APP_UUID=$(grep UUID -A1 -a "$HOME/secrets/bitwarden_desktop_developer_id.provisionprofile" | grep -io "[-A-Z0-9]\{36\}")
+          AUTOFILL_UUID=$(grep UUID -A1 -a "$HOME/secrets/bitwarden_desktop_autofill_developer_id.provisionprofile" | grep -io "[-A-Z0-9]\{36\}")
 
-          cp $HOME/secrets/bitwarden_desktop_developer_id.provisionprofile \
-            $HOME/Library/MobileDevice/Provisioning\ Profiles/$APP_UUID.provisionprofile
-          cp $HOME/secrets/bitwarden_desktop_autofill_developer_id.provisionprofile \
-            $HOME/Library/MobileDevice/Provisioning\ Profiles/$AUTOFILL_UUID.provisionprofile
+          cp "$HOME/secrets/bitwarden_desktop_developer_id.provisionprofile" \
+            "$HOME/Library/MobileDevice/Provisioning Profiles/$APP_UUID.provisionprofile"
+          cp "$HOME/secrets/bitwarden_desktop_autofill_developer_id.provisionprofile" \
+            "$HOME/Library/MobileDevice/Provisioning Profiles/$AUTOFILL_UUID.provisionprofile"
 
       - name: Increment version
         shell: pwsh
@@ -1327,20 +1336,22 @@ jobs:
 
       - name: Unzip Safari artifact
         run: |
-          SAFARI_DIR=$(find $GITHUB_WORKSPACE/browser-build-artifacts -name 'dist-safari-*.zip')
-          echo $SAFARI_DIR
-          unzip $SAFARI_DIR/dist-safari.zip -d $GITHUB_WORKSPACE/browser-build-artifacts
+          SAFARI_DIR=$(find "$GITHUB_WORKSPACE/browser-build-artifacts" -name 'dist-safari-*.zip')
+          echo "$SAFARI_DIR"
+          unzip "$SAFARI_DIR/dist-safari.zip" -d "$GITHUB_WORKSPACE/browser-build-artifacts"
 
       - name: Load Safari extension for .dmg
         run: |
           mkdir PlugIns
-          cp -r $GITHUB_WORKSPACE/browser-build-artifacts/Safari/dmg/build/Release/safari.appex PlugIns/safari.appex
+          cp -r "$GITHUB_WORKSPACE/browser-build-artifacts/Safari/dmg/build/Release/safari.appex" PlugIns/safari.appex
 
       - name: Set up private auth key
+        env:
+          _APP_STORE_CONNECT_AUTH_KEY: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-KEY }}
         run: |
           mkdir ~/private_keys
           cat << EOF > ~/private_keys/AuthKey_6TV9MKN3GP.p8
-          ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-KEY }}
+          $_APP_STORE_CONNECT_AUTH_KEY
           EOF
 
       - name: Build application (dist)
@@ -1403,6 +1414,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           ref: ${{  github.event.pull_request.head.sha }}
+          persist-credentials: false
 
       - name: Set up Node
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
@@ -1462,39 +1474,39 @@ jobs:
           ACCOUNT_NAME: bitwardenci
           CONTAINER_NAME: profiles
         run: |
-          mkdir -p $HOME/secrets
+          mkdir -p "$HOME/secrets"
 
-          az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME \
+          az storage blob download --account-name "$ACCOUNT_NAME" --container-name "$CONTAINER_NAME" \
             --name bitwarden_desktop_appstore.provisionprofile \
-            --file $HOME/secrets/bitwarden_desktop_appstore.provisionprofile \
+            --file "$HOME/secrets/bitwarden_desktop_appstore.provisionprofile" \
             --output none
 
-          az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME \
+          az storage blob download --account-name "$ACCOUNT_NAME" --container-name "$CONTAINER_NAME" \
             --name bitwarden_desktop_autofill_app_store_2024.provisionprofile \
-            --file $HOME/secrets/bitwarden_desktop_autofill_app_store_2024.provisionprofile \
+            --file "$HOME/secrets/bitwarden_desktop_autofill_app_store_2024.provisionprofile" \
             --output none
 
       - name: Get certificates
         run: |
-          mkdir -p $HOME/certificates
+          mkdir -p "$HOME/certificates"
 
           az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/bitwarden-desktop-key |
-            jq -r .value | base64 -d > $HOME/certificates/bitwarden-desktop-key.p12
+            jq -r .value | base64 -d > "$HOME/certificates/bitwarden-desktop-key.p12"
 
           az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/appstore-app-cert |
-            jq -r .value | base64 -d > $HOME/certificates/appstore-app-cert.p12
+            jq -r .value | base64 -d > "$HOME/certificates/appstore-app-cert.p12"
 
           az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/appstore-installer-cert |
-            jq -r .value | base64 -d > $HOME/certificates/appstore-installer-cert.p12
+            jq -r .value | base64 -d > "$HOME/certificates/appstore-installer-cert.p12"
 
           az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/devid-app-cert |
-            jq -r .value | base64 -d > $HOME/certificates/devid-app-cert.p12
+            jq -r .value | base64 -d > "$HOME/certificates/devid-app-cert.p12"
 
           az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/devid-installer-cert |
-            jq -r .value | base64 -d > $HOME/certificates/devid-installer-cert.p12
+            jq -r .value | base64 -d > "$HOME/certificates/devid-installer-cert.p12"
 
           az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/macdev-cert |
-            jq -r .value | base64 -d > $HOME/certificates/macdev-cert.p12
+            jq -r .value | base64 -d > "$HOME/certificates/macdev-cert.p12"
 
       - name: Log out from Azure
         uses: bitwarden/gh-actions/azure-logout@main
@@ -1503,9 +1515,9 @@ jobs:
         env:
           KEYCHAIN_PASSWORD: ${{ steps.get-kv-secrets.outputs.KEYCHAIN-PASSWORD }}
         run: |
-          security create-keychain -p $KEYCHAIN_PASSWORD build.keychain
+          security create-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
           security default-keychain -s build.keychain
-          security unlock-keychain -p $KEYCHAIN_PASSWORD build.keychain
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
           security set-keychain-settings -lut 1200 build.keychain
 
           security import "$HOME/certificates/bitwarden-desktop-key.p12" -k build.keychain -P "" \
@@ -1517,21 +1529,21 @@ jobs:
           security import "$HOME/certificates/appstore-installer-cert.p12" -k build.keychain -P "" \
             -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
 
-          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $KEYCHAIN_PASSWORD build.keychain
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" build.keychain
 
       - name: Set up provisioning profiles
         run: |
-          cp $HOME/secrets/bitwarden_desktop_appstore.provisionprofile \
-            $GITHUB_WORKSPACE/apps/desktop/bitwarden_desktop_appstore.provisionprofile
+          cp "$HOME/secrets/bitwarden_desktop_appstore.provisionprofile" \
+            "$GITHUB_WORKSPACE/apps/desktop/bitwarden_desktop_appstore.provisionprofile"
 
-          mkdir -p $HOME/Library/MobileDevice/Provisioning\ Profiles
-          export APP_UUID=`grep UUID -A1 -a $HOME/secrets/bitwarden_desktop_appstore.provisionprofile | grep -io "[-A-Z0-9]\{36\}"`
-          export AUTOFILL_UUID=`grep UUID -A1 -a $HOME/secrets/bitwarden_desktop_autofill_app_store_2024.provisionprofile | grep -io "[-A-Z0-9]\{36\}"`
+          mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
+          APP_UUID=$(grep UUID -A1 -a "$HOME/secrets/bitwarden_desktop_appstore.provisionprofile" | grep -io "[-A-Z0-9]\{36\}")
+          AUTOFILL_UUID=$(grep UUID -A1 -a "$HOME/secrets/bitwarden_desktop_autofill_app_store_2024.provisionprofile" | grep -io "[-A-Z0-9]\{36\}")
 
-          cp $HOME/secrets/bitwarden_desktop_appstore.provisionprofile \
-            $HOME/Library/MobileDevice/Provisioning\ Profiles/$APP_UUID.provisionprofile
-          cp $HOME/secrets/bitwarden_desktop_autofill_app_store_2024.provisionprofile \
-            $HOME/Library/MobileDevice/Provisioning\ Profiles/$AUTOFILL_UUID.provisionprofile
+          cp "$HOME/secrets/bitwarden_desktop_appstore.provisionprofile" \
+            "$HOME/Library/MobileDevice/Provisioning Profiles/$APP_UUID.provisionprofile"
+          cp "$HOME/secrets/bitwarden_desktop_autofill_app_store_2024.provisionprofile" \
+            "$HOME/Library/MobileDevice/Provisioning Profiles/$AUTOFILL_UUID.provisionprofile"
 
       - name: Increment version
         shell: pwsh
@@ -1593,20 +1605,22 @@ jobs:
 
       - name: Unzip Safari artifact
         run: |
-          SAFARI_DIR=$(find $GITHUB_WORKSPACE/browser-build-artifacts -name 'dist-safari-*.zip')
-          echo $SAFARI_DIR
-          unzip $SAFARI_DIR/dist-safari.zip -d $GITHUB_WORKSPACE/browser-build-artifacts
+          SAFARI_DIR=$(find "$GITHUB_WORKSPACE/browser-build-artifacts" -name 'dist-safari-*.zip')
+          echo "$SAFARI_DIR"
+          unzip "$SAFARI_DIR/dist-safari.zip" -d "$GITHUB_WORKSPACE/browser-build-artifacts"
 
       - name: Load Safari extension for App Store
         run: |
           mkdir PlugIns
-          cp -r $GITHUB_WORKSPACE/browser-build-artifacts/Safari/mas/build/Release/safari.appex PlugIns/safari.appex
+          cp -r "$GITHUB_WORKSPACE/browser-build-artifacts/Safari/mas/build/Release/safari.appex" "PlugIns/safari.appex"
 
       - name: Set up private auth key
+        env:
+          _APP_STORE_CONNECT_AUTH_KEY: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-KEY }}
         run: |
           mkdir ~/private_keys
           cat << EOF > ~/private_keys/AuthKey_6TV9MKN3GP.p8
-          ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-KEY }}
+          $_APP_STORE_CONNECT_AUTH_KEY
           EOF
 
       - name: Build application for App Store
@@ -1645,6 +1659,8 @@ jobs:
         if: |
           github.event_name != 'pull_request_target'
           && (inputs.testflight_distribute || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/hotfix-rc-desktop')
+        env:
+          _APP_STORE_CONNECT_TEAM_ISSUER: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-TEAM-ISSUER }}
         run: |
           brew install gsed
 
@@ -1652,7 +1668,7 @@ jobs:
 
           cat << EOF > ~/secrets/appstoreconnect-fastlane.json
           {
-            "issuer_id": "${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-TEAM-ISSUER }}",
+            "issuer_id": "$_APP_STORE_CONNECT_TEAM_ISSUER",
             "key_id": "6TV9MKN3GP",
             "key": "$KEY_WITHOUT_NEWLINES"
           }
@@ -1671,14 +1687,14 @@ jobs:
 
           GIT_CHANGE="$(git show -s --format=%s)"
 
-          BRANCH=$(echo $BRANCH | sed 's/refs\/heads\///')
+          BRANCH=$(echo "$BRANCH" | sed 's/refs\/heads\///')
 
           CHANGELOG="$BRANCH: $GIT_CHANGE"
 
           fastlane pilot upload \
             --app_identifier "com.bitwarden.desktop" \
             --changelog "$CHANGELOG" \
-            --api_key_path $HOME/secrets/appstoreconnect-fastlane.json \
+            --api_key_path "$HOME/secrets/appstoreconnect-fastlane.json" \
             --pkg "$(find ./dist/mas-universal/Bitwarden*.pkg)"
 
       - name: Post message to a Slack channel
@@ -1724,6 +1740,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           ref: ${{  github.event.pull_request.head.sha }}
+          persist-credentials: false
 
       - name: Log in to Azure
         uses: bitwarden/gh-actions/azure-login@main

@@ -376,6 +376,7 @@ unsafe fn as_mut_bytes(buffer: &IBuffer) -> Result<&mut [u8]> {
 }
 
 #[cfg(test)]
+#[allow(clippy::print_stdout)]
 mod tests {
     use crate::biometric_v2::{
         biometric_v2::{

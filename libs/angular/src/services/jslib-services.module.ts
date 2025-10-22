@@ -891,7 +891,7 @@ const safeProviders: SafeProvider[] = [
       LogService,
       BiometricsService,
       LOCKED_CALLBACK,
-      LOGOUT_CALLBACK,
+      LogoutService,
     ],
   }),
   safeProvider({
