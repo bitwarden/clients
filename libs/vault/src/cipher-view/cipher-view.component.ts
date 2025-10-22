@@ -8,8 +8,8 @@ import {
   input,
   signal,
 } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
-import { firstValueFrom, Observable, of, Subject, switchMap, takeUntil } from "rxjs";
+import { toObservable, toSignal } from "@angular/core/rxjs-interop";
+import { combineLatest, firstValueFrom, of, Subject, switchMap } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -27,7 +27,6 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { SecurityTaskType, TaskService } from "@bitwarden/common/vault/tasks";
 import { AnchorLinkDirective, CalloutModule, SearchModule } from "@bitwarden/components";
 
@@ -83,7 +82,6 @@ export class CipherViewComponent implements OnDestroy {
   /** Should be set to true when the component is used within the Admin Console */
   readonly isAdminConsole = input<boolean>(false);
 
-  folder$: Observable<FolderView | undefined> | undefined;
   private destroyed$: Subject<void> = new Subject();
   readonly cardIsExpired = signal<boolean>(false);
   readonly hadPendingChangePasswordTask = signal<boolean>(false);
@@ -133,6 +131,17 @@ export class CipherViewComponent implements OnDestroy {
 
     return organizations.find((org) => org.id === cipher.organizationId);
   });
+
+  readonly folder = toSignal(
+    combineLatest([this.activeUserId$, toObservable(this.cipher)]).pipe(
+      switchMap(([userId, cipher]) => {
+        if (!userId || !cipher?.folderId) {
+          return of(undefined);
+        }
+        return this.folderService.getDecrypted$(cipher.folderId, userId);
+      }),
+    ),
+  );
 
   readonly hasCard = computed(() => {
     const cipher = this.cipher();
@@ -200,12 +209,6 @@ export class CipherViewComponent implements OnDestroy {
 
     if (cipher.type === CipherType.Login && cipher.organizationId) {
       await this.checkPendingChangePasswordTasks(userId);
-    }
-
-    if (cipher.folderId) {
-      this.folder$ = this.folderService
-        .getDecrypted$(cipher.folderId, userId)
-        .pipe(takeUntil(this.destroyed$));
     }
   }
 
