@@ -3,8 +3,8 @@
 import { Component, Inject } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 
-import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
-import { UpdateClientOrganizationRequest } from "@bitwarden/common/billing/models/request/update-client-organization.request";
+import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider/provider-api.service.abstraction";
+import { UpdateProviderOrganizationRequest } from "@bitwarden/common/admin-console/models/request/update-provider-organization.request";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
   DIALOG_DATA,
@@ -51,7 +51,7 @@ export class ManageClientNameDialogComponent {
 
   constructor(
     @Inject(DIALOG_DATA) protected dialogParams: ManageClientNameDialogParams,
-    private billingApiService: BillingApiServiceAbstraction,
+    private providerApiService: ProviderApiServiceAbstraction,
     private dialogRef: DialogRef<ManageClientNameDialogResultType>,
     private formBuilder: FormBuilder,
     private i18nService: I18nService,
@@ -65,11 +65,11 @@ export class ManageClientNameDialogComponent {
       return;
     }
 
-    const request = new UpdateClientOrganizationRequest();
+    const request = new UpdateProviderOrganizationRequest();
     request.assignedSeats = this.dialogParams.organization.seats;
     request.name = this.formGroup.value.name;
 
-    await this.billingApiService.updateProviderClientOrganization(
+    await this.providerApiService.updateProviderOrganization(
       this.dialogParams.providerId,
       this.dialogParams.organization.id,
       request,
