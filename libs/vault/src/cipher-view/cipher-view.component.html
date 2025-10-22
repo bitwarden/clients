@@ -42,9 +42,7 @@
     *ngIf="hasLogin()"
     [cipher]="cipher()"
     [activeUserId]="activeUserId$ | async"
-    [hadPendingChangePasswordTask]="
-      hadPendingChangePasswordTask() && cipher()?.login.uris.length > 0
-    "
+    [showChangePasswordLink]="hadPendingChangePasswordTask() && cipher()?.login.uris.length > 0"
     (handleChangePassword)="launchChangePassword()"
   ></app-login-credentials-view>
 
