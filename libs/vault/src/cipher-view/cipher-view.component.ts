@@ -1,7 +1,7 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, computed, effect, input, signal } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, input } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
-import { combineLatest, firstValueFrom, of, switchMap, map } from "rxjs";
+import { combineLatest, of, switchMap, map, catchError } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -14,7 +14,7 @@ import { isCardExpired } from "@bitwarden/common/autofill/utils";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { getByIds } from "@bitwarden/common/platform/misc";
-import { CipherId, EmergencyAccessId, UserId } from "@bitwarden/common/types/guid";
+import { CipherId, EmergencyAccessId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -75,8 +75,6 @@ export class CipherViewComponent {
   /** Should be set to true when the component is used within the Admin Console */
   readonly isAdminConsole = input<boolean>(false);
 
-  readonly hadPendingChangePasswordTask = signal<boolean>(false);
-
   constructor(
     private organizationService: OrganizationService,
     private collectionService: CollectionService,
@@ -87,20 +85,7 @@ export class CipherViewComponent {
     private changeLoginPasswordService: ChangeLoginPasswordService,
     private cipherService: CipherService,
     private logService: LogService,
-  ) {
-    effect(async () => {
-      const cipher = this.cipher();
-      if (cipher == null) {
-        return;
-      }
-
-      const userId = await firstValueFrom(this.activeUserId$);
-
-      if (cipher.type === CipherType.Login && cipher.organizationId) {
-        await this.checkPendingChangePasswordTasks(userId);
-      }
-    });
-  }
+  ) {}
 
   readonly resolvedCollections = toSignal<CollectionView[] | undefined>(
     combineLatest([this.activeUserId$, this.cipher$, toObservable(this.collections)]).pipe(
@@ -143,6 +128,44 @@ export class CipherViewComponent {
         return this.folderService.getDecrypted$(cipher.folderId, userId);
       }),
     ),
+  );
+
+  readonly hadPendingChangePasswordTask = toSignal(
+    combineLatest([this.activeUserId$, this.cipher$]).pipe(
+      switchMap(([userId, cipher]) => {
+        // Early exit if not a Login cipher owned by an organization
+        if (cipher?.type !== CipherType.Login || !cipher?.organizationId) {
+          return of(false);
+        }
+
+        return combineLatest([
+          this.cipherService.ciphers$(userId),
+          this.defaultTaskService.pendingTasks$(userId),
+        ]).pipe(
+          map(([allCiphers, tasks]) => {
+            const cipherServiceCipher = allCiphers[cipher?.id as CipherId];
+
+            // Show tasks only for Manage and Edit permissions
+            if (!cipherServiceCipher?.edit || !cipherServiceCipher?.viewPassword) {
+              return false;
+            }
+
+            return (
+              tasks?.some(
+                (task) =>
+                  task.cipherId === cipher?.id &&
+                  task.type === SecurityTaskType.UpdateAtRiskCredential,
+              ) ?? false
+            );
+          }),
+          catchError((error: unknown) => {
+            this.logService.error("Failed to retrieve change password tasks for cipher", error);
+            return of(false);
+          }),
+        );
+      }),
+    ),
+    { initialValue: false },
   );
 
   readonly hasCard = computed(() => {
@@ -190,34 +213,6 @@ export class CipherViewComponent {
     const cipher = this.cipher();
     return cipher?.login?.hasUris;
   });
-
-  private async checkPendingChangePasswordTasks(userId: UserId): Promise<void> {
-    const cipher = this.cipher();
-    try {
-      // Show Tasks for Manage and Edit permissions
-      // Using cipherService to see if user has access to cipher in a non-AC context to address with Edit Except Password permissions
-      const allCiphers = await firstValueFrom(this.cipherService.ciphers$(userId));
-      const cipherServiceCipher = allCiphers[cipher?.id as CipherId];
-
-      if (!cipherServiceCipher?.edit || !cipherServiceCipher?.viewPassword) {
-        this.hadPendingChangePasswordTask.set(false);
-        return;
-      }
-
-      const tasks = await firstValueFrom(this.defaultTaskService.pendingTasks$(userId));
-
-      this.hadPendingChangePasswordTask.set(
-        tasks?.some((task) => {
-          return (
-            task.cipherId === cipher?.id && task.type === SecurityTaskType.UpdateAtRiskCredential
-          );
-        }) ?? false,
-      );
-    } catch (error) {
-      this.hadPendingChangePasswordTask.set(false);
-      this.logService.error("Failed to retrieve change password tasks for cipher", error);
-    }
-  }
 
   launchChangePassword = async () => {
     const cipher = this.cipher();
