@@ -75,7 +75,6 @@ export class CipherViewComponent {
   /** Should be set to true when the component is used within the Admin Console */
   readonly isAdminConsole = input<boolean>(false);
 
-  readonly cardIsExpired = signal<boolean>(false);
   readonly hadPendingChangePasswordTask = signal<boolean>(false);
   private readonly loadedCollections = signal<CollectionView[] | undefined>(undefined);
 
@@ -97,7 +96,6 @@ export class CipherViewComponent {
       }
 
       void this.loadCipherData();
-      this.cardIsExpired.set(isCardExpired(cipher.card));
     });
   }
 
@@ -139,6 +137,14 @@ export class CipherViewComponent {
 
     const { cardholderName, code, expMonth, expYear, number } = cipher.card;
     return cardholderName || code || expMonth || expYear || number;
+  });
+
+  readonly cardIsExpired = computed(() => {
+    const cipher = this.cipher();
+    if (cipher == null) {
+      return false;
+    }
+    return isCardExpired(cipher.card);
   });
 
   readonly hasLogin = computed(() => {
