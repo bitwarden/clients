@@ -2,7 +2,7 @@ import { Injectable } from "@angular/core";
 
 import {
   AllActivitiesService,
-  LEGACY_ApplicationHealthReportDetailWithCriticalFlagAndCipher,
+  ApplicationHealthReportDetailEnriched,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherId, OrganizationId } from "@bitwarden/common/types/guid";
@@ -20,10 +20,7 @@ export class AccessIntelligenceSecurityTasksService {
     private toastService: ToastService,
     private i18nService: I18nService,
   ) {}
-  async assignTasks(
-    organizationId: OrganizationId,
-    apps: LEGACY_ApplicationHealthReportDetailWithCriticalFlagAndCipher[],
-  ) {
+  async assignTasks(organizationId: OrganizationId, apps: ApplicationHealthReportDetailEnriched[]) {
     const taskCount = await this.requestPasswordChange(organizationId, apps);
     this.allActivitiesService.setTaskCreatedCount(taskCount);
   }
@@ -31,7 +28,7 @@ export class AccessIntelligenceSecurityTasksService {
   // TODO: this method is shared between here and critical-applications.component.ts
   async requestPasswordChange(
     organizationId: OrganizationId,
-    apps: LEGACY_ApplicationHealthReportDetailWithCriticalFlagAndCipher[],
+    apps: ApplicationHealthReportDetailEnriched[],
   ): Promise<number> {
     // Only create tasks for CRITICAL applications with at-risk passwords
     const cipherIds = apps
