@@ -214,6 +214,10 @@ export class CipherViewComponent {
     return cipher?.login?.hasUris;
   });
 
+  readonly showChangePasswordLink = computed(() => {
+    return this.hasLoginUri() && this.hadPendingChangePasswordTask();
+  });
+
   launchChangePassword = async () => {
     const cipher = this.cipher();
     if (cipher != null) {
