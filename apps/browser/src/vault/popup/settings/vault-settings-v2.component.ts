@@ -34,6 +34,7 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
 })
 export class VaultSettingsV2Component implements OnInit, OnDestroy {
   lastSync = "--";
+  syncLoading = false;
   private userId$ = this.accountService.activeAccount$.pipe(getUserId);
 
   // Check if user is premium user, they will be able to archive items
@@ -81,19 +82,25 @@ export class VaultSettingsV2Component implements OnInit, OnDestroy {
   }
 
   async sync() {
+    this.syncLoading = true;
     let toastConfig: ToastOptions;
-    const success = await this.syncService.fullSync(true);
-    if (success) {
-      await this.setLastSync();
-      toastConfig = {
-        variant: "success",
-        title: "",
-        message: this.i18nService.t("syncingComplete"),
-      };
-    } else {
-      toastConfig = { variant: "error", title: "", message: this.i18nService.t("syncingFailed") };
+
+    try {
+      const success = await this.syncService.fullSync(true);
+      if (success) {
+        await this.setLastSync();
+        toastConfig = {
+          variant: "success",
+          title: "",
+          message: this.i18nService.t("syncingComplete"),
+        };
+      } else {
+        toastConfig = { variant: "error", title: "", message: this.i18nService.t("syncingFailed") };
+      }
+      this.toastService.showToast(toastConfig);
+    } finally {
+      this.syncLoading = false;
     }
-    this.toastService.showToast(toastConfig);
   }
 
   private async setLastSync() {
