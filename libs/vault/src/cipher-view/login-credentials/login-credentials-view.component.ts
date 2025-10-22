@@ -63,7 +63,7 @@ type TotpCodeValues = {
 export class LoginCredentialsViewComponent implements OnChanges {
   @Input() cipher: CipherView;
   @Input() activeUserId: UserId;
-  @Input() hadPendingChangePasswordTask: boolean;
+  @Input() showChangePasswordLink: boolean;
   @Output() handleChangePassword = new EventEmitter<void>();
   @ViewChild("passwordInput")
   private passwordInput!: ElementRef<HTMLInputElement>;
