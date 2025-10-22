@@ -1,493 +1,511 @@
-use anyhow::{anyhow, Result};
-use base64::{engine::general_purpose, Engine as _};
-use clap::Parser;
-use log::{debug, error};
-use scopeguard::guard;
-use simplelog::*;
-use std::{
-    ffi::{OsStr, OsString},
-    fs::OpenOptions,
-    os::windows::{ffi::OsStringExt as _, io::AsRawHandle},
-    path::PathBuf,
-    ptr,
-    time::Duration,
-};
-use tokio::{
-    io::{AsyncReadExt, AsyncWriteExt},
-    net::windows::named_pipe::{ClientOptions, NamedPipeClient},
-    time,
-};
-use verifysign::CodeSignVerifier;
-use windows::{
-    core::BOOL,
-    Wdk::System::SystemServices::SE_DEBUG_PRIVILEGE,
-    Win32::{
-        Foundation::{
-            CloseHandle, LocalFree, ERROR_PIPE_BUSY, HANDLE, HLOCAL, NTSTATUS, STATUS_SUCCESS,
-        },
-        Security::{
-            self,
-            Cryptography::{CryptUnprotectData, CRYPTPROTECT_UI_FORBIDDEN, CRYPT_INTEGER_BLOB},
-            DuplicateToken, ImpersonateLoggedOnUser, RevertToSelf, TOKEN_DUPLICATE, TOKEN_QUERY,
-        },
-        System::{
-            Pipes::GetNamedPipeServerProcessId,
-            ProcessStatus::{EnumProcesses, K32GetProcessImageFileNameW},
-            Threading::{
-                OpenProcess, OpenProcessToken, QueryFullProcessImageNameW, PROCESS_NAME_WIN32,
-                PROCESS_QUERY_INFORMATION, PROCESS_VM_READ,
+use napi::tokio;
+
+// Hide everything inside a platform specific module to avoid clippy errors on other platforms
+#[cfg(target_os = "windows")]
+mod windows_binary {
+    use anyhow::{anyhow, Result};
+    use base64::{engine::general_purpose, Engine as _};
+    use clap::Parser;
+    use log::{debug, error};
+    use scopeguard::guard;
+    use simplelog::*;
+    use std::{
+        ffi::{OsStr, OsString},
+        fs::OpenOptions,
+        os::windows::{ffi::OsStringExt as _, io::AsRawHandle},
+        path::PathBuf,
+        ptr,
+        time::Duration,
+    };
+    use tokio::{
+        io::{AsyncReadExt, AsyncWriteExt},
+        net::windows::named_pipe::{ClientOptions, NamedPipeClient},
+        time,
+    };
+    use verifysign::CodeSignVerifier;
+    use windows::{
+        core::BOOL,
+        Wdk::System::SystemServices::SE_DEBUG_PRIVILEGE,
+        Win32::{
+            Foundation::{
+                CloseHandle, LocalFree, ERROR_PIPE_BUSY, HANDLE, HLOCAL, NTSTATUS, STATUS_SUCCESS,
             },
-        },
-        UI::Shell::IsUserAnAdmin,
-    },
-};
-
-use bitwarden_chromium_importer::abe_config;
-
-#[derive(Parser)]
-#[command(name = "admin")]
-#[command(about = "Admin tool for ABE service management")]
-struct Args {
-    /// Base64 encoded encrypted data to process
-    #[arg(long, help = "Base64 encoded encrypted data string")]
-    encrypted: String,
-}
-
-// Enable this to log to a file. The way this executable is used, it's not easy to debug and the stdout gets lost.
-const NEED_LOGGING: bool = false;
-const LOG_FILENAME: &str = "c:\\path\\to\\log.txt"; // This is an example filename, replace it with you own
-
-// This should be enabled for production
-const NEED_SERVER_SIGNATURE_VALIDATION: bool = false;
-const EXPECTED_SERVER_SIGNATURE_SHA256_THUMBPRINT: &str =
-    "9f6680c4720dbf66d1cb8ed6e328f58e42523badc60d138c7a04e63af14ea40d";
-
-async fn open_pipe_client(pipe_name: &'static str) -> Result<NamedPipeClient> {
-    // TODO: Don't loop forever, but retry a few times
-    let client = loop {
-        match ClientOptions::new().open(pipe_name) {
-            Ok(client) => {
-                debug!("Successfully connected to the pipe!");
-                break client;
-            }
-            Err(e) if e.raw_os_error() == Some(ERROR_PIPE_BUSY.0 as i32) => {
-                debug!("Pipe is busy, retrying in 50ms...");
-            }
-            Err(e) => {
-                debug!("Failed to connect to pipe: {}", &e);
-                return Err(e.into());
-            }
-        }
-
-        time::sleep(Duration::from_millis(50)).await;
-    };
-
-    Ok(client)
-}
-
-async fn send_message_with_client(client: &mut NamedPipeClient, message: &str) -> Result<String> {
-    client.write_all(message.as_bytes()).await?;
-
-    // Try to receive a response for this message
-    let mut buffer = vec![0u8; 64 * 1024];
-    match client.read(&mut buffer).await {
-        Ok(0) => Err(anyhow!(
-            "Server closed the connection (0 bytes read) on message"
-        )),
-        Ok(bytes_received) => {
-            let response = String::from_utf8_lossy(&buffer[..bytes_received]);
-            Ok(response.to_string())
-        }
-        Err(e) => Err(anyhow!("Failed to receive response for message: {}", e)),
-    }
-}
-
-fn get_named_pipe_server_pid(client: &NamedPipeClient) -> Result<u32> {
-    let handle = HANDLE(client.as_raw_handle() as _);
-    let mut pid: u32 = 0;
-    unsafe { GetNamedPipeServerProcessId(handle, &mut pid) }?;
-    Ok(pid)
-}
-
-fn resolve_process_executable_path(pid: u32) -> Result<PathBuf> {
-    debug!("Resolving process executable path for PID {}", pid);
-
-    // Open the process handle
-    let hprocess = unsafe { OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, false, pid) }?;
-    debug!("Opened process handle for PID {}", pid);
-
-    let _guard = guard(hprocess, |_| unsafe {
-        debug!("Closing process handle for PID {}", pid);
-        _ = CloseHandle(hprocess);
-    });
-
-    let mut wide = vec![0u16; 260];
-    let mut size = wide.len() as u32;
-    _ = unsafe {
-        QueryFullProcessImageNameW(
-            hprocess,
-            PROCESS_NAME_WIN32,
-            windows::core::PWSTR(wide.as_mut_ptr()),
-            &mut size,
-        )
-    }?;
-    debug!("QueryFullProcessImageNameW returned {} bytes", size);
-
-    wide.truncate(size as usize);
-    Ok(PathBuf::from(OsString::from_wide(&wide)))
-}
-
-async fn send_error_to_user(client: &mut NamedPipeClient, error_message: &str) {
-    _ = send_to_user(client, &format!("!{}", error_message)).await
-}
-
-async fn send_to_user(client: &mut NamedPipeClient, message: &str) -> Result<()> {
-    let _ = send_message_with_client(client, &message).await?;
-    Ok(())
-}
-
-fn is_admin() -> bool {
-    unsafe { IsUserAnAdmin().as_bool() }
-}
-
-fn decrypt_data_base64(data_base64: &str, expect_appb: bool) -> Result<String> {
-    debug!("Decrypting data base64: {}", data_base64);
-
-    let data = general_purpose::STANDARD.decode(data_base64).map_err(|e| {
-        debug!("Failed to decode base64: {} APPB: {}", e, expect_appb);
-        e
-    })?;
-
-    let decrypted = decrypt_data(&data, expect_appb)?;
-    let decrypted_base64 = general_purpose::STANDARD.encode(decrypted);
-
-    Ok(decrypted_base64)
-}
-
-fn decrypt_data(data: &[u8], expect_appb: bool) -> Result<Vec<u8>> {
-    if expect_appb && !data.starts_with(b"APPB") {
-        debug!("Decoded data does not start with 'APPB'");
-        return Err(anyhow!("Decoded data does not start with 'APPB'"));
-    }
-
-    let data = if expect_appb { &data[4..] } else { data };
-
-    let mut in_blob = CRYPT_INTEGER_BLOB {
-        cbData: data.len() as u32,
-        pbData: data.as_ptr() as *mut u8,
-    };
-
-    let mut out_blob = CRYPT_INTEGER_BLOB {
-        cbData: 0,
-        pbData: ptr::null_mut(),
-    };
-
-    let result = unsafe {
-        CryptUnprotectData(
-            &mut in_blob,
-            Some(ptr::null_mut()),
-            None,
-            None,
-            None,
-            CRYPTPROTECT_UI_FORBIDDEN,
-            &mut out_blob,
-        )
-    };
-
-    if result.is_ok() && !out_blob.pbData.is_null() && out_blob.cbData > 0 {
-        let decrypted = unsafe {
-            std::slice::from_raw_parts(out_blob.pbData, out_blob.cbData as usize).to_vec()
-        };
-
-        // Free the memory allocated by CryptUnprotectData
-        unsafe { LocalFree(Some(HLOCAL(out_blob.pbData as *mut _))) };
-
-        Ok(decrypted)
-    } else {
-        debug!("CryptUnprotectData failed");
-        Err(anyhow!("CryptUnprotectData failed"))
-    }
-}
-
-//
-// Impersonate a SYSTEM process
-//
-
-struct ImpersonateGuard {
-    sys_token_handle: HANDLE,
-}
-
-impl Drop for ImpersonateGuard {
-    fn drop(&mut self) {
-        _ = Self::stop();
-        _ = self.close_sys_handle();
-    }
-}
-
-impl ImpersonateGuard {
-    pub fn start(pid: Option<u32>, sys_handle: Option<HANDLE>) -> Result<(Self, u32)> {
-        Self::enable_privilege()?;
-        let pid = if let Some(pid) = pid {
-            pid
-        } else if let Some(pid) = Self::get_system_pid_list()?.next() {
-            pid
-        } else {
-            return Err(anyhow!("Cannot find system process"));
-        };
-        let sys_token = if let Some(handle) = sys_handle {
-            handle
-        } else {
-            let system_handle = Self::get_process_handle(pid)?;
-            let sys_token = Self::get_system_token(system_handle)?;
-            unsafe {
-                CloseHandle(system_handle)?;
-            };
-
-            sys_token
-        };
-        unsafe {
-            ImpersonateLoggedOnUser(sys_token)?;
-        };
-        Ok((
-            Self {
-                sys_token_handle: sys_token,
+            Security::{
+                self,
+                Cryptography::{CryptUnprotectData, CRYPTPROTECT_UI_FORBIDDEN, CRYPT_INTEGER_BLOB},
+                DuplicateToken, ImpersonateLoggedOnUser, RevertToSelf, TOKEN_DUPLICATE,
+                TOKEN_QUERY,
             },
-            pid,
-        ))
+            System::{
+                Pipes::GetNamedPipeServerProcessId,
+                ProcessStatus::{EnumProcesses, K32GetProcessImageFileNameW},
+                Threading::{
+                    OpenProcess, OpenProcessToken, QueryFullProcessImageNameW, PROCESS_NAME_WIN32,
+                    PROCESS_QUERY_INFORMATION, PROCESS_VM_READ,
+                },
+            },
+            UI::Shell::IsUserAnAdmin,
+        },
+    };
+
+    use bitwarden_chromium_importer::abe_config;
+
+    #[derive(Parser)]
+    #[command(name = "admin")]
+    #[command(about = "Admin tool for ABE service management")]
+    struct Args {
+        /// Base64 encoded encrypted data to process
+        #[arg(long, help = "Base64 encoded encrypted data string")]
+        encrypted: String,
     }
 
-    pub fn stop() -> Result<()> {
-        unsafe {
-            RevertToSelf()?;
+    // Enable this to log to a file. The way this executable is used, it's not easy to debug and the stdout gets lost.
+    const NEED_LOGGING: bool = false;
+    const LOG_FILENAME: &str = "c:\\path\\to\\log.txt"; // This is an example filename, replace it with you own
+
+    // This should be enabled for production
+    const NEED_SERVER_SIGNATURE_VALIDATION: bool = false;
+    const EXPECTED_SERVER_SIGNATURE_SHA256_THUMBPRINT: &str =
+        "9f6680c4720dbf66d1cb8ed6e328f58e42523badc60d138c7a04e63af14ea40d";
+
+    async fn open_pipe_client(pipe_name: &'static str) -> Result<NamedPipeClient> {
+        // TODO: Don't loop forever, but retry a few times
+        let client = loop {
+            match ClientOptions::new().open(pipe_name) {
+                Ok(client) => {
+                    debug!("Successfully connected to the pipe!");
+                    break client;
+                }
+                Err(e) if e.raw_os_error() == Some(ERROR_PIPE_BUSY.0 as i32) => {
+                    debug!("Pipe is busy, retrying in 50ms...");
+                }
+                Err(e) => {
+                    debug!("Failed to connect to pipe: {}", &e);
+                    return Err(e.into());
+                }
+            }
+
+            time::sleep(Duration::from_millis(50)).await;
         };
-        Ok(())
+
+        Ok(client)
     }
 
-    /// stop impersonate and return sys token handle
-    pub fn _stop_sys_handle(self) -> Result<HANDLE> {
-        unsafe { RevertToSelf() }?;
-        Ok(self.sys_token_handle)
-    }
+    async fn send_message_with_client(
+        client: &mut NamedPipeClient,
+        message: &str,
+    ) -> Result<String> {
+        client.write_all(message.as_bytes()).await?;
 
-    pub fn close_sys_handle(&self) -> Result<()> {
-        unsafe { CloseHandle(self.sys_token_handle) }?;
-        Ok(())
-    }
-
-    fn enable_privilege() -> Result<()> {
-        let mut previous_value = BOOL(0);
-        let status = unsafe {
-            debug!("Setting SE_DEBUG_PRIVILEGE to 1 via RtlAdjustPrivilege");
-            RtlAdjustPrivilege(SE_DEBUG_PRIVILEGE, BOOL(1), BOOL(0), &mut previous_value)
-        };
-        if status != STATUS_SUCCESS {
-            return Err(anyhow!("Failed to adjust privilege"));
+        // Try to receive a response for this message
+        let mut buffer = vec![0u8; 64 * 1024];
+        match client.read(&mut buffer).await {
+            Ok(0) => Err(anyhow!(
+                "Server closed the connection (0 bytes read) on message"
+            )),
+            Ok(bytes_received) => {
+                let response = String::from_utf8_lossy(&buffer[..bytes_received]);
+                Ok(response.to_string())
+            }
+            Err(e) => Err(anyhow!("Failed to receive response for message: {}", e)),
         }
-        debug!(
-            "SE_DEBUG_PRIVILEGE set to 1, was {} before",
-            previous_value.0
-        );
-        Ok(())
     }
 
-    fn get_system_token(handle: HANDLE) -> Result<HANDLE> {
-        let token_handle = unsafe {
-            let mut token_handle = HANDLE::default();
-            OpenProcessToken(handle, TOKEN_DUPLICATE | TOKEN_QUERY, &mut token_handle)?;
-            token_handle
-        };
-        let duplicate_token = unsafe {
-            let mut duplicate_token = HANDLE::default();
-            DuplicateToken(
-                token_handle,
-                Security::SECURITY_IMPERSONATION_LEVEL(2),
-                &mut duplicate_token,
-            )?;
-            CloseHandle(token_handle)?;
-            duplicate_token
-        };
-
-        Ok(duplicate_token)
+    fn get_named_pipe_server_pid(client: &NamedPipeClient) -> Result<u32> {
+        let handle = HANDLE(client.as_raw_handle() as _);
+        let mut pid: u32 = 0;
+        unsafe { GetNamedPipeServerProcessId(handle, &mut pid) }?;
+        Ok(pid)
     }
 
-    fn process_name_is<F>(pid: u32, name_is: F) -> Result<bool>
-    where
-        F: FnOnce(&OsStr) -> bool,
-    {
-        let hprocess = Self::get_process_handle(pid)?;
+    fn resolve_process_executable_path(pid: u32) -> Result<PathBuf> {
+        debug!("Resolving process executable path for PID {}", pid);
 
-        let image_file_name = {
-            let mut lpimagefilename = vec![0; 260];
-            let length =
-                unsafe { K32GetProcessImageFileNameW(hprocess, &mut lpimagefilename) } as usize;
-            unsafe {
-                CloseHandle(hprocess)?;
-            };
-            lpimagefilename.truncate(length);
-            lpimagefilename
-        };
-
-        let fp = OsString::from_wide(&image_file_name);
-        PathBuf::from(fp)
-            .file_name()
-            .map(name_is)
-            .ok_or_else(|| anyhow::anyhow!("Failed to get process name"))
-    }
-
-    // https://learn.microsoft.com/en-us/windows/win32/psapi/enumerating-all-processes
-    fn get_system_pid_list() -> Result<impl Iterator<Item = u32>> {
-        let cap = 1024;
-        let mut lpidprocess = Vec::with_capacity(cap);
-        let mut lpcbneeded = 0;
-
-        unsafe {
-            EnumProcesses(lpidprocess.as_mut_ptr(), cap as u32 * 4, &mut lpcbneeded)?;
-            let c_processes = lpcbneeded as usize / size_of::<u32>();
-            lpidprocess.set_len(c_processes);
-        };
-
-        let filter = lpidprocess.into_iter().filter(|&v| {
-            v != 0
-                && Self::process_name_is(v, |n| n == "lsass.exe" || n == "winlogon.exe")
-                    .unwrap_or(false)
-        });
-        Ok(filter)
-    }
-
-    fn get_process_handle(pid: u32) -> Result<HANDLE> {
+        // Open the process handle
         let hprocess =
             unsafe { OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, false, pid) }?;
-        Ok(hprocess)
-    }
-}
+        debug!("Opened process handle for PID {}", pid);
 
-#[link(name = "ntdll")]
-unsafe extern "system" {
-    unsafe fn RtlAdjustPrivilege(
-        privilege: i32,
-        enable: BOOL,
-        current_thread: BOOL,
-        previous_value: *mut BOOL,
-    ) -> NTSTATUS;
-}
+        let _guard = guard(hprocess, |_| unsafe {
+            debug!("Closing process handle for PID {}", pid);
+            _ = CloseHandle(hprocess);
+        });
 
-async fn open_and_validate_pipe_server(pipe_name: &'static str) -> Result<NamedPipeClient> {
-    let client = open_pipe_client(pipe_name).await?;
-
-    if NEED_SERVER_SIGNATURE_VALIDATION {
-        let server_pid = get_named_pipe_server_pid(&client)?;
-        debug!("Connected to pipe server PID {}", server_pid);
-
-        // Validate the server end process signature
-        let exe_path = resolve_process_executable_path(server_pid)?;
-
-        debug!("Pipe server executable path: {}", exe_path.display());
-
-        let verifier = CodeSignVerifier::for_file(exe_path.as_path())
-            .map_err(|e| anyhow!("verifysign init failed for {}: {:?}", exe_path.display(), e))?;
-
-        let signature = verifier.verify().map_err(|e| {
-            anyhow!(
-                "verifysign verify failed for {}: {:?}",
-                exe_path.display(),
-                e
+        let mut wide = vec![0u16; 260];
+        let mut size = wide.len() as u32;
+        _ = unsafe {
+            QueryFullProcessImageNameW(
+                hprocess,
+                PROCESS_NAME_WIN32,
+                windows::core::PWSTR(wide.as_mut_ptr()),
+                &mut size,
             )
+        }?;
+        debug!("QueryFullProcessImageNameW returned {} bytes", size);
+
+        wide.truncate(size as usize);
+        Ok(PathBuf::from(OsString::from_wide(&wide)))
+    }
+
+    async fn send_error_to_user(client: &mut NamedPipeClient, error_message: &str) {
+        _ = send_to_user(client, &format!("!{}", error_message)).await
+    }
+
+    async fn send_to_user(client: &mut NamedPipeClient, message: &str) -> Result<()> {
+        let _ = send_message_with_client(client, &message).await?;
+        Ok(())
+    }
+
+    fn is_admin() -> bool {
+        unsafe { IsUserAnAdmin().as_bool() }
+    }
+
+    fn decrypt_data_base64(data_base64: &str, expect_appb: bool) -> Result<String> {
+        debug!("Decrypting data base64: {}", data_base64);
+
+        let data = general_purpose::STANDARD.decode(data_base64).map_err(|e| {
+            debug!("Failed to decode base64: {} APPB: {}", e, expect_appb);
+            e
         })?;
 
-        debug!("Pipe server executable path: {}", exe_path.display());
+        let decrypted = decrypt_data(&data, expect_appb)?;
+        let decrypted_base64 = general_purpose::STANDARD.encode(decrypted);
 
-        // Dump signature fields for debugging/inspection
-        debug!("Signature fields:");
-        debug!("  Subject Name: {:?}", signature.subject_name());
-        debug!("  Issuer Name: {:?}", signature.issuer_name());
-        debug!("  SHA1 Thumbprint: {:?}", signature.sha1_thumbprint());
-        debug!("  SHA256 Thumbprint: {:?}", signature.sha256_thumbprint());
-        debug!("  Serial Number: {:?}", signature.serial());
+        Ok(decrypted_base64)
+    }
 
-        if signature.sha256_thumbprint() != EXPECTED_SERVER_SIGNATURE_SHA256_THUMBPRINT {
-            return Err(anyhow!("Pipe server signature is not valid"));
+    fn decrypt_data(data: &[u8], expect_appb: bool) -> Result<Vec<u8>> {
+        if expect_appb && !data.starts_with(b"APPB") {
+            debug!("Decoded data does not start with 'APPB'");
+            return Err(anyhow!("Decoded data does not start with 'APPB'"));
         }
 
-        debug!("Pipe server signature verified for PID {}", server_pid);
+        let data = if expect_appb { &data[4..] } else { data };
+
+        let mut in_blob = CRYPT_INTEGER_BLOB {
+            cbData: data.len() as u32,
+            pbData: data.as_ptr() as *mut u8,
+        };
+
+        let mut out_blob = CRYPT_INTEGER_BLOB {
+            cbData: 0,
+            pbData: ptr::null_mut(),
+        };
+
+        let result = unsafe {
+            CryptUnprotectData(
+                &mut in_blob,
+                Some(ptr::null_mut()),
+                None,
+                None,
+                None,
+                CRYPTPROTECT_UI_FORBIDDEN,
+                &mut out_blob,
+            )
+        };
+
+        if result.is_ok() && !out_blob.pbData.is_null() && out_blob.cbData > 0 {
+            let decrypted = unsafe {
+                std::slice::from_raw_parts(out_blob.pbData, out_blob.cbData as usize).to_vec()
+            };
+
+            // Free the memory allocated by CryptUnprotectData
+            unsafe { LocalFree(Some(HLOCAL(out_blob.pbData as *mut _))) };
+
+            Ok(decrypted)
+        } else {
+            debug!("CryptUnprotectData failed");
+            Err(anyhow!("CryptUnprotectData failed"))
+        }
     }
 
-    Ok(client)
-}
+    //
+    // Impersonate a SYSTEM process
+    //
 
-async fn run() -> Result<String> {
-    debug!("Starting admin.exe");
-
-    let args = Args::try_parse()?;
-
-    if !is_admin() {
-        return Err(anyhow!("Expected to run with admin privileges"));
+    struct ImpersonateGuard {
+        sys_token_handle: HANDLE,
     }
 
-    debug!("Running as admin");
+    impl Drop for ImpersonateGuard {
+        fn drop(&mut self) {
+            _ = Self::stop();
+            _ = self.close_sys_handle();
+        }
+    }
 
-    // Impersonate a SYSTEM process to be able to decrypt data encrypted for the machine
-    let system_decrypted_base64 = {
-        let (_guard, pid) = ImpersonateGuard::start(None, None)?;
-        debug!("Impersonating system process with PID {}", pid);
+    impl ImpersonateGuard {
+        pub fn start(pid: Option<u32>, sys_handle: Option<HANDLE>) -> Result<(Self, u32)> {
+            Self::enable_privilege()?;
+            let pid = if let Some(pid) = pid {
+                pid
+            } else if let Some(pid) = Self::get_system_pid_list()?.next() {
+                pid
+            } else {
+                return Err(anyhow!("Cannot find system process"));
+            };
+            let sys_token = if let Some(handle) = sys_handle {
+                handle
+            } else {
+                let system_handle = Self::get_process_handle(pid)?;
+                let sys_token = Self::get_system_token(system_handle)?;
+                unsafe {
+                    CloseHandle(system_handle)?;
+                };
 
-        let system_decrypted_base64 = decrypt_data_base64(&args.encrypted, true)?;
-        debug!("Decrypted data with system");
+                sys_token
+            };
+            unsafe {
+                ImpersonateLoggedOnUser(sys_token)?;
+            };
+            Ok((
+                Self {
+                    sys_token_handle: sys_token,
+                },
+                pid,
+            ))
+        }
 
-        system_decrypted_base64
-    };
+        pub fn stop() -> Result<()> {
+            unsafe {
+                RevertToSelf()?;
+            };
+            Ok(())
+        }
 
-    // This is just to check that we're decrypting Chrome keys and not something else sent to us by a malicious actor.
-    // Now that we're back from SYSTEM, we need to decrypt one more time just to verify.
-    // Chrome keys are double encrypted: once at SYSTEM level and once at USER level.
-    // When the decryption fails, it means that we're decrypting something unexpected.
-    // We don't send this result back since the library will decrypt again at USER level.
+        /// stop impersonate and return sys token handle
+        pub fn _stop_sys_handle(self) -> Result<HANDLE> {
+            unsafe { RevertToSelf() }?;
+            Ok(self.sys_token_handle)
+        }
 
-    _ = decrypt_data_base64(&system_decrypted_base64, false).map_err(|e| {
-        debug!("User level decryption check failed: {}", e);
-        e
-    })?;
+        pub fn close_sys_handle(&self) -> Result<()> {
+            unsafe { CloseHandle(self.sys_token_handle) }?;
+            Ok(())
+        }
 
-    debug!("User level decryption check passed");
+        fn enable_privilege() -> Result<()> {
+            let mut previous_value = BOOL(0);
+            let status = unsafe {
+                debug!("Setting SE_DEBUG_PRIVILEGE to 1 via RtlAdjustPrivilege");
+                RtlAdjustPrivilege(SE_DEBUG_PRIVILEGE, BOOL(1), BOOL(0), &mut previous_value)
+            };
+            if status != STATUS_SUCCESS {
+                return Err(anyhow!("Failed to adjust privilege"));
+            }
+            debug!(
+                "SE_DEBUG_PRIVILEGE set to 1, was {} before",
+                previous_value.0
+            );
+            Ok(())
+        }
 
-    Ok(system_decrypted_base64)
+        fn get_system_token(handle: HANDLE) -> Result<HANDLE> {
+            let token_handle = unsafe {
+                let mut token_handle = HANDLE::default();
+                OpenProcessToken(handle, TOKEN_DUPLICATE | TOKEN_QUERY, &mut token_handle)?;
+                token_handle
+            };
+            let duplicate_token = unsafe {
+                let mut duplicate_token = HANDLE::default();
+                DuplicateToken(
+                    token_handle,
+                    Security::SECURITY_IMPERSONATION_LEVEL(2),
+                    &mut duplicate_token,
+                )?;
+                CloseHandle(token_handle)?;
+                duplicate_token
+            };
+
+            Ok(duplicate_token)
+        }
+
+        fn process_name_is<F>(pid: u32, name_is: F) -> Result<bool>
+        where
+            F: FnOnce(&OsStr) -> bool,
+        {
+            let hprocess = Self::get_process_handle(pid)?;
+
+            let image_file_name = {
+                let mut lpimagefilename = vec![0; 260];
+                let length =
+                    unsafe { K32GetProcessImageFileNameW(hprocess, &mut lpimagefilename) } as usize;
+                unsafe {
+                    CloseHandle(hprocess)?;
+                };
+                lpimagefilename.truncate(length);
+                lpimagefilename
+            };
+
+            let fp = OsString::from_wide(&image_file_name);
+            PathBuf::from(fp)
+                .file_name()
+                .map(name_is)
+                .ok_or_else(|| anyhow::anyhow!("Failed to get process name"))
+        }
+
+        // https://learn.microsoft.com/en-us/windows/win32/psapi/enumerating-all-processes
+        fn get_system_pid_list() -> Result<impl Iterator<Item = u32>> {
+            let cap = 1024;
+            let mut lpidprocess = Vec::with_capacity(cap);
+            let mut lpcbneeded = 0;
+
+            unsafe {
+                EnumProcesses(lpidprocess.as_mut_ptr(), cap as u32 * 4, &mut lpcbneeded)?;
+                let c_processes = lpcbneeded as usize / size_of::<u32>();
+                lpidprocess.set_len(c_processes);
+            };
+
+            let filter = lpidprocess.into_iter().filter(|&v| {
+                v != 0
+                    && Self::process_name_is(v, |n| n == "lsass.exe" || n == "winlogon.exe")
+                        .unwrap_or(false)
+            });
+            Ok(filter)
+        }
+
+        fn get_process_handle(pid: u32) -> Result<HANDLE> {
+            let hprocess =
+                unsafe { OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, false, pid) }?;
+            Ok(hprocess)
+        }
+    }
+
+    #[link(name = "ntdll")]
+    unsafe extern "system" {
+        unsafe fn RtlAdjustPrivilege(
+            privilege: i32,
+            enable: BOOL,
+            current_thread: BOOL,
+            previous_value: *mut BOOL,
+        ) -> NTSTATUS;
+    }
+
+    async fn open_and_validate_pipe_server(pipe_name: &'static str) -> Result<NamedPipeClient> {
+        let client = open_pipe_client(pipe_name).await?;
+
+        if NEED_SERVER_SIGNATURE_VALIDATION {
+            let server_pid = get_named_pipe_server_pid(&client)?;
+            debug!("Connected to pipe server PID {}", server_pid);
+
+            // Validate the server end process signature
+            let exe_path = resolve_process_executable_path(server_pid)?;
+
+            debug!("Pipe server executable path: {}", exe_path.display());
+
+            let verifier = CodeSignVerifier::for_file(exe_path.as_path()).map_err(|e| {
+                anyhow!("verifysign init failed for {}: {:?}", exe_path.display(), e)
+            })?;
+
+            let signature = verifier.verify().map_err(|e| {
+                anyhow!(
+                    "verifysign verify failed for {}: {:?}",
+                    exe_path.display(),
+                    e
+                )
+            })?;
+
+            debug!("Pipe server executable path: {}", exe_path.display());
+
+            // Dump signature fields for debugging/inspection
+            debug!("Signature fields:");
+            debug!("  Subject Name: {:?}", signature.subject_name());
+            debug!("  Issuer Name: {:?}", signature.issuer_name());
+            debug!("  SHA1 Thumbprint: {:?}", signature.sha1_thumbprint());
+            debug!("  SHA256 Thumbprint: {:?}", signature.sha256_thumbprint());
+            debug!("  Serial Number: {:?}", signature.serial());
+
+            if signature.sha256_thumbprint() != EXPECTED_SERVER_SIGNATURE_SHA256_THUMBPRINT {
+                return Err(anyhow!("Pipe server signature is not valid"));
+            }
+
+            debug!("Pipe server signature verified for PID {}", server_pid);
+        }
+
+        Ok(client)
+    }
+
+    async fn run() -> Result<String> {
+        debug!("Starting admin.exe");
+
+        let args = Args::try_parse()?;
+
+        if !is_admin() {
+            return Err(anyhow!("Expected to run with admin privileges"));
+        }
+
+        debug!("Running as admin");
+
+        // Impersonate a SYSTEM process to be able to decrypt data encrypted for the machine
+        let system_decrypted_base64 = {
+            let (_guard, pid) = ImpersonateGuard::start(None, None)?;
+            debug!("Impersonating system process with PID {}", pid);
+
+            let system_decrypted_base64 = decrypt_data_base64(&args.encrypted, true)?;
+            debug!("Decrypted data with system");
+
+            system_decrypted_base64
+        };
+
+        // This is just to check that we're decrypting Chrome keys and not something else sent to us by a malicious actor.
+        // Now that we're back from SYSTEM, we need to decrypt one more time just to verify.
+        // Chrome keys are double encrypted: once at SYSTEM level and once at USER level.
+        // When the decryption fails, it means that we're decrypting something unexpected.
+        // We don't send this result back since the library will decrypt again at USER level.
+
+        _ = decrypt_data_base64(&system_decrypted_base64, false).map_err(|e| {
+            debug!("User level decryption check failed: {}", e);
+            e
+        })?;
+
+        debug!("User level decryption check passed");
+
+        Ok(system_decrypted_base64)
+    }
+
+    #[tokio::main]
+    async fn main() {
+        if NEED_LOGGING {
+            WriteLogger::init(
+                LevelFilter::Debug, // Controlled by the feature flags in Cargo.toml
+                Config::default(),
+                OpenOptions::new()
+                    .create(true)
+                    .append(true)
+                    .open(LOG_FILENAME)
+                    .expect("Can't open the log file"),
+            )
+            .expect("Failed to initialize logger");
+        }
+
+        let mut client =
+            match open_and_validate_pipe_server(abe_config::ADMIN_TO_USER_PIPE_NAME).await {
+                Ok(client) => client,
+                Err(e) => {
+                    error!(
+                        "Failed to open pipe {} to send result/error: {}",
+                        abe_config::ADMIN_TO_USER_PIPE_NAME,
+                        e
+                    );
+                    return;
+                }
+            };
+
+        match run().await {
+            Ok(system_decrypted_base64) => {
+                debug!("Sending response back to user");
+                let _ = send_to_user(&mut client, &system_decrypted_base64).await;
+            }
+            Err(e) => {
+                debug!("Error: {}", e);
+                send_error_to_user(&mut client, &format!("{}", e)).await;
+            }
+        }
+    }
 }
 
 #[tokio::main]
 async fn main() {
-    if NEED_LOGGING {
-        WriteLogger::init(
-            LevelFilter::Debug, // Controlled by the feature flags in Cargo.toml
-            Config::default(),
-            OpenOptions::new()
-                .create(true)
-                .append(true)
-                .open(LOG_FILENAME)
-                .expect("Can't open the log file"),
-        )
-        .expect("Failed to initialize logger");
-    }
-
-    let mut client = match open_and_validate_pipe_server(abe_config::ADMIN_TO_USER_PIPE_NAME).await
-    {
-        Ok(client) => client,
-        Err(e) => {
-            error!(
-                "Failed to open pipe {} to send result/error: {}",
-                abe_config::ADMIN_TO_USER_PIPE_NAME,
-                e
-            );
-            return;
-        }
-    };
-
-    match run().await {
-        Ok(system_decrypted_base64) => {
-            debug!("Sending response back to user");
-            let _ = send_to_user(&mut client, &system_decrypted_base64).await;
-        }
-        Err(e) => {
-            debug!("Error: {}", e);
-            send_error_to_user(&mut client, &format!("{}", e)).await;
-        }
-    }
+    #[cfg(target_os = "windows")]
+    windows_binary::main().await;
 }
