@@ -1,15 +1,7 @@
 import { CommonModule } from "@angular/common";
-import {
-  ChangeDetectionStrategy,
-  Component,
-  OnDestroy,
-  computed,
-  effect,
-  input,
-  signal,
-} from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, effect, input, signal } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
-import { combineLatest, firstValueFrom, of, Subject, switchMap } from "rxjs";
+import { combineLatest, firstValueFrom, of, switchMap, map } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -65,8 +57,9 @@ import { ViewIdentitySectionsComponent } from "./view-identity-sections/view-ide
     AnchorLinkDirective,
   ],
 })
-export class CipherViewComponent implements OnDestroy {
+export class CipherViewComponent {
   readonly cipher = input.required<CipherView>();
+  private readonly cipher$ = toObservable(this.cipher);
 
   // Required for fetching attachment data when viewed from cipher via emergency access
   readonly emergencyAccessId = input<EmergencyAccessId | undefined>();
@@ -82,17 +75,9 @@ export class CipherViewComponent implements OnDestroy {
   /** Should be set to true when the component is used within the Admin Console */
   readonly isAdminConsole = input<boolean>(false);
 
-  private destroyed$: Subject<void> = new Subject();
   readonly cardIsExpired = signal<boolean>(false);
   readonly hadPendingChangePasswordTask = signal<boolean>(false);
   private readonly loadedCollections = signal<CollectionView[] | undefined>(undefined);
-  private readonly organizations = toSignal(
-    this.activeUserId$.pipe(
-      switchMap((userId) =>
-        userId ? this.organizationService.organizations$(userId) : of(undefined),
-      ),
-    ),
-  );
 
   constructor(
     private organizationService: OrganizationService,
@@ -121,19 +106,22 @@ export class CipherViewComponent implements OnDestroy {
     return this.collections() ?? this.loadedCollections();
   });
 
-  readonly organization = computed(() => {
-    const cipher = this.cipher();
-    const organizations = this.organizations();
-
-    if (!cipher?.organizationId || !organizations) {
-      return undefined;
-    }
-
-    return organizations.find((org) => org.id === cipher.organizationId);
-  });
-
+  readonly organization = toSignal(
+    combineLatest([this.activeUserId$, this.cipher$]).pipe(
+      switchMap(([userId, cipher]) => {
+        if (!userId || !cipher?.organizationId) {
+          return of(undefined);
+        }
+        return this.organizationService.organizations$(userId).pipe(
+          map((organizations) => {
+            return organizations.find((org) => org.id === cipher.organizationId);
+          }),
+        );
+      }),
+    ),
+  );
   readonly folder = toSignal(
-    combineLatest([this.activeUserId$, toObservable(this.cipher)]).pipe(
+    combineLatest([this.activeUserId$, this.cipher$]).pipe(
       switchMap(([userId, cipher]) => {
         if (!userId || !cipher?.folderId) {
           return of(undefined);
@@ -180,11 +168,6 @@ export class CipherViewComponent implements OnDestroy {
     const cipher = this.cipher();
     return cipher?.login?.hasUris;
   });
-
-  ngOnDestroy(): void {
-    this.destroyed$.next();
-    this.destroyed$.complete();
-  }
 
   private async loadCipherData() {
     const cipher = this.cipher();
