@@ -13,6 +13,7 @@ import {
 import { LoginViaWebAuthnComponent } from "@bitwarden/angular/auth/login-via-webauthn/login-via-webauthn.component";
 import { ChangePasswordComponent } from "@bitwarden/angular/auth/password-management/change-password";
 import { SetInitialPasswordComponent } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.component";
+import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
 import {
   DevicesIcon,
   RegistrationUserAddIcon,
@@ -46,11 +47,14 @@ import {
   TwoFactorAuthGuard,
   NewDeviceVerificationComponent,
 } from "@bitwarden/auth/angular";
+import { canAccessEmergencyAccess } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AnonLayoutWrapperComponent, AnonLayoutWrapperData } from "@bitwarden/components";
 import { LockComponent } from "@bitwarden/key-management-ui";
 
 import { flagEnabled, Flags } from "../utils/flags";
 
+import { organizationFeatureGuard } from "./admin-console/organizations/guards/org-feature.guard";
 import { VerifyRecoverDeleteOrgComponent } from "./admin-console/organizations/manage/verify-recover-delete-org.component";
 import { AcceptFamilySponsorshipComponent } from "./admin-console/organizations/sponsorships/accept-family-sponsorship.component";
 import { FamiliesForEnterpriseSetupComponent } from "./admin-console/organizations/sponsorships/families-for-enterprise-setup.component";
@@ -685,11 +689,19 @@ const routes: Routes = [
               {
                 path: "",
                 component: EmergencyAccessComponent,
+                canActivate: [
+                  canAccessFeature(FeatureFlag.CreateDefaultLocation), //@FIXME: use the real feature flag
+                  organizationFeatureGuard(canAccessEmergencyAccess),
+                ],
                 data: { titleId: "emergencyAccess" } satisfies RouteDataProperties,
               },
               {
                 path: ":id",
                 component: EmergencyAccessViewComponent,
+                canActivate: [
+                  canAccessFeature(FeatureFlag.CreateDefaultLocation), //@FIXME: use the real feature flag
+                  organizationFeatureGuard(canAccessEmergencyAccess),
+                ],
                 data: { titleId: "emergencyAccess" } satisfies RouteDataProperties,
               },
             ],
