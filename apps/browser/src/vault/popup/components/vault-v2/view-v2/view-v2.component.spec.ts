@@ -19,6 +19,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
+import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -141,6 +142,13 @@ describe("ViewV2Component", () => {
         {
           provide: PasswordRepromptService,
           useValue: mockPasswordRepromptService,
+        },
+        {
+          provide: CipherArchiveService,
+          useValue: {
+            userCanArchive$: jest.fn().mockReturnValue(of(true)),
+            hasArchiveFlagEnabled$: jest.fn().mockReturnValue(of(true)),
+          },
         },
       ],
     })

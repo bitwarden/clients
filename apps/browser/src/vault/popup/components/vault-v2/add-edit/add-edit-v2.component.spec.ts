@@ -1,7 +1,8 @@
 import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
 import { ActivatedRoute, Router } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -12,6 +13,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
+import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
@@ -45,9 +47,7 @@ describe("AddEditV2Component", () => {
   let cipherServiceMock: MockProxy<CipherService>;
 
   const buildConfigResponse = { originalCipher: {} } as CipherFormConfig;
-  const buildConfig = jest.fn((mode: CipherFormMode) =>
-    Promise.resolve({ ...buildConfigResponse, mode }),
-  );
+  const buildConfig = jest.fn((mode) => Promise.resolve({ ...buildConfigResponse, mode }));
   const queryParams$ = new BehaviorSubject({});
   const disable = jest.fn();
   const navigate = jest.fn();
@@ -87,6 +87,13 @@ describe("AddEditV2Component", () => {
           },
         },
         { provide: AccountService, useValue: mockAccountServiceWith("UserId" as UserId) },
+        {
+          provide: CipherArchiveService,
+          useValue: {
+            userCanArchive$: jest.fn().mockReturnValue(of(false)),
+            hasArchiveFlagEnabled$: jest.fn().mockReturnValue(of(true)),
+          },
+        },
       ],
     })
       .overrideProvider(CipherFormConfigService, {
@@ -354,6 +361,79 @@ describe("AddEditV2Component", () => {
 
       expect(back).toHaveBeenCalled();
     });
+  });
+
+  describe("archive button", () => {
+    beforeEach(() => {
+      // prevent form from rendering
+      jest.spyOn(component as any, "loading", "get").mockReturnValue(true);
+      buildConfigResponse.originalCipher = { archivedDate: undefined, edit: true } as Cipher;
+    });
+
+    it("shows the archive button when the user can archive and the cipher can be archived", fakeAsync(() => {
+      jest.spyOn(component["archiveService"], "userCanArchive$").mockReturnValueOnce(of(true));
+      queryParams$.next({ cipherId: "222-333-444-5555" });
+      tick();
+      fixture.detectChanges();
+
+      const archiveBtn = fixture.debugElement.query(By.css("button[biticonbutton='bwi-archive']"));
+      expect(archiveBtn).toBeTruthy();
+    }));
+
+    it("does not show the archive button when the user cannot archive", fakeAsync(() => {
+      jest.spyOn(component["archiveService"], "userCanArchive$").mockReturnValueOnce(of(false));
+      queryParams$.next({ cipherId: "222-333-444-5555" });
+
+      tick();
+      fixture.detectChanges();
+
+      const archiveBtn = fixture.debugElement.query(By.css("button[biticonbutton='bwi-archive']"));
+      expect(archiveBtn).toBeFalsy();
+    }));
+
+    it("does not show the archive button when the cipher cannot be archived", fakeAsync(() => {
+      jest.spyOn(component["archiveService"], "userCanArchive$").mockReturnValueOnce(of(true));
+      buildConfigResponse.originalCipher = { archivedDate: new Date(), edit: true } as Cipher;
+      queryParams$.next({ cipherId: "222-333-444-5555" });
+
+      tick();
+      fixture.detectChanges();
+
+      const archiveBtn = fixture.debugElement.query(By.css("button[biticonbutton='bwi-archive']"));
+      expect(archiveBtn).toBeFalsy();
+    }));
+  });
+
+  describe("unarchive button", () => {
+    beforeEach(() => {
+      // prevent form from rendering
+      jest.spyOn(component as any, "loading", "get").mockReturnValue(true);
+      buildConfigResponse.originalCipher = { edit: true } as Cipher;
+    });
+
+    it("shows the unarchive button when the cipher is archived", fakeAsync(() => {
+      buildConfigResponse.originalCipher = { archivedDate: new Date(), edit: true } as Cipher;
+
+      tick();
+      fixture.detectChanges();
+
+      const unarchiveBtn = fixture.debugElement.query(
+        By.css("button[biticonbutton='bwi-unarchive']"),
+      );
+      expect(unarchiveBtn).toBeTruthy();
+    }));
+
+    it("does not show the unarchive button when the cipher is not archived", fakeAsync(() => {
+      queryParams$.next({ cipherId: "222-333-444-5555" });
+
+      tick();
+      fixture.detectChanges();
+
+      const unarchiveBtn = fixture.debugElement.query(
+        By.css("button[biticonbutton='bwi-unarchive']"),
+      );
+      expect(unarchiveBtn).toBeFalsy();
+    }));
   });
 
   describe("delete", () => {
