@@ -1045,6 +1045,7 @@ export default class MainBackground {
       this.authService,
       this.stateProvider,
       this.securityStateService,
+      this.kdfConfigService,
     );
 
     this.syncServiceListener = new SyncServiceListener(
