@@ -3,11 +3,12 @@
 import { Component, Inject, OnInit } from "@angular/core";
 import { FormControl, FormGroup, ValidationErrors, ValidatorFn, Validators } from "@angular/forms";
 
+import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider/provider-api.service.abstraction";
 import { ProviderUserType } from "@bitwarden/common/admin-console/enums";
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
+import { UpdateProviderOrganizationRequest } from "@bitwarden/common/admin-console/models/request/update-provider-organization.request";
 import { ProviderOrganizationOrganizationDetailsResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-organization.response";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions";
-import { UpdateClientOrganizationRequest } from "@bitwarden/common/billing/models/request/update-client-organization.request";
 import { ProviderPlanResponse } from "@bitwarden/common/billing/models/response/provider-subscription-response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DIALOG_DATA, DialogConfig, DialogRef, DialogService } from "@bitwarden/components";
@@ -56,6 +57,7 @@ export class ManageClientSubscriptionDialogComponent implements OnInit {
 
   constructor(
     private billingApiService: BillingApiServiceAbstraction,
+    private providerApiService: ProviderApiServiceAbstraction,
     @Inject(DIALOG_DATA) protected dialogParams: ManageClientSubscriptionDialogParams,
     private dialogRef: DialogRef<ManageClientSubscriptionDialogResultType>,
     private i18nService: I18nService,
@@ -99,11 +101,11 @@ export class ManageClientSubscriptionDialogComponent implements OnInit {
     }
 
     try {
-      const request = new UpdateClientOrganizationRequest();
+      const request = new UpdateProviderOrganizationRequest();
       request.assignedSeats = this.formGroup.value.assignedSeats;
       request.name = this.dialogParams.organization.organizationName;
 
-      await this.billingApiService.updateProviderClientOrganization(
+      await this.providerApiService.updateProviderOrganization(
         this.dialogParams.provider.id,
         this.dialogParams.organization.id,
         request,

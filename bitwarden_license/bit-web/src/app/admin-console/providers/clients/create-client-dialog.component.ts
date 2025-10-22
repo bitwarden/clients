@@ -17,7 +17,7 @@ import {
   ToastService,
 } from "@bitwarden/components";
 
-import { WebProviderService } from "../../../admin-console/providers/services/web-provider.service";
+import { WebProviderService } from "../services/web-provider.service";
 
 type CreateClientDialogParams = {
   providerId: string;

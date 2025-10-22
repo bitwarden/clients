@@ -135,7 +135,7 @@ describe("ItemDetailsSectionComponent", () => {
       tick();
 
       expect(cipherFormProvider.patchCipher).toHaveBeenCalled();
-      const patchFn = cipherFormProvider.patchCipher.mock.lastCall[0];
+      const patchFn = cipherFormProvider.patchCipher.mock.lastCall![0];
 
       const updatedCipher = patchFn(new CipherView());
 
@@ -165,7 +165,7 @@ describe("ItemDetailsSectionComponent", () => {
       tick();
 
       expect(cipherFormProvider.patchCipher).toHaveBeenCalled();
-      const patchFn = cipherFormProvider.patchCipher.mock.lastCall[0];
+      const patchFn = cipherFormProvider.patchCipher.mock.lastCall![0];
 
       const updatedCipher = patchFn(new CipherView());
 
@@ -440,7 +440,7 @@ describe("ItemDetailsSectionComponent", () => {
       await fixture.whenStable();
 
       expect(cipherFormProvider.patchCipher).toHaveBeenCalled();
-      const patchFn = cipherFormProvider.patchCipher.mock.lastCall[0];
+      const patchFn = cipherFormProvider.patchCipher.mock.lastCall![0];
 
       const updatedCipher = patchFn(new CipherView());
 
@@ -688,6 +688,35 @@ describe("ItemDetailsSectionComponent", () => {
           await component.ngOnInit();
 
           expect(disableFormFields).not.toHaveBeenCalled();
+          expect(enableFormFields).toHaveBeenCalled();
+        });
+      });
+
+      describe("setFormState behavior with null/undefined", () => {
+        it("calls disableFormFields when organizationId value is null", async () => {
+          component.originalCipherView.organizationId = null as any;
+          getInitialCipherView.mockReturnValue(component.originalCipherView);
+
+          await component.ngOnInit();
+
+          expect(disableFormFields).toHaveBeenCalled();
+        });
+
+        it("calls disableFormFields when organizationId value is undefined", async () => {
+          component.originalCipherView.organizationId = undefined;
+          getInitialCipherView.mockReturnValue(component.originalCipherView);
+
+          await component.ngOnInit();
+
+          expect(disableFormFields).toHaveBeenCalled();
+        });
+
+        it("calls enableFormFields when organizationId has a string value", async () => {
+          component.originalCipherView.organizationId = "org-id" as any;
+          getInitialCipherView.mockReturnValue(component.originalCipherView);
+
+          await component.ngOnInit();
+
           expect(enableFormFields).toHaveBeenCalled();
         });
       });
