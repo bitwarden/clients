@@ -16,6 +16,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { CipherType, toCipherType } from "@bitwarden/common/vault/enums";
@@ -216,6 +217,7 @@ export class AddEditV2Component implements OnInit {
     private dialogService: DialogService,
     protected cipherAuthorizationService: CipherAuthorizationService,
     private accountService: AccountService,
+    private archiveService: CipherArchiveService,
   ) {
     this.subscribeToParams();
   }
