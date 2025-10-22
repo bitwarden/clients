@@ -45,7 +45,7 @@ export enum FeatureFlag {
   ChromiumImporterWithABE = "pm-25855-chromium-importer-abe",
 
   /* DIRT */
-  EventBasedOrganizationIntegrations = "event-based-organization-integrations",
+  EventManagementForDataDogAndCrowdStrike = "event-management-for-datadog-and-crowdstrike",
   PhishingDetection = "phishing-detection",
   PM22887_RiskInsightsActivityTab = "pm-22887-risk-insights-activity-tab",
 
@@ -91,7 +91,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.ChromiumImporterWithABE]: FALSE,
 
   /* DIRT */
-  [FeatureFlag.EventBasedOrganizationIntegrations]: FALSE,
+  [FeatureFlag.EventManagementForDataDogAndCrowdStrike]: FALSE,
   [FeatureFlag.PhishingDetection]: FALSE,
   [FeatureFlag.PM22887_RiskInsightsActivityTab]: FALSE,
 
