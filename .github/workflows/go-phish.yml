@@ -1,0 +1,34 @@
+name: Update Local Phishing Data
+
+on:
+  schedule:
+    - cron: '0 0 */14 * *' # Every 14 days at midnight UTC
+  workflow_dispatch:
+
+jobs:
+  update-phishing-db:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y moreutils jq curl
+          # Install GNU split as gsplit (for macOS compatibility, on Ubuntu it's just split)
+          sudo apt-get install -y coreutils
+
+      - name: Run phishing domains update script
+        run: bash ./clients/apps/browser/src/dirt/phishing-detection/services/fetch-phishing-domains.sh
+
+      - name: Commit and create PR
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: "chore: update phishing domains data"
+          branch: update/phishing-domains-data
+          title: "chore: update phishing domains data"
+          body: |
+            This PR updates the local phishing domains data and checksum.
+          labels: |
+            automated
