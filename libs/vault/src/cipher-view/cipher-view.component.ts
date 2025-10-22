@@ -76,7 +76,6 @@ export class CipherViewComponent {
   readonly isAdminConsole = input<boolean>(false);
 
   readonly hadPendingChangePasswordTask = signal<boolean>(false);
-  private readonly loadedCollections = signal<CollectionView[] | undefined>(undefined);
 
   constructor(
     private organizationService: OrganizationService,
@@ -99,10 +98,23 @@ export class CipherViewComponent {
     });
   }
 
-  readonly resolvedCollections = computed(() => {
-    // Use provided collections input if available, otherwise use loaded collections
-    return this.collections() ?? this.loadedCollections();
-  });
+  readonly resolvedCollections = toSignal<CollectionView[] | undefined>(
+    combineLatest([this.activeUserId$, this.cipher$, toObservable(this.collections)]).pipe(
+      switchMap(([userId, cipher, providedCollections]) => {
+        // Use provided collections if available
+        if (providedCollections && providedCollections.length > 0) {
+          return of(providedCollections);
+        }
+        // Otherwise, load collections based on cipher's collectionIds
+        if (cipher.collectionIds && cipher.collectionIds.length > 0) {
+          return this.collectionService
+            .decryptedCollections$(userId)
+            .pipe(getByIds(cipher.collectionIds));
+        }
+        return of(undefined);
+      }),
+    ),
+  );
 
   readonly organization = toSignal(
     combineLatest([this.activeUserId$, this.cipher$]).pipe(
@@ -182,19 +194,6 @@ export class CipherViewComponent {
     }
 
     const userId = await firstValueFrom(this.activeUserId$);
-
-    // Load collections if not provided and the cipher has collectionIds
-    if (
-      cipher.collectionIds &&
-      cipher.collectionIds.length > 0 &&
-      (!this.collections() || this.collections()?.length === 0)
-    ) {
-      this.loadedCollections.set(
-        await firstValueFrom(
-          this.collectionService.decryptedCollections$(userId).pipe(getByIds(cipher.collectionIds)),
-        ),
-      );
-    }
 
     if (cipher.type === CipherType.Login && cipher.organizationId) {
       await this.checkPendingChangePasswordTasks(userId);
