@@ -1,3 +1,4 @@
+#[cfg(not(target_os = "windows"))]
 use napi::tokio;
 
 // Hide everything inside a platform specific module to avoid clippy errors on other platforms
@@ -133,7 +134,7 @@ mod windows_binary {
 
         let mut wide = vec![0u16; 260];
         let mut size = wide.len() as u32;
-        _ = unsafe {
+        unsafe {
             QueryFullProcessImageNameW(
                 hprocess,
                 PROCESS_NAME_WIN32,
@@ -152,7 +153,7 @@ mod windows_binary {
     }
 
     async fn send_to_user(client: &mut NamedPipeClient, message: &str) -> Result<()> {
-        let _ = send_message_with_client(client, &message).await?;
+        let _ = send_message_with_client(client, message).await?;
         Ok(())
     }
 
@@ -182,7 +183,7 @@ mod windows_binary {
 
         let data = if expect_appb { &data[4..] } else { data };
 
-        let mut in_blob = CRYPT_INTEGER_BLOB {
+        let in_blob = CRYPT_INTEGER_BLOB {
             cbData: data.len() as u32,
             pbData: data.as_ptr() as *mut u8,
         };
@@ -194,7 +195,7 @@ mod windows_binary {
 
         let result = unsafe {
             CryptUnprotectData(
-                &mut in_blob,
+                &in_blob,
                 Some(ptr::null_mut()),
                 None,
                 None,
@@ -425,7 +426,7 @@ mod windows_binary {
         Ok(client)
     }
 
-    async fn run() -> Result<String> {
+    fn run() -> Result<String> {
         debug!("Starting admin.exe");
 
         let args = Args::try_parse()?;
@@ -464,7 +465,7 @@ mod windows_binary {
     }
 
     #[tokio::main]
-    async fn main() {
+    pub async fn main() {
         if NEED_LOGGING {
             WriteLogger::init(
                 LevelFilter::Debug, // Controlled by the feature flags in Cargo.toml
@@ -491,7 +492,7 @@ mod windows_binary {
                 }
             };
 
-        match run().await {
+        match run() {
             Ok(system_decrypted_base64) => {
                 debug!("Sending response back to user");
                 let _ = send_to_user(&mut client, &system_decrypted_base64).await;
@@ -507,5 +508,5 @@ mod windows_binary {
 #[tokio::main]
 async fn main() {
     #[cfg(target_os = "windows")]
-    windows_binary::main().await;
+    windows_binary::main();
 }

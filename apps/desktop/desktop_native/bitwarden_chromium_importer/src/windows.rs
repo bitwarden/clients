@@ -57,7 +57,9 @@ pub fn get_crypto_service(
 }
 
 pub fn configure_windows_crypto_service(admin_exe_path: &str) {
-    *ADMIN_EXE_PATH.lock().unwrap() = Some(admin_exe_path.to_string());
+    *ADMIN_EXE_PATH
+        .lock()
+        .expect("Failed to acquire lock on ADMIN_EXE_PATH") = Some(admin_exe_path.to_string());
 }
 
 //
@@ -186,14 +188,16 @@ impl WindowsCryptoService {
 
         let key_base64 = abe::decrypt_with_admin(
             &get_admin_exe_path()?,
-            &self.app_bound_encrypted_key.as_ref().unwrap(),
+            self.app_bound_encrypted_key
+                .as_ref()
+                .expect("app_bound_encrypted_key should not be None"),
         )
         .await?;
 
-        if key_base64.starts_with('!') {
+        if let Some(error_message) = key_base64.strip_prefix('!') {
             return Err(anyhow!(
                 "Failed to decrypt the master key: {}",
-                &key_base64[1..]
+                error_message
             ));
         }
 
@@ -218,7 +222,7 @@ impl WindowsCryptoService {
                     .decrypt(iv.into(), ciphertext.as_ref())
                     .map_err(|e| anyhow!("Failed to decrypt v20 key with Google AES key: {}", e))?;
 
-                return Ok(decrypted);
+                Ok(decrypted)
             }
             KeyData::Two { iv, ciphertext } => {
                 // Google's fixed ChaCha20 key for v20 decryption
@@ -237,15 +241,13 @@ impl WindowsCryptoService {
                         anyhow!("Failed to decrypt v20 key with Google ChaCha20 key: {}", e)
                     })?;
 
-                return Ok(decrypted);
+                Ok(decrypted)
             }
             KeyData::Three { .. } => {
                 // There's no way to test this at the moment. This encryption scheme is not used in any of the browsers I've tested.
-                return Err(anyhow!("v20 version 3 is not supported yet"));
+                Err(anyhow!("v20 version 3 is not supported yet"))
             }
-            KeyData::Plain(key) => {
-                return Ok(key.to_vec());
-            }
+            KeyData::Plain(key) => Ok(key.to_vec()),
         }
     }
 }
@@ -300,7 +302,7 @@ fn unprotect_data_win(data: &[u8]) -> Result<Vec<u8>> {
 fn get_admin_exe_path() -> Result<String> {
     ADMIN_EXE_PATH
         .lock()
-        .unwrap()
+        .expect("Failed to acquire lock on ADMIN_EXE_PATH")
         .clone()
         .ok_or_else(|| anyhow!("admin.exe path is not set"))
 }
@@ -329,7 +331,7 @@ enum KeyData<'k> {
     Plain(&'k [u8]),
 }
 
-impl<'k> KeyData<'k> {
+impl KeyData<'_> {
     fn parse<'b>(blob_data: &mut &'b [u8]) -> Result<KeyData<'b>> {
         let header_len = u32::from_le_bytes(blob_data[0..4].try_into()?) as usize;
         // Ignore the header

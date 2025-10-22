@@ -137,7 +137,7 @@ pub async fn decrypt_with_admin(admin_exe: &str, encrypted: &str) -> Result<Stri
     };
 
     debug!("Shutting down the pipe server...");
-    _ = server.abort();
+    server.abort();
 
     Ok(message)
 }
