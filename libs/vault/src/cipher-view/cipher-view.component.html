@@ -30,7 +30,7 @@
   <!-- ITEM DETAILS -->
   <app-item-details-v2
     [cipher]="cipher()"
-    [organization]="organization$ | async"
+    [organization]="organization()"
     [collections]="resolvedCollections()"
     [folder]="folder$ | async"
     [hideOwner]="isAdminConsole()"

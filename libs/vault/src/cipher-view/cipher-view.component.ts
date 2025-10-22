@@ -8,17 +8,14 @@ import {
   input,
   signal,
 } from "@angular/core";
-import { firstValueFrom, Observable, Subject, takeUntil } from "rxjs";
+import { toSignal } from "@angular/core/rxjs-interop";
+import { firstValueFrom, Observable, of, Subject, switchMap, takeUntil } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import {
-  getOrganizationById,
-  OrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { isCardExpired } from "@bitwarden/common/autofill/utils";
@@ -86,12 +83,18 @@ export class CipherViewComponent implements OnDestroy {
   /** Should be set to true when the component is used within the Admin Console */
   readonly isAdminConsole = input<boolean>(false);
 
-  organization$: Observable<Organization | undefined> | undefined;
   folder$: Observable<FolderView | undefined> | undefined;
   private destroyed$: Subject<void> = new Subject();
   readonly cardIsExpired = signal<boolean>(false);
   readonly hadPendingChangePasswordTask = signal<boolean>(false);
   private readonly loadedCollections = signal<CollectionView[] | undefined>(undefined);
+  private readonly organizations = toSignal(
+    this.activeUserId$.pipe(
+      switchMap((userId) =>
+        userId ? this.organizationService.organizations$(userId) : of(undefined),
+      ),
+    ),
+  );
 
   constructor(
     private organizationService: OrganizationService,
@@ -118,6 +121,17 @@ export class CipherViewComponent implements OnDestroy {
   readonly resolvedCollections = computed(() => {
     // Use provided collections input if available, otherwise use loaded collections
     return this.collections() ?? this.loadedCollections();
+  });
+
+  readonly organization = computed(() => {
+    const cipher = this.cipher();
+    const organizations = this.organizations();
+
+    if (!cipher?.organizationId || !organizations) {
+      return undefined;
+    }
+
+    return organizations.find((org) => org.id === cipher.organizationId);
   });
 
   readonly hasCard = computed(() => {
@@ -184,15 +198,8 @@ export class CipherViewComponent implements OnDestroy {
       );
     }
 
-    if (cipher.organizationId) {
-      this.organization$ = this.organizationService
-        .organizations$(userId)
-        .pipe(getOrganizationById(cipher.organizationId))
-        .pipe(takeUntil(this.destroyed$));
-
-      if (cipher.type === CipherType.Login) {
-        await this.checkPendingChangePasswordTasks(userId);
-      }
+    if (cipher.type === CipherType.Login && cipher.organizationId) {
+      await this.checkPendingChangePasswordTasks(userId);
     }
 
     if (cipher.folderId) {
