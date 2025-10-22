@@ -22,6 +22,7 @@ import {
   DefaultAuthRequestApiService,
   DefaultLockService,
   DefaultLogoutService,
+  LockService,
 } from "@bitwarden/auth/common";
 import { EventCollectionService as EventCollectionServiceAbstraction } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { EventUploadService as EventUploadServiceAbstraction } from "@bitwarden/common/abstractions/event/event-upload.service";
@@ -310,6 +311,7 @@ export class ServiceContainer {
   restrictedItemTypesService: RestrictedItemTypesService;
   cliRestrictedItemTypesService: CliRestrictedItemTypesService;
   cipherArchiveService: CipherArchiveService;
+  lockService: LockService;
 
   constructor() {
     let p = null;
@@ -773,7 +775,7 @@ export class ServiceContainer {
     const logoutService = new DefaultLogoutService(this.messagingService);
     const processReloadService = new CliProcessReloadService();
     const systemService = new CliSystemService();
-    const lockService = new DefaultLockService(
+    this.lockService = new DefaultLockService(
       this.accountService,
       biometricService,
       this.vaultTimeoutSettingsService,
@@ -798,7 +800,7 @@ export class ServiceContainer {
       this.vaultTimeoutSettingsService,
       this.taskSchedulerService,
       this.logService,
-      lockService,
+      this.lockService,
       undefined,
     );
 

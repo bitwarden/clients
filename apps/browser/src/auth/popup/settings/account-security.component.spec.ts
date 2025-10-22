@@ -6,6 +6,7 @@ import { mock } from "jest-mock-extended";
 import { firstValueFrom, of } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
+import { LockService } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -61,6 +62,7 @@ describe("AccountSecurityComponent", () => {
   const validationService = mock<ValidationService>();
   const dialogService = mock<DialogService>();
   const platformUtilsService = mock<PlatformUtilsService>();
+  const lockService = mock<LockService>();
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -90,6 +92,7 @@ describe("AccountSecurityComponent", () => {
         { provide: OrganizationService, useValue: mock<OrganizationService>() },
         { provide: CollectionService, useValue: mock<CollectionService>() },
         { provide: ValidationService, useValue: validationService },
+        { provide: LockService, useValue: lockService },
       ],
     })
       .overrideComponent(AccountSecurityComponent, {
