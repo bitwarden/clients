@@ -11,7 +11,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { CalloutModule } from "@bitwarden/components";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
- 
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "auth-password-callout",
   templateUrl: "password-callout.component.html",
@@ -19,10 +19,10 @@ import { CalloutModule } from "@bitwarden/components";
 })
 export class PasswordCalloutComponent {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-   
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() message = "masterPasswordPolicyInEffect";
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-   
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() policy: MasterPasswordPolicyOptions;
 
   constructor(private i18nService: I18nService) {}

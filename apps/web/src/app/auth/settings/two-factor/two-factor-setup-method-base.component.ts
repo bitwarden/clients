@@ -18,7 +18,7 @@ import { DialogService, ToastService } from "@bitwarden/components";
 @Directive({})
 export abstract class TwoFactorSetupMethodBaseComponent {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-   
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onUpdated = new EventEmitter<boolean>();
 
   type: TwoFactorProviderType | undefined;

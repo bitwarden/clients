@@ -9,7 +9,7 @@ import { UserVerificationComponent as BaseComponent } from "@bitwarden/angular/a
  * Each client specific component should eventually be converted over to use one of these new components.
  */
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
- 
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-user-verification",
   templateUrl: "user-verification.component.html",

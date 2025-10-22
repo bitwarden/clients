@@ -33,7 +33,7 @@ export interface WebAuthnResult {
 }
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
- 
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-two-factor-auth-webauthn",
   templateUrl: "two-factor-auth-webauthn.component.html",
@@ -53,10 +53,10 @@ export interface WebAuthnResult {
 })
 export class TwoFactorAuthWebAuthnComponent implements OnInit, OnDestroy {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-   
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() webAuthnResultEmitter = new EventEmitter<WebAuthnResult>();
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-   
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() webAuthnInNewTabEmitter = new EventEmitter<boolean>();
 
   webAuthnReady = false;

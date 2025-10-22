@@ -26,7 +26,7 @@ import {
 } from "./two-factor-auth-duo-component.service";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
- 
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-two-factor-auth-duo",
   template: "",
@@ -46,10 +46,10 @@ import {
 })
 export class TwoFactorAuthDuoComponent implements OnInit {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-   
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() tokenEmitter = new EventEmitter<string>();
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-   
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() providerData: any;
 
   duoFramelessUrl: string | undefined = undefined;

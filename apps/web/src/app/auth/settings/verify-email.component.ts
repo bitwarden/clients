@@ -17,7 +17,7 @@ import {
 } from "@bitwarden/components";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
- 
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-verify-email",
   templateUrl: "verify-email.component.html",
@@ -27,10 +27,10 @@ export class VerifyEmailComponent {
   actionPromise: Promise<unknown>;
 
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-   
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onVerified = new EventEmitter<boolean>();
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-   
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onDismiss = new EventEmitter<void>();
 
   constructor(

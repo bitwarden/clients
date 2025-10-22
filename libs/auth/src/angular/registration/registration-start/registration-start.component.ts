@@ -41,7 +41,7 @@ const DEFAULT_MARKETING_EMAILS_PREF_BY_REGION: Record<Region, boolean> = {
 };
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
- 
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "auth-registration-start",
   templateUrl: "./registration-start.component.html",
@@ -60,7 +60,7 @@ const DEFAULT_MARKETING_EMAILS_PREF_BY_REGION: Record<Region, boolean> = {
 })
 export class RegistrationStartComponent implements OnInit, OnDestroy {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-   
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() registrationStartStateChange = new EventEmitter<RegistrationStartState>();
 
   state: RegistrationStartState = RegistrationStartState.USER_DATA_ENTRY;

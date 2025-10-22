@@ -15,7 +15,7 @@ import {
 } from "@bitwarden/components";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
- 
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-two-factor-auth-authenticator",
   templateUrl: "two-factor-auth-authenticator.component.html",
@@ -35,10 +35,10 @@ import {
 })
 export class TwoFactorAuthAuthenticatorComponent {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-   
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true }) tokenFormControl: FormControl | undefined = undefined;
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-   
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() tokenChange = new EventEmitter<{ token: string }>();
 
   onTokenChange(event: Event) {

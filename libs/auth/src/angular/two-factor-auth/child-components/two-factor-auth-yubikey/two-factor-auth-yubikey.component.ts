@@ -15,7 +15,7 @@ import {
 } from "@bitwarden/components";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
- 
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-two-factor-auth-yubikey",
   templateUrl: "two-factor-auth-yubikey.component.html",
@@ -35,6 +35,6 @@ import {
 })
 export class TwoFactorAuthYubikeyComponent {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-   
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true }) tokenFormControl: FormControl | undefined = undefined;
 }

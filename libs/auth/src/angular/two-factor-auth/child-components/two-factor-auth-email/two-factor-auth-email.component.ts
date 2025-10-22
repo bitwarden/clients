@@ -27,7 +27,7 @@ import {
 import { TwoFactorAuthEmailComponentCacheService } from "./two-factor-auth-email-component-cache.service";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
- 
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-two-factor-auth-email",
   templateUrl: "two-factor-auth-email.component.html",
@@ -52,10 +52,10 @@ import { TwoFactorAuthEmailComponentCacheService } from "./two-factor-auth-email
 })
 export class TwoFactorAuthEmailComponent implements OnInit {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-   
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true }) tokenFormControl: FormControl | undefined = undefined;
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-   
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() tokenChange = new EventEmitter<{ token: string }>();
 
   twoFactorEmail: string | undefined = undefined;

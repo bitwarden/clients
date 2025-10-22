@@ -14,7 +14,7 @@ import { BiometricsService } from "@bitwarden/key-management";
 import { AccountSwitcherService, AvailableAccount } from "./services/account-switcher.service";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
- 
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "auth-account",
   templateUrl: "account.component.html",
@@ -22,10 +22,10 @@ import { AccountSwitcherService, AvailableAccount } from "./services/account-swi
 })
 export class AccountComponent {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-   
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() account: AvailableAccount;
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-   
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() loading = new EventEmitter<boolean>();
 
   constructor(

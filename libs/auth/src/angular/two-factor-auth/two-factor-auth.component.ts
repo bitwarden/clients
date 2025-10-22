@@ -76,7 +76,7 @@ import {
 } from "./two-factor-options.component";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
- 
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-two-factor-auth",
   templateUrl: "two-factor-auth.component.html",
@@ -102,7 +102,7 @@ import {
 })
 export class TwoFactorAuthComponent implements OnInit, OnDestroy {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-   
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("continueButton", { read: ElementRef, static: false }) continueButton:
     | ElementRef
     | undefined = undefined;
@@ -119,7 +119,7 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
   selectedProviderData: { [key: string]: string } | undefined;
 
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-   
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("duoComponent") duoComponent!: TwoFactorAuthDuoComponent;
 
   form = this.formBuilder.group({

@@ -12,7 +12,7 @@ import { RouterService } from "../../../core/router.service";
 import { deepLinkGuard } from "./deep-link.guard";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
- 
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template: "",
   standalone: false,
@@ -20,7 +20,7 @@ import { deepLinkGuard } from "./deep-link.guard";
 export class GuardedRouteTestComponent {}
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
- 
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template: "",
   standalone: false,
@@ -28,7 +28,7 @@ export class GuardedRouteTestComponent {}
 export class LockTestComponent {}
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
- 
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template: "",
   standalone: false,

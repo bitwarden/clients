@@ -26,7 +26,7 @@ import { SelfHostedEnvConfigDialogComponent } from "../../self-hosted-env-config
  * Outputs the selected region to the parent component so it can respond as necessary.
  */
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
- 
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "auth-registration-env-selector",
   templateUrl: "registration-env-selector.component.html",
@@ -34,7 +34,7 @@ import { SelfHostedEnvConfigDialogComponent } from "../../self-hosted-env-config
 })
 export class RegistrationEnvSelectorComponent implements OnInit, OnDestroy {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-   
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() selectedRegionChange = new EventEmitter<RegionConfig | Region.SelfHosted | null>();
 
   ServerEnvironmentType = Region;
