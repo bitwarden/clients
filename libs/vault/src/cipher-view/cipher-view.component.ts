@@ -1,5 +1,13 @@
 import { CommonModule } from "@angular/common";
-import { Component, Input, OnChanges, OnDestroy } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnDestroy,
+  computed,
+  effect,
+  input,
+  signal,
+} from "@angular/core";
 import { firstValueFrom, Observable, Subject, takeUntil } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
@@ -39,11 +47,10 @@ import { LoginCredentialsViewComponent } from "./login-credentials/login-credent
 import { SshKeyViewComponent } from "./sshkey-sections/sshkey-view.component";
 import { ViewIdentitySectionsComponent } from "./view-identity-sections/view-identity-sections.component";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-cipher-view",
   templateUrl: "cipher-view.component.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CalloutModule,
     CommonModule,
@@ -62,15 +69,11 @@ import { ViewIdentitySectionsComponent } from "./view-identity-sections/view-ide
     AnchorLinkDirective,
   ],
 })
-export class CipherViewComponent implements OnChanges, OnDestroy {
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input({ required: true }) cipher: CipherView | null = null;
+export class CipherViewComponent implements OnDestroy {
+  readonly cipher = input.required<CipherView>();
 
   // Required for fetching attachment data when viewed from cipher via emergency access
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() emergencyAccessId?: EmergencyAccessId;
+  readonly emergencyAccessId = input<EmergencyAccessId | undefined>();
 
   activeUserId$ = getUserId(this.accountService.activeAccount$);
 
@@ -78,20 +81,17 @@ export class CipherViewComponent implements OnChanges, OnDestroy {
    * Optional list of collections the cipher is assigned to. If none are provided, they will be fetched using the
    * `CipherService` and the `collectionIds` property of the cipher.
    */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() collections?: CollectionView[];
+  readonly collections = input<CollectionView[] | undefined>(undefined);
 
   /** Should be set to true when the component is used within the Admin Console */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() isAdminConsole?: boolean = false;
+  readonly isAdminConsole = input<boolean>(false);
 
   organization$: Observable<Organization | undefined> | undefined;
   folder$: Observable<FolderView | undefined> | undefined;
   private destroyed$: Subject<void> = new Subject();
-  cardIsExpired: boolean = false;
-  hadPendingChangePasswordTask: boolean = false;
+  readonly cardIsExpired = signal<boolean>(false);
+  readonly hadPendingChangePasswordTask = signal<boolean>(false);
+  private readonly loadedCollections = signal<CollectionView[] | undefined>(undefined);
 
   constructor(
     private organizationService: OrganizationService,
@@ -103,58 +103,69 @@ export class CipherViewComponent implements OnChanges, OnDestroy {
     private changeLoginPasswordService: ChangeLoginPasswordService,
     private cipherService: CipherService,
     private logService: LogService,
-  ) {}
+  ) {
+    effect(() => {
+      const cipher = this.cipher();
+      if (cipher == null) {
+        return;
+      }
 
-  async ngOnChanges() {
-    if (this.cipher == null) {
-      return;
+      void this.loadCipherData();
+      this.cardIsExpired.set(isCardExpired(cipher.card));
+    });
+  }
+
+  readonly resolvedCollections = computed(() => {
+    // Use provided collections input if available, otherwise use loaded collections
+    return this.collections() ?? this.loadedCollections();
+  });
+
+  readonly hasCard = computed(() => {
+    const cipher = this.cipher();
+    if (!cipher) {
+      return false;
     }
 
-    await this.loadCipherData();
+    const { cardholderName, code, expMonth, expYear, number } = cipher.card;
+    return cardholderName || code || expMonth || expYear || number;
+  });
 
-    this.cardIsExpired = isCardExpired(this.cipher.card);
-  }
+  readonly hasLogin = computed(() => {
+    const cipher = this.cipher();
+    if (!cipher) {
+      return false;
+    }
+
+    const { username, password, totp, fido2Credentials } = cipher.login;
+
+    return username || password || totp || fido2Credentials?.length > 0;
+  });
+
+  readonly hasAutofill = computed(() => {
+    const cipher = this.cipher();
+    const uris = cipher?.login?.uris.length ?? 0;
+
+    return uris > 0;
+  });
+
+  readonly hasSshKey = computed(() => {
+    const cipher = this.cipher();
+    return !!cipher?.sshKey?.privateKey;
+  });
+
+  readonly hasLoginUri = computed(() => {
+    const cipher = this.cipher();
+    return cipher?.login?.hasUris;
+  });
 
   ngOnDestroy(): void {
     this.destroyed$.next();
     this.destroyed$.complete();
   }
 
-  get hasCard() {
-    if (!this.cipher) {
-      return false;
-    }
-
-    const { cardholderName, code, expMonth, expYear, number } = this.cipher.card;
-    return cardholderName || code || expMonth || expYear || number;
-  }
-
-  get hasLogin() {
-    if (!this.cipher) {
-      return false;
-    }
-
-    const { username, password, totp, fido2Credentials } = this.cipher.login;
-
-    return username || password || totp || fido2Credentials?.length > 0;
-  }
-
-  get hasAutofill() {
-    const uris = this.cipher?.login?.uris.length ?? 0;
-
-    return uris > 0;
-  }
-
-  get hasSshKey() {
-    return !!this.cipher?.sshKey?.privateKey;
-  }
-
-  get hasLoginUri() {
-    return this.cipher?.login?.hasUris;
-  }
-
-  async loadCipherData() {
-    if (!this.cipher) {
+  private async loadCipherData() {
+    const cipher = this.cipher();
+    if (!cipher) {
       return;
     }
 
@@ -162,63 +173,67 @@ export class CipherViewComponent implements OnChanges, OnDestroy {
 
     // Load collections if not provided and the cipher has collectionIds
     if (
-      this.cipher.collectionIds &&
-      this.cipher.collectionIds.length > 0 &&
-      (!this.collections || this.collections.length === 0)
+      cipher.collectionIds &&
+      cipher.collectionIds.length > 0 &&
+      (!this.collections() || this.collections()?.length === 0)
     ) {
-      this.collections = await firstValueFrom(
-        this.collectionService
-          .decryptedCollections$(userId)
-          .pipe(getByIds(this.cipher.collectionIds)),
+      this.loadedCollections.set(
+        await firstValueFrom(
+          this.collectionService.decryptedCollections$(userId).pipe(getByIds(cipher.collectionIds)),
+        ),
       );
     }
 
-    if (this.cipher.organizationId) {
+    if (cipher.organizationId) {
       this.organization$ = this.organizationService
         .organizations$(userId)
-        .pipe(getOrganizationById(this.cipher.organizationId))
+        .pipe(getOrganizationById(cipher.organizationId))
         .pipe(takeUntil(this.destroyed$));
 
-      if (this.cipher.type === CipherType.Login) {
+      if (cipher.type === CipherType.Login) {
         await this.checkPendingChangePasswordTasks(userId);
       }
     }
 
-    if (this.cipher.folderId) {
+    if (cipher.folderId) {
       this.folder$ = this.folderService
-        .getDecrypted$(this.cipher.folderId, userId)
+        .getDecrypted$(cipher.folderId, userId)
         .pipe(takeUntil(this.destroyed$));
     }
   }
 
-  async checkPendingChangePasswordTasks(userId: UserId): Promise<void> {
+  private async checkPendingChangePasswordTasks(userId: UserId): Promise<void> {
+    const cipher = this.cipher();
     try {
       // Show Tasks for Manage and Edit permissions
       // Using cipherService to see if user has access to cipher in a non-AC context to address with Edit Except Password permissions
       const allCiphers = await firstValueFrom(this.cipherService.ciphers$(userId));
-      const cipherServiceCipher = allCiphers[this.cipher?.id as CipherId];
+      const cipherServiceCipher = allCiphers[cipher?.id as CipherId];
 
       if (!cipherServiceCipher?.edit || !cipherServiceCipher?.viewPassword) {
-        this.hadPendingChangePasswordTask = false;
+        this.hadPendingChangePasswordTask.set(false);
         return;
       }
 
       const tasks = await firstValueFrom(this.defaultTaskService.pendingTasks$(userId));
 
-      this.hadPendingChangePasswordTask = tasks?.some((task) => {
-        return (
-          task.cipherId === this.cipher?.id && task.type === SecurityTaskType.UpdateAtRiskCredential
-        );
-      });
+      this.hadPendingChangePasswordTask.set(
+        tasks?.some((task) => {
+          return (
+            task.cipherId === cipher?.id && task.type === SecurityTaskType.UpdateAtRiskCredential
+          );
+        }) ?? false,
+      );
     } catch (error) {
-      this.hadPendingChangePasswordTask = false;
+      this.hadPendingChangePasswordTask.set(false);
       this.logService.error("Failed to retrieve change password tasks for cipher", error);
     }
   }
 
   launchChangePassword = async () => {
-    if (this.cipher != null) {
-      const url = await this.changeLoginPasswordService.getChangePasswordUrl(this.cipher);
+    const cipher = this.cipher();
+    if (cipher != null) {
+      const url = await this.changeLoginPasswordService.getChangePasswordUrl(cipher);
       if (url == null) {
         return;
       }
