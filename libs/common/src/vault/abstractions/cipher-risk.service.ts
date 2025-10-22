@@ -1,5 +1,5 @@
 import type {
-  CipherRisk,
+  CipherRiskResult,
   CipherRiskOptions,
   ExposedPasswordResult,
   PasswordReuseMap,
@@ -23,7 +23,7 @@ export abstract class CipherRiskService {
     ciphers: CipherView[],
     userId: UserId,
     options?: CipherRiskOptions,
-  ): Promise<CipherRisk[]>;
+  ): Promise<CipherRiskResult[]>;
 
   /**
    * Compute password risk for a single cipher by its ID. Will automatically build a password reuse map
@@ -37,7 +37,7 @@ export abstract class CipherRiskService {
     cipherId: CipherId,
     userId: UserId,
     checkExposed?: boolean,
-  ): Promise<CipherRisk>;
+  ): Promise<CipherRiskResult>;
 
   /**
    * Build a password reuse map for the given ciphers.
@@ -52,4 +52,4 @@ export abstract class CipherRiskService {
 }
 
 // Re-export SDK types for convenience
-export type { CipherRisk, CipherRiskOptions, ExposedPasswordResult, PasswordReuseMap };
+export type { CipherRiskResult, CipherRiskOptions, ExposedPasswordResult, PasswordReuseMap };

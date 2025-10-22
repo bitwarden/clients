@@ -1,12 +1,12 @@
 import { firstValueFrom, switchMap } from "rxjs";
 
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import type {
+import {
   CipherLoginDetails,
-  CipherRisk,
   CipherRiskOptions,
   PasswordReuseMap,
   CipherId,
+  CipherRiskResult,
 } from "@bitwarden/sdk-internal";
 
 import { SdkService, asUuid } from "../../platform/abstractions/sdk/sdk.service";
@@ -25,7 +25,7 @@ export class DefaultCipherRiskService implements CipherRiskServiceAbstraction {
     ciphers: CipherView[],
     userId: UserId,
     options?: CipherRiskOptions,
-  ): Promise<CipherRisk[]> {
+  ): Promise<CipherRiskResult[]> {
     const loginDetails = this.mapToLoginDetails(ciphers);
 
     if (loginDetails.length === 0) {
@@ -50,7 +50,7 @@ export class DefaultCipherRiskService implements CipherRiskServiceAbstraction {
     cipherId: CipherId,
     userId: UserId,
     checkExposed: boolean = true,
-  ): Promise<CipherRisk> {
+  ): Promise<CipherRiskResult> {
     // Get all ciphers for the user
     const allCiphers = await firstValueFrom(this.cipherService.cipherViews$(userId));
 

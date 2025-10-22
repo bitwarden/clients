@@ -1,7 +1,7 @@
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
-import type { CipherRisk, CipherRiskOptions, CipherId } from "@bitwarden/sdk-internal";
+import type { CipherRiskOptions, CipherId, CipherRiskResult } from "@bitwarden/sdk-internal";
 
 import { asUuid } from "../../platform/abstractions/sdk/sdk.service";
 import { MockSdkService } from "../../platform/spec/mock-sdk.service";
@@ -38,7 +38,7 @@ describe("DefaultCipherRiskService", () => {
       const mockClient = sdkService.simulate.userLogin(mockUserId);
       const mockCipherRiskClient = mockClient.vault.mockDeep().cipher_risk.mockDeep();
 
-      const mockRiskResults: CipherRisk[] = [
+      const mockRiskResults: CipherRiskResult[] = [
         {
           id: mockCipherId1 as any,
           password_strength: 3,
@@ -163,7 +163,7 @@ describe("DefaultCipherRiskService", () => {
       const mockClient = sdkService.simulate.userLogin(mockUserId);
       const mockCipherRiskClient = mockClient.vault.mockDeep().cipher_risk.mockDeep();
 
-      const mockRiskResults: CipherRisk[] = [
+      const mockRiskResults: CipherRiskResult[] = [
         {
           id: mockCipherId1 as any,
           password_strength: 3,
@@ -316,7 +316,7 @@ describe("DefaultCipherRiskService", () => {
       mockCipherRiskClient.password_reuse_map.mockReturnValue(mockReuseMap);
 
       // Mock compute_risk result
-      const mockRiskResult: CipherRisk = {
+      const mockRiskResult: CipherRiskResult = {
         id: mockCipherId1 as any,
         password_strength: 3,
         exposed_result: { type: "NotChecked" },
