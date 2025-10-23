@@ -3,7 +3,7 @@ import { of } from "rxjs";
 
 import { newGuid } from "@bitwarden/guid";
 // eslint-disable-next-line no-restricted-imports
-import { Argon2KdfConfig, KdfConfigService, KeyService } from "@bitwarden/key-management";
+import { Argon2KdfConfig, KeyService } from "@bitwarden/key-management";
 import { UserId } from "@bitwarden/user-core";
 
 import { HashPurpose } from "../../../platform/enums";
@@ -23,7 +23,6 @@ describe("DefaultMasterPasswordUnlockService", () => {
 
   let masterPasswordService: MockProxy<InternalMasterPasswordServiceAbstraction>;
   let keyService: MockProxy<KeyService>;
-  let kdfService: MockProxy<KdfConfigService>;
 
   const mockMasterPassword = "testExample";
   const mockUserId = newGuid() as UserId;
@@ -42,9 +41,8 @@ describe("DefaultMasterPasswordUnlockService", () => {
   beforeEach(() => {
     masterPasswordService = mock<InternalMasterPasswordServiceAbstraction>();
     keyService = mock<KeyService>();
-    kdfService = mock<KdfConfigService>();
 
-    sut = new DefaultMasterPasswordUnlockService(masterPasswordService, keyService, kdfService);
+    sut = new DefaultMasterPasswordUnlockService(masterPasswordService, keyService);
 
     masterPasswordService.masterPasswordUnlockData$.mockReturnValue(
       of(mockMasterPasswordUnlockData),

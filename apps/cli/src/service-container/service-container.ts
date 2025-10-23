@@ -494,7 +494,6 @@ export class ServiceContainer {
     this.masterPasswordUnlockService = new DefaultMasterPasswordUnlockService(
       this.masterPasswordService,
       this.keyService,
-      this.kdfConfigService,
     );
 
     this.appIdService = new AppIdService(this.storageService, this.logService);
