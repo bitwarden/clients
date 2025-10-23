@@ -12,6 +12,7 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 
+import { AppPageFocusDirective } from "../../../vault/popup/components/a11y/page-focus.directive";
 import { PopupRouterCacheService } from "../view-cache/popup-router-cache.service";
 
 import { PopupPageComponent } from "./popup-page.component";
@@ -21,7 +22,14 @@ import { PopupPageComponent } from "./popup-page.component";
 @Component({
   selector: "popup-header",
   templateUrl: "popup-header.component.html",
-  imports: [TypographyModule, CommonModule, IconButtonModule, JslibModule, AsyncActionsModule],
+  imports: [
+    TypographyModule,
+    CommonModule,
+    IconButtonModule,
+    JslibModule,
+    AsyncActionsModule,
+    AppPageFocusDirective,
+  ],
 })
 export class PopupHeaderComponent {
   private popupRouterCacheService = inject(PopupRouterCacheService);
