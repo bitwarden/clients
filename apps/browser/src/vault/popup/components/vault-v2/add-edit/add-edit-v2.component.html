@@ -37,14 +37,14 @@
         *ngIf="isEditMode && (archiveFlagEnabled$ | async) && isCipherArchived"
         [bitAction]="unarchive"
         bitIconButton="bwi-unarchive"
-        appA11yTitle="{{ 'unarchive' | i18n }}"
+        [label]="'unarchive' | i18n"
       ></button>
       <button
         type="button"
         *ngIf="isEditMode && (userCanArchive$ | async) && canCipherBeArchived"
         [bitAction]="archive"
         bitIconButton="bwi-archive"
-        appA11yTitle="{{ 'archiveVerb' | i18n }}"
+        [label]="'archiveVerb' | i18n"
       ></button>
       <button
         *ngIf="canDeleteCipher$ | async"

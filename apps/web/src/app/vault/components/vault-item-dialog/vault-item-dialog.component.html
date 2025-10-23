@@ -72,7 +72,7 @@
         class="tw-mr-1"
         [bitAction]="unarchive"
         bitIconButton="bwi-unarchive"
-        appA11yTitle="{{ 'unarchive' | i18n }}"
+        [label]="'unarchive' | i18n"
       ></button>
       <button
         type="button"
@@ -80,7 +80,7 @@
         class="tw-mr-1"
         [bitAction]="archive"
         bitIconButton="bwi-archive"
-        appA11yTitle="{{ 'archiveVerb' | i18n }}"
+        [label]="'archiveVerb' | i18n"
       ></button>
       <button
         bitIconButton="bwi-trash"

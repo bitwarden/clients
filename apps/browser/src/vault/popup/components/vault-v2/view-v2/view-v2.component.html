@@ -32,14 +32,14 @@
         *ngIf="(archiveFlagEnabled$ | async) && cipher.isArchived"
         [bitAction]="unarchive"
         bitIconButton="bwi-unarchive"
-        appA11yTitle="{{ 'unarchive' | i18n }}"
+        [label]="'unarchive' | i18n"
       ></button>
       <button
         type="button"
         *ngIf="(userCanArchive$ | async) && cipher.canBeArchived"
         [bitAction]="archive"
         bitIconButton="bwi-archive"
-        appA11yTitle="{{ 'archiveVerb' | i18n }}"
+        [label]="'archiveVerb' | i18n"
       ></button>
       <button
         *ngIf="canDeleteCipher$ | async"
