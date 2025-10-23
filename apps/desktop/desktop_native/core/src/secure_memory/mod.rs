@@ -1,6 +1,9 @@
 #[cfg(target_os = "windows")]
 pub(crate) mod dpapi;
 
+mod encrypted_memory_store;
+mod secure_key;
+
 /// The secure memory store provides an ephemeral key-value store for sensitive data.
 /// Data stored in this store is prevented from being swapped to disk and zeroed out. Additionally,
 /// platform-specific protections are applied to prevent memory dumps or debugger access from
@@ -12,7 +15,9 @@ pub(crate) trait SecureMemoryStore {
     /// Retrieves a copy of the value associated with the given key from secure memory.
     /// This copy does not have additional memory protections applied, and should be zeroed when no
     /// longer needed.
-    fn get(&self, key: &str) -> Option<Vec<u8>>;
+    ///
+    /// Note: If memory was tampered with, this will re-key the store and return None.
+    fn get(&mut self, key: &str) -> Option<Vec<u8>>;
     /// Checks if a value is stored under the given key.
     fn has(&self, key: &str) -> bool;
     /// Removes the value associated with the given key from secure memory.

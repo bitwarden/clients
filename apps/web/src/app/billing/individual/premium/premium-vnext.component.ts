@@ -1,7 +1,17 @@
 import { CommonModule } from "@angular/common";
 import { Component, DestroyRef, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { combineLatest, firstValueFrom, map, Observable, of, shareReplay, switchMap } from "rxjs";
+import { ActivatedRoute, Router } from "@angular/router";
+import {
+  combineLatest,
+  firstValueFrom,
+  from,
+  map,
+  Observable,
+  of,
+  shareReplay,
+  switchMap,
+} from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -11,7 +21,6 @@ import {
   PersonalSubscriptionPricingTier,
   PersonalSubscriptionPricingTierIds,
 } from "@bitwarden/common/billing/types/subscription-pricing-tier";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import {
@@ -19,7 +28,6 @@ import {
   DialogService,
   LinkModule,
   SectionComponent,
-  ToastService,
   TypographyModule,
 } from "@bitwarden/components";
 import { PricingCardComponent } from "@bitwarden/pricing";
@@ -69,14 +77,14 @@ export class PremiumVNextComponent {
 
   constructor(
     private accountService: AccountService,
-    private i18nService: I18nService,
     private apiService: ApiService,
     private dialogService: DialogService,
     private platformUtilsService: PlatformUtilsService,
     private syncService: SyncService,
-    private toastService: ToastService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private subscriptionPricingService: SubscriptionPricingServiceAbstraction,
+    private router: Router,
+    private activatedRoute: ActivatedRoute,
   ) {
     this.isSelfHost = this.platformUtilsService.isSelfHost();
 
@@ -106,6 +114,23 @@ export class PremiumVNextComponent {
       this.hasPremiumFromAnyOrganization$,
       this.hasPremiumPersonally$,
     ]).pipe(map(([hasOrgPremium, hasPersonalPremium]) => !hasOrgPremium && !hasPersonalPremium));
+
+    // redirect to user subscription page if they already have premium personally
+    // redirect to individual vault if they already have premium from an org
+    combineLatest([this.hasPremiumFromAnyOrganization$, this.hasPremiumPersonally$])
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        switchMap(([hasPremiumFromOrg, hasPremiumPersonally]) => {
+          if (hasPremiumPersonally) {
+            return from(this.navigateToSubscriptionPage());
+          }
+          if (hasPremiumFromOrg) {
+            return from(this.navigateToIndividualVault());
+          }
+          return of(true);
+        }),
+      )
+      .subscribe();
 
     this.personalPricingTiers$ =
       this.subscriptionPricingService.getPersonalSubscriptionPricingTiers$();
@@ -140,6 +165,11 @@ export class PremiumVNextComponent {
       shareReplay({ bufferSize: 1, refCount: true }),
     );
   }
+
+  private navigateToSubscriptionPage = (): Promise<boolean> =>
+    this.router.navigate(["../user-subscription"], { relativeTo: this.activatedRoute });
+
+  private navigateToIndividualVault = (): Promise<boolean> => this.router.navigate(["/vault"]);
 
   finalizeUpgrade = async () => {
     await this.apiService.refreshIdentityToken();
