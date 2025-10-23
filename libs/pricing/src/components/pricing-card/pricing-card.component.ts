@@ -35,8 +35,8 @@ export class PricingCardComponent {
   }>();
   readonly features = input<string[]>();
   readonly activeBadge = input<{ text: string; variant?: BadgeVariant }>();
-  readonly disableCardPaddingTop = input<boolean>(false);
-  readonly disableCardBorder = input<boolean>(false);
+  readonly noPaddingTop = input<boolean>(false);
+  readonly noBorder = input<boolean>(false);
 
   @Output() buttonClick = new EventEmitter<void>();
 

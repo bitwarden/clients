@@ -26,7 +26,9 @@ export class DefaultSubscriptionPricingService implements SubscriptionPricingSer
 
   /**
    * Gets personal subscription pricing tiers (Premium and Families).
+   * Throws any errors that occur during api request so callers must handle errors.
    * @returns An observable of an array of personal subscription pricing tiers.
+   * @throws Error if any errors occur during api request.
    */
   getPersonalSubscriptionPricingTiers$ = (): Observable<PersonalSubscriptionPricingTier[]> =>
     combineLatest([this.premium$, this.families$]).pipe(
@@ -38,7 +40,9 @@ export class DefaultSubscriptionPricingService implements SubscriptionPricingSer
 
   /**
    * Gets business subscription pricing tiers (Teams, Enterprise, and Custom).
+   * Throws any errors that occur during api request so callers must handle errors.
    * @returns An observable of an array of business subscription pricing tiers.
+   * @throws Error if any errors occur during api request.
    */
   getBusinessSubscriptionPricingTiers$ = (): Observable<BusinessSubscriptionPricingTier[]> =>
     combineLatest([this.teams$, this.enterprise$, this.custom$]).pipe(
@@ -50,7 +54,9 @@ export class DefaultSubscriptionPricingService implements SubscriptionPricingSer
 
   /**
    * Gets developer subscription pricing tiers (Free, Teams, and Enterprise).
+   * Throws any errors that occur during api request so callers must handle errors.
    * @returns An observable of an array of business subscription pricing tiers for developers.
+   * @throws Error if any errors occur during api request.
    */
   getDeveloperSubscriptionPricingTiers$ = (): Observable<BusinessSubscriptionPricingTier[]> =>
     combineLatest([this.free$, this.teams$, this.enterprise$]).pipe(

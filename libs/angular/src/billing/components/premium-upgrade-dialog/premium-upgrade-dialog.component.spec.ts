@@ -1,7 +1,7 @@
 import { CdkTrapFocus } from "@angular/cdk/a11y";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { firstValueFrom, of } from "rxjs";
+import { firstValueFrom, of, throwError } from "rxjs";
 
 import { SubscriptionPricingServiceAbstraction } from "@bitwarden/common/billing/abstractions/subscription-pricing.service.abstraction";
 import {
@@ -215,5 +215,65 @@ describe("PremiumUpgradeDialogComponent", () => {
     component["close"]();
 
     expect(mockDialogRef.close).toHaveBeenCalled();
+  });
+
+  describe("error handling", () => {
+    it("should show error toast and return null when getPersonalSubscriptionPricingTiers$ throws an error", async () => {
+      const error = new Error("Service error");
+      mockSubscriptionPricingService.getPersonalSubscriptionPricingTiers$.mockReturnValue(
+        throwError(() => error),
+      );
+
+      const errorFixture = TestBed.createComponent(PremiumUpgradeDialogComponent);
+      const errorComponent = errorFixture.componentInstance;
+      errorFixture.detectChanges();
+
+      const cardDetails = await firstValueFrom(errorComponent["cardDetails$"]);
+
+      expect(mockToastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        title: "error",
+        message: "unexpectedError",
+      });
+      expect(cardDetails).toBeNull();
+    });
+
+    it("should handle error and still allow loading$ to complete", async () => {
+      const error = new Error("Service error");
+      mockSubscriptionPricingService.getPersonalSubscriptionPricingTiers$.mockReturnValue(
+        throwError(() => error),
+      );
+
+      const errorFixture = TestBed.createComponent(PremiumUpgradeDialogComponent);
+      const errorComponent = errorFixture.componentInstance;
+
+      const loadingValues: boolean[] = [];
+      const sub = errorComponent["loading$"].subscribe((loading) => loadingValues.push(loading));
+
+      await firstValueFrom(errorComponent["cardDetails$"]);
+      sub.unsubscribe();
+
+      expect(loadingValues.length).toBeGreaterThanOrEqual(2);
+      expect(loadingValues[0]).toBe(true);
+      expect(loadingValues[loadingValues.length - 1]).toBe(false);
+    });
+  });
+
+  describe("dialog close during loading", () => {
+    it("should allow closing dialog while in loading state", () => {
+      const newFixture = TestBed.createComponent(PremiumUpgradeDialogComponent);
+      const newComponent = newFixture.componentInstance;
+
+      let currentLoadingState: boolean | undefined;
+      const sub = newComponent["loading$"].subscribe((loading) => {
+        currentLoadingState = loading;
+      });
+
+      newComponent["close"]();
+      sub.unsubscribe();
+
+      expect(mockDialogRef.close).toHaveBeenCalled();
+      expect(currentLoadingState).toBeDefined();
+    });
   });
 });
