@@ -28,6 +28,7 @@ npm-debug.log
 # Build directories
 dist
 build
+target
 .angular/cache
 .flatpak
 .flatpak-repo
