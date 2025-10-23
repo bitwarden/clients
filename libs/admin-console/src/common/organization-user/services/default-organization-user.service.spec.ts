@@ -82,7 +82,13 @@ describe("DefaultOrganizationUserService", () => {
       ],
     });
 
-    service = TestBed.inject(DefaultOrganizationUserService);
+    service = new DefaultOrganizationUserService(
+      keyService,
+      encryptService,
+      organizationUserApiService,
+      accountService,
+      i18nService,
+    );
   });
 
   describe("confirmUser", () => {

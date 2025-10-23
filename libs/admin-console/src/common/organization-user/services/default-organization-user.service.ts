@@ -1,4 +1,3 @@
-import { Injectable } from "@angular/core";
 import { combineLatest, filter, map, Observable, switchMap } from "rxjs";
 
 import {
@@ -17,9 +16,6 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
 
-@Injectable({
-  providedIn: "root",
-})
 export class DefaultOrganizationUserService implements OrganizationUserService {
   constructor(
     protected keyService: KeyService,
