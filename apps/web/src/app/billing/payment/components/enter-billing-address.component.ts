@@ -47,6 +47,8 @@ type Scenario =
       taxIdWarning?: TaxIdWarningType;
     };
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-enter-billing-address",
   template: `
@@ -159,7 +161,11 @@ type Scenario =
   imports: [SharedModule],
 })
 export class EnterBillingAddressComponent implements OnInit, OnDestroy {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true }) scenario!: Scenario;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true }) group!: BillingAddressFormGroup;
 
   protected selectableCountries = selectableCountries;
