@@ -402,6 +402,7 @@ export class SsoComponent implements OnInit, OnDestroy {
       this.keyConnectorUrl.setErrors({
         invalidUrl: { message: this.i18nService.t("keyConnectorTestFail") },
       });
+      this.keyConnectorUrl.markAllAsTouched();
     }
 
     this.haveTestedKeyConnector = true;
