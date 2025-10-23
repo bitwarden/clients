@@ -365,6 +365,8 @@ export class SsoComponent implements OnInit, OnDestroy {
       this.ssoConfigForm?.controls?.memberDecryptionType.valueChanges
         .pipe(
           switchMap(async (memberDecryptionType: MemberDecryptionType) => {
+            this.haveTestedKeyConnector = false;
+
             if (this.isFormValidatingOrPopulating) {
               // If the form is being validated/populated due to a load() or submit() call (both of which
               // trigger valueChanges) we don't want to react to this valueChanges emission.
