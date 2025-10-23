@@ -34,7 +34,7 @@ export function hasPremiumGuard(): CanActivateFn {
           : of(false),
       ),
       switchMap((userHasPremium: boolean) => {
-        // Can't call async method inside tap so instead, wait for service then switch back to the boolean
+        // Can't call async method inside observables so instead, wait for service then switch back to the boolean
         if (!userHasPremium) {
           return from(premiumUpgradePromptService.promptForPremium()).pipe(
             switchMap(() => of(userHasPremium)),
