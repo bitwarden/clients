@@ -112,7 +112,7 @@ export class SsoComponent implements OnInit, OnDestroy {
 
   isInitializing = true; // concerned with UI/UX (i.e. when to show loading spinner vs form)
   isPopulatingForm = true; // concerned with tracking when form fields are being populated via load() or submit()
-  configuredKeyConnectorUrlFromServer: string;
+  configuredKeyConnectorUrlFromServer: string | null;
   memberDecryptionTypeValueChangesSubscription: Subscription | null = null;
   haveTestedKeyConnector = false;
   organizationId: string;
@@ -281,7 +281,7 @@ export class SsoComponent implements OnInit, OnDestroy {
           .pipe(getOrganizationById(this.organizationId)),
       );
       const ssoSettings = await this.organizationApiService.getSso(this.organizationId);
-      this.configuredKeyConnectorUrlFromServer = ssoSettings.data.keyConnectorUrl;
+      this.configuredKeyConnectorUrlFromServer = ssoSettings.data?.keyConnectorUrl;
       this.populateForm(ssoSettings);
 
       this.callbackPath = ssoSettings.urls.callbackPath;
@@ -327,7 +327,7 @@ export class SsoComponent implements OnInit, OnDestroy {
       request.data = SsoConfigApi.fromView(this.ssoConfigForm.getRawValue());
 
       const response = await this.organizationApiService.updateSso(this.organizationId, request);
-      this.configuredKeyConnectorUrlFromServer = response.data.keyConnectorUrl;
+      this.configuredKeyConnectorUrlFromServer = response.data?.keyConnectorUrl;
       this.populateForm(response);
 
       await this.upsertOrganizationWithSsoChanges(request);
