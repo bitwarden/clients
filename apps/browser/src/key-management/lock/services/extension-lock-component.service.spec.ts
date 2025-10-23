@@ -48,38 +48,17 @@ describe("ExtensionLockComponentService", () => {
 
     TestBed.configureTestingModule({
       providers: [
-        ExtensionLockComponentService,
         {
-          provide: UserDecryptionOptionsServiceAbstraction,
-          useValue: userDecryptionOptionsService,
-        },
-        {
-          provide: PlatformUtilsService,
-          useValue: platformUtilsService,
-        },
-        {
-          provide: BiometricsService,
-          useValue: biometricsService,
-        },
-        {
-          provide: PinServiceAbstraction,
-          useValue: pinService,
-        },
-        {
-          provide: VaultTimeoutSettingsService,
-          useValue: vaultTimeoutSettingsService,
-        },
-        {
-          provide: BrowserRouterService,
-          useValue: routerService,
-        },
-        {
-          provide: BiometricStateService,
-          useValue: biometricStateService,
-        },
-        {
-          provide: WebAuthnPrfUnlockService,
-          useValue: webAuthnPrfUnlockService,
+          provide: ExtensionLockComponentService,
+          useFactory: () =>
+            new ExtensionLockComponentService(
+              userDecryptionOptionsService,
+              biometricsService,
+              pinService,
+              biometricStateService,
+              routerService,
+              webAuthnPrfUnlockService,
+            ),
         },
       ],
     });
