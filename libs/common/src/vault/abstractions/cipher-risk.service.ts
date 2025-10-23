@@ -1,7 +1,6 @@
 import type {
   CipherRiskResult,
   CipherRiskOptions,
-  ExposedPasswordResult,
   PasswordReuseMap,
 } from "@bitwarden/sdk-internal";
 
@@ -50,5 +49,21 @@ export abstract class CipherRiskService {
   abstract buildPasswordReuseMap(ciphers: CipherView[], userId: UserId): Promise<PasswordReuseMap>;
 }
 
-// Re-export SDK types for convenience
-export type { CipherRiskResult, CipherRiskOptions, ExposedPasswordResult, PasswordReuseMap };
+/**
+ * Evaluates if a password represented by a CipherRiskResult is considered at risk.
+ *
+ * A password is considered at risk if any of the following conditions are true:
+ * - The password has been exposed in data breaches
+ * - The password is reused across multiple ciphers
+ * - The password has weak strength (password_strength < 3)
+ *
+ * @param risk - The CipherRiskResult to evaluate
+ * @returns true if the password is at risk, false otherwise
+ */
+export function isPasswordAtRisk(risk: CipherRiskResult): boolean {
+  return (
+    (risk.exposed_result.type === "Found" && risk.exposed_result.value > 0) ||
+    (risk.reuse_count ?? 1) > 1 ||
+    risk.password_strength < 3
+  );
+}

@@ -18,7 +18,10 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { getByIds } from "@bitwarden/common/platform/misc";
 import { CipherId, EmergencyAccessId, UserId } from "@bitwarden/common/types/guid";
-import { CipherRiskService } from "@bitwarden/common/vault/abstractions/cipher-risk.service";
+import {
+  CipherRiskService,
+  isPasswordAtRisk,
+} from "@bitwarden/common/vault/abstractions/cipher-risk.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -293,11 +296,7 @@ export class CipherViewComponent {
   private async checkIfPasswordIsAtRisk(cipherId: CipherId, userId: UserId): Promise<boolean> {
     try {
       const risk = await this.cipherRiskService.computeCipherRiskForUser(cipherId, userId, true);
-      return (
-        (risk.exposed_result.type === "Found" && risk.exposed_result.value > 0) ||
-        (risk.reuse_count ?? 1) > 1 ||
-        risk.password_strength < 3
-      );
+      return isPasswordAtRisk(risk);
     } catch (error: unknown) {
       this.logService.error("Failed to check if password is at risk", error);
       return false;
