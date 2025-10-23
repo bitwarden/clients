@@ -16,9 +16,9 @@
       <p class="tw-mb-0">{{ description }}</p>
     </div>
     @if (requiresPremium) {
-      <app-premium-badge class="tw-absolute tw-left-2 tw-top-2 tw-leading-none"></app-premium-badge>
+      <app-premium-badge class="tw-absolute tw-left-2 tw-top-2"></app-premium-badge>
     } @else if (requiresUpgrade) {
-      <span bitBadge variant="primary" class="tw-absolute tw-left-2 tw-top-2 tw-leading-none">
+      <span bitBadge variant="primary" class="tw-absolute tw-left-2 tw-top-2">
         {{ "upgrade" | i18n }}
       </span>
     }
