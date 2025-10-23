@@ -279,6 +279,11 @@ export class SsoComponent implements OnInit, OnDestroy {
     // (not a new instance).
     this.isInitializing = true;
     this.isFormValidatingOrPopulating = true;
+    // Same with unsubscribing: re-executing load() on the same component instance (not a new
+    // instance) means we will not unsubscribe via takeUntil(this.destroy$). We must manually
+    // unsubscribe for this case. We unsubscribe here in case the try block fails.
+    this.memberDecryptionTypeValueChangesSubscription?.unsubscribe();
+    this.memberDecryptionTypeValueChangesSubscription = null;
 
     try {
       const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
@@ -297,20 +302,20 @@ export class SsoComponent implements OnInit, OnDestroy {
       this.spEntityIdStatic = ssoSettings.urls.spEntityIdStatic;
       this.spMetadataUrl = ssoSettings.urls.spMetadataUrl;
       this.spAcsUrl = ssoSettings.urls.spAcsUrl;
+
+      if (this.showKeyConnectorOptions) {
+        // We don't setup this subscription until AFTER the form has been populated on load().
+        // This is because populateForm() will trigger valueChanges, but we don't want to
+        // listen for or react to valueChanges until AFTER the form has had a chance to be
+        // populated with already configured values retrieved from the server.
+        this.subscribeToMemberDecryptionTypeValueChanges();
+      }
     } catch (error) {
       this.logService.error("Error loading SSO configuration: ", error);
       this.validationService.showError(error);
     } finally {
       this.isInitializing = false;
       this.isFormValidatingOrPopulating = false;
-    }
-
-    if (this.showKeyConnectorOptions) {
-      // We don't setup this subscription until AFTER the form has been populated on load().
-      // This is because populateForm() will trigger valueChanges, but we don't want to
-      // listen for or react to valueChanges until AFTER the form has had a chance to be
-      // populated with already configured values retrieved from the server.
-      this.subscribeToMemberDecryptionTypeValueChanges();
     }
   }
 
@@ -353,11 +358,8 @@ export class SsoComponent implements OnInit, OnDestroy {
   };
 
   private subscribeToMemberDecryptionTypeValueChanges() {
-    // We must unsubscribe from any existing subscription because an admin could navigate to
-    // another org via the browser address bar, which re-executes load() on the same component
-    // instance (not a new instance) and therefore would not unsubscribe via takeUntil(this.destroy$).
-    // The load() call then re-executes subscribeToMemberDecryptionTypeValueChanges(), setting up a subscription.
-    this.memberDecryptionTypeValueChangesSubscription?.unsubscribe();
+    // The load() method will have unsubscribed from any pre-existing subscription before
+    // we setup a new subscription here.
 
     this.memberDecryptionTypeValueChangesSubscription =
       this.ssoConfigForm?.controls?.memberDecryptionType.valueChanges
