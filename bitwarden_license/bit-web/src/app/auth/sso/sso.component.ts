@@ -111,7 +111,8 @@ export class SsoComponent implements OnInit, OnDestroy {
   showOpenIdCustomizations = false;
 
   isInitializing = true; // concerned with UI/UX (i.e. when to show loading spinner vs form)
-  isPopulatingForm = true; // concerned with tracking when form fields are being populated via load() or submit()
+  isFormValidatingOrPopulating = true; // tracks when form fields are being validated/populated during load() or submit()
+
   configuredKeyConnectorUrlFromServer: string | null;
   memberDecryptionTypeValueChangesSubscription: Subscription | null = null;
   haveTestedKeyConnector = false;
@@ -271,7 +272,7 @@ export class SsoComponent implements OnInit, OnDestroy {
     // the browser address bar, which re-executes load() on the same component instance
     // (not a new instance).
     this.isInitializing = true;
-    this.isPopulatingForm = true;
+    this.isFormValidatingOrPopulating = true;
 
     try {
       const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
@@ -292,7 +293,7 @@ export class SsoComponent implements OnInit, OnDestroy {
       this.spAcsUrl = ssoSettings.urls.spAcsUrl;
     } finally {
       this.isInitializing = false;
-      this.isPopulatingForm = false;
+      this.isFormValidatingOrPopulating = false;
     }
 
     if (this.showKeyConnectorOptions) {
@@ -305,7 +306,7 @@ export class SsoComponent implements OnInit, OnDestroy {
   }
 
   submit = async () => {
-    this.isPopulatingForm = true;
+    this.isFormValidatingOrPopulating = true;
 
     try {
       this.updateFormValidationState(this.ssoConfigForm);
@@ -338,7 +339,7 @@ export class SsoComponent implements OnInit, OnDestroy {
         message: this.i18nService.t("ssoSettingsSaved"),
       });
     } finally {
-      this.isPopulatingForm = false;
+      this.isFormValidatingOrPopulating = false;
     }
   };
 
@@ -353,8 +354,8 @@ export class SsoComponent implements OnInit, OnDestroy {
       this.ssoConfigForm?.controls?.memberDecryptionType.valueChanges
         .pipe(
           switchMap(async (memberDecryptionType: MemberDecryptionType) => {
-            if (this.isPopulatingForm) {
-              // If the form is being populated due to a load() or submit() call (both of which
+            if (this.isFormValidatingOrPopulating) {
+              // If the form is being validated/populated due to a load() or submit() call (both of which
               // trigger valueChanges) we don't want to react to this valueChanges emission.
               return;
             }
