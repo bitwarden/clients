@@ -1,12 +1,8 @@
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder, FormControl } from "@angular/forms";
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { PolicyRequest } from "@bitwarden/common/admin-console/models/request/policy.request";
-// TODO: Remove unused imports if we won't use a feature flag
-// import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-// import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-// import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {
   UriMatchStrategy,
   UriMatchStrategySetting,
@@ -21,13 +17,9 @@ export class UriMatchDefaultPolicy extends BasePolicyEditDefinition {
   description = "uriMatchDetectionPolicyDesc";
   type = PolicyType.UriMatchDefaults;
   component = UriMatchDefaultPolicyComponent;
-
-  // TODO: Remove if we won't use a feature flag
-  // display$(organization: Organization, configService: ConfigService) {
-  //   return configService.getFeatureFlag$(FeatureFlag.WindowsDesktopAutotype);
-  // }
 }
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "uri-match-default.component.html",
   imports: [SharedModule],
 })
