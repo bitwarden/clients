@@ -3,6 +3,7 @@ import { combineLatest, firstValueFrom } from "rxjs";
 import { switchMap, take } from "rxjs/operators";
 
 import { VaultProfileService } from "@bitwarden/angular/vault/services/vault-profile.service";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -25,6 +26,7 @@ export class UnifiedUpgradePromptService {
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private vaultProfileService: VaultProfileService,
     private dialogService: DialogService,
+    private organizationService: OrganizationService,
   ) {}
 
   private shouldShowPrompt$ = combineLatest([
@@ -50,12 +52,24 @@ export class UnifiedUpgradePromptService {
         return false;
       }
 
+      // Check if user has any organization membership (any status)
+      // First ensure organizations are loaded, then check if user has any
+      const organizations = await firstValueFrom(
+        this.organizationService.organizations$(account.id),
+      );
+      const hasOrganizations = organizations.length > 0;
+
+      // Early return if user has any organization status
+      if (hasOrganizations) {
+        return false;
+      }
+
       // Check profile age only if needed
       const isProfileLessThanFiveMinutesOld = await this.isProfileLessThanFiveMinutesOld(
         account.id,
       );
 
-      return isFlagEnabled && !hasPremium && isProfileLessThanFiveMinutesOld;
+      return isFlagEnabled && !hasPremium && !hasOrganizations && isProfileLessThanFiveMinutesOld;
     }),
     take(1),
   );

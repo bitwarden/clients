@@ -3,6 +3,7 @@ import * as rxjs from "rxjs";
 import { of } from "rxjs";
 
 import { VaultProfileService } from "@bitwarden/angular/vault/services/vault-profile.service";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService, Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -23,6 +24,7 @@ describe("UnifiedUpgradePromptService", () => {
   const mockBillingService = mock<BillingAccountProfileStateService>();
   const mockVaultProfileService = mock<VaultProfileService>();
   const mockDialogService = mock<DialogService>();
+  const mockOrganizationService = mock<OrganizationService>();
   const mockDialogOpen = jest.spyOn(UnifiedUpgradeDialogComponent, "open");
 
   /**
@@ -51,6 +53,7 @@ describe("UnifiedUpgradePromptService", () => {
       mockBillingService,
       mockVaultProfileService,
       mockDialogService,
+      mockOrganizationService,
     );
   }
 
@@ -81,6 +84,7 @@ describe("UnifiedUpgradePromptService", () => {
       mockReset(mockConfigService);
       mockReset(mockBillingService);
       mockReset(mockVaultProfileService);
+      mockReset(mockOrganizationService);
     });
     it("should not show dialog when feature flag is disabled", async () => {
       // Arrange
@@ -97,6 +101,21 @@ describe("UnifiedUpgradePromptService", () => {
       // Arrange
       mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
       mockBillingService.hasPremiumFromAnySource$.mockReturnValue(of(true));
+      mockOrganizationService.organizations$.mockReturnValue(of([]));
+      setupTestService();
+
+      // Act
+      const result = await sut.displayUpgradePromptConditionally();
+
+      // Assert
+      expect(result).toBeNull();
+    });
+
+    it("should not show dialog when user has any organization membership", async () => {
+      // Arrange
+      mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
+      mockBillingService.hasPremiumFromAnySource$.mockReturnValue(of(false));
+      mockOrganizationService.organizations$.mockReturnValue(of([{ id: "org1" } as any]));
       setupTestService();
 
       // Act
@@ -110,6 +129,7 @@ describe("UnifiedUpgradePromptService", () => {
       // Arrange
       mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
       mockBillingService.hasPremiumFromAnySource$.mockReturnValue(of(false));
+      mockOrganizationService.organizations$.mockReturnValue(of([]));
       const oldDate = new Date();
       oldDate.setMinutes(oldDate.getMinutes() - 10); // 10 minutes old
       mockVaultProfileService.getProfileCreationDate.mockResolvedValue(oldDate);
@@ -126,6 +146,7 @@ describe("UnifiedUpgradePromptService", () => {
       //Arrange
       mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
       mockBillingService.hasPremiumFromAnySource$.mockReturnValue(of(false));
+      mockOrganizationService.organizations$.mockReturnValue(of([]));
       const recentDate = new Date();
       recentDate.setMinutes(recentDate.getMinutes() - 3); // 3 minutes old
       mockVaultProfileService.getProfileCreationDate.mockResolvedValue(recentDate);
@@ -159,6 +180,7 @@ describe("UnifiedUpgradePromptService", () => {
       // Arrange
       mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
       mockBillingService.hasPremiumFromAnySource$.mockReturnValue(of(false));
+      mockOrganizationService.organizations$.mockReturnValue(of([]));
       mockVaultProfileService.getProfileCreationDate.mockResolvedValue(null);
       setupTestService();
 
