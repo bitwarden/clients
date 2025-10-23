@@ -1,9 +1,13 @@
-import { ComponentFixture, fakeAsync, flush, TestBed } from "@angular/core/testing";
+import { ComponentFixture, fakeAsync, flush, TestBed, tick } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
 import { ActivatedRoute, Router } from "@angular/router";
 import { mock } from "jest-mock-extended";
 import { of, Subject } from "rxjs";
 
+import { CollectionService } from "@bitwarden/admin-console/common";
+import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import {
   AUTOFILL_ID,
@@ -11,8 +15,11 @@ import {
   COPY_USERNAME_ID,
   COPY_VERIFICATION_CODE_ID,
 } from "@bitwarden/common/autofill/constants";
+import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { EventType } from "@bitwarden/common/enums";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -21,11 +28,17 @@ import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/sp
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
+import { TaskService } from "@bitwarden/common/vault/tasks";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { CopyCipherFieldService, PasswordRepromptService } from "@bitwarden/vault";
+import {
+  ArchiveCipherUtilitiesService,
+  CopyCipherFieldService,
+  PasswordRepromptService,
+} from "@bitwarden/vault";
 
 import { BrowserApi } from "../../../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../../../platform/browser/browser-popup-utils";
@@ -63,7 +76,9 @@ describe("ViewV2Component", () => {
       username: "test-username",
       password: "test-password",
       totp: "123",
+      uris: [],
     },
+    card: {},
   } as unknown as CipherView;
 
   const mockPasswordRepromptService = {
@@ -148,6 +163,55 @@ describe("ViewV2Component", () => {
           useValue: {
             userCanArchive$: jest.fn().mockReturnValue(of(true)),
             hasArchiveFlagEnabled$: jest.fn().mockReturnValue(of(true)),
+            archiveWithServer: jest.fn().mockResolvedValue(null),
+            unarchiveWithServer: jest.fn().mockResolvedValue(null),
+          },
+        },
+        {
+          provide: OrganizationService,
+          useValue: mock<OrganizationService>(),
+        },
+        {
+          provide: CollectionService,
+          useValue: mock<CollectionService>(),
+        },
+        {
+          provide: FolderService,
+          useValue: mock<FolderService>(),
+        },
+        {
+          provide: TaskService,
+          useValue: mock<TaskService>(),
+        },
+        {
+          provide: ApiService,
+          useValue: mock<ApiService>(),
+        },
+        {
+          provide: EnvironmentService,
+          useValue: {
+            environment$: of({
+              getIconsUrl: () => "https://example.com",
+            }),
+          },
+        },
+        {
+          provide: DomainSettingsService,
+          useValue: {
+            showFavicons$: of(true),
+          },
+        },
+        {
+          provide: BillingAccountProfileStateService,
+          useValue: {
+            hasPremiumFromAnySource$: jest.fn().mockReturnValue(of(false)),
+          },
+        },
+        {
+          provide: ArchiveCipherUtilitiesService,
+          useValue: {
+            archiveCipher: jest.fn().mockResolvedValue(null),
+            unarchiveCipher: jest.fn().mockResolvedValue(null),
           },
         },
       ],
@@ -162,6 +226,7 @@ describe("ViewV2Component", () => {
     fixture = TestBed.createComponent(ViewV2Component);
     component = fixture.componentInstance;
     fixture.detectChanges();
+    (component as any).showFooter$ = of(true);
   });
 
   describe("queryParams", () => {
@@ -358,6 +423,93 @@ describe("ViewV2Component", () => {
       expect(focusSpy).toHaveBeenCalledWith(99);
       expect(closeSpy).toHaveBeenCalledTimes(1);
     }));
+  });
+
+  describe("archive button", () => {
+    it("shows the archive button when the user can archive and the cipher can be archived", fakeAsync(() => {
+      jest.spyOn(component["archiveService"], "userCanArchive$").mockReturnValueOnce(of(true));
+      component.cipher = { ...mockCipher, canBeArchived: true } as CipherView;
+      tick();
+      fixture.detectChanges();
+
+      const archiveBtn = fixture.debugElement.query(By.css("button[biticonbutton='bwi-archive']"));
+      expect(archiveBtn).toBeTruthy();
+    }));
+
+    it("does not show the archive button when the user cannot archive", fakeAsync(() => {
+      jest.spyOn(component["archiveService"], "userCanArchive$").mockReturnValueOnce(of(false));
+      component.cipher = { ...mockCipher, canBeArchived: true, isDeleted: false } as CipherView;
+
+      tick();
+      fixture.detectChanges();
+
+      const archiveBtn = fixture.debugElement.query(By.css("button[biticonbutton='bwi-archive']"));
+      expect(archiveBtn).toBeFalsy();
+    }));
+
+    it("does not show the archive button when the cipher cannot be archived", fakeAsync(() => {
+      jest.spyOn(component["archiveService"], "userCanArchive$").mockReturnValueOnce(of(true));
+      component.cipher = { ...mockCipher, archivedDate: new Date(), edit: true } as CipherView;
+
+      tick();
+      fixture.detectChanges();
+
+      const archiveBtn = fixture.debugElement.query(By.css("button[biticonbutton='bwi-archive']"));
+      expect(archiveBtn).toBeFalsy();
+    }));
+  });
+
+  describe("unarchive button", () => {
+    it("shows the unarchive button when the cipher is archived", fakeAsync(() => {
+      component.cipher = { ...mockCipher, isArchived: true } as CipherView;
+
+      tick();
+      fixture.detectChanges();
+
+      const unarchiveBtn = fixture.debugElement.query(
+        By.css("button[biticonbutton='bwi-unarchive']"),
+      );
+      expect(unarchiveBtn).toBeTruthy();
+    }));
+
+    it("does not show the unarchive button when the cipher is not archived", fakeAsync(() => {
+      component.cipher = { ...mockCipher, archivedDate: undefined } as CipherView;
+
+      tick();
+      fixture.detectChanges();
+
+      const unarchiveBtn = fixture.debugElement.query(
+        By.css("button[biticonbutton='bwi-unarchive']"),
+      );
+      expect(unarchiveBtn).toBeFalsy();
+    }));
+  });
+
+  describe("archive", () => {
+    beforeEach(() => {
+      component.cipher = { ...mockCipher, canBeArchived: true } as CipherView;
+    });
+
+    it("calls archive service to archive the cipher", async () => {
+      await component.archive();
+
+      expect(component["archiveCipherUtilsService"].archiveCipher).toHaveBeenCalledWith(
+        expect.objectContaining({ id: "122-333-444" }),
+        true,
+      );
+    });
+  });
+
+  describe("unarchive", () => {
+    it("calls archive service to unarchive the cipher", async () => {
+      component.cipher = { ...mockCipher, isArchived: true } as CipherView;
+
+      await component.unarchive();
+
+      expect(component["archiveCipherUtilsService"].unarchiveCipher).toHaveBeenCalledWith(
+        expect.objectContaining({ id: "122-333-444" }),
+      );
+    });
   });
 
   describe("delete", () => {

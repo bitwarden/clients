@@ -25,11 +25,18 @@ export class ArchiveCipherUtilitiesService {
     private accountService: AccountService,
   ) {}
 
-  /** Archive a cipher, with confirmation dialog and password reprompt checks. */
-  async archiveCipher(cipher: CipherView) {
-    const repromptPassed = await this.passwordRepromptService.passwordRepromptCheck(cipher);
-    if (!repromptPassed) {
-      return;
+  /** Archive a cipher, with confirmation dialog and password reprompt checks.
+   *
+   * @param cipher The cipher to archive
+   * @param skipReprompt Whether to skip the password reprompt check
+   * @returns The archived CipherData on success, or false on failure or cancellation
+   */
+  async archiveCipher(cipher: CipherView, skipReprompt = false) {
+    if (!skipReprompt) {
+      const repromptPassed = await this.passwordRepromptService.passwordRepromptCheck(cipher);
+      if (!repromptPassed) {
+        return false;
+      }
     }
 
     const confirmed = await this.dialogService.openSimpleDialog({
@@ -39,42 +46,51 @@ export class ArchiveCipherUtilitiesService {
     });
 
     if (!confirmed) {
-      return;
+      return false;
     }
 
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    await this.cipherArchiveService
-      .archiveWithServer(cipher.id as CipherId, userId)
-      .then(() => {
-        this.toastService.showToast({
-          variant: "success",
-          message: this.i18nService.t("itemWasSentToArchive"),
-        });
-      })
-      .catch(() => {
-        this.toastService.showToast({
-          variant: "error",
-          message: this.i18nService.t("errorOccurred"),
-        });
+    try {
+      const cipherResponse = await this.cipherArchiveService.archiveWithServer(
+        cipher.id as CipherId,
+        userId,
+      );
+      this.toastService.showToast({
+        variant: "success",
+        message: this.i18nService.t("itemWasSentToArchive"),
       });
+      return cipherResponse;
+    } catch {
+      this.toastService.showToast({
+        variant: "error",
+        message: this.i18nService.t("errorOccurred"),
+      });
+      return false;
+    }
   }
 
-  /** Unarchives a cipher  */
+  /** Unarchives a cipher
+   * @param cipher The cipher to unarchive
+   * @returns The unarchived cipher on success, or false on failure
+   */
   async unarchiveCipher(cipher: CipherView) {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    await this.cipherArchiveService
-      .unarchiveWithServer(cipher.id as CipherId, userId)
-      .then(() => {
-        this.toastService.showToast({
-          variant: "success",
-          message: this.i18nService.t("itemWasUnarchived"),
-        });
-      })
-      .catch(() => {
-        this.toastService.showToast({
-          variant: "error",
-          message: this.i18nService.t("errorOccurred"),
-        });
+    try {
+      const cipherResponse = await this.cipherArchiveService.unarchiveWithServer(
+        cipher.id as CipherId,
+        userId,
+      );
+      this.toastService.showToast({
+        variant: "success",
+        message: this.i18nService.t("itemWasUnarchived"),
       });
+      return cipherResponse;
+    } catch {
+      this.toastService.showToast({
+        variant: "error",
+        message: this.i18nService.t("errorOccurred"),
+      });
+      return false;
+    }
   }
 }

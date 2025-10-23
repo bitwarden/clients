@@ -51,6 +51,7 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import {
+  ArchiveCipherUtilitiesService,
   AttachmentDialogCloseResult,
   AttachmentDialogResult,
   AttachmentsV2Component,
@@ -274,6 +275,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     if (this.cipher == null || (this.params.mode == "form" && this.formConfig.mode === "clone")) {
       return false;
     }
+    return true;
   }
 
   protected get showCipherView() {
@@ -318,6 +320,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     private eventCollectionService: EventCollectionService,
     private routedVaultFilterService: RoutedVaultFilterService,
     private archiveService: CipherArchiveService,
+    private archiveCipherUtilsService: ArchiveCipherUtilitiesService,
   ) {
     this.updateTitle();
     this.premiumUpgradeService.upgradeConfirmed$
@@ -330,7 +333,6 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
 
   async ngOnInit() {
     this.cipher = await this.getDecryptedCipherView(this.formConfig);
-
     if (this.cipher) {
       if (this.cipher.decryptionFailure) {
         this.dialogService.open(DecryptionFailureDialogComponent, {
@@ -547,54 +549,41 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     await this.changeMode("view");
   };
 
-  archive = async () => {
-    const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "archiveItem" },
-      content: { key: "archiveItemConfirmDesc" },
-      type: "info",
-    });
+  updateCipherFromArchive = (revisionDate: Date, archivedDate: Date | null) => {
+    this.cipher.archivedDate = archivedDate;
+    this.cipher.revisionDate = revisionDate;
 
-    if (!confirmed) {
+    // If we're in View mode, we don't need to update the form.
+    if (this.params.mode === "view") {
+      return;
+    }
+
+    this.cipherFormComponent.patchCipher((current) => {
+      current.revisionDate = revisionDate;
+      current.archivedDate = archivedDate;
+      return current;
+    });
+  };
+
+  archive = async () => {
+    const cipherResponse = await this.archiveCipherUtilsService.archiveCipher(this.cipher, true);
+
+    if (!cipherResponse) {
       return false;
     }
-
-    try {
-      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-      await this.archiveService.archiveWithServer(this.cipher.id as CipherId, activeUserId);
-      this.cipher.archivedDate = new Date();
-      this.toastService.showToast({
-        variant: "success",
-        title: null,
-        message: this.i18nService.t("itemWasSentToArchive"),
-      });
-    } catch (e) {
-      this.logService.error("Error archiving cipher", e);
-      this.toastService.showToast({
-        variant: "error",
-        title: null,
-        message: this.i18nService.t("errorOccurred"),
-      });
-    }
+    this.updateCipherFromArchive(
+      new Date(cipherResponse.revisionDate),
+      cipherResponse.archivedDate ? new Date(cipherResponse.archivedDate) : null,
+    );
   };
 
   unarchive = async () => {
-    try {
-      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-      await this.archiveService.unarchiveWithServer(this.cipher.id as CipherId, activeUserId);
-      this.cipher.archivedDate = null;
-      this.toastService.showToast({
-        variant: "success",
-        title: null,
-        message: this.i18nService.t("itemUnarchived"),
-      });
-    } catch (e) {
-      this.logService.error("Error unarchiving cipher", e);
-      this.toastService.showToast({
-        variant: "error",
-        title: null,
-        message: this.i18nService.t("errorOccurred"),
-      });
+    const cipherResponse = await this.archiveCipherUtilsService.unarchiveCipher(this.cipher);
+
+    if (!cipherResponse) {
+      return false;
     }
+    this.updateCipherFromArchive(new Date(cipherResponse.revisionDate), null);
   };
 
   private async getDecryptedCipherView(config: CipherFormConfig) {

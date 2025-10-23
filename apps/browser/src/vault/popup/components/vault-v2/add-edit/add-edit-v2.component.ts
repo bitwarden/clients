@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ViewChild } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Params, Router } from "@angular/router";
@@ -32,6 +32,8 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import {
+  ArchiveCipherUtilitiesService,
+  CipherFormComponent,
   CipherFormConfig,
   CipherFormConfigService,
   CipherFormGenerationService,
@@ -158,6 +160,7 @@ export type AddEditQueryParams = Partial<Record<keyof QueryParams, string>>;
   ],
 })
 export class AddEditV2Component implements OnInit {
+  @ViewChild(CipherFormComponent) cipherFormComponent!: CipherFormComponent;
   headerText: string;
   config: CipherFormConfig;
   canDeleteCipher$: Observable<boolean>;
@@ -218,6 +221,7 @@ export class AddEditV2Component implements OnInit {
     protected cipherAuthorizationService: CipherAuthorizationService,
     private accountService: AccountService,
     private archiveService: CipherArchiveService,
+    private archiveCipherUtilsService: ArchiveCipherUtilitiesService,
   ) {
     this.subscribeToParams();
   }
@@ -410,56 +414,38 @@ export class AddEditV2Component implements OnInit {
     return this.i18nService.t(translation[type]);
   }
 
-  archive = async () => {
-    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-
-    const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "archiveItem" },
-      content: { key: "archiveItemConfirmDesc" },
-      type: "info",
+  /**
+   * Update the cipher in the form after archiving/unarchiving.
+   * @param revisionDate The new revision date.
+   * @param archivedDate The new archived date (null if unarchived).
+   **/
+  updateCipherFromArchive = (revisionDate: Date, archivedDate: Date | null) => {
+    this.cipherFormComponent.patchCipher((current) => {
+      current.revisionDate = revisionDate;
+      current.archivedDate = archivedDate;
+      return current;
     });
+  };
 
-    if (!confirmed) {
+  archive = async () => {
+    const cipherResponse = await this.archiveCipherUtilsService.archiveCipher(this.cipher, true);
+
+    if (!cipherResponse) {
       return false;
     }
-
-    try {
-      await this.archiveService.archiveWithServer(this.cipher.id as CipherId, activeUserId);
-      this.config.originalCipher.archivedDate = new Date();
-      this.toastService.showToast({
-        variant: "success",
-        title: null,
-        message: this.i18nService.t("itemWasSentToArchive"),
-      });
-    } catch (e) {
-      this.logService.error("Error archiving cipher", e);
-      this.toastService.showToast({
-        variant: "error",
-        title: null,
-        message: this.i18nService.t("errorOccurred"),
-      });
-    }
+    this.updateCipherFromArchive(
+      new Date(cipherResponse.revisionDate),
+      new Date(cipherResponse.archivedDate),
+    );
   };
 
   unarchive = async () => {
-    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    const cipherResponse = await this.archiveCipherUtilsService.unarchiveCipher(this.cipher);
 
-    try {
-      await this.archiveService.unarchiveWithServer(this.cipher.id as CipherId, activeUserId);
-      this.config.originalCipher.archivedDate = null;
-      this.toastService.showToast({
-        variant: "success",
-        title: null,
-        message: this.i18nService.t("itemUnarchived"),
-      });
-    } catch (e) {
-      this.logService.error("Error unarchiving cipher", e);
-      this.toastService.showToast({
-        variant: "error",
-        title: null,
-        message: this.i18nService.t("errorOccurred"),
-      });
+    if (!cipherResponse) {
+      return false;
     }
+    this.updateCipherFromArchive(new Date(cipherResponse.revisionDate), null);
   };
 
   delete = async () => {

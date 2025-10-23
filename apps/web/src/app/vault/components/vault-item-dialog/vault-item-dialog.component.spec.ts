@@ -25,6 +25,7 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { TaskService } from "@bitwarden/common/vault/tasks";
 import { DialogRef, DIALOG_DATA, DialogService, ToastService } from "@bitwarden/components";
+import { ArchiveCipherUtilitiesService } from "@bitwarden/vault";
 
 import { RoutedVaultFilterService } from "../../individual-vault/vault-filter/services/routed-vault-filter.service";
 
@@ -152,6 +153,13 @@ describe("VaultItemDialogComponent", () => {
           provide: PlatformUtilsService,
           useValue: mock<PlatformUtilsService>(),
         },
+        {
+          provide: ArchiveCipherUtilitiesService,
+          useValue: {
+            archiveCipher: jest.fn().mockResolvedValue(undefined),
+            unarchiveCipher: jest.fn().mockResolvedValue(undefined),
+          },
+        },
       ],
     }).compileComponents();
 
@@ -195,6 +203,37 @@ describe("VaultItemDialogComponent", () => {
         cipherType: CipherType.Card,
       });
       expect(component.getTestTitle()).toBe("newItemHeaderCard");
+    });
+  });
+
+  describe("archive", () => {
+    it("calls archiveService to archive the cipher", async () => {
+      const archiveService = TestBed.inject(ArchiveCipherUtilitiesService);
+      component.setTestCipher({ id: "111-222-333-4444" });
+      component.setTestParams({ mode: "view" });
+      fixture.detectChanges();
+
+      await component.archive();
+
+      expect(archiveService.archiveCipher).toHaveBeenCalledWith(
+        expect.objectContaining({ id: "111-222-333-4444" }),
+        true,
+      );
+    });
+  });
+
+  describe("unarchive", () => {
+    it("calls archiveService to unarchive the cipher", async () => {
+      const archiveService = TestBed.inject(ArchiveCipherUtilitiesService);
+      component.setTestCipher({ id: "111-222-333-4444" });
+      component.setTestParams({ mode: "view" });
+      fixture.detectChanges();
+
+      await component.unarchive();
+
+      expect(archiveService.unarchiveCipher).toHaveBeenCalledWith(
+        expect.objectContaining({ id: "111-222-333-4444" }),
+      );
     });
   });
 

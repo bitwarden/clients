@@ -110,7 +110,7 @@ export class CipherView implements View, InitializerMetadata {
   }
 
   get canBeArchived(): boolean {
-    return !this.isDeleted && this.organizationId == null && !this.isArchived;
+    return !this.isDeleted && !this.isArchived;
   }
 
   get hasPasswordHistory(): boolean {

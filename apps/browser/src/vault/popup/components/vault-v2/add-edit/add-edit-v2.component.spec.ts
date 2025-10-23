@@ -20,7 +20,9 @@ import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { AddEditCipherInfo } from "@bitwarden/common/vault/types/add-edit-cipher-info";
+import { DialogService } from "@bitwarden/components";
 import {
+  ArchiveCipherUtilitiesService,
   CipherFormConfig,
   CipherFormConfigService,
   CipherFormMode,
@@ -54,6 +56,7 @@ describe("AddEditV2Component", () => {
   const back = jest.fn().mockResolvedValue(null);
   const setHistory = jest.fn();
   const collect = jest.fn().mockResolvedValue(null);
+  const openSimpleDialog = jest.fn().mockResolvedValue(true);
 
   beforeEach(async () => {
     buildConfig.mockClear();
@@ -61,6 +64,7 @@ describe("AddEditV2Component", () => {
     navigate.mockClear();
     back.mockClear();
     collect.mockClear();
+    openSimpleDialog.mockClear();
 
     addEditCipherInfo$ = new BehaviorSubject<AddEditCipherInfo | null>(null);
     cipherServiceMock = mock<CipherService>({
@@ -83,7 +87,7 @@ describe("AddEditV2Component", () => {
         {
           provide: CipherAuthorizationService,
           useValue: {
-            canDeleteCipher$: jest.fn().mockReturnValue(true),
+            canDeleteCipher$: jest.fn().mockReturnValue(of(true)),
           },
         },
         { provide: AccountService, useValue: mockAccountServiceWith("UserId" as UserId) },
@@ -94,11 +98,23 @@ describe("AddEditV2Component", () => {
             hasArchiveFlagEnabled$: jest.fn().mockReturnValue(of(true)),
           },
         },
+        {
+          provide: ArchiveCipherUtilitiesService,
+          useValue: {
+            archiveCipher: jest.fn().mockResolvedValue(null),
+            unarchiveCipher: jest.fn().mockResolvedValue(null),
+          },
+        },
       ],
     })
       .overrideProvider(CipherFormConfigService, {
         useValue: {
           buildConfig,
+        },
+      })
+      .overrideProvider(DialogService, {
+        useValue: {
+          openSimpleDialog,
         },
       })
       .compileComponents();
@@ -360,6 +376,38 @@ describe("AddEditV2Component", () => {
       await component.handleBackButton();
 
       expect(back).toHaveBeenCalled();
+    });
+  });
+
+  describe("archive", () => {
+    it("calls archiveCipherUtilsService service to archive the cipher", async () => {
+      buildConfigResponse.originalCipher = { id: "222-333-444-5555", edit: true } as Cipher;
+      queryParams$.next({ cipherId: "222-333-444-5555" });
+
+      await fixture.whenStable();
+      await component.archive();
+
+      expect(component["archiveCipherUtilsService"].archiveCipher).toHaveBeenCalledWith(
+        expect.objectContaining({ id: "222-333-444-5555" }),
+        true,
+      );
+    });
+  });
+
+  describe("unarchive", () => {
+    it("calls archiveCipherUtilsService service to unarchive the cipher", async () => {
+      buildConfigResponse.originalCipher = {
+        id: "222-333-444-5555",
+        archivedDate: new Date(),
+        edit: true,
+      } as Cipher;
+      queryParams$.next({ cipherId: "222-333-444-5555" });
+
+      await component.unarchive();
+
+      expect(component["archiveCipherUtilsService"].unarchiveCipher).toHaveBeenCalledWith(
+        expect.objectContaining({ id: "222-333-444-5555" }),
+      );
     });
   });
 
