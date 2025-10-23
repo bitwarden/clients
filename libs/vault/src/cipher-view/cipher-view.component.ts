@@ -1,7 +1,7 @@
 import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, computed, input } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
-import { combineLatest, of, switchMap, map, catchError, from } from "rxjs";
+import { combineLatest, of, switchMap, map, catchError, from, Observable } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -221,16 +221,12 @@ export class CipherViewComponent {
   readonly passwordIsAtRisk = toSignal(
     combineLatest([this.activeUserId$, this.cipher$]).pipe(
       switchMap(([userId, cipher]) =>
-        this.billingAccountService
-          .hasPremiumFromAnySource$(userId)
-          .pipe(map((isPremium) => ({ userId, cipher, isPremium }))),
+        this.switchPremium$(
+          userId,
+          () => from(this.checkIfPasswordIsAtRisk(cipher.id as CipherId, userId as UserId)),
+          () => of(false),
+        ),
       ),
-      switchMap(({ userId, cipher, isPremium }) => {
-        if (!isPremium) {
-          return of(false);
-        }
-        return from(this.checkIfPasswordIsAtRisk(cipher.id as CipherId, userId as UserId));
-      }),
     ),
     { initialValue: false },
   );
@@ -249,6 +245,19 @@ export class CipherViewComponent {
       this.platformUtilsService.launchUri(url);
     }
   };
+
+  /**
+   * Switches between two observables based on whether the user has a premium from any source.
+   */
+  private switchPremium$<T>(
+    userId: UserId,
+    ifPremium$: () => Observable<T>,
+    ifNonPremium$: () => Observable<T>,
+  ): Observable<T> {
+    return this.billingAccountService
+      .hasPremiumFromAnySource$(userId)
+      .pipe(switchMap((isPremium) => (isPremium ? ifPremium$() : ifNonPremium$())));
+  }
 
   private async checkIfPasswordIsAtRisk(cipherId: CipherId, userId: UserId): Promise<boolean> {
     try {
