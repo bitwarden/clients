@@ -618,11 +618,9 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
           // Explicitly mark for check to ensure the view is updated
           // Some sources are not always emitted within the Angular zone (e.g. ciphers updated via WS server notifications)
           this.changeDetectorRef.markForCheck();
-
-          // Show upgrade prompt after organization data is loaded
-          void this.unifiedUpgradePromptService.displayUpgradePromptConditionally();
         },
       );
+    await this.unifiedUpgradePromptService.displayUpgradePromptConditionally();
   }
 
   ngOnDestroy() {

@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { combineLatest, firstValueFrom } from "rxjs";
-import { switchMap, take } from "rxjs/operators";
+import { filter, switchMap, take } from "rxjs/operators";
 
 import { VaultProfileService } from "@bitwarden/angular/vault/services/vault-profile.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -8,6 +8,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { SyncService } from "@bitwarden/common/platform/sync/sync.service";
 import { DialogRef, DialogService } from "@bitwarden/components";
 
 import {
@@ -25,6 +26,7 @@ export class UnifiedUpgradePromptService {
     private configService: ConfigService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private vaultProfileService: VaultProfileService,
+    private syncService: SyncService,
     private dialogService: DialogService,
     private organizationService: OrganizationService,
   ) {}
@@ -42,6 +44,18 @@ export class UnifiedUpgradePromptService {
         return false;
       }
 
+      // Wait for sync to complete to ensure organizations are fully loaded
+      // Also force a sync to ensure we have the latest data
+      await this.syncService.fullSync(false);
+
+      // Wait for the sync to complete
+      await firstValueFrom(
+        this.syncService.lastSync$(account.id).pipe(
+          filter((lastSync) => lastSync !== null),
+          take(1),
+        ),
+      );
+
       // Check if user has premium
       const hasPremium = await firstValueFrom(
         this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
@@ -52,12 +66,13 @@ export class UnifiedUpgradePromptService {
         return false;
       }
 
-      // Check if user has any organization membership (any status)
-      // First ensure organizations are loaded, then check if user has any
-      const organizations = await firstValueFrom(
-        this.organizationService.organizations$(account.id),
+      // Check if user has any organization membership (any status including pending)
+      // Try using memberOrganizations$ which might have different filtering logic
+      const memberOrganizations = await firstValueFrom(
+        this.organizationService.memberOrganizations$(account.id),
       );
-      const hasOrganizations = organizations.length > 0;
+
+      const hasOrganizations = memberOrganizations.length > 0;
 
       // Early return if user has any organization status
       if (hasOrganizations) {
