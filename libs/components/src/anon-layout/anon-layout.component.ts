@@ -21,7 +21,7 @@ import { ClientType } from "@bitwarden/common/enums";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
-import { BaseCardComponent } from "../card/base-card.component";
+import { BaseCardComponent } from "../card";
 import { IconModule } from "../icon";
 import { SharedModule } from "../shared";
 import { TypographyModule } from "../typography";

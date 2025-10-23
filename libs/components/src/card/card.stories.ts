@@ -11,7 +11,7 @@ import { I18nMockService } from "../utils/i18n-mock.service";
 import { CardComponent } from "./card.component";
 
 export default {
-  title: "Component Library/Card",
+  title: "Component Library/Cards/Card",
   component: CardComponent,
   decorators: [
     moduleMetadata({

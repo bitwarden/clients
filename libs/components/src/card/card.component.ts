@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component } from "@angular/core";
 
-import { BaseCardDirective } from "./base-card.directive";
+import { BaseCardDirective } from "./base-card/base-card.directive";
 
 @Component({
   selector: "bit-card",
