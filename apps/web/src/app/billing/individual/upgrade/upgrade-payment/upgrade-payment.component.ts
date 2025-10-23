@@ -10,7 +10,16 @@ import {
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
-import { catchError, debounceTime, from, Observable, of, switchMap } from "rxjs";
+import {
+  debounceTime,
+  Observable,
+  switchMap,
+  startWith,
+  from,
+  catchError,
+  of,
+  combineLatest,
+} from "rxjs";
 
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -23,7 +32,14 @@ import { SharedModule } from "@bitwarden/web-vault/app/shared";
 import {
   EnterBillingAddressComponent,
   EnterPaymentMethodComponent,
+  getBillingAddressFromForm,
 } from "../../../payment/components";
+import {
+  BillingAddress,
+  NonTokenizablePaymentMethods,
+  NonTokenizedPaymentMethod,
+  TokenizedPaymentMethod,
+} from "../../../payment/types";
 import { BillingServicesModule } from "../../../services";
 import { SubscriptionPricingService } from "../../../services/subscription-pricing.service";
 import { BitwardenSubscriber } from "../../../types";
@@ -33,7 +49,11 @@ import {
   PersonalSubscriptionPricingTierIds,
 } from "../../../types/subscription-pricing-tier";
 
-import { PlanDetails, UpgradePaymentService } from "./services/upgrade-payment.service";
+import {
+  PaymentFormValues,
+  PlanDetails,
+  UpgradePaymentService,
+} from "./services/upgrade-payment.service";
 
 /**
  * Status types for upgrade payment dialog
@@ -80,6 +100,7 @@ export class UpgradePaymentComponent implements OnInit, AfterViewInit {
   protected goBack = output<void>();
   protected complete = output<UpgradePaymentResult>();
   protected selectedPlan: PlanDetails | null = null;
+  protected hasEnoughAccountCredit$!: Observable<boolean>;
 
   @ViewChild(EnterPaymentMethodComponent) paymentComponent!: EnterPaymentMethodComponent;
   @ViewChild(CartSummaryComponent) cartSummaryComponent!: CartSummaryComponent;
@@ -155,6 +176,22 @@ export class UpgradePaymentComponent implements OnInit, AfterViewInit {
       .subscribe((tax) => {
         this.estimatedTax = tax;
       });
+
+    // Check if user has enough account credit for the purchase
+    this.hasEnoughAccountCredit$ = combineLatest([
+      this.upgradePaymentService.accountCredit$,
+      this.formGroup.valueChanges.pipe(startWith(this.formGroup.value)),
+    ]).pipe(
+      switchMap(([credit, formValue]) => {
+        const selectedPaymentType = formValue.paymentForm?.type;
+        if (selectedPaymentType !== NonTokenizablePaymentMethods.accountCredit) {
+          return of(true); // Not using account credit, so this check doesn't apply
+        }
+
+        return credit ? of(credit >= this.cartSummaryComponent.total()) : of(false);
+      }),
+    );
+
     this.loading.set(false);
   }
 
@@ -210,76 +247,98 @@ export class UpgradePaymentComponent implements OnInit, AfterViewInit {
   }
 
   private async processUpgrade(): Promise<UpgradePaymentResult> {
-    // Get common values
-    const country = this.formGroup.value?.billingAddress?.country;
-    const postalCode = this.formGroup.value?.billingAddress?.postalCode;
-
     if (!this.selectedPlan) {
       throw new Error("No plan selected");
     }
-    if (!country || !postalCode) {
+
+    const billingAddress = getBillingAddressFromForm(this.formGroup.controls.billingAddress);
+    const organizationName = this.formGroup.value?.organizationName;
+
+    if (!billingAddress.country || !billingAddress.postalCode) {
       throw new Error("Billing address is incomplete");
     }
 
-    // Validate organization name for Families plan
-    const organizationName = this.formGroup.value?.organizationName;
     if (this.isFamiliesPlan && !organizationName) {
       throw new Error("Organization name is required");
     }
 
-    // Get payment method
-    const tokenizedPaymentMethod = await this.paymentComponent?.tokenize();
+    const paymentMethod = await this.getPaymentMethod();
 
-    if (!tokenizedPaymentMethod) {
+    if (!paymentMethod) {
       throw new Error("Payment method is required");
     }
 
-    // Process the upgrade based on plan type
-    if (this.isFamiliesPlan) {
-      const paymentFormValues = {
-        organizationName,
-        billingAddress: { country, postalCode },
-      };
+    const isTokenizedPayment = "token" in paymentMethod;
 
-      const response = await this.upgradePaymentService.upgradeToFamilies(
-        this.account(),
-        this.selectedPlan,
-        tokenizedPaymentMethod,
-        paymentFormValues,
-      );
-
-      return { status: UpgradePaymentStatus.UpgradedToFamilies, organizationId: response.id };
-    } else {
-      await this.upgradePaymentService.upgradeToPremium(tokenizedPaymentMethod, {
-        country,
-        postalCode,
-      });
-      return { status: UpgradePaymentStatus.UpgradedToPremium, organizationId: null };
+    if (!isTokenizedPayment && this.isFamiliesPlan) {
+      throw new Error("Tokenized payment is required for families plan");
     }
+
+    return this.isFamiliesPlan
+      ? this.processFamiliesUpgrade(
+          organizationName!,
+          billingAddress,
+          paymentMethod as TokenizedPaymentMethod,
+        )
+      : this.processPremiumUpgrade(paymentMethod, billingAddress);
+  }
+
+  private async processFamiliesUpgrade(
+    organizationName: string,
+    billingAddress: BillingAddress,
+    paymentMethod: TokenizedPaymentMethod,
+  ): Promise<UpgradePaymentResult> {
+    const paymentFormValues: PaymentFormValues = {
+      organizationName,
+      billingAddress,
+    };
+
+    const response = await this.upgradePaymentService.upgradeToFamilies(
+      this.account(),
+      this.selectedPlan!,
+      paymentMethod,
+      paymentFormValues,
+    );
+
+    return { status: UpgradePaymentStatus.UpgradedToFamilies, organizationId: response.id };
+  }
+
+  private async processPremiumUpgrade(
+    paymentMethod: NonTokenizedPaymentMethod | TokenizedPaymentMethod,
+    billingAddress: BillingAddress,
+  ): Promise<UpgradePaymentResult> {
+    await this.upgradePaymentService.upgradeToPremium(paymentMethod, billingAddress);
+    return { status: UpgradePaymentStatus.UpgradedToPremium, organizationId: null };
+  }
+
+  /**
+   * Get payment method based on selected type
+   * If using account credit, returns a non-tokenized payment method
+   * Otherwise, tokenizes the payment method from the payment component
+   */
+  private async getPaymentMethod(): Promise<
+    NonTokenizedPaymentMethod | TokenizedPaymentMethod | null
+  > {
+    const isAccountCreditSelected =
+      this.formGroup.value?.paymentForm?.type === NonTokenizablePaymentMethods.accountCredit;
+
+    if (isAccountCreditSelected) {
+      return { type: NonTokenizablePaymentMethods.accountCredit };
+    }
+
+    return await this.paymentComponent?.tokenize();
   }
 
   // Create an observable for tax calculation
   private refreshSalesTax$(): Observable<number> {
-    const billingAddress = {
-      country: this.formGroup.value?.billingAddress?.country,
-      postalCode: this.formGroup.value?.billingAddress?.postalCode,
-    };
-
-    if (!this.selectedPlan || !billingAddress.country || !billingAddress.postalCode) {
+    if (this.formGroup.invalid || !this.selectedPlan) {
       return of(0);
     }
 
-    // Convert Promise to Observable
+    const billingAddress = getBillingAddressFromForm(this.formGroup.controls.billingAddress);
+
     return from(
-      this.upgradePaymentService.calculateEstimatedTax(this.selectedPlan, {
-        line1: null,
-        line2: null,
-        city: null,
-        state: null,
-        country: billingAddress.country,
-        postalCode: billingAddress.postalCode,
-        taxId: null,
-      }),
+      this.upgradePaymentService.calculateEstimatedTax(this.selectedPlan, billingAddress),
     ).pipe(
       catchError((error: unknown) => {
         this.logService.error("Tax calculation failed:", error);
