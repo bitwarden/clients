@@ -73,8 +73,8 @@ export class AutoConfirmPolicyDialogComponent
 {
   policyType = PolicyType;
 
-  protected readonly firstTimeDialog = signal(false);
-  protected readonly currentStep = signal(0);
+  protected firstTimeDialog = signal(false);
+  protected currentStep = signal(0);
   protected multiStepSubmit: Observable<MultiStepSubmit[]> = of([]);
   protected autoConfirmEnabled$: Observable<boolean> = this.accountService.activeAccount$.pipe(
     getUserId,
@@ -82,11 +82,11 @@ export class AutoConfirmPolicyDialogComponent
     map((policies) => policies.find((p) => p.type === PolicyType.AutoConfirm)?.enabled ?? false),
   );
 
-  private readonly submitPolicy: Signal<TemplateRef<unknown> | undefined> = viewChild("step0");
-  private readonly openExtension: Signal<TemplateRef<unknown> | undefined> = viewChild("step1");
+  private submitPolicy: Signal<TemplateRef<unknown> | undefined> = viewChild("step0");
+  private openExtension: Signal<TemplateRef<unknown> | undefined> = viewChild("step1");
 
-  private readonly submitPolicyTitle: Signal<TemplateRef<unknown> | undefined> = viewChild("step0Title");
-  private readonly openExtensionTitle: Signal<TemplateRef<unknown> | undefined> = viewChild("step1Title");
+  private submitPolicyTitle: Signal<TemplateRef<unknown> | undefined> = viewChild("step0Title");
+  private openExtensionTitle: Signal<TemplateRef<unknown> | undefined> = viewChild("step1Title");
 
   override policyComponent: AutoConfirmPolicyEditComponent | undefined;
 
