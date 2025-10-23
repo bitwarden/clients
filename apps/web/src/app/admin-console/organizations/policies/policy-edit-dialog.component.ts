@@ -30,7 +30,7 @@ import { KeyService } from "@bitwarden/key-management";
 import { SharedModule } from "../../../shared";
 
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "./base-policy-edit.component";
-import { vNextOrganizationDataOwnershipPolicyComponent } from "./policy-edit-definitions";
+import { vNextOrganizationDataOwnershipPolicyComponent } from "./policy-edit-definitions/vnext-organization-data-ownership.component";
 
 export type PolicyEditDialogData = {
   /**
@@ -64,13 +64,13 @@ export class PolicyEditDialogComponent implements AfterViewInit {
   });
   constructor(
     @Inject(DIALOG_DATA) protected data: PolicyEditDialogData,
-    private accountService: AccountService,
-    private policyApiService: PolicyApiServiceAbstraction,
-    private i18nService: I18nService,
+    protected accountService: AccountService,
+    protected policyApiService: PolicyApiServiceAbstraction,
+    protected i18nService: I18nService,
     private cdr: ChangeDetectorRef,
     private formBuilder: FormBuilder,
-    private dialogRef: DialogRef<PolicyEditDialogResult>,
-    private toastService: ToastService,
+    protected dialogRef: DialogRef<PolicyEditDialogResult>,
+    protected toastService: ToastService,
     private configService: ConfigService,
     private keyService: KeyService,
   ) {}

@@ -634,7 +634,9 @@ export class CipherService implements CipherServiceAbstraction {
     const equivalentDomains = await firstValueFrom(
       this.domainSettingsService.getUrlEquivalentDomains(url),
     );
-    defaultMatch ??= await firstValueFrom(this.domainSettingsService.defaultUriMatchStrategy$);
+    defaultMatch ??= await firstValueFrom(
+      this.domainSettingsService.resolvedDefaultUriMatchStrategy$,
+    );
 
     const archiveFeatureEnabled = await this.configService.getFeatureFlag(
       FeatureFlag.PM19148_InnovationArchive,
@@ -935,7 +937,12 @@ export class CipherService implements CipherServiceAbstraction {
         cipher.attachments.forEach((attachment) => {
           if (attachment.key == null) {
             attachmentPromises.push(
-              this.shareAttachmentWithServer(attachment, cipher.id, organizationId),
+              this.shareAttachmentWithServer(
+                attachment,
+                cipher.id,
+                organizationId,
+                cipher.revisionDate,
+              ),
             );
           }
         });
@@ -1720,7 +1727,10 @@ export class CipherService implements CipherServiceAbstraction {
     attachmentView: AttachmentView,
     cipherId: string,
     organizationId: string,
+    lastKnownRevisionDate: Date,
   ): Promise<any> {
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$);
+
     const attachmentResponse = await this.apiService.nativeFetch(
       new Request(attachmentView.url, { cache: "no-store" }),
     );
@@ -1729,7 +1739,6 @@ export class CipherService implements CipherServiceAbstraction {
     }
 
     const encBuf = await EncArrayBuffer.fromResponse(attachmentResponse);
-    const activeUserId = await firstValueFrom(this.accountService.activeAccount$);
     const userKey = await this.keyService.getUserKey(activeUserId.id);
     const decBuf = await this.encryptService.decryptFileData(encBuf, userKey);
 
@@ -1750,9 +1759,11 @@ export class CipherService implements CipherServiceAbstraction {
       const blob = new Blob([encData.buffer], { type: "application/octet-stream" });
       fd.append("key", dataEncKey[1].encryptedString);
       fd.append("data", blob, encFileName.encryptedString);
+      fd.append("lastKnownRevisionDate", lastKnownRevisionDate.toISOString());
     } catch (e) {
       if (Utils.isNode && !Utils.isBrowser) {
         fd.append("key", dataEncKey[1].encryptedString);
+        fd.append("lastKnownRevisionDate", lastKnownRevisionDate.toISOString());
         fd.append(
           "data",
           Buffer.from(encData.buffer) as any,
@@ -1945,11 +1956,21 @@ export class CipherService implements CipherServiceAbstraction {
     autofillOnPageLoad: boolean,
   ): Promise<CipherView> {
     const cacheKey = autofillOnPageLoad ? "autofillOnPageLoad-" + url : url;
-
     if (!this.sortedCiphersCache.isCached(cacheKey)) {
       let ciphers = await this.getAllDecryptedForUrl(url, userId);
-      if (!ciphers) {
+
+      if (!ciphers?.length) {
         return null;
+      }
+
+      const localData = await firstValueFrom(this.localData$(userId));
+      if (localData) {
+        for (const view of ciphers) {
+          const data = localData[view.id as CipherId];
+          if (data) {
+            view.localData = data;
+          }
+        }
       }
 
       if (autofillOnPageLoad) {

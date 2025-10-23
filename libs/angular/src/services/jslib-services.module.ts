@@ -546,7 +546,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: DomainSettingsService,
     useClass: DefaultDomainSettingsService,
-    deps: [StateProvider],
+    deps: [StateProvider, PolicyServiceAbstraction, AccountService],
   }),
   safeProvider({
     provide: CipherServiceAbstraction,
@@ -847,6 +847,7 @@ const safeProviders: SafeProvider[] = [
       AuthServiceAbstraction,
       StateProvider,
       SecurityStateService,
+      KdfConfigService,
     ],
   }),
   safeProvider({
@@ -891,7 +892,7 @@ const safeProviders: SafeProvider[] = [
       LogService,
       BiometricsService,
       LOCKED_CALLBACK,
-      LOGOUT_CALLBACK,
+      LogoutService,
     ],
   }),
   safeProvider({
@@ -1069,9 +1070,7 @@ const safeProviders: SafeProvider[] = [
     useClass: MasterPasswordService,
     deps: [
       StateProvider,
-      StateServiceAbstraction,
       KeyGenerationService,
-      EncryptService,
       LogService,
       CryptoFunctionServiceAbstraction,
       AccountServiceAbstraction,
@@ -1279,7 +1278,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: ChangeKdfService,
     useClass: DefaultChangeKdfService,
-    deps: [MasterPasswordServiceAbstraction, KeyService, KdfConfigService, ChangeKdfApiService],
+    deps: [ChangeKdfApiService, SdkService],
   }),
   safeProvider({
     provide: AuthRequestServiceAbstraction,

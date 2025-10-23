@@ -25,6 +25,8 @@ import {
   UnlockOptionValue,
 } from "../../services/lock-component.service";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-master-password-lock",
   templateUrl: "master-password-lock.component.html",
@@ -45,13 +47,13 @@ export class MasterPasswordLockComponent {
   private readonly logService = inject(LogService);
   UnlockOption = UnlockOption;
 
-  activeUnlockOption = model.required<UnlockOptionValue>();
+  readonly activeUnlockOption = model.required<UnlockOptionValue>();
 
-  unlockOptions = input.required<UnlockOptions>();
-  biometricUnlockBtnText = input.required<string>();
-  showPinSwap = computed(() => this.unlockOptions().pin.enabled ?? false);
-  biometricsAvailable = computed(() => this.unlockOptions().biometrics.enabled ?? false);
-  showBiometricsSwap = computed(() => {
+  readonly unlockOptions = input.required<UnlockOptions>();
+  readonly biometricUnlockBtnText = input.required<string>();
+  readonly showPinSwap = computed(() => this.unlockOptions().pin.enabled ?? false);
+  readonly biometricsAvailable = computed(() => this.unlockOptions().biometrics.enabled ?? false);
+  readonly showBiometricsSwap = computed(() => {
     const status = this.unlockOptions().biometrics.biometricsStatus;
     return (
       status !== BiometricsStatus.PlatformUnsupported &&

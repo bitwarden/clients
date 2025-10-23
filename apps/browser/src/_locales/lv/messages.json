@@ -5714,5 +5714,9 @@
   },
   "confirmKeyConnectorDomain": {
     "message": "Apstiprināt Key Connector domēnu"
+  },
+  "settingDisabledByPolicy": {
+    "message": "Šis iestatījums ir atspējots apvienības pamatnostādnēs.",
+    "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
   }
 }

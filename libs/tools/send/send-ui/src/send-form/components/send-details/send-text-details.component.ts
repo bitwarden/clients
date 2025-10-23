@@ -10,6 +10,8 @@ import { CheckboxModule, FormFieldModule, SectionComponent } from "@bitwarden/co
 import { SendFormConfig } from "../../abstractions/send-form-config.service";
 import { SendFormContainer } from "../../send-form-container";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "tools-send-text-details",
   templateUrl: "./send-text-details.component.html",
@@ -23,8 +25,8 @@ import { SendFormContainer } from "../../send-form-container";
   ],
 })
 export class SendTextDetailsComponent implements OnInit {
-  config = input.required<SendFormConfig>();
-  originalSendView = input<SendView>();
+  readonly config = input.required<SendFormConfig>();
+  readonly originalSendView = input<SendView>();
 
   sendTextDetailsForm = this.formBuilder.group({
     text: new FormControl("", Validators.required),

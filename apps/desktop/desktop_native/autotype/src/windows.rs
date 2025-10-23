@@ -331,7 +331,6 @@ mod tests {
     fn get_alphabetic_hot_key_happy() {
         for c in ('a'..='z').chain('A'..='Z') {
             let letter = c.to_string();
-            println!("{}", letter);
             let converted = get_alphabetic_hotkey(letter).unwrap();
             assert_eq!(converted, c as u16);
         }

@@ -24,7 +24,7 @@ export class DrawerHeaderComponent {
   /**
    * The title to display
    */
-  title = input.required<string>();
+  readonly title = input.required<string>();
 
   /** We don't want to set the HTML title attribute with `this.title` */
   @HostBinding("attr.title")
