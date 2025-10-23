@@ -85,8 +85,10 @@ export class AutoConfirmPolicyDialogComponent
   private readonly submitPolicy: Signal<TemplateRef<unknown> | undefined> = viewChild("step0");
   private readonly openExtension: Signal<TemplateRef<unknown> | undefined> = viewChild("step1");
 
-  private readonly submitPolicyTitle: Signal<TemplateRef<unknown> | undefined> = viewChild("step0Title");
-  private readonly openExtensionTitle: Signal<TemplateRef<unknown> | undefined> = viewChild("step1Title");
+  private readonly submitPolicyTitle: Signal<TemplateRef<unknown> | undefined> =
+    viewChild("step0Title");
+  private readonly openExtensionTitle: Signal<TemplateRef<unknown> | undefined> =
+    viewChild("step1Title");
 
   override policyComponent: AutoConfirmPolicyEditComponent | undefined;
 
