@@ -104,7 +104,7 @@ export class AtRiskPasswordsComponent implements OnInit {
    * The UI utilize a bitBadge which does not support async actions (like bitButton does).
    * @protected
    */
-  protected launchingCipher = signal<CipherView | null>(null);
+  protected readonly launchingCipher = signal<CipherView | null>(null);
 
   private activeUserData$ = this.accountService.activeAccount$.pipe(
     filterOutNullish(),
