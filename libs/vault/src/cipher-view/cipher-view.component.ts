@@ -11,10 +11,12 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { isCardExpired } from "@bitwarden/common/autofill/utils";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { getByIds } from "@bitwarden/common/platform/misc";
 import { CipherId, EmergencyAccessId } from "@bitwarden/common/types/guid";
+import { CipherRiskService } from "@bitwarden/common/vault/abstractions/cipher-risk.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -85,6 +87,8 @@ export class CipherViewComponent {
     private changeLoginPasswordService: ChangeLoginPasswordService,
     private cipherService: CipherService,
     private logService: LogService,
+    private cipherRiskService: CipherRiskService,
+    private billingAccountService: BillingAccountProfileStateService,
   ) {}
 
   readonly resolvedCollections = toSignal<CollectionView[] | undefined>(
@@ -214,8 +218,33 @@ export class CipherViewComponent {
     return cipher?.login?.hasUris;
   });
 
+  readonly passwordIsAtRisk = toSignal(
+    combineLatest([this.activeUserId$, this.cipher$]).pipe(
+      switchMap(([userId, cipher]) => {
+        return this.billingAccountService.hasPremiumFromAnySource$(userId).pipe(
+          switchMap(async (isPremium) => {
+            if (!isPremium) {
+              return false;
+            }
+            const risk = await this.cipherRiskService.computeCipherRiskForUser(
+              cipher.id as CipherId,
+              userId,
+              true,
+            );
+
+            return (
+              (risk.exposed_result.type === "Found" && risk.exposed_result.value > 0) ||
+              (risk.reuse_count ?? 1) > 1 ||
+              risk.password_strength < 3
+            );
+          }),
+        );
+      }),
+    ),
+  );
+
   readonly showChangePasswordLink = computed(() => {
-    return this.hasLoginUri() && this.hadPendingChangePasswordTask();
+    return this.hasLoginUri() && (this.hadPendingChangePasswordTask() || this.passwordIsAtRisk());
   });
 
   launchChangePassword = async () => {
