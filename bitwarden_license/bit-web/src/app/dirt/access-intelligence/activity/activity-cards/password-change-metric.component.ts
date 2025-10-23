@@ -1,7 +1,15 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  DestroyRef,
+  OnInit,
+  inject,
+} from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
-import { Subject, switchMap, takeUntil, of, BehaviorSubject, combineLatest } from "rxjs";
+import { switchMap, of, BehaviorSubject, combineLatest } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
@@ -26,6 +34,8 @@ import { AccessIntelligenceSecurityTasksService } from "../../shared/security-ta
   providers: [AccessIntelligenceSecurityTasksService, DefaultAdminTaskService],
 })
 export class PasswordChangeMetricComponent implements OnInit {
+  private destroyRef = inject(DestroyRef);
+
   protected taskMetrics$ = new BehaviorSubject<TaskMetrics>({ totalTasks: 0, completedTasks: 0 });
   private completedTasks: number = 0;
   private totalTasks: number = 0;
@@ -34,8 +44,15 @@ export class PasswordChangeMetricComponent implements OnInit {
   atRiskAppsCount: number = 0;
   atRiskPasswordsCount: number = 0;
   private organizationId!: OrganizationId;
-  private destroyRef = new Subject<void>();
   renderMode: RenderMode = "noCriticalApps";
+
+  // Computed properties (formerly getters) - updated when data changes
+  protected completedPercent = 0;
+  protected completedTasksCount = 0;
+  protected totalTasksCount = 0;
+  protected canAssignTasks = false;
+  protected hasExistingTasks = false;
+  protected newAtRiskPasswordsCount = 0;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -56,7 +73,7 @@ export class PasswordChangeMetricComponent implements OnInit {
           }
           return of({ totalTasks: 0, completedTasks: 0 });
         }),
-        takeUntil(this.destroyRef),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((metrics) => {
         this.taskMetrics$.next(metrics);
@@ -69,7 +86,7 @@ export class PasswordChangeMetricComponent implements OnInit {
       this.allActivitiesService.atRiskPasswordsCount$,
       this.allActivitiesService.allApplicationsDetails$,
     ])
-      .pipe(takeUntil(this.destroyRef))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(([taskMetrics, summary, atRiskPasswordsCount, allApplicationsDetails]) => {
         this.atRiskAppsCount = summary.totalCriticalAtRiskApplicationCount;
         this.atRiskPasswordsCount = atRiskPasswordsCount;
@@ -83,6 +100,9 @@ export class PasswordChangeMetricComponent implements OnInit {
         this.allActivitiesService.setPasswordChangeProgressMetricHasProgressBar(
           this.renderMode === RenderMode.criticalAppsWithAtRiskAppsAndTasks,
         );
+
+        // Update all computed properties when data changes
+        this.updateComputedProperties();
 
         this.cdr.markForCheck();
       });
@@ -120,57 +140,48 @@ export class PasswordChangeMetricComponent implements OnInit {
     return RenderMode.noCriticalApps;
   }
 
-  get completedPercent(): number {
-    if (this.totalTasks === 0) {
-      return 0;
-    }
-    return Math.round((this.completedTasks / this.totalTasks) * 100);
-  }
+  /**
+   * Updates all computed properties based on current state.
+   * Called whenever data changes to avoid recalculation on every change detection cycle.
+   */
+  private updateComputedProperties(): void {
+    // Calculate completion percentage
+    this.completedPercent =
+      this.totalTasks === 0 ? 0 : Math.round((this.completedTasks / this.totalTasks) * 100);
 
-  get completedTasksCount(): number {
+    // Calculate completed tasks count based on render mode
     switch (this.renderMode) {
       case RenderMode.noCriticalApps:
       case RenderMode.criticalAppsWithAtRiskAppsAndNoTasks:
-        return 0;
-
+        this.completedTasksCount = 0;
+        break;
       case RenderMode.criticalAppsWithAtRiskAppsAndTasks:
-        return this.completedTasks;
-
+        this.completedTasksCount = this.completedTasks;
+        break;
       default:
-        return 0;
+        this.completedTasksCount = 0;
     }
-  }
 
-  get totalTasksCount(): number {
+    // Calculate total tasks count based on render mode
     switch (this.renderMode) {
       case RenderMode.noCriticalApps:
-        return 0;
-
+        this.totalTasksCount = 0;
+        break;
       case RenderMode.criticalAppsWithAtRiskAppsAndNoTasks:
-        return this.atRiskAppsCount;
-
+        this.totalTasksCount = this.atRiskAppsCount;
+        break;
       case RenderMode.criticalAppsWithAtRiskAppsAndTasks:
-        return this.totalTasks;
-
+        this.totalTasksCount = this.totalTasks;
+        break;
       default:
-        return 0;
+        this.totalTasksCount = 0;
     }
-  }
 
-  get canAssignTasks(): boolean {
-    return this.atRiskPasswordsCount > this.totalTasks;
-  }
-
-  get hasExistingTasks(): boolean {
-    return this.totalTasks > 0;
-  }
-
-  get newAtRiskPasswordsCount(): number {
-    // Calculate new at-risk passwords as the difference between current count and tasks created
-    if (this.atRiskPasswordsCount > this.totalTasks) {
-      return this.atRiskPasswordsCount - this.totalTasks;
-    }
-    return 0;
+    // Calculate flags and counts
+    this.canAssignTasks = this.atRiskPasswordsCount > this.totalTasks;
+    this.hasExistingTasks = this.totalTasks > 0;
+    this.newAtRiskPasswordsCount =
+      this.atRiskPasswordsCount > this.totalTasks ? this.atRiskPasswordsCount - this.totalTasks : 0;
   }
 
   get renderModes() {
