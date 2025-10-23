@@ -101,6 +101,11 @@ export class PremiumVNextComponent {
         this.subscriber = subscriber;
       });
 
+    this.shouldShowNewDesign$ = this.hasPremiumFromAnySource$.pipe(
+      map((hasPremium) => !hasPremium),
+      takeUntilDestroyed(this.destroyRef),
+    );
+
     this.shouldShowUpgradeDialogOnInit$ = combineLatest([
       this.hasPremiumFromAnySource$,
       this.activatedRoute.queryParams,

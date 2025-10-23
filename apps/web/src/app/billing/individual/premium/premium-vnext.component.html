@@ -1,5 +1,5 @@
 <div class="tw-max-w-3xl tw-mx-auto">
-  <bit-section>
+  <bit-section *ngIf="shouldShowNewDesign$ | async">
     <div class="tw-text-center">
       <div class="tw-mt-8 tw-mb-6">
         <span bitBadge variant="secondary" [truncate]="false">
