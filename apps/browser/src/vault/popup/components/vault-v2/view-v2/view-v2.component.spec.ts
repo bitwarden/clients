@@ -556,7 +556,7 @@ describe("ViewV2Component", () => {
 
       fixture.detectChanges();
 
-      const badge = fixture.nativeElement.querySelector("button[bitBadge]");
+      const badge = fixture.nativeElement.querySelector("span[bitBadge]");
       expect(badge).toBeTruthy();
     }));
 
@@ -574,7 +574,7 @@ describe("ViewV2Component", () => {
 
       fixture.detectChanges();
 
-      const badge = fixture.nativeElement.querySelector("button[bitBadge]");
+      const badge = fixture.nativeElement.querySelector("span[bitBadge]");
       expect(badge).toBeFalsy();
     });
 
@@ -585,7 +585,7 @@ describe("ViewV2Component", () => {
 
       fixture.detectChanges();
 
-      const badge = fixture.nativeElement.querySelector("button[bitBadge]");
+      const badge = fixture.nativeElement.querySelector("span[bitBadge]");
       expect(badge).toBeFalsy();
     });
   });
