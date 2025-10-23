@@ -358,9 +358,7 @@ mod windows_binary {
             };
 
             let filter = lpidprocess.into_iter().filter(|&v| {
-                v != 0
-                    && Self::process_name_is(v, |n| n == "lsass.exe" || n == "winlogon.exe")
-                        .unwrap_or(false)
+                v != 0 && Self::process_name_is(v, |n| n == "services.exe").unwrap_or(false)
             });
             Ok(filter)
         }
