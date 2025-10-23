@@ -105,6 +105,8 @@ interface OnSuccessArgs {
   organizationId: string;
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "./change-plan-dialog.component.html",
   imports: [
@@ -116,13 +118,25 @@ interface OnSuccessArgs {
   providers: [SubscriberBillingClient, TaxClient],
 })
 export class ChangePlanDialogComponent implements OnInit, OnDestroy {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild(EnterPaymentMethodComponent) enterPaymentMethodComponent: EnterPaymentMethodComponent;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() acceptingSponsorship = false;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() organizationId: string;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() showFree = false;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() showCancel = false;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   get productTier(): ProductTierType {
     return this._productTier;
@@ -136,6 +150,8 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   protected estimatedTax: number = 0;
   private _productTier = ProductTierType.Free;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   get plan(): PlanType {
     return this._plan;
@@ -147,9 +163,17 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   }
 
   private _plan = PlanType.Free;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() providerId?: string;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onSuccess = new EventEmitter<OnSuccessArgs>();
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onCanceled = new EventEmitter<void>();
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onTrialBillingSuccess = new EventEmitter();
 
   protected discountPercentageFromSub: number;

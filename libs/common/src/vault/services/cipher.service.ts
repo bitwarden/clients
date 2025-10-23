@@ -691,8 +691,14 @@ export class CipherService implements CipherServiceAbstraction {
       .sort((a, b) => this.sortCiphersByLastUsedThenName(a, b));
   }
 
-  async getAllFromApiForOrganization(organizationId: string): Promise<CipherView[]> {
-    const response = await this.apiService.getCiphersOrganization(organizationId);
+  async getAllFromApiForOrganization(
+    organizationId: string,
+    includeMemberItems?: boolean,
+  ): Promise<CipherView[]> {
+    const response = await this.apiService.getCiphersOrganization(
+      organizationId,
+      includeMemberItems,
+    );
     return await this.decryptOrganizationCiphersResponse(response, organizationId);
   }
 
