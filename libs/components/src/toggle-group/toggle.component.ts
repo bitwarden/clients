@@ -54,7 +54,7 @@ export class ToggleComponent<TValue> implements AfterContentChecked, AfterViewIn
       "tw-items-center",
       "tw-justify-center",
       "tw-gap-1.5",
-      "!tw-font-semibold",
+      "!tw-font-medium",
       "tw-leading-5",
       "tw-transition",
       "tw-text-center",
