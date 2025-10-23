@@ -25,7 +25,7 @@ import {
   CollectionData,
   Collection,
   CollectionDetailsResponse,
-  OrganizationUserService,
+  DefaultOrganizationUserService,
 } from "@bitwarden/admin-console/common";
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -150,7 +150,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     private organizationMetadataService: OrganizationMetadataServiceAbstraction,
     protected deleteManagedMemberWarningService: DeleteManagedMemberWarningService,
     private configService: ConfigService,
-    private organizationUserService: OrganizationUserService,
+    private organizationUserService: DefaultOrganizationUserService,
     private organizationWarningsService: OrganizationWarningsService,
   ) {
     super(
