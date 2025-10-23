@@ -11,6 +11,9 @@
     <span class="tw-sr-only">{{ "loading" | i18n }}</span>
   </div>
   <div class="tw-mt-4" *ngIf="hasLoaded">
+    <bit-callout type="success" title="{{ 'goodNews' | i18n }}">
+      This a line of text for testing only.
+    </bit-callout>
     <bit-callout type="success" title="{{ 'goodNews' | i18n }}" *ngIf="!ciphers.length">
       {{ "noInactive2fa" | i18n }}
     </bit-callout>
