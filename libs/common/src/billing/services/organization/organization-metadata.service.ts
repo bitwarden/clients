@@ -1,4 +1,4 @@
-import { filter, from, merge, Observable, shareReplay, Subject, switchMap } from "rxjs";
+import { BehaviorSubject, combineLatest, from, Observable, shareReplay, switchMap } from "rxjs";
 
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 
@@ -18,57 +18,56 @@ export class DefaultOrganizationMetadataService implements OrganizationMetadataS
     private billingApiService: BillingApiServiceAbstraction,
     private configService: ConfigService,
   ) {}
-  private refreshMetadataTrigger = new Subject<void>();
+  private refreshMetadataTrigger = new BehaviorSubject<void>(undefined);
 
-  refreshMetadataCache = () => this.refreshMetadataTrigger.next();
+  refreshMetadataCache = () => {
+    this.metadataCache.clear();
+    this.refreshMetadataTrigger.next();
+  };
 
-  getOrganizationMetadata$ = (
-    organizationId: OrganizationId,
-  ): Observable<OrganizationBillingMetadataResponse> =>
-    this.configService
-      .getFeatureFlag$(FeatureFlag.PM25379_UseNewOrganizationMetadataStructure)
-      .pipe(
-        switchMap((featureFlagEnabled) => {
-          return merge(
-            this.getOrganizationMetadataInternal$(organizationId, featureFlagEnabled),
-            this.refreshMetadataTrigger.pipe(
-              filter(() => featureFlagEnabled),
-              switchMap(() =>
-                this.getOrganizationMetadataInternal$(organizationId, featureFlagEnabled, true),
-              ),
-            ),
-          );
-        }),
-      );
+  getOrganizationMetadata$(orgId: OrganizationId): Observable<OrganizationBillingMetadataResponse> {
+    return combineLatest([
+      this.refreshMetadataTrigger,
+      this.configService.getFeatureFlag$(FeatureFlag.PM25379_UseNewOrganizationMetadataStructure),
+    ]).pipe(
+      switchMap(([_, featureFlagEnabled]) =>
+        featureFlagEnabled
+          ? this.vNextGetOrganizationMetadataInternal$(orgId)
+          : this.getOrganizationMetadataInternal$(orgId),
+      ),
+    );
+  }
 
-  private getOrganizationMetadataInternal$(
-    organizationId: OrganizationId,
-    featureFlagEnabled: boolean,
-    bypassCache: boolean = false,
+  private vNextGetOrganizationMetadataInternal$(
+    orgId: OrganizationId,
   ): Observable<OrganizationBillingMetadataResponse> {
-    if (!bypassCache && featureFlagEnabled && this.metadataCache.has(organizationId)) {
-      return this.metadataCache.get(organizationId)!;
+    const cacheHit = this.metadataCache.get(orgId);
+    if (cacheHit) {
+      return cacheHit;
     }
 
-    const metadata$ = from(this.fetchMetadata(organizationId, featureFlagEnabled)).pipe(
+    const result = from(this.fetchMetadata(orgId, true)).pipe(
       shareReplay({ bufferSize: 1, refCount: false }),
     );
 
-    if (featureFlagEnabled) {
-      this.metadataCache.set(organizationId, metadata$);
-    }
+    this.metadataCache.set(orgId, result);
+    return result;
+  }
 
-    return metadata$;
+  private getOrganizationMetadataInternal$(
+    organizationId: OrganizationId,
+  ): Observable<OrganizationBillingMetadataResponse> {
+    return from(this.fetchMetadata(organizationId, false)).pipe(
+      shareReplay({ bufferSize: 1, refCount: false }),
+    );
   }
 
   private async fetchMetadata(
     organizationId: OrganizationId,
     featureFlagEnabled: boolean,
   ): Promise<OrganizationBillingMetadataResponse> {
-    if (featureFlagEnabled) {
-      return await this.billingApiService.getOrganizationBillingMetadataVNext(organizationId);
-    }
-
-    return await this.billingApiService.getOrganizationBillingMetadata(organizationId);
+    return featureFlagEnabled
+      ? await this.billingApiService.getOrganizationBillingMetadataVNext(organizationId)
+      : await this.billingApiService.getOrganizationBillingMetadata(organizationId);
   }
 }

@@ -32,8 +32,8 @@ import {
   standalone: true,
 })
 class MockUpgradeAccountComponent {
-  dialogTitleMessageOverride = input<string | null>(null);
-  hideContinueWithoutUpgradingButton = input<boolean>(false);
+  readonly dialogTitleMessageOverride = input<string | null>(null);
+  readonly hideContinueWithoutUpgradingButton = input<boolean>(false);
   planSelected = output<PersonalSubscriptionPricingTierId>();
   closeClicked = output<UpgradeAccountStatus>();
 }
@@ -44,8 +44,8 @@ class MockUpgradeAccountComponent {
   standalone: true,
 })
 class MockUpgradePaymentComponent {
-  selectedPlanId = input<PersonalSubscriptionPricingTierId | null>(null);
-  account = input<Account | null>(null);
+  readonly selectedPlanId = input<PersonalSubscriptionPricingTierId | null>(null);
+  readonly account = input<Account | null>(null);
   goBack = output<void>();
   complete = output<UpgradePaymentResult>();
 }

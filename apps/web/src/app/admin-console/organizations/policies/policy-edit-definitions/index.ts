@@ -15,3 +15,4 @@ export {
   vNextOrganizationDataOwnershipPolicy,
   vNextOrganizationDataOwnershipPolicyComponent,
 } from "./vnext-organization-data-ownership.component";
+export { AutoConfirmPolicy } from "./auto-confirm-policy.component";
