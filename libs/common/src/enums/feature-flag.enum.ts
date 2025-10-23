@@ -12,6 +12,7 @@ import { ServerConfig } from "../platform/abstractions/config/server-config";
 export enum FeatureFlag {
   /* Admin Console Team */
   CreateDefaultLocation = "pm-19467-create-default-location",
+  AutoConfirm = "pm-19934-auto-confirm-organization-users",
 
   /* Auth */
   PM22110_DisableAlternateLoginMethods = "pm-22110-disable-alternate-login-methods",
@@ -29,6 +30,7 @@ export enum FeatureFlag {
   PM25379_UseNewOrganizationMetadataStructure = "pm-25379-use-new-organization-metadata-structure",
   PM24996_ImplementUpgradeFromFreeDialog = "pm-24996-implement-upgrade-from-free-dialog",
   PM24033PremiumUpgradeNewDesign = "pm-24033-updat-premium-subscription-page",
+  PM26793_FetchPremiumPriceFromPricingService = "pm-26793-fetch-premium-price-from-pricing-service",
 
   /* Key Management */
   PrivateKeyRegeneration = "pm-12241-private-key-regeneration",
@@ -80,6 +82,7 @@ const FALSE = false as boolean;
 export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
   [FeatureFlag.CreateDefaultLocation]: FALSE,
+  [FeatureFlag.AutoConfirm]: FALSE,
 
   /* Autofill */
   [FeatureFlag.MacOsNativeCredentialSync]: FALSE,
@@ -113,6 +116,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM25379_UseNewOrganizationMetadataStructure]: FALSE,
   [FeatureFlag.PM24996_ImplementUpgradeFromFreeDialog]: FALSE,
   [FeatureFlag.PM24033PremiumUpgradeNewDesign]: FALSE,
+  [FeatureFlag.PM26793_FetchPremiumPriceFromPricingService]: FALSE,
 
   /* Key Management */
   [FeatureFlag.PrivateKeyRegeneration]: FALSE,

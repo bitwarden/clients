@@ -54,7 +54,7 @@ impl SecureMemoryStore for DpapiSecretKVStore {
         self.map.insert(key, padded_data);
     }
 
-    fn get(&self, key: &str) -> Option<Vec<u8>> {
+    fn get(&mut self, key: &str) -> Option<Vec<u8>> {
         self.map.get(key).map(|data| {
             // A copy is created, that is then mutated by the DPAPI unprotect function.
             let mut data = data.clone();
