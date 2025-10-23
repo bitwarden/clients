@@ -10,13 +10,25 @@ import { VaultFilter } from "../models/vault-filter.model";
 
 @Directive()
 export class TypeFilterComponent {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() hide = false;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() collapsedFilterNodes: Set<string>;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() selectedCipherType: CipherType = null;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() activeFilter: VaultFilter;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onNodeCollapseStateChange: EventEmitter<ITreeNodeObject> =
     new EventEmitter<ITreeNodeObject>();
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onFilterChange: EventEmitter<VaultFilter> = new EventEmitter<VaultFilter>();
 
   readonly typesNode: TopLevelTreeNode = {

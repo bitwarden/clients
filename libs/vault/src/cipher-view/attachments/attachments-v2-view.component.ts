@@ -22,6 +22,8 @@ import { KeyService } from "@bitwarden/key-management";
 
 import { DownloadAttachmentComponent } from "../../components/download-attachment/download-attachment.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-attachments-v2-view",
   templateUrl: "attachments-v2-view.component.html",
@@ -36,11 +38,17 @@ import { DownloadAttachmentComponent } from "../../components/download-attachmen
   ],
 })
 export class AttachmentsV2ViewComponent {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() cipher: CipherView;
 
   // Required for fetching attachment data when viewed from cipher via emergency access
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() emergencyAccessId?: EmergencyAccessId;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() admin: boolean = false;
 
   canAccessPremium: boolean;

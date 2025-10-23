@@ -13,6 +13,8 @@ import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cip
 export class CanDeleteCipherDirective implements OnDestroy {
   private destroy$ = new Subject<void>();
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input("appCanDeleteCipher") set cipher(cipher: CipherView) {
     this.viewContainer.clear();
 

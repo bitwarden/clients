@@ -64,6 +64,8 @@ const VaultState = {
 
 type VaultState = UnionOfValues<typeof VaultState>;
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-vault",
   templateUrl: "vault-v2.component.html",
@@ -89,6 +91,8 @@ type VaultState = UnionOfValues<typeof VaultState>;
   ],
 })
 export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild(CdkVirtualScrollableElement) virtualScrollElement?: CdkVirtualScrollableElement;
 
   NudgeType = NudgeType;

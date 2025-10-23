@@ -23,6 +23,8 @@ import {
 
 import { CipherFormContainer } from "../../cipher-form-container";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "vault-card-details-section",
   templateUrl: "./card-details-section.component.html",
@@ -40,9 +42,13 @@ import { CipherFormContainer } from "../../cipher-form-container";
 })
 export class CardDetailsSectionComponent implements OnInit {
   /** The original cipher */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() originalCipherView: CipherView;
 
   /** True when all fields should be disabled */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() disabled: boolean;
 
   /**

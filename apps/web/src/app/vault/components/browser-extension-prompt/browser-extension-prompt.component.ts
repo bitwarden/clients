@@ -14,6 +14,8 @@ import {
 } from "../../services/browser-extension-prompt.service";
 import { ManuallyOpenExtensionComponent } from "../manually-open-extension/manually-open-extension.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "vault-browser-extension-prompt",
   templateUrl: "./browser-extension-prompt.component.html",

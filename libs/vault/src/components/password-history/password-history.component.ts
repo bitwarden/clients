@@ -26,6 +26,8 @@ export interface ViewPasswordHistoryDialogParams {
 /**
  * A dialog component that displays the password history for a cipher.
  */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-vault-password-history",
   templateUrl: "password-history.component.html",

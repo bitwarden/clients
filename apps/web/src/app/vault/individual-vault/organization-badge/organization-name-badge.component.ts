@@ -10,14 +10,22 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { OrganizationId } from "@bitwarden/sdk-internal";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-org-badge",
   templateUrl: "organization-name-badge.component.html",
   standalone: false,
 })
 export class OrganizationNameBadgeComponent implements OnChanges {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() organizationId?: OrganizationId | string;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() organizationName: string;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() disabled: boolean;
 
   // Need a separate variable or we get weird behavior when used as part of cdk virtual scrolling

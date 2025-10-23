@@ -37,28 +37,42 @@ import { AtRiskCarouselDialogResult } from "../at-risk-carousel-dialog/at-risk-c
 import { AtRiskPasswordPageService } from "./at-risk-password-page.service";
 import { AtRiskPasswordsComponent } from "./at-risk-passwords.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "popup-header",
   template: `<ng-content></ng-content>`,
 })
 class MockPopupHeaderComponent {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() pageTitle: string | undefined;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() backAction: (() => void) | undefined;
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "popup-page",
   template: `<ng-content></ng-content>`,
 })
 class MockPopupPageComponent {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() loading: boolean | undefined;
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-vault-icon",
   template: `<ng-content></ng-content>`,
 })
 class MockAppIcon {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() cipher: CipherView | undefined;
 }
 

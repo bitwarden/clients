@@ -15,6 +15,8 @@ import { VaultPopupItemsService } from "../../../services/vault-popup-items.serv
 import { PopupCipherViewLike } from "../../../views/popup-cipher.view";
 import { VaultListItemsContainerComponent } from "../vault-list-items-container/vault-list-items-container.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   imports: [
     CommonModule,
@@ -46,7 +48,7 @@ export class AutofillVaultListItemsComponent {
       startWith(true), // Start with true to avoid flashing the fill button on first load
     );
 
-  protected groupByType = toSignal(
+  protected readonly groupByType = toSignal(
     this.vaultPopupItemsService.hasFilterApplied$.pipe(map((hasFilter) => !hasFilter)),
   );
 

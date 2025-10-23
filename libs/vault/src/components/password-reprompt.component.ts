@@ -22,6 +22,8 @@ import { KeyService } from "@bitwarden/key-management";
  * Used to verify the user's Master Password for the "Master Password Re-prompt" feature only.
  * See UserVerificationComponent for any other situation where you need to verify the user's identity.
  */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "vault-password-reprompt",
   imports: [

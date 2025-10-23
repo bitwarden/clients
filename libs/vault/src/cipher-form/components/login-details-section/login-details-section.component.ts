@@ -30,6 +30,8 @@ import { TotpCaptureService } from "../../abstractions/totp-capture.service";
 import { CipherFormContainer } from "../../cipher-form-container";
 import { AutofillOptionsComponent } from "../autofill-options/autofill-options.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "vault-login-details-section",
   templateUrl: "./login-details-section.component.html",

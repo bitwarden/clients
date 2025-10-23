@@ -31,7 +31,7 @@ export class VaultPopupSectionService {
   private vaultPopupItemsService = inject(VaultPopupItemsService);
   private stateProvider = inject(StateProvider);
 
-  private hasFilterOrSearchApplied = toSignal(
+  private readonly hasFilterOrSearchApplied = toSignal(
     this.vaultPopupItemsService.hasFilterApplied$.pipe(map((hasFilter) => hasFilter)),
   );
 
@@ -40,7 +40,7 @@ export class VaultPopupSectionService {
    * application-applied overrides.
    * `null` means there is no current override
    */
-  private temporaryStateOverride = signal<Partial<PopupSectionOpen> | null>(null);
+  private readonly temporaryStateOverride = signal<Partial<PopupSectionOpen> | null>(null);
 
   constructor() {
     effect(
@@ -71,7 +71,7 @@ export class VaultPopupSectionService {
    * Stored disk state for the open/close state of the sections, with an initial value provided
    * if the stored disk state does not yet exist.
    */
-  private sectionOpenStoredState = toSignal<PopupSectionOpen | null>(
+  private readonly sectionOpenStoredState = toSignal<PopupSectionOpen | null>(
     this.sectionOpenStateProvider.state$.pipe(map((sectionOpen) => sectionOpen ?? INITIAL_OPEN)),
     // Indicates that the state value is loading
     { initialValue: null },
@@ -81,7 +81,7 @@ export class VaultPopupSectionService {
    * Indicates the current open/close display state of each section, accounting for temporary
    * non-persisted overrides.
    */
-  sectionOpenDisplayState: Signal<Partial<PopupSectionOpen>> = computed(() => ({
+  readonly sectionOpenDisplayState: Signal<Partial<PopupSectionOpen>> = computed(() => ({
     ...this.sectionOpenStoredState(),
     ...this.temporaryStateOverride(),
   }));

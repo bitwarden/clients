@@ -40,6 +40,8 @@ import { LinkSsoService } from "../../../../auth/core/services";
 import { OptionsInput } from "../shared/components/vault-filter-section.component";
 import { OrganizationFilter } from "../shared/models/vault-filter.type";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-organization-options",
   templateUrl: "organization-options.component.html",
