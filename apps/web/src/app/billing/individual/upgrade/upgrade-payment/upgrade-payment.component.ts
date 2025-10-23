@@ -75,8 +75,8 @@ export type UpgradePaymentParams = {
   templateUrl: "./upgrade-payment.component.html",
 })
 export class UpgradePaymentComponent implements OnInit, AfterViewChecked {
-  protected selectedPlanId = input.required<PersonalSubscriptionPricingTierId>();
-  protected account = input.required<Account>();
+  protected readonly selectedPlanId = input.required<PersonalSubscriptionPricingTierId>();
+  protected readonly account = input.required<Account>();
   protected goBack = output<void>();
   protected complete = output<UpgradePaymentResult>();
   protected selectedPlan: PlanDetails | null = null;
@@ -90,7 +90,7 @@ export class UpgradePaymentComponent implements OnInit, AfterViewChecked {
     billingAddress: EnterBillingAddressComponent.getFormGroup(),
   });
 
-  protected loading = signal(true);
+  protected readonly loading = signal(true);
   private cartSummaryConfigured = false;
   private pricingTiers$!: Observable<PersonalSubscriptionPricingTier[]>;
 
