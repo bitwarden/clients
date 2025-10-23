@@ -15,7 +15,7 @@ import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-st
 import { SecurityStateService } from "@bitwarden/common/key-management/security-state/abstractions/security-state.service";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { KeyService, PBKDF2KdfConfig } from "@bitwarden/key-management";
+import { KdfConfigService, KeyService, PBKDF2KdfConfig } from "@bitwarden/key-management";
 
 import { Matrix } from "../../../spec/matrix";
 import { ApiService } from "../../abstractions/api.service";
@@ -75,6 +75,7 @@ describe("DefaultSyncService", () => {
   let authService: MockProxy<AuthService>;
   let stateProvider: MockProxy<StateProvider>;
   let securityStateService: MockProxy<SecurityStateService>;
+  let kdfConfigService: MockProxy<KdfConfigService>;
 
   let sut: DefaultSyncService;
 
@@ -105,6 +106,7 @@ describe("DefaultSyncService", () => {
     authService = mock();
     stateProvider = mock();
     securityStateService = mock();
+    kdfConfigService = mock();
 
     sut = new DefaultSyncService(
       masterPasswordAbstraction,
@@ -132,6 +134,7 @@ describe("DefaultSyncService", () => {
       authService,
       stateProvider,
       securityStateService,
+      kdfConfigService,
     );
   });
 
