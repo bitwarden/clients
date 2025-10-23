@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { combineLatest, firstValueFrom } from "rxjs";
+import { combineLatest, firstValueFrom, timeout } from "rxjs";
 import { filter, switchMap, take } from "rxjs/operators";
 
 import { VaultProfileService } from "@bitwarden/angular/vault/services/vault-profile.service";
@@ -48,11 +48,12 @@ export class UnifiedUpgradePromptService {
       // Also force a sync to ensure we have the latest data
       await this.syncService.fullSync(false);
 
-      // Wait for the sync to complete
+      // Wait for the sync to complete with timeout to prevent hanging
       await firstValueFrom(
         this.syncService.lastSync$(account.id).pipe(
           filter((lastSync) => lastSync !== null),
           take(1),
+          timeout(30000), // 30 second timeout
         ),
       );
 
