@@ -9,6 +9,8 @@ publish.workspace = true
 anyhow = { workspace = true }
 
 [target.'cfg(windows)'.dependencies]
+mockall = "=0.13.1"
+serial_test = "=3.2.0"
 tracing.workspace = true
 windows = { workspace = true, features = [
     "Win32_UI_Input_KeyboardAndMouse",
