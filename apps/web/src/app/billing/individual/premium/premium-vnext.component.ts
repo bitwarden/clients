@@ -21,9 +21,9 @@ import { SyncService } from "@bitwarden/common/platform/sync";
 import {
   BadgeModule,
   DialogService,
+  LinkModule,
   SectionComponent,
   TypographyModule,
-  LinkModule,
 } from "@bitwarden/components";
 import { PricingCardComponent } from "@bitwarden/pricing";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -90,8 +90,8 @@ export class PremiumVNextComponent {
     private syncService: SyncService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private subscriptionPricingService: SubscriptionPricingService,
-    private activatedRoute: ActivatedRoute,
     private router: Router,
+    private activatedRoute: ActivatedRoute,
   ) {
     this.isSelfHost = this.platformUtilsService.isSelfHost();
 
