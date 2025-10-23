@@ -1,126 +1,34 @@
-use std::{ffi::OsString, os::windows::ffi::OsStringExt};
-
 use anyhow::{anyhow, Result};
-use tracing::{debug, error, warn};
-use windows::Win32::{
-    Foundation::{GetLastError, SetLastError, HWND, WIN32_ERROR},
-    UI::{
-        Input::KeyboardAndMouse::{
-            SendInput, INPUT, INPUT_0, INPUT_KEYBOARD, KEYBDINPUT, KEYEVENTF_KEYUP,
-            KEYEVENTF_UNICODE, VIRTUAL_KEY,
-        },
-        WindowsAndMessaging::{GetForegroundWindow, GetWindowTextLengthW, GetWindowTextW},
-    },
+use tracing::{debug, error};
+use windows::Win32::UI::Input::KeyboardAndMouse::{
+    SendInput, INPUT, INPUT_0, INPUT_KEYBOARD, KEYBDINPUT, KEYEVENTF_KEYUP, KEYEVENTF_UNICODE,
+    VIRTUAL_KEY,
 };
 
-const WIN32_SUCCESS: WIN32_ERROR = WIN32_ERROR(0);
+use super::{ErrorOperations, Win32ErrorOperations};
 
-fn clear_last_error() {
-    debug!("Clearing last error with SetLastError.");
-    unsafe {
-        SetLastError(WIN32_ERROR(0));
+/// `InputOperations` provides an interface to Window32 API for
+/// working with inputs.
+#[cfg_attr(test, mockall::automock)]
+trait InputOperations {
+    /// Attempts to type the provided input wherever the user's cursor is.
+    ///
+    /// https://learn.microsoft.com/en-in/windows/win32/api/winuser/nf-winuser-sendinput
+    fn send_input(inputs: &[INPUT]) -> u32;
+}
+
+struct Win32InputOperations;
+
+impl InputOperations for Win32InputOperations {
+    fn send_input(inputs: &[INPUT]) -> u32 {
+        const INPUT_STRUCT_SIZE: i32 = std::mem::size_of::<INPUT>() as i32;
+        let insert_count = unsafe { SendInput(inputs, INPUT_STRUCT_SIZE) };
+
+        debug!(insert_count, "SendInput() called.");
+
+        insert_count
     }
 }
-
-fn get_last_error() -> WIN32_ERROR {
-    let last_err = unsafe { GetLastError() };
-    debug!("GetLastError(): {}", last_err.to_hresult().message());
-    last_err
-}
-
-// The handle should be validated before any unsafe calls referencing it.
-fn validate_window_handle(handle: &HWND) -> Result<()> {
-    if handle.is_invalid() {
-        error!("Window handle is invalid.");
-        return Err(anyhow!("Window handle is invalid."));
-    }
-    Ok(())
-}
-
-// ---------- Window title --------------
-
-/// Gets the title bar string for the foreground window.
-pub fn get_foreground_window_title() -> Result<String> {
-    // https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getforegroundwindow
-    let window_handle = unsafe { GetForegroundWindow() };
-
-    debug!("GetForegroundWindow() called.");
-
-    validate_window_handle(&window_handle)?;
-
-    get_window_title(&window_handle)
-}
-
-/// Gets the length of the window title bar text.
-///
-/// https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getwindowtextlengthw
-fn get_window_title_length(window_handle: &HWND) -> Result<usize> {
-    // GetWindowTextLengthW does not itself clear the last error so we must do it ourselves.
-    clear_last_error();
-
-    validate_window_handle(window_handle)?;
-
-    let length = unsafe { GetWindowTextLengthW(*window_handle) };
-
-    let length = usize::try_from(length)?;
-
-    debug!(length, "window text length retrieved from handle.");
-
-    if length == 0 {
-        // attempt to retreive win32 error
-        let last_err = get_last_error();
-        if last_err != WIN32_SUCCESS {
-            let last_err = last_err.to_hresult().message();
-            error!(last_err, "Error getting window text length.");
-            return Err(anyhow!("Error getting window text length: {last_err}"));
-        }
-    }
-
-    Ok(length)
-}
-
-/// Gets the window title bar title.
-///
-/// https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getwindowtextw
-fn get_window_title(window_handle: &HWND) -> Result<String> {
-    let expected_window_title_length = get_window_title_length(window_handle)?;
-
-    // This isn't considered an error by the windows API, but in practice it means we can't
-    // match against the title so we'll stop here.
-    // The upstream will make a contains comparison on what we return, so an empty string
-    // will not result on a match.
-    if expected_window_title_length == 0 {
-        warn!("Window title length is zero.");
-        return Ok(String::from(""));
-    }
-
-    let mut buffer: Vec<u16> = vec![0; expected_window_title_length + 1]; // add extra space for the null character
-
-    validate_window_handle(window_handle)?;
-
-    let actual_window_title_length = unsafe { GetWindowTextW(*window_handle, &mut buffer) };
-
-    debug!(actual_window_title_length, "window title retrieved.");
-
-    if actual_window_title_length == 0 {
-        // attempt to retreive win32 error
-        let last_err = get_last_error();
-        if last_err != WIN32_SUCCESS {
-            let last_err = last_err.to_hresult().message();
-            error!(last_err, "Error retrieving window title.");
-            return Err(anyhow!("Error retrieving window title. {last_err}"));
-        }
-        // in practice, we should not get to the below code, since we asserted the len > 0
-        // above. but it is an extra protection in case the windows API didn't set an error.
-        warn!(expected_window_title_length, "No window title retrieved.");
-    }
-
-    let window_title = OsString::from_wide(&buffer);
-
-    Ok(window_title.to_string_lossy().into_owned())
-}
-
-// ---------- Type Input --------------
 
 /// Attempts to type the input text wherever the user's cursor is.
 ///
@@ -128,9 +36,7 @@ fn get_window_title(window_handle: &HWND) -> Result<String> {
 /// `keyboard_shortcut` must be a vector of Strings, where valid shortcut keys: Control, Alt, Super, Shift, letters a - Z
 ///
 /// https://learn.microsoft.com/en-in/windows/win32/api/winuser/nf-winuser-sendinput
-pub fn type_input(input: Vec<u16>, keyboard_shortcut: Vec<String>) -> Result<()> {
-    const TAB_KEY: u8 = 9;
-
+pub(super) fn type_input(input: Vec<u16>, keyboard_shortcut: Vec<String>) -> Result<()> {
     // the length of this vec is always shortcut keys to release + (2x length of input chars)
     let mut keyboard_inputs: Vec<INPUT> =
         Vec::with_capacity(keyboard_shortcut.len() + (input.len() * 2));
@@ -142,25 +48,31 @@ pub fn type_input(input: Vec<u16>, keyboard_shortcut: Vec<String>) -> Result<()>
         keyboard_inputs.push(convert_shortcut_key_to_up_input(key)?);
     }
 
-    // Add key "down" and "up" inputs for the input
-    // (currently in this form: {username}/t{password})
+    add_input(&input, &mut keyboard_inputs);
+
+    send_input::<Win32InputOperations, Win32ErrorOperations>(keyboard_inputs)
+}
+
+// Add key "down" and "up" inputs for the input
+// (currently in this form: {username}/t{password})
+fn add_input(input: &[u16], keyboard_inputs: &mut Vec<INPUT>) {
+    const TAB_KEY: u8 = 9;
+
     for i in input {
-        let next_down_input = if i == TAB_KEY.into() {
-            build_virtual_key_input(InputKeyPress::Down, i as u8)
+        let next_down_input = if *i == TAB_KEY.into() {
+            build_virtual_key_input(InputKeyPress::Down, *i as u8)
         } else {
-            build_unicode_input(InputKeyPress::Down, i)
+            build_unicode_input(InputKeyPress::Down, *i)
         };
-        let next_up_input = if i == TAB_KEY.into() {
-            build_virtual_key_input(InputKeyPress::Up, i as u8)
+        let next_up_input = if *i == TAB_KEY.into() {
+            build_virtual_key_input(InputKeyPress::Up, *i as u8)
         } else {
-            build_unicode_input(InputKeyPress::Up, i)
+            build_unicode_input(InputKeyPress::Up, *i)
         };
 
         keyboard_inputs.push(next_down_input);
         keyboard_inputs.push(next_up_input);
     }
-
-    send_input(keyboard_inputs)
 }
 
 /// Converts a valid shortcut key to an "up" keyboard input.
@@ -294,21 +206,20 @@ fn build_virtual_key_input(key_press: InputKeyPress, virtual_key: u8) -> INPUT {
     }
 }
 
-/// Attempts to type the provided input wherever the user's cursor is.
-///
-/// https://learn.microsoft.com/en-in/windows/win32/api/winuser/nf-winuser-sendinput
-fn send_input(inputs: Vec<INPUT>) -> Result<()> {
-    let insert_count = unsafe { SendInput(&inputs, std::mem::size_of::<INPUT>() as i32) };
-
-    debug!("SendInput() called.");
+fn send_input<I, E>(inputs: Vec<INPUT>) -> Result<()>
+where
+    I: InputOperations,
+    E: ErrorOperations,
+{
+    let insert_count = I::send_input(&inputs);
 
     if insert_count == 0 {
-        let last_err = get_last_error().to_hresult().message();
+        let last_err = E::get_last_error().to_hresult().message();
         error!(GetLastError = %last_err, "SendInput sent 0 inputs. Input was blocked by another thread.");
 
         return Err(anyhow!("SendInput sent 0 inputs. Input was blocked by another thread. GetLastError: {last_err}"));
     } else if insert_count != inputs.len() as u32 {
-        let last_err = get_last_error().to_hresult().message();
+        let last_err = E::get_last_error().to_hresult().message();
         error!(sent = %insert_count, expected = inputs.len(), GetLastError = %last_err,
             "SendInput sent does not match expected."
         );
@@ -318,17 +229,23 @@ fn send_input(inputs: Vec<INPUT>) -> Result<()> {
         ));
     }
 
-    debug!(insert_count, "Autotype sent input.");
-
     Ok(())
 }
 
 #[cfg(test)]
 mod tests {
+    //! For the mocking of the traits that are static methods, we need to use the `serial_test` crate
+    //! in order to mock those, since the mock expectations set have to be global in absence of a `self`.
+    //! More info: https://docs.rs/mockall/latest/mockall/#static-methods
+
     use super::*;
 
+    use crate::windowing::MockErrorOperations;
+    use serial_test::serial;
+    use windows::Win32::Foundation::WIN32_ERROR;
+
     #[test]
-    fn get_alphabetic_hot_key_happy() {
+    fn get_alphabetic_hot_key_succeeds() {
         for c in ('a'..='z').chain('A'..='Z') {
             let letter = c.to_string();
             let converted = get_alphabetic_hotkey(letter).unwrap();
@@ -348,5 +265,54 @@ mod tests {
     fn get_alphabetic_hot_key_fail_not_alphabetic() {
         let letter = String::from("}");
         get_alphabetic_hotkey(letter).unwrap();
+    }
+
+    #[test]
+    #[serial]
+    fn send_input_succeeds() {
+        let ctxi = MockInputOperations::send_input_context();
+        ctxi.expect().returning(|_| 1);
+
+        send_input::<MockInputOperations, MockErrorOperations>(vec![build_unicode_input(
+            InputKeyPress::Up,
+            0,
+        )])
+        .unwrap();
+    }
+
+    #[test]
+    #[serial]
+    #[should_panic(
+        expected = "SendInput sent 0 inputs. Input was blocked by another thread. GetLastError:"
+    )]
+    fn send_input_fails_sent_zero() {
+        let ctxi = MockInputOperations::send_input_context();
+        ctxi.expect().returning(|_| 0);
+
+        let ctxge = MockErrorOperations::get_last_error_context();
+        ctxge.expect().returning(|| WIN32_ERROR(1));
+
+        send_input::<MockInputOperations, MockErrorOperations>(vec![build_unicode_input(
+            InputKeyPress::Up,
+            0,
+        )])
+        .unwrap();
+    }
+
+    #[test]
+    #[serial]
+    #[should_panic(expected = "SendInput does not match expected. sent: 2, expected: 1")]
+    fn send_input_fails_sent_mismatch() {
+        let ctxi = MockInputOperations::send_input_context();
+        ctxi.expect().returning(|_| 2);
+
+        let ctxge = MockErrorOperations::get_last_error_context();
+        ctxge.expect().returning(|| WIN32_ERROR(1));
+
+        send_input::<MockInputOperations, MockErrorOperations>(vec![build_unicode_input(
+            InputKeyPress::Up,
+            0,
+        )])
+        .unwrap();
     }
 }
