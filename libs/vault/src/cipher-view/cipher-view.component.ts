@@ -22,7 +22,12 @@ import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folde
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { SecurityTaskType, TaskService } from "@bitwarden/common/vault/tasks";
-import { AnchorLinkDirective, CalloutModule, SearchModule } from "@bitwarden/components";
+import {
+  CalloutModule,
+  SearchModule,
+  TypographyModule,
+  AnchorLinkDirective,
+} from "@bitwarden/components";
 
 import { ChangeLoginPasswordService } from "../abstractions/change-login-password.service";
 
@@ -57,6 +62,7 @@ import { ViewIdentitySectionsComponent } from "./view-identity-sections/view-ide
     LoginCredentialsViewComponent,
     AutofillOptionsViewComponent,
     AnchorLinkDirective,
+    TypographyModule,
   ],
 })
 export class CipherViewComponent {
