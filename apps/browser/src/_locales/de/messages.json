@@ -558,7 +558,7 @@
     "message": "Archivieren",
     "description": "Verb"
   },
-  "unarchive": {
+  "unArchive": {
     "message": "Nicht mehr archivieren"
   },
   "itemsInArchive": {
@@ -570,11 +570,11 @@
   "noItemsInArchiveDesc": {
     "message": "Archivierte Einträge werden hier angezeigt und von allgemeinen Suchergebnissen sowie Vorschlägen zum automatischen Ausfüllen ausgeschlossen."
   },
-  "itemSentToArchive": {
-    "message": "Eintrag an das Archiv gesendet"
+  "itemWasSentToArchive": {
+    "message": "Eintrag wurde ins Archiv verschoben"
   },
-  "itemRemovedFromArchive": {
-    "message": "Eintrag aus dem Archiv entfernt"
+  "itemUnarchived": {
+    "message": "Eintrag wird nicht mehr archiviert"
   },
   "archiveItem": {
     "message": "Eintrag archivieren"
@@ -5579,17 +5579,37 @@
   "hasItemsVaultNudgeTitle": {
     "message": "Willkommen in deinem Tresor!"
   },
-  "phishingPageTitle": {
-    "message": "Phishing-Website"
+  "phishingPageTitleV2": {
+    "message": "Phishing-Versuch erkannt"
   },
-  "phishingPageCloseTab": {
-    "message": "Tab schließen"
+  "phishingPageSummary": {
+    "message": "Die Website, die du versuchst zu öffnen, ist eine bekannte böswillige Website und ein Sicherheitsrisiko."
   },
-  "phishingPageContinue": {
-    "message": "Weiter"
+  "phishingPageCloseTabV2": {
+    "message": "Diesen Tab schließen"
   },
-  "phishingPageLearnWhy": {
-    "message": "Warum wird dir das angezeigt?"
+  "phishingPageContinueV2": {
+    "message": "Weiter zu dieser Seite (nicht empfohlen)"
+  },
+  "phishingPageExplanation1": {
+    "message": "Diese Seite wurde in ",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name follows this."
+  },
+  "phishingPageExplanation2": {
+    "message": " gefunden, einer Open-Source-Liste bekannter Phishing-Seiten, die zum Diebstahl persönlicher und vertraulicher Informationen verwendet werden.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name precedes this."
+  },
+  "phishingPageLearnMore": {
+    "message": "Erfahre mehr über die Phishing-Erkennung"
+  },
+  "protectedBy": {
+    "message": "Geschützt durch $PRODUCT$",
+    "placeholders": {
+      "product": {
+        "content": "$1",
+        "example": "Bitwarden Phishing Blocker"
+      }
+    }
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Einträge für die aktuelle Seite automatisch ausfüllen"
@@ -5694,5 +5714,9 @@
   },
   "confirmKeyConnectorDomain": {
     "message": "Key Connector-Domain bestätigen"
+  },
+  "settingDisabledByPolicy": {
+    "message": "Diese Einstellung ist durch die Richtlinien deiner Organisation deaktiviert.",
+    "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
   }
 }

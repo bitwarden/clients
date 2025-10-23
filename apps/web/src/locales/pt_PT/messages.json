@@ -90,8 +90,8 @@
   "assignMembersTasksToMonitorProgress": {
     "message": "Atribuir tarefas aos membros para monitorizar o progresso"
   },
-  "onceYouReviewApplications": {
-    "message": "Depois de analisar as aplicações e marcá-las como críticas, estas serão apresentadas aqui."
+  "onceYouReviewApps": {
+    "message": "Depois de analisar as aplicações e marcá-las como críticas, pode atribuir tarefas aos membros para resolver itens em risco e monitorizar o progresso aqui"
   },
   "sendReminders": {
     "message": "Enviar lembretes"
@@ -11294,11 +11294,46 @@
     "message": "Arquivar",
     "description": "Verb"
   },
+  "unArchive": {
+    "message": "Desarquivar"
+  },
+  "itemsInArchive": {
+    "message": "Itens no arquivo"
+  },
   "noItemsInArchive": {
     "message": "Nenhum item no arquivo"
   },
-  "archivedItemsDescription": {
+  "noItemsInArchiveDesc": {
     "message": "Os itens arquivados aparecerão aqui e serão excluídos dos resultados gerais da pesquisa e das sugestões de preenchimento automático."
+  },
+  "itemWasSentToArchive": {
+    "message": "O item foi movido para o arquivo"
+  },
+  "itemsWereSentToArchive": {
+    "message": "Os itens foram movidos para o arquivo"
+  },
+  "itemUnarchived": {
+    "message": "O item foi desarquivado"
+  },
+  "bulkArchiveItems": {
+    "message": "Itens arquivados"
+  },
+  "bulkUnarchiveItems": {
+    "message": "Itens desarquivados"
+  },
+  "archiveItem": {
+    "message": "Arquivar item",
+    "description": "Verb"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Os itens arquivados são excluídos dos resultados gerais da pesquisa e das sugestões de preenchimento automático. Tem a certeza de que pretende arquivar este item?"
+  },
+  "archiveBulkItems": {
+    "message": "Arquivar itens",
+    "description": "Verb"
+  },
+  "archiveBulkItemsConfirmDesc": {
+    "message": "Os itens arquivados são excluídos dos resultados gerais da pesquisa e das sugestões de preenchimento automático. Tem a certeza de que pretende arquivar estes itens?"
   },
   "businessUnit": {
     "message": "Unidade de negócio"
@@ -11801,7 +11836,25 @@
   "continueWithoutUpgrading": {
     "message": "Continuar sem atualizar"
   },
+  "upgradeYourPlan": {
+    "message": "Atualize o seu plano"
+  },
+  "upgradeNow": {
+    "message": "Atualizar agora"
+  },
+  "formWillCreateNewFamiliesOrgMessage": {
+    "message": "Ao preencher este formulário, será criada uma nova organização Familiar. Pode atualizar a sua organização gratuita a partir da Consola de administração."
+  },
   "upgradeErrorMessage": {
     "message": "Ocorreu um erro durante o processamento da sua atualização. Por favor, tente novamente."
+  },
+  "bitwardenFreeplanMessage": {
+    "message": "Tem o plano gratuito do Bitwarden"
+  },
+  "upgradeCompleteSecurity": {
+    "message": "Atualize para segurança total"
+  },
+  "viewbusinessplans": {
+    "message": "Ver planos empresariais"
   }
 }

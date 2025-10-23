@@ -4,7 +4,19 @@ import { Component, ViewChild } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { combineLatest, concatMap, from, map, Observable, of, startWith, switchMap } from "rxjs";
+import {
+  combineLatest,
+  concatMap,
+  filter,
+  from,
+  map,
+  Observable,
+  of,
+  startWith,
+  switchMap,
+  catchError,
+  shareReplay,
+} from "rxjs";
 import { debounceTime } from "rxjs/operators";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -26,18 +38,23 @@ import {
   tokenizablePaymentMethodToLegacyEnum,
   NonTokenizablePaymentMethods,
 } from "@bitwarden/web-vault/app/billing/payment/types";
+import { SubscriptionPricingService } from "@bitwarden/web-vault/app/billing/services/subscription-pricing.service";
 import { mapAccountToSubscriber } from "@bitwarden/web-vault/app/billing/types";
+import { PersonalSubscriptionPricingTierIds } from "@bitwarden/web-vault/app/billing/types/subscription-pricing-tier";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "./premium.component.html",
   standalone: false,
   providers: [SubscriberBillingClient, TaxClient],
 })
 export class PremiumComponent {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild(EnterPaymentMethodComponent) enterPaymentMethodComponent!: EnterPaymentMethodComponent;
 
   protected hasPremiumFromAnyOrganization$: Observable<boolean>;
-  protected accountCredit$: Observable<number>;
   protected hasEnoughAccountCredit$: Observable<boolean>;
 
   protected formGroup = new FormGroup({
@@ -46,13 +63,66 @@ export class PremiumComponent {
     billingAddress: EnterBillingAddressComponent.getFormGroup(),
   });
 
+  premiumPrices$ = this.subscriptionPricingService.getPersonalSubscriptionPricingTiers$().pipe(
+    map((tiers) => {
+      const premiumPlan = tiers.find(
+        (tier) => tier.id === PersonalSubscriptionPricingTierIds.Premium,
+      );
+
+      if (!premiumPlan) {
+        throw new Error("Could not find Premium plan");
+      }
+
+      return {
+        seat: premiumPlan.passwordManager.annualPrice,
+        storage: premiumPlan.passwordManager.annualPricePerAdditionalStorageGB,
+      };
+    }),
+    shareReplay({ bufferSize: 1, refCount: true }),
+  );
+
+  premiumPrice$ = this.premiumPrices$.pipe(map((prices) => prices.seat));
+
+  storagePrice$ = this.premiumPrices$.pipe(map((prices) => prices.storage));
+
+  protected isLoadingPrices$ = this.premiumPrices$.pipe(
+    map(() => false),
+    startWith(true),
+    catchError(() => of(false)),
+  );
+
+  storageCost$ = combineLatest([
+    this.storagePrice$,
+    this.formGroup.controls.additionalStorage.valueChanges.pipe(
+      startWith(this.formGroup.value.additionalStorage),
+    ),
+  ]).pipe(map(([storagePrice, additionalStorage]) => storagePrice * additionalStorage));
+
+  subtotal$ = combineLatest([this.premiumPrice$, this.storageCost$]).pipe(
+    map(([premiumPrice, storageCost]) => premiumPrice + storageCost),
+  );
+
+  tax$ = this.formGroup.valueChanges.pipe(
+    filter(() => this.formGroup.valid),
+    debounceTime(1000),
+    switchMap(async () => {
+      const billingAddress = getBillingAddressFromForm(this.formGroup.controls.billingAddress);
+      const taxAmounts = await this.taxClient.previewTaxForPremiumSubscriptionPurchase(
+        this.formGroup.value.additionalStorage,
+        billingAddress,
+      );
+      return taxAmounts.tax;
+    }),
+    startWith(0),
+  );
+
+  total$ = combineLatest([this.subtotal$, this.tax$]).pipe(
+    map(([subtotal, tax]) => subtotal + tax),
+  );
+
   protected cloudWebVaultURL: string;
   protected isSelfHost = false;
-
-  protected estimatedTax: number = 0;
   protected readonly familyPlanMaxUserCount = 6;
-  protected readonly premiumPrice = 10;
-  protected readonly storageGBPrice = 4;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -67,6 +137,7 @@ export class PremiumComponent {
     private accountService: AccountService,
     private subscriberBillingClient: SubscriberBillingClient,
     private taxClient: TaxClient,
+    private subscriptionPricingService: SubscriptionPricingService,
   ) {
     this.isSelfHost = this.platformUtilsService.isSelfHost();
 
@@ -76,23 +147,23 @@ export class PremiumComponent {
       ),
     );
 
-    // Fetch account credit
-    this.accountCredit$ = this.accountService.activeAccount$.pipe(
+    const accountCredit$ = this.accountService.activeAccount$.pipe(
       mapAccountToSubscriber,
       switchMap((account) => this.subscriberBillingClient.getCredit(account)),
     );
 
-    // Check if user has enough account credit for the purchase
     this.hasEnoughAccountCredit$ = combineLatest([
-      this.accountCredit$,
-      this.formGroup.valueChanges.pipe(startWith(this.formGroup.value)),
+      accountCredit$,
+      this.total$,
+      this.formGroup.controls.paymentMethod.controls.type.valueChanges.pipe(
+        startWith(this.formGroup.value.paymentMethod.type),
+      ),
     ]).pipe(
-      map(([credit, formValue]) => {
-        const selectedPaymentType = formValue.paymentMethod?.type;
-        if (selectedPaymentType !== NonTokenizablePaymentMethods.accountCredit) {
-          return true; // Not using account credit, so this check doesn't apply
+      map(([credit, total, paymentMethod]) => {
+        if (paymentMethod !== NonTokenizablePaymentMethods.accountCredit) {
+          return true;
         }
-        return credit >= this.total;
+        return credit >= total;
       }),
     );
 
@@ -114,14 +185,6 @@ export class PremiumComponent {
           this.cloudWebVaultURL = cloudWebVaultURL;
           return of(true);
         }),
-      )
-      .subscribe();
-
-    this.formGroup.valueChanges
-      .pipe(
-        debounceTime(1000),
-        switchMap(async () => await this.refreshSalesTax()),
-        takeUntilDestroyed(),
       )
       .subscribe();
   }
@@ -177,38 +240,11 @@ export class PremiumComponent {
     await this.postFinalizeUpgrade();
   };
 
-  protected get additionalStorageCost(): number {
-    return this.storageGBPrice * this.formGroup.value.additionalStorage;
-  }
-
   protected get premiumURL(): string {
     return `${this.cloudWebVaultURL}/#/settings/subscription/premium`;
   }
 
-  protected get subtotal(): number {
-    return this.premiumPrice + this.additionalStorageCost;
-  }
-
-  protected get total(): number {
-    return this.subtotal + this.estimatedTax;
-  }
-
   protected async onLicenseFileSelectedChanged(): Promise<void> {
     await this.postFinalizeUpgrade();
-  }
-
-  private async refreshSalesTax(): Promise<void> {
-    if (this.formGroup.invalid) {
-      return;
-    }
-
-    const billingAddress = getBillingAddressFromForm(this.formGroup.controls.billingAddress);
-
-    const taxAmounts = await this.taxClient.previewTaxForPremiumSubscriptionPurchase(
-      this.formGroup.value.additionalStorage,
-      billingAddress,
-    );
-
-    this.estimatedTax = taxAmounts.tax;
   }
 }

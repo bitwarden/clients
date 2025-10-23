@@ -31,11 +31,21 @@
           </div>
         }
         <div class="tw-pb-8 !tw-mx-0">
+          <h5 bitTypography="h5">{{ "paymentMethod" | i18n }}</h5>
           <app-enter-payment-method
+            [showBankAccount]="isFamiliesPlan"
+            [showAccountCredit]="!isFamiliesPlan"
             [group]="formGroup.controls.paymentForm"
-            [includeBillingAddress]="true"
+            [includeBillingAddress]="false"
+            [hasEnoughAccountCredit]="hasEnoughAccountCredit$ | async"
             #paymentComponent
           ></app-enter-payment-method>
+          <h5 bitTypography="h5" class="tw-pt-4 tw-pb-2">{{ "billingAddress" | i18n }}</h5>
+          <app-enter-billing-address
+            [group]="formGroup.controls.billingAddress"
+            [scenario]="{ type: 'checkout', supportsTaxId: false }"
+          >
+          </app-enter-billing-address>
         </div>
       </section>
 

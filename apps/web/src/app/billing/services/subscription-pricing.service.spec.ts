@@ -1,9 +1,12 @@
 import { TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
+import { of } from "rxjs";
 
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
+import { PremiumPlanResponse } from "@bitwarden/common/billing/models/response/premium-plan.response";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ToastService } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
@@ -18,7 +21,8 @@ import { SubscriptionPricingService } from "./subscription-pricing.service";
 
 describe("SubscriptionPricingService", () => {
   let service: SubscriptionPricingService;
-  let apiService: MockProxy<ApiService>;
+  let billingApiService: MockProxy<BillingApiServiceAbstraction>;
+  let configService: MockProxy<ConfigService>;
   let i18nService: MockProxy<I18nService>;
   let logService: MockProxy<LogService>;
   let toastService: MockProxy<ToastService>;
@@ -217,6 +221,15 @@ describe("SubscriptionPricingService", () => {
     continuationToken: null,
   };
 
+  const mockPremiumPlanResponse: PremiumPlanResponse = {
+    seat: {
+      price: 10,
+    },
+    storage: {
+      price: 4,
+    },
+  } as PremiumPlanResponse;
+
   beforeAll(() => {
     i18nService = mock<I18nService>();
     logService = mock<LogService>();
@@ -320,14 +333,18 @@ describe("SubscriptionPricingService", () => {
   });
 
   beforeEach(() => {
-    apiService = mock<ApiService>();
+    billingApiService = mock<BillingApiServiceAbstraction>();
+    configService = mock<ConfigService>();
 
-    apiService.getPlans.mockResolvedValue(mockPlansResponse);
+    billingApiService.getPlans.mockResolvedValue(mockPlansResponse);
+    billingApiService.getPremiumPlan.mockResolvedValue(mockPremiumPlanResponse);
+    configService.getFeatureFlag$.mockReturnValue(of(false)); // Default to false (use hardcoded value)
 
     TestBed.configureTestingModule({
       providers: [
         SubscriptionPricingService,
-        { provide: ApiService, useValue: apiService },
+        { provide: BillingApiServiceAbstraction, useValue: billingApiService },
+        { provide: ConfigService, useValue: configService },
         { provide: I18nService, useValue: i18nService },
         { provide: LogService, useValue: logService },
         { provide: ToastService, useValue: toastService },
@@ -406,13 +423,16 @@ describe("SubscriptionPricingService", () => {
     });
 
     it("should handle API errors by logging and showing toast", (done) => {
-      const errorApiService = mock<ApiService>();
+      const errorBillingApiService = mock<BillingApiServiceAbstraction>();
+      const errorConfigService = mock<ConfigService>();
       const errorI18nService = mock<I18nService>();
       const errorLogService = mock<LogService>();
       const errorToastService = mock<ToastService>();
 
       const testError = new Error("API error");
-      errorApiService.getPlans.mockRejectedValue(testError);
+      errorBillingApiService.getPlans.mockRejectedValue(testError);
+      errorBillingApiService.getPremiumPlan.mockResolvedValue(mockPremiumPlanResponse);
+      errorConfigService.getFeatureFlag$.mockReturnValue(of(false));
 
       errorI18nService.t.mockImplementation((key: string) => {
         if (key === "unexpectedError") {
@@ -422,7 +442,8 @@ describe("SubscriptionPricingService", () => {
       });
 
       const errorService = new SubscriptionPricingService(
-        errorApiService,
+        errorBillingApiService,
+        errorConfigService,
         errorI18nService,
         errorLogService,
         errorToastService,
@@ -591,13 +612,16 @@ describe("SubscriptionPricingService", () => {
     });
 
     it("should handle API errors by logging and showing toast", (done) => {
-      const errorApiService = mock<ApiService>();
+      const errorBillingApiService = mock<BillingApiServiceAbstraction>();
+      const errorConfigService = mock<ConfigService>();
       const errorI18nService = mock<I18nService>();
       const errorLogService = mock<LogService>();
       const errorToastService = mock<ToastService>();
 
       const testError = new Error("API error");
-      errorApiService.getPlans.mockRejectedValue(testError);
+      errorBillingApiService.getPlans.mockRejectedValue(testError);
+      errorBillingApiService.getPremiumPlan.mockResolvedValue(mockPremiumPlanResponse);
+      errorConfigService.getFeatureFlag$.mockReturnValue(of(false));
 
       errorI18nService.t.mockImplementation((key: string) => {
         if (key === "unexpectedError") {
@@ -607,7 +631,8 @@ describe("SubscriptionPricingService", () => {
       });
 
       const errorService = new SubscriptionPricingService(
-        errorApiService,
+        errorBillingApiService,
+        errorConfigService,
         errorI18nService,
         errorLogService,
         errorToastService,
@@ -831,13 +856,16 @@ describe("SubscriptionPricingService", () => {
     });
 
     it("should handle API errors by logging and showing toast", (done) => {
-      const errorApiService = mock<ApiService>();
+      const errorBillingApiService = mock<BillingApiServiceAbstraction>();
+      const errorConfigService = mock<ConfigService>();
       const errorI18nService = mock<I18nService>();
       const errorLogService = mock<LogService>();
       const errorToastService = mock<ToastService>();
 
       const testError = new Error("API error");
-      errorApiService.getPlans.mockRejectedValue(testError);
+      errorBillingApiService.getPlans.mockRejectedValue(testError);
+      errorBillingApiService.getPremiumPlan.mockResolvedValue(mockPremiumPlanResponse);
+      errorConfigService.getFeatureFlag$.mockReturnValue(of(false));
 
       errorI18nService.t.mockImplementation((key: string) => {
         if (key === "unexpectedError") {
@@ -847,7 +875,8 @@ describe("SubscriptionPricingService", () => {
       });
 
       const errorService = new SubscriptionPricingService(
-        errorApiService,
+        errorBillingApiService,
+        errorConfigService,
         errorI18nService,
         errorLogService,
         errorToastService,
@@ -871,9 +900,137 @@ describe("SubscriptionPricingService", () => {
     });
   });
 
+  describe("Edge case handling", () => {
+    it("should handle getPremiumPlan() error when getPlans() succeeds", (done) => {
+      const errorBillingApiService = mock<BillingApiServiceAbstraction>();
+      const errorConfigService = mock<ConfigService>();
+
+      const testError = new Error("Premium plan API error");
+      errorBillingApiService.getPlans.mockResolvedValue(mockPlansResponse);
+      errorBillingApiService.getPremiumPlan.mockRejectedValue(testError);
+      errorConfigService.getFeatureFlag$.mockReturnValue(of(true)); // Enable feature flag to use premium plan API
+
+      const errorService = new SubscriptionPricingService(
+        errorBillingApiService,
+        errorConfigService,
+        i18nService,
+        logService,
+        toastService,
+      );
+
+      errorService.getPersonalSubscriptionPricingTiers$().subscribe({
+        next: (tiers) => {
+          // Should return empty array due to error in premium plan fetch
+          expect(tiers).toEqual([]);
+          expect(logService.error).toHaveBeenCalledWith(
+            "Failed to fetch premium plan from API",
+            testError,
+          );
+          expect(toastService.showToast).toHaveBeenCalledWith({
+            variant: "error",
+            title: "",
+            message: "An unexpected error has occurred.",
+          });
+          done();
+        },
+        error: () => {
+          fail("Observable should not error, it should return empty array");
+        },
+      });
+    });
+
+    it("should handle malformed premium plan API response", (done) => {
+      const errorBillingApiService = mock<BillingApiServiceAbstraction>();
+      const errorConfigService = mock<ConfigService>();
+
+      // Malformed response missing the Seat property
+      const malformedResponse = {
+        Storage: {
+          StripePriceId: "price_storage",
+          Price: 4,
+        },
+      };
+
+      errorBillingApiService.getPlans.mockResolvedValue(mockPlansResponse);
+      errorBillingApiService.getPremiumPlan.mockResolvedValue(malformedResponse as any);
+      errorConfigService.getFeatureFlag$.mockReturnValue(of(true)); // Enable feature flag
+
+      const errorService = new SubscriptionPricingService(
+        errorBillingApiService,
+        errorConfigService,
+        i18nService,
+        logService,
+        toastService,
+      );
+
+      errorService.getPersonalSubscriptionPricingTiers$().subscribe({
+        next: (tiers) => {
+          // Should return empty array due to validation error
+          expect(tiers).toEqual([]);
+          expect(logService.error).toHaveBeenCalled();
+          expect(toastService.showToast).toHaveBeenCalledWith({
+            variant: "error",
+            title: "",
+            message: "An unexpected error has occurred.",
+          });
+          done();
+        },
+        error: () => {
+          fail("Observable should not error, it should return empty array");
+        },
+      });
+    });
+
+    it("should handle malformed premium plan with invalid price types", (done) => {
+      const errorBillingApiService = mock<BillingApiServiceAbstraction>();
+      const errorConfigService = mock<ConfigService>();
+
+      // Malformed response with price as string instead of number
+      const malformedResponse = {
+        Seat: {
+          StripePriceId: "price_seat",
+          Price: "10", // Should be a number
+        },
+        Storage: {
+          StripePriceId: "price_storage",
+          Price: 4,
+        },
+      };
+
+      errorBillingApiService.getPlans.mockResolvedValue(mockPlansResponse);
+      errorBillingApiService.getPremiumPlan.mockResolvedValue(malformedResponse as any);
+      errorConfigService.getFeatureFlag$.mockReturnValue(of(true)); // Enable feature flag
+
+      const errorService = new SubscriptionPricingService(
+        errorBillingApiService,
+        errorConfigService,
+        i18nService,
+        logService,
+        toastService,
+      );
+
+      errorService.getPersonalSubscriptionPricingTiers$().subscribe({
+        next: (tiers) => {
+          // Should return empty array due to validation error
+          expect(tiers).toEqual([]);
+          expect(logService.error).toHaveBeenCalled();
+          expect(toastService.showToast).toHaveBeenCalledWith({
+            variant: "error",
+            title: "",
+            message: "An unexpected error has occurred.",
+          });
+          done();
+        },
+        error: () => {
+          fail("Observable should not error, it should return empty array");
+        },
+      });
+    });
+  });
+
   describe("Observable behavior and caching", () => {
     it("should share API response between multiple subscriptions", () => {
-      const getPlansResponse = jest.spyOn(apiService, "getPlans");
+      const getPlansResponse = jest.spyOn(billingApiService, "getPlans");
 
       // Subscribe to multiple observables
       service.getPersonalSubscriptionPricingTiers$().subscribe();
@@ -882,6 +1039,68 @@ describe("SubscriptionPricingService", () => {
 
       // API should only be called once due to shareReplay
       expect(getPlansResponse).toHaveBeenCalledTimes(1);
+    });
+
+    it("should share premium plan API response between multiple subscriptions when feature flag is enabled", () => {
+      // Create a new mock to avoid conflicts with beforeEach setup
+      const newBillingApiService = mock<BillingApiServiceAbstraction>();
+      const newConfigService = mock<ConfigService>();
+
+      newBillingApiService.getPlans.mockResolvedValue(mockPlansResponse);
+      newBillingApiService.getPremiumPlan.mockResolvedValue(mockPremiumPlanResponse);
+      newConfigService.getFeatureFlag$.mockReturnValue(of(true));
+
+      const getPremiumPlanSpy = jest.spyOn(newBillingApiService, "getPremiumPlan");
+
+      // Create a new service instance with the feature flag enabled
+      const newService = new SubscriptionPricingService(
+        newBillingApiService,
+        newConfigService,
+        i18nService,
+        logService,
+        toastService,
+      );
+
+      // Subscribe to the premium pricing tier multiple times
+      newService.getPersonalSubscriptionPricingTiers$().subscribe();
+      newService.getPersonalSubscriptionPricingTiers$().subscribe();
+
+      // API should only be called once due to shareReplay on premiumPlanResponse$
+      expect(getPremiumPlanSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it("should use hardcoded premium price when feature flag is disabled", (done) => {
+      // Create a new mock to test from scratch
+      const newBillingApiService = mock<BillingApiServiceAbstraction>();
+      const newConfigService = mock<ConfigService>();
+
+      newBillingApiService.getPlans.mockResolvedValue(mockPlansResponse);
+      newBillingApiService.getPremiumPlan.mockResolvedValue({
+        seat: { price: 999 }, // Different price to verify hardcoded value is used
+        storage: { price: 999 },
+      } as PremiumPlanResponse);
+      newConfigService.getFeatureFlag$.mockReturnValue(of(false));
+
+      // Create a new service instance with the feature flag disabled
+      const newService = new SubscriptionPricingService(
+        newBillingApiService,
+        newConfigService,
+        i18nService,
+        logService,
+        toastService,
+      );
+
+      // Subscribe with feature flag disabled
+      newService.getPersonalSubscriptionPricingTiers$().subscribe((tiers) => {
+        const premiumTier = tiers.find(
+          (tier) => tier.id === PersonalSubscriptionPricingTierIds.Premium,
+        );
+
+        // Should use hardcoded value of 10, not the API response value of 999
+        expect(premiumTier!.passwordManager.annualPrice).toBe(10);
+        expect(premiumTier!.passwordManager.annualPricePerAdditionalStorageGB).toBe(4);
+        done();
+      });
     });
   });
 });

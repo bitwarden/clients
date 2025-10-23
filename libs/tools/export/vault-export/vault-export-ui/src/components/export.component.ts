@@ -73,6 +73,8 @@ import { EncryptedExportType } from "../enums/encrypted-export-type.enum";
 
 import { ExportScopeCalloutComponent } from "./export-scope-callout.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "tools-export",
   templateUrl: "export.component.html",
@@ -101,6 +103,8 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
    * Enables the hosting control to pass in an organizationId
    * If a organizationId is provided, the organization selection is disabled.
    */
+  // TODO: Fix this the next time the file is edited.
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() set organizationId(value: OrganizationId | string | undefined) {
     if (Utils.isNullOrEmpty(value)) {
       this._organizationId$.next(undefined);
@@ -158,6 +162,8 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
    * The hosting control also needs a bitSubmitDirective (on the Submit button) which calls this components {@link submit}-method.
    * This components formState (loading/disabled) is emitted back up to the hosting component so for example the Submit button can be enabled/disabled and show loading state.
    */
+  // TODO: Fix this the next time the file is edited.
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild(BitSubmitDirective)
   private bitSubmit: BitSubmitDirective;
 
@@ -165,6 +171,8 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
    * Emits true when the BitSubmitDirective({@link bitSubmit} is executing {@link submit} and false when execution has completed.
    * Example: Used to show the loading state of the submit button present on the hosting component
    * */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output()
   formLoading = new EventEmitter<boolean>();
 
@@ -172,6 +180,8 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
    * Emits true when this form gets disabled and false when enabled.
    * Example: Used to disable the submit button, which is present on the hosting component
    * */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output()
   formDisabled = new EventEmitter<boolean>();
 
@@ -180,9 +190,13 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
    * - Emits an undefined when exporting from an individual vault
    * - Emits the organizationId when exporting from an organizational vault
    * */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output()
   onSuccessfulExport = new EventEmitter<OrganizationId | undefined>();
 
+  // TODO: Fix this the next time the file is edited.
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild(PasswordStrengthV2Component) passwordStrengthComponent: PasswordStrengthV2Component;
 
   encryptedExportType = EncryptedExportType;
@@ -296,9 +310,9 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
       ),
     );
 
-    /* 
-      Determines how organization exports are described in the callout. 
-      Admins are exempted from organization data ownership policy, 
+    /*
+      Determines how organization exports are described in the callout.
+      Admins are exempted from organization data ownership policy,
       and so this needs to determine if the policy is enabled for the org, not if it applies to the user.
     */
     this.organizationDataOwnershipPolicyEnabledForOrg$ = combineLatest([
@@ -401,9 +415,9 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
       });
   }
 
-  /* 
-  Initialize component for organization only export  
-  Hides "My Vault" option by returning immediately 
+  /*
+  Initialize component for organization only export
+  Hides "My Vault" option by returning immediately
   */
   private initOrganizationOnly(): void {
     this.organizations$ = this.accountService.activeAccount$.pipe(

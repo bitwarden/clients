@@ -86,6 +86,8 @@ type AfterUnlockActions = {
 /// Fixes safari autoprompt behavior
 const AUTOPROMPT_BIOMETRICS_PROCESS_RELOAD_DELAY = 5000;
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-lock",
   templateUrl: "lock.component.html",
@@ -622,6 +624,7 @@ export class LockComponent implements OnInit, OnDestroy {
     this.logService.mark("Vault unlocked");
 
     await this.keyService.setUserKey(key, this.activeAccount.id);
+    await this.pinService.userUnlocked(this.activeAccount.id);
 
     // Now that we have a decrypted user key in memory, we can check if we
     // need to establish trust on the current device

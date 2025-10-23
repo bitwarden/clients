@@ -2549,6 +2549,9 @@
       }
     }
   },
+  "vaultCustomTimeoutMinimum": {
+    "message": "Minimální vlastní časový limit je 1 minuta."
+  },
   "inviteAccepted": {
     "message": "Pozvánka byla přijata"
   },
@@ -4149,7 +4152,7 @@
     "message": "Archivovat",
     "description": "Verb"
   },
-  "unarchive": {
+  "unArchive": {
     "message": "Odebrat z archivu"
   },
   "itemsInArchive": {
@@ -4161,10 +4164,10 @@
   "noItemsInArchiveDesc": {
     "message": "Zde se zobrazí archivované položky a budou vyloučeny z obecných výsledků vyhledávání a návrhů automatického vyplňování."
   },
-  "itemSentToArchive": {
+  "itemWasSentToArchive": {
     "message": "Položka byla přesunuta do archivu"
   },
-  "itemRemovedFromArchive": {
+  "itemUnarchived": {
     "message": "Položka byla odebrána z archivu"
   },
   "archiveItem": {
