@@ -66,13 +66,20 @@ import { ViewIdentitySectionsComponent } from "./view-identity-sections/view-ide
   ],
 })
 export class CipherViewComponent {
+  /**
+   * The cipher to display details for
+   */
   readonly cipher = input.required<CipherView>();
+
+  /**
+   * Observable version of the cipher input
+   */
   private readonly cipher$ = toObservable(this.cipher);
 
-  // Required for fetching attachment data when viewed from cipher via emergency access
+  /**
+   * Required for fetching attachment data when viewed from cipher via emergency access
+   */
   readonly emergencyAccessId = input<EmergencyAccessId | undefined>();
-
-  activeUserId$ = getUserId(this.accountService.activeAccount$);
 
   /**
    * Optional list of collections the cipher is assigned to. If none are provided, they will be fetched using the
@@ -80,8 +87,12 @@ export class CipherViewComponent {
    */
   readonly collections = input<CollectionView[] | undefined>(undefined);
 
-  /** Should be set to true when the component is used within the Admin Console */
+  /**
+   * Should be set to true when the component is used within the Admin Console
+   */
   readonly isAdminConsole = input<boolean>(false);
+
+  readonly activeUserId$ = getUserId(this.accountService.activeAccount$);
 
   constructor(
     private organizationService: OrganizationService,
