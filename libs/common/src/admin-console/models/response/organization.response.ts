@@ -39,6 +39,7 @@ export class OrganizationResponse extends BaseResponse {
   limitItemDeletion: boolean;
   allowAdminAccessToAllCollectionItems: boolean;
   useRiskInsights: boolean;
+  useDisableSMAdsForUsers: boolean;
 
   constructor(response: any) {
     super(response);
@@ -81,5 +82,6 @@ export class OrganizationResponse extends BaseResponse {
       "AllowAdminAccessToAllCollectionItems",
     );
     this.useRiskInsights = this.getResponseProperty("UseRiskInsights");
+    this.useDisableSMAdsForUsers = this.getResponseProperty("UseDisableSMAdsForUsers");
   }
 }
