@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { combineLatest, firstValueFrom, timeout } from "rxjs";
+import { combineLatest, firstValueFrom, timeout, from, Observable, of } from "rxjs";
 import { filter, switchMap, take } from "rxjs/operators";
 
 import { VaultProfileService } from "@bitwarden/angular/vault/services/vault-profile.service";
@@ -8,7 +8,8 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { SyncService } from "@bitwarden/common/platform/sync/sync.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { SyncService } from "@bitwarden/common/platform/sync";
 import { DialogRef, DialogService } from "@bitwarden/components";
 
 import {
@@ -29,18 +30,41 @@ export class UnifiedUpgradePromptService {
     private syncService: SyncService,
     private dialogService: DialogService,
     private organizationService: OrganizationService,
+    private platformUtilsService: PlatformUtilsService,
   ) {}
 
-  private shouldShowPrompt$ = combineLatest([
+  private hasPremiumFromAnySource$: Observable<boolean> = this.accountService.activeAccount$.pipe(
+    switchMap((account) => {
+      if (!account) {
+        return of(false);
+      }
+      return this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id);
+    }),
+  );
+
+  private isProfileLessThanFiveMinutesOld$: Observable<boolean> =
+    this.accountService.activeAccount$.pipe(
+      switchMap((account) => {
+        if (!account) {
+          return of(false);
+        }
+        return from(this.isProfileLessThanFiveMinutesOld(account.id));
+      }),
+    );
+
+  private shouldShowPrompt$: Observable<boolean> = combineLatest([
     this.accountService.activeAccount$,
+    this.isProfileLessThanFiveMinutesOld$,
+    this.hasPremiumFromAnySource$,
     this.configService.getFeatureFlag$(FeatureFlag.PM24996_ImplementUpgradeFromFreeDialog),
   ]).pipe(
-    switchMap(async ([account, isFlagEnabled]) => {
-      if (!account || !account?.id) {
+    switchMap(async ([account, isProfileLessThanFiveMinutesOld, hasPremium, isFlagEnabled]) => {
+      const isSelfHosted = this.platformUtilsService.isSelfHost();
+      if (isSelfHosted) {
         return false;
       }
-      // Early return if feature flag is disabled
-      if (!isFlagEnabled) {
+
+      if (!account) {
         return false;
       }
 
@@ -57,16 +81,6 @@ export class UnifiedUpgradePromptService {
         ),
       );
 
-      // Check if user has premium
-      const hasPremium = await firstValueFrom(
-        this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
-      );
-
-      // Early return if user already has premium
-      if (hasPremium) {
-        return false;
-      }
-
       // Check if user has any organization membership (any status including pending)
       // Try using memberOrganizations$ which might have different filtering logic
       const memberOrganizations = await firstValueFrom(
@@ -75,17 +89,7 @@ export class UnifiedUpgradePromptService {
 
       const hasOrganizations = memberOrganizations.length > 0;
 
-      // Early return if user has any organization status
-      if (hasOrganizations) {
-        return false;
-      }
-
-      // Check profile age only if needed
-      const isProfileLessThanFiveMinutesOld = await this.isProfileLessThanFiveMinutesOld(
-        account.id,
-      );
-
-      return isFlagEnabled && !hasPremium && !hasOrganizations && isProfileLessThanFiveMinutesOld;
+      return isFlagEnabled && isProfileLessThanFiveMinutesOld && !hasPremium && !hasOrganizations;
     }),
     take(1),
   );
