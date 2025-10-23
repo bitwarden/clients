@@ -61,6 +61,8 @@ impl SshKey for BitwardenSshKey {
     }
 
     fn public_key_bytes(&self) -> Vec<u8> {
+        println!("");
+
         if let Some(ref private_key) = self.private_key {
             private_key
                 .public_key()
