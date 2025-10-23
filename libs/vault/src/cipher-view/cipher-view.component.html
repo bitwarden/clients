@@ -12,7 +12,7 @@
   </bit-callout>
 
   <bit-callout *ngIf="showChangePasswordLink()" type="warning" [title]="''">
-    <a bitLink href="#" appStopClick (click)="launchChangePassword()">
+    <a bitLink href="#" appStopClick (click)="launchChangePassword()" linkType="secondary">
       {{ "changeAtRiskPassword" | i18n }}
       <i class="bwi bwi-external-link tw-ml-1" aria-hidden="true"></i>
     </a>
