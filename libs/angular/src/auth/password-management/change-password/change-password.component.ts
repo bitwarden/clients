@@ -39,12 +39,16 @@ import { ChangePasswordService } from "./change-password.service.abstraction";
  * and by design to maintain a strong security posture as some flows could have the user
  * end up at a change password without having one before.
  */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "auth-change-password",
   templateUrl: "change-password.component.html",
   imports: [InputPasswordComponent, I18nPipe, CalloutComponent, CommonModule],
 })
 export class ChangePasswordComponent implements OnInit {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() inputPasswordFlow: InputPasswordFlow = InputPasswordFlow.ChangePassword;
 
   activeAccount: Account | null = null;

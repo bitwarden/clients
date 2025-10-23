@@ -31,6 +31,22 @@
     </li>
     <li
       class="filter-option"
+      *ngIf="!hideArchive"
+      [ngClass]="{ active: activeFilter.status === 'archive' }"
+    >
+      <span class="filter-buttons">
+        <button
+          type="button"
+          class="filter-button"
+          (click)="applyFilter('archive')"
+          [attr.aria-pressed]="activeFilter.status === 'archive'"
+        >
+          <i class="bwi bwi-fw bwi-archive" aria-hidden="true"></i>&nbsp;{{ "archiveNoun" | i18n }}
+        </button>
+      </span>
+    </li>
+    <li
+      class="filter-option"
       *ngIf="!hideTrash"
       [ngClass]="{ active: activeFilter.status === 'trash' }"
     >
