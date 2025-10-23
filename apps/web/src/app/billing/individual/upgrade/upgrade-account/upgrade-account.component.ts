@@ -52,11 +52,11 @@ type CardDetails = {
   templateUrl: "./upgrade-account.component.html",
 })
 export class UpgradeAccountComponent implements OnInit {
-  dialogTitleMessageOverride = input<string | null>(null);
-  hideContinueWithoutUpgradingButton = input<boolean>(false);
+  readonly dialogTitleMessageOverride = input<string | null>(null);
+  readonly hideContinueWithoutUpgradingButton = input<boolean>(false);
   planSelected = output<PersonalSubscriptionPricingTierId>();
   closeClicked = output<UpgradeAccountStatus>();
-  protected loading = signal(true);
+  protected readonly loading = signal(true);
   protected premiumCardDetails!: CardDetails;
   protected familiesCardDetails!: CardDetails;
 
@@ -64,7 +64,7 @@ export class UpgradeAccountComponent implements OnInit {
   protected premiumPlanType = PersonalSubscriptionPricingTierIds.Premium;
   protected closeStatus = UpgradeAccountStatus.Closed;
 
-  protected dialogTitle = computed(() => {
+  protected readonly dialogTitle = computed(() => {
     return this.dialogTitleMessageOverride() || "individualUpgradeWelcomeMessage";
   });
 

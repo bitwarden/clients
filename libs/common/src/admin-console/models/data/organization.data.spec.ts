@@ -30,6 +30,7 @@ describe("ORGANIZATIONS state", () => {
         useSecretsManager: false,
         usePasswordManager: false,
         useActivateAutofillPolicy: false,
+        useAutomaticUserConfirmation: false,
         selfHost: false,
         usersGetPremium: false,
         seats: 0,
