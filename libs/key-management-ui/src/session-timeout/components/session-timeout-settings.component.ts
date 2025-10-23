@@ -86,7 +86,9 @@ export class SessionTimeoutSettingsComponent implements OnInit {
   private readonly logService = inject(LogService);
 
   readonly excludeTimeoutTypes = input.required<VaultTimeout[]>();
-  readonly refreshTimeoutActionSettings$ = input(new BehaviorSubject<void>(undefined));
+  readonly refreshTimeoutActionSettings$ = input<Observable<void>>(
+    new BehaviorSubject<void>(undefined),
+  );
 
   readonly onTimeoutSave = output<VaultTimeout>();
 
