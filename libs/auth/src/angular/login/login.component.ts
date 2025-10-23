@@ -54,6 +54,7 @@ import {
   IconButtonModule,
   LinkModule,
   ToastService,
+  TooltipDirective,
 } from "@bitwarden/components";
 
 import { LoginComponentService, PasswordPolicies } from "./login-component.service";
@@ -82,6 +83,7 @@ export enum LoginUiState {
     JslibModule,
     ReactiveFormsModule,
     RouterModule,
+    TooltipDirective,
   ],
 })
 export class LoginComponent implements OnInit, OnDestroy {
