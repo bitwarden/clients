@@ -15,6 +15,8 @@ import { MenuModule } from "@bitwarden/components";
 import { fido2PopoutSessionData$ } from "../../../vault/popup/utils/fido2-popout-session-data";
 import { BrowserFido2UserInterfaceSession } from "../../fido2/services/browser-fido2-user-interface.service";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-fido2-use-browser-link",
   templateUrl: "fido2-use-browser-link.component.html",

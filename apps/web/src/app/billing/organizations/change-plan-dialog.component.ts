@@ -842,10 +842,9 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
       );
 
       const subscriber: BitwardenSubscriber = { type: "organization", data: this.organization };
-      await Promise.all([
-        this.subscriberBillingClient.updatePaymentMethod(subscriber, paymentMethod, null),
-        this.subscriberBillingClient.updateBillingAddress(subscriber, billingAddress),
-      ]);
+      // These need to be synchronous so one of them can create the Customer in the case we're upgrading from Free.
+      await this.subscriberBillingClient.updateBillingAddress(subscriber, billingAddress);
+      await this.subscriberBillingClient.updatePaymentMethod(subscriber, paymentMethod, null);
     }
 
     // Backfill pub/priv key if necessary
