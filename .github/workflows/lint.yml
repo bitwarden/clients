@@ -112,8 +112,8 @@ jobs:
         run: cargo sort --workspace --check
 
       - name: Run cargo deny
-        working-directory: ./apps/desktop/desktop_native
         uses: taiki-e/install-action@v2
         with:
           tool: cargo-deny
+        working-directory: ./apps/desktop/desktop_native
         run: cargo deny --log-level error --all-features check all
