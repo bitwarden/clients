@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { MockProxy, any, mock } from "jest-mock-extended";
+import { MockProxy, mock } from "jest-mock-extended";
 import { BehaviorSubject, from, of } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
@@ -8,7 +8,7 @@ import { BehaviorSubject, from, of } from "rxjs";
 import { CollectionService } from "@bitwarden/admin-console/common";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { LogoutReason } from "@bitwarden/auth/common";
+import { LogoutService } from "@bitwarden/auth/common";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { BiometricsService } from "@bitwarden/key-management";
@@ -53,8 +53,8 @@ describe("VaultTimeoutService", () => {
   let taskSchedulerService: MockProxy<TaskSchedulerService>;
   let logService: MockProxy<LogService>;
   let biometricsService: MockProxy<BiometricsService>;
+  let logoutService: MockProxy<LogoutService>;
   let lockedCallback: jest.Mock<Promise<void>, [userId: string]>;
-  let loggedOutCallback: jest.Mock<Promise<void>, [logoutReason: LogoutReason, userId?: string]>;
 
   let vaultTimeoutActionSubject: BehaviorSubject<VaultTimeoutAction>;
   let availableVaultTimeoutActionsSubject: BehaviorSubject<VaultTimeoutAction[]>;
@@ -80,9 +80,9 @@ describe("VaultTimeoutService", () => {
     taskSchedulerService = mock<TaskSchedulerService>();
     logService = mock<LogService>();
     biometricsService = mock<BiometricsService>();
+    logoutService = mock<LogoutService>();
 
     lockedCallback = jest.fn();
-    loggedOutCallback = jest.fn();
 
     vaultTimeoutActionSubject = new BehaviorSubject(VaultTimeoutAction.Lock);
 
@@ -110,7 +110,7 @@ describe("VaultTimeoutService", () => {
       logService,
       biometricsService,
       lockedCallback,
-      loggedOutCallback,
+      logoutService,
     );
   });
 
@@ -213,12 +213,12 @@ describe("VaultTimeoutService", () => {
   };
 
   const expectUserToHaveLoggedOut = (userId: string) => {
-    expect(loggedOutCallback).toHaveBeenCalledWith("vaultTimeout", userId);
+    expect(logoutService.logout).toHaveBeenCalledWith(userId, "vaultTimeout");
   };
 
   const expectNoAction = (userId: string) => {
     expect(lockedCallback).not.toHaveBeenCalledWith(userId);
-    expect(loggedOutCallback).not.toHaveBeenCalledWith(any(), userId);
+    expect(logoutService.logout).not.toHaveBeenCalledWith(userId, "vaultTimeout");
   };
 
   describe("checkVaultTimeout", () => {
