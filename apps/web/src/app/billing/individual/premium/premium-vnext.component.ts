@@ -1,7 +1,17 @@
 import { CommonModule } from "@angular/common";
 import { Component, DestroyRef, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { combineLatest, firstValueFrom, map, Observable, of, shareReplay, switchMap } from "rxjs";
+import { ActivatedRoute, Router } from "@angular/router";
+import {
+  combineLatest,
+  firstValueFrom,
+  from,
+  map,
+  Observable,
+  of,
+  shareReplay,
+  switchMap,
+} from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -53,7 +63,8 @@ const RouteParamValues = {
   ],
 })
 export class PremiumVNextComponent {
-  protected hasPremiumFromAnySource$: Observable<boolean>;
+  protected hasPremiumFromAnyOrganization$: Observable<boolean>;
+  protected hasPremiumPersonally$: Observable<boolean>;
   protected shouldShowNewDesign$: Observable<boolean>;
   protected shouldShowUpgradeDialogOnInit$: Observable<boolean>;
   protected personalPricingTiers$: Observable<PersonalSubscriptionPricingTier[]>;
@@ -79,13 +90,23 @@ export class PremiumVNextComponent {
     private syncService: SyncService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private subscriptionPricingService: SubscriptionPricingService,
+    private activatedRoute: ActivatedRoute,
+    private router: Router,
   ) {
     this.isSelfHost = this.platformUtilsService.isSelfHost();
 
-    this.hasPremiumFromAnySource$ = this.accountService.activeAccount$.pipe(
+    this.hasPremiumFromAnyOrganization$ = this.accountService.activeAccount$.pipe(
       switchMap((account) =>
         account
-          ? this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id)
+          ? this.billingAccountProfileStateService.hasPremiumFromAnyOrganization$(account.id)
+          : of(false),
+      ),
+    );
+
+    this.hasPremiumPersonally$ = this.accountService.activeAccount$.pipe(
+      switchMap((account) =>
+        account
+          ? this.billingAccountProfileStateService.hasPremiumPersonally$(account.id)
           : of(false),
       ),
     );
@@ -96,10 +117,10 @@ export class PremiumVNextComponent {
         this.subscriber = subscriber;
       });
 
-    this.shouldShowNewDesign$ = this.hasPremiumFromAnySource$.pipe(
-      map((hasPremium) => !hasPremium),
-      takeUntilDestroyed(this.destroyRef),
-    );
+    this.shouldShowNewDesign$ = combineLatest([
+      this.hasPremiumFromAnyOrganization$,
+      this.hasPremiumPersonally$,
+    ]).pipe(map(([hasOrgPremium, hasPersonalPremium]) => !hasOrgPremium && !hasPersonalPremium));
 
     // redirect to user subscription page if they already have premium personally
     // redirect to individual vault if they already have premium from an org
@@ -119,12 +140,13 @@ export class PremiumVNextComponent {
       .subscribe();
 
     this.shouldShowUpgradeDialogOnInit$ = combineLatest([
-      this.hasPremiumFromAnySource$,
+      this.hasPremiumFromAnyOrganization$,
+      this.hasPremiumPersonally$,
       this.activatedRoute.queryParams,
     ]).pipe(
-      map(([hasPremium, queryParams]) => {
+      map(([hasOrgPremium, hasPersonalPremium, queryParams]) => {
         const cta = queryParams[RouteParams.callToAction];
-        return !hasPremium && cta === RouteParamValues.upgradeToPremium;
+        return !hasOrgPremium && !hasPersonalPremium && cta === RouteParamValues.upgradeToPremium;
       }),
     );
 
@@ -161,14 +183,11 @@ export class PremiumVNextComponent {
       shareReplay({ bufferSize: 1, refCount: true }),
     );
 
-    combineLatest([this.hasPremiumFromAnySource$, this.shouldShowUpgradeDialogOnInit$])
+    this.shouldShowUpgradeDialogOnInit$
       .pipe(
-        switchMap(async ([hasPremiumFromAnySource, shouldShowUpgradeDialogOnInit]) => {
-          // In any case that the user has premium, we want to redirect them to the subscription settings page.
-          if (hasPremiumFromAnySource) {
-            await this.router.navigate(["/settings/subscription/user-subscription"]);
-          } else if (shouldShowUpgradeDialogOnInit) {
-            await this.openUpgradeDialog("Premium");
+        switchMap(async (shouldShowUpgradeDialogOnInit) => {
+          if (shouldShowUpgradeDialogOnInit) {
+            from(this.openUpgradeDialog("Premium"));
           }
         }),
         takeUntilDestroyed(this.destroyRef),
