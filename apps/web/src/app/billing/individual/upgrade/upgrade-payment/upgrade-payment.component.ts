@@ -124,7 +124,7 @@ export class UpgradePaymentComponent implements OnInit, AfterViewInit {
         catchError((error: unknown) => {
           this.toastService.showToast({
             variant: "error",
-            title: "",
+            title: this.i18nService.t("error"),
             message: this.i18nService.t("unexpectedError"),
           });
           this.loading.set(false);

@@ -1447,7 +1447,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: SubscriptionPricingServiceAbstraction,
     useClass: DefaultSubscriptionPricingService,
-    deps: [ApiServiceAbstraction, I18nServiceAbstraction, LogService],
+    deps: [BillingApiServiceAbstraction, ConfigService, I18nServiceAbstraction, LogService],
   }),
   safeProvider({
     provide: OrganizationManagementPreferencesService,
