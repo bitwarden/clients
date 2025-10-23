@@ -11,6 +11,8 @@ import { SharedModule } from "../../../shared";
  *
  * Applies the same label styles from CL form-field component
  */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-payment-label",
   template: `
@@ -32,8 +34,12 @@ import { SharedModule } from "../../../shared";
 })
 export class PaymentLabelComponent {
   /** `id` of the associated input */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true }) for: string;
   /** Displays required text on the label */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ transform: booleanAttribute }) required = false;
 
   constructor() {}
