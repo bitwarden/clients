@@ -2549,6 +2549,9 @@
       }
     }
   },
+  "vaultCustomTimeoutMinimum": {
+    "message": "Minimalny niestandardowy czas to 1 minuta."
+  },
   "inviteAccepted": {
     "message": "Zaproszenie zostało zaakceptowane"
   },
@@ -2664,7 +2667,7 @@
     }
   },
   "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
-    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "message": "Tylko sejf organizacji $ORGANIZATION$ zostanie wyeksportowany.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2673,7 +2676,7 @@
     }
   },
   "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
-    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "message": "Tylko sejf organizacji $ORGANIZATION$ zostanie wyeksportowany. Twoje kolekcje nie zostaną uwzględnione.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4111,13 +4114,13 @@
     "message": "Bitwarden does not validate input locations, be sure you are in the right window and field before using the shortcut."
   },
   "typeShortcut": {
-    "message": "Type shortcut"
+    "message": "Rodzaj skrótu"
   },
   "editAutotypeShortcutDescription": {
     "message": "Include one or two of the following modifiers: Ctrl, Alt, Win, or Shift, and a letter."
   },
   "invalidShortcut": {
-    "message": "Invalid shortcut"
+    "message": "Skrót jest nieprawidłowy"
   },
   "moreBreadcrumbs": {
     "message": "Więcej nawigacji",
@@ -4149,7 +4152,7 @@
     "message": "Archiwizuj",
     "description": "Verb"
   },
-  "unarchive": {
+  "unArchive": {
     "message": "Usuń z archiwum"
   },
   "itemsInArchive": {
@@ -4161,10 +4164,10 @@
   "noItemsInArchiveDesc": {
     "message": "Zarchiwizowane elementy pojawią się tutaj i zostaną wykluczone z wyników wyszukiwania i sugestii autouzupełniania."
   },
-  "itemSentToArchive": {
+  "itemWasSentToArchive": {
     "message": "Element został przeniesiony do archiwum"
   },
-  "itemRemovedFromArchive": {
+  "itemUnarchived": {
     "message": "Element został usunięty z archiwum"
   },
   "archiveItem": {

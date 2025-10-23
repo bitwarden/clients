@@ -1,6 +1,9 @@
-use std::sync::{
-    atomic::{AtomicBool, AtomicU32},
-    Arc,
+use std::{
+    collections::HashMap,
+    sync::{
+        atomic::{AtomicBool, AtomicU32},
+        Arc, RwLock,
+    },
 };
 
 use base64::{engine::general_purpose::STANDARD, Engine as _};
@@ -25,8 +28,8 @@ pub mod peerinfo;
 mod request_parser;
 
 #[derive(Clone)]
-pub struct BitwardenDesktopAgent<Key> {
-    keystore: ssh_agent::KeyStore<Key>,
+pub struct BitwardenDesktopAgent {
+    keystore: ssh_agent::KeyStore<BitwardenSshKey>,
     cancellation_token: CancellationToken,
     show_ui_request_tx: tokio::sync::mpsc::Sender<SshAgentUIRequest>,
     get_ui_response_rx: Arc<Mutex<tokio::sync::broadcast::Receiver<(u32, bool)>>>,
@@ -77,9 +80,7 @@ impl SshKey for BitwardenSshKey {
     }
 }
 
-impl ssh_agent::Agent<peerinfo::models::PeerInfo, BitwardenSshKey>
-    for BitwardenDesktopAgent<BitwardenSshKey>
-{
+impl ssh_agent::Agent<peerinfo::models::PeerInfo, BitwardenSshKey> for BitwardenDesktopAgent {
     async fn confirm(
         &self,
         ssh_key: BitwardenSshKey,
@@ -179,7 +180,23 @@ impl ssh_agent::Agent<peerinfo::models::PeerInfo, BitwardenSshKey>
     }
 }
 
-impl BitwardenDesktopAgent<BitwardenSshKey> {
+impl BitwardenDesktopAgent {
+    /// Create a new `BitwardenDesktopAgent` from the provided auth channel handles.
+    pub fn new(
+        auth_request_tx: tokio::sync::mpsc::Sender<SshAgentUIRequest>,
+        auth_response_rx: Arc<Mutex<tokio::sync::broadcast::Receiver<(u32, bool)>>>,
+    ) -> Self {
+        Self {
+            keystore: ssh_agent::KeyStore(Arc::new(RwLock::new(HashMap::new()))),
+            cancellation_token: CancellationToken::new(),
+            show_ui_request_tx: auth_request_tx,
+            get_ui_response_rx: auth_response_rx,
+            request_id: Arc::new(AtomicU32::new(0)),
+            needs_unlock: Arc::new(AtomicBool::new(true)),
+            is_running: Arc::new(AtomicBool::new(false)),
+        }
+    }
+
     pub fn stop(&self) {
         if !self.is_running() {
             error!("Tried to stop agent while it is not running");

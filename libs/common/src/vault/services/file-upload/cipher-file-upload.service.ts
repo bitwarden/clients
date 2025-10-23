@@ -33,6 +33,7 @@ export class CipherFileUploadService implements CipherFileUploadServiceAbstracti
       fileName: encFileName.encryptedString,
       fileSize: encData.buffer.byteLength,
       adminRequest: admin,
+      lastKnownRevisionDate: cipher.revisionDate,
     };
 
     let response: CipherResponse;

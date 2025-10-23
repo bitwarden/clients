@@ -63,7 +63,7 @@
     "message": "创建新的登录项目"
   },
   "percentageCompleted": {
-    "message": "$PERCENT$% 已完成",
+    "message": "完成 $PERCENT$%",
     "placeholders": {
       "percent": {
         "content": "$1",
@@ -90,8 +90,8 @@
   "assignMembersTasksToMonitorProgress": {
     "message": "分配成员任务以监测进度"
   },
-  "onceYouReviewApplications": {
-    "message": "您审查应用程序并将其标记为关键后，它们将显示在这里。"
+  "onceYouReviewApps": {
+    "message": "审查新应用程序并将其标记为关键后，您可以在这里将任务分配给成员以解决存在风险的项目并监测进度"
   },
   "sendReminders": {
     "message": "发送提醒"
@@ -188,16 +188,16 @@
     "message": "标记应用程序为关键"
   },
   "markAsCritical": {
-    "message": "Mark as critical"
+    "message": "标记为关键"
   },
   "applicationsSelected": {
-    "message": "applications selected"
+    "message": "已选择的应用程序"
   },
   "selectApplication": {
-    "message": "Select application"
+    "message": "选择应用程序"
   },
   "unselectApplication": {
-    "message": "Unselect application"
+    "message": "取消选择应用程序"
   },
   "applicationsMarkedAsCriticalSuccess": {
     "message": "标记为关键的应用程序"
@@ -311,13 +311,13 @@
     "message": "立即审查"
   },
   "prioritizeCriticalApplications": {
-    "message": "Prioritize critical applications"
+    "message": "关键应用程序优先"
   },
   "atRiskItems": {
-    "message": "At-risk items"
+    "message": "存在风险的项目"
   },
   "markAsCriticalPlaceholder": {
-    "message": "Mark as critical functionality will be implemented in a future update"
+    "message": "标记为关键功能将在未来更新中实现"
   },
   "unmarkAsCritical": {
     "message": "取消标记为关键"
@@ -851,7 +851,7 @@
     "message": "州 / 省"
   },
   "zipPostalCode": {
-    "message": "邮政编码"
+    "message": "ZIP / 邮政编码"
   },
   "country": {
     "message": "国家"
@@ -2951,7 +2951,7 @@
     "message": "请确保您的账户有足够的信用额度来用于此购买。如果您的账户信用额度不足，您的默认付款方式将用于补足差额。您可以从「计费」页面向您的账户添加信用额度。"
   },
   "notEnoughAccountCredit": {
-    "message": "You do not have enough account credit for this purchase. You can add credit to your account from the Billing page."
+    "message": "您没有足够的账户信用额度来用于此购买。您可以从「计费」页面向您的账户添加信用额度。"
   },
   "creditAppliedDesc": {
     "message": "您账户的信用额度可用于进行消费。任何可用的信用额度将用于自动抵扣此账户的账单。"
@@ -6528,7 +6528,7 @@
     "message": "为所有现有成员和新成员激活浏览器扩展上的页面加载时的自动填充设置。"
   },
   "experimentalFeature": {
-    "message": "被入侵或不受信任的网站可以利用页面加载时的自动填充功能。"
+    "message": "被入侵或不受信任的网站可能恶意利用页面加载时的自动填充功能。"
   },
   "learnMoreAboutAutofill": {
     "message": "进一步了解自动填充"
@@ -6711,7 +6711,7 @@
     "message": "链接已失效。请让赞助方重新发送邀请。"
   },
   "reclaimedFreePlan": {
-    "message": "收回了免费方案"
+    "message": "重新申领了免费方案"
   },
   "redeem": {
     "message": "兑换"
@@ -7150,7 +7150,7 @@
     }
   },
   "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
-    "message": "仅会导出与 $ORGANIZATION$ 关联的组织密码库，不包括我的项目集合。",
+    "message": "仅会导出与 $ORGANIZATION$ 关联的组织密码库。不包括「我的项目」集合。",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -11294,11 +11294,46 @@
     "message": "归档",
     "description": "Verb"
   },
+  "unArchive": {
+    "message": "取消归档"
+  },
+  "itemsInArchive": {
+    "message": "归档中的项目"
+  },
   "noItemsInArchive": {
     "message": "归档中没有项目"
   },
-  "archivedItemsDescription": {
+  "noItemsInArchiveDesc": {
     "message": "已归档的项目将显示在此处，并将被排除在一般搜索结果和自动填充建议之外。"
+  },
+  "itemWasSentToArchive": {
+    "message": "项目已发送到归档"
+  },
+  "itemsWereSentToArchive": {
+    "message": "项目已发送到归档"
+  },
+  "itemUnarchived": {
+    "message": "项目已取消归档"
+  },
+  "bulkArchiveItems": {
+    "message": "项目已归档"
+  },
+  "bulkUnarchiveItems": {
+    "message": "项目已取消归档"
+  },
+  "archiveItem": {
+    "message": "归档项目",
+    "description": "Verb"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "已归档的项目将被排除在一般搜索结果和自动填充建议之外。确定要归档此项目吗？"
+  },
+  "archiveBulkItems": {
+    "message": "归档项目",
+    "description": "Verb"
+  },
+  "archiveBulkItemsConfirmDesc": {
+    "message": "已归档的项目将被排除在一般搜索结果和自动填充建议之外。确定要归档这些项目吗？"
   },
   "businessUnit": {
     "message": "业务单元"
@@ -11411,7 +11446,7 @@
     "message": "打开 Bitwarden 扩展"
   },
   "bitwardenExtensionInstalledOpenExtension": {
-    "message": "Bitwarden 扩展已安装！打开扩展以登录并开始自动填充。"
+    "message": "Bitwarden 扩展已安装！请打开扩展登录并开始自动填充。"
   },
   "openExtensionToAutofill": {
     "message": "打开扩展以登录并开始自动填充。"
@@ -11801,7 +11836,25 @@
   "continueWithoutUpgrading": {
     "message": "继续但不升级"
   },
+  "upgradeYourPlan": {
+    "message": "升级您的方案"
+  },
+  "upgradeNow": {
+    "message": "立即升级"
+  },
+  "formWillCreateNewFamiliesOrgMessage": {
+    "message": "完成此表单将创建一个新的家庭组织。您可以从管理控制台升级您的免费组织。"
+  },
   "upgradeErrorMessage": {
     "message": "我们在处理您的升级时遇到错误。请重试。"
+  },
+  "bitwardenFreeplanMessage": {
+    "message": "您拥有 Bitwarden 免费方案"
+  },
+  "upgradeCompleteSecurity": {
+    "message": "升级以获得全面的安全防护"
+  },
+  "viewbusinessplans": {
+    "message": "查看商业方案"
   }
 }

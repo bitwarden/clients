@@ -35,6 +35,8 @@ export type ChipSelectOption<T> = Option<T> & {
 /**
  * `<bit-chip-select>` is a select element that is commonly used to filter items in lists or tables.
  */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-chip-select",
   templateUrl: "chip-select.component.html",
@@ -49,6 +51,8 @@ export type ChipSelectOption<T> = Option<T> & {
 })
 export class ChipSelectComponent<T = unknown> implements ControlValueAccessor, AfterViewInit {
   readonly menu = viewChild(MenuComponent);
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChildren(MenuItemDirective) menuItems?: QueryList<MenuItemDirective>;
   readonly chipSelectButton = viewChild<ElementRef<HTMLButtonElement>>("chipSelectButton");
 
@@ -63,6 +67,8 @@ export class ChipSelectComponent<T = unknown> implements ControlValueAccessor, A
   // TODO: Skipped for signal migration because:
   //  Accessor inputs cannot be migrated as they are too complex.
   /** The select options to render */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true })
   get options(): ChipSelectOption<T>[] {
     return this._options;
@@ -75,6 +81,8 @@ export class ChipSelectComponent<T = unknown> implements ControlValueAccessor, A
   /** Disables the entire chip */
   // TODO: Skipped for signal migration because:
   //  Your application code writes to the input. This prevents migration.
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ transform: booleanAttribute }) disabled = false;
 
   /** Chip will stretch to full width of its container */
@@ -83,7 +91,7 @@ export class ChipSelectComponent<T = unknown> implements ControlValueAccessor, A
   /**
    * We have `:focus-within` and `:focus-visible` but no `:focus-visible-within`
    */
-  protected focusVisibleWithin = signal(false);
+  protected readonly focusVisibleWithin = signal(false);
   @HostListener("focusin", ["$event.target"])
   onFocusIn(target: HTMLElement) {
     this.focusVisibleWithin.set(target.matches("[data-fvw-target]:focus-visible"));

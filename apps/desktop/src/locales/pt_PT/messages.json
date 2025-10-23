@@ -2549,6 +2549,9 @@
       }
     }
   },
+  "vaultCustomTimeoutMinimum": {
+    "message": "O tempo limite mínimo personalizado é de 1 minuto."
+  },
   "inviteAccepted": {
     "message": "Convite aceite"
   },
@@ -4149,7 +4152,7 @@
     "message": "Arquivar",
     "description": "Verb"
   },
-  "unarchive": {
+  "unArchive": {
     "message": "Desarquivar"
   },
   "itemsInArchive": {
@@ -4161,11 +4164,11 @@
   "noItemsInArchiveDesc": {
     "message": "Os itens arquivados aparecerão aqui e serão excluídos dos resultados gerais da pesquisa e das sugestões de preenchimento automático."
   },
-  "itemSentToArchive": {
-    "message": "Item movido para o arquivo"
+  "itemWasSentToArchive": {
+    "message": "O item foi movido para o arquivo"
   },
-  "itemRemovedFromArchive": {
-    "message": "Item removido do arquivo"
+  "itemUnarchived": {
+    "message": "O item foi desarquivado"
   },
   "archiveItem": {
     "message": "Arquivar item"

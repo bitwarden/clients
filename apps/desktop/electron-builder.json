@@ -106,6 +106,10 @@
       {
         "from": "desktop_native/dist/desktop_proxy.${platform}-${arch}",
         "to": "desktop_proxy"
+      },
+      {
+        "from": "desktop_native/dist/libprocess_isolation.so",
+        "to": "libprocess_isolation.so"
       }
     ],
     "target": ["deb", "freebsd", "rpm", "AppImage", "snap"],

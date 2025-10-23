@@ -29,7 +29,7 @@ import { FilterIntegrationsPipe } from "./integrations.pipe";
 export class AdminConsoleIntegrationsComponent implements OnInit, OnDestroy {
   tabIndex: number = 0;
   organization$: Observable<Organization> = new Observable<Organization>();
-  isEventBasedIntegrationsEnabled: boolean = false;
+  isEventManagementForDataDogAndCrowdStrikeEnabled: boolean = false;
   private destroy$ = new Subject<void>();
 
   // initialize the integrations list with default integrations
@@ -230,24 +230,6 @@ export class AdminConsoleIntegrationsComponent implements OnInit, OnDestroy {
       this.hecOrganizationIntegrationService.setOrganizationIntegrations(org.id);
       this.datadogOrganizationIntegrationService.setOrganizationIntegrations(org.id);
     });
-
-    // For all existing event based configurations loop through and assign the
-    // organizationIntegration for the correct services.
-    this.hecOrganizationIntegrationService.integrations$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((integrations) => {
-        // reset all integrations to null first - in case one was deleted
-        this.integrationsList.forEach((i) => {
-          i.organizationIntegration = null;
-        });
-
-        integrations.map((integration) => {
-          const item = this.integrationsList.find((i) => i.name === integration.serviceType);
-          if (item) {
-            item.organizationIntegration = integration;
-          }
-        });
-      });
   }
 
   constructor(
@@ -259,35 +241,34 @@ export class AdminConsoleIntegrationsComponent implements OnInit, OnDestroy {
     private datadogOrganizationIntegrationService: DatadogOrganizationIntegrationService,
   ) {
     this.configService
-      .getFeatureFlag$(FeatureFlag.EventBasedOrganizationIntegrations)
+      .getFeatureFlag$(FeatureFlag.EventManagementForDataDogAndCrowdStrike)
       .pipe(takeUntil(this.destroy$))
       .subscribe((isEnabled) => {
-        this.isEventBasedIntegrationsEnabled = isEnabled;
+        this.isEventManagementForDataDogAndCrowdStrikeEnabled = isEnabled;
       });
 
     // Add the new event based items to the list
-    if (this.isEventBasedIntegrationsEnabled) {
+    if (this.isEventManagementForDataDogAndCrowdStrikeEnabled) {
       const crowdstrikeIntegration: Integration = {
         name: OrganizationIntegrationServiceType.CrowdStrike,
-        linkURL: "",
+        linkURL: "https://bitwarden.com/help/crowdstrike-siem/",
         image: "../../../../../../../images/integrations/logo-crowdstrike-black.svg",
         type: IntegrationType.EVENT,
         description: "crowdstrikeEventIntegrationDesc",
         canSetupConnection: true,
-        integrationType: 5, // Assuming 5 corresponds to CrowdStrike in OrganizationIntegrationType
+        integrationType: OrganizationIntegrationType.Hec,
       };
 
       this.integrationsList.push(crowdstrikeIntegration);
 
       const datadogIntegration: Integration = {
         name: OrganizationIntegrationServiceType.Datadog,
-        // TODO: Update link when help article is published
-        linkURL: "",
+        linkURL: "https://bitwarden.com/help/datadog-siem/",
         image: "../../../../../../../images/integrations/logo-datadog-color.svg",
         type: IntegrationType.EVENT,
         description: "datadogEventIntegrationDesc",
         canSetupConnection: true,
-        integrationType: 6, // Assuming 6 corresponds to Datadog in OrganizationIntegrationType
+        integrationType: OrganizationIntegrationType.Datadog,
       };
 
       this.integrationsList.push(datadogIntegration);

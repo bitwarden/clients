@@ -2549,6 +2549,9 @@
       }
     }
   },
+  "vaultCustomTimeoutMinimum": {
+    "message": "Thời gian đóng kho tùy chỉnh tối thiểu là 1 phút."
+  },
   "inviteAccepted": {
     "message": "Đã chấp nhận lời mời"
   },
@@ -4136,7 +4139,7 @@
     "message": "Bật phím tắt tự động nhập (Xem trước tính năng)"
   },
   "enableAutotypeShortcutDescription": {
-    "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."
+    "message": "Hãy đảm bảo bạn đang ở đúng trường trước khi sử dụng phím tắt để tránh điền dữ liệu vào sai chỗ."
   },
   "editShortcut": {
     "message": "Chỉnh sửa phím tắt"
@@ -4149,7 +4152,7 @@
     "message": "Lưu trữ",
     "description": "Verb"
   },
-  "unarchive": {
+  "unArchive": {
     "message": "Hủy lưu trữ"
   },
   "itemsInArchive": {
@@ -4161,11 +4164,11 @@
   "noItemsInArchiveDesc": {
     "message": "Các mục đã lưu trữ sẽ hiển thị ở đây và sẽ bị loại khỏi kết quả tìm kiếm và gợi ý tự động điền."
   },
-  "itemSentToArchive": {
-    "message": "Mục đã được gửi đến kho lưu trữ"
+  "itemWasSentToArchive": {
+    "message": "Mục đã được chuyển vào kho lưu trữ"
   },
-  "itemRemovedFromArchive": {
-    "message": "Mục đã được gỡ khỏi kho lưu trữ"
+  "itemUnarchived": {
+    "message": "Mục đã được bỏ lưu trữ"
   },
   "archiveItem": {
     "message": "Lưu trữ mục"

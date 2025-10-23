@@ -90,8 +90,8 @@
   "assignMembersTasksToMonitorProgress": {
     "message": "Mitglieder Aufgaben zuweisen, um den Fortschritt zu überwachen"
   },
-  "onceYouReviewApplications": {
-    "message": "Sobald du Anwendungen überprüft und als kritisch markiert hast, werden sie hier angezeigt."
+  "onceYouReviewApps": {
+    "message": "Sobald du die Anwendungen überprüft und als kritisch markiert hast, kannst du Mitgliedern Aufgaben zuweisen, um gefährdete Einträge zu beheben und den Fortschritt hier überwachen"
   },
   "sendReminders": {
     "message": "Erinnerungen senden"
@@ -11294,11 +11294,46 @@
     "message": "Archivieren",
     "description": "Verb"
   },
+  "unArchive": {
+    "message": "Archivieren rück­gän­gig ma­chen"
+  },
+  "itemsInArchive": {
+    "message": "Archiveinträge"
+  },
   "noItemsInArchive": {
     "message": "Keine Einträge im Archiv"
   },
-  "archivedItemsDescription": {
-    "message": "Archivierte Einträge werden hier angezeigt und von allgemeinen Suchergebnissen sowie Auto-Ausfüllen-Vorschlägen ausgeschlossen."
+  "noItemsInArchiveDesc": {
+    "message": "Archivierte Einträge werden hier angezeigt und von allgemeinen Suchergebnissen und Auto-Ausfüllen-Vorschlägen ausgeschlossen."
+  },
+  "itemWasSentToArchive": {
+    "message": "Eintrag wurde ins Archiv verschoben"
+  },
+  "itemsWereSentToArchive": {
+    "message": "Einträge wurden ins Archiv verschoben"
+  },
+  "itemUnarchived": {
+    "message": "Eintrag wird nicht mehr archiviert"
+  },
+  "bulkArchiveItems": {
+    "message": "Einträge archiviert"
+  },
+  "bulkUnarchiveItems": {
+    "message": "Eintrag nicht mehr archiviert"
+  },
+  "archiveItem": {
+    "message": "Eintrag archivieren",
+    "description": "Verb"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Archivierte Einträge werden von allgemeinen Suchergebnissen und Auto-Ausfüllen-Vorschlägen ausgeschlossen. Bist du sicher, dass du diesen Eintrag archivieren möchtest?"
+  },
+  "archiveBulkItems": {
+    "message": "Einträge archivieren",
+    "description": "Verb"
+  },
+  "archiveBulkItemsConfirmDesc": {
+    "message": "Archivierte Einträge werden von allgemeinen Suchergebnissen und Auto-Ausfüllen-Vorschlägen ausgeschlossen. Bist du sicher, dass du diese Einträge archivieren möchtest?"
   },
   "businessUnit": {
     "message": "Geschäftsbereich"
@@ -11801,7 +11836,25 @@
   "continueWithoutUpgrading": {
     "message": "Fortfahren, ohne ein Upgrade durchzuführen"
   },
+  "upgradeYourPlan": {
+    "message": "Tarif upgraden"
+  },
+  "upgradeNow": {
+    "message": "Jetzt upgraden"
+  },
+  "formWillCreateNewFamiliesOrgMessage": {
+    "message": "Durch das Ausfüllen dieses Formulars wird eine neue Families-Organisation erstellt. Du kannst deine kostenlose Organisation über die Administrator-Konsole upgraden."
+  },
   "upgradeErrorMessage": {
     "message": "Bei der Verarbeitung deines Upgrades ist ein Fehler aufgetreten. Bitte versuche es erneut."
+  },
+  "bitwardenFreeplanMessage": {
+    "message": "Du nutzt den Bitwarden Free-Tarif"
+  },
+  "upgradeCompleteSecurity": {
+    "message": "Upgrade für umfassende Sicherheit"
+  },
+  "viewbusinessplans": {
+    "message": "Unternehmens-Tarife anzeigen"
   }
 }
