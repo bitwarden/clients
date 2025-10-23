@@ -101,6 +101,7 @@ export class RiskInsightsOrchestratorService {
   // --------------------------- Trigger subjects ---------------------
   private _initializeOrganizationTriggerSubject = new Subject<OrganizationId>();
   private _fetchReportTriggerSubject = new Subject<void>();
+  private _markUnmarkUpdatesSubject = new Subject<ReportState>();
 
   private _reportStateSubscription: Subscription | null = null;
   private _migrationSubscription: Subscription | null = null;
@@ -236,7 +237,9 @@ export class RiskInsightsOrchestratorService {
           )
           .pipe(
             map(() => updatedState),
-            tap((finalState) => this._rawReportDataSubject.next(finalState)),
+            tap((finalState) => {
+              this._markUnmarkUpdatesSubject.next(finalState);
+            }),
             catchError((error: unknown) => {
               this.logService.error("Failed to save updated applicationData", error);
               return of({ ...reportState, error: "Failed to remove a critical application" });
@@ -318,7 +321,9 @@ export class RiskInsightsOrchestratorService {
           )
           .pipe(
             map(() => updatedState),
-            tap((finalState) => this._rawReportDataSubject.next(finalState)),
+            tap((finalState) => {
+              this._markUnmarkUpdatesSubject.next(finalState);
+            }),
             catchError((error: unknown) => {
               this.logService.error("Failed to save updated applicationData", error);
               return of({ ...reportState, error: "Failed to save critical applications" });
@@ -406,7 +411,7 @@ export class RiskInsightsOrchestratorService {
         return of({ loading: false, error: "Failed to generate or save report", data: null });
       }),
       startWith({ loading: true, error: null, data: null }),
-    );
+    ) as Observable<ReportState>;
   }
 
   /**
@@ -714,6 +719,7 @@ export class RiskInsightsOrchestratorService {
       initialReportLoad$,
       manualReportFetch$,
       newReportGeneration$,
+      this._markUnmarkUpdatesSubject.asObservable(),
     ).pipe(
       scan((prevState: ReportState, currState: ReportState) => ({
         ...prevState,
