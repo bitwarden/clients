@@ -37,8 +37,10 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ToastService } from "@bitwarden/components";
+import { LogService } from "@bitwarden/logging";
 
 import { ssoTypeValidator } from "./sso-type.validator";
 
@@ -211,6 +213,8 @@ export class SsoComponent implements OnInit, OnDestroy {
     private organizationApiService: OrganizationApiServiceAbstraction,
     private toastService: ToastService,
     private environmentService: EnvironmentService,
+    private validationService: ValidationService,
+    private logService: LogService,
   ) {}
 
   async ngOnInit() {
@@ -293,6 +297,9 @@ export class SsoComponent implements OnInit, OnDestroy {
       this.spEntityIdStatic = ssoSettings.urls.spEntityIdStatic;
       this.spMetadataUrl = ssoSettings.urls.spMetadataUrl;
       this.spAcsUrl = ssoSettings.urls.spAcsUrl;
+    } catch (error) {
+      this.logService.error("Error loading SSO configuration: ", error);
+      this.validationService.showError(error);
     } finally {
       this.isInitializing = false;
       this.isFormValidatingOrPopulating = false;
