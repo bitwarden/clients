@@ -1,7 +1,7 @@
 import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, computed, input } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
-import { combineLatest, of, switchMap, map, catchError } from "rxjs";
+import { combineLatest, of, switchMap, map, catchError, from } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -15,7 +15,7 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { getByIds } from "@bitwarden/common/platform/misc";
-import { CipherId, EmergencyAccessId } from "@bitwarden/common/types/guid";
+import { CipherId, EmergencyAccessId, UserId } from "@bitwarden/common/types/guid";
 import { CipherRiskService } from "@bitwarden/common/vault/abstractions/cipher-risk.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -220,27 +220,19 @@ export class CipherViewComponent {
 
   readonly passwordIsAtRisk = toSignal(
     combineLatest([this.activeUserId$, this.cipher$]).pipe(
-      switchMap(([userId, cipher]) => {
-        return this.billingAccountService.hasPremiumFromAnySource$(userId).pipe(
-          switchMap(async (isPremium) => {
-            if (!isPremium) {
-              return false;
-            }
-            const risk = await this.cipherRiskService.computeCipherRiskForUser(
-              cipher.id as CipherId,
-              userId,
-              true,
-            );
-
-            return (
-              (risk.exposed_result.type === "Found" && risk.exposed_result.value > 0) ||
-              (risk.reuse_count ?? 1) > 1 ||
-              risk.password_strength < 3
-            );
-          }),
-        );
+      switchMap(([userId, cipher]) =>
+        this.billingAccountService
+          .hasPremiumFromAnySource$(userId)
+          .pipe(map((isPremium) => ({ userId, cipher, isPremium }))),
+      ),
+      switchMap(({ userId, cipher, isPremium }) => {
+        if (!isPremium) {
+          return of(false);
+        }
+        return from(this.checkIfPasswordIsAtRisk(cipher.id as CipherId, userId as UserId));
       }),
     ),
+    { initialValue: false },
   );
 
   readonly showChangePasswordLink = computed(() => {
@@ -257,4 +249,18 @@ export class CipherViewComponent {
       this.platformUtilsService.launchUri(url);
     }
   };
+
+  private async checkIfPasswordIsAtRisk(cipherId: CipherId, userId: UserId): Promise<boolean> {
+    try {
+      const risk = await this.cipherRiskService.computeCipherRiskForUser(cipherId, userId, true);
+      return (
+        (risk.exposed_result.type === "Found" && risk.exposed_result.value > 0) ||
+        (risk.reuse_count ?? 1) > 1 ||
+        risk.password_strength < 3
+      );
+    } catch (error: unknown) {
+      this.logService.error("Failed to check if password is at risk", error);
+      return false;
+    }
+  }
 }
