@@ -3,10 +3,9 @@ import type {
   CipherRiskOptions,
   ExposedPasswordResult,
   PasswordReuseMap,
-  CipherId,
 } from "@bitwarden/sdk-internal";
 
-import { UserId } from "../../types/guid";
+import { UserId, CipherId } from "../../types/guid";
 import { CipherView } from "../models/view/cipher.view";
 
 export abstract class CipherRiskService {

@@ -5,12 +5,12 @@ import {
   CipherLoginDetails,
   CipherRiskOptions,
   PasswordReuseMap,
-  CipherId,
   CipherRiskResult,
+  CipherId as SdkCipherId,
 } from "@bitwarden/sdk-internal";
 
 import { SdkService, asUuid } from "../../platform/abstractions/sdk/sdk.service";
-import { UserId } from "../../types/guid";
+import { UserId, CipherId } from "../../types/guid";
 import { CipherRiskService as CipherRiskServiceAbstraction } from "../abstractions/cipher-risk.service";
 import { CipherType } from "../enums/cipher-type";
 import { CipherView } from "../models/view/cipher.view";
@@ -106,7 +106,7 @@ export class DefaultCipherRiskService implements CipherRiskServiceAbstraction {
       .map(
         (cipher) =>
           ({
-            id: asUuid<CipherId>(cipher.id),
+            id: asUuid<SdkCipherId>(cipher.id),
             password: cipher.login.password!,
             username: cipher.login.username,
           }) satisfies CipherLoginDetails,
