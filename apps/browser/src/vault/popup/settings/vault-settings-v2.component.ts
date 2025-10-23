@@ -2,7 +2,7 @@ import { CommonModule } from "@angular/common";
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { Router, RouterModule } from "@angular/router";
-import { firstValueFrom, switchMap } from "rxjs";
+import { firstValueFrom, map, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
@@ -43,7 +43,13 @@ export class VaultSettingsV2Component implements OnInit, OnDestroy {
 
   // Check if user has archived items (does not check if user is premium)
   protected showArchiveFilter = toSignal(
-    this.userId$.pipe(switchMap((userId) => this.cipherArchiveService.showArchiveVault$(userId))),
+    this.userId$.pipe(
+      switchMap((userId) =>
+        this.cipherArchiveService
+          .archivedCiphers$(userId)
+          .pipe(map((ciphers) => ciphers.length > 0)),
+      ),
+    ),
   );
 
   protected emptyVaultImportBadge$ = this.accountService.activeAccount$.pipe(
