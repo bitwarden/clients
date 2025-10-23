@@ -8,6 +8,8 @@
 apps/desktop/desktop_native @bitwarden/team-platform-dev
 apps/desktop/desktop_native/objc/src/native/autofill @bitwarden/team-autofill-desktop-dev
 apps/desktop/desktop_native/core/src/autofill @bitwarden/team-autofill-desktop-dev
+apps/desktop/desktop_native/macos_provider @bitwarden/team-autofill-desktop-dev
+
 ## No ownership for Cargo.lock and Cargo.toml to allow dependency updates
 apps/desktop/desktop_native/Cargo.lock
 apps/desktop/desktop_native/Cargo.toml
