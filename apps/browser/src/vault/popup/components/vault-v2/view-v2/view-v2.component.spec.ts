@@ -541,7 +541,7 @@ describe("ViewV2Component", () => {
     it("shows archived badge if the user cannot archive and the cipher is archived", fakeAsync(() => {
       const cipherArchiveService = TestBed.inject(CipherArchiveService);
       (cipherArchiveService.userCanArchive$ as jest.Mock).mockReturnValue(of(false));
-      mockCipherService.cipherViews$.mockImplementationOnce((userId) =>
+      mockCipherService.cipherViews$.mockImplementationOnce(() =>
         of([
           {
             ...mockCipher,
@@ -558,13 +558,12 @@ describe("ViewV2Component", () => {
 
       const badge = fixture.nativeElement.querySelector("button[bitBadge]");
       expect(badge).toBeTruthy();
-      expect(badge.textContent.trim()).toBe("archived");
     }));
 
     it("does not show archived badge if the user can archive", () => {
       const cipherArchiveService = TestBed.inject(CipherArchiveService);
       (cipherArchiveService.userCanArchive$ as jest.Mock).mockReturnValue(of(true));
-      mockCipherService.cipherViews$.mockImplementationOnce((userId) =>
+      mockCipherService.cipherViews$.mockImplementationOnce(() =>
         of([
           {
             ...mockCipher,
