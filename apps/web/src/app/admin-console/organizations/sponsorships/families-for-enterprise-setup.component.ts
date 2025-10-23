@@ -28,11 +28,15 @@ import {
   openDeleteOrganizationDialog,
 } from "../settings/components";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "families-for-enterprise-setup.component.html",
   imports: [SharedModule, OrganizationPlansComponent],
 })
 export class FamiliesForEnterpriseSetupComponent implements OnInit, OnDestroy {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild(OrganizationPlansComponent, { static: false })
   set organizationPlansComponent(value: OrganizationPlansComponent) {
     if (!value) {
