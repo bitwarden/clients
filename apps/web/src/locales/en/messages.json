@@ -5776,13 +5776,13 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "uriMatchDetectionPolicy": {
-    "message": "URI match detection"
+    "message": "Default URI match detection"
   },
   "uriMatchDetectionPolicyDesc": {
-    "message": "Set when logins are suggested for autofill based on the selected match detection option."
+    "message": "Set when logins are suggested for autofill based on the selected match detection option. Admins and owners are exempt form this policy."
   },
   "uriMatchDetectionOptionsLabel": {
-    "message": "URI match detection"
+    "message": "Default URI match detection"
   },
   "modifiedPolicyId": {
     "message": "Modified policy $ID$.",
