@@ -8,6 +8,7 @@ import { AccountService, Account } from "@bitwarden/common/auth/abstractions/acc
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { SyncService } from "@bitwarden/common/platform/sync/sync.service";
 import { DialogRef, DialogService } from "@bitwarden/components";
 
 import {
@@ -23,6 +24,7 @@ describe("UnifiedUpgradePromptService", () => {
   const mockConfigService = mock<ConfigService>();
   const mockBillingService = mock<BillingAccountProfileStateService>();
   const mockVaultProfileService = mock<VaultProfileService>();
+  const mockSyncService = mock<SyncService>();
   const mockDialogService = mock<DialogService>();
   const mockOrganizationService = mock<OrganizationService>();
   const mockDialogOpen = jest.spyOn(UnifiedUpgradeDialogComponent, "open");
@@ -52,6 +54,7 @@ describe("UnifiedUpgradePromptService", () => {
       mockConfigService,
       mockBillingService,
       mockVaultProfileService,
+      mockSyncService,
       mockDialogService,
       mockOrganizationService,
     );
@@ -84,7 +87,12 @@ describe("UnifiedUpgradePromptService", () => {
       mockReset(mockConfigService);
       mockReset(mockBillingService);
       mockReset(mockVaultProfileService);
+      mockReset(mockSyncService);
       mockReset(mockOrganizationService);
+
+      // Mock sync service methods
+      mockSyncService.fullSync.mockResolvedValue(true);
+      mockSyncService.lastSync$.mockReturnValue(of(new Date()));
     });
     it("should not show dialog when feature flag is disabled", async () => {
       // Arrange
@@ -101,7 +109,7 @@ describe("UnifiedUpgradePromptService", () => {
       // Arrange
       mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
       mockBillingService.hasPremiumFromAnySource$.mockReturnValue(of(true));
-      mockOrganizationService.organizations$.mockReturnValue(of([]));
+      mockOrganizationService.memberOrganizations$.mockReturnValue(of([]));
       setupTestService();
 
       // Act
@@ -115,7 +123,7 @@ describe("UnifiedUpgradePromptService", () => {
       // Arrange
       mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
       mockBillingService.hasPremiumFromAnySource$.mockReturnValue(of(false));
-      mockOrganizationService.organizations$.mockReturnValue(of([{ id: "org1" } as any]));
+      mockOrganizationService.memberOrganizations$.mockReturnValue(of([{ id: "org1" } as any]));
       setupTestService();
 
       // Act
@@ -129,7 +137,7 @@ describe("UnifiedUpgradePromptService", () => {
       // Arrange
       mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
       mockBillingService.hasPremiumFromAnySource$.mockReturnValue(of(false));
-      mockOrganizationService.organizations$.mockReturnValue(of([]));
+      mockOrganizationService.memberOrganizations$.mockReturnValue(of([]));
       const oldDate = new Date();
       oldDate.setMinutes(oldDate.getMinutes() - 10); // 10 minutes old
       mockVaultProfileService.getProfileCreationDate.mockResolvedValue(oldDate);
@@ -146,7 +154,7 @@ describe("UnifiedUpgradePromptService", () => {
       //Arrange
       mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
       mockBillingService.hasPremiumFromAnySource$.mockReturnValue(of(false));
-      mockOrganizationService.organizations$.mockReturnValue(of([]));
+      mockOrganizationService.memberOrganizations$.mockReturnValue(of([]));
       const recentDate = new Date();
       recentDate.setMinutes(recentDate.getMinutes() - 3); // 3 minutes old
       mockVaultProfileService.getProfileCreationDate.mockResolvedValue(recentDate);
@@ -180,7 +188,7 @@ describe("UnifiedUpgradePromptService", () => {
       // Arrange
       mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
       mockBillingService.hasPremiumFromAnySource$.mockReturnValue(of(false));
-      mockOrganizationService.organizations$.mockReturnValue(of([]));
+      mockOrganizationService.memberOrganizations$.mockReturnValue(of([]));
       mockVaultProfileService.getProfileCreationDate.mockResolvedValue(null);
       setupTestService();
 
