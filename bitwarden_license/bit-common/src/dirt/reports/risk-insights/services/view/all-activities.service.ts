@@ -76,12 +76,9 @@ export class AllActivitiesService {
   }
 
   setAllAppsReportDetails(applications: ApplicationHealthReportDetailEnriched[]) {
-    // Only count at-risk passwords for CRITICAL applications
-    const criticalApps = applications.filter((app) => app.isMarkedAsCritical);
-    const totalAtRiskPasswords = criticalApps.reduce(
-      (sum, app) => sum + app.atRiskPasswordCount,
-      0,
-    );
+    const totalAtRiskPasswords = applications
+      .filter((app) => app.isMarkedAsCritical)
+      .reduce((sum, app) => sum + app.atRiskPasswordCount, 0);
     this.atRiskPasswordsCountSubject$.next(totalAtRiskPasswords);
 
     this.allApplicationsDetailsSubject$.next(applications);
