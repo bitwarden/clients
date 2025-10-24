@@ -86,7 +86,7 @@ export class SessionTimeoutSettingsComponent implements OnInit {
   private readonly logService = inject(LogService);
 
   readonly excludeTimeoutTypes = input.required<VaultTimeout[]>();
-  readonly refreshTimeoutActionSettings$ = input<Observable<void>>(
+  readonly refreshTimeoutActionSettings = input<Observable<void>>(
     new BehaviorSubject<void>(undefined),
   );
 
@@ -150,7 +150,7 @@ export class SessionTimeoutSettingsComponent implements OnInit {
       { emitEvent: false },
     );
 
-    this.refreshTimeoutActionSettings$()
+    this.refreshTimeoutActionSettings()
       .pipe(
         startWith(undefined),
         switchMap(() =>
