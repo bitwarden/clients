@@ -6,6 +6,7 @@ import {
   distinctUntilChanged,
   shareReplay,
   combineLatest,
+  BehaviorSubject,
   Observable,
   switchMap,
   filter,
@@ -84,6 +85,7 @@ export const getOptionalUserId = map<Account | null, UserId | null>(
 export class AccountServiceImplementation implements InternalAccountService {
   private accountsState: GlobalState<Record<UserId, AccountInfo>>;
   private activeAccountIdState: GlobalState<UserId | undefined>;
+  private _showHeader$ = new BehaviorSubject<boolean>(true);
 
   accounts$: Observable<Record<UserId, AccountInfo>>;
   activeAccount$: Observable<Account | null>;
@@ -91,6 +93,7 @@ export class AccountServiceImplementation implements InternalAccountService {
   accountVerifyNewDeviceLogin$: Observable<boolean>;
   sortedUserIds$: Observable<UserId[]>;
   nextUpAccount$: Observable<Account>;
+  showHeader$ = this._showHeader$.asObservable();
 
   constructor(
     private messagingService: MessagingService,
@@ -260,6 +263,10 @@ export class AccountServiceImplementation implements InternalAccountService {
       this.logService.error(e);
       throw e;
     }
+  }
+
+  async setShowHeader(visible: boolean): Promise<void> {
+    this._showHeader$.next(visible);
   }
 
   private async setAccountInfo(userId: UserId, update: Partial<AccountInfo>): Promise<void> {
