@@ -91,7 +91,7 @@
     "message": "Pre sledovanie progresu, priraďte členom úlohy"
   },
   "onceYouReviewApps": {
-    "message": "Once you review applications and mark them as critical, you can assign tasks to members to resolve at-risk items and monitor progress here"
+    "message": "Keď skontrolujete a označíte kritické aplikácie, môžete na tomto mieste prideliť členom úlohy pre ohrozené položky a sledovať progres"
   },
   "sendReminders": {
     "message": "Poslať upomienky"
@@ -151,6 +151,15 @@
       "count": {
         "content": "$1",
         "example": "3"
+      }
+    }
+  },
+  "newPasswordsAtRisk": {
+    "message": "$COUNT$ nových ohrozených hesiel",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
       }
     }
   },
@@ -2080,9 +2089,6 @@
   "encKeySettings": {
     "message": "Nastavenia šifrovacieho kľúča"
   },
-  "kdfAlgorithm": {
-    "message": "KDF algoritmus"
-  },
   "kdfIterations": {
     "message": "KDF iterácií"
   },
@@ -2116,9 +2122,6 @@
   },
   "argon2Desc": {
     "message": "Zvýšenie počtu KDF iterácií, pamäti a paralelizmu môže pomôcť chrániť vaše hlavné heslo pri brute force útoku."
-  },
-  "changeKdf": {
-    "message": "Zmeniť KDF"
   },
   "encKeySettingsChanged": {
     "message": "Nastavenia šifrovacieho kľúča zmenené"
@@ -5709,6 +5712,65 @@
   "organizationDataOwnershipWarningContentBottom": {
     "message": "Viac informácií o ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about the credential lifecycle.'"
+  },
+  "availableNow": {
+    "message": "Available now"
+  },
+  "autoConfirm": {
+    "message": "Automatic confirmation of new users"
+  },
+  "autoConfirmDescription": {
+    "message": "New users invited to the organization will be automatically confirmed when an admin’s device is unlocked.",
+    "description": "This is the description of the policy as it appears in the 'Policies' page"
+  },
+  "howToTurnOnAutoConfirm": {
+    "message": "How to turn on automatic user confirmation"
+  },
+  "autoConfirmStep1": {
+    "message": "Open your Bitwarden extension."
+  },
+  "autoConfirmStep2a": {
+    "message": "Select",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  },
+  "autoConfirmStep2b": {
+    "message": " Turn on.",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  },
+  "autoConfirmExtensionOpened": {
+    "message": "Successfully opened the Bitwarden browser extension. You can now activate the automatic user confirmation setting."
+  },
+  "autoConfirmPolicyEditDescription": {
+    "message": "New users invited to the organization will be automatically confirmed when an admin’s device is unlocked. Before turning on this policy, please review and agree to the following: ",
+    "description": "This is the description of the policy as it appears inside the policy edit dialog"
+  },
+  "autoConfirmAcceptSecurityRiskTitle": {
+    "message": "Potential security risk. "
+  },
+  "autoConfirmAcceptSecurityRiskDescription": {
+    "message": "Automatic user confirmation could pose a security risk to your organization’s data."
+  },
+  "autoConfirmAcceptSecurityRiskLearnMore": {
+    "message": "Learn about the risks",
+    "description": "The is the link copy for the first check box option in the edit policy dialog"
+  },
+  "autoConfirmSingleOrgRequired": {
+    "message": "Single organization policy required. "
+  },
+  "autoConfirmSingleOrgRequiredDescription": {
+    "message": "Anyone part of more than one organization will have their access revoked until they leave the other organizations."
+  },
+  "autoConfirmSingleOrgExemption": {
+    "message": "Single organization policy will extend to all roles. "
+  },
+  "autoConfirmNoEmergencyAccess": {
+    "message": "No emergency access. "
+  },
+  "autoConfirmNoEmergencyAccessDescription": {
+    "message": "Emergency Access will be removed."
+  },
+  "autoConfirmCheckBoxLabel": {
+    "message": "I accept these risks and policy updates"
   },
   "personalOwnership": {
     "message": "Zakázať osobný trezor"
@@ -10361,26 +10423,8 @@
   "memberAccessReportAuthenticationEnabledFalse": {
     "message": "Vypnuté"
   },
-  "higherKDFIterations": {
-    "message": "Zvýšenie počtu KDF iterácií môže pomôcť chrániť vaše hlavné heslo pri brute force útoku."
-  },
-  "incrementsOf100,000": {
-    "message": "prírastok po 100 000"
-  },
-  "smallIncrements": {
-    "message": "malý prírastok"
-  },
   "kdfIterationRecommends": {
     "message": "Odporúčame aspoň 600 000"
-  },
-  "kdfToHighWarningIncreaseInIncrements": {
-    "message": "Nastavenie príliš vysokého počtu KDF iterácii môže viesť k problémom vo výkone na starších zariadeniach. Zvýšte hodnotu $VALUE$ a otestujte na vašich zariadeniach.",
-    "placeholders": {
-      "value": {
-        "content": "$1",
-        "example": "increments of 100,000"
-      }
-    }
   },
   "providerReinstate": {
     "message": " Ak chcete obnoviť vaše predplatné, kontaktujte zákaznícku podporu."
@@ -11024,6 +11068,15 @@
   "domainClaimed": {
     "message": "Doména privlastnená"
   },
+  "itemAddedToFavorites": {
+    "message": "Položka pridaná medzi obľúbené"
+  },
+  "itemRemovedFromFavorites": {
+    "message": "Položka odobraná z obľúbených"
+  },
+  "copyNote": {
+    "message": "Kopírovať poznámku"
+  },
   "organizationNameMaxLength": {
     "message": "Meno organizácie nemôže mať viac ako 50 znakov."
   },
@@ -11295,45 +11348,45 @@
     "description": "Verb"
   },
   "unArchive": {
-    "message": "Unarchive"
+    "message": "Zrušiť archiváciu"
   },
   "itemsInArchive": {
-    "message": "Items in archive"
+    "message": "Položky v archíve"
   },
   "noItemsInArchive": {
     "message": "Žiadne položky v archíve"
   },
   "noItemsInArchiveDesc": {
-    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+    "message": "Tu sa zobrazia archivované položky, ktoré budú vylúčené zo všeobecného vyhľadávania a z návrhov automatického vypĺňania."
   },
   "itemWasSentToArchive": {
-    "message": "Item was sent to archive"
+    "message": "Položka bola archivovaná"
   },
   "itemsWereSentToArchive": {
-    "message": "Items were sent to archive"
+    "message": "Položky boli archivované"
   },
   "itemUnarchived": {
-    "message": "Item was unarchived"
+    "message": "Položka bola odobraná z archívu"
   },
   "bulkArchiveItems": {
-    "message": "Items archived"
+    "message": "Položky archivované"
   },
   "bulkUnarchiveItems": {
-    "message": "Items unarchived"
+    "message": "Položky boli odobrané z archívu"
   },
   "archiveItem": {
-    "message": "Archive item",
+    "message": "Archivovať položku",
     "description": "Verb"
   },
   "archiveItemConfirmDesc": {
-    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+    "message": "Archivované položky sú vylúčené zo všeobecného vyhľadávania a z návrhov automatického vypĺňania. Naozaj chcete archivovať túto položku?"
   },
   "archiveBulkItems": {
-    "message": "Archive items",
+    "message": "Archivovať položky",
     "description": "Verb"
   },
   "archiveBulkItemsConfirmDesc": {
-    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive these items?"
+    "message": "Archivované položky sú vylúčené zo všeobecného vyhľadávania a z návrhov automatického vypĺňania. Naozaj chcete archivovať tieto položky?"
   },
   "businessUnit": {
     "message": "Organizačná jednotka"
@@ -11837,24 +11890,51 @@
     "message": "Pokračovať bez povýšenia"
   },
   "upgradeYourPlan": {
-    "message": "Upgrade your plan"
+    "message": "Navýšte si svoje predplatné"
   },
   "upgradeNow": {
-    "message": "Upgrade now"
+    "message": "Navýšiť teraz"
   },
   "formWillCreateNewFamiliesOrgMessage": {
-    "message": "Completing this form will create a new Families organization. You can upgrade your Free organization from the Admin Console."
+    "message": "Vyplnením tohto formulára sa vytvorí organizácia Rodiny. Povýšiť vašu organizáciu Zdarma môžete v konzole správcu."
   },
   "upgradeErrorMessage": {
     "message": "Pri spracovaní povýšenia došlo k chybe. Prosím skúste to znova."
   },
   "bitwardenFreeplanMessage": {
-    "message": "You have the Bitwarden Free plan"
+    "message": "Mate predplatné Bitwarden Zadarmo"
   },
   "upgradeCompleteSecurity": {
-    "message": "Upgrade for complete security"
+    "message": "Navýšte predplatné pre kompletnú bezpečnosť"
   },
   "viewbusinessplans": {
-    "message": "View business plans"
+    "message": "Zobraziť predplatné pre firmy"
+  },
+  "updateEncryptionSettings": {
+    "message": "Update encryption settings"
+  },
+  "updateYourEncryptionSettings": {
+    "message": "Update your encryption settings"
+  },
+  "updateSettings": {
+    "message": "Update settings"
+  },
+  "algorithm": {
+    "message": "Algorithm"
+  },
+  "encryptionKeySettingsHowShouldWeEncryptYourData": {
+    "message": "Choose how Bitwarden should encrypt your vault data. All options are secure, but stronger methods offer better protection - especially against brute-force attacks. Bitwarden recommends the default setting for most users."
+  },
+  "encryptionKeySettingsIncreaseImproveSecurity": {
+    "message": "Increasing the values above the default will improve security, but your vault may take longer to unlock as a result."
+  },
+  "encryptionKeySettingsAlgorithmPopoverTitle": {
+    "message": "About encryption algorithms"
+  },
+  "encryptionKeySettingsAlgorithmPopoverPBKDF2": {
+    "message": "PBKDF2-SHA256 is a well-tested encryption method that balances security and performance. Good for all users."
+  },
+  "encryptionKeySettingsAlgorithmPopoverArgon2Id": {
+    "message": "Argon2id offers stronger protection against modern attacks. Best for advanced users with powerful devices."
   }
 }

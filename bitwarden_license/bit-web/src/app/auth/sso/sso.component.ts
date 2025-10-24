@@ -9,15 +9,7 @@ import {
   Validators,
 } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
-import {
-  concatMap,
-  firstValueFrom,
-  pairwise,
-  startWith,
-  Subject,
-  switchMap,
-  takeUntil,
-} from "rxjs";
+import { concatMap, firstValueFrom, Subject, Subscription, switchMap, takeUntil } from "rxjs";
 
 import { ControlsOf } from "@bitwarden/angular/types/controls-of";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -45,8 +37,10 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ToastService } from "@bitwarden/components";
+import { LogService } from "@bitwarden/logging";
 
 import { ssoTypeValidator } from "./sso-type.validator";
 
@@ -120,7 +114,11 @@ export class SsoComponent implements OnInit, OnDestroy {
 
   showOpenIdCustomizations = false;
 
-  loading = true;
+  isInitializing = true; // concerned with UI/UX (i.e. when to show loading spinner vs form)
+  isFormValidatingOrPopulating = true; // tracks when form fields are being validated/populated during load() or submit()
+
+  configuredKeyConnectorUrlFromServer: string | null;
+  memberDecryptionTypeValueChangesSubscription: Subscription | null = null;
   haveTestedKeyConnector = false;
   organizationId: string;
   organization: Organization;
@@ -215,6 +213,8 @@ export class SsoComponent implements OnInit, OnDestroy {
     private organizationApiService: OrganizationApiServiceAbstraction,
     private toastService: ToastService,
     private environmentService: EnvironmentService,
+    private validationService: ValidationService,
+    private logService: LogService,
   ) {}
 
   async ngOnInit() {
@@ -265,41 +265,6 @@ export class SsoComponent implements OnInit, OnDestroy {
       .subscribe();
 
     this.showKeyConnectorOptions = this.platformUtilsService.isSelfHost();
-
-    // Only setup listener if key connector is a possible selection
-    if (this.showKeyConnectorOptions) {
-      this.listenForKeyConnectorSelection();
-    }
-  }
-
-  listenForKeyConnectorSelection() {
-    const memberDecryptionTypeOnInit = this.ssoConfigForm?.controls?.memberDecryptionType.value;
-
-    this.ssoConfigForm?.controls?.memberDecryptionType.valueChanges
-      .pipe(
-        startWith(memberDecryptionTypeOnInit),
-        pairwise(),
-        switchMap(async ([prevMemberDecryptionType, newMemberDecryptionType]) => {
-          // Only pre-populate a default URL when changing TO Key Connector from a different decryption type.
-          // ValueChanges gets re-triggered during the submit() call, so we need a !== check
-          // to prevent a custom URL from getting overwritten back to the default on a submit().
-          if (
-            prevMemberDecryptionType !== MemberDecryptionType.KeyConnector &&
-            newMemberDecryptionType === MemberDecryptionType.KeyConnector
-          ) {
-            // Pre-populate a default key connector URL (user can still change it)
-            const env = await firstValueFrom(this.environmentService.environment$);
-            const webVaultUrl = env.getWebVaultUrl();
-            const defaultKeyConnectorUrl = webVaultUrl + "/key-connector";
-
-            this.ssoConfigForm.controls.keyConnectorUrl.setValue(defaultKeyConnectorUrl);
-          } else if (newMemberDecryptionType !== MemberDecryptionType.KeyConnector) {
-            this.ssoConfigForm.controls.keyConnectorUrl.setValue("");
-          }
-        }),
-        takeUntil(this.destroy$),
-      )
-      .subscribe();
   }
 
   ngOnDestroy(): void {
@@ -308,54 +273,134 @@ export class SsoComponent implements OnInit, OnDestroy {
   }
 
   async load() {
-    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-    this.organization = await firstValueFrom(
-      this.organizationService
-        .organizations$(userId)
-        .pipe(getOrganizationById(this.organizationId)),
-    );
-    const ssoSettings = await this.organizationApiService.getSso(this.organizationId);
-    this.populateForm(ssoSettings);
+    // Even though these component properties were initialized to true, we must always reset
+    // them to true at the top of this method in case an admin navigates to another org via
+    // the browser address bar, which re-executes load() on the same component instance
+    // (not a new instance).
+    this.isInitializing = true;
+    this.isFormValidatingOrPopulating = true;
+    // Same with unsubscribing: re-executing load() on the same component instance (not a new
+    // instance) means we will not unsubscribe via takeUntil(this.destroy$). We must manually
+    // unsubscribe for this case. We unsubscribe here in case the try block fails.
+    this.memberDecryptionTypeValueChangesSubscription?.unsubscribe();
+    this.memberDecryptionTypeValueChangesSubscription = null;
 
-    this.callbackPath = ssoSettings.urls.callbackPath;
-    this.signedOutCallbackPath = ssoSettings.urls.signedOutCallbackPath;
-    this.spEntityId = ssoSettings.urls.spEntityId;
-    this.spEntityIdStatic = ssoSettings.urls.spEntityIdStatic;
-    this.spMetadataUrl = ssoSettings.urls.spMetadataUrl;
-    this.spAcsUrl = ssoSettings.urls.spAcsUrl;
+    try {
+      const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+      this.organization = await firstValueFrom(
+        this.organizationService
+          .organizations$(userId)
+          .pipe(getOrganizationById(this.organizationId)),
+      );
+      const ssoSettings = await this.organizationApiService.getSso(this.organizationId);
+      this.configuredKeyConnectorUrlFromServer = ssoSettings.data?.keyConnectorUrl;
+      this.populateForm(ssoSettings);
 
-    this.loading = false;
+      this.callbackPath = ssoSettings.urls.callbackPath;
+      this.signedOutCallbackPath = ssoSettings.urls.signedOutCallbackPath;
+      this.spEntityId = ssoSettings.urls.spEntityId;
+      this.spEntityIdStatic = ssoSettings.urls.spEntityIdStatic;
+      this.spMetadataUrl = ssoSettings.urls.spMetadataUrl;
+      this.spAcsUrl = ssoSettings.urls.spAcsUrl;
+
+      if (this.showKeyConnectorOptions) {
+        // We don't setup this subscription until AFTER the form has been populated on load().
+        // This is because populateForm() will trigger valueChanges, but we don't want to
+        // listen for or react to valueChanges until AFTER the form has had a chance to be
+        // populated with already configured values retrieved from the server.
+        this.subscribeToMemberDecryptionTypeValueChanges();
+      }
+    } catch (error) {
+      this.logService.error("Error loading SSO configuration: ", error);
+      this.validationService.showError(error);
+    } finally {
+      this.isInitializing = false;
+      this.isFormValidatingOrPopulating = false;
+    }
   }
 
   submit = async () => {
-    this.updateFormValidationState(this.ssoConfigForm);
+    this.isFormValidatingOrPopulating = true;
 
-    if (this.ssoConfigForm.value.memberDecryptionType === MemberDecryptionType.KeyConnector) {
-      this.haveTestedKeyConnector = false;
-      await this.validateKeyConnectorUrl();
+    try {
+      this.updateFormValidationState(this.ssoConfigForm);
+
+      if (this.ssoConfigForm.value.memberDecryptionType === MemberDecryptionType.KeyConnector) {
+        this.haveTestedKeyConnector = false;
+        await this.validateKeyConnectorUrl();
+      }
+
+      if (!this.ssoConfigForm.valid) {
+        this.readOutErrors();
+        return;
+      }
+      const request = new OrganizationSsoRequest();
+      request.enabled = this.enabledCtrl.value;
+      // Return null instead of empty string to avoid duplicate id errors in database
+      request.identifier =
+        this.ssoIdentifierCtrl.value === "" ? null : this.ssoIdentifierCtrl.value;
+      request.data = SsoConfigApi.fromView(this.ssoConfigForm.getRawValue());
+
+      const response = await this.organizationApiService.updateSso(this.organizationId, request);
+      this.configuredKeyConnectorUrlFromServer = response.data?.keyConnectorUrl;
+      this.populateForm(response);
+
+      await this.upsertOrganizationWithSsoChanges(request);
+
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("ssoSettingsSaved"),
+      });
+    } finally {
+      this.isFormValidatingOrPopulating = false;
     }
-
-    if (!this.ssoConfigForm.valid) {
-      this.readOutErrors();
-      return;
-    }
-    const request = new OrganizationSsoRequest();
-    request.enabled = this.enabledCtrl.value;
-    // Return null instead of empty string to avoid duplicate id errors in database
-    request.identifier = this.ssoIdentifierCtrl.value === "" ? null : this.ssoIdentifierCtrl.value;
-    request.data = SsoConfigApi.fromView(this.ssoConfigForm.getRawValue());
-
-    const response = await this.organizationApiService.updateSso(this.organizationId, request);
-    this.populateForm(response);
-
-    await this.upsertOrganizationWithSsoChanges(request);
-
-    this.toastService.showToast({
-      variant: "success",
-      title: null,
-      message: this.i18nService.t("ssoSettingsSaved"),
-    });
   };
+
+  private subscribeToMemberDecryptionTypeValueChanges() {
+    // The load() method will have unsubscribed from any pre-existing subscription before
+    // we setup a new subscription here.
+
+    this.memberDecryptionTypeValueChangesSubscription =
+      this.ssoConfigForm?.controls?.memberDecryptionType.valueChanges
+        .pipe(
+          switchMap(async (memberDecryptionType: MemberDecryptionType) => {
+            this.haveTestedKeyConnector = false;
+
+            if (this.isFormValidatingOrPopulating) {
+              // If the form is being validated/populated due to a load() or submit() call (both of which
+              // trigger valueChanges) we don't want to react to this valueChanges emission.
+              return;
+            }
+
+            if (memberDecryptionType === MemberDecryptionType.KeyConnector) {
+              if (this.configuredKeyConnectorUrlFromServer) {
+                // If the user already has a key connector URL configured, it will have been retrieved
+                // from the server and set to the form field upon load(). But if this user then selects a
+                // different Member Decryption option (but does not save the form), and then once again
+                // selects the Key Connector option, we want to pre-populate the form field with the already
+                // configured URL that was originally retreived from the server, not a default URL.
+                this.ssoConfigForm.controls.keyConnectorUrl.setValue(
+                  this.configuredKeyConnectorUrlFromServer,
+                );
+                return;
+              }
+
+              // Pre-populate a default key connector URL (user can still change it)
+              const env = await firstValueFrom(this.environmentService.environment$);
+              const webVaultUrl = env.getWebVaultUrl();
+              const defaultKeyConnectorUrl = webVaultUrl + "/key-connector";
+
+              this.ssoConfigForm.controls.keyConnectorUrl.setValue(defaultKeyConnectorUrl);
+            } else {
+              // Clear the key connector url
+              this.ssoConfigForm.controls.keyConnectorUrl.setValue("");
+            }
+          }),
+          takeUntil(this.destroy$),
+        )
+        .subscribe();
+  }
 
   async validateKeyConnectorUrl() {
     if (this.haveTestedKeyConnector) {
@@ -371,6 +416,7 @@ export class SsoComponent implements OnInit, OnDestroy {
       this.keyConnectorUrl.setErrors({
         invalidUrl: { message: this.i18nService.t("keyConnectorTestFail") },
       });
+      this.keyConnectorUrl.markAllAsTouched();
     }
 
     this.haveTestedKeyConnector = true;
