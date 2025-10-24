@@ -13,6 +13,7 @@ import {
 } from "@bitwarden/angular/auth/guards";
 import { ChangePasswordComponent } from "@bitwarden/angular/auth/password-management/change-password";
 import { SetInitialPasswordComponent } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.component";
+import { preventProdAccessGuard } from "@bitwarden/angular/platform/guard/prevent-prod-access.guard";
 import {
   DevicesIcon,
   RegistrationUserAddIcon,
@@ -122,6 +123,19 @@ const routes: Routes = [
     path: "",
     component: AnonLayoutWrapperComponent,
     children: [
+      {
+        path: "feature-flags",
+        canMatch: [preventProdAccessGuard], //preventSelfHostedAccessGuard
+        data: {
+          pageTitle: {
+            key: "featureFlags",
+          },
+          maxWidth: "3xl",
+          hideIcon: true,
+        } satisfies RouteDataProperties & AnonLayoutWrapperData,
+        loadComponent: () =>
+          import("@bitwarden/angular/platform/feature-flags").then((m) => m.FeatureFlagsComponent),
+      },
       {
         path: "signup",
         canActivate: [unauthGuardFn()],

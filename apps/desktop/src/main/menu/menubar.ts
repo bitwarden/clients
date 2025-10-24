@@ -58,6 +58,7 @@ export class Menubar {
     appVersion: string,
     hardwareAccelerationEnabled: boolean,
     versionMain: VersionMain,
+    isProdOrSelfHost: boolean,
     updateRequest?: MenuUpdateRequest,
   ) {
     let isLocked = true;
@@ -86,7 +87,7 @@ export class Menubar {
         updateRequest?.restrictedCipherTypes,
       ),
       new EditMenu(i18nService, messagingService, isLocked),
-      new ViewMenu(i18nService, messagingService, isLocked),
+      new ViewMenu(i18nService, messagingService, isLocked, isProdOrSelfHost),
       new AccountMenu(
         i18nService,
         messagingService,

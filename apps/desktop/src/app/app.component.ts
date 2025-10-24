@@ -327,6 +327,9 @@ export class AppComponent implements OnInit, OnDestroy {
           case "openPasswordHistory":
             await this.openGeneratorHistory();
             break;
+          case "viewFeatureFlags":
+            await this.viewFeatureFlags();
+            break;
           case "showToast":
             this.toastService._showToast(message);
             break;
@@ -537,6 +540,10 @@ export class AppComponent implements OnInit, OnDestroy {
   async openGeneratorHistory() {
     await this.dialogService.open(CredentialGeneratorHistoryDialogComponent);
     return;
+  }
+
+  async viewFeatureFlags() {
+    await this.router.navigate(["/feature-flags"]);
   }
 
   private async updateAppMenu() {
