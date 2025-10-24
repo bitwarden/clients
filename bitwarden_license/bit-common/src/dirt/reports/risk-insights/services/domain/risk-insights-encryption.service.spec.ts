@@ -151,14 +151,17 @@ describe("RiskInsightsEncryptionService", () => {
 
   describe("decryptRiskInsightsReport", () => {
     it("should decrypt data and return original object", async () => {
-      // Arrange: setup our mocks
+      // Arrange: setup our mocks with valid data structures
       mockKeyService.orgKeys$.mockReturnValue(orgKey$);
       mockEncryptService.unwrapSymmetricKey.mockResolvedValue(contentEncryptionKey);
-      mockEncryptService.decryptString.mockResolvedValue(JSON.stringify(testData));
 
-      // act: call the decrypt method - with any params
-      // actual decryption does not happen here,
-      // we just want to ensure the method calls are correct
+      // Mock decryption to return valid data for each call
+      mockEncryptService.decryptString
+        .mockResolvedValueOnce(JSON.stringify(mockReportData))
+        .mockResolvedValueOnce(JSON.stringify(mockSummaryData))
+        .mockResolvedValueOnce(JSON.stringify(mockApplicationData));
+
+      // act: call the decrypt method
       const result = await service.decryptRiskInsightsReport(
         { organizationId: orgId, userId },
         mockEncryptedData,
@@ -169,33 +172,37 @@ describe("RiskInsightsEncryptionService", () => {
       expect(mockEncryptService.unwrapSymmetricKey).toHaveBeenCalledWith(mockKey, orgKey);
       expect(mockEncryptService.decryptString).toHaveBeenCalledTimes(3);
 
-      // Mock decrypt returns JSON.stringify(testData)
+      // Verify decrypted data matches the mocked valid data
       expect(result).toEqual({
-        reportData: testData,
-        summaryData: testData,
-        applicationData: testData,
+        reportData: mockReportData,
+        summaryData: mockSummaryData,
+        applicationData: mockApplicationData,
       });
     });
 
     it("should invoke data type validation method during decryption", async () => {
-      // Arrange: setup our mocks
+      // Arrange: setup our mocks with valid data structures
       mockKeyService.orgKeys$.mockReturnValue(orgKey$);
       mockEncryptService.unwrapSymmetricKey.mockResolvedValue(contentEncryptionKey);
-      mockEncryptService.decryptString.mockResolvedValue(JSON.stringify(testData));
 
-      // act: call the decrypt method - with any params
-      // actual decryption does not happen here,
-      // we just want to ensure the method calls are correct
+      // Mock decryption to return valid data for each call
+      mockEncryptService.decryptString
+        .mockResolvedValueOnce(JSON.stringify(mockReportData))
+        .mockResolvedValueOnce(JSON.stringify(mockSummaryData))
+        .mockResolvedValueOnce(JSON.stringify(mockApplicationData));
+
+      // act: call the decrypt method
       const result = await service.decryptRiskInsightsReport(
         { organizationId: orgId, userId },
         mockEncryptedData,
         mockKey,
       );
 
+      // Verify that validation passed and returned the correct data
       expect(result).toEqual({
-        reportData: testData,
-        summaryData: testData,
-        applicationData: testData,
+        reportData: mockReportData,
+        summaryData: mockSummaryData,
+        applicationData: mockApplicationData,
       });
     });
 
