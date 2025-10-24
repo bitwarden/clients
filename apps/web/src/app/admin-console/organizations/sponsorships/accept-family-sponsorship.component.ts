@@ -18,6 +18,8 @@ import { BaseAcceptComponent } from "../../../common/base.accept.component";
  * "Bitwarden allows all members of Enterprise Organizations to redeem a complimentary Families Plan with their
  * personal email address." - https://bitwarden.com/learning/free-families-plan-for-enterprise/
  */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "accept-family-sponsorship.component.html",
   imports: [CommonModule, I18nPipe, IconModule],

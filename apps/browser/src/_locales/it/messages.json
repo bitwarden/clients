@@ -574,7 +574,7 @@
     "message": "Elemento archiviato"
   },
   "itemUnarchived": {
-    "message": "Item was unarchived"
+    "message": "Elemento rimosso dall'archivio"
   },
   "archiveItem": {
     "message": "Archivia elemento"
@@ -5580,30 +5580,30 @@
     "message": "Benvenuto nella tua cassaforte!"
   },
   "phishingPageTitleV2": {
-    "message": "Phishing attempt detected"
+    "message": "Tentativo di phishing rilevato"
   },
   "phishingPageSummary": {
-    "message": "The site you are attempting to visit is a known malicious site and a security risk."
+    "message": "Stai cercando di visitare un sito dannoso noto che può mettere a rischio la tua sicurezza."
   },
   "phishingPageCloseTabV2": {
-    "message": "Close this tab"
+    "message": "Chiudi tab"
   },
   "phishingPageContinueV2": {
-    "message": "Continue to this site (not recommended)"
+    "message": "Vai al sito (SCONSIGLIATO!)"
   },
   "phishingPageExplanation1": {
-    "message": "This site was found in ",
+    "message": "Questo sito è stato trovato in ",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name follows this."
   },
   "phishingPageExplanation2": {
-    "message": ", an open-source list of known phishing sites used for stealing personal and sensitive information.",
+    "message": ", un elenco open-source di siti di phishing noti per il furto di informazioni personali e sensibili.",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name precedes this."
   },
   "phishingPageLearnMore": {
-    "message": "Learn more about phishing detection"
+    "message": "Scopri di più sul rilevamento di phishing"
   },
   "protectedBy": {
-    "message": "Protected by $PRODUCT$",
+    "message": "Protetto da $PRODUCT$",
     "placeholders": {
       "product": {
         "content": "$1",
@@ -5714,5 +5714,12 @@
   },
   "confirmKeyConnectorDomain": {
     "message": "Conferma dominio Key Connector"
+  },
+  "atRiskLoginsSecured": {
+    "message": "Great job securing your at-risk logins!"
+  },
+  "settingDisabledByPolicy": {
+    "message": "Questa impostazione è disabilitata dalle restrizioni della tua organizzazione.",
+    "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
   }
 }

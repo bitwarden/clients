@@ -67,7 +67,7 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   @Input() userCanArchive: boolean;
   @Input() enforceOrgDataOwnershipPolicy: boolean;
 
-  private restrictedPolicies = toSignal(this.restrictedItemTypesService.restricted$);
+  private readonly restrictedPolicies = toSignal(this.restrictedItemTypesService.restricted$);
 
   private _ciphers?: C[] = [];
   @Input() get ciphers(): C[] {

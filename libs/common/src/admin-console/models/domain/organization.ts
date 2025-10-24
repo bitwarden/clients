@@ -38,6 +38,7 @@ export class Organization {
   useSecretsManager: boolean;
   usePasswordManager: boolean;
   useActivateAutofillPolicy: boolean;
+  useAutomaticUserConfirmation: boolean;
   selfHost: boolean;
   usersGetPremium: boolean;
   seats: number;
@@ -124,6 +125,7 @@ export class Organization {
     this.useSecretsManager = obj.useSecretsManager;
     this.usePasswordManager = obj.usePasswordManager;
     this.useActivateAutofillPolicy = obj.useActivateAutofillPolicy;
+    this.useAutomaticUserConfirmation = obj.useAutomaticUserConfirmation;
     this.selfHost = obj.selfHost;
     this.usersGetPremium = obj.usersGetPremium;
     this.seats = obj.seats;
@@ -309,7 +311,12 @@ export class Organization {
   }
 
   get canManageDeviceApprovals() {
-    return (this.isAdmin || this.permissions.manageResetPassword) && this.useSso;
+    return (
+      (this.isAdmin || this.permissions.manageResetPassword) &&
+      this.useSso &&
+      this.ssoEnabled &&
+      this.ssoMemberDecryptionType === MemberDecryptionType.TrustedDeviceEncryption
+    );
   }
 
   get isExemptFromPolicies() {

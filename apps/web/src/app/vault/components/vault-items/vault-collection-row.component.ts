@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { Component, EventEmitter, HostListener, Input, Output, ViewChild } from "@angular/core";
 
 import {
   CollectionAdminView,
@@ -11,6 +11,7 @@ import {
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
+import { MenuTriggerForDirective } from "@bitwarden/components";
 
 import { GroupView } from "../../../admin-console/organizations/core";
 
@@ -32,6 +33,8 @@ export class VaultCollectionRowComponent<C extends CipherViewLike> {
   protected Unassigned = "unassigned";
   protected CollectionPermission = CollectionPermission;
   protected DefaultCollectionType = CollectionTypes.DefaultUserCollection;
+
+  @ViewChild(MenuTriggerForDirective, { static: false }) menuTrigger: MenuTriggerForDirective;
 
   @Input() disabled: boolean;
   @Input() collection: CollectionView;
@@ -121,5 +124,16 @@ export class VaultCollectionRowComponent<C extends CipherViewLike> {
 
   protected deleteCollection() {
     this.onEvent.next({ type: "delete", items: [{ collection: this.collection }] });
+  }
+
+  @HostListener("contextmenu", ["$event"])
+  protected onRightClick(event: MouseEvent) {
+    if (event.shiftKey && event.ctrlKey) {
+      return;
+    }
+
+    if (!this.disabled && this.menuTrigger) {
+      this.menuTrigger.toggleMenuOnRightClick(event);
+    }
   }
 }

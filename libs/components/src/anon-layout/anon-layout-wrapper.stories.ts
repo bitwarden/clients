@@ -103,6 +103,8 @@ type Story = StoryObj<AnonLayoutWrapperComponent>;
 
 // Default Example
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-default-primary-outlet-example-component",
   template: "<p>Primary Outlet Example: <br> your primary component goes here</p>",
@@ -110,6 +112,8 @@ type Story = StoryObj<AnonLayoutWrapperComponent>;
 })
 export class DefaultPrimaryOutletExampleComponent {}
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-default-secondary-outlet-example-component",
   template: "<p>Secondary Outlet Example: <br> your secondary component goes here</p>",
@@ -117,6 +121,8 @@ export class DefaultPrimaryOutletExampleComponent {}
 })
 export class DefaultSecondaryOutletExampleComponent {}
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-default-env-selector-outlet-example-component",
   template: "<p>Env Selector Outlet Example: <br> your env selector component goes here</p>",
@@ -147,7 +153,9 @@ export const DefaultContentExample: Story = {
         children: [
           {
             path: "default-example",
-            data: {},
+            data: {
+              pageIcon: LockIcon,
+            } satisfies AnonLayoutWrapperData,
             children: [
               {
                 path: "",
@@ -190,6 +198,8 @@ const changedData: AnonLayoutWrapperData = {
   pageIcon: RegistrationCheckEmailIcon,
 };
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-dynamic-content-example-component",
   template: `

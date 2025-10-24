@@ -15,6 +15,17 @@
         class="tw-block tw-mx-auto tw-h-auto tw-max-w-full tw-max-h-full"
       />
     </div>
+
+    @if (linkURL) {
+      <a
+        class="tw-block tw-mb-0 tw-font-bold hover:tw-no-underline focus:tw-outline-none after:tw-content-[''] after:tw-block after:tw-absolute after:tw-size-full after:tw-left-0 after:tw-top-0 after:tw-w-full after:tw-h-40"
+        [href]="linkURL"
+        rel="noopener noreferrer"
+        target="_blank"
+        title="{{ linkURL }}"
+      >
+      </a>
+    }
   </div>
   <div class="tw-p-5">
     <h3 class="tw-text-main tw-text-lg tw-font-semibold">
@@ -42,16 +53,6 @@
       </button>
     }
 
-    @if (linkURL) {
-      <a
-        class="tw-block tw-mb-0 tw-font-bold hover:tw-no-underline focus:tw-outline-none after:tw-content-[''] after:tw-block after:tw-absolute after:tw-size-full after:tw-left-0 after:tw-top-0"
-        [href]="linkURL"
-        rel="noopener noreferrer"
-        target="_blank"
-        title="{{ linkURL }}"
-      >
-      </a>
-    }
     @if (showNewBadge()) {
       <span bitBadge class="tw-mt-3" variant="secondary">
         {{ "new" | i18n }}

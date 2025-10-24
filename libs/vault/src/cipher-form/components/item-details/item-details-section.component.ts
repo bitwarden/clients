@@ -4,7 +4,7 @@ import { CommonModule } from "@angular/common";
 import { Component, DestroyRef, Input, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
-import { concatMap, firstValueFrom, map } from "rxjs";
+import { concatMap, distinctUntilChanged, firstValueFrom, map } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -125,7 +125,7 @@ export class ItemDetailsSectionComponent implements OnInit {
       this.itemDetailsForm.controls.organizationId.disabled ||
       (!this.allowPersonalOwnership &&
         this.config.originalCipher &&
-        this.itemDetailsForm.controls.organizationId.value === null)
+        this.itemDetailsForm.controls.organizationId.value == null)
     );
   }
 
@@ -236,6 +236,7 @@ export class ItemDetailsSectionComponent implements OnInit {
     this.itemDetailsForm.controls.organizationId.valueChanges
       .pipe(
         takeUntilDestroyed(this.destroyRef),
+        distinctUntilChanged(),
         concatMap(async () => {
           await this.updateCollectionOptions();
           this.setFormState();
@@ -252,7 +253,7 @@ export class ItemDetailsSectionComponent implements OnInit {
       // When editing a cipher and the user cannot have personal ownership
       // and the cipher is is not within the organization - force the user to
       // move the cipher within the organization first before editing any other field
-      if (this.itemDetailsForm.controls.organizationId.value === null) {
+      if (this.itemDetailsForm.controls.organizationId.value == null) {
         this.cipherFormContainer.disableFormFields();
         this.itemDetailsForm.controls.organizationId.enable();
         this.favoriteButtonDisabled = true;
@@ -314,7 +315,10 @@ export class ItemDetailsSectionComponent implements OnInit {
 
     this.itemDetailsForm.patchValue({
       name: name ? name : (this.initialValues?.name ?? ""),
-      organizationId: prefillCipher.organizationId, // We do not allow changing ownership of an existing cipher.
+      // We do not allow changing ownership of an existing cipher.
+      // Angular forms do not support `undefined` as a value for a form control,
+      // force `null` if `organizationId` is undefined.
+      organizationId: prefillCipher.organizationId ?? null,
       folderId: folderId ? folderId : (this.initialValues?.folderId ?? null),
       collectionIds: [],
       favorite: prefillCipher.favorite,

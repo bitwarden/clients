@@ -24,6 +24,11 @@ import {
   SsoKeyIcon,
   LockIcon,
   BrowserExtensionIcon,
+  ActiveSendIcon,
+  TwoFactorAuthAuthenticatorIcon,
+  AccountWarning,
+  BusinessWelcome,
+  DomainIcon,
 } from "@bitwarden/assets/svg";
 import {
   PasswordHintComponent,
@@ -295,6 +300,7 @@ const routes: Routes = [
             key: "viewSend",
           },
           showReadonlyHostname: true,
+          pageIcon: ActiveSendIcon,
         } satisfies RouteDataProperties & AnonLayoutWrapperData,
         children: [
           {
@@ -314,6 +320,7 @@ const routes: Routes = [
         component: SetInitialPasswordComponent,
         data: {
           maxWidth: "lg",
+          pageIcon: LockIcon,
         } satisfies AnonLayoutWrapperData,
       },
       {
@@ -379,6 +386,8 @@ const routes: Routes = [
           pageTitle: {
             key: "verifyYourIdentity",
           },
+          // `TwoFactorAuthComponent` manually sets its icon based on the 2fa type
+          pageIcon: null,
         } satisfies RouteDataProperties & AnonLayoutWrapperData,
       },
       {
@@ -439,6 +448,7 @@ const routes: Routes = [
             key: "recoverAccountTwoStep",
           },
           titleId: "recoverAccountTwoStep",
+          pageIcon: TwoFactorAuthAuthenticatorIcon,
         } satisfies RouteDataProperties & AnonLayoutWrapperData,
       },
       {
@@ -469,6 +479,7 @@ const routes: Routes = [
           },
           titleId: "acceptEmergency",
           doNotSaveUrl: false,
+          pageIcon: VaultIcon,
         } satisfies RouteDataProperties & AnonLayoutWrapperData,
         children: [
           {
@@ -488,6 +499,7 @@ const routes: Routes = [
             key: "deleteAccount",
           },
           titleId: "deleteAccount",
+          pageIcon: AccountWarning,
         } satisfies RouteDataProperties & AnonLayoutWrapperData,
         children: [
           {
@@ -509,6 +521,7 @@ const routes: Routes = [
             key: "deleteAccount",
           },
           titleId: "deleteAccount",
+          pageIcon: AccountWarning,
         } satisfies RouteDataProperties & AnonLayoutWrapperData,
         children: [
           {
@@ -526,6 +539,7 @@ const routes: Routes = [
             key: "removeMasterPassword",
           },
           titleId: "removeMasterPassword",
+          pageIcon: LockIcon,
         } satisfies RouteDataProperties & AnonLayoutWrapperData,
       },
       {
@@ -537,6 +551,7 @@ const routes: Routes = [
             key: "confirmKeyConnectorDomain",
           },
           titleId: "confirmKeyConnectorDomain",
+          pageIcon: DomainIcon,
         } satisfies RouteDataProperties & AnonLayoutWrapperData,
       },
       {
@@ -548,6 +563,7 @@ const routes: Routes = [
         },
         data: {
           maxWidth: "3xl",
+          pageIcon: BusinessWelcome,
         } satisfies AnonLayoutWrapperData,
       },
       {
@@ -559,6 +575,7 @@ const routes: Routes = [
         },
         data: {
           maxWidth: "3xl",
+          pageIcon: BusinessWelcome,
         } satisfies AnonLayoutWrapperData,
       },
       {
@@ -582,12 +599,15 @@ const routes: Routes = [
         path: "change-password",
         component: ChangePasswordComponent,
         canActivate: [authGuard],
+        data: {
+          pageIcon: LockIcon,
+        } satisfies AnonLayoutWrapperData,
       },
       {
         path: "setup-extension",
         data: {
           hideCardWrapper: true,
-          hideIcon: true,
+          pageIcon: null,
           maxWidth: "4xl",
         } satisfies AnonLayoutWrapperData,
         children: [
