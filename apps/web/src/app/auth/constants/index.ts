@@ -1,1 +1,1 @@
-export * from "./auth-web-routes.constant";
+export * from "./auth-web-route.constant";

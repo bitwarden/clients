@@ -2,7 +2,7 @@ import { Injectable, NgModule } from "@angular/core";
 import { ActivatedRouteSnapshot, RouteReuseStrategy, RouterModule, Routes } from "@angular/router";
 
 import { AuthenticationTimeoutComponent } from "@bitwarden/angular/auth/components/authentication-timeout.component";
-import { AuthRoutes } from "@bitwarden/angular/auth/constants";
+import { AuthRoute } from "@bitwarden/angular/auth/constants";
 import { EnvironmentSelectorComponent } from "@bitwarden/angular/auth/environment-selector/environment-selector.component";
 import {
   activeAuthGuard,
@@ -46,7 +46,7 @@ import { AnonLayoutWrapperComponent, AnonLayoutWrapperData } from "@bitwarden/co
 import { LockComponent, ConfirmKeyConnectorDomainComponent } from "@bitwarden/key-management-ui";
 
 import { AccountSwitcherComponent } from "../auth/popup/account-switching/account-switcher.component";
-import { AuthExtensionRoutes } from "../auth/popup/constants/auth-extension-routes.constant";
+import { AuthExtensionRoute } from "../auth/popup/constants/auth-extension-route.constant";
 import { fido2AuthGuard } from "../auth/popup/guards/fido2-auth.guard";
 import { AccountSecurityComponent } from "../auth/popup/settings/account-security.component";
 import { ExtensionDeviceManagementComponent } from "../auth/popup/settings/extension-device-management.component";
@@ -146,7 +146,7 @@ const routes: Routes = [
     component: ExtensionAnonLayoutWrapperComponent,
     children: [
       {
-        path: AuthRoutes.AuthenticationTimeout,
+        path: AuthRoute.AuthenticationTimeout,
         canActivate: [unauthGuardFn(unauthRouteOverrides)],
         children: [
           {
@@ -165,7 +165,7 @@ const routes: Routes = [
     ],
   },
   {
-    path: AuthRoutes.NewDeviceVerification,
+    path: AuthRoute.NewDeviceVerification,
     component: ExtensionAnonLayoutWrapperComponent,
     canActivate: [unauthGuardFn(), activeAuthGuard()],
     children: [{ path: "", component: NewDeviceVerificationComponent }],
@@ -256,13 +256,13 @@ const routes: Routes = [
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
   {
-    path: AuthExtensionRoutes.AccountSecurity,
+    path: AuthExtensionRoute.AccountSecurity,
     component: AccountSecurityComponent,
     canActivate: [authGuard],
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
   {
-    path: AuthExtensionRoutes.DeviceManagement,
+    path: AuthExtensionRoute.DeviceManagement,
     component: ExtensionDeviceManagementComponent,
     canActivate: [authGuard],
     data: { elevation: 1 } satisfies RouteDataProperties,
@@ -338,7 +338,7 @@ const routes: Routes = [
     component: ExtensionAnonLayoutWrapperComponent,
     children: [
       {
-        path: AuthRoutes.SignUp,
+        path: AuthRoute.SignUp,
         canActivate: [unauthGuardFn()],
         data: {
           elevation: 1,
@@ -358,13 +358,13 @@ const routes: Routes = [
             component: RegistrationStartSecondaryComponent,
             outlet: "secondary",
             data: {
-              loginRoute: `/${AuthRoutes.Login}`,
+              loginRoute: `/${AuthRoute.Login}`,
             } satisfies RegistrationStartSecondaryComponentData,
           },
         ],
       },
       {
-        path: AuthRoutes.FinishSignUp,
+        path: AuthRoute.FinishSignUp,
         canActivate: [unauthGuardFn()],
         data: {
           pageIcon: LockIcon,
@@ -379,7 +379,7 @@ const routes: Routes = [
         ],
       },
       {
-        path: AuthRoutes.SetInitialPassword,
+        path: AuthRoute.SetInitialPassword,
         canActivate: [authGuard],
         component: SetInitialPasswordComponent,
         data: {
@@ -387,7 +387,7 @@ const routes: Routes = [
         } satisfies RouteDataProperties,
       },
       {
-        path: AuthRoutes.Login,
+        path: AuthRoute.Login,
         canActivate: [unauthGuardFn(unauthRouteOverrides), IntroCarouselGuard],
         data: {
           pageIcon: VaultIcon,
@@ -408,7 +408,7 @@ const routes: Routes = [
         ],
       },
       {
-        path: AuthRoutes.LoginWithPasskey,
+        path: AuthRoute.LoginWithPasskey,
         canActivate: [unauthGuardFn(unauthRouteOverrides)],
         data: {
           pageIcon: TwoFactorAuthSecurityKeyIcon,
@@ -431,7 +431,7 @@ const routes: Routes = [
         ],
       },
       {
-        path: AuthRoutes.Sso,
+        path: AuthRoute.Sso,
         canActivate: [unauthGuardFn(unauthRouteOverrides)],
         data: {
           pageIcon: VaultIcon,
@@ -453,7 +453,7 @@ const routes: Routes = [
         ],
       },
       {
-        path: AuthRoutes.LoginWithDevice,
+        path: AuthRoute.LoginWithDevice,
         canActivate: [redirectToVaultIfUnlockedGuard()],
         data: {
           pageIcon: DevicesIcon,
@@ -476,7 +476,7 @@ const routes: Routes = [
         ],
       },
       {
-        path: AuthRoutes.PasswordHint,
+        path: AuthRoute.PasswordHint,
         canActivate: [unauthGuardFn(unauthRouteOverrides)],
         data: {
           pageTitle: {
@@ -499,7 +499,7 @@ const routes: Routes = [
         ],
       },
       {
-        path: AuthRoutes.AdminApprovalRequested,
+        path: AuthRoute.AdminApprovalRequested,
         canActivate: [redirectToVaultIfUnlockedGuard()],
         data: {
           pageIcon: DevicesIcon,
@@ -516,7 +516,7 @@ const routes: Routes = [
         children: [{ path: "", component: LoginViaAuthRequestComponent }],
       },
       {
-        path: AuthRoutes.LoginInitiated,
+        path: AuthRoute.LoginInitiated,
         canActivate: [tdeDecryptionRequiredGuard()],
         data: {
           pageIcon: DevicesIcon,
@@ -554,7 +554,7 @@ const routes: Routes = [
         ],
       },
       {
-        path: AuthRoutes.TwoFactor,
+        path: AuthRoute.TwoFactor,
         canActivate: [unauthGuardFn(unauthRouteOverrides), TwoFactorAuthGuard],
         children: [
           {
@@ -573,7 +573,7 @@ const routes: Routes = [
         } satisfies RouteDataProperties & ExtensionAnonLayoutWrapperData,
       },
       {
-        path: AuthRoutes.ChangePassword,
+        path: AuthRoute.ChangePassword,
         data: {
           elevation: 1,
           hideFooter: true,
@@ -695,7 +695,7 @@ const routes: Routes = [
     canActivate: [authGuard, canAccessAtRiskPasswords],
   },
   {
-    path: AuthExtensionRoutes.AccountSwitcher,
+    path: AuthExtensionRoute.AccountSwitcher,
     component: AccountSwitcherComponent,
     data: { elevation: 4, doNotSaveUrl: true } satisfies RouteDataProperties,
   },

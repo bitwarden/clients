@@ -1,7 +1,7 @@
 /**
  * Constants for auth team owned full routes which are shared across clients.
  */
-export const AuthRoutes = Object.freeze({
+export const AuthRoute = Object.freeze({
   SignUp: "signup",
   FinishSignUp: "finish-signup",
   Login: "login",
@@ -18,4 +18,4 @@ export const AuthRoutes = Object.freeze({
   LoginWithPasskey: "login-with-passkey",
 } as const);
 
-export type AuthRoute = (typeof AuthRoutes)[keyof typeof AuthRoutes];
+export type AuthRoute = (typeof AuthRoute)[keyof typeof AuthRoute];

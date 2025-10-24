@@ -1,5 +1,5 @@
 // Web route segments auth owns under shared infrastructure
-export const AuthWebRouteSegments = Object.freeze({
+export const AuthWebRouteSegment = Object.freeze({
   // settings routes
   Account: "account",
   EmergencyAccess: "emergency-access",
@@ -11,10 +11,10 @@ export const AuthWebRouteSegments = Object.freeze({
   DeviceManagement: "device-management",
 } as const);
 
-export type AuthWebRouteSegment = (typeof AuthWebRouteSegments)[keyof typeof AuthWebRouteSegments];
+export type AuthWebRouteSegment = (typeof AuthWebRouteSegment)[keyof typeof AuthWebRouteSegment];
 
 // Full routes that auth owns in the web app
-export const AuthWebRoutes = Object.freeze({
+export const AuthWebRoute = Object.freeze({
   SignUpLinkExpired: "signup-link-expired",
   RecoverTwoFactor: "recover-2fa",
   AcceptEmergencyAccessInvite: "accept-emergency",
@@ -23,13 +23,13 @@ export const AuthWebRoutes = Object.freeze({
   AcceptOrganizationInvite: "accept-organization",
 
   // Composed routes from segments (allowing for router.navigate / routerLink usage)
-  AccountSettings: `settings/${AuthWebRouteSegments.Account}`,
-  EmergencyAccessSettings: `settings/${AuthWebRouteSegments.EmergencyAccess}`,
+  AccountSettings: `settings/${AuthWebRouteSegment.Account}`,
+  EmergencyAccessSettings: `settings/${AuthWebRouteSegment.EmergencyAccess}`,
 
-  PasswordSettings: `settings/security/${AuthWebRouteSegments.Password}`,
-  TwoFactorSettings: `settings/security/${AuthWebRouteSegments.TwoFactor}`,
-  SecurityKeysSettings: `settings/security/${AuthWebRouteSegments.SecurityKeys}`,
-  DeviceManagement: `settings/security/${AuthWebRouteSegments.DeviceManagement}`,
+  PasswordSettings: `settings/security/${AuthWebRouteSegment.Password}`,
+  TwoFactorSettings: `settings/security/${AuthWebRouteSegment.TwoFactor}`,
+  SecurityKeysSettings: `settings/security/${AuthWebRouteSegment.SecurityKeys}`,
+  DeviceManagement: `settings/security/${AuthWebRouteSegment.DeviceManagement}`,
 } as const);
 
-export type AuthWebRoute = (typeof AuthWebRoutes)[keyof typeof AuthWebRoutes];
+export type AuthWebRoute = (typeof AuthWebRoute)[keyof typeof AuthWebRoute];

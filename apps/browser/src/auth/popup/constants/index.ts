@@ -1,1 +1,1 @@
-export * from "./auth-extension-routes.constant";
+export * from "./auth-extension-route.constant";
