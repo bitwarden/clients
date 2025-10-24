@@ -154,6 +154,15 @@
       }
     }
   },
+  "newPasswordsAtRisk": {
+    "message": "$COUNT$ nových ohrožených hesel",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "notifiedMembersWithCount": {
     "message": "Obeznámení členové ($COUNT$)",
     "placeholders": {
@@ -2080,9 +2089,6 @@
   "encKeySettings": {
     "message": "Nastavení šifrovacího klíče"
   },
-  "kdfAlgorithm": {
-    "message": "Algoritmus KDF"
-  },
   "kdfIterations": {
     "message": "Iterace KDF"
   },
@@ -2116,9 +2122,6 @@
   },
   "argon2Desc": {
     "message": "Vyšší hodnota iterací KDF, paměti a paralelity pomáhá chránit Vaše hlavní heslo před útokem hrubou silou (brute force attack)."
-  },
-  "changeKdf": {
-    "message": "Změnit KDF"
   },
   "encKeySettingsChanged": {
     "message": "Nastavení šifrovacího klíče bylo uloženo"
@@ -5709,6 +5712,65 @@
   "organizationDataOwnershipWarningContentBottom": {
     "message": "Více informací o ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about the credential lifecycle.'"
+  },
+  "availableNow": {
+    "message": "Nyní k dispozici"
+  },
+  "autoConfirm": {
+    "message": "Automatické potvrzení nových uživatelů"
+  },
+  "autoConfirmDescription": {
+    "message": "Noví uživatelé pozvaní do organizace budou automaticky potvrzeni při odemknutí zařízení správce.",
+    "description": "This is the description of the policy as it appears in the 'Policies' page"
+  },
+  "howToTurnOnAutoConfirm": {
+    "message": "Jak zapnout automatické potvrzení uživatele"
+  },
+  "autoConfirmStep1": {
+    "message": "Otevřete rozšíření Bitwarden."
+  },
+  "autoConfirmStep2a": {
+    "message": "Vyberte",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  },
+  "autoConfirmStep2b": {
+    "message": " Zapnout.",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  },
+  "autoConfirmExtensionOpened": {
+    "message": "Rozšíření prohlížeče Bitwarden bylo úspěšně otevřeno. Nyní můžete aktivovat automatické potvrzení uživatele."
+  },
+  "autoConfirmPolicyEditDescription": {
+    "message": "Noví uživatelé pozvaní do organizace budou automaticky potvrzeni při odemknutí zařízení správce. Před zapnutím této zásady zkontrolujte a odsouhlaste následující: ",
+    "description": "This is the description of the policy as it appears inside the policy edit dialog"
+  },
+  "autoConfirmAcceptSecurityRiskTitle": {
+    "message": "Potenciální bezpečnostní riziko. "
+  },
+  "autoConfirmAcceptSecurityRiskDescription": {
+    "message": "Automatické potvrzení uživatele by mohlo představovat bezpečnostní riziko pro data Vaší organizace."
+  },
+  "autoConfirmAcceptSecurityRiskLearnMore": {
+    "message": "Více o rizicích",
+    "description": "The is the link copy for the first check box option in the edit policy dialog"
+  },
+  "autoConfirmSingleOrgRequired": {
+    "message": "Vyžadují se jednotné zásady organizace. "
+  },
+  "autoConfirmSingleOrgRequiredDescription": {
+    "message": "Kdokoli, kdo je členem více než jedné organizace, bude mít přístup odvolán do té doby, než opustí ostatní organizace."
+  },
+  "autoConfirmSingleOrgExemption": {
+    "message": "Jednotné zásady organizace se budou vztahovat na všechny role. "
+  },
+  "autoConfirmNoEmergencyAccess": {
+    "message": "Žádný nouzový přístup. "
+  },
+  "autoConfirmNoEmergencyAccessDescription": {
+    "message": "Nouzový přístup bude odebrán."
+  },
+  "autoConfirmCheckBoxLabel": {
+    "message": "Přijímám tato rizika a aktualizace zásad"
   },
   "personalOwnership": {
     "message": "Odebrat osobní trezor"
@@ -10361,26 +10423,8 @@
   "memberAccessReportAuthenticationEnabledFalse": {
     "message": "Vypnuto"
   },
-  "higherKDFIterations": {
-    "message": "Více iterací KDF Vám může pomoci ochránit hlavní heslo před útočníkem, který by ho vylákal hrubou silou."
-  },
-  "incrementsOf100,000": {
-    "message": "přírůstky po 100 000"
-  },
-  "smallIncrements": {
-    "message": "malé přírůstky"
-  },
   "kdfIterationRecommends": {
     "message": "Doporučujeme 600 000 nebo více"
-  },
-  "kdfToHighWarningIncreaseInIncrements": {
-    "message": "U starších zařízení může příliš vysoké nastavení KDF vést k problémům s výkonem. Zvyšte hodnotu v $VALUE$ a otestujte svá zařízení.",
-    "placeholders": {
-      "value": {
-        "content": "$1",
-        "example": "increments of 100,000"
-      }
-    }
   },
   "providerReinstate": {
     "message": " Pro obnovení předplatného se obraťte na zákaznickou podporu."
@@ -11023,6 +11067,15 @@
   },
   "domainClaimed": {
     "message": "Doména uplatněna"
+  },
+  "itemAddedToFavorites": {
+    "message": "Položka byla přidána do oblíbených"
+  },
+  "itemRemovedFromFavorites": {
+    "message": "Položka byla odebrána z oblíbených"
+  },
+  "copyNote": {
+    "message": "Kopírovat poznámku"
   },
   "organizationNameMaxLength": {
     "message": "Název organizace nesmí přesáhnout 50 znaků."
@@ -11856,5 +11909,32 @@
   },
   "viewbusinessplans": {
     "message": "Zobrazit obchodní plány"
+  },
+  "updateEncryptionSettings": {
+    "message": "Aktualizovat nastavení šifrování"
+  },
+  "updateYourEncryptionSettings": {
+    "message": "Aktualizujte nastavení šifrování"
+  },
+  "updateSettings": {
+    "message": "Aktualizovat nastavení"
+  },
+  "algorithm": {
+    "message": "Algoritmus"
+  },
+  "encryptionKeySettingsHowShouldWeEncryptYourData": {
+    "message": "Vyberte, jak by Bitwarden měl šifrovat Vaše data trezoru. Všechny volby jsou bezpečné, ale silnější metody poskytují lepší ochranu - zejména proti útokům silou. Bitwarden doporučuje výchozí nastavení pro většinu uživatelů."
+  },
+  "encryptionKeySettingsIncreaseImproveSecurity": {
+    "message": "Zvýšení hodnot nad výchozím nastavením zvýší zabezpečení, ale odemknutí Vašeho trezoru může trvat déle."
+  },
+  "encryptionKeySettingsAlgorithmPopoverTitle": {
+    "message": "O šifrovacích algoritmech"
+  },
+  "encryptionKeySettingsAlgorithmPopoverPBKDF2": {
+    "message": "PBKDF2-SHA256 je dobře testovaná šifrovací metoda, která vyvažuje bezpečnost a výkon. Dobré pro všechny uživatele."
+  },
+  "encryptionKeySettingsAlgorithmPopoverArgon2Id": {
+    "message": "Argon2id nabízí silnější ochranu proti moderním útokům. Nejlepší pro pokročilé uživatele s výkonnými zařízeními."
   }
 }
