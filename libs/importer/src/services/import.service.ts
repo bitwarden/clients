@@ -8,6 +8,7 @@ import {
   CollectionService,
   CollectionWithIdRequest,
   CollectionView,
+  CollectionTypes,
 } from "@bitwarden/admin-console/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -473,13 +474,14 @@ export class ImportService implements ImportServiceAbstraction {
 
   private async setImportTarget(
     importResult: ImportResult,
-    organizationId: string,
+    organizationId: OrganizationId | undefined,
     importTarget: FolderView | CollectionView,
   ) {
     if (!importTarget) {
       return;
     }
 
+    // Importing into an organization
     if (organizationId) {
       if (!(importTarget instanceof CollectionView)) {
         throw new Error(this.i18nService.t("errorAssigningTargetCollection"));
@@ -494,6 +496,13 @@ export class ImportService implements ImportServiceAbstraction {
           noCollectionRelationShips.push([index, 0]);
         }
       });
+
+      // My Items collections do not support collection nesting. Import all ciphers into import target.
+      if (importTarget.type === CollectionTypes.DefaultUserCollection) {
+        importResult.collections = [importTarget as CollectionView];
+        importResult.collectionRelationships = noCollectionRelationShips;
+        return;
+      }
 
       const collections: CollectionView[] = [...importResult.collections];
       importResult.collections = [importTarget as CollectionView];
@@ -512,6 +521,7 @@ export class ImportService implements ImportServiceAbstraction {
       return;
     }
 
+    // Importing into personal vault
     if (!(importTarget instanceof FolderView)) {
       throw new Error(this.i18nService.t("errorAssigningTargetFolder"));
     }
