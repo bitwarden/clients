@@ -282,7 +282,7 @@ export class ViewV2Component {
     const cipherResponse = await this.archiveCipherUtilsService.archiveCipher(this.cipher, true);
 
     if (!cipherResponse) {
-      return false;
+      return;
     }
     this.cipher.archivedDate = new Date(cipherResponse.archivedDate);
   };
@@ -291,7 +291,7 @@ export class ViewV2Component {
     const cipherResponse = await this.archiveCipherUtilsService.unarchiveCipher(this.cipher);
 
     if (!cipherResponse) {
-      return false;
+      return;
     }
     this.cipher.archivedDate = null;
   };

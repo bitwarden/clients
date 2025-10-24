@@ -431,7 +431,7 @@ export class AddEditV2Component implements OnInit {
     const cipherResponse = await this.archiveCipherUtilsService.archiveCipher(this.cipher, true);
 
     if (!cipherResponse) {
-      return false;
+      return;
     }
     this.updateCipherFromArchive(
       new Date(cipherResponse.revisionDate),
@@ -443,7 +443,7 @@ export class AddEditV2Component implements OnInit {
     const cipherResponse = await this.archiveCipherUtilsService.unarchiveCipher(this.cipher);
 
     if (!cipherResponse) {
-      return false;
+      return;
     }
     this.updateCipherFromArchive(new Date(cipherResponse.revisionDate), null);
   };

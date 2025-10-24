@@ -29,13 +29,13 @@ export class ArchiveCipherUtilitiesService {
    *
    * @param cipher The cipher to archive
    * @param skipReprompt Whether to skip the password reprompt check
-   * @returns The archived CipherData on success, or false on failure or cancellation
+   * @returns The archived CipherData on success, or undefined on failure or cancellation
    */
   async archiveCipher(cipher: CipherView, skipReprompt = false) {
     if (!skipReprompt) {
       const repromptPassed = await this.passwordRepromptService.passwordRepromptCheck(cipher);
       if (!repromptPassed) {
-        return false;
+        return;
       }
     }
 
@@ -46,7 +46,7 @@ export class ArchiveCipherUtilitiesService {
     });
 
     if (!confirmed) {
-      return false;
+      return;
     }
 
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
@@ -65,13 +65,13 @@ export class ArchiveCipherUtilitiesService {
         variant: "error",
         message: this.i18nService.t("errorOccurred"),
       });
-      return false;
+      return;
     }
   }
 
   /** Unarchives a cipher
    * @param cipher The cipher to unarchive
-   * @returns The unarchived cipher on success, or false on failure
+   * @returns The unarchived cipher on success, or undefined on failure
    */
   async unarchiveCipher(cipher: CipherView) {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
@@ -90,7 +90,7 @@ export class ArchiveCipherUtilitiesService {
         variant: "error",
         message: this.i18nService.t("errorOccurred"),
       });
-      return false;
+      return;
     }
   }
 }
