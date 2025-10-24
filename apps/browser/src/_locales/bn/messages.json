@@ -23,7 +23,7 @@
     "message": "অ্যাকাউন্ট তৈরি করুন"
   },
   "newToBitwarden": {
-    "message": "New to Bitwarden?"
+    "message": "বিটওয়ার্ডেনে নতুন?"
   },
   "logInWithPasskey": {
     "message": "Log in with passkey"
@@ -5714,6 +5714,9 @@
   },
   "confirmKeyConnectorDomain": {
     "message": "Confirm Key Connector domain"
+  },
+  "atRiskLoginsSecured": {
+    "message": "Great job securing your at-risk logins!"
   },
   "settingDisabledByPolicy": {
     "message": "This setting is disabled by your organization's policy.",

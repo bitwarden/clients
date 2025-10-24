@@ -1852,6 +1852,12 @@
   "lockWithMasterPassOnRestart1": {
     "message": "Закључајте са главном лозинком при поновном покретању"
   },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "Require master password or PIN on app restart"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "Require master password on app restart"
+  },
   "deleteAccount": {
     "message": "Брисање налога"
   },
@@ -4167,8 +4173,8 @@
   "itemWasSentToArchive": {
     "message": "Ставка је послата у архиву"
   },
-  "itemUnarchived": {
-    "message": "Ставка враћена из архиве"
+  "itemWasUnarchived": {
+    "message": "Item was unarchived"
   },
   "archiveItem": {
     "message": "Архивирај ставку"
