@@ -2,7 +2,6 @@ import { Component, computed, input } from "@angular/core";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
-import { A11yTitleDirective } from "../a11y";
 import { SharedModule } from "../shared";
 import { TypographyModule } from "../typography";
 
