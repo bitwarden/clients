@@ -65,7 +65,23 @@
     <button bitButton type="button" buttonType="secondary" (click)="cancel()" *ngIf="showClose">
       {{ "close" | i18n }}
     </button>
-    <div class="tw-ml-auto" *ngIf="showDelete">
+    <div class="tw-ml-auto" *ngIf="showFooterButtons">
+      <button
+        type="button"
+        *ngIf="(archiveFlagEnabled$ | async) && cipher.isArchived"
+        class="tw-mr-1"
+        [bitAction]="unarchive"
+        bitIconButton="bwi-unarchive"
+        [label]="'unarchive' | i18n"
+      ></button>
+      <button
+        type="button"
+        *ngIf="(userCanArchive$ | async) && cipher.canBeArchived"
+        class="tw-mr-1"
+        [bitAction]="archive"
+        bitIconButton="bwi-archive"
+        [label]="'archiveVerb' | i18n"
+      ></button>
       <button
         bitIconButton="bwi-trash"
         type="button"
