@@ -1044,11 +1044,6 @@ pub mod logging {
     pub fn init_napi_log(js_log_fn: ThreadsafeFunction<(LogLevel, String), CalleeHandled>) {
         let _ = JS_LOGGER.0.set(js_log_fn);
 
-        // convert any `log` crate's Records (for us or deps) into tracing events.
-        // https://docs.rs/tracing/latest/tracing/#log-compatibility
-        tracing_log::LogTracer::init()
-            .expect("should be able to initialize `log` crate's global logger.");
-
         let filter = EnvFilter::builder()
             // set the default log level to INFO.
             .with_default_directive(LevelFilter::INFO.into())
@@ -1056,6 +1051,10 @@ pub mod logging {
             // overriding the default directive for matching targets.
             .from_env_lossy();
 
+        // With the `tracing-log` feature enabled for the `tracing_subscriber`,
+        // the registry below will initialize a log compatibility layer, which allows
+        // the subscriber to consume log::Records as though they were tracing Events.
+        // https://docs.rs/tracing-subscriber/latest/tracing_subscriber/util/trait.SubscriberInitExt.html#method.init
         tracing_subscriber::registry()
             .with(filter)
             .with(JsLayer)

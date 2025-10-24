@@ -28,7 +28,6 @@ tokio = { workspace = true }
 tokio-stream = { workspace = true }
 tokio-util = { workspace = true }
 tracing = { workspace = true }
-tracing-log = "=0.2.0"
 tracing-subscriber = { workspace = true }
 
 [target.'cfg(windows)'.dependencies]

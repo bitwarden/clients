@@ -976,7 +976,6 @@ dependencies = [
  "tokio-stream",
  "tokio-util",
  "tracing",
- "tracing-log",
  "tracing-subscriber",
  "windows-registry",
  "windows_plugin_authenticator",
