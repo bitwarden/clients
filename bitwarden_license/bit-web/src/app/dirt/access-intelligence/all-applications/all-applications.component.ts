@@ -1,7 +1,7 @@
 import { Component, DestroyRef, inject, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { debounceTime } from "rxjs";
 
 import { Security } from "@bitwarden/assets/svg";
@@ -61,6 +61,7 @@ export class AllApplicationsComponent implements OnInit {
     protected activatedRoute: ActivatedRoute,
     protected toastService: ToastService,
     protected dataService: RiskInsightsDataService,
+    private router: Router,
     // protected allActivitiesService: AllActivitiesService,
   ) {
     this.searchControl.valueChanges
@@ -78,20 +79,7 @@ export class AllApplicationsComponent implements OnInit {
         this.dataSource.data = [];
       },
     });
-
-    // TODO
-    // this.applicationSummary = this.reportService.generateApplicationsSummary(data);
-    // this.allActivitiesService.setAllAppsReportSummary(this.applicationSummary);
   }
-
-  goToCreateNewLoginItem = async () => {
-    // TODO: implement
-    this.toastService.showToast({
-      variant: "warning",
-      title: "",
-      message: "Not yet implemented",
-    });
-  };
 
   isMarkedAsCriticalItem(applicationName: string) {
     return this.selectedUrls.has(applicationName);

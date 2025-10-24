@@ -98,6 +98,9 @@ export class RiskInsightsOrchestratorService {
   // --------------------------- Critical Application data ---------------------
   criticalReportResults$: Observable<RiskInsightsEnrichedData | null> = of(null);
 
+  // --------------------------- Vault Items Check ---------------------
+  hasVaultItems$: Observable<boolean> = of(false);
+
   // --------------------------- Trigger subjects ---------------------
   private _initializeOrganizationTriggerSubject = new Subject<OrganizationId>();
   private _fetchReportTriggerSubject = new Subject<void>();
@@ -123,6 +126,7 @@ export class RiskInsightsOrchestratorService {
     this._setupCriticalApplicationContext();
     this._setupCriticalApplicationReport();
     this._setupEnrichedReportData();
+    this._setupHasVaultItems();
     this._setupInitializationPipeline();
     this._setupMigrationAndCleanup();
     this._setupReportState();
@@ -540,6 +544,34 @@ export class RiskInsightsOrchestratorService {
   }
 
   // Setup the pipeline to load critical applications when organization or user changes
+  /**
+   * Sets up an observable to check if the organization has any vault items (ciphers).
+   * This is used to determine which empty state to show in the UI.
+   */
+  private _setupHasVaultItems() {
+    this.hasVaultItems$ = this.organizationDetails$.pipe(
+      switchMap((orgDetails) => {
+        if (!orgDetails?.organizationId) {
+          return of(false);
+        }
+        return from(
+          this.cipherService.getAllFromApiForOrganization(orgDetails.organizationId),
+        ).pipe(
+          map((ciphers) => ciphers.length > 0),
+          catchError((error: unknown) => {
+            this.logService.error(
+              "[RiskInsightsOrchestratorService] Error checking vault items",
+              error,
+            );
+            return of(false);
+          }),
+        );
+      }),
+      shareReplay({ bufferSize: 1, refCount: true }),
+      takeUntil(this._destroy$),
+    );
+  }
+
   private _setupCriticalApplicationContext() {
     this.organizationDetails$
       .pipe(
@@ -742,8 +774,10 @@ export class RiskInsightsOrchestratorService {
   // Setup the user ID observable to track the current user
   private _setupUserId() {
     // Watch userId changes
-    this.accountService.activeAccount$.pipe(getUserId).subscribe((userId) => {
-      this._userIdSubject.next(userId);
-    });
+    this.accountService.activeAccount$
+      .pipe(getUserId, takeUntil(this._destroy$))
+      .subscribe((userId) => {
+        this._userIdSubject.next(userId);
+      });
   }
 }
