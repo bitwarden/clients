@@ -462,7 +462,6 @@ mod windows_binary {
         Ok(system_decrypted_base64)
     }
 
-    #[tokio::main]
     pub async fn main() {
         if NEED_LOGGING {
             WriteLogger::init(
@@ -506,5 +505,5 @@ mod windows_binary {
 #[tokio::main]
 async fn main() {
     #[cfg(target_os = "windows")]
-    windows_binary::main();
+    windows_binary::main().await;
 }
