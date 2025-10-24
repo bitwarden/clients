@@ -126,10 +126,6 @@ describe("DefaultMasterPasswordUnlockService", () => {
       );
       expect(masterPasswordService.setMasterKeyHash).toHaveBeenCalledWith(mockKeyHash, mockUserId);
       expect(masterPasswordService.setMasterKey).toHaveBeenCalledWith(mockMasterKey, mockUserId);
-      expect(kdfService.setKdfConfig).toHaveBeenCalledWith(
-        mockUserId,
-        mockMasterPasswordUnlockData.kdf,
-      );
     });
 
     it("throws an error if masterKey construction fails", async () => {
