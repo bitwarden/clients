@@ -55,6 +55,7 @@ export enum FeatureFlag {
   PM22134SdkCipherListView = "pm-22134-sdk-cipher-list-view",
   PM22136_SdkCipherEncryption = "pm-22136-sdk-cipher-encryption",
   CipherKeyEncryption = "cipher-key-encryption",
+  RiskInsightsForPremium = "pm-23904-risk-insights-for-premium",
 
   /* Platform */
   IpcChannelFramework = "ipc-channel-framework",
@@ -102,6 +103,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM19941MigrateCipherDomainToSdk]: FALSE,
   [FeatureFlag.PM22134SdkCipherListView]: FALSE,
   [FeatureFlag.PM22136_SdkCipherEncryption]: FALSE,
+  [FeatureFlag.RiskInsightsForPremium]: FALSE,
 
   /* Auth */
   [FeatureFlag.PM22110_DisableAlternateLoginMethods]: FALSE,
