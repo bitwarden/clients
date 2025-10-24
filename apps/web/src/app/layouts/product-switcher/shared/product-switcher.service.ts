@@ -19,7 +19,11 @@ import {
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
-import { PolicyType, ProviderType } from "@bitwarden/common/admin-console/enums";
+import {
+  OrganizationUserType,
+  PolicyType,
+  ProviderType,
+} from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -208,6 +212,13 @@ export class ProductSwitcherService {
               external: false,
             };
 
+        // Check if SM ads should be disabled for any organization
+        // SM ads are only disabled if the user is a regular User (not Admin or Owner)
+        // in an organization that has useDisableSMAdsForUsers enabled
+        const shouldDisableSMAds = orgs.some(
+          (org) => org.useDisableSMAdsForUsers && org.type === OrganizationUserType.User,
+        );
+
         const products = {
           pm: {
             name: "Password Manager",
@@ -267,7 +278,8 @@ export class ProductSwitcherService {
 
         if (smOrg) {
           bento.push(products.sm);
-        } else {
+        } else if (!shouldDisableSMAds) {
+          // Only show SM in "other" section if ads are not disabled
           other.push(products.sm);
         }
 
