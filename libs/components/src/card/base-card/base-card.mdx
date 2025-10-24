@@ -1,0 +1,23 @@
+import { Meta, Primary, Controls, Canvas, Title, Description } from "@storybook/addon-docs";
+
+import * as stories from "./base-card.stories";
+
+<Meta of={stories} />
+
+```ts
+import { BaseCardComponent } from "@bitwarden/components";
+```
+
+<Title />
+<Description />
+
+<Canvas of={stories.Default} />
+
+## BaseCardDirective
+
+There is also a `BaseCardDirective` available for use as a hostDirective if need be. But, most
+likely using `<bit-base-card>` in your template will do.
+
+```ts
+import { BaseCardDirective } from "@bitwarden/components";
+```

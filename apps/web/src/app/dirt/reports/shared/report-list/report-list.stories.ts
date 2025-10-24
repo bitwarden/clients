@@ -4,7 +4,12 @@ import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/an
 
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { BadgeModule, IconModule } from "@bitwarden/components";
+import {
+  BadgeModule,
+  BaseCardComponent,
+  CardContentComponent,
+  IconModule,
+} from "@bitwarden/components";
 
 import { PreloadedEnglishI18nModule } from "../../../../core/tests";
 import { reports } from "../../reports";
@@ -18,7 +23,15 @@ export default {
   component: ReportListComponent,
   decorators: [
     moduleMetadata({
-      imports: [JslibModule, BadgeModule, RouterTestingModule, IconModule, PremiumBadgeComponent],
+      imports: [
+        JslibModule,
+        BadgeModule,
+        RouterTestingModule,
+        IconModule,
+        PremiumBadgeComponent,
+        CardContentComponent,
+        BaseCardComponent,
+      ],
       declarations: [ReportCardComponent],
     }),
     applicationConfig({
