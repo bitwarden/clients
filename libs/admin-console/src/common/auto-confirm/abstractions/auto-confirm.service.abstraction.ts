@@ -1,10 +1,10 @@
 import { Observable } from "rxjs";
 
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { UserId } from "@bitwarden/user-core";
 
-import { Organization } from "../../models/domain/organization";
-import { AutoConfirmState } from "../../services/auto-confirm/auto-confirm.state";
+import { AutoConfirmState } from "../models/auto-confirm-state.model";
 
 export abstract class AutomaticUserConfirmationService {
   /**
