@@ -187,8 +187,6 @@ async function initNotificationBar(message: NotificationBarWindowMessage) {
   const notificationTestId = getNotificationTestId(notificationType);
   appendHeaderMessageToTitle(headerMessage);
 
-  document.body.innerHTML = "";
-
   if (isVaultLocked) {
     const notificationConfig = {
       ...notificationBarIframeInitData,
