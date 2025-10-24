@@ -1852,6 +1852,12 @@
   "lockWithMasterPassOnRestart1": {
     "message": "Yeniden başlatmada ana parola ile kilitle"
   },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "Uygulama yeniden başlatıldığında ana parola veya PIN iste"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "Uygulama yeniden başlatıldığında ana parola iste"
+  },
   "deleteAccount": {
     "message": "Hesabı sil"
   },
@@ -4167,7 +4173,7 @@
   "itemWasSentToArchive": {
     "message": "Kayıt arşive gönderildi"
   },
-  "itemUnarchived": {
+  "itemWasUnarchived": {
     "message": "Kayıt arşivden çıkarıldı"
   },
   "archiveItem": {

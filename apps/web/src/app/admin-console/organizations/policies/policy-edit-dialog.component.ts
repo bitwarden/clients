@@ -45,11 +45,15 @@ export type PolicyEditDialogData = {
 
 export type PolicyEditDialogResult = "saved";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "policy-edit-dialog.component.html",
   imports: [SharedModule],
 })
 export class PolicyEditDialogComponent implements AfterViewInit {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("policyForm", { read: ViewContainerRef, static: true })
   policyFormRef: ViewContainerRef | undefined;
 

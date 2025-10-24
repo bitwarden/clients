@@ -23,6 +23,8 @@ import { WebLayoutModule } from "@bitwarden/web-vault/app/layouts/web-layout.mod
 
 import { ProviderWarningsService } from "../../billing/providers/warnings/services";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "providers-layout",
   templateUrl: "providers-layout.component.html",
