@@ -135,12 +135,12 @@ fn get_browser_data_dir(config: &BrowserConfig) -> Result<PathBuf> {
 //
 
 #[async_trait]
-pub trait CryptoService: Send {
+pub(crate) trait CryptoService: Send {
     async fn decrypt_to_string(&mut self, encrypted: &[u8]) -> Result<String>;
 }
 
 #[derive(serde::Deserialize, Clone)]
-pub struct LocalState {
+pub(crate) struct LocalState {
     profile: AllProfiles,
     #[allow(dead_code)]
     os_crypt: Option<OsCrypt>,
