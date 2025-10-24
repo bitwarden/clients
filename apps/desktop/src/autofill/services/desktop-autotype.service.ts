@@ -92,6 +92,11 @@ export class DesktopAutotypeService implements OnDestroy {
   async init() {
     console.log("desktop-autotype.service::init()");
 
+    // Currently Autotype is only supported for Windows
+    // if (this.platformUtilsService.getDevice() !== DeviceType.WindowsDesktop) {
+    //   return;
+    // }
+
     // autotypeEnabledUserSetting$ publicly represents the value the
     // user has set for autotyeEnabled in their local settings.
     this.autotypeEnabledUserSetting$ = this.autotypeEnabledState.state$;
@@ -100,79 +105,136 @@ export class DesktopAutotypeService implements OnDestroy {
       map((shortcut) => shortcut ?? defaultWindowsAutotypeKeyboardShortcut),
     );
 
-    combineLatest([this.autotypeEnabledState.state$, this.authService.activeAccountStatus$])
+    combineLatest([
+      this.autotypeEnabledState.state$,
+      this.configService.getFeatureFlag$(FeatureFlag.WindowsDesktopAutotype),
+      this.accountService.activeAccount$.pipe(
+        map((activeAccount) => activeAccount?.id),
+        switchMap((userId) => this.authService.authStatusFor$(userId)),
+      ),
+      this.accountService.activeAccount$.pipe(
+        filter((account): account is Account => !!account),
+        switchMap((account) =>
+          this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
+        ),
+      ),
+    ])
       .pipe(
-        concatMap(async ([enabled, accountStatus]) => {
-          if (enabled && accountStatus == AuthenticationStatus.Unlocked) {
-            console.log("desktop-autotype.service::init() : enabled and calling initAutotype()");
-            ipc.autofill.initAutotype();
-            await this.setup();
-          }
-        }),
+        withLatestFrom(this.autotypeKeyboardShortcut$),
+        concatMap(
+          async ([[settingsEnabled, ffEnabled, authStatus, hasPremium], keyboardShortcut]) => {
+            console.log(
+              settingsEnabled,
+              ffEnabled,
+              authStatus == AuthenticationStatus.Unlocked,
+              hasPremium,
+            );
+            if (
+              settingsEnabled &&
+              ffEnabled &&
+              authStatus == AuthenticationStatus.Unlocked &&
+              hasPremium
+            ) {
+              if (!(await ipc.autofill.autotypeIsInitialized())) {
+                console.log(
+                  "desktop-autotype.service::init() : enabled and calling initAutotype()",
+                );
+                await ipc.autofill.initAutotype();
+                await this.setup();
+              }
+              ipc.autofill.configureAutotype(keyboardShortcut);
+            } else {
+              console.log("desktop-autotype.service::init() nope disabling autotype");
+              ipc.autofill.configureAutotype([]);
+            }
+          },
+        ),
         takeUntil(this.destroy$),
       )
       .subscribe();
   }
 
   private async setup() {
-    // Currently Autotype is only supported for Windows
-    if (this.platformUtilsService.getDevice() === DeviceType.WindowsDesktop || true) {
-      // If `autotypeDefaultPolicy` is `true` for a user's organization, and the
-      // user has never changed their local autotype setting (`autotypeEnabledState`),
-      // we set their local setting to `true` (once the local user setting is changed
-      // by this policy or the user themselves, the default policy should
-      // never change the user setting again).
-      combineLatest([
-        this.autotypeEnabledState.state$,
-        this.desktopAutotypePolicy.autotypeDefaultSetting$,
-      ])
-        .pipe(
-          map(async ([autotypeEnabledState, autotypeDefaultPolicy]) => {
-            if (autotypeDefaultPolicy === true && autotypeEnabledState === null) {
-              console.log("desktop-autotype.service: enabling state");
-              await this.setAutotypeEnabledState(true);
-            }
-          }),
-          takeUntil(this.destroy$),
-        )
-        .subscribe();
+    // If `autotypeDefaultPolicy` is `true` for a user's organization, and the
+    // user has never changed their local autotype setting (`autotypeEnabledState`),
+    // we set their local setting to `true` (once the local user setting is changed
+    // by this policy or the user themselves, the default policy should
+    // never change the user setting again).
+    combineLatest([
+      this.autotypeEnabledState.state$,
+      this.desktopAutotypePolicy.autotypeDefaultSetting$,
+    ])
+      .pipe(
+        map(async ([autotypeEnabledState, autotypeDefaultPolicy]) => {
+          if (autotypeDefaultPolicy === true && autotypeEnabledState === null) {
+            console.log("desktop-autotype.service: enabling state");
+            await this.setAutotypeEnabledState(true);
+          }
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe();
 
-      // resolvedAutotypeEnabled$ represents the final determination if the Autotype
-      // feature should be on or off.
-      this.resolvedAutotypeEnabled$ = combineLatest([
-        this.autotypeEnabledState.state$,
-        this.configService.getFeatureFlag$(FeatureFlag.WindowsDesktopAutotype),
-        this.accountService.activeAccount$.pipe(
-          map((activeAccount) => activeAccount?.id),
-          switchMap((userId) => this.authService.authStatusFor$(userId)),
-        ),
-        this.accountService.activeAccount$.pipe(
-          filter((account): account is Account => !!account),
-          switchMap((account) =>
-            this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
-          ),
-        ),
-      ]).pipe(
-        map(
-          ([autotypeEnabled, windowsDesktopAutotypeFeatureFlag, authStatus, hasPremium]) =>
-            autotypeEnabled &&
-            windowsDesktopAutotypeFeatureFlag &&
-            authStatus == AuthenticationStatus.Unlocked &&
-            hasPremium,
-        ),
-      );
+    // resolvedAutotypeEnabled$ represents the final determination if the Autotype
+    // feature should be on or off.
+    // this.resolvedAutotypeEnabled$ = combineLatest([
+    //   this.autotypeEnabledState.state$,
+    //   this.configService.getFeatureFlag$(FeatureFlag.WindowsDesktopAutotype),
+    //   this.accountService.activeAccount$.pipe(
+    //     map((activeAccount) => activeAccount?.id),
+    //     switchMap((userId) => this.authService.authStatusFor$(userId)),
+    //   ),
+    //   this.accountService.activeAccount$.pipe(
+    //     filter((account): account is Account => !!account),
+    //     switchMap((account) =>
+    //       this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
+    //     ),
+    //   ),
+    // ]).pipe(
+    //   map(
+    //     ([autotypeEnabled, windowsDesktopAutotypeFeatureFlag, authStatus, hasPremium]) =>
+    //       autotypeEnabled &&
+    //       windowsDesktopAutotypeFeatureFlag &&
+    //       authStatus == AuthenticationStatus.Unlocked &&
+    //       hasPremium,
+    //   ),
+    // );
 
-      combineLatest([this.resolvedAutotypeEnabled$, this.autotypeKeyboardShortcut$])
-        .pipe(takeUntil(this.destroy$))
-        .subscribe(([resolvedAutotypeEnabled, autotypeKeyboardShortcut]) => {
-          console.log(
-            "desktop-autotype.service::setup() subcribed",
-            resolvedAutotypeEnabled,
-            autotypeKeyboardShortcut,
-          );
-          ipc.autofill.configureAutotype(resolvedAutotypeEnabled, autotypeKeyboardShortcut);
-        });
-    }
+    // combineLatest([this.resolvedAutotypeEnabled$, this.autotypeKeyboardShortcut$])
+    //   .pipe(takeUntil(this.destroy$))
+    //   .subscribe(([resolvedAutotypeEnabled, autotypeKeyboardShortcut]) => {
+    //     console.log(
+    //       "desktop-autotype.service::setup() subcribed",
+    //       resolvedAutotypeEnabled,
+    //       autotypeKeyboardShortcut,
+    //     );
+    //     ipc.autofill.configureAutotype(resolvedAutotypeEnabled, autotypeKeyboardShortcut);
+    //   });
+
+    // combineLatest([this.autotypeEnabledState.state$, this.autotypeKeyboardShortcut$])
+    //   .pipe(
+    //     map(async ([autotypeEnabled, keyboardShortcut]) => {
+    //       console.log(autotypeEnabled, keyboardShortcut);
+    //       if (autotypeEnabled) {
+    //         ipc.autofill.configureAutotype(keyboardShortcut);
+    //       } else {
+    //         ipc.autofill.configureAutotype([]);
+    //       }
+    //     }),
+    //     takeUntil(this.destroy$),
+    //   )
+    //   .subscribe();
+
+    // combineLatest([this.resolvedAutotypeEnabled$, this.autotypeKeyboardShortcut$])
+    //   .pipe(takeUntil(this.destroy$))
+    //   .subscribe(([resolvedAutotypeEnabled, autotypeKeyboardShortcut]) => {
+    //     console.log(
+    //       "desktop-autotype.service::setup() subcribed",
+    //       resolvedAutotypeEnabled,
+    //       autotypeKeyboardShortcut,
+    //     );
+    //     ipc.autofill.configureAutotype(resolvedAutotypeEnabled, autotypeKeyboardShortcut);
+    //   });
   }
 
   async setAutotypeEnabledState(enabled: boolean): Promise<void> {

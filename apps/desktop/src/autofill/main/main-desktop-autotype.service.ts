@@ -9,6 +9,7 @@ import { AutotypeKeyboardShortcut } from "../models/main-autotype-keyboard-short
 
 export class MainDesktopAutotypeService {
   autotypeKeyboardShortcut: AutotypeKeyboardShortcut;
+  private isInitialized: boolean = false;
 
   constructor(
     private logService: LogService,
@@ -21,12 +22,22 @@ export class MainDesktopAutotypeService {
       console.log("main-desktop-autotype::constructor-> handle autofill.initAutotype()");
       this.init();
     });
+
+    ipcMain.handle("autofill.autotypeIsInitialized", (event: any) => {
+      return this.isInitialized;
+    });
   }
 
   init() {
     console.log("main-desktop-autotype::init()");
+
     ipcMain.on("autofill.configureAutotype", (event, data) => {
-      if (data.enabled) {
+      if (data.keyboardShortcut.length === 0) {
+        if (this.autotypeKeyboardShortcut.set(data.keyboardShortcut)) {
+          // Deregister the incoming keyboard shortcut if set
+          this.disableAutotype();
+        }
+      } else {
         const newKeyboardShortcut = new AutotypeKeyboardShortcut();
         const newKeyboardShortcutIsValid = newKeyboardShortcut.set(data.keyboardShortcut);
 
@@ -39,10 +50,24 @@ export class MainDesktopAutotypeService {
             "Attempting to configure autotype but the shortcut given is invalid.",
           );
         }
-      } else if (this.autotypeKeyboardShortcut.set(data.keyboardShortcut)) {
-        // Deregister the incoming keyboard shortcut if set
-        this.disableAutotype();
       }
+      // if (data.enabled) {
+      //   const newKeyboardShortcut = new AutotypeKeyboardShortcut();
+      //   const newKeyboardShortcutIsValid = newKeyboardShortcut.set(data.keyboardShortcut);
+
+      //   if (newKeyboardShortcutIsValid) {
+      //     this.disableAutotype();
+      //     this.autotypeKeyboardShortcut = newKeyboardShortcut;
+      //     this.enableAutotype();
+      //   } else {
+      //     this.logService.error(
+      //       "Attempting to configure autotype but the shortcut given is invalid.",
+      //     );
+      //   }
+      // } else if (this.autotypeKeyboardShortcut.set(data.keyboardShortcut)) {
+      //   // Deregister the incoming keyboard shortcut if set
+      //   this.disableAutotype();
+      // }
     });
 
     ipcMain.on("autofill.completeAutotypeRequest", (event, data) => {
@@ -59,6 +84,8 @@ export class MainDesktopAutotypeService {
         );
       }
     });
+
+    this.isInitialized = true;
   }
 
   // Deregister the current keyboard shortcut if registered

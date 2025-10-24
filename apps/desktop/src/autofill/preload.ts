@@ -127,11 +127,14 @@ export default {
       },
     );
   },
-  initAutotype: () => {
-    ipcRenderer.invoke("autofill.initAutotype");
+  autotypeIsInitialized: () => {
+    return ipcRenderer.invoke("autofill.autotypeIsInitialized");
   },
-  configureAutotype: (enabled: boolean, keyboardShortcut: string[]) => {
-    ipcRenderer.send("autofill.configureAutotype", { enabled, keyboardShortcut });
+  initAutotype: () => {
+    return ipcRenderer.invoke("autofill.initAutotype");
+  },
+  configureAutotype: (keyboardShortcut: string[]) => {
+    ipcRenderer.send("autofill.configureAutotype", { keyboardShortcut });
   },
   listenAutotypeRequest: (
     fn: (
