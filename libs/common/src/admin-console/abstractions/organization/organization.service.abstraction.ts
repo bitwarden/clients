@@ -1,4 +1,7 @@
-import { map, Observable } from "rxjs";
+import { firstValueFrom, map, Observable } from "rxjs";
+
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
 import { UserId } from "../../../types/guid";
 import { OrganizationData } from "../../models/data/organization.data";
@@ -51,8 +54,12 @@ export function canAccessOrgAdmin(org: Organization): boolean {
   );
 }
 
-export function canAccessEmergencyAccess(org: Organization) {
-  return !org.useAutomaticUserConfirmation;
+export async function canAccessEmergencyAccess(org: Organization, configService: ConfigService) {
+  if (await firstValueFrom(configService.getFeatureFlag$(FeatureFlag.AutoConfirm))) {
+    return !org.useAutomaticUserConfirmation;
+  }
+
+  return true;
 }
 
 /**
