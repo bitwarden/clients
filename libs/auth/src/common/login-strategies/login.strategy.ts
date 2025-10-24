@@ -108,6 +108,8 @@ export abstract class LoginStrategy {
     data.tokenRequest.setTwoFactor(twoFactor);
     this.cache.next(data);
     const [authResult] = await this.startLogIn();
+    // There is an import cycle between PasswordLoginStrategyData and LoginStrategy, which means this cast is necessary, which is solved by extracting the data classes.
+    authResult.masterPassword = (this.cache.value as any)["masterPassword"] ?? null;
     return authResult;
   }
 
@@ -263,6 +265,8 @@ export abstract class LoginStrategy {
     await this.processForceSetPasswordReason(response.forcePasswordReset, userId);
 
     this.messagingService.send("loggedIn");
+    // There is an import cycle between PasswordLoginStrategyData and LoginStrategy, which means this cast is necessary, which is solved by extracting the data classes.
+    result.masterPassword = (this.cache.value as any)["masterPassword"] ?? null;
 
     return result;
   }

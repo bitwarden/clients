@@ -9,6 +9,7 @@ import { VerificationType } from "@bitwarden/common/auth/enums/verification-type
 import { MasterPasswordVerification } from "@bitwarden/common/auth/types/verification";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
+import { EncryptedMigrator } from "@bitwarden/common/key-management/encrypted-migrator/encrypted-migrator.abstraction";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
@@ -38,6 +39,7 @@ export class UnlockCommand {
     private organizationApiService: OrganizationApiServiceAbstraction,
     private logout: () => Promise<void>,
     private i18nService: I18nService,
+    private encryptedMigrator: EncryptedMigrator,
     private masterPasswordUnlockService: MasterPasswordUnlockService,
     private configService: ConfigService,
   ) {}
@@ -115,6 +117,8 @@ export class UnlockCommand {
         return convertResponse;
       }
     }
+
+    await this.encryptedMigrator.runMigrations(userId, password);
 
     return this.successResponse();
   }
