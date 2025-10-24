@@ -1,21 +1,29 @@
 import { CommonModule } from "@angular/common";
 import { Component, DestroyRef, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { combineLatest, firstValueFrom, map, Observable, of, shareReplay, switchMap } from "rxjs";
+import { ActivatedRoute, Router } from "@angular/router";
+import {
+  combineLatest,
+  firstValueFrom,
+  from,
+  map,
+  Observable,
+  of,
+  shareReplay,
+  switchMap,
+} from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import {
-  DialogService,
-  ToastService,
-  SectionComponent,
   BadgeModule,
-  TypographyModule,
+  DialogService,
   LinkModule,
+  SectionComponent,
+  TypographyModule,
 } from "@bitwarden/components";
 import { PricingCardComponent } from "@bitwarden/pricing";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -34,6 +42,8 @@ import {
   UnifiedUpgradeDialogStep,
 } from "../upgrade/unified-upgrade-dialog/unified-upgrade-dialog.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "./premium-vnext.component.html",
   standalone: true,
@@ -69,14 +79,14 @@ export class PremiumVNextComponent {
 
   constructor(
     private accountService: AccountService,
-    private i18nService: I18nService,
     private apiService: ApiService,
     private dialogService: DialogService,
     private platformUtilsService: PlatformUtilsService,
     private syncService: SyncService,
-    private toastService: ToastService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private subscriptionPricingService: SubscriptionPricingService,
+    private router: Router,
+    private activatedRoute: ActivatedRoute,
   ) {
     this.isSelfHost = this.platformUtilsService.isSelfHost();
 
@@ -106,6 +116,23 @@ export class PremiumVNextComponent {
       this.hasPremiumFromAnyOrganization$,
       this.hasPremiumPersonally$,
     ]).pipe(map(([hasOrgPremium, hasPersonalPremium]) => !hasOrgPremium && !hasPersonalPremium));
+
+    // redirect to user subscription page if they already have premium personally
+    // redirect to individual vault if they already have premium from an org
+    combineLatest([this.hasPremiumFromAnyOrganization$, this.hasPremiumPersonally$])
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        switchMap(([hasPremiumFromOrg, hasPremiumPersonally]) => {
+          if (hasPremiumPersonally) {
+            return from(this.navigateToSubscriptionPage());
+          }
+          if (hasPremiumFromOrg) {
+            return from(this.navigateToIndividualVault());
+          }
+          return of(true);
+        }),
+      )
+      .subscribe();
 
     this.personalPricingTiers$ =
       this.subscriptionPricingService.getPersonalSubscriptionPricingTiers$();
@@ -140,6 +167,11 @@ export class PremiumVNextComponent {
       shareReplay({ bufferSize: 1, refCount: true }),
     );
   }
+
+  private navigateToSubscriptionPage = (): Promise<boolean> =>
+    this.router.navigate(["../user-subscription"], { relativeTo: this.activatedRoute });
+
+  private navigateToIndividualVault = (): Promise<boolean> => this.router.navigate(["/vault"]);
 
   finalizeUpgrade = async () => {
     await this.apiService.refreshIdentityToken();
