@@ -46,6 +46,7 @@ export class ImportSuccessDialogComponent implements OnInit {
     let identities = 0;
     let secureNotes = 0;
     let sshKeys = 0;
+    let archived = 0;
     this.data.ciphers.map((c) => {
       switch (c.type) {
         case CipherType.Login:
@@ -66,6 +67,10 @@ export class ImportSuccessDialogComponent implements OnInit {
         default:
           break;
       }
+
+      if (c.isArchived) {
+        archived++;
+      }
     });
 
     const list: ResultList[] = [];
@@ -83,6 +88,9 @@ export class ImportSuccessDialogComponent implements OnInit {
     }
     if (sshKeys > 0) {
       list.push({ icon: "key", type: "typeSshKey", count: sshKeys });
+    }
+    if (archived > 0) {
+      list.push({ icon: "archive", type: "archiveNoun", count: archived });
     }
     if (this.data.folders.length > 0) {
       list.push({ icon: "folder", type: "folders", count: this.data.folders.length });
