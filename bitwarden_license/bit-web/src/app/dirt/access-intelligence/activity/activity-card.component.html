@@ -23,11 +23,11 @@
       </button>
     </div>
   }
-  @if (showNavigationLink && !buttonText) {
+  @if (showActionLink && !buttonText) {
     <div class="tw-flex tw-items-baseline tw-mt-4 tw-gap-2">
       <p bitTypography="body1">
-        <a bitLink (click)="navigateToLink(navigationLink)" rel="noreferrer">
-          {{ navigationText }}
+        <a bitLink href="#" (click)="onActionClick(); $event.preventDefault()" rel="noreferrer">
+          {{ actionText }}
         </a>
       </p>
     </div>
