@@ -141,7 +141,7 @@ describe("AutofillConfirmationDialogComponent", () => {
     expect(local.currentUrl).toBe("sub.domain.tld");
   });
 
-  it("maps falsy/invalid values from Utils.getHostname to empty strings in savedUrls", () => {
+  it("filters out falsy/invalid values from Utils.getHostname in savedUrls", () => {
     (Utils.getHostname as jest.Mock).mockImplementationOnce(() => "example.com");
     (Utils.getHostname as jest.Mock)
       .mockImplementationOnce(() => "ok.example")
@@ -156,7 +156,7 @@ describe("AutofillConfirmationDialogComponent", () => {
     const edge = new AutofillConfirmationDialogComponent(edgeParams as any, dialogRef);
 
     expect(edge.currentUrl).toBe("example.com");
-    expect(edge.savedUrls).toEqual(["ok.example", "", ""]);
+    expect(edge.savedUrls).toEqual(["ok.example"]);
   });
 
   it("renders one current-url callout and N saved-url callouts", () => {

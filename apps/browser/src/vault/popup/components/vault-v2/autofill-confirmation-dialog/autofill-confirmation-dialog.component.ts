@@ -15,7 +15,6 @@ import {
   CalloutComponent,
   LinkModule,
 } from "@bitwarden/components";
-import { I18nPipe } from "@bitwarden/ui-common";
 
 export interface AutofillConfirmationDialogParams {
   savedUrls?: string[];
@@ -39,7 +38,6 @@ export type AutofillConfirmationDialogResultType = UnionOfValues<
     CalloutComponent,
     CommonModule,
     DialogModule,
-    I18nPipe,
     LinkModule,
     TypographyModule,
     JslibModule,
