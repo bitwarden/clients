@@ -32,8 +32,8 @@ export class AutoConfirmPolicy extends BasePolicyEditDefinition {
 })
 export class AutoConfirmPolicyEditComponent extends BasePolicyEditComponent implements OnInit {
   protected readonly autoConfirmSvg = AutoConfirmSvg;
-  private readonly policyForm: Signal<TemplateRef<any> | undefined> = viewChild("step0");
-  private readonly extensionButton: Signal<TemplateRef<any> | undefined> = viewChild("step1");
+  private policyForm: Signal<TemplateRef<any> | undefined> = viewChild("step0");
+  private extensionButton: Signal<TemplateRef<any> | undefined> = viewChild("step1");
 
   protected step: number = 0;
   protected steps = [this.policyForm, this.extensionButton];
