@@ -36,7 +36,7 @@ export class AcceptOrganizationComponent extends BaseAcceptComponent {
     private acceptOrganizationInviteService: AcceptOrganizationInviteService,
     private organizationInviteService: OrganizationInviteService,
     private accountService: AccountService,
-    private toasService: ToastService,
+    private toastService: ToastService,
   ) {
     super(router, platformUtilsService, i18nService, route, authService);
   }
@@ -53,7 +53,7 @@ export class AcceptOrganizationComponent extends BaseAcceptComponent {
       return;
     }
 
-    this.toasService.showToast({
+    this.toastService.showToast({
       message: invite.initOrganization
         ? this.i18nService.t("inviteInitAcceptedDesc")
         : this.i18nService.t("invitationAcceptedDesc"),
