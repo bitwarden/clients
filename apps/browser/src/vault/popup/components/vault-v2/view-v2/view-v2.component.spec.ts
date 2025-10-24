@@ -3,7 +3,10 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { mock } from "jest-mock-extended";
 import { of, Subject } from "rxjs";
 
+import { CollectionService } from "@bitwarden/admin-console/common";
+import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import {
   AUTOFILL_ID,
@@ -11,18 +14,24 @@ import {
   COPY_USERNAME_ID,
   COPY_VERIFICATION_CODE_ID,
 } from "@bitwarden/common/autofill/constants";
+import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { EventType } from "@bitwarden/common/enums";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
+import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
+import { TaskService } from "@bitwarden/common/vault/tasks";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { CopyCipherFieldService, PasswordRepromptService } from "@bitwarden/vault";
 
@@ -62,7 +71,10 @@ describe("ViewV2Component", () => {
       username: "test-username",
       password: "test-password",
       totp: "123",
+      uris: ["https://example.com"],
     },
+    permissions: {},
+    card: {},
   } as unknown as CipherView;
 
   const mockPasswordRepromptService = {
@@ -131,7 +143,7 @@ describe("ViewV2Component", () => {
         {
           provide: CipherAuthorizationService,
           useValue: {
-            canDeleteCipher$: jest.fn().mockReturnValue(true),
+            canDeleteCipher$: jest.fn().mockReturnValue(of(true)),
           },
         },
         {
@@ -141,6 +153,53 @@ describe("ViewV2Component", () => {
         {
           provide: PasswordRepromptService,
           useValue: mockPasswordRepromptService,
+        },
+        {
+          provide: CipherArchiveService,
+          useValue: {
+            userCanArchive$: jest.fn().mockReturnValue(of(false)),
+            hasArchiveFlagEnabled$: jest.fn().mockReturnValue(of(true)),
+          },
+        },
+        {
+          provide: OrganizationService,
+          useValue: mock<OrganizationService>(),
+        },
+        {
+          provide: CollectionService,
+          useValue: mock<CollectionService>(),
+        },
+        {
+          provide: FolderService,
+          useValue: mock<FolderService>(),
+        },
+        {
+          provide: TaskService,
+          useValue: mock<TaskService>(),
+        },
+        {
+          provide: ApiService,
+          useValue: mock<ApiService>(),
+        },
+        {
+          provide: EnvironmentService,
+          useValue: {
+            environment$: of({
+              getIconsUrl: () => "https://example.com",
+            }),
+          },
+        },
+        {
+          provide: DomainSettingsService,
+          useValue: {
+            showFavicons$: of(true),
+          },
+        },
+        {
+          provide: BillingAccountProfileStateService,
+          useValue: {
+            hasPremiumFromAnySource$: jest.fn().mockReturnValue(of(false)),
+          },
         },
       ],
     })
@@ -475,6 +534,59 @@ describe("ViewV2Component", () => {
           });
         });
       });
+    });
+  });
+
+  describe("archived badge", () => {
+    it("shows archived badge if the user cannot archive and the cipher is archived", fakeAsync(() => {
+      const cipherArchiveService = TestBed.inject(CipherArchiveService);
+      (cipherArchiveService.userCanArchive$ as jest.Mock).mockReturnValue(of(false));
+      mockCipherService.cipherViews$.mockImplementationOnce(() =>
+        of([
+          {
+            ...mockCipher,
+            isArchived: true,
+          },
+        ]),
+      );
+
+      params$.next({ action: "view", cipherId: mockCipher.id });
+
+      flush();
+
+      fixture.detectChanges();
+
+      const badge = fixture.nativeElement.querySelector("span[bitBadge]");
+      expect(badge).toBeTruthy();
+    }));
+
+    it("does not show archived badge if the user can archive", () => {
+      const cipherArchiveService = TestBed.inject(CipherArchiveService);
+      (cipherArchiveService.userCanArchive$ as jest.Mock).mockReturnValue(of(true));
+      mockCipherService.cipherViews$.mockImplementationOnce(() =>
+        of([
+          {
+            ...mockCipher,
+            archivedDate: new Date(),
+          },
+        ]),
+      );
+
+      fixture.detectChanges();
+
+      const badge = fixture.nativeElement.querySelector("span[bitBadge]");
+      expect(badge).toBeFalsy();
+    });
+
+    it("does not show archived badge if the cipher is not archived", () => {
+      const cipherArchiveService = TestBed.inject(CipherArchiveService);
+      (cipherArchiveService.userCanArchive$ as jest.Mock).mockReturnValue(of(false));
+      (mockCipher as any).archivedDate = null;
+
+      fixture.detectChanges();
+
+      const badge = fixture.nativeElement.querySelector("span[bitBadge]");
+      expect(badge).toBeFalsy();
     });
   });
 });
