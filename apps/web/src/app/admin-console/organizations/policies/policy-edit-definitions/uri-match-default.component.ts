@@ -47,7 +47,7 @@ export class UriMatchDefaultPolicyComponent extends BasePolicyEditComponent {
   }
 
   protected loadData() {
-    const uriMatchDetection = this.policyResponse.data?.uriMatchDetection;
+    const uriMatchDetection = this.policyResponse.data?.uriMatchDetection ?? "";
 
     this.data.patchValue({
       uriMatchDetection: uriMatchDetection,
@@ -56,7 +56,7 @@ export class UriMatchDefaultPolicyComponent extends BasePolicyEditComponent {
 
   protected buildRequestData() {
     return {
-      uriMatchDetection: this.data.value?.uriMatchDetection ?? null,
+      uriMatchDetection: this.data.value.uriMatchDetection,
     };
   }
 
