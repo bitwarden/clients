@@ -90,6 +90,9 @@ export class SessionTimeoutSettingsComponent implements OnInit {
   ) {}
 
   readonly excludeTimeoutTypes = input.required<VaultTimeout[]>();
+  // TODO remove once https://bitwarden.atlassian.net/browse/PM-27283 is completed
+  //  This is because vaultTimeoutSettingsService.availableVaultTimeoutActions$ is not reactive, hence the change detection
+  //  needs to be manually triggered to refresh available timeout actions
   readonly refreshTimeoutActionSettings = input<Observable<void>>(
     new BehaviorSubject<void>(undefined),
   );
