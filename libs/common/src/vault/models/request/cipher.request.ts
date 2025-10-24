@@ -201,6 +201,7 @@ export class CipherRequest {
         this.attachments[attachment.id] = fileName;
         const attachmentRequest = new AttachmentRequest();
         attachmentRequest.fileName = fileName;
+        attachmentRequest.lastKnownRevisionDate = cipher.revisionDate;
         if (attachment.key != null) {
           attachmentRequest.key = attachment.key.encryptedString;
         }

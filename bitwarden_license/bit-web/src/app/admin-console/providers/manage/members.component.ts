@@ -30,6 +30,7 @@ import {
 } from "@bitwarden/web-vault/app/admin-console/common/people-table-data-source";
 import { openEntityEventsDialog } from "@bitwarden/web-vault/app/admin-console/organizations/manage/entity-events.component";
 import { BulkStatusComponent } from "@bitwarden/web-vault/app/admin-console/organizations/members/components/bulk/bulk-status.component";
+import { MemberActionResult } from "@bitwarden/web-vault/app/admin-console/organizations/members/services/member-actions/member-actions.service";
 
 import {
   AddEditMemberDialogComponent,
@@ -45,6 +46,8 @@ class MembersTableDataSource extends PeopleTableDataSource<ProviderUser> {
   protected statusType = ProviderUserStatusType;
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "members.component.html",
   standalone: false,
@@ -199,16 +202,27 @@ export class MembersComponent extends BaseMembersComponent<ProviderUser> {
     await this.load();
   }
 
-  async confirmUser(user: ProviderUser, publicKey: Uint8Array): Promise<void> {
-    const providerKey = await this.keyService.getProviderKey(this.providerId);
-    const key = await this.encryptService.encapsulateKeyUnsigned(providerKey, publicKey);
-    const request = new ProviderUserConfirmRequest();
-    request.key = key.encryptedString;
-    await this.apiService.postProviderUserConfirm(this.providerId, user.id, request);
+  async confirmUser(user: ProviderUser, publicKey: Uint8Array): Promise<MemberActionResult> {
+    try {
+      const providerKey = await this.keyService.getProviderKey(this.providerId);
+      const key = await this.encryptService.encapsulateKeyUnsigned(providerKey, publicKey);
+      const request = new ProviderUserConfirmRequest();
+      request.key = key.encryptedString;
+      await this.apiService.postProviderUserConfirm(this.providerId, user.id, request);
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
   }
 
-  removeUser = (id: string): Promise<void> =>
-    this.apiService.deleteProviderUser(this.providerId, id);
+  removeUser = async (id: string): Promise<MemberActionResult> => {
+    try {
+      await this.apiService.deleteProviderUser(this.providerId, id);
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  };
 
   edit = async (user: ProviderUser | null): Promise<void> => {
     const data: AddEditMemberDialogParams = {
@@ -251,6 +265,12 @@ export class MembersComponent extends BaseMembersComponent<ProviderUser> {
   getUsers = (): Promise<ListResponse<ProviderUser>> =>
     this.apiService.getProviderUsers(this.providerId);
 
-  reinviteUser = (id: string): Promise<void> =>
-    this.apiService.postProviderUserReinvite(this.providerId, id);
+  reinviteUser = async (id: string): Promise<MemberActionResult> => {
+    try {
+      await this.apiService.postProviderUserReinvite(this.providerId, id);
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  };
 }
