@@ -13,9 +13,16 @@
         <button type="button" bitMenuItem (click)="doAutofill()">
           {{ "autofill" | i18n }}
         </button>
-        <button type="button" bitMenuItem *ngIf="canEdit && isLogin" (click)="doAutofillAndSave()">
-          {{ "fillAndSave" | i18n }}
-        </button>
+        @if (!autofillConfirmationFlag$ | async) {
+          <button
+            type="button"
+            bitMenuItem
+            *ngIf="canEdit && isLogin"
+            (click)="doAutofillAndSave()"
+          >
+            {{ "fillAndSave" | i18n }}
+          </button>
+        }
       </ng-container>
     </ng-container>
     <ng-container *ngIf="showViewOption">
