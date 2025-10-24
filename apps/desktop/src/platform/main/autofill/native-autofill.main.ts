@@ -135,19 +135,19 @@ export class NativeAutofillMain {
     });
 
     ipcMain.on("autofill.completePasskeyRegistration", (event, data) => {
-      this.logService.warning("autofill.completePasskeyRegistration", data);
+      this.logService.debug("autofill.completePasskeyRegistration", data);
       const { clientId, sequenceNumber, response } = data;
       this.ipcServer.completeRegistration(clientId, sequenceNumber, response);
     });
 
     ipcMain.on("autofill.completePasskeyAssertion", (event, data) => {
-      this.logService.warning("autofill.completePasskeyAssertion", data);
+      this.logService.debug("autofill.completePasskeyAssertion", data);
       const { clientId, sequenceNumber, response } = data;
       this.ipcServer.completeAssertion(clientId, sequenceNumber, response);
     });
 
     ipcMain.on("autofill.completeError", (event, data) => {
-      this.logService.warning("autofill.completeError", data);
+      this.logService.debug("autofill.completeError", data);
       const { clientId, sequenceNumber, error } = data;
       this.ipcServer.completeError(clientId, sequenceNumber, String(error));
     });

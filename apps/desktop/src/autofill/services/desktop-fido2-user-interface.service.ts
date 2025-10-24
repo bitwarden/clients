@@ -66,7 +66,7 @@ export class DesktopFido2UserInterfaceService
     nativeWindowObject: NativeWindowObject,
     abortController?: AbortController,
   ): Promise<DesktopFido2UserInterfaceSession> {
-    this.logService.warning("newSession", fallbackSupported, abortController, nativeWindowObject);
+    this.logService.debug("newSession", fallbackSupported, abortController, nativeWindowObject);
     const session = new DesktopFido2UserInterfaceSession(
       this.authService,
       this.cipherService,
@@ -116,7 +116,7 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     assumeUserPresence,
     masterPasswordRepromptRequired,
   }: PickCredentialParams): Promise<{ cipherId: string; userVerified: boolean }> {
-    this.logService.warning("pickCredential desktop function", {
+    this.logService.debug("pickCredential desktop function", {
       cipherIds,
       userVerification,
       assumeUserPresence,
@@ -210,7 +210,7 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     userVerification,
     rpId,
   }: NewCredentialParams): Promise<{ cipherId: string; userVerified: boolean }> {
-    this.logService.warning(
+    this.logService.debug(
       "confirmNewCredential",
       credentialName,
       userName,
@@ -327,7 +327,7 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
   }
 
   async informExcludedCredential(existingCipherIds: string[]): Promise<void> {
-    this.logService.warning("informExcludedCredential", existingCipherIds);
+    this.logService.debug("informExcludedCredential", existingCipherIds);
 
     // make the cipherIds available to the UI.
     this.availableCipherIdsSubject.next(existingCipherIds);
@@ -337,7 +337,7 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
   }
 
   async ensureUnlockedVault(): Promise<void> {
-    this.logService.warning("ensureUnlockedVault");
+    this.logService.debug("ensureUnlockedVault");
 
     const status = await firstValueFrom(this.authService.activeAccountStatus$);
     if (status !== AuthenticationStatus.Unlocked) {
@@ -368,10 +368,10 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
   }
 
   async informCredentialNotFound(): Promise<void> {
-    this.logService.warning("informCredentialNotFound");
+    this.logService.debug("informCredentialNotFound");
   }
 
   async close() {
-    this.logService.warning("close");
+    this.logService.debug("close");
   }
 }

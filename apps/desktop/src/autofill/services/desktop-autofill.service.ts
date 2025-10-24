@@ -201,11 +201,8 @@ export class DesktopAutofillService implements OnDestroy {
 
       this.registrationRequest = request;
 
-      this.logService.warning("listenPasskeyRegistration", clientId, sequenceNumber, request);
-      this.logService.warning(
-        "listenPasskeyRegistration2",
-        this.convertRegistrationRequest(request),
-      );
+      this.logService.debug("listenPasskeyRegistration", clientId, sequenceNumber, request);
+      this.logService.debug("listenPasskeyRegistration2", this.convertRegistrationRequest(request));
 
       const controller = new AbortController();
 
@@ -233,7 +230,7 @@ export class DesktopAutofillService implements OnDestroy {
           return;
         }
 
-        this.logService.warning(
+        this.logService.debug(
           "listenPasskeyAssertion without user interface",
           clientId,
           sequenceNumber,
@@ -300,7 +297,7 @@ export class DesktopAutofillService implements OnDestroy {
         return;
       }
 
-      this.logService.warning("listenPasskeyAssertion", clientId, sequenceNumber, request);
+      this.logService.debug("listenPasskeyAssertion", clientId, sequenceNumber, request);
 
       const controller = new AbortController();
       try {
