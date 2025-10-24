@@ -56,7 +56,7 @@ export class AcceptOrganizationComponent extends BaseAcceptComponent {
       this.i18nService.t("inviteAccepted"),
       invite.initOrganization
         ? this.i18nService.t("inviteInitAcceptedDesc")
-        : this.i18nService.t("inviteAcceptedDesc"),
+        : this.i18nService.t("invitationAcceptedDesc"),
       { timeout: 10000 },
     );
 
