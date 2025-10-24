@@ -5,6 +5,8 @@ import { Component, HostBinding, OnInit, input } from "@angular/core";
 import type { SortDirection, SortFn } from "./table-data-source";
 import { TableComponent } from "./table.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "th[bitSortable]",
   template: `

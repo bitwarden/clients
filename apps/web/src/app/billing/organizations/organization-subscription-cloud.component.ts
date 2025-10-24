@@ -42,6 +42,8 @@ import { ChangePlanDialogResultType, openChangePlanDialog } from "./change-plan-
 import { DownloadLicenceDialogComponent } from "./download-license.component";
 import { SecretsManagerSubscriptionOptions } from "./sm-adjust-subscription.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "organization-subscription-cloud.component.html",
   standalone: false,

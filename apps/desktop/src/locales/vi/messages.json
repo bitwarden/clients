@@ -1852,6 +1852,12 @@
   "lockWithMasterPassOnRestart1": {
     "message": "Khóa bằng mật khẩu chính khi khởi động lại"
   },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "Require master password or PIN on app restart"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "Require master password on app restart"
+  },
   "deleteAccount": {
     "message": "Xóa tài khoản"
   },
@@ -4167,8 +4173,8 @@
   "itemWasSentToArchive": {
     "message": "Mục đã được chuyển vào kho lưu trữ"
   },
-  "itemUnarchived": {
-    "message": "Mục đã được bỏ lưu trữ"
+  "itemWasUnarchived": {
+    "message": "Item was unarchived"
   },
   "archiveItem": {
     "message": "Lưu trữ mục"

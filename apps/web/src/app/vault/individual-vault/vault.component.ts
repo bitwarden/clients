@@ -620,7 +620,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
           this.changeDetectorRef.markForCheck();
         },
       );
-    await this.unifiedUpgradePromptService.displayUpgradePromptConditionally();
+    void this.unifiedUpgradePromptService.displayUpgradePromptConditionally();
   }
 
   ngOnDestroy() {
@@ -692,6 +692,12 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   }
 
   async archive(cipher: C) {
+    const repromptPassed = await this.passwordRepromptService.passwordRepromptCheck(cipher);
+
+    if (!repromptPassed) {
+      return;
+    }
+
     const confirmed = await this.dialogService.openSimpleDialog({
       title: { key: "archiveItem" },
       content: { key: "archiveItemConfirmDesc" },
@@ -702,10 +708,6 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       return;
     }
 
-    const repromptPassed = await this.passwordRepromptService.passwordRepromptCheck(cipher);
-    if (!repromptPassed) {
-      return;
-    }
     const activeUserId = await firstValueFrom(this.userId$);
     try {
       await this.cipherArchiveService.archiveWithServer(cipher.id as CipherId, activeUserId);
@@ -724,6 +726,10 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   }
 
   async bulkArchive(ciphers: C[]) {
+    if (!(await this.repromptCipher(ciphers))) {
+      return;
+    }
+
     const confirmed = await this.dialogService.openSimpleDialog({
       title: { key: "archiveBulkItems" },
       content: { key: "archiveBulkItemsConfirmDesc" },
@@ -731,10 +737,6 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     });
 
     if (!confirmed) {
-      return;
-    }
-
-    if (!(await this.repromptCipher(ciphers))) {
       return;
     }
 

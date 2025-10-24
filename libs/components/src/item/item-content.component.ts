@@ -29,7 +29,7 @@ import { TypographyModule } from "../typography";
 export class ItemContentComponent implements AfterContentChecked {
   readonly endSlot = viewChild<ElementRef<HTMLDivElement>>("endSlot");
 
-  protected endSlotHasChildren = signal(false);
+  protected readonly endSlotHasChildren = signal(false);
 
   /**
    * Determines whether text will truncate or wrap.
