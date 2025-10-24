@@ -8,6 +8,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { SyncService } from "@bitwarden/common/platform/sync";
 import { ToastService } from "@bitwarden/components";
 
 /**
@@ -29,6 +30,18 @@ export function nonOrganizationFeatureGuard(
     const accountService = inject(AccountService);
     const organizationService = inject(OrganizationService);
     const configService = inject(ConfigService);
+    const syncService = inject(SyncService);
+
+    const synced = await firstValueFrom(
+      accountService.activeAccount$.pipe(
+        getUserId,
+        switchMap((userId) => syncService.lastSync$(userId)),
+      ),
+    );
+
+    if (synced == null) {
+      await syncService.fullSync(false);
+    }
 
     const compliant = await firstValueFrom(
       accountService.activeAccount$.pipe(
