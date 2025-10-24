@@ -81,8 +81,32 @@ export class AuditService implements AuditServiceAbstraction {
     }
   }
 
-  async getKnownPhishingDomains(): Promise<string[]> {
-    const response = await this.apiService.send("GET", "/phishing-domains", null, true, true);
-    return response as string[];
+  async getKnownPhishingDomainsIfChanged(
+    prevChecksum: string,
+    checksumUrl: string,
+    domainsUrl: string,
+  ) {
+    const checksum = await this.apiService
+      .nativeFetch(new Request(checksumUrl))
+      .then((res) => res.text());
+    if (prevChecksum === checksum) {
+      return null;
+    }
+
+    const domains = await this.getKnownPhishingDomains(domainsUrl);
+
+    return {
+      domains,
+      checksum,
+    };
+  }
+
+  async getKnownPhishingDomains(domainsUrl: string) {
+    const domains = await this.apiService
+      .nativeFetch(new Request(domainsUrl))
+      .then((res) => res.text())
+      .then((text) => text.split("\n"));
+
+    return domains;
   }
 }

@@ -33,3 +33,9 @@ export type PhishingDetectionNavigationEvent = {
   changeInfo: chrome.tabs.OnUpdatedInfo;
   tab: chrome.tabs.Tab;
 };
+
+export type CachedPhishingData = {
+  domains: string[];
+  timestamp: number;
+  checksum: string;
+};

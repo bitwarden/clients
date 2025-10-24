@@ -14,10 +14,23 @@ export abstract class AuditService {
    * @returns A promise that resolves to an array of BreachAccountResponse objects.
    */
   abstract breachedAccounts: (username: string) => Promise<BreachAccountResponse[]>;
+
   /**
-   * Checks if a domain is known for phishing.
-   * @param domain The domain to check.
-   * @returns A promise that resolves to a boolean indicating if the domain is known for phishing.
+   * Retrieves the latest known phishing domains and their checksum if changed
+   * @param prevChecksum The previous checksum value to compare against.
+   * @param checksumUrl The URL to fetch the latest checksum.
+   * @param domainsUrl The URL to fetch the list of phishing domains.
+   * @returns A promise that resolves to an object containing the domains array and new checksum, or null if unchanged.
    */
-  abstract getKnownPhishingDomains: () => Promise<string[]>;
+  abstract getKnownPhishingDomainsIfChanged(
+    prevChecksum: string,
+    checksumUrl: string,
+    domainsUrl: string,
+  ): Promise<{ domains: string[]; checksum: string } | null>;
+
+  /**
+   * Retrieves the latest known phishing domains
+   * @param domainsUrl The URL to fetch the list of phishing domains.
+   */
+  abstract getKnownPhishingDomains(domainsUrl: string): Promise<string[]>;
 }

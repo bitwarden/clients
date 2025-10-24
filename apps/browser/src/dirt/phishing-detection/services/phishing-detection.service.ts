@@ -23,7 +23,9 @@ import { TaskSchedulerService } from "@bitwarden/common/platform/scheduling/task
 
 import { BrowserApi } from "../../../platform/browser/browser-api";
 
+import LocalPhishingMeta from "./data/local-phishing-meta.json";
 import {
+  CachedPhishingData,
   CaughtPhishingDomain,
   isPhishingDetectionMessage,
   PhishingDetectionMessage,
@@ -32,6 +34,11 @@ import {
 } from "./phishing-detection.types";
 
 export class PhishingDetectionService {
+  private static readonly RemotePhishingDatabaseUrl =
+    "https://raw.githubusercontent.com/Phishing-Database/Phishing.Database/master/phishing-domains-ACTIVE.txt";
+  private static readonly RemotePhishingDatabaseChecksumUrl =
+    "https://raw.githubusercontent.com/Phishing-Database/checksums/refs/heads/master/phishing-domains-ACTIVE.txt.md5";
+
   private static readonly _UPDATE_INTERVAL = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
   private static readonly _RETRY_INTERVAL = 5 * 60 * 1000; // 5 minutes
   private static readonly _MAX_RETRIES = 3;
@@ -45,6 +52,8 @@ export class PhishingDetectionService {
   private static _navigationEventsSubject = new Subject<PhishingDetectionNavigationEvent>();
   private static _navigationEvents: Subscription | null = null;
   private static _knownPhishingDomains = new Set<string>();
+  private static _knownPhishingDomainsChecksum: string = "";
+  private static _attemptedLocalDBLoad = false;
   private static _caughtTabs: Map<PhishingDetectionTabId, CaughtPhishingDomain> = new Map();
   private static _isInitialized = false;
   private static _isUpdating = false;
@@ -538,14 +547,12 @@ export class PhishingDetectionService {
    */
   private static async _loadCachedDomains() {
     try {
-      const cachedData = await this._storageService.get<{ domains: string[]; timestamp: number }>(
-        this._STORAGE_KEY,
-      );
+      const cachedData = await this._storageService.get<CachedPhishingData>(this._STORAGE_KEY);
       if (cachedData) {
         this._logService.info("[PhishingDetectionService] Phishing cachedData exists");
         const phishingDomains = cachedData.domains || [];
 
-        this._setKnownPhishingDomains(phishingDomains);
+        this._setKnownPhishingDomains(phishingDomains, cachedData.checksum);
         this._handleTestUrls();
       }
 
@@ -570,8 +577,6 @@ export class PhishingDetectionService {
    * Updates the cache and handles retries if necessary
    */
   static async _fetchKnownPhishingDomains(): Promise<void> {
-    let domains: string[] = [];
-
     // Prevent concurrent updates
     if (this._isUpdating) {
       this._logService.warning(
@@ -583,10 +588,17 @@ export class PhishingDetectionService {
     try {
       this._logService.info("[PhishingDetectionService] Starting phishing domains update...");
       this._isUpdating = true;
-      domains = await this._auditService.getKnownPhishingDomains();
-      this._setKnownPhishingDomains(domains);
-
-      await this._saveDomains();
+      const res = await this._auditService.getKnownPhishingDomainsIfChanged(
+        this._knownPhishingDomainsChecksum,
+        this.RemotePhishingDatabaseChecksumUrl,
+        this.RemotePhishingDatabaseUrl,
+      );
+      if (!res) {
+        this._logService.info("[PhishingDetectionService] Domains are already up to date");
+      } else {
+        this._setKnownPhishingDomains(res.domains, res.checksum);
+        await this._saveDomains();
+      }
 
       this._resetRetry();
       this._isUpdating = false;
@@ -598,11 +610,38 @@ export class PhishingDetectionService {
         error,
       );
 
+      // Load local DB as fallback
+      await this._loadLocalPhishingDomainsDatabase();
+
       this._scheduleRetry();
       this._isUpdating = false;
 
       throw error;
     }
+  }
+
+  private static async _loadLocalPhishingDomainsDatabase() {
+    if (this._attemptedLocalDBLoad) {
+      return;
+    }
+
+    try {
+      this._logService.info("[PhishingDetectionService] Fetching local DB as fallback");
+      const fallbackDomains: string[] = await Promise.all(
+        LocalPhishingMeta.files.map((path) =>
+          this._auditService.getKnownPhishingDomains(
+            chrome.runtime.getURL("dirt/phishing-detection/services/data/" + path),
+          ),
+        ),
+      ).then((chunkedDomains) => chunkedDomains.flat());
+
+      this._setKnownPhishingDomains(fallbackDomains, LocalPhishingMeta.checksum);
+      await this._saveDomains();
+    } catch (error) {
+      this._logService.error("[PhishingDetectionService] Failed to fetch local DB.", error);
+    }
+
+    this._attemptedLocalDBLoad = true;
   }
 
   /**
@@ -612,9 +651,10 @@ export class PhishingDetectionService {
   private static async _saveDomains() {
     try {
       // Cache the updated domains
-      await this._storageService.save(this._STORAGE_KEY, {
+      await this._storageService.save<CachedPhishingData>(this._STORAGE_KEY, {
         domains: Array.from(this._knownPhishingDomains),
         timestamp: this._lastUpdateTime,
+        checksum: this._knownPhishingDomainsChecksum,
       });
       this._logService.info(
         `[PhishingDetectionService] Updated phishing domains cache with ${this._knownPhishingDomains.size} domains`,
@@ -650,11 +690,11 @@ export class PhishingDetectionService {
    *
    * @param domains Array of phishing domains to add
    */
-  private static _setKnownPhishingDomains(domains: string[]): void {
+  private static _setKnownPhishingDomains(domains: string[], checksum: string): void {
     this._logService.debug(
       `[PhishingDetectionService] Tracking ${domains.length} phishing domains`,
     );
-
+    this._knownPhishingDomainsChecksum = checksum;
     // Clear old domains to prevent memory leaks
     this._knownPhishingDomains.clear();
 
