@@ -869,13 +869,14 @@ export class CipherService implements CipherServiceAbstraction {
       response = await this.apiService.postCipherAdmin(request);
       const data = new CipherData(response, cipher.collectionIds);
       return new Cipher(data);
-    } else if (cipher.collectionIds != null) {
+    } else if (cipher.collectionIds != null && cipher.collectionIds.length > 0) {
       const request = new CipherCreateRequest({ cipher, encryptedFor });
       response = await this.apiService.postCipherCreate(request);
     } else {
       const request = new CipherRequest({ cipher, encryptedFor });
       response = await this.apiService.postCipher(request);
     }
+
     cipher.id = response.id;
 
     const data = new CipherData(response, cipher.collectionIds);

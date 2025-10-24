@@ -42,12 +42,16 @@ import {
 } from "@bitwarden/web-vault/app/billing/payment/types";
 import { mapAccountToSubscriber } from "@bitwarden/web-vault/app/billing/types";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "./premium.component.html",
   standalone: false,
   providers: [SubscriberBillingClient, TaxClient],
 })
 export class PremiumComponent {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild(EnterPaymentMethodComponent) enterPaymentMethodComponent!: EnterPaymentMethodComponent;
 
   protected hasPremiumFromAnyOrganization$: Observable<boolean>;

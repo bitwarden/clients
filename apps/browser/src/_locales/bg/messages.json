@@ -5715,6 +5715,9 @@
   "confirmKeyConnectorDomain": {
     "message": "Потвърждаване на домейна на конектора за ключове"
   },
+  "atRiskLoginsSecured": {
+    "message": "Добра работа с подсигуряването на данните за вписване в риск!"
+  },
   "settingDisabledByPolicy": {
     "message": "Тази настройка е изключена съгласно политиката на организацията Ви.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."

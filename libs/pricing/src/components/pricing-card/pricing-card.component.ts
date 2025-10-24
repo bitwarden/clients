@@ -15,6 +15,8 @@ import {
  * This component has no external dependencies and performs no logic - it only displays data
  * and emits events when the button is clicked.
  */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "billing-pricing-card",
   templateUrl: "./pricing-card.component.html",
@@ -38,6 +40,8 @@ export class PricingCardComponent {
   readonly noPaddingTop = input<boolean>(false);
   readonly noBorder = input<boolean>(false);
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() buttonClick = new EventEmitter<void>();
 
   /**

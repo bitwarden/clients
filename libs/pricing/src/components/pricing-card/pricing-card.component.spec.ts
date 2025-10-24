@@ -6,6 +6,8 @@ import { ButtonType, IconModule, TypographyModule } from "@bitwarden/components"
 
 import { PricingCardComponent } from "./pricing-card.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template: `
     <billing-pricing-card

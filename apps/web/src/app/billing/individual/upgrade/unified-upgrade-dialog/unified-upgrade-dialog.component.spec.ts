@@ -26,6 +26,8 @@ import {
   UnifiedUpgradeDialogStep,
 } from "./unified-upgrade-dialog.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-upgrade-account",
   template: "",
@@ -38,6 +40,8 @@ class MockUpgradeAccountComponent {
   closeClicked = output<UpgradeAccountStatus>();
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-upgrade-payment",
   template: "",

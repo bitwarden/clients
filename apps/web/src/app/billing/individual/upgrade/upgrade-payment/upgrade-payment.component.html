@@ -70,7 +70,7 @@
         bitButton
         bitFormButton
         buttonType="primary"
-        [disabled]="loading() || !isFormValid()"
+        [disabled]="loading() || !isFormValid() || !(hasEnoughAccountCredit$ | async)"
         type="submit"
       >
         {{ "upgrade" | i18n }}
