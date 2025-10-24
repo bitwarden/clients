@@ -4,6 +4,9 @@ A rust library that allows you to directly import credentials from Chromium-base
 
 ## Windows ABE Architecture
 
+On Windows chrome has additional protection measurements which needs to be. circumvented in order to
+get access to the passwords.
+
 ### Overview
 
 The Windows Application Bound Encryption (ABE) consists of three main components that work together:

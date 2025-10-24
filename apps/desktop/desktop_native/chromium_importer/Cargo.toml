@@ -1,5 +1,5 @@
 [package]
-name = "bitwarden_chromium_importer"
+name = "chromium_importer"
 edition = { workspace = true }
 license = { workspace = true }
 version = { workspace = true }

@@ -1060,11 +1060,13 @@ pub mod logging {
 
 #[napi]
 pub mod chromium_importer {
-    use bitwarden_chromium_importer::chromium::DefaultInstalledBrowserRetriever;
-    use bitwarden_chromium_importer::chromium::InstalledBrowserRetriever;
-    use bitwarden_chromium_importer::chromium::LoginImportResult as _LoginImportResult;
-    use bitwarden_chromium_importer::chromium::ProfileInfo as _ProfileInfo;
-    use bitwarden_chromium_importer::metadata::NativeImporterMetadata;
+    use chromium_importer::{
+        chromium::{
+            DefaultInstalledBrowserRetriever, InstalledBrowserRetriever,
+            LoginImportResult as _LoginImportResult, ProfileInfo as _ProfileInfo,
+        },
+        metadata::NativeImporterMetadata,
+    };
     use std::collections::HashMap;
 
     #[napi(object)]
@@ -1130,20 +1132,18 @@ pub mod chromium_importer {
     #[napi]
     /// Returns OS aware metadata describing supported Chromium based importers as a JSON string.
     pub fn get_metadata() -> HashMap<String, NativeImporterMetadata> {
-        bitwarden_chromium_importer::metadata::get_supported_importers::<
-            DefaultInstalledBrowserRetriever,
-        >()
+        chromium_importer::metadata::get_supported_importers::<DefaultInstalledBrowserRetriever>()
     }
 
     #[napi]
     pub fn get_installed_browsers() -> napi::Result<Vec<String>> {
-        bitwarden_chromium_importer::chromium::DefaultInstalledBrowserRetriever::get_installed_browsers()
+        chromium_importer::chromium::DefaultInstalledBrowserRetriever::get_installed_browsers()
             .map_err(|e| napi::Error::from_reason(e.to_string()))
     }
 
     #[napi]
     pub fn get_available_profiles(browser: String) -> napi::Result<Vec<ProfileInfo>> {
-        bitwarden_chromium_importer::chromium::get_available_profiles(&browser)
+        chromium_importer::chromium::get_available_profiles(&browser)
             .map(|profiles| profiles.into_iter().map(ProfileInfo::from).collect())
             .map_err(|e| napi::Error::from_reason(e.to_string()))
     }
@@ -1153,7 +1153,7 @@ pub mod chromium_importer {
         browser: String,
         profile_id: String,
     ) -> napi::Result<Vec<LoginImportResult>> {
-        bitwarden_chromium_importer::chromium::import_logins(&browser, &profile_id)
+        chromium_importer::chromium::import_logins(&browser, &profile_id)
             .await
             .map(|logins| logins.into_iter().map(LoginImportResult::from).collect())
             .map_err(|e| napi::Error::from_reason(e.to_string()))
