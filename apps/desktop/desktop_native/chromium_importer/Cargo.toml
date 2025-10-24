@@ -1,5 +1,5 @@
 [package]
-name = "bitwarden_chromium_importer"
+name = "chromium_importer"
 edition = { workspace = true }
 license = { workspace = true }
 version = { workspace = true }
@@ -14,8 +14,6 @@ base64 = { workspace = true }
 cbc = { workspace = true, features = ["alloc"] }
 hex = { workspace = true }
 homedir = { workspace = true }
-napi = { workspace = true }
-napi-derive = { workspace = true }
 pbkdf2 = "=0.12.2"
 rand = { workspace = true }
 rusqlite = { version = "=0.37.0", features = ["bundled"] }
@@ -36,4 +34,3 @@ oo7 = { workspace = true }
 
 [lints]
 workspace = true
-

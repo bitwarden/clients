@@ -1,8 +1,7 @@
 use std::collections::{HashMap, HashSet};
 
-use crate::{chromium::InstalledBrowserRetriever, PLATFORM_SUPPORTED_BROWSERS};
+use crate::chromium::{InstalledBrowserRetriever, PLATFORM_SUPPORTED_BROWSERS};
 
-#[napi(object)]
 /// Mechanisms that load data into the importer
 pub struct NativeImporterMetadata {
     /// Identifies the importer
@@ -24,7 +23,7 @@ pub fn get_supported_importers<T: InstalledBrowserRetriever>(
     // Check for installed browsers
     let installed_browsers = T::get_installed_browsers().unwrap_or_default();
 
-    const IMPORTERS: [(&str, &str); 6] = [
+    const IMPORTERS: &[(&str, &str)] = &[
         ("chromecsv", "Chrome"),
         ("chromiumcsv", "Chromium"),
         ("bravecsv", "Brave"),
@@ -57,9 +56,7 @@ pub fn get_supported_importers<T: InstalledBrowserRetriever>(
     map
 }
 
-/*
-    Tests are cfg-gated based upon OS, and must be compiled/run on each OS for full coverage
-*/
+// Tests are cfg-gated based upon OS, and must be compiled/run on each OS for full coverage
 #[cfg(test)]
 mod tests {
     use super::*;

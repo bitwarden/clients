@@ -2,7 +2,7 @@
 resolver = "2"
 members = [
     "autotype",
-    "bitwarden_chromium_importer",
+    "chromium_importer",
     "core",
     "macos_provider",
     "napi",
