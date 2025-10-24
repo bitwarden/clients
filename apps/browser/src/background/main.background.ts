@@ -743,7 +743,9 @@ export default class MainBackground {
 
     this.appIdService = new AppIdService(this.storageService, this.logService);
 
-    this.userDecryptionOptionsService = new UserDecryptionOptionsService(this.stateProvider);
+    this.userDecryptionOptionsService = new UserDecryptionOptionsService(
+      this.singleUserStateProvider,
+    );
     this.organizationService = new DefaultOrganizationService(this.stateProvider);
     this.policyService = new DefaultPolicyService(this.stateProvider, this.organizationService);
 
@@ -863,8 +865,6 @@ export default class MainBackground {
       this.stateProvider,
     );
 
-    this.userDecryptionOptionsService = new UserDecryptionOptionsService(this.stateProvider);
-
     this.devicesApiService = new DevicesApiServiceImplementation(this.apiService);
     this.deviceTrustService = new DeviceTrustService(
       this.keyGenerationService,
@@ -880,6 +880,7 @@ export default class MainBackground {
       this.userDecryptionOptionsService,
       this.logService,
       this.configService,
+      this.accountService,
     );
 
     this.devicesService = new DevicesServiceImplementation(

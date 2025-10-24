@@ -134,7 +134,9 @@ describe("SsoLoginStrategy", () => {
     );
 
     const userDecryptionOptions = new UserDecryptionOptions();
-    userDecryptionOptionsService.userDecryptionOptions$ = of(userDecryptionOptions);
+    userDecryptionOptionsService.userDecryptionOptionsById$.mockReturnValue(
+      of(userDecryptionOptions),
+    );
 
     ssoLoginStrategy = new SsoLoginStrategy(
       {} as SsoLoginStrategyData,
