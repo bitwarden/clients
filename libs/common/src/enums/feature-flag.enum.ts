@@ -12,6 +12,7 @@ import { ServerConfig } from "../platform/abstractions/config/server-config";
 export enum FeatureFlag {
   /* Admin Console Team */
   CreateDefaultLocation = "pm-19467-create-default-location",
+  AutoConfirm = "pm-19934-auto-confirm-organization-users",
 
   /* Auth */
   PM22110_DisableAlternateLoginMethods = "pm-22110-disable-alternate-login-methods",
@@ -35,14 +36,17 @@ export enum FeatureFlag {
   EnrollAeadOnKeyRotation = "enroll-aead-on-key-rotation",
   ForceUpdateKDFSettings = "pm-18021-force-update-kdf-settings",
   PM25174_DisableType0Decryption = "pm-25174-disable-type-0-decryption",
+  WindowsBiometricsV2 = "pm-25373-windows-biometrics-v2",
   UnlockWithMasterPasswordUnlockData = "pm-23246-unlock-with-master-password-unlock-data",
+  NoLogoutOnKdfChange = "pm-23995-no-logout-on-kdf-change",
 
   /* Tools */
   DesktopSendUIRefresh = "desktop-send-ui-refresh",
   UseSdkPasswordGenerators = "pm-19976-use-sdk-password-generators",
+  ChromiumImporterWithABE = "pm-25855-chromium-importer-abe",
 
   /* DIRT */
-  EventBasedOrganizationIntegrations = "event-based-organization-integrations",
+  EventManagementForDataDogAndCrowdStrike = "event-management-for-datadog-and-crowdstrike",
   PhishingDetection = "phishing-detection",
   PM22887_RiskInsightsActivityTab = "pm-22887-risk-insights-activity-tab",
 
@@ -77,6 +81,7 @@ const FALSE = false as boolean;
 export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
   [FeatureFlag.CreateDefaultLocation]: FALSE,
+  [FeatureFlag.AutoConfirm]: FALSE,
 
   /* Autofill */
   [FeatureFlag.MacOsNativeCredentialSync]: FALSE,
@@ -85,9 +90,10 @@ export const DefaultFeatureFlagValue = {
   /* Tools */
   [FeatureFlag.DesktopSendUIRefresh]: FALSE,
   [FeatureFlag.UseSdkPasswordGenerators]: FALSE,
+  [FeatureFlag.ChromiumImporterWithABE]: FALSE,
 
   /* DIRT */
-  [FeatureFlag.EventBasedOrganizationIntegrations]: FALSE,
+  [FeatureFlag.EventManagementForDataDogAndCrowdStrike]: FALSE,
   [FeatureFlag.PhishingDetection]: FALSE,
   [FeatureFlag.PM22887_RiskInsightsActivityTab]: FALSE,
 
@@ -115,7 +121,9 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.EnrollAeadOnKeyRotation]: FALSE,
   [FeatureFlag.ForceUpdateKDFSettings]: FALSE,
   [FeatureFlag.PM25174_DisableType0Decryption]: FALSE,
+  [FeatureFlag.WindowsBiometricsV2]: FALSE,
   [FeatureFlag.UnlockWithMasterPasswordUnlockData]: FALSE,
+  [FeatureFlag.NoLogoutOnKdfChange]: FALSE,
 
   /* Platform */
   [FeatureFlag.IpcChannelFramework]: FALSE,

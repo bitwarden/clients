@@ -1,5 +1,6 @@
 import { BasePolicyEditDefinition } from "./base-policy-edit.component";
 import {
+  AutoConfirmPolicy,
   DesktopAutotypeDefaultSettingPolicy,
   DisableSendPolicy,
   MasterPasswordPolicy,
@@ -33,4 +34,5 @@ export const ossPolicyEditRegister: BasePolicyEditDefinition[] = [
   new SendOptionsPolicy(),
   new RestrictedItemTypesPolicy(),
   new DesktopAutotypeDefaultSettingPolicy(),
+  new AutoConfirmPolicy(),
 ];

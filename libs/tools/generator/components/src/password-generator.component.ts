@@ -53,6 +53,8 @@ import { GeneratorHistoryService } from "@bitwarden/generator-history";
 import { toAlgorithmInfo, translate } from "./util";
 
 /** Options group for passwords */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "tools-password-generator",
   templateUrl: "password-generator.component.html",
@@ -76,6 +78,8 @@ export class PasswordGeneratorComponent implements OnInit, OnChanges, OnDestroy 
   /** Binds the component to a specific user's settings. When this input is not provided,
    * the form binds to the active user
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   account: Account | null = null;
 
@@ -86,6 +90,8 @@ export class PasswordGeneratorComponent implements OnInit, OnChanges, OnDestroy 
    *
    *  @warning this may reveal sensitive information in plaintext.
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   debug: boolean = false;
 
@@ -110,10 +116,14 @@ export class PasswordGeneratorComponent implements OnInit, OnChanges, OnDestroy 
     }
   }
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   profile: GeneratorProfile = Profile.account;
 
   /** Removes bottom margin, passed to downstream components */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ transform: coerceBooleanProperty })
   disableMargin = false;
 
@@ -154,10 +164,14 @@ export class PasswordGeneratorComponent implements OnInit, OnChanges, OnDestroy 
   }
 
   /** Emits credentials created from a generation request. */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output()
   readonly onGenerated = new EventEmitter<GeneratedCredential>();
 
   /** emits algorithm info when the selected algorithm changes */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output()
   readonly onAlgorithm = new EventEmitter<AlgorithmInfo>();
 

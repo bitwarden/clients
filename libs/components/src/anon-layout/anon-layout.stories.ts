@@ -62,12 +62,8 @@ export default {
     }),
   ],
   render: (args) => {
-    const { useDefaultIcon, icon, ...rest } = args;
     return {
-      props: {
-        ...rest,
-        icon: useDefaultIcon ? null : icon,
-      },
+      props: args,
       template: /*html*/ `
         <auth-anon-layout
           [title]="title"
@@ -76,7 +72,6 @@ export default {
           [showReadonlyHostname]="showReadonlyHostname"
           [maxWidth]="maxWidth"
           [hideCardWrapper]="hideCardWrapper"
-          [hideIcon]="hideIcon"
           [hideLogo]="hideLogo"
           [hideFooter]="hideFooter"
           [hideBackgroundIllustration]="hideBackgroundIllustration"
@@ -110,11 +105,6 @@ export default {
     subtitle: { control: "text" },
 
     icon: { control: false, table: { disable: true } },
-    useDefaultIcon: {
-      control: false,
-      table: { disable: true },
-      description: "If true, passes null so component falls back to its built-in icon",
-    },
 
     showReadonlyHostname: { control: "boolean" },
     maxWidth: {
@@ -123,7 +113,6 @@ export default {
     },
 
     hideCardWrapper: { control: "boolean" },
-    hideIcon: { control: "boolean" },
     hideLogo: { control: "boolean" },
     hideFooter: { control: "boolean" },
     hideBackgroundIllustration: { control: "boolean" },
@@ -144,7 +133,6 @@ export default {
     showReadonlyHostname: false,
     maxWidth: "md",
     hideCardWrapper: false,
-    hideIcon: false,
     hideLogo: false,
     hideFooter: false,
     hideBackgroundIllustration: false,
@@ -208,12 +196,8 @@ export const NoWrapper: Story = {
   args: { hideCardWrapper: true },
 };
 
-export const DefaultIcon: Story = {
-  args: { useDefaultIcon: true },
-};
-
 export const NoIcon: Story = {
-  args: { hideIcon: true },
+  args: { icon: null },
 };
 
 export const NoLogo: Story = {
@@ -238,7 +222,7 @@ export const MinimalState: Story = {
     subtitle: undefined,
     contentLength: "normal",
     hideCardWrapper: true,
-    hideIcon: true,
+    icon: null,
     hideLogo: true,
     hideFooter: true,
     hideBackgroundIllustration: true,
