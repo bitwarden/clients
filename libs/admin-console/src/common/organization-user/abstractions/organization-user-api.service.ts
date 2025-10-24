@@ -149,6 +149,19 @@ export abstract class OrganizationUserApiService {
   ): Promise<void>;
 
   /**
+   * Admin api for automatically confirming an organization user that
+   * has accepted their invitation
+   * @param organizationId - Identifier for the organization to confirm
+   * @param id - Organization user identifier
+   * @param request - Request details for confirming the user
+   */
+  abstract postOrganizationUserAutoConfirm(
+    organizationId: string,
+    id: string,
+    request: OrganizationUserConfirmRequest,
+  ): Promise<void>;
+
+  /**
    * Retrieve a list of the specified users' public keys
    * @param organizationId - Identifier for the organization to accept
    * @param ids - A list of organization user identifiers to retrieve public keys for

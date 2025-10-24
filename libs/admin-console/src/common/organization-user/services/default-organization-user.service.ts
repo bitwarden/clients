@@ -1,4 +1,3 @@
-import { Injectable } from "@angular/core";
 import { combineLatest, filter, map, Observable, switchMap } from "rxjs";
 
 import {
@@ -6,6 +5,7 @@ import {
   OrganizationUserBulkConfirmRequest,
   OrganizationUserApiService,
   OrganizationUserBulkResponse,
+  OrganizationUserService,
 } from "@bitwarden/admin-console/common";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -16,12 +16,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
 
-import { OrganizationUserView } from "../../../core/views/organization-user.view";
-
-@Injectable({
-  providedIn: "root",
-})
-export class OrganizationUserService {
+export class DefaultOrganizationUserService implements OrganizationUserService {
   constructor(
     protected keyService: KeyService,
     private encryptService: EncryptService,
@@ -39,11 +34,10 @@ export class OrganizationUserService {
     );
   }
 
-  confirmUser(
+  buildConfirmRequest(
     organization: Organization,
-    user: OrganizationUserView,
     publicKey: Uint8Array,
-  ): Observable<void> {
+  ): Observable<OrganizationUserConfirmRequest> {
     const encryptedCollectionName$ = this.getEncryptedDefaultCollectionName$(organization);
 
     const encryptedKey$ = this.orgKey$(organization).pipe(
@@ -51,18 +45,22 @@ export class OrganizationUserService {
     );
 
     return combineLatest([encryptedKey$, encryptedCollectionName$]).pipe(
-      switchMap(([key, collectionName]) => {
-        const request: OrganizationUserConfirmRequest = {
-          key: key.encryptedString,
-          defaultUserCollectionName: collectionName.encryptedString,
-        };
+      map(([key, collectionName]) => ({
+        key: key.encryptedString,
+        defaultUserCollectionName: collectionName.encryptedString,
+      })),
+    );
+  }
 
-        return this.organizationUserApiService.postOrganizationUserConfirm(
+  confirmUser(organization: Organization, userId: string, publicKey: Uint8Array): Observable<void> {
+    return this.buildConfirmRequest(organization, publicKey).pipe(
+      switchMap((request) =>
+        this.organizationUserApiService.postOrganizationUserConfirm(
           organization.id,
-          user.id,
+          userId,
           request,
-        );
-      }),
+        ),
+      ),
     );
   }
 
