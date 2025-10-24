@@ -16,6 +16,11 @@ import {
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { SubscriptionPricingServiceAbstraction } from "@bitwarden/common/billing/abstractions/subscription-pricing.service.abstraction";
+import {
+  PersonalSubscriptionPricingTier,
+  PersonalSubscriptionPricingTierIds,
+} from "@bitwarden/common/billing/types/subscription-pricing-tier";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import {
@@ -28,12 +33,7 @@ import {
 import { PricingCardComponent } from "@bitwarden/pricing";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { SubscriptionPricingService } from "../../services/subscription-pricing.service";
 import { BitwardenSubscriber, mapAccountToSubscriber } from "../../types";
-import {
-  PersonalSubscriptionPricingTier,
-  PersonalSubscriptionPricingTierIds,
-} from "../../types/subscription-pricing-tier";
 import {
   UnifiedUpgradeDialogComponent,
   UnifiedUpgradeDialogParams,
@@ -91,7 +91,7 @@ export class PremiumVNextComponent {
     private platformUtilsService: PlatformUtilsService,
     private syncService: SyncService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
-    private subscriptionPricingService: SubscriptionPricingService,
+    private subscriptionPricingService: SubscriptionPricingServiceAbstraction,
     private router: Router,
     private activatedRoute: ActivatedRoute,
   ) {

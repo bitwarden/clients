@@ -37,4 +37,8 @@ export class ReportCardComponent {
   protected get requiresPremium() {
     return this.variant == ReportVariant.RequiresPremium;
   }
+
+  protected get requiresUpgrade() {
+    return this.variant == ReportVariant.RequiresUpgrade;
+  }
 }

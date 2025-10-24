@@ -5718,6 +5718,30 @@
   "atRiskLoginsSecured": {
     "message": "Great job securing your at-risk logins!"
   },
+  "upgradeNow": {
+    "message": "Upgrade now"
+  },
+  "builtInAuthenticator": {
+    "message": "Built-in authenticator"
+  },
+  "secureFileStorage": {
+    "message": "Secure file storage"
+  },
+  "emergencyAccess": {
+    "message": "Emergency access"
+  },
+  "breachMonitoring": {
+    "message": "Breach monitoring"
+  },
+  "andMoreFeatures": {
+    "message": "And more!"
+  },
+  "planDescPremium": {
+    "message": "Complete online security"
+  },
+  "upgradeToPremium": {
+    "message": "Upgrade to Premium"
+  },
   "settingDisabledByPolicy": {
     "message": "This setting is disabled by your organization's policy.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."

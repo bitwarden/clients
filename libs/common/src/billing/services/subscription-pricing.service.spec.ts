@@ -1,4 +1,3 @@
-import { TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
@@ -8,7 +7,6 @@ import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.res
 import { PremiumPlanResponse } from "@bitwarden/common/billing/models/response/premium-plan.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { ToastService } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
 
 import {
@@ -17,15 +15,14 @@ import {
   SubscriptionCadenceIds,
 } from "../types/subscription-pricing-tier";
 
-import { SubscriptionPricingService } from "./subscription-pricing.service";
+import { DefaultSubscriptionPricingService } from "./subscription-pricing.service";
 
-describe("SubscriptionPricingService", () => {
-  let service: SubscriptionPricingService;
+describe("DefaultSubscriptionPricingService", () => {
+  let service: DefaultSubscriptionPricingService;
   let billingApiService: MockProxy<BillingApiServiceAbstraction>;
   let configService: MockProxy<ConfigService>;
   let i18nService: MockProxy<I18nService>;
   let logService: MockProxy<LogService>;
-  let toastService: MockProxy<ToastService>;
 
   const mockFamiliesPlan = {
     type: PlanType.FamiliesAnnually,
@@ -233,7 +230,6 @@ describe("SubscriptionPricingService", () => {
   beforeAll(() => {
     i18nService = mock<I18nService>();
     logService = mock<LogService>();
-    toastService = mock<ToastService>();
 
     i18nService.t.mockImplementation((key: string, ...args: any[]) => {
       switch (key) {
@@ -324,8 +320,6 @@ describe("SubscriptionPricingService", () => {
           return "Boost productivity";
         case "seamlessIntegration":
           return "Seamless integration";
-        case "unexpectedError":
-          return "An unexpected error has occurred.";
         default:
           return key;
       }
@@ -340,18 +334,12 @@ describe("SubscriptionPricingService", () => {
     billingApiService.getPremiumPlan.mockResolvedValue(mockPremiumPlanResponse);
     configService.getFeatureFlag$.mockReturnValue(of(false)); // Default to false (use hardcoded value)
 
-    TestBed.configureTestingModule({
-      providers: [
-        SubscriptionPricingService,
-        { provide: BillingApiServiceAbstraction, useValue: billingApiService },
-        { provide: ConfigService, useValue: configService },
-        { provide: I18nService, useValue: i18nService },
-        { provide: LogService, useValue: logService },
-        { provide: ToastService, useValue: toastService },
-      ],
-    });
-
-    service = TestBed.inject(SubscriptionPricingService);
+    service = new DefaultSubscriptionPricingService(
+      billingApiService,
+      configService,
+      i18nService,
+      logService,
+    );
   });
 
   describe("getPersonalSubscriptionPricingTiers$", () => {
@@ -422,46 +410,37 @@ describe("SubscriptionPricingService", () => {
       });
     });
 
-    it("should handle API errors by logging and showing toast", (done) => {
+    it("should handle API errors by logging and throwing error", (done) => {
       const errorBillingApiService = mock<BillingApiServiceAbstraction>();
       const errorConfigService = mock<ConfigService>();
       const errorI18nService = mock<I18nService>();
       const errorLogService = mock<LogService>();
-      const errorToastService = mock<ToastService>();
 
       const testError = new Error("API error");
       errorBillingApiService.getPlans.mockRejectedValue(testError);
       errorBillingApiService.getPremiumPlan.mockResolvedValue(mockPremiumPlanResponse);
       errorConfigService.getFeatureFlag$.mockReturnValue(of(false));
 
-      errorI18nService.t.mockImplementation((key: string) => {
-        if (key === "unexpectedError") {
-          return "An unexpected error has occurred.";
-        }
-        return key;
-      });
+      errorI18nService.t.mockImplementation((key: string) => key);
 
-      const errorService = new SubscriptionPricingService(
+      const errorService = new DefaultSubscriptionPricingService(
         errorBillingApiService,
         errorConfigService,
         errorI18nService,
         errorLogService,
-        errorToastService,
       );
 
       errorService.getPersonalSubscriptionPricingTiers$().subscribe({
-        next: (tiers) => {
-          expect(tiers).toEqual([]);
-          expect(errorLogService.error).toHaveBeenCalledWith(testError);
-          expect(errorToastService.showToast).toHaveBeenCalledWith({
-            variant: "error",
-            title: "",
-            message: "An unexpected error has occurred.",
-          });
-          done();
+        next: () => {
+          fail("Observable should error, not return a value");
         },
-        error: () => {
-          fail("Observable should not error, it should return empty array");
+        error: (error: unknown) => {
+          expect(errorLogService.error).toHaveBeenCalledWith(
+            "Failed to load personal subscription pricing tiers",
+            testError,
+          );
+          expect(error).toBe(testError);
+          done();
         },
       });
     });
@@ -611,46 +590,37 @@ describe("SubscriptionPricingService", () => {
       });
     });
 
-    it("should handle API errors by logging and showing toast", (done) => {
+    it("should handle API errors by logging and throwing error", (done) => {
       const errorBillingApiService = mock<BillingApiServiceAbstraction>();
       const errorConfigService = mock<ConfigService>();
       const errorI18nService = mock<I18nService>();
       const errorLogService = mock<LogService>();
-      const errorToastService = mock<ToastService>();
 
       const testError = new Error("API error");
       errorBillingApiService.getPlans.mockRejectedValue(testError);
       errorBillingApiService.getPremiumPlan.mockResolvedValue(mockPremiumPlanResponse);
       errorConfigService.getFeatureFlag$.mockReturnValue(of(false));
 
-      errorI18nService.t.mockImplementation((key: string) => {
-        if (key === "unexpectedError") {
-          return "An unexpected error has occurred.";
-        }
-        return key;
-      });
+      errorI18nService.t.mockImplementation((key: string) => key);
 
-      const errorService = new SubscriptionPricingService(
+      const errorService = new DefaultSubscriptionPricingService(
         errorBillingApiService,
         errorConfigService,
         errorI18nService,
         errorLogService,
-        errorToastService,
       );
 
       errorService.getBusinessSubscriptionPricingTiers$().subscribe({
-        next: (tiers) => {
-          expect(tiers).toEqual([]);
-          expect(errorLogService.error).toHaveBeenCalledWith(testError);
-          expect(errorToastService.showToast).toHaveBeenCalledWith({
-            variant: "error",
-            title: "",
-            message: "An unexpected error has occurred.",
-          });
-          done();
+        next: () => {
+          fail("Observable should error, not return a value");
         },
-        error: () => {
-          fail("Observable should not error, it should return empty array");
+        error: (error: unknown) => {
+          expect(errorLogService.error).toHaveBeenCalledWith(
+            "Failed to load business subscription pricing tiers",
+            testError,
+          );
+          expect(error).toBe(testError);
+          done();
         },
       });
     });
@@ -855,46 +825,37 @@ describe("SubscriptionPricingService", () => {
       });
     });
 
-    it("should handle API errors by logging and showing toast", (done) => {
+    it("should handle API errors by logging and throwing error", (done) => {
       const errorBillingApiService = mock<BillingApiServiceAbstraction>();
       const errorConfigService = mock<ConfigService>();
       const errorI18nService = mock<I18nService>();
       const errorLogService = mock<LogService>();
-      const errorToastService = mock<ToastService>();
 
       const testError = new Error("API error");
       errorBillingApiService.getPlans.mockRejectedValue(testError);
       errorBillingApiService.getPremiumPlan.mockResolvedValue(mockPremiumPlanResponse);
       errorConfigService.getFeatureFlag$.mockReturnValue(of(false));
 
-      errorI18nService.t.mockImplementation((key: string) => {
-        if (key === "unexpectedError") {
-          return "An unexpected error has occurred.";
-        }
-        return key;
-      });
+      errorI18nService.t.mockImplementation((key: string) => key);
 
-      const errorService = new SubscriptionPricingService(
+      const errorService = new DefaultSubscriptionPricingService(
         errorBillingApiService,
         errorConfigService,
         errorI18nService,
         errorLogService,
-        errorToastService,
       );
 
       errorService.getDeveloperSubscriptionPricingTiers$().subscribe({
-        next: (tiers) => {
-          expect(tiers).toEqual([]);
-          expect(errorLogService.error).toHaveBeenCalledWith(testError);
-          expect(errorToastService.showToast).toHaveBeenCalledWith({
-            variant: "error",
-            title: "",
-            message: "An unexpected error has occurred.",
-          });
-          done();
+        next: () => {
+          fail("Observable should error, not return a value");
         },
-        error: () => {
-          fail("Observable should not error, it should return empty array");
+        error: (error: unknown) => {
+          expect(errorLogService.error).toHaveBeenCalledWith(
+            "Failed to load developer subscription pricing tiers",
+            testError,
+          );
+          expect(error).toBe(testError);
+          done();
         },
       });
     });
@@ -910,31 +871,28 @@ describe("SubscriptionPricingService", () => {
       errorBillingApiService.getPremiumPlan.mockRejectedValue(testError);
       errorConfigService.getFeatureFlag$.mockReturnValue(of(true)); // Enable feature flag to use premium plan API
 
-      const errorService = new SubscriptionPricingService(
+      const errorService = new DefaultSubscriptionPricingService(
         errorBillingApiService,
         errorConfigService,
         i18nService,
         logService,
-        toastService,
       );
 
       errorService.getPersonalSubscriptionPricingTiers$().subscribe({
-        next: (tiers) => {
-          // Should return empty array due to error in premium plan fetch
-          expect(tiers).toEqual([]);
+        next: () => {
+          fail("Observable should error, not return a value");
+        },
+        error: (error: unknown) => {
           expect(logService.error).toHaveBeenCalledWith(
             "Failed to fetch premium plan from API",
             testError,
           );
-          expect(toastService.showToast).toHaveBeenCalledWith({
-            variant: "error",
-            title: "",
-            message: "An unexpected error has occurred.",
-          });
+          expect(logService.error).toHaveBeenCalledWith(
+            "Failed to load personal subscription pricing tiers",
+            testError,
+          );
+          expect(error).toBe(testError);
           done();
-        },
-        error: () => {
-          fail("Observable should not error, it should return empty array");
         },
       });
     });
@@ -942,6 +900,7 @@ describe("SubscriptionPricingService", () => {
     it("should handle malformed premium plan API response", (done) => {
       const errorBillingApiService = mock<BillingApiServiceAbstraction>();
       const errorConfigService = mock<ConfigService>();
+      const testError = new TypeError("Cannot read properties of undefined (reading 'price')");
 
       // Malformed response missing the Seat property
       const malformedResponse = {
@@ -955,28 +914,24 @@ describe("SubscriptionPricingService", () => {
       errorBillingApiService.getPremiumPlan.mockResolvedValue(malformedResponse as any);
       errorConfigService.getFeatureFlag$.mockReturnValue(of(true)); // Enable feature flag
 
-      const errorService = new SubscriptionPricingService(
+      const errorService = new DefaultSubscriptionPricingService(
         errorBillingApiService,
         errorConfigService,
         i18nService,
         logService,
-        toastService,
       );
 
       errorService.getPersonalSubscriptionPricingTiers$().subscribe({
-        next: (tiers) => {
-          // Should return empty array due to validation error
-          expect(tiers).toEqual([]);
-          expect(logService.error).toHaveBeenCalled();
-          expect(toastService.showToast).toHaveBeenCalledWith({
-            variant: "error",
-            title: "",
-            message: "An unexpected error has occurred.",
-          });
-          done();
+        next: () => {
+          fail("Observable should error, not return a value");
         },
-        error: () => {
-          fail("Observable should not error, it should return empty array");
+        error: (error: unknown) => {
+          expect(logService.error).toHaveBeenCalledWith(
+            "Failed to load personal subscription pricing tiers",
+            testError,
+          );
+          expect(error).toEqual(testError);
+          done();
         },
       });
     });
@@ -984,6 +939,7 @@ describe("SubscriptionPricingService", () => {
     it("should handle malformed premium plan with invalid price types", (done) => {
       const errorBillingApiService = mock<BillingApiServiceAbstraction>();
       const errorConfigService = mock<ConfigService>();
+      const testError = new TypeError("Cannot read properties of undefined (reading 'price')");
 
       // Malformed response with price as string instead of number
       const malformedResponse = {
@@ -1001,28 +957,24 @@ describe("SubscriptionPricingService", () => {
       errorBillingApiService.getPremiumPlan.mockResolvedValue(malformedResponse as any);
       errorConfigService.getFeatureFlag$.mockReturnValue(of(true)); // Enable feature flag
 
-      const errorService = new SubscriptionPricingService(
+      const errorService = new DefaultSubscriptionPricingService(
         errorBillingApiService,
         errorConfigService,
         i18nService,
         logService,
-        toastService,
       );
 
       errorService.getPersonalSubscriptionPricingTiers$().subscribe({
-        next: (tiers) => {
-          // Should return empty array due to validation error
-          expect(tiers).toEqual([]);
-          expect(logService.error).toHaveBeenCalled();
-          expect(toastService.showToast).toHaveBeenCalledWith({
-            variant: "error",
-            title: "",
-            message: "An unexpected error has occurred.",
-          });
-          done();
+        next: () => {
+          fail("Observable should error, not return a value");
         },
-        error: () => {
-          fail("Observable should not error, it should return empty array");
+        error: (error: unknown) => {
+          expect(logService.error).toHaveBeenCalledWith(
+            "Failed to load personal subscription pricing tiers",
+            testError,
+          );
+          expect(error).toEqual(testError);
+          done();
         },
       });
     });
@@ -1053,12 +1005,11 @@ describe("SubscriptionPricingService", () => {
       const getPremiumPlanSpy = jest.spyOn(newBillingApiService, "getPremiumPlan");
 
       // Create a new service instance with the feature flag enabled
-      const newService = new SubscriptionPricingService(
+      const newService = new DefaultSubscriptionPricingService(
         newBillingApiService,
         newConfigService,
         i18nService,
         logService,
-        toastService,
       );
 
       // Subscribe to the premium pricing tier multiple times
@@ -1082,12 +1033,11 @@ describe("SubscriptionPricingService", () => {
       newConfigService.getFeatureFlag$.mockReturnValue(of(false));
 
       // Create a new service instance with the feature flag disabled
-      const newService = new SubscriptionPricingService(
+      const newService = new DefaultSubscriptionPricingService(
         newBillingApiService,
         newConfigService,
         i18nService,
         logService,
-        toastService,
       );
 
       // Subscribe with feature flag disabled

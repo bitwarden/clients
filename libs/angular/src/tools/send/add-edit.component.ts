@@ -11,6 +11,7 @@ import {
   BehaviorSubject,
   concatMap,
   switchMap,
+  tap,
 } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -33,6 +34,7 @@ import { SendTextView } from "@bitwarden/common/tools/send/models/view/send-text
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
+import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
 // Value = hours
@@ -144,6 +146,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
     protected billingAccountProfileStateService: BillingAccountProfileStateService,
     protected accountService: AccountService,
     protected toastService: ToastService,
+    protected premiumUpgradePromptService: PremiumUpgradePromptService,
   ) {
     this.typeOptions = [
       { name: i18nService.t("sendTypeFile"), value: SendType.File, premium: true },
@@ -192,10 +195,15 @@ export class AddEditComponent implements OnInit, OnDestroy {
         }
       });
 
-    this.formGroup.controls.type.valueChanges.pipe(takeUntil(this.destroy$)).subscribe((val) => {
-      this.type = val;
-      this.typeChanged();
-    });
+    this.formGroup.controls.type.valueChanges
+      .pipe(
+        tap((val) => {
+          this.type = val;
+        }),
+        switchMap(() => this.typeChanged()),
+        takeUntil(this.destroy$),
+      )
+      .subscribe();
 
     this.formGroup.controls.selectedDeletionDatePreset.valueChanges
       .pipe(takeUntil(this.destroy$))
@@ -426,11 +434,11 @@ export class AddEditComponent implements OnInit, OnDestroy {
     return false;
   }
 
-  typeChanged() {
+  async typeChanged() {
     if (this.type === SendType.File && !this.alertShown) {
       if (!this.canAccessPremium) {
         this.alertShown = true;
-        this.messagingService.send("premiumRequired");
+        await this.premiumUpgradePromptService.promptForPremium();
       } else if (!this.emailVerified) {
         this.alertShown = true;
         this.messagingService.send("emailVerificationRequired");

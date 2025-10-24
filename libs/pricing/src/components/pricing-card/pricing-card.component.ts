@@ -1,4 +1,4 @@
-import { CurrencyPipe } from "@angular/common";
+import { CurrencyPipe, NgClass } from "@angular/common";
 import { Component, EventEmitter, input, Output } from "@angular/core";
 
 import {
@@ -20,7 +20,7 @@ import {
 @Component({
   selector: "billing-pricing-card",
   templateUrl: "./pricing-card.component.html",
-  imports: [BadgeModule, ButtonModule, IconModule, TypographyModule, CurrencyPipe],
+  imports: [BadgeModule, ButtonModule, IconModule, TypographyModule, CurrencyPipe, NgClass],
 })
 export class PricingCardComponent {
   readonly tagline = input.required<string>();
@@ -37,6 +37,8 @@ export class PricingCardComponent {
   }>();
   readonly features = input<string[]>();
   readonly activeBadge = input<{ text: string; variant?: BadgeVariant }>();
+  readonly noPaddingTop = input<boolean>(false);
+  readonly noBorder = input<boolean>(false);
 
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref

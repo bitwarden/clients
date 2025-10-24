@@ -22,6 +22,12 @@ import {
 } from "rxjs";
 
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
+import { SubscriptionPricingServiceAbstraction } from "@bitwarden/common/billing/abstractions/subscription-pricing.service.abstraction";
+import {
+  PersonalSubscriptionPricingTier,
+  PersonalSubscriptionPricingTierId,
+  PersonalSubscriptionPricingTierIds,
+} from "@bitwarden/common/billing/types/subscription-pricing-tier";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import { ButtonModule, DialogModule, ToastService } from "@bitwarden/components";
@@ -41,13 +47,7 @@ import {
   TokenizedPaymentMethod,
 } from "../../../payment/types";
 import { BillingServicesModule } from "../../../services";
-import { SubscriptionPricingService } from "../../../services/subscription-pricing.service";
 import { BitwardenSubscriber } from "../../../types";
-import {
-  PersonalSubscriptionPricingTier,
-  PersonalSubscriptionPricingTierId,
-  PersonalSubscriptionPricingTierIds,
-} from "../../../types/subscription-pricing-tier";
 
 import {
   PaymentFormValues,
@@ -130,7 +130,7 @@ export class UpgradePaymentComponent implements OnInit, AfterViewChecked {
 
   constructor(
     private i18nService: I18nService,
-    private subscriptionPricingService: SubscriptionPricingService,
+    private subscriptionPricingService: SubscriptionPricingServiceAbstraction,
     private toastService: ToastService,
     private logService: LogService,
     private destroyRef: DestroyRef,
@@ -147,31 +147,44 @@ export class UpgradePaymentComponent implements OnInit, AfterViewChecked {
     }
 
     this.pricingTiers$ = this.subscriptionPricingService.getPersonalSubscriptionPricingTiers$();
-    this.pricingTiers$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((plans) => {
-      const planDetails = plans.find((plan) => plan.id === this.selectedPlanId());
+    this.pricingTiers$
+      .pipe(
+        catchError((error: unknown) => {
+          this.toastService.showToast({
+            variant: "error",
+            title: this.i18nService.t("error"),
+            message: this.i18nService.t("unexpectedError"),
+          });
+          this.loading.set(false);
+          return of([]);
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((plans) => {
+        const planDetails = plans.find((plan) => plan.id === this.selectedPlanId());
 
-      if (planDetails) {
-        this.selectedPlan = {
-          tier: this.selectedPlanId(),
-          details: planDetails,
-        };
-        this.passwordManager = {
-          name: this.isFamiliesPlan ? "familiesMembership" : "premiumMembership",
-          cost: this.selectedPlan.details.passwordManager.annualPrice,
-          quantity: 1,
-          cadence: "year",
-        };
+        if (planDetails) {
+          this.selectedPlan = {
+            tier: this.selectedPlanId(),
+            details: planDetails,
+          };
+          this.passwordManager = {
+            name: this.isFamiliesPlan ? "familiesMembership" : "premiumMembership",
+            cost: this.selectedPlan.details.passwordManager.annualPrice,
+            quantity: 1,
+            cadence: "year",
+          };
 
-        this.upgradeToMessage = this.i18nService.t(
-          this.isFamiliesPlan ? "upgradeToFamilies" : "upgradeToPremium",
-        );
+          this.upgradeToMessage = this.i18nService.t(
+            this.isFamiliesPlan ? "upgradeToFamilies" : "upgradeToPremium",
+          );
 
-        this.estimatedTax = 0;
-      } else {
-        this.complete.emit({ status: UpgradePaymentStatus.Closed, organizationId: null });
-        return;
-      }
-    });
+          this.estimatedTax = 0;
+        } else {
+          this.complete.emit({ status: UpgradePaymentStatus.Closed, organizationId: null });
+          return;
+        }
+      });
 
     this.formGroup.controls.billingAddress.valueChanges
       .pipe(

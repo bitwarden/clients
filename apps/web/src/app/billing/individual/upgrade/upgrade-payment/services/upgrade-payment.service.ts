@@ -12,6 +12,11 @@ import {
   SubscriptionInformation,
 } from "@bitwarden/common/billing/abstractions";
 import { PaymentMethodType, PlanType } from "@bitwarden/common/billing/enums";
+import {
+  PersonalSubscriptionPricingTier,
+  PersonalSubscriptionPricingTierId,
+  PersonalSubscriptionPricingTierIds,
+} from "@bitwarden/common/billing/types/subscription-pricing-tier";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { LogService } from "@bitwarden/logging";
 
@@ -30,11 +35,6 @@ import {
   TokenizedPaymentMethod,
 } from "../../../../payment/types";
 import { mapAccountToSubscriber } from "../../../../types";
-import {
-  PersonalSubscriptionPricingTier,
-  PersonalSubscriptionPricingTierId,
-  PersonalSubscriptionPricingTierIds,
-} from "../../../../types/subscription-pricing-tier";
 
 export type PlanDetails = {
   tier: PersonalSubscriptionPricingTierId;
