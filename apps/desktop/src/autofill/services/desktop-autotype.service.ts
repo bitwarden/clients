@@ -1,4 +1,17 @@
-import { combineLatest, filter, firstValueFrom, map, Observable, of, switchMap } from "rxjs";
+import { Injectable, OnDestroy } from "@angular/core";
+import {
+  combineLatest,
+  concatMap,
+  filter,
+  firstValueFrom,
+  map,
+  Observable,
+  of,
+  Subject,
+  switchMap,
+  takeUntil,
+  withLatestFrom,
+} from "rxjs";
 
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
@@ -40,7 +53,10 @@ export const AUTOTYPE_KEYBOARD_SHORTCUT = new KeyDefinition<string[]>(
   { deserializer: (b) => b },
 );
 
-export class DesktopAutotypeService {
+@Injectable({
+  providedIn: "root",
+})
+export class DesktopAutotypeService implements OnDestroy {
   private readonly autotypeEnabledState = this.globalStateProvider.get(AUTOTYPE_ENABLED);
   private readonly autotypeKeyboardShortcut = this.globalStateProvider.get(
     AUTOTYPE_KEYBOARD_SHORTCUT,
@@ -49,6 +65,8 @@ export class DesktopAutotypeService {
   autotypeEnabledUserSetting$: Observable<boolean> = of(false);
   resolvedAutotypeEnabled$: Observable<boolean> = of(false);
   autotypeKeyboardShortcut$: Observable<string[]> = of(defaultWindowsAutotypeKeyboardShortcut);
+
+  private destroy$ = new Subject<void>();
 
   constructor(
     private accountService: AccountService,
@@ -72,13 +90,33 @@ export class DesktopAutotypeService {
   }
 
   async init() {
+    console.log("desktop-autotype.service::init()");
+
+    // autotypeEnabledUserSetting$ publicly represents the value the
+    // user has set for autotyeEnabled in their local settings.
     this.autotypeEnabledUserSetting$ = this.autotypeEnabledState.state$;
+
     this.autotypeKeyboardShortcut$ = this.autotypeKeyboardShortcut.state$.pipe(
       map((shortcut) => shortcut ?? defaultWindowsAutotypeKeyboardShortcut),
     );
 
+    combineLatest([this.autotypeEnabledState.state$, this.authService.activeAccountStatus$])
+      .pipe(
+        concatMap(async ([enabled, accountStatus]) => {
+          if (enabled && accountStatus == AuthenticationStatus.Unlocked) {
+            console.log("desktop-autotype.service::init() : enabled and calling initAutotype()");
+            ipc.autofill.initAutotype();
+            await this.setup();
+          }
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe();
+  }
+
+  private async setup() {
     // Currently Autotype is only supported for Windows
-    if (this.platformUtilsService.getDevice() === DeviceType.WindowsDesktop) {
+    if (this.platformUtilsService.getDevice() === DeviceType.WindowsDesktop || true) {
       // If `autotypeDefaultPolicy` is `true` for a user's organization, and the
       // user has never changed their local autotype setting (`autotypeEnabledState`),
       // we set their local setting to `true` (once the local user setting is changed
@@ -91,15 +129,13 @@ export class DesktopAutotypeService {
         .pipe(
           map(async ([autotypeEnabledState, autotypeDefaultPolicy]) => {
             if (autotypeDefaultPolicy === true && autotypeEnabledState === null) {
+              console.log("desktop-autotype.service: enabling state");
               await this.setAutotypeEnabledState(true);
             }
           }),
+          takeUntil(this.destroy$),
         )
         .subscribe();
-
-      // autotypeEnabledUserSetting$ publicly represents the value the
-      // user has set for autotyeEnabled in their local settings.
-      this.autotypeEnabledUserSetting$ = this.autotypeEnabledState.state$;
 
       // resolvedAutotypeEnabled$ represents the final determination if the Autotype
       // feature should be on or off.
@@ -126,11 +162,16 @@ export class DesktopAutotypeService {
         ),
       );
 
-      combineLatest([this.resolvedAutotypeEnabled$, this.autotypeKeyboardShortcut$]).subscribe(
-        ([resolvedAutotypeEnabled, autotypeKeyboardShortcut]) => {
+      combineLatest([this.resolvedAutotypeEnabled$, this.autotypeKeyboardShortcut$])
+        .pipe(takeUntil(this.destroy$))
+        .subscribe(([resolvedAutotypeEnabled, autotypeKeyboardShortcut]) => {
+          console.log(
+            "desktop-autotype.service::setup() subcribed",
+            resolvedAutotypeEnabled,
+            autotypeKeyboardShortcut,
+          );
           ipc.autofill.configureAutotype(resolvedAutotypeEnabled, autotypeKeyboardShortcut);
-        },
-      );
+        });
     }
   }
 
@@ -174,5 +215,10 @@ export class DesktopAutotypeService {
     });
 
     return possibleCiphers;
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

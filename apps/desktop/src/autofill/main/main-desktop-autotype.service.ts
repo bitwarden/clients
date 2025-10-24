@@ -14,10 +14,17 @@ export class MainDesktopAutotypeService {
     private logService: LogService,
     private windowMain: WindowMain,
   ) {
+    console.log("main-desktop-autotype::constructor()");
     this.autotypeKeyboardShortcut = new AutotypeKeyboardShortcut();
+
+    ipcMain.handle("autofill.initAutotype", async (event: any, data: any) => {
+      console.log("main-desktop-autotype::constructor-> handle autofill.initAutotype()");
+      this.init();
+    });
   }
 
   init() {
+    console.log("main-desktop-autotype::init()");
     ipcMain.on("autofill.configureAutotype", (event, data) => {
       if (data.enabled) {
         const newKeyboardShortcut = new AutotypeKeyboardShortcut();
@@ -32,18 +39,9 @@ export class MainDesktopAutotypeService {
             "Attempting to configure autotype but the shortcut given is invalid.",
           );
         }
-      } else {
+      } else if (this.autotypeKeyboardShortcut.set(data.keyboardShortcut)) {
+        // Deregister the incoming keyboard shortcut if set
         this.disableAutotype();
-
-        // Deregister the incoming keyboard shortcut if needed
-        const setCorrectly = this.autotypeKeyboardShortcut.set(data.keyboardShortcut);
-        if (
-          setCorrectly &&
-          globalShortcut.isRegistered(this.autotypeKeyboardShortcut.getElectronFormat())
-        ) {
-          globalShortcut.unregister(this.autotypeKeyboardShortcut.getElectronFormat());
-          this.logService.info("Autotype disabled.");
-        }
       }
     });
 
@@ -63,8 +61,8 @@ export class MainDesktopAutotypeService {
     });
   }
 
+  // Deregister the current keyboard shortcut if registered
   disableAutotype() {
-    // Deregister the current keyboard shortcut if needed
     const formattedKeyboardShortcut = this.autotypeKeyboardShortcut.getElectronFormat();
     if (globalShortcut.isRegistered(formattedKeyboardShortcut)) {
       globalShortcut.unregister(formattedKeyboardShortcut);
