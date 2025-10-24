@@ -117,7 +117,7 @@ pub struct BrowserConfig {
     pub data_dir: &'static str,
 }
 
-pub static SUPPORTED_BROWSER_MAP: LazyLock<
+pub(crate) static SUPPORTED_BROWSER_MAP: LazyLock<
     std::collections::HashMap<&'static str, &'static BrowserConfig>,
 > = LazyLock::new(|| {
     platform::SUPPORTED_BROWSERS
