@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, inject, input, OnInit, output, signal } from "@angular/core";
+import { Component, DestroyRef, input, OnInit, output, signal } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
   FormControl,
@@ -32,6 +32,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ClientType } from "@bitwarden/common/enums";
 import {
+  MaximumVaultTimeoutPolicyData,
   VaultTimeout,
   VaultTimeoutAction,
   VaultTimeoutOption,
@@ -76,14 +77,17 @@ import { LogService } from "@bitwarden/logging";
   ],
 })
 export class SessionTimeoutSettingsComponent implements OnInit {
-  private readonly vaultTimeoutSettingsService = inject(VaultTimeoutSettingsService);
-  private readonly platformUtilsService = inject(PlatformUtilsService);
-  private readonly i18nService = inject(I18nService);
-  private readonly toastService = inject(ToastService);
-  private readonly policyService = inject(PolicyService);
-  private readonly accountService = inject(AccountService);
-  private readonly dialogService = inject(DialogService);
-  private readonly logService = inject(LogService);
+  constructor(
+    private readonly vaultTimeoutSettingsService: VaultTimeoutSettingsService,
+    private readonly platformUtilsService: PlatformUtilsService,
+    private readonly i18nService: I18nService,
+    private readonly toastService: ToastService,
+    private readonly policyService: PolicyService,
+    private readonly accountService: AccountService,
+    private readonly dialogService: DialogService,
+    private readonly logService: LogService,
+    private readonly destroyRef: DestroyRef,
+  ) {}
 
   readonly excludeTimeoutTypes = input.required<VaultTimeout[]>();
   readonly refreshTimeoutActionSettings = input<Observable<void>>(
@@ -160,14 +164,16 @@ export class SessionTimeoutSettingsComponent implements OnInit {
             maximumVaultTimeoutPolicy$,
           ]),
         ),
-        takeUntilDestroyed(),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(([availableActions, action, policy]) => {
         this.availableVaultTimeoutActions.set(availableActions);
         this.formGroup.controls.timeoutAction.setValue(action, { emitEvent: false });
 
+        const policyData = policy?.data as MaximumVaultTimeoutPolicyData | undefined;
+
         // Enable/disable the action control based on policy or available actions
-        if (policy?.data?.action || availableActions.length <= 1) {
+        if (policyData?.action != null || availableActions.length <= 1) {
           this.formGroup.controls.timeoutAction.disable({ emitEvent: false });
         } else {
           this.formGroup.controls.timeoutAction.enable({ emitEvent: false });
@@ -182,7 +188,7 @@ export class SessionTimeoutSettingsComponent implements OnInit {
         concatMap(async ([previousValue, newValue]) => {
           await this.saveTimeout(previousValue, newValue);
         }),
-        takeUntilDestroyed(),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
 
@@ -192,7 +198,7 @@ export class SessionTimeoutSettingsComponent implements OnInit {
         map(async (value) => {
           await this.saveTimeoutAction(value);
         }),
-        takeUntilDestroyed(),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
   }

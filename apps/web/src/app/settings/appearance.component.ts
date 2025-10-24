@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit } from "@angular/core";
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder } from "@angular/forms";
 import { filter, firstValueFrom, switchMap } from "rxjs";
@@ -44,6 +44,7 @@ export class AppearanceComponent implements OnInit {
     private i18nService: I18nService,
     private themeStateService: ThemeStateService,
     private domainSettingsService: DomainSettingsService,
+    private destroyRef: DestroyRef,
   ) {
     const localeOptions: LocaleOption[] = [];
     i18nService.supportedTranslationLocales.forEach((locale) => {
@@ -79,7 +80,7 @@ export class AppearanceComponent implements OnInit {
         switchMap(async (enableFavicons) => {
           await this.domainSettingsService.setShowFavicons(enableFavicons);
         }),
-        takeUntilDestroyed(),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
 
@@ -89,7 +90,7 @@ export class AppearanceComponent implements OnInit {
         switchMap(async (theme) => {
           await this.themeStateService.setSelectedTheme(theme);
         }),
-        takeUntilDestroyed(),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
 
@@ -100,7 +101,7 @@ export class AppearanceComponent implements OnInit {
           await this.i18nService.setLocale(locale);
           window.location.reload();
         }),
-        takeUntilDestroyed(),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
   }
