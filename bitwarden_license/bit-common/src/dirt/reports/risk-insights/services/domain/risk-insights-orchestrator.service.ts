@@ -102,6 +102,7 @@ export class RiskInsightsOrchestratorService {
   private _initializeOrganizationTriggerSubject = new Subject<OrganizationId>();
   private _fetchReportTriggerSubject = new Subject<void>();
   private _markUnmarkUpdatesSubject = new Subject<ReportState>();
+  private _markUnmarkUpdates$ = this._markUnmarkUpdatesSubject.asObservable();
 
   private _reportStateSubscription: Subscription | null = null;
   private _migrationSubscription: Subscription | null = null;
@@ -407,11 +408,11 @@ export class RiskInsightsOrchestratorService {
           },
         };
       }),
-      catchError(() => {
+      catchError((): Observable<ReportState> => {
         return of({ loading: false, error: "Failed to generate or save report", data: null });
       }),
-      startWith({ loading: true, error: null, data: null }),
-    ) as Observable<ReportState>;
+      startWith<ReportState>({ loading: true, error: null, data: null }),
+    );
   }
 
   /**
@@ -719,7 +720,7 @@ export class RiskInsightsOrchestratorService {
       initialReportLoad$,
       manualReportFetch$,
       newReportGeneration$,
-      this._markUnmarkUpdatesSubject.asObservable(),
+      this._markUnmarkUpdates$,
     ).pipe(
       scan((prevState: ReportState, currState: ReportState) => ({
         ...prevState,
