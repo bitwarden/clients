@@ -1852,6 +1852,12 @@
   "lockWithMasterPassOnRestart1": {
     "message": "Заключване с главната парола при повторно пускане"
   },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "Изискване на главната парола или ПИН код при повторно пускане на приложението"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "Изискване на главната парола при повторно пускане на приложението"
+  },
   "deleteAccount": {
     "message": "Изтриване на регистрацията"
   },
@@ -4167,7 +4173,7 @@
   "itemWasSentToArchive": {
     "message": "Елементът беше преместен в архива"
   },
-  "itemUnarchived": {
+  "itemWasUnarchived": {
     "message": "Елементът беше изваден от архива"
   },
   "archiveItem": {

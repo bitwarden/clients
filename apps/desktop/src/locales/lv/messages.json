@@ -1852,6 +1852,12 @@
   "lockWithMasterPassOnRestart1": {
     "message": "Aizslēgt ar galveno paroli pēc pārsāknēšanas"
   },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "Pieprasīt galveno paroli vai PIN pēc lietotnes pārsāknēšanas"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "Pieprasīt galveno paroli pēc lietotnes pārsāknēšanas"
+  },
   "deleteAccount": {
     "message": "Izdzēst kontu"
   },
@@ -4145,11 +4151,11 @@
     "message": "Labot saīsni"
   },
   "archiveNoun": {
-    "message": "Archive",
+    "message": "Arhīvs",
     "description": "Noun"
   },
   "archiveVerb": {
-    "message": "Archive",
+    "message": "Arhivēt",
     "description": "Verb"
   },
   "unArchive": {
@@ -4167,7 +4173,7 @@
   "itemWasSentToArchive": {
     "message": "Vienums tika ievietots arhīvā"
   },
-  "itemUnarchived": {
+  "itemWasUnarchived": {
     "message": "Vienums tika izņemts no arhīva"
   },
   "archiveItem": {
