@@ -48,6 +48,19 @@ export class DefaultSemanticLogger<Context extends object> implements SemanticLo
     throw new Error(panicMessage);
   }
 
+  panicWhen<T>(
+    when: boolean,
+    content: Jsonify<T> | string,
+    message?: string,
+  ): when is false | never {
+    if (when) {
+      // type conversion safe because Jsonify<string> === string
+      this.panic(content as Jsonify<T | string>, message);
+    }
+
+    return !when;
+  }
+
   private log<T>(content: Jsonify<T>, level: LogLevelType, message?: string) {
     const log = {
       ...this.context,
