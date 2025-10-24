@@ -6,6 +6,11 @@ import { Importer } from "../importer";
 
 import { KeeperJsonExport, RecordsEntity } from "./types/keeper-json-types";
 
+/**
+ * Importer for Keeper (json) format
+ * Initially written by @djsmith and temporarily disabled for Feb 2022 release
+ * Considered obsolete and should be replaced with new parser logic here.
+ */
 export class KeeperJsonImporter extends BaseImporter implements Importer {
   parse(data: string): Promise<ImportResult> {
     const result = new ImportResult();
