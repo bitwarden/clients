@@ -64,7 +64,7 @@ ssh-encoding = "=0.2.0"
 ssh-key = { version = "=0.6.7", default-features = false }
 sysinfo = "=0.35.0"
 thiserror = "=2.0.12"
-tokio = "=1.45.0"
+tokio = "=1.48.0"
 tokio-stream = "=0.1.15"
 tokio-util = "=0.7.13"
 tracing = "=0.1.41"
