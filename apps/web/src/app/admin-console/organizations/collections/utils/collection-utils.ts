@@ -28,18 +28,16 @@ export function getNestedCollectionTree(
     .map(cloneCollection);
 
   const all: TreeNode<CollectionView | CollectionAdminView>[] = [];
-  const groupedByOrg = new Map<OrganizationId, CollectionView[]>();
+  const groupedByOrg = new Map<OrganizationId, (CollectionView | CollectionAdminView)[]>();
   clonedCollections.map((c) => {
     const key = c.organizationId;
     (groupedByOrg.get(key) ?? groupedByOrg.set(key, []).get(key)!).push(c);
   });
-
   for (const group of groupedByOrg.values()) {
-    const nodes: TreeNode<CollectionView>[] = [];
+    const nodes: TreeNode<CollectionView | CollectionAdminView>[] = [];
     for (const c of group) {
-      const collectionCopy = Object.assign(new CollectionView({ ...c, name: c.name }), c);
       const parts = c.name ? c.name.replace(/^\/+|\/+$/g, "").split(NestingDelimiter) : [];
-      ServiceUtils.nestedTraverse(nodes, 0, parts, collectionCopy, undefined, NestingDelimiter);
+      ServiceUtils.nestedTraverse(nodes, 0, parts, c, undefined, NestingDelimiter);
     }
     all.push(...nodes);
   }

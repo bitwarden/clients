@@ -7,7 +7,7 @@ import { combineLatest, concatMap, filter, firstValueFrom, map, timeout } from "
 import { CollectionService } from "@bitwarden/admin-console/common";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { LogoutReason } from "@bitwarden/auth/common";
+import { LogoutService } from "@bitwarden/auth/common";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { BiometricsService } from "@bitwarden/key-management";
@@ -52,10 +52,7 @@ export class VaultTimeoutService implements VaultTimeoutServiceAbstraction {
     protected logService: LogService,
     private biometricService: BiometricsService,
     private lockedCallback: (userId: UserId) => Promise<void> = null,
-    private loggedOutCallback: (
-      logoutReason: LogoutReason,
-      userId?: string,
-    ) => Promise<void> = null,
+    private logoutService: LogoutService,
   ) {
     this.taskSchedulerService.registerTaskHandler(
       ScheduledTaskNames.vaultTimeoutCheckInterval,
@@ -123,7 +120,7 @@ export class VaultTimeoutService implements VaultTimeoutServiceAbstraction {
     );
     const supportsLock = availableActions.includes(VaultTimeoutAction.Lock);
     if (!supportsLock) {
-      await this.logOut(userId);
+      await this.logoutService.logout(userId, "vaultTimeout");
     }
 
     // HACK: Start listening for the transition of the locking user from something to the locked state.
@@ -144,7 +141,6 @@ export class VaultTimeoutService implements VaultTimeoutServiceAbstraction {
 
     await this.searchService.clearIndex(lockingUserId);
 
-    // ! DO NOT REMOVE folderService.clearDecryptedFolderState ! For more information see PM-25660
     await this.folderService.clearDecryptedFolderState(lockingUserId);
     await this.masterPasswordService.clearMasterKey(lockingUserId);
 
@@ -163,12 +159,6 @@ export class VaultTimeoutService implements VaultTimeoutServiceAbstraction {
 
     if (this.lockedCallback != null) {
       await this.lockedCallback(lockingUserId);
-    }
-  }
-
-  async logOut(userId?: string): Promise<void> {
-    if (this.loggedOutCallback != null) {
-      await this.loggedOutCallback("vaultTimeout", userId);
     }
   }
 
@@ -215,7 +205,7 @@ export class VaultTimeoutService implements VaultTimeoutServiceAbstraction {
       this.vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$(userId),
     );
     timeoutAction === VaultTimeoutAction.LogOut
-      ? await this.logOut(userId)
+      ? await this.logoutService.logout(userId, "vaultTimeout")
       : await this.lock(userId);
   }
 }

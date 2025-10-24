@@ -4,10 +4,9 @@ use anyhow::{anyhow, Result};
 use async_trait::async_trait;
 use oo7::XDG_SCHEMA_ATTRIBUTE;
 
-use crate::{
-    chromium::{BrowserConfig, CryptoService, LocalState},
-    util,
-};
+use crate::chromium::{BrowserConfig, CryptoService, LocalState};
+
+use crate::util;
 
 //
 // Public API

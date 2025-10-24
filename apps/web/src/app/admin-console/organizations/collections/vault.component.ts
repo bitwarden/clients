@@ -140,6 +140,8 @@ enum AddAccessStatusType {
   AddAccess = 1,
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-org-vault",
   templateUrl: "vault.component.html",
@@ -207,6 +209,8 @@ export class VaultComponent implements OnInit, OnDestroy {
   protected selectedCollection$: Observable<TreeNode<CollectionAdminView> | undefined>;
   private nestedCollections$: Observable<TreeNode<CollectionAdminView>[]>;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("vaultItems", { static: false }) vaultItemsComponent:
     | VaultItemsComponent<CipherView>
     | undefined;
@@ -978,7 +982,7 @@ export class VaultComponent implements OnInit, OnDestroy {
 
     // Allow restore of an Unassigned Item
     try {
-      if (c.id == null) {
+      if (c.id == null || c.id === "") {
         throw new Error("Cipher must have an Id to be restored");
       }
       const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
@@ -1211,7 +1215,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       aType = "Password";
       value = cipher.login.password;
       typeI18nKey = "password";
-    } else if (field === "totp") {
+    } else if (field === "totp" && cipher.login.totp != null) {
       aType = "TOTP";
       const totpResponse = await firstValueFrom(this.totpService.getCode$(cipher.login.totp));
       value = totpResponse.code;
@@ -1232,7 +1236,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       return;
     }
 
-    if (!cipher.viewPassword) {
+    if (!cipher.viewPassword || value == null) {
       return;
     }
 

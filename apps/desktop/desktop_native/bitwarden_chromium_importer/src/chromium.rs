@@ -11,7 +11,9 @@ use rusqlite::{params, Connection};
 #[cfg_attr(target_os = "linux", path = "linux.rs")]
 #[cfg_attr(target_os = "windows", path = "windows.rs")]
 #[cfg_attr(target_os = "macos", path = "macos.rs")]
-mod platform;
+pub mod platform;
+
+pub(crate) use crate::chromium::platform::SUPPORTED_BROWSERS as PLATFORM_SUPPORTED_BROWSERS;
 
 //
 // Public API
@@ -47,15 +49,26 @@ pub enum LoginImportResult {
     Failure(LoginImportFailure),
 }
 
-// TODO: Make thus async
-pub fn get_installed_browsers() -> Result<Vec<String>> {
-    Ok(SUPPORTED_BROWSER_MAP
-        .iter()
-        .filter_map(|(browser, config)| {
-            let data_dir = get_browser_data_dir(config).ok()?;
-            data_dir.exists().then(|| (*browser).to_string())
-        })
-        .collect())
+pub trait InstalledBrowserRetriever {
+    fn get_installed_browsers() -> Result<Vec<String>>;
+}
+
+pub struct DefaultInstalledBrowserRetriever {}
+
+impl InstalledBrowserRetriever for DefaultInstalledBrowserRetriever {
+    // TODO: Make thus async
+    fn get_installed_browsers() -> Result<Vec<String>> {
+        let mut browsers = Vec::with_capacity(SUPPORTED_BROWSER_MAP.len());
+
+        for (browser, config) in SUPPORTED_BROWSER_MAP.iter() {
+            let data_dir = get_browser_data_dir(config)?;
+            if data_dir.exists() {
+                browsers.push((*browser).to_string());
+            }
+        }
+
+        Ok(browsers)
+    }
 }
 
 // TODO: Make thus async
@@ -98,13 +111,13 @@ pub async fn import_logins(
 // Private
 //
 
-#[derive(Debug)]
-struct BrowserConfig {
-    name: &'static str,
-    data_dir: &'static str,
+#[derive(Debug, Clone, Copy)]
+pub struct BrowserConfig {
+    pub name: &'static str,
+    pub data_dir: &'static str,
 }
 
-static SUPPORTED_BROWSER_MAP: LazyLock<
+pub static SUPPORTED_BROWSER_MAP: LazyLock<
     std::collections::HashMap<&'static str, &'static BrowserConfig>,
 > = LazyLock::new(|| {
     platform::SUPPORTED_BROWSERS
@@ -126,12 +139,12 @@ fn get_browser_data_dir(config: &BrowserConfig) -> Result<PathBuf> {
 //
 
 #[async_trait]
-trait CryptoService: Send {
+pub trait CryptoService: Send {
     async fn decrypt_to_string(&mut self, encrypted: &[u8]) -> Result<String>;
 }
 
 #[derive(serde::Deserialize, Clone)]
-struct LocalState {
+pub struct LocalState {
     profile: AllProfiles,
     #[allow(dead_code)]
     os_crypt: Option<OsCrypt>,

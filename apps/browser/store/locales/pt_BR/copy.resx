@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Name" xml:space="preserve">
-    <value>Gerenciador de Senhas Bitwarden</value>
+    <value>Bitwarden Gerenciador de Senhas</value>
   </data>
   <data name="Summary" xml:space="preserve">
     <value>Em casa, no trabalho, ou em qualquer lugar, o Bitwarden protege facilmente todas as suas senhas, chaves de acesso e informações sensíveis.</value>

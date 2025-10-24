@@ -4,6 +4,8 @@ import { firstValueFrom, Observable, Subject, switchMap, takeUntil, takeWhile } 
 
 import { Integration } from "@bitwarden/bit-common/dirt/organization-integrations/models/integration";
 import { OrganizationIntegrationServiceType } from "@bitwarden/bit-common/dirt/organization-integrations/models/organization-integration-service-type";
+import { OrganizationIntegrationType } from "@bitwarden/bit-common/dirt/organization-integrations/models/organization-integration-type";
+import { DatadogOrganizationIntegrationService } from "@bitwarden/bit-common/dirt/organization-integrations/services/datadog-organization-integration-service";
 import { HecOrganizationIntegrationService } from "@bitwarden/bit-common/dirt/organization-integrations/services/hec-organization-integration-service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -27,7 +29,7 @@ import { FilterIntegrationsPipe } from "./integrations.pipe";
 export class AdminConsoleIntegrationsComponent implements OnInit, OnDestroy {
   tabIndex: number = 0;
   organization$: Observable<Organization> = new Observable<Organization>();
-  isEventBasedIntegrationsEnabled: boolean = false;
+  isEventManagementForDataDogAndCrowdStrikeEnabled: boolean = false;
   private destroy$ = new Subject<void>();
 
   // initialize the integrations list with default integrations
@@ -226,7 +228,51 @@ export class AdminConsoleIntegrationsComponent implements OnInit, OnDestroy {
     // Sets the organization ID which also loads the integrations$
     this.organization$.pipe(takeUntil(this.destroy$)).subscribe((org) => {
       this.hecOrganizationIntegrationService.setOrganizationIntegrations(org.id);
+      this.datadogOrganizationIntegrationService.setOrganizationIntegrations(org.id);
     });
+  }
+
+  constructor(
+    private route: ActivatedRoute,
+    private organizationService: OrganizationService,
+    private accountService: AccountService,
+    private configService: ConfigService,
+    private hecOrganizationIntegrationService: HecOrganizationIntegrationService,
+    private datadogOrganizationIntegrationService: DatadogOrganizationIntegrationService,
+  ) {
+    this.configService
+      .getFeatureFlag$(FeatureFlag.EventManagementForDataDogAndCrowdStrike)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((isEnabled) => {
+        this.isEventManagementForDataDogAndCrowdStrikeEnabled = isEnabled;
+      });
+
+    // Add the new event based items to the list
+    if (this.isEventManagementForDataDogAndCrowdStrikeEnabled) {
+      const crowdstrikeIntegration: Integration = {
+        name: OrganizationIntegrationServiceType.CrowdStrike,
+        linkURL: "https://bitwarden.com/help/crowdstrike-siem/",
+        image: "../../../../../../../images/integrations/logo-crowdstrike-black.svg",
+        type: IntegrationType.EVENT,
+        description: "crowdstrikeEventIntegrationDesc",
+        canSetupConnection: true,
+        integrationType: OrganizationIntegrationType.Hec,
+      };
+
+      this.integrationsList.push(crowdstrikeIntegration);
+
+      const datadogIntegration: Integration = {
+        name: OrganizationIntegrationServiceType.Datadog,
+        linkURL: "https://bitwarden.com/help/datadog-siem/",
+        image: "../../../../../../../images/integrations/logo-datadog-color.svg",
+        type: IntegrationType.EVENT,
+        description: "datadogEventIntegrationDesc",
+        canSetupConnection: true,
+        integrationType: OrganizationIntegrationType.Datadog,
+      };
+
+      this.integrationsList.push(datadogIntegration);
+    }
 
     // For all existing event based configurations loop through and assign the
     // organizationIntegration for the correct services.
@@ -235,7 +281,9 @@ export class AdminConsoleIntegrationsComponent implements OnInit, OnDestroy {
       .subscribe((integrations) => {
         // reset all integrations to null first - in case one was deleted
         this.integrationsList.forEach((i) => {
-          i.organizationIntegration = null;
+          if (i.integrationType === OrganizationIntegrationType.Hec) {
+            i.organizationIntegration = null;
+          }
         });
 
         integrations.map((integration) => {
@@ -245,35 +293,24 @@ export class AdminConsoleIntegrationsComponent implements OnInit, OnDestroy {
           }
         });
       });
-  }
 
-  constructor(
-    private route: ActivatedRoute,
-    private organizationService: OrganizationService,
-    private accountService: AccountService,
-    private configService: ConfigService,
-    private hecOrganizationIntegrationService: HecOrganizationIntegrationService,
-  ) {
-    this.configService
-      .getFeatureFlag$(FeatureFlag.EventBasedOrganizationIntegrations)
+    this.datadogOrganizationIntegrationService.integrations$
       .pipe(takeUntil(this.destroy$))
-      .subscribe((isEnabled) => {
-        this.isEventBasedIntegrationsEnabled = isEnabled;
+      .subscribe((integrations) => {
+        // reset all integrations to null first - in case one was deleted
+        this.integrationsList.forEach((i) => {
+          if (i.integrationType === OrganizationIntegrationType.Datadog) {
+            i.organizationIntegration = null;
+          }
+        });
+
+        integrations.map((integration) => {
+          const item = this.integrationsList.find((i) => i.name === integration.serviceType);
+          if (item) {
+            item.organizationIntegration = integration;
+          }
+        });
       });
-
-    // Add the new event based items to the list
-    if (this.isEventBasedIntegrationsEnabled) {
-      const crowdstrikeIntegration: Integration = {
-        name: OrganizationIntegrationServiceType.CrowdStrike,
-        linkURL: "",
-        image: "../../../../../../../images/integrations/logo-crowdstrike-black.svg",
-        type: IntegrationType.EVENT,
-        description: "crowdstrikeEventIntegrationDesc",
-        canSetupConnection: true,
-      };
-
-      this.integrationsList.push(crowdstrikeIntegration);
-    }
   }
   ngOnDestroy(): void {
     this.destroy$.next();

@@ -1,6 +1,6 @@
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { BaseResponse } from "@bitwarden/common/models/response/base.response";
-import { OrganizationId } from "@bitwarden/common/types/guid";
+import { OrganizationId, OrganizationReportId } from "@bitwarden/common/types/guid";
 
 import { createNewSummaryData } from "../helpers";
 
@@ -37,18 +37,20 @@ export interface PasswordHealthReportApplicationsRequest {
 export interface SaveRiskInsightsReportRequest {
   data: {
     organizationId: OrganizationId;
-    date: string;
+    creationDate: string;
     reportData: string;
+    summaryData: string;
+    applicationData: string;
     contentEncryptionKey: string;
   };
 }
 
 export class SaveRiskInsightsReportResponse extends BaseResponse {
-  id: string;
+  id: OrganizationReportId;
 
   constructor(response: any) {
     super(response);
-    this.id = this.getResponseProperty("organizationId");
+    this.id = this.getResponseProperty("id");
   }
 }
 export function isSaveRiskInsightsReportResponse(obj: any): obj is SaveRiskInsightsReportResponse {
@@ -58,18 +60,21 @@ export function isSaveRiskInsightsReportResponse(obj: any): obj is SaveRiskInsig
 export class GetRiskInsightsReportResponse extends BaseResponse {
   id: string;
   organizationId: OrganizationId;
-  // TODO Update to use creationDate from server
-  date: string;
+  creationDate: Date;
   reportData: EncString;
+  summaryData: EncString;
+  applicationData: EncString;
   contentEncryptionKey: EncString;
 
   constructor(response: any) {
     super(response);
 
-    this.id = this.getResponseProperty("organizationId");
+    this.id = this.getResponseProperty("id");
     this.organizationId = this.getResponseProperty("organizationId");
-    this.date = this.getResponseProperty("date");
+    this.creationDate = new Date(this.getResponseProperty("creationDate"));
     this.reportData = new EncString(this.getResponseProperty("reportData"));
+    this.summaryData = new EncString(this.getResponseProperty("summaryData"));
+    this.applicationData = new EncString(this.getResponseProperty("applicationData"));
     this.contentEncryptionKey = new EncString(this.getResponseProperty("contentEncryptionKey"));
   }
 }
@@ -77,7 +82,7 @@ export class GetRiskInsightsReportResponse extends BaseResponse {
 export class GetRiskInsightsSummaryResponse extends BaseResponse {
   id: string;
   organizationId: OrganizationId;
-  encryptedData: EncString; // Decrypted as OrganizationReportSummary
+  encryptedSummary: EncString; // Decrypted as OrganizationReportSummary
   contentEncryptionKey: EncString;
 
   constructor(response: any) {
@@ -85,7 +90,7 @@ export class GetRiskInsightsSummaryResponse extends BaseResponse {
     // TODO Handle taking array of summary data and converting to array
     this.id = this.getResponseProperty("id");
     this.organizationId = this.getResponseProperty("organizationId");
-    this.encryptedData = this.getResponseProperty("encryptedData");
+    this.encryptedSummary = this.getResponseProperty("encryptedData");
     this.contentEncryptionKey = this.getResponseProperty("contentEncryptionKey");
   }
 
@@ -106,5 +111,33 @@ export class GetRiskInsightsApplicationDataResponse extends BaseResponse {
     this.organizationId = this.getResponseProperty("organizationId");
     this.encryptedData = this.getResponseProperty("encryptedData");
     this.contentEncryptionKey = this.getResponseProperty("contentEncryptionKey");
+  }
+}
+
+export class MemberCipherDetailsResponse extends BaseResponse {
+  userGuid: string;
+  userName: string;
+  email: string;
+  useKeyConnector: boolean;
+  cipherIds: string[] = [];
+
+  constructor(response: any) {
+    super(response);
+    this.userGuid = this.getResponseProperty("UserGuid");
+    this.userName = this.getResponseProperty("UserName");
+    this.email = this.getResponseProperty("Email");
+    this.useKeyConnector = this.getResponseProperty("UseKeyConnector");
+    this.cipherIds = this.getResponseProperty("CipherIds");
+  }
+}
+
+export interface UpdateRiskInsightsApplicationDataRequest {
+  data: {
+    applicationData: string;
+  };
+}
+export class UpdateRiskInsightsApplicationDataResponse extends BaseResponse {
+  constructor(response: any) {
+    super(response);
   }
 }

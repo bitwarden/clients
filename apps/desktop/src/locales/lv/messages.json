@@ -1222,6 +1222,15 @@
   "invalidMasterPassword": {
     "message": "Nederīga galvenā parole"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Nederīga galvenā parole. Jāpārliecinās, ka e-pasta adrese ir pareiza un konts tika izveidots $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "twoStepLoginConfirmation": {
     "message": "Divpakāpju pieteikšanās padara kontu krietni drošāku, pieprasot apstiprināt pieteikšanos ar tādu citu ierīču vai pakalpojumu starpniecību kā drošības atslēga, autentificētāja lietotne, īsziņa, tālruņa zvans vai e-pasts. Divpakāpju pieteikšanos var iespējot bitwarden.com tīmekļa glabātavā. Vai tagad apmeklēt tīmekļvietni?"
   },
@@ -1842,6 +1851,12 @@
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Aizslēgt ar galveno paroli pēc pārsāknēšanas"
+  },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "Pieprasīt galveno paroli vai PIN pēc lietotnes pārsāknēšanas"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "Pieprasīt galveno paroli pēc lietotnes pārsāknēšanas"
   },
   "deleteAccount": {
     "message": "Izdzēst kontu"
@@ -2540,6 +2555,9 @@
       }
     }
   },
+  "vaultCustomTimeoutMinimum": {
+    "message": "Mazākā pieļaujamā pielāgotā noildze ir 1 minūte."
+  },
   "inviteAccepted": {
     "message": "Uzaicinājums apstiprināts"
   },
@@ -2651,6 +2669,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },
@@ -4108,21 +4144,21 @@
   "enableAutotypeShortcutPreview": {
     "message": "Iespējot automātiskās ievades īsinājumtaustiņus (iespējas priekšskatījums)"
   },
-  "enableAutotypeDescriptionTransitionKey": {
+  "enableAutotypeShortcutDescription": {
     "message": "Jāpārliecinās, ka pirms saīsnes izmantošanas kursors ir pareizajā laukā, lai izvairītos no datu ievadīšanas nepareizā vietā."
   },
   "editShortcut": {
     "message": "Labot saīsni"
   },
   "archiveNoun": {
-    "message": "Archive",
+    "message": "Arhīvs",
     "description": "Noun"
   },
   "archiveVerb": {
-    "message": "Archive",
+    "message": "Arhivēt",
     "description": "Verb"
   },
-  "unarchive": {
+  "unArchive": {
     "message": "Atcelt arhivēšanu"
   },
   "itemsInArchive": {
@@ -4134,11 +4170,11 @@
   "noItemsInArchiveDesc": {
     "message": "Šeit parādīsies arhivētie vienumi, un tie netiks iekļauti vispārējās meklēšanas iznākumos un automātiskās aizpildes ieteikumos."
   },
-  "itemSentToArchive": {
-    "message": "Vienums ievietots arhīvā"
+  "itemWasSentToArchive": {
+    "message": "Vienums tika ievietots arhīvā"
   },
-  "itemRemovedFromArchive": {
-    "message": "Vienums izņemts no arhīva"
+  "itemWasUnarchived": {
+    "message": "Vienums tika izņemts no arhīva"
   },
   "archiveItem": {
     "message": "Arhivēt vienumu"

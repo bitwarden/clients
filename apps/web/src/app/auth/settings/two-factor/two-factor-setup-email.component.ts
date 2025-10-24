@@ -3,13 +3,13 @@ import { Component, EventEmitter, Inject, OnInit, Output } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { firstValueFrom, map } from "rxjs";
 
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { TwoFactorEmailRequest } from "@bitwarden/common/auth/models/request/two-factor-email.request";
 import { UpdateTwoFactorEmailRequest } from "@bitwarden/common/auth/models/request/update-two-factor-email.request";
 import { TwoFactorEmailResponse } from "@bitwarden/common/auth/models/response/two-factor-email.response";
+import { TwoFactorApiService } from "@bitwarden/common/auth/two-factor";
 import { AuthResponse } from "@bitwarden/common/auth/types/auth-response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -33,6 +33,8 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 import { TwoFactorSetupMethodBaseComponent } from "./two-factor-setup-method-base.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-two-factor-setup-email",
   templateUrl: "two-factor-setup-email.component.html",
@@ -54,6 +56,8 @@ export class TwoFactorSetupEmailComponent
   extends TwoFactorSetupMethodBaseComponent
   implements OnInit
 {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onChangeStatus: EventEmitter<boolean> = new EventEmitter();
   type = TwoFactorProviderType.Email;
   sentEmail: string = "";
@@ -66,7 +70,7 @@ export class TwoFactorSetupEmailComponent
 
   constructor(
     @Inject(DIALOG_DATA) protected data: AuthResponse<TwoFactorEmailResponse>,
-    apiService: ApiService,
+    twoFactorApiService: TwoFactorApiService,
     i18nService: I18nService,
     platformUtilsService: PlatformUtilsService,
     logService: LogService,
@@ -78,7 +82,7 @@ export class TwoFactorSetupEmailComponent
     protected toastService: ToastService,
   ) {
     super(
-      apiService,
+      twoFactorApiService,
       i18nService,
       platformUtilsService,
       logService,
@@ -131,7 +135,7 @@ export class TwoFactorSetupEmailComponent
   sendEmail = async () => {
     const request = await this.buildRequestModel(TwoFactorEmailRequest);
     request.email = this.email;
-    this.emailPromise = this.apiService.postTwoFactorEmailSetup(request);
+    this.emailPromise = this.twoFactorApiService.postTwoFactorEmailSetup(request);
     await this.emailPromise;
     this.sentEmail = this.email;
   };
@@ -141,7 +145,7 @@ export class TwoFactorSetupEmailComponent
     request.email = this.email;
     request.token = this.token;
 
-    const response = await this.apiService.putTwoFactorEmail(request);
+    const response = await this.twoFactorApiService.putTwoFactorEmail(request);
     await this.processResponse(response);
     this.onUpdated.emit(true);
   }

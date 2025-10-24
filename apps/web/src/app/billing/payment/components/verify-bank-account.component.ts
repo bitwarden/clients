@@ -9,6 +9,8 @@ import { SharedModule } from "../../../shared";
 import { BitwardenSubscriber } from "../../types";
 import { MaskedPaymentMethod } from "../types";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-verify-bank-account",
   template: `
@@ -35,7 +37,11 @@ import { MaskedPaymentMethod } from "../types";
   providers: [SubscriberBillingClient],
 })
 export class VerifyBankAccountComponent {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true }) subscriber!: BitwardenSubscriber;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() verified = new EventEmitter<MaskedPaymentMethod>();
 
   protected formGroup = new FormGroup({

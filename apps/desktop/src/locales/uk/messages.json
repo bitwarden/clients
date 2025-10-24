@@ -1222,6 +1222,15 @@
   "invalidMasterPassword": {
     "message": "Неправильний головний пароль"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "twoStepLoginConfirmation": {
     "message": "Двоетапна перевірка дає змогу надійніше захистити ваш обліковий запис, вимагаючи підтвердження входу з використанням іншого пристрою, наприклад, за допомогою ключа безпеки, програми автентифікації, SMS, телефонного виклику, або е-пошти. Ви можете налаштувати двоетапну перевірку в сховищі на bitwarden.com. Хочете перейти на вебсайт зараз?"
   },
@@ -1842,6 +1851,12 @@
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Блокувати головним паролем при перезапуску"
+  },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "Require master password or PIN on app restart"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "Require master password on app restart"
   },
   "deleteAccount": {
     "message": "Видалити обліковий запис"
@@ -2540,6 +2555,9 @@
       }
     }
   },
+  "vaultCustomTimeoutMinimum": {
+    "message": "Minimum custom timeout is 1 minute."
+  },
   "inviteAccepted": {
     "message": "Запрошення прийнято"
   },
@@ -2651,6 +2669,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },
@@ -4108,7 +4144,7 @@
   "enableAutotypeShortcutPreview": {
     "message": "Enable autotype shortcut (Feature Preview)"
   },
-  "enableAutotypeDescriptionTransitionKey": {
+  "enableAutotypeShortcutDescription": {
     "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."
   },
   "editShortcut": {
@@ -4122,7 +4158,7 @@
     "message": "Archive",
     "description": "Verb"
   },
-  "unarchive": {
+  "unArchive": {
     "message": "Unarchive"
   },
   "itemsInArchive": {
@@ -4134,11 +4170,11 @@
   "noItemsInArchiveDesc": {
     "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
   },
-  "itemSentToArchive": {
-    "message": "Item sent to archive"
+  "itemWasSentToArchive": {
+    "message": "Item was sent to archive"
   },
-  "itemRemovedFromArchive": {
-    "message": "Item removed from archive"
+  "itemWasUnarchived": {
+    "message": "Item was unarchived"
   },
   "archiveItem": {
     "message": "Archive item"

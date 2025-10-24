@@ -2,16 +2,15 @@ use anyhow::{anyhow, Result};
 use async_trait::async_trait;
 use security_framework::passwords::get_generic_password;
 
-use crate::{
-    chromium::{BrowserConfig, CryptoService, LocalState},
-    util,
-};
+use crate::chromium::{BrowserConfig, CryptoService, LocalState};
+
+use crate::util;
 
 //
 // Public API
 //
 
-pub(crate) const SUPPORTED_BROWSERS: [BrowserConfig; 7] = [
+pub const SUPPORTED_BROWSERS: [BrowserConfig; 7] = [
     BrowserConfig {
         name: "Chrome",
         data_dir: "Library/Application Support/Google/Chrome",

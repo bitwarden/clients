@@ -337,6 +337,68 @@ describe("BrowserPopupUtils", () => {
     });
   });
 
+  describe("waitForAllPopupsClose", () => {
+    beforeEach(() => {
+      jest.useFakeTimers();
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    it("should resolve immediately if no popups are open", async () => {
+      jest.spyOn(BrowserApi, "isPopupOpen").mockResolvedValue(false);
+
+      const promise = BrowserPopupUtils.waitForAllPopupsClose();
+      jest.advanceTimersByTime(100);
+
+      await expect(promise).resolves.toBeUndefined();
+      expect(BrowserApi.isPopupOpen).toHaveBeenCalledTimes(1);
+    });
+
+    it("should resolve after timeout if popup never closes when using custom timeout", async () => {
+      jest.spyOn(BrowserApi, "isPopupOpen").mockResolvedValue(true);
+
+      const promise = BrowserPopupUtils.waitForAllPopupsClose(500);
+
+      // Advance past the timeout
+      jest.advanceTimersByTime(600);
+
+      await expect(promise).resolves.toBeUndefined();
+    });
+
+    it("should resolve after timeout if popup never closes when using default timeout", async () => {
+      jest.spyOn(BrowserApi, "isPopupOpen").mockResolvedValue(true);
+
+      const promise = BrowserPopupUtils.waitForAllPopupsClose();
+
+      // Advance past the default timeout
+      jest.advanceTimersByTime(1100);
+
+      await expect(promise).resolves.toBeUndefined();
+    });
+
+    it("should stop polling after popup closes before timeout", async () => {
+      let callCount = 0;
+      jest.spyOn(BrowserApi, "isPopupOpen").mockImplementation(async () => {
+        callCount++;
+        return callCount <= 2;
+      });
+
+      const promise = BrowserPopupUtils.waitForAllPopupsClose(1000);
+
+      // Advance to when popup closes (300ms)
+      jest.advanceTimersByTime(300);
+
+      await expect(promise).resolves.toBeUndefined();
+
+      // Advance further to ensure no more calls are made
+      jest.advanceTimersByTime(1000);
+
+      expect(BrowserApi.isPopupOpen).toHaveBeenCalledTimes(3);
+    });
+  });
+
   describe("isSingleActionPopoutOpen", () => {
     const windowOptions = {
       id: 1,

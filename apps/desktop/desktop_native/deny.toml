@@ -1,0 +1,40 @@
+# https://embarkstudios.github.io/cargo-deny/checks/advisories/cfg.html
+[advisories]
+ignore = [
+  # Vulnerability in `rsa` crate: https://rustsec.org/advisories/RUSTSEC-2023-0071.html
+  { id = "RUSTSEC-2023-0071", reason = "There is no fix available yet." },
+  { id = "RUSTSEC-2024-0436", reason = "paste crate is unmaintained."}
+]
+
+# https://embarkstudios.github.io/cargo-deny/checks/licenses/cfg.html
+[licenses]
+# See https://spdx.org/licenses/ for list of possible licenses
+allow = [
+  "0BSD",
+  "Apache-2.0",
+  "BSD-2-Clause",
+  "BSD-3-Clause",
+  "BSL-1.0",
+  "ISC",
+  "MIT",
+  "MPL-2.0",
+  "Unicode-3.0",
+  "Zlib",
+]
+
+
+[licenses.private]
+# If true, ignores workspace crates that aren't published, or are only
+# published to private registries.
+# To see how to mark a crate as unpublished (to the official registry),
+# visit https://doc.rust-lang.org/cargo/reference/manifest.html#the-publish-field.
+ignore = true
+
+# This section is considered when running `cargo deny check bans`.
+# More documentation about the 'bans' section can be found here:
+# https://embarkstudios.github.io/cargo-deny/checks/bans/cfg.html
+[bans]
+deny = [
+# TODO: enable after https://github.com/bitwarden/clients/pull/16761 is merged
+#    { name = "log", wrappers = [], reason = "Use `tracing` and `tracing-subscriber` for observability needs." },
+]
