@@ -19,7 +19,7 @@ describe("OverlayNotificationsContentService", () => {
 
   beforeEach(() => {
     jest.useFakeTimers();
-    jest.spyOn(utils, "sendExtensionMessage").mockImplementation(jest.fn());
+    jest.spyOn(utils, "sendExtensionMessage").mockImplementation(async () => null);
     domQueryService = mock<DomQueryService>();
     domElementVisibilityService = new DomElementVisibilityService();
     overlayNotificationsContentService = new OverlayNotificationsContentService();

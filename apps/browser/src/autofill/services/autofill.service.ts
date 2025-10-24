@@ -19,13 +19,19 @@ import { UserVerificationService } from "@bitwarden/common/auth/abstractions/use
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
 import {
+  AutofillFieldQualifier,
   AutofillOverlayVisibility,
   CardExpiryDateDelimiters,
 } from "@bitwarden/common/autofill/constants";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { UserNotificationSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/user-notification-settings.service";
-import { InlineMenuVisibilitySetting } from "@bitwarden/common/autofill/types";
+import {
+  AutofillFieldQualifierType,
+  AutofillTargetingRules,
+  AutofillTargetingRuleTypes,
+  InlineMenuVisibilitySetting,
+} from "@bitwarden/common/autofill/types";
 import { normalizeExpiryYearFormat } from "@bitwarden/common/autofill/utils";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EventType } from "@bitwarden/common/enums";
@@ -404,18 +410,35 @@ export default class AutofillService implements AutofillServiceInterface {
   }
 
   /**
+   * Gets the default URI match strategy setting from the domain settings service.
+   */
+  async getPageTagetingRules(url: chrome.tabs.Tab["url"]): Promise<AutofillTargetingRules> {
+    if (url) {
+      const targetingRules = await firstValueFrom(
+        this.domainSettingsService.getUrlAutofillTargetingRules$(url),
+      );
+
+      return targetingRules;
+    }
+
+    return null;
+  }
+
+  /**
    * Autofill a given tab with a given login item
    * @param {AutoFillOptions} options Instructions about the autofill operation, including tab and login item
    * @returns {Promise<string | null>} The TOTP code of the successfully autofilled login, if any
    */
   async doAutoFill(options: AutoFillOptions): Promise<string | null> {
     const tab = options.tab;
+
     if (!tab || !options.cipher || !options.pageDetails || !options.pageDetails.length) {
       throw new Error("Nothing to autofill.");
     }
 
     let totp: string | null = null;
 
+    const pageTargetingRules = await this.getPageTagetingRules(tab.url);
     const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
     const canAccessPremium = await firstValueFrom(
       this.billingAccountProfileStateService.hasPremiumFromAnySource$(activeAccount.id),
@@ -451,6 +474,7 @@ export default class AutofillService implements AutofillServiceInterface {
           cipher: options.cipher,
           tabUrl: tab.url,
           defaultUriMatch: defaultUriMatch,
+          pageTargetingRules,
         });
 
         if (!fillScript || !fillScript.script || !fillScript.script.length) {
@@ -498,7 +522,7 @@ export default class AutofillService implements AutofillServiceInterface {
         const shouldAutoCopyTotp = await this.getShouldAutoCopyTotp();
 
         totp = shouldAutoCopyTotp
-          ? (await firstValueFrom(this.totpService.getCode$(options.cipher.login.totp))).code
+          ? (await this.getTotpCode(options.cipher.login.totp))?.code || null
           : null;
       }),
     );
@@ -740,8 +764,12 @@ export default class AutofillService implements AutofillServiceInterface {
     let fillScript = new AutofillScript();
     const filledFields: { [id: string]: AutofillField } = {};
     const fields = options.cipher.fields;
+    const pageTargetedFields = Object.keys(
+      options.pageTargetingRules || {},
+    ) as AutofillFieldQualifierType[];
+    const pageHasTargetingRules = !!pageTargetedFields.length;
 
-    if (fields && fields.length) {
+    if (fields && fields.length && !pageHasTargetingRules) {
       const fieldNames: string[] = [];
 
       fields.forEach((f) => {
@@ -787,6 +815,20 @@ export default class AutofillService implements AutofillServiceInterface {
 
     switch (options.cipher.type) {
       case CipherType.Login:
+        if (pageHasTargetingRules) {
+          for (const fieldType of pageTargetedFields) {
+            const fieldTypeValue = await this.findCipherPropertyValueFieldType(
+              options.cipher,
+              fieldType,
+            );
+
+            if (fieldTypeValue) {
+              AutofillService.fillByTargetingRule(fillScript, fieldType, fieldTypeValue);
+            }
+          }
+          break;
+        }
+
         fillScript = await this.generateLoginFillScript(
           fillScript,
           pageDetails,
@@ -995,10 +1037,10 @@ export default class AutofillService implements AutofillServiceInterface {
 
           filledFields[t.opid] = t;
 
-          const totpResponse = await firstValueFrom(this.totpService.getCode$(login.totp));
-          let totpValue = totpResponse.code;
+          const totpResponse = await this.getTotpCode(login.totp);
+          let totpValue = totpResponse?.code;
 
-          if (totpValue.length == totps.length) {
+          if (totpValue?.length == totps.length) {
             totpValue = totpValue.charAt(i);
           }
           AutofillService.fillByOpid(fillScript, t, totpValue);
@@ -2422,6 +2464,53 @@ export default class AutofillService implements AutofillServiceInterface {
   }
 
   /**
+   * Returns the derived totpService response given a key
+   * @private
+   * @param {CipherView["login"]["totp"]} totpKey
+   */
+  private async getTotpCode(totpKey: CipherView["login"]["totp"]) {
+    if (!totpKey) {
+      return null;
+    }
+
+    return (await firstValueFrom(this.totpService.getCode$(totpKey))) || null;
+  }
+
+  /**
+   * Map cipher values to field targeting rules
+   * @private
+   * @param {CipherView} cipher
+   * @param {AutofillTargetingRuleTypes} fieldType
+   */
+  private async findCipherPropertyValueFieldType(
+    cipher: CipherView,
+    fieldType: AutofillTargetingRuleTypes,
+  ) {
+    let totp = null;
+    let cipherPropertyValue = null;
+
+    switch (fieldType) {
+      case AutofillFieldQualifier.username:
+        cipherPropertyValue = cipher.login?.username || null;
+        break;
+      case AutofillFieldQualifier.password:
+        cipherPropertyValue = cipher.login?.password || null;
+        break;
+      case "totp":
+        totp = await this.getTotpCode(cipher.login?.totp);
+
+        if (totp?.code) {
+          cipherPropertyValue = totp.code;
+        }
+        break;
+      default:
+        break;
+    }
+
+    return cipherPropertyValue;
+  }
+
+  /**
    * Accepts a field and returns the index of the first matching property
    * present in a list of attribute names.
    * @param {AutofillField} field
@@ -2693,6 +2782,16 @@ export default class AutofillService implements AutofillServiceInterface {
       fillScript.script.push(["focus_by_opid", field.opid]);
     }
     fillScript.script.push(["fill_by_opid", field.opid, value]);
+  }
+
+  static fillByTargetingRule(
+    fillScript: AutofillScript,
+    fieldType: AutofillFieldQualifierType,
+    value: string,
+  ): void {
+    fillScript.script.push(["click_on_targeted_field_type", fieldType]);
+    fillScript.script.push(["focus_by_targeted_field_type", fieldType]);
+    fillScript.script.push(["fill_by_targeted_field_type", fieldType, value]);
   }
 
   /**

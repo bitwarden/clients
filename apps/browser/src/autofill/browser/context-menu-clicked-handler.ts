@@ -13,6 +13,7 @@ import {
   AUTOFILL_ID,
   AUTOFILL_IDENTITY_ID,
   COPY_IDENTIFIER_ID,
+  COPY_ELEMENT_PATH_ID,
   COPY_PASSWORD_ID,
   COPY_USERNAME_ID,
   COPY_VERIFICATION_CODE_ID,
@@ -73,6 +74,9 @@ export class ContextMenuClickedHandler {
         break;
       case COPY_IDENTIFIER_ID:
         this.copyToClipboard({ text: await this.getIdentifier(tab, info), tab: tab });
+        break;
+      case COPY_ELEMENT_PATH_ID:
+        this.copyToClipboard({ text: await this.getElementPath(tab, info), tab: tab });
         break;
       default:
         await this.cipherAction(info, tab);
@@ -235,6 +239,24 @@ export class ContextMenuClickedHandler {
         : menuItemId === CREATE_LOGIN_ID
           ? CipherType.Login
           : null;
+  }
+
+  private async getElementPath(tab: chrome.tabs.Tab, info: chrome.contextMenus.OnClickData) {
+    return new Promise<string>((resolve, reject) => {
+      BrowserApi.sendTabsMessage(
+        tab.id,
+        { command: "getClickedElementPath" },
+        { frameId: info.frameId },
+        (identifier: string) => {
+          if (chrome.runtime.lastError) {
+            reject(chrome.runtime.lastError);
+            return;
+          }
+
+          resolve(identifier);
+        },
+      );
+    });
   }
 
   private async getIdentifier(tab: chrome.tabs.Tab, info: chrome.contextMenus.OnClickData) {

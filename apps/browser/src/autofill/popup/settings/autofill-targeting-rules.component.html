@@ -1,0 +1,273 @@
+<popup-page>
+  <popup-header slot="header" pageTitle="Autofill Targeting Rules" showBackButton>
+    <ng-container slot="end">
+      <app-pop-out></app-pop-out>
+    </ng-container>
+  </popup-header>
+
+  <div class="tw-bg-background-alt">
+    <bit-section>
+      <p class="tw-m-0">
+        Override which inputs should be autofilled on a page using query selectors.
+      </p>
+      <a
+        bitLink
+        linkType="primary"
+        rel="noreferrer"
+        target="_blank"
+        href="https://bitwarden.com/help/blocking-uris/"
+        >Learn more about Autofill Targeting Rules</a
+      >
+    </bit-section>
+    <bit-section *ngIf="!isLoading">
+      <bit-section-header>
+        <h2 bitTypography="h6">URLs</h2>
+        <span bitTypography="body2" slot="end">{{
+          viewTargetingRulesDomains.length + domainForms.value.length
+        }}</span>
+      </bit-section-header>
+      <bit-item
+        *ngFor="let domain of viewTargetingRulesDomains; let i = index; trackBy: trackByFunction"
+      >
+        <div
+          *ngIf="i < fieldsEditThreshold"
+          style="margin: 0.5rem 1rem; display: block; width: 90%"
+        >
+          <div
+            id="uriTargetingRules{{ i }}"
+            style="
+              -webkit-box-orient: vertical;
+              -webkit-line-clamp: 2;
+              line-clamp: 2;
+              display: -webkit-box;
+              max-height: 2rem;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              white-space: normal;
+              word-break: break-all;
+              font-family: monospace;
+              font-size: 0.7rem;
+            "
+            title="{{ domain }}"
+          >
+            {{ domain }}
+          </div>
+          <div
+            *ngIf="targetingRulesDomainsViewState[domain].username"
+            title="{{ targetingRulesDomainsViewState[domain].username }}"
+            style="margin-left: 12px"
+          >
+            <div style="font-size: 0.8rem; font-weight: bold">Username:</div>
+            <div
+              style="
+                -webkit-box-orient: vertical;
+                -webkit-line-clamp: 3;
+                line-clamp: 3;
+                display: -webkit-box;
+                border-radius: 0.35rem;
+                background-color: rgb(var(--color-background-alt));
+                padding: 4px;
+                max-height: calc(2rem + 8px);
+                overflow: hidden;
+                text-overflow: ellipsis;
+                line-height: 0.75rem;
+                word-break: break-all;
+                font-family: monospace;
+                font-size: 0.7rem;
+                font-weight: lighter;
+              "
+            >
+              {{ targetingRulesDomainsViewState[domain].username }}
+            </div>
+          </div>
+          <div
+            *ngIf="targetingRulesDomainsViewState[domain].password"
+            title="{{ targetingRulesDomainsViewState[domain].password }}"
+            style="margin-left: 12px"
+          >
+            <div style="font-size: 0.8rem; font-weight: bold">Password:</div>
+            <div
+              style="
+                -webkit-box-orient: vertical;
+                -webkit-line-clamp: 3;
+                line-clamp: 3;
+                display: -webkit-box;
+                border-radius: 0.35rem;
+                background-color: rgb(var(--color-background-alt));
+                padding: 4px;
+                max-height: calc(2rem + 8px);
+                overflow: hidden;
+                text-overflow: ellipsis;
+                line-height: 0.75rem;
+                word-break: break-all;
+                font-family: monospace;
+                font-size: 0.7rem;
+                font-weight: lighter;
+              "
+            >
+              {{ targetingRulesDomainsViewState[domain].password }}
+            </div>
+          </div>
+          <div
+            *ngIf="targetingRulesDomainsViewState[domain].totp"
+            title="{{ targetingRulesDomainsViewState[domain].totp }}"
+            style="margin-left: 12px"
+          >
+            <div style="font-size: 0.8rem; font-weight: bold">TOTP:</div>
+            <div
+              style="
+                -webkit-box-orient: vertical;
+                -webkit-line-clamp: 3;
+                line-clamp: 3;
+                display: -webkit-box;
+                border-radius: 0.35rem;
+                background-color: rgb(var(--color-background-alt));
+                padding: 4px;
+                max-height: calc(2rem + 8px);
+                overflow: hidden;
+                text-overflow: ellipsis;
+                line-height: 0.75rem;
+                word-break: break-all;
+                font-family: monospace;
+                font-size: 0.7rem;
+                font-weight: lighter;
+              "
+            >
+              {{ targetingRulesDomainsViewState[domain].totp }}
+            </div>
+          </div>
+        </div>
+        <button
+          *ngIf="i < fieldsEditThreshold && domain"
+          label="{{ 'remove' | i18n }}"
+          bitIconButton="bwi-minus-circle"
+          buttonType="danger"
+          size="small"
+          slot="end"
+          type="button"
+          (click)="removeDomain(i)"
+        ></button>
+      </bit-item>
+      <form [formGroup]="domainListForm">
+        <bit-card
+          formArrayName="domains"
+          *ngFor="let domain of domainForms.controls; let i = index"
+        >
+          <div [formGroupName]="i">
+            <bit-form-field>
+              <bit-label>
+                {{ "websiteItemLabel" | i18n: i + fieldsEditThreshold + 1 }}
+              </bit-label>
+              <input
+                #uriInput
+                appInputVerbatim
+                bitInput
+                id="targeting-rules-uri-{{ i + fieldsEditThreshold }}"
+                inputmode="url"
+                name="targeting-rules-uri-{{ i + fieldsEditThreshold }}"
+                type="text"
+                (change)="fieldChange()"
+                formControlName="domain"
+              />
+            </bit-form-field>
+            <div style="color: rgb(var(--color-text-muted)); font-size: 0.875rem">Fields</div>
+            <div
+              style="
+                row-gap: 4px;
+                display: flex;
+                flex-wrap: wrap;
+                align-content: center;
+                border: 1px solid rgb(var(--color-text-muted));
+                border-radius: 0.5rem;
+                background-color: rgb(var(--color-background-alt));
+                padding: 7px;
+                text-align: end;
+                font-size: 0.9rem;
+              "
+            >
+              <!-- Username field -->
+              <div style="gap: 5px; display: flex; justify-content: flex-end; width: 100%">
+                <label style="flex: 1 1 25%">Username: </label>
+                <input
+                  style="
+                    flex: 1 1 75%;
+                    border-width: 1px;
+                    border-style: solid;
+                    border-radius: 0.25rem;
+                    padding: 0 4px;
+                    font-family: monospace;
+                    font-size: 0.75rem;
+                    font-weight: light;
+                  "
+                  appInputVerbatim
+                  type="text"
+                  formControlName="username"
+                  (change)="fieldChange()"
+                />
+              </div>
+
+              <!-- Password field -->
+              <div style="gap: 5px; display: flex; justify-content: flex-end; width: 100%">
+                <label style="flex: 1 1 25%">Password: </label>
+                <input
+                  style="
+                    flex: 1 1 75%;
+                    border-width: 1px;
+                    border-style: solid;
+                    border-radius: 0.25rem;
+                    padding: 0 4px;
+                    font-family: monospace;
+                    font-size: 0.75rem;
+                    font-weight: light;
+                  "
+                  appInputVerbatim
+                  type="text"
+                  formControlName="password"
+                  (change)="fieldChange()"
+                />
+              </div>
+
+              <!-- TOTP field -->
+              <div style="gap: 5px; display: flex; justify-content: flex-end; width: 100%">
+                <label style="flex: 1 1 25%">TOTP: </label>
+                <input
+                  style="
+                    flex: 1 1 75%;
+                    border-width: 1px;
+                    border-style: solid;
+                    border-radius: 0.25rem;
+                    padding: 0 4px;
+                    font-family: monospace;
+                    font-size: 0.75rem;
+                    font-weight: light;
+                  "
+                  appInputVerbatim
+                  type="text"
+                  formControlName="totp"
+                  (change)="fieldChange()"
+                />
+              </div>
+            </div>
+          </div>
+        </bit-card>
+        <button bitLink class="tw-pt-2" type="button" linkType="primary" (click)="addNewDomain()">
+          <i class="bwi bwi-plus-circle bwi-fw" aria-hidden="true"></i> {{ "addDomain" | i18n }}
+        </button>
+      </form>
+    </bit-section>
+  </div>
+  <popup-footer slot="footer">
+    <button
+      bitButton
+      buttonType="primary"
+      type="submit"
+      [disabled]="dataIsPristine"
+      (click)="saveChanges()"
+    >
+      {{ "save" | i18n }}
+    </button>
+    <button (click)="goBack()" bitButton type="button" buttonType="secondary">
+      {{ "cancel" | i18n }}
+    </button>
+  </popup-footer>
+</popup-page>

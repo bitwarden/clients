@@ -36,7 +36,11 @@ export interface AutofillOverlayContentService {
   setupOverlayListeners(
     autofillFieldElement: ElementWithOpId<FormFieldElement>,
     autofillFieldData: AutofillField,
-    pageDetails: AutofillPageDetails,
+    pageDetails?: AutofillPageDetails,
+  ): Promise<void>;
+  setupOverlayListenersOnQualifiedField(
+    autofillFieldElement: ElementWithOpId<FormFieldElement>,
+    autofillFieldData: AutofillField,
   ): Promise<void>;
   blurMostRecentlyFocusedField(isClosingInlineMenu?: boolean): void;
   getOwnedInlineMenuTagNames(): string[];

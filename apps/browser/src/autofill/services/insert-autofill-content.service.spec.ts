@@ -402,17 +402,57 @@ describe("InsertAutofillContentService", () => {
           const scriptAction: FillScript = [action, opid, value];
           jest.spyOn(insertAutofillContentService["autofillInsertActions"], action);
 
-          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-          // eslint-disable-next-line @typescript-eslint/no-floating-promises
-          insertAutofillContentService["runFillScriptAction"](scriptAction, 0);
+          void insertAutofillContentService["runFillScriptAction"](scriptAction, 0);
           jest.advanceTimersByTime(20);
 
-          expect(
-            insertAutofillContentService["autofillInsertActions"][action],
-          ).toHaveBeenCalledWith({
-            opid,
-            value,
-          });
+          if (action === "fill_by_opid") {
+            expect(
+              insertAutofillContentService["autofillInsertActions"][action],
+            ).toHaveBeenCalledWith({
+              opid,
+              value,
+            });
+          } else {
+            expect(
+              insertAutofillContentService["autofillInsertActions"][action],
+            ).toHaveBeenCalledWith({
+              opid,
+            });
+          }
+        });
+      });
+    });
+
+    describe("given a valid fill script action and opid", () => {
+      const fillScriptActions: FillScriptActions[] = [
+        "fill_by_targeted_field_type",
+        "click_on_targeted_field_type",
+        "focus_by_targeted_field_type",
+      ];
+      fillScriptActions.forEach((action) => {
+        it(`triggers a ${action} action`, () => {
+          const fieldType = "username";
+          const value = "value";
+          const scriptAction: FillScript = [action, fieldType, value];
+          jest.spyOn(insertAutofillContentService["autofillInsertActions"], action);
+
+          void insertAutofillContentService["runFillScriptAction"](scriptAction, 0);
+          jest.advanceTimersByTime(20);
+
+          if (action === "fill_by_targeted_field_type") {
+            expect(
+              insertAutofillContentService["autofillInsertActions"][action],
+            ).toHaveBeenCalledWith({
+              fieldType,
+              value,
+            });
+          } else {
+            expect(
+              insertAutofillContentService["autofillInsertActions"][action],
+            ).toHaveBeenCalledWith({
+              fieldType,
+            });
+          }
         });
       });
     });

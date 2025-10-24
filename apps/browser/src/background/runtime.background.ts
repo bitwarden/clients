@@ -79,6 +79,7 @@ export default class RuntimeBackground {
         BiometricsCommands.UnlockWithBiometricsForUser,
         BiometricsCommands.GetBiometricsStatusForUser,
         BiometricsCommands.CanEnableBiometricUnlock,
+        "getUrlAutofillTargetingRules",
         "getUserPremiumStatus",
       ];
 
@@ -203,6 +204,15 @@ export default class RuntimeBackground {
       }
       case BiometricsCommands.CanEnableBiometricUnlock: {
         return await this.main.biometricsService.canEnableBiometricUnlock();
+      }
+      case "getUrlAutofillTargetingRules": {
+        if (sender.tab?.url) {
+          const targetingRules = await this.autofillService.getPageTagetingRules(sender.tab.url);
+
+          return targetingRules;
+        }
+
+        return null;
       }
       case "getUserPremiumStatus": {
         const activeUserId = await firstValueFrom(
@@ -349,6 +359,9 @@ export default class RuntimeBackground {
         break;
       case "getClickedElementResponse":
         this.platformUtilsService.copyToClipboard(msg.identifier);
+        break;
+      case "getClickedElementPathResponse":
+        this.platformUtilsService.copyToClipboard(msg.path);
         break;
       case "switchAccount": {
         await this.main.switchAccount(msg.userId);

@@ -24,6 +24,7 @@ import {
   UserKeyDefinition,
 } from "../../platform/state";
 import { UserId } from "../../types/guid";
+import { AutofillTargetingRulesByDomain, AutofillTargetingRules } from "../types";
 
 const SHOW_FAVICONS = new KeyDefinition(DOMAIN_SETTINGS_DISK, "showFavicons", {
   deserializer: (value: boolean) => value ?? true,
@@ -57,10 +58,23 @@ const DEFAULT_URI_MATCH_STRATEGY = new UserKeyDefinition(
   },
 );
 
+const AUTOFILL_TARGETING_RULES = new UserKeyDefinition(
+  DOMAIN_SETTINGS_DISK,
+  "autofillTargetingRules",
+  {
+    deserializer: (value: AutofillTargetingRulesByDomain) => value ?? {},
+    clearOn: [],
+  },
+);
+
 /**
  * The Domain Settings service; provides client settings state for "active client view" URI concerns
  */
 export abstract class DomainSettingsService {
+  autofillTargetingRules$: Observable<AutofillTargetingRulesByDomain>;
+  setAutofillTargetingRules: (newValue: AutofillTargetingRulesByDomain) => Promise<void>;
+  getUrlAutofillTargetingRules$: (url: string) => Observable<AutofillTargetingRules>;
+
   /**
    * Indicates if the favicons for ciphers' URIs should be shown instead of a placeholder
    */
@@ -109,9 +123,15 @@ export abstract class DomainSettingsService {
    * Helper function for the common resolution of a given URL against equivalent domains
    */
   getUrlEquivalentDomains: (url: string) => Observable<Set<string>>;
+
+  /** URI normalization for Autofill Targeting rules URLs to ensure state is doing safe, consistent internal comparisons */
+  normalizeAutofillTargetingURI: (url: chrome.tabs.Tab["url"]) => chrome.tabs.Tab["url"] | null;
 }
 
 export class DefaultDomainSettingsService implements DomainSettingsService {
+  private autofillTargetingRulesState: ActiveUserState<AutofillTargetingRulesByDomain>;
+  readonly autofillTargetingRules$: Observable<AutofillTargetingRulesByDomain>;
+
   private showFaviconsState: GlobalState<boolean>;
   readonly showFavicons$: Observable<boolean>;
 
@@ -136,6 +156,11 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
     private policyService: PolicyService,
     private accountService: AccountService,
   ) {
+    this.autofillTargetingRulesState = this.stateProvider.getActive(AUTOFILL_TARGETING_RULES);
+    this.autofillTargetingRules$ = this.autofillTargetingRulesState.state$.pipe(
+      map((x) => (x && Object.keys(x).length ? x : {})),
+    );
+
     this.showFaviconsState = this.stateProvider.getGlobal(SHOW_FAVICONS);
     this.showFavicons$ = this.showFaviconsState.state$.pipe(map((x) => x ?? true));
 
@@ -182,6 +207,22 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
     );
   }
 
+  async setAutofillTargetingRules(newValue: AutofillTargetingRulesByDomain): Promise<void> {
+    await this.autofillTargetingRulesState.update(() => {
+      const validatedNewValue = Object.keys(newValue || {}).reduce((updatingValue, valueKey) => {
+        const normalizedURI = this.normalizeAutofillTargetingURI(valueKey);
+
+        if (normalizedURI) {
+          return { ...updatingValue, [normalizedURI]: newValue[valueKey] };
+        }
+
+        return updatingValue;
+      }, {});
+
+      return validatedNewValue;
+    });
+  }
+
   async setShowFavicons(newValue: boolean): Promise<void> {
     await this.showFaviconsState.update(() => newValue);
   }
@@ -217,5 +258,35 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
     );
 
     return domains$;
+  }
+
+  getUrlAutofillTargetingRules$(url: chrome.tabs.Tab["url"]): Observable<AutofillTargetingRules> {
+    const normalizedURI = this.normalizeAutofillTargetingURI(url);
+
+    return this.autofillTargetingRules$.pipe(
+      map((autofillTargetingRules) => {
+        if (!normalizedURI) {
+          return {};
+        }
+
+        return autofillTargetingRules?.[normalizedURI] || {};
+      }),
+    );
+  }
+
+  normalizeAutofillTargetingURI(url: chrome.tabs.Tab["url"]) {
+    if (!Utils.isNullOrWhitespace(url)) {
+      const uriParts = Utils.getUrl(url);
+      const validatedHostname = Utils.getHostname(url);
+
+      // Prevent directory traversal from malicious paths
+      const pathParts = uriParts.pathname.split("?");
+      const normalizedURI =
+        uriParts.protocol + "//" + validatedHostname + Utils.normalizePath(pathParts[0]);
+
+      return normalizedURI;
+    }
+
+    return null;
   }
 }

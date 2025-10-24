@@ -148,7 +148,7 @@ describe("context-menu", () => {
 
       const createdMenu = await sut.init();
       expect(createdMenu).toBeTruthy();
-      expect(createSpy).toHaveBeenCalledTimes(10);
+      expect(createSpy).toHaveBeenCalledTimes(11);
     });
 
     it("has menu enabled and has premium", async () => {
@@ -156,7 +156,7 @@ describe("context-menu", () => {
 
       const createdMenu = await sut.init();
       expect(createdMenu).toBeTruthy();
-      expect(createSpy).toHaveBeenCalledTimes(11);
+      expect(createSpy).toHaveBeenCalledTimes(12);
     });
 
     it("has menu enabled and has premium, but card type is restricted", async () => {
@@ -166,7 +166,7 @@ describe("context-menu", () => {
 
       const createdMenu = await sut.init();
       expect(createdMenu).toBeTruthy();
-      expect(createSpy).toHaveBeenCalledTimes(10);
+      expect(createSpy).toHaveBeenCalledTimes(11);
     });
     it("has menu enabled, does not have premium, and card type is restricted", async () => {
       billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(false));
@@ -174,7 +174,7 @@ describe("context-menu", () => {
 
       const createdMenu = await sut.init();
       expect(createdMenu).toBeTruthy();
-      expect(createSpy).toHaveBeenCalledTimes(9);
+      expect(createSpy).toHaveBeenCalledTimes(10);
     });
   });
 
@@ -283,7 +283,7 @@ describe("context-menu", () => {
 
       await sut.removeBlockedUriMenuItems();
 
-      expect(MainContextMenuHandler["remove"]).toHaveBeenCalledTimes(5);
+      expect(MainContextMenuHandler["remove"]).toHaveBeenCalledTimes(6);
       expect(MainContextMenuHandler["remove"]).toHaveBeenCalledWith(AUTOFILL_ID);
       expect(MainContextMenuHandler["remove"]).toHaveBeenCalledWith(AUTOFILL_IDENTITY_ID);
       expect(MainContextMenuHandler["remove"]).toHaveBeenCalledWith(AUTOFILL_CARD_ID);

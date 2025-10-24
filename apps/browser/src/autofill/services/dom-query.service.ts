@@ -142,6 +142,33 @@ export class DomQueryService implements DomQueryServiceInterface {
   }
 
   /**
+   * Queries the DOM for elements based on the given CSS selector string;
+   * uses special `>>>` syntax to indicate needed shadowDOM traversal.
+   *
+   * @param root - The root element to start the query from
+   * @param selector - The CSS selector string to match elements against
+   */
+  queryDeepSelector(root: Element, selector: string): Element[] {
+    const rootScopedSelectors = selector.split(">>>");
+    let current: Element[] = [root];
+
+    for (const selector of rootScopedSelectors) {
+      const next: Element[] = [];
+      for (const element of current) {
+        next.push(...Array.from(element.querySelectorAll(selector)));
+
+        const elementShadowRoot = this.getShadowRoot(element);
+        if (elementShadowRoot) {
+          next.push(...Array.from(elementShadowRoot.querySelectorAll(selector)));
+        }
+      }
+      current = next;
+    }
+
+    return current;
+  }
+
+  /**
    * Recursively queries all shadow roots found within the given root element.
    * Will also set up a mutation observer on the shadow root if the
    * `isObservingShadowRoot` parameter is set to true.
@@ -217,13 +244,12 @@ export class DomQueryService implements DomQueryServiceInterface {
     if ((chrome as any).dom?.openOrClosedShadowRoot) {
       try {
         return (chrome as any).dom.openOrClosedShadowRoot(node);
-        // FIXME: Remove when updating file. Eslint update
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      } catch (error) {
+      } catch {
         return null;
       }
     }
 
+    // Firefox-specific implementation of `openOrClosedShadowRoot`
     return (node as any).openOrClosedShadowRoot;
   }
 
@@ -284,6 +310,7 @@ export class DomQueryService implements DomQueryServiceInterface {
       }
 
       const nodeShadowRoot = this.getShadowRoot(currentNode);
+      // console.log('🚀 🚀 nodeShadowRoot:', nodeShadowRoot);
       if (nodeShadowRoot) {
         if (mutationObserver) {
           mutationObserver.observe(nodeShadowRoot, {

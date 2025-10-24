@@ -747,6 +747,7 @@ describe("AutofillService", () => {
         {
           skipUsernameOnlyFill: autofillOptions.skipUsernameOnlyFill || false,
           onlyEmptyFields: autofillOptions.onlyEmptyFields || false,
+          pageTargetingRules: {},
           fillNewPassword: autofillOptions.fillNewPassword || false,
           allowTotpAutofill: autofillOptions.allowTotpAutofill || false,
           autoSubmitLogin: autofillOptions.allowTotpAutofill || false,
