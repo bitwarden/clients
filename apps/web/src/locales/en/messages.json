@@ -11960,8 +11960,5 @@
   },
   "appearance": {
     "message": "Appearance"
-  },
-  "appearanceUpdated": {
-    "message": "Appearance updated"
   }
 }
