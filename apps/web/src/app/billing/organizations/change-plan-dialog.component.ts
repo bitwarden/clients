@@ -670,6 +670,9 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     if (this.selectedPlan.PasswordManager.hasPremiumAccessOption) {
       subTotal += this.selectedPlan.PasswordManager.premiumAccessOptionPrice;
     }
+    if (this.selectedPlan.PasswordManager.hasAdditionalStorageOption) {
+      subTotal += this.additionalStorageTotal(this.selectedPlan);
+    }
     return subTotal - this.discount;
   }
 
@@ -707,18 +710,9 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     }
 
     if (this.organization.useSecretsManager) {
-      return (
-        this.passwordManagerSubtotal +
-        this.additionalStorageTotal(this.selectedPlan) +
-        this.secretsManagerSubtotal() +
-        this.estimatedTax
-      );
+      return this.passwordManagerSubtotal + this.secretsManagerSubtotal() + this.estimatedTax;
     }
-    return (
-      this.passwordManagerSubtotal +
-      this.additionalStorageTotal(this.selectedPlan) +
-      this.estimatedTax
-    );
+    return this.passwordManagerSubtotal + this.estimatedTax;
   }
 
   get teamsStarterPlanIsAvailable() {

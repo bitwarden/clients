@@ -477,7 +477,11 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   }
 
   get passwordManagerSubtotal() {
-    let subTotal = this.selectedPlan.PasswordManager.basePrice;
+    const basePriceAfterDiscount = Math.max(
+      this.selectedPlan.PasswordManager.basePrice - this.discount,
+      0,
+    );
+    let subTotal = basePriceAfterDiscount;
     if (
       this.selectedPlan.PasswordManager.hasAdditionalSeatsOption &&
       this.formGroup.controls.additionalSeats.value
@@ -488,18 +492,18 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       );
     }
     if (
-      this.selectedPlan.PasswordManager.hasAdditionalStorageOption &&
-      this.formGroup.controls.additionalStorage.value
-    ) {
-      subTotal += this.additionalStorageTotal(this.selectedPlan);
-    }
-    if (
       this.selectedPlan.PasswordManager.hasPremiumAccessOption &&
       this.formGroup.controls.premiumAccessAddon.value
     ) {
       subTotal += this.selectedPlan.PasswordManager.premiumAccessOptionPrice;
     }
-    return subTotal - this.discount;
+    if (
+      this.selectedPlan.PasswordManager.hasAdditionalStorageOption &&
+      this.formGroup.controls.additionalStorage.value
+    ) {
+      subTotal += this.additionalStorageTotal(this.selectedPlan);
+    }
+    return subTotal;
   }
 
   get secretsManagerSubtotal() {
@@ -733,13 +737,18 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
         ? 1
         : this.formGroup.value.additionalSeats;
 
+    // should still be taxed. We mark the plan as NOT sponsored when there is additional storage
+    // so the server calculates tax, but we'll adjust the calculation to only tax the storage.
+    const hasPaidStorage = (this.formGroup.value.additionalStorage || 0) > 0;
+    const sponsoredForTaxPreview = this.acceptingSponsorship && !hasPaidStorage;
+
     const taxAmounts = await this.taxClient.previewTaxForOrganizationSubscriptionPurchase(
       {
         ...getPlanFromLegacyEnum(),
         passwordManager: {
           seats: passwordManagerSeats,
           additionalStorage: this.formGroup.value.additionalStorage,
-          sponsored: false,
+          sponsored: sponsoredForTaxPreview,
         },
         secretsManager: this.formGroup.value.secretsManager.enabled
           ? {
@@ -752,8 +761,22 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       billingAddress,
     );
 
-    this.estimatedTax = taxAmounts.tax;
-    this.total = taxAmounts.total;
+    if (this.acceptingSponsorship && hasPaidStorage) {
+      const storageSubtotal = this.additionalStorageTotal(this.selectedPlan);
+      const basePlanPrice = this.selectedPlan.PasswordManager.basePrice;
+
+      const taxRate = taxAmounts.tax / basePlanPrice;
+      this.estimatedTax = storageSubtotal * taxRate;
+    } else {
+      this.estimatedTax = taxAmounts.tax;
+    }
+
+    const subtotal =
+      this.passwordManagerSubtotal +
+      (this.planOffersSecretsManager && this.secretsManagerForm.value.enabled
+        ? this.secretsManagerSubtotal
+        : 0);
+    this.total = subtotal + this.estimatedTax;
   }
 
   private async updateOrganization() {
