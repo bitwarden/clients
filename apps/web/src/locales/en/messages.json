@@ -4452,7 +4452,7 @@
   "inviteAccepted": {
     "message": "Invitation accepted"
   },
-  "inviteAcceptedDesc": {
+  "invitationAcceptedDesc": {
     "message": "Successfully accepted your invitation."
   },
   "inviteInitAcceptedDesc": {
