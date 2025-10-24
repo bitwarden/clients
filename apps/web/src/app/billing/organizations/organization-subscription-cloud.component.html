@@ -223,7 +223,7 @@
       <h2 bitTypography="h2">{{ "manageSubscription" | i18n }}</h2>
       <p bitTypography="body1" *ngIf="userOrg.isProviderUser; else isOrganizationOwner">
         {{ "manageSubscriptionFromThe" | i18n }}
-        <a [routerLink]="['/providers', userOrg.providerId, 'manage-client-organizations']">{{
+        <a [routerLink]="['/providers', userOrg.providerId, 'billing', 'subscription']">{{
           "providerPortal" | i18n
         }}</a
         >.
