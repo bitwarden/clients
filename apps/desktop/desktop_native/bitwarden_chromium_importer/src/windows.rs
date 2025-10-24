@@ -1,21 +1,18 @@
-use std::sync::Mutex;
-
 use aes_gcm::aead::Aead;
 use aes_gcm::{Aes256Gcm, Key, KeyInit, Nonce};
 use anyhow::{anyhow, Result};
 use async_trait::async_trait;
 use base64::{engine::general_purpose::STANDARD as BASE64_STANDARD, Engine as _};
 use chacha20poly1305::ChaCha20Poly1305;
+use std::path::PathBuf;
 use windows::Win32::{
     Foundation::{LocalFree, HLOCAL},
     Security::Cryptography::{CryptUnprotectData, CRYPT_INTEGER_BLOB},
 };
 
 use crate::chromium::{BrowserConfig, CryptoService, LocalState};
-
-mod abe;
-
 use crate::util;
+mod abe;
 
 //
 // Public API
@@ -56,17 +53,13 @@ pub fn get_crypto_service(
     Ok(Box::new(WindowsCryptoService::new(local_state)))
 }
 
-pub fn configure_windows_crypto_service(admin_exe_path: &str) {
-    *ADMIN_EXE_PATH
-        .lock()
-        .expect("Failed to acquire lock on ADMIN_EXE_PATH") = Some(admin_exe_path.to_string());
+pub fn configure_windows_crypto_service(_admin_exe_path: &str) {
+    // No-op for now
 }
 
 //
 // Private
 //
-
-static ADMIN_EXE_PATH: Mutex<Option<String>> = Mutex::new(None);
 
 //
 // CryptoService
@@ -186,8 +179,13 @@ impl WindowsCryptoService {
             ));
         }
 
+        let admin_exe_path = get_admin_exe_path()?;
+        let admin_exe_str = admin_exe_path
+            .to_str()
+            .ok_or_else(|| anyhow!("Failed to convert admin.exe path to string"))?;
+
         let key_base64 = abe::decrypt_with_admin(
-            &get_admin_exe_path()?,
+            &admin_exe_str,
             self.app_bound_encrypted_key
                 .as_ref()
                 .expect("app_bound_encrypted_key should not be None"),
@@ -299,12 +297,64 @@ fn unprotect_data_win(data: &[u8]) -> Result<Vec<u8>> {
     Ok(output_slice.to_vec())
 }
 
-fn get_admin_exe_path() -> Result<String> {
-    ADMIN_EXE_PATH
-        .lock()
-        .expect("Failed to acquire lock on ADMIN_EXE_PATH")
-        .clone()
-        .ok_or_else(|| anyhow!("admin.exe path is not set"))
+fn get_admin_exe_path() -> Result<PathBuf> {
+    let current_exe_full_path = std::env::current_exe()
+        .map_err(|e| anyhow!("Failed to get current executable path: {}", e))?;
+
+    let exe_name = current_exe_full_path
+        .file_name()
+        .ok_or_else(|| anyhow!("Failed to get file name from current executable path"))?;
+
+    let admin_exe_full_path = if exe_name.to_ascii_lowercase() == "electron.exe" {
+        get_debug_admin_exe_path()?
+    } else {
+        get_dist_admin_exe_path(&current_exe_full_path)?
+    };
+
+    // check if admin.exe exists
+    if !admin_exe_full_path.exists() {
+        return Err(anyhow!(
+            "admin.exe not found at path: {:?}",
+            admin_exe_full_path
+        ));
+    }
+
+    Ok(admin_exe_full_path)
+}
+
+fn get_dist_admin_exe_path(current_exe_full_path: &PathBuf) -> Result<PathBuf> {
+    let admin_exe = current_exe_full_path
+        .parent()
+        .map(|p| p.join("admin.exe"))
+        .ok_or_else(|| anyhow!("Failed to get parent directory of current executable"))?;
+
+    Ok(admin_exe)
+}
+
+// Try to find admin.exe in debug build folders. This might not cover all the cases.
+// Tested on `npm run electron` from apps/desktop and apps/desktop/desktop_native.
+fn get_debug_admin_exe_path() -> Result<PathBuf> {
+    let current_dir = std::env::current_dir()?;
+    let folder_name = current_dir
+        .file_name()
+        .ok_or_else(|| anyhow!("Failed to get folder name from current directory"))?;
+    match folder_name.to_str() {
+        Some("desktop") => Ok(get_target_admin_exe_path(
+            current_dir.join("desktop_native"),
+        )),
+        Some("desktop_native") => Ok(get_target_admin_exe_path(current_dir)),
+        _ => Err(anyhow!(
+            "Cannot determine admin.exe path from current directory: {}",
+            current_dir.display()
+        )),
+    }
+}
+
+fn get_target_admin_exe_path(desktop_native_dir: PathBuf) -> PathBuf {
+    desktop_native_dir
+        .join("target")
+        .join("debug")
+        .join("admin.exe")
 }
 
 //
