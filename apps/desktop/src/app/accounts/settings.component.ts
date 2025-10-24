@@ -55,6 +55,7 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 import { KeyService, BiometricStateService, BiometricsStatus } from "@bitwarden/key-management";
+import { SessionTimeoutSettingsComponent } from "@bitwarden/key-management-ui";
 import { PermitCipherDetailsPopoverComponent } from "@bitwarden/vault";
 
 import { SetPinComponent } from "../../auth/components/set-pin.component";
@@ -93,6 +94,7 @@ import { NativeMessagingManifestService } from "../services/native-messaging-man
     SelectModule,
     TypographyModule,
     VaultTimeoutInputComponent,
+    SessionTimeoutSettingsComponent,
     PermitCipherDetailsPopoverComponent,
     PremiumBadgeComponent,
   ],
@@ -144,6 +146,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
   pinEnabled$: Observable<boolean> = of(true);
   isWindowsV2BiometricsEnabled: boolean = false;
 
+  consolidatedSessionTimeoutComponent$: Observable<boolean>;
+  excludeTimeoutTypes: VaultTimeout[] = [];
+
   form = this.formBuilder.group({
     // Security
     vaultTimeout: [null as VaultTimeout | null],
@@ -182,7 +187,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     locale: [null as string | null],
   });
 
-  private refreshTimeoutSettings$ = new BehaviorSubject<void>(undefined);
+  protected refreshTimeoutSettings$ = new BehaviorSubject<void>(undefined);
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -280,12 +285,24 @@ export class SettingsComponent implements OnInit, OnDestroy {
         value: SshAgentPromptType.RememberUntilLock,
       },
     ];
+
+    this.consolidatedSessionTimeoutComponent$ = this.configService.getFeatureFlag$(
+      FeatureFlag.ConsolidatedSessionTimeoutComponent,
+    );
   }
 
   async ngOnInit() {
-    this.isWindowsV2BiometricsEnabled = await this.biometricsService.isWindowsV2BiometricsEnabled();
+    // Build exclude list for the session timeout component
+    const excludeTimeoutTypes: VaultTimeout[] = [0]; // Desktop doesn't support "immediately"
+    if (!(await ipc.platform.powermonitor.isLockMonitorAvailable())) {
+      excludeTimeoutTypes.push(VaultTimeoutStringType.OnLocked);
+    }
+    this.excludeTimeoutTypes = excludeTimeoutTypes;
 
     this.vaultTimeoutOptions = await this.generateVaultTimeoutOptions();
+
+    this.isWindowsV2BiometricsEnabled = await this.biometricsService.isWindowsV2BiometricsEnabled();
+
     const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
 
     // Autotype is for Windows initially

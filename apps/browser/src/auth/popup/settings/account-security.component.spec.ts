@@ -20,6 +20,7 @@ import {
   VaultTimeoutStringType,
   VaultTimeoutAction,
 } from "@bitwarden/common/key-management/vault-timeout";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -63,6 +64,7 @@ describe("AccountSecurityComponent", () => {
   const validationService = mock<ValidationService>();
   const dialogService = mock<DialogService>();
   const platformUtilsService = mock<PlatformUtilsService>();
+  const configService = mock<ConfigService>();
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -92,6 +94,7 @@ describe("AccountSecurityComponent", () => {
         { provide: OrganizationService, useValue: mock<OrganizationService>() },
         { provide: CollectionService, useValue: mock<CollectionService>() },
         { provide: ValidationService, useValue: validationService },
+        { provide: ConfigService, useValue: configService },
       ],
     })
       .overrideComponent(AccountSecurityComponent, {

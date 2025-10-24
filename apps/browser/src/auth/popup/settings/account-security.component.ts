@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { ChangeDetectorRef, Component, OnDestroy, OnInit } from "@angular/core";
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, signal } from "@angular/core";
 import { FormBuilder, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { RouterModule } from "@angular/router";
 import {
@@ -31,6 +31,7 @@ import { getFirstPolicy } from "@bitwarden/common/admin-console/services/policy/
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import {
   VaultTimeout,
@@ -40,6 +41,7 @@ import {
   VaultTimeoutSettingsService,
   VaultTimeoutStringType,
 } from "@bitwarden/common/key-management/vault-timeout";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -67,6 +69,7 @@ import {
   BiometricStateService,
   BiometricsStatus,
 } from "@bitwarden/key-management";
+import { SessionTimeoutSettingsComponent } from "@bitwarden/key-management-ui";
 
 import { BiometricErrors, BiometricErrorTypes } from "../../../models/biometricErrors";
 import { BrowserApi } from "../../../platform/browser/browser-api";
@@ -100,6 +103,7 @@ import { AwaitDesktopDialogComponent } from "./await-desktop-dialog.component";
     SectionComponent,
     SectionHeaderComponent,
     SelectModule,
+    SessionTimeoutSettingsComponent,
     SpotlightComponent,
     TypographyModule,
     VaultTimeoutInputComponent,
@@ -133,11 +137,16 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
       ),
     );
 
-  private refreshTimeoutSettings$ = new BehaviorSubject<void>(undefined);
+  protected readonly consolidatedSessionTimeoutComponent$: Observable<boolean>;
+  protected readonly excludeTimeoutTypes = signal<VaultTimeout[]>([]);
+
+  protected refreshTimeoutSettings$ = new BehaviorSubject<void>(undefined);
   private destroy$ = new Subject<void>();
+  private readonly showOnLocked: boolean;
 
   constructor(
     private accountService: AccountService,
+    private configService: ConfigService,
     private pinService: PinServiceAbstraction,
     private policyService: PolicyService,
     private formBuilder: FormBuilder,
@@ -157,7 +166,27 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     private vaultNudgesService: NudgesService,
     private validationService: ValidationService,
     private logService: LogService,
-  ) {}
+  ) {
+    this.consolidatedSessionTimeoutComponent$ = this.configService.getFeatureFlag$(
+      FeatureFlag.ConsolidatedSessionTimeoutComponent,
+    );
+
+    // Determine platform-specific timeout options
+    this.showOnLocked =
+      !this.platformUtilsService.isFirefox() &&
+      !this.platformUtilsService.isSafari() &&
+      !(this.platformUtilsService.isOpera() && navigator.platform === "MacIntel");
+
+    // Build exclude list for the session timeout component
+    const excludeTimeoutTypes: VaultTimeout[] = [
+      VaultTimeoutStringType.OnIdle,
+      VaultTimeoutStringType.OnSleep,
+    ];
+    if (!this.showOnLocked) {
+      excludeTimeoutTypes.push(VaultTimeoutStringType.OnLocked);
+    }
+    this.excludeTimeoutTypes.set(excludeTimeoutTypes);
+  }
 
   async ngOnInit() {
     const hasMasterPassword = await this.userVerificationService.hasMasterPassword();
@@ -173,11 +202,6 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
       this.hasVaultTimeoutPolicy = true;
     }
 
-    const showOnLocked =
-      !this.platformUtilsService.isFirefox() &&
-      !this.platformUtilsService.isSafari() &&
-      !(this.platformUtilsService.isOpera() && navigator.platform === "MacIntel");
-
     this.vaultTimeoutOptions = [
       { name: this.i18nService.t("immediately"), value: 0 },
       { name: this.i18nService.t("oneMinute"), value: 1 },
@@ -188,7 +212,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
       { name: this.i18nService.t("fourHours"), value: 240 },
     ];
 
-    if (showOnLocked) {
+    if (this.showOnLocked) {
       this.vaultTimeoutOptions.push({
         name: this.i18nService.t("onLocked"),
         value: VaultTimeoutStringType.OnLocked,
@@ -209,7 +233,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     let timeout = await firstValueFrom(
       this.vaultTimeoutSettingsService.getVaultTimeoutByUserId$(activeAccount.id),
     );
-    if (timeout === VaultTimeoutStringType.OnLocked && !showOnLocked) {
+    if (timeout === VaultTimeoutStringType.OnLocked && !this.showOnLocked) {
       timeout = VaultTimeoutStringType.OnRestart;
     }
 
@@ -421,6 +445,12 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
       return;
     }
     await this.vaultNudgesService.dismissNudge(NudgeType.AccountSecurity, activeAccount.id);
+  }
+
+  protected handleTimeoutSave(newValue: VaultTimeout) {
+    if (newValue === VaultTimeoutStringType.Never) {
+      this.messagingService.send("bgReseedStorage");
+    }
   }
 
   async saveVaultTimeoutAction(value: VaultTimeoutAction) {
