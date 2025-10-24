@@ -1,13 +1,13 @@
-import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from "@angular/core";
+import { ChangeDetectionStrategy, Component, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder } from "@angular/forms";
-import { filter, firstValueFrom, Subject, switchMap, takeUntil } from "rxjs";
+import { filter, firstValueFrom, switchMap } from "rxjs";
 
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
-import { ToastService } from "@bitwarden/components";
 import { PermitCipherDetailsPopoverComponent } from "@bitwarden/vault";
 
 import { HeaderModule } from "../layouts/header/header.module";
@@ -29,11 +29,9 @@ type ThemeOption = {
   imports: [SharedModule, HeaderModule, PermitCipherDetailsPopoverComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AppearanceComponent implements OnInit, OnDestroy {
+export class AppearanceComponent implements OnInit {
   localeOptions: LocaleOption[];
   themeOptions: ThemeOption[];
-
-  private destroy$ = new Subject<void>();
 
   form = this.formBuilder.group({
     enableFavicons: true,
@@ -44,7 +42,6 @@ export class AppearanceComponent implements OnInit, OnDestroy {
   constructor(
     private formBuilder: FormBuilder,
     private i18nService: I18nService,
-    private toastService: ToastService,
     private themeStateService: ThemeStateService,
     private domainSettingsService: DomainSettingsService,
   ) {
@@ -81,9 +78,8 @@ export class AppearanceComponent implements OnInit, OnDestroy {
         filter((enableFavicons) => enableFavicons != null),
         switchMap(async (enableFavicons) => {
           await this.domainSettingsService.setShowFavicons(enableFavicons);
-          this.showSuccessToast();
         }),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(),
       )
       .subscribe();
 
@@ -92,9 +88,8 @@ export class AppearanceComponent implements OnInit, OnDestroy {
         filter((theme) => theme != null),
         switchMap(async (theme) => {
           await this.themeStateService.setSelectedTheme(theme);
-          this.showSuccessToast();
         }),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(),
       )
       .subscribe();
 
@@ -105,20 +100,8 @@ export class AppearanceComponent implements OnInit, OnDestroy {
           await this.i18nService.setLocale(locale);
           window.location.reload();
         }),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(),
       )
       .subscribe();
-  }
-
-  private showSuccessToast() {
-    this.toastService.showToast({
-      variant: "success",
-      message: this.i18nService.t("appearanceUpdated"),
-    });
-  }
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 }
