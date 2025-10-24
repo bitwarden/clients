@@ -448,7 +448,6 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
   }
 
   protected handleTimeoutSave(newValue: VaultTimeout) {
-    // For browser extension: reseed storage when timeout is set to "Never"
     if (newValue === VaultTimeoutStringType.Never) {
       this.messagingService.send("bgReseedStorage");
     }
