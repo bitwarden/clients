@@ -13,7 +13,7 @@ use crate::util;
 //
 
 // TODO: It's possible that there might be multiple possible data directories, depending on the installation method (e.g., snap, flatpak, etc.).
-pub(crate) const SUPPORTED_BROWSERS: [BrowserConfig; 4] = [
+pub(crate) const SUPPORTED_BROWSERS: &[BrowserConfig] = &[
     BrowserConfig {
         name: "Chrome",
         data_dir: ".config/google-chrome",

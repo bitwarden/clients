@@ -10,7 +10,7 @@ use crate::util;
 // Public API
 //
 
-pub(crate) const SUPPORTED_BROWSERS: [BrowserConfig; 7] = [
+pub(crate) const SUPPORTED_BROWSERS: &[BrowserConfig] = &[
     BrowserConfig {
         name: "Chrome",
         data_dir: "Library/Application Support/Google/Chrome",
