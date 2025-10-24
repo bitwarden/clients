@@ -36,8 +36,10 @@ import {
   LoginEmailService,
   SsoUrlService,
   LogoutService,
+  UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
 import { ExtensionNewDeviceVerificationComponentService } from "@bitwarden/browser/auth/services/new-device-verification/extension-new-device-verification-component.service";
+import { BrowserRouterService } from "@bitwarden/browser/platform/popup/services/browser-router.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService as EventCollectionServiceAbstraction } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -51,6 +53,7 @@ import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/ma
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
+import { WebAuthnLoginPrfKeyServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-prf-key.service.abstraction";
 import { AuthRequestAnsweringService } from "@bitwarden/common/auth/services/auth-request-answering/auth-request-answering.service";
 import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
 import {
@@ -75,6 +78,7 @@ import {
   InternalMasterPasswordServiceAbstraction,
   MasterPasswordServiceAbstraction,
 } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import {
   VaultTimeoutService,
   VaultTimeoutStringType,
@@ -137,11 +141,16 @@ import {
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 import {
   BiometricsService,
+  BiometricStateService,
   DefaultKeyService,
   KdfConfigService,
   KeyService,
 } from "@bitwarden/key-management";
-import { LockComponentService } from "@bitwarden/key-management-ui";
+import {
+  LockComponentService,
+  WebAuthnPrfUnlockService,
+  DefaultWebAuthnPrfUnlockService,
+} from "@bitwarden/key-management-ui";
 import { DerivedStateProvider, GlobalStateProvider, StateProvider } from "@bitwarden/state";
 import { InlineDerivedStateProvider } from "@bitwarden/state-internal";
 import {
@@ -561,7 +570,14 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: LockComponentService,
     useClass: ExtensionLockComponentService,
-    deps: [],
+    deps: [
+      UserDecryptionOptionsServiceAbstraction,
+      BiometricsService,
+      PinServiceAbstraction,
+      BiometricStateService,
+      BrowserRouterService,
+      WebAuthnPrfUnlockService,
+    ],
   }),
   // TODO: PM-18182 - Refactor component services into lazy loaded modules
   safeProvider({
@@ -604,6 +620,20 @@ const safeProviders: SafeProvider[] = [
     provide: Fido2UserVerificationService,
     useClass: Fido2UserVerificationService,
     deps: [PasswordRepromptService, UserVerificationService, DialogService],
+  }),
+  safeProvider({
+    provide: WebAuthnPrfUnlockService,
+    useClass: DefaultWebAuthnPrfUnlockService,
+    deps: [
+      WebAuthnLoginPrfKeyServiceAbstraction,
+      KeyService,
+      UserDecryptionOptionsServiceAbstraction,
+      EncryptService,
+      EnvironmentService,
+      PlatformUtilsService,
+      WINDOW,
+      LogService,
+    ],
   }),
   safeProvider({
     provide: AnimationControlService,

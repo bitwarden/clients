@@ -10,6 +10,7 @@ export const UnlockOption = Object.freeze({
   MasterPassword: "masterPassword",
   Pin: "pin",
   Biometrics: "biometrics",
+  Prf: "prf",
 }) satisfies { [Prop in keyof UnlockOptions as Capitalize<Prop>]: Prop };
 
 export type UnlockOptions = {
@@ -22,6 +23,9 @@ export type UnlockOptions = {
   biometrics: {
     enabled: boolean;
     biometricsStatus: BiometricsStatus;
+  };
+  prf: {
+    enabled: boolean;
   };
 };
 

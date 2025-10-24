@@ -59,6 +59,7 @@ import {
   UnlockOption,
   UnlockOptions,
 } from "../services/lock-component.service";
+import { WebAuthnPrfUnlockService } from "../services/webauthn-prf-unlock.service";
 
 import { LockComponent } from "./lock.component";
 
@@ -92,6 +93,7 @@ describe("LockComponent", () => {
   const mockLockComponentService = mock<LockComponentService>();
   const mockAnonLayoutWrapperDataService = mock<AnonLayoutWrapperDataService>();
   const mockBroadcasterService = mock<BroadcasterService>();
+  const mockWebAuthnPrfUnlockService = mock<WebAuthnPrfUnlockService>();
   const mockConfigService = mock<ConfigService>();
 
   beforeEach(async () => {
@@ -150,6 +152,7 @@ describe("LockComponent", () => {
         { provide: LockComponentService, useValue: mockLockComponentService },
         { provide: AnonLayoutWrapperDataService, useValue: mockAnonLayoutWrapperDataService },
         { provide: BroadcasterService, useValue: mockBroadcasterService },
+        { provide: WebAuthnPrfUnlockService, useValue: mockWebAuthnPrfUnlockService },
         { provide: ConfigService, useValue: mockConfigService },
       ],
     })
@@ -171,6 +174,7 @@ describe("LockComponent", () => {
           enabled: false,
           biometricsStatus: BiometricsStatus.NotEnabledLocally,
         },
+        prf: { enabled: false },
       };
 
       component.activeUnlockOption = UnlockOption.MasterPassword;
