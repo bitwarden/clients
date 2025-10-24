@@ -7,13 +7,9 @@ use hex::decode;
 use homedir::my_home;
 use rusqlite::{params, Connection};
 
-// Platform-specific code
-#[cfg_attr(target_os = "linux", path = "linux.rs")]
-#[cfg_attr(target_os = "windows", path = "windows.rs")]
-#[cfg_attr(target_os = "macos", path = "macos.rs")]
-pub mod platform;
+mod platform;
 
-pub(crate) use crate::chromium::platform::SUPPORTED_BROWSERS as PLATFORM_SUPPORTED_BROWSERS;
+pub(crate) use platform::SUPPORTED_BROWSERS as PLATFORM_SUPPORTED_BROWSERS;
 
 //
 // Public API
