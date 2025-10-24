@@ -139,6 +139,7 @@
         "@babel/core",
         "@babel/preset-env",
         "@bitwarden/sdk-internal",
+        "@bitwarden/commercial-sdk-internal",
         "@electron/fuses",
         "@electron/notarize",
         "@electron/rebuild",

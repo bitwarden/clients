@@ -31,6 +31,7 @@ const DEFAULT_PARAMS = {
  *  localesPath?: string;
  *  externalsModulesDir?: string;
  *  watch?: boolean;
+ *  importAliases?: import("webpack").ResolveOptions["alias"];
  * }} params
  */
 module.exports.buildConfig = function buildConfig(params) {
@@ -95,6 +96,7 @@ module.exports.buildConfig = function buildConfig(params) {
       symlinks: false,
       modules: params.modulesPath,
       plugins: [new TsconfigPathsPlugin({ configFile: params.tsConfig })],
+      alias: params.importAliases,
     },
     output: {
       filename: "[name].js",
