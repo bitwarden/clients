@@ -26,7 +26,7 @@ export class UriMatchDefaultPolicy extends BasePolicyEditDefinition {
 export class UriMatchDefaultPolicyComponent extends BasePolicyEditComponent {
   uriMatchOptions: { label: string; value: UriMatchStrategySetting | null; disabled?: boolean }[];
   data = this.formBuilder.group({
-    uriMatchDetection: new FormControl<string>(null),
+    uriMatchDetection: new FormControl<string | null>(null),
   });
 
   constructor(
