@@ -60,7 +60,7 @@ export class TabListItemDirective implements FocusableOption {
       "tw-relative",
       "tw-py-2",
       "tw-px-4",
-      "tw-font-semibold",
+      "tw-font-medium",
       "tw-transition",
       "tw-rounded-t-lg",
       "tw-border-0",
