@@ -1065,7 +1065,7 @@ pub mod chromium_importer {
             DefaultInstalledBrowserRetriever, InstalledBrowserRetriever,
             LoginImportResult as _LoginImportResult, ProfileInfo as _ProfileInfo,
         },
-        metadata::NativeImporterMetadata,
+        metadata::NativeImporterMetadata as _NativeImporterMetadata,
     };
     use std::collections::HashMap;
 
@@ -1094,6 +1094,13 @@ pub mod chromium_importer {
     pub struct LoginImportResult {
         pub login: Option<Login>,
         pub failure: Option<LoginImportFailure>,
+    }
+
+    #[napi(object)]
+    pub struct NativeImporterMetadata {
+        pub id: String,
+        pub loaders: Vec<&'static str>,
+        pub instructions: &'static str,
     }
 
     impl From<_LoginImportResult> for LoginImportResult {
@@ -1129,10 +1136,23 @@ pub mod chromium_importer {
         }
     }
 
+    impl From<_NativeImporterMetadata> for NativeImporterMetadata {
+        fn from(m: _NativeImporterMetadata) -> Self {
+            NativeImporterMetadata {
+                id: m.id,
+                loaders: m.loaders,
+                instructions: m.instructions,
+            }
+        }
+    }
+
     #[napi]
     /// Returns OS aware metadata describing supported Chromium based importers as a JSON string.
     pub fn get_metadata() -> HashMap<String, NativeImporterMetadata> {
         chromium_importer::metadata::get_supported_importers::<DefaultInstalledBrowserRetriever>()
+            .into_iter()
+            .map(|(browser, metadata)| (browser, NativeImporterMetadata::from(metadata)))
+            .collect()
     }
 
     #[napi]

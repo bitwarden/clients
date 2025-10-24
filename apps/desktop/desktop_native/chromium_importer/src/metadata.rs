@@ -1,10 +1,7 @@
 use std::collections::{HashMap, HashSet};
 
-use napi_derive::napi;
-
 use crate::chromium::{InstalledBrowserRetriever, PLATFORM_SUPPORTED_BROWSERS};
 
-#[napi(object)]
 /// Mechanisms that load data into the importer
 pub struct NativeImporterMetadata {
     /// Identifies the importer
