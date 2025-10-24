@@ -39,7 +39,7 @@ import {
   FakeSingleUserState,
 } from "@bitwarden/common/spec";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
-import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { OrganizationId, ProviderId, UserId } from "@bitwarden/common/types/guid";
 import {
   UserKey,
   MasterKey,
@@ -1311,6 +1311,49 @@ describe("keyService", () => {
         32,
         "sha256",
       );
+    });
+  });
+
+  describe("providerKeys$", () => {
+    let mockUserPrivateKey: Uint8Array;
+    let mockProviderKeys: Record<ProviderId, ProviderKey>;
+
+    beforeEach(() => {
+      mockUserPrivateKey = makeStaticByteArray(64, 1);
+      mockProviderKeys = {
+        ["provider1" as ProviderId]: makeSymmetricCryptoKey<ProviderKey>(64),
+        ["provider2" as ProviderId]: makeSymmetricCryptoKey<ProviderKey>(64),
+      };
+    });
+
+    it("returns null when userPrivateKey is null", async () => {
+      jest.spyOn(keyService, "userPrivateKey$").mockReturnValue(of(null));
+
+      const result = await firstValueFrom(keyService.providerKeys$(mockUserId));
+
+      expect(result).toBeNull();
+    });
+
+    it("returns provider keys when userPrivateKey is available", async () => {
+      jest.spyOn(keyService, "userPrivateKey$").mockReturnValue(of(mockUserPrivateKey as any));
+      jest.spyOn(keyService as any, "providerKeysHelper$").mockReturnValue(of(mockProviderKeys));
+
+      const result = await firstValueFrom(keyService.providerKeys$(mockUserId));
+
+      expect(result).toEqual(mockProviderKeys);
+      expect((keyService as any).providerKeysHelper$).toHaveBeenCalledWith(
+        mockUserId,
+        mockUserPrivateKey,
+      );
+    });
+
+    it("returns null when providerKeysHelper$ returns null", async () => {
+      jest.spyOn(keyService, "userPrivateKey$").mockReturnValue(of(mockUserPrivateKey as any));
+      jest.spyOn(keyService as any, "providerKeysHelper$").mockReturnValue(of(null));
+
+      const result = await firstValueFrom(keyService.providerKeys$(mockUserId));
+
+      expect(result).toBeNull();
     });
   });
 
