@@ -6,7 +6,8 @@ import {
   input,
   signal,
   afterNextRender,
-  ViewChild,
+  viewChild,
+  TemplateRef,
 } from "@angular/core";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -67,7 +68,7 @@ export class CalloutComponent implements AfterViewInit {
 
   protected readonly titleId = `bit-callout-title-${nextId++}`;
 
-  @ViewChild("content", { static: false })
+  readonly content = viewChild(TemplateRef);
   private contentRef!: ElementRef<HTMLElement>;
   readonly contentText = signal("");
 
