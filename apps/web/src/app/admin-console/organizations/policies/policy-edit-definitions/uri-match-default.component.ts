@@ -56,7 +56,7 @@ export class UriMatchDefaultPolicyComponent extends BasePolicyEditComponent {
 
   protected buildRequestData() {
     return {
-      uriMatchDetection: this.data.value?.uriMatchDetection,
+      uriMatchDetection: this.data.value?.uriMatchDetection ?? null,
     };
   }
 
