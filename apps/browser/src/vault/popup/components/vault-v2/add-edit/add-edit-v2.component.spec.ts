@@ -1,4 +1,4 @@
-import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
+import { ComponentFixture, fakeAsync, TestBed, tick, waitForAsync } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { ActivatedRoute, Router } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
@@ -423,22 +423,60 @@ describe("AddEditV2Component", () => {
     }));
   });
 
-  it("shows the archive badge when the cipher is archived", fakeAsync(() => {
-    // keep the form from rendering
-    const loadingSpy = jest.spyOn(component as any, "loading", "get").mockReturnValue(true);
+  describe("archive badge", () => {
+    beforeEach(() => {
+      // prevent form from rendering
+      jest.spyOn(component as any, "loading", "get").mockReturnValue(true);
+    });
 
-    buildConfigResponse.originalCipher = { archivedDate: new Date() } as Cipher;
+    it("shows the archive badge when the cipher is archived and the user can no longer archive", waitForAsync(async () => {
+      const archiveService = TestBed.inject(CipherArchiveService);
+      (archiveService.userCanArchive$ as jest.Mock).mockReturnValue(of(false));
+      buildConfigResponse.originalCipher = { archivedDate: new Date() } as any;
 
-    queryParams$.next({});
-    tick();
-    fixture.detectChanges();
+      queryParams$.next({});
 
-    const badge = fixture.debugElement.query(By.css("button[bitBadge]"));
-    expect(badge).toBeTruthy();
-    expect(badge.nativeElement.textContent.trim()).toBe("archived");
+      await fixture.whenStable();
+      fixture.detectChanges();
 
-    loadingSpy.mockRestore();
-  }));
+      const badge = fixture.debugElement.query(By.css("[bitBadge]"));
+      expect(badge).toBeTruthy();
+      expect(badge.nativeElement.textContent.trim()).toBe("archived");
+    }));
+
+    it("does not show the archive badge when the cipher is not archived", fakeAsync(() => {
+      const archiveService = TestBed.inject(CipherArchiveService);
+      (archiveService.userCanArchive$ as jest.Mock).mockReturnValue(of(false));
+
+      buildConfigResponse.originalCipher = {} as Cipher;
+
+      queryParams$.next({});
+      tick();
+      fixture.detectChanges();
+
+      const badge = fixture.debugElement.query(By.css("span[bitBadge]"));
+      expect(badge).toBeNull();
+    }));
+
+    it("does not show the archive badge when the user can archive and the cipher is archived", waitForAsync(async () => {
+      const archiveService = TestBed.inject(CipherArchiveService);
+      (archiveService.userCanArchive$ as jest.Mock).mockReturnValue(of(true));
+
+      buildConfigResponse.originalCipher = { archivedDate: new Date() } as Cipher;
+      fixture.destroy();
+      fixture = TestBed.createComponent(AddEditV2Component);
+      component = fixture.componentInstance;
+      jest.spyOn(component as any, "loading", "get").mockReturnValue(true);
+
+      queryParams$.next({});
+
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      const badge = fixture.debugElement.query(By.css("span[bitBadge]"));
+      expect(badge).toBeNull();
+    }));
+  });
 
   describe("delete", () => {
     it("dialogService openSimpleDialog called when deleteBtn is hit", async () => {

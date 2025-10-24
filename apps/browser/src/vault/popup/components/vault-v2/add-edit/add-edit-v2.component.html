@@ -1,3 +1,5 @@
+@let previouslyCouldArchive = !(userCanArchive$ | async) && config?.originalCipher?.archivedDate;
+
 <popup-page>
   <popup-header
     slot="header"
@@ -7,7 +9,7 @@
   >
     <ng-container slot="end">
       <span
-        *ngIf="!previouslyCouldArchive"
+        *ngIf="previouslyCouldArchive"
         bitBadge
         variant="secondary"
         [appA11yTitle]="'archived' | i18n"

@@ -163,7 +163,6 @@ export class AddEditV2Component implements OnInit {
   headerText: string;
   config: CipherFormConfig;
   canDeleteCipher$: Observable<boolean>;
-  protected previouslyCouldArchive = false;
 
   get loading() {
     return this.config == null;
@@ -175,6 +174,11 @@ export class AddEditV2Component implements OnInit {
 
   private fido2PopoutSessionData$ = fido2PopoutSessionData$();
   private fido2PopoutSessionData: Fido2SessionData;
+
+  protected userId$ = this.accountService.activeAccount$.pipe(getUserId);
+  protected userCanArchive$ = this.userId$.pipe(
+    switchMap((userId) => this.archiveService.userCanArchive$(userId)),
+  );
 
   private get inFido2PopoutWindow() {
     return BrowserPopupUtils.inPopout(window) && this.fido2PopoutSessionData.isFido2Session;
@@ -302,9 +306,7 @@ export class AddEditV2Component implements OnInit {
           }
           config.initialValues = await this.setInitialValuesFromParams(params);
 
-          const activeUserId = await firstValueFrom(
-            this.accountService.activeAccount$.pipe(getUserId),
-          );
+          const activeUserId = await firstValueFrom(this.userId$);
 
           // The browser notification bar and overlay use addEditCipherInfo$ to pass modified cipher details to the form
           // Attempt to fetch them here and overwrite the initialValues if present
@@ -333,14 +335,6 @@ export class AddEditV2Component implements OnInit {
               false,
               config.originalCipher.organizationId,
             );
-          }
-
-          const canArchive = await firstValueFrom(
-            this.archiveService.userCanArchive$(activeUserId),
-          );
-
-          if (!canArchive && config.originalCipher?.archivedDate) {
-            this.previouslyCouldArchive = true;
           }
 
           return config;
@@ -409,7 +403,7 @@ export class AddEditV2Component implements OnInit {
     }
 
     try {
-      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      const activeUserId = await firstValueFrom(this.userId$);
       await this.deleteCipher(activeUserId);
     } catch (e) {
       this.logService.error(e);
