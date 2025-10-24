@@ -9,6 +9,7 @@ import {
 } from "@bitwarden/common/billing/types/subscription-pricing-tier";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import {
   ButtonModule,
@@ -94,6 +95,12 @@ export default {
                   return key;
               }
             },
+          },
+        },
+        {
+          provide: LogService,
+          useValue: {
+            error: {},
           },
         },
       ],

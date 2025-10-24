@@ -57,7 +57,8 @@ export class WebVaultPremiumUpgradePromptService implements PremiumUpgradePrompt
       FeatureFlag.PM23713_PremiumBadgeOpensNewPremiumUpgradeDialog,
     );
 
-    // Per conversation in PM-23713, retain the existing upgrade org flow for now, will be addressed later
+    // Per conversation in PM-23713, retain the existing upgrade org flow for now, will be addressed
+    //  as a part of https://bitwarden.atlassian.net/browse/PM-25507
     if (showNewDialog && !organizationId) {
       await this.promptForPremiumVNext(account);
       return;
@@ -121,7 +122,6 @@ export class WebVaultPremiumUpgradePromptService implements PremiumUpgradePrompt
       result?.status === UnifiedUpgradeDialogStatus.UpgradedToPremium ||
       result?.status === UnifiedUpgradeDialogStatus.UpgradedToFamilies
     ) {
-      await this.apiService.refreshIdentityToken();
       await this.syncService.fullSync(true);
     }
   }

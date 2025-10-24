@@ -16,6 +16,7 @@ import {
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { DialogRef, ToastService } from "@bitwarden/components";
+import { LogService } from "@bitwarden/logging";
 
 import { PremiumUpgradeDialogComponent } from "./premium-upgrade-dialog.component";
 
@@ -28,6 +29,7 @@ describe("PremiumUpgradeDialogComponent", () => {
   let mockToastService: jest.Mocked<ToastService>;
   let mockEnvironmentService: jest.Mocked<EnvironmentService>;
   let mockPlatformUtilsService: jest.Mocked<PlatformUtilsService>;
+  let mockLogService: jest.Mocked<LogService>;
 
   const mockPremiumTier: PersonalSubscriptionPricingTier = {
     id: PersonalSubscriptionPricingTierIds.Premium,
@@ -92,6 +94,10 @@ describe("PremiumUpgradeDialogComponent", () => {
       of([mockPremiumTier, mockFamiliesTier]),
     );
 
+    mockLogService = {
+      error: jest.fn(),
+    } as any;
+
     await TestBed.configureTestingModule({
       imports: [NoopAnimationsModule, PremiumUpgradeDialogComponent, CdkTrapFocus],
       providers: [
@@ -104,6 +110,7 @@ describe("PremiumUpgradeDialogComponent", () => {
         { provide: ToastService, useValue: mockToastService },
         { provide: EnvironmentService, useValue: mockEnvironmentService },
         { provide: PlatformUtilsService, useValue: mockPlatformUtilsService },
+        { provide: LogService, useValue: mockLogService },
       ],
     }).compileComponents();
 
@@ -148,23 +155,6 @@ describe("PremiumUpgradeDialogComponent", () => {
 
     expect(mockI18nService.t).toHaveBeenCalledWith("upgradeNow");
     expect(cardDetails?.button.text).toBe("upgradeNow");
-  });
-
-  it("should emit loading$ observable that starts with true and changes to false", async () => {
-    // Create a new component to observe the loading state from start
-    const newFixture = TestBed.createComponent(PremiumUpgradeDialogComponent);
-    const newComponent = newFixture.componentInstance;
-
-    const loadingValues: boolean[] = [];
-    const sub = newComponent["loading$"].subscribe((loading) => loadingValues.push(loading));
-
-    // Wait for the observable to emit
-    await firstValueFrom(newComponent["cardDetails$"]);
-    sub.unsubscribe();
-
-    expect(loadingValues.length).toBeGreaterThanOrEqual(2);
-    expect(loadingValues[0]).toBe(true);
-    expect(loadingValues[loadingValues.length - 1]).toBe(false);
   });
 
   describe("upgrade()", () => {
@@ -236,44 +226,6 @@ describe("PremiumUpgradeDialogComponent", () => {
         message: "unexpectedError",
       });
       expect(cardDetails).toBeNull();
-    });
-
-    it("should handle error and still allow loading$ to complete", async () => {
-      const error = new Error("Service error");
-      mockSubscriptionPricingService.getPersonalSubscriptionPricingTiers$.mockReturnValue(
-        throwError(() => error),
-      );
-
-      const errorFixture = TestBed.createComponent(PremiumUpgradeDialogComponent);
-      const errorComponent = errorFixture.componentInstance;
-
-      const loadingValues: boolean[] = [];
-      const sub = errorComponent["loading$"].subscribe((loading) => loadingValues.push(loading));
-
-      await firstValueFrom(errorComponent["cardDetails$"]);
-      sub.unsubscribe();
-
-      expect(loadingValues.length).toBeGreaterThanOrEqual(2);
-      expect(loadingValues[0]).toBe(true);
-      expect(loadingValues[loadingValues.length - 1]).toBe(false);
-    });
-  });
-
-  describe("dialog close during loading", () => {
-    it("should allow closing dialog while in loading state", () => {
-      const newFixture = TestBed.createComponent(PremiumUpgradeDialogComponent);
-      const newComponent = newFixture.componentInstance;
-
-      let currentLoadingState: boolean | undefined;
-      const sub = newComponent["loading$"].subscribe((loading) => {
-        currentLoadingState = loading;
-      });
-
-      newComponent["close"]();
-      sub.unsubscribe();
-
-      expect(mockDialogRef.close).toHaveBeenCalled();
-      expect(currentLoadingState).toBeDefined();
     });
   });
 });

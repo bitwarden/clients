@@ -1,8 +1,9 @@
 import { CdkTrapFocus } from "@angular/cdk/a11y";
 import { CommonModule } from "@angular/common";
 import { Component } from "@angular/core";
-import { catchError, firstValueFrom, map, Observable, of, startWith } from "rxjs";
+import { catchError, firstValueFrom, map, Observable, of } from "rxjs";
 
+import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { SubscriptionPricingServiceAbstraction } from "@bitwarden/common/billing/abstractions/subscription-pricing.service.abstraction";
 import {
   PersonalSubscriptionPricingTier,
@@ -26,8 +27,8 @@ import {
   ToastService,
   TypographyModule,
 } from "@bitwarden/components";
+import { LogService } from "@bitwarden/logging";
 import { PricingCardComponent } from "@bitwarden/pricing";
-import { I18nPipe } from "@bitwarden/ui-common";
 
 type CardDetails = {
   title: string;
@@ -47,7 +48,7 @@ type CardDetails = {
     TypographyModule,
     PricingCardComponent,
     CdkTrapFocus,
-    I18nPipe,
+    JslibModule,
   ],
   templateUrl: "./premium-upgrade-dialog.component.html",
 })
@@ -57,20 +58,16 @@ export class PremiumUpgradeDialogComponent {
     .pipe(
       map((tiers) => tiers.find((tier) => tier.id === PersonalSubscriptionPricingTierIds.Premium)),
       map((tier) => this.mapPremiumTierToCardDetails(tier!)),
-      catchError(() => {
+      catchError((error: unknown) => {
         this.toastService.showToast({
           variant: "error",
           title: this.i18nService.t("error"),
           message: this.i18nService.t("unexpectedError"),
         });
+        this.logService.error("Error fetching and mapping pricing tiers", error);
         return of(null);
       }),
     );
-
-  protected loading$: Observable<boolean> = this.cardDetails$.pipe(
-    map(() => false),
-    startWith(true),
-  );
 
   constructor(
     private dialogRef: DialogRef,
@@ -79,6 +76,7 @@ export class PremiumUpgradeDialogComponent {
     private toastService: ToastService,
     private environmentService: EnvironmentService,
     private platformUtilsService: PlatformUtilsService,
+    private logService: LogService,
   ) {}
 
   protected async upgrade(): Promise<void> {

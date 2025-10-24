@@ -119,14 +119,13 @@ describe("UpgradeNavButtonComponent", () => {
         );
       });
 
-      it("should refresh token and sync after upgrading to premium", async () => {
+      it("should full sync after upgrading to premium", async () => {
         const mockDialogRef = mock<DialogRef<UnifiedUpgradeDialogResult>>();
         mockDialogRef.closed = of({ status: UnifiedUpgradeDialogStatus.UpgradedToPremium });
         mockDialogService.open.mockReturnValue(mockDialogRef);
 
         await component.upgrade();
 
-        expect(mockApiService.refreshIdentityToken).toHaveBeenCalled();
         expect(mockSyncService.fullSync).toHaveBeenCalledWith(true);
       });
 

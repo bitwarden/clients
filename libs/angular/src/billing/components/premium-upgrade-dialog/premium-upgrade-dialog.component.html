@@ -1,4 +1,4 @@
-@if (!(loading$ | async)) {
+@if (cardDetails$ | async; as cardDetails) {
   <section
     class="tw-min-w-[332px] md:tw-max-w-sm tw-overflow-y-auto tw-self-center tw-bg-background tw-rounded-xl tw-shadow-lg tw-border-secondary-100 tw-border-solid tw-border"
     cdkTrapFocus
@@ -17,22 +17,27 @@
       ></button>
     </header>
     <div class="tw-flex tw-justify-center tw-mb-6">
-      @if (cardDetails$ | async; as cardDetails) {
-        <billing-pricing-card
-          class="tw-w-full tw-max-w-md"
-          [tagline]="cardDetails.tagline"
-          [price]="cardDetails.price"
-          [button]="cardDetails.button"
-          [features]="cardDetails.features"
-          [noPaddingTop]="true"
-          [noBorder]="true"
-          (buttonClick)="upgrade()"
-        >
-          <h3 slot="title" class="tw-m-0" bitTypography="h3">
-            {{ "upgradeToPremium" | i18n }}
-          </h3>
-        </billing-pricing-card>
-      }
+      <billing-pricing-card
+        class="tw-w-full tw-max-w-md"
+        [tagline]="cardDetails.tagline"
+        [price]="cardDetails.price"
+        [button]="cardDetails.button"
+        [features]="cardDetails.features"
+        [noPaddingTop]="true"
+        [noBorder]="true"
+        (buttonClick)="upgrade()"
+      >
+        <h3 slot="title" class="tw-m-0" bitTypography="h3">
+          {{ "upgradeToPremium" | i18n }}
+        </h3>
+      </billing-pricing-card>
     </div>
   </section>
+} @else {
+  <i
+    class="bwi bwi-spinner bwi-spin tw-text-muted"
+    title="{{ 'loading' | i18n }}"
+    aria-hidden="true"
+  ></i>
+  <span class="tw-sr-only">{{ "loading" | i18n }}</span>
 }

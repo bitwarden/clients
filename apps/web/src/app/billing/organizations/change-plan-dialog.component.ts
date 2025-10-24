@@ -777,7 +777,6 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
           : this.i18nService.t("organizationUpgraded"),
       });
 
-      await this.apiService.refreshIdentityToken();
       await this.syncService.fullSync(true);
 
       if (!this.acceptingSponsorship && !this.isInTrialFlow) {

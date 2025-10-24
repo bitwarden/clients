@@ -194,7 +194,7 @@ describe("WebVaultPremiumUpgradePromptService", () => {
         platformUtilsServiceMock.isSelfHost.mockReturnValue(false);
       });
 
-      it("should refresh identity token and sync when user upgrades to premium", async () => {
+      it("should full sync when user upgrades to premium", async () => {
         const unifiedDialogRefMock = {
           closed: of({ status: UnifiedUpgradeDialogStatus.UpgradedToPremium }),
           close: jest.fn(),
@@ -210,11 +210,10 @@ describe("WebVaultPremiumUpgradePromptService", () => {
             hideContinueWithoutUpgradingButton: true,
           },
         });
-        expect(apiServiceMock.refreshIdentityToken).toHaveBeenCalled();
         expect(syncServiceMock.fullSync).toHaveBeenCalledWith(true);
       });
 
-      it("should refresh identity token and sync when user upgrades to families", async () => {
+      it("should full sync when user upgrades to families", async () => {
         const unifiedDialogRefMock = {
           closed: of({ status: UnifiedUpgradeDialogStatus.UpgradedToFamilies }),
           close: jest.fn(),
@@ -230,7 +229,6 @@ describe("WebVaultPremiumUpgradePromptService", () => {
             hideContinueWithoutUpgradingButton: true,
           },
         });
-        expect(apiServiceMock.refreshIdentityToken).toHaveBeenCalled();
         expect(syncServiceMock.fullSync).toHaveBeenCalledWith(true);
       });
 
