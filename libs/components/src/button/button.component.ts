@@ -92,7 +92,6 @@ export class ButtonComponent implements ButtonLikeAbstraction {
               "hover:!tw-text-muted",
               "aria-disabled:tw-cursor-not-allowed",
               "hover:tw-no-underline",
-              "aria-disabled:tw-pointer-events-none",
             ]
           : [],
       )

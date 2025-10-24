@@ -59,7 +59,14 @@ describe("TooltipDirective (visibility only)", () => {
     };
 
     const overlayRefStub: OverlayRefStub = {
-      attach: jest.fn(() => ({})),
+      attach: jest.fn(() => ({
+        changeDetectorRef: { detectChanges: jest.fn() },
+        location: {
+          nativeElement: {
+            querySelector: jest.fn().mockReturnValue({ id: "tip-123" }),
+          },
+        },
+      })),
       updatePosition: jest.fn(),
     };
 
