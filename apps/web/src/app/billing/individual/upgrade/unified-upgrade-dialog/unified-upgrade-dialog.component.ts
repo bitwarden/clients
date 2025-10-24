@@ -62,6 +62,8 @@ export type UnifiedUpgradeDialogParams = {
   redirectOnCompletion?: boolean;
 };
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-unified-upgrade-dialog",
   imports: [
@@ -77,11 +79,13 @@ export type UnifiedUpgradeDialogParams = {
 })
 export class UnifiedUpgradeDialogComponent implements OnInit {
   // Use signals for dialog state because inputs depend on parent component
-  protected step = signal<UnifiedUpgradeDialogStep>(UnifiedUpgradeDialogStep.PlanSelection);
-  protected selectedPlan = signal<PersonalSubscriptionPricingTierId | null>(null);
-  protected account = signal<Account | null>(null);
-  protected planSelectionStepTitleOverride = signal<string | null>(null);
-  protected hideContinueWithoutUpgradingButton = signal<boolean>(false);
+  protected readonly step = signal<UnifiedUpgradeDialogStep>(
+    UnifiedUpgradeDialogStep.PlanSelection,
+  );
+  protected readonly selectedPlan = signal<PersonalSubscriptionPricingTierId | null>(null);
+  protected readonly account = signal<Account | null>(null);
+  protected readonly planSelectionStepTitleOverride = signal<string | null>(null);
+  protected readonly hideContinueWithoutUpgradingButton = signal<boolean>(false);
 
   protected readonly PaymentStep = UnifiedUpgradeDialogStep.Payment;
   protected readonly PlanSelectionStep = UnifiedUpgradeDialogStep.PlanSelection;

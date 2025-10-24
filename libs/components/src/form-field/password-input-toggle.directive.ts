@@ -27,6 +27,8 @@ export class BitPasswordInputToggleDirective implements AfterContentInit, OnChan
    * Whether the input is toggled to show the password.
    */
   readonly toggled = model(false);
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() toggledChange = new EventEmitter<boolean>();
 
   @HostBinding("attr.title") title = this.i18nService.t("toggleVisibility");

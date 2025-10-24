@@ -27,6 +27,8 @@ import { TypographyModule } from "../typography";
 
 export type AnonLayoutMaxWidth = "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "auth-anon-layout",
   templateUrl: "./anon-layout.component.html",
