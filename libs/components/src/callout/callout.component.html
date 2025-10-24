@@ -16,21 +16,11 @@
   }
   <div class="tw-flex tw-flex-col tw-gap-0.5" [ngClass]="_truncate ? 'tw-truncate' : ''">
     @if (title) {
-      <header
-        id="{{ titleId }}"
-        class="tw-text-base tw-font-semibold"
-        [ngClass]="_truncate ? 'tw-truncate' : ''"
-        [appA11yTitle]="_truncate ? title : ''"
-      >
+      <header id="{{ titleId }}" class="tw-text-base tw-font-semibold">
         {{ title }}
       </header>
     }
-    <div
-      #content
-      bitTypography="body2"
-      [ngClass]="_truncate ? 'tw-truncate' : ''"
-      [appA11yTitle]="_truncate ? contentText() : ''"
-    >
+    <div #content bitTypography="body2">
       <ng-content></ng-content>
     </div>
   </div>
