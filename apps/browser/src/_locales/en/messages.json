@@ -3276,6 +3276,9 @@
   "decryptionError": {
     "message": "Decryption error"
   },
+  "errorGettingAutoFillData": {
+    "message": "Error getting autofill data"
+  },
   "couldNotDecryptVaultItemsBelow": {
     "message": "Bitwarden could not decrypt the vault item(s) listed below."
   },

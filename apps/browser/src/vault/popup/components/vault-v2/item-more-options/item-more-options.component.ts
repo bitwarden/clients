@@ -194,6 +194,16 @@ export class ItemMoreOptionsComponent {
     }
 
     const currentTab = await firstValueFrom(this.vaultPopupAutofillService.currentAutofillTab$);
+
+    if (!currentTab?.url) {
+      await this.dialogService.openSimpleDialog({
+        title: { key: "error" },
+        content: { key: "errorGettingAutoFillData" },
+        type: "danger",
+      });
+      return;
+    }
+
     const ref = AutofillConfirmationDialogComponent.open(this.dialogService, {
       data: {
         currentUrl: currentTab?.url || "",

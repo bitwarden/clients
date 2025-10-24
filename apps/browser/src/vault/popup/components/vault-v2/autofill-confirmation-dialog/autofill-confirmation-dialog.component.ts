@@ -56,7 +56,8 @@ export class AutofillConfirmationDialogComponent {
     private dialogRef: DialogRef,
   ) {
     this.currentUrl = Utils.getHostname(params.currentUrl);
-    this.savedUrls = params.savedUrls?.map((url) => Utils.getHostname(url) ?? "") ?? [];
+    this.savedUrls =
+      params.savedUrls?.map((url) => Utils.getHostname(url) ?? "").filter(Boolean) ?? [];
   }
 
   protected get savedUrlsListClass(): string {
