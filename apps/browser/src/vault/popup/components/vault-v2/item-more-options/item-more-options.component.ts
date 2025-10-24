@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { booleanAttribute, Component, Input } from "@angular/core";
 import { Router, RouterModule } from "@angular/router";
@@ -11,8 +9,10 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { CipherId } from "@bitwarden/common/types/guid";
+import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
@@ -33,6 +33,10 @@ import { PasswordRepromptService } from "@bitwarden/vault";
 
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
 import { AddEditQueryParams } from "../add-edit/add-edit-v2.component";
+import {
+  AutofillConfirmationDialogComponent,
+  AutofillConfirmationDialogResult,
+} from "../autofill-confirmation-dialog/autofill-confirmation-dialog.component";
 
 @Component({
   selector: "app-item-more-options",
@@ -40,7 +44,7 @@ import { AddEditQueryParams } from "../add-edit/add-edit-v2.component";
   imports: [ItemModule, IconButtonModule, MenuModule, CommonModule, JslibModule, RouterModule],
 })
 export class ItemMoreOptionsComponent {
-  private _cipher$ = new BehaviorSubject<CipherViewLike>(undefined);
+  private _cipher$ = new BehaviorSubject<CipherViewLike>({} as CipherViewLike);
 
   @Input({
     required: true,
@@ -58,16 +62,20 @@ export class ItemMoreOptionsComponent {
    * assigned as the primary action for the item, such as autofill.
    */
   @Input({ transform: booleanAttribute })
-  showViewOption: boolean;
+  showViewOption = false;
 
   /**
    * Flag to hide the autofill menu options. Used for items that are
    * already in the autofill list suggestion.
    */
   @Input({ transform: booleanAttribute })
-  hideAutofillOptions: boolean;
+  hideAutofillOptions = false;
 
   protected autofillAllowed$ = this.vaultPopupAutofillService.autofillAllowed$;
+
+  protected autofillConfirmationFlag$ = this.configService.getFeatureFlag$(
+    FeatureFlag.AutofillConfirmation,
+  );
 
   /**
    * Observable that emits a boolean value indicating if the user is authorized to clone the cipher.
@@ -138,6 +146,7 @@ export class ItemMoreOptionsComponent {
     private collectionService: CollectionService,
     private restrictedItemTypesService: RestrictedItemTypesService,
     private cipherArchiveService: CipherArchiveService,
+    private configService: ConfigService,
   ) {}
 
   get canEdit() {
@@ -169,14 +178,41 @@ export class ItemMoreOptionsComponent {
     return this.cipher.favorite ? "unfavorite" : "favorite";
   }
 
-  async doAutofill() {
-    const cipher = await this.cipherService.getFullCipherView(this.cipher);
-    await this.vaultPopupAutofillService.doAutofill(cipher);
-  }
-
   async doAutofillAndSave() {
     const cipher = await this.cipherService.getFullCipherView(this.cipher);
-    await this.vaultPopupAutofillService.doAutofillAndSave(cipher, false);
+    await this.vaultPopupAutofillService.doAutofillAndSave(cipher);
+  }
+
+  async doAutofill() {
+    const cipher = await this.cipherService.getFullCipherView(this.cipher);
+
+    const isFeatureFlagEnabled = await firstValueFrom(this.autofillConfirmationFlag$);
+
+    if (!isFeatureFlagEnabled) {
+      await this.vaultPopupAutofillService.doAutofill(cipher, false);
+      return;
+    }
+
+    const currentTab = await firstValueFrom(this.vaultPopupAutofillService.currentAutofillTab$);
+    const ref = AutofillConfirmationDialogComponent.open(this.dialogService, {
+      data: {
+        currentUrl: currentTab?.url || "",
+        savedUrls: cipher.login?.uris?.filter((u) => u.uri).map((u) => u.uri!) ?? [],
+      },
+    });
+
+    const result = await firstValueFrom(ref.closed);
+
+    switch (result) {
+      case AutofillConfirmationDialogResult.Canceled:
+        return;
+      case AutofillConfirmationDialogResult.AutofilledOnly:
+        await this.vaultPopupAutofillService.doAutofill(cipher);
+        return;
+      case AutofillConfirmationDialogResult.AutofillAndUrlAdded:
+        await this.vaultPopupAutofillService.doAutofillAndSave(cipher, false);
+        return;
+    }
   }
 
   async onView() {
@@ -196,15 +232,14 @@ export class ItemMoreOptionsComponent {
     const cipher = await this.cipherService.getFullCipherView(this.cipher);
 
     cipher.favorite = !cipher.favorite;
-    const activeUserId = await firstValueFrom(
+    const activeUserId = (await firstValueFrom(
       this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-    );
+    )) as UserId;
 
     const encryptedCipher = await this.cipherService.encrypt(cipher, activeUserId);
     await this.cipherService.updateWithServer(encryptedCipher);
     this.toastService.showToast({
       variant: "success",
-      title: null,
       message: this.i18nService.t(
         this.cipher.favorite ? "itemAddedToFavorites" : "itemRemovedFromFavorites",
       ),
@@ -307,7 +342,7 @@ export class ItemMoreOptionsComponent {
     await this.cipherArchiveService.archiveWithServer(this.cipher.id as CipherId, activeUserId);
     this.toastService.showToast({
       variant: "success",
-      message: this.i18nService.t("itemWasSentToArchive"),
+      message: this.i18nService.t("itemSentToArchive"),
     });
   }
 }
