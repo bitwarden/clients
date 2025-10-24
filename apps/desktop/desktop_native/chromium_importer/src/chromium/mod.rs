@@ -108,7 +108,7 @@ pub async fn import_logins(
 //
 
 #[derive(Debug, Clone, Copy)]
-pub struct BrowserConfig {
+pub(crate) struct BrowserConfig {
     pub name: &'static str,
     pub data_dir: &'static str,
 }
