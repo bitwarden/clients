@@ -1,4 +1,14 @@
-import { combineLatest, filter, firstValueFrom, map, Observable, of, switchMap } from "rxjs";
+import {
+  combineLatest,
+  concatMap,
+  filter,
+  firstValueFrom,
+  map,
+  Observable,
+  of,
+  switchMap,
+  withLatestFrom,
+} from "rxjs";
 
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
@@ -18,6 +28,8 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { UserId } from "@bitwarden/user-core";
 
 import { DesktopAutotypeDefaultSettingPolicy } from "./desktop-autotype-policy.service";
+import { LogService } from "@bitwarden/logging";
+import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 
 export const defaultWindowsAutotypeKeyboardShortcut: string[] = ["Control", "Shift", "B"];
 
@@ -46,8 +58,10 @@ export class DesktopAutotypeService {
     AUTOTYPE_KEYBOARD_SHORTCUT,
   );
 
+  // The enabled/disabled state from the user settings menu
   autotypeEnabledUserSetting$: Observable<boolean> = of(false);
-  resolvedAutotypeEnabled$: Observable<boolean> = of(false);
+
+  // The keyboard shortcut from the user settings menu
   autotypeKeyboardShortcut$: Observable<string[]> = of(defaultWindowsAutotypeKeyboardShortcut);
 
   constructor(
@@ -60,6 +74,14 @@ export class DesktopAutotypeService {
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private desktopAutotypePolicy: DesktopAutotypeDefaultSettingPolicy,
   ) {
+    this.autotypeEnabledUserSetting$ = this.autotypeEnabledState.state$.pipe(
+      map((enabled) => enabled ?? false),
+    );
+
+    this.autotypeKeyboardShortcut$ = this.autotypeKeyboardShortcut.state$.pipe(
+      map((shortcut) => shortcut ?? defaultWindowsAutotypeKeyboardShortcut),
+    );
+
     ipc.autofill.listenAutotypeRequest(async (windowTitle, callback) => {
       const possibleCiphers = await this.matchCiphersToWindowTitle(windowTitle);
       const firstCipher = possibleCiphers?.at(0);
@@ -72,66 +94,70 @@ export class DesktopAutotypeService {
   }
 
   async init() {
-    this.autotypeEnabledUserSetting$ = this.autotypeEnabledState.state$;
-    this.autotypeKeyboardShortcut$ = this.autotypeKeyboardShortcut.state$.pipe(
-      map((shortcut) => shortcut ?? defaultWindowsAutotypeKeyboardShortcut),
-    );
-
     // Currently Autotype is only supported for Windows
-    if (this.platformUtilsService.getDevice() === DeviceType.WindowsDesktop) {
-      // If `autotypeDefaultPolicy` is `true` for a user's organization, and the
-      // user has never changed their local autotype setting (`autotypeEnabledState`),
-      // we set their local setting to `true` (once the local user setting is changed
-      // by this policy or the user themselves, the default policy should
-      // never change the user setting again).
-      combineLatest([
-        this.autotypeEnabledState.state$,
-        this.desktopAutotypePolicy.autotypeDefaultSetting$,
-      ])
-        .pipe(
-          map(async ([autotypeEnabledState, autotypeDefaultPolicy]) => {
-            if (autotypeDefaultPolicy === true && autotypeEnabledState === null) {
-              await this.setAutotypeEnabledState(true);
-            }
-          }),
-        )
-        .subscribe();
-
-      // autotypeEnabledUserSetting$ publicly represents the value the
-      // user has set for autotyeEnabled in their local settings.
-      this.autotypeEnabledUserSetting$ = this.autotypeEnabledState.state$;
-
-      // resolvedAutotypeEnabled$ represents the final determination if the Autotype
-      // feature should be on or off.
-      this.resolvedAutotypeEnabled$ = combineLatest([
-        this.autotypeEnabledState.state$,
-        this.configService.getFeatureFlag$(FeatureFlag.WindowsDesktopAutotype),
-        this.accountService.activeAccount$.pipe(
-          map((activeAccount) => activeAccount?.id),
-          switchMap((userId) => this.authService.authStatusFor$(userId)),
-        ),
-        this.accountService.activeAccount$.pipe(
-          filter((account): account is Account => !!account),
-          switchMap((account) =>
-            this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
-          ),
-        ),
-      ]).pipe(
-        map(
-          ([autotypeEnabled, windowsDesktopAutotypeFeatureFlag, authStatus, hasPremium]) =>
-            autotypeEnabled &&
-            windowsDesktopAutotypeFeatureFlag &&
-            authStatus == AuthenticationStatus.Unlocked &&
-            hasPremium,
-        ),
-      );
-
-      combineLatest([this.resolvedAutotypeEnabled$, this.autotypeKeyboardShortcut$]).subscribe(
-        ([resolvedAutotypeEnabled, autotypeKeyboardShortcut]) => {
-          ipc.autofill.configureAutotype(resolvedAutotypeEnabled, autotypeKeyboardShortcut);
-        },
-      );
+    if (this.platformUtilsService.getDevice() !== DeviceType.WindowsDesktop) {
+      return;
     }
+
+    if (!(await ipc.autofill.autotypeIsInitialized())) {
+      await ipc.autofill.initAutotype();
+    }
+
+    // If `autotypeDefaultPolicy` is `true` for a user's organization, and the
+    // user has never changed their local autotype setting (`autotypeEnabledState`),
+    // we set their local setting to `true` (once the local user setting is changed
+    // by this policy or the user themselves, the default policy should
+    // never change the user setting again).
+    combineLatest([
+      this.autotypeEnabledState.state$,
+      this.desktopAutotypePolicy.autotypeDefaultSetting$,
+    ])
+      .pipe(
+        map(async ([autotypeEnabledState, autotypeDefaultPolicy]) => {
+          if (autotypeDefaultPolicy === true && autotypeEnabledState === null) {
+            await this.setAutotypeEnabledState(true);
+          }
+        }),
+      )
+      .subscribe();
+
+    // listen for changes in keyboard shortcut settings
+    this.autotypeKeyboardShortcut$
+      .pipe(
+        concatMap(async (keyboardShortcut) => {
+          ipc.autofill.configureAutotype(keyboardShortcut);
+        }),
+      )
+      .subscribe();
+
+    // listen for changes in factors that are required for enablement of the feature
+    combineLatest([
+      // if the user has enabled the setting
+      this.autotypeEnabledUserSetting$,
+      // if the feature flag is set
+      this.configService.getFeatureFlag$(FeatureFlag.WindowsDesktopAutotype),
+      // if there is an active account with an unlocked vault
+      this.authService.activeAccountStatus$,
+      // if the user's account is Premium
+      this.accountService.activeAccount$.pipe(
+        filter((account): account is Account => !!account),
+        switchMap((account) =>
+          this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
+        ),
+      ),
+    ])
+      .pipe(
+        concatMap(async ([settingsEnabled, ffEnabled, authStatus, hasPremium]) => {
+          const enabled =
+            settingsEnabled &&
+            ffEnabled &&
+            authStatus == AuthenticationStatus.Unlocked &&
+            hasPremium;
+
+          ipc.autofill.toggleAutotype(enabled);
+        }),
+      )
+      .subscribe();
   }
 
   async setAutotypeEnabledState(enabled: boolean): Promise<void> {
