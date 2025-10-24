@@ -4181,5 +4181,11 @@
   },
   "archiveItemConfirmDesc": {
     "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP / Postal code"
+  },
+  "cardNumberLabel": {
+    "message": "Card number"
   }
 }

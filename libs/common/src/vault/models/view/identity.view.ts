@@ -23,7 +23,7 @@ export class IdentityView extends ItemView implements SdkIdentityView {
   city: string | undefined;
   @linkedFieldOption(LinkedId.State, { sortPosition: 16, i18nKey: "stateProvince" })
   state: string | undefined;
-  @linkedFieldOption(LinkedId.PostalCode, { sortPosition: 17, i18nKey: "zipPostalCode" })
+  @linkedFieldOption(LinkedId.PostalCode, { sortPosition: 17, i18nKey: "zipPostalCodeLabel" })
   postalCode: string | undefined;
   @linkedFieldOption(LinkedId.Country, { sortPosition: 18 })
   country: string | undefined;

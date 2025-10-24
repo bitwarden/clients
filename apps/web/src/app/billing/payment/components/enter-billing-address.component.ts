@@ -70,7 +70,7 @@ type Scenario =
         </div>
         <div class="tw-col-span-6">
           <bit-form-field [disableMargin]="true">
-            <bit-label>{{ "zipPostalCode" | i18n }}</bit-label>
+            <bit-label>{{ "zipPostalCodeLabel" | i18n }}</bit-label>
             <input
               bitInput
               type="text"
