@@ -16,6 +16,6 @@ export const AuthRoutes = Object.freeze({
   AuthenticationTimeout: "authentication-timeout",
   NewDeviceVerification: "device-verification",
   LoginWithPasskey: "login-with-passkey",
-});
+} as const);
 
 export type AuthRoute = (typeof AuthRoutes)[keyof typeof AuthRoutes];

@@ -30,6 +30,6 @@ export const AuthWebRoutes = Object.freeze({
   TwoFactorSettings: `settings/security/${AuthWebRouteSegments.TwoFactor}`,
   SecurityKeysSettings: `settings/security/${AuthWebRouteSegments.SecurityKeys}`,
   DeviceManagement: `settings/security/${AuthWebRouteSegments.DeviceManagement}`,
-});
+} as const);
 
 export type AuthWebRoute = (typeof AuthWebRoutes)[keyof typeof AuthWebRoutes];
