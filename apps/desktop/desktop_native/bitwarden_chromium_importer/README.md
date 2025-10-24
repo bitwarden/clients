@@ -2,155 +2,129 @@
 
 ## Overview
 
-The Windows Application Bound Encryption (ABE) consists of three main components that work together:
+The Windows **Application Bound Encryption (ABE)** subsystem consists of two main components that
+work together:
 
-- **client library** -- Library that is part of the desktop client application
-- **admin.exe** -- Service launcher running as ADMINISTRATOR
-- **service.exe** -- Background Windows service running as SYSTEM
+- **client library** — a library that is part of the desktop client application
+- **admin.exe** — a password decryptor running as **ADMINISTRATOR** and later as **SYSTEM**
 
-_(The names of the binaries will be changed for the released product.)_
+_(The name of the binary will be changed in the released product.)_
 
-## The goal
+See the last section for a concise summary of the entire process.
 
-The goal of this subsystem is to decrypt the master encryption key with which the login information
-is encrypted on the local system in Windows. This applies to the most recent versions of Chrome and
-Edge (untested yet) that are using the ABE/v20 encryption scheme for some of the local profiles.
+## Goal
 
-The general idea of this encryption scheme is that Chrome generates a unique random encryption key,
-then encrypts it at the user level with a fixed key. It then sends it to the Windows Data Protection
-API at the user level, and then, using an installed service, encrypts it with the Windows Data
-Protection API at the system level on top of that. This triply encrypted key is later stored in the
-`Local State` file.
+The goal of this subsystem is to decrypt the master encryption key used to encrypt login information
+on the local Windows system. This applies to the most recent versions of Chrome, Brave, and
+(untested) Edge that use the ABE/v20 encryption scheme for some local profiles.
 
-The next paragraphs describe what is done at each level to decrypt the key.
+The general idea of this encryption scheme is as follows:
 
-## 1. Client library
+1. Chrome generates a unique random encryption key.
+2. This key is first encrypted at the **user level** with a fixed key.
+3. It is then encrypted at the **user level** again using the Windows **Data Protection API
+   (DPAPI)**.
+4. Finally, it is sent to a special service that encrypts it with DPAPI at the **system level**.
 
-This is a Rust module that is part of the Chromium importer. It only compiles and runs on Windows
-(see `abe.rs` and `abe_config.rs`). Its main task is to launch `admin.exe` with elevated privileges
-by presenting the user with the UAC screen. See the `abe::decrypt_with_admin_and_service` invocation
-in `windows.rs`.
+This triply encrypted key is stored in the `Local State` file.
 
-This function takes three arguments:
+The following sections describe how the key is decrypted at each level.
+
+## 1. Client Library
+
+This is a Rust module that is part of the Chromium importer. It compiles and runs only on Windows
+(see `abe.rs` and `abe_config.rs`). Its main task is to launch `admin.exe` with elevated privileges,
+presenting the user with the UAC prompt. See the `abe::decrypt_with_admin` call in `windows.rs`.
+
+This function takes two arguments:
 
 1. Absolute path to `admin.exe`
-2. Absolute path to `service.exe`
-3. Base64 string of the ABE key extracted from the browser's local state
+2. Base64 string of the ABE key extracted from the browser's local state
 
-It's not possible to install the service from the user-level executable. So first, we have to
-elevate the privileges and run `admin.exe` as ADMINISTRATOR. This is done by calling `ShellExecute`
-with the `runas` verb. Since it's not trivial to read the standard output from an application
-launched in this way, a named pipe server is created at the user level, which waits for the response
-from `admin.exe` after it has been launched.
+First, `admin.exe` is launched by calling a variant of `ShellExecute` with the `runas` verb. This
+displays the UAC screen. If the user accepts, `admin.exe` starts with **ADMINISTRATOR** privileges.
 
-The name of the service executable and the data to be decrypted are passed via the command line to
-`admin.exe` like this:
+> **The user must approve the UAC prompt or the process is aborted.**
+
+Because it is not possible to read the standard output of an application launched in this way, a
+named pipe server is created at the user level before `admin.exe` is launched. This pipe is used to
+send the decryption result from `admin.exe` back to the client.
+
+The data to be decrypted are passed via the command line to `admin.exe` like this:
 
 ```bat
-admin.exe --service-exe "c:\temp\service.exe" --encrypted "QVBQQgEAAADQjJ3fARXREYx6AMBPwpfrAQAAA..."
+admin.exe --encrypted "QVBQQgEAAADQjJ3fARXREYx6AMBPwpfrAQAAA..."
 ```
 
-**At this point, the user must permit the action to be performed on the UAC screen.**
+## 2. Admin Executable
 
-## 2. Admin executable
+Although the process starts with **ADMINISTRATOR** privileges, its ultimate goal is to elevate to
+**SYSTEM**. To achieve this, it uses a technique to impersonate a system-level process.
 
-This executable receives the full path of `service.exe` and the data to be decrypted.
+First, `admin.exe` ensures that the `SE_DEBUG_PRIVILEGE` privilege is enabled by calling
+`RtlAdjustPrivilege`. This allows it to enumerate running system-level processes.
 
-First, it installs the service to run as SYSTEM and waits for it to start running. The service
-creates a named pipe server that the admin-level executable communicates with (see the `service.exe`
-description further down).
+Next, it finds an instance of `lsass.exe` or `winlogon.exe`, which are known to run at the
+**SYSTEM** level. Once a system process is found, its token is duplicated by calling
+`DuplicateToken`.
 
-It sends the base64 string to the pipe server in a raw message and waits for the answer. The answer
-could be a success or a failure. In case of success, it's a base64 string decrypted at the system
-level. In case of failure, it's an error message prefixed with an `!`. In either case, the response
-is sent to the named pipe server created by the user. The user responds with `ok` (ignored).
+With the duplicated token, `ImpersonateLoggedOnUser` is called to impersonate a system-level
+process.
 
-After that, the executable stops and uninstalls the service and then exits.
+> **At this point `admin.exe` is running as SYSTEM.**
 
-## 3. System service
+The received encryption key can now be decrypted using DPAPI at the system level.
 
-The service starts and creates a named pipe server for communication between `admin.exe` and the
-system service. Please note that it is not possible to communicate between the user and the system
-service directly via a named pipe. Thus, this three-layered approach is necessary.
+The decrypted result is sent back to the client via the named pipe. `admin.exe` connects to the pipe
+and writes the result.
 
-Once the service is started, it waits for the incoming message via the named pipe. The expected
-message is a base64 string to be decrypted. The data is decrypted via the Windows Data Protection
-API `CryptUnprotectData` and sent back in response to this incoming message in base64 encoding. In
-case of an error, the error message is sent back prefixed with an `!`.
+The response can indicate success or failure:
 
-The service keeps running and servicing more requests if there are any, until it's stopped and
-removed from the system. Even though we send only one request, the service is designed to handle as
-many clients with as many messages as needed and could be installed on the system permanently if
-necessary.
+- On success: a Base64-encoded string.
+- On failure: an error message prefixed with `!`.
 
-## 4. Back to client library
+In either case, the response is sent to the named pipe server created by the client. The client
+responds with `ok` (ignored).
 
-The decrypted base64-encoded string comes back from the admin executable to the named pipe server at
-the user level. At this point, it has been decrypted only once at the system level.
+Finally, `admin.exe` exits.
 
-In the next step, the string is decrypted at the user level with the same Windows Data Protection
-API.
+## 3. Back to the Client Library
 
-And as the third step, it's decrypted with a hard-coded key found in the `elevation_service.exe`
-from the Chrome installation. Based on the version of the encrypted string (encoded in the string
-itself), it's either AES-256-GCM or ChaCha20Poly1305 encryption scheme. The details can be found in
-`windows.rs`.
+The decrypted Base64-encoded string is returned from `admin.exe` to the named pipe server at the
+user level. At this point it has been decrypted only once—at the system level.
 
-After all of these steps, we have the master key which can be used to decrypt the password
-information stored in the local database.
+Next, the string is decrypted at the **user level** with DPAPI.
 
-## Summary
+Finally, for Google Chrome (but not Brave), it is decrypted again with a hard-coded key found in
+`elevation_service.exe` from the Chrome installation. Based on the version of the encrypted string
+(encoded within the string itself), this step uses either **AES-256-GCM** or **ChaCha20-Poly1305**.
+See `windows.rs` for details.
 
-The Windows ABE decryption process involves a three-tier architecture with named pipe communication:
+After these steps, the master key is available and can be used to decrypt the password information
+stored in the browser’s local database.
 
-```mermaid
-sequenceDiagram
-    participant Client as Client Library (User)
-    participant Admin as admin.exe (Administrator)
-    participant Service as service.exe (System)
+## TL;DR Steps
 
-    Client->>Client: Create named pipe server
-    Note over Client: \\.\pipe\BitwardenEncryptionService-admin-user
+1. **Client side:**
 
-    Client->>Admin: Launch with UAC elevation
-    Note over Client,Admin: --service-exe c:\path\to\service.exe
-    Note over Client,Admin: --encrypted QVBQQgEAAADQjJ3fARXRE...
+    1. Extract the encrypted key from Chrome’s settings.
+    2. Create a named pipe server.
+    3. Launch `admin.exe` with **ADMINISTRATOR** privileges, passing the key to be decrypted via CLI arguments.
+    4. Wait for the response from `admin.exe`.
 
-    Client->>Client: Wait for response
+2. **Admin side:**
 
-    Admin->>Service: Install & start service
-    Note over Admin,Service: c:\path\to\service.exe
+    1. Start.
+    2. Ensure `SE_DEBUG_PRIVILEGE` is enabled (not strictly necessary in tests).
+    3. Impersonate a system process such as `lsass.exe` or `winlogon.exe`.
+    4. Decrypt the key using DPAPI at the **SYSTEM** level.
+    5. Send the result or error back via the named pipe.
+    6. Exit.
 
-    Service->>Service: Create named pipe server
-    Note over Service: \\.\pipe\BitwardenEncryptionService-service-admin
-
-    Service->>Service: Wait for message
-
-    Admin->>Service: Send encrypted data via admin-service pipe
-    Note over Admin,Service: QVBQQgEAAADQjJ3fARXRE...
-
-    Admin->>Admin: Wait for response
-
-    Service->>Service: Decrypt with system-level DPAPI
-
-    Service->>Admin: Return decrypted data via admin-service pipe
-    Note over Service,Admin: EjRWeXN0ZW0gU2VydmljZQ...
-
-    Admin->>Client: Send result via named user-admin pipe
-    Note over Client,Admin: EjRWeXN0ZW0gU2VydmljZQ...
-
-    Client->>Admin: Send ACK to admin
-    Note over Client,Admin: ok
-
-    Admin->>Service: Stop & uninstall service
-    Service-->>Admin: Exit
-
-    Admin-->>Client: Exit
-
-    Client->>Client: Decrypt with user-level DPAPI
-
-    Client->>Client: Decrypt with hardcoded key
-    Note over Client: AES-256-GCM or ChaCha20Poly1305
-
-    Client->>Client: Done
-```
+3. **Back on the client side:**
+    1. Receive the encryption key.
+    2. Shutdown the pipe server.
+    3. Decrypt it with DPAPI at the **USER** level.
+    4. (For Chrome only) Decrypt again with the hard-coded key.
+    5. Obtain the fully decrypted master key.
+    6. Use the master key to read and decrypt stored passwords from Chrome, Brave, Edge, etc.

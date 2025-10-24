@@ -1,3 +1,6 @@
+#[cfg(target_os = "windows")]
+pub mod abe_config;
+
 #[macro_use]
 extern crate napi_derive;
 
