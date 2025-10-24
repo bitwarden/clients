@@ -52,8 +52,7 @@ export function canAccessOrgAdmin(org: Organization): boolean {
 }
 
 export function canAccessEmergencyAccess(org: Organization) {
-  // @FIXME: replace with real value
-  return !org.useRiskInsights;
+  return !org.useAutomaticUserConfirmation;
 }
 
 /**

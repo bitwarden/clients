@@ -9,7 +9,13 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ToastService } from "@bitwarden/components";
 
-export function organizationFeatureGuard(
+/**
+ * This guard is intended to prevent members of an organization from accessing
+ * non-organization related features based on compliance with organization
+ * features and policies. e.g Emergency access, which is a non-organization
+ * feature is restricted by the Auto Confirm policy or plan feature.
+ */
+export function nonOrganizationFeatureGuard(
   featureCallback: (organization: Organization) => boolean | Promise<boolean> | Observable<boolean>,
 ): CanActivateFn {
   return async () => {
@@ -43,6 +49,8 @@ export async function compliantWithOrgFeature(
       getUserId,
       switchMap((userId) => organizationService.organizations$(userId)),
       map(async (organizations) => {
+        // If the member in question is not a part of any organization they
+        // may not be restricted from accessing any non-organization features.
         for (const org of organizations) {
           const featureCompliant = await Promise.resolve(featureCallback(org));
 

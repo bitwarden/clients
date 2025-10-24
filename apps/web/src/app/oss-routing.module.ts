@@ -54,7 +54,7 @@ import { LockComponent } from "@bitwarden/key-management-ui";
 
 import { flagEnabled, Flags } from "../utils/flags";
 
-import { organizationFeatureGuard } from "./admin-console/organizations/guards/org-feature.guard";
+import { nonOrganizationFeatureGuard } from "./admin-console/organizations/guards/org-feature.guard";
 import { VerifyRecoverDeleteOrgComponent } from "./admin-console/organizations/manage/verify-recover-delete-org.component";
 import { AcceptFamilySponsorshipComponent } from "./admin-console/organizations/sponsorships/accept-family-sponsorship.component";
 import { FamiliesForEnterpriseSetupComponent } from "./admin-console/organizations/sponsorships/families-for-enterprise-setup.component";
@@ -690,8 +690,8 @@ const routes: Routes = [
                 path: "",
                 component: EmergencyAccessComponent,
                 canActivate: [
-                  canAccessFeature(FeatureFlag.CreateDefaultLocation), //@FIXME: use the real feature flag
-                  organizationFeatureGuard(canAccessEmergencyAccess),
+                  canAccessFeature(FeatureFlag.AutoConfirm),
+                  nonOrganizationFeatureGuard(canAccessEmergencyAccess),
                 ],
                 data: { titleId: "emergencyAccess" } satisfies RouteDataProperties,
               },
@@ -699,8 +699,8 @@ const routes: Routes = [
                 path: ":id",
                 component: EmergencyAccessViewComponent,
                 canActivate: [
-                  canAccessFeature(FeatureFlag.CreateDefaultLocation), //@FIXME: use the real feature flag
-                  organizationFeatureGuard(canAccessEmergencyAccess),
+                  canAccessFeature(FeatureFlag.AutoConfirm),
+                  nonOrganizationFeatureGuard(canAccessEmergencyAccess),
                 ],
                 data: { titleId: "emergencyAccess" } satisfies RouteDataProperties,
               },
