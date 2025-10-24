@@ -14,16 +14,11 @@ import { NavigationEnd, Router, RouterOutlet } from "@angular/router";
 import {
   catchError,
   concatMap,
-  distinctUntilChanged,
   filter,
   firstValueFrom,
   map,
   of,
-  pairwise,
-  startWith,
   Subject,
-  switchMap,
-  take,
   takeUntil,
   tap,
 } from "rxjs";
@@ -38,7 +33,7 @@ import {
 } from "@bitwarden/auth/common";
 import { BrowserApi } from "@bitwarden/browser/platform/browser/browser-api";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { AuthRequestAnsweringServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
+import { AuthRequestAnsweringService } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
@@ -116,7 +111,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private logService: LogService,
     private authRequestService: AuthRequestServiceAbstraction,
     private pendingAuthRequestsState: PendingAuthRequestsStateService,
-    private authRequestAnsweringService: AuthRequestAnsweringServiceAbstraction,
+    private authRequestAnsweringService: AuthRequestAnsweringService,
   ) {
     this.deviceTrustToastService.setupListeners$.pipe(takeUntilDestroyed()).subscribe();
 
@@ -134,22 +129,7 @@ export class AppComponent implements OnInit, OnDestroy {
       this.activeUserId = account?.id;
     });
 
-    // Trigger processing auth requests when the active user is in an unlocked state. Runs once when
-    // the popup is open.
-    this.accountService.activeAccount$
-      .pipe(
-        map((a) => a?.id), // Extract active userId
-        distinctUntilChanged(), // Only when userId actually changes
-        filter((userId) => userId != null), // Require a valid userId
-        switchMap((userId) => this.authService.authStatusFor$(userId).pipe(take(1))), // Get current auth status once for new user
-        filter((status) => status === AuthenticationStatus.Unlocked), // Only when the new user is Unlocked
-        tap(() => {
-          // Trigger processing when switching users while popup is open
-          void this.authRequestAnsweringService.processPendingAuthRequests();
-        }),
-        takeUntil(this.destroy$),
-      )
-      .subscribe();
+    this.authRequestAnsweringService.setupUnlockListenersForProcessingAuthRequests(this.destroy$);
 
     this.authService.activeAccountStatus$
       .pipe(
@@ -160,23 +140,6 @@ export class AppComponent implements OnInit, OnDestroy {
         takeUntil(this.destroy$),
       )
       .subscribe();
-
-    // When the popup is already open and the active account transitions to Unlocked,
-    // process any pending auth requests for the active user. The above subscription does not handle
-    // this case.
-    this.authService.activeAccountStatus$
-      .pipe(
-        startWith(null as unknown as AuthenticationStatus), // Seed previous value to handle initial emission
-        pairwise(), // Compare previous and current statuses
-        filter(
-          ([prev, curr]) =>
-            prev !== AuthenticationStatus.Unlocked && curr === AuthenticationStatus.Unlocked, // Fire on transitions into Unlocked (incl. initial)
-        ),
-        takeUntil(this.destroy$),
-      )
-      .subscribe(() => {
-        void this.authRequestAnsweringService.processPendingAuthRequests();
-      });
 
     this.ngZone.runOutsideAngular(() => {
       window.onmousedown = () => this.recordActivity();
