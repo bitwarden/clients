@@ -73,8 +73,8 @@ export class AutoConfirmPolicyDialogComponent
 {
   policyType = PolicyType;
 
-  protected firstTimeDialog = signal(false);
-  protected currentStep = signal(0);
+  protected readonly firstTimeDialog = signal(false);
+  protected readonly currentStep = signal(0);
   protected multiStepSubmit: Observable<MultiStepSubmit[]> = of([]);
   protected autoConfirmEnabled$: Observable<boolean> = this.accountService.activeAccount$.pipe(
     getUserId,
@@ -82,11 +82,11 @@ export class AutoConfirmPolicyDialogComponent
     map((policies) => policies.find((p) => p.type === PolicyType.AutoConfirm)?.enabled ?? false),
   );
 
-  private submitPolicy: Signal<TemplateRef<unknown> | undefined> = viewChild("step0");
-  private openExtension: Signal<TemplateRef<unknown> | undefined> = viewChild("step1");
+  private readonly submitPolicy: Signal<TemplateRef<unknown> | undefined> = viewChild("step0");
+  private readonly openExtension: Signal<TemplateRef<unknown> | undefined> = viewChild("step1");
 
-  private submitPolicyTitle: Signal<TemplateRef<unknown> | undefined> = viewChild("step0Title");
-  private openExtensionTitle: Signal<TemplateRef<unknown> | undefined> = viewChild("step1Title");
+  private readonly submitPolicyTitle: Signal<TemplateRef<unknown> | undefined> = viewChild("step0Title");
+  private readonly openExtensionTitle: Signal<TemplateRef<unknown> | undefined> = viewChild("step1Title");
 
   override policyComponent: AutoConfirmPolicyEditComponent | undefined;
 
@@ -193,7 +193,6 @@ export class AutoConfirmPolicyDialogComponent
 
   private async submitSingleOrg(): Promise<void> {
     const singleOrgRequest: PolicyRequest = {
-      type: PolicyType.SingleOrg,
       enabled: true,
       data: null,
     };
