@@ -393,13 +393,13 @@ export class DesktopAutofillService implements OnDestroy {
     if ("credentialId" in request) {
       allowedCredentials = [
         {
-          id: new Uint8Array(request.credentialId),
+          id: new Uint8Array(request.credentialId).buffer,
           type: "public-key" as const,
         },
       ];
     } else {
       allowedCredentials = request.allowedCredentials.map((credentialId) => ({
-        id: new Uint8Array(credentialId),
+        id: new Uint8Array(credentialId).buffer,
         type: "public-key" as const,
       }));
     }
