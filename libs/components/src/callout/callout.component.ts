@@ -1,11 +1,12 @@
 import {
+  AfterViewInit,
   Component,
   computed,
   ElementRef,
   input,
   signal,
-  ViewChild,
   afterNextRender,
+  ViewChild,
 } from "@angular/core";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -42,7 +43,7 @@ let nextId = 0;
   templateUrl: "callout.component.html",
   imports: [A11yTitleDirective, SharedModule, TypographyModule],
 })
-export class CalloutComponent {
+export class CalloutComponent implements AfterViewInit {
   readonly type = input<CalloutTypes>("info");
   readonly icon = input<string>();
   readonly title = input<string>();
@@ -70,8 +71,10 @@ export class CalloutComponent {
   private contentRef!: ElementRef<HTMLElement>;
   readonly contentText = signal("");
 
-  constructor(private i18nService: I18nService) {
-    // use afterNextRender to ensure the DOM content is available
+  constructor(private i18nService: I18nService) {}
+
+  ngAfterViewInit() {
+    // prevent "Expression has changed after it was checked" errors
     afterNextRender(() => {
       this.contentText.set(this.contentRef?.nativeElement?.textContent?.trim() ?? "");
     });
