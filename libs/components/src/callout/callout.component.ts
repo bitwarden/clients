@@ -34,12 +34,12 @@ let nextId = 0;
 @Component({
   selector: "bit-callout",
   templateUrl: "callout.component.html",
-  imports: [A11yTitleDirective, SharedModule, TypographyModule],
+  imports: [SharedModule, TypographyModule],
 })
 export class CalloutComponent {
   readonly type = input<CalloutTypes>("info");
   readonly icon = input<string>();
-  readonly title = input<string>();
+  readonly title = input<string | null>();
   readonly truncate = input(false);
   readonly useAlertRole = input(false);
   readonly iconComputed = computed(() =>

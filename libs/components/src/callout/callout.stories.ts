@@ -173,20 +173,3 @@ export const TruncateOnlyContent: Story = {
     truncate: true,
   },
 };
-
-export const TruncateOnlyTitle: Story = {
-  render: (args) => ({
-    props: args,
-    template: `
-      <div style="width: 300px;">
-        <bit-callout ${formatArgsForCodeSnippet<CalloutComponent>(args)}>
-        </bit-callout>
-      </div>
-    `,
-  }),
-  args: {
-    title:
-      "This is a really long title that should truncate. Like really, really, really, ridiculously long title",
-    truncate: true,
-  },
-};
