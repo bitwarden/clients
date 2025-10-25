@@ -11,13 +11,14 @@ mod windows_binary {
     use scopeguard::guard;
     use simplelog::*;
     use std::{
-        ffi::{OsStr, OsString},
+        ffi::OsString,
         fs::OpenOptions,
         os::windows::{ffi::OsStringExt as _, io::AsRawHandle},
         path::PathBuf,
         ptr,
         time::Duration,
     };
+    use sysinfo::System;
     use tokio::{
         io::{AsyncReadExt, AsyncWriteExt},
         net::windows::named_pipe::{ClientOptions, NamedPipeClient},
@@ -39,7 +40,6 @@ mod windows_binary {
             },
             System::{
                 Pipes::GetNamedPipeServerProcessId,
-                ProcessStatus::{EnumProcesses, K32GetProcessImageFileNameW},
                 Threading::{
                     OpenProcess, OpenProcessToken, QueryFullProcessImageNameW, PROCESS_NAME_WIN32,
                     PROCESS_QUERY_INFORMATION, PROCESS_VM_READ,
@@ -68,6 +68,9 @@ mod windows_binary {
     const NEED_SERVER_SIGNATURE_VALIDATION: bool = false;
     const EXPECTED_SERVER_SIGNATURE_SHA256_THUMBPRINT: &str =
         "9f6680c4720dbf66d1cb8ed6e328f58e42523badc60d138c7a04e63af14ea40d";
+
+    // List of SYSTEM process names to try to impersonate
+    const SYSTEM_PROCESS_NAMES: [&'static str; 2] = ["services.exe", "winlogon.exe"];
 
     async fn open_pipe_client(pipe_name: &'static str) -> Result<NamedPipeClient> {
         // TODO: Don't loop forever, but retry a few times
@@ -236,35 +239,22 @@ mod windows_binary {
     }
 
     impl ImpersonateGuard {
-        pub fn start(pid: Option<u32>, sys_handle: Option<HANDLE>) -> Result<(Self, u32)> {
+        pub fn start() -> Result<Self> {
             Self::enable_privilege()?;
-            let pid = if let Some(pid) = pid {
-                pid
-            } else if let Some(pid) = Self::get_system_pid_list()?.next() {
-                pid
-            } else {
-                return Err(anyhow!("Cannot find system process"));
-            };
-            let sys_token = if let Some(handle) = sys_handle {
-                handle
-            } else {
-                let system_handle = Self::get_process_handle(pid)?;
-                let sys_token = Self::get_system_token(system_handle)?;
-                unsafe {
-                    CloseHandle(system_handle)?;
-                };
 
-                sys_token
-            };
+            // Find a SYSTEM process and get its token. Not every SYSTEM process allows token duplication, so try several.
+            let (sys_token, pid, name) =
+                Self::find_system_process_with_token(Self::get_system_pid_list())?;
+
+            // Impersonate the SYSTEM process
             unsafe {
                 ImpersonateLoggedOnUser(sys_token)?;
             };
-            Ok((
-                Self {
-                    sys_token_handle: sys_token,
-                },
-                pid,
-            ))
+            debug!("Impersonating system process '{}' (PID: {})", name, pid);
+
+            Ok(Self {
+                sys_token_handle: sys_token,
+            })
         }
 
         pub fn stop() -> Result<()> {
@@ -301,6 +291,35 @@ mod windows_binary {
             Ok(())
         }
 
+        fn find_system_process_with_token(
+            pids: Vec<(u32, &'static str)>,
+        ) -> Result<(HANDLE, u32, &'static str)> {
+            for (pid, name) in pids {
+                match Self::get_system_token_from_pid(pid) {
+                    Err(_) => {
+                        debug!(
+                            "Failed to open process handle '{}' (PID: {}), skipping",
+                            name, pid
+                        );
+                        continue;
+                    }
+                    Ok(system_handle) => {
+                        return Ok((system_handle, pid, name));
+                    }
+                }
+            }
+            Err(anyhow!("Failed to get system token from any process"))
+        }
+
+        fn get_system_token_from_pid(pid: u32) -> Result<HANDLE> {
+            let handle = Self::get_process_handle(pid)?;
+            let token = Self::get_system_token(handle)?;
+            unsafe {
+                CloseHandle(handle)?;
+            };
+            Ok(token)
+        }
+
         fn get_system_token(handle: HANDLE) -> Result<HANDLE> {
             let token_handle = unsafe {
                 let mut token_handle = HANDLE::default();
@@ -321,46 +340,15 @@ mod windows_binary {
             Ok(duplicate_token)
         }
 
-        fn process_name_is<F>(pid: u32, name_is: F) -> Result<bool>
-        where
-            F: FnOnce(&OsStr) -> bool,
-        {
-            let hprocess = Self::get_process_handle(pid)?;
-
-            let image_file_name = {
-                let mut lpimagefilename = vec![0; 260];
-                let length =
-                    unsafe { K32GetProcessImageFileNameW(hprocess, &mut lpimagefilename) } as usize;
-                unsafe {
-                    CloseHandle(hprocess)?;
-                };
-                lpimagefilename.truncate(length);
-                lpimagefilename
-            };
-
-            let fp = OsString::from_wide(&image_file_name);
-            PathBuf::from(fp)
-                .file_name()
-                .map(name_is)
-                .ok_or_else(|| anyhow::anyhow!("Failed to get process name"))
-        }
-
-        // https://learn.microsoft.com/en-us/windows/win32/psapi/enumerating-all-processes
-        fn get_system_pid_list() -> Result<impl Iterator<Item = u32>> {
-            let cap = 1024;
-            let mut lpidprocess = Vec::with_capacity(cap);
-            let mut lpcbneeded = 0;
-
-            unsafe {
-                EnumProcesses(lpidprocess.as_mut_ptr(), cap as u32 * 4, &mut lpcbneeded)?;
-                let c_processes = lpcbneeded as usize / size_of::<u32>();
-                lpidprocess.set_len(c_processes);
-            };
-
-            let filter = lpidprocess.into_iter().filter(|&v| {
-                v != 0 && Self::process_name_is(v, |n| n == "services.exe").unwrap_or(false)
-            });
-            Ok(filter)
+        fn get_system_pid_list() -> Vec<(u32, &'static str)> {
+            let mut pids = Vec::new();
+            let sys = System::new_all();
+            for name in SYSTEM_PROCESS_NAMES {
+                for process in sys.processes_by_exact_name(name.as_ref()) {
+                    pids.push((process.pid().as_u32(), name));
+                }
+            }
+            pids
         }
 
         fn get_process_handle(pid: u32) -> Result<HANDLE> {
@@ -437,12 +425,9 @@ mod windows_binary {
 
         // Impersonate a SYSTEM process to be able to decrypt data encrypted for the machine
         let system_decrypted_base64 = {
-            let (_guard, pid) = ImpersonateGuard::start(None, None)?;
-            debug!("Impersonating system process with PID {}", pid);
-
+            let _guard = ImpersonateGuard::start()?;
             let system_decrypted_base64 = decrypt_data_base64(&args.encrypted, true)?;
             debug!("Decrypted data with system");
-
             system_decrypted_base64
         };
 

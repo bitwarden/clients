@@ -465,6 +465,7 @@ dependencies = [
  "serde_json",
  "sha1",
  "simplelog",
+ "sysinfo",
  "tokio",
  "verifysign",
  "windows 0.61.1",
