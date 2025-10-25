@@ -2,6 +2,7 @@ import { CUSTOM_ELEMENTS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { provideNoopAnimations } from "@angular/platform-browser/animations";
 
+import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { DIALOG_DATA, DialogRef, DialogService } from "@bitwarden/components";
@@ -23,6 +24,7 @@ describe("AutofillConfirmationDialogComponent", () => {
   const params: AutofillConfirmationDialogParams = {
     currentUrl: "https://example.com/path?q=1",
     savedUrls: ["https://one.example.com/a", "https://two.example.com/b", "not-a-url.example"],
+    uriMatchStrategy: UriMatchStrategy.Host,
   };
 
   beforeEach(async () => {
@@ -188,5 +190,111 @@ describe("AutofillConfirmationDialogComponent", () => {
     btn = findViewAll();
     expect(btn).toBeFalsy();
     expect(component.savedUrlsExpanded).toBe(true);
+  });
+  it("highlights only the differing version segment at the start of the path (v2 vs v1)", () => {
+    const params: AutofillConfirmationDialogParams = {
+      currentUrl: "https://x.example.com/v2/some-path",
+      savedUrls: ["https://x.example.com/v1/some-path"],
+      uriMatchStrategy: UriMatchStrategy.Exact,
+    };
+
+    const cmp = new AutofillConfirmationDialogComponent(params as any, dialogRef);
+
+    expect((cmp as any).currentTailDiff).toBe("v2");
+    expect((cmp as any).currentSuffix).toBe("/some-path");
+
+    const rows = (cmp as any).savedTailDiffs as Array<{
+      host: string;
+      diffSeg: string;
+      suffix: string;
+    }>;
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toEqual({ host: "x.example.com", diffSeg: "v1", suffix: "/some-path" });
+  });
+
+  it.only("when saved extends current (prefix case), highlights only the extra segment on saved", () => {
+    const params: AutofillConfirmationDialogParams = {
+      currentUrl: "https://x.example.com/somepath",
+      savedUrls: ["https://x.example.com/somepath/andmore"],
+      uriMatchStrategy: UriMatchStrategy.Exact,
+    };
+
+    const cmp = new AutofillConfirmationDialogComponent(params as any, dialogRef);
+
+    expect((cmp as any).currentTailDiff).toBe(""); // no highlight on current
+    expect((cmp as any).currentSuffix).toBe("");
+
+    const rows = (cmp as any).savedTailDiffs as Array<{
+      host: string;
+      diffSeg: string;
+      suffix: string;
+    }>;
+    expect(rows).toEqual([{ host: "x.example.com", diffSeg: "/andmore", suffix: "" }]);
+  });
+
+  it("mid-path segment diff: highlights only that segment up to next '/'", () => {
+    const params: AutofillConfirmationDialogParams = {
+      currentUrl: "https://x.example.com/products/alpha/details",
+      savedUrls: ["https://x.example.com/products/beta/details"],
+      uriMatchStrategy: UriMatchStrategy.Exact,
+    };
+
+    const cmp = new AutofillConfirmationDialogComponent(params as any, dialogRef);
+
+    expect((cmp as any).currentTailDiff).toBe("alpha");
+    expect((cmp as any).currentSuffix).toBe("/details");
+
+    const rows = (cmp as any).savedTailDiffs as Array<{ diffSeg: string; suffix: string }>;
+    expect(rows[0].diffSeg).toBe("beta");
+    expect(rows[0].suffix).toBe("/details");
+  });
+
+  it("host filtering: excludes non-matching hosts before diffing", () => {
+    const params: AutofillConfirmationDialogParams = {
+      currentUrl: "https://accounts.example.com/v2/a",
+      savedUrls: [
+        "https://mail.example.com/v2/a", // exclude
+        "https://accounts.example.com/v1/a", // keep
+        "https://other.example.com/v1/a", // exclude
+      ],
+      uriMatchStrategy: UriMatchStrategy.Exact,
+    };
+
+    const cmp = new AutofillConfirmationDialogComponent(params as any, dialogRef);
+
+    // Only same-host remains
+    expect(cmp.savedUrls).toEqual(["accounts.example.com"]);
+
+    const rows = (cmp as any).savedTailDiffs as Array<{
+      host: string;
+      diffSeg: string;
+      suffix: string;
+    }>;
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toEqual({ host: "accounts.example.com", diffSeg: "v1", suffix: "/a" });
+
+    expect((cmp as any).currentTailDiff).toBe("v2");
+    expect((cmp as any).currentSuffix).toBe("/a");
+  });
+
+  it("shared first-diff index aligns rows even when later segments diverge", () => {
+    const params: AutofillConfirmationDialogParams = {
+      currentUrl: "https://x.example.com/api/v2/users/123",
+      savedUrls: [
+        "https://x.example.com/api/v1/users/123",
+        "https://x.example.com/api/v1/users/999",
+      ],
+      uriMatchStrategy: UriMatchStrategy.Exact,
+    };
+
+    const cmp = new AutofillConfirmationDialogComponent(params as any, dialogRef);
+
+    expect((cmp as any).currentTailDiff).toBe("v2");
+    expect((cmp as any).currentSuffix).toBe("/users/123");
+
+    const diffs = ((cmp as any).savedTailDiffs as Array<{ diffSeg: string; suffix: string }>).map(
+      (d) => d.diffSeg,
+    );
+    expect(diffs).toEqual(["v1", "v1"]);
   });
 });

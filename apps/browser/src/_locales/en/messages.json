@@ -3279,6 +3279,9 @@
   "errorGettingAutoFillData": {
     "message": "Error getting autofill data"
   },
+  "autofillDomainExactMatchWarning": {
+    "message": "Default matching is set to 'Exact Match'. Use a less strict matching option to avoid this message."
+  },
   "couldNotDecryptVaultItemsBelow": {
     "message": "Bitwarden could not decrypt the vault item(s) listed below."
   },

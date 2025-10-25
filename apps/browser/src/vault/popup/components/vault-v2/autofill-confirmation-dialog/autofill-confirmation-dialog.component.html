@@ -4,49 +4,101 @@
     <p bitTypography="body2">
       {{ "confirmAutofillDesc" | i18n }}
     </p>
-    @if (savedUrls.length === 1) {
-      <p class="tw-text-muted tw-text-xs tw-uppercase tw-mt-4 tw-font-semibold">
-        {{ "savedWebsite" | i18n }}
-      </p>
-      <bit-callout [title]="null" type="success" icon="bwi-globe">
-        <div class="tw-font-mono tw-line-clamp-1 tw-break-all" [appA11yTitle]="savedUrls[0]">
-          {{ savedUrls[0] }}
-        </div>
-      </bit-callout>
-    }
-    @if (savedUrls.length > 1) {
+
+    <!-- === SAVED WEBSITES (DRY: one renderer for 1..N) === -->
+    @if (savedUrls.length > 0) {
       <div class="tw-flex tw-justify-between tw-items-center tw-mt-4 tw-mb-1 tw-pt-2">
         <p class="tw-text-muted tw-text-xs tw-uppercase tw-font-semibold">
-          {{ "savedWebsites" | i18n: savedUrls.length }}
+          {{
+            savedUrls.length === 1
+              ? ("savedWebsite" | i18n)
+              : ("savedWebsites" | i18n: savedUrls.length)
+          }}
         </p>
-        <button
-          *ngIf="!savedUrlsExpanded"
-          type="button"
-          bitLink
-          class="tw-text-sm tw-font-bold tw-cursor-pointer"
-          (click)="viewAllSavedUrls()"
-        >
-          {{ "viewAll" | i18n }}
-        </button>
+
+        @if (savedUrls.length > 1 && !savedUrlsExpanded) {
+          <button
+            type="button"
+            bitLink
+            class="tw-text-sm tw-font-bold tw-cursor-pointer"
+            (click)="viewAllSavedUrls()"
+          >
+            {{ "viewAll" | i18n }}
+          </button>
+        }
       </div>
-      <div class="tw-pt-2" [ngClass]="savedUrlsListClass">
-        <div class="-tw-mt-2" *ngFor="let url of savedUrls">
+
+      <!-- For >1 items, apply collapsible gradient; for 1 item, skip it -->
+      @if (savedUrls.length > 1) {
+        <div class="tw-pt-2" [ngClass]="savedUrlsListClass">
+          @if (uriMatchStrategy === UriMatchStrategy.Exact) {
+            <div class="-tw-mt-2" *ngFor="let s of savedTailDiffs">
+              <bit-callout [title]="null" type="success" icon="bwi-globe">
+                <div class="tw-font-mono tw-break-all tw-flex tw-items-center tw-gap-1">
+                  <span class="tw-text-muted">…</span>
+                  <span class="tw-bg-primary-100 tw-rounded tw-px-1">{{ s.diffSeg }}</span>
+                  <span>{{ s.suffix }}</span>
+                </div>
+              </bit-callout>
+            </div>
+          } @else {
+            <div class="-tw-mt-2" *ngFor="let host of savedUrls">
+              <bit-callout [title]="null" type="success" icon="bwi-globe">
+                <div class="tw-font-mono tw-line-clamp-1 tw-break-all" [appA11yTitle]="host">
+                  {{ host }}
+                </div>
+              </bit-callout>
+            </div>
+          }
+        </div>
+      } @else {
+        <!-- Single item (no gradient wrapper) -->
+        @if (uriMatchStrategy === UriMatchStrategy.Exact) {
           <bit-callout [title]="null" type="success" icon="bwi-globe">
-            <div class="tw-font-mono tw-line-clamp-1 tw-break-all" [appA11yTitle]="url">
-              {{ url }}
+            <div class="tw-font-mono tw-break-all tw-flex tw-items-center tw-gap-1">
+              <span class="tw-text-muted">…</span>
+              <span class="tw-bg-primary-100 tw-rounded tw-px-1">{{
+                savedTailDiffs[0]?.diffSeg
+              }}</span>
+              <span>{{ savedTailDiffs[0]?.suffix }}</span>
             </div>
           </bit-callout>
-        </div>
-      </div>
+        } @else {
+          <bit-callout [title]="null" type="success" icon="bwi-globe">
+            <div class="tw-font-mono tw-line-clamp-1 tw-break-all" [appA11yTitle]="savedUrls[0]">
+              {{ savedUrls[0] }}
+            </div>
+          </bit-callout>
+        }
+      }
     }
+
+    <!-- === CURRENT WEBSITE === -->
     <p class="tw-text-muted tw-text-xs tw-uppercase tw-mt-5 tw-font-semibold">
       {{ "currentWebsite" | i18n }}
     </p>
     <bit-callout [title]="null" type="warning" icon="bwi-globe">
-      <div [appA11yTitle]="currentUrl" class="tw-font-mono tw-line-clamp-1 tw-break-all">
-        {{ currentUrl }}
-      </div>
+      @if (uriMatchStrategy === UriMatchStrategy.Exact) {
+        <div class="tw-font-mono tw-break-all tw-flex tw-items-center tw-gap-1">
+          <span class="tw-text-muted">…</span>
+
+          <!-- If current has a suffix, highlight normally -->
+          <ng-container *ngIf="currentSuffix?.length; else prefixOnly">
+            <span class="tw-bg-primary-100 tw-rounded tw-px-1">{{ currentTailDiff }}</span>
+            <span>{{ currentSuffix }}</span>
+          </ng-container>
+
+          <!-- Prefix-only context for prefix-case (saved extends current) -->
+          <ng-template #prefixOnly>
+            <span class="tw-text-muted">{{ currentPrefix }}</span>
+          </ng-template>
+        </div>
+      } @else {
+        <div class="tw-font-mono tw-line-clamp-1 tw-break-all">{{ currentUrl }}</div>
+      }
     </bit-callout>
+
+    <!-- === ACTION BUTTONS === -->
     <div class="tw-flex tw-justify-center tw-flex-col tw-gap-3 tw-mt-6">
       <button type="button" bitButton buttonType="primary" (click)="autofillAndAddUrl()">
         {{ "autofillAndAddWebsite" | i18n }}

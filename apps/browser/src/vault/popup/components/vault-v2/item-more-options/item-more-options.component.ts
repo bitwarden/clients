@@ -9,6 +9,7 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -76,6 +77,8 @@ export class ItemMoreOptionsComponent {
   protected autofillConfirmationFlag$ = this.configService.getFeatureFlag$(
     FeatureFlag.AutofillConfirmation,
   );
+
+  protected uriMatchStrategy$ = this.domainSettingsService.resolvedDefaultUriMatchStrategy$;
 
   /**
    * Observable that emits a boolean value indicating if the user is authorized to clone the cipher.
@@ -147,6 +150,7 @@ export class ItemMoreOptionsComponent {
     private restrictedItemTypesService: RestrictedItemTypesService,
     private cipherArchiveService: CipherArchiveService,
     private configService: ConfigService,
+    private domainSettingsService: DomainSettingsService,
   ) {}
 
   get canEdit() {
@@ -204,10 +208,13 @@ export class ItemMoreOptionsComponent {
       return;
     }
 
+    const uriMatchStrategy = await firstValueFrom(this.uriMatchStrategy$);
+
     const ref = AutofillConfirmationDialogComponent.open(this.dialogService, {
       data: {
         currentUrl: currentTab?.url || "",
         savedUrls: cipher.login?.uris?.filter((u) => u.uri).map((u) => u.uri!) ?? [],
+        uriMatchStrategy,
       },
     });
 
