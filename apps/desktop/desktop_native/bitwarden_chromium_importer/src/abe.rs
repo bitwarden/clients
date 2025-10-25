@@ -107,7 +107,7 @@ where
     }
 }
 
-pub async fn decrypt_with_admin(admin_exe: &str, encrypted: &str) -> Result<String> {
+pub async fn decrypt_with_admin_exe(admin_exe: &str, encrypted: &str) -> Result<String> {
     let (tx, mut rx) = channel::<String>(1);
 
     debug!(
@@ -126,11 +126,11 @@ pub async fn decrypt_with_admin(admin_exe: &str, encrypted: &str) -> Result<Stri
         Err(e) => return Err(anyhow!("Failed to start named pipe server: {}", e)),
     };
 
-    debug!("Launching '{}' as admin...", admin_exe);
-    decrypt_with_admin_internal(admin_exe, encrypted);
+    debug!("Launching '{}' as ADMINISTRATOR...", admin_exe);
+    decrypt_with_admin_exe_internal(admin_exe, encrypted);
 
     // TODO: Don't wait forever, but for a reasonable time
-    debug!("Waiting for message from admin...");
+    debug!("Waiting for message from {}...", admin_exe);
     let message = match rx.recv().await {
         Some(msg) => msg,
         None => return Err(anyhow!("Failed to receive message from admin")),
@@ -142,7 +142,7 @@ pub async fn decrypt_with_admin(admin_exe: &str, encrypted: &str) -> Result<Stri
     Ok(message)
 }
 
-fn decrypt_with_admin_internal(admin_exe: &str, encrypted: &str) {
+fn decrypt_with_admin_exe_internal(admin_exe: &str, encrypted: &str) {
     // Convert strings to wide strings for Windows API
     let exe_wide = OsStr::new(admin_exe)
         .encode_wide()

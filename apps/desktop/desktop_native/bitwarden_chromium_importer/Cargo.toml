@@ -60,6 +60,6 @@ workspace = true
 windows-binary = ["sysinfo"]
 
 [[bin]]
-name = "admin"
-path = "src/bin/admin.rs"
+name = "bitwarden_chromium_import_helper"
+path = "src/bin/bitwarden_chromium_import_helper.rs"
 required-features = ["windows-binary"]

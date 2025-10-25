@@ -52,7 +52,7 @@ mod windows_binary {
     use bitwarden_chromium_importer::abe_config;
 
     #[derive(Parser)]
-    #[command(name = "admin")]
+    #[command(name = "bitwarden_chromium_import_helper")]
     #[command(about = "Admin tool for ABE service management")]
     struct Args {
         /// Base64 encoded encrypted data to process
@@ -61,8 +61,8 @@ mod windows_binary {
     }
 
     // Enable this to log to a file. The way this executable is used, it's not easy to debug and the stdout gets lost.
-    const NEED_LOGGING: bool = false;
-    const LOG_FILENAME: &str = "c:\\path\\to\\log.txt"; // This is an example filename, replace it with you own
+    const NEED_LOGGING: bool = true;
+    const LOG_FILENAME: &str = "c:\\temp\\admin-log.txt"; // This is an example filename, replace it with you own
 
     // This should be enabled for production
     const NEED_SERVER_SIGNATURE_VALIDATION: bool = false;
@@ -413,7 +413,7 @@ mod windows_binary {
     }
 
     fn run() -> Result<String> {
-        debug!("Starting admin.exe");
+        debug!("Starting bitwarden_chromium_import_helper.exe");
 
         let args = Args::try_parse()?;
 
@@ -421,7 +421,7 @@ mod windows_binary {
             return Err(anyhow!("Expected to run with admin privileges"));
         }
 
-        debug!("Running as admin");
+        debug!("Running as ADMINISTRATOR");
 
         // Impersonate a SYSTEM process to be able to decrypt data encrypted for the machine
         let system_decrypted_base64 = {
