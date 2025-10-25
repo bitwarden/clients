@@ -88,11 +88,13 @@ where
             }
             Ok(bytes_read) => {
                 let message = String::from_utf8_lossy(&buffer[..bytes_read]);
-
-                debug!("Received from client: '{}' ({} bytes)", message, bytes_read);
+                let preview = message.chars().take(16).collect::<String>();
+                debug!(
+                    "Received from client: '{}...' ({} bytes)",
+                    preview, bytes_read,
+                );
 
                 let response = process_message(&message);
-
                 match client.write_all(response.as_bytes()).await {
                     Ok(_) => {
                         debug!("Sent response to client ({} bytes)", response.len());

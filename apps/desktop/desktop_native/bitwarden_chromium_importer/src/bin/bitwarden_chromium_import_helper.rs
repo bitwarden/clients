@@ -72,19 +72,28 @@ mod windows_binary {
     // List of SYSTEM process names to try to impersonate
     const SYSTEM_PROCESS_NAMES: [&str; 2] = ["services.exe", "winlogon.exe"];
 
+    // Macro wrapper around debug! that compiles to no-op when NEED_LOGGING is false
+    macro_rules! dbg_log {
+        ($($arg:tt)*) => {
+            if NEED_LOGGING {
+                debug!($($arg)*);
+            }
+        };
+    }
+
     async fn open_pipe_client(pipe_name: &'static str) -> Result<NamedPipeClient> {
         // TODO: Don't loop forever, but retry a few times
         let client = loop {
             match ClientOptions::new().open(pipe_name) {
                 Ok(client) => {
-                    debug!("Successfully connected to the pipe!");
+                    dbg_log!("Successfully connected to the pipe!");
                     break client;
                 }
                 Err(e) if e.raw_os_error() == Some(ERROR_PIPE_BUSY.0 as i32) => {
-                    debug!("Pipe is busy, retrying in 50ms...");
+                    dbg_log!("Pipe is busy, retrying in 50ms...");
                 }
                 Err(e) => {
-                    debug!("Failed to connect to pipe: {}", &e);
+                    dbg_log!("Failed to connect to pipe: {}", &e);
                     return Err(e.into());
                 }
             }
@@ -123,15 +132,15 @@ mod windows_binary {
     }
 
     fn resolve_process_executable_path(pid: u32) -> Result<PathBuf> {
-        debug!("Resolving process executable path for PID {}", pid);
+        dbg_log!("Resolving process executable path for PID {}", pid);
 
         // Open the process handle
         let hprocess =
             unsafe { OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, false, pid) }?;
-        debug!("Opened process handle for PID {}", pid);
+        dbg_log!("Opened process handle for PID {}", pid);
 
         let _guard = guard(hprocess, |_| unsafe {
-            debug!("Closing process handle for PID {}", pid);
+            dbg_log!("Closing process handle for PID {}", pid);
             _ = CloseHandle(hprocess);
         });
 
@@ -145,7 +154,7 @@ mod windows_binary {
                 &mut size,
             )
         }?;
-        debug!("QueryFullProcessImageNameW returned {} bytes", size);
+        dbg_log!("QueryFullProcessImageNameW returned {} bytes", size);
 
         wide.truncate(size as usize);
         Ok(PathBuf::from(OsString::from_wide(&wide)))
@@ -165,10 +174,10 @@ mod windows_binary {
     }
 
     fn decrypt_data_base64(data_base64: &str, expect_appb: bool) -> Result<String> {
-        debug!("Decrypting data base64: {}", data_base64);
+        dbg_log!("Decrypting data base64: {}", data_base64);
 
         let data = general_purpose::STANDARD.decode(data_base64).map_err(|e| {
-            debug!("Failed to decode base64: {} APPB: {}", e, expect_appb);
+            dbg_log!("Failed to decode base64: {} APPB: {}", e, expect_appb);
             e
         })?;
 
@@ -180,7 +189,7 @@ mod windows_binary {
 
     fn decrypt_data(data: &[u8], expect_appb: bool) -> Result<Vec<u8>> {
         if expect_appb && !data.starts_with(b"APPB") {
-            debug!("Decoded data does not start with 'APPB'");
+            dbg_log!("Decoded data does not start with 'APPB'");
             return Err(anyhow!("Decoded data does not start with 'APPB'"));
         }
 
@@ -218,7 +227,7 @@ mod windows_binary {
 
             Ok(decrypted)
         } else {
-            debug!("CryptUnprotectData failed");
+            dbg_log!("CryptUnprotectData failed");
             Err(anyhow!("CryptUnprotectData failed"))
         }
     }
@@ -250,7 +259,7 @@ mod windows_binary {
             unsafe {
                 ImpersonateLoggedOnUser(sys_token)?;
             };
-            debug!("Impersonating system process '{}' (PID: {})", name, pid);
+            dbg_log!("Impersonating system process '{}' (PID: {})", name, pid);
 
             Ok(Self {
                 sys_token_handle: sys_token,
@@ -278,13 +287,13 @@ mod windows_binary {
         fn enable_privilege() -> Result<()> {
             let mut previous_value = BOOL(0);
             let status = unsafe {
-                debug!("Setting SE_DEBUG_PRIVILEGE to 1 via RtlAdjustPrivilege");
+                dbg_log!("Setting SE_DEBUG_PRIVILEGE to 1 via RtlAdjustPrivilege");
                 RtlAdjustPrivilege(SE_DEBUG_PRIVILEGE, BOOL(1), BOOL(0), &mut previous_value)
             };
             if status != STATUS_SUCCESS {
                 return Err(anyhow!("Failed to adjust privilege"));
             }
-            debug!(
+            dbg_log!(
                 "SE_DEBUG_PRIVILEGE set to 1, was {} before",
                 previous_value.0
             );
@@ -297,9 +306,10 @@ mod windows_binary {
             for (pid, name) in pids {
                 match Self::get_system_token_from_pid(pid) {
                     Err(_) => {
-                        debug!(
+                        dbg_log!(
                             "Failed to open process handle '{}' (PID: {}), skipping",
-                            name, pid
+                            name,
+                            pid
                         );
                         continue;
                     }
@@ -373,12 +383,12 @@ mod windows_binary {
 
         if NEED_SERVER_SIGNATURE_VALIDATION {
             let server_pid = get_named_pipe_server_pid(&client)?;
-            debug!("Connected to pipe server PID {}", server_pid);
+            dbg_log!("Connected to pipe server PID {}", server_pid);
 
             // Validate the server end process signature
             let exe_path = resolve_process_executable_path(server_pid)?;
 
-            debug!("Pipe server executable path: {}", exe_path.display());
+            dbg_log!("Pipe server executable path: {}", exe_path.display());
 
             let verifier = CodeSignVerifier::for_file(exe_path.as_path()).map_err(|e| {
                 anyhow!("verifysign init failed for {}: {:?}", exe_path.display(), e)
@@ -392,28 +402,28 @@ mod windows_binary {
                 )
             })?;
 
-            debug!("Pipe server executable path: {}", exe_path.display());
+            dbg_log!("Pipe server executable path: {}", exe_path.display());
 
             // Dump signature fields for debugging/inspection
-            debug!("Signature fields:");
-            debug!("  Subject Name: {:?}", signature.subject_name());
-            debug!("  Issuer Name: {:?}", signature.issuer_name());
-            debug!("  SHA1 Thumbprint: {:?}", signature.sha1_thumbprint());
-            debug!("  SHA256 Thumbprint: {:?}", signature.sha256_thumbprint());
-            debug!("  Serial Number: {:?}", signature.serial());
+            dbg_log!("Signature fields:");
+            dbg_log!("  Subject Name: {:?}", signature.subject_name());
+            dbg_log!("  Issuer Name: {:?}", signature.issuer_name());
+            dbg_log!("  SHA1 Thumbprint: {:?}", signature.sha1_thumbprint());
+            dbg_log!("  SHA256 Thumbprint: {:?}", signature.sha256_thumbprint());
+            dbg_log!("  Serial Number: {:?}", signature.serial());
 
             if signature.sha256_thumbprint() != EXPECTED_SERVER_SIGNATURE_SHA256_THUMBPRINT {
                 return Err(anyhow!("Pipe server signature is not valid"));
             }
 
-            debug!("Pipe server signature verified for PID {}", server_pid);
+            dbg_log!("Pipe server signature verified for PID {}", server_pid);
         }
 
         Ok(client)
     }
 
     fn run() -> Result<String> {
-        debug!("Starting bitwarden_chromium_import_helper.exe");
+        dbg_log!("Starting bitwarden_chromium_import_helper.exe");
 
         let args = Args::try_parse()?;
 
@@ -421,13 +431,13 @@ mod windows_binary {
             return Err(anyhow!("Expected to run with admin privileges"));
         }
 
-        debug!("Running as ADMINISTRATOR");
+        dbg_log!("Running as ADMINISTRATOR");
 
         // Impersonate a SYSTEM process to be able to decrypt data encrypted for the machine
         let system_decrypted_base64 = {
             let _guard = ImpersonateGuard::start()?;
             let system_decrypted_base64 = decrypt_data_base64(&args.encrypted, true)?;
-            debug!("Decrypted data with system");
+            dbg_log!("Decrypted data with system");
             system_decrypted_base64
         };
 
@@ -438,11 +448,11 @@ mod windows_binary {
         // We don't send this result back since the library will decrypt again at USER level.
 
         _ = decrypt_data_base64(&system_decrypted_base64, false).map_err(|e| {
-            debug!("User level decryption check failed: {}", e);
+            dbg_log!("User level decryption check failed: {}", e);
             e
         })?;
 
-        debug!("User level decryption check passed");
+        dbg_log!("User level decryption check passed");
 
         Ok(system_decrypted_base64)
     }
@@ -476,11 +486,11 @@ mod windows_binary {
 
         match run() {
             Ok(system_decrypted_base64) => {
-                debug!("Sending response back to user");
+                dbg_log!("Sending response back to user");
                 let _ = send_to_user(&mut client, &system_decrypted_base64).await;
             }
             Err(e) => {
-                debug!("Error: {}", e);
+                dbg_log!("Error: {}", e);
                 send_error_to_user(&mut client, &format!("{}", e)).await;
             }
         }
