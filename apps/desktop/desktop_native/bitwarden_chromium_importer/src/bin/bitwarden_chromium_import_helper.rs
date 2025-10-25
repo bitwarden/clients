@@ -61,8 +61,8 @@ mod windows_binary {
     }
 
     // Enable this to log to a file. The way this executable is used, it's not easy to debug and the stdout gets lost.
-    const NEED_LOGGING: bool = true;
-    const LOG_FILENAME: &str = "c:\\temp\\admin-log.txt"; // This is an example filename, replace it with you own
+    const NEED_LOGGING: bool = false;
+    const LOG_FILENAME: &str = "c:\\path\\to\\log.txt"; // This is an example filename, replace it with you own
 
     // This should be enabled for production
     const NEED_SERVER_SIGNATURE_VALIDATION: bool = false;
