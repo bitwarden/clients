@@ -53,10 +53,6 @@ pub fn get_crypto_service(
     Ok(Box::new(WindowsCryptoService::new(local_state)))
 }
 
-pub fn configure_windows_crypto_service(_admin_exe_path: &str) {
-    // No-op for now
-}
-
 //
 // Private
 //

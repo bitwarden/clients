@@ -44,10 +44,6 @@ pub fn get_crypto_service(
     Ok(Box::new(service))
 }
 
-pub fn configure_windows_crypto_service(_admin_exe_path: &str) {
-    // Do nothing on Linux
-}
-
 //
 // Private
 //
