@@ -498,7 +498,7 @@ export default class MainBackground {
       if (this.systemService != null) {
         await this.systemService.clearPendingClipboard();
         await this.biometricsService.setShouldAutopromptNow(false);
-        await this.processReloadService.startProcessReload(this.authService);
+        await this.processReloadService.startProcessReload();
       }
     };
 
@@ -1267,6 +1267,7 @@ export default class MainBackground {
       this.biometricStateService,
       this.accountService,
       this.logService,
+      this.authService,
     );
 
     // Background
@@ -1743,7 +1744,7 @@ export default class MainBackground {
     }
     await this.mainContextMenuHandler?.noAccess();
     await this.systemService.clearPendingClipboard();
-    await this.processReloadService.startProcessReload(this.authService);
+    await this.processReloadService.startProcessReload();
   }
 
   private async needsStorageReseed(userId: UserId): Promise<boolean> {
