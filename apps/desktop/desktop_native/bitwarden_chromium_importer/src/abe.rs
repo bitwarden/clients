@@ -6,6 +6,7 @@ use tokio::{
     net::windows::named_pipe::{NamedPipeServer, ServerOptions},
     sync::mpsc::channel,
     task::JoinHandle,
+    time::{timeout, Duration},
 };
 use windows::{
     core::PCWSTR,
@@ -13,6 +14,8 @@ use windows::{
 };
 
 use crate::abe_config;
+
+const WAIT_FOR_ADMIN_MESSAGE_TIMEOUT_SECS: u64 = 30;
 
 pub fn start_tokio_named_pipe_server<F>(
     pipe_name: &'static str,
@@ -28,7 +31,6 @@ where
     // Here we also make use of `first_pipe_instance`, which will ensure that
     // there are no other servers up and running already.
     let mut server = ServerOptions::new()
-        // TODO: Try message mode
         .first_pipe_instance(true)
         .create(pipe_name)?;
 
@@ -129,11 +131,16 @@ pub async fn decrypt_with_admin_exe(admin_exe: &str, encrypted: &str) -> Result<
     debug!("Launching '{}' as ADMINISTRATOR...", admin_exe);
     decrypt_with_admin_exe_internal(admin_exe, encrypted);
 
-    // TODO: Don't wait forever, but for a reasonable time
     debug!("Waiting for message from {}...", admin_exe);
-    let message = match rx.recv().await {
-        Some(msg) => msg,
-        None => return Err(anyhow!("Failed to receive message from admin")),
+    let message = match timeout(
+        Duration::from_secs(WAIT_FOR_ADMIN_MESSAGE_TIMEOUT_SECS),
+        rx.recv(),
+    )
+    .await
+    {
+        Ok(Some(msg)) => msg,
+        Ok(None) => return Err(anyhow!("Channel closed without message from {}", admin_exe)),
+        Err(_) => return Err(anyhow!("Timeout waiting for message from {}", admin_exe)),
     };
 
     debug!("Shutting down the pipe server...");

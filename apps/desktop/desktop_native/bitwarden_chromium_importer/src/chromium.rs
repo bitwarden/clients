@@ -57,7 +57,6 @@ pub trait InstalledBrowserRetriever {
 pub struct DefaultInstalledBrowserRetriever {}
 
 impl InstalledBrowserRetriever for DefaultInstalledBrowserRetriever {
-    // TODO: Make thus async
     fn get_installed_browsers() -> Result<Vec<String>> {
         let mut browsers = Vec::with_capacity(SUPPORTED_BROWSER_MAP.len());
 
@@ -72,7 +71,6 @@ impl InstalledBrowserRetriever for DefaultInstalledBrowserRetriever {
     }
 }
 
-// TODO: Make thus async
 pub fn get_available_profiles(browser_name: &String) -> Result<Vec<ProfileInfo>> {
     let (_, local_state) = load_local_state_for_browser(browser_name)?;
     Ok(get_profile_info(&local_state))
