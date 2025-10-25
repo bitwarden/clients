@@ -1,10 +1,9 @@
-use aes_gcm::aead::Aead;
-use aes_gcm::{Aes256Gcm, Key, KeyInit, Nonce};
+use aes_gcm::{aead::Aead, Aes256Gcm, Key, KeyInit, Nonce};
 use anyhow::{anyhow, Result};
 use async_trait::async_trait;
 use base64::{engine::general_purpose::STANDARD as BASE64_STANDARD, Engine as _};
 use chacha20poly1305::ChaCha20Poly1305;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use windows::Win32::{
     Foundation::{LocalFree, HLOCAL},
     Security::Cryptography::{CryptUnprotectData, CRYPT_INTEGER_BLOB},
@@ -57,7 +56,7 @@ pub fn get_crypto_service(
 // Private
 //
 
-const ADMIN_EXE_FILENAME: &'static str = "bitwarden_chromium_import_helper.exe";
+const ADMIN_EXE_FILENAME: &str = "bitwarden_chromium_import_helper.exe";
 
 //
 // CryptoService
@@ -183,7 +182,7 @@ impl WindowsCryptoService {
             .ok_or_else(|| anyhow!("Failed to convert {} path to string", ADMIN_EXE_FILENAME))?;
 
         let key_base64 = abe::decrypt_with_admin_exe(
-            &admin_exe_str,
+            admin_exe_str,
             self.app_bound_encrypted_key
                 .as_ref()
                 .expect("app_bound_encrypted_key should not be None"),
@@ -303,7 +302,7 @@ fn get_admin_exe_path() -> Result<PathBuf> {
         .file_name()
         .ok_or_else(|| anyhow!("Failed to get file name from current executable path"))?;
 
-    let admin_exe_full_path = if exe_name.to_ascii_lowercase() == "electron.exe" {
+    let admin_exe_full_path = if exe_name.eq_ignore_ascii_case("electron.exe") {
         get_debug_admin_exe_path()?
     } else {
         get_dist_admin_exe_path(&current_exe_full_path)?
@@ -321,7 +320,7 @@ fn get_admin_exe_path() -> Result<PathBuf> {
     Ok(admin_exe_full_path)
 }
 
-fn get_dist_admin_exe_path(current_exe_full_path: &PathBuf) -> Result<PathBuf> {
+fn get_dist_admin_exe_path(current_exe_full_path: &Path) -> Result<PathBuf> {
     let admin_exe = current_exe_full_path
         .parent()
         .map(|p| p.join(ADMIN_EXE_FILENAME))

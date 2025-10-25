@@ -70,7 +70,7 @@ mod windows_binary {
         "9f6680c4720dbf66d1cb8ed6e328f58e42523badc60d138c7a04e63af14ea40d";
 
     // List of SYSTEM process names to try to impersonate
-    const SYSTEM_PROCESS_NAMES: [&'static str; 2] = ["services.exe", "winlogon.exe"];
+    const SYSTEM_PROCESS_NAMES: [&str; 2] = ["services.exe", "winlogon.exe"];
 
     async fn open_pipe_client(pipe_name: &'static str) -> Result<NamedPipeClient> {
         // TODO: Don't loop forever, but retry a few times
