@@ -105,6 +105,9 @@
                 *ngComponentOutlet="optionsInfo.component; injector: createInjector(f.node)"
               ></ng-container>
             </ng-container>
+            <ng-container *ngIf="premiumFeature">
+              <app-premium-badge></app-premium-badge>
+            </ng-container>
           </span>
         </span>
         <ul

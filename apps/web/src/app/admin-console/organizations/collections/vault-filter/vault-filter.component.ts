@@ -11,6 +11,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { DialogService, ToastService } from "@bitwarden/components";
@@ -59,6 +60,7 @@ export class VaultFilterComponent
     protected restrictedItemTypesService: RestrictedItemTypesService,
     protected cipherService: CipherService,
     protected cipherArchiveService: CipherArchiveService,
+    premiumUpgradePromptService: PremiumUpgradePromptService,
   ) {
     super(
       vaultFilterService,
@@ -72,6 +74,7 @@ export class VaultFilterComponent
       restrictedItemTypesService,
       cipherService,
       cipherArchiveService,
+      premiumUpgradePromptService,
     );
   }
 
