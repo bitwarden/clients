@@ -67,6 +67,8 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
 
   masterPasswordPolicyOptions: MasterPasswordPolicyOptions | null = null;
 
+  intendsToSetupPremium = false;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private router: Router,
@@ -126,6 +128,25 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
       this.providerInviteToken = qParams.providerInviteToken;
       this.providerUserId = qParams.providerUserId;
     }
+
+    // -- Proof of Concept (start) --
+    const mockParams = {
+      fromMarketing: "premium", // `&fromMarketing=premium`
+    };
+
+    if (mockParams.fromMarketing && mockParams.fromMarketing === "premium") {
+      this.intendsToSetupPremium = true;
+    }
+
+    // Note: To avoid magic strings, we can create an enum-like type and use it above:
+    // ```
+    //  export const MarketingInitiative = Object.freeze({
+    //    Premium: "premium",
+    //    Families: "families",
+    //    // Other variants in the future
+    //  } as const);
+
+    // -- Proof of Concept (end) --
   }
 
   private async initOrgInviteFlowIfPresent(): Promise<boolean> {
@@ -189,6 +210,12 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
       }
 
       await this.loginSuccessHandlerService.run(authenticationResult.userId);
+
+      if (this.intendsToSetupPremium) {
+        await this.registrationFinishService.establishIntentToSetupPremium(
+          authenticationResult.userId,
+        );
+      }
 
       await this.router.navigate(["/vault"]);
     } catch (e) {

@@ -127,6 +127,7 @@ import {
   WebSetInitialPasswordService,
 } from "../auth";
 import { WebSsoComponentService } from "../auth/core/services/login/web-sso-component.service";
+import { SetupPremiumService } from "../billing/individual/premium/setup-premium.service";
 import { HtmlStorageService } from "../core/html-storage.service";
 import { I18nService } from "../core/i18n.service";
 import { WebFileDownloadService } from "../core/web-file-download.service";
@@ -266,6 +267,7 @@ const safeProviders: SafeProvider[] = [
       PolicyApiServiceAbstraction,
       LogService,
       PolicyService,
+      SetupPremiumService,
     ],
   }),
   safeProvider({
