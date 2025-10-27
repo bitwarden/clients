@@ -1066,8 +1066,8 @@ pub mod logging {
 pub mod chromium_importer {
     use chromium_importer::{
         chromium::{
-            DefaultInstalledBrowserRetriever,
-            LoginImportResult as _LoginImportResult, ProfileInfo as _ProfileInfo,
+            DefaultInstalledBrowserRetriever, LoginImportResult as _LoginImportResult,
+            ProfileInfo as _ProfileInfo,
         },
         metadata::NativeImporterMetadata as _NativeImporterMetadata,
     };
