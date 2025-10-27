@@ -15,7 +15,6 @@ import { getById } from "@bitwarden/common/platform/misc";
 import { DialogService } from "@bitwarden/components";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
-import { RiskInsightsTabType } from "../models/risk-insights.models";
 import { ApplicationsLoadingComponent } from "../shared/risk-insights-loading.component";
 
 import { ActivityCardComponent } from "./activity-card.component";
@@ -80,15 +79,6 @@ export class AllActivityComponent implements OnInit {
           this.passwordChangeMetricHasProgressBar = hasProgressBar;
         });
     }
-  }
-
-  get RiskInsightsTabType() {
-    return RiskInsightsTabType;
-  }
-
-  getLinkForRiskInsightsTab(tabIndex: RiskInsightsTabType): string {
-    const organizationId = this.activatedRoute.snapshot.paramMap.get("organizationId");
-    return `/organizations/${organizationId}/access-intelligence/risk-insights?tabIndex=${tabIndex}`;
   }
 
   /**
