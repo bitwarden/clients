@@ -1,5 +1,7 @@
 import { firstValueFrom, map, Observable } from "rxjs";
 
+import { Rc } from "../../../misc/reference-counting/rc";
+
 import { RpcClient, RpcRequestChannel } from "./client";
 import { Command, Response } from "./protocol";
 import { RpcObjectReference } from "./proxies";
@@ -61,6 +63,27 @@ describe("RpcServer", () => {
     expect(result).not.toBeInstanceOf(RpcObjectReference);
     expect(result).toEqual({ message: "Hello, World!", array: [1, "2", null] });
   });
+
+  it("handles RC objects correctly", async () => {
+    const wasmObj = new WasmLikeObject("RC");
+    const rcValue = new Rc(wasmObj);
+    const server = new RpcServer<Rc<WasmLikeObject>>();
+    const client = new RpcClient<Rc<WasmLikeObject>>(new InMemoryChannel(server));
+    server.setValue(rcValue);
+
+    const remoteRc = await firstValueFrom(client.getRoot());
+
+    {
+      using ref = await remoteRc.take();
+      const remoteWasmObj = ref.value;
+      const greeting = await remoteWasmObj.greet();
+      expect(greeting).toBe("Hello, RC!");
+      expect(wasmObj.freed).toBe(false);
+    }
+
+    await remoteRc.markForDisposal();
+    expect(wasmObj.freed).toBe(true);
+  });
 });
 
 class TestClass {
@@ -85,13 +108,14 @@ class TestClass {
 
 class WasmLikeObject {
   ptr: number;
+  freed = false;
 
   constructor(private name: string) {
     this.ptr = 0; // Simulated pointer
   }
 
   free() {
-    // Simulated free method
+    this.freed = true;
   }
 
   async greet(): Promise<string> {
@@ -99,8 +123,8 @@ class WasmLikeObject {
   }
 }
 
-class InMemoryChannel implements RpcRequestChannel {
-  constructor(private server: RpcServer<TestClass>) {}
+class InMemoryChannel<T> implements RpcRequestChannel {
+  constructor(private server: RpcServer<T>) {}
 
   async sendCommand(command: Command): Promise<Response> {
     // Simulate serialization/deserialization

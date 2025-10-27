@@ -1,6 +1,6 @@
 import { map, Observable, ReplaySubject } from "rxjs";
 
-import { Command, Response, Result } from "./protocol";
+import { Command, deserializeSymbol, Response, Result } from "./protocol";
 import { ReferenceStore } from "./reference-store";
 
 export class RpcServer<T> {
@@ -23,9 +23,11 @@ export class RpcServer<T> {
       }
 
       try {
-        const propertyValue = target[command.propertyName];
+        const propertyKey =
+          (command as any).propertyName ?? deserializeSymbol((command as any).propertySymbol);
+        const propertyValue = target[propertyKey];
         if (typeof propertyValue === "function") {
-          return { status: "error", error: `[RPC] Property ${command.propertyName} is a function` };
+          return { status: "error", error: `[RPC] Property ${String(propertyKey)} is a function` };
         } else {
           return { status: "success", result: this.convertToReturnable(propertyValue) };
         }
@@ -41,11 +43,13 @@ export class RpcServer<T> {
       }
 
       try {
-        const method = target[command.propertyName];
+        const propertyKey =
+          (command as any).propertyName ?? deserializeSymbol((command as any).propertySymbol);
+        const method = target[propertyKey];
         if (typeof method !== "function") {
           return {
             status: "error",
-            error: `[RPC] Property ${command.propertyName} is not a function`,
+            error: `[RPC] Property ${String(propertyKey)} is not a function`,
           };
         }
 
