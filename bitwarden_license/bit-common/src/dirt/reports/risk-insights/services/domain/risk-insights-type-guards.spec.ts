@@ -1,6 +1,10 @@
 import { MemberDetails } from "../../models";
 
 import {
+  isApplicationHealthReportDetail,
+  isMemberDetails,
+  isOrganizationReportApplication,
+  isOrganizationReportSummary,
   validateApplicationHealthReportDetailArray,
   validateOrganizationReportApplicationArray,
   validateOrganizationReportSummary,
@@ -340,6 +344,251 @@ describe("Risk Insights Type Guards", () => {
       expect(() => validateOrganizationReportApplicationArray(validData)).not.toThrow();
       const result = validateOrganizationReportApplicationArray(validData);
       expect(result[0].reviewedDate).toBeNull();
+    });
+  });
+
+  // Tests for exported type guard functions
+  describe("isMemberDetails", () => {
+    it("should return true for valid MemberDetails", () => {
+      const validData = {
+        userGuid: "user-1",
+        userName: "John Doe",
+        email: "john@example.com",
+        cipherId: "cipher-1",
+      };
+      expect(isMemberDetails(validData)).toBe(true);
+    });
+
+    it("should return false for empty userGuid", () => {
+      const invalidData = {
+        userGuid: "",
+        userName: "John Doe",
+        email: "john@example.com",
+        cipherId: "cipher-1",
+      };
+      expect(isMemberDetails(invalidData)).toBe(false);
+    });
+
+    it("should return false for empty userName", () => {
+      const invalidData = {
+        userGuid: "user-1",
+        userName: "",
+        email: "john@example.com",
+        cipherId: "cipher-1",
+      };
+      expect(isMemberDetails(invalidData)).toBe(false);
+    });
+
+    it("should return false for empty email", () => {
+      const invalidData = {
+        userGuid: "user-1",
+        userName: "John Doe",
+        email: "",
+        cipherId: "cipher-1",
+      };
+      expect(isMemberDetails(invalidData)).toBe(false);
+    });
+
+    it("should return false for empty cipherId", () => {
+      const invalidData = {
+        userGuid: "user-1",
+        userName: "John Doe",
+        email: "john@example.com",
+        cipherId: "",
+      };
+      expect(isMemberDetails(invalidData)).toBe(false);
+    });
+  });
+
+  describe("isApplicationHealthReportDetail", () => {
+    it("should return true for valid ApplicationHealthReportDetail", () => {
+      const validData = {
+        applicationName: "Test App",
+        passwordCount: 10,
+        atRiskPasswordCount: 2,
+        atRiskCipherIds: ["cipher-1"],
+        memberCount: 5,
+        atRiskMemberCount: 1,
+        memberDetails: [] as MemberDetails[],
+        atRiskMemberDetails: [] as MemberDetails[],
+        cipherIds: ["cipher-1"],
+      };
+      expect(isApplicationHealthReportDetail(validData)).toBe(true);
+    });
+
+    it("should return false for empty applicationName", () => {
+      const invalidData = {
+        applicationName: "",
+        passwordCount: 10,
+        atRiskPasswordCount: 2,
+        atRiskCipherIds: ["cipher-1"],
+        memberCount: 5,
+        atRiskMemberCount: 1,
+        memberDetails: [] as MemberDetails[],
+        atRiskMemberDetails: [] as MemberDetails[],
+        cipherIds: ["cipher-1"],
+      };
+      expect(isApplicationHealthReportDetail(invalidData)).toBe(false);
+    });
+
+    it("should return false for NaN passwordCount", () => {
+      const invalidData = {
+        applicationName: "Test App",
+        passwordCount: NaN,
+        atRiskPasswordCount: 2,
+        atRiskCipherIds: ["cipher-1"],
+        memberCount: 5,
+        atRiskMemberCount: 1,
+        memberDetails: [] as MemberDetails[],
+        atRiskMemberDetails: [] as MemberDetails[],
+        cipherIds: ["cipher-1"],
+      };
+      expect(isApplicationHealthReportDetail(invalidData)).toBe(false);
+    });
+
+    it("should return false for Infinity passwordCount", () => {
+      const invalidData = {
+        applicationName: "Test App",
+        passwordCount: Infinity,
+        atRiskPasswordCount: 2,
+        atRiskCipherIds: ["cipher-1"],
+        memberCount: 5,
+        atRiskMemberCount: 1,
+        memberDetails: [] as MemberDetails[],
+        atRiskMemberDetails: [] as MemberDetails[],
+        cipherIds: ["cipher-1"],
+      };
+      expect(isApplicationHealthReportDetail(invalidData)).toBe(false);
+    });
+
+    it("should return false for negative passwordCount", () => {
+      const invalidData = {
+        applicationName: "Test App",
+        passwordCount: -5,
+        atRiskPasswordCount: 2,
+        atRiskCipherIds: ["cipher-1"],
+        memberCount: 5,
+        atRiskMemberCount: 1,
+        memberDetails: [] as MemberDetails[],
+        atRiskMemberDetails: [] as MemberDetails[],
+        cipherIds: ["cipher-1"],
+      };
+      expect(isApplicationHealthReportDetail(invalidData)).toBe(false);
+    });
+
+    it("should return false for negative memberCount", () => {
+      const invalidData = {
+        applicationName: "Test App",
+        passwordCount: 10,
+        atRiskPasswordCount: 2,
+        atRiskCipherIds: ["cipher-1"],
+        memberCount: -1,
+        atRiskMemberCount: 1,
+        memberDetails: [] as MemberDetails[],
+        atRiskMemberDetails: [] as MemberDetails[],
+        cipherIds: ["cipher-1"],
+      };
+      expect(isApplicationHealthReportDetail(invalidData)).toBe(false);
+    });
+  });
+
+  describe("isOrganizationReportSummary", () => {
+    it("should return true for valid OrganizationReportSummary", () => {
+      const validData = {
+        totalMemberCount: 10,
+        totalApplicationCount: 5,
+        totalAtRiskMemberCount: 2,
+        totalAtRiskApplicationCount: 1,
+        totalCriticalApplicationCount: 3,
+        totalCriticalMemberCount: 4,
+        totalCriticalAtRiskMemberCount: 1,
+        totalCriticalAtRiskApplicationCount: 1,
+        newApplications: ["app-1"],
+      };
+      expect(isOrganizationReportSummary(validData)).toBe(true);
+    });
+
+    it("should return false for NaN totalMemberCount", () => {
+      const invalidData = {
+        totalMemberCount: NaN,
+        totalApplicationCount: 5,
+        totalAtRiskMemberCount: 2,
+        totalAtRiskApplicationCount: 1,
+        totalCriticalApplicationCount: 3,
+        totalCriticalMemberCount: 4,
+        totalCriticalAtRiskMemberCount: 1,
+        totalCriticalAtRiskApplicationCount: 1,
+        newApplications: ["app-1"],
+      };
+      expect(isOrganizationReportSummary(invalidData)).toBe(false);
+    });
+
+    it("should return false for Infinity totalApplicationCount", () => {
+      const invalidData = {
+        totalMemberCount: 10,
+        totalApplicationCount: Infinity,
+        totalAtRiskMemberCount: 2,
+        totalAtRiskApplicationCount: 1,
+        totalCriticalApplicationCount: 3,
+        totalCriticalMemberCount: 4,
+        totalCriticalAtRiskMemberCount: 1,
+        totalCriticalAtRiskApplicationCount: 1,
+        newApplications: ["app-1"],
+      };
+      expect(isOrganizationReportSummary(invalidData)).toBe(false);
+    });
+
+    it("should return false for negative totalAtRiskMemberCount", () => {
+      const invalidData = {
+        totalMemberCount: 10,
+        totalApplicationCount: 5,
+        totalAtRiskMemberCount: -1,
+        totalAtRiskApplicationCount: 1,
+        totalCriticalApplicationCount: 3,
+        totalCriticalMemberCount: 4,
+        totalCriticalAtRiskMemberCount: 1,
+        totalCriticalAtRiskApplicationCount: 1,
+        newApplications: ["app-1"],
+      };
+      expect(isOrganizationReportSummary(invalidData)).toBe(false);
+    });
+  });
+
+  describe("isOrganizationReportApplication", () => {
+    it("should return true for valid OrganizationReportApplication", () => {
+      const validData = {
+        applicationName: "Test App",
+        isCritical: true,
+        reviewedDate: null as Date | null,
+      };
+      expect(isOrganizationReportApplication(validData)).toBe(true);
+    });
+
+    it("should return false for empty applicationName", () => {
+      const invalidData = {
+        applicationName: "",
+        isCritical: true,
+        reviewedDate: null as Date | null,
+      };
+      expect(isOrganizationReportApplication(invalidData)).toBe(false);
+    });
+
+    it("should return true for Date reviewedDate", () => {
+      const validData = {
+        applicationName: "Test App",
+        isCritical: true,
+        reviewedDate: new Date(),
+      };
+      expect(isOrganizationReportApplication(validData)).toBe(true);
+    });
+
+    it("should return true for string reviewedDate", () => {
+      const validData = {
+        applicationName: "Test App",
+        isCritical: false,
+        reviewedDate: "2024-01-01",
+      };
+      expect(isOrganizationReportApplication(validData)).toBe(true);
     });
   });
 });

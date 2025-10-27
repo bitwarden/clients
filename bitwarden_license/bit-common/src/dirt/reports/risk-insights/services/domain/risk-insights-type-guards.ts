@@ -7,32 +7,47 @@ import {
 
 /**
  * Type guard to validate MemberDetails structure
+ * Exported for testability
  */
-function isMemberDetails(obj: any): obj is MemberDetails {
+export function isMemberDetails(obj: any): obj is MemberDetails {
   return (
     typeof obj === "object" &&
     obj !== null &&
     typeof obj.userGuid === "string" &&
+    obj.userGuid.length > 0 &&
     typeof obj.userName === "string" &&
+    obj.userName.length > 0 &&
     typeof obj.email === "string" &&
-    typeof obj.cipherId === "string"
+    obj.email.length > 0 &&
+    typeof obj.cipherId === "string" &&
+    obj.cipherId.length > 0
   );
 }
 
 /**
  * Type guard to validate ApplicationHealthReportDetail structure
+ * Exported for testability
  */
-function isApplicationHealthReportDetail(obj: any): obj is ApplicationHealthReportDetail {
+export function isApplicationHealthReportDetail(obj: any): obj is ApplicationHealthReportDetail {
   return (
     typeof obj === "object" &&
     obj !== null &&
     typeof obj.applicationName === "string" &&
+    obj.applicationName.length > 0 &&
     typeof obj.passwordCount === "number" &&
+    Number.isFinite(obj.passwordCount) &&
+    obj.passwordCount >= 0 &&
     typeof obj.atRiskPasswordCount === "number" &&
+    Number.isFinite(obj.atRiskPasswordCount) &&
+    obj.atRiskPasswordCount >= 0 &&
     Array.isArray(obj.atRiskCipherIds) &&
     obj.atRiskCipherIds.every((id: any) => typeof id === "string" && id.length > 0) &&
     typeof obj.memberCount === "number" &&
+    Number.isFinite(obj.memberCount) &&
+    obj.memberCount >= 0 &&
     typeof obj.atRiskMemberCount === "number" &&
+    Number.isFinite(obj.atRiskMemberCount) &&
+    obj.atRiskMemberCount >= 0 &&
     Array.isArray(obj.memberDetails) &&
     obj.memberDetails.every(isMemberDetails) &&
     Array.isArray(obj.atRiskMemberDetails) &&
@@ -44,19 +59,36 @@ function isApplicationHealthReportDetail(obj: any): obj is ApplicationHealthRepo
 
 /**
  * Type guard to validate OrganizationReportSummary structure
+ * Exported for testability
  */
-function isOrganizationReportSummary(obj: any): obj is OrganizationReportSummary {
+export function isOrganizationReportSummary(obj: any): obj is OrganizationReportSummary {
   return (
     typeof obj === "object" &&
     obj !== null &&
     typeof obj.totalMemberCount === "number" &&
+    Number.isFinite(obj.totalMemberCount) &&
+    obj.totalMemberCount >= 0 &&
     typeof obj.totalApplicationCount === "number" &&
+    Number.isFinite(obj.totalApplicationCount) &&
+    obj.totalApplicationCount >= 0 &&
     typeof obj.totalAtRiskMemberCount === "number" &&
+    Number.isFinite(obj.totalAtRiskMemberCount) &&
+    obj.totalAtRiskMemberCount >= 0 &&
     typeof obj.totalAtRiskApplicationCount === "number" &&
+    Number.isFinite(obj.totalAtRiskApplicationCount) &&
+    obj.totalAtRiskApplicationCount >= 0 &&
     typeof obj.totalCriticalApplicationCount === "number" &&
+    Number.isFinite(obj.totalCriticalApplicationCount) &&
+    obj.totalCriticalApplicationCount >= 0 &&
     typeof obj.totalCriticalMemberCount === "number" &&
+    Number.isFinite(obj.totalCriticalMemberCount) &&
+    obj.totalCriticalMemberCount >= 0 &&
     typeof obj.totalCriticalAtRiskMemberCount === "number" &&
+    Number.isFinite(obj.totalCriticalAtRiskMemberCount) &&
+    obj.totalCriticalAtRiskMemberCount >= 0 &&
     typeof obj.totalCriticalAtRiskApplicationCount === "number" &&
+    Number.isFinite(obj.totalCriticalAtRiskApplicationCount) &&
+    obj.totalCriticalAtRiskApplicationCount >= 0 &&
     Array.isArray(obj.newApplications) &&
     obj.newApplications.every((app: any) => typeof app === "string" && app.length > 0)
   );
@@ -64,12 +96,14 @@ function isOrganizationReportSummary(obj: any): obj is OrganizationReportSummary
 
 /**
  * Type guard to validate OrganizationReportApplication structure
+ * Exported for testability
  */
-function isOrganizationReportApplication(obj: any): obj is OrganizationReportApplication {
+export function isOrganizationReportApplication(obj: any): obj is OrganizationReportApplication {
   return (
     typeof obj === "object" &&
     obj !== null &&
     typeof obj.applicationName === "string" &&
+    obj.applicationName.length > 0 &&
     typeof obj.isCritical === "boolean" &&
     (obj.reviewedDate === null ||
       obj.reviewedDate instanceof Date ||
