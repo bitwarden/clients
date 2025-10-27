@@ -1852,6 +1852,12 @@
   "lockWithMasterPassOnRestart1": {
     "message": "Zamknout trezor při restartu pomocí hlavního hesla"
   },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "Vyžadovat hlavní heslo nebo PIN při restartu aplikace"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "Vyžadovat hlavní heslo při restartu aplikace"
+  },
   "deleteAccount": {
     "message": "Smazat účet"
   },
@@ -2548,6 +2554,9 @@
         "example": "5"
       }
     }
+  },
+  "vaultCustomTimeoutMinimum": {
+    "message": "Minimální vlastní časový limit je 1 minuta."
   },
   "inviteAccepted": {
     "message": "Pozvánka byla přijata"
@@ -4135,7 +4144,7 @@
   "enableAutotypeShortcutPreview": {
     "message": "Povolit zkratku Autotype (náhled funkce)"
   },
-  "enableAutotypeDescriptionTransitionKey": {
+  "enableAutotypeShortcutDescription": {
     "message": "Před použitím zkratky se ujistěte, že jste ve správném poli, abyste se vyhnuli vyplnění dat na nesprávné místo."
   },
   "editShortcut": {
@@ -4149,7 +4158,7 @@
     "message": "Archivovat",
     "description": "Verb"
   },
-  "unarchive": {
+  "unArchive": {
     "message": "Odebrat z archivu"
   },
   "itemsInArchive": {
@@ -4161,10 +4170,10 @@
   "noItemsInArchiveDesc": {
     "message": "Zde se zobrazí archivované položky a budou vyloučeny z obecných výsledků vyhledávání a návrhů automatického vyplňování."
   },
-  "itemSentToArchive": {
+  "itemWasSentToArchive": {
     "message": "Položka byla přesunuta do archivu"
   },
-  "itemRemovedFromArchive": {
+  "itemWasUnarchived": {
     "message": "Položka byla odebrána z archivu"
   },
   "archiveItem": {

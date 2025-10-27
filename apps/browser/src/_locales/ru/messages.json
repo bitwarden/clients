@@ -558,7 +558,7 @@
     "message": "Архивировать",
     "description": "Verb"
   },
-  "unarchive": {
+  "unArchive": {
     "message": "Разархивировать"
   },
   "itemsInArchive": {
@@ -570,11 +570,11 @@
   "noItemsInArchiveDesc": {
     "message": "Архивированные элементы появятся здесь и будут исключены из общих результатов поиска и предложений автозаполнения."
   },
-  "itemSentToArchive": {
-    "message": "Элемент отправлен в архив"
+  "itemWasSentToArchive": {
+    "message": "Элемент был отправлен в архив"
   },
-  "itemRemovedFromArchive": {
-    "message": "Элемент удален из архива"
+  "itemUnarchived": {
+    "message": "Элемент был разархивирован"
   },
   "archiveItem": {
     "message": "Архивировать элемент"
@@ -1547,6 +1547,15 @@
   },
   "readSecurityKey": {
     "message": "Считать ключ безопасности"
+  },
+  "readingPasskeyLoading": {
+    "message": "Чтение passkey..."
+  },
+  "passkeyAuthenticationFailed": {
+    "message": "Не удалось выполнить аутентификацию с помощью passkey"
+  },
+  "useADifferentLogInMethod": {
+    "message": "Использовать другой способ авторизации"
   },
   "awaitingSecurityKeyInteraction": {
     "message": "Ожидание взаимодействия с ключом безопасности..."
@@ -5570,17 +5579,37 @@
   "hasItemsVaultNudgeTitle": {
     "message": "Добро пожаловать в ваше хранилище!"
   },
-  "phishingPageTitle": {
-    "message": "Фишинг-сайт"
+  "phishingPageTitleV2": {
+    "message": "Обнаружена попытка фишинга"
   },
-  "phishingPageCloseTab": {
-    "message": "Закрыть вкладку"
+  "phishingPageSummary": {
+    "message": "Сайт, который вы пытаетесь посетить, является заведомо вредоносным сайтом и представляет угрозу безопасности."
   },
-  "phishingPageContinue": {
-    "message": "Продолжить"
+  "phishingPageCloseTabV2": {
+    "message": "Закрыть эту вкладку"
   },
-  "phishingPageLearnWhy": {
-    "message": "Почему вы это видите?"
+  "phishingPageContinueV2": {
+    "message": "Перейти на этот сайт (не рекомендуется)"
+  },
+  "phishingPageExplanation1": {
+    "message": "Этот сайт был найден в ",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name follows this."
+  },
+  "phishingPageExplanation2": {
+    "message": ", списке известных фишинговых сайтов, используемых для кражи персональной и конфиденциальной информации.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name precedes this."
+  },
+  "phishingPageLearnMore": {
+    "message": "Узнайте больше об обнаружении фишинга"
+  },
+  "protectedBy": {
+    "message": "Защищено $PRODUCT$",
+    "placeholders": {
+      "product": {
+        "content": "$1",
+        "example": "Bitwarden Phishing Blocker"
+      }
+    }
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Автозаполнение элементов на текущей странице"
@@ -5685,5 +5714,12 @@
   },
   "confirmKeyConnectorDomain": {
     "message": "Подтвердите домен соединителя ключей"
+  },
+  "atRiskLoginsSecured": {
+    "message": "Great job securing your at-risk logins!"
+  },
+  "settingDisabledByPolicy": {
+    "message": "Этот параметр отключен политикой вашей организации.",
+    "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
   }
 }

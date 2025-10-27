@@ -558,7 +558,7 @@
     "message": "Arhiviraj",
     "description": "Verb"
   },
-  "unarchive": {
+  "unArchive": {
     "message": "Poništi arhiviranje"
   },
   "itemsInArchive": {
@@ -570,11 +570,11 @@
   "noItemsInArchiveDesc": {
     "message": "Arhivirane stavke biti će prikazane ovdje i biti će izuzete iz rezultata općih pretraga i preporuka auto-ispune."
   },
-  "itemSentToArchive": {
+  "itemWasSentToArchive": {
     "message": "Stavka poslana u arhivu"
   },
-  "itemRemovedFromArchive": {
-    "message": "Stavka maknute iz arhive"
+  "itemUnarchived": {
+    "message": "Stavka vraćena iz arhive"
   },
   "archiveItem": {
     "message": "Arhiviraj stavku"
@@ -1547,6 +1547,15 @@
   },
   "readSecurityKey": {
     "message": "Pročitaj sigurnosni ključ"
+  },
+  "readingPasskeyLoading": {
+    "message": "Čitanje pristupnog ključa..."
+  },
+  "passkeyAuthenticationFailed": {
+    "message": "Autentifikacija pristupnog ključa nije uspjela"
+  },
+  "useADifferentLogInMethod": {
+    "message": "Koristi drugi način prijave"
   },
   "awaitingSecurityKeyInteraction": {
     "message": "Čekanje na interakciju sa sigurnosnim ključem..."
@@ -5570,17 +5579,37 @@
   "hasItemsVaultNudgeTitle": {
     "message": "Dobrodošli u svoj trezor!"
   },
-  "phishingPageTitle": {
-    "message": "Phishing web stranica"
+  "phishingPageTitleV2": {
+    "message": "Otkriven pokušaj phishinga"
   },
-  "phishingPageCloseTab": {
-    "message": "Zatvori karticu"
+  "phishingPageSummary": {
+    "message": "Web-mjesto koje pokušavaš posjetiti poznato je kao zlonamjerno i predstavlja sigurnosni rizik."
   },
-  "phishingPageContinue": {
-    "message": "Nastavi"
+  "phishingPageCloseTabV2": {
+    "message": "Zatvori ovu karticu"
   },
-  "phishingPageLearnWhy": {
-    "message": "Zašto ovo vidiš?"
+  "phishingPageContinueV2": {
+    "message": "Nastavi na web mjesto (nije preporučljivo)"
+  },
+  "phishingPageExplanation1": {
+    "message": "Ovo mjesto je nađeno na ",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name follows this."
+  },
+  "phishingPageExplanation2": {
+    "message": ", popisu otvorenog koda poznatih phishing stranica koje se koriste za krađu osobnih i osjetljivih podataka.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name precedes this."
+  },
+  "phishingPageLearnMore": {
+    "message": "Saznaj više o otkrivanju phishinga"
+  },
+  "protectedBy": {
+    "message": "Zaštićeno s $PRODUCT$",
+    "placeholders": {
+      "product": {
+        "content": "$1",
+        "example": "Bitwarden Phishing Blocker"
+      }
+    }
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Auto-ispuni stavke za trenutnu stranicu"
@@ -5685,5 +5714,12 @@
   },
   "confirmKeyConnectorDomain": {
     "message": "Potvrdi domenu kontektora ključa"
+  },
+  "atRiskLoginsSecured": {
+    "message": "Rizične prijave su osigurane!"
+  },
+  "settingDisabledByPolicy": {
+    "message": "Ova je postavka onemogućena pravilima tvoje organizacije.",
+    "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
   }
 }

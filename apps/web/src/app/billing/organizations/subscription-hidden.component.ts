@@ -4,6 +4,8 @@ import { Component, Input } from "@angular/core";
 
 import { GearIcon } from "@bitwarden/assets/svg";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-org-subscription-hidden",
   template: `<div class="tw-flex tw-flex-col tw-items-center tw-text-info">
@@ -16,6 +18,8 @@ import { GearIcon } from "@bitwarden/assets/svg";
   standalone: false,
 })
 export class SubscriptionHiddenComponent {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() providerName: string;
   gearIcon = GearIcon;
 }

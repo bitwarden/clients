@@ -35,6 +35,9 @@
       }
     }
   },
+  "noReportRan": {
+    "message": "Je hebt nog geen rapport aangemaakt"
+  },
   "notifiedMembers": {
     "message": "Geînformeerde leden"
   },
@@ -87,8 +90,8 @@
   "assignMembersTasksToMonitorProgress": {
     "message": "Leden taken toewijzen om de voortgang te controleren"
   },
-  "onceYouReviewApplications": {
-    "message": "Als je toepassingen als belangrijk markeert, verschijnen ze hier."
+  "onceYouReviewApps": {
+    "message": "Zodra je applicaties beoordeelt en ze als kritiek markeert, kun je leden taken toewijzen om risico-items op te lossen en de voortgang hier te controleren"
   },
   "sendReminders": {
     "message": "Herinneringen versturen"
@@ -151,6 +154,15 @@
       }
     }
   },
+  "newPasswordsAtRisk": {
+    "message": "$COUNT$ nieuwe wachtwoorden lopen risico",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "notifiedMembersWithCount": {
     "message": "Geînformeerde leden ($COUNT$)",
     "placeholders": {
@@ -184,8 +196,23 @@
   "markAppAsCritical": {
     "message": "App aanwijzen als belangrijk"
   },
+  "markAsCritical": {
+    "message": "App aanwijzen als belangrijk"
+  },
+  "applicationsSelected": {
+    "message": "applicaties geselecteerd"
+  },
+  "selectApplication": {
+    "message": "Applicatie selecteren"
+  },
+  "unselectApplication": {
+    "message": "Applicatie deselecteren"
+  },
   "applicationsMarkedAsCriticalSuccess": {
     "message": "Als belangrijk gemarkeerde applicaties"
+  },
+  "applicationsMarkedAsCriticalFail": {
+    "message": "Kon applicaties niet als kritiek markeren"
   },
   "application": {
     "message": "Applicatie"
@@ -273,6 +300,33 @@
   },
   "totalApplications": {
     "message": "Totaal applicaties"
+  },
+  "applicationsNeedingReview": {
+    "message": "Aanvragen die herzien moeten worden"
+  },
+  "newApplicationsWithCount": {
+    "message": "$COUNT$ nieuwe applicaties",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "13"
+      }
+    }
+  },
+  "newApplicationsDescription": {
+    "message": "Controleer nieuwe applicaties om ze als kritiek te markeren en je organisatie veilig te houden"
+  },
+  "reviewNow": {
+    "message": "Nu beoordelen"
+  },
+  "prioritizeCriticalApplications": {
+    "message": "Belangrijke applicaties prioriteren"
+  },
+  "atRiskItems": {
+    "message": "Items in gevaar"
+  },
+  "markAsCriticalPlaceholder": {
+    "message": "Markeren als kritieke functionaliteit wordt geïmplementeerd in een toekomstige update"
   },
   "unmarkAsCritical": {
     "message": "Markeren als belangrijk ongedaan maken"
@@ -1248,6 +1302,9 @@
   "readingPasskeyLoadingInfo": {
     "message": "Houd dit venster open en volg de aanwijzingen van je browser."
   },
+  "passkeyAuthenticationFailed": {
+    "message": "Passkey-authenticatie mislukt. Probeer het opnieuw."
+  },
   "useADifferentLogInMethod": {
     "message": "Gebruik een andere loginmethode"
   },
@@ -2032,9 +2089,6 @@
   "encKeySettings": {
     "message": "Instellingen encryptiesleutel"
   },
-  "kdfAlgorithm": {
-    "message": "KDF-algortime"
-  },
   "kdfIterations": {
     "message": "KDF-iteraties"
   },
@@ -2068,9 +2122,6 @@
   },
   "argon2Desc": {
     "message": "Hogere instellingen voor KDF-iteraties, geheugen en parallellisatie kunnen je hoofdwachtwoord beschermen tegen brute-foce-aanvallen."
-  },
-  "changeKdf": {
-    "message": "KDF wijzigen"
   },
   "encKeySettingsChanged": {
     "message": "Instellingen encryptiesleutel zijn gewijzigd"
@@ -2901,6 +2952,9 @@
   },
   "makeSureEnoughCredit": {
     "message": "Verzeker jezelf ervan dat je account voldoende krediet voor deze aankoop beschikbaar heeft. Als je account niet genoeg krediet heeft, zal je standaard betaalmethode worden gebruikt voor het verschil. Je kunt krediet aan je account toevoegen vanaf de factuurpagina."
+  },
+  "notEnoughAccountCredit": {
+    "message": "Je hebt niet genoeg accountkrediet voor deze aankoop. Je kunt krediet aan je account toevoegen vanaf de factuurpagina."
   },
   "creditAppliedDesc": {
     "message": "Je kunt het krediet van je account voor aankopen gebruiken. Elk beschikbaar krediet zal automatisch worden toegepast op facturen die gegenereerd zijn voor dit account."
@@ -4310,6 +4364,9 @@
   "generatingYourRiskInsights": {
     "message": "Je risico-inzichten genereren..."
   },
+  "riskInsightsRunReport": {
+    "message": "Rapport uitvoeren"
+  },
   "updateBrowserDesc": {
     "message": "Je maakt gebruik van webbrowser die we niet ondersteunen. De webkluis werkt mogelijk niet goed."
   },
@@ -5655,6 +5712,65 @@
   "organizationDataOwnershipWarningContentBottom": {
     "message": "Leer meer over de ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about the credential lifecycle.'"
+  },
+  "availableNow": {
+    "message": "Nu beschikbaar"
+  },
+  "autoConfirm": {
+    "message": "Automatic confirmation of new users"
+  },
+  "autoConfirmDescription": {
+    "message": "New users invited to the organization will be automatically confirmed when an admin’s device is unlocked.",
+    "description": "This is the description of the policy as it appears in the 'Policies' page"
+  },
+  "howToTurnOnAutoConfirm": {
+    "message": "How to turn on automatic user confirmation"
+  },
+  "autoConfirmStep1": {
+    "message": "Open your Bitwarden extension."
+  },
+  "autoConfirmStep2a": {
+    "message": "Select",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  },
+  "autoConfirmStep2b": {
+    "message": " Inschakelen.",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  },
+  "autoConfirmExtensionOpened": {
+    "message": "Successfully opened the Bitwarden browser extension. You can now activate the automatic user confirmation setting."
+  },
+  "autoConfirmPolicyEditDescription": {
+    "message": "New users invited to the organization will be automatically confirmed when an admin’s device is unlocked. Before turning on this policy, please review and agree to the following: ",
+    "description": "This is the description of the policy as it appears inside the policy edit dialog"
+  },
+  "autoConfirmAcceptSecurityRiskTitle": {
+    "message": "Mogelijk beveiligingsrisico. "
+  },
+  "autoConfirmAcceptSecurityRiskDescription": {
+    "message": "Automatic user confirmation could pose a security risk to your organization’s data."
+  },
+  "autoConfirmAcceptSecurityRiskLearnMore": {
+    "message": "Learn about the risks",
+    "description": "The is the link copy for the first check box option in the edit policy dialog"
+  },
+  "autoConfirmSingleOrgRequired": {
+    "message": "Single organization policy required. "
+  },
+  "autoConfirmSingleOrgRequiredDescription": {
+    "message": "Anyone part of more than one organization will have their access revoked until they leave the other organizations."
+  },
+  "autoConfirmSingleOrgExemption": {
+    "message": "Single organization policy will extend to all roles. "
+  },
+  "autoConfirmNoEmergencyAccess": {
+    "message": "No emergency access. "
+  },
+  "autoConfirmNoEmergencyAccessDescription": {
+    "message": "Emergency Access will be removed."
+  },
+  "autoConfirmCheckBoxLabel": {
+    "message": "I accept these risks and policy updates"
   },
   "personalOwnership": {
     "message": "Persoonlijk eigendom"
@@ -9960,6 +10076,9 @@
   "crowdstrikeEventIntegrationDesc": {
     "message": "Stuur eventgegevens naar je Logscale-instantie"
   },
+  "datadogEventIntegrationDesc": {
+    "message": "Stuur gebeurtenisgegevens van je kluis naar je Datadog-instance"
+  },
   "failedToSaveIntegration": {
     "message": "Opslaan van integratie mislukt. Probeer het later opnieuw."
   },
@@ -10304,26 +10423,8 @@
   "memberAccessReportAuthenticationEnabledFalse": {
     "message": "Uit"
   },
-  "higherKDFIterations": {
-    "message": "Hogere KDF-iteraties beschermen je hoofdwachtwoord tegen brute-foce-aanvallen."
-  },
-  "incrementsOf100,000": {
-    "message": "verhogingen van 100.000"
-  },
-  "smallIncrements": {
-    "message": "kleine verhogingen"
-  },
   "kdfIterationRecommends": {
     "message": "We adviseren 600.000 of meer"
-  },
-  "kdfToHighWarningIncreaseInIncrements": {
-    "message": "Voor oudere apparaten kan het te hoog instellen van je KDF tot prestatieproblemen leiden. Verhoog de waarde in $VALUE$ en test je apparaten.",
-    "placeholders": {
-      "value": {
-        "content": "$1",
-        "example": "increments of 100,000"
-      }
-    }
   },
   "providerReinstate": {
     "message": " Neem contact op met de klantenservice om je abonnement te herstellen."
@@ -10967,6 +11068,15 @@
   "domainClaimed": {
     "message": "Domein geverifieerd"
   },
+  "itemAddedToFavorites": {
+    "message": "Item toegevoegd aan favorieten"
+  },
+  "itemRemovedFromFavorites": {
+    "message": "Item verwijderd uit favorieten"
+  },
+  "copyNote": {
+    "message": "Notitie kopiëren"
+  },
   "organizationNameMaxLength": {
     "message": "Organisatienaam mag niet langer zijn dan 50 tekens."
   },
@@ -11237,11 +11347,46 @@
     "message": "Archiveren",
     "description": "Verb"
   },
+  "unArchive": {
+    "message": "Dearchiveren"
+  },
+  "itemsInArchive": {
+    "message": "Items in archief"
+  },
   "noItemsInArchive": {
     "message": "No items in archive"
   },
-  "archivedItemsDescription": {
-    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+  "noItemsInArchiveDesc": {
+    "message": "Gearchiveerde items verschijnen hier en worden uitgesloten van algemene zoekresultaten en automatisch invulsuggesties."
+  },
+  "itemWasSentToArchive": {
+    "message": "Item naar archief verzonden"
+  },
+  "itemsWereSentToArchive": {
+    "message": "Item naar archief verzonden"
+  },
+  "itemUnarchived": {
+    "message": "Item uit het archief gehaald"
+  },
+  "bulkArchiveItems": {
+    "message": "Items gearchiveerd"
+  },
+  "bulkUnarchiveItems": {
+    "message": "Item gedearchiveerd"
+  },
+  "archiveItem": {
+    "message": "Item archiveren",
+    "description": "Verb"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Gearchiveerde items worden uitgesloten van algemene zoekresultaten en automatische invulsuggesties. Weet je zeker dat je dit item wilt archiveren?"
+  },
+  "archiveBulkItems": {
+    "message": "Items archiveren",
+    "description": "Verb"
+  },
+  "archiveBulkItemsConfirmDesc": {
+    "message": "Gearchiveerde items worden uitgesloten van algemene zoekresultaten en automatische invulsuggesties. Weet je zeker dat je deze items wilt archiveren?"
   },
   "businessUnit": {
     "message": "Bedrijfseenheid"
@@ -11713,5 +11858,83 @@
   },
   "seamlessIntegration": {
     "message": "Naadloze integratie"
+  },
+  "families": {
+    "message": "Families"
+  },
+  "upgradeToFamilies": {
+    "message": "Opwaarderen naar Families"
+  },
+  "upgradeToPremium": {
+    "message": "Opwaarderen naar Premium"
+  },
+  "familiesUpdated": {
+    "message": "Je hebt opgewaardeerd naar Families!"
+  },
+  "taxCalculationError": {
+    "message": "Er is een fout opgetreden bij het berekenen van de belasting voor je locatie. Probeer het opnieuw."
+  },
+  "individualUpgradeWelcomeMessage": {
+    "message": "Welkom bij Bitwarden"
+  },
+  "individualUpgradeDescriptionMessage": {
+    "message": "Ontgrendel meer beveiligingsfuncties met Premium, of begin met het delen van items met Families"
+  },
+  "individualUpgradeTaxInformationMessage": {
+    "message": "Prijzen exclusief btw en worden jaarlijks gefactureerd."
+  },
+  "organizationNameDescription": {
+    "message": "De naam van je organisatie verschijnt in uitnodigingen die je aan leden verstuurt."
+  },
+  "continueWithoutUpgrading": {
+    "message": "Doorgaan zonder opwaarderen"
+  },
+  "upgradeYourPlan": {
+    "message": "Upgrade je abonnement"
+  },
+  "upgradeNow": {
+    "message": "Nu upgraden"
+  },
+  "formWillCreateNewFamiliesOrgMessage": {
+    "message": "Met het invullen van dit formulier maak je een nieuwe Familie-organisatie. Je kunt je gratis organisatie upgraden vanuit de Admin Console."
+  },
+  "upgradeErrorMessage": {
+    "message": "Er is een fout opgetreden tijdens het verwerken van het opwaarderen. Probeer het opnieuw."
+  },
+  "bitwardenFreeplanMessage": {
+    "message": "Je hebt het gratis Bitwarden-abonnement"
+  },
+  "upgradeCompleteSecurity": {
+    "message": "Upgrade voor volledige beveiliging"
+  },
+  "viewbusinessplans": {
+    "message": "Bedrijfsabonnementen bekijken"
+  },
+  "updateEncryptionSettings": {
+    "message": "Versleutelingsinstellingen bijwerken"
+  },
+  "updateYourEncryptionSettings": {
+    "message": "Je versleutelingsinstellingen bijwerken"
+  },
+  "updateSettings": {
+    "message": "Instellingen bijwerken"
+  },
+  "algorithm": {
+    "message": "Algoritme"
+  },
+  "encryptionKeySettingsHowShouldWeEncryptYourData": {
+    "message": "Kies hoe Bitwarden je kluisgegevens moet versleutelen. Alle opties zijn veilig, maar sterkere methoden bieden betere bescherming - vooral tegen brute-force aanvallen. Bitwarden beveelt de standaardinstelling voor de meeste gebruikers aan."
+  },
+  "encryptionKeySettingsIncreaseImproveSecurity": {
+    "message": "Het verhogen van de waarden boven de standaard zal de veiligheid verbeteren, maar het ontgrendelen van je kluis kan langer duren."
+  },
+  "encryptionKeySettingsAlgorithmPopoverTitle": {
+    "message": "Over versleutelingsalgoritmen"
+  },
+  "encryptionKeySettingsAlgorithmPopoverPBKDF2": {
+    "message": "PBKDF2-SHA256 is een goed geteste versleutelingsmethode met evenwicht tussen veiligheid en prestaties. Goed voor alle gebruikers."
+  },
+  "encryptionKeySettingsAlgorithmPopoverArgon2Id": {
+    "message": "Argon2id biedt een sterkere bescherming tegen moderne aanvallen. Het beste voor geavanceerde gebruikers met krachtige apparaten."
   }
 }

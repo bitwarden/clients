@@ -37,7 +37,9 @@ import {
 
 // FIXME: unify with `SYSTEM_SERVICE_PROVIDER` when migrating it from the generator component module
 //        to a general module.
-const SYSTEM_SERVICE_PROVIDER = new SafeInjectionToken<SystemServiceProvider>("SystemServices");
+export const SYSTEM_SERVICE_PROVIDER = new SafeInjectionToken<SystemServiceProvider>(
+  "SystemServices",
+);
 
 /** Import service factories */
 export const ImporterProviders: SafeProvider[] = [
@@ -85,7 +87,6 @@ export const ImporterProviders: SafeProvider[] = [
       PinServiceAbstraction,
       AccountService,
       RestrictedItemTypesService,
-      SYSTEM_SERVICE_PROVIDER,
     ],
   }),
 ];

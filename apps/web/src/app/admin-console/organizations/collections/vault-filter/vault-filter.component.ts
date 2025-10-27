@@ -24,6 +24,8 @@ import {
 } from "../../../../vault/individual-vault/vault-filter/shared/models/vault-filter-section.type";
 import { CollectionFilter } from "../../../../vault/individual-vault/vault-filter/shared/models/vault-filter.type";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-organization-vault-filter",
   templateUrl:
@@ -34,6 +36,8 @@ export class VaultFilterComponent
   extends BaseVaultFilterComponent
   implements OnInit, OnDestroy, OnChanges
 {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() set organization(value: Organization) {
     if (value && value !== this._organization) {
       this._organization = value;

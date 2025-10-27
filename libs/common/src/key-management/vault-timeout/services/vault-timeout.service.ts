@@ -4,7 +4,7 @@ import { combineLatest, concatMap, firstValueFrom } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { LockService, LogoutReason } from "@bitwarden/auth/common";
+import { LockService, LogoutService } from "@bitwarden/auth/common";
 
 import { AccountService } from "../../../auth/abstractions/account.service";
 import { AuthService } from "../../../auth/abstractions/auth.service";
@@ -28,10 +28,7 @@ export class VaultTimeoutService implements VaultTimeoutServiceAbstraction {
     private taskSchedulerService: TaskSchedulerService,
     protected logService: LogService,
     private lockService: LockService,
-    private loggedOutCallback: (
-      logoutReason: LogoutReason,
-      userId?: string,
-    ) => Promise<void> = null,
+    private logoutService: LogoutService,
   ) {
     this.taskSchedulerService.registerTaskHandler(
       ScheduledTaskNames.vaultTimeoutCheckInterval,
@@ -83,12 +80,6 @@ export class VaultTimeoutService implements VaultTimeoutServiceAbstraction {
     );
   }
 
-  async logOut(userId?: string): Promise<void> {
-    if (this.loggedOutCallback != null) {
-      await this.loggedOutCallback("vaultTimeout", userId);
-    }
-  }
-
   private async shouldLock(
     userId: string,
     lastActive: Date,
@@ -132,7 +123,7 @@ export class VaultTimeoutService implements VaultTimeoutServiceAbstraction {
       this.vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$(userId),
     );
     timeoutAction === VaultTimeoutAction.LogOut
-      ? await this.logOut(userId)
+      ? await this.logoutService.logout(userId, "vaultTimeout")
       : await this.lockService.lock(userId);
   }
 }

@@ -8,8 +8,4 @@ export class ForegroundVaultTimeoutService implements BaseVaultTimeoutService {
 
   // should only ever run in background
   async checkVaultTimeout(): Promise<void> {}
-
-  async logOut(userId?: string): Promise<void> {
-    this.messagingService.send("logout", { userId });
-  }
 }

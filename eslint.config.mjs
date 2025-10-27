@@ -72,13 +72,16 @@ export default tseslint.config(
       "@angular-eslint/no-output-on-prefix": 0,
       "@angular-eslint/no-output-rename": 0,
       "@angular-eslint/no-outputs-metadata-property": 0,
+      "@angular-eslint/prefer-on-push-component-change-detection": "warn",
+      "@angular-eslint/prefer-output-emitter-ref": "warn",
+      "@angular-eslint/prefer-signals": "warn",
       "@angular-eslint/prefer-standalone": 0,
       "@angular-eslint/use-lifecycle-interface": "error",
       "@angular-eslint/use-pipe-transform-interface": 0,
 
       "@bitwarden/platform/required-using": "error",
       "@bitwarden/platform/no-enums": "error",
-      "@bitwarden/components/require-theme-colors-in-svg": "warn",
+      "@bitwarden/components/require-theme-colors-in-svg": "error",
 
       "@typescript-eslint/explicit-member-accessibility": ["error", { accessibility: "no-public" }],
       "@typescript-eslint/no-explicit-any": "off", // TODO: This should be re-enabled
@@ -322,7 +325,12 @@ export default tseslint.config(
   },
   // Tailwind migrated clients & libs
   {
-    files: ["apps/web/**/*.html", "bitwarden_license/bit-web/**/*.html", "libs/**/*.html"],
+    files: [
+      "apps/web/**/*.html",
+      "apps/browser/**/*.html",
+      "bitwarden_license/bit-web/**/*.html",
+      "libs/**/*.html",
+    ],
     rules: {
       "tailwindcss/no-custom-classname": [
         "error",
