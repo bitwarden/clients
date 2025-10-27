@@ -4,6 +4,7 @@ import { firstValueFrom, map } from "rxjs";
 import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { DialogService } from "@bitwarden/components";
 
 import { ChangeKdfModule } from "../../../key-management/change-kdf/change-kdf.module";
@@ -26,10 +27,10 @@ export class SecurityKeysComponent implements OnInit {
   ) {}
 
   async ngOnInit() {
-    const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
-    this.showChangeKdf = userId
-      ? await firstValueFrom(this.userDecryptionOptionsService.hasMasterPasswordById$(userId))
-      : false;
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    this.showChangeKdf = await firstValueFrom(
+      this.userDecryptionOptionsService.hasMasterPasswordById$(userId),
+    );
   }
 
   async viewUserApiKey() {

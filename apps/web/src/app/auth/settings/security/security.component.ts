@@ -3,6 +3,7 @@ import { firstValueFrom } from "rxjs";
 
 import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 
 import { HeaderModule } from "../../../layouts/header/header.module";
 import { SharedModule } from "../../../shared";
@@ -21,7 +22,7 @@ export class SecurityComponent implements OnInit {
   ) {}
 
   async ngOnInit() {
-    const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     this.showChangePassword = userId
       ? await firstValueFrom(this.userDecryptionOptionsService.hasMasterPasswordById$(userId))
       : false;
