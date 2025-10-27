@@ -17,6 +17,7 @@ import {
   Region,
 } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import {
@@ -54,17 +55,20 @@ function selfHostedEnvSettingsFormValidator(): ValidatorFn {
 
 function onlyHttpsValidator(): ValidatorFn {
   const i18nService = inject(I18nService);
+  const platformUtilsService = inject(PlatformUtilsService);
+
   return (control: AbstractControl): ValidationErrors | null => {
     const url = control.value as string;
-    if (!url || url.startsWith("https://")) {
-      return null; // valid
-    } else {
+
+    if (url && !url.startsWith("https://") && !platformUtilsService.isDev()) {
       return {
         onlyHttpsAllowed: {
           message: i18nService.t("selfHostedEnvMustUseHttps"),
         },
       }; // invalid
     }
+
+    return null; // valid
   };
 }
 
