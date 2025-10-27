@@ -5831,7 +5831,7 @@
     "message": "Default URI match detection"
   },
   "uriMatchDetectionPolicyDesc": {
-    "message": "Set when logins are suggested for autofill based on the selected match detection option. Admins and owners are exempt form this policy."
+    "message": "Determine when logins are suggested for autofill. Admins and owners are exempt form this policy."
   },
   "uriMatchDetectionOptionsLabel": {
     "message": "Default URI match detection"
