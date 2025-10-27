@@ -70,16 +70,13 @@ describe("UnifiedUpgradePromptService", () => {
   describe("initialization", () => {
     beforeEach(() => {
       mockAccountService.activeAccount$ = accountSubject.asObservable();
+      mockPlatformUtilsService.isSelfHost.mockReturnValue(false);
+      mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
+
       setupTestService();
     });
     it("should be created", () => {
       expect(sut).toBeTruthy();
-    });
-
-    it("should subscribe to account and feature flag observables on construction", () => {
-      expect(mockConfigService.getFeatureFlag$).toHaveBeenCalledWith(
-        FeatureFlag.PM24996_ImplementUpgradeFromFreeDialog,
-      );
     });
   });
 
@@ -99,7 +96,24 @@ describe("UnifiedUpgradePromptService", () => {
       mockSyncService.lastSync$.mockReturnValue(of(new Date()));
       mockReset(mockPlatformUtilsService);
     });
+    it("should subscribe to account and feature flag observables when checking display conditions", async () => {
+      // Arrange
+      mockPlatformUtilsService.isSelfHost.mockReturnValue(false);
+      mockOrganizationService.memberOrganizations$.mockReturnValue(of([]));
+      mockConfigService.getFeatureFlag$.mockReturnValue(of(false));
+      mockBillingService.hasPremiumFromAnySource$.mockReturnValue(of(false));
 
+      setupTestService();
+
+      // Act
+      await sut.displayUpgradePromptConditionally();
+
+      // Assert
+      expect(mockConfigService.getFeatureFlag$).toHaveBeenCalledWith(
+        FeatureFlag.PM24996_ImplementUpgradeFromFreeDialog,
+      );
+      expect(mockAccountService.activeAccount$).toBeDefined();
+    });
     it("should not show dialog when feature flag is disabled", async () => {
       // Arrange
       mockPlatformUtilsService.isSelfHost.mockReturnValue(false);
@@ -140,6 +154,7 @@ describe("UnifiedUpgradePromptService", () => {
       mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
       mockBillingService.hasPremiumFromAnySource$.mockReturnValue(of(false));
       mockOrganizationService.memberOrganizations$.mockReturnValue(of([{ id: "org1" } as any]));
+      mockPlatformUtilsService.isSelfHost.mockReturnValue(true);
       setupTestService();
 
       // Act
