@@ -8,11 +8,35 @@ import {
 /**
  * Type guard to validate MemberDetails structure
  * Exported for testability
+ * Strict validation: rejects objects with unexpected properties and prototype pollution
  */
 export function isMemberDetails(obj: any): obj is MemberDetails {
+  if (typeof obj !== "object" || obj === null) {
+    return false;
+  }
+
+  // Prevent prototype pollution - check prototype is Object.prototype
+  if (Object.getPrototypeOf(obj) !== Object.prototype) {
+    return false;
+  }
+
+  // Prevent dangerous own properties
+  if (
+    Object.prototype.hasOwnProperty.call(obj, "constructor") ||
+    Object.prototype.hasOwnProperty.call(obj, "prototype")
+  ) {
+    return false;
+  }
+
+  // Strict property validation - reject unexpected properties
+  const allowedKeys = ["userGuid", "userName", "email", "cipherId"];
+  const actualKeys = Object.keys(obj);
+  const hasUnexpectedProps = actualKeys.some((key) => !allowedKeys.includes(key));
+  if (hasUnexpectedProps) {
+    return false;
+  }
+
   return (
-    typeof obj === "object" &&
-    obj !== null &&
     typeof obj.userGuid === "string" &&
     obj.userGuid.length > 0 &&
     typeof obj.userName === "string" &&
@@ -27,11 +51,45 @@ export function isMemberDetails(obj: any): obj is MemberDetails {
 /**
  * Type guard to validate ApplicationHealthReportDetail structure
  * Exported for testability
+ * Strict validation: rejects objects with unexpected properties and prototype pollution
  */
 export function isApplicationHealthReportDetail(obj: any): obj is ApplicationHealthReportDetail {
+  if (typeof obj !== "object" || obj === null) {
+    return false;
+  }
+
+  // Prevent prototype pollution - check prototype is Object.prototype
+  if (Object.getPrototypeOf(obj) !== Object.prototype) {
+    return false;
+  }
+
+  // Prevent dangerous own properties
+  if (
+    Object.prototype.hasOwnProperty.call(obj, "constructor") ||
+    Object.prototype.hasOwnProperty.call(obj, "prototype")
+  ) {
+    return false;
+  }
+
+  // Strict property validation - reject unexpected properties
+  const allowedKeys = [
+    "applicationName",
+    "passwordCount",
+    "atRiskPasswordCount",
+    "atRiskCipherIds",
+    "memberCount",
+    "atRiskMemberCount",
+    "memberDetails",
+    "atRiskMemberDetails",
+    "cipherIds",
+  ];
+  const actualKeys = Object.keys(obj);
+  const hasUnexpectedProps = actualKeys.some((key) => !allowedKeys.includes(key));
+  if (hasUnexpectedProps) {
+    return false;
+  }
+
   return (
-    typeof obj === "object" &&
-    obj !== null &&
     typeof obj.applicationName === "string" &&
     obj.applicationName.length > 0 &&
     typeof obj.passwordCount === "number" &&
@@ -60,11 +118,45 @@ export function isApplicationHealthReportDetail(obj: any): obj is ApplicationHea
 /**
  * Type guard to validate OrganizationReportSummary structure
  * Exported for testability
+ * Strict validation: rejects objects with unexpected properties and prototype pollution
  */
 export function isOrganizationReportSummary(obj: any): obj is OrganizationReportSummary {
+  if (typeof obj !== "object" || obj === null) {
+    return false;
+  }
+
+  // Prevent prototype pollution - check prototype is Object.prototype
+  if (Object.getPrototypeOf(obj) !== Object.prototype) {
+    return false;
+  }
+
+  // Prevent dangerous own properties
+  if (
+    Object.prototype.hasOwnProperty.call(obj, "constructor") ||
+    Object.prototype.hasOwnProperty.call(obj, "prototype")
+  ) {
+    return false;
+  }
+
+  // Strict property validation - reject unexpected properties
+  const allowedKeys = [
+    "totalMemberCount",
+    "totalApplicationCount",
+    "totalAtRiskMemberCount",
+    "totalAtRiskApplicationCount",
+    "totalCriticalApplicationCount",
+    "totalCriticalMemberCount",
+    "totalCriticalAtRiskMemberCount",
+    "totalCriticalAtRiskApplicationCount",
+    "newApplications",
+  ];
+  const actualKeys = Object.keys(obj);
+  const hasUnexpectedProps = actualKeys.some((key) => !allowedKeys.includes(key));
+  if (hasUnexpectedProps) {
+    return false;
+  }
+
   return (
-    typeof obj === "object" &&
-    obj !== null &&
     typeof obj.totalMemberCount === "number" &&
     Number.isFinite(obj.totalMemberCount) &&
     obj.totalMemberCount >= 0 &&
@@ -97,11 +189,35 @@ export function isOrganizationReportSummary(obj: any): obj is OrganizationReport
 /**
  * Type guard to validate OrganizationReportApplication structure
  * Exported for testability
+ * Strict validation: rejects objects with unexpected properties and prototype pollution
  */
 export function isOrganizationReportApplication(obj: any): obj is OrganizationReportApplication {
+  if (typeof obj !== "object" || obj === null) {
+    return false;
+  }
+
+  // Prevent prototype pollution - check prototype is Object.prototype
+  if (Object.getPrototypeOf(obj) !== Object.prototype) {
+    return false;
+  }
+
+  // Prevent dangerous own properties
+  if (
+    Object.prototype.hasOwnProperty.call(obj, "constructor") ||
+    Object.prototype.hasOwnProperty.call(obj, "prototype")
+  ) {
+    return false;
+  }
+
+  // Strict property validation - reject unexpected properties
+  const allowedKeys = ["applicationName", "isCritical", "reviewedDate"];
+  const actualKeys = Object.keys(obj);
+  const hasUnexpectedProps = actualKeys.some((key) => !allowedKeys.includes(key));
+  if (hasUnexpectedProps) {
+    return false;
+  }
+
   return (
-    typeof obj === "object" &&
-    obj !== null &&
     typeof obj.applicationName === "string" &&
     obj.applicationName.length > 0 &&
     typeof obj.isCritical === "boolean" &&
