@@ -4,7 +4,7 @@ import { Component } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 import { combineLatest, firstValueFrom, lastValueFrom, switchMap } from "rxjs";
-import { first } from "rxjs/operators";
+import { first, map } from "rxjs/operators";
 
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -16,11 +16,13 @@ import { ProviderUserConfirmRequest } from "@bitwarden/common/admin-console/mode
 import { ProviderUserUserDetailsResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-user.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { assertNonNullish } from "@bitwarden/common/auth/utils";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
+import { ProviderId } from "@bitwarden/common/types/guid";
 import { DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 import { BaseMembersComponent } from "@bitwarden/web-vault/app/admin-console/common/base-members.component";
@@ -204,7 +206,15 @@ export class MembersComponent extends BaseMembersComponent<ProviderUser> {
 
   async confirmUser(user: ProviderUser, publicKey: Uint8Array): Promise<MemberActionResult> {
     try {
-      const providerKey = await this.keyService.getProviderKey(this.providerId);
+      const providerKey = await firstValueFrom(
+        this.accountService.activeAccount$.pipe(
+          getUserId,
+          switchMap((userId) => this.keyService.providerKeys$(userId)),
+          map((providerKeys) => providerKeys?.[this.providerId as ProviderId] ?? null),
+        ),
+      );
+      assertNonNullish(providerKey, "Provider key not found");
+
       const key = await this.encryptService.encapsulateKeyUnsigned(providerKey, publicKey);
       const request = new ProviderUserConfirmRequest();
       request.key = key.encryptedString;

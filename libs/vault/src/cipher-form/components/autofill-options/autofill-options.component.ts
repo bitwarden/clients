@@ -36,6 +36,8 @@ interface UriField {
   matchDetection: UriMatchStrategySetting;
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "vault-autofill-options",
   templateUrl: "./autofill-options.component.html",
@@ -60,6 +62,8 @@ export class AutofillOptionsComponent implements OnInit {
   /**
    * List of rendered UriOptionComponents. Used for focusing newly added Uri inputs.
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChildren(UriOptionComponent)
   protected uriOptions: QueryList<UriOptionComponent>;
 
