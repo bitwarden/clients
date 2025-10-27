@@ -14,6 +14,8 @@ import { DialogService, NavigationModule } from "@bitwarden/components";
 import { OrganizationWarningsModule } from "@bitwarden/web-vault/app/billing/organizations/warnings/organization-warnings.module";
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "org-switcher",
   templateUrl: "org-switcher.component.html",
@@ -43,20 +45,28 @@ export class OrgSwitcherComponent {
    * const smFilter = (org: Organization) => org.canAccessSecretsManager
    * // <org-switcher [filter]="smFilter">
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   filter: (org: Organization) => boolean = () => true;
 
   /**
    * Is `true` if the expanded content is visible
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   open = false;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output()
   openChange = new EventEmitter<boolean>();
 
   /**
    * Visibility of the New Organization button
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   hideNewButton = false;
 

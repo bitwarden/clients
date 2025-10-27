@@ -9,6 +9,7 @@ import { PopoverModule, ToastService } from "@bitwarden/components";
 import { SharedModule } from "../../../shared";
 import { BillingServicesModule, BraintreeService, StripeService } from "../../services";
 import {
+  AccountCreditPaymentMethod,
   isTokenizablePaymentMethod,
   selectableCountries,
   TokenizablePaymentMethod,
@@ -17,7 +18,7 @@ import {
 
 import { PaymentLabelComponent } from "./payment-label.component";
 
-type PaymentMethodOption = TokenizablePaymentMethod | "accountCredit";
+type PaymentMethodOption = TokenizablePaymentMethod | AccountCreditPaymentMethod;
 
 type PaymentMethodFormGroup = FormGroup<{
   type: FormControl<PaymentMethodOption>;
@@ -33,6 +34,8 @@ type PaymentMethodFormGroup = FormGroup<{
   }>;
 }>;
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-enter-payment-method",
   template: `
@@ -183,9 +186,15 @@ type PaymentMethodFormGroup = FormGroup<{
         }
         @case ("accountCredit") {
           <ng-container>
-            <bit-callout type="info">
-              {{ "makeSureEnoughCredit" | i18n }}
-            </bit-callout>
+            @if (hasEnoughAccountCredit) {
+              <bit-callout type="info">
+                {{ "makeSureEnoughCredit" | i18n }}
+              </bit-callout>
+            } @else {
+              <bit-callout type="warning">
+                {{ "notEnoughAccountCredit" | i18n }}
+              </bit-callout>
+            }
           </ng-container>
         }
       }
@@ -225,11 +234,24 @@ type PaymentMethodFormGroup = FormGroup<{
   imports: [BillingServicesModule, PaymentLabelComponent, PopoverModule, SharedModule],
 })
 export class EnterPaymentMethodComponent implements OnInit {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true }) group!: PaymentMethodFormGroup;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() private showBankAccount = true;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() showPayPal = true;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() showAccountCredit = false;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @Input() hasEnoughAccountCredit = true;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() includeBillingAddress = false;
 
   protected showBankAccount$!: Observable<boolean>;

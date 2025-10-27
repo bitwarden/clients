@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
 import { Cipher as SdkCipher } from "@bitwarden/sdk-internal";
@@ -13,6 +11,7 @@ import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-cr
 import { InitializerKey } from "../../../platform/services/cryptography/initializer-key";
 import { CipherRepromptType } from "../../enums/cipher-reprompt-type";
 import { CipherType } from "../../enums/cipher-type";
+import { conditionalEncString, encStringFrom } from "../../utils/domain-utils";
 import { CipherPermissionsApi } from "../api/cipher-permissions.api";
 import { CipherData } from "../data/cipher.data";
 import { LocalData, fromSdkLocalData, toSdkLocalData } from "../data/local.data";
@@ -33,71 +32,60 @@ import { SshKey } from "./ssh-key";
 export class Cipher extends Domain implements Decryptable<CipherView> {
   readonly initializerKey = InitializerKey.Cipher;
 
-  id: string;
-  organizationId: string;
-  folderId: string;
-  name: EncString;
-  notes: EncString;
-  type: CipherType;
-  favorite: boolean;
-  organizationUseTotp: boolean;
-  edit: boolean;
-  viewPassword: boolean;
-  permissions: CipherPermissionsApi;
+  id: string = "";
+  organizationId?: string;
+  folderId?: string;
+  name: EncString = new EncString("");
+  notes?: EncString;
+  type: CipherType = CipherType.Login;
+  favorite: boolean = false;
+  organizationUseTotp: boolean = false;
+  edit: boolean = false;
+  viewPassword: boolean = true;
+  permissions?: CipherPermissionsApi;
   revisionDate: Date;
-  localData: LocalData;
-  login: Login;
-  identity: Identity;
-  card: Card;
-  secureNote: SecureNote;
-  sshKey: SshKey;
-  attachments: Attachment[];
-  fields: Field[];
-  passwordHistory: Password[];
-  collectionIds: string[];
+  localData?: LocalData;
+  login?: Login;
+  identity?: Identity;
+  card?: Card;
+  secureNote?: SecureNote;
+  sshKey?: SshKey;
+  attachments?: Attachment[];
+  fields?: Field[];
+  passwordHistory?: Password[];
+  collectionIds: string[] = [];
   creationDate: Date;
-  deletedDate: Date | undefined;
-  archivedDate: Date | undefined;
-  reprompt: CipherRepromptType;
-  key: EncString;
+  deletedDate?: Date;
+  archivedDate?: Date;
+  reprompt: CipherRepromptType = CipherRepromptType.None;
+  key?: EncString;
 
-  constructor(obj?: CipherData, localData: LocalData = null) {
+  constructor(obj?: CipherData, localData?: LocalData) {
     super();
     if (obj == null) {
+      this.creationDate = this.revisionDate = new Date();
       return;
     }
 
-    this.buildDomainModel(
-      this,
-      obj,
-      {
-        id: null,
-        organizationId: null,
-        folderId: null,
-        name: null,
-        notes: null,
-        key: null,
-      },
-      ["id", "organizationId", "folderId"],
-    );
-
+    this.id = obj.id;
+    this.organizationId = obj.organizationId;
+    this.folderId = obj.folderId;
+    this.name = new EncString(obj.name);
+    this.notes = conditionalEncString(obj.notes);
     this.type = obj.type;
     this.favorite = obj.favorite;
     this.organizationUseTotp = obj.organizationUseTotp;
     this.edit = obj.edit;
-    if (obj.viewPassword != null) {
-      this.viewPassword = obj.viewPassword;
-    } else {
-      this.viewPassword = true; // Default for already synced Ciphers without viewPassword
-    }
+    this.viewPassword = obj.viewPassword;
     this.permissions = obj.permissions;
-    this.revisionDate = obj.revisionDate != null ? new Date(obj.revisionDate) : null;
-    this.collectionIds = obj.collectionIds;
+    this.revisionDate = new Date(obj.revisionDate);
     this.localData = localData;
-    this.creationDate = obj.creationDate != null ? new Date(obj.creationDate) : null;
+    this.collectionIds = obj.collectionIds ?? [];
+    this.creationDate = new Date(obj.creationDate);
     this.deletedDate = obj.deletedDate != null ? new Date(obj.deletedDate) : undefined;
     this.archivedDate = obj.archivedDate != null ? new Date(obj.archivedDate) : undefined;
     this.reprompt = obj.reprompt;
+    this.key = conditionalEncString(obj.key);
 
     switch (this.type) {
       case CipherType.Login:
@@ -121,20 +109,14 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
 
     if (obj.attachments != null) {
       this.attachments = obj.attachments.map((a) => new Attachment(a));
-    } else {
-      this.attachments = null;
     }
 
     if (obj.fields != null) {
       this.fields = obj.fields.map((f) => new Field(f));
-    } else {
-      this.fields = null;
     }
 
     if (obj.passwordHistory != null) {
       this.passwordHistory = obj.passwordHistory.map((ph) => new Password(ph));
-    } else {
-      this.passwordHistory = null;
     }
   }
 
@@ -161,46 +143,54 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
 
     await this.decryptObj<Cipher, CipherView>(
       this,
-      // @ts-expect-error Ciphers have optional Ids which are getting swallowed by the ViewEncryptableKeys type
-      // The ViewEncryptableKeys type should be fixed to allow for optional Ids, but is out of scope for now.
       model,
       ["name", "notes"],
-      this.organizationId,
+      this.organizationId ?? null,
       encKey,
     );
 
     switch (this.type) {
       case CipherType.Login:
-        model.login = await this.login.decrypt(
-          this.organizationId,
-          bypassValidation,
-          `Cipher Id: ${this.id}`,
-          encKey,
-        );
+        if (this.login != null) {
+          model.login = await this.login.decrypt(
+            this.organizationId,
+            bypassValidation,
+            `Cipher Id: ${this.id}`,
+            encKey,
+          );
+        }
         break;
       case CipherType.SecureNote:
-        model.secureNote = await this.secureNote.decrypt(
-          this.organizationId,
-          `Cipher Id: ${this.id}`,
-          encKey,
-        );
+        if (this.secureNote != null) {
+          model.secureNote = await this.secureNote.decrypt();
+        }
         break;
       case CipherType.Card:
-        model.card = await this.card.decrypt(this.organizationId, `Cipher Id: ${this.id}`, encKey);
+        if (this.card != null) {
+          model.card = await this.card.decrypt(
+            this.organizationId,
+            `Cipher Id: ${this.id}`,
+            encKey,
+          );
+        }
         break;
       case CipherType.Identity:
-        model.identity = await this.identity.decrypt(
-          this.organizationId,
-          `Cipher Id: ${this.id}`,
-          encKey,
-        );
+        if (this.identity != null) {
+          model.identity = await this.identity.decrypt(
+            this.organizationId,
+            `Cipher Id: ${this.id}`,
+            encKey,
+          );
+        }
         break;
       case CipherType.SshKey:
-        model.sshKey = await this.sshKey.decrypt(
-          this.organizationId,
-          `Cipher Id: ${this.id}`,
-          encKey,
-        );
+        if (this.sshKey != null) {
+          model.sshKey = await this.sshKey.decrypt(
+            this.organizationId,
+            `Cipher Id: ${this.id}`,
+            encKey,
+          );
+        }
         break;
       default:
         break;
@@ -209,9 +199,12 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     if (this.attachments != null && this.attachments.length > 0) {
       const attachments: AttachmentView[] = [];
       for (const attachment of this.attachments) {
-        attachments.push(
-          await attachment.decrypt(this.organizationId, `Cipher Id: ${this.id}`, encKey),
+        const decryptedAttachment = await attachment.decrypt(
+          this.organizationId,
+          `Cipher Id: ${this.id}`,
+          encKey,
         );
+        attachments.push(decryptedAttachment);
       }
       model.attachments = attachments;
     }
@@ -219,7 +212,8 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     if (this.fields != null && this.fields.length > 0) {
       const fields: FieldView[] = [];
       for (const field of this.fields) {
-        fields.push(await field.decrypt(this.organizationId, encKey));
+        const decryptedField = await field.decrypt(this.organizationId, encKey);
+        fields.push(decryptedField);
       }
       model.fields = fields;
     }
@@ -227,7 +221,8 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     if (this.passwordHistory != null && this.passwordHistory.length > 0) {
       const passwordHistory: PasswordHistoryView[] = [];
       for (const ph of this.passwordHistory) {
-        passwordHistory.push(await ph.decrypt(this.organizationId, encKey));
+        const decryptedPh = await ph.decrypt(this.organizationId, encKey);
+        passwordHistory.push(decryptedPh);
       }
       model.passwordHistory = passwordHistory;
     }
@@ -238,20 +233,32 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
   toCipherData(): CipherData {
     const c = new CipherData();
     c.id = this.id;
-    c.organizationId = this.organizationId;
-    c.folderId = this.folderId;
+    if (this.organizationId != null) {
+      c.organizationId = this.organizationId;
+    }
+
+    if (this.folderId != null) {
+      c.folderId = this.folderId;
+    }
     c.edit = this.edit;
     c.viewPassword = this.viewPassword;
     c.organizationUseTotp = this.organizationUseTotp;
     c.favorite = this.favorite;
-    c.revisionDate = this.revisionDate != null ? this.revisionDate.toISOString() : null;
+    c.revisionDate = this.revisionDate.toISOString();
     c.type = this.type;
     c.collectionIds = this.collectionIds;
-    c.creationDate = this.creationDate != null ? this.creationDate.toISOString() : null;
+    c.creationDate = this.creationDate.toISOString();
     c.deletedDate = this.deletedDate != null ? this.deletedDate.toISOString() : undefined;
     c.reprompt = this.reprompt;
-    c.key = this.key?.encryptedString;
-    c.permissions = this.permissions;
+
+    if (this.key != null && this.key.encryptedString != null) {
+      c.key = this.key.encryptedString;
+    }
+
+    if (this.permissions != null) {
+      c.permissions = this.permissions;
+    }
+
     c.archivedDate = this.archivedDate != null ? this.archivedDate.toISOString() : undefined;
 
     this.buildDataModel(this, c, {
@@ -261,19 +268,29 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
 
     switch (c.type) {
       case CipherType.Login:
-        c.login = this.login.toLoginData();
+        if (this.login != null) {
+          c.login = this.login.toLoginData();
+        }
         break;
       case CipherType.SecureNote:
-        c.secureNote = this.secureNote.toSecureNoteData();
+        if (this.secureNote != null) {
+          c.secureNote = this.secureNote.toSecureNoteData();
+        }
         break;
       case CipherType.Card:
-        c.card = this.card.toCardData();
+        if (this.card != null) {
+          c.card = this.card.toCardData();
+        }
         break;
       case CipherType.Identity:
-        c.identity = this.identity.toIdentityData();
+        if (this.identity != null) {
+          c.identity = this.identity.toIdentityData();
+        }
         break;
       case CipherType.SshKey:
-        c.sshKey = this.sshKey.toSshKeyData();
+        if (this.sshKey != null) {
+          c.sshKey = this.sshKey.toSshKeyData();
+        }
         break;
       default:
         break;
@@ -291,51 +308,71 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     return c;
   }
 
-  static fromJSON(obj: Jsonify<Cipher>) {
+  static fromJSON(obj: Jsonify<Cipher> | undefined): Cipher | undefined {
     if (obj == null) {
-      return null;
+      return undefined;
     }
 
     const domain = new Cipher();
-    const name = EncString.fromJSON(obj.name);
-    const notes = EncString.fromJSON(obj.notes);
-    const creationDate = obj.creationDate == null ? null : new Date(obj.creationDate);
-    const revisionDate = obj.revisionDate == null ? null : new Date(obj.revisionDate);
-    const deletedDate = obj.deletedDate == null ? undefined : new Date(obj.deletedDate);
-    const attachments = obj.attachments?.map((a: any) => Attachment.fromJSON(a));
-    const fields = obj.fields?.map((f: any) => Field.fromJSON(f));
-    const passwordHistory = obj.passwordHistory?.map((ph: any) => Password.fromJSON(ph));
-    const key = EncString.fromJSON(obj.key);
-    const archivedDate = obj.archivedDate == null ? undefined : new Date(obj.archivedDate);
 
-    Object.assign(domain, obj, {
-      name,
-      notes,
-      creationDate,
-      revisionDate,
-      deletedDate,
-      attachments,
-      fields,
-      passwordHistory,
-      key,
-      archivedDate,
-    });
+    domain.id = obj.id;
+    domain.organizationId = obj.organizationId;
+    domain.folderId = obj.folderId;
+    domain.type = obj.type;
+    domain.favorite = obj.favorite;
+    domain.organizationUseTotp = obj.organizationUseTotp;
+    domain.edit = obj.edit;
+    domain.viewPassword = obj.viewPassword;
+
+    if (obj.permissions != null) {
+      domain.permissions = new CipherPermissionsApi(obj.permissions);
+    }
+
+    domain.collectionIds = obj.collectionIds;
+    domain.localData = obj.localData;
+    domain.reprompt = obj.reprompt;
+    domain.creationDate = new Date(obj.creationDate);
+    domain.revisionDate = new Date(obj.revisionDate);
+    domain.deletedDate = obj.deletedDate != null ? new Date(obj.deletedDate) : undefined;
+    domain.archivedDate = obj.archivedDate != null ? new Date(obj.archivedDate) : undefined;
+    domain.name = EncString.fromJSON(obj.name);
+    domain.notes = encStringFrom(obj.notes);
+    domain.key = encStringFrom(obj.key);
+    domain.attachments = obj.attachments
+      ?.map((a: any) => Attachment.fromJSON(a))
+      .filter((a): a is Attachment => a != null);
+    domain.fields = obj.fields
+      ?.map((f: any) => Field.fromJSON(f))
+      .filter((f): f is Field => f != null);
+    domain.passwordHistory = obj.passwordHistory
+      ?.map((ph: any) => Password.fromJSON(ph))
+      .filter((ph): ph is Password => ph != null);
 
     switch (obj.type) {
       case CipherType.Card:
-        domain.card = Card.fromJSON(obj.card);
+        if (obj.card != null) {
+          domain.card = Card.fromJSON(obj.card);
+        }
         break;
       case CipherType.Identity:
-        domain.identity = Identity.fromJSON(obj.identity);
+        if (obj.identity != null) {
+          domain.identity = Identity.fromJSON(obj.identity);
+        }
         break;
       case CipherType.Login:
-        domain.login = Login.fromJSON(obj.login);
+        if (obj.login != null) {
+          domain.login = Login.fromJSON(obj.login);
+        }
         break;
       case CipherType.SecureNote:
-        domain.secureNote = SecureNote.fromJSON(obj.secureNote);
+        if (obj.secureNote != null) {
+          domain.secureNote = SecureNote.fromJSON(obj.secureNote);
+        }
         break;
       case CipherType.SshKey:
-        domain.sshKey = SshKey.fromJSON(obj.sshKey);
+        if (obj.sshKey != null) {
+          domain.sshKey = SshKey.fromJSON(obj.sshKey);
+        }
         break;
       default:
         break;
@@ -359,22 +396,22 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
       name: this.name.toSdk(),
       notes: this.notes?.toSdk(),
       type: this.type,
-      favorite: this.favorite ?? false,
-      organizationUseTotp: this.organizationUseTotp ?? false,
-      edit: this.edit ?? true,
+      favorite: this.favorite,
+      organizationUseTotp: this.organizationUseTotp,
+      edit: this.edit,
       permissions: this.permissions
         ? {
             delete: this.permissions.delete,
             restore: this.permissions.restore,
           }
         : undefined,
-      viewPassword: this.viewPassword ?? true,
+      viewPassword: this.viewPassword,
       localData: toSdkLocalData(this.localData),
       attachments: this.attachments?.map((a) => a.toSdkAttachment()),
       fields: this.fields?.map((f) => f.toSdkField()),
       passwordHistory: this.passwordHistory?.map((ph) => ph.toSdkPasswordHistory()),
-      revisionDate: this.revisionDate?.toISOString(),
-      creationDate: this.creationDate?.toISOString(),
+      revisionDate: this.revisionDate.toISOString(),
+      creationDate: this.creationDate.toISOString(),
       deletedDate: this.deletedDate?.toISOString(),
       archivedDate: this.archivedDate?.toISOString(),
       reprompt: this.reprompt,
@@ -388,19 +425,29 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
 
     switch (this.type) {
       case CipherType.Login:
-        sdkCipher.login = this.login.toSdkLogin();
+        if (this.login != null) {
+          sdkCipher.login = this.login.toSdkLogin();
+        }
         break;
       case CipherType.SecureNote:
-        sdkCipher.secureNote = this.secureNote.toSdkSecureNote();
+        if (this.secureNote != null) {
+          sdkCipher.secureNote = this.secureNote.toSdkSecureNote();
+        }
         break;
       case CipherType.Card:
-        sdkCipher.card = this.card.toSdkCard();
+        if (this.card != null) {
+          sdkCipher.card = this.card.toSdkCard();
+        }
         break;
       case CipherType.Identity:
-        sdkCipher.identity = this.identity.toSdkIdentity();
+        if (this.identity != null) {
+          sdkCipher.identity = this.identity.toSdkIdentity();
+        }
         break;
       case CipherType.SshKey:
-        sdkCipher.sshKey = this.sshKey.toSdkSshKey();
+        if (this.sshKey != null) {
+          sdkCipher.sshKey = this.sshKey.toSdkSshKey();
+        }
         break;
       default:
         break;
@@ -413,22 +460,22 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
    * Maps an SDK Cipher object to a Cipher
    * @param sdkCipher - The SDK Cipher object
    */
-  static fromSdkCipher(sdkCipher: SdkCipher | null): Cipher | undefined {
+  static fromSdkCipher(sdkCipher?: SdkCipher): Cipher | undefined {
     if (sdkCipher == null) {
       return undefined;
     }
 
     const cipher = new Cipher();
 
-    cipher.id = sdkCipher.id ? uuidAsString(sdkCipher.id) : undefined;
+    cipher.id = sdkCipher.id ? uuidAsString(sdkCipher.id) : "";
     cipher.organizationId = sdkCipher.organizationId
       ? uuidAsString(sdkCipher.organizationId)
       : undefined;
     cipher.folderId = sdkCipher.folderId ? uuidAsString(sdkCipher.folderId) : undefined;
     cipher.collectionIds = sdkCipher.collectionIds ? sdkCipher.collectionIds.map(uuidAsString) : [];
-    cipher.key = EncString.fromJSON(sdkCipher.key);
+    cipher.key = encStringFrom(sdkCipher.key);
     cipher.name = EncString.fromJSON(sdkCipher.name);
-    cipher.notes = EncString.fromJSON(sdkCipher.notes);
+    cipher.notes = encStringFrom(sdkCipher.notes);
     cipher.type = sdkCipher.type;
     cipher.favorite = sdkCipher.favorite;
     cipher.organizationUseTotp = sdkCipher.organizationUseTotp;
@@ -436,10 +483,15 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     cipher.permissions = CipherPermissionsApi.fromSdkCipherPermissions(sdkCipher.permissions);
     cipher.viewPassword = sdkCipher.viewPassword;
     cipher.localData = fromSdkLocalData(sdkCipher.localData);
-    cipher.attachments = sdkCipher.attachments?.map((a) => Attachment.fromSdkAttachment(a)) ?? [];
-    cipher.fields = sdkCipher.fields?.map((f) => Field.fromSdkField(f)) ?? [];
-    cipher.passwordHistory =
-      sdkCipher.passwordHistory?.map((ph) => Password.fromSdkPasswordHistory(ph)) ?? [];
+    cipher.attachments = sdkCipher.attachments
+      ?.map((a) => Attachment.fromSdkAttachment(a))
+      .filter((a): a is Attachment => a != null);
+    cipher.fields = sdkCipher.fields
+      ?.map((f) => Field.fromSdkField(f))
+      .filter((f): f is Field => f != null);
+    cipher.passwordHistory = sdkCipher.passwordHistory
+      ?.map((ph) => Password.fromSdkPasswordHistory(ph))
+      .filter((ph): ph is Password => ph != null);
     cipher.creationDate = new Date(sdkCipher.creationDate);
     cipher.revisionDate = new Date(sdkCipher.revisionDate);
     cipher.deletedDate = sdkCipher.deletedDate ? new Date(sdkCipher.deletedDate) : undefined;

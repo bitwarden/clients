@@ -4,6 +4,22 @@
     <ng-container bitDialogContent>
       <section>
         @if (isFamiliesPlan) {
+          @if (userIsOwnerOfFreeOrg$ | async) {
+            <div class="tw-pb-2">
+              <bit-callout type="info">
+                {{ "formWillCreateNewFamiliesOrgMessage" | i18n }}
+                <a
+                  bitLink
+                  bitDialogClose
+                  linkType="primary"
+                  [routerLink]="adminConsoleRouteForOwnedOrganization$ | async"
+                >
+                  {{ "upgradeNow" | i18n }}
+                  <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
+                </a>
+              </bit-callout>
+            </div>
+          }
           <div class="tw-pb-4">
             <bit-form-field class="!tw-mb-0">
               <bit-label>{{ "organizationName" | i18n }}</bit-label>
@@ -15,17 +31,28 @@
           </div>
         }
         <div class="tw-pb-8 !tw-mx-0">
+          <h5 bitTypography="h5">{{ "paymentMethod" | i18n }}</h5>
           <app-enter-payment-method
+            [showBankAccount]="isFamiliesPlan"
+            [showAccountCredit]="!isFamiliesPlan"
             [group]="formGroup.controls.paymentForm"
-            [includeBillingAddress]="true"
+            [includeBillingAddress]="false"
+            [hasEnoughAccountCredit]="hasEnoughAccountCredit$ | async"
             #paymentComponent
           ></app-enter-payment-method>
+          <h5 bitTypography="h5" class="tw-pt-4 tw-pb-2">{{ "billingAddress" | i18n }}</h5>
+          <app-enter-billing-address
+            [group]="formGroup.controls.billingAddress"
+            [scenario]="{ type: 'checkout', supportsTaxId: false }"
+          >
+          </app-enter-billing-address>
         </div>
       </section>
 
       <section>
         @if (passwordManager) {
           <billing-cart-summary
+            #cartSummaryComponent
             [passwordManager]="passwordManager"
             [estimatedTax]="estimatedTax"
           ></billing-cart-summary>
@@ -43,7 +70,7 @@
         bitButton
         bitFormButton
         buttonType="primary"
-        [disabled]="loading() || !isFormValid()"
+        [disabled]="loading() || !isFormValid() || !(hasEnoughAccountCredit$ | async)"
         type="submit"
       >
         {{ "upgrade" | i18n }}

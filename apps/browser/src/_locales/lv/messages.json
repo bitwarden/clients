@@ -558,7 +558,7 @@
     "message": "Arhivēt",
     "description": "Verb"
   },
-  "unarchive": {
+  "unArchive": {
     "message": "Atcelt arhivēšanu"
   },
   "itemsInArchive": {
@@ -570,11 +570,11 @@
   "noItemsInArchiveDesc": {
     "message": "Šeit parādīsies arhivētie vienumi, un tie netiks iekļauti vispārējās meklēšanas iznākumos un automātiskās aizpildes ieteikumos."
   },
-  "itemSentToArchive": {
-    "message": "Vienums ievietots arhīvā"
+  "itemWasSentToArchive": {
+    "message": "Vienums tika ievietots arhīvā"
   },
-  "itemRemovedFromArchive": {
-    "message": "Vienums izņemts no arhīva"
+  "itemUnarchived": {
+    "message": "Vienums tika izņemts no arhīva"
   },
   "archiveItem": {
     "message": "Arhivēt vienumu"
@@ -1547,6 +1547,15 @@
   },
   "readSecurityKey": {
     "message": "Nolasīt drošības atslēgu"
+  },
+  "readingPasskeyLoading": {
+    "message": "Nolasa piekļuves atslēgu..."
+  },
+  "passkeyAuthenticationFailed": {
+    "message": "Autentificēšanās ar piekļuves atslēgu neizdevās"
+  },
+  "useADifferentLogInMethod": {
+    "message": "Jāizmanto cits pieteikšanās veids"
   },
   "awaitingSecurityKeyInteraction": {
     "message": "Gaida mijiedarbību ar drošības atslēgu..."
@@ -5570,17 +5579,37 @@
   "hasItemsVaultNudgeTitle": {
     "message": "Laipni lūdzam Tavā glabātavā!"
   },
-  "phishingPageTitle": {
-    "message": "Pikšķerēšanas tīmekļvietne"
+  "phishingPageTitleV2": {
+    "message": "Noteikts pikšķerēšanas mēģinājums"
   },
-  "phishingPageCloseTab": {
-    "message": "Aizvērt cilni"
+  "phishingPageSummary": {
+    "message": "Vietne, kuru mēģini apmeklēt, ir zināma ļaunprātīga vietne un drošības risks."
   },
-  "phishingPageContinue": {
-    "message": "Turpināt"
+  "phishingPageCloseTabV2": {
+    "message": "Aizvērt šo cilni"
   },
-  "phishingPageLearnWhy": {
-    "message": "Kāpēc šis ir redzams?"
+  "phishingPageContinueV2": {
+    "message": "Turpināt šīs vietnes apmeklēšanu (nav ieteicams)"
+  },
+  "phishingPageExplanation1": {
+    "message": "Šī vietne tika atrasta ",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name follows this."
+  },
+  "phishingPageExplanation2": {
+    "message": ", atvērta pirmkoda saraksts ar zināmām pikšķerēšanas vietnēm, kuras tiek izmantotas personīgas un jūtīgas informācijas zagšanai.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name precedes this."
+  },
+  "phishingPageLearnMore": {
+    "message": "Uzzināt vairāk par pikšķerēšanas noteikšanu"
+  },
+  "protectedBy": {
+    "message": "Aizsargā $PRODUCT$",
+    "placeholders": {
+      "product": {
+        "content": "$1",
+        "example": "Bitwarden Phishing Blocker"
+      }
+    }
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Automātiska pašreizējās lapas vienumu aizpildīšana"
@@ -5685,5 +5714,12 @@
   },
   "confirmKeyConnectorDomain": {
     "message": "Apstiprināt Key Connector domēnu"
+  },
+  "atRiskLoginsSecured": {
+    "message": "Labs darbs riskam pakļauto pieteikšanās vienumu drošības uzlabošanā!"
+  },
+  "settingDisabledByPolicy": {
+    "message": "Šis iestatījums ir atspējots apvienības pamatnostādnēs.",
+    "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
   }
 }
