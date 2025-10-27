@@ -362,7 +362,7 @@ In this case, the user proceeds to their `/vault`.
 
 **Trusted Device Encryption scenario**
 
-If the user is on an untrusted device, they get routed to `/login-initiated`. If the user is on a trusted device, they get routed to `/vault`.
+If the user is on an untrusted device, they get routed to `/login-initiated` to select a decryption option. If the user is on a trusted device, they get routed to `/vault` because decryption can be done automatically.
 
 <br>
 
