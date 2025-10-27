@@ -183,14 +183,13 @@ export class RiskInsightsDataService {
     if (shouldClose) {
       this.closeDrawer();
     } else {
-      const reportResults = await firstValueFrom(this.enrichedReportData$);
+      const reportResults = await firstValueFrom(this.criticalReportResults$);
       if (!reportResults?.reportData) {
         return;
       }
 
-      // Filter for critical applications only, then generate at-risk member list
-      const criticalApps = reportResults.reportData.filter((app) => app.isMarkedAsCritical);
-      const atRiskMemberDetails = getAtRiskMemberList(criticalApps);
+      // Generate at-risk member list from critical applications
+      const atRiskMemberDetails = getAtRiskMemberList(reportResults.reportData);
 
       this.drawerDetailsSubject.next({
         open: true,
