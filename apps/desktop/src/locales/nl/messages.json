@@ -1852,6 +1852,12 @@
   "lockWithMasterPassOnRestart1": {
     "message": "Bij herstart vergrendelen met hoofdwachtwoord"
   },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "Hoofdwachtwoord of pincode vereisen bij herstart van de app"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "Hoofdwachtwoord vereisen bij herstart van de app"
+  },
   "deleteAccount": {
     "message": "Account verwijderen"
   },
@@ -4167,7 +4173,7 @@
   "itemWasSentToArchive": {
     "message": "Item naar archief verzonden"
   },
-  "itemUnarchived": {
+  "itemWasUnarchived": {
     "message": "Item uit het archief gehaald"
   },
   "archiveItem": {

@@ -42,6 +42,15 @@ import {
   UnifiedUpgradeDialogStep,
 } from "../upgrade/unified-upgrade-dialog/unified-upgrade-dialog.component";
 
+const RouteParams = {
+  callToAction: "callToAction",
+} as const;
+const RouteParamValues = {
+  upgradeToPremium: "upgradeToPremium",
+} as const;
+
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "./premium-vnext.component.html",
   standalone: true,
@@ -59,6 +68,7 @@ export class PremiumVNextComponent {
   protected hasPremiumFromAnyOrganization$: Observable<boolean>;
   protected hasPremiumPersonally$: Observable<boolean>;
   protected shouldShowNewDesign$: Observable<boolean>;
+  protected shouldShowUpgradeDialogOnInit$: Observable<boolean>;
   protected personalPricingTiers$: Observable<PersonalSubscriptionPricingTier[]>;
   protected premiumCardData$: Observable<{
     tier: PersonalSubscriptionPricingTier | undefined;
@@ -70,7 +80,6 @@ export class PremiumVNextComponent {
     price: number;
     features: string[];
   }>;
-
   protected subscriber!: BitwardenSubscriber;
   protected isSelfHost = false;
   private destroyRef = inject(DestroyRef);
@@ -132,6 +141,17 @@ export class PremiumVNextComponent {
       )
       .subscribe();
 
+    this.shouldShowUpgradeDialogOnInit$ = combineLatest([
+      this.hasPremiumFromAnyOrganization$,
+      this.hasPremiumPersonally$,
+      this.activatedRoute.queryParams,
+    ]).pipe(
+      map(([hasOrgPremium, hasPersonalPremium, queryParams]) => {
+        const cta = queryParams[RouteParams.callToAction];
+        return !hasOrgPremium && !hasPersonalPremium && cta === RouteParamValues.upgradeToPremium;
+      }),
+    );
+
     this.personalPricingTiers$ =
       this.subscriptionPricingService.getPersonalSubscriptionPricingTiers$();
 
@@ -164,6 +184,17 @@ export class PremiumVNextComponent {
       }),
       shareReplay({ bufferSize: 1, refCount: true }),
     );
+
+    this.shouldShowUpgradeDialogOnInit$
+      .pipe(
+        switchMap(async (shouldShowUpgradeDialogOnInit) => {
+          if (shouldShowUpgradeDialogOnInit) {
+            from(this.openUpgradeDialog("Premium"));
+          }
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
   }
 
   private navigateToSubscriptionPage = (): Promise<boolean> =>

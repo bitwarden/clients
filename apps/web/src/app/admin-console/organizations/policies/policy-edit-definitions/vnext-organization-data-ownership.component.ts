@@ -34,6 +34,8 @@ export class vNextOrganizationDataOwnershipPolicy extends BasePolicyEditDefiniti
   }
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "vnext-organization-data-ownership.component.html",
   imports: [SharedModule],
@@ -50,6 +52,8 @@ export class vNextOrganizationDataOwnershipPolicyComponent
     super();
   }
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("dialog", { static: true }) warningContent!: TemplateRef<unknown>;
 
   override async confirm(): Promise<boolean> {

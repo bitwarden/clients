@@ -10,6 +10,8 @@ import { BitwardenSubscriber } from "../../types";
 
 import { AddAccountCreditDialogComponent } from "./add-account-credit-dialog.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-display-account-credit",
   template: `
@@ -26,7 +28,11 @@ import { AddAccountCreditDialogComponent } from "./add-account-credit-dialog.com
   providers: [SubscriberBillingClient, CurrencyPipe],
 })
 export class DisplayAccountCreditComponent {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true }) subscriber!: BitwardenSubscriber;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true }) credit!: number | null;
 
   constructor(
