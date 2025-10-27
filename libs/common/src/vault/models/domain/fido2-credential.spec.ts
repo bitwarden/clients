@@ -98,7 +98,7 @@ describe("Fido2Credential", () => {
         .getEncryptService()
         .decryptString.mockImplementation(async (encString: EncString, key: SymmetricCryptoKey) => {
           return encString.data;
-        })
+        });
 
       const credential = new Fido2Credential();
       credential.credentialId = mockEnc("credentialId");

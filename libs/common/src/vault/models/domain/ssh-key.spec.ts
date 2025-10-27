@@ -49,7 +49,8 @@ describe("Sshkey", () => {
   it("Decrypt", async () => {
     const containerService = mockContainerService();
     containerService.getKeyService().userKey$.mockReturnValue(of(makeSymmetricCryptoKey(64)));
-    containerService.getEncryptService()
+    containerService
+      .getEncryptService()
       .decryptString.mockResolvedValueOnce("privateKey")
       .mockResolvedValueOnce("publicKey")
       .mockResolvedValueOnce("keyFingerprint");

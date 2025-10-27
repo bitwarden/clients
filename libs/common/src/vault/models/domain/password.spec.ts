@@ -1,8 +1,16 @@
 import { of } from "rxjs";
 
-import { EncString, EncryptedString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import {
+  EncString,
+  EncryptedString,
+} from "@bitwarden/common/key-management/crypto/models/enc-string";
 
-import { mockEnc, mockFromJson, makeSymmetricCryptoKey, mockContainerService } from "../../../../spec";
+import {
+  mockEnc,
+  mockFromJson,
+  makeSymmetricCryptoKey,
+  mockContainerService,
+} from "../../../../spec";
 import { PasswordHistoryData } from "../../models/data/password-history.data";
 import { Password } from "../../models/domain/password";
 
@@ -42,8 +50,7 @@ describe("Password", () => {
   it("Decrypt", async () => {
     const containerService = mockContainerService();
     containerService.getKeyService().userKey$.mockReturnValue(of(makeSymmetricCryptoKey(64)));
-    containerService.getEncryptService()
-      .decryptString.mockResolvedValue("password");
+    containerService.getEncryptService().decryptString.mockResolvedValue("password");
 
     const password = new Password();
     password.password = mockEnc("password");

@@ -6,7 +6,12 @@ import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/sym
 import { UserKey } from "@bitwarden/common/types/key";
 import { UriMatchType } from "@bitwarden/sdk-internal";
 
-import { makeSymmetricCryptoKey, mockContainerService, mockEnc, mockFromJson } from "../../../../spec";
+import {
+  makeSymmetricCryptoKey,
+  mockContainerService,
+  mockEnc,
+  mockFromJson,
+} from "../../../../spec";
 import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { UriMatchStrategy } from "../../../models/domain/domain-service";
@@ -53,12 +58,14 @@ describe("LoginUri", () => {
 
   it("Decrypt", async () => {
     const containerService = mockContainerService();
-    containerService.getKeyService().userKey$.mockReturnValue(of(makeSymmetricCryptoKey(64) as UserKey));
+    containerService
+      .getKeyService()
+      .userKey$.mockReturnValue(of(makeSymmetricCryptoKey(64) as UserKey));
     containerService
       .getEncryptService()
       .decryptString.mockImplementation(async (encString: EncString, key: SymmetricCryptoKey) => {
         return encString.data;
-      })
+      });
 
     const loginUri = new LoginUri();
     loginUri.match = UriMatchStrategy.Exact;
@@ -79,12 +86,14 @@ describe("LoginUri", () => {
       const containerService = mockContainerService();
       encryptService = containerService.getEncryptService();
 
-      containerService.getKeyService().userKey$.mockReturnValue(of(makeSymmetricCryptoKey(64) as UserKey));
+      containerService
+        .getKeyService()
+        .userKey$.mockReturnValue(of(makeSymmetricCryptoKey(64) as UserKey));
       containerService
         .getEncryptService()
         .decryptString.mockImplementation(async (encString: EncString, key: SymmetricCryptoKey) => {
           return encString.data;
-        })
+        });
     });
 
     it("returns true if checksums match", async () => {

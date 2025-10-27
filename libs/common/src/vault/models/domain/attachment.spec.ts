@@ -120,7 +120,7 @@ describe("Attachment", () => {
 
       it("gets an organization key if required", async () => {
         const orgKey = mock<OrgKey>();
-        keyService.orgKeys$.mockReturnValue(of({ "orgId": orgKey }));
+        keyService.orgKeys$.mockReturnValue(of({ orgId: orgKey }));
 
         await attachment.decrypt(null, "orgId", "", null);
 
@@ -129,7 +129,7 @@ describe("Attachment", () => {
       });
 
       it("gets the user's decryption key if required", async () => {
-        keyService.orgKeys$.mockReturnValue(of({ "orgId": mock<OrgKey>() }));
+        keyService.orgKeys$.mockReturnValue(of({ orgId: mock<OrgKey>() }));
         const userKey = new SymmetricCryptoKey(makeStaticByteArray(64));
         keyService.userKey$.mockReturnValue(of(userKey as UserKey));
 

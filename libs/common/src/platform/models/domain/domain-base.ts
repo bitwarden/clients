@@ -10,8 +10,8 @@ import { Utils } from "../../misc/utils";
 
 import { SymmetricCryptoKey } from "./symmetric-crypto-key";
 
-
 /** @deprecated */
+// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
 type EncStringKeys<T> = ConditionalKeys<ConditionalExcept<T, Function>, EncString>;
 /** @deprecated */
 export type DecryptedObject<

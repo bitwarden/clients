@@ -3,7 +3,12 @@ import { of } from "rxjs";
 import mock from "@bitwarden/common/platform/spec/mock-deep";
 import { emptyGuid, UserId } from "@bitwarden/common/types/guid";
 
-import { mockEnc, makeStaticByteArray, mockContainerService, makeSymmetricCryptoKey } from "../../../../../spec";
+import {
+  mockEnc,
+  makeStaticByteArray,
+  mockContainerService,
+  makeSymmetricCryptoKey,
+} from "../../../../../spec";
 import { SendType } from "../../enums/send-type";
 import { SendData } from "../data/send.data";
 
@@ -91,13 +96,13 @@ describe("Send", () => {
   it("Decrypt", async () => {
     const containerService = mockContainerService();
     containerService.getKeyService().userKey$.mockReturnValue(of(makeSymmetricCryptoKey(64)));
-    containerService.getEncryptService()
-      .decryptString
-      .mockResolvedValueOnce("name")
+    containerService
+      .getEncryptService()
+      .decryptString.mockResolvedValueOnce("name")
       .mockResolvedValueOnce("notes");
-    containerService.getEncryptService()
-      .decryptBytes
-      .mockResolvedValueOnce(makeStaticByteArray(32));
+    containerService
+      .getEncryptService()
+      .decryptBytes.mockResolvedValueOnce(makeStaticByteArray(32));
 
     const text = mock<SendText>();
     text.decrypt.mockResolvedValue("textView" as any);

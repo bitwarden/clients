@@ -203,8 +203,14 @@ describe("EmergencyAccessService", () => {
         { id: "cipher1", decrypted: true },
         { id: "cipher2", decrypted: true },
       ]);
-      expect(mockEncryptedCipher1.decrypt).toHaveBeenCalledWith(mockGrantorUserKey, params.activeUserId);
-      expect(mockEncryptedCipher2.decrypt).toHaveBeenCalledWith(mockGrantorUserKey, params.activeUserId);
+      expect(mockEncryptedCipher1.decrypt).toHaveBeenCalledWith(
+        mockGrantorUserKey,
+        params.activeUserId,
+      );
+      expect(mockEncryptedCipher2.decrypt).toHaveBeenCalledWith(
+        mockGrantorUserKey,
+        params.activeUserId,
+      );
       expect(emergencyAccessApiService.postEmergencyAccessView).toHaveBeenCalledWith(params.id);
       expect(keyService.userPrivateKey$).toHaveBeenCalledWith(params.activeUserId);
       expect(encryptService.decapsulateKeyUnsigned).toHaveBeenCalledWith(
