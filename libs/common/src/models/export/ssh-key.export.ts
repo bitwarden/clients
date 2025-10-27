@@ -17,6 +17,21 @@ export class SshKeyExport {
   }
 
   static toView(req: SshKeyExport, view = new SshKeyView()) {
+    if (req == null) {
+      return null;
+    }
+
+    // Validate required fields
+    if (!req.privateKey || req.privateKey.trim() === "") {
+      throw new Error("SSH key private key is required.");
+    }
+    if (!req.publicKey || req.publicKey.trim() === "") {
+      throw new Error("SSH key public key is required.");
+    }
+    if (!req.keyFingerprint || req.keyFingerprint.trim() === "") {
+      throw new Error("SSH key fingerprint is required.");
+    }
+
     view.privateKey = req.privateKey;
     view.publicKey = req.publicKey;
     view.keyFingerprint = req.keyFingerprint;
