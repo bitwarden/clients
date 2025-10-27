@@ -30,12 +30,24 @@ describe("RpcServer", () => {
 
     expect(result).toBe("Hello, World!");
   });
+
+  it("calls async function and returns value", async () => {
+    const remoteInstance = await firstValueFrom(client.getRoot());
+
+    const result = await remoteInstance.greetAsync("Async World");
+
+    expect(result).toBe("Hello, Async World!");
+  });
 });
 
 class TestClass {
   value: number = 42;
 
   greet(name: string): string {
+    return `Hello, ${name}!`;
+  }
+
+  async greetAsync(name: string): Promise<string> {
     return `Hello, ${name}!`;
   }
 }
