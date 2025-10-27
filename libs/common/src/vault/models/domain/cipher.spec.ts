@@ -100,6 +100,7 @@ describe("Cipher DTO", () => {
     const cipherService = mock<CipherService>();
 
     encryptService.unwrapSymmetricKey.mockRejectedValue(new Error("Failed to unwrap key"));
+    encryptService.decryptString.mockResolvedValue("EncryptedString");
 
     (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
 
@@ -325,6 +326,7 @@ describe("Cipher DTO", () => {
       encryptService.unwrapSymmetricKey.mockResolvedValue(
         new SymmetricCryptoKey(makeStaticByteArray(64)),
       );
+      encryptService.decryptString.mockResolvedValue("EncryptedString");
 
       (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
 
@@ -454,6 +456,7 @@ describe("Cipher DTO", () => {
       encryptService.unwrapSymmetricKey.mockResolvedValue(
         new SymmetricCryptoKey(makeStaticByteArray(64)),
       );
+      encryptService.decryptString.mockResolvedValue("EncryptedString");
 
       (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
 
@@ -601,6 +604,7 @@ describe("Cipher DTO", () => {
       encryptService.unwrapSymmetricKey.mockResolvedValue(
         new SymmetricCryptoKey(makeStaticByteArray(64)),
       );
+      encryptService.decryptString.mockResolvedValue("EncryptedString");
 
       (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
 
@@ -772,6 +776,7 @@ describe("Cipher DTO", () => {
       encryptService.unwrapSymmetricKey.mockResolvedValue(
         new SymmetricCryptoKey(makeStaticByteArray(64)),
       );
+      encryptService.decryptString.mockResolvedValue("EncryptedString");
 
       (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
 
