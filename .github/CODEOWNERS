@@ -8,6 +8,7 @@
 apps/desktop/desktop_native @bitwarden/team-platform-dev
 apps/desktop/desktop_native/objc/src/native/autofill @bitwarden/team-autofill-desktop-dev
 apps/desktop/desktop_native/core/src/autofill @bitwarden/team-autofill-desktop-dev
+apps/desktop/desktop_native/core/src/secure_memory @bitwarden/team-key-management-dev
 ## No ownership for Cargo.lock and Cargo.toml to allow dependency updates
 apps/desktop/desktop_native/Cargo.lock
 apps/desktop/desktop_native/Cargo.toml
@@ -222,3 +223,8 @@ apps/web/src/locales/en/messages.json
 **/jest.config.js @bitwarden/team-platform-dev
 **/project.jsons @bitwarden/team-platform-dev
 libs/pricing @bitwarden/team-billing-dev
+
+# Claude related files
+.claude/ @bitwarden/team-ai-sme
+.github/workflows/respond.yml @bitwarden/team-ai-sme
+.github/workflows/review-code.yml @bitwarden/team-ai-sme

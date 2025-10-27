@@ -401,7 +401,16 @@
       reviewers: ["team:team-vault-dev"],
     },
     {
-      matchPackageNames: ["aes", "big-integer", "cbc", "rsa", "russh-cryptovec", "sha2"],
+      matchPackageNames: [
+        "aes",
+        "big-integer",
+        "cbc",
+        "rsa",
+        "russh-cryptovec",
+        "sha2",
+        "memsec",
+        "linux-keyutils",
+      ],
       description: "Key Management owned dependencies",
       commitMessagePrefix: "[deps] KM:",
       reviewers: ["team:team-key-management-dev"],

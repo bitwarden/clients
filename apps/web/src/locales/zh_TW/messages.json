@@ -154,6 +154,15 @@
       }
     }
   },
+  "newPasswordsAtRisk": {
+    "message": "$COUNT$ 組新密碼存在風險",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "notifiedMembersWithCount": {
     "message": "已被通知的成員($COUNT$)",
     "placeholders": {
@@ -2080,9 +2089,6 @@
   "encKeySettings": {
     "message": "加密金鑰設定"
   },
-  "kdfAlgorithm": {
-    "message": "KDF 演算法"
-  },
   "kdfIterations": {
     "message": "KDF 疊代"
   },
@@ -2116,9 +2122,6 @@
   },
   "argon2Desc": {
     "message": "更高的 KDF 疊代次數、記憶體占用與平行數量可以避免您的主密碼遭到攻擊者的暴力破解。"
-  },
-  "changeKdf": {
-    "message": "變更 KDF"
   },
   "encKeySettingsChanged": {
     "message": "加密金鑰設定已儲存"
@@ -5709,6 +5712,65 @@
   "organizationDataOwnershipWarningContentBottom": {
     "message": "了解更多 ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about the credential lifecycle.'"
+  },
+  "availableNow": {
+    "message": "立即可用"
+  },
+  "autoConfirm": {
+    "message": "新使用者自動確認"
+  },
+  "autoConfirmDescription": {
+    "message": "當管理員的裝置已解鎖時，邀請至該組織的新使用者會自動完成確認。",
+    "description": "This is the description of the policy as it appears in the 'Policies' page"
+  },
+  "howToTurnOnAutoConfirm": {
+    "message": "如何開啟自動使用者確認"
+  },
+  "autoConfirmStep1": {
+    "message": "開啟你的 Bitwarden 瀏覽器擴充套件。"
+  },
+  "autoConfirmStep2a": {
+    "message": "選擇",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  },
+  "autoConfirmStep2b": {
+    "message": " 開啟。",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  },
+  "autoConfirmExtensionOpened": {
+    "message": "已成功開啟 Bitwarden 瀏覽器擴充套件。您現在可以啟用自動使用者確認設定。"
+  },
+  "autoConfirmPolicyEditDescription": {
+    "message": "在管理員的裝置解鎖時，邀請到組織的新使用者將自動獲得確認。開啟此原則之前，請先閱讀並同意以下內容：",
+    "description": "This is the description of the policy as it appears inside the policy edit dialog"
+  },
+  "autoConfirmAcceptSecurityRiskTitle": {
+    "message": "可能的安全風險。"
+  },
+  "autoConfirmAcceptSecurityRiskDescription": {
+    "message": "自動使用者確認可能對你組織的資料造成安全風險。"
+  },
+  "autoConfirmAcceptSecurityRiskLearnMore": {
+    "message": "了解風險",
+    "description": "The is the link copy for the first check box option in the edit policy dialog"
+  },
+  "autoConfirmSingleOrgRequired": {
+    "message": "需要啟用單一組織原則。"
+  },
+  "autoConfirmSingleOrgRequiredDescription": {
+    "message": "任何同時屬於多個組織的成員，其存取權都會被撤銷，直到他們離開其他組織為止。"
+  },
+  "autoConfirmSingleOrgExemption": {
+    "message": "單一組織原則將套用到所有角色。"
+  },
+  "autoConfirmNoEmergencyAccess": {
+    "message": "無緊急存取。 "
+  },
+  "autoConfirmNoEmergencyAccessDescription": {
+    "message": "將移除緊急存取。"
+  },
+  "autoConfirmCheckBoxLabel": {
+    "message": "我接受這些風險與原則更新"
   },
   "personalOwnership": {
     "message": "停用個人密碼庫"
@@ -10361,26 +10423,8 @@
   "memberAccessReportAuthenticationEnabledFalse": {
     "message": "關閉"
   },
-  "higherKDFIterations": {
-    "message": "更高的 KDF 疊代次數、記憶體占用與平行數量可以避免您的主密碼遭到攻擊者的暴力破解。"
-  },
-  "incrementsOf100,000": {
-    "message": "以 100,000 為增量"
-  },
-  "smallIncrements": {
-    "message": "小幅增量"
-  },
   "kdfIterationRecommends": {
     "message": "我們建議使用 600,000 或以上"
-  },
-  "kdfToHighWarningIncreaseInIncrements": {
-    "message": "對於較舊的裝置，將 KDF 設定過高可能導致效能問題。請在 $VALUE$ 中增加數值並測試您的裝置。",
-    "placeholders": {
-      "value": {
-        "content": "$1",
-        "example": "increments of 100,000"
-      }
-    }
   },
   "providerReinstate": {
     "message": "請聯絡客服以恢復您的訂閱。"
@@ -11023,6 +11067,15 @@
   },
   "domainClaimed": {
     "message": "已宣告網域"
+  },
+  "itemAddedToFavorites": {
+    "message": "項目已加入到最愛"
+  },
+  "itemRemovedFromFavorites": {
+    "message": "項目已從最愛中移除"
+  },
+  "copyNote": {
+    "message": "複製備註"
   },
   "organizationNameMaxLength": {
     "message": "組織名稱不得超過 50 個字元。"
@@ -11856,5 +11909,32 @@
   },
   "viewbusinessplans": {
     "message": "檢視商業方案"
+  },
+  "updateEncryptionSettings": {
+    "message": "更新加密設定"
+  },
+  "updateYourEncryptionSettings": {
+    "message": "更新您的加密設定"
+  },
+  "updateSettings": {
+    "message": "更新設定"
+  },
+  "algorithm": {
+    "message": "演算法"
+  },
+  "encryptionKeySettingsHowShouldWeEncryptYourData": {
+    "message": "選擇 Bitwarden 應如何加密你的密碼庫資料。所有選項都很安全，但更強的方法能提供更好的防護——特別是對抗暴力破解攻擊。對多數使用者，Bitwarden 建議使用預設設定。"
+  },
+  "encryptionKeySettingsIncreaseImproveSecurity": {
+    "message": "將上述數值提高到預設以上可以增進安全性，但也可能導致你的密碼庫解鎖時間變長。"
+  },
+  "encryptionKeySettingsAlgorithmPopoverTitle": {
+    "message": "關於加密演算法"
+  },
+  "encryptionKeySettingsAlgorithmPopoverPBKDF2": {
+    "message": "PBKDF2-SHA256 是經過充分驗證的加密方法，在安全性與效能之間取得平衡，適用於所有使用者。"
+  },
+  "encryptionKeySettingsAlgorithmPopoverArgon2Id": {
+    "message": "Argon2id 對抗現代攻擊提供更強的防護，最適合具有高效能裝置的進階使用者。"
   }
 }
