@@ -30,7 +30,7 @@ function isApplicationHealthReportDetail(obj: any): obj is ApplicationHealthRepo
     typeof obj.passwordCount === "number" &&
     typeof obj.atRiskPasswordCount === "number" &&
     Array.isArray(obj.atRiskCipherIds) &&
-    obj.atRiskCipherIds.every((id: any) => typeof id === "string") &&
+    obj.atRiskCipherIds.every((id: any) => typeof id === "string" && id.length > 0) &&
     typeof obj.memberCount === "number" &&
     typeof obj.atRiskMemberCount === "number" &&
     Array.isArray(obj.memberDetails) &&
@@ -38,7 +38,7 @@ function isApplicationHealthReportDetail(obj: any): obj is ApplicationHealthRepo
     Array.isArray(obj.atRiskMemberDetails) &&
     obj.atRiskMemberDetails.every(isMemberDetails) &&
     Array.isArray(obj.cipherIds) &&
-    obj.cipherIds.every((id: any) => typeof id === "string")
+    obj.cipherIds.every((id: any) => typeof id === "string" && id.length > 0)
   );
 }
 
@@ -58,7 +58,7 @@ function isOrganizationReportSummary(obj: any): obj is OrganizationReportSummary
     typeof obj.totalCriticalAtRiskMemberCount === "number" &&
     typeof obj.totalCriticalAtRiskApplicationCount === "number" &&
     Array.isArray(obj.newApplications) &&
-    obj.newApplications.every((app: any) => typeof app === "string")
+    obj.newApplications.every((app: any) => typeof app === "string" && app.length > 0)
   );
 }
 

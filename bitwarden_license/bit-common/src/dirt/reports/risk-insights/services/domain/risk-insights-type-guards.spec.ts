@@ -101,6 +101,46 @@ describe("Risk Insights Type Guards", () => {
         /Invalid report data/,
       );
     });
+
+    it("should throw error for empty string in atRiskCipherIds", () => {
+      const invalidData = [
+        {
+          applicationName: "Test App",
+          passwordCount: 10,
+          atRiskPasswordCount: 2,
+          atRiskCipherIds: ["cipher-1", "", "cipher-3"], // empty string
+          memberCount: 5,
+          atRiskMemberCount: 1,
+          memberDetails: [] as MemberDetails[],
+          atRiskMemberDetails: [] as MemberDetails[],
+          cipherIds: ["cipher-1"],
+        },
+      ];
+
+      expect(() => validateApplicationHealthReportDetailArray(invalidData)).toThrow(
+        /Invalid report data/,
+      );
+    });
+
+    it("should throw error for empty string in cipherIds", () => {
+      const invalidData = [
+        {
+          applicationName: "Test App",
+          passwordCount: 10,
+          atRiskPasswordCount: 2,
+          atRiskCipherIds: ["cipher-1"],
+          memberCount: 5,
+          atRiskMemberCount: 1,
+          memberDetails: [] as MemberDetails[],
+          atRiskMemberDetails: [] as MemberDetails[],
+          cipherIds: ["", "cipher-2"], // empty string
+        },
+      ];
+
+      expect(() => validateApplicationHealthReportDetailArray(invalidData)).toThrow(
+        /Invalid report data/,
+      );
+    });
   });
 
   describe("validateOrganizationReportSummary", () => {
@@ -183,6 +223,24 @@ describe("Risk Insights Type Guards", () => {
 
       expect(() => validateOrganizationReportSummary(invalidData)).toThrow(
         /Invalid OrganizationReportSummary.*newApplications/,
+      );
+    });
+
+    it("should throw error for empty string in newApplications", () => {
+      const invalidData = {
+        totalMemberCount: 10,
+        totalApplicationCount: 5,
+        totalAtRiskMemberCount: 2,
+        totalAtRiskApplicationCount: 1,
+        totalCriticalApplicationCount: 3,
+        totalCriticalMemberCount: 4,
+        totalCriticalAtRiskMemberCount: 1,
+        totalCriticalAtRiskApplicationCount: 1,
+        newApplications: ["app-1", "", "app-3"], // empty string
+      };
+
+      expect(() => validateOrganizationReportSummary(invalidData)).toThrow(
+        /Invalid OrganizationReportSummary/,
       );
     });
   });

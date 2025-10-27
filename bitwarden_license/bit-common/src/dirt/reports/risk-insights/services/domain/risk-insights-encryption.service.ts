@@ -193,9 +193,10 @@ export class RiskInsightsEncryptionService {
     } catch (error: unknown) {
       this.logService.error("[RiskInsightsEncryptionService] Failed to decrypt report", error);
       // Re-throw validation errors as they indicate data corruption or tampering
+      // Use generic message to avoid information disclosure
       if (error instanceof Error && error.message.includes("Invalid report data")) {
         throw new Error(
-          `Report data validation failed: ${error.message}. This may indicate data corruption or tampering.`,
+          "Report data validation failed. This may indicate data corruption or tampering.",
         );
       }
       throw error;
@@ -222,9 +223,10 @@ export class RiskInsightsEncryptionService {
         error,
       );
       // Re-throw validation errors as they indicate data corruption or tampering
+      // Use generic message to avoid information disclosure
       if (error instanceof Error && error.message.includes("Invalid OrganizationReportSummary")) {
         throw new Error(
-          `Summary data validation failed: ${error.message}. This may indicate data corruption or tampering.`,
+          "Summary data validation failed. This may indicate data corruption or tampering.",
         );
       }
       throw error;
@@ -251,13 +253,14 @@ export class RiskInsightsEncryptionService {
         error,
       );
       // Re-throw validation errors as they indicate data corruption or tampering
+      // Use generic message to avoid information disclosure
       if (
         error instanceof Error &&
         (error.message.includes("Invalid application data") ||
           error.message.includes("Invalid date string"))
       ) {
         throw new Error(
-          `Application data validation failed: ${error.message}. This may indicate data corruption or tampering.`,
+          "Application data validation failed. This may indicate data corruption or tampering.",
         );
       }
       throw error;

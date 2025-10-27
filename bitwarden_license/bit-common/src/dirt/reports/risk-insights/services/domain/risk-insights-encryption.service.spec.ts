@@ -248,7 +248,9 @@ describe("RiskInsightsEncryptionService", () => {
           mockEncryptedData,
           mockKey,
         ),
-      ).rejects.toThrow(/Report data validation failed.*Invalid report data/);
+      ).rejects.toThrow(
+        /Report data validation failed.*This may indicate data corruption or tampering/,
+      );
     });
 
     it("should throw error when summary data validation fails", async () => {
@@ -270,7 +272,9 @@ describe("RiskInsightsEncryptionService", () => {
           mockEncryptedData,
           mockKey,
         ),
-      ).rejects.toThrow(/Summary data validation failed.*Invalid OrganizationReportSummary/);
+      ).rejects.toThrow(
+        /Summary data validation failed.*This may indicate data corruption or tampering/,
+      );
     });
 
     it("should throw error when application data validation fails", async () => {
@@ -292,7 +296,9 @@ describe("RiskInsightsEncryptionService", () => {
           mockEncryptedData,
           mockKey,
         ),
-      ).rejects.toThrow(/Application data validation failed.*Invalid application data/);
+      ).rejects.toThrow(
+        /Application data validation failed.*This may indicate data corruption or tampering/,
+      );
     });
 
     it("should throw error for invalid date in application data", async () => {
@@ -322,7 +328,9 @@ describe("RiskInsightsEncryptionService", () => {
           mockEncryptedData,
           mockKey,
         ),
-      ).rejects.toThrow(/Application data validation failed.*Invalid date string/);
+      ).rejects.toThrow(
+        /Application data validation failed.*This may indicate data corruption or tampering/,
+      );
     });
   });
 });
