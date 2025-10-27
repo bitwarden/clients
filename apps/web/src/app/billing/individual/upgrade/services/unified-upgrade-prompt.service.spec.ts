@@ -116,6 +116,7 @@ describe("UnifiedUpgradePromptService", () => {
 
       // Assert
       expect(result).toBeNull();
+      expect(mockDialogOpen).not.toHaveBeenCalled();
     });
 
     it("should not show dialog when user has premium", async () => {
@@ -131,6 +132,7 @@ describe("UnifiedUpgradePromptService", () => {
 
       // Assert
       expect(result).toBeNull();
+      expect(mockDialogOpen).not.toHaveBeenCalled();
     });
 
     it("should not show dialog when user has any organization membership", async () => {
@@ -145,6 +147,7 @@ describe("UnifiedUpgradePromptService", () => {
 
       // Assert
       expect(result).toBeNull();
+      expect(mockDialogOpen).not.toHaveBeenCalled();
     });
 
     it("should not show dialog when profile is older than 5 minutes", async () => {
@@ -163,6 +166,7 @@ describe("UnifiedUpgradePromptService", () => {
 
       // Assert
       expect(result).toBeNull();
+      expect(mockDialogOpen).not.toHaveBeenCalled();
     });
 
     it("should show dialog when all conditions are met", async () => {
@@ -198,6 +202,7 @@ describe("UnifiedUpgradePromptService", () => {
 
       // Assert
       expect(result).toBeNull();
+      expect(mockDialogOpen).not.toHaveBeenCalled();
     });
 
     it("should not show dialog when profile creation date is unavailable", async () => {
@@ -215,6 +220,7 @@ describe("UnifiedUpgradePromptService", () => {
 
       // Assert
       expect(result).toBeNull();
+      expect(mockDialogOpen).not.toHaveBeenCalled();
     });
 
     it("should not show dialog when running in self-hosted environment", async () => {
