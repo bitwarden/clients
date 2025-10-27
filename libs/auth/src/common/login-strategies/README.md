@@ -342,6 +342,8 @@ Here is how these scenarios work:
 
 **User must complete New Device Verification**
 
+Note that we currently only require new device verification on Master Password logins (`PasswordLoginStrategy`) for users who do not have a 2FA method setup.
+
 1. Remember that when the server response is `IdentityDeviceVerificationResponse`, we set `requiresDeviceVerification` to `true` on the `AuthResult`.
 2. When `AuthResult.requiresDeviceVerification` is `true`, the specific login strategy exports its `LoginStrategyData` to the `LoginStrategyService`, where it gets stored in memory. This means the `LoginStrategyService` has a cache of the original request the user sent.
 3. We route the user to `/device-verification`.
