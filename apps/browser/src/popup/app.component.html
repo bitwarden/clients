@@ -13,8 +13,10 @@
     </bit-callout>
   </div>
 } @else {
-  <div [@routerTransition]="getRouteElevation(outlet)">
-    <router-outlet #outlet="outlet"></router-outlet>
+  <div class="tw-size-screen">
+    <div [@routerTransition]="getRouteElevation(outlet)">
+      <router-outlet #outlet="outlet"></router-outlet>
+    </div>
+    <bit-toast-container></bit-toast-container>
   </div>
-  <bit-toast-container></bit-toast-container>
 }

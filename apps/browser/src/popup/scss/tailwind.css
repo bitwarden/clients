@@ -1,4 +1,80 @@
-@import "../../../../../libs/components/src/tw-theme.css";
+@import "../../../../../libs/components/src/tw-theme-preflight.css";
+
+@layer base {
+  html {
+    overflow: hidden;
+    min-height: 600px;
+    height: 100%;
+
+    &.body-sm {
+      min-height: 500px;
+    }
+
+    &.body-xs {
+      min-height: 400px;
+    }
+
+    &.body-xxs {
+      min-height: 300px;
+    }
+
+    &.body-3xs {
+      min-height: 240px;
+    }
+
+    &.body-full {
+      min-height: unset;
+      width: 100%;
+      height: 100%;
+
+      & body {
+        width: 100%;
+      }
+    }
+  }
+
+  html.browser_safari {
+    &.safari_height_fix {
+      body {
+        height: 360px !important;
+
+        &.body-xs {
+          height: 300px !important;
+        }
+
+        &.body-full {
+          height: 100% !important;
+        }
+      }
+    }
+
+    app-root {
+      border-width: 1px;
+      border-style: solid;
+      border-color: #000000;
+    }
+
+    &.theme_light app-root {
+      border-color: #777777;
+    }
+  }
+
+  /**
+   * Workaround for slow performance on external monitors on Chrome + MacOS
+   * See: https://bugs.chromium.org/p/chromium/issues/detail?id=971701#c64
+   */
+  @keyframes redraw {
+    0% {
+      opacity: 0.99;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+  html.force_redraw {
+    animation: redraw 1s linear infinite;
+  }
+}
 
 @layer components {
   /** Safari Support */
@@ -18,5 +94,50 @@
   /* FireFox & Chrome support */
   html:not(.browser_safari) .tw-styled-scrollbar {
     scrollbar-color: rgb(var(--color-secondary-500)) rgb(var(--color-background-alt));
+  }
+
+  #duo-frame {
+    background: url("../images/loading.svg") 0 0 no-repeat;
+    width: 100%;
+    height: 470px;
+    margin-bottom: -10px;
+
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+  }
+
+  #web-authn-frame {
+    width: 100%;
+    height: 40px;
+
+    iframe {
+      border: none;
+      height: 100%;
+      width: 100%;
+    }
+  }
+
+  body.linux-webauthn {
+    width: 485px !important;
+    #web-authn-frame {
+      iframe {
+        width: 375px;
+        margin: 0 55px;
+      }
+    }
+  }
+
+  app-root > #loading {
+    display: flex;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+
+    @apply tw-text-muted;
   }
 }

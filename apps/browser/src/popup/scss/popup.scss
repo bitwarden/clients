@@ -1,13 +1,17 @@
 @import "../../../../../libs/angular/src/scss/bwicons/styles/style.scss";
 @import "variables.scss";
 @import "../../../../../libs/angular/src/scss/icons.scss";
-@import "base.scss";
-@import "grid.scss";
-@import "box.scss";
-@import "buttons.scss";
-@import "misc.scss";
-@import "environment.scss";
-@import "pages.scss";
-@import "plugins.scss";
 @import "@angular/cdk/overlay-prebuilt.css";
 @import "../../../../../libs/components/src/multi-select/scss/bw.theme";
+
+// cdk-virtual-scroll
+.cdk-virtual-scroll-viewport {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.cdk-virtual-scroll-content-wrapper {
+  width: 100%;
+}
