@@ -5,6 +5,8 @@ import { Router } from "@angular/router";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ButtonModule, ButtonType, LinkModule, TypographyModule } from "@bitwarden/components";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "dirt-activity-card",
   templateUrl: "./activity-card.component.html",
@@ -18,14 +20,20 @@ export class ActivityCardComponent {
   /**
    * The title of the card goes here
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() title: string = "";
   /**
    * The card metrics text to display next to the value
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() cardMetrics: string = "";
   /**
    * The description text to display below the value and metrics
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() metricDescription: string = "";
 
   /**
@@ -42,21 +50,29 @@ export class ActivityCardComponent {
    * Icon class to display next to metrics (e.g., "bwi-exclamation-triangle").
    * If null, no icon is displayed.
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() iconClass: string | null = null;
 
   /**
    * Button text. If provided, a button will be displayed instead of a navigation link.
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() buttonText: string = "";
 
   /**
    * Button type (e.g., "primary", "secondary")
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() buttonType: ButtonType = "primary";
 
   /**
    * Event emitted when button is clicked
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() buttonClick = new EventEmitter<void>();
 
   /**

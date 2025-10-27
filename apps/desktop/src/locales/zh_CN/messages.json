@@ -1852,6 +1852,12 @@
   "lockWithMasterPassOnRestart1": {
     "message": "重启后使用主密码锁定"
   },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "App 重启时要求主密码或 PIN 码"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "App 重启时要求主密码"
+  },
   "deleteAccount": {
     "message": "删除账户"
   },
@@ -4167,7 +4173,7 @@
   "itemWasSentToArchive": {
     "message": "项目已发送到归档"
   },
-  "itemUnarchived": {
+  "itemWasUnarchived": {
     "message": "项目已取消归档"
   },
   "archiveItem": {
