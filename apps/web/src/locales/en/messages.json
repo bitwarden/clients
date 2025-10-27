@@ -7054,6 +7054,9 @@
   "selfHostedEnvFormInvalid": {
     "message": "You must add either the base Server URL or at least one custom environment."
   },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URLs must use HTTPS."
+  },
   "apiUrl": {
     "message": "API server URL"
   },

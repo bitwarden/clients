@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, inject, OnDestroy, OnInit } from "@angular/core";
 import {
   AbstractControl,
   FormBuilder,
@@ -16,6 +16,7 @@ import {
   EnvironmentService,
   Region,
 } from "@bitwarden/common/platform/abstractions/environment.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import {
@@ -47,6 +48,22 @@ function selfHostedEnvSettingsFormValidator(): ValidatorFn {
       return null; // valid
     } else {
       return { atLeastOneUrlIsRequired: true }; // invalid
+    }
+  };
+}
+
+function onlyHttpsValidator(): ValidatorFn {
+  const i18nService = inject(I18nService);
+  return (control: AbstractControl): ValidationErrors | null => {
+    const url = control.value as string;
+    if (!url || url.startsWith("https://")) {
+      return null; // valid
+    } else {
+      return {
+        onlyHttpsAllowed: {
+          message: i18nService.t("selfHostedEnvMustUseHttps"),
+        },
+      }; // invalid
     }
   };
 }
@@ -89,12 +106,12 @@ export class SelfHostedEnvConfigDialogComponent implements OnInit, OnDestroy {
 
   formGroup = this.formBuilder.group(
     {
-      baseUrl: [""],
-      webVaultUrl: [""],
-      apiUrl: [""],
-      identityUrl: [""],
-      iconsUrl: [""],
-      notificationsUrl: [""],
+      baseUrl: ["", [onlyHttpsValidator()]],
+      webVaultUrl: ["", [onlyHttpsValidator()]],
+      apiUrl: ["", [onlyHttpsValidator()]],
+      identityUrl: ["", [onlyHttpsValidator()]],
+      iconsUrl: ["", [onlyHttpsValidator()]],
+      notificationsUrl: ["", [onlyHttpsValidator()]],
     },
     { validators: selfHostedEnvSettingsFormValidator() },
   );
