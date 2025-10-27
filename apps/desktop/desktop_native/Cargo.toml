@@ -8,7 +8,7 @@ members = [
     "napi",
     "process_isolation",
     "proxy",
-    "windows_plugin_authenticator",
+    "windows_plugin_authenticator"
 ]
 
 [workspace.package]
