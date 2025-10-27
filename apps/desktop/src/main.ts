@@ -310,6 +310,10 @@ export class Main {
       this.logService,
       this.windowMain,
     );
+
+    app.on("will-quit", () => {
+      this.mainDesktopAutotypeService.disableAutotype();
+    });
   }
 
   bootstrap() {

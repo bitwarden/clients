@@ -66,7 +66,7 @@ export class MainDesktopAutotypeService {
   }
 
   // Deregister the keyboard shortcut if registered.
-  private disableAutotype() {
+  disableAutotype() {
     const formattedKeyboardShortcut = this.autotypeKeyboardShortcut.getElectronFormat();
 
     if (globalShortcut.isRegistered(formattedKeyboardShortcut)) {
