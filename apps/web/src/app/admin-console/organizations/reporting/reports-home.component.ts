@@ -14,6 +14,8 @@ import { ProductTierType } from "@bitwarden/common/billing/enums";
 
 import { ReportVariant, reports, ReportType, ReportEntry } from "../../../dirt/reports";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-org-reports-home",
   templateUrl: "reports-home.component.html",

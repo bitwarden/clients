@@ -58,6 +58,8 @@ import {
 
 import { AtRiskPasswordPageService } from "./at-risk-password-page.service";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   imports: [
     PopupPageComponent,
@@ -104,7 +106,7 @@ export class AtRiskPasswordsComponent implements OnInit {
    * The UI utilize a bitBadge which does not support async actions (like bitButton does).
    * @protected
    */
-  protected launchingCipher = signal<CipherView | null>(null);
+  protected readonly launchingCipher = signal<CipherView | null>(null);
 
   private activeUserData$ = this.accountService.activeAccount$.pipe(
     filterOutNullish(),

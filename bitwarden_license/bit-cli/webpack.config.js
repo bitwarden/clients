@@ -24,6 +24,12 @@ module.exports = (webpackConfig, context) => {
       localesPath: "apps/cli/src/locales",
       externalsModulesDir: "node_modules",
       watch: context.options.watch || false,
+      importAliases: [
+        {
+          name: "@bitwarden/sdk-internal",
+          alias: "@bitwarden/commercial-sdk-internal",
+        },
+      ],
     });
   } else {
     // npm build configuration
@@ -43,6 +49,12 @@ module.exports = (webpackConfig, context) => {
       modulesPath: [path.resolve("../../node_modules")],
       localesPath: "../../apps/cli/src/locales",
       externalsModulesDir: "../../node_modules",
+      importAliases: [
+        {
+          name: "@bitwarden/sdk-internal",
+          alias: "@bitwarden/commercial-sdk-internal",
+        },
+      ],
     });
   }
 };

@@ -30,6 +30,7 @@ export enum FeatureFlag {
   PM25379_UseNewOrganizationMetadataStructure = "pm-25379-use-new-organization-metadata-structure",
   PM24996_ImplementUpgradeFromFreeDialog = "pm-24996-implement-upgrade-from-free-dialog",
   PM24033PremiumUpgradeNewDesign = "pm-24033-updat-premium-subscription-page",
+  PM26793_FetchPremiumPriceFromPricingService = "pm-26793-fetch-premium-price-from-pricing-service",
 
   /* Key Management */
   PrivateKeyRegeneration = "pm-12241-private-key-regeneration",
@@ -116,6 +117,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM25379_UseNewOrganizationMetadataStructure]: FALSE,
   [FeatureFlag.PM24996_ImplementUpgradeFromFreeDialog]: FALSE,
   [FeatureFlag.PM24033PremiumUpgradeNewDesign]: FALSE,
+  [FeatureFlag.PM26793_FetchPremiumPriceFromPricingService]: FALSE,
 
   /* Key Management */
   [FeatureFlag.PrivateKeyRegeneration]: FALSE,

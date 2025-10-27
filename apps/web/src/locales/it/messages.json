@@ -27,7 +27,7 @@
     "message": "Controlla le password a rischio (deboli, esposte o riutilizzate). Seleziona le applicazioni critiche per determinare la priorità delle azioni di sicurezza."
   },
   "dataLastUpdated": {
-    "message": "Ultimo aggiornamento: $DATE$",
+    "message": "Ultimo aggiornamento dei dati: $DATE$",
     "placeholders": {
       "date": {
         "content": "$1",
@@ -36,7 +36,7 @@
     }
   },
   "noReportRan": {
-    "message": "Non hai ancora generato un report"
+    "message": "Non hai ancora generato un rapporto"
   },
   "notifiedMembers": {
     "message": "Membri notificati"
@@ -72,7 +72,7 @@
     }
   },
   "securityTasksCompleted": {
-    "message": "completate $COUNT$ attività relative alla sicurezza su $TOTAL$",
+    "message": "Completate $COUNT$ attività relative alla sicurezza su $TOTAL$",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -154,6 +154,15 @@
       }
     }
   },
+  "newPasswordsAtRisk": {
+    "message": "$COUNT$ nuove password a rischio",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "notifiedMembersWithCount": {
     "message": "Membri notificati ($COUNT$)",
     "placeholders": {
@@ -191,7 +200,7 @@
     "message": "Contrassegna l'elemento come critico"
   },
   "applicationsSelected": {
-    "message": "applicazioni selezionate"
+    "message": "Applicazioni selezionate"
   },
   "selectApplication": {
     "message": "Seleziona applicazione"
@@ -224,7 +233,7 @@
     "message": "Membri a rischio"
   },
   "membersWithAccessToAtRiskItemsForCriticalApps": {
-    "message": "Membri con accesso ad elementi a rischio per applicazioni critiche"
+    "message": "Membri con accesso agli elementi a rischio per applicazioni critiche"
   },
   "membersAtRiskCount": {
     "message": "$COUNT$ membri a rischio",
@@ -254,19 +263,19 @@
     }
   },
   "atRiskMembersDescription": {
-    "message": "Questi membri accedono ad applicazioni con parole d'accesso deboli, esposte, o riutilizzate."
+    "message": "Questi membri accedono ad applicazioni con password deboli, esposte, o riutilizzate."
   },
   "atRiskMembersDescriptionNone": {
     "message": "Non ci sono utenti connessi con password deboli, esposte o riutilizzate."
   },
   "atRiskApplicationsDescription": {
-    "message": "Queste applicazioni hanno parole d'accesso deboli, esposte o riutilizzate."
+    "message": "Queste applicazioni hanno password deboli, esposte o riutilizzate."
   },
   "atRiskApplicationsDescriptionNone": {
     "message": "Non ci sono applicazioni con password deboli, esposte o riutilizzate."
   },
   "atRiskMembersDescriptionWithApp": {
-    "message": "Questi membri stanno entrando in $APPNAME$ con parole d'accesso deboli, esposte, o riutilizzate.",
+    "message": "Questi membri stanno entrando in $APPNAME$ con password deboli, esposte, o riutilizzate.",
     "placeholders": {
       "appname": {
         "content": "$1",
@@ -473,7 +482,7 @@
     "message": "Codice di sicurezza (CVV)"
   },
   "securityCodeSlashCVV": {
-    "message": "Codice di sicurezza (CVV)"
+    "message": "Codice di sicurezza / CVV"
   },
   "identityName": {
     "message": "Nome identità"
@@ -1072,7 +1081,7 @@
     "message": "Copia nome"
   },
   "cardNumber": {
-    "message": "numero carta"
+    "message": "Numero carta"
   },
   "copyFieldCipherName": {
     "message": "Copia $FIELD$, $CIPHERNAME$",
@@ -2080,9 +2089,6 @@
   "encKeySettings": {
     "message": "Impostazioni chiave di crittografia"
   },
-  "kdfAlgorithm": {
-    "message": "Algoritmo KDF"
-  },
   "kdfIterations": {
     "message": "Iterazioni KDF"
   },
@@ -2116,9 +2122,6 @@
   },
   "argon2Desc": {
     "message": "Un numero di iterazioni KDF, memoria, e parallelismo più elevato può aiutare a proteggere la tua password principale dall'essere forzata da un utente malintenzionato."
-  },
-  "changeKdf": {
-    "message": "Cambia KDF"
   },
   "encKeySettingsChanged": {
     "message": "Impostazioni chiave di crittografia salvate"
@@ -5709,6 +5712,65 @@
   "organizationDataOwnershipWarningContentBottom": {
     "message": "Scopri di più su ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about the credential lifecycle.'"
+  },
+  "availableNow": {
+    "message": "Available now"
+  },
+  "autoConfirm": {
+    "message": "Automatic confirmation of new users"
+  },
+  "autoConfirmDescription": {
+    "message": "New users invited to the organization will be automatically confirmed when an admin’s device is unlocked.",
+    "description": "This is the description of the policy as it appears in the 'Policies' page"
+  },
+  "howToTurnOnAutoConfirm": {
+    "message": "How to turn on automatic user confirmation"
+  },
+  "autoConfirmStep1": {
+    "message": "Open your Bitwarden extension."
+  },
+  "autoConfirmStep2a": {
+    "message": "Select",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  },
+  "autoConfirmStep2b": {
+    "message": " Turn on.",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  },
+  "autoConfirmExtensionOpened": {
+    "message": "Successfully opened the Bitwarden browser extension. You can now activate the automatic user confirmation setting."
+  },
+  "autoConfirmPolicyEditDescription": {
+    "message": "New users invited to the organization will be automatically confirmed when an admin’s device is unlocked. Before turning on this policy, please review and agree to the following: ",
+    "description": "This is the description of the policy as it appears inside the policy edit dialog"
+  },
+  "autoConfirmAcceptSecurityRiskTitle": {
+    "message": "Potential security risk. "
+  },
+  "autoConfirmAcceptSecurityRiskDescription": {
+    "message": "Automatic user confirmation could pose a security risk to your organization’s data."
+  },
+  "autoConfirmAcceptSecurityRiskLearnMore": {
+    "message": "Learn about the risks",
+    "description": "The is the link copy for the first check box option in the edit policy dialog"
+  },
+  "autoConfirmSingleOrgRequired": {
+    "message": "Single organization policy required. "
+  },
+  "autoConfirmSingleOrgRequiredDescription": {
+    "message": "Anyone part of more than one organization will have their access revoked until they leave the other organizations."
+  },
+  "autoConfirmSingleOrgExemption": {
+    "message": "Single organization policy will extend to all roles. "
+  },
+  "autoConfirmNoEmergencyAccess": {
+    "message": "No emergency access. "
+  },
+  "autoConfirmNoEmergencyAccessDescription": {
+    "message": "Emergency Access will be removed."
+  },
+  "autoConfirmCheckBoxLabel": {
+    "message": "I accept these risks and policy updates"
   },
   "personalOwnership": {
     "message": "Rimuovi cassaforte individuale"
@@ -10361,26 +10423,8 @@
   "memberAccessReportAuthenticationEnabledFalse": {
     "message": "Disattivo"
   },
-  "higherKDFIterations": {
-    "message": "Un numero di iterazioni KDF più elevato può aiutare a proteggere la tua password principale dall'essere forzata da un attaccante."
-  },
-  "incrementsOf100,000": {
-    "message": "incrementi di 100.000"
-  },
-  "smallIncrements": {
-    "message": "piccoli incrementi"
-  },
   "kdfIterationRecommends": {
     "message": "Consigliamo 600,000 o più"
-  },
-  "kdfToHighWarningIncreaseInIncrements": {
-    "message": "Per i dispositivi più vecchi, impostare il tuo KDF troppo alto potrebbe causare problemi di prestazioni. Aumenta il valore in $VALUE$ e prova i tuoi dispositivi.",
-    "placeholders": {
-      "value": {
-        "content": "$1",
-        "example": "increments of 100,000"
-      }
-    }
   },
   "providerReinstate": {
     "message": " Contatta il Servizio Clienti per ripristinare il tuo abbonamento."
@@ -11023,6 +11067,15 @@
   },
   "domainClaimed": {
     "message": "Dominio verificato"
+  },
+  "itemAddedToFavorites": {
+    "message": "Elemento aggiunto ai preferiti"
+  },
+  "itemRemovedFromFavorites": {
+    "message": "Elemento rimosso dai preferiti"
+  },
+  "copyNote": {
+    "message": "Copia nota"
   },
   "organizationNameMaxLength": {
     "message": "Il nome dell'organizzazione non può superare i 50 caratteri."
@@ -11856,5 +11909,32 @@
   },
   "viewbusinessplans": {
     "message": "Vedi i piani Business"
+  },
+  "updateEncryptionSettings": {
+    "message": "Update encryption settings"
+  },
+  "updateYourEncryptionSettings": {
+    "message": "Update your encryption settings"
+  },
+  "updateSettings": {
+    "message": "Update settings"
+  },
+  "algorithm": {
+    "message": "Algorithm"
+  },
+  "encryptionKeySettingsHowShouldWeEncryptYourData": {
+    "message": "Choose how Bitwarden should encrypt your vault data. All options are secure, but stronger methods offer better protection - especially against brute-force attacks. Bitwarden recommends the default setting for most users."
+  },
+  "encryptionKeySettingsIncreaseImproveSecurity": {
+    "message": "Increasing the values above the default will improve security, but your vault may take longer to unlock as a result."
+  },
+  "encryptionKeySettingsAlgorithmPopoverTitle": {
+    "message": "About encryption algorithms"
+  },
+  "encryptionKeySettingsAlgorithmPopoverPBKDF2": {
+    "message": "PBKDF2-SHA256 is a well-tested encryption method that balances security and performance. Good for all users."
+  },
+  "encryptionKeySettingsAlgorithmPopoverArgon2Id": {
+    "message": "Argon2id offers stronger protection against modern attacks. Best for advanced users with powerful devices."
   }
 }
