@@ -7,7 +7,6 @@ import {
   Observable,
   of,
   switchMap,
-  withLatestFrom,
 } from "rxjs";
 
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -28,8 +27,6 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { UserId } from "@bitwarden/user-core";
 
 import { DesktopAutotypeDefaultSettingPolicy } from "./desktop-autotype-policy.service";
-import { LogService } from "@bitwarden/logging";
-import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 
 export const defaultWindowsAutotypeKeyboardShortcut: string[] = ["Control", "Shift", "B"];
 
