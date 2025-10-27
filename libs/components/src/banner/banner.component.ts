@@ -38,7 +38,8 @@ const defaultIcon: Record<BannerType, string> = {
 export class BannerComponent implements OnInit {
   readonly bannerType = input<BannerType>("info");
 
-  readonly icon = model<string>();
+  // passing `null` will remove the icon from element from the banner
+  readonly icon = model<string | null>();
   readonly useAlertRole = input(true);
   readonly showClose = input(true);
 
@@ -47,7 +48,7 @@ export class BannerComponent implements OnInit {
   @Output() onClose = new EventEmitter<void>();
 
   ngOnInit(): void {
-    if (!this.icon()) {
+    if (!this.icon() && this.icon() !== null) {
       this.icon.set(defaultIcon[this.bannerType()]);
     }
   }

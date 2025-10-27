@@ -1852,6 +1852,12 @@
   "lockWithMasterPassOnRestart1": {
     "message": "Zaključaj glavnom lozinkom kod svakog pokretanja"
   },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "Traži glavnu lozinku ili PIN kod ponovnog pokretanja aplikacije"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "Traži glavnu lozinku kod ponovnog pokretanja aplikacije"
+  },
   "deleteAccount": {
     "message": "Obriši račun"
   },
@@ -2550,7 +2556,7 @@
     }
   },
   "vaultCustomTimeoutMinimum": {
-    "message": "Minimum custom timeout is 1 minute."
+    "message": "Najmanje prilagođeno vrijeme je 1 minuta."
   },
   "inviteAccepted": {
     "message": "Pozivnica prihvaćena"
@@ -4153,7 +4159,7 @@
     "description": "Verb"
   },
   "unArchive": {
-    "message": "Unarchive"
+    "message": "Poništi arhiviranje"
   },
   "itemsInArchive": {
     "message": "Stavke u arhivi"
@@ -4165,10 +4171,10 @@
     "message": "Arhivirane stavke biti će prikazane ovdje i biti će izuzete iz rezultata općih pretraga i preporuka auto-ispune."
   },
   "itemWasSentToArchive": {
-    "message": "Item was sent to archive"
+    "message": "Stavka poslana u arhivu"
   },
-  "itemUnarchived": {
-    "message": "Item was unarchived"
+  "itemWasUnarchived": {
+    "message": "Stavka vraćena iz arhive"
   },
   "archiveItem": {
     "message": "Arhiviraj stavku"

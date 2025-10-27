@@ -559,7 +559,7 @@
     "description": "Verb"
   },
   "unArchive": {
-    "message": "Unarchive"
+    "message": "Poništi arhiviranje"
   },
   "itemsInArchive": {
     "message": "Stavke u arhivi"
@@ -571,10 +571,10 @@
     "message": "Arhivirane stavke biti će prikazane ovdje i biti će izuzete iz rezultata općih pretraga i preporuka auto-ispune."
   },
   "itemWasSentToArchive": {
-    "message": "Item was sent to archive"
+    "message": "Stavka poslana u arhivu"
   },
   "itemUnarchived": {
-    "message": "Item was unarchived"
+    "message": "Stavka vraćena iz arhive"
   },
   "archiveItem": {
     "message": "Arhiviraj stavku"
@@ -5580,30 +5580,30 @@
     "message": "Dobrodošli u svoj trezor!"
   },
   "phishingPageTitleV2": {
-    "message": "Phishing attempt detected"
+    "message": "Otkriven pokušaj phishinga"
   },
   "phishingPageSummary": {
-    "message": "The site you are attempting to visit is a known malicious site and a security risk."
+    "message": "Web-mjesto koje pokušavaš posjetiti poznato je kao zlonamjerno i predstavlja sigurnosni rizik."
   },
   "phishingPageCloseTabV2": {
-    "message": "Close this tab"
+    "message": "Zatvori ovu karticu"
   },
   "phishingPageContinueV2": {
-    "message": "Continue to this site (not recommended)"
+    "message": "Nastavi na web mjesto (nije preporučljivo)"
   },
   "phishingPageExplanation1": {
-    "message": "This site was found in ",
+    "message": "Ovo mjesto je nađeno na ",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name follows this."
   },
   "phishingPageExplanation2": {
-    "message": ", an open-source list of known phishing sites used for stealing personal and sensitive information.",
+    "message": ", popisu otvorenog koda poznatih phishing stranica koje se koriste za krađu osobnih i osjetljivih podataka.",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name precedes this."
   },
   "phishingPageLearnMore": {
-    "message": "Learn more about phishing detection"
+    "message": "Saznaj više o otkrivanju phishinga"
   },
   "protectedBy": {
-    "message": "Protected by $PRODUCT$",
+    "message": "Zaštićeno s $PRODUCT$",
     "placeholders": {
       "product": {
         "content": "$1",
@@ -5715,8 +5715,11 @@
   "confirmKeyConnectorDomain": {
     "message": "Potvrdi domenu kontektora ključa"
   },
+  "atRiskLoginsSecured": {
+    "message": "Rizične prijave su osigurane!"
+  },
   "settingDisabledByPolicy": {
-    "message": "This setting is disabled by your organization's policy.",
+    "message": "Ova je postavka onemogućena pravilima tvoje organizacije.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
   }
 }

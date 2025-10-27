@@ -40,12 +40,16 @@ export type InitiationPath =
   | "Password Manager trial from marketing website"
   | "Secrets Manager trial from marketing website";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-complete-trial-initiation",
   templateUrl: "complete-trial-initiation.component.html",
   standalone: false,
 })
 export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("stepper", { static: false }) verticalStepper!: VerticalStepperComponent;
 
   inputPasswordFlow = InputPasswordFlow.SetInitialPasswordAccountRegistration;

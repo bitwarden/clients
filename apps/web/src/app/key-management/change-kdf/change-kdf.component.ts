@@ -1,11 +1,11 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
-import { FormBuilder, FormControl, ValidatorFn, Validators } from "@angular/forms";
-import { Subject, firstValueFrom, takeUntil } from "rxjs";
+import { FormBuilder, FormControl, Validators } from "@angular/forms";
+import { Subject, firstValueFrom, takeUntil, Observable } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { DialogService } from "@bitwarden/components";
 import {
   KdfConfigService,
@@ -31,11 +31,11 @@ export class ChangeKdfComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   protected formGroup = this.formBuilder.group({
-    kdf: new FormControl(KdfType.PBKDF2_SHA256, [Validators.required]),
+    kdf: new FormControl<KdfType>(KdfType.PBKDF2_SHA256, [Validators.required]),
     kdfConfig: this.formBuilder.group({
-      iterations: [this.kdfConfig.iterations],
-      memory: [null as number],
-      parallelism: [null as number],
+      iterations: new FormControl<number | null>(null),
+      memory: new FormControl<number | null>(null),
+      parallelism: new FormControl<number | null>(null),
     }),
   });
 
@@ -45,95 +45,102 @@ export class ChangeKdfComponent implements OnInit, OnDestroy {
   protected ARGON2_MEMORY = Argon2KdfConfig.MEMORY;
   protected ARGON2_PARALLELISM = Argon2KdfConfig.PARALLELISM;
 
+  noLogoutOnKdfChangeFeatureFlag$: Observable<boolean>;
+
   constructor(
     private dialogService: DialogService,
     private kdfConfigService: KdfConfigService,
     private accountService: AccountService,
     private formBuilder: FormBuilder,
+    configService: ConfigService,
   ) {
     this.kdfOptions = [
       { name: "PBKDF2 SHA-256", value: KdfType.PBKDF2_SHA256 },
       { name: "Argon2id", value: KdfType.Argon2id },
     ];
+    this.noLogoutOnKdfChangeFeatureFlag$ = configService.getFeatureFlag$(
+      FeatureFlag.NoLogoutOnKdfChange,
+    );
   }
 
   async ngOnInit() {
     const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     this.kdfConfig = await this.kdfConfigService.getKdfConfig(userId);
-    this.formGroup.get("kdf").setValue(this.kdfConfig.kdfType);
+    this.formGroup.controls.kdf.setValue(this.kdfConfig.kdfType);
     this.setFormControlValues(this.kdfConfig);
+    this.setFormValidators(this.kdfConfig.kdfType);
 
-    this.formGroup
-      .get("kdf")
-      .valueChanges.pipe(takeUntil(this.destroy$))
+    this.formGroup.controls.kdf.valueChanges
+      .pipe(takeUntil(this.destroy$))
       .subscribe((newValue) => {
-        this.updateKdfConfig(newValue);
+        this.updateKdfConfig(newValue!);
       });
   }
   private updateKdfConfig(newValue: KdfType) {
     let config: KdfConfig;
-    const validators: { [key: string]: ValidatorFn[] } = {
-      iterations: [],
-      memory: [],
-      parallelism: [],
-    };
 
     switch (newValue) {
       case KdfType.PBKDF2_SHA256:
         config = new PBKDF2KdfConfig();
-        validators.iterations = [
-          Validators.required,
-          Validators.min(PBKDF2KdfConfig.ITERATIONS.min),
-          Validators.max(PBKDF2KdfConfig.ITERATIONS.max),
-        ];
         break;
       case KdfType.Argon2id:
         config = new Argon2KdfConfig();
-        validators.iterations = [
-          Validators.required,
-          Validators.min(Argon2KdfConfig.ITERATIONS.min),
-          Validators.max(Argon2KdfConfig.ITERATIONS.max),
-        ];
-        validators.memory = [
-          Validators.required,
-          Validators.min(Argon2KdfConfig.MEMORY.min),
-          Validators.max(Argon2KdfConfig.MEMORY.max),
-        ];
-        validators.parallelism = [
-          Validators.required,
-          Validators.min(Argon2KdfConfig.PARALLELISM.min),
-          Validators.max(Argon2KdfConfig.PARALLELISM.max),
-        ];
         break;
       default:
         throw new Error("Unknown KDF type.");
     }
 
     this.kdfConfig = config;
-    this.setFormValidators(validators);
+    this.setFormValidators(newValue);
     this.setFormControlValues(this.kdfConfig);
   }
 
-  private setFormValidators(validators: { [key: string]: ValidatorFn[] }) {
-    this.setValidators("kdfConfig.iterations", validators.iterations);
-    this.setValidators("kdfConfig.memory", validators.memory);
-    this.setValidators("kdfConfig.parallelism", validators.parallelism);
-  }
-  private setValidators(controlName: string, validators: ValidatorFn[]) {
-    const control = this.formGroup.get(controlName);
-    if (control) {
-      control.setValidators(validators);
-      control.updateValueAndValidity();
+  private setFormValidators(kdfType: KdfType) {
+    const kdfConfigFormGroup = this.formGroup.controls.kdfConfig;
+    switch (kdfType) {
+      case KdfType.PBKDF2_SHA256:
+        kdfConfigFormGroup.controls.iterations.setValidators([
+          Validators.required,
+          Validators.min(PBKDF2KdfConfig.ITERATIONS.min),
+          Validators.max(PBKDF2KdfConfig.ITERATIONS.max),
+        ]);
+        kdfConfigFormGroup.controls.memory.setValidators([]);
+        kdfConfigFormGroup.controls.parallelism.setValidators([]);
+        break;
+      case KdfType.Argon2id:
+        kdfConfigFormGroup.controls.iterations.setValidators([
+          Validators.required,
+          Validators.min(Argon2KdfConfig.ITERATIONS.min),
+          Validators.max(Argon2KdfConfig.ITERATIONS.max),
+        ]);
+        kdfConfigFormGroup.controls.memory.setValidators([
+          Validators.required,
+          Validators.min(Argon2KdfConfig.MEMORY.min),
+          Validators.max(Argon2KdfConfig.MEMORY.max),
+        ]);
+        kdfConfigFormGroup.controls.parallelism.setValidators([
+          Validators.required,
+          Validators.min(Argon2KdfConfig.PARALLELISM.min),
+          Validators.max(Argon2KdfConfig.PARALLELISM.max),
+        ]);
+        break;
+      default:
+        throw new Error("Unknown KDF type.");
     }
+    kdfConfigFormGroup.controls.iterations.updateValueAndValidity();
+    kdfConfigFormGroup.controls.memory.updateValueAndValidity();
+    kdfConfigFormGroup.controls.parallelism.updateValueAndValidity();
   }
+
   private setFormControlValues(kdfConfig: KdfConfig) {
-    this.formGroup.get("kdfConfig").reset();
+    const kdfConfigFormGroup = this.formGroup.controls.kdfConfig;
+    kdfConfigFormGroup.reset();
     if (kdfConfig.kdfType === KdfType.PBKDF2_SHA256) {
-      this.formGroup.get("kdfConfig.iterations").setValue(kdfConfig.iterations);
+      kdfConfigFormGroup.controls.iterations.setValue(kdfConfig.iterations);
     } else if (kdfConfig.kdfType === KdfType.Argon2id) {
-      this.formGroup.get("kdfConfig.iterations").setValue(kdfConfig.iterations);
-      this.formGroup.get("kdfConfig.memory").setValue(kdfConfig.memory);
-      this.formGroup.get("kdfConfig.parallelism").setValue(kdfConfig.parallelism);
+      kdfConfigFormGroup.controls.iterations.setValue(kdfConfig.iterations);
+      kdfConfigFormGroup.controls.memory.setValue(kdfConfig.memory);
+      kdfConfigFormGroup.controls.parallelism.setValue(kdfConfig.parallelism);
     }
   }
 
@@ -155,12 +162,14 @@ export class ChangeKdfComponent implements OnInit, OnDestroy {
     if (this.formGroup.invalid) {
       return;
     }
+
+    const kdfConfigFormGroup = this.formGroup.controls.kdfConfig;
     if (this.kdfConfig.kdfType === KdfType.PBKDF2_SHA256) {
-      this.kdfConfig.iterations = this.formGroup.get("kdfConfig.iterations").value;
+      this.kdfConfig.iterations = kdfConfigFormGroup.controls.iterations.value!;
     } else if (this.kdfConfig.kdfType === KdfType.Argon2id) {
-      this.kdfConfig.iterations = this.formGroup.get("kdfConfig.iterations").value;
-      this.kdfConfig.memory = this.formGroup.get("kdfConfig.memory").value;
-      this.kdfConfig.parallelism = this.formGroup.get("kdfConfig.parallelism").value;
+      this.kdfConfig.iterations = kdfConfigFormGroup.controls.iterations.value!;
+      this.kdfConfig.memory = kdfConfigFormGroup.controls.memory.value!;
+      this.kdfConfig.parallelism = kdfConfigFormGroup.controls.parallelism.value!;
     }
     this.dialogService.open(ChangeKdfConfirmationComponent, {
       data: {
