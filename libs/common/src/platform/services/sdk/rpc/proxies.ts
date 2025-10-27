@@ -112,7 +112,11 @@ function RpcPropertyReference(channel: RpcRequestChannel, reference: RpcProperty
           if (result.result.type === "value") {
             return result.result.value;
           } else if (result.result.type === "reference") {
-            return RpcObjectReference.create(channel, result.result.referenceId);
+            return RpcObjectReference.create(
+              channel,
+              result.result.referenceId,
+              result.result.objectType,
+            );
           }
         })().then(onFulfilled, onRejected);
       };
@@ -136,7 +140,11 @@ function RpcPropertyReference(channel: RpcRequestChannel, reference: RpcProperty
         if (result.result.type === "value") {
           return result.result.value;
         } else if (result.result.type === "reference") {
-          return RpcObjectReference.create(channel, result.result.referenceId);
+          return RpcObjectReference.create(
+            channel,
+            result.result.referenceId,
+            result.result.objectType,
+          );
         }
       });
     },

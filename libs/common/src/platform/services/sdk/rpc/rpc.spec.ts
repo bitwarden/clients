@@ -1,7 +1,7 @@
 import { firstValueFrom, map, Observable } from "rxjs";
 
 import { RpcClient, RpcRequestChannel } from "./client";
-import { Response } from "./protocol";
+import { Command, Response } from "./protocol";
 import { RpcServer } from "./server";
 
 describe("RpcServer", () => {
@@ -38,6 +38,15 @@ describe("RpcServer", () => {
 
     expect(result).toBe("Hello, Async World!");
   });
+
+  it("references Wasm-like object with pointer and free method", async () => {
+    const remoteInstance = await firstValueFrom(client.getRoot());
+
+    const wasmObj = await remoteInstance.getWasmGreeting("Wasm World");
+    const greeting = await wasmObj.greet();
+
+    expect(greeting).toBe("Hello, Wasm World!");
+  });
 });
 
 class TestClass {
@@ -50,13 +59,38 @@ class TestClass {
   async greetAsync(name: string): Promise<string> {
     return `Hello, ${name}!`;
   }
+
+  getWasmGreeting(name: string): WasmLikeObject {
+    return new WasmLikeObject(name);
+  }
+}
+
+class WasmLikeObject {
+  ptr: number;
+
+  constructor(private name: string) {
+    this.ptr = 0; // Simulated pointer
+  }
+
+  free() {
+    // Simulated free method
+  }
+
+  async greet(): Promise<string> {
+    return `Hello, ${this.name}!`;
+  }
 }
 
 class InMemoryChannel implements RpcRequestChannel {
   constructor(private server: RpcServer<TestClass>) {}
 
-  async sendCommand(command: any): Promise<any> {
-    return this.server.handle(command);
+  async sendCommand(command: Command): Promise<Response> {
+    // Simulate serialization/deserialization
+    command = JSON.parse(JSON.stringify(command));
+    let response = await this.server.handle(command);
+    // Simulate serialization/deserialization
+    response = JSON.parse(JSON.stringify(response));
+    return response;
   }
 
   subscribeToRoot(): Observable<Response> {
