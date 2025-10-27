@@ -17,6 +17,8 @@ import { openCreateCredentialDialog } from "./create-credential-dialog/create-cr
 import { openDeleteCredentialDialogComponent } from "./delete-credential-dialog/delete-credential-dialog.component";
 import { openEnableCredentialDialogComponent } from "./enable-encryption-dialog/enable-encryption-dialog.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-webauthn-login-settings",
   templateUrl: "webauthn-login-settings.component.html",

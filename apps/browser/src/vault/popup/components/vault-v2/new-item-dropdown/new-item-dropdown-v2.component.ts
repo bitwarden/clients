@@ -23,6 +23,8 @@ export interface NewItemInitialValues {
   collectionId?: CollectionId;
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-new-item-dropdown",
   templateUrl: "new-item-dropdown-v2.component.html",
@@ -34,6 +36,8 @@ export class NewItemDropdownV2Component implements OnInit {
   /**
    * Optional initial values to pass to the add cipher form
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   initialValues: NewItemInitialValues;
 

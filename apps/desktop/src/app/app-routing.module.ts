@@ -21,6 +21,7 @@ import {
   UserLockIcon,
   VaultIcon,
   LockIcon,
+  DomainIcon,
 } from "@bitwarden/assets/svg";
 import {
   LoginComponent,
@@ -289,6 +290,8 @@ const routes: Routes = [
           pageTitle: {
             key: "verifyYourIdentity",
           },
+          // `TwoFactorAuthComponent` manually sets its icon based on the 2fa type
+          pageIcon: null,
         } satisfies RouteDataProperties & AnonLayoutWrapperData,
       },
       {
@@ -297,12 +300,16 @@ const routes: Routes = [
         component: SetInitialPasswordComponent,
         data: {
           maxWidth: "lg",
+          pageIcon: LockIcon,
         } satisfies AnonLayoutWrapperData,
       },
       {
         path: "change-password",
         component: ChangePasswordComponent,
         canActivate: [authGuard],
+        data: {
+          pageIcon: LockIcon,
+        } satisfies AnonLayoutWrapperData,
       },
       {
         path: "confirm-key-connector-domain",
@@ -312,6 +319,7 @@ const routes: Routes = [
           pageTitle: {
             key: "confirmKeyConnectorDomain",
           },
+          pageIcon: DomainIcon,
         } satisfies RouteDataProperties & AnonLayoutWrapperData,
       },
     ],

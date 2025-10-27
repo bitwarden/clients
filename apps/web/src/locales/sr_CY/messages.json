@@ -35,6 +35,9 @@
       }
     }
   },
+  "noReportRan": {
+    "message": "Још увек нисте направили извештај"
+  },
   "notifiedMembers": {
     "message": "Обавештени чланови"
   },
@@ -87,8 +90,8 @@
   "assignMembersTasksToMonitorProgress": {
     "message": "Доделите задатке чланова да прате напредак"
   },
-  "onceYouReviewApplications": {
-    "message": "Једном када прегледате апликације и означите их као критичне, оне ће се овде приказати."
+  "onceYouReviewApps": {
+    "message": "Када прегледате апликације и означите их као критичне, можете доделити задатке члановима за решавање ризичних ставки и пратити напредак овде"
   },
   "sendReminders": {
     "message": "Пошаљи подсетнике"
@@ -151,6 +154,15 @@
       }
     }
   },
+  "newPasswordsAtRisk": {
+    "message": "$COUNT$ new passwords at-risk",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "notifiedMembersWithCount": {
     "message": "Обавештени чланови ($COUNT$)",
     "placeholders": {
@@ -184,8 +196,23 @@
   "markAppAsCritical": {
     "message": "Означите апликацију као критичну"
   },
+  "markAsCritical": {
+    "message": "Постави као критично"
+  },
+  "applicationsSelected": {
+    "message": "applications selected"
+  },
+  "selectApplication": {
+    "message": "Бирање апликације"
+  },
+  "unselectApplication": {
+    "message": "Скини одабирања апликације"
+  },
   "applicationsMarkedAsCriticalSuccess": {
     "message": "Апликације означене као критичне"
+  },
+  "applicationsMarkedAsCriticalFail": {
+    "message": "Означавање апликација као критичних није успело"
   },
   "application": {
     "message": "Апликација"
@@ -273,6 +300,33 @@
   },
   "totalApplications": {
     "message": "Укупно апликација"
+  },
+  "applicationsNeedingReview": {
+    "message": "Апликације које треба прегледати"
+  },
+  "newApplicationsWithCount": {
+    "message": "$COUNT$ new applications",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "13"
+      }
+    }
+  },
+  "newApplicationsDescription": {
+    "message": "Прегледајте нове апликације да бисте их означили као критичне и заштитили своју организацију"
+  },
+  "reviewNow": {
+    "message": "Прегледај сада"
+  },
+  "prioritizeCriticalApplications": {
+    "message": "Дајте приоритет критичним апликацијама"
+  },
+  "atRiskItems": {
+    "message": "Ставке под ризиком"
+  },
+  "markAsCriticalPlaceholder": {
+    "message": "Означи као критичну функционалност ће бити имплементирана у будућем ажурирању"
   },
   "unmarkAsCritical": {
     "message": "Уклони као критично"
@@ -1248,6 +1302,9 @@
   "readingPasskeyLoadingInfo": {
     "message": "Држите овај прозор отворен и пратите упутства из прегледача."
   },
+  "passkeyAuthenticationFailed": {
+    "message": "Потврда приступачног кључа није успела. Покушајте поново."
+  },
   "useADifferentLogInMethod": {
     "message": "Користи други начин пријављивања"
   },
@@ -2032,9 +2089,6 @@
   "encKeySettings": {
     "message": "Подешавања кључа шифровања"
   },
-  "kdfAlgorithm": {
-    "message": "KDF Алгоритам"
-  },
   "kdfIterations": {
     "message": "KDF понављања"
   },
@@ -2068,9 +2122,6 @@
   },
   "argon2Desc": {
     "message": "Веће KDF итерације, меморија и паралелизам могу помоћи у заштити ваше главне лозинке од грубе присиле од стране нападача."
-  },
-  "changeKdf": {
-    "message": "Променити KDF"
   },
   "encKeySettingsChanged": {
     "message": "Подешавања кључа шифровања промењена"
@@ -2901,6 +2952,9 @@
   },
   "makeSureEnoughCredit": {
     "message": "Уверите се да је на вашем рачуну доступно довољно кредита за ову куповину. Ако на вашем рачуну нема довољно кредита, за разлику ће се користити ваш подразумевани начин плаћања у евиденцији. На свој рачун можете да додате кредит на страници Обрачун."
+  },
+  "notEnoughAccountCredit": {
+    "message": "Немате довољно кредита на рачуну за ову куповину. Можете да додате кредит на свој налог са странице Обрачун."
   },
   "creditAppliedDesc": {
     "message": "Кредит вашег рачуна може се користити за куповину. Сав расположиви кредит аутоматски ће се применити на фактуре генерисане за овај рачун."
@@ -4310,6 +4364,9 @@
   "generatingYourRiskInsights": {
     "message": "Генерисање прегледа вашег ризика..."
   },
+  "riskInsightsRunReport": {
+    "message": "Покрените извештај"
+  },
   "updateBrowserDesc": {
     "message": "Користите неподржани веб прегледач. Веб сеф можда неће правилно функционисати."
   },
@@ -5655,6 +5712,65 @@
   "organizationDataOwnershipWarningContentBottom": {
     "message": "Сазнајте више о ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about the credential lifecycle.'"
+  },
+  "availableNow": {
+    "message": "Available now"
+  },
+  "autoConfirm": {
+    "message": "Automatic confirmation of new users"
+  },
+  "autoConfirmDescription": {
+    "message": "New users invited to the organization will be automatically confirmed when an admin’s device is unlocked.",
+    "description": "This is the description of the policy as it appears in the 'Policies' page"
+  },
+  "howToTurnOnAutoConfirm": {
+    "message": "How to turn on automatic user confirmation"
+  },
+  "autoConfirmStep1": {
+    "message": "Open your Bitwarden extension."
+  },
+  "autoConfirmStep2a": {
+    "message": "Select",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  },
+  "autoConfirmStep2b": {
+    "message": " Turn on.",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  },
+  "autoConfirmExtensionOpened": {
+    "message": "Successfully opened the Bitwarden browser extension. You can now activate the automatic user confirmation setting."
+  },
+  "autoConfirmPolicyEditDescription": {
+    "message": "New users invited to the organization will be automatically confirmed when an admin’s device is unlocked. Before turning on this policy, please review and agree to the following: ",
+    "description": "This is the description of the policy as it appears inside the policy edit dialog"
+  },
+  "autoConfirmAcceptSecurityRiskTitle": {
+    "message": "Potential security risk. "
+  },
+  "autoConfirmAcceptSecurityRiskDescription": {
+    "message": "Automatic user confirmation could pose a security risk to your organization’s data."
+  },
+  "autoConfirmAcceptSecurityRiskLearnMore": {
+    "message": "Learn about the risks",
+    "description": "The is the link copy for the first check box option in the edit policy dialog"
+  },
+  "autoConfirmSingleOrgRequired": {
+    "message": "Single organization policy required. "
+  },
+  "autoConfirmSingleOrgRequiredDescription": {
+    "message": "Anyone part of more than one organization will have their access revoked until they leave the other organizations."
+  },
+  "autoConfirmSingleOrgExemption": {
+    "message": "Single organization policy will extend to all roles. "
+  },
+  "autoConfirmNoEmergencyAccess": {
+    "message": "No emergency access. "
+  },
+  "autoConfirmNoEmergencyAccessDescription": {
+    "message": "Emergency Access will be removed."
+  },
+  "autoConfirmCheckBoxLabel": {
+    "message": "I accept these risks and policy updates"
   },
   "personalOwnership": {
     "message": "Лично власништво"
@@ -9960,6 +10076,9 @@
   "crowdstrikeEventIntegrationDesc": {
     "message": "Пошаљите податке о догађају на вашу инстанцу Logscale-а"
   },
+  "datadogEventIntegrationDesc": {
+    "message": "Send vault event data to your Datadog instance"
+  },
   "failedToSaveIntegration": {
     "message": "Није успело сачувавање интеграције. Покушајте поново касније."
   },
@@ -10304,26 +10423,8 @@
   "memberAccessReportAuthenticationEnabledFalse": {
     "message": "Не"
   },
-  "higherKDFIterations": {
-    "message": "Веће KDF итерације може помоћи у заштити ваше главне лозинке од грубе присиле од стране нападача."
-  },
-  "incrementsOf100,000": {
-    "message": "повећање од 100.000"
-  },
-  "smallIncrements": {
-    "message": "малим корацима"
-  },
   "kdfIterationRecommends": {
     "message": "Препоручујемо 600.000 или више"
-  },
-  "kdfToHighWarningIncreaseInIncrements": {
-    "message": "За старије уређаје, постављање вашег КДФ-а превисоко може довести до проблема са перформансама. Повећајте вредност у $VALUE$ и тестирајте своје уређаје.",
-    "placeholders": {
-      "value": {
-        "content": "$1",
-        "example": "increments of 100,000"
-      }
-    }
   },
   "providerReinstate": {
     "message": " Контактирајте корисничку подршку да бисте обновили претплату."
@@ -10967,6 +11068,15 @@
   "domainClaimed": {
     "message": "Домен захтеван"
   },
+  "itemAddedToFavorites": {
+    "message": "Item added to favorites"
+  },
+  "itemRemovedFromFavorites": {
+    "message": "Item removed from favorites"
+  },
+  "copyNote": {
+    "message": "Copy note"
+  },
   "organizationNameMaxLength": {
     "message": "Име организације не може прећи 50 знакова."
   },
@@ -11237,11 +11347,46 @@
     "message": "Архива",
     "description": "Verb"
   },
+  "unArchive": {
+    "message": "Unarchive"
+  },
+  "itemsInArchive": {
+    "message": "Items in archive"
+  },
   "noItemsInArchive": {
     "message": "Нема ставка у архиви"
   },
-  "archivedItemsDescription": {
-    "message": "Архивиране ставке ће се овде појавити и бити искључени из општих резултата претраге и сугестија о ауто-пуњењу."
+  "noItemsInArchiveDesc": {
+    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+  },
+  "itemWasSentToArchive": {
+    "message": "Item was sent to archive"
+  },
+  "itemsWereSentToArchive": {
+    "message": "Items were sent to archive"
+  },
+  "itemUnarchived": {
+    "message": "Item was unarchived"
+  },
+  "bulkArchiveItems": {
+    "message": "Items archived"
+  },
+  "bulkUnarchiveItems": {
+    "message": "Items unarchived"
+  },
+  "archiveItem": {
+    "message": "Archive item",
+    "description": "Verb"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+  },
+  "archiveBulkItems": {
+    "message": "Archive items",
+    "description": "Verb"
+  },
+  "archiveBulkItemsConfirmDesc": {
+    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive these items?"
   },
   "businessUnit": {
     "message": "Пословна јединица"
@@ -11713,5 +11858,83 @@
   },
   "seamlessIntegration": {
     "message": "Бешавна интеграција"
+  },
+  "families": {
+    "message": "Families"
+  },
+  "upgradeToFamilies": {
+    "message": "Upgrade to Families"
+  },
+  "upgradeToPremium": {
+    "message": "Upgrade to Premium"
+  },
+  "familiesUpdated": {
+    "message": "You've upgraded to Families!"
+  },
+  "taxCalculationError": {
+    "message": "There was an error calculating tax for your location. Please try again."
+  },
+  "individualUpgradeWelcomeMessage": {
+    "message": "Welcome to Bitwarden"
+  },
+  "individualUpgradeDescriptionMessage": {
+    "message": "Unlock more security features with Premium, or start sharing items with Families"
+  },
+  "individualUpgradeTaxInformationMessage": {
+    "message": "Prices exclude tax and are billed annually."
+  },
+  "organizationNameDescription": {
+    "message": "Your organization name will appear in invitations you send to members."
+  },
+  "continueWithoutUpgrading": {
+    "message": "Continue without upgrading"
+  },
+  "upgradeYourPlan": {
+    "message": "Upgrade your plan"
+  },
+  "upgradeNow": {
+    "message": "Upgrade now"
+  },
+  "formWillCreateNewFamiliesOrgMessage": {
+    "message": "Completing this form will create a new Families organization. You can upgrade your Free organization from the Admin Console."
+  },
+  "upgradeErrorMessage": {
+    "message": "We encountered an error while processing your upgrade. Please try again."
+  },
+  "bitwardenFreeplanMessage": {
+    "message": "You have the Bitwarden Free plan"
+  },
+  "upgradeCompleteSecurity": {
+    "message": "Upgrade for complete security"
+  },
+  "viewbusinessplans": {
+    "message": "View business plans"
+  },
+  "updateEncryptionSettings": {
+    "message": "Update encryption settings"
+  },
+  "updateYourEncryptionSettings": {
+    "message": "Update your encryption settings"
+  },
+  "updateSettings": {
+    "message": "Update settings"
+  },
+  "algorithm": {
+    "message": "Algorithm"
+  },
+  "encryptionKeySettingsHowShouldWeEncryptYourData": {
+    "message": "Choose how Bitwarden should encrypt your vault data. All options are secure, but stronger methods offer better protection - especially against brute-force attacks. Bitwarden recommends the default setting for most users."
+  },
+  "encryptionKeySettingsIncreaseImproveSecurity": {
+    "message": "Increasing the values above the default will improve security, but your vault may take longer to unlock as a result."
+  },
+  "encryptionKeySettingsAlgorithmPopoverTitle": {
+    "message": "About encryption algorithms"
+  },
+  "encryptionKeySettingsAlgorithmPopoverPBKDF2": {
+    "message": "PBKDF2-SHA256 is a well-tested encryption method that balances security and performance. Good for all users."
+  },
+  "encryptionKeySettingsAlgorithmPopoverArgon2Id": {
+    "message": "Argon2id offers stronger protection against modern attacks. Best for advanced users with powerful devices."
   }
 }

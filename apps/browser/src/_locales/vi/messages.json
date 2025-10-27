@@ -558,7 +558,7 @@
     "message": "Lưu trữ",
     "description": "Verb"
   },
-  "unarchive": {
+  "unArchive": {
     "message": "Hủy lưu trữ"
   },
   "itemsInArchive": {
@@ -570,11 +570,11 @@
   "noItemsInArchiveDesc": {
     "message": "Các mục đã lưu trữ sẽ hiển thị ở đây và sẽ bị loại khỏi kết quả tìm kiếm và gợi ý tự động điền."
   },
-  "itemSentToArchive": {
-    "message": "Mục đã được gửi đến kho lưu trữ"
+  "itemWasSentToArchive": {
+    "message": "Mục đã được chuyển vào kho lưu trữ"
   },
-  "itemRemovedFromArchive": {
-    "message": "Mục đã được gỡ khỏi kho lưu trữ"
+  "itemUnarchived": {
+    "message": "Mục đã được bỏ lưu trữ"
   },
   "archiveItem": {
     "message": "Lưu trữ mục"
@@ -1547,6 +1547,15 @@
   },
   "readSecurityKey": {
     "message": "Đọc khóa bảo mật"
+  },
+  "readingPasskeyLoading": {
+    "message": "Đang đọc mã khoá..."
+  },
+  "passkeyAuthenticationFailed": {
+    "message": "Xác thực mã khóa thất bại"
+  },
+  "useADifferentLogInMethod": {
+    "message": "Dùng phương thức đăng nhập khác"
   },
   "awaitingSecurityKeyInteraction": {
     "message": "Đang chờ tương tác với khóa bảo mật..."
@@ -5570,17 +5579,37 @@
   "hasItemsVaultNudgeTitle": {
     "message": "Chào mừng đến với kho lưu trữ của bạn!"
   },
-  "phishingPageTitle": {
-    "message": "Trang web lừa đảo"
+  "phishingPageTitleV2": {
+    "message": "Phishing attempt detected"
   },
-  "phishingPageCloseTab": {
-    "message": "Đóng tab"
+  "phishingPageSummary": {
+    "message": "The site you are attempting to visit is a known malicious site and a security risk."
   },
-  "phishingPageContinue": {
-    "message": "Tiếp tục"
+  "phishingPageCloseTabV2": {
+    "message": "Close this tab"
   },
-  "phishingPageLearnWhy": {
-    "message": "Tại sao bạn thấy điều này?"
+  "phishingPageContinueV2": {
+    "message": "Continue to this site (not recommended)"
+  },
+  "phishingPageExplanation1": {
+    "message": "This site was found in ",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name follows this."
+  },
+  "phishingPageExplanation2": {
+    "message": ", an open-source list of known phishing sites used for stealing personal and sensitive information.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name precedes this."
+  },
+  "phishingPageLearnMore": {
+    "message": "Learn more about phishing detection"
+  },
+  "protectedBy": {
+    "message": "Protected by $PRODUCT$",
+    "placeholders": {
+      "product": {
+        "content": "$1",
+        "example": "Bitwarden Phishing Blocker"
+      }
+    }
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Tự động điền các mục cho trang hiện tại"
@@ -5685,5 +5714,12 @@
   },
   "confirmKeyConnectorDomain": {
     "message": "Xác nhận tên miền Key Connector"
+  },
+  "atRiskLoginsSecured": {
+    "message": "Great job securing your at-risk logins!"
+  },
+  "settingDisabledByPolicy": {
+    "message": "This setting is disabled by your organization's policy.",
+    "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
   }
 }

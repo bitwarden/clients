@@ -4,6 +4,7 @@ import { NgModule } from "@angular/core";
 import { PasswordStrengthV2Component } from "@bitwarden/angular/tools/password-strength/password-strength-v2.component";
 import { PasswordCalloutComponent } from "@bitwarden/auth/angular";
 import { ScrollLayoutDirective } from "@bitwarden/components";
+import { BillingConstraintService } from "@bitwarden/web-vault/app/billing/members/billing-constraint/billing-constraint.service";
 import { OrganizationFreeTrialWarningComponent } from "@bitwarden/web-vault/app/billing/organizations/warnings/components";
 
 import { HeaderModule } from "../../../layouts/header/header.module";
@@ -18,6 +19,11 @@ import { BulkStatusComponent } from "./components/bulk/bulk-status.component";
 import { UserDialogModule } from "./components/member-dialog";
 import { MembersRoutingModule } from "./members-routing.module";
 import { MembersComponent } from "./members.component";
+import {
+  OrganizationMembersService,
+  MemberActionsService,
+  MemberDialogManagerService,
+} from "./services";
 
 @NgModule({
   imports: [
@@ -39,6 +45,12 @@ import { MembersComponent } from "./members.component";
     BulkStatusComponent,
     MembersComponent,
     BulkDeleteDialogComponent,
+  ],
+  providers: [
+    OrganizationMembersService,
+    MemberActionsService,
+    BillingConstraintService,
+    MemberDialogManagerService,
   ],
 })
 export class MembersModule {}

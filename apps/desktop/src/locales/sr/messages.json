@@ -1852,6 +1852,12 @@
   "lockWithMasterPassOnRestart1": {
     "message": "Закључајте са главном лозинком при поновном покретању"
   },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "Require master password or PIN on app restart"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "Require master password on app restart"
+  },
   "deleteAccount": {
     "message": "Брисање налога"
   },
@@ -2548,6 +2554,9 @@
         "example": "5"
       }
     }
+  },
+  "vaultCustomTimeoutMinimum": {
+    "message": "Минимално прилагођено временско ограничење је 1 минут."
   },
   "inviteAccepted": {
     "message": "Позив прихваћен"
@@ -4135,7 +4144,7 @@
   "enableAutotypeShortcutPreview": {
     "message": "Омогућите пречицу ауто-уноса (преглед функције)"
   },
-  "enableAutotypeDescriptionTransitionKey": {
+  "enableAutotypeShortcutDescription": {
     "message": "Будите сигурни да сте у исправном пољу пре употребе пречице да бисте избегли попуњавање података на погрешно место."
   },
   "editShortcut": {
@@ -4149,7 +4158,7 @@
     "message": "Архивирај",
     "description": "Verb"
   },
-  "unarchive": {
+  "unArchive": {
     "message": "Врати из архиве"
   },
   "itemsInArchive": {
@@ -4161,11 +4170,11 @@
   "noItemsInArchiveDesc": {
     "message": "Архивиране ставке ће се овде појавити и бити искључени из општих резултата претраге и сугестија о ауто-пуњењу."
   },
-  "itemSentToArchive": {
+  "itemWasSentToArchive": {
     "message": "Ставка је послата у архиву"
   },
-  "itemRemovedFromArchive": {
-    "message": "Ставка је уклоњена из архиве"
+  "itemWasUnarchived": {
+    "message": "Item was unarchived"
   },
   "archiveItem": {
     "message": "Архивирај ставку"

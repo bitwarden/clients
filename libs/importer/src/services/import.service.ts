@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { combineLatest, firstValueFrom, map, Observable } from "rxjs";
+import { firstValueFrom, map } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -10,8 +10,7 @@ import {
   CollectionView,
 } from "@bitwarden/admin-console/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { DeviceType } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { ImportCiphersRequest } from "@bitwarden/common/models/request/import-ciphers.request";
@@ -20,9 +19,7 @@ import { KvpRequest } from "@bitwarden/common/models/request/kvp.request";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SemanticLogger } from "@bitwarden/common/tools/log";
-import { SystemServiceProvider } from "@bitwarden/common/tools/providers";
-import { OrganizationId } from "@bitwarden/common/types/guid";
+import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType, toCipherTypeName } from "@bitwarden/common/vault/enums";
@@ -98,7 +95,6 @@ import {
   PasswordDepot17XmlImporter,
 } from "../importers";
 import { Importer } from "../importers/importer";
-import { ImporterMetadata, Importers, Loader } from "../metadata";
 import {
   featuredImportOptions,
   ImportOption,
@@ -108,14 +104,11 @@ import {
 import { ImportResult } from "../models/import-result";
 import { ImportApiServiceAbstraction } from "../services/import-api.service.abstraction";
 import { ImportServiceAbstraction } from "../services/import.service.abstraction";
-import { availableLoaders as availableLoaders } from "../util";
 
 export class ImportService implements ImportServiceAbstraction {
   featuredImportOptions = featuredImportOptions as readonly ImportOption[];
 
   regularImportOptions = regularImportOptions as readonly ImportOption[];
-
-  private logger: SemanticLogger;
 
   constructor(
     private cipherService: CipherService,
@@ -128,55 +121,10 @@ export class ImportService implements ImportServiceAbstraction {
     private pinService: PinServiceAbstraction,
     private accountService: AccountService,
     private restrictedItemTypesService: RestrictedItemTypesService,
-    private system: SystemServiceProvider,
-  ) {
-    this.logger = system.log({ type: "ImportService" });
-  }
+  ) {}
 
   getImportOptions(): ImportOption[] {
     return this.featuredImportOptions.concat(this.regularImportOptions);
-  }
-
-  metadata$(type$: Observable<ImportType>): Observable<ImporterMetadata> {
-    const browserEnabled$ = this.system.configService.getFeatureFlag$(
-      FeatureFlag.UseChromiumImporter,
-    );
-    const client = this.system.environment.getClientType();
-    const capabilities$ = combineLatest([type$, browserEnabled$]).pipe(
-      map(([type, enabled]) => {
-        let loaders = availableLoaders(type, client);
-
-        // Mac App Store is currently disabled due to sandboxing.
-        let isUnsupported = this.system.environment.isMacAppStore();
-
-        if (enabled && type === "bravecsv") {
-          try {
-            const device = this.system.environment.getDevice();
-            const isWindowsDesktop = device === DeviceType.WindowsDesktop;
-            if (isWindowsDesktop) {
-              isUnsupported = true;
-            }
-          } catch {
-            isUnsupported = true;
-          }
-        }
-        // If the feature flag is disabled, or if the browser is unsupported, remove the chromium loader
-        if (!enabled || isUnsupported) {
-          loaders = loaders?.filter((loader) => loader !== Loader.chromium);
-        }
-
-        const capabilities: ImporterMetadata = { type, loaders };
-        if (type in Importers) {
-          capabilities.instructions = Importers[type].instructions;
-        }
-
-        this.logger.debug({ importType: type, capabilities }, "capabilities updated");
-
-        return capabilities;
-      }),
-    );
-
-    return capabilities$;
   }
 
   async import(
@@ -241,10 +189,11 @@ export class ImportService implements ImportServiceAbstraction {
 
     try {
       await this.setImportTarget(importResult, organizationId, selectedImportTarget);
+      const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
       if (organizationId != null) {
-        await this.handleOrganizationalImport(importResult, organizationId);
+        await this.handleOrganizationalImport(importResult, organizationId, userId);
       } else {
-        await this.handleIndividualImport(importResult);
+        await this.handleIndividualImport(importResult, userId);
       }
     } catch (error) {
       const errorResponse = new ErrorResponse(error, 400);
@@ -422,16 +371,14 @@ export class ImportService implements ImportServiceAbstraction {
     }
   }
 
-  private async handleIndividualImport(importResult: ImportResult) {
+  private async handleIndividualImport(importResult: ImportResult, userId: UserId) {
     const request = new ImportCiphersRequest();
-    const activeUserId = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-    );
     for (let i = 0; i < importResult.ciphers.length; i++) {
-      const c = await this.cipherService.encrypt(importResult.ciphers[i], activeUserId);
+      const c = await this.cipherService.encrypt(importResult.ciphers[i], userId);
       request.ciphers.push(new CipherRequest(c));
     }
-    const userKey = await this.keyService.getUserKey(activeUserId);
+    const userKey = await firstValueFrom(this.keyService.userKey$(userId));
+
     if (importResult.folders != null) {
       for (let i = 0; i < importResult.folders.length; i++) {
         const f = await this.folderService.encrypt(importResult.folders[i], userKey);
@@ -449,20 +396,18 @@ export class ImportService implements ImportServiceAbstraction {
   private async handleOrganizationalImport(
     importResult: ImportResult,
     organizationId: OrganizationId,
+    userId: UserId,
   ) {
     const request = new ImportOrganizationCiphersRequest();
-    const activeUserId = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-    );
     for (let i = 0; i < importResult.ciphers.length; i++) {
       importResult.ciphers[i].organizationId = organizationId;
-      const c = await this.cipherService.encrypt(importResult.ciphers[i], activeUserId);
+      const c = await this.cipherService.encrypt(importResult.ciphers[i], userId);
       request.ciphers.push(new CipherRequest(c));
     }
     if (importResult.collections != null) {
       for (let i = 0; i < importResult.collections.length; i++) {
         importResult.collections[i].organizationId = organizationId;
-        const c = await this.collectionService.encrypt(importResult.collections[i], activeUserId);
+        const c = await this.collectionService.encrypt(importResult.collections[i], userId);
         request.collections.push(new CollectionWithIdRequest(c));
       }
     }

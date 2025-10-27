@@ -3,7 +3,7 @@
     "message": "Bitwarden"
   },
   "appLogoLabel": {
-    "message": "Logo de Bitwarden"
+    "message": "Logo Bitwarden"
   },
   "extName": {
     "message": "Gestionnaire de mots de passe Bitwarden",
@@ -246,7 +246,7 @@
     "message": "Connectez-vous à votre coffre"
   },
   "autoFillInfo": {
-    "message": "Il n'y a aucun identifiant disponible pour la saisie automatique concernant l'onglet actuel du navigateur."
+    "message": "Il n'y a pas d'identifiants disponibles pour la saisie automatique pour l'onglet actuel du navigateur."
   },
   "addLogin": {
     "message": "Ajouter un identifiant"
@@ -555,32 +555,32 @@
     "description": "Noun"
   },
   "archiveVerb": {
-    "message": "Archive",
+    "message": "Archiver",
     "description": "Verb"
   },
-  "unarchive": {
+  "unArchive": {
     "message": "Unarchive"
   },
   "itemsInArchive": {
-    "message": "Items in archive"
+    "message": "Éléments dans l'archive"
   },
   "noItemsInArchive": {
-    "message": "No items in archive"
+    "message": "Aucun élément dans l'archive"
   },
   "noItemsInArchiveDesc": {
-    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+    "message": "Les éléments archivés apparaîtront ici et seront exclus des résultats de recherche généraux et des suggestions de remplissage automatique."
   },
-  "itemSentToArchive": {
-    "message": "Item sent to archive"
+  "itemWasSentToArchive": {
+    "message": "Item was sent to archive"
   },
-  "itemRemovedFromArchive": {
-    "message": "Item removed from archive"
+  "itemUnarchived": {
+    "message": "Item was unarchived"
   },
   "archiveItem": {
-    "message": "Archive item"
+    "message": "Archiver l'élément"
   },
   "archiveItemConfirmDesc": {
-    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+    "message": "Les éléments archivés sont exclus des résultats de recherche généraux et des suggestions de remplissage automatique. Êtes-vous sûr de vouloir archiver cet élément ?"
   },
   "edit": {
     "message": "Modifier"
@@ -589,7 +589,7 @@
     "message": "Afficher"
   },
   "viewLogin": {
-    "message": "View login"
+    "message": "Afficher l'Identifiant"
   },
   "noItemsInList": {
     "message": "Aucun identifiant à afficher."
@@ -734,7 +734,7 @@
     "message": "Mot de passe principal invalide"
   },
   "invalidMasterPasswordConfirmEmailAndHost": {
-    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "message": "Mot de passe principal invalide. Confirmez que votre adresse courriel est correcte et que votre compte a été créé sur $HOST$.",
     "placeholders": {
       "host": {
         "content": "$1",
@@ -1500,7 +1500,7 @@
     "message": "Copier le TOTP automatiquement"
   },
   "disableAutoTotpCopyDesc": {
-    "message": "Si un identifiant possède une clé d'authentification, copie le code de vérification TOTP dans votre presse-papiers lorsque vous saisissez automatiquement l'identifiant."
+    "message": "Copie le code de vérification TOTP dans votre presse-papiers lorsque vous saisissez automatiquement l'identifiant, si un identifiant possède une clé d'authentification.\n\nSi un identifiant dispose d'une clé d'authentification, copie le code de vérification TOTP dans votre presse-papiers lorsque vous saisissez automatiquement l'identifiant."
   },
   "enableAutoBiometricsPrompt": {
     "message": "Demander la biométrie au lancement"
@@ -1547,6 +1547,15 @@
   },
   "readSecurityKey": {
     "message": "Lire la clé de sécurité"
+  },
+  "readingPasskeyLoading": {
+    "message": "Lecture de la clé d'accès..."
+  },
+  "passkeyAuthenticationFailed": {
+    "message": "Échec de l'authentification avec clé d'accès"
+  },
+  "useADifferentLogInMethod": {
+    "message": "Utiliser une méthode de connexion différente"
   },
   "awaitingSecurityKeyInteraction": {
     "message": "En attente d'interaction de la clé de sécurité..."
@@ -1796,7 +1805,7 @@
     "message": "Cliquer en dehors de la fenêtre popup pour vérifier votre courriel avec le code de vérification va causer la fermeture de cette fenêtre popup. Voulez-vous ouvrir cette fenêtre popup dans une nouvelle fenêtre afin qu'elle ne se ferme pas ?"
   },
   "showIconsChangePasswordUrls": {
-    "message": "Show website icons and retrieve change password URLs"
+    "message": "Afficher les icônes du site web et récupérer les URL de changement de mot de passe"
   },
   "cardholderName": {
     "message": "Nom du titulaire de la carte"
@@ -1961,79 +1970,79 @@
     "message": "Note"
   },
   "newItemHeaderLogin": {
-    "message": "New Login",
+    "message": "Nouvel Identifiant",
     "description": "Header for new login item type"
   },
   "newItemHeaderCard": {
-    "message": "New Card",
+    "message": "Nouvelle Carte de paiement",
     "description": "Header for new card item type"
   },
   "newItemHeaderIdentity": {
-    "message": "New Identity",
+    "message": "Nouvelle Identité",
     "description": "Header for new identity item type"
   },
   "newItemHeaderNote": {
-    "message": "New Note",
+    "message": "Nouvelle Note",
     "description": "Header for new note item type"
   },
   "newItemHeaderSshKey": {
-    "message": "New SSH key",
+    "message": "Nouvelle clé SSH",
     "description": "Header for new SSH key item type"
   },
   "newItemHeaderTextSend": {
-    "message": "New Text Send",
+    "message": "Nouveau Send de texte",
     "description": "Header for new text send"
   },
   "newItemHeaderFileSend": {
-    "message": "New File Send",
+    "message": "Nouveau Send de fichier",
     "description": "Header for new file send"
   },
   "editItemHeaderLogin": {
-    "message": "Edit Login",
+    "message": "Modifier l'Identifiant",
     "description": "Header for edit login item type"
   },
   "editItemHeaderCard": {
-    "message": "Edit Card",
+    "message": "Modifier la Carte de paiement",
     "description": "Header for edit card item type"
   },
   "editItemHeaderIdentity": {
-    "message": "Edit Identity",
+    "message": "Modifier l'Identité",
     "description": "Header for edit identity item type"
   },
   "editItemHeaderNote": {
-    "message": "Edit Note",
+    "message": "Modifier la Note",
     "description": "Header for edit note item type"
   },
   "editItemHeaderSshKey": {
-    "message": "Edit SSH key",
+    "message": "Modifier la clé SSH",
     "description": "Header for edit SSH key item type"
   },
   "editItemHeaderTextSend": {
-    "message": "Edit Text Send",
+    "message": "Modifier le Send de texte",
     "description": "Header for edit text send"
   },
   "editItemHeaderFileSend": {
-    "message": "Edit File Send",
+    "message": "Modifier le Send de fichier",
     "description": "Header for edit file send"
   },
   "viewItemHeaderLogin": {
-    "message": "View Login",
+    "message": "Afficher l'Identifiant",
     "description": "Header for view login item type"
   },
   "viewItemHeaderCard": {
-    "message": "View Card",
+    "message": "Afficher la Carte de paiement",
     "description": "Header for view card item type"
   },
   "viewItemHeaderIdentity": {
-    "message": "View Identity",
+    "message": "Afficher l'Identité",
     "description": "Header for view identity item type"
   },
   "viewItemHeaderNote": {
-    "message": "View Note",
+    "message": "Afficher la Note",
     "description": "Header for view note item type"
   },
   "viewItemHeaderSshKey": {
-    "message": "View SSH key",
+    "message": "Afficher la clé SSH",
     "description": "Header for view SSH key item type"
   },
   "passwordHistory": {
@@ -3208,7 +3217,7 @@
     }
   },
   "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
-    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "message": "Seul le coffre de l'organisation associé à $ORGANIZATION$ sera exporté.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3217,7 +3226,7 @@
     }
   },
   "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
-    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "message": "Seul le coffre de l'organisation associé à $ORGANIZATION$ sera exporté. Mes éléments de mes collections ne seront pas inclus.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4257,7 +4266,7 @@
     "message": "Données du coffre exportées"
   },
   "typePasskey": {
-    "message": "Clé d'identification (passkey)"
+    "message": "Clé d'accès"
   },
   "accessing": {
     "message": "Accès en cours"
@@ -4299,7 +4308,7 @@
     "message": "Enregistrer la clé d'identification (passkey) comme nouvel identifiant"
   },
   "chooseCipherForPasskeySave": {
-    "message": "Choisissez un identifiant ou enregistrer cette clé d'accès"
+    "message": "Choisissez un identifiant où enregistrer cette clé d'accès"
   },
   "chooseCipherForPasskeyAuth": {
     "message": "Choisissez une clé d'accès pour vous connecter"
@@ -4317,7 +4326,7 @@
     "message": "Fonctionnalité non supportée"
   },
   "yourPasskeyIsLocked": {
-    "message": "Authentification requise pour utiliser une clé d'identification (passkey). Vérifiez votre identité pour continuer."
+    "message": "Authentification requise pour utiliser une clé d'accès. Vérifiez votre identité pour continuer."
   },
   "multifactorAuthenticationCancelled": {
     "message": "Authentification multi-facteurs annulée"
@@ -5181,10 +5190,10 @@
     "message": "Afficher le nombre de suggestions de saisie automatique d'identifiant sur l'icône d'extension"
   },
   "accountAccessRequested": {
-    "message": "Account access requested"
+    "message": "Accès au compte demandé"
   },
   "confirmAccessAttempt": {
-    "message": "Confirm access attempt for $EMAIL$",
+    "message": "Confirmer la tentative d’accès pour $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -5517,10 +5526,10 @@
     "message": "Changer le mot de passe à risque"
   },
   "changeAtRiskPasswordAndAddWebsite": {
-    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+    "message": "Cet identifiant est à risques et manque un site web. Ajoutez un site web et changez le mot de passe pour une meilleure sécurité."
   },
   "missingWebsite": {
-    "message": "Missing website"
+    "message": "Site Web manquant"
   },
   "settingsVaultOptions": {
     "message": "Options du coffre"
@@ -5570,17 +5579,37 @@
   "hasItemsVaultNudgeTitle": {
     "message": "Bienvenue dans votre coffre !"
   },
-  "phishingPageTitle": {
-    "message": "Phishing website"
+  "phishingPageTitleV2": {
+    "message": "Phishing attempt detected"
   },
-  "phishingPageCloseTab": {
-    "message": "Close tab"
+  "phishingPageSummary": {
+    "message": "The site you are attempting to visit is a known malicious site and a security risk."
   },
-  "phishingPageContinue": {
-    "message": "Continue"
+  "phishingPageCloseTabV2": {
+    "message": "Close this tab"
   },
-  "phishingPageLearnWhy": {
-    "message": "Why are you seeing this?"
+  "phishingPageContinueV2": {
+    "message": "Continue to this site (not recommended)"
+  },
+  "phishingPageExplanation1": {
+    "message": "This site was found in ",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name follows this."
+  },
+  "phishingPageExplanation2": {
+    "message": ", an open-source list of known phishing sites used for stealing personal and sensitive information.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name precedes this."
+  },
+  "phishingPageLearnMore": {
+    "message": "Learn more about phishing detection"
+  },
+  "protectedBy": {
+    "message": "Protected by $PRODUCT$",
+    "placeholders": {
+      "product": {
+        "content": "$1",
+        "example": "Bitwarden Phishing Blocker"
+      }
+    }
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Remplissage automatique des éléments de la page actuelle"
@@ -5658,10 +5687,10 @@
     "description": "Aria label for the body content of the generator nudge"
   },
   "aboutThisSetting": {
-    "message": "About this setting"
+    "message": "À propos de ce paramètre"
   },
   "permitCipherDetailsDescription": {
-    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+    "message": "Bitwarden utilisera les URI de connexion enregistrées pour identifier quelle icône ou URL de changement de mot de passe doit être utilisée pour améliorer votre expérience. Aucune information n'est recueillie ou enregistrée lorsque vous utilisez ce service."
   },
   "noPermissionsViewPage": {
     "message": "Vous n'avez pas les autorisations pour consulter cette page. Essayez de vous connecter avec un autre compte."
@@ -5671,13 +5700,13 @@
     "description": "'WebAssembly' is a technical term and should not be translated."
   },
   "showMore": {
-    "message": "Show more"
+    "message": "Afficher plus"
   },
   "showLess": {
-    "message": "Show less"
+    "message": "Afficher moins"
   },
   "next": {
-    "message": "Next"
+    "message": "Suivant"
   },
   "moreBreadcrumbs": {
     "message": "Plus de fil d'Ariane",
@@ -5685,5 +5714,12 @@
   },
   "confirmKeyConnectorDomain": {
     "message": "Confirmez le domaine de Key Connector"
+  },
+  "atRiskLoginsSecured": {
+    "message": "Great job securing your at-risk logins!"
+  },
+  "settingDisabledByPolicy": {
+    "message": "This setting is disabled by your organization's policy.",
+    "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
   }
 }

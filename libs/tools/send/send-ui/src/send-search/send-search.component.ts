@@ -11,6 +11,8 @@ import { SendItemsService } from "../services/send-items.service";
 
 const SearchTextDebounceInterval = 200;
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   imports: [CommonModule, SearchModule, JslibModule, FormsModule],
   selector: "tools-send-search",
