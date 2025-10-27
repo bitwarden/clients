@@ -34,6 +34,28 @@ export class RpcServer<T> {
       }
     }
 
+    if (command.method === "call") {
+      const target = this.references.get<any>(command.referenceId);
+      if (!target) {
+        return { status: "error", error: `[RPC] Reference ID ${command.referenceId} not found` };
+      }
+
+      try {
+        const method = target[command.propertyName];
+        if (typeof method !== "function") {
+          return {
+            status: "error",
+            error: `[RPC] Property ${command.propertyName} is not a function`,
+          };
+        }
+
+        const result = method.apply(target, command.args);
+        return { status: "success", result: { type: "value", value: result } };
+      } catch (error) {
+        return { status: "error", error };
+      }
+    }
+
     return { status: "error", error: `Unknown command method: ${command.method}` };
   }
 

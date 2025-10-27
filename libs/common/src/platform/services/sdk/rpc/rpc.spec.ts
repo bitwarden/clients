@@ -23,7 +23,7 @@ describe("RpcServer", () => {
     expect(value).toBe(42);
   });
 
-  it.skip("calls sync function and returns value", async () => {
+  it("calls sync function and returns value", async () => {
     const remoteInstance = await firstValueFrom(client.getRoot());
 
     const result = await remoteInstance.greet("World");

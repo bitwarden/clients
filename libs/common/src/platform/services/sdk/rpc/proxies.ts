@@ -31,7 +31,7 @@ function ProxiedReference(
       }
 
       // console.log(`Accessing ${reference.objectType}.${propertyName}`);
-      return RpcPropertyReference.create(channel, target, propertyName);
+      return RpcPropertyReference(channel, { objectReference: target, propertyName });
     },
   });
 }
@@ -39,23 +39,31 @@ function ProxiedReference(
 /**
  * A reference to a specific property on a remote object.
  */
-export class RpcPropertyReference {
-  static create(
-    channel: RpcRequestChannel,
-    objectReference: RpcObjectReference,
-    propertyName: string,
-  ): RpcPropertyReference {
-    return ProxiedReferenceProperty(
-      channel,
-      new RpcPropertyReference(objectReference, propertyName),
-    );
-  }
+type RpcPropertyReference = {
+  objectReference: RpcObjectReference;
+  propertyName: string;
+};
 
-  private constructor(
-    public objectReference: RpcObjectReference,
-    public propertyName: string,
-  ) {}
-}
+/**
+ * A reference to a specific property on a remote object.
+ */
+// export class RpcPropertyReference {
+//   static create(
+//     channel: RpcRequestChannel,
+//     objectReference: RpcObjectReference,
+//     propertyName: string,
+//   ): RpcPropertyReference {
+//     return ProxiedReferenceProperty(
+//       channel,
+//       new RpcPropertyReference(objectReference, propertyName),
+//     );
+//   }
+
+//   private constructor(
+//     public objectReference: RpcObjectReference,
+//     public propertyName: string,
+//   ) {}
+// }
 
 /**
  * A sub-proxy for a specific property of a proxied reference
@@ -66,12 +74,21 @@ export class RpcPropertyReference {
  * If this references a property then they'll try to await the value, triggering the `get` trap
  * when they access the `then` property.
  */
-function ProxiedReferenceProperty(channel: RpcRequestChannel, reference: RpcPropertyReference) {
-  return new Proxy(reference, {
+function RpcPropertyReference(channel: RpcRequestChannel, reference: RpcPropertyReference) {
+  const target = () => {};
+  Object.defineProperty(target, "name", { value: `RpcPropertyReference`, configurable: true });
+  target.objectReference = reference.objectReference;
+  target.propertyName = reference.propertyName;
+
+  return new Proxy(target, {
     get(_target, propertyName: string) {
       // console.log(
       //   `Accessing ${reference.objectReference.objectType}.${reference.propertyName}.${propertyName}`,
       // );
+
+      if (propertyName === "call") {
+        return undefined;
+      }
 
       if (propertyName !== "then") {
         throw new Error(`Cannot access property '${propertyName}' on remote proxy synchronously`);
@@ -100,6 +117,28 @@ function ProxiedReferenceProperty(channel: RpcRequestChannel, reference: RpcProp
         })().then(onFulfilled, onRejected);
       };
     },
-    apply(_target, _thisArg, argArray: unknown[]) {},
+    apply(_target, _thisArg, argArray: unknown[]) {
+      // console.log(`Calling ${reference.objectReference.objectType}.${reference.propertyName}`);
+
+      // Handle method call
+      const command: Command = {
+        method: "call",
+        referenceId: reference.objectReference.referenceId,
+        propertyName: reference.propertyName,
+        args: argArray,
+      };
+
+      return channel.sendCommand(command).then((result) => {
+        if (result.status === "error") {
+          throw new Error(`RPC Error: ${result.error}`);
+        }
+
+        if (result.result.type === "value") {
+          return result.result.value;
+        } else if (result.result.type === "reference") {
+          return RpcObjectReference.create(channel, result.result.referenceId);
+        }
+      });
+    },
   });
 }
