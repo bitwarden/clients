@@ -28,6 +28,8 @@ import { PipesModule } from "@bitwarden/web-vault/app/vault/individual-vault/pip
 import { AppTableRowScrollableComponent } from "../shared/app-table-row-scrollable.component";
 import { ApplicationsLoadingComponent } from "../shared/risk-insights-loading.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "dirt-all-applications",
   templateUrl: "./all-applications.component.html",

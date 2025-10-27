@@ -63,6 +63,8 @@ export type AutoConfirmPolicyDialogData = PolicyEditDialogData & {
  * Satisfies the PolicyDialogComponent interface structurally
  * via its static open() function.
  */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "auto-confirm-edit-policy-dialog.component.html",
   imports: [SharedModule],
@@ -73,8 +75,8 @@ export class AutoConfirmPolicyDialogComponent
 {
   policyType = PolicyType;
 
-  protected firstTimeDialog = signal(false);
-  protected currentStep = signal(0);
+  protected readonly firstTimeDialog = signal(false);
+  protected readonly currentStep = signal(0);
   protected multiStepSubmit: Observable<MultiStepSubmit[]> = of([]);
   protected autoConfirmEnabled$: Observable<boolean> = this.accountService.activeAccount$.pipe(
     getUserId,
@@ -82,11 +84,13 @@ export class AutoConfirmPolicyDialogComponent
     map((policies) => policies.find((p) => p.type === PolicyType.AutoConfirm)?.enabled ?? false),
   );
 
-  private submitPolicy: Signal<TemplateRef<unknown> | undefined> = viewChild("step0");
-  private openExtension: Signal<TemplateRef<unknown> | undefined> = viewChild("step1");
+  private readonly submitPolicy: Signal<TemplateRef<unknown> | undefined> = viewChild("step0");
+  private readonly openExtension: Signal<TemplateRef<unknown> | undefined> = viewChild("step1");
 
-  private submitPolicyTitle: Signal<TemplateRef<unknown> | undefined> = viewChild("step0Title");
-  private openExtensionTitle: Signal<TemplateRef<unknown> | undefined> = viewChild("step1Title");
+  private readonly submitPolicyTitle: Signal<TemplateRef<unknown> | undefined> =
+    viewChild("step0Title");
+  private readonly openExtensionTitle: Signal<TemplateRef<unknown> | undefined> =
+    viewChild("step1Title");
 
   override policyComponent: AutoConfirmPolicyEditComponent | undefined;
 
