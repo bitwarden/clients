@@ -5715,6 +5715,9 @@
   "confirmKeyConnectorDomain": {
     "message": "Key Connector-Domain bestätigen"
   },
+  "atRiskLoginsSecured": {
+    "message": "Gute Arbeit! Du hast deine gefährdeten Zugangsdaten geschützt!"
+  },
   "settingDisabledByPolicy": {
     "message": "Diese Einstellung ist durch die Richtlinien deiner Organisation deaktiviert.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."

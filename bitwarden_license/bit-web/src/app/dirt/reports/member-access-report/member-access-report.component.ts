@@ -31,6 +31,8 @@ import { MemberAccessReportService } from "./services/member-access-report.servi
 import { userReportItemHeaders } from "./view/member-access-export.view";
 import { MemberAccessReportView } from "./view/member-access-report.view";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "member-access-report",
   templateUrl: "member-access-report.component.html",

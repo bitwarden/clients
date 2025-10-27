@@ -22,12 +22,12 @@ describe("Card", () => {
     const card = new Card(data);
 
     expect(card).toEqual({
-      cardholderName: null,
-      brand: null,
-      number: null,
-      expMonth: null,
-      expYear: null,
-      code: null,
+      cardholderName: undefined,
+      brand: undefined,
+      number: undefined,
+      expMonth: undefined,
+      expYear: undefined,
+      code: undefined,
     });
   });
 
@@ -94,8 +94,8 @@ describe("Card", () => {
       expect(actual).toBeInstanceOf(Card);
     });
 
-    it("returns null if object is null", () => {
-      expect(Card.fromJSON(null)).toBeNull();
+    it("returns undefined if object is null", () => {
+      expect(Card.fromJSON(null)).toBeUndefined();
     });
   });
 
