@@ -5,31 +5,17 @@ import { BehaviorSubject, from, of } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { CollectionService } from "@bitwarden/admin-console/common";
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
-import { LogoutService } from "@bitwarden/auth/common";
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
-import { BiometricsService } from "@bitwarden/key-management";
-import { StateService } from "@bitwarden/state";
+import { LockService, LogoutService } from "@bitwarden/auth/common";
 
 import { FakeAccountService, mockAccountServiceWith } from "../../../../spec";
 import { AccountInfo } from "../../../auth/abstractions/account.service";
 import { AuthService } from "../../../auth/abstractions/auth.service";
-import { TokenService } from "../../../auth/abstractions/token.service";
 import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
 import { LogService } from "../../../platform/abstractions/log.service";
-import { MessagingService } from "../../../platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "../../../platform/abstractions/platform-utils.service";
 import { Utils } from "../../../platform/misc/utils";
 import { TaskSchedulerService } from "../../../platform/scheduling";
-import { StateEventRunnerService } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
-import { CipherService } from "../../../vault/abstractions/cipher.service";
-import { FolderService } from "../../../vault/abstractions/folder/folder.service.abstraction";
-import { SearchService } from "../../../vault/abstractions/search.service";
-import { FakeMasterPasswordService } from "../../master-password/services/fake-master-password.service";
 import { VaultTimeoutAction } from "../enums/vault-timeout-action.enum";
 import { VaultTimeout, VaultTimeoutStringType } from "../types/vault-timeout.type";
 
@@ -38,23 +24,13 @@ import { VaultTimeoutService } from "./vault-timeout.service";
 
 describe("VaultTimeoutService", () => {
   let accountService: FakeAccountService;
-  let masterPasswordService: FakeMasterPasswordService;
-  let cipherService: MockProxy<CipherService>;
-  let folderService: MockProxy<FolderService>;
-  let collectionService: MockProxy<CollectionService>;
   let platformUtilsService: MockProxy<PlatformUtilsService>;
-  let messagingService: MockProxy<MessagingService>;
-  let searchService: MockProxy<SearchService>;
-  let stateService: MockProxy<StateService>;
-  let tokenService: MockProxy<TokenService>;
   let authService: MockProxy<AuthService>;
   let vaultTimeoutSettingsService: MockProxy<VaultTimeoutSettingsService>;
-  let stateEventRunnerService: MockProxy<StateEventRunnerService>;
   let taskSchedulerService: MockProxy<TaskSchedulerService>;
   let logService: MockProxy<LogService>;
-  let biometricsService: MockProxy<BiometricsService>;
+  let lockService: MockProxy<LockService>;
   let logoutService: MockProxy<LogoutService>;
-  let lockedCallback: jest.Mock<Promise<void>, [userId: string]>;
 
   let vaultTimeoutActionSubject: BehaviorSubject<VaultTimeoutAction>;
   let availableVaultTimeoutActionsSubject: BehaviorSubject<VaultTimeoutAction[]>;
@@ -65,24 +41,13 @@ describe("VaultTimeoutService", () => {
 
   beforeEach(() => {
     accountService = mockAccountServiceWith(userId);
-    masterPasswordService = new FakeMasterPasswordService();
-    cipherService = mock();
-    folderService = mock();
-    collectionService = mock();
     platformUtilsService = mock();
-    messagingService = mock();
-    searchService = mock();
-    stateService = mock();
-    tokenService = mock();
     authService = mock();
     vaultTimeoutSettingsService = mock();
-    stateEventRunnerService = mock();
     taskSchedulerService = mock<TaskSchedulerService>();
+    lockService = mock<LockService>();
     logService = mock<LogService>();
-    biometricsService = mock<BiometricsService>();
     logoutService = mock<LogoutService>();
-
-    lockedCallback = jest.fn();
 
     vaultTimeoutActionSubject = new BehaviorSubject(VaultTimeoutAction.Lock);
 
@@ -94,22 +59,12 @@ describe("VaultTimeoutService", () => {
 
     vaultTimeoutService = new VaultTimeoutService(
       accountService,
-      masterPasswordService,
-      cipherService,
-      folderService,
-      collectionService,
       platformUtilsService,
-      messagingService,
-      searchService,
-      stateService,
-      tokenService,
       authService,
       vaultTimeoutSettingsService,
-      stateEventRunnerService,
       taskSchedulerService,
       logService,
-      biometricsService,
-      lockedCallback,
+      lockService,
       logoutService,
     );
   });
@@ -144,9 +99,6 @@ describe("VaultTimeoutService", () => {
 
     authService.getAuthStatus.mockImplementation((userId) => {
       return Promise.resolve(accounts[userId]?.authStatus);
-    });
-    tokenService.hasAccessToken$.mockImplementation((userId) => {
-      return of(accounts[userId]?.isAuthenticated ?? false);
     });
 
     vaultTimeoutSettingsService.getVaultTimeoutByUserId$.mockImplementation((userId) => {
@@ -203,13 +155,7 @@ describe("VaultTimeoutService", () => {
   };
 
   const expectUserToHaveLocked = (userId: string) => {
-    // This does NOT assert all the things that the lock process does
-    expect(tokenService.hasAccessToken$).toHaveBeenCalledWith(userId);
-    expect(vaultTimeoutSettingsService.availableVaultTimeoutActions$).toHaveBeenCalledWith(userId);
-    expect(stateService.setUserKeyAutoUnlock).toHaveBeenCalledWith(null, { userId: userId });
-    expect(masterPasswordService.mock.clearMasterKey).toHaveBeenCalledWith(userId);
-    expect(cipherService.clearCache).toHaveBeenCalledWith(userId);
-    expect(lockedCallback).toHaveBeenCalledWith(userId);
+    expect(lockService.lock).toHaveBeenCalledWith(userId);
   };
 
   const expectUserToHaveLoggedOut = (userId: string) => {
@@ -217,7 +163,7 @@ describe("VaultTimeoutService", () => {
   };
 
   const expectNoAction = (userId: string) => {
-    expect(lockedCallback).not.toHaveBeenCalledWith(userId);
+    expect(lockService.lock).not.toHaveBeenCalledWith(userId);
     expect(logoutService.logout).not.toHaveBeenCalledWith(userId, "vaultTimeout");
   };
 
@@ -347,12 +293,8 @@ describe("VaultTimeoutService", () => {
       expectNoAction("1");
       expectUserToHaveLocked("2");
 
-      // Active users should have additional steps ran
-      expect(searchService.clearIndex).toHaveBeenCalled();
-      expect(folderService.clearDecryptedFolderState).toHaveBeenCalled();
-
       expectUserToHaveLoggedOut("3"); // They have chosen logout as their action and it's available, log them out
-      expectUserToHaveLoggedOut("4"); // They may have had lock as their chosen action but it's not available to them so logout
+      expectUserToHaveLocked("4"); // They don't have lock available. But this is handled in lock service so we do not check for logout here
     });
 
     it("should lock an account if they haven't been active passed their vault timeout even if a view is open when they are not the active user.", async () => {
@@ -390,72 +332,6 @@ describe("VaultTimeoutService", () => {
       await vaultTimeoutService.checkVaultTimeout();
 
       expectNoAction("1");
-    });
-  });
-
-  describe("lock", () => {
-    const setupLock = () => {
-      setupAccounts(
-        {
-          user1: {
-            authStatus: AuthenticationStatus.Unlocked,
-            isAuthenticated: true,
-          },
-          user2: {
-            authStatus: AuthenticationStatus.Unlocked,
-            isAuthenticated: true,
-          },
-        },
-        {
-          userId: "user1",
-        },
-      );
-    };
-
-    it("should call state event runner with currently active user if no user passed into lock", async () => {
-      setupLock();
-
-      await vaultTimeoutService.lock();
-
-      expect(stateEventRunnerService.handleEvent).toHaveBeenCalledWith("lock", "user1");
-    });
-
-    it("should call locked callback with the locking user if no userID is passed in.", async () => {
-      setupLock();
-
-      await vaultTimeoutService.lock();
-
-      expect(lockedCallback).toHaveBeenCalledWith("user1");
-    });
-
-    it("should call state event runner with user passed into lock", async () => {
-      setupLock();
-
-      const user2 = "user2" as UserId;
-
-      await vaultTimeoutService.lock(user2);
-
-      expect(stateEventRunnerService.handleEvent).toHaveBeenCalledWith("lock", user2);
-    });
-
-    it("should call messaging service locked message with user passed into lock", async () => {
-      setupLock();
-
-      const user2 = "user2" as UserId;
-
-      await vaultTimeoutService.lock(user2);
-
-      expect(messagingService.send).toHaveBeenCalledWith("locked", { userId: user2 });
-    });
-
-    it("should call locked callback with user passed into lock", async () => {
-      setupLock();
-
-      const user2 = "user2" as UserId;
-
-      await vaultTimeoutService.lock(user2);
-
-      expect(lockedCallback).toHaveBeenCalledWith(user2);
     });
   });
 });
