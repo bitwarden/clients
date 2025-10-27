@@ -17,7 +17,6 @@ import { UserVerificationService } from "@bitwarden/common/auth/abstractions/use
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import {
   VaultTimeoutSettingsService,
-  VaultTimeoutService,
   VaultTimeoutStringType,
   VaultTimeoutAction,
 } from "@bitwarden/common/key-management/vault-timeout";
@@ -85,7 +84,6 @@ describe("AccountSecurityComponent", () => {
         { provide: PopupRouterCacheService, useValue: mock<PopupRouterCacheService>() },
         { provide: ToastService, useValue: mock<ToastService>() },
         { provide: UserVerificationService, useValue: mock<UserVerificationService>() },
-        { provide: VaultTimeoutService, useValue: mock<VaultTimeoutService>() },
         { provide: VaultTimeoutSettingsService, useValue: vaultTimeoutSettingsService },
         { provide: StateProvider, useValue: mock<StateProvider>() },
         { provide: CipherService, useValue: mock<CipherService>() },
