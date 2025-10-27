@@ -17,6 +17,8 @@ import { VaultPopupListFiltersService } from "../../../../../vault/popup/service
 import { VaultListFiltersComponent } from "../vault-list-filters/vault-list-filters.component";
 import { VaultV2SearchComponent } from "../vault-search/vault-v2-search.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-vault-header-v2",
   templateUrl: "vault-header-v2.component.html",
@@ -31,6 +33,8 @@ import { VaultV2SearchComponent } from "../vault-search/vault-v2-search.componen
   ],
 })
 export class VaultHeaderV2Component {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild(DisclosureComponent) disclosure: DisclosureComponent;
 
   /** Emits the visibility status of the disclosure component. */
