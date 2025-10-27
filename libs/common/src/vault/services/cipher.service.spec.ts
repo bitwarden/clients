@@ -119,6 +119,8 @@ describe("Cipher Service", () => {
   beforeEach(() => {
     encryptService.encryptFileData.mockReturnValue(Promise.resolve(ENCRYPTED_BYTES));
     encryptService.encryptString.mockReturnValue(Promise.resolve(new EncString(ENCRYPTED_TEXT)));
+    keyService.userKey$.mockReturnValue(of(makeSymmetricCryptoKey(64) as UserKey));
+    keyService.orgKeys$.mockReturnValue(of({ [orgId]: makeSymmetricCryptoKey(64) as OrgKey }));
 
     // Mock i18nService collator
     i18nService.collator = {
@@ -156,9 +158,6 @@ describe("Cipher Service", () => {
     it("should upload encrypted file contents with save attachments", async () => {
       const fileName = "filename";
       const fileData = new Uint8Array(10);
-      keyService.getOrgKey.mockReturnValue(
-        Promise.resolve<any>(new SymmetricCryptoKey(new Uint8Array(32)) as OrgKey),
-      );
       keyService.makeDataEncKey.mockReturnValue(
         Promise.resolve<any>(new SymmetricCryptoKey(new Uint8Array(32))),
       );
@@ -181,9 +180,6 @@ describe("Cipher Service", () => {
       const testCipher = new Cipher(cipherData);
       const expectedRevisionDate = "2022-01-31T12:00:00.000Z";
 
-      keyService.getOrgKey.mockReturnValue(
-        Promise.resolve<any>(new SymmetricCryptoKey(new Uint8Array(32)) as OrgKey),
-      );
       keyService.makeDataEncKey.mockReturnValue(
         Promise.resolve([
           new SymmetricCryptoKey(new Uint8Array(32)),
@@ -362,10 +358,6 @@ describe("Cipher Service", () => {
     });
 
     it("should return the encrypting user id", async () => {
-      keyService.getOrgKey.mockReturnValue(
-        Promise.resolve<any>(new SymmetricCryptoKey(new Uint8Array(32)) as OrgKey),
-      );
-
       const { encryptedFor } = await cipherService.encrypt(cipherView, userId);
       expect(encryptedFor).toEqual(userId);
     });
@@ -376,10 +368,6 @@ describe("Cipher Service", () => {
         cipherView.login.uris = [
           { uri: "uri", match: UriMatchStrategy.RegularExpression } as LoginUriView,
         ];
-
-        keyService.getOrgKey.mockReturnValue(
-          Promise.resolve<any>(new SymmetricCryptoKey(new Uint8Array(32)) as OrgKey),
-        );
 
         const { cipher } = await cipherService.encrypt(cipherView, userId);
 
@@ -394,12 +382,6 @@ describe("Cipher Service", () => {
     });
 
     describe("cipher.key", () => {
-      beforeEach(() => {
-        keyService.getOrgKey.mockReturnValue(
-          Promise.resolve<any>(new SymmetricCryptoKey(new Uint8Array(32)) as OrgKey),
-        );
-      });
-
       it("is null when feature flag is false", async () => {
         configService.getFeatureFlag
           .calledWith(FeatureFlag.CipherKeyEncryption)
@@ -437,9 +419,6 @@ describe("Cipher Service", () => {
     describe("encryptCipherForRotation", () => {
       beforeEach(() => {
         jest.spyOn<any, string>(cipherService, "encryptCipherWithCipherKey");
-        keyService.getOrgKey.mockReturnValue(
-          Promise.resolve<any>(new SymmetricCryptoKey(new Uint8Array(32)) as OrgKey),
-        );
       });
 
       it("is not called when feature flag is false", async () => {
@@ -637,7 +616,7 @@ describe("Cipher Service", () => {
       const result = await cipherService.decrypt(encryptionContext.cipher, userId);
 
       expect(result).toEqual(new CipherView(encryptionContext.cipher));
-      expect(encryptionContext.cipher.decrypt).toHaveBeenCalledWith(mockUserKey);
+      expect(encryptionContext.cipher.decrypt).toHaveBeenCalledWith(mockUserKey, userId);
     });
   });
 

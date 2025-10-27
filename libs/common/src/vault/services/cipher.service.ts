@@ -726,7 +726,11 @@ export class CipherService implements CipherServiceAbstraction {
     }
 
     const ciphers = response.data.map((cr) => new Cipher(new CipherData(cr)));
-    const key = await this.keyService.getOrgKey(organizationId);
+    const key = await firstValueFrom(
+      this.keyService
+        .orgKeys$(userId)
+        .pipe(map((orgKeys) => orgKeys[organizationId as OrganizationId] ?? null)),
+    );
     const decCiphers: CipherView[] = await Promise.all(
       ciphers.map(async (cipher) => {
         return await cipher.decrypt(key, userId);
@@ -1536,10 +1540,17 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   async getKeyForCipherKeyDecryption(cipher: Cipher, userId: UserId): Promise<UserKey | OrgKey> {
-    return (
-      (await this.keyService.getOrgKey(cipher.organizationId)) ||
-      ((await this.keyService.getUserKey(userId)) as UserKey)
-    );
+    if (cipher.organizationId) {
+      const orgKey = await firstValueFrom(
+        this.keyService
+          .orgKeys$(userId)
+          .pipe(map((orgKeys) => orgKeys[cipher.organizationId as OrganizationId] ?? null)),
+      );
+      if (orgKey) {
+        return orgKey;
+      }
+    }
+    return (await firstValueFrom(this.keyService.userKey$(userId))) as UserKey;
   }
 
   async setAddEditCipherInfo(value: AddEditCipherInfo, userId: UserId) {
@@ -1672,7 +1683,7 @@ export class CipherService implements CipherServiceAbstraction {
   // In the case of a cipher that is being shared with an organization, we want to decrypt the
   // cipher key with the user's key and then re-encrypt it with the organization's key.
   private async encryptSharedCipher(model: CipherView, userId: UserId): Promise<EncryptionContext> {
-    const keyForCipherKeyDecryption = await this.keyService.getUserKey(userId);
+    const keyForCipherKeyDecryption = await firstValueFrom(this.keyService.userKey$(userId));
     return await this.encrypt(model, userId, null, keyForCipherKeyDecryption);
   }
 
@@ -1749,12 +1760,16 @@ export class CipherService implements CipherServiceAbstraction {
     }
 
     const encBuf = await EncArrayBuffer.fromResponse(attachmentResponse);
-    const userKey = await this.keyService.getUserKey(activeUserId.id);
+    const userKey = await firstValueFrom(this.keyService.userKey$(activeUserId.id));
     const decBuf = await this.encryptService.decryptFileData(encBuf, userKey);
 
     let encKey: UserKey | OrgKey;
-    encKey = await this.keyService.getOrgKey(organizationId);
-    encKey ||= (await this.keyService.getUserKey()) as UserKey;
+    encKey = await firstValueFrom(
+      this.keyService
+        .orgKeys$(activeUserId.id)
+        .pipe(map((orgKeys) => orgKeys[organizationId as OrganizationId] ?? null)),
+    );
+    encKey ||= (await firstValueFrom(this.keyService.userKey$(activeUserId.id))) as UserKey;
 
     const dataEncKey = await this.keyService.makeDataEncKey(encKey);
 
