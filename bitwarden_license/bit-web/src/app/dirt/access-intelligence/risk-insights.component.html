@@ -17,7 +17,7 @@
     } @else {
       <span class="tw-mx-4">{{ "noReportRan" | i18n }}</span>
     }
-    @let isRunningReport = dataService.isRunningReport$ | async;
+    @let isRunningReport = dataService.isGeneratingReport$ | async;
     <span class="tw-flex tw-justify-center">
       <button
         *ngIf="!isRunningReport"
@@ -26,7 +26,7 @@
         buttonType="secondary"
         class="tw-border-none !tw-font-normal tw-cursor-pointer !tw-py-0"
         tabindex="0"
-        [bitAction]="refreshData.bind(this)"
+        [bitAction]="generateReport.bind(this)"
       >
         {{ "riskInsightsRunReport" | i18n }}
       </button>

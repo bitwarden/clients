@@ -105,6 +105,8 @@ interface OnSuccessArgs {
   organizationId: string;
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "./change-plan-dialog.component.html",
   imports: [
@@ -116,13 +118,25 @@ interface OnSuccessArgs {
   providers: [SubscriberBillingClient, TaxClient],
 })
 export class ChangePlanDialogComponent implements OnInit, OnDestroy {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild(EnterPaymentMethodComponent) enterPaymentMethodComponent: EnterPaymentMethodComponent;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() acceptingSponsorship = false;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() organizationId: string;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() showFree = false;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() showCancel = false;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   get productTier(): ProductTierType {
     return this._productTier;
@@ -136,6 +150,8 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   protected estimatedTax: number = 0;
   private _productTier = ProductTierType.Free;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   get plan(): PlanType {
     return this._plan;
@@ -147,9 +163,17 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   }
 
   private _plan = PlanType.Free;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() providerId?: string;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onSuccess = new EventEmitter<OnSuccessArgs>();
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onCanceled = new EventEmitter<void>();
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onTrialBillingSuccess = new EventEmitter();
 
   protected discountPercentageFromSub: number;
@@ -427,9 +451,9 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
           "tw-border-solid",
           "tw-border-primary-600",
           "hover:tw-border-primary-700",
-          "focus:tw-border-2",
-          "focus:tw-border-primary-700",
-          "focus:tw-rounded-lg",
+          "tw-border-2",
+          "!tw-border-primary-700",
+          "tw-rounded-lg",
         ];
       }
       case PlanCardState.NotSelected: {
@@ -842,10 +866,9 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
       );
 
       const subscriber: BitwardenSubscriber = { type: "organization", data: this.organization };
-      await Promise.all([
-        this.subscriberBillingClient.updatePaymentMethod(subscriber, paymentMethod, null),
-        this.subscriberBillingClient.updateBillingAddress(subscriber, billingAddress),
-      ]);
+      // These need to be synchronous so one of them can create the Customer in the case we're upgrading from Free.
+      await this.subscriberBillingClient.updateBillingAddress(subscriber, billingAddress);
+      await this.subscriberBillingClient.updatePaymentMethod(subscriber, paymentMethod, null);
     }
 
     // Backfill pub/priv key if necessary

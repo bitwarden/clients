@@ -1852,6 +1852,12 @@
   "lockWithMasterPassOnRestart1": {
     "message": "Pri reštarte zamknúť hlavným heslom"
   },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "Pri reštarte aplikácie vyžadovať hlavné heslo alebo PIN"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "Pri reštarte aplikácie vyžadovať hlavné heslo"
+  },
   "deleteAccount": {
     "message": "Odstrániť účet"
   },
@@ -4167,7 +4173,7 @@
   "itemWasSentToArchive": {
     "message": "Položka bola archivovaná"
   },
-  "itemUnarchived": {
+  "itemWasUnarchived": {
     "message": "Položka bola odobraná z archívu"
   },
   "archiveItem": {

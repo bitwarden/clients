@@ -39,7 +39,7 @@ export class TooltipDirective implements OnInit {
    */
   readonly tooltipPosition = input<TooltipPositionIdentifier>("above-center");
 
-  private isVisible = signal(false);
+  private readonly isVisible = signal(false);
   private overlayRef: OverlayRef | undefined;
   private elementRef = inject(ElementRef);
   private overlay = inject(Overlay);

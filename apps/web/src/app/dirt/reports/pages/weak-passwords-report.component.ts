@@ -22,6 +22,8 @@ import { CipherReportComponent } from "./cipher-report.component";
 type ReportScore = { label: string; badgeVariant: BadgeVariant; sortOrder: number };
 type ReportResult = CipherView & { score: number; reportValue: ReportScore; scoreKey: number };
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-weak-passwords-report",
   templateUrl: "weak-passwords-report.component.html",
