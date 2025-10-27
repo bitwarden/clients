@@ -17,6 +17,9 @@ export type RemoteValue<T> = T extends { free(): void }
     : Promise<T>;
 
 export type RemoteFunction<T extends (...args: any[]) => any> = <A extends Parameters<T>>(
+  // Enforce serializability of RPC arguments here.
+  // If we wanted to we could allow for remote references as arguments, we could do that here.
+  // In that case the client would also need to maintain a ReferenceStore for outgoing references.
   ...args: SerializableArgs<A>
 ) => RemoteValue<ReturnType<T>>;
 
