@@ -63,6 +63,8 @@ export type AutoConfirmPolicyDialogData = PolicyEditDialogData & {
  * Satisfies the PolicyDialogComponent interface structurally
  * via its static open() function.
  */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "auto-confirm-edit-policy-dialog.component.html",
   imports: [SharedModule],
@@ -85,8 +87,10 @@ export class AutoConfirmPolicyDialogComponent
   private readonly submitPolicy: Signal<TemplateRef<unknown> | undefined> = viewChild("step0");
   private readonly openExtension: Signal<TemplateRef<unknown> | undefined> = viewChild("step1");
 
-  private readonly submitPolicyTitle: Signal<TemplateRef<unknown> | undefined> = viewChild("step0Title");
-  private readonly openExtensionTitle: Signal<TemplateRef<unknown> | undefined> = viewChild("step1Title");
+  private readonly submitPolicyTitle: Signal<TemplateRef<unknown> | undefined> =
+    viewChild("step0Title");
+  private readonly openExtensionTitle: Signal<TemplateRef<unknown> | undefined> =
+    viewChild("step1Title");
 
   override policyComponent: AutoConfirmPolicyEditComponent | undefined;
 
