@@ -210,14 +210,14 @@ export class RiskInsightsDataService {
     if (shouldClose) {
       this.closeDrawer();
     } else {
-      const reportResults = await firstValueFrom(this.enrichedReportData$);
+      const reportResults = await firstValueFrom(this.criticalReportResults$);
       if (!reportResults?.reportData) {
         return;
       }
 
-      // Filter for critical applications that have at-risk passwords
+      // Filter critical applications for those with at-risk passwords
       const criticalAtRiskApps = reportResults.reportData
-        .filter((app) => app.isMarkedAsCritical && app.atRiskPasswordCount > 0)
+        .filter((app) => app.atRiskPasswordCount > 0)
         .map((app) => ({
           applicationName: app.applicationName,
           atRiskPasswordCount: app.atRiskPasswordCount,
