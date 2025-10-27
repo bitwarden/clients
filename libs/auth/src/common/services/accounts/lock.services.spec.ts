@@ -124,7 +124,6 @@ describe("DefaultLockService", () => {
     });
 
     it("locks user", async () => {
-      authService.authStatusFor$.mockReturnValue(of(AuthenticationStatus.Unlocked));
       authService.authStatusFor$.mockReturnValue(of(AuthenticationStatus.Locked));
       logoutService.logout.mockClear();
       vaultTimeoutSettingsService.canLock.mockResolvedValue(true);
