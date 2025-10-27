@@ -612,6 +612,83 @@ export class Utils {
     return path.normalize(decodeURIComponent(denormalizedPath)).replace(/^(\.\.(\/|\\|$))+/, "");
   }
 
+  static dangerousPatternsInUrl(url: string): boolean {
+    const dangerousPatterns = ["..", "%2e", "%2E", "\\", "%5c", "%5C"];
+
+    const lowerCaseUrl: string = url.toLocaleLowerCase();
+
+    // Check All Params for dangerous patterns
+    const allParamsValidation = this.validateAllIdParametersInUrl(lowerCaseUrl);
+    if (!allParamsValidation.isValid) {
+      return true;
+    }
+
+    // Check URL for dangerous patterns
+    for (const pattern of dangerousPatterns) {
+      if (lowerCaseUrl.includes(pattern)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  static validateAllIdParametersInUrl(url: string): {
+    isValid: boolean;
+    error?: string;
+  } {
+    try {
+      let queryString: string;
+
+      // Handle Angular hash routing (#/)
+      if (url.includes("#")) {
+        const hashPart = url.split("#")[1];
+        if (!hashPart || !hashPart.includes("?")) {
+          return { isValid: true };
+        }
+        queryString = hashPart.split("?")[1];
+      } else if (url.includes("?")) {
+        queryString = url.split("?")[1];
+      } else {
+        return { isValid: true };
+      }
+
+      const params = new URLSearchParams(queryString);
+
+      const dangerousPatterns = [
+        "..",
+        "%2e",
+        "%2E",
+        "/",
+        "%2f",
+        "%2F",
+        "\\",
+        "%5c",
+        "%5C",
+        "#",
+        "%23",
+      ];
+
+      for (const [paramName, paramValue] of params.entries()) {
+        for (const pattern of dangerousPatterns) {
+          if (paramValue.includes(pattern)) {
+            return {
+              isValid: false,
+              error: `Dangerous pattern "${pattern}" detected in ${paramName}: ${paramValue}`,
+            };
+          }
+        }
+      }
+
+      return { isValid: true };
+    } catch (error) {
+      return {
+        isValid: false,
+        error: `Failed to parse URL: ${error.message}`,
+      };
+    }
+  }
+
   private static isMobile(win: Window) {
     let mobile = false;
     ((a) => {

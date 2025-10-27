@@ -1587,6 +1587,12 @@ export class ApiService implements ApiServiceAbstraction {
     const requestUrl =
       apiUrl + Utils.normalizePath(pathParts[0]) + (pathParts.length > 1 ? `?${pathParts[1]}` : "");
 
+    const isDangerousUrl = Utils.dangerousPatternsInUrl(requestUrl);
+
+    if (isDangerousUrl) {
+      throw new Error("The request URL contains dangerous patterns.");
+    }
+
     const [requestHeaders, requestBody] = await this.buildHeadersAndBody(
       userId,
       hasResponse,
