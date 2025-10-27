@@ -91,12 +91,18 @@ export class Attachment extends Domain {
     }
   }
 
-  private async getKeyForDecryption(orgId: string | undefined, userId: UserId): Promise<OrgKey | UserKey | null> {
+  private async getKeyForDecryption(
+    orgId: string | undefined,
+    userId: UserId,
+  ): Promise<OrgKey | UserKey | null> {
     const keyService = Utils.getContainerService().getKeyService();
-    console.log("getKeyForDecryption", orgId, userId);
-    return orgId != null ? await firstValueFrom(keyService.orgKeys$(userId).pipe(
-      map((orgKeys) => orgKeys[orgId as OrganizationId] ?? null),
-    )) : await firstValueFrom(keyService.userKey$(userId));
+    return orgId != null
+      ? await firstValueFrom(
+          keyService
+            .orgKeys$(userId)
+            .pipe(map((orgKeys) => (orgKeys ? (orgKeys[orgId as OrganizationId] ?? null) : null))),
+        )
+      : await firstValueFrom(keyService.userKey$(userId));
   }
 
   toAttachmentData(): AttachmentData {
