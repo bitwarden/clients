@@ -20,12 +20,13 @@ export function isMemberDetails(obj: any): obj is MemberDetails {
     return false;
   }
 
-  // Prevent dangerous own properties
-  if (
-    Object.prototype.hasOwnProperty.call(obj, "constructor") ||
-    Object.prototype.hasOwnProperty.call(obj, "prototype")
-  ) {
-    return false;
+  // Prevent dangerous properties that could be used for prototype pollution
+  // Check for __proto__, constructor, and prototype as own properties
+  const dangerousKeys = ["__proto__", "constructor", "prototype"];
+  for (const key of dangerousKeys) {
+    if (Object.prototype.hasOwnProperty.call(obj, key)) {
+      return false;
+    }
   }
 
   // Strict property validation - reject unexpected properties
@@ -36,15 +37,22 @@ export function isMemberDetails(obj: any): obj is MemberDetails {
     return false;
   }
 
+  // Validate string fields with reasonable length limits (prevent DoS)
+  const MAX_STRING_LENGTH = 1000; // Reasonable limit for names, emails, GUIDs
+
   return (
     typeof obj.userGuid === "string" &&
     obj.userGuid.length > 0 &&
+    obj.userGuid.length <= MAX_STRING_LENGTH &&
     typeof obj.userName === "string" &&
     obj.userName.length > 0 &&
+    obj.userName.length <= MAX_STRING_LENGTH &&
     typeof obj.email === "string" &&
     obj.email.length > 0 &&
+    obj.email.length <= MAX_STRING_LENGTH &&
     typeof obj.cipherId === "string" &&
-    obj.cipherId.length > 0
+    obj.cipherId.length > 0 &&
+    obj.cipherId.length <= MAX_STRING_LENGTH
   );
 }
 
@@ -63,12 +71,13 @@ export function isApplicationHealthReportDetail(obj: any): obj is ApplicationHea
     return false;
   }
 
-  // Prevent dangerous own properties
-  if (
-    Object.prototype.hasOwnProperty.call(obj, "constructor") ||
-    Object.prototype.hasOwnProperty.call(obj, "prototype")
-  ) {
-    return false;
+  // Prevent dangerous properties that could be used for prototype pollution
+  // Check for __proto__, constructor, and prototype as own properties
+  const dangerousKeys = ["__proto__", "constructor", "prototype"];
+  for (const key of dangerousKeys) {
+    if (Object.prototype.hasOwnProperty.call(obj, key)) {
+      return false;
+    }
   }
 
   // Strict property validation - reject unexpected properties
@@ -89,29 +98,46 @@ export function isApplicationHealthReportDetail(obj: any): obj is ApplicationHea
     return false;
   }
 
+  // Security limits to prevent DoS attacks
+  const MAX_STRING_LENGTH = 1000;
+  const MAX_ARRAY_LENGTH = 50000; // Reasonable limit for report arrays
+
   return (
     typeof obj.applicationName === "string" &&
     obj.applicationName.length > 0 &&
+    obj.applicationName.length <= MAX_STRING_LENGTH &&
     typeof obj.passwordCount === "number" &&
     Number.isFinite(obj.passwordCount) &&
+    Number.isSafeInteger(obj.passwordCount) &&
     obj.passwordCount >= 0 &&
     typeof obj.atRiskPasswordCount === "number" &&
     Number.isFinite(obj.atRiskPasswordCount) &&
+    Number.isSafeInteger(obj.atRiskPasswordCount) &&
     obj.atRiskPasswordCount >= 0 &&
     Array.isArray(obj.atRiskCipherIds) &&
-    obj.atRiskCipherIds.every((id: any) => typeof id === "string" && id.length > 0) &&
+    obj.atRiskCipherIds.length <= MAX_ARRAY_LENGTH &&
+    obj.atRiskCipherIds.every(
+      (id: any) => typeof id === "string" && id.length > 0 && id.length <= MAX_STRING_LENGTH,
+    ) &&
     typeof obj.memberCount === "number" &&
     Number.isFinite(obj.memberCount) &&
+    Number.isSafeInteger(obj.memberCount) &&
     obj.memberCount >= 0 &&
     typeof obj.atRiskMemberCount === "number" &&
     Number.isFinite(obj.atRiskMemberCount) &&
+    Number.isSafeInteger(obj.atRiskMemberCount) &&
     obj.atRiskMemberCount >= 0 &&
     Array.isArray(obj.memberDetails) &&
+    obj.memberDetails.length <= MAX_ARRAY_LENGTH &&
     obj.memberDetails.every(isMemberDetails) &&
     Array.isArray(obj.atRiskMemberDetails) &&
+    obj.atRiskMemberDetails.length <= MAX_ARRAY_LENGTH &&
     obj.atRiskMemberDetails.every(isMemberDetails) &&
     Array.isArray(obj.cipherIds) &&
-    obj.cipherIds.every((id: any) => typeof id === "string" && id.length > 0)
+    obj.cipherIds.length <= MAX_ARRAY_LENGTH &&
+    obj.cipherIds.every(
+      (id: any) => typeof id === "string" && id.length > 0 && id.length <= MAX_STRING_LENGTH,
+    )
   );
 }
 
@@ -130,12 +156,13 @@ export function isOrganizationReportSummary(obj: any): obj is OrganizationReport
     return false;
   }
 
-  // Prevent dangerous own properties
-  if (
-    Object.prototype.hasOwnProperty.call(obj, "constructor") ||
-    Object.prototype.hasOwnProperty.call(obj, "prototype")
-  ) {
-    return false;
+  // Prevent dangerous properties that could be used for prototype pollution
+  // Check for __proto__, constructor, and prototype as own properties
+  const dangerousKeys = ["__proto__", "constructor", "prototype"];
+  for (const key of dangerousKeys) {
+    if (Object.prototype.hasOwnProperty.call(obj, key)) {
+      return false;
+    }
   }
 
   // Strict property validation - reject unexpected properties
@@ -156,33 +183,48 @@ export function isOrganizationReportSummary(obj: any): obj is OrganizationReport
     return false;
   }
 
+  // Security limits to prevent DoS attacks
+  const MAX_STRING_LENGTH = 1000;
+  const MAX_ARRAY_LENGTH = 50000;
+
   return (
     typeof obj.totalMemberCount === "number" &&
     Number.isFinite(obj.totalMemberCount) &&
+    Number.isSafeInteger(obj.totalMemberCount) &&
     obj.totalMemberCount >= 0 &&
     typeof obj.totalApplicationCount === "number" &&
     Number.isFinite(obj.totalApplicationCount) &&
+    Number.isSafeInteger(obj.totalApplicationCount) &&
     obj.totalApplicationCount >= 0 &&
     typeof obj.totalAtRiskMemberCount === "number" &&
     Number.isFinite(obj.totalAtRiskMemberCount) &&
+    Number.isSafeInteger(obj.totalAtRiskMemberCount) &&
     obj.totalAtRiskMemberCount >= 0 &&
     typeof obj.totalAtRiskApplicationCount === "number" &&
     Number.isFinite(obj.totalAtRiskApplicationCount) &&
+    Number.isSafeInteger(obj.totalAtRiskApplicationCount) &&
     obj.totalAtRiskApplicationCount >= 0 &&
     typeof obj.totalCriticalApplicationCount === "number" &&
     Number.isFinite(obj.totalCriticalApplicationCount) &&
+    Number.isSafeInteger(obj.totalCriticalApplicationCount) &&
     obj.totalCriticalApplicationCount >= 0 &&
     typeof obj.totalCriticalMemberCount === "number" &&
     Number.isFinite(obj.totalCriticalMemberCount) &&
+    Number.isSafeInteger(obj.totalCriticalMemberCount) &&
     obj.totalCriticalMemberCount >= 0 &&
     typeof obj.totalCriticalAtRiskMemberCount === "number" &&
     Number.isFinite(obj.totalCriticalAtRiskMemberCount) &&
+    Number.isSafeInteger(obj.totalCriticalAtRiskMemberCount) &&
     obj.totalCriticalAtRiskMemberCount >= 0 &&
     typeof obj.totalCriticalAtRiskApplicationCount === "number" &&
     Number.isFinite(obj.totalCriticalAtRiskApplicationCount) &&
+    Number.isSafeInteger(obj.totalCriticalAtRiskApplicationCount) &&
     obj.totalCriticalAtRiskApplicationCount >= 0 &&
     Array.isArray(obj.newApplications) &&
-    obj.newApplications.every((app: any) => typeof app === "string" && app.length > 0)
+    obj.newApplications.length <= MAX_ARRAY_LENGTH &&
+    obj.newApplications.every(
+      (app: any) => typeof app === "string" && app.length > 0 && app.length <= MAX_STRING_LENGTH,
+    )
   );
 }
 
@@ -201,12 +243,13 @@ export function isOrganizationReportApplication(obj: any): obj is OrganizationRe
     return false;
   }
 
-  // Prevent dangerous own properties
-  if (
-    Object.prototype.hasOwnProperty.call(obj, "constructor") ||
-    Object.prototype.hasOwnProperty.call(obj, "prototype")
-  ) {
-    return false;
+  // Prevent dangerous properties that could be used for prototype pollution
+  // Check for __proto__, constructor, and prototype as own properties
+  const dangerousKeys = ["__proto__", "constructor", "prototype"];
+  for (const key of dangerousKeys) {
+    if (Object.prototype.hasOwnProperty.call(obj, key)) {
+      return false;
+    }
   }
 
   // Strict property validation - reject unexpected properties
@@ -217,9 +260,13 @@ export function isOrganizationReportApplication(obj: any): obj is OrganizationRe
     return false;
   }
 
+  // Security limits to prevent DoS attacks
+  const MAX_STRING_LENGTH = 1000;
+
   return (
     typeof obj.applicationName === "string" &&
     obj.applicationName.length > 0 &&
+    obj.applicationName.length <= MAX_STRING_LENGTH &&
     typeof obj.isCritical === "boolean" &&
     (obj.reviewedDate === null ||
       obj.reviewedDate instanceof Date ||
@@ -234,9 +281,17 @@ export function isOrganizationReportApplication(obj: any): obj is OrganizationRe
 export function validateApplicationHealthReportDetailArray(
   data: any,
 ): ApplicationHealthReportDetail[] {
+  const MAX_ARRAY_LENGTH = 50000; // Prevent DoS from extremely large arrays
+
   if (!Array.isArray(data)) {
     throw new Error(
       "Invalid report data: expected array of ApplicationHealthReportDetail, received non-array",
+    );
+  }
+
+  if (data.length > MAX_ARRAY_LENGTH) {
+    throw new Error(
+      `Invalid report data: array length ${data.length} exceeds maximum allowed length ${MAX_ARRAY_LENGTH}`,
     );
   }
 
@@ -305,9 +360,17 @@ export function validateOrganizationReportSummary(data: any): OrganizationReport
 export function validateOrganizationReportApplicationArray(
   data: any,
 ): OrganizationReportApplication[] {
+  const MAX_ARRAY_LENGTH = 50000; // Prevent DoS from extremely large arrays
+
   if (!Array.isArray(data)) {
     throw new Error(
       "Invalid application data: expected array of OrganizationReportApplication, received non-array",
+    );
+  }
+
+  if (data.length > MAX_ARRAY_LENGTH) {
+    throw new Error(
+      `Invalid application data: array length ${data.length} exceeds maximum allowed length ${MAX_ARRAY_LENGTH}`,
     );
   }
 
