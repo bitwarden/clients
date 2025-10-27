@@ -178,7 +178,13 @@ export function validateOrganizationReportApplicationArray(
     reviewedDate: item.reviewedDate
       ? item.reviewedDate instanceof Date
         ? item.reviewedDate
-        : new Date(item.reviewedDate)
+        : (() => {
+            const date = new Date(item.reviewedDate);
+            if (isNaN(date.getTime())) {
+              throw new Error(`Invalid date string: ${item.reviewedDate}`);
+            }
+            return date;
+          })()
       : null,
   })) as OrganizationReportApplication[];
 }
