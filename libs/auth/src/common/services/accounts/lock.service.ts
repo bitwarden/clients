@@ -9,7 +9,6 @@ import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { SystemService } from "@bitwarden/common/platform/abstractions/system.service";
-import { KeySuffixOptions } from "@bitwarden/common/platform/enums";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -51,7 +50,7 @@ export class DefaultLockService implements LockService {
     private readonly processReloadService: ProcessReloadServiceAbstraction,
     private readonly logService: LogService,
     private readonly keyService: KeyService,
-  ) {}
+  ) { }
 
   async lockAll() {
     const accounts = await firstValueFrom(
@@ -128,7 +127,7 @@ export class DefaultLockService implements LockService {
     await this.masterPasswordService.clearMasterKey(userId);
     await this.cipherService.clearCache(userId);
     // Clear CLI unlock state
-    await this.keyService.clearStoredUserKey(KeySuffixOptions.Auto, userId);
+    await this.keyService.clearStoredUserKey(userId);
 
     // This will clear ephemeral state such as the user's user key based on the key definition's clear-on
     await this.stateEventRunnerService.handleEvent("lock", userId);
