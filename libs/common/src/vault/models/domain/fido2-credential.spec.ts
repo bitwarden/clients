@@ -1,4 +1,8 @@
-import { mockEnc } from "../../../../spec";
+import { of } from "rxjs";
+
+import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+
+import { makeSymmetricCryptoKey, mockContainerService, mockEnc } from "../../../../spec";
 import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { EncryptionType } from "../../../platform/enums";
 import { Fido2CredentialData } from "../data/fido2-credential.data";
@@ -88,6 +92,14 @@ describe("Fido2Credential", () => {
 
   describe("decrypt", () => {
     it("decrypts and populates all fields when populated with EncStrings", async () => {
+      const containerService = mockContainerService();
+      containerService.getKeyService().userKey$.mockReturnValue(of(makeSymmetricCryptoKey(64)));
+      containerService
+        .getEncryptService()
+        .decryptString.mockImplementation(async (encString: EncString, key: SymmetricCryptoKey) => {
+          return encString.data;
+        })
+
       const credential = new Fido2Credential();
       credential.credentialId = mockEnc("credentialId");
       credential.keyType = mockEnc("keyType");

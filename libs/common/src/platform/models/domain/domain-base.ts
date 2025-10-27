@@ -10,28 +10,35 @@ import { Utils } from "../../misc/utils";
 
 import { SymmetricCryptoKey } from "./symmetric-crypto-key";
 
-// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
+
+/** @deprecated */
 type EncStringKeys<T> = ConditionalKeys<ConditionalExcept<T, Function>, EncString>;
+/** @deprecated */
 export type DecryptedObject<
   TEncryptedObject,
   TDecryptedKeys extends EncStringKeys<TEncryptedObject>,
 > = Record<TDecryptedKeys, string> & Omit<TEncryptedObject, TDecryptedKeys>;
 
 // extracts shared keys from the domain and view types
+/** @deprecated */
 type EncryptableKeys<D extends Domain, V extends View> = (keyof D &
   ConditionalKeys<D, EncString | null | undefined>) &
   (keyof V & ConditionalKeys<V, string | null | undefined>);
 
+/** @deprecated */
 type DomainEncryptableKeys<D extends Domain> = {
   [key in ConditionalKeys<D, EncString | null | undefined>]?: EncString | null | undefined;
 };
 
+/** @deprecated */
 type ViewEncryptableKeys<V extends View> = {
   [key in ConditionalKeys<V, string | null | undefined>]?: string | null | undefined;
 };
 
 // https://contributing.bitwarden.com/architecture/clients/data-model#domain
+/** @deprecated encryption and decryption of domain objects should be moved to the SDK */
 export default class Domain {
+  /** @deprecated */
   protected buildDomainModel<D extends Domain>(
     domain: D,
     dataObj: any,
@@ -53,6 +60,7 @@ export default class Domain {
     }
   }
 
+  /** @deprecated */
   protected buildDataModel<D extends Domain>(
     domain: D,
     dataObj: any,

@@ -1,3 +1,5 @@
+import { of } from "rxjs";
+
 import {
   Field as SdkField,
   FieldType,
@@ -6,7 +8,7 @@ import {
   IdentityLinkedIdType,
 } from "@bitwarden/sdk-internal";
 
-import { mockEnc, mockFromJson } from "../../../../spec";
+import { makeSymmetricCryptoKey, mockContainerService, mockEnc, mockFromJson } from "../../../../spec";
 import { EncryptedString, EncString } from "../../../key-management/crypto/models/enc-string";
 import { CardLinkedId, IdentityLinkedId, LoginLinkedId } from "../../enums";
 import { FieldData } from "../../models/data/field.data";
@@ -53,6 +55,13 @@ describe("Field", () => {
   });
 
   it("Decrypt", async () => {
+    const containerService = mockContainerService();
+    containerService.getKeyService().userKey$.mockReturnValue(of(makeSymmetricCryptoKey(64)));
+    containerService.getEncryptService()
+      .decryptString.mockImplementation(async (encString: EncString, key: any) => {
+        return encString.data;
+      });
+
     const field = new Field();
     field.type = FieldType.Text;
     field.name = mockEnc("encName");

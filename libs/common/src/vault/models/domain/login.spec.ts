@@ -1,6 +1,9 @@
 import { MockProxy, mock } from "jest-mock-extended";
+import { of } from "rxjs";
 
-import { mockEnc, mockFromJson } from "../../../../spec";
+import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+
+import { makeSymmetricCryptoKey, mockContainerService, mockEnc, mockFromJson } from "../../../../spec";
 import { EncryptedString, EncString } from "../../../key-management/crypto/models/enc-string";
 import { UriMatchStrategy } from "../../../models/domain/domain-service";
 import { LoginData } from "../../models/data/login.data";
@@ -64,6 +67,14 @@ describe("Login DTO", () => {
   });
 
   describe("decrypt", () => {
+    const containerService = mockContainerService();
+    containerService.getKeyService().userKey$.mockReturnValue(of(makeSymmetricCryptoKey(64)));
+    containerService
+      .getEncryptService()
+      .decryptString.mockImplementation(async (encString: EncString, key: SymmetricCryptoKey) => {
+        return encString.data;
+      })
+
     let loginUri: MockProxy<LoginUri>;
     const loginUriView = new LoginUriView();
     const decryptedFido2Credential = Symbol();

@@ -1,4 +1,12 @@
-import { mockEnc } from "../../../../../spec";
+import { of } from "rxjs";
+
+import mock from "@bitwarden/common/platform/spec/mock-deep";
+// eslint-disable-next-line no-restricted-imports
+import { KeyService } from "@bitwarden/key-management";
+
+import { makeSymmetricCryptoKey, mockContainerService, mockEnc } from "../../../../../spec";
+import { EncryptService } from "../../../../key-management/crypto/abstractions/encrypt.service";
+import { ContainerService } from "../../../../platform/services/container.service";
 import { SendFileData } from "../data/send-file.data";
 
 import { SendFile } from "./send-file";
@@ -39,6 +47,11 @@ describe("SendFile", () => {
   });
 
   it("Decrypt", async () => {
+    const containerService = mockContainerService();
+    containerService.getKeyService().userKey$.mockReturnValue(of(makeSymmetricCryptoKey(64)));
+    containerService.getEncryptService()
+      .decryptString.mockResolvedValue("fileName");
+
     const sendFile = new SendFile();
     sendFile.id = "id";
     sendFile.size = "1100";

@@ -1,4 +1,8 @@
-import { mockEnc, mockFromJson } from "../../../../spec";
+import { of } from "rxjs";
+
+import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+
+import { makeSymmetricCryptoKey, mockContainerService, mockEnc, mockFromJson } from "../../../../spec";
 import { EncryptedString, EncString } from "../../../key-management/crypto/models/enc-string";
 import { IdentityData } from "../../models/data/identity.data";
 import { Identity } from "../../models/domain/identity";
@@ -86,6 +90,14 @@ describe("Identity", () => {
   });
 
   it("Decrypt", async () => {
+    const containerService = mockContainerService();
+    containerService.getKeyService().userKey$.mockReturnValue(of(makeSymmetricCryptoKey(64)));
+    containerService
+      .getEncryptService()
+      .decryptString.mockImplementation(async (encString: EncString, key: SymmetricCryptoKey) => {
+        return encString.data;
+      })
+
     const identity = new Identity();
 
     identity.title = mockEnc("mockTitle");

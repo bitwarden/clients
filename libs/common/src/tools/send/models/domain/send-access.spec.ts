@@ -1,6 +1,7 @@
 import { mock } from "jest-mock-extended";
+import { of } from "rxjs";
 
-import { mockEnc } from "../../../../../spec";
+import { makeSymmetricCryptoKey, mockContainerService, mockEnc } from "../../../../../spec";
 import { SendType } from "../../enums/send-type";
 import { SendAccessResponse } from "../response/send-access.response";
 
@@ -55,6 +56,10 @@ describe("SendAccess", () => {
   });
 
   it("Decrypt", async () => {
+    const containerService = mockContainerService();
+    containerService.getKeyService().userKey$.mockReturnValue(of(makeSymmetricCryptoKey(64)));
+    containerService.getEncryptService().decryptString.mockResolvedValue("name");
+
     const sendAccess = new SendAccess();
     sendAccess.id = "id";
     sendAccess.type = SendType.Text;

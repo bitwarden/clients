@@ -1,9 +1,13 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { mock, MockProxy } from "jest-mock-extended";
+import { of } from "rxjs";
 
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { ContainerService } from "@bitwarden/common/platform/services/container.service";
+import { KeyService } from "@bitwarden/key-management";
 
+import { EncryptService } from "../src/key-management/crypto/abstractions/encrypt.service";
+import { EncString } from "../src/key-management/crypto/models/enc-string";
 import { EncryptionType } from "../src/platform/enums";
 import { Utils } from "../src/platform/misc/utils";
 import { SymmetricCryptoKey } from "../src/platform/models/domain/symmetric-crypto-key";
@@ -30,6 +34,7 @@ export function BuildTestObject<T, K extends keyof T = keyof T>(
 /** @deprecated */
 export function mockEnc(s: string): MockProxy<EncString> {
   const mocked = mock<EncString>();
+  mocked.data = s;
   return mocked;
 }
 
@@ -75,5 +80,13 @@ export const mockFromSdk = (stub: any) => {
 
   return `${stub}_fromSdk`;
 };
+
+export const mockContainerService = () => {
+  // Mock the container service for decryption
+  const keyService = mock<KeyService>();
+  const encryptService = mock<EncryptService>();
+  (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
+  return (window as any).bitwardenContainerService;
+}
 
 export { trackEmissions, awaitAsync } from "@bitwarden/core-test-utils";

@@ -1,5 +1,7 @@
+import { firstValueFrom, map } from "rxjs";
 import { Jsonify } from "type-fest";
 
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { OrgKey, UserKey } from "@bitwarden/common/types/key";
 import { Attachment as SdkAttachment } from "@bitwarden/sdk-internal";
 import { UserId } from "@bitwarden/user-core";
@@ -51,7 +53,7 @@ export class Attachment extends Domain {
     );
 
     if (this.key != null) {
-      view.key = await this.decryptAttachmentKey(orgId, encKey);
+      view.key = await this.decryptAttachmentKey(orgId, userId, encKey);
       view.encryptedKey = this.key; // Keep the encrypted key for the view
     }
 
@@ -60,6 +62,7 @@ export class Attachment extends Domain {
 
   private async decryptAttachmentKey(
     orgId: string | undefined,
+    userId: UserId,
     encKey?: SymmetricCryptoKey,
   ): Promise<SymmetricCryptoKey | undefined> {
     try {
@@ -68,7 +71,7 @@ export class Attachment extends Domain {
       }
 
       if (encKey == null) {
-        const key = await this.getKeyForDecryption(orgId);
+        const key = await this.getKeyForDecryption(orgId, userId);
 
         // If we don't have a key, we can't decrypt
         if (key == null) {
@@ -88,9 +91,12 @@ export class Attachment extends Domain {
     }
   }
 
-  private async getKeyForDecryption(orgId: string | undefined): Promise<OrgKey | UserKey | null> {
+  private async getKeyForDecryption(orgId: string | undefined, userId: UserId): Promise<OrgKey | UserKey | null> {
     const keyService = Utils.getContainerService().getKeyService();
-    return orgId != null ? await keyService.getOrgKey(orgId) : await keyService.getUserKey();
+    console.log("getKeyForDecryption", orgId, userId);
+    return orgId != null ? await firstValueFrom(keyService.orgKeys$(userId).pipe(
+      map((orgKeys) => orgKeys[orgId as OrganizationId] ?? null),
+    )) : await firstValueFrom(keyService.userKey$(userId));
   }
 
   toAttachmentData(): AttachmentData {

@@ -1,4 +1,5 @@
 import { mock } from "jest-mock-extended";
+import { of } from "rxjs";
 import { Jsonify } from "type-fest";
 
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
@@ -14,7 +15,7 @@ import {
   EncString as SdkEncString,
 } from "@bitwarden/sdk-internal";
 
-import { makeStaticByteArray, mockEnc, mockFromJson } from "../../../../spec/utils";
+import { makeStaticByteArray, makeSymmetricCryptoKey, mockContainerService, mockEnc, mockFromJson } from "../../../../spec/utils";
 import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { UriMatchStrategy } from "../../../models/domain/domain-service";
@@ -69,6 +70,14 @@ describe("Cipher DTO", () => {
   });
 
   it("Decrypt should handle cipher key error", async () => {
+    const containerService = mockContainerService();
+    containerService.getKeyService().userKey$.mockReturnValue(of(makeSymmetricCryptoKey(64)));
+    containerService
+      .getEncryptService()
+      .decryptString.mockImplementation(async (encString: EncString, key: SymmetricCryptoKey) => {
+        return encString.data;
+      })
+
     const cipher = new Cipher();
     cipher.id = "id";
     cipher.organizationId = "orgId";

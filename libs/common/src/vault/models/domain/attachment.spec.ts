@@ -1,4 +1,5 @@
 import { mock, MockProxy } from "jest-mock-extended";
+import { of } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -80,11 +81,12 @@ describe("Attachment", () => {
       attachment.fileName = mockEnc("fileName");
 
       const userKey = new SymmetricCryptoKey(makeStaticByteArray(64));
-      keyService.getUserKey.mockResolvedValue(userKey as UserKey);
+      keyService.userKey$.mockReturnValue(of(userKey as UserKey));
       encryptService.decryptFileData.mockResolvedValue(makeStaticByteArray(32));
       encryptService.unwrapSymmetricKey.mockResolvedValue(
         new SymmetricCryptoKey(makeStaticByteArray(64)),
       );
+      encryptService.decryptString.mockResolvedValueOnce("fileName");
 
       const view = await attachment.decrypt(null, null);
 
@@ -118,21 +120,22 @@ describe("Attachment", () => {
 
       it("gets an organization key if required", async () => {
         const orgKey = mock<OrgKey>();
-        keyService.getOrgKey.calledWith("orgId").mockResolvedValue(orgKey);
+        keyService.orgKeys$.mockReturnValue(of({ "orgId": orgKey }));
 
         await attachment.decrypt(null, "orgId", "", null);
 
-        expect(keyService.getOrgKey).toHaveBeenCalledWith("orgId");
+        expect(keyService.orgKeys$).toHaveBeenCalledWith(null);
         expect(encryptService.unwrapSymmetricKey).toHaveBeenCalledWith(attachment.key, orgKey);
       });
 
       it("gets the user's decryption key if required", async () => {
-        const userKey = mock<UserKey>();
-        keyService.getUserKey.mockResolvedValue(userKey);
+        keyService.orgKeys$.mockReturnValue(of({ "orgId": mock<OrgKey>() }));
+        const userKey = new SymmetricCryptoKey(makeStaticByteArray(64));
+        keyService.userKey$.mockReturnValue(of(userKey as UserKey));
 
-        await attachment.decrypt(null, "", null);
+        await attachment.decrypt(null, null, null, null);
 
-        expect(keyService.getUserKey).toHaveBeenCalled();
+        expect(keyService.userKey$).toHaveBeenCalled();
         expect(encryptService.unwrapSymmetricKey).toHaveBeenCalledWith(attachment.key, userKey);
       });
     });

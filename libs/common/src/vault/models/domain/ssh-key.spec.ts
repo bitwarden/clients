@@ -1,6 +1,8 @@
+import { of } from "rxjs";
+
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 
-import { mockEnc } from "../../../../spec";
+import { makeSymmetricCryptoKey, mockContainerService, mockEnc } from "../../../../spec";
 import { SshKeyApi } from "../api/ssh-key.api";
 import { SshKeyData } from "../data/ssh-key.data";
 
@@ -45,6 +47,13 @@ describe("Sshkey", () => {
   });
 
   it("Decrypt", async () => {
+    const containerService = mockContainerService();
+    containerService.getKeyService().userKey$.mockReturnValue(of(makeSymmetricCryptoKey(64)));
+    containerService.getEncryptService()
+      .decryptString.mockResolvedValueOnce("privateKey")
+      .mockResolvedValueOnce("publicKey")
+      .mockResolvedValueOnce("keyFingerprint");
+
     const sshKey = Object.assign(new SshKey(), {
       privateKey: mockEnc("privateKey"),
       publicKey: mockEnc("publicKey"),

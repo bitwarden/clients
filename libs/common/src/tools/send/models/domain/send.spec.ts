@@ -1,16 +1,9 @@
-import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
+import mock from "@bitwarden/common/platform/spec/mock-deep";
 import { emptyGuid, UserId } from "@bitwarden/common/types/guid";
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
-import { KeyService } from "@bitwarden/key-management";
 
-import { makeStaticByteArray, mockEnc } from "../../../../../spec";
-import { EncryptService } from "../../../../key-management/crypto/abstractions/encrypt.service";
-import { SymmetricCryptoKey } from "../../../../platform/models/domain/symmetric-crypto-key";
-import { ContainerService } from "../../../../platform/services/container.service";
-import { UserKey } from "../../../../types/key";
+import { mockEnc, makeStaticByteArray, mockContainerService, makeSymmetricCryptoKey } from "../../../../../spec";
 import { SendType } from "../../enums/send-type";
 import { SendData } from "../data/send.data";
 
@@ -96,9 +89,18 @@ describe("Send", () => {
   });
 
   it("Decrypt", async () => {
+    const containerService = mockContainerService();
+    containerService.getKeyService().userKey$.mockReturnValue(of(makeSymmetricCryptoKey(64)));
+    containerService.getEncryptService()
+      .decryptString
+      .mockResolvedValueOnce("name")
+      .mockResolvedValueOnce("notes");
+    containerService.getEncryptService()
+      .decryptBytes
+      .mockResolvedValueOnce(makeStaticByteArray(32));
+
     const text = mock<SendText>();
     text.decrypt.mockResolvedValue("textView" as any);
-    const userKey = new SymmetricCryptoKey(new Uint8Array(32)) as UserKey;
     const userId = emptyGuid as UserId;
 
     const send = new Send();
@@ -117,19 +119,11 @@ describe("Send", () => {
     send.disabled = false;
     send.hideEmail = true;
 
-    const encryptService = mock<EncryptService>();
-    const keyService = mock<KeyService>();
-    encryptService.decryptBytes
-      .calledWith(send.key, userKey)
-      .mockResolvedValue(makeStaticByteArray(32));
-    keyService.makeSendKey.mockResolvedValue("cryptoKey" as any);
-    keyService.userKey$.calledWith(userId).mockReturnValue(of(userKey));
-
-    (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
+    containerService.getKeyService().makeSendKey.mockResolvedValue("cryptoKey" as any);
 
     const view = await send.decrypt(userId);
 
-    expect(text.decrypt).toHaveBeenNthCalledWith(1, "cryptoKey");
+    expect(text.decrypt).toHaveBeenNthCalledWith(1, userId, "cryptoKey");
 
     expect(view).toMatchObject({
       id: "id",
