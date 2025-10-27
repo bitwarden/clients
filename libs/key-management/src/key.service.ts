@@ -426,20 +426,16 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     });
   }
 
-  // TODO: Deprecate in favor of observable
-  async getProviderKey(providerId: ProviderId): Promise<ProviderKey | null> {
-    if (providerId == null) {
-      return null;
-    }
+  providerKeys$(userId: UserId): Observable<Record<ProviderId, ProviderKey> | null> {
+    return this.userPrivateKey$(userId).pipe(
+      switchMap((userPrivateKey) => {
+        if (userPrivateKey == null) {
+          return of(null);
+        }
 
-    const activeUserId = await firstValueFrom(this.stateProvider.activeUserId$);
-    if (activeUserId == null) {
-      throw new Error("No active user found.");
-    }
-
-    const providerKeys = await firstValueFrom(this.providerKeys$(activeUserId));
-
-    return providerKeys?.[providerId] ?? null;
+        return this.providerKeysHelper$(userId, userPrivateKey);
+      }),
+    );
   }
 
   private async clearProviderKeys(userId: UserId): Promise<void> {
@@ -827,18 +823,6 @@ export class DefaultKeyService implements KeyServiceAbstraction {
       new EncString(encryptedPrivateKey),
       key,
     )) as UserPrivateKey;
-  }
-
-  providerKeys$(userId: UserId) {
-    return this.userPrivateKey$(userId).pipe(
-      switchMap((userPrivateKey) => {
-        if (userPrivateKey == null) {
-          return of(null);
-        }
-
-        return this.providerKeysHelper$(userId, userPrivateKey);
-      }),
-    );
   }
 
   /**
