@@ -276,6 +276,13 @@ module.exports.buildConfig = function buildConfig(params) {
               secure: false,
               changeOrigin: true,
             },
+            {
+              context: ["/key-connector"],
+              target: envConfig.dev?.proxyKeyConnector,
+              pathRewrite: { "^/key-connector": "" },
+              secure: false,
+              changeOrigin: true,
+            },
           ],
           headers: (req) => {
             if (!req.originalUrl.includes("connector.html")) {
