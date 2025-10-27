@@ -154,6 +154,15 @@
       }
     }
   },
+  "newPasswordsAtRisk": {
+    "message": "$COUNT$ new passwords at-risk",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "notifiedMembersWithCount": {
     "message": "அறிவிக்கப்பட்ட உறுப்பினர்கள் ($COUNT$)",
     "placeholders": {
@@ -2080,9 +2089,6 @@
   "encKeySettings": {
     "message": "என்க்ரிப்ஷன் சாவி அமைப்புகள்"
   },
-  "kdfAlgorithm": {
-    "message": "KDF அல்காரிதம்"
-  },
   "kdfIterations": {
     "message": "KDF மறுநிகழ்வுகள்"
   },
@@ -2116,9 +2122,6 @@
   },
   "argon2Desc": {
     "message": "அதிக KDF இட்டரேஷன்கள், நினைவகம் மற்றும் பாரலலிசம் உங்கள் முதன்மை கடவுச்சொல்லை தாக்குபவர் ப்ரூட் ஃபோர்ஸ் செய்வதிலிருந்து பாதுகாக்க உதவும்."
-  },
-  "changeKdf": {
-    "message": "KDF-ஐ மாற்றவும்"
   },
   "encKeySettingsChanged": {
     "message": "என்கிரிப்ஷன் கீ அமைப்புகள் சேமிக்கப்பட்டன"
@@ -5709,6 +5712,65 @@
   "organizationDataOwnershipWarningContentBottom": {
     "message": "பற்றி மேலும் அறிக ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about the credential lifecycle.'"
+  },
+  "availableNow": {
+    "message": "Available now"
+  },
+  "autoConfirm": {
+    "message": "Automatic confirmation of new users"
+  },
+  "autoConfirmDescription": {
+    "message": "New users invited to the organization will be automatically confirmed when an admin’s device is unlocked.",
+    "description": "This is the description of the policy as it appears in the 'Policies' page"
+  },
+  "howToTurnOnAutoConfirm": {
+    "message": "How to turn on automatic user confirmation"
+  },
+  "autoConfirmStep1": {
+    "message": "Open your Bitwarden extension."
+  },
+  "autoConfirmStep2a": {
+    "message": "Select",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  },
+  "autoConfirmStep2b": {
+    "message": " Turn on.",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  },
+  "autoConfirmExtensionOpened": {
+    "message": "Successfully opened the Bitwarden browser extension. You can now activate the automatic user confirmation setting."
+  },
+  "autoConfirmPolicyEditDescription": {
+    "message": "New users invited to the organization will be automatically confirmed when an admin’s device is unlocked. Before turning on this policy, please review and agree to the following: ",
+    "description": "This is the description of the policy as it appears inside the policy edit dialog"
+  },
+  "autoConfirmAcceptSecurityRiskTitle": {
+    "message": "Potential security risk. "
+  },
+  "autoConfirmAcceptSecurityRiskDescription": {
+    "message": "Automatic user confirmation could pose a security risk to your organization’s data."
+  },
+  "autoConfirmAcceptSecurityRiskLearnMore": {
+    "message": "Learn about the risks",
+    "description": "The is the link copy for the first check box option in the edit policy dialog"
+  },
+  "autoConfirmSingleOrgRequired": {
+    "message": "Single organization policy required. "
+  },
+  "autoConfirmSingleOrgRequiredDescription": {
+    "message": "Anyone part of more than one organization will have their access revoked until they leave the other organizations."
+  },
+  "autoConfirmSingleOrgExemption": {
+    "message": "Single organization policy will extend to all roles. "
+  },
+  "autoConfirmNoEmergencyAccess": {
+    "message": "No emergency access. "
+  },
+  "autoConfirmNoEmergencyAccessDescription": {
+    "message": "Emergency Access will be removed."
+  },
+  "autoConfirmCheckBoxLabel": {
+    "message": "I accept these risks and policy updates"
   },
   "personalOwnership": {
     "message": "தனிப்பட்ட வால்ட்டை அகற்று"
@@ -10361,26 +10423,8 @@
   "memberAccessReportAuthenticationEnabledFalse": {
     "message": "முடக்கப்பட்டுள்ளது"
   },
-  "higherKDFIterations": {
-    "message": "அதிக KDF இட்டரேஷன்கள், தாக்குபவரால் உங்கள் முதன்மை கடவுச்சொல் வலுக்கட்டாயமாகப் பயன்படுத்தப்படுவதிலிருந்து பாதுகாக்க உதவும்."
-  },
-  "incrementsOf100,000": {
-    "message": "100,000 ஆக அதிகரிப்பது"
-  },
-  "smallIncrements": {
-    "message": "சிறிய அதிகரிப்புகள்"
-  },
   "kdfIterationRecommends": {
     "message": "600,000 அல்லது அதற்கு மேல் இருக்க நாங்கள் பரிந்துரைக்கிறோம்"
-  },
-  "kdfToHighWarningIncreaseInIncrements": {
-    "message": "பழைய சாதனங்களுக்கு, உங்கள் KDF-ஐ மிக அதிகமாக அமைப்பது, செயல்திறன் சிக்கல்களுக்கு வழிவகுக்கலாம். $VALUE$-இல் மதிப்பை அதிகரித்து, உங்கள் சாதனங்களைச் சோதிக்கவும்.",
-    "placeholders": {
-      "value": {
-        "content": "$1",
-        "example": "increments of 100,000"
-      }
-    }
   },
   "providerReinstate": {
     "message": " உங்கள் சந்தாவை மீண்டும் செயல்படுத்த, வாடிக்கையாளர் ஆதரவைத் தொடர்பு கொள்ளவும்."
@@ -11023,6 +11067,15 @@
   },
   "domainClaimed": {
     "message": "டொமைன் கோரப்பட்டது"
+  },
+  "itemAddedToFavorites": {
+    "message": "Item added to favorites"
+  },
+  "itemRemovedFromFavorites": {
+    "message": "Item removed from favorites"
+  },
+  "copyNote": {
+    "message": "Copy note"
   },
   "organizationNameMaxLength": {
     "message": "அமைப்பின் பெயர் 50 எழுத்துகளைத் தாண்டக்கூடாது."
@@ -11856,5 +11909,32 @@
   },
   "viewbusinessplans": {
     "message": "View business plans"
+  },
+  "updateEncryptionSettings": {
+    "message": "Update encryption settings"
+  },
+  "updateYourEncryptionSettings": {
+    "message": "Update your encryption settings"
+  },
+  "updateSettings": {
+    "message": "Update settings"
+  },
+  "algorithm": {
+    "message": "Algorithm"
+  },
+  "encryptionKeySettingsHowShouldWeEncryptYourData": {
+    "message": "Choose how Bitwarden should encrypt your vault data. All options are secure, but stronger methods offer better protection - especially against brute-force attacks. Bitwarden recommends the default setting for most users."
+  },
+  "encryptionKeySettingsIncreaseImproveSecurity": {
+    "message": "Increasing the values above the default will improve security, but your vault may take longer to unlock as a result."
+  },
+  "encryptionKeySettingsAlgorithmPopoverTitle": {
+    "message": "About encryption algorithms"
+  },
+  "encryptionKeySettingsAlgorithmPopoverPBKDF2": {
+    "message": "PBKDF2-SHA256 is a well-tested encryption method that balances security and performance. Good for all users."
+  },
+  "encryptionKeySettingsAlgorithmPopoverArgon2Id": {
+    "message": "Argon2id offers stronger protection against modern attacks. Best for advanced users with powerful devices."
   }
 }

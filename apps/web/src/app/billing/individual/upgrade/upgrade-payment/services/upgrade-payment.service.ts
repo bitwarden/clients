@@ -11,21 +11,25 @@ import {
   OrganizationBillingServiceAbstraction,
   SubscriptionInformation,
 } from "@bitwarden/common/billing/abstractions";
-import { PlanType } from "@bitwarden/common/billing/enums";
+import { PaymentMethodType, PlanType } from "@bitwarden/common/billing/enums";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { LogService } from "@bitwarden/logging";
 
 import {
   AccountBillingClient,
   OrganizationSubscriptionPurchase,
+  SubscriberBillingClient,
   TaxAmounts,
   TaxClient,
 } from "../../../../clients";
 import {
   BillingAddress,
+  NonTokenizablePaymentMethods,
+  NonTokenizedPaymentMethod,
   tokenizablePaymentMethodToLegacyEnum,
   TokenizedPaymentMethod,
 } from "../../../../payment/types";
+import { mapAccountToSubscriber } from "../../../../types";
 import {
   PersonalSubscriptionPricingTier,
   PersonalSubscriptionPricingTierId,
@@ -59,6 +63,7 @@ export class UpgradePaymentService {
     private syncService: SyncService,
     private organizationService: OrganizationService,
     private accountService: AccountService,
+    private subscriberBillingClient: SubscriberBillingClient,
   ) {}
 
   userIsOwnerOfFreeOrg$: Observable<boolean> = this.accountService.activeAccount$.pipe(
@@ -78,6 +83,12 @@ export class UpgradePaymentService {
       find((org) => org.isFreeOrg && org.isOwner),
       map((org) => `/organizations/${org!.id}/billing/subscription`),
     );
+
+  // Fetch account credit
+  accountCredit$: Observable<number | null> = this.accountService.activeAccount$.pipe(
+    mapAccountToSubscriber,
+    switchMap((account) => this.subscriberBillingClient.getCredit(account)),
+  );
 
   /**
    * Calculate estimated tax for the selected plan
@@ -130,7 +141,7 @@ export class UpgradePaymentService {
    * Process premium upgrade
    */
   async upgradeToPremium(
-    paymentMethod: TokenizedPaymentMethod,
+    paymentMethod: TokenizedPaymentMethod | NonTokenizedPaymentMethod,
     billingAddress: Pick<BillingAddress, "country" | "postalCode">,
   ): Promise<void> {
     this.validatePaymentAndBillingInfo(paymentMethod, billingAddress);
@@ -169,10 +180,7 @@ export class UpgradePaymentService {
         passwordManagerSeats: passwordManagerSeats,
       },
       payment: {
-        paymentMethod: [
-          paymentMethod.token,
-          tokenizablePaymentMethodToLegacyEnum(paymentMethod.type),
-        ],
+        paymentMethod: [paymentMethod.token, this.getPaymentMethodType(paymentMethod)],
         billing: {
           country: billingAddress.country,
           postalCode: billingAddress.postalCode,
@@ -195,11 +203,19 @@ export class UpgradePaymentService {
   }
 
   private validatePaymentAndBillingInfo(
-    paymentMethod: TokenizedPaymentMethod,
+    paymentMethod: TokenizedPaymentMethod | NonTokenizedPaymentMethod,
     billingAddress: { country: string; postalCode: string },
   ): void {
-    if (!paymentMethod?.token || !paymentMethod?.type) {
-      throw new Error("Payment method type or token is missing");
+    if (!paymentMethod?.type) {
+      throw new Error("Payment method type is missing");
+    }
+
+    // Account credit does not require a token
+    if (
+      paymentMethod.type !== NonTokenizablePaymentMethods.accountCredit &&
+      !paymentMethod?.token
+    ) {
+      throw new Error("Payment method token is missing");
     }
 
     if (!billingAddress?.country || !billingAddress?.postalCode) {
@@ -210,5 +226,13 @@ export class UpgradePaymentService {
   private async refreshAndSync(): Promise<void> {
     await this.apiService.refreshIdentityToken();
     await this.syncService.fullSync(true);
+  }
+
+  private getPaymentMethodType(
+    paymentMethod: TokenizedPaymentMethod | NonTokenizedPaymentMethod,
+  ): PaymentMethodType {
+    return paymentMethod.type === NonTokenizablePaymentMethods.accountCredit
+      ? PaymentMethodType.Credit
+      : tokenizablePaymentMethodToLegacyEnum(paymentMethod.type);
   }
 }

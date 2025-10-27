@@ -1,3 +1,5 @@
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+
 import { mockEnc } from "../../../../spec";
 import { SshKeyApi } from "../api/ssh-key.api";
 import { SshKeyData } from "../data/ssh-key.data";
@@ -31,11 +33,10 @@ describe("Sshkey", () => {
     const data = new SshKeyData();
     const sshKey = new SshKey(data);
 
-    expect(sshKey).toEqual({
-      privateKey: null,
-      publicKey: null,
-      keyFingerprint: null,
-    });
+    expect(sshKey).toBeInstanceOf(SshKey);
+    expect(sshKey.privateKey).toBeInstanceOf(EncString);
+    expect(sshKey.publicKey).toBeInstanceOf(EncString);
+    expect(sshKey.keyFingerprint).toBeInstanceOf(EncString);
   });
 
   it("toSshKeyData", () => {
@@ -60,8 +61,8 @@ describe("Sshkey", () => {
   });
 
   describe("fromJSON", () => {
-    it("returns null if object is null", () => {
-      expect(SshKey.fromJSON(null)).toBeNull();
+    it("returns undefined if object is null", () => {
+      expect(SshKey.fromJSON(null)).toBeUndefined();
     });
   });
 
