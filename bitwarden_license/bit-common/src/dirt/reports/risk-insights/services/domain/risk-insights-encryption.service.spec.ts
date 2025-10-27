@@ -218,7 +218,7 @@ describe("RiskInsightsEncryptionService", () => {
       ).rejects.toEqual(Error("Organization key not found"));
     });
 
-    it("should return null if decrypt throws", async () => {
+    it("should throw if decrypt throws", async () => {
       mockKeyService.orgKeys$.mockReturnValue(orgKey$);
       mockEncryptService.unwrapSymmetricKey.mockRejectedValue(new Error("fail"));
 
@@ -230,6 +230,99 @@ describe("RiskInsightsEncryptionService", () => {
           mockKey,
         ),
       ).rejects.toEqual(Error("fail"));
+    });
+
+    it("should throw error when report data validation fails", async () => {
+      mockKeyService.orgKeys$.mockReturnValue(orgKey$);
+      mockEncryptService.unwrapSymmetricKey.mockResolvedValue(contentEncryptionKey);
+
+      // Mock decryption to return invalid data
+      mockEncryptService.decryptString
+        .mockResolvedValueOnce(JSON.stringify([{ invalid: "data" }])) // invalid report data
+        .mockResolvedValueOnce(JSON.stringify(mockSummaryData))
+        .mockResolvedValueOnce(JSON.stringify(mockApplicationData));
+
+      await expect(
+        service.decryptRiskInsightsReport(
+          { organizationId: orgId, userId },
+          mockEncryptedData,
+          mockKey,
+        ),
+      ).rejects.toThrow(/Report data validation failed.*Invalid report data/);
+    });
+
+    it("should throw error when summary data validation fails", async () => {
+      mockKeyService.orgKeys$.mockReturnValue(orgKey$);
+      mockEncryptService.unwrapSymmetricKey.mockResolvedValue(contentEncryptionKey);
+
+      // Clear and reset the mock
+      mockEncryptService.decryptString.mockReset();
+
+      // Mock decryption - report data should succeed, summary should fail
+      mockEncryptService.decryptString
+        .mockResolvedValueOnce(JSON.stringify(mockReportData)) // valid
+        .mockResolvedValueOnce(JSON.stringify({ invalid: "summary" })) // invalid summary data - fails here
+        .mockResolvedValueOnce(JSON.stringify(mockApplicationData)); // won't be called but prevents fallback
+
+      await expect(
+        service.decryptRiskInsightsReport(
+          { organizationId: orgId, userId },
+          mockEncryptedData,
+          mockKey,
+        ),
+      ).rejects.toThrow(/Summary data validation failed.*Invalid OrganizationReportSummary/);
+    });
+
+    it("should throw error when application data validation fails", async () => {
+      mockKeyService.orgKeys$.mockReturnValue(orgKey$);
+      mockEncryptService.unwrapSymmetricKey.mockResolvedValue(contentEncryptionKey);
+
+      // Clear and reset the mock
+      mockEncryptService.decryptString.mockReset();
+
+      // Mock decryption - report and summary should succeed, application should fail
+      mockEncryptService.decryptString
+        .mockResolvedValueOnce(JSON.stringify(mockReportData)) // valid
+        .mockResolvedValueOnce(JSON.stringify(mockSummaryData)) // valid
+        .mockResolvedValueOnce(JSON.stringify([{ invalid: "application" }])); // invalid app data
+
+      await expect(
+        service.decryptRiskInsightsReport(
+          { organizationId: orgId, userId },
+          mockEncryptedData,
+          mockKey,
+        ),
+      ).rejects.toThrow(/Application data validation failed.*Invalid application data/);
+    });
+
+    it("should throw error for invalid date in application data", async () => {
+      mockKeyService.orgKeys$.mockReturnValue(orgKey$);
+      mockEncryptService.unwrapSymmetricKey.mockResolvedValue(contentEncryptionKey);
+
+      const invalidApplicationData = [
+        {
+          applicationName: "Test App",
+          isCritical: true,
+          reviewedDate: "invalid-date-string",
+        },
+      ];
+
+      // Clear and reset the mock
+      mockEncryptService.decryptString.mockReset();
+
+      // Mock decryption - report and summary succeed, application with invalid date fails
+      mockEncryptService.decryptString
+        .mockResolvedValueOnce(JSON.stringify(mockReportData)) // valid
+        .mockResolvedValueOnce(JSON.stringify(mockSummaryData)) // valid
+        .mockResolvedValueOnce(JSON.stringify(invalidApplicationData)); // invalid date
+
+      await expect(
+        service.decryptRiskInsightsReport(
+          { organizationId: orgId, userId },
+          mockEncryptedData,
+          mockKey,
+        ),
+      ).rejects.toThrow(/Application data validation failed.*Invalid date string/);
     });
   });
 });
