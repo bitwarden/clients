@@ -27,6 +27,7 @@ impl SecureKeyContainer for MemfdSecretSecureKeyContainer {
                 .expect("slice should be KEY_SIZE"),
         )
     }
+
     fn from_key(key: MemoryEncryptionKey) -> Self {
         let mut ptr: NonNull<[u8]> = unsafe {
             memsec::memfd_secret_sized(KEY_SIZE).expect("memfd_secret_sized should work")
