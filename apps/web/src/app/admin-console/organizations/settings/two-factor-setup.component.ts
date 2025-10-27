@@ -26,6 +26,8 @@ import { TwoFactorSetupDuoComponent } from "../../../auth/settings/two-factor/tw
 import { TwoFactorSetupComponent as BaseTwoFactorSetupComponent } from "../../../auth/settings/two-factor/two-factor-setup.component";
 import { TwoFactorVerifyComponent } from "../../../auth/settings/two-factor/two-factor-verify.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-two-factor-setup",
   templateUrl: "../../../auth/settings/two-factor/two-factor-setup.component.html",

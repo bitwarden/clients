@@ -846,6 +846,7 @@ export class ServiceContainer {
       this.authService,
       this.stateProvider,
       this.securityStateService,
+      this.kdfConfigService,
     );
 
     this.totpService = new TotpService(this.sdkService);

@@ -626,7 +626,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
           this.changeDetectorRef.markForCheck();
         },
       );
-    await this.unifiedUpgradePromptService.displayUpgradePromptConditionally();
+    void this.unifiedUpgradePromptService.displayUpgradePromptConditionally();
   }
 
   ngOnDestroy() {

@@ -106,9 +106,7 @@ export class AtRiskPasswordsComponent implements OnInit {
    * The UI utilize a bitBadge which does not support async actions (like bitButton does).
    * @protected
    */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  protected launchingCipher = signal<CipherView | null>(null);
+  protected readonly launchingCipher = signal<CipherView | null>(null);
 
   private activeUserData$ = this.accountService.activeAccount$.pipe(
     filterOutNullish(),
