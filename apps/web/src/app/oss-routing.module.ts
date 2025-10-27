@@ -50,7 +50,6 @@ import {
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AnonLayoutWrapperComponent, AnonLayoutWrapperData } from "@bitwarden/components";
 import { LockComponent } from "@bitwarden/key-management-ui";
-import { PreferencesComponent } from "@bitwarden/web-vault/app/settings/preferences.component";
 
 import { flagEnabled, Flags } from "../utils/flags";
 
@@ -82,6 +81,7 @@ import { RequestSMAccessComponent } from "./secrets-manager/secrets-manager-land
 import { SMLandingComponent } from "./secrets-manager/secrets-manager-landing/sm-landing.component";
 import { AppearanceComponent } from "./settings/appearance.component";
 import { DomainRulesComponent } from "./settings/domain-rules.component";
+import { PreferencesComponent } from "./settings/preferences.component";
 import { CredentialGeneratorComponent } from "./tools/credential-generator/credential-generator.component";
 import { AccessComponent, SendAccessExplainerComponent } from "./tools/send/send-access";
 import { SendComponent } from "./tools/send/send.component";
