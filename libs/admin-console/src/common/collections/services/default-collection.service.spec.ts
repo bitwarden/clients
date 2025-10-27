@@ -178,7 +178,7 @@ describe("DefaultCollectionService", () => {
       void setEncryptedState([collection1, collection2]).then(() => {
         // Act: emit undefined
         cryptoKeys.next(undefined);
-        keyService.activeUserOrgKeys$ = of(undefined);
+        keyService.orgKeys$ = of(undefined);
       });
     });
 
