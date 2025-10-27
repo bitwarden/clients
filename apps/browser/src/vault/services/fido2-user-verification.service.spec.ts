@@ -3,8 +3,8 @@ import { of } from "rxjs";
 
 import { UserVerificationDialogComponent } from "@bitwarden/auth/angular";
 import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -37,22 +37,14 @@ describe("Fido2UserVerificationService", () => {
   let passwordRepromptService: MockProxy<PasswordRepromptService>;
   let userDecryptionOptionsService: MockProxy<UserDecryptionOptionsServiceAbstraction>;
   let dialogService: MockProxy<DialogService>;
-  let accountService: MockProxy<AccountService>;
+  let accountService: FakeAccountService;
   let cipher: CipherView;
 
   beforeEach(() => {
     passwordRepromptService = mock<PasswordRepromptService>();
     userDecryptionOptionsService = mock<UserDecryptionOptionsServiceAbstraction>();
     dialogService = mock<DialogService>();
-    accountService = mock<AccountService>();
-
-    const mockUserId = newGuid() as UserId;
-    accountService.activeAccount$ = of({
-      id: mockUserId,
-      email: "test@example.com",
-      name: "Test User",
-      emailVerified: true,
-    });
+    accountService = mockAccountServiceWith(newGuid() as UserId);
 
     cipher = createCipherView();
 
