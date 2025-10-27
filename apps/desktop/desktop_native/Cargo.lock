@@ -441,33 +441,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "bitwarden_chromium_importer"
-version = "0.0.0"
-dependencies = [
- "aes",
- "aes-gcm",
- "anyhow",
- "async-trait",
- "base64",
- "cbc",
- "hex",
- "homedir",
- "napi",
- "napi-derive",
- "oo7",
- "pbkdf2",
- "rand 0.9.1",
- "rusqlite",
- "security-framework",
- "serde",
- "serde_json",
- "sha1",
- "tokio",
- "winapi",
- "windows 0.61.1",
-]
-
-[[package]]
 name = "block-buffer"
 version = "0.10.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -604,6 +577,31 @@ dependencies = [
  "cipher",
  "poly1305",
  "zeroize",
+]
+
+[[package]]
+name = "chromium_importer"
+version = "0.0.0"
+dependencies = [
+ "aes",
+ "aes-gcm",
+ "anyhow",
+ "async-trait",
+ "base64",
+ "cbc",
+ "hex",
+ "homedir",
+ "oo7",
+ "pbkdf2",
+ "rand 0.9.1",
+ "rusqlite",
+ "security-framework",
+ "serde",
+ "serde_json",
+ "sha1",
+ "tokio",
+ "winapi",
+ "windows 0.61.1",
 ]
 
 [[package]]
@@ -968,7 +966,7 @@ dependencies = [
  "anyhow",
  "autotype",
  "base64",
- "bitwarden_chromium_importer",
+ "chromium_importer",
  "desktop_core",
  "hex",
  "napi",
