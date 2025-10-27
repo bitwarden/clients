@@ -1,6 +1,13 @@
 import { mock, MockProxy } from "jest-mock-extended";
+import { of } from "rxjs";
 
-import { makeEncString, makeSymmetricCryptoKey, mockEnc, mockFromJson } from "../../../../spec";
+import {
+  makeEncString,
+  makeSymmetricCryptoKey,
+  mockContainerService,
+  mockEnc,
+  mockFromJson,
+} from "../../../../spec";
 import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
 import { EncryptedString, EncString } from "../../../key-management/crypto/models/enc-string";
 import { FolderData } from "../../models/data/folder.data";
@@ -28,6 +35,14 @@ describe("Folder", () => {
   });
 
   it("Decrypt", async () => {
+    const containerService = mockContainerService();
+    containerService.getKeyService().userKey$.mockReturnValue(of(makeSymmetricCryptoKey(64)));
+    containerService
+      .getEncryptService()
+      .decryptString.mockImplementation(async (encString: EncString, key: any) => {
+        return encString.data;
+      });
+
     const folder = new Folder();
     folder.id = "id";
     folder.name = mockEnc("encName");
