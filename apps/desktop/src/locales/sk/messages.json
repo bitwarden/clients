@@ -1222,6 +1222,15 @@
   "invalidMasterPassword": {
     "message": "Neplatné hlavné heslo"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Neplatné hlavné heslo. Potvrďte, že váš e-mail je správny a účet bol vytvorený na $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "twoStepLoginConfirmation": {
     "message": "Dvojstupňové prihlasovanie robí váš účet bezpečnejším vďaka vyžadovaniu bezpečnostného kódu z overovacej aplikácie vždy, keď sa prihlásite. Dvojstupňové prihlasovanie môžete povoliť vo webovom trezore bitwarden.com. Chcete teraz navštíviť túto stránku?"
   },
@@ -1842,6 +1851,12 @@
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Pri reštarte zamknúť hlavným heslom"
+  },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "Pri reštarte aplikácie vyžadovať hlavné heslo alebo PIN"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "Pri reštarte aplikácie vyžadovať hlavné heslo"
   },
   "deleteAccount": {
     "message": "Odstrániť účet"
@@ -2540,6 +2555,9 @@
       }
     }
   },
+  "vaultCustomTimeoutMinimum": {
+    "message": "Minimálny vlastný časový limit je 1 minúta."
+  },
   "inviteAccepted": {
     "message": "Pozvánka prijatá"
   },
@@ -2651,6 +2669,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Exportuje sa len trezor organizácie spojený s $ORGANIZATION$.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Exportuje sa len trezor organizácie spojený s $ORGANIZATION$. Moje zbierky položiek nebudú zahrnuté.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },
@@ -4080,11 +4116,17 @@
   "showLess": {
     "message": "Zobraziť menej"
   },
-  "enableAutotype": {
-    "message": "Povoliť automatické vpisovanie"
-  },
   "enableAutotypeDescription": {
     "message": "Bitwarden neoveruje miesto stupu, pred použitím skratky sa uistite, že ste v správnom okne a poli."
+  },
+  "typeShortcut": {
+    "message": "Zadajte klávesovú skratku"
+  },
+  "editAutotypeShortcutDescription": {
+    "message": "Použite jeden alebo dva z nasledujúcich modifikátorov: Ctrl, Alt, Win, alebo Shift a písmeno."
+  },
+  "invalidShortcut": {
+    "message": "Neplatná klávesová skratka"
   },
   "moreBreadcrumbs": {
     "message": "Viac",
@@ -4099,19 +4141,24 @@
   "confirm": {
     "message": "Potvrdiť"
   },
-  "enableAutotypeTransitionKey": {
-    "message": "Povoliť skratku automatického písania"
+  "enableAutotypeShortcutPreview": {
+    "message": "Povoliť skratku pre automatické vpisovanie (náhľad funkcie)"
   },
-  "enableAutotypeDescriptionTransitionKey": {
+  "enableAutotypeShortcutDescription": {
     "message": "Pred použitím skratky sa uistite, že sa nachádzate v správnom poli, aby ste údaje nevyplnili na nesprávne miesto."
   },
   "editShortcut": {
     "message": "Upraviť skratku"
   },
-  "archive": {
-    "message": "Archivovať"
+  "archiveNoun": {
+    "message": "Archív",
+    "description": "Noun"
   },
-  "unarchive": {
+  "archiveVerb": {
+    "message": "Archivovať",
+    "description": "Verb"
+  },
+  "unArchive": {
     "message": "Zrušiť archiváciu"
   },
   "itemsInArchive": {
@@ -4123,10 +4170,10 @@
   "noItemsInArchiveDesc": {
     "message": "Tu sa zobrazia archivované položky, ktoré budú vylúčené zo všeobecného vyhľadávania a z návrhov automatického vypĺňania."
   },
-  "itemSentToArchive": {
+  "itemWasSentToArchive": {
     "message": "Položka bola archivovaná"
   },
-  "itemRemovedFromArchive": {
+  "itemWasUnarchived": {
     "message": "Položka bola odobraná z archívu"
   },
   "archiveItem": {

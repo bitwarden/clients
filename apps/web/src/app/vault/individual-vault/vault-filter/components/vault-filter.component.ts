@@ -19,12 +19,12 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { CipherArchiveService } from "@bitwarden/vault";
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 
 import { VaultFilterService } from "../services/abstractions/vault-filter.service";
@@ -44,6 +44,8 @@ import {
 
 import { OrganizationOptionsComponent } from "./organization-options.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-vault-filter",
   templateUrl: "vault-filter.component.html",
@@ -51,10 +53,18 @@ import { OrganizationOptionsComponent } from "./organization-options.component";
 })
 export class VaultFilterComponent implements OnInit, OnDestroy {
   filters?: VaultFilterList;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() activeFilter: VaultFilter = new VaultFilter();
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onEditFolder = new EventEmitter<FolderFilter>();
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() searchText = "";
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() searchTextChanged = new EventEmitter<string>();
 
   isLoaded = false;
@@ -208,15 +218,6 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
   }
 
   applyOrganizationFilter = async (orgNode: TreeNode<OrganizationFilter>): Promise<void> => {
-    if (!orgNode?.node.enabled) {
-      this.toastService.showToast({
-        variant: "error",
-        message: this.i18nService.t("disabledOrganizationFilterError"),
-      });
-      await firstValueFrom(
-        this.organizationWarningsService.showInactiveSubscriptionDialog$(orgNode.node),
-      );
-    }
     const filter = this.activeFilter;
     if (orgNode?.node.id === "AllVaults") {
       filter.resetOrganization();
@@ -251,16 +252,13 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
   };
 
   async buildAllFilters(): Promise<VaultFilterList> {
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    const hasArchiveFlag = await firstValueFrom(this.cipherArchiveService.hasArchiveFlagEnabled$());
     const builderFilter = {} as VaultFilterList;
     builderFilter.organizationFilter = await this.addOrganizationFilter();
     builderFilter.typeFilter = await this.addTypeFilter();
     builderFilter.folderFilter = await this.addFolderFilter();
     builderFilter.collectionFilter = await this.addCollectionFilter();
-    if (
-      (await firstValueFrom(this.cipherArchiveService.userCanArchive$(userId))) ||
-      (await firstValueFrom(this.cipherArchiveService.showArchiveVault$(userId)))
-    ) {
+    if (hasArchiveFlag) {
       builderFilter.archiveFilter = await this.addArchiveFilter();
     }
     builderFilter.trashFilter = await this.addTrashFilter();
@@ -433,7 +431,7 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
         [
           {
             id: "archive",
-            name: this.i18nService.t("archive"),
+            name: this.i18nService.t("archiveNoun"),
             type: "archive",
             icon: "bwi-archive",
           },

@@ -240,11 +240,18 @@ export declare namespace chromium_importer {
     login?: Login
     failure?: LoginImportFailure
   }
+  export interface NativeImporterMetadata {
+    id: string
+    loaders: Array<string>
+    instructions: string
+  }
+  /** Returns OS aware metadata describing supported Chromium based importers as a JSON string. */
+  export function getMetadata(): Record<string, NativeImporterMetadata>
   export function getInstalledBrowsers(): Array<string>
   export function getAvailableProfiles(browser: string): Array<ProfileInfo>
   export function importLogins(browser: string, profileId: string): Promise<Array<LoginImportResult>>
 }
 export declare namespace autotype {
   export function getForegroundWindowTitle(): string
-  export function typeInput(input: Array<number>): void
+  export function typeInput(input: Array<number>, keyboardShortcut: Array<string>): void
 }

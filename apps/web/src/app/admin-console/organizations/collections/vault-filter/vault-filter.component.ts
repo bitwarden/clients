@@ -9,11 +9,11 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { CipherArchiveService } from "@bitwarden/vault";
 
 import { VaultFilterComponent as BaseVaultFilterComponent } from "../../../../vault/individual-vault/vault-filter/components/vault-filter.component";
 import { VaultFilterService } from "../../../../vault/individual-vault/vault-filter/services/abstractions/vault-filter.service";
@@ -24,6 +24,8 @@ import {
 } from "../../../../vault/individual-vault/vault-filter/shared/models/vault-filter-section.type";
 import { CollectionFilter } from "../../../../vault/individual-vault/vault-filter/shared/models/vault-filter.type";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-organization-vault-filter",
   templateUrl:
@@ -34,6 +36,8 @@ export class VaultFilterComponent
   extends BaseVaultFilterComponent
   implements OnInit, OnDestroy, OnChanges
 {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() set organization(value: Organization) {
     if (value && value !== this._organization) {
       this._organization = value;

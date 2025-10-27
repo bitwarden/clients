@@ -320,7 +320,7 @@
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their public key with another user, for the purposes of sharing."
   },
   "twoStepLogin": {
-    "message": "Inici de sessió en dues passes"
+    "message": "Inici de sessió en dos passos"
   },
   "logOut": {
     "message": "Tanca la sessió"
@@ -550,10 +550,15 @@
   "resetSearch": {
     "message": "Restableix la cerca"
   },
-  "archive": {
-    "message": "Archive"
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
   },
-  "unarchive": {
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
+  },
+  "unArchive": {
     "message": "Unarchive"
   },
   "itemsInArchive": {
@@ -565,11 +570,11 @@
   "noItemsInArchiveDesc": {
     "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
   },
-  "itemSentToArchive": {
-    "message": "Item sent to archive"
+  "itemWasSentToArchive": {
+    "message": "Item was sent to archive"
   },
-  "itemRemovedFromArchive": {
-    "message": "Item removed from archive"
+  "itemUnarchived": {
+    "message": "Item was unarchived"
   },
   "archiveItem": {
     "message": "Archive item"
@@ -727,6 +732,15 @@
   },
   "invalidMasterPassword": {
     "message": "Contrasenya mestra no vàlida"
+  },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
   },
   "vaultTimeout": {
     "message": "Temps d'espera de la caixa forta"
@@ -956,7 +970,7 @@
     "message": "Carpeta afegida"
   },
   "twoStepLoginConfirmation": {
-    "message": "L'inici de sessió en dues passes fa que el vostre compte siga més segur, ja que obliga a verificar el vostre inici de sessió amb un altre dispositiu, com ara una clau de seguretat, una aplicació autenticadora, un SMS, una trucada telefònica o un correu electrònic. Es pot habilitar l'inici de sessió en dues passes a la caixa forta web de bitwarden.com. Voleu visitar el lloc web ara?"
+    "message": "L'inici de sessió en dos passos fa que el vostre compte siga més segur, ja que obliga a verificar el vostre inici de sessió amb un altre dispositiu, com ara una clau de seguretat, una aplicació autenticadora, un SMS, una trucada telefònica o un correu electrònic. Es pot habilitar l'inici de sessió en dos passos a la caixa forta web de bitwarden.com. Voleu visitar el lloc web ara?"
   },
   "twoStepLoginConfirmationContent": {
     "message": "Fes que el vostre compte siga més segur configurant l'inici de sessió en dos passos a l'aplicació web de Bitwarden."
@@ -1534,6 +1548,15 @@
   "readSecurityKey": {
     "message": "Read security key"
   },
+  "readingPasskeyLoading": {
+    "message": "Reading passkey..."
+  },
+  "passkeyAuthenticationFailed": {
+    "message": "Passkey authentication failed"
+  },
+  "useADifferentLogInMethod": {
+    "message": "Use a different log in method"
+  },
   "awaitingSecurityKeyInteraction": {
     "message": "Awaiting security key interaction..."
   },
@@ -1541,13 +1564,13 @@
     "message": "Inici de sessió no disponible"
   },
   "noTwoStepProviders": {
-    "message": "Aquest compte té habilitat l'inici de sessió en dues passes, però aquest navegador web no admet cap dels dos proveïdors configurats."
+    "message": "Aquest compte té habilitat l'inici de sessió en dos passos, però aquest navegador web no admet cap dels dos proveïdors configurats."
   },
   "noTwoStepProviders2": {
     "message": "Utilitzeu un navegador web compatible (com ara Chrome) o afegiu proveïdors addicionals que siguen compatibles amb tots els navegadors web (com una aplicació d'autenticació)."
   },
   "twoStepOptions": {
-    "message": "Opcions d'inici de sessió en dues passes"
+    "message": "Opcions d'inici de sessió en dos passos"
   },
   "selectTwoStepLoginMethod": {
     "message": "Select two-step login method"
@@ -1636,13 +1659,13 @@
     "message": "Suggeriments d'emplenament automàtic"
   },
   "autofillSpotlightTitle": {
-    "message": "Easily find autofill suggestions"
+    "message": "Trobeu fàcilment suggeriments d'emplenament automàtic"
   },
   "autofillSpotlightDesc": {
-    "message": "Turn off your browser's autofill settings, so they don't conflict with Bitwarden."
+    "message": "Desactiveu la configuració d'emplenament automàtic del vostre navegador perquè no entren en conflicte amb Bitwarden."
   },
   "turnOffBrowserAutofill": {
-    "message": "Turn off $BROWSER$ autofill",
+    "message": "Desactiveu l'emplenament automàtic de $BROWSER$",
     "placeholders": {
       "browser": {
         "content": "$1",
@@ -1782,7 +1805,7 @@
     "message": "Si feu clic a l'exterior de la finestra emergent per comprovar el vostre correu electrònic amb el codi de verificació, es tancarà aquesta finestra. Voleu obrir aquesta finestra emergent en una finestra nova perquè no es tanque?"
   },
   "showIconsChangePasswordUrls": {
-    "message": "Show website icons and retrieve change password URLs"
+    "message": "Mostra les icones del lloc web i recupera els URL de canvi de contrasenya"
   },
   "cardholderName": {
     "message": "Nom del titular de la targeta"
@@ -3193,6 +3216,24 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "error": {
     "message": "Error"
   },
@@ -3640,7 +3681,7 @@
     "message": "Remember this device to make future logins seamless"
   },
   "manageDevices": {
-    "message": "Manage devices"
+    "message": "Gestiona els dispositius"
   },
   "currentSession": {
     "message": "Current session"
@@ -3683,7 +3724,7 @@
     "message": "Needs approval"
   },
   "devices": {
-    "message": "Devices"
+    "message": "Dispositius"
   },
   "accessAttemptBy": {
     "message": "Access attempt by $EMAIL$",
@@ -4772,22 +4813,22 @@
     "message": "Download Bitwarden"
   },
   "downloadBitwardenOnAllDevices": {
-    "message": "Download Bitwarden on all devices"
+    "message": "Baixa Bitwarden a tots els dispositius"
   },
   "getTheMobileApp": {
     "message": "Get the mobile app"
   },
   "getTheMobileAppDesc": {
-    "message": "Access your passwords on the go with the Bitwarden mobile app."
+    "message": "Accediu a les vostres contrasenyes des de qualsevol lloc amb l'aplicació mòbil Bitwarden."
   },
   "getTheDesktopApp": {
-    "message": "Get the desktop app"
+    "message": "Obteniu l'aplicació d'escriptori"
   },
   "getTheDesktopAppDesc": {
-    "message": "Access your vault without a browser, then set up unlock with biometrics to expedite unlocking in both the desktop app and browser extension."
+    "message": "Accediu a la vostra caixa forta sense navegador i, a continuació, configureu el desbloqueig amb biometria per accelerar el desbloqueig tant a l'aplicació d'escriptori com a l'extensió del navegador."
   },
   "downloadFromBitwardenNow": {
-    "message": "Download from bitwarden.com now"
+    "message": "Baixeu ara des de bitwarden.com"
   },
   "getItOnGooglePlay": {
     "message": "Get it on Google Play"
@@ -5257,10 +5298,10 @@
     "message": "Biometric unlock is currently unavailable for an unknown reason."
   },
   "unlockVault": {
-    "message": "Unlock your vault in seconds"
+    "message": "Desbloqueja la caixa forta en segons"
   },
   "unlockVaultDesc": {
-    "message": "You can customize your unlock and timeout settings to more quickly access your vault."
+    "message": "Podeu personalitzar la configuració de desbloqueig i temps d'espera per accedir més ràpidament a la vostra caixa forta."
   },
   "unlockPinSet": {
     "message": "Unlock PIN set"
@@ -5497,7 +5538,7 @@
     "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
   },
   "introCarouselLabel": {
-    "message": "Welcome to Bitwarden"
+    "message": "Benvinguts a Bitwarden"
   },
   "securityPrioritized": {
     "message": "Security, prioritized"
@@ -5536,28 +5577,48 @@
     "message": "Import now"
   },
   "hasItemsVaultNudgeTitle": {
-    "message": "Welcome to your vault!"
+    "message": "Benvigut/da a la vostra caixa forta!"
   },
-  "phishingPageTitle": {
-    "message": "Phishing website"
+  "phishingPageTitleV2": {
+    "message": "Phishing attempt detected"
   },
-  "phishingPageCloseTab": {
-    "message": "Close tab"
+  "phishingPageSummary": {
+    "message": "The site you are attempting to visit is a known malicious site and a security risk."
   },
-  "phishingPageContinue": {
-    "message": "Continue"
+  "phishingPageCloseTabV2": {
+    "message": "Close this tab"
   },
-  "phishingPageLearnWhy": {
-    "message": "Why are you seeing this?"
+  "phishingPageContinueV2": {
+    "message": "Continue to this site (not recommended)"
+  },
+  "phishingPageExplanation1": {
+    "message": "This site was found in ",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name follows this."
+  },
+  "phishingPageExplanation2": {
+    "message": ", an open-source list of known phishing sites used for stealing personal and sensitive information.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name precedes this."
+  },
+  "phishingPageLearnMore": {
+    "message": "Learn more about phishing detection"
+  },
+  "protectedBy": {
+    "message": "Protected by $PRODUCT$",
+    "placeholders": {
+      "product": {
+        "content": "$1",
+        "example": "Bitwarden Phishing Blocker"
+      }
+    }
   },
   "hasItemsVaultNudgeBodyOne": {
-    "message": "Autofill items for the current page"
+    "message": "Emplena automàticament els elements de la pàgina actual"
   },
   "hasItemsVaultNudgeBodyTwo": {
-    "message": "Favorite items for easy access"
+    "message": "Elements preferits per accedir fàcilment"
   },
   "hasItemsVaultNudgeBodyThree": {
-    "message": "Search your vault for something else"
+    "message": "Cerca altres coses a la caixa forta"
   },
   "newLoginNudgeTitle": {
     "message": "Save time with autofill"
@@ -5609,20 +5670,20 @@
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
   "generatorNudgeTitle": {
-    "message": "Quickly create passwords"
+    "message": "Creeu contrasenyes ràpidament"
   },
   "generatorNudgeBodyOne": {
-    "message": "Easily create strong and unique passwords by clicking on",
+    "message": "Creeu fàcilment contrasenyes fortes i úniques fent clic a",
     "description": "Two part message",
     "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
   },
   "generatorNudgeBodyTwo": {
-    "message": "to help you keep your logins secure.",
+    "message": "per ajudar-vos a mantenir segurs els vostres inicis de sessió.",
     "description": "Two part message",
     "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
   },
   "generatorNudgeBodyAria": {
-    "message": "Easily create strong and unique passwords by clicking on the Generate password button to help you keep your logins secure.",
+    "message": "Creeu fàcilment contrasenyes fortes i úniques fent clic al botó Genera contrasenya per ajudar-vos a mantenir segurs els vostres inicis de sessió.",
     "description": "Aria label for the body content of the generator nudge"
   },
   "aboutThisSetting": {
@@ -5653,5 +5714,12 @@
   },
   "confirmKeyConnectorDomain": {
     "message": "Confirm Key Connector domain"
+  },
+  "atRiskLoginsSecured": {
+    "message": "Great job securing your at-risk logins!"
+  },
+  "settingDisabledByPolicy": {
+    "message": "This setting is disabled by your organization's policy.",
+    "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
   }
 }

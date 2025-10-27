@@ -12,6 +12,12 @@ use super::SecureKeyContainer;
 pub(super) struct MemfdSecretSecureKeyContainer {
     ptr: NonNull<[u8]>,
 }
+// SAFETY: The pointers in this struct are allocated by `memfd_secret`, and we have full ownership.
+// They are never exposed outside or cloned, and are cleaned up by drop.
+unsafe impl Send for MemfdSecretSecureKeyContainer {}
+// SAFETY: The container is non-mutable and thus safe to share between threads. Further, memfd-secret
+// is accessible across threads within the same process bound.
+unsafe impl Sync for MemfdSecretSecureKeyContainer {}
 
 impl SecureKeyContainer for MemfdSecretSecureKeyContainer {
     fn as_key(&self) -> MemoryEncryptionKey {
@@ -35,6 +41,7 @@ impl SecureKeyContainer for MemfdSecretSecureKeyContainer {
         MemfdSecretSecureKeyContainer { ptr }
     }
 
+    /// Note, `memfd_secret` is only available since Linux 6.5, so fallbacks are needed.
     fn is_supported() -> bool {
         // To test if memfd_secret is supported, we try to allocate a 1 byte and see if that
         // succeeds.

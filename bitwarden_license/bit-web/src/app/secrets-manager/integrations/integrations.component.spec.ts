@@ -9,6 +9,7 @@ import {} from "@bitwarden/web-vault/app/shared";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { SYSTEM_THEME_OBSERVABLE } from "@bitwarden/angular/services/injection-tokens";
+import { DatadogOrganizationIntegrationService } from "@bitwarden/bit-common/dirt/organization-integrations/services/datadog-organization-integration-service";
 import { HecOrganizationIntegrationService } from "@bitwarden/bit-common/dirt/organization-integrations/services/hec-organization-integration-service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ThemeType } from "@bitwarden/common/platform/enums";
@@ -37,6 +38,7 @@ class MockNewMenuComponent {}
 describe("IntegrationsComponent", () => {
   let fixture: ComponentFixture<IntegrationsComponent>;
   const hecOrgIntegrationSvc = mock<HecOrganizationIntegrationService>();
+  const datadogOrgIntegrationSvc = mock<DatadogOrganizationIntegrationService>();
 
   const activatedRouteMock = {
     snapshot: { paramMap: { get: jest.fn() } },
@@ -55,6 +57,7 @@ describe("IntegrationsComponent", () => {
         { provide: I18nPipe, useValue: mock<I18nPipe>() },
         { provide: I18nService, useValue: mockI18nService },
         { provide: HecOrganizationIntegrationService, useValue: hecOrgIntegrationSvc },
+        { provide: DatadogOrganizationIntegrationService, useValue: datadogOrgIntegrationSvc },
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(IntegrationsComponent);
@@ -71,7 +74,13 @@ describe("IntegrationsComponent", () => {
       (integrationList.componentInstance as IntegrationGridComponent).integrations.map(
         (i) => i.name,
       ),
-    ).toEqual(["GitHub Actions", "GitLab CI/CD", "Ansible", "Kubernetes Operator"]);
+    ).toEqual([
+      "GitHub Actions",
+      "GitLab CI/CD",
+      "Ansible",
+      "Kubernetes Operator",
+      "Terraform Provider",
+    ]);
 
     expect(
       (sdkList.componentInstance as IntegrationGridComponent).integrations.map((i) => i.name),

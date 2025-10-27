@@ -6,10 +6,12 @@ use rand::{rng, Rng};
 pub(super) const KEY_SIZE: usize = 32;
 pub(super) const NONCE_SIZE: usize = 24;
 
-/// The encryption performed here is XCHACHA20-POLY1305. Any tampering with the key or the ciphertexts will result
-/// in a decryption failure.
+/// The encryption performed here is xchacha-poly1305. Any tampering with the key or the ciphertexts will result
+/// in a decryption failure and panic. The key's memory contents are protected from being swapped to disk
+/// via mlock.
 pub(super) struct MemoryEncryptionKey(NonNull<[u8]>);
 
+/// An encrypted memory blob that must be decrypted using the same key that it was encrypted with.
 pub struct EncryptedMemory {
     nonce: [u8; NONCE_SIZE],
     ciphertext: Vec<u8>,
@@ -22,6 +24,7 @@ impl MemoryEncryptionKey {
         MemoryEncryptionKey::from(&key)
     }
 
+    /// Encrypts the given plaintext using the key.
     #[allow(unused)]
     pub(super) fn encrypt(&self, plaintext: &[u8]) -> EncryptedMemory {
         let cipher = chacha20poly1305::XChaCha20Poly1305::new(Key::from_slice(self.as_ref()));
@@ -33,15 +36,18 @@ impl MemoryEncryptionKey {
         EncryptedMemory { nonce, ciphertext }
     }
 
+    /// Decrypts the given encrypted memory using the key. A decryption failure will panic. This is
+    /// okay because neither the keys nor ciphertexts should ever fail to decrypt, and doing so
+    /// indicates that the process memory was tampered with.
     #[allow(unused)]
-    pub(super) fn decrypt(&self, encrypted: &EncryptedMemory) -> Vec<u8> {
+    pub(super) fn decrypt(&self, encrypted: &EncryptedMemory) -> Result<Vec<u8>, DecryptionError> {
         let cipher = chacha20poly1305::XChaCha20Poly1305::new(Key::from_slice(self.as_ref()));
         cipher
             .decrypt(
                 chacha20poly1305::XNonce::from_slice(&encrypted.nonce),
                 encrypted.ciphertext.as_ref(),
             )
-            .expect("decryption should not fail")
+            .map_err(|_| DecryptionError::CouldNotDecrypt)
     }
 }
 
@@ -70,6 +76,11 @@ impl AsRef<[u8]> for MemoryEncryptionKey {
     }
 }
 
+#[derive(Debug)]
+pub(crate) enum DecryptionError {
+    CouldNotDecrypt,
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -79,7 +90,7 @@ mod tests {
         let key = MemoryEncryptionKey::new();
         let data = b"Hello, world!";
         let encrypted = key.encrypt(data);
-        let decrypted = key.decrypt(&encrypted);
+        let decrypted = key.decrypt(&encrypted).unwrap();
         assert_eq!(data.as_ref(), decrypted.as_slice());
     }
 }

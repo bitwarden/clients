@@ -550,10 +550,15 @@
   "resetSearch": {
     "message": "Zoekopdracht resetten"
   },
-  "archive": {
-    "message": "Archiveren"
+  "archiveNoun": {
+    "message": "Archief",
+    "description": "Noun"
   },
-  "unarchive": {
+  "archiveVerb": {
+    "message": "Archiveren",
+    "description": "Verb"
+  },
+  "unArchive": {
     "message": "Dearchiveren"
   },
   "itemsInArchive": {
@@ -565,11 +570,11 @@
   "noItemsInArchiveDesc": {
     "message": "Gearchiveerde items verschijnen hier en worden uitgesloten van algemene zoekresultaten en automatisch invulsuggesties."
   },
-  "itemSentToArchive": {
+  "itemWasSentToArchive": {
     "message": "Item naar archief verzonden"
   },
-  "itemRemovedFromArchive": {
-    "message": "Item verwijderd uit archief"
+  "itemUnarchived": {
+    "message": "Item uit het archief gehaald"
   },
   "archiveItem": {
     "message": "Item archiveren"
@@ -727,6 +732,15 @@
   },
   "invalidMasterPassword": {
     "message": "Ongeldig hoofdwachtwoord"
+  },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Ongeldig hoofdwachtwoord. Check of je e-mailadres klopt en of je account is aangemaakt op $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
   },
   "vaultTimeout": {
     "message": "Time-out van de kluis"
@@ -1533,6 +1547,15 @@
   },
   "readSecurityKey": {
     "message": "Beveiligingssleutel lezen"
+  },
+  "readingPasskeyLoading": {
+    "message": "Passkey uitlezen..."
+  },
+  "passkeyAuthenticationFailed": {
+    "message": "Passkey-authenticatie mislukt"
+  },
+  "useADifferentLogInMethod": {
+    "message": "Gebruik een andere loginmethode"
   },
   "awaitingSecurityKeyInteraction": {
     "message": "Wacht op interactie met beveiligingssleutel…"
@@ -3193,6 +3216,24 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Alleen de organisatiekluis die gekoppeld is aan $ORGANIZATION$ wordt geëxporteerd.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Exporteert alleen de organisatiekluis van $ORGANIZATION$. Geen persoonlijke kluis-items.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "error": {
     "message": "Fout"
   },
@@ -3432,10 +3473,10 @@
     "message": "Premium-abonnement vereist"
   },
   "organizationIsDisabled": {
-    "message": "Organisatie is uitgeschakeld."
+    "message": "Organisatie opgeschort."
   },
   "disabledOrganizationFilterError": {
-    "message": "Je kunt uitgeschakelde items in een organisatie niet benaderen. Neem contact op met de eigenaar van je organisatie voor hulp."
+    "message": "Je kunt items in opgeschorte organisaties niet benaderen. Neem contact op met de eigenaar van je organisatie voor hulp."
   },
   "loggingInTo": {
     "message": "Inloggen op $DOMAIN$",
@@ -5538,17 +5579,37 @@
   "hasItemsVaultNudgeTitle": {
     "message": "Welkom in je kluis!"
   },
-  "phishingPageTitle": {
-    "message": "Kwaadaardige website"
+  "phishingPageTitleV2": {
+    "message": "Phishing-poging gedetecteerd"
   },
-  "phishingPageCloseTab": {
-    "message": "Tabblad sluiten"
+  "phishingPageSummary": {
+    "message": "De site die je probeert te bezoeken is een bekende kwaadaardige site en een veiligheidsrisico."
   },
-  "phishingPageContinue": {
-    "message": "Doorgaan"
+  "phishingPageCloseTabV2": {
+    "message": "Dit tabblad sluiten"
   },
-  "phishingPageLearnWhy": {
-    "message": "Waarom zie je dit?"
+  "phishingPageContinueV2": {
+    "message": "Doorgaan naar deze site (niet aanbevolen)"
+  },
+  "phishingPageExplanation1": {
+    "message": "Deze site is gevonden in ",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name follows this."
+  },
+  "phishingPageExplanation2": {
+    "message": ", een open-source lijst van bekende phishing-sites die worden gebruikt om persoonlijke en gevoelige informatie te stelen.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name precedes this."
+  },
+  "phishingPageLearnMore": {
+    "message": "Leer meer over phishing-detectie"
+  },
+  "protectedBy": {
+    "message": "Beschermd door $PRODUCT$",
+    "placeholders": {
+      "product": {
+        "content": "$1",
+        "example": "Bitwarden Phishing Blocker"
+      }
+    }
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Automatisch invullen van items voor de huidige pagina"
@@ -5653,5 +5714,12 @@
   },
   "confirmKeyConnectorDomain": {
     "message": "Key Connector-domein bevestigen"
+  },
+  "atRiskLoginsSecured": {
+    "message": "Goed gedaan, je hebt je risicovolle inloggegevens verbeterd!"
+  },
+  "settingDisabledByPolicy": {
+    "message": "Deze instelling is uitgeschakeld door het beleid van uw organisatie.",
+    "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
   }
 }

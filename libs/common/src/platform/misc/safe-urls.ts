@@ -17,13 +17,13 @@ const CanLaunchWhitelist = [
 ];
 
 export class SafeUrls {
-  static canLaunch(uri: string): boolean {
+  static canLaunch(uri: string | null | undefined): boolean {
     if (Utils.isNullOrWhitespace(uri)) {
       return false;
     }
 
     for (let i = 0; i < CanLaunchWhitelist.length; i++) {
-      if (uri.indexOf(CanLaunchWhitelist[i]) === 0) {
+      if (uri!.indexOf(CanLaunchWhitelist[i]) === 0) {
         return true;
       }
     }

@@ -1222,6 +1222,15 @@
   "invalidMasterPassword": {
     "message": "Грешна главна парола"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Грешна главна парола. Проверете дали е-пощата е правилна и дали акаунтът Ви е създаден в $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "twoStepLoginConfirmation": {
     "message": "Двустепенното вписване защищава регистрацията ви като ви кара да потвърдите влизането си чрез устройство-ключ, приложение за идентификация, мобилно съобщение, телефонно обаждане или е-поща. Двустепенното вписване може да се включи чрез сайта bitwarden.com. Искате ли да го посетите?"
   },
@@ -1842,6 +1851,12 @@
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Заключване с главната парола при повторно пускане"
+  },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "Изискване на главната парола или ПИН код при повторно пускане на приложението"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "Изискване на главната парола при повторно пускане на приложението"
   },
   "deleteAccount": {
     "message": "Изтриване на регистрацията"
@@ -2540,6 +2555,9 @@
       }
     }
   },
+  "vaultCustomTimeoutMinimum": {
+    "message": "Минималното персонализирано време за достъп е 1 минута."
+  },
   "inviteAccepted": {
     "message": "Поканата е приета"
   },
@@ -2651,6 +2669,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Ще бъдат изнесени само записите от трезора свързан с $ORGANIZATION$.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Само трезора свързан с $ORGANIZATION$ ще бъде експортиран. Моите записи няма да бъдат включени.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },
@@ -4080,11 +4116,17 @@
   "showLess": {
     "message": "Показване на по-малко"
   },
-  "enableAutotype": {
-    "message": "Включване на автоматичното въвеждане"
-  },
   "enableAutotypeDescription": {
     "message": "Битуорден не проверява местата за въвеждане, така че се уверете, че сте в правилния прозорец, преди да ползвате клавишната комбинация."
+  },
+  "typeShortcut": {
+    "message": "Комбинация за въвеждане"
+  },
+  "editAutotypeShortcutDescription": {
+    "message": "Използвайте един или повече от модификаторите Ctrl, Alt, Win или Shift, заедно с някоя буква."
+  },
+  "invalidShortcut": {
+    "message": "Неправилна комбинация"
   },
   "moreBreadcrumbs": {
     "message": "Още елементи в пътечката",
@@ -4099,19 +4141,24 @@
   "confirm": {
     "message": "Потвърждаване"
   },
-  "enableAutotypeTransitionKey": {
-    "message": "Включване на клавишната комбинация за автоматично попълване"
+  "enableAutotypeShortcutPreview": {
+    "message": "Включване на комбинация за автоматично попълване (Функционалност в изпитание)"
   },
-  "enableAutotypeDescriptionTransitionKey": {
-    "message": "Уверете се, че сет в правилното поле, преди да използвате комбинацията, за да избегнете попълването на данните на грешното място."
+  "enableAutotypeShortcutDescription": {
+    "message": "Уверете се, че сте в правилното поле, преди да използвате комбинацията, за да избегнете попълването на данните на грешното място."
   },
   "editShortcut": {
     "message": "Редактиране на комбинацията"
   },
-  "archive": {
-    "message": "Архивиране"
+  "archiveNoun": {
+    "message": "Архив",
+    "description": "Noun"
   },
-  "unarchive": {
+  "archiveVerb": {
+    "message": "Архивиране",
+    "description": "Verb"
+  },
+  "unArchive": {
     "message": "Изваждане от архива"
   },
   "itemsInArchive": {
@@ -4123,11 +4170,11 @@
   "noItemsInArchiveDesc": {
     "message": "Архивираните елементи ще се показват тук и ще бъдат изключени от общите резултати при търсене и от предложенията за автоматично попълване."
   },
-  "itemSentToArchive": {
-    "message": "Елементът е преместен в архива"
+  "itemWasSentToArchive": {
+    "message": "Елементът беше преместен в архива"
   },
-  "itemRemovedFromArchive": {
-    "message": "Елементът е изваден от архива"
+  "itemWasUnarchived": {
+    "message": "Елементът беше изваден от архива"
   },
   "archiveItem": {
     "message": "Архивиране на елемента"

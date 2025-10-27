@@ -1,3 +1,5 @@
+use tracing::error;
+
 use crate::secure_memory::{
     secure_key::{EncryptedMemory, SecureMemoryEncryptionKey},
     SecureMemoryStore,
@@ -13,32 +15,40 @@ use crate::secure_memory::{
 #[allow(unused)]
 pub(crate) struct EncryptedMemoryStore {
     map: std::collections::HashMap<String, EncryptedMemory>,
-    key: SecureMemoryEncryptionKey,
+    memory_encryption_key: SecureMemoryEncryptionKey,
 }
-
-unsafe impl Sync for EncryptedMemoryStore {}
-unsafe impl Send for EncryptedMemoryStore {}
 
 impl EncryptedMemoryStore {
     #[allow(unused)]
     pub(crate) fn new() -> Self {
         EncryptedMemoryStore {
             map: std::collections::HashMap::new(),
-            key: SecureMemoryEncryptionKey::new(),
+            memory_encryption_key: SecureMemoryEncryptionKey::new(),
         }
     }
 }
 
 impl SecureMemoryStore for EncryptedMemoryStore {
     fn put(&mut self, key: String, value: &[u8]) {
-        let encrypted_value = self.key.encrypt(value);
+        let encrypted_value = self.memory_encryption_key.encrypt(value);
         self.map.insert(key, encrypted_value);
     }
 
-    fn get(&self, key: &str) -> Option<Vec<u8>> {
-        self.map
-            .get(key)
-            .map(|encrypted_value| self.key.decrypt(encrypted_value))
+    fn get(&mut self, key: &str) -> Option<Vec<u8>> {
+        let encrypted_memory = self.map.get(key);
+        if let Some(encrypted_memory) = encrypted_memory {
+            match self.memory_encryption_key.decrypt(encrypted_memory) {
+                Ok(plaintext) => Some(plaintext),
+                Err(_) => {
+                    error!("In memory store, decryption failed for key {}. The memory may have been tampered with. re-keying.", key);
+                    self.memory_encryption_key = SecureMemoryEncryptionKey::new();
+                    self.clear();
+                    None
+                }
+            }
+        } else {
+            None
+        }
     }
 
     fn has(&self, key: &str) -> bool {

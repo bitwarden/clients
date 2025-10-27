@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
-import { filter, firstValueFrom, map, Observable, switchMap } from "rxjs";
+import { combineLatest, filter, firstValueFrom, map, Observable, switchMap } from "rxjs";
 
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -17,6 +17,8 @@ import { SharedModule } from "../../../shared";
 
 import { VaultBannersService, VisibleVaultBanner } from "./services/vault-banners.service";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-vault-banners",
   templateUrl: "./vault-banners.component.html",
@@ -32,6 +34,8 @@ export class VaultBannersComponent implements OnInit {
   visibleBanners: VisibleVaultBanner[] = [];
   premiumBannerVisible$: Observable<boolean>;
   VisibleVaultBanner = VisibleVaultBanner;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() organizations: Organization[] = [];
 
   private activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a?.id));
@@ -45,7 +49,17 @@ export class VaultBannersComponent implements OnInit {
   ) {
     this.premiumBannerVisible$ = this.activeUserId$.pipe(
       filter((userId): userId is UserId => userId != null),
-      switchMap((userId) => this.vaultBannerService.shouldShowPremiumBanner$(userId)),
+      switchMap((userId) =>
+        combineLatest([
+          this.vaultBannerService.shouldShowPremiumBanner$(userId),
+          this.configService.getFeatureFlag$(FeatureFlag.PM24996_ImplementUpgradeFromFreeDialog),
+        ]).pipe(
+          map(
+            ([shouldShowBanner, PM24996_ImplementUpgradeFromFreeDialogEnabled]) =>
+              shouldShowBanner && !PM24996_ImplementUpgradeFromFreeDialogEnabled,
+          ),
+        ),
+      ),
     );
 
     // Listen for auth request messages and show banner immediately
@@ -75,16 +89,12 @@ export class VaultBannersComponent implements OnInit {
   }
 
   async navigateToPaymentMethod(organizationId: string): Promise<void> {
-    const managePaymentDetailsOutsideCheckout = await this.configService.getFeatureFlag(
-      FeatureFlag.PM21881_ManagePaymentDetailsOutsideCheckout,
-    );
-    const route = managePaymentDetailsOutsideCheckout ? "payment-details" : "payment-method";
     const navigationExtras = {
       state: { launchPaymentModalAutomatically: true },
     };
 
     await this.router.navigate(
-      ["organizations", organizationId, "billing", route],
+      ["organizations", organizationId, "billing", "payment-details"],
       navigationExtras,
     );
   }
@@ -100,14 +110,12 @@ export class VaultBannersComponent implements OnInit {
     const showBrowserOutdated =
       await this.vaultBannerService.shouldShowUpdateBrowserBanner(activeUserId);
     const showVerifyEmail = await this.vaultBannerService.shouldShowVerifyEmailBanner(activeUserId);
-    const showLowKdf = await this.vaultBannerService.shouldShowLowKDFBanner(activeUserId);
     const showPendingAuthRequest =
       await this.vaultBannerService.shouldShowPendingAuthRequestBanner(activeUserId);
 
     this.visibleBanners = [
       showBrowserOutdated ? VisibleVaultBanner.OutdatedBrowser : null,
       showVerifyEmail ? VisibleVaultBanner.VerifyEmail : null,
-      showLowKdf ? VisibleVaultBanner.KDFSettings : null,
       showPendingAuthRequest ? VisibleVaultBanner.PendingAuthRequest : null,
     ].filter((banner) => banner !== null);
   }

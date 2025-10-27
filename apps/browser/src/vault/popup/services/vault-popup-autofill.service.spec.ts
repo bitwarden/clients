@@ -204,6 +204,7 @@ describe("VaultPopupAutofillService", () => {
 
     describe("doAutofill()", () => {
       it("should return true if autofill is successful", async () => {
+        mockCipher.id = "test-cipher-id";
         mockAutofillService.doAutoFill.mockResolvedValue(null);
         const result = await service.doAutofill(mockCipher);
         expect(result).toBe(true);
@@ -251,6 +252,7 @@ describe("VaultPopupAutofillService", () => {
       });
 
       it("should copy TOTP code to clipboard if available", async () => {
+        mockCipher.id = "test-cipher-id-with-totp";
         const totpCode = "123456";
         mockAutofillService.doAutoFill.mockResolvedValue(totpCode);
         await service.doAutofill(mockCipher);
@@ -403,6 +405,27 @@ describe("VaultPopupAutofillService", () => {
           title: null,
           message: mockI18nService.t("autoFillSuccessAndSavedUri"),
         });
+      });
+    });
+    describe("handleAutofillSuggestionUsed", () => {
+      const cipherId = "cipher-123";
+
+      beforeEach(() => {
+        mockCipherService.updateLastUsedDate.mockResolvedValue(undefined);
+      });
+
+      it("updates last used date when there is an active user", async () => {
+        await service.handleAutofillSuggestionUsed({ cipherId });
+
+        expect(mockCipherService.updateLastUsedDate).toHaveBeenCalledTimes(1);
+        expect(mockCipherService.updateLastUsedDate).toHaveBeenCalledWith(cipherId, mockUserId);
+      });
+
+      it("does nothing when there is no active user", async () => {
+        accountService.activeAccount$ = of(null);
+        await service.handleAutofillSuggestionUsed({ cipherId });
+
+        expect(mockCipherService.updateLastUsedDate).not.toHaveBeenCalled();
       });
     });
   });

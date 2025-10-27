@@ -17,6 +17,8 @@ export type AdvancedUriOptionDialogParams = {
   onContinue: () => void;
 };
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "advanced-uri-option-dialog.component.html",
   imports: [ButtonLinkDirective, ButtonModule, DialogModule, JslibModule],

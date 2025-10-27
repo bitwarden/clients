@@ -13,6 +13,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherId } from "@bitwarden/common/types/guid";
+import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
@@ -28,11 +29,13 @@ import {
   MenuModule,
   ToastService,
 } from "@bitwarden/components";
-import { CipherArchiveService, PasswordRepromptService } from "@bitwarden/vault";
+import { PasswordRepromptService } from "@bitwarden/vault";
 
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
 import { AddEditQueryParams } from "../add-edit/add-edit-v2.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-item-more-options",
   templateUrl: "./item-more-options.component.html",
@@ -41,6 +44,8 @@ import { AddEditQueryParams } from "../add-edit/add-edit-v2.component";
 export class ItemMoreOptionsComponent {
   private _cipher$ = new BehaviorSubject<CipherViewLike>(undefined);
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({
     required: true,
   })
@@ -56,6 +61,8 @@ export class ItemMoreOptionsComponent {
    * Flag to show view item menu option. Used when something else is
    * assigned as the primary action for the item, such as autofill.
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ transform: booleanAttribute })
   showViewOption: boolean;
 
@@ -63,6 +70,8 @@ export class ItemMoreOptionsComponent {
    * Flag to hide the autofill menu options. Used for items that are
    * already in the autofill list suggestion.
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ transform: booleanAttribute })
   hideAutofillOptions: boolean;
 
@@ -117,6 +126,10 @@ export class ItemMoreOptionsComponent {
     map(([cipher, canArchive]) => {
       return canArchive && !CipherViewLikeUtils.isArchived(cipher) && cipher.organizationId == null;
     }),
+  );
+
+  protected canDelete$ = this._cipher$.pipe(
+    switchMap((cipher) => this.cipherAuthorizationService.canDeleteCipher$(cipher)),
   );
 
   constructor(
@@ -251,6 +264,42 @@ export class ItemMoreOptionsComponent {
     });
   }
 
+  protected async edit() {
+    if (this.cipher.reprompt && !(await this.passwordRepromptService.showPasswordPrompt())) {
+      return;
+    }
+
+    await this.router.navigate(["/edit-cipher"], {
+      queryParams: { cipherId: this.cipher.id, type: CipherViewLikeUtils.getType(this.cipher) },
+    });
+  }
+
+  protected async delete() {
+    const repromptPassed = await this.passwordRepromptService.passwordRepromptCheck(this.cipher);
+    if (!repromptPassed) {
+      return;
+    }
+
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: { key: "deleteItem" },
+      content: { key: "deleteItemConfirmation" },
+      type: "warning",
+    });
+
+    if (!confirmed) {
+      return;
+    }
+
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
+    await this.cipherService.softDeleteWithServer(this.cipher.id as CipherId, activeUserId);
+
+    this.toastService.showToast({
+      variant: "success",
+      message: this.i18nService.t("deletedItem"),
+    });
+  }
+
   async archive() {
     const confirmed = await this.dialogService.openSimpleDialog({
       title: { key: "archiveItem" },
@@ -266,7 +315,7 @@ export class ItemMoreOptionsComponent {
     await this.cipherArchiveService.archiveWithServer(this.cipher.id as CipherId, activeUserId);
     this.toastService.showToast({
       variant: "success",
-      message: this.i18nService.t("itemSentToArchive"),
+      message: this.i18nService.t("itemWasSentToArchive"),
     });
   }
 }
