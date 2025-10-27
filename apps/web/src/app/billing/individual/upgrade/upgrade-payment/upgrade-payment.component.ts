@@ -1,12 +1,12 @@
 import {
-  AfterViewChecked,
+  AfterViewInit,
   Component,
   DestroyRef,
   input,
   OnInit,
   output,
   signal,
-  ViewChild,
+  viewChild,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
@@ -19,6 +19,7 @@ import {
   catchError,
   of,
   combineLatest,
+  map,
 } from "rxjs";
 
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
@@ -96,7 +97,7 @@ export type UpgradePaymentParams = {
   providers: [UpgradePaymentService],
   templateUrl: "./upgrade-payment.component.html",
 })
-export class UpgradePaymentComponent implements OnInit, AfterViewChecked {
+export class UpgradePaymentComponent implements OnInit, AfterViewInit {
   protected readonly selectedPlanId = input.required<PersonalSubscriptionPricingTierId>();
   protected readonly account = input.required<Account>();
   protected goBack = output<void>();
@@ -104,12 +105,8 @@ export class UpgradePaymentComponent implements OnInit, AfterViewChecked {
   protected selectedPlan: PlanDetails | null = null;
   protected hasEnoughAccountCredit$!: Observable<boolean>;
 
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @ViewChild(EnterPaymentMethodComponent) paymentComponent!: EnterPaymentMethodComponent;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @ViewChild(CartSummaryComponent) cartSummaryComponent!: CartSummaryComponent;
+  readonly paymentMethodComponent = viewChild.required(EnterPaymentMethodComponent);
+  readonly cartSummaryComponent = viewChild.required(CartSummaryComponent);
 
   protected formGroup = new FormGroup({
     organizationName: new FormControl<string>("", [Validators.required]),
@@ -123,7 +120,7 @@ export class UpgradePaymentComponent implements OnInit, AfterViewChecked {
 
   // Cart Summary data
   protected passwordManager!: LineItem;
-  protected estimatedTax = 0;
+  protected estimatedTax$!: Observable<number>;
 
   // Display data
   protected upgradeToMessage = "";
@@ -165,47 +162,50 @@ export class UpgradePaymentComponent implements OnInit, AfterViewChecked {
         this.upgradeToMessage = this.i18nService.t(
           this.isFamiliesPlan ? "upgradeToFamilies" : "upgradeToPremium",
         );
-
-        this.estimatedTax = 0;
       } else {
         this.complete.emit({ status: UpgradePaymentStatus.Closed, organizationId: null });
         return;
       }
     });
 
-    this.formGroup.controls.billingAddress.valueChanges
-      .pipe(
-        debounceTime(1000),
-        // Only proceed when form has required values
-        switchMap(() => this.refreshSalesTax$()),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe((tax) => {
-        this.estimatedTax = tax;
-      });
+    this.estimatedTax$ = this.formGroup.valueChanges.pipe(
+      startWith(0),
+      debounceTime(1000),
+      // Only proceed when form has required values
+      switchMap(() => this.refreshSalesTax$()),
+    );
 
-    // Check if user has enough account credit for the purchase
-    this.hasEnoughAccountCredit$ = combineLatest([
-      this.upgradePaymentService.accountCredit$,
-      this.formGroup.valueChanges.pipe(startWith(this.formGroup.value)),
-    ]).pipe(
-      switchMap(([credit, formValue]) => {
-        const selectedPaymentType = formValue.paymentForm?.type;
-        if (selectedPaymentType !== NonTokenizablePaymentMethods.accountCredit) {
-          return of(true); // Not using account credit, so this check doesn't apply
-        }
-
-        return credit ? of(credit >= this.cartSummaryComponent.total()) : of(false);
-      }),
+    // Check if user has enough account credit for the purchase by reacting to tax updates
+    this.hasEnoughAccountCredit$ = this.estimatedTax$.pipe(
+      switchMap(() =>
+        combineLatest([
+          this.upgradePaymentService.accountCredit$,
+          this.formGroup.valueChanges.pipe(startWith(this.formGroup.value)),
+        ]).pipe(
+          map(([credit, currentFormValue]) => {
+            const selectedPaymentType = currentFormValue.paymentForm?.type;
+            if (selectedPaymentType !== NonTokenizablePaymentMethods.accountCredit) {
+              return true; // Not using account credit, so this check doesn't apply
+            }
+            const cartSummaryComponent = this.cartSummaryComponent();
+            if (!cartSummaryComponent) {
+              return false;
+            }
+            const total = cartSummaryComponent.total();
+            return credit ? credit >= total : false;
+          }),
+        ),
+      ),
     );
 
     this.loading.set(false);
   }
 
-  ngAfterViewChecked(): void {
+  ngAfterViewInit(): void {
     // Configure cart summary only once when it becomes available
-    if (this.cartSummaryComponent && !this.cartSummaryConfigured) {
-      this.cartSummaryComponent.isExpanded.set(false);
+    const cartSummaryComponent = this.cartSummaryComponent();
+    if (cartSummaryComponent && !this.cartSummaryConfigured) {
+      cartSummaryComponent.isExpanded.set(false);
       this.cartSummaryConfigured = true;
     }
   }
@@ -252,7 +252,7 @@ export class UpgradePaymentComponent implements OnInit, AfterViewChecked {
   };
 
   protected isFormValid(): boolean {
-    return this.formGroup.valid && this.paymentComponent?.validate();
+    return this.formGroup.valid && this.paymentMethodComponent().validate();
   }
 
   private async processUpgrade(): Promise<UpgradePaymentResult> {
@@ -335,7 +335,7 @@ export class UpgradePaymentComponent implements OnInit, AfterViewChecked {
       return { type: NonTokenizablePaymentMethods.accountCredit };
     }
 
-    return await this.paymentComponent?.tokenize();
+    return await this.paymentMethodComponent().tokenize();
   }
 
   // Create an observable for tax calculation
@@ -345,7 +345,9 @@ export class UpgradePaymentComponent implements OnInit, AfterViewChecked {
     }
 
     const billingAddress = getBillingAddressFromForm(this.formGroup.controls.billingAddress);
-
+    if (!billingAddress.country || !billingAddress.postalCode) {
+      return of(0);
+    }
     return from(
       this.upgradePaymentService.calculateEstimatedTax(this.selectedPlan, billingAddress),
     ).pipe(
