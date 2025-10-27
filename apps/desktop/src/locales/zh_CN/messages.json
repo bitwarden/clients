@@ -388,7 +388,7 @@
     "message": "州 / 省"
   },
   "zipPostalCode": {
-    "message": "邮政编码"
+    "message": "ZIP / 邮政编码"
   },
   "country": {
     "message": "国家/地区"
@@ -1042,7 +1042,7 @@
     "message": "身份验证超时"
   },
   "authenticationSessionTimedOut": {
-    "message": "身份验证会话超时。请重新启动登录过程。"
+    "message": "身份验证会话超时。请重新开始登录过程。"
   },
   "selfHostBaseUrl": {
     "message": "自托管服务器 URL",
@@ -1221,6 +1221,15 @@
   },
   "invalidMasterPassword": {
     "message": "无效的主密码"
+  },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "无效的主密码。请确认您的电子邮箱正确无误，以及您的账户是在 $HOST$ 上创建的。",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
   },
   "twoStepLoginConfirmation": {
     "message": "两步登录要求您从其他设备（例如安全密钥、验证器 App、短信、电话或者电子邮件）来验证您的登录，这能使您的账户更加安全。两步登录需要在 bitwarden.com 网页版密码库中设置。现在访问此网站吗？"
@@ -1842,6 +1851,12 @@
   },
   "lockWithMasterPassOnRestart1": {
     "message": "重启后使用主密码锁定"
+  },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "App 重启时要求主密码或 PIN 码"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "App 重启时要求主密码"
   },
   "deleteAccount": {
     "message": "删除账户"
@@ -2540,6 +2555,9 @@
       }
     }
   },
+  "vaultCustomTimeoutMinimum": {
+    "message": "自定义超时时间最小为 1 分钟。"
+  },
   "inviteAccepted": {
     "message": "邀请已接受"
   },
@@ -2595,13 +2613,13 @@
     "message": "偏好设置"
   },
   "appPreferences": {
-    "message": "应用程序设置（所有账户）"
+    "message": "App 设置（所有账户）"
   },
   "accountSwitcherLimitReached": {
     "message": "已达到账户上限。请注销一个账户后再添加其他账户。"
   },
   "settingsTitle": {
-    "message": "$EMAIL$ 的应用程序设置",
+    "message": "$EMAIL$ 的 App 设置",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2651,6 +2669,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "仅会导出与 $ORGANIZATION$ 关联的组织密码库。",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "仅会导出与 $ORGANIZATION$ 关联的组织密码库。不包括「我的项目」集合。",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },
@@ -4087,7 +4123,7 @@
     "message": "输入快捷键"
   },
   "editAutotypeShortcutDescription": {
-    "message": "包括以下一个或两个修饰符：Ctrl、Alt、Win 或 Shift，外加一个字母。"
+    "message": "包含以下一个或两个修饰符：Ctrl、Alt、Win 或 Shift，外加一个字母。"
   },
   "invalidShortcut": {
     "message": "无效的快捷键"
@@ -4108,21 +4144,21 @@
   "enableAutotypeShortcutPreview": {
     "message": "启用自动输入快捷键（功能预览）"
   },
-  "enableAutotypeDescriptionTransitionKey": {
+  "enableAutotypeShortcutDescription": {
     "message": "在使用快捷键之前，请确保您位于正确的字段中，以避免将数据填入错误的地方。"
   },
   "editShortcut": {
     "message": "编辑快捷键"
   },
   "archiveNoun": {
-    "message": "Archive",
+    "message": "归档",
     "description": "Noun"
   },
   "archiveVerb": {
-    "message": "Archive",
+    "message": "归档",
     "description": "Verb"
   },
-  "unarchive": {
+  "unArchive": {
     "message": "取消归档"
   },
   "itemsInArchive": {
@@ -4134,10 +4170,10 @@
   "noItemsInArchiveDesc": {
     "message": "已归档的项目将显示在此处，并将被排除在一般搜索结果和自动填充建议之外。"
   },
-  "itemSentToArchive": {
-    "message": "项目已归档"
+  "itemWasSentToArchive": {
+    "message": "项目已发送到归档"
   },
-  "itemRemovedFromArchive": {
+  "itemWasUnarchived": {
     "message": "项目已取消归档"
   },
   "archiveItem": {

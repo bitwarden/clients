@@ -88,7 +88,7 @@ export class BitwardenJsonImporter extends BaseImporter implements Importer {
 
     for (const c of results.items) {
       const cipher = CipherWithIdExport.toDomain(c);
-      // reset ids incase they were set for some reason
+      // reset ids in case they were set for some reason
       cipher.id = null;
       cipher.organizationId = this.organizationId;
       cipher.collectionIds = null;
@@ -131,7 +131,7 @@ export class BitwardenJsonImporter extends BaseImporter implements Importer {
 
     results.items.forEach((c) => {
       const cipher = CipherWithIdExport.toView(c);
-      // reset ids incase they were set for some reason
+      // reset ids in case they were set for some reason
       cipher.id = null;
       cipher.organizationId = null;
       cipher.collectionIds = null;

@@ -37,8 +37,6 @@ import {
   ProviderUserUserDetailsResponse,
 } from "../admin-console/models/response/provider/provider-user.response";
 import { SelectionReadOnlyResponse } from "../admin-console/models/response/selection-read-only.response";
-import { DeviceVerificationRequest } from "../auth/models/request/device-verification.request";
-import { DisableTwoFactorAuthenticatorRequest } from "../auth/models/request/disable-two-factor-authenticator.request";
 import { EmailTokenRequest } from "../auth/models/request/email-token.request";
 import { EmailRequest } from "../auth/models/request/email.request";
 import { PasswordTokenRequest } from "../auth/models/request/identity-token/password-token.request";
@@ -48,34 +46,15 @@ import { WebAuthnLoginTokenRequest } from "../auth/models/request/identity-token
 import { PasswordHintRequest } from "../auth/models/request/password-hint.request";
 import { PasswordlessAuthRequest } from "../auth/models/request/passwordless-auth.request";
 import { SecretVerificationRequest } from "../auth/models/request/secret-verification.request";
-import { TwoFactorEmailRequest } from "../auth/models/request/two-factor-email.request";
-import { TwoFactorProviderRequest } from "../auth/models/request/two-factor-provider.request";
 import { UpdateProfileRequest } from "../auth/models/request/update-profile.request";
-import { UpdateTwoFactorAuthenticatorRequest } from "../auth/models/request/update-two-factor-authenticator.request";
-import { UpdateTwoFactorDuoRequest } from "../auth/models/request/update-two-factor-duo.request";
-import { UpdateTwoFactorEmailRequest } from "../auth/models/request/update-two-factor-email.request";
-import { UpdateTwoFactorWebAuthnDeleteRequest } from "../auth/models/request/update-two-factor-web-authn-delete.request";
-import { UpdateTwoFactorWebAuthnRequest } from "../auth/models/request/update-two-factor-web-authn.request";
-import { UpdateTwoFactorYubikeyOtpRequest } from "../auth/models/request/update-two-factor-yubikey-otp.request";
 import { ApiKeyResponse } from "../auth/models/response/api-key.response";
 import { AuthRequestResponse } from "../auth/models/response/auth-request.response";
-import { DeviceVerificationResponse } from "../auth/models/response/device-verification.response";
 import { IdentityDeviceVerificationResponse } from "../auth/models/response/identity-device-verification.response";
 import { IdentityTokenResponse } from "../auth/models/response/identity-token.response";
 import { IdentityTwoFactorResponse } from "../auth/models/response/identity-two-factor.response";
 import { KeyConnectorUserKeyResponse } from "../auth/models/response/key-connector-user-key.response";
 import { PreloginResponse } from "../auth/models/response/prelogin.response";
 import { SsoPreValidateResponse } from "../auth/models/response/sso-pre-validate.response";
-import { TwoFactorAuthenticatorResponse } from "../auth/models/response/two-factor-authenticator.response";
-import { TwoFactorDuoResponse } from "../auth/models/response/two-factor-duo.response";
-import { TwoFactorEmailResponse } from "../auth/models/response/two-factor-email.response";
-import { TwoFactorProviderResponse } from "../auth/models/response/two-factor-provider.response";
-import { TwoFactorRecoverResponse } from "../auth/models/response/two-factor-recover.response";
-import {
-  ChallengeResponse,
-  TwoFactorWebAuthnResponse,
-} from "../auth/models/response/two-factor-web-authn.response";
-import { TwoFactorYubiKeyResponse } from "../auth/models/response/two-factor-yubi-key.response";
 import { BitPayInvoiceRequest } from "../billing/models/request/bit-pay-invoice.request";
 import { BillingHistoryResponse } from "../billing/models/response/billing-history.response";
 import { PaymentResponse } from "../billing/models/response/payment.response";
@@ -163,7 +142,7 @@ export abstract class ApiService {
   ): Promise<
     IdentityTokenResponse | IdentityTwoFactorResponse | IdentityDeviceVerificationResponse
   >;
-  abstract refreshIdentityToken(): Promise<any>;
+  abstract refreshIdentityToken(userId?: UserId): Promise<any>;
 
   abstract getProfile(): Promise<ProfileResponse>;
   abstract getUserSubscription(): Promise<SubscriptionResponse>;
@@ -215,7 +194,10 @@ export abstract class ApiService {
     cipherId: string,
     attachmentId: string,
   ): Promise<AttachmentResponse>;
-  abstract getCiphersOrganization(organizationId: string): Promise<ListResponse<CipherResponse>>;
+  abstract getCiphersOrganization(
+    organizationId: string,
+    includeMemberItems?: boolean,
+  ): Promise<ListResponse<CipherResponse>>;
   abstract postCipher(request: CipherRequest): Promise<CipherResponse>;
   abstract postCipherCreate(request: CipherCreateRequest): Promise<CipherResponse>;
   abstract postCipherAdmin(request: CipherCreateRequest): Promise<CipherResponse>;
@@ -306,66 +288,6 @@ export abstract class ApiService {
   abstract getSettingsDomains(): Promise<DomainsResponse>;
   abstract putSettingsDomains(request: UpdateDomainsRequest): Promise<DomainsResponse>;
 
-  abstract getTwoFactorProviders(): Promise<ListResponse<TwoFactorProviderResponse>>;
-  abstract getTwoFactorOrganizationProviders(
-    organizationId: string,
-  ): Promise<ListResponse<TwoFactorProviderResponse>>;
-  abstract getTwoFactorAuthenticator(
-    request: SecretVerificationRequest,
-  ): Promise<TwoFactorAuthenticatorResponse>;
-  abstract getTwoFactorEmail(request: SecretVerificationRequest): Promise<TwoFactorEmailResponse>;
-  abstract getTwoFactorDuo(request: SecretVerificationRequest): Promise<TwoFactorDuoResponse>;
-  abstract getTwoFactorOrganizationDuo(
-    organizationId: string,
-    request: SecretVerificationRequest,
-  ): Promise<TwoFactorDuoResponse>;
-  abstract getTwoFactorYubiKey(
-    request: SecretVerificationRequest,
-  ): Promise<TwoFactorYubiKeyResponse>;
-  abstract getTwoFactorWebAuthn(
-    request: SecretVerificationRequest,
-  ): Promise<TwoFactorWebAuthnResponse>;
-  abstract getTwoFactorWebAuthnChallenge(
-    request: SecretVerificationRequest,
-  ): Promise<ChallengeResponse>;
-  abstract getTwoFactorRecover(
-    request: SecretVerificationRequest,
-  ): Promise<TwoFactorRecoverResponse>;
-  abstract putTwoFactorAuthenticator(
-    request: UpdateTwoFactorAuthenticatorRequest,
-  ): Promise<TwoFactorAuthenticatorResponse>;
-  abstract deleteTwoFactorAuthenticator(
-    request: DisableTwoFactorAuthenticatorRequest,
-  ): Promise<TwoFactorProviderResponse>;
-  abstract putTwoFactorEmail(request: UpdateTwoFactorEmailRequest): Promise<TwoFactorEmailResponse>;
-  abstract putTwoFactorDuo(request: UpdateTwoFactorDuoRequest): Promise<TwoFactorDuoResponse>;
-  abstract putTwoFactorOrganizationDuo(
-    organizationId: string,
-    request: UpdateTwoFactorDuoRequest,
-  ): Promise<TwoFactorDuoResponse>;
-  abstract putTwoFactorYubiKey(
-    request: UpdateTwoFactorYubikeyOtpRequest,
-  ): Promise<TwoFactorYubiKeyResponse>;
-  abstract putTwoFactorWebAuthn(
-    request: UpdateTwoFactorWebAuthnRequest,
-  ): Promise<TwoFactorWebAuthnResponse>;
-  abstract deleteTwoFactorWebAuthn(
-    request: UpdateTwoFactorWebAuthnDeleteRequest,
-  ): Promise<TwoFactorWebAuthnResponse>;
-  abstract putTwoFactorDisable(
-    request: TwoFactorProviderRequest,
-  ): Promise<TwoFactorProviderResponse>;
-  abstract putTwoFactorOrganizationDisable(
-    organizationId: string,
-    request: TwoFactorProviderRequest,
-  ): Promise<TwoFactorProviderResponse>;
-  abstract postTwoFactorEmailSetup(request: TwoFactorEmailRequest): Promise<any>;
-  abstract postTwoFactorEmail(request: TwoFactorEmailRequest): Promise<any>;
-  abstract getDeviceVerificationSettings(): Promise<DeviceVerificationResponse>;
-  abstract putDeviceVerificationSettings(
-    request: DeviceVerificationRequest,
-  ): Promise<DeviceVerificationResponse>;
-
   abstract getCloudCommunicationsEnabled(): Promise<boolean>;
   abstract getOrganizationConnection<TConfig extends OrganizationConnectionConfigApis>(
     id: string,
@@ -455,6 +377,13 @@ export abstract class ApiService {
   ): Promise<ListResponse<EventResponse>>;
 
   abstract getEventsSecret(
+    orgId: string,
+    id: string,
+    start: string,
+    end: string,
+    token: string,
+  ): Promise<ListResponse<EventResponse>>;
+  abstract getEventsServiceAccount(
     orgId: string,
     id: string,
     start: string,

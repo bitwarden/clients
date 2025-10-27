@@ -9,6 +9,7 @@ import { BehaviorSubject, debounceTime, firstValueFrom, lastValueFrom } from "rx
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions";
+import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
@@ -30,6 +31,8 @@ import { MemberAccessReportService } from "./services/member-access-report.servi
 import { userReportItemHeaders } from "./view/member-access-export.view";
 import { MemberAccessReportView } from "./view/member-access-report.view";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "member-access-report",
   templateUrl: "member-access-report.component.html",
@@ -56,6 +59,7 @@ export class MemberAccessReportComponent implements OnInit {
     protected dialogService: DialogService,
     protected userNamePipe: UserNamePipe,
     protected billingApiService: BillingApiServiceAbstraction,
+    protected organizationMetadataService: OrganizationMetadataServiceAbstraction,
   ) {
     // Connect the search input to the table dataSource filter input
     this.searchControl.valueChanges
@@ -69,8 +73,8 @@ export class MemberAccessReportComponent implements OnInit {
     const params = await firstValueFrom(this.route.params);
     this.organizationId = params.organizationId;
 
-    const billingMetadata = await this.billingApiService.getOrganizationBillingMetadata(
-      this.organizationId,
+    const billingMetadata = await firstValueFrom(
+      this.organizationMetadataService.getOrganizationMetadata$(this.organizationId),
     );
 
     this.orgIsOnSecretsManagerStandalone = billingMetadata.isOnSecretsManagerStandalone;

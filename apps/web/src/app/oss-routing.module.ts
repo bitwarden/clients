@@ -10,6 +10,7 @@ import {
   unauthGuardFn,
   activeAuthGuard,
 } from "@bitwarden/angular/auth/guards";
+import { LoginViaWebAuthnComponent } from "@bitwarden/angular/auth/login-via-webauthn/login-via-webauthn.component";
 import { ChangePasswordComponent } from "@bitwarden/angular/auth/password-management/change-password";
 import { SetInitialPasswordComponent } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.component";
 import {
@@ -17,11 +18,17 @@ import {
   RegistrationUserAddIcon,
   TwoFactorTimeoutIcon,
   TwoFactorAuthEmailIcon,
+  TwoFactorAuthSecurityKeyIcon,
   UserLockIcon,
   VaultIcon,
   SsoKeyIcon,
   LockIcon,
   BrowserExtensionIcon,
+  ActiveSendIcon,
+  TwoFactorAuthAuthenticatorIcon,
+  AccountWarning,
+  BusinessWelcome,
+  DomainIcon,
 } from "@bitwarden/assets/svg";
 import {
   PasswordHintComponent,
@@ -49,7 +56,6 @@ import { AcceptFamilySponsorshipComponent } from "./admin-console/organizations/
 import { FamiliesForEnterpriseSetupComponent } from "./admin-console/organizations/sponsorships/families-for-enterprise-setup.component";
 import { CreateOrganizationComponent } from "./admin-console/settings/create-organization.component";
 import { deepLinkGuard } from "./auth/guards/deep-link/deep-link.guard";
-import { LoginViaWebAuthnComponent } from "./auth/login/login-via-webauthn/login-via-webauthn.component";
 import { AcceptOrganizationComponent } from "./auth/organization-invite/accept-organization.component";
 import { RecoverDeleteComponent } from "./auth/recover-delete.component";
 import { RecoverTwoFactorComponent } from "./auth/recover-two-factor.component";
@@ -106,11 +112,6 @@ const routes: Routes = [
         children: [], // Children lets us have an empty component.
         canActivate: [redirectGuard()], // Redirects either to vault, login, or lock page.
       },
-      {
-        path: "login-with-passkey",
-        component: LoginViaWebAuthnComponent,
-        data: { titleId: "logInWithPasskey" } satisfies RouteDataProperties,
-      },
       { path: "verify-email", component: VerifyEmailTokenComponent },
       {
         path: "accept-organization",
@@ -140,6 +141,28 @@ const routes: Routes = [
     path: "",
     component: AnonLayoutWrapperComponent,
     children: [
+      {
+        path: "login-with-passkey",
+        canActivate: [unauthGuardFn()],
+        data: {
+          pageIcon: TwoFactorAuthSecurityKeyIcon,
+          titleId: "logInWithPasskey",
+          pageTitle: {
+            key: "logInWithPasskey",
+          },
+          pageSubtitle: {
+            key: "readingPasskeyLoadingInfo",
+          },
+        } satisfies RouteDataProperties & AnonLayoutWrapperData,
+        children: [
+          { path: "", component: LoginViaWebAuthnComponent },
+          {
+            path: "",
+            component: EnvironmentSelectorComponent,
+            outlet: "environment-selector",
+          },
+        ],
+      },
       {
         path: "signup",
         canActivate: [unauthGuardFn()],
@@ -277,6 +300,7 @@ const routes: Routes = [
             key: "viewSend",
           },
           showReadonlyHostname: true,
+          pageIcon: ActiveSendIcon,
         } satisfies RouteDataProperties & AnonLayoutWrapperData,
         children: [
           {
@@ -296,6 +320,7 @@ const routes: Routes = [
         component: SetInitialPasswordComponent,
         data: {
           maxWidth: "lg",
+          pageIcon: LockIcon,
         } satisfies AnonLayoutWrapperData,
       },
       {
@@ -361,6 +386,8 @@ const routes: Routes = [
           pageTitle: {
             key: "verifyYourIdentity",
           },
+          // `TwoFactorAuthComponent` manually sets its icon based on the 2fa type
+          pageIcon: null,
         } satisfies RouteDataProperties & AnonLayoutWrapperData,
       },
       {
@@ -421,6 +448,7 @@ const routes: Routes = [
             key: "recoverAccountTwoStep",
           },
           titleId: "recoverAccountTwoStep",
+          pageIcon: TwoFactorAuthAuthenticatorIcon,
         } satisfies RouteDataProperties & AnonLayoutWrapperData,
       },
       {
@@ -451,6 +479,7 @@ const routes: Routes = [
           },
           titleId: "acceptEmergency",
           doNotSaveUrl: false,
+          pageIcon: VaultIcon,
         } satisfies RouteDataProperties & AnonLayoutWrapperData,
         children: [
           {
@@ -470,6 +499,7 @@ const routes: Routes = [
             key: "deleteAccount",
           },
           titleId: "deleteAccount",
+          pageIcon: AccountWarning,
         } satisfies RouteDataProperties & AnonLayoutWrapperData,
         children: [
           {
@@ -491,6 +521,7 @@ const routes: Routes = [
             key: "deleteAccount",
           },
           titleId: "deleteAccount",
+          pageIcon: AccountWarning,
         } satisfies RouteDataProperties & AnonLayoutWrapperData,
         children: [
           {
@@ -508,6 +539,7 @@ const routes: Routes = [
             key: "removeMasterPassword",
           },
           titleId: "removeMasterPassword",
+          pageIcon: LockIcon,
         } satisfies RouteDataProperties & AnonLayoutWrapperData,
       },
       {
@@ -519,6 +551,7 @@ const routes: Routes = [
             key: "confirmKeyConnectorDomain",
           },
           titleId: "confirmKeyConnectorDomain",
+          pageIcon: DomainIcon,
         } satisfies RouteDataProperties & AnonLayoutWrapperData,
       },
       {
@@ -530,6 +563,7 @@ const routes: Routes = [
         },
         data: {
           maxWidth: "3xl",
+          pageIcon: BusinessWelcome,
         } satisfies AnonLayoutWrapperData,
       },
       {
@@ -541,6 +575,7 @@ const routes: Routes = [
         },
         data: {
           maxWidth: "3xl",
+          pageIcon: BusinessWelcome,
         } satisfies AnonLayoutWrapperData,
       },
       {
@@ -564,12 +599,15 @@ const routes: Routes = [
         path: "change-password",
         component: ChangePasswordComponent,
         canActivate: [authGuard],
+        data: {
+          pageIcon: LockIcon,
+        } satisfies AnonLayoutWrapperData,
       },
       {
         path: "setup-extension",
         data: {
           hideCardWrapper: true,
-          hideIcon: true,
+          pageIcon: null,
           maxWidth: "4xl",
         } satisfies AnonLayoutWrapperData,
         children: [

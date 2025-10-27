@@ -449,7 +449,7 @@
     "message": "Feld bearbeiten"
   },
   "permanentlyDeleteAttachmentConfirmation": {
-    "message": "Sind Sie sicher, dass Sie diesen Anhang dauerhaft löschen möchten?"
+    "message": "Bist du sicher, dass du diesen Anhang dauerhaft löschen möchtest?"
   },
   "fieldType": {
     "message": "Feldtyp"
@@ -1222,6 +1222,15 @@
   "invalidMasterPassword": {
     "message": "Ungültiges Master-Passwort"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Ungültiges Master-Passwort. Überprüfe, ob deine E-Mail-Adresse korrekt ist und dein Konto auf $HOST$ erstellt wurde.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "twoStepLoginConfirmation": {
     "message": "Mit der Zwei-Faktor-Authentifizierung wird dein Konto zusätzlich abgesichert, da jede Anmeldung mit einem anderen Gerät wie einem Sicherheitsschlüssel, einer Authentifizierungs-App, einer SMS, einem Anruf oder einer E-Mail verifiziert werden muss. Die Zwei-Faktor-Authentifizierung kann im bitwarden.com Web-Tresor aktiviert werden. Möchtest du die Website jetzt öffnen?"
   },
@@ -1842,6 +1851,12 @@
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Beim Neustart mit Master-Passwort sperren"
+  },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "Master-Passwort oder PIN beim App-Neustart erfordern"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "Master-Passwort beim App-Neustart erfordern"
   },
   "deleteAccount": {
     "message": "Konto löschen"
@@ -2540,6 +2555,9 @@
       }
     }
   },
+  "vaultCustomTimeoutMinimum": {
+    "message": "Das minimal benutzerdefinierte Timeout beträgt 1 Minute."
+  },
   "inviteAccepted": {
     "message": "Einladung angenommen"
   },
@@ -2651,6 +2669,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Nur der mit $ORGANIZATION$ verknüpfte Organisations-Tresor wird exportiert.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Nur der mit $ORGANIZATION$ verknüpfte Organisations-Tresor wird exportiert. Meine Eintrags-Sammlungen werden nicht eingeschlossen.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },
@@ -3486,10 +3522,10 @@
     "message": "Sammlung auswählen"
   },
   "importTargetHintCollection": {
-    "message": "Wählen Sie diese Option, wenn die Inhalte der Import-Datei in eine Sammlung verschoben werden sollen"
+    "message": "Wähle diese Option, wenn der importierte Dateiinhalt in eine Sammlung verschoben werden soll"
   },
   "importTargetHintFolder": {
-    "message": "Wählen Sie diese Option, wenn die Inhalte der Import-Datei in einen Ordner verschoben werden sollen"
+    "message": "Wähle diese Option, wenn der importierte Dateiinhalt in einen Ordner verschoben werden soll"
   },
   "importUnassignedItemsError": {
     "message": "Die Datei enthält nicht zugewiesene Einträge."
@@ -3586,7 +3622,7 @@
     "message": "Bitte melde dich weiterhin mit deinen Firmenzugangsdaten an."
   },
   "importDirectlyFromBrowser": {
-    "message": "Direkter Import aus dem Browser"
+    "message": "Direkt aus dem Browser importieren"
   },
   "browserProfile": {
     "message": "Browser-Profil"
@@ -3834,10 +3870,10 @@
     "message": "Gefährdetes Passwort ändern"
   },
   "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Diese Zugangsdaten sind gefährdet und enthalten keine Website. Fügen Sie eine Website hinzu und ändern Sie das Passwort für mehr Sicherheit."
+    "message": "Diese Zugangsdaten sind gefährdet und es fehlt eine Website. Füge eine Website hinzu und ändere das Passwort für mehr Sicherheit."
   },
   "missingWebsite": {
-    "message": "Fehlende Webseite"
+    "message": "Fehlende Website"
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "Du kannst Sammlungen mit Leseberechtigung nicht entfernen: $COLLECTIONS$",
@@ -3938,7 +3974,7 @@
     "message": "Über diese Einstellung"
   },
   "permitCipherDetailsDescription": {
-    "message": "Bitwarden verwendet gespeicherte Zugangsdaten-URIs, um zu bestimmen, welches Symbol oder welche Passwort-Ändern-URL verwendet werden soll, um Ihr Erlebnis zu verbessern. Es werden keine Informationen erfasst oder gespeichert, wenn Sie diesen Dienst nutzen."
+    "message": "Bitwarden verwendet gespeicherte URIs für die Anmeldung, um zu bestimmen, welches Symbol oder welche URL zum Ändern des Passworts verwendet werden soll, um dein Erlebnis zu verbessern. Es werden keine Informationen erfasst oder gespeichert, wenn du diesen Dienst nutzt."
   },
   "assignToCollections": {
     "message": "Sammlungen zuweisen"
@@ -4084,13 +4120,13 @@
     "message": "Bitwarden überprüft die Eingabestellen nicht. Vergewissere dich, dass du dich im richtigen Fenster und Feld befindest, bevor du die Tastenkombination verwendest."
   },
   "typeShortcut": {
-    "message": "Typ-Verknüpfung"
+    "message": "Autotype-Tastaturkürzel"
   },
   "editAutotypeShortcutDescription": {
-    "message": "Fügen Sie einen oder zwei der folgenden Modifikatoren ein: Strg, Alt, Win oder Umschalt, sowie einen Buchstaben."
+    "message": "Füge einen oder zwei der folgenden Modifikatoren ein: Strg, Alt, Win oder Umschalttaste, sowie einen Buchstaben."
   },
   "invalidShortcut": {
-    "message": "Ungültige Verknüpfung"
+    "message": "Ungültiges Tastaturkürzel"
   },
   "moreBreadcrumbs": {
     "message": "Weitere Navigationspfade",
@@ -4106,24 +4142,24 @@
     "message": "Bestätigen"
   },
   "enableAutotypeShortcutPreview": {
-    "message": "Autotype-Shortcut aktivieren (Funktionsvorschau)"
+    "message": "Autotype-Tastaturkürzel aktivieren (Funktionsvorschau)"
   },
-  "enableAutotypeDescriptionTransitionKey": {
-    "message": "Stellen Sie sicher, dass Sie sich im richtigen Feld befinden, bevor Sie die Verknüpfung verwenden, um zu vermeiden, dass Daten an der falschen Stelle ausgefüllt werden."
+  "enableAutotypeShortcutDescription": {
+    "message": "Stell sicher, dass du dich im richtigen Feld befindest, bevor du das Tastaturkürzel benutzt, um zu vermeiden, dass Daten an der falschen Stelle ausgefüllt werden."
   },
   "editShortcut": {
-    "message": "Verknüpfung bearbeiten"
+    "message": "Tastaturkürzel bearbeiten"
   },
   "archiveNoun": {
-    "message": "Archive",
+    "message": "Archiv",
     "description": "Noun"
   },
   "archiveVerb": {
-    "message": "Archive",
+    "message": "Archivieren",
     "description": "Verb"
   },
-  "unarchive": {
-    "message": "Archivierung aufheben"
+  "unArchive": {
+    "message": "Nicht mehr archivieren"
   },
   "itemsInArchive": {
     "message": "Einträge im Archiv"
@@ -4132,18 +4168,18 @@
     "message": "Keine Einträge im Archiv"
   },
   "noItemsInArchiveDesc": {
-    "message": "Archivierte Einträge werden hier angezeigt und von allgemeinen Ergebnissen der Suche sowie Autofill-Vorschlägen ausgeschlossen."
+    "message": "Archivierte Einträge werden hier angezeigt und von allgemeinen Suchergebnissen sowie Auto-Ausfüllen-Vorschlägen ausgeschlossen."
   },
-  "itemSentToArchive": {
-    "message": "Eintrag an das Archiv gesendet"
+  "itemWasSentToArchive": {
+    "message": "Eintrag wurde ins Archiv verschoben"
   },
-  "itemRemovedFromArchive": {
-    "message": "Eintrag aus dem Archiv entfernt"
+  "itemWasUnarchived": {
+    "message": "Eintrag wird nicht mehr archiviert"
   },
   "archiveItem": {
     "message": "Eintrag archivieren"
   },
   "archiveItemConfirmDesc": {
-    "message": "Archivierte Einträge werden von allgemeinen Suchergebnissen und Autofill-Vorschlägen ausgeschlossen. Sind Sie sicher, dass Sie diesen Eintrag archivieren möchten?"
+    "message": "Archivierte Einträge werden von allgemeinen Suchergebnissen und Auto-Ausfüllen-Vorschlägen ausgeschlossen. Bist du sicher, dass du diesen Eintrag archivieren möchtest?"
   }
 }

@@ -36,6 +36,7 @@ export const DELETE_MANAGED_USER_WARNING = new StateDefinition(
     web: "disk-local",
   },
 );
+export const AUTO_CONFIRM = new StateDefinition("autoConfirm", "disk");
 
 // Billing
 export const BILLING_DISK = new StateDefinition("billing", "disk");
@@ -110,9 +111,6 @@ export const NEW_WEB_LAYOUT_BANNER_DISK = new StateDefinition("newWebLayoutBanne
 
 export const APPLICATION_ID_DISK = new StateDefinition("applicationId", "disk", {
   web: "disk-local",
-});
-export const BADGE_MEMORY = new StateDefinition("badge", "memory", {
-  browser: "memory-large-object",
 });
 export const BIOMETRIC_SETTINGS_DISK = new StateDefinition("biometricSettings", "disk");
 export const CLEAR_EVENT_DISK = new StateDefinition("clearEvent", "disk");
@@ -220,3 +218,4 @@ export const VAULT_BROWSER_INTRO_CAROUSEL = new StateDefinition(
   "vaultBrowserIntroCarousel",
   "disk",
 );
+export const VAULT_AT_RISK_PASSWORDS_MEMORY = new StateDefinition("vaultAtRiskPasswords", "memory");

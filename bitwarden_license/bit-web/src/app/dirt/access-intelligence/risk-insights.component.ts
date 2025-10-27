@@ -1,22 +1,15 @@
 import { CommonModule } from "@angular/common";
-import { Component, DestroyRef, OnInit, inject } from "@angular/core";
+import { Component, DestroyRef, OnDestroy, OnInit, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
-import { EMPTY, firstValueFrom, Observable } from "rxjs";
-import { map, switchMap } from "rxjs/operators";
+import { EMPTY } from "rxjs";
+import { map, tap } from "rxjs/operators";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
-  CriticalAppsService,
+  DrawerType,
   RiskInsightsDataService,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights";
-import { PasswordHealthReportApplicationsResponse } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/api-models.types";
-import {
-  ApplicationHealthReportDetail,
-  DrawerType,
-} from "@bitwarden/bit-common/dirt/reports/risk-insights/models/report-models";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
@@ -30,19 +23,13 @@ import {
 } from "@bitwarden/components";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 
-import { AllActivityComponent } from "./all-activity.component";
-import { AllApplicationsComponent } from "./all-applications.component";
-import { CriticalApplicationsComponent } from "./critical-applications.component";
+import { AllActivityComponent } from "./activity/all-activity.component";
+import { AllApplicationsComponent } from "./all-applications/all-applications.component";
+import { CriticalApplicationsComponent } from "./critical-applications/critical-applications.component";
+import { RiskInsightsTabType } from "./models/risk-insights.models";
 
-// FIXME: update to use a const object instead of a typescript enum
-// eslint-disable-next-line @bitwarden/platform/no-enums
-export enum RiskInsightsTabType {
-  AllActivity = 0,
-  AllApps = 1,
-  CriticalApps = 2,
-  NotifiedMembers = 3,
-}
-
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "./risk-insights.component.html",
   imports: [
@@ -60,35 +47,26 @@ export enum RiskInsightsTabType {
     AllActivityComponent,
   ],
 })
-export class RiskInsightsComponent implements OnInit {
+export class RiskInsightsComponent implements OnInit, OnDestroy {
   private destroyRef = inject(DestroyRef);
   private _isDrawerOpen: boolean = false;
 
   tabIndex: RiskInsightsTabType = RiskInsightsTabType.AllApps;
   isRiskInsightsActivityTabFeatureEnabled: boolean = false;
 
-  dataLastUpdated: Date = new Date();
-
-  criticalApps$: Observable<PasswordHealthReportApplicationsResponse[]> = new Observable();
-
   appsCount: number = 0;
-  criticalAppsCount: number = 0;
-  notifiedMembersCount: number = 0;
+  // Leaving this commented because it's not used but seems important
+  // notifiedMembersCount: number = 0;
 
   private organizationId: OrganizationId = "" as OrganizationId;
 
-  isLoading$: Observable<boolean> = new Observable<boolean>();
-  isRefreshing$: Observable<boolean> = new Observable<boolean>();
-  dataLastUpdated$: Observable<Date | null> = new Observable<Date | null>();
-  refetching: boolean = false;
+  dataLastUpdated: Date | null = null;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private configService: ConfigService,
     protected dataService: RiskInsightsDataService,
-    private criticalAppsService: CriticalAppsService,
-    private accountService: AccountService,
   ) {
     this.route.queryParams.pipe(takeUntilDestroyed()).subscribe(({ tabIndex }) => {
       this.tabIndex = !isNaN(Number(tabIndex)) ? Number(tabIndex) : RiskInsightsTabType.AllApps;
@@ -104,39 +82,28 @@ export class RiskInsightsComponent implements OnInit {
   }
 
   async ngOnInit() {
-    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-
     this.route.paramMap
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         map((params) => params.get("organizationId")),
-        switchMap((orgId) => {
+        tap((orgId) => {
           if (orgId) {
+            // Initialize Data Service
+            this.dataService.initializeForOrganization(orgId as OrganizationId);
             this.organizationId = orgId as OrganizationId;
-            this.dataService.fetchApplicationsReport(this.organizationId);
-            this.isLoading$ = this.dataService.isLoading$;
-            this.isRefreshing$ = this.dataService.isRefreshing$;
-            this.dataLastUpdated$ = this.dataService.dataLastUpdated$;
-            return this.dataService.applications$;
           } else {
             return EMPTY;
           }
         }),
       )
-      .subscribe({
-        next: (applications: ApplicationHealthReportDetail[] | null) => {
-          if (applications) {
-            this.appsCount = applications.length;
-          }
+      .subscribe();
 
-          this.criticalAppsService.loadOrganizationContext(
-            this.organizationId as OrganizationId,
-            userId,
-          );
-          this.criticalApps$ = this.criticalAppsService.getAppsListForOrg(
-            this.organizationId as OrganizationId,
-          );
-        },
+    // Subscribe to report result details
+    this.dataService.enrichedReportData$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((report) => {
+        this.appsCount = report?.reportData.length ?? 0;
+        this.dataLastUpdated = report?.creationDate ?? null;
       });
 
     // Subscribe to drawer state changes
@@ -146,17 +113,18 @@ export class RiskInsightsComponent implements OnInit {
         this._isDrawerOpen = details.open;
       });
   }
-  runReport = () => {
-    this.dataService.triggerReport();
-  };
+
+  ngOnDestroy(): void {
+    this.dataService.destroy();
+  }
 
   /**
    * Refreshes the data by re-fetching the applications report.
    * This will automatically notify child components subscribed to the RiskInsightsDataService observables.
    */
-  refreshData(): void {
+  generateReport(): void {
     if (this.organizationId) {
-      this.dataService.refreshApplicationsReport(this.organizationId);
+      this.dataService.triggerReport();
     }
   }
 
