@@ -640,7 +640,6 @@ export class Utils {
     try {
       let queryString: string;
 
-      // Handle Angular hash routing (#/)
       if (url.includes("#")) {
         const hashPart = url.split("#")[1];
         if (!hashPart || !hashPart.includes("?")) {
