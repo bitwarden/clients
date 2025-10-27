@@ -742,32 +742,72 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     const hasPaidStorage = (this.formGroup.value.additionalStorage || 0) > 0;
     const sponsoredForTaxPreview = this.acceptingSponsorship && !hasPaidStorage;
 
-    const taxAmounts = await this.taxClient.previewTaxForOrganizationSubscriptionPurchase(
-      {
-        ...getPlanFromLegacyEnum(),
-        passwordManager: {
-          seats: passwordManagerSeats,
-          additionalStorage: this.formGroup.value.additionalStorage,
-          sponsored: sponsoredForTaxPreview,
-        },
-        secretsManager: this.formGroup.value.secretsManager.enabled
-          ? {
-              seats: this.secretsManagerForm.value.userSeats,
-              additionalServiceAccounts: this.secretsManagerForm.value.additionalServiceAccounts,
-              standalone: false,
-            }
-          : undefined,
-      },
-      billingAddress,
-    );
-
     if (this.acceptingSponsorship && hasPaidStorage) {
-      const storageSubtotal = this.additionalStorageTotal(this.selectedPlan);
-      const basePlanPrice = this.selectedPlan.PasswordManager.basePrice;
+      // For sponsored plans with paid storage, calculate tax only on storage
+      // by comparing tax on base+storage vs tax on base only
+      const [baseTaxAmounts, fullTaxAmounts] = await Promise.all([
+        this.taxClient.previewTaxForOrganizationSubscriptionPurchase(
+          {
+            ...getPlanFromLegacyEnum(),
+            passwordManager: {
+              seats: passwordManagerSeats,
+              additionalStorage: 0,
+              sponsored: false,
+            },
+            secretsManager: this.formGroup.value.secretsManager.enabled
+              ? {
+                  seats: this.secretsManagerForm.value.userSeats,
+                  additionalServiceAccounts:
+                    this.secretsManagerForm.value.additionalServiceAccounts,
+                  standalone: false,
+                }
+              : undefined,
+          },
+          billingAddress,
+        ),
+        this.taxClient.previewTaxForOrganizationSubscriptionPurchase(
+          {
+            ...getPlanFromLegacyEnum(),
+            passwordManager: {
+              seats: passwordManagerSeats,
+              additionalStorage: this.formGroup.value.additionalStorage,
+              sponsored: false,
+            },
+            secretsManager: this.formGroup.value.secretsManager.enabled
+              ? {
+                  seats: this.secretsManagerForm.value.userSeats,
+                  additionalServiceAccounts:
+                    this.secretsManagerForm.value.additionalServiceAccounts,
+                  standalone: false,
+                }
+              : undefined,
+          },
+          billingAddress,
+        ),
+      ]);
 
-      const taxRate = taxAmounts.tax / basePlanPrice;
-      this.estimatedTax = storageSubtotal * taxRate;
+      // Tax on storage = Tax on (base + storage) - Tax on (base only)
+      this.estimatedTax = fullTaxAmounts.tax - baseTaxAmounts.tax;
     } else {
+      const taxAmounts = await this.taxClient.previewTaxForOrganizationSubscriptionPurchase(
+        {
+          ...getPlanFromLegacyEnum(),
+          passwordManager: {
+            seats: passwordManagerSeats,
+            additionalStorage: this.formGroup.value.additionalStorage,
+            sponsored: sponsoredForTaxPreview,
+          },
+          secretsManager: this.formGroup.value.secretsManager.enabled
+            ? {
+                seats: this.secretsManagerForm.value.userSeats,
+                additionalServiceAccounts: this.secretsManagerForm.value.additionalServiceAccounts,
+                standalone: false,
+              }
+            : undefined,
+        },
+        billingAddress,
+      );
+
       this.estimatedTax = taxAmounts.tax;
     }
 
