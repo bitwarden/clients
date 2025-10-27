@@ -17,6 +17,7 @@ import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/sym
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey } from "@bitwarden/common/types/key";
+import { KdfConfig } from "@bitwarden/key-management";
 
 import { LoginStrategyServiceAbstraction } from "../abstractions";
 import { PasswordLoginCredentials } from "../models/domain/login-credentials";
@@ -57,6 +58,9 @@ export class PasswordLoginStrategy extends LoginStrategy {
   localMasterKeyHash$: Observable<string | null>;
 
   protected cache: BehaviorSubject<PasswordLoginStrategyData>;
+
+  // Holds a reference to the in-flight prelogin promise initiated earlier in the flow
+  private preloginPromise?: Promise<KdfConfig | null>;
 
   constructor(
     data: PasswordLoginStrategyData,
@@ -110,6 +114,13 @@ export class PasswordLoginStrategy extends LoginStrategy {
     const result = await super.logInTwoFactor(twoFactor);
 
     return result;
+  }
+
+  /**
+   * Optional hook to store the prelogin promise for later use.
+   */
+  setPasswordPreloginPromise(promise: Promise<KdfConfig | null>): void {
+    this.preloginPromise = promise;
   }
 
   protected override async setMasterKey(response: IdentityTokenResponse, userId: UserId) {

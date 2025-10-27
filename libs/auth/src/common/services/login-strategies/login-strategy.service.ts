@@ -18,6 +18,7 @@ import { AuthenticationType } from "@bitwarden/common/auth/enums/authentication-
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
@@ -91,6 +92,10 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
   private loginStrategyCacheExpirationState: GlobalState<Date | null>;
   private authRequestPushNotificationState: GlobalState<string | null>;
   private authenticationTimeoutSubject = new BehaviorSubject<boolean>(false);
+
+  // Prefetched password prelogin cache by normalized email
+  private preloginKdfConfigByEmail = new Map<string, KdfConfig>();
+  private preloginPromiseByEmail = new Map<string, Promise<KdfConfig | null>>();
 
   authenticationSessionTimeout$: Observable<boolean> =
     this.authenticationTimeoutSubject.asObservable();
@@ -310,11 +315,55 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
 
   async makePreloginKey(masterPassword: string, email: string): Promise<MasterKey> {
     email = email.trim().toLowerCase();
-    let kdfConfig: KdfConfig | undefined;
+
+    if (await this.configService.getFeatureFlag(FeatureFlag.PM23801_PrefetchPasswordPrelogin)) {
+      let kdfConfig = this.preloginKdfConfigByEmail.get(email);
+      if (!kdfConfig) {
+        if (this.preloginPromiseByEmail.has(email)) {
+          try {
+            await this.preloginPromiseByEmail.get(email);
+          } catch {
+            // swallow errors; we'll fall back to direct fetch below
+          }
+          kdfConfig = this.preloginKdfConfigByEmail.get(email);
+        }
+      }
+
+      if (!kdfConfig) {
+        // Fall back to fetching now and caching
+        try {
+          const preloginResponse = await this.apiService.postPrelogin(new PreloginRequest(email));
+          if (preloginResponse != null) {
+            kdfConfig =
+              preloginResponse.kdf === KdfType.PBKDF2_SHA256
+                ? new PBKDF2KdfConfig(preloginResponse.kdfIterations)
+                : new Argon2KdfConfig(
+                    preloginResponse.kdfIterations,
+                    preloginResponse.kdfMemory,
+                    preloginResponse.kdfParallelism,
+                  );
+            this.preloginKdfConfigByEmail.set(email, kdfConfig);
+          }
+        } catch (e: any) {
+          if (e == null || e.statusCode !== 404) {
+            throw e;
+          }
+        }
+      }
+
+      if (!kdfConfig) {
+        throw new Error("KDF config is required");
+      }
+      kdfConfig.validateKdfConfigForPrelogin();
+      return await this.keyService.makeMasterKey(masterPassword, email, kdfConfig);
+    }
+
+    // Legacy behavior when flag is disabled
+    let legacyKdfConfig: KdfConfig | undefined;
     try {
       const preloginResponse = await this.apiService.postPrelogin(new PreloginRequest(email));
       if (preloginResponse != null) {
-        kdfConfig =
+        legacyKdfConfig =
           preloginResponse.kdf === KdfType.PBKDF2_SHA256
             ? new PBKDF2KdfConfig(preloginResponse.kdfIterations)
             : new Argon2KdfConfig(
@@ -329,12 +378,77 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
       }
     }
 
-    if (!kdfConfig) {
+    if (!legacyKdfConfig) {
       throw new Error("KDF config is required");
     }
-    kdfConfig.validateKdfConfigForPrelogin();
+    legacyKdfConfig.validateKdfConfigForPrelogin();
+    return await this.keyService.makeMasterKey(masterPassword, email, legacyKdfConfig);
+  }
 
-    return await this.keyService.makeMasterKey(masterPassword, email, kdfConfig);
+  async getPasswordPrelogin(email: string): Promise<void> {
+    const normalizedEmail = email.trim().toLowerCase();
+
+    if (this.preloginKdfConfigByEmail.has(normalizedEmail)) {
+      return;
+    }
+    if (this.preloginPromiseByEmail.has(normalizedEmail)) {
+      try {
+        await this.preloginPromiseByEmail.get(normalizedEmail);
+      } catch {
+        // ignore
+      }
+      return;
+    }
+
+    const promise: Promise<KdfConfig | null> = (async () => {
+      try {
+        const preloginResponse = await this.apiService.postPrelogin(
+          new PreloginRequest(normalizedEmail),
+        );
+        if (preloginResponse == null) {
+          return null;
+        }
+        const cfg =
+          preloginResponse.kdf === KdfType.PBKDF2_SHA256
+            ? new PBKDF2KdfConfig(preloginResponse.kdfIterations)
+            : new Argon2KdfConfig(
+                preloginResponse.kdfIterations,
+                preloginResponse.kdfMemory,
+                preloginResponse.kdfParallelism,
+              );
+        return cfg;
+      } catch (e: any) {
+        if (e == null || e.statusCode !== 404) {
+          throw e;
+        }
+        return null;
+      }
+    })();
+
+    this.preloginPromiseByEmail.set(normalizedEmail, promise);
+
+    promise
+      .then((cfg) => {
+        if (cfg) {
+          this.preloginKdfConfigByEmail.set(normalizedEmail, cfg);
+        }
+      })
+      .catch(() => {
+        // swallow; best-effort prefetch
+      })
+      .finally(() => {
+        this.preloginPromiseByEmail.delete(normalizedEmail);
+      });
+
+    // Also notify password strategy, if active, so it can keep a reference
+    try {
+      const strategy = await firstValueFrom(this.loginStrategy$);
+      if (strategy && (strategy as any).setPasswordPreloginPromise) {
+        (strategy as any).setPasswordPreloginPromise(promise);
+      }
+    } catch {
+      // ignore
+    }
   }
 
   private async clearCache(): Promise<void> {

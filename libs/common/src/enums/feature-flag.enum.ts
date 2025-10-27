@@ -16,6 +16,7 @@ export enum FeatureFlag {
 
   /* Auth */
   PM22110_DisableAlternateLoginMethods = "pm-22110-disable-alternate-login-methods",
+  PM23801_PrefetchPasswordPrelogin = "pm-23801-prefetch-password-prelogin",
 
   /* Autofill */
   MacOsNativeCredentialSync = "macos-native-credential-sync",
@@ -106,6 +107,7 @@ export const DefaultFeatureFlagValue = {
 
   /* Auth */
   [FeatureFlag.PM22110_DisableAlternateLoginMethods]: FALSE,
+  [FeatureFlag.PM23801_PrefetchPasswordPrelogin]: FALSE,
 
   /* Billing */
   [FeatureFlag.TrialPaymentOptional]: FALSE,

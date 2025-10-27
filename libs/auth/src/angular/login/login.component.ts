@@ -548,6 +548,21 @@ export class LoginComponent implements OnInit, OnDestroy {
     const isEmailValid = this.validateEmail();
 
     if (isEmailValid) {
+      // Prefetch prelogin KDF config when enabled
+      try {
+        const flagEnabled = await this.configService.getFeatureFlag(
+          FeatureFlag.PM23801_PrefetchPasswordPrelogin,
+        );
+        if (flagEnabled) {
+          const email = this.formGroup.value.email;
+          if (email) {
+            void this.loginStrategyService.getPasswordPrelogin(email);
+          }
+        }
+      } catch {
+        /* empty */
+      }
+
       await this.toggleLoginUiState(LoginUiState.MASTER_PASSWORD_ENTRY);
     }
   }
