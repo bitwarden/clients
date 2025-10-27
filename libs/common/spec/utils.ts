@@ -1,7 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { mock, MockProxy } from "jest-mock-extended";
-import { of } from "rxjs";
 
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
 import { KeyService } from "@bitwarden/key-management";
@@ -87,6 +86,6 @@ export const mockContainerService = () => {
   const encryptService = mock<EncryptService>();
   (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
   return (window as any).bitwardenContainerService;
-}
+};
 
 export { trackEmissions, awaitAsync } from "@bitwarden/core-test-utils";
