@@ -1,6 +1,11 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { firstValueFrom, map } from "rxjs";
 import { Jsonify } from "type-fest";
 
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { LoginUri as SdkLoginUri } from "@bitwarden/sdk-internal";
+import { UserId } from "@bitwarden/user-core";
 
 import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { UriMatchStrategySetting } from "../../../models/domain/domain-service";
@@ -28,6 +33,7 @@ export class LoginUri extends Domain {
   }
 
   decrypt(
+    userId: UserId,
     orgId: string | undefined,
     context: string = "No Cipher Context",
     encKey?: SymmetricCryptoKey,
@@ -36,21 +42,41 @@ export class LoginUri extends Domain {
       this,
       new LoginUriView(this),
       ["uri"],
+      userId,
       orgId ?? null,
       encKey,
       context,
     );
   }
 
-  async validateChecksum(clearTextUri: string, orgId?: string, encKey?: SymmetricCryptoKey) {
+  async validateChecksum(
+    clearTextUri: string,
+    userId: UserId,
+    orgId?: string,
+    key?: SymmetricCryptoKey,
+  ) {
     if (this.uriChecksum == null) {
       return false;
     }
 
-    const keyService = Utils.getContainerService().getEncryptService();
-    const localChecksum = await keyService.hash(clearTextUri, "sha256");
+    const keyService = Utils.getContainerService().getKeyService();
+    const encService = Utils.getContainerService().getEncryptService();
+    const localChecksum = await encService.hash(clearTextUri, "sha256");
 
-    const remoteChecksum = await this.uriChecksum.decrypt(orgId ?? null, encKey);
+    if (key == null) {
+      if (orgId != null) {
+        key = await firstValueFrom(
+          keyService
+            .orgKeys$(userId)
+            .pipe(map((orgKeys) => orgKeys[orgId as OrganizationId] ?? null)),
+        );
+      } else {
+        key = await firstValueFrom(keyService.userKey$(userId));
+      }
+    }
+    const remoteChecksum = await encService.decryptString(this.uriChecksum, key);
+
+    /// WARNING: This is not constant time. This should be moved to the SDK
     return remoteChecksum === localChecksum;
   }
 

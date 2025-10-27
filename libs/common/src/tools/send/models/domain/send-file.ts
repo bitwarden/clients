@@ -2,6 +2,8 @@
 // @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
+import { UserId } from "@bitwarden/user-core";
+
 import { EncString } from "../../../../key-management/crypto/models/enc-string";
 import Domain from "../../../../platform/models/domain/domain-base";
 import { SymmetricCryptoKey } from "../../../../platform/models/domain/symmetric-crypto-key";
@@ -33,11 +35,12 @@ export class SendFile extends Domain {
     );
   }
 
-  async decrypt(key: SymmetricCryptoKey): Promise<SendFileView> {
+  async decrypt(userId: UserId, key: SymmetricCryptoKey): Promise<SendFileView> {
     return await this.decryptObj<SendFile, SendFileView>(
       this,
       new SendFileView(this),
       ["fileName"],
+      userId,
       null,
       key,
     );

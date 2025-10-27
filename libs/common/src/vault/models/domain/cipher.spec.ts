@@ -105,6 +105,7 @@ describe("Cipher DTO", () => {
 
     const cipherView = await cipher.decrypt(
       await cipherService.getKeyForCipherKeyDecryption(cipher, mockUserId),
+      null,
     );
 
     expect(cipherView).toMatchObject({
@@ -329,6 +330,7 @@ describe("Cipher DTO", () => {
 
       const cipherView = await cipher.decrypt(
         await cipherService.getKeyForCipherKeyDecryption(cipher, mockUserId),
+        null,
       );
 
       expect(cipherView).toMatchObject({
@@ -457,6 +459,7 @@ describe("Cipher DTO", () => {
 
       const cipherView = await cipher.decrypt(
         await cipherService.getKeyForCipherKeyDecryption(cipher, mockUserId),
+        null,
       );
 
       expect(cipherView).toMatchObject({
@@ -603,6 +606,7 @@ describe("Cipher DTO", () => {
 
       const cipherView = await cipher.decrypt(
         await cipherService.getKeyForCipherKeyDecryption(cipher, mockUserId),
+        null,
       );
 
       expect(cipherView).toMatchObject({
@@ -773,6 +777,7 @@ describe("Cipher DTO", () => {
 
       const cipherView = await cipher.decrypt(
         await cipherService.getKeyForCipherKeyDecryption(cipher, mockUserId),
+        null,
       );
 
       expect(cipherView).toMatchObject({

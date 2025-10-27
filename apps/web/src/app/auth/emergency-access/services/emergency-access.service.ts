@@ -264,7 +264,9 @@ export class EmergencyAccessService
 
     let ciphers: CipherView[] = [];
     const ciphersEncrypted = response.ciphers.map((c) => new Cipher(c));
-    ciphers = await Promise.all(ciphersEncrypted.map(async (c) => c.decrypt(grantorUserKey)));
+    ciphers = await Promise.all(
+      ciphersEncrypted.map(async (c) => c.decrypt(grantorUserKey, activeUserId)),
+    );
     return ciphers.sort(this.cipherService.getLocaleSortingFunction());
   }
 

@@ -2,6 +2,8 @@
 // @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
+import { UserId } from "@bitwarden/user-core";
+
 import { EncString } from "../../../../key-management/crypto/models/enc-string";
 import Domain from "../../../../platform/models/domain/domain-base";
 import { SymmetricCryptoKey } from "../../../../platform/models/domain/symmetric-crypto-key";
@@ -29,11 +31,12 @@ export class SendText extends Domain {
     );
   }
 
-  decrypt(key: SymmetricCryptoKey): Promise<SendTextView> {
+  decrypt(userId: UserId, key: SymmetricCryptoKey): Promise<SendTextView> {
     return this.decryptObj<SendText, SendTextView>(
       this,
       new SendTextView(this),
       ["text"],
+      userId,
       null,
       key,
     );

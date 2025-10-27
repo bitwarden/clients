@@ -107,7 +107,7 @@ describe("Identity", () => {
     identity.passportNumber = mockEnc("mockPassportNumber");
     identity.licenseNumber = mockEnc("mockLicenseNumber");
 
-    const view = await identity.decrypt(null);
+    const view = await identity.decrypt(null, null);
 
     expect(view).toEqual({
       _firstName: "mockFirstName",

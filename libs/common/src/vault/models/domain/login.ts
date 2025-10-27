@@ -1,6 +1,7 @@
 import { Jsonify } from "type-fest";
 
 import { Login as SdkLogin } from "@bitwarden/sdk-internal";
+import { UserId } from "@bitwarden/user-core";
 
 import { EncString } from "../../../key-management/crypto/models/enc-string";
 import Domain from "../../../platform/models/domain/domain-base";
@@ -44,6 +45,7 @@ export class Login extends Domain {
   }
 
   async decrypt(
+    userId: UserId,
     orgId: string | undefined,
     bypassValidation: boolean,
     context: string = "No Cipher Context",
@@ -53,6 +55,7 @@ export class Login extends Domain {
       this,
       new LoginView(this),
       ["username", "password", "totp"],
+      userId,
       orgId ?? null,
       encKey,
       `DomainType: Login; ${context}`,
@@ -66,7 +69,7 @@ export class Login extends Domain {
           continue;
         }
 
-        const uri = await this.uris[i].decrypt(orgId, context, encKey);
+        const uri = await this.uris[i].decrypt(userId, orgId, context, encKey);
         const uriString = uri.uri;
 
         if (uriString == null) {
@@ -79,7 +82,8 @@ export class Login extends Domain {
         // So we bypass the validation if there's no cipher.key or proceed with the validation and
         // Skip the value if it's been tampered with.
         const isValidUri =
-          bypassValidation || (await this.uris[i].validateChecksum(uriString, orgId, encKey));
+          bypassValidation ||
+          (await this.uris[i].validateChecksum(uriString, userId, orgId, encKey));
 
         if (isValidUri) {
           view.uris.push(uri);
@@ -89,7 +93,7 @@ export class Login extends Domain {
 
     if (this.fido2Credentials != null) {
       view.fido2Credentials = await Promise.all(
-        this.fido2Credentials.map((key) => key.decrypt(orgId, encKey)),
+        this.fido2Credentials.map((key) => key.decrypt(userId, orgId, encKey)),
       );
     }
 

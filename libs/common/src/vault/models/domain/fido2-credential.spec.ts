@@ -103,7 +103,7 @@ describe("Fido2Credential", () => {
       credential.discoverable = mockEnc("true");
       credential.creationDate = mockDate;
 
-      const credentialView = await credential.decrypt(null);
+      const credentialView = await credential.decrypt(null, null);
 
       expect(credentialView).toEqual({
         credentialId: "credentialId",

@@ -99,7 +99,7 @@ describe("Login DTO", () => {
       loginUri.validateChecksum.mockResolvedValue(true);
       login.uris = [loginUri];
 
-      const loginView = await login.decrypt(null, true);
+      const loginView = await login.decrypt(null, null, true);
       expect(loginView).toEqual(expectedView);
     });
 
@@ -111,7 +111,7 @@ describe("Login DTO", () => {
         .mockResolvedValueOnce(true);
       login.uris = [loginUri, loginUri, loginUri];
 
-      const loginView = await login.decrypt(null, false);
+      const loginView = await login.decrypt(null, null, false);
       expect(loginView).toEqual(expectedView);
     });
   });

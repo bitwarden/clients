@@ -1,6 +1,7 @@
 import { Jsonify } from "type-fest";
 
 import { Fido2Credential as SdkFido2Credential } from "@bitwarden/sdk-internal";
+import { UserId } from "@bitwarden/user-core";
 
 import { EncString } from "../../../key-management/crypto/models/enc-string";
 import Domain from "../../../platform/models/domain/domain-base";
@@ -47,6 +48,7 @@ export class Fido2Credential extends Domain {
   }
 
   async decrypt(
+    userId: UserId,
     orgId: string | undefined,
     encKey?: SymmetricCryptoKey,
   ): Promise<Fido2CredentialView> {
@@ -65,6 +67,7 @@ export class Fido2Credential extends Domain {
         "rpName",
         "userDisplayName",
       ],
+      userId,
       orgId ?? null,
       encKey,
     );
@@ -74,7 +77,7 @@ export class Fido2Credential extends Domain {
       {
         counter: string;
       }
-    >(this, { counter: "" }, ["counter"], orgId ?? null, encKey);
+    >(this, { counter: "" }, ["counter"], userId, orgId ?? null, encKey);
     // Counter will end up as NaN if this fails
     view.counter = parseInt(counter);
 
@@ -82,6 +85,7 @@ export class Fido2Credential extends Domain {
       this,
       { discoverable: "" },
       ["discoverable"],
+      userId,
       orgId ?? null,
       encKey,
     );

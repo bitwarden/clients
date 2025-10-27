@@ -6,6 +6,7 @@ import { concatMap, firstValueFrom, map } from "rxjs";
 // eslint-disable-next-line no-restricted-imports
 import { Collection, CollectionView } from "@bitwarden/admin-console/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import {
@@ -15,7 +16,7 @@ import {
 } from "@bitwarden/common/models/export";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { OrganizationId } from "@bitwarden/common/types/guid";
+import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { KeyService } from "@bitwarden/key-management";
@@ -167,6 +168,8 @@ export class BitwardenJsonImporter extends BaseImporter implements Importer {
   private async parseFolders(
     data: BitwardenUnEncryptedIndividualJsonExport | BitwardenEncryptedIndividualJsonExport,
   ): Promise<Map<string, number>> | null {
+    const userId: UserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
     if (data.folders == null) {
       return null;
     }
@@ -178,7 +181,7 @@ export class BitwardenJsonImporter extends BaseImporter implements Importer {
       if (data.encrypted) {
         const folder = FolderWithIdExport.toDomain(f);
         if (folder != null) {
-          folderView = await folder.decrypt();
+          folderView = await folder.decrypt(userId);
         }
       } else {
         folderView = FolderWithIdExport.toView(f);

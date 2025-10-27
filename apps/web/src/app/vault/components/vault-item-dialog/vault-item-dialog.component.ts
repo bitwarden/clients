@@ -498,6 +498,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
 
         updatedCipherView = await cipher.decrypt(
           await this.cipherService.getKeyForCipherKeyDecryption(cipher, activeUserId),
+          activeUserId,
         );
       } else {
         const updatedCipher = await this.cipherService.get(

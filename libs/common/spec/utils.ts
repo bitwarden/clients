@@ -27,10 +27,9 @@ export function BuildTestObject<T, K extends keyof T = keyof T>(
   return Object.assign(constructor === null ? {} : new constructor(), def) as T;
 }
 
+/** @deprecated */
 export function mockEnc(s: string): MockProxy<EncString> {
   const mocked = mock<EncString>();
-  mocked.decrypt.mockResolvedValue(s);
-
   return mocked;
 }
 

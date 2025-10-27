@@ -58,7 +58,7 @@ describe("Field", () => {
     field.name = mockEnc("encName");
     field.value = mockEnc("encValue");
 
-    const view = await field.decrypt(null);
+    const view = await field.decrypt(null, null);
 
     expect(view).toEqual({
       type: 0,

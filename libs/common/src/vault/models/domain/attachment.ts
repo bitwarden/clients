@@ -2,6 +2,7 @@ import { Jsonify } from "type-fest";
 
 import { OrgKey, UserKey } from "@bitwarden/common/types/key";
 import { Attachment as SdkAttachment } from "@bitwarden/sdk-internal";
+import { UserId } from "@bitwarden/user-core";
 
 import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { Utils } from "../../../platform/misc/utils";
@@ -34,6 +35,7 @@ export class Attachment extends Domain {
   }
 
   async decrypt(
+    userId: UserId,
     orgId: string | undefined,
     context = "No Cipher Context",
     encKey?: SymmetricCryptoKey,
@@ -42,6 +44,7 @@ export class Attachment extends Domain {
       this,
       new AttachmentView(this),
       ["fileName"],
+      userId,
       orgId ?? null,
       encKey,
       "DomainType: Attachment; " + context,

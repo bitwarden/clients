@@ -130,12 +130,6 @@ describe("Send", () => {
     const view = await send.decrypt(userId);
 
     expect(text.decrypt).toHaveBeenNthCalledWith(1, "cryptoKey");
-    expect(send.name.decrypt).toHaveBeenNthCalledWith(
-      1,
-      null,
-      "cryptoKey",
-      "Property: name; ObjectContext: No Domain Context",
-    );
 
     expect(view).toMatchObject({
       id: "id",

@@ -1,6 +1,7 @@
 import { Jsonify } from "type-fest";
 
 import { Card as SdkCard } from "@bitwarden/sdk-internal";
+import { UserId } from "@bitwarden/user-core";
 
 import { EncString } from "../../../key-management/crypto/models/enc-string";
 import Domain from "../../../platform/models/domain/domain-base";
@@ -32,6 +33,7 @@ export class Card extends Domain {
   }
 
   async decrypt(
+    userId: UserId,
     orgId: string | undefined,
     context = "No Cipher Context",
     encKey?: SymmetricCryptoKey,
@@ -40,6 +42,7 @@ export class Card extends Domain {
       this,
       new CardView(),
       ["cardholderName", "brand", "number", "expMonth", "expYear", "code"],
+      userId,
       orgId ?? null,
       encKey,
       "DomainType: Card; " + context,

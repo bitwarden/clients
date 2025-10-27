@@ -1,6 +1,7 @@
 import { Jsonify } from "type-fest";
 
 import { Identity as SdkIdentity } from "@bitwarden/sdk-internal";
+import { UserId } from "@bitwarden/user-core";
 
 import { EncString } from "../../../key-management/crypto/models/enc-string";
 import Domain from "../../../platform/models/domain/domain-base";
@@ -56,6 +57,7 @@ export class Identity extends Domain {
   }
 
   decrypt(
+    userId: UserId,
     orgId: string | undefined,
     context: string = "No Cipher Context",
     encKey?: SymmetricCryptoKey,
@@ -83,6 +85,7 @@ export class Identity extends Domain {
         "passportNumber",
         "licenseNumber",
       ],
+      userId,
       orgId ?? null,
       encKey,
       "DomainType: Identity; " + context,

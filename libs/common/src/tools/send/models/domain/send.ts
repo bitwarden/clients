@@ -89,14 +89,21 @@ export class Send extends Domain {
     model.key = await encryptService.decryptBytes(this.key, sendKeyEncryptionKey);
     model.cryptoKey = await keyService.makeSendKey(model.key);
 
-    await this.decryptObj<Send, SendView>(this, model, ["name", "notes"], null, model.cryptoKey);
+    await this.decryptObj<Send, SendView>(
+      this,
+      model,
+      ["name", "notes"],
+      userId,
+      null,
+      model.cryptoKey,
+    );
 
     switch (this.type) {
       case SendType.File:
-        model.file = await this.file.decrypt(model.cryptoKey);
+        model.file = await this.file.decrypt(userId, model.cryptoKey);
         break;
       case SendType.Text:
-        model.text = await this.text.decrypt(model.cryptoKey);
+        model.text = await this.text.decrypt(userId, model.cryptoKey);
         break;
       default:
         break;

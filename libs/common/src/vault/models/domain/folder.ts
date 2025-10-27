@@ -2,6 +2,8 @@
 // @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
+import { UserId } from "@bitwarden/user-core";
+
 import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "../../../key-management/crypto/models/enc-string";
 import Domain from "../../../platform/models/domain/domain-base";
@@ -39,8 +41,8 @@ export class Folder extends Domain {
     this.revisionDate = obj.revisionDate != null ? new Date(obj.revisionDate) : null;
   }
 
-  decrypt(): Promise<FolderView> {
-    return this.decryptObj<Folder, FolderView>(this, new FolderView(this), ["name"], null);
+  decrypt(userId: UserId): Promise<FolderView> {
+    return this.decryptObj<Folder, FolderView>(this, new FolderView(this), ["name"], userId, null);
   }
 
   async decryptWithKey(

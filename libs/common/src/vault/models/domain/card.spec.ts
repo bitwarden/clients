@@ -58,7 +58,7 @@ describe("Card", () => {
     card.expYear = mockEnc("expYear");
     card.code = mockEnc("code");
 
-    const view = await card.decrypt(null);
+    const view = await card.decrypt(null, null);
 
     expect(view).toEqual({
       _brand: "brand",

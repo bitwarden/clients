@@ -37,7 +37,7 @@ describe("SendText", () => {
     secureNote.text = mockEnc("text");
     secureNote.hidden = true;
 
-    const view = await secureNote.decrypt(null);
+    const view = await secureNote.decrypt(null, null);
 
     expect(view).toEqual({
       text: "text",

@@ -1,7 +1,12 @@
+import { firstValueFrom, map } from "rxjs";
 import { ConditionalExcept, ConditionalKeys } from "type-fest";
+
+import { OrganizationId } from "@bitwarden/common/types/guid";
+import { UserId } from "@bitwarden/user-core";
 
 import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { View } from "../../../models/view/view";
+import { Utils } from "../../misc/utils";
 
 import { SymmetricCryptoKey } from "./symmetric-crypto-key";
 
@@ -69,21 +74,34 @@ export default class Domain {
     }
   }
 
+  /** @deprecated */
   protected async decryptObj<D extends Domain, V extends View>(
     domain: DomainEncryptableKeys<D>,
     viewModel: ViewEncryptableKeys<V>,
     props: EncryptableKeys<D, V>[],
+    userId: UserId,
     orgId: string | null,
     key: SymmetricCryptoKey | null = null,
-    objectContext: string = "No Domain Context",
+    _objectContext: string = "No Domain Context",
   ): Promise<V> {
+    const keyService = Utils.getContainerService().getKeyService();
+    if (key == null) {
+      if (orgId != null) {
+        key = await firstValueFrom(
+          keyService
+            .orgKeys$(userId)
+            .pipe(map((orgKeys) => orgKeys![orgId as OrganizationId] ?? null)),
+        );
+      } else {
+        key = await firstValueFrom(keyService.userKey$(userId));
+      }
+    }
+
+    const encService = Utils.getContainerService().getEncryptService();
     for (const prop of props) {
-      viewModel[prop] =
-        (await domain[prop]?.decrypt(
-          orgId,
-          key,
-          `Property: ${prop as string}; ObjectContext: ${objectContext}`,
-        )) ?? null;
+      if (domain[prop] != null) {
+        viewModel[prop] = await encService.decryptString(domain[prop], key!);
+      }
     }
 
     return viewModel as V;

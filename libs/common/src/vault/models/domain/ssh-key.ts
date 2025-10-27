@@ -1,6 +1,7 @@
 import { Jsonify } from "type-fest";
 
 import { SshKey as SdkSshKey } from "@bitwarden/sdk-internal";
+import { UserId } from "@bitwarden/user-core";
 
 import { EncString } from "../../../key-management/crypto/models/enc-string";
 import Domain from "../../../platform/models/domain/domain-base";
@@ -25,6 +26,7 @@ export class SshKey extends Domain {
   }
 
   decrypt(
+    userId: UserId,
     orgId: string | undefined,
     context = "No Cipher Context",
     encKey?: SymmetricCryptoKey,
@@ -33,6 +35,7 @@ export class SshKey extends Domain {
       this,
       new SshKeyView(),
       ["privateKey", "publicKey", "keyFingerprint"],
+      userId,
       orgId ?? null,
       encKey,
       "DomainType: SshKey; " + context,

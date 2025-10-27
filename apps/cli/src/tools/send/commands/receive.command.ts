@@ -5,6 +5,8 @@ import * as inquirer from "inquirer";
 import { firstValueFrom } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
@@ -37,6 +39,7 @@ export class SendReceiveCommand extends DownloadCommand {
     private platformUtilsService: PlatformUtilsService,
     private environmentService: EnvironmentService,
     private sendApiService: SendApiService,
+    private accountService: AccountService,
     apiService: ApiService,
   ) {
     super(encryptService, apiService);
@@ -152,6 +155,8 @@ export class SendReceiveCommand extends DownloadCommand {
     key: Uint8Array,
   ): Promise<Response | SendAccessView> {
     try {
+      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
       const sendResponse = await this.sendApiService.postSendAccess(
         id,
         this.sendAccessRequest,
@@ -160,7 +165,7 @@ export class SendReceiveCommand extends DownloadCommand {
 
       const sendAccess = new SendAccess(sendResponse);
       this.decKey = await this.keyService.makeSendKey(key);
-      return await sendAccess.decrypt(this.decKey);
+      return await sendAccess.decrypt(activeUserId, this.decKey);
     } catch (e) {
       if (e instanceof ErrorResponse) {
         if (e.statusCode === 401) {

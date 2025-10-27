@@ -1,6 +1,7 @@
 import { Jsonify } from "type-fest";
 
 import { Field as SdkField, LinkedIdType as SdkLinkedIdType } from "@bitwarden/sdk-internal";
+import { UserId } from "@bitwarden/user-core";
 
 import { EncString } from "../../../key-management/crypto/models/enc-string";
 import Domain from "../../../platform/models/domain/domain-base";
@@ -28,11 +29,16 @@ export class Field extends Domain {
     this.value = conditionalEncString(obj.value);
   }
 
-  decrypt(orgId: string | undefined, encKey?: SymmetricCryptoKey): Promise<FieldView> {
+  decrypt(
+    userId: UserId,
+    orgId: string | undefined,
+    encKey?: SymmetricCryptoKey,
+  ): Promise<FieldView> {
     return this.decryptObj<Field, FieldView>(
       this,
       new FieldView(this),
       ["name", "value"],
+      userId,
       orgId ?? null,
       encKey,
     );

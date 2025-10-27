@@ -12,6 +12,7 @@ import {
 } from "rxjs";
 import { SemVer } from "semver";
 
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessageSender } from "@bitwarden/common/platform/messaging";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
@@ -520,7 +521,7 @@ export class CipherService implements CipherServiceAbstraction {
           const key = keys.orgKeys[orgId as OrganizationId] ?? keys.userKey;
           return await Promise.all(
             groupedCiphers.map(async (cipher) => {
-              return await cipher.decrypt(key);
+              return await cipher.decrypt(key, userId);
             }),
           );
         }),
@@ -558,7 +559,7 @@ export class CipherService implements CipherServiceAbstraction {
       return await this.cipherEncryptionService.decrypt(cipher, userId);
     } else {
       const encKey = await this.getKeyForCipherKeyDecryption(cipher, userId);
-      return await cipher.decrypt(encKey);
+      return await cipher.decrypt(encKey, userId);
     }
   }
 
@@ -718,6 +719,8 @@ export class CipherService implements CipherServiceAbstraction {
     response: ListResponse<CipherResponse>,
     organizationId: string,
   ): Promise<CipherView[]> {
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
     if (response?.data == null || response.data.length < 1) {
       return [];
     }
@@ -726,7 +729,7 @@ export class CipherService implements CipherServiceAbstraction {
     const key = await this.keyService.getOrgKey(organizationId);
     const decCiphers: CipherView[] = await Promise.all(
       ciphers.map(async (cipher) => {
-        return await cipher.decrypt(key);
+        return await cipher.decrypt(key, userId);
       }),
     );
 

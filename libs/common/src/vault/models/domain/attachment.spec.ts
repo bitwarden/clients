@@ -86,7 +86,7 @@ describe("Attachment", () => {
         new SymmetricCryptoKey(makeStaticByteArray(64)),
       );
 
-      const view = await attachment.decrypt(null);
+      const view = await attachment.decrypt(null, null);
 
       expect(view).toEqual({
         id: "id",
@@ -110,7 +110,7 @@ describe("Attachment", () => {
       it("uses the provided key without depending on KeyService", async () => {
         const providedKey = mock<SymmetricCryptoKey>();
 
-        await attachment.decrypt(null, "", providedKey);
+        await attachment.decrypt(null, null, "", providedKey);
 
         expect(keyService.getUserKey).not.toHaveBeenCalled();
         expect(encryptService.unwrapSymmetricKey).toHaveBeenCalledWith(attachment.key, providedKey);
@@ -120,7 +120,7 @@ describe("Attachment", () => {
         const orgKey = mock<OrgKey>();
         keyService.getOrgKey.calledWith("orgId").mockResolvedValue(orgKey);
 
-        await attachment.decrypt("orgId", "", null);
+        await attachment.decrypt(null, "orgId", "", null);
 
         expect(keyService.getOrgKey).toHaveBeenCalledWith("orgId");
         expect(encryptService.unwrapSymmetricKey).toHaveBeenCalledWith(attachment.key, orgKey);

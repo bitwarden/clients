@@ -41,7 +41,7 @@ describe("Password", () => {
     password.password = mockEnc("password");
     password.lastUsedDate = new Date("2022-01-31T12:00:00.000Z");
 
-    const view = await password.decrypt(null);
+    const view = await password.decrypt(null, null);
 
     expect(view).toEqual({
       password: "password",

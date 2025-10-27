@@ -123,6 +123,7 @@ export class SendProgram extends BaseProgram {
           this.serviceContainer.platformUtilsService,
           this.serviceContainer.environmentService,
           this.serviceContainer.sendApiService,
+          this.serviceContainer.accountService,
           this.serviceContainer.apiService,
         );
         const response = await cmd.run(url, options);

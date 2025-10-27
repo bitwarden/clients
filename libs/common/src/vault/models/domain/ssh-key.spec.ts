@@ -56,7 +56,7 @@ describe("Sshkey", () => {
       keyFingerprint: "keyFingerprint",
     };
 
-    const loginView = await sshKey.decrypt(null);
+    const loginView = await sshKey.decrypt(null, null);
     expect(loginView).toEqual(expectedView);
   });
 

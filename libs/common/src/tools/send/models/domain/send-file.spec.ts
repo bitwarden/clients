@@ -45,7 +45,7 @@ describe("SendFile", () => {
     sendFile.sizeName = "1.1 KB";
     sendFile.fileName = mockEnc("fileName");
 
-    const view = await sendFile.decrypt(null);
+    const view = await sendFile.decrypt(null, null);
 
     expect(view).toEqual({
       fileName: "fileName",

@@ -67,7 +67,7 @@ describe("SendAccess", () => {
     sendAccess.expirationDate = new Date("2022-01-31T12:00:00.000Z");
     sendAccess.creatorIdentifier = "creatorIdentifier";
 
-    const view = await sendAccess.decrypt(null);
+    const view = await sendAccess.decrypt(null, null);
 
     expect(text.decrypt).toHaveBeenCalledTimes(1);
 

@@ -175,7 +175,7 @@ export class DefaultUserAsymmetricKeysRegenerationService
     }
 
     try {
-      const cipherView = await cipher.decrypt(userKey);
+      const cipherView = await cipher.decrypt(userKey, userId);
 
       if (cipherView.decryptionFailure) {
         this.logService.error(
