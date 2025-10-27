@@ -154,6 +154,15 @@
       }
     }
   },
+  "newPasswordsAtRisk": {
+    "message": "$COUNT$ 个新密码存在风险",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "notifiedMembersWithCount": {
     "message": "已通知的成员 ($COUNT$)",
     "placeholders": {
@@ -366,7 +375,7 @@
     "message": "私密备注"
   },
   "note": {
-    "message": "笔记"
+    "message": "备注"
   },
   "customFields": {
     "message": "自定义字段"
@@ -2080,9 +2089,6 @@
   "encKeySettings": {
     "message": "加密密钥设置"
   },
-  "kdfAlgorithm": {
-    "message": "KDF 算法"
-  },
   "kdfIterations": {
     "message": "KDF 迭代"
   },
@@ -2116,9 +2122,6 @@
   },
   "argon2Desc": {
     "message": "更高的 KDF 迭代、内存占用和并行可以帮助保护您的主密码免遭攻击者的暴力破解。"
-  },
-  "changeKdf": {
-    "message": "更改 KDF"
   },
   "encKeySettingsChanged": {
     "message": "加密密钥设置已保存"
@@ -5710,6 +5713,65 @@
     "message": "进一步了解",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about the credential lifecycle.'"
   },
+  "availableNow": {
+    "message": "Available now"
+  },
+  "autoConfirm": {
+    "message": "Automatic confirmation of new users"
+  },
+  "autoConfirmDescription": {
+    "message": "New users invited to the organization will be automatically confirmed when an admin’s device is unlocked.",
+    "description": "This is the description of the policy as it appears in the 'Policies' page"
+  },
+  "howToTurnOnAutoConfirm": {
+    "message": "How to turn on automatic user confirmation"
+  },
+  "autoConfirmStep1": {
+    "message": "Open your Bitwarden extension."
+  },
+  "autoConfirmStep2a": {
+    "message": "Select",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  },
+  "autoConfirmStep2b": {
+    "message": " Turn on.",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  },
+  "autoConfirmExtensionOpened": {
+    "message": "Successfully opened the Bitwarden browser extension. You can now activate the automatic user confirmation setting."
+  },
+  "autoConfirmPolicyEditDescription": {
+    "message": "New users invited to the organization will be automatically confirmed when an admin’s device is unlocked. Before turning on this policy, please review and agree to the following: ",
+    "description": "This is the description of the policy as it appears inside the policy edit dialog"
+  },
+  "autoConfirmAcceptSecurityRiskTitle": {
+    "message": "Potential security risk. "
+  },
+  "autoConfirmAcceptSecurityRiskDescription": {
+    "message": "Automatic user confirmation could pose a security risk to your organization’s data."
+  },
+  "autoConfirmAcceptSecurityRiskLearnMore": {
+    "message": "Learn about the risks",
+    "description": "The is the link copy for the first check box option in the edit policy dialog"
+  },
+  "autoConfirmSingleOrgRequired": {
+    "message": "Single organization policy required. "
+  },
+  "autoConfirmSingleOrgRequiredDescription": {
+    "message": "Anyone part of more than one organization will have their access revoked until they leave the other organizations."
+  },
+  "autoConfirmSingleOrgExemption": {
+    "message": "Single organization policy will extend to all roles. "
+  },
+  "autoConfirmNoEmergencyAccess": {
+    "message": "No emergency access. "
+  },
+  "autoConfirmNoEmergencyAccessDescription": {
+    "message": "Emergency Access will be removed."
+  },
+  "autoConfirmCheckBoxLabel": {
+    "message": "I accept these risks and policy updates"
+  },
   "personalOwnership": {
     "message": "禁用个人密码库"
   },
@@ -6528,7 +6590,7 @@
     "message": "为所有现有成员和新成员激活浏览器扩展上的页面加载时的自动填充设置。"
   },
   "experimentalFeature": {
-    "message": "被入侵或不受信任的网站可以利用页面加载时的自动填充功能。"
+    "message": "被入侵或不受信任的网站可能恶意利用页面加载时的自动填充功能。"
   },
   "learnMoreAboutAutofill": {
     "message": "进一步了解自动填充"
@@ -6711,7 +6773,7 @@
     "message": "链接已失效。请让赞助方重新发送邀请。"
   },
   "reclaimedFreePlan": {
-    "message": "收回了免费方案"
+    "message": "重新申领了免费方案"
   },
   "redeem": {
     "message": "兑换"
@@ -7150,7 +7212,7 @@
     }
   },
   "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
-    "message": "仅会导出与 $ORGANIZATION$ 关联的组织密码库，不包括我的项目集合。",
+    "message": "仅会导出与 $ORGANIZATION$ 关联的组织密码库。不包括「我的项目」集合。",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -10361,26 +10423,8 @@
   "memberAccessReportAuthenticationEnabledFalse": {
     "message": "关闭"
   },
-  "higherKDFIterations": {
-    "message": "更高的 KDF 迭代可以帮助保护您的主密码免遭攻击者的暴力破解。"
-  },
-  "incrementsOf100,000": {
-    "message": "100,000 增量"
-  },
-  "smallIncrements": {
-    "message": "小增量"
-  },
   "kdfIterationRecommends": {
     "message": "我们推荐 600,000 或更高"
-  },
-  "kdfToHighWarningIncreaseInIncrements": {
-    "message": "对于老旧设备，将 KDF 设置得太高可能导致性能问题。以 $VALUE$ 值增加然后测试您的设备。",
-    "placeholders": {
-      "value": {
-        "content": "$1",
-        "example": "increments of 100,000"
-      }
-    }
   },
   "providerReinstate": {
     "message": " 联系客户支持恢复您的订阅。"
@@ -11023,6 +11067,15 @@
   },
   "domainClaimed": {
     "message": "域名已声明"
+  },
+  "itemAddedToFavorites": {
+    "message": "项目已添加到收藏夹"
+  },
+  "itemRemovedFromFavorites": {
+    "message": "项目已移出收藏夹"
+  },
+  "copyNote": {
+    "message": "复制备注"
   },
   "organizationNameMaxLength": {
     "message": "组织名称不能超过 50 个字符。"
@@ -11856,5 +11909,32 @@
   },
   "viewbusinessplans": {
     "message": "查看商业方案"
+  },
+  "updateEncryptionSettings": {
+    "message": "Update encryption settings"
+  },
+  "updateYourEncryptionSettings": {
+    "message": "Update your encryption settings"
+  },
+  "updateSettings": {
+    "message": "Update settings"
+  },
+  "algorithm": {
+    "message": "Algorithm"
+  },
+  "encryptionKeySettingsHowShouldWeEncryptYourData": {
+    "message": "Choose how Bitwarden should encrypt your vault data. All options are secure, but stronger methods offer better protection - especially against brute-force attacks. Bitwarden recommends the default setting for most users."
+  },
+  "encryptionKeySettingsIncreaseImproveSecurity": {
+    "message": "Increasing the values above the default will improve security, but your vault may take longer to unlock as a result."
+  },
+  "encryptionKeySettingsAlgorithmPopoverTitle": {
+    "message": "About encryption algorithms"
+  },
+  "encryptionKeySettingsAlgorithmPopoverPBKDF2": {
+    "message": "PBKDF2-SHA256 is a well-tested encryption method that balances security and performance. Good for all users."
+  },
+  "encryptionKeySettingsAlgorithmPopoverArgon2Id": {
+    "message": "Argon2id offers stronger protection against modern attacks. Best for advanced users with powerful devices."
   }
 }

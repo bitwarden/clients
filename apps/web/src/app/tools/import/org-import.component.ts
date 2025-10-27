@@ -10,18 +10,35 @@ import {
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { isId, OrganizationId } from "@bitwarden/common/types/guid";
-import { ImportCollectionServiceAbstraction } from "@bitwarden/importer-core";
-import { ImportComponent } from "@bitwarden/importer-ui";
+import {
+  DefaultImportMetadataService,
+  ImportCollectionServiceAbstraction,
+  ImportMetadataServiceAbstraction,
+} from "@bitwarden/importer-core";
+import {
+  ImportComponent,
+  ImporterProviders,
+  SYSTEM_SERVICE_PROVIDER,
+} from "@bitwarden/importer-ui";
+import { safeProvider } from "@bitwarden/ui-common";
 
 import { HeaderModule } from "../../layouts/header/header.module";
 import { SharedModule } from "../../shared";
 
 import { ImportCollectionAdminService } from "./import-collection-admin.service";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "org-import.component.html",
   imports: [SharedModule, ImportComponent, HeaderModule],
   providers: [
+    ...ImporterProviders,
+    safeProvider({
+      provide: ImportMetadataServiceAbstraction,
+      useClass: DefaultImportMetadataService,
+      deps: [SYSTEM_SERVICE_PROVIDER],
+    }),
     {
       provide: ImportCollectionServiceAbstraction,
       useClass: ImportCollectionAdminService,

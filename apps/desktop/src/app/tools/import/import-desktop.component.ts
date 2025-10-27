@@ -13,6 +13,8 @@ import { safeProvider } from "@bitwarden/ui-common";
 
 import { DesktopImportMetadataService } from "./desktop-import-metadata.service";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "import-desktop.component.html",
   imports: [

@@ -5714,5 +5714,12 @@
   },
   "confirmKeyConnectorDomain": {
     "message": "Potvrdiť doménu Key Connectora"
+  },
+  "atRiskLoginsSecured": {
+    "message": "Skvelá práca pri zabezpečení vašich ohrozených prihlasovacích údajov!"
+  },
+  "settingDisabledByPolicy": {
+    "message": "Politika organizácie vypla toto nastavenie.",
+    "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
   }
 }

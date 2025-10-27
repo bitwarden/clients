@@ -21,6 +21,7 @@ import {
   AuthRequestServiceAbstraction,
   DefaultAuthRequestApiService,
   DefaultLockService,
+  DefaultLogoutService,
   InternalUserDecryptionOptionsServiceAbstraction,
   LoginEmailServiceAbstraction,
   LogoutReason,
@@ -299,6 +300,7 @@ import { BrowserActionsService } from "../platform/actions/browser-actions.servi
 import { DefaultBadgeBrowserApi } from "../platform/badge/badge-browser-api";
 import { BadgeService } from "../platform/badge/badge.service";
 import { BrowserApi } from "../platform/browser/browser-api";
+import BrowserPopupUtils from "../platform/browser/browser-popup-utils";
 import { flagEnabled } from "../platform/flags";
 import { IpcBackgroundService } from "../platform/ipc/ipc-background.service";
 import { IpcContentScriptManagerService } from "../platform/ipc/ipc-content-script-manager.service";
@@ -317,6 +319,7 @@ import I18nService from "../platform/services/i18n.service";
 import { LocalBackedSessionStorageService } from "../platform/services/local-backed-session-storage.service";
 import { BackgroundPlatformUtilsService } from "../platform/services/platform-utils/background-platform-utils.service";
 import { BrowserPlatformUtilsService } from "../platform/services/platform-utils/browser-platform-utils.service";
+import { PopupRouterCacheBackgroundService } from "../platform/services/popup-router-cache-background.service";
 import { PopupViewCacheBackgroundService } from "../platform/services/popup-view-cache-background.service";
 import { BrowserSdkLoadService } from "../platform/services/sdk/browser-sdk-load.service";
 import { BackgroundTaskSchedulerService } from "../platform/services/task-scheduler/background-task-scheduler.service";
@@ -486,6 +489,7 @@ export default class MainBackground {
   private nativeMessagingBackground: NativeMessagingBackground;
 
   private popupViewCacheBackgroundService: PopupViewCacheBackgroundService;
+  private popupRouterCacheBackgroundService: PopupRouterCacheBackgroundService;
 
   constructor() {
     // Services
@@ -682,6 +686,9 @@ export default class MainBackground {
       this.globalStateProvider,
       this.taskSchedulerService,
     );
+    this.popupRouterCacheBackgroundService = new PopupRouterCacheBackgroundService(
+      this.globalStateProvider,
+    );
 
     this.migrationRunner = new MigrationRunner(
       this.storageService,
@@ -698,9 +705,7 @@ export default class MainBackground {
 
     this.masterPasswordService = new MasterPasswordService(
       this.stateProvider,
-      this.stateService,
       this.keyGenerationService,
-      this.encryptService,
       this.logService,
       this.cryptoFunctionService,
       this.accountService,
@@ -978,6 +983,7 @@ export default class MainBackground {
       this.restrictedItemTypesService,
     );
 
+    const logoutService = new DefaultLogoutService(this.messagingService);
     this.vaultTimeoutService = new VaultTimeoutService(
       this.accountService,
       this.masterPasswordService,
@@ -996,7 +1002,7 @@ export default class MainBackground {
       this.logService,
       this.biometricsService,
       lockedCallback,
-      logoutCallback,
+      logoutService,
     );
     this.containerService = new ContainerService(this.keyService, this.encryptService);
 
@@ -1044,6 +1050,7 @@ export default class MainBackground {
       this.authService,
       this.stateProvider,
       this.securityStateService,
+      this.kdfConfigService,
     );
 
     this.syncServiceListener = new SyncServiceListener(
@@ -1237,6 +1244,12 @@ export default class MainBackground {
 
     const systemUtilsServiceReloadCallback = async () => {
       await this.taskSchedulerService.clearAllScheduledTasks();
+
+      // Close browser action popup before reloading to prevent zombie popup with invalidated context.
+      // The 'reloadProcess' message is sent by ProcessReloadService before this callback runs,
+      // and popups will close themselves upon receiving it. Poll to verify popup is actually closed.
+      await BrowserPopupUtils.waitForAllPopupsClose();
+
       BrowserApi.reloadExtension();
     };
 
@@ -1388,6 +1401,7 @@ export default class MainBackground {
       this.serverNotificationsService,
       this.accountService,
       this.vaultTimeoutSettingsService,
+      logoutService,
     );
 
     this.usernameGenerationService = legacyUsernameGenerationServiceFactory(
@@ -1485,6 +1499,7 @@ export default class MainBackground {
     await this.sdkLoadService.loadAndInit();
     // Only the "true" background should run migrations
     await this.migrationRunner.run();
+    this.encryptService.init(this.configService);
 
     // This is here instead of in the InitService b/c we don't plan for
     // side effects to run in the Browser InitService.
@@ -1505,6 +1520,7 @@ export default class MainBackground {
     (this.eventUploadService as EventUploadService).init(true);
 
     this.popupViewCacheBackgroundService.startObservingMessages();
+    this.popupRouterCacheBackgroundService.init();
 
     await this.vaultTimeoutService.init(true);
     this.fido2Background.init();

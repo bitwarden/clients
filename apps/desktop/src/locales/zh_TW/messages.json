@@ -1852,6 +1852,12 @@
   "lockWithMasterPassOnRestart1": {
     "message": "重啟後使用主密碼鎖定"
   },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "要求在重新啟動應用程式時輸入密碼或 PIN 碼"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "在應用程式重啟時重新詢問主密碼"
+  },
   "deleteAccount": {
     "message": "刪除帳戶"
   },
@@ -2550,7 +2556,7 @@
     }
   },
   "vaultCustomTimeoutMinimum": {
-    "message": "Minimum custom timeout is 1 minute."
+    "message": "自訂逾時時間最小為 1 分鐘。"
   },
   "inviteAccepted": {
     "message": "邀請已接受"
@@ -4153,7 +4159,7 @@
     "description": "Verb"
   },
   "unArchive": {
-    "message": "Unarchive"
+    "message": "取消封存"
   },
   "itemsInArchive": {
     "message": "封存中的項目"
@@ -4165,10 +4171,10 @@
     "message": "封存的項目會顯示在此處，且不會出現在一般搜尋結果或自動填入建議中。"
   },
   "itemWasSentToArchive": {
-    "message": "Item was sent to archive"
+    "message": "項目已移至封存"
   },
-  "itemUnarchived": {
-    "message": "Item was unarchived"
+  "itemWasUnarchived": {
+    "message": "項目取消封存"
   },
   "archiveItem": {
     "message": "封存項目"

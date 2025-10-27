@@ -31,6 +31,8 @@ import { PasswordInputResult } from "../../input-password/password-input-result"
 
 import { RegistrationFinishService } from "./registration-finish.service";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "auth-registration-finish",
   templateUrl: "./registration-finish.component.html",

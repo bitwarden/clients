@@ -2,7 +2,7 @@
 resolver = "2"
 members = [
     "autotype",
-    "bitwarden_chromium_importer",
+    "chromium_importer",
     "core",
     "macos_provider",
     "napi",
@@ -27,6 +27,7 @@ bitwarden-russh = { git = "https://github.com/bitwarden/bitwarden-russh.git", re
 byteorder = "=1.5.0"
 bytes = "=1.10.1"
 cbc = "=0.1.2"
+chacha20poly1305 = "=0.10.1"
 core-foundation = "=0.10.1"
 ctor = "=0.5.0"
 dirs = "=6.0.0"
@@ -38,7 +39,9 @@ homedir = "=0.3.4"
 interprocess = "=2.2.1"
 keytar = "=0.1.6"
 libc = "=0.2.172"
+linux-keyutils = "=0.2.4"
 log = "=0.4.25"
+memsec = "=0.7.0"
 napi = "=2.16.17"
 napi-build = "=2.2.0"
 napi-derive = "=2.16.13"
@@ -65,19 +68,23 @@ tokio = "=1.45.0"
 tokio-stream = "=0.1.15"
 tokio-util = "=0.7.13"
 tracing = "=0.1.41"
-tracing-subscriber = { version = "=0.3.20", features = ["fmt", "env-filter"] }
+tracing-subscriber = { version = "=0.3.20", features = ["fmt", "env-filter", "tracing-log"] }
 typenum = "=1.18.0"
 uniffi = "=0.28.3"
 widestring = "=1.2.0"
 windows = "=0.61.1"
 windows-core = "=0.61.0"
 windows-future = "=0.2.0"
-windows-registry = "=0.5.3"
+windows-registry = "=0.6.1"
 zbus = "=5.11.0"
 zbus_polkit = "=5.0.0"
 zeroizing-alloc = "=0.1.0"
 
 [workspace.lints.clippy]
+# Dis-allow println and eprintln, which are typically used in debugging.
+# Use `tracing` and `tracing-subscriber` crates for observability needs.
+print_stderr = "deny"
+print_stdout = "deny"
+string_slice = "warn"
 unused_async = "deny"
 unwrap_used = "deny"
-string_slice = "warn"

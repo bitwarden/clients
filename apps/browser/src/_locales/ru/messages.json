@@ -5714,5 +5714,12 @@
   },
   "confirmKeyConnectorDomain": {
     "message": "Подтвердите домен соединителя ключей"
+  },
+  "atRiskLoginsSecured": {
+    "message": "Great job securing your at-risk logins!"
+  },
+  "settingDisabledByPolicy": {
+    "message": "Этот параметр отключен политикой вашей организации.",
+    "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
   }
 }

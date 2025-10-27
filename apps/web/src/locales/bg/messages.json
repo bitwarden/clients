@@ -154,6 +154,15 @@
       }
     }
   },
+  "newPasswordsAtRisk": {
+    "message": "$COUNT$ нови пароли в риск",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "notifiedMembersWithCount": {
     "message": "Известени членове ($COUNT$)",
     "placeholders": {
@@ -2080,9 +2089,6 @@
   "encKeySettings": {
     "message": "Настройки на шифриращия ключ"
   },
-  "kdfAlgorithm": {
-    "message": "Алгоритъм KDF"
-  },
   "kdfIterations": {
     "message": "Повторения за KDF"
   },
@@ -2116,9 +2122,6 @@
   },
   "argon2Desc": {
     "message": "По-високите стойности за броя на повторения, паметта или степента на успоредно изпълнение на KDF може да защитят главната Ви парола от атаки тип „груба сила“."
-  },
-  "changeKdf": {
-    "message": "Смяна на KDF"
   },
   "encKeySettingsChanged": {
     "message": "Настройките за шифриращия ключ са сменени"
@@ -5710,6 +5713,65 @@
     "message": "Научете повече относно ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about the credential lifecycle.'"
   },
+  "availableNow": {
+    "message": "Налично сега"
+  },
+  "autoConfirm": {
+    "message": "Автоматично потвърждение на новите потребители"
+  },
+  "autoConfirmDescription": {
+    "message": "Новите потребители, поканени в организацията, ще бъдат потвърждавани автоматично, когато се отключи устройство на администратор.",
+    "description": "This is the description of the policy as it appears in the 'Policies' page"
+  },
+  "howToTurnOnAutoConfirm": {
+    "message": "Как се включва автоматичното потвърждаване на потребителите"
+  },
+  "autoConfirmStep1": {
+    "message": "Отворете добавката на Битуорден."
+  },
+  "autoConfirmStep2a": {
+    "message": "Изберете",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  },
+  "autoConfirmStep2b": {
+    "message": " Включване.",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  },
+  "autoConfirmExtensionOpened": {
+    "message": "Добавката за браузър на Битуорден е отворена. Сега можете да включите настройката за автоматично потвърждаване на потребителите."
+  },
+  "autoConfirmPolicyEditDescription": {
+    "message": "Новите потребители, поканени в организацията, ще бъдат потвърждавани автоматично, когато се отключи устройство на администратор. Преди да включите тази настройка, трябва да прегледате и да се съгласите със следното: ",
+    "description": "This is the description of the policy as it appears inside the policy edit dialog"
+  },
+  "autoConfirmAcceptSecurityRiskTitle": {
+    "message": "Потенциален риск за сигурността. "
+  },
+  "autoConfirmAcceptSecurityRiskDescription": {
+    "message": "Автоматичното потвърждение на потребителите може да представлява риск за сигурността на данните на организацията."
+  },
+  "autoConfirmAcceptSecurityRiskLearnMore": {
+    "message": "Научете повече за рисковете",
+    "description": "The is the link copy for the first check box option in the edit policy dialog"
+  },
+  "autoConfirmSingleOrgRequired": {
+    "message": "Изисква се да е включена политиката за единствена организация. "
+  },
+  "autoConfirmSingleOrgRequiredDescription": {
+    "message": "Достъпът ще бъде преустановен за всеки, който е част от повече от една организация, докато не напусне другите организации."
+  },
+  "autoConfirmSingleOrgExemption": {
+    "message": "Политиката за единствена организация ще се прилага за всички роли. "
+  },
+  "autoConfirmNoEmergencyAccess": {
+    "message": "Без авариен достъп. "
+  },
+  "autoConfirmNoEmergencyAccessDescription": {
+    "message": "Аварийният достъп ще бъде премахнат."
+  },
+  "autoConfirmCheckBoxLabel": {
+    "message": "Приемам тези рискове и промени в политиката"
+  },
   "personalOwnership": {
     "message": "Индивидуално притежание"
   },
@@ -7150,7 +7212,7 @@
     }
   },
   "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
-    "message": "Ще бъдат изнесени само записите от трезора свързан с $ORGANIZATION$. Моите колекции няма да бъдат включени.",
+    "message": "Ще бъдат изнесени само записите от трезора свързан с $ORGANIZATION$. Колекциите от вида „Моите записи“ няма да бъдат включени.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -10361,26 +10423,8 @@
   "memberAccessReportAuthenticationEnabledFalse": {
     "message": "Изключено"
   },
-  "higherKDFIterations": {
-    "message": "По-високите стойности за броя на повторения на KDF може да защитят главната Ви парола от атаки тип „груба сила“."
-  },
-  "incrementsOf100,000": {
-    "message": "стъпки от 100 000"
-  },
-  "smallIncrements": {
-    "message": "малки стъпки"
-  },
   "kdfIterationRecommends": {
     "message": "Препоръчваме 600 000 или повече"
-  },
-  "kdfToHighWarningIncreaseInIncrements": {
-    "message": "Задаването на прекалено висока стойност за KDF може да натовари прекомерно по-старите устройства. Увеличете стойността на $VALUE$ и изпробвайте устройствата си.",
-    "placeholders": {
-      "value": {
-        "content": "$1",
-        "example": "increments of 100,000"
-      }
-    }
   },
   "providerReinstate": {
     "message": " Свържете се с поддръжката, за да възобновите абонамента си."
@@ -11023,6 +11067,15 @@
   },
   "domainClaimed": {
     "message": "Домейнът е присвоен"
+  },
+  "itemAddedToFavorites": {
+    "message": "Елементът е добавен към любимите"
+  },
+  "itemRemovedFromFavorites": {
+    "message": "Елементът е премахнат от любимите"
+  },
+  "copyNote": {
+    "message": "Копиране на бележката"
   },
   "organizationNameMaxLength": {
     "message": "Името на организацията не може да бъде по-дълго от 50 знака."
@@ -11856,5 +11909,32 @@
   },
   "viewbusinessplans": {
     "message": "Преглед на плановете за компании"
+  },
+  "updateEncryptionSettings": {
+    "message": "Обновяване на настройките за шифроване"
+  },
+  "updateYourEncryptionSettings": {
+    "message": "Обновете настройките си за шифроване"
+  },
+  "updateSettings": {
+    "message": "Обновяване на настройките"
+  },
+  "algorithm": {
+    "message": "Алгоритъм"
+  },
+  "encryptionKeySettingsHowShouldWeEncryptYourData": {
+    "message": "Изберете как да шифрова Битуорден данните в трезора Ви. Всички варианти са сигурни, но по-сложните методи дават по-добра защита – особено срещу атаки от вида „груба сила“. За повечето потребители, Битуорден препоръчва стандартната настройка."
+  },
+  "encryptionKeySettingsIncreaseImproveSecurity": {
+    "message": "Увеличаването на стойностите над стандартните ще подобри сигурността, но може да направи отключването на трезора по-бавно."
+  },
+  "encryptionKeySettingsAlgorithmPopoverTitle": {
+    "message": "Информация относно алгоритмите за шифроване"
+  },
+  "encryptionKeySettingsAlgorithmPopoverPBKDF2": {
+    "message": "PBKDF2-SHA256 е изпитан метод за шифроване, който дава баланс между сигурност и бързина. Подходящ за всички потребители."
+  },
+  "encryptionKeySettingsAlgorithmPopoverArgon2Id": {
+    "message": "Argon2id предлага по-добра защита срещу съвременните атаки. Подходящ за напреднали потребители с по-мощни устройства."
   }
 }
