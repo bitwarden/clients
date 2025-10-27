@@ -50,7 +50,7 @@ export class DefaultLockService implements LockService {
     private readonly processReloadService: ProcessReloadServiceAbstraction,
     private readonly logService: LogService,
     private readonly keyService: KeyService,
-  ) { }
+  ) {}
 
   async lockAll() {
     const accounts = await firstValueFrom(
