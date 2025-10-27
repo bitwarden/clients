@@ -32,6 +32,49 @@ async function run(context) {
     console.log("Copied memory-protection wrapper script");
   }
 
+  if (context.electronPlatformName === "win32") {
+    console.log("Signing bundled Windows executables");
+    const appOutDir = context.appOutDir;
+    const proxyPath = path.join(appOutDir, "desktop_proxy.exe");
+    const chromiumImportHelperPath = path.join(appOutDir, "bitwarden_chromium_import_helper.exe");
+
+    // Only sign if ELECTRON_BUILDER_SIGN is enabled
+    if (parseInt(process.env.ELECTRON_BUILDER_SIGN) === 1) {
+      const filesToSign = [proxyPath, chromiumImportHelperPath];
+
+      for (const filePath of filesToSign) {
+        if (fse.existsSync(filePath)) {
+          console.log(`[*] Signing file: ${filePath}`);
+          try {
+            child_process.execSync(
+              `azuresigntool sign -v ` +
+                `-kvu ${process.env.SIGNING_VAULT_URL} ` +
+                `-kvi ${process.env.SIGNING_CLIENT_ID} ` +
+                `-kvt ${process.env.SIGNING_TENANT_ID} ` +
+                `-kvs ${process.env.SIGNING_CLIENT_SECRET} ` +
+                `-kvc ${process.env.SIGNING_CERT_NAME} ` +
+                `-fd sha256 ` +
+                `-du https://bitwarden.com ` +
+                `-tr http://timestamp.digicert.com ` +
+                `"${filePath}"`,
+              {
+                stdio: "inherit",
+              },
+            );
+            console.log(`[+] Successfully signed: ${filePath}`);
+          } catch (error) {
+            console.error(`[!] Failed to sign ${filePath}:`, error.message);
+            throw error;
+          }
+        } else {
+          console.warn(`[!] File not found, skipping: ${filePath}`);
+        }
+      }
+    } else {
+      console.log("Signing disabled (ELECTRON_BUILDER_SIGN != 1), skipping extra executables");
+    }
+  }
+
   if (["darwin", "mas"].includes(context.electronPlatformName)) {
     const is_mas = context.electronPlatformName === "mas";
     const is_mas_dev = context.targets.some((e) => e.name === "mas-dev");
