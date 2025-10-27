@@ -20,13 +20,15 @@ import { KeyService } from "@bitwarden/key-management";
 
 import { AddSponsorshipDialogComponent } from "./add-sponsorship-dialog.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-free-bitwarden-families",
   templateUrl: "free-bitwarden-families.component.html",
   standalone: false,
 })
 export class FreeBitwardenFamiliesComponent implements OnInit {
-  loading = signal<boolean>(true);
+  readonly loading = signal<boolean>(true);
   tabIndex = 0;
   sponsoredFamilies: OrganizationSponsorshipInvitesResponse[] = [];
 

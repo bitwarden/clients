@@ -1852,6 +1852,12 @@
   "lockWithMasterPassOnRestart1": {
     "message": "Bloquear com a palavra-passe mestra ao reiniciar"
   },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "Exigir a palavra-passe mestra ou PIN ao reiniciar a app"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "Exigir a palavra-passe mestra ao reiniciar a app"
+  },
   "deleteAccount": {
     "message": "Eliminar conta"
   },
@@ -4167,7 +4173,7 @@
   "itemWasSentToArchive": {
     "message": "O item foi movido para o arquivo"
   },
-  "itemUnarchived": {
+  "itemWasUnarchived": {
     "message": "O item foi desarquivado"
   },
   "archiveItem": {

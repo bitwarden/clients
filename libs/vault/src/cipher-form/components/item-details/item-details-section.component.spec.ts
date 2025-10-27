@@ -640,6 +640,46 @@ describe("ItemDetailsSectionComponent", () => {
     });
   });
 
+  describe("initFromExistingCipher", () => {
+    it("should set organizationId to null when prefillCipher.organizationId is undefined", async () => {
+      component.config.organizationDataOwnershipDisabled = true;
+      component.config.organizations = [{ id: "org1" } as Organization];
+
+      const prefillCipher = {
+        name: "Test Cipher",
+        organizationId: undefined,
+        folderId: null,
+        collectionIds: [],
+        favorite: false,
+      } as unknown as CipherView;
+
+      getInitialCipherView.mockReturnValueOnce(prefillCipher);
+
+      await component.ngOnInit();
+
+      expect(component.itemDetailsForm.controls.organizationId.value).toBeNull();
+    });
+
+    it("should preserve organizationId when prefillCipher.organizationId has a value", async () => {
+      component.config.organizationDataOwnershipDisabled = true;
+      component.config.organizations = [{ id: "org1", name: "Organization 1" } as Organization];
+
+      const prefillCipher = {
+        name: "Test Cipher",
+        organizationId: "org1",
+        folderId: null,
+        collectionIds: [],
+        favorite: false,
+      } as unknown as CipherView;
+
+      getInitialCipherView.mockReturnValueOnce(prefillCipher);
+
+      await component.ngOnInit();
+
+      expect(component.itemDetailsForm.controls.organizationId.value).toBe("org1");
+    });
+  });
+
   describe("form status when editing a cipher", () => {
     beforeEach(() => {
       component.config.mode = "edit";

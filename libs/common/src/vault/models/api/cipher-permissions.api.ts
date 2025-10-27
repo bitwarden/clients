@@ -24,7 +24,9 @@ export class CipherPermissionsApi extends BaseResponse implements SdkCipherPermi
   /**
    * Converts the SDK CipherPermissionsApi to a CipherPermissionsApi.
    */
-  static fromSdkCipherPermissions(obj: SdkCipherPermissions): CipherPermissionsApi | undefined {
+  static fromSdkCipherPermissions(
+    obj: SdkCipherPermissions | undefined,
+  ): CipherPermissionsApi | undefined {
     if (!obj) {
       return undefined;
     }

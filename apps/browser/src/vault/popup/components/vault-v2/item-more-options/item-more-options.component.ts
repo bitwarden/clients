@@ -34,6 +34,8 @@ import { PasswordRepromptService } from "@bitwarden/vault";
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
 import { AddEditQueryParams } from "../add-edit/add-edit-v2.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-item-more-options",
   templateUrl: "./item-more-options.component.html",
@@ -42,6 +44,8 @@ import { AddEditQueryParams } from "../add-edit/add-edit-v2.component";
 export class ItemMoreOptionsComponent {
   private _cipher$ = new BehaviorSubject<CipherViewLike>(undefined);
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({
     required: true,
   })
@@ -57,6 +61,8 @@ export class ItemMoreOptionsComponent {
    * Flag to show view item menu option. Used when something else is
    * assigned as the primary action for the item, such as autofill.
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ transform: booleanAttribute })
   showViewOption: boolean;
 
@@ -64,6 +70,8 @@ export class ItemMoreOptionsComponent {
    * Flag to hide the autofill menu options. Used for items that are
    * already in the autofill list suggestion.
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ transform: booleanAttribute })
   hideAutofillOptions: boolean;
 
@@ -267,6 +275,11 @@ export class ItemMoreOptionsComponent {
   }
 
   protected async delete() {
+    const repromptPassed = await this.passwordRepromptService.passwordRepromptCheck(this.cipher);
+    if (!repromptPassed) {
+      return;
+    }
+
     const confirmed = await this.dialogService.openSimpleDialog({
       title: { key: "deleteItem" },
       content: { key: "deleteItemConfirmation" },

@@ -1852,6 +1852,12 @@
   "lockWithMasterPassOnRestart1": {
     "message": "Beim Neustart mit Master-Passwort sperren"
   },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "Master-Passwort oder PIN beim App-Neustart erfordern"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "Master-Passwort beim App-Neustart erfordern"
+  },
   "deleteAccount": {
     "message": "Konto löschen"
   },
@@ -4167,7 +4173,7 @@
   "itemWasSentToArchive": {
     "message": "Eintrag wurde ins Archiv verschoben"
   },
-  "itemUnarchived": {
+  "itemWasUnarchived": {
     "message": "Eintrag wird nicht mehr archiviert"
   },
   "archiveItem": {
