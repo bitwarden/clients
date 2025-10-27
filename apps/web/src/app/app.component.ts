@@ -8,6 +8,7 @@ import { Subject, filter, firstValueFrom, map, timeout } from "rxjs";
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { DeviceTrustToastService } from "@bitwarden/angular/auth/services/device-trust-toast.service.abstraction";
 import { DocumentLangSetter } from "@bitwarden/angular/platform/i18n";
+import { LockService } from "@bitwarden/auth/common";
 import { EventUploadService } from "@bitwarden/common/abstractions/event/event-upload.service";
 import { InternalOrganizationServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -16,7 +17,6 @@ import { TokenService } from "@bitwarden/common/auth/abstractions/token.service"
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
-import { VaultTimeoutService } from "@bitwarden/common/key-management/vault-timeout";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -56,8 +56,8 @@ export class AppComponent implements OnDestroy, OnInit {
     private i18nService: I18nService,
     private platformUtilsService: PlatformUtilsService,
     private ngZone: NgZone,
-    private vaultTimeoutService: VaultTimeoutService,
     private keyService: KeyService,
+    private lockService: LockService,
     private collectionService: CollectionService,
     private searchService: SearchService,
     private serverNotificationsService: ServerNotificationsService,
@@ -111,9 +111,11 @@ export class AppComponent implements OnDestroy, OnInit {
             // note: the message.logoutReason isn't consumed anymore because of the process reload clearing any toasts.
             await this.logOut(message.redirect);
             break;
-          case "lockVault":
-            await this.vaultTimeoutService.lock();
+          case "lockVault": {
+            const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+            await this.lockService.lock(userId);
             break;
+          }
           case "locked":
             await this.processReloadService.startProcessReload();
             break;
