@@ -28,7 +28,9 @@ pub struct BiometricLockSystem {
 impl BiometricLockSystem {
     pub fn new() -> Self {
         Self {
-            secure_memory: Arc::new(Mutex::new(crate::secure_memory::encrypted_memory_store::EncryptedMemoryStore::new())),
+            secure_memory: Arc::new(Mutex::new(
+                crate::secure_memory::encrypted_memory_store::EncryptedMemoryStore::new(),
+            )),
         }
     }
 }
