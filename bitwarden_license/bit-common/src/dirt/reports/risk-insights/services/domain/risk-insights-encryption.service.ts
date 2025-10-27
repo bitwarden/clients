@@ -191,15 +191,13 @@ export class RiskInsightsEncryptionService {
       // Validate parsed data structure with runtime type guards
       return validateApplicationHealthReportDetailArray(parsedData);
     } catch (error: unknown) {
+      // Log detailed error for debugging
       this.logService.error("[RiskInsightsEncryptionService] Failed to decrypt report", error);
-      // Re-throw validation errors as they indicate data corruption or tampering
-      // Use generic message to avoid information disclosure
-      if (error instanceof Error && error.message.includes("Invalid report data")) {
-        throw new Error(
-          "Report data validation failed. This may indicate data corruption or tampering.",
-        );
-      }
-      throw error;
+      // Always throw generic message to prevent information disclosure
+      // Original error with detailed validation info is logged, not exposed to caller
+      throw new Error(
+        "Report data validation failed. This may indicate data corruption or tampering.",
+      );
     }
   }
 
@@ -218,18 +216,16 @@ export class RiskInsightsEncryptionService {
       // Validate parsed data structure with runtime type guards
       return validateOrganizationReportSummary(parsedData);
     } catch (error: unknown) {
+      // Log detailed error for debugging
       this.logService.error(
         "[RiskInsightsEncryptionService] Failed to decrypt report summary",
         error,
       );
-      // Re-throw validation errors as they indicate data corruption or tampering
-      // Use generic message to avoid information disclosure
-      if (error instanceof Error && error.message.includes("Invalid OrganizationReportSummary")) {
-        throw new Error(
-          "Summary data validation failed. This may indicate data corruption or tampering.",
-        );
-      }
-      throw error;
+      // Always throw generic message to prevent information disclosure
+      // Original error with detailed validation info is logged, not exposed to caller
+      throw new Error(
+        "Summary data validation failed. This may indicate data corruption or tampering.",
+      );
     }
   }
 
@@ -248,22 +244,16 @@ export class RiskInsightsEncryptionService {
       // Validate parsed data structure with runtime type guards
       return validateOrganizationReportApplicationArray(parsedData);
     } catch (error: unknown) {
+      // Log detailed error for debugging
       this.logService.error(
         "[RiskInsightsEncryptionService] Failed to decrypt report applications",
         error,
       );
-      // Re-throw validation errors as they indicate data corruption or tampering
-      // Use generic message to avoid information disclosure
-      if (
-        error instanceof Error &&
-        (error.message.includes("Invalid application data") ||
-          error.message.includes("Invalid date string"))
-      ) {
-        throw new Error(
-          "Application data validation failed. This may indicate data corruption or tampering.",
-        );
-      }
-      throw error;
+      // Always throw generic message to prevent information disclosure
+      // Original error with detailed validation info is logged, not exposed to caller
+      throw new Error(
+        "Application data validation failed. This may indicate data corruption or tampering.",
+      );
     }
   }
 }
