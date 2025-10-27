@@ -8,7 +8,7 @@ members = [
     "napi",
     "process_isolation",
     "proxy",
-    "windows_plugin_authenticator"
+    "windows_plugin_authenticator",
 ]
 
 [workspace.package]
@@ -39,7 +39,9 @@ homedir = "=0.3.4"
 interprocess = "=2.2.1"
 keytar = "=0.1.6"
 libc = "=0.2.172"
+linux-keyutils = "=0.2.4"
 log = "=0.4.25"
+memsec = "=0.7.0"
 napi = "=3.3.0"
 napi-build = "=2.2.3"
 napi-derive = "=3.2.5"

@@ -154,6 +154,15 @@
       }
     }
   },
+  "newPasswordsAtRisk": {
+    "message": "Novih rizičnih lozinki: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "notifiedMembersWithCount": {
     "message": "Obaviješteni članovi ($COUNT$)",
     "placeholders": {
@@ -2080,9 +2089,6 @@
   "encKeySettings": {
     "message": "Postavke ključa za šifriranje"
   },
-  "kdfAlgorithm": {
-    "message": "KDF algoritam"
-  },
   "kdfIterations": {
     "message": "KDF iteracija"
   },
@@ -2116,9 +2122,6 @@
   },
   "argon2Desc": {
     "message": "Više KDF iteracije, memiorije i paralelizmi mogu pomoći zaštititi tvoju glavnu lozinku od bute force napada."
-  },
-  "changeKdf": {
-    "message": "Promijeni KDF"
   },
   "encKeySettingsChanged": {
     "message": "Postavke ključa za šifriranje promijenjene"
@@ -5709,6 +5712,65 @@
   "organizationDataOwnershipWarningContentBottom": {
     "message": "Saznaj više o ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about the credential lifecycle.'"
+  },
+  "availableNow": {
+    "message": "Dostupno sada"
+  },
+  "autoConfirm": {
+    "message": "Automatska potvrda novih korisnika"
+  },
+  "autoConfirmDescription": {
+    "message": "Novi korisnici pozvani u organizaciju bit će automatski potvrđeni kada se uređaj administratora otključa.",
+    "description": "This is the description of the policy as it appears in the 'Policies' page"
+  },
+  "howToTurnOnAutoConfirm": {
+    "message": "Kako uključiti automatsku potvrdu korisnika"
+  },
+  "autoConfirmStep1": {
+    "message": "Otvori svoje Bitwarden proširenje."
+  },
+  "autoConfirmStep2a": {
+    "message": "Odaberi",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  },
+  "autoConfirmStep2b": {
+    "message": " Uključi.",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  },
+  "autoConfirmExtensionOpened": {
+    "message": "Uspješno otvoreno Bitwarden proširenje za preglednik. Sada možeš aktivirati postavku automatske potvrde korisnika."
+  },
+  "autoConfirmPolicyEditDescription": {
+    "message": "Novi korisnici pozvani u organizaciju bit će automatski potvrđeni kada se uređaj administratora otključa. Prije uključivanja ove politike, pregledaj i prihvati sljedeće: ",
+    "description": "This is the description of the policy as it appears inside the policy edit dialog"
+  },
+  "autoConfirmAcceptSecurityRiskTitle": {
+    "message": "Mogući sigurnosni rizik. "
+  },
+  "autoConfirmAcceptSecurityRiskDescription": {
+    "message": "Automatska potvrda korisnika mogla bi predstavljati sigurnosni rizik za podatke tvoje organizacije."
+  },
+  "autoConfirmAcceptSecurityRiskLearnMore": {
+    "message": "Više o rizicima",
+    "description": "The is the link copy for the first check box option in the edit policy dialog"
+  },
+  "autoConfirmSingleOrgRequired": {
+    "message": "Potrebno je pravilo Isključive organizacije. "
+  },
+  "autoConfirmSingleOrgRequiredDescription": {
+    "message": "Svakome tko je dio više od jedne organizacije bit će ukinut pristup sve dok ne napusti ostale organizacije."
+  },
+  "autoConfirmSingleOrgExemption": {
+    "message": "Pravilo Isključive organizacija će biti primijenjeno na sve uloge."
+  },
+  "autoConfirmNoEmergencyAccess": {
+    "message": "Nema pristupa u nuždi. "
+  },
+  "autoConfirmNoEmergencyAccessDescription": {
+    "message": "Pristup u nuždi biti će uklonjen."
+  },
+  "autoConfirmCheckBoxLabel": {
+    "message": "Prihavaćam ove rizike i ažurirana pravila"
   },
   "personalOwnership": {
     "message": "Ukloni osobni trezor"
@@ -10361,26 +10423,8 @@
   "memberAccessReportAuthenticationEnabledFalse": {
     "message": "Isklj."
   },
-  "higherKDFIterations": {
-    "message": "Veće KDF iteracije mogu pomoći u zaštiti tvoje glavne lozinke od napadača."
-  },
-  "incrementsOf100,000": {
-    "message": "koracima od 100.000"
-  },
-  "smallIncrements": {
-    "message": "malim koracima"
-  },
   "kdfIterationRecommends": {
     "message": "Preporučujemo 600.000 ili više"
-  },
-  "kdfToHighWarningIncreaseInIncrements": {
-    "message": "Previsoko postavljen KDF-a kod starijih uređaja, može dovesti do problema s performansama. Povećaj vrijednost u $VALUE$ i testiraj svoj uređaj.",
-    "placeholders": {
-      "value": {
-        "content": "$1",
-        "example": "increments of 100,000"
-      }
-    }
   },
   "providerReinstate": {
     "message": " Za ponovno uspostavljanje pretplate, obratite se korisničkoj podršci."
@@ -11024,6 +11068,15 @@
   "domainClaimed": {
     "message": "Domena potvrđena"
   },
+  "itemAddedToFavorites": {
+    "message": "Stavka dodana u omiljene"
+  },
+  "itemRemovedFromFavorites": {
+    "message": "Stavka uklonjenja iz omiljenih"
+  },
+  "copyNote": {
+    "message": "Kopiraj bilješku"
+  },
   "organizationNameMaxLength": {
     "message": "Naziv organizacije ne može biti duži od 50 znakova."
   },
@@ -11295,45 +11348,45 @@
     "description": "Verb"
   },
   "unArchive": {
-    "message": "Unarchive"
+    "message": "Poništi arhiviranje"
   },
   "itemsInArchive": {
-    "message": "Items in archive"
+    "message": "Stavke u arhivi"
   },
   "noItemsInArchive": {
     "message": "Nema stavki u arhivi"
   },
   "noItemsInArchiveDesc": {
-    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+    "message": "Arhivirane stavke biti će prikazane ovdje i biti će izuzete iz rezultata općih pretraga i preporuka auto-ispune."
   },
   "itemWasSentToArchive": {
-    "message": "Item was sent to archive"
+    "message": "Stavka poslana u arhivu"
   },
   "itemsWereSentToArchive": {
-    "message": "Items were sent to archive"
+    "message": "Stavke poslane u arhivu"
   },
   "itemUnarchived": {
-    "message": "Item was unarchived"
+    "message": "Stavka vraćena iz arhive"
   },
   "bulkArchiveItems": {
-    "message": "Items archived"
+    "message": "Stavke arhivirane"
   },
   "bulkUnarchiveItems": {
-    "message": "Items unarchived"
+    "message": "Stavke vraćene iz arhive"
   },
   "archiveItem": {
-    "message": "Archive item",
+    "message": "Arhiviraj stavku",
     "description": "Verb"
   },
   "archiveItemConfirmDesc": {
-    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+    "message": "Arhivirane stavke biti će izuzete iz rezultata općih pretraga i preporuka auto-ispune. Sigurno želiš arhivirati?"
   },
   "archiveBulkItems": {
-    "message": "Archive items",
+    "message": "Arhiviraj stavke",
     "description": "Verb"
   },
   "archiveBulkItemsConfirmDesc": {
-    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive these items?"
+    "message": "Arhivirane stavke biti će izuzete iz rezultata općih pretraga i preporuka auto-ispune. Sigurno želiš arhivirati?"
   },
   "businessUnit": {
     "message": "Poslovna jedinica"
@@ -11837,24 +11890,51 @@
     "message": "Nastavi bez nadogradnje"
   },
   "upgradeYourPlan": {
-    "message": "Upgrade your plan"
+    "message": "Nadogradi svoj paket"
   },
   "upgradeNow": {
-    "message": "Upgrade now"
+    "message": "Nadogradi sada"
   },
   "formWillCreateNewFamiliesOrgMessage": {
-    "message": "Completing this form will create a new Families organization. You can upgrade your Free organization from the Admin Console."
+    "message": "Ispunjavanjem ovog obrasca stvorit ćeš novu obiteljsku organizaciju. Svoju besplatnu organizaciju možeš nadograditi u administratorskoj konzoli."
   },
   "upgradeErrorMessage": {
     "message": "Došlo je do pogreške prilikom obrade nadogradnje. Pokušaj ponovno."
   },
   "bitwardenFreeplanMessage": {
-    "message": "You have the Bitwarden Free plan"
+    "message": "Imaš besplatni Bitwarden paket"
   },
   "upgradeCompleteSecurity": {
-    "message": "Upgrade for complete security"
+    "message": "Nadogradi za potpunu sigurnost"
   },
   "viewbusinessplans": {
-    "message": "View business plans"
+    "message": "Pogledaj poslovne pakete"
+  },
+  "updateEncryptionSettings": {
+    "message": "Ažuriraj postakve šifriranja"
+  },
+  "updateYourEncryptionSettings": {
+    "message": "Ažuriraj svoje postakve šifriranja"
+  },
+  "updateSettings": {
+    "message": "Ažuriraj postavke"
+  },
+  "algorithm": {
+    "message": "Algoritam"
+  },
+  "encryptionKeySettingsHowShouldWeEncryptYourData": {
+    "message": "Odaberi kako Bitwarden treba šifrirati podatke tvojeg trezora. Sve opcije su sigurne, ali jače metode nude bolju zaštitu - posebno od napada grubom silom. Bitwarden preporučuje zadanu postavku za većinu korisnika."
+  },
+  "encryptionKeySettingsIncreaseImproveSecurity": {
+    "message": "Povećanje vrijednosti iznad zadanih poboljšat će sigurnost, ali će zbog toga otključavanje tvojeg trezora možda trajati dulje."
+  },
+  "encryptionKeySettingsAlgorithmPopoverTitle": {
+    "message": "O algoritmima šifriranja"
+  },
+  "encryptionKeySettingsAlgorithmPopoverPBKDF2": {
+    "message": "PBKDF2-SHA256 je dobro testirana metoda šifriranja koja uravnotežuje sigurnost i performanse. Dobra je za sve korisnike."
+  },
+  "encryptionKeySettingsAlgorithmPopoverArgon2Id": {
+    "message": "Argon2id nudi jaču zaštitu od modernih napada. Najbolje za napredne korisnike s moćnim uređajima."
   }
 }

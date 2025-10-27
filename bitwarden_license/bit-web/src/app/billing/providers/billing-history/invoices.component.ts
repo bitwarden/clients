@@ -8,15 +8,25 @@ import {
 } from "@bitwarden/common/billing/models/response/invoices.response";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-invoices",
   templateUrl: "./invoices.component.html",
   standalone: false,
 })
 export class InvoicesComponent implements OnInit {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() startWith?: InvoicesResponse;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() getInvoices?: () => Promise<InvoicesResponse>;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() getClientInvoiceReport?: (invoiceId: string) => Promise<string>;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() getClientInvoiceReportName?: (invoiceResponse: InvoiceResponse) => string;
 
   protected invoices: InvoiceResponse[] = [];

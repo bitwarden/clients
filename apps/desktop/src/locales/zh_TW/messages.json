@@ -1852,6 +1852,12 @@
   "lockWithMasterPassOnRestart1": {
     "message": "重啟後使用主密碼鎖定"
   },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "要求在重新啟動應用程式時輸入密碼或 PIN 碼"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "在應用程式重啟時重新詢問主密碼"
+  },
   "deleteAccount": {
     "message": "刪除帳戶"
   },
@@ -4167,7 +4173,7 @@
   "itemWasSentToArchive": {
     "message": "項目已移至封存"
   },
-  "itemUnarchived": {
+  "itemWasUnarchived": {
     "message": "項目取消封存"
   },
   "archiveItem": {

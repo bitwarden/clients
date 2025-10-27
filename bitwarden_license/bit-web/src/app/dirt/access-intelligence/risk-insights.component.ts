@@ -1,13 +1,15 @@
 import { CommonModule } from "@angular/common";
-import { Component, DestroyRef, OnInit, inject } from "@angular/core";
+import { Component, DestroyRef, OnDestroy, OnInit, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 import { EMPTY } from "rxjs";
-import { map, switchMap } from "rxjs/operators";
+import { map, tap } from "rxjs/operators";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { RiskInsightsDataService } from "@bitwarden/bit-common/dirt/reports/risk-insights";
-import { DrawerType } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/report-models";
+import {
+  DrawerType,
+  RiskInsightsDataService,
+} from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
@@ -21,19 +23,13 @@ import {
 } from "@bitwarden/components";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 
-import { AllActivityComponent } from "./all-activity.component";
-import { AllApplicationsComponent } from "./all-applications.component";
-import { CriticalApplicationsComponent } from "./critical-applications.component";
+import { AllActivityComponent } from "./activity/all-activity.component";
+import { AllApplicationsComponent } from "./all-applications/all-applications.component";
+import { CriticalApplicationsComponent } from "./critical-applications/critical-applications.component";
+import { RiskInsightsTabType } from "./models/risk-insights.models";
 
-// FIXME: update to use a const object instead of a typescript enum
-// eslint-disable-next-line @bitwarden/platform/no-enums
-export enum RiskInsightsTabType {
-  AllActivity = 0,
-  AllApps = 1,
-  CriticalApps = 2,
-  NotifiedMembers = 3,
-}
-
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "./risk-insights.component.html",
   imports: [
@@ -51,7 +47,7 @@ export enum RiskInsightsTabType {
     AllActivityComponent,
   ],
 })
-export class RiskInsightsComponent implements OnInit {
+export class RiskInsightsComponent implements OnInit, OnDestroy {
   private destroyRef = inject(DestroyRef);
   private _isDrawerOpen: boolean = false;
 
@@ -65,7 +61,6 @@ export class RiskInsightsComponent implements OnInit {
   private organizationId: OrganizationId = "" as OrganizationId;
 
   dataLastUpdated: Date | null = null;
-  refetching: boolean = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -91,11 +86,10 @@ export class RiskInsightsComponent implements OnInit {
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         map((params) => params.get("organizationId")),
-        switchMap(async (orgId) => {
+        tap((orgId) => {
           if (orgId) {
             // Initialize Data Service
-            await this.dataService.initializeForOrganization(orgId as OrganizationId);
-
+            this.dataService.initializeForOrganization(orgId as OrganizationId);
             this.organizationId = orgId as OrganizationId;
           } else {
             return EMPTY;
@@ -105,7 +99,7 @@ export class RiskInsightsComponent implements OnInit {
       .subscribe();
 
     // Subscribe to report result details
-    this.dataService.reportResults$
+    this.dataService.enrichedReportData$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((report) => {
         this.appsCount = report?.reportData.length ?? 0;
@@ -119,15 +113,16 @@ export class RiskInsightsComponent implements OnInit {
         this._isDrawerOpen = details.open;
       });
   }
-  runReport = () => {
-    this.dataService.triggerReport();
-  };
+
+  ngOnDestroy(): void {
+    this.dataService.destroy();
+  }
 
   /**
    * Refreshes the data by re-fetching the applications report.
    * This will automatically notify child components subscribed to the RiskInsightsDataService observables.
    */
-  refreshData(): void {
+  generateReport(): void {
     if (this.organizationId) {
       this.dataService.triggerReport();
     }
