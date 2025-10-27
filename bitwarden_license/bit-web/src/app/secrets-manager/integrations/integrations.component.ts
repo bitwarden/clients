@@ -94,7 +94,14 @@ export class IntegrationsComponent {
         linkURL: "https://bitwarden.com/help/secrets-manager-kubernetes-operator/",
         image: "../../../../../../../images/secrets-manager/integrations/kubernetes.svg",
         type: IntegrationType.Integration,
-        newBadgeExpiration: "2024-8-12",
+        newBadgeExpiration: "2024-8-12", //August 12, 2024
+      },
+      {
+        name: "Terraform Provider",
+        linkURL: "https://github.com/bitwarden/terraform-provider-bitwarden-sm",
+        image: "../../../../../../../images/secrets-manager/integrations/terraform.svg",
+        type: IntegrationType.Integration,
+        newBadgeExpiration: "2025-4-12", //April 12, 2025
       },
       {
         name: "Terraform Provider",
