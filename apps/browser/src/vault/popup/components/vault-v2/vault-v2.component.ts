@@ -159,6 +159,7 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
     private nudgesService: NudgesService,
     private router: Router,
   ) {
+    performance.mark("vault-v2-ctor-start");
     combineLatest([
       this.vaultPopupItemsService.emptyVault$,
       this.vaultPopupItemsService.noFilteredResults$,
