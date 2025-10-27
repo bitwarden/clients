@@ -19,18 +19,24 @@ import { DialogService } from "@bitwarden/components";
 
 import { isEnterpriseOrgGuard } from "./is-enterprise-org.guard";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template: "<h1>This is the home screen!</h1>",
   standalone: false,
 })
 export class HomescreenComponent {}
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template: "<h1>This component can only be accessed by a enterprise organization!</h1>",
   standalone: false,
 })
 export class IsEnterpriseOrganizationComponent {}
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template: "<h1>This is the organization upgrade screen!</h1>",
   standalone: false,

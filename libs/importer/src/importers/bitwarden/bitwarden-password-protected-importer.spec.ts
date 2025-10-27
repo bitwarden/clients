@@ -9,7 +9,6 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { emptyGuid, OrganizationId } from "@bitwarden/common/types/guid";
 import { OrgKey, UserKey } from "@bitwarden/common/types/key";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { newGuid } from "@bitwarden/guid";
 import { KdfType, KeyService } from "@bitwarden/key-management";
 import { UserId } from "@bitwarden/user-core";
 
@@ -41,7 +40,7 @@ describe("BitwardenPasswordProtectedImporter", () => {
     accountService = mock<AccountService>();
 
     accountService.activeAccount$ = of({
-      id: newGuid() as UserId,
+      id: emptyGuid as UserId,
       email: "test@example.com",
       emailVerified: true,
       name: "Test User",
@@ -52,8 +51,8 @@ describe("BitwardenPasswordProtectedImporter", () => {
       The key values below are never read, empty objects are cast as types for compilation type checking only.
       Tests specific to key contents are in key-service.spec.ts
     */
-    const mockOrgKey = {} as unknown as OrgKey;
-    const mockUserKey = {} as unknown as UserKey;
+    const mockOrgKey = {} as OrgKey;
+    const mockUserKey = {} as UserKey;
 
     keyService.orgKeys$.mockImplementation(() =>
       of({ [mockOrgId]: mockOrgKey } as Record<OrganizationId, OrgKey>),
@@ -99,7 +98,7 @@ describe("BitwardenPasswordProtectedImporter", () => {
 
     beforeEach(() => {
       accountService.activeAccount$ = of({
-        id: newGuid() as UserId,
+        id: emptyGuid as UserId,
         email: "test@example.com",
         emailVerified: true,
         name: "Test User",

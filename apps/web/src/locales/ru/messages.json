@@ -35,6 +35,9 @@
       }
     }
   },
+  "noReportRan": {
+    "message": "Вы еще не создали отчет"
+  },
   "notifiedMembers": {
     "message": "Уведомленные участники"
   },
@@ -87,8 +90,8 @@
   "assignMembersTasksToMonitorProgress": {
     "message": "Assign members tasks to monitor progress"
   },
-  "onceYouReviewApplications": {
-    "message": "Once you review applications and mark them as critical, they will display here."
+  "onceYouReviewApps": {
+    "message": "Once you review applications and mark them as critical, you can assign tasks to members to resolve at-risk items and monitor progress here"
   },
   "sendReminders": {
     "message": "Send reminders"
@@ -151,6 +154,15 @@
       }
     }
   },
+  "newPasswordsAtRisk": {
+    "message": "$COUNT$ new passwords at-risk",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "notifiedMembersWithCount": {
     "message": "Уведомленные участники ($COUNT$)",
     "placeholders": {
@@ -184,8 +196,23 @@
   "markAppAsCritical": {
     "message": "Пометить приложение как критическое"
   },
+  "markAsCritical": {
+    "message": "Mark as critical"
+  },
+  "applicationsSelected": {
+    "message": "applications selected"
+  },
+  "selectApplication": {
+    "message": "Select application"
+  },
+  "unselectApplication": {
+    "message": "Unselect application"
+  },
   "applicationsMarkedAsCriticalSuccess": {
     "message": "Приложения помечены как критические"
+  },
+  "applicationsMarkedAsCriticalFail": {
+    "message": "Failed to mark applications as critical"
   },
   "application": {
     "message": "Приложение"
@@ -273,6 +300,33 @@
   },
   "totalApplications": {
     "message": "Всего приложений"
+  },
+  "applicationsNeedingReview": {
+    "message": "Applications needing review"
+  },
+  "newApplicationsWithCount": {
+    "message": "$COUNT$ new applications",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "13"
+      }
+    }
+  },
+  "newApplicationsDescription": {
+    "message": "Review new applications to mark as critical and keep your organization secure"
+  },
+  "reviewNow": {
+    "message": "Review now"
+  },
+  "prioritizeCriticalApplications": {
+    "message": "Prioritize critical applications"
+  },
+  "atRiskItems": {
+    "message": "At-risk items"
+  },
+  "markAsCriticalPlaceholder": {
+    "message": "Mark as critical functionality will be implemented in a future update"
   },
   "unmarkAsCritical": {
     "message": "Снять отметку критического"
@@ -1248,6 +1302,9 @@
   "readingPasskeyLoadingInfo": {
     "message": "Не закрывайте это окно и следуйте запросам браузера."
   },
+  "passkeyAuthenticationFailed": {
+    "message": "Не удалось выполнить аутентификацию с помощью passkey. Попробуйте еще раз."
+  },
   "useADifferentLogInMethod": {
     "message": "Использовать другой способ авторизации"
   },
@@ -2032,9 +2089,6 @@
   "encKeySettings": {
     "message": "Настройки ключа шифрования"
   },
-  "kdfAlgorithm": {
-    "message": "Алгоритм KDF"
-  },
   "kdfIterations": {
     "message": "Итерации KDF"
   },
@@ -2068,9 +2122,6 @@
   },
   "argon2Desc": {
     "message": "Увеличение числа итераций KDF, памяти и параллелизма может помочь защитить ваш мастер-пароль от взлома его злоумышленником."
-  },
-  "changeKdf": {
-    "message": "Изменить KDF"
   },
   "encKeySettingsChanged": {
     "message": "Настройки ключа шифрования сохранены"
@@ -2901,6 +2952,9 @@
   },
   "makeSureEnoughCredit": {
     "message": "Убедитесь, что на вашем счету достаточно средств для этой покупки. Если на вашем счете недостаточно средств, то для покрытия разницы будет использован ваш метод оплаты по умолчанию. Вы можете добавить денежные средства в свой аккаунт на странице оплаты."
+  },
+  "notEnoughAccountCredit": {
+    "message": "У вас недостаточно средств для этой покупки. Вы можете сделать пополнение на странице выставления счета."
   },
   "creditAppliedDesc": {
     "message": "Средства на вашем счете могут быть использованы для совершения платежей. Любой доступный остаток будет автоматически использован для оплаты счетов, выставленных этому аккаунту."
@@ -4310,6 +4364,9 @@
   "generatingYourRiskInsights": {
     "message": "Генерация информации о рисках..."
   },
+  "riskInsightsRunReport": {
+    "message": "Запустить отчет"
+  },
   "updateBrowserDesc": {
     "message": "Вы используете неподдерживаемый браузер. Веб-хранилище может работать некорректно."
   },
@@ -5655,6 +5712,65 @@
   "organizationDataOwnershipWarningContentBottom": {
     "message": "Узнайте больше о ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about the credential lifecycle.'"
+  },
+  "availableNow": {
+    "message": "Уже доступно"
+  },
+  "autoConfirm": {
+    "message": "Автоматическое подтверждение новых пользователей"
+  },
+  "autoConfirmDescription": {
+    "message": "Новые пользователи, приглашенные в организацию, будут автоматически подтверждены, когда устройство администратора будет разблокировано.",
+    "description": "This is the description of the policy as it appears in the 'Policies' page"
+  },
+  "howToTurnOnAutoConfirm": {
+    "message": "Как включить автоматическое подтверждение пользователя"
+  },
+  "autoConfirmStep1": {
+    "message": "Откройте свое расширение Bitwarden."
+  },
+  "autoConfirmStep2a": {
+    "message": "Выбрать",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  },
+  "autoConfirmStep2b": {
+    "message": " Включить.",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  },
+  "autoConfirmExtensionOpened": {
+    "message": "Успешно открыто расширение браузера Bitwarden. Теперь вы можете активировать автоматическое подтверждение пользователя."
+  },
+  "autoConfirmPolicyEditDescription": {
+    "message": "Новые пользователи, приглашенные в организацию, будут автоматически подтверждены, когда устройство администратора будет разблокировано. Перед включением этой политики, пожалуйста, ознакомьтесь со следующими условиями и согласитесь с ними: ",
+    "description": "This is the description of the policy as it appears inside the policy edit dialog"
+  },
+  "autoConfirmAcceptSecurityRiskTitle": {
+    "message": "Потенциальные риски безопасности. "
+  },
+  "autoConfirmAcceptSecurityRiskDescription": {
+    "message": "Автоматическое подтверждение пользователя может представлять угрозу безопасности данных вашей организации."
+  },
+  "autoConfirmAcceptSecurityRiskLearnMore": {
+    "message": "Узнайте о рисках",
+    "description": "The is the link copy for the first check box option in the edit policy dialog"
+  },
+  "autoConfirmSingleOrgRequired": {
+    "message": "Требуется политика единой организации. "
+  },
+  "autoConfirmSingleOrgRequiredDescription": {
+    "message": "У любого сотрудника, работающего в нескольких организациях, будет отозван доступ до тех пор, пока он не покинет другие организации."
+  },
+  "autoConfirmSingleOrgExemption": {
+    "message": "Политика единой организации распространяется на все роли. "
+  },
+  "autoConfirmNoEmergencyAccess": {
+    "message": "Нет экстренного доступа. "
+  },
+  "autoConfirmNoEmergencyAccessDescription": {
+    "message": "Экстренный доступ будет удален."
+  },
+  "autoConfirmCheckBoxLabel": {
+    "message": "Я принимаю эти риски и политики обновления"
   },
   "personalOwnership": {
     "message": "Удалить личное хранилище"
@@ -9960,6 +10076,9 @@
   "crowdstrikeEventIntegrationDesc": {
     "message": "Отправлять данные о событиях в ваш инстанс Logscale"
   },
+  "datadogEventIntegrationDesc": {
+    "message": "Отправляйте данные о событиях хранилища в ваш экземпляр Datadog"
+  },
   "failedToSaveIntegration": {
     "message": "Не удалось сохранить интеграцию. Пожалуйста, повторите попытку позже."
   },
@@ -10304,26 +10423,8 @@
   "memberAccessReportAuthenticationEnabledFalse": {
     "message": "Выкл"
   },
-  "higherKDFIterations": {
-    "message": "Увеличение числа итераций KDF может помочь защитить ваш мастер-пароль от взлома его злоумышленником."
-  },
-  "incrementsOf100,000": {
-    "message": "с шагом 100 000"
-  },
-  "smallIncrements": {
-    "message": "небольшие приращения"
-  },
   "kdfIterationRecommends": {
     "message": "Мы рекомендуем 600000 или более"
-  },
-  "kdfToHighWarningIncreaseInIncrements": {
-    "message": "Для устаревших устройств слишком высокое значение KDF может привести к проблемам с производительностью. Увеличьте значение до $VALUE$ и протестируйте свои устройства.",
-    "placeholders": {
-      "value": {
-        "content": "$1",
-        "example": "increments of 100,000"
-      }
-    }
   },
   "providerReinstate": {
     "message": " Обратитесь в службу поддержки клиентов, чтобы восстановить подписку."
@@ -10967,6 +11068,15 @@
   "domainClaimed": {
     "message": "Домен зарегистрирован"
   },
+  "itemAddedToFavorites": {
+    "message": "Элемент добавлен в избранное"
+  },
+  "itemRemovedFromFavorites": {
+    "message": "Элемент удален из избранного"
+  },
+  "copyNote": {
+    "message": "Скопировать заметку"
+  },
   "organizationNameMaxLength": {
     "message": "Название организации не может превышать 50 символов."
   },
@@ -11237,11 +11347,46 @@
     "message": "Архивировать",
     "description": "Verb"
   },
+  "unArchive": {
+    "message": "Разархивировать"
+  },
+  "itemsInArchive": {
+    "message": "Элементы в архиве"
+  },
   "noItemsInArchive": {
     "message": "В архиве нет элементов"
   },
-  "archivedItemsDescription": {
+  "noItemsInArchiveDesc": {
     "message": "Архивированные элементы появятся здесь и будут исключены из общих результатов поиска и предложений автозаполнения."
+  },
+  "itemWasSentToArchive": {
+    "message": "Элемент был отправлен в архив"
+  },
+  "itemsWereSentToArchive": {
+    "message": "Элементы были отправлены в архив"
+  },
+  "itemUnarchived": {
+    "message": "Элемент был разархивирован"
+  },
+  "bulkArchiveItems": {
+    "message": "Элементы архивированы"
+  },
+  "bulkUnarchiveItems": {
+    "message": "Элементы разархивированы"
+  },
+  "archiveItem": {
+    "message": "Архивировать элемент",
+    "description": "Verb"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Архивированные элементы исключены из общих результатов поиска и предложений автозаполнения. Вы уверены, что хотите архивировать этот элемент?"
+  },
+  "archiveBulkItems": {
+    "message": "Архивировать элементы",
+    "description": "Verb"
+  },
+  "archiveBulkItemsConfirmDesc": {
+    "message": "Архивированные элементы исключены из общих результатов поиска и предложений автозаполнения. Вы уверены, что хотите архивировать эти элементы?"
   },
   "businessUnit": {
     "message": "Бизнес-единица"
@@ -11713,5 +11858,83 @@
   },
   "seamlessIntegration": {
     "message": "Простая интеграция"
+  },
+  "families": {
+    "message": "Families"
+  },
+  "upgradeToFamilies": {
+    "message": "Upgrade to Families"
+  },
+  "upgradeToPremium": {
+    "message": "Upgrade to Premium"
+  },
+  "familiesUpdated": {
+    "message": "You've upgraded to Families!"
+  },
+  "taxCalculationError": {
+    "message": "There was an error calculating tax for your location. Please try again."
+  },
+  "individualUpgradeWelcomeMessage": {
+    "message": "Welcome to Bitwarden"
+  },
+  "individualUpgradeDescriptionMessage": {
+    "message": "Unlock more security features with Premium, or start sharing items with Families"
+  },
+  "individualUpgradeTaxInformationMessage": {
+    "message": "Prices exclude tax and are billed annually."
+  },
+  "organizationNameDescription": {
+    "message": "Your organization name will appear in invitations you send to members."
+  },
+  "continueWithoutUpgrading": {
+    "message": "Continue without upgrading"
+  },
+  "upgradeYourPlan": {
+    "message": "Upgrade your plan"
+  },
+  "upgradeNow": {
+    "message": "Upgrade now"
+  },
+  "formWillCreateNewFamiliesOrgMessage": {
+    "message": "Completing this form will create a new Families organization. You can upgrade your Free organization from the Admin Console."
+  },
+  "upgradeErrorMessage": {
+    "message": "We encountered an error while processing your upgrade. Please try again."
+  },
+  "bitwardenFreeplanMessage": {
+    "message": "You have the Bitwarden Free plan"
+  },
+  "upgradeCompleteSecurity": {
+    "message": "Upgrade for complete security"
+  },
+  "viewbusinessplans": {
+    "message": "View business plans"
+  },
+  "updateEncryptionSettings": {
+    "message": "Обновить настройки шифрования"
+  },
+  "updateYourEncryptionSettings": {
+    "message": "Обновите настройки шифрования"
+  },
+  "updateSettings": {
+    "message": "Обновить настройки"
+  },
+  "algorithm": {
+    "message": "Алгоритм"
+  },
+  "encryptionKeySettingsHowShouldWeEncryptYourData": {
+    "message": "Выберите, каким образом Bitwarden должен шифровать данные вашего хранилища. Все варианты защищены, но более надежные методы обеспечивают лучшую защиту, особенно от атак методом перебора. Большинству пользователей Bitwarden рекомендует использовать настройки по умолчанию."
+  },
+  "encryptionKeySettingsIncreaseImproveSecurity": {
+    "message": "Увеличение значений выше значений по умолчанию повысит защищенность, но в итоге разблокировка вашего хранилища может занять больше времени."
+  },
+  "encryptionKeySettingsAlgorithmPopoverTitle": {
+    "message": "Об алгоритмах шифрования"
+  },
+  "encryptionKeySettingsAlgorithmPopoverPBKDF2": {
+    "message": "PBKDF2-SHA256 - это хорошо протестированный метод шифрования, который обеспечивает баланс между безопасностью и производительностью. Подходит для всех пользователей."
+  },
+  "encryptionKeySettingsAlgorithmPopoverArgon2Id": {
+    "message": "Argon2id обеспечивает более надежную защиту от современных атак. Лучше всего подходит для опытных пользователей с мощными устройствами."
   }
 }

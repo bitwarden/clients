@@ -83,6 +83,7 @@ module.exports = {
         contrast: "var(--color-hover-contrast)",
       },
       "marketing-logo": rgba("--color-marketing-logo"),
+      "bw-blue": rgba("--color-bw-blue"),
       illustration: {
         outline: rgba("--color-illustration-outline"),
         "bg-primary": rgba("--color-illustration-bg-primary"),
@@ -157,6 +158,9 @@ module.exports = {
         xs: [".8125rem", "1rem"],
         "3xl": ["1.75rem", "2rem"],
       },
+      container: {
+        "@5xl": "1100px",
+      },
     },
   },
   plugins: [
@@ -196,5 +200,6 @@ module.exports = {
     plugin(function ({ addVariant }) {
       addVariant("bit-compact", ".bit-compact &");
     }),
+    require("@tailwindcss/container-queries"),
   ],
 };

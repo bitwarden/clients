@@ -12,6 +12,8 @@ import { SharedModule } from "../shared";
 
 import { ScrollLayoutHostDirective } from "./scroll-layout.directive";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-layout",
   templateUrl: "layout.component.html",
@@ -34,7 +36,7 @@ export class LayoutComponent {
   protected sideNavService = inject(SideNavService);
   protected drawerPortal = inject(DrawerService).portal;
 
-  private mainContent = viewChild.required<ElementRef<HTMLElement>>("main");
+  private readonly mainContent = viewChild.required<ElementRef<HTMLElement>>("main");
   protected focusMainContent() {
     this.mainContent().nativeElement.focus();
   }
@@ -45,7 +47,7 @@ export class LayoutComponent {
    *
    * @see https://github.com/angular/components/issues/10247#issuecomment-384060265
    **/
-  private skipLink = viewChild.required<ElementRef<HTMLElement>>("skipLink");
+  private readonly skipLink = viewChild.required<ElementRef<HTMLElement>>("skipLink");
   handleKeydown(ev: KeyboardEvent) {
     if (isNothingFocused()) {
       ev.preventDefault();
