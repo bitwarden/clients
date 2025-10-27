@@ -2,6 +2,7 @@ import { firstValueFrom, map, Observable } from "rxjs";
 
 import { RpcClient, RpcRequestChannel } from "./client";
 import { Command, Response } from "./protocol";
+import { RpcObjectReference } from "./proxies";
 import { RpcServer } from "./server";
 
 describe("RpcServer", () => {
@@ -45,7 +46,20 @@ describe("RpcServer", () => {
     const wasmObj = await remoteInstance.getWasmGreeting("Wasm World");
     const greeting = await wasmObj.greet();
 
+    expect(wasmObj).toBeInstanceOf(RpcObjectReference);
     expect(greeting).toBe("Hello, Wasm World!");
+  });
+
+  it("returns plain objects by value", async () => {
+    const remoteInstance = await firstValueFrom(client.getRoot());
+
+    const result = await remoteInstance.echo({
+      message: "Hello, World!",
+      array: [1, "2", null],
+    });
+
+    expect(result).not.toBeInstanceOf(RpcObjectReference);
+    expect(result).toEqual({ message: "Hello, World!", array: [1, "2", null] });
   });
 });
 
@@ -62,6 +76,10 @@ class TestClass {
 
   getWasmGreeting(name: string): WasmLikeObject {
     return new WasmLikeObject(name);
+  }
+
+  echo<T>(obj: T): T {
+    return obj;
   }
 }
 
