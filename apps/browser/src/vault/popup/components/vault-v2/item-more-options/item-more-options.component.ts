@@ -267,6 +267,11 @@ export class ItemMoreOptionsComponent {
   }
 
   protected async delete() {
+    const repromptPassed = await this.passwordRepromptService.passwordRepromptCheck(this.cipher);
+    if (!repromptPassed) {
+      return;
+    }
+
     const confirmed = await this.dialogService.openSimpleDialog({
       title: { key: "deleteItem" },
       content: { key: "deleteItemConfirmation" },
@@ -302,7 +307,7 @@ export class ItemMoreOptionsComponent {
     await this.cipherArchiveService.archiveWithServer(this.cipher.id as CipherId, activeUserId);
     this.toastService.showToast({
       variant: "success",
-      message: this.i18nService.t("itemSentToArchive"),
+      message: this.i18nService.t("itemWasSentToArchive"),
     });
   }
 }

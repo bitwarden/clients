@@ -307,7 +307,6 @@ const safeProviders: SafeProvider[] = [
     provide: KeyServiceAbstraction,
     useClass: ElectronKeyService,
     deps: [
-      PinServiceAbstraction,
       InternalMasterPasswordServiceAbstraction,
       KeyGenerationService,
       CryptoFunctionServiceAbstraction,

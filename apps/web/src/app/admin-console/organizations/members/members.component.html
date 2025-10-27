@@ -2,7 +2,7 @@
 @if (organization) {
   <app-organization-free-trial-warning
     [organization]="organization"
-    (clicked)="navigateToPaymentMethod(organization)"
+    (clicked)="billingConstraint.navigateToPaymentMethod(organization)"
   >
   </app-organization-free-trial-warning>
   <app-header>
@@ -339,7 +339,10 @@
                   ></i>
                   <span class="tw-sr-only">{{ "userUsingTwoStep" | i18n }}</span>
                 </ng-container>
-                <ng-container *ngIf="showEnrolledStatus($any(u), organization)">
+                @let resetPasswordPolicyEnabled = resetPasswordPolicyEnabled$ | async;
+                <ng-container
+                  *ngIf="showEnrolledStatus($any(u), organization, resetPasswordPolicyEnabled)"
+                >
                   <i
                     class="bwi bwi-key"
                     title="{{ 'enrolledAccountRecovery' | i18n }}"
@@ -422,7 +425,7 @@
                     type="button"
                     bitMenuItem
                     (click)="resetPassword(u, organization)"
-                    *ngIf="allowResetPassword(u, organization)"
+                    *ngIf="allowResetPassword(u, organization, resetPasswordPolicyEnabled)"
                   >
                     <i aria-hidden="true" class="bwi bwi-key"></i> {{ "recoverAccount" | i18n }}
                   </button>

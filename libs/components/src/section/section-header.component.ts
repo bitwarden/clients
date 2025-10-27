@@ -2,6 +2,8 @@ import { Component } from "@angular/core";
 
 import { TypographyModule } from "../typography";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-section-header",
   templateUrl: "./section-header.component.html",

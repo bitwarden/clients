@@ -5,11 +5,11 @@ import { firstValueFrom, Subject, takeUntil } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { UserVerificationFormInputComponent } from "@bitwarden/auth/angular";
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { SetVerifyDevicesRequest } from "@bitwarden/common/auth/models/request/set-verify-devices.request";
+import { TwoFactorApiService } from "@bitwarden/common/auth/two-factor";
 import { Verification } from "@bitwarden/common/auth/types/verification";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -27,6 +27,8 @@ import {
   ToastService,
 } from "@bitwarden/components";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "./set-account-verify-devices-dialog.component.html",
   imports: [
@@ -64,7 +66,7 @@ export class SetAccountVerifyDevicesDialogComponent implements OnInit, OnDestroy
     private userVerificationService: UserVerificationService,
     private dialogRef: DialogRef,
     private toastService: ToastService,
-    private apiService: ApiService,
+    private twoFactorApiService: TwoFactorApiService,
   ) {
     this.accountService.accountVerifyNewDeviceLogin$
       .pipe(takeUntil(this.destroy$))
@@ -74,7 +76,7 @@ export class SetAccountVerifyDevicesDialogComponent implements OnInit, OnDestroy
   }
 
   async ngOnInit() {
-    const twoFactorProviders = await this.apiService.getTwoFactorProviders();
+    const twoFactorProviders = await this.twoFactorApiService.getTwoFactorProviders();
     this.has2faConfigured = twoFactorProviders.data.length > 0;
   }
 

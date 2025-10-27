@@ -558,7 +558,7 @@
     "message": "归档",
     "description": "Verb"
   },
-  "unarchive": {
+  "unArchive": {
     "message": "取消归档"
   },
   "itemsInArchive": {
@@ -570,10 +570,10 @@
   "noItemsInArchiveDesc": {
     "message": "已归档的项目将显示在此处，并将被排除在一般搜索结果和自动填充建议之外。"
   },
-  "itemSentToArchive": {
-    "message": "项目已归档"
+  "itemWasSentToArchive": {
+    "message": "项目已发送到归档"
   },
-  "itemRemovedFromArchive": {
+  "itemUnarchived": {
     "message": "项目已取消归档"
   },
   "archiveItem": {
@@ -1515,7 +1515,7 @@
     "message": "身份验证超时"
   },
   "authenticationSessionTimedOut": {
-    "message": "身份验证会话超时。请重新启动登录过程。"
+    "message": "身份验证会话超时。请重新开始登录过程。"
   },
   "verificationCodeEmailSent": {
     "message": "验证邮件已发送到 $EMAIL$。",
@@ -1547,6 +1547,15 @@
   },
   "readSecurityKey": {
     "message": "读取安全密钥"
+  },
+  "readingPasskeyLoading": {
+    "message": "正在读取通行密钥..."
+  },
+  "passkeyAuthenticationFailed": {
+    "message": "通行密钥验证失败"
+  },
+  "useADifferentLogInMethod": {
+    "message": "使用其他登录方式"
   },
   "awaitingSecurityKeyInteraction": {
     "message": "等待安全密钥交互..."
@@ -1931,7 +1940,7 @@
     "message": "州 / 省"
   },
   "zipPostalCode": {
-    "message": "邮政编码"
+    "message": "ZIP / 邮政编码"
   },
   "country": {
     "message": "国家"
@@ -2049,7 +2058,7 @@
     "message": "若继续，所有条目将从生成器历史记录中永久删除。确定要继续吗？"
   },
   "back": {
-    "message": "后退"
+    "message": "返回"
   },
   "collections": {
     "message": "集合"
@@ -3217,7 +3226,7 @@
     }
   },
   "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
-    "message": "仅会导出与 $ORGANIZATION$ 关联的组织密码库，不包括我的项目集合。",
+    "message": "仅会导出与 $ORGANIZATION$ 关联的组织密码库。不包括「我的项目」集合。",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -5570,17 +5579,37 @@
   "hasItemsVaultNudgeTitle": {
     "message": "欢迎来到您的密码库！"
   },
-  "phishingPageTitle": {
-    "message": "钓鱼网站"
+  "phishingPageTitleV2": {
+    "message": "检测到钓鱼尝试"
   },
-  "phishingPageCloseTab": {
-    "message": "关闭标签页"
+  "phishingPageSummary": {
+    "message": "您尝试访问的网站是一个已知的恶意网站，存在安全风险。"
   },
-  "phishingPageContinue": {
-    "message": "继续"
+  "phishingPageCloseTabV2": {
+    "message": "关闭此标签页"
   },
-  "phishingPageLearnWhy": {
-    "message": "为什么您会看到这个？"
+  "phishingPageContinueV2": {
+    "message": "继续访问此网站（不推荐）"
+  },
+  "phishingPageExplanation1": {
+    "message": "该网站被发现于 ",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name follows this."
+  },
+  "phishingPageExplanation2": {
+    "message": "，一个已知的用于窃取个人和敏感信息的钓鱼网站的开源列表。",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name precedes this."
+  },
+  "phishingPageLearnMore": {
+    "message": "进一步了解钓鱼检测"
+  },
+  "protectedBy": {
+    "message": "受 $PRODUCT$ 保护",
+    "placeholders": {
+      "product": {
+        "content": "$1",
+        "example": "Bitwarden Phishing Blocker"
+      }
+    }
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "为当前页面自动填充项目"
@@ -5685,5 +5714,12 @@
   },
   "confirmKeyConnectorDomain": {
     "message": "确认 Key Connector 域名"
+  },
+  "atRiskLoginsSecured": {
+    "message": "Great job securing your at-risk logins!"
+  },
+  "settingDisabledByPolicy": {
+    "message": "此设置被您组织的策略禁用了。",
+    "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
   }
 }

@@ -56,11 +56,21 @@ interface DatePresetSelectOption {
 
 @Directive()
 export class AddEditComponent implements OnInit, OnDestroy {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() sendId: string;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() type: SendType;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onSavedSend = new EventEmitter<SendView>();
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onDeletedSend = new EventEmitter<SendView>();
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onCancelled = new EventEmitter<SendView>();
 
   deletionDatePresets: DatePresetSelectOption[] = [
@@ -260,12 +270,19 @@ export class AddEditComponent implements OnInit, OnDestroy {
       });
 
       if (this.editMode) {
-        this.sendService
-          .get$(this.sendId)
+        this.accountService.activeAccount$
           .pipe(
-            //Promise.reject will complete the BehaviourSubject, if desktop starts relying only on BehaviourSubject, this should be changed.
-            concatMap((s) =>
-              s instanceof Send ? s.decrypt() : Promise.reject(new Error("Failed to load send.")),
+            getUserId,
+            switchMap((userId) =>
+              this.sendService
+                .get$(this.sendId)
+                .pipe(
+                  concatMap((s) =>
+                    s instanceof Send
+                      ? s.decrypt(userId)
+                      : Promise.reject(new Error("Failed to load send.")),
+                  ),
+                ),
             ),
             takeUntil(this.destroy$),
           )
