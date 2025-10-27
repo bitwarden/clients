@@ -94,7 +94,10 @@ export class TooltipDirective implements OnInit {
 
       this.overlayRef.attach(this.tooltipPortal);
     }
-    this.isVisible.set(true);
+
+    setTimeout(() => {
+      this.isVisible.set(true);
+    }, 500);
   };
 
   private hideTooltip = () => {
