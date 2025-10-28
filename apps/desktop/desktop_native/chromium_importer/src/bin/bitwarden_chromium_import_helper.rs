@@ -49,7 +49,7 @@ mod windows_binary {
         },
     };
 
-    use bitwarden_chromium_importer::abe_config;
+    use chromium_importer::chromium::ADMIN_TO_USER_PIPE_NAME;
 
     #[derive(Parser)]
     #[command(name = "bitwarden_chromium_import_helper")]
@@ -472,12 +472,12 @@ mod windows_binary {
         }
 
         let mut client =
-            match open_and_validate_pipe_server(abe_config::ADMIN_TO_USER_PIPE_NAME).await {
+            match open_and_validate_pipe_server(ADMIN_TO_USER_PIPE_NAME).await {
                 Ok(client) => client,
                 Err(e) => {
                     error!(
                         "Failed to open pipe {} to send result/error: {}",
-                        abe_config::ADMIN_TO_USER_PIPE_NAME,
+                        ADMIN_TO_USER_PIPE_NAME,
                         e
                     );
                     return;

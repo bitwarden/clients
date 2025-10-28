@@ -7,11 +7,11 @@ use dirs;
 use hex::decode;
 use rusqlite::{params, Connection};
 
-// Platform-specific code
-#[cfg_attr(target_os = "linux", path = "linux.rs")]
-#[cfg_attr(target_os = "windows", path = "windows.rs")]
-#[cfg_attr(target_os = "macos", path = "macos.rs")]
-pub mod platform;
+mod platform;
+
+pub(crate) use platform::SUPPORTED_BROWSERS as PLATFORM_SUPPORTED_BROWSERS;
+#[cfg(target_os="windows")]
+pub use platform::ADMIN_TO_USER_PIPE_NAME;
 
 //
 // Public API
@@ -22,10 +22,7 @@ pub struct ProfileInfo {
     pub name: String,
     pub folder: String,
 
-    #[allow(dead_code)]
     pub account_name: Option<String>,
-
-    #[allow(dead_code)]
     pub account_email: Option<String>,
 }
 
@@ -111,12 +108,12 @@ pub async fn import_logins(
 //
 
 #[derive(Debug, Clone, Copy)]
-pub struct BrowserConfig {
+pub(crate) struct BrowserConfig {
     pub name: &'static str,
     pub data_dir: &'static str,
 }
 
-pub static SUPPORTED_BROWSER_MAP: LazyLock<
+pub(crate) static SUPPORTED_BROWSER_MAP: LazyLock<
     std::collections::HashMap<&'static str, &'static BrowserConfig>,
 > = LazyLock::new(|| {
     platform::SUPPORTED_BROWSERS
@@ -137,12 +134,12 @@ fn get_browser_data_dir(config: &BrowserConfig) -> Result<PathBuf> {
 //
 
 #[async_trait]
-pub trait CryptoService: Send {
+pub(crate) trait CryptoService: Send {
     async fn decrypt_to_string(&mut self, encrypted: &[u8]) -> Result<String>;
 }
 
 #[derive(serde::Deserialize, Clone)]
-pub struct LocalState {
+pub(crate) struct LocalState {
     profile: AllProfiles,
     #[allow(dead_code)]
     os_crypt: Option<OsCrypt>,
@@ -195,16 +192,17 @@ fn load_local_state(browser_dir: &Path) -> Result<LocalState> {
 }
 
 fn get_profile_info(local_state: &LocalState) -> Vec<ProfileInfo> {
-    let mut profile_infos = Vec::new();
-    for (name, info) in local_state.profile.info_cache.iter() {
-        profile_infos.push(ProfileInfo {
+    local_state
+        .profile
+        .info_cache
+        .iter()
+        .map(|(name, info)| ProfileInfo {
             name: info.name.clone(),
             folder: name.clone(),
             account_name: info.gaia_name.clone(),
             account_email: info.user_name.clone(),
-        });
-    }
-    profile_infos
+        })
+        .collect()
 }
 
 struct EncryptedLogin {
@@ -261,17 +259,16 @@ fn hex_to_bytes(hex: &str) -> Vec<u8> {
     decode(hex).unwrap_or_default()
 }
 
-fn does_table_exist(conn: &Connection, table_name: &str) -> Result<bool, rusqlite::Error> {
-    let mut stmt = conn.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name=?1")?;
-    let exists = stmt.exists(params![table_name])?;
-    Ok(exists)
+fn table_exist(conn: &Connection, table_name: &str) -> Result<bool, rusqlite::Error> {
+    conn.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name=?1")?
+        .exists(params![table_name])
 }
 
 fn query_logins(db_path: &str) -> Result<Vec<EncryptedLogin>, rusqlite::Error> {
     let conn = Connection::open(db_path)?;
 
-    let have_logins = does_table_exist(&conn, "logins")?;
-    let have_password_notes = does_table_exist(&conn, "password_notes")?;
+    let have_logins = table_exist(&conn, "logins")?;
+    let have_password_notes = table_exist(&conn, "password_notes")?;
     if !have_logins || !have_password_notes {
         return Ok(vec![]);
     }
@@ -305,10 +302,7 @@ fn query_logins(db_path: &str) -> Result<Vec<EncryptedLogin>, rusqlite::Error> {
         })
     })?;
 
-    let mut logins = Vec::new();
-    for login in logins_iter {
-        logins.push(login?);
-    }
+    let logins = logins_iter.collect::<Result<Vec<_>, _>>()?;
 
     Ok(logins)
 }

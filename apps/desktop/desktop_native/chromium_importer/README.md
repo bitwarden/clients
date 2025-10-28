@@ -1,6 +1,13 @@
-# Windows ABE Architecture
+# Chromium Direct Importer
 
-## Overview
+A rust library that allows you to directly import credentials from Chromium-based browsers.
+
+## Windows ABE Architecture
+
+On Windows chrome has additional protection measurements which needs to be circumvented in order to
+get access to the passwords.
+
+### Overview
 
 The Windows **Application Bound Encryption (ABE)** subsystem consists of two main components that work together:
 
@@ -11,7 +18,7 @@ _(The name of the binary will be changed in the released product.)_
 
 See the last section for a concise summary of the entire process.
 
-## Goal
+### Goal
 
 The goal of this subsystem is to decrypt the master encryption key used to encrypt login information on the local
 Windows system. This applies to the most recent versions of Chrome, Brave, and (untested) Edge that use the ABE/v20
@@ -28,7 +35,7 @@ This triply encrypted key is stored in the `Local State` file.
 
 The following sections describe how the key is decrypted at each level.
 
-## 1. Client Library
+### 1. Client Library
 
 This is a Rust module that is part of the Chromium importer. It compiles and runs only on Windows (see `abe.rs` and
 `abe_config.rs`). Its main task is to launch `bitwarden_chromium_import_helper.exe` with elevated privileges, presenting
@@ -55,7 +62,7 @@ The data to be decrypted are passed via the command line to `bitwarden_chromium_
 bitwarden_chromium_import_helper.exe --encrypted "QVBQQgEAAADQjJ3fARXREYx6AMBPwpfrAQAAA..."
 ```
 
-## 2. Admin Executable
+### 2. Admin Executable
 
 Although the process starts with **ADMINISTRATOR** privileges, its ultimate goal is to elevate to **SYSTEM**. To achieve
 this, it uses a technique to impersonate a system-level process.
@@ -85,7 +92,7 @@ In either case, the response is sent to the named pipe server created by the cli
 
 Finally, `bitwarden_chromium_import_helper.exe` exits.
 
-## 3. Back to the Client Library
+### 3. Back to the Client Library
 
 The decrypted Base64-encoded string is returned from `bitwarden_chromium_import_helper.exe` to the named pipe server at
 the user level. At this point it has been decrypted only once—at the system level.
@@ -99,7 +106,7 @@ uses either **AES-256-GCM** or **ChaCha20-Poly1305**. See `windows.rs` for detai
 After these steps, the master key is available and can be used to decrypt the password information stored in the
 browser’s local database.
 
-## TL;DR Steps
+### TL;DR Steps
 
 1. **Client side:**
 

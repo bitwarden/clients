@@ -18,6 +18,8 @@ import { CipherReportComponent } from "./cipher-report.component";
 
 type ReportResult = CipherView & { exposedXTimes: number };
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-exposed-passwords-report",
   templateUrl: "exposed-passwords-report.component.html",

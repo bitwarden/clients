@@ -12,13 +12,15 @@ use windows::Win32::{
 use crate::chromium::{BrowserConfig, CryptoService, LocalState};
 use crate::util;
 mod abe;
+mod abe_config;
+
+pub use abe_config::ADMIN_TO_USER_PIPE_NAME;
 
 //
 // Public API
 //
 
-// IMPORTANT adjust array size when enabling / disabling chromium importers here
-pub const SUPPORTED_BROWSERS: [BrowserConfig; 6] = [
+pub(crate) const SUPPORTED_BROWSERS: &[BrowserConfig] = &[
     BrowserConfig {
         name: "Brave",
         data_dir: "AppData/Local/BraveSoftware/Brave-Browser/User Data",
@@ -45,7 +47,7 @@ pub const SUPPORTED_BROWSERS: [BrowserConfig; 6] = [
     },
 ];
 
-pub fn get_crypto_service(
+pub(crate) fn get_crypto_service(
     _browser_name: &str,
     local_state: &LocalState,
 ) -> Result<Box<dyn CryptoService>> {
