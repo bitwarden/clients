@@ -78,6 +78,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { SdkClientFactory } from "@bitwarden/common/platform/abstractions/sdk/sdk-client-factory";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
+import { SystemService } from "@bitwarden/common/platform/abstractions/system.service";
 import { IpcService } from "@bitwarden/common/platform/ipc";
 // eslint-disable-next-line no-restricted-imports -- Needed for DI
 import {
@@ -139,6 +140,7 @@ import { WebEnvironmentService } from "../platform/web-environment.service";
 import { WebMigrationRunner } from "../platform/web-migration-runner";
 import { WebSdkLoadService } from "../platform/web-sdk-load.service";
 import { WebStorageServiceProvider } from "../platform/web-storage-service.provider";
+import { WebSystemService } from "../platform/web-system.service";
 
 import { EventService } from "./event.service";
 import { InitService } from "./init.service";
@@ -409,6 +411,11 @@ const safeProviders: SafeProvider[] = [
     provide: PremiumUpgradePromptService,
     useClass: WebVaultPremiumUpgradePromptService,
     deps: [DialogService, Router],
+  }),
+  safeProvider({
+    provide: SystemService,
+    useClass: WebSystemService,
+    deps: [],
   }),
 ];
 

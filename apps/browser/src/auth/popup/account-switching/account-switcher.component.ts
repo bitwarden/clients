@@ -122,10 +122,8 @@ export class AccountSwitcherComponent implements OnInit, OnDestroy {
 
   async lock(userId: string) {
     this.loading = true;
-    await this.vaultTimeoutService.lock(userId);
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.router.navigate(["lock"]);
+    await this.lockService.lock(userId as UserId);
+    await this.router.navigate(["lock"]);
   }
 
   async lockAll() {
