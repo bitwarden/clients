@@ -1,6 +1,5 @@
 import { mock, mockReset } from "jest-mock-extended";
-import * as rxjs from "rxjs";
-import { of } from "rxjs";
+import { of, BehaviorSubject } from "rxjs";
 
 import { VaultProfileService } from "@bitwarden/angular/vault/services/vault-profile.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -8,6 +7,7 @@ import { AccountService, Account } from "@bitwarden/common/auth/abstractions/acc
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync/sync.service";
 import { DialogRef, DialogService } from "@bitwarden/components";
 
@@ -28,6 +28,7 @@ describe("UnifiedUpgradePromptService", () => {
   const mockDialogService = mock<DialogService>();
   const mockOrganizationService = mock<OrganizationService>();
   const mockDialogOpen = jest.spyOn(UnifiedUpgradeDialogComponent, "open");
+  const mockPlatformUtilsService = mock<PlatformUtilsService>();
 
   /**
    * Creates a mock DialogRef that implements the required properties for testing
@@ -57,33 +58,33 @@ describe("UnifiedUpgradePromptService", () => {
       mockSyncService,
       mockDialogService,
       mockOrganizationService,
+      mockPlatformUtilsService,
     );
   }
 
   const mockAccount: Account = {
     id: "test-user-id",
   } as Account;
-  const accountSubject = new rxjs.BehaviorSubject(mockAccount);
+  const accountSubject = new BehaviorSubject<Account | null>(mockAccount);
 
   describe("initialization", () => {
     beforeEach(() => {
+      mockAccountService.activeAccount$ = accountSubject.asObservable();
+      mockPlatformUtilsService.isSelfHost.mockReturnValue(false);
+      mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
+
       setupTestService();
     });
     it("should be created", () => {
       expect(sut).toBeTruthy();
     });
-
-    it("should subscribe to account and feature flag observables on construction", () => {
-      expect(mockConfigService.getFeatureFlag$).toHaveBeenCalledWith(
-        FeatureFlag.PM24996_ImplementUpgradeFromFreeDialog,
-      );
-    });
   });
 
   describe("displayUpgradePromptConditionally", () => {
-    beforeEach(async () => {
+    beforeEach(() => {
       mockAccountService.activeAccount$ = accountSubject.asObservable();
       mockDialogOpen.mockReset();
+      mockReset(mockDialogService);
       mockReset(mockConfigService);
       mockReset(mockBillingService);
       mockReset(mockVaultProfileService);
@@ -93,20 +94,48 @@ describe("UnifiedUpgradePromptService", () => {
       // Mock sync service methods
       mockSyncService.fullSync.mockResolvedValue(true);
       mockSyncService.lastSync$.mockReturnValue(of(new Date()));
+      mockReset(mockPlatformUtilsService);
+    });
+    it("should subscribe to account and feature flag observables when checking display conditions", async () => {
+      // Arrange
+      mockPlatformUtilsService.isSelfHost.mockReturnValue(false);
+      mockOrganizationService.memberOrganizations$.mockReturnValue(of([]));
+      mockConfigService.getFeatureFlag$.mockReturnValue(of(false));
+      mockBillingService.hasPremiumFromAnySource$.mockReturnValue(of(false));
+
+      setupTestService();
+
+      // Act
+      await sut.displayUpgradePromptConditionally();
+
+      // Assert
+      expect(mockConfigService.getFeatureFlag$).toHaveBeenCalledWith(
+        FeatureFlag.PM24996_ImplementUpgradeFromFreeDialog,
+      );
+      expect(mockAccountService.activeAccount$).toBeDefined();
     });
     it("should not show dialog when feature flag is disabled", async () => {
       // Arrange
+      mockPlatformUtilsService.isSelfHost.mockReturnValue(false);
+      mockOrganizationService.memberOrganizations$.mockReturnValue(of([]));
       mockConfigService.getFeatureFlag$.mockReturnValue(of(false));
+      mockBillingService.hasPremiumFromAnySource$.mockReturnValue(of(false));
+      const recentDate = new Date();
+      recentDate.setMinutes(recentDate.getMinutes() - 3); // 3 minutes old
+      mockVaultProfileService.getProfileCreationDate.mockResolvedValue(recentDate);
+
       setupTestService();
       // Act
       const result = await sut.displayUpgradePromptConditionally();
 
       // Assert
       expect(result).toBeNull();
+      expect(mockDialogOpen).not.toHaveBeenCalled();
     });
 
     it("should not show dialog when user has premium", async () => {
       // Arrange
+      mockPlatformUtilsService.isSelfHost.mockReturnValue(false);
       mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
       mockBillingService.hasPremiumFromAnySource$.mockReturnValue(of(true));
       mockOrganizationService.memberOrganizations$.mockReturnValue(of([]));
@@ -117,6 +146,7 @@ describe("UnifiedUpgradePromptService", () => {
 
       // Assert
       expect(result).toBeNull();
+      expect(mockDialogOpen).not.toHaveBeenCalled();
     });
 
     it("should not show dialog when user has any organization membership", async () => {
@@ -124,6 +154,7 @@ describe("UnifiedUpgradePromptService", () => {
       mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
       mockBillingService.hasPremiumFromAnySource$.mockReturnValue(of(false));
       mockOrganizationService.memberOrganizations$.mockReturnValue(of([{ id: "org1" } as any]));
+      mockPlatformUtilsService.isSelfHost.mockReturnValue(false);
       setupTestService();
 
       // Act
@@ -131,6 +162,7 @@ describe("UnifiedUpgradePromptService", () => {
 
       // Assert
       expect(result).toBeNull();
+      expect(mockDialogOpen).not.toHaveBeenCalled();
     });
 
     it("should not show dialog when profile is older than 5 minutes", async () => {
@@ -141,6 +173,7 @@ describe("UnifiedUpgradePromptService", () => {
       const oldDate = new Date();
       oldDate.setMinutes(oldDate.getMinutes() - 10); // 10 minutes old
       mockVaultProfileService.getProfileCreationDate.mockResolvedValue(oldDate);
+      mockPlatformUtilsService.isSelfHost.mockReturnValue(false);
       setupTestService();
 
       // Act
@@ -148,6 +181,7 @@ describe("UnifiedUpgradePromptService", () => {
 
       // Assert
       expect(result).toBeNull();
+      expect(mockDialogOpen).not.toHaveBeenCalled();
     });
 
     it("should show dialog when all conditions are met", async () => {
@@ -158,6 +192,7 @@ describe("UnifiedUpgradePromptService", () => {
       const recentDate = new Date();
       recentDate.setMinutes(recentDate.getMinutes() - 3); // 3 minutes old
       mockVaultProfileService.getProfileCreationDate.mockResolvedValue(recentDate);
+      mockPlatformUtilsService.isSelfHost.mockReturnValue(false);
 
       const expectedResult = { status: UnifiedUpgradeDialogStatus.Closed };
       mockDialogOpenMethod(createMockDialogRef(expectedResult));
@@ -182,6 +217,7 @@ describe("UnifiedUpgradePromptService", () => {
 
       // Assert
       expect(result).toBeNull();
+      expect(mockDialogOpen).not.toHaveBeenCalled();
     });
 
     it("should not show dialog when profile creation date is unavailable", async () => {
@@ -190,6 +226,8 @@ describe("UnifiedUpgradePromptService", () => {
       mockBillingService.hasPremiumFromAnySource$.mockReturnValue(of(false));
       mockOrganizationService.memberOrganizations$.mockReturnValue(of([]));
       mockVaultProfileService.getProfileCreationDate.mockResolvedValue(null);
+      mockPlatformUtilsService.isSelfHost.mockReturnValue(false);
+
       setupTestService();
 
       // Act
@@ -197,6 +235,26 @@ describe("UnifiedUpgradePromptService", () => {
 
       // Assert
       expect(result).toBeNull();
+      expect(mockDialogOpen).not.toHaveBeenCalled();
+    });
+
+    it("should not show dialog when running in self-hosted environment", async () => {
+      // Arrange
+      mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
+      mockOrganizationService.memberOrganizations$.mockReturnValue(of([]));
+      mockBillingService.hasPremiumFromAnySource$.mockReturnValue(of(false));
+      const recentDate = new Date();
+      recentDate.setMinutes(recentDate.getMinutes() - 3); // 3 minutes old
+      mockVaultProfileService.getProfileCreationDate.mockResolvedValue(recentDate);
+      mockPlatformUtilsService.isSelfHost.mockReturnValue(true);
+      setupTestService();
+
+      // Act
+      const result = await sut.displayUpgradePromptConditionally();
+
+      // Assert
+      expect(result).toBeNull();
+      expect(mockDialogOpen).not.toHaveBeenCalled();
     });
   });
 });
