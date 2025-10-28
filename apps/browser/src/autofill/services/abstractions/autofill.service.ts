@@ -31,6 +31,8 @@ export interface AutoFillOptions {
   allowTotpAutofill?: boolean;
   autoSubmitLogin?: boolean;
   focusedFieldForm?: string;
+  focusedFieldOpid?: string;
+  inlineMenuFillType?: number;
 }
 
 export interface FormData {
@@ -49,6 +51,9 @@ export interface GenerateFillScriptOptions {
   cipher: CipherView;
   tabUrl: string;
   defaultUriMatch: UriMatchStrategySetting;
+  focusedFieldForm?: string;
+  focusedFieldOpid?: string;
+  inlineMenuFillType?: number;
 }
 
 export type CollectPageDetailsResponseMessage = {

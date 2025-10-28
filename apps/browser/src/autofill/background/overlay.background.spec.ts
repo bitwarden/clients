@@ -3680,6 +3680,9 @@ describe("OverlayBackground", () => {
           pageDetails: [overlayBackground["pageDetailsForTab"][sender.tab.id].get(sender.frameId)],
           fillNewPassword: true,
           allowTotpAutofill: false,
+          focusedFieldForm: undefined,
+          focusedFieldOpid: undefined,
+          inlineMenuFillType: InlineMenuFillTypes.PasswordGeneration,
         });
       });
     });

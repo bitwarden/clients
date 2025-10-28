@@ -52,6 +52,7 @@ import { ScriptInjectorService } from "../../platform/services/abstractions/scri
 // eslint-disable-next-line no-restricted-imports
 import { openVaultItemPasswordRepromptPopout } from "../../vault/popup/utils/vault-popout-window";
 import { AutofillMessageCommand, AutofillMessageSender } from "../enums/autofill-message.enums";
+import { InlineMenuFillTypes } from "../enums/autofill-overlay.enum";
 import { AutofillPort } from "../enums/autofill-port.enum";
 import AutofillField from "../models/autofill-field";
 import AutofillPageDetails from "../models/autofill-page-details";
@@ -451,6 +452,9 @@ export default class AutofillService implements AutofillServiceInterface {
           cipher: options.cipher,
           tabUrl: tab.url,
           defaultUriMatch: defaultUriMatch,
+          focusedFieldForm: options.focusedFieldForm,
+          focusedFieldOpid: options.focusedFieldOpid,
+          inlineMenuFillType: options.inlineMenuFillType,
         });
 
         if (!fillScript || !fillScript.script || !fillScript.script.length) {
@@ -961,8 +965,7 @@ export default class AutofillService implements AutofillServiceInterface {
 
     const formElementsSet = new Set<string>();
     usernames.forEach((u) => {
-      // eslint-disable-next-line
-      if (filledFields.hasOwnProperty(u.opid)) {
+      if (Object.prototype.hasOwnProperty.call(filledFields, u.opid)) {
         return;
       }
 
@@ -971,16 +974,58 @@ export default class AutofillService implements AutofillServiceInterface {
       formElementsSet.add(u.form);
     });
 
-    passwords.forEach((p) => {
-      // eslint-disable-next-line
-      if (filledFields.hasOwnProperty(p.opid)) {
-        return;
-      }
+    // When filling from inline menu, behavior depends on the fill type
+    if (options.focusedFieldOpid && passwords.length > 0) {
+      const isPasswordGeneration =
+        options.inlineMenuFillType === InlineMenuFillTypes.PasswordGeneration;
 
-      filledFields[p.opid] = p;
-      AutofillService.fillByOpid(fillScript, p, login.password);
-      formElementsSet.add(p.form);
-    });
+      if (isPasswordGeneration) {
+        // For password generation, fill all new/confirmation password fields
+        // but skip current/old password fields
+        passwords.forEach((p) => {
+          if (Object.prototype.hasOwnProperty.call(filledFields, p.opid)) {
+            return;
+          }
+
+          // Check if this looks like a current/old password field
+          const fieldName = (p.htmlID || p.htmlName).toLowerCase();
+          const isCurrentPasswordField =
+            fieldName &&
+            (fieldName.includes("current") ||
+              fieldName.includes("old") ||
+              fieldName.includes("existing")) &&
+            fieldName.includes("password");
+
+          if (!isCurrentPasswordField) {
+            filledFields[p.opid] = p;
+            AutofillService.fillByOpid(fillScript, p, login.password);
+            formElementsSet.add(p.form);
+          }
+        });
+      } else {
+        // For regular autofill or current password update from inline menu,
+        // only fill the specific field that was clicked
+        const focusedField = passwords.find((p) => p.opid === options.focusedFieldOpid);
+        if (
+          focusedField &&
+          !Object.prototype.hasOwnProperty.call(filledFields, focusedField.opid)
+        ) {
+          filledFields[focusedField.opid] = focusedField;
+          AutofillService.fillByOpid(fillScript, focusedField, login.password);
+          formElementsSet.add(focusedField.form);
+        }
+      }
+    } else {
+      // Fill all password fields when not from inline menu (keyboard shortcut, context menu, etc.)
+      passwords.forEach((p) => {
+        if (Object.prototype.hasOwnProperty.call(filledFields, p.opid)) {
+          return;
+        }
+        filledFields[p.opid] = p;
+        AutofillService.fillByOpid(fillScript, p, login.password);
+        formElementsSet.add(p.form);
+      });
+    }
 
     if (options.autoSubmitLogin && formElementsSet.size) {
       fillScript.autosubmit = Array.from(formElementsSet);

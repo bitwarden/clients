@@ -975,6 +975,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       showPasskeys: !!autofillFieldData?.showPasskeys,
       accountCreationFieldType: autofillFieldData?.accountCreationFieldType,
       focusedFieldForm: autofillFieldData?.form,
+      focusedFieldOpid: autofillFieldData?.opid,
     };
 
     const allFields = this.formFieldElements;
