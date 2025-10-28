@@ -26,8 +26,6 @@ import { PricingCardComponent } from "@bitwarden/pricing";
   [button]="{ text: 'Choose Premium', type: 'primary' }"
   [features]="features"
   [activeBadge]="{ text: 'Active plan', show: true }"
-  [noPaddingTop]="true"
-  [noBorder]="true"
   (buttonClick)="onPlanSelected()"
 >
   <h2 slot="title" class="tw-m-0" bitTypography="h3">Premium Plan</h2>
@@ -38,15 +36,13 @@ import { PricingCardComponent } from "@bitwarden/pricing";
 
 ### Inputs
 
-| Input          | Type                                                                                                             | Description                                                                                                                                             |
-| -------------- | ---------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `tagline`      | `string`                                                                                                         | **Required.** Descriptive text below title (max 2 lines)                                                                                                |
-| `price`        | `{ amount: number; cadence: "monthly" \| "annually"; showPerUser?: boolean }`                                    | **Optional.** Price information. If omitted, no price is shown                                                                                          |
-| `button`       | `{ type: ButtonType; text: string; disabled?: boolean; icon?: { type: string; position: "before" \| "after" } }` | **Optional.** Button configuration with optional icon. If omitted, no button is shown. Icon uses `bwi-*` classes, position defaults to "after"          |
-| `features`     | `string[]`                                                                                                       | **Optional.** List of features with checkmarks                                                                                                          |
-| `activeBadge`  | `{ text: string; variant?: BadgeVariant }`                                                                       | **Optional.** Active plan badge using proper Badge component, positioned on the same line as title, aligned to the right. If omitted, no badge is shown |
-| `noPaddingTop` | `boolean`                                                                                                        | **Optional.** Will not apply top padding styles when true. (Default: false)                                                                             |
-| `noBorder`     | `boolean`                                                                                                        | **Optional.** Will not apply card border styles when true. (Default: false)                                                                             |
+| Input         | Type                                                                                                             | Description                                                                                                                                             |
+| ------------- | ---------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `tagline`     | `string`                                                                                                         | **Required.** Descriptive text below title (max 2 lines)                                                                                                |
+| `price`       | `{ amount: number; cadence: "monthly" \| "annually"; showPerUser?: boolean }`                                    | **Optional.** Price information. If omitted, no price is shown                                                                                          |
+| `button`      | `{ type: ButtonType; text: string; disabled?: boolean; icon?: { type: string; position: "before" \| "after" } }` | **Optional.** Button configuration with optional icon. If omitted, no button is shown. Icon uses `bwi-*` classes, position defaults to "after"          |
+| `features`    | `string[]`                                                                                                       | **Optional.** List of features with checkmarks                                                                                                          |
+| `activeBadge` | `{ text: string; variant?: BadgeVariant }`                                                                       | **Optional.** Active plan badge using proper Badge component, positioned on the same line as title, aligned to the right. If omitted, no badge is shown |
 
 ### Content Slots
 

@@ -19,7 +19,6 @@ import {
   ToastService,
   TypographyModule,
 } from "@bitwarden/components";
-import { PricingCardComponent } from "@bitwarden/pricing";
 
 import { PremiumUpgradeDialogComponent } from "./premium-upgrade-dialog.component";
 
@@ -48,7 +47,7 @@ export default {
   description: "A dialog for upgrading to Premium subscription",
   decorators: [
     moduleMetadata({
-      imports: [DialogModule, ButtonModule, TypographyModule, PricingCardComponent],
+      imports: [DialogModule, ButtonModule, TypographyModule],
       providers: [
         {
           provide: DialogRef,

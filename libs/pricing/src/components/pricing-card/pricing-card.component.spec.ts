@@ -16,8 +16,6 @@ import { PricingCardComponent } from "./pricing-card.component";
       [button]="button"
       [features]="features"
       [activeBadge]="activeBadge"
-      [noPaddingTop]="noPaddingTop"
-      [noBorder]="noBorder"
       (buttonClick)="onButtonClick()"
     >
       <ng-container [ngSwitch]="titleLevel">
@@ -51,8 +49,6 @@ class TestHostComponent {
   features = ["Feature 1", "Feature 2", "Feature 3"];
   titleLevel: "h1" | "h2" | "h3" | "h4" | "h5" | "h6" = "h3";
   activeBadge: { text: string; variant?: string } | undefined = undefined;
-  noPaddingTop = false;
-  noBorder = false;
 
   onButtonClick() {
     // Test method
@@ -196,51 +192,5 @@ describe("PricingCardComponent", () => {
     expect(cardContainer.classList).toContain("tw-flex-col");
     expect(cardContainer.classList).toContain("tw-size-full");
     expect(cardContainer.classList).not.toContain("tw-block"); // Should not have conflicting display property
-  });
-
-  it("should apply full padding by default when noPaddingTop is false", () => {
-    hostComponent.noPaddingTop = false;
-    hostFixture.detectChanges();
-    const compiled = hostFixture.nativeElement;
-    const cardContainer = compiled.querySelector("div");
-
-    expect(cardContainer.classList).toContain("tw-p-8");
-    expect(cardContainer.classList).not.toContain("tw-px-8");
-    expect(cardContainer.classList).not.toContain("tw-pb-2");
-  });
-
-  it("should apply bottom and side padding only when noPaddingTop is true", () => {
-    hostComponent.noPaddingTop = true;
-    hostFixture.detectChanges();
-    const compiled = hostFixture.nativeElement;
-    const cardContainer = compiled.querySelector("div");
-
-    expect(cardContainer.classList).toContain("tw-px-8");
-    expect(cardContainer.classList).toContain("tw-pb-2");
-    expect(cardContainer.classList).not.toContain("tw-p-8");
-  });
-
-  it("should apply border and shadow classes by default when noBorder is false", () => {
-    hostComponent.noBorder = false;
-    hostFixture.detectChanges();
-    const compiled = hostFixture.nativeElement;
-    const cardContainer = compiled.querySelector("div");
-
-    expect(cardContainer.classList).toContain("tw-rounded-3xl");
-    expect(cardContainer.classList).toContain("tw-shadow-sm");
-    expect(cardContainer.classList).toContain("tw-border");
-    expect(cardContainer.classList).toContain("tw-border-secondary-100");
-  });
-
-  it("should remove border and shadow classes when noBorder is true", () => {
-    hostComponent.noBorder = true;
-    hostFixture.detectChanges();
-    const compiled = hostFixture.nativeElement;
-    const cardContainer = compiled.querySelector("div");
-
-    expect(cardContainer.classList).not.toContain("tw-rounded-3xl");
-    expect(cardContainer.classList).not.toContain("tw-shadow-sm");
-    expect(cardContainer.classList).not.toContain("tw-border");
-    expect(cardContainer.classList).not.toContain("tw-border-secondary-100");
   });
 });

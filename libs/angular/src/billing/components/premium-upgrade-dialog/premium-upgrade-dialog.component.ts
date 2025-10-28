@@ -28,7 +28,6 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
-import { PricingCardComponent } from "@bitwarden/pricing";
 
 type CardDetails = {
   title: string;
@@ -46,7 +45,6 @@ type CardDetails = {
     ButtonModule,
     IconButtonModule,
     TypographyModule,
-    PricingCardComponent,
     CdkTrapFocus,
     JslibModule,
   ],
