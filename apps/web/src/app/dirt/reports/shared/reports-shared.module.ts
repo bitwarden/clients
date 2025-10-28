@@ -4,7 +4,6 @@ import { NgModule } from "@angular/core";
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { BaseCardComponent, CardContentComponent } from "@bitwarden/components";
 
-
 import { SharedModule } from "../../../shared/shared.module";
 
 import { ReportCardComponent } from "./report-card/report-card.component";
