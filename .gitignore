@@ -10,7 +10,6 @@ Thumbs.db
 *.launch
 .settings/
 *.sublime-workspace
-.claude
 .serena
 
 # Visual Studio Code

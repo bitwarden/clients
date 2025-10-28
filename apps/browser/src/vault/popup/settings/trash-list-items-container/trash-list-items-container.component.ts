@@ -53,9 +53,13 @@ export class TrashListItemsContainerComponent {
   /**
    * The list of trashed items to display.
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   ciphers: PopupCipherViewLike[] = [];
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   headerText: string;
 

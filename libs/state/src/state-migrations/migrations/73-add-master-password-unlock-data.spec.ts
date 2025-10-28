@@ -97,6 +97,18 @@ describe("AddMasterPasswordUnlockData", () => {
         user_user1_kdfConfig_kdfConfig: { kdfType: 0, iterations: 600000 },
       });
     });
+
+    it("handles users with missing global accounts", async () => {
+      const output = await runMigrator(sut, {
+        global_account_accounts: { user_user1: null },
+        user_user1_kdfConfig_kdfConfig: { kdfType: 0, iterations: 600000 },
+      });
+
+      expect(output).toEqual({
+        global_account_accounts: { user_user1: null },
+        user_user1_kdfConfig_kdfConfig: { kdfType: 0, iterations: 600000 },
+      });
+    });
   });
 
   describe("rollback", () => {
