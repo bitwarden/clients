@@ -116,6 +116,7 @@
     "html-webpack-plugin": "5.6.3",
     "husky": "9.1.7",
     "jest-diff": "29.7.0",
+    "jest-fail-on-console": "3.3.1",
     "jest-junit": "16.0.0",
     "jest-mock-extended": "3.0.7",
     "jest-preset-angular": "14.6.1",
