@@ -16,9 +16,9 @@ export class SshKeyExport {
     return req;
   }
 
-  static toView(req: SshKeyExport, view = new SshKeyView()) {
+  static toView(req?: SshKeyExport, view = new SshKeyView()): SshKeyView | undefined {
     if (req == null) {
-      return null;
+      return undefined;
     }
 
     // Validate required fields
