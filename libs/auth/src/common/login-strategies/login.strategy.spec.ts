@@ -259,6 +259,7 @@ describe("LoginStrategy", () => {
 
       expect(userDecryptionOptionsService.setUserDecryptionOptions).toHaveBeenCalledWith(
         UserDecryptionOptions.fromResponse(idTokenResponse),
+        userId,
       );
       expect(masterPasswordService.mock.setMasterPasswordUnlockData).toHaveBeenCalledWith(
         new MasterPasswordUnlockData(

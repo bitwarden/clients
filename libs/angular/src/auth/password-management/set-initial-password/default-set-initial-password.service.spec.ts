@@ -149,7 +149,9 @@ describe("DefaultSetInitialPasswordService", () => {
 
       userDecryptionOptions = new UserDecryptionOptions({ hasMasterPassword: true });
       userDecryptionOptionsSubject = new BehaviorSubject(userDecryptionOptions);
-      userDecryptionOptionsService.userDecryptionOptions$ = userDecryptionOptionsSubject;
+      userDecryptionOptionsService.userDecryptionOptionsById$ = jest
+        .fn()
+        .mockReturnValue(userDecryptionOptionsSubject);
 
       setPasswordRequest = new SetPasswordRequest(
         credentials.newServerMasterKeyHash,
@@ -364,6 +366,7 @@ describe("DefaultSetInitialPasswordService", () => {
           expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
           expect(userDecryptionOptionsService.setUserDecryptionOptions).toHaveBeenCalledWith(
             userDecryptionOptions,
+            userId,
           );
           expect(kdfConfigService.setKdfConfig).toHaveBeenCalledWith(userId, credentials.kdfConfig);
           expect(masterPasswordService.setMasterKey).toHaveBeenCalledWith(
@@ -562,6 +565,7 @@ describe("DefaultSetInitialPasswordService", () => {
           expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
           expect(userDecryptionOptionsService.setUserDecryptionOptions).toHaveBeenCalledWith(
             userDecryptionOptions,
+            userId,
           );
           expect(kdfConfigService.setKdfConfig).toHaveBeenCalledWith(userId, credentials.kdfConfig);
           expect(masterPasswordService.setMasterKey).toHaveBeenCalledWith(

@@ -83,11 +83,11 @@ describe("UserDecryptionOptionsService", () => {
   });
 
   describe("setUserDecryptionOptions", () => {
-    it("should set the active user's decryption options", async () => {
-      await sut.setUserDecryptionOptions(userDecryptionOptions);
+    it("should set the specified user's decryption options", async () => {
+      await sut.setUserDecryptionOptions(userDecryptionOptions, fakeUserId);
 
       const result = await firstValueFrom(
-        fakeStateProvider.getActive(USER_DECRYPTION_OPTIONS).state$,
+        fakeStateProvider.getUser(fakeUserId, USER_DECRYPTION_OPTIONS).state$,
       );
 
       expect(result).toEqual(userDecryptionOptions);

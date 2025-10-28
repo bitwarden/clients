@@ -1,5 +1,7 @@
 import { Observable } from "rxjs";
 
+import { UserId } from "@bitwarden/common/types/guid";
+
 import { UserDecryptionOptions } from "../models";
 
 export abstract class UserDecryptionOptionsServiceAbstraction {
@@ -29,6 +31,10 @@ export abstract class InternalUserDecryptionOptionsServiceAbstraction extends Us
    * @remark Intended to be used when user decryption options are received from server, does
    * not update the server. Consider syncing instead of updating locally.
    * @param userDecryptionOptions Current user decryption options received from server.
+   * @param userId The user id to set the decryption options for.
    */
-  abstract setUserDecryptionOptions(userDecryptionOptions: UserDecryptionOptions): Promise<void>;
+  abstract setUserDecryptionOptions(
+    userDecryptionOptions: UserDecryptionOptions,
+    userId: UserId,
+  ): Promise<void>;
 }
