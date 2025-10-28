@@ -34,22 +34,22 @@
 @if (isActiveDrawerType(drawerTypes.AppAtRiskMembers)) {
   <bit-dialog dialogSize="large" disablePadding="false">
     <ng-container bitDialogTitle>
-      <span>{{ drawerDetails.appAtRiskMembers.applicationName }}</span>
+      <span>{{ drawerDetails.appAtRiskMembers?.applicationName }}</span>
     </ng-container>
     <ng-container bitDialogContent>
       <div bitTypography="body1" class="tw-mb-2">
-        {{ "atRiskMembersWithCount" | i18n: drawerDetails.appAtRiskMembers.members.length }}
+        {{ "atRiskMembersWithCount" | i18n: drawerDetails.appAtRiskMembers?.members.length }}
       </div>
       <div bitTypography="body1" class="tw-text-muted tw-text-sm tw-mb-2">
         {{
-          (drawerDetails.appAtRiskMembers.members.length > 0
+          (drawerDetails.appAtRiskMembers?.members.length > 0
             ? "atRiskMembersDescriptionWithApp"
             : "atRiskMembersDescriptionWithAppNone"
-          ) | i18n: drawerDetails.appAtRiskMembers.applicationName
+          ) | i18n: drawerDetails.appAtRiskMembers?.applicationName
         }}
       </div>
       <div class="tw-mt-1">
-        <ng-container *ngFor="let member of drawerDetails.appAtRiskMembers.members">
+        <ng-container *ngFor="let member of drawerDetails.appAtRiskMembers?.members">
           <div>{{ member.email }}</div>
         </ng-container>
       </div>
