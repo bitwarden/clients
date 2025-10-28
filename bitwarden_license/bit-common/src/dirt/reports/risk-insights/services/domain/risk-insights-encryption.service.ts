@@ -10,13 +10,19 @@ import { LogService } from "@bitwarden/logging";
 
 import { createNewSummaryData } from "../../helpers";
 import {
-  DecryptedReportData,
-  EncryptedReportData,
-  EncryptedDataWithKey,
   ApplicationHealthReportDetail,
-  OrganizationReportSummary,
+  DecryptedReportData,
+  EncryptedDataWithKey,
+  EncryptedReportData,
   OrganizationReportApplication,
+  OrganizationReportSummary,
 } from "../../models";
+
+import {
+  validateApplicationHealthReportDetailArray,
+  validateOrganizationReportApplicationArray,
+  validateOrganizationReportSummary,
+} from "./risk-insights-type-guards";
 
 export class RiskInsightsEncryptionService {
   constructor(
@@ -182,11 +188,16 @@ export class RiskInsightsEncryptionService {
       const decryptedData = await this.encryptService.decryptString(encryptedData, key);
       const parsedData = JSON.parse(decryptedData);
 
-      // TODO Add type guard to check that parsed data is actual type
-      return parsedData as ApplicationHealthReportDetail[];
+      // Validate parsed data structure with runtime type guards
+      return validateApplicationHealthReportDetailArray(parsedData);
     } catch (error: unknown) {
+      // Log detailed error for debugging
       this.logService.error("[RiskInsightsEncryptionService] Failed to decrypt report", error);
-      return [];
+      // Always throw generic message to prevent information disclosure
+      // Original error with detailed validation info is logged, not exposed to caller
+      throw new Error(
+        "Report data validation failed. This may indicate data corruption or tampering.",
+      );
     }
   }
 
@@ -202,14 +213,19 @@ export class RiskInsightsEncryptionService {
       const decryptedData = await this.encryptService.decryptString(encryptedData, key);
       const parsedData = JSON.parse(decryptedData);
 
-      // TODO Add type guard to check that parsed data is actual type
-      return parsedData as OrganizationReportSummary;
+      // Validate parsed data structure with runtime type guards
+      return validateOrganizationReportSummary(parsedData);
     } catch (error: unknown) {
+      // Log detailed error for debugging
       this.logService.error(
         "[RiskInsightsEncryptionService] Failed to decrypt report summary",
         error,
       );
-      return createNewSummaryData();
+      // Always throw generic message to prevent information disclosure
+      // Original error with detailed validation info is logged, not exposed to caller
+      throw new Error(
+        "Summary data validation failed. This may indicate data corruption or tampering.",
+      );
     }
   }
 
@@ -225,14 +241,19 @@ export class RiskInsightsEncryptionService {
       const decryptedData = await this.encryptService.decryptString(encryptedData, key);
       const parsedData = JSON.parse(decryptedData);
 
-      // TODO Add type guard to check that parsed data is actual type
-      return parsedData as OrganizationReportApplication[];
+      // Validate parsed data structure with runtime type guards
+      return validateOrganizationReportApplicationArray(parsedData);
     } catch (error: unknown) {
+      // Log detailed error for debugging
       this.logService.error(
         "[RiskInsightsEncryptionService] Failed to decrypt report applications",
         error,
       );
-      return [];
+      // Always throw generic message to prevent information disclosure
+      // Original error with detailed validation info is logged, not exposed to caller
+      throw new Error(
+        "Application data validation failed. This may indicate data corruption or tampering.",
+      );
     }
   }
 }
