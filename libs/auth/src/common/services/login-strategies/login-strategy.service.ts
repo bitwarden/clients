@@ -439,16 +439,6 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
       .finally(() => {
         this.preloginPromiseByEmail.delete(normalizedEmail);
       });
-
-    // Also notify password strategy, if active, so it can keep a reference
-    try {
-      const strategy = await firstValueFrom(this.loginStrategy$);
-      if (strategy && (strategy as any).setPasswordPreloginPromise) {
-        (strategy as any).setPasswordPreloginPromise(promise);
-      }
-    } catch {
-      // ignore
-    }
   }
 
   private async clearCache(): Promise<void> {
