@@ -451,9 +451,9 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
           "tw-border-solid",
           "tw-border-primary-600",
           "hover:tw-border-primary-700",
-          "focus:tw-border-2",
-          "focus:tw-border-primary-700",
-          "focus:tw-rounded-lg",
+          "tw-border-2",
+          "!tw-border-primary-700",
+          "tw-rounded-lg",
         ];
       }
       case PlanCardState.NotSelected: {

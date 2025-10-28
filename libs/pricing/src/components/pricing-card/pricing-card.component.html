@@ -1,10 +1,4 @@
-<div
-  class="tw-box-border tw-bg-background tw-text-main tw-size-full tw-flex tw-flex-col"
-  [ngClass]="[
-    noPaddingTop() ? 'tw-px-8 tw-pb-2' : 'tw-p-8',
-    noBorder() ? '' : 'tw-rounded-3xl tw-shadow-sm tw-border tw-border-secondary-100',
-  ]"
->
+<bit-card class="tw-size-full tw-flex tw-flex-col">
   <!-- Title Section with Active Badge -->
   <div class="tw-flex tw-items-center tw-justify-between tw-mb-2">
     <ng-content select="[slot=title]"></ng-content>
@@ -86,4 +80,4 @@
       }
     }
   </div>
-</div>
+</bit-card>

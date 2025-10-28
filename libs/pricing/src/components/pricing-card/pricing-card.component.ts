@@ -1,4 +1,4 @@
-import { CurrencyPipe, NgClass } from "@angular/common";
+import { CurrencyPipe } from "@angular/common";
 import { Component, EventEmitter, input, Output } from "@angular/core";
 
 import {
@@ -6,6 +6,7 @@ import {
   BadgeVariant,
   ButtonModule,
   ButtonType,
+  CardComponent,
   IconModule,
   TypographyModule,
 } from "@bitwarden/components";
@@ -20,7 +21,7 @@ import {
 @Component({
   selector: "billing-pricing-card",
   templateUrl: "./pricing-card.component.html",
-  imports: [BadgeModule, ButtonModule, IconModule, TypographyModule, CurrencyPipe, NgClass],
+  imports: [BadgeModule, ButtonModule, IconModule, TypographyModule, CurrencyPipe, CardComponent],
 })
 export class PricingCardComponent {
   readonly tagline = input.required<string>();

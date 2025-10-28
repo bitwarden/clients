@@ -8,7 +8,12 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
-import { BadgeModule, IconModule } from "@bitwarden/components";
+import {
+  BadgeModule,
+  BaseCardComponent,
+  CardContentComponent,
+  IconModule,
+} from "@bitwarden/components";
 
 import { PreloadedEnglishI18nModule } from "../../../../core/tests";
 import { reports } from "../../reports";
@@ -22,7 +27,15 @@ export default {
   component: ReportListComponent,
   decorators: [
     moduleMetadata({
-      imports: [JslibModule, BadgeModule, RouterTestingModule, IconModule, PremiumBadgeComponent],
+      imports: [
+        JslibModule,
+        BadgeModule,
+        RouterTestingModule,
+        IconModule,
+        PremiumBadgeComponent,
+        CardContentComponent,
+        BaseCardComponent,
+      ],
       declarations: [ReportCardComponent],
       providers: [
         {

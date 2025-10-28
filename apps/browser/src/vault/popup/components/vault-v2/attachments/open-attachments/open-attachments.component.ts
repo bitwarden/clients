@@ -26,6 +26,8 @@ import { CipherFormContainer } from "@bitwarden/vault";
 import BrowserPopupUtils from "../../../../../../platform/browser/browser-popup-utils";
 import { FilePopoutUtilsService } from "../../../../../../tools/popup/services/file-popout-utils.service";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-open-attachments",
   templateUrl: "./open-attachments.component.html",
@@ -40,6 +42,8 @@ import { FilePopoutUtilsService } from "../../../../../../tools/popup/services/f
 })
 export class OpenAttachmentsComponent implements OnInit {
   /** Cipher `id` */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true }) cipherId: CipherId;
 
   /** True when the attachments window should be opened in a popout */

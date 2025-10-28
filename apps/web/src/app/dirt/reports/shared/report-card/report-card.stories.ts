@@ -1,6 +1,6 @@
 import { importProvidersFrom } from "@angular/core";
 import { RouterTestingModule } from "@angular/router/testing";
-import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
+import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { of } from "rxjs";
 
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
@@ -9,7 +9,13 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
-import { BadgeModule, I18nMockService, IconModule } from "@bitwarden/components";
+import {
+  BadgeModule,
+  BaseCardComponent,
+  CardContentComponent,
+  I18nMockService,
+  IconModule,
+} from "@bitwarden/components";
 
 import { PreloadedEnglishI18nModule } from "../../../../core/tests";
 import { ReportVariant } from "../models/report-variant";
@@ -21,7 +27,15 @@ export default {
   component: ReportCardComponent,
   decorators: [
     moduleMetadata({
-      imports: [JslibModule, BadgeModule, IconModule, RouterTestingModule, PremiumBadgeComponent],
+      imports: [
+        JslibModule,
+        BadgeModule,
+        CardContentComponent,
+        IconModule,
+        RouterTestingModule,
+        PremiumBadgeComponent,
+        BaseCardComponent,
+      ],
       providers: [
         {
           provide: AccountService,
