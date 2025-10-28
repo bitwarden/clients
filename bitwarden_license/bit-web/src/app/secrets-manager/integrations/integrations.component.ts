@@ -38,7 +38,7 @@ export class IntegrationsComponent {
       },
       {
         name: "Ansible",
-        linkURL: "https://bitwarden.com/help/ansible-integration/",
+        linkURL: "https://galaxy.ansible.com/ui/repo/published/bitwarden/secrets",
         image: "../../../../../../../images/secrets-manager/integrations/ansible.svg",
         type: IntegrationType.Integration,
       },
@@ -97,6 +97,13 @@ export class IntegrationsComponent {
         image: "../../../../../../../images/secrets-manager/integrations/kubernetes.svg",
         type: IntegrationType.Integration,
         newBadgeExpiration: "2024-8-12",
+      },
+      {
+        name: "Terraform Provider",
+        linkURL: "https://registry.terraform.io/providers/bitwarden/bitwarden-secrets/latest",
+        image: "../../../../../../../images/secrets-manager/integrations/terraform.svg",
+        type: IntegrationType.Integration,
+        newBadgeExpiration: "2025-12-12", // December 12, 2025
       },
     ];
   }

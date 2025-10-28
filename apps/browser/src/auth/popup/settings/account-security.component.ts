@@ -78,6 +78,8 @@ import { SetPinComponent } from "../components/set-pin.component";
 
 import { AwaitDesktopDialogComponent } from "./await-desktop-dialog.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "account-security.component.html",
   imports: [

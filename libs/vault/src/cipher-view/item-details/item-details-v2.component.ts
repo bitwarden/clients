@@ -22,6 +22,8 @@ import {
 
 import { OrgIconDirective } from "../../components/org-icon.directive";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-item-details-v2",
   templateUrl: "item-details-v2.component.html",
@@ -36,18 +38,18 @@ import { OrgIconDirective } from "../../components/org-icon.directive";
   ],
 })
 export class ItemDetailsV2Component {
-  hideOwner = input<boolean>(false);
-  cipher = input.required<CipherView>();
-  organization = input<Organization | undefined>();
-  folder = input<FolderView | undefined>();
-  collections = input<CollectionView[] | undefined>();
-  showAllDetails = signal(false);
+  readonly hideOwner = input<boolean>(false);
+  readonly cipher = input.required<CipherView>();
+  readonly organization = input<Organization | undefined>();
+  readonly folder = input<FolderView | undefined>();
+  readonly collections = input<CollectionView[] | undefined>();
+  readonly showAllDetails = signal(false);
 
-  showOwnership = computed(() => {
+  readonly showOwnership = computed(() => {
     return this.cipher().organizationId && this.organization() && !this.hideOwner();
   });
 
-  hasSmallScreen = toSignal(
+  readonly hasSmallScreen = toSignal(
     fromEvent(window, "resize").pipe(
       map(() => window.innerWidth),
       startWith(window.innerWidth),
@@ -56,7 +58,7 @@ export class ItemDetailsV2Component {
   );
 
   // Array to hold all details of item. Organization, Collections, and Folder
-  allItems = computed(() => {
+  readonly allItems = computed(() => {
     let items: any[] = [];
     if (this.showOwnership() && this.organization()) {
       items.push(this.organization());
@@ -70,7 +72,7 @@ export class ItemDetailsV2Component {
     return items;
   });
 
-  showItems = computed(() => {
+  readonly showItems = computed(() => {
     if (
       this.hasSmallScreen() &&
       this.allItems().length > 2 &&

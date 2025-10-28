@@ -27,6 +27,8 @@ import { SharedModule } from "../../shared";
 
 import { ImportCollectionAdminService } from "./import-collection-admin.service";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "org-import.component.html",
   imports: [SharedModule, ImportComponent, HeaderModule],

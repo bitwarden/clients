@@ -10,12 +10,16 @@ import { FilePopoutUtilsService } from "../../services/file-popout-utils.service
 
 import { SendFilePopoutDialogComponent } from "./send-file-popout-dialog.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "send-file-popout-dialog-container",
   templateUrl: "./send-file-popout-dialog-container.component.html",
   imports: [JslibModule, CommonModule],
 })
 export class SendFilePopoutDialogContainerComponent implements OnInit {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   config = input.required<SendFormConfig>();
 
   constructor(
