@@ -12,3 +12,4 @@ crate-type = ["cdylib"]
 ctor = { workspace = true }
 desktop_core = { path = "../core" }
 libc = { workspace = true }
+tracing = { workspace = true }

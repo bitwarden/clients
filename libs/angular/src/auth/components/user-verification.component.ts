@@ -26,6 +26,8 @@ import { KeyService } from "@bitwarden/key-management";
 })
 export class UserVerificationComponent implements ControlValueAccessor, OnInit, OnDestroy {
   private _invalidSecret = false;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   get invalidSecret() {
     return this._invalidSecret;
@@ -43,6 +45,8 @@ export class UserVerificationComponent implements ControlValueAccessor, OnInit, 
     }
     this.secret.updateValueAndValidity({ emitEvent: false });
   }
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() invalidSecretChange = new EventEmitter<boolean>();
 
   hasMasterPassword = true;

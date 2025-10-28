@@ -140,6 +140,8 @@ enum AddAccessStatusType {
   AddAccess = 1,
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-org-vault",
   templateUrl: "vault.component.html",
@@ -207,6 +209,8 @@ export class VaultComponent implements OnInit, OnDestroy {
   protected selectedCollection$: Observable<TreeNode<CollectionAdminView> | undefined>;
   private nestedCollections$: Observable<TreeNode<CollectionAdminView>[]>;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("vaultItems", { static: false }) vaultItemsComponent:
     | VaultItemsComponent<CipherView>
     | undefined;

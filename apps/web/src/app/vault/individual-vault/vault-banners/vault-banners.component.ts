@@ -17,6 +17,8 @@ import { SharedModule } from "../../../shared";
 
 import { VaultBannersService, VisibleVaultBanner } from "./services/vault-banners.service";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-vault-banners",
   templateUrl: "./vault-banners.component.html",
@@ -32,6 +34,8 @@ export class VaultBannersComponent implements OnInit {
   visibleBanners: VisibleVaultBanner[] = [];
   premiumBannerVisible$: Observable<boolean>;
   VisibleVaultBanner = VisibleVaultBanner;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() organizations: Organization[] = [];
 
   private activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a?.id));

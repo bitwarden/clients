@@ -49,8 +49,9 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
       return;
     }
 
-    const fillActionPromises = fillScript.script.map(this.runFillScriptAction);
-    await Promise.all(fillActionPromises);
+    for (let index = 0; index < fillScript.script.length; index++) {
+      await this.runFillScriptAction(fillScript.script[index], index);
+    }
   }
 
   /**
@@ -135,7 +136,7 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
       setTimeout(() => {
         this.autofillInsertActions[action]({ opid, value });
         resolve();
-      }, delayActionsInMilliseconds * actionIndex),
+      }, delayActionsInMilliseconds),
     );
   };
 
@@ -189,10 +190,14 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
     const elementCanBeReadonly =
       elementIsInputElement(element) || elementIsTextAreaElement(element);
     const elementCanBeFilled = elementCanBeReadonly || elementIsSelectElement(element);
+    const elementValue = (element as HTMLInputElement)?.value || element?.innerText || "";
+
+    const elementAlreadyHasTheValue = !!(elementValue?.length && elementValue === value);
 
     if (
       !element ||
       !value ||
+      elementAlreadyHasTheValue ||
       (elementCanBeReadonly && element.readOnly) ||
       (elementCanBeFilled && element.disabled)
     ) {
@@ -344,7 +349,7 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
    * @private
    */
   private simulateUserKeyboardEventInteractions(element: FormFieldElement): void {
-    const simulatedKeyboardEvents = [EVENTS.KEYDOWN, EVENTS.KEYPRESS, EVENTS.KEYUP];
+    const simulatedKeyboardEvents = [EVENTS.KEYDOWN, EVENTS.KEYUP];
     for (let index = 0; index < simulatedKeyboardEvents.length; index++) {
       element.dispatchEvent(new KeyboardEvent(simulatedKeyboardEvents[index], { bubbles: true }));
     }

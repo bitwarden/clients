@@ -154,6 +154,15 @@
       }
     }
   },
+  "newPasswordsAtRisk": {
+    "message": "$COUNT$ novas palavras-passe em risco",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "notifiedMembersWithCount": {
     "message": "Membros notificados ($COUNT$)",
     "placeholders": {
@@ -2080,9 +2089,6 @@
   "encKeySettings": {
     "message": "Definições da chave de encriptação"
   },
-  "kdfAlgorithm": {
-    "message": "Algoritmo KDF"
-  },
   "kdfIterations": {
     "message": "Iterações KDF"
   },
@@ -2116,9 +2122,6 @@
   },
   "argon2Desc": {
     "message": "Iterações KDF mais altas, memória e paralelismo podem ajudar a proteger a sua palavra-passe mestra de ser forçada por um atacante."
-  },
-  "changeKdf": {
-    "message": "Alterar KDF"
   },
   "encKeySettingsChanged": {
     "message": "Definições da chave de encriptação alteradas"
@@ -5709,6 +5712,65 @@
   "organizationDataOwnershipWarningContentBottom": {
     "message": "Saiba mais sobre o ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about the credential lifecycle.'"
+  },
+  "availableNow": {
+    "message": "Available now"
+  },
+  "autoConfirm": {
+    "message": "Automatic confirmation of new users"
+  },
+  "autoConfirmDescription": {
+    "message": "New users invited to the organization will be automatically confirmed when an admin’s device is unlocked.",
+    "description": "This is the description of the policy as it appears in the 'Policies' page"
+  },
+  "howToTurnOnAutoConfirm": {
+    "message": "How to turn on automatic user confirmation"
+  },
+  "autoConfirmStep1": {
+    "message": "Open your Bitwarden extension."
+  },
+  "autoConfirmStep2a": {
+    "message": "Select",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  },
+  "autoConfirmStep2b": {
+    "message": " Turn on.",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  },
+  "autoConfirmExtensionOpened": {
+    "message": "Successfully opened the Bitwarden browser extension. You can now activate the automatic user confirmation setting."
+  },
+  "autoConfirmPolicyEditDescription": {
+    "message": "New users invited to the organization will be automatically confirmed when an admin’s device is unlocked. Before turning on this policy, please review and agree to the following: ",
+    "description": "This is the description of the policy as it appears inside the policy edit dialog"
+  },
+  "autoConfirmAcceptSecurityRiskTitle": {
+    "message": "Potential security risk. "
+  },
+  "autoConfirmAcceptSecurityRiskDescription": {
+    "message": "Automatic user confirmation could pose a security risk to your organization’s data."
+  },
+  "autoConfirmAcceptSecurityRiskLearnMore": {
+    "message": "Learn about the risks",
+    "description": "The is the link copy for the first check box option in the edit policy dialog"
+  },
+  "autoConfirmSingleOrgRequired": {
+    "message": "Single organization policy required. "
+  },
+  "autoConfirmSingleOrgRequiredDescription": {
+    "message": "Anyone part of more than one organization will have their access revoked until they leave the other organizations."
+  },
+  "autoConfirmSingleOrgExemption": {
+    "message": "Single organization policy will extend to all roles. "
+  },
+  "autoConfirmNoEmergencyAccess": {
+    "message": "No emergency access. "
+  },
+  "autoConfirmNoEmergencyAccessDescription": {
+    "message": "Emergency Access will be removed."
+  },
+  "autoConfirmCheckBoxLabel": {
+    "message": "I accept these risks and policy updates"
   },
   "personalOwnership": {
     "message": "Remover cofre pessoal"
@@ -10361,26 +10423,8 @@
   "memberAccessReportAuthenticationEnabledFalse": {
     "message": "Desativado"
   },
-  "higherKDFIterations": {
-    "message": "Iterações KDF mais altas podem ajudar a proteger a sua palavra-passe mestra de ser forçada por um atacante."
-  },
-  "incrementsOf100,000": {
-    "message": "incrementos de 100.000"
-  },
-  "smallIncrements": {
-    "message": "pequenos incrementos"
-  },
   "kdfIterationRecommends": {
     "message": "Recomendamos 600.000 ou mais"
-  },
-  "kdfToHighWarningIncreaseInIncrements": {
-    "message": "Para dispositivos mais antigos, definir um KDF demasiado alto pode levar a problemas de desempenho. Aumente o valor em $VALUE$ e teste os seus dispositivos.",
-    "placeholders": {
-      "value": {
-        "content": "$1",
-        "example": "increments of 100,000"
-      }
-    }
   },
   "providerReinstate": {
     "message": " Contacte o Apoio ao Cliente para restabelecer a sua subscrição."
@@ -11023,6 +11067,15 @@
   },
   "domainClaimed": {
     "message": "Domínio reivindicado"
+  },
+  "itemAddedToFavorites": {
+    "message": "Item adicionado aos favoritos"
+  },
+  "itemRemovedFromFavorites": {
+    "message": "Item removido dos favoritos"
+  },
+  "copyNote": {
+    "message": "Copiar nota"
   },
   "organizationNameMaxLength": {
     "message": "O nome da organização não pode exceder 50 caracteres."
@@ -11856,5 +11909,32 @@
   },
   "viewbusinessplans": {
     "message": "Ver planos empresariais"
+  },
+  "updateEncryptionSettings": {
+    "message": "Atualizar definições de encriptação"
+  },
+  "updateYourEncryptionSettings": {
+    "message": "Atualize as suas definições de encriptação"
+  },
+  "updateSettings": {
+    "message": "Atualizar definições"
+  },
+  "algorithm": {
+    "message": "Algoritmo"
+  },
+  "encryptionKeySettingsHowShouldWeEncryptYourData": {
+    "message": "Escolha como o Bitwarden deve encriptar os dados do seu cofre. Todas as opções são seguras, mas métodos mais fortes oferecem melhor proteção, especialmente contra ataques de força bruta. O Bitwarden recomenda a configuração predefinida para a maioria dos utilizadores."
+  },
+  "encryptionKeySettingsIncreaseImproveSecurity": {
+    "message": "Aumentar os valores acima do predefinido melhorará a segurança, mas o seu cofre poderá demorar mais tempo a desbloquear como resultado."
+  },
+  "encryptionKeySettingsAlgorithmPopoverTitle": {
+    "message": "Sobre algoritmos de encriptação"
+  },
+  "encryptionKeySettingsAlgorithmPopoverPBKDF2": {
+    "message": "O PBKDF2-SHA256 é um método de encriptação bem testado que equilibra segurança e desempenho. Adequado para todos os utilizadores."
+  },
+  "encryptionKeySettingsAlgorithmPopoverArgon2Id": {
+    "message": "O Argon2id oferece uma proteção mais forte contra ataques modernos. Ideal para utilizadores avançados com dispositivos potentes."
   }
 }
