@@ -37,25 +37,14 @@ export class ActivityCardComponent {
   @Input() metricDescription: string = "";
 
   /**
-   * The link to navigate to for more information
+   * The text to display for the action link
    */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() navigationLink: string = "";
+  @Input() actionText: string = "";
 
   /**
-   * The text to display for the navigation link
+   * Show action link
    */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() navigationText: string = "";
-
-  /**
-   * Show Navigation link
-   */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() showNavigationLink: boolean = false;
+  @Input() showActionLink: boolean = false;
 
   /**
    * Icon class to display next to metrics (e.g., "bwi-exclamation-triangle").
@@ -86,13 +75,18 @@ export class ActivityCardComponent {
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() buttonClick = new EventEmitter<void>();
 
-  constructor(private router: Router) {}
+  /**
+   * Event emitted when action link is clicked
+   */
+  @Output() actionClick = new EventEmitter<void>();
 
-  navigateToLink = async (navigationLink: string) => {
-    await this.router.navigateByUrl(navigationLink);
-  };
+  constructor(private router: Router) {}
 
   onButtonClick = () => {
     this.buttonClick.emit();
+  };
+
+  onActionClick = () => {
+    this.actionClick.emit();
   };
 }
