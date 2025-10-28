@@ -102,7 +102,6 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
   async buildRequest<T extends SecretVerificationRequest>(
     verification: ServerSideVerification,
     requestClass?: new () => T,
-    alreadyHashed?: boolean,
   ) {
     this.validateSecretInput(verification);
 
