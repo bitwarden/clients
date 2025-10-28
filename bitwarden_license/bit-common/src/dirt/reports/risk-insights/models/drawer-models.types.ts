@@ -1,14 +1,13 @@
 import { MemberDetails } from "./report-models";
 
 // -------------------- Drawer and UI Models --------------------
-// FIXME: update to use a const object instead of a typescript enum
-// eslint-disable-next-line @bitwarden/platform/no-enums
-export enum DrawerType {
-  None = 0,
-  AppAtRiskMembers = 1,
-  OrgAtRiskMembers = 2,
-  OrgAtRiskApps = 3,
-}
+export const DrawerType = {
+  None: 0,
+  AppAtRiskMembers: 1,
+  OrgAtRiskMembers: 2,
+  OrgAtRiskApps: 3,
+} as const;
+export type DrawerType = (typeof DrawerType)[keyof typeof DrawerType];
 
 export type DrawerDetails = {
   open: boolean;
