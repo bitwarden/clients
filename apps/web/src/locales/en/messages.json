@@ -5831,10 +5831,14 @@
     "message": "Default URI match detection"
   },
   "uriMatchDetectionPolicyDesc": {
-    "message": "Determine when logins are suggested for autofill. Admins and owners are exempt form this policy."
+    "message": "Determine when logins are suggested for autofill. Admins and owners are exempt from this policy."
   },
   "uriMatchDetectionOptionsLabel": {
     "message": "Default URI match detection"
+  },
+    "invalidUriMatchDefaultPolicySetting": {
+    "message": "Please select a valid URI match detection option.",
+    "description": "Error message displayed when a user attempts to save URI match detection policy settings with an invalid selection."
   },
   "modifiedPolicyId": {
     "message": "Modified policy $ID$.",

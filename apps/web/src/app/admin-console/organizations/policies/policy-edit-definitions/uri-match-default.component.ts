@@ -35,7 +35,7 @@ export class UriMatchDefaultPolicyComponent extends BasePolicyEditComponent {
   ) {
     super();
     this.uriMatchOptions = [
-      { label: "-- Select --", value: null },
+      { label: "-- " + i18nService.t("select") + " --", value: null },
       { label: i18nService.t("baseDomain"), value: UriMatchStrategy.Domain },
       { label: i18nService.t("host"), value: UriMatchStrategy.Host },
       { label: i18nService.t("exact"), value: UriMatchStrategy.Exact },
@@ -63,7 +63,7 @@ export class UriMatchDefaultPolicyComponent extends BasePolicyEditComponent {
   async buildRequest(): Promise<PolicyRequest> {
     const request = await super.buildRequest();
     if (request.data?.uriMatchDetection == null) {
-      throw new Error(this.i18nService.t("invalidMaximumVaultTimeout"));
+      throw new Error(this.i18nService.t("invalidUriMatchDefaultPolicySetting"));
     }
 
     return request;
