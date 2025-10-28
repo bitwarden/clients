@@ -45,6 +45,7 @@ export type AutofillConfirmationDialogResultType = UnionOfValues<
 })
 export class AutofillConfirmationDialogComponent {
   AutofillConfirmationDialogResult = AutofillConfirmationDialogResult;
+
   currentUrl: string = "";
   savedUrls: string[] = [];
   savedUrlsExpanded = false;
@@ -67,7 +68,7 @@ export class AutofillConfirmationDialogComponent {
          after:tw-pointer-events-none after:tw-content-['']
          after:tw-absolute after:tw-inset-x-0 after:tw-bottom-0
          after:tw-h-8 after:tw-bg-gradient-to-t
-         after:tw-from-[var(--surface-bg,white)] after:tw-to-transparent
+         after:tw-from-background after:tw-to-transparent
     `;
   }
 

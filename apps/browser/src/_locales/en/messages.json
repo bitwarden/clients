@@ -1035,7 +1035,7 @@
     "message": "Saved website"
   },
   "savedWebsites": {
-    "message": "Saved websites ($COUNT$)",
+    "message": "Saved websites ( $COUNT$ )",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4049,6 +4049,15 @@
   "autofillOnPageLoadSetToDefault": {
     "message": "Autofill on page load set to use default setting.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
+  },
+  "cannotAutofill": {
+    "message": "Cannot autofill"
+  },
+  "cannotAutofillExactMatch": {
+    "message": "Default matching is set to 'Exact Match'. The current website does not exactly match the saved login details for this item."
+  },
+  "okay": {
+    "message": "Okay"
   },
   "toggleSideNavigation": {
     "message": "Toggle side navigation"

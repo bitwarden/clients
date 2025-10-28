@@ -9,7 +9,9 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherId, UserId } from "@bitwarden/common/types/guid";
@@ -32,6 +34,7 @@ import {
 import { PasswordRepromptService } from "@bitwarden/vault";
 
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
+import { VaultPopupItemsService } from "../../../services/vault-popup-items.service";
 import { AddEditQueryParams } from "../add-edit/add-edit-v2.component";
 import {
   AutofillConfirmationDialogComponent,
@@ -73,9 +76,12 @@ export class ItemMoreOptionsComponent {
 
   protected autofillAllowed$ = this.vaultPopupAutofillService.autofillAllowed$;
 
-  protected autofillConfirmationFlag$ = this.configService.getFeatureFlag$(
-    FeatureFlag.AutofillConfirmation,
-  );
+  protected showAutofillConfirmation$ = combineLatest([
+    this.configService.getFeatureFlag$(FeatureFlag.AutofillConfirmation),
+    this.vaultPopupItemsService.hasSearchText$,
+  ]).pipe(map(([isFeatureFlagEnabled, hasSearchText]) => !isFeatureFlagEnabled && hasSearchText));
+
+  protected uriMatchStrategy$ = this.domainSettingsService.resolvedDefaultUriMatchStrategy$;
 
   /**
    * Observable that emits a boolean value indicating if the user is authorized to clone the cipher.
@@ -147,6 +153,8 @@ export class ItemMoreOptionsComponent {
     private restrictedItemTypesService: RestrictedItemTypesService,
     private cipherArchiveService: CipherArchiveService,
     private configService: ConfigService,
+    private vaultPopupItemsService: VaultPopupItemsService,
+    private domainSettingsService: DomainSettingsService,
   ) {}
 
   get canEdit() {
@@ -186,10 +194,22 @@ export class ItemMoreOptionsComponent {
   async doAutofill() {
     const cipher = await this.cipherService.getFullCipherView(this.cipher);
 
-    const isFeatureFlagEnabled = await firstValueFrom(this.autofillConfirmationFlag$);
+    const showAutofillConfirmation = await firstValueFrom(this.showAutofillConfirmation$);
 
-    if (!isFeatureFlagEnabled) {
+    if (!showAutofillConfirmation) {
       await this.vaultPopupAutofillService.doAutofill(cipher, false);
+      return;
+    }
+
+    const uriMatchStrategy = await firstValueFrom(this.uriMatchStrategy$);
+    if (uriMatchStrategy === UriMatchStrategy.Exact) {
+      await this.dialogService.openSimpleDialog({
+        title: { key: "cannotAutofill" },
+        content: { key: "cannotAutofillExactMatch" },
+        type: "info",
+        acceptButtonText: { key: "okay" },
+        cancelButtonText: null,
+      });
       return;
     }
 
