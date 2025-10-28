@@ -142,8 +142,7 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
     // ```
     //  export const MarketingInitiative = Object.freeze({
     //    Premium: "premium",
-    //    Families: "families",
-    //    // Other variants in the future
+    //    // Families: "families", // easy to add if asked to in the future
     //  } as const);
 
     // -- Proof of Concept (end) --
@@ -211,11 +210,13 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
 
       await this.loginSuccessHandlerService.run(authenticationResult.userId);
 
+      // -- Proof of Concept (start) --
       if (this.intendsToSetupPremium) {
         await this.registrationFinishService.establishIntentToSetupPremium(
           authenticationResult.userId,
         );
       }
+      // -- Proof of Concept (end) --
 
       await this.router.navigate(["/vault"]);
     } catch (e) {

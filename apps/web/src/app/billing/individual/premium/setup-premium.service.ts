@@ -24,7 +24,9 @@ export class SetupPremiumService {
   }
 
   async getIntentToSetupPremium(userId: UserId) {
-    await firstValueFrom(this.stateProvider.getUserState$(INTENT_TO_SETUP_PREMIUM_KEY, userId));
+    return await firstValueFrom(
+      this.stateProvider.getUserState$(INTENT_TO_SETUP_PREMIUM_KEY, userId),
+    );
   }
 
   async clearIntentToSetupPremium(userId: UserId) {

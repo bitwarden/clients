@@ -65,6 +65,7 @@ import { EmergencyAccessViewComponent } from "./auth/settings/emergency-access/v
 import { SecurityRoutingModule } from "./auth/settings/security/security-routing.module";
 import { VerifyEmailTokenComponent } from "./auth/verify-email-token.component";
 import { VerifyRecoverDeleteComponent } from "./auth/verify-recover-delete.component";
+import { SetupPremiumComponent } from "./billing/individual/premium/setup-premium.component";
 import { SponsoredFamiliesComponent } from "./billing/settings/sponsored-families.component";
 import { CompleteTrialInitiationComponent } from "./billing/trial-initiation/complete-trial-initiation/complete-trial-initiation.component";
 import { freeTrialTextResolver } from "./billing/trial-initiation/complete-trial-initiation/resolver/free-trial-text.resolver";
@@ -86,6 +87,7 @@ import { BrowserExtensionPromptInstallComponent } from "./vault/components/brows
 import { BrowserExtensionPromptComponent } from "./vault/components/browser-extension-prompt/browser-extension-prompt.component";
 import { SetupExtensionComponent } from "./vault/components/setup-extension/setup-extension.component";
 import { setupExtensionRedirectGuard } from "./vault/guards/setup-extension-redirect.guard";
+import { setupPremiumRedirectGuard } from "./vault/guards/setup-premium-redirect.guard";
 import { VaultModule } from "./vault/individual-vault/vault.module";
 
 const routes: Routes = [
@@ -617,6 +619,10 @@ const routes: Routes = [
           },
         ],
       },
+      {
+        path: "setup-premium",
+        component: SetupPremiumComponent,
+      },
     ],
   },
   {
@@ -626,7 +632,7 @@ const routes: Routes = [
     children: [
       {
         path: "vault",
-        canActivate: [setupExtensionRedirectGuard],
+        canActivate: [setupPremiumRedirectGuard, setupExtensionRedirectGuard],
         loadChildren: () => VaultModule,
       },
       {
