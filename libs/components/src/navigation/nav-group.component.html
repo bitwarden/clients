@@ -1,5 +1,7 @@
 <!-- This a higher order component that composes `NavItemComponent`  -->
 @if (!hideIfEmpty() || nestedNavComponents().length > 0) {
+  @let sideNavOpen = sideNavService.open$ | async;
+
   <bit-nav-item
     [text]="text()"
     [icon]="icon()"
@@ -9,6 +11,7 @@
     (mainContentClicked)="handleMainContentClicked()"
     [ariaLabel]="ariaLabel()"
     [hideActiveStyles]="parentHideActiveStyles"
+    [ariaCurrentWhenActive]="sideNavOpen ? undefined : 'page'"
   >
     <ng-template #button>
       <button
@@ -18,7 +21,6 @@
         [buttonType]="'nav-contrast'"
         (click)="toggle($event)"
         size="small"
-        aria-haspopup="true"
         [attr.aria-expanded]="open().toString()"
         [attr.aria-controls]="contentId"
         [label]="['toggleCollapse' | i18n, text()].join(' ')"
