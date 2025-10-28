@@ -15,21 +15,4 @@ import { TooltipDirective } from "../tooltip/tooltip.directive";
     },
   ],
 })
-export class A11yTitleDirective {
-  // readonly appA11yTitle = input.required<string>({ alias: "appA11yTitle" });
-  // private tooltipDirective = inject(TooltipDirective);
-  // private injector = inject(Injector);
-  // constructor() {
-  //   effect(
-  //     () => {
-  //       // Sync the appA11yTitle input to the TooltipDirective's bitTooltip input
-  //       const title = this.appA11yTitle();
-  //       // We need to manually set the tooltip content since hostDirectives
-  //       // don't automatically map inputs
-  //       // This is a workaround - we'll use reflection to set the input
-  //       (this.tooltipDirective as any).bitTooltip = () => title;
-  //     },
-  //     { injector: this.injector },
-  //   );
-  // }
-}
+export class A11yTitleDirective {}
