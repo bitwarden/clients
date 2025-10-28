@@ -6,6 +6,13 @@ import {
 } from "../../models";
 
 /**
+ * Security limits for validation (prevent DoS attacks and ensure reasonable data sizes)
+ */
+const MAX_STRING_LENGTH = 1000; // Reasonable limit for names, emails, GUIDs
+const MAX_ARRAY_LENGTH = 50000; // Reasonable limit for report arrays
+const MAX_COUNT = 10000000; // 10 million - reasonable upper bound for count fields
+
+/**
  * Type guard to validate MemberDetails structure
  * Exported for testability
  * Strict validation: rejects objects with unexpected properties and prototype pollution
@@ -36,9 +43,6 @@ export function isMemberDetails(obj: any): obj is MemberDetails {
   if (hasUnexpectedProps) {
     return false;
   }
-
-  // Validate string fields with reasonable length limits (prevent DoS)
-  const MAX_STRING_LENGTH = 1000; // Reasonable limit for names, emails, GUIDs
 
   return (
     typeof obj.userGuid === "string" &&
@@ -98,10 +102,6 @@ export function isApplicationHealthReportDetail(obj: any): obj is ApplicationHea
     return false;
   }
 
-  // Security limits to prevent DoS attacks
-  const MAX_STRING_LENGTH = 1000;
-  const MAX_ARRAY_LENGTH = 50000; // Reasonable limit for report arrays
-
   return (
     typeof obj.applicationName === "string" &&
     obj.applicationName.length > 0 &&
@@ -110,10 +110,12 @@ export function isApplicationHealthReportDetail(obj: any): obj is ApplicationHea
     Number.isFinite(obj.passwordCount) &&
     Number.isSafeInteger(obj.passwordCount) &&
     obj.passwordCount >= 0 &&
+    obj.passwordCount <= MAX_COUNT &&
     typeof obj.atRiskPasswordCount === "number" &&
     Number.isFinite(obj.atRiskPasswordCount) &&
     Number.isSafeInteger(obj.atRiskPasswordCount) &&
     obj.atRiskPasswordCount >= 0 &&
+    obj.atRiskPasswordCount <= MAX_COUNT &&
     Array.isArray(obj.atRiskCipherIds) &&
     obj.atRiskCipherIds.length <= MAX_ARRAY_LENGTH &&
     obj.atRiskCipherIds.every(
@@ -123,10 +125,12 @@ export function isApplicationHealthReportDetail(obj: any): obj is ApplicationHea
     Number.isFinite(obj.memberCount) &&
     Number.isSafeInteger(obj.memberCount) &&
     obj.memberCount >= 0 &&
+    obj.memberCount <= MAX_COUNT &&
     typeof obj.atRiskMemberCount === "number" &&
     Number.isFinite(obj.atRiskMemberCount) &&
     Number.isSafeInteger(obj.atRiskMemberCount) &&
     obj.atRiskMemberCount >= 0 &&
+    obj.atRiskMemberCount <= MAX_COUNT &&
     Array.isArray(obj.memberDetails) &&
     obj.memberDetails.length <= MAX_ARRAY_LENGTH &&
     obj.memberDetails.every(isMemberDetails) &&
@@ -183,43 +187,47 @@ export function isOrganizationReportSummary(obj: any): obj is OrganizationReport
     return false;
   }
 
-  // Security limits to prevent DoS attacks
-  const MAX_STRING_LENGTH = 1000;
-  const MAX_ARRAY_LENGTH = 50000;
-
   return (
     typeof obj.totalMemberCount === "number" &&
     Number.isFinite(obj.totalMemberCount) &&
     Number.isSafeInteger(obj.totalMemberCount) &&
     obj.totalMemberCount >= 0 &&
+    obj.totalMemberCount <= MAX_COUNT &&
     typeof obj.totalApplicationCount === "number" &&
     Number.isFinite(obj.totalApplicationCount) &&
     Number.isSafeInteger(obj.totalApplicationCount) &&
     obj.totalApplicationCount >= 0 &&
+    obj.totalApplicationCount <= MAX_COUNT &&
     typeof obj.totalAtRiskMemberCount === "number" &&
     Number.isFinite(obj.totalAtRiskMemberCount) &&
     Number.isSafeInteger(obj.totalAtRiskMemberCount) &&
     obj.totalAtRiskMemberCount >= 0 &&
+    obj.totalAtRiskMemberCount <= MAX_COUNT &&
     typeof obj.totalAtRiskApplicationCount === "number" &&
     Number.isFinite(obj.totalAtRiskApplicationCount) &&
     Number.isSafeInteger(obj.totalAtRiskApplicationCount) &&
     obj.totalAtRiskApplicationCount >= 0 &&
+    obj.totalAtRiskApplicationCount <= MAX_COUNT &&
     typeof obj.totalCriticalApplicationCount === "number" &&
     Number.isFinite(obj.totalCriticalApplicationCount) &&
     Number.isSafeInteger(obj.totalCriticalApplicationCount) &&
     obj.totalCriticalApplicationCount >= 0 &&
+    obj.totalCriticalApplicationCount <= MAX_COUNT &&
     typeof obj.totalCriticalMemberCount === "number" &&
     Number.isFinite(obj.totalCriticalMemberCount) &&
     Number.isSafeInteger(obj.totalCriticalMemberCount) &&
     obj.totalCriticalMemberCount >= 0 &&
+    obj.totalCriticalMemberCount <= MAX_COUNT &&
     typeof obj.totalCriticalAtRiskMemberCount === "number" &&
     Number.isFinite(obj.totalCriticalAtRiskMemberCount) &&
     Number.isSafeInteger(obj.totalCriticalAtRiskMemberCount) &&
     obj.totalCriticalAtRiskMemberCount >= 0 &&
+    obj.totalCriticalAtRiskMemberCount <= MAX_COUNT &&
     typeof obj.totalCriticalAtRiskApplicationCount === "number" &&
     Number.isFinite(obj.totalCriticalAtRiskApplicationCount) &&
     Number.isSafeInteger(obj.totalCriticalAtRiskApplicationCount) &&
     obj.totalCriticalAtRiskApplicationCount >= 0 &&
+    obj.totalCriticalAtRiskApplicationCount <= MAX_COUNT &&
     Array.isArray(obj.newApplications) &&
     obj.newApplications.length <= MAX_ARRAY_LENGTH &&
     obj.newApplications.every(
@@ -260,9 +268,6 @@ export function isOrganizationReportApplication(obj: any): obj is OrganizationRe
     return false;
   }
 
-  // Security limits to prevent DoS attacks
-  const MAX_STRING_LENGTH = 1000;
-
   return (
     typeof obj.applicationName === "string" &&
     obj.applicationName.length > 0 &&
@@ -281,8 +286,6 @@ export function isOrganizationReportApplication(obj: any): obj is OrganizationRe
 export function validateApplicationHealthReportDetailArray(
   data: any,
 ): ApplicationHealthReportDetail[] {
-  const MAX_ARRAY_LENGTH = 50000; // Prevent DoS from extremely large arrays
-
   if (!Array.isArray(data)) {
     throw new Error(
       "Invalid report data: expected array of ApplicationHealthReportDetail, received non-array",
@@ -360,8 +363,6 @@ export function validateOrganizationReportSummary(data: any): OrganizationReport
 export function validateOrganizationReportApplicationArray(
   data: any,
 ): OrganizationReportApplication[] {
-  const MAX_ARRAY_LENGTH = 50000; // Prevent DoS from extremely large arrays
-
   if (!Array.isArray(data)) {
     throw new Error(
       "Invalid application data: expected array of OrganizationReportApplication, received non-array",
