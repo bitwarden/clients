@@ -56,23 +56,6 @@ export class RiskInsightsReportService {
     const atRiskMembers = reports.flatMap((x) => x.atRiskMemberDetails);
     const uniqueAtRiskMembers = getUniqueMembers(atRiskMembers);
 
-    // TODO: Replace with actual new applications detection logic (PM-26185)
-    const dummyNewApplications = [
-      "github.com",
-      "google.com",
-      "stackoverflow.com",
-      "gitlab.com",
-      "bitbucket.org",
-      "npmjs.com",
-      "docker.com",
-      "aws.amazon.com",
-      "azure.microsoft.com",
-      "jenkins.io",
-      "terraform.io",
-      "kubernetes.io",
-      "atlassian.net",
-    ];
-
     return {
       totalMemberCount: uniqueMembers.length,
       totalAtRiskMemberCount: uniqueAtRiskMembers.length,
@@ -82,7 +65,8 @@ export class RiskInsightsReportService {
       totalCriticalAtRiskMemberCount: 0,
       totalCriticalApplicationCount: 0,
       totalCriticalAtRiskApplicationCount: 0,
-      newApplications: dummyNewApplications,
+      // newApplications now derived from applicationData in orchestrator's newApplications$ observable
+      newApplications: [],
     };
   }
 
