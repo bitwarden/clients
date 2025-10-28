@@ -346,6 +346,133 @@ describe("LoginStrategyService", () => {
         expect.any(PBKDF2KdfConfig),
       );
     });
+
+    it("handles concurrent getPasswordPrelogin calls for same email; uses latest result", async () => {
+      configService.getFeatureFlag.mockResolvedValue(true);
+
+      const email = "a@a.com";
+      let resolve1!: (v: any) => void;
+      let resolve2!: (v: any) => void;
+      const deferred1 = new Promise<PreloginResponse>((res) => (resolve1 = res));
+      const deferred2 = new Promise<PreloginResponse>((res) => (resolve2 = res));
+
+      apiService.postPrelogin.mockImplementationOnce(() => deferred1 as any);
+      apiService.postPrelogin.mockImplementationOnce(() => deferred2 as any);
+      keyService.makeMasterKey.mockResolvedValue({} as any);
+
+      void sut.getPasswordPrelogin(email);
+      void sut.getPasswordPrelogin(email);
+
+      // First resolves to PBKDF2, second resolves to Argon2 (latest wins)
+      resolve1(
+        new PreloginResponse({
+          Kdf: KdfType.PBKDF2_SHA256,
+          KdfIterations: PBKDF2KdfConfig.PRELOGIN_ITERATIONS_MIN,
+        }),
+      );
+      resolve2(
+        new PreloginResponse({
+          Kdf: KdfType.Argon2id,
+          KdfIterations: 2,
+          KdfMemory: 16,
+          KdfParallelism: 1,
+        }),
+      );
+
+      await sut.makePreloginKey("pw", email);
+
+      expect(apiService.postPrelogin).toHaveBeenCalledTimes(2);
+      const calls = keyService.makeMasterKey.mock.calls as any[];
+      expect(calls[0][2]).toBeInstanceOf(Argon2KdfConfig);
+    });
+
+    it("does not throw when prefetch network error occurs; fallback works in makePreloginKey", async () => {
+      configService.getFeatureFlag.mockResolvedValue(true);
+
+      const email = "a@a.com";
+
+      // Prefetch throws non-404 error
+      const err: any = new Error("network");
+      err.statusCode = 500;
+      apiService.postPrelogin.mockRejectedValueOnce(err);
+
+      await expect(sut.getPasswordPrelogin(email)).resolves.toBeUndefined();
+
+      // makePreloginKey falls back to a new API call which succeeds
+      apiService.postPrelogin.mockResolvedValueOnce(
+        new PreloginResponse({
+          Kdf: KdfType.PBKDF2_SHA256,
+          KdfIterations: PBKDF2KdfConfig.PRELOGIN_ITERATIONS_MIN,
+        }),
+      );
+      keyService.makeMasterKey.mockResolvedValue({} as any);
+
+      await sut.makePreloginKey("pw", email);
+
+      expect(apiService.postPrelogin).toHaveBeenCalledTimes(2);
+      const calls = keyService.makeMasterKey.mock.calls as any[];
+      expect(calls[0][2]).toBeInstanceOf(PBKDF2KdfConfig);
+    });
+
+    it("treats 404 as null prefetch and falls back in makePreloginKey", async () => {
+      configService.getFeatureFlag.mockResolvedValue(true);
+
+      const email = "a@a.com";
+
+      const notFound: any = new Error("not found");
+      notFound.statusCode = 404;
+      apiService.postPrelogin.mockRejectedValueOnce(notFound);
+
+      await sut.getPasswordPrelogin(email);
+
+      // Fallback call on makePreloginKey
+      apiService.postPrelogin.mockResolvedValueOnce(
+        new PreloginResponse({
+          Kdf: KdfType.Argon2id,
+          KdfIterations: 2,
+          KdfMemory: 16,
+          KdfParallelism: 1,
+        }),
+      );
+      keyService.makeMasterKey.mockResolvedValue({} as any);
+
+      await sut.makePreloginKey("pw", email);
+
+      expect(apiService.postPrelogin).toHaveBeenCalledTimes(2);
+      const calls = keyService.makeMasterKey.mock.calls as any[];
+      expect(calls[0][2]).toBeInstanceOf(Argon2KdfConfig);
+    });
+
+    it("awaits rejected current prelogin promise and then falls back in makePreloginKey", async () => {
+      configService.getFeatureFlag.mockResolvedValue(true);
+
+      const email = "a@a.com";
+      const err: any = new Error("network");
+      err.statusCode = 500;
+      let rejectFn!: (e: any) => void;
+      const deferred = new Promise<PreloginResponse>((_res, rej) => (rejectFn = rej));
+      apiService.postPrelogin.mockReturnValueOnce(deferred as any);
+      keyService.makeMasterKey.mockResolvedValue({} as any);
+
+      void sut.getPasswordPrelogin(email);
+      const makeKey = sut.makePreloginKey("pw", email);
+
+      rejectFn(err);
+
+      // Fallback call succeeds
+      apiService.postPrelogin.mockResolvedValueOnce(
+        new PreloginResponse({
+          Kdf: KdfType.PBKDF2_SHA256,
+          KdfIterations: PBKDF2KdfConfig.PRELOGIN_ITERATIONS_MIN,
+        }),
+      );
+
+      await makeKey;
+
+      expect(apiService.postPrelogin).toHaveBeenCalledTimes(2);
+      const calls = keyService.makeMasterKey.mock.calls as any[];
+      expect(calls[0][2]).toBeInstanceOf(PBKDF2KdfConfig);
+    });
   });
 
   it("should return an AuthResult on successful login", async () => {
