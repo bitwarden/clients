@@ -144,20 +144,23 @@ mod windows_binary {
             _ = CloseHandle(hprocess);
         });
 
-        let mut wide = vec![0u16; 260];
-        let mut size = wide.len() as u32;
+        let mut exe_name = vec![0u16; 32 * 1024];
+        let mut exe_name_length = exe_name.len() as u32;
         unsafe {
             QueryFullProcessImageNameW(
                 hprocess,
                 PROCESS_NAME_WIN32,
-                windows::core::PWSTR(wide.as_mut_ptr()),
-                &mut size,
+                windows::core::PWSTR(exe_name.as_mut_ptr()),
+                &mut exe_name_length,
             )
         }?;
-        dbg_log!("QueryFullProcessImageNameW returned {} bytes", size);
+        dbg_log!(
+            "QueryFullProcessImageNameW returned {} bytes",
+            exe_name_length
+        );
 
-        wide.truncate(size as usize);
-        Ok(PathBuf::from(OsString::from_wide(&wide)))
+        exe_name.truncate(exe_name_length as usize);
+        Ok(PathBuf::from(OsString::from_wide(&exe_name)))
     }
 
     async fn send_error_to_user(client: &mut NamedPipeClient, error_message: &str) {
@@ -208,7 +211,7 @@ mod windows_binary {
         let result = unsafe {
             CryptUnprotectData(
                 &in_blob,
-                Some(ptr::null_mut()),
+                None,
                 None,
                 None,
                 None,
@@ -248,7 +251,7 @@ mod windows_binary {
     }
 
     impl ImpersonateGuard {
-        pub fn start() -> Result<Self> {
+        fn start() -> Result<Self> {
             Self::enable_privilege()?;
 
             // Find a SYSTEM process and get its token. Not every SYSTEM process allows token duplication, so try several.
@@ -266,7 +269,7 @@ mod windows_binary {
             })
         }
 
-        pub fn stop() -> Result<()> {
+        fn stop() -> Result<()> {
             unsafe {
                 RevertToSelf()?;
             };
@@ -274,12 +277,12 @@ mod windows_binary {
         }
 
         /// stop impersonate and return sys token handle
-        pub fn _stop_sys_handle(self) -> Result<HANDLE> {
+        fn _stop_sys_handle(self) -> Result<HANDLE> {
             unsafe { RevertToSelf() }?;
             Ok(self.sys_token_handle)
         }
 
-        pub fn close_sys_handle(&self) -> Result<()> {
+        fn close_sys_handle(&self) -> Result<()> {
             unsafe { CloseHandle(self.sys_token_handle) }?;
             Ok(())
         }
@@ -351,14 +354,14 @@ mod windows_binary {
         }
 
         fn get_system_pid_list() -> Vec<(u32, &'static str)> {
-            let mut pids = Vec::new();
             let sys = System::new_all();
-            for name in SYSTEM_PROCESS_NAMES {
-                for process in sys.processes_by_exact_name(name.as_ref()) {
-                    pids.push((process.pid().as_u32(), name));
-                }
-            }
-            pids
+            SYSTEM_PROCESS_NAMES
+                .iter()
+                .flat_map(|&name| {
+                    sys.processes_by_exact_name(name.as_ref())
+                        .map(move |process| (process.pid().as_u32(), name))
+                })
+                .collect()
         }
 
         fn get_process_handle(pid: u32) -> Result<HANDLE> {
