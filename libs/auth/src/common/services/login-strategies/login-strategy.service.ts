@@ -93,9 +93,10 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
   private authRequestPushNotificationState: GlobalState<string | null>;
   private authenticationTimeoutSubject = new BehaviorSubject<boolean>(false);
 
-  // Prefetched password prelogin cache by normalized email
-  private preloginKdfConfigByEmail = new Map<string, KdfConfig>();
-  private preloginPromiseByEmail = new Map<string, Promise<KdfConfig | null>>();
+  // Prefetched password prelogin
+  private currentPreloginEmail: string | null = null;
+  private currentPreloginKdfConfig: KdfConfig | null = null;
+  private currentPreloginPromise: Promise<KdfConfig | null> | null = null;
 
   authenticationSessionTimeout$: Observable<boolean> =
     this.authenticationTimeoutSubject.asObservable();
@@ -317,20 +318,21 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
     email = email.trim().toLowerCase();
 
     if (await this.configService.getFeatureFlag(FeatureFlag.PM23801_PrefetchPasswordPrelogin)) {
-      let kdfConfig = this.preloginKdfConfigByEmail.get(email);
-      if (!kdfConfig) {
-        if (this.preloginPromiseByEmail.has(email)) {
+      let kdfConfig: KdfConfig | null = null;
+      if (this.currentPreloginEmail === email) {
+        if (this.currentPreloginKdfConfig) {
+          kdfConfig = this.currentPreloginKdfConfig;
+        } else if (this.currentPreloginPromise != null) {
           try {
-            await this.preloginPromiseByEmail.get(email);
+            await this.currentPreloginPromise;
           } catch {
-            // swallow errors; we'll fall back to direct fetch below
+            // swallow; fall back to fetching
           }
-          kdfConfig = this.preloginKdfConfigByEmail.get(email);
+          kdfConfig = this.currentPreloginKdfConfig;
         }
       }
 
       if (!kdfConfig) {
-        // Fall back to fetching now and caching
         try {
           const preloginResponse = await this.apiService.postPrelogin(new PreloginRequest(email));
           if (preloginResponse != null) {
@@ -342,7 +344,6 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
                     preloginResponse.kdfMemory,
                     preloginResponse.kdfParallelism,
                   );
-            this.preloginKdfConfigByEmail.set(email, kdfConfig);
           }
         } catch (e: any) {
           if (e == null || e.statusCode !== 404) {
@@ -388,18 +389,8 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
   async getPasswordPrelogin(email: string): Promise<void> {
     const normalizedEmail = email.trim().toLowerCase();
 
-    if (this.preloginKdfConfigByEmail.has(normalizedEmail)) {
-      return;
-    }
-    if (this.preloginPromiseByEmail.has(normalizedEmail)) {
-      try {
-        await this.preloginPromiseByEmail.get(normalizedEmail);
-      } catch {
-        // ignore
-      }
-      return;
-    }
-
+    this.currentPreloginEmail = normalizedEmail;
+    this.currentPreloginKdfConfig = null;
     const promise: Promise<KdfConfig | null> = (async () => {
       try {
         const preloginResponse = await this.apiService.postPrelogin(
@@ -425,19 +416,21 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
       }
     })();
 
-    this.preloginPromiseByEmail.set(normalizedEmail, promise);
-
+    this.currentPreloginPromise = promise;
     promise
       .then((cfg) => {
-        if (cfg) {
-          this.preloginKdfConfigByEmail.set(normalizedEmail, cfg);
+        // Only apply if still for the same email
+        if (this.currentPreloginEmail === normalizedEmail && cfg) {
+          this.currentPreloginKdfConfig = cfg;
         }
       })
       .catch(() => {
         // swallow; best-effort prefetch
       })
       .finally(() => {
-        this.preloginPromiseByEmail.delete(normalizedEmail);
+        if (this.currentPreloginEmail === normalizedEmail) {
+          this.currentPreloginPromise = null;
+        }
       });
   }
 

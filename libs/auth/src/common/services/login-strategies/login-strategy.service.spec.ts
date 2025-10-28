@@ -182,6 +182,8 @@ describe("LoginStrategyService", () => {
       await sut.makePreloginKey("pw", email);
 
       expect(apiService.postPrelogin).toHaveBeenCalledTimes(1);
+      const calls = keyService.makeMasterKey.mock.calls as any[];
+      expect(calls[0][2]).toBeInstanceOf(PBKDF2KdfConfig);
       expect(keyService.makeMasterKey).toHaveBeenCalledWith(
         "pw",
         email.trim().toLowerCase(),
@@ -242,6 +244,40 @@ describe("LoginStrategyService", () => {
       );
     });
 
+    it("falls back to API call when prefetched email differs (flag on)", async () => {
+      configService.getFeatureFlag.mockResolvedValue(true);
+
+      const emailPrefetched = "a@a.com";
+      const emailUsed = "b@b.com";
+
+      // Prefetch for A
+      apiService.postPrelogin.mockResolvedValueOnce(
+        new PreloginResponse({
+          Kdf: KdfType.PBKDF2_SHA256,
+          KdfIterations: PBKDF2KdfConfig.PRELOGIN_ITERATIONS_MIN,
+        }),
+      );
+      await sut.getPasswordPrelogin(emailPrefetched);
+
+      // makePreloginKey for B (forces new API call) -> Argon2
+      apiService.postPrelogin.mockResolvedValueOnce(
+        new PreloginResponse({
+          Kdf: KdfType.Argon2id,
+          KdfIterations: 2,
+          KdfMemory: 16,
+          KdfParallelism: 1,
+        }),
+      );
+      keyService.makeMasterKey.mockResolvedValue({} as any);
+
+      await sut.makePreloginKey("pw", emailUsed);
+
+      expect(apiService.postPrelogin).toHaveBeenCalledTimes(2);
+      const calls = keyService.makeMasterKey.mock.calls as any[];
+      expect(calls[calls.length - 1][2]).toBeInstanceOf(Argon2KdfConfig);
+    });
+
+    // remove when pm-23801 feature flag comes out
     it("uses legacy API path when flag is off", async () => {
       configService.getFeatureFlag.mockResolvedValue(false);
 
@@ -265,96 +301,6 @@ describe("LoginStrategyService", () => {
         email,
         expect.any(PBKDF2KdfConfig),
       );
-    });
-
-    it("uses per-email cached KDF for multiple users", async () => {
-      configService.getFeatureFlag.mockResolvedValue(true);
-
-      const emailA = "a@a.com";
-      const emailB = "b@b.com";
-
-      apiService.postPrelogin.mockImplementation(async (req: any) => {
-        const e = (req?.Email ?? req?.email ?? "").toString();
-        if (e.toLowerCase() === emailA) {
-          return new PreloginResponse({
-            Kdf: KdfType.PBKDF2_SHA256,
-            KdfIterations: PBKDF2KdfConfig.PRELOGIN_ITERATIONS_MIN,
-          });
-        }
-        if (e.toLowerCase() === emailB) {
-          return new PreloginResponse({
-            Kdf: KdfType.Argon2id,
-            KdfIterations: 2,
-            KdfMemory: 16,
-            KdfParallelism: 1,
-          });
-        }
-        throw new Error("unexpected email");
-      });
-      keyService.makeMasterKey.mockResolvedValue({} as any);
-
-      await sut.getPasswordPrelogin(emailA);
-      await sut.getPasswordPrelogin(emailB);
-
-      await sut.makePreloginKey("pwA", emailA);
-      await sut.makePreloginKey("pwB", emailB);
-
-      // ensure API was called once per email
-      expect(apiService.postPrelogin).toHaveBeenCalledTimes(2);
-
-      // Assert KDF types by inspecting the ctor of the third arg
-      const calls = keyService.makeMasterKey.mock.calls as any[];
-      const argA = calls.find((c) => c[0] === "pwA")[2];
-      const argB = calls.find((c) => c[0] === "pwB")[2];
-      expect(argA).toBeInstanceOf(PBKDF2KdfConfig);
-      expect(argB).toBeInstanceOf(Argon2KdfConfig);
-    });
-
-    it("awaits correct in-flight per-email promises for multiple users", async () => {
-      configService.getFeatureFlag.mockResolvedValue(true);
-
-      const emailA = "a@a.com";
-      const emailB = "b@b.com";
-
-      let resolveA: (v: any) => void;
-      let resolveB: (v: any) => void;
-      const deferredA = new Promise<PreloginResponse>((res) => (resolveA = res));
-      const deferredB = new Promise<PreloginResponse>((res) => (resolveB = res));
-
-      apiService.postPrelogin.mockImplementationOnce(() => deferredA as any);
-      apiService.postPrelogin.mockImplementationOnce(() => deferredB as any);
-      keyService.makeMasterKey.mockResolvedValue({} as any);
-
-      void sut.getPasswordPrelogin(emailA);
-      void sut.getPasswordPrelogin(emailB);
-
-      const makeA = sut.makePreloginKey("pwA", emailA);
-      const makeB = sut.makePreloginKey("pwB", emailB);
-
-      // Resolve B first with Argon2
-      resolveB!(
-        new PreloginResponse({
-          Kdf: KdfType.Argon2id,
-          KdfIterations: 2,
-          KdfMemory: 16,
-          KdfParallelism: 1,
-        }),
-      );
-      // Resolve A with PBKDF2
-      resolveA!(
-        new PreloginResponse({
-          Kdf: KdfType.PBKDF2_SHA256,
-          KdfIterations: PBKDF2KdfConfig.PRELOGIN_ITERATIONS_MIN,
-        }),
-      );
-
-      await Promise.all([makeA, makeB]);
-
-      const calls = keyService.makeMasterKey.mock.calls as any[];
-      const argA = calls.find((c) => c[0] === "pwA")[2];
-      const argB = calls.find((c) => c[0] === "pwB")[2];
-      expect(argA).toBeInstanceOf(PBKDF2KdfConfig);
-      expect(argB).toBeInstanceOf(Argon2KdfConfig);
     });
   });
 
