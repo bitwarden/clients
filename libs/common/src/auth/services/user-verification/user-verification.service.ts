@@ -114,11 +114,13 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
     } else {
       const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
       const kdf = await this.kdfConfigService.getKdfConfig(userId as UserId);
+      const salt = await firstValueFrom(this.masterPasswordService.saltForUser$(userId as UserId));
+
       const authenticationData =
         await this.masterPasswordService.makeMasterPasswordAuthenticationData(
           verification.secret,
           kdf,
-          await firstValueFrom(this.masterPasswordService.saltForUser$(userId as UserId)),
+          salt,
         );
       request.authenticateWith(authenticationData);
     }
