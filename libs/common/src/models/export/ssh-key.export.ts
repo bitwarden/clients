@@ -10,9 +10,9 @@ import { safeGetString } from "./utils";
 export class SshKeyExport {
   static template(): SshKeyExport {
     const req = new SshKeyExport();
-    req.privateKey = "-----BEGIN OPENSSH PRIVATE KEY-----\n...\n-----END OPENSSH PRIVATE KEY-----";
-    req.publicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAA... user@host";
-    req.keyFingerprint = "SHA256:abcdef1234567890abcdef1234567890abcdef12";
+    req.privateKey = "";
+    req.publicKey = "";
+    req.keyFingerprint = "";
     return req;
   }
 
