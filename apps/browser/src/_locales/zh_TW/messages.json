@@ -6,7 +6,7 @@
     "message": "Bitwarden logo"
   },
   "extName": {
-    "message": "Bitwarden - 密碼管理工具",
+    "message": "Bitwarden 密碼管理器",
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
   },
   "extDesc": {
@@ -5714,6 +5714,9 @@
   },
   "confirmKeyConnectorDomain": {
     "message": "確認 Key Connector 網域"
+  },
+  "atRiskLoginsSecured": {
+    "message": "你已成功保護有風險的登入項目，做得好！"
   },
   "settingDisabledByPolicy": {
     "message": "此設定已被你的組織原則停用。",

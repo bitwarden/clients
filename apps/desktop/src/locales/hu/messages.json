@@ -1852,6 +1852,12 @@
   "lockWithMasterPassOnRestart1": {
     "message": "Lezárás mesterjelszóval újraindításkor"
   },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "Mesterjelszó vagy PIN kód szükséges az alkalmazás indításakor."
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "Mesterjelszó szükséges az alkalmazás indításakor."
+  },
   "deleteAccount": {
     "message": "Fiók törlése"
   },
@@ -4167,7 +4173,7 @@
   "itemWasSentToArchive": {
     "message": "Az elem az archivumba került."
   },
-  "itemUnarchived": {
+  "itemWasUnarchived": {
     "message": "Az elem visszavéelre került az archivumból."
   },
   "archiveItem": {
