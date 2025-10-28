@@ -111,6 +111,28 @@ describe("Organization", () => {
       expect(organization.canManageDeviceApprovals).toBe(false);
     });
 
+    it("should return false when ssoEnabled is false", () => {
+      data.type = OrganizationUserType.Admin;
+      data.useSso = true;
+      data.ssoEnabled = false;
+      data.ssoMemberDecryptionType = MemberDecryptionType.TrustedDeviceEncryption;
+
+      const organization = new Organization(data);
+
+      expect(organization.canManageDeviceApprovals).toBe(false);
+    });
+
+    it("should return false when ssoMemberDecryptionType is not TrustedDeviceEncryption", () => {
+      data.type = OrganizationUserType.Admin;
+      data.useSso = true;
+      data.ssoEnabled = true;
+      data.ssoMemberDecryptionType = MemberDecryptionType.MasterPassword;
+
+      const organization = new Organization(data);
+
+      expect(organization.canManageDeviceApprovals).toBe(false);
+    });
+
     it("should return true when admin has all required SSO settings enabled", () => {
       data.type = OrganizationUserType.Admin;
       data.useSso = true;

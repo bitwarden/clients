@@ -63,6 +63,8 @@ export type AutoConfirmPolicyDialogData = PolicyEditDialogData & {
  * Satisfies the PolicyDialogComponent interface structurally
  * via its static open() function.
  */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "auto-confirm-edit-policy-dialog.component.html",
   imports: [SharedModule],

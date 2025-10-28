@@ -1,4 +1,4 @@
-import { AUTO_CONFIRM, UserKeyDefinition } from "../../../platform/state";
+import { AUTO_CONFIRM, UserKeyDefinition } from "@bitwarden/state";
 
 export class AutoConfirmState {
   enabled: boolean;

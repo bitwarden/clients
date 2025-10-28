@@ -10,6 +10,7 @@ import {
   OrganizationUserStatusType,
 } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
@@ -20,7 +21,6 @@ import { OrgKey } from "@bitwarden/common/types/key";
 import { newGuid } from "@bitwarden/guid";
 import { KeyService } from "@bitwarden/key-management";
 
-import { BillingConstraintService } from "../../../../../billing/members/billing-constraint/billing-constraint.service";
 import { OrganizationUserView } from "../../../core/views/organization-user.view";
 import { OrganizationUserService } from "../organization-user/organization-user.service";
 
@@ -34,7 +34,7 @@ describe("MemberActionsService", () => {
   let encryptService: MockProxy<EncryptService>;
   let configService: MockProxy<ConfigService>;
   let accountService: FakeAccountService;
-  let billingConstraintService: MockProxy<BillingConstraintService>;
+  let organizationMetadataService: MockProxy<OrganizationMetadataServiceAbstraction>;
 
   const userId = newGuid() as UserId;
   const organizationId = newGuid() as OrganizationId;
@@ -50,7 +50,7 @@ describe("MemberActionsService", () => {
     encryptService = mock<EncryptService>();
     configService = mock<ConfigService>();
     accountService = mockAccountServiceWith(userId);
-    billingConstraintService = mock<BillingConstraintService>();
+    organizationMetadataService = mock<OrganizationMetadataServiceAbstraction>();
 
     mockOrganization = {
       id: organizationId,
@@ -75,7 +75,7 @@ describe("MemberActionsService", () => {
       encryptService,
       configService,
       accountService,
-      billingConstraintService,
+      organizationMetadataService,
     );
   });
 
@@ -251,7 +251,7 @@ describe("MemberActionsService", () => {
       expect(result).toEqual({ success: true });
       expect(organizationUserService.confirmUser).toHaveBeenCalledWith(
         mockOrganization,
-        mockOrgUser,
+        mockOrgUser.id,
         publicKey,
       );
       expect(organizationUserApiService.postOrganizationUserConfirm).not.toHaveBeenCalled();

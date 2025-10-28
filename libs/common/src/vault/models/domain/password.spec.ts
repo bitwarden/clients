@@ -17,9 +17,9 @@ describe("Password", () => {
     const data = new PasswordHistoryData();
     const password = new Password(data);
 
-    expect(password).toMatchObject({
-      password: null,
-    });
+    expect(password).toBeInstanceOf(Password);
+    expect(password.password).toBeInstanceOf(EncString);
+    expect(password.lastUsedDate).toBeInstanceOf(Date);
   });
 
   it("Convert", () => {
@@ -66,8 +66,8 @@ describe("Password", () => {
       expect(actual).toBeInstanceOf(Password);
     });
 
-    it("returns null if object is null", () => {
-      expect(Password.fromJSON(null)).toBeNull();
+    it("returns undefined if object is null", () => {
+      expect(Password.fromJSON(null)).toBeUndefined();
     });
   });
 
