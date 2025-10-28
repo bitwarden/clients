@@ -1051,6 +1051,10 @@ pub mod logging {
             // overriding the default directive for matching targets.
             .from_env_lossy();
 
+        // With the `tracing-log` feature enabled for the `tracing_subscriber`,
+        // the registry below will initialize a log compatibility layer, which allows
+        // the subscriber to consume log::Records as though they were tracing Events.
+        // https://docs.rs/tracing-subscriber/latest/tracing_subscriber/util/trait.SubscriberInitExt.html#method.init
         tracing_subscriber::registry()
             .with(filter)
             .with(JsLayer)
@@ -1060,11 +1064,13 @@ pub mod logging {
 
 #[napi]
 pub mod chromium_importer {
-    use bitwarden_chromium_importer::chromium::DefaultInstalledBrowserRetriever;
-    use bitwarden_chromium_importer::chromium::InstalledBrowserRetriever;
-    use bitwarden_chromium_importer::chromium::LoginImportResult as _LoginImportResult;
-    use bitwarden_chromium_importer::chromium::ProfileInfo as _ProfileInfo;
-    use bitwarden_chromium_importer::metadata::NativeImporterMetadata;
+    use chromium_importer::{
+        chromium::{
+            DefaultInstalledBrowserRetriever, LoginImportResult as _LoginImportResult,
+            ProfileInfo as _ProfileInfo,
+        },
+        metadata::NativeImporterMetadata as _NativeImporterMetadata,
+    };
     use std::collections::HashMap;
 
     #[napi(object)]
@@ -1092,6 +1098,13 @@ pub mod chromium_importer {
     pub struct LoginImportResult {
         pub login: Option<Login>,
         pub failure: Option<LoginImportFailure>,
+    }
+
+    #[napi(object)]
+    pub struct NativeImporterMetadata {
+        pub id: String,
+        pub loaders: Vec<&'static str>,
+        pub instructions: &'static str,
     }
 
     impl From<_LoginImportResult> for LoginImportResult {
@@ -1127,23 +1140,28 @@ pub mod chromium_importer {
         }
     }
 
-    #[napi]
-    /// Returns OS aware metadata describing supported Chromium based importers as a JSON string.
-    pub fn get_metadata() -> HashMap<String, NativeImporterMetadata> {
-        bitwarden_chromium_importer::metadata::get_supported_importers::<
-            DefaultInstalledBrowserRetriever,
-        >()
+    impl From<_NativeImporterMetadata> for NativeImporterMetadata {
+        fn from(m: _NativeImporterMetadata) -> Self {
+            NativeImporterMetadata {
+                id: m.id,
+                loaders: m.loaders,
+                instructions: m.instructions,
+            }
+        }
     }
 
     #[napi]
-    pub fn get_installed_browsers() -> napi::Result<Vec<String>> {
-        bitwarden_chromium_importer::chromium::DefaultInstalledBrowserRetriever::get_installed_browsers()
-            .map_err(|e| napi::Error::from_reason(e.to_string()))
+    /// Returns OS aware metadata describing supported Chromium based importers as a JSON string.
+    pub fn get_metadata() -> HashMap<String, NativeImporterMetadata> {
+        chromium_importer::metadata::get_supported_importers::<DefaultInstalledBrowserRetriever>()
+            .into_iter()
+            .map(|(browser, metadata)| (browser, NativeImporterMetadata::from(metadata)))
+            .collect()
     }
 
     #[napi]
     pub fn get_available_profiles(browser: String) -> napi::Result<Vec<ProfileInfo>> {
-        bitwarden_chromium_importer::chromium::get_available_profiles(&browser)
+        chromium_importer::chromium::get_available_profiles(&browser)
             .map(|profiles| profiles.into_iter().map(ProfileInfo::from).collect())
             .map_err(|e| napi::Error::from_reason(e.to_string()))
     }
@@ -1153,7 +1171,7 @@ pub mod chromium_importer {
         browser: String,
         profile_id: String,
     ) -> napi::Result<Vec<LoginImportResult>> {
-        bitwarden_chromium_importer::chromium::import_logins(&browser, &profile_id)
+        chromium_importer::chromium::import_logins(&browser, &profile_id)
             .await
             .map(|logins| logins.into_iter().map(LoginImportResult::from).collect())
             .map_err(|e| napi::Error::from_reason(e.to_string()))

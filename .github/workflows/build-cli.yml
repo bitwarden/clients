@@ -98,8 +98,8 @@ jobs:
           ]
         license_type:
           [
-            { build_prefix: "oss", artifact_prefix: "-oss", readable: "open source license" },
-            { build_prefix: "bit", artifact_prefix: "", readable: "commercial license" }
+            { type: "oss", build_prefix: "oss", artifact_prefix: "-oss", readable: "open source license" },
+            { type: "commercial", build_prefix: "bit", artifact_prefix: "", readable: "commercial license" }
           ]
     runs-on: ${{ matrix.os.distro }}
     needs: setup
@@ -138,6 +138,11 @@ jobs:
 
       - name: Install
         run: npm ci
+        working-directory: ./
+
+      - name: Remove commercial packages
+        if: ${{ matrix.license_type.type == 'oss' }}
+        run: rm -rf node_modules/@bitwarden/commercial-sdk-internal
         working-directory: ./
 
       - name: Download SDK Artifacts
@@ -291,8 +296,8 @@ jobs:
       matrix:
         license_type:
           [
-            { build_prefix: "oss", artifact_prefix: "-oss", readable: "open source license" },
-            { build_prefix: "bit", artifact_prefix: "", readable: "commercial license" }
+            { type: "oss", build_prefix: "oss", artifact_prefix: "-oss", readable: "open source license" },
+            { type: "commercial", build_prefix: "bit", artifact_prefix: "", readable: "commercial license" }
           ]
     runs-on: windows-2022
     permissions:
@@ -408,6 +413,11 @@ jobs:
 
       - name: Install
         run: npm ci
+        working-directory: ./
+
+      - name: Remove commercial packages
+        if: ${{ matrix.license_type.type == 'oss' }}
+        run: Remove-Item -Recurse -Force -ErrorAction SilentlyContinue "node_modules/@bitwarden/commercial-sdk-internal"
         working-directory: ./
 
       - name: Download SDK Artifacts
