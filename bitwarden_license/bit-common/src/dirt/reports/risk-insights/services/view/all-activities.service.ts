@@ -1,4 +1,5 @@
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, Subject } from "rxjs";
+import { takeUntil } from "rxjs/operators";
 
 import { ApplicationHealthReportDetailEnriched } from "../../models";
 import { OrganizationReportSummary } from "../../models/report-models";
@@ -10,6 +11,8 @@ export class AllActivitiesService {
   /// and critical applications.
   /// Going forward, this class can be simplified by using the RiskInsightsDataService
   /// as it contains the application summary data.
+
+  private _destroy$ = new Subject<void>();
 
   private reportSummarySubject$ = new BehaviorSubject<OrganizationReportSummary>({
     totalMemberCount: 0,
@@ -40,7 +43,7 @@ export class AllActivitiesService {
 
   constructor(private dataService: RiskInsightsDataService) {
     // All application summary changes
-    this.dataService.enrichedReportData$.subscribe((report) => {
+    this.dataService.enrichedReportData$.pipe(takeUntil(this._destroy$)).subscribe((report) => {
       if (report) {
         this.setAllAppsReportSummary(report.summaryData);
         this.setAllAppsReportDetails(report.reportData);
@@ -48,14 +51,14 @@ export class AllActivitiesService {
     });
 
     // Critical application summary changes
-    this.dataService.criticalReportResults$.subscribe((report) => {
+    this.dataService.criticalReportResults$.pipe(takeUntil(this._destroy$)).subscribe((report) => {
       if (report) {
         this.setCriticalAppsReportSummary(report.summaryData);
       }
     });
 
     // New applications changes (from orchestrator's reactive pipeline)
-    this.dataService.newApplications$.subscribe((newApps) => {
+    this.dataService.newApplications$.pipe(takeUntil(this._destroy$)).subscribe((newApps) => {
       this.setNewApplications(newApps);
     });
   }
@@ -107,5 +110,15 @@ export class AllActivitiesService {
       ...this.reportSummarySubject$.getValue(),
       newApplications: newApps,
     });
+  }
+
+  /**
+   * Cleanup method to prevent memory leaks.
+   * Should be called when the service is no longer needed.
+   * Complies with ADR-0003 (Observable Data Services) requirements.
+   */
+  destroy(): void {
+    this._destroy$.next();
+    this._destroy$.complete();
   }
 }
