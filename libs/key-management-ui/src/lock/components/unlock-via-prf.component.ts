@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
+import { Component, OnInit, input, output } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -18,7 +18,7 @@ import { WebAuthnPrfUnlockService } from "../services/webauthn-prf-unlock.servic
   imports: [CommonModule, JslibModule, ButtonModule, AsyncActionsModule],
   template: `
     @if (isAvailable) {
-      @if (formButton) {
+      @if (formButton()) {
         <button
           type="button"
           bitButton
@@ -33,7 +33,7 @@ import { WebAuthnPrfUnlockService } from "../services/webauthn-prf-unlock.servic
           {{ "unlockWithPasskey" | i18n }}
         </button>
       }
-      @if (!formButton) {
+      @if (!formButton()) {
         <button
           type="button"
           bitButton
@@ -51,8 +51,8 @@ import { WebAuthnPrfUnlockService } from "../services/webauthn-prf-unlock.servic
   `,
 })
 export class UnlockViaPrfComponent implements OnInit {
-  @Input() formButton = false;
-  @Output() unlockSuccess = new EventEmitter<UserKey>();
+  readonly formButton = input<boolean>(false);
+  readonly unlockSuccess = output<UserKey>();
 
   unlocking = false;
   isAvailable = false;
