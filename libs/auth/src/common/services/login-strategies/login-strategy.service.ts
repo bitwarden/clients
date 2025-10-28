@@ -97,6 +97,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
   private currentPreloginEmail: string | null = null;
   private currentPreloginKdfConfig: KdfConfig | null = null;
   private currentPreloginPromise: Promise<KdfConfig | null> | null = null;
+  private currentPreloginVersion = 0;
 
   authenticationSessionTimeout$: Observable<boolean> =
     this.authenticationTimeoutSubject.asObservable();
@@ -388,6 +389,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
 
   async getPasswordPrelogin(email: string): Promise<void> {
     const normalizedEmail = email.trim().toLowerCase();
+    const version = ++this.currentPreloginVersion;
 
     this.currentPreloginEmail = normalizedEmail;
     this.currentPreloginKdfConfig = null;
@@ -419,8 +421,12 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
     this.currentPreloginPromise = promise;
     promise
       .then((cfg) => {
-        // Only apply if still for the same email
-        if (this.currentPreloginEmail === normalizedEmail && cfg) {
+        // Only apply if still for the same email and same version
+        if (
+          this.currentPreloginEmail === normalizedEmail &&
+          this.currentPreloginVersion === version &&
+          cfg
+        ) {
           this.currentPreloginKdfConfig = cfg;
         }
       })
@@ -428,7 +434,10 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
         // swallow; best-effort prefetch
       })
       .finally(() => {
-        if (this.currentPreloginEmail === normalizedEmail) {
+        if (
+          this.currentPreloginEmail === normalizedEmail &&
+          this.currentPreloginVersion === version
+        ) {
           this.currentPreloginPromise = null;
         }
       });

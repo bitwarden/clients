@@ -277,6 +277,50 @@ describe("LoginStrategyService", () => {
       expect(calls[calls.length - 1][2]).toBeInstanceOf(Argon2KdfConfig);
     });
 
+    it("ignores stale prelogin resolution for older email (versioning)", async () => {
+      configService.getFeatureFlag.mockResolvedValue(true);
+
+      const emailA = "a@a.com";
+      const emailB = "b@b.com";
+
+      let resolveA!: (v: any) => void;
+      let resolveB!: (v: any) => void;
+      const deferredA = new Promise<PreloginResponse>((res) => (resolveA = res));
+      const deferredB = new Promise<PreloginResponse>((res) => (resolveB = res));
+
+      // First call returns A, second returns B
+      apiService.postPrelogin.mockImplementationOnce(() => deferredA as any);
+      apiService.postPrelogin.mockImplementationOnce(() => deferredB as any);
+      keyService.makeMasterKey.mockResolvedValue({} as any);
+
+      // Start A prefetch, then B prefetch (B supersedes A)
+      void sut.getPasswordPrelogin(emailA);
+      void sut.getPasswordPrelogin(emailB);
+
+      // Resolve A (stale) to PBKDF2, then B to Argon2
+      resolveA(
+        new PreloginResponse({
+          Kdf: KdfType.PBKDF2_SHA256,
+          KdfIterations: PBKDF2KdfConfig.PRELOGIN_ITERATIONS_MIN,
+        }),
+      );
+      resolveB(
+        new PreloginResponse({
+          Kdf: KdfType.Argon2id,
+          KdfIterations: 2,
+          KdfMemory: 16,
+          KdfParallelism: 1,
+        }),
+      );
+
+      await sut.makePreloginKey("pwB", emailB);
+
+      // Ensure B's Argon2 config is used and stale A doesn't overwrite
+      const calls = keyService.makeMasterKey.mock.calls as any[];
+      const argB = calls.find((c) => c[0] === "pwB")[2];
+      expect(argB).toBeInstanceOf(Argon2KdfConfig);
+    });
+
     // remove when pm-23801 feature flag comes out
     it("uses legacy API path when flag is off", async () => {
       configService.getFeatureFlag.mockResolvedValue(false);
