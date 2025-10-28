@@ -14,7 +14,7 @@ export class EmptyStateCardComponent implements OnInit {
   @Input() videoSrc: string | null = null;
   @Input() title: string = "";
   @Input() description: string = "";
-  @Input() benefits: string[] = [];
+  @Input() benefits: [string, string][] = [];
   @Input() buttonText: string = "";
   @Input() buttonAction: (() => void) | null = null;
   @Input() buttonIcon?: string;

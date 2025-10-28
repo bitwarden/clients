@@ -77,7 +77,7 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
   protected shouldShowRunReportState = false;
   protected emptyStateTitle = "";
   protected emptyStateDescription = "";
-  protected emptyStateBenefits: string[] = [];
+  protected emptyStateBenefits: [string, string][] = [];
   protected emptyStateButtonText = "";
   protected emptyStateButtonIcon = "";
   protected emptyStateButtonAction: (() => void) | null = null;
@@ -267,9 +267,9 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
 
     // Update benefits
     this.emptyStateBenefits = [
-      `${this.i18nService.t("benefit1Title")}|${this.i18nService.t("benefit1Description")}`,
-      `${this.i18nService.t("benefit2Title")}|${this.i18nService.t("benefit2Description")}`,
-      `${this.i18nService.t("benefit3Title")}|${this.i18nService.t("benefit3Description")}`,
+      [this.i18nService.t("benefit1Title"), this.i18nService.t("benefit1Description")],
+      [this.i18nService.t("benefit2Title"), this.i18nService.t("benefit2Description")],
+      [this.i18nService.t("benefit3Title"), this.i18nService.t("benefit3Description")],
     ];
 
     // Update button text
