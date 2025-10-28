@@ -20,6 +20,9 @@ describe("Password", () => {
     expect(password).toBeInstanceOf(Password);
     expect(password.password).toBeInstanceOf(EncString);
     expect(password.lastUsedDate).toBeInstanceOf(Date);
+
+    expect(data.password).toBeUndefined();
+    expect(data.lastUsedDate).toBeUndefined();
   });
 
   it("Convert", () => {
@@ -81,6 +84,49 @@ describe("Password", () => {
         password: "encPassword",
         lastUsedDate: new Date("2022-01-31T12:00:00.000Z").toISOString(),
       });
+    });
+  });
+
+  describe("fromSdkPasswordHistory", () => {
+    beforeEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    it("should create Password from SDK object", () => {
+      const sdkPasswordHistory = {
+        password: "2.encPassword|encryptedData" as EncryptedString,
+        lastUsedDate: "2022-01-31T12:00:00.000Z",
+      };
+
+      const password = Password.fromSdkPasswordHistory(sdkPasswordHistory);
+
+      expect(password).toBeInstanceOf(Password);
+      expect(password?.password).toBeInstanceOf(EncString);
+      expect(password?.password.encryptedString).toBe("2.encPassword|encryptedData");
+      expect(password?.lastUsedDate).toEqual(new Date("2022-01-31T12:00:00.000Z"));
+    });
+
+    it("should return undefined for null input", () => {
+      const result = Password.fromSdkPasswordHistory(null as any);
+      expect(result).toBeUndefined();
+    });
+
+    it("should return undefined for undefined input", () => {
+      const result = Password.fromSdkPasswordHistory(undefined);
+      expect(result).toBeUndefined();
+    });
+
+    it("should handle empty SDK object", () => {
+      const sdkPasswordHistory = {
+        password: "" as EncryptedString,
+        lastUsedDate: "",
+      };
+
+      const password = Password.fromSdkPasswordHistory(sdkPasswordHistory);
+
+      expect(password).toBeInstanceOf(Password);
+      expect(password?.password).toBeInstanceOf(EncString);
+      expect(password?.lastUsedDate).toBeInstanceOf(Date);
     });
   });
 });
