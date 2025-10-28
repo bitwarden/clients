@@ -11,7 +11,7 @@
     (mainContentClicked)="handleMainContentClicked()"
     [ariaLabel]="ariaLabel()"
     [hideActiveStyles]="parentHideActiveStyles"
-    [ariaCurrentWhenActive]="sideNavOpen ? undefined : 'page'"
+    [ariaCurrentWhenActive]="ariaCurrentWhenActive() ?? (sideNavOpen ? undefined : 'page')"
   >
     <ng-template #button>
       <button

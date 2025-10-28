@@ -10,6 +10,7 @@ import {
   model,
   contentChildren,
 } from "@angular/core";
+import { RouterLinkActive } from "@angular/router";
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -37,6 +38,19 @@ export class NavGroupComponent extends NavBaseComponent {
   protected get parentHideActiveStyles(): boolean {
     return this.hideActiveStyles() || (this.open() && this.sideNavService.open);
   }
+
+  /**
+   * Allow overriding of the RouterLink['ariaCurrentWhenActive'] property.
+   *
+   * By default, assuming that the nav group navigates to its first child page instead of its
+   * own page, the nav group will be `current` when the side nav is collapsed (since child
+   * pages don't show in collapsed view) and not `current` when the side nav is open (since
+   * the child page will show as `current`).
+   *
+   * If the nav group navigates to its own page, use this property to always set it to announce
+   * as `current` by passing in `"page"`.
+   */
+  readonly ariaCurrentWhenActive = input<RouterLinkActive["ariaCurrentWhenActive"]>();
 
   /**
    * UID for `[attr.aria-controls]`
