@@ -159,7 +159,11 @@ export class DefaultOrganizationUserApiService implements OrganizationUserApiSer
   ): Promise<void> {
     return this.apiService.send(
       "POST",
-      "/organizations/" + organizationId + "/users/" + id + "/accept-init",
+      "/organizations/" +
+        encodeURIComponent(organizationId) +
+        "/users/" +
+        encodeURIComponent(id) +
+        "/accept-init",
       request,
       true,
       false,
