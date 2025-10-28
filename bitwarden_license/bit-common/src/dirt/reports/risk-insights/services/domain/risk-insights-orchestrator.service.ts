@@ -91,6 +91,22 @@ export class RiskInsightsOrchestratorService {
   private _enrichedReportDataSubject = new BehaviorSubject<RiskInsightsEnrichedData | null>(null);
   enrichedReportData$ = this._enrichedReportDataSubject.asObservable();
 
+  // New applications that haven't been reviewed (reviewedDate === null)
+  newApplications$: Observable<string[]> = this.rawReportData$.pipe(
+    map((reportState) => {
+      if (!reportState.data?.applicationData) {
+        return [];
+      }
+      return reportState.data.applicationData
+        .filter((app) => app.reviewedDate === null)
+        .map((app) => app.applicationName);
+    }),
+    distinctUntilChanged(
+      (prev, curr) => prev.length === curr.length && prev.every((app, i) => app === curr[i]),
+    ),
+    shareReplay({ bufferSize: 1, refCount: true }),
+  );
+
   // Generate report trigger and state
   private _generateReportTriggerSubject = new BehaviorSubject<boolean>(false);
   generatingReport$ = this._generateReportTriggerSubject.asObservable();
