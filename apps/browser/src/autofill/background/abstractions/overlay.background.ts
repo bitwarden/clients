@@ -2,6 +2,7 @@
 // @ts-strict-ignore
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
+import { CipherIconDetails } from "@bitwarden/common/vault/icon/build-cipher-icon";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import { InlineMenuFillType } from "../../enums/autofill-overlay.enum";
@@ -27,13 +28,6 @@ export type SubFrameOffsetsForTab = Record<
   chrome.runtime.MessageSender["tab"]["id"],
   Map<chrome.runtime.MessageSender["frameId"], SubFrameOffsetData>
 >;
-
-export type WebsiteIconData = {
-  imageEnabled: boolean;
-  image: string;
-  fallbackImage: string;
-  icon: string;
-};
 
 export type UpdateOverlayCiphersParams = {
   updateAllCipherTypes: boolean;
@@ -170,7 +164,7 @@ export type InlineMenuCipherData = {
   type: CipherType;
   reprompt: CipherRepromptType;
   favorite: boolean;
-  icon: WebsiteIconData;
+  icon: CipherIconDetails;
   accountCreationFieldType?: string;
   login?: {
     totp?: string;

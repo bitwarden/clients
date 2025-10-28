@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { firstValueFrom, map } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -179,9 +177,11 @@ export class MainContextMenuHandler {
 
     try {
       const account = await firstValueFrom(this.accountService.activeAccount$);
-      const hasPremium = await firstValueFrom(
-        this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
-      );
+      const hasPremium = account?.id
+        ? await firstValueFrom(
+            this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
+          )
+        : false;
 
       const isCardRestricted = (
         await firstValueFrom(this.restrictedItemTypesService.restricted$)
@@ -198,14 +198,16 @@ export class MainContextMenuHandler {
         if (requiresPremiumAccess && !hasPremium) {
           continue;
         }
-        if (menuItem.id.startsWith(AUTOFILL_CARD_ID) && isCardRestricted) {
+        if (menuItem.id?.startsWith(AUTOFILL_CARD_ID) && isCardRestricted) {
           continue;
         }
 
         await MainContextMenuHandler.create({ ...otherOptions, contexts: ["all"] });
       }
     } catch (error) {
-      this.logService.warning(error.message);
+      if (error instanceof Error) {
+        this.logService.warning(error.message);
+      }
     } finally {
       this.initRunning = false;
     }
@@ -318,9 +320,11 @@ export class MainContextMenuHandler {
       }
 
       const account = await firstValueFrom(this.accountService.activeAccount$);
-      const canAccessPremium = await firstValueFrom(
-        this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
-      );
+      const canAccessPremium = account?.id
+        ? await firstValueFrom(
+            this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
+          )
+        : false;
       if (canAccessPremium && (!cipher || !Utils.isNullOrEmpty(cipher.login?.totp))) {
         await createChildItem(COPY_VERIFICATION_CODE_ID);
       }
@@ -333,7 +337,9 @@ export class MainContextMenuHandler {
         await createChildItem(AUTOFILL_IDENTITY_ID);
       }
     } catch (error) {
-      this.logService.warning(error.message);
+      if (error instanceof Error) {
+        this.logService.warning(error.message);
+      }
     }
   }
 
@@ -351,7 +357,11 @@ export class MainContextMenuHandler {
       this.loadOptions(
         this.i18nService.t(authed ? "unlockVaultMenu" : "loginToVaultMenu"),
         NOOP_COMMAND_SUFFIX,
-      ).catch((error) => this.logService.warning(error.message));
+      ).catch((error) => {
+        if (error instanceof Error) {
+          return this.logService.warning(error.message);
+        }
+      });
     }
   }
 
@@ -363,7 +373,9 @@ export class MainContextMenuHandler {
         }
       }
     } catch (error) {
-      this.logService.warning(error.message);
+      if (error instanceof Error) {
+        this.logService.warning(error.message);
+      }
     }
   }
 
@@ -373,7 +385,9 @@ export class MainContextMenuHandler {
         await MainContextMenuHandler.create(menuItem);
       }
     } catch (error) {
-      this.logService.warning(error.message);
+      if (error instanceof Error) {
+        this.logService.warning(error.message);
+      }
     }
   }
 
@@ -383,7 +397,9 @@ export class MainContextMenuHandler {
         await MainContextMenuHandler.create(menuItem);
       }
     } catch (error) {
-      this.logService.warning(error.message);
+      if (error instanceof Error) {
+        this.logService.warning(error.message);
+      }
     }
   }
 
@@ -395,7 +411,9 @@ export class MainContextMenuHandler {
 
       await this.loadOptions(this.i18nService.t("addLoginMenu"), CREATE_LOGIN_ID);
     } catch (error) {
-      this.logService.warning(error.message);
+      if (error instanceof Error) {
+        this.logService.warning(error.message);
+      }
     }
   }
 }
