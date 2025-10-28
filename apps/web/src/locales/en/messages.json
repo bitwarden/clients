@@ -214,6 +214,18 @@
   "applicationsMarkedAsCriticalFail": {
     "message": "Failed to mark applications as critical"
   },
+  "applicationsCriticalMarked": {
+    "message": "$COUNT$ applications marked as critical",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "applicationsReviewed": {
+    "message": "Applications reviewed successfully"
+  },
   "application": {
     "message": "Application"
   },
@@ -10114,6 +10126,9 @@
   },
   "failedToSaveIntegration": {
     "message": "Failed to save integration. Please try again later."
+  },
+  "failedToSaveApplications": {
+    "message": "Failed to save application review status"
   },
   "mustBeOrgOwnerToPerformAction": {
     "message": "You must be the organization owner to perform this action."
