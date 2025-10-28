@@ -1,6 +1,8 @@
 import { CommonModule } from "@angular/common";
 import { Component, inject } from "@angular/core";
+import { firstValueFrom } from "rxjs";
 
+import { RiskInsightsDataService } from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
   ButtonModule,
@@ -25,6 +27,7 @@ export class NewApplicationsDialogComponent {
   protected newApplications: string[] = [];
   protected selectedApplications: Set<string> = new Set<string>();
 
+  private dataService = inject(RiskInsightsDataService);
   private toastService = inject(ToastService);
   private i18nService = inject(I18nService);
 
@@ -35,7 +38,7 @@ export class NewApplicationsDialogComponent {
    * @returns Dialog reference
    */
   static open(dialogService: DialogService, data: NewApplicationsDialogData) {
-    const ref = dialogService.open<boolean, NewApplicationsDialogData>(
+    const ref = dialogService.open<boolean | undefined, NewApplicationsDialogData>(
       NewApplicationsDialogComponent,
       {
         data,
@@ -73,16 +76,33 @@ export class NewApplicationsDialogComponent {
   };
 
   /**
-   * Placeholder handler for mark as critical functionality.
-   * Shows a toast notification with count of selected applications.
-   * TODO: Implement actual mark as critical functionality (PM-26203 follow-up)
+   * Handles the "Mark as Critical" button click.
+   * Saves review status for all new applications and marks selected ones as critical.
+   * Closes the dialog on success.
    */
-  onMarkAsCritical = () => {
-    const selectedCount = this.selectedApplications.size;
-    this.toastService.showToast({
-      variant: "info",
-      title: this.i18nService.t("markAsCritical"),
-      message: `${selectedCount} ${this.i18nService.t("applicationsSelected")}`,
-    });
+  onMarkAsCritical = async () => {
+    const selectedCriticalApps = Array.from(this.selectedApplications);
+
+    try {
+      await firstValueFrom(this.dataService.saveApplicationReviewStatus(selectedCriticalApps));
+
+      this.toastService.showToast({
+        variant: "success",
+        title: this.i18nService.t("applicationReviewSaved"),
+        message:
+          selectedCriticalApps.length > 0
+            ? this.i18nService.t("applicationsMarkedAsCritical", selectedCriticalApps.length)
+            : this.i18nService.t("newApplicationsReviewed"),
+      });
+
+      // Close dialog with success indicator
+      (this as any).dialogRef?.close(true);
+    } catch {
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorSavingReviewStatus"),
+        message: this.i18nService.t("pleaseTryAgain"),
+      });
+    }
   };
 }
