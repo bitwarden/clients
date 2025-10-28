@@ -1,0 +1,141 @@
+# This workflow runs TypeScript compatibility checks when the SDK is updated.
+# Triggered automatically by the SDK repository via repository_dispatch when SDK PRs are created/updated.
+name: SDK Breaking Change Check
+run-name: "SDK breaking change check (${{ github.event.client_payload.sdk_version }})"
+on:
+  repository_dispatch:
+    types: [sdk-breaking-change-check]
+
+permissions:
+  contents: read
+  actions: read
+  id-token: write
+
+jobs:
+  type-check:
+    name: TypeScript compatibility check
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      SOURCE_REPO: ${{ github.event.client_payload.source_repo }}
+      SDK_VERSION: ${{ github.event.client_payload.sdk_version }}
+      ARTIFACTS_RUN_ID: ${{ github.event.client_payload.artifacts_info.run_id }}
+      ARTIFACT_NAME: ${{ github.event.client_payload.artifacts_info.artifact_name }}
+      CLIENT_LABEL: ${{ github.event.client_payload.client_label }}
+      
+    steps:
+      - name: Log in to Azure
+        uses: bitwarden/gh-actions/azure-login@main
+        with:
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
+      - name: Get Azure Key Vault secrets
+        id: get-kv-secrets
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: gh-org-bitwarden
+          secrets: "BW-GHAPP-ID,BW-GHAPP-KEY"
+      
+      - name: Generate GH App token
+        uses: actions/create-github-app-token@a8d616148505b5069dccd32f177bb87d7f39123b # v2.1.1
+        id: app-token
+        with:
+          app-id: ${{ steps.get-kv-secrets.outputs.BW-GHAPP-ID }}
+          private-key: ${{ steps.get-kv-secrets.outputs.BW-GHAPP-KEY }}
+      - name: Log out from Azure
+        uses: bitwarden/gh-actions/azure-logout@main
+      - name: Check out clients repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Get Node Version
+        id: retrieve-node-version
+        run: |
+          NODE_NVMRC=$(cat .nvmrc)
+          NODE_VERSION=${NODE_NVMRC/v/''}
+          echo "node_version=$NODE_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Set up Node
+        uses: actions/setup-node@1d0ff469b7ec7b3cb9d8673fde0c81c44821de2a # v4.2.0
+        with:
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
+          node-version: ${{ steps.retrieve-node-version.outputs.node_version }}
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Download SDK artifacts
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          echo "📥 Downloading SDK artifacts from $SOURCE_REPO run $ARTIFACTS_RUN_ID..."
+          
+          # Download SDK artifacts with error handling
+          if ! gh run download $ARTIFACTS_RUN_ID \
+              --repo $SOURCE_REPO \
+              --name $ARTIFACT_NAME \
+              --dir ./temp-sdk-artifacts; then
+            echo "::error::Failed to download SDK artifacts from run $ARTIFACTS_RUN_ID"
+            echo "::error::Repository: $SOURCE_REPO, Artifact: $ARTIFACT_NAME"
+            exit 1
+          fi
+          
+          # Verify critical files exist
+          if [ ! -f "./temp-sdk-artifacts/package.json" ]; then
+            echo "::error::package.json not found in SDK artifacts"
+            exit 1
+          fi
+          
+          if [ ! -f "./temp-sdk-artifacts/bitwarden_wasm_internal.d.ts" ]; then
+            echo "::error::TypeScript definitions not found in SDK artifacts"  
+            exit 1
+          fi
+
+      - name: Install SDK locally and run type check
+        run: |
+          echo "🔧 Installing SDK artifacts locally..."
+          echo "📊 SDK Version: $SDK_VERSION"
+          echo "📦 Artifact Source: $SOURCE_REPO run $ARTIFACTS_RUN_ID"
+          
+          # Create local package and install
+          mkdir -p ./local-sdk-package
+          cp -r ./temp-sdk-artifacts/* ./local-sdk-package/
+          
+          echo "📋 Local SDK package contents:"
+          ls -la ./local-sdk-package/
+          
+          echo "🔗 Installing local SDK package..."
+          npm install ./local-sdk-package
+          
+          echo "🔍 Running TypeScript type checking with SDK version: $SDK_VERSION"
+          echo "🎯 Type checking command: npm run test:types"
+          
+          # Add GitHub Step Summary output
+          echo "## 📊 TypeScript Compatibility Check" >> $GITHUB_STEP_SUMMARY
+          echo "- **SDK Version**: $SDK_VERSION" >> $GITHUB_STEP_SUMMARY
+          echo "- **Source Repository**: $SOURCE_REPO" >> $GITHUB_STEP_SUMMARY
+          echo "- **Artifacts Run ID**: $ARTIFACTS_RUN_ID" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          TYPE_CHECK_START=$(date +%s)
+          
+          # Run type check - exit code determines gh run watch result
+          if npm run test:types; then
+            TYPE_CHECK_END=$(date +%s)
+            TYPE_CHECK_DURATION=$((TYPE_CHECK_END - TYPE_CHECK_START))
+            echo "✅ TypeScript compilation successful (${TYPE_CHECK_DURATION}s)"
+            echo "✅ **Result**: TypeScript compilation successful" >> $GITHUB_STEP_SUMMARY
+            echo "No breaking changes detected in SDK version $SDK_VERSION" >> $GITHUB_STEP_SUMMARY
+          else
+            TYPE_CHECK_END=$(date +%s)
+            TYPE_CHECK_DURATION=$((TYPE_CHECK_END - TYPE_CHECK_START))
+            echo "❌ TypeScript compilation failed after ${TYPE_CHECK_DURATION}s - breaking changes detected"
+            echo "❌ **Result**: TypeScript compilation failed" >> $GITHUB_STEP_SUMMARY
+            echo "Breaking changes detected in SDK version $SDK_VERSION" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+          
+          # Cleanup temporary directories
+          echo "🧹 Cleaning up temporary directories..."
+          rm -rf ./temp-sdk-artifacts ./local-sdk-package
