@@ -539,15 +539,6 @@ const safeProviders: SafeProvider[] = [
     deps: [],
   }),
   safeProvider({
-    provide: MessageSender,
-    useFactory: (subject: Subject<Message<Record<string, unknown>>>, logService: LogService) =>
-      MessageSender.combine(
-        new SubjectMessageSender(subject), // For sending messages in the same context
-        new ChromeMessageSender(logService), // For sending messages to different contexts
-      ),
-    deps: [INTRAPROCESS_MESSAGING_SUBJECT, LogService],
-  }),
-  safeProvider({
     provide: DISK_BACKUP_LOCAL_STORAGE,
     useFactory: (diskStorage: AbstractStorageService & ObservableStorageService) =>
       new PrimarySecondaryStorageService(diskStorage, new WindowStorageService(self.localStorage)),
