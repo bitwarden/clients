@@ -11,22 +11,24 @@
         ) | i18n
       }}</span>
 
-      <ng-container *ngIf="drawerDetails.atRiskMemberDetails.length > 0">
-        <div class="tw-flex tw-justify-between tw-mt-2 tw-text-muted">
-          <div bitTypography="body2" class="tw-text-sm tw-font-bold">
-            {{ "email" | i18n }}
+      @if (drawerDetails.atRiskMemberDetails.length > 0) {
+        <ng-container>
+          <div class="tw-flex tw-justify-between tw-mt-2 tw-text-muted">
+            <div bitTypography="body2" class="tw-text-sm tw-font-bold">
+              {{ "email" | i18n }}
+            </div>
+            <div bitTypography="body2" class="tw-text-sm tw-font-bold">
+              {{ "atRiskPasswords" | i18n }}
+            </div>
           </div>
-          <div bitTypography="body2" class="tw-text-sm tw-font-bold">
-            {{ "atRiskPasswords" | i18n }}
-          </div>
-        </div>
-        <ng-container *ngFor="let member of drawerDetails.atRiskMemberDetails">
-          <div class="tw-flex tw-justify-between tw-mt-2">
-            <div>{{ member.email }}</div>
-            <div>{{ member.atRiskPasswordCount }}</div>
-          </div>
+          <ng-container *ngFor="let member of drawerDetails.atRiskMemberDetails">
+            <div class="tw-flex tw-justify-between tw-mt-2">
+              <div>{{ member.email }}</div>
+              <div>{{ member.atRiskPasswordCount }}</div>
+            </div>
+          </ng-container>
         </ng-container>
-      </ng-container>
+      }
     </ng-container>
   </bit-dialog>
 }
