@@ -2,7 +2,6 @@ import { Component, DestroyRef, inject, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
 import { firstValueFrom } from "rxjs";
-import { finalize } from "rxjs/operators";
 
 import {
   AllActivitiesService,
@@ -99,15 +98,7 @@ export class AllActivityComponent implements OnInit {
 
     if (result?.saved) {
       // User clicked Continue - save review status and critical flags
-      let isSaving = true;
-
-      firstValueFrom(
-        this.dataService.saveApplicationReviewStatus(result.selectedApplications).pipe(
-          finalize(() => {
-            isSaving = false;
-          }),
-        ),
-      )
+      firstValueFrom(this.dataService.saveApplicationReviewStatus(result.selectedApplications))
         .then(() => {
           // Success - data will update automatically through reactive pipeline
           if (result.selectedApplications.length > 0) {
@@ -127,7 +118,8 @@ export class AllActivityComponent implements OnInit {
             });
           }
         })
-        .catch((error) => {
+        .catch(() => {
+          // Error already logged by orchestrator service
           this.toastService.showToast({
             variant: "error",
             title: this.i18nService.t("error"),
