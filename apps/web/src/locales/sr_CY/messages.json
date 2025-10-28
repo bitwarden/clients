@@ -154,6 +154,15 @@
       }
     }
   },
+  "newPasswordsAtRisk": {
+    "message": "$COUNT$ new passwords at-risk",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "notifiedMembersWithCount": {
     "message": "Обавештени чланови ($COUNT$)",
     "placeholders": {
@@ -2080,9 +2089,6 @@
   "encKeySettings": {
     "message": "Подешавања кључа шифровања"
   },
-  "kdfAlgorithm": {
-    "message": "KDF Алгоритам"
-  },
   "kdfIterations": {
     "message": "KDF понављања"
   },
@@ -2116,9 +2122,6 @@
   },
   "argon2Desc": {
     "message": "Веће KDF итерације, меморија и паралелизам могу помоћи у заштити ваше главне лозинке од грубе присиле од стране нападача."
-  },
-  "changeKdf": {
-    "message": "Променити KDF"
   },
   "encKeySettingsChanged": {
     "message": "Подешавања кључа шифровања промењена"
@@ -5709,6 +5712,65 @@
   "organizationDataOwnershipWarningContentBottom": {
     "message": "Сазнајте више о ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about the credential lifecycle.'"
+  },
+  "availableNow": {
+    "message": "Available now"
+  },
+  "autoConfirm": {
+    "message": "Automatic confirmation of new users"
+  },
+  "autoConfirmDescription": {
+    "message": "New users invited to the organization will be automatically confirmed when an admin’s device is unlocked.",
+    "description": "This is the description of the policy as it appears in the 'Policies' page"
+  },
+  "howToTurnOnAutoConfirm": {
+    "message": "How to turn on automatic user confirmation"
+  },
+  "autoConfirmStep1": {
+    "message": "Open your Bitwarden extension."
+  },
+  "autoConfirmStep2a": {
+    "message": "Select",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  },
+  "autoConfirmStep2b": {
+    "message": " Turn on.",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  },
+  "autoConfirmExtensionOpened": {
+    "message": "Successfully opened the Bitwarden browser extension. You can now activate the automatic user confirmation setting."
+  },
+  "autoConfirmPolicyEditDescription": {
+    "message": "New users invited to the organization will be automatically confirmed when an admin’s device is unlocked. Before turning on this policy, please review and agree to the following: ",
+    "description": "This is the description of the policy as it appears inside the policy edit dialog"
+  },
+  "autoConfirmAcceptSecurityRiskTitle": {
+    "message": "Potential security risk. "
+  },
+  "autoConfirmAcceptSecurityRiskDescription": {
+    "message": "Automatic user confirmation could pose a security risk to your organization’s data."
+  },
+  "autoConfirmAcceptSecurityRiskLearnMore": {
+    "message": "Learn about the risks",
+    "description": "The is the link copy for the first check box option in the edit policy dialog"
+  },
+  "autoConfirmSingleOrgRequired": {
+    "message": "Single organization policy required. "
+  },
+  "autoConfirmSingleOrgRequiredDescription": {
+    "message": "Anyone part of more than one organization will have their access revoked until they leave the other organizations."
+  },
+  "autoConfirmSingleOrgExemption": {
+    "message": "Single organization policy will extend to all roles. "
+  },
+  "autoConfirmNoEmergencyAccess": {
+    "message": "No emergency access. "
+  },
+  "autoConfirmNoEmergencyAccessDescription": {
+    "message": "Emergency Access will be removed."
+  },
+  "autoConfirmCheckBoxLabel": {
+    "message": "I accept these risks and policy updates"
   },
   "personalOwnership": {
     "message": "Лично власништво"
@@ -10361,26 +10423,8 @@
   "memberAccessReportAuthenticationEnabledFalse": {
     "message": "Не"
   },
-  "higherKDFIterations": {
-    "message": "Веће KDF итерације може помоћи у заштити ваше главне лозинке од грубе присиле од стране нападача."
-  },
-  "incrementsOf100,000": {
-    "message": "повећање од 100.000"
-  },
-  "smallIncrements": {
-    "message": "малим корацима"
-  },
   "kdfIterationRecommends": {
     "message": "Препоручујемо 600.000 или више"
-  },
-  "kdfToHighWarningIncreaseInIncrements": {
-    "message": "За старије уређаје, постављање вашег КДФ-а превисоко може довести до проблема са перформансама. Повећајте вредност у $VALUE$ и тестирајте своје уређаје.",
-    "placeholders": {
-      "value": {
-        "content": "$1",
-        "example": "increments of 100,000"
-      }
-    }
   },
   "providerReinstate": {
     "message": " Контактирајте корисничку подршку да бисте обновили претплату."
@@ -11023,6 +11067,15 @@
   },
   "domainClaimed": {
     "message": "Домен захтеван"
+  },
+  "itemAddedToFavorites": {
+    "message": "Item added to favorites"
+  },
+  "itemRemovedFromFavorites": {
+    "message": "Item removed from favorites"
+  },
+  "copyNote": {
+    "message": "Copy note"
   },
   "organizationNameMaxLength": {
     "message": "Име организације не може прећи 50 знакова."
@@ -11856,5 +11909,32 @@
   },
   "viewbusinessplans": {
     "message": "View business plans"
+  },
+  "updateEncryptionSettings": {
+    "message": "Update encryption settings"
+  },
+  "updateYourEncryptionSettings": {
+    "message": "Update your encryption settings"
+  },
+  "updateSettings": {
+    "message": "Update settings"
+  },
+  "algorithm": {
+    "message": "Algorithm"
+  },
+  "encryptionKeySettingsHowShouldWeEncryptYourData": {
+    "message": "Choose how Bitwarden should encrypt your vault data. All options are secure, but stronger methods offer better protection - especially against brute-force attacks. Bitwarden recommends the default setting for most users."
+  },
+  "encryptionKeySettingsIncreaseImproveSecurity": {
+    "message": "Increasing the values above the default will improve security, but your vault may take longer to unlock as a result."
+  },
+  "encryptionKeySettingsAlgorithmPopoverTitle": {
+    "message": "About encryption algorithms"
+  },
+  "encryptionKeySettingsAlgorithmPopoverPBKDF2": {
+    "message": "PBKDF2-SHA256 is a well-tested encryption method that balances security and performance. Good for all users."
+  },
+  "encryptionKeySettingsAlgorithmPopoverArgon2Id": {
+    "message": "Argon2id offers stronger protection against modern attacks. Best for advanced users with powerful devices."
   }
 }

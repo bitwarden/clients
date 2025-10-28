@@ -15,13 +15,14 @@ import { getById } from "@bitwarden/common/platform/misc";
 import { DialogService } from "@bitwarden/components";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
-import { RiskInsightsTabType } from "../models/risk-insights.models";
 import { ApplicationsLoadingComponent } from "../shared/risk-insights-loading.component";
 
 import { ActivityCardComponent } from "./activity-card.component";
 import { PasswordChangeMetricComponent } from "./activity-cards/password-change-metric.component";
 import { NewApplicationsDialogComponent } from "./new-applications-dialog.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "dirt-all-activity",
   imports: [
@@ -80,15 +81,6 @@ export class AllActivityComponent implements OnInit {
     }
   }
 
-  get RiskInsightsTabType() {
-    return RiskInsightsTabType;
-  }
-
-  getLinkForRiskInsightsTab(tabIndex: RiskInsightsTabType): string {
-    const organizationId = this.activatedRoute.snapshot.paramMap.get("organizationId");
-    return `/organizations/${organizationId}/access-intelligence/risk-insights?tabIndex=${tabIndex}`;
-  }
-
   /**
    * Handles the review new applications button click.
    * Opens a dialog showing the list of new applications that can be marked as critical.
@@ -99,5 +91,21 @@ export class AllActivityComponent implements OnInit {
     });
 
     await firstValueFrom(dialogRef.closed);
+  };
+
+  /**
+   * Handles the "View at-risk members" link click.
+   * Opens the at-risk members drawer for critical applications only.
+   */
+  onViewAtRiskMembers = async () => {
+    await this.dataService.setDrawerForCriticalAtRiskMembers("activityTabAtRiskMembers");
+  };
+
+  /**
+   * Handles the "View at-risk applications" link click.
+   * Opens the at-risk applications drawer for critical applications only.
+   */
+  onViewAtRiskApplications = async () => {
+    await this.dataService.setDrawerForCriticalAtRiskApps("activityTabAtRiskApplications");
   };
 }

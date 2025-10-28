@@ -32,6 +32,8 @@ import { OnboardingModule } from "../../../shared/components/onboarding/onboardi
 import { VaultOnboardingService as VaultOnboardingServiceAbstraction } from "./services/abstraction/vault-onboarding.service";
 import { VaultOnboardingService, VaultOnboardingTasks } from "./services/vault-onboarding.service";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   imports: [OnboardingModule, CommonModule, JslibModule, LinkModule],
   providers: [
@@ -44,8 +46,14 @@ import { VaultOnboardingService, VaultOnboardingTasks } from "./services/vault-o
   templateUrl: "vault-onboarding.component.html",
 })
 export class VaultOnboardingComponent implements OnInit, OnChanges, OnDestroy {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() ciphers: CipherViewLike[];
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() orgs: Organization[];
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onAddCipher = new EventEmitter<CipherType>();
 
   extensionUrl: string;

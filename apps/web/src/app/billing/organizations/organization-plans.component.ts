@@ -31,6 +31,7 @@ import { ProviderOrganizationCreateRequest } from "@bitwarden/common/admin-conso
 import { ProviderResponse } from "@bitwarden/common/admin-console/models/response/provider/provider.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { assertNonNullish } from "@bitwarden/common/auth/utils";
 import { PlanSponsorshipType, PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
 import { BillingResponse } from "@bitwarden/common/billing/models/response/billing.response";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
@@ -41,7 +42,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { OrganizationId } from "@bitwarden/common/types/guid";
+import { OrganizationId, ProviderId, UserId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { ToastService } from "@bitwarden/components";
@@ -72,6 +73,8 @@ const Allowed2020PlansForLegacyProviders = [
   PlanType.EnterpriseMonthly2020,
 ];
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-organization-plans",
   templateUrl: "organization-plans.component.html",
@@ -84,17 +87,33 @@ const Allowed2020PlansForLegacyProviders = [
   providers: [SubscriberBillingClient, TaxClient],
 })
 export class OrganizationPlansComponent implements OnInit, OnDestroy {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild(EnterPaymentMethodComponent) enterPaymentMethodComponent!: EnterPaymentMethodComponent;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() organizationId?: string;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() showFree = true;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() showCancel = false;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() acceptingSponsorship = false;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() planSponsorshipType?: PlanSponsorshipType;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() currentPlan: PlanResponse;
 
   selectedFile: File;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   get productTier(): ProductTierType {
     return this._productTier;
@@ -107,6 +126,8 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
 
   private _productTier = ProductTierType.Free;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   get plan(): PlanType {
     return this._plan;
@@ -116,13 +137,25 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     this._plan = plan;
     this.formGroup?.controls?.plan?.setValue(plan);
   }
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() enableSecretsManagerByDefault: boolean;
 
   private _plan = PlanType.Free;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() providerId?: string;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() preSelectedProductTier?: ProductTierType;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onSuccess = new EventEmitter<OnSuccessArgs>();
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onCanceled = new EventEmitter<void>();
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onTrialBillingSuccess = new EventEmitter();
 
   loading = true;
@@ -622,7 +655,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
 
         orgId = this.selfHosted
           ? await this.createSelfHosted(key, collectionCt, orgKeys)
-          : await this.createCloudHosted(key, collectionCt, orgKeys, orgKey[1]);
+          : await this.createCloudHosted(key, collectionCt, orgKeys, orgKey[1], activeUserId);
 
         this.toastService.showToast({
           variant: "success",
@@ -776,6 +809,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     collectionCt: string,
     orgKeys: [string, EncString],
     orgKey: SymmetricCryptoKey,
+    activeUserId: UserId,
   ): Promise<string> {
     const request = new OrganizationCreateRequest();
     request.key = key;
@@ -823,7 +857,14 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
         this.formGroup.controls.clientOwnerEmail.value,
         request,
       );
-      const providerKey = await this.keyService.getProviderKey(this.providerId);
+
+      const providerKey = await firstValueFrom(
+        this.keyService
+          .providerKeys$(activeUserId)
+          .pipe(map((providerKeys) => providerKeys?.[this.providerId as ProviderId] ?? null)),
+      );
+      assertNonNullish(providerKey, "Provider key not found");
+
       providerRequest.organizationCreateRequest.key = (
         await this.encryptService.wrapSymmetricKey(orgKey, providerKey)
       ).encryptedString;
