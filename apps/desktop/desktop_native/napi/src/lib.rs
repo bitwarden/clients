@@ -1066,8 +1066,8 @@ pub mod logging {
 pub mod chromium_importer {
     use chromium_importer::{
         chromium::{
-            DefaultInstalledBrowserRetriever, InstalledBrowserRetriever,
-            LoginImportResult as _LoginImportResult, ProfileInfo as _ProfileInfo,
+            DefaultInstalledBrowserRetriever, LoginImportResult as _LoginImportResult,
+            ProfileInfo as _ProfileInfo,
         },
         metadata::NativeImporterMetadata as _NativeImporterMetadata,
     };
@@ -1157,12 +1157,6 @@ pub mod chromium_importer {
             .into_iter()
             .map(|(browser, metadata)| (browser, NativeImporterMetadata::from(metadata)))
             .collect()
-    }
-
-    #[napi]
-    pub fn get_installed_browsers() -> napi::Result<Vec<String>> {
-        chromium_importer::chromium::DefaultInstalledBrowserRetriever::get_installed_browsers()
-            .map_err(|e| napi::Error::from_reason(e.to_string()))
     }
 
     #[napi]

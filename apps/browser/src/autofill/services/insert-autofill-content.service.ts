@@ -136,7 +136,7 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
       setTimeout(() => {
         this.autofillInsertActions[action]({ opid, value });
         resolve();
-      }, delayActionsInMilliseconds * actionIndex),
+      }, delayActionsInMilliseconds),
     );
   };
 
