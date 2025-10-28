@@ -101,8 +101,8 @@ export class RiskInsightsOrchestratorService {
         .filter((app) => app.reviewedDate === null)
         .map((app) => app.applicationName);
     }),
-    distinctUntilChanged((prev, curr) =>
-      prev.length === curr.length && prev.every((app, i) => app === curr[i]),
+    distinctUntilChanged(
+      (prev, curr) => prev.length === curr.length && prev.every((app, i) => app === curr[i]),
     ),
     shareReplay({ bufferSize: 1, refCount: true }),
   );
@@ -360,12 +360,9 @@ export class RiskInsightsOrchestratorService {
    * @returns Observable of updated ReportState
    */
   saveApplicationReviewStatus$(selectedCriticalApps: string[]): Observable<ReportState> {
-    this.logService.info(
-      "[RiskInsightsOrchestratorService] Saving application review status",
-      {
-        criticalAppsCount: selectedCriticalApps.length,
-      },
-    );
+    this.logService.info("[RiskInsightsOrchestratorService] Saving application review status", {
+      criticalAppsCount: selectedCriticalApps.length,
+    });
 
     return this.rawReportData$.pipe(
       take(1),
@@ -389,14 +386,11 @@ export class RiskInsightsOrchestratorService {
           },
         } as ReportState;
 
-        this.logService.debug(
-          "[RiskInsightsOrchestratorService] Updated review status",
-          {
-            totalApps: updatedApplicationData.length,
-            reviewedApps: updatedApplicationData.filter((app) => app.reviewedDate !== null).length,
-            criticalApps: updatedApplicationData.filter((app) => app.isCritical).length,
-          },
-        );
+        this.logService.debug("[RiskInsightsOrchestratorService] Updated review status", {
+          totalApps: updatedApplicationData.length,
+          reviewedApps: updatedApplicationData.filter((app) => app.reviewedDate !== null).length,
+          criticalApps: updatedApplicationData.filter((app) => app.isCritical).length,
+        });
 
         return { reportState, organizationDetails, updatedState, userId };
       }),
