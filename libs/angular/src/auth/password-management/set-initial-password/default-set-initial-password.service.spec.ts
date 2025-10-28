@@ -149,9 +149,9 @@ describe("DefaultSetInitialPasswordService", () => {
 
       userDecryptionOptions = new UserDecryptionOptions({ hasMasterPassword: true });
       userDecryptionOptionsSubject = new BehaviorSubject(userDecryptionOptions);
-      userDecryptionOptionsService.userDecryptionOptionsById$ = jest
-        .fn()
-        .mockReturnValue(userDecryptionOptionsSubject);
+      userDecryptionOptionsService.userDecryptionOptionsById$.mockReturnValue(
+        userDecryptionOptionsSubject,
+      );
 
       setPasswordRequest = new SetPasswordRequest(
         credentials.newServerMasterKeyHash,
