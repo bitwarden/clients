@@ -5715,6 +5715,9 @@
   "confirmKeyConnectorDomain": {
     "message": "Bekräfta Key Connector-domän"
   },
+  "atRiskLoginsSecured": {
+    "message": "Bra jobbat med att säkra upp dina inloggninar i riskzonen!"
+  },
   "settingDisabledByPolicy": {
     "message": "Denna inställning är inaktiverad enligt din organisations policy.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."

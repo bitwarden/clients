@@ -59,7 +59,7 @@ jobs:
       has_secrets: ${{ steps.check-secrets.outputs.has_secrets }}
     steps:
       - name: Check out repo
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
@@ -98,8 +98,8 @@ jobs:
           ]
         license_type:
           [
-            { build_prefix: "oss", artifact_prefix: "-oss", readable: "open source license" },
-            { build_prefix: "bit", artifact_prefix: "", readable: "commercial license" }
+            { type: "oss", build_prefix: "oss", artifact_prefix: "-oss", readable: "open source license" },
+            { type: "commercial", build_prefix: "bit", artifact_prefix: "", readable: "commercial license" }
           ]
     runs-on: ${{ matrix.os.distro }}
     needs: setup
@@ -114,7 +114,7 @@ jobs:
 
     steps:
       - name: Check out repo
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
@@ -138,6 +138,11 @@ jobs:
 
       - name: Install
         run: npm ci
+        working-directory: ./
+
+      - name: Remove commercial packages
+        if: ${{ matrix.license_type.type == 'oss' }}
+        run: rm -rf node_modules/@bitwarden/commercial-sdk-internal
         working-directory: ./
 
       - name: Download SDK Artifacts
@@ -291,8 +296,8 @@ jobs:
       matrix:
         license_type:
           [
-            { build_prefix: "oss", artifact_prefix: "-oss", readable: "open source license" },
-            { build_prefix: "bit", artifact_prefix: "", readable: "commercial license" }
+            { type: "oss", build_prefix: "oss", artifact_prefix: "-oss", readable: "open source license" },
+            { type: "commercial", build_prefix: "bit", artifact_prefix: "", readable: "commercial license" }
           ]
     runs-on: windows-2022
     permissions:
@@ -306,7 +311,7 @@ jobs:
       _WIN_PKG_VERSION: 3.5
     steps:
       - name: Check out repo
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           ref: ${{  github.event.pull_request.head.sha }}
           persist-credentials: false
@@ -410,6 +415,11 @@ jobs:
         run: npm ci
         working-directory: ./
 
+      - name: Remove commercial packages
+        if: ${{ matrix.license_type.type == 'oss' }}
+        run: Remove-Item -Recurse -Force -ErrorAction SilentlyContinue "node_modules/@bitwarden/commercial-sdk-internal"
+        working-directory: ./
+
       - name: Download SDK Artifacts
         if: ${{ inputs.sdk_branch != '' && needs.setup.outputs.has_secrets == 'true' }}
         uses: bitwarden/gh-actions/download-artifacts@main
@@ -510,7 +520,7 @@ jobs:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
     steps:
       - name: Check out repo
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           ref: ${{  github.event.pull_request.head.sha }}
           persist-credentials: false

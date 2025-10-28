@@ -1852,6 +1852,12 @@
   "lockWithMasterPassOnRestart1": {
     "message": "Блокировать мастер-паролем при перезапуске"
   },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "Требовать мастер-пароль или PIN при перезапуске приложения"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "Требовать мастер-пароль при перезапуске приложения"
+  },
   "deleteAccount": {
     "message": "Удалить аккаунт"
   },
@@ -4167,7 +4173,7 @@
   "itemWasSentToArchive": {
     "message": "Элемент был отправлен в архив"
   },
-  "itemUnarchived": {
+  "itemWasUnarchived": {
     "message": "Элемент был разархивирован"
   },
   "archiveItem": {

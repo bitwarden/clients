@@ -2,7 +2,7 @@
 resolver = "2"
 members = [
     "autotype",
-    "bitwarden_chromium_importer",
+    "chromium_importer",
     "core",
     "macos_provider",
     "napi",
@@ -68,14 +68,14 @@ tokio = "=1.45.0"
 tokio-stream = "=0.1.15"
 tokio-util = "=0.7.13"
 tracing = "=0.1.41"
-tracing-subscriber = { version = "=0.3.20", features = ["fmt", "env-filter"] }
+tracing-subscriber = { version = "=0.3.20", features = ["fmt", "env-filter", "tracing-log"] }
 typenum = "=1.18.0"
 uniffi = "=0.28.3"
 widestring = "=1.2.0"
 windows = "=0.61.1"
 windows-core = "=0.61.0"
 windows-future = "=0.2.0"
-windows-registry = "=0.5.3"
+windows-registry = "=0.6.1"
 zbus = "=5.11.0"
 zbus_polkit = "=5.0.0"
 zeroizing-alloc = "=0.1.0"
