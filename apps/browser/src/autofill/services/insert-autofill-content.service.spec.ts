@@ -26,7 +26,6 @@ const eventsToTest = [
   EVENTS.CHANGE,
   EVENTS.INPUT,
   EVENTS.KEYDOWN,
-  EVENTS.KEYPRESS,
   EVENTS.KEYUP,
   "blur",
   "click",
@@ -1044,13 +1043,13 @@ describe("InsertAutofillContentService", () => {
   });
 
   describe("simulateUserKeyboardEventInteractions", () => {
-    it("will trigger `keydown`, `keypress`, and `keyup` events on the passed element", () => {
+    it("will trigger `keydown` and `keyup` events on the passed element", () => {
       const inputElement = document.querySelector('input[type="text"]') as HTMLInputElement;
       jest.spyOn(inputElement, "dispatchEvent");
 
       insertAutofillContentService["simulateUserKeyboardEventInteractions"](inputElement);
 
-      [EVENTS.KEYDOWN, EVENTS.KEYPRESS, EVENTS.KEYUP].forEach((eventName) => {
+      [EVENTS.KEYDOWN, EVENTS.KEYUP].forEach((eventName) => {
         expect(inputElement.dispatchEvent).toHaveBeenCalledWith(
           new KeyboardEvent(eventName, { bubbles: true }),
         );
