@@ -16,7 +16,7 @@ use windows::{
 
 const WAIT_FOR_ADMIN_MESSAGE_TIMEOUT_SECS: u64 = 30;
 
-pub fn start_tokio_named_pipe_server<F>(
+fn start_tokio_named_pipe_server<F>(
     pipe_name: &'static str,
     process_message: F,
 ) -> Result<JoinHandle<Result<(), io::Error>>>
@@ -110,7 +110,7 @@ where
     }
 }
 
-pub async fn decrypt_with_admin_exe(admin_exe: &str, encrypted: &str) -> Result<String> {
+pub(crate) async fn decrypt_with_admin_exe(admin_exe: &str, encrypted: &str) -> Result<String> {
     let (tx, mut rx) = channel::<String>(1);
 
     debug!(

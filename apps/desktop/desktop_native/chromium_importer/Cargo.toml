@@ -22,16 +22,16 @@ rusqlite = { version = "=0.37.0", features = ["bundled"] }
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
 sha1 = "=0.10.6"
-sysinfo = { workspace = true, optional = true }
 
 [target.'cfg(target_os = "macos")'.dependencies]
 security-framework = { workspace = true }
 
 [target.'cfg(target_os = "windows")'.dependencies]
-chacha20poly1305 = "=0.10.1"
+chacha20poly1305 = { workspace = true }
 clap = { version = "=4.5.40", features = ["derive"] }
 scopeguard = { workspace = true }
 simplelog = { workspace = true }
+sysinfo = { workspace = true, optional = true }
 tokio = { workspace = true, features = ["full"] }
 verifysign = "=0.2.4"
 windows = { workspace = true, features = [
@@ -56,7 +56,7 @@ oo7 = { workspace = true }
 workspace = true
 
 [features]
-windows-binary = ["sysinfo"]
+windows-binary = ["dep:sysinfo"]
 
 [[bin]]
 name = "bitwarden_chromium_import_helper"

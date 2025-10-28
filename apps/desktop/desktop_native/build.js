@@ -51,18 +51,17 @@ function buildImporterBinaries(target, release = true) {
         return;
     }
 
-    ["bitwarden_chromium_import_helper"].forEach(bin => {
-        const targetArg = target ? `--target ${target}` : "";
-        const releaseArg = release ? "--release" : "";
-        child_process.execSync(`cargo build --bin ${bin} ${releaseArg} ${targetArg} --features windows-binary`, {stdio: 'inherit', cwd: path.join(__dirname, "bitwarden_chromium_importer")});
+    const bin = "bitwarden_chromium_import_helper";
+    const targetArg = target ? `--target ${target}` : "";
+    const releaseArg = release ? "--release" : "";
+    child_process.execSync(`cargo build --bin ${bin} ${releaseArg} ${targetArg} --features windows-binary`, {stdio: 'inherit', cwd: path.join(__dirname, "bitwarden_chromium_importer")});
 
-        if (target) {
-            // Copy the resulting binary to the dist folder
-            const targetFolder = release ? "release" : "debug";
-            const nodeArch = rustTargetsMap[target].nodeArch;
-            fs.copyFileSync(path.join(__dirname, "target", target, targetFolder, `${bin}.exe`), path.join(__dirname, "dist", `${bin}.${process.platform}-${nodeArch}.exe`));
-        }
-    });
+    if (target) {
+        // Copy the resulting binary to the dist folder
+        const targetFolder = release ? "release" : "debug";
+        const nodeArch = rustTargetsMap[target].nodeArch;
+        fs.copyFileSync(path.join(__dirname, "target", target, targetFolder, `${bin}.exe`), path.join(__dirname, "dist", `${bin}.${process.platform}-${nodeArch}.exe`));
+    }
 }
 
 function buildProcessIsolation() {
