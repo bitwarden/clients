@@ -100,10 +100,10 @@ export class Send extends Domain {
 
     switch (this.type) {
       case SendType.File:
-        model.file = await this.file.decrypt(userId, model.cryptoKey);
+        model.file = await this.file.decrypt(model.cryptoKey);
         break;
       case SendType.Text:
-        model.text = await this.text.decrypt(userId, model.cryptoKey);
+        model.text = await this.text.decrypt(model.cryptoKey);
         break;
       default:
         break;
