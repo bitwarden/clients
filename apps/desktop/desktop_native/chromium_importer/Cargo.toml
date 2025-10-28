@@ -46,7 +46,7 @@ windows = { workspace = true, features = [
     "Win32_System_Services",
     "Win32_System_Threading",
     "Win32_UI_Shell",
-    "Win32_UI_WindowsAndMessaging"
+    "Win32_UI_WindowsAndMessaging",
 ] }
 
 [target.'cfg(target_os = "linux")'.dependencies]
