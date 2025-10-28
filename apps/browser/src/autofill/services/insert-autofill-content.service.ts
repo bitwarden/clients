@@ -136,7 +136,7 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
       setTimeout(() => {
         this.autofillInsertActions[action]({ opid, value });
         resolve();
-      }, delayActionsInMilliseconds * actionIndex),
+      }, delayActionsInMilliseconds),
     );
   };
 
@@ -349,7 +349,7 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
    * @private
    */
   private simulateUserKeyboardEventInteractions(element: FormFieldElement): void {
-    const simulatedKeyboardEvents = [EVENTS.KEYDOWN, EVENTS.KEYPRESS, EVENTS.KEYUP];
+    const simulatedKeyboardEvents = [EVENTS.KEYDOWN, EVENTS.KEYUP];
     for (let index = 0; index < simulatedKeyboardEvents.length; index++) {
       element.dispatchEvent(new KeyboardEvent(simulatedKeyboardEvents[index], { bubbles: true }));
     }

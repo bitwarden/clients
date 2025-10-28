@@ -1,6 +1,13 @@
-# Windows ABE Architecture
+# Chromium Direct Importer
 
-## Overview
+A rust library that allows you to directly import credentials from Chromium-based browsers.
+
+## Windows ABE Architecture
+
+On Windows chrome has additional protection measurements which needs to be circumvented in order to
+get access to the passwords.
+
+### Overview
 
 The Windows Application Bound Encryption (ABE) consists of three main components that work together:
 
@@ -10,7 +17,7 @@ The Windows Application Bound Encryption (ABE) consists of three main components
 
 _(The names of the binaries will be changed for the released product.)_
 
-## The goal
+### The goal
 
 The goal of this subsystem is to decrypt the master encryption key with which the login information
 is encrypted on the local system in Windows. This applies to the most recent versions of Chrome and
@@ -24,7 +31,7 @@ Protection API at the system level on top of that. This triply encrypted key is 
 
 The next paragraphs describe what is done at each level to decrypt the key.
 
-## 1. Client library
+### 1. Client library
 
 This is a Rust module that is part of the Chromium importer. It only compiles and runs on Windows
 (see `abe.rs` and `abe_config.rs`). Its main task is to launch `admin.exe` with elevated privileges
@@ -52,7 +59,7 @@ admin.exe --service-exe "c:\temp\service.exe" --encrypted "QVBQQgEAAADQjJ3fARXRE
 
 **At this point, the user must permit the action to be performed on the UAC screen.**
 
-## 2. Admin executable
+### 2. Admin executable
 
 This executable receives the full path of `service.exe` and the data to be decrypted.
 
@@ -67,7 +74,7 @@ is sent to the named pipe server created by the user. The user responds with `ok
 
 After that, the executable stops and uninstalls the service and then exits.
 
-## 3. System service
+### 3. System service
 
 The service starts and creates a named pipe server for communication between `admin.exe` and the
 system service. Please note that it is not possible to communicate between the user and the system
@@ -83,7 +90,7 @@ removed from the system. Even though we send only one request, the service is de
 many clients with as many messages as needed and could be installed on the system permanently if
 necessary.
 
-## 4. Back to client library
+### 4. Back to client library
 
 The decrypted base64-encoded string comes back from the admin executable to the named pipe server at
 the user level. At this point, it has been decrypted only once at the system level.
@@ -99,7 +106,7 @@ itself), it's either AES-256-GCM or ChaCha20Poly1305 encryption scheme. The deta
 After all of these steps, we have the master key which can be used to decrypt the password
 information stored in the local database.
 
-## Summary
+### Summary
 
 The Windows ABE decryption process involves a three-tier architecture with named pipe communication:
 

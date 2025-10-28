@@ -21,6 +21,8 @@ type CipherItem = {
   field: CopyAction;
 };
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-item-copy-actions",
   templateUrl: "item-copy-actions.component.html",
@@ -35,6 +37,8 @@ type CipherItem = {
 })
 export class ItemCopyActionsComponent {
   protected showQuickCopyActions$ = inject(VaultPopupCopyButtonsService).showQuickCopyActions$;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true }) cipher!: CipherViewLike;
 
   protected CipherViewLikeUtils = CipherViewLikeUtils;
