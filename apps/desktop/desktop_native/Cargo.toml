@@ -76,7 +76,7 @@ windows = "=0.61.1"
 windows-core = "=0.61.0"
 windows-future = "=0.2.0"
 windows-registry = "=0.6.1"
-zbus = "=5.11.0"
+zbus = "=5.12.0"
 zbus_polkit = "=5.0.0"
 zeroizing-alloc = "=0.1.0"
 
