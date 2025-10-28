@@ -46,11 +46,17 @@ export class AllActivitiesService {
         this.setAllAppsReportDetails(report.reportData);
       }
     });
+
     // Critical application summary changes
     this.dataService.criticalReportResults$.subscribe((report) => {
       if (report) {
         this.setCriticalAppsReportSummary(report.summaryData);
       }
+    });
+
+    // New applications changes (from orchestrator's reactive pipeline)
+    this.dataService.newApplications$.subscribe((newApps) => {
+      this.setNewApplications(newApps);
     });
   }
 
@@ -71,7 +77,7 @@ export class AllActivitiesService {
       totalAtRiskMemberCount: summary.totalAtRiskMemberCount,
       totalApplicationCount: summary.totalApplicationCount,
       totalAtRiskApplicationCount: summary.totalAtRiskApplicationCount,
-      newApplications: summary.newApplications,
+      // Note: newApplications now set separately via newApplications$ subscription
     });
   }
 
@@ -90,5 +96,16 @@ export class AllActivitiesService {
 
   setTaskCreatedCount(count: number) {
     this.taskCreatedCountSubject$.next(count);
+  }
+
+  /**
+   * Updates the newApplications list in the report summary.
+   * Called when the orchestrator's newApplications$ observable emits.
+   */
+  private setNewApplications(newApps: string[]) {
+    this.reportSummarySubject$.next({
+      ...this.reportSummarySubject$.getValue(),
+      newApplications: newApps,
+    });
   }
 }
