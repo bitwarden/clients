@@ -44,31 +44,28 @@ describe("Cipher DTO", () => {
     const data = new CipherData();
     const cipher = new Cipher(data);
 
-    expect(cipher).toEqual({
-      initializerKey: InitializerKey.Cipher,
-      id: null,
-      organizationId: null,
-      folderId: null,
-      name: null,
-      notes: null,
-      type: undefined,
-      favorite: undefined,
-      organizationUseTotp: undefined,
-      edit: undefined,
-      viewPassword: true,
-      revisionDate: null,
-      collectionIds: undefined,
-      localData: null,
-      creationDate: null,
-      deletedDate: undefined,
-      reprompt: undefined,
-      attachments: null,
-      fields: null,
-      passwordHistory: null,
-      key: null,
-      permissions: undefined,
-      archivedDate: undefined,
-    });
+    expect(cipher.id).toBeUndefined();
+    expect(cipher.organizationId).toBeUndefined();
+    expect(cipher.folderId).toBeUndefined();
+    expect(cipher.name).toBeInstanceOf(EncString);
+    expect(cipher.notes).toBeUndefined();
+    expect(cipher.type).toBeUndefined();
+    expect(cipher.favorite).toBeUndefined();
+    expect(cipher.organizationUseTotp).toBeUndefined();
+    expect(cipher.edit).toBeUndefined();
+    expect(cipher.viewPassword).toBeUndefined();
+    expect(cipher.revisionDate).toBeInstanceOf(Date);
+    expect(cipher.collectionIds).toEqual([]);
+    expect(cipher.localData).toBeUndefined();
+    expect(cipher.creationDate).toBeInstanceOf(Date);
+    expect(cipher.deletedDate).toBeUndefined();
+    expect(cipher.reprompt).toBeUndefined();
+    expect(cipher.attachments).toBeUndefined();
+    expect(cipher.fields).toBeUndefined();
+    expect(cipher.passwordHistory).toBeUndefined();
+    expect(cipher.key).toBeUndefined();
+    expect(cipher.permissions).toBeUndefined();
+    expect(cipher.archivedDate).toBeUndefined();
   });
 
   it("Decrypt should handle cipher key error", async () => {
@@ -121,7 +118,7 @@ describe("Cipher DTO", () => {
       edit: true,
       viewPassword: true,
       decryptionFailure: true,
-      collectionIds: undefined,
+      collectionIds: [],
       revisionDate: new Date("2022-01-31T12:00:00.000Z"),
       creationDate: new Date("2022-01-01T12:00:00.000Z"),
       deletedDate: undefined,
@@ -155,6 +152,7 @@ describe("Cipher DTO", () => {
         reprompt: CipherRepromptType.None,
         key: "EncryptedString",
         archivedDate: undefined,
+        collectionIds: [],
         login: {
           uris: [
             {
@@ -223,8 +221,8 @@ describe("Cipher DTO", () => {
         edit: true,
         viewPassword: true,
         revisionDate: new Date("2022-01-31T12:00:00.000Z"),
-        collectionIds: undefined,
-        localData: null,
+        collectionIds: [],
+        localData: undefined,
         creationDate: new Date("2022-01-01T12:00:00.000Z"),
         deletedDate: undefined,
         permissions: new CipherPermissionsApi(),
@@ -265,13 +263,13 @@ describe("Cipher DTO", () => {
         ],
         fields: [
           {
-            linkedId: null,
+            linkedId: undefined,
             name: { encryptedString: "EncryptedString", encryptionType: 0 },
             type: 0,
             value: { encryptedString: "EncryptedString", encryptionType: 0 },
           },
           {
-            linkedId: null,
+            linkedId: undefined,
             name: { encryptedString: "EncryptedString", encryptionType: 0 },
             type: 1,
             value: { encryptedString: "EncryptedString", encryptionType: 0 },
@@ -348,7 +346,7 @@ describe("Cipher DTO", () => {
         attachments: [],
         fields: [],
         passwordHistory: [],
-        collectionIds: undefined,
+        collectionIds: [],
         revisionDate: new Date("2022-01-31T12:00:00.000Z"),
         creationDate: new Date("2022-01-01T12:00:00.000Z"),
         deletedDate: undefined,
@@ -380,6 +378,7 @@ describe("Cipher DTO", () => {
         deletedDate: undefined,
         reprompt: CipherRepromptType.None,
         key: "EncKey",
+        collectionIds: [],
         secureNote: {
           type: SecureNoteType.Generic,
         },
@@ -404,15 +403,15 @@ describe("Cipher DTO", () => {
         edit: true,
         viewPassword: true,
         revisionDate: new Date("2022-01-31T12:00:00.000Z"),
-        collectionIds: undefined,
-        localData: null,
+        collectionIds: [],
+        localData: undefined,
         creationDate: new Date("2022-01-01T12:00:00.000Z"),
         deletedDate: undefined,
         reprompt: 0,
         secureNote: { type: SecureNoteType.Generic },
-        attachments: null,
-        fields: null,
-        passwordHistory: null,
+        attachments: undefined,
+        fields: undefined,
+        passwordHistory: undefined,
         key: { encryptedString: "EncKey", encryptionType: 0 },
         permissions: new CipherPermissionsApi(),
         archivedDate: undefined,
@@ -475,7 +474,7 @@ describe("Cipher DTO", () => {
         attachments: [],
         fields: [],
         passwordHistory: [],
-        collectionIds: undefined,
+        collectionIds: [],
         revisionDate: new Date("2022-01-31T12:00:00.000Z"),
         creationDate: new Date("2022-01-01T12:00:00.000Z"),
         deletedDate: undefined,
@@ -507,6 +506,7 @@ describe("Cipher DTO", () => {
         deletedDate: undefined,
         permissions: new CipherPermissionsApi(),
         reprompt: CipherRepromptType.None,
+        collectionIds: [],
         card: {
           cardholderName: "EncryptedString",
           brand: "EncryptedString",
@@ -536,8 +536,8 @@ describe("Cipher DTO", () => {
         edit: true,
         viewPassword: true,
         revisionDate: new Date("2022-01-31T12:00:00.000Z"),
-        collectionIds: undefined,
-        localData: null,
+        collectionIds: [],
+        localData: undefined,
         creationDate: new Date("2022-01-01T12:00:00.000Z"),
         deletedDate: undefined,
         reprompt: 0,
@@ -549,9 +549,9 @@ describe("Cipher DTO", () => {
           expYear: { encryptedString: "EncryptedString", encryptionType: 0 },
           code: { encryptedString: "EncryptedString", encryptionType: 0 },
         },
-        attachments: null,
-        fields: null,
-        passwordHistory: null,
+        attachments: undefined,
+        fields: undefined,
+        passwordHistory: undefined,
         key: { encryptedString: "EncKey", encryptionType: 0 },
         permissions: new CipherPermissionsApi(),
         archivedDate: undefined,
@@ -620,7 +620,7 @@ describe("Cipher DTO", () => {
         attachments: [],
         fields: [],
         passwordHistory: [],
-        collectionIds: undefined,
+        collectionIds: [],
         revisionDate: new Date("2022-01-31T12:00:00.000Z"),
         creationDate: new Date("2022-01-01T12:00:00.000Z"),
         deletedDate: undefined,
@@ -654,6 +654,7 @@ describe("Cipher DTO", () => {
         reprompt: CipherRepromptType.None,
         key: "EncKey",
         archivedDate: undefined,
+        collectionIds: [],
         identity: {
           title: "EncryptedString",
           firstName: "EncryptedString",
@@ -693,8 +694,8 @@ describe("Cipher DTO", () => {
         edit: true,
         viewPassword: true,
         revisionDate: new Date("2022-01-31T12:00:00.000Z"),
-        collectionIds: undefined,
-        localData: null,
+        collectionIds: [],
+        localData: undefined,
         creationDate: new Date("2022-01-01T12:00:00.000Z"),
         deletedDate: undefined,
         reprompt: 0,
@@ -719,9 +720,9 @@ describe("Cipher DTO", () => {
           passportNumber: { encryptedString: "EncryptedString", encryptionType: 0 },
           licenseNumber: { encryptedString: "EncryptedString", encryptionType: 0 },
         },
-        attachments: null,
-        fields: null,
-        passwordHistory: null,
+        attachments: undefined,
+        fields: undefined,
+        passwordHistory: undefined,
         key: { encryptedString: "EncKey", encryptionType: 0 },
         permissions: new CipherPermissionsApi(),
       });
@@ -789,7 +790,7 @@ describe("Cipher DTO", () => {
         attachments: [],
         fields: [],
         passwordHistory: [],
-        collectionIds: undefined,
+        collectionIds: [],
         revisionDate: new Date("2022-01-31T12:00:00.000Z"),
         creationDate: new Date("2022-01-01T12:00:00.000Z"),
         deletedDate: undefined,
@@ -858,8 +859,8 @@ describe("Cipher DTO", () => {
       expect(actual).toMatchObject(expected);
     });
 
-    it("returns null if object is null", () => {
-      expect(Cipher.fromJSON(null)).toBeNull();
+    it("returns undefined if object is undefined", () => {
+      expect(Cipher.fromJSON(undefined)).toBeUndefined();
     });
   });
 

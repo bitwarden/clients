@@ -1852,6 +1852,12 @@
   "lockWithMasterPassOnRestart1": {
     "message": "Lås med huvudlösenord vid omstart"
   },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "Kräv huvudlösenord eller PIN-kod vid omstart av appen"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "Kräv huvudlösenord vid omstart av appen"
+  },
   "deleteAccount": {
     "message": "Radera konto"
   },
@@ -4167,7 +4173,7 @@
   "itemWasSentToArchive": {
     "message": "Objektet skickades till arkivet"
   },
-  "itemUnarchived": {
+  "itemWasUnarchived": {
     "message": "Objektet har avarkiverats"
   },
   "archiveItem": {

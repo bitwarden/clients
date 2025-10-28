@@ -129,6 +129,8 @@ export const VaultItemDialogResult = {
 
 export type VaultItemDialogResult = UnionOfValues<typeof VaultItemDialogResult>;
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-vault-item-dialog",
   templateUrl: "vault-item-dialog.component.html",
@@ -159,9 +161,13 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
    * Reference to the dialog content element. Used to scroll to the top of the dialog when switching modes.
    * @protected
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("dialogContent")
   protected dialogContent: ElementRef<HTMLElement>;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild(CipherFormComponent) cipherFormComponent!: CipherFormComponent;
 
   /**

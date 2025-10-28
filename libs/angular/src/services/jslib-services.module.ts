@@ -9,7 +9,9 @@ import {
   CollectionService,
   DefaultCollectionService,
   DefaultOrganizationUserApiService,
+  DefaultOrganizationUserService,
   OrganizationUserApiService,
+  OrganizationUserService,
 } from "@bitwarden/admin-console/common";
 import {
   ChangePasswordService,
@@ -847,6 +849,7 @@ const safeProviders: SafeProvider[] = [
       AuthServiceAbstraction,
       StateProvider,
       SecurityStateService,
+      KdfConfigService,
     ],
   }),
   safeProvider({
@@ -1119,6 +1122,17 @@ const safeProviders: SafeProvider[] = [
     provide: InternalOrganizationServiceAbstraction,
     useClass: DefaultOrganizationService,
     deps: [StateProvider],
+  }),
+  safeProvider({
+    provide: OrganizationUserService,
+    useClass: DefaultOrganizationUserService,
+    deps: [
+      KeyService,
+      EncryptService,
+      OrganizationUserApiService,
+      AccountService,
+      I18nServiceAbstraction,
+    ],
   }),
   safeProvider({
     provide: OrganizationServiceAbstraction,

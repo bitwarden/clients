@@ -9,6 +9,7 @@ import {
   OrganizationUserBulkConfirmRequest,
   OrganizationUserBulkPublicKeyResponse,
   OrganizationUserBulkResponse,
+  OrganizationUserService,
 } from "@bitwarden/admin-console/common";
 import { OrganizationUserStatusType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -26,8 +27,6 @@ import { OrgKey } from "@bitwarden/common/types/key";
 import { DIALOG_DATA, DialogConfig, DialogService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 
-import { OrganizationUserService } from "../../services/organization-user/organization-user.service";
-
 import { BaseBulkConfirmComponent } from "./base-bulk-confirm.component";
 import { BulkUserDetails } from "./bulk-status.component";
 
@@ -36,6 +35,8 @@ type BulkConfirmDialogParams = {
   users: BulkUserDetails[];
 };
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "bulk-confirm-dialog.component.html",
   standalone: false,
