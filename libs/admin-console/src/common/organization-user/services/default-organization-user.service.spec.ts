@@ -19,12 +19,10 @@ import { OrganizationId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
 
-import { OrganizationUserView } from "../../../core/views/organization-user.view";
+import { DefaultOrganizationUserService } from "./default-organization-user.service";
 
-import { OrganizationUserService } from "./organization-user.service";
-
-describe("OrganizationUserService", () => {
-  let service: OrganizationUserService;
+describe("DefaultOrganizationUserService", () => {
+  let service: DefaultOrganizationUserService;
   let keyService: jest.Mocked<KeyService>;
   let encryptService: jest.Mocked<EncryptService>;
   let organizationUserApiService: jest.Mocked<OrganizationUserApiService>;
@@ -34,9 +32,7 @@ describe("OrganizationUserService", () => {
   const mockOrganization = new Organization();
   mockOrganization.id = "org-123" as OrganizationId;
 
-  const mockOrganizationUser = new OrganizationUserView();
-  mockOrganizationUser.id = "user-123";
-
+  const mockUserId = "user-123";
   const mockPublicKey = new Uint8Array(64) as CsprngArray;
   const mockRandomBytes = new Uint8Array(64) as CsprngArray;
   const mockOrgKey = new SymmetricCryptoKey(mockRandomBytes) as OrgKey;
@@ -77,7 +73,7 @@ describe("OrganizationUserService", () => {
 
     TestBed.configureTestingModule({
       providers: [
-        OrganizationUserService,
+        DefaultOrganizationUserService,
         { provide: KeyService, useValue: keyService },
         { provide: EncryptService, useValue: encryptService },
         { provide: OrganizationUserApiService, useValue: organizationUserApiService },
@@ -86,7 +82,13 @@ describe("OrganizationUserService", () => {
       ],
     });
 
-    service = TestBed.inject(OrganizationUserService);
+    service = new DefaultOrganizationUserService(
+      keyService,
+      encryptService,
+      organizationUserApiService,
+      accountService,
+      i18nService,
+    );
   });
 
   describe("confirmUser", () => {
@@ -97,7 +99,7 @@ describe("OrganizationUserService", () => {
     });
 
     it("should confirm a user successfully", (done) => {
-      service.confirmUser(mockOrganization, mockOrganizationUser, mockPublicKey).subscribe({
+      service.confirmUser(mockOrganization, mockUserId, mockPublicKey).subscribe({
         next: () => {
           expect(i18nService.t).toHaveBeenCalledWith("myItems");
 
@@ -112,7 +114,7 @@ describe("OrganizationUserService", () => {
 
           expect(organizationUserApiService.postOrganizationUserConfirm).toHaveBeenCalledWith(
             mockOrganization.id,
-            mockOrganizationUser.id,
+            mockUserId,
             {
               key: mockEncryptedKey.encryptedString,
               defaultUserCollectionName: mockEncryptedCollectionName.encryptedString,
