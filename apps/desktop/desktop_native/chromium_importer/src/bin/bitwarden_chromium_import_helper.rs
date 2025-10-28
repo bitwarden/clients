@@ -7,7 +7,6 @@ mod windows_binary {
     use anyhow::{anyhow, Result};
     use base64::{engine::general_purpose, Engine as _};
     use clap::Parser;
-    use log::{debug, error};
     use scopeguard::guard;
     use simplelog::*;
     use std::{
@@ -24,6 +23,7 @@ mod windows_binary {
         net::windows::named_pipe::{ClientOptions, NamedPipeClient},
         time,
     };
+    use tracing::{debug, error};
     use verifysign::CodeSignVerifier;
     use windows::{
         core::BOOL,
@@ -477,18 +477,16 @@ mod windows_binary {
             .expect("Failed to initialize logger");
         }
 
-        let mut client =
-            match open_and_validate_pipe_server(ADMIN_TO_USER_PIPE_NAME).await {
-                Ok(client) => client,
-                Err(e) => {
-                    error!(
-                        "Failed to open pipe {} to send result/error: {}",
-                        ADMIN_TO_USER_PIPE_NAME,
-                        e
-                    );
-                    return;
-                }
-            };
+        let mut client = match open_and_validate_pipe_server(ADMIN_TO_USER_PIPE_NAME).await {
+            Ok(client) => client,
+            Err(e) => {
+                error!(
+                    "Failed to open pipe {} to send result/error: {}",
+                    ADMIN_TO_USER_PIPE_NAME, e
+                );
+                return;
+            }
+        };
 
         match run() {
             Ok(system_decrypted_base64) => {

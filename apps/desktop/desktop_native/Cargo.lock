@@ -593,8 +593,6 @@ dependencies = [
  "clap",
  "dirs",
  "hex",
- "homedir",
- "log",
  "oo7",
  "pbkdf2",
  "rand 0.9.1",
@@ -607,6 +605,7 @@ dependencies = [
  "simplelog",
  "sysinfo",
  "tokio",
+ "tracing",
  "verifysign",
  "windows 0.61.1",
 ]
