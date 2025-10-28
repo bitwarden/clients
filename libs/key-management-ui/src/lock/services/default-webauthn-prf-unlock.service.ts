@@ -85,10 +85,10 @@ export class DefaultWebAuthnPrfUnlockService implements WebAuthnPrfUnlockService
    * Unlocks the vault using WebAuthn PRF.
    *
    * @param userId The user ID to unlock vault for
-   * @returns Promise<void> that resolves when unlock is successful
+   * @returns Promise<UserKey> the decrypted user key
    * @throws Error if unlock fails for any reason
    */
-  async unlockVaultWithPrf(userId: UserId): Promise<void> {
+  async unlockVaultWithPrf(userId: UserId): Promise<UserKey> {
     // Get offline PRF credentials from user decryption options
     const credentials = await this.getPrfUnlockCredentials(userId);
     if (credentials.length === 0) {
@@ -100,7 +100,7 @@ export class DefaultWebAuthnPrfUnlockService implements WebAuthnPrfUnlockService
     const prfOption = await this.getPrfOptionForCredential(response.id, userId);
 
     // PRF unlock follows the same key derivation process as PRF login:
-    // PRF key → decrypt private key → use private key to decrypt user key → set user key
+    // PRF key → decrypt private key → use private key to decrypt user key
 
     // Step 1: Decrypt PRF encrypted private key using the PRF key
     const privateKey = await this.encryptService.unwrapDecapsulationKey(
@@ -109,17 +109,16 @@ export class DefaultWebAuthnPrfUnlockService implements WebAuthnPrfUnlockService
     );
 
     // Step 2: Use private key to decrypt user key
-    const actualUserKey = await this.encryptService.decapsulateKeyUnsigned(
+    const userKey = await this.encryptService.decapsulateKeyUnsigned(
       new EncString(prfOption.encryptedUserKey),
       privateKey,
     );
 
-    if (!actualUserKey) {
+    if (!userKey) {
       throw new Error("Failed to decrypt user key from private key");
     }
 
-    // Step 3: Set the actual user key
-    await this.keyService.setUserKey(actualUserKey as UserKey, userId);
+    return userKey as UserKey;
   }
 
   /**

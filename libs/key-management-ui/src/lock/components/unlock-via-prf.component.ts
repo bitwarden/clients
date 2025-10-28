@@ -7,6 +7,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { UserId } from "@bitwarden/common/types/guid";
+import { UserKey } from "@bitwarden/common/types/key";
 import { AsyncActionsModule, ButtonModule, DialogService } from "@bitwarden/components";
 
 import { WebAuthnPrfUnlockService } from "../services/webauthn-prf-unlock.service";
@@ -51,7 +52,7 @@ import { WebAuthnPrfUnlockService } from "../services/webauthn-prf-unlock.servic
 })
 export class UnlockViaPrfComponent implements OnInit {
   @Input() formButton = false;
-  @Output() unlockSuccess = new EventEmitter<void>();
+  @Output() unlockSuccess = new EventEmitter<UserKey>();
 
   unlocking = false;
   isAvailable = false;
@@ -81,8 +82,8 @@ export class UnlockViaPrfComponent implements OnInit {
     this.unlocking = true;
 
     try {
-      await this.webAuthnPrfUnlockService.unlockVaultWithPrf(this.userId);
-      this.unlockSuccess.emit();
+      const userKey = await this.webAuthnPrfUnlockService.unlockVaultWithPrf(this.userId);
+      this.unlockSuccess.emit(userKey);
     } catch (error) {
       this.logService.error("[UnlockViaPrfComponent] Failed to unlock via PRF:", error);
 

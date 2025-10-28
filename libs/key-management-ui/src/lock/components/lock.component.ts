@@ -443,9 +443,8 @@ export class LockComponent implements OnInit, OnDestroy {
     }
   }
 
-  async onPrfUnlockSuccess(): Promise<void> {
-    // If successful, the service has already set the user key
-    await this.doContinue({});
+  async onPrfUnlockSuccess(userKey: UserKey): Promise<void> {
+    await this.setUserKeyAndContinue(userKey);
   }
 
   //TODO PM-25385 This code isn't used and should be removed when removing the UnlockWithMasterPasswordUnlockData feature flag.

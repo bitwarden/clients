@@ -1,3 +1,4 @@
+import { UserKey } from "@bitwarden/common/types/key";
 import { UserId } from "@bitwarden/user-core";
 
 /**
@@ -15,12 +16,12 @@ export abstract class WebAuthnPrfUnlockService {
   /**
    * Attempt to unlock the vault using WebAuthn PRF
    * @param userId The user ID to unlock vault for
-   * @returns Promise<void> that resolves when unlock is successful
+   * @returns Promise<UserKey> the decrypted user key
    * @throws Error if no PRF credentials are available
    * @throws Error if the authenticator returns no PRF result
    * @throws Error if the user cancels the WebAuthn operation
    * @throws Error if decryption of the user key fails
    * @throws Error if no matching PRF option is found for the credential
    */
-  abstract unlockVaultWithPrf(userId: UserId): Promise<void>;
+  abstract unlockVaultWithPrf(userId: UserId): Promise<UserKey>;
 }
