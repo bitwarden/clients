@@ -2,7 +2,7 @@ import { mock, MockProxy } from "jest-mock-extended";
 
 import { makeEncString, makeSymmetricCryptoKey, mockEnc, mockFromJson } from "../../../../spec";
 import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
-import { EncryptedString, EncString } from "../../../key-management/crypto/models/enc-string";
+import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { FolderData } from "../../models/data/folder.data";
 import { Folder } from "../../models/domain/folder";
 
@@ -50,17 +50,14 @@ describe("Folder", () => {
       const revisionDate = new Date("2022-08-04T01:06:40.441Z");
       const actual = Folder.fromJSON({
         revisionDate: revisionDate.toISOString(),
-        name: "name" as EncryptedString,
+        name: "name",
         id: "id",
       });
 
-      const expected = {
-        revisionDate: revisionDate,
-        name: "name_fromJSON",
-        id: "id",
-      };
-
-      expect(actual).toMatchObject(expected);
+      expect(actual?.id).toBe("id");
+      expect(actual?.revisionDate).toEqual(revisionDate);
+      expect(actual?.name).toBeInstanceOf(EncString);
+      expect((actual?.name as EncString).encryptedString).toBe("name");
     });
   });
 
@@ -82,9 +79,7 @@ describe("Folder", () => {
 
       const view = await folder.decryptWithKey(key, encryptService);
 
-      expect(view).toEqual({
-        name: "encName",
-      });
+      expect(view.name).toBe("encName");
     });
 
     it("assigns the folder id and revision date", async () => {

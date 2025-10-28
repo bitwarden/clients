@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
 import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
@@ -10,19 +8,20 @@ import { FolderData } from "../data/folder.data";
 import { FolderView } from "../view/folder.view";
 
 export class Test extends Domain {
-  id: string;
-  name: EncString;
-  revisionDate: Date;
+  id: string = "";
+  name: EncString = new EncString("");
+  revisionDate: Date = new Date();
 }
 
 export class Folder extends Domain {
-  id: string;
-  name: EncString;
+  id: string = "";
+  name: EncString = new EncString("");
   revisionDate: Date;
 
   constructor(obj?: FolderData) {
     super();
     if (obj == null) {
+      this.revisionDate = new Date();
       return;
     }
 
@@ -35,8 +34,8 @@ export class Folder extends Domain {
       },
       ["id"],
     );
-
-    this.revisionDate = obj.revisionDate != null ? new Date(obj.revisionDate) : null;
+    this.name = new EncString(obj.name);
+    this.revisionDate = new Date(obj.revisionDate);
   }
 
   decrypt(): Promise<FolderView> {
@@ -62,7 +61,9 @@ export class Folder extends Domain {
   }
 
   static fromJSON(obj: Jsonify<Folder>) {
-    const revisionDate = obj.revisionDate == null ? null : new Date(obj.revisionDate);
-    return Object.assign(new Folder(), obj, { name: EncString.fromJSON(obj.name), revisionDate });
+    if (obj == null) {
+      return null;
+    }
+    return new Folder({ name: obj.name, revisionDate: obj.revisionDate, id: obj.id });
   }
 }
