@@ -1,5 +1,12 @@
 import { CommonModule } from "@angular/common";
-import { Component, DestroyRef, OnDestroy, OnInit, inject } from "@angular/core";
+import {
+  Component,
+  DestroyRef,
+  OnDestroy,
+  OnInit,
+  inject,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 import { EMPTY } from "rxjs";
@@ -13,24 +20,17 @@ import {
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
-import {
-  AsyncActionsModule,
-  ButtonModule,
-  DrawerBodyComponent,
-  DrawerComponent,
-  DrawerHeaderComponent,
-  TabsModule,
-} from "@bitwarden/components";
+import { AsyncActionsModule, ButtonModule, DialogService, TabsModule } from "@bitwarden/components";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 
 import { AllActivityComponent } from "./activity/all-activity.component";
 import { AllApplicationsComponent } from "./all-applications/all-applications.component";
 import { CriticalApplicationsComponent } from "./critical-applications/critical-applications.component";
 import { RiskInsightsTabType } from "./models/risk-insights.models";
+import { RiskInsightsDrawerDialogComponent } from "./shared/risk-insights-drawer-dialog.component";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "./risk-insights.component.html",
   imports: [
     AllApplicationsComponent,
@@ -41,9 +41,6 @@ import { RiskInsightsTabType } from "./models/risk-insights.models";
     JslibModule,
     HeaderModule,
     TabsModule,
-    DrawerComponent,
-    DrawerBodyComponent,
-    DrawerHeaderComponent,
     AllActivityComponent,
   ],
 })
@@ -67,6 +64,7 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
     private router: Router,
     private configService: ConfigService,
     protected dataService: RiskInsightsDataService,
+    protected dialogService: DialogService,
   ) {
     this.route.queryParams.pipe(takeUntilDestroyed()).subscribe(({ tabIndex }) => {
       this.tabIndex = !isNaN(Number(tabIndex)) ? Number(tabIndex) : RiskInsightsTabType.AllApps;
@@ -78,6 +76,16 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
       .subscribe((isEnabled) => {
         this.isRiskInsightsActivityTabFeatureEnabled = isEnabled;
         this.tabIndex = 0; // default to first tab
+      });
+
+    this.dataService.drawerDetails$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((details) => {
+        if (details.activeDrawerType !== DrawerType.None) {
+          this.dialogService.openDrawer(RiskInsightsDrawerDialogComponent, {
+            data: { ...details },
+          });
+        }
       });
   }
 

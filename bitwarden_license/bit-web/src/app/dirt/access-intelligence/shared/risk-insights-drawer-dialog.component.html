@@ -1,0 +1,81 @@
+@if (isActiveDrawerType(drawerTypes.OrgAtRiskMembers)) {
+  <bit-dialog dialogSize="large" disablePadding="false">
+    <ng-container bitDialogTitle>
+      <span>{{ "atRiskMembersWithCount" | i18n: drawerDetails.atRiskMemberDetails.length }}</span>
+    </ng-container>
+    <ng-container bitDialogContent>
+      <span bitTypography="body1" class="tw-text-muted tw-text-sm">{{
+        (drawerDetails.atRiskMemberDetails.length > 0
+          ? "atRiskMembersDescription"
+          : "atRiskMembersDescriptionNone"
+        ) | i18n
+      }}</span>
+
+      <ng-container *ngIf="drawerDetails.atRiskMemberDetails.length > 0">
+        <div class="tw-flex tw-justify-between tw-mt-2 tw-text-muted">
+          <div bitTypography="body2" class="tw-text-sm tw-font-bold">
+            {{ "email" | i18n }}
+          </div>
+          <div bitTypography="body2" class="tw-text-sm tw-font-bold">
+            {{ "atRiskPasswords" | i18n }}
+          </div>
+        </div>
+        <ng-container *ngFor="let member of drawerDetails.atRiskMemberDetails">
+          <div class="tw-flex tw-justify-between tw-mt-2">
+            <div>{{ member.email }}</div>
+            <div>{{ member.atRiskPasswordCount }}</div>
+          </div>
+        </ng-container>
+      </ng-container>
+    </ng-container>
+    <ng-container bitDialogFooter> </ng-container>
+  </bit-dialog>
+}
+
+@if (isActiveDrawerType(drawerTypes.AppAtRiskMembers)) {
+  <bit-dialog dialogSize="large" disablePadding="false">
+    <ng-container bitDialogTitle>
+      <span>{{ drawerDetails.appAtRiskMembers.applicationName }}</span>
+    </ng-container>
+    <ng-container bitDialogContent>
+      <div bitTypography="body1" class="tw-mb-2">
+        {{ "atRiskMembersWithCount" | i18n: drawerDetails.appAtRiskMembers.members.length }}
+      </div>
+      <div bitTypography="body1" class="tw-text-muted tw-text-sm tw-mb-2">
+        {{
+          (drawerDetails.appAtRiskMembers.members.length > 0
+            ? "atRiskMembersDescriptionWithApp"
+            : "atRiskMembersDescriptionWithAppNone"
+          ) | i18n: drawerDetails.appAtRiskMembers.applicationName
+        }}
+      </div>
+      <div class="tw-mt-1">
+        <ng-container *ngFor="let member of drawerDetails.appAtRiskMembers.members">
+          <div>{{ member.email }}</div>
+        </ng-container>
+      </div>
+    </ng-container>
+  </bit-dialog>
+}
+
+@if (isActiveDrawerType(drawerTypes.OrgAtRiskApps)) {
+  <bit-dialog dialogSize="large" disablePadding="false">
+    <ng-container bitDialogTitle>
+      <span>{{ "atRiskApplicationsWithCount" | i18n: drawerDetails.atRiskAppDetails.length }}</span>
+    </ng-container>
+    <ng-container bitDialogContent>
+      <span bitTypography="body1" class="tw-text-muted tw-text-sm">{{
+        (drawerDetails.atRiskAppDetails.length > 0
+          ? "atRiskApplicationsDescription"
+          : "atRiskApplicationsDescriptionNone"
+        ) | i18n
+      }}</span>
+      <ng-container *ngFor="let app of drawerDetails.atRiskAppDetails">
+        <div class="tw-flex tw-justify-between tw-mt-2">
+          <div>{{ app.applicationName }}</div>
+          <div>{{ app.atRiskPasswordCount }}</div>
+        </div>
+      </ng-container>
+    </ng-container>
+  </bit-dialog>
+}
