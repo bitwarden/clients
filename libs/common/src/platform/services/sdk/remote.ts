@@ -4,24 +4,41 @@ export type Remote<T> = {
   [K in keyof T]: RemoteProperty<T[K]>;
 };
 
+type Resolved<T> = T extends Promise<infer U> ? U : T;
+
+/**
+ * Maps remote object fields to RPC-exposed types.
+ *
+ * Property access (non-function):
+ * - If the value is serializable (see IsSerializable), returns Promise<Resolved<T>>.
+ * - If not serializable (e.g., class instance, Wasm object), returns Remote<Resolved<T>> (a live reference).
+ *   Note: properties do NOT expose `.await`; they are direct remote references.
+ *
+ * Function call:
+ * - If the return value is serializable, returns Promise<Resolved<R>>.
+ * - If not serializable, returns ChainablePromise<Remote<Resolved<R>>> so callers can use `.await`
+ *   for ergonomic chaining, e.g. remote.vault().await.totp().await.generate(...).
+ */
 export type RemoteProperty<T> = T extends (...args: any[]) => any
   ? RemoteFunction<T>
-  : RemoteValue<T>;
+  : IsSerializable<Resolved<T>> extends true
+    ? Promise<Resolved<T>>
+    : Remote<Resolved<T>>;
 
 export type RemoteReference<T> = Remote<T>;
 
-export type RemoteValue<T> = T extends { free(): void }
-  ? ChainablePromise<RemoteReference<T>>
-  : T extends Promise<infer R>
-    ? Promise<R>
-    : Promise<T>;
-
+/**
+ * RemoteFunction arguments must be Serializable at compile time. For non-serializable
+ * return types, we expose ChainablePromise<Remote<...>> to enable Rust-like `.await` chaining.
+ */
 export type RemoteFunction<T extends (...args: any[]) => any> = <A extends Parameters<T>>(
   // Enforce serializability of RPC arguments here.
   // If we wanted to we could allow for remote references as arguments, we could do that here.
   // In that case the client would also need to maintain a ReferenceStore for outgoing references.
   ...args: SerializableArgs<A>
-) => RemoteValue<ReturnType<T>>;
+) => IsSerializable<Resolved<ReturnType<T>>> extends true
+  ? Promise<Resolved<ReturnType<T>>>
+  : ChainablePromise<Remote<Resolved<ReturnType<T>>>>;
 
 // Serializable type rules to mirror `isSerializable` from rpc/server.ts
 // - Primitives: string | number | boolean | null

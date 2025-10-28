@@ -1,11 +1,11 @@
-import { BitwardenClient, FolderView } from "@bitwarden/sdk-internal";
+import { Observable } from "rxjs";
+
+import { BitwardenClient } from "@bitwarden/sdk-internal";
+
+import { Rc } from "../../misc/reference-counting/rc";
 
 import { Remote } from "./remote";
 
-export type RemoteSdk = Remote<BitwardenClient>;
-
-const remoteClient: RemoteSdk = {} as RemoteSdk;
-
-export async function test(): Promise<FolderView[]> {
-  return await remoteClient.vault().await.folders().await.list();
+export abstract class RemoteSdkService {
+  abstract remoteClient$: Observable<Remote<Rc<BitwardenClient>>>;
 }

@@ -76,7 +76,7 @@ describe("RpcServer", () => {
     {
       using ref = await remoteRc.take();
       const remoteWasmObj = ref.value;
-      const greeting = await remoteWasmObj.greet();
+      const greeting = await remoteWasmObj.testClass().await.greet("RC");
       expect(greeting).toBe("Hello, RC!");
       expect(wasmObj.freed).toBe(false);
     }
@@ -120,6 +120,10 @@ class WasmLikeObject {
 
   async greet(): Promise<string> {
     return `Hello, ${this.name}!`;
+  }
+
+  async testClass(): Promise<TestClass> {
+    return new TestClass();
   }
 }
 

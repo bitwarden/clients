@@ -49,7 +49,7 @@ export class RpcServer<T> {
         if (typeof method !== "function") {
           return {
             status: "error",
-            error: `[RPC] Property ${String(propertyKey)} is not a function`,
+            error: `[RPC] Property ${String(propertyKey)} is not a function of ${target.constructor.name}`,
           };
         }
 

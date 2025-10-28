@@ -1,3 +1,5 @@
+import { chain } from "../chainable-promise";
+
 import { RpcRequestChannel } from "./client";
 import { Command, PropertySymbol, ReferenceId, Response, serializeSymbol } from "./protocol";
 
@@ -86,16 +88,22 @@ function RpcPropertyReference(channel: RpcRequestChannel, reference: RpcProperty
       //   `Accessing ${reference.objectReference.objectType}.${reference.propertyName}.${propertyName}`,
       // );
 
-      // Allow Function.prototype.call to be used by TS helpers (e.g., disposables)
+  // Allow Function.prototype.call/apply/bind to be used by TS helpers and wrappers (e.g., disposables, chainable await)
       if (propertyName === "call") {
         return Function.prototype.call;
+      }
+      if (propertyName === "apply") {
+        return Function.prototype.apply;
+      }
+      if (propertyName === "bind") {
+        return Function.prototype.bind;
       }
 
       if (propertyName !== "then") {
         // Support chained call like: (await obj.prop).method() AND obj.prop.method()
         // by lazily resolving obj.prop first, then invoking method/property on the resolved reference.
         return (...argArray: unknown[]) => {
-          return (async () => {
+          const p = (async () => {
             // First resolve the original referenced property value via GET
             const getResult = await sendAndUnwrap(channel, buildGetCommand(reference));
             if (getResult.type !== "reference") {
@@ -109,12 +117,20 @@ function RpcPropertyReference(channel: RpcRequestChannel, reference: RpcProperty
               channel,
               buildCallCommand(getResult.referenceId, propertyName, argArray),
             );
-            return unwrapResult(channel, callResult);
+            if (callResult.type === "value") {
+              return callResult.value;
+            }
+            return RpcObjectReference.create(
+              channel,
+              callResult.referenceId,
+              callResult.objectType,
+            );
           })();
+          return chain(p as Promise<any>);
         };
       }
 
-      return (onFulfilled: (value: any) => void, onRejected: (error: any) => void) => {
+  return (onFulfilled: (value: any) => void, onRejected: (error: any) => void) => {
         (async () => {
           const result = await sendAndUnwrap(channel, buildGetCommand(reference));
           return unwrapResult(channel, result);
@@ -129,7 +145,14 @@ function RpcPropertyReference(channel: RpcRequestChannel, reference: RpcProperty
         reference.property,
         argArray,
       );
-      return sendAndUnwrap(channel, command).then((result) => unwrapResult(channel, result));
+      const p = (async () => {
+        const result = await sendAndUnwrap(channel, command);
+        if (result.type === "value") {
+          return result.value;
+        }
+        return RpcObjectReference.create(channel, result.referenceId, result.objectType);
+      })();
+  return chain(p as Promise<any>);
     },
   });
 }
