@@ -13,7 +13,7 @@ export type DrawerDetails = {
   open: boolean;
   invokerId: string;
   activeDrawerType: DrawerType;
-  atRiskMemberDetails?: AtRiskMemberDetail[];
+  atRiskMemberDetails?: AtRiskMemberDetail[] | null;
   appAtRiskMembers?: AppAtRiskMembersDialogParams | null;
   atRiskAppDetails?: AtRiskApplicationDetail[] | null;
 };

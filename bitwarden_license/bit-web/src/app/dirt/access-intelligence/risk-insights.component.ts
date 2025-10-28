@@ -109,7 +109,7 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
       .subscribe((details) => {
         if (details.activeDrawerType !== DrawerType.None) {
           this.dialogService.openDrawer(RiskInsightsDrawerDialogComponent, {
-            data: { ...details },
+            data: details,
           });
         } else {
           this.dialogService.closeAll();
