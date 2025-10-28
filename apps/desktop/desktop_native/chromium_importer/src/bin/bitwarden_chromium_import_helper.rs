@@ -7,7 +7,7 @@ mod windows_binary {
     use anyhow::{anyhow, Result};
     use base64::{engine::general_purpose, Engine as _};
     use clap::Parser;
-    use scopeguard::guard;
+    use scopeguard::defer;
     use simplelog::*;
     use std::{
         ffi::OsString,
@@ -142,10 +142,13 @@ mod windows_binary {
             unsafe { OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, false, pid) }?;
         dbg_log!("Opened process handle for PID {}", pid);
 
-        let _guard = guard(hprocess, |_| unsafe {
+        // Close when no longer needed
+        defer! {
             dbg_log!("Closing process handle for PID {}", pid);
-            _ = CloseHandle(hprocess);
-        });
+            unsafe {
+                _ = CloseHandle(hprocess);
+            }
+        };
 
         let mut exe_name = vec![0u16; 32 * 1024];
         let mut exe_name_length = exe_name.len() as u32;
@@ -242,136 +245,96 @@ mod windows_binary {
     // Impersonate a SYSTEM process
     //
 
-    struct ImpersonateGuard {
-        sys_token_handle: HANDLE,
+    fn start_impersonating() -> Result<HANDLE> {
+        // Need to enable SE_DEBUG_PRIVILEGE to enumerate and open SYSTEM processes
+        enable_debug_privilege()?;
+
+        // Find a SYSTEM process and get its token. Not every SYSTEM process allows token duplication, so try several.
+        let (token, pid, name) = find_system_process_with_token(get_system_pid_list())?;
+
+        // Impersonate the SYSTEM process
+        unsafe {
+            ImpersonateLoggedOnUser(token)?;
+        };
+        dbg_log!("Impersonating system process '{}' (PID: {})", name, pid);
+
+        Ok(token)
     }
 
-    impl Drop for ImpersonateGuard {
-        fn drop(&mut self) {
-            _ = Self::stop();
-            _ = self.close_sys_handle();
-        }
+    fn stop_impersonating(token: HANDLE) -> Result<()> {
+        unsafe {
+            RevertToSelf()?;
+            CloseHandle(token)?;
+        };
+        Ok(())
     }
 
-    impl ImpersonateGuard {
-        fn start() -> Result<Self> {
-            Self::enable_privilege()?;
-
-            // Find a SYSTEM process and get its token. Not every SYSTEM process allows token duplication, so try several.
-            let (sys_token, pid, name) =
-                Self::find_system_process_with_token(Self::get_system_pid_list())?;
-
-            // Impersonate the SYSTEM process
-            unsafe {
-                ImpersonateLoggedOnUser(sys_token)?;
-            };
-            dbg_log!("Impersonating system process '{}' (PID: {})", name, pid);
-
-            Ok(Self {
-                sys_token_handle: sys_token,
-            })
-        }
-
-        fn stop() -> Result<()> {
-            unsafe {
-                RevertToSelf()?;
-            };
-            Ok(())
-        }
-
-        /// stop impersonate and return sys token handle
-        fn _stop_sys_handle(self) -> Result<HANDLE> {
-            unsafe { RevertToSelf() }?;
-            Ok(self.sys_token_handle)
-        }
-
-        fn close_sys_handle(&self) -> Result<()> {
-            unsafe { CloseHandle(self.sys_token_handle) }?;
-            Ok(())
-        }
-
-        fn enable_privilege() -> Result<()> {
-            let mut previous_value = BOOL(0);
-            let status = unsafe {
-                dbg_log!("Setting SE_DEBUG_PRIVILEGE to 1 via RtlAdjustPrivilege");
-                RtlAdjustPrivilege(SE_DEBUG_PRIVILEGE, BOOL(1), BOOL(0), &mut previous_value)
-            };
-            if status != STATUS_SUCCESS {
-                return Err(anyhow!("Failed to adjust privilege"));
-            }
-            dbg_log!(
-                "SE_DEBUG_PRIVILEGE set to 1, was {} before",
-                previous_value.0
-            );
-            Ok(())
-        }
-
-        fn find_system_process_with_token(
-            pids: Vec<(u32, &'static str)>,
-        ) -> Result<(HANDLE, u32, &'static str)> {
-            for (pid, name) in pids {
-                match Self::get_system_token_from_pid(pid) {
-                    Err(_) => {
-                        dbg_log!(
-                            "Failed to open process handle '{}' (PID: {}), skipping",
-                            name,
-                            pid
-                        );
-                        continue;
-                    }
-                    Ok(system_handle) => {
-                        return Ok((system_handle, pid, name));
-                    }
+    fn find_system_process_with_token(
+        pids: Vec<(u32, &'static str)>,
+    ) -> Result<(HANDLE, u32, &'static str)> {
+        for (pid, name) in pids {
+            match get_system_token_from_pid(pid) {
+                Err(_) => {
+                    dbg_log!(
+                        "Failed to open process handle '{}' (PID: {}), skipping",
+                        name,
+                        pid
+                    );
+                    continue;
+                }
+                Ok(system_handle) => {
+                    return Ok((system_handle, pid, name));
                 }
             }
-            Err(anyhow!("Failed to get system token from any process"))
         }
+        Err(anyhow!("Failed to get system token from any process"))
+    }
 
-        fn get_system_token_from_pid(pid: u32) -> Result<HANDLE> {
-            let handle = Self::get_process_handle(pid)?;
-            let token = Self::get_system_token(handle)?;
-            unsafe {
-                CloseHandle(handle)?;
-            };
-            Ok(token)
-        }
+    fn get_system_token_from_pid(pid: u32) -> Result<HANDLE> {
+        let handle = get_process_handle(pid)?;
+        let token = get_system_token(handle)?;
+        unsafe {
+            CloseHandle(handle)?;
+        };
+        Ok(token)
+    }
 
-        fn get_system_token(handle: HANDLE) -> Result<HANDLE> {
-            let token_handle = unsafe {
-                let mut token_handle = HANDLE::default();
-                OpenProcessToken(handle, TOKEN_DUPLICATE | TOKEN_QUERY, &mut token_handle)?;
-                token_handle
-            };
-            let duplicate_token = unsafe {
-                let mut duplicate_token = HANDLE::default();
-                DuplicateToken(
-                    token_handle,
-                    Security::SECURITY_IMPERSONATION_LEVEL(2),
-                    &mut duplicate_token,
-                )?;
-                CloseHandle(token_handle)?;
-                duplicate_token
-            };
+    fn get_system_token(handle: HANDLE) -> Result<HANDLE> {
+        let token_handle = unsafe {
+            let mut token_handle = HANDLE::default();
+            OpenProcessToken(handle, TOKEN_DUPLICATE | TOKEN_QUERY, &mut token_handle)?;
+            token_handle
+        };
 
-            Ok(duplicate_token)
-        }
+        let duplicate_token = unsafe {
+            let mut duplicate_token = HANDLE::default();
+            DuplicateToken(
+                token_handle,
+                Security::SECURITY_IMPERSONATION_LEVEL(2),
+                &mut duplicate_token,
+            )?;
+            CloseHandle(token_handle)?;
+            duplicate_token
+        };
 
-        fn get_system_pid_list() -> Vec<(u32, &'static str)> {
-            let sys = System::new_all();
-            SYSTEM_PROCESS_NAMES
-                .iter()
-                .flat_map(|&name| {
-                    sys.processes_by_exact_name(name.as_ref())
-                        .map(move |process| (process.pid().as_u32(), name))
-                })
-                .collect()
-        }
+        Ok(duplicate_token)
+    }
 
-        fn get_process_handle(pid: u32) -> Result<HANDLE> {
-            let hprocess =
-                unsafe { OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, false, pid) }?;
-            Ok(hprocess)
-        }
+    fn get_system_pid_list() -> Vec<(u32, &'static str)> {
+        let sys = System::new_all();
+        SYSTEM_PROCESS_NAMES
+            .iter()
+            .flat_map(|&name| {
+                sys.processes_by_exact_name(name.as_ref())
+                    .map(move |process| (process.pid().as_u32(), name))
+            })
+            .collect()
+    }
+
+    fn get_process_handle(pid: u32) -> Result<HANDLE> {
+        let hprocess =
+            unsafe { OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, false, pid) }?;
+        Ok(hprocess)
     }
 
     #[link(name = "ntdll")]
@@ -383,6 +346,32 @@ mod windows_binary {
             previous_value: *mut BOOL,
         ) -> NTSTATUS;
     }
+
+    fn enable_debug_privilege() -> Result<()> {
+        let mut previous_value = BOOL(0);
+        let status = unsafe {
+            dbg_log!("Setting SE_DEBUG_PRIVILEGE to 1 via RtlAdjustPrivilege");
+            RtlAdjustPrivilege(SE_DEBUG_PRIVILEGE, BOOL(1), BOOL(0), &mut previous_value)
+        };
+
+        match status {
+            STATUS_SUCCESS => {
+                dbg_log!(
+                    "SE_DEBUG_PRIVILEGE set to 1, was {} before",
+                    previous_value.as_bool()
+                );
+                Ok(())
+            }
+            _ => {
+                dbg_log!("RtlAdjustPrivilege failed with status: 0x{:X}", status.0);
+                Err(anyhow!("Failed to adjust privilege"))
+            }
+        }
+    }
+
+    //
+    // Pipe
+    //
 
     async fn open_and_validate_pipe_server(pipe_name: &'static str) -> Result<NamedPipeClient> {
         let client = open_pipe_client(pipe_name).await?;
@@ -441,7 +430,11 @@ mod windows_binary {
 
         // Impersonate a SYSTEM process to be able to decrypt data encrypted for the machine
         let system_decrypted_base64 = {
-            let _guard = ImpersonateGuard::start()?;
+            let system_token = start_impersonating()?;
+            defer! {
+                dbg_log!("Stopping impersonation");
+                _ = stop_impersonating(system_token);
+            }
             let system_decrypted_base64 = decrypt_data_base64(&args.encrypted, true)?;
             dbg_log!("Decrypted data with system");
             system_decrypted_base64
