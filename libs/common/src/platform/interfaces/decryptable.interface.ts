@@ -1,3 +1,5 @@
+import { UserId } from "@bitwarden/user-core";
+
 import { SymmetricCryptoKey } from "../models/domain/symmetric-crypto-key";
 
 import { InitializerMetadata } from "./initializer-metadata.interface";
@@ -8,5 +10,6 @@ import { InitializerMetadata } from "./initializer-metadata.interface";
  * @example Cipher implements Decryptable<CipherView>
  */
 export interface Decryptable<TDecrypted extends InitializerMetadata> extends InitializerMetadata {
-  decrypt: (key: SymmetricCryptoKey) => Promise<TDecrypted>;
+  /** @deprecated - Encryption and decryption of domain objects should be implemented in the SDK */
+  decrypt: (key: SymmetricCryptoKey, userId?: UserId) => Promise<TDecrypted>;
 }
