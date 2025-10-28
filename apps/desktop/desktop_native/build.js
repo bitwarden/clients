@@ -54,7 +54,7 @@ function buildImporterBinaries(target, release = true) {
     const bin = "bitwarden_chromium_import_helper";
     const targetArg = target ? `--target ${target}` : "";
     const releaseArg = release ? "--release" : "";
-    child_process.execSync(`cargo build --bin ${bin} ${releaseArg} ${targetArg} --features windows-binary`, {stdio: 'inherit', cwd: path.join(__dirname, "bitwarden_chromium_importer")});
+    child_process.execSync(`cargo build --bin ${bin} ${releaseArg} ${targetArg} --features windows-binary`, {stdio: 'inherit', cwd: path.join(__dirname, "chromium_importer")});
 
     if (target) {
         // Copy the resulting binary to the dist folder
