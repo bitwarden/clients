@@ -119,9 +119,9 @@ export class UnifiedUpgradePromptService {
   }
 
   /**
-   * Checks if the user has no organization associated with their account
+   * Checks if the user has any organization associated with their account
    * @param userId User ID to check
-   * @returns Promise that resolves to true if user has no organizations
+   * @returns Promise that resolves to true if user has any organizations, false otherwise
    */
   private async hasOrganizations(userId: UserId): Promise<boolean> {
     // Wait for sync to complete to ensure organizations are fully loaded

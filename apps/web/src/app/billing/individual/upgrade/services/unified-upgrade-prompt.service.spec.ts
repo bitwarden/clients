@@ -154,7 +154,7 @@ describe("UnifiedUpgradePromptService", () => {
       mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
       mockBillingService.hasPremiumFromAnySource$.mockReturnValue(of(false));
       mockOrganizationService.memberOrganizations$.mockReturnValue(of([{ id: "org1" } as any]));
-      mockPlatformUtilsService.isSelfHost.mockReturnValue(true);
+      mockPlatformUtilsService.isSelfHost.mockReturnValue(false);
       setupTestService();
 
       // Act
