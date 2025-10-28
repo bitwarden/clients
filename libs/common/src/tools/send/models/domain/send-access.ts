@@ -1,6 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { UserId } from "@bitwarden/user-core";
 
 import { EncString } from "../../../../key-management/crypto/models/enc-string";
 import Domain from "../../../../platform/models/domain/domain-base";
@@ -53,17 +52,17 @@ export class SendAccess extends Domain {
     }
   }
 
-  async decrypt(userId: UserId, key: SymmetricCryptoKey): Promise<SendAccessView> {
+  async decrypt(key: SymmetricCryptoKey): Promise<SendAccessView> {
     const model = new SendAccessView(this);
 
-    await this.decryptObj<SendAccess, SendAccessView>(this, model, ["name"], userId, null, key);
+    await this.decryptObj<SendAccess, SendAccessView>(this, model, ["name"], null, null, key);
 
     switch (this.type) {
       case SendType.File:
-        model.file = await this.file.decrypt(userId, key);
+        model.file = await this.file.decrypt(key);
         break;
       case SendType.Text:
-        model.text = await this.text.decrypt(userId, key);
+        model.text = await this.text.decrypt(key);
         break;
       default:
         break;

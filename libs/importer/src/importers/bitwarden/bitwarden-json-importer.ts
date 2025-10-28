@@ -53,10 +53,11 @@ export class BitwardenJsonImporter extends BaseImporter implements Importer {
       return this.result;
     }
 
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     if (results.encrypted) {
-      await this.parseEncrypted(results as any);
+      await this.parseEncrypted(results as any, userId);
     } else {
-      await this.parseDecrypted(results as any);
+      await this.parseDecrypted(results as any, userId);
     }
 
     return this.result;
@@ -64,14 +65,13 @@ export class BitwardenJsonImporter extends BaseImporter implements Importer {
 
   private async parseEncrypted(
     results: BitwardenEncryptedIndividualJsonExport | BitwardenEncryptedOrgJsonExport,
+    userId: UserId,
   ) {
-    const account = await firstValueFrom(this.accountService.activeAccount$);
-
     if (results.encKeyValidation_DO_NOT_EDIT != null) {
-      const orgKeys = await firstValueFrom(this.keyService.orgKeys$(account.id));
+      const orgKeys = await firstValueFrom(this.keyService.orgKeys$(userId));
       let keyForDecryption: SymmetricCryptoKey = orgKeys?.[this.organizationId];
       if (keyForDecryption == null) {
-        keyForDecryption = await firstValueFrom(this.keyService.userKey$(account.id));
+        keyForDecryption = await firstValueFrom(this.keyService.userKey$(userId));
       }
       const encKeyValidation = new EncString(results.encKeyValidation_DO_NOT_EDIT);
       try {
@@ -85,7 +85,7 @@ export class BitwardenJsonImporter extends BaseImporter implements Importer {
 
     const groupingsMap = this.organization
       ? await this.parseCollections(results as BitwardenEncryptedOrgJsonExport)
-      : await this.parseFolders(results as BitwardenEncryptedIndividualJsonExport);
+      : await this.parseFolders(results as BitwardenEncryptedIndividualJsonExport, userId);
 
     for (const c of results.items) {
       const cipher = CipherWithIdExport.toDomain(c);
@@ -115,7 +115,7 @@ export class BitwardenJsonImporter extends BaseImporter implements Importer {
         });
       }
 
-      const view = await this.cipherService.decrypt(cipher, account.id);
+      const view = await this.cipherService.decrypt(cipher, userId);
       this.cleanupCipher(view);
       this.result.ciphers.push(view);
     }
@@ -125,10 +125,11 @@ export class BitwardenJsonImporter extends BaseImporter implements Importer {
 
   private async parseDecrypted(
     results: BitwardenUnEncryptedIndividualJsonExport | BitwardenUnEncryptedOrgJsonExport,
+    userId: UserId,
   ) {
     const groupingsMap = this.organization
       ? await this.parseCollections(results as BitwardenUnEncryptedOrgJsonExport)
-      : await this.parseFolders(results as BitwardenUnEncryptedIndividualJsonExport);
+      : await this.parseFolders(results as BitwardenUnEncryptedIndividualJsonExport, userId);
 
     results.items.forEach((c) => {
       const cipher = CipherWithIdExport.toView(c);
@@ -167,9 +168,8 @@ export class BitwardenJsonImporter extends BaseImporter implements Importer {
 
   private async parseFolders(
     data: BitwardenUnEncryptedIndividualJsonExport | BitwardenEncryptedIndividualJsonExport,
+    userId: UserId,
   ): Promise<Map<string, number>> | null {
-    const userId: UserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-
     if (data.folders == null) {
       return null;
     }

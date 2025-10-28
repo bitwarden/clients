@@ -87,7 +87,7 @@ export default class Domain {
     domain: DomainEncryptableKeys<D>,
     viewModel: ViewEncryptableKeys<V>,
     props: EncryptableKeys<D, V>[],
-    userId: UserId,
+    userId: UserId | null,
     orgId: string | null,
     key: SymmetricCryptoKey | null = null,
     _objectContext: string = "No Domain Context",
@@ -100,8 +100,10 @@ export default class Domain {
             .orgKeys$(userId)
             .pipe(map((orgKeys) => orgKeys![orgId as OrganizationId] ?? null)),
         );
-      } else {
+      } else if (userId != null) {
         key = await firstValueFrom(keyService.userKey$(userId));
+      } else {
+        throw new Error("No key or context provided for decryption");
       }
     }
 

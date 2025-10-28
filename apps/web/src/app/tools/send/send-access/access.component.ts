@@ -3,10 +3,8 @@
 import { Component, OnInit } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
-import { firstValueFrom } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -122,8 +120,7 @@ export class AccessComponent implements OnInit {
       this.passwordRequired = false;
       const sendAccess = new SendAccess(sendResponse);
       this.decKey = await this.keyService.makeSendKey(keyArray);
-      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-      this.send = await sendAccess.decrypt(activeUserId, this.decKey);
+      this.send = await sendAccess.decrypt(this.decKey);
     } catch (e) {
       if (e instanceof ErrorResponse) {
         if (e.statusCode === 401) {
