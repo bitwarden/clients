@@ -2,6 +2,7 @@ import { Component, DestroyRef, inject, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
 import { firstValueFrom } from "rxjs";
+import { finalize } from "rxjs/operators";
 
 import {
   AllActivitiesService,
@@ -11,8 +12,9 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { getById } from "@bitwarden/common/platform/misc";
-import { DialogService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 import { ApplicationsLoadingComponent } from "../shared/risk-insights-loading.component";
@@ -50,7 +52,9 @@ export class AllActivityComponent implements OnInit {
     protected allActivitiesService: AllActivitiesService,
     protected dataService: RiskInsightsDataService,
     private dialogService: DialogService,
+    private i18nService: I18nService,
     protected organizationService: OrganizationService,
+    private toastService: ToastService,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -84,13 +88,53 @@ export class AllActivityComponent implements OnInit {
   /**
    * Handles the review new applications button click.
    * Opens a dialog showing the list of new applications that can be marked as critical.
+   * When user clicks Continue, saves review status and critical markings via orchestrator.
    */
   onReviewNewApplications = async () => {
     const dialogRef = NewApplicationsDialogComponent.open(this.dialogService, {
       newApplications: this.newApplications,
     });
 
-    await firstValueFrom(dialogRef.closed);
+    const result = await firstValueFrom(dialogRef.closed);
+
+    if (result?.saved) {
+      // User clicked Continue - save review status and critical flags
+      let isSaving = true;
+
+      firstValueFrom(
+        this.dataService.saveApplicationReviewStatus(result.selectedApplications).pipe(
+          finalize(() => {
+            isSaving = false;
+          }),
+        ),
+      )
+        .then(() => {
+          // Success - data will update automatically through reactive pipeline
+          if (result.selectedApplications.length > 0) {
+            this.toastService.showToast({
+              variant: "success",
+              title: this.i18nService.t("success"),
+              message: this.i18nService.t(
+                "applicationsCriticalMarked",
+                result.selectedApplications.length.toString(),
+              ),
+            });
+          } else {
+            this.toastService.showToast({
+              variant: "success",
+              title: this.i18nService.t("success"),
+              message: this.i18nService.t("applicationsReviewed"),
+            });
+          }
+        })
+        .catch((error) => {
+          this.toastService.showToast({
+            variant: "error",
+            title: this.i18nService.t("error"),
+            message: this.i18nService.t("failedToSaveApplications"),
+          });
+        });
+    }
   };
 
   /**
