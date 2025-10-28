@@ -5,6 +5,7 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { firstValueFrom, map, Observable, switchMap } from "rxjs";
 
 import {
+  DefaultOrganizationUserService,
   OrganizationUserApiService,
   OrganizationUserBulkConfirmRequest,
   OrganizationUserBulkPublicKeyResponse,
@@ -26,8 +27,6 @@ import { OrgKey } from "@bitwarden/common/types/key";
 import { DIALOG_DATA, DialogConfig, DialogService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 
-import { OrganizationUserService } from "../../services/organization-user/organization-user.service";
-
 import { BaseBulkConfirmComponent } from "./base-bulk-confirm.component";
 import { BulkUserDetails } from "./bulk-status.component";
 
@@ -36,6 +35,8 @@ type BulkConfirmDialogParams = {
   users: BulkUserDetails[];
 };
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "bulk-confirm-dialog.component.html",
   standalone: false,
@@ -52,7 +53,7 @@ export class BulkConfirmDialogComponent extends BaseBulkConfirmComponent {
     private organizationUserApiService: OrganizationUserApiService,
     protected i18nService: I18nService,
     private stateProvider: StateProvider,
-    private organizationUserService: OrganizationUserService,
+    private organizationUserService: DefaultOrganizationUserService,
     private configService: ConfigService,
   ) {
     super(keyService, encryptService, i18nService);

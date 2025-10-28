@@ -1852,6 +1852,12 @@
   "lockWithMasterPassOnRestart1": {
     "message": "Yenidən başladılanda ana parol ilə kilidlə"
   },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "Tətbiq yenidən başladıqda ana parol və ya PIN tələb edilsin"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "Tətbiq yenidən başladıqda ana parol tələb edilsin"
+  },
   "deleteAccount": {
     "message": "Hesabı sil"
   },
@@ -2548,6 +2554,9 @@
         "example": "5"
       }
     }
+  },
+  "vaultCustomTimeoutMinimum": {
+    "message": "Minimum özəl bitmə vaxtı 1 dəqiqədir."
   },
   "inviteAccepted": {
     "message": "Dəvət qəbul edildi"
@@ -4149,7 +4158,7 @@
     "message": "Arxivlə",
     "description": "Verb"
   },
-  "unarchive": {
+  "unArchive": {
     "message": "Arxivdən çıxart"
   },
   "itemsInArchive": {
@@ -4161,10 +4170,10 @@
   "noItemsInArchiveDesc": {
     "message": "Arxivlənmiş elementlər burada görünəcək, ümumi axtarış nəticələrindən və avto-doldurma təkliflərindən xaric ediləcək."
   },
-  "itemSentToArchive": {
+  "itemWasSentToArchive": {
     "message": "Element arxivə göndərildi"
   },
-  "itemRemovedFromArchive": {
+  "itemWasUnarchived": {
     "message": "Element arxivdən çıxarıldı"
   },
   "archiveItem": {

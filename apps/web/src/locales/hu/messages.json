@@ -90,8 +90,8 @@
   "assignMembersTasksToMonitorProgress": {
     "message": "Rendeljünk a tagokhoz feladatokat az előrehaladás monitorozására."
   },
-  "onceYouReviewApplications": {
-    "message": "Az alkalmazások áttekintése és kritikusnak jelölése után ezek itt jelennek meg."
+  "onceYouReviewApps": {
+    "message": "Miután az alkalmazásokat áttekintettük és kritikusként jelöltük meg azokat, feladatokat rendelhetünk a tagokhoz a kockázatos elemek megoldására és itt nyomon követhetjük a feldolgozást."
   },
   "sendReminders": {
     "message": "Emlékeztető küldés"
@@ -154,6 +154,15 @@
       }
     }
   },
+  "newPasswordsAtRisk": {
+    "message": "$COUNT$ új kockázatos jelszó",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "notifiedMembersWithCount": {
     "message": "Értesített tagok ($COUNT$)",
     "placeholders": {
@@ -176,7 +185,7 @@
     "message": "Amint a felhasználók elmentik a bejelentkezéseket, itt megjelennek az alkalmazások és megjelenítik a veszélyeztetett jelszavakat. Jelöljük meg a kritikus alkalmazásokat és értesítsük a felhasználókat a jelszavak frissítéséről."
   },
   "noCriticalApplicationsTitle": {
-    "message": "You haven’t marked any applications as critical"
+    "message": "Egyetlen alkalmazás sem lett megjelölve kritikusként."
   },
   "noCriticalApplicationsDescription": {
     "message": "Select your most critical applications to prioritize security actions for your users to address at-risk passwords."
@@ -188,16 +197,16 @@
     "message": "Alkalmazások megjelölése kritikusként"
   },
   "markAsCritical": {
-    "message": "Mark as critical"
+    "message": "Megjelölés kritikusként"
   },
   "applicationsSelected": {
-    "message": "applications selected"
+    "message": "alkalmazás lett kiválasztva."
   },
   "selectApplication": {
-    "message": "Select application"
+    "message": "Alkalmazás kiválasztása"
   },
   "unselectApplication": {
-    "message": "Unselect application"
+    "message": "Alkalmazás kiválasztás negszüntetése"
   },
   "applicationsMarkedAsCriticalSuccess": {
     "message": "Kritikusként megjelölt alkalmazások"
@@ -311,13 +320,13 @@
     "message": "Áttekintés most"
   },
   "prioritizeCriticalApplications": {
-    "message": "Prioritize critical applications"
+    "message": "Kritikus alkalmazások rangsorolása"
   },
   "atRiskItems": {
-    "message": "At-risk items"
+    "message": "Kockázatos elemek"
   },
   "markAsCriticalPlaceholder": {
-    "message": "Mark as critical functionality will be implemented in a future update"
+    "message": "A kritikus funkcióként megjelölés egy jövőbeli frissítésben lesz megvalósítva."
   },
   "unmarkAsCritical": {
     "message": "Ktritkus jelölés eltávolítása"
@@ -2080,9 +2089,6 @@
   "encKeySettings": {
     "message": "Kulcs beállítások titkosítása"
   },
-  "kdfAlgorithm": {
-    "message": "KDF  algoritmus"
-  },
   "kdfIterations": {
     "message": "KDF iterációk"
   },
@@ -2116,9 +2122,6 @@
   },
   "argon2Desc": {
     "message": "A magasabb szintű KDF iterációk, a memória és a párhuzamosság segíthet megvédeni mesterjelszót a támadók erőszakossága ellen."
-  },
-  "changeKdf": {
-    "message": "KDF megváltoztatása"
   },
   "encKeySettingsChanged": {
     "message": "A kulcs beállítás titkosítása megváltozott."
@@ -2951,7 +2954,7 @@
     "message": "Ellenőrizzük, hogy a fióknak elég hitelkerete van a vásárláshoz. Ha nincs elég keret, akkor az alapértelmezett fizetési mód kerül használatba a különbségnél. Hitelkeretet a Számlázás oldalon adhatunk hozzá."
   },
   "notEnoughAccountCredit": {
-    "message": "You do not have enough account credit for this purchase. You can add credit to your account from the Billing page."
+    "message": "Nincs elegendő fiók egyenleg ehhez a vásárláshoz. Feltölthetjük az egyenleget a Számlázás oldalon."
   },
   "creditAppliedDesc": {
     "message": "A fiók hitelkeret vásárlásra használható. A rendelkezésre álló keret automatikusan ehhez a fiókhoz generálódó számlákra kerül alkalmazásra."
@@ -5709,6 +5712,65 @@
   "organizationDataOwnershipWarningContentBottom": {
     "message": "Bővebben:",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about the credential lifecycle.'"
+  },
+  "availableNow": {
+    "message": "Elérhető most"
+  },
+  "autoConfirm": {
+    "message": "Új felhasználók automatikus megerősítése"
+  },
+  "autoConfirmDescription": {
+    "message": "A szervezetbe meghívott új felhasználók automatikusan megerősítést kapnak, ha egy adminisztrátor eszköz feloldásra kerül.",
+    "description": "This is the description of the policy as it appears in the 'Policies' page"
+  },
+  "howToTurnOnAutoConfirm": {
+    "message": "Hogyan kapcsolható be az automatikus felhasználó megerősítés"
+  },
+  "autoConfirmStep1": {
+    "message": "Nyissuk meg a Bitwarden bővítményt."
+  },
+  "autoConfirmStep2a": {
+    "message": "Kijelölés",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  },
+  "autoConfirmStep2b": {
+    "message": " Bekapcsolás.",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  },
+  "autoConfirmExtensionOpened": {
+    "message": "Sikeresen megnyitásra került a Bitwarden böngésző bővítmény. Most már aktiválhatjuk az automatikus felhasználó megerősítés beállítást."
+  },
+  "autoConfirmPolicyEditDescription": {
+    "message": "A szervezetbe meghívott új felhasználók automatikusan megerősítést kapnak, ha egy adminisztrátor eszköz feloldásra kerül. Mielőtt bekapcsolnánk ezt a szabályzatot, tekintsük át és fogadjuk el a következőket: ",
+    "description": "This is the description of the policy as it appears inside the policy edit dialog"
+  },
+  "autoConfirmAcceptSecurityRiskTitle": {
+    "message": "Potenciális biztonsági kockázat. "
+  },
+  "autoConfirmAcceptSecurityRiskDescription": {
+    "message": "Az automatikus felhasználói megerőstíés biztonsági kockázatot jelenthet a szervezet adataira nézve."
+  },
+  "autoConfirmAcceptSecurityRiskLearnMore": {
+    "message": "További információ a kockázatokról",
+    "description": "The is the link copy for the first check box option in the edit policy dialog"
+  },
+  "autoConfirmSingleOrgRequired": {
+    "message": "Az önálló szervezet irányelv nem engedélyezett. "
+  },
+  "autoConfirmSingleOrgRequiredDescription": {
+    "message": "Bárkinek, aki egynél több szervezet tagja, visszavonják a hozzáférését, amíg nem hagyja el a többi szervezetet."
+  },
+  "autoConfirmSingleOrgExemption": {
+    "message": "Az egységes szervezeti irányelv minden szerepkörre kiterjed. "
+  },
+  "autoConfirmNoEmergencyAccess": {
+    "message": "Nincs vészhelyzeti hozzáférés. "
+  },
+  "autoConfirmNoEmergencyAccessDescription": {
+    "message": "A vészhelyzeti hozzáférés eltávolításra került."
+  },
+  "autoConfirmCheckBoxLabel": {
+    "message": "Elfogadom ezeket a kockázatokat és a szabályzat frissítéseit."
   },
   "personalOwnership": {
     "message": "Személyes tulajdon"
@@ -10141,7 +10203,7 @@
     "message": "hónap tagonként éves számlázással"
   },
   "seats": {
-    "message": "Seats"
+    "message": "Helyek"
   },
   "addOrganization": {
     "message": "Szervezet hozzáadása"
@@ -10361,26 +10423,8 @@
   "memberAccessReportAuthenticationEnabledFalse": {
     "message": "Ki"
   },
-  "higherKDFIterations": {
-    "message": "A magasabb szintű KDF iterációk segíthetnek megvédeni mesterjelszót a támadók erőszakossága ellen."
-  },
-  "incrementsOf100,000": {
-    "message": "100 000-es lépésekben"
-  },
-  "smallIncrements": {
-    "message": "kis lépésekben"
-  },
   "kdfIterationRecommends": {
     "message": "Célszerű 600 000 vagy nagyobb lépésben"
-  },
-  "kdfToHighWarningIncreaseInIncrements": {
-    "message": "Régebbi eszközökön a KDF túl magas beállítása teljesítmény problémákat okozhat. Növeljük az értéket $VALUE$ lépésbern és teszteljük az eszközöket.",
-    "placeholders": {
-      "value": {
-        "content": "$1",
-        "example": "increments of 100,000"
-      }
-    }
   },
   "providerReinstate": {
     "message": " Lépjünk kapcsolatba az ügyfélszolgálattal az előfizetés visszaállításához."
@@ -11024,6 +11068,15 @@
   "domainClaimed": {
     "message": "A tartomány követelésre került."
   },
+  "itemAddedToFavorites": {
+    "message": "Az elem bekerült a kedvencekhez.."
+  },
+  "itemRemovedFromFavorites": {
+    "message": "Az elem eltávolítva a kedvencek közül."
+  },
+  "copyNote": {
+    "message": "Jegyzet másolása"
+  },
   "organizationNameMaxLength": {
     "message": "A szervezet neve nem haladhatja meg az 50 karaktert."
   },
@@ -11294,11 +11347,46 @@
     "message": "Archívum",
     "description": "Verb"
   },
+  "unArchive": {
+    "message": "Visszavétel archívumból"
+  },
+  "itemsInArchive": {
+    "message": "Archiválandó elemek"
+  },
   "noItemsInArchive": {
     "message": "Nincs elem az archívumban."
   },
-  "archivedItemsDescription": {
+  "noItemsInArchiveDesc": {
     "message": "Az archivált elemek itt jelennek meg és kizárásra kerülnek az általános keresési eredményekből és az automatikus kitöltési javaslatokból."
+  },
+  "itemWasSentToArchive": {
+    "message": "Az elem az archivumba került."
+  },
+  "itemsWereSentToArchive": {
+    "message": "Az elemek az archivumba kerültek."
+  },
+  "itemUnarchived": {
+    "message": "Az elemek visszavéelre kerültek az archivumból."
+  },
+  "bulkArchiveItems": {
+    "message": "Az elemek archiválásra kerültek."
+  },
+  "bulkUnarchiveItems": {
+    "message": "Az elemek visszavéelre kerültek az archivumból."
+  },
+  "archiveItem": {
+    "message": "Elem archiválása",
+    "description": "Verb"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Az archivált elemek ki vannak zárva az általános keresési eredményekből és az automatikus kitöltési javaslatokból. Biztosan archiválni szeretnénk ezt az elemet?"
+  },
+  "archiveBulkItems": {
+    "message": "Elemek archiválása",
+    "description": "Verb"
+  },
+  "archiveBulkItemsConfirmDesc": {
+    "message": "Az archivált elemek ki vannak zárva az általános keresési eredményekből és az automatikus kitöltési javaslatokból. Biztosan archiválni szeretnénk ezeket az elemeket?"
   },
   "businessUnit": {
     "message": "Üzleti egység"
@@ -11801,7 +11889,52 @@
   "continueWithoutUpgrading": {
     "message": "Folytatás áttérés nélkül"
   },
+  "upgradeYourPlan": {
+    "message": "Csomag áttérés"
+  },
+  "upgradeNow": {
+    "message": "Áttérés most"
+  },
+  "formWillCreateNewFamiliesOrgMessage": {
+    "message": "Az űrlap kitöltésével egy új Családok szervezet jön létre. Az Adminisztrációs konzolban lehet áttérni az Ingyenes szervezetről."
+  },
   "upgradeErrorMessage": {
     "message": "Hiba történt az áttérés feldolgozása közben. Próbáljuk újra."
+  },
+  "bitwardenFreeplanMessage": {
+    "message": "Jelenleg a Bitwarden Ingyenes csomaggal rendelkezünk."
+  },
+  "upgradeCompleteSecurity": {
+    "message": "Áttérés a teljes biztonságért"
+  },
+  "viewbusinessplans": {
+    "message": "Üzleti csomagok megtekintése"
+  },
+  "updateEncryptionSettings": {
+    "message": "Titkosítási beállítások frissítése"
+  },
+  "updateYourEncryptionSettings": {
+    "message": "Frissítsük a titkosítási beállításokat."
+  },
+  "updateSettings": {
+    "message": "Beállítások frissítése"
+  },
+  "algorithm": {
+    "message": "Algoritmus"
+  },
+  "encryptionKeySettingsHowShouldWeEncryptYourData": {
+    "message": "Válasszuk ki, hogy a Bitwarden hogyan titkosítsa a széf adatokat. Minden lopció biztonságos, de az erősebb módszerek jobb védelmet nyújtanak - különösen a brute force típusú támadások ellen. A Bitwarden a legtöbb felhasználó számára az alapértelmezett beállítást ajánlja."
+  },
+  "encryptionKeySettingsIncreaseImproveSecurity": {
+    "message": "Az értékek alapértelmezett fölé emelése javítja a biztonságot, de ennek eredményeként a széf feloldása hosszabb időt vehet igénybe."
+  },
+  "encryptionKeySettingsAlgorithmPopoverTitle": {
+    "message": "A titkosítási algoritmusokról"
+  },
+  "encryptionKeySettingsAlgorithmPopoverPBKDF2": {
+    "message": "A PBKDF2-SHA256 egy jól tesztelt titkosítási módszer, amely egyensúlyban tartja a biztonságot és a teljesítményt. Minden felhasználó számára jó."
+  },
+  "encryptionKeySettingsAlgorithmPopoverArgon2Id": {
+    "message": "Az Argon2id erősebb védelmet nyújt a modern támadásokkal szemben. A legjobb a nagy teljesítményű eszközökkel rendelkező haladó felhasználók számára."
   }
 }

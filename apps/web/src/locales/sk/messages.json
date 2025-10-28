@@ -36,7 +36,7 @@
     }
   },
   "noReportRan": {
-    "message": "You have not created a report yet"
+    "message": "Ešte ste nevytvorili report"
   },
   "notifiedMembers": {
     "message": "Notified members"
@@ -90,8 +90,8 @@
   "assignMembersTasksToMonitorProgress": {
     "message": "Pre sledovanie progresu, priraďte členom úlohy"
   },
-  "onceYouReviewApplications": {
-    "message": "Tu sa zobrazia aplikácie, ktoré pri kontrole označíte za kritické."
+  "onceYouReviewApps": {
+    "message": "Keď skontrolujete a označíte kritické aplikácie, môžete na tomto mieste prideliť členom úlohy pre ohrozené položky a sledovať progres"
   },
   "sendReminders": {
     "message": "Poslať upomienky"
@@ -154,6 +154,15 @@
       }
     }
   },
+  "newPasswordsAtRisk": {
+    "message": "$COUNT$ nových ohrozených hesiel",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "notifiedMembersWithCount": {
     "message": "Notified members ($COUNT$)",
     "placeholders": {
@@ -188,22 +197,22 @@
     "message": "Označiť aplikáciu ako kritickú"
   },
   "markAsCritical": {
-    "message": "Mark as critical"
+    "message": "Označiť za kritické"
   },
   "applicationsSelected": {
-    "message": "applications selected"
+    "message": "vybrané aplikácie"
   },
   "selectApplication": {
-    "message": "Select application"
+    "message": "Vybrať aplikáciu"
   },
   "unselectApplication": {
-    "message": "Unselect application"
+    "message": "Nevybrať aplikáciu"
   },
   "applicationsMarkedAsCriticalSuccess": {
     "message": "Aplikácie označené ako kritické"
   },
   "applicationsMarkedAsCriticalFail": {
-    "message": "Failed to mark applications as critical"
+    "message": "Nepodarilo sa označiť aplikácie za kritické"
   },
   "application": {
     "message": "Aplikácia"
@@ -293,10 +302,10 @@
     "message": "Všetkých aplikácii"
   },
   "applicationsNeedingReview": {
-    "message": "Applications needing review"
+    "message": "Aplikácie vyžadujú kontrolu"
   },
   "newApplicationsWithCount": {
-    "message": "$COUNT$ new applications",
+    "message": "$COUNT$ nových aplikácií",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -305,19 +314,19 @@
     }
   },
   "newApplicationsDescription": {
-    "message": "Review new applications to mark as critical and keep your organization secure"
+    "message": "Skontrolujte nové aplikácie a ich označenie za kritické a udržujte tak vašu organizáciu v bezpečí"
   },
   "reviewNow": {
-    "message": "Review now"
+    "message": "Skontrolovať teraz"
   },
   "prioritizeCriticalApplications": {
-    "message": "Prioritize critical applications"
+    "message": "Uprednostniť kritické aplikácie"
   },
   "atRiskItems": {
-    "message": "At-risk items"
+    "message": "Ohrozené položky"
   },
   "markAsCriticalPlaceholder": {
-    "message": "Mark as critical functionality will be implemented in a future update"
+    "message": "Funkcia označovania za kritické bude implementovaná v budúcej aktualizácii"
   },
   "unmarkAsCritical": {
     "message": "Zrušiť označenie za kritické"
@@ -2080,9 +2089,6 @@
   "encKeySettings": {
     "message": "Nastavenia šifrovacieho kľúča"
   },
-  "kdfAlgorithm": {
-    "message": "KDF algoritmus"
-  },
   "kdfIterations": {
     "message": "KDF iterácií"
   },
@@ -2116,9 +2122,6 @@
   },
   "argon2Desc": {
     "message": "Zvýšenie počtu KDF iterácií, pamäti a paralelizmu môže pomôcť chrániť vaše hlavné heslo pri brute force útoku."
-  },
-  "changeKdf": {
-    "message": "Zmeniť KDF"
   },
   "encKeySettingsChanged": {
     "message": "Nastavenia šifrovacieho kľúča zmenené"
@@ -2951,7 +2954,7 @@
     "message": "Prosím uistite sa, že váš účet má k dispozícii dostatok kreditu pre tento nákup. Ak konto nemá k dispozícii dostatok kreditu, rozdiel sa zaplatí vašou predvolenou platobnou metódou. Kredit si môžete pridať na stránke fakturácie."
   },
   "notEnoughAccountCredit": {
-    "message": "You do not have enough account credit for this purchase. You can add credit to your account from the Billing page."
+    "message": "Na tento nakúp nemáte na vašom účte dostatočný kredit. Kredit môžete pridať na stránke fakturácie."
   },
   "creditAppliedDesc": {
     "message": "Kredit na vašom účte sa dá použiť na nákupy. Akýkoľvek dostupný kredit bude automaticky použitý na zaplatenie faktúr pre tento účet."
@@ -4362,7 +4365,7 @@
     "message": "Generuje sa váš prehľad o rizikách..."
   },
   "riskInsightsRunReport": {
-    "message": "Run report"
+    "message": "Generovať report"
   },
   "updateBrowserDesc": {
     "message": "Používate nepodporovaný prehliadač. Webový trezor nemusí úplne fungovať."
@@ -5709,6 +5712,65 @@
   "organizationDataOwnershipWarningContentBottom": {
     "message": "Viac informácií o ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about the credential lifecycle.'"
+  },
+  "availableNow": {
+    "message": "Available now"
+  },
+  "autoConfirm": {
+    "message": "Automatic confirmation of new users"
+  },
+  "autoConfirmDescription": {
+    "message": "New users invited to the organization will be automatically confirmed when an admin’s device is unlocked.",
+    "description": "This is the description of the policy as it appears in the 'Policies' page"
+  },
+  "howToTurnOnAutoConfirm": {
+    "message": "How to turn on automatic user confirmation"
+  },
+  "autoConfirmStep1": {
+    "message": "Open your Bitwarden extension."
+  },
+  "autoConfirmStep2a": {
+    "message": "Select",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  },
+  "autoConfirmStep2b": {
+    "message": " Turn on.",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  },
+  "autoConfirmExtensionOpened": {
+    "message": "Successfully opened the Bitwarden browser extension. You can now activate the automatic user confirmation setting."
+  },
+  "autoConfirmPolicyEditDescription": {
+    "message": "New users invited to the organization will be automatically confirmed when an admin’s device is unlocked. Before turning on this policy, please review and agree to the following: ",
+    "description": "This is the description of the policy as it appears inside the policy edit dialog"
+  },
+  "autoConfirmAcceptSecurityRiskTitle": {
+    "message": "Potential security risk. "
+  },
+  "autoConfirmAcceptSecurityRiskDescription": {
+    "message": "Automatic user confirmation could pose a security risk to your organization’s data."
+  },
+  "autoConfirmAcceptSecurityRiskLearnMore": {
+    "message": "Learn about the risks",
+    "description": "The is the link copy for the first check box option in the edit policy dialog"
+  },
+  "autoConfirmSingleOrgRequired": {
+    "message": "Single organization policy required. "
+  },
+  "autoConfirmSingleOrgRequiredDescription": {
+    "message": "Anyone part of more than one organization will have their access revoked until they leave the other organizations."
+  },
+  "autoConfirmSingleOrgExemption": {
+    "message": "Single organization policy will extend to all roles. "
+  },
+  "autoConfirmNoEmergencyAccess": {
+    "message": "No emergency access. "
+  },
+  "autoConfirmNoEmergencyAccessDescription": {
+    "message": "Emergency Access will be removed."
+  },
+  "autoConfirmCheckBoxLabel": {
+    "message": "I accept these risks and policy updates"
   },
   "personalOwnership": {
     "message": "Zakázať osobný trezor"
@@ -10015,7 +10077,7 @@
     "message": "Pošlite dáta z denníka udalostí do vašej inštancie Logscale"
   },
   "datadogEventIntegrationDesc": {
-    "message": "Send vault event data to your Datadog instance"
+    "message": "Pošlite dáta z denníka udalostí do vašej inštancie Datadog"
   },
   "failedToSaveIntegration": {
     "message": "Nepodarilo sa uložiť integráciu. Prosím skúste to neskôr."
@@ -10361,26 +10423,8 @@
   "memberAccessReportAuthenticationEnabledFalse": {
     "message": "Vypnuté"
   },
-  "higherKDFIterations": {
-    "message": "Zvýšenie počtu KDF iterácií môže pomôcť chrániť vaše hlavné heslo pri brute force útoku."
-  },
-  "incrementsOf100,000": {
-    "message": "prírastok po 100 000"
-  },
-  "smallIncrements": {
-    "message": "malý prírastok"
-  },
   "kdfIterationRecommends": {
     "message": "Odporúčame aspoň 600 000"
-  },
-  "kdfToHighWarningIncreaseInIncrements": {
-    "message": "Nastavenie príliš vysokého počtu KDF iterácii môže viesť k problémom vo výkone na starších zariadeniach. Zvýšte hodnotu $VALUE$ a otestujte na vašich zariadeniach.",
-    "placeholders": {
-      "value": {
-        "content": "$1",
-        "example": "increments of 100,000"
-      }
-    }
   },
   "providerReinstate": {
     "message": " Ak chcete obnoviť vaše predplatné, kontaktujte zákaznícku podporu."
@@ -11024,6 +11068,15 @@
   "domainClaimed": {
     "message": "Doména privlastnená"
   },
+  "itemAddedToFavorites": {
+    "message": "Položka pridaná medzi obľúbené"
+  },
+  "itemRemovedFromFavorites": {
+    "message": "Položka odobraná z obľúbených"
+  },
+  "copyNote": {
+    "message": "Kopírovať poznámku"
+  },
   "organizationNameMaxLength": {
     "message": "Meno organizácie nemôže mať viac ako 50 znakov."
   },
@@ -11294,11 +11347,46 @@
     "message": "Archivovať",
     "description": "Verb"
   },
+  "unArchive": {
+    "message": "Zrušiť archiváciu"
+  },
+  "itemsInArchive": {
+    "message": "Položky v archíve"
+  },
   "noItemsInArchive": {
     "message": "Žiadne položky v archíve"
   },
-  "archivedItemsDescription": {
+  "noItemsInArchiveDesc": {
     "message": "Tu sa zobrazia archivované položky, ktoré budú vylúčené zo všeobecného vyhľadávania a z návrhov automatického vypĺňania."
+  },
+  "itemWasSentToArchive": {
+    "message": "Položka bola archivovaná"
+  },
+  "itemsWereSentToArchive": {
+    "message": "Položky boli archivované"
+  },
+  "itemUnarchived": {
+    "message": "Položka bola odobraná z archívu"
+  },
+  "bulkArchiveItems": {
+    "message": "Položky archivované"
+  },
+  "bulkUnarchiveItems": {
+    "message": "Položky boli odobrané z archívu"
+  },
+  "archiveItem": {
+    "message": "Archivovať položku",
+    "description": "Verb"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Archivované položky sú vylúčené zo všeobecného vyhľadávania a z návrhov automatického vypĺňania. Naozaj chcete archivovať túto položku?"
+  },
+  "archiveBulkItems": {
+    "message": "Archivovať položky",
+    "description": "Verb"
+  },
+  "archiveBulkItemsConfirmDesc": {
+    "message": "Archivované položky sú vylúčené zo všeobecného vyhľadávania a z návrhov automatického vypĺňania. Naozaj chcete archivovať tieto položky?"
   },
   "businessUnit": {
     "message": "Organizačná jednotka"
@@ -11772,36 +11860,81 @@
     "message": "Seamless integration"
   },
   "families": {
-    "message": "Families"
+    "message": "Rodiny"
   },
   "upgradeToFamilies": {
-    "message": "Upgrade to Families"
+    "message": "Povýšiť na verziu Rodiny"
   },
   "upgradeToPremium": {
-    "message": "Upgrade to Premium"
+    "message": "Povýšiť na verziu Prémium"
   },
   "familiesUpdated": {
-    "message": "You've upgraded to Families!"
+    "message": "Povýšili ste na verziu Rodiny!"
   },
   "taxCalculationError": {
-    "message": "There was an error calculating tax for your location. Please try again."
+    "message": "Pri výpočte dane pre vašu lokalitu došlo k chybe. Prosím skúste to znova."
   },
   "individualUpgradeWelcomeMessage": {
-    "message": "Welcome to Bitwarden"
+    "message": "Vítajte v Bitwardene"
   },
   "individualUpgradeDescriptionMessage": {
-    "message": "Unlock more security features with Premium, or start sharing items with Families"
+    "message": "Odomknite ďalšie bezpečnostné funkcie s Prémium, alebo začnite zdieľať položky s predplatným Rodiny"
   },
   "individualUpgradeTaxInformationMessage": {
-    "message": "Prices exclude tax and are billed annually."
+    "message": "Ceny sú uvedené bez dane a účtujú sa ročne."
   },
   "organizationNameDescription": {
-    "message": "Your organization name will appear in invitations you send to members."
+    "message": "Názov vašej organizácie sa objaví v pozvánkach ktoré zašlete členom."
   },
   "continueWithoutUpgrading": {
-    "message": "Continue without upgrading"
+    "message": "Pokračovať bez povýšenia"
+  },
+  "upgradeYourPlan": {
+    "message": "Navýšte si svoje predplatné"
+  },
+  "upgradeNow": {
+    "message": "Navýšiť teraz"
+  },
+  "formWillCreateNewFamiliesOrgMessage": {
+    "message": "Vyplnením tohto formulára sa vytvorí organizácia Rodiny. Povýšiť vašu organizáciu Zdarma môžete v konzole správcu."
   },
   "upgradeErrorMessage": {
-    "message": "We encountered an error while processing your upgrade. Please try again."
+    "message": "Pri spracovaní povýšenia došlo k chybe. Prosím skúste to znova."
+  },
+  "bitwardenFreeplanMessage": {
+    "message": "Mate predplatné Bitwarden Zadarmo"
+  },
+  "upgradeCompleteSecurity": {
+    "message": "Navýšte predplatné pre kompletnú bezpečnosť"
+  },
+  "viewbusinessplans": {
+    "message": "Zobraziť predplatné pre firmy"
+  },
+  "updateEncryptionSettings": {
+    "message": "Update encryption settings"
+  },
+  "updateYourEncryptionSettings": {
+    "message": "Update your encryption settings"
+  },
+  "updateSettings": {
+    "message": "Update settings"
+  },
+  "algorithm": {
+    "message": "Algorithm"
+  },
+  "encryptionKeySettingsHowShouldWeEncryptYourData": {
+    "message": "Choose how Bitwarden should encrypt your vault data. All options are secure, but stronger methods offer better protection - especially against brute-force attacks. Bitwarden recommends the default setting for most users."
+  },
+  "encryptionKeySettingsIncreaseImproveSecurity": {
+    "message": "Increasing the values above the default will improve security, but your vault may take longer to unlock as a result."
+  },
+  "encryptionKeySettingsAlgorithmPopoverTitle": {
+    "message": "About encryption algorithms"
+  },
+  "encryptionKeySettingsAlgorithmPopoverPBKDF2": {
+    "message": "PBKDF2-SHA256 is a well-tested encryption method that balances security and performance. Good for all users."
+  },
+  "encryptionKeySettingsAlgorithmPopoverArgon2Id": {
+    "message": "Argon2id offers stronger protection against modern attacks. Best for advanced users with powerful devices."
   }
 }

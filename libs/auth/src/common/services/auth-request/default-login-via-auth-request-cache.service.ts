@@ -16,7 +16,7 @@ const LOGIN_VIA_AUTH_CACHE_KEY = "login-via-auth-request-form-cache";
 export class LoginViaAuthRequestCacheService {
   private viewCacheService: ViewCacheService = inject(ViewCacheService);
 
-  private defaultLoginViaAuthRequestCache: WritableSignal<LoginViaAuthRequestView | null> =
+  private readonly defaultLoginViaAuthRequestCache: WritableSignal<LoginViaAuthRequestView | null> =
     this.viewCacheService.signal<LoginViaAuthRequestView | null>({
       key: LOGIN_VIA_AUTH_CACHE_KEY,
       initialValue: null,

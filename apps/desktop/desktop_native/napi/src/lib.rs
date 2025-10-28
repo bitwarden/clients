@@ -150,6 +150,123 @@ pub mod biometrics {
 }
 
 #[napi]
+pub mod biometrics_v2 {
+    use desktop_core::biometric_v2::BiometricTrait;
+
+    #[napi]
+    pub struct BiometricLockSystem {
+        inner: desktop_core::biometric_v2::BiometricLockSystem,
+    }
+
+    #[napi]
+    pub fn init_biometric_system() -> napi::Result<BiometricLockSystem> {
+        Ok(BiometricLockSystem {
+            inner: desktop_core::biometric_v2::BiometricLockSystem::new(),
+        })
+    }
+
+    #[napi]
+    pub async fn authenticate(
+        biometric_lock_system: &BiometricLockSystem,
+        hwnd: napi::bindgen_prelude::Buffer,
+        message: String,
+    ) -> napi::Result<bool> {
+        biometric_lock_system
+            .inner
+            .authenticate(hwnd.into(), message)
+            .await
+            .map_err(|e| napi::Error::from_reason(e.to_string()))
+    }
+
+    #[napi]
+    pub async fn authenticate_available(
+        biometric_lock_system: &BiometricLockSystem,
+    ) -> napi::Result<bool> {
+        biometric_lock_system
+            .inner
+            .authenticate_available()
+            .await
+            .map_err(|e| napi::Error::from_reason(e.to_string()))
+    }
+
+    #[napi]
+    pub async fn enroll_persistent(
+        biometric_lock_system: &BiometricLockSystem,
+        user_id: String,
+        key: napi::bindgen_prelude::Buffer,
+    ) -> napi::Result<()> {
+        biometric_lock_system
+            .inner
+            .enroll_persistent(&user_id, &key)
+            .await
+            .map_err(|e| napi::Error::from_reason(e.to_string()))
+    }
+
+    #[napi]
+    pub async fn provide_key(
+        biometric_lock_system: &BiometricLockSystem,
+        user_id: String,
+        key: napi::bindgen_prelude::Buffer,
+    ) -> napi::Result<()> {
+        biometric_lock_system
+            .inner
+            .provide_key(&user_id, &key)
+            .await;
+        Ok(())
+    }
+
+    #[napi]
+    pub async fn unlock(
+        biometric_lock_system: &BiometricLockSystem,
+        user_id: String,
+        hwnd: napi::bindgen_prelude::Buffer,
+    ) -> napi::Result<napi::bindgen_prelude::Buffer> {
+        biometric_lock_system
+            .inner
+            .unlock(&user_id, hwnd.into())
+            .await
+            .map_err(|e| napi::Error::from_reason(e.to_string()))
+            .map(|v| v.into())
+    }
+
+    #[napi]
+    pub async fn unlock_available(
+        biometric_lock_system: &BiometricLockSystem,
+        user_id: String,
+    ) -> napi::Result<bool> {
+        biometric_lock_system
+            .inner
+            .unlock_available(&user_id)
+            .await
+            .map_err(|e| napi::Error::from_reason(e.to_string()))
+    }
+
+    #[napi]
+    pub async fn has_persistent(
+        biometric_lock_system: &BiometricLockSystem,
+        user_id: String,
+    ) -> napi::Result<bool> {
+        biometric_lock_system
+            .inner
+            .has_persistent(&user_id)
+            .await
+            .map_err(|e| napi::Error::from_reason(e.to_string()))
+    }
+
+    #[napi]
+    pub async fn unenroll(
+        biometric_lock_system: &BiometricLockSystem,
+        user_id: String,
+    ) -> napi::Result<()> {
+        biometric_lock_system
+            .inner
+            .unenroll(&user_id)
+            .await
+            .map_err(|e| napi::Error::from_reason(e.to_string()))
+    }
+}
+
+#[napi]
 pub mod clipboards {
     #[allow(clippy::unused_async)] // FIXME: Remove unused async!
     #[napi]
@@ -169,7 +286,6 @@ pub mod clipboards {
 pub mod sshagent {
     use std::sync::Arc;
 
-    use desktop_core::ssh_agent::BitwardenSshKey;
     use napi::{
         bindgen_prelude::Promise,
         threadsafe_function::{ErrorStrategy::CalleeHandled, ThreadsafeFunction},
@@ -179,7 +295,7 @@ pub mod sshagent {
 
     #[napi]
     pub struct SshAgentState {
-        state: desktop_core::ssh_agent::BitwardenDesktopAgent<BitwardenSshKey>,
+        state: desktop_core::ssh_agent::BitwardenDesktopAgent,
     }
 
     #[napi(object)]
@@ -935,6 +1051,10 @@ pub mod logging {
             // overriding the default directive for matching targets.
             .from_env_lossy();
 
+        // With the `tracing-log` feature enabled for the `tracing_subscriber`,
+        // the registry below will initialize a log compatibility layer, which allows
+        // the subscriber to consume log::Records as though they were tracing Events.
+        // https://docs.rs/tracing-subscriber/latest/tracing_subscriber/util/trait.SubscriberInitExt.html#method.init
         tracing_subscriber::registry()
             .with(filter)
             .with(JsLayer)
@@ -944,8 +1064,14 @@ pub mod logging {
 
 #[napi]
 pub mod chromium_importer {
-    use bitwarden_chromium_importer::chromium::LoginImportResult as _LoginImportResult;
-    use bitwarden_chromium_importer::chromium::ProfileInfo as _ProfileInfo;
+    use chromium_importer::{
+        chromium::{
+            DefaultInstalledBrowserRetriever, LoginImportResult as _LoginImportResult,
+            ProfileInfo as _ProfileInfo,
+        },
+        metadata::NativeImporterMetadata as _NativeImporterMetadata,
+    };
+    use std::collections::HashMap;
 
     #[napi(object)]
     pub struct ProfileInfo {
@@ -972,6 +1098,13 @@ pub mod chromium_importer {
     pub struct LoginImportResult {
         pub login: Option<Login>,
         pub failure: Option<LoginImportFailure>,
+    }
+
+    #[napi(object)]
+    pub struct NativeImporterMetadata {
+        pub id: String,
+        pub loaders: Vec<&'static str>,
+        pub instructions: &'static str,
     }
 
     impl From<_LoginImportResult> for LoginImportResult {
@@ -1007,15 +1140,28 @@ pub mod chromium_importer {
         }
     }
 
+    impl From<_NativeImporterMetadata> for NativeImporterMetadata {
+        fn from(m: _NativeImporterMetadata) -> Self {
+            NativeImporterMetadata {
+                id: m.id,
+                loaders: m.loaders,
+                instructions: m.instructions,
+            }
+        }
+    }
+
     #[napi]
-    pub fn get_installed_browsers() -> napi::Result<Vec<String>> {
-        bitwarden_chromium_importer::chromium::get_installed_browsers()
-            .map_err(|e| napi::Error::from_reason(e.to_string()))
+    /// Returns OS aware metadata describing supported Chromium based importers as a JSON string.
+    pub fn get_metadata() -> HashMap<String, NativeImporterMetadata> {
+        chromium_importer::metadata::get_supported_importers::<DefaultInstalledBrowserRetriever>()
+            .into_iter()
+            .map(|(browser, metadata)| (browser, NativeImporterMetadata::from(metadata)))
+            .collect()
     }
 
     #[napi]
     pub fn get_available_profiles(browser: String) -> napi::Result<Vec<ProfileInfo>> {
-        bitwarden_chromium_importer::chromium::get_available_profiles(&browser)
+        chromium_importer::chromium::get_available_profiles(&browser)
             .map(|profiles| profiles.into_iter().map(ProfileInfo::from).collect())
             .map_err(|e| napi::Error::from_reason(e.to_string()))
     }
@@ -1025,7 +1171,7 @@ pub mod chromium_importer {
         browser: String,
         profile_id: String,
     ) -> napi::Result<Vec<LoginImportResult>> {
-        bitwarden_chromium_importer::chromium::import_logins(&browser, &profile_id)
+        chromium_importer::chromium::import_logins(&browser, &profile_id)
             .await
             .map(|logins| logins.into_iter().map(LoginImportResult::from).collect())
             .map_err(|e| napi::Error::from_reason(e.to_string()))

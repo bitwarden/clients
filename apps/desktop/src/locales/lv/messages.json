@@ -1852,6 +1852,12 @@
   "lockWithMasterPassOnRestart1": {
     "message": "Aizslēgt ar galveno paroli pēc pārsāknēšanas"
   },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "Pieprasīt galveno paroli vai PIN pēc lietotnes pārsāknēšanas"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "Pieprasīt galveno paroli pēc lietotnes pārsāknēšanas"
+  },
   "deleteAccount": {
     "message": "Izdzēst kontu"
   },
@@ -2548,6 +2554,9 @@
         "example": "5"
       }
     }
+  },
+  "vaultCustomTimeoutMinimum": {
+    "message": "Mazākā pieļaujamā pielāgotā noildze ir 1 minūte."
   },
   "inviteAccepted": {
     "message": "Uzaicinājums apstiprināts"
@@ -4142,14 +4151,14 @@
     "message": "Labot saīsni"
   },
   "archiveNoun": {
-    "message": "Archive",
+    "message": "Arhīvs",
     "description": "Noun"
   },
   "archiveVerb": {
-    "message": "Archive",
+    "message": "Arhivēt",
     "description": "Verb"
   },
-  "unarchive": {
+  "unArchive": {
     "message": "Atcelt arhivēšanu"
   },
   "itemsInArchive": {
@@ -4161,11 +4170,11 @@
   "noItemsInArchiveDesc": {
     "message": "Šeit parādīsies arhivētie vienumi, un tie netiks iekļauti vispārējās meklēšanas iznākumos un automātiskās aizpildes ieteikumos."
   },
-  "itemSentToArchive": {
-    "message": "Vienums ievietots arhīvā"
+  "itemWasSentToArchive": {
+    "message": "Vienums tika ievietots arhīvā"
   },
-  "itemRemovedFromArchive": {
-    "message": "Vienums izņemts no arhīva"
+  "itemWasUnarchived": {
+    "message": "Vienums tika izņemts no arhīva"
   },
   "archiveItem": {
     "message": "Arhivēt vienumu"

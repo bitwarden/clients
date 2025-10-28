@@ -1852,6 +1852,12 @@
   "lockWithMasterPassOnRestart1": {
     "message": "Bij herstart vergrendelen met hoofdwachtwoord"
   },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "Hoofdwachtwoord of pincode vereisen bij herstart van de app"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "Hoofdwachtwoord vereisen bij herstart van de app"
+  },
   "deleteAccount": {
     "message": "Account verwijderen"
   },
@@ -2548,6 +2554,9 @@
         "example": "5"
       }
     }
+  },
+  "vaultCustomTimeoutMinimum": {
+    "message": "Minimale aangepaste time-out is 1 minuut."
   },
   "inviteAccepted": {
     "message": "Uitnodiging geaccepteerd"
@@ -4149,7 +4158,7 @@
     "message": "Archiveren",
     "description": "Verb"
   },
-  "unarchive": {
+  "unArchive": {
     "message": "Dearchiveren"
   },
   "itemsInArchive": {
@@ -4161,11 +4170,11 @@
   "noItemsInArchiveDesc": {
     "message": "Gearchiveerde items verschijnen hier en worden uitgesloten van algemene zoekresultaten en automatisch invulsuggesties."
   },
-  "itemSentToArchive": {
+  "itemWasSentToArchive": {
     "message": "Item naar archief verzonden"
   },
-  "itemRemovedFromArchive": {
-    "message": "Item verwijderd uit archief"
+  "itemWasUnarchived": {
+    "message": "Item uit het archief gehaald"
   },
   "archiveItem": {
     "message": "Item archiveren"

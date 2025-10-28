@@ -90,8 +90,8 @@
   "assignMembersTasksToMonitorProgress": {
     "message": "Assign members tasks to monitor progress"
   },
-  "onceYouReviewApplications": {
-    "message": "Once you review applications and mark them as critical, they will display here."
+  "onceYouReviewApps": {
+    "message": "Once you review applications and mark them as critical, you can assign tasks to members to resolve at-risk items and monitor progress here"
   },
   "sendReminders": {
     "message": "Send reminders"
@@ -151,6 +151,15 @@
       "count": {
         "content": "$1",
         "example": "3"
+      }
+    }
+  },
+  "newPasswordsAtRisk": {
+    "message": "$COUNT$ new passwords at-risk",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
       }
     }
   },
@@ -2024,7 +2033,7 @@
     "message": "Canvia el correu electrònic"
   },
   "changeEmailTwoFactorWarning": {
-    "message": "Si continueu, canviarà l'adreça de correu electrònic del vostre compte. No canviarà l'adreça de correu electrònic utilitzada per a l'autenticació de dos factors. Podeu canviar aquesta adreça de correu electrònic a la configuració d'inici de sessió en dues passes."
+    "message": "Si continueu, canviarà l'adreça de correu electrònic del vostre compte. No canviarà l'adreça de correu electrònic utilitzada per a l'autenticació de doble factor. Podeu canviar aquesta adreça de correu electrònic a la configuració d'inici de sessió en dos passos."
   },
   "newEmail": {
     "message": "Nou correu electrònic"
@@ -2080,9 +2089,6 @@
   "encKeySettings": {
     "message": "Configuració de claus de xifratge"
   },
-  "kdfAlgorithm": {
-    "message": "Algorisme de KDF"
-  },
   "kdfIterations": {
     "message": "Iteracions de KDF"
   },
@@ -2117,9 +2123,6 @@
   "argon2Desc": {
     "message": "Les iteracions de KDF, la memòria i el paral·lelisme més alts poden ajudar a protegir la vostra contrasenya mestra de ser forçada per força bruta per un atacant."
   },
-  "changeKdf": {
-    "message": "Canvia KDF"
-  },
   "encKeySettingsChanged": {
     "message": "S'ha canviat la configuració de les claus de xifratge"
   },
@@ -2130,10 +2133,10 @@
     "message": "Desautoritza sessions"
   },
   "deauthorizeSessionsDesc": {
-    "message": "Voleu evitar que el vostre compte s'inicie en un altre dispositiu? Seguiu aquestes passes per desautoritzar tots els ordinadors o dispositius que hàgeu utilitzat prèviament. Aquest pas de seguretat es recomana si anteriorment heu utilitzat un ordinador públic o si heu guardat la contrasenya accidentalment en un dispositiu que no és vostre. Aquest pas també esborrarà totes les sessions d'inici de sessió en dues passes recordades prèviament."
+    "message": "Voleu evitar que el vostre compte s'inicie en un altre dispositiu? A continuació podeu desautoritzar tots els ordinadors o dispositius que hàgeu utilitzat prèviament. Aquest pas de seguretat es recomana si anteriorment heu utilitzat un ordinador públic o si heu guardat la contrasenya accidentalment en un dispositiu que no és vostre. Aquest pas també esborrarà totes les sessions d'inici de sessió en dos passos recordades prèviament."
   },
   "deauthorizeSessionsWarning": {
-    "message": "El procediment també tancarà la sessió actual, i l'heu de tornar a iniciar. També demanarà iniciar la sessió en dues passes, si està habilitada. Les sessions actives d'altres dispositius poden mantenir-se actives fins a una hora."
+    "message": "El procediment també tancarà la sessió actual, i l'heu de tornar a iniciar. També demanarà iniciar la sessió en dos passos, si està habilitada. Les sessions actives d'altres dispositius poden mantenir-se actives fins a una hora."
   },
   "newDeviceLoginProtection": {
     "message": "New device login"
@@ -2385,7 +2388,7 @@
     "message": "Dominis guardats"
   },
   "twoStepLogin": {
-    "message": "Inici de sessió en dues passes"
+    "message": "Inici de sessió en dos passos"
   },
   "twoStepLoginEnforcement": {
     "message": "Aplicació d'inici de sessió en dos passos"
@@ -2410,7 +2413,7 @@
     "message": "Si heu configurat l'SSO o teniu previst fer-ho, és possible que l'inici de sessió en dos passos ja s'aplique a través del vostre proveïdor d'identitat."
   },
   "twoStepLoginRecoveryWarning": {
-    "message": "Si habiliteu l'inici de sessió en dues passes, pot bloquejar-vos de manera definitiva el compte de Bitwarden. Un codi de recuperació us permet accedir al vostre compte en cas que no pugueu utilitzar el proveïdor d'inici de sessió en dues passes (p. Ex. Perdre el dispositiu). El suport de Bitwarden no podrà ajudar-vos si perdeu l'accés al vostre compte. Us recomanem que escriviu o imprimiu el codi de recuperació i el mantingueu en un lloc segur."
+    "message": "Si habiliteu l'inici de sessió en dos passos, pot bloquejar-vos de manera definitiva el compte de Bitwarden. Un codi de recuperació us permet accedir al vostre compte en cas que no pugueu utilitzar el proveïdor d'inici de sessió en dos passos (p. Ex. Perdre el dispositiu). El suport de Bitwarden no podrà ajudar-vos si perdeu l'accés al vostre compte. Us recomanem que escriviu o imprimiu el codi de recuperació i el mantingueu en un lloc segur."
   },
   "restrictedItemTypePolicy": {
     "message": "Remove card item type"
@@ -2496,7 +2499,7 @@
     "message": "Aquest proveïdor d'inici de sessió en dos passos està habilitat al vostre compte."
   },
   "twoStepLoginAuthDesc": {
-    "message": "Introduïu la vostra contrasenya mestra per modificar la configuració d'inici de sessió en dues passes."
+    "message": "Introduïu la vostra contrasenya mestra per modificar la configuració d'inici de sessió en dos passos."
   },
   "twoStepAuthenticatorInstructionPrefix": {
     "message": "Download an authenticator app such as"
@@ -2628,7 +2631,7 @@
     "message": "Nom de l'amfitrió d'API"
   },
   "twoFactorEmailDesc": {
-    "message": "Seguiu aquestes passes per configurar l'inici de sessió en dues passes amb el correu electrònic:"
+    "message": "Seguiu aquestes passes per configurar l'inici de sessió en dos passos amb el correu electrònic:"
   },
   "twoFactorEmailEnterEmail": {
     "message": "Introduïu el correu electrònic amb el que voleu rebre els codis de verificació"
@@ -2682,7 +2685,7 @@
     "message": "Hi ha hagut un problema en llegir la clau de seguretat. Torneu-ho a provar."
   },
   "twoFactorRecoveryYourCode": {
-    "message": "El codi de recuperació d'inici de sessió en dues passes de Bitwarden"
+    "message": "El codi de recuperació d'inici de sessió en dos passos de Bitwarden"
   },
   "twoFactorRecoveryNoCode": {
     "message": "Encara no heu habilitat cap proveïdor d'inici de sessió en dos passos. Després d'activar-lo, podeu consultar ací el codi de recuperació."
@@ -3667,7 +3670,7 @@
     "message": "You have 0 invites remaining."
   },
   "userUsingTwoStep": {
-    "message": "Aquest usuari fa servir l'inici de sessió en dues passes per protegir el seu compte."
+    "message": "Aquest usuari fa servir l'inici de sessió en dos passos per protegir el seu compte."
   },
   "search": {
     "message": "Cerca"
@@ -3772,7 +3775,7 @@
     "message": "S'ha produït un error d'inici de sessió amb una contrasenya incorrecta."
   },
   "failedLogin2fa": {
-    "message": "S'ha produït un error amb un inici de sessió en dues passes incorrecte."
+    "message": "S'ha produït un error amb un inici de sessió en dos passos incorrecte."
   },
   "incorrectPassword": {
     "message": "Contrasenya incorrecta"
@@ -4468,13 +4471,13 @@
     "message": "Recorda el correu electronic"
   },
   "recoverAccountTwoStepDesc": {
-    "message": "Si no podeu accedir al vostre compte a través dels vostres mètodes d'inici de sessió de dues passes, podeu utilitzar el codi de recuperació de l'inici de sessió en dues passes per desactivar tots els proveïdors del vostre compte."
+    "message": "Si no podeu accedir al vostre compte a través dels vostres mètodes d'inici de sessió en dos passos, podeu utilitzar el codi de recuperació de l'inici de sessió en dos passos per desactivar tots els proveïdors del vostre compte."
   },
   "logInBelowUsingYourSingleUseRecoveryCode": {
     "message": "Log in below using your single-use recovery code. This will turn off all two-step providers on your account."
   },
   "recoverAccountTwoStep": {
-    "message": "Recupera l'inici de sessió en dues passes del compte"
+    "message": "Recupera l'inici de sessió en dos passos del compte"
   },
   "twoStepRecoverDisabled": {
     "message": "S'ha inhabilitat l'inici de sessió en dos passos al vostre compte."
@@ -5094,7 +5097,7 @@
     "message": "Cal iniciar sessió en dos passos"
   },
   "twoStepLoginPolicyDesc": {
-    "message": "Requereix que els usuaris configuren l’inici de sessió en dues passes als seus comptes personals."
+    "message": "Requereix que els usuaris configuren l’inici de sessió en dos passos als seus comptes personals."
   },
   "twoStepLoginPolicyWarning": {
     "message": "Els membres de l’organització que no tinguen activat l’inici de sessió en dos passos per al seu compte personal s'eliminaran de l’organització i rebran un correu electrònic que els notificarà sobre el canvi."
@@ -5709,6 +5712,65 @@
   "organizationDataOwnershipWarningContentBottom": {
     "message": "Learn more about the ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about the credential lifecycle.'"
+  },
+  "availableNow": {
+    "message": "Available now"
+  },
+  "autoConfirm": {
+    "message": "Automatic confirmation of new users"
+  },
+  "autoConfirmDescription": {
+    "message": "New users invited to the organization will be automatically confirmed when an admin’s device is unlocked.",
+    "description": "This is the description of the policy as it appears in the 'Policies' page"
+  },
+  "howToTurnOnAutoConfirm": {
+    "message": "How to turn on automatic user confirmation"
+  },
+  "autoConfirmStep1": {
+    "message": "Open your Bitwarden extension."
+  },
+  "autoConfirmStep2a": {
+    "message": "Select",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  },
+  "autoConfirmStep2b": {
+    "message": " Turn on.",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  },
+  "autoConfirmExtensionOpened": {
+    "message": "Successfully opened the Bitwarden browser extension. You can now activate the automatic user confirmation setting."
+  },
+  "autoConfirmPolicyEditDescription": {
+    "message": "New users invited to the organization will be automatically confirmed when an admin’s device is unlocked. Before turning on this policy, please review and agree to the following: ",
+    "description": "This is the description of the policy as it appears inside the policy edit dialog"
+  },
+  "autoConfirmAcceptSecurityRiskTitle": {
+    "message": "Potential security risk. "
+  },
+  "autoConfirmAcceptSecurityRiskDescription": {
+    "message": "Automatic user confirmation could pose a security risk to your organization’s data."
+  },
+  "autoConfirmAcceptSecurityRiskLearnMore": {
+    "message": "Learn about the risks",
+    "description": "The is the link copy for the first check box option in the edit policy dialog"
+  },
+  "autoConfirmSingleOrgRequired": {
+    "message": "Single organization policy required. "
+  },
+  "autoConfirmSingleOrgRequiredDescription": {
+    "message": "Anyone part of more than one organization will have their access revoked until they leave the other organizations."
+  },
+  "autoConfirmSingleOrgExemption": {
+    "message": "Single organization policy will extend to all roles. "
+  },
+  "autoConfirmNoEmergencyAccess": {
+    "message": "No emergency access. "
+  },
+  "autoConfirmNoEmergencyAccessDescription": {
+    "message": "Emergency Access will be removed."
+  },
+  "autoConfirmCheckBoxLabel": {
+    "message": "I accept these risks and policy updates"
   },
   "personalOwnership": {
     "message": "Suprimeix la caixa forta individual"
@@ -10361,26 +10423,8 @@
   "memberAccessReportAuthenticationEnabledFalse": {
     "message": "Off"
   },
-  "higherKDFIterations": {
-    "message": "Les iteracions mes altes de KDF poden ajudar a protegir la contrasenya mestra de ser forçada per un atacant."
-  },
-  "incrementsOf100,000": {
-    "message": "increments of 100,000"
-  },
-  "smallIncrements": {
-    "message": "small increments"
-  },
   "kdfIterationRecommends": {
     "message": "Recomanem 600.000 o més"
-  },
-  "kdfToHighWarningIncreaseInIncrements": {
-    "message": "Per a dispositius més antics, configurar el KDF a un valor massa alt pot provocar problemes de rendiment. Augmenteu el valor de $VALUE$ i proveu els dispositius.",
-    "placeholders": {
-      "value": {
-        "content": "$1",
-        "example": "increments of 100,000"
-      }
-    }
   },
   "providerReinstate": {
     "message": " Contact Customer Support to reinstate your subscription."
@@ -11024,6 +11068,15 @@
   "domainClaimed": {
     "message": "Domain claimed"
   },
+  "itemAddedToFavorites": {
+    "message": "Item added to favorites"
+  },
+  "itemRemovedFromFavorites": {
+    "message": "Item removed from favorites"
+  },
+  "copyNote": {
+    "message": "Copy note"
+  },
   "organizationNameMaxLength": {
     "message": "Organization name cannot exceed 50 characters."
   },
@@ -11294,11 +11347,46 @@
     "message": "Archive",
     "description": "Verb"
   },
+  "unArchive": {
+    "message": "Unarchive"
+  },
+  "itemsInArchive": {
+    "message": "Items in archive"
+  },
   "noItemsInArchive": {
     "message": "No items in archive"
   },
-  "archivedItemsDescription": {
+  "noItemsInArchiveDesc": {
     "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+  },
+  "itemWasSentToArchive": {
+    "message": "Item was sent to archive"
+  },
+  "itemsWereSentToArchive": {
+    "message": "Items were sent to archive"
+  },
+  "itemUnarchived": {
+    "message": "Item was unarchived"
+  },
+  "bulkArchiveItems": {
+    "message": "Items archived"
+  },
+  "bulkUnarchiveItems": {
+    "message": "Items unarchived"
+  },
+  "archiveItem": {
+    "message": "Archive item",
+    "description": "Verb"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+  },
+  "archiveBulkItems": {
+    "message": "Archive items",
+    "description": "Verb"
+  },
+  "archiveBulkItemsConfirmDesc": {
+    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive these items?"
   },
   "businessUnit": {
     "message": "Unitat de negoci"
@@ -11801,7 +11889,52 @@
   "continueWithoutUpgrading": {
     "message": "Continue without upgrading"
   },
+  "upgradeYourPlan": {
+    "message": "Upgrade your plan"
+  },
+  "upgradeNow": {
+    "message": "Upgrade now"
+  },
+  "formWillCreateNewFamiliesOrgMessage": {
+    "message": "Completing this form will create a new Families organization. You can upgrade your Free organization from the Admin Console."
+  },
   "upgradeErrorMessage": {
     "message": "We encountered an error while processing your upgrade. Please try again."
+  },
+  "bitwardenFreeplanMessage": {
+    "message": "You have the Bitwarden Free plan"
+  },
+  "upgradeCompleteSecurity": {
+    "message": "Upgrade for complete security"
+  },
+  "viewbusinessplans": {
+    "message": "View business plans"
+  },
+  "updateEncryptionSettings": {
+    "message": "Update encryption settings"
+  },
+  "updateYourEncryptionSettings": {
+    "message": "Update your encryption settings"
+  },
+  "updateSettings": {
+    "message": "Update settings"
+  },
+  "algorithm": {
+    "message": "Algorithm"
+  },
+  "encryptionKeySettingsHowShouldWeEncryptYourData": {
+    "message": "Choose how Bitwarden should encrypt your vault data. All options are secure, but stronger methods offer better protection - especially against brute-force attacks. Bitwarden recommends the default setting for most users."
+  },
+  "encryptionKeySettingsIncreaseImproveSecurity": {
+    "message": "Increasing the values above the default will improve security, but your vault may take longer to unlock as a result."
+  },
+  "encryptionKeySettingsAlgorithmPopoverTitle": {
+    "message": "About encryption algorithms"
+  },
+  "encryptionKeySettingsAlgorithmPopoverPBKDF2": {
+    "message": "PBKDF2-SHA256 is a well-tested encryption method that balances security and performance. Good for all users."
+  },
+  "encryptionKeySettingsAlgorithmPopoverArgon2Id": {
+    "message": "Argon2id offers stronger protection against modern attacks. Best for advanced users with powerful devices."
   }
 }

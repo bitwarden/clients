@@ -10,12 +10,16 @@ const configurator = require("./config/config");
 const manifest = require("./webpack/manifest");
 const AngularCheckPlugin = require("./webpack/angular-check");
 
-module.exports.getEnv = function getEnv() {
-  const ENV = (process.env.ENV = process.env.NODE_ENV);
+module.exports.getEnv = function getEnv(params) {
+  const ENV = params.env || (process.env.ENV = process.env.NODE_ENV);
   const manifestVersion = process.env.MANIFEST_VERSION == 3 ? 3 : 2;
   const browser = process.env.BROWSER ?? "chrome";
 
   return { ENV, manifestVersion, browser };
+};
+
+const DEFAULT_PARAMS = {
+  outputPath: path.resolve(__dirname, "build"),
 };
 
 /**
@@ -29,15 +33,21 @@ module.exports.getEnv = function getEnv() {
  *    entry: string;
  *  };
  *  tsConfig: string;
- *  additionalEntries?: { [outputPath: string]: string }
+ *  outputPath?: string;
+ *  mode?: string;
+ *  env?: string;
+ *  additionalEntries?: { [outputPath: string]: string };
+ *  importAliases?: import("webpack").ResolveOptions["alias"];
  * }} params - The input parameters for building the config.
  */
 module.exports.buildConfig = function buildConfig(params) {
+  params = { ...DEFAULT_PARAMS, ...params };
+
   if (process.env.NODE_ENV == null) {
     process.env.NODE_ENV = "development";
   }
 
-  const { ENV, manifestVersion, browser } = module.exports.getEnv();
+  const { ENV, manifestVersion, browser } = module.exports.getEnv(params);
 
   console.log(`Building Manifest Version ${manifestVersion} app - ${params.configName} version`);
 
@@ -103,7 +113,7 @@ module.exports.buildConfig = function buildConfig(params) {
         {
           loader: "babel-loader",
           options: {
-            configFile: "../../babel.config.json",
+            configFile: path.resolve(__dirname, "../../babel.config.json"),
             cacheDirectory: ENV === "development",
             compact: ENV !== "development",
           },
@@ -130,43 +140,52 @@ module.exports.buildConfig = function buildConfig(params) {
 
   const plugins = [
     new HtmlWebpackPlugin({
-      template: "./src/popup/index.ejs",
+      template: path.resolve(__dirname, "src/popup/index.ejs"),
       filename: "popup/index.html",
       chunks: ["popup/polyfills", "popup/vendor-angular", "popup/vendor", "popup/main"],
       browser: browser,
     }),
     new HtmlWebpackPlugin({
-      template: "./src/autofill/notification/bar.html",
+      template: path.resolve(__dirname, "src/autofill/notification/bar.html"),
       filename: "notification/bar.html",
       chunks: ["notification/bar"],
     }),
     new HtmlWebpackPlugin({
-      template: "./src/autofill/overlay/inline-menu/pages/button/button.html",
+      template: path.resolve(
+        __dirname,
+        "src/autofill/overlay/inline-menu/pages/button/button.html",
+      ),
       filename: "overlay/menu-button.html",
       chunks: ["overlay/menu-button"],
     }),
     new HtmlWebpackPlugin({
-      template: "./src/autofill/overlay/inline-menu/pages/list/list.html",
+      template: path.resolve(__dirname, "src/autofill/overlay/inline-menu/pages/list/list.html"),
       filename: "overlay/menu-list.html",
       chunks: ["overlay/menu-list"],
     }),
     new HtmlWebpackPlugin({
-      template: "./src/autofill/overlay/inline-menu/pages/menu-container/menu-container.html",
+      template: path.resolve(
+        __dirname,
+        "src/autofill/overlay/inline-menu/pages/menu-container/menu-container.html",
+      ),
       filename: "overlay/menu.html",
       chunks: ["overlay/menu"],
     }),
     new CopyWebpackPlugin({
       patterns: [
         {
-          from: manifestVersion == 3 ? "./src/manifest.v3.json" : "./src/manifest.json",
+          from:
+            manifestVersion == 3
+              ? path.resolve(__dirname, "src/manifest.v3.json")
+              : path.resolve(__dirname, "src/manifest.json"),
           to: "manifest.json",
           transform: manifest.transform(browser),
         },
-        { from: "./src/managed_schema.json", to: "managed_schema.json" },
-        { from: "./src/_locales", to: "_locales" },
-        { from: "./src/images", to: "images" },
-        { from: "./src/popup/images", to: "popup/images" },
-        { from: "./src/autofill/content/autofill.css", to: "content" },
+        { from: path.resolve(__dirname, "src/managed_schema.json"), to: "managed_schema.json" },
+        { from: path.resolve(__dirname, "src/_locales"), to: "_locales" },
+        { from: path.resolve(__dirname, "src/images"), to: "images" },
+        { from: path.resolve(__dirname, "src/popup/images"), to: "popup/images" },
+        { from: path.resolve(__dirname, "src/autofill/content/autofill.css"), to: "content" },
       ],
     }),
     new MiniCssExtractPlugin({
@@ -196,33 +215,76 @@ module.exports.buildConfig = function buildConfig(params) {
     name: "main",
     mode: ENV,
     devtool: false,
+
     entry: {
-      "popup/polyfills": "./src/popup/polyfills.ts",
+      "popup/polyfills": path.resolve(__dirname, "src/popup/polyfills.ts"),
       "popup/main": params.popup.entry,
-      "content/trigger-autofill-script-injection":
-        "./src/autofill/content/trigger-autofill-script-injection.ts",
-      "content/bootstrap-autofill": "./src/autofill/content/bootstrap-autofill.ts",
-      "content/bootstrap-autofill-overlay": "./src/autofill/content/bootstrap-autofill-overlay.ts",
-      "content/bootstrap-autofill-overlay-menu":
-        "./src/autofill/content/bootstrap-autofill-overlay-menu.ts",
-      "content/bootstrap-autofill-overlay-notifications":
-        "./src/autofill/content/bootstrap-autofill-overlay-notifications.ts",
-      "content/autofiller": "./src/autofill/content/autofiller.ts",
-      "content/auto-submit-login": "./src/autofill/content/auto-submit-login.ts",
-      "content/contextMenuHandler": "./src/autofill/content/context-menu-handler.ts",
-      "content/content-message-handler": "./src/autofill/content/content-message-handler.ts",
-      "content/fido2-content-script": "./src/autofill/fido2/content/fido2-content-script.ts",
-      "content/fido2-page-script": "./src/autofill/fido2/content/fido2-page-script.ts",
-      "content/ipc-content-script": "./src/platform/ipc/content/ipc-content-script.ts",
-      "notification/bar": "./src/autofill/notification/bar.ts",
-      "overlay/menu-button":
-        "./src/autofill/overlay/inline-menu/pages/button/bootstrap-autofill-inline-menu-button.ts",
-      "overlay/menu-list":
-        "./src/autofill/overlay/inline-menu/pages/list/bootstrap-autofill-inline-menu-list.ts",
-      "overlay/menu":
-        "./src/autofill/overlay/inline-menu/pages/menu-container/bootstrap-autofill-inline-menu-container.ts",
-      "content/send-on-installed-message": "./src/vault/content/send-on-installed-message.ts",
-      "content/send-popup-open-message": "./src/vault/content/send-popup-open-message.ts",
+      "content/trigger-autofill-script-injection": path.resolve(
+        __dirname,
+        "src/autofill/content/trigger-autofill-script-injection.ts",
+      ),
+      "content/bootstrap-autofill": path.resolve(
+        __dirname,
+        "src/autofill/content/bootstrap-autofill.ts",
+      ),
+      "content/bootstrap-autofill-overlay": path.resolve(
+        __dirname,
+        "src/autofill/content/bootstrap-autofill-overlay.ts",
+      ),
+      "content/bootstrap-autofill-overlay-menu": path.resolve(
+        __dirname,
+        "src/autofill/content/bootstrap-autofill-overlay-menu.ts",
+      ),
+      "content/bootstrap-autofill-overlay-notifications": path.resolve(
+        __dirname,
+        "src/autofill/content/bootstrap-autofill-overlay-notifications.ts",
+      ),
+      "content/autofiller": path.resolve(__dirname, "src/autofill/content/autofiller.ts"),
+      "content/auto-submit-login": path.resolve(
+        __dirname,
+        "src/autofill/content/auto-submit-login.ts",
+      ),
+      "content/contextMenuHandler": path.resolve(
+        __dirname,
+        "src/autofill/content/context-menu-handler.ts",
+      ),
+      "content/content-message-handler": path.resolve(
+        __dirname,
+        "src/autofill/content/content-message-handler.ts",
+      ),
+      "content/fido2-content-script": path.resolve(
+        __dirname,
+        "src/autofill/fido2/content/fido2-content-script.ts",
+      ),
+      "content/fido2-page-script": path.resolve(
+        __dirname,
+        "src/autofill/fido2/content/fido2-page-script.ts",
+      ),
+      "content/ipc-content-script": path.resolve(
+        __dirname,
+        "src/platform/ipc/content/ipc-content-script.ts",
+      ),
+      "notification/bar": path.resolve(__dirname, "src/autofill/notification/bar.ts"),
+      "overlay/menu-button": path.resolve(
+        __dirname,
+        "src/autofill/overlay/inline-menu/pages/button/bootstrap-autofill-inline-menu-button.ts",
+      ),
+      "overlay/menu-list": path.resolve(
+        __dirname,
+        "src/autofill/overlay/inline-menu/pages/list/bootstrap-autofill-inline-menu-list.ts",
+      ),
+      "overlay/menu": path.resolve(
+        __dirname,
+        "src/autofill/overlay/inline-menu/pages/menu-container/bootstrap-autofill-inline-menu-container.ts",
+      ),
+      "content/send-on-installed-message": path.resolve(
+        __dirname,
+        "src/vault/content/send-on-installed-message.ts",
+      ),
+      "content/send-popup-open-message": path.resolve(
+        __dirname,
+        "src/vault/content/send-popup-open-message.ts",
+      ),
       ...params.additionalEntries,
     },
     cache:
@@ -291,7 +353,7 @@ module.exports.buildConfig = function buildConfig(params) {
     resolve: {
       extensions: [".ts", ".js"],
       symlinks: false,
-      modules: [path.resolve("../../node_modules")],
+      modules: [path.resolve(__dirname, "../../node_modules")],
       fallback: {
         assert: false,
         buffer: require.resolve("buffer/"),
@@ -301,12 +363,13 @@ module.exports.buildConfig = function buildConfig(params) {
         path: require.resolve("path-browserify"),
       },
       cache: true,
+      alias: params.importAliases,
     },
     output: {
       filename: "[name].js",
       chunkFilename: "assets/[name].js",
       webassemblyModuleFilename: "assets/[modulehash].wasm",
-      path: path.resolve(__dirname, "build"),
+      path: params.outputPath,
       clean: true,
     },
     module: {
@@ -335,7 +398,7 @@ module.exports.buildConfig = function buildConfig(params) {
     // Manifest V2 uses Background Pages which requires a html page.
     mainConfig.plugins.push(
       new HtmlWebpackPlugin({
-        template: "./src/platform/background.html",
+        template: path.resolve(__dirname, "src/platform/background.html"),
         filename: "background.html",
         chunks: ["vendor", "background"],
       }),
@@ -344,19 +407,23 @@ module.exports.buildConfig = function buildConfig(params) {
     // Manifest V2 background pages can be run through the regular build pipeline.
     // Since it's a standard webpage.
     mainConfig.entry.background = params.background.entry;
-    mainConfig.entry["content/fido2-page-script-delay-append-mv2"] =
-      "./src/autofill/fido2/content/fido2-page-script-delay-append.mv2.ts";
+    mainConfig.entry["content/fido2-page-script-delay-append-mv2"] = path.resolve(
+      __dirname,
+      "src/autofill/fido2/content/fido2-page-script-delay-append.mv2.ts",
+    );
 
     configs.push(mainConfig);
   } else {
     // Firefox does not use the offscreen API
     if (browser !== "firefox") {
-      mainConfig.entry["offscreen-document/offscreen-document"] =
-        "./src/platform/offscreen-document/offscreen-document.ts";
+      mainConfig.entry["offscreen-document/offscreen-document"] = path.resolve(
+        __dirname,
+        "src/platform/offscreen-document/offscreen-document.ts",
+      );
 
       mainConfig.plugins.push(
         new HtmlWebpackPlugin({
-          template: "./src/platform/offscreen-document/index.html",
+          template: path.resolve(__dirname, "src/platform/offscreen-document/index.html"),
           filename: "offscreen-document/index.html",
           chunks: ["offscreen-document/offscreen-document"],
         }),
@@ -372,11 +439,12 @@ module.exports.buildConfig = function buildConfig(params) {
       name: "background",
       mode: ENV,
       devtool: false,
+
       entry: params.background.entry,
       target: target,
       output: {
         filename: "background.js",
-        path: path.resolve(__dirname, "build"),
+        path: params.outputPath,
       },
       module: {
         rules: [
@@ -409,13 +477,14 @@ module.exports.buildConfig = function buildConfig(params) {
       resolve: {
         extensions: [".ts", ".js"],
         symlinks: false,
-        modules: [path.resolve("../../node_modules")],
+        modules: [path.resolve(__dirname, "../../node_modules")],
         plugins: [new TsconfigPathsPlugin()],
         fallback: {
           fs: false,
           path: require.resolve("path-browserify"),
         },
         cache: true,
+        alias: params.importAliases,
       },
       dependencies: ["main"],
       plugins: [...requiredPlugins, new AngularCheckPlugin()],
@@ -428,8 +497,11 @@ module.exports.buildConfig = function buildConfig(params) {
       backgroundConfig.plugins.push(
         new CopyWebpackPlugin({
           patterns: [
-            { from: "./src/safari/mv3/fake-background.html", to: "background.html" },
-            { from: "./src/safari/mv3/fake-vendor.js", to: "vendor.js" },
+            {
+              from: path.resolve(__dirname, "src/safari/mv3/fake-background.html"),
+              to: "background.html",
+            },
+            { from: path.resolve(__dirname, "src/safari/mv3/fake-vendor.js"), to: "vendor.js" },
           ],
         }),
       );
