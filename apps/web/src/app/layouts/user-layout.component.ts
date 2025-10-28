@@ -8,7 +8,8 @@ import { combineLatest, map, Observable, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { PasswordManagerLogo } from "@bitwarden/assets/svg";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
@@ -46,7 +47,7 @@ export class UserLayoutComponent implements OnInit {
     private syncService: SyncService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private accountService: AccountService,
-    private organizationService: OrganizationService,
+    private policyService: PolicyService,
     private configService: ConfigService,
   ) {
     this.showSubscription$ = this.accountService.activeAccount$.pipe(
@@ -60,21 +61,16 @@ export class UserLayoutComponent implements OnInit {
         this.configService.getFeatureFlag$(FeatureFlag.AutoConfirm),
         this.accountService.activeAccount$.pipe(
           getUserId,
-          switchMap((userId) => this.organizationService.organizations$(userId)),
+          switchMap((userId) =>
+            this.policyService.policyAppliesToUser$(PolicyType.AutoConfirm, userId),
+          ),
         ),
       ]).pipe(
-        map(([enabled, organizations]) => {
-          if (!enabled) {
+        map(([enabled, policyAppliesToUser]) => {
+          if (!enabled || !policyAppliesToUser) {
             return true;
           }
-
-          for (const org of organizations) {
-            if (org.useAutomaticUserConfirmation) {
-              return false;
-            }
-          }
-
-          return true;
+          return false;
         }),
       ),
     );

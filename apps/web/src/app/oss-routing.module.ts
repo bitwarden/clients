@@ -52,7 +52,7 @@ import { LockComponent } from "@bitwarden/key-management-ui";
 
 import { flagEnabled, Flags } from "../utils/flags";
 
-import { nonOrganizationFeatureGuard } from "./admin-console/organizations/guards/org-feature.guard";
+import { organizationPolicyGuard } from "./admin-console/organizations/guards/org-policy.guard";
 import { VerifyRecoverDeleteOrgComponent } from "./admin-console/organizations/manage/verify-recover-delete-org.component";
 import { AcceptFamilySponsorshipComponent } from "./admin-console/organizations/sponsorships/accept-family-sponsorship.component";
 import { FamiliesForEnterpriseSetupComponent } from "./admin-console/organizations/sponsorships/families-for-enterprise-setup.component";
@@ -687,13 +687,13 @@ const routes: Routes = [
               {
                 path: "",
                 component: EmergencyAccessComponent,
-                canActivate: [nonOrganizationFeatureGuard(canAccessEmergencyAccess)],
+                canActivate: [organizationPolicyGuard(canAccessEmergencyAccess)],
                 data: { titleId: "emergencyAccess" } satisfies RouteDataProperties,
               },
               {
                 path: ":id",
                 component: EmergencyAccessViewComponent,
-                canActivate: [nonOrganizationFeatureGuard(canAccessEmergencyAccess)],
+                canActivate: [organizationPolicyGuard(canAccessEmergencyAccess)],
                 data: { titleId: "emergencyAccess" } satisfies RouteDataProperties,
               },
             ],
