@@ -37,6 +37,7 @@ import {
   VerificationWithSecret,
   verificationHasSecret,
 } from "../../types/verification";
+import { getUserId } from "../account.service";
 
 /**
  * Used for general-purpose user verification throughout the app.
@@ -111,20 +112,15 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
     if (verification.type === VerificationType.OTP) {
       request.otp = verification.secret;
     } else {
-      const [userId, email] = await firstValueFrom(
-        this.accountService.activeAccount$.pipe(map((a) => [a?.id, a?.email])),
-      );
-      let masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
-      if (!masterKey && !alreadyHashed) {
-        masterKey = await this.keyService.makeMasterKey(
+      const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      const kdf = await this.kdfConfigService.getKdfConfig(userId as UserId);
+      const authenticationData =
+        await this.masterPasswordService.makeMasterPasswordAuthenticationData(
           verification.secret,
-          email,
-          await this.kdfConfigService.getKdfConfig(userId),
+          kdf,
+          await firstValueFrom(this.masterPasswordService.saltForUser$(userId as UserId)),
         );
-      }
-      request.masterPasswordHash = alreadyHashed
-        ? verification.secret
-        : await this.keyService.hashMasterKey(verification.secret, masterKey);
+      request.authenticateWith(authenticationData);
     }
 
     return request;
