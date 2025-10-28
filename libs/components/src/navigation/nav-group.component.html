@@ -1,7 +1,5 @@
 <!-- This a higher order component that composes `NavItemComponent`  -->
 @if (!hideIfEmpty() || nestedNavComponents().length > 0) {
-  @let sideNavOpen = sideNavService.open$ | async;
-
   <bit-nav-item
     [text]="text()"
     [icon]="icon()"
@@ -10,8 +8,8 @@
     [routerLinkActiveOptions]="routerLinkActiveOptions()"
     (mainContentClicked)="handleMainContentClicked()"
     [ariaLabel]="ariaLabel()"
-    [hideActiveStyles]="parentHideActiveStyles"
-    [ariaCurrentWhenActive]="ariaCurrentWhenActive() ?? (sideNavOpen ? undefined : 'page')"
+    [hideActiveStyles]="parentHideActiveStyles()"
+    [ariaCurrentWhenActive]="ariaCurrent()"
   >
     <ng-template #button>
       <button
@@ -32,7 +30,7 @@
     </ng-container>
   </bit-nav-item>
   <!-- [attr.aria-controls] of the above button expects a unique ID on the controlled element -->
-  @if (sideNavService.open$ | async) {
+  @if (sideNavOpen()) {
     @if (open()) {
       <div
         [attr.id]="contentId"

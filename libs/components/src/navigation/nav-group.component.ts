@@ -9,7 +9,9 @@ import {
   input,
   model,
   contentChildren,
+  computed,
 } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { RouterLinkActive } from "@angular/router";
 
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -34,10 +36,16 @@ import { SideNavService } from "./side-nav.service";
 export class NavGroupComponent extends NavBaseComponent {
   readonly nestedNavComponents = contentChildren(NavBaseComponent, { descendants: true });
 
+  readonly sideNavOpen = toSignal(this.sideNavService.open$);
+
+  readonly sideNavAndGroupOpen = computed(() => {
+    return this.open() && this.sideNavOpen();
+  });
+
   /** When the side nav is open, the parent nav item should not show active styles when open. */
-  protected get parentHideActiveStyles(): boolean {
-    return this.hideActiveStyles() || (this.open() && this.sideNavService.open);
-  }
+  readonly parentHideActiveStyles = computed(() => {
+    return this.hideActiveStyles() || this.sideNavAndGroupOpen();
+  });
 
   /**
    * Allow overriding of the RouterLink['ariaCurrentWhenActive'] property.
@@ -51,6 +59,10 @@ export class NavGroupComponent extends NavBaseComponent {
    * as `current` by passing in `"page"`.
    */
   readonly ariaCurrentWhenActive = input<RouterLinkActive["ariaCurrentWhenActive"]>();
+
+  readonly ariaCurrent = computed(() => {
+    return this.ariaCurrentWhenActive() ?? (this.sideNavAndGroupOpen() ? undefined : "page");
+  });
 
   /**
    * UID for `[attr.aria-controls]`
