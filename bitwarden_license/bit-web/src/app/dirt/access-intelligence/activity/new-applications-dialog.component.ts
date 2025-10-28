@@ -1,18 +1,22 @@
 import { CommonModule } from "@angular/common";
-import { Component, inject } from "@angular/core";
+import { Component } from "@angular/core";
 
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
   ButtonModule,
   DialogModule,
+  DialogRef,
   DialogService,
-  ToastService,
   TypographyModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 export interface NewApplicationsDialogData {
   newApplications: string[];
+}
+
+export interface NewApplicationsDialogResult {
+  saved: boolean;
+  selectedApplications: string[];
 }
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -24,9 +28,7 @@ export interface NewApplicationsDialogData {
 export class NewApplicationsDialogComponent {
   protected newApplications: string[] = [];
   protected selectedApplications: Set<string> = new Set<string>();
-
-  private toastService = inject(ToastService);
-  private i18nService = inject(I18nService);
+  protected dialogRef: DialogRef<NewApplicationsDialogResult> | null = null;
 
   /**
    * Opens the new applications dialog
@@ -35,7 +37,7 @@ export class NewApplicationsDialogComponent {
    * @returns Dialog reference
    */
   static open(dialogService: DialogService, data: NewApplicationsDialogData) {
-    const ref = dialogService.open<boolean, NewApplicationsDialogData>(
+    const ref = dialogService.open<NewApplicationsDialogResult, NewApplicationsDialogData>(
       NewApplicationsDialogComponent,
       {
         data,
@@ -46,6 +48,7 @@ export class NewApplicationsDialogComponent {
     const instance = ref.componentInstance as NewApplicationsDialogComponent;
     if (instance) {
       instance.newApplications = data.newApplications;
+      instance.dialogRef = ref;
     }
 
     return ref;
@@ -73,16 +76,17 @@ export class NewApplicationsDialogComponent {
   };
 
   /**
-   * Placeholder handler for mark as critical functionality.
-   * Shows a toast notification with count of selected applications.
-   * TODO: Implement actual mark as critical functionality (PM-26203 follow-up)
+   * Handles the "Mark as Critical" button click.
+   * Returns the selected applications to the calling component for processing.
+   * The calling component is responsible for:
+   * - Marking ALL new applications as reviewed (reviewedDate = current date)
+   * - Marking SELECTED applications as critical (isCritical = true)
    */
   onMarkAsCritical = () => {
-    const selectedCount = this.selectedApplications.size;
-    this.toastService.showToast({
-      variant: "info",
-      title: this.i18nService.t("markAsCritical"),
-      message: `${selectedCount} ${this.i18nService.t("applicationsSelected")}`,
+    const selectedApps = Array.from(this.selectedApplications);
+    this.dialogRef?.close({
+      saved: true,
+      selectedApplications: selectedApps,
     });
   };
 }

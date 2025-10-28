@@ -62,7 +62,7 @@
       bitButton
       size="small"
       buttonType="secondary"
-      [bitDialogClose]
+      [bitDialogClose]="{ saved: false, selectedApplications: [] }"
       [attr.aria-label]="'cancel' | i18n"
     >
       {{ "cancel" | i18n }}
