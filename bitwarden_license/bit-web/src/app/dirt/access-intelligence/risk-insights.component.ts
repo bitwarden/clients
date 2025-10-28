@@ -111,6 +111,8 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
           this.dialogService.openDrawer(RiskInsightsDrawerDialogComponent, {
             data: { ...details },
           });
+        } else {
+          this.dialogService.closeAll();
         }
       });
   }
