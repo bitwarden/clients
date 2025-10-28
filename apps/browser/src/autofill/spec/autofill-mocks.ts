@@ -144,7 +144,6 @@ export function createAutofillScriptMock(
 
   return {
     autosubmit: null,
-    metadata: {},
     properties: {
       delay_between_operations: 20,
     },

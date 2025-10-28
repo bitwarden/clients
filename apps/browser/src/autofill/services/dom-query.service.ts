@@ -217,13 +217,12 @@ export class DomQueryService implements DomQueryServiceInterface {
     if ((chrome as any).dom?.openOrClosedShadowRoot) {
       try {
         return (chrome as any).dom.openOrClosedShadowRoot(node);
-        // FIXME: Remove when updating file. Eslint update
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      } catch (error) {
+      } catch {
         return null;
       }
     }
 
+    // Firefox-specific equivalent of `openOrClosedShadowRoot`
     return (node as any).openOrClosedShadowRoot;
   }
 

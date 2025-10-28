@@ -104,13 +104,37 @@ export default class NotificationBackground {
     bgGetFolderData: () => this.getFolderData(),
     bgGetCollectionData: ({ message }) => this.getCollectionData(message),
     bgGetOrgData: () => this.getOrgData(),
-    bgNeverSave: ({ sender }) => this.saveNever(sender.tab),
-    bgOpenAddEditVaultItemPopout: ({ message, sender }) =>
-      this.openAddEditVaultItem(message, sender.tab),
-    bgOpenViewVaultItemPopout: ({ message, sender }) => this.viewItem(message, sender.tab),
-    bgRemoveTabFromNotificationQueue: ({ sender }) =>
-      this.removeTabFromNotificationQueue(sender.tab),
-    bgReopenUnlockPopout: ({ sender }) => this.openUnlockPopout(sender.tab),
+    bgNeverSave: ({ sender }) => {
+      if (sender.tab) {
+        return this.saveNever(sender.tab);
+      }
+      return Promise.resolve();
+    },
+    bgOpenAddEditVaultItemPopout: ({ message, sender }) => {
+      if (sender.tab) {
+        return this.openAddEditVaultItem(message, sender.tab);
+      }
+      return Promise.resolve();
+    },
+    bgOpenViewVaultItemPopout: ({ message, sender }) => {
+      if (sender.tab) {
+        return this.viewItem(message, sender.tab);
+      }
+      return Promise.resolve();
+    },
+    bgRemoveTabFromNotificationQueue: ({ sender }) => {
+      if (sender.tab) {
+        return this.removeTabFromNotificationQueue(sender.tab);
+      }
+      return Promise.resolve();
+    },
+
+    bgReopenUnlockPopout: ({ sender }) => {
+      if (sender.tab) {
+        return this.openUnlockPopout(sender.tab);
+      }
+      return Promise.resolve();
+    },
     bgSaveCipher: ({ message, sender }) => this.handleSaveCipherMessage(message, sender),
     bgHandleReprompt: ({ message, sender }: any) =>
       this.handleCipherUpdateRepromptResponse(message),
@@ -292,7 +316,7 @@ export default class NotificationBackground {
       favorite,
       ...(organizationCategories.length ? { organizationCategories } : {}),
       icon: buildCipherIcon(iconsServerUrl, view, showFavicons),
-      login: login && { username: login.username },
+      login: login.username ? { username: login.username } : undefined,
     };
   }
 
@@ -355,7 +379,7 @@ export default class NotificationBackground {
   /**
    * Gets the active user server config from the config service.
    */
-  async getActiveUserServerConfig(): Promise<ServerConfig> {
+  async getActiveUserServerConfig(): Promise<ServerConfig | null> {
     return await firstValueFrom(this.configService.serverConfig$);
   }
 
@@ -373,7 +397,7 @@ export default class NotificationBackground {
    *
    * @param tab - The tab to check the notification queue for
    */
-  async checkNotificationQueue(tab: chrome.tabs.Tab = null): Promise<void> {
+  async checkNotificationQueue(tab: chrome.tabs.Tab | null = null): Promise<void> {
     if (this.notificationQueue.length === 0) {
       return;
     }
@@ -860,9 +884,11 @@ export default class NotificationBackground {
         });
         await BrowserApi.tabSendMessage(tab, { command: "addedCipher" });
       } catch (error) {
-        await BrowserApi.tabSendMessageData(tab, "saveCipherAttemptCompleted", {
-          error: error?.message && String(error.message),
-        });
+        if (error instanceof Error) {
+          await BrowserApi.tabSendMessageData(tab, "saveCipherAttemptCompleted", {
+            error: error?.message && String(error.message),
+          });
+        }
       }
     }
   }
@@ -904,7 +930,7 @@ export default class NotificationBackground {
       const updatedCipherTask = tasks.find((task) => task.cipherId === cipherView?.id);
       const cipherHasTask = !!updatedCipherTask?.id;
 
-      let taskOrgName: string;
+      let taskOrgName: string | undefined;
       if (cipherHasTask && updatedCipherTask?.organizationId) {
         const userOrgs = await this.getOrgData();
         taskOrgName = userOrgs.find(({ id }) => id === updatedCipherTask.organizationId)?.name;
@@ -943,9 +969,11 @@ export default class NotificationBackground {
         );
       }
     } catch (error) {
-      await BrowserApi.tabSendMessageData(tab, "saveCipherAttemptCompleted", {
-        error: error?.message && String(error.message),
-      });
+      if (error instanceof Error) {
+        await BrowserApi.tabSendMessageData(tab, "saveCipherAttemptCompleted", {
+          error: error?.message && String(error.message),
+        });
+      }
     }
   }
 
@@ -1087,7 +1115,7 @@ export default class NotificationBackground {
     const activeUserId = await firstValueFrom(
       this.accountService.activeAccount$.pipe(getOptionalUserId),
     );
-    return await firstValueFrom(this.folderService.folderViews$(activeUserId));
+    return activeUserId ? await firstValueFrom(this.folderService.folderViews$(activeUserId)) : [];
   }
 
   private async getCollectionData(
@@ -1137,9 +1165,9 @@ export default class NotificationBackground {
     const activeUserId = await firstValueFrom(
       this.accountService.activeAccount$.pipe(getOptionalUserId),
     );
-    const organizations = await firstValueFrom(
-      this.organizationService.organizations$(activeUserId),
-    );
+    const organizations = activeUserId
+      ? await firstValueFrom(this.organizationService.organizations$(activeUserId))
+      : [];
 
     return organizations.map((org) => {
       const { id, name, productTierType } = org;
@@ -1165,7 +1193,7 @@ export default class NotificationBackground {
   ): Promise<void> {
     const messageData = message.data as LockedVaultPendingNotificationsData;
     const retryCommand = messageData.commandToRetry.message.command as ExtensionCommandType;
-    if (this.allowedRetryCommands.has(retryCommand)) {
+    if (this.allowedRetryCommands.has(retryCommand) && sender.tab) {
       await BrowserApi.tabSendMessageData(sender.tab, "closeNotificationBar");
     }
 
@@ -1193,9 +1221,11 @@ export default class NotificationBackground {
     message: NotificationBackgroundExtensionMessage,
     sender: chrome.runtime.MessageSender,
   ) {
-    await BrowserApi.tabSendMessageData(sender.tab, "closeNotificationBar", {
-      fadeOutNotification: !!message.fadeOutNotification,
-    });
+    if (sender.tab) {
+      await BrowserApi.tabSendMessageData(sender.tab, "closeNotificationBar", {
+        fadeOutNotification: !!message.fadeOutNotification,
+      });
+    }
   }
 
   /**
@@ -1220,9 +1250,11 @@ export default class NotificationBackground {
 
       await Promise.all([
         this.messagingService.send(VaultMessages.OpenAtRiskPasswords),
-        BrowserApi.tabSendMessageData(sender.tab, "closeNotificationBar", {
-          fadeOutNotification: !!message.fadeOutNotification,
-        }),
+        sender.tab
+          ? BrowserApi.tabSendMessageData(sender.tab, "closeNotificationBar", {
+              fadeOutNotification: !!message.fadeOutNotification,
+            })
+          : Promise.resolve(),
       ]);
     } finally {
       // Reset the popup route to the default route so any subsequent

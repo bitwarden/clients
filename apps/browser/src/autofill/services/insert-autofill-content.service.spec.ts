@@ -101,7 +101,6 @@ describe("InsertAutofillContentService", () => {
       properties: {
         delay_between_operations: 20,
       },
-      metadata: {},
       autosubmit: [],
       savedUrls: ["https://bitwarden.com"],
       untrustedIframe: false,
@@ -220,18 +219,15 @@ describe("InsertAutofillContentService", () => {
       expect(insertAutofillContentService["runFillScriptAction"]).toHaveBeenCalledTimes(3);
       expect(insertAutofillContentService["runFillScriptAction"]).toHaveBeenNthCalledWith(
         1,
-        fillScript.script[0],
-        0,
+        fillScript.script[0]
       );
       expect(insertAutofillContentService["runFillScriptAction"]).toHaveBeenNthCalledWith(
         2,
-        fillScript.script[1],
-        1,
+        fillScript.script[1]
       );
       expect(insertAutofillContentService["runFillScriptAction"]).toHaveBeenNthCalledWith(
         3,
-        fillScript.script[2],
-        2,
+        fillScript.script[2]
       );
     });
   });
@@ -382,7 +378,7 @@ describe("InsertAutofillContentService", () => {
       const scriptAction: FillScript = [action, opid, value];
       jest.spyOn(insertAutofillContentService["autofillInsertActions"], action);
 
-      await insertAutofillContentService["runFillScriptAction"](scriptAction, 0);
+      await insertAutofillContentService["runFillScriptAction"](scriptAction);
       jest.advanceTimersByTime(20);
 
       expect(insertAutofillContentService["autofillInsertActions"][action]).not.toHaveBeenCalled();
@@ -401,9 +397,7 @@ describe("InsertAutofillContentService", () => {
           const scriptAction: FillScript = [action, opid, value];
           jest.spyOn(insertAutofillContentService["autofillInsertActions"], action);
 
-          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-          // eslint-disable-next-line @typescript-eslint/no-floating-promises
-          insertAutofillContentService["runFillScriptAction"](scriptAction, 0);
+          void insertAutofillContentService["runFillScriptAction"](scriptAction);
           jest.advanceTimersByTime(20);
 
           expect(
