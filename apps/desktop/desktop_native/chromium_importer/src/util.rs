@@ -1,9 +1,6 @@
-use aes::cipher::{block_padding::Pkcs7, BlockDecryptMut, KeyIvInit};
 use anyhow::{anyhow, Result};
-use pbkdf2::{hmac::Hmac, pbkdf2};
-use sha1::Sha1;
 
-pub fn split_encrypted_string(encrypted: &[u8]) -> Result<(&str, &[u8])> {
+fn split_encrypted_string(encrypted: &[u8]) -> Result<(&str, &[u8])> {
     if encrypted.len() < 3 {
         return Err(anyhow!(
             "Corrupted entry: invalid encrypted string length, expected at least 3 bytes, got {}",
@@ -15,7 +12,14 @@ pub fn split_encrypted_string(encrypted: &[u8]) -> Result<(&str, &[u8])> {
     Ok((std::str::from_utf8(version)?, password))
 }
 
-pub fn split_encrypted_string_and_validate<'a>(
+/// A Chromium password consists of three parts:
+/// - Version (3 bytes): "v10", "v11", etc.
+/// - Cipher text (chunks of 16 bytes)
+/// - Padding (1-15 bytes)
+///
+/// This function splits the encrypted byte slice into version and cipher text.
+/// Padding is included and handled by the underlying cryptographic library.
+pub(crate) fn split_encrypted_string_and_validate<'a>(
     encrypted: &'a [u8],
     supported_versions: &[&str],
 ) -> Result<(&'a str, &'a [u8])> {
@@ -27,15 +31,22 @@ pub fn split_encrypted_string_and_validate<'a>(
     Ok((version, password))
 }
 
-pub fn decrypt_aes_128_cbc(key: &[u8], iv: &[u8], ciphertext: &[u8]) -> Result<Vec<u8>> {
-    let decryptor = cbc::Decryptor::<aes::Aes128>::new_from_slices(key, iv)?;
-    let plaintext: Vec<u8> = decryptor
+/// Decrypt using AES-128 in CBC mode.
+#[cfg(any(target_os = "linux", target_os = "macos", test))]
+pub(crate) fn decrypt_aes_128_cbc(key: &[u8], iv: &[u8], ciphertext: &[u8]) -> Result<Vec<u8>> {
+    use aes::cipher::{block_padding::Pkcs7, BlockDecryptMut, KeyIvInit};
+
+    cbc::Decryptor::<aes::Aes128>::new_from_slices(key, iv)?
         .decrypt_padded_vec_mut::<Pkcs7>(ciphertext)
-        .map_err(|e| anyhow!("Failed to decrypt: {}", e))?;
-    Ok(plaintext)
+        .map_err(|e| anyhow!("Failed to decrypt: {}", e))
 }
 
-pub fn derive_saltysalt(password: &[u8], iterations: u32) -> Result<Vec<u8>> {
+/// Derives a PBKDF2 key from the static "saltysalt" salt with the given password and iteration count.
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+pub(crate) fn derive_saltysalt(password: &[u8], iterations: u32) -> Result<Vec<u8>> {
+    use pbkdf2::{hmac::Hmac, pbkdf2};
+    use sha1::Sha1;
+
     let mut key = vec![0u8; 16];
     pbkdf2::<Hmac<Sha1>>(password, b"saltysalt", iterations, &mut key)
         .map_err(|e| anyhow!("Failed to derive master key: {}", e))?;
@@ -44,16 +55,6 @@ pub fn derive_saltysalt(password: &[u8], iterations: u32) -> Result<Vec<u8>> {
 
 #[cfg(test)]
 mod tests {
-    pub fn generate_vec(length: usize, offset: u8, increment: u8) -> Vec<u8> {
-        (0..length).map(|i| offset + i as u8 * increment).collect()
-    }
-    pub fn generate_generic_array<N: ArrayLength<u8>>(
-        offset: u8,
-        increment: u8,
-    ) -> GenericArray<u8, N> {
-        GenericArray::generate(|i| offset + i as u8 * increment)
-    }
-
     use aes::cipher::{
         block_padding::Pkcs7,
         generic_array::{sequence::GenericSequence, GenericArray},
@@ -63,6 +64,17 @@ mod tests {
     const LENGTH16: usize = 16;
     const LENGTH10: usize = 10;
     const LENGTH0: usize = 0;
+
+    fn generate_vec(length: usize, offset: u8, increment: u8) -> Vec<u8> {
+        (0..length).map(|i| offset + i as u8 * increment).collect()
+    }
+
+    fn generate_generic_array<N: ArrayLength<u8>>(
+        offset: u8,
+        increment: u8,
+    ) -> GenericArray<u8, N> {
+        GenericArray::generate(|i| offset + i as u8 * increment)
+    }
 
     fn run_split_encrypted_string_test<'a, const N: usize>(
         successfully_split: bool,

@@ -62,6 +62,8 @@ export interface AddEditCipherDialogCloseResult {
  * Component for viewing a cipher, presented in a dialog.
  * @deprecated Use the VaultItemDialogComponent instead.
  */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-vault-add-edit-v2",
   templateUrl: "add-edit-v2.component.html",
