@@ -82,12 +82,12 @@ mod windows_binary {
     }
 
     async fn open_pipe_client(pipe_name: &'static str) -> Result<NamedPipeClient> {
-        // TODO: Don't loop forever, but retry a few times
-        let client = loop {
+        let max_attempts = 5;
+        for _ in 0..max_attempts {
             match ClientOptions::new().open(pipe_name) {
                 Ok(client) => {
                     dbg_log!("Successfully connected to the pipe!");
-                    break client;
+                    return Ok(client);
                 }
                 Err(e) if e.raw_os_error() == Some(ERROR_PIPE_BUSY.0 as i32) => {
                     dbg_log!("Pipe is busy, retrying in 50ms...");
@@ -99,9 +99,12 @@ mod windows_binary {
             }
 
             time::sleep(Duration::from_millis(50)).await;
-        };
+        }
 
-        Ok(client)
+        Err(anyhow!(
+            "Failed to connect to pipe after {} attempts",
+            max_attempts
+        ))
     }
 
     async fn send_message_with_client(
