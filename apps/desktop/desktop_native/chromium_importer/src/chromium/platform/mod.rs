@@ -4,4 +4,6 @@
 #[cfg_attr(target_os = "macos", path = "macos.rs")]
 mod native;
 
+// Windows exposes public const
+#[allow(unused_imports)]
 pub use native::*;
