@@ -19,12 +19,12 @@ export class MainDesktopAutotypeService {
   ) {
     this.autotypeKeyboardShortcut = new AutotypeKeyboardShortcut();
 
-    ipcMain.handle(AUTOTYPE_IPC_CHANNELS.INITIALIZED, () => {
-      return this.isInitialized;
-    });
-
     ipcMain.handle(AUTOTYPE_IPC_CHANNELS.INIT, () => {
       this.init();
+    });
+
+    ipcMain.handle(AUTOTYPE_IPC_CHANNELS.INITIALIZED, () => {
+      return this.isInitialized;
     });
   }
 
