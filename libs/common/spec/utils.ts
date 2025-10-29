@@ -33,6 +33,7 @@ export function BuildTestObject<T, K extends keyof T = keyof T>(
 export function mockEnc(s: string): MockProxy<EncString> {
   const mocked = mock<EncString>();
   mocked.decryptedValue = s;
+  mocked.decrypt.mockResolvedValue(s);
 
   return mocked;
 }

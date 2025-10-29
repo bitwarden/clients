@@ -6,7 +6,7 @@ import { emptyGuid, UserId } from "@bitwarden/common/types/guid";
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
 
-import { makeStaticByteArray, mockEnc } from "../../../../../spec";
+import { makeStaticByteArray, mockContainerService, mockEnc } from "../../../../../spec";
 import { EncryptService } from "../../../../key-management/crypto/abstractions/encrypt.service";
 import { SymmetricCryptoKey } from "../../../../platform/models/domain/symmetric-crypto-key";
 import { ContainerService } from "../../../../platform/services/container.service";
@@ -43,6 +43,8 @@ describe("Send", () => {
       disabled: false,
       hideEmail: true,
     };
+
+    mockContainerService();
   });
 
   it("Convert from empty", () => {
