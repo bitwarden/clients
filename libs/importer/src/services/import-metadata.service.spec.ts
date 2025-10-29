@@ -149,7 +149,7 @@ describe("ImportMetadataService", () => {
       // Disable ABE - chromium loader should be excluded
       expect(emissions[0].loaders).not.toContain(Loader.chromium);
       // Enabled ABE - chromium loader should be included
-      expect(emissions[1].loaders).toContain(Loader.file);
+      expect(emissions[1].loaders).toContain(Loader.chromium);
 
       subscription.unsubscribe();
     });
