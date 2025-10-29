@@ -194,9 +194,14 @@ describe("ImportService", () => {
       );
 
       // Mock the EncString decrypt behavior to set decryptedValue to the error message
-      jest.spyOn(EncString.prototype, "decrypt").mockImplementation(async function () {
+      jest.spyOn(EncString.prototype, "decrypt").mockImplementation(async function (
+        this: EncString,
+        _orgId: string | null,
+        _key?: SymmetricCryptoKey | null,
+        _context?: string,
+      ) {
         this.decryptedValue = "[error: cannot decrypt]";
-        return undefined;
+        return "[error: cannot decrypt]";
       });
 
       const result =
