@@ -71,16 +71,17 @@ export class SignalRConnectionService {
   constructor(
     private readonly apiService: ApiService,
     private readonly logService: LogService,
+    private readonly platformUtilsService: PlatformUtilsService,
     private readonly hubConnectionBuilderFactory: () => HubConnectionBuilder = () =>
       new HubConnectionBuilder(),
     private readonly timeoutManager: TimeoutManager = globalThis,
-    private readonly platformUtilsService: PlatformUtilsService,
   ) {}
 
   connect$(userId: UserId, notificationsUrl: string) {
     if (!notificationsUrl.startsWith("https://") && !this.platformUtilsService.isDev()) {
       throw new InsecureUrlNotAllowedError();
     }
+
     return new Observable<SignalRNotification>((subsciber) => {
       const connection = this.hubConnectionBuilderFactory()
         .withUrl(notificationsUrl + "/hub", {
