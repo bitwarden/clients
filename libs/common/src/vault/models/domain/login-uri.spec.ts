@@ -77,7 +77,7 @@ describe("LoginUri", () => {
       loginUri.uriChecksum = mockEnc("checksum");
       encryptService.hash.mockResolvedValue("checksum");
 
-      const actual = await loginUri.validateChecksum("uri", undefined, undefined);
+      const actual = await loginUri.validateChecksum("uri", undefined);
 
       expect(actual).toBe(true);
       expect(encryptService.hash).toHaveBeenCalledWith("uri", "sha256");
@@ -88,7 +88,7 @@ describe("LoginUri", () => {
       loginUri.uriChecksum = mockEnc("checksum");
       encryptService.hash.mockResolvedValue("incorrect checksum");
 
-      const actual = await loginUri.validateChecksum("uri", undefined, undefined);
+      const actual = await loginUri.validateChecksum("uri", undefined);
 
       expect(actual).toBe(false);
     });

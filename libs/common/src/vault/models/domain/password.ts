@@ -22,12 +22,12 @@ export class Password extends Domain {
     this.lastUsedDate = new Date(obj.lastUsedDate);
   }
 
-  decrypt(orgId: string | undefined, encKey?: SymmetricCryptoKey): Promise<PasswordHistoryView> {
+  decrypt(encKey: SymmetricCryptoKey): Promise<PasswordHistoryView> {
     return this.decryptObj<Password, PasswordHistoryView>(
       this,
       new PasswordHistoryView(this),
       ["password"],
-      orgId ?? null,
+      null,
       encKey,
       "DomainType: PasswordHistory",
     );
