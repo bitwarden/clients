@@ -6,16 +6,20 @@ import { EncString as SdkEncString } from "@bitwarden/sdk-internal";
 
 import { EncryptionType, EXPECTED_NUM_PARTS_BY_ENCRYPTION_TYPE } from "../../../platform/enums";
 import { Utils } from "../../../platform/misc/utils";
-import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 
 export const DECRYPT_ERROR = "[error: cannot decrypt]";
 
 export class EncString {
   encryptedString?: SdkEncString;
+  /** @deprecated */
   encryptionType?: EncryptionType;
+  /** @deprecated */
   decryptedValue?: string;
+  /** @deprecated */
   data?: string;
+  /** @deprecated */
   iv?: string;
+  /** @deprecated */
   mac?: string;
 
   constructor(
@@ -31,14 +35,17 @@ export class EncString {
     }
   }
 
+  /** @deprecated */
   get ivBytes(): Uint8Array {
     return this.iv == null ? null : Utils.fromB64ToArray(this.iv);
   }
 
+  /** @deprecated */
   get macBytes(): Uint8Array {
     return this.mac == null ? null : Utils.fromB64ToArray(this.mac);
   }
 
+  /** @deprecated */
   get dataBytes(): Uint8Array {
     return this.data == null ? null : Utils.fromB64ToArray(this.data);
   }
@@ -155,46 +162,6 @@ export class EncString {
     }
 
     return EXPECTED_NUM_PARTS_BY_ENCRYPTION_TYPE[encType] === encPieces.length;
-  }
-
-  /**
-   * @deprecated - This function is deprecated. Use EncryptService.decryptString instead.
-   * @returns - The decrypted string, or `[error: cannot decrypt]` if decryption fails.
-   */
-  async decrypt(
-    orgId: string | null,
-    key: SymmetricCryptoKey | null = null,
-    context?: string,
-  ): Promise<string> {
-    if (this.decryptedValue != null) {
-      return this.decryptedValue;
-    }
-
-    try {
-      if (key == null) {
-        key = await this.getKeyForDecryption(orgId);
-      }
-      if (key == null) {
-        throw new Error("No key to decrypt EncString with orgId " + orgId);
-      }
-
-      const encryptService = Utils.getContainerService().getEncryptService();
-      this.decryptedValue = await encryptService.decryptString(this, key);
-    } catch (e) {
-      // eslint-disable-next-line no-console
-      console.error(
-        "[EncString Generic Decrypt] failed to decrypt encstring. Context: " +
-          (context ?? "No context"),
-        e,
-      );
-      this.decryptedValue = DECRYPT_ERROR;
-    }
-    return this.decryptedValue;
-  }
-
-  private async getKeyForDecryption(orgId: string) {
-    const keyService = Utils.getContainerService().getKeyService();
-    return orgId != null ? await keyService.getOrgKey(orgId) : await keyService.getUserKey();
   }
 }
 
