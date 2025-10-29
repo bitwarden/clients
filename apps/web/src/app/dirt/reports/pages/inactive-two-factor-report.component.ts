@@ -109,7 +109,18 @@ export class InactiveTwoFactorReportComponent extends CipherReportComponent impl
       const u = login.uris[i];
       if (u.uri != null && u.uri !== "") {
         const uri = u.uri.replace("www.", "");
+        const host = Utils.getHost(uri);
         const domain = Utils.getDomain(uri);
+        // check host first
+        if (host != null && this.services.has(host)) {
+          if (this.services.get(host) != null) {
+            docFor2fa = this.services.get(host) || "";
+          }
+          isInactive2faCipher = true;
+          break;
+        }
+
+        // then check domain
         if (domain != null && this.services.has(domain)) {
           if (this.services.get(domain) != null) {
             docFor2fa = this.services.get(domain) || "";

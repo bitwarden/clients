@@ -149,13 +149,17 @@ describe("UriOptionComponent", () => {
       expect(getMatchDetectionSelect()).not.toBeNull();
     });
 
-    it("should update the match detection button title when the toggle is clicked", () => {
+    it("should update the match detection button aria-label when the toggle is clicked", () => {
       component.writeValue({ uri: "https://example.com", matchDetection: UriMatchStrategy.Exact });
       fixture.detectChanges();
-      expect(getToggleMatchDetectionBtn().title).toBe("showMatchDetection https://example.com");
+      expect(getToggleMatchDetectionBtn().getAttribute("aria-label")).toBe(
+        "showMatchDetection https://example.com",
+      );
       getToggleMatchDetectionBtn().click();
       fixture.detectChanges();
-      expect(getToggleMatchDetectionBtn().title).toBe("hideMatchDetection https://example.com");
+      expect(getToggleMatchDetectionBtn().getAttribute("aria-label")).toBe(
+        "hideMatchDetection https://example.com",
+      );
     });
   });
 
