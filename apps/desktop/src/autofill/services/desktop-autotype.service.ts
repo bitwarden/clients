@@ -163,7 +163,7 @@ export class DesktopAutotypeService {
           ([settingsEnabled, ffEnabled, authStatus, hasPremium]) =>
             settingsEnabled &&
             ffEnabled &&
-            authStatus == AuthenticationStatus.Unlocked &&
+            authStatus === AuthenticationStatus.Unlocked &&
             hasPremium,
         ),
         distinctUntilChanged(), // Only emit when the boolean result changes
