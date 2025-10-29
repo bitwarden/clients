@@ -618,13 +618,7 @@ export class Utils {
     const lowerCaseUrl: string = url.toLocaleLowerCase();
 
     // Check URL for dangerous patterns
-    for (const pattern of dangerousPatterns) {
-      if (lowerCaseUrl.includes(pattern)) {
-        return true;
-      }
-    }
-
-    return false;
+    return dangerousPatterns.some((p) => lowerCaseUrl.includes(p));
   }
 
   private static isMobile(win: Window) {
