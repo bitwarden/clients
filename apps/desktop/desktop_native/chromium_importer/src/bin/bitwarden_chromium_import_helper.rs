@@ -1,6 +1,3 @@
-#[cfg(not(target_os = "windows"))]
-use napi::tokio;
-
 // Hide everything inside a platform specific module to avoid clippy errors on other platforms
 #[cfg(target_os = "windows")]
 mod windows_binary {
