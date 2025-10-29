@@ -1,11 +1,16 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Injectable } from "@angular/core";
+import { firstValueFrom, map } from "rxjs";
 
 import { CollectionAccessSelectionView } from "@bitwarden/admin-console/common";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Guid, OrganizationId } from "@bitwarden/common/types/guid";
+import { KeyService } from "@bitwarden/key-management";
 import {
   getPermissionList,
   convertToPermission,
@@ -22,6 +27,9 @@ export class MemberAccessReportService {
   constructor(
     private reportApiService: MemberAccessReportApiService,
     private i18nService: I18nService,
+    private encryptService: EncryptService,
+    private keyService: KeyService,
+    private accountService: AccountService,
   ) {}
   /**
    * Transforms user data into a MemberAccessReportView.
@@ -78,17 +86,22 @@ export class MemberAccessReportService {
   async generateUserReportExportItems(
     organizationId: OrganizationId,
   ): Promise<MemberAccessExportItem[]> {
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    const organizationSymmetricKey = await firstValueFrom(
+      this.keyService.orgKeys$(activeUserId).pipe(map((keys) => keys[organizationId])),
+    );
+
     const memberAccessReports = await this.reportApiService.getMemberAccessData(organizationId);
     const collectionNames = memberAccessReports.map((item) => item.collectionName.encryptedString);
 
     const collectionNameMap = new Map(collectionNames.map((col) => [col, ""]));
     for await (const key of collectionNameMap.keys()) {
-      const decrypted = new EncString(key);
-      await decrypted.decrypt(organizationId);
-      collectionNameMap.set(
-        key,
-        decrypted.decryptedValue === "[error: cannot decrypt]" ? null : decrypted.decryptedValue,
+      const encryptedCollectionName = new EncString(key);
+      const collectionName = await this.encryptService.decryptString(
+        encryptedCollectionName,
+        organizationSymmetricKey,
       );
+      collectionNameMap.set(key, collectionName);
     }
 
     const exportItems = memberAccessReports.map((report) => {

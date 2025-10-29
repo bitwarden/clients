@@ -1,8 +1,13 @@
 import { mock } from "jest-mock-extended";
+import { of } from "rxjs";
 
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { OrganizationId } from "@bitwarden/common/types/guid";
+import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { mockAccountServiceWith } from "@bitwarden/common/spec";
+import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { newGuid } from "@bitwarden/guid";
+import { KeyService } from "@bitwarden/key-management";
 
 import { MemberAccessReportApiService } from "./member-access-report-api.service";
 import {
@@ -10,9 +15,14 @@ import {
   memberAccessWithoutAccessDetailsReportsMock,
 } from "./member-access-report.mock";
 import { MemberAccessReportService } from "./member-access-report.service";
+
 describe("ImportService", () => {
   const mockOrganizationId = "mockOrgId" as OrganizationId;
   const reportApiService = mock<MemberAccessReportApiService>();
+  const mockEncryptService = mock<EncryptService>();
+  const userId = newGuid() as UserId;
+  const mockAccountService = mockAccountServiceWith(userId);
+  const mockKeyService = mock<KeyService>();
   let memberAccessReportService: MemberAccessReportService;
   const i18nMock = mock<I18nService>({
     t(key) {
@@ -21,10 +31,19 @@ describe("ImportService", () => {
   });
 
   beforeEach(() => {
+    mockKeyService.orgKeys$.mockReturnValue(
+      of({ mockOrgId: new SymmetricCryptoKey(new Uint8Array(64)) }),
+    );
     reportApiService.getMemberAccessData.mockImplementation(() =>
       Promise.resolve(memberAccessReportsMock),
     );
-    memberAccessReportService = new MemberAccessReportService(reportApiService, i18nMock);
+    memberAccessReportService = new MemberAccessReportService(
+      reportApiService,
+      i18nMock,
+      mockEncryptService,
+      mockKeyService,
+      mockAccountService,
+    );
   });
 
   describe("generateMemberAccessReportView", () => {
