@@ -14,7 +14,6 @@ import { StateProvider } from "@bitwarden/common/platform/state";
 import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import { getWebStoreUrl } from "@bitwarden/common/vault/utils/get-web-store-url";
 import {
-  AnonLayoutWrapperDataService,
   ButtonComponent,
   DialogRef,
   DialogService,
@@ -67,7 +66,6 @@ export class SetupExtensionComponent implements OnInit, OnDestroy {
   private stateProvider = inject(StateProvider);
   private accountService = inject(AccountService);
   private document = inject(DOCUMENT);
-  private anonLayoutWrapperDataService = inject(AnonLayoutWrapperDataService);
 
   protected SetupExtensionState = SetupExtensionState;
   protected PartyIcon = Party;

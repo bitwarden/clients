@@ -37,20 +37,15 @@
     {{
       (state === SetupExtensionState.Success
         ? "bitwardenExtensionInstalled"
-        : "openTheBitwardenExtension"
+        : "bitwardenExtensionIsInstalled"
       ) | i18n
     }}
   </h1>
   <div
-    class="tw-flex tw-flex-col tw-rounded-2xl tw-bg-background tw-border tw-border-solid tw-border-secondary-300 tw-p-8 tw-max-w-md tw-text-center"
+    class="tw-flex tw-flex-col tw-rounded-2xl tw-bg-background tw-border tw-border-solid tw-border-secondary-300 tw-p-8 tw-max-w-md md:tw-w-[28rem] tw-text-center"
   >
     <p>
-      {{
-        (state === SetupExtensionState.Success
-          ? "openExtensionToAutofill"
-          : "bitwardenExtensionInstalledOpenExtension"
-        ) | i18n
-      }}
+      {{ "openExtensionToAutofill" | i18n }}
     </p>
     <button type="button" bitButton buttonType="primary" class="tw-mb-2" (click)="openExtension()">
       {{ "openBitwardenExtension" | i18n }}
@@ -58,14 +53,13 @@
     <a bitButton buttonType="secondary" routerLink="/vault">
       {{ "skipToWebApp" | i18n }}
     </a>
-  </div>
-
-  <div
-    *ngIf="state === SetupExtensionState.ManualOpen"
-    aria-live="polite"
-    class="tw-text-center tw-max-w-96 tw-mt-4"
-  >
-    <vault-manually-open-extension></vault-manually-open-extension>
+    <div
+      *ngIf="state === SetupExtensionState.ManualOpen"
+      aria-live="polite"
+      class="tw-text-center tw-mt-4"
+    >
+      <vault-manually-open-extension></vault-manually-open-extension>
+    </div>
   </div>
 
   <p class="tw-mt-4 tw-max-w-96 tw-text-center">
