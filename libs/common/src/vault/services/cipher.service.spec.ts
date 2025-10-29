@@ -55,7 +55,7 @@ const ENCRYPTED_BYTES = mock<EncArrayBuffer>();
 
 const cipherData: CipherData = {
   id: "id",
-  organizationId: "orgId",
+  organizationId: "4ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b2" as OrganizationId,
   folderId: "folderId",
   edit: true,
   viewPassword: true,
@@ -119,6 +119,8 @@ describe("Cipher Service", () => {
   beforeEach(() => {
     encryptService.encryptFileData.mockReturnValue(Promise.resolve(ENCRYPTED_BYTES));
     encryptService.encryptString.mockReturnValue(Promise.resolve(new EncString(ENCRYPTED_TEXT)));
+    keyService.orgKeys$.mockReturnValue(of({ [orgId]: makeSymmetricCryptoKey(32) as OrgKey }));
+    keyService.userKey$.mockReturnValue(of(makeSymmetricCryptoKey(64) as UserKey));
 
     // Mock i18nService collator
     i18nService.collator = {
@@ -181,9 +183,6 @@ describe("Cipher Service", () => {
       const testCipher = new Cipher(cipherData);
       const expectedRevisionDate = "2022-01-31T12:00:00.000Z";
 
-      keyService.getOrgKey.mockReturnValue(
-        Promise.resolve<any>(new SymmetricCryptoKey(new Uint8Array(32)) as OrgKey),
-      );
       keyService.makeDataEncKey.mockReturnValue(
         Promise.resolve([
           new SymmetricCryptoKey(new Uint8Array(32)),

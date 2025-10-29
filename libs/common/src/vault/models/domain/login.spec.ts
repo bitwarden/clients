@@ -1,6 +1,6 @@
 import { MockProxy, mock } from "jest-mock-extended";
 
-import { mockEnc, mockFromJson } from "../../../../spec";
+import { mockContainerService, mockEnc, mockFromJson } from "../../../../spec";
 import { EncryptedString, EncString } from "../../../key-management/crypto/models/enc-string";
 import { UriMatchStrategy } from "../../../models/domain/domain-service";
 import { LoginData } from "../../models/data/login.data";
@@ -14,6 +14,10 @@ import { Fido2CredentialView } from "../view/fido2-credential.view";
 import { Fido2Credential } from "./fido2-credential";
 
 describe("Login DTO", () => {
+  beforeEach(() => {
+    mockContainerService();
+  });
+
   it("Convert from empty LoginData", () => {
     const data = new LoginData();
     const login = new Login(data);

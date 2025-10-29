@@ -1,4 +1,4 @@
-import { mockEnc, mockFromJson } from "../../../../spec";
+import { mockContainerService, mockEnc, mockFromJson } from "../../../../spec";
 import { EncryptedString, EncString } from "../../../key-management/crypto/models/enc-string";
 import { PasswordHistoryData } from "../../models/data/password-history.data";
 import { Password } from "../../models/domain/password";
@@ -11,6 +11,7 @@ describe("Password", () => {
       password: "encPassword",
       lastUsedDate: "2022-01-31T12:00:00.000Z",
     };
+    mockContainerService();
   });
 
   it("Convert from empty", () => {

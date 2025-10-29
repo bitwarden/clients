@@ -3,7 +3,7 @@ import { Jsonify } from "type-fest";
 
 import { UriMatchType } from "@bitwarden/sdk-internal";
 
-import { mockEnc, mockFromJson } from "../../../../spec";
+import { mockContainerService, mockEnc, mockFromJson } from "../../../../spec";
 import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { UriMatchStrategy } from "../../../models/domain/domain-service";
@@ -20,6 +20,8 @@ describe("LoginUri", () => {
       uriChecksum: "encUriChecksum",
       match: UriMatchStrategy.Domain,
     };
+
+    mockContainerService();
   });
 
   it("Convert from empty", () => {
