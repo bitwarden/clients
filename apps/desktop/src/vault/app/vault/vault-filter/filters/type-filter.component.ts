@@ -5,6 +5,8 @@ import { TypeFilterComponent as BaseTypeFilterComponent } from "@bitwarden/angul
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { CIPHER_MENU_ITEMS } from "@bitwarden/common/vault/types/cipher-menu-items";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-type-filter",
   templateUrl: "type-filter.component.html",

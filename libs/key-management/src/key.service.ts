@@ -27,7 +27,6 @@ import {
   EncryptedString,
 } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
-import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { WrappedSigningKey } from "@bitwarden/common/key-management/types";
 import { VaultTimeoutStringType } from "@bitwarden/common/key-management/vault-timeout";
 import { VAULT_TIMEOUT } from "@bitwarden/common/key-management/vault-timeout/services/vault-timeout-settings.state";
@@ -72,7 +71,6 @@ export class DefaultKeyService implements KeyServiceAbstraction {
   readonly activeUserOrgKeys$: Observable<Record<OrganizationId, OrgKey>>;
 
   constructor(
-    protected pinService: PinServiceAbstraction,
     protected masterPasswordService: InternalMasterPasswordServiceAbstraction,
     protected keyGenerationService: KeyGenerationService,
     protected cryptoFunctionService: CryptoFunctionService,
@@ -105,6 +103,13 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     await this.stateProvider.setUserState(USER_EVER_HAD_USER_KEY, true, userId);
 
     await this.storeAdditionalKeys(key, userId);
+
+    // Await the key actually being set. This ensures that any subsequent callers know the key is already in state.
+    // There were bugs related to the stateprovider observables in the past that caused issues around this.
+    const userKey = await firstValueFrom(this.userKey$(userId).pipe(filter((k) => k != null)));
+    if (userKey == null) {
+      throw new Error("Failed to set user key");
+    }
   }
 
   async setUserKeys(
@@ -223,17 +228,12 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     await this.clearAllStoredUserKeys(userId);
   }
 
-  async clearStoredUserKey(keySuffix: KeySuffixOptions, userId: UserId): Promise<void> {
+  async clearStoredUserKey(userId: UserId): Promise<void> {
     if (userId == null) {
       throw new Error("UserId is required");
     }
 
-    if (keySuffix === KeySuffixOptions.Auto) {
-      await this.stateService.setUserKeyAutoUnlock(null, { userId: userId });
-    }
-    if (keySuffix === KeySuffixOptions.Pin) {
-      await this.pinService.clearPinKeyEncryptedUserKeyEphemeral(userId);
-    }
+    await this.stateService.setUserKeyAutoUnlock(null, { userId: userId });
   }
 
   /**
@@ -426,20 +426,16 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     });
   }
 
-  // TODO: Deprecate in favor of observable
-  async getProviderKey(providerId: ProviderId): Promise<ProviderKey | null> {
-    if (providerId == null) {
-      return null;
-    }
+  providerKeys$(userId: UserId): Observable<Record<ProviderId, ProviderKey> | null> {
+    return this.userPrivateKey$(userId).pipe(
+      switchMap((userPrivateKey) => {
+        if (userPrivateKey == null) {
+          return of(null);
+        }
 
-    const activeUserId = await firstValueFrom(this.stateProvider.activeUserId$);
-    if (activeUserId == null) {
-      throw new Error("No active user found.");
-    }
-
-    const providerKeys = await firstValueFrom(this.providerKeys$(activeUserId));
-
-    return providerKeys?.[providerId] ?? null;
+        return this.providerKeysHelper$(userId, userPrivateKey);
+      }),
+    );
   }
 
   private async clearProviderKeys(userId: UserId): Promise<void> {
@@ -513,16 +509,6 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     await this.stateProvider.setUserState(USER_KEY_ENCRYPTED_SIGNING_KEY, null, userId);
   }
 
-  async clearPinKeys(userId: UserId): Promise<void> {
-    if (userId == null) {
-      throw new Error("UserId is required");
-    }
-
-    await this.pinService.clearPinKeyEncryptedUserKeyPersistent(userId);
-    await this.pinService.clearPinKeyEncryptedUserKeyEphemeral(userId);
-    await this.pinService.clearUserKeyEncryptedPin(userId);
-  }
-
   async makeSendKey(keyMaterial: CsprngArray): Promise<SymmetricCryptoKey> {
     return await this.keyGenerationService.deriveKeyFromMaterial(
       keyMaterial,
@@ -546,7 +532,6 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     await this.clearProviderKeys(userId);
     await this.clearKeyPair(userId);
     await this.clearSigningKey(userId);
-    await this.clearPinKeys(userId);
     await this.stateProvider.setUserState(USER_EVER_HAD_USER_KEY, null, userId);
   }
 
@@ -678,32 +663,6 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     } else {
       await this.stateService.setUserKeyAutoUnlock(null, { userId: userId });
     }
-
-    const storePin = await this.shouldStoreKey(KeySuffixOptions.Pin, userId);
-    if (storePin) {
-      // Decrypt userKeyEncryptedPin with user key
-      const pin = await this.encryptService.decryptString(
-        (await this.pinService.getUserKeyEncryptedPin(userId))!,
-        key,
-      );
-
-      const pinKeyEncryptedUserKey = await this.pinService.createPinKeyEncryptedUserKey(
-        pin,
-        key,
-        userId,
-      );
-      const noPreExistingPersistentKey =
-        (await this.pinService.getPinKeyEncryptedUserKeyPersistent(userId)) == null;
-
-      await this.pinService.storePinKeyEncryptedUserKey(
-        pinKeyEncryptedUserKey,
-        noPreExistingPersistentKey,
-        userId,
-      );
-    } else {
-      await this.pinService.clearPinKeyEncryptedUserKeyPersistent(userId);
-      await this.pinService.clearPinKeyEncryptedUserKeyEphemeral(userId);
-    }
   }
 
   protected async shouldStoreKey(keySuffix: KeySuffixOptions, userId: UserId) {
@@ -718,11 +677,6 @@ export class DefaultKeyService implements KeyServiceAbstraction {
         );
 
         shouldStoreKey = vaultTimeout == VaultTimeoutStringType.Never;
-        break;
-      }
-      case KeySuffixOptions.Pin: {
-        const userKeyEncryptedPin = await this.pinService.getUserKeyEncryptedPin(userId);
-        shouldStoreKey = !!userKeyEncryptedPin;
         break;
       }
     }
@@ -744,7 +698,6 @@ export class DefaultKeyService implements KeyServiceAbstraction {
 
   protected async clearAllStoredUserKeys(userId: UserId): Promise<void> {
     await this.stateService.setUserKeyAutoUnlock(null, { userId: userId });
-    await this.pinService.clearPinKeyEncryptedUserKeyEphemeral(userId);
   }
 
   private async hashPhrase(hash: Uint8Array, minimumEntropy = 64) {
@@ -870,18 +823,6 @@ export class DefaultKeyService implements KeyServiceAbstraction {
       new EncString(encryptedPrivateKey),
       key,
     )) as UserPrivateKey;
-  }
-
-  providerKeys$(userId: UserId) {
-    return this.userPrivateKey$(userId).pipe(
-      switchMap((userPrivateKey) => {
-        if (userPrivateKey == null) {
-          return of(null);
-        }
-
-        return this.providerKeysHelper$(userId, userPrivateKey);
-      }),
-    );
   }
 
   /**

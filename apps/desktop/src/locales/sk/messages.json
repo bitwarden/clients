@@ -1852,6 +1852,12 @@
   "lockWithMasterPassOnRestart1": {
     "message": "Pri reštarte zamknúť hlavným heslom"
   },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "Pri reštarte aplikácie vyžadovať hlavné heslo alebo PIN"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "Pri reštarte aplikácie vyžadovať hlavné heslo"
+  },
   "deleteAccount": {
     "message": "Odstrániť účet"
   },
@@ -2548,6 +2554,9 @@
         "example": "5"
       }
     }
+  },
+  "vaultCustomTimeoutMinimum": {
+    "message": "Minimálny vlastný časový limit je 1 minúta."
   },
   "inviteAccepted": {
     "message": "Pozvánka prijatá"
@@ -4149,7 +4158,7 @@
     "message": "Archivovať",
     "description": "Verb"
   },
-  "unarchive": {
+  "unArchive": {
     "message": "Zrušiť archiváciu"
   },
   "itemsInArchive": {
@@ -4161,10 +4170,10 @@
   "noItemsInArchiveDesc": {
     "message": "Tu sa zobrazia archivované položky, ktoré budú vylúčené zo všeobecného vyhľadávania a z návrhov automatického vypĺňania."
   },
-  "itemSentToArchive": {
+  "itemWasSentToArchive": {
     "message": "Položka bola archivovaná"
   },
-  "itemRemovedFromArchive": {
+  "itemWasUnarchived": {
     "message": "Položka bola odobraná z archívu"
   },
   "archiveItem": {

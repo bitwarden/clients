@@ -33,6 +33,8 @@ import { KeyService, BiometricStateService } from "@bitwarden/key-management";
 const BroadcasterSubscriptionId = "AppComponent";
 const IdleTimeout = 60000 * 10; // 10 minutes
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-root",
   templateUrl: "app.component.html",
@@ -258,7 +260,6 @@ export class AppComponent implements OnDestroy, OnInit {
     await Promise.all([
       this.keyService.clearKeys(userId),
       this.cipherService.clear(userId),
-      // ! DO NOT REMOVE folderService.clear ! For more information see PM-25660
       this.folderService.clear(userId),
       this.biometricStateService.logout(userId),
     ]);

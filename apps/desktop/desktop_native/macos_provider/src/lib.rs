@@ -2,13 +2,18 @@
 
 use std::{
     collections::HashMap,
-    sync::{atomic::AtomicU32, Arc, Mutex},
+    sync::{atomic::AtomicU32, Arc, Mutex, Once},
     time::Instant,
 };
 
 use futures::FutureExt;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use tracing::{error, info};
+use tracing_subscriber::{
+    filter::{EnvFilter, LevelFilter},
+    layer::SubscriberExt,
+    util::SubscriberInitExt,
+};
 
 uniffi::setup_scaffolding!();
 
@@ -20,6 +25,8 @@ use assertion::{
     PreparePasskeyAssertionCallback,
 };
 use registration::{PasskeyRegistrationRequest, PreparePasskeyRegistrationCallback};
+
+static INIT: Once = Once::new();
 
 #[derive(uniffi::Enum, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -65,9 +72,20 @@ impl MacOSProviderClient {
     #[allow(clippy::unwrap_used)]
     #[uniffi::constructor]
     pub fn connect() -> Self {
-        let _ = oslog::OsLogger::new("com.bitwarden.desktop.autofill-extension")
-            .level_filter(log::LevelFilter::Trace)
-            .init();
+        INIT.call_once(|| {
+            let filter = EnvFilter::builder()
+                // Everything logs at `INFO`
+                .with_default_directive(LevelFilter::INFO.into())
+                .from_env_lossy();
+
+            tracing_subscriber::registry()
+                .with(filter)
+                .with(tracing_oslog::OsLogger::new(
+                    "com.bitwarden.desktop.autofill-extension",
+                    "default",
+                ))
+                .init();
+        });
 
         let (from_server_send, mut from_server_recv) = tokio::sync::mpsc::channel(32);
         let (to_server_send, to_server_recv) = tokio::sync::mpsc::channel(32);

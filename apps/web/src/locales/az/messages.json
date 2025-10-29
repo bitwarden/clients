@@ -90,8 +90,8 @@
   "assignMembersTasksToMonitorProgress": {
     "message": "İrəliləyişi izləmək üçün üzvlərə tapşırıqlar təyin edin"
   },
-  "onceYouReviewApplications": {
-    "message": "Müraciətləri incələyib kritik olaraq işarələsəniz, onlar burada nümayiş olunacaq."
+  "onceYouReviewApps": {
+    "message": "Tətbiqləri incələyib kritik olaraq işarələdikdən sonra, riskli elementləri həll etməsi üçün üzvlərə tapşırıqlar verə və irəliləyişi burada izləyə bilərsiniz"
   },
   "sendReminders": {
     "message": "Xatırlatma göndər"
@@ -154,6 +154,15 @@
       }
     }
   },
+  "newPasswordsAtRisk": {
+    "message": "$COUNT$ yeni parol risklidir",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "notifiedMembersWithCount": {
     "message": "Məlumatlandırılan üzvlər ($COUNT$)",
     "placeholders": {
@@ -188,16 +197,16 @@
     "message": "Tətbiqi kritik olaraq işarələ"
   },
   "markAsCritical": {
-    "message": "Mark as critical"
+    "message": "Kritik olaraq işarələ"
   },
   "applicationsSelected": {
-    "message": "applications selected"
+    "message": "tətbiq seçildi"
   },
   "selectApplication": {
-    "message": "Select application"
+    "message": "Tətbiq seç"
   },
   "unselectApplication": {
-    "message": "Unselect application"
+    "message": "Tətbiqi seçimini götür"
   },
   "applicationsMarkedAsCriticalSuccess": {
     "message": "Kritik olaraq işarələnmiş tətbiqlər"
@@ -311,13 +320,13 @@
     "message": "İndi incələ"
   },
   "prioritizeCriticalApplications": {
-    "message": "Prioritize critical applications"
+    "message": "Kritik tətbiqləri prioritetləşdir"
   },
   "atRiskItems": {
-    "message": "At-risk items"
+    "message": "Riskli elementlər"
   },
   "markAsCriticalPlaceholder": {
-    "message": "Mark as critical functionality will be implemented in a future update"
+    "message": "Kritik olaraq işarələmə funksionallığı, gələcək güncəlləmədə tətbiq olunacaq"
   },
   "unmarkAsCritical": {
     "message": "Kritik olaraq işarələməni götür"
@@ -2080,9 +2089,6 @@
   "encKeySettings": {
     "message": "Şifrələmə açarı ayarları"
   },
-  "kdfAlgorithm": {
-    "message": "KDF Algoritmi"
-  },
   "kdfIterations": {
     "message": "KDF iterasiyaları"
   },
@@ -2116,9 +2122,6 @@
   },
   "argon2Desc": {
     "message": "Yüksək KDF iterasiyaları, yaddaşı və paralelizmi, ana parolunuzu təcavüzkar tərəfindən \"brute force\" hücumuna qarşı qorumağa kömək edir."
-  },
-  "changeKdf": {
-    "message": "KDF-i dəyişdir"
   },
   "encKeySettingsChanged": {
     "message": "Şifrələmə açarı ayarları dəyişdirildi"
@@ -2951,7 +2954,7 @@
     "message": "Lütfən bu alış üçün hesabınızda yetərli qədər kredit olduğuna əmin olun. Hesabınızda yetərli kredit yoxdursa, fərq üçün fayldakı ilkin ödəniş metodunuz istifadə edilir. Hesabınıza, faktura səhifəsindən kredit əlavə edə bilərsiniz."
   },
   "notEnoughAccountCredit": {
-    "message": "You do not have enough account credit for this purchase. You can add credit to your account from the Billing page."
+    "message": "Bu satın alma üçün hesabınızda yetərli kredit yoxdur. Faktura səhifəsindən hesabınıza kredit əlavə edə bilərsiniz."
   },
   "creditAppliedDesc": {
     "message": "Hesabınızın krediti, satın alma üçün istifadə oluna bilər. Əlçatan istənilən kredit, bu hesab üçün yaradılan fakturalara avtomatik tətbiq ediləcək."
@@ -5709,6 +5712,65 @@
   "organizationDataOwnershipWarningContentBottom": {
     "message": "Kimlik məlumatlarının dövriyyəsi barədə ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about the credential lifecycle.'"
+  },
+  "availableNow": {
+    "message": "İndi mövcuddur"
+  },
+  "autoConfirm": {
+    "message": "Yeni istifadəçilər üçün avtomatik təsdiq"
+  },
+  "autoConfirmDescription": {
+    "message": "Təşkilata dəvət edilmiş yeni istifadəçilər, admin cihazının kilidi açıldığı zaman avtomatik olaraq təsdiqlənəcək.",
+    "description": "This is the description of the policy as it appears in the 'Policies' page"
+  },
+  "howToTurnOnAutoConfirm": {
+    "message": "Avtomatik istifadəçi təsdiqi necə işə salınır"
+  },
+  "autoConfirmStep1": {
+    "message": "Bitwarden uzantınızı açın."
+  },
+  "autoConfirmStep2a": {
+    "message": "Seçin",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  },
+  "autoConfirmStep2b": {
+    "message": " İşə sal.",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  },
+  "autoConfirmExtensionOpened": {
+    "message": "Bitwarden brauzer uzantısı uğurla açıldı. Artıq avtomatik istifadəçi təsdiqi ayarını aktivləşdirə bilərsiniz."
+  },
+  "autoConfirmPolicyEditDescription": {
+    "message": "Təşkilata dəvət edilmiş yeni istifadəçilər, admin cihazının kilidi açıldığı zaman avtomatik olaraq təsdiqlənəcək. Bu siyasəti işə salmazdan əvvəl, lütfən aşağıdakıları incələyin və razılaşın: ",
+    "description": "This is the description of the policy as it appears inside the policy edit dialog"
+  },
+  "autoConfirmAcceptSecurityRiskTitle": {
+    "message": "Potensial təhlükəsizlik riski. "
+  },
+  "autoConfirmAcceptSecurityRiskDescription": {
+    "message": "Avtomatik istifadəçi təsdiqi, təşkilatınızın veriləri üçün təhlükəsizlik riski yarada bilər."
+  },
+  "autoConfirmAcceptSecurityRiskLearnMore": {
+    "message": "Risklər barədə öyrən",
+    "description": "The is the link copy for the first check box option in the edit policy dialog"
+  },
+  "autoConfirmSingleOrgRequired": {
+    "message": "Vahid təşkilat siyasəti tələb olunur. "
+  },
+  "autoConfirmSingleOrgRequiredDescription": {
+    "message": "Birdən çox təşkilatın üzvü olan hər kəsin erişimi, digər təşkilatları tərk edənə qədər ləğv ediləcək."
+  },
+  "autoConfirmSingleOrgExemption": {
+    "message": "Vahid təşkilat siyasəti bütün rollara şamil ediləcək. "
+  },
+  "autoConfirmNoEmergencyAccess": {
+    "message": "Fövqəladə hal erişimi yoxdur. "
+  },
+  "autoConfirmNoEmergencyAccessDescription": {
+    "message": "Fövqəladə Erişim silinib."
+  },
+  "autoConfirmCheckBoxLabel": {
+    "message": "Bu riskləri və siyasət güncəlləmələrini qəbul edirəm"
   },
   "personalOwnership": {
     "message": "Fərdi sahiblik"
@@ -10361,26 +10423,8 @@
   "memberAccessReportAuthenticationEnabledFalse": {
     "message": "Bağlı"
   },
-  "higherKDFIterations": {
-    "message": "Daha yüksək KDF iterasiyaları, ana parolunuzu təcavüzkar tərəfindən \"brute force\" hücumuna qarşı qorumağa kömək edir."
-  },
-  "incrementsOf100,000": {
-    "message": "100,000-lik artım"
-  },
-  "smallIncrements": {
-    "message": "kiçik artım"
-  },
   "kdfIterationRecommends": {
     "message": "600,000 və ya daha çoxunu tövsiyə edirik"
-  },
-  "kdfToHighWarningIncreaseInIncrements": {
-    "message": "Daha köhnə cihazlar üçün KDF-inizi çox yüksək ayarlamaq performans problemlərinə səbəb ola bilər. $VALUE$ üzrə dəyəri artırın və cihazınızı test edin.",
-    "placeholders": {
-      "value": {
-        "content": "$1",
-        "example": "increments of 100,000"
-      }
-    }
   },
   "providerReinstate": {
     "message": " Abunəliyinizi bərpa etmək üçün Müştəri Dəstəyi ilə əlaqə saxlayın."
@@ -11024,6 +11068,15 @@
   "domainClaimed": {
     "message": "Domen götürüldü"
   },
+  "itemAddedToFavorites": {
+    "message": "Element sevimlilərə əlavə edildi"
+  },
+  "itemRemovedFromFavorites": {
+    "message": "Element sevimlilərdən çıxarıldı"
+  },
+  "copyNote": {
+    "message": "Notu kopyala"
+  },
   "organizationNameMaxLength": {
     "message": "Təşkilat adı 50 xarakterdən çox ola bilməz."
   },
@@ -11294,11 +11347,46 @@
     "message": "Arxivlə",
     "description": "Verb"
   },
+  "unArchive": {
+    "message": "Arxivdən çıxart"
+  },
+  "itemsInArchive": {
+    "message": "Arxivdəki elementlər"
+  },
   "noItemsInArchive": {
     "message": "Arxivdə element yoxdur"
   },
-  "archivedItemsDescription": {
+  "noItemsInArchiveDesc": {
     "message": "Arxivlənmiş elementlər burada görünəcək, ümumi axtarış nəticələrindən və avto-doldurma təkliflərindən xaric ediləcək."
+  },
+  "itemWasSentToArchive": {
+    "message": "Element arxivə göndərildi"
+  },
+  "itemsWereSentToArchive": {
+    "message": "Elementlər arxivə göndərildi"
+  },
+  "itemUnarchived": {
+    "message": "Element arxivdən çıxarıldı"
+  },
+  "bulkArchiveItems": {
+    "message": "Arxivlənən elementlər"
+  },
+  "bulkUnarchiveItems": {
+    "message": "Arxivdən çıxarılmış elementlər"
+  },
+  "archiveItem": {
+    "message": "Elementi arxivlə",
+    "description": "Verb"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Arxivlənmiş elementlər ümumi axtarış nəticələrindən və avto-doldurma təkliflərindən xaric ediləcək. Bu elementi arxivləmək istədiyinizə əminsiniz?"
+  },
+  "archiveBulkItems": {
+    "message": "Elementləri arxivlə",
+    "description": "Verb"
+  },
+  "archiveBulkItemsConfirmDesc": {
+    "message": "Arxivlənmiş elementlər ümumi axtarış nəticələrindən və avto-doldurma təkliflərindən xaric ediləcək. Bu elementləri arxivləmək istədiyinizə əminsiniz?"
   },
   "businessUnit": {
     "message": "Biznes vahidi"
@@ -11772,36 +11860,81 @@
     "message": "Problemsiz inteqrasiya"
   },
   "families": {
-    "message": "Families"
+    "message": "Ailələr"
   },
   "upgradeToFamilies": {
-    "message": "Upgrade to Families"
+    "message": "\"Ailələr\"ə yüksəlt"
   },
   "upgradeToPremium": {
-    "message": "Upgrade to Premium"
+    "message": "\"Premium\"a yüksəlt"
   },
   "familiesUpdated": {
-    "message": "You've upgraded to Families!"
+    "message": "\"Ailələr\"ə yüksəltdiniz!"
   },
   "taxCalculationError": {
-    "message": "There was an error calculating tax for your location. Please try again."
+    "message": "Yerləşməniz üçün vergi hesablanması zamanı xəta baş verdi. Lütfən yenidən sınayın."
   },
   "individualUpgradeWelcomeMessage": {
-    "message": "Welcome to Bitwarden"
+    "message": "Bitwarden-ə xoş gəlmisiniz"
   },
   "individualUpgradeDescriptionMessage": {
-    "message": "Unlock more security features with Premium, or start sharing items with Families"
+    "message": "Premium ilə daha çox təhlükəsizlik özəlliklərinin kilidini açın və ya Ailələr ilə elementləri paylaşmağa başlayın"
   },
   "individualUpgradeTaxInformationMessage": {
-    "message": "Prices exclude tax and are billed annually."
+    "message": "Qiymətə vergi daxil deyildir və illik hesablanır."
   },
   "organizationNameDescription": {
-    "message": "Your organization name will appear in invitations you send to members."
+    "message": "Üzvlərə göndərəcəyiniz dəvətlərdə təşkilatınızın adı görünəcək."
   },
   "continueWithoutUpgrading": {
-    "message": "Continue without upgrading"
+    "message": "Yüksəltmə olmadan davam et"
+  },
+  "upgradeYourPlan": {
+    "message": "Planınızı yüksəldin"
+  },
+  "upgradeNow": {
+    "message": "İndi yüksəlt"
+  },
+  "formWillCreateNewFamiliesOrgMessage": {
+    "message": "Bu formu tamamladığınız zaman yeni bir Ailələr təşkilatı yaradılacaq. Ödənişsiz təşkilatınızı Admin Konsolundan yüksəldə bilərsiniz."
   },
   "upgradeErrorMessage": {
-    "message": "We encountered an error while processing your upgrade. Please try again."
+    "message": "Yüksəltmə prosesiniz emal olunarkən xəta ilə üzləşdik. Lütfən yenidən sınayın."
+  },
+  "bitwardenFreeplanMessage": {
+    "message": "Bitwarden Ödənişsiz planınız var"
+  },
+  "upgradeCompleteSecurity": {
+    "message": "Tam təhlükəsizlik üçün yüksəldin"
+  },
+  "viewbusinessplans": {
+    "message": "Biznes planlarına bax"
+  },
+  "updateEncryptionSettings": {
+    "message": "Şifrələmə ayarlarını güncəlləyin"
+  },
+  "updateYourEncryptionSettings": {
+    "message": "Şifrələmə ayarlarınızı güncəlləyin"
+  },
+  "updateSettings": {
+    "message": "Güncəlləmə ayarları"
+  },
+  "algorithm": {
+    "message": "Alqoritm"
+  },
+  "encryptionKeySettingsHowShouldWeEncryptYourData": {
+    "message": "Bitwarden-in seyf verilərinizi necə şifrələyəcəyini seçin. Bütün seçimlər güvənlidir, ancaq daha güclü üsullar, xüsusən də brute-force hücumlarına qarşı daha yaxşı qoruma təklif edir. Bitwarden, əksər istifadəçilər üçün ilkin ayarı tövsiyə edir."
+  },
+  "encryptionKeySettingsIncreaseImproveSecurity": {
+    "message": "İlkin dəyərdən yuxarı dəyərin təyin edilməsi, təhlükəsizliyi artırır, ancaq bu, seyfinizin kilidini açma prosesini uzada bilər."
+  },
+  "encryptionKeySettingsAlgorithmPopoverTitle": {
+    "message": "Şifrələmə alqoritmləri barədə"
+  },
+  "encryptionKeySettingsAlgorithmPopoverPBKDF2": {
+    "message": "PBKDF2-SHA256 təhlükəsizlik və performansı tarazlaşdıran yaxşı test edilmiş şifrələmə üsuludur. Bütün istifadəçilər üçün idealdır."
+  },
+  "encryptionKeySettingsAlgorithmPopoverArgon2Id": {
+    "message": "Argon2id, müasir hücumlara qarşı daha güclü qoruma təklif edir. Güclü cihazlara sahib qabaqcıl istifadəçilər üçün idealdır."
   }
 }

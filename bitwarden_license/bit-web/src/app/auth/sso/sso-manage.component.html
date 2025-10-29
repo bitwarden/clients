@@ -1,7 +1,7 @@
 <app-header></app-header>
 
 <bit-container>
-  <ng-container *ngIf="loading">
+  <ng-container *ngIf="isInitializing">
     <i
       class="bwi bwi-spinner bwi-spin tw-text-muted"
       title="{{ 'loading' | i18n }}"
@@ -10,7 +10,7 @@
     <span class="tw-sr-only">{{ "loading" | i18n }}</span>
   </ng-container>
 
-  <form [formGroup]="ssoConfigForm" [bitSubmit]="submit" *ngIf="!loading">
+  <form [formGroup]="ssoConfigForm" [bitSubmit]="submit" *ngIf="!isInitializing">
     <p>
       {{ "ssoPolicyHelpStart" | i18n }}
       <a bitLink routerLink="../policies">{{ "ssoPolicyHelpAnchor" | i18n }}</a>
