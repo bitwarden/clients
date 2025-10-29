@@ -1,6 +1,6 @@
 <div [formGroup]="formGroup">
   <auth-vault-timeout-input
-    [vaultTimeoutOptions]="vaultTimeoutOptions()"
+    [vaultTimeoutOptions]="availableTimeoutOptions$ | async"
     [formControl]="formGroup.controls.timeout"
     ngDefaultControl
   >
@@ -13,7 +13,7 @@
       [formControl]="formGroup.controls.timeoutAction"
       [required]="false"
     >
-      @for (action of availableVaultTimeoutActions(); track action) {
+      @for (action of availableTimeoutActions(); track action) {
         <bit-option [value]="action" [label]="action | i18n"></bit-option>
       }
     </bit-select>

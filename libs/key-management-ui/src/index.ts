@@ -10,3 +10,4 @@ export { EmergencyAccessTrustComponent } from "./trust/emergency-access-trust.co
 export { RemovePasswordComponent } from "./key-connector/remove-password.component";
 export { ConfirmKeyConnectorDomainComponent } from "./key-connector/confirm-key-connector-domain.component";
 export { SessionTimeoutSettingsComponent } from "./session-timeout/components/session-timeout-settings.component";
+export { SessionTimeoutSettingsComponentService } from "./session-timeout/services/session-timeout-settings-component.service";

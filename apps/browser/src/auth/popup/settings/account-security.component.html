@@ -80,11 +80,7 @@
 
       <bit-card>
         @if (consolidatedSessionTimeoutComponent$ | async) {
-          <bit-session-timeout-settings
-            [refreshTimeoutActionSettings]="refreshTimeoutSettings$"
-            [excludeTimeoutTypes]="excludeTimeoutTypes()"
-            (onTimeoutSave)="handleTimeoutSave($event)"
-          />
+          <bit-session-timeout-settings [refreshTimeoutActionSettings]="refreshTimeoutSettings$" />
         } @else {
           <auth-vault-timeout-input
             [vaultTimeoutOptions]="vaultTimeoutOptions"

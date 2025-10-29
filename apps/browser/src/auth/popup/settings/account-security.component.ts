@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { ChangeDetectorRef, Component, OnDestroy, OnInit, signal } from "@angular/core";
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { RouterModule } from "@angular/router";
 import {
@@ -138,11 +138,9 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     );
 
   protected readonly consolidatedSessionTimeoutComponent$: Observable<boolean>;
-  protected readonly excludeTimeoutTypes = signal<VaultTimeout[]>([]);
 
   protected refreshTimeoutSettings$ = new BehaviorSubject<void>(undefined);
   private destroy$ = new Subject<void>();
-  private readonly showOnLocked: boolean;
 
   constructor(
     private accountService: AccountService,
@@ -170,22 +168,6 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     this.consolidatedSessionTimeoutComponent$ = this.configService.getFeatureFlag$(
       FeatureFlag.ConsolidatedSessionTimeoutComponent,
     );
-
-    // Determine platform-specific timeout options
-    this.showOnLocked =
-      !this.platformUtilsService.isFirefox() &&
-      !this.platformUtilsService.isSafari() &&
-      !(this.platformUtilsService.isOpera() && navigator.platform === "MacIntel");
-
-    // Build exclude list for the session timeout component
-    const excludeTimeoutTypes: VaultTimeout[] = [
-      VaultTimeoutStringType.OnIdle,
-      VaultTimeoutStringType.OnSleep,
-    ];
-    if (!this.showOnLocked) {
-      excludeTimeoutTypes.push(VaultTimeoutStringType.OnLocked);
-    }
-    this.excludeTimeoutTypes.set(excludeTimeoutTypes);
   }
 
   async ngOnInit() {
@@ -202,6 +184,12 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
       this.hasVaultTimeoutPolicy = true;
     }
 
+    // Determine platform-specific timeout options
+    const showOnLocked =
+      !this.platformUtilsService.isFirefox() &&
+      !this.platformUtilsService.isSafari() &&
+      !(this.platformUtilsService.isOpera() && navigator.platform === "MacIntel");
+
     this.vaultTimeoutOptions = [
       { name: this.i18nService.t("immediately"), value: 0 },
       { name: this.i18nService.t("oneMinute"), value: 1 },
@@ -212,7 +200,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
       { name: this.i18nService.t("fourHours"), value: 240 },
     ];
 
-    if (this.showOnLocked) {
+    if (showOnLocked) {
       this.vaultTimeoutOptions.push({
         name: this.i18nService.t("onLocked"),
         value: VaultTimeoutStringType.OnLocked,
@@ -233,7 +221,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     let timeout = await firstValueFrom(
       this.vaultTimeoutSettingsService.getVaultTimeoutByUserId$(activeAccount.id),
     );
-    if (timeout === VaultTimeoutStringType.OnLocked && !this.showOnLocked) {
+    if (timeout === VaultTimeoutStringType.OnLocked && !showOnLocked) {
       timeout = VaultTimeoutStringType.OnRestart;
     }
 
@@ -445,12 +433,6 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
       return;
     }
     await this.vaultNudgesService.dismissNudge(NudgeType.AccountSecurity, activeAccount.id);
-  }
-
-  protected handleTimeoutSave(newValue: VaultTimeout) {
-    if (newValue === VaultTimeoutStringType.Never) {
-      this.messagingService.send("bgReseedStorage");
-    }
   }
 
   async saveVaultTimeoutAction(value: VaultTimeoutAction) {

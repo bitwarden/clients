@@ -106,10 +106,14 @@ import {
   KeyService as KeyServiceAbstraction,
   BiometricsService,
 } from "@bitwarden/key-management";
-import { LockComponentService } from "@bitwarden/key-management-ui";
+import {
+  LockComponentService,
+  SessionTimeoutSettingsComponentService,
+} from "@bitwarden/key-management-ui";
 import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
 import { DefaultSshImportPromptService, SshImportPromptService } from "@bitwarden/vault";
 import { WebOrganizationInviteService } from "@bitwarden/web-vault/app/auth/core/services/organization-invite/web-organization-invite.service";
+import { WebSessionTimeoutSettingsComponentService } from "@bitwarden/web-vault/app/key-management/session-timeout/services/web-session-timeout-settings-component.service";
 import { WebVaultPremiumUpgradePromptService } from "@bitwarden/web-vault/app/vault/services/web-premium-upgrade-prompt.service";
 
 import { flagEnabled } from "../../utils/flags";
@@ -409,6 +413,11 @@ const safeProviders: SafeProvider[] = [
     provide: PremiumUpgradePromptService,
     useClass: WebVaultPremiumUpgradePromptService,
     deps: [DialogService, Router],
+  }),
+  safeProvider({
+    provide: SessionTimeoutSettingsComponentService,
+    useClass: WebSessionTimeoutSettingsComponentService,
+    deps: [I18nServiceAbstraction, PlatformUtilsService],
   }),
 ];
 

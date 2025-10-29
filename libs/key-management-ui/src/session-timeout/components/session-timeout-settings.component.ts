@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, DestroyRef, input, OnInit, output, signal } from "@angular/core";
+import { Component, DestroyRef, input, OnInit, signal } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
   FormControl,
@@ -13,6 +13,7 @@ import {
   BehaviorSubject,
   combineLatest,
   concatMap,
+  distinctUntilChanged,
   filter,
   firstValueFrom,
   map,
@@ -30,17 +31,14 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { getFirstPolicy } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { ClientType } from "@bitwarden/common/enums";
 import {
   MaximumVaultTimeoutPolicyData,
   VaultTimeout,
   VaultTimeoutAction,
-  VaultTimeoutOption,
   VaultTimeoutSettingsService,
   VaultTimeoutStringType,
 } from "@bitwarden/common/key-management/vault-timeout";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import {
   CheckboxModule,
@@ -54,6 +52,8 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
+
+import { SessionTimeoutSettingsComponentService } from "../services/session-timeout-settings-component.service";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -77,9 +77,29 @@ import { LogService } from "@bitwarden/logging";
   ],
 })
 export class SessionTimeoutSettingsComponent implements OnInit {
+  // TODO remove once https://bitwarden.atlassian.net/browse/PM-27283 is completed
+  //  This is because vaultTimeoutSettingsService.availableVaultTimeoutActions$ is not reactive, hence the change detection
+  //  needs to be manually triggered to refresh available timeout actions
+  readonly refreshTimeoutActionSettings = input<Observable<void>>(
+    new BehaviorSubject<void>(undefined),
+  );
+
+  formGroup = new FormGroup({
+    timeout: new FormControl<VaultTimeout | null>(null, [Validators.required]),
+    timeoutAction: new FormControl<VaultTimeoutAction>(VaultTimeoutAction.Lock, [
+      Validators.required,
+    ]),
+  });
+  protected readonly availableTimeoutActions = signal<VaultTimeoutAction[]>([]);
+  protected readonly availableTimeoutOptions$ =
+    this.sessionTimeoutSettingsComponentService.availableTimeoutOptions$;
+  protected hasVaultTimeoutPolicy$: Observable<boolean> = of(false);
+
+  private userId!: UserId;
+
   constructor(
     private readonly vaultTimeoutSettingsService: VaultTimeoutSettingsService,
-    private readonly platformUtilsService: PlatformUtilsService,
+    private readonly sessionTimeoutSettingsComponentService: SessionTimeoutSettingsComponentService,
     private readonly i18nService: I18nService,
     private readonly toastService: ToastService,
     private readonly policyService: PolicyService,
@@ -89,39 +109,16 @@ export class SessionTimeoutSettingsComponent implements OnInit {
     private readonly destroyRef: DestroyRef,
   ) {}
 
-  readonly excludeTimeoutTypes = input.required<VaultTimeout[]>();
-  // TODO remove once https://bitwarden.atlassian.net/browse/PM-27283 is completed
-  //  This is because vaultTimeoutSettingsService.availableVaultTimeoutActions$ is not reactive, hence the change detection
-  //  needs to be manually triggered to refresh available timeout actions
-  readonly refreshTimeoutActionSettings = input<Observable<void>>(
-    new BehaviorSubject<void>(undefined),
-  );
-
-  readonly onTimeoutSave = output<VaultTimeout>();
-
-  protected readonly availableVaultTimeoutActions = signal<VaultTimeoutAction[]>([]);
-  protected readonly vaultTimeoutOptions = signal<VaultTimeoutOption[]>([]);
-  protected hasVaultTimeoutPolicy$: Observable<boolean> = of(false);
-
-  private userId!: UserId;
-
-  formGroup = new FormGroup({
-    timeout: new FormControl<VaultTimeout | null>(null, [Validators.required]),
-    timeoutAction: new FormControl<VaultTimeoutAction>(VaultTimeoutAction.Lock, [
-      Validators.required,
-    ]),
-  });
-
   get canLock() {
-    return this.availableVaultTimeoutActions().includes(VaultTimeoutAction.Lock);
+    return this.availableTimeoutActions().includes(VaultTimeoutAction.Lock);
   }
 
   async ngOnInit(): Promise<void> {
-    this.vaultTimeoutOptions.set(this.getTimeoutOptions());
+    const availableTimeoutOptions = await firstValueFrom(this.availableTimeoutOptions$);
 
     this.logService.debug(
       "[SessionTimeoutSettings] Available timeout options",
-      this.vaultTimeoutOptions(),
+      availableTimeoutOptions,
     );
 
     this.userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
@@ -138,7 +135,7 @@ export class SessionTimeoutSettingsComponent implements OnInit {
 
     // Fallback if current timeout option is not available on this platform
     // Only applies to string-based timeout types, not numeric values
-    const hasCurrentOption = this.vaultTimeoutOptions().some((opt) => opt.value === timeout);
+    const hasCurrentOption = availableTimeoutOptions.some((opt) => opt.value === timeout);
     if (!hasCurrentOption && typeof timeout !== "number") {
       this.logService.debug(
         "[SessionTimeoutSettings] Current timeout option not available, falling back from",
@@ -170,7 +167,7 @@ export class SessionTimeoutSettingsComponent implements OnInit {
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(([availableActions, action, policy]) => {
-        this.availableVaultTimeoutActions.set(availableActions);
+        this.availableTimeoutActions.set(availableActions);
         this.formGroup.controls.timeoutAction.setValue(action, { emitEvent: false });
 
         const policyData = policy?.data as MaximumVaultTimeoutPolicyData | undefined;
@@ -187,6 +184,7 @@ export class SessionTimeoutSettingsComponent implements OnInit {
       .pipe(
         startWith(timeout), // emit to init pairwise
         filter((value) => value != null),
+        distinctUntilChanged(),
         pairwise(),
         concatMap(async ([previousValue, newValue]) => {
           await this.saveTimeout(previousValue, newValue);
@@ -198,6 +196,7 @@ export class SessionTimeoutSettingsComponent implements OnInit {
     this.formGroup.controls.timeoutAction.valueChanges
       .pipe(
         filter((value) => value != null),
+        distinctUntilChanged(),
         map(async (value) => {
           await this.saveTimeoutAction(value);
         }),
@@ -237,7 +236,7 @@ export class SessionTimeoutSettingsComponent implements OnInit {
       vaultTimeoutAction,
     );
 
-    this.onTimeoutSave.emit(newValue);
+    this.sessionTimeoutSettingsComponentService.onTimeoutSave(newValue);
   }
 
   async saveTimeoutAction(value: VaultTimeoutAction) {
@@ -271,31 +270,5 @@ export class SessionTimeoutSettingsComponent implements OnInit {
       this.formGroup.controls.timeout.value!,
       value,
     );
-  }
-
-  private getTimeoutOptions(): VaultTimeoutOption[] {
-    const clientType = this.platformUtilsService.getClientType();
-
-    // Generate all possible timeout options
-    const allOptions: VaultTimeoutOption[] = [
-      { name: this.i18nService.t("immediately"), value: 0 },
-      { name: this.i18nService.t("oneMinute"), value: 1 },
-      { name: this.i18nService.t("fiveMinutes"), value: 5 },
-      { name: this.i18nService.t("fifteenMinutes"), value: 15 },
-      { name: this.i18nService.t("thirtyMinutes"), value: 30 },
-      { name: this.i18nService.t("oneHour"), value: 60 },
-      { name: this.i18nService.t("fourHours"), value: 240 },
-      { name: this.i18nService.t("onIdle"), value: VaultTimeoutStringType.OnIdle },
-      { name: this.i18nService.t("onSleep"), value: VaultTimeoutStringType.OnSleep },
-      { name: this.i18nService.t("onLocked"), value: VaultTimeoutStringType.OnLocked },
-      {
-        name: this.i18nService.t(clientType === ClientType.Web ? "onRefresh" : "onRestart"),
-        value: VaultTimeoutStringType.OnRestart,
-      },
-      { name: this.i18nService.t("never"), value: VaultTimeoutStringType.Never },
-    ];
-
-    // Filter out excluded timeout types
-    return allOptions.filter((option) => !this.excludeTimeoutTypes().includes(option.value));
   }
 }

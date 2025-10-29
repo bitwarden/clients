@@ -141,7 +141,10 @@ import {
   KdfConfigService,
   KeyService,
 } from "@bitwarden/key-management";
-import { LockComponentService } from "@bitwarden/key-management-ui";
+import {
+  LockComponentService,
+  SessionTimeoutSettingsComponentService,
+} from "@bitwarden/key-management-ui";
 import { DerivedStateProvider, GlobalStateProvider, StateProvider } from "@bitwarden/state";
 import { InlineDerivedStateProvider } from "@bitwarden/state-internal";
 import {
@@ -165,6 +168,7 @@ import AutofillService from "../../autofill/services/autofill.service";
 import { InlineMenuFieldQualificationService } from "../../autofill/services/inline-menu-field-qualification.service";
 import { ForegroundBrowserBiometricsService } from "../../key-management/biometrics/foreground-browser-biometrics";
 import { ExtensionLockComponentService } from "../../key-management/lock/services/extension-lock-component.service";
+import { ExtensionSessionTimeoutSettingsComponentService } from "../../key-management/session-timeout/services/extension-session-timeout-settings-component.service";
 import { ForegroundVaultTimeoutService } from "../../key-management/vault-timeout/foreground-vault-timeout.service";
 import { BrowserActionsService } from "../../platform/actions/browser-actions.service";
 import { BrowserApi } from "../../platform/browser/browser-api";
@@ -712,6 +716,11 @@ const safeProviders: SafeProvider[] = [
     provide: NewDeviceVerificationComponentService,
     useClass: ExtensionNewDeviceVerificationComponentService,
     deps: [],
+  }),
+  safeProvider({
+    provide: SessionTimeoutSettingsComponentService,
+    useClass: ExtensionSessionTimeoutSettingsComponentService,
+    deps: [I18nServiceAbstraction, PlatformUtilsService, MessagingServiceAbstraction],
   }),
 ];
 

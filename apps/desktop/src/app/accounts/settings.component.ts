@@ -147,7 +147,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
   isWindowsV2BiometricsEnabled: boolean = false;
 
   consolidatedSessionTimeoutComponent$: Observable<boolean>;
-  excludeTimeoutTypes: VaultTimeout[] = [];
 
   form = this.formBuilder.group({
     // Security
@@ -292,13 +291,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit() {
-    // Build exclude list for the session timeout component
-    const excludeTimeoutTypes: VaultTimeout[] = [0]; // Desktop doesn't support "immediately"
-    if (!(await ipc.platform.powermonitor.isLockMonitorAvailable())) {
-      excludeTimeoutTypes.push(VaultTimeoutStringType.OnLocked);
-    }
-    this.excludeTimeoutTypes = excludeTimeoutTypes;
-
     this.vaultTimeoutOptions = await this.generateVaultTimeoutOptions();
 
     this.isWindowsV2BiometricsEnabled = await this.biometricsService.isWindowsV2BiometricsEnabled();

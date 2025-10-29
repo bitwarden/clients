@@ -2,26 +2,27 @@ import { ComponentFixture, fakeAsync, flush, TestBed, waitForAsync } from "@angu
 import { ReactiveFormsModule } from "@angular/forms";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, of } from "rxjs";
+import { BehaviorSubject, firstValueFrom, of } from "rxjs";
 
 import { VaultTimeoutInputComponent } from "@bitwarden/auth/angular";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { ClientType } from "@bitwarden/common/enums";
 import {
   MaximumVaultTimeoutPolicyData,
   VaultTimeout,
   VaultTimeoutAction,
+  VaultTimeoutOption,
   VaultTimeoutSettingsService,
   VaultTimeoutStringType,
 } from "@bitwarden/common/key-management/vault-timeout";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
+
+import { SessionTimeoutSettingsComponentService } from "../services/session-timeout-settings-component.service";
 
 import { SessionTimeoutSettingsComponent } from "./session-timeout-settings.component";
 
@@ -31,7 +32,7 @@ describe("SessionTimeoutSettingsComponent", () => {
 
   // Mock services
   let mockVaultTimeoutSettingsService: MockProxy<VaultTimeoutSettingsService>;
-  let mockPlatformUtilsService: MockProxy<PlatformUtilsService>;
+  let mockSessionTimeoutSettingsComponentService: MockProxy<SessionTimeoutSettingsComponentService>;
   let mockI18nService: MockProxy<I18nService>;
   let mockToastService: MockProxy<ToastService>;
   let mockPolicyService: MockProxy<PolicyService>;
@@ -44,11 +45,22 @@ describe("SessionTimeoutSettingsComponent", () => {
   const mockInitialTimeout = 5;
   const mockInitialTimeoutAction = VaultTimeoutAction.Lock;
   let refreshTimeoutActionSettings$: BehaviorSubject<void>;
+  let availableTimeoutOptions$: BehaviorSubject<VaultTimeoutOption[]>;
 
   beforeEach(async () => {
     refreshTimeoutActionSettings$ = new BehaviorSubject<void>(undefined);
+    availableTimeoutOptions$ = new BehaviorSubject<VaultTimeoutOption[]>([
+      { name: "oneMinute-used-i18n", value: 1 },
+      { name: "fiveMinutes-used-i18n", value: 5 },
+      { name: "onRestart-used-i18n", value: VaultTimeoutStringType.OnRestart },
+      { name: "onLocked-used-i18n", value: VaultTimeoutStringType.OnLocked },
+      { name: "onSleep-used-i18n", value: VaultTimeoutStringType.OnSleep },
+      { name: "onIdle-used-i18n", value: VaultTimeoutStringType.OnIdle },
+      { name: "never-used-i18n", value: VaultTimeoutStringType.Never },
+    ]);
+
     mockVaultTimeoutSettingsService = mock<VaultTimeoutSettingsService>();
-    mockPlatformUtilsService = mock<PlatformUtilsService>();
+    mockSessionTimeoutSettingsComponentService = mock<SessionTimeoutSettingsComponentService>();
     mockI18nService = mock<I18nService>();
     mockToastService = mock<ToastService>();
     mockPolicyService = mock<PolicyService>();
@@ -67,6 +79,8 @@ describe("SessionTimeoutSettingsComponent", () => {
     mockVaultTimeoutSettingsService.availableVaultTimeoutActions$.mockImplementation(() =>
       of([VaultTimeoutAction.Lock, VaultTimeoutAction.LogOut]),
     );
+    mockSessionTimeoutSettingsComponentService.availableTimeoutOptions$ =
+      availableTimeoutOptions$.asObservable();
     mockPolicyService.policiesByType$.mockImplementation(() => of([]));
 
     await TestBed.configureTestingModule({
@@ -78,20 +92,28 @@ describe("SessionTimeoutSettingsComponent", () => {
       ],
       providers: [
         { provide: VaultTimeoutSettingsService, useValue: mockVaultTimeoutSettingsService },
-        { provide: PlatformUtilsService, useValue: mockPlatformUtilsService },
+        {
+          provide: SessionTimeoutSettingsComponentService,
+          useValue: mockSessionTimeoutSettingsComponentService,
+        },
         { provide: I18nService, useValue: mockI18nService },
         { provide: ToastService, useValue: mockToastService },
         { provide: PolicyService, useValue: mockPolicyService },
         { provide: AccountService, useValue: accountService },
-        { provide: DialogService, useValue: mockDialogService },
         { provide: LogService, useValue: mockLogService },
+        { provide: DialogService, useValue: mockDialogService },
       ],
-    }).compileComponents();
+    })
+      .overrideComponent(SessionTimeoutSettingsComponent, {
+        set: {
+          providers: [{ provide: DialogService, useValue: mockDialogService }],
+        },
+      })
+      .compileComponents();
 
     fixture = TestBed.createComponent(SessionTimeoutSettingsComponent);
     component = fixture.componentInstance;
 
-    fixture.componentRef.setInput("excludeTimeoutTypes", []);
     fixture.componentRef.setInput("refreshTimeoutActionSettings", refreshTimeoutActionSettings$);
   });
 
@@ -124,7 +146,36 @@ describe("SessionTimeoutSettingsComponent", () => {
   });
 
   describe("ngOnInit", () => {
-    it("should initialize available vault timeout actions", fakeAsync(() => {
+    it("should initialize available timeout options", fakeAsync(async () => {
+      fixture.detectChanges();
+      flush();
+
+      const options = await firstValueFrom(component["availableTimeoutOptions$"]);
+
+      expect(options).toContainEqual({ name: "fiveMinutes-used-i18n", value: 5 });
+      expect(options).toContainEqual({
+        name: "onIdle-used-i18n",
+        value: VaultTimeoutStringType.OnIdle,
+      });
+      expect(options).toContainEqual({
+        name: "onSleep-used-i18n",
+        value: VaultTimeoutStringType.OnSleep,
+      });
+      expect(options).toContainEqual({
+        name: "onLocked-used-i18n",
+        value: VaultTimeoutStringType.OnLocked,
+      });
+      expect(options).toContainEqual({
+        name: "onRestart-used-i18n",
+        value: VaultTimeoutStringType.OnRestart,
+      });
+      expect(options).toContainEqual({
+        name: "never-used-i18n",
+        value: VaultTimeoutStringType.Never,
+      });
+    }));
+
+    it("should initialize available timeout actions", fakeAsync(() => {
       const expectedActions = [VaultTimeoutAction.Lock, VaultTimeoutAction.LogOut];
 
       mockVaultTimeoutSettingsService.availableVaultTimeoutActions$.mockImplementation(() =>
@@ -134,10 +185,10 @@ describe("SessionTimeoutSettingsComponent", () => {
       fixture.detectChanges();
       flush();
 
-      expect(component["availableVaultTimeoutActions"]()).toEqual(expectedActions);
+      expect(component["availableTimeoutActions"]()).toEqual(expectedActions);
     }));
 
-    it("should initialize vault timeout and action", fakeAsync(() => {
+    it("should initialize timeout and action", fakeAsync(() => {
       const expectedTimeout = 15;
       const expectedAction = VaultTimeoutAction.Lock;
 
@@ -156,13 +207,17 @@ describe("SessionTimeoutSettingsComponent", () => {
     }));
 
     it("should fall back to OnRestart when current option is not available", fakeAsync(() => {
-      const unavailableTimeout = VaultTimeoutStringType.OnSleep;
+      availableTimeoutOptions$.next([
+        { name: "oneMinute-used-i18n", value: 1 },
+        { name: "fiveMinutes-used-i18n", value: 5 },
+        { name: "onRestart-used-i18n", value: VaultTimeoutStringType.OnRestart },
+      ]);
+
+      const unavailableTimeout = VaultTimeoutStringType.Never;
 
       mockVaultTimeoutSettingsService.getVaultTimeoutByUserId$.mockImplementation(() =>
         of(unavailableTimeout),
       );
-
-      fixture.componentRef.setInput("excludeTimeoutTypes", [unavailableTimeout]);
 
       fixture.detectChanges();
       flush();
@@ -318,8 +373,7 @@ describe("SessionTimeoutSettingsComponent", () => {
       fixture.detectChanges();
       await fixture.whenStable();
 
-      const emitSpy = jest.spyOn(component.onTimeoutSave, "emit");
-      const previousTimeout = 15;
+      const previousTimeout = component.formGroup.controls.timeout.value!;
       const newTimeout = VaultTimeoutStringType.Never;
 
       await component.saveTimeout(previousTimeout, newTimeout);
@@ -334,17 +388,18 @@ describe("SessionTimeoutSettingsComponent", () => {
         newTimeout,
         mockInitialTimeoutAction,
       );
-      expect(emitSpy).toHaveBeenCalledWith(newTimeout);
+      expect(mockSessionTimeoutSettingsComponentService.onTimeoutSave).toHaveBeenCalledWith(
+        newTimeout,
+      );
     }));
 
     it("should revert to previous value when Never confirmation is declined", waitForAsync(async () => {
-      mockDialogService.openSimpleDialog.mockResolvedValue(false);
-
       fixture.detectChanges();
       await fixture.whenStable();
 
-      const emitSpy = jest.spyOn(component.onTimeoutSave, "emit");
-      const previousTimeout = 15;
+      mockDialogService.openSimpleDialog.mockResolvedValue(false);
+
+      const previousTimeout = component.formGroup.controls.timeout.value!;
       const newTimeout = VaultTimeoutStringType.Never;
 
       await component.saveTimeout(previousTimeout, newTimeout);
@@ -356,7 +411,7 @@ describe("SessionTimeoutSettingsComponent", () => {
       });
       expect(component.formGroup.controls.timeout.value).toBe(previousTimeout);
       expect(mockVaultTimeoutSettingsService.setVaultTimeoutOptions).not.toHaveBeenCalled();
-      expect(emitSpy).not.toHaveBeenCalled();
+      expect(mockSessionTimeoutSettingsComponentService.onTimeoutSave).not.toHaveBeenCalled();
     }));
 
     it.each([
@@ -371,9 +426,7 @@ describe("SessionTimeoutSettingsComponent", () => {
         fixture.detectChanges();
         flush();
 
-        const emitSpy = jest.spyOn(component.onTimeoutSave, "emit");
-        const previousTimeout = 5;
-
+        const previousTimeout = component.formGroup.controls.timeout.value!;
         await component.saveTimeout(previousTimeout, timeout);
         flush();
 
@@ -383,7 +436,9 @@ describe("SessionTimeoutSettingsComponent", () => {
           timeout,
           mockInitialTimeoutAction,
         );
-        expect(emitSpy).toHaveBeenCalledWith(timeout);
+        expect(mockSessionTimeoutSettingsComponentService.onTimeoutSave).toHaveBeenCalledWith(
+          timeout,
+        );
       }),
     );
   });
@@ -460,88 +515,5 @@ describe("SessionTimeoutSettingsComponent", () => {
       });
       expect(mockVaultTimeoutSettingsService.setVaultTimeoutOptions).not.toHaveBeenCalled();
     }));
-  });
-
-  describe("getTimeoutOptions", () => {
-    it("should generate all timeout options when no excluded timeout types", fakeAsync(() => {
-      fixture.componentRef.setInput("excludeTimeoutTypes", []);
-      mockPlatformUtilsService.getClientType.mockReturnValue(ClientType.Desktop);
-
-      fixture.detectChanges();
-      flush();
-
-      const options = component["getTimeoutOptions"]();
-
-      expect(options).toContainEqual({ name: "immediately-used-i18n", value: 0 });
-      expect(options).toContainEqual({ name: "oneMinute-used-i18n", value: 1 });
-      expect(options).toContainEqual({ name: "fiveMinutes-used-i18n", value: 5 });
-      expect(options).toContainEqual({ name: "fifteenMinutes-used-i18n", value: 15 });
-      expect(options).toContainEqual({ name: "thirtyMinutes-used-i18n", value: 30 });
-      expect(options).toContainEqual({ name: "oneHour-used-i18n", value: 60 });
-      expect(options).toContainEqual({ name: "fourHours-used-i18n", value: 240 });
-      expect(options).toContainEqual({
-        name: "onIdle-used-i18n",
-        value: VaultTimeoutStringType.OnIdle,
-      });
-      expect(options).toContainEqual({
-        name: "onSleep-used-i18n",
-        value: VaultTimeoutStringType.OnSleep,
-      });
-      expect(options).toContainEqual({
-        name: "onLocked-used-i18n",
-        value: VaultTimeoutStringType.OnLocked,
-      });
-      expect(options).toContainEqual({
-        name: "onRestart-used-i18n",
-        value: VaultTimeoutStringType.OnRestart,
-      });
-      expect(options).toContainEqual({
-        name: "never-used-i18n",
-        value: VaultTimeoutStringType.Never,
-      });
-    }));
-
-    it("should filter out excluded timeout types", fakeAsync(() => {
-      fixture.componentRef.setInput("excludeTimeoutTypes", [
-        VaultTimeoutStringType.OnSleep,
-        VaultTimeoutStringType.Never,
-      ]);
-      mockPlatformUtilsService.getClientType.mockReturnValue(ClientType.Desktop);
-
-      fixture.detectChanges();
-      flush();
-
-      const options = component["vaultTimeoutOptions"]();
-      const values = options.map((o) => o.value);
-
-      expect(values).not.toContain(VaultTimeoutStringType.OnSleep);
-      expect(values).not.toContain(VaultTimeoutStringType.Never);
-      expect(values).toContain(0);
-      expect(values).toContain(VaultTimeoutStringType.OnRestart);
-    }));
-
-    it.each([
-      { clientType: ClientType.Web, expectedLabel: "onRefresh-used-i18n" },
-      { clientType: ClientType.Browser, expectedLabel: "onRestart-used-i18n" },
-      { clientType: ClientType.Desktop, expectedLabel: "onRestart-used-i18n" },
-      { clientType: ClientType.Cli, expectedLabel: "onRestart-used-i18n" },
-    ])(
-      "should use correct label for onRestart option for $clientType client",
-      fakeAsync(
-        ({ clientType, expectedLabel }: { clientType: ClientType; expectedLabel: string }) => {
-          fixture.componentRef.setInput("excludeTimeoutTypes", []);
-          mockPlatformUtilsService.getClientType.mockReturnValue(clientType);
-
-          fixture.detectChanges();
-          flush();
-
-          const options = component["vaultTimeoutOptions"]();
-          const onRestartOption = options.find((o) => o.value === VaultTimeoutStringType.OnRestart);
-
-          expect(onRestartOption).toBeDefined();
-          expect(onRestartOption?.name).toBe(expectedLabel);
-        },
-      ),
-    );
   });
 });
