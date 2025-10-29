@@ -75,7 +75,7 @@ export class DefaultImportMetadataService implements ImportMetadataServiceAbstra
         const device = this.system.environment.getDevice();
         const isWindowsDesktop = device === DeviceType.WindowsDesktop;
         if (isWindowsDesktop) {
-          // If the browser is unsupported, remove the chromium loader
+          // Exclude the Chromium loader if on Windows Desktop without ABE support
           loaders = loaders?.filter((loader) => loader !== Loader.chromium);
         }
       } catch {
