@@ -33,7 +33,7 @@ export class UriMatchDefaultPolicyComponent extends BasePolicyEditComponent {
     super();
 
     this.data = this.formBuilder.group({
-      uriMatchDetection: new FormControl<UriMatchStrategySetting>(null, {
+      uriMatchDetection: new FormControl<UriMatchStrategySetting>(UriMatchStrategy.Domain, {
         validators: [Validators.required],
         nonNullable: true,
       }),
@@ -54,14 +54,14 @@ export class UriMatchDefaultPolicyComponent extends BasePolicyEditComponent {
   protected loadData() {
     const uriMatchDetection = this.policyResponse?.data?.uriMatchDetection;
 
-    this.data.patchValue({
+    this.data?.patchValue({
       uriMatchDetection: uriMatchDetection,
     });
   }
 
   protected buildRequestData() {
     return {
-      uriMatchDetection: this.data.value.uriMatchDetection,
+      uriMatchDetection: this.data?.value?.uriMatchDetection,
     };
   }
 
