@@ -25,6 +25,7 @@ import {
 } from "@bitwarden/common/platform/state";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { LogService } from "@bitwarden/logging";
 import { UserId } from "@bitwarden/user-core";
 
 import { AutotypeConfig } from "../models/autotype-configure";
@@ -73,6 +74,7 @@ export class DesktopAutotypeService {
     private platformUtilsService: PlatformUtilsService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private desktopAutotypePolicy: DesktopAutotypeDefaultSettingPolicy,
+    private logService: LogService,
   ) {
     this.autotypeEnabledUserSetting$ = this.autotypeEnabledState.state$.pipe(
       map((enabled) => enabled ?? false),
@@ -114,8 +116,12 @@ export class DesktopAutotypeService {
     ])
       .pipe(
         map(async ([autotypeEnabledState, autotypeDefaultPolicy]) => {
-          if (autotypeDefaultPolicy === true && autotypeEnabledState === null) {
-            await this.setAutotypeEnabledState(true);
+          try {
+            if (autotypeDefaultPolicy === true && autotypeEnabledState === null) {
+              await this.setAutotypeEnabledState(true);
+            }
+          } catch {
+            this.logService.error("Failed to set Autotype enabled state.");
           }
         }),
         takeUntilDestroyed(),
