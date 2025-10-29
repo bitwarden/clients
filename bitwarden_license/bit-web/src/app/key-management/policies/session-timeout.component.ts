@@ -40,6 +40,8 @@ export class SessionTimeoutPolicy extends BasePolicyEditDefinition {
 const DEFAULT_HOURS = 8;
 const DEFAULT_MINUTES = 0;
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "session-timeout.component.html",
   imports: [SharedModule],
