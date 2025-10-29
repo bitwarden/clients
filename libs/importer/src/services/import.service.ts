@@ -500,7 +500,12 @@ export class ImportService implements ImportServiceAbstraction {
       // My Items collections do not support collection nesting. Import all ciphers into import target.
       if (importTarget.type === CollectionTypes.DefaultUserCollection) {
         importResult.collections = [importTarget as CollectionView];
-        importResult.collectionRelationships = noCollectionRelationShips;
+
+        const flattenRelationships: CollectionRelationship[] = [];
+        importResult.ciphers.forEach((c, index) => {
+          flattenRelationships.push([index, 0]);
+        });
+        importResult.collectionRelationships = flattenRelationships;
         return;
       }
 

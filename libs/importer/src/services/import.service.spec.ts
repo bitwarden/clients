@@ -252,15 +252,13 @@ describe("ImportService", () => {
     it("If importTarget is of type DefaultUserCollection sets it as new root for all ciphers as nesting is not supported", async () => {
       importResult.collections.push(mockCollection1);
       importResult.collections.push(mockCollection2);
-      importResult.ciphers.push(
-        createCipher({ name: "cipher1", collectionIds: [mockCollection1.id] }),
-      );
-      importResult.ciphers.push(
-        createCipher({ name: "cipher2", collectionIds: [mockCollection2.id] }),
-      );
-      importResult.ciphers.push(
-        createCipher({ name: "cipher3", collectionIds: [mockCollection1.id] }),
-      );
+      importResult.ciphers.push(createCipher({ name: "cipher1" }));
+      importResult.ciphers.push(createCipher({ name: "cipher2" }));
+      importResult.ciphers.push(createCipher({ name: "cipher3" }));
+
+      importResult.collectionRelationships.push([0, 0]);
+      importResult.collectionRelationships.push([1, 1]);
+      importResult.collectionRelationships.push([2, 0]);
 
       mockImportTargetCollection.type = CollectionTypes.DefaultUserCollection;
       await importService["setImportTarget"](
@@ -275,6 +273,9 @@ describe("ImportService", () => {
       expect(importResult.collectionRelationships[0]).toEqual([0, 0]);
       expect(importResult.collectionRelationships[1]).toEqual([1, 0]);
       expect(importResult.collectionRelationships[2]).toEqual([2, 0]);
+
+      expect(importResult.collectionRelationships.map((r) => r[0])).toEqual([0, 1, 2]);
+      expect(importResult.collectionRelationships.every((r) => r[1] === 0)).toBe(true);
     });
   });
 });
