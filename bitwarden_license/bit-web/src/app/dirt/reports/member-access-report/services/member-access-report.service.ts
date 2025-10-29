@@ -94,7 +94,9 @@ export class MemberAccessReportService {
     const memberAccessReports = await this.reportApiService.getMemberAccessData(organizationId);
     const collectionNames = memberAccessReports.map((item) => item.collectionName.encryptedString);
 
-    const collectionNameMap = new Map(collectionNames.map((col) => [col, ""]));
+    const collectionNameMap = new Map(
+      collectionNames.filter((col) => col != null).map((col) => [col, ""]),
+    );
     for await (const key of collectionNameMap.keys()) {
       const encryptedCollectionName = new EncString(key);
       const collectionName = await this.encryptService.decryptString(
