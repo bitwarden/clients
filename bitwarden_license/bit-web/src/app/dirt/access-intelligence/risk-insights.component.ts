@@ -74,7 +74,6 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
 
   // Empty state computed properties
   protected shouldShowImportDataState = false;
-  protected shouldShowRunReportState = false;
   protected emptyStateTitle = "";
   protected emptyStateDescription = "";
   protected emptyStateBenefits: [string, string][] = [];
@@ -243,8 +242,6 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
     // Note: We only show empty states when there are NO apps (appsCount === 0)
     // The template uses @if(shouldShowTabs) to determine whether to show tabs or empty state
     this.shouldShowImportDataState = !this.hasVaultItems && !isGenerating;
-    this.shouldShowRunReportState =
-      this.hasVaultItems && this.reportHasLoaded && this.appsCount === 0 && !isGenerating;
 
     // Update title
     if (this.shouldShowImportDataState) {
