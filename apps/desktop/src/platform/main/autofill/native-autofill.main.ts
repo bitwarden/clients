@@ -30,7 +30,7 @@ export class NativeAutofillMain {
         _event: any,
         params: RunCommandParams<C>,
       ): Promise<RunCommandResult<C>> => {
-        return this.runCommand(params);
+        return null; //this.runCommand(params);
       },
     );
 
