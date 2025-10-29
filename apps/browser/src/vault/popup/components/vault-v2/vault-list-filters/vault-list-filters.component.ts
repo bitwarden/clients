@@ -8,6 +8,8 @@ import { ChipSelectComponent } from "@bitwarden/components";
 
 import { VaultPopupListFiltersService } from "../../../services/vault-popup-list-filters.service";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-vault-list-filters",
   templateUrl: "./vault-list-filters.component.html",

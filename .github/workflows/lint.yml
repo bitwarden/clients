@@ -75,6 +75,9 @@ jobs:
       - name: Lint unowned dependencies
         run: npm run lint:dep-ownership
 
+      - name: Lint sdk-internal versions
+        run: npm run lint:sdk-internal-versions
+
       - name: Run linter
         run: npm run lint
 
@@ -114,3 +117,12 @@ jobs:
       - name: Cargo sort
         working-directory: ./apps/desktop/desktop_native
         run: cargo sort --workspace --check
+
+      - name: Install cargo-deny
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-deny
+
+      - name: Run cargo deny
+        working-directory: ./apps/desktop/desktop_native
+        run: cargo deny --log-level error --all-features check all

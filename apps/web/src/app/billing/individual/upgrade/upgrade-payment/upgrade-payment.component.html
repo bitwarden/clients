@@ -54,7 +54,7 @@
           <billing-cart-summary
             #cartSummaryComponent
             [passwordManager]="passwordManager"
-            [estimatedTax]="estimatedTax"
+            [estimatedTax]="estimatedTax$ | async"
           ></billing-cart-summary>
           @if (isFamiliesPlan) {
             <p bitTypography="helper" class="tw-italic tw-text-muted !tw-mb-0">
@@ -70,7 +70,7 @@
         bitButton
         bitFormButton
         buttonType="primary"
-        [disabled]="loading() || !isFormValid()"
+        [disabled]="loading() || !isFormValid() || !(hasEnoughAccountCredit$ | async)"
         type="submit"
       >
         {{ "upgrade" | i18n }}
