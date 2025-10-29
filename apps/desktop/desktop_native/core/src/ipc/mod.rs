@@ -65,7 +65,7 @@ pub fn path(name: &str) -> std::path::PathBuf {
                 home.pop();
             }
 
-            let tmp = home.join("Library/Group Containers/LTZ2PFU5D6.com.bitwarden.desktop/tmp");
+            let tmp = home.join("Library/Group Containers/LTZ2PFU5D6.com.bitwarden.desktop");
 
             // The tmp directory might not exist, so create it
             let _ = std::fs::create_dir_all(&tmp);
