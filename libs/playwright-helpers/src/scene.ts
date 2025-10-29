@@ -3,14 +3,14 @@ import { webServerBaseUrl } from "@playwright-config";
 
 import { UsingRequired } from "@bitwarden/common/platform/misc/using-required";
 
-import { Recipe } from "./recipes/recipe";
+import { SceneTemplate } from "./scene-templates/scene-template";
 
 // First seed points at the seeder API proxy, second is the seed path of the SeedController
 const seedApiUrl = new URL("/seed/seed/", webServerBaseUrl).toString();
 
 /**
  * A Scene contains logic to set up and tear down data for a test on the server.
- * It is created by running a Recipe, which contains the arguments the server requires to create the data.
+ * It is created by providing a Scene Template, which contains the arguments the server requires to create the data.
  *
  * Scenes are `Disposable`, meaning they must be used with the `using` keyword and will be automatically torn down when disposed.
  * Options exist to modify this behavior.
@@ -18,21 +18,29 @@ const seedApiUrl = new URL("/seed/seed/", webServerBaseUrl).toString();
  * - {@link SceneOptions.noDown}: Useful for setting up data then using codegen to create tests that use the data. Remember to tear down the data manually.
  * - {@link SceneOptions.downAfterAll}: Useful for expensive setups that you want to share across all tests in a worker or for writing acts.
  */
-export class Scene implements UsingRequired {
+export class Scene<Returns = void> implements UsingRequired {
   private inited = false;
-  private _recipe?: Recipe<unknown>;
-  private mangledMap = new Map<string, string>();
+  private _template?: SceneTemplate<unknown, Returns>;
+  private mangledMap = new Map<string, string | null>();
+  private _returnValue?: Returns;
 
   constructor(private options: SceneOptions) {}
 
-  private get recipe(): Recipe<unknown> {
+  private get template(): SceneTemplate<unknown, Returns> {
     if (!this.inited) {
-      throw new Error("Scene must be initialized before accessing recipe");
+      throw new Error("Scene must be initialized before accessing template");
     }
-    if (!this._recipe) {
+    if (!this._template) {
       throw new Error("Scene was not properly initialized");
     }
-    return this._recipe;
+    return this._template;
+  }
+
+  get returnValue(): Returns {
+    if (!this.inited) {
+      throw new Error("Scene must be initialized before accessing returnValue");
+    }
+    return this._returnValue!;
   }
 
   /**
@@ -65,10 +73,10 @@ export class Scene implements UsingRequired {
     if (!this.inited) {
       throw new Error("Scene must be initialized before accessing seedId");
     }
-    if (!this.recipe) {
+    if (!this.template) {
       throw new Error("Scene was not properly initialized");
     }
-    return this.recipe.currentSeedId;
+    return this.template.currentSeedId;
   }
 
   [Symbol.dispose] = () => {
@@ -76,12 +84,12 @@ export class Scene implements UsingRequired {
       return;
     }
 
-    if (!this.recipe) {
+    if (!this.template) {
       throw new Error("Scene was not properly initialized");
     }
 
     // Fire off an unawaited promise to delete the side effects of the scene
-    void this.recipe.down();
+    void this.template.down();
     seedIdsToTearDown.delete(this.seedId);
   };
 
@@ -93,16 +101,17 @@ export class Scene implements UsingRequired {
     return this.mangledMap.get(id) ?? id;
   }
 
-  async init<T extends Recipe<TUp>, TUp>(recipe: T): Promise<void> {
+  async init<T extends SceneTemplate<TUp, Returns>, TUp>(template: T): Promise<void> {
     if (this.inited) {
       throw new Error("Scene has already been initialized");
     }
-    this._recipe = recipe;
+    this._template = template;
     this.inited = true;
 
-    const mangleMap = await recipe.up();
+    const result = await template.up();
 
-    this.mangledMap = new Map(Object.entries(mangleMap));
+    this.mangledMap = new Map(Object.entries(result.mangleMap));
+    this._returnValue = result.result as unknown as Returns;
   }
 }
 
@@ -132,35 +141,35 @@ const SCENE_OPTIONS_DEFAULTS: Readonly<SceneOptions> = Object.freeze({
 
 export class Play {
   /**
-   * Runs server-side recipes to create a test scene. Automatically destroys the scene when disposed.
+   * Runs server-side code to create a test scene and automatically destroys the scene when disposed.
    *
    * Scenes also expose a `mangle` method that can be used to mangle magic string in the same way the server reports them
-   * back to avoid collisions. For example, if a recipe creates a user with the email `test@example.com`, you can call
+   * back to avoid collisions. For example, if a scene creates a user with the email `test@example.com`, you can call
    * `scene.mangle("test@example.com")` to get the actual email address of the user created in the scene.
    *
    * Example usage:
    * ```ts
-   * import { Play, SingleUserRecipe } from "@bitwarden/playwright-helpers";
+   * import { Play, SingleUserScene } from "@bitwarden/playwright-helpers";
    *
    * test("my test", async ({ page }) => {
-   *  using scene = await Play.scene(new SingleUserRecipe({ email: "
+   *  using scene = await Play.scene(new SingleUserScene({ email: "
    *  expect(scene.mangle("my-id")).not.toBe("my-id");
    * });
    *
-   * @param recipe The recipe to run to create the scene
+   * @param template The template to run to create the scene
    * @param options Options for the scene
    * @returns
    */
-  static async scene<T extends Recipe<TUp>, TUp>(
-    recipe: T,
+  static async scene<TUp, TResult>(
+    template: SceneTemplate<TUp, TResult>,
     options: SceneOptions = {},
-  ): Promise<Scene> {
+  ): Promise<Scene<TResult>> {
     const opts = { ...SCENE_OPTIONS_DEFAULTS, ...options };
     if (opts.noDown && process.env.CI) {
       throw new Error("Cannot set noDown to true in CI environments");
     }
-    const scene = new Scene(opts);
-    await scene.init(recipe);
+    const scene = new Scene<TResult>(opts);
+    await scene.init(template);
     if (!opts.noDown) {
       seedIdsToTearDown.add(scene.seedId);
     } else {
@@ -175,7 +184,7 @@ export class Play {
     });
 
     if (!response.ok) {
-      throw new Error(`Failed to delete recipes: ${response.statusText}`);
+      throw new Error(`Failed to delete scenes: ${response.statusText}`);
     }
   }
 }
@@ -201,6 +210,6 @@ test.afterAll(async () => {
   });
 
   if (!response.ok) {
-    throw new Error(`Failed to delete recipes: ${response.statusText}`);
+    throw new Error(`Failed to delete scenes: ${response.statusText}`);
   }
 });

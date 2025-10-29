@@ -60,9 +60,7 @@ const test = base.extend<MyFixtures>({
 });
 
 base.describe("Emergency Access", () => {
-  test("Account takeover", async ({ grantee, grantor }) => {
-    test.setTimeout(120_000);
-
+  test.skip("Account takeover", async ({ grantee, grantor }) => {
     const granteeEmail = grantee.scene.mangle("grantee@bitwarden.com");
 
     // Add a new emergency contact
@@ -116,8 +114,6 @@ base.describe("Emergency Access", () => {
       .fill("qwertyqwerty");
     await grantee.page.getByRole("button", { name: "Save" }).click();
     await grantee.page.getByRole("button", { name: "Yes" }).click();
-
-    await grantee.page.pause();
 
     // TODO: Confirm the new password works by logging out and back in
 

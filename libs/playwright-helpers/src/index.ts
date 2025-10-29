@@ -1,3 +1,3 @@
 export * from "./scene";
-export * from "./recipes";
+export * from "./scene-templates";
 export { test } from "./test";

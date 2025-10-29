@@ -1,13 +1,13 @@
 import * as fs from "fs";
 import * as path from "path";
 
-import { Browser, Page, test } from "@playwright/test";
+import { Browser, Page, test, TestFixture } from "@playwright/test";
 import { webServerBaseUrl } from "@playwright-config";
 import * as playwright from "playwright";
 // Playwright doesn't expose this type, so we duplicate it here
 type BrowserName = "chromium" | "firefox" | "webkit";
 
-import { Play, Scene, SingleUserRecipe } from "@bitwarden/playwright-helpers";
+import { Play, SingleUserScene, SingleUserSceneTemplate } from "@bitwarden/playwright-helpers";
 
 const hostname = new URL(webServerBaseUrl).hostname;
 const dataDir = process.env.PLAYWRIGHT_DATA_DIR ?? "playwright-data";
@@ -29,14 +29,14 @@ function localFilePath(mangledEmail: string): string {
 type AuthedUserData = {
   email: string;
   password: string;
-  scene: Scene;
+  scene: SingleUserScene;
 };
 
 type AuthenticatedContext = {
   /** The Playwright page we authenticated */
   page: Page;
   /** The Scene used to authenticate */
-  scene: Scene;
+  scene: SingleUserScene;
 };
 
 /**
@@ -49,6 +49,15 @@ export class AuthFixture {
   private _page!: Page;
 
   constructor(private readonly browserName: BrowserName) {}
+
+  static fixtureValue(): TestFixture<AuthFixture, { browserName: BrowserName }> {
+    return async ({ browserName }, use) => {
+      const auth = new AuthFixture(browserName as BrowserName);
+      await auth.init();
+      await use(auth);
+      await auth.close();
+    };
+  }
 
   async init(): Promise<void> {
     if (!this._browser) {
@@ -123,7 +132,7 @@ export class AuthFixture {
 
   async newSession(email: string, password: string): Promise<AuthenticatedContext> {
     const page = await this.page();
-    using scene = await Play.scene(new SingleUserRecipe({ email }), {
+    using scene = await Play.scene(new SingleUserSceneTemplate({ email }), {
       downAfterAll: true,
     });
     const mangledEmail = scene.mangle(email);
