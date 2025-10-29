@@ -28,21 +28,20 @@ export class LoginUri extends Domain {
   }
 
   decrypt(
-    orgId: string | undefined,
+    encKey: SymmetricCryptoKey,
     context: string = "No Cipher Context",
-    encKey?: SymmetricCryptoKey,
   ): Promise<LoginUriView> {
     return this.decryptObj<LoginUri, LoginUriView>(
       this,
       new LoginUriView(this),
       ["uri"],
-      orgId ?? null,
+      null,
       encKey,
       context,
     );
   }
 
-  async validateChecksum(clearTextUri: string, orgId?: string, encKey?: SymmetricCryptoKey) {
+  async validateChecksum(clearTextUri: string, encKey: SymmetricCryptoKey) {
     if (this.uriChecksum == null) {
       return false;
     }
@@ -50,7 +49,7 @@ export class LoginUri extends Domain {
     const keyService = Utils.getContainerService().getEncryptService();
     const localChecksum = await keyService.hash(clearTextUri, "sha256");
 
-    const remoteChecksum = await this.uriChecksum.decrypt(orgId ?? null, encKey);
+    const remoteChecksum = await this.uriChecksum.decrypt(null, encKey);
     return remoteChecksum === localChecksum;
   }
 

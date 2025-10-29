@@ -9,7 +9,7 @@ import { EncryptService } from "../../../key-management/crypto/abstractions/encr
 import { EncryptedString, EncString } from "../../../key-management/crypto/models/enc-string";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { ContainerService } from "../../../platform/services/container.service";
-import { OrgKey, UserKey } from "../../../types/key";
+import { UserKey } from "../../../types/key";
 import { AttachmentData } from "../../models/data/attachment.data";
 import { Attachment } from "../../models/domain/attachment";
 
@@ -110,30 +110,10 @@ describe("Attachment", () => {
       it("uses the provided key without depending on KeyService", async () => {
         const providedKey = mock<SymmetricCryptoKey>();
 
-        await attachment.decrypt(null, "", providedKey);
+        await attachment.decrypt(providedKey, "");
 
         expect(keyService.getUserKey).not.toHaveBeenCalled();
         expect(encryptService.unwrapSymmetricKey).toHaveBeenCalledWith(attachment.key, providedKey);
-      });
-
-      it("gets an organization key if required", async () => {
-        const orgKey = mock<OrgKey>();
-        keyService.getOrgKey.calledWith("orgId").mockResolvedValue(orgKey);
-
-        await attachment.decrypt("orgId", "", null);
-
-        expect(keyService.getOrgKey).toHaveBeenCalledWith("orgId");
-        expect(encryptService.unwrapSymmetricKey).toHaveBeenCalledWith(attachment.key, orgKey);
-      });
-
-      it("gets the user's decryption key if required", async () => {
-        const userKey = mock<UserKey>();
-        keyService.getUserKey.mockResolvedValue(userKey);
-
-        await attachment.decrypt(null, "", null);
-
-        expect(keyService.getUserKey).toHaveBeenCalled();
-        expect(encryptService.unwrapSymmetricKey).toHaveBeenCalledWith(attachment.key, userKey);
       });
     });
   });

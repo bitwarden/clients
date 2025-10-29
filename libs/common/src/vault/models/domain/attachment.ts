@@ -1,6 +1,5 @@
 import { Jsonify } from "type-fest";
 
-import { OrgKey, UserKey } from "@bitwarden/common/types/key";
 import { Attachment as SdkAttachment } from "@bitwarden/sdk-internal";
 
 import { EncString } from "../../../key-management/crypto/models/enc-string";
@@ -34,21 +33,20 @@ export class Attachment extends Domain {
   }
 
   async decrypt(
-    orgId: string | undefined,
+    decryptionKey: SymmetricCryptoKey,
     context = "No Cipher Context",
-    encKey?: SymmetricCryptoKey,
   ): Promise<AttachmentView> {
     const view = await this.decryptObj<Attachment, AttachmentView>(
       this,
       new AttachmentView(this),
       ["fileName"],
-      orgId ?? null,
-      encKey,
+      null,
+      decryptionKey,
       "DomainType: Attachment; " + context,
     );
 
     if (this.key != null) {
-      view.key = await this.decryptAttachmentKey(orgId, encKey);
+      view.key = await this.decryptAttachmentKey(decryptionKey);
       view.encryptedKey = this.key; // Keep the encrypted key for the view
     }
 
@@ -56,38 +54,21 @@ export class Attachment extends Domain {
   }
 
   private async decryptAttachmentKey(
-    orgId: string | undefined,
-    encKey?: SymmetricCryptoKey,
+    decryptionKey: SymmetricCryptoKey,
   ): Promise<SymmetricCryptoKey | undefined> {
     try {
       if (this.key == null) {
         return undefined;
       }
 
-      if (encKey == null) {
-        const key = await this.getKeyForDecryption(orgId);
-
-        // If we don't have a key, we can't decrypt
-        if (key == null) {
-          return undefined;
-        }
-
-        encKey = key;
-      }
-
       const encryptService = Utils.getContainerService().getEncryptService();
-      const decValue = await encryptService.unwrapSymmetricKey(this.key, encKey);
+      const decValue = await encryptService.unwrapSymmetricKey(this.key, decryptionKey);
       return decValue;
     } catch (e) {
       // eslint-disable-next-line no-console
       console.error("[Attachment] Error decrypting attachment", e);
       return undefined;
     }
-  }
-
-  private async getKeyForDecryption(orgId: string | undefined): Promise<OrgKey | UserKey | null> {
-    const keyService = Utils.getContainerService().getKeyService();
-    return orgId != null ? await keyService.getOrgKey(orgId) : await keyService.getUserKey();
   }
 
   toAttachmentData(): AttachmentData {

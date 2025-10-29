@@ -46,10 +46,7 @@ export class Fido2Credential extends Domain {
     this.creationDate = new Date(obj.creationDate);
   }
 
-  async decrypt(
-    orgId: string | undefined,
-    encKey?: SymmetricCryptoKey,
-  ): Promise<Fido2CredentialView> {
+  async decrypt(decryptionKey: SymmetricCryptoKey): Promise<Fido2CredentialView> {
     const view = await this.decryptObj<Fido2Credential, Fido2CredentialView>(
       this,
       new Fido2CredentialView(),
@@ -65,8 +62,8 @@ export class Fido2Credential extends Domain {
         "rpName",
         "userDisplayName",
       ],
-      orgId ?? null,
-      encKey,
+      null,
+      decryptionKey,
     );
 
     const { counter } = await this.decryptObj<
@@ -74,7 +71,7 @@ export class Fido2Credential extends Domain {
       {
         counter: string;
       }
-    >(this, { counter: "" }, ["counter"], orgId ?? null, encKey);
+    >(this, { counter: "" }, ["counter"], null, decryptionKey);
     // Counter will end up as NaN if this fails
     view.counter = parseInt(counter);
 
@@ -82,8 +79,8 @@ export class Fido2Credential extends Domain {
       this,
       { discoverable: "" },
       ["discoverable"],
-      orgId ?? null,
-      encKey,
+      null,
+      decryptionKey,
     );
     view.discoverable = discoverable === "true";
     view.creationDate = this.creationDate;
