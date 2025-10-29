@@ -55,6 +55,25 @@ describe("ImportMetadataService", () => {
 
       // Recreate the service with the updated mocks for logging tests
       sut = new DefaultImportMetadataService(systemServiceProvider);
+
+      // Set up importers to include bravecsv and chromecsv with chromium loader
+      sut["importers"] = {
+        chromecsv: {
+          type: "chromecsv",
+          loaders: [Loader.file, Loader.chromium],
+          instructions: Instructions.chromium,
+        },
+        bravecsv: {
+          type: "bravecsv",
+          loaders: [Loader.file, Loader.chromium],
+          instructions: Instructions.chromium,
+        },
+        edgecsv: {
+          type: "edgecsv",
+          loaders: [Loader.file, Loader.chromium],
+          instructions: Instructions.chromium,
+        },
+      } as ImportersMetadata;
     });
 
     afterEach(() => {
@@ -112,6 +131,7 @@ describe("ImportMetadataService", () => {
     });
 
     it("should update when feature flag changes", async () => {
+      environment.getDevice.mockReturnValue(DeviceType.WindowsDesktop);
       const testType: ImportType = "bravecsv"; // Use bravecsv which supports chromium loader
       const emissions: ImporterMetadata[] = [];
 
@@ -132,6 +152,20 @@ describe("ImportMetadataService", () => {
       subscription.unsubscribe();
     });
 
+    it("should exclude chromium loader when ABE is disabled and on Windows Desktop", async () => {
+      environment.getDevice.mockReturnValue(DeviceType.WindowsDesktop);
+      const testType: ImportType = "bravecsv"; // bravecsv supports both file and chromium loaders
+      featureFlagSubject.next(false);
+
+      const metadataPromise = firstValueFrom(sut.metadata$(typeSubject));
+      typeSubject.next(testType);
+
+      const result = await metadataPromise;
+
+      expect(result.loaders).not.toContain(Loader.chromium);
+      expect(result.loaders).toContain(Loader.file);
+    });
+
     it("should exclude chromium loader when ABE is disabled but on Windows Desktop", async () => {
       environment.getDevice.mockReturnValue(DeviceType.WindowsDesktop);
       const testType: ImportType = "bravecsv"; // bravecsv supports both file and chromium loaders
@@ -146,31 +180,22 @@ describe("ImportMetadataService", () => {
       expect(result.loaders).toContain(Loader.file);
     });
 
-    it("should exclude chromium loader when ABE is enabled but not on Windows Desktop", async () => {
+    it("should include chromium loader when ABE is disabled and not on Windows Desktop", async () => {
       environment.getDevice.mockReturnValue(DeviceType.MacOsDesktop);
       const testType: ImportType = "bravecsv"; // bravecsv supports both file and chromium loaders
-      featureFlagSubject.next(true);
+      featureFlagSubject.next(false);
 
       const metadataPromise = firstValueFrom(sut.metadata$(typeSubject));
       typeSubject.next(testType);
 
       const result = await metadataPromise;
 
-      expect(result.loaders).not.toContain(Loader.chromium);
+      expect(result.loaders).toContain(Loader.chromium);
       expect(result.loaders).toContain(Loader.file);
     });
 
-    it("should include chromium loader when ABE is enabled and on Windows Desktop", async () => {
-      // Set up importers to include bravecsv with chromium loader
-      sut["importers"] = {
-        bravecsv: {
-          type: "bravecsv",
-          loaders: [Loader.file, Loader.chromium],
-          instructions: Instructions.chromium,
-        },
-      } as ImportersMetadata;
-
-      environment.getDevice.mockReturnValue(DeviceType.WindowsDesktop);
+    it("should include chromium loader when ABE is enabled regardless of device", async () => {
+      environment.getDevice.mockReturnValue(DeviceType.MacOsDesktop);
       const testType: ImportType = "bravecsv"; // bravecsv supports both file and chromium loaders
       featureFlagSubject.next(true);
 
