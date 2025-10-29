@@ -116,7 +116,7 @@ export class DesktopAutotypeService {
       this.desktopAutotypePolicy.autotypeDefaultSetting$,
     ])
       .pipe(
-        map(async ([autotypeEnabledState, autotypeDefaultPolicy]) => {
+        concatMap(async ([autotypeEnabledState, autotypeDefaultPolicy]) => {
           try {
             if (autotypeDefaultPolicy === true && autotypeEnabledState === null) {
               await this.setAutotypeEnabledState(true);
