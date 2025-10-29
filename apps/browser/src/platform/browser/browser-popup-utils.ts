@@ -157,6 +157,16 @@ export default class BrowserPopupUtils {
       url: BrowserPopupUtils.buildPopoutUrl(extensionUrlPath, singleActionKey),
     };
 
+    if (
+      (await BrowserPopupUtils.isSingleActionPopoutOpen(
+        singleActionKey,
+        popoutWindowOptions,
+        forceCloseExistingWindows,
+      )) &&
+      !forceCloseExistingWindows
+    ) {
+      return;
+    }
     const platform = await BrowserApi.getPlatformInfo();
     const isMacOS = platform.os === "mac";
     const isFullscreen = senderWindow.state === "fullscreen";
@@ -171,16 +181,6 @@ export default class BrowserPopupUtils {
       await new Promise((resolve) => setTimeout(resolve, 1000));
     }
 
-    if (
-      (await BrowserPopupUtils.isSingleActionPopoutOpen(
-        singleActionKey,
-        popoutWindowOptions,
-        forceCloseExistingWindows,
-      )) &&
-      !forceCloseExistingWindows
-    ) {
-      return;
-    }
     const newWindow = await BrowserApi.createWindow(popoutWindowOptions);
 
     if (isFullscreenAndMacOS) {
