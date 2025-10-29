@@ -10,12 +10,12 @@ export abstract class AuthRequestAnsweringService {
    * so that even if someone closes a window or a popup and comes back, it could be processed later.
    * Only way to clear out the global state is to respond to the auth request.
    *
-   * Currently, this is only implemented for browser extension.
+   * Currently implemented on Extension and Desktop.
    *
    * @param userId The UserId that the auth request is for.
    * @param authRequestId The id of the auth request that is to be processed.
    */
-  abstract receivedPendingAuthRequest(userId: UserId, authRequestId?: string): Promise<void>;
+  abstract receivedPendingAuthRequest(userId: UserId, authRequestId: string): Promise<void>;
 
   /**
    * Confirms whether or not the user meets the conditions required to show an approval

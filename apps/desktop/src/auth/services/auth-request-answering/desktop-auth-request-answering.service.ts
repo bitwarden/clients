@@ -32,7 +32,13 @@ export class DesktopAuthRequestAnsweringService
     );
   }
 
-  override async receivedPendingAuthRequest(userId: UserId): Promise<void> {
+  /**
+   * @param userId
+   * @param _ placeholder for the authRequestId param, which is not used on Desktop because clicks
+   *          on a Desktop notification do not run any auth-request-specific actions. All clicks
+   *          simply open the Desktop window. See electron-main-messaging.service.ts.
+   */
+  override async receivedPendingAuthRequest(userId: UserId, _: string): Promise<void> {
     // Always persist the pending marker for this user to global state.
     await this.pendingAuthRequestsState.add(userId);
 

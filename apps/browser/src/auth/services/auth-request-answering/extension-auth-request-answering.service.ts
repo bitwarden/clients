@@ -42,7 +42,7 @@ export class ExtensionAuthRequestAnsweringService
     );
   }
 
-  override async receivedPendingAuthRequest(userId: UserId, authRequestId?: string): Promise<void> {
+  override async receivedPendingAuthRequest(userId: UserId, authRequestId: string): Promise<void> {
     if (!authRequestId) {
       throw new Error("authRequestId not found.");
     }

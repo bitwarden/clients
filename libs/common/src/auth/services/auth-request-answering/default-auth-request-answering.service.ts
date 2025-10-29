@@ -38,7 +38,7 @@ export class DefaultAuthRequestAnsweringService implements AuthRequestAnsweringS
     protected readonly pendingAuthRequestsState: PendingAuthRequestsStateService,
   ) {}
 
-  async receivedPendingAuthRequest(userId: UserId): Promise<void> {
+  async receivedPendingAuthRequest(userId: UserId, authRequestId: string): Promise<void> {
     throw new Error("receivedPendingAuthRequest() not implemented for this client");
   }
 
@@ -51,7 +51,7 @@ export class DefaultAuthRequestAnsweringService implements AuthRequestAnsweringS
       this.masterPasswordService.forceSetPasswordReason$(userId),
     );
 
-    // Use must be unlocked, active, and must not be required to set/change their master password
+    // User must be unlocked, active, and must not be required to set/change their master password
     const meetsConditions =
       authStatus === AuthenticationStatus.Unlocked &&
       activeUserId === userId &&
