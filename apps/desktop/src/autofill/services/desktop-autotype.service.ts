@@ -17,6 +17,8 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { UserId } from "@bitwarden/user-core";
 
+import { AutotypeVaultData } from "../models/autotype-vault-data";
+
 import { DesktopAutotypeDefaultSettingPolicy } from "./desktop-autotype-policy.service";
 
 export const defaultWindowsAutotypeKeyboardShortcut: string[] = ["Control", "Shift", "B"];
@@ -64,10 +66,18 @@ export class DesktopAutotypeService {
       const possibleCiphers = await this.matchCiphersToWindowTitle(windowTitle);
       const firstCipher = possibleCiphers?.at(0);
 
-      return callback(null, {
-        username: firstCipher?.login?.username,
-        password: firstCipher?.login?.password,
-      });
+      if (
+        firstCipher !== undefined &&
+        firstCipher.login.username !== undefined &&
+        firstCipher.login.password !== undefined
+      ) {
+        const vaultData: AutotypeVaultData = {
+          username: firstCipher.login.username,
+          password: firstCipher.login.password,
+        };
+        return callback(null, vaultData);
+      }
+      return callback(Error("No match."), null);
     });
   }
 

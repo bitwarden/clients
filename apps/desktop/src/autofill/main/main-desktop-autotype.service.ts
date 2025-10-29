@@ -5,6 +5,7 @@ import { LogService } from "@bitwarden/logging";
 
 import { WindowMain } from "../../main/window.main";
 import { stringIsNotUndefinedNullAndEmpty } from "../../utils";
+import { AutotypeVaultData } from "../models/autotype-vault-data";
 import { AutotypeKeyboardShortcut } from "../models/main-autotype-keyboard-shortcut";
 
 export class MainDesktopAutotypeService {
@@ -47,18 +48,12 @@ export class MainDesktopAutotypeService {
       }
     });
 
-    ipcMain.on("autofill.completeAutotypeRequest", (event, data) => {
-      const { response } = data;
-
+    ipcMain.on("autofill.completeAutotypeRequest", (_event, vaultData: AutotypeVaultData) => {
       if (
-        stringIsNotUndefinedNullAndEmpty(response.username) &&
-        stringIsNotUndefinedNullAndEmpty(response.password)
+        stringIsNotUndefinedNullAndEmpty(vaultData.username) &&
+        stringIsNotUndefinedNullAndEmpty(vaultData.password)
       ) {
-        this.doAutotype(
-          response.username,
-          response.password,
-          this.autotypeKeyboardShortcut.getArrayFormat(),
-        );
+        this.doAutotype(vaultData, this.autotypeKeyboardShortcut.getArrayFormat());
       }
     });
   }
@@ -89,8 +84,8 @@ export class MainDesktopAutotypeService {
       : this.logService.info("Enabling autotype failed.");
   }
 
-  private doAutotype(username: string, password: string, keyboardShortcut: string[]) {
-    const inputPattern = username + "\t" + password;
+  private doAutotype(vaultData: AutotypeVaultData, keyboardShortcut: string[]) {
+    const inputPattern = vaultData.username + "\t" + vaultData.password;
     const inputArray = new Array<number>(inputPattern.length);
 
     for (let i = 0; i < inputPattern.length; i++) {
