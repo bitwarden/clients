@@ -5,12 +5,10 @@ mod windows_binary {
     use base64::{engine::general_purpose, Engine as _};
     use clap::Parser;
     use scopeguard::defer;
-    use simplelog::*;
     use std::{
         ffi::OsString,
-        fs::OpenOptions,
         os::windows::{ffi::OsStringExt as _, io::AsRawHandle},
-        path::PathBuf,
+        path::{Path, PathBuf},
         ptr,
         time::Duration,
     };
@@ -20,7 +18,10 @@ mod windows_binary {
         net::windows::named_pipe::{ClientOptions, NamedPipeClient},
         time,
     };
-    use tracing::{debug, error};
+    use tracing::{debug, error, level_filters::LevelFilter};
+    use tracing_subscriber::{
+        fmt, layer::SubscriberExt as _, util::SubscriberInitExt as _, EnvFilter, Layer as _,
+    };
     use verifysign::CodeSignVerifier;
     use windows::{
         core::BOOL,
@@ -58,21 +59,25 @@ mod windows_binary {
     }
 
     // Enable this to log to a file. The way this executable is used, it's not easy to debug and the stdout gets lost.
-    const NEED_LOGGING: bool = false;
+    // This is intended for development time only. All the logging is wrapped in `dbg_log!`` macro that compiles to
+    // no-op when logging is disabled. This is needed to avoid any sensitive data being logged in production. Normally
+    // all the logging code is present in the release build and could be enabled via RUST_LOG environment variable.
+    // We don't want that!
+    const ENABLE_DEVELOPER_LOGGING: bool = false;
     const LOG_FILENAME: &str = "c:\\path\\to\\log.txt"; // This is an example filename, replace it with you own
 
     // This should be enabled for production
-    const NEED_SERVER_SIGNATURE_VALIDATION: bool = false;
+    const ENABLE_SERVER_SIGNATURE_VALIDATION: bool = false;
     const EXPECTED_SERVER_SIGNATURE_SHA256_THUMBPRINT: &str =
         "9f6680c4720dbf66d1cb8ed6e328f58e42523badc60d138c7a04e63af14ea40d";
 
     // List of SYSTEM process names to try to impersonate
     const SYSTEM_PROCESS_NAMES: [&str; 2] = ["services.exe", "winlogon.exe"];
 
-    // Macro wrapper around debug! that compiles to no-op when NEED_LOGGING is false
+    // Macro wrapper around debug! that compiles to no-op when ENABLE_DEVELOPER_LOGGING is false
     macro_rules! dbg_log {
         ($($arg:tt)*) => {
-            if NEED_LOGGING {
+            if ENABLE_DEVELOPER_LOGGING {
                 debug!($($arg)*);
             }
         };
@@ -373,7 +378,7 @@ mod windows_binary {
     async fn open_and_validate_pipe_server(pipe_name: &'static str) -> Result<NamedPipeClient> {
         let client = open_pipe_client(pipe_name).await?;
 
-        if NEED_SERVER_SIGNATURE_VALIDATION {
+        if ENABLE_SERVER_SIGNATURE_VALIDATION {
             let server_pid = get_named_pipe_server_pid(&client)?;
             dbg_log!("Connected to pipe server PID {}", server_pid);
 
@@ -453,18 +458,30 @@ mod windows_binary {
         Ok(system_decrypted_base64)
     }
 
+    fn init_logging(log_path: &Path, file_level: LevelFilter) {
+        // We only log to a file. It's impossible to see stdout/stderr when this exe is launched from ShellExecuteW.
+        match std::fs::File::create(log_path) {
+            Ok(file) => {
+                let file_filter = EnvFilter::builder()
+                    .with_default_directive(file_level.into())
+                    .from_env_lossy();
+
+                let file_layer = fmt::layer()
+                    .with_writer(file)
+                    .with_ansi(false)
+                    .with_filter(file_filter);
+
+                tracing_subscriber::registry().with(file_layer).init();
+            }
+            Err(error) => {
+                error!(%error, ?log_path, "Could not create log file.");
+            }
+        }
+    }
+
     pub async fn main() {
-        if NEED_LOGGING {
-            WriteLogger::init(
-                LevelFilter::Debug, // Controlled by the feature flags in Cargo.toml
-                Config::default(),
-                OpenOptions::new()
-                    .create(true)
-                    .append(true)
-                    .open(LOG_FILENAME)
-                    .expect("Can't open the log file"),
-            )
-            .expect("Failed to initialize logger");
+        if ENABLE_DEVELOPER_LOGGING {
+            init_logging(LOG_FILENAME.as_ref(), LevelFilter::DEBUG);
         }
 
         let mut client = match open_and_validate_pipe_server(ADMIN_TO_USER_PIPE_NAME).await {

@@ -22,6 +22,7 @@ serde_json = { workspace = true }
 sha1 = "=0.10.6"
 tokio = { workspace = true, features = ["full"] }
 tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
 
 [target.'cfg(target_os = "macos")'.dependencies]
 security-framework = { workspace = true }
@@ -30,7 +31,6 @@ security-framework = { workspace = true }
 chacha20poly1305 = { workspace = true }
 clap = { version = "=4.5.40", features = ["derive"] }
 scopeguard = { workspace = true }
-simplelog = { workspace = true }
 sysinfo = { workspace = true, optional = true }
 verifysign = "=0.2.4"
 windows = { workspace = true, features = [
