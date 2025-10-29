@@ -28,6 +28,8 @@ class MockCipherView {
   constructor(
     public id: string,
     private deleted: boolean,
+    public edit: boolean = true,
+    public viewPassword: boolean = true,
   ) {}
   get isDeleted() {
     return this.deleted;
@@ -63,6 +65,260 @@ describe("AtRiskPasswordCalloutService", () => {
     });
 
     service = TestBed.inject(AtRiskPasswordCalloutService);
+  });
+
+  describe("pendingTasks$", () => {
+    it("should return tasks filtered by UpdateAtRiskCredential type with valid cipher permissions", async () => {
+      const tasks: SecurityTask[] = [
+        {
+          id: "t1",
+          cipherId: "c1",
+          type: SecurityTaskType.UpdateAtRiskCredential,
+          status: SecurityTaskStatus.Pending,
+        } as any,
+        {
+          id: "t2",
+          cipherId: "c2",
+          type: SecurityTaskType.UpdateAtRiskCredential,
+          status: SecurityTaskStatus.Pending,
+        } as any,
+      ];
+      const ciphers = [
+        new MockCipherView("c1", false, true, true),
+        new MockCipherView("c2", false, true, true),
+      ];
+
+      jest.spyOn(mockTaskService, "pendingTasks$").mockReturnValue(of(tasks));
+      jest.spyOn(mockCipherService, "cipherViews$").mockReturnValue(of(ciphers));
+
+      const result = await firstValueFrom(service.pendingTasks$(userId));
+
+      expect(result).toHaveLength(2);
+      expect(result).toEqual(tasks);
+    });
+
+    it("should filter out tasks with wrong task type", async () => {
+      const tasks: SecurityTask[] = [
+        {
+          id: "t1",
+          cipherId: "c1",
+          type: SecurityTaskType.UpdateAtRiskCredential,
+          status: SecurityTaskStatus.Pending,
+        } as any,
+        {
+          id: "t2",
+          cipherId: "c2",
+          type: "SomeOtherType" as any,
+          status: SecurityTaskStatus.Pending,
+        } as any,
+      ];
+      const ciphers = [
+        new MockCipherView("c1", false, true, true),
+        new MockCipherView("c2", false, true, true),
+      ];
+
+      jest.spyOn(mockTaskService, "pendingTasks$").mockReturnValue(of(tasks));
+      jest.spyOn(mockCipherService, "cipherViews$").mockReturnValue(of(ciphers));
+
+      const result = await firstValueFrom(service.pendingTasks$(userId));
+
+      expect(result).toHaveLength(1);
+      expect(result[0].id).toBe("t1");
+    });
+
+    it("should filter out tasks with missing associated cipher", async () => {
+      const tasks: SecurityTask[] = [
+        {
+          id: "t1",
+          cipherId: "c1",
+          type: SecurityTaskType.UpdateAtRiskCredential,
+          status: SecurityTaskStatus.Pending,
+        } as any,
+        {
+          id: "t2",
+          cipherId: "c-nonexistent",
+          type: SecurityTaskType.UpdateAtRiskCredential,
+          status: SecurityTaskStatus.Pending,
+        } as any,
+      ];
+      const ciphers = [new MockCipherView("c1", false, true, true)];
+
+      jest.spyOn(mockTaskService, "pendingTasks$").mockReturnValue(of(tasks));
+      jest.spyOn(mockCipherService, "cipherViews$").mockReturnValue(of(ciphers));
+
+      const result = await firstValueFrom(service.pendingTasks$(userId));
+
+      expect(result).toHaveLength(1);
+      expect(result[0].id).toBe("t1");
+    });
+
+    it("should filter out tasks when cipher edit permission is false", async () => {
+      const tasks: SecurityTask[] = [
+        {
+          id: "t1",
+          cipherId: "c1",
+          type: SecurityTaskType.UpdateAtRiskCredential,
+          status: SecurityTaskStatus.Pending,
+        } as any,
+        {
+          id: "t2",
+          cipherId: "c2",
+          type: SecurityTaskType.UpdateAtRiskCredential,
+          status: SecurityTaskStatus.Pending,
+        } as any,
+      ];
+      const ciphers = [
+        new MockCipherView("c1", false, true, true),
+        new MockCipherView("c2", false, false, true),
+      ];
+
+      jest.spyOn(mockTaskService, "pendingTasks$").mockReturnValue(of(tasks));
+      jest.spyOn(mockCipherService, "cipherViews$").mockReturnValue(of(ciphers));
+
+      const result = await firstValueFrom(service.pendingTasks$(userId));
+
+      expect(result).toHaveLength(1);
+      expect(result[0].id).toBe("t1");
+    });
+
+    it("should filter out tasks when cipher viewPassword permission is false", async () => {
+      const tasks: SecurityTask[] = [
+        {
+          id: "t1",
+          cipherId: "c1",
+          type: SecurityTaskType.UpdateAtRiskCredential,
+          status: SecurityTaskStatus.Pending,
+        } as any,
+        {
+          id: "t2",
+          cipherId: "c2",
+          type: SecurityTaskType.UpdateAtRiskCredential,
+          status: SecurityTaskStatus.Pending,
+        } as any,
+      ];
+      const ciphers = [
+        new MockCipherView("c1", false, true, true),
+        new MockCipherView("c2", false, true, false),
+      ];
+
+      jest.spyOn(mockTaskService, "pendingTasks$").mockReturnValue(of(tasks));
+      jest.spyOn(mockCipherService, "cipherViews$").mockReturnValue(of(ciphers));
+
+      const result = await firstValueFrom(service.pendingTasks$(userId));
+
+      expect(result).toHaveLength(1);
+      expect(result[0].id).toBe("t1");
+    });
+
+    it("should filter out tasks when cipher is deleted", async () => {
+      const tasks: SecurityTask[] = [
+        {
+          id: "t1",
+          cipherId: "c1",
+          type: SecurityTaskType.UpdateAtRiskCredential,
+          status: SecurityTaskStatus.Pending,
+        } as any,
+        {
+          id: "t2",
+          cipherId: "c2",
+          type: SecurityTaskType.UpdateAtRiskCredential,
+          status: SecurityTaskStatus.Pending,
+        } as any,
+      ];
+      const ciphers = [
+        new MockCipherView("c1", false, true, true),
+        new MockCipherView("c2", true, true, true),
+      ];
+
+      jest.spyOn(mockTaskService, "pendingTasks$").mockReturnValue(of(tasks));
+      jest.spyOn(mockCipherService, "cipherViews$").mockReturnValue(of(ciphers));
+
+      const result = await firstValueFrom(service.pendingTasks$(userId));
+
+      expect(result).toHaveLength(1);
+      expect(result[0].id).toBe("t1");
+    });
+
+    it("should correctly filter mixed valid and invalid tasks", async () => {
+      const tasks: SecurityTask[] = [
+        {
+          id: "t1",
+          cipherId: "c1",
+          type: SecurityTaskType.UpdateAtRiskCredential,
+          status: SecurityTaskStatus.Pending,
+        } as any,
+        {
+          id: "t2",
+          cipherId: "c2",
+          type: SecurityTaskType.UpdateAtRiskCredential,
+          status: SecurityTaskStatus.Pending,
+        } as any,
+        {
+          id: "t3",
+          cipherId: "c3",
+          type: SecurityTaskType.UpdateAtRiskCredential,
+          status: SecurityTaskStatus.Pending,
+        } as any,
+        {
+          id: "t4",
+          cipherId: "c4",
+          type: SecurityTaskType.UpdateAtRiskCredential,
+          status: SecurityTaskStatus.Pending,
+        } as any,
+        {
+          id: "t5",
+          cipherId: "c5",
+          type: SecurityTaskType.UpdateAtRiskCredential,
+          status: SecurityTaskStatus.Pending,
+        } as any,
+      ];
+      const ciphers = [
+        new MockCipherView("c1", false, true, true), // valid
+        new MockCipherView("c2", false, false, true), // no edit
+        new MockCipherView("c3", true, true, true), // deleted
+        new MockCipherView("c4", false, true, false), // no viewPassword
+        // c5 missing
+      ];
+
+      jest.spyOn(mockTaskService, "pendingTasks$").mockReturnValue(of(tasks));
+      jest.spyOn(mockCipherService, "cipherViews$").mockReturnValue(of(ciphers));
+
+      const result = await firstValueFrom(service.pendingTasks$(userId));
+
+      expect(result).toHaveLength(1);
+      expect(result[0].id).toBe("t1");
+    });
+
+    it("should return empty array when no tasks match filter criteria", async () => {
+      const tasks: SecurityTask[] = [
+        {
+          id: "t1",
+          cipherId: "c1",
+          type: SecurityTaskType.UpdateAtRiskCredential,
+          status: SecurityTaskStatus.Pending,
+        } as any,
+      ];
+      const ciphers = [new MockCipherView("c1", true, true, true)]; // deleted
+
+      jest.spyOn(mockTaskService, "pendingTasks$").mockReturnValue(of(tasks));
+      jest.spyOn(mockCipherService, "cipherViews$").mockReturnValue(of(ciphers));
+
+      const result = await firstValueFrom(service.pendingTasks$(userId));
+
+      expect(result).toHaveLength(0);
+    });
+
+    it("should return empty array when no pending tasks exist", async () => {
+      const tasks: SecurityTask[] = [];
+      const ciphers = [new MockCipherView("c1", false, true, true)];
+
+      jest.spyOn(mockTaskService, "pendingTasks$").mockReturnValue(of(tasks));
+      jest.spyOn(mockCipherService, "cipherViews$").mockReturnValue(of(ciphers));
+
+      const result = await firstValueFrom(service.pendingTasks$(userId));
+
+      expect(result).toHaveLength(0);
+    });
   });
 
   describe("completedTasks$", () => {
