@@ -6,6 +6,7 @@ import { LogService } from "@bitwarden/logging";
 import { WindowMain } from "../../main/window.main";
 import { stringIsNotUndefinedNullAndEmpty } from "../../utils";
 import { AutotypeConfig } from "../models/autotype-configure";
+import { AUTOTYPE_IPC_CHANNELS } from "../models/ipc-channels";
 import { AutotypeKeyboardShortcut } from "../models/main-autotype-keyboard-shortcut";
 
 export class MainDesktopAutotypeService {
