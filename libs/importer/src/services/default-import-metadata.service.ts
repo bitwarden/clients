@@ -61,27 +61,28 @@ export class DefaultImportMetadataService implements ImportMetadataServiceAbstra
     importers: ImportersMetadata,
     type: ImportType,
     client: ClientType,
-    enabled: boolean,
+    withABESupport: boolean,
   ): DataLoader[] | undefined {
     let loaders = availableLoaders(importers, type, client);
-    let includeABE = false;
 
-    if (enabled && (type === "bravecsv" || type === "chromecsv" || type === "edgecsv")) {
+    if (withABESupport) {
+      return loaders;
+    }
+
+    // Special handling for Brave, Chrome, and Edge CSV imports on Windows Desktop
+    if (type === "bravecsv" || type === "chromecsv" || type === "edgecsv") {
       try {
         const device = this.system.environment.getDevice();
         const isWindowsDesktop = device === DeviceType.WindowsDesktop;
         if (isWindowsDesktop) {
-          includeABE = true;
+          // Exclude the Chromium loader if on Windows Desktop without ABE support
+          loaders = loaders?.filter((loader) => loader !== Loader.chromium);
         }
       } catch {
-        includeABE = true;
+        loaders = loaders?.filter((loader) => loader !== Loader.chromium);
       }
     }
 
-    // If the browser is unsupported, remove the chromium loader
-    if (!includeABE) {
-      loaders = loaders?.filter((loader) => loader !== Loader.chromium);
-    }
     return loaders;
   }
 }
