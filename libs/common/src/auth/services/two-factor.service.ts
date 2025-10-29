@@ -12,6 +12,16 @@ import {
   TwoFactorService as TwoFactorServiceAbstraction,
 } from "../abstractions/two-factor.service";
 import { TwoFactorProviderType } from "../enums/two-factor-provider-type";
+import { DisableTwoFactorAuthenticatorRequest } from "../models/request/disable-two-factor-authenticator.request";
+import { SecretVerificationRequest } from "../models/request/secret-verification.request";
+import { TwoFactorEmailRequest } from "../models/request/two-factor-email.request";
+import { TwoFactorProviderRequest } from "../models/request/two-factor-provider.request";
+import { UpdateTwoFactorAuthenticatorRequest } from "../models/request/update-two-factor-authenticator.request";
+import { UpdateTwoFactorDuoRequest } from "../models/request/update-two-factor-duo.request";
+import { UpdateTwoFactorEmailRequest } from "../models/request/update-two-factor-email.request";
+import { UpdateTwoFactorWebAuthnDeleteRequest } from "../models/request/update-two-factor-web-authn-delete.request";
+import { UpdateTwoFactorWebAuthnRequest } from "../models/request/update-two-factor-web-authn.request";
+import { UpdateTwoFactorYubikeyOtpRequest } from "../models/request/update-two-factor-yubikey-otp.request";
 import { IdentityTwoFactorResponse } from "../models/response/identity-two-factor.response";
 import { TwoFactorAuthenticatorResponse } from "../models/response/two-factor-authenticator.response";
 import { TwoFactorDuoResponse } from "../models/response/two-factor-duo.response";
@@ -24,7 +34,6 @@ import {
 } from "../models/response/two-factor-web-authn.response";
 import { TwoFactorYubiKeyResponse } from "../models/response/two-factor-yubi-key.response";
 import { TwoFactorApiService } from "../two-factor";
-import { Verification } from "../types/verification";
 
 export const TwoFactorProviders: Partial<Record<TwoFactorProviderType, TwoFactorProviderDetails>> =
   {
@@ -224,82 +233,114 @@ export class TwoFactorService implements TwoFactorServiceAbstraction {
     return firstValueFrom(this.providers$);
   }
 
-  async getEnabledTwoFactorProviders(): Promise<ListResponse<TwoFactorProviderResponse>> {
+  getEnabledTwoFactorProviders(): Promise<ListResponse<TwoFactorProviderResponse>> {
     return this.twoFactorApiService.getTwoFactorProviders();
   }
 
   getTwoFactorOrganizationProviders(
     organizationId: string,
   ): Promise<ListResponse<TwoFactorProviderResponse>> {
-    throw new Error("Method not implemented.");
+    return this.twoFactorApiService.getTwoFactorOrganizationProviders(organizationId);
   }
-  getTwoFactorAuthenticator(verification: Verification): Promise<TwoFactorAuthenticatorResponse> {
-    throw new Error("Method not implemented.");
+
+  getTwoFactorAuthenticator(
+    request: SecretVerificationRequest,
+  ): Promise<TwoFactorAuthenticatorResponse> {
+    return this.twoFactorApiService.getTwoFactorAuthenticator(request);
   }
-  getTwoFactorEmail(verification: Verification): Promise<TwoFactorEmailResponse> {
-    throw new Error("Method not implemented.");
+
+  getTwoFactorEmail(request: SecretVerificationRequest): Promise<TwoFactorEmailResponse> {
+    return this.twoFactorApiService.getTwoFactorEmail(request);
   }
-  getTwoFactorDuo(verification: Verification): Promise<TwoFactorDuoResponse> {
-    throw new Error("Method not implemented.");
+
+  getTwoFactorDuo(request: SecretVerificationRequest): Promise<TwoFactorDuoResponse> {
+    return this.twoFactorApiService.getTwoFactorDuo(request);
   }
+
   getTwoFactorOrganizationDuo(
     organizationId: string,
-    verification: Verification,
+    request: SecretVerificationRequest,
   ): Promise<TwoFactorDuoResponse> {
-    throw new Error("Method not implemented.");
+    return this.twoFactorApiService.getTwoFactorOrganizationDuo(organizationId, request);
   }
-  getTwoFactorYubiKey(verification: Verification): Promise<TwoFactorYubiKeyResponse> {
-    throw new Error("Method not implemented.");
+
+  getTwoFactorYubiKey(request: SecretVerificationRequest): Promise<TwoFactorYubiKeyResponse> {
+    return this.twoFactorApiService.getTwoFactorYubiKey(request);
   }
-  getTwoFactorWebAuthn(verification: Verification): Promise<TwoFactorWebAuthnResponse> {
-    throw new Error("Method not implemented.");
+
+  getTwoFactorWebAuthn(request: SecretVerificationRequest): Promise<TwoFactorWebAuthnResponse> {
+    return this.twoFactorApiService.getTwoFactorWebAuthn(request);
   }
-  getTwoFactorWebAuthnChallenge(verification: Verification): Promise<ChallengeResponse> {
-    throw new Error("Method not implemented.");
+
+  getTwoFactorWebAuthnChallenge(request: SecretVerificationRequest): Promise<ChallengeResponse> {
+    return this.twoFactorApiService.getTwoFactorWebAuthnChallenge(request);
   }
-  getTwoFactorRecover(verification: Verification): Promise<TwoFactorRecoverResponse> {
-    throw new Error("Method not implemented.");
+
+  getTwoFactorRecover(request: SecretVerificationRequest): Promise<TwoFactorRecoverResponse> {
+    return this.twoFactorApiService.getTwoFactorRecover(request);
   }
-  putTwoFactorAuthenticator(verification: Verification): Promise<TwoFactorAuthenticatorResponse> {
-    throw new Error("Method not implemented.");
+
+  putTwoFactorAuthenticator(
+    request: UpdateTwoFactorAuthenticatorRequest,
+  ): Promise<TwoFactorAuthenticatorResponse> {
+    return this.twoFactorApiService.putTwoFactorAuthenticator(request);
   }
-  deleteTwoFactorAuthenticator(verification: Verification): Promise<TwoFactorProviderResponse> {
-    throw new Error("Method not implemented.");
+
+  deleteTwoFactorAuthenticator(
+    request: DisableTwoFactorAuthenticatorRequest,
+  ): Promise<TwoFactorProviderResponse> {
+    return this.twoFactorApiService.deleteTwoFactorAuthenticator(request);
   }
-  putTwoFactorEmail(verification: Verification): Promise<TwoFactorEmailResponse> {
-    throw new Error("Method not implemented.");
+
+  putTwoFactorEmail(request: UpdateTwoFactorEmailRequest): Promise<TwoFactorEmailResponse> {
+    return this.twoFactorApiService.putTwoFactorEmail(request);
   }
-  putTwoFactorDuo(verification: Verification): Promise<TwoFactorDuoResponse> {
-    throw new Error("Method not implemented.");
+
+  putTwoFactorDuo(request: UpdateTwoFactorDuoRequest): Promise<TwoFactorDuoResponse> {
+    return this.twoFactorApiService.putTwoFactorDuo(request);
   }
+
   putTwoFactorOrganizationDuo(
     organizationId: string,
-    verification: Verification,
+    request: UpdateTwoFactorDuoRequest,
   ): Promise<TwoFactorDuoResponse> {
-    throw new Error("Method not implemented.");
+    return this.twoFactorApiService.putTwoFactorOrganizationDuo(organizationId, request);
   }
-  putTwoFactorYubiKey(verification: Verification): Promise<TwoFactorYubiKeyResponse> {
-    throw new Error("Method not implemented.");
+
+  putTwoFactorYubiKey(
+    request: UpdateTwoFactorYubikeyOtpRequest,
+  ): Promise<TwoFactorYubiKeyResponse> {
+    return this.twoFactorApiService.putTwoFactorYubiKey(request);
   }
-  putTwoFactorWebAuthn(verification: Verification): Promise<TwoFactorWebAuthnResponse> {
-    throw new Error("Method not implemented.");
+
+  putTwoFactorWebAuthn(
+    request: UpdateTwoFactorWebAuthnRequest,
+  ): Promise<TwoFactorWebAuthnResponse> {
+    return this.twoFactorApiService.putTwoFactorWebAuthn(request);
   }
-  deleteTwoFactorWebAuthn(verification: Verification): Promise<TwoFactorWebAuthnResponse> {
-    throw new Error("Method not implemented.");
+
+  deleteTwoFactorWebAuthn(
+    request: UpdateTwoFactorWebAuthnDeleteRequest,
+  ): Promise<TwoFactorWebAuthnResponse> {
+    return this.twoFactorApiService.deleteTwoFactorWebAuthn(request);
   }
-  putTwoFactorDisable(verification: Verification): Promise<TwoFactorProviderResponse> {
-    throw new Error("Method not implemented.");
+
+  putTwoFactorDisable(request: TwoFactorProviderRequest): Promise<TwoFactorProviderResponse> {
+    return this.twoFactorApiService.putTwoFactorDisable(request);
   }
+
   putTwoFactorOrganizationDisable(
     organizationId: string,
-    verification: Verification,
+    request: TwoFactorProviderRequest,
   ): Promise<TwoFactorProviderResponse> {
-    throw new Error("Method not implemented.");
+    return this.twoFactorApiService.putTwoFactorOrganizationDisable(organizationId, request);
   }
-  postTwoFactorEmailSetup(verification: Verification): Promise<any> {
-    throw new Error("Method not implemented.");
+
+  postTwoFactorEmailSetup(request: TwoFactorEmailRequest): Promise<any> {
+    return this.twoFactorApiService.postTwoFactorEmailSetup(request);
   }
-  postTwoFactorEmail(verification: Verification): Promise<any> {
-    throw new Error("Method not implemented.");
+
+  postTwoFactorEmail(request: TwoFactorEmailRequest): Promise<any> {
+    return this.twoFactorApiService.postTwoFactorEmail(request);
   }
 }
