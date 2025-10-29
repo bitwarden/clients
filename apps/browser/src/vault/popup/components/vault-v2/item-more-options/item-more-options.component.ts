@@ -79,7 +79,7 @@ export class ItemMoreOptionsComponent {
   protected showAutofillConfirmation$ = combineLatest([
     this.configService.getFeatureFlag$(FeatureFlag.AutofillConfirmation),
     this.vaultPopupItemsService.hasSearchText$,
-  ]).pipe(map(([isFeatureFlagEnabled, hasSearchText]) => !isFeatureFlagEnabled && hasSearchText));
+  ]).pipe(map(([isFeatureFlagEnabled, hasSearchText]) => isFeatureFlagEnabled && hasSearchText));
 
   protected uriMatchStrategy$ = this.domainSettingsService.resolvedDefaultUriMatchStrategy$;
 

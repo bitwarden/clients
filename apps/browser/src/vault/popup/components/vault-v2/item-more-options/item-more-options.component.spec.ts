@@ -3,11 +3,16 @@ import { ComponentFixture, TestBed, waitForAsync } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { Router } from "@angular/router";
 import { mock } from "jest-mock-extended";
-import { of, BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import {
+  UriMatchStrategy,
+  UriMatchStrategySetting,
+} from "@bitwarden/common/models/domain/domain-service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
@@ -19,6 +24,7 @@ import { DialogService, ToastService } from "@bitwarden/components";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
+import { VaultPopupItemsService } from "../../../services/vault-popup-items.service";
 import {
   AutofillConfirmationDialogComponent,
   AutofillConfirmationDialogResult,
@@ -34,8 +40,10 @@ describe("ItemMoreOptionsComponent", () => {
     openSimpleDialog: jest.fn().mockResolvedValue(true),
     open: jest.fn(),
   };
-
-  const configService = { getFeatureFlag$: jest.fn() };
+  const featureFlag$ = new BehaviorSubject<boolean>(false);
+  const configService = {
+    getFeatureFlag$: jest.fn().mockImplementation(() => featureFlag$.asObservable()),
+  };
   const cipherService = {
     getFullCipherView: jest.fn(),
     encrypt: jest.fn(),
@@ -46,11 +54,19 @@ describe("ItemMoreOptionsComponent", () => {
     doAutofill: jest.fn(),
     doAutofillAndSave: jest.fn(),
     currentAutofillTab$: new BehaviorSubject<{ url?: string | null } | null>(null),
-    autofillAllowed$: new BehaviorSubject<boolean>(true),
+    autofillAllowed$: new BehaviorSubject(true),
   };
 
-  const featureFlag$ = new BehaviorSubject<boolean>(true);
-  configService.getFeatureFlag$.mockImplementation(() => featureFlag$.asObservable());
+  const uriMatchStrategy$ = new BehaviorSubject<UriMatchStrategySetting>(UriMatchStrategy.Domain);
+
+  const domainSettingsService = {
+    resolvedDefaultUriMatchStrategy$: uriMatchStrategy$.asObservable(),
+  };
+
+  const hasSearchText$ = new BehaviorSubject(false);
+  const vaultPopupItemsService = {
+    hasSearchText$: hasSearchText$.asObservable(),
+  };
 
   const baseCipher = {
     id: "cipher-1",
@@ -75,10 +91,9 @@ describe("ItemMoreOptionsComponent", () => {
 
     cipherService.getFullCipherView.mockImplementation(async (c) => ({ ...baseCipher, ...c }));
 
-    await TestBed.configureTestingModule({
+    TestBed.configureTestingModule({
       imports: [ItemMoreOptionsComponent, NoopAnimationsModule],
       providers: [
-        { provide: DialogService, useValue: dialogService },
         { provide: ConfigService, useValue: configService },
         { provide: CipherService, useValue: cipherService },
         { provide: VaultPopupAutofillService, useValue: autofillSvc },
@@ -96,10 +111,19 @@ describe("ItemMoreOptionsComponent", () => {
         { provide: ToastService, useValue: { showToast: () => {} } },
         { provide: Router, useValue: { navigate: () => Promise.resolve(true) } },
         { provide: PasswordRepromptService, useValue: mock<PasswordRepromptService>() },
+        {
+          provide: DomainSettingsService,
+          useValue: domainSettingsService,
+        },
+        {
+          provide: VaultPopupItemsService,
+          useValue: vaultPopupItemsService,
+        },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
-    }).compileComponents();
-
+    });
+    TestBed.overrideProvider(DialogService, { useValue: dialogService });
+    await TestBed.compileComponents();
     fixture = TestBed.createComponent(ItemMoreOptionsComponent);
     component = fixture.componentInstance;
     component.cipher = baseCipher;
@@ -116,8 +140,7 @@ describe("ItemMoreOptionsComponent", () => {
     return openSpy;
   }
 
-  it("calls doAutofill without showing the confirmation dialog when the feature flag is disabled", async () => {
-    featureFlag$.next(false);
+  it("calls doAutofill without showing the confirmation dialog when the feature flag is disabled or search text is not present", async () => {
     autofillSvc.currentAutofillTab$.next({ url: "https://page.example.com" });
 
     await component.doAutofill();
@@ -132,8 +155,9 @@ describe("ItemMoreOptionsComponent", () => {
     expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
   });
 
-  it("opens the confirmation dialog with filtered saved URLs when the feature flag is enabled", async () => {
+  it("opens the confirmation dialog with filtered saved URLs when the feature flag is enabled and search text is present", async () => {
     featureFlag$.next(true);
+    hasSearchText$.next(true);
     autofillSvc.currentAutofillTab$.next({ url: "https://page.example.com/path" });
     const openSpy = mockConfirmDialogResult(AutofillConfirmationDialogResult.Canceled);
 
@@ -177,5 +201,41 @@ describe("ItemMoreOptionsComponent", () => {
     expect(autofillSvc.doAutofillAndSave).toHaveBeenCalledTimes(1);
     expect(autofillSvc.doAutofillAndSave.mock.calls[0][1]).toBe(false);
     expect(autofillSvc.doAutofill).not.toHaveBeenCalled();
+  });
+
+  it("only shows the exact match dialog when the uri match strategy is Exact and no URIs match", async () => {
+    featureFlag$.next(true);
+    uriMatchStrategy$.next(UriMatchStrategy.Exact);
+    hasSearchText$.next(true);
+    autofillSvc.currentAutofillTab$.next({ url: "https://no-match.example.com" });
+
+    await component.doAutofill();
+
+    expect(dialogService.openSimpleDialog).toHaveBeenCalledTimes(1);
+    expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: expect.objectContaining({ key: "cannotAutofill" }),
+        content: expect.objectContaining({ key: "cannotAutofillExactMatch" }),
+        type: "info",
+      }),
+    );
+    expect(autofillSvc.doAutofill).not.toHaveBeenCalled();
+    expect(autofillSvc.doAutofillAndSave).not.toHaveBeenCalled();
+  });
+
+  it("hides the 'Fill and Save' button when showAutofillConfirmation$ is true", async () => {
+    // Enable both feature flag and search text → makes showAutofillConfirmation$ true
+    featureFlag$.next(true);
+    hasSearchText$.next(true);
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const fillAndSaveButton = fixture.nativeElement.querySelector(
+      "button[bitMenuItem]:not([disabled])",
+    );
+
+    const buttonText = fillAndSaveButton?.textContent?.trim().toLowerCase() ?? "";
+    expect(buttonText.includes("fillAndSave".toLowerCase())).toBe(false);
   });
 });
