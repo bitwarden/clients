@@ -117,6 +117,8 @@ import { AttachmentResponse } from "../vault/models/response/attachment.response
 import { CipherResponse } from "../vault/models/response/cipher.response";
 import { OptionalCipherResponse } from "../vault/models/response/optional-cipher.response";
 
+import { InsecureUrlNotAllowedError } from "./api-errors";
+
 export type HttpOperations = {
   createRequest: (url: string, request: RequestInit) => Request;
 };
@@ -1310,6 +1312,10 @@ export class ApiService implements ApiServiceAbstraction {
   }
 
   async fetch(request: Request): Promise<Response> {
+    if (!request.url.startsWith("https://")) {
+      throw new InsecureUrlNotAllowedError();
+    }
+
     if (request.method === "GET") {
       request.headers.set("Cache-Control", "no-store");
       request.headers.set("Pragma", "no-cache");
