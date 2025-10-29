@@ -478,10 +478,9 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   }
 
   get passwordManagerSubtotal() {
-    const basePriceAfterDiscount = Math.max(
-      this.selectedPlan.PasswordManager.basePrice - this.discount,
-      0,
-    );
+    const basePriceAfterDiscount = this.acceptingSponsorship
+      ? Math.max(this.selectedPlan.PasswordManager.basePrice - this.discount, 0)
+      : this.selectedPlan.PasswordManager.basePrice;
     let subTotal = basePriceAfterDiscount;
     if (
       this.selectedPlan.PasswordManager.hasAdditionalSeatsOption &&
@@ -766,6 +765,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     if (this.acceptingSponsorship && hasPaidStorage) {
       // For sponsored plans with paid storage, calculate tax only on storage
       // by comparing tax on base+storage vs tax on base only
+      //TODO: Move this logic to PreviewOrganizationTaxCommand - https://bitwarden.atlassian.net/browse/PM-27585
       const [baseTaxAmounts, fullTaxAmounts] = await Promise.all([
         this.taxClient.previewTaxForOrganizationSubscriptionPurchase(
           this.buildTaxPreviewRequest(0, false),
