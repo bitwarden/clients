@@ -109,11 +109,15 @@ describe("AtRiskPasswordsComponent", () => {
         id: "cipher",
         organizationId: "org",
         name: "Item 1",
+        edit: true,
+        viewPassword: true,
       } as CipherView,
       {
         id: "cipher2",
         organizationId: "org",
         name: "Item 2",
+        edit: true,
+        viewPassword: true,
       } as CipherView,
     ]);
     mockOrgs$ = new BehaviorSubject<Organization[]>([
@@ -235,6 +239,38 @@ describe("AtRiskPasswordsComponent", () => {
           organizationId: "org",
           name: "Item 1",
           isDeleted: true,
+          edit: true,
+          viewPassword: true,
+        } as CipherView,
+      ]);
+
+      const items = await firstValueFrom(component["atRiskItems$"]);
+      expect(items).toHaveLength(0);
+    });
+
+    it("should not show tasks when cipher does not have edit permission", async () => {
+      mockCiphers$.next([
+        {
+          id: "cipher",
+          organizationId: "org",
+          name: "Item 1",
+          edit: false,
+          viewPassword: true,
+        } as CipherView,
+      ]);
+
+      const items = await firstValueFrom(component["atRiskItems$"]);
+      expect(items).toHaveLength(0);
+    });
+
+    it("should not show tasks when cipher does not have viewPassword permission", async () => {
+      mockCiphers$.next([
+        {
+          id: "cipher",
+          organizationId: "org",
+          name: "Item 1",
+          edit: true,
+          viewPassword: false,
         } as CipherView,
       ]);
 
@@ -288,11 +324,15 @@ describe("AtRiskPasswordsComponent", () => {
           id: "cipher",
           organizationId: "org",
           name: "Item 1",
+          edit: true,
+          viewPassword: true,
         } as CipherView,
         {
           id: "cipher2",
           organizationId: "org2",
           name: "Item 2",
+          edit: true,
+          viewPassword: true,
         } as CipherView,
       ]);
 
