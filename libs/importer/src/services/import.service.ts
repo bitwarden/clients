@@ -499,7 +499,7 @@ export class ImportService implements ImportServiceAbstraction {
 
       // My Items collections do not support collection nesting. Import all ciphers into import target.
       if (importTarget.type === CollectionTypes.DefaultUserCollection) {
-        importResult.collections = [importTarget as CollectionView];
+        importResult.collections = [importTarget];
 
         const flattenRelationships: CollectionRelationship[] = [];
         importResult.ciphers.forEach((c, index) => {
@@ -509,8 +509,8 @@ export class ImportService implements ImportServiceAbstraction {
         return;
       }
 
-      const collections: CollectionView[] = [...importResult.collections];
-      importResult.collections = [importTarget as CollectionView];
+      const collections = [...importResult.collections];
+      importResult.collections = [importTarget];
       collections.map((x) => {
         const f = new CollectionView(x);
         f.name = `${importTarget.name}/${x.name}`;
@@ -539,8 +539,8 @@ export class ImportService implements ImportServiceAbstraction {
       }
     });
 
-    const folders: FolderView[] = [...importResult.folders];
-    importResult.folders = [importTarget as FolderView];
+    const folders = [...importResult.folders];
+    importResult.folders = [importTarget];
     folders.map((x) => {
       const newFolderName = `${importTarget.name}/${x.name}`;
       const f = new FolderView();
