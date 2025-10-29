@@ -56,6 +56,8 @@ type CipherAttachmentForm = FormGroup<{
   file: FormControl<File | null>;
 }>;
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-cipher-attachments",
   templateUrl: "./cipher-attachments.component.html",
@@ -77,27 +79,43 @@ export class CipherAttachmentsComponent implements OnInit, AfterViewInit {
   static attachmentFormID = "attachmentForm";
 
   /** Reference to the file HTMLInputElement */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("fileInput", { read: ElementRef }) private fileInput: ElementRef<HTMLInputElement>;
 
   /** Reference to the BitSubmitDirective */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild(BitSubmitDirective) bitSubmit: BitSubmitDirective;
 
   /** The `id` of the cipher in context */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true }) cipherId: CipherId;
 
   /** The organization ID if this cipher belongs to an organization */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() organizationId?: OrganizationId;
 
   /** Denotes if the action is occurring from within the admin console */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() admin: boolean = false;
 
   /** An optional submit button, whose loading/disabled state will be tied to the form state. */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() submitBtn?: ButtonComponent;
 
   /** Emits after a file has been successfully uploaded */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onUploadSuccess = new EventEmitter<void>();
 
   /** Emits after a file has been successfully removed */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onRemoveSuccess = new EventEmitter<void>();
 
   organization: Organization;
