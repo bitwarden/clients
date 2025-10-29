@@ -1583,6 +1583,21 @@
   "toggleDevTools": {
     "message": "Toggle developer tools"
   },
+  "featureFlags": {
+    "message": "Feature flags"
+  },
+    "flagName": {
+    "message": "Flag name"
+  },
+  "flagValue": {
+    "message": "Flag value"
+  },
+  "copyData": {
+    "message": "Copy data"
+  },
+    "refresh": {
+    "message": "Refresh"
+  },
   "minimize": {
     "message": "Minimize",
     "description": "Minimize window"

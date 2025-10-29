@@ -18,7 +18,11 @@ import { SemVer } from "semver";
 
 import { AuthService } from "../../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
-import { FeatureFlag, getFeatureFlagValue } from "../../../enums/feature-flag.enum";
+import {
+  AllowedFeatureFlagTypes,
+  FeatureFlag,
+  getFeatureFlagValue,
+} from "../../../enums/feature-flag.enum";
 import { UserId } from "../../../types/guid";
 import { ConfigApiServiceAbstraction } from "../../abstractions/config/config-api.service.abstraction";
 import { ConfigService } from "../../abstractions/config/config.service";
@@ -28,6 +32,7 @@ import { LogService } from "../../abstractions/log.service";
 import { devFlagEnabled, devFlagValue } from "../../misc/flags";
 import { ServerConfigData } from "../../models/data/server-config.data";
 import { ServerSettings } from "../../models/domain/server-settings";
+import { ServerConfigResponse } from "../../models/response/server-config.response";
 import { CONFIG_DISK, KeyDefinition, StateProvider, UserKeyDefinition } from "../../state";
 
 export const RETRIEVAL_INTERVAL = devFlagEnabled("configRetrievalIntervalMs")
@@ -60,6 +65,8 @@ export class DefaultConfigService implements ConfigService {
   private failedFetchFallbackSubject = new Subject<ServerConfig | null>();
 
   serverConfig$: Observable<ServerConfig | null>;
+
+  featureStates$: Observable<{ [key: string]: AllowedFeatureFlagTypes } | undefined>;
 
   serverSettings$: Observable<ServerSettings>;
 
@@ -150,6 +157,25 @@ export class DefaultConfigService implements ConfigService {
     this.serverSettings$ = this.serverConfig$.pipe(
       map((config) => config?.settings ?? new ServerSettings()),
     );
+
+    this.featureStates$ = this.serverConfig$.pipe(
+      map((config) => config?.featureStates ?? undefined),
+    );
+  }
+
+  async refreshServerConfig() {
+    const activeUserId = (await firstValueFrom(this.stateProvider.activeUserId$)) ?? null;
+
+    const serverConfigResponse = await this.configApiService.get(activeUserId);
+
+    let environment: Environment | null = null;
+
+    if (activeUserId == null) {
+      // Pull env from global if no active user
+      environment = await firstValueFrom(this.environmentService.globalEnvironment$);
+    }
+
+    await this.handleServerConfigResponse(activeUserId, serverConfigResponse, null, environment);
   }
 
   getFeatureFlag$<Flag extends FeatureFlag>(key: Flag) {
@@ -204,31 +230,44 @@ export class DefaultConfigService implements ConfigService {
       }, SLOW_EMISSION_GUARD);
       const response = await this.configApiService.get(userId);
       clearTimeout(handle);
-      const newConfig = new ServerConfig(new ServerConfigData(response));
-
-      // Update the environment region
-      if (
-        newConfig?.environment?.cloudRegion != null &&
-        existingConfig?.environment?.cloudRegion != newConfig.environment.cloudRegion
-      ) {
-        // Null userId sets global, otherwise sets to the given user
-        await this.environmentService.setCloudRegion(userId, newConfig?.environment?.cloudRegion);
-      }
-
-      if (userId == null) {
-        // update global state with new pulled config
-        await this.stateProvider.getGlobal(GLOBAL_SERVER_CONFIGURATIONS).update((configs) => {
-          return { ...configs, [environment.getApiUrl()]: newConfig };
-        });
-      } else {
-        // update state with new pulled config
-        await this.stateProvider.setUserState(USER_SERVER_CONFIG, newConfig, userId);
-      }
+      await this.handleServerConfigResponse(userId, response, existingConfig, environment);
     } catch (e) {
       // mutate error to be handled by catchError
       this.logService.error(`Unable to fetch ServerConfig from ${environment.getApiUrl()}`, e);
       // Emit the existing config
       this.failedFetchFallbackSubject.next(fallbackConfig);
+    }
+  }
+
+  private async handleServerConfigResponse(
+    userId: UserId | null,
+    serverConfigResponse: ServerConfigResponse,
+    existingConfig: ServerConfig | null,
+    environment: Environment | null,
+  ) {
+    const newConfig = new ServerConfig(new ServerConfigData(serverConfigResponse));
+
+    // Update the environment region
+    if (
+      newConfig?.environment?.cloudRegion != null &&
+      existingConfig?.environment?.cloudRegion != newConfig.environment.cloudRegion
+    ) {
+      // Null userId sets global, otherwise sets to the given user
+      await this.environmentService.setCloudRegion(userId, newConfig?.environment?.cloudRegion);
+    }
+
+    if (userId == null) {
+      if (environment == null) {
+        throw new Error("Environment is required when updating global config without a userId");
+      }
+
+      // update global state with new pulled config
+      await this.stateProvider.getGlobal(GLOBAL_SERVER_CONFIGURATIONS).update((configs) => {
+        return { ...configs, [environment.getApiUrl()]: newConfig };
+      });
+    } else {
+      // update state with new pulled config
+      await this.stateProvider.setUserState(USER_SERVER_CONFIG, newConfig, userId);
     }
   }
 

@@ -2348,6 +2348,21 @@
   "default": {
     "message": "Default"
   },
+  "developerTools": {
+    "message": "Developer Tools"
+  },
+  "featureFlags": {
+    "message": "Feature flags"
+  },
+  "flagName": {
+    "message": "Flag name"
+  },
+  "flagValue": {
+    "message": "Flag value"
+  },
+  "copyData": {
+    "message": "Copy data"
+  },
   "domainRules": {
     "message": "Domain rules"
   },

@@ -1,0 +1,46 @@
+<!-- TODO: consider adding a last retrieved value by reading configService.serverConfig.utcDate -->
+
+@if (loading) {
+  <div class="tw-flex tw-justify-center tw-items-center tw-p-4">
+    <i class="bwi bwi-spinner bwi-spin tw-text-2xl" aria-hidden="true"></i>
+  </div>
+} @else {
+  <div class="tw-flex tw-flex-row tw-gap-3">
+    <button buttonType="primary" type="button" bitButton (click)="refresh()" class="tw-mb-4">
+      {{ "refresh" | i18n }}
+    </button>
+
+    <button
+      buttonType="primary"
+      type="button"
+      bitButton
+      (click)="copyJsonToClipboard()"
+      class="tw-mb-4"
+    >
+      {{ "copyData" | i18n }}
+    </button>
+  </div>
+
+  <bit-search
+    id="search"
+    placeholder="{{ 'filter' | i18n }}"
+    [(ngModel)]="searchText"
+    (ngModelChange)="onSearchTextChanged($event)"
+  />
+
+  <div class="tw-flex tw-flex-col">
+    <bit-table [dataSource]="tableDataSource">
+      <ng-container header>
+        <th bitCell bitSortable="key" default>{{ "flagName" | i18n }}</th>
+        <th bitCell bitSortable="value" default>{{ "flagValue" | i18n }}</th>
+      </ng-container>
+
+      <ng-template body let-rows$>
+        <tr bitRow *ngFor="let r of rows$ | async">
+          <td bitCell>{{ r.key }}</td>
+          <td bitCell>{{ r.value }}</td>
+        </tr>
+      </ng-template>
+    </bit-table>
+  </div>
+}

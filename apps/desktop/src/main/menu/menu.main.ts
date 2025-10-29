@@ -47,6 +47,7 @@ export class MenuMain {
         app.getVersion(),
         await firstValueFrom(this.desktopSettingsService.hardwareAcceleration$),
         this.versionMain,
+        await this.isProdOrSelfHost(),
         updateRequest,
       ).menu,
     );
@@ -55,6 +56,11 @@ export class MenuMain {
   private async getWebVaultUrl() {
     const env = await firstValueFrom(this.environmentService.environment$);
     return env.getWebVaultUrl() ?? cloudWebVaultUrl;
+  }
+
+  private async isProdOrSelfHost(): Promise<boolean> {
+    const env = await firstValueFrom(this.environmentService.environment$);
+    return env.isProduction() || env.isSelfHosted();
   }
 
   private initContextMenu() {
