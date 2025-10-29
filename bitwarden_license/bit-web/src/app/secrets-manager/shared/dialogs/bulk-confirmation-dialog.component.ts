@@ -22,6 +22,8 @@ export enum BulkConfirmationResult {
   Cancel,
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "sm-bulk-confirmation-dialog",
   templateUrl: "./bulk-confirmation-dialog.component.html",
