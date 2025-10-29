@@ -5,6 +5,7 @@ import { LogService } from "@bitwarden/logging";
 
 import { WindowMain } from "../../main/window.main";
 import { stringIsNotUndefinedNullAndEmpty } from "../../utils";
+import { AutotypeConfig } from "../models/autotype-configure";
 import { AutotypeKeyboardShortcut } from "../models/main-autotype-keyboard-shortcut";
 
 export class MainDesktopAutotypeService {
@@ -27,17 +28,17 @@ export class MainDesktopAutotypeService {
   }
 
   init() {
-    ipcMain.on("autofill.toggleAutotype", (event, data) => {
-      if (data.enable) {
+    ipcMain.on("autofill.toggleAutotype", (_event, enable: boolean) => {
+      if (enable) {
         this.enableAutotype();
       } else {
         this.disableAutotype();
       }
     });
 
-    ipcMain.on("autofill.configureAutotype", (event, data) => {
+    ipcMain.on("autofill.configureAutotype", (_event, config: AutotypeConfig) => {
       const newKeyboardShortcut = new AutotypeKeyboardShortcut();
-      const newKeyboardShortcutIsValid = newKeyboardShortcut.set(data.keyboardShortcut);
+      const newKeyboardShortcutIsValid = newKeyboardShortcut.set(config.keyboardShortcut);
 
       if (!newKeyboardShortcutIsValid) {
         this.logService.error("Configure autotype failed: the keyboard shortcut is invalid.");
@@ -47,7 +48,7 @@ export class MainDesktopAutotypeService {
       this.setKeyboardShortcut(newKeyboardShortcut);
     });
 
-    ipcMain.on("autofill.completeAutotypeRequest", (event, data) => {
+    ipcMain.on("autofill.completeAutotypeRequest", (_event, data) => {
       const { response } = data;
 
       if (

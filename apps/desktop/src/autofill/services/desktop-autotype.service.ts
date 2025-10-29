@@ -26,6 +26,8 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { UserId } from "@bitwarden/user-core";
 
+import { AutotypeConfig } from "../models/autotype-configure";
+
 import { DesktopAutotypeDefaultSettingPolicy } from "./desktop-autotype-policy.service";
 
 export const defaultWindowsAutotypeKeyboardShortcut: string[] = ["Control", "Shift", "B"];
@@ -122,7 +124,10 @@ export class DesktopAutotypeService {
     this.autotypeKeyboardShortcut$
       .pipe(
         concatMap(async (keyboardShortcut) => {
-          ipc.autofill.configureAutotype(keyboardShortcut);
+          const config: AutotypeConfig = {
+            keyboardShortcut,
+          };
+          ipc.autofill.configureAutotype(config);
         }),
       )
       .subscribe();

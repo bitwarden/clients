@@ -5,6 +5,8 @@ import type { autofill } from "@bitwarden/desktop-napi";
 import { Command } from "../platform/main/autofill/command";
 import { RunCommandParams, RunCommandResult } from "../platform/main/autofill/native-autofill.main";
 
+import { AutotypeConfig } from "./models/autotype-configure";
+
 export default {
   runCommand: <C extends Command>(params: RunCommandParams<C>): Promise<RunCommandResult<C>> =>
     ipcRenderer.invoke("autofill.runCommand", params),
@@ -133,11 +135,11 @@ export default {
   autotypeIsInitialized: () => {
     return ipcRenderer.invoke("autofill.autotypeIsInitialized");
   },
-  configureAutotype: (keyboardShortcut: string[]) => {
-    ipcRenderer.send("autofill.configureAutotype", { keyboardShortcut });
+  configureAutotype: (config: AutotypeConfig) => {
+    ipcRenderer.send("autofill.configureAutotype", config);
   },
   toggleAutotype: (enable: boolean) => {
-    ipcRenderer.send("autofill.toggleAutotype", { enable });
+    ipcRenderer.send("autofill.toggleAutotype", enable);
   },
   listenAutotypeRequest: (
     fn: (
