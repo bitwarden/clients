@@ -48,6 +48,7 @@ import { ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 import {
   OrganizationSubscriptionPlan,
+  OrganizationSubscriptionPurchase,
   SubscriberBillingClient,
   TaxClient,
 } from "@bitwarden/web-vault/app/billing/clients";
@@ -710,32 +711,52 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     }
   }
 
+  private getPlanFromLegacyEnum(): OrganizationSubscriptionPlan {
+    switch (this.formGroup.value.plan) {
+      case PlanType.FamiliesAnnually:
+        return { tier: "families", cadence: "annually" };
+      case PlanType.TeamsMonthly:
+        return { tier: "teams", cadence: "monthly" };
+      case PlanType.TeamsAnnually:
+        return { tier: "teams", cadence: "annually" };
+      case PlanType.EnterpriseMonthly:
+        return { tier: "enterprise", cadence: "monthly" };
+      case PlanType.EnterpriseAnnually:
+        return { tier: "enterprise", cadence: "annually" };
+    }
+  }
+
+  private buildTaxPreviewRequest(
+    additionalStorage: number,
+    sponsored: boolean,
+  ): OrganizationSubscriptionPurchase {
+    const passwordManagerSeats = this.selectedPlan.PasswordManager.hasAdditionalSeatsOption
+      ? this.formGroup.value.additionalSeats
+      : 1;
+
+    return {
+      ...this.getPlanFromLegacyEnum(),
+      passwordManager: {
+        seats: passwordManagerSeats,
+        additionalStorage,
+        sponsored,
+      },
+      secretsManager: this.formGroup.value.secretsManager.enabled
+        ? {
+            seats: this.secretsManagerForm.value.userSeats,
+            additionalServiceAccounts: this.secretsManagerForm.value.additionalServiceAccounts,
+            standalone: false,
+          }
+        : undefined,
+    };
+  }
+
   private async refreshSalesTax(): Promise<void> {
     if (this.billingFormGroup.controls.billingAddress.invalid) {
       return;
     }
 
-    const getPlanFromLegacyEnum = (): OrganizationSubscriptionPlan => {
-      switch (this.formGroup.value.plan) {
-        case PlanType.FamiliesAnnually:
-          return { tier: "families", cadence: "annually" };
-        case PlanType.TeamsMonthly:
-          return { tier: "teams", cadence: "monthly" };
-        case PlanType.TeamsAnnually:
-          return { tier: "teams", cadence: "annually" };
-        case PlanType.EnterpriseMonthly:
-          return { tier: "enterprise", cadence: "monthly" };
-        case PlanType.EnterpriseAnnually:
-          return { tier: "enterprise", cadence: "annually" };
-      }
-    };
-
     const billingAddress = getBillingAddressFromForm(this.billingFormGroup.controls.billingAddress);
-
-    const passwordManagerSeats =
-      this.formGroup.value.productTier === ProductTierType.Families
-        ? 1
-        : this.formGroup.value.additionalSeats;
 
     // should still be taxed. We mark the plan as NOT sponsored when there is additional storage
     // so the server calculates tax, but we'll adjust the calculation to only tax the storage.
@@ -747,41 +768,11 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       // by comparing tax on base+storage vs tax on base only
       const [baseTaxAmounts, fullTaxAmounts] = await Promise.all([
         this.taxClient.previewTaxForOrganizationSubscriptionPurchase(
-          {
-            ...getPlanFromLegacyEnum(),
-            passwordManager: {
-              seats: passwordManagerSeats,
-              additionalStorage: 0,
-              sponsored: false,
-            },
-            secretsManager: this.formGroup.value.secretsManager.enabled
-              ? {
-                  seats: this.secretsManagerForm.value.userSeats,
-                  additionalServiceAccounts:
-                    this.secretsManagerForm.value.additionalServiceAccounts,
-                  standalone: false,
-                }
-              : undefined,
-          },
+          this.buildTaxPreviewRequest(0, false),
           billingAddress,
         ),
         this.taxClient.previewTaxForOrganizationSubscriptionPurchase(
-          {
-            ...getPlanFromLegacyEnum(),
-            passwordManager: {
-              seats: passwordManagerSeats,
-              additionalStorage: this.formGroup.value.additionalStorage,
-              sponsored: false,
-            },
-            secretsManager: this.formGroup.value.secretsManager.enabled
-              ? {
-                  seats: this.secretsManagerForm.value.userSeats,
-                  additionalServiceAccounts:
-                    this.secretsManagerForm.value.additionalServiceAccounts,
-                  standalone: false,
-                }
-              : undefined,
-          },
+          this.buildTaxPreviewRequest(this.formGroup.value.additionalStorage, false),
           billingAddress,
         ),
       ]);
@@ -790,21 +781,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       this.estimatedTax = fullTaxAmounts.tax - baseTaxAmounts.tax;
     } else {
       const taxAmounts = await this.taxClient.previewTaxForOrganizationSubscriptionPurchase(
-        {
-          ...getPlanFromLegacyEnum(),
-          passwordManager: {
-            seats: passwordManagerSeats,
-            additionalStorage: this.formGroup.value.additionalStorage,
-            sponsored: sponsoredForTaxPreview,
-          },
-          secretsManager: this.formGroup.value.secretsManager.enabled
-            ? {
-                seats: this.secretsManagerForm.value.userSeats,
-                additionalServiceAccounts: this.secretsManagerForm.value.additionalServiceAccounts,
-                standalone: false,
-              }
-            : undefined,
-        },
+        this.buildTaxPreviewRequest(this.formGroup.value.additionalStorage, sponsoredForTaxPreview),
         billingAddress,
       );
 
