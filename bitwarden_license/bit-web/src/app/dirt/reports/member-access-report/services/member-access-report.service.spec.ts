@@ -1,5 +1,6 @@
 import { mock } from "jest-mock-extended";
 
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 
@@ -143,6 +144,45 @@ describe("ImportService", () => {
           }),
         ]),
       );
+    });
+
+    it("should handle decryption errors by setting collection name to null", async () => {
+      const mockReportWithDecryptionError = [
+        {
+          userName: "Test User",
+          email: "test@email.com",
+          twoFactorEnabled: false,
+          accountRecoveryEnabled: false,
+          userGuid: "test-guid",
+          usesKeyConnector: false,
+          groupId: "g1",
+          collectionId: "c1",
+          groupName: "Test Group",
+          collectionName: {
+            encryptedString: "encrypted-collection-name",
+          },
+          itemCount: 5,
+          readOnly: false,
+          hidePasswords: false,
+          manage: false,
+          cipherIds: [] as string[],
+        },
+      ];
+
+      reportApiService.getMemberAccessData.mockImplementation(() =>
+        Promise.resolve(mockReportWithDecryptionError as any),
+      );
+
+      // Mock the EncString decrypt behavior to set decryptedValue to the error message
+      jest.spyOn(EncString.prototype, "decrypt").mockImplementation(async function () {
+        this.decryptedValue = "[error: cannot decrypt]";
+        return undefined;
+      });
+
+      const result =
+        await memberAccessReportService.generateUserReportExportItems(mockOrganizationId);
+
+      expect(result[0].collection).toBe("memberAccessReportNoCollection");
     });
   });
 });

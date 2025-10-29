@@ -85,7 +85,10 @@ export class MemberAccessReportService {
     for await (const key of collectionNameMap.keys()) {
       const decrypted = new EncString(key);
       await decrypted.decrypt(organizationId);
-      collectionNameMap.set(key, decrypted.decryptedValue);
+      collectionNameMap.set(
+        key,
+        decrypted.decryptedValue === "[error: cannot decrypt]" ? null : decrypted.decryptedValue,
+      );
     }
 
     const exportItems = memberAccessReports.map((report) => {
