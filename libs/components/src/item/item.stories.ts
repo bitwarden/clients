@@ -44,6 +44,7 @@ export default {
               skipToContent: "Skip to content",
               submenu: "submenu",
               toggleCollapse: "toggle collapse",
+              loading: "Loading",
             });
           },
         },

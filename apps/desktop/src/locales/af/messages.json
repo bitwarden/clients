@@ -702,6 +702,12 @@
   "attachmentSaved": {
     "message": "Aanhegsel is bewaar"
   },
+  "addAttachment": {
+    "message": "Add attachment"
+  },
+  "maxFileSizeSansPunctuation": {
+    "message": "Maximum file size is 500 MB"
+  },
   "file": {
     "message": "Lêer"
   },
@@ -953,9 +959,6 @@
   },
   "insertU2f": {
     "message": "Plaas u beveilingsleutel in u rekenaar se USB-poort. Indien dit ’n knop het, druk dit dan."
-  },
-  "recoveryCodeDesc": {
-    "message": "Het u toegang tot al u tweestapaanbieders verloor? Gebruik dan u terugstelkode om alle tweestapaanbieders op u rekening te deaktiveer."
   },
   "recoveryCodeTitle": {
     "message": "Terugstelkode"
@@ -1219,6 +1222,15 @@
   "invalidMasterPassword": {
     "message": "Ongeldige hoofwagwoord"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "twoStepLoginConfirmation": {
     "message": "Tweestapsaantekening maak u rekening veiliger deur u aantekenpoging te bevestig met ’n ander toestel soos ’n beveiligingsleutel, waarmerktoep, SMS, telefoonoproep of e-pos. U kan tweestapsaantekening in die webkluis op bitwarden.com aktiveer. Wil u die webwerf nou besoek?"
   },
@@ -1299,11 +1311,8 @@
     "message": "Wis gekopieerde waardes outomaties vanuit u knipbord.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
-  "enableFavicon": {
-    "message": "Toon webwerfikone"
-  },
-  "faviconDesc": {
-    "message": "Toon ’n herkenbare beeld langs elke aantekening."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "enableMinToTray": {
     "message": "Minimaliseer na stelsellaai"
@@ -1840,14 +1849,14 @@
   "autoPromptTouchId": {
     "message": "Vra vir Touch ID by lansering"
   },
-  "requirePasswordOnStart": {
-    "message": "Vereis wagwoord of PIN wanneer toep geopen word"
-  },
-  "requirePasswordWithoutPinOnStart": {
-    "message": "Require password on app start"
-  },
   "lockWithMasterPassOnRestart1": {
     "message": "Lock with master password on restart"
+  },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "Require master password or PIN on app restart"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "Require master password on app restart"
   },
   "deleteAccount": {
     "message": "Skrap rekening"
@@ -2546,6 +2555,9 @@
       }
     }
   },
+  "vaultCustomTimeoutMinimum": {
+    "message": "Minimum custom timeout is 1 minute."
+  },
   "inviteAccepted": {
     "message": "Invitation accepted"
   },
@@ -2657,6 +2669,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },
@@ -3491,15 +3521,11 @@
   "selectImportCollection": {
     "message": "Select a collection"
   },
-  "importTargetHint": {
-    "message": "Kies dié opsie as jy die inhoud van die ingevoerde lêer na $DESTINATION$ wil skuif",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Select this option if you want the imported file contents moved to a collection"
+  },
+  "importTargetHintFolder": {
+    "message": "Select this option if you want the imported file contents moved to a folder"
   },
   "importUnassignedItemsError": {
     "message": "Lêer bevat ontoegewysde items."
@@ -3594,6 +3620,12 @@
   },
   "awaitingSSODesc": {
     "message": "Asseblief gaan voort om aantemeld met jou maatskappy se magtigingsbewyse."
+  },
+  "importDirectlyFromBrowser": {
+    "message": "Import directly from browser"
+  },
+  "browserProfile": {
+    "message": "Browser Profile"
   },
   "seeDetailedInstructions": {
     "message": "Sien gedetaleerde instruksies op ons help werf by",
@@ -3837,6 +3869,12 @@
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
     "placeholders": {
@@ -3931,6 +3969,12 @@
     "message": "Learn more about SSH agent",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
   },
   "assignToCollections": {
     "message": "Assign to collections"
@@ -4072,10 +4116,70 @@
   "showLess": {
     "message": "Show less"
   },
-  "enableAutotype": {
-    "message": "Enable Autotype"
-  },
   "enableAutotypeDescription": {
     "message": "Bitwarden does not validate input locations, be sure you are in the right window and field before using the shortcut."
+  },
+  "typeShortcut": {
+    "message": "Type shortcut"
+  },
+  "editAutotypeShortcutDescription": {
+    "message": "Include one or two of the following modifiers: Ctrl, Alt, Win, or Shift, and a letter."
+  },
+  "invalidShortcut": {
+    "message": "Invalid shortcut"
+  },
+  "moreBreadcrumbs": {
+    "message": "More breadcrumbs",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "next": {
+    "message": "Next"
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Confirm Key Connector domain"
+  },
+  "confirm": {
+    "message": "Confirm"
+  },
+  "enableAutotypeShortcutPreview": {
+    "message": "Enable autotype shortcut (Feature Preview)"
+  },
+  "enableAutotypeShortcutDescription": {
+    "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."
+  },
+  "editShortcut": {
+    "message": "Edit shortcut"
+  },
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
+  },
+  "unArchive": {
+    "message": "Unarchive"
+  },
+  "itemsInArchive": {
+    "message": "Items in archive"
+  },
+  "noItemsInArchive": {
+    "message": "No items in archive"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+  },
+  "itemWasSentToArchive": {
+    "message": "Item was sent to archive"
+  },
+  "itemWasUnarchived": {
+    "message": "Item was unarchived"
+  },
+  "archiveItem": {
+    "message": "Archive item"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
   }
 }

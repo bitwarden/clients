@@ -550,11 +550,46 @@
   "resetSearch": {
     "message": "Atiestatīt meklēšanu"
   },
+  "archiveNoun": {
+    "message": "Arhīvs",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Arhivēt",
+    "description": "Verb"
+  },
+  "unArchive": {
+    "message": "Atcelt arhivēšanu"
+  },
+  "itemsInArchive": {
+    "message": "Vienumi arhīvā"
+  },
+  "noItemsInArchive": {
+    "message": "Arhīvā nav vienumu"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Šeit parādīsies arhivētie vienumi, un tie netiks iekļauti vispārējās meklēšanas iznākumos un automātiskās aizpildes ieteikumos."
+  },
+  "itemWasSentToArchive": {
+    "message": "Vienums tika ievietots arhīvā"
+  },
+  "itemUnarchived": {
+    "message": "Vienums tika izņemts no arhīva"
+  },
+  "archiveItem": {
+    "message": "Arhivēt vienumu"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Arhivētie vienumi netiek iekļauti vispārējās meklēšanas iznākumos un automātiskās aizpildes ieteikumos. Vai tiešām ahrivēt šo vienumu?"
+  },
   "edit": {
     "message": "Labot"
   },
   "view": {
     "message": "Skatīt"
+  },
+  "viewLogin": {
+    "message": "Apskatīt pieteikšanās vienumu"
   },
   "noItemsInList": {
     "message": "Nav vienumu, ko parādīt."
@@ -697,6 +732,15 @@
   },
   "invalidMasterPassword": {
     "message": "Nederīga galvenā parole"
+  },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Nederīga galvenā parole. Jāpārliecinās, ka e-pasta adrese ir pareiza un konts tika izveidots $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
   },
   "vaultTimeout": {
     "message": "Glabātavas noildze"
@@ -1504,6 +1548,15 @@
   "readSecurityKey": {
     "message": "Nolasīt drošības atslēgu"
   },
+  "readingPasskeyLoading": {
+    "message": "Nolasa piekļuves atslēgu..."
+  },
+  "passkeyAuthenticationFailed": {
+    "message": "Autentificēšanās ar piekļuves atslēgu neizdevās"
+  },
+  "useADifferentLogInMethod": {
+    "message": "Jāizmanto cits pieteikšanās veids"
+  },
   "awaitingSecurityKeyInteraction": {
     "message": "Gaida mijiedarbību ar drošības atslēgu..."
   },
@@ -1521,9 +1574,6 @@
   },
   "selectTwoStepLoginMethod": {
     "message": "Atlasīt divpakāpju pieteikšanās veidu"
-  },
-  "recoveryCodeDesc": {
-    "message": "Zaudēta piekļuve visiem divpakāpju nodrošinātājiem? Izmanto atkopes kodus, lai atspējotu visus sava konta divpakāpju nodrošinātājus!"
   },
   "recoveryCodeTitle": {
     "message": "Atkopes kods"
@@ -1683,9 +1733,6 @@
   "defaultAutoFillOnPageLoadDesc": {
     "message": "Automātisko aizpildi lapas ielādes brīdī atsevišķiem pieteikšanās vienumiem var atslēgt vienuma labošanas skatā."
   },
-  "itemAutoFillOnPageLoad": {
-    "message": "Automātiski aizpildīt lapas ielādes brīdī (ja iespējots iestatījumos)"
-  },
   "autoFillOnPageLoadUseDefault": {
     "message": "Izmantot noklusējuma iestatījumu"
   },
@@ -1757,23 +1804,8 @@
   "popup2faCloseMessage": {
     "message": "Klikšķināšana ārpus uznirstošā loga, lai e-pastā apskatītu apliecinājuma kodu, to aizvērs. Vai atvērt to atsevišķā logā, lai tas netiktu aizvērts?"
   },
-  "popupU2fCloseMessage": {
-    "message": "Šis pārlūks nevar apstrādāt U2F pieprasījumus šajā uznirstošajā logā. Vai atvērt to atsevišķā logā, lai varētu pieteikties, izmantojot U2F?"
-  },
-  "enableFavicon": {
-    "message": "Rādīt tīmekļvietņu ikonas"
-  },
-  "faviconDesc": {
-    "message": "Attēlot atpazīstamu attēlu pie katra pieteikšanās vienuma."
-  },
-  "faviconDescAlt": {
-    "message": "Parādīt atpazīstamu attēlu pie katra pieteikšanās vienuma. Attiecas uz visiem kontiem, kuros ir notikusi pieteikšanās."
-  },
-  "enableBadgeCounter": {
-    "message": "Rādīt skaita nozīmīti"
-  },
-  "badgeCounterDesc": {
-    "message": "Attēlot pašreizējāi tīmekļa vietnei atbilstošo pieteikšanās vienumu skaitu."
+  "showIconsChangePasswordUrls": {
+    "message": "Rādīt tīmekļvietņu ikonas un iegūt paroles nomaiņas URL"
   },
   "cardholderName": {
     "message": "Kartes īpašnieka vārds"
@@ -1937,32 +1969,81 @@
   "typeNote": {
     "message": "Piezīme"
   },
-  "newItemHeader": {
-    "message": "Jauns/a $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderLogin": {
+    "message": "Jauns pieteikšanās vienums",
+    "description": "Header for new login item type"
   },
-  "editItemHeader": {
-    "message": "Labot $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderCard": {
+    "message": "Jauna karte",
+    "description": "Header for new card item type"
   },
-  "viewItemHeader": {
-    "message": "Apskatīt $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderIdentity": {
+    "message": "Jauna identitāte",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "Jauna piezīme",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "Jauna SSH atslēga",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderTextSend": {
+    "message": "Jauns teksta Send",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "Jauns datnes Send",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderLogin": {
+    "message": "Labot pieteikšanās vienumu",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Labot karti",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Labot identitāti",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Labot piezīmi",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "Labot SSH atslēgu",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Labot teksta Send",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Labot datnes Send",
+    "description": "Header for edit file send"
+  },
+  "viewItemHeaderLogin": {
+    "message": "Apskatīt pieteikšanās vienumu",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "Apskatīt karti",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "Skatīt identitāti",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "Apskatīt piezīmi",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "Apskatīt SSH atslēgu",
+    "description": "Header for view SSH key item type"
   },
   "passwordHistory": {
     "message": "Paroļu vēsture"
@@ -3135,6 +3216,24 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "error": {
     "message": "Kļūda"
   },
@@ -3524,9 +3623,6 @@
   "autofillPageLoadPolicyActivated": {
     "message": "Tavas apvienības nosacījumos ir ieslēgta automātiskā aizpilde lapas ielādes brīdī."
   },
-  "howToAutofill": {
-    "message": "Kā automātiski aizpildīt"
-  },
   "autofillSelectInfoWithCommand": {
     "message": "Jāizvēlas šī skata vienums, jāizmanto īsceļš $COMMAND$ vai iestatījumos jāizpēta citas iespējas.",
     "placeholders": {
@@ -3911,17 +4007,9 @@
   "aliasDomain": {
     "message": "Aizstājdomēns"
   },
-  "passwordRepromptDisabledAutofillOnPageLoad": {
-    "message": "Vienumus ar galvenās paroles pārvaicāšanu nevar automātiski aizpildīt lapas ielādes brīdī. Automātiskā aizpilde lapas ielādes brīdī ir izslēgta.",
-    "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
-  },
   "autofillOnPageLoadSetToDefault": {
     "message": "Automātiskā aizpilde lapas ielādes brīdī iestatīta izmantot noklusējuma iestatījumu.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "turnOffMasterPasswordPromptToEditField": {
-    "message": "Jāizslēdz galvenās paroles pārvaicāšana, lai labotu šo lauku",
-    "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
   },
   "toggleSideNavigation": {
     "message": "Pārslēgt sānu pārvietošanās joslu"
@@ -4131,15 +4219,11 @@
   "selectImportCollection": {
     "message": "Atlasīt krājumu"
   },
-  "importTargetHint": {
-    "message": "Šī iespēja jāatlasa, ja ir vēlēšanās ievietotās datnes saturu pārvietot uz $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Šī iespēja jāatlasa, ja ir vēlēšanās ievietotās datnes saturu ievietot krājumā"
+  },
+  "importTargetHintFolder": {
+    "message": "Šī iespēja jāatlasa, ja ir vēlēšanās ievietotās datnes saturu ievietot mapē"
   },
   "importUnassignedItemsError": {
     "message": "Datne satur nepiešķirtus vienumus."
@@ -4195,9 +4279,6 @@
   },
   "passkeyNotCopiedAlert": {
     "message": "Piekļuves atslēga netiks ievietota klonētajā vienumā. Vai turpināt šī vienuma klonēšanu?"
-  },
-  "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
-    "message": "Vietne, kurā tika uzsākta darbība, pieprasa apliecinājumu. Šī iespēja vēl nav īstenota kontiem, kuriem nav galvenās paroles."
   },
   "logInWithPasskeyQuestion": {
     "message": "Pieteikties ar piekļuves atslēgu?"
@@ -4884,9 +4965,6 @@
       }
     }
   },
-  "enableAnimations": {
-    "message": "Iespējot animācijas"
-  },
   "showAnimations": {
     "message": "Rādīt animācijas"
   },
@@ -5099,14 +5177,8 @@
   "itemLocation": {
     "message": "Vienuma atrašanās vieta"
   },
-  "fileSend": {
-    "message": "Datņu Send"
-  },
   "fileSends": {
     "message": "Datņu Send"
-  },
-  "textSend": {
-    "message": "Teksta Send"
   },
   "textSends": {
     "message": "Teksta Send"
@@ -5116,6 +5188,18 @@
   },
   "showNumberOfAutofillSuggestions": {
     "message": "Paplašinājuma ikonā rādīt pieteikšanās automātiskās aizpildes ieteikumu skaitu"
+  },
+  "accountAccessRequested": {
+    "message": "Pieprasīta piekļuve kontam"
+  },
+  "confirmAccessAttempt": {
+    "message": "Apstiprināt $EMAIL$ piekļuves mēģinājumu",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
   },
   "showQuickCopyActions": {
     "message": "Glabātavā rādīt ātrās kopēšanas darbības"
@@ -5155,9 +5239,6 @@
   },
   "vaultCustomTimeoutMinimum": {
     "message": "Mazākā pieļaujamā pielāgotā noildze ir 1 minūte."
-  },
-  "additionalContentAvailable": {
-    "message": "Ir pieejams papildu saturs"
   },
   "fileSavedToDevice": {
     "message": "Datne saglabāta ierīcē. Tā ir atrodama ierīces lejupielāžu mapē."
@@ -5444,6 +5525,12 @@
   "changeAtRiskPassword": {
     "message": "Mainīt riskam pakļautu paroli"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Šis pieteikšanās vienums ir pakļauts riskam, un tam nav norādīta tīmekļvietne. Lielākai drošībai jāpievieno tīmekļvietne un jānomaina parole."
+  },
+  "missingWebsite": {
+    "message": "Nav norādīta tīmekļvietne"
+  },
   "settingsVaultOptions": {
     "message": "Glabātavas iespējas"
   },
@@ -5491,6 +5578,38 @@
   },
   "hasItemsVaultNudgeTitle": {
     "message": "Laipni lūdzam Tavā glabātavā!"
+  },
+  "phishingPageTitleV2": {
+    "message": "Noteikts pikšķerēšanas mēģinājums"
+  },
+  "phishingPageSummary": {
+    "message": "Vietne, kuru mēģini apmeklēt, ir zināma ļaunprātīga vietne un drošības risks."
+  },
+  "phishingPageCloseTabV2": {
+    "message": "Aizvērt šo cilni"
+  },
+  "phishingPageContinueV2": {
+    "message": "Turpināt šīs vietnes apmeklēšanu (nav ieteicams)"
+  },
+  "phishingPageExplanation1": {
+    "message": "Šī vietne tika atrasta ",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name follows this."
+  },
+  "phishingPageExplanation2": {
+    "message": ", atvērta pirmkoda saraksts ar zināmām pikšķerēšanas vietnēm, kuras tiek izmantotas personīgas un jūtīgas informācijas zagšanai.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name precedes this."
+  },
+  "phishingPageLearnMore": {
+    "message": "Uzzināt vairāk par pikšķerēšanas noteikšanu"
+  },
+  "protectedBy": {
+    "message": "Aizsargā $PRODUCT$",
+    "placeholders": {
+      "product": {
+        "content": "$1",
+        "example": "Bitwarden Phishing Blocker"
+      }
+    }
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Automātiska pašreizējās lapas vienumu aizpildīšana"
@@ -5567,6 +5686,12 @@
     "message": "Vienkārša spēcīgu un neatkārtojamu paroļu izveidošana ar pogu \"Izveidot paroli\", lai palīdzētu uzturēt pieteikšanās vienumus drošus.",
     "description": "Aria label for the body content of the generator nudge"
   },
+  "aboutThisSetting": {
+    "message": "Par šo iestatījumu"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden izmantos saglabātos pieteikšanās vienuma URI, lai noteiktu, kuru ikonu vai paroles nomaiņas URL izmantot, lai uzlabotu pieredzi. Šī pakalpojuma izmantošanas laikā nekāda informācija netiek ievākta vai saglabāta."
+  },
   "noPermissionsViewPage": {
     "message": "Nav atļaujas apskatīt šo lapu. Jāmēģina pieteikties ar citu kontu."
   },
@@ -5579,5 +5704,22 @@
   },
   "showLess": {
     "message": "Rādīt mazāk"
+  },
+  "next": {
+    "message": "Nākamais"
+  },
+  "moreBreadcrumbs": {
+    "message": "Vairāk norāžu",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Apstiprināt Key Connector domēnu"
+  },
+  "atRiskLoginsSecured": {
+    "message": "Labs darbs riskam pakļauto pieteikšanās vienumu drošības uzlabošanā!"
+  },
+  "settingDisabledByPolicy": {
+    "message": "Šis iestatījums ir atspējots apvienības pamatnostādnēs.",
+    "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
   }
 }

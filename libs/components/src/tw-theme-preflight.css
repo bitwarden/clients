@@ -54,6 +54,14 @@
     display: none !important;
   }
 
+  dl {
+    @apply tw-mb-4;
+  }
+
+  dt {
+    @apply tw-font-bold;
+  }
+
   hr {
     border-color: rgba(0, 0, 0, 0.1);
   }
@@ -64,5 +72,10 @@
 
   select {
     appearance: none;
+  }
+
+  /* overriding preflight since the apps were built assuming svgs are inline */
+  svg {
+    display: inline;
   }
 }

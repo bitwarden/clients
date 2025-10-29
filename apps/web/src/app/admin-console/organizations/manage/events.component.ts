@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { concatMap, firstValueFrom, lastValueFrom, takeUntil } from "rxjs";
+import { concatMap, filter, firstValueFrom, lastValueFrom, map, switchMap, takeUntil } from "rxjs";
 
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
@@ -19,7 +19,6 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { EventSystemUser } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EventResponse } from "@bitwarden/common/models/response/event.response";
 import { EventView } from "@bitwarden/common/models/view/event.view";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -47,6 +46,8 @@ const EVENT_SYSTEM_USER_TO_TRANSLATION: Record<EventSystemUser, string> = {
   [EventSystemUser.PublicApi]: "publicApi",
 };
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "events.component.html",
   imports: [SharedModule, HeaderModule],
@@ -61,10 +62,6 @@ export class EventsComponent extends BaseEventsComponent implements OnInit, OnDe
 
   private orgUsersUserIdMap = new Map<string, any>();
   readonly ProductTierType = ProductTierType;
-
-  protected isBreadcrumbEventLogsEnabled$ = this.configService.getFeatureFlag$(
-    FeatureFlag.PM12276_BreadcrumbEventLogs,
-  );
 
   constructor(
     private apiService: ApiService,
@@ -141,22 +138,24 @@ export class EventsComponent extends BaseEventsComponent implements OnInit, OnDe
 
     if (this.organization.providerId != null) {
       try {
-        const provider = await this.providerService.get(this.organization.providerId);
-        if (
-          provider != null &&
-          (await this.providerService.get(this.organization.providerId)).canManageUsers
-        ) {
-          const providerUsersResponse = await this.apiService.getProviderUsers(
-            this.organization.providerId,
-          );
-          providerUsersResponse.data.forEach((u) => {
-            const name = this.userNamePipe.transform(u);
-            this.orgUsersUserIdMap.set(u.userId, {
-              name: `${name} (${this.organization.providerName})`,
-              email: u.email,
-            });
-          });
-        }
+        await firstValueFrom(
+          this.accountService.activeAccount$.pipe(
+            getUserId,
+            switchMap((userId) => this.providerService.get$(this.organization.providerId, userId)),
+            map((provider) => provider != null && provider.canManageUsers),
+            filter((result) => result),
+            switchMap(() => this.apiService.getProviderUsers(this.organization.id)),
+            map((providerUsersResponse) =>
+              providerUsersResponse.data.forEach((u) => {
+                const name = this.userNamePipe.transform(u);
+                this.orgUsersUserIdMap.set(u.userId, {
+                  name: `${name} (${this.organization.providerName})`,
+                  email: u.email,
+                });
+              }),
+            ),
+          ),
+        );
       } catch (e) {
         this.logService.warning(e);
       }

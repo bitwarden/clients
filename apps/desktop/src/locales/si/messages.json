@@ -702,6 +702,12 @@
   "attachmentSaved": {
     "message": "Attachment saved"
   },
+  "addAttachment": {
+    "message": "Add attachment"
+  },
+  "maxFileSizeSansPunctuation": {
+    "message": "Maximum file size is 500 MB"
+  },
   "file": {
     "message": "File"
   },
@@ -953,9 +959,6 @@
   },
   "insertU2f": {
     "message": "Insert your security key into your computer's USB port. If it has a button, touch it."
-  },
-  "recoveryCodeDesc": {
-    "message": "Lost access to all of your two-factor providers? Use your recovery code to turn off all two-factor providers on your account."
   },
   "recoveryCodeTitle": {
     "message": "ප්‍රතිසාධන කේතය"
@@ -1219,6 +1222,15 @@
   "invalidMasterPassword": {
     "message": "Invalid master password"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "twoStepLoginConfirmation": {
     "message": "Two-step login makes your account more secure by requiring you to verify your login with another device such as a security key, authenticator app, SMS, phone call, or email. Two-step login can be set up on the bitwarden.com web vault. Do you want to visit the website now?"
   },
@@ -1299,11 +1311,8 @@
     "message": "Automatically clear copied values from your clipboard.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
-  "enableFavicon": {
-    "message": "Show website icons"
-  },
-  "faviconDesc": {
-    "message": "Show a recognizable image next to each login."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "enableMinToTray": {
     "message": "Minimize to tray icon"
@@ -1840,14 +1849,14 @@
   "autoPromptTouchId": {
     "message": "Ask for Touch ID on app start"
   },
-  "requirePasswordOnStart": {
-    "message": "Require password or PIN on app start"
-  },
-  "requirePasswordWithoutPinOnStart": {
-    "message": "Require password on app start"
-  },
   "lockWithMasterPassOnRestart1": {
     "message": "Lock with master password on restart"
+  },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "Require master password or PIN on app restart"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "Require master password on app restart"
   },
   "deleteAccount": {
     "message": "Delete account"
@@ -2546,6 +2555,9 @@
       }
     }
   },
+  "vaultCustomTimeoutMinimum": {
+    "message": "Minimum custom timeout is 1 minute."
+  },
   "inviteAccepted": {
     "message": "Invitation accepted"
   },
@@ -2657,6 +2669,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },
@@ -3491,15 +3521,11 @@
   "selectImportCollection": {
     "message": "Select a collection"
   },
-  "importTargetHint": {
-    "message": "Select this option if you want the imported file contents moved to a $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Select this option if you want the imported file contents moved to a collection"
+  },
+  "importTargetHintFolder": {
+    "message": "Select this option if you want the imported file contents moved to a folder"
   },
   "importUnassignedItemsError": {
     "message": "File contains unassigned items."
@@ -3594,6 +3620,12 @@
   },
   "awaitingSSODesc": {
     "message": "Please continue to log in using your company credentials."
+  },
+  "importDirectlyFromBrowser": {
+    "message": "Import directly from browser"
+  },
+  "browserProfile": {
+    "message": "Browser Profile"
   },
   "seeDetailedInstructions": {
     "message": "See detailed instructions on our help site at",
@@ -3837,6 +3869,12 @@
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
     "placeholders": {
@@ -3931,6 +3969,12 @@
     "message": "Learn more about SSH agent",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
   },
   "assignToCollections": {
     "message": "Assign to collections"
@@ -4072,10 +4116,70 @@
   "showLess": {
     "message": "Show less"
   },
-  "enableAutotype": {
-    "message": "Enable Autotype"
-  },
   "enableAutotypeDescription": {
     "message": "Bitwarden does not validate input locations, be sure you are in the right window and field before using the shortcut."
+  },
+  "typeShortcut": {
+    "message": "Type shortcut"
+  },
+  "editAutotypeShortcutDescription": {
+    "message": "Include one or two of the following modifiers: Ctrl, Alt, Win, or Shift, and a letter."
+  },
+  "invalidShortcut": {
+    "message": "Invalid shortcut"
+  },
+  "moreBreadcrumbs": {
+    "message": "More breadcrumbs",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "next": {
+    "message": "Next"
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Confirm Key Connector domain"
+  },
+  "confirm": {
+    "message": "Confirm"
+  },
+  "enableAutotypeShortcutPreview": {
+    "message": "Enable autotype shortcut (Feature Preview)"
+  },
+  "enableAutotypeShortcutDescription": {
+    "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."
+  },
+  "editShortcut": {
+    "message": "Edit shortcut"
+  },
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
+  },
+  "unArchive": {
+    "message": "Unarchive"
+  },
+  "itemsInArchive": {
+    "message": "Items in archive"
+  },
+  "noItemsInArchive": {
+    "message": "No items in archive"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+  },
+  "itemWasSentToArchive": {
+    "message": "Item was sent to archive"
+  },
+  "itemWasUnarchived": {
+    "message": "Item was unarchived"
+  },
+  "archiveItem": {
+    "message": "Archive item"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
   }
 }

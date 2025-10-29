@@ -47,6 +47,12 @@ export default class OsBiometricsServiceLinux implements OsBiometricService {
     private logService: LogService,
   ) {}
 
+  async enrollPersistent(userId: UserId, key: SymmetricCryptoKey): Promise<void> {}
+
+  async hasPersistentKey(userId: UserId): Promise<boolean> {
+    return false;
+  }
+
   private _iv: string | null = null;
   // Use getKeyMaterial helper instead of direct access
   private _osKeyHalf: string | null = null;
@@ -198,11 +204,6 @@ export default class OsBiometricsServiceLinux implements OsBiometricService {
     userId: UserId,
     key: SymmetricCryptoKey,
   ): Promise<Uint8Array | null> {
-    const requireClientKeyHalf = await this.biometricStateService.getRequirePasswordOnStart(userId);
-    if (!requireClientKeyHalf) {
-      return null;
-    }
-
     if (this.clientKeyHalves.has(userId)) {
       return this.clientKeyHalves.get(userId) || null;
     }
@@ -227,12 +228,10 @@ export default class OsBiometricsServiceLinux implements OsBiometricService {
   }
 
   async getBiometricsFirstUnlockStatusForUser(userId: UserId): Promise<BiometricsStatus> {
-    const requireClientKeyHalf = await this.biometricStateService.getRequirePasswordOnStart(userId);
-    const clientKeyHalfB64 = this.clientKeyHalves.get(userId);
-    const clientKeyHalfSatisfied = !requireClientKeyHalf || !!clientKeyHalfB64;
-    if (!clientKeyHalfSatisfied) {
+    if (this.clientKeyHalves.has(userId)) {
+      return BiometricsStatus.Available;
+    } else {
       return BiometricsStatus.UnlockNeeded;
     }
-    return BiometricsStatus.Available;
   }
 }

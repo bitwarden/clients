@@ -5,7 +5,7 @@ import { ActivatedRoute } from "@angular/router";
 import { firstValueFrom, lastValueFrom, Subject } from "rxjs";
 
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
-import { SubscriptionHiddenIcon } from "@bitwarden/assets/svg";
+import { GearIcon } from "@bitwarden/assets/svg";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import {
@@ -42,6 +42,8 @@ import { ChangePlanDialogResultType, openChangePlanDialog } from "./change-plan-
 import { DownloadLicenceDialogComponent } from "./download-license.component";
 import { SecretsManagerSubscriptionOptions } from "./sm-adjust-subscription.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "organization-subscription-cloud.component.html",
   standalone: false,
@@ -66,7 +68,7 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
   organizationIsManagedByConsolidatedBillingMSP = false;
   resellerSeatsRemainingMessage: string;
 
-  protected readonly subscriptionHiddenIcon = SubscriptionHiddenIcon;
+  protected readonly gearIcon = GearIcon;
   protected readonly teamsStarter = ProductTierType.TeamsStarter;
 
   private destroy$ = new Subject<void>();
@@ -148,19 +150,17 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
     const isResoldOrganizationOwner = this.userOrg.hasReseller && this.userOrg.isOwner;
     const isMSPUser = this.userOrg.hasProvider && this.userOrg.isProviderUser;
 
-    const metadata = await this.billingApiService.getOrganizationBillingMetadata(
-      this.organizationId,
-    );
-
     this.organizationIsManagedByConsolidatedBillingMSP =
-      this.userOrg.hasProvider && metadata.isManaged;
+      this.userOrg.hasProvider && this.userOrg.hasBillableProvider;
 
     this.showSubscription =
       isIndependentOrganizationOwner ||
       isResoldOrganizationOwner ||
       (isMSPUser && !this.organizationIsManagedByConsolidatedBillingMSP);
 
-    this.showSelfHost = metadata.isEligibleForSelfHost;
+    this.showSelfHost =
+      this.userOrg.productTierType === ProductTierType.Families ||
+      this.userOrg.productTierType === ProductTierType.Enterprise;
 
     if (this.showSubscription) {
       this.sub = await this.organizationApiService.getSubscription(this.organizationId);

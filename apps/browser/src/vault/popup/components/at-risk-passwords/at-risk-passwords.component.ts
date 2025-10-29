@@ -41,6 +41,7 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 import {
+  AtRiskPasswordCalloutService,
   ChangeLoginPasswordService,
   DefaultChangeLoginPasswordService,
   PasswordRepromptService,
@@ -57,6 +58,8 @@ import {
 
 import { AtRiskPasswordPageService } from "./at-risk-password-page.service";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   imports: [
     PopupPageComponent,
@@ -75,6 +78,7 @@ import { AtRiskPasswordPageService } from "./at-risk-password-page.service";
   providers: [
     AtRiskPasswordPageService,
     { provide: ChangeLoginPasswordService, useClass: DefaultChangeLoginPasswordService },
+    AtRiskPasswordCalloutService,
   ],
   selector: "vault-at-risk-passwords",
   templateUrl: "./at-risk-passwords.component.html",
@@ -95,13 +99,14 @@ export class AtRiskPasswordsComponent implements OnInit {
   private dialogService = inject(DialogService);
   private endUserNotificationService = inject(EndUserNotificationService);
   private destroyRef = inject(DestroyRef);
+  private atRiskPasswordCalloutService = inject(AtRiskPasswordCalloutService);
 
   /**
    * The cipher that is currently being launched. Used to show a loading spinner on the badge button.
    * The UI utilize a bitBadge which does not support async actions (like bitButton does).
    * @protected
    */
-  protected launchingCipher = signal<CipherView | null>(null);
+  protected readonly launchingCipher = signal<CipherView | null>(null);
 
   private activeUserData$ = this.accountService.activeAccount$.pipe(
     filterOutNullish(),
@@ -199,6 +204,11 @@ export class AtRiskPasswordsComponent implements OnInit {
     }
 
     this.markTaskNotificationsAsRead();
+
+    this.atRiskPasswordCalloutService.updateAtRiskPasswordState(userId, {
+      hasInteractedWithTasks: true,
+      tasksBannerDismissed: false,
+    });
   }
 
   private markTaskNotificationsAsRead() {
@@ -253,6 +263,10 @@ export class AtRiskPasswordsComponent implements OnInit {
     await this.atRiskPasswordPageService.dismissCallout(userId);
   }
 
+  protected hasLoginUri(cipher: CipherView) {
+    return cipher.login?.hasUris;
+  }
+
   launchChangePassword = async (cipher: CipherView) => {
     try {
       this.launchingCipher.set(cipher);
@@ -273,7 +287,7 @@ export class AtRiskPasswordsComponent implements OnInit {
    * which can conflict with the `PopupRouterCacheService`. This replaces the
    * built-in back button behavior so the user always navigates to the vault.
    */
-  protected async navigateToVault() {
+  protected navigateToVault = async () => {
     await this.router.navigate(["/tabs/vault"]);
-  }
+  };
 }

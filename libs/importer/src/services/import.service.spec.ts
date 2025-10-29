@@ -8,7 +8,6 @@ import { EncryptService } from "@bitwarden/common/key-management/crypto/abstract
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { MockSdkService } from "@bitwarden/common/platform/spec/mock-sdk.service";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -35,7 +34,6 @@ describe("ImportService", () => {
   let encryptService: MockProxy<EncryptService>;
   let pinService: MockProxy<PinServiceAbstraction>;
   let accountService: MockProxy<AccountService>;
-  let sdkService: MockSdkService;
   let restrictedItemTypesService: MockProxy<RestrictedItemTypesService>;
 
   beforeEach(() => {
@@ -47,7 +45,6 @@ describe("ImportService", () => {
     keyService = mock<KeyService>();
     encryptService = mock<EncryptService>();
     pinService = mock<PinServiceAbstraction>();
-    sdkService = new MockSdkService();
     restrictedItemTypesService = mock<RestrictedItemTypesService>();
 
     importService = new ImportService(
@@ -60,7 +57,6 @@ describe("ImportService", () => {
       encryptService,
       pinService,
       accountService,
-      sdkService,
       restrictedItemTypesService,
     );
   });

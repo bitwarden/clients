@@ -1,6 +1,15 @@
 [workspace]
 resolver = "2"
-members = ["napi", "core", "proxy", "macos_provider", "windows_plugin_authenticator", "autotype"]
+members = [
+    "autotype",
+    "chromium_importer",
+    "core",
+    "macos_provider",
+    "napi",
+    "process_isolation",
+    "proxy",
+    "windows_plugin_authenticator"
+]
 
 [workspace.package]
 version = "0.0.0"
@@ -14,14 +23,15 @@ anyhow = "=1.0.94"
 arboard = { version = "=3.6.0", default-features = false }
 ashpd = "=0.11.0"
 base64 = "=0.22.1"
-bindgen = "=0.72.0"
 bitwarden-russh = { git = "https://github.com/bitwarden/bitwarden-russh.git", rev = "a641316227227f8777fdf56ac9fa2d6b5f7fe662" }
 byteorder = "=1.5.0"
 bytes = "=1.10.1"
 cbc = "=0.1.2"
-core-foundation = "=0.10.0"
+chacha20poly1305 = "=0.10.1"
+core-foundation = "=0.10.1"
+ctor = "=0.5.0"
 dirs = "=6.0.0"
-ed25519 =  "=2.2.3"
+ed25519 = "=2.2.3"
 embed_plist = "=1.2.2"
 futures = "=0.3.31"
 hex = "=0.4.3"
@@ -29,38 +39,52 @@ homedir = "=0.3.4"
 interprocess = "=2.2.1"
 keytar = "=0.1.6"
 libc = "=0.2.172"
+linux-keyutils = "=0.2.4"
 log = "=0.4.25"
+memsec = "=0.7.0"
 napi = "=2.16.17"
 napi-build = "=2.2.0"
 napi-derive = "=2.16.13"
 oo7 = "=0.4.3"
 oslog = "=0.2.0"
 pin-project = "=1.1.10"
-pkcs8 =  "=0.10.2"
+pkcs8 = "=0.10.2"
 rand = "=0.9.1"
 rsa = "=0.9.6"
 russh-cryptovec = "=0.7.3"
 scopeguard = "=1.2.0"
-security-framework = "=3.1.0"
-security-framework-sys = "=2.13.0"
+secmem-proc = "=0.3.7"
+security-framework = "=3.5.0"
+security-framework-sys = "=2.15.0"
 serde = "=1.0.209"
 serde_json = "=1.0.127"
 sha2 = "=0.10.8"
 simplelog = "=0.12.2"
 ssh-encoding = "=0.2.0"
-ssh-key = {version = "=0.6.7", default-features = false }
+ssh-key = { version = "=0.6.7", default-features = false }
 sysinfo = "=0.35.0"
 thiserror = "=2.0.12"
 tokio = "=1.45.0"
 tokio-stream = "=0.1.15"
 tokio-util = "=0.7.13"
+tracing = "=0.1.41"
+tracing-subscriber = { version = "=0.3.20", features = ["fmt", "env-filter", "tracing-log"] }
 typenum = "=1.18.0"
-uniffi =  "=0.28.3"
+uniffi = "=0.28.3"
 widestring = "=1.2.0"
 windows = "=0.61.1"
 windows-core = "=0.61.0"
 windows-future = "=0.2.0"
-windows-registry = "=0.5.3"
-zbus = "=5.5.0"
+windows-registry = "=0.6.1"
+zbus = "=5.11.0"
 zbus_polkit = "=5.0.0"
 zeroizing-alloc = "=0.1.0"
+
+[workspace.lints.clippy]
+# Dis-allow println and eprintln, which are typically used in debugging.
+# Use `tracing` and `tracing-subscriber` crates for observability needs.
+print_stderr = "deny"
+print_stdout = "deny"
+string_slice = "warn"
+unused_async = "deny"
+unwrap_used = "deny"

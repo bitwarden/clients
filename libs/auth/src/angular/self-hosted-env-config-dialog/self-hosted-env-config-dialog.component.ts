@@ -54,6 +54,8 @@ function selfHostedEnvSettingsFormValidator(): ValidatorFn {
 /**
  * Dialog for configuring self-hosted environment settings.
  */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "self-hosted-env-config-dialog",
   templateUrl: "self-hosted-env-config-dialog.component.html",
@@ -159,7 +161,6 @@ export class SelfHostedEnvConfigDialogComponent implements OnInit, OnDestroy {
         },
       });
   }
-
   submit = async () => {
     this.showErrorSummary = false;
 

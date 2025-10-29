@@ -110,6 +110,32 @@ describe("CipherViewLikeUtils", () => {
     });
   });
 
+  describe("isArchived", () => {
+    it("returns true when the cipher is archived", () => {
+      const cipherListView = {
+        id: "1",
+        archivedDate: "2024-02-02",
+        type: "identity",
+      } as unknown as CipherListView;
+      const cipherView = createCipherView();
+      cipherView.archivedDate = new Date();
+
+      expect(CipherViewLikeUtils.isArchived(cipherListView)).toBe(true);
+      expect(CipherViewLikeUtils.isArchived(cipherView)).toBe(true);
+    });
+
+    it("returns false when the cipher is not archived", () => {
+      const cipherListView = {
+        id: "2",
+        type: "identity",
+      } as unknown as CipherListView;
+      const cipherView = createCipherView();
+
+      expect(CipherViewLikeUtils.isArchived(cipherListView)).toBe(false);
+      expect(CipherViewLikeUtils.isArchived(cipherView)).toBe(false);
+    });
+  });
+
   describe("isDeleted", () => {
     it("returns true when the cipher is deleted", () => {
       const cipherListView = { deletedDate: "2024-02-02", type: "identity" } as CipherListView;
@@ -175,13 +201,13 @@ describe("CipherViewLikeUtils", () => {
       });
 
       it("returns false when the cipher is assigned to an organization and cannot be edited", () => {
-        cipherListView.organizationId = "org-id";
+        cipherListView.organizationId = "org-id" as any;
 
         expect(CipherViewLikeUtils.canAssignToCollections(cipherListView)).toBe(false);
       });
 
       it("returns true when the cipher is assigned to an organization and can be edited", () => {
-        cipherListView.organizationId = "org-id";
+        cipherListView.organizationId = "org-id" as any;
         cipherListView.edit = true;
         cipherListView.viewPassword = true;
 
@@ -270,6 +296,10 @@ describe("CipherViewLikeUtils", () => {
       it("returns false when the cipher has no attachments", () => {
         const cipherView = new CipherView();
         (cipherView.attachments as any) = null;
+
+        expect(CipherViewLikeUtils.hasAttachments(cipherView)).toBe(false);
+
+        cipherView.attachments = [];
 
         expect(CipherViewLikeUtils.hasAttachments(cipherView)).toBe(false);
       });

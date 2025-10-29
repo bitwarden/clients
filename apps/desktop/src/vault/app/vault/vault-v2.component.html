@@ -19,7 +19,7 @@
       (onClone)="cloneCipher($event)"
       (onDelete)="deleteCipher()"
       (onCancel)="cancelCipher($event)"
-      [isSubmitting]="isSubmitting"
+      (onArchiveToggle)="refreshCurrentCipher()"
       [masterPasswordAlreadyPrompted]="cipherRepromptId === cipherId"
     ></app-vault-item-footer>
     <div class="content">
@@ -33,22 +33,20 @@
             formId="cipherForm"
             [config]="config"
             (cipherSaved)="savedCipher($event)"
-            [beforeSubmit]="onSubmit"
             [submitBtn]="footer?.submitBtn"
+            (formStatusChange$)="formStatusChanged($event)"
           >
             <bit-item slot="attachment-button">
-              <button bit-item-content type="button" (click)="openAttachmentsDialog()">
-                <p class="tw-m-0">
+              <button
+                bit-item-content
+                type="button"
+                (click)="openAttachmentsDialog()"
+                [disabled]="formDisabled"
+              >
+                <div class="tw-flex tw-items-center tw-gap-2">
                   {{ "attachments" | i18n }}
-                  <span
-                    *ngIf="!(canAccessAttachments$ | async)"
-                    bitBadge
-                    variant="success"
-                    class="tw-ml-2"
-                  >
-                    {{ "premium" | i18n }}
-                  </span>
-                </p>
+                  <app-premium-badge></app-premium-badge>
+                </div>
                 <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
               </button>
             </bit-item>

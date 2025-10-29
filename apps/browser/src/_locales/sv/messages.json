@@ -550,11 +550,46 @@
   "resetSearch": {
     "message": "Nollställ sökning"
   },
+  "archiveNoun": {
+    "message": "Arkiv",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Arkivera",
+    "description": "Verb"
+  },
+  "unArchive": {
+    "message": "Avarkivera"
+  },
+  "itemsInArchive": {
+    "message": "Objekt i arkiv"
+  },
+  "noItemsInArchive": {
+    "message": "Inga objekt i arkivet"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Arkiverade objekt kommer att visas här och kommer att uteslutas från allmänna sökresultat och förslag för autofyll."
+  },
+  "itemWasSentToArchive": {
+    "message": "Objektet skickades till arkivet"
+  },
+  "itemUnarchived": {
+    "message": "Objektet har avarkiverats"
+  },
+  "archiveItem": {
+    "message": "Arkivera objekt"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Arkiverade objekt är exkluderade från allmänna sökresultat och förslag för autofyll. Är du säker på att du vill arkivera detta objekt?"
+  },
   "edit": {
     "message": "Redigera"
   },
   "view": {
     "message": "Visa"
+  },
+  "viewLogin": {
+    "message": "Visa inloggning"
   },
   "noItemsInList": {
     "message": "Det finns inga objekt att visa."
@@ -697,6 +732,15 @@
   },
   "invalidMasterPassword": {
     "message": "Ogiltigt huvudlösenord"
+  },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Ogiltigt huvudlösenord. Bekräfta att din e-postadress är korrekt och ditt konto skapades på $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
   },
   "vaultTimeout": {
     "message": "Valvets tidsgräns"
@@ -1504,6 +1548,15 @@
   "readSecurityKey": {
     "message": "Läs säkerhetsnyckel"
   },
+  "readingPasskeyLoading": {
+    "message": "Läser inloggningsnyckel..."
+  },
+  "passkeyAuthenticationFailed": {
+    "message": "Autentisering med inloggningsnyckel misslyckades"
+  },
+  "useADifferentLogInMethod": {
+    "message": "Använd en annan inloggningsmetod"
+  },
   "awaitingSecurityKeyInteraction": {
     "message": "Väntar på interaktion med säkerhetsnyckel..."
   },
@@ -1521,9 +1574,6 @@
   },
   "selectTwoStepLoginMethod": {
     "message": "Välj metod för tvåstegsverifiering"
-  },
-  "recoveryCodeDesc": {
-    "message": "Förlorat åtkomst till alla dina metoder för tvåstegsverifiering? Använd din återställningskod för att inaktivera tvåstegsverifiering på ditt konto."
   },
   "recoveryCodeTitle": {
     "message": "Återställningskod"
@@ -1683,9 +1733,6 @@
   "defaultAutoFillOnPageLoadDesc": {
     "message": "Efter att du har aktiverat automatisk ifyllnad vid sidhämtning kan du aktivera eller inaktivera funktionen för enskilda inloggningsobjekt. Detta är standardinställningen för inloggningsobjekt som inte är konfigurerade separat."
   },
-  "itemAutoFillOnPageLoad": {
-    "message": "Automatisk ifyllning vid sidhämtning (om aktiverat i Alternativ)"
-  },
   "autoFillOnPageLoadUseDefault": {
     "message": "Använd standardinställningen"
   },
@@ -1757,23 +1804,8 @@
   "popup2faCloseMessage": {
     "message": "Om du klickar utanför popup-fönstret för att kontrollera din email efter din verifieringskod så stängs popup-fönstret. Vill du öppna popup-fönstret i ett nytt fönster, så att det inte stängs?"
   },
-  "popupU2fCloseMessage": {
-    "message": "Den här webbläsaren kan inte bearbeta U2F-förfrågningar i detta popup-fönster. Vill du öppna ett nytt fönster så att du kan logga in med U2F?"
-  },
-  "enableFavicon": {
-    "message": "Visa webbplatsikoner"
-  },
-  "faviconDesc": {
-    "message": "Visa en identifierbar bild bredvid varje inloggning."
-  },
-  "faviconDescAlt": {
-    "message": "Visa en igenkännbar bild bredvid varje inloggning. Gäller för alla inloggade konton."
-  },
-  "enableBadgeCounter": {
-    "message": "Visa aktivitetsräknaren"
-  },
-  "badgeCounterDesc": {
-    "message": "Visa hur många inloggningar du har för den aktuella webbsidan."
+  "showIconsChangePasswordUrls": {
+    "message": "Visa webbplatsikoner och URLer för lösenordsändringar"
   },
   "cardholderName": {
     "message": "Kortinnehavarens namn"
@@ -1937,32 +1969,81 @@
   "typeNote": {
     "message": "Anteckning"
   },
-  "newItemHeader": {
-    "message": "Ny $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderLogin": {
+    "message": "Ny inloggning",
+    "description": "Header for new login item type"
   },
-  "editItemHeader": {
-    "message": "Redigera $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderCard": {
+    "message": "Nytt kort",
+    "description": "Header for new card item type"
   },
-  "viewItemHeader": {
-    "message": "Visa $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderIdentity": {
+    "message": "Ny identitet",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "Ny anteckning",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "Ny SSH-nyckel",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderTextSend": {
+    "message": "Ny textsändning",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "Ny filsändning",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderLogin": {
+    "message": "Redigera inloggning",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Redigera kort",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Redigera identitet",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Redigera anteckning",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "Redigera SSH-nyckel",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Redigera textsändning",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Redigera filsändning",
+    "description": "Header for edit file send"
+  },
+  "viewItemHeaderLogin": {
+    "message": "Visa inloggning",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "Visa kort",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "Visa identitet",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "Visa anteckning",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "Visa SSH-nyckel",
+    "description": "Header for view SSH key item type"
   },
   "passwordHistory": {
     "message": "Lösenordshistorik"
@@ -3135,6 +3216,24 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Endast organisationsvalvet som är associerat med $ORGANIZATION$ kommer att exporteras.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Endast organisationsvalvet som associeras med $ORGANIZATION$ kommer att exporteras. Mina objektsamlingar kommer inte att inkluderas.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "error": {
     "message": "Fel"
   },
@@ -3524,9 +3623,6 @@
   "autofillPageLoadPolicyActivated": {
     "message": "Dina organisationspolicyer har aktiverat automatisk ifyllnad vid sidladdning."
   },
-  "howToAutofill": {
-    "message": "Hur du fyller i automatiskt"
-  },
   "autofillSelectInfoWithCommand": {
     "message": "Välj ett objekt från den här skärmen, använd genvägen $COMMAND$ eller utforska andra alternativ i inställningarna.",
     "placeholders": {
@@ -3911,17 +4007,9 @@
   "aliasDomain": {
     "message": "Aliasdomän"
   },
-  "passwordRepromptDisabledAutofillOnPageLoad": {
-    "message": "Objekt med \"Återupprepa huvudlösenord\" kan inte fyllas i automatiskt vid sidladdning. Automatisk ifyllning vid sidladdning avstängd.",
-    "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
-  },
   "autofillOnPageLoadSetToDefault": {
     "message": "Aktivera automatisk ifyllnad vid sidhämtning sattes till att använda standardinställningen.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "turnOffMasterPasswordPromptToEditField": {
-    "message": "Stäng av \"återupprepa huvudlösenord\" för att redigera detta fält",
-    "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
   },
   "toggleSideNavigation": {
     "message": "Växla sidonavigering"
@@ -4131,15 +4219,11 @@
   "selectImportCollection": {
     "message": "Välj en samling"
   },
-  "importTargetHint": {
-    "message": "Välj det här alternativet om du vill att innehållet i den importerade filen ska flyttas till en $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Välj detta alternativ om du vill att innehållet i den importerade filen ska flyttas till en samling"
+  },
+  "importTargetHintFolder": {
+    "message": "Välj detta alternativ om du vill att innehållet i den importerade filen ska flyttas till en mapp"
   },
   "importUnassignedItemsError": {
     "message": "Filen innehåller otilldelade objekt."
@@ -4195,9 +4279,6 @@
   },
   "passkeyNotCopiedAlert": {
     "message": "Inloggningsnyckeln kommer inte att kopieras till det klonade objektet. Vill du fortsätta klona det här objektet?"
-  },
-  "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
-    "message": "Verifiering krävs av den initierande webbplatsen. Denna funktion är ännu inte implementerad för konton utan huvudlösenord."
   },
   "logInWithPasskeyQuestion": {
     "message": "Logga in med nyckel?"
@@ -4884,9 +4965,6 @@
       }
     }
   },
-  "enableAnimations": {
-    "message": "Aktivera animationer"
-  },
   "showAnimations": {
     "message": "Visa animationer"
   },
@@ -5099,14 +5177,8 @@
   "itemLocation": {
     "message": "Föremålets placering"
   },
-  "fileSend": {
-    "message": "Skicka fil"
-  },
   "fileSends": {
     "message": "Skicka filer"
-  },
-  "textSend": {
-    "message": "Skicka text"
   },
   "textSends": {
     "message": "Text skickas"
@@ -5116,6 +5188,18 @@
   },
   "showNumberOfAutofillSuggestions": {
     "message": "Visa antal autofyllförslag för inloggning på tilläggsikonen"
+  },
+  "accountAccessRequested": {
+    "message": "Begäran om åtkomst till konto"
+  },
+  "confirmAccessAttempt": {
+    "message": "Bekräfta åtkomstförsök för $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
   },
   "showQuickCopyActions": {
     "message": "Visa snabbkopieringsåtgärder på Vault"
@@ -5155,9 +5239,6 @@
   },
   "vaultCustomTimeoutMinimum": {
     "message": "Minsta anpassade timeout är 1 minut."
-  },
-  "additionalContentAvailable": {
-    "message": "Ytterligare innehåll är tillgängligt"
   },
   "fileSavedToDevice": {
     "message": "Fil sparad till enhet. Hantera nedladdningar från din enhet."
@@ -5444,6 +5525,12 @@
   "changeAtRiskPassword": {
     "message": "Ändra lösenord för riskgrupper"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Denna inloggning är utsatt för risk och saknar en webbplats. Lägg till en webbplats och ändra lösenordet för ökad säkerhet."
+  },
+  "missingWebsite": {
+    "message": "Saknar webbplats"
+  },
   "settingsVaultOptions": {
     "message": "Alternativ för valv"
   },
@@ -5491,6 +5578,38 @@
   },
   "hasItemsVaultNudgeTitle": {
     "message": "Välkommen till ditt valv!"
+  },
+  "phishingPageTitleV2": {
+    "message": "Försök till nätfiske upptäcktes"
+  },
+  "phishingPageSummary": {
+    "message": "Webbplatsen som du försöker besöka är en känd skadlig webbplats och en säkerhetsrisk."
+  },
+  "phishingPageCloseTabV2": {
+    "message": "Stäng denna flik"
+  },
+  "phishingPageContinueV2": {
+    "message": "Fortsätt till denna webbplats (rekommenderas inte)"
+  },
+  "phishingPageExplanation1": {
+    "message": "Denna webbplats hittades i ",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name follows this."
+  },
+  "phishingPageExplanation2": {
+    "message": ", en öppen källkodslista över kända nätfiskeplatser som används för att stjäla personlig och känslig information.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name precedes this."
+  },
+  "phishingPageLearnMore": {
+    "message": "Läs mer om nätfiskedetektering"
+  },
+  "protectedBy": {
+    "message": "Skyddad av $PRODUCT$",
+    "placeholders": {
+      "product": {
+        "content": "$1",
+        "example": "Bitwarden Phishing Blocker"
+      }
+    }
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Autofyll objekt för den aktuella sidan"
@@ -5567,6 +5686,12 @@
     "message": "Skapa enkelt starka och unika lösenord genom att klicka på knappen Generera lösenord så att du kan hålla dina inloggningar säkra.",
     "description": "Aria label for the body content of the generator nudge"
   },
+  "aboutThisSetting": {
+    "message": "Om denna inställning"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden använder sparade inloggnings-URI: er för att identifiera vilken ikon eller URL för lösenordsändring som ska användas för att förbättra din upplevelse. Ingen information samlas in eller sparas när du använder denna tjänst."
+  },
   "noPermissionsViewPage": {
     "message": "Du har inte behörighet att visa den här sidan. Försök att logga in med ett annat konto."
   },
@@ -5579,5 +5704,22 @@
   },
   "showLess": {
     "message": "Visa mindre"
+  },
+  "next": {
+    "message": "Nästa"
+  },
+  "moreBreadcrumbs": {
+    "message": "Fler länkstigar",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Bekräfta Key Connector-domän"
+  },
+  "atRiskLoginsSecured": {
+    "message": "Bra jobbat med att säkra upp dina inloggninar i riskzonen!"
+  },
+  "settingDisabledByPolicy": {
+    "message": "Denna inställning är inaktiverad enligt din organisations policy.",
+    "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
   }
 }

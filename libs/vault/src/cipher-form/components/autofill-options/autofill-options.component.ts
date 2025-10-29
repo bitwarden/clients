@@ -36,6 +36,8 @@ interface UriField {
   matchDetection: UriMatchStrategySetting;
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "vault-autofill-options",
   templateUrl: "./autofill-options.component.html",
@@ -60,6 +62,8 @@ export class AutofillOptionsComponent implements OnInit {
   /**
    * List of rendered UriOptionComponents. Used for focusing newly added Uri inputs.
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChildren(UriOptionComponent)
   protected uriOptions: QueryList<UriOptionComponent>;
 
@@ -72,10 +76,16 @@ export class AutofillOptionsComponent implements OnInit {
     return this.autofillOptionsForm.controls.uris.controls;
   }
 
-  protected defaultMatchDetection$ = this.domainSettingsService.defaultUriMatchStrategy$.pipe(
-    // The default match detection should only be shown when used on the browser
-    filter(() => this.platformUtilsService.getClientType() == ClientType.Browser),
-  );
+  protected get isPartialEdit() {
+    return this.cipherFormContainer.config.mode === "partial-edit";
+  }
+
+  protected defaultMatchDetection$ =
+    this.domainSettingsService.resolvedDefaultUriMatchStrategy$.pipe(
+      // The default match detection should only be shown when used on the browser
+      filter(() => this.platformUtilsService.getClientType() == ClientType.Browser),
+    );
+
   protected autofillOnPageLoadEnabled$ = this.autofillSettingsService.autofillOnPageLoad$;
 
   protected autofillOptions: { label: string; value: boolean | null }[] = [
@@ -102,7 +112,7 @@ export class AutofillOptionsComponent implements OnInit {
 
     this.autofillOptionsForm.valueChanges.pipe(takeUntilDestroyed()).subscribe((value) => {
       this.cipherFormContainer.patchCipher((cipher) => {
-        cipher.login.uris = value.uris.map((uri: UriField) =>
+        cipher.login.uris = value.uris?.map((uri: UriField) =>
           Object.assign(new LoginUriView(), {
             uri: uri.uri,
             match: uri.matchDetection,
@@ -126,6 +136,15 @@ export class AutofillOptionsComponent implements OnInit {
       .subscribe(() => {
         this.uriOptions?.last?.focusInput();
       });
+
+    this.cipherFormContainer.formStatusChange$.pipe(takeUntilDestroyed()).subscribe((status) => {
+      // Disable adding new URIs when the cipher form is disabled
+      if (status === "disabled") {
+        this.autofillOptionsForm.disable();
+      } else if (!this.isPartialEdit) {
+        this.autofillOptionsForm.enable();
+      }
+    });
   }
 
   ngOnInit() {
@@ -136,7 +155,7 @@ export class AutofillOptionsComponent implements OnInit {
       this.initNewCipher();
     }
 
-    if (this.cipherFormContainer.config.mode === "partial-edit") {
+    if (this.isPartialEdit) {
       this.autofillOptionsForm.disable();
     }
   }

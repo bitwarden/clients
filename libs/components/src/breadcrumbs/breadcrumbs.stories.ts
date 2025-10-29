@@ -18,6 +18,8 @@ interface Breadcrumb {
   route: string;
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template: "",
 })
@@ -35,6 +37,7 @@ export default {
           useFactory: () => {
             return new I18nMockService({
               moreBreadcrumbs: "More breadcrumbs",
+              loading: "Loading",
             });
           },
         },

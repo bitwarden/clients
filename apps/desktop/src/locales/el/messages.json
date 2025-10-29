@@ -42,7 +42,7 @@
     "message": "Αναζήτηση κρύπτης"
   },
   "resetSearch": {
-    "message": "Reset search"
+    "message": "Επαναφορά αναζήτησης"
   },
   "addItem": {
     "message": "Προσθήκη στοιχείου"
@@ -431,7 +431,7 @@
     }
   },
   "websiteAdded": {
-    "message": "Website added"
+    "message": "Ο ιστότοπος προστέθηκε"
   },
   "addWebsite": {
     "message": "Προσθήκη ιστοτόπου"
@@ -576,7 +576,7 @@
     "message": "Αντιγραφή κωδικού επαλήθευσης (TOTP)"
   },
   "copyFieldCipherName": {
-    "message": "Copy $FIELD$, $CIPHERNAME$",
+    "message": "Αντιγραφή $FIELD$, $CIPHERNAME$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
@@ -701,6 +701,12 @@
   },
   "attachmentSaved": {
     "message": "Το συνημμένο αποθηκεύτηκε"
+  },
+  "addAttachment": {
+    "message": "Προσθήκη συνημμένου"
+  },
+  "maxFileSizeSansPunctuation": {
+    "message": "Το μέγιστο μέγεθος αρχείου είναι 500 MB"
   },
   "file": {
     "message": "Αρχείο"
@@ -953,9 +959,6 @@
   },
   "insertU2f": {
     "message": "Εισάγετε το κλειδί ασφαλείας στη θύρα USB του υπολογιστή σας. Αν έχει κουμπί, πατήστε το."
-  },
-  "recoveryCodeDesc": {
-    "message": "Έχετε χάσει την πρόσβαση σε όλους τους παρόχους δύο παραγόντων; Χρησιμοποιήστε τον κωδικό ανάκτησης σας για να απενεργοποιήσετε όλους τους παρόχους δύο παραγόντων από τον λογαριασμό σας."
   },
   "recoveryCodeTitle": {
     "message": "Κωδικός ανάκτησης"
@@ -1219,6 +1222,15 @@
   "invalidMasterPassword": {
     "message": "Μη έγκυρος κύριος κωδικός πρόσβασης"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "twoStepLoginConfirmation": {
     "message": "Η σύνδεση δύο βημάτων καθιστά τον λογαριασμό σας πιο ασφαλή απαιτώντας από εσάς να επαληθεύσετε τη σύνδεσή σας με άλλη συσκευή, όπως ένα κλειδί ασφαλείας, μία εφαρμογή αυθεντικοποίησης, ένα SMS, μία τηλεφωνική κλήση, ή ένα μήνυμα ηλ. ταχυδρομείου. Η σύνδεση δύο βημάτων μπορεί να ρυθμιστεί στη διαδικτυακή κρύπτη bitwarden.com. Θέλετε να επισκεφθείτε την ιστοσελίδα τώρα;"
   },
@@ -1299,11 +1311,8 @@
     "message": "Αυτόματη εκκαθάριση αντιγραμμένων τιμών προχείρου.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
-  "enableFavicon": {
-    "message": "Εμφάνιση εικονιδίων ιστοτόπων"
-  },
-  "faviconDesc": {
-    "message": "Εμφάνιση μιας αναγνωρίσιμης εικόνας δίπλα σε κάθε σύνδεση."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "enableMinToTray": {
     "message": "Ελαχιστοποίηση σε εικονίδιο περιοχής ειδοποιήσεων"
@@ -1840,14 +1849,14 @@
   "autoPromptTouchId": {
     "message": "Ερώτηση για το Touch ID κατά την εκκίνηση"
   },
-  "requirePasswordOnStart": {
-    "message": "Να απαιτείται κωδικός πρόσβασης ή PIN κατά την εκκίνηση της εφαρμογής"
-  },
-  "requirePasswordWithoutPinOnStart": {
-    "message": "Require password on app start"
-  },
   "lockWithMasterPassOnRestart1": {
     "message": "Κλείδωμα με τον κύριο κωδικό πρόσβασης κατά την επανεκκίνηση"
+  },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "Require master password or PIN on app restart"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "Require master password on app restart"
   },
   "deleteAccount": {
     "message": "Διαγραφή λογαριασμού"
@@ -2015,13 +2024,13 @@
     "description": "Premium membership"
   },
   "freeOrgsCannotUseAttachments": {
-    "message": "Free organizations cannot use attachments"
+    "message": "Οι δωρεάν οργανισμοί δεν μπορούν να χρησιμοποιήσουν συνημμένα"
   },
   "singleFieldNeedsAttention": {
-    "message": "1 field needs your attention."
+    "message": "1 πεδίο χρειάζεται την προσοχή σας."
   },
   "multipleFieldsNeedAttention": {
-    "message": "$COUNT$ fields need your attention.",
+    "message": "$COUNT$ πεδία χρειάζονται την προσοχή σας.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2546,6 +2555,9 @@
       }
     }
   },
+  "vaultCustomTimeoutMinimum": {
+    "message": "Minimum custom timeout is 1 minute."
+  },
   "inviteAccepted": {
     "message": "Η πρόσκληση έγινε αποδεκτή"
   },
@@ -2657,6 +2669,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },
@@ -3075,7 +3105,7 @@
     "description": "Software Development Kit"
   },
   "server": {
-    "message": "Server"
+    "message": "Διακομιστής"
   },
   "loginRequest": {
     "message": "Login request"
@@ -3491,15 +3521,11 @@
   "selectImportCollection": {
     "message": "Επιλέξτε μια συλλογή"
   },
-  "importTargetHint": {
-    "message": "Επιλέξτε αυτή την επιλογή εάν θέλετε τα περιεχόμενα του εισαγόμενου αρχείου να μετακινηθούν σε $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Select this option if you want the imported file contents moved to a collection"
+  },
+  "importTargetHintFolder": {
+    "message": "Select this option if you want the imported file contents moved to a folder"
   },
   "importUnassignedItemsError": {
     "message": "Το αρχείο περιέχει μη αναθετημένα αντικείμενα."
@@ -3595,6 +3621,12 @@
   "awaitingSSODesc": {
     "message": "Παρακαλούμε συνεχίστε τη σύνδεση χρησιμοποιώντας τα στοιχεία της εταιρείας σας."
   },
+  "importDirectlyFromBrowser": {
+    "message": "Import directly from browser"
+  },
+  "browserProfile": {
+    "message": "Browser Profile"
+  },
   "seeDetailedInstructions": {
     "message": "Δείτε λεπτομερείς οδηγίες στη βοηθητική ιστοσελίδα μας στο",
     "description": "This is followed a by a hyperlink to the help website."
@@ -3639,7 +3671,7 @@
     "description": "Advanced option placeholder for uri option component"
   },
   "warningCapitalized": {
-    "message": "Warning",
+    "message": "Προειδοποίηση",
     "description": "Warning (should maintain locale-relevant capitalization)"
   },
   "success": {
@@ -3787,7 +3819,7 @@
     "message": "ζητά πρόσβαση σε"
   },
   "sshkeyApprovalMessageSuffix": {
-    "message": "in order to"
+    "message": "προκειμένου να"
   },
   "sshActionLogin": {
     "message": "authenticate to a server"
@@ -3836,6 +3868,12 @@
   },
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
+  },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
@@ -3931,6 +3969,12 @@
     "message": "Learn more about SSH agent",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
   },
   "assignToCollections": {
     "message": "Assign to collections"
@@ -4072,10 +4116,70 @@
   "showLess": {
     "message": "Show less"
   },
-  "enableAutotype": {
-    "message": "Enable Autotype"
-  },
   "enableAutotypeDescription": {
     "message": "Bitwarden does not validate input locations, be sure you are in the right window and field before using the shortcut."
+  },
+  "typeShortcut": {
+    "message": "Type shortcut"
+  },
+  "editAutotypeShortcutDescription": {
+    "message": "Include one or two of the following modifiers: Ctrl, Alt, Win, or Shift, and a letter."
+  },
+  "invalidShortcut": {
+    "message": "Invalid shortcut"
+  },
+  "moreBreadcrumbs": {
+    "message": "More breadcrumbs",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "next": {
+    "message": "Next"
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Confirm Key Connector domain"
+  },
+  "confirm": {
+    "message": "Confirm"
+  },
+  "enableAutotypeShortcutPreview": {
+    "message": "Enable autotype shortcut (Feature Preview)"
+  },
+  "enableAutotypeShortcutDescription": {
+    "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."
+  },
+  "editShortcut": {
+    "message": "Edit shortcut"
+  },
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
+  },
+  "unArchive": {
+    "message": "Unarchive"
+  },
+  "itemsInArchive": {
+    "message": "Items in archive"
+  },
+  "noItemsInArchive": {
+    "message": "No items in archive"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+  },
+  "itemWasSentToArchive": {
+    "message": "Item was sent to archive"
+  },
+  "itemWasUnarchived": {
+    "message": "Item was unarchived"
+  },
+  "archiveItem": {
+    "message": "Archive item"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
   }
 }

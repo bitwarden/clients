@@ -10,6 +10,7 @@ import {
   CollectionView,
 } from "@bitwarden/admin-console/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { ImportCiphersRequest } from "@bitwarden/common/models/request/import-ciphers.request";
@@ -17,9 +18,8 @@ import { ImportOrganizationCiphersRequest } from "@bitwarden/common/models/reque
 import { KvpRequest } from "@bitwarden/common/models/request/kvp.request";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { OrganizationId } from "@bitwarden/common/types/guid";
+import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType, toCipherTypeName } from "@bitwarden/common/vault/enums";
@@ -120,7 +120,6 @@ export class ImportService implements ImportServiceAbstraction {
     private encryptService: EncryptService,
     private pinService: PinServiceAbstraction,
     private accountService: AccountService,
-    private sdkService: SdkService,
     private restrictedItemTypesService: RestrictedItemTypesService,
   ) {}
 
@@ -190,10 +189,11 @@ export class ImportService implements ImportServiceAbstraction {
 
     try {
       await this.setImportTarget(importResult, organizationId, selectedImportTarget);
+      const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
       if (organizationId != null) {
-        await this.handleOrganizationalImport(importResult, organizationId);
+        await this.handleOrganizationalImport(importResult, organizationId, userId);
       } else {
-        await this.handleIndividualImport(importResult);
+        await this.handleIndividualImport(importResult, userId);
       }
     } catch (error) {
       const errorResponse = new ErrorResponse(error, 400);
@@ -260,6 +260,7 @@ export class ImportService implements ImportServiceAbstraction {
       case "chromecsv":
       case "operacsv":
       case "vivaldicsv":
+      case "bravecsv":
         return new ChromeCsvImporter();
       case "firefoxcsv":
         return new FirefoxCsvImporter();
@@ -370,16 +371,14 @@ export class ImportService implements ImportServiceAbstraction {
     }
   }
 
-  private async handleIndividualImport(importResult: ImportResult) {
+  private async handleIndividualImport(importResult: ImportResult, userId: UserId) {
     const request = new ImportCiphersRequest();
-    const activeUserId = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-    );
     for (let i = 0; i < importResult.ciphers.length; i++) {
-      const c = await this.cipherService.encrypt(importResult.ciphers[i], activeUserId);
+      const c = await this.cipherService.encrypt(importResult.ciphers[i], userId);
       request.ciphers.push(new CipherRequest(c));
     }
-    const userKey = await this.keyService.getUserKey(activeUserId);
+    const userKey = await firstValueFrom(this.keyService.userKey$(userId));
+
     if (importResult.folders != null) {
       for (let i = 0; i < importResult.folders.length; i++) {
         const f = await this.folderService.encrypt(importResult.folders[i], userKey);
@@ -397,20 +396,18 @@ export class ImportService implements ImportServiceAbstraction {
   private async handleOrganizationalImport(
     importResult: ImportResult,
     organizationId: OrganizationId,
+    userId: UserId,
   ) {
     const request = new ImportOrganizationCiphersRequest();
-    const activeUserId = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-    );
     for (let i = 0; i < importResult.ciphers.length; i++) {
       importResult.ciphers[i].organizationId = organizationId;
-      const c = await this.cipherService.encrypt(importResult.ciphers[i], activeUserId);
+      const c = await this.cipherService.encrypt(importResult.ciphers[i], userId);
       request.ciphers.push(new CipherRequest(c));
     }
     if (importResult.collections != null) {
       for (let i = 0; i < importResult.collections.length; i++) {
         importResult.collections[i].organizationId = organizationId;
-        const c = await this.collectionService.encrypt(importResult.collections[i], activeUserId);
+        const c = await this.collectionService.encrypt(importResult.collections[i], userId);
         request.collections.push(new CollectionWithIdRequest(c));
       }
     }

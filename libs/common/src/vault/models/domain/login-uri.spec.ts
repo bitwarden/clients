@@ -27,9 +27,9 @@ describe("LoginUri", () => {
     const loginUri = new LoginUri(data);
 
     expect(loginUri).toEqual({
-      match: null,
-      uri: null,
-      uriChecksum: null,
+      match: undefined,
+      uri: undefined,
+      uriChecksum: undefined,
     });
   });
 
@@ -56,10 +56,6 @@ describe("LoginUri", () => {
     const view = await loginUri.decrypt(null);
 
     expect(view).toEqual({
-      _canLaunch: null,
-      _domain: null,
-      _host: null,
-      _hostname: null,
       _uri: "uri",
       match: 3,
     });
@@ -81,7 +77,7 @@ describe("LoginUri", () => {
       loginUri.uriChecksum = mockEnc("checksum");
       encryptService.hash.mockResolvedValue("checksum");
 
-      const actual = await loginUri.validateChecksum("uri", null, null);
+      const actual = await loginUri.validateChecksum("uri", undefined, undefined);
 
       expect(actual).toBe(true);
       expect(encryptService.hash).toHaveBeenCalledWith("uri", "sha256");
@@ -92,7 +88,7 @@ describe("LoginUri", () => {
       loginUri.uriChecksum = mockEnc("checksum");
       encryptService.hash.mockResolvedValue("incorrect checksum");
 
-      const actual = await loginUri.validateChecksum("uri", null, null);
+      const actual = await loginUri.validateChecksum("uri", undefined, undefined);
 
       expect(actual).toBe(false);
     });
@@ -116,8 +112,8 @@ describe("LoginUri", () => {
       expect(actual).toBeInstanceOf(LoginUri);
     });
 
-    it("returns null if object is null", () => {
-      expect(LoginUri.fromJSON(null)).toBeNull();
+    it("returns undefined if object is null", () => {
+      expect(LoginUri.fromJSON(null)).toBeUndefined();
     });
   });
 

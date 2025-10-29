@@ -49,6 +49,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private mutationObserver: MutationObserver;
   private mutationsQueue: MutationRecord[][] = [];
   private updateAfterMutationIdleCallback: NodeJS.Timeout | number;
+  private ownedExperienceTagNames: string[] = [];
   private readonly updateAfterMutationTimeout = 1000;
   private readonly formFieldQueryString;
   private readonly nonInputFormFieldTags = new Set(["textarea", "select"]);
@@ -85,6 +86,9 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * @public
    */
   async getPageDetails(): Promise<AutofillPageDetails> {
+    // Set up listeners on top-layer candidates that predate Mutation Observer setup
+    this.setupInitialTopLayerListeners();
+
     if (!this.mutationObserver) {
       this.setupMutationObserver();
     }
@@ -274,7 +278,12 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private async buildAutofillFieldsData(
     formFieldElements: FormFieldElement[],
   ): Promise<AutofillField[]> {
-    const autofillFieldElements = this.getAutofillFieldElements(100, formFieldElements);
+    // Maximum number of form fields to process for autofill to prevent performance issues on pages with excessive fields
+    const autofillFieldsLimit = 200;
+    const autofillFieldElements = this.getAutofillFieldElements(
+      autofillFieldsLimit,
+      formFieldElements,
+    );
     const autofillFieldDataPromises = autofillFieldElements.map(this.buildAutofillFieldItem);
 
     return Promise.all(autofillFieldDataPromises);
@@ -424,7 +433,6 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
 
   /**
    * Caches the autofill field element and its data.
-   * Will not cache the element if the index is less than 0.
    *
    * @param index - The index of the autofill field element
    * @param element - The autofill field element to cache
@@ -435,10 +443,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     element: ElementWithOpId<FormFieldElement>,
     autofillFieldData: AutofillField,
   ) {
-    if (index < 0) {
-      return;
-    }
-
+    // Always cache the element, even if index is -1 (for dynamically added fields)
     this.autofillFieldElements.set(element, autofillFieldData);
   }
 
@@ -919,6 +924,18 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     return this.nonInputFormFieldTags.has(nodeTagName) && !nodeHasBwIgnoreAttribute;
   }
 
+  private setupInitialTopLayerListeners = () => {
+    const unownedTopLayerItems = this.autofillOverlayContentService?.getUnownedTopLayerItems(true);
+
+    if (unownedTopLayerItems?.length) {
+      for (const unownedElement of unownedTopLayerItems) {
+        if (this.shouldListenToTopLayerCandidate(unownedElement)) {
+          this.setupTopLayerCandidateListener(unownedElement);
+        }
+      }
+    }
+  };
+
   /**
    * Sets up a mutation observer on the body of the document. Observes changes to
    * DOM elements to ensure we have an updated set of autofill field data.
@@ -980,11 +997,14 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * within an idle callback to help with performance and prevent excessive updates.
    */
   private processMutations = () => {
-    const queueLength = this.mutationsQueue.length;
+    // If the page contains shadow DOM, we require a page details update from the autofill service.
+    // Will wait for an idle moment on main thread to execute, unless timeout has passed.
+    requestIdleCallbackPolyfill(
+      () => this.domQueryService.checkPageContainsShadowDom() && this.requirePageDetailsUpdate(),
+      { timeout: 500 },
+    );
 
-    if (!this.domQueryService.pageContainsShadowDomElements()) {
-      this.checkPageContainsShadowDom();
-    }
+    const queueLength = this.mutationsQueue.length;
 
     for (let queueIndex = 0; queueIndex < queueLength; queueIndex++) {
       const mutations = this.mutationsQueue[queueIndex];
@@ -1003,27 +1023,16 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   };
 
   /**
-   * Handles checking if the current page contains a ShadowDOM element and
-   * flags that a re-collection of page details is required if it does.
-   */
-  private checkPageContainsShadowDom() {
-    this.domQueryService.checkPageContainsShadowDom();
-    if (this.domQueryService.pageContainsShadowDomElements()) {
-      this.flagPageDetailsUpdateIsRequired();
-    }
-  }
-
-  /**
    * Triggers several flags that indicate that a collection of page details should
    * occur again on a subsequent call after a mutation has been observed in the DOM.
    */
-  private flagPageDetailsUpdateIsRequired() {
+  private requirePageDetailsUpdate = () => {
     this.domRecentlyMutated = true;
     if (this.autofillOverlayContentService) {
       this.autofillOverlayContentService.pageDetailsUpdateRequired = true;
     }
     this.noFieldsFound = false;
-  }
+  };
 
   /**
    * Processes all mutation records encountered by the mutation observer.
@@ -1044,12 +1053,14 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * @private
    */
   private processMutationRecord(mutation: MutationRecord) {
+    this.handleTopLayerChanges(mutation);
+
     if (
       mutation.type === "childList" &&
       (this.isAutofillElementNodeMutated(mutation.removedNodes, true) ||
         this.isAutofillElementNodeMutated(mutation.addedNodes))
     ) {
-      this.flagPageDetailsUpdateIsRequired();
+      this.requirePageDetailsUpdate();
       return;
     }
 
@@ -1057,6 +1068,64 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       this.handleAutofillElementAttributeMutation(mutation);
     }
   }
+
+  private setupTopLayerCandidateListener = (element: Element) => {
+    const ownedTags = this.autofillOverlayContentService.getOwnedInlineMenuTagNames() || [];
+    this.ownedExperienceTagNames = ownedTags;
+
+    if (!ownedTags.includes(element.tagName)) {
+      element.addEventListener("toggle", (event: ToggleEvent) => {
+        if (event.newState === "open") {
+          // Add a slight delay (but faster than a user's reaction), to ensure the layer
+          // positioning happens after any triggered toggle has completed.
+          setTimeout(this.autofillOverlayContentService.refreshMenuLayerPosition, 100);
+        }
+      });
+    }
+  };
+
+  private isPopoverAttribute = (attr: string | null) => {
+    const popoverAttributes = new Set(["popover", "popovertarget", "popovertargetaction"]);
+
+    return attr && popoverAttributes.has(attr.toLowerCase());
+  };
+
+  private shouldListenToTopLayerCandidate = (element: Element) => {
+    return (
+      !this.ownedExperienceTagNames.includes(element.tagName) &&
+      (element.tagName === "DIALOG" ||
+        Array.from(element.attributes || []).some((attribute) =>
+          this.isPopoverAttribute(attribute.name),
+        ))
+    );
+  };
+
+  /**
+   * Checks if a mutation record is related features that utilize the top layer.
+   * If so, it then calls `setupTopLayerElementListener` for future event
+   * listening on the relevant element.
+   *
+   * @param mutation - The MutationRecord to check
+   */
+  private handleTopLayerChanges = (mutation: MutationRecord) => {
+    // Check attribute mutations
+    if (mutation.type === "attributes" && this.isPopoverAttribute(mutation.attributeName)) {
+      this.setupTopLayerCandidateListener(mutation.target as Element);
+    }
+
+    // Check added nodes for dialog or popover attributes
+    if (mutation.type === "childList" && mutation.addedNodes?.length > 0) {
+      for (const node of mutation.addedNodes) {
+        const mutationElement = node as Element;
+
+        if (this.shouldListenToTopLayerCandidate(mutationElement)) {
+          this.setupTopLayerCandidateListener(mutationElement);
+        }
+      }
+    }
+
+    return;
+  };
 
   /**
    * Checks if the passed nodes either contain or are autofill elements.
@@ -1123,7 +1192,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private setupOverlayListenersOnMutatedElements(mutatedElements: Node[]) {
     for (let elementIndex = 0; elementIndex < mutatedElements.length; elementIndex++) {
       const node = mutatedElements[elementIndex];
-      const buildAutofillFieldItem = () => {
+      const buildAutofillFieldItem = async () => {
         if (
           !this.isNodeFormFieldElement(node) ||
           this.autofillFieldElements.get(node as ElementWithOpId<FormFieldElement>)
@@ -1133,7 +1202,17 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
 
         // We are setting this item to a -1 index because we do not know its position in the DOM.
         // This value should be updated with the next call to collect page details.
-        void this.buildAutofillFieldItem(node as ElementWithOpId<FormFieldElement>, -1);
+        const formFieldElement = node as ElementWithOpId<FormFieldElement>;
+        const autofillField = await this.buildAutofillFieldItem(formFieldElement, -1);
+
+        // Set up overlay listeners for the new field if we have the overlay service
+        if (autofillField && this.autofillOverlayContentService) {
+          this.setupOverlayOnField(formFieldElement, autofillField);
+
+          if (this.domRecentlyMutated) {
+            this.updateAutofillElementsAfterMutation();
+          }
+        }
       };
 
       requestIdleCallbackPolyfill(buildAutofillFieldItem, { timeout: 1000 });

@@ -33,13 +33,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { EncryptionType } from "@bitwarden/common/platform/enums";
 import { UserId } from "@bitwarden/common/types/guid";
-import {
-  KeyService,
-  Argon2KdfConfig,
-  PBKDF2KdfConfig,
-  KdfConfigService,
-  KdfType,
-} from "@bitwarden/key-management";
+import { KeyService, KdfConfigService } from "@bitwarden/key-management";
 
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../abstractions/user-decryption-options.service.abstraction";
 import {
@@ -205,6 +199,15 @@ export abstract class LoginStrategy {
       UserDecryptionOptions.fromResponse(tokenResponse),
     );
 
+    if (tokenResponse.userDecryptionOptions?.masterPasswordUnlock != null) {
+      const masterPasswordUnlockData =
+        tokenResponse.userDecryptionOptions.masterPasswordUnlock.toMasterPasswordUnlockData();
+      await this.masterPasswordService.setMasterPasswordUnlockData(
+        masterPasswordUnlockData,
+        userId,
+      );
+    }
+
     const vaultTimeoutAction = await firstValueFrom(
       this.vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$(userId),
     );
@@ -220,16 +223,7 @@ export abstract class LoginStrategy {
       tokenResponse.refreshToken, // Note: CLI login via API key sends undefined for refresh token.
     );
 
-    await this.KdfConfigService.setKdfConfig(
-      userId as UserId,
-      tokenResponse.kdf === KdfType.PBKDF2_SHA256
-        ? new PBKDF2KdfConfig(tokenResponse.kdfIterations)
-        : new Argon2KdfConfig(
-            tokenResponse.kdfIterations,
-            tokenResponse.kdfMemory,
-            tokenResponse.kdfParallelism,
-          ),
-    );
+    await this.KdfConfigService.setKdfConfig(userId as UserId, tokenResponse.kdfConfig);
 
     await this.billingAccountProfileStateService.setHasPremium(
       accountInformation.premium ?? false,
@@ -312,7 +306,11 @@ export abstract class LoginStrategy {
 
   protected async createKeyPairForOldAccount(userId: UserId) {
     try {
-      const userKey = await this.keyService.getUserKey(userId);
+      const userKey = await firstValueFrom(this.keyService.userKey$(userId));
+      if (userKey === null) {
+        throw new Error("User key is null when creating key pair for old account");
+      }
+
       if (userKey.inner().type == EncryptionType.CoseEncrypt0) {
         throw new Error("Cannot create key pair for account on V2 encryption");
       }

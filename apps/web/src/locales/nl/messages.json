@@ -2,6 +2,9 @@
   "allApplications": {
     "message": "Alle applicaties"
   },
+  "activity": {
+    "message": "Activiteit"
+  },
   "appLogoLabel": {
     "message": "Bitwarden-logo"
   },
@@ -32,6 +35,9 @@
       }
     }
   },
+  "noReportRan": {
+    "message": "Je hebt nog geen rapport aangemaakt"
+  },
   "notifiedMembers": {
     "message": "Geînformeerde leden"
   },
@@ -56,12 +62,104 @@
   "createNewLoginItem": {
     "message": "Nieuw login item aanmaken"
   },
+  "percentageCompleted": {
+    "message": "$PERCENT$% compleet",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
+  "securityTasksCompleted": {
+    "message": "$COUNT$ van $TOTAL$ beveiligingstaken voltooid",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "total": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "passwordChangeProgress": {
+    "message": "Voortgang veranderen wachtwoord"
+  },
+  "assignMembersTasksToMonitorProgress": {
+    "message": "Leden taken toewijzen om de voortgang te controleren"
+  },
+  "onceYouReviewApps": {
+    "message": "Zodra je applicaties beoordeelt en ze als kritiek markeert, kun je leden taken toewijzen om risico-items op te lossen en de voortgang hier te controleren"
+  },
+  "sendReminders": {
+    "message": "Herinneringen versturen"
+  },
+  "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
+    "message": "Als je toepassingen als belangrijk markeert, verschijnen ze hier."
+  },
+  "viewAtRiskMembers": {
+    "message": "Leden met risico bekijken"
+  },
+  "viewAtRiskApplications": {
+    "message": "Applicaties met risico bekijken"
+  },
+  "criticalApplicationsAreAtRisk": {
+    "message": "$COUNT$ van de $TOTAL$ kritische applicaties zijn in gevaar als gevolg van risicovolle wachtwoorden",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "total": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
   "criticalApplicationsWithCount": {
     "message": "Belangrijke applicaties ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
         "example": "3"
+      }
+    }
+  },
+  "countOfCriticalApplications": {
+    "message": "$COUNT$ belangrijke applicaties",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfApplicationsAtRisk": {
+    "message": "$COUNT$ applicaties in gevaar",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfAtRiskPasswords": {
+    "message": "$COUNT$ wachtwoorden lopen risico",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "newPasswordsAtRisk": {
+    "message": "$COUNT$ nieuwe wachtwoorden lopen risico",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
       }
     }
   },
@@ -86,20 +184,35 @@
   "noAppsInOrgDescription": {
     "message": "Als gebruikers inloggegevens opslaan, verschijnen hier applicaties met wachtwoorden die risico lopen. Markeer belangrijke applicaties en attendeer gebruikers op het bijwerken van wachtwoorden."
   },
-  "noCriticalAppsTitle": {
+  "noCriticalApplicationsTitle": {
     "message": "Je hebt nog geen applicaties als belangrijk aangewezen"
   },
-  "noCriticalAppsDescription": {
-    "message": "Wijs je meest belangrijke applicaties aan om risicovolle wachtwoorden te ontdekken en gebruikers te attenderen deze te wijzigen."
+  "noCriticalApplicationsDescription": {
+    "message": "Selecteer je meest belangrijke applicaties om prioriteit te geven aan beveiligingsacties voor je gebruikers om risico-wachtwoorden aan te pakken."
   },
-  "markCriticalApps": {
-    "message": "Markeer belangrijke apps"
+  "markCriticalApplications": {
+    "message": "Belangrijke applicaties selecteren"
   },
   "markAppAsCritical": {
     "message": "App aanwijzen als belangrijk"
   },
+  "markAsCritical": {
+    "message": "App aanwijzen als belangrijk"
+  },
+  "applicationsSelected": {
+    "message": "applicaties geselecteerd"
+  },
+  "selectApplication": {
+    "message": "Applicatie selecteren"
+  },
+  "unselectApplication": {
+    "message": "Applicatie deselecteren"
+  },
   "applicationsMarkedAsCriticalSuccess": {
     "message": "Als belangrijk gemarkeerde applicaties"
+  },
+  "applicationsMarkedAsCriticalFail": {
+    "message": "Kon applicaties niet als kritiek markeren"
   },
   "application": {
     "message": "Applicatie"
@@ -118,6 +231,18 @@
   },
   "atRiskMembers": {
     "message": "Leden in gevaar"
+  },
+  "membersWithAccessToAtRiskItemsForCriticalApps": {
+    "message": "Leden met toegang tot risico-items voor belangrijke applicaties"
+  },
+  "membersAtRiskCount": {
+    "message": "$COUNT$ leden lopen risico",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "atRiskMembersWithCount": {
     "message": "Leden die risico lopen ($COUNT$)",
@@ -176,11 +301,38 @@
   "totalApplications": {
     "message": "Totaal applicaties"
   },
-  "unmarkAsCriticalApp": {
-    "message": "Markeren als belangrijke app ongedaan maken"
+  "applicationsNeedingReview": {
+    "message": "Aanvragen die herzien moeten worden"
   },
-  "criticalApplicationSuccessfullyUnmarked": {
-    "message": "Markeren als belangrijke app ongedaan gemaakt"
+  "newApplicationsWithCount": {
+    "message": "$COUNT$ nieuwe applicaties",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "13"
+      }
+    }
+  },
+  "newApplicationsDescription": {
+    "message": "Controleer nieuwe applicaties om ze als kritiek te markeren en je organisatie veilig te houden"
+  },
+  "reviewNow": {
+    "message": "Nu beoordelen"
+  },
+  "prioritizeCriticalApplications": {
+    "message": "Belangrijke applicaties prioriteren"
+  },
+  "atRiskItems": {
+    "message": "Items in gevaar"
+  },
+  "markAsCriticalPlaceholder": {
+    "message": "Markeren als kritieke functionaliteit wordt geïmplementeerd in een toekomstige update"
+  },
+  "unmarkAsCritical": {
+    "message": "Markeren als belangrijk ongedaan maken"
+  },
+  "criticalApplicationUnmarkedSuccessfully": {
+    "message": "Toepassing niet meer gemarkeerd als belangrijk"
   },
   "whatTypeOfItem": {
     "message": "Van welke categorie is dit item?"
@@ -734,32 +886,81 @@
   "viewItem": {
     "message": "Item weergeven"
   },
-  "newItemHeader": {
-    "message": "Nieuwe $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderLogin": {
+    "message": "Nieuwe login",
+    "description": "Header for new login item type"
   },
-  "editItemHeader": {
-    "message": "$TYPE$ bewerken",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderCard": {
+    "message": "Nieuwe kaart",
+    "description": "Header for new card item type"
   },
-  "viewItemType": {
-    "message": "$ITEMTYPE$ weergeven",
-    "placeholders": {
-      "itemtype": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderIdentity": {
+    "message": "Nieuwe identiteit",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "Nieuwe notitie",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "Nieuwe SSH-sleutel",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderTextSend": {
+    "message": "Nieuwe Send (tekst)",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "Nieuwe Send (bestand)",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderLogin": {
+    "message": "Login bewerken",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Kaart bewerken",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Identiteit bewerken",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Notitie bewerken",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "SSH-sleutel bewerken",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Send (tekst) bewerken",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Send (bestand) bewerken",
+    "description": "Header for edit file send"
+  },
+  "viewItemHeaderLogin": {
+    "message": "Login bekijken",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "Kaart bekijken",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "Identiteit bekijken",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "Notitie bekijken",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "SSH-sleutel bekijken",
+    "description": "Header for view SSH key item type"
   },
   "new": {
     "message": "Nieuw",
@@ -866,6 +1067,15 @@
   },
   "copyLicenseNumber": {
     "message": "Kenteken kopiëren"
+  },
+  "copyPrivateKey": {
+    "message": "Privésleutel kopiëren"
+  },
+  "copyPublicKey": {
+    "message": "Publieke sleutel kopiëren"
+  },
+  "copyFingerprint": {
+    "message": "Vingerafdruk kopiëren"
   },
   "copyName": {
     "message": "Naam kopiëren"
@@ -1091,6 +1301,9 @@
   },
   "readingPasskeyLoadingInfo": {
     "message": "Houd dit venster open en volg de aanwijzingen van je browser."
+  },
+  "passkeyAuthenticationFailed": {
+    "message": "Passkey-authenticatie mislukt. Probeer het opnieuw."
   },
   "useADifferentLogInMethod": {
     "message": "Gebruik een andere loginmethode"
@@ -1386,6 +1599,15 @@
   "invalidMasterPassword": {
     "message": "Ongeldig hoofdwachtwoord"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Ongeldig hoofdwachtwoord. Check of je e-mailadres klopt en of je account is aangemaakt op $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "invalidFilePassword": {
     "message": "Onjuist bestandswachtwoord, gebruik het wachtwoord dat je hebt ingevoerd bij het aanmaken van het exportbestand."
   },
@@ -1394,6 +1616,30 @@
   },
   "noItemsInList": {
     "message": "Er zijn geen items om weer te geven."
+  },
+  "noItemsInTrash": {
+    "message": "Geen items in prullenbak"
+  },
+  "noItemsInTrashDesc": {
+    "message": "Items die je verwijdert verschijnen hier en worden na 30 dagen definitief verwijderd"
+  },
+  "noItemsInVault": {
+    "message": "Geen items in de kluis"
+  },
+  "emptyVaultDescription": {
+    "message": "De kluis beschermt meer dan alleen je wachtwoorden. Sla hier beveiligde inloggegevens, ID's, kaarten en notities op."
+  },
+  "emptyFavorites": {
+    "message": "Je hebt geen favoriete items"
+  },
+  "emptyFavoritesDesc": {
+    "message": "Voeg veelgebruikte items toe aan favorieten voor snelle toegang."
+  },
+  "noSearchResults": {
+    "message": "Geen resultaten teruggekregen"
+  },
+  "clearFiltersOrTryAnother": {
+    "message": "Wis filters of probeer een andere zoekterm"
   },
   "noPermissionToViewAllCollectionItems": {
     "message": "Je hebt geen rechten om alle items in deze collectie te zien."
@@ -1501,11 +1747,11 @@
   "selectTwoStepLoginMethod": {
     "message": "Kies methode voor tweestapsaanmelding"
   },
-  "recoveryCodeDesc": {
-    "message": "Ben je de toegang tot al je tweestapsaanbieders verloren? Gebruik dan je herstelcode om alle tweestapsaanbieders op je account uit te schakelen."
-  },
   "recoveryCodeTitle": {
     "message": "Herstelcode"
+  },
+  "invalidRecoveryCode": {
+    "message": "Ongeldige herstelcode"
   },
   "authenticatorAppTitle": {
     "message": "Authenticatie-app"
@@ -1843,9 +2089,6 @@
   "encKeySettings": {
     "message": "Instellingen encryptiesleutel"
   },
-  "kdfAlgorithm": {
-    "message": "KDF-algortime"
-  },
   "kdfIterations": {
     "message": "KDF-iteraties"
   },
@@ -1879,9 +2122,6 @@
   },
   "argon2Desc": {
     "message": "Hogere instellingen voor KDF-iteraties, geheugen en parallellisatie kunnen je hoofdwachtwoord beschermen tegen brute-foce-aanvallen."
-  },
-  "changeKdf": {
-    "message": "KDF wijzigen"
   },
   "encKeySettingsChanged": {
     "message": "Instellingen encryptiesleutel zijn gewijzigd"
@@ -2050,15 +2290,11 @@
   "selectImportCollection": {
     "message": "Collectie selecteren"
   },
-  "importTargetHint": {
-    "message": "Kies deze optie als je de geïmporteerde bestandsinhoud wilt verplaatsen naar een $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Kies deze optie als je de geïmporteerde bestandsinhoud naar een collectie wilt verplaatsen"
+  },
+  "importTargetHintFolder": {
+    "message": "Kies deze optie als je de geïmporteerde bestandsinhoud naar een map wilt verplaatsen"
   },
   "importUnassignedItemsError": {
     "message": "Bestand bevat niet-toegewezen items."
@@ -2106,11 +2342,8 @@
   "languageDesc": {
     "message": "De taal van de webkluis aanpassen."
   },
-  "enableFavicon": {
-    "message": "Websitepictogrammen weergeven"
-  },
-  "faviconDesc": {
-    "message": "Een herkenbare afbeelding naast iedere login weergeven."
+  "showIconsChangePasswordUrls": {
+    "message": "Websitepictogrammen weergeven en URL's voor wachtwoordwijzigingen ophalen"
   },
   "default": {
     "message": "Standaard"
@@ -2451,9 +2684,6 @@
   "twoFactorU2fProblemReadingTryAgain": {
     "message": "Er was een probleem met het lezen van de beveiligingssleutel. Probeer het nogmaals."
   },
-  "twoFactorWebAuthnWarning1": {
-    "message": "Vanwege platformbeperkingen kan WebAuthn niet in alle Bitwarden-applicaties gebruikt worden. Stel een andere tweestapsaanmeldingsaanbieder in zodat je je account kunt benaderen wanneer WebAuthn niet beschikbaar is."
-  },
   "twoFactorRecoveryYourCode": {
     "message": "Je herstelcode voor Bitwarden-tweestapsaanmelding"
   },
@@ -2723,6 +2953,9 @@
   "makeSureEnoughCredit": {
     "message": "Verzeker jezelf ervan dat je account voldoende krediet voor deze aankoop beschikbaar heeft. Als je account niet genoeg krediet heeft, zal je standaard betaalmethode worden gebruikt voor het verschil. Je kunt krediet aan je account toevoegen vanaf de factuurpagina."
   },
+  "notEnoughAccountCredit": {
+    "message": "Je hebt niet genoeg accountkrediet voor deze aankoop. Je kunt krediet aan je account toevoegen vanaf de factuurpagina."
+  },
   "creditAppliedDesc": {
     "message": "Je kunt het krediet van je account voor aankopen gebruiken. Elk beschikbaar krediet zal automatisch worden toegepast op facturen die gegenereerd zijn voor dit account."
   },
@@ -2823,6 +3056,12 @@
         "example": "'month' or 'year'"
       }
     }
+  },
+  "showPricingSummary": {
+    "message": "Overzicht prijzen weergeven"
+  },
+  "hidePricingSummary": {
+    "message": "Overzicht prijzen verbergen"
   },
   "summary": {
     "message": "Samenvatting"
@@ -4125,6 +4364,9 @@
   "generatingYourRiskInsights": {
     "message": "Je risico-inzichten genereren..."
   },
+  "riskInsightsRunReport": {
+    "message": "Rapport uitvoeren"
+  },
   "updateBrowserDesc": {
     "message": "Je maakt gebruik van webbrowser die we niet ondersteunen. De webkluis werkt mogelijk niet goed."
   },
@@ -4691,6 +4933,12 @@
   "organizationIsDisabled": {
     "message": "Organisatie opgeschort"
   },
+  "organizationIsSuspended": {
+    "message": "Organisatie is opgeschort"
+  },
+  "organizationIsSuspendedDesc": {
+    "message": "Je kunt items in opgeschorte organisaties niet benaderen. Neem contact op met de eigenaar van je organisatie voor hulp."
+  },
   "secretsAccessSuspended": {
     "message": "Opgeschorte organisaties zijn niet toegankelijk. Neem contact op met de eigenaar van je organisatie voor hulp."
   },
@@ -4702,9 +4950,6 @@
   },
   "serviceAccountsCannotCreate": {
     "message": "Je kunt geen service accounts aanmaken in opgeschorte organisaties. Neem contact op met de eigenaar van je organisatie voor hulp."
-  },
-  "disabledOrganizationFilterError": {
-    "message": "Je kunt uitgeschakelde items in een organisatie niet benaderen. Neem contact op met de eigenaar van je organisatie voor hulp."
   },
   "licenseIsExpired": {
     "message": "Licentie verlopen."
@@ -5079,9 +5324,13 @@
   "ssoIdentifier": {
     "message": "SSO Identifier"
   },
-  "ssoIdentifierHintPartOne": {
-    "message": "Geef dit ID aan je leden voor inloggen met SSO. Om deze stap te omzeilen, configureer je ",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Provide this ID to your members to login with SSO. To bypass this step, set up Domain verification'"
+  "ssoIdentifierHint": {
+    "message": "Geef dit ID aan je leden om in te loggen met SSO. Leden kunnen het invoeren van deze identificatie overslaan tijdens SSO als een geclaimde domein is ingesteld ",
+    "description": "This will be used as part of a larger sentence, broken up to include a link. The full sentence will read 'Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. Learn more'"
+  },
+  "claimedDomainsLearnMore": {
+    "message": "Meer informatie",
+    "description": "This will be used as part of a larger sentence, broken up to include a link. The full sentence will read 'Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. Learn more'"
   },
   "unlinkSso": {
     "message": "SSO ontkoppelen"
@@ -5464,6 +5713,65 @@
     "message": "Leer meer over de ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about the credential lifecycle.'"
   },
+  "availableNow": {
+    "message": "Nu beschikbaar"
+  },
+  "autoConfirm": {
+    "message": "Automatic confirmation of new users"
+  },
+  "autoConfirmDescription": {
+    "message": "New users invited to the organization will be automatically confirmed when an admin’s device is unlocked.",
+    "description": "This is the description of the policy as it appears in the 'Policies' page"
+  },
+  "howToTurnOnAutoConfirm": {
+    "message": "How to turn on automatic user confirmation"
+  },
+  "autoConfirmStep1": {
+    "message": "Open your Bitwarden extension."
+  },
+  "autoConfirmStep2a": {
+    "message": "Select",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  },
+  "autoConfirmStep2b": {
+    "message": " Inschakelen.",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  },
+  "autoConfirmExtensionOpened": {
+    "message": "Successfully opened the Bitwarden browser extension. You can now activate the automatic user confirmation setting."
+  },
+  "autoConfirmPolicyEditDescription": {
+    "message": "New users invited to the organization will be automatically confirmed when an admin’s device is unlocked. Before turning on this policy, please review and agree to the following: ",
+    "description": "This is the description of the policy as it appears inside the policy edit dialog"
+  },
+  "autoConfirmAcceptSecurityRiskTitle": {
+    "message": "Mogelijk beveiligingsrisico. "
+  },
+  "autoConfirmAcceptSecurityRiskDescription": {
+    "message": "Automatic user confirmation could pose a security risk to your organization’s data."
+  },
+  "autoConfirmAcceptSecurityRiskLearnMore": {
+    "message": "Learn about the risks",
+    "description": "The is the link copy for the first check box option in the edit policy dialog"
+  },
+  "autoConfirmSingleOrgRequired": {
+    "message": "Single organization policy required. "
+  },
+  "autoConfirmSingleOrgRequiredDescription": {
+    "message": "Anyone part of more than one organization will have their access revoked until they leave the other organizations."
+  },
+  "autoConfirmSingleOrgExemption": {
+    "message": "Single organization policy will extend to all roles. "
+  },
+  "autoConfirmNoEmergencyAccess": {
+    "message": "No emergency access. "
+  },
+  "autoConfirmNoEmergencyAccessDescription": {
+    "message": "Emergency Access will be removed."
+  },
+  "autoConfirmCheckBoxLabel": {
+    "message": "I accept these risks and policy updates"
+  },
   "personalOwnership": {
     "message": "Persoonlijk eigendom"
   },
@@ -5475,6 +5783,13 @@
   },
   "personalOwnershipSubmitError": {
     "message": "Wegens bedrijfsbeleid mag je geen wachtwoorden opslaan in je persoonlijke kluis. Verander het eigenaarschap naar een organisatie en kies uit een van de beschikbare collecties."
+  },
+  "desktopAutotypePolicy": {
+    "message": "Standaardinstelling Desktop Autotype"
+  },
+  "desktopAutotypePolicyDesc": {
+    "message": "Desktop Autotype standaard inschakelen voor leden. Leden kunnen Autotype uitzetten in de Desktop client.",
+    "description": "This policy will enable Desktop Autotype by default for members on Unlock."
   },
   "disableSend": {
     "message": "Send uitschakelen"
@@ -6640,6 +6955,15 @@
   "disabledSso": {
     "message": "SSO uitgeschakeld"
   },
+  "emailMustLoginWithSso": {
+    "message": "$EMAIL$ moet met Single Sign-on inloggen",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "enabledKeyConnector": {
     "message": "Key Connector ingeschakeld"
   },
@@ -6878,6 +7202,24 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Alleen de organisatiekluis die gekoppeld is aan $ORGANIZATION$ wordt geëxporteerd.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Exporteert alleen de organisatiekluis van $ORGANIZATION$. Geen persoonlijke kluis-items.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "accessDenied": {
     "message": "Toegang geweigerd. Je hebt geen toestemming om deze pagina te bekijken."
   },
@@ -7028,6 +7370,15 @@
   },
   "unknownCipher": {
     "message": "Onbekend item, je moet misschien inloggen met een andere account om dit item te kunnen opvragen."
+  },
+  "unknownSecret": {
+    "message": "Onbekend secret, je moet misschien toegang vragen om dit secret te benaderen."
+  },
+  "unknownServiceAccount": {
+    "message": "Onbekend machine-account, je moet misschien toegang vragen om dit machine-acount te benaderen."
+  },
+  "unknownProject": {
+    "message": "Onbekend project, je moet misschien toegang vragen om dit project te benaderen."
   },
   "cannotSponsorSelf": {
     "message": "Je kunt niet inwisselen voor het actieve account. Voor een ander e-mailadres in."
@@ -7415,6 +7766,9 @@
   },
   "off": {
     "message": "Uit"
+  },
+  "connected": {
+    "message": "Verbonden"
   },
   "members": {
     "message": "Leden"
@@ -8270,12 +8624,6 @@
   "groupSlashUser": {
     "message": "Groep/Gebruiker"
   },
-  "lowKdfIterations": {
-    "message": "Weinig KDF-iteraties"
-  },
-  "updateLowKdfIterationsDesc": {
-    "message": "Werk je versleutelingsinstellingen bij om aan de nieuwe beveiligingsaanbevelingen te voldoen en de bescherming van je account te verbeteren."
-  },
   "kdfSettingsChangeLogoutWarning": {
     "message": "Als je doorgaat, log je uit van alle actieve sessies. Je zult opnieuw moeten inloggen en, indien van toepassing, tweestapsverificatie moeten voltooien. We raden aan om je kluis te exporteren voordat je je versleutelingsinstellingen wijzigt om gegevensverlies te voorkomen."
   },
@@ -8352,10 +8700,161 @@
       }
     }
   },
+  "permanentlyDeletedSecretWithId": {
+    "message": "Secret definitief verwijderd met identifier: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "restoredSecretWithId": {
+    "message": "Secret hersteld met identifier: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
   "createdSecretWithId": {
     "message": "Nieuw geheim aangemaakt met identifier: $SECRET_ID$",
     "placeholders": {
       "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "accessedProjectWithIdentifier": {
+    "message": "Project bekeken met identifier: $PROJECT_ID$.",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "nameUnavailableProjectDeleted": {
+    "message": "Project Id verwijderd: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "nameUnavailableSecretDeleted": {
+    "message": "Secret Id verwijderd: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "nameUnavailableServiceAccountDeleted": {
+    "message": "Machine-account ID verwijderd: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "service_account_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "editedProjectWithId": {
+    "message": "Project bewerkt met identifier: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "addedUserToServiceAccountWithId": {
+    "message": "Gebruiker toegevoegd: $USER_ID$ naar machine-account met identificatie: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "user_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "removedUserToServiceAccountWithId": {
+    "message": "Gebruiker verwijderd: $USER_ID$ van machine-account met identificatie: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "user_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "removedGroupFromServiceAccountWithId": {
+    "message": "Groep verwijderd: $USER_ID$ van machine-account met identificatie: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "group_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "serviceAccountCreatedWithId": {
+    "message": "Machine-account aangemaakt met identificatie: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "service_account_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "addedGroupToServiceAccountId": {
+    "message": "Groep toegevoegd: $GROUP_ID$ van machine-account met identificatie: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "group_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "serviceAccountDeletedWithId": {
+    "message": "Machine-account verwijderd met identificatie: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "service_account_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "deletedProjectWithId": {
+    "message": "Project verwijderd met identifier: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "createdProjectWithId": {
+    "message": "Nieuw project aangemaakt met identifier: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
         "content": "$1",
         "example": "4d34e8a8"
       }
@@ -8470,7 +8969,7 @@
     }
   },
   "masterPasswordMinimumlength": {
-    "message": "Hoofdwachtwoord moet minstens $LENGTH$ karakters lang zijn.",
+    "message": "Hoofdwachtwoord moet minstens $LENGTH$ tekens lang zijn.",
     "placeholders": {
       "length": {
         "content": "$1",
@@ -8849,20 +9348,25 @@
   "collectionManagement": {
     "message": "Collectiebeheer"
   },
-  "collectionManagementDesc": {
-    "message": "Het gedrag van de collectie beheren voor de organisatie"
+  "collectionManagementDescription": {
+    "message": "Het gedrag van de collectie voor de organisatie instellen"
   },
-  "limitCollectionCreationDesc": {
+  "allowAdminAccessToAllCollectionItemsDescription": {
+    "message": "Eigenaren en beheerders toestaan om alle collecties en items via Admin Console te beheren"
+  },
+  "restrictCollectionCreationDescription": {
     "message": "Aanmaken van collecties beperken tot eigenaren en managers"
   },
-  "limitCollectionDeletionDesc": {
+  "restrictCollectionDeletionDescription": {
     "message": "Verwijderen van collecties beperken tot eigenaren en managers"
   },
-  "limitItemDeletionDescription": {
-    "message": "Beperk het verwijderen van items tot leden met recht om collecties te beheren"
+  "restrictItemDeletionDescriptionStart": {
+    "message": "Het verwijderen van items beperken tot leden met de ",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
   },
-  "allowAdminAccessToAllCollectionItemsDesc": {
-    "message": "Eigenaren en beheerders kunnen alle collecties en items beheren"
+  "restrictItemDeletionDescriptionEnd": {
+    "message": " toestemming",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
   },
   "updatedCollectionManagement": {
     "message": "Instelling collectiebeheer bijgewerkt"
@@ -8933,6 +9437,78 @@
   },
   "modifiedCollectionManagement": {
     "message": "Gewijzigde collectiebeheerinstelling $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationEnabled": {
+    "message": "Instelling Collecties aanmaken beperken $ID$ ingeschakeld.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationDisabled": {
+    "message": "Instelling Collecties aanmaken beperken $ID$ uitgeschakeld.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionEnabled": {
+    "message": "Instelling Collecties verwijderen beperken $ID$ ingeschakeld.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionDisabled": {
+    "message": "Instelling Collecties verwijderen beperken $ID$ uitgeschakeld.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionEnabled": {
+    "message": "Instelling Items verwijderen beperken $ID$ ingeschakeld.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionDisabled": {
+    "message": "Instelling Items verwijderen beperken $ID$ uitgeschakeld.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsEnabled": {
+    "message": "Instelling Eigenaren en beheerders beheren alle collecties en items toestaan $ID$ ingeschakeld.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsDisabled": {
+    "message": "Instelling Eigenaren en beheerders beheren alle collecties en items toestaan $ID$ uitgeschakeld.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -9101,6 +9677,9 @@
   },
   "assign": {
     "message": "Toewijzen"
+  },
+  "assignTasks": {
+    "message": "Taken toewijzen"
   },
   "assignToCollections": {
     "message": "Toewijzen aan collecties"
@@ -9497,8 +10076,17 @@
   "crowdstrikeEventIntegrationDesc": {
     "message": "Stuur eventgegevens naar je Logscale-instantie"
   },
+  "datadogEventIntegrationDesc": {
+    "message": "Stuur gebeurtenisgegevens van je kluis naar je Datadog-instance"
+  },
   "failedToSaveIntegration": {
     "message": "Opslaan van integratie mislukt. Probeer het later opnieuw."
+  },
+  "mustBeOrgOwnerToPerformAction": {
+    "message": "Je moet de eigenaar van de organisatie zijn om deze actie uit te voeren."
+  },
+  "failedToDeleteIntegration": {
+    "message": "Verwijderen van integratie mislukt. Probeer het later opnieuw."
   },
   "deviceIdMissing": {
     "message": "Apparaat-ID ontbreekt"
@@ -9517,6 +10105,15 @@
   },
   "connectIntegrationButtonDesc": {
     "message": "$INTEGRATION$ verbinden",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
+  },
+  "updateIntegrationButtonDesc": {
+    "message": "$INTEGRATION$ bijwerken",
     "placeholders": {
       "integration": {
         "content": "$1",
@@ -9586,6 +10183,9 @@
   },
   "bearerToken": {
     "message": "Bearer-token"
+  },
+  "repositoryNameHint": {
+    "message": "Naam van de repository om in te nemen"
   },
   "index": {
     "message": "Index"
@@ -9726,12 +10326,6 @@
       }
     }
   },
-  "lowKDFIterationsBanner": {
-    "message": "Laag aantal KDF-iteraties. Verhoog je iteraties om de veiligheid van je account te verbeteren."
-  },
-  "changeKDFSettings": {
-    "message": "KDF-instellingen wijzigen"
-  },
   "secureYourInfrastructure": {
     "message": "Beveilig je infrastructuur"
   },
@@ -9829,26 +10423,8 @@
   "memberAccessReportAuthenticationEnabledFalse": {
     "message": "Uit"
   },
-  "higherKDFIterations": {
-    "message": "Hogere KDF-iteraties beschermen je hoofdwachtwoord tegen brute-foce-aanvallen."
-  },
-  "incrementsOf100,000": {
-    "message": "verhogingen van 100.000"
-  },
-  "smallIncrements": {
-    "message": "kleine verhogingen"
-  },
   "kdfIterationRecommends": {
     "message": "We adviseren 600.000 of meer"
-  },
-  "kdfToHighWarningIncreaseInIncrements": {
-    "message": "Voor oudere apparaten kan het te hoog instellen van je KDF tot prestatieproblemen leiden. Verhoog de waarde in $VALUE$ en test je apparaten.",
-    "placeholders": {
-      "value": {
-        "content": "$1",
-        "example": "increments of 100,000"
-      }
-    }
   },
   "providerReinstate": {
     "message": " Neem contact op met de klantenservice om je abonnement te herstellen."
@@ -10035,14 +10611,8 @@
   "learnMoreAboutApi": {
     "message": "Lees meer over Bitwarden's API"
   },
-  "fileSend": {
-    "message": "Bestand Send"
-  },
   "fileSends": {
     "message": "Bestand-Sends"
-  },
-  "textSend": {
-    "message": "Tekst Send"
   },
   "textSends": {
     "message": "Tekst-Sends"
@@ -10498,6 +11068,15 @@
   "domainClaimed": {
     "message": "Domein geverifieerd"
   },
+  "itemAddedToFavorites": {
+    "message": "Item toegevoegd aan favorieten"
+  },
+  "itemRemovedFromFavorites": {
+    "message": "Item verwijderd uit favorieten"
+  },
+  "copyNote": {
+    "message": "Notitie kopiëren"
+  },
   "organizationNameMaxLength": {
     "message": "Organisatienaam mag niet langer zijn dan 50 tekens."
   },
@@ -10730,6 +11309,12 @@
   "changeAtRiskPassword": {
     "message": "Risicovol wachtwoord wijzigen"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Deze login is in gevaar en mist een website. Voeg een website toe en verander het wachtwoord voor een sterkere beveiliging."
+  },
+  "missingWebsite": {
+    "message": "Ontbrekende website"
+  },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Ontgrendelen met PIN verwijderen"
   },
@@ -10745,8 +11330,63 @@
   "upgradeEventLogMessage": {
     "message": "Deze evenementen zijn alleen voorbeelden en weerspiegelen geen echte evenementen binnen je Bitwarden organisatie."
   },
+  "viewEvents": {
+    "message": "Gebeurtenissen bekijken"
+  },
   "cannotCreateCollection": {
     "message": "Gratis organisaties kunnen maximaal twee collecties hebben. Upgrade naar een betaald abonnement voor het toevoegen van meer collecties."
+  },
+  "searchArchive": {
+    "message": "Search archive"
+  },
+  "archiveNoun": {
+    "message": "Archief",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archiveren",
+    "description": "Verb"
+  },
+  "unArchive": {
+    "message": "Dearchiveren"
+  },
+  "itemsInArchive": {
+    "message": "Items in archief"
+  },
+  "noItemsInArchive": {
+    "message": "No items in archive"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Gearchiveerde items verschijnen hier en worden uitgesloten van algemene zoekresultaten en automatisch invulsuggesties."
+  },
+  "itemWasSentToArchive": {
+    "message": "Item naar archief verzonden"
+  },
+  "itemsWereSentToArchive": {
+    "message": "Item naar archief verzonden"
+  },
+  "itemUnarchived": {
+    "message": "Item uit het archief gehaald"
+  },
+  "bulkArchiveItems": {
+    "message": "Items gearchiveerd"
+  },
+  "bulkUnarchiveItems": {
+    "message": "Item gedearchiveerd"
+  },
+  "archiveItem": {
+    "message": "Item archiveren",
+    "description": "Verb"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Gearchiveerde items worden uitgesloten van algemene zoekresultaten en automatische invulsuggesties. Weet je zeker dat je dit item wilt archiveren?"
+  },
+  "archiveBulkItems": {
+    "message": "Items archiveren",
+    "description": "Verb"
+  },
+  "archiveBulkItemsConfirmDesc": {
+    "message": "Gearchiveerde items worden uitgesloten van algemene zoekresultaten en automatische invulsuggesties. Weet je zeker dat je deze items wilt archiveren?"
   },
   "businessUnit": {
     "message": "Bedrijfseenheid"
@@ -10855,6 +11495,12 @@
   "bitwardenExtensionInstalled": {
     "message": "Bitwarden extensie geïnstalleerd!"
   },
+  "openTheBitwardenExtension": {
+    "message": "De Bitwarden-extensie openen"
+  },
+  "bitwardenExtensionInstalledOpenExtension": {
+    "message": "De Bitwarden-extensie is geïnstalleerd! Open de extensie om in te loggen en te beginnen met automatisch invullen."
+  },
   "openExtensionToAutofill": {
     "message": "Open de extensie om in te loggen en te beginnen met automatisch invullen."
   },
@@ -10901,6 +11547,12 @@
   "billingAddressRequiredToAddCredit": {
     "message": "Factuuradres vereist voor het toevoegen van krediet.",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
+  },
+  "aboutThisSetting": {
+    "message": "Over deze instelling"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden gebruikt opgeslagen login-URI's om te bepalen welk pictogram of URL voor het wijzigen van het wachtwoord moet worden gebruikt om je ervaring te verbeteren. Er wordt geen informatie verzameld of opgeslagen wanneer je deze service gebruikt."
   },
   "billingAddress": {
     "message": "Factuuradres"
@@ -11012,5 +11664,277 @@
   },
   "showLess": {
     "message": "Minder weergeven"
+  },
+  "missingTaxId": {
+    "message": "Btw-nummer ontbreekt"
+  },
+  "missingTaxIdWarning": {
+    "message": "Actie vereist: je mist een Btw-nummer in de betalingsgegevens. Als je geen btw-nummer toegevoegt, kan het zijn dat je facturen facturen aanvullende belasting bevatten."
+  },
+  "moreBreadcrumbs": {
+    "message": "Meer broodkruimels",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "addTaxId": {
+    "message": "Btw-nummer toevoegen"
+  },
+  "missingTaxIdCalloutTitle": {
+    "message": "Actie vereist: btw-nummer ontbreekt"
+  },
+  "missingTaxIdCalloutDescription": {
+    "message": "Als je geen btw-nummer toegevoegt, kan het zijn dat je facturen facturen aanvullende belasting bevatten."
+  },
+  "unverifiedTaxIdWarning": {
+    "message": "Actie vereist: je btw-nummer is niet geverifieerd. Als je Btw-nummer niet geverifieerd blijft, kan het zijn dat je facturen facturen aanvullende belasting bevatten."
+  },
+  "editTaxId": {
+    "message": "Je btw-nummer bewerken"
+  },
+  "unverifiedTaxIdCalloutTitle": {
+    "message": "Btw-nummer niet geverifieerd"
+  },
+  "unverifiedTaxIdCalloutDescription": {
+    "message": "Controleer je btw-nummer om te controleren of het formaat correct is er geen typefouten zijn."
+  },
+  "pendingVerification": {
+    "message": "In afwachting van verificatie"
+  },
+  "checkInputFormat": {
+    "message": "Controleer het invoerformaat op typefouten."
+  },
+  "exampleTaxIdFormat": {
+    "message": "Voorbeeld $CODE$ formaat: $EXAMPLE$",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "ABN"
+      },
+      "example": {
+        "content": "$2",
+        "example": "92873837267"
+      }
+    }
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Key Connector-domein bevestigen"
+  },
+  "requiredToVerifyBankAccountWithStripe": {
+    "message": "Betaling met een bankrekening is alleen beschikbaar voor klanten in de Verenigde Staten. Je moet je bankrekening verifiëren. We zullen binnen 1-2 werkdagen een microbetaling uitvoeren. Als de bankrekening niet wordt geverifieerd, wordt er een betaling gemist en wordt je abonnement opgeschort."
+  },
+  "verifyBankAccountWithStripe": {
+    "message": "We hebben een microbetaling op je bankrekening gedaan. Dit kan 1-2 werkdagen duren. Als je de betaling op je rekening ziet, kun je je bannkrekening verifiëren. Als de bankrekening niet wordt geverifieerd, wordt er een betaling gemist en wordt je abonnement opgeschort."
+  },
+  "verifyNow": {
+    "message": "Nu verifiëren."
+  },
+  "additionalStorageGB": {
+    "message": "Extra opslagruimte (GB)"
+  },
+  "additionalServiceAccountsV2": {
+    "message": "Extra machine-accounts"
+  },
+  "secretsManagerSeats": {
+    "message": "Secrets Manager-licenties"
+  },
+  "additionalStorage": {
+    "message": "Extra opslagruimte"
+  },
+  "expandPurchaseDetails": {
+    "message": "Aankoopgegevens uitklappen"
+  },
+  "collapsePurchaseDetails": {
+    "message": "Aankoopgegevens inklappen"
+  },
+  "familiesMembership": {
+    "message": "Lidmaatschap families"
+  },
+  "planDescPremium": {
+    "message": "Online beveiliging voltooien"
+  },
+  "planDescFamiliesV2": {
+    "message": "Premium beveiliging voor je familie"
+  },
+  "planDescFreeV2": {
+    "message": "Delen met $COUNT$ andere gebruiker",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "planDescEnterpriseV2": {
+    "message": "Geavanceerde mogelijkheden voor iedere bedrijf"
+  },
+  "planNameCustom": {
+    "message": "Aangepast abonnement"
+  },
+  "planDescCustom": {
+    "message": "Bitwarden schaalt met bedrijven van ieder formaat om wachtwoorden en gevoelige informatie te beveiligen. Als je deel uitmaakt van een grote onderneming, neem dan contact op met verkoop om een offerte aan te vragen."
+  },
+  "builtInAuthenticator": {
+    "message": "Ingebouwde authenticator"
+  },
+  "breachMonitoring": {
+    "message": "Lek-monitoring"
+  },
+  "andMoreFeatures": {
+    "message": "En meer!"
+  },
+  "secureFileStorage": {
+    "message": "Beveiligde bestandsopslag"
+  },
+  "familiesUnlimitedSharing": {
+    "message": "Onbeperkt delen - kies wie wat ziet"
+  },
+  "familiesUnlimitedCollections": {
+    "message": "Onbeperkte familiecollecties"
+  },
+  "familiesSharedStorage": {
+    "message": "Gedeelde opslag voor belangrijke familie-informatie"
+  },
+  "limitedUsersV2": {
+    "message": "Tot $COUNT$ leden",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "limitedCollectionsV2": {
+    "message": "Tot $COUNT$ collectie(s)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "alwaysFree": {
+    "message": "Altijd gratis"
+  },
+  "twoSecretsIncluded": {
+    "message": "2 geheimen"
+  },
+  "projectsIncludedV2": {
+    "message": "$COUNT$ project(en)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "secureItemSharing": {
+    "message": "Beveiligd delen van items"
+  },
+  "scimSupport": {
+    "message": "SCIM ondersteuning"
+  },
+  "includedMachineAccountsV2": {
+    "message": "$COUNT$ machine-account(s)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
+  },
+  "enterpriseSecurityPolicies": {
+    "message": "Enterprise-beveiligingsbeleid"
+  },
+  "selfHostOption": {
+    "message": "Optie tot zelf-hosten"
+  },
+  "complimentaryFamiliesPlan": {
+    "message": "Gratis familie-abonnement voor alle gebruikers"
+  },
+  "strengthenCybersecurity": {
+    "message": "Cyberbeveiliging versterken"
+  },
+  "boostProductivity": {
+    "message": "Productiviteit verhogen"
+  },
+  "seamlessIntegration": {
+    "message": "Naadloze integratie"
+  },
+  "families": {
+    "message": "Families"
+  },
+  "upgradeToFamilies": {
+    "message": "Opwaarderen naar Families"
+  },
+  "upgradeToPremium": {
+    "message": "Opwaarderen naar Premium"
+  },
+  "familiesUpdated": {
+    "message": "Je hebt opgewaardeerd naar Families!"
+  },
+  "taxCalculationError": {
+    "message": "Er is een fout opgetreden bij het berekenen van de belasting voor je locatie. Probeer het opnieuw."
+  },
+  "individualUpgradeWelcomeMessage": {
+    "message": "Welkom bij Bitwarden"
+  },
+  "individualUpgradeDescriptionMessage": {
+    "message": "Ontgrendel meer beveiligingsfuncties met Premium, of begin met het delen van items met Families"
+  },
+  "individualUpgradeTaxInformationMessage": {
+    "message": "Prijzen exclusief btw en worden jaarlijks gefactureerd."
+  },
+  "organizationNameDescription": {
+    "message": "De naam van je organisatie verschijnt in uitnodigingen die je aan leden verstuurt."
+  },
+  "continueWithoutUpgrading": {
+    "message": "Doorgaan zonder opwaarderen"
+  },
+  "upgradeYourPlan": {
+    "message": "Upgrade je abonnement"
+  },
+  "upgradeNow": {
+    "message": "Nu upgraden"
+  },
+  "formWillCreateNewFamiliesOrgMessage": {
+    "message": "Met het invullen van dit formulier maak je een nieuwe Familie-organisatie. Je kunt je gratis organisatie upgraden vanuit de Admin Console."
+  },
+  "upgradeErrorMessage": {
+    "message": "Er is een fout opgetreden tijdens het verwerken van het opwaarderen. Probeer het opnieuw."
+  },
+  "bitwardenFreeplanMessage": {
+    "message": "Je hebt het gratis Bitwarden-abonnement"
+  },
+  "upgradeCompleteSecurity": {
+    "message": "Upgrade voor volledige beveiliging"
+  },
+  "viewbusinessplans": {
+    "message": "Bedrijfsabonnementen bekijken"
+  },
+  "updateEncryptionSettings": {
+    "message": "Versleutelingsinstellingen bijwerken"
+  },
+  "updateYourEncryptionSettings": {
+    "message": "Je versleutelingsinstellingen bijwerken"
+  },
+  "updateSettings": {
+    "message": "Instellingen bijwerken"
+  },
+  "algorithm": {
+    "message": "Algoritme"
+  },
+  "encryptionKeySettingsHowShouldWeEncryptYourData": {
+    "message": "Kies hoe Bitwarden je kluisgegevens moet versleutelen. Alle opties zijn veilig, maar sterkere methoden bieden betere bescherming - vooral tegen brute-force aanvallen. Bitwarden beveelt de standaardinstelling voor de meeste gebruikers aan."
+  },
+  "encryptionKeySettingsIncreaseImproveSecurity": {
+    "message": "Het verhogen van de waarden boven de standaard zal de veiligheid verbeteren, maar het ontgrendelen van je kluis kan langer duren."
+  },
+  "encryptionKeySettingsAlgorithmPopoverTitle": {
+    "message": "Over versleutelingsalgoritmen"
+  },
+  "encryptionKeySettingsAlgorithmPopoverPBKDF2": {
+    "message": "PBKDF2-SHA256 is een goed geteste versleutelingsmethode met evenwicht tussen veiligheid en prestaties. Goed voor alle gebruikers."
+  },
+  "encryptionKeySettingsAlgorithmPopoverArgon2Id": {
+    "message": "Argon2id biedt een sterkere bescherming tegen moderne aanvallen. Het beste voor geavanceerde gebruikers met krachtige apparaten."
   }
 }

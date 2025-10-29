@@ -31,7 +31,6 @@ import { getFirstPolicy } from "@bitwarden/common/admin-console/services/policy/
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import {
   VaultTimeout,
@@ -41,7 +40,6 @@ import {
   VaultTimeoutSettingsService,
   VaultTimeoutStringType,
 } from "@bitwarden/common/key-management/vault-timeout";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -80,6 +78,8 @@ import { SetPinComponent } from "../components/set-pin.component";
 
 import { AwaitDesktopDialogComponent } from "./await-desktop-dialog.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "account-security.component.html",
   imports: [
@@ -115,7 +115,6 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
   biometricUnavailabilityReason: string;
   showChangeMasterPass = true;
   pinEnabled$: Observable<boolean> = of(true);
-  extensionLoginApprovalFlagEnabled = false;
 
   form = this.formBuilder.group({
     vaultTimeout: [null as VaultTimeout | null],
@@ -157,7 +156,6 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     private biometricsService: BiometricsService,
     private vaultNudgesService: NudgesService,
     private validationService: ValidationService,
-    private configService: ConfigService,
     private logService: LogService,
   ) {}
 
@@ -176,7 +174,9 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     }
 
     const showOnLocked =
-      !this.platformUtilsService.isFirefox() && !this.platformUtilsService.isSafari();
+      !this.platformUtilsService.isFirefox() &&
+      !this.platformUtilsService.isSafari() &&
+      !(this.platformUtilsService.isOpera() && navigator.platform === "MacIntel");
 
     this.vaultTimeoutOptions = [
       { name: this.i18nService.t("immediately"), value: 0 },
@@ -238,10 +238,6 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
       ),
     };
     this.form.patchValue(initialValues, { emitEvent: false });
-
-    this.extensionLoginApprovalFlagEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.PM14938_BrowserExtensionLoginApproval,
-    );
 
     timer(0, 1000)
       .pipe(
@@ -317,12 +313,8 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
       .pipe(
         concatMap(async (value) => {
           const userId = (await firstValueFrom(this.accountService.activeAccount$)).id;
-          const pinKeyEncryptedUserKey =
-            (await this.pinService.getPinKeyEncryptedUserKeyPersistent(userId)) ||
-            (await this.pinService.getPinKeyEncryptedUserKeyEphemeral(userId));
-          await this.pinService.clearPinKeyEncryptedUserKeyPersistent(userId);
-          await this.pinService.clearPinKeyEncryptedUserKeyEphemeral(userId);
-          await this.pinService.storePinKeyEncryptedUserKey(pinKeyEncryptedUserKey, value, userId);
+          const pin = await this.pinService.getPin(userId);
+          await this.pinService.setPin(pin, value ? "EPHEMERAL" : "PERSISTENT", userId);
           this.refreshTimeoutSettings$.next();
         }),
         takeUntil(this.destroy$),
@@ -492,7 +484,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
       }
     } else {
       const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-      await this.vaultTimeoutSettingsService.clear(userId);
+      await this.pinService.unsetPin(userId);
     }
   }
 

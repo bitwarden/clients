@@ -9,7 +9,12 @@ export abstract class SearchService {
   abstract indexedEntityId$(userId: UserId): Observable<IndexedEntityId | null>;
 
   abstract clearIndex(userId: UserId): Promise<void>;
-  abstract isSearchable(userId: UserId, query: string): Promise<boolean>;
+
+  /**
+   * Checks if the query is long enough to be searchable.
+   * For short Lunr.js queries (starts with '>'), a valid search index must exist for the user.
+   */
+  abstract isSearchable(userId: UserId, query: string | null): Promise<boolean>;
   abstract indexCiphers(
     userId: UserId,
     ciphersToIndex: CipherView[],
@@ -25,6 +30,7 @@ export abstract class SearchService {
     ciphers: C[],
     query: string,
     deleted?: boolean,
+    archived?: boolean,
   ): C[];
   abstract searchSends(sends: SendView[], query: string): SendView[];
 }

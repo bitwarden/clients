@@ -6,6 +6,7 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
 import { firstValueFrom, map, switchMap } from "rxjs";
 
+import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
   getOrganizationById,
@@ -19,17 +20,29 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { BadgeModule, ItemModule, ToastService, TypographyModule } from "@bitwarden/components";
+import { CipherFormContainer } from "@bitwarden/vault";
 
 import BrowserPopupUtils from "../../../../../../platform/browser/browser-popup-utils";
 import { FilePopoutUtilsService } from "../../../../../../tools/popup/services/file-popout-utils.service";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-open-attachments",
   templateUrl: "./open-attachments.component.html",
-  imports: [BadgeModule, CommonModule, ItemModule, JslibModule, TypographyModule],
+  imports: [
+    BadgeModule,
+    CommonModule,
+    ItemModule,
+    JslibModule,
+    TypographyModule,
+    PremiumBadgeComponent,
+  ],
 })
 export class OpenAttachmentsComponent implements OnInit {
   /** Cipher `id` */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true }) cipherId: CipherId;
 
   /** True when the attachments window should be opened in a popout */
@@ -41,6 +54,9 @@ export class OpenAttachmentsComponent implements OnInit {
   /** True when the cipher is a part of a free organization */
   cipherIsAPartOfFreeOrg: boolean;
 
+  /** Tracks the disabled status of the edit cipher form */
+  parentFormDisabled: boolean;
+
   constructor(
     private router: Router,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
@@ -50,6 +66,7 @@ export class OpenAttachmentsComponent implements OnInit {
     private i18nService: I18nService,
     private filePopoutUtilsService: FilePopoutUtilsService,
     private accountService: AccountService,
+    private cipherFormContainer: CipherFormContainer,
   ) {
     this.accountService.activeAccount$
       .pipe(
@@ -61,6 +78,10 @@ export class OpenAttachmentsComponent implements OnInit {
       .subscribe((canAccessPremium) => {
         this.canAccessAttachments = canAccessPremium;
       });
+
+    this.cipherFormContainer.formStatusChange$.pipe(takeUntilDestroyed()).subscribe((status) => {
+      this.parentFormDisabled = status === "disabled";
+    });
   }
 
   async ngOnInit(): Promise<void> {

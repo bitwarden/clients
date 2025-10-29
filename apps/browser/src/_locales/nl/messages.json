@@ -550,11 +550,46 @@
   "resetSearch": {
     "message": "Zoekopdracht resetten"
   },
+  "archiveNoun": {
+    "message": "Archief",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archiveren",
+    "description": "Verb"
+  },
+  "unArchive": {
+    "message": "Dearchiveren"
+  },
+  "itemsInArchive": {
+    "message": "Items in archief"
+  },
+  "noItemsInArchive": {
+    "message": "Geen items in archief"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Gearchiveerde items verschijnen hier en worden uitgesloten van algemene zoekresultaten en automatisch invulsuggesties."
+  },
+  "itemWasSentToArchive": {
+    "message": "Item naar archief verzonden"
+  },
+  "itemUnarchived": {
+    "message": "Item uit het archief gehaald"
+  },
+  "archiveItem": {
+    "message": "Item archiveren"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Gearchiveerde items worden uitgesloten van algemene zoekresultaten en automatische invulsuggesties. Weet je zeker dat je dit item wilt archiveren?"
+  },
   "edit": {
     "message": "Bewerken"
   },
   "view": {
     "message": "Weergeven"
+  },
+  "viewLogin": {
+    "message": "Login bekijken"
   },
   "noItemsInList": {
     "message": "Er zijn geen items om weer te geven."
@@ -697,6 +732,15 @@
   },
   "invalidMasterPassword": {
     "message": "Ongeldig hoofdwachtwoord"
+  },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Ongeldig hoofdwachtwoord. Check of je e-mailadres klopt en of je account is aangemaakt op $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
   },
   "vaultTimeout": {
     "message": "Time-out van de kluis"
@@ -1022,7 +1066,7 @@
     "message": "Opslaan in kluisopties"
   },
   "addLoginNotificationDesc": {
-    "message": "\"Melding bij nieuwe login\" vraagt automatisch om nieuwe sites in de kluis op te slaan wanneer je ergens voor de eerste keer inlogt."
+    "message": "Vraag om een item toe te voegen als deze niet in je kluis is gevonden."
   },
   "addLoginNotificationDescAlt": {
     "message": "Vraag om een item toe te voegen als het niet is gevonden is je kluis. Dit geld voor alle ingelogde accounts."
@@ -1504,6 +1548,15 @@
   "readSecurityKey": {
     "message": "Beveiligingssleutel lezen"
   },
+  "readingPasskeyLoading": {
+    "message": "Passkey uitlezen..."
+  },
+  "passkeyAuthenticationFailed": {
+    "message": "Passkey-authenticatie mislukt"
+  },
+  "useADifferentLogInMethod": {
+    "message": "Gebruik een andere loginmethode"
+  },
   "awaitingSecurityKeyInteraction": {
     "message": "Wacht op interactie met beveiligingssleutel…"
   },
@@ -1521,9 +1574,6 @@
   },
   "selectTwoStepLoginMethod": {
     "message": "Kies methode voor tweestapslogin"
-  },
-  "recoveryCodeDesc": {
-    "message": "Ben je de toegang tot al je tweestapsaanbieders verloren? Gebruik dan je herstelcode om alle tweestapsaanbieders op je account uit te schakelen."
   },
   "recoveryCodeTitle": {
     "message": "Herstelcode"
@@ -1683,9 +1733,6 @@
   "defaultAutoFillOnPageLoadDesc": {
     "message": "Na het inschakelen van Automatisch invullen bij laden van pagina, kun je de functie voor individuele inlogitems in- of uitschakelen. Dit is de standaardinstelling voor inlogitems die niet afzonderlijk zijn geconfigureerd."
   },
-  "itemAutoFillOnPageLoad": {
-    "message": "Automatisch invullen bij laden van pagina (als ingeschakeld in Opties)"
-  },
   "autoFillOnPageLoadUseDefault": {
     "message": "Standaardinstelling gebruiken"
   },
@@ -1757,23 +1804,8 @@
   "popup2faCloseMessage": {
     "message": "Als je buiten het pop-upvenster klikt om je e-mail te controleren op een verificatiecode, dan zal de pop-up sluiten. Wil je het pop-upvenster openen in een nieuw scherm, zodat het niet wordt gesloten?"
   },
-  "popupU2fCloseMessage": {
-    "message": "Deze browser kan U2F-verzoeken niet verwerken in dit popupvenster. Wilt je deze pop-up openen in een nieuw venster zodat je kunt inloggen met U2F?"
-  },
-  "enableFavicon": {
-    "message": "Websitepictogrammen weergeven"
-  },
-  "faviconDesc": {
-    "message": "Een herkenbare afbeelding naast iedere login weergeven."
-  },
-  "faviconDescAlt": {
-    "message": "Toon een herkenbare afbeelding naast elke login. Geldt voor alle ingelogde accounts."
-  },
-  "enableBadgeCounter": {
-    "message": "Teller weergeven"
-  },
-  "badgeCounterDesc": {
-    "message": "Indicatie van het aantal logins dat je hebt voor de huidige webpagina."
+  "showIconsChangePasswordUrls": {
+    "message": "Websitepictogrammen weergeven en URL's voor wachtwoordwijzigingen ophalen"
   },
   "cardholderName": {
     "message": "Naam kaarthouder"
@@ -1937,32 +1969,81 @@
   "typeNote": {
     "message": "Notitie"
   },
-  "newItemHeader": {
-    "message": "Nieuwe $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderLogin": {
+    "message": "Nieuwe login",
+    "description": "Header for new login item type"
   },
-  "editItemHeader": {
-    "message": "$TYPE$ bewerken",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderCard": {
+    "message": "Nieuwe kaart",
+    "description": "Header for new card item type"
   },
-  "viewItemHeader": {
-    "message": "$TYPE$ weergeven",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderIdentity": {
+    "message": "Nieuwe identiteit",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "Nieuwe notitie",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "Nieuwe SSH-sleutel",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderTextSend": {
+    "message": "Nieuwe Send (tekst)",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "Nieuwe Send (bestand)",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderLogin": {
+    "message": "Login bewerken",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Kaart bewerken",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Identiteit bewerken",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Notitie bewerken",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "SSH-sleutel bewerken",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Send (tekst) bewerken",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Send (bestand) bewerken",
+    "description": "Header for edit file send"
+  },
+  "viewItemHeaderLogin": {
+    "message": "Login bekijken",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "Kaart bekijken",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "Identiteit bekijken",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "Notitie bekijken",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "SSH-sleutel bekijken",
+    "description": "Header for view SSH key item type"
   },
   "passwordHistory": {
     "message": "Geschiedenis"
@@ -3135,6 +3216,24 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Alleen de organisatiekluis die gekoppeld is aan $ORGANIZATION$ wordt geëxporteerd.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Exporteert alleen de organisatiekluis van $ORGANIZATION$. Geen persoonlijke kluis-items.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "error": {
     "message": "Fout"
   },
@@ -3374,10 +3473,10 @@
     "message": "Premium-abonnement vereist"
   },
   "organizationIsDisabled": {
-    "message": "Organisatie is uitgeschakeld."
+    "message": "Organisatie opgeschort."
   },
   "disabledOrganizationFilterError": {
-    "message": "Je kunt uitgeschakelde items in een organisatie niet benaderen. Neem contact op met de eigenaar van je organisatie voor hulp."
+    "message": "Je kunt items in opgeschorte organisaties niet benaderen. Neem contact op met de eigenaar van je organisatie voor hulp."
   },
   "loggingInTo": {
     "message": "Inloggen op $DOMAIN$",
@@ -3523,9 +3622,6 @@
   },
   "autofillPageLoadPolicyActivated": {
     "message": "Je organisatiebeleid heeft het automatisch invullen bij laden van pagina ingeschakeld."
-  },
-  "howToAutofill": {
-    "message": "Hoe automatisch invullen"
   },
   "autofillSelectInfoWithCommand": {
     "message": "Selecteer een item in dit scherm, gebruik de sneltoets $COMMAND$ of verken andere opties in de instellingen.",
@@ -3911,17 +4007,9 @@
   "aliasDomain": {
     "message": "Aliasdomein"
   },
-  "passwordRepromptDisabledAutofillOnPageLoad": {
-    "message": "Items met hoofdwachtwoord re-prompt kunnen niet automatisch worden ingevuld bij het laden van de pagina. Automatisch invullen bij laden van pagina uitgeschakeld.",
-    "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
-  },
   "autofillOnPageLoadSetToDefault": {
     "message": "Automatisch invullen bij het laden van een pagina ingesteld op de standaardinstelling.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "turnOffMasterPasswordPromptToEditField": {
-    "message": "Hoofdwachtwoord herhaalprompt uitschakelen om dit veld te bewerken",
-    "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
   },
   "toggleSideNavigation": {
     "message": "Zijnavigatie schakelen"
@@ -4131,15 +4219,11 @@
   "selectImportCollection": {
     "message": "Collectie selecteren"
   },
-  "importTargetHint": {
-    "message": "Kies deze optie als je de geïmporteerde bestandsinhoud wilt verplaatsen naar een $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Kies deze optie als je de geïmporteerde bestandsinhoud naar een collectie wilt verplaatsen"
+  },
+  "importTargetHintFolder": {
+    "message": "Kies deze optie als je de geïmporteerde bestandsinhoud naar een map wilt verplaatsen"
   },
   "importUnassignedItemsError": {
     "message": "Bestand bevat niet-toegewezen items."
@@ -4195,9 +4279,6 @@
   },
   "passkeyNotCopiedAlert": {
     "message": "De passkey wordt niet gekopieerd naar het gekloonde item. Wil je doorgaan met het klonen van dit item?"
-  },
-  "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
-    "message": "De initiërende site vereist verificatie. Deze functie is nog niet geïmplementeerd voor accounts zonder hoofdwachtwoord."
   },
   "logInWithPasskeyQuestion": {
     "message": "Inloggen met passkey?"
@@ -4884,9 +4965,6 @@
       }
     }
   },
-  "enableAnimations": {
-    "message": "Animaties inschakelen"
-  },
   "showAnimations": {
     "message": "Animaties weergeven"
   },
@@ -5099,14 +5177,8 @@
   "itemLocation": {
     "message": "Itemlocatie"
   },
-  "fileSend": {
-    "message": "Bestand verzenden"
-  },
   "fileSends": {
     "message": "Bestanden verzenden"
-  },
-  "textSend": {
-    "message": "Tekst-Sends"
   },
   "textSends": {
     "message": "Tekst-Sends"
@@ -5116,6 +5188,18 @@
   },
   "showNumberOfAutofillSuggestions": {
     "message": "Aantal login automatisch invullen suggesties op het extensie-pictogram weergeven"
+  },
+  "accountAccessRequested": {
+    "message": "Accounttoegang aangevraagd"
+  },
+  "confirmAccessAttempt": {
+    "message": "Inlogpoging voor $EMAIL$ bevestigen",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
   },
   "showQuickCopyActions": {
     "message": "Toon snelle kopieeracties in de kluis"
@@ -5155,9 +5239,6 @@
   },
   "vaultCustomTimeoutMinimum": {
     "message": "Minimale aangepaste time-out is 1 minuut."
-  },
-  "additionalContentAvailable": {
-    "message": "Extra inhoud beschikbaar"
   },
   "fileSavedToDevice": {
     "message": "Bestand op apparaat opgeslagen. Beheer vanaf de downloads op je apparaat."
@@ -5444,6 +5525,12 @@
   "changeAtRiskPassword": {
     "message": "Risicovol wachtwoord wijzigen"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Deze login is in gevaar en mist een website. Voeg een website toe en verander het wachtwoord voor een sterkere beveiliging."
+  },
+  "missingWebsite": {
+    "message": "Ontbrekende website"
+  },
   "settingsVaultOptions": {
     "message": "Kluis-instellingen"
   },
@@ -5491,6 +5578,38 @@
   },
   "hasItemsVaultNudgeTitle": {
     "message": "Welkom in je kluis!"
+  },
+  "phishingPageTitleV2": {
+    "message": "Phishing-poging gedetecteerd"
+  },
+  "phishingPageSummary": {
+    "message": "De site die je probeert te bezoeken is een bekende kwaadaardige site en een veiligheidsrisico."
+  },
+  "phishingPageCloseTabV2": {
+    "message": "Dit tabblad sluiten"
+  },
+  "phishingPageContinueV2": {
+    "message": "Doorgaan naar deze site (niet aanbevolen)"
+  },
+  "phishingPageExplanation1": {
+    "message": "Deze site is gevonden in ",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name follows this."
+  },
+  "phishingPageExplanation2": {
+    "message": ", een open-source lijst van bekende phishing-sites die worden gebruikt om persoonlijke en gevoelige informatie te stelen.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name precedes this."
+  },
+  "phishingPageLearnMore": {
+    "message": "Leer meer over phishing-detectie"
+  },
+  "protectedBy": {
+    "message": "Beschermd door $PRODUCT$",
+    "placeholders": {
+      "product": {
+        "content": "$1",
+        "example": "Bitwarden Phishing Blocker"
+      }
+    }
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Automatisch invullen van items voor de huidige pagina"
@@ -5567,6 +5686,12 @@
     "message": "Maak eenvoudig sterke en unieke wachtwoorden door op de knop Wachtwoord genereren te klikken om je logins veilig te houden.",
     "description": "Aria label for the body content of the generator nudge"
   },
+  "aboutThisSetting": {
+    "message": "Over deze instelling"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden gebruikt opgeslagen login-URI's om te bepalen welk pictogram of URL voor het wijzigen van het wachtwoord moet worden gebruikt om je ervaring te verbeteren. Er wordt geen informatie verzameld of opgeslagen wanneer je deze service gebruikt."
+  },
   "noPermissionsViewPage": {
     "message": "Je hebt geen rechten om deze pagina te bekijken. Probeer in te loggen met een ander account."
   },
@@ -5579,5 +5704,22 @@
   },
   "showLess": {
     "message": "Minder weergeven"
+  },
+  "next": {
+    "message": "Volgende"
+  },
+  "moreBreadcrumbs": {
+    "message": "Meer broodkruimels",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Key Connector-domein bevestigen"
+  },
+  "atRiskLoginsSecured": {
+    "message": "Goed gedaan, je hebt je risicovolle inloggegevens verbeterd!"
+  },
+  "settingDisabledByPolicy": {
+    "message": "Deze instelling is uitgeschakeld door het beleid van uw organisatie.",
+    "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
   }
 }

@@ -52,6 +52,8 @@ export enum SendItemDialogResult {
 /**
  * Component for adding or editing a send item.
  */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "send-add-edit-dialog.component.html",
   imports: [
@@ -153,15 +155,12 @@ export class SendAddEditDialogComponent {
    * @returns The header text.
    */
   private getHeaderText(mode: SendFormMode, type: SendType) {
-    const headerKey =
-      mode === "edit" || mode === "partial-edit" ? "editItemHeader" : "newItemHeader";
-
-    switch (type) {
-      case SendType.Text:
-        return this.i18nService.t(headerKey, this.i18nService.t("textSend"));
-      case SendType.File:
-        return this.i18nService.t(headerKey, this.i18nService.t("fileSend"));
-    }
+    const isEditMode = mode === "edit" || mode === "partial-edit";
+    const translation = {
+      [SendType.Text]: isEditMode ? "editItemHeaderTextSend" : "newItemHeaderTextSend",
+      [SendType.File]: isEditMode ? "editItemHeaderFileSend" : "newItemHeaderFileSend",
+    };
+    return this.i18nService.t(translation[type]);
   }
 
   /**

@@ -30,6 +30,7 @@ describe("ORGANIZATIONS state", () => {
         useSecretsManager: false,
         usePasswordManager: false,
         useActivateAutofillPolicy: false,
+        useAutomaticUserConfirmation: false,
         selfHost: false,
         usersGetPremium: false,
         seats: 0,
@@ -61,6 +62,8 @@ describe("ORGANIZATIONS state", () => {
         useOrganizationDomains: false,
         useAdminSponsoredFamilies: false,
         isAdminInitiated: false,
+        ssoEnabled: false,
+        ssoMemberDecryptionType: undefined,
       },
     };
     const result = sut.deserializer(JSON.parse(JSON.stringify(expectedResult)));

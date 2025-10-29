@@ -49,7 +49,7 @@
               *ngFor="let c of collections$ | async"
               [value]="c"
               [label]="c.name"
-              icon="bwi-collection-shared"
+              [icon]="c.type === DefaultCollectionType ? 'bwi-user' : 'bwi-collection-shared'"
             />
           </ng-container>
         </bit-select>
@@ -65,7 +65,7 @@
       <h2 class="tw-font-bold" bitTypography="h6">{{ "data" | i18n }}</h2>
     </bit-section-header>
     <bit-card>
-      <bit-form-field class="tw-w-1/2">
+      <bit-form-field class="@2xl:tw-w-1/2">
         <bit-label>{{ "fileFormat" | i18n }}</bit-label>
         <bit-select formControlName="format">
           <bit-option value="" label="-- {{ 'select' | i18n }} --" />
@@ -169,27 +169,41 @@
       "Export" to save the JSON file.
     </ng-container>
     -->
-        <ng-container
-          *ngIf="
-            format === 'chromecsv' ||
-            format === 'operacsv' ||
-            format === 'vivaldicsv' ||
-            format === 'edgecsv'
-          "
-        >
+        <ng-container *ngIf="showChromiumInstructions$ | async">
           <span *ngIf="format !== 'chromecsv'">
             The process is exactly the same as importing from Google Chrome.
           </span>
-          See detailed instructions on our help site at
-          <a
-            bitLink
-            linkType="primary"
-            target="_blank"
-            rel="noreferrer"
-            href="https://bitwarden.com/help/import-from-chrome/"
+          <p>
+            See detailed instructions on our help site at
+            <a
+              bitLink
+              linkType="primary"
+              target="_blank"
+              rel="noreferrer"
+              href="https://bitwarden.com/help/import-from-chrome/"
+            >
+              https://bitwarden.com/help/import-from-chrome/</a
+            >
+          </p>
+          <bit-radio-group
+            [hidden]="!(browserImporterAvailable$ | async)"
+            formControlName="chromiumLoader"
           >
-            https://bitwarden.com/help/import-from-chrome/</a
-          >
+            <bit-radio-button
+              class="tw-block"
+              id="import_bit-radio-button_chrome-browser"
+              value="chromium"
+            >
+              <bit-label>{{ "importDirectlyFromBrowser" | i18n }}</bit-label>
+            </bit-radio-button>
+            <bit-radio-button
+              class="tw-block"
+              id="import_bit-radio-button_chrome-file"
+              value="file"
+            >
+              <bit-label>{{ "importFromCSV" | i18n }}</bit-label>
+            </bit-radio-button>
+          </bit-radio-group>
         </ng-container>
         <ng-container *ngIf="format === 'firefoxcsv'">
           See detailed instructions on our help site at
@@ -440,12 +454,20 @@
           previously chosen.
         </ng-container>
       </bit-callout>
-      <import-lastpass
-        *ngIf="showLastPassOptions"
-        [formGroup]="formGroup"
-        (csvDataLoaded)="this.formGroup.controls.fileContents.setValue($event)"
-      ></import-lastpass>
-      <div [hidden]="showLastPassOptions">
+      @if (showLastPassOptions) {
+        <import-lastpass
+          [formGroup]="formGroup"
+          (csvDataLoaded)="this.formGroup.controls.fileContents.setValue($event)"
+        ></import-lastpass>
+      } @else if (showChromiumOptions$ | async) {
+        <import-chrome
+          [formGroup]="formGroup"
+          [onImportFromBrowser]="this.onImportFromBrowser"
+          [onLoadProfilesFromBrowser]="this.onLoadProfilesFromBrowser"
+          [format]="this.format"
+          (csvDataLoaded)="this.formGroup.controls.fileContents.setValue($event)"
+        ></import-chrome>
+      } @else {
         <bit-form-field>
           <bit-label>{{ "selectImportFile" | i18n }}</bit-label>
           <div class="file-selector tw-pt-2 tw-pb-1 tw-break-words">
@@ -473,7 +495,7 @@
             formControlName="fileContents"
           ></textarea>
         </bit-form-field>
-      </div>
+      }
     </bit-card>
   </bit-section>
 </form>
