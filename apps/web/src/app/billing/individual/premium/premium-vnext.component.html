@@ -38,7 +38,7 @@
           <billing-pricing-card
             [tagline]="'planDescFamiliesV2' | i18n"
             [price]="{ amount: familiesData.price, cadence: 'monthly' }"
-            [button]="{ type: 'secondary', text: ('upgradeToFamilies' | i18n) }"
+            [button]="{ type: 'secondary', text: ('startFreeFamiliesTrial' | i18n) }"
             [features]="familiesData.features"
             (buttonClick)="openUpgradeDialog('Families')"
           >
