@@ -99,7 +99,7 @@ export class AnchorLinkDirective extends LinkDirective {
 export class ButtonLinkDirective extends LinkDirective {
   private el = inject(ElementRef<HTMLButtonElement>);
 
-  disabled = input(false, { transform: booleanAttribute });
+  readonly disabled = input(false, { transform: booleanAttribute });
 
   @HostBinding("class") get classList() {
     return ["before:-tw-inset-y-[0.25rem]"]

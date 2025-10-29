@@ -14,6 +14,8 @@ import { ToggleGroupComponent } from "./toggle-group.component";
 
 let nextId = 0;
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-toggle",
   templateUrl: "./toggle.component.html",
@@ -31,8 +33,8 @@ export class ToggleComponent<TValue> implements AfterContentChecked, AfterViewIn
   @HostBinding("tabIndex") tabIndex = "-1";
   @HostBinding("class") classList = ["tw-group/toggle", "tw-flex", "tw-min-w-16"];
 
-  protected bitBadgeContainerHasChidlren = signal(false);
-  protected labelTitle = signal<string | null>(null);
+  protected readonly bitBadgeContainerHasChidlren = signal(false);
+  protected readonly labelTitle = signal<string | null>(null);
 
   get name() {
     return this.groupComponent.name;

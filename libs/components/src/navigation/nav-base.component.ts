@@ -61,5 +61,7 @@ export abstract class NavBaseComponent {
   /**
    * Fires when main content is clicked
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() mainContentClicked: EventEmitter<MouseEvent> = new EventEmitter();
 }

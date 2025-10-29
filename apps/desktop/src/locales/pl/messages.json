@@ -1852,6 +1852,12 @@
   "lockWithMasterPassOnRestart1": {
     "message": "Zablokuj hasłem głównym po uruchomieniu ponownym"
   },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "Require master password or PIN on app restart"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "Require master password on app restart"
+  },
   "deleteAccount": {
     "message": "Usuń konto"
   },
@@ -4167,7 +4173,7 @@
   "itemWasSentToArchive": {
     "message": "Element został przeniesiony do archiwum"
   },
-  "itemUnarchived": {
+  "itemWasUnarchived": {
     "message": "Element został usunięty z archiwum"
   },
   "archiveItem": {

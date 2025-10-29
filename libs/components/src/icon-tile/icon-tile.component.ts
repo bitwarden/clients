@@ -56,6 +56,8 @@ const shapeStyles: Record<IconTileShape, Record<IconTileSize, string[]>> = {
  * - Create visual hierarchy in lists or cards
  * - Show app or service icons in a consistent format
  */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-icon-tile",
   templateUrl: "icon-tile.component.html",

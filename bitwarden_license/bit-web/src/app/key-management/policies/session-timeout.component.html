@@ -1,0 +1,39 @@
+<bit-callout title="{{ 'prerequisite' | i18n }}">
+  {{ "requireSsoPolicyReq" | i18n }}
+</bit-callout>
+
+<bit-form-control>
+  <input type="checkbox" id="enabled" bitCheckbox [formControl]="enabled" />
+  <bit-label>{{ "turnOn" | i18n }}</bit-label>
+</bit-form-control>
+
+<div [formGroup]="data">
+  <div class="tw-grid tw-grid-cols-12 tw-gap-4">
+    <bit-form-field class="tw-col-span-12 !tw-mb-0">
+      <bit-label>{{ "maximumAllowedTimeout" | i18n }}</bit-label>
+      <bit-select formControlName="type">
+        @for (option of typeOptions; track option.value) {
+          <bit-option [value]="option.value" [label]="option.name"></bit-option>
+        }
+      </bit-select>
+    </bit-form-field>
+    @if (data.value.type === "custom") {
+      <bit-form-field class="tw-col-span-6 tw-self-start !tw-mb-0">
+        <bit-label>{{ "hours" | i18n }}</bit-label>
+        <input bitInput type="number" min="0" formControlName="hours" />
+      </bit-form-field>
+      <bit-form-field class="tw-col-span-6 tw-self-start !tw-mb-0">
+        <bit-label>{{ "minutes" | i18n }}</bit-label>
+        <input bitInput type="number" min="0" max="59" formControlName="minutes" />
+      </bit-form-field>
+    }
+    <bit-form-field class="tw-col-span-12">
+      <bit-label>{{ "sessionTimeoutAction" | i18n }}</bit-label>
+      <bit-select formControlName="action">
+        @for (option of actionOptions; track option.value) {
+          <bit-option [value]="option.value" [label]="option.name"></bit-option>
+        }
+      </bit-select>
+    </bit-form-field>
+  </div>
+</div>

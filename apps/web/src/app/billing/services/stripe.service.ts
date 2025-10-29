@@ -230,6 +230,8 @@ export class StripeService {
             '"Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"',
           fontSize: "16px",
           fontSmoothing: "antialiased",
+          lineHeight: "1.5",
+          padding: "8px 12px",
           "::placeholder": {
             color: null,
           },
