@@ -1505,12 +1505,6 @@
   "enableAutoBiometricsPrompt": {
     "message": "Ask for biometrics on launch"
   },
-  "premiumRequired": {
-    "message": "Premium required"
-  },
-  "premiumRequiredDesc": {
-    "message": "A Premium membership is required to use this feature."
-  },
   "authenticationTimeout": {
     "message": "Authentication timeout"
   },

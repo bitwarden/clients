@@ -350,6 +350,18 @@ export class AppComponent implements OnInit, OnDestroy {
             });
             break;
           }
+          case "premiumRequired": {
+            const premiumConfirmed = await this.dialogService.openSimpleDialog({
+              title: { key: "premiumRequired" },
+              content: { key: "premiumRequiredDesc" },
+              acceptButtonText: { key: "learnMore" },
+              type: "success",
+            });
+            if (premiumConfirmed) {
+              await this.openModal<PremiumComponent>(PremiumComponent, this.premiumRef);
+            }
+            break;
+          }
           case "emailVerificationRequired": {
             const emailVerificationConfirmed = await this.dialogService.openSimpleDialog({
               title: { key: "emailVerificationRequired" },
