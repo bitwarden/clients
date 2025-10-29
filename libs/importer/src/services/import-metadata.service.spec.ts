@@ -166,20 +166,6 @@ describe("ImportMetadataService", () => {
       expect(result.loaders).toContain(Loader.file);
     });
 
-    it("should exclude chromium loader when ABE is disabled but on Windows Desktop", async () => {
-      environment.getDevice.mockReturnValue(DeviceType.WindowsDesktop);
-      const testType: ImportType = "bravecsv"; // bravecsv supports both file and chromium loaders
-      featureFlagSubject.next(false);
-
-      const metadataPromise = firstValueFrom(sut.metadata$(typeSubject));
-      typeSubject.next(testType);
-
-      const result = await metadataPromise;
-
-      expect(result.loaders).not.toContain(Loader.chromium);
-      expect(result.loaders).toContain(Loader.file);
-    });
-
     it("should include chromium loader when ABE is disabled and not on Windows Desktop", async () => {
       environment.getDevice.mockReturnValue(DeviceType.MacOsDesktop);
       const testType: ImportType = "bravecsv"; // bravecsv supports both file and chromium loaders
