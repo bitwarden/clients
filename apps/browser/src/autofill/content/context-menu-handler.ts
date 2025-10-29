@@ -1,43 +1,43 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 const inputTags = ["input", "textarea", "select"];
 const labelTags = ["label", "span"];
-const attributes = ["id", "name", "label-aria", "placeholder"];
+const attributeKeys = ["id", "name", "label-aria", "placeholder"];
 const invalidElement = chrome.i18n.getMessage("copyCustomFieldNameInvalidElement");
 const noUniqueIdentifier = chrome.i18n.getMessage("copyCustomFieldNameNotUnique");
 
-let clickedEl: HTMLElement = null;
+let clickedElement: HTMLElement | null = null;
 
 // Find the best attribute to be used as the Name for an element in a custom field.
 function getClickedElementIdentifier() {
-  if (clickedEl == null) {
+  if (clickedElement == null) {
     return invalidElement;
   }
 
-  const clickedTag = clickedEl.nodeName.toLowerCase();
-  let inputEl = null;
+  const clickedTag = clickedElement.nodeName.toLowerCase();
+  let inputElement = null;
 
   // Try to identify the input element (which may not be the clicked element)
   if (labelTags.includes(clickedTag)) {
-    let inputId = null;
+    let inputId;
     if (clickedTag === "label") {
-      inputId = clickedEl.getAttribute("for");
+      inputId = clickedElement.getAttribute("for");
     } else {
-      inputId = clickedEl.closest("label")?.getAttribute("for");
+      inputId = clickedElement.closest("label")?.getAttribute("for");
     }
 
-    inputEl = document.getElementById(inputId);
+    if (inputId) {
+      inputElement = document.getElementById(inputId);
+    }
   } else {
-    inputEl = clickedEl;
+    inputElement = clickedElement;
   }
 
-  if (inputEl == null || !inputTags.includes(inputEl.nodeName.toLowerCase())) {
+  if (inputElement == null || !inputTags.includes(inputElement.nodeName.toLowerCase())) {
     return invalidElement;
   }
 
-  for (const attr of attributes) {
-    const attributeValue = inputEl.getAttribute(attr);
-    const selector = "[" + attr + '="' + attributeValue + '"]';
+  for (const attributeKey of attributeKeys) {
+    const attributeValue = inputElement.getAttribute(attributeKey);
+    const selector = "[" + attributeKey + '="' + attributeValue + '"]';
     if (!isNullOrEmpty(attributeValue) && document.querySelectorAll(selector)?.length === 1) {
       return attributeValue;
     }
@@ -45,14 +45,14 @@ function getClickedElementIdentifier() {
   return noUniqueIdentifier;
 }
 
-function isNullOrEmpty(s: string) {
+function isNullOrEmpty(s: string | null) {
   return s == null || s === "";
 }
 
 // We only have access to the element that's been clicked when the context menu is first opened.
 // Remember it for use later.
 document.addEventListener("contextmenu", (event) => {
-  clickedEl = event.target as HTMLElement;
+  clickedElement = event.target as HTMLElement;
 });
 
 // Runs when the 'Copy Custom Field Name' context menu item is actually clicked.
