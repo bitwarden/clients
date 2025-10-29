@@ -62,6 +62,8 @@ import { initPopupClosedListener } from "../platform/services/popup-view-cache-b
 import { routerTransition } from "./app-routing.animations";
 import { DesktopSyncVerificationDialogComponent } from "./components/desktop-sync-verification-dialog.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-root",
   styles: [],

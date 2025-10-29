@@ -165,6 +165,7 @@ export class RiskInsightsOrchestratorService {
   initializeForOrganization(organizationId: OrganizationId) {
     this.logService.debug("[RiskInsightsOrchestratorService] Initializing for org", organizationId);
     this._initializeOrganizationTriggerSubject.next(organizationId);
+    this.fetchReport();
   }
 
   removeCriticalApplication$(criticalApplication: string): Observable<ReportState> {
@@ -587,7 +588,7 @@ export class RiskInsightsOrchestratorService {
   private _setupEnrichedReportData() {
     // Setup the enriched report data pipeline
     const enrichmentSubscription = combineLatest([
-      this.rawReportData$.pipe(filter((data) => !!data && !!data?.data)),
+      this.rawReportData$,
       this._ciphers$.pipe(filter((data) => !!data)),
     ]).pipe(
       switchMap(([rawReportData, ciphers]) => {
@@ -627,7 +628,7 @@ export class RiskInsightsOrchestratorService {
       .pipe(
         withLatestFrom(this._userId$),
         filter(([orgId, userId]) => !!orgId && !!userId),
-        exhaustMap(([orgId, userId]) =>
+        switchMap(([orgId, userId]) =>
           this.organizationService.organizations$(userId!).pipe(
             getOrganizationById(orgId),
             map((org) => ({ organizationId: orgId!, organizationName: org?.name ?? "" })),
@@ -725,7 +726,7 @@ export class RiskInsightsOrchestratorService {
       scan((prevState: ReportState, currState: ReportState) => ({
         ...prevState,
         ...currState,
-        data: currState.data !== null ? currState.data : prevState.data,
+        data: currState.data,
       })),
       startWith({ loading: false, error: null, data: null }),
       shareReplay({ bufferSize: 1, refCount: true }),
