@@ -1,8 +1,18 @@
 import { Injectable } from "@angular/core";
+import { combineLatest, firstValueFrom, from, map, switchMap } from "rxjs";
 
-import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
+import {
+  Collection,
+  CollectionData,
+  CollectionDetailsResponse,
+  CollectionService,
+  OrganizationUserApiService,
+} from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { KeyService } from "@bitwarden/key-management";
 
 import { GroupApiService } from "../../../core";
 import { OrganizationUserView } from "../../../core/views/organization-user.view";
@@ -13,6 +23,9 @@ export class OrganizationMembersService {
     private organizationUserApiService: OrganizationUserApiService,
     private groupService: GroupApiService,
     private apiService: ApiService,
+    private keyService: KeyService,
+    private accountService: AccountService,
+    private collectionService: CollectionService,
   ) {}
 
   async loadUsers(organization: Organization): Promise<OrganizationUserView[]> {
@@ -62,15 +75,38 @@ export class OrganizationMembersService {
   }
 
   private async getCollectionNameMap(organization: Organization): Promise<Map<string, string>> {
-    const response = this.apiService
-      .getCollections(organization.id)
-      .then((res) =>
-        res.data.map((r: { id: string; name: string }) => ({ id: r.id, name: r.name })),
-      );
+    const collections$ = from(this.apiService.getCollections(organization.id)).pipe(
+      map((response) => {
+        return response.data.map((r) =>
+          Collection.fromCollectionData(new CollectionData(r as CollectionDetailsResponse)),
+        );
+      }),
+    );
 
-    const collections = await response;
-    const collectionMap = new Map<string, string>();
-    collections.forEach((c: { id: string; name: string }) => collectionMap.set(c.id, c.name));
-    return collectionMap;
+    const orgKey$ = this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) => this.keyService.orgKeys$(userId)),
+      map((orgKeys) => {
+        if (orgKeys == null) {
+          throw new Error("Organization keys not found for provided User.");
+        }
+        return orgKeys;
+      }),
+    );
+
+    return await firstValueFrom(
+      combineLatest([orgKey$, collections$]).pipe(
+        switchMap(([orgKey, collections]) =>
+          this.collectionService.decryptMany$(collections, orgKey),
+        ),
+        map((decryptedCollections) => {
+          const collectionMap: Map<string, string> = new Map<string, string>();
+          decryptedCollections.forEach((c) => {
+            collectionMap.set(c.id, c.name);
+          });
+          return collectionMap;
+        }),
+      ),
+    );
   }
 }
