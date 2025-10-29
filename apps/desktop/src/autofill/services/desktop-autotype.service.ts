@@ -142,8 +142,19 @@ export class DesktopAutotypeService {
       )
       .subscribe();
 
+    this.autotypeFeatureEnabled$
+      .pipe(
+        concatMap(async (enabled) => {
+          ipc.autofill.toggleAutotype(enabled);
+        }),
+        takeUntilDestroyed(),
+      )
+      .subscribe();
+  }
+
+  private get autotypeFeatureEnabled$(): Observable<boolean> {
     // listen for changes in factors that are required for enablement of the feature
-    combineLatest([
+    return combineLatest([
       // if the user has enabled the setting
       this.autotypeEnabledUserSetting$,
       // if the feature flag is set
@@ -157,22 +168,16 @@ export class DesktopAutotypeService {
           this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
         ),
       ),
-    ])
-      .pipe(
-        map(
-          ([settingsEnabled, ffEnabled, authStatus, hasPremium]) =>
-            settingsEnabled &&
-            ffEnabled &&
-            authStatus === AuthenticationStatus.Unlocked &&
-            hasPremium,
-        ),
-        distinctUntilChanged(), // Only emit when the boolean result changes
-        concatMap(async (enabled) => {
-          ipc.autofill.toggleAutotype(enabled);
-        }),
-        takeUntilDestroyed(),
-      )
-      .subscribe();
+    ]).pipe(
+      map(
+        ([settingsEnabled, ffEnabled, authStatus, hasPremium]) =>
+          settingsEnabled &&
+          ffEnabled &&
+          authStatus === AuthenticationStatus.Unlocked &&
+          hasPremium,
+      ),
+      distinctUntilChanged(), // Only emit when the boolean result changes
+    );
   }
 
   async setAutotypeEnabledState(enabled: boolean): Promise<void> {
