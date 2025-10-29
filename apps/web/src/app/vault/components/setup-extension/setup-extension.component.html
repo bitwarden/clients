@@ -29,10 +29,7 @@
   </div>
 </section>
 
-<section
-  *ngIf="state === SetupExtensionState.Success || state === SetupExtensionState.AlreadyInstalled"
-  class="tw-flex tw-flex-col tw-items-center"
->
+<section *ngIf="showSuccessUI" class="tw-flex tw-flex-col tw-items-center">
   <div class="tw-size-[90px]">
     <bit-icon [icon]="PartyIcon"></bit-icon>
   </div>
@@ -62,7 +59,16 @@
       {{ "skipToWebApp" | i18n }}
     </a>
   </div>
-  <p class="tw-mt-10 tw-max-w-96 tw-text-center">
+
+  <div
+    *ngIf="state === SetupExtensionState.ManualOpen"
+    aria-live="polite"
+    class="tw-text-center tw-max-w-96 tw-mt-4"
+  >
+    <vault-manually-open-extension></vault-manually-open-extension>
+  </div>
+
+  <p class="tw-mt-4 tw-max-w-96 tw-text-center">
     {{ "gettingStartedWithBitwardenPart1" | i18n }}
     <a bitLink href="https://bitwarden.com/help/learning-center/">
       {{ "gettingStartedWithBitwardenPart2" | i18n }}
@@ -72,8 +78,4 @@
       {{ "gettingStartedWithBitwardenPart3" | i18n }}
     </a>
   </p>
-</section>
-
-<section *ngIf="state === SetupExtensionState.ManualOpen" aria-live="polite" class="tw-text-center">
-  <vault-manually-open-extension></vault-manually-open-extension>
 </section>
