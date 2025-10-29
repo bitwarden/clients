@@ -20,6 +20,7 @@ rusqlite = { version = "=0.37.0", features = ["bundled"] }
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
 sha1 = "=0.10.6"
+tokio = { workspace = true, features = ["full"] }
 tracing = { workspace = true }
 
 [target.'cfg(target_os = "macos")'.dependencies]
@@ -31,7 +32,6 @@ clap = { version = "=4.5.40", features = ["derive"] }
 scopeguard = { workspace = true }
 simplelog = { workspace = true }
 sysinfo = { workspace = true, optional = true }
-tokio = { workspace = true, features = ["full"] }
 verifysign = "=0.2.4"
 windows = { workspace = true, features = [
     "Wdk_System_SystemServices",

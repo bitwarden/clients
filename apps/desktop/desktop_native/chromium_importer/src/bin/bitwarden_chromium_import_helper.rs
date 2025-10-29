@@ -491,6 +491,7 @@ mod windows_binary {
     }
 }
 
+#[tokio::main]
 async fn main() {
     #[cfg(target_os = "windows")]
     windows_binary::main().await;
