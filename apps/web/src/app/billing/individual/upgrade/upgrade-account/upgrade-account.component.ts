@@ -132,7 +132,7 @@ export class UpgradeAccountComponent implements OnInit {
       },
       button: {
         text: this.i18nService.t(
-          this.isFamiliesPlan(tier.id) ? "upgradeToFamilies" : "upgradeToPremium",
+          this.isFamiliesPlan(tier.id) ? "startFreeFamiliesTrial" : "upgradeToPremium",
         ),
         type: buttonType,
       },

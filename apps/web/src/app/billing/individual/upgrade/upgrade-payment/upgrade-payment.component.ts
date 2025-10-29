@@ -174,7 +174,7 @@ export class UpgradePaymentComponent implements OnInit, AfterViewInit {
           };
 
           this.upgradeToMessage = this.i18nService.t(
-            this.isFamiliesPlan ? "upgradeToFamilies" : "upgradeToPremium",
+            this.isFamiliesPlan ? "startFreeFamiliesTrial" : "upgradeToPremium",
           );
         } else {
           this.complete.emit({ status: UpgradePaymentStatus.Closed, organizationId: null });

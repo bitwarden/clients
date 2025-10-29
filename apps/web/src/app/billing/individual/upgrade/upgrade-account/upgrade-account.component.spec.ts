@@ -101,7 +101,7 @@ describe("UpgradeAccountComponent", () => {
     expect(sut["familiesCardDetails"].price.amount).toBe(40 / 12);
     expect(sut["familiesCardDetails"].price.cadence).toBe("monthly");
     expect(sut["familiesCardDetails"].button.type).toBe("secondary");
-    expect(sut["familiesCardDetails"].button.text).toBe("upgradeToFamilies");
+    expect(sut["familiesCardDetails"].button.text).toBe("startFreeFamiliesTrial");
     expect(sut["familiesCardDetails"].features).toEqual(["Feature A", "Feature B", "Feature C"]);
   });
 

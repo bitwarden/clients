@@ -11975,5 +11975,8 @@
   },
   "cardNumberLabel": {
     "message": "Card number"
+  },
+  "startFreeFamiliesTrial": {
+    "message": "Start free Families trial"
   }
 }
