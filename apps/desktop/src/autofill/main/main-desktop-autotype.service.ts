@@ -85,7 +85,8 @@ export class MainDesktopAutotypeService {
   }
 
   private doAutotype(vaultData: AutotypeVaultData, keyboardShortcut: string[]) {
-    const inputPattern = vaultData.username + "\t" + vaultData.password;
+    const TAB = "\t";
+    const inputPattern = vaultData.username + TAB + vaultData.password;
     const inputArray = new Array<number>(inputPattern.length);
 
     for (let i = 0; i < inputPattern.length; i++) {

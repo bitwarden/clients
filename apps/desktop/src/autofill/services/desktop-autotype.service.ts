@@ -66,18 +66,20 @@ export class DesktopAutotypeService {
       const possibleCiphers = await this.matchCiphersToWindowTitle(windowTitle);
       const firstCipher = possibleCiphers?.at(0);
 
-      if (
-        firstCipher !== undefined &&
-        firstCipher.login.username !== undefined &&
-        firstCipher.login.password !== undefined
+      if (firstCipher === undefined) {
+        return callback(Error("No matching vault item."), null);
+      } else if (
+        firstCipher.login.username === undefined ||
+        firstCipher.login.password === undefined
       ) {
+        return callback(Error("Vault item is undefined."), null);
+      } else {
         const vaultData: AutotypeVaultData = {
           username: firstCipher.login.username,
           password: firstCipher.login.password,
         };
         return callback(null, vaultData);
       }
-      return callback(Error("No match."), null);
     });
   }
 
