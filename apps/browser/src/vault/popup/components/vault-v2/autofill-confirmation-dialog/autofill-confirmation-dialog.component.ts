@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, Inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, Inject } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -33,6 +33,7 @@ export type AutofillConfirmationDialogResultType = UnionOfValues<
 
 @Component({
   templateUrl: "./autofill-confirmation-dialog.component.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     ButtonModule,
     CalloutComponent,
