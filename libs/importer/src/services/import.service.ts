@@ -497,7 +497,8 @@ export class ImportService implements ImportServiceAbstraction {
         }
       });
 
-      // My Items collections do not support collection nesting. Import all ciphers into import target.
+      // My Items collections do not support collection nesting.
+      // Flatten all ciphers from nested collections into the import target.
       if (importTarget.type === CollectionTypes.DefaultUserCollection) {
         importResult.collections = [importTarget];
 
