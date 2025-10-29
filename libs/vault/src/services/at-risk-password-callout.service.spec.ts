@@ -71,7 +71,7 @@ describe("AtRiskPasswordCalloutService", () => {
     it.each([
       {
         description:
-          "should return tasks filtered by UpdateAtRiskCredential type with valid cipher permissions",
+          "returns tasks filtered by UpdateAtRiskCredential type with valid cipher permissions",
         tasks: [
           {
             id: "t1",
@@ -94,7 +94,7 @@ describe("AtRiskPasswordCalloutService", () => {
         expectedFirstId: "t1",
       },
       {
-        description: "should filter out tasks with wrong task type",
+        description: "filters out tasks with wrong task type",
         tasks: [
           {
             id: "t1",
@@ -117,7 +117,7 @@ describe("AtRiskPasswordCalloutService", () => {
         expectedFirstId: "t1",
       },
       {
-        description: "should filter out tasks with missing associated cipher",
+        description: "filters out tasks with missing associated cipher",
         tasks: [
           {
             id: "t1",
@@ -137,7 +137,7 @@ describe("AtRiskPasswordCalloutService", () => {
         expectedFirstId: "t1",
       },
       {
-        description: "should filter out tasks when cipher edit permission is false",
+        description: "filters out tasks when cipher edit permission is false",
         tasks: [
           {
             id: "t1",
@@ -160,7 +160,7 @@ describe("AtRiskPasswordCalloutService", () => {
         expectedFirstId: "t1",
       },
       {
-        description: "should filter out tasks when cipher viewPassword permission is false",
+        description: "filters out tasks when cipher viewPassword permission is false",
         tasks: [
           {
             id: "t1",
@@ -183,7 +183,7 @@ describe("AtRiskPasswordCalloutService", () => {
         expectedFirstId: "t1",
       },
       {
-        description: "should filter out tasks when cipher is deleted",
+        description: "filters out tasks when cipher is deleted",
         tasks: [
           {
             id: "t1",
@@ -217,7 +217,7 @@ describe("AtRiskPasswordCalloutService", () => {
       }
     });
 
-    it("should correctly filter mixed valid and invalid tasks", async () => {
+    it("correctly filters mixed valid and invalid tasks", async () => {
       const tasks: SecurityTask[] = [
         {
           id: "t1",
@@ -269,7 +269,7 @@ describe("AtRiskPasswordCalloutService", () => {
 
     it.each([
       {
-        description: "should return empty array when no tasks match filter criteria",
+        description: "returns empty array when no tasks match filter criteria",
         tasks: [
           {
             id: "t1",
@@ -281,7 +281,7 @@ describe("AtRiskPasswordCalloutService", () => {
         ciphers: [new MockCipherView("c1", true, true, true)], // deleted
       },
       {
-        description: "should return empty array when no pending tasks exist",
+        description: "returns empty array when no pending tasks exist",
         tasks: [],
         ciphers: [new MockCipherView("c1", false, true, true)],
       },
@@ -296,7 +296,7 @@ describe("AtRiskPasswordCalloutService", () => {
   });
 
   describe("completedTasks$", () => {
-    it(" should return true if completed tasks exist", async () => {
+    it("returns true if completed tasks exist", async () => {
       const tasks: SecurityTask[] = [
         {
           id: "t1",
@@ -340,7 +340,7 @@ describe("AtRiskPasswordCalloutService", () => {
       jest.spyOn(mockCipherService, "cipherViews$").mockReturnValue(of([]));
     });
 
-    it("should return false if banner has been dismissed", async () => {
+    it("returns false if banner has been dismissed", async () => {
       const state: AtRiskPasswordCalloutData = {
         hasInteractedWithTasks: true,
         tasksBannerDismissed: true,
@@ -353,7 +353,7 @@ describe("AtRiskPasswordCalloutService", () => {
       expect(result).toBe(false);
     });
 
-    it("should return true when has completed tasks, no pending tasks, and banner not dismissed", async () => {
+    it("returns true when has completed tasks, no pending tasks, and banner not dismissed", async () => {
       const completedTasks = [
         {
           id: "t1",
