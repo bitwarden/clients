@@ -85,6 +85,8 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
 
   private static readonly IMPORT_ICON = "bwi bwi-download";
 
+  // TODO: See https://github.com/bitwarden/clients/pull/16832#discussion_r2474523235
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -92,7 +94,7 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
     protected dataService: RiskInsightsDataService,
     private i18nService: I18nService,
   ) {
-    this.route.queryParams.pipe(takeUntilDestroyed()).subscribe(({ tabIndex }) => {
+    this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(({ tabIndex }) => {
       this.tabIndex = !isNaN(Number(tabIndex)) ? Number(tabIndex) : RiskInsightsTabType.AllApps;
     });
 
@@ -122,15 +124,16 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
       )
       .subscribe();
 
-    // Combine report data, vault items check, and organization details
+    // Combine report data, vault items check, organization details, and generation state
     // This declarative pattern ensures proper cleanup and prevents memory leaks
     combineLatest([
       this.dataService.enrichedReportData$,
       this.dataService.hasVaultItems$,
       this.dataService.organizationDetails$,
+      this.dataService.isGeneratingReport$,
     ])
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(([report, hasVaultItems, orgDetails]) => {
+      .subscribe(([report, hasVaultItems, orgDetails, isGenerating]) => {
         // Update report state
         this.reportHasLoaded = true;
         this.hasReportBeenRun = !!report?.creationDate;
@@ -144,7 +147,7 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
         this.organizationName = orgDetails?.organizationName ?? "";
 
         // Update all empty state properties based on current state
-        this.updateEmptyStateProperties();
+        this.updateEmptyStateProperties(isGenerating);
       });
 
     // Subscribe to drawer state changes
@@ -235,18 +238,13 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
    * Updates all empty state properties based on current state.
    * Called whenever the underlying data (hasVaultItems, hasReportBeenRun, reportHasLoaded) changes.
    */
-  private updateEmptyStateProperties(): void {
+  private updateEmptyStateProperties(isGenerating: boolean): void {
     // Calculate boolean flags
     // Note: We only show empty states when there are NO apps (appsCount === 0)
     // The template uses @if(shouldShowTabs) to determine whether to show tabs or empty state
-    this.shouldShowImportDataState = !this.hasVaultItems;
-    // Show "run report" state when:
-    // 1. Has vault items AND report never run, OR
-    // 2. Has vault items AND report was run but returned zero results (re-run scenario)
+    this.shouldShowImportDataState = !this.hasVaultItems && !isGenerating;
     this.shouldShowRunReportState =
-      this.hasVaultItems &&
-      this.reportHasLoaded &&
-      (!this.hasReportBeenRun || (this.hasReportBeenRun && this.appsCount === 0));
+      this.hasVaultItems && this.reportHasLoaded && this.appsCount === 0 && !isGenerating;
 
     // Update title
     if (this.shouldShowImportDataState) {
