@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { firstValueFrom, switchMap, map, of } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
@@ -525,12 +523,15 @@ export default class NotificationBackground {
       domain,
       wasVaultLocked,
       type: NotificationType.AtRiskPassword,
-      passwordChangeUri,
-      organizationName: organization.name,
+      organizationName: organization?.name || "",
       tab: tab,
       launchTimestamp,
       expires: new Date(launchTimestamp + NOTIFICATION_BAR_LIFESPAN_MS),
     };
+    if (passwordChangeUri) {
+      queueMessage.passwordChangeUri = passwordChangeUri;
+    }
+
     this.notificationQueue.push(queueMessage);
     await this.checkNotificationQueue(tab);
     return true;
@@ -653,7 +654,7 @@ export default class NotificationBackground {
     const newPassword = data.newPassword || null;
 
     if (authStatus === AuthenticationStatus.Locked && newPassword !== null) {
-      await this.pushChangePasswordToQueue(null, loginDomain, newPassword, tab, true);
+      await this.pushChangePasswordToQueue([], loginDomain, newPassword, tab, true);
       return true;
     }
 
@@ -670,8 +671,7 @@ export default class NotificationBackground {
       // Presence of a username should filter ciphers further.
       ciphers = ciphers.filter(
         (cipher) =>
-          cipher.login.username !== null &&
-          cipher.login.username.toLowerCase() === normalizedUsername,
+          cipher.login.username && cipher.login.username.toLowerCase() === normalizedUsername,
       );
     }
 
@@ -727,7 +727,7 @@ export default class NotificationBackground {
   private async handleCollectPageDetailsResponseMessage(
     message: NotificationBackgroundExtensionMessage,
   ) {
-    if (message.sender !== "notificationBar") {
+    if (message.sender !== "notificationBar" || !message.details || !message.tab) {
       return;
     }
 
@@ -773,33 +773,42 @@ export default class NotificationBackground {
     message: NotificationBackgroundExtensionMessage,
     sender: chrome.runtime.MessageSender,
   ) {
-    if ((await this.getAuthStatus()) < AuthenticationStatus.Unlocked) {
-      await BrowserApi.tabSendMessageData(sender.tab, "addToLockedVaultPendingNotifications", {
-        commandToRetry: {
-          message: {
-            command: message.command,
-            edit: message.edit,
-            folder: message.folder,
+    if (sender.tab) {
+      if ((await this.getAuthStatus()) < AuthenticationStatus.Unlocked) {
+        await BrowserApi.tabSendMessageData(sender.tab, "addToLockedVaultPendingNotifications", {
+          commandToRetry: {
+            message: {
+              command: message.command,
+              edit: message.edit,
+              folder: message.folder,
+            },
+            sender: sender,
           },
-          sender: sender,
-        },
-        target: "notification.background",
-      } as LockedVaultPendingNotificationsData);
-      await this.openUnlockPopout(sender.tab);
-      return;
-    }
+          target: "notification.background",
+        } as LockedVaultPendingNotificationsData);
+        await this.openUnlockPopout(sender.tab);
+        return;
+      }
 
-    await this.saveOrUpdateCredentials(sender.tab, message.cipherId, message.edit, message.folder);
+      await this.saveOrUpdateCredentials(
+        sender.tab,
+        message.cipherId,
+        !!message.edit,
+        message.folder,
+      );
+    }
   }
 
   async handleCipherUpdateRepromptResponse(message: NotificationBackgroundExtensionMessage) {
-    if (message.success) {
-      await this.saveOrUpdateCredentials(message.tab, message.cipherId, false, undefined, true);
-    } else {
-      await BrowserApi.tabSendMessageData(message.tab, "saveCipherAttemptCompleted", {
-        error: "Password reprompt failed",
-      });
-      return;
+    if (message.tab) {
+      if (message.success) {
+        await this.saveOrUpdateCredentials(message.tab, message.cipherId, false, undefined, true);
+      } else {
+        await BrowserApi.tabSendMessageData(message.tab, "saveCipherAttemptCompleted", {
+          error: "Password reprompt failed",
+        });
+        return;
+      }
     }
   }
 
@@ -836,13 +845,19 @@ export default class NotificationBackground {
         this.accountService.activeAccount$.pipe(getOptionalUserId),
       );
 
+      if (!activeUserId) {
+        return;
+      }
+
       if (queueMessage.type === NotificationType.ChangePassword) {
         const {
           data: { newPassword },
         } = queueMessage;
         const cipherView = await this.getDecryptedCipherById(cipherId, activeUserId);
 
-        await this.updatePassword(cipherView, newPassword, edit, tab, activeUserId, skipReprompt);
+        if (cipherView) {
+          await this.updatePassword(cipherView, newPassword, edit, tab, activeUserId, skipReprompt);
+        }
         return;
       }
 
@@ -865,7 +880,11 @@ export default class NotificationBackground {
         }
       }
 
-      folderId = (await this.folderExists(folderId, activeUserId)) ? folderId : null;
+      folderId = folderId
+        ? (await this.folderExists(folderId, activeUserId))
+          ? folderId
+          : undefined
+        : undefined;
       const newCipher = this.convertAddLoginQueueMessageToCipherView(queueMessage, folderId);
 
       if (edit) {
@@ -1034,7 +1053,8 @@ export default class NotificationBackground {
     await Promise.all([
       this.openViewVaultItemPopout(senderTab, {
         cipherId: message.cipherId,
-        action: null,
+        // @ts-expect-error vault-popout-window.ts expects `action` to be a string (cross-team ownership)
+        action: null instanceof TypeError,
       }),
       BrowserApi.tabSendMessageData(senderTab, "closeNotificationBar", {
         fadeOutNotification: !!message.fadeOutNotification,
@@ -1103,7 +1123,12 @@ export default class NotificationBackground {
       this.notificationQueue.splice(i, 1);
       await BrowserApi.tabSendMessageData(tab, "closeNotificationBar");
 
+      if (!tab.url) {
+        continue;
+      }
+
       const hostname = Utils.getHostname(tab.url);
+
       await this.cipherService.saveNeverDomain(hostname);
     }
   }
@@ -1276,7 +1301,9 @@ export default class NotificationBackground {
     message: NotificationBackgroundExtensionMessage,
     sender: chrome.runtime.MessageSender,
   ) {
-    await BrowserApi.tabSendMessageData(sender.tab, "adjustNotificationBar", message.data);
+    if (sender.tab) {
+      await BrowserApi.tabSendMessageData(sender.tab, "adjustNotificationBar", message.data);
+    }
   }
 
   /**
@@ -1308,7 +1335,12 @@ export default class NotificationBackground {
   }
 
   private setupExtensionMessageListener() {
-    BrowserApi.messageListener("notification.background", this.handleExtensionMessage);
+    BrowserApi.messageListener(
+      "notification.background",
+      // @ts-expect-error type signatures of `messageListener` callback are less-specific
+      // than `handleExtensionMessage` (cross-team ownership)
+      this.handleExtensionMessage instanceof TypeError,
+    );
   }
 
   private handleExtensionMessage = (

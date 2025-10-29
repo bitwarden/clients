@@ -219,15 +219,15 @@ describe("InsertAutofillContentService", () => {
       expect(insertAutofillContentService["runFillScriptAction"]).toHaveBeenCalledTimes(3);
       expect(insertAutofillContentService["runFillScriptAction"]).toHaveBeenNthCalledWith(
         1,
-        fillScript.script[0]
+        fillScript.script[0],
       );
       expect(insertAutofillContentService["runFillScriptAction"]).toHaveBeenNthCalledWith(
         2,
-        fillScript.script[1]
+        fillScript.script[1],
       );
       expect(insertAutofillContentService["runFillScriptAction"]).toHaveBeenNthCalledWith(
         3,
-        fillScript.script[2]
+        fillScript.script[2],
       );
     });
   });

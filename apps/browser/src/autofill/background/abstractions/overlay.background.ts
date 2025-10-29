@@ -1,20 +1,19 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { CipherIconDetails } from "@bitwarden/common/vault/icon/build-cipher-icon";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import { InlineMenuFillType } from "../../enums/autofill-overlay.enum";
+import AutofillField from "../../models/autofill-field";
 import AutofillPageDetails from "../../models/autofill-page-details";
 import { PageDetail } from "../../services/abstractions/autofill.service";
 
 import { LockedVaultPendingNotificationsData } from "./notification.background";
 
-export type PageDetailsForTab = Record<
-  chrome.runtime.MessageSender["tab"]["id"],
-  Map<chrome.runtime.MessageSender["frameId"], PageDetail>
->;
+export type TabId = NonNullable<chrome.tabs.Tab["id"]>;
+export type FrameId = NonNullable<chrome.runtime.MessageSender["frameId"]>;
+
+export type PageDetailsForTab = Record<TabId, Map<FrameId, PageDetail>>;
 
 export type SubFrameOffsetData = {
   top: number;
@@ -22,12 +21,12 @@ export type SubFrameOffsetData = {
   url?: string;
   frameId?: number;
   parentFrameIds?: number[];
+  isCrossOriginSubframe?: boolean;
+  isMainFrame?: boolean;
+  hasParentFrame?: boolean;
 } | null;
 
-export type SubFrameOffsetsForTab = Record<
-  chrome.runtime.MessageSender["tab"]["id"],
-  Map<chrome.runtime.MessageSender["frameId"], SubFrameOffsetData>
->;
+export type SubFrameOffsetsForTab = Record<TabId, Map<FrameId, SubFrameOffsetData>>;
 
 export type UpdateOverlayCiphersParams = {
   updateAllCipherTypes: boolean;
@@ -140,7 +139,7 @@ export type OverlayBackgroundExtensionMessage = {
   isFieldCurrentlyFilling?: boolean;
   subFrameData?: SubFrameOffsetData;
   focusedFieldData?: FocusedFieldData;
-  allFieldsRect?: any;
+  allFieldsRect?: AutofillField[];
   isOpeningFullInlineMenu?: boolean;
   styles?: Partial<CSSStyleDeclaration>;
   data?: LockedVaultPendingNotificationsData;
@@ -149,13 +148,30 @@ export type OverlayBackgroundExtensionMessage = {
   ToggleInlineMenuHiddenMessage &
   UpdateInlineMenuVisibilityMessage;
 
+export type OverlayPortCommand =
+  | "fillCipher"
+  | "addNewVaultItem"
+  | "viewCipher"
+  | "redirectFocus"
+  | "updateHeight"
+  | "buttonClicked"
+  | "blurred"
+  | "updateColorScheme"
+  | "unlockVault"
+  | "refreshGeneratedPassword"
+  | "fillGeneratedPassword";
+
 export type OverlayPortMessage = {
-  [key: string]: any;
-  command: string;
-  direction?: string;
+  command: OverlayPortCommand;
+  direction?: "up" | "down" | "left" | "right";
   inlineMenuCipherId?: string;
   addNewCipherType?: CipherType;
   usePasskey?: boolean;
+  height?: number;
+  backgroundColorScheme?: "light" | "dark";
+  viewsCipherData?: InlineMenuCipherData;
+  loginUrl?: string;
+  fillGeneratedPassword?: boolean;
 };
 
 export type InlineMenuCipherData = {
@@ -192,13 +208,22 @@ export type BuildCipherDataParams = {
   identityData?: { fullName: string; username?: string };
 };
 
-export type BackgroundMessageParam = {
-  message: OverlayBackgroundExtensionMessage;
+export type BackgroundMessageParam<
+  T extends OverlayBackgroundExtensionMessage = OverlayBackgroundExtensionMessage,
+> = {
+  message: T;
 };
+
 export type BackgroundSenderParam = {
-  sender: chrome.runtime.MessageSender;
+  sender: chrome.runtime.MessageSender & {
+    tab: NonNullable<chrome.runtime.MessageSender["tab"]>;
+    frameId: NonNullable<chrome.runtime.MessageSender["frameId"]>;
+  };
 };
-export type BackgroundOnMessageHandlerParams = BackgroundMessageParam & BackgroundSenderParam;
+
+export type BackgroundOnMessageHandlerParams<
+  T extends OverlayBackgroundExtensionMessage = OverlayBackgroundExtensionMessage,
+> = BackgroundMessageParam<T> & BackgroundSenderParam;
 
 export type OverlayBackgroundExtensionMessageHandlers = {
   [key: string]: CallableFunction;
@@ -244,20 +269,30 @@ export type OverlayBackgroundExtensionMessageHandlers = {
   fido2AbortRequest: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
 };
 
-export type PortMessageParam = {
-  message: OverlayPortMessage;
+export type PortMessageParam<T extends OverlayPortMessage = OverlayPortMessage> = {
+  message: T;
 };
+
 export type PortConnectionParam = {
-  port: chrome.runtime.Port;
+  port: chrome.runtime.Port & {
+    sender: NonNullable<chrome.runtime.Port["sender"]>;
+  };
 };
-export type PortOnMessageHandlerParams = PortMessageParam & PortConnectionParam;
+
+export type PortOnMessageHandlerParams<T extends OverlayPortMessage = OverlayPortMessage> =
+  PortMessageParam<T> & PortConnectionParam;
 
 export type InlineMenuButtonPortMessageHandlers = {
   [key: string]: CallableFunction;
   triggerDelayedAutofillInlineMenuClosure: () => void;
   autofillInlineMenuButtonClicked: ({ port }: PortConnectionParam) => void;
   autofillInlineMenuBlurred: () => void;
-  redirectAutofillInlineMenuFocusOut: ({ message, port }: PortOnMessageHandlerParams) => void;
+  redirectAutofillInlineMenuFocusOut: ({
+    message,
+    port,
+  }: PortOnMessageHandlerParams<
+    OverlayPortMessage & { command: string; direction?: string }
+  >) => void;
   updateAutofillInlineMenuColorScheme: () => void;
 };
 
@@ -266,11 +301,32 @@ export type InlineMenuListPortMessageHandlers = {
   checkAutofillInlineMenuButtonFocused: ({ port }: PortConnectionParam) => void;
   autofillInlineMenuBlurred: ({ port }: PortConnectionParam) => void;
   unlockVault: ({ port }: PortConnectionParam) => void;
-  fillAutofillInlineMenuCipher: ({ message, port }: PortOnMessageHandlerParams) => void;
-  addNewVaultItem: ({ message, port }: PortOnMessageHandlerParams) => void;
-  viewSelectedCipher: ({ message, port }: PortOnMessageHandlerParams) => void;
-  redirectAutofillInlineMenuFocusOut: ({ message, port }: PortOnMessageHandlerParams) => void;
-  updateAutofillInlineMenuListHeight: ({ message, port }: PortOnMessageHandlerParams) => void;
+  fillAutofillInlineMenuCipher: ({
+    message,
+    port,
+  }: PortOnMessageHandlerParams<OverlayPortMessage & { command: string }>) => void;
+  addNewVaultItem: ({
+    message,
+    port,
+  }: PortOnMessageHandlerParams<
+    OverlayPortMessage & { command: string; addNewCipherType?: CipherType }
+  >) => void;
+  viewSelectedCipher: ({
+    message,
+    port,
+  }: PortOnMessageHandlerParams<
+    OverlayPortMessage & { command: string; viewsCipherData?: InlineMenuCipherData }
+  >) => void;
+  redirectAutofillInlineMenuFocusOut: ({
+    message,
+    port,
+  }: PortOnMessageHandlerParams<
+    OverlayPortMessage & { command: string; direction?: string }
+  >) => void;
+  updateAutofillInlineMenuListHeight: ({
+    message,
+    port,
+  }: PortOnMessageHandlerParams<OverlayPortMessage & { command: string; height?: number }>) => void;
   refreshGeneratedPassword: () => Promise<void>;
   fillGeneratedPassword: ({ port }: PortConnectionParam) => Promise<void>;
   refreshOverlayCiphers: () => Promise<void>;
