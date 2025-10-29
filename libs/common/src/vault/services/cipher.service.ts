@@ -1533,10 +1533,15 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   async getKeyForCipherKeyDecryption(cipher: Cipher, userId: UserId): Promise<UserKey | OrgKey> {
-    return (
-      (await this.keyService.getOrgKey(cipher.organizationId)) ||
-      ((await this.keyService.getUserKey(userId)) as UserKey)
-    );
+    if (cipher.organizationId == null) {
+      return await firstValueFrom(this.keyService.userKey$(userId));
+    } else {
+      return await firstValueFrom(
+        this.keyService
+          .orgKeys$(userId)
+          .pipe(map((orgKeys) => orgKeys[cipher.organizationId as OrganizationId] as OrgKey)),
+      );
+    }
   }
 
   async setAddEditCipherInfo(value: AddEditCipherInfo, userId: UserId) {
