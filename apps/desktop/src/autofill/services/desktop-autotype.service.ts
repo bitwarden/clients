@@ -1,3 +1,4 @@
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
   combineLatest,
   concatMap,
@@ -117,6 +118,7 @@ export class DesktopAutotypeService {
             await this.setAutotypeEnabledState(true);
           }
         }),
+        takeUntilDestroyed(),
       )
       .subscribe();
 
@@ -129,6 +131,7 @@ export class DesktopAutotypeService {
           };
           ipc.autofill.configureAutotype(config);
         }),
+        takeUntilDestroyed(),
       )
       .subscribe();
 
@@ -158,6 +161,7 @@ export class DesktopAutotypeService {
 
           ipc.autofill.toggleAutotype(enabled);
         }),
+        takeUntilDestroyed(),
       )
       .subscribe();
   }
