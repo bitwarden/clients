@@ -1,7 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 /* eslint-disable no-useless-escape */
-import * as path from "path";
 
 import { Buffer as BufferLib } from "buffer/";
 import { Observable, of, switchMap } from "rxjs";
@@ -604,21 +603,52 @@ export class Utils {
   }
 
   /**
-   * Normalizes a path for defense against attacks like traversals
-   * @param denormalizedPath
-   * @returns
+   * Validates an url checking against invalid patterns
+   * @param url
+   * @returns true if invalid patterns found, false if safe
    */
-  static normalizePath(denormalizedPath: string): string {
-    return path.normalize(decodeURIComponent(denormalizedPath)).replace(/^(\.\.(\/|\\|$))+/, "");
-  }
-
-  static dangerousPatternsInUrl(url: string): boolean {
-    const dangerousPatterns = ["..", "%2e", "%2E", "\\", "%5c", "%5C"];
+  static invalidUrlPatterns(url: string): boolean {
+    const invalidUrlPatterns = ["..", "%2e", "%2E", "\\", "%5c", "%5C"];
 
     const lowerCaseUrl: string = url.toLocaleLowerCase();
 
-    // Check URL for dangerous patterns
-    return dangerousPatterns.some((p) => lowerCaseUrl.includes(p));
+    // Check URL for invalidUrl patterns across entire URL
+    if (invalidUrlPatterns.some((p) => lowerCaseUrl.includes(p))) {
+      return true;
+    }
+
+    // Check for additional invalid patterns inside URL params
+    if (lowerCaseUrl.includes("?")) {
+      const hasInvalidParams = this.validateQueryParameters(lowerCaseUrl);
+      if (hasInvalidParams) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  /**
+   * Validates query parameters for additional invalid patterns
+   * @param url - The URL containing query parameters
+   * @returns true if invalid patterns found, false if safe
+   */
+  private static validateQueryParameters(url: string): boolean {
+    try {
+      let queryString: string;
+
+      if (url.includes("?")) {
+        queryString = url.split("?")[1];
+      } else {
+        return false;
+      }
+
+      const paramInvalidPatterns = ["/", "%2f", "%2F", "#", "%23"];
+
+      return paramInvalidPatterns.some((p) => queryString.includes(p));
+    } catch (error) {
+      throw new Error(`Error validating query parameters: ${error}`);
+    }
   }
 
   private static isMobile(win: Window) {

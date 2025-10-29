@@ -1584,12 +1584,12 @@ export class ApiService implements ApiServiceAbstraction {
 
     // Prevent directory traversal from malicious paths
     const pathParts = path.split("?");
-    const requestUrl =
-      apiUrl + Utils.normalizePath(pathParts[0]) + (pathParts.length > 1 ? `?${pathParts[1]}` : "");
+    const requestUrl = apiUrl + pathParts[0] + (pathParts.length > 1 ? `?${pathParts[1]}` : "");
 
-    const isDangerousUrl = Utils.dangerousPatternsInUrl(requestUrl);
+    // Further check for path traversal patterns from any URL.
+    const isInvalidUrl = Utils.invalidUrlPatterns(requestUrl);
 
-    if (isDangerousUrl) {
+    if (isInvalidUrl) {
       throw new Error("The request URL contains dangerous patterns.");
     }
 

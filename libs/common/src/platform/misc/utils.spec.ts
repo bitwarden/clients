@@ -1,5 +1,3 @@
-import * as path from "path";
-
 import { Utils } from "./utils";
 
 describe("Utils Service", () => {
@@ -669,23 +667,31 @@ describe("Utils Service", () => {
     });
   });
 
-  describe("normalizePath", () => {
-    it("removes a single traversal", () => {
-      expect(Utils.normalizePath("../test")).toBe("test");
+  describe("invalidUrlPatterns", () => {
+    it("should return false if no invalid patterns are found", () => {
+      const urlString = "https://www.example.com/api/my/account/status";
+
+      const actual = Utils.invalidUrlPatterns(urlString);
+
+      expect(actual).toBe(false);
     });
 
-    it("removes deep traversals", () => {
-      expect(Utils.normalizePath("../../test")).toBe("test");
+    it("should return true if an invalid pattern is found", () => {
+      const urlString =
+        "https://www.example.com/api/testing/../../organizationId=70d708c9%5c%2e%2e%5c%2e%2e%5";
+
+      const actual = Utils.invalidUrlPatterns(urlString);
+
+      expect(actual).toBe(true);
     });
 
-    it("removes intermediate traversals", () => {
-      expect(Utils.normalizePath("test/../test")).toBe("test");
-    });
+    it("should return true if an invalid pattern is found in a param", () => {
+      const urlString =
+        "https://www.example.com/api/history?someToken=70d708c9%5c%2e%2e%5c%2e%2e%5";
 
-    it("removes multiple encoded traversals", () => {
-      expect(
-        Utils.normalizePath("api/sends/access/..%2f..%2f..%2fapi%2fsends%2faccess%2fsendkey"),
-      ).toBe(path.normalize("api/sends/access/sendkey"));
+      const actual = Utils.invalidUrlPatterns(urlString);
+
+      expect(actual).toBe(true);
     });
   });
 
