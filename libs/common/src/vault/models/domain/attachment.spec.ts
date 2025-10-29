@@ -4,12 +4,10 @@ import { mock, MockProxy } from "jest-mock-extended";
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
 
-import { makeStaticByteArray, mockEnc, mockFromJson } from "../../../../spec";
+import { makeStaticByteArray, mockContainerService, mockEnc, mockFromJson } from "../../../../spec";
 import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
 import { EncryptedString, EncString } from "../../../key-management/crypto/models/enc-string";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
-import { ContainerService } from "../../../platform/services/container.service";
-import { UserKey } from "../../../types/key";
 import { AttachmentData } from "../../models/data/attachment.data";
 import { Attachment } from "../../models/domain/attachment";
 
@@ -64,10 +62,9 @@ describe("Attachment", () => {
     let encryptService: MockProxy<EncryptService>;
 
     beforeEach(() => {
-      keyService = mock<KeyService>();
-      encryptService = mock<EncryptService>();
-
-      (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
+      const containerService = mockContainerService();
+      keyService = containerService.keyService as MockProxy<KeyService>;
+      encryptService = containerService.encryptService as MockProxy<EncryptService>;
     });
 
     it("expected output", async () => {
@@ -79,14 +76,13 @@ describe("Attachment", () => {
       attachment.key = mockEnc("key");
       attachment.fileName = mockEnc("fileName");
 
-      const userKey = new SymmetricCryptoKey(makeStaticByteArray(64));
-      keyService.getUserKey.mockResolvedValue(userKey as UserKey);
       encryptService.decryptFileData.mockResolvedValue(makeStaticByteArray(32));
       encryptService.unwrapSymmetricKey.mockResolvedValue(
         new SymmetricCryptoKey(makeStaticByteArray(64)),
       );
 
-      const view = await attachment.decrypt(null);
+      const userKey = new SymmetricCryptoKey(makeStaticByteArray(64));
+      const view = await attachment.decrypt(userKey);
 
       expect(view).toEqual({
         id: "id",

@@ -1,6 +1,12 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
-import { makeEncString, makeSymmetricCryptoKey, mockEnc, mockFromJson } from "../../../../spec";
+import {
+  makeEncString,
+  makeSymmetricCryptoKey,
+  mockContainerService,
+  mockEnc,
+  mockFromJson,
+} from "../../../../spec";
 import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
 import { EncryptedString, EncString } from "../../../key-management/crypto/models/enc-string";
 import { FolderData } from "../../models/data/folder.data";
@@ -15,6 +21,7 @@ describe("Folder", () => {
       name: "encName",
       revisionDate: "2022-01-31T12:00:00.000Z",
     };
+    mockContainerService();
   });
 
   it("Convert", () => {
