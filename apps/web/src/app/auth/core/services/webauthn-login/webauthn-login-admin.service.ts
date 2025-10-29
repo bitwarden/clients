@@ -1,24 +1,34 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Injectable, Optional } from "@angular/core";
-import { BehaviorSubject, filter, from, map, Observable, shareReplay, switchMap, tap } from "rxjs";
+import {
+  BehaviorSubject,
+  filter,
+  firstValueFrom,
+  from,
+  map,
+  Observable,
+  shareReplay,
+  switchMap,
+  tap,
+} from "rxjs";
 
-import { PrfKeySet } from "@bitwarden/auth/common";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { WebAuthnLoginPrfKeyServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-prf-key.service.abstraction";
 import { WebauthnRotateCredentialRequest } from "@bitwarden/common/auth/models/request/webauthn-rotate-credential.request";
 import { WebAuthnLoginCredentialAssertionOptionsView } from "@bitwarden/common/auth/models/view/webauthn-login/webauthn-login-credential-assertion-options.view";
 import { WebAuthnLoginCredentialAssertionView } from "@bitwarden/common/auth/models/view/webauthn-login/webauthn-login-credential-assertion.view";
 import { Verification } from "@bitwarden/common/auth/types/verification";
+import { PrfKeySet } from "@bitwarden/common/key-management/keys/models/rotateable-key-set";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
-import { UserKeyRotationDataProvider } from "@bitwarden/key-management";
+import { KeyService, UserKeyRotationDataProvider } from "@bitwarden/key-management";
 
+import { RotateableKeySetService } from "../../../../key-management/services/rotateable-key-set.service";
 import { CredentialCreateOptionsView } from "../../views/credential-create-options.view";
 import { PendingWebauthnLoginCredentialView } from "../../views/pending-webauthn-login-credential.view";
 import { WebauthnLoginCredentialView } from "../../views/webauthn-login-credential.view";
-import { RotateableKeySetService } from "../rotateable-key-set.service";
 
 import { EnableCredentialEncryptionRequest } from "./request/enable-credential-encryption.request";
 import { SaveCredentialRequest } from "./request/save-credential.request";
@@ -55,6 +65,7 @@ export class WebauthnLoginAdminService
     private userVerificationService: UserVerificationService,
     private rotateableKeySetService: RotateableKeySetService,
     private webAuthnLoginPrfKeyService: WebAuthnLoginPrfKeyServiceAbstraction,
+    private keyService: KeyService,
     @Optional() navigatorCredentials?: CredentialsContainer,
     @Optional() private logService?: LogService,
   ) {
@@ -131,10 +142,12 @@ export class WebauthnLoginAdminService
    * This will trigger the browsers WebAuthn API to generate a PRF-output.
    *
    * @param pendingCredential A credential created using `createCredential`.
+   * @param userId The target users id.
    * @returns A key set that can be saved to the server. Undefined is returned if the credential doesn't support PRF.
    */
   async createKeySet(
     pendingCredential: PendingWebauthnLoginCredentialView,
+    userId: UserId,
   ): Promise<PrfKeySet | undefined> {
     const nativeOptions: CredentialRequestOptions = {
       publicKey: {
@@ -166,7 +179,8 @@ export class WebauthnLoginAdminService
 
       const symmetricPrfKey =
         await this.webAuthnLoginPrfKeyService.createSymmetricKeyFromPrf(prfResult);
-      return await this.rotateableKeySetService.createKeySet(symmetricPrfKey);
+      const userKey = await firstValueFrom(this.keyService.userKey$(userId));
+      return await this.rotateableKeySetService.createKeySet(userKey, symmetricPrfKey);
     } catch (error) {
       this.logService?.error(error);
       return undefined;
@@ -190,7 +204,7 @@ export class WebauthnLoginAdminService
     request.token = credential.createOptions.token;
     request.name = name;
     request.supportsPrf = credential.supportsPrf;
-    request.encryptedUserKey = prfKeySet?.encryptedUserKey.encryptedString;
+    request.encryptedUserKey = prfKeySet?.encryptedRotateableKey.encryptedString;
     request.encryptedPublicKey = prfKeySet?.encryptedPublicKey.encryptedString;
     request.encryptedPrivateKey = prfKeySet?.encryptedPrivateKey.encryptedString;
     await this.apiService.saveCredential(request);
@@ -204,23 +218,31 @@ export class WebauthnLoginAdminService
    * if there was a problem with the Credential Assertion.
    *
    * @param assertionOptions Options received from the server using `getCredentialAssertOptions`.
+   * @param userId  The target users id.
    * @returns void
    */
   async enableCredentialEncryption(
     assertionOptions: WebAuthnLoginCredentialAssertionView,
+    userId: UserId,
   ): Promise<void> {
     if (assertionOptions === undefined || assertionOptions?.prfKey === undefined) {
       throw new Error("invalid credential");
     }
+    if (!userId) {
+      throw new Error("userId is required");
+    }
+
+    const userKey = await firstValueFrom(this.keyService.userKey$(userId));
 
     const prfKeySet: PrfKeySet = await this.rotateableKeySetService.createKeySet(
+      userKey,
       assertionOptions.prfKey,
     );
 
     const request = new EnableCredentialEncryptionRequest();
     request.token = assertionOptions.token;
     request.deviceResponse = assertionOptions.deviceResponse;
-    request.encryptedUserKey = prfKeySet.encryptedUserKey.encryptedString;
+    request.encryptedUserKey = prfKeySet.encryptedRotateableKey.encryptedString;
     request.encryptedPublicKey = prfKeySet.encryptedPublicKey.encryptedString;
     request.encryptedPrivateKey = prfKeySet.encryptedPrivateKey.encryptedString;
     await this.apiService.updateCredential(request);
@@ -317,7 +339,7 @@ export class WebauthnLoginAdminService
           const request = new WebauthnRotateCredentialRequest(
             response.id,
             rotatedKeyset.encryptedPublicKey,
-            rotatedKeyset.encryptedUserKey,
+            rotatedKeyset.encryptedRotateableKey,
           );
           return request;
         }),
