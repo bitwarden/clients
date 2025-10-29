@@ -11,6 +11,7 @@ import { OrganizationInvite } from "@bitwarden/common/auth/services/organization
 import { OrganizationInviteService } from "@bitwarden/common/auth/services/organization-invite/organization-invite.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { ToastService } from "@bitwarden/components";
 
 import { BaseAcceptComponent } from "../../common/base.accept.component";
 
@@ -35,6 +36,7 @@ export class AcceptOrganizationComponent extends BaseAcceptComponent {
     private acceptOrganizationInviteService: AcceptOrganizationInviteService,
     private organizationInviteService: OrganizationInviteService,
     private accountService: AccountService,
+    private toastService: ToastService,
   ) {
     super(router, platformUtilsService, i18nService, route, authService);
   }
@@ -51,14 +53,13 @@ export class AcceptOrganizationComponent extends BaseAcceptComponent {
       return;
     }
 
-    this.platformUtilService.showToast(
-      "success",
-      this.i18nService.t("inviteAccepted"),
-      invite.initOrganization
+    this.toastService.showToast({
+      message: invite.initOrganization
         ? this.i18nService.t("inviteInitAcceptedDesc")
-        : this.i18nService.t("inviteAcceptedDesc"),
-      { timeout: 10000 },
-    );
+        : this.i18nService.t("invitationAcceptedDesc"),
+      variant: "success",
+      timeout: 10000,
+    });
 
     await this.router.navigate(["/vault"]);
   }
