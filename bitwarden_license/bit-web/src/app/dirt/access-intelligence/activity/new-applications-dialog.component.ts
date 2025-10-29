@@ -4,9 +4,11 @@ import { firstValueFrom } from "rxjs";
 
 import { RiskInsightsDataService } from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import {
   ButtonModule,
   DialogModule,
+  DialogRef,
   DialogService,
   ToastService,
   TypographyModule,
@@ -27,9 +29,11 @@ export class NewApplicationsDialogComponent {
   protected newApplications: string[] = [];
   protected selectedApplications: Set<string> = new Set<string>();
 
+  private dialogRef = inject(DialogRef<boolean | undefined>);
   private dataService = inject(RiskInsightsDataService);
   private toastService = inject(ToastService);
   private i18nService = inject(I18nService);
+  private logService = inject(LogService);
 
   /**
    * Opens the new applications dialog
@@ -96,8 +100,9 @@ export class NewApplicationsDialogComponent {
       });
 
       // Close dialog with success indicator
-      (this as any).dialogRef?.close(true);
+      this.dialogRef.close(true);
     } catch {
+      this.logService.error("[NewApplicationsDialog] Failed to save review status");
       this.toastService.showToast({
         variant: "error",
         title: this.i18nService.t("errorSavingReviewStatus"),
