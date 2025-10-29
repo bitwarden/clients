@@ -161,10 +161,6 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
     this.dataService.destroy();
   }
 
-  runReport = () => {
-    this.dataService.triggerReport();
-  };
-
   /**
    * Refreshes the data by re-fetching the applications report.
    * This will automatically notify child components subscribed to the RiskInsightsDataService observables.
@@ -262,7 +258,7 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
       this.emptyStateDescription = this.i18nService.t("noReportRunDescription");
       this.emptyStateButtonText = this.i18nService.t("riskInsightsRunReport");
       this.emptyStateButtonIcon = "";
-      this.emptyStateButtonAction = this.runReport;
+      this.emptyStateButtonAction = this.generateReport.bind(this);
     }
   }
 }
