@@ -158,6 +158,8 @@ export class AtRiskPasswordsComponent implements OnInit {
             t.type === SecurityTaskType.UpdateAtRiskCredential &&
             t.cipherId != null &&
             ciphers[t.cipherId] != null &&
+            ciphers[t.cipherId].edit &&
+            ciphers[t.cipherId].viewPassword &&
             !ciphers[t.cipherId].isDeleted,
         )
         .map((t) => ciphers[t.cipherId!]),
