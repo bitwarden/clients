@@ -38,45 +38,37 @@
 
     <div class="tw-grid tw-gap-3">
       <!-- Continue button -->
-      @if (ssoRequired) {
-        <!-- Show disabled button with tooltip -->
-        <div [bitTooltip]="'yourOrganizationRequiresSingleSignOn' | i18n">
-          <button type="button" bitButton block buttonType="primary" [disabled]="true">
-            {{ "continue" | i18n }}
-          </button>
-        </div>
-      } @else {
-        <!-- Show regular button -->
-        <button type="button" bitButton block buttonType="primary" (click)="continuePressed()">
-          {{ "continue" | i18n }}
-        </button>
-      }
+      <button
+        type="button"
+        bitButton
+        block
+        buttonType="primary"
+        (click)="continuePressed()"
+        [bitTooltip]="ssoRequired ? ('yourOrganizationRequiresSingleSignOn' | i18n) : ''"
+        [addTooltipToDescribedby]="ssoRequired"
+        [disabled]="ssoRequired"
+      >
+        {{ "continue" | i18n }}
+      </button>
 
       <div class="tw-text-center">{{ "or" | i18n }}</div>
 
       <!-- Button to Login with Passkey -->
       <ng-container *ngIf="isLoginWithPasskeySupported()">
-        @if (ssoRequired) {
-          <!-- Show disabled button with tooltip -->
-          <div [bitTooltip]="'yourOrganizationRequiresSingleSignOn' | i18n">
-            <button type="button" bitButton block buttonType="secondary" [disabled]="true">
-              <i class="bwi bwi-passkey tw-mr-1" aria-hidden="true"></i>
-              {{ "logInWithPasskey" | i18n }}
-            </button>
-          </div>
-        } @else {
-          <!-- Show regular button -->
-          <button
-            type="button"
-            bitButton
-            block
-            buttonType="secondary"
-            (click)="handleLoginWithPasskeyClick()"
-          >
-            <i class="bwi bwi-passkey tw-mr-1" aria-hidden="true"></i>
-            {{ "logInWithPasskey" | i18n }}
-          </button>
-        }
+        <!-- Show regular button -->
+        <button
+          type="button"
+          bitButton
+          block
+          buttonType="secondary"
+          (click)="handleLoginWithPasskeyClick()"
+          [bitTooltip]="ssoRequired ? ('yourOrganizationRequiresSingleSignOn' | i18n) : ''"
+          [addTooltipToDescribedby]="ssoRequired"
+          [disabled]="ssoRequired"
+        >
+          <i class="bwi bwi-passkey tw-mr-1" aria-hidden="true"></i>
+          {{ "logInWithPasskey" | i18n }}
+        </button>
       </ng-container>
 
       <!-- Button to Login with SSO -->
