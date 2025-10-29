@@ -20,15 +20,15 @@ export class MainDesktopAutotypeService {
   }
 
   init() {
-    ipcMain.handle("autofill.initAutotype", () => {
+    ipcMain.handle(AUTOTYPE_IPC_CHANNELS.INIT, () => {
       this.init();
     });
 
-    ipcMain.handle("autofill.autotypeIsInitialized", () => {
+    ipcMain.handle(AUTOTYPE_IPC_CHANNELS.INITIALIZED, () => {
       return this.isInitialized;
     });
 
-    ipcMain.on("autofill.toggleAutotype", (_event, enable: boolean) => {
+    ipcMain.on(AUTOTYPE_IPC_CHANNELS.TOGGLE, (_event, enable: boolean) => {
       if (enable) {
         this.enableAutotype();
       } else {
@@ -36,7 +36,7 @@ export class MainDesktopAutotypeService {
       }
     });
 
-    ipcMain.on("autofill.configureAutotype", (_event, config: AutotypeConfig) => {
+    ipcMain.on(AUTOTYPE_IPC_CHANNELS.CONFIGURE, (_event, config: AutotypeConfig) => {
       const newKeyboardShortcut = new AutotypeKeyboardShortcut();
       const newKeyboardShortcutIsValid = newKeyboardShortcut.set(config.keyboardShortcut);
 
@@ -48,7 +48,7 @@ export class MainDesktopAutotypeService {
       this.setKeyboardShortcut(newKeyboardShortcut);
     });
 
-    ipcMain.on("autofill.completeAutotypeRequest", (_event, data) => {
+    ipcMain.on(AUTOTYPE_IPC_CHANNELS.EXECUTE, (_event, data) => {
       const { response } = data;
 
       if (
@@ -91,7 +91,7 @@ export class MainDesktopAutotypeService {
       () => {
         const windowTitle = autotype.getForegroundWindowTitle();
 
-        this.windowMain.win.webContents.send("autofill.listenAutotypeRequest", {
+        this.windowMain.win.webContents.send(AUTOTYPE_IPC_CHANNELS.LISTEN, {
           windowTitle,
         });
       },
