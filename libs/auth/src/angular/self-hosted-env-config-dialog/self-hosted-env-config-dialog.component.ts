@@ -183,10 +183,11 @@ export class SelfHostedEnvConfigDialogComponent implements OnInit, OnDestroy {
       });
   }
   submit = async () => {
+    this.formGroup.markAllAsTouched();
     this.showErrorSummary = false;
 
     if (this.formGroup.invalid) {
-      this.showErrorSummary = true;
+      this.showErrorSummary = Boolean(this.formGroup.errors?.["atLeastOneUrlIsRequired"]);
       return;
     }
 
