@@ -2,6 +2,7 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
   combineLatest,
   concatMap,
+  distinctUntilChanged,
   filter,
   firstValueFrom,
   map,
@@ -158,13 +159,15 @@ export class DesktopAutotypeService {
       ),
     ])
       .pipe(
-        concatMap(async ([settingsEnabled, ffEnabled, authStatus, hasPremium]) => {
-          const enabled =
+        map(
+          ([settingsEnabled, ffEnabled, authStatus, hasPremium]) =>
             settingsEnabled &&
             ffEnabled &&
             authStatus == AuthenticationStatus.Unlocked &&
-            hasPremium;
-
+            hasPremium,
+        ),
+        distinctUntilChanged(), // Only emit when the boolean result changes
+        concatMap(async (enabled) => {
           ipc.autofill.toggleAutotype(enabled);
         }),
         takeUntilDestroyed(),
