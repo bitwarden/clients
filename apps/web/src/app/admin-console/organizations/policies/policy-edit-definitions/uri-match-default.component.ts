@@ -40,7 +40,6 @@ export class UriMatchDefaultPolicyComponent extends BasePolicyEditComponent {
     });
 
     this.uriMatchOptions = [
-      { label: "-- " + i18nService.t("select") + " --", value: null },
       { label: i18nService.t("baseDomain"), value: UriMatchStrategy.Domain },
       { label: i18nService.t("host"), value: UriMatchStrategy.Host },
       { label: i18nService.t("exact"), value: UriMatchStrategy.Exact },
