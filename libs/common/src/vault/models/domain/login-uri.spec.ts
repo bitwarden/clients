@@ -1,9 +1,14 @@
-import { MockProxy, mock } from "jest-mock-extended";
+import { MockProxy } from "jest-mock-extended";
 import { Jsonify } from "type-fest";
 
 import { UriMatchType } from "@bitwarden/sdk-internal";
 
-import { mockContainerService, mockEnc, mockFromJson } from "../../../../spec";
+import {
+  makeSymmetricCryptoKey,
+  mockContainerService,
+  mockEnc,
+  mockFromJson,
+} from "../../../../spec";
 import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { UriMatchStrategy } from "../../../models/domain/domain-service";
@@ -13,6 +18,7 @@ import { LoginUri } from "./login-uri";
 
 describe("LoginUri", () => {
   let data: LoginUriData;
+  let encryptService: MockProxy<EncryptService>;
 
   beforeEach(() => {
     data = {
@@ -21,7 +27,8 @@ describe("LoginUri", () => {
       match: UriMatchStrategy.Domain,
     };
 
-    mockContainerService();
+    const containerService = mockContainerService();
+    encryptService = containerService.getEncryptService();
   });
 
   it("Convert from empty", () => {
@@ -64,22 +71,13 @@ describe("LoginUri", () => {
   });
 
   describe("validateChecksum", () => {
-    let encryptService: MockProxy<EncryptService>;
-
-    beforeEach(() => {
-      encryptService = mock();
-      global.bitwardenContainerService = {
-        getEncryptService: () => encryptService,
-        getKeyService: () => null,
-      };
-    });
-
     it("returns true if checksums match", async () => {
       const loginUri = new LoginUri();
       loginUri.uriChecksum = mockEnc("checksum");
       encryptService.hash.mockResolvedValue("checksum");
 
-      const actual = await loginUri.validateChecksum("uri", undefined);
+      const key = makeSymmetricCryptoKey(64);
+      const actual = await loginUri.validateChecksum("uri", key);
 
       expect(actual).toBe(true);
       expect(encryptService.hash).toHaveBeenCalledWith("uri", "sha256");
