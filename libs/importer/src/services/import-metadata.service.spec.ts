@@ -146,7 +146,9 @@ describe("ImportMetadataService", () => {
       await new Promise((resolve) => setTimeout(resolve, 0));
 
       expect(emissions).toHaveLength(2);
+      // Disable ABE - chromium loader should be excluded
       expect(emissions[0].loaders).not.toContain(Loader.chromium);
+      // Enabled ABE - chromium loader should be included
       expect(emissions[1].loaders).toContain(Loader.file);
 
       subscription.unsubscribe();
