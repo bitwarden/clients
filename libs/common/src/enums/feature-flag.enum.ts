@@ -23,7 +23,6 @@ export enum FeatureFlag {
 
   /* Billing */
   TrialPaymentOptional = "PM-8163-trial-payment",
-  PM17772_AdminInitiatedSponsorships = "pm-17772-admin-initiated-sponsorships",
   PM21821_ProviderPortalTakeover = "pm-21821-provider-portal-takeover",
   PM22415_TaxIDWarnings = "pm-22415-tax-id-warnings",
   PM24032_NewNavigationPremiumUpgradeButton = "pm-24032-new-navigation-premium-upgrade-button",
@@ -56,6 +55,7 @@ export enum FeatureFlag {
   PM22134SdkCipherListView = "pm-22134-sdk-cipher-list-view",
   PM22136_SdkCipherEncryption = "pm-22136-sdk-cipher-encryption",
   CipherKeyEncryption = "cipher-key-encryption",
+  AutofillConfirmation = "pm-25083-autofill-confirm-from-search",
 
   /* Platform */
   IpcChannelFramework = "ipc-channel-framework",
@@ -103,13 +103,13 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM19941MigrateCipherDomainToSdk]: FALSE,
   [FeatureFlag.PM22134SdkCipherListView]: FALSE,
   [FeatureFlag.PM22136_SdkCipherEncryption]: FALSE,
+  [FeatureFlag.AutofillConfirmation]: FALSE,
 
   /* Auth */
   [FeatureFlag.PM22110_DisableAlternateLoginMethods]: FALSE,
 
   /* Billing */
   [FeatureFlag.TrialPaymentOptional]: FALSE,
-  [FeatureFlag.PM17772_AdminInitiatedSponsorships]: FALSE,
   [FeatureFlag.PM21821_ProviderPortalTakeover]: FALSE,
   [FeatureFlag.PM22415_TaxIDWarnings]: FALSE,
   [FeatureFlag.PM24032_NewNavigationPremiumUpgradeButton]: FALSE,

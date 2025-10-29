@@ -11,7 +11,7 @@
       ]"
     >
       <div class="tw-relative tw-flex tw-items-center tw-h-full">
-        <ng-container *ngIf="route; then isAnchor; else isButton"></ng-container>
+        <ng-container *ngIf="route(); then isAnchor; else isButton"></ng-container>
 
         <!-- Main content of `NavItem` -->
         <ng-template #anchorAndButtonContent>
@@ -31,7 +31,7 @@
           </div>
         </ng-template>
 
-        <!-- Show if a value was passed to `this.to` -->
+        <!-- Show if a value was passed to `this.route` -->
         <ng-template #isAnchor>
           <!-- The `data-fvw` attribute passes focus to `this.focusVisibleWithin$` -->
           <!-- The following `class` field should match the `#isButton` class field below -->
@@ -43,7 +43,7 @@
             [attr.aria-label]="ariaLabel() || text()"
             routerLinkActive
             [routerLinkActiveOptions]="routerLinkActiveOptions()"
-            [ariaCurrentWhenActive]="'page'"
+            [ariaCurrentWhenActive]="ariaCurrentWhenActive()"
             (isActiveChange)="setIsActive($event)"
             (click)="mainContentClicked.emit()"
           >
@@ -51,12 +51,13 @@
           </a>
         </ng-template>
 
-        <!-- Show if `this.to` is falsy -->
+        <!-- Show if `this.route` is falsy -->
         <ng-template #isButton>
           <!-- Class field should match `#isAnchor` class field above -->
           <button
             type="button"
-            class="tw-size-full tw-px-4 tw-pe-3 tw-truncate tw-border-none tw-bg-transparent tw-text-start !tw-text-alt2 hover:tw-text-alt2 hover:tw-no-underline focus:tw-outline-none [&_i]:tw-leading-[1.5rem]"
+            class="tw-size-full tw-px-4 tw-truncate tw-border-none tw-bg-transparent tw-text-start !tw-text-alt2 hover:tw-text-alt2 hover:tw-no-underline focus:tw-outline-none [&_i]:tw-leading-[1.5rem]"
+            [ngClass]="open ? 'tw-pe-3' : 'tw-pe-4'"
             data-fvw
             (click)="mainContentClicked.emit()"
           >

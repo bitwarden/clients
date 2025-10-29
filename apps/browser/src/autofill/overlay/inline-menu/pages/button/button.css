@@ -1,5 +1,3 @@
-@import "../../../../shared/styles/variables";
-
 * {
   box-sizing: border-box;
 }
@@ -27,10 +25,10 @@ autofill-inline-menu-button {
   border: none;
   background: transparent;
   cursor: pointer;
+}
 
-  .inline-menu-button-svg-icon {
-    display: block;
-    width: 100%;
-    height: auto;
-  }
+.inline-menu-button .inline-menu-button-svg-icon {
+  display: block;
+  width: 100%;
+  height: auto;
 }
