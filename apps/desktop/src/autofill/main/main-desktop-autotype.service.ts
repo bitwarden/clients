@@ -17,7 +17,9 @@ export class MainDesktopAutotypeService {
     private windowMain: WindowMain,
   ) {
     this.autotypeKeyboardShortcut = new AutotypeKeyboardShortcut();
+  }
 
+  init() {
     ipcMain.handle("autofill.initAutotype", () => {
       this.init();
     });
@@ -25,9 +27,7 @@ export class MainDesktopAutotypeService {
     ipcMain.handle("autofill.autotypeIsInitialized", () => {
       return this.isInitialized;
     });
-  }
 
-  init() {
     ipcMain.on("autofill.toggleAutotype", (_event, enable: boolean) => {
       if (enable) {
         this.enableAutotype();
