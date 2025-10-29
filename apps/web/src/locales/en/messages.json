@@ -6480,11 +6480,11 @@
   "updateWeakMasterPasswordWarning": {
     "message": "Your master password does not meet one or more of your organization policies. In order to access the vault, you must update your master password now. Proceeding will log you out of your current session, requiring you to log back in. Active sessions on other devices may continue to remain active for up to one hour."
   },
-  "automaticAppLogin": {
-    "message": "Automatically log in users for allowed applications"
+  "automaticAppLoginWithSSO": {
+    "message": "Automatic login with SSO"
   },
-  "automaticAppLoginDesc": {
-    "message": "Login forms will automatically be filled and submitted for apps launched from your configured identity provider."
+  "automaticAppLoginWithSSODesc": {
+    "message": "Extend SSO security and convenience to unmanaged apps. When users launch an app from your identity provider, their login details are automatically filled and submitted, creating a one-click, secure flow from the identity provider to the app."
   },
   "automaticAppLoginIdpHostLabel": {
     "message": "Identity provider host"
