@@ -78,13 +78,13 @@ describe("AtRiskPasswordCalloutService", () => {
             cipherId: "c1",
             type: SecurityTaskType.UpdateAtRiskCredential,
             status: SecurityTaskStatus.Pending,
-          } as any,
+          } as SecurityTask,
           {
             id: "t2",
             cipherId: "c2",
             type: SecurityTaskType.UpdateAtRiskCredential,
             status: SecurityTaskStatus.Pending,
-          } as any,
+          } as SecurityTask,
         ],
         ciphers: [
           new MockCipherView("c1", false, true, true),
@@ -101,13 +101,13 @@ describe("AtRiskPasswordCalloutService", () => {
             cipherId: "c1",
             type: SecurityTaskType.UpdateAtRiskCredential,
             status: SecurityTaskStatus.Pending,
-          } as any,
+          } as SecurityTask,
           {
             id: "t2",
             cipherId: "c2",
-            type: "SomeOtherType" as any,
+            type: 999 as SecurityTaskType,
             status: SecurityTaskStatus.Pending,
-          } as any,
+          } as SecurityTask,
         ],
         ciphers: [
           new MockCipherView("c1", false, true, true),
@@ -124,13 +124,13 @@ describe("AtRiskPasswordCalloutService", () => {
             cipherId: "c1",
             type: SecurityTaskType.UpdateAtRiskCredential,
             status: SecurityTaskStatus.Pending,
-          } as any,
+          } as SecurityTask,
           {
             id: "t2",
             cipherId: "c-nonexistent",
             type: SecurityTaskType.UpdateAtRiskCredential,
             status: SecurityTaskStatus.Pending,
-          } as any,
+          } as SecurityTask,
         ],
         ciphers: [new MockCipherView("c1", false, true, true)],
         expectedLength: 1,
@@ -144,13 +144,13 @@ describe("AtRiskPasswordCalloutService", () => {
             cipherId: "c1",
             type: SecurityTaskType.UpdateAtRiskCredential,
             status: SecurityTaskStatus.Pending,
-          } as any,
+          } as SecurityTask,
           {
             id: "t2",
             cipherId: "c2",
             type: SecurityTaskType.UpdateAtRiskCredential,
             status: SecurityTaskStatus.Pending,
-          } as any,
+          } as SecurityTask,
         ],
         ciphers: [
           new MockCipherView("c1", false, true, true),
@@ -167,13 +167,13 @@ describe("AtRiskPasswordCalloutService", () => {
             cipherId: "c1",
             type: SecurityTaskType.UpdateAtRiskCredential,
             status: SecurityTaskStatus.Pending,
-          } as any,
+          } as SecurityTask,
           {
             id: "t2",
             cipherId: "c2",
             type: SecurityTaskType.UpdateAtRiskCredential,
             status: SecurityTaskStatus.Pending,
-          } as any,
+          } as SecurityTask,
         ],
         ciphers: [
           new MockCipherView("c1", false, true, true),
@@ -190,13 +190,13 @@ describe("AtRiskPasswordCalloutService", () => {
             cipherId: "c1",
             type: SecurityTaskType.UpdateAtRiskCredential,
             status: SecurityTaskStatus.Pending,
-          } as any,
+          } as SecurityTask,
           {
             id: "t2",
             cipherId: "c2",
             type: SecurityTaskType.UpdateAtRiskCredential,
             status: SecurityTaskStatus.Pending,
-          } as any,
+          } as SecurityTask,
         ],
         ciphers: [
           new MockCipherView("c1", false, true, true),
@@ -224,31 +224,31 @@ describe("AtRiskPasswordCalloutService", () => {
           cipherId: "c1",
           type: SecurityTaskType.UpdateAtRiskCredential,
           status: SecurityTaskStatus.Pending,
-        } as any,
+        } as SecurityTask,
         {
           id: "t2",
           cipherId: "c2",
           type: SecurityTaskType.UpdateAtRiskCredential,
           status: SecurityTaskStatus.Pending,
-        } as any,
+        } as SecurityTask,
         {
           id: "t3",
           cipherId: "c3",
           type: SecurityTaskType.UpdateAtRiskCredential,
           status: SecurityTaskStatus.Pending,
-        } as any,
+        } as SecurityTask,
         {
           id: "t4",
           cipherId: "c4",
           type: SecurityTaskType.UpdateAtRiskCredential,
           status: SecurityTaskStatus.Pending,
-        } as any,
+        } as SecurityTask,
         {
           id: "t5",
           cipherId: "c5",
           type: SecurityTaskType.UpdateAtRiskCredential,
           status: SecurityTaskStatus.Pending,
-        } as any,
+        } as SecurityTask,
       ];
       const ciphers = [
         new MockCipherView("c1", false, true, true), // valid
@@ -276,7 +276,7 @@ describe("AtRiskPasswordCalloutService", () => {
             cipherId: "c1",
             type: SecurityTaskType.UpdateAtRiskCredential,
             status: SecurityTaskStatus.Pending,
-          } as any,
+          } as SecurityTask,
         ],
         ciphers: [new MockCipherView("c1", true, true, true)], // deleted
       },
@@ -303,25 +303,25 @@ describe("AtRiskPasswordCalloutService", () => {
           cipherId: "c1",
           type: SecurityTaskType.UpdateAtRiskCredential,
           status: SecurityTaskStatus.Completed,
-        } as any,
+        } as SecurityTask,
         {
           id: "t2",
           cipherId: "c2",
           type: SecurityTaskType.UpdateAtRiskCredential,
           status: SecurityTaskStatus.Pending,
-        } as any,
+        } as SecurityTask,
         {
           id: "t3",
           cipherId: "nope",
           type: SecurityTaskType.UpdateAtRiskCredential,
           status: SecurityTaskStatus.Completed,
-        } as any,
+        } as SecurityTask,
         {
           id: "t4",
           cipherId: "c3",
           type: SecurityTaskType.UpdateAtRiskCredential,
           status: SecurityTaskStatus.Completed,
-        } as any,
+        } as SecurityTask,
       ];
 
       jest.spyOn(mockTaskService, "completedTasks$").mockReturnValue(of(tasks));
