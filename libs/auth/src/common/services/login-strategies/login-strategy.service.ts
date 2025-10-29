@@ -94,10 +94,30 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
   private authenticationTimeoutSubject = new BehaviorSubject<boolean>(false);
 
   // Prefetched password prelogin
-  private currentPreloginEmail: string | null = null;
-  private currentPreloginKdfConfig: KdfConfig | null = null;
-  private currentPreloginPromise: Promise<KdfConfig | null> | null = null;
-  private currentPreloginVersion = 0;
+  //
+  // About versioning:
+  // Users can quickly change emails (e.g., continue with user1, go back, continue with user2)
+  // which triggers overlapping async prelogin requests. We use a monotonically increasing
+  // "version" to associate each prelogin attempt with the state at the time it was started.
+  // Only if BOTH the email and the version still match when the promise resolves do we commit
+  // the resulting KDF config or clear the in-flight promise. This prevents stale results from
+  // user1 overwriting user2's state in race conditions.
+  private passwordPrelogin: {
+    email: string | null;
+    kdfConfig: KdfConfig | null;
+    promise: Promise<KdfConfig | null> | null;
+    /**
+     * Version guard for prelogin attempts.
+     * Incremented at the start of getPasswordPrelogin for each new submission.
+     * Used to ignore stale async resolutions when email changes mid-flight.
+     */
+    version: number;
+  } = {
+    email: null,
+    kdfConfig: null,
+    promise: null,
+    version: 0,
+  };
 
   authenticationSessionTimeout$: Observable<boolean> =
     this.authenticationTimeoutSubject.asObservable();
@@ -315,37 +335,28 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
     }
   }
 
-  async makePreloginKey(masterPassword: string, email: string): Promise<MasterKey> {
+  async makePrePasswordLoginMasterKey(masterPassword: string, email: string): Promise<MasterKey> {
     email = email.trim().toLowerCase();
 
     if (await this.configService.getFeatureFlag(FeatureFlag.PM23801_PrefetchPasswordPrelogin)) {
       let kdfConfig: KdfConfig | null = null;
-      if (this.currentPreloginEmail === email) {
-        if (this.currentPreloginKdfConfig) {
-          kdfConfig = this.currentPreloginKdfConfig;
-        } else if (this.currentPreloginPromise != null) {
+      if (this.passwordPrelogin.email === email) {
+        if (this.passwordPrelogin.kdfConfig) {
+          kdfConfig = this.passwordPrelogin.kdfConfig;
+        } else if (this.passwordPrelogin.promise != null) {
           try {
-            await this.currentPreloginPromise;
+            await this.passwordPrelogin.promise;
           } catch {
             // swallow; fall back to fetching
           }
-          kdfConfig = this.currentPreloginKdfConfig;
+          kdfConfig = this.passwordPrelogin.kdfConfig;
         }
       }
 
       if (!kdfConfig) {
         try {
           const preloginResponse = await this.apiService.postPrelogin(new PreloginRequest(email));
-          if (preloginResponse != null) {
-            kdfConfig =
-              preloginResponse.kdf === KdfType.PBKDF2_SHA256
-                ? new PBKDF2KdfConfig(preloginResponse.kdfIterations)
-                : new Argon2KdfConfig(
-                    preloginResponse.kdfIterations,
-                    preloginResponse.kdfMemory,
-                    preloginResponse.kdfParallelism,
-                  );
-          }
+          kdfConfig = this.buildKdfConfigFromPrelogin(preloginResponse);
         } catch (e: any) {
           if (e == null || e.statusCode !== 404) {
             throw e;
@@ -364,16 +375,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
     let legacyKdfConfig: KdfConfig | undefined;
     try {
       const preloginResponse = await this.apiService.postPrelogin(new PreloginRequest(email));
-      if (preloginResponse != null) {
-        legacyKdfConfig =
-          preloginResponse.kdf === KdfType.PBKDF2_SHA256
-            ? new PBKDF2KdfConfig(preloginResponse.kdfIterations)
-            : new Argon2KdfConfig(
-                preloginResponse.kdfIterations,
-                preloginResponse.kdfMemory,
-                preloginResponse.kdfParallelism,
-              );
-      }
+      legacyKdfConfig = this.buildKdfConfigFromPrelogin(preloginResponse) ?? undefined;
     } catch (e: any) {
       if (e == null || e.statusCode !== 404) {
         throw e;
@@ -389,27 +391,16 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
 
   async getPasswordPrelogin(email: string): Promise<void> {
     const normalizedEmail = email.trim().toLowerCase();
-    const version = ++this.currentPreloginVersion;
+    const version = ++this.passwordPrelogin.version;
 
-    this.currentPreloginEmail = normalizedEmail;
-    this.currentPreloginKdfConfig = null;
+    this.passwordPrelogin.email = normalizedEmail;
+    this.passwordPrelogin.kdfConfig = null;
     const promise: Promise<KdfConfig | null> = (async () => {
       try {
         const preloginResponse = await this.apiService.postPrelogin(
           new PreloginRequest(normalizedEmail),
         );
-        if (preloginResponse == null) {
-          return null;
-        }
-        const cfg =
-          preloginResponse.kdf === KdfType.PBKDF2_SHA256
-            ? new PBKDF2KdfConfig(preloginResponse.kdfIterations)
-            : new Argon2KdfConfig(
-                preloginResponse.kdfIterations,
-                preloginResponse.kdfMemory,
-                preloginResponse.kdfParallelism,
-              );
-        return cfg;
+        return this.buildKdfConfigFromPrelogin(preloginResponse);
       } catch (e: any) {
         if (e == null || e.statusCode !== 404) {
           throw e;
@@ -418,16 +409,16 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
       }
     })();
 
-    this.currentPreloginPromise = promise;
+    this.passwordPrelogin.promise = promise;
     promise
       .then((cfg) => {
         // Only apply if still for the same email and same version
         if (
-          this.currentPreloginEmail === normalizedEmail &&
-          this.currentPreloginVersion === version &&
+          this.passwordPrelogin.email === normalizedEmail &&
+          this.passwordPrelogin.version === version &&
           cfg
         ) {
-          this.currentPreloginKdfConfig = cfg;
+          this.passwordPrelogin.kdfConfig = cfg;
         }
       })
       .catch(() => {
@@ -435,10 +426,10 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
       })
       .finally(() => {
         if (
-          this.currentPreloginEmail === normalizedEmail &&
-          this.currentPreloginVersion === version
+          this.passwordPrelogin.email === normalizedEmail &&
+          this.passwordPrelogin.version === version
         ) {
-          this.currentPreloginPromise = null;
+          this.passwordPrelogin.promise = null;
         }
       });
   }
@@ -448,11 +439,12 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
     await this.loginStrategyCacheState.update((_) => null);
     this.authenticationTimeoutSubject.next(false);
     await this.clearSessionTimeout();
+
     // Clear prelogin cache
-    this.currentPreloginEmail = null;
-    this.currentPreloginKdfConfig = null;
-    this.currentPreloginPromise = null;
-    this.currentPreloginVersion = 0;
+    this.passwordPrelogin.email = null;
+    this.passwordPrelogin.kdfConfig = null;
+    this.passwordPrelogin.promise = null;
+    this.passwordPrelogin.version = 0;
   }
 
   private async startSessionTimeout(): Promise<void> {
@@ -559,5 +551,25 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
         }
       }),
     );
+  }
+
+  private buildKdfConfigFromPrelogin(
+    preloginResponse: {
+      kdf: KdfType;
+      kdfIterations: number;
+      kdfMemory?: number;
+      kdfParallelism?: number;
+    } | null,
+  ): KdfConfig | null {
+    if (preloginResponse == null) {
+      return null;
+    }
+    return preloginResponse.kdf === KdfType.PBKDF2_SHA256
+      ? new PBKDF2KdfConfig(preloginResponse.kdfIterations)
+      : new Argon2KdfConfig(
+          preloginResponse.kdfIterations,
+          preloginResponse.kdfMemory,
+          preloginResponse.kdfParallelism,
+        );
   }
 }

@@ -119,7 +119,7 @@ describe("PasswordLoginStrategy", () => {
       sub: userId,
     });
 
-    loginStrategyService.makePreloginKey.mockResolvedValue(masterKey);
+    loginStrategyService.makePrePasswordLoginMasterKey.mockResolvedValue(masterKey);
 
     keyService.hashMasterKey
       .calledWith(masterPassword, expect.anything(), undefined)
