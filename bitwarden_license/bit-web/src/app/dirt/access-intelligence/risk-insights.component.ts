@@ -252,10 +252,7 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
 
     // Update all state-dependent properties in single if/else
     if (this.shouldShowImportDataState) {
-      this.emptyStateTitle = this.i18nService.t(
-        "noApplicationsInOrgTitle",
-        this.getOrganizationName(),
-      );
+      this.emptyStateTitle = this.i18nService.t("noApplicationsInOrgTitle", this.organizationName);
       this.emptyStateDescription = this.i18nService.t("noApplicationsInOrgDescription");
       this.emptyStateButtonText = this.i18nService.t("importData");
       this.emptyStateButtonIcon = RiskInsightsComponent.IMPORT_ICON;
@@ -267,9 +264,5 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
       this.emptyStateButtonIcon = "";
       this.emptyStateButtonAction = this.runReport;
     }
-  }
-
-  private getOrganizationName(): string {
-    return this.organizationName;
   }
 }
