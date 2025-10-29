@@ -1,5 +1,5 @@
 import { Component, ChangeDetectionStrategy } from "@angular/core";
-import { FormBuilder, FormControl } from "@angular/forms";
+import { FormBuilder, FormControl, Validators } from "@angular/forms";
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { PolicyRequest } from "@bitwarden/common/admin-console/models/request/policy.request";
@@ -25,15 +25,20 @@ export class UriMatchDefaultPolicy extends BasePolicyEditDefinition {
 })
 export class UriMatchDefaultPolicyComponent extends BasePolicyEditComponent {
   uriMatchOptions: { label: string; value: UriMatchStrategySetting | null; disabled?: boolean }[];
-  data = this.formBuilder.group({
-    uriMatchDetection: new FormControl<UriMatchStrategySetting | null>(null),
-  });
 
   constructor(
     private formBuilder: FormBuilder,
     private i18nService: I18nService,
   ) {
     super();
+
+    this.data = this.formBuilder.group({
+      uriMatchDetection: new FormControl<UriMatchStrategySetting>(null, {
+        validators: [Validators.required],
+        nonNullable: true,
+      }),
+    });
+
     this.uriMatchOptions = [
       { label: "-- " + i18nService.t("select") + " --", value: null },
       { label: i18nService.t("baseDomain"), value: UriMatchStrategy.Domain },
