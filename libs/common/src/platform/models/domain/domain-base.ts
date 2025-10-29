@@ -84,7 +84,15 @@ export default class Domain {
       if (domain[prop] == null) {
         continue;
       }
-      viewModel[prop] = await encryptService.decryptString(domain[prop]!, key!);
+      try {
+        viewModel[prop] = await encryptService.decryptString(domain[prop]!, key!);
+      } catch (e) {
+        throw new Error(
+          `Failed to decrypt property '${String(
+            prop,
+          )}' of domain. Context: ${objectContext}. Error: ${(e as Error).message}`,
+        );
+      }
     }
     return viewModel as V;
   }
