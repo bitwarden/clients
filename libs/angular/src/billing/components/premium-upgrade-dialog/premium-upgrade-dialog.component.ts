@@ -1,6 +1,6 @@
 import { CdkTrapFocus } from "@angular/cdk/a11y";
 import { CommonModule } from "@angular/common";
-import { Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { catchError, firstValueFrom, map, Observable, of } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -39,6 +39,8 @@ type CardDetails = {
 
 @Component({
   selector: "billing-premium-upgrade-dialog",
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     DialogModule,
