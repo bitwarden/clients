@@ -102,7 +102,7 @@ import {
   ImportType,
   regularImportOptions,
 } from "../models/import-options";
-import { ImportResult } from "../models/import-result";
+import { CollectionRelationship, FolderRelationship, ImportResult } from "../models/import-result";
 import { ImportApiServiceAbstraction } from "../services/import-api.service.abstraction";
 import { ImportServiceAbstraction } from "../services/import.service.abstraction";
 
@@ -487,7 +487,7 @@ export class ImportService implements ImportServiceAbstraction {
         throw new Error(this.i18nService.t("errorAssigningTargetCollection"));
       }
 
-      const noCollectionRelationShips: [number, number][] = [];
+      const noCollectionRelationShips: CollectionRelationship[] = [];
       importResult.ciphers.forEach((c, index) => {
         if (
           !Array.isArray(importResult.collectionRelationships) ||
@@ -512,7 +512,7 @@ export class ImportService implements ImportServiceAbstraction {
         importResult.collections.push(f);
       });
 
-      const relationships: [number, number][] = [...importResult.collectionRelationships];
+      const relationships = [...importResult.collectionRelationships];
       importResult.collectionRelationships = [...noCollectionRelationShips];
       relationships.map((x) => {
         importResult.collectionRelationships.push([x[0], x[1] + 1]);
@@ -526,7 +526,7 @@ export class ImportService implements ImportServiceAbstraction {
       throw new Error(this.i18nService.t("errorAssigningTargetFolder"));
     }
 
-    const noFolderRelationShips: [number, number][] = [];
+    const noFolderRelationShips: FolderRelationship[] = [];
     importResult.ciphers.forEach((c, index) => {
       if (Utils.isNullOrEmpty(c.folderId)) {
         c.folderId = importTarget.id;
@@ -543,7 +543,7 @@ export class ImportService implements ImportServiceAbstraction {
       importResult.folders.push(f);
     });
 
-    const relationships: [number, number][] = [...importResult.folderRelationships];
+    const relationships = [...importResult.folderRelationships];
     importResult.folderRelationships = [...noFolderRelationShips];
     relationships.map((x) => {
       importResult.folderRelationships.push([x[0], x[1] + 1]);
