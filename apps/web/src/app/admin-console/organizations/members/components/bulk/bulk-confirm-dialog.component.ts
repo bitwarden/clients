@@ -5,11 +5,11 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { firstValueFrom, map, Observable, switchMap } from "rxjs";
 
 import {
-  DefaultOrganizationUserService,
   OrganizationUserApiService,
   OrganizationUserBulkConfirmRequest,
   OrganizationUserBulkPublicKeyResponse,
   OrganizationUserBulkResponse,
+  OrganizationUserService,
 } from "@bitwarden/admin-console/common";
 import { OrganizationUserStatusType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -53,7 +53,7 @@ export class BulkConfirmDialogComponent extends BaseBulkConfirmComponent {
     private organizationUserApiService: OrganizationUserApiService,
     protected i18nService: I18nService,
     private stateProvider: StateProvider,
-    private organizationUserService: DefaultOrganizationUserService,
+    private organizationUserService: OrganizationUserService,
     private configService: ConfigService,
   ) {
     super(keyService, encryptService, i18nService);

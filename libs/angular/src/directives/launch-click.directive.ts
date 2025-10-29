@@ -10,6 +10,8 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 export class LaunchClickDirective {
   constructor(private platformUtilsService: PlatformUtilsService) {}
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input("appLaunchClick") uriToLaunch = "";
 
   @HostListener("click") onClick() {
