@@ -39,6 +39,8 @@ import { IdentityView } from "../../models/view/identity.view";
 import { LoginView } from "../../models/view/login.view";
 import { CipherPermissionsApi } from "../api/cipher-permissions.api";
 
+const mockSymmetricKey = new SymmetricCryptoKey(makeStaticByteArray(64));
+
 describe("Cipher DTO", () => {
   it("Convert from empty CipherData", () => {
     const data = new CipherData();
@@ -100,6 +102,9 @@ describe("Cipher DTO", () => {
     const cipherService = mock<CipherService>();
 
     encryptService.unwrapSymmetricKey.mockRejectedValue(new Error("Failed to unwrap key"));
+    cipherService.getKeyForCipherKeyDecryption.mockResolvedValue(
+      new SymmetricCryptoKey(makeStaticByteArray(64)),
+    );
 
     (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
 
@@ -319,7 +324,6 @@ describe("Cipher DTO", () => {
 
       const keyService = mock<KeyService>();
       const encryptService = mock<EncryptService>();
-      const cipherService = mock<CipherService>();
 
       encryptService.unwrapSymmetricKey.mockResolvedValue(
         new SymmetricCryptoKey(makeStaticByteArray(64)),
@@ -327,9 +331,7 @@ describe("Cipher DTO", () => {
 
       (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
 
-      const cipherView = await cipher.decrypt(
-        await cipherService.getKeyForCipherKeyDecryption(cipher, mockUserId),
-      );
+      const cipherView = await cipher.decrypt(mockSymmetricKey);
 
       expect(cipherView).toMatchObject({
         id: "id",
@@ -447,7 +449,6 @@ describe("Cipher DTO", () => {
 
       const keyService = mock<KeyService>();
       const encryptService = mock<EncryptService>();
-      const cipherService = mock<CipherService>();
 
       encryptService.unwrapSymmetricKey.mockResolvedValue(
         new SymmetricCryptoKey(makeStaticByteArray(64)),
@@ -455,9 +456,7 @@ describe("Cipher DTO", () => {
 
       (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
 
-      const cipherView = await cipher.decrypt(
-        await cipherService.getKeyForCipherKeyDecryption(cipher, mockUserId),
-      );
+      const cipherView = await cipher.decrypt(mockSymmetricKey);
 
       expect(cipherView).toMatchObject({
         id: "id",
@@ -593,7 +592,6 @@ describe("Cipher DTO", () => {
 
       const keyService = mock<KeyService>();
       const encryptService = mock<EncryptService>();
-      const cipherService = mock<CipherService>();
 
       encryptService.unwrapSymmetricKey.mockResolvedValue(
         new SymmetricCryptoKey(makeStaticByteArray(64)),
@@ -601,9 +599,7 @@ describe("Cipher DTO", () => {
 
       (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
 
-      const cipherView = await cipher.decrypt(
-        await cipherService.getKeyForCipherKeyDecryption(cipher, mockUserId),
-      );
+      const cipherView = await cipher.decrypt(mockSymmetricKey);
 
       expect(cipherView).toMatchObject({
         id: "id",
@@ -763,7 +759,6 @@ describe("Cipher DTO", () => {
 
       const keyService = mock<KeyService>();
       const encryptService = mock<EncryptService>();
-      const cipherService = mock<CipherService>();
 
       encryptService.unwrapSymmetricKey.mockResolvedValue(
         new SymmetricCryptoKey(makeStaticByteArray(64)),
@@ -771,9 +766,7 @@ describe("Cipher DTO", () => {
 
       (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
 
-      const cipherView = await cipher.decrypt(
-        await cipherService.getKeyForCipherKeyDecryption(cipher, mockUserId),
-      );
+      const cipherView = await cipher.decrypt(mockSymmetricKey);
 
       expect(cipherView).toMatchObject({
         id: "id",

@@ -33,7 +33,7 @@ describe("Folder", () => {
     folder.name = mockEnc("encName");
     folder.revisionDate = new Date("2022-01-31T12:00:00.000Z");
 
-    const view = await folder.decrypt();
+    const view = await folder.decrypt(null);
 
     expect(view).toEqual({
       id: "id",
