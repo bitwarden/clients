@@ -1,5 +1,17 @@
+import { ListResponse } from "../../models/response/list.response";
 import { TwoFactorProviderType } from "../enums/two-factor-provider-type";
 import { IdentityTwoFactorResponse } from "../models/response/identity-two-factor.response";
+import { TwoFactorAuthenticatorResponse } from "../models/response/two-factor-authenticator.response";
+import { TwoFactorDuoResponse } from "../models/response/two-factor-duo.response";
+import { TwoFactorEmailResponse } from "../models/response/two-factor-email.response";
+import { TwoFactorProviderResponse } from "../models/response/two-factor-provider.response";
+import { TwoFactorRecoverResponse } from "../models/response/two-factor-recover.response";
+import {
+  ChallengeResponse,
+  TwoFactorWebAuthnResponse,
+} from "../models/response/two-factor-web-authn.response";
+import { TwoFactorYubiKeyResponse } from "../models/response/two-factor-yubi-key.response";
+import { Verification } from "../types/verification";
 
 export interface TwoFactorProviderDetails {
   type: TwoFactorProviderType;
@@ -57,4 +69,261 @@ export abstract class TwoFactorService {
    * @returns A list of two-factor providers or null if none are stored in state.
    */
   abstract getProviders(): Promise<Map<TwoFactorProviderType, { [key: string]: string }> | null>;
+
+  /**
+   * Gets the enabled two-factor providers for the current user from the API.
+   * Used for settings management.
+   * @returns A promise that resolves to a list response containing enabled two-factor provider configurations.
+   */
+  abstract getEnabledTwoFactorProviders(): Promise<ListResponse<TwoFactorProviderResponse>>;
+
+  /**
+   * Gets the enabled two-factor providers for an organization from the API.
+   * Requires organization administrator permissions.
+   * Used for settings management.
+   *
+   * @param organizationId The ID of the organization.
+   * @returns A promise that resolves to a list response containing enabled two-factor provider configurations.
+   */
+  abstract getTwoFactorOrganizationProviders(
+    organizationId: string,
+  ): Promise<ListResponse<TwoFactorProviderResponse>>;
+
+  /**
+   * Gets the authenticator (TOTP) two-factor configuration for the current user from the API.
+   * Requires user verification via master password or OTP.
+   * Used for settings management.
+   *
+   * @param verification The verification information to authenticate the user.
+   * @returns A promise that resolves to the authenticator configuration including the secret key.
+   */
+  abstract getTwoFactorAuthenticator(
+    verification: Verification,
+  ): Promise<TwoFactorAuthenticatorResponse>;
+
+  /**
+   * Gets the email two-factor configuration for the current user from the API.
+   * Requires user verification via master password or OTP.
+   * Used for settings management.
+   *
+   * @param verification The verification information to authenticate the user.
+   * @returns A promise that resolves to the email two-factor configuration.
+   */
+  abstract getTwoFactorEmail(verification: Verification): Promise<TwoFactorEmailResponse>;
+
+  /**
+   * Gets the Duo two-factor configuration for the current user from the API.
+   * Requires user verification and an active premium subscription.
+   * Used for settings management.
+   *
+   * @param verification The verification information to authenticate the user.
+   * @returns A promise that resolves to the Duo configuration.
+   */
+  abstract getTwoFactorDuo(verification: Verification): Promise<TwoFactorDuoResponse>;
+
+  /**
+   * Gets the Duo two-factor configuration for an organization from the API.
+   * Requires user verification and organization policy management permissions.
+   * Used for settings management.
+   *
+   * @param organizationId The ID of the organization.
+   * @param verification The verification information to authenticate the user.
+   * @returns A promise that resolves to the organization Duo configuration.
+   */
+  abstract getTwoFactorOrganizationDuo(
+    organizationId: string,
+    verification: Verification,
+  ): Promise<TwoFactorDuoResponse>;
+
+  /**
+   * Gets the YubiKey OTP two-factor configuration for the current user from the API.
+   * Requires user verification and an active premium subscription.
+   * Used for settings management.
+   *
+   * @param verification The verification information to authenticate the user.
+   * @returns A promise that resolves to the YubiKey configuration.
+   */
+  abstract getTwoFactorYubiKey(verification: Verification): Promise<TwoFactorYubiKeyResponse>;
+
+  /**
+   * Gets the WebAuthn (FIDO2) two-factor configuration for the current user from the API.
+   * Requires user verification via master password or OTP.
+   * Used for settings management.
+   *
+   * @param verification The verification information to authenticate the user.
+   * @returns A promise that resolves to the WebAuthn configuration including registered credentials.
+   */
+  abstract getTwoFactorWebAuthn(verification: Verification): Promise<TwoFactorWebAuthnResponse>;
+
+  /**
+   * Gets a WebAuthn challenge for registering a new WebAuthn credential from the API.
+   * This must be called before putTwoFactorWebAuthn to obtain the cryptographic challenge
+   * required for credential creation. The challenge is used by the browser's WebAuthn API.
+   * Requires user verification via master password or OTP.
+   * Used for settings management.
+   *
+   * @param verification The verification information to authenticate the user.
+   * @returns A promise that resolves to the credential creation options containing the challenge.
+   */
+  abstract getTwoFactorWebAuthnChallenge(verification: Verification): Promise<ChallengeResponse>;
+
+  /**
+   * Gets the recovery code configuration for the current user from the API.
+   * The recovery code should be stored securely by the user.
+   * Requires user verification via master password or OTP.
+   * Used for settings management.
+   *
+   *  @param verification The verification information to authenticate the user.
+   * @returns A promise that resolves to the recovery code configuration.
+   */
+  abstract getTwoFactorRecover(verification: Verification): Promise<TwoFactorRecoverResponse>;
+
+  /**
+   * Enables or updates the authenticator (TOTP) two-factor provider.
+   * Validates the provided token against the shared secret before enabling.
+   * The token must be generated by an authenticator app using the secret key.
+   * Used for settings management.
+   *
+   * @param verification The verification information to authenticate the user.
+   * @returns A promise that resolves to the updated authenticator configuration.
+   */
+  abstract putTwoFactorAuthenticator(
+    verification: Verification,
+  ): Promise<TwoFactorAuthenticatorResponse>;
+
+  /**
+   * Disables the authenticator (TOTP) two-factor provider for the current user.
+   * Requires user verification token to confirm the operation.
+   * Used for settings management.
+   *
+   * @param verification The verification information to authenticate the user.
+   * @returns A promise that resolves to the updated provider status.
+   */
+  abstract deleteTwoFactorAuthenticator(
+    verification: Verification,
+  ): Promise<TwoFactorProviderResponse>;
+
+  /**
+   * Enables or updates the email two-factor provider for the current user.
+   * Validates the email verification token sent via postTwoFactorEmailSetup before enabling.
+   * The token must match the code sent to the specified email address.
+   * Used for settings management.
+   *
+   * @param verification The verification information to authenticate the user.
+   * @returns A promise that resolves to the updated email two-factor configuration.
+   */
+  abstract putTwoFactorEmail(verification: Verification): Promise<TwoFactorEmailResponse>;
+
+  /**
+   * Enables or updates the Duo two-factor provider for the current user.
+   * Validates the Duo configuration (client ID, client secret, and host) before enabling.
+   * Requires user verification and an active premium subscription.
+   * Used for settings management.
+   *
+   * @param verification The verification information to authenticate the user.
+   * @returns A promise that resolves to the updated Duo configuration.
+   */
+  abstract putTwoFactorDuo(verification: Verification): Promise<TwoFactorDuoResponse>;
+
+  /**
+   * Enables or updates the Duo two-factor provider for an organization.
+   * Validates the Duo configuration (client ID, client secret, and host) before enabling.
+   * Requires user verification and organization policy management permissions.
+   * Used for settings management.
+   *
+   * @param organizationId The ID of the organization.
+   * @param verification The verification information to authenticate the user.
+   * @returns A promise that resolves to the updated organization Duo configuration.
+   */
+  abstract putTwoFactorOrganizationDuo(
+    organizationId: string,
+    verification: Verification,
+  ): Promise<TwoFactorDuoResponse>;
+
+  /**
+   * Enables or updates the YubiKey OTP two-factor provider for the current user.
+   * Validates each provided YubiKey by testing an OTP from the device.
+   * Supports up to 5 YubiKey devices. Empty key slots are allowed.
+   * Requires user verification and an active premium subscription.
+   * Used for settings management.
+   *
+   * @param verification The verification information to authenticate the user.
+   * @returns A promise that resolves to the updated YubiKey configuration.
+   */
+  abstract putTwoFactorYubiKey(verification: Verification): Promise<TwoFactorYubiKeyResponse>;
+
+  /**
+   * Registers a new WebAuthn (FIDO2) credential for two-factor authentication for the current user.
+   * Must be called after getTwoFactorWebAuthnChallenge to complete the registration flow.
+   * The device response contains the signed challenge from the authenticator device.
+   * Requires user verification via master password or OTP.
+   * Used for settings management.
+   *
+   * @param verification The verification information to authenticate the user.
+   * @returns A promise that resolves to the updated WebAuthn configuration with the new credential.
+   */
+  abstract putTwoFactorWebAuthn(verification: Verification): Promise<TwoFactorWebAuthnResponse>;
+
+  /**
+   * Removes a specific WebAuthn (FIDO2) credential from the user's account.
+   * The credential will no longer be usable for two-factor authentication.
+   * Other registered WebAuthn credentials remain active.
+   * Requires user verification via master password or OTP.
+   * Used for settings management.
+   *
+   * @param verification The verification information to authenticate the user.
+   * @returns A promise that resolves to the updated WebAuthn configuration.
+   */
+  abstract deleteTwoFactorWebAuthn(verification: Verification): Promise<TwoFactorWebAuthnResponse>;
+
+  /**
+   * Disables a specific two-factor provider for the current user.
+   * The provider will no longer be required or usable for authentication.
+   * Requires user verification via master password or OTP.
+   * Used for settings management.
+   *
+   * @param verification The verification information to authenticate the user.
+   * @returns A promise that resolves to the updated provider status.
+   */
+  abstract putTwoFactorDisable(verification: Verification): Promise<TwoFactorProviderResponse>;
+
+  /**
+   * Disables a specific two-factor provider for an organization.
+   * The provider will no longer be available for organization members.
+   * Requires user verification and organization policy management permissions.
+   * Used for settings management.
+   *
+   * @param organizationId The ID of the organization.
+   * @param verification The verification information to authenticate the user.
+   * @returns A promise that resolves to the updated provider status.
+   */
+  abstract putTwoFactorOrganizationDisable(
+    organizationId: string,
+    verification: Verification,
+  ): Promise<TwoFactorProviderResponse>;
+
+  /**
+   * Initiates email two-factor setup by sending a verification code to the specified email address.
+   * This is the first step in enabling email two-factor authentication.
+   * The verification code must be provided to putTwoFactorEmail to complete setup.
+   * Only used during initial configuration, not during login flows.
+   * Requires user verification via master password or OTP.
+   * Used for settings management.
+   *
+   * @param verification The verification information to authenticate the user.
+   * @returns A promise that resolves when the verification email has been sent.
+   */
+  abstract postTwoFactorEmailSetup(verification: Verification): Promise<any>;
+
+  /**
+   * Sends a two-factor authentication code via email during the login flow.
+   * Supports multiple authentication contexts including standard login, SSO, and passwordless flows.
+   * This is used to deliver codes during authentication, not during initial setup.
+   * May be called without authentication for login scenarios.
+   * Used during authentication flows.
+   *
+   * @param verification The verification information to authenticate the user.
+   * @returns A promise that resolves when the authentication email has been sent.
+   */
+  abstract postTwoFactorEmail(verification: Verification): Promise<any>;
 }
