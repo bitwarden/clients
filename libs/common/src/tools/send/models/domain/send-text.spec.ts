@@ -1,4 +1,6 @@
-import { mockEnc } from "../../../../../spec";
+import { of } from "rxjs";
+
+import { makeSymmetricCryptoKey, mockContainerService, mockEnc } from "../../../../../spec";
 import { SendTextData } from "../data/send-text.data";
 
 import { SendText } from "./send-text";
@@ -33,11 +35,15 @@ describe("SendText", () => {
   });
 
   it("Decrypt", async () => {
-    const secureNote = new SendText();
-    secureNote.text = mockEnc("text");
-    secureNote.hidden = true;
+    const containerService = mockContainerService();
+    containerService.getKeyService().userKey$.mockReturnValue(of(makeSymmetricCryptoKey(64)));
+    containerService.getEncryptService().decryptString.mockResolvedValue("text");
 
-    const view = await secureNote.decrypt(null);
+    const sendText = new SendText();
+    sendText.text = mockEnc("text");
+    sendText.hidden = true;
+
+    const view = await sendText.decrypt(null);
 
     expect(view).toEqual({
       text: "text",

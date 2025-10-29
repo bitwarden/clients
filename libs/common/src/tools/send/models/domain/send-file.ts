@@ -40,6 +40,7 @@ export class SendFile extends Domain {
       ["fileName"],
       null,
       key,
+      null,
     );
   }
 

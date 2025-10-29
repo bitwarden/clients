@@ -1,4 +1,6 @@
-import { mockEnc } from "../../../../../spec";
+import { of } from "rxjs";
+
+import { makeSymmetricCryptoKey, mockContainerService, mockEnc } from "../../../../../spec";
 import { SendFileData } from "../data/send-file.data";
 
 import { SendFile } from "./send-file";
@@ -39,6 +41,10 @@ describe("SendFile", () => {
   });
 
   it("Decrypt", async () => {
+    const containerService = mockContainerService();
+    containerService.getKeyService().userKey$.mockReturnValue(of(makeSymmetricCryptoKey(64)));
+    containerService.getEncryptService().decryptString.mockResolvedValue("fileName");
+
     const sendFile = new SendFile();
     sendFile.id = "id";
     sendFile.size = "1100";

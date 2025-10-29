@@ -36,6 +36,7 @@ export class SendText extends Domain {
       ["text"],
       null,
       key,
+      null,
     );
   }
 
