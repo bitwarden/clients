@@ -243,48 +243,28 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
     // The template uses @if(shouldShowTabs) to determine whether to show tabs or empty state
     this.shouldShowImportDataState = !this.hasVaultItems && !isGenerating;
 
-    // Update title
-    if (this.shouldShowImportDataState) {
-      this.emptyStateTitle = this.i18nService.t(
-        "noApplicationsInOrgTitle",
-        this.getOrganizationName(),
-      );
-    } else {
-      this.emptyStateTitle = this.i18nService.t("noReportRunTitle");
-    }
-
-    // Update description
-    if (this.shouldShowImportDataState) {
-      this.emptyStateDescription = this.i18nService.t("noApplicationsInOrgDescription");
-    } else {
-      this.emptyStateDescription = this.i18nService.t("noReportRunDescription");
-    }
-
-    // Update benefits
+    // Update benefits (constant for all states)
     this.emptyStateBenefits = [
       [this.i18nService.t("benefit1Title"), this.i18nService.t("benefit1Description")],
       [this.i18nService.t("benefit2Title"), this.i18nService.t("benefit2Description")],
       [this.i18nService.t("benefit3Title"), this.i18nService.t("benefit3Description")],
     ];
 
-    // Update button text
+    // Update all state-dependent properties in single if/else
     if (this.shouldShowImportDataState) {
+      this.emptyStateTitle = this.i18nService.t(
+        "noApplicationsInOrgTitle",
+        this.getOrganizationName(),
+      );
+      this.emptyStateDescription = this.i18nService.t("noApplicationsInOrgDescription");
       this.emptyStateButtonText = this.i18nService.t("importData");
-    } else {
-      this.emptyStateButtonText = this.i18nService.t("riskInsightsRunReport");
-    }
-
-    // Update button icon
-    if (this.shouldShowImportDataState) {
       this.emptyStateButtonIcon = RiskInsightsComponent.IMPORT_ICON;
-    } else {
-      this.emptyStateButtonIcon = "";
-    }
-
-    // Update button action
-    if (this.shouldShowImportDataState) {
       this.emptyStateButtonAction = this.goToImportPage;
     } else {
+      this.emptyStateTitle = this.i18nService.t("noReportRunTitle");
+      this.emptyStateDescription = this.i18nService.t("noReportRunDescription");
+      this.emptyStateButtonText = this.i18nService.t("riskInsightsRunReport");
+      this.emptyStateButtonIcon = "";
       this.emptyStateButtonAction = this.runReport;
     }
   }
