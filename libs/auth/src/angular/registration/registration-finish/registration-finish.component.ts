@@ -190,7 +190,7 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
 
       await this.loginSuccessHandlerService.run(
         authenticationResult.userId,
-        authenticationResult?.masterPassword ?? null,
+        authenticationResult.masterPassword ?? null,
       );
 
       await this.router.navigate(["/vault"]);
