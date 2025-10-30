@@ -44,6 +44,7 @@ jobs:
           app-id: ${{ steps.get-kv-secrets.outputs.BW-GHAPP-ID }}
           private-key: ${{ steps.get-kv-secrets.outputs.BW-GHAPP-KEY }}
       - name: Log out from Azure
+        uses: bitwarden/gh-actions/azure-logout@main
       - name: Validate inputs
         run: |
           echo "🔍 Validating required client_payload fields..."
@@ -59,7 +60,6 @@ jobs:
           fi
           
           echo "✅ All required payload fields are present"
-        uses: bitwarden/gh-actions/azure-logout@main
       - name: Check out clients repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
