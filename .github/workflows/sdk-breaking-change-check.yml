@@ -96,9 +96,9 @@ jobs:
             fi
           done
           
-          if [ ${RETRY_COUNT} -eq ${MAX_RETRIES} ] && ! npm ci; then
-            echo "::error::npm ci failed after ${MAX_RETRIES} attempts"
-            exit 1
+          if [ ${RETRY_COUNT} -eq ${MAX_RETRIES} ]; then
+             echo "::error::npm ci failed after ${MAX_RETRIES} attempts"
+             exit 1
           fi
 
       - name: Download SDK artifacts
