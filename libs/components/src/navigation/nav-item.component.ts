@@ -1,6 +1,6 @@
 import { CommonModule } from "@angular/common";
 import { Component, HostListener, Optional, input } from "@angular/core";
-import { RouterModule } from "@angular/router";
+import { RouterLinkActive, RouterModule } from "@angular/router";
 import { BehaviorSubject, map } from "rxjs";
 
 import { IconButtonModule } from "../icon-button";
@@ -54,6 +54,14 @@ export class NavItemComponent extends NavBaseComponent {
   protected get showActiveStyles() {
     return this.forceActiveStyles() || (this._isActive && !this.hideActiveStyles());
   }
+
+  /**
+   * Allow overriding of the RouterLink['ariaCurrentWhenActive'] property.
+   *
+   * Useful for situations like nav-groups that navigate to their first child page and should
+   * not be marked `current` while the child page is marked as `current`
+   */
+  readonly ariaCurrentWhenActive = input<RouterLinkActive["ariaCurrentWhenActive"]>("page");
 
   /**
    * The design spec calls for the an outline to wrap the entire element when the template's
