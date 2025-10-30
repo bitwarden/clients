@@ -51,7 +51,14 @@ export class PhishingDataService {
   private _testDomains = this.getTestDomains();
   private _cachedState = this.globalStateProvider.get(PHISHING_DOMAINS_KEY);
   private _domains$ = this._cachedState.state$.pipe(
-    map((state) => new Set((state?.domains ?? []).concat(this._testDomains))),
+    map(
+      (state) =>
+        new Set(
+          (state?.domains?.filter((line) => line.trim().length > 0) ?? []).concat(
+            this._testDomains,
+          ),
+        ),
+    ),
   );
 
   // How often are new domains added to the remote?
