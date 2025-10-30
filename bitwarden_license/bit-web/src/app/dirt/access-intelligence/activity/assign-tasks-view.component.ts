@@ -2,10 +2,7 @@ import { CommonModule } from "@angular/common";
 import { Component, OnInit, inject, input, output } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
-import {
-  AllActivitiesService,
-  SecurityTasksApiService,
-} from "@bitwarden/bit-common/dirt/reports/risk-insights";
+import { AllActivitiesService } from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
@@ -55,39 +52,32 @@ export class AssignTasksViewComponent implements OnInit {
    */
   readonly back = output<void>();
 
-  protected totalTasksToAssign = 0;
+  protected criticalAppsAtRiskMemberCount = 0;
   protected isAssigning = false;
 
   private allActivitiesService = inject(AllActivitiesService);
-  private securityTasksApiService = inject(SecurityTasksApiService);
   private accessIntelligenceSecurityTasksService = inject(AccessIntelligenceSecurityTasksService);
   private toastService = inject(ToastService);
   private i18nService = inject(I18nService);
   private logService = inject(LogService);
 
   async ngOnInit(): Promise<void> {
-    // Calculate tasks to assign using organizationId passed from parent
-    await this.calculateTasksToAssign();
+    // Get unique members with at-risk passwords from report summary
+    // Uses the same pattern as all-activity.component.ts
+    await this.loadAtRiskMemberCount();
   }
 
   /**
-   * Calculates the number of tasks that will be assigned.
-   * Uses the same logic as password-change-metric.component.ts
+   * Loads the count of unique members with at-risk passwords.
+   * Uses the same pattern as all-activity.component.ts
    */
-  private async calculateTasksToAssign(): Promise<void> {
+  private async loadAtRiskMemberCount(): Promise<void> {
     try {
-      const taskMetrics = await firstValueFrom(
-        this.securityTasksApiService.getTaskMetrics(this.organizationId()),
-      );
-      const atRiskPasswordsCount = await firstValueFrom(
-        this.allActivitiesService.atRiskPasswordsCount$,
-      );
-
-      const newTasksCount = atRiskPasswordsCount - taskMetrics.totalTasks;
-      this.totalTasksToAssign = newTasksCount > 0 ? newTasksCount : 0;
+      const summary = await firstValueFrom(this.allActivitiesService.reportSummary$);
+      this.criticalAppsAtRiskMemberCount = summary.totalCriticalAtRiskMemberCount;
     } catch (error) {
-      this.logService.error("[AssignTasksView] Failed to calculate tasks", error);
-      this.totalTasksToAssign = 0;
+      this.logService.error("[AssignTasksView] Failed to load at-risk member count", error);
+      this.criticalAppsAtRiskMemberCount = 0;
     }
   }
 
