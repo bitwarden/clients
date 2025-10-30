@@ -91,6 +91,22 @@ export class RiskInsightsOrchestratorService {
   private _enrichedReportDataSubject = new BehaviorSubject<RiskInsightsEnrichedData | null>(null);
   enrichedReportData$ = this._enrichedReportDataSubject.asObservable();
 
+  // New applications that haven't been reviewed (reviewedDate === null)
+  newApplications$: Observable<string[]> = this.rawReportData$.pipe(
+    map((reportState) => {
+      if (!reportState.data?.applicationData) {
+        return [];
+      }
+      return reportState.data.applicationData
+        .filter((app) => app.reviewedDate === null)
+        .map((app) => app.applicationName);
+    }),
+    distinctUntilChanged(
+      (prev, curr) => prev.length === curr.length && prev.every((app, i) => app === curr[i]),
+    ),
+    shareReplay({ bufferSize: 1, refCount: true }),
+  );
+
   // Generate report trigger and state
   private _generateReportTriggerSubject = new BehaviorSubject<boolean>(false);
   generatingReport$ = this._generateReportTriggerSubject.asObservable();
@@ -240,7 +256,10 @@ export class RiskInsightsOrchestratorService {
           .pipe(
             map(() => updatedState),
             tap((finalState) => {
-              this._markUnmarkUpdatesSubject.next(finalState);
+              this._markUnmarkUpdatesSubject.next({
+                ...finalState,
+                organizationId: reportState.organizationId,
+              });
             }),
             catchError((error: unknown) => {
               this.logService.error("Failed to save updated applicationData", error);
@@ -324,11 +343,120 @@ export class RiskInsightsOrchestratorService {
           .pipe(
             map(() => updatedState),
             tap((finalState) => {
-              this._markUnmarkUpdatesSubject.next(finalState);
+              this._markUnmarkUpdatesSubject.next({
+                ...finalState,
+                organizationId: reportState.organizationId,
+              });
             }),
             catchError((error: unknown) => {
               this.logService.error("Failed to save updated applicationData", error);
               return of({ ...reportState, error: "Failed to save critical applications" });
+            }),
+          );
+      }),
+    );
+  }
+
+  /**
+   * Saves review status for new applications and optionally marks selected ones as critical.
+   * This method:
+   * 1. Sets reviewedDate to current date for all applications where reviewedDate === null
+   * 2. Sets isCritical = true for applications in the selectedCriticalApps array
+   *
+   * @param selectedCriticalApps Array of application names to mark as critical (can be empty)
+   * @returns Observable of updated ReportState
+   */
+  saveApplicationReviewStatus$(selectedCriticalApps: string[]): Observable<ReportState> {
+    this.logService.info("[RiskInsightsOrchestratorService] Saving application review status", {
+      criticalAppsCount: selectedCriticalApps.length,
+    });
+
+    return this.rawReportData$.pipe(
+      take(1),
+      filter((data) => !data.loading && data.data != null),
+      withLatestFrom(
+        this.organizationDetails$.pipe(filter((org) => !!org && !!org.organizationId)),
+        this._userId$.pipe(filter((userId) => !!userId)),
+      ),
+      map(([reportState, organizationDetails, userId]) => {
+        const existingApplicationData = reportState?.data?.applicationData || [];
+        const updatedApplicationData = this._updateReviewStatusAndCriticalFlags(
+          existingApplicationData,
+          selectedCriticalApps,
+        );
+
+        const updatedState = {
+          ...reportState,
+          data: {
+            ...reportState.data,
+            applicationData: updatedApplicationData,
+          },
+        } as ReportState;
+
+        this.logService.debug("[RiskInsightsOrchestratorService] Updated review status", {
+          totalApps: updatedApplicationData.length,
+          reviewedApps: updatedApplicationData.filter((app) => app.reviewedDate !== null).length,
+          criticalApps: updatedApplicationData.filter((app) => app.isCritical).length,
+        });
+
+        return { reportState, organizationDetails, updatedState, userId };
+      }),
+      switchMap(({ reportState, organizationDetails, updatedState, userId }) => {
+        return from(
+          this.riskInsightsEncryptionService.encryptRiskInsightsReport(
+            {
+              organizationId: organizationDetails!.organizationId,
+              userId: userId!,
+            },
+            {
+              reportData: reportState?.data?.reportData ?? [],
+              summaryData: reportState?.data?.summaryData ?? createNewSummaryData(),
+              applicationData: updatedState?.data?.applicationData ?? [],
+            },
+            reportState?.data?.contentEncryptionKey,
+          ),
+        ).pipe(
+          map((encryptedData) => ({
+            reportState,
+            organizationDetails,
+            updatedState,
+            encryptedData,
+          })),
+        );
+      }),
+      switchMap(({ reportState, organizationDetails, updatedState, encryptedData }) => {
+        this.logService.debug(
+          `[RiskInsightsOrchestratorService] Persisting review status - report id: ${reportState?.data?.id}`,
+        );
+
+        if (!reportState?.data?.id || !organizationDetails?.organizationId) {
+          this.logService.warning(
+            "[RiskInsightsOrchestratorService] Cannot save review status - missing report id or org id",
+          );
+          return of({ ...reportState });
+        }
+
+        return this.reportApiService
+          .updateRiskInsightsApplicationData$(
+            reportState.data.id,
+            organizationDetails.organizationId,
+            {
+              data: {
+                applicationData: encryptedData.encryptedApplicationData.toSdk(),
+              },
+            },
+          )
+          .pipe(
+            map(() => updatedState),
+            tap((finalState) => {
+              this._markUnmarkUpdatesSubject.next(finalState);
+            }),
+            catchError((error: unknown) => {
+              this.logService.error(
+                "[RiskInsightsOrchestratorService] Failed to save review status",
+                error,
+              );
+              return of({ ...reportState, error: "Failed to save application review status" });
             }),
           );
       }),
@@ -343,10 +471,13 @@ export class RiskInsightsOrchestratorService {
           loading: false,
           error: null,
           data: result ?? null,
+          organizationId,
         };
       }),
-      catchError(() => of({ loading: false, error: "Failed to fetch report", data: null })),
-      startWith({ loading: true, error: null, data: null }),
+      catchError(() =>
+        of({ loading: false, error: "Failed to fetch report", data: null, organizationId }),
+      ),
+      startWith({ loading: true, error: null, data: null, organizationId }),
     );
   }
 
@@ -407,12 +538,18 @@ export class RiskInsightsOrchestratorService {
             creationDate: new Date(),
             contentEncryptionKey,
           },
+          organizationId,
         };
       }),
       catchError((): Observable<ReportState> => {
-        return of({ loading: false, error: "Failed to generate or save report", data: null });
+        return of({
+          loading: false,
+          error: "Failed to generate or save report",
+          data: null,
+          organizationId,
+        });
       }),
-      startWith<ReportState>({ loading: true, error: null, data: null }),
+      startWith<ReportState>({ loading: true, error: null, data: null, organizationId }),
     );
   }
 
@@ -484,6 +621,39 @@ export class RiskInsightsOrchestratorService {
     });
 
     return updatedApps;
+  }
+
+  /**
+   * Updates review status and critical flags for applications.
+   * Sets reviewedDate for all apps with null reviewedDate.
+   * Sets isCritical flag for apps in the criticalApplications array.
+   *
+   * @param existingApplications Current application data
+   * @param criticalApplications Array of application names to mark as critical
+   * @returns Updated application data with review dates and critical flags
+   */
+  private _updateReviewStatusAndCriticalFlags(
+    existingApplications: OrganizationReportApplication[],
+    criticalApplications: string[],
+  ): OrganizationReportApplication[] {
+    const criticalSet = new Set(criticalApplications);
+    const currentDate = new Date();
+
+    return existingApplications.map((app) => {
+      const shouldMarkCritical = criticalSet.has(app.applicationName);
+      const needsReviewDate = app.reviewedDate === null;
+
+      // Only create new object if changes are needed
+      if (needsReviewDate || shouldMarkCritical) {
+        return {
+          ...app,
+          reviewedDate: needsReviewDate ? currentDate : app.reviewedDate,
+          isCritical: shouldMarkCritical || app.isCritical,
+        };
+      }
+
+      return app;
+    });
   }
 
   // Toggles the isCritical flag on applications via criticalApplicationName
@@ -723,11 +893,24 @@ export class RiskInsightsOrchestratorService {
       newReportGeneration$,
       this._markUnmarkUpdates$,
     ).pipe(
-      scan((prevState: ReportState, currState: ReportState) => ({
-        ...prevState,
-        ...currState,
-        data: currState.data,
-      })),
+      scan((prevState: ReportState, currState: ReportState) => {
+        // If organization changed, use new state completely (don't preserve old data)
+        // This allows null data to clear old org's data when switching orgs
+        if (currState.organizationId && prevState.organizationId !== currState.organizationId) {
+          return {
+            ...currState,
+            data: currState.data, // Allow null to clear old org's data
+          };
+        }
+
+        // Same org (or no org ID): preserve data when currState.data is null
+        // This preserves critical flags during loading states within the same org
+        return {
+          ...prevState,
+          ...currState,
+          data: currState.data !== null ? currState.data : prevState.data,
+        };
+      }),
       startWith({ loading: false, error: null, data: null }),
       shareReplay({ bufferSize: 1, refCount: true }),
       takeUntil(this._destroy$),
