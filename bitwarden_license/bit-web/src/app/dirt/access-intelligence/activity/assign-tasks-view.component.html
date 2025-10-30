@@ -1,0 +1,68 @@
+<div class="tw-flex tw-flex-col tw-gap-4">
+  <!-- Task Summary Info Card (matches password-change-metric styling) -->
+  <div
+    class="tw-flex tw-flex-col tw-p-6 tw-box-border tw-bg-background tw-text-main tw-border-solid tw-border tw-border-secondary-300 tw-rounded-lg"
+  >
+    <div class="tw-mb-2">
+      <i class="bwi bwi-info-circle tw-text-muted tw-mr-2" aria-hidden="true"></i>
+      <span bitTypography="h6">{{ "taskSummary" | i18n }}</span>
+    </div>
+
+    <div class="tw-flex tw-items-baseline tw-gap-2 tw-mb-4">
+      <span bitTypography="h3">{{ selectedApplicationsCount() }}</span>
+      <span bitTypography="body2" class="tw-text-muted">
+        {{ "criticalApplicationsMarked" | i18n }}
+      </span>
+    </div>
+
+    <div class="tw-flex tw-items-baseline tw-gap-2">
+      <span bitTypography="h3">{{ totalTasksToAssign }}</span>
+      <span bitTypography="body2" class="tw-text-muted">
+        {{ "membersWithAtRiskPasswords" | i18n }}
+      </span>
+    </div>
+  </div>
+
+  <!-- Description Text -->
+  <div bitTypography="body2" class="tw-text-muted">
+    {{ "membersWillReceiveNotification" | i18n }}
+  </div>
+
+  <!-- Illustration/Preview (matches password change metric pattern) -->
+  <div class="tw-flex tw-justify-center tw-p-4 tw-bg-background-alt tw-rounded-lg">
+    <div class="tw-text-center">
+      <i class="bwi bwi-envelope tw-text-6xl tw-text-muted tw-mb-2" aria-hidden="true"></i>
+      <p bitTypography="body2" class="tw-text-muted">
+        {{ "reviewAtRiskLoginsPrompt" | i18n }}
+      </p>
+    </div>
+  </div>
+
+  <!-- Action Buttons -->
+  <div class="tw-flex tw-gap-2">
+    <button
+      type="button"
+      bitButton
+      size="small"
+      buttonType="primary"
+      (click)="onAssignTasks()"
+      [disabled]="isAssigning"
+      [loading]="isAssigning"
+      [attr.aria-label]="'assignTasks' | i18n"
+    >
+      <i class="bwi bwi-envelope tw-mr-2" aria-hidden="true"></i>
+      {{ "assignTasks" | i18n }}
+    </button>
+    <button
+      type="button"
+      bitButton
+      size="small"
+      buttonType="secondary"
+      (click)="onBack()"
+      [disabled]="isAssigning"
+      [attr.aria-label]="'back' | i18n"
+    >
+      {{ "back" | i18n }}
+    </button>
+  </div>
+</div>
