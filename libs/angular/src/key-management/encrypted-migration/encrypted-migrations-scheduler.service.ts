@@ -1,4 +1,4 @@
-import { combineLatest, map, switchMap, of, firstValueFrom, filter, tap, delay } from "rxjs";
+import { combineLatest, switchMap, of, firstValueFrom, filter, delay, concatMap } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
@@ -27,11 +27,6 @@ export const ENCRYPTED_MIGRATION_DISMISSED = new UserKeyDefinition<Date>(
   },
 );
 const DISMISS_TIME_HOURS = 24;
-
-type UserSyncData = {
-  userId: UserId;
-  lastSync: Date | null;
-};
 
 /**
  * This services schedules encrypted migrations for users on clients that are interactive (non-cli), and handles manual interaction,
@@ -71,9 +66,8 @@ export class DefaultEncryptedMigrationsSchedulerService
                 this.syncService.lastSync$(userId).pipe(filter((lastSync) => lastSync != null)),
               ]).pipe(
                 filter(([authStatus]) => authStatus === AuthenticationStatus.Unlocked),
-                map(([, lastSync]) => ({ userId, lastSync }) as UserSyncData),
                 delay(5_000),
-                tap(({ userId }) => this.runMigrationsIfNeeded(userId)),
+                concatMap(() => this.runMigrationsIfNeeded(userId)),
               ),
             ),
           );
