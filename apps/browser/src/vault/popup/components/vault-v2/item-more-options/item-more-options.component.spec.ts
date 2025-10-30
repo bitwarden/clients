@@ -243,41 +243,102 @@ describe("ItemMoreOptionsComponent", () => {
       });
 
       describe("URI match strategy handling", () => {
-        it("shows the exact match dialog when the uri match strategy is Exact", async () => {
-          uriMatchStrategy$.next(UriMatchStrategy.Exact);
-          autofillSvc.currentAutofillTab$.next({ url: "https://no-match.example.com" });
+        describe("when the default URI match strategy is Exact", () => {
+          beforeEach(() => {
+            uriMatchStrategy$.next(UriMatchStrategy.Exact);
+          });
 
-          await component.doAutofill();
+          it("shows the exact match dialog and not the password dialog", async () => {
+            autofillSvc.currentAutofillTab$.next({ url: "https://no-match.example.com" });
 
-          expect(dialogService.openSimpleDialog).toHaveBeenCalledTimes(1);
-          expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
-            expect.objectContaining({
-              title: expect.objectContaining({ key: "cannotAutofill" }),
-              content: expect.objectContaining({ key: "cannotAutofillExactMatch" }),
-              type: "info",
-            }),
-          );
-          expect(autofillSvc.doAutofill).not.toHaveBeenCalled();
-          expect(autofillSvc.doAutofillAndSave).not.toHaveBeenCalled();
+            await component.doAutofill();
+
+            expect(dialogService.openSimpleDialog).toHaveBeenCalledTimes(1);
+            expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
+              expect.objectContaining({
+                title: expect.objectContaining({ key: "cannotAutofill" }),
+                content: expect.objectContaining({ key: "cannotAutofillExactMatch" }),
+                type: "info",
+              }),
+            );
+            expect(autofillSvc.doAutofill).not.toHaveBeenCalled();
+            expect(passwordRepromptService.passwordRepromptCheck).not.toHaveBeenCalled();
+            expect(autofillSvc.doAutofillAndSave).not.toHaveBeenCalled();
+          });
         });
 
-        it("shows the exact match dialog and not the password reprompt dialog when the uri match strategy is Exact and the item has master password reprompt enabled", async () => {
-          uriMatchStrategy$.next(UriMatchStrategy.Exact);
-          autofillSvc.currentAutofillTab$.next({ url: "https://no-match.example.com" });
+        describe("when the default URI match strategy is not Exact", () => {
+          beforeEach(() => {
+            mockConfirmDialogResult(AutofillConfirmationDialogResult.Canceled);
+            uriMatchStrategy$.next(UriMatchStrategy.Domain);
+          });
+          it("does not show the exact match dialog", async () => {
+            uriMatchStrategy$.next(UriMatchStrategy.Domain);
+            cipherService.getFullCipherView.mockImplementation(async (c) => ({
+              ...baseCipher,
+              ...c,
+              login: {
+                ...baseCipher.login,
+                uris: [
+                  { uri: "https://one.example.com", match: UriMatchStrategy.Exact },
+                  { uri: "https://page.example.com", match: UriMatchStrategy.Domain },
+                ],
+              },
+            }));
+
+            autofillSvc.currentAutofillTab$.next({ url: "https://page.example.com" });
+
+            await component.doAutofill();
+
+            expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
+          });
+
+          it("shows the exact match dialog when the cipher has a uri with a match strategy of Exact", async () => {
+            cipherService.getFullCipherView.mockImplementation(async (c) => ({
+              ...baseCipher,
+              ...c,
+              login: {
+                ...baseCipher.login,
+                uris: [{ uri: "https://one.example.com", match: UriMatchStrategy.Exact }],
+              },
+            }));
+
+            autofillSvc.currentAutofillTab$.next({ url: "https://no-match.example.com" });
+
+            await component.doAutofill();
+
+            expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
+              expect.objectContaining({
+                title: expect.objectContaining({ key: "cannotAutofill" }),
+                content: expect.objectContaining({ key: "cannotAutofillExactMatch" }),
+                type: "info",
+              }),
+            );
+            expect(autofillSvc.doAutofill).not.toHaveBeenCalled();
+            expect(autofillSvc.doAutofillAndSave).not.toHaveBeenCalled();
+          });
+        });
+
+        it("does not show the exact match dialog when the cipher has a uri with a match strategy of Exact and a uri with a match strategy of Domain", async () => {
+          mockConfirmDialogResult(AutofillConfirmationDialogResult.Canceled);
+          uriMatchStrategy$.next(UriMatchStrategy.Domain);
+          cipherService.getFullCipherView.mockImplementation(async (c) => ({
+            ...baseCipher,
+            ...c,
+            login: {
+              ...baseCipher.login,
+              uris: [
+                { uri: "https://one.example.com", match: UriMatchStrategy.Exact },
+                { uri: "https://page.example.com", match: UriMatchStrategy.Domain },
+              ],
+            },
+          }));
+
+          autofillSvc.currentAutofillTab$.next({ url: "https://page.example.com" });
 
           await component.doAutofill();
 
-          expect(dialogService.openSimpleDialog).toHaveBeenCalledTimes(1);
-          expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
-            expect.objectContaining({
-              title: expect.objectContaining({ key: "cannotAutofill" }),
-              content: expect.objectContaining({ key: "cannotAutofillExactMatch" }),
-              type: "info",
-            }),
-          );
-          expect(autofillSvc.doAutofill).not.toHaveBeenCalled();
-          expect(passwordRepromptService.passwordRepromptCheck).not.toHaveBeenCalled();
-          expect(autofillSvc.doAutofillAndSave).not.toHaveBeenCalled();
+          expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
         });
       });
 
