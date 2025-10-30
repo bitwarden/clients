@@ -153,7 +153,9 @@ export class PhishingDataService {
       const dailyDomains: string[] = await this.fetchPhishingDomains(
         PhishingDataService.RemotePhishingDatabaseTodayUrl,
       );
-      this.logService.info(`[PhishingDataService] ${dailyDomains} new phishing domains added`);
+      this.logService.info(
+        `[PhishingDataService] ${dailyDomains.length} new phishing domains added`,
+      );
       return {
         domains: prev.domains.concat(dailyDomains),
         checksum: remoteChecksum,
