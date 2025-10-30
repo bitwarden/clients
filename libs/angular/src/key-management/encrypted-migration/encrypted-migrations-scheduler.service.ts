@@ -68,7 +68,7 @@ export class DefaultEncryptedMigrationsSchedulerService
             userIds.map((userId) =>
               combineLatest([
                 this.authService.authStatusFor$(userId),
-                this.syncService.lastSync$(userId).pipe(filter(lastSync => lastSync != null)),
+                this.syncService.lastSync$(userId).pipe(filter((lastSync) => lastSync != null)),
               ]).pipe(
                 filter(([authStatus]) => authStatus === AuthenticationStatus.Unlocked),
                 map(([, lastSync]) => ({ userId, lastSync }) as UserSyncData),
@@ -125,7 +125,7 @@ export class DefaultEncryptedMigrationsSchedulerService
       await this.encryptedMigrator.runMigrations(userId, null);
     } catch (error) {
       this.logService.error(
-        "[EncryptedMigrationsInitiator] Error during migration without interaction",
+        "[EncryptedMigrationsScheduler] Error during migration without interaction",
         error,
       );
     }
@@ -143,7 +143,7 @@ export class DefaultEncryptedMigrationsSchedulerService
 
       if (hoursDiff < DISMISS_TIME_HOURS) {
         this.logService.info(
-          "[EncryptedMigrationsInitiator] Migration prompt dismissed recently, skipping for now.",
+          "[EncryptedMigrationsScheduler] Migration prompt dismissed recently, skipping for now.",
         );
         return;
       }
@@ -161,7 +161,7 @@ export class DefaultEncryptedMigrationsSchedulerService
         );
       }
     } catch (error) {
-      this.logService.error("[EncryptedMigrationsInitiator] Error during migration prompt", error);
+      this.logService.error("[EncryptedMigrationsScheduler] Error during migration prompt", error);
       // If migrations failed when the user actively was prompted, show a toast
       this.toastService.showToast({
         variant: "error",
