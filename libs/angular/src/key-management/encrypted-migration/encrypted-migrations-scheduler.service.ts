@@ -5,6 +5,7 @@ import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { EncryptedMigrator } from "@bitwarden/common/key-management/encrypted-migrator/encrypted-migrator.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import {
   UserKeyDefinition,
   ENCRYPTED_MIGRATION_DISK,
@@ -146,7 +147,7 @@ export class DefaultEncryptedMigrationsSchedulerService
     try {
       const dialog = PromptMigrationPasswordComponent.open(this.dialogService);
       const masterPassword = await firstValueFrom(dialog.closed);
-      if (masterPassword == "") {
+      if (Utils.isNullOrWhitespace(masterPassword)) {
         await this.stateProvider.setUserState(ENCRYPTED_MIGRATION_DISMISSED, new Date(), userId);
       } else {
         await this.encryptedMigrator.runMigrations(
