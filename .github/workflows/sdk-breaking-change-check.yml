@@ -78,7 +78,28 @@ jobs:
           node-version: ${{ steps.retrieve-node-version.outputs.node_version }}
 
       - name: Install Node dependencies
-        run: npm ci
+        run: |
+          echo "📦 Installing Node dependencies with retry logic..."
+          
+          RETRY_COUNT=0
+          MAX_RETRIES=3
+          while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+            RETRY_COUNT=$((RETRY_COUNT + 1))
+            echo "🔄 npm ci attempt $RETRY_COUNT of $MAX_RETRIES..."
+            
+            if npm ci; then
+              echo "✅ npm ci successful"
+              break
+            else
+              echo "❌ npm ci attempt $RETRY_COUNT failed"
+              [ $RETRY_COUNT -lt $MAX_RETRIES ] && sleep 5
+            fi
+          done
+          
+          if [ $RETRY_COUNT -eq $MAX_RETRIES ] && ! npm ci; then
+            echo "::error::npm ci failed after $MAX_RETRIES attempts"
+            exit 1
+          fi
 
       - name: Download SDK artifacts
         env:
