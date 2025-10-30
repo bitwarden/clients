@@ -55,6 +55,7 @@ export abstract class AuthRequestServiceAbstraction {
    * Approve or deny an auth request.
    * @param approve True to approve, false to deny.
    * @param authRequest The auth request to approve or deny, must have an id and key.
+   * @param activeUserId the active user id
    * @returns The updated auth request, the `requestApproved` field will be true if
    * approval was successful.
    * @throws If the auth request is missing an id or key.

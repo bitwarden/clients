@@ -1222,6 +1222,15 @@
   "invalidMasterPassword": {
     "message": "Neispravna glavna lozinka"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Nevažeća glavna lozinka. Provjeri je li tvoja adresa e-pošta ispravna i je li račun kreiran na $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "twoStepLoginConfirmation": {
     "message": "Prijava dvostrukom autentifikacijom čini tvoj račun još sigurnijim tako što će zahtijevati potvrdu prijave drugim uređajem kao što je sigurnosni ključ, autentifikatorska aplikacija, SMS, poziv ili e-pošta. Prijavu dvostrukom autentifikacijom možeš omogućiti na web trezoru. Želiš li sada posjetiti bitwarden.com?"
   },
@@ -1842,6 +1851,12 @@
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Zaključaj glavnom lozinkom kod svakog pokretanja"
+  },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "Traži glavnu lozinku ili PIN kod ponovnog pokretanja aplikacije"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "Traži glavnu lozinku kod ponovnog pokretanja aplikacije"
   },
   "deleteAccount": {
     "message": "Obriši račun"
@@ -2540,6 +2555,9 @@
       }
     }
   },
+  "vaultCustomTimeoutMinimum": {
+    "message": "Najmanje prilagođeno vrijeme je 1 minuta."
+  },
   "inviteAccepted": {
     "message": "Pozivnica prihvaćena"
   },
@@ -2651,6 +2669,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Izvezt će se samo trezor organizacije povezan s $ORGANIZATION$.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Izvezt će se samo trezor organizacije povezan s $ORGANIZATION$. Zbirka mojih stavki neće biti uključena.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },
@@ -4080,11 +4116,17 @@
   "showLess": {
     "message": "Pokaži manje"
   },
-  "enableAutotype": {
-    "message": "Omogući automatski unos"
-  },
   "enableAutotypeDescription": {
     "message": "Bitwarden ne provjerava lokacije unosa, prije korištenja prečaca provjeri da si u pravom prozoru i polju."
+  },
+  "typeShortcut": {
+    "message": "Vrsta prečaca"
+  },
+  "editAutotypeShortcutDescription": {
+    "message": "Uključi jedan ili dva modifikatora: Ctrl, Alt, Win ili Shift i slovo."
+  },
+  "invalidShortcut": {
+    "message": "Nevažeći prečac"
   },
   "moreBreadcrumbs": {
     "message": "Više mrvica",
@@ -4099,19 +4141,24 @@
   "confirm": {
     "message": "Potvrdi"
   },
-  "enableAutotypeTransitionKey": {
-    "message": "Omogući prečac za automatsko tipkanje"
+  "enableAutotypeShortcutPreview": {
+    "message": "Uključi prečac Autotype (Pretpregled značajke)"
   },
-  "enableAutotypeDescriptionTransitionKey": {
-    "message": "Prije korištenja prečaca provjeri nalaziš li se u ispravnom polju kako se podaci ne bi unijeli na pogrešno mjesto."
+  "enableAutotypeShortcutDescription": {
+    "message": "Prije korištenja prečaca provjeri jesi li u ispravnom polju kako podaci ne bi bili uneseni na pogrešno mjesto."
   },
   "editShortcut": {
     "message": "Uredi prečac"
   },
-  "archive": {
-    "message": "Arhiviraj"
+  "archiveNoun": {
+    "message": "Arhiva",
+    "description": "Noun"
   },
-  "unarchive": {
+  "archiveVerb": {
+    "message": "Arhiviraj",
+    "description": "Verb"
+  },
+  "unArchive": {
     "message": "Poništi arhiviranje"
   },
   "itemsInArchive": {
@@ -4123,11 +4170,11 @@
   "noItemsInArchiveDesc": {
     "message": "Arhivirane stavke biti će prikazane ovdje i biti će izuzete iz rezultata općih pretraga i preporuka auto-ispune."
   },
-  "itemSentToArchive": {
+  "itemWasSentToArchive": {
     "message": "Stavka poslana u arhivu"
   },
-  "itemRemovedFromArchive": {
-    "message": "Stavka maknute iz arhive"
+  "itemWasUnarchived": {
+    "message": "Stavka vraćena iz arhive"
   },
   "archiveItem": {
     "message": "Arhiviraj stavku"

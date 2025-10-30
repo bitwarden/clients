@@ -34,24 +34,24 @@ describe("Identity", () => {
     const identity = new Identity(data);
 
     expect(identity).toEqual({
-      address1: null,
-      address2: null,
-      address3: null,
-      city: null,
-      company: null,
-      country: null,
-      email: null,
-      firstName: null,
-      lastName: null,
-      licenseNumber: null,
-      middleName: null,
-      passportNumber: null,
-      phone: null,
-      postalCode: null,
-      ssn: null,
-      state: null,
-      title: null,
-      username: null,
+      address1: undefined,
+      address2: undefined,
+      address3: undefined,
+      city: undefined,
+      company: undefined,
+      country: undefined,
+      email: undefined,
+      firstName: undefined,
+      lastName: undefined,
+      licenseNumber: undefined,
+      middleName: undefined,
+      passportNumber: undefined,
+      phone: undefined,
+      postalCode: undefined,
+      ssn: undefined,
+      state: undefined,
+      title: undefined,
+      username: undefined,
     });
   });
 
@@ -112,7 +112,6 @@ describe("Identity", () => {
     expect(view).toEqual({
       _firstName: "mockFirstName",
       _lastName: "mockLastName",
-      _subTitle: null,
       address1: "mockAddress1",
       address2: "mockAddress2",
       address3: "mockAddress3",
@@ -180,8 +179,8 @@ describe("Identity", () => {
       expect(actual).toBeInstanceOf(Identity);
     });
 
-    it("returns null if object is null", () => {
-      expect(Identity.fromJSON(null)).toBeNull();
+    it("returns undefined if object is null", () => {
+      expect(Identity.fromJSON(null)).toBeUndefined();
     });
   });
 

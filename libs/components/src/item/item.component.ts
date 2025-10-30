@@ -22,7 +22,7 @@ export class ItemComponent {
   /**
    * We have `:focus-within` and `:focus-visible` but no `:focus-visible-within`
    */
-  protected focusVisibleWithin = signal(false);
+  protected readonly focusVisibleWithin = signal(false);
   @HostListener("focusin", ["$event.target"])
   onFocusIn(target: HTMLElement) {
     this.focusVisibleWithin.set(target.matches("[data-fvw-target]:focus-visible"));

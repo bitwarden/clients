@@ -9,6 +9,11 @@ use super::SecureKeyContainer;
 pub(super) struct MlockSecureKeyContainer {
     ptr: NonNull<[u8]>,
 }
+// SAFETY: The pointers in this struct are allocated by `malloc_sized`, and we have full ownership.
+// They are never exposed outside or cloned, and are cleaned up by drop.
+unsafe impl Send for MlockSecureKeyContainer {}
+// SAFETY: The container is non-mutable and thus safe to share between threads.
+unsafe impl Sync for MlockSecureKeyContainer {}
 
 impl SecureKeyContainer for MlockSecureKeyContainer {
     fn as_key(&self) -> MemoryEncryptionKey {

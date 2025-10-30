@@ -137,3 +137,8 @@ body.body-full {
     margin-bottom: 0;
   }
 }
+
+/** Temporary fix for avatar, will not be required once we migrate to tailwind preflight **/
+bit-avatar svg {
+  display: block;
+}

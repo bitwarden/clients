@@ -13,6 +13,7 @@
 use anyhow::{anyhow, Result};
 use std::sync::Arc;
 use tokio::sync::Mutex;
+use tracing::{debug, warn};
 use zbus::Connection;
 use zbus_polkit::policykit1::{AuthorityProxy, CheckAuthorizationFlags, Subject};
 
@@ -21,13 +22,15 @@ use crate::secure_memory::*;
 pub struct BiometricLockSystem {
     // The userkeys that are held in memory MUST be protected from memory dumping attacks, to ensure
     // locked vaults cannot be unlocked
-    secure_memory: Arc<Mutex<crate::secure_memory::EncryptedMemoryStore>>,
+    secure_memory: Arc<Mutex<crate::secure_memory::encrypted_memory_store::EncryptedMemoryStore>>,
 }
 
 impl BiometricLockSystem {
     pub fn new() -> Self {
         Self {
-            secure_memory: Arc::new(Mutex::new(crate::secure_memory::EncryptedMemoryStore::new())),
+            secure_memory: Arc::new(Mutex::new(
+                crate::secure_memory::encrypted_memory_store::EncryptedMemoryStore::new(),
+            )),
         }
     }
 }
@@ -88,7 +91,7 @@ impl super::BiometricTrait for BiometricLockSystem {
 /// Perform a polkit authorization against the bitwarden unlock policy. Note: This relies on no custom
 /// rules in the system skipping the authorization check, in which case this counts as UV / authentication.
 async fn polkit_authenticate_bitwarden_policy() -> Result<bool> {
-    println!("[Polkit] Authenticating / performing UV");
+    debug!("[Polkit] Authenticating / performing UV");
 
     let connection = Connection::system().await?;
     let proxy = AuthorityProxy::new(&connection).await?;
@@ -107,7 +110,7 @@ async fn polkit_authenticate_bitwarden_policy() -> Result<bool> {
     match authorization_result {
         Ok(result) => Ok(result.is_authorized),
         Err(e) => {
-            eprintln!("[Polkit] Error performing authentication: {:?}", e);
+            warn!("[Polkit] Error performing authentication: {:?}", e);
             Ok(false)
         }
     }

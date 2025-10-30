@@ -1,6 +1,6 @@
 import { combineLatest, filter, firstValueFrom, map, Observable, of, switchMap } from "rxjs";
 
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
@@ -19,17 +19,36 @@ import { UserId } from "@bitwarden/user-core";
 
 import { DesktopAutotypeDefaultSettingPolicy } from "./desktop-autotype-policy.service";
 
+export const defaultWindowsAutotypeKeyboardShortcut: string[] = ["Control", "Shift", "B"];
+
 export const AUTOTYPE_ENABLED = new KeyDefinition<boolean | null>(
   AUTOTYPE_SETTINGS_DISK,
   "autotypeEnabled",
   { deserializer: (b) => b },
 );
 
+/*
+  Valid windows shortcut keys: Control, Alt, Super, Shift, letters A - Z
+  Valid macOS shortcut keys: Control, Alt, Command, Shift, letters A - Z
+
+  See Electron keyboard shorcut docs for more info:
+  https://www.electronjs.org/docs/latest/tutorial/keyboard-shortcuts
+*/
+export const AUTOTYPE_KEYBOARD_SHORTCUT = new KeyDefinition<string[]>(
+  AUTOTYPE_SETTINGS_DISK,
+  "autotypeKeyboardShortcut",
+  { deserializer: (b) => b },
+);
+
 export class DesktopAutotypeService {
   private readonly autotypeEnabledState = this.globalStateProvider.get(AUTOTYPE_ENABLED);
+  private readonly autotypeKeyboardShortcut = this.globalStateProvider.get(
+    AUTOTYPE_KEYBOARD_SHORTCUT,
+  );
 
   autotypeEnabledUserSetting$: Observable<boolean> = of(false);
   resolvedAutotypeEnabled$: Observable<boolean> = of(false);
+  autotypeKeyboardShortcut$: Observable<string[]> = of(defaultWindowsAutotypeKeyboardShortcut);
 
   constructor(
     private accountService: AccountService,
@@ -53,6 +72,11 @@ export class DesktopAutotypeService {
   }
 
   async init() {
+    this.autotypeEnabledUserSetting$ = this.autotypeEnabledState.state$;
+    this.autotypeKeyboardShortcut$ = this.autotypeKeyboardShortcut.state$.pipe(
+      map((shortcut) => shortcut ?? defaultWindowsAutotypeKeyboardShortcut),
+    );
+
     // Currently Autotype is only supported for Windows
     if (this.platformUtilsService.getDevice() === DeviceType.WindowsDesktop) {
       // If `autotypeDefaultPolicy` is `true` for a user's organization, and the
@@ -87,9 +111,9 @@ export class DesktopAutotypeService {
           switchMap((userId) => this.authService.authStatusFor$(userId)),
         ),
         this.accountService.activeAccount$.pipe(
-          map((activeAccount) => activeAccount?.id),
-          switchMap((userId) =>
-            this.billingAccountProfileStateService.hasPremiumFromAnySource$(userId),
+          filter((account): account is Account => !!account),
+          switchMap((account) =>
+            this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
           ),
         ),
       ]).pipe(
@@ -102,11 +126,11 @@ export class DesktopAutotypeService {
         ),
       );
 
-      // When the resolvedAutotypeEnabled$ value changes, this might require
-      // hotkey registration / deregistration in the main process.
-      this.resolvedAutotypeEnabled$.subscribe((enabled) => {
-        ipc.autofill.configureAutotype(enabled);
-      });
+      combineLatest([this.resolvedAutotypeEnabled$, this.autotypeKeyboardShortcut$]).subscribe(
+        ([resolvedAutotypeEnabled, autotypeKeyboardShortcut]) => {
+          ipc.autofill.configureAutotype(resolvedAutotypeEnabled, autotypeKeyboardShortcut);
+        },
+      );
     }
   }
 
@@ -114,6 +138,10 @@ export class DesktopAutotypeService {
     await this.autotypeEnabledState.update(() => enabled, {
       shouldUpdate: (currentlyEnabled) => currentlyEnabled !== enabled,
     });
+  }
+
+  async setAutotypeKeyboardShortcutState(keyboardShortcut: string[]): Promise<void> {
+    await this.autotypeKeyboardShortcut.update(() => keyboardShortcut);
   }
 
   async matchCiphersToWindowTitle(windowTitle: string): Promise<CipherView[]> {

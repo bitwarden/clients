@@ -2,7 +2,7 @@ import { MockProxy, mock } from "jest-mock-extended";
 
 import { mockEnc, mockFromJson } from "../../../../spec";
 import { EncryptedString, EncString } from "../../../key-management/crypto/models/enc-string";
-import { UriMatchStrategy, UriMatchStrategySetting } from "../../../models/domain/domain-service";
+import { UriMatchStrategy } from "../../../models/domain/domain-service";
 import { LoginData } from "../../models/data/login.data";
 import { Login } from "../../models/domain/login";
 import { LoginUri } from "../../models/domain/login-uri";
@@ -19,11 +19,11 @@ describe("Login DTO", () => {
     const login = new Login(data);
 
     expect(login).toEqual({
-      passwordRevisionDate: null,
+      passwordRevisionDate: undefined,
       autofillOnPageLoad: undefined,
-      username: null,
-      password: null,
-      totp: null,
+      username: undefined,
+      password: undefined,
+      totp: undefined,
     });
   });
 
@@ -82,12 +82,7 @@ describe("Login DTO", () => {
       totp: "encrypted totp",
       uris: [
         {
-          match: null as UriMatchStrategySetting,
           _uri: "decrypted uri",
-          _domain: null as string,
-          _hostname: null as string,
-          _host: null as string,
-          _canLaunch: null as boolean,
         },
       ],
       autofillOnPageLoad: true,
@@ -198,8 +193,8 @@ describe("Login DTO", () => {
       expect(actual).toBeInstanceOf(Login);
     });
 
-    it("returns null if object is null", () => {
-      expect(Login.fromJSON(null)).toBeNull();
+    it("returns undefined if object is null", () => {
+      expect(Login.fromJSON(null)).toBeUndefined();
     });
   });
 

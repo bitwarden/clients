@@ -15,6 +15,12 @@ pub(super) struct DpapiSecureKeyContainer {
     dpapi_encrypted_key: [u8; KEY_SIZE + CRYPTPROTECTMEMORY_BLOCK_SIZE as usize],
 }
 
+// SAFETY: The encrypted data is fully owned by this struct, and not exposed outside or cloned,
+// and is disposed on drop of this struct.
+unsafe impl Send for DpapiSecureKeyContainer {}
+// SAFETY: The container is non-mutable and thus safe to share between threads.
+unsafe impl Sync for DpapiSecureKeyContainer {}
+
 impl SecureKeyContainer for DpapiSecureKeyContainer {
     fn as_key(&self) -> MemoryEncryptionKey {
         let mut decrypted_key = self.dpapi_encrypted_key;

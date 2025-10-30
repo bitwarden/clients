@@ -1222,6 +1222,15 @@
   "invalidMasterPassword": {
     "message": "Geçersiz ana parola"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Ana parola geçersiz. E-posta adresinizin doğru olduğunu ve hesabınızın $HOST$ üzerinde oluşturulduğunu kontrol edin.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "twoStepLoginConfirmation": {
     "message": "İki aşamalı giriş, hesabınıza girererken işlemi bir güvenlik anahtarı, şifrematik uygulaması, SMS, telefon araması veya e-posta gibi ek bir yöntemle doğrulamanızı isteyerek hesabınızın güvenliğini artırır. İki aşamalı giriş özelliğini bitwarden.com web kasası üzerinden ayarlayabilirsiniz. Şimdi siteye gitmek ister misiniz?"
   },
@@ -1842,6 +1851,12 @@
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Yeniden başlatmada ana parola ile kilitle"
+  },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "Uygulama yeniden başlatıldığında ana parola veya PIN iste"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "Uygulama yeniden başlatıldığında ana parola iste"
   },
   "deleteAccount": {
     "message": "Hesabı sil"
@@ -2540,6 +2555,9 @@
       }
     }
   },
+  "vaultCustomTimeoutMinimum": {
+    "message": "Minimum özel zaman aşımı 1 dakikadır."
+  },
   "inviteAccepted": {
     "message": "Davet kabul edildi"
   },
@@ -2651,6 +2669,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },
@@ -4080,11 +4116,17 @@
   "showLess": {
     "message": "Daha az göster"
   },
-  "enableAutotype": {
-    "message": "Otomatik yazmayı etkinleştir"
-  },
   "enableAutotypeDescription": {
     "message": "Bitwarden giriş konumlarını doğrulamaz, kısayolu kullanmadan önce doğru pencerede ve alanda olduğunuzdan emin olun."
+  },
+  "typeShortcut": {
+    "message": "Kısayolu yazın"
+  },
+  "editAutotypeShortcutDescription": {
+    "message": "Include one or two of the following modifiers: Ctrl, Alt, Win, or Shift, and a letter."
+  },
+  "invalidShortcut": {
+    "message": "Geçersiz kısayol"
   },
   "moreBreadcrumbs": {
     "message": "Daha fazla gezinme izi",
@@ -4099,19 +4141,24 @@
   "confirm": {
     "message": "Onayla"
   },
-  "enableAutotypeTransitionKey": {
-    "message": "Otomatik yazma kısayolunu etkinleştir"
+  "enableAutotypeShortcutPreview": {
+    "message": "Enable autotype shortcut (Feature Preview)"
   },
-  "enableAutotypeDescriptionTransitionKey": {
+  "enableAutotypeShortcutDescription": {
     "message": "Verilerin yanlış yere doldurulmasını önlemek için kısayolu kullanmadan önce doğru alanda olduğunuzdan emin olun."
   },
   "editShortcut": {
     "message": "Kısayolu düzenle"
   },
-  "archive": {
-    "message": "Arşivle"
+  "archiveNoun": {
+    "message": "Arşiv",
+    "description": "Noun"
   },
-  "unarchive": {
+  "archiveVerb": {
+    "message": "Arşivle",
+    "description": "Verb"
+  },
+  "unArchive": {
     "message": "Arşivden çıkar"
   },
   "itemsInArchive": {
@@ -4123,11 +4170,11 @@
   "noItemsInArchiveDesc": {
     "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
   },
-  "itemSentToArchive": {
-    "message": "Item sent to archive"
+  "itemWasSentToArchive": {
+    "message": "Kayıt arşive gönderildi"
   },
-  "itemRemovedFromArchive": {
-    "message": "Item removed from archive"
+  "itemWasUnarchived": {
+    "message": "Kayıt arşivden çıkarıldı"
   },
   "archiveItem": {
     "message": "Archive item"
