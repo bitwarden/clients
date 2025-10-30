@@ -1,6 +1,3 @@
-import { assertNonNullish } from "@bitwarden/common/auth/utils";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { UserId } from "@bitwarden/common/types/guid";
 // eslint-disable-next-line no-restricted-imports
 import {
@@ -11,6 +8,9 @@ import {
 } from "@bitwarden/key-management";
 import { LogService } from "@bitwarden/logging";
 
+import { assertNonNullish } from "../../../auth/utils";
+import { FeatureFlag } from "../../../enums/feature-flag.enum";
+import { ConfigService } from "../../../platform/abstractions/config/config.service";
 import { ChangeKdfService } from "../../kdf/change-kdf.service.abstraction";
 import { MasterPasswordServiceAbstraction } from "../../master-password/abstractions/master-password.service.abstraction";
 

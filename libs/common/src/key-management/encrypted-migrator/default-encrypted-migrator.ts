@@ -1,11 +1,11 @@
-import { assertNonNullish } from "@bitwarden/common/auth/utils";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { SyncService } from "@bitwarden/common/platform/sync";
-import { UserId } from "@bitwarden/common/types/guid";
 // eslint-disable-next-line no-restricted-imports
 import { KdfConfigService } from "@bitwarden/key-management";
 import { LogService } from "@bitwarden/logging";
 
+import { assertNonNullish } from "../../auth/utils";
+import { ConfigService } from "../../platform/abstractions/config/config.service";
+import { SyncService } from "../../platform/sync";
+import { UserId } from "../../types/guid";
 import { ChangeKdfService } from "../kdf/change-kdf.service.abstraction";
 import { MasterPasswordServiceAbstraction } from "../master-password/abstractions/master-password.service.abstraction";
 

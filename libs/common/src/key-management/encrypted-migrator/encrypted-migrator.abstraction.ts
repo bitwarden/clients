@@ -1,4 +1,4 @@
-import { UserId } from "@bitwarden/common/types/guid";
+import { UserId } from "../../types/guid";
 
 import { MigrationRequirement } from "./migrations/encrypted-migration";
 
