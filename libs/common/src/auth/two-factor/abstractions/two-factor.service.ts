@@ -1,35 +1,158 @@
-import { ListResponse } from "../../models/response/list.response";
-import { TwoFactorProviderType } from "../enums/two-factor-provider-type";
-import { DisableTwoFactorAuthenticatorRequest } from "../models/request/disable-two-factor-authenticator.request";
-import { SecretVerificationRequest } from "../models/request/secret-verification.request";
-import { TwoFactorEmailRequest } from "../models/request/two-factor-email.request";
-import { TwoFactorProviderRequest } from "../models/request/two-factor-provider.request";
-import { UpdateTwoFactorAuthenticatorRequest } from "../models/request/update-two-factor-authenticator.request";
-import { UpdateTwoFactorDuoRequest } from "../models/request/update-two-factor-duo.request";
-import { UpdateTwoFactorEmailRequest } from "../models/request/update-two-factor-email.request";
-import { UpdateTwoFactorWebAuthnDeleteRequest } from "../models/request/update-two-factor-web-authn-delete.request";
-import { UpdateTwoFactorWebAuthnRequest } from "../models/request/update-two-factor-web-authn.request";
-import { UpdateTwoFactorYubikeyOtpRequest } from "../models/request/update-two-factor-yubikey-otp.request";
-import { IdentityTwoFactorResponse } from "../models/response/identity-two-factor.response";
-import { TwoFactorAuthenticatorResponse } from "../models/response/two-factor-authenticator.response";
-import { TwoFactorDuoResponse } from "../models/response/two-factor-duo.response";
-import { TwoFactorEmailResponse } from "../models/response/two-factor-email.response";
-import { TwoFactorProviderResponse } from "../models/response/two-factor-provider.response";
-import { TwoFactorRecoverResponse } from "../models/response/two-factor-recover.response";
+import { ListResponse } from "../../../models/response/list.response";
+import { KeyDefinition, TWO_FACTOR_MEMORY } from "../../../platform/state";
+import { TwoFactorProviderType } from "../../enums/two-factor-provider-type";
+import { DisableTwoFactorAuthenticatorRequest } from "../../models/request/disable-two-factor-authenticator.request";
+import { SecretVerificationRequest } from "../../models/request/secret-verification.request";
+import { TwoFactorEmailRequest } from "../../models/request/two-factor-email.request";
+import { TwoFactorProviderRequest } from "../../models/request/two-factor-provider.request";
+import { UpdateTwoFactorAuthenticatorRequest } from "../../models/request/update-two-factor-authenticator.request";
+import { UpdateTwoFactorDuoRequest } from "../../models/request/update-two-factor-duo.request";
+import { UpdateTwoFactorEmailRequest } from "../../models/request/update-two-factor-email.request";
+import { UpdateTwoFactorWebAuthnDeleteRequest } from "../../models/request/update-two-factor-web-authn-delete.request";
+import { UpdateTwoFactorWebAuthnRequest } from "../../models/request/update-two-factor-web-authn.request";
+import { UpdateTwoFactorYubikeyOtpRequest } from "../../models/request/update-two-factor-yubikey-otp.request";
+import { IdentityTwoFactorResponse } from "../../models/response/identity-two-factor.response";
+import { TwoFactorAuthenticatorResponse } from "../../models/response/two-factor-authenticator.response";
+import { TwoFactorDuoResponse } from "../../models/response/two-factor-duo.response";
+import { TwoFactorEmailResponse } from "../../models/response/two-factor-email.response";
+import { TwoFactorProviderResponse } from "../../models/response/two-factor-provider.response";
+import { TwoFactorRecoverResponse } from "../../models/response/two-factor-recover.response";
 import {
   ChallengeResponse,
   TwoFactorWebAuthnResponse,
-} from "../models/response/two-factor-web-authn.response";
-import { TwoFactorYubiKeyResponse } from "../models/response/two-factor-yubi-key.response";
+} from "../../models/response/two-factor-web-authn.response";
+import { TwoFactorYubiKeyResponse } from "../../models/response/two-factor-yubi-key.response";
 
+/**
+ * Metadata and display information for a two-factor authentication provider.
+ * Used by UI components to render provider selection and configuration screens.
+ */
 export interface TwoFactorProviderDetails {
+  /** The unique identifier for this provider type. */
   type: TwoFactorProviderType;
+
+  /**
+   * Display name for the provider, localized via {@link TwoFactorService.init}.
+   * Examples: "Authenticator App", "Email", "YubiKey".
+   */
   name: string;
+
+  /**
+   * User-facing description explaining what this provider is and how it works.
+   * Localized via {@link TwoFactorService.init}.
+   */
   description: string;
+
+  /**
+   * Selection priority during login when multiple providers are available.
+   * Higher values are preferred. Used to determine the default provider.
+   * Range: 0 (lowest) to 10 (highest).
+   */
   priority: number;
+
+  /**
+   * Display order in provider lists within settings UI.
+   * Lower values appear first (1 = first position).
+   */
   sort: number;
+
+  /**
+   * Whether this provider requires an active premium subscription.
+   * Premium providers: Duo (personal), YubiKey.
+   * Organization providers (e.g., OrganizationDuo) do not require personal premium.
+   */
   premium: boolean;
 }
+
+/**
+ * Registry of all supported two-factor authentication providers with their metadata.
+ * Strings (name, description) are initialized as null and populated with localized
+ * translations when {@link TwoFactorService.init} is called during application startup.
+ *
+ * @remarks
+ * This constant is mutated during initialization. Components should not access it before
+ * the service's init() method has been called.
+ *
+ * @example
+ * ```typescript
+ * // During app init
+ * twoFactorService.init();
+ *
+ * // In components
+ * const authenticator = TwoFactorProviders[TwoFactorProviderType.Authenticator];
+ * console.log(authenticator.name); // "Authenticator App" (localized)
+ * ```
+ */
+export const TwoFactorProviders: Partial<Record<TwoFactorProviderType, TwoFactorProviderDetails>> =
+  {
+    [TwoFactorProviderType.Authenticator]: {
+      type: TwoFactorProviderType.Authenticator,
+      name: null as string,
+      description: null as string,
+      priority: 1,
+      sort: 2,
+      premium: false,
+    },
+    [TwoFactorProviderType.Yubikey]: {
+      type: TwoFactorProviderType.Yubikey,
+      name: null as string,
+      description: null as string,
+      priority: 3,
+      sort: 4,
+      premium: true,
+    },
+    [TwoFactorProviderType.Duo]: {
+      type: TwoFactorProviderType.Duo,
+      name: "Duo",
+      description: null as string,
+      priority: 2,
+      sort: 5,
+      premium: true,
+    },
+    [TwoFactorProviderType.OrganizationDuo]: {
+      type: TwoFactorProviderType.OrganizationDuo,
+      name: "Duo (Organization)",
+      description: null as string,
+      priority: 10,
+      sort: 6,
+      premium: false,
+    },
+    [TwoFactorProviderType.Email]: {
+      type: TwoFactorProviderType.Email,
+      name: null as string,
+      description: null as string,
+      priority: 0,
+      sort: 1,
+      premium: false,
+    },
+    [TwoFactorProviderType.WebAuthn]: {
+      type: TwoFactorProviderType.WebAuthn,
+      name: null as string,
+      description: null as string,
+      priority: 4,
+      sort: 3,
+      premium: false,
+    },
+  };
+
+// Memory storage as only required during authentication process
+export const PROVIDERS = KeyDefinition.record<Record<string, string>, TwoFactorProviderType>(
+  TWO_FACTOR_MEMORY,
+  "providers",
+  {
+    deserializer: (obj) => obj,
+  },
+);
+
+// Memory storage as only required during authentication process
+export const SELECTED_PROVIDER = new KeyDefinition<TwoFactorProviderType>(
+  TWO_FACTOR_MEMORY,
+  "selected",
+  {
+    deserializer: (obj) => obj,
+  },
+);
+
 export abstract class TwoFactorService {
   /**
    * Initializes the client-side's TwoFactorProviders const with translations.

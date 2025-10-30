@@ -1,11 +1,11 @@
 import { Directive, EventEmitter, Output } from "@angular/core";
 
-import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { VerificationType } from "@bitwarden/common/auth/enums/verification-type";
 import { SecretVerificationRequest } from "@bitwarden/common/auth/models/request/secret-verification.request";
 import { TwoFactorProviderRequest } from "@bitwarden/common/auth/models/request/two-factor-provider.request";
+import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { AuthResponseBase } from "@bitwarden/common/auth/types/auth-response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";

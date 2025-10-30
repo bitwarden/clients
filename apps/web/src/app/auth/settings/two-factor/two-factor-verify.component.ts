@@ -2,11 +2,11 @@ import { Component, EventEmitter, Inject, Output } from "@angular/core";
 import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
 
 import { UserVerificationFormInputComponent } from "@bitwarden/auth/angular";
-import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { VerificationType } from "@bitwarden/common/auth/enums/verification-type";
 import { SecretVerificationRequest } from "@bitwarden/common/auth/models/request/secret-verification.request";
+import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { AuthResponse } from "@bitwarden/common/auth/types/auth-response";
 import { TwoFactorResponse } from "@bitwarden/common/auth/types/two-factor-response";
 import { Verification } from "@bitwarden/common/auth/types/verification";

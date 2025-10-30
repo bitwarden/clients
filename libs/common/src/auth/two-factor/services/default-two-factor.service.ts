@@ -2,110 +2,43 @@
 // @ts-strict-ignore
 import { firstValueFrom, map } from "rxjs";
 
-import { ListResponse } from "../../models/response/list.response";
-import { I18nService } from "../../platform/abstractions/i18n.service";
-import { PlatformUtilsService } from "../../platform/abstractions/platform-utils.service";
-import { Utils } from "../../platform/misc/utils";
-import { GlobalStateProvider, KeyDefinition, TWO_FACTOR_MEMORY } from "../../platform/state";
-import {
-  TwoFactorProviderDetails,
-  TwoFactorService as TwoFactorServiceAbstraction,
-} from "../abstractions/two-factor.service";
-import { TwoFactorProviderType } from "../enums/two-factor-provider-type";
-import { DisableTwoFactorAuthenticatorRequest } from "../models/request/disable-two-factor-authenticator.request";
-import { SecretVerificationRequest } from "../models/request/secret-verification.request";
-import { TwoFactorEmailRequest } from "../models/request/two-factor-email.request";
-import { TwoFactorProviderRequest } from "../models/request/two-factor-provider.request";
-import { UpdateTwoFactorAuthenticatorRequest } from "../models/request/update-two-factor-authenticator.request";
-import { UpdateTwoFactorDuoRequest } from "../models/request/update-two-factor-duo.request";
-import { UpdateTwoFactorEmailRequest } from "../models/request/update-two-factor-email.request";
-import { UpdateTwoFactorWebAuthnDeleteRequest } from "../models/request/update-two-factor-web-authn-delete.request";
-import { UpdateTwoFactorWebAuthnRequest } from "../models/request/update-two-factor-web-authn.request";
-import { UpdateTwoFactorYubikeyOtpRequest } from "../models/request/update-two-factor-yubikey-otp.request";
-import { IdentityTwoFactorResponse } from "../models/response/identity-two-factor.response";
-import { TwoFactorAuthenticatorResponse } from "../models/response/two-factor-authenticator.response";
-import { TwoFactorDuoResponse } from "../models/response/two-factor-duo.response";
-import { TwoFactorEmailResponse } from "../models/response/two-factor-email.response";
-import { TwoFactorProviderResponse } from "../models/response/two-factor-provider.response";
-import { TwoFactorRecoverResponse } from "../models/response/two-factor-recover.response";
+import { TwoFactorApiService } from "..";
+import { ListResponse } from "../../../models/response/list.response";
+import { I18nService } from "../../../platform/abstractions/i18n.service";
+import { PlatformUtilsService } from "../../../platform/abstractions/platform-utils.service";
+import { Utils } from "../../../platform/misc/utils";
+import { GlobalStateProvider } from "../../../platform/state";
+import { TwoFactorProviderType } from "../../enums/two-factor-provider-type";
+import { DisableTwoFactorAuthenticatorRequest } from "../../models/request/disable-two-factor-authenticator.request";
+import { SecretVerificationRequest } from "../../models/request/secret-verification.request";
+import { TwoFactorEmailRequest } from "../../models/request/two-factor-email.request";
+import { TwoFactorProviderRequest } from "../../models/request/two-factor-provider.request";
+import { UpdateTwoFactorAuthenticatorRequest } from "../../models/request/update-two-factor-authenticator.request";
+import { UpdateTwoFactorDuoRequest } from "../../models/request/update-two-factor-duo.request";
+import { UpdateTwoFactorEmailRequest } from "../../models/request/update-two-factor-email.request";
+import { UpdateTwoFactorWebAuthnDeleteRequest } from "../../models/request/update-two-factor-web-authn-delete.request";
+import { UpdateTwoFactorWebAuthnRequest } from "../../models/request/update-two-factor-web-authn.request";
+import { UpdateTwoFactorYubikeyOtpRequest } from "../../models/request/update-two-factor-yubikey-otp.request";
+import { IdentityTwoFactorResponse } from "../../models/response/identity-two-factor.response";
+import { TwoFactorAuthenticatorResponse } from "../../models/response/two-factor-authenticator.response";
+import { TwoFactorDuoResponse } from "../../models/response/two-factor-duo.response";
+import { TwoFactorEmailResponse } from "../../models/response/two-factor-email.response";
+import { TwoFactorProviderResponse } from "../../models/response/two-factor-provider.response";
+import { TwoFactorRecoverResponse } from "../../models/response/two-factor-recover.response";
 import {
   TwoFactorWebAuthnResponse,
   ChallengeResponse,
-} from "../models/response/two-factor-web-authn.response";
-import { TwoFactorYubiKeyResponse } from "../models/response/two-factor-yubi-key.response";
-import { TwoFactorApiService } from "../two-factor";
+} from "../../models/response/two-factor-web-authn.response";
+import { TwoFactorYubiKeyResponse } from "../../models/response/two-factor-yubi-key.response";
+import {
+  PROVIDERS,
+  SELECTED_PROVIDER,
+  TwoFactorProviderDetails,
+  TwoFactorProviders,
+  TwoFactorService as TwoFactorServiceAbstraction,
+} from "../abstractions/two-factor.service";
 
-export const TwoFactorProviders: Partial<Record<TwoFactorProviderType, TwoFactorProviderDetails>> =
-  {
-    [TwoFactorProviderType.Authenticator]: {
-      type: TwoFactorProviderType.Authenticator,
-      name: null as string,
-      description: null as string,
-      priority: 1,
-      sort: 2,
-      premium: false,
-    },
-    [TwoFactorProviderType.Yubikey]: {
-      type: TwoFactorProviderType.Yubikey,
-      name: null as string,
-      description: null as string,
-      priority: 3,
-      sort: 4,
-      premium: true,
-    },
-    [TwoFactorProviderType.Duo]: {
-      type: TwoFactorProviderType.Duo,
-      name: "Duo",
-      description: null as string,
-      priority: 2,
-      sort: 5,
-      premium: true,
-    },
-    [TwoFactorProviderType.OrganizationDuo]: {
-      type: TwoFactorProviderType.OrganizationDuo,
-      name: "Duo (Organization)",
-      description: null as string,
-      priority: 10,
-      sort: 6,
-      premium: false,
-    },
-    [TwoFactorProviderType.Email]: {
-      type: TwoFactorProviderType.Email,
-      name: null as string,
-      description: null as string,
-      priority: 0,
-      sort: 1,
-      premium: false,
-    },
-    [TwoFactorProviderType.WebAuthn]: {
-      type: TwoFactorProviderType.WebAuthn,
-      name: null as string,
-      description: null as string,
-      priority: 4,
-      sort: 3,
-      premium: false,
-    },
-  };
-
-// Memory storage as only required during authentication process
-export const PROVIDERS = KeyDefinition.record<Record<string, string>, TwoFactorProviderType>(
-  TWO_FACTOR_MEMORY,
-  "providers",
-  {
-    deserializer: (obj) => obj,
-  },
-);
-
-// Memory storage as only required during authentication process
-export const SELECTED_PROVIDER = new KeyDefinition<TwoFactorProviderType>(
-  TWO_FACTOR_MEMORY,
-  "selected",
-  {
-    deserializer: (obj) => obj,
-  },
-);
-
-export class TwoFactorService implements TwoFactorServiceAbstraction {
+export class DefaultTwoFactorService implements TwoFactorServiceAbstraction {
   private providersState = this.globalStateProvider.get(PROVIDERS);
   private selectedState = this.globalStateProvider.get(SELECTED_PROVIDER);
   readonly providers$ = this.providersState.state$.pipe(

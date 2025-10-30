@@ -4,9 +4,9 @@ import { ReactiveFormsModule, FormsModule, FormControl } from "@angular/forms";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { LoginStrategyServiceAbstraction } from "@bitwarden/auth/common";
-import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { TwoFactorEmailRequest } from "@bitwarden/common/auth/models/request/two-factor-email.request";
+import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
