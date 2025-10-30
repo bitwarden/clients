@@ -26,14 +26,16 @@ export class AutoConfirmPolicy extends BasePolicyEditDefinition {
   }
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "auto-confirm-policy.component.html",
   imports: [SharedModule],
 })
 export class AutoConfirmPolicyEditComponent extends BasePolicyEditComponent implements OnInit {
   protected readonly autoConfirmSvg = AutoConfirmSvg;
-  private policyForm: Signal<TemplateRef<any> | undefined> = viewChild("step0");
-  private extensionButton: Signal<TemplateRef<any> | undefined> = viewChild("step1");
+  private readonly policyForm: Signal<TemplateRef<any> | undefined> = viewChild("step0");
+  private readonly extensionButton: Signal<TemplateRef<any> | undefined> = viewChild("step1");
 
   protected step: number = 0;
   protected steps = [this.policyForm, this.extensionButton];

@@ -441,33 +441,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "bitwarden_chromium_importer"
-version = "0.0.0"
-dependencies = [
- "aes",
- "aes-gcm",
- "anyhow",
- "async-trait",
- "base64",
- "cbc",
- "hex",
- "homedir",
- "napi",
- "napi-derive",
- "oo7",
- "pbkdf2",
- "rand 0.9.1",
- "rusqlite",
- "security-framework",
- "serde",
- "serde_json",
- "sha1",
- "tokio",
- "winapi",
- "windows 0.61.1",
-]
-
-[[package]]
 name = "block-buffer"
 version = "0.10.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -604,6 +577,37 @@ dependencies = [
  "cipher",
  "poly1305",
  "zeroize",
+]
+
+[[package]]
+name = "chromium_importer"
+version = "0.0.0"
+dependencies = [
+ "aes",
+ "aes-gcm",
+ "anyhow",
+ "async-trait",
+ "base64",
+ "cbc",
+ "chacha20poly1305",
+ "clap",
+ "dirs",
+ "hex",
+ "oo7",
+ "pbkdf2",
+ "rand 0.9.1",
+ "rusqlite",
+ "scopeguard",
+ "security-framework",
+ "serde",
+ "serde_json",
+ "sha1",
+ "sysinfo",
+ "tokio",
+ "tracing",
+ "tracing-subscriber",
+ "verifysign",
+ "windows 0.61.1",
 ]
 
 [[package]]
@@ -968,7 +972,7 @@ dependencies = [
  "anyhow",
  "autotype",
  "base64",
- "bitwarden_chromium_importer",
+ "chromium_importer",
  "desktop_core",
  "hex",
  "napi",
@@ -3827,6 +3831,18 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "accd4ea62f7bb7a82fe23066fb0957d48ef677f6eeb8215f372f52e48bb32426"
 
 [[package]]
+name = "verifysign"
+version = "0.2.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2ebfe12e38930c3b851aea35e93fab1a6c29279cad7e8e273f29a21678fee8c0"
+dependencies = [
+ "core-foundation",
+ "sha1",
+ "sha2",
+ "windows-sys 0.61.2",
+]
+
+[[package]]
 name = "version_check"
 version = "0.9.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4186,6 +4202,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f2f500e4d28234f72040990ec9d39e3a6b950f9f22d3dba18416c35882612bcb"
 dependencies = [
  "windows-targets 0.53.3",
+]
+
+[[package]]
+name = "windows-sys"
+version = "0.61.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ae137229bcbd6cdf0f7b80a31df61766145077ddf49416a728b02cb3921ff3fc"
+dependencies = [
+ "windows-link 0.2.1",
 ]
 
 [[package]]
