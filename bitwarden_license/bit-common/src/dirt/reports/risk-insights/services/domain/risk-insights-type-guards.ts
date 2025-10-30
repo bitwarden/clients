@@ -181,7 +181,6 @@ export function isOrganizationReportSummary(obj: any): obj is OrganizationReport
     "totalCriticalMemberCount",
     "totalCriticalAtRiskMemberCount",
     "totalCriticalAtRiskApplicationCount",
-    "newApplications",
   ];
   const actualKeys = Object.keys(obj);
   const hasUnexpectedProps = actualKeys.some((key) => !allowedKeys.includes(key));
@@ -229,15 +228,7 @@ export function isOrganizationReportSummary(obj: any): obj is OrganizationReport
     Number.isFinite(obj.totalCriticalAtRiskApplicationCount) &&
     Number.isSafeInteger(obj.totalCriticalAtRiskApplicationCount) &&
     obj.totalCriticalAtRiskApplicationCount >= 0 &&
-    obj.totalCriticalAtRiskApplicationCount <= MAX_COUNT &&
-    // newApplications is optional (backward compatibility - legacy encrypted data predates this field)
-    (obj.newApplications === undefined ||
-      (Array.isArray(obj.newApplications) &&
-        obj.newApplications.length <= MAX_ARRAY_LENGTH &&
-        obj.newApplications.every(
-          (app: any) =>
-            typeof app === "string" && app.length > 0 && app.length <= MAX_STRING_LENGTH,
-        )))
+    obj.totalCriticalAtRiskApplicationCount <= MAX_COUNT
   );
 }
 
@@ -348,19 +339,6 @@ export function validateOrganizationReportSummary(data: any): OrganizationReport
     }
     if (typeof data?.totalCriticalAtRiskApplicationCount !== "number") {
       missingFields.push("totalCriticalAtRiskApplicationCount (number)");
-    }
-    // newApplications is optional (backward compatibility - legacy encrypted data predates this field)
-    // Only validate if present, but enforce all constraints to prevent DoS attacks
-    if (
-      data?.newApplications !== undefined &&
-      (!Array.isArray(data?.newApplications) ||
-        data.newApplications.length > MAX_ARRAY_LENGTH ||
-        !data.newApplications.every(
-          (app: any) =>
-            typeof app === "string" && app.length > 0 && app.length <= MAX_STRING_LENGTH,
-        ))
-    ) {
-      missingFields.push("newApplications (optional string[])");
     }
 
     throw new Error(

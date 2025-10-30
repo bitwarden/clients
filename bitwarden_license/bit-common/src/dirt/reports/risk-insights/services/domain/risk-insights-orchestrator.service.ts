@@ -98,6 +98,26 @@ export class RiskInsightsOrchestratorService {
   // --------------------------- Critical Application data ---------------------
   criticalReportResults$: Observable<RiskInsightsEnrichedData | null> = of(null);
 
+  // --------------------------- New Applications Observable ---------------------
+  /**
+   * Observable that emits the list of new application names (applications not yet reviewed).
+   * Derived from applicationData where reviewedDate === null.
+   */
+  newApplications$: Observable<string[]> = this.rawReportData$.pipe(
+    map((reportState) => {
+      if (!reportState.data?.applicationData) {
+        return [];
+      }
+      return reportState.data.applicationData
+        .filter((app) => app.reviewedDate === null)
+        .map((app) => app.applicationName);
+    }),
+    distinctUntilChanged(
+      (prev, curr) => prev.length === curr.length && prev.every((app, i) => app === curr[i]),
+    ),
+    shareReplay({ bufferSize: 1, refCount: true }),
+  );
+
   // --------------------------- Trigger subjects ---------------------
   private _initializeOrganizationTriggerSubject = new Subject<OrganizationId>();
   private _fetchReportTriggerSubject = new Subject<void>();

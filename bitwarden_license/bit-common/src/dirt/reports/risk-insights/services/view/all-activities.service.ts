@@ -20,7 +20,6 @@ export class AllActivitiesService {
     totalCriticalApplicationCount: 0,
     totalAtRiskApplicationCount: 0,
     totalCriticalAtRiskApplicationCount: 0,
-    newApplications: [],
   });
   reportSummary$ = this.reportSummarySubject$.asObservable();
 
@@ -78,7 +77,6 @@ export class AllActivitiesService {
       totalAtRiskMemberCount: summary.totalAtRiskMemberCount,
       totalApplicationCount: summary.totalApplicationCount,
       totalAtRiskApplicationCount: summary.totalAtRiskApplicationCount,
-      newApplications: summary.newApplications,
     });
   }
 
