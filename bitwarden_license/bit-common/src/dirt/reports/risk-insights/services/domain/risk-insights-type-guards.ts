@@ -230,11 +230,14 @@ export function isOrganizationReportSummary(obj: any): obj is OrganizationReport
     Number.isSafeInteger(obj.totalCriticalAtRiskApplicationCount) &&
     obj.totalCriticalAtRiskApplicationCount >= 0 &&
     obj.totalCriticalAtRiskApplicationCount <= MAX_COUNT &&
-    Array.isArray(obj.newApplications) &&
-    obj.newApplications.length <= MAX_ARRAY_LENGTH &&
-    obj.newApplications.every(
-      (app: any) => typeof app === "string" && app.length > 0 && app.length <= MAX_STRING_LENGTH,
-    )
+    // newApplications is optional (backward compatibility - not in type definition)
+    (obj.newApplications === undefined ||
+      (Array.isArray(obj.newApplications) &&
+        obj.newApplications.length <= MAX_ARRAY_LENGTH &&
+        obj.newApplications.every(
+          (app: any) =>
+            typeof app === "string" && app.length > 0 && app.length <= MAX_STRING_LENGTH,
+        )))
   );
 }
 
@@ -346,8 +349,14 @@ export function validateOrganizationReportSummary(data: any): OrganizationReport
     if (typeof data?.totalCriticalAtRiskApplicationCount !== "number") {
       missingFields.push("totalCriticalAtRiskApplicationCount (number)");
     }
-    if (!Array.isArray(data?.newApplications)) {
-      missingFields.push("newApplications (string[])");
+    // newApplications is optional (backward compatibility - not in type definition)
+    // Only validate if present
+    if (
+      data?.newApplications !== undefined &&
+      (!Array.isArray(data?.newApplications) ||
+        !data.newApplications.every((app: any) => typeof app === "string"))
+    ) {
+      missingFields.push("newApplications (optional string[])");
     }
 
     throw new Error(
