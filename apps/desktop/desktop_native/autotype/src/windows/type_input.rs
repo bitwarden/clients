@@ -51,10 +51,7 @@ impl InputOperations for Win32InputOperations {
 /// `keyboard_shortcut` is a vector of valid shortcut keys.
 ///
 /// <https://learn.microsoft.com/en-in/windows/win32/api/winuser/nf-winuser-sendinput>
-pub(super) fn type_input(
-    input: &[u16],
-    keyboard_shortcut: &Vec<KeyboardShortcutInput>,
-) -> Result<()> {
+pub(super) fn type_input(input: &[u16], keyboard_shortcut: &[KeyboardShortcutInput]) -> Result<()> {
     // the length of this vec is always shortcut keys to release + (2x length of input chars)
     let mut keyboard_inputs: Vec<INPUT> =
         Vec::with_capacity(keyboard_shortcut.len() + (input.len() * 2));

@@ -53,7 +53,7 @@ pub fn type_input(input: &[u16], keyboard_shortcut: Vec<String>) -> Result<()> {
 
     // convert the raw string input to Windows input and error
     // if any key is not a valid keyboard shortcut input
-    let keyboard_shortcut = keyboard_shortcut
+    let keyboard_shortcut: Vec<KeyboardShortcutInput> = keyboard_shortcut
         .iter()
         .map(TryInto::try_into)
         .try_collect()?;
