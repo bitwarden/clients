@@ -175,16 +175,23 @@ export class PhishingDataService {
   }
 
   private async fetchPhishingDomainsChecksum() {
-    return this.apiService
-      .nativeFetch(new Request(PhishingDataService.RemotePhishingDatabaseChecksumUrl))
-      .then((res) => res.text());
+    const response = await this.apiService.nativeFetch(
+      new Request(PhishingDataService.RemotePhishingDatabaseChecksumUrl),
+    );
+    if (!response.ok) {
+      throw new Error(`[PhishingDataService] Failed to fetch checksum: ${response.status}`);
+    }
+    return response.text();
   }
 
   private async fetchPhishingDomains(url: string) {
-    return this.apiService
-      .nativeFetch(new Request(url))
-      .then((res) => res.text())
-      .then((text) => text.split("\n"));
+    const response = await this.apiService.nativeFetch(new Request(url));
+
+    if (!response.ok) {
+      throw new Error(`[PhishingDataService] Failed to fetch domains: ${response.status}`);
+    }
+
+    return response.text().then((text) => text.split("\n"));
   }
 
   private getTestDomains() {
