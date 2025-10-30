@@ -68,7 +68,7 @@ export class DefaultEncryptedMigrationsSchedulerService
             userIds.map((userId) =>
               combineLatest([
                 this.authService.authStatusFor$(userId),
-                this.syncService.lastSync$(userId),
+                this.syncService.lastSync$(userId).pipe(filter(lastSync => lastSync != null)),
               ]).pipe(
                 filter(([authStatus]) => authStatus === AuthenticationStatus.Unlocked),
                 map(([, lastSync]) => ({ userId, lastSync }) as UserSyncData),
