@@ -67,7 +67,6 @@ export const isOrganizationReportSummary = createValidator<OrganizationReportSum
   totalCriticalMemberCount: isBoundedPositiveNumber,
   totalCriticalAtRiskMemberCount: isBoundedPositiveNumber,
   totalCriticalAtRiskApplicationCount: isBoundedPositiveNumber,
-  newApplications: isBoundedStringArray,
 });
 
 // Adding to support reviewedDate casting for mapping until the date is saved as a string

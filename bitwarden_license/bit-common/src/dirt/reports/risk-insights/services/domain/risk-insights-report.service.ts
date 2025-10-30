@@ -82,23 +82,6 @@ export class RiskInsightsReportService {
     const totalUniqueMembers = getUniqueMembers(reports.flatMap((x) => x.memberDetails));
     const atRiskUniqueMembers = getUniqueMembers(reports.flatMap((x) => x.atRiskMemberDetails));
 
-    // TODO: Replace with actual new applications detection logic (PM-26185)
-    const dummyNewApplications = [
-      "github.com",
-      "google.com",
-      "stackoverflow.com",
-      "gitlab.com",
-      "bitbucket.org",
-      "npmjs.com",
-      "docker.com",
-      "aws.amazon.com",
-      "azure.microsoft.com",
-      "jenkins.io",
-      "terraform.io",
-      "kubernetes.io",
-      "atlassian.net",
-    ];
-
     const criticalReports = this.filterApplicationsByCritical(reports, applicationData);
     const criticalUniqueMembers = getUniqueMembers(reports.flatMap((x) => x.memberDetails));
     const criticalAtRiskUniqueMembers = getUniqueMembers(
@@ -116,7 +99,6 @@ export class RiskInsightsReportService {
       totalCriticalAtRiskApplicationCount: criticalReports.filter(
         (app) => app.atRiskPasswordCount > 0,
       ).length,
-      newApplications: dummyNewApplications,
     };
   }
 

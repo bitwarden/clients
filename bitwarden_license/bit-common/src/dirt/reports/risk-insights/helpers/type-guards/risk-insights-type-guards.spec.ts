@@ -158,16 +158,15 @@ describe("Risk Insights Type Guards", () => {
         totalCriticalMemberCount: 4,
         totalCriticalAtRiskMemberCount: 1,
         totalCriticalAtRiskApplicationCount: 1,
-        newApplications: ["app-1", "app-2"],
       };
 
       expect(() => validateOrganizationReportSummary(validData)).not.toThrow();
       expect(validateOrganizationReportSummary(validData)).toEqual(validData);
     });
 
-    it("should throw error for non-array newApplications", () => {
+    it("should throw error for invalid field types", () => {
       const invalidData = {
-        totalMemberCount: 10,
+        totalMemberCount: "10", // should be number
         totalApplicationCount: 5,
         totalAtRiskMemberCount: 2,
         totalAtRiskApplicationCount: 1,
@@ -175,25 +174,6 @@ describe("Risk Insights Type Guards", () => {
         totalCriticalMemberCount: 4,
         totalCriticalAtRiskMemberCount: 1,
         totalCriticalAtRiskApplicationCount: 1,
-        newApplications: "not-an-array",
-      };
-
-      expect(() => validateOrganizationReportSummary(invalidData)).toThrow(
-        /Invalid report summary/,
-      );
-    });
-
-    it("should throw error for empty string in newApplications", () => {
-      const invalidData = {
-        totalMemberCount: 10,
-        totalApplicationCount: 5,
-        totalAtRiskMemberCount: 2,
-        totalAtRiskApplicationCount: 1,
-        totalCriticalApplicationCount: 3,
-        totalCriticalMemberCount: 4,
-        totalCriticalAtRiskMemberCount: 1,
-        totalCriticalAtRiskApplicationCount: 1,
-        newApplications: ["app-1", "", "app-3"], // empty string
       };
 
       expect(() => validateOrganizationReportSummary(invalidData)).toThrow(
@@ -332,6 +312,16 @@ describe("Risk Insights Type Guards", () => {
       expect(isMemberDetails(invalidData)).toBe(false);
     });
 
+    it("should return true for undefined userName", () => {
+      const validData = {
+        userGuid: "user-1",
+        userName: undefined as string | undefined,
+        email: "john@example.com",
+        cipherId: "cipher-1",
+      };
+      expect(isMemberDetails(validData)).toBe(true);
+    });
+
     it("should return false for empty email", () => {
       const invalidData = {
         userGuid: "user-1",
@@ -348,17 +338,6 @@ describe("Risk Insights Type Guards", () => {
         userName: "John Doe",
         email: "john@example.com",
         cipherId: "",
-      };
-      expect(isMemberDetails(invalidData)).toBe(false);
-    });
-
-    it("should return false for objects with unexpected properties", () => {
-      const invalidData = {
-        userGuid: "user-1",
-        userName: "John Doe",
-        email: "john@example.com",
-        cipherId: "cipher-1",
-        unexpectedProperty: "should fail",
       };
       expect(isMemberDetails(invalidData)).toBe(false);
     });
@@ -465,22 +444,6 @@ describe("Risk Insights Type Guards", () => {
       };
       expect(isApplicationHealthReportDetail(invalidData)).toBe(false);
     });
-
-    it("should return false for objects with unexpected properties", () => {
-      const invalidData = {
-        applicationName: "Test App",
-        passwordCount: 10,
-        atRiskPasswordCount: 2,
-        atRiskCipherIds: ["cipher-1"],
-        memberCount: 5,
-        atRiskMemberCount: 1,
-        memberDetails: [] as MemberDetails[],
-        atRiskMemberDetails: [] as MemberDetails[],
-        cipherIds: ["cipher-1"],
-        injectedProperty: "malicious",
-      };
-      expect(isApplicationHealthReportDetail(invalidData)).toBe(false);
-    });
   });
 
   describe("isOrganizationReportSummary", () => {
@@ -494,7 +457,6 @@ describe("Risk Insights Type Guards", () => {
         totalCriticalMemberCount: 4,
         totalCriticalAtRiskMemberCount: 1,
         totalCriticalAtRiskApplicationCount: 1,
-        newApplications: ["app-1"],
       };
       expect(isOrganizationReportSummary(validData)).toBe(true);
     });
@@ -509,7 +471,6 @@ describe("Risk Insights Type Guards", () => {
         totalCriticalMemberCount: 4,
         totalCriticalAtRiskMemberCount: 1,
         totalCriticalAtRiskApplicationCount: 1,
-        newApplications: ["app-1"],
       };
       expect(isOrganizationReportSummary(invalidData)).toBe(false);
     });
@@ -524,7 +485,6 @@ describe("Risk Insights Type Guards", () => {
         totalCriticalMemberCount: 4,
         totalCriticalAtRiskMemberCount: 1,
         totalCriticalAtRiskApplicationCount: 1,
-        newApplications: ["app-1"],
       };
       expect(isOrganizationReportSummary(invalidData)).toBe(false);
     });
@@ -539,23 +499,6 @@ describe("Risk Insights Type Guards", () => {
         totalCriticalMemberCount: 4,
         totalCriticalAtRiskMemberCount: 1,
         totalCriticalAtRiskApplicationCount: 1,
-        newApplications: ["app-1"],
-      };
-      expect(isOrganizationReportSummary(invalidData)).toBe(false);
-    });
-
-    it("should return false for objects with unexpected properties", () => {
-      const invalidData = {
-        totalMemberCount: 10,
-        totalApplicationCount: 5,
-        totalAtRiskMemberCount: 2,
-        totalAtRiskApplicationCount: 1,
-        totalCriticalApplicationCount: 3,
-        totalCriticalMemberCount: 4,
-        totalCriticalAtRiskMemberCount: 1,
-        totalCriticalAtRiskApplicationCount: 1,
-        newApplications: ["app-1"],
-        extraField: "should be rejected",
       };
       expect(isOrganizationReportSummary(invalidData)).toBe(false);
     });
@@ -596,16 +539,6 @@ describe("Risk Insights Type Guards", () => {
         reviewedDate: "2024-01-01",
       };
       expect(isOrganizationReportApplication(validData)).toBe(true);
-    });
-
-    it("should return false for objects with unexpected properties", () => {
-      const invalidData = {
-        applicationName: "Test App",
-        isCritical: true,
-        reviewedDate: null as Date | null,
-        injectedProperty: "malicious",
-      };
-      expect(isOrganizationReportApplication(invalidData)).toBe(false);
     });
 
     it("should return false for prototype pollution attempts via __proto__", () => {

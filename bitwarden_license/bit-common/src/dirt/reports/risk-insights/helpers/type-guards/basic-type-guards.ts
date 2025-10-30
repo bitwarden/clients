@@ -140,12 +140,14 @@ export function createValidator<T>(validators: {
     // Type cast to TempObject for key checks
     const tempObj = obj as TempObject;
 
+    // Commenting out for compatibility of removed keys from data
+    // Leaving the code commented for now for further discussion
     // Check for unexpected properties
-    const actualKeys = Object.keys(tempObj);
-    const expectedKeys = new Set(keys as string[]);
-    if (actualKeys.some((key) => !expectedKeys.has(key))) {
-      return false;
-    }
+    // const actualKeys = Object.keys(tempObj);
+    // const expectedKeys = new Set(keys as string[]);
+    // if (actualKeys.some((key) => !expectedKeys.has(key))) {
+    //   return false;
+    // }
 
     // Check for each property's existence and type
     return keys.every((key) => {

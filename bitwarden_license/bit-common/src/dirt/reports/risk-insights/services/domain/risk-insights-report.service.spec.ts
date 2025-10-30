@@ -182,7 +182,6 @@ describe("RiskInsightsReportService", () => {
           totalCriticalAtRiskMemberCount: 1,
           totalCriticalApplicationCount: 1,
           totalCriticalAtRiskApplicationCount: 1,
-          newApplications: [],
         },
         applicationData: [],
       };
