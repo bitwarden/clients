@@ -231,8 +231,10 @@ export class VaultPopupAutofillService {
     cipher: CipherView,
     tab: chrome.tabs.Tab,
     pageDetails: PageDetail[],
+    skipPasswordReprompt = false,
   ): Promise<boolean> {
     if (
+      !skipPasswordReprompt &&
       cipher.reprompt !== CipherRepromptType.None &&
       !(await this.passwordRepromptService.showPasswordPrompt())
     ) {
@@ -315,11 +317,20 @@ export class VaultPopupAutofillService {
    * @param cipher
    * @param closePopup If true, will close the popup window after successful autofill. Defaults to true.
    */
-  async doAutofill(cipher: CipherView, closePopup = true): Promise<boolean> {
+  async doAutofill(
+    cipher: CipherView,
+    closePopup = true,
+    skipPasswordReprompt = false,
+  ): Promise<boolean> {
     const tab = await firstValueFrom(this.currentAutofillTab$);
     const pageDetails = await firstValueFrom(this._currentPageDetails$);
 
-    const didAutofill = await this._internalDoAutofill(cipher, tab, pageDetails);
+    const didAutofill = await this._internalDoAutofill(
+      cipher,
+      tab,
+      pageDetails,
+      skipPasswordReprompt,
+    );
 
     if (didAutofill && closePopup) {
       await this._closePopup(cipher, tab);
@@ -350,7 +361,11 @@ export class VaultPopupAutofillService {
    * @param closePopup If true, will close the popup window after successful autofill.
    * If false, will show a success toast instead. Defaults to true.
    */
-  async doAutofillAndSave(cipher: CipherView, closePopup = true): Promise<boolean> {
+  async doAutofillAndSave(
+    cipher: CipherView,
+    closePopup = true,
+    skipPasswordReprompt = false,
+  ): Promise<boolean> {
     // We can only save URIs for login ciphers
     if (cipher.type !== CipherType.Login) {
       return false;
@@ -359,7 +374,12 @@ export class VaultPopupAutofillService {
     const pageDetails = await firstValueFrom(this._currentPageDetails$);
     const tab = await firstValueFrom(this.currentAutofillTab$);
 
-    const didAutofill = await this._internalDoAutofill(cipher, tab, pageDetails);
+    const didAutofill = await this._internalDoAutofill(
+      cipher,
+      tab,
+      pageDetails,
+      skipPasswordReprompt,
+    );
 
     if (!didAutofill) {
       return false;

@@ -209,7 +209,7 @@ export class ItemMoreOptionsComponent {
     const showAutofillConfirmation = await firstValueFrom(this.showAutofillConfirmation$);
 
     if (!showAutofillConfirmation) {
-      await this.vaultPopupAutofillService.doAutofill(cipher, false);
+      await this.vaultPopupAutofillService.doAutofill(cipher, true, true);
       return;
     }
 
@@ -250,10 +250,10 @@ export class ItemMoreOptionsComponent {
       case AutofillConfirmationDialogResult.Canceled:
         return;
       case AutofillConfirmationDialogResult.AutofilledOnly:
-        await this.vaultPopupAutofillService.doAutofill(cipher);
+        await this.vaultPopupAutofillService.doAutofill(cipher, true, true);
         return;
       case AutofillConfirmationDialogResult.AutofillAndUrlAdded:
-        await this.vaultPopupAutofillService.doAutofillAndSave(cipher, false);
+        await this.vaultPopupAutofillService.doAutofillAndSave(cipher, false, true);
         return;
     }
   }

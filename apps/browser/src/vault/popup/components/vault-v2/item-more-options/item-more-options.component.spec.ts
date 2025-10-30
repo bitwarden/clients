@@ -153,7 +153,8 @@ describe("ItemMoreOptionsComponent", () => {
       expect(autofillSvc.doAutofill).toHaveBeenCalledTimes(1);
       expect(autofillSvc.doAutofill).toHaveBeenCalledWith(
         expect.objectContaining({ id: "cipher-1" }),
-        false,
+        true,
+        true,
       );
       expect(autofillSvc.doAutofillAndSave).not.toHaveBeenCalled();
       expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
@@ -191,7 +192,11 @@ describe("ItemMoreOptionsComponent", () => {
 
       await component.doAutofill();
 
-      expect(autofillSvc.doAutofill).toHaveBeenCalledTimes(1);
+      expect(autofillSvc.doAutofill).toHaveBeenCalledWith(
+        expect.objectContaining({ id: "cipher-1" }),
+        true,
+        true,
+      );
       expect(autofillSvc.doAutofillAndSave).not.toHaveBeenCalled();
     });
 
@@ -202,7 +207,11 @@ describe("ItemMoreOptionsComponent", () => {
 
       await component.doAutofill();
 
-      expect(autofillSvc.doAutofillAndSave).toHaveBeenCalledTimes(1);
+      expect(autofillSvc.doAutofillAndSave).toHaveBeenCalledWith(
+        expect.objectContaining({ id: "cipher-1" }),
+        false,
+        true,
+      );
       expect(autofillSvc.doAutofillAndSave.mock.calls[0][1]).toBe(false);
       expect(autofillSvc.doAutofill).not.toHaveBeenCalled();
     });
