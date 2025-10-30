@@ -189,7 +189,7 @@ export function validateOrganizationReportApplicationArray(
       : null,
   }));
 
-  if (!isOrganizationReportApplicationArray(data)) {
+  if (!isOrganizationReportApplicationArray(mappedData)) {
     // Throw for type casting return
     // Should never get here
     throw new Error("Invalid application data");
