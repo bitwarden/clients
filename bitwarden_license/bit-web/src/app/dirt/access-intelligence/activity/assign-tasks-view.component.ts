@@ -1,9 +1,6 @@
 import { CommonModule } from "@angular/common";
-import { Component, DestroyRef, OnInit, inject, input, output } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { ActivatedRoute } from "@angular/router";
+import { Component, OnInit, inject, input, output } from "@angular/core";
 import { firstValueFrom } from "rxjs";
-import { map, filter } from "rxjs/operators";
 
 import {
   AllActivitiesService,
@@ -15,11 +12,18 @@ import { OrganizationId } from "@bitwarden/common/types/guid";
 import { ButtonModule, ToastService, TypographyModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { DefaultAdminTaskService } from "../../../vault/services/default-admin-task.service";
 import { AccessIntelligenceSecurityTasksService } from "../shared/security-tasks.service";
 
 /**
  * Embedded component for displaying task assignment UI.
  * Not a dialog - intended to be embedded within a parent dialog.
+ *
+ * Important: This component provides its own instances of AccessIntelligenceSecurityTasksService
+ * and DefaultAdminTaskService. These services are scoped to this component to ensure proper
+ * dependency injection when the component is dynamically rendered within the dialog.
+ * Without these providers, Angular would throw NullInjectorError when trying to inject
+ * DefaultAdminTaskService, which is required by AccessIntelligenceSecurityTasksService.
  */
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -27,12 +31,19 @@ import { AccessIntelligenceSecurityTasksService } from "../shared/security-tasks
   selector: "dirt-assign-tasks-view",
   templateUrl: "./assign-tasks-view.component.html",
   imports: [CommonModule, ButtonModule, TypographyModule, I18nPipe],
+  providers: [AccessIntelligenceSecurityTasksService, DefaultAdminTaskService],
 })
 export class AssignTasksViewComponent implements OnInit {
   /**
    * Number of applications selected as critical
    */
   readonly selectedApplicationsCount = input.required<number>();
+
+  /**
+   * Organization ID - passed from parent instead of reading from route
+   * because this component is embedded in a dialog and doesn't have direct route access
+   */
+  readonly organizationId = input.required<OrganizationId>();
 
   /**
    * Emitted when tasks have been successfully assigned
@@ -47,40 +58,26 @@ export class AssignTasksViewComponent implements OnInit {
   protected totalTasksToAssign = 0;
   protected isAssigning = false;
 
-  private destroyRef = inject(DestroyRef);
   private allActivitiesService = inject(AllActivitiesService);
   private securityTasksApiService = inject(SecurityTasksApiService);
   private accessIntelligenceSecurityTasksService = inject(AccessIntelligenceSecurityTasksService);
   private toastService = inject(ToastService);
   private i18nService = inject(I18nService);
   private logService = inject(LogService);
-  private activatedRoute = inject(ActivatedRoute);
-
-  private organizationId: OrganizationId = "" as OrganizationId;
 
   async ngOnInit(): Promise<void> {
-    // Get organization ID from route params
-    this.activatedRoute.paramMap
-      .pipe(
-        map((params) => params.get("organizationId")),
-        filter((orgId): orgId is string => !!orgId),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe((orgId) => {
-        this.organizationId = orgId as OrganizationId;
-      });
-
-    // Calculate tasks to assign
+    // Calculate tasks to assign using organizationId passed from parent
     await this.calculateTasksToAssign();
   }
 
   /**
-   * Calculates the number of tasks that will be assigned
+   * Calculates the number of tasks that will be assigned.
+   * Uses the same logic as password-change-metric.component.ts
    */
   private async calculateTasksToAssign(): Promise<void> {
     try {
       const taskMetrics = await firstValueFrom(
-        this.securityTasksApiService.getTaskMetrics(this.organizationId),
+        this.securityTasksApiService.getTaskMetrics(this.organizationId()),
       );
       const atRiskPasswordsCount = await firstValueFrom(
         this.allActivitiesService.atRiskPasswordsCount$,
@@ -114,8 +111,9 @@ export class AssignTasksViewComponent implements OnInit {
       const criticalApps = allApplicationsDetails.filter((app) => app.isMarkedAsCritical);
 
       // Assign tasks using the security tasks service
+      // Uses the same logic as password-change-metric.component.ts
       await this.accessIntelligenceSecurityTasksService.assignTasks(
-        this.organizationId,
+        this.organizationId(),
         criticalApps,
       );
 

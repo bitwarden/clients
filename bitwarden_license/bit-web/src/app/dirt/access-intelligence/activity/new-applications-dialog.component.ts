@@ -1,9 +1,6 @@
 import { CommonModule } from "@angular/common";
-import { Component, DestroyRef, inject, OnInit } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { ActivatedRoute } from "@angular/router";
+import { Component, inject } from "@angular/core";
 import { firstValueFrom } from "rxjs";
-import { filter, map } from "rxjs/operators";
 
 import {
   AllActivitiesService,
@@ -27,6 +24,13 @@ import { AssignTasksViewComponent } from "./assign-tasks-view.component";
 
 export interface NewApplicationsDialogData {
   newApplications: string[];
+  /**
+   * Organization ID is passed via dialog data instead of being retrieved from route params.
+   * This ensures organizationId is available immediately when the dialog opens,
+   * preventing async timing issues where user clicks "Mark as critical" before
+   * the route subscription has fired.
+   */
+  organizationId: OrganizationId;
 }
 
 /**
@@ -53,7 +57,7 @@ export type DialogView = (typeof DialogView)[keyof typeof DialogView];
     AssignTasksViewComponent,
   ],
 })
-export class NewApplicationsDialogComponent implements OnInit {
+export class NewApplicationsDialogComponent {
   protected newApplications: string[] = [];
   protected selectedApplications: Set<string> = new Set<string>();
 
@@ -65,7 +69,6 @@ export class NewApplicationsDialogComponent implements OnInit {
   // Loading states
   protected isCalculatingTasks = false;
 
-  private destroyRef = inject(DestroyRef);
   private dialogRef = inject(DialogRef<boolean | undefined>);
   private dataService = inject(RiskInsightsDataService);
   private toastService = inject(ToastService);
@@ -73,27 +76,19 @@ export class NewApplicationsDialogComponent implements OnInit {
   private logService = inject(LogService);
   private allActivitiesService = inject(AllActivitiesService);
   private securityTasksApiService = inject(SecurityTasksApiService);
-  private activatedRoute = inject(ActivatedRoute);
 
-  private organizationId: OrganizationId = "" as OrganizationId;
-
-  async ngOnInit(): Promise<void> {
-    // Get organization ID from route params
-    this.activatedRoute.paramMap
-      .pipe(
-        map((params) => params.get("organizationId")),
-        filter((orgId): orgId is string => !!orgId),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe((orgId) => {
-        this.organizationId = orgId as OrganizationId;
-      });
-  }
+  /**
+   * Organization ID set synchronously by static open() method from dialog data.
+   * Must be available immediately (not async) because checkForTasksToAssign()
+   * needs it when user clicks "Mark as critical" button.
+   * Previous implementation using route subscription had timing issues.
+   */
+  organizationId: OrganizationId = "" as OrganizationId;
 
   /**
    * Opens the new applications dialog
    * @param dialogService The dialog service instance
-   * @param data Dialog data containing the list of new applications
+   * @param data Dialog data containing the list of new applications and organizationId
    * @returns Dialog reference
    */
   static open(dialogService: DialogService, data: NewApplicationsDialogData) {
@@ -105,9 +100,13 @@ export class NewApplicationsDialogComponent implements OnInit {
     );
 
     // Set the component's data after opening
+    // Important: organizationId is set synchronously here, not via async route subscription.
+    // This prevents race conditions where user clicks "Mark as critical" before
+    // organizationId is populated, which would cause checkForTasksToAssign() to fail.
     const instance = ref.componentInstance as NewApplicationsDialogComponent;
     if (instance) {
       instance.newApplications = data.newApplications;
+      instance.organizationId = data.organizationId;
     }
 
     return ref;
@@ -189,15 +188,33 @@ export class NewApplicationsDialogComponent implements OnInit {
    */
   private async checkForTasksToAssign(): Promise<boolean> {
     try {
+      this.logService.info(
+        `[NewApplicationsDialog] checkForTasksToAssign - organizationId: ${this.organizationId}`,
+      );
+
+      if (!this.organizationId) {
+        this.logService.warning("[NewApplicationsDialog] organizationId is not set yet");
+        return false;
+      }
+
       const taskMetrics = await firstValueFrom(
         this.securityTasksApiService.getTaskMetrics(this.organizationId),
       );
+      this.logService.info(
+        `[NewApplicationsDialog] taskMetrics: totalTasks=${taskMetrics.totalTasks}, completedTasks=${taskMetrics.completedTasks}`,
+      );
+
       const atRiskPasswordsCount = await firstValueFrom(
         this.allActivitiesService.atRiskPasswordsCount$,
       );
+      this.logService.info(`[NewApplicationsDialog] atRiskPasswordsCount: ${atRiskPasswordsCount}`);
 
       const canAssignTasks = atRiskPasswordsCount > taskMetrics.totalTasks;
       const newTasksCount = canAssignTasks ? atRiskPasswordsCount - taskMetrics.totalTasks : 0;
+
+      this.logService.info(
+        `[NewApplicationsDialog] canAssignTasks: ${canAssignTasks}, newTasksCount: ${newTasksCount}, returning: ${canAssignTasks && newTasksCount > 0}`,
+      );
 
       return canAssignTasks && newTasksCount > 0;
     } catch (error) {

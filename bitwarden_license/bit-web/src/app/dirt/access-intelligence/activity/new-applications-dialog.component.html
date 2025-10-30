@@ -62,6 +62,7 @@
     @if (currentView === DialogView.AssignTasks) {
       <dirt-assign-tasks-view
         [selectedApplicationsCount]="selectedApplications.size"
+        [organizationId]="organizationId"
         (tasksAssigned)="onTasksAssigned()"
         (back)="onBack()"
       >

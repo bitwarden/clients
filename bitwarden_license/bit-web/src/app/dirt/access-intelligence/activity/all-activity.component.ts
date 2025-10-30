@@ -91,8 +91,19 @@ export class AllActivityComponent implements OnInit {
    * Opens a dialog showing the list of new applications that can be marked as critical.
    */
   onReviewNewApplications = async () => {
+    const organizationId = this.activatedRoute.snapshot.paramMap.get("organizationId");
+
+    if (!organizationId) {
+      return;
+    }
+
+    // Pass organizationId via dialog data instead of having the dialog retrieve it from route.
+    // This ensures organizationId is immediately available when dialog opens, preventing
+    // timing issues where the dialog's checkForTasksToAssign() method runs before
+    // organizationId is populated via async route subscription.
     const dialogRef = NewApplicationsDialogComponent.open(this.dialogService, {
       newApplications: this.newApplications,
+      organizationId: organizationId as any,
     });
 
     await firstValueFrom(dialogRef.closed);
