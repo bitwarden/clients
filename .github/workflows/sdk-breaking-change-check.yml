@@ -135,8 +135,8 @@ jobs:
           
           TYPE_CHECK_START=$(date +%s)
           
-          # Run type check - exit code determines gh run watch result
-          if npm run test:types; then
+          # Run type check with timeout - exit code determines gh run watch result
+          if timeout 10m npm run test:types; then
             TYPE_CHECK_END=$(date +%s)
             TYPE_CHECK_DURATION=$((TYPE_CHECK_END - TYPE_CHECK_START))
             echo "✅ TypeScript compilation successful (${TYPE_CHECK_DURATION}s)"
