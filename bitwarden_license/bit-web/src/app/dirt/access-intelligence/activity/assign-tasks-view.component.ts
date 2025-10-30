@@ -6,7 +6,12 @@ import { AllActivitiesService } from "@bitwarden/bit-common/dirt/reports/risk-in
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
-import { ButtonModule, ToastService, TypographyModule } from "@bitwarden/components";
+import {
+  ButtonModule,
+  IconTileComponent,
+  ToastService,
+  TypographyModule,
+} from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { DefaultAdminTaskService } from "../../../vault/services/default-admin-task.service";
@@ -18,7 +23,7 @@ import { AccessIntelligenceSecurityTasksService } from "../shared/security-tasks
  *
  * Important: This component provides its own instances of AccessIntelligenceSecurityTasksService
  * and DefaultAdminTaskService. These services are scoped to this component to ensure proper
- * dependency injection when the component is dynamically rendered within the dialog.
+ * dependency injection when the component is dynamically rendered within the structure.
  * Without these providers, Angular would throw NullInjectorError when trying to inject
  * DefaultAdminTaskService, which is required by AccessIntelligenceSecurityTasksService.
  */
@@ -27,7 +32,7 @@ import { AccessIntelligenceSecurityTasksService } from "../shared/security-tasks
 @Component({
   selector: "dirt-assign-tasks-view",
   templateUrl: "./assign-tasks-view.component.html",
-  imports: [CommonModule, ButtonModule, TypographyModule, I18nPipe],
+  imports: [CommonModule, ButtonModule, TypographyModule, I18nPipe, IconTileComponent],
   providers: [AccessIntelligenceSecurityTasksService, DefaultAdminTaskService],
 })
 export class AssignTasksViewComponent implements OnInit {
@@ -53,6 +58,7 @@ export class AssignTasksViewComponent implements OnInit {
   readonly back = output<void>();
 
   protected criticalAppsAtRiskMemberCount = 0;
+  protected totalApplicationsCount = 0;
   protected isAssigning = false;
 
   private allActivitiesService = inject(AllActivitiesService);
@@ -62,22 +68,24 @@ export class AssignTasksViewComponent implements OnInit {
   private logService = inject(LogService);
 
   async ngOnInit(): Promise<void> {
-    // Get unique members with at-risk passwords from report summary
+    // Get unique members with at-risk passwords and total applications from report summary
     // Uses the same pattern as all-activity.component.ts
-    await this.loadAtRiskMemberCount();
+    await this.loadReportSummary();
   }
 
   /**
-   * Loads the count of unique members with at-risk passwords.
+   * Loads the count of unique members with at-risk passwords and total applications.
    * Uses the same pattern as all-activity.component.ts
    */
-  private async loadAtRiskMemberCount(): Promise<void> {
+  private async loadReportSummary(): Promise<void> {
     try {
       const summary = await firstValueFrom(this.allActivitiesService.reportSummary$);
       this.criticalAppsAtRiskMemberCount = summary.totalCriticalAtRiskMemberCount;
+      this.totalApplicationsCount = summary.totalApplicationCount;
     } catch (error) {
-      this.logService.error("[AssignTasksView] Failed to load at-risk member count", error);
+      this.logService.error("[AssignTasksView] Failed to load report summary", error);
       this.criticalAppsAtRiskMemberCount = 0;
+      this.totalApplicationsCount = 0;
     }
   }
 
