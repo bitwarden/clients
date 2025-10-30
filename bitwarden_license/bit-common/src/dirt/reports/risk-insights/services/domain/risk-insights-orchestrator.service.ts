@@ -731,11 +731,24 @@ export class RiskInsightsOrchestratorService {
       newReportGeneration$,
       this._markUnmarkUpdates$,
     ).pipe(
-      scan((prevState: ReportState, currState: ReportState) => ({
-        ...prevState,
-        ...currState,
-        data: currState.data !== null ? currState.data : prevState.data,
-      })),
+      scan((prevState: ReportState, currState: ReportState) => {
+        // If organization changed, use new state completely (don't preserve old data)
+        // This allows null data to clear old org's data when switching orgs
+        if (currState.organizationId && prevState.organizationId !== currState.organizationId) {
+          return {
+            ...currState,
+            data: currState.data, // Allow null to clear old org's data
+          };
+        }
+
+        // Same org (or no org ID): preserve data when currState.data is null
+        // This preserves critical flags during loading states within the same org
+        return {
+          ...prevState,
+          ...currState,
+          data: currState.data !== null ? currState.data : prevState.data,
+        };
+      }),
       startWith({ loading: false, error: null, data: null }),
       shareReplay({ bufferSize: 1, refCount: true }),
       takeUntil(this._destroy$),
