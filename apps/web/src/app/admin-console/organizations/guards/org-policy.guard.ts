@@ -59,7 +59,7 @@ export function organizationPolicyGuard(
     if (!compliant) {
       toastService.showToast({
         variant: "error",
-        message: i18nService.t("accessDenied"),
+        message: i18nService.t("noPageAccess"),
       });
 
       return router.createUrlTree(["/"]);
