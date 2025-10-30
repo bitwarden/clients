@@ -268,7 +268,7 @@ mod tests {
         let ctxi = MockInputOperations::send_input_context();
         ctxi.expect().returning(|_| 1);
 
-        send_input::<MockInputOperations, MockErrorOperations>(&vec![build_unicode_input(
+        send_input::<MockInputOperations, MockErrorOperations>(&[build_unicode_input(
             InputKeyPress::Up,
             0,
         )])
@@ -278,7 +278,7 @@ mod tests {
     #[test]
     #[serial]
     fn keyboard_shortcut_conversion_succeeds() {
-        let keyboard_shortcut = vec![
+        let keyboard_shortcut = [
             CONTROL_KEY_STR.to_string(),
             SHIFT_KEY_STR.to_string(),
             "B".to_string(),
@@ -294,7 +294,7 @@ mod tests {
     #[serial]
     #[should_panic = "Letter is not ASCII Alphabetic ([a-z][A-Z]): '1'"]
     fn keyboard_shortcut_conversion_fails_invalid_key() {
-        let keyboard_shortcut = vec![
+        let keyboard_shortcut = [
             CONTROL_KEY_STR.to_string(),
             SHIFT_KEY_STR.to_string(),
             "1".to_string(),
@@ -318,7 +318,7 @@ mod tests {
         let ctxge = MockErrorOperations::get_last_error_context();
         ctxge.expect().returning(|| WIN32_ERROR(1));
 
-        send_input::<MockInputOperations, MockErrorOperations>(&vec![build_unicode_input(
+        send_input::<MockInputOperations, MockErrorOperations>(&[build_unicode_input(
             InputKeyPress::Up,
             0,
         )])
@@ -335,7 +335,7 @@ mod tests {
         let ctxge = MockErrorOperations::get_last_error_context();
         ctxge.expect().returning(|| WIN32_ERROR(1));
 
-        send_input::<MockInputOperations, MockErrorOperations>(&vec![build_unicode_input(
+        send_input::<MockInputOperations, MockErrorOperations>(&[build_unicode_input(
             InputKeyPress::Up,
             0,
         )])
