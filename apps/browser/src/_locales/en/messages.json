@@ -5782,7 +5782,7 @@
   "cardNumberLabel": {
     "message": "Card number"
   },
-  "sessionTimeoutAction": {
+  "sessionTimeoutSettingsAction": {
     "message": "Timeout action"
   }
 }

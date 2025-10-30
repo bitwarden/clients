@@ -11991,7 +11991,7 @@
   "neverLockWarning": {
     "message": "Are you sure you want to use the \"Never\" option? Setting your lock options to \"Never\" stores your vault's encryption key on your device. If you use this option you should ensure that you keep your device properly protected."
   },
-  "sessionTimeoutAction": {
+  "sessionTimeoutSettingsAction": {
     "message": "Timeout action"
   },
   "sessionTimeoutHeader": {
