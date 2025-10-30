@@ -112,7 +112,7 @@ export abstract class MasterPasswordServiceAbstraction {
    * @param userId The user ID.
    * @throws If the user ID is missing.
    */
-  abstract userHasMasterPassword: (userId: UserId) => Promise<boolean>;
+  abstract userHasMasterPassword(userId: UserId): Promise<boolean>;
 }
 
 export abstract class InternalMasterPasswordServiceAbstraction extends MasterPasswordServiceAbstraction {
