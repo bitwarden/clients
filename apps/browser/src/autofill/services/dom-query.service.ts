@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { EVENTS, MAX_DEEP_QUERY_RECURSION_DEPTH } from "@bitwarden/common/autofill/constants";
 
 import { nodeIsElement } from "../utils";
@@ -7,7 +5,7 @@ import { nodeIsElement } from "../utils";
 import { DomQueryService as DomQueryServiceInterface } from "./abstractions/dom-query.service";
 
 export class DomQueryService implements DomQueryServiceInterface {
-  private pageContainsShadowDom: boolean;
+  private pageContainsShadowDom!: boolean;
   private ignoredTreeWalkerNodes = new Set([
     "svg",
     "script",
@@ -301,7 +299,11 @@ export class DomQueryService implements DomQueryServiceInterface {
         );
       }
 
-      currentNode = treeWalker?.nextNode();
+      const nextNode = treeWalker.nextNode();
+
+      if (nextNode) {
+        currentNode = nextNode;
+      }
     }
   }
 }

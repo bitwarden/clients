@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { FieldRect } from "../background/abstractions/overlay.background";
 import { AutofillFieldQualifierType } from "../enums/autofill-field.enums";
 import {
@@ -15,32 +13,32 @@ export default class AutofillField {
   /**
    * The unique identifier assigned to this field during collection of the page details
    */
-  opid: string;
+  opid!: string;
   /**
    * Sequential number assigned to each element collected, based on its position in the DOM.
    * Used to do perform proximal checks for username and password fields on the DOM.
    */
-  elementNumber: number;
+  elementNumber!: number;
   /**
    * Designates whether the field is viewable on the current part of the DOM that the user can see
    */
-  viewable: boolean;
+  viewable!: boolean;
   /**
    * The HTML `id` attribute of the field
    */
-  htmlID: string | null;
+  htmlID!: string | null;
   /**
    * The HTML `name` attribute of the field
    */
-  htmlName: string | null;
+  htmlName!: string | null;
   /**
    * The HTML `class` attribute of the field
    */
-  htmlClass: string | null;
+  htmlClass!: string | null;
 
-  tabindex: string | null;
+  tabindex!: string | null;
 
-  title: string | null;
+  title!: string | null;
   /**
    * The `tagName` for the field
    */

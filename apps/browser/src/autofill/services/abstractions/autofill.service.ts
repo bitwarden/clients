@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Observable } from "rxjs";
 
 import { UriMatchStrategySetting } from "@bitwarden/common/models/domain/domain-service";
@@ -64,29 +62,29 @@ export const COLLECT_PAGE_DETAILS_RESPONSE_COMMAND =
   );
 
 export abstract class AutofillService {
-  collectPageDetailsFromTab$: (tab: chrome.tabs.Tab) => Observable<PageDetail[]>;
-  loadAutofillScriptsOnInstall: () => Promise<void>;
-  reloadAutofillScripts: () => Promise<void>;
-  injectAutofillScripts: (
+  collectPageDetailsFromTab$!: (tab: chrome.tabs.Tab) => Observable<PageDetail[]>;
+  loadAutofillScriptsOnInstall!: () => Promise<void>;
+  reloadAutofillScripts!: () => Promise<void>;
+  injectAutofillScripts!: (
     tab: chrome.tabs.Tab,
     frameId?: number,
     triggeringOnPageLoad?: boolean,
   ) => Promise<void>;
-  getFormsWithPasswordFields: (pageDetails: AutofillPageDetails) => FormData[];
-  doAutoFill: (options: AutoFillOptions) => Promise<string | null>;
-  doAutoFillOnTab: (
+  getFormsWithPasswordFields!: (pageDetails: AutofillPageDetails) => FormData[];
+  doAutoFill!: (options: AutoFillOptions) => Promise<string | null>;
+  doAutoFillOnTab!: (
     pageDetails: PageDetail[],
     tab: chrome.tabs.Tab,
     fromCommand: boolean,
     autoSubmitLogin?: boolean,
   ) => Promise<string | null>;
-  doAutoFillActiveTab: (
+  doAutoFillActiveTab!: (
     pageDetails: PageDetail[],
     fromCommand: boolean,
     cipherType?: CipherType,
   ) => Promise<string | null>;
-  setAutoFillOnPageLoadOrgPolicy: () => Promise<void>;
-  isPasswordRepromptRequired: (
+  setAutoFillOnPageLoadOrgPolicy!: () => Promise<void>;
+  isPasswordRepromptRequired!: (
     cipher: CipherView,
     tab: chrome.tabs.Tab,
     action?: string,

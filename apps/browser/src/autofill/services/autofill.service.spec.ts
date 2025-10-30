@@ -774,8 +774,6 @@ describe("AutofillService", () => {
         {
           command: "fillForm",
           fillScript: {
-            autosubmit: [],
-            itemType: "",
             properties: {
               delay_between_operations: 20,
             },
@@ -1627,10 +1625,7 @@ describe("AutofillService", () => {
 
       expect(autofillService["generateLoginFillScript"]).toHaveBeenCalledWith(
         {
-          autosubmit: [],
-          itemType: "",
           properties: {},
-          savedUrls: [],
           script: [
             ["click_on_opid", "username-field"],
             ["focus_by_opid", "username-field"],
@@ -1639,7 +1634,6 @@ describe("AutofillService", () => {
             ["focus_by_opid", "password-field"],
             ["fill_by_opid", "password-field", "default-value"],
           ],
-          untrustedIframe: false,
         },
         pageDetail,
         {
@@ -1668,10 +1662,7 @@ describe("AutofillService", () => {
 
       expect(autofillService["generateCardFillScript"]).toHaveBeenCalledWith(
         {
-          autosubmit: [],
-          itemType: "",
           properties: {},
-          savedUrls: [],
           script: [
             ["click_on_opid", "username-field"],
             ["focus_by_opid", "username-field"],
@@ -1680,7 +1671,6 @@ describe("AutofillService", () => {
             ["focus_by_opid", "password-field"],
             ["fill_by_opid", "password-field", "default-value"],
           ],
-          untrustedIframe: false,
         },
         pageDetail,
         {
@@ -1709,10 +1699,7 @@ describe("AutofillService", () => {
 
       expect(autofillService["generateIdentityFillScript"]).toHaveBeenCalledWith(
         {
-          autosubmit: [],
-          itemType: "",
           properties: {},
-          savedUrls: [],
           script: [
             ["click_on_opid", "username-field"],
             ["focus_by_opid", "username-field"],
@@ -1721,7 +1708,6 @@ describe("AutofillService", () => {
             ["focus_by_opid", "password-field"],
             ["fill_by_opid", "password-field", "default-value"],
           ],
-          untrustedIframe: false,
         },
         pageDetail,
         {
