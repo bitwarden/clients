@@ -1,6 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 /* eslint-disable no-useless-escape */
+import * as path from "path";
 
 import { Buffer as BufferLib } from "buffer/";
 import { Observable, of, switchMap } from "rxjs";
@@ -600,6 +601,15 @@ export class Utils {
       /[!'()*]/g,
       (c) => `%${c.charCodeAt(0).toString(16).toUpperCase()}`,
     );
+  }
+
+  /**
+   * Normalizes a path for defense against attacks like traversals
+   * @param denormalizedPath
+   * @returns
+   */
+  static normalizePath(denormalizedPath: string): string {
+    return path.normalize(decodeURIComponent(denormalizedPath)).replace(/^(\.\.(\/|\\|$))+/, "");
   }
 
   /**

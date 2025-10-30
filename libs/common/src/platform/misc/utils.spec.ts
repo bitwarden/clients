@@ -1,3 +1,5 @@
+import * as path from "path";
+
 import { Utils } from "./utils";
 
 describe("Utils Service", () => {
@@ -664,6 +666,26 @@ describe("Utils Service", () => {
       expect(Utils.encodeRFC3986URIComponent("Test*User@example.com")).toBe(
         "Test%2AUser%40example.com",
       );
+    });
+  });
+
+  describe("normalizePath", () => {
+    it("removes a single traversal", () => {
+      expect(Utils.normalizePath("../test")).toBe("test");
+    });
+
+    it("removes deep traversals", () => {
+      expect(Utils.normalizePath("../../test")).toBe("test");
+    });
+
+    it("removes intermediate traversals", () => {
+      expect(Utils.normalizePath("test/../test")).toBe("test");
+    });
+
+    it("removes multiple encoded traversals", () => {
+      expect(
+        Utils.normalizePath("api/sends/access/..%2f..%2f..%2fapi%2fsends%2faccess%2fsendkey"),
+      ).toBe(path.normalize("api/sends/access/sendkey"));
     });
   });
 
