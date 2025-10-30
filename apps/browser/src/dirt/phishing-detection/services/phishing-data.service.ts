@@ -71,7 +71,7 @@ export class PhishingDataService {
               `[PhishingDataService] Unable to update domains. Attempt ${count}.`,
               err,
             );
-            return timer(1000); // 5 * 60 * 1000 5 minutes
+            return timer(5 * 60 * 1000); // 5 minutes
           },
           resetOnSuccess: true,
         }),
