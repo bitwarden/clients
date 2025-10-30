@@ -618,7 +618,7 @@ export class Utils {
    * @returns true if invalid patterns found, false if safe
    */
   static invalidUrlPatterns(url: string): boolean {
-    const invalidUrlPatterns = ["..", "%2e", "%2E", "\\", "%5c", "%5C"];
+    const invalidUrlPatterns = ["..", "%2e", "\\", "%5c"];
 
     const lowerCaseUrl: string = url.toLocaleLowerCase();
 
@@ -653,7 +653,7 @@ export class Utils {
         return false;
       }
 
-      const paramInvalidPatterns = ["/", "%2f", "%2F", "#", "%23"];
+      const paramInvalidPatterns = ["/", "%2f", "#", "%23"];
 
       return paramInvalidPatterns.some((p) => queryString.includes(p));
     } catch (error) {
