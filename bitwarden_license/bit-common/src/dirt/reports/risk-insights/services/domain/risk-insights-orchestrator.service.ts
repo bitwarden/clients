@@ -343,10 +343,11 @@ export class RiskInsightsOrchestratorService {
           loading: false,
           error: null,
           data: result ?? null,
+          organizationId,
         };
       }),
-      catchError(() => of({ loading: false, error: "Failed to fetch report", data: null })),
-      startWith({ loading: true, error: null, data: null }),
+      catchError(() => of({ loading: false, error: "Failed to fetch report", data: null, organizationId })),
+      startWith({ loading: true, error: null, data: null, organizationId }),
     );
   }
 
@@ -407,12 +408,13 @@ export class RiskInsightsOrchestratorService {
             creationDate: new Date(),
             contentEncryptionKey,
           },
+          organizationId,
         };
       }),
       catchError((): Observable<ReportState> => {
-        return of({ loading: false, error: "Failed to generate or save report", data: null });
+        return of({ loading: false, error: "Failed to generate or save report", data: null, organizationId });
       }),
-      startWith<ReportState>({ loading: true, error: null, data: null }),
+      startWith<ReportState>({ loading: true, error: null, data: null, organizationId }),
     );
   }
 
