@@ -11976,6 +11976,9 @@
   "cardNumberLabel": {
     "message": "Card number"
   },
+  "startFreeFamiliesTrial": {
+    "message": "Start free Families trial"
+  },
   "unlockMethodNeededToChangeTimeoutActionDesc": {
     "message": "Set up an unlock method to change your vault timeout action."
   },

@@ -68,6 +68,8 @@ import { DesktopSettingsService } from "../../platform/services/desktop-settings
 import { DesktopPremiumUpgradePromptService } from "../../services/desktop-premium-upgrade-prompt.service";
 import { NativeMessagingManifestService } from "../services/native-messaging-manifest.service";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-settings",
   templateUrl: "settings.component.html",

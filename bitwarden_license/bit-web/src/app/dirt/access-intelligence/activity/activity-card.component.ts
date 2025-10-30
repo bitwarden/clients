@@ -39,11 +39,15 @@ export class ActivityCardComponent {
   /**
    * The text to display for the action link
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() actionText: string = "";
 
   /**
    * Show action link
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() showActionLink: boolean = false;
 
   /**
@@ -78,6 +82,8 @@ export class ActivityCardComponent {
   /**
    * Event emitted when action link is clicked
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() actionClick = new EventEmitter<void>();
 
   constructor(private router: Router) {}
