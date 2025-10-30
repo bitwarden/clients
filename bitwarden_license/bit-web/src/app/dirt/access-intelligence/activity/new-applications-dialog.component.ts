@@ -136,15 +136,32 @@ export class NewApplicationsDialogComponent implements OnInit {
 
   /**
    * Handles the "Mark as Critical" button click.
-   * Saves review status for all new applications and marks selected ones as critical.
-   * Closes the dialog on success.
+   * Saves review status and checks if there are tasks to assign.
+   * If tasks exist, shows assign tasks view; otherwise closes dialog with success.
    */
   onMarkAsCritical = async () => {
+    if (this.isCalculatingTasks) {
+      return; // Prevent double-click
+    }
+
+    this.isCalculatingTasks = true;
     const selectedCriticalApps = Array.from(this.selectedApplications);
 
     try {
       await firstValueFrom(this.dataService.saveApplicationReviewStatus(selectedCriticalApps));
 
+      // Check if there are tasks to assign
+      if (selectedCriticalApps.length > 0) {
+        const hasTasksToAssign = await this.checkForTasksToAssign();
+
+        if (hasTasksToAssign) {
+          // Transition to assign tasks view
+          this.currentView = DialogView.AssignTasks;
+          return; // Don't close dialog or show toast yet
+        }
+      }
+
+      // No critical apps selected OR no tasks to assign - show success and close
       this.toastService.showToast({
         variant: "success",
         title: this.i18nService.t("applicationReviewSaved"),
@@ -153,8 +170,6 @@ export class NewApplicationsDialogComponent implements OnInit {
             ? this.i18nService.t("applicationsMarkedAsCritical", selectedCriticalApps.length)
             : this.i18nService.t("newApplicationsReviewed"),
       });
-
-      // Close dialog with success indicator
       this.dialogRef.close(true);
     } catch {
       this.logService.error("[NewApplicationsDialog] Failed to save review status");
@@ -163,6 +178,48 @@ export class NewApplicationsDialogComponent implements OnInit {
         title: this.i18nService.t("errorSavingReviewStatus"),
         message: this.i18nService.t("pleaseTryAgain"),
       });
+    } finally {
+      this.isCalculatingTasks = false;
     }
+  };
+
+  /**
+   * Checks if there are tasks to assign for the selected critical applications.
+   * Returns true if tasks can be assigned, false otherwise.
+   */
+  private async checkForTasksToAssign(): Promise<boolean> {
+    try {
+      const taskMetrics = await firstValueFrom(
+        this.securityTasksApiService.getTaskMetrics(this.organizationId),
+      );
+      const atRiskPasswordsCount = await firstValueFrom(
+        this.allActivitiesService.atRiskPasswordsCount$,
+      );
+
+      const canAssignTasks = atRiskPasswordsCount > taskMetrics.totalTasks;
+      const newTasksCount = canAssignTasks ? atRiskPasswordsCount - taskMetrics.totalTasks : 0;
+
+      return canAssignTasks && newTasksCount > 0;
+    } catch (error) {
+      this.logService.error("[NewApplicationsDialog] Failed to check for tasks", error);
+      return false;
+    }
+  }
+
+  /**
+   * Handles the tasksAssigned event from the embedded component.
+   * Closes the dialog with success indicator.
+   */
+  protected onTasksAssigned = () => {
+    // Tasks were successfully assigned - close dialog
+    this.dialogRef.close(true);
+  };
+
+  /**
+   * Handles the back event from the embedded component.
+   * Returns to the select applications view.
+   */
+  protected onBack = () => {
+    this.currentView = DialogView.SelectApplications;
   };
 }
