@@ -56,6 +56,9 @@ export class AllActivitiesService {
   }
 
   setCriticalAppsReportSummary(summary: OrganizationReportSummary) {
+    if (!summary) {
+      return;
+    }
     this.reportSummarySubject$.next({
       ...this.reportSummarySubject$.getValue(),
       totalCriticalApplicationCount: summary.totalApplicationCount,
@@ -66,6 +69,10 @@ export class AllActivitiesService {
   }
 
   setAllAppsReportSummary(summary: OrganizationReportSummary) {
+    if (!summary) {
+      return;
+    }
+
     this.reportSummarySubject$.next({
       ...this.reportSummarySubject$.getValue(),
       totalMemberCount: summary.totalMemberCount,

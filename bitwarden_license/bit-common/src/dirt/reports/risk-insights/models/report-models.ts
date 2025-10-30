@@ -15,7 +15,7 @@ import { ExposedPasswordDetail, WeakPasswordDetail } from "./password-health";
  */
 export type MemberDetails = {
   userGuid: string;
-  userName: string;
+  userName?: string;
   email: string;
   cipherId: string;
 };
@@ -111,6 +111,7 @@ export interface ReportState {
   loading: boolean;
   error: string | null;
   data: RiskInsightsData | null;
+  organizationId?: string;
 }
 
 // TODO Make Versioned models for structure changes
