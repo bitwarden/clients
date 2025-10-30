@@ -16,8 +16,8 @@ export type AutofillInsertActions = {
 export default class AutofillScript {
   script: FillScript[] = [];
   properties: AutofillScriptProperties = {};
-  autosubmit: string[] | null = []; // Appears to be unused, read but not written
-  savedUrls: string[] = [];
-  untrustedIframe: boolean = false;
-  itemType: string = ""; // Appears to be unused, read but not written
+  autosubmit!: string[] | null; // Appears to be unused, read but not written
+  savedUrls!: string[];
+  untrustedIframe!: boolean;
+  itemType!: string; // Appears to be unused, read but not written
 }
