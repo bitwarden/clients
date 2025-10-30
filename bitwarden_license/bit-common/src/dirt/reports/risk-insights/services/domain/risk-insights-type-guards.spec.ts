@@ -339,6 +339,16 @@ describe("Risk Insights Type Guards", () => {
       expect(isMemberDetails(invalidData)).toBe(false);
     });
 
+    it("should return true for undefined userName", () => {
+      const validData = {
+        userGuid: "user-1",
+        userName: undefined as string | undefined,
+        email: "john@example.com",
+        cipherId: "cipher-1",
+      };
+      expect(isMemberDetails(validData)).toBe(true);
+    });
+
     it("should return false for empty email", () => {
       const invalidData = {
         userGuid: "user-1",
