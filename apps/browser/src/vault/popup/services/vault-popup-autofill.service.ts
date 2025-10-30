@@ -316,6 +316,7 @@ export class VaultPopupAutofillService {
    * Will copy any TOTP code to the clipboard if available after successful autofill.
    * @param cipher
    * @param closePopup If true, will close the popup window after successful autofill. Defaults to true.
+   * @param skipPasswordReprompt If true, skips the master password reprompt even if the cipher requires it. Defaults to false.
    */
   async doAutofill(
     cipher: CipherView,
