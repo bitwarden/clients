@@ -208,7 +208,7 @@ describe("PremiumUpgradeDialogComponent", () => {
   });
 
   describe("error handling", () => {
-    it("should show error toast and return null when getPersonalSubscriptionPricingTiers$ throws an error", async () => {
+    it("should show error toast and return EMPTY and close dialog when getPersonalSubscriptionPricingTiers$ throws an error", (done) => {
       const error = new Error("Service error");
       mockSubscriptionPricingService.getPersonalSubscriptionPricingTiers$.mockReturnValue(
         throwError(() => error),
@@ -218,14 +218,23 @@ describe("PremiumUpgradeDialogComponent", () => {
       const errorComponent = errorFixture.componentInstance;
       errorFixture.detectChanges();
 
-      const cardDetails = await firstValueFrom(errorComponent["cardDetails$"]);
+      const cardDetails$ = errorComponent["cardDetails$"];
 
-      expect(mockToastService.showToast).toHaveBeenCalledWith({
-        variant: "error",
-        title: "error",
-        message: "unexpectedError",
+      cardDetails$.subscribe({
+        next: () => {
+          done.fail("Observable should not emit any values");
+        },
+        complete: () => {
+          expect(mockToastService.showToast).toHaveBeenCalledWith({
+            variant: "error",
+            title: "error",
+            message: "unexpectedError",
+          });
+          expect(mockDialogRef.close).toHaveBeenCalled();
+          done();
+        },
+        error: (err: unknown) => done.fail(`Observable should not error: ${err}`),
       });
-      expect(cardDetails).toBeNull();
     });
   });
 });

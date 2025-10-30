@@ -1,7 +1,7 @@
 import { CdkTrapFocus } from "@angular/cdk/a11y";
 import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component } from "@angular/core";
-import { catchError, firstValueFrom, map, Observable, of } from "rxjs";
+import { catchError, EMPTY, firstValueFrom, map, Observable } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { SubscriptionPricingServiceAbstraction } from "@bitwarden/common/billing/abstractions/subscription-pricing.service.abstraction";
@@ -66,7 +66,7 @@ export class PremiumUpgradeDialogComponent {
         });
         this.logService.error("Error fetching and mapping pricing tiers", error);
         this.dialogRef.close();
-        return of(null);
+        return EMPTY;
       }),
     );
 
