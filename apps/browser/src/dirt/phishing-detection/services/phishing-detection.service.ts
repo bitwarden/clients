@@ -5,8 +5,8 @@ import {
   EMPTY,
   map,
   Subject,
-  Subscription,
   switchMap,
+  takeUntil,
 } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -27,11 +27,12 @@ import {
 } from "./phishing-detection.types";
 
 export class PhishingDetectionService {
+  private static _destroy$ = new Subject<void>();
+
   private static _logService: LogService;
   private static _phishingDataService: PhishingDataService;
 
   private static _navigationEventsSubject = new Subject<PhishingDetectionNavigationEvent>();
-  private static _navigationEvents: Subscription | null = null;
   private static _caughtTabs: Map<PhishingDetectionTabId, CaughtPhishingDomain> = new Map();
 
   static initialize(
@@ -113,7 +114,9 @@ export class PhishingDetectionService {
    * Sets up listeners for messages from the web page and web navigation events
    */
   private static _setup(): void {
-    this._phishingDataService.initialize();
+    this._phishingDataService.update$.pipe(
+      takeUntil(this._destroy$)
+    ).subscribe();
 
     // Setup listeners from web page/content script
     BrowserApi.addListener(chrome.runtime.onMessage, this._handleExtensionMessage.bind(this));
@@ -122,9 +125,10 @@ export class PhishingDetectionService {
 
     // When a navigation event occurs, check if a replace event for the same tabId exists,
     // and call the replace handler before handling navigation.
-    this._navigationEvents = this._navigationEventsSubject
+    this._navigationEventsSubject
       .pipe(
         delay(100), // Delay slightly to allow replace events to be caught
+        takeUntil(this._destroy$)
       )
       .subscribe(({ tabId, changeInfo, tab }) => {
         void this._processNavigation(tabId, changeInfo, tab);
@@ -393,10 +397,9 @@ export class PhishingDetectionService {
    * Unsubscribes from all subscriptions and clears caches
    */
   private static _cleanup() {
-    if (this._navigationEvents) {
-      this._navigationEvents.unsubscribe();
-      this._navigationEvents = null;
-    }
+    this._destroy$.next();
+    this._destroy$.complete();
+
     this._caughtTabs.clear();
 
     // Manually type cast to satisfy the listener signature due to the mixture

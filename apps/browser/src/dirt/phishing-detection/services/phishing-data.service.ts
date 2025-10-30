@@ -1,7 +1,7 @@
-import { catchError, EMPTY, firstValueFrom, from, map, Observable, retry, Subject, Subscription, switchMap } from "rxjs";
+import { catchError, EMPTY, first, firstValueFrom, map, retry, startWith, Subject, switchMap, tap, timer } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { ScheduledTaskName, ScheduledTaskNames, TaskSchedulerService } from "@bitwarden/common/platform/scheduling";
+import { ScheduledTaskNames, TaskSchedulerService } from "@bitwarden/common/platform/scheduling";
 import { GlobalStateProvider, KeyDefinition, PHISHING_DETECTION_DISK } from "@bitwarden/state";
 import { LogService } from "@bitwarden/logging";
 import { devFlagEnabled, devFlagValue } from "@bitwarden/browser/platform/flags";
@@ -12,83 +12,72 @@ export type PhishingData = {
     checksum: string;
 };
 
-const interval$ = (taskSchedulerService: TaskSchedulerService, scheduledTaskName: ScheduledTaskName, msDuration: number) => {
-    const _timer$ = new Subject<void>();
-
-    taskSchedulerService.registerTaskHandler(scheduledTaskName, () => {
-        _timer$.next();
-    });
-
-    return new Observable<void>((subscriber) => {
-        // Schedule the task and keep the subscription
-        const taskSub: Subscription = taskSchedulerService.setInterval(scheduledTaskName, msDuration);
-
-        // Forward emissions from the subject to the subscriber
-        const timerSub = _timer$.subscribe({
-            next: () => {
-                subscriber.next();
-            },
-            complete: () => {
-                subscriber.complete();
-            }
-        });
-
-        // Cleanup: unsubscribe from both the scheduled task and the subject
-        return () => {
-            taskSub.unsubscribe();
-            timerSub.unsubscribe();
-        };
-    });
-}
-
 export const PHISHING_DOMAINS_KEY = new KeyDefinition<PhishingData>(PHISHING_DETECTION_DISK, "phishingDomains", {
     deserializer: (value: PhishingData) => value ?? { domains: [], timestamp: 0, checksum: "" },
 })
 
+/** Coordinates fetching, caching, and patching of known phishing domains */
 export class PhishingDataService {
     private static readonly RemotePhishingDatabaseUrl =
         "https://raw.githubusercontent.com/Phishing-Database/Phishing.Database/master/phishing-domains-ACTIVE.txt";
     private static readonly RemotePhishingDatabaseChecksumUrl =
         "https://raw.githubusercontent.com/Phishing-Database/checksums/refs/heads/master/phishing-domains-ACTIVE.txt.md5";
-    private static readonly RemotePhishingDatabaseTodayUrl = 
+    private static readonly RemotePhishingDatabaseTodayUrl =
         "https://raw.githubusercontent.com/Phishing-Database/Phishing.Database/refs/heads/master/phishing-domains-NEW-today.txt"
 
-    private testDomains = this.getTestDomains();
+    private _testDomains = this.getTestDomains();
     private _cachedState = this.globalStateProvider.get(PHISHING_DOMAINS_KEY);
     private _domains$ = this._cachedState.state$.pipe(
         map(state => new Set(
             (state?.domains ?? [])
-                .concat(this.testDomains)
+                .concat(this._testDomains)
         ))
     )
 
+    // How often are new domains added to the remote?
     readonly UPDATE_INTERVAL_DURATION = 24 * 60 * 60 * 1000; // 24 hours
-    private _updateInterval$ = interval$(
-        this.taskSchedulerService,
-        ScheduledTaskNames.phishingDomainUpdate,
-        this.UPDATE_INTERVAL_DURATION
+
+    private _triggerUpdate$ = new Subject<void>();
+    update$ = this._triggerUpdate$.pipe(
+        startWith(), // Always emit once
+        tap(() => this.logService.info(`[PhishingDataService] Update triggered...`)),
+        switchMap(() =>
+            this._cachedState.state$.pipe(
+                first(), // Only take the first value to avoid an infinite loop when updating the cache below
+                switchMap(async cachedState => {
+                    const next = await this.getNextDomains(cachedState);
+                    if (next) {
+                        await this._cachedState.update(() => next);
+                        this.logService.info(`[PhishingDataService] cache updated`);
+                    }
+                }),
+                retry({
+                    count: 3,
+                    delay: (err, count) => {
+                        this.logService.error(`[PhishingDataService] Unable to update domains. Attempt ${count}.`, err);
+                        return timer(1000); // 5 * 60 * 1000 5 minutes
+                    },
+                    resetOnSuccess: true
+                }),
+                catchError(err => {
+                    this.logService.error("[PhishingDataService] Retries unsuccessful. Unable to update domains.", err);
+                    return EMPTY;
+                })
+            )
+        )
     );
 
-    readonly RETRY_INTERVAL_DURATION = 5 * 60 * 1000; // 5 minutes
-    private _retryInterval$ = interval$(
-        this.taskSchedulerService,
-        ScheduledTaskNames.phishingDomainUpdate,
-        this.RETRY_INTERVAL_DURATION
-    );
 
     constructor(
         private apiService: ApiService,
         private taskSchedulerService: TaskSchedulerService,
         private globalStateProvider: GlobalStateProvider,
         private logService: LogService
-    ) { }
-
-    async initialize() {
-        await firstValueFrom(this.updateDomainsWithRetry$());
-
-        this._updateInterval$.pipe(
-            switchMap(() => this.updateDomainsWithRetry$()),
-        ).subscribe();
+    ) {
+        this.taskSchedulerService.registerTaskHandler(ScheduledTaskNames.phishingDomainUpdate, () => {
+            this._triggerUpdate$.next();
+        });
+        this.taskSchedulerService.setInterval(ScheduledTaskNames.phishingDomainUpdate, this.UPDATE_INTERVAL_DURATION);
     }
 
     /**
@@ -101,74 +90,45 @@ export class PhishingDataService {
         const domains = await firstValueFrom(this._domains$);
         const result = domains.has(url.hostname);
         if (result) {
-            this.logService.debug("[PhishingDetectionService] Caught phishing domain:", url.hostname);
+            this.logService.debug("[PhishingDataService] Caught phishing domain:", url.hostname);
             return true;
         }
         return false;
     }
 
-    private async updateDomains(): Promise<PhishingData> {
-        const prev = (await firstValueFrom(this._cachedState.state$)) ?? { domains: [], timestamp: 0, checksum: "" };
+    async getNextDomains(prev: PhishingData | null): Promise<PhishingData | null> {
+        prev = prev ?? { domains: [], timestamp: 0, checksum: "" };
         const timestamp = Date.now();
         const prevAge = timestamp - prev.timestamp;
+        this.logService.info(`[PhishingDataService] Cache age: ${prevAge}`)
 
-        // update should not have been called
-        if (prevAge < this.UPDATE_INTERVAL_DURATION) {
-            this.logService.info(`[PhishingDetectionService] Remote checksum matches local checksum, aborting fetch. Total domains: ${prev.domains.length}`,);
-            return prev;
-        }
-
-        // If checksum matches, return previous data with new timestamp
+        // If checksum matches, return existing data with new timestamp
         const remoteChecksum = await this.fetchPhishingDomainsChecksum();
         if (remoteChecksum && prev.checksum === remoteChecksum) {
-            this.logService.info(`[PhishingDetectionService] Remote checksum matches local checksum, aborting fetch. Total domains: ${prev.domains.length}`,);
+            this.logService.info(`[PhishingDataService] Remote checksum matches local checksum, updating timestamp only.`,);
             return { ...prev, timestamp };
         }
+        // Checksum is different, data needs to be updated.
 
-        // Fetch only new domains from remote
-        const isOneDayOldMax = prevAge <= 24 * 60 * 60 * 1000;
+        // Approach 1: If cache is no more than 1 day old, Fetch only new domains
+        const isOneDayOldMax = prevAge <= this.UPDATE_INTERVAL_DURATION;
         if (isOneDayOldMax) {
             const dailyDomains: string[] = await this.fetchPhishingDomains(PhishingDataService.RemotePhishingDatabaseTodayUrl);
-            this.logService.info(`[PhishingDetectionService] ${dailyDomains} new phishing domains added`);
-            return { 
-                domains: prev.domains.concat(dailyDomains), 
+            this.logService.info(`[PhishingDataService] ${dailyDomains} new phishing domains added`);
+            return {
+                domains: prev.domains.concat(dailyDomains),
                 checksum: remoteChecksum,
                 timestamp
             }
         }
 
-        // Fetch all domains from remote
+        // Approach 2: Fetch all domains
         const domains = await this.fetchPhishingDomains(PhishingDataService.RemotePhishingDatabaseUrl);
-        const newData: PhishingData = {
+        return {
             domains,
             timestamp,
-            checksum: remoteChecksum ?? "",
+            checksum: remoteChecksum,
         };
-
-        // todo, early returns miss the cached state update
-        await this._cachedState.update(() => newData);
-        this.logService.info(
-            `[PhishingDetectionService] ${domains.length} domains updated`,
-        );
-
-        return newData;
-    }
-
-    private updateDomainsWithRetry$(): Observable<PhishingData> {
-        return from(this.updateDomains()).pipe(
-            retry({
-                count: 3,
-                delay: (err, count) => {
-                    this.logService.error(`[PhishingDetectionService] Unable to update domains. Attempt ${count}.`, err);
-                    return this._retryInterval$;
-                },
-                resetOnSuccess: true
-            }),
-            catchError(err => {
-                this.logService.error("[PhishingDetectionService] Unable to update domains.", err);
-                return EMPTY;
-            })
-        );
     }
 
     private async fetchPhishingDomainsChecksum() {

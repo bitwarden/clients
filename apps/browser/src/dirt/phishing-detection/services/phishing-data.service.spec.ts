@@ -14,9 +14,14 @@ describe('PhishingDataService', () => {
     let taskSchedulerService: TaskSchedulerService;
     let logService: MockProxy<LogService>;
     const stateProvider: FakeGlobalStateProvider = new FakeGlobalStateProvider();
+    
     const setMockState = (state: PhishingData) => {
         stateProvider.getFake(PHISHING_DOMAINS_KEY).stateSubject.next(state);
+        return state;
     }
+
+    let fetchChecksumSpy: jest.SpyInstance;
+    let fetchDomainsSpy: jest.SpyInstance;
 
     beforeEach(() => {
         jest.useFakeTimers();
@@ -30,71 +35,86 @@ describe('PhishingDataService', () => {
             stateProvider,
             logService
         );
+
+        fetchChecksumSpy = jest.spyOn(service as any, 'fetchPhishingDomainsChecksum');
+        fetchDomainsSpy = jest.spyOn(service as any, 'fetchPhishingDomains');
     });
 
-    it('should detect a phishing domain', async () => {
-        setMockState({
-            domains: ['phish.com', 'badguy.net'],
-            timestamp: Date.now(),
-            checksum: 'abc123',
+    describe("isPhishingDomains", () => {
+        it('should detect a phishing domain', async () => {
+            setMockState({
+                domains: ['phish.com', 'badguy.net'],
+                timestamp: Date.now(),
+                checksum: 'abc123',
+            })
+            const url = new URL('http://phish.com');
+            const result = await service.isPhishingDomain(url);
+            expect(result).toBe(true);
+        });
+
+
+        it('should not detect a safe domain', async () => {
+            setMockState({
+                domains: ['phish.com', 'badguy.net'],
+                timestamp: Date.now(),
+                checksum: 'abc123',
+            })
+            const url = new URL('http://safe.com');
+            const result = await service.isPhishingDomain(url);
+            expect(result).toBe(false);
+        });
+
+        it('should match against root domain', async () => {
+            setMockState({
+                domains: ['phish.com', 'badguy.net'],
+                timestamp: Date.now(),
+                checksum: 'abc123',
+            })
+            const url = new URL('http://phish.com/about');
+            const result = await service.isPhishingDomain(url);
+            expect(result).toBe(true);
+        });
+
+        it('should not error on empty state', async () => {
+            setMockState(undefined as any)
+            const url = new URL('http://phish.com/about');
+            const result = await service.isPhishingDomain(url);
+            expect(result).toBe(false);
         })
-        const url = new URL('http://phish.com');
-        const result = await service.isPhishingDomain(url);
-        expect(result).toBe(true);
-    });
-
-
-    it('should not detect a safe domain', async () => {
-        setMockState({
-            domains: ['phish.com', 'badguy.net'],
-            timestamp: Date.now(),
-            checksum: 'abc123',
-        })
-        const url = new URL('http://safe.com');
-        const result = await service.isPhishingDomain(url);
-        expect(result).toBe(false);
-    });
-
-    it('should match against root domain', async () => {
-        setMockState({
-            domains: ['phish.com', 'badguy.net'],
-            timestamp: Date.now(),
-            checksum: 'abc123',
-        })
-        const url = new URL('http://phish.com/about');
-        const result = await service.isPhishingDomain(url);
-        expect(result).toBe(true);
-    });
-
-    it('should not error on missing state', async () => {
-        setMockState(undefined as any)
-        const url = new URL('http://phish.com/about');
-        const result = await service.isPhishingDomain(url);
-        expect(result).toBe(false);
     })
 
-    it('should only fetch data on new checksum', async () => {
-        
+    describe("getNextDomains", () => {
+        it('returns null if update is too soon', async () => {
+            const prev = { domains: ['a.com'], timestamp: Date.now(), checksum: 'abc' };
+            const result = await service.getNextDomains(prev);
+            expect(result).toBeNull();
+        });
+
+        it('only updates timestamp if checksum matches', async () => {
+            const prev = { domains: ['a.com'], timestamp: Date.now() - 60000, checksum: 'abc' };
+            fetchChecksumSpy.mockResolvedValue('abc');
+            const result = await service.getNextDomains(prev);
+            expect(result!.domains).toEqual(prev.domains);
+            expect(result!.checksum).toBe('abc');
+            expect(result!.timestamp).not.toBe(prev.timestamp);
+        });
+
+        it('patches daily domains if cache is fresh', async () => {
+            const prev = { domains: ['a.com'], timestamp: Date.now() - 60000, checksum: 'old' };
+            fetchChecksumSpy.mockResolvedValue('new');
+            fetchDomainsSpy.mockResolvedValue(['b.com', 'c.com']);
+            const result = await service.getNextDomains(prev);
+            expect(result!.domains).toEqual(['a.com', 'b.com', 'c.com']);
+            expect(result!.checksum).toBe('new');
+        });
+
+        it('fetches all domains if cache is old', async () => {
+            const prev = { domains: ['a.com'], timestamp: Date.now() - (2 * 24 * 60 * 60 * 1000), checksum: 'old' };
+            fetchChecksumSpy.mockResolvedValue('new');
+            fetchDomainsSpy.mockResolvedValue(['d.com', 'e.com']);
+            const result = await service.getNextDomains(prev);
+            expect(result!.domains).toEqual(['d.com', 'e.com']);
+            expect(result!.checksum).toBe('new');
+        });
     })
-
-    // it('should retry on error', async () => {
-    //     apiService.nativeFetch.mockRejectedValueOnce(new Error('fail 1'));
-    //     apiService.nativeFetch.mockRejectedValueOnce(new Error('fail 2'));
-    //     apiService.nativeFetch.mockResolvedValueOnce({ text: async () => 'phish.com\nbadguy.net' } as any);
-
-    //     // Start the initialize process (which triggers the update and retry logic)
-    //     const initPromise = service.initialize();
-
-    //     // Advance timers for each retry interval (assuming 3 retries)
-    //     for (let i = 0; i < 2; i++) {
-    //         jest.advanceTimersByTime(service.RETRY_INTERVAL_DURATION);
-    //         // Let RxJS flush microtasks
-    //         await Promise.resolve();
-    //     }
-
-    //     await initPromise;
-
-    //     expect(logService.error).toHaveBeenCalled();
-    //     expect(apiService.nativeFetch).toHaveBeenCalledTimes(3);
-    // });
 });
