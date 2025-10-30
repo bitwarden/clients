@@ -31,7 +31,6 @@ security-framework = { workspace = true }
 chacha20poly1305 = { workspace = true }
 clap = { version = "=4.5.40", features = ["derive"] }
 scopeguard = { workspace = true }
-sysinfo = { workspace = true, optional = true }
 verifysign = "=0.2.4"
 windows = { workspace = true, features = [
     "Wdk_System_SystemServices",
@@ -53,11 +52,3 @@ oo7 = { workspace = true }
 
 [lints]
 workspace = true
-
-[features]
-windows-binary = ["dep:sysinfo"]
-
-[[bin]]
-name = "bitwarden_chromium_import_helper"
-path = "src/bin/bitwarden_chromium_import_helper.rs"
-required-features = ["windows-binary"]

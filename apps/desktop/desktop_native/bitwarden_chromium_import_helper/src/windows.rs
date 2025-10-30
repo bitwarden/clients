@@ -1,5 +1,3 @@
-// Hide everything inside a platform specific module to avoid clippy errors on other platforms
-#[cfg(target_os = "windows")]
 mod windows_binary {
     use anyhow::{anyhow, Result};
     use base64::{engine::general_purpose, Engine as _};
@@ -76,12 +74,12 @@ mod windows_binary {
 
     // Macro wrapper around debug! that compiles to no-op when ENABLE_DEVELOPER_LOGGING is false
     macro_rules! dbg_log {
-        ($($arg:tt)*) => {
-            if ENABLE_DEVELOPER_LOGGING {
-                debug!($($arg)*);
-            }
-        };
-    }
+    ($($arg:tt)*) => {
+        if ENABLE_DEVELOPER_LOGGING {
+            debug!($($arg)*);
+        }
+    };
+}
 
     async fn open_pipe_client(pipe_name: &'static str) -> Result<NamedPipeClient> {
         let max_attempts = 5;
@@ -508,8 +506,4 @@ mod windows_binary {
     }
 }
 
-#[tokio::main]
-async fn main() {
-    #[cfg(target_os = "windows")]
-    windows_binary::main().await;
-}
+use windows_mod::*;
