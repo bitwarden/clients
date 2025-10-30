@@ -240,7 +240,10 @@ export class RiskInsightsOrchestratorService {
           .pipe(
             map(() => updatedState),
             tap((finalState) => {
-              this._markUnmarkUpdatesSubject.next(finalState);
+              this._markUnmarkUpdatesSubject.next({
+                ...finalState,
+                organizationId: reportState.organizationId,
+              });
             }),
             catchError((error: unknown) => {
               this.logService.error("Failed to save updated applicationData", error);
@@ -324,7 +327,10 @@ export class RiskInsightsOrchestratorService {
           .pipe(
             map(() => updatedState),
             tap((finalState) => {
-              this._markUnmarkUpdatesSubject.next(finalState);
+              this._markUnmarkUpdatesSubject.next({
+                ...finalState,
+                organizationId: reportState.organizationId,
+              });
             }),
             catchError((error: unknown) => {
               this.logService.error("Failed to save updated applicationData", error);
