@@ -15,7 +15,7 @@ import { ExposedPasswordDetail, WeakPasswordDetail } from "./password-health";
  */
 export type MemberDetails = {
   userGuid: string;
-  userName: string;
+  userName?: string;
   email: string;
   cipherId: string;
 };
