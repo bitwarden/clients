@@ -202,6 +202,10 @@ export class ItemMoreOptionsComponent {
   async doAutofill() {
     const cipher = await this.cipherService.getFullCipherView(this.cipher);
 
+    if (!(await this.passwordRepromptService.passwordRepromptCheck(this.cipher))) {
+      return;
+    }
+
     const showAutofillConfirmation = await firstValueFrom(this.showAutofillConfirmation$);
 
     if (!showAutofillConfirmation) {
@@ -236,6 +240,7 @@ export class ItemMoreOptionsComponent {
       data: {
         currentUrl: currentTab?.url || "",
         savedUrls: cipher.login?.uris?.filter((u) => u.uri).map((u) => u.uri!) ?? [],
+        viewOnly: !this.cipher.edit,
       },
     });
 
