@@ -55,7 +55,8 @@ export type OrganizationReportSummary = {
   totalCriticalMemberCount: number;
   totalCriticalAtRiskMemberCount: number;
   totalCriticalAtRiskApplicationCount: number;
-  newApplications: string[];
+  /** Optional for backward compatibility - legacy encrypted data predates this field */
+  newApplications?: string[];
 };
 
 /**
