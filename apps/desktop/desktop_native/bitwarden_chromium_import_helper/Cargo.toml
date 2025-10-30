@@ -9,7 +9,6 @@ publish.workspace = true
 
 [target.'cfg(target_os = "windows")'.dependencies]
 chromium_importer = { path = "../chromium_importer" }
-chacha20poly1305 = { workspace = true }
 clap = { version = "=4.5.40", features = ["derive"] }
 scopeguard = { workspace = true }
 sysinfo = { workspace = true }
