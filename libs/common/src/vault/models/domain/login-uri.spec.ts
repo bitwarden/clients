@@ -65,7 +65,7 @@ describe("LoginUri", () => {
     });
   });
 
-  it("should convert match property from null to undefined", () => {
+  it("handle null match", () => {
     const apiData = Object.assign(new LoginUriApi(), {
       uri: "testUri",
       uriChecksum: "testChecksum",
@@ -139,7 +139,7 @@ describe("LoginUri", () => {
   });
 
   describe("SDK Login Uri Mapping", () => {
-    it("should map to SDK login uri", () => {
+    it("maps to SDK login uri", () => {
       const loginUri = new LoginUri(data);
       const sdkLoginUri = loginUri.toSdkLoginUri();
 

@@ -55,7 +55,7 @@ describe("SecureNote", () => {
       expect(SecureNote.fromJSON(null)).toBeUndefined();
     });
 
-    it("should create SecureNote instance from JSON object", () => {
+    it("creates SecureNote instance from JSON object", () => {
       const jsonObj = { type: SecureNoteType.Generic };
       const result = SecureNote.fromJSON(jsonObj);
 
@@ -78,19 +78,19 @@ describe("SecureNote", () => {
   });
 
   describe("fromSdkSecureNote", () => {
-    it("should return undefined when null is provided", () => {
+    it("returns undefined when null is provided", () => {
       const result = SecureNote.fromSdkSecureNote(null);
 
       expect(result).toBeUndefined();
     });
 
-    it("should return undefined when undefined is provided", () => {
+    it("returns undefined when undefined is provided", () => {
       const result = SecureNote.fromSdkSecureNote(undefined);
 
       expect(result).toBeUndefined();
     });
 
-    it("should create SecureNote with Generic type from SDK object", () => {
+    it("creates SecureNote with Generic type from SDK object", () => {
       const sdkSecureNote = {
         type: SecureNoteType.Generic,
       };
@@ -101,7 +101,7 @@ describe("SecureNote", () => {
       expect(result.type).toBe(SecureNoteType.Generic);
     });
 
-    it("should preserve the type value from SDK object", () => {
+    it("preserves the type value from SDK object", () => {
       const sdkSecureNote = {
         type: SecureNoteType.Generic,
       };
@@ -111,7 +111,7 @@ describe("SecureNote", () => {
       expect(result.type).toBe(0);
     });
 
-    it("should create a new SecureNote instance", () => {
+    it("creates a new SecureNote instance", () => {
       const sdkSecureNote = {
         type: SecureNoteType.Generic,
       };
@@ -122,7 +122,7 @@ describe("SecureNote", () => {
       expect(result).toBeInstanceOf(SecureNote);
     });
 
-    it("should handle SDK object with undefined type", () => {
+    it("handles SDK object with undefined type", () => {
       const sdkSecureNote = {
         type: undefined as SecureNoteType,
       };
@@ -133,7 +133,7 @@ describe("SecureNote", () => {
       expect(result.type).toBeUndefined();
     });
 
-    it("should be symmetric with toSdkSecureNote", () => {
+    it("returns symmetric with toSdkSecureNote", () => {
       const original = new SecureNote();
       original.type = SecureNoteType.Generic;
 

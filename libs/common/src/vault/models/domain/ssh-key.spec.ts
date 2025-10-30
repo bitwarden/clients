@@ -69,7 +69,7 @@ describe("Sshkey", () => {
       expect(SshKey.fromJSON(null)).toBeUndefined();
     });
 
-    it("should create SshKey instance from JSON object", () => {
+    it("creates SshKey instance from JSON object", () => {
       const jsonObj = {
         privateKey: "2.privateKey|encryptedData",
         publicKey: "2.publicKey|encryptedData",
@@ -99,19 +99,19 @@ describe("Sshkey", () => {
   });
 
   describe("fromSdkSshKey", () => {
-    it("should return undefined when null is provided", () => {
+    it("returns undefined when null is provided", () => {
       const result = SshKey.fromSdkSshKey(null);
 
       expect(result).toBeUndefined();
     });
 
-    it("should return undefined when undefined is provided", () => {
+    it("returns undefined when undefined is provided", () => {
       const result = SshKey.fromSdkSshKey(undefined);
 
       expect(result).toBeUndefined();
     });
 
-    it("should create SshKey from SDK object", () => {
+    it("creates SshKey from SDK object", () => {
       const sdkSshKey: SdkSshKey = {
         privateKey: "2.privateKey|encryptedData" as SdkEncString,
         publicKey: "2.publicKey|encryptedData" as SdkEncString,
@@ -126,7 +126,7 @@ describe("Sshkey", () => {
       expect(result.keyFingerprint).toBeDefined();
     });
 
-    it("should create a new SshKey instance", () => {
+    it("creates a new SshKey instance", () => {
       const sdkSshKey: SdkSshKey = {
         privateKey: "2.privateKey|encryptedData" as SdkEncString,
         publicKey: "2.publicKey|encryptedData" as SdkEncString,
@@ -139,7 +139,7 @@ describe("Sshkey", () => {
       expect(result).toBeInstanceOf(SshKey);
     });
 
-    it("should be symmetric with toSdkSshKey", () => {
+    it("is symmetric with toSdkSshKey", () => {
       const original = new SshKey(data);
       const sdkFormat = original.toSdkSshKey();
       const reconstructed = SshKey.fromSdkSshKey(sdkFormat);
