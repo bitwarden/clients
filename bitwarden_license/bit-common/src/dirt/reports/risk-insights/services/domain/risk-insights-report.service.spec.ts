@@ -11,6 +11,7 @@ import {
   GetRiskInsightsReportResponse,
   SaveRiskInsightsReportResponse,
 } from "../../models/api-models.types";
+import { RiskInsightsMetrics } from "../../models/domain/risk-insights-metrics";
 import { mockCiphers } from "../../models/mocks/ciphers.mock";
 import { mockMemberCipherDetailsResponse } from "../../models/mocks/member-cipher-details-response.mock";
 import {
@@ -127,10 +128,16 @@ describe("RiskInsightsReportService", () => {
       mockRiskInsightsApiService.saveRiskInsightsReport$.mockReturnValue(of(saveResponse));
 
       service
-        .saveRiskInsightsReport$(mockReportData, mockSummaryData, mockApplicationData, {
-          organizationId: mockOrganizationId,
-          userId: mockUserId,
-        })
+        .saveRiskInsightsReport$(
+          mockReportData,
+          mockSummaryData,
+          mockApplicationData,
+          new RiskInsightsMetrics(),
+          {
+            organizationId: mockOrganizationId,
+            userId: mockUserId,
+          },
+        )
         .subscribe({
           next: (response) => {
             done.fail("Expected error due to invalid response");

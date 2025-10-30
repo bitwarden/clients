@@ -5,18 +5,18 @@ import { View } from "@bitwarden/common/models/view/view";
 import { RiskInsightsMetrics } from "../domain/risk-insights-metrics";
 
 export class RiskInsightsMetricsView implements View {
-  totalApplicationCount: number;
-  totalAtRiskApplicationCount: number;
-  totalCriticalApplicationCount: number;
-  totalCriticalAtRiskApplicationCount: number;
-  totalMemberCount: number;
-  totalAtRiskMemberCount: number;
-  totalCriticalMemberCount: number;
-  totalCriticalAtRiskMemberCount: number;
-  totalPasswordCount: number;
-  totalAtRiskPasswordCount: number;
-  totalCriticalPasswordCount: number;
-  totalCriticalAtRiskPasswordCount: number;
+  totalApplicationCount: number = 0;
+  totalAtRiskApplicationCount: number = 0;
+  totalCriticalApplicationCount: number = 0;
+  totalCriticalAtRiskApplicationCount: number = 0;
+  totalMemberCount: number = 0;
+  totalAtRiskMemberCount: number = 0;
+  totalCriticalMemberCount: number = 0;
+  totalCriticalAtRiskMemberCount: number = 0;
+  totalPasswordCount: number = 0;
+  totalAtRiskPasswordCount: number = 0;
+  totalCriticalPasswordCount: number = 0;
+  totalCriticalAtRiskPasswordCount: number = 0;
 
   constructor(data?: RiskInsightsMetrics) {
     if (data == null) {

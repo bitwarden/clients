@@ -193,7 +193,7 @@ export class RiskInsightsOrchestratorService {
         }
 
         // Create a set for quick lookup of the new critical apps
-        const existingApplicationData = reportState?.data?.applicationData || [];
+        const existingApplicationData = report!.applicationData || [];
         const updatedApplicationData = this._removeCriticalApplication(
           existingApplicationData,
           criticalApplication,
@@ -201,12 +201,12 @@ export class RiskInsightsOrchestratorService {
 
         // Updated summary data after changing critical apps
         const updatedSummaryData = this.reportService.getApplicationsSummary(
-          report.reportData,
+          report!.reportData,
           updatedApplicationData,
         );
 
         // Used for creating metrics with updated application data
-        const manualEnrichedApplications = reportState.data.reportData.map(
+        const manualEnrichedApplications = report!.reportData.map(
           (application): ApplicationHealthReportDetailEnriched => ({
             ...application,
             isMarkedAsCritical: this.reportService.isCriticalApplication(
@@ -320,7 +320,7 @@ export class RiskInsightsOrchestratorService {
 
         // Create a set for quick lookup of the new critical apps
         const newCriticalAppNamesSet = new Set(criticalApplications);
-        const existingApplicationData = reportState?.data?.applicationData || [];
+        const existingApplicationData = report!.applicationData || [];
         const updatedApplicationData = this._mergeApplicationData(
           existingApplicationData,
           newCriticalAppNamesSet,
@@ -328,12 +328,12 @@ export class RiskInsightsOrchestratorService {
 
         // Updated summary data after changing critical apps
         const updatedSummaryData = this.reportService.getApplicationsSummary(
-          report.reportData,
+          report!.reportData,
           updatedApplicationData,
         );
 
         // Used for creating metrics with updated application data
-        const manualEnrichedApplications = reportState.data.reportData.map(
+        const manualEnrichedApplications = report!.reportData.map(
           (application): ApplicationHealthReportDetailEnriched => ({
             ...application,
             isMarkedAsCritical: this.reportService.isCriticalApplication(
