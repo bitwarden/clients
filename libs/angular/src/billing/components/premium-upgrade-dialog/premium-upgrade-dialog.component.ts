@@ -65,6 +65,7 @@ export class PremiumUpgradeDialogComponent {
           message: this.i18nService.t("unexpectedError"),
         });
         this.logService.error("Error fetching and mapping pricing tiers", error);
+        this.dialogRef.close();
         return of(null);
       }),
     );
