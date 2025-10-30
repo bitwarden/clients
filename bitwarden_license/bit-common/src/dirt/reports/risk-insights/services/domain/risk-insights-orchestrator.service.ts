@@ -240,7 +240,10 @@ export class RiskInsightsOrchestratorService {
           .pipe(
             map(() => updatedState),
             tap((finalState) => {
-              this._markUnmarkUpdatesSubject.next(finalState);
+              this._markUnmarkUpdatesSubject.next({
+                ...finalState,
+                organizationId: reportState.organizationId,
+              });
             }),
             catchError((error: unknown) => {
               this.logService.error("Failed to save updated applicationData", error);
@@ -324,7 +327,10 @@ export class RiskInsightsOrchestratorService {
           .pipe(
             map(() => updatedState),
             tap((finalState) => {
-              this._markUnmarkUpdatesSubject.next(finalState);
+              this._markUnmarkUpdatesSubject.next({
+                ...finalState,
+                organizationId: reportState.organizationId,
+              });
             }),
             catchError((error: unknown) => {
               this.logService.error("Failed to save updated applicationData", error);
@@ -343,10 +349,13 @@ export class RiskInsightsOrchestratorService {
           loading: false,
           error: null,
           data: result ?? null,
+          organizationId,
         };
       }),
-      catchError(() => of({ loading: false, error: "Failed to fetch report", data: null })),
-      startWith({ loading: true, error: null, data: null }),
+      catchError(() =>
+        of({ loading: false, error: "Failed to fetch report", data: null, organizationId }),
+      ),
+      startWith({ loading: true, error: null, data: null, organizationId }),
     );
   }
 
@@ -407,12 +416,18 @@ export class RiskInsightsOrchestratorService {
             creationDate: new Date(),
             contentEncryptionKey,
           },
+          organizationId,
         };
       }),
       catchError((): Observable<ReportState> => {
-        return of({ loading: false, error: "Failed to generate or save report", data: null });
+        return of({
+          loading: false,
+          error: "Failed to generate or save report",
+          data: null,
+          organizationId,
+        });
       }),
-      startWith<ReportState>({ loading: true, error: null, data: null }),
+      startWith<ReportState>({ loading: true, error: null, data: null, organizationId }),
     );
   }
 
@@ -723,11 +738,24 @@ export class RiskInsightsOrchestratorService {
       newReportGeneration$,
       this._markUnmarkUpdates$,
     ).pipe(
-      scan((prevState: ReportState, currState: ReportState) => ({
-        ...prevState,
-        ...currState,
-        data: currState.data,
-      })),
+      scan((prevState: ReportState, currState: ReportState) => {
+        // If organization changed, use new state completely (don't preserve old data)
+        // This allows null data to clear old org's data when switching orgs
+        if (currState.organizationId && prevState.organizationId !== currState.organizationId) {
+          return {
+            ...currState,
+            data: currState.data, // Allow null to clear old org's data
+          };
+        }
+
+        // Same org (or no org ID): preserve data when currState.data is null
+        // This preserves critical flags during loading states within the same org
+        return {
+          ...prevState,
+          ...currState,
+          data: currState.data !== null ? currState.data : prevState.data,
+        };
+      }),
       startWith({ loading: false, error: null, data: null }),
       shareReplay({ bufferSize: 1, refCount: true }),
       takeUntil(this._destroy$),
