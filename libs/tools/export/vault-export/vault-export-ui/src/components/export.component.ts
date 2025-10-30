@@ -346,9 +346,20 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
     this.formatOptions$ = this.exportForm.controls.vaultSelector.valueChanges.pipe(
       startWith(this.exportForm.controls.vaultSelector.value),
       map((vaultSelection) => {
-        const isMyVault = vaultSelection === "myVault";
-        // Update organizationId based on vault selection
-        this.organizationId = isMyVault ? undefined : vaultSelection;
+        // In Admin Console context, organizationId is set via @Input and vaultSelector is disabled,
+        // In Password Manager context, user can change the dropdown and update organizationId accordingly
+
+        let isMyVault: boolean;
+        if (this.isAdminConsoleContext) {
+          // The form control may still have its default "myVault" value since it was disabled before being set
+          const currentOrgId = this._organizationId$.value;
+          isMyVault = !currentOrgId;
+        } else {
+          // Password Manager: Use vaultSelector value and update organizationId
+          isMyVault = vaultSelection === "myVault";
+          this.organizationId = isMyVault ? undefined : vaultSelection;
+        }
+
         return { isMyVault };
       }),
       switchMap((options) => this.exportService.formats$(options)),
