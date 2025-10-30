@@ -251,9 +251,7 @@ export class PasswordLoginStrategy extends LoginStrategy {
     this.cache.next(data);
 
     const [authResult] = await this.startLogIn();
-    if (this.cache.value instanceof PasswordLoginStrategyData) {
-      authResult.masterPassword = this.cache.value["masterPassword"] ?? null;
-    }
+    authResult.masterPassword = this.cache.value["masterPassword"] ?? null;
     return authResult;
   }
 
