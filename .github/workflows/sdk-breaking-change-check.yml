@@ -44,6 +44,21 @@ jobs:
           app-id: ${{ steps.get-kv-secrets.outputs.BW-GHAPP-ID }}
           private-key: ${{ steps.get-kv-secrets.outputs.BW-GHAPP-KEY }}
       - name: Log out from Azure
+      - name: Validate inputs
+        run: |
+          echo "🔍 Validating required client_payload fields..."
+          
+          if [ -z "$SOURCE_REPO" ] || [ -z "$SDK_VERSION" ] || [ -z "$ARTIFACTS_RUN_ID" ] || [ -z "$ARTIFACT_NAME" ]; then
+            echo "::error::Missing required client_payload fields"
+            echo "SOURCE_REPO: $SOURCE_REPO"
+            echo "SDK_VERSION: $SDK_VERSION"  
+            echo "ARTIFACTS_RUN_ID: $ARTIFACTS_RUN_ID"
+            echo "ARTIFACT_NAME: $ARTIFACT_NAME"
+            echo "CLIENT_LABEL: $CLIENT_LABEL"
+            exit 1
+          fi
+          
+          echo "✅ All required payload fields are present"
         uses: bitwarden/gh-actions/azure-logout@main
       - name: Check out clients repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
