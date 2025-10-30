@@ -11,5 +11,6 @@ config.content = [
   "../../libs/angular/src/**/*.{html,ts}",
   "../../libs/vault/src/**/*.{html,ts}",
 ];
+config.corePlugins.preflight = true;
 
 module.exports = config;

@@ -1,178 +1,42 @@
-﻿$dark-icon-themes: "theme_dark";
+﻿/**
+ * DEPRECATED: DO NOT MODIFY OR USE!
+ */
+
+$dark-icon-themes: "theme_dark";
 
 $font-family-sans-serif: Roboto, "Helvetica Neue", Helvetica, Arial, sans-serif;
 $font-family-monospace: Menlo, Monaco, Consolas, "Courier New", monospace;
-$font-size-base: 16px;
-$font-size-large: 18px;
-$font-size-xlarge: 22px;
-$font-size-xxlarge: 28px;
-$font-size-small: 12px;
 $text-color: #000000;
-$border-color: #f0f0f0;
 $border-color-dark: #ddd;
-$list-item-hover: #fbfbfb;
-$list-icon-color: #767679;
-$disabled-box-opacity: 1;
-$border-radius: 6px;
-$line-height-base: 1.42857143;
-$icon-hover-color: lighten($text-color, 50%);
-
-$mfaTypes: 0, 2, 3, 4, 6;
-
-$gray: #555;
-$gray-light: #777;
-$text-muted: $gray-light;
-
 $brand-primary: #175ddc;
-$brand-danger: #c83522;
 $brand-success: #017e45;
-$brand-info: #555555;
-$brand-warning: #8b6609;
-$brand-primary-accent: #1252a3;
-
 $background-color: #f0f0f0;
-
-$box-background-color: white;
-$box-background-hover-color: $list-item-hover;
-$box-border-color: $border-color;
-$border-color-alt: #c3c5c7;
-
-$button-border-color: darken($border-color-dark, 12%);
-$button-background-color: white;
-$button-color: lighten($text-color, 40%);
 $button-color-primary: darken($brand-primary, 8%);
-$button-color-danger: darken($brand-danger, 10%);
-
-$code-color: #c01176;
-$code-color-dark: #f08dc7;
 
 $themes: (
   light: (
     textColor: $text-color,
-    hoverColorTransparent: rgba($text-color, 0.15),
     borderColor: $border-color-dark,
     backgroundColor: $background-color,
-    borderColorAlt: $border-color-alt,
-    backgroundColorAlt: #ffffff,
-    scrollbarColor: rgba(100, 100, 100, 0.2),
-    scrollbarHoverColor: rgba(100, 100, 100, 0.4),
-    boxBackgroundColor: $box-background-color,
-    boxBackgroundHoverColor: $box-background-hover-color,
-    boxBorderColor: $box-border-color,
-    tabBackgroundColor: #ffffff,
-    tabBackgroundHoverColor: $list-item-hover,
-    headerColor: #ffffff,
-    headerBackgroundColor: $brand-primary,
-    headerBackgroundHoverColor: rgba(255, 255, 255, 0.1),
-    headerBorderColor: $brand-primary,
-    headerInputBackgroundColor: darken($brand-primary, 8%),
-    headerInputBackgroundFocusColor: darken($brand-primary, 10%),
-    headerInputColor: #ffffff,
-    headerInputPlaceholderColor: lighten($brand-primary, 35%),
-    listItemBackgroundHoverColor: $list-item-hover,
-    disabledIconColor: $list-icon-color,
-    disabledBoxOpacity: $disabled-box-opacity,
-    headingColor: $gray-light,
-    labelColor: $gray-light,
-    mutedColor: $text-muted,
-    totpStrokeColor: $brand-primary,
-    boxRowButtonColor: $brand-primary,
-    boxRowButtonHoverColor: darken($brand-primary, 10%),
     inputBorderColor: darken($border-color-dark, 7%),
     inputBackgroundColor: #ffffff,
-    inputPlaceholderColor: lighten($gray-light, 35%),
-    buttonBackgroundColor: $button-background-color,
-    buttonBorderColor: $button-border-color,
-    buttonColor: $button-color,
     buttonPrimaryColor: $button-color-primary,
-    buttonDangerColor: $button-color-danger,
     primaryColor: $brand-primary,
-    primaryAccentColor: $brand-primary-accent,
-    dangerColor: $brand-danger,
     successColor: $brand-success,
-    infoColor: $brand-info,
-    warningColor: $brand-warning,
-    logoSuffix: "dark",
-    mfaLogoSuffix: ".png",
     passwordNumberColor: #007fde,
     passwordSpecialColor: #c40800,
-    passwordCountText: #212529,
-    calloutBorderColor: $border-color-dark,
-    calloutBackgroundColor: $box-background-color,
-    toastTextColor: #ffffff,
-    svgSuffix: "-light.svg",
-    transparentColor: rgba(0, 0, 0, 0),
-    dateInputColorScheme: light,
-    // https://stackoverflow.com/a/53336754
-    webkitCalendarPickerFilter: invert(46%) sepia(69%) saturate(6397%) hue-rotate(211deg)
-      brightness(85%) contrast(103%),
-    // light has no hover so use same color
-    webkitCalendarPickerHoverFilter: invert(46%) sepia(69%) saturate(6397%) hue-rotate(211deg)
-      brightness(85%) contrast(103%),
-    codeColor: $code-color,
   ),
   dark: (
     textColor: #ffffff,
-    hoverColorTransparent: rgba($text-color, 0.15),
     borderColor: #161c26,
     backgroundColor: #161c26,
-    borderColorAlt: #6e788a,
-    backgroundColorAlt: #2f343d,
-    scrollbarColor: #6e788a,
-    scrollbarHoverColor: #8d94a5,
-    boxBackgroundColor: #2f343d,
-    boxBackgroundHoverColor: #3c424e,
-    boxBorderColor: #4c525f,
-    tabBackgroundColor: #2f343d,
-    tabBackgroundHoverColor: #3c424e,
-    headerColor: #ffffff,
-    headerBackgroundColor: #2f343d,
-    headerBackgroundHoverColor: #3c424e,
-    headerBorderColor: #161c26,
-    headerInputBackgroundColor: #3c424e,
-    headerInputBackgroundFocusColor: #4c525f,
-    headerInputColor: #ffffff,
-    headerInputPlaceholderColor: #bac0ce,
-    listItemBackgroundHoverColor: #3c424e,
-    disabledIconColor: #bac0ce,
-    disabledBoxOpacity: 0.5,
-    headingColor: #bac0ce,
-    labelColor: #bac0ce,
-    mutedColor: #bac0ce,
-    totpStrokeColor: #4c525f,
-    boxRowButtonColor: #bac0ce,
-    boxRowButtonHoverColor: #ffffff,
     inputBorderColor: #4c525f,
     inputBackgroundColor: #2f343d,
-    inputPlaceholderColor: #bac0ce,
-    buttonBackgroundColor: #3c424e,
-    buttonBorderColor: #4c525f,
-    buttonColor: #bac0ce,
     buttonPrimaryColor: #6f9df1,
-    buttonDangerColor: #ff8d85,
     primaryColor: #6f9df1,
-    primaryAccentColor: #6f9df1,
-    dangerColor: #ff8d85,
     successColor: #52e07c,
-    infoColor: #a4b0c6,
-    warningColor: #ffeb66,
-    logoSuffix: "white",
-    mfaLogoSuffix: "-w.png",
     passwordNumberColor: #6f9df1,
     passwordSpecialColor: #ff8d85,
-    passwordCountText: #ffffff,
-    calloutBorderColor: #4c525f,
-    calloutBackgroundColor: #3c424e,
-    toastTextColor: #1f242e,
-    svgSuffix: "-dark.svg",
-    transparentColor: rgba(0, 0, 0, 0),
-    dateInputColorScheme: dark,
-    // https://stackoverflow.com/a/53336754 - must prepend brightness(0) saturate(100%) to dark themed date inputs
-    webkitCalendarPickerFilter: brightness(0) saturate(100%) invert(86%) sepia(19%) saturate(152%)
-      hue-rotate(184deg) brightness(87%) contrast(93%),
-    webkitCalendarPickerHoverFilter: brightness(0) saturate(100%) invert(100%) sepia(0%)
-      saturate(0%) hue-rotate(93deg) brightness(103%) contrast(103%),
-    codeColor: $code-color-dark,
   ),
 );
 

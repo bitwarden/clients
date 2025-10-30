@@ -22,7 +22,7 @@ export type NavButton = {
   templateUrl: "popup-tab-navigation.component.html",
   imports: [CommonModule, LinkModule, RouterModule, JslibModule, IconModule],
   host: {
-    class: "tw-block tw-h-full tw-w-full tw-flex tw-flex-col",
+    class: "tw-block tw-h-screen tw-w-screen tw-flex tw-flex-col",
   },
 })
 export class PopupTabNavigationComponent {
