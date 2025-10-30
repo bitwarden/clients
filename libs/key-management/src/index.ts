@@ -16,7 +16,6 @@ export {
   Argon2KdfConfig,
   KdfConfig,
   DEFAULT_KDF_CONFIG,
-  MINIMUM_PBKDF2_ITERATIONS_FOR_UPGRADE,
   fromSdkKdfConfig,
 } from "./models/kdf-config";
 export { KdfConfigService } from "./abstractions/kdf-config.service";

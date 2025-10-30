@@ -5,7 +5,6 @@ import {
   Argon2KdfConfig,
   KdfConfigService,
   KdfType,
-  MINIMUM_PBKDF2_ITERATIONS_FOR_UPGRADE,
   PBKDF2KdfConfig,
 } from "@bitwarden/key-management";
 import { LogService } from "@bitwarden/logging";
@@ -59,7 +58,7 @@ describe("MinimumKdfMigration", () => {
     it("should return 'noMigrationNeeded' when PBKDF2 iterations are already above minimum", async () => {
       const mockKdfConfig = {
         kdfType: KdfType.PBKDF2_SHA256,
-        iterations: MINIMUM_PBKDF2_ITERATIONS_FOR_UPGRADE + 1000,
+        iterations: PBKDF2KdfConfig.ITERATIONS.min + 1000,
       };
       mockKdfConfigService.getKdfConfig.mockResolvedValue(mockKdfConfig as any);
 
@@ -72,7 +71,7 @@ describe("MinimumKdfMigration", () => {
     it("should return 'noMigrationNeeded' when PBKDF2 iterations equal minimum", async () => {
       const mockKdfConfig = {
         kdfType: KdfType.PBKDF2_SHA256,
-        iterations: MINIMUM_PBKDF2_ITERATIONS_FOR_UPGRADE,
+        iterations: PBKDF2KdfConfig.ITERATIONS.min,
       };
       mockKdfConfigService.getKdfConfig.mockResolvedValue(mockKdfConfig as any);
       mockConfigService.getFeatureFlag.mockResolvedValue(true);
@@ -86,7 +85,7 @@ describe("MinimumKdfMigration", () => {
     it("should return 'noMigrationNeeded' when feature flag is disabled", async () => {
       const mockKdfConfig = {
         kdfType: KdfType.PBKDF2_SHA256,
-        iterations: MINIMUM_PBKDF2_ITERATIONS_FOR_UPGRADE - 1000,
+        iterations: PBKDF2KdfConfig.ITERATIONS.min - 1000,
       };
       mockKdfConfigService.getKdfConfig.mockResolvedValue(mockKdfConfig as any);
       mockConfigService.getFeatureFlag.mockResolvedValue(false);
@@ -103,7 +102,7 @@ describe("MinimumKdfMigration", () => {
     it("should return 'needsMigrationWithMasterPassword' when PBKDF2 iterations are below minimum and feature flag is enabled", async () => {
       const mockKdfConfig = {
         kdfType: KdfType.PBKDF2_SHA256,
-        iterations: MINIMUM_PBKDF2_ITERATIONS_FOR_UPGRADE - 1000,
+        iterations: PBKDF2KdfConfig.ITERATIONS.min - 1000,
       };
       mockKdfConfigService.getKdfConfig.mockResolvedValue(mockKdfConfig as any);
       mockConfigService.getFeatureFlag.mockResolvedValue(true);
@@ -131,7 +130,7 @@ describe("MinimumKdfMigration", () => {
       await sut.runMigrations(mockUserId, mockMasterPassword);
 
       expect(mockLogService.info).toHaveBeenCalledWith(
-        `[MinimumKdfMigration] Updating user ${mockUserId} to minimum PBKDF2 iteration count ${MINIMUM_PBKDF2_ITERATIONS_FOR_UPGRADE}`,
+        `[MinimumKdfMigration] Updating user ${mockUserId} to minimum PBKDF2 iteration count ${PBKDF2KdfConfig.ITERATIONS.min}`,
       );
       expect(mockChangeKdfService.updateUserKdfParams).toHaveBeenCalledWith(
         mockMasterPassword,
@@ -141,7 +140,7 @@ describe("MinimumKdfMigration", () => {
 
       // Verify the PBKDF2KdfConfig has the correct iteration count
       const kdfConfigArg = (mockChangeKdfService.updateUserKdfParams as jest.Mock).mock.calls[0][1];
-      expect(kdfConfigArg.iterations).toBe(MINIMUM_PBKDF2_ITERATIONS_FOR_UPGRADE);
+      expect(kdfConfigArg.iterations).toBe(PBKDF2KdfConfig.ITERATIONS.min);
     });
 
     it("should throw error when userId is null", async () => {
@@ -173,7 +172,7 @@ describe("MinimumKdfMigration", () => {
       );
 
       expect(mockLogService.info).toHaveBeenCalledWith(
-        `[MinimumKdfMigration] Updating user ${mockUserId} to minimum PBKDF2 iteration count ${MINIMUM_PBKDF2_ITERATIONS_FOR_UPGRADE}`,
+        `[MinimumKdfMigration] Updating user ${mockUserId} to minimum PBKDF2 iteration count ${PBKDF2KdfConfig.ITERATIONS.min}`,
       );
       expect(mockChangeKdfService.updateUserKdfParams).toHaveBeenCalledWith(
         mockMasterPassword,
