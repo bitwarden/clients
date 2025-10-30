@@ -23,13 +23,13 @@ export enum FeatureFlag {
 
   /* Billing */
   TrialPaymentOptional = "PM-8163-trial-payment",
-  PM17772_AdminInitiatedSponsorships = "pm-17772-admin-initiated-sponsorships",
   PM21821_ProviderPortalTakeover = "pm-21821-provider-portal-takeover",
   PM22415_TaxIDWarnings = "pm-22415-tax-id-warnings",
   PM24032_NewNavigationPremiumUpgradeButton = "pm-24032-new-navigation-premium-upgrade-button",
   PM25379_UseNewOrganizationMetadataStructure = "pm-25379-use-new-organization-metadata-structure",
   PM24996_ImplementUpgradeFromFreeDialog = "pm-24996-implement-upgrade-from-free-dialog",
   PM24033PremiumUpgradeNewDesign = "pm-24033-updat-premium-subscription-page",
+  PM26793_FetchPremiumPriceFromPricingService = "pm-26793-fetch-premium-price-from-pricing-service",
 
   /* Key Management */
   PrivateKeyRegeneration = "pm-12241-private-key-regeneration",
@@ -55,6 +55,7 @@ export enum FeatureFlag {
   PM22134SdkCipherListView = "pm-22134-sdk-cipher-list-view",
   PM22136_SdkCipherEncryption = "pm-22136-sdk-cipher-encryption",
   CipherKeyEncryption = "cipher-key-encryption",
+  AutofillConfirmation = "pm-25083-autofill-confirm-from-search",
 
   /* Platform */
   IpcChannelFramework = "ipc-channel-framework",
@@ -102,19 +103,20 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM19941MigrateCipherDomainToSdk]: FALSE,
   [FeatureFlag.PM22134SdkCipherListView]: FALSE,
   [FeatureFlag.PM22136_SdkCipherEncryption]: FALSE,
+  [FeatureFlag.AutofillConfirmation]: FALSE,
 
   /* Auth */
   [FeatureFlag.PM22110_DisableAlternateLoginMethods]: FALSE,
 
   /* Billing */
   [FeatureFlag.TrialPaymentOptional]: FALSE,
-  [FeatureFlag.PM17772_AdminInitiatedSponsorships]: FALSE,
   [FeatureFlag.PM21821_ProviderPortalTakeover]: FALSE,
   [FeatureFlag.PM22415_TaxIDWarnings]: FALSE,
   [FeatureFlag.PM24032_NewNavigationPremiumUpgradeButton]: FALSE,
   [FeatureFlag.PM25379_UseNewOrganizationMetadataStructure]: FALSE,
   [FeatureFlag.PM24996_ImplementUpgradeFromFreeDialog]: FALSE,
   [FeatureFlag.PM24033PremiumUpgradeNewDesign]: FALSE,
+  [FeatureFlag.PM26793_FetchPremiumPriceFromPricingService]: FALSE,
 
   /* Key Management */
   [FeatureFlag.PrivateKeyRegeneration]: FALSE,
