@@ -65,21 +65,8 @@ export class DesktopAutotypeService {
     ipc.autofill.listenAutotypeRequest(async (windowTitle, callback) => {
       const possibleCiphers = await this.matchCiphersToWindowTitle(windowTitle);
       const firstCipher = possibleCiphers?.at(0);
-
-      if (!firstCipher) {
-        return callback(Error("No matching vault item."), null);
-      } else if (
-        firstCipher.login.username === undefined ||
-        firstCipher.login.password === undefined
-      ) {
-        return callback(Error("Vault item is undefined."), null);
-      } else {
-        const vaultData: AutotypeVaultData = {
-          username: firstCipher.login.username,
-          password: firstCipher.login.password,
-        };
-        return callback(null, vaultData);
-      }
+      const [error, vaultData] = getAutotypeVaultData(firstCipher);
+      callback(error, vaultData);
     });
   }
 
@@ -186,5 +173,25 @@ export class DesktopAutotypeService {
     });
 
     return possibleCiphers;
+  }
+}
+
+/**
+ * @return an `AutotypeVaultData` object or an `Error` if the
+ * cipher or vault data within are undefined.
+ */
+export function getAutotypeVaultData(
+  cipherView: CipherView | undefined,
+): [Error | null, AutotypeVaultData | null] {
+  if (!cipherView) {
+    return [Error("No matching vault item."), null];
+  } else if (cipherView.login.username === undefined || cipherView.login.password === undefined) {
+    return [Error("Vault item is undefined."), null];
+  } else {
+    const vaultData: AutotypeVaultData = {
+      username: cipherView.login.username,
+      password: cipherView.login.password,
+    };
+    return [null, vaultData];
   }
 }
