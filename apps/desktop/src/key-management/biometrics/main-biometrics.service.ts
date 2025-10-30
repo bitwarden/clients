@@ -176,6 +176,7 @@ export class MainBiometricsService extends DesktopBiometricsService {
     if (this.platform === "linux" && !this.linuxV2BiometricsEnabled) {
       this.logService.info("[BiometricsMain] Loading native biometrics module v2 for linux");
       this.osBiometricsService = new LinuxBiometricsSystem();
+      this.linuxV2BiometricsEnabled = true;
     }
   }
 
