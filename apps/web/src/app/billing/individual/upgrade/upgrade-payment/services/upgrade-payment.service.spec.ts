@@ -569,7 +569,7 @@ describe("UpgradePaymentService", () => {
             billingEmail: "test@example.com",
           },
           plan: {
-            type: PlanType.FamiliesAnnually,
+            type: PlanType.FamiliesAnnually2025,
             passwordManagerSeats: 6,
           },
           payment: {
