@@ -109,8 +109,8 @@ jobs:
           
           # Download SDK artifacts with error handling
           if ! gh run download ${ARTIFACTS_RUN_ID} \
-              --repo ${SOURCE_REPO} \
-              --name ${ARTIFACT_NAME} \
+              --repo "${SOURCE_REPO}" \
+              --name "${ARTIFACT_NAME}" \
               --dir ./temp-sdk-artifacts; then
             echo "::error::Failed to download SDK artifacts from run ${ARTIFACTS_RUN_ID}"
             echo "::error::Repository: ${SOURCE_REPO}, Artifact: ${ARTIFACT_NAME}"
