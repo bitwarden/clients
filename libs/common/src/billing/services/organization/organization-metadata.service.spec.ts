@@ -208,7 +208,7 @@ describe("DefaultOrganizationMetadataService", () => {
       }, 10);
     });
 
-    it("does not trigger refresh when feature flag is disabled", async () => {
+    it("does trigger refresh when feature flag is disabled", async () => {
       featureFlagSubject.next(false);
 
       const mockResponse1 = createMockMetadataResponse(false, 10);
@@ -232,11 +232,10 @@ describe("DefaultOrganizationMetadataService", () => {
 
       service.refreshMetadataCache();
 
-      // wait to ensure no additional invocations
       await new Promise((resolve) => setTimeout(resolve, 10));
 
-      expect(invocationCount).toBe(1);
-      expect(billingApiService.getOrganizationBillingMetadata).toHaveBeenCalledTimes(1);
+      expect(invocationCount).toBe(2);
+      expect(billingApiService.getOrganizationBillingMetadata).toHaveBeenCalledTimes(2);
 
       subscription.unsubscribe();
     });

@@ -22,7 +22,7 @@ export const ENCRYPTED_MIGRATION_DISMISSED = new UserKeyDefinition<Date>(
   ENCRYPTED_MIGRATION_DISK,
   "encryptedMigrationDismissed",
   {
-    deserializer: (obj: any) => (obj != null ? new Date(obj) : null),
+    deserializer: (obj: string) => (obj != null ? new Date(obj) : null),
     clearOn: [],
   },
 );
@@ -68,7 +68,7 @@ export class DefaultEncryptedMigrationsSchedulerService
             userIds.map((userId) =>
               combineLatest([
                 this.authService.authStatusFor$(userId),
-                this.syncService.lastSync$(userId),
+                this.syncService.lastSync$(userId).pipe(filter(lastSync => lastSync != null)),
               ]).pipe(
                 filter(([authStatus]) => authStatus === AuthenticationStatus.Unlocked),
                 map(([, lastSync]) => ({ userId, lastSync }) as UserSyncData),
