@@ -9,7 +9,10 @@ import {
   input,
   model,
   contentChildren,
+  computed,
 } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
+import { RouterLinkActive } from "@angular/router";
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -19,6 +22,8 @@ import { NavBaseComponent } from "./nav-base.component";
 import { NavGroupAbstraction, NavItemComponent } from "./nav-item.component";
 import { SideNavService } from "./side-nav.service";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-nav-group",
   templateUrl: "./nav-group.component.html",
@@ -31,10 +36,33 @@ import { SideNavService } from "./side-nav.service";
 export class NavGroupComponent extends NavBaseComponent {
   readonly nestedNavComponents = contentChildren(NavBaseComponent, { descendants: true });
 
+  readonly sideNavOpen = toSignal(this.sideNavService.open$);
+
+  readonly sideNavAndGroupOpen = computed(() => {
+    return this.open() && this.sideNavOpen();
+  });
+
   /** When the side nav is open, the parent nav item should not show active styles when open. */
-  protected get parentHideActiveStyles(): boolean {
-    return this.hideActiveStyles() || (this.open() && this.sideNavService.open);
-  }
+  readonly parentHideActiveStyles = computed(() => {
+    return this.hideActiveStyles() || this.sideNavAndGroupOpen();
+  });
+
+  /**
+   * Allow overriding of the RouterLink['ariaCurrentWhenActive'] property.
+   *
+   * By default, assuming that the nav group navigates to its first child page instead of its
+   * own page, the nav group will be `current` when the side nav is collapsed or the nav group
+   * is collapsed (since child pages don't show in either collapsed view) and not `current`
+   * when the side nav and nav group are open (since the child page will show as `current`).
+   *
+   * If the nav group navigates to its own page, use this property to always set it to announce
+   * as `current` by passing in `"page"`.
+   */
+  readonly ariaCurrentWhenActive = input<RouterLinkActive["ariaCurrentWhenActive"]>();
+
+  readonly ariaCurrent = computed(() => {
+    return this.ariaCurrentWhenActive() ?? (this.sideNavAndGroupOpen() ? undefined : "page");
+  });
 
   /**
    * UID for `[attr.aria-controls]`
@@ -51,6 +79,8 @@ export class NavGroupComponent extends NavBaseComponent {
    */
   readonly hideIfEmpty = input(false, { transform: booleanAttribute });
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output()
   openChange = new EventEmitter<boolean>();
 
