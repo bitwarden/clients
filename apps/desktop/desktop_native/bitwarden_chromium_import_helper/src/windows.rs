@@ -505,4 +505,4 @@ mod windows_binary {
         }
     }
 }
-use windows_mod::*;
+use windows_binary::*;
