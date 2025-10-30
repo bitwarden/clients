@@ -158,7 +158,6 @@ describe("Risk Insights Type Guards", () => {
         totalCriticalMemberCount: 4,
         totalCriticalAtRiskMemberCount: 1,
         totalCriticalAtRiskApplicationCount: 1,
-        newApplications: ["app-1", "app-2"],
       };
 
       expect(() => validateOrganizationReportSummary(validData)).not.toThrow();
@@ -174,7 +173,6 @@ describe("Risk Insights Type Guards", () => {
         totalCriticalMemberCount: 4,
         totalCriticalAtRiskMemberCount: 1,
         totalCriticalAtRiskApplicationCount: 1,
-        newApplications: ["app-1"],
       };
 
       expect(() => validateOrganizationReportSummary(invalidData)).toThrow(
@@ -186,7 +184,6 @@ describe("Risk Insights Type Guards", () => {
       const invalidData = {
         totalMemberCount: 10,
         // missing multiple fields
-        newApplications: ["app-1"],
       };
 
       expect(() => validateOrganizationReportSummary(invalidData)).toThrow(
@@ -204,43 +201,6 @@ describe("Risk Insights Type Guards", () => {
         totalCriticalMemberCount: 4,
         totalCriticalAtRiskMemberCount: 1,
         totalCriticalAtRiskApplicationCount: 1,
-        newApplications: ["app-1"],
-      };
-
-      expect(() => validateOrganizationReportSummary(invalidData)).toThrow(
-        /Invalid OrganizationReportSummary/,
-      );
-    });
-
-    it("should throw error for non-array newApplications", () => {
-      const invalidData = {
-        totalMemberCount: 10,
-        totalApplicationCount: 5,
-        totalAtRiskMemberCount: 2,
-        totalAtRiskApplicationCount: 1,
-        totalCriticalApplicationCount: 3,
-        totalCriticalMemberCount: 4,
-        totalCriticalAtRiskMemberCount: 1,
-        totalCriticalAtRiskApplicationCount: 1,
-        newApplications: "not-an-array",
-      };
-
-      expect(() => validateOrganizationReportSummary(invalidData)).toThrow(
-        /Invalid OrganizationReportSummary.*newApplications/,
-      );
-    });
-
-    it("should throw error for empty string in newApplications", () => {
-      const invalidData = {
-        totalMemberCount: 10,
-        totalApplicationCount: 5,
-        totalAtRiskMemberCount: 2,
-        totalAtRiskApplicationCount: 1,
-        totalCriticalApplicationCount: 3,
-        totalCriticalMemberCount: 4,
-        totalCriticalAtRiskMemberCount: 1,
-        totalCriticalAtRiskApplicationCount: 1,
-        newApplications: ["app-1", "", "app-3"], // empty string
       };
 
       expect(() => validateOrganizationReportSummary(invalidData)).toThrow(
@@ -541,7 +501,6 @@ describe("Risk Insights Type Guards", () => {
         totalCriticalMemberCount: 4,
         totalCriticalAtRiskMemberCount: 1,
         totalCriticalAtRiskApplicationCount: 1,
-        newApplications: ["app-1"],
       };
       expect(isOrganizationReportSummary(validData)).toBe(true);
     });
@@ -556,7 +515,6 @@ describe("Risk Insights Type Guards", () => {
         totalCriticalMemberCount: 4,
         totalCriticalAtRiskMemberCount: 1,
         totalCriticalAtRiskApplicationCount: 1,
-        newApplications: ["app-1"],
       };
       expect(isOrganizationReportSummary(invalidData)).toBe(false);
     });
@@ -571,7 +529,6 @@ describe("Risk Insights Type Guards", () => {
         totalCriticalMemberCount: 4,
         totalCriticalAtRiskMemberCount: 1,
         totalCriticalAtRiskApplicationCount: 1,
-        newApplications: ["app-1"],
       };
       expect(isOrganizationReportSummary(invalidData)).toBe(false);
     });
@@ -586,7 +543,6 @@ describe("Risk Insights Type Guards", () => {
         totalCriticalMemberCount: 4,
         totalCriticalAtRiskMemberCount: 1,
         totalCriticalAtRiskApplicationCount: 1,
-        newApplications: ["app-1"],
       };
       expect(isOrganizationReportSummary(invalidData)).toBe(false);
     });
@@ -601,7 +557,6 @@ describe("Risk Insights Type Guards", () => {
         totalCriticalMemberCount: 4,
         totalCriticalAtRiskMemberCount: 1,
         totalCriticalAtRiskApplicationCount: 1,
-        newApplications: ["app-1"],
         extraField: "should be rejected",
       };
       expect(isOrganizationReportSummary(invalidData)).toBe(false);

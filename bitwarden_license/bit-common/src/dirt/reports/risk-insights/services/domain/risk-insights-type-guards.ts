@@ -179,7 +179,6 @@ export function isOrganizationReportSummary(obj: any): obj is OrganizationReport
     "totalCriticalMemberCount",
     "totalCriticalAtRiskMemberCount",
     "totalCriticalAtRiskApplicationCount",
-    "newApplications",
   ];
   const actualKeys = Object.keys(obj);
   const hasUnexpectedProps = actualKeys.some((key) => !allowedKeys.includes(key));
@@ -227,12 +226,7 @@ export function isOrganizationReportSummary(obj: any): obj is OrganizationReport
     Number.isFinite(obj.totalCriticalAtRiskApplicationCount) &&
     Number.isSafeInteger(obj.totalCriticalAtRiskApplicationCount) &&
     obj.totalCriticalAtRiskApplicationCount >= 0 &&
-    obj.totalCriticalAtRiskApplicationCount <= MAX_COUNT &&
-    Array.isArray(obj.newApplications) &&
-    obj.newApplications.length <= MAX_ARRAY_LENGTH &&
-    obj.newApplications.every(
-      (app: any) => typeof app === "string" && app.length > 0 && app.length <= MAX_STRING_LENGTH,
-    )
+    obj.totalCriticalAtRiskApplicationCount <= MAX_COUNT
   );
 }
 
@@ -343,9 +337,6 @@ export function validateOrganizationReportSummary(data: any): OrganizationReport
     }
     if (typeof data?.totalCriticalAtRiskApplicationCount !== "number") {
       missingFields.push("totalCriticalAtRiskApplicationCount (number)");
-    }
-    if (!Array.isArray(data?.newApplications)) {
-      missingFields.push("newApplications (string[])");
     }
 
     throw new Error(
