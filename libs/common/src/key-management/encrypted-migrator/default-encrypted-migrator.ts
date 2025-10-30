@@ -69,7 +69,9 @@ export class DefaultEncryptedMigrator implements EncryptedMigrator {
       }
       this.logService.mark("[Encrypted Migrator] Finish");
       this.logService.info(`[Encrypted Migrator] Completed migrations for user: ${userId}`);
-      await this.syncService.fullSync(true);
+      if (this.migrations.length > 0) {
+        await this.syncService.fullSync(true);
+      }
     } catch (error) {
       this.logService.error(
         `[Encrypted Migrator] Error running migrations for user: ${userId}`,
