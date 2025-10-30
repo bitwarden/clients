@@ -69,8 +69,8 @@ export class AllActivityComponent implements OnInit {
           this.totalCriticalAppsAtRiskMemberCount = summary.totalCriticalAtRiskMemberCount;
           this.totalCriticalAppsCount = summary.totalCriticalApplicationCount;
           this.totalCriticalAppsAtRiskCount = summary.totalCriticalAtRiskApplicationCount;
-          this.newApplications = summary.newApplications;
-          this.newApplicationsCount = summary.newApplications.length;
+          this.newApplications = summary.newApplications ?? [];
+          this.newApplicationsCount = summary.newApplications?.length ?? 0;
         });
 
       this.allActivitiesService.passwordChangeProgressMetricHasProgressBar$
