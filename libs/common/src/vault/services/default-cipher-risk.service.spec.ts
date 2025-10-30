@@ -1,11 +1,11 @@
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
-import type { CipherRiskOptions, CipherId, CipherRiskResult } from "@bitwarden/sdk-internal";
+import type { CipherRiskOptions, CipherRiskResult } from "@bitwarden/sdk-internal";
 
 import { asUuid } from "../../platform/abstractions/sdk/sdk.service";
 import { MockSdkService } from "../../platform/spec/mock-sdk.service";
-import { UserId } from "../../types/guid";
+import { UserId, CipherId } from "../../types/guid";
 import { CipherService } from "../abstractions/cipher.service";
 import { CipherType } from "../enums/cipher-type";
 import { CipherView } from "../models/view/cipher.view";
@@ -19,9 +19,9 @@ describe("DefaultCipherRiskService", () => {
   let mockCipherService: jest.Mocked<CipherService>;
 
   const mockUserId = "test-user-id" as UserId;
-  const mockCipherId1 = "cbea34a8-bde4-46ad-9d19-b05001228ab2";
-  const mockCipherId2 = "cbea34a8-bde4-46ad-9d19-b05001228ab3";
-  const mockCipherId3 = "cbea34a8-bde4-46ad-9d19-b05001228ab4";
+  const mockCipherId1 = "cbea34a8-bde4-46ad-9d19-b05001228ab2" as CipherId;
+  const mockCipherId2 = "cbea34a8-bde4-46ad-9d19-b05001228ab3" as CipherId;
+  const mockCipherId3 = "cbea34a8-bde4-46ad-9d19-b05001228ab4" as CipherId;
 
   beforeEach(() => {
     sdkService = new MockSdkService();
