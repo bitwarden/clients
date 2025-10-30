@@ -74,12 +74,12 @@ mod windows_binary {
 
     // Macro wrapper around debug! that compiles to no-op when ENABLE_DEVELOPER_LOGGING is false
     macro_rules! dbg_log {
-    ($($arg:tt)*) => {
-        if ENABLE_DEVELOPER_LOGGING {
-            debug!($($arg)*);
-        }
-    };
-}
+        ($($arg:tt)*) => {
+            if ENABLE_DEVELOPER_LOGGING {
+                debug!($($arg)*);
+            }
+        };
+    }
 
     async fn open_pipe_client(pipe_name: &'static str) -> Result<NamedPipeClient> {
         let max_attempts = 5;
