@@ -66,7 +66,7 @@ export class DesktopAutotypeService {
       const possibleCiphers = await this.matchCiphersToWindowTitle(windowTitle);
       const firstCipher = possibleCiphers?.at(0);
 
-      if (firstCipher === undefined) {
+      if (!firstCipher) {
         return callback(Error("No matching vault item."), null);
       } else if (
         firstCipher.login.username === undefined ||
