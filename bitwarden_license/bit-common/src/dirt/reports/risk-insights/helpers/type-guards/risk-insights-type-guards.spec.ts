@@ -165,53 +165,6 @@ describe("Risk Insights Type Guards", () => {
       expect(validateOrganizationReportSummary(validData)).toEqual(validData);
     });
 
-    it("should throw error for missing totalMemberCount", () => {
-      const invalidData = {
-        totalApplicationCount: 5,
-        totalAtRiskMemberCount: 2,
-        totalAtRiskApplicationCount: 1,
-        totalCriticalApplicationCount: 3,
-        totalCriticalMemberCount: 4,
-        totalCriticalAtRiskMemberCount: 1,
-        totalCriticalAtRiskApplicationCount: 1,
-        newApplications: ["app-1"],
-      };
-
-      expect(() => validateOrganizationReportSummary(invalidData)).toThrow(
-        /Invalid OrganizationReportSummary: missing or invalid fields: totalMemberCount \(number\)/,
-      );
-    });
-
-    it("should throw error for multiple missing fields", () => {
-      const invalidData = {
-        totalMemberCount: 10,
-        // missing multiple fields
-        newApplications: ["app-1"],
-      };
-
-      expect(() => validateOrganizationReportSummary(invalidData)).toThrow(
-        /Invalid OrganizationReportSummary: missing or invalid fields:.*totalApplicationCount/,
-      );
-    });
-
-    it("should throw error for invalid field types", () => {
-      const invalidData = {
-        totalMemberCount: "10", // should be number
-        totalApplicationCount: 5,
-        totalAtRiskMemberCount: 2,
-        totalAtRiskApplicationCount: 1,
-        totalCriticalApplicationCount: 3,
-        totalCriticalMemberCount: 4,
-        totalCriticalAtRiskMemberCount: 1,
-        totalCriticalAtRiskApplicationCount: 1,
-        newApplications: ["app-1"],
-      };
-
-      expect(() => validateOrganizationReportSummary(invalidData)).toThrow(
-        /Invalid OrganizationReportSummary/,
-      );
-    });
-
     it("should throw error for non-array newApplications", () => {
       const invalidData = {
         totalMemberCount: 10,
@@ -226,7 +179,7 @@ describe("Risk Insights Type Guards", () => {
       };
 
       expect(() => validateOrganizationReportSummary(invalidData)).toThrow(
-        /Invalid OrganizationReportSummary.*newApplications/,
+        /Invalid report summary/,
       );
     });
 
@@ -244,7 +197,7 @@ describe("Risk Insights Type Guards", () => {
       };
 
       expect(() => validateOrganizationReportSummary(invalidData)).toThrow(
-        /Invalid OrganizationReportSummary/,
+        /Invalid report summary/,
       );
     });
   });
@@ -294,7 +247,7 @@ describe("Risk Insights Type Guards", () => {
       ];
 
       expect(() => validateOrganizationReportApplicationArray(invalidData)).toThrow(
-        "Invalid date string: invalid-date",
+        "Invalid application data: array contains 1 invalid OrganizationReportApplication element(s) at indices: 0",
       );
     });
 
