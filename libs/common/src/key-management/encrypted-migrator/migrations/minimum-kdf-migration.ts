@@ -1,11 +1,6 @@
 import { UserId } from "@bitwarden/common/types/guid";
 // eslint-disable-next-line no-restricted-imports
-import {
-  KdfConfigService,
-  KdfType,
-  MINIMUM_PBKDF2_ITERATIONS_FOR_UPGRADE,
-  PBKDF2KdfConfig,
-} from "@bitwarden/key-management";
+import { KdfConfigService, KdfType, PBKDF2KdfConfig } from "@bitwarden/key-management";
 import { LogService } from "@bitwarden/logging";
 
 import { assertNonNullish } from "../../../auth/utils";
@@ -35,16 +30,16 @@ export class MinimumKdfMigration implements EncryptedMigration {
     assertNonNullish(masterPassword, "masterPassword");
 
     this.logService.info(
-      `[MinimumKdfMigration] Updating user ${userId} to minimum PBKDF2 iteration count ${MINIMUM_PBKDF2_ITERATIONS_FOR_UPGRADE}`,
+      `[MinimumKdfMigration] Updating user ${userId} to minimum PBKDF2 iteration count ${PBKDF2KdfConfig.ITERATIONS.defaultValue}`,
     );
     await this.changeKdfService.updateUserKdfParams(
       masterPassword!,
-      new PBKDF2KdfConfig(MINIMUM_PBKDF2_ITERATIONS_FOR_UPGRADE),
+      new PBKDF2KdfConfig(PBKDF2KdfConfig.ITERATIONS.defaultValue),
       userId,
     );
     await this.kdfConfigService.setKdfConfig(
       userId,
-      new PBKDF2KdfConfig(MINIMUM_PBKDF2_ITERATIONS_FOR_UPGRADE),
+      new PBKDF2KdfConfig(PBKDF2KdfConfig.ITERATIONS.defaultValue),
     );
   }
 
@@ -59,7 +54,7 @@ export class MinimumKdfMigration implements EncryptedMigration {
     const kdfConfig = await this.kdfConfigService.getKdfConfig(userId);
     if (
       kdfConfig.kdfType !== KdfType.PBKDF2_SHA256 ||
-      kdfConfig.iterations >= MINIMUM_PBKDF2_ITERATIONS_FOR_UPGRADE
+      kdfConfig.iterations >= PBKDF2KdfConfig.ITERATIONS.defaultValue
     ) {
       return "noMigrationNeeded";
     }

@@ -160,4 +160,3 @@ export function fromSdkKdfConfig(sdkKdf: Kdf): KdfConfig {
 }
 
 export const DEFAULT_KDF_CONFIG = new PBKDF2KdfConfig(PBKDF2KdfConfig.ITERATIONS.defaultValue);
-export const MINIMUM_PBKDF2_ITERATIONS_FOR_UPGRADE = 600_000;
