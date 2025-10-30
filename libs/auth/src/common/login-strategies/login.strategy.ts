@@ -87,7 +87,7 @@ export abstract class LoginStrategy {
     protected KdfConfigService: KdfConfigService,
     protected environmentService: EnvironmentService,
     protected configService: ConfigService,
-  ) {}
+  ) { }
 
   abstract exportCache(): CacheData;
 
@@ -266,6 +266,7 @@ export abstract class LoginStrategy {
 
     this.messagingService.send("loggedIn");
     // There is an import cycle between PasswordLoginStrategyData and LoginStrategy, which means this cast is necessary, which is solved by extracting the data classes.
+    // TODO: https://bitwarden.atlassian.net/browse/PM-27573
     result.masterPassword = (this.cache.value as any)["masterPassword"] ?? null;
 
     return result;
