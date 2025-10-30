@@ -46,6 +46,12 @@ export class DefaultEncryptedMigrator implements EncryptedMigrator {
     if (needsMigration === "noMigrationNeeded") {
       return;
     } else if (needsMigration === "needsMigrationWithMasterPassword" && masterPassword == null) {
+      // If a migration needs a password, but none is provided, the migrations are skipped. If a manual caller
+      // during a login / unlock flow calls without a master password in a login / unlock strategy that has no
+      // password, such as biometric unlock, the migrations are skipped.
+      //
+      // The fallback to this, the encrypted migrations scheduler, will first check if a migration needs a password
+      // and then prompt the user. If the user enters their password, runMigrations is called again with the password.
       return;
     }
 
