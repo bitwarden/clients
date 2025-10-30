@@ -26,12 +26,12 @@ describe("PhishingDetectionService", () => {
   it("should initialize without errors", () => {
     expect(() => {
       PhishingDetectionService.initialize(
-      accountService,
-      billingAccountProfileStateService,
-      configService,
-      logService,
-      phishingDataService
-    );
+        accountService,
+        billingAccountProfileStateService,
+        configService,
+        logService,
+        phishingDataService,
+      );
     }).not.toThrow();
   });
 
@@ -57,7 +57,7 @@ describe("PhishingDetectionService", () => {
       billingAccountProfileStateService,
       configService,
       logService,
-      phishingDataService
+      phishingDataService,
     );
   });
 
@@ -93,7 +93,7 @@ describe("PhishingDetectionService", () => {
       billingAccountProfileStateService,
       configService,
       logService,
-      phishingDataService
+      phishingDataService,
     );
   });
 });

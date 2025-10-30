@@ -1459,7 +1459,7 @@ export default class MainBackground {
       this.apiService,
       this.taskSchedulerService,
       this.globalStateProvider,
-      this.logService
+      this.logService,
     );
 
     PhishingDetectionService.initialize(
