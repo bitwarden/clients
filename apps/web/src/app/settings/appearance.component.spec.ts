@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, fakeAsync, flush } from "@angular/core/testing";
+import { ComponentFixture, fakeAsync, flush, TestBed } from "@angular/core/testing";
 import { ReactiveFormsModule } from "@angular/forms";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { mock, MockProxy } from "jest-mock-extended";
@@ -196,7 +196,7 @@ describe("AppearanceComponent", () => {
       jest.clearAllMocks();
     }));
 
-    it("should call setLocale and reload window when locale changes", fakeAsync(() => {
+    it("should call setLocale and reload window when locale changes to english", fakeAsync(() => {
       component.form.controls.locale.setValue("es");
       flush();
 
@@ -204,12 +204,12 @@ describe("AppearanceComponent", () => {
       expect(reloadMock).toHaveBeenCalled();
     }));
 
-    it("should not call setLocale when value is null", fakeAsync(() => {
+    it("should call setLocale and reload window when locale changes to default", fakeAsync(() => {
       component.form.controls.locale.setValue(null);
       flush();
 
-      expect(mockI18nService.setLocale).not.toHaveBeenCalled();
-      expect(reloadMock).not.toHaveBeenCalled();
+      expect(mockI18nService.setLocale).toHaveBeenCalledWith(null);
+      expect(reloadMock).toHaveBeenCalled();
     }));
   });
 });
