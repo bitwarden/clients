@@ -349,12 +349,16 @@ export function validateOrganizationReportSummary(data: any): OrganizationReport
     if (typeof data?.totalCriticalAtRiskApplicationCount !== "number") {
       missingFields.push("totalCriticalAtRiskApplicationCount (number)");
     }
-    // newApplications is optional (backward compatibility - not in type definition)
-    // Only validate if present
+    // newApplications is optional (backward compatibility - legacy encrypted data predates this field)
+    // Only validate if present, but enforce all constraints to prevent DoS attacks
     if (
       data?.newApplications !== undefined &&
       (!Array.isArray(data?.newApplications) ||
-        !data.newApplications.every((app: any) => typeof app === "string"))
+        data.newApplications.length > MAX_ARRAY_LENGTH ||
+        !data.newApplications.every(
+          (app: any) =>
+            typeof app === "string" && app.length > 0 && app.length <= MAX_STRING_LENGTH,
+        ))
     ) {
       missingFields.push("newApplications (optional string[])");
     }
