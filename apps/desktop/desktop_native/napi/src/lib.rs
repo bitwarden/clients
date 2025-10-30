@@ -1194,7 +1194,7 @@ pub mod autotype {
         input: Vec<u16>,
         keyboard_shortcut: Vec<String>,
     ) -> napi::Result<(), napi::Status> {
-        autotype::type_input(input, keyboard_shortcut).map_err(|_| {
+        autotype::type_input(&input, keyboard_shortcut).map_err(|_| {
             napi::Error::from_reason("Autotype Error: failed to type input".to_string())
         })
     }

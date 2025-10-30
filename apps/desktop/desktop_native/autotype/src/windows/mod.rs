@@ -1,6 +1,10 @@
 use anyhow::Result;
+use itertools::Itertools;
 use tracing::debug;
-use windows::Win32::Foundation::{GetLastError, SetLastError, WIN32_ERROR};
+use windows::Win32::{
+    Foundation::{GetLastError, SetLastError, WIN32_ERROR},
+    UI::Input::KeyboardAndMouse::INPUT,
+};
 
 mod type_input;
 mod window_title;
@@ -36,6 +40,23 @@ pub fn get_foreground_window_title() -> Result<String> {
     window_title::get_foreground_window_title()
 }
 
-pub fn type_input(input: Vec<u16>, keyboard_shortcut: Vec<String>) -> Result<()> {
-    type_input::type_input(input, keyboard_shortcut)
+/// `KeyboardShortcut` is an `INPUT` of one of the valid shortcut keys:
+///     - Control
+///     - Alt
+///     - Super
+///     - Shift
+///     - \[a-z\]\[A-Z\]
+struct KeyboardShortcutInput(INPUT);
+
+pub fn type_input(input: &[u16], keyboard_shortcut: Vec<String>) -> Result<()> {
+    debug!(?keyboard_shortcut, "Using keyboard shortcut.");
+
+    // convert the raw string input to Windows input and error
+    // if any key is not a valid keyboard shortcut input
+    let keyboard_shortcut: Vec<KeyboardShortcutInput> = keyboard_shortcut
+        .iter()
+        .map(TryInto::try_into)
+        .try_collect()?;
+
+    type_input::type_input(input, &keyboard_shortcut)
 }

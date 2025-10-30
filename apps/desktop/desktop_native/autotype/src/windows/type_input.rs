@@ -1,3 +1,5 @@
+use std::sync::OnceLock;
+
 use anyhow::{anyhow, Result};
 use tracing::{debug, error};
 use windows::Win32::UI::Input::KeyboardAndMouse::{
@@ -5,7 +7,15 @@ use windows::Win32::UI::Input::KeyboardAndMouse::{
     VIRTUAL_KEY,
 };
 
-use super::{ErrorOperations, Win32ErrorOperations};
+use super::{ErrorOperations, KeyboardShortcutInput, Win32ErrorOperations};
+
+const SHIFT_KEY_STR: &str = "Shift";
+const CONTROL_KEY_STR: &str = "Control";
+const ALT_KEY_STR: &str = "Alt";
+const LEFT_WINDOWS_KEY_STR: &str = "Super";
+
+const IS_VIRTUAL_KEY: bool = true;
+const IS_REAL_KEY: bool = false;
 
 /// `InputOperations` provides an interface to Window32 API for
 /// working with inputs.
@@ -13,16 +23,21 @@ use super::{ErrorOperations, Win32ErrorOperations};
 trait InputOperations {
     /// Attempts to type the provided input wherever the user's cursor is.
     ///
-    /// https://learn.microsoft.com/en-in/windows/win32/api/winuser/nf-winuser-sendinput
+    /// <https://learn.microsoft.com/en-in/windows/win32/api/winuser/nf-winuser-sendinput>
     fn send_input(inputs: &[INPUT]) -> u32;
 }
 
 struct Win32InputOperations;
 
+static INPUT_STRUCT_SIZE: OnceLock<i32> = OnceLock::new();
+
 impl InputOperations for Win32InputOperations {
     fn send_input(inputs: &[INPUT]) -> u32 {
-        const INPUT_STRUCT_SIZE: i32 = std::mem::size_of::<INPUT>() as i32;
-        let insert_count = unsafe { SendInput(inputs, INPUT_STRUCT_SIZE) };
+        let size = *(INPUT_STRUCT_SIZE.get_or_init(|| {
+            i32::try_from(std::mem::size_of::<INPUT>()).expect("have space for INPUT size")
+        }));
+
+        let insert_count = unsafe { SendInput(inputs, size) };
 
         debug!(insert_count, "SendInput() called.");
 
@@ -33,24 +48,22 @@ impl InputOperations for Win32InputOperations {
 /// Attempts to type the input text wherever the user's cursor is.
 ///
 /// `input` must be a vector of utf-16 encoded characters to insert.
-/// `keyboard_shortcut` must be a vector of Strings, where valid shortcut keys: Control, Alt, Super, Shift, letters a - Z
+/// `keyboard_shortcut` is a vector of valid shortcut keys.
 ///
-/// https://learn.microsoft.com/en-in/windows/win32/api/winuser/nf-winuser-sendinput
-pub(super) fn type_input(input: Vec<u16>, keyboard_shortcut: Vec<String>) -> Result<()> {
+/// <https://learn.microsoft.com/en-in/windows/win32/api/winuser/nf-winuser-sendinput>
+pub(super) fn type_input(input: &[u16], keyboard_shortcut: &[KeyboardShortcutInput]) -> Result<()> {
     // the length of this vec is always shortcut keys to release + (2x length of input chars)
     let mut keyboard_inputs: Vec<INPUT> =
         Vec::with_capacity(keyboard_shortcut.len() + (input.len() * 2));
 
-    debug!(?keyboard_shortcut, "Converting keyboard shortcut to input.");
-
-    // Add key "up" inputs for the shortcut
-    for key in keyboard_shortcut {
-        keyboard_inputs.push(convert_shortcut_key_to_up_input(key)?);
+    // insert the keyboard shortcut
+    for input in keyboard_shortcut {
+        keyboard_inputs.push(input.0);
     }
 
-    add_input(&input, &mut keyboard_inputs);
+    add_input(input, &mut keyboard_inputs);
 
-    send_input::<Win32InputOperations, Win32ErrorOperations>(keyboard_inputs)
+    send_input::<Win32InputOperations, Win32ErrorOperations>(&keyboard_inputs)
 }
 
 // Add key "down" and "up" inputs for the input
@@ -60,12 +73,12 @@ fn add_input(input: &[u16], keyboard_inputs: &mut Vec<INPUT>) {
 
     for i in input {
         let next_down_input = if *i == TAB_KEY.into() {
-            build_virtual_key_input(InputKeyPress::Down, *i as u8)
+            build_virtual_key_input(InputKeyPress::Down, *i)
         } else {
             build_unicode_input(InputKeyPress::Down, *i)
         };
         let next_up_input = if *i == TAB_KEY.into() {
-            build_virtual_key_input(InputKeyPress::Up, *i as u8)
+            build_virtual_key_input(InputKeyPress::Up, *i)
         } else {
             build_unicode_input(InputKeyPress::Up, *i)
         };
@@ -75,26 +88,25 @@ fn add_input(input: &[u16], keyboard_inputs: &mut Vec<INPUT>) {
     }
 }
 
-/// Converts a valid shortcut key to an "up" keyboard input.
-///
-/// `input` must be a valid shortcut key: Control, Alt, Super, Shift, letters [a-z][A-Z]
-fn convert_shortcut_key_to_up_input(key: String) -> Result<INPUT> {
-    const SHIFT_KEY: u8 = 0x10;
-    const SHIFT_KEY_STR: &str = "Shift";
-    const CONTROL_KEY: u8 = 0x11;
-    const CONTROL_KEY_STR: &str = "Control";
-    const ALT_KEY: u8 = 0x12;
-    const ALT_KEY_STR: &str = "Alt";
-    const LEFT_WINDOWS_KEY: u8 = 0x5B;
-    const LEFT_WINDOWS_KEY_STR: &str = "Super";
+impl TryFrom<&String> for KeyboardShortcutInput {
+    type Error = anyhow::Error;
 
-    Ok(match key.as_str() {
-        SHIFT_KEY_STR => build_virtual_key_input(InputKeyPress::Up, SHIFT_KEY),
-        CONTROL_KEY_STR => build_virtual_key_input(InputKeyPress::Up, CONTROL_KEY),
-        ALT_KEY_STR => build_virtual_key_input(InputKeyPress::Up, ALT_KEY),
-        LEFT_WINDOWS_KEY_STR => build_virtual_key_input(InputKeyPress::Up, LEFT_WINDOWS_KEY),
-        _ => build_unicode_input(InputKeyPress::Up, get_alphabetic_hotkey(key)?),
-    })
+    fn try_from(key: &String) -> std::result::Result<Self, Self::Error> {
+        const SHIFT_KEY: u16 = 0x10;
+        const CONTROL_KEY: u16 = 0x11;
+        const ALT_KEY: u16 = 0x12;
+        const LEFT_WINDOWS_KEY: u16 = 0x5B;
+
+        let input = match key.as_str() {
+            SHIFT_KEY_STR => build_virtual_key_input(InputKeyPress::Up, SHIFT_KEY),
+            CONTROL_KEY_STR => build_virtual_key_input(InputKeyPress::Up, CONTROL_KEY),
+            ALT_KEY_STR => build_virtual_key_input(InputKeyPress::Up, ALT_KEY),
+            LEFT_WINDOWS_KEY_STR => build_virtual_key_input(InputKeyPress::Up, LEFT_WINDOWS_KEY),
+            _ => build_unicode_input(InputKeyPress::Up, get_alphabetic_hotkey(key)?),
+        };
+
+        Ok(KeyboardShortcutInput(input))
+    }
 }
 
 /// Given a letter that is a String, get the utf16 encoded
@@ -104,7 +116,7 @@ fn convert_shortcut_key_to_up_input(key: String) -> Result<INPUT> {
 /// Because we only accept [a-z][A-Z], the decimal u16
 /// cast of the letter is safe because the unicode code point
 /// of these characters fits in a u16.
-fn get_alphabetic_hotkey(letter: String) -> Result<u16> {
+fn get_alphabetic_hotkey(letter: &str) -> Result<u16> {
     if letter.len() != 1 {
         error!(
             len = letter.len(),
@@ -134,23 +146,28 @@ fn get_alphabetic_hotkey(letter: String) -> Result<u16> {
 }
 
 /// An input key can be either pressed (down), or released (up).
+#[derive(Copy, Clone)]
 enum InputKeyPress {
     Down,
     Up,
 }
 
-/// A function for easily building keyboard unicode INPUT structs used in SendInput().
-///
-/// Before modifying this function, make sure you read the SendInput() documentation:
-/// https://learn.microsoft.com/en-in/windows/win32/api/winuser/nf-winuser-sendinput
-fn build_unicode_input(key_press: InputKeyPress, character: u16) -> INPUT {
+/// Before modifying this function, make sure you read the `SendInput()` documentation:
+/// <https://learn.microsoft.com/en-in/windows/win32/api/winuser/nf-winuser-sendinput>
+/// <https://learn.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes>
+fn build_input(key_press: InputKeyPress, character: u16, is_virtual: bool) -> INPUT {
+    let (w_vk, w_scan) = if is_virtual {
+        (VIRTUAL_KEY(character), 0)
+    } else {
+        (VIRTUAL_KEY::default(), character)
+    };
     match key_press {
         InputKeyPress::Down => INPUT {
             r#type: INPUT_KEYBOARD,
             Anonymous: INPUT_0 {
                 ki: KEYBDINPUT {
-                    wVk: Default::default(),
-                    wScan: character,
+                    wVk: w_vk,
+                    wScan: w_scan,
                     dwFlags: KEYEVENTF_UNICODE,
                     time: 0,
                     dwExtraInfo: 0,
@@ -161,8 +178,8 @@ fn build_unicode_input(key_press: InputKeyPress, character: u16) -> INPUT {
             r#type: INPUT_KEYBOARD,
             Anonymous: INPUT_0 {
                 ki: KEYBDINPUT {
-                    wVk: Default::default(),
-                    wScan: character,
+                    wVk: w_vk,
+                    wScan: w_scan,
                     dwFlags: KEYEVENTF_KEYUP | KEYEVENTF_UNICODE,
                     time: 0,
                     dwExtraInfo: 0,
@@ -172,53 +189,29 @@ fn build_unicode_input(key_press: InputKeyPress, character: u16) -> INPUT {
     }
 }
 
-/// A function for easily building keyboard virtual-key INPUT structs used in SendInput().
-///
-/// Before modifying this function, make sure you read the SendInput() documentation:
-/// https://learn.microsoft.com/en-in/windows/win32/api/winuser/nf-winuser-sendinput
-/// https://learn.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
-fn build_virtual_key_input(key_press: InputKeyPress, virtual_key: u8) -> INPUT {
-    match key_press {
-        InputKeyPress::Down => INPUT {
-            r#type: INPUT_KEYBOARD,
-            Anonymous: INPUT_0 {
-                ki: KEYBDINPUT {
-                    wVk: VIRTUAL_KEY(virtual_key as u16),
-                    wScan: Default::default(),
-                    dwFlags: Default::default(),
-                    time: 0,
-                    dwExtraInfo: 0,
-                },
-            },
-        },
-        InputKeyPress::Up => INPUT {
-            r#type: INPUT_KEYBOARD,
-            Anonymous: INPUT_0 {
-                ki: KEYBDINPUT {
-                    wVk: VIRTUAL_KEY(virtual_key as u16),
-                    wScan: Default::default(),
-                    dwFlags: KEYEVENTF_KEYUP,
-                    time: 0,
-                    dwExtraInfo: 0,
-                },
-            },
-        },
-    }
+/// A function for easily building keyboard unicode INPUT structs used in `SendInput()`.
+fn build_unicode_input(key_press: InputKeyPress, character: u16) -> INPUT {
+    build_input(key_press, character, IS_REAL_KEY)
 }
 
-fn send_input<I, E>(inputs: Vec<INPUT>) -> Result<()>
+/// A function for easily building keyboard virtual-key INPUT structs used in `SendInput()`.
+fn build_virtual_key_input(key_press: InputKeyPress, character: u16) -> INPUT {
+    build_input(key_press, character, IS_VIRTUAL_KEY)
+}
+
+fn send_input<I, E>(inputs: &[INPUT]) -> Result<()>
 where
     I: InputOperations,
     E: ErrorOperations,
 {
-    let insert_count = I::send_input(&inputs);
+    let insert_count = I::send_input(inputs);
 
     if insert_count == 0 {
         let last_err = E::get_last_error().to_hresult().message();
         error!(GetLastError = %last_err, "SendInput sent 0 inputs. Input was blocked by another thread.");
 
         return Err(anyhow!("SendInput sent 0 inputs. Input was blocked by another thread. GetLastError: {last_err}"));
-    } else if insert_count != inputs.len() as u32 {
+    } else if insert_count != u32::try_from(inputs.len()).expect("to convert inputs len to u32") {
         let last_err = E::get_last_error().to_hresult().message();
         error!(sent = %insert_count, expected = inputs.len(), GetLastError = %last_err,
             "SendInput sent does not match expected."
@@ -236,11 +229,12 @@ where
 mod tests {
     //! For the mocking of the traits that are static methods, we need to use the `serial_test` crate
     //! in order to mock those, since the mock expectations set have to be global in absence of a `self`.
-    //! More info: https://docs.rs/mockall/latest/mockall/#static-methods
+    //! More info: <https://docs.rs/mockall/latest/mockall/#static-methods>
 
     use super::*;
 
     use crate::windowing::MockErrorOperations;
+    use itertools::Itertools;
     use serial_test::serial;
     use windows::Win32::Foundation::WIN32_ERROR;
 
@@ -248,7 +242,7 @@ mod tests {
     fn get_alphabetic_hot_key_succeeds() {
         for c in ('a'..='z').chain('A'..='Z') {
             let letter = c.to_string();
-            let converted = get_alphabetic_hotkey(letter).unwrap();
+            let converted = get_alphabetic_hotkey(&letter).unwrap();
             assert_eq!(converted, c as u16);
         }
     }
@@ -257,14 +251,14 @@ mod tests {
     #[should_panic = "Final keyboard shortcut key should be a single character: foo"]
     fn get_alphabetic_hot_key_fail_not_single_char() {
         let letter = String::from("foo");
-        get_alphabetic_hotkey(letter).unwrap();
+        get_alphabetic_hotkey(&letter).unwrap();
     }
 
     #[test]
     #[should_panic = "Letter is not ASCII Alphabetic ([a-z][A-Z]): '}'"]
     fn get_alphabetic_hot_key_fail_not_alphabetic() {
         let letter = String::from("}");
-        get_alphabetic_hotkey(letter).unwrap();
+        get_alphabetic_hotkey(&letter).unwrap();
     }
 
     #[test]
@@ -273,11 +267,42 @@ mod tests {
         let ctxi = MockInputOperations::send_input_context();
         ctxi.expect().returning(|_| 1);
 
-        send_input::<MockInputOperations, MockErrorOperations>(vec![build_unicode_input(
+        send_input::<MockInputOperations, MockErrorOperations>(&[build_unicode_input(
             InputKeyPress::Up,
             0,
         )])
         .unwrap();
+    }
+
+    #[test]
+    #[serial]
+    fn keyboard_shortcut_conversion_succeeds() {
+        let keyboard_shortcut = [
+            CONTROL_KEY_STR.to_string(),
+            SHIFT_KEY_STR.to_string(),
+            "B".to_string(),
+        ];
+        let _: Vec<KeyboardShortcutInput> = keyboard_shortcut
+            .iter()
+            .map(|s| s.try_into())
+            .try_collect()
+            .unwrap();
+    }
+
+    #[test]
+    #[serial]
+    #[should_panic = "Letter is not ASCII Alphabetic ([a-z][A-Z]): '1'"]
+    fn keyboard_shortcut_conversion_fails_invalid_key() {
+        let keyboard_shortcut = [
+            CONTROL_KEY_STR.to_string(),
+            SHIFT_KEY_STR.to_string(),
+            "1".to_string(),
+        ];
+        let _: Vec<KeyboardShortcutInput> = keyboard_shortcut
+            .iter()
+            .map(|s| s.try_into())
+            .try_collect()
+            .unwrap();
     }
 
     #[test]
@@ -292,7 +317,7 @@ mod tests {
         let ctxge = MockErrorOperations::get_last_error_context();
         ctxge.expect().returning(|| WIN32_ERROR(1));
 
-        send_input::<MockInputOperations, MockErrorOperations>(vec![build_unicode_input(
+        send_input::<MockInputOperations, MockErrorOperations>(&[build_unicode_input(
             InputKeyPress::Up,
             0,
         )])
@@ -309,7 +334,7 @@ mod tests {
         let ctxge = MockErrorOperations::get_last_error_context();
         ctxge.expect().returning(|| WIN32_ERROR(1));
 
-        send_input::<MockInputOperations, MockErrorOperations>(vec![build_unicode_input(
+        send_input::<MockInputOperations, MockErrorOperations>(&[build_unicode_input(
             InputKeyPress::Up,
             0,
         )])
