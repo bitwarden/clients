@@ -49,8 +49,6 @@ export class TwoFactorVerifyComponent {
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onAuthed = new EventEmitter<AuthResponse<TwoFactorResponse>>();
 
-  formPromise: Promise<TwoFactorResponse> | undefined;
-
   protected formGroup = new FormGroup({
     secret: new FormControl<Verification | null>(null),
   });
@@ -75,15 +73,11 @@ export class TwoFactorVerifyComponent {
       }
 
       const secret = this.formGroup.value.secret!;
-      this.formPromise = this.userVerificationService.buildRequest(secret).then((request) => {
-        hashedSecret =
-          secret.type === VerificationType.MasterPassword
-            ? request.masterPasswordHash
-            : request.otp;
-        return this.apiCall(request);
-      });
+      const request = await this.userVerificationService.buildRequest(secret);
+      hashedSecret =
+        secret.type === VerificationType.MasterPassword ? request.masterPasswordHash : request.otp;
 
-      const response = await this.formPromise;
+      const response = await this.apiCall(request);
       this.dialogRef.close({
         response: response,
         secret: hashedSecret,

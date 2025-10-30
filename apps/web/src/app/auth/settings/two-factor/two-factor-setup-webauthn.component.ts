@@ -72,7 +72,6 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
   webAuthnListening: boolean = false;
   webAuthnResponse: PublicKeyCredential | null = null;
   challengePromise: Promise<ChallengeResponse> | undefined;
-  formPromise: Promise<TwoFactorWebAuthnResponse> | undefined;
 
   override componentName = "app-two-factor-webauthn";
 

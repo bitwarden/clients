@@ -47,58 +47,6 @@ export abstract class TwoFactorSetupMethodBaseComponent {
     this.authed = true;
   }
 
-  /** @deprecated used for formPromise flows.*/
-  protected async enable(enableFunction: () => Promise<void>) {
-    try {
-      await enableFunction();
-      this.onUpdated.emit(true);
-    } catch (e) {
-      this.logService.error(e);
-    }
-  }
-
-  /**
-   * @deprecated used for formPromise flows.
-   * TODO: Remove this method when formPromises are removed from all flows.
-   * */
-  protected async disable(promise: Promise<unknown>) {
-    const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "disable" },
-      content: { key: "twoStepDisableDesc" },
-      type: "warning",
-    });
-
-    if (!confirmed) {
-      return;
-    }
-
-    try {
-      const request = await this.buildRequestModel(TwoFactorProviderRequest);
-      if (this.type === undefined) {
-        throw new Error("Two-factor provider type is required");
-      }
-      request.type = this.type;
-      if (this.organizationId != null) {
-        promise = this.twoFactorService.putTwoFactorOrganizationDisable(
-          this.organizationId,
-          request,
-        );
-      } else {
-        promise = this.twoFactorService.putTwoFactorDisable(request);
-      }
-      await promise;
-      this.enabled = false;
-      this.toastService.showToast({
-        variant: "success",
-        title: "",
-        message: this.i18nService.t("twoStepDisabled"),
-      });
-      this.onUpdated.emit(false);
-    } catch (e) {
-      this.logService.error(e);
-    }
-  }
-
   protected async disableMethod() {
     const confirmed = await this.dialogService.openSimpleDialog({
       title: { key: "disable" },

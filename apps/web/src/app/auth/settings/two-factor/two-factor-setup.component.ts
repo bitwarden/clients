@@ -60,7 +60,6 @@ export class TwoFactorSetupComponent implements OnInit, OnDestroy {
   recoveryCodeWarningMessage: string;
   showPolicyWarning = false;
   loading = true;
-  formPromise: Promise<any>;
 
   tabbedHeader = true;
 

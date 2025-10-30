@@ -74,9 +74,6 @@ export class TwoFactorSetupYubiKeyComponent
   keys: Key[] = [];
   anyKeyHasNfc = false;
 
-  formPromise: Promise<TwoFactorYubiKeyResponse> | undefined;
-  disablePromise: Promise<unknown> | undefined;
-
   override componentName = "app-two-factor-yubikey";
   formGroup:
     | FormGroup<{
