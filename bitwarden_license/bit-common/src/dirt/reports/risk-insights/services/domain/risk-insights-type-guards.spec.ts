@@ -276,7 +276,7 @@ describe("Risk Insights Type Guards", () => {
         totalCriticalMemberCount: 4,
         totalCriticalAtRiskMemberCount: 1,
         totalCriticalAtRiskApplicationCount: 1,
-        newApplications: undefined,
+        newApplications: undefined as string[] | undefined,
       };
 
       expect(() => validateOrganizationReportSummary(validData)).not.toThrow();
@@ -713,7 +713,7 @@ describe("Risk Insights Type Guards", () => {
         totalCriticalMemberCount: 4,
         totalCriticalAtRiskMemberCount: 1,
         totalCriticalAtRiskApplicationCount: 1,
-        newApplications: undefined,
+        newApplications: undefined as string[] | undefined,
       };
       expect(isOrganizationReportSummary(validData)).toBe(true);
     });
