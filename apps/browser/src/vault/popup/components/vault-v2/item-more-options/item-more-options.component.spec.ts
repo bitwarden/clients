@@ -160,101 +160,7 @@ describe("ItemMoreOptionsComponent", () => {
       expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
     });
 
-    it("opens the autofill confirmation dialog with filtered saved URLs when the feature flag is enabled and search text is present", async () => {
-      featureFlag$.next(true);
-      hasSearchText$.next(true);
-      autofillSvc.currentAutofillTab$.next({ url: "https://page.example.com/path" });
-      const openSpy = mockConfirmDialogResult(AutofillConfirmationDialogResult.Canceled);
-
-      await component.doAutofill();
-
-      expect(openSpy).toHaveBeenCalledTimes(1);
-      const args = openSpy.mock.calls[0][1];
-      expect(args.data.currentUrl).toBe("https://page.example.com/path");
-      expect(args.data.savedUrls).toEqual(["https://one.example.com", "https://two.example.com/a"]);
-    });
-
-    it("does nothing when the user cancels the autofill confirmation dialog", async () => {
-      featureFlag$.next(true);
-      autofillSvc.currentAutofillTab$.next({ url: "https://page.example.com" });
-      mockConfirmDialogResult(AutofillConfirmationDialogResult.Canceled);
-
-      await component.doAutofill();
-
-      expect(autofillSvc.doAutofill).not.toHaveBeenCalled();
-      expect(autofillSvc.doAutofillAndSave).not.toHaveBeenCalled();
-    });
-
-    it("calls the autofill service to autofill when the user selects 'AutofilledOnly'", async () => {
-      featureFlag$.next(true);
-      autofillSvc.currentAutofillTab$.next({ url: "https://page.example.com" });
-      mockConfirmDialogResult(AutofillConfirmationDialogResult.AutofilledOnly);
-
-      await component.doAutofill();
-
-      expect(autofillSvc.doAutofill).toHaveBeenCalledWith(
-        expect.objectContaining({ id: "cipher-1" }),
-        true,
-        true,
-      );
-      expect(autofillSvc.doAutofillAndSave).not.toHaveBeenCalled();
-    });
-
-    it("calls the autofill service to doAutofillAndSave when the user selects 'AutofillAndUrlAdded'", async () => {
-      featureFlag$.next(true);
-      autofillSvc.currentAutofillTab$.next({ url: "https://page.example.com" });
-      mockConfirmDialogResult(AutofillConfirmationDialogResult.AutofillAndUrlAdded);
-
-      await component.doAutofill();
-
-      expect(autofillSvc.doAutofillAndSave).toHaveBeenCalledWith(
-        expect.objectContaining({ id: "cipher-1" }),
-        false,
-        true,
-      );
-      expect(autofillSvc.doAutofillAndSave.mock.calls[0][1]).toBe(false);
-      expect(autofillSvc.doAutofill).not.toHaveBeenCalled();
-    });
-
-    it("shows the exact match dialog when the uri match strategy is Exact and no URIs match", async () => {
-      featureFlag$.next(true);
-      uriMatchStrategy$.next(UriMatchStrategy.Exact);
-      hasSearchText$.next(true);
-      autofillSvc.currentAutofillTab$.next({ url: "https://no-match.example.com" });
-
-      await component.doAutofill();
-
-      expect(dialogService.openSimpleDialog).toHaveBeenCalledTimes(1);
-      expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
-        expect.objectContaining({
-          title: expect.objectContaining({ key: "cannotAutofill" }),
-          content: expect.objectContaining({ key: "cannotAutofillExactMatch" }),
-          type: "info",
-        }),
-      );
-      expect(autofillSvc.doAutofill).not.toHaveBeenCalled();
-      expect(autofillSvc.doAutofillAndSave).not.toHaveBeenCalled();
-    });
-
-    it("hides the 'Fill and Save' button when showAutofillConfirmation$ is true", async () => {
-      // Enable both feature flag and search text → makes showAutofillConfirmation$ true
-      featureFlag$.next(true);
-      hasSearchText$.next(true);
-
-      fixture.detectChanges();
-      await fixture.whenStable();
-
-      const fillAndSaveButton = fixture.nativeElement.querySelector(
-        "button[bitMenuItem]:not([disabled])",
-      );
-
-      const buttonText = fillAndSaveButton?.textContent?.trim().toLowerCase() ?? "";
-      expect(buttonText.includes("fillAndSave".toLowerCase())).toBe(false);
-    });
-
-    it("call the passwordService to passwordRepromptCheck if their cipher has password reprompt enabled", async () => {
-      baseCipher.reprompt = 2; // Master Password reprompt enabled
-      featureFlag$.next(true);
+    it("calls the passwordService to passwordRepromptCheck", async () => {
       autofillSvc.currentAutofillTab$.next({ url: "https://page.example.com" });
       mockConfirmDialogResult(AutofillConfirmationDialogResult.AutofilledOnly);
 
@@ -265,7 +171,6 @@ describe("ItemMoreOptionsComponent", () => {
 
     it("does nothing if the user fails master password reprompt", async () => {
       baseCipher.reprompt = 2; // Master Password reprompt enabled
-      featureFlag$.next(true);
       autofillSvc.currentAutofillTab$.next({ url: "https://page.example.com" });
       passwordRepromptService.passwordRepromptCheck.mockResolvedValue(false); // Reprompt fails
       mockConfirmDialogResult(AutofillConfirmationDialogResult.AutofilledOnly);
@@ -274,6 +179,133 @@ describe("ItemMoreOptionsComponent", () => {
 
       expect(autofillSvc.doAutofill).not.toHaveBeenCalled();
       expect(autofillSvc.doAutofillAndSave).not.toHaveBeenCalled();
+    });
+
+    describe("autofill confirmation dialog", () => {
+      beforeEach(() => {
+        featureFlag$.next(true);
+        hasSearchText$.next(true);
+        passwordRepromptService.passwordRepromptCheck.mockResolvedValue(true);
+      });
+
+      it("opens the autofill confirmation dialog with filtered saved URLs when the feature flag is enabled and search text is present", async () => {
+        autofillSvc.currentAutofillTab$.next({ url: "https://page.example.com/path" });
+        const openSpy = mockConfirmDialogResult(AutofillConfirmationDialogResult.Canceled);
+
+        await component.doAutofill();
+
+        expect(openSpy).toHaveBeenCalledTimes(1);
+        const args = openSpy.mock.calls[0][1];
+        expect(args.data.currentUrl).toBe("https://page.example.com/path");
+        expect(args.data.savedUrls).toEqual([
+          "https://one.example.com",
+          "https://two.example.com/a",
+        ]);
+      });
+
+      it("does nothing when the user cancels the autofill confirmation dialog", async () => {
+        autofillSvc.currentAutofillTab$.next({ url: "https://page.example.com" });
+        mockConfirmDialogResult(AutofillConfirmationDialogResult.Canceled);
+
+        await component.doAutofill();
+
+        expect(autofillSvc.doAutofill).not.toHaveBeenCalled();
+        expect(autofillSvc.doAutofillAndSave).not.toHaveBeenCalled();
+      });
+
+      it("calls the autofill service to autofill when the user selects 'AutofilledOnly'", async () => {
+        autofillSvc.currentAutofillTab$.next({ url: "https://page.example.com" });
+        mockConfirmDialogResult(AutofillConfirmationDialogResult.AutofilledOnly);
+
+        await component.doAutofill();
+
+        expect(autofillSvc.doAutofill).toHaveBeenCalledWith(
+          expect.objectContaining({ id: "cipher-1" }),
+          true,
+          true,
+        );
+        expect(autofillSvc.doAutofillAndSave).not.toHaveBeenCalled();
+      });
+
+      it("calls the autofill service to doAutofillAndSave when the user selects 'AutofillAndUrlAdded'", async () => {
+        autofillSvc.currentAutofillTab$.next({ url: "https://page.example.com" });
+        mockConfirmDialogResult(AutofillConfirmationDialogResult.AutofillAndUrlAdded);
+
+        await component.doAutofill();
+
+        expect(autofillSvc.doAutofillAndSave).toHaveBeenCalledWith(
+          expect.objectContaining({ id: "cipher-1" }),
+          false,
+          true,
+        );
+        expect(autofillSvc.doAutofillAndSave.mock.calls[0][1]).toBe(false);
+        expect(autofillSvc.doAutofill).not.toHaveBeenCalled();
+      });
+
+      describe("URI match strategy handling", () => {
+        it("shows the exact match dialog when the uri match strategy is Exact", async () => {
+          uriMatchStrategy$.next(UriMatchStrategy.Exact);
+          autofillSvc.currentAutofillTab$.next({ url: "https://no-match.example.com" });
+
+          await component.doAutofill();
+
+          expect(dialogService.openSimpleDialog).toHaveBeenCalledTimes(1);
+          expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
+            expect.objectContaining({
+              title: expect.objectContaining({ key: "cannotAutofill" }),
+              content: expect.objectContaining({ key: "cannotAutofillExactMatch" }),
+              type: "info",
+            }),
+          );
+          expect(autofillSvc.doAutofill).not.toHaveBeenCalled();
+          expect(autofillSvc.doAutofillAndSave).not.toHaveBeenCalled();
+        });
+
+        it("shows the exact match dialog and not the password reprompt dialog when the uri match strategy is Exact and the item has master password reprompt enabled", async () => {
+          uriMatchStrategy$.next(UriMatchStrategy.Exact);
+          autofillSvc.currentAutofillTab$.next({ url: "https://no-match.example.com" });
+
+          await component.doAutofill();
+
+          expect(dialogService.openSimpleDialog).toHaveBeenCalledTimes(1);
+          expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
+            expect.objectContaining({
+              title: expect.objectContaining({ key: "cannotAutofill" }),
+              content: expect.objectContaining({ key: "cannotAutofillExactMatch" }),
+              type: "info",
+            }),
+          );
+          expect(autofillSvc.doAutofill).not.toHaveBeenCalled();
+          expect(passwordRepromptService.passwordRepromptCheck).not.toHaveBeenCalled();
+          expect(autofillSvc.doAutofillAndSave).not.toHaveBeenCalled();
+        });
+      });
+
+      it("hides the 'Fill and Save' button when showAutofillConfirmation$ is true", async () => {
+        // Enable both feature flag and search text → makes showAutofillConfirmation$ true
+
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        const fillAndSaveButton = fixture.nativeElement.querySelector(
+          "button[bitMenuItem]:not([disabled])",
+        );
+
+        const buttonText = fillAndSaveButton?.textContent?.trim().toLowerCase() ?? "";
+        expect(buttonText.includes("fillAndSave".toLowerCase())).toBe(false);
+      });
+
+      it("does nothing if the user fails master password reprompt", async () => {
+        baseCipher.reprompt = 2; // Master Password reprompt enabled
+        autofillSvc.currentAutofillTab$.next({ url: "https://page.example.com" });
+        passwordRepromptService.passwordRepromptCheck.mockResolvedValue(false); // Reprompt fails
+        mockConfirmDialogResult(AutofillConfirmationDialogResult.AutofilledOnly);
+
+        await component.doAutofill();
+
+        expect(autofillSvc.doAutofill).not.toHaveBeenCalled();
+        expect(autofillSvc.doAutofillAndSave).not.toHaveBeenCalled();
+      });
     });
   });
 });
