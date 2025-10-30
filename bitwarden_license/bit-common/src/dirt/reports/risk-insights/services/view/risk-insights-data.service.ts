@@ -30,6 +30,9 @@ export class RiskInsightsDataService {
   readonly criticalReportResults$: Observable<RiskInsightsEnrichedData | null> = of(null);
   readonly hasVaultItems$: Observable<boolean> = of(false);
 
+  // New applications that need review (reviewedDate === null)
+  readonly newApplications$: Observable<string[]> = of([]);
+
   // ------------------------- Drawer Variables ---------------------
   // Drawer variables unified into a single BehaviorSubject
   private drawerDetailsSubject = new BehaviorSubject<DrawerDetails>({
@@ -50,6 +53,7 @@ export class RiskInsightsDataService {
     this.enrichedReportData$ = this.orchestrator.enrichedReportData$;
     this.criticalReportResults$ = this.orchestrator.criticalReportResults$;
     this.hasVaultItems$ = this.orchestrator.hasVaultItems$;
+    this.newApplications$ = this.orchestrator.newApplications$;
 
     // Expose the loading state
     this.isLoading$ = this.reportState$.pipe(
@@ -243,5 +247,9 @@ export class RiskInsightsDataService {
 
   removeCriticalApplication(hostname: string) {
     return this.orchestrator.removeCriticalApplication$(hostname);
+  }
+
+  saveApplicationReviewStatus(selectedCriticalApps: string[]) {
+    return this.orchestrator.saveApplicationReviewStatus$(selectedCriticalApps);
   }
 }

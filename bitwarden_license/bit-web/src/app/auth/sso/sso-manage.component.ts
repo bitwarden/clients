@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import {
   AbstractControl,
@@ -55,11 +53,11 @@ const defaultSigningAlgorithm = "http://www.w3.org/2001/04/xmldsig-more#rsa-sha2
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
-  selector: "app-org-manage-sso",
-  templateUrl: "sso.component.html",
+  selector: "auth-sso-manage",
+  templateUrl: "sso-manage.component.html",
   standalone: false,
 })
-export class SsoComponent implements OnInit, OnDestroy {
+export class SsoManageComponent implements OnInit, OnDestroy {
   readonly ssoType = SsoType;
   readonly memberDecryptionType = MemberDecryptionType;
 
@@ -117,31 +115,31 @@ export class SsoComponent implements OnInit, OnDestroy {
   isInitializing = true; // concerned with UI/UX (i.e. when to show loading spinner vs form)
   isFormValidatingOrPopulating = true; // tracks when form fields are being validated/populated during load() or submit()
 
-  configuredKeyConnectorUrlFromServer: string | null;
+  configuredKeyConnectorUrlFromServer: string | null = null;
   memberDecryptionTypeValueChangesSubscription: Subscription | null = null;
   haveTestedKeyConnector = false;
-  organizationId: string;
-  organization: Organization;
+  organizationId: string | undefined = undefined;
+  organization: Organization | undefined = undefined;
 
-  callbackPath: string;
-  signedOutCallbackPath: string;
-  spEntityId: string;
-  spEntityIdStatic: string;
-  spMetadataUrl: string;
-  spAcsUrl: string;
+  callbackPath: string | undefined = undefined;
+  signedOutCallbackPath: string | undefined = undefined;
+  spEntityId: string | undefined = undefined;
+  spEntityIdStatic: string | undefined = undefined;
+  spMetadataUrl: string | undefined = undefined;
+  spAcsUrl: string | undefined = undefined;
 
   showClientSecret = false;
 
   protected openIdForm = this.formBuilder.group<ControlsOf<SsoConfigView["openId"]>>(
     {
-      authority: new FormControl("", Validators.required),
-      clientId: new FormControl("", Validators.required),
-      clientSecret: new FormControl("", Validators.required),
+      authority: new FormControl("", { nonNullable: true, validators: Validators.required }),
+      clientId: new FormControl("", { nonNullable: true, validators: Validators.required }),
+      clientSecret: new FormControl("", { nonNullable: true, validators: Validators.required }),
       metadataAddress: new FormControl(),
-      redirectBehavior: new FormControl(
-        OpenIdConnectRedirectBehavior.RedirectGet,
-        Validators.required,
-      ),
+      redirectBehavior: new FormControl(OpenIdConnectRedirectBehavior.RedirectGet, {
+        nonNullable: true,
+        validators: Validators.required,
+      }),
       getClaimsFromUserInfoEndpoint: new FormControl(),
       additionalScopes: new FormControl(),
       additionalUserIdClaimTypes: new FormControl(),
@@ -157,22 +155,32 @@ export class SsoComponent implements OnInit, OnDestroy {
 
   protected samlForm = this.formBuilder.group<ControlsOf<SsoConfigView["saml"]>>(
     {
-      spUniqueEntityId: new FormControl(true, { updateOn: "change" }),
-      spNameIdFormat: new FormControl(Saml2NameIdFormat.NotConfigured),
-      spOutboundSigningAlgorithm: new FormControl(defaultSigningAlgorithm),
-      spSigningBehavior: new FormControl(Saml2SigningBehavior.IfIdpWantAuthnRequestsSigned),
-      spMinIncomingSigningAlgorithm: new FormControl(defaultSigningAlgorithm),
+      spUniqueEntityId: new FormControl(true, { nonNullable: true, updateOn: "change" }),
+      spNameIdFormat: new FormControl(Saml2NameIdFormat.NotConfigured, { nonNullable: true }),
+      spOutboundSigningAlgorithm: new FormControl(defaultSigningAlgorithm, { nonNullable: true }),
+      spSigningBehavior: new FormControl(Saml2SigningBehavior.IfIdpWantAuthnRequestsSigned, {
+        nonNullable: true,
+      }),
+      spMinIncomingSigningAlgorithm: new FormControl(defaultSigningAlgorithm, {
+        nonNullable: true,
+      }),
       spWantAssertionsSigned: new FormControl(),
       spValidateCertificates: new FormControl(),
 
-      idpEntityId: new FormControl("", Validators.required),
-      idpBindingType: new FormControl(Saml2BindingType.HttpRedirect),
-      idpSingleSignOnServiceUrl: new FormControl("", Validators.required),
+      idpEntityId: new FormControl("", { nonNullable: true, validators: Validators.required }),
+      idpBindingType: new FormControl(Saml2BindingType.HttpRedirect, { nonNullable: true }),
+      idpSingleSignOnServiceUrl: new FormControl("", {
+        nonNullable: true,
+        validators: Validators.required,
+      }),
       idpSingleLogoutServiceUrl: new FormControl(),
-      idpX509PublicCert: new FormControl("", Validators.required),
-      idpOutboundSigningAlgorithm: new FormControl(defaultSigningAlgorithm),
+      idpX509PublicCert: new FormControl("", {
+        nonNullable: true,
+        validators: Validators.required,
+      }),
+      idpOutboundSigningAlgorithm: new FormControl(defaultSigningAlgorithm, { nonNullable: true }),
       idpAllowUnsolicitedAuthnResponse: new FormControl(),
-      idpAllowOutboundLogoutRequests: new FormControl(true),
+      idpAllowOutboundLogoutRequests: new FormControl(true, { nonNullable: true }),
       idpWantAuthnRequestsSigned: new FormControl(),
     },
     {
@@ -181,13 +189,16 @@ export class SsoComponent implements OnInit, OnDestroy {
   );
 
   protected ssoConfigForm = this.formBuilder.group<ControlsOf<SsoConfigView>>({
-    configType: new FormControl(SsoType.None),
-    memberDecryptionType: new FormControl(MemberDecryptionType.MasterPassword),
-    keyConnectorUrl: new FormControl(""),
+    configType: new FormControl(SsoType.None, { nonNullable: true }),
+    memberDecryptionType: new FormControl(MemberDecryptionType.MasterPassword, {
+      nonNullable: true,
+    }),
+    keyConnectorUrl: new FormControl("", { nonNullable: true }),
     openId: this.openIdForm,
     saml: this.samlForm,
-    enabled: new FormControl(false),
+    enabled: new FormControl(false, { nonNullable: true }),
     ssoIdentifier: new FormControl("", {
+      nonNullable: true,
       validators: [Validators.maxLength(50), Validators.required],
     }),
   });
@@ -235,7 +246,7 @@ export class SsoComponent implements OnInit, OnDestroy {
 
     this.ssoConfigForm
       .get("configType")
-      .valueChanges.pipe(takeUntil(this.destroy$))
+      ?.valueChanges.pipe(takeUntil(this.destroy$))
       .subscribe((newType: SsoType) => {
         if (newType === SsoType.OpenIdConnect) {
           this.openIdForm.enable();
@@ -251,8 +262,8 @@ export class SsoComponent implements OnInit, OnDestroy {
 
     this.samlForm
       .get("spSigningBehavior")
-      .valueChanges.pipe(takeUntil(this.destroy$))
-      .subscribe(() => this.samlForm.get("idpX509PublicCert").updateValueAndValidity());
+      ?.valueChanges.pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.samlForm.get("idpX509PublicCert")?.updateValueAndValidity());
 
     this.route.params
       .pipe(
@@ -286,6 +297,10 @@ export class SsoComponent implements OnInit, OnDestroy {
     this.memberDecryptionTypeValueChangesSubscription = null;
 
     try {
+      if (!this.organizationId) {
+        throw new Error("Load: Organization ID is not set");
+      }
+
       const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
       this.organization = await firstValueFrom(
         this.organizationService
@@ -334,6 +349,11 @@ export class SsoComponent implements OnInit, OnDestroy {
         this.readOutErrors();
         return;
       }
+
+      if (!this.organizationId) {
+        throw new Error("Submit: Organization ID is not set");
+      }
+
       const request = new OrganizationSsoRequest();
       request.enabled = this.enabledCtrl.value;
       // Return null instead of empty string to avoid duplicate id errors in database
@@ -349,7 +369,6 @@ export class SsoComponent implements OnInit, OnDestroy {
 
       this.toastService.showToast({
         variant: "success",
-        title: null,
         message: this.i18nService.t("ssoSettingsSaved"),
       });
     } finally {
@@ -407,16 +426,16 @@ export class SsoComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.keyConnectorUrl.markAsPending();
+    this.keyConnectorUrlFormCtrl.markAsPending();
 
     try {
-      await this.apiService.getKeyConnectorAlive(this.keyConnectorUrl.value);
-      this.keyConnectorUrl.updateValueAndValidity();
+      await this.apiService.getKeyConnectorAlive(this.keyConnectorUrlFormCtrl.value);
+      this.keyConnectorUrlFormCtrl.updateValueAndValidity();
     } catch {
-      this.keyConnectorUrl.setErrors({
+      this.keyConnectorUrlFormCtrl.setErrors({
         invalidUrl: { message: this.i18nService.t("keyConnectorTestFail") },
       });
-      this.keyConnectorUrl.markAllAsTouched();
+      this.keyConnectorUrlFormCtrl.markAllAsTouched();
     }
 
     this.haveTestedKeyConnector = true;
@@ -442,12 +461,12 @@ export class SsoComponent implements OnInit, OnDestroy {
   get enableTestKeyConnector() {
     return (
       this.ssoConfigForm.value?.memberDecryptionType === MemberDecryptionType.KeyConnector &&
-      !Utils.isNullOrWhitespace(this.keyConnectorUrl?.value)
+      !Utils.isNullOrWhitespace(this.keyConnectorUrlFormCtrl?.value)
     );
   }
 
-  get keyConnectorUrl() {
-    return this.ssoConfigForm.get("keyConnectorUrl");
+  get keyConnectorUrlFormCtrl() {
+    return this.ssoConfigForm.controls?.keyConnectorUrl as FormControl<string>;
   }
 
   /**
@@ -502,6 +521,11 @@ export class SsoComponent implements OnInit, OnDestroy {
     organizationSsoRequest: OrganizationSsoRequest,
   ): Promise<void> {
     const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+
+    if (!this.organizationId) {
+      throw new Error("upsertOrganizationWithSsoChanges: Organization ID is not set");
+    }
+
     const currentOrganization = await firstValueFrom(
       this.organizationService
         .organizations$(userId)
