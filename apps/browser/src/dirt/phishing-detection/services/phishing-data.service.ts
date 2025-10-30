@@ -14,6 +14,7 @@ import {
 
 import { devFlagEnabled, devFlagValue } from "@bitwarden/browser/platform/flags";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ScheduledTaskNames, TaskSchedulerService } from "@bitwarden/common/platform/scheduling";
 import { LogService } from "@bitwarden/logging";
 import { GlobalStateProvider, KeyDefinition, PHISHING_DETECTION_DISK } from "@bitwarden/state";
@@ -22,6 +23,12 @@ export type PhishingData = {
   domains: string[];
   timestamp: number;
   checksum: string;
+
+  /**
+   * We store the application version to refetch the entire dataset on a new client release.
+   * This counteracts daily appends updates not removing inactive or false positive domains.
+   */
+  applicationVersion: string;
 };
 
 export const PHISHING_DOMAINS_KEY = new KeyDefinition<PhishingData>(
@@ -95,6 +102,7 @@ export class PhishingDataService {
     private taskSchedulerService: TaskSchedulerService,
     private globalStateProvider: GlobalStateProvider,
     private logService: LogService,
+    private platformUtilsService: PlatformUtilsService,
   ) {
     this.taskSchedulerService.registerTaskHandler(ScheduledTaskNames.phishingDomainUpdate, () => {
       this._triggerUpdate$.next();
@@ -122,24 +130,26 @@ export class PhishingDataService {
   }
 
   async getNextDomains(prev: PhishingData | null): Promise<PhishingData | null> {
-    prev = prev ?? { domains: [], timestamp: 0, checksum: "" };
+    prev = prev ?? { domains: [], timestamp: 0, checksum: "", applicationVersion: "" };
     const timestamp = Date.now();
     const prevAge = timestamp - prev.timestamp;
     this.logService.info(`[PhishingDataService] Cache age: ${prevAge}`);
 
-    // If checksum matches, return existing data with new timestamp
+    const applicationVersion = await this.platformUtilsService.getApplicationVersion();
+
+    // If checksum matches, return existing data with new timestamp & version
     const remoteChecksum = await this.fetchPhishingDomainsChecksum();
     if (remoteChecksum && prev.checksum === remoteChecksum) {
       this.logService.info(
         `[PhishingDataService] Remote checksum matches local checksum, updating timestamp only.`,
       );
-      return { ...prev, timestamp };
+      return { ...prev, timestamp, applicationVersion };
     }
     // Checksum is different, data needs to be updated.
 
-    // Approach 1: If cache is no more than 1 day old, Fetch only new domains
+    // Approach 1: Fetch only new domains and append
     const isOneDayOldMax = prevAge <= this.UPDATE_INTERVAL_DURATION;
-    if (isOneDayOldMax) {
+    if (isOneDayOldMax && applicationVersion === prev.applicationVersion) {
       const dailyDomains: string[] = await this.fetchPhishingDomains(
         PhishingDataService.RemotePhishingDatabaseTodayUrl,
       );
@@ -148,6 +158,7 @@ export class PhishingDataService {
         domains: prev.domains.concat(dailyDomains),
         checksum: remoteChecksum,
         timestamp,
+        applicationVersion,
       };
     }
 
@@ -157,6 +168,7 @@ export class PhishingDataService {
       domains,
       timestamp,
       checksum: remoteChecksum,
+      applicationVersion,
     };
   }
 

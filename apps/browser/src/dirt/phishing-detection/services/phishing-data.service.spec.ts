@@ -1,6 +1,7 @@
 import { MockProxy, mock } from "jest-mock-extended";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import {
   DefaultTaskSchedulerService,
   TaskSchedulerService,
@@ -15,6 +16,7 @@ describe("PhishingDataService", () => {
   let apiService: MockProxy<ApiService>;
   let taskSchedulerService: TaskSchedulerService;
   let logService: MockProxy<LogService>;
+  let platformUtilsService: MockProxy<PlatformUtilsService>;
   const stateProvider: FakeGlobalStateProvider = new FakeGlobalStateProvider();
 
   const setMockState = (state: PhishingData) => {
@@ -27,11 +29,21 @@ describe("PhishingDataService", () => {
 
   beforeEach(() => {
     jest.useFakeTimers();
-    apiService = mock();
+    apiService = mock<ApiService>();
     logService = mock<LogService>();
+
+    platformUtilsService = mock<PlatformUtilsService>();
+    platformUtilsService.getApplicationVersion.mockResolvedValue("1.0.0");
+
     taskSchedulerService = new DefaultTaskSchedulerService(logService);
 
-    service = new PhishingDataService(apiService, taskSchedulerService, stateProvider, logService);
+    service = new PhishingDataService(
+      apiService,
+      taskSchedulerService,
+      stateProvider,
+      logService,
+      platformUtilsService,
+    );
 
     fetchChecksumSpy = jest.spyOn(service as any, "fetchPhishingDomainsChecksum");
     fetchDomainsSpy = jest.spyOn(service as any, "fetchPhishingDomains");
@@ -43,6 +55,7 @@ describe("PhishingDataService", () => {
         domains: ["phish.com", "badguy.net"],
         timestamp: Date.now(),
         checksum: "abc123",
+        applicationVersion: "1.0.0",
       });
       const url = new URL("http://phish.com");
       const result = await service.isPhishingDomain(url);
@@ -54,6 +67,7 @@ describe("PhishingDataService", () => {
         domains: ["phish.com", "badguy.net"],
         timestamp: Date.now(),
         checksum: "abc123",
+        applicationVersion: "1.0.0",
       });
       const url = new URL("http://safe.com");
       const result = await service.isPhishingDomain(url);
@@ -65,6 +79,7 @@ describe("PhishingDataService", () => {
         domains: ["phish.com", "badguy.net"],
         timestamp: Date.now(),
         checksum: "abc123",
+        applicationVersion: "1.0.0",
       });
       const url = new URL("http://phish.com/about");
       const result = await service.isPhishingDomain(url);
@@ -80,8 +95,31 @@ describe("PhishingDataService", () => {
   });
 
   describe("getNextDomains", () => {
+    it("refetches all domains if applicationVersion has changed", async () => {
+      const prev: PhishingData = {
+        domains: ["a.com"],
+        timestamp: Date.now() - 60000,
+        checksum: "old",
+        applicationVersion: "1.0.0",
+      };
+      fetchChecksumSpy.mockResolvedValue("new");
+      fetchDomainsSpy.mockResolvedValue(["d.com", "e.com"]);
+      platformUtilsService.getApplicationVersion.mockResolvedValue("2.0.0");
+
+      const result = await service.getNextDomains(prev);
+
+      expect(result!.domains).toEqual(["d.com", "e.com"]);
+      expect(result!.checksum).toBe("new");
+      expect(result!.applicationVersion).toBe("2.0.0");
+    });
+
     it("only updates timestamp if checksum matches", async () => {
-      const prev = { domains: ["a.com"], timestamp: Date.now() - 60000, checksum: "abc" };
+      const prev: PhishingData = {
+        domains: ["a.com"],
+        timestamp: Date.now() - 60000,
+        checksum: "abc",
+        applicationVersion: "1.0.0",
+      };
       fetchChecksumSpy.mockResolvedValue("abc");
       const result = await service.getNextDomains(prev);
       expect(result!.domains).toEqual(prev.domains);
@@ -90,7 +128,12 @@ describe("PhishingDataService", () => {
     });
 
     it("patches daily domains if cache is fresh", async () => {
-      const prev = { domains: ["a.com"], timestamp: Date.now() - 60000, checksum: "old" };
+      const prev: PhishingData = {
+        domains: ["a.com"],
+        timestamp: Date.now() - 60000,
+        checksum: "old",
+        applicationVersion: "1.0.0",
+      };
       fetchChecksumSpy.mockResolvedValue("new");
       fetchDomainsSpy.mockResolvedValue(["b.com", "c.com"]);
       const result = await service.getNextDomains(prev);
@@ -99,10 +142,11 @@ describe("PhishingDataService", () => {
     });
 
     it("fetches all domains if cache is old", async () => {
-      const prev = {
+      const prev: PhishingData = {
         domains: ["a.com"],
         timestamp: Date.now() - 2 * 24 * 60 * 60 * 1000,
         checksum: "old",
+        applicationVersion: "1.0.0",
       };
       fetchChecksumSpy.mockResolvedValue("new");
       fetchDomainsSpy.mockResolvedValue(["d.com", "e.com"]);
