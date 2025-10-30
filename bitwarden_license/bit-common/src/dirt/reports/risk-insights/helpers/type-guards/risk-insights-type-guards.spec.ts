@@ -312,10 +312,10 @@ describe("Risk Insights Type Guards", () => {
       expect(isMemberDetails(invalidData)).toBe(false);
     });
 
-    it("should return true for undefined userName", () => {
+    it("should return true for null userName", () => {
       const validData = {
         userGuid: "user-1",
-        userName: undefined as string | undefined,
+        userName: null as string | null,
         email: "john@example.com",
         cipherId: "cipher-1",
       };
