@@ -2,7 +2,7 @@ import { CommonModule } from "@angular/common";
 import { Component, DestroyRef, OnDestroy, OnInit, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
-import { EMPTY } from "rxjs";
+import { combineLatest, EMPTY } from "rxjs";
 import { map, tap } from "rxjs/operators";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -12,6 +12,7 @@ import {
 } from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   AsyncActionsModule,
@@ -26,6 +27,7 @@ import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.mod
 import { AllActivityComponent } from "./activity/all-activity.component";
 import { AllApplicationsComponent } from "./all-applications/all-applications.component";
 import { CriticalApplicationsComponent } from "./critical-applications/critical-applications.component";
+import { EmptyStateCardComponent } from "./empty-state-card.component";
 import { RiskInsightsTabType } from "./models/risk-insights.models";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -38,6 +40,7 @@ import { RiskInsightsTabType } from "./models/risk-insights.models";
     ButtonModule,
     CommonModule,
     CriticalApplicationsComponent,
+    EmptyStateCardComponent,
     JslibModule,
     HeaderModule,
     TabsModule,
@@ -61,14 +64,36 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
   private organizationId: OrganizationId = "" as OrganizationId;
 
   dataLastUpdated: Date | null = null;
+  refetching: boolean = false;
+
+  // Empty state properties
+  protected hasReportBeenRun = false;
+  protected reportHasLoaded = false;
+  protected hasVaultItems = false;
+  private organizationName = "";
+
+  // Empty state computed properties
+  protected shouldShowImportDataState = false;
+  protected emptyStateTitle = "";
+  protected emptyStateDescription = "";
+  protected emptyStateBenefits: [string, string][] = [];
+  protected emptyStateButtonText = "";
+  protected emptyStateButtonIcon = "";
+  protected emptyStateButtonAction: (() => void) | null = null;
+  protected emptyStateVideoSrc: string | null = "/videos/risk-insights-mark-as-critical.mp4";
+
+  private static readonly IMPORT_ICON = "bwi bwi-download";
+
+  // TODO: See https://github.com/bitwarden/clients/pull/16832#discussion_r2474523235
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private configService: ConfigService,
     protected dataService: RiskInsightsDataService,
+    private i18nService: I18nService,
   ) {
-    this.route.queryParams.pipe(takeUntilDestroyed()).subscribe(({ tabIndex }) => {
+    this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(({ tabIndex }) => {
       this.tabIndex = !isNaN(Number(tabIndex)) ? Number(tabIndex) : RiskInsightsTabType.AllApps;
     });
 
@@ -89,7 +114,7 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
         tap((orgId) => {
           if (orgId) {
             // Initialize Data Service
-            this.dataService.initializeForOrganization(orgId as OrganizationId);
+            void this.dataService.initializeForOrganization(orgId as OrganizationId);
             this.organizationId = orgId as OrganizationId;
           } else {
             return EMPTY;
@@ -98,12 +123,30 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
       )
       .subscribe();
 
-    // Subscribe to report result details
-    this.dataService.enrichedReportData$
+    // Combine report data, vault items check, organization details, and generation state
+    // This declarative pattern ensures proper cleanup and prevents memory leaks
+    combineLatest([
+      this.dataService.enrichedReportData$,
+      this.dataService.hasVaultItems$,
+      this.dataService.organizationDetails$,
+      this.dataService.isGeneratingReport$,
+    ])
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((report) => {
+      .subscribe(([report, hasVaultItems, orgDetails, isGenerating]) => {
+        // Update report state
+        this.reportHasLoaded = true;
+        this.hasReportBeenRun = !!report?.creationDate;
         this.appsCount = report?.reportData.length ?? 0;
         this.dataLastUpdated = report?.creationDate ?? null;
+
+        // Update vault items state
+        this.hasVaultItems = hasVaultItems;
+
+        // Update organization name
+        this.organizationName = orgDetails?.organizationName ?? "";
+
+        // Update all empty state properties based on current state
+        this.updateEmptyStateProperties(isGenerating);
       });
 
     // Subscribe to drawer state changes
@@ -126,6 +169,10 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
     if (this.organizationId) {
       this.dataService.triggerReport();
     }
+  }
+
+  get shouldShowTabs(): boolean {
+    return this.appsCount > 0;
   }
 
   async onTabChange(newIndex: number): Promise<void> {
@@ -164,6 +211,54 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
       if (!value) {
         this.dataService.closeDrawer();
       }
+    }
+  }
+
+  // Empty state methods
+
+  // TODO: import data button (we have this) OR button for adding new login items
+  // we want to add this new button as a second option on the empty state card
+
+  goToImportPage = () => {
+    void this.router.navigate([
+      "/organizations",
+      this.organizationId,
+      "settings",
+      "tools",
+      "import",
+    ]);
+  };
+
+  /**
+   * Updates all empty state properties based on current state.
+   * Called whenever the underlying data (hasVaultItems, hasReportBeenRun, reportHasLoaded) changes.
+   */
+  private updateEmptyStateProperties(isGenerating: boolean): void {
+    // Calculate boolean flags
+    // Note: We only show empty states when there are NO apps (appsCount === 0)
+    // The template uses @if(shouldShowTabs) to determine whether to show tabs or empty state
+    this.shouldShowImportDataState = !this.hasVaultItems && !isGenerating;
+
+    // Update benefits (constant for all states)
+    this.emptyStateBenefits = [
+      [this.i18nService.t("benefit1Title"), this.i18nService.t("benefit1Description")],
+      [this.i18nService.t("benefit2Title"), this.i18nService.t("benefit2Description")],
+      [this.i18nService.t("benefit3Title"), this.i18nService.t("benefit3Description")],
+    ];
+
+    // Update all state-dependent properties in single if/else
+    if (this.shouldShowImportDataState) {
+      this.emptyStateTitle = this.i18nService.t("noApplicationsInOrgTitle", this.organizationName);
+      this.emptyStateDescription = this.i18nService.t("noApplicationsInOrgDescription");
+      this.emptyStateButtonText = this.i18nService.t("importData");
+      this.emptyStateButtonIcon = RiskInsightsComponent.IMPORT_ICON;
+      this.emptyStateButtonAction = this.goToImportPage;
+    } else {
+      this.emptyStateTitle = this.i18nService.t("noReportRunTitle");
+      this.emptyStateDescription = this.i18nService.t("noReportRunDescription");
+      this.emptyStateButtonText = this.i18nService.t("riskInsightsRunReport");
+      this.emptyStateButtonIcon = "";
+      this.emptyStateButtonAction = this.generateReport.bind(this);
     }
   }
 }

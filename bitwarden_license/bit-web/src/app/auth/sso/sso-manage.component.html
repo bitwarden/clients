@@ -133,15 +133,15 @@
               class="bwi bwi-spinner bwi-spin"
               title="{{ 'loading' | i18n }}"
               aria-hidden="true"
-              *ngIf="keyConnectorUrl.pending"
+              *ngIf="keyConnectorUrlFormCtrl.pending"
             ></i>
-            <span *ngIf="!keyConnectorUrl.pending">
+            <span *ngIf="!keyConnectorUrlFormCtrl.pending">
               {{ "keyConnectorTest" | i18n }}
             </span>
           </button>
           <bit-hint
             aria-live="polite"
-            *ngIf="haveTestedKeyConnector && !keyConnectorUrl.hasError('invalidUrl')"
+            *ngIf="haveTestedKeyConnector && !keyConnectorUrlFormCtrl.hasError('invalidUrl')"
           >
             <small class="tw-text-success-600">
               <i class="bwi bwi-check-circle" aria-hidden="true"></i>
