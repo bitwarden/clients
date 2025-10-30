@@ -205,13 +205,29 @@ impl WindowsCryptoService {
     }
 
     fn decode_abe_key_blob(blob_data: &[u8]) -> Result<Vec<u8>> {
-        let header_len = u32::from_le_bytes(blob_data[0..4].try_into()?) as usize;
-        // Ignore the header
+        let header_len = u32::from_le_bytes(
+            blob_data
+                .get(0..4)
+                .ok_or_else(|| {
+                    anyhow!(
+                    "Corrupted ABE key blob: data too short (expected at least 4 bytes, got {})",
+                    blob_data.len()
+                )
+                })?
+                .try_into()?,
+        ) as usize;
 
         let content_len_offset = 4 + header_len;
-        let content_len =
-            u32::from_le_bytes(blob_data[content_len_offset..content_len_offset + 4].try_into()?)
-                as usize;
+        let content_len = u32::from_le_bytes(blob_data
+            .get(content_len_offset..content_len_offset + 4)
+            .ok_or_else(|| {
+                anyhow!(
+                    "Corrupted ABE key blob: data too short for content length field (expected at least 4 bytes, got {})",
+                    blob_data.len()
+                )
+            })?
+            .try_into()?
+        ) as usize;
 
         if content_len < 1 {
             return Err(anyhow!(
@@ -220,15 +236,34 @@ impl WindowsCryptoService {
         }
 
         let content_offset = content_len_offset + 4;
-        let content = &blob_data[content_offset..content_offset + content_len];
+        let content = blob_data
+            .get(content_offset..content_offset + content_len)
+            .ok_or_else(|| {
+                anyhow!(
+                    "Corrupted ABE key blob: content out of bounds (offset: {}, length: {}, blob size: {})",
+                    content_offset,
+                    content_len,
+                    blob_data.len()
+                )
+            })?;
 
         // When the size is exactly 32 bytes, it's a plain key. It's used in unbranded Chromium builds, Brave, possibly Edge
         if content_len == 32 {
             return Ok(content.to_vec());
         }
 
-        let version = content[0];
-        let key_blob = &content[1..];
+        // For versioned keys, extract version byte and key data
+        let version = *content
+            .first()
+            .ok_or_else(|| anyhow!("Corrupted ABE key blob: content is empty"))?;
+
+        let key_blob = content.get(1..).ok_or_else(|| {
+            anyhow!(
+                "Corrupted ABE key blob: versioned key too short (expected at least 2 bytes, got {})",
+                content_len
+            )
+        })?;
+
         match version {
             // Google Chrome v1 key encrypted with a hardcoded AES key
             1_u8 => Self::decrypt_abe_key_blob_chrome_aes(key_blob),
@@ -242,15 +277,21 @@ impl WindowsCryptoService {
 
     // TODO: DRY up with decrypt_abe_key_blob_chrome_chacha20
     fn decrypt_abe_key_blob_chrome_aes(blob: &[u8]) -> Result<Vec<u8>> {
-        if blob.len() < 60 {
+        const IV_SIZE: usize = 12;
+        const CIPHERTEXT_SIZE: usize = 48;
+        const MIN_SIZE: usize = IV_SIZE + CIPHERTEXT_SIZE;
+
+        if blob.len() < MIN_SIZE {
             return Err(anyhow!(
-                "Corrupted ABE key blob: expected at least 60 bytes, got {} bytes",
+                "Corrupted ABE key blob: expected at least {} bytes, got {} bytes",
+                MIN_SIZE,
                 blob.len()
             ));
         }
 
-        let iv: [u8; 12] = blob[0..12].try_into()?;
-        let ciphertext: [u8; 48] = blob[12..12 + 48].try_into()?;
+        let iv: [u8; 12] = blob[0..IV_SIZE].try_into()?;
+        let ciphertext: [u8; CIPHERTEXT_SIZE] =
+            blob[IV_SIZE..IV_SIZE + CIPHERTEXT_SIZE].try_into()?;
 
         const GOOGLE_AES_KEY: &[u8] = &[
             0xB3, 0x1C, 0x6E, 0x24, 0x1A, 0xC8, 0x46, 0x72, 0x8D, 0xA9, 0xC1, 0xFA, 0xC4, 0x93,
@@ -268,15 +309,17 @@ impl WindowsCryptoService {
     }
 
     fn decrypt_abe_key_blob_chrome_chacha20(blob: &[u8]) -> Result<Vec<u8>> {
-        if blob.len() < 60 {
+        const IV_SIZE: usize = 12;
+        const CIPHERTEXT_SIZE: usize = 48;
+        const MIN_SIZE: usize = IV_SIZE + CIPHERTEXT_SIZE;
+
+        if blob.len() < MIN_SIZE {
             return Err(anyhow!(
-                "Corrupted ABE key blob: expected at least 60 bytes, got {} bytes",
+                "Corrupted ABE key blob: expected at least {} bytes, got {} bytes",
+                MIN_SIZE,
                 blob.len()
             ));
         }
-
-        let chacha20_key = chacha20poly1305::Key::from_slice(GOOGLE_CHACHA20_KEY);
-        let cipher = ChaCha20Poly1305::new(chacha20_key);
 
         const GOOGLE_CHACHA20_KEY: &[u8] = &[
             0xE9, 0x8F, 0x37, 0xD7, 0xF4, 0xE1, 0xFA, 0x43, 0x3D, 0x19, 0x30, 0x4D, 0xC2, 0x25,
@@ -284,8 +327,12 @@ impl WindowsCryptoService {
             0x08, 0x72, 0x96, 0x60,
         ];
 
-        let iv: [u8; 12] = blob[0..12].try_into()?;
-        let ciphertext: [u8; 48] = blob[12..12 + 48].try_into()?;
+        let chacha20_key = chacha20poly1305::Key::from_slice(GOOGLE_CHACHA20_KEY);
+        let cipher = ChaCha20Poly1305::new(chacha20_key);
+
+        let iv: [u8; IV_SIZE] = blob[0..IV_SIZE].try_into()?;
+        let ciphertext: [u8; CIPHERTEXT_SIZE] =
+            blob[IV_SIZE..IV_SIZE + CIPHERTEXT_SIZE].try_into()?;
 
         let decrypted = cipher
             .decrypt((&iv).into(), ciphertext.as_ref())
@@ -295,16 +342,26 @@ impl WindowsCryptoService {
     }
 
     fn decrypt_abe_key_blob_chrome_cng(blob: &[u8]) -> Result<Vec<u8>> {
-        if blob.len() < 92 {
+        const ENCRYPTED_AES_KEY_SIZE: usize = 32;
+        const IV_SIZE: usize = 12;
+        const CIPHERTEXT_SIZE: usize = 48;
+        const MIN_SIZE: usize = ENCRYPTED_AES_KEY_SIZE + IV_SIZE + CIPHERTEXT_SIZE;
+
+        if blob.len() < MIN_SIZE {
             return Err(anyhow!(
-                "Corrupted ABE key blob: expected at least 92 bytes, got {} bytes",
+                "Corrupted ABE key blob: expected at least {} bytes, got {} bytes",
+                MIN_SIZE,
                 blob.len()
             ));
         }
 
-        let _encrypted_aes_key: [u8; 32] = blob[0..32].try_into()?;
-        let _iv: [u8; 12] = blob[32..32 + 12].try_into()?;
-        let _ciphertext: [u8; 48] = blob[44..44 + 48].try_into()?;
+        let _encrypted_aes_key: [u8; ENCRYPTED_AES_KEY_SIZE] =
+            blob[0..ENCRYPTED_AES_KEY_SIZE].try_into()?;
+        let _iv: [u8; IV_SIZE] =
+            blob[ENCRYPTED_AES_KEY_SIZE..ENCRYPTED_AES_KEY_SIZE + IV_SIZE].try_into()?;
+        let _ciphertext: [u8; CIPHERTEXT_SIZE] = blob
+            [ENCRYPTED_AES_KEY_SIZE + IV_SIZE..ENCRYPTED_AES_KEY_SIZE + IV_SIZE + CIPHERTEXT_SIZE]
+            .try_into()?;
 
         // TODO: Decrypt the AES key using CNG APIs
         // TODO: Implement this in the future once we run into a browser that uses this scheme
