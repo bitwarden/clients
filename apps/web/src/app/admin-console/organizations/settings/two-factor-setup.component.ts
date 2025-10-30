@@ -11,10 +11,10 @@ import {
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { TwoFactorDuoResponse } from "@bitwarden/common/auth/models/response/two-factor-duo.response";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { TwoFactorApiService } from "@bitwarden/common/auth/two-factor";
 import { AuthResponse } from "@bitwarden/common/auth/types/auth-response";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -37,7 +37,7 @@ export class TwoFactorSetupComponent extends BaseTwoFactorSetupComponent impleme
   tabbedHeader = false;
   constructor(
     dialogService: DialogService,
-    twoFactorApiService: TwoFactorApiService,
+    twoFactorService: TwoFactorService,
     messagingService: MessagingService,
     policyService: PolicyService,
     private route: ActivatedRoute,
@@ -49,7 +49,7 @@ export class TwoFactorSetupComponent extends BaseTwoFactorSetupComponent impleme
   ) {
     super(
       dialogService,
-      twoFactorApiService,
+      twoFactorService,
       messagingService,
       policyService,
       billingAccountProfileStateService,
@@ -118,7 +118,7 @@ export class TwoFactorSetupComponent extends BaseTwoFactorSetupComponent impleme
   }
 
   protected getTwoFactorProviders() {
-    return this.twoFactorApiService.getTwoFactorOrganizationProviders(this.organizationId);
+    return this.twoFactorService.getTwoFactorOrganizationProviders(this.organizationId);
   }
 
   protected filterProvider(type: TwoFactorProviderType): boolean {

@@ -7,12 +7,12 @@ import { firstValueFrom, map } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { DisableTwoFactorAuthenticatorRequest } from "@bitwarden/common/auth/models/request/disable-two-factor-authenticator.request";
 import { UpdateTwoFactorAuthenticatorRequest } from "@bitwarden/common/auth/models/request/update-two-factor-authenticator.request";
 import { TwoFactorAuthenticatorResponse } from "@bitwarden/common/auth/models/response/two-factor-authenticator.response";
-import { TwoFactorApiService } from "@bitwarden/common/auth/two-factor";
 import { AuthResponse } from "@bitwarden/common/auth/types/auth-response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -96,7 +96,7 @@ export class TwoFactorSetupAuthenticatorComponent
   constructor(
     @Inject(DIALOG_DATA) protected data: AuthResponse<TwoFactorAuthenticatorResponse>,
     private dialogRef: DialogRef,
-    twoFactorApiService: TwoFactorApiService,
+    twoFactorService: TwoFactorService,
     i18nService: I18nService,
     userVerificationService: UserVerificationService,
     private formBuilder: FormBuilder,
@@ -108,7 +108,7 @@ export class TwoFactorSetupAuthenticatorComponent
     protected toastService: ToastService,
   ) {
     super(
-      twoFactorApiService,
+      twoFactorService,
       i18nService,
       platformUtilsService,
       logService,
@@ -158,7 +158,7 @@ export class TwoFactorSetupAuthenticatorComponent
     request.key = this.key;
     request.userVerificationToken = this.userVerificationToken;
 
-    const response = await this.twoFactorApiService.putTwoFactorAuthenticator(request);
+    const response = await this.twoFactorService.putTwoFactorAuthenticator(request);
     await this.processResponse(response);
     this.onUpdated.emit(true);
   }
@@ -178,7 +178,7 @@ export class TwoFactorSetupAuthenticatorComponent
     request.type = this.type;
     request.key = this.key;
     request.userVerificationToken = this.userVerificationToken;
-    await this.twoFactorApiService.deleteTwoFactorAuthenticator(request);
+    await this.twoFactorService.deleteTwoFactorAuthenticator(request);
     this.enabled = false;
     this.toastService.showToast({
       variant: "success",

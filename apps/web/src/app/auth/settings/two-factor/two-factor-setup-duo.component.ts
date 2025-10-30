@@ -2,11 +2,11 @@ import { CommonModule } from "@angular/common";
 import { Component, EventEmitter, Inject, OnInit, Output } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 
+import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { UpdateTwoFactorDuoRequest } from "@bitwarden/common/auth/models/request/update-two-factor-duo.request";
 import { TwoFactorDuoResponse } from "@bitwarden/common/auth/models/response/two-factor-duo.response";
-import { TwoFactorApiService } from "@bitwarden/common/auth/two-factor";
 import { AuthResponse } from "@bitwarden/common/auth/types/auth-response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -67,7 +67,7 @@ export class TwoFactorSetupDuoComponent
 
   constructor(
     @Inject(DIALOG_DATA) protected data: TwoFactorDuoComponentConfig,
-    twoFactorApiService: TwoFactorApiService,
+    twoFactorService: TwoFactorService,
     i18nService: I18nService,
     platformUtilsService: PlatformUtilsService,
     logService: LogService,
@@ -78,7 +78,7 @@ export class TwoFactorSetupDuoComponent
     protected toastService: ToastService,
   ) {
     super(
-      twoFactorApiService,
+      twoFactorService,
       i18nService,
       platformUtilsService,
       logService,
@@ -143,12 +143,12 @@ export class TwoFactorSetupDuoComponent
     let response: TwoFactorDuoResponse;
 
     if (this.organizationId != null) {
-      response = await this.twoFactorApiService.putTwoFactorOrganizationDuo(
+      response = await this.twoFactorService.putTwoFactorOrganizationDuo(
         this.organizationId,
         request,
       );
     } else {
-      response = await this.twoFactorApiService.putTwoFactorDuo(request);
+      response = await this.twoFactorService.putTwoFactorDuo(request);
     }
 
     this.processResponse(response);

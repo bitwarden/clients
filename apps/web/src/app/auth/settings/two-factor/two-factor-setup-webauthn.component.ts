@@ -3,6 +3,7 @@ import { Component, Inject, NgZone } from "@angular/core";
 import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { SecretVerificationRequest } from "@bitwarden/common/auth/models/request/secret-verification.request";
@@ -12,7 +13,6 @@ import {
   ChallengeResponse,
   TwoFactorWebAuthnResponse,
 } from "@bitwarden/common/auth/models/response/two-factor-web-authn.response";
-import { TwoFactorApiService } from "@bitwarden/common/auth/two-factor";
 import { AuthResponse } from "@bitwarden/common/auth/types/auth-response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -81,7 +81,7 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
   constructor(
     @Inject(DIALOG_DATA) protected data: AuthResponse<TwoFactorWebAuthnResponse>,
     private dialogRef: DialogRef,
-    twoFactorApiService: TwoFactorApiService,
+    twoFactorService: TwoFactorService,
     i18nService: I18nService,
     platformUtilsService: PlatformUtilsService,
     private ngZone: NgZone,
@@ -91,7 +91,7 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
     toastService: ToastService,
   ) {
     super(
-      twoFactorApiService,
+      twoFactorService,
       i18nService,
       platformUtilsService,
       logService,
@@ -129,7 +129,7 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
     request.id = this.keyIdAvailable;
     request.name = this.formGroup.value.name || "";
 
-    const response = await this.twoFactorApiService.putTwoFactorWebAuthn(request);
+    const response = await this.twoFactorService.putTwoFactorWebAuthn(request);
     this.processResponse(response);
     this.toastService.showToast({
       title: this.i18nService.t("success"),
@@ -165,7 +165,7 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
     const request = await this.buildRequestModel(UpdateTwoFactorWebAuthnDeleteRequest);
     request.id = key.id;
     try {
-      key.removePromise = this.twoFactorApiService.deleteTwoFactorWebAuthn(request);
+      key.removePromise = this.twoFactorService.deleteTwoFactorWebAuthn(request);
       const response = await key.removePromise;
       key.removePromise = null;
       await this.processResponse(response);
@@ -179,7 +179,7 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
       return;
     }
     const request = await this.buildRequestModel(SecretVerificationRequest);
-    this.challengePromise = this.twoFactorApiService.getTwoFactorWebAuthnChallenge(request);
+    this.challengePromise = this.twoFactorService.getTwoFactorWebAuthnChallenge(request);
     const challenge = await this.challengePromise;
     this.readDevice(challenge);
   };

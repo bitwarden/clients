@@ -1,11 +1,11 @@
 import { Directive, EventEmitter, Output } from "@angular/core";
 
+import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { VerificationType } from "@bitwarden/common/auth/enums/verification-type";
 import { SecretVerificationRequest } from "@bitwarden/common/auth/models/request/secret-verification.request";
 import { TwoFactorProviderRequest } from "@bitwarden/common/auth/models/request/two-factor-provider.request";
-import { TwoFactorApiService } from "@bitwarden/common/auth/two-factor";
 import { AuthResponseBase } from "@bitwarden/common/auth/types/auth-response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -32,7 +32,7 @@ export abstract class TwoFactorSetupMethodBaseComponent {
   protected componentName = "";
 
   constructor(
-    protected twoFactorApiService: TwoFactorApiService,
+    protected twoFactorService: TwoFactorService,
     protected i18nService: I18nService,
     protected platformUtilsService: PlatformUtilsService,
     protected logService: LogService,
@@ -79,12 +79,12 @@ export abstract class TwoFactorSetupMethodBaseComponent {
       }
       request.type = this.type;
       if (this.organizationId != null) {
-        promise = this.twoFactorApiService.putTwoFactorOrganizationDisable(
+        promise = this.twoFactorService.putTwoFactorOrganizationDisable(
           this.organizationId,
           request,
         );
       } else {
-        promise = this.twoFactorApiService.putTwoFactorDisable(request);
+        promise = this.twoFactorService.putTwoFactorDisable(request);
       }
       await promise;
       this.enabled = false;
@@ -116,9 +116,9 @@ export abstract class TwoFactorSetupMethodBaseComponent {
     }
     request.type = this.type;
     if (this.organizationId != null) {
-      await this.twoFactorApiService.putTwoFactorOrganizationDisable(this.organizationId, request);
+      await this.twoFactorService.putTwoFactorOrganizationDisable(this.organizationId, request);
     } else {
-      await this.twoFactorApiService.putTwoFactorDisable(request);
+      await this.twoFactorService.putTwoFactorDisable(request);
     }
     this.enabled = false;
     this.toastService.showToast({
