@@ -3,7 +3,7 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { getAutotypeVaultData } from "./desktop-autotype.service";
 
 describe("getAutotypeVaultData", () => {
-  it("should return vault data when cipher has username and password", async () => {
+  it("should return vault data when cipher has username and password", () => {
     const cipherView = new CipherView();
     cipherView.login.username = "foo";
     cipherView.login.password = "bar";
@@ -15,7 +15,7 @@ describe("getAutotypeVaultData", () => {
     expect(vaultData?.password).toEqual("bar");
   });
 
-  it("should return error when firstCipher is undefined", async () => {
+  it("should return error when firstCipher is undefined", () => {
     const cipherView = undefined;
     const [error, vaultData] = getAutotypeVaultData(cipherView);
 
@@ -24,7 +24,7 @@ describe("getAutotypeVaultData", () => {
     expect(error?.message).toEqual("No matching vault item.");
   });
 
-  it("should return error when username is undefined", async () => {
+  it("should return error when username is undefined", () => {
     const cipherView = new CipherView();
     cipherView.login.username = undefined;
     cipherView.login.password = "bar";
@@ -36,7 +36,7 @@ describe("getAutotypeVaultData", () => {
     expect(error?.message).toEqual("Vault item is undefined.");
   });
 
-  it("should return error when password is undefined", async () => {
+  it("should return error when password is undefined", () => {
     const cipherView = new CipherView();
     cipherView.login.username = "foo";
     cipherView.login.password = undefined;
