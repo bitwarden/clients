@@ -29,6 +29,8 @@ export const AUTOTYPE_ENABLED = new KeyDefinition<boolean | null>(
   { deserializer: (b) => b },
 );
 
+export type Result<T, E = Error> = [E, null] | [null, T];
+
 /*
   Valid windows shortcut keys: Control, Alt, Super, Shift, letters A - Z
   Valid macOS shortcut keys: Control, Alt, Command, Shift, letters A - Z
@@ -182,7 +184,7 @@ export class DesktopAutotypeService {
  */
 export function getAutotypeVaultData(
   cipherView: CipherView | undefined,
-): [Error | null, AutotypeVaultData | null] {
+): Result<AutotypeVaultData> {
   if (!cipherView) {
     return [Error("No matching vault item."), null];
   } else if (cipherView.login.username === undefined || cipherView.login.password === undefined) {
