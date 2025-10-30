@@ -230,7 +230,7 @@ export function isOrganizationReportSummary(obj: any): obj is OrganizationReport
     Number.isSafeInteger(obj.totalCriticalAtRiskApplicationCount) &&
     obj.totalCriticalAtRiskApplicationCount >= 0 &&
     obj.totalCriticalAtRiskApplicationCount <= MAX_COUNT &&
-    // newApplications is optional (backward compatibility - not in type definition)
+    // newApplications is optional (backward compatibility - legacy encrypted data predates this field)
     (obj.newApplications === undefined ||
       (Array.isArray(obj.newApplications) &&
         obj.newApplications.length <= MAX_ARRAY_LENGTH &&
