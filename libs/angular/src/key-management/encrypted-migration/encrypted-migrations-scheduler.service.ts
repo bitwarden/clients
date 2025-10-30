@@ -22,7 +22,7 @@ export const ENCRYPTED_MIGRATION_DISMISSED = new UserKeyDefinition<Date>(
   ENCRYPTED_MIGRATION_DISK,
   "encryptedMigrationDismissed",
   {
-    deserializer: (obj: any) => (obj != null ? new Date(obj) : null),
+    deserializer: (obj: string) => (obj != null ? new Date(obj) : null),
     clearOn: [],
   },
 );
