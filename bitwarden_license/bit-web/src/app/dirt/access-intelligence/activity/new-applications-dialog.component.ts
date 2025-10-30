@@ -1,10 +1,18 @@
 import { CommonModule } from "@angular/common";
-import { Component, inject } from "@angular/core";
+import { Component, DestroyRef, inject, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { ActivatedRoute } from "@angular/router";
 import { firstValueFrom } from "rxjs";
+import { filter, map } from "rxjs/operators";
 
-import { RiskInsightsDataService } from "@bitwarden/bit-common/dirt/reports/risk-insights";
+import {
+  AllActivitiesService,
+  RiskInsightsDataService,
+  SecurityTasksApiService,
+} from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   ButtonModule,
   DialogModule,
@@ -15,25 +23,72 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { AssignTasksViewComponent } from "./assign-tasks-view.component";
+
 export interface NewApplicationsDialogData {
   newApplications: string[];
 }
+
+/**
+ * View states for dialog navigation
+ * Using const object pattern per ADR-0025 (Deprecate TypeScript Enums)
+ */
+export const DialogView = Object.freeze({
+  SelectApplications: "select",
+  AssignTasks: "assign",
+} as const);
+
+export type DialogView = (typeof DialogView)[keyof typeof DialogView];
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "./new-applications-dialog.component.html",
-  imports: [CommonModule, ButtonModule, DialogModule, TypographyModule, I18nPipe],
+  imports: [
+    CommonModule,
+    ButtonModule,
+    DialogModule,
+    TypographyModule,
+    I18nPipe,
+    AssignTasksViewComponent,
+  ],
 })
-export class NewApplicationsDialogComponent {
+export class NewApplicationsDialogComponent implements OnInit {
   protected newApplications: string[] = [];
   protected selectedApplications: Set<string> = new Set<string>();
 
+  // View state management
+  protected currentView: DialogView = DialogView.SelectApplications;
+  // Expose DialogView constants to template
+  protected readonly DialogView = DialogView;
+
+  // Loading states
+  protected isCalculatingTasks = false;
+
+  private destroyRef = inject(DestroyRef);
   private dialogRef = inject(DialogRef<boolean | undefined>);
   private dataService = inject(RiskInsightsDataService);
   private toastService = inject(ToastService);
   private i18nService = inject(I18nService);
   private logService = inject(LogService);
+  private allActivitiesService = inject(AllActivitiesService);
+  private securityTasksApiService = inject(SecurityTasksApiService);
+  private activatedRoute = inject(ActivatedRoute);
+
+  private organizationId: OrganizationId = "" as OrganizationId;
+
+  async ngOnInit(): Promise<void> {
+    // Get organization ID from route params
+    this.activatedRoute.paramMap
+      .pipe(
+        map((params) => params.get("organizationId")),
+        filter((orgId): orgId is string => !!orgId),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((orgId) => {
+        this.organizationId = orgId as OrganizationId;
+      });
+  }
 
   /**
    * Opens the new applications dialog
