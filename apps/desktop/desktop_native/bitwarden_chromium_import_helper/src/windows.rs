@@ -477,7 +477,7 @@ mod windows_binary {
         }
     }
 
-    pub async fn main() {
+    pub(crate) async fn main() {
         if ENABLE_DEVELOPER_LOGGING {
             init_logging(LOG_FILENAME.as_ref(), LevelFilter::DEBUG);
         }
@@ -505,4 +505,5 @@ mod windows_binary {
         }
     }
 }
-use windows_binary::*;
+
+pub(crate) use windows_binary::*;
