@@ -196,7 +196,6 @@ export class SessionTimeoutSettingsComponent implements OnInit {
     this.formGroup.controls.timeoutAction.valueChanges
       .pipe(
         filter((value) => value != null),
-        distinctUntilChanged(),
         map(async (value) => {
           await this.saveTimeoutAction(value);
         }),
