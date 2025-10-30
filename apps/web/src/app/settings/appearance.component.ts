@@ -96,7 +96,6 @@ export class AppearanceComponent implements OnInit {
 
     this.form.controls.locale.valueChanges
       .pipe(
-        filter((locale) => locale != null),
         switchMap(async (locale) => {
           await this.i18nService.setLocale(locale);
           window.location.reload();
