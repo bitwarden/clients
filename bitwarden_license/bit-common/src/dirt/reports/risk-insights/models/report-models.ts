@@ -112,6 +112,7 @@ export interface ReportState {
   loading: boolean;
   error: string | null;
   data: RiskInsightsData | null;
+  organizationId?: string;
 }
 
 // TODO Make Versioned models for structure changes
