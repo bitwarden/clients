@@ -83,9 +83,9 @@ export class RiskInsightsReportService {
     const atRiskUniqueMembers = getUniqueMembers(reports.flatMap((x) => x.atRiskMemberDetails));
 
     const criticalReports = this.filterApplicationsByCritical(reports, applicationData);
-    const criticalUniqueMembers = getUniqueMembers(reports.flatMap((x) => x.memberDetails));
+    const criticalUniqueMembers = getUniqueMembers(criticalReports.flatMap((x) => x.memberDetails));
     const criticalAtRiskUniqueMembers = getUniqueMembers(
-      reports.flatMap((x) => x.atRiskMemberDetails),
+      criticalReports.flatMap((x) => x.atRiskMemberDetails),
     );
 
     return {
