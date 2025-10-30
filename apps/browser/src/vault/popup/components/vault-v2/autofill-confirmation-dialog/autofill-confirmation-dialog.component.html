@@ -48,11 +48,13 @@
       </div>
     </bit-callout>
     <div class="tw-flex tw-justify-center tw-flex-col tw-gap-3 tw-mt-6">
-      <button type="button" bitButton buttonType="primary" (click)="autofillAndAddUrl()">
-        {{ "autofillAndAddWebsite" | i18n }}
-      </button>
+      @if (!viewOnly) {
+        <button type="button" bitButton buttonType="primary" (click)="autofillAndAddUrl()">
+          {{ "autofillAndAddWebsite" | i18n }}
+        </button>
+      }
       <button type="button" bitButton buttonType="secondary" (click)="autofillOnly()">
-        {{ "autofillWithoutAdding" | i18n }}
+        {{ (viewOnly ? "autofill" : "autofillWithoutAdding") | i18n }}
       </button>
       <button
         type="button"
