@@ -48,9 +48,11 @@ export function isMemberDetails(obj: any): obj is MemberDetails {
     typeof obj.userGuid === "string" &&
     obj.userGuid.length > 0 &&
     obj.userGuid.length <= MAX_STRING_LENGTH &&
-    typeof obj.userName === "string" &&
-    obj.userName.length > 0 &&
-    obj.userName.length <= MAX_STRING_LENGTH &&
+    (obj.userName === null ||
+      obj.userName === undefined ||
+      (typeof obj.userName === "string" &&
+        obj.userName.length > 0 &&
+        obj.userName.length <= MAX_STRING_LENGTH)) &&
     typeof obj.email === "string" &&
     obj.email.length > 0 &&
     obj.email.length <= MAX_STRING_LENGTH &&
