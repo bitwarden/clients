@@ -142,7 +142,10 @@ jobs:
           ls -la ./local-sdk-package/
           
           echo "🔗 Installing local SDK package..."
-          npm install ./local-sdk-package
+          if ! npm install ./local-sdk-package; then
+            echo "::error::Failed to install SDK package locally"
+            exit 1
+          fi
           
           echo "🔍 Running TypeScript type checking for ${CLIENT_LABEL} client with SDK version: ${SDK_VERSION}"
           echo "🎯 Type checking command: npm run test:types"
