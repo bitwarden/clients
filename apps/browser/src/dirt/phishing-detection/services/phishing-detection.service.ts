@@ -1,13 +1,4 @@
-import {
-  combineLatest,
-  concatMap,
-  delay,
-  EMPTY,
-  map,
-  Subject,
-  switchMap,
-  takeUntil,
-} from "rxjs";
+import { combineLatest, concatMap, delay, EMPTY, map, Subject, switchMap, takeUntil } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
@@ -40,7 +31,7 @@ export class PhishingDetectionService {
     billingAccountProfileStateService: BillingAccountProfileStateService,
     configService: ConfigService,
     logService: LogService,
-    phishingDataService: PhishingDataService
+    phishingDataService: PhishingDataService,
   ): void {
     this._logService = logService;
     this._phishingDataService = phishingDataService;
@@ -63,15 +54,15 @@ export class PhishingDetectionService {
             .pipe(map((hasPremium) => ({ hasPremium, featureEnabled })));
         }),
         concatMap(async ({ hasPremium, featureEnabled }) => {
-          // if (!hasPremium || !featureEnabled) {
-          //   logService.info(
-          //     "[PhishingDetectionService] User does not have access to phishing detection service.",
-          //   );
-          //   this._cleanup();
-          // } else {
+          if (!hasPremium || !featureEnabled) {
+            logService.info(
+              "[PhishingDetectionService] User does not have access to phishing detection service.",
+            );
+            this._cleanup();
+          } else {
             logService.info("[PhishingDetectionService] Enabling phishing detection service");
             await this._setup();
-          // }
+          }
         }),
       )
       .subscribe();
@@ -114,9 +105,7 @@ export class PhishingDetectionService {
    * Sets up listeners for messages from the web page and web navigation events
    */
   private static _setup(): void {
-    this._phishingDataService.update$.pipe(
-      takeUntil(this._destroy$)
-    ).subscribe();
+    this._phishingDataService.update$.pipe(takeUntil(this._destroy$)).subscribe();
 
     // Setup listeners from web page/content script
     BrowserApi.addListener(chrome.runtime.onMessage, this._handleExtensionMessage.bind(this));
@@ -128,7 +117,7 @@ export class PhishingDetectionService {
     this._navigationEventsSubject
       .pipe(
         delay(100), // Delay slightly to allow replace events to be caught
-        takeUntil(this._destroy$)
+        takeUntil(this._destroy$),
       )
       .subscribe(({ tabId, changeInfo, tab }) => {
         void this._processNavigation(tabId, changeInfo, tab);
