@@ -1,3 +1,4 @@
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { BehaviorSubject } from "rxjs";
 
 import { ApplicationHealthReportDetailEnriched } from "../../models";
@@ -20,7 +21,6 @@ export class AllActivitiesService {
     totalCriticalApplicationCount: 0,
     totalAtRiskApplicationCount: 0,
     totalCriticalAtRiskApplicationCount: 0,
-    newApplications: [],
   });
   reportSummary$ = this.reportSummarySubject$.asObservable();
 
@@ -40,14 +40,15 @@ export class AllActivitiesService {
 
   constructor(private dataService: RiskInsightsDataService) {
     // All application summary changes
-    this.dataService.enrichedReportData$.subscribe((report) => {
+    this.dataService.enrichedReportData$.pipe(takeUntilDestroyed()).subscribe((report) => {
       if (report) {
         this.setAllAppsReportSummary(report.summaryData);
         this.setAllAppsReportDetails(report.reportData);
       }
     });
+
     // Critical application summary changes
-    this.dataService.criticalReportResults$.subscribe((report) => {
+    this.dataService.criticalReportResults$.pipe(takeUntilDestroyed()).subscribe((report) => {
       if (report) {
         this.setCriticalAppsReportSummary(report.summaryData);
       }
@@ -78,7 +79,6 @@ export class AllActivitiesService {
       totalAtRiskMemberCount: summary.totalAtRiskMemberCount,
       totalApplicationCount: summary.totalApplicationCount,
       totalAtRiskApplicationCount: summary.totalAtRiskApplicationCount,
-      newApplications: summary.newApplications,
     });
   }
 

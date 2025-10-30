@@ -55,7 +55,6 @@ export type OrganizationReportSummary = {
   totalCriticalMemberCount: number;
   totalCriticalAtRiskMemberCount: number;
   totalCriticalAtRiskApplicationCount: number;
-  newApplications: string[];
 };
 
 /**
