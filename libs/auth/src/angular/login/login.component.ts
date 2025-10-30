@@ -54,6 +54,7 @@ import {
   IconButtonModule,
   LinkModule,
   ToastService,
+  TooltipDirective,
 } from "@bitwarden/components";
 
 import { LoginComponentService, PasswordPolicies } from "./login-component.service";
@@ -67,6 +68,8 @@ export enum LoginUiState {
   MASTER_PASSWORD_ENTRY = "MasterPasswordEntry",
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "./login.component.html",
   imports: [
@@ -80,9 +83,12 @@ export enum LoginUiState {
     JslibModule,
     ReactiveFormsModule,
     RouterModule,
+    TooltipDirective,
   ],
 })
 export class LoginComponent implements OnInit, OnDestroy {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("masterPasswordInputRef") masterPasswordInputRef: ElementRef | undefined;
 
   private destroy$ = new Subject<void>();

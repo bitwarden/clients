@@ -343,7 +343,7 @@ describe("VaultExportService", () => {
       const exportData: BitwardenJsonExport = JSON.parse(data);
       expect(exportData.items.length).toBe(1);
       expect(exportData.items[0].id).toBe("mock-id");
-      expect(exportData.items[0].organizationId).toBe(null);
+      expect(exportData.items[0].organizationId).toBeUndefined();
     });
 
     it.each([[400], [401], [404], [500]])(

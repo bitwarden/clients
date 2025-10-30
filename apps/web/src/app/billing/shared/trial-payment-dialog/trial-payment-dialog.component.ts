@@ -67,6 +67,8 @@ interface OnSuccessArgs {
   organizationId: string;
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-trial-payment-dialog",
   templateUrl: "./trial-payment-dialog.component.html",
@@ -74,6 +76,8 @@ interface OnSuccessArgs {
   providers: [SubscriberBillingClient, TaxClient],
 })
 export class TrialPaymentDialogComponent implements OnInit, OnDestroy {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild(EnterPaymentMethodComponent) enterPaymentMethodComponent!: EnterPaymentMethodComponent;
 
   currentPlan!: PlanResponse;
@@ -84,9 +88,11 @@ export class TrialPaymentDialogComponent implements OnInit, OnDestroy {
   sub!: OrganizationSubscriptionResponse;
   selectedInterval: PlanInterval = PlanInterval.Annually;
 
-  planCards = signal<PlanCard[]>([]);
+  readonly planCards = signal<PlanCard[]>([]);
   plans!: ListResponse<PlanResponse>;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onSuccess = new EventEmitter<OnSuccessArgs>();
   protected initialPaymentMethod: PaymentMethodType;
   protected readonly ResultType = TRIAL_PAYMENT_METHOD_DIALOG_RESULT_TYPE;

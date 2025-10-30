@@ -21,6 +21,8 @@ import { SharedModule } from "@bitwarden/web-vault/app/shared";
 import { IntegrationGridComponent } from "./integration-grid/integration-grid.component";
 import { FilterIntegrationsPipe } from "./integrations.pipe";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "ac-integrations",
   templateUrl: "./integrations.component.html",
@@ -29,7 +31,7 @@ import { FilterIntegrationsPipe } from "./integrations.pipe";
 export class AdminConsoleIntegrationsComponent implements OnInit, OnDestroy {
   tabIndex: number = 0;
   organization$: Observable<Organization> = new Observable<Organization>();
-  isEventBasedIntegrationsEnabled: boolean = false;
+  isEventManagementForDataDogAndCrowdStrikeEnabled: boolean = false;
   private destroy$ = new Subject<void>();
 
   // initialize the integrations list with default integrations
@@ -230,24 +232,6 @@ export class AdminConsoleIntegrationsComponent implements OnInit, OnDestroy {
       this.hecOrganizationIntegrationService.setOrganizationIntegrations(org.id);
       this.datadogOrganizationIntegrationService.setOrganizationIntegrations(org.id);
     });
-
-    // For all existing event based configurations loop through and assign the
-    // organizationIntegration for the correct services.
-    this.hecOrganizationIntegrationService.integrations$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((integrations) => {
-        // reset all integrations to null first - in case one was deleted
-        this.integrationsList.forEach((i) => {
-          i.organizationIntegration = null;
-        });
-
-        integrations.map((integration) => {
-          const item = this.integrationsList.find((i) => i.name === integration.serviceType);
-          if (item) {
-            item.organizationIntegration = integration;
-          }
-        });
-      });
   }
 
   constructor(
@@ -259,14 +243,14 @@ export class AdminConsoleIntegrationsComponent implements OnInit, OnDestroy {
     private datadogOrganizationIntegrationService: DatadogOrganizationIntegrationService,
   ) {
     this.configService
-      .getFeatureFlag$(FeatureFlag.EventBasedOrganizationIntegrations)
+      .getFeatureFlag$(FeatureFlag.EventManagementForDataDogAndCrowdStrike)
       .pipe(takeUntil(this.destroy$))
       .subscribe((isEnabled) => {
-        this.isEventBasedIntegrationsEnabled = isEnabled;
+        this.isEventManagementForDataDogAndCrowdStrikeEnabled = isEnabled;
       });
 
     // Add the new event based items to the list
-    if (this.isEventBasedIntegrationsEnabled) {
+    if (this.isEventManagementForDataDogAndCrowdStrikeEnabled) {
       const crowdstrikeIntegration: Integration = {
         name: OrganizationIntegrationServiceType.CrowdStrike,
         linkURL: "https://bitwarden.com/help/crowdstrike-siem/",
