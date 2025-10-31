@@ -4,17 +4,14 @@ import { UserId } from "@bitwarden/user-core";
 import { AuthRequestAnsweringService } from "../../abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 
 export class NoopAuthRequestAnsweringService implements AuthRequestAnsweringService {
-  constructor() {}
-
-  async receivedPendingAuthRequest(userId: UserId, notificationId: string): Promise<void> {}
-
   async userMeetsConditionsToShowApprovalDialog(userId: UserId): Promise<boolean> {
+    // no-op
     throw new Error("userMeetsConditionsToShowApprovalDialog() not implemented for this client");
   }
 
-  async handleAuthRequestNotificationClicked(event: SystemNotificationEvent) {}
+  async handleAuthRequestNotificationClicked(event: SystemNotificationEvent) {} // no-op
 
-  async processPendingAuthRequests(): Promise<void> {}
+  async processPendingAuthRequests(): Promise<void> {} // no-op
 
-  setupUnlockListenersForProcessingAuthRequests(): void {}
+  setupUnlockListenersForProcessingAuthRequests(): void {} // no-op
 }

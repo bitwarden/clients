@@ -15,7 +15,7 @@ export abstract class AuthRequestAnsweringService {
    * @param userId The UserId that the auth request is for.
    * @param authRequestId The id of the auth request that is to be processed.
    */
-  abstract receivedPendingAuthRequest(userId: UserId, authRequestId: string): Promise<void>;
+  abstract receivedPendingAuthRequest?(userId: UserId, authRequestId: string): Promise<void>;
 
   /**
    * Confirms whether or not the user meets the conditions required to show an approval

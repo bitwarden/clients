@@ -293,23 +293,22 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
       case NotificationType.SyncSendDelete:
         await this.syncService.syncDeleteSend(notification.payload as SyncSendNotification);
         break;
-      case NotificationType.AuthRequest:
-        await this.authRequestAnsweringService.receivedPendingAuthRequest(
-          notification.payload.userId,
-          notification.payload.id,
-        );
-
-        /**
-         * This call is necessary for Web, which uses a noop for the AuthRequstAnsweringService.
-         *
-         * The Extension and Desktop AppComponent have logic that allows only one pending
-         * auth request to process at a time (see processingPendingAuth), so this second call
-         * will not cause any duplicate processing conflicts on Extension/Desktop.
-         */
-        this.messagingService.send("openLoginApproval", {
-          notificationId: notification.payload.id,
-        });
+      case NotificationType.AuthRequest: {
+        // Only Extension and Desktop implement the AuthRequestAnsweringService
+        if (this.authRequestAnsweringService.receivedPendingAuthRequest) {
+          await this.authRequestAnsweringService.receivedPendingAuthRequest(
+            notification.payload.userId,
+            notification.payload.id,
+          );
+        } else {
+          // This call is necessary for Web, which uses a NoopAuthRequstAnsweringService
+          // that does not have a recievedPendingAuthRequest() method
+          this.messagingService.send("openLoginApproval", {
+            notificationId: notification.payload.id,
+          });
+        }
         break;
+      }
       case NotificationType.SyncOrganizationStatusChanged:
         await this.syncService.fullSync(true);
         break;
