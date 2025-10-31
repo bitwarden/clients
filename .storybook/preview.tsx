@@ -1,9 +1,10 @@
 import { setCompodocJson } from "@storybook/addon-docs/angular";
 import { withThemeByClassName } from "@storybook/addon-themes";
-import { componentWrapperDecorator } from "@storybook/angular";
+import { applicationConfig, componentWrapperDecorator } from "@storybook/angular";
 import type { Preview } from "@storybook/angular";
 
 import docJson from "../documentation.json";
+import { provideNoopAnimations } from "@angular/platform-browser/animations";
 setCompodocJson(docJson);
 
 const wrapperDecorator = componentWrapperDecorator((story) => {
@@ -24,6 +25,9 @@ const preview: Preview = {
       defaultTheme: "light",
     }),
     wrapperDecorator,
+    applicationConfig({
+      providers: [provideNoopAnimations()],
+    }),
   ],
   parameters: {
     a11y: {
