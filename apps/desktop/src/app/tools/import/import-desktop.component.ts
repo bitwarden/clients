@@ -3,6 +3,7 @@ import { Component } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { DialogRef, AsyncActionsModule, ButtonModule, DialogModule } from "@bitwarden/components";
+import type { chromium_importer } from "@bitwarden/desktop-napi";
 import { ImportMetadataServiceAbstraction } from "@bitwarden/importer-core";
 import {
   ImportComponent,
@@ -47,11 +48,14 @@ export class ImportDesktopComponent {
     this.dialogRef.close();
   }
 
-  protected onLoadProfilesFromBrowser(browser: string): Promise<any[]> {
+  protected onLoadProfilesFromBrowser(browser: string): Promise<chromium_importer.ProfileInfo[]> {
     return ipc.tools.chromiumImporter.getAvailableProfiles(browser);
   }
 
-  protected onImportFromBrowser(browser: string, profile: string): Promise<any[]> {
+  protected onImportFromBrowser(
+    browser: string,
+    profile: string,
+  ): Promise<chromium_importer.LoginImportResult[]> {
     return ipc.tools.chromiumImporter.importLogins(browser, profile);
   }
 }
