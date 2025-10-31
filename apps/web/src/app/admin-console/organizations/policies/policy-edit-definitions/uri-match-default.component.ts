@@ -44,9 +44,6 @@ export class UriMatchDefaultPolicyComponent extends BasePolicyEditComponent {
       { label: i18nService.t("host"), value: UriMatchStrategy.Host },
       { label: i18nService.t("exact"), value: UriMatchStrategy.Exact },
       { label: i18nService.t("never"), value: UriMatchStrategy.Never },
-      { label: this.i18nService.t("uriAdvancedOption"), value: null, disabled: true },
-      { label: i18nService.t("startsWith"), value: UriMatchStrategy.StartsWith },
-      { label: i18nService.t("regEx"), value: UriMatchStrategy.RegularExpression },
     ];
   }
 
