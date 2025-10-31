@@ -4,6 +4,7 @@ import { firstValueFrom } from "rxjs";
 
 import {
   AllActivitiesService,
+  NewApplicationDetail,
   RiskInsightsDataService,
   SecurityTasksApiService,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights";
@@ -23,7 +24,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import { AssignTasksViewComponent } from "./assign-tasks-view.component";
 
 export interface NewApplicationsDialogData {
-  newApplications: string[];
+  newApplications: NewApplicationDetail[];
   /**
    * Organization ID is passed via dialog data instead of being retrieved from route params.
    * This ensures organizationId is available immediately when the dialog opens,
@@ -58,7 +59,7 @@ export type DialogView = (typeof DialogView)[keyof typeof DialogView];
   ],
 })
 export class NewApplicationsDialogComponent {
-  protected newApplications: string[] = [];
+  protected newApplications: NewApplicationDetail[] = [];
   protected selectedApplications: Set<string> = new Set<string>();
 
   // View state management
