@@ -47,11 +47,13 @@ import {
   ApplicationHealthReportDetailEnriched,
   PasswordHealthReportApplicationsResponse,
 } from "../../models";
+import { RiskInsightsMetrics } from "../../models/domain/risk-insights-metrics";
 import { RiskInsightsEnrichedData } from "../../models/report-data-service.types";
 import {
   CipherHealthReport,
   MemberDetails,
   OrganizationReportApplication,
+  OrganizationReportSummary,
   ReportState,
 } from "../../models/report-models";
 import { MemberCipherDetailsApiService } from "../api/member-cipher-details-api.service";
@@ -91,12 +93,31 @@ export class RiskInsightsOrchestratorService {
   private _enrichedReportDataSubject = new BehaviorSubject<RiskInsightsEnrichedData | null>(null);
   enrichedReportData$ = this._enrichedReportDataSubject.asObservable();
 
+  // New applications that haven't been reviewed (reviewedDate === null)
+  newApplications$: Observable<string[]> = this.rawReportData$.pipe(
+    map((reportState) => {
+      if (!reportState.data?.applicationData) {
+        return [];
+      }
+      return reportState.data.applicationData
+        .filter((app) => app.reviewedDate === null)
+        .map((app) => app.applicationName);
+    }),
+    distinctUntilChanged(
+      (prev, curr) => prev.length === curr.length && prev.every((app, i) => app === curr[i]),
+    ),
+    shareReplay({ bufferSize: 1, refCount: true }),
+  );
+
   // Generate report trigger and state
   private _generateReportTriggerSubject = new BehaviorSubject<boolean>(false);
   generatingReport$ = this._generateReportTriggerSubject.asObservable();
 
   // --------------------------- Critical Application data ---------------------
   criticalReportResults$: Observable<RiskInsightsEnrichedData | null> = of(null);
+
+  // --------------------------- Vault Items Check ---------------------
+  hasVaultItems$: Observable<boolean> = of(false);
 
   // --------------------------- Trigger subjects ---------------------
   private _initializeOrganizationTriggerSubject = new Subject<OrganizationId>();
@@ -123,6 +144,7 @@ export class RiskInsightsOrchestratorService {
     this._setupCriticalApplicationContext();
     this._setupCriticalApplicationReport();
     this._setupEnrichedReportData();
+    this._setupHasVaultItems();
     this._setupInitializationPipeline();
     this._setupMigrationAndCleanup();
     this._setupReportState();
@@ -165,8 +187,15 @@ export class RiskInsightsOrchestratorService {
   initializeForOrganization(organizationId: OrganizationId) {
     this.logService.debug("[RiskInsightsOrchestratorService] Initializing for org", organizationId);
     this._initializeOrganizationTriggerSubject.next(organizationId);
+    this.fetchReport();
   }
 
+  /**
+   * Removes a critical application from a report.
+   *
+   * @param criticalApplication Application name of the critical application to remove
+   * @returns
+   */
   removeCriticalApplication$(criticalApplication: string): Observable<ReportState> {
     this.logService.info(
       "[RiskInsightsOrchestratorService] Removing critical applications from report",
@@ -179,24 +208,53 @@ export class RiskInsightsOrchestratorService {
         this._userId$.pipe(filter((userId) => !!userId)),
       ),
       map(([reportState, organizationDetails, userId]) => {
+        const report = reportState?.data;
+        if (!report) {
+          throwError(() => Error("Tried to update critical applications without a report"));
+        }
+
         // Create a set for quick lookup of the new critical apps
-        const existingApplicationData = reportState?.data?.applicationData || [];
+        const existingApplicationData = report!.applicationData || [];
         const updatedApplicationData = this._removeCriticalApplication(
           existingApplicationData,
           criticalApplication,
         );
 
+        // Updated summary data after changing critical apps
+        const updatedSummaryData = this.reportService.getApplicationsSummary(
+          report!.reportData,
+          updatedApplicationData,
+        );
+
+        // Used for creating metrics with updated application data
+        const manualEnrichedApplications = report!.reportData.map(
+          (application): ApplicationHealthReportDetailEnriched => ({
+            ...application,
+            isMarkedAsCritical: this.reportService.isCriticalApplication(
+              application,
+              updatedApplicationData,
+            ),
+          }),
+        );
+
+        // For now, merge the report with the critical marking flag to make the enriched type
+        // We don't care about the individual ciphers in this instance
+        // After the report and enriched report types are consolidated, this mapping can be removed
+        // and the class will expose getCriticalApplications
+        const metrics = this._getReportMetrics(manualEnrichedApplications, updatedSummaryData);
+
         const updatedState = {
           ...reportState,
           data: {
             ...reportState.data,
+            summaryData: updatedSummaryData,
             applicationData: updatedApplicationData,
           },
         } as ReportState;
 
-        return { reportState, organizationDetails, updatedState, userId };
+        return { reportState, organizationDetails, updatedState, userId, metrics };
       }),
-      switchMap(({ reportState, organizationDetails, updatedState, userId }) => {
+      switchMap(({ reportState, organizationDetails, updatedState, userId, metrics }) => {
         return from(
           this.riskInsightsEncryptionService.encryptRiskInsightsReport(
             {
@@ -216,36 +274,53 @@ export class RiskInsightsOrchestratorService {
             organizationDetails,
             updatedState,
             encryptedData,
+            metrics,
           })),
         );
       }),
-      switchMap(({ reportState, organizationDetails, updatedState, encryptedData }) => {
+      switchMap(({ reportState, organizationDetails, updatedState, encryptedData, metrics }) => {
         this.logService.debug(
           `[RiskInsightsOrchestratorService] Saving applicationData with toggled critical flag for report with id: ${reportState?.data?.id} and org id: ${organizationDetails?.organizationId}`,
         );
         if (!reportState?.data?.id || !organizationDetails?.organizationId) {
           return of({ ...reportState });
         }
-        return this.reportApiService
-          .updateRiskInsightsApplicationData$(
-            reportState.data.id,
-            organizationDetails.organizationId,
-            {
-              data: {
-                applicationData: encryptedData.encryptedApplicationData.toSdk(),
-              },
+
+        // Update applications data with critical marking
+        const updateApplicationsCall = this.reportApiService.updateRiskInsightsApplicationData$(
+          reportState.data.id,
+          organizationDetails.organizationId,
+          {
+            data: {
+              applicationData: encryptedData.encryptedApplicationData.toSdk(),
             },
-          )
-          .pipe(
-            map(() => updatedState),
-            tap((finalState) => {
-              this._markUnmarkUpdatesSubject.next(finalState);
-            }),
-            catchError((error: unknown) => {
-              this.logService.error("Failed to save updated applicationData", error);
-              return of({ ...reportState, error: "Failed to remove a critical application" });
-            }),
-          );
+          },
+        );
+        // Update summary after recomputing
+        const updateSummaryCall = this.reportApiService.updateRiskInsightsSummary$(
+          reportState.data.id,
+          organizationDetails.organizationId,
+          {
+            data: {
+              summaryData: encryptedData.encryptedSummaryData.toSdk(),
+              metrics: metrics.toRiskInsightsMetricsData(),
+            },
+          },
+        );
+
+        return forkJoin([updateApplicationsCall, updateSummaryCall]).pipe(
+          map(() => updatedState),
+          tap((finalState) => {
+            this._markUnmarkUpdatesSubject.next({
+              ...finalState,
+              organizationId: reportState.organizationId,
+            });
+          }),
+          catchError((error: unknown) => {
+            this.logService.error("Failed to save remove critical application", error);
+            return of({ ...reportState, error: "Failed to remove a critical application" });
+          }),
+        );
       }),
     );
   }
@@ -262,12 +337,149 @@ export class RiskInsightsOrchestratorService {
         this._userId$.pipe(filter((userId) => !!userId)),
       ),
       map(([reportState, organizationDetails, userId]) => {
+        const report = reportState?.data;
+        if (!report) {
+          throwError(() => Error("Tried to update critical applications without a report"));
+        }
+
         // Create a set for quick lookup of the new critical apps
         const newCriticalAppNamesSet = new Set(criticalApplications);
-        const existingApplicationData = reportState?.data?.applicationData || [];
+        const existingApplicationData = report!.applicationData || [];
         const updatedApplicationData = this._mergeApplicationData(
           existingApplicationData,
           newCriticalAppNamesSet,
+        );
+
+        // Updated summary data after changing critical apps
+        const updatedSummaryData = this.reportService.getApplicationsSummary(
+          report!.reportData,
+          updatedApplicationData,
+        );
+
+        // Used for creating metrics with updated application data
+        const manualEnrichedApplications = report!.reportData.map(
+          (application): ApplicationHealthReportDetailEnriched => ({
+            ...application,
+            isMarkedAsCritical: this.reportService.isCriticalApplication(
+              application,
+              updatedApplicationData,
+            ),
+          }),
+        );
+
+        // For now, merge the report with the critical marking flag to make the enriched type
+        // We don't care about the individual ciphers in this instance
+        // After the report and enriched report types are consolidated, this mapping can be removed
+        // and the class will expose getCriticalApplications
+        const metrics = this._getReportMetrics(manualEnrichedApplications, updatedSummaryData);
+
+        const updatedState = {
+          ...reportState,
+          data: {
+            ...reportState.data,
+            summaryData: updatedSummaryData,
+            applicationData: updatedApplicationData,
+          },
+        } as ReportState;
+
+        return { reportState, organizationDetails, updatedState, userId, metrics };
+      }),
+      switchMap(({ reportState, organizationDetails, updatedState, userId, metrics }) => {
+        return from(
+          this.riskInsightsEncryptionService.encryptRiskInsightsReport(
+            {
+              organizationId: organizationDetails!.organizationId,
+              userId: userId!,
+            },
+            {
+              reportData: reportState?.data?.reportData ?? [],
+              summaryData: reportState?.data?.summaryData ?? createNewSummaryData(),
+              applicationData: updatedState?.data?.applicationData ?? [],
+            },
+            reportState?.data?.contentEncryptionKey,
+          ),
+        ).pipe(
+          map((encryptedData) => ({
+            reportState,
+            organizationDetails,
+            updatedState,
+            encryptedData,
+            metrics,
+          })),
+        );
+      }),
+      switchMap(({ reportState, organizationDetails, updatedState, encryptedData, metrics }) => {
+        this.logService.debug(
+          `[RiskInsightsOrchestratorService] Saving critical applications on applicationData with report id: ${reportState?.data?.id} and org id: ${organizationDetails?.organizationId}`,
+        );
+        if (!reportState?.data?.id || !organizationDetails?.organizationId) {
+          return of({ ...reportState });
+        }
+        // Update applications data with critical marking
+        const updateApplicationsCall = this.reportApiService.updateRiskInsightsApplicationData$(
+          reportState.data.id,
+          organizationDetails.organizationId,
+          {
+            data: {
+              applicationData: encryptedData.encryptedApplicationData.toSdk(),
+            },
+          },
+        );
+
+        // Update summary after recomputing
+        const updateSummaryCall = this.reportApiService.updateRiskInsightsSummary$(
+          reportState.data.id,
+          organizationDetails.organizationId,
+          {
+            data: {
+              summaryData: encryptedData.encryptedSummaryData.toSdk(),
+              metrics: metrics.toRiskInsightsMetricsData(),
+            },
+          },
+        );
+        return forkJoin([updateApplicationsCall, updateSummaryCall]).pipe(
+          map(() => updatedState),
+          tap((finalState) => {
+            this._markUnmarkUpdatesSubject.next({
+              ...finalState,
+              organizationId: reportState.organizationId,
+            });
+          }),
+          catchError((error: unknown) => {
+            this.logService.error("Failed to save critical applications", error);
+            return of({ ...reportState, error: "Failed to save critical applications" });
+          }),
+        );
+      }),
+    );
+  }
+
+  /**
+   * Saves review status for new applications and optionally marks selected ones as critical.
+   * This method:
+   * 1. Sets reviewedDate to current date for all applications where reviewedDate === null
+   * 2. Sets isCritical = true for applications in the selectedCriticalApps array
+   *
+   * @param selectedCriticalApps Array of application names to mark as critical (can be empty)
+   * @returns Observable of updated ReportState
+   */
+  saveApplicationReviewStatus$(selectedCriticalApps: string[]): Observable<ReportState> {
+    this.logService.info("[RiskInsightsOrchestratorService] Saving application review status", {
+      criticalAppsCount: selectedCriticalApps.length,
+    });
+
+    return this.rawReportData$.pipe(
+      take(1),
+      filter((data) => !data.loading && data.data != null),
+      withLatestFrom(
+        this.organizationDetails$.pipe(filter((org) => !!org && !!org.organizationId)),
+        this._userId$.pipe(filter((userId) => !!userId)),
+      ),
+      map(([reportState, organizationDetails, userId]) => {
+        const existingApplicationData = reportState?.data?.applicationData || [];
+        const updatedApplicationData = this._updateReviewStatusAndCriticalFlags(
+          existingApplicationData,
+          selectedCriticalApps,
         );
 
         const updatedState = {
@@ -277,6 +489,12 @@ export class RiskInsightsOrchestratorService {
             applicationData: updatedApplicationData,
           },
         } as ReportState;
+
+        this.logService.debug("[RiskInsightsOrchestratorService] Updated review status", {
+          totalApps: updatedApplicationData.length,
+          reviewedApps: updatedApplicationData.filter((app) => app.reviewedDate !== null).length,
+          criticalApps: updatedApplicationData.filter((app) => app.isCritical).length,
+        });
 
         return { reportState, organizationDetails, updatedState, userId };
       }),
@@ -305,11 +523,16 @@ export class RiskInsightsOrchestratorService {
       }),
       switchMap(({ reportState, organizationDetails, updatedState, encryptedData }) => {
         this.logService.debug(
-          `[RiskInsightsOrchestratorService] Saving critical applications on applicationData with report id: ${reportState?.data?.id} and org id: ${organizationDetails?.organizationId}`,
+          `[RiskInsightsOrchestratorService] Persisting review status - report id: ${reportState?.data?.id}`,
         );
+
         if (!reportState?.data?.id || !organizationDetails?.organizationId) {
+          this.logService.warning(
+            "[RiskInsightsOrchestratorService] Cannot save review status - missing report id or org id",
+          );
           return of({ ...reportState });
         }
+
         return this.reportApiService
           .updateRiskInsightsApplicationData$(
             reportState.data.id,
@@ -326,8 +549,11 @@ export class RiskInsightsOrchestratorService {
               this._markUnmarkUpdatesSubject.next(finalState);
             }),
             catchError((error: unknown) => {
-              this.logService.error("Failed to save updated applicationData", error);
-              return of({ ...reportState, error: "Failed to save critical applications" });
+              this.logService.error(
+                "[RiskInsightsOrchestratorService] Failed to save review status",
+                error,
+              );
+              return of({ ...reportState, error: "Failed to save application review status" });
             }),
           );
       }),
@@ -342,10 +568,13 @@ export class RiskInsightsOrchestratorService {
           loading: false,
           error: null,
           data: result ?? null,
+          organizationId,
         };
       }),
-      catchError(() => of({ loading: false, error: "Failed to fetch report", data: null })),
-      startWith({ loading: true, error: null, data: null }),
+      catchError(() =>
+        of({ loading: false, error: "Failed to fetch report", data: null, organizationId }),
+      ),
+      startWith({ loading: true, error: null, data: null, organizationId }),
     );
   }
 
@@ -367,18 +596,43 @@ export class RiskInsightsOrchestratorService {
         this.reportService.generateApplicationsReport(cipherHealthReports),
       ),
       withLatestFrom(this.rawReportData$),
-      map(([report, previousReport]) => ({
-        report: report,
-        summary: this.reportService.getApplicationsSummary(report),
-        applications: this.reportService.getOrganizationApplications(
+      map(([report, previousReport]) => {
+        // Update the application data
+        const updatedApplicationData = this.reportService.getOrganizationApplications(
           report,
           previousReport?.data?.applicationData ?? [],
-        ),
-      })),
-      switchMap(({ report, summary, applications }) => {
-        // Save the report after enrichment
+        );
+
+        const manualEnrichedApplications = report.map(
+          (application): ApplicationHealthReportDetailEnriched => ({
+            ...application,
+            isMarkedAsCritical: this.reportService.isCriticalApplication(
+              application,
+              updatedApplicationData,
+            ),
+          }),
+        );
+
+        const updatedSummary = this.reportService.getApplicationsSummary(
+          report,
+          updatedApplicationData,
+        );
+        // For now, merge the report with the critical marking flag to make the enriched type
+        // We don't care about the individual ciphers in this instance
+        // After the report and enriched report types are consolidated, this mapping can be removed
+        // and the class will expose getCriticalApplications
+        const metrics = this._getReportMetrics(manualEnrichedApplications, updatedSummary);
+
+        return {
+          report,
+          summary: updatedSummary,
+          applications: updatedApplicationData,
+          metrics,
+        };
+      }),
+      switchMap(({ report, summary, applications, metrics }) => {
         return this.reportService
-          .saveRiskInsightsReport$(report, summary, applications, {
+          .saveRiskInsightsReport$(report, summary, applications, metrics, {
             organizationId,
             userId,
           })
@@ -406,15 +660,65 @@ export class RiskInsightsOrchestratorService {
             creationDate: new Date(),
             contentEncryptionKey,
           },
+          organizationId,
         };
       }),
       catchError((): Observable<ReportState> => {
-        return of({ loading: false, error: "Failed to generate or save report", data: null });
+        return of({
+          loading: false,
+          error: "Failed to generate or save report",
+          data: null,
+          organizationId,
+        });
       }),
-      startWith<ReportState>({ loading: true, error: null, data: null }),
+      startWith<ReportState>({ loading: true, error: null, data: null, organizationId }),
     );
   }
 
+  // Calculates the metrics for a report
+  // This function will be moved to the RiskInsightsReportService after the
+  // ApplicationHealthReportDetail and ApplicationHealthReportDetailEnriched types
+  // are consolidated into one
+  _getReportMetrics(
+    reports: ApplicationHealthReportDetailEnriched[],
+    summary: OrganizationReportSummary,
+  ): RiskInsightsMetrics {
+    const metrics = new RiskInsightsMetrics();
+    const s = summary;
+
+    // Copy summary information
+    metrics.totalApplicationCount = s.totalApplicationCount;
+    metrics.totalAtRiskApplicationCount = s.totalAtRiskApplicationCount;
+    metrics.totalCriticalApplicationCount = s.totalCriticalApplicationCount;
+    metrics.totalCriticalAtRiskApplicationCount = s.totalCriticalAtRiskApplicationCount;
+    metrics.totalMemberCount = s.totalMemberCount;
+    metrics.totalAtRiskMemberCount = s.totalAtRiskMemberCount;
+    metrics.totalCriticalMemberCount = s.totalCriticalMemberCount;
+    metrics.totalCriticalAtRiskMemberCount = s.totalCriticalAtRiskMemberCount;
+
+    // Calculate additional metrics
+    let totalPasswordCount = 0;
+    let totalAtRiskPasswordCount = 0;
+    let totalCriticalPasswordCount = 0;
+    let totalCriticalAtRiskPasswordCount = 0;
+
+    reports.forEach((report) => {
+      totalPasswordCount += report.cipherIds.length;
+      totalAtRiskPasswordCount += report.atRiskCipherIds.length;
+
+      if (report.isMarkedAsCritical) {
+        totalCriticalPasswordCount += report.cipherIds.length;
+        totalCriticalAtRiskPasswordCount += report.atRiskCipherIds.length;
+      }
+    });
+
+    metrics.totalPasswordCount = totalPasswordCount;
+    metrics.totalAtRiskPasswordCount = totalAtRiskPasswordCount;
+    metrics.totalCriticalPasswordCount = totalCriticalPasswordCount;
+    metrics.totalCriticalAtRiskPasswordCount = totalCriticalAtRiskPasswordCount;
+
+    return metrics;
+  }
   /**
    * Associates the members with the ciphers they have access to. Calculates the password health.
    * Finds the trimmed uris.
@@ -455,12 +759,14 @@ export class RiskInsightsOrchestratorService {
     );
   }
 
+  // Updates the existing application data to include critical applications
+  // Does not remove critical applications not in the set
   private _mergeApplicationData(
     existingApplications: OrganizationReportApplication[],
     criticalApplications: Set<string>,
   ): OrganizationReportApplication[] {
     const setToMerge = new Set(criticalApplications);
-    // First, iterate through the existing apps and update their isCritical flag
+
     const updatedApps = existingApplications.map((app) => {
       const foundCritical = setToMerge.has(app.applicationName);
 
@@ -483,6 +789,39 @@ export class RiskInsightsOrchestratorService {
     });
 
     return updatedApps;
+  }
+
+  /**
+   * Updates review status and critical flags for applications.
+   * Sets reviewedDate for all apps with null reviewedDate.
+   * Sets isCritical flag for apps in the criticalApplications array.
+   *
+   * @param existingApplications Current application data
+   * @param criticalApplications Array of application names to mark as critical
+   * @returns Updated application data with review dates and critical flags
+   */
+  private _updateReviewStatusAndCriticalFlags(
+    existingApplications: OrganizationReportApplication[],
+    criticalApplications: string[],
+  ): OrganizationReportApplication[] {
+    const criticalSet = new Set(criticalApplications);
+    const currentDate = new Date();
+
+    return existingApplications.map((app) => {
+      const shouldMarkCritical = criticalSet.has(app.applicationName);
+      const needsReviewDate = app.reviewedDate === null;
+
+      // Only create new object if changes are needed
+      if (needsReviewDate || shouldMarkCritical) {
+        return {
+          ...app,
+          reviewedDate: needsReviewDate ? currentDate : app.reviewedDate,
+          isCritical: shouldMarkCritical || app.isCritical,
+        };
+      }
+
+      return app;
+    });
   }
 
   // Toggles the isCritical flag on applications via criticalApplicationName
@@ -540,6 +879,34 @@ export class RiskInsightsOrchestratorService {
   }
 
   // Setup the pipeline to load critical applications when organization or user changes
+  /**
+   * Sets up an observable to check if the organization has any vault items (ciphers).
+   * This is used to determine which empty state to show in the UI.
+   */
+  private _setupHasVaultItems() {
+    this.hasVaultItems$ = this.organizationDetails$.pipe(
+      switchMap((orgDetails) => {
+        if (!orgDetails?.organizationId) {
+          return of(false);
+        }
+        return from(
+          this.cipherService.getAllFromApiForOrganization(orgDetails.organizationId),
+        ).pipe(
+          map((ciphers) => ciphers.length > 0),
+          catchError((error: unknown) => {
+            this.logService.error(
+              "[RiskInsightsOrchestratorService] Error checking vault items",
+              error,
+            );
+            return of(false);
+          }),
+        );
+      }),
+      shareReplay({ bufferSize: 1, refCount: true }),
+      takeUntil(this._destroy$),
+    );
+  }
+
   private _setupCriticalApplicationContext() {
     this.organizationDetails$
       .pipe(
@@ -567,7 +934,10 @@ export class RiskInsightsOrchestratorService {
           (app) => app.isMarkedAsCritical,
         );
         // Generate a new summary based on just the critical applications
-        const summary = this.reportService.getApplicationsSummary(criticalApplications);
+        const summary = this.reportService.getApplicationsSummary(
+          criticalApplications,
+          enrichedReports.applicationData,
+        );
         return {
           ...enrichedReports,
           summaryData: summary,
@@ -586,24 +956,18 @@ export class RiskInsightsOrchestratorService {
    */
   private _setupEnrichedReportData() {
     // Setup the enriched report data pipeline
-    const enrichmentSubscription = combineLatest([
-      this.rawReportData$.pipe(filter((data) => !!data && !!data?.data)),
-      this._ciphers$.pipe(filter((data) => !!data)),
-    ]).pipe(
-      switchMap(([rawReportData, ciphers]) => {
+    const enrichmentSubscription = combineLatest([this.rawReportData$]).pipe(
+      switchMap(([rawReportData]) => {
         this.logService.debug(
           "[RiskInsightsOrchestratorService] Enriching report data with ciphers and critical app status",
         );
-        const criticalApps =
+        const criticalAppsData =
           rawReportData?.data?.applicationData.filter((app) => app.isCritical) ?? [];
-        const criticalApplicationNames = new Set(criticalApps.map((ca) => ca.applicationName));
         const rawReports = rawReportData.data?.reportData || [];
-        const cipherMap = this.reportService.getApplicationCipherMap(ciphers, rawReports);
 
         const enrichedReports: ApplicationHealthReportDetailEnriched[] = rawReports.map((app) => ({
           ...app,
-          ciphers: cipherMap.get(app.applicationName) || [],
-          isMarkedAsCritical: criticalApplicationNames.has(app.applicationName),
+          isMarkedAsCritical: this.reportService.isCriticalApplication(app, criticalAppsData),
         }));
 
         const enrichedData = {
@@ -627,7 +991,7 @@ export class RiskInsightsOrchestratorService {
       .pipe(
         withLatestFrom(this._userId$),
         filter(([orgId, userId]) => !!orgId && !!userId),
-        exhaustMap(([orgId, userId]) =>
+        switchMap(([orgId, userId]) =>
           this.organizationService.organizations$(userId!).pipe(
             getOrganizationById(orgId),
             map((org) => ({ organizationId: orgId!, organizationName: org?.name ?? "" })),
@@ -722,11 +1086,24 @@ export class RiskInsightsOrchestratorService {
       newReportGeneration$,
       this._markUnmarkUpdates$,
     ).pipe(
-      scan((prevState: ReportState, currState: ReportState) => ({
-        ...prevState,
-        ...currState,
-        data: currState.data !== null ? currState.data : prevState.data,
-      })),
+      scan((prevState: ReportState, currState: ReportState) => {
+        // If organization changed, use new state completely (don't preserve old data)
+        // This allows null data to clear old org's data when switching orgs
+        if (currState.organizationId && prevState.organizationId !== currState.organizationId) {
+          return {
+            ...currState,
+            data: currState.data, // Allow null to clear old org's data
+          };
+        }
+
+        // Same org (or no org ID): preserve data when currState.data is null
+        // This preserves critical flags during loading states within the same org
+        return {
+          ...prevState,
+          ...currState,
+          data: currState.data !== null ? currState.data : prevState.data,
+        };
+      }),
       startWith({ loading: false, error: null, data: null }),
       shareReplay({ bufferSize: 1, refCount: true }),
       takeUntil(this._destroy$),
@@ -742,8 +1119,10 @@ export class RiskInsightsOrchestratorService {
   // Setup the user ID observable to track the current user
   private _setupUserId() {
     // Watch userId changes
-    this.accountService.activeAccount$.pipe(getUserId).subscribe((userId) => {
-      this._userIdSubject.next(userId);
-    });
+    this.accountService.activeAccount$
+      .pipe(getUserId, takeUntil(this._destroy$))
+      .subscribe((userId) => {
+        this._userIdSubject.next(userId);
+      });
   }
 }

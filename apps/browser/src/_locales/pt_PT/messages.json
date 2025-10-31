@@ -31,6 +31,9 @@
   "useSingleSignOn": {
     "message": "Utilizar início de sessão único"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "A sua organização exige o início de sessão único."
+  },
   "welcomeBack": {
     "message": "Bem-vindo de volta"
   },
@@ -588,6 +591,9 @@
   "view": {
     "message": "Ver"
   },
+  "viewAll": {
+    "message": "Ver tudo"
+  },
   "viewLogin": {
     "message": "Ver credencial"
   },
@@ -788,7 +794,7 @@
     "message": "4 horas"
   },
   "onLocked": {
-    "message": "No bloqueio do sistema"
+    "message": "Ao bloquear o sistema"
   },
   "onRestart": {
     "message": "Ao reiniciar o navegador"
@@ -1027,6 +1033,18 @@
   },
   "editedItem": {
     "message": "Item guardado"
+  },
+  "savedWebsite": {
+    "message": "Site guardado"
+  },
+  "savedWebsites": {
+    "message": "Sites guardados ( $COUNT$ )",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "deleteItemConfirmation": {
     "message": "Tem a certeza de que pretende eliminar este item?"
@@ -1676,8 +1694,29 @@
   "turnOffAutofill": {
     "message": "Desativar o preenchimento automático"
   },
+  "confirmAutofill": {
+    "message": "Confirmar preenchimento automático"
+  },
+  "confirmAutofillDesc": {
+    "message": "Este site não corresponde às suas credenciais guardadas. Antes de preencher as suas credenciais, certifique-se de que se trata de um site fiável."
+  },
   "showInlineMenuLabel": {
     "message": "Mostrar sugestões de preenchimento automático nos campos do formulário"
+  },
+  "howDoesBitwardenProtectFromPhishing": {
+    "message": "Como o Bitwarden protege os seus dados contra phishing?"
+  },
+  "currentWebsite": {
+    "message": "Site atual"
+  },
+  "autofillAndAddWebsite": {
+    "message": "Preencher automaticamente e adicionar este site"
+  },
+  "autofillWithoutAdding": {
+    "message": "Preencher automaticamente sem adicionar"
+  },
+  "doNotAutofill": {
+    "message": "Não preencher automaticamente"
   },
   "showInlineMenuIdentitiesLabel": {
     "message": "Apresentar as identidades como sugestões"
@@ -3240,6 +3279,9 @@
   "decryptionError": {
     "message": "Erro de desencriptação"
   },
+  "errorGettingAutoFillData": {
+    "message": "Erro ao obter dados de preenchimento automático"
+  },
   "couldNotDecryptVaultItemsBelow": {
     "message": "O Bitwarden não conseguiu desencriptar o(s) item(ns) do cofre listado(s) abaixo."
   },
@@ -4010,6 +4052,15 @@
   "autofillOnPageLoadSetToDefault": {
     "message": "Preencher automaticamente ao carregar a página definido para utilizar a predefinição.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
+  },
+  "cannotAutofill": {
+    "message": "Não é possível preencher automaticamente"
+  },
+  "cannotAutofillExactMatch": {
+    "message": "A correspondência padrão está definida como \"Correspondência exata\". O site atual não corresponde exatamente às credenciais guardadas para este item."
+  },
+  "okay": {
+    "message": "OK"
   },
   "toggleSideNavigation": {
     "message": "Ativar/desativar navegação lateral"
@@ -5721,5 +5772,11 @@
   "settingDisabledByPolicy": {
     "message": "Esta configuração está desativada pela política da sua organização.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
+  },
+  "zipPostalCodeLabel": {
+    "message": "Código postal"
+  },
+  "cardNumberLabel": {
+    "message": "Número do cartão"
   }
 }

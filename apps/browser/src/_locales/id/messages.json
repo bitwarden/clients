@@ -31,6 +31,9 @@
   "useSingleSignOn": {
     "message": "Gunakan masuk tunggal"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
+  },
   "welcomeBack": {
     "message": "Selamat datang kembali"
   },
@@ -588,6 +591,9 @@
   "view": {
     "message": "Tampilan"
   },
+  "viewAll": {
+    "message": "View all"
+  },
   "viewLogin": {
     "message": "View login"
   },
@@ -1027,6 +1033,18 @@
   },
   "editedItem": {
     "message": "Item yang Diedit"
+  },
+  "savedWebsite": {
+    "message": "Saved website"
+  },
+  "savedWebsites": {
+    "message": "Saved websites ( $COUNT$ )",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "deleteItemConfirmation": {
     "message": "Apakah Anda yakin ingin menghapus item ini?"
@@ -1676,8 +1694,29 @@
   "turnOffAutofill": {
     "message": "Matikan isi otomatis"
   },
+  "confirmAutofill": {
+    "message": "Confirm autofill"
+  },
+  "confirmAutofillDesc": {
+    "message": "This site doesn't match your saved login details. Before you fill in your login credentials, make sure it's a trusted site."
+  },
   "showInlineMenuLabel": {
     "message": "Tampilkan saran isi otomatis pada kolom formulir"
+  },
+  "howDoesBitwardenProtectFromPhishing": {
+    "message": "How does Bitwarden protect your data from phishing?"
+  },
+  "currentWebsite": {
+    "message": "Current website"
+  },
+  "autofillAndAddWebsite": {
+    "message": "Autofill and add this website"
+  },
+  "autofillWithoutAdding": {
+    "message": "Autofill without adding"
+  },
+  "doNotAutofill": {
+    "message": "Do not autofill"
   },
   "showInlineMenuIdentitiesLabel": {
     "message": "Tampilkan identitas sebagai saran"
@@ -3240,6 +3279,9 @@
   "decryptionError": {
     "message": "Kesalahan dekripsi"
   },
+  "errorGettingAutoFillData": {
+    "message": "Error getting autofill data"
+  },
   "couldNotDecryptVaultItemsBelow": {
     "message": "Bitwarden tidak bisa mendekripsi butir brankas yang tercantum di bawah."
   },
@@ -4010,6 +4052,15 @@
   "autofillOnPageLoadSetToDefault": {
     "message": "Isi otomatis ketika halaman dimuat telah diatur untuk menggunakan pengaturan bawaan.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
+  },
+  "cannotAutofill": {
+    "message": "Cannot autofill"
+  },
+  "cannotAutofillExactMatch": {
+    "message": "Default matching is set to 'Exact Match'. The current website does not exactly match the saved login details for this item."
+  },
+  "okay": {
+    "message": "Okay"
   },
   "toggleSideNavigation": {
     "message": "Saklar bilah isi navigasi"
@@ -5721,5 +5772,11 @@
   "settingDisabledByPolicy": {
     "message": "This setting is disabled by your organization's policy.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP / Postal code"
+  },
+  "cardNumberLabel": {
+    "message": "Card number"
   }
 }

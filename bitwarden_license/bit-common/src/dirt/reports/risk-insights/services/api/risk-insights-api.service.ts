@@ -5,9 +5,9 @@ import { ErrorResponse } from "@bitwarden/common/models/response/error.response"
 import { OrganizationId, OrganizationReportId } from "@bitwarden/common/types/guid";
 
 import {
-  EncryptedDataWithKey,
   UpdateRiskInsightsApplicationDataRequest,
   UpdateRiskInsightsApplicationDataResponse,
+  UpdateRiskInsightsSummaryDataRequest,
 } from "../../models";
 import {
   GetRiskInsightsApplicationDataResponse,
@@ -73,14 +73,14 @@ export class RiskInsightsApiService {
   }
 
   updateRiskInsightsSummary$(
-    summaryData: EncryptedDataWithKey,
-    organizationId: OrganizationId,
     reportId: OrganizationReportId,
+    organizationId: OrganizationId,
+    request: UpdateRiskInsightsSummaryDataRequest,
   ): Observable<void> {
     const dbResponse = this.apiService.send(
       "PATCH",
       `/reports/organizations/${organizationId.toString()}/data/summary/${reportId.toString()}`,
-      summaryData,
+      { ...request.data, reportId: reportId, organizationId },
       true,
       true,
     );

@@ -31,6 +31,9 @@
   "useSingleSignOn": {
     "message": "使用单点登录"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
+  },
   "welcomeBack": {
     "message": "欢迎回来"
   },
@@ -407,7 +410,7 @@
     "message": "创建文件夹以整理您的密码库项目"
   },
   "deleteFolderPermanently": {
-    "message": "您确定要永久删除这个文件夹吗？"
+    "message": "确定要永久删除此文件夹吗？"
   },
   "deleteFolder": {
     "message": "删除文件夹"
@@ -588,6 +591,9 @@
   "view": {
     "message": "查看"
   },
+  "viewAll": {
+    "message": "查看全部"
+  },
   "viewLogin": {
     "message": "查看登录"
   },
@@ -682,7 +688,7 @@
     "message": "会话超时"
   },
   "vaultTimeoutHeader": {
-    "message": "密码库超时时间"
+    "message": "密码库超时"
   },
   "otherOptions": {
     "message": "其他选项"
@@ -743,10 +749,10 @@
     }
   },
   "vaultTimeout": {
-    "message": "密码库超时时间"
+    "message": "密码库超时"
   },
   "vaultTimeout1": {
-    "message": "超时"
+    "message": "超时时间"
   },
   "lockNow": {
     "message": "立即锁定"
@@ -1028,6 +1034,18 @@
   "editedItem": {
     "message": "项目已保存"
   },
+  "savedWebsite": {
+    "message": "保存的网站"
+  },
+  "savedWebsites": {
+    "message": "保存的网站 ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "deleteItemConfirmation": {
     "message": "您确定要将其发送到回收站吗？"
   },
@@ -1221,7 +1239,7 @@
     "description": "Detailed error message shown when saving login details fails."
   },
   "changePasswordWarning": {
-    "message": "更改密码后，您需要使用新密码登录。 在其他设备上的活动会话将在一小时内注销。"
+    "message": "更改密码后，您需要使用新密码登录。在其他设备上的活动会话将在一小时内注销。"
   },
   "accountRecoveryUpdateMasterPasswordSubtitle": {
     "message": "更改您的主密码以完成账户恢复。"
@@ -1676,8 +1694,29 @@
   "turnOffAutofill": {
     "message": "停用自动填充"
   },
+  "confirmAutofill": {
+    "message": "确认自动填充"
+  },
+  "confirmAutofillDesc": {
+    "message": "此网站与您保存的登录信息不匹配。在填写您的登录凭据之前，请确保它是一个可信的网站。"
+  },
   "showInlineMenuLabel": {
     "message": "在表单字段中显示自动填充建议"
+  },
+  "howDoesBitwardenProtectFromPhishing": {
+    "message": "Bitwarden 如何保护您的数据免遭网络钓鱼？"
+  },
+  "currentWebsite": {
+    "message": "当前网站"
+  },
+  "autofillAndAddWebsite": {
+    "message": "自动填充并添加此网站"
+  },
+  "autofillWithoutAdding": {
+    "message": "自动填充但不添加"
+  },
+  "doNotAutofill": {
+    "message": "不自动填充"
   },
   "showInlineMenuIdentitiesLabel": {
     "message": "将身份显示为建议"
@@ -2356,7 +2395,7 @@
     "message": "已经有账户了吗？"
   },
   "vaultTimeoutLogOutConfirmation": {
-    "message": "超时后注销账户将解除对密码库的所有访问权限，并需要进行在线身份验证。确定使用此设置吗？"
+    "message": "超时后注销账户将解除对密码库的所有访问权限，并需要进行在线身份验证。确定要使用此设置吗？"
   },
   "vaultTimeoutLogOutConfirmationTitle": {
     "message": "超时动作确认"
@@ -2858,7 +2897,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deleteSendPermanentConfirmation": {
-    "message": "您确定要永久删除这个 Send 吗？",
+    "message": "确定要永久删除这个 Send 吗？",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "editSend": {
@@ -3074,7 +3113,7 @@
     "message": "企业策略要求已应用到您的超时选项中"
   },
   "vaultTimeoutPolicyInEffect": {
-    "message": "您的组织策略已将您最大允许的密码库超时时间设置为 $HOURS$ 小时 $MINUTES$ 分钟。",
+    "message": "您的组织策略已将您最大允许的密码库超时设置为 $HOURS$ 小时 $MINUTES$ 分钟。",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -3100,7 +3139,7 @@
     }
   },
   "vaultTimeoutPolicyMaximumError": {
-    "message": "超时时间超出了您组织设置的限制：最多 $HOURS$ 小时 $MINUTES$ 分钟",
+    "message": "超时超出了您组织设置的限制：最多 $HOURS$ 小时 $MINUTES$ 分钟",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -3113,7 +3152,7 @@
     }
   },
   "vaultTimeoutPolicyWithActionInEffect": {
-    "message": "您的组织策略正在影响您的密码库超时时间。最大允许的密码库超时时间是 $HOURS$ 小时 $MINUTES$ 分钟。您的密码库超时动作被设置为 $ACTION$。",
+    "message": "您的组织策略正在影响您的密码库超时。最大允许的密码库超时为 $HOURS$ 小时 $MINUTES$ 分钟。您的密码库超时动作被设置为 $ACTION$。",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -3130,7 +3169,7 @@
     }
   },
   "vaultTimeoutActionPolicyInEffect": {
-    "message": "您的组织策略已将您的密码库超时动作设置为 $ACTION$。",
+    "message": "您的组织策略已将您的密码库超时动作设置为「$ACTION$」。",
     "placeholders": {
       "action": {
         "content": "$1",
@@ -3139,7 +3178,7 @@
     }
   },
   "vaultTimeoutTooLarge": {
-    "message": "您的密码库超时时间超出了组织设置的限制。"
+    "message": "您的密码库超时超出了您组织设置的限制。"
   },
   "vaultExportDisabled": {
     "message": "密码库导出已禁用"
@@ -3239,6 +3278,9 @@
   },
   "decryptionError": {
     "message": "解密错误"
+  },
+  "errorGettingAutoFillData": {
+    "message": "获取自动填充数据时出错"
   },
   "couldNotDecryptVaultItemsBelow": {
     "message": "Bitwarden 无法解密下列密码库项目。"
@@ -4010,6 +4052,15 @@
   "autofillOnPageLoadSetToDefault": {
     "message": "页面加载时自动填充设置为使用默认设置。",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
+  },
+  "cannotAutofill": {
+    "message": "无法自动填充"
+  },
+  "cannotAutofillExactMatch": {
+    "message": "默认匹配被设置为「精确匹配」。当前网站与此项目保存的登录信息不完全匹配。"
+  },
+  "okay": {
+    "message": "确定"
   },
   "toggleSideNavigation": {
     "message": "切换侧边导航"
@@ -4837,7 +4888,7 @@
     "message": "从 App Store 下载"
   },
   "permanentlyDeleteAttachmentConfirmation": {
-    "message": "您确定要永久删除此附件吗？"
+    "message": "确定要永久删除此附件吗？"
   },
   "premium": {
     "message": "高级会员"
@@ -5238,7 +5289,7 @@
     "message": "重试"
   },
   "vaultCustomTimeoutMinimum": {
-    "message": "自定义超时时间最小为 1 分钟。"
+    "message": "自定义超时最少为 1 分钟。"
   },
   "fileSavedToDevice": {
     "message": "文件已保存到设备。可以在设备下载中进行管理。"
@@ -5716,10 +5767,16 @@
     "message": "确认 Key Connector 域名"
   },
   "atRiskLoginsSecured": {
-    "message": "Great job securing your at-risk logins!"
+    "message": "很好地保护了存在风险的登录！"
   },
   "settingDisabledByPolicy": {
     "message": "此设置被您组织的策略禁用了。",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP / 邮政编码"
+  },
+  "cardNumberLabel": {
+    "message": "卡号"
   }
 }

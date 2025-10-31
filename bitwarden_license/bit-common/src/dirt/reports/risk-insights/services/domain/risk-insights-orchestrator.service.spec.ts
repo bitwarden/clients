@@ -11,6 +11,7 @@ import { LogService } from "@bitwarden/logging";
 
 import { createNewSummaryData } from "../../helpers";
 import { RiskInsightsData, SaveRiskInsightsReportResponse } from "../../models";
+import { RiskInsightsMetrics } from "../../models/domain/risk-insights-metrics";
 import { mockMemberCipherDetailsResponse } from "../../models/mocks/member-cipher-details-response.mock";
 import {
   mockApplicationData,
@@ -182,6 +183,20 @@ describe("RiskInsightsOrchestratorService", () => {
       // Act
       service.generateReport();
 
+      const metricsData = new RiskInsightsMetrics();
+      metricsData.totalApplicationCount = 3;
+      metricsData.totalAtRiskApplicationCount = 1;
+      metricsData.totalAtRiskMemberCount = 2;
+      metricsData.totalAtRiskPasswordCount = 1;
+      metricsData.totalCriticalApplicationCount = 1;
+      metricsData.totalCriticalAtRiskApplicationCount = 1;
+      metricsData.totalCriticalMemberCount = 1;
+      metricsData.totalCriticalAtRiskMemberCount = 1;
+      metricsData.totalCriticalPasswordCount = 0;
+      metricsData.totalCriticalAtRiskPasswordCount = 0;
+      metricsData.totalMemberCount = 5;
+      metricsData.totalPasswordCount = 2;
+
       // Assert
       service.rawReportData$.subscribe((state) => {
         if (!state.loading && state.data) {
@@ -193,6 +208,7 @@ describe("RiskInsightsOrchestratorService", () => {
             mockEnrichedReportData,
             mockSummaryData,
             mockApplicationData,
+            metricsData,
             { organizationId: mockOrgId, userId: mockUserId },
           );
           expect(state.data.reportData).toEqual(mockEnrichedReportData);
