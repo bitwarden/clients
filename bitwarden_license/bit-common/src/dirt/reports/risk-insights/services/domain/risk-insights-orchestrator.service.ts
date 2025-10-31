@@ -54,6 +54,7 @@ import {
   MemberDetails,
   OrganizationReportApplication,
   OrganizationReportSummary,
+  ReportStatus,
   ReportState,
 } from "../../models/report-models";
 import { MemberCipherDetailsApiService } from "../api/member-cipher-details-api.service";
@@ -79,13 +80,16 @@ export class RiskInsightsOrchestratorService {
   } | null>(null);
   organizationDetails$ = this._organizationDetailsSubject.asObservable();
 
-  // ------------------------- Raw data -------------------------
+  // ------------------------- Cipher data -------------------------
   private _ciphersSubject = new BehaviorSubject<CipherView[] | null>(null);
   private _ciphers$ = this._ciphersSubject.asObservable();
 
+  private _hasCiphersSubject$ = new BehaviorSubject<boolean | null>(null);
+  hasCiphers$ = this._hasCiphersSubject$.asObservable();
+
   // ------------------------- Report Variables ----------------
   private _rawReportDataSubject = new BehaviorSubject<ReportState>({
-    loading: true,
+    status: ReportStatus.Initializing,
     error: null,
     data: null,
   });
@@ -116,9 +120,6 @@ export class RiskInsightsOrchestratorService {
   // --------------------------- Critical Application data ---------------------
   criticalReportResults$: Observable<RiskInsightsEnrichedData | null> = of(null);
 
-  // --------------------------- Vault Items Check ---------------------
-  hasVaultItems$: Observable<boolean> = of(false);
-
   // --------------------------- Trigger subjects ---------------------
   private _initializeOrganizationTriggerSubject = new Subject<OrganizationId>();
   private _fetchReportTriggerSubject = new Subject<void>();
@@ -144,7 +145,6 @@ export class RiskInsightsOrchestratorService {
     this._setupCriticalApplicationContext();
     this._setupCriticalApplicationReport();
     this._setupEnrichedReportData();
-    this._setupHasVaultItems();
     this._setupInitializationPipeline();
     this._setupMigrationAndCleanup();
     this._setupReportState();
@@ -202,7 +202,7 @@ export class RiskInsightsOrchestratorService {
     );
     return this.rawReportData$.pipe(
       take(1),
-      filter((data) => !data.loading && data.data != null),
+      filter((data) => data.status != ReportStatus.Loading && data.data != null),
       withLatestFrom(
         this.organizationDetails$.pipe(filter((org) => !!org && !!org.organizationId)),
         this._userId$.pipe(filter((userId) => !!userId)),
@@ -331,7 +331,7 @@ export class RiskInsightsOrchestratorService {
     );
     return this.rawReportData$.pipe(
       take(1),
-      filter((data) => !data.loading && data.data != null),
+      filter((data) => data.status != ReportStatus.Loading && data.data != null),
       withLatestFrom(
         this.organizationDetails$.pipe(filter((org) => !!org && !!org.organizationId)),
         this._userId$.pipe(filter((userId) => !!userId)),
@@ -470,7 +470,7 @@ export class RiskInsightsOrchestratorService {
 
     return this.rawReportData$.pipe(
       take(1),
-      filter((data) => !data.loading && data.data != null),
+      filter((data) => data.status != ReportStatus.Loading && data.data != null),
       withLatestFrom(
         this.organizationDetails$.pipe(filter((org) => !!org && !!org.organizationId)),
         this._userId$.pipe(filter((userId) => !!userId)),
@@ -560,21 +560,29 @@ export class RiskInsightsOrchestratorService {
     );
   }
 
-  private _fetchReport$(organizationId: OrganizationId, userId: UserId): Observable<ReportState> {
+  private _fetchReport$(
+    organizationId: OrganizationId,
+    userId: UserId,
+  ): Observable<ReportState | null> {
     return this.reportService.getRiskInsightsReport$(organizationId, userId).pipe(
       tap(() => this.logService.debug("[RiskInsightsOrchestratorService] Fetching report")),
       map((result): ReportState => {
         return {
-          loading: false,
+          status: ReportStatus.Complete,
           error: null,
-          data: result ?? null,
+          data: result,
           organizationId,
         };
       }),
-      catchError(() =>
-        of({ loading: false, error: "Failed to fetch report", data: null, organizationId }),
-      ),
-      startWith({ loading: true, error: null, data: null, organizationId }),
+      catchError((error: unknown) => {
+        this.logService.error("[RiskInsightsOrchestratorService] Failed to fetch report", error);
+        return of({
+          status: ReportStatus.Error,
+          error: "Failed to fetch report",
+          data: null,
+          organizationId,
+        });
+      }),
     );
   }
 
@@ -650,7 +658,7 @@ export class RiskInsightsOrchestratorService {
       map((mappedResult): ReportState => {
         const { id, report, summary, applications, contentEncryptionKey } = mappedResult;
         return {
-          loading: false,
+          status: ReportStatus.Complete,
           error: null,
           data: {
             id,
@@ -665,13 +673,18 @@ export class RiskInsightsOrchestratorService {
       }),
       catchError((): Observable<ReportState> => {
         return of({
-          loading: false,
+          status: ReportStatus.Error,
           error: "Failed to generate or save report",
           data: null,
           organizationId,
         });
       }),
-      startWith<ReportState>({ loading: true, error: null, data: null, organizationId }),
+      // startWith<ReportState>({
+      //   status: ReportStatus.Loading,
+      //   error: null,
+      //   data: null,
+      //   organizationId,
+      // }),
     );
   }
 
@@ -879,34 +892,6 @@ export class RiskInsightsOrchestratorService {
   }
 
   // Setup the pipeline to load critical applications when organization or user changes
-  /**
-   * Sets up an observable to check if the organization has any vault items (ciphers).
-   * This is used to determine which empty state to show in the UI.
-   */
-  private _setupHasVaultItems() {
-    this.hasVaultItems$ = this.organizationDetails$.pipe(
-      switchMap((orgDetails) => {
-        if (!orgDetails?.organizationId) {
-          return of(false);
-        }
-        return from(
-          this.cipherService.getAllFromApiForOrganization(orgDetails.organizationId),
-        ).pipe(
-          map((ciphers) => ciphers.length > 0),
-          catchError((error: unknown) => {
-            this.logService.error(
-              "[RiskInsightsOrchestratorService] Error checking vault items",
-              error,
-            );
-            return of(false);
-          }),
-        );
-      }),
-      shareReplay({ bufferSize: 1, refCount: true }),
-      takeUntil(this._destroy$),
-    );
-  }
-
   private _setupCriticalApplicationContext() {
     this.organizationDetails$
       .pipe(
@@ -1003,6 +988,7 @@ export class RiskInsightsOrchestratorService {
             orgDetails.organizationId,
           );
           this._ciphersSubject.next(ciphers);
+          this._hasCiphersSubject$.next(ciphers.length > 0);
         }),
         takeUntil(this._destroy$),
       )
@@ -1056,6 +1042,7 @@ export class RiskInsightsOrchestratorService {
     const initialReportLoad$ = reportDependencies$.pipe(
       take(1),
       exhaustMap(([orgDetails, userId]) => this._fetchReport$(orgDetails!.organizationId, userId!)),
+      startWith({ status: ReportStatus.Initializing, error: null, data: null }),
     );
 
     // A stream for manually triggered fetches
@@ -1064,6 +1051,7 @@ export class RiskInsightsOrchestratorService {
       exhaustMap(([_, [orgDetails, userId]]) =>
         this._fetchReport$(orgDetails!.organizationId, userId!),
       ),
+      // startWith({ status: ReportStatus.Loading, error: null, data: null }),
     );
 
     // A stream for generating a new report
@@ -1077,6 +1065,7 @@ export class RiskInsightsOrchestratorService {
       tap(() => {
         this._generateReportTriggerSubject.next(false);
       }),
+      // startWith({ status: ReportStatus.Loading, error: null, data: null }),
     );
 
     // Combine all triggers and update the single report state
@@ -1104,8 +1093,8 @@ export class RiskInsightsOrchestratorService {
           data: currState.data !== null ? currState.data : prevState.data,
         };
       }),
-      startWith({ loading: false, error: null, data: null }),
       shareReplay({ bufferSize: 1, refCount: true }),
+      // startWith({ status: ReportStatus.Initializing, error: null, data: null }),
       takeUntil(this._destroy$),
     );
 

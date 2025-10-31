@@ -10,7 +10,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { LogService } from "@bitwarden/logging";
 
 import { createNewSummaryData } from "../../helpers";
-import { RiskInsightsData, SaveRiskInsightsReportResponse } from "../../models";
+import { ReportStatus, RiskInsightsData, SaveRiskInsightsReportResponse } from "../../models";
 import { RiskInsightsMetrics } from "../../models/domain/risk-insights-metrics";
 import { mockMemberCipherDetailsResponse } from "../../models/mocks/member-cipher-details-response.mock";
 import {
@@ -122,7 +122,7 @@ describe("RiskInsightsOrchestratorService", () => {
 
       // Assert
       service.rawReportData$.subscribe((state) => {
-        if (!state.loading) {
+        if (state.status != ReportStatus.Loading) {
           expect(mockReportService.getRiskInsightsReport$).toHaveBeenCalledWith(
             mockOrgId,
             mockUserId,
@@ -159,7 +159,7 @@ describe("RiskInsightsOrchestratorService", () => {
       _userIdSubject.next(mockUserId);
       testService.fetchReport();
       testService.rawReportData$.subscribe((state) => {
-        if (!state.loading) {
+        if (state.status != ReportStatus.Loading) {
           expect(state.error).toBe("Failed to fetch report");
           expect(state.data).toBeNull();
           done();
@@ -199,7 +199,7 @@ describe("RiskInsightsOrchestratorService", () => {
 
       // Assert
       service.rawReportData$.subscribe((state) => {
-        if (!state.loading && state.data) {
+        if (state.status != ReportStatus.Loading && state.data) {
           expect(mockMemberCipherDetailsApiService.getMemberCipherDetails).toHaveBeenCalledWith(
             mockOrgId,
           );

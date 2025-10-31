@@ -1,12 +1,4 @@
-<div *ngIf="loading">
-  <i
-    class="bwi bwi-spinner bwi-spin tw-text-muted"
-    title="{{ 'loading' | i18n }}"
-    aria-hidden="true"
-  ></i>
-  <span class="tw-sr-only">{{ "loading" | i18n }}</span>
-</div>
-<div class="tw-mt-4 tw-flex tw-flex-col" *ngIf="!loading">
+<div class="tw-mt-4 tw-flex tw-flex-col">
   <div class="tw-flex tw-justify-between tw-mb-4">
     <h2 bitTypography="h2">{{ "criticalApplications" | i18n }}</h2>
     <button

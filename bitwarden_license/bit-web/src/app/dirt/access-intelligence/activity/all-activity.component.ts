@@ -5,6 +5,7 @@ import { firstValueFrom } from "rxjs";
 
 import {
   AllActivitiesService,
+  ReportStatus,
   RiskInsightsDataService,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -43,6 +44,8 @@ export class AllActivityComponent implements OnInit {
   passwordChangeMetricHasProgressBar = false;
 
   destroyRef = inject(DestroyRef);
+
+  protected ReportStatusEnum = ReportStatus;
 
   constructor(
     private accountService: AccountService,

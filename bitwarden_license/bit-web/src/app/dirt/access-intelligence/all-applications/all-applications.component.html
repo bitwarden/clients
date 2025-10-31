@@ -1,4 +1,4 @@
-@if (dataService.isLoading$ | async) {
+@if ((dataService.reportStatus$ | async) == ReportStatusEnum.Loading) {
   <dirt-risk-insights-loading></dirt-risk-insights-loading>
 } @else {
   @let drawerDetails = dataService.drawerDetails$ | async;

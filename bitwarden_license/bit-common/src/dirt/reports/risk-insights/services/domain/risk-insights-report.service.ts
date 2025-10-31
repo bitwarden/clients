@@ -1,4 +1,4 @@
-import { catchError, EMPTY, from, map, Observable, switchMap, throwError } from "rxjs";
+import { catchError, EMPTY, from, map, Observable, of, switchMap, throwError } from "rxjs";
 
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { OrganizationId, OrganizationReportId, UserId } from "@bitwarden/common/types/guid";
@@ -151,7 +151,7 @@ export class RiskInsightsReportService {
       switchMap((response) => {
         if (!response) {
           // Return an empty report and summary if response is falsy
-          return EMPTY;
+          return of(null);
         }
         if (!response.contentEncryptionKey || response.contentEncryptionKey.data == "") {
           return throwError(() => new Error("Report key not found"));
