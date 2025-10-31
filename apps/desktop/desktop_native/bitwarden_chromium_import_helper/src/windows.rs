@@ -65,7 +65,7 @@ mod windows_binary {
     const LOG_FILENAME: &str = "c:\\path\\to\\log.txt"; // This is an example filename, replace it with you own
 
     // This should be enabled for production
-    const ENABLE_SERVER_SIGNATURE_VALIDATION: bool = false;
+    const ENABLE_SERVER_SIGNATURE_VALIDATION: bool = true;
     const EXPECTED_SERVER_SIGNATURE_SHA256_THUMBPRINT: &str =
         "9f6680c4720dbf66d1cb8ed6e328f58e42523badc60d138c7a04e63af14ea40d";
 
