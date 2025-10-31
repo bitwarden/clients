@@ -38,7 +38,7 @@ mod windows_binary {
                 Pipes::GetNamedPipeServerProcessId,
                 Threading::{
                     OpenProcess, OpenProcessToken, QueryFullProcessImageNameW, PROCESS_NAME_WIN32,
-                    PROCESS_QUERY_INFORMATION, PROCESS_VM_READ,
+                    PROCESS_QUERY_LIMITED_INFORMATION,
                 },
             },
             UI::Shell::IsUserAnAdmin,
@@ -139,7 +139,7 @@ mod windows_binary {
 
         // Open the process handle
         let hprocess =
-            unsafe { OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, false, pid) }?;
+            unsafe { OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, false, pid) }?;
         dbg_log!("Opened process handle for PID {}", pid);
 
         // Close when no longer needed
@@ -333,7 +333,7 @@ mod windows_binary {
 
     fn get_process_handle(pid: u32) -> Result<HANDLE> {
         let hprocess =
-            unsafe { OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, false, pid) }?;
+            unsafe { OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, false, pid) }?;
         Ok(hprocess)
     }
 
