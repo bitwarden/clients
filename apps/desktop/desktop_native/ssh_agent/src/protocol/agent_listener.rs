@@ -30,7 +30,7 @@ pub async fn serve_listener<PeerStream, Listener>(
 {
     loop {
         select! {
-            _ = cancellation_token.cancelled() => {
+            () = cancellation_token.cancelled() => {
                 break;
             }
             Some(Ok((stream, peer_info))) = listener.next() => {
