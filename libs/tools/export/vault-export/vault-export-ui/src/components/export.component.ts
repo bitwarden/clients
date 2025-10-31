@@ -342,13 +342,25 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private observeFormSelections(): void {
-    // Set up dynamic format options based on vault selection
-    this.formatOptions$ = this.exportForm.controls.vaultSelector.valueChanges.pipe(
-      startWith(this.exportForm.controls.vaultSelector.value),
-      map((vaultSelection) => {
-        const isMyVault = vaultSelection === "myVault";
-        // Update organizationId based on vault selection
-        this.organizationId = isMyVault ? undefined : vaultSelection;
+    // Step 1: Update _organizationId$ when vault selection changes
+    // In Admin Console context, organizationId is already set via @Input
+    // In Password Manager context, user changes vaultSelector which updates _organizationId$
+    this.exportForm.controls.vaultSelector.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((vaultSelection) => {
+        if (!this.isAdminConsoleContext) {
+          // Password Manager: Update organizationId based on vaultSelector
+          const isMyVault = vaultSelection === "myVault";
+          this.organizationId = isMyVault ? undefined : vaultSelection;
+        }
+        // Admin Console: organizationId is already set via @Input, no update needed
+      });
+
+    // Step 2: Set up dynamic format options based on the organizationId observable
+    // This is the single source of truth for both export contexts
+    this.formatOptions$ = this._organizationId$.pipe(
+      map((organizationId) => {
+        const isMyVault = !organizationId;
         return { isMyVault };
       }),
       switchMap((options) => this.exportService.formats$(options)),
