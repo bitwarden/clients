@@ -120,7 +120,6 @@ export interface ReportState {
   status: ReportStatus;
   error: string | null;
   data: RiskInsightsData | null;
-  organizationId: string | null;
 }
 
 // TODO Make Versioned models for structure changes

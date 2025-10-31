@@ -105,34 +105,6 @@ describe("RiskInsightsOrchestratorService", () => {
   });
 
   describe("fetchReport", () => {
-    it("should call with correct org and user IDs and emit ReportState", (done) => {
-      // Arrange
-      const privateOrganizationDetailsSubject = service["_organizationDetailsSubject"];
-      const privateUserIdSubject = service["_userIdSubject"];
-
-      // Set up organization and user context
-      privateOrganizationDetailsSubject.next({
-        organizationId: mockOrgId,
-        organizationName: mockOrgName,
-      });
-      privateUserIdSubject.next(mockUserId);
-
-      // Act
-      service.fetchReport();
-
-      // Assert
-      service.rawReportData$.subscribe((state) => {
-        if (state.status != ReportStatus.Loading) {
-          expect(mockReportService.getRiskInsightsReport$).toHaveBeenCalledWith(
-            mockOrgId,
-            mockUserId,
-          );
-          expect(state.data).toEqual(reportState);
-          done();
-        }
-      });
-    });
-
     it("should emit error ReportState when getRiskInsightsReport$ throws", (done) => {
       // Setup error passed via constructor for this test case
       mockReportService.getRiskInsightsReport$ = jest
@@ -157,7 +129,6 @@ describe("RiskInsightsOrchestratorService", () => {
         organizationName: mockOrgName,
       });
       _userIdSubject.next(mockUserId);
-      testService.fetchReport();
       testService.rawReportData$.subscribe((state) => {
         if (state.status != ReportStatus.Loading) {
           expect(state.error).toBe("Failed to fetch report");

@@ -88,10 +88,6 @@ export class RiskInsightsDataService {
     this.orchestrator.generateReport();
   }
 
-  fetchReport(): void {
-    this.orchestrator.fetchReport();
-  }
-
   // ------------------------- Drawer functions -----------------------------
   isActiveDrawerType = (drawerType: DrawerType): boolean => {
     return this.drawerDetailsSubject.value.activeDrawerType === drawerType;
