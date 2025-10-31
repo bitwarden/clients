@@ -28,7 +28,7 @@ const policyFileName = "com.bitwarden.Bitwarden.policy";
 const policyPath = "/usr/share/polkit-1/actions/";
 
 export default class OsBiometricsServiceLinux implements OsBiometricService {
-  private biometricsSystem;
+  private biometricsSystem: biometrics_v2.BiometricLockSystem;
 
   constructor() {
     this.biometricsSystem = biometrics_v2.initBiometricSystem();
