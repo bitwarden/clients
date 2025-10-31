@@ -13,8 +13,10 @@ use crate::chromium::{BrowserConfig, CryptoService, LocalState};
 use crate::util;
 mod abe;
 mod abe_config;
+mod signature;
 
 pub use abe_config::ADMIN_TO_USER_PIPE_NAME;
+pub use signature::*;
 
 //
 // Public API
