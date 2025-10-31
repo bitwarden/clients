@@ -42,8 +42,7 @@ export default {
       type: "figma",
       url: "https://www.figma.com/design/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=16329-40145&t=b5tDKylm5sWm2yKo-4",
     },
-    // remove disableSnapshots in CL-890
-    chromatic: { viewports: [640, 1280], disableSnapshot: true },
+    chromatic: { viewports: [1280] },
   },
 } as Meta;
 
@@ -135,4 +134,30 @@ export const ForceActiveStyles: Story = {
       <bit-nav-item text="Third Nav" icon="bwi-collection-shared"></bit-nav-item>
     `,
   }),
+};
+
+export const CollapsedNavItems: Story = {
+  render: (args) => ({
+    props: args,
+    template: `
+      <bit-nav-item text="First Nav" icon="bwi-collection-shared"></bit-nav-item>
+      <bit-nav-item text="Active Nav" icon="bwi-collection-shared" [forceActiveStyles]="true"></bit-nav-item>
+      <bit-nav-item text="Third Nav" icon="bwi-collection-shared"></bit-nav-item>
+    `,
+  }),
+  play: async () => {
+    const toggleButton = document.querySelector(
+      "[aria-label='Toggle side navigation']",
+    ) as HTMLButtonElement;
+    if (toggleButton) {
+      await toggleButton.click();
+    }
+  },
+  parameters: {
+    delay: 1000,
+    chromatic: {
+      viewports: [640],
+      delay: 1000,
+    },
+  },
 };
