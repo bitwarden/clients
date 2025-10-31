@@ -35,6 +35,7 @@ import {
   MaximumVaultTimeoutPolicyData,
   VaultTimeout,
   VaultTimeoutAction,
+  VaultTimeoutOption,
   VaultTimeoutSettingsService,
   VaultTimeoutStringType,
 } from "@bitwarden/common/key-management/vault-timeout";
@@ -92,7 +93,9 @@ export class SessionTimeoutSettingsComponent implements OnInit {
   });
   protected readonly availableTimeoutActions = signal<VaultTimeoutAction[]>([]);
   protected readonly availableTimeoutOptions$ =
-    this.sessionTimeoutSettingsComponentService.availableTimeoutOptions$;
+    this.sessionTimeoutSettingsComponentService.availableTimeoutOptions$.pipe(
+      startWith([] as VaultTimeoutOption[]),
+    );
   protected hasVaultTimeoutPolicy$: Observable<boolean> = of(false);
 
   private userId!: UserId;
@@ -114,7 +117,9 @@ export class SessionTimeoutSettingsComponent implements OnInit {
   }
 
   async ngOnInit(): Promise<void> {
-    const availableTimeoutOptions = await firstValueFrom(this.availableTimeoutOptions$);
+    const availableTimeoutOptions = await firstValueFrom(
+      this.sessionTimeoutSettingsComponentService.availableTimeoutOptions$,
+    );
 
     this.logService.debug(
       "[SessionTimeoutSettings] Available timeout options",

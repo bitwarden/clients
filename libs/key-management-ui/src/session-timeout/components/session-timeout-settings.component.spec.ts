@@ -2,7 +2,7 @@ import { ComponentFixture, fakeAsync, flush, TestBed, waitForAsync } from "@angu
 import { ReactiveFormsModule } from "@angular/forms";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, firstValueFrom, of } from "rxjs";
+import { BehaviorSubject, filter, firstValueFrom, of } from "rxjs";
 
 import { VaultTimeoutInputComponent } from "@bitwarden/auth/angular";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -150,8 +150,11 @@ describe("SessionTimeoutSettingsComponent", () => {
       fixture.detectChanges();
       flush();
 
-      const options = await firstValueFrom(component["availableTimeoutOptions$"]);
+      const options = await firstValueFrom(
+        component["availableTimeoutOptions$"].pipe(filter((options) => options.length > 0)),
+      );
 
+      expect(options).toContainEqual({ name: "oneMinute-used-i18n", value: 1 });
       expect(options).toContainEqual({ name: "fiveMinutes-used-i18n", value: 5 });
       expect(options).toContainEqual({
         name: "onIdle-used-i18n",
