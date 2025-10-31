@@ -21,6 +21,7 @@ struct Win32InputOperations;
 
 impl InputOperations for Win32InputOperations {
     fn send_input(inputs: &[INPUT]) -> u32 {
+        debug!("hello!");
         const INPUT_STRUCT_SIZE: i32 = std::mem::size_of::<INPUT>() as i32;
         let insert_count = unsafe { SendInput(inputs, INPUT_STRUCT_SIZE) };
 
