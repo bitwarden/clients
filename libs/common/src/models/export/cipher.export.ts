@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { EncString } from "../../key-management/crypto/models/enc-string";
 import { CipherRepromptType } from "../../vault/enums/cipher-reprompt-type";
 import { CipherType } from "../../vault/enums/cipher-type";
@@ -16,11 +14,18 @@ import { SshKeyExport } from "./ssh-key.export";
 import { safeGetString } from "./utils";
 
 export class CipherExport {
+  constructor() {
+    this.archivedDate = new Date();
+    this.creationDate = new Date();
+    this.deletedDate = new Date();
+    this.revisionDate = new Date();
+  }
+
   static template(): CipherExport {
     const req = new CipherExport();
-    req.organizationId = null;
-    req.collectionIds = null;
-    req.folderId = null;
+    req.organizationId = "";
+    req.collectionIds = [];
+    req.folderId = "";
     req.type = CipherType.Login;
     req.name = "Item name";
     req.notes = "Some notes about this item.";
@@ -33,10 +38,10 @@ export class CipherExport {
     req.sshKey = null;
     req.reprompt = CipherRepromptType.None;
     req.passwordHistory = [];
-    req.creationDate = null;
-    req.revisionDate = null;
-    req.deletedDate = null;
-    req.archivedDate = null;
+    req.creationDate = new Date();
+    req.revisionDate = new Date();
+    req.deletedDate = new Date();
+    req.archivedDate = new Date();
     return req;
   }
 
@@ -54,7 +59,7 @@ export class CipherExport {
     view.notes = req.notes;
     view.favorite = req.favorite;
     view.reprompt = req.reprompt ?? CipherRepromptType.None;
-    view.key = req.key != null ? new EncString(req.key) : null;
+    view.key = new EncString(req.key ?? "");
 
     if (req.fields != null) {
       view.fields = req.fields.map((f) => FieldExport.toView(f));
@@ -62,18 +67,33 @@ export class CipherExport {
 
     switch (req.type) {
       case CipherType.Login:
+        if (!req.login) {
+          break;
+        }
         view.login = LoginExport.toView(req.login);
         break;
       case CipherType.SecureNote:
+        if (!req.secureNote) {
+          break;
+        }
         view.secureNote = SecureNoteExport.toView(req.secureNote);
         break;
       case CipherType.Card:
+        if (!req.card) {
+          break;
+        }
         view.card = CardExport.toView(req.card);
         break;
       case CipherType.Identity:
+        if (!req.identity) {
+          break;
+        }
         view.identity = IdentityExport.toView(req.identity);
         break;
       case CipherType.SshKey:
+        if (!req.sshKey) {
+          break;
+        }
         view.sshKey = SshKeyExport.toView(req.sshKey);
         break;
     }
@@ -95,11 +115,11 @@ export class CipherExport {
     if (domain.organizationId == null) {
       domain.organizationId = req.organizationId;
     }
-    domain.name = req.name != null ? new EncString(req.name) : null;
-    domain.notes = req.notes != null ? new EncString(req.notes) : null;
+    domain.name = new EncString(req.name ? req.name : "");
+    domain.notes = new EncString(req.notes ? req.notes : "");
     domain.favorite = req.favorite;
     domain.reprompt = req.reprompt ?? CipherRepromptType.None;
-    domain.key = req.key != null ? new EncString(req.key) : null;
+    domain.key = new EncString(req.key ? req.key : "");
 
     if (req.fields != null) {
       domain.fields = req.fields.map((f) => FieldExport.toDomain(f));
@@ -107,18 +127,33 @@ export class CipherExport {
 
     switch (req.type) {
       case CipherType.Login:
+        if (!req.login) {
+          break;
+        }
         domain.login = LoginExport.toDomain(req.login);
         break;
       case CipherType.SecureNote:
+        if (!req.secureNote) {
+          break;
+        }
         domain.secureNote = SecureNoteExport.toDomain(req.secureNote);
         break;
       case CipherType.Card:
+        if (!req.card) {
+          break;
+        }
         domain.card = CardExport.toDomain(req.card);
         break;
       case CipherType.Identity:
+        if (!req.identity) {
+          break;
+        }
         domain.identity = IdentityExport.toDomain(req.identity);
         break;
       case CipherType.SshKey:
+        if (!req.sshKey) {
+          break;
+        }
         domain.sshKey = SshKeyExport.toDomain(req.sshKey);
         break;
     }
@@ -127,45 +162,45 @@ export class CipherExport {
       domain.passwordHistory = req.passwordHistory.map((ph) => PasswordHistoryExport.toDomain(ph));
     }
 
-    domain.creationDate = req.creationDate ? new Date(req.creationDate) : null;
-    domain.revisionDate = req.revisionDate ? new Date(req.revisionDate) : null;
-    domain.deletedDate = req.deletedDate ? new Date(req.deletedDate) : null;
-    domain.archivedDate = req.archivedDate ? new Date(req.archivedDate) : null;
+    domain.creationDate = req.creationDate ? new Date(req.creationDate) : new Date();
+    domain.revisionDate = req.revisionDate ? new Date(req.revisionDate) : new Date();
+    domain.deletedDate = req.deletedDate ? new Date(req.deletedDate) : new Date();
+    domain.archivedDate = req.archivedDate ? new Date(req.archivedDate) : new Date();
     return domain;
   }
 
-  type: CipherType;
-  folderId: string;
-  organizationId: string;
-  collectionIds: string[];
-  name: string;
-  notes: string;
-  favorite: boolean;
-  fields: FieldExport[];
-  login: LoginExport;
-  secureNote: SecureNoteExport;
-  card: CardExport;
-  identity: IdentityExport;
-  sshKey: SshKeyExport;
-  reprompt: CipherRepromptType;
-  passwordHistory: PasswordHistoryExport[] = null;
-  revisionDate: Date = null;
-  creationDate: Date = null;
-  deletedDate: Date = null;
-  archivedDate: Date = null;
-  key: string;
+  type: CipherType = CipherType.Login;
+  folderId: string = "";
+  organizationId: string = "";
+  collectionIds: string[] = [];
+  name: string = "";
+  notes: string = "";
+  favorite: boolean = false;
+  fields: FieldExport[] = [];
+  login: LoginExport | null = null;
+  secureNote: SecureNoteExport | null = null;
+  card: CardExport | null = null;
+  identity: IdentityExport | null = null;
+  sshKey: SshKeyExport | null = null;
+  reprompt: CipherRepromptType = CipherRepromptType.None;
+  passwordHistory: PasswordHistoryExport[] = [];
+  revisionDate: Date;
+  creationDate: Date;
+  deletedDate: Date;
+  archivedDate: Date;
+  key: string = "";
 
   // Use build method instead of ctor so that we can control order of JSON stringify for pretty print
   build(o: CipherView | CipherDomain) {
-    this.organizationId = o.organizationId;
-    this.folderId = o.folderId;
+    this.organizationId = o.organizationId ?? "";
+    this.folderId = o.folderId ?? "";
     this.type = o.type;
     this.reprompt = o.reprompt;
 
-    this.name = safeGetString(o.name);
-    this.notes = safeGetString(o.notes);
+    this.name = safeGetString(o.name) ?? "";
+    this.notes = safeGetString(o.notes ?? "") ?? "";
     if ("key" in o) {
-      this.key = o.key?.encryptedString;
+      this.key = o.key?.encryptedString ?? "";
     }
 
     this.favorite = o.favorite;
@@ -198,7 +233,7 @@ export class CipherExport {
 
     this.creationDate = o.creationDate;
     this.revisionDate = o.revisionDate;
-    this.deletedDate = o.deletedDate;
-    this.archivedDate = o.archivedDate;
+    this.deletedDate = o.deletedDate ?? new Date();
+    this.archivedDate = o.archivedDate ?? new Date();
   }
 }
