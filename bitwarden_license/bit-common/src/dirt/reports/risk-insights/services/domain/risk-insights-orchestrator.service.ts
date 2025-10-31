@@ -568,6 +568,11 @@ export class RiskInsightsOrchestratorService {
           )
           .pipe(
             map(() => updatedState),
+            tap((finalState) => {
+              this._flagForUpdatesSubject.next({
+                ...finalState,
+              });
+            }),
             catchError((error: unknown) => {
               this.logService.error(
                 "[RiskInsightsOrchestratorService] Failed to save review status",
