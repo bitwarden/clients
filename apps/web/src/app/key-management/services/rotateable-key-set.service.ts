@@ -22,6 +22,13 @@ export class RotateableKeySetService {
     rotateableKey: SymmetricCryptoKey,
     externalKey: ExternalKey,
   ): Promise<RotateableKeySet<ExternalKey>> {
+    if (!rotateableKey) {
+      throw new Error("failed to create key set: rotateableKey is required");
+    }
+    if (!externalKey) {
+      throw new Error("failed to create key set: externalKey is required");
+    }
+
     const [publicKey, encryptedPrivateKey] = await this.keyService.makeKeyPair(externalKey);
 
     const rawPublicKey = Utils.fromB64ToArray(publicKey);

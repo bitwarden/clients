@@ -29,6 +29,26 @@ describe("RotateableKeySetService", () => {
   });
 
   describe("createKeySet", () => {
+    test.each([null, undefined])(
+      "throws error when rotateableKey parameter is %s",
+      async (rotateableKey) => {
+        const externalKey = createSymmetricKey();
+        await expect(service.createKeySet(rotateableKey as any, externalKey)).rejects.toThrow(
+          "failed to create key set: rotateableKey is required",
+        );
+      },
+    );
+
+    test.each([null, undefined])(
+      "throws error when externalKey parameter is %s",
+      async (externalKey) => {
+        const userKey = createSymmetricKey();
+        await expect(service.createKeySet(userKey, externalKey as any)).rejects.toThrow(
+          "failed to create key set: externalKey is required",
+        );
+      },
+    );
+
     it("should create a new key set", async () => {
       const externalKey = createSymmetricKey();
       const userKey = createSymmetricKey();
