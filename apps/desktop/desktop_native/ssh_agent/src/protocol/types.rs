@@ -388,13 +388,11 @@ impl TryFrom<Vec<u8>> for PublicKey {
 impl TryFrom<String> for PublicKey {
     type Error = anyhow::Error;
     fn try_from(s: String) -> Result<Self, Self::Error> {
-        println!("Parsing public key from string: {}", s);
         // split by space
         let parts: Vec<&str> = s.split_whitespace().collect();
         if parts.len() < 2 {
             return Err(anyhow::anyhow!("Invalid public key format"));
         }
-        println!("Public key parts: alg='{}', blob='{}'", parts[0], parts[1]);
 
         let alg = parts[0].to_string();
 
