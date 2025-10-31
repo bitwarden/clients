@@ -68,27 +68,17 @@ impl Stream for UnixListenerStream {
     ) -> Poll<Option<io::Result<(UnixStream, PeerInfo)>>> {
         match self.inner.poll_accept(cx) {
             Poll::Ready(Ok((stream, _))) => {
-                let pid = match stream.peer_cred() {
-                    Ok(peer) => match peer.pid() {
-                        Some(pid) => pid,
-                        None => {
-                            return Poll::Ready(Some(Ok((
-                                stream,
-                                PeerInfo::unknown(PeerType::UnixSocket),
-                            ))));
-                        }
-                    },
-                    Err(_) => {
-                        return Poll::Ready(Some(Ok((
-                            stream,
-                            PeerInfo::unknown(PeerType::UnixSocket),
-                        ))))
-                    }
+                let pid = stream
+                    .peer_cred()
+                    .ok()
+                    .and_then(|peer| peer.pid().and_then(|pid| u32::try_from(pid).ok()));
+
+                let peer_info = match pid {
+                    Some(pid) => PeerInfo::new(pid, PeerType::UnixSocket),
+                    None => PeerInfo::unknown(PeerType::UnixSocket),
                 };
-                Poll::Ready(Some(Ok((
-                    stream,
-                    PeerInfo::new(pid as u32, PeerType::UnixSocket),
-                ))))
+
+                Poll::Ready(Some(Ok((stream, peer_info))))
             }
             Poll::Ready(Err(err)) => Poll::Ready(Some(Err(err))),
             Poll::Pending => Poll::Pending,
