@@ -97,9 +97,9 @@ export const DefaultFeatureFlagValue = {
 
   /* Vault */
   [FeatureFlag.CipherKeyEncryption]: FALSE,
-  [FeatureFlag.PM19941MigrateCipherDomainToSdk]: FALSE,
-  [FeatureFlag.PM22134SdkCipherListView]: FALSE,
-  [FeatureFlag.PM22136_SdkCipherEncryption]: FALSE,
+  [FeatureFlag.PM19941MigrateCipherDomainToSdk]: true,
+  [FeatureFlag.PM22134SdkCipherListView]: true,
+  [FeatureFlag.PM22136_SdkCipherEncryption]: true,
 
   /* Auth */
   [FeatureFlag.PM22110_DisableAlternateLoginMethods]: FALSE,
@@ -142,6 +142,16 @@ export function getFeatureFlagValue<Flag extends FeatureFlag>(
 ) {
   if (serverConfig?.featureStates == null || serverConfig.featureStates[flag] == null) {
     return DefaultFeatureFlagValue[flag];
+  }
+
+  const override = [
+    FeatureFlag.PM19941MigrateCipherDomainToSdk,
+    FeatureFlag.PM22134SdkCipherListView,
+    FeatureFlag.PM22136_SdkCipherEncryption,
+  ];
+
+  if (override.includes(flag)) {
+    return true as FeatureFlagValueType<Flag>;
   }
 
   return serverConfig.featureStates[flag] as FeatureFlagValueType<Flag>;

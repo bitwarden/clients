@@ -42,17 +42,18 @@ export class RpcServer<T> {
         return { status: "error", error: `[RPC] Reference ID ${command.referenceId} not found` };
       }
 
-      try {
-        if (!isSerializable(target)) {
-          return {
-            status: "error",
-            error: `[RPC] by_value() not supported for non-serializable object of type ${target?.constructor?.name}`,
-          };
-        }
-        return { status: "success", result: { type: "value", value: target } };
-      } catch (error) {
-        return { status: "error", error };
-      }
+      // try {
+      // Not a dependable check
+      //   if (!isSerializable(target)) {
+      //     return {
+      //       status: "error",
+      //       error: `[RPC] by_value() not supported for non-serializable object of type ${target?.constructor?.name}`,
+      //     };
+      //   }
+      return { status: "success", result: { type: "value", value: target } };
+      // } catch (error) {
+      //   return { status: "error", error };
+      // }
     }
 
     if (command.method === "call") {

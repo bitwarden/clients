@@ -247,6 +247,8 @@ import { FileUploadService } from "@bitwarden/common/platform/services/file-uplo
 import { MigrationBuilderService } from "@bitwarden/common/platform/services/migration-builder.service";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
 import { DefaultSdkService } from "@bitwarden/common/platform/services/sdk/default-sdk.service";
+import { LocalRemoteSdkService } from "@bitwarden/common/platform/services/sdk/local-remote-sdk.service";
+import { RemoteSdkService } from "@bitwarden/common/platform/services/sdk/remote-sdk.service";
 import { StorageServiceProvider } from "@bitwarden/common/platform/services/storage-service.provider";
 import { UserAutoUnlockKeyService } from "@bitwarden/common/platform/services/user-auto-unlock-key.service";
 import { ValidationService } from "@bitwarden/common/platform/services/validation.service";
@@ -1675,9 +1677,14 @@ const safeProviders: SafeProvider[] = [
     deps: [DOCUMENT, I18nServiceAbstraction],
   }),
   safeProvider({
+    provide: RemoteSdkService,
+    useClass: LocalRemoteSdkService,
+    deps: [SdkService, AccountServiceAbstraction, AuthServiceAbstraction],
+  }),
+  safeProvider({
     provide: CipherEncryptionService,
     useClass: DefaultCipherEncryptionService,
-    deps: [SdkService, LogService],
+    deps: [SdkService, LogService, RemoteSdkService],
   }),
   safeProvider({
     provide: ChangePasswordService,

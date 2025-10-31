@@ -159,7 +159,9 @@ import { MigrationBuilderService } from "@bitwarden/common/platform/services/mig
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
 import { DefaultSdkClientFactory } from "@bitwarden/common/platform/services/sdk/default-sdk-client-factory";
 import { DefaultSdkService } from "@bitwarden/common/platform/services/sdk/default-sdk.service";
+import { LocalRemoteSdkService } from "@bitwarden/common/platform/services/sdk/local-remote-sdk.service";
 import { NoopSdkClientFactory } from "@bitwarden/common/platform/services/sdk/noop-sdk-client-factory";
+import { RemoteSdkService } from "@bitwarden/common/platform/services/sdk/remote-sdk.service";
 import { SystemService } from "@bitwarden/common/platform/services/system.service";
 import { UserAutoUnlockKeyService } from "@bitwarden/common/platform/services/user-auto-unlock-key.service";
 import { PrimarySecondaryStorageService } from "@bitwarden/common/platform/storage/primary-secondary-storage.service";
@@ -476,6 +478,7 @@ export default class MainBackground {
   loginToAutoFill: CipherView = null;
 
   remoteSdkServerService: RemoteSdkServerService;
+  remoteSdkService: RemoteSdkService;
 
   private commandsBackground: CommandsBackground;
   private contextMenusBackground: ContextMenusBackground;
@@ -934,9 +937,16 @@ export default class MainBackground {
 
     this.themeStateService = new DefaultThemeStateService(this.globalStateProvider);
 
+    this.remoteSdkService = new LocalRemoteSdkService(
+      this.sdkService,
+      this.accountService,
+      this.authService,
+    );
+
     this.cipherEncryptionService = new DefaultCipherEncryptionService(
       this.sdkService,
       this.logService,
+      this.remoteSdkService,
     );
 
     this.cipherService = new CipherService(
