@@ -1,0 +1,11 @@
+import { Observable } from "rxjs";
+
+import { BitwardenClient } from "@bitwarden/sdk-internal";
+
+import { Rc } from "../../misc/reference-counting/rc";
+
+import { Remote } from "./remote";
+
+export abstract class RemoteSdkService {
+  abstract remoteClient$: Observable<Remote<Rc<BitwardenClient>>>;
+}

@@ -322,6 +322,7 @@ import { BrowserPlatformUtilsService } from "../platform/services/platform-utils
 import { PopupRouterCacheBackgroundService } from "../platform/services/popup-router-cache-background.service";
 import { PopupViewCacheBackgroundService } from "../platform/services/popup-view-cache-background.service";
 import { BrowserSdkLoadService } from "../platform/services/sdk/browser-sdk-load.service";
+import { RemoteSdkServerService } from "../platform/services/sdk/remote-sdk-server.service";
 import { BackgroundTaskSchedulerService } from "../platform/services/task-scheduler/background-task-scheduler.service";
 import { BackgroundMemoryStorageService } from "../platform/storage/background-memory-storage.service";
 import { BrowserStorageServiceProvider } from "../platform/storage/browser-storage-service.provider";
@@ -474,6 +475,8 @@ export default class MainBackground {
   onUpdatedRan: boolean;
   onReplacedRan: boolean;
   loginToAutoFill: CipherView = null;
+
+  remoteSdkServerService: RemoteSdkServerService;
 
   private commandsBackground: CommandsBackground;
   private contextMenusBackground: ContextMenusBackground;
@@ -1483,6 +1486,12 @@ export default class MainBackground {
       this.authService,
     );
 
+    this.remoteSdkServerService = new RemoteSdkServerService(
+      this.accountService,
+      this.authService,
+      this.sdkService,
+    );
+
     // Synchronous startup
     if (this.webPushConnectionService instanceof WorkerWebPushConnectionService) {
       this.webPushConnectionService.start();
@@ -1533,6 +1542,7 @@ export default class MainBackground {
     this.webRequestBackground?.startListening();
     this.syncServiceListener?.listener$().subscribe();
     await this.autoSubmitLoginBackground.init();
+    this.remoteSdkServerService.init();
 
     // If the user is logged out, switch to the next account
     const active = await firstValueFrom(this.accountService.activeAccount$);
