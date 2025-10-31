@@ -21,16 +21,26 @@ import { ClientType } from "@bitwarden/common/enums";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
+import { BaseCardComponent } from "../card";
 import { IconModule } from "../icon";
 import { SharedModule } from "../shared";
 import { TypographyModule } from "../typography";
 
 export type AnonLayoutMaxWidth = "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "auth-anon-layout",
   templateUrl: "./anon-layout.component.html",
-  imports: [IconModule, CommonModule, TypographyModule, SharedModule, RouterModule],
+  imports: [
+    IconModule,
+    CommonModule,
+    TypographyModule,
+    SharedModule,
+    RouterModule,
+    BaseCardComponent,
+  ],
 })
 export class AnonLayoutComponent implements OnInit, OnChanges {
   @HostBinding("class")

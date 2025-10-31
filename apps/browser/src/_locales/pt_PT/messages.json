@@ -5715,6 +5715,9 @@
   "confirmKeyConnectorDomain": {
     "message": "Confirmar o domínio do Key Connector"
   },
+  "atRiskLoginsSecured": {
+    "message": "Excelente trabalho ao proteger as suas credenciais em risco!"
+  },
   "settingDisabledByPolicy": {
     "message": "Esta configuração está desativada pela política da sua organização.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."

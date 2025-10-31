@@ -9,6 +9,8 @@ import { ToastService, CopyClickListener, COPY_CLICK_LISTENER } from "../";
 
 import { CopyClickDirective } from "./copy-click.directive";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template: `
     <button type="button" appCopyClick="no toast shown" #noToast></button>
@@ -25,9 +27,17 @@ import { CopyClickDirective } from "./copy-click.directive";
   imports: [CopyClickDirective],
 })
 class TestCopyClickComponent {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("noToast") noToastButton!: ElementRef<HTMLButtonElement>;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("infoToast") infoToastButton!: ElementRef<HTMLButtonElement>;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("successToast") successToastButton!: ElementRef<HTMLButtonElement>;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("toastWithLabel") toastWithLabelButton!: ElementRef<HTMLButtonElement>;
 }
 

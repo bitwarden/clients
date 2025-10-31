@@ -5,12 +5,16 @@ import { Component, EventEmitter, Input, Output } from "@angular/core";
 
 import { AccessTokenView } from "../models/view/access-token.view";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "sm-access-list",
   templateUrl: "./access-list.component.html",
   standalone: false,
 })
 export class AccessListComponent {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   get tokens(): AccessTokenView[] {
     return this._tokens;
@@ -21,7 +25,11 @@ export class AccessListComponent {
   }
   private _tokens: AccessTokenView[];
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() newAccessTokenEvent = new EventEmitter();
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() revokeAccessTokensEvent = new EventEmitter<AccessTokenView[]>();
 
   protected selection = new SelectionModel<string>(true, []);

@@ -8,6 +8,7 @@ function transformMaxItems(value: number | undefined) {
   return value == null ? undefined : Math.max(1, value);
 }
 
+<<<<<<< HEAD
 /**
  * Displays a collection of badges in a horizontal, wrapping layout.
  *
@@ -17,6 +18,10 @@ function transformMaxItems(value: number | undefined) {
  * Each badge inherits the `variant` and `truncate` settings, ensuring visual consistency
  * across the list. Badges are separated by commas for screen readers to improve accessibility.
  */
+=======
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
+>>>>>>> 8aebfbeace040612f272fb345b016a1274597cf8
 @Component({
   selector: "bit-badge-list",
   templateUrl: "badge-list.component.html",
