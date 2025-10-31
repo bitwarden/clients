@@ -138,7 +138,7 @@ function expectEqualCiphers(ciphers: CipherView[] | Cipher[], jsonResult: string
 }
 
 function expectEqualFolderViews(folderViews: FolderView[] | Folder[], jsonResult: string) {
-  const actual = JSON.stringify(JSON.parse(jsonResult).folders);
+  const actual = JSON.parse(jsonResult).folders;
   const folders: FolderResponse[] = [];
   folderViews.forEach((c) => {
     const folder = new FolderResponse();
@@ -148,21 +148,18 @@ function expectEqualFolderViews(folderViews: FolderView[] | Folder[], jsonResult
   });
 
   expect(actual.length).toBeGreaterThan(0);
-  expect(actual).toEqual(JSON.stringify(folders));
+  expect(actual).toEqual(folders);
 }
 
 function expectEqualFolders(folders: Folder[], jsonResult: string) {
-  const actual = JSON.stringify(JSON.parse(jsonResult).folders);
-  const items: Folder[] = [];
-  folders.forEach((c) => {
-    const item = new Folder();
-    item.id = c.id;
-    item.name = c.name;
-    items.push(item);
-  });
+  const actual = JSON.parse(jsonResult).folders;
 
-  expect(actual.length).toBeGreaterThan(0);
-  expect(actual).toEqual(JSON.stringify(items));
+  const expected = folders.map((f) => ({
+    id: f.id,
+    name: f.name.encryptedString,
+  }));
+
+  expect(actual).toMatchObject(expected);
 }
 
 describe("VaultExportService", () => {

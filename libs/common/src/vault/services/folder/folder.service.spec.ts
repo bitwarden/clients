@@ -122,6 +122,7 @@ describe("Folder Service", () => {
         encryptedString: "ENC",
         encryptionType: 0,
       },
+      revisionDate: expect.any(Date),
     });
   });
 
@@ -132,7 +133,7 @@ describe("Folder Service", () => {
       expect(result).toEqual({
         id: "1",
         name: makeEncString("ENC_STRING_" + 1),
-        revisionDate: null,
+        revisionDate: expect.any(Date),
       });
     });
 
@@ -150,12 +151,12 @@ describe("Folder Service", () => {
       {
         id: "1",
         name: makeEncString("ENC_STRING_" + 1),
-        revisionDate: null,
+        revisionDate: expect.any(Date),
       },
       {
         id: "2",
         name: makeEncString("ENC_STRING_" + 2),
-        revisionDate: null,
+        revisionDate: expect.any(Date),
       },
     ]);
   });
@@ -167,7 +168,7 @@ describe("Folder Service", () => {
       {
         id: "4",
         name: makeEncString("ENC_STRING_" + 4),
-        revisionDate: null,
+        revisionDate: expect.any(Date),
       },
     ]);
   });
@@ -203,7 +204,7 @@ describe("Folder Service", () => {
 
     const folderViews = await firstValueFrom(folderService.folderViews$(mockUserId));
     expect(folderViews.length).toBe(1);
-    expect(folderViews[0].id).toBeNull(); // Should be the "No Folder" folder
+    expect(folderViews[0].id).toEqual(""); // Should be the "No Folder" folder
   });
 
   describe("getRotatedData", () => {

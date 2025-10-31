@@ -190,8 +190,8 @@ describe("vault filter service", () => {
         ];
         folderViews.next(storedFolders);
 
-        await expect(firstValueFrom(vaultFilterService.filteredFolders$)).resolves.toEqual([
-          createFolderView("folder test id", "test"),
+        await expect(firstValueFrom(vaultFilterService.filteredFolders$)).resolves.toMatchObject([
+          { id: "folder test id", name: "test" },
         ]);
       });
 

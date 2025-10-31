@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { EncString } from "../../key-management/crypto/models/enc-string";
 import { Folder as FolderDomain } from "../../vault/models/domain/folder";
 import { FolderView } from "../../vault/models/view/folder.view";
@@ -7,6 +5,8 @@ import { FolderView } from "../../vault/models/view/folder.view";
 import { safeGetString } from "./utils";
 
 export class FolderExport {
+  name: string = "";
+
   static template(): FolderExport {
     const req = new FolderExport();
     req.name = "Folder name";
@@ -19,14 +19,12 @@ export class FolderExport {
   }
 
   static toDomain(req: FolderExport, domain = new FolderDomain()) {
-    domain.name = req.name != null ? new EncString(req.name) : null;
+    domain.name = new EncString(req.name);
     return domain;
   }
 
-  name: string;
-
   // Use build method instead of ctor so that we can control order of JSON stringify for pretty print
   build(o: FolderView | FolderDomain) {
-    this.name = safeGetString(o.name);
+    this.name = safeGetString(o.name) ?? "";
   }
 }

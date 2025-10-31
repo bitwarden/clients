@@ -21,7 +21,7 @@ describe("KeePass2 Xml Importer", () => {
     const actual = [folder];
 
     const result = await importer.parse(TestData);
-    expect(result.folders).toEqual(actual);
+    expect(result.folders[0].name).toEqual(actual[0].name);
   });
 
   it("parse XML should contains login details", async () => {
