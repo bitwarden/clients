@@ -3,7 +3,7 @@ import { BehaviorSubject, bufferCount, firstValueFrom, Subject, ObservedValueOf 
 
 // eslint-disable-next-line no-restricted-imports
 import { LogoutReason } from "@bitwarden/auth/common";
-import { AuthRequestAnsweringServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
+import { AuthRequestAnsweringService } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 
 import { AccountService } from "../../../auth/abstractions/account.service";
@@ -32,7 +32,7 @@ describe("DefaultServerNotificationsService (multi-user)", () => {
   let signalRNotificationConnectionService: MockProxy<SignalRConnectionService>;
   let authService: MockProxy<AuthService>;
   let webPushNotificationConnectionService: MockProxy<WebPushConnectionService>;
-  let authRequestAnsweringService: MockProxy<AuthRequestAnsweringServiceAbstraction>;
+  let authRequestAnsweringService: MockProxy<AuthRequestAnsweringService>;
   let configService: MockProxy<ConfigService>;
 
   let activeUserAccount$: BehaviorSubject<ObservedValueOf<AccountService["activeAccount$"]>>;
@@ -125,7 +125,7 @@ describe("DefaultServerNotificationsService (multi-user)", () => {
       return webPushSupportStatusByUser.get(userId)!.asObservable();
     });
 
-    authRequestAnsweringService = mock<AuthRequestAnsweringServiceAbstraction>();
+    authRequestAnsweringService = mock<AuthRequestAnsweringService>();
 
     configService = mock<ConfigService>();
     configService.getFeatureFlag$.mockImplementation((flag: FeatureFlag) => {
