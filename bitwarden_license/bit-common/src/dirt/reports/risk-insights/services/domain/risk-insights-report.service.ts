@@ -146,12 +146,12 @@ export class RiskInsightsReportService {
   getRiskInsightsReport$(
     organizationId: OrganizationId,
     userId: UserId,
-  ): Observable<RiskInsightsData> {
+  ): Observable<RiskInsightsData | null> {
     return this.riskInsightsApiService.getRiskInsightsReport$(organizationId).pipe(
       switchMap((response) => {
         if (!response) {
           // Return an empty report and summary if response is falsy
-          return of(null);
+          return of(null as unknown as RiskInsightsData);
         }
         if (!response.contentEncryptionKey || response.contentEncryptionKey.data == "") {
           return throwError(() => new Error("Report key not found"));

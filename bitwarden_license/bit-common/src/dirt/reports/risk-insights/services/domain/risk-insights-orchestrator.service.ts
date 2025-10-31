@@ -92,6 +92,7 @@ export class RiskInsightsOrchestratorService {
     status: ReportStatus.Initializing,
     error: null,
     data: null,
+    organizationId: null,
   });
   rawReportData$ = this._rawReportDataSubject.asObservable();
   private _enrichedReportDataSubject = new BehaviorSubject<RiskInsightsEnrichedData | null>(null);
@@ -560,10 +561,7 @@ export class RiskInsightsOrchestratorService {
     );
   }
 
-  private _fetchReport$(
-    organizationId: OrganizationId,
-    userId: UserId,
-  ): Observable<ReportState | null> {
+  private _fetchReport$(organizationId: OrganizationId, userId: UserId): Observable<ReportState> {
     return this.reportService.getRiskInsightsReport$(organizationId, userId).pipe(
       tap(() => this.logService.debug("[RiskInsightsOrchestratorService] Fetching report")),
       map((result): ReportState => {
@@ -1039,14 +1037,13 @@ export class RiskInsightsOrchestratorService {
     ]).pipe(shareReplay({ bufferSize: 1, refCount: true }));
 
     // A stream for the initial report fetch
-    const initialReportLoad$ = reportDependencies$.pipe(
+    const initialReportLoad$: Observable<ReportState> = reportDependencies$.pipe(
       take(1),
       exhaustMap(([orgDetails, userId]) => this._fetchReport$(orgDetails!.organizationId, userId!)),
-      startWith({ status: ReportStatus.Initializing, error: null, data: null }),
     );
 
     // A stream for manually triggered fetches
-    const manualReportFetch$ = this._fetchReportTriggerSubject.pipe(
+    const manualReportFetch$: Observable<ReportState> = this._fetchReportTriggerSubject.pipe(
       withLatestFrom(reportDependencies$),
       exhaustMap(([_, [orgDetails, userId]]) =>
         this._fetchReport$(orgDetails!.organizationId, userId!),
@@ -1055,7 +1052,7 @@ export class RiskInsightsOrchestratorService {
     );
 
     // A stream for generating a new report
-    const newReportGeneration$ = this.generatingReport$.pipe(
+    const newReportGeneration$: Observable<ReportState> = this.generatingReport$.pipe(
       distinctUntilChanged(),
       filter((isRunning) => isRunning),
       withLatestFrom(reportDependencies$),
@@ -1069,18 +1066,26 @@ export class RiskInsightsOrchestratorService {
     );
 
     // Combine all triggers and update the single report state
-    const mergedReportState$ = merge(
+    const mergedReportState$: Observable<ReportState> = merge(
       initialReportLoad$,
       manualReportFetch$,
       newReportGeneration$,
       this._markUnmarkUpdates$,
     ).pipe(
+      startWith<ReportState>({
+        status: ReportStatus.Initializing,
+        error: null,
+        data: null,
+        organizationId: null,
+      }),
       scan((prevState: ReportState, currState: ReportState) => {
         // If organization changed, use new state completely (don't preserve old data)
         // This allows null data to clear old org's data when switching orgs
         if (currState.organizationId && prevState.organizationId !== currState.organizationId) {
           return {
-            ...currState,
+            status: currState.status,
+            error: currState.error,
+            organizationId: currState.organizationId,
             data: currState.data, // Allow null to clear old org's data
           };
         }
@@ -1088,13 +1093,13 @@ export class RiskInsightsOrchestratorService {
         // Same org (or no org ID): preserve data when currState.data is null
         // This preserves critical flags during loading states within the same org
         return {
-          ...prevState,
-          ...currState,
+          status: prevState.status ?? currState.status,
+          error: prevState.error ?? currState.error,
+          organizationId: prevState.organizationId ?? currState.organizationId,
           data: currState.data !== null ? currState.data : prevState.data,
         };
       }),
       shareReplay({ bufferSize: 1, refCount: true }),
-      // startWith({ status: ReportStatus.Initializing, error: null, data: null }),
       takeUntil(this._destroy$),
     );
 
