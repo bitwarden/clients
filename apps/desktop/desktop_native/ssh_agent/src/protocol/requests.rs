@@ -97,7 +97,6 @@ impl TryFrom<&[u8]> for Request {
 pub(crate) struct SshSignRequest {
     public_key: PublicKey,
     payload_to_sign: Vec<u8>,
-    #[allow(unused)]
     parsed_sign_request: ParsedSignRequest,
     flags: u32,
 }
