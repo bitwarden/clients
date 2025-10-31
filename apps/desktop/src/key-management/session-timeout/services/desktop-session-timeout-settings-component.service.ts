@@ -8,12 +8,10 @@ import {
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SessionTimeoutSettingsComponentService } from "@bitwarden/key-management-ui";
 
-export class DesktopSessionTimeoutSettingsComponentService extends SessionTimeoutSettingsComponentService {
-  constructor(private readonly i18nService: I18nService) {
-    super();
-  }
-
-  override availableTimeoutOptions$: Observable<VaultTimeoutOption[]> = defer(() =>
+export class DesktopSessionTimeoutSettingsComponentService
+  implements SessionTimeoutSettingsComponentService
+{
+  availableTimeoutOptions$: Observable<VaultTimeoutOption[]> = defer(() =>
     from(ipc.platform.powermonitor.isLockMonitorAvailable()).pipe(
       map((isLockMonitorAvailable) => {
         const options: VaultTimeoutOption[] = [
@@ -44,5 +42,7 @@ export class DesktopSessionTimeoutSettingsComponentService extends SessionTimeou
     ),
   );
 
-  override onTimeoutSave(_: VaultTimeout): void {}
+  constructor(private readonly i18nService: I18nService) {}
+
+  onTimeoutSave(_: VaultTimeout): void {}
 }

@@ -10,16 +10,10 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SessionTimeoutSettingsComponentService } from "@bitwarden/key-management-ui";
 
-export class ExtensionSessionTimeoutSettingsComponentService extends SessionTimeoutSettingsComponentService {
-  constructor(
-    private readonly i18nService: I18nService,
-    private readonly platformUtilsService: PlatformUtilsService,
-    private readonly messagingService: MessagingService,
-  ) {
-    super();
-  }
-
-  override availableTimeoutOptions$: Observable<VaultTimeoutOption[]> = defer(() => {
+export class BrowserSessionTimeoutSettingsComponentService
+  implements SessionTimeoutSettingsComponentService
+{
+  availableTimeoutOptions$: Observable<VaultTimeoutOption[]> = defer(() => {
     const options: VaultTimeoutOption[] = [
       { name: this.i18nService.t("immediately"), value: 0 },
       { name: this.i18nService.t("oneMinute"), value: 1 },
@@ -50,7 +44,13 @@ export class ExtensionSessionTimeoutSettingsComponentService extends SessionTime
     return of(options);
   });
 
-  override onTimeoutSave(timeout: VaultTimeout): void {
+  constructor(
+    private readonly i18nService: I18nService,
+    private readonly platformUtilsService: PlatformUtilsService,
+    private readonly messagingService: MessagingService,
+  ) {}
+
+  onTimeoutSave(timeout: VaultTimeout): void {
     if (timeout === VaultTimeoutStringType.Never) {
       this.messagingService.send("bgReseedStorage");
     }

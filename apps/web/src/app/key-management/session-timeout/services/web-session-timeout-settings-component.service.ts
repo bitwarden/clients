@@ -9,15 +9,10 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SessionTimeoutSettingsComponentService } from "@bitwarden/key-management-ui";
 
-export class WebSessionTimeoutSettingsComponentService extends SessionTimeoutSettingsComponentService {
-  constructor(
-    private readonly i18nService: I18nService,
-    private readonly platformUtilsService: PlatformUtilsService,
-  ) {
-    super();
-  }
-
-  override availableTimeoutOptions$: Observable<VaultTimeoutOption[]> = defer(() => {
+export class WebSessionTimeoutSettingsComponentService
+  implements SessionTimeoutSettingsComponentService
+{
+  availableTimeoutOptions$: Observable<VaultTimeoutOption[]> = defer(() => {
     const options: VaultTimeoutOption[] = [
       { name: this.i18nService.t("oneMinute"), value: 1 },
       { name: this.i18nService.t("fiveMinutes"), value: 5 },
@@ -35,5 +30,10 @@ export class WebSessionTimeoutSettingsComponentService extends SessionTimeoutSet
     return of(options);
   });
 
-  override onTimeoutSave(_: VaultTimeout): void {}
+  constructor(
+    private readonly i18nService: I18nService,
+    private readonly platformUtilsService: PlatformUtilsService,
+  ) {}
+
+  onTimeoutSave(_: VaultTimeout): void {}
 }
