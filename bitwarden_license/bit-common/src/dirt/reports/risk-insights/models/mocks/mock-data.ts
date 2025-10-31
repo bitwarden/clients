@@ -92,8 +92,8 @@ export const mockApplicationData: OrganizationReportApplication[] = [
 ];
 
 export const mockEnrichedReportData: ApplicationHealthReportDetailEnriched[] = [
-  { ...mockApplication1, isMarkedAsCritical: true, ciphers: [] },
-  { ...mockApplication2, isMarkedAsCritical: false, ciphers: [] },
+  { ...mockApplication1, isMarkedAsCritical: true },
+  { ...mockApplication2, isMarkedAsCritical: false },
 ];
 
 export const mockCipherViews: CipherView[] = [
