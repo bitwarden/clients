@@ -59,6 +59,7 @@ export class ProfileOrganizationResponse extends BaseResponse {
   userIsManagedByOrganization: boolean;
   useRiskInsights: boolean;
   useAdminSponsoredFamilies: boolean;
+  useDisableSMAdsForUsers: boolean;
   isAdminInitiated: boolean;
   ssoEnabled: boolean;
   ssoMemberDecryptionType?: MemberDecryptionType;
@@ -131,6 +132,7 @@ export class ProfileOrganizationResponse extends BaseResponse {
     this.userIsManagedByOrganization = this.getResponseProperty("UserIsManagedByOrganization");
     this.useRiskInsights = this.getResponseProperty("UseRiskInsights");
     this.useAdminSponsoredFamilies = this.getResponseProperty("UseAdminSponsoredFamilies");
+    this.useDisableSMAdsForUsers = this.getResponseProperty("UseDisableSMAdsForUsers");
     this.isAdminInitiated = this.getResponseProperty("IsAdminInitiated");
     this.ssoEnabled = this.getResponseProperty("SsoEnabled") ?? false;
     this.ssoMemberDecryptionType = this.getResponseProperty("SsoMemberDecryptionType");

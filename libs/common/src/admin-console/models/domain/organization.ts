@@ -95,6 +95,7 @@ export class Organization {
   userIsManagedByOrganization: boolean;
   useRiskInsights: boolean;
   useAdminSponsoredFamilies: boolean;
+  useDisableSMAdsForUsers: boolean;
   isAdminInitiated: boolean;
   ssoEnabled: boolean;
   ssoMemberDecryptionType?: MemberDecryptionType;
@@ -159,6 +160,7 @@ export class Organization {
     this.userIsManagedByOrganization = obj.userIsManagedByOrganization;
     this.useRiskInsights = obj.useRiskInsights;
     this.useAdminSponsoredFamilies = obj.useAdminSponsoredFamilies;
+    this.useDisableSMAdsForUsers = obj.useDisableSMAdsForUsers;
     this.isAdminInitiated = obj.isAdminInitiated;
     this.ssoEnabled = obj.ssoEnabled;
     this.ssoMemberDecryptionType = obj.ssoMemberDecryptionType;
