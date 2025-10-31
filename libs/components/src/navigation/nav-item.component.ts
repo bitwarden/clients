@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, HostListener, Optional, input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, input, inject } from "@angular/core";
 import { RouterModule, RouterLinkActive } from "@angular/router";
 import { BehaviorSubject, map } from "rxjs";
 
@@ -19,10 +19,19 @@ export abstract class NavGroupAbstraction {
   providers: [{ provide: NavBaseComponent, useExisting: NavItemComponent }],
   imports: [CommonModule, IconButtonModule, RouterModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    "(focusin)": "onFocusIn($event.target)",
+    "(focusout)": "onFocusOut()",
+  },
 })
 export class NavItemComponent extends NavBaseComponent {
-  /** Forces active styles to be shown, regardless of the `routerLinkActiveOptions` */
+  /**
+   * Forces active styles to be shown, regardless of the `routerLinkActiveOptions`
+   */
   readonly forceActiveStyles = input<boolean>(false);
+
+  protected readonly sideNavService = inject(SideNavService);
+  private readonly parentNavGroup = inject(NavGroupAbstraction, { optional: true });
 
   /**
    * Is `true` if `to` matches the current route
@@ -57,25 +66,18 @@ export class NavItemComponent extends NavBaseComponent {
    * (denoted with the data-fvw attribute) matches :focus-visible. We then map that state to some
    * styles, so the entire component can have an outline.
    */
-  protected focusVisibleWithin$ = new BehaviorSubject(false);
-  protected fvwStyles$ = this.focusVisibleWithin$.pipe(
+  protected readonly focusVisibleWithin$ = new BehaviorSubject(false);
+  protected readonly fvwStyles$ = this.focusVisibleWithin$.pipe(
     map((value) =>
       value ? "tw-z-10 tw-rounded tw-outline-none tw-ring tw-ring-inset tw-ring-text-alt2" : "",
     ),
   );
-  @HostListener("focusin", ["$event.target"])
-  onFocusIn(target: HTMLElement) {
+
+  protected onFocusIn(target: HTMLElement) {
     this.focusVisibleWithin$.next(target.matches("[data-fvw]:focus-visible"));
   }
-  @HostListener("focusout")
-  onFocusOut() {
-    this.focusVisibleWithin$.next(false);
-  }
 
-  constructor(
-    protected sideNavService: SideNavService,
-    @Optional() private parentNavGroup: NavGroupAbstraction,
-  ) {
-    super();
+  protected onFocusOut() {
+    this.focusVisibleWithin$.next(false);
   }
 }

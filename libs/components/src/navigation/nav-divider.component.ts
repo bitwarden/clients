@@ -1,10 +1,11 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 
 import { SideNavService } from "./side-nav.service";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
+/**
+ * A visual divider for separating navigation items in the side navigation.
+ */
 @Component({
   selector: "bit-nav-divider",
   templateUrl: "./nav-divider.component.html",
@@ -12,5 +13,5 @@ import { SideNavService } from "./side-nav.service";
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NavDividerComponent {
-  constructor(protected sideNavService: SideNavService) {}
+  protected readonly sideNavService = inject(SideNavService);
 }

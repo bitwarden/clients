@@ -1,6 +1,13 @@
 import { CdkTrapFocus } from "@angular/cdk/a11y";
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, ElementRef, input, viewChild } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  input,
+  viewChild,
+  inject,
+} from "@angular/core";
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -11,8 +18,9 @@ import { SideNavService } from "./side-nav.service";
 
 export type SideNavVariant = "primary" | "secondary";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
+/**
+ * Side navigation component that provides a collapsible navigation menu.
+ */
 @Component({
   selector: "bit-side-nav",
   templateUrl: "side-nav.component.html",
@@ -20,13 +28,18 @@ export type SideNavVariant = "primary" | "secondary";
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SideNavComponent {
+  protected readonly sideNavService = inject(SideNavService);
+
+  /**
+   * Visual variant of the side navigation
+   *
+   * @default "primary"
+   */
   readonly variant = input<SideNavVariant>("primary");
 
   private readonly toggleButton = viewChild("toggleButton", { read: ElementRef });
 
-  constructor(protected sideNavService: SideNavService) {}
-
-  protected handleKeyDown = (event: KeyboardEvent) => {
+  protected readonly handleKeyDown = (event: KeyboardEvent) => {
     if (event.key === "Escape") {
       this.sideNavService.setClose();
       this.toggleButton()?.nativeElement.focus();

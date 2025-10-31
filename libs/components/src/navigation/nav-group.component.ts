@@ -2,10 +2,7 @@ import { CommonModule } from "@angular/common";
 import {
   booleanAttribute,
   Component,
-  EventEmitter,
-  Optional,
-  Output,
-  SkipSelf,
+  inject,
   input,
   model,
   contentChildren,
@@ -34,6 +31,9 @@ import { SideNavService } from "./side-nav.service";
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NavGroupComponent extends NavBaseComponent {
+  protected readonly sideNavService = inject(SideNavService);
+  private readonly parentNavGroup = inject(NavGroupComponent, { optional: true, skipSelf: true });
+
   readonly nestedNavComponents = contentChildren(NavBaseComponent, { descendants: true });
 
   readonly sideNavOpen = toSignal(this.sideNavService.open$);
@@ -43,7 +43,7 @@ export class NavGroupComponent extends NavBaseComponent {
   });
 
   /** When the side nav is open, the parent nav item should not show active styles when open. */
-  readonly parentHideActiveStyles = computed(() => {
+  protected readonly parentHideActiveStyles = computed(() => {
     return this.hideActiveStyles() || this.sideNavAndGroupOpen();
   });
 
@@ -67,7 +67,7 @@ export class NavGroupComponent extends NavBaseComponent {
   /**
    * UID for `[attr.aria-controls]`
    */
-  protected contentId = Math.random().toString(36).substring(2);
+  protected readonly contentId = Math.random().toString(36).substring(2);
 
   /**
    * Is `true` if the expanded content is visible
@@ -79,24 +79,11 @@ export class NavGroupComponent extends NavBaseComponent {
    */
   readonly hideIfEmpty = input(false, { transform: booleanAttribute });
 
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
-  @Output()
-  openChange = new EventEmitter<boolean>();
-
-  constructor(
-    protected sideNavService: SideNavService,
-    @Optional() @SkipSelf() private parentNavGroup: NavGroupComponent,
-  ) {
-    super();
-  }
-
   setOpen(isOpen: boolean) {
     this.open.set(isOpen);
-    this.openChange.emit(this.open());
-    // FIXME: Remove when updating file. Eslint update
-    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-    this.open() && this.parentNavGroup?.setOpen(this.open());
+    if (this.open() && this.parentNavGroup) {
+      this.parentNavGroup.setOpen(this.open());
+    }
   }
 
   protected toggle(event?: MouseEvent) {
