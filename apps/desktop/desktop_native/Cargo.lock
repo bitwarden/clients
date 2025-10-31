@@ -454,7 +454,6 @@ dependencies = [
  "tokio",
  "tracing",
  "tracing-subscriber",
- "verifysign",
  "windows 0.61.1",
 ]
 
@@ -621,6 +620,7 @@ dependencies = [
  "tokio",
  "tracing",
  "tracing-subscriber",
+ "verifysign",
  "windows 0.61.1",
 ]
 
