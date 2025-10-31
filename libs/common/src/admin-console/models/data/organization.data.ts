@@ -30,6 +30,7 @@ export class OrganizationData {
   useSecretsManager: boolean;
   usePasswordManager: boolean;
   useActivateAutofillPolicy: boolean;
+  useAutomaticUserConfirmation: boolean;
   selfHost: boolean;
   usersGetPremium: boolean;
   seats: number;
@@ -99,6 +100,7 @@ export class OrganizationData {
     this.useSecretsManager = response.useSecretsManager;
     this.usePasswordManager = response.usePasswordManager;
     this.useActivateAutofillPolicy = response.useActivateAutofillPolicy;
+    this.useAutomaticUserConfirmation = response.useAutomaticUserConfirmation;
     this.selfHost = response.selfHost;
     this.usersGetPremium = response.usersGetPremium;
     this.seats = response.seats;

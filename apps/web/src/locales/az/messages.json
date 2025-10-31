@@ -154,6 +154,15 @@
       }
     }
   },
+  "newPasswordsAtRisk": {
+    "message": "$COUNT$ yeni parol risklidir",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "notifiedMembersWithCount": {
     "message": "Məlumatlandırılan üzvlər ($COUNT$)",
     "placeholders": {
@@ -163,8 +172,8 @@
       }
     }
   },
-  "noAppsInOrgTitle": {
-    "message": "$ORGNAME$ təşkilatında heç bir tətbiq tapılmadı",
+  "noApplicationsInOrgTitle": {
+    "message": "No applications found for $ORG NAME$",
     "placeholders": {
       "org name": {
         "content": "$1",
@@ -172,8 +181,32 @@
       }
     }
   },
-  "noAppsInOrgDescription": {
-    "message": "İstifadəçilər giriş məlumatlarını saxladıqda, tətbiqlər burada görünür və riskli parolları göstərir. Kritik tətbiqləri işarələyin və parollarını güncəlləməsi üçün istifadəçiləri məlumatlandırın."
+  "noApplicationsInOrgDescription": {
+    "message": "Import your organization's login data to start monitoring credential security risks. Once imported you get to:"
+  },
+  "benefit1Title": {
+    "message": "Prioritize risks"
+  },
+  "benefit1Description": {
+    "message": "Focus on applications that matter the most"
+  },
+  "benefit2Title": {
+    "message": "Guide remediation"
+  },
+  "benefit2Description": {
+    "message": "Assign at-risk members guided tasks to rotate at-risk credentials"
+  },
+  "benefit3Title": {
+    "message": "Monitor progress"
+  },
+  "benefit3Description": {
+    "message": "Track changes over time to show security improvements"
+  },
+  "noReportRunTitle": {
+    "message": "Run your first report to see applications"
+  },
+  "noReportRunDescription": {
+    "message": "Generate a risk insights report to analyze your organization's applications and identify at-risk passwords that need attention. Running your first report will:"
   },
   "noCriticalApplicationsTitle": {
     "message": "Heç bir tətbiqi kritik olaraq işarələməmisiniz"
@@ -318,6 +351,27 @@
   },
   "markAsCriticalPlaceholder": {
     "message": "Kritik olaraq işarələmə funksionallığı, gələcək güncəlləmədə tətbiq olunacaq"
+  },
+  "applicationReviewSaved": {
+    "message": "Application review saved"
+  },
+  "applicationsMarkedAsCritical": {
+    "message": "$COUNT$ applications marked as critical",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "newApplicationsReviewed": {
+    "message": "New applications reviewed"
+  },
+  "errorSavingReviewStatus": {
+    "message": "Error saving review status"
+  },
+  "pleaseTryAgain": {
+    "message": "Please try again"
   },
   "unmarkAsCritical": {
     "message": "Kritik olaraq işarələməni götür"
@@ -1305,6 +1359,9 @@
   "useSingleSignOn": {
     "message": "Vahid daxil olma üsulunu istifadə et"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
+  },
   "welcomeBack": {
     "message": "Yenidən xoş gəlmisiniz"
   },
@@ -2080,9 +2137,6 @@
   "encKeySettings": {
     "message": "Şifrələmə açarı ayarları"
   },
-  "kdfAlgorithm": {
-    "message": "KDF Algoritmi"
-  },
   "kdfIterations": {
     "message": "KDF iterasiyaları"
   },
@@ -2116,9 +2170,6 @@
   },
   "argon2Desc": {
     "message": "Yüksək KDF iterasiyaları, yaddaşı və paralelizmi, ana parolunuzu təcavüzkar tərəfindən \"brute force\" hücumuna qarşı qorumağa kömək edir."
-  },
-  "changeKdf": {
-    "message": "KDF-i dəyişdir"
   },
   "encKeySettingsChanged": {
     "message": "Şifrələmə açarı ayarları dəyişdirildi"
@@ -4446,8 +4497,8 @@
   "inviteAccepted": {
     "message": "Dəvət qəbul edildi"
   },
-  "inviteAcceptedDesc": {
-    "message": "Bir inzibatçı üzvlüyünüzü təsdiqlədikdən sonra bu təşkilata erişə bilərsiniz. Üzvlüyünüz təsdiqləndikdə sizə bir e-poçt göndərəcəyik."
+  "invitationAcceptedDesc": {
+    "message": "Dəvətiniz uğurla qəbul edildi."
   },
   "inviteInitAcceptedDesc": {
     "message": "Artıq bu təşkilata erişə bilərsiniz."
@@ -5710,6 +5761,65 @@
     "message": "Kimlik məlumatlarının dövriyyəsi barədə ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about the credential lifecycle.'"
   },
+  "availableNow": {
+    "message": "İndi mövcuddur"
+  },
+  "autoConfirm": {
+    "message": "Yeni istifadəçilər üçün avtomatik təsdiq"
+  },
+  "autoConfirmDescription": {
+    "message": "Təşkilata dəvət edilmiş yeni istifadəçilər, admin cihazının kilidi açıldığı zaman avtomatik olaraq təsdiqlənəcək.",
+    "description": "This is the description of the policy as it appears in the 'Policies' page"
+  },
+  "howToTurnOnAutoConfirm": {
+    "message": "Avtomatik istifadəçi təsdiqi necə işə salınır"
+  },
+  "autoConfirmStep1": {
+    "message": "Bitwarden uzantınızı açın."
+  },
+  "autoConfirmStep2a": {
+    "message": "Seçin",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  },
+  "autoConfirmStep2b": {
+    "message": " İşə sal.",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  },
+  "autoConfirmExtensionOpened": {
+    "message": "Bitwarden brauzer uzantısı uğurla açıldı. Artıq avtomatik istifadəçi təsdiqi ayarını aktivləşdirə bilərsiniz."
+  },
+  "autoConfirmPolicyEditDescription": {
+    "message": "Təşkilata dəvət edilmiş yeni istifadəçilər, admin cihazının kilidi açıldığı zaman avtomatik olaraq təsdiqlənəcək. Bu siyasəti işə salmazdan əvvəl, lütfən aşağıdakıları incələyin və razılaşın: ",
+    "description": "This is the description of the policy as it appears inside the policy edit dialog"
+  },
+  "autoConfirmAcceptSecurityRiskTitle": {
+    "message": "Potensial təhlükəsizlik riski. "
+  },
+  "autoConfirmAcceptSecurityRiskDescription": {
+    "message": "Avtomatik istifadəçi təsdiqi, təşkilatınızın veriləri üçün təhlükəsizlik riski yarada bilər."
+  },
+  "autoConfirmAcceptSecurityRiskLearnMore": {
+    "message": "Risklər barədə öyrən",
+    "description": "The is the link copy for the first check box option in the edit policy dialog"
+  },
+  "autoConfirmSingleOrgRequired": {
+    "message": "Vahid təşkilat siyasəti tələb olunur. "
+  },
+  "autoConfirmSingleOrgRequiredDescription": {
+    "message": "Birdən çox təşkilatın üzvü olan hər kəsin erişimi, digər təşkilatları tərk edənə qədər ləğv ediləcək."
+  },
+  "autoConfirmSingleOrgExemption": {
+    "message": "Vahid təşkilat siyasəti bütün rollara şamil ediləcək. "
+  },
+  "autoConfirmNoEmergencyAccess": {
+    "message": "Fövqəladə hal erişimi yoxdur. "
+  },
+  "autoConfirmNoEmergencyAccessDescription": {
+    "message": "Fövqəladə Erişim silinib."
+  },
+  "autoConfirmCheckBoxLabel": {
+    "message": "Bu riskləri və siyasət güncəlləmələrini qəbul edirəm"
+  },
   "personalOwnership": {
     "message": "Fərdi sahiblik"
   },
@@ -6430,23 +6540,53 @@
   "tdeDisabledMasterPasswordRequired": {
     "message": "Təşkilatınız, şifrə açma seçimlərinizi güncəllədi. Seyfinizə erişmək üçün lütfən bir ana parol təyin edin."
   },
-  "maximumVaultTimeout": {
-    "message": "Seyf vaxtının bitməsi"
+  "sessionTimeoutPolicyTitle": {
+    "message": "Session timeout"
   },
-  "maximumVaultTimeoutDesc": {
-    "message": "Üzvlər üçün maksimum seyf bitmə vaxtını ayarlayın."
+  "sessionTimeoutPolicyDescription": {
+    "message": "Set a maximum session timeout for all members except owners."
   },
-  "maximumVaultTimeoutLabel": {
-    "message": "Maksimum seyf bitmə vaxtı"
+  "maximumAllowedTimeout": {
+    "message": "Maximum allowed timeout"
   },
-  "invalidMaximumVaultTimeout": {
-    "message": "Yararsız maksimum seyf bitmə vaxtı."
+  "maximumAllowedTimeoutRequired": {
+    "message": "Maximum allowed timeout is required."
+  },
+  "sessionTimeoutPolicyInvalidTime": {
+    "message": "Time is invalid. Change at least one value."
+  },
+  "sessionTimeoutAction": {
+    "message": "Session timeout action"
+  },
+  "immediately": {
+    "message": "Immediately"
+  },
+  "onSystemLock": {
+    "message": "On system lock"
+  },
+  "onAppRestart": {
+    "message": "On app restart"
   },
   "hours": {
     "message": "Saat"
   },
   "minutes": {
     "message": "Dəqiqə"
+  },
+  "sessionTimeoutConfirmationNeverTitle": {
+    "message": "Are you certain you want to allow a maximum timeout of \"Never\" for all members?"
+  },
+  "sessionTimeoutConfirmationNeverDescription": {
+    "message": "This option will save your members' encryption keys on their devices. If you choose this option, ensure that their devices are adequately protected."
+  },
+  "learnMoreAboutDeviceProtection": {
+    "message": "Learn more about device protection"
+  },
+  "sessionTimeoutConfirmationOnSystemLockTitle": {
+    "message": "\"System lock\" will only apply to the browser and desktop app"
+  },
+  "sessionTimeoutConfirmationOnSystemLockDescription": {
+    "message": "The mobile and web app will use \"on app restart\" as their maximum allowed timeout, since the option is not supported."
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Təşkilatınızın siyasətləri, icazə verilən maksimum seyf bitmə vaxtını $HOURS$ saat $MINUTES$ dəqiqə olaraq ayarladı.",
@@ -10361,26 +10501,8 @@
   "memberAccessReportAuthenticationEnabledFalse": {
     "message": "Bağlı"
   },
-  "higherKDFIterations": {
-    "message": "Daha yüksək KDF iterasiyaları, ana parolunuzu təcavüzkar tərəfindən \"brute force\" hücumuna qarşı qorumağa kömək edir."
-  },
-  "incrementsOf100,000": {
-    "message": "100,000-lik artım"
-  },
-  "smallIncrements": {
-    "message": "kiçik artım"
-  },
   "kdfIterationRecommends": {
     "message": "600,000 və ya daha çoxunu tövsiyə edirik"
-  },
-  "kdfToHighWarningIncreaseInIncrements": {
-    "message": "Daha köhnə cihazlar üçün KDF-inizi çox yüksək ayarlamaq performans problemlərinə səbəb ola bilər. $VALUE$ üzrə dəyəri artırın və cihazınızı test edin.",
-    "placeholders": {
-      "value": {
-        "content": "$1",
-        "example": "increments of 100,000"
-      }
-    }
   },
   "providerReinstate": {
     "message": " Abunəliyinizi bərpa etmək üçün Müştəri Dəstəyi ilə əlaqə saxlayın."
@@ -11023,6 +11145,15 @@
   },
   "domainClaimed": {
     "message": "Domen götürüldü"
+  },
+  "itemAddedToFavorites": {
+    "message": "Element sevimlilərə əlavə edildi"
+  },
+  "itemRemovedFromFavorites": {
+    "message": "Element sevimlilərdən çıxarıldı"
+  },
+  "copyNote": {
+    "message": "Notu kopyala"
   },
   "organizationNameMaxLength": {
     "message": "Təşkilat adı 50 xarakterdən çox ola bilməz."
@@ -11856,5 +11987,41 @@
   },
   "viewbusinessplans": {
     "message": "Biznes planlarına bax"
+  },
+  "updateEncryptionSettings": {
+    "message": "Şifrələmə ayarlarını güncəlləyin"
+  },
+  "updateYourEncryptionSettings": {
+    "message": "Şifrələmə ayarlarınızı güncəlləyin"
+  },
+  "updateSettings": {
+    "message": "Güncəlləmə ayarları"
+  },
+  "algorithm": {
+    "message": "Alqoritm"
+  },
+  "encryptionKeySettingsHowShouldWeEncryptYourData": {
+    "message": "Bitwarden-in seyf verilərinizi necə şifrələyəcəyini seçin. Bütün seçimlər güvənlidir, ancaq daha güclü üsullar, xüsusən də brute-force hücumlarına qarşı daha yaxşı qoruma təklif edir. Bitwarden, əksər istifadəçilər üçün ilkin ayarı tövsiyə edir."
+  },
+  "encryptionKeySettingsIncreaseImproveSecurity": {
+    "message": "İlkin dəyərdən yuxarı dəyərin təyin edilməsi, təhlükəsizliyi artırır, ancaq bu, seyfinizin kilidini açma prosesini uzada bilər."
+  },
+  "encryptionKeySettingsAlgorithmPopoverTitle": {
+    "message": "Şifrələmə alqoritmləri barədə"
+  },
+  "encryptionKeySettingsAlgorithmPopoverPBKDF2": {
+    "message": "PBKDF2-SHA256 təhlükəsizlik və performansı tarazlaşdıran yaxşı test edilmiş şifrələmə üsuludur. Bütün istifadəçilər üçün idealdır."
+  },
+  "encryptionKeySettingsAlgorithmPopoverArgon2Id": {
+    "message": "Argon2id, müasir hücumlara qarşı daha güclü qoruma təklif edir. Güclü cihazlara sahib qabaqcıl istifadəçilər üçün idealdır."
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP / Poçt kodu"
+  },
+  "cardNumberLabel": {
+    "message": "Kart nömrəsi"
+  },
+  "startFreeFamiliesTrial": {
+    "message": "Ödənişsiz Ailələr sınağını başlat"
   }
 }

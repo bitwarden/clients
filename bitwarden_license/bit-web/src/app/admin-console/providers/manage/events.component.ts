@@ -20,6 +20,8 @@ import { BaseEventsComponent } from "@bitwarden/web-vault/app/admin-console/comm
 import { EventService } from "@bitwarden/web-vault/app/core";
 import { EventExportService } from "@bitwarden/web-vault/app/tools/event-export";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "provider-events",
   templateUrl: "events.component.html",

@@ -34,12 +34,16 @@ let nextId = 0;
   * ```
   *
  */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-disclosure",
   template: `<ng-content></ng-content>`,
 })
 export class DisclosureComponent {
   /** Emits the visibility of the disclosure content */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() openChange = new EventEmitter<boolean>();
 
   private _open?: boolean;
@@ -48,6 +52,8 @@ export class DisclosureComponent {
    */
   // TODO: Skipped for signal migration because:
   //  Accessor inputs cannot be migrated as they are too complex.
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ transform: booleanAttribute }) set open(isOpen: boolean) {
     this._open = isOpen;
     this.openChange.emit(isOpen);

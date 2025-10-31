@@ -12,6 +12,8 @@ import { I18nMockService } from "../utils/i18n-mock.service";
 import { NavGroupComponent } from "./nav-group.component";
 import { NavigationModule } from "./navigation.module";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template: "",
 })

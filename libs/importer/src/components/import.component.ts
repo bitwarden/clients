@@ -86,6 +86,8 @@ import {
 import { ImporterProviders } from "./importer-providers";
 import { ImportLastPassComponent } from "./lastpass";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "tools-import",
   templateUrl: "import.component.html",
@@ -131,6 +133,8 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
    * Enables the hosting control to pass in an organizationId
    * If a organizationId is provided, the organization selection is disabled.
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() set organizationId(value: OrganizationId | string | undefined) {
     if (Utils.isNullOrEmpty(value)) {
       this._organizationId = undefined;
@@ -157,9 +161,13 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
       });
   }
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   onLoadProfilesFromBrowser: (browser: string) => Promise<any[]>;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   onImportFromBrowser: (browser: string, profile: string) => Promise<any[]>;
 
@@ -191,15 +199,23 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     chromiumLoader: [Loader.file as DataLoader],
   });
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild(BitSubmitDirective)
   private bitSubmit: BitSubmitDirective;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output()
   formLoading = new EventEmitter<boolean>();
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output()
   formDisabled = new EventEmitter<boolean>();
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output()
   onSuccessfulImport = new EventEmitter<string>();
 

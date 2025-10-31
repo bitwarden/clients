@@ -1,42 +1,49 @@
 import { CommonModule } from "@angular/common";
 import { Component, inject } from "@angular/core";
 import { RouterModule } from "@angular/router";
-import { combineLatest, map, switchMap } from "rxjs";
+import { firstValueFrom, switchMap } from "rxjs";
 
+import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { SecurityTaskType, TaskService } from "@bitwarden/common/vault/tasks";
-import { AnchorLinkDirective, CalloutModule } from "@bitwarden/components";
+import { AnchorLinkDirective, CalloutModule, BannerModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
+import { AtRiskPasswordCalloutData, AtRiskPasswordCalloutService } from "@bitwarden/vault";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "vault-at-risk-password-callout",
-  imports: [CommonModule, AnchorLinkDirective, RouterModule, CalloutModule, I18nPipe],
+  imports: [
+    AnchorLinkDirective,
+    CommonModule,
+    RouterModule,
+    CalloutModule,
+    I18nPipe,
+    BannerModule,
+    JslibModule,
+  ],
+  providers: [AtRiskPasswordCalloutService],
   templateUrl: "./at-risk-password-callout.component.html",
 })
 export class AtRiskPasswordCalloutComponent {
-  private taskService = inject(TaskService);
-  private cipherService = inject(CipherService);
   private activeAccount$ = inject(AccountService).activeAccount$.pipe(getUserId);
+  private atRiskPasswordCalloutService = inject(AtRiskPasswordCalloutService);
 
-  protected pendingTasks$ = this.activeAccount$.pipe(
-    switchMap((userId) =>
-      combineLatest([
-        this.taskService.pendingTasks$(userId),
-        this.cipherService.cipherViews$(userId),
-      ]),
-    ),
-    map(([tasks, ciphers]) =>
-      tasks.filter((t) => {
-        const associatedCipher = ciphers.find((c) => c.id === t.cipherId);
-
-        return (
-          t.type === SecurityTaskType.UpdateAtRiskCredential &&
-          associatedCipher &&
-          !associatedCipher.isDeleted
-        );
-      }),
-    ),
+  showCompletedTasksBanner$ = this.activeAccount$.pipe(
+    switchMap((userId) => this.atRiskPasswordCalloutService.showCompletedTasksBanner$(userId)),
   );
+
+  currentPendingTasks$ = this.activeAccount$.pipe(
+    switchMap((userId) => this.atRiskPasswordCalloutService.pendingTasks$(userId)),
+  );
+
+  async successBannerDismissed() {
+    const updateObject: AtRiskPasswordCalloutData = {
+      hasInteractedWithTasks: true,
+      tasksBannerDismissed: true,
+    };
+    const userId = await firstValueFrom(this.activeAccount$);
+    this.atRiskPasswordCalloutService.updateAtRiskPasswordState(userId, updateObject);
+  }
 }

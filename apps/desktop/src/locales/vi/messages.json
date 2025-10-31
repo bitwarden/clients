@@ -771,6 +771,9 @@
   "useSingleSignOn": {
     "message": "Dùng đăng nhập một lần"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
+  },
   "submit": {
     "message": "Gửi"
   },
@@ -1244,7 +1247,7 @@
     "message": "Đóng kho sau"
   },
   "vaultTimeout1": {
-    "message": "Quá hạn"
+    "message": "Thời gian chờ"
   },
   "vaultTimeoutAction1": {
     "message": "Hành động sau khi đóng kho"
@@ -1851,6 +1854,12 @@
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Khóa bằng mật khẩu chính khi khởi động lại"
+  },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "Yêu cầu mật khẩu chính hoặc mã PIN khi khởi động lại ứng dụng"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "Yêu cầu mật khẩu chính khi khởi động lại ứng dụng"
   },
   "deleteAccount": {
     "message": "Xóa tài khoản"
@@ -4167,7 +4176,7 @@
   "itemWasSentToArchive": {
     "message": "Mục đã được chuyển vào kho lưu trữ"
   },
-  "itemUnarchived": {
+  "itemWasUnarchived": {
     "message": "Mục đã được bỏ lưu trữ"
   },
   "archiveItem": {
@@ -4175,5 +4184,11 @@
   },
   "archiveItemConfirmDesc": {
     "message": "Các mục đã lưu trữ sẽ bị loại khỏi kết quả tìm kiếm chung và gợi ý tự động điền. Bạn có chắc chắn muốn lưu trữ mục này không?"
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP / Postal code"
+  },
+  "cardNumberLabel": {
+    "message": "Card number"
   }
 }
