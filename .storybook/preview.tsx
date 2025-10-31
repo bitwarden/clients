@@ -1,6 +1,6 @@
 import { setCompodocJson } from "@storybook/addon-docs/angular";
 import { withThemeByClassName } from "@storybook/addon-themes";
-import { applicationConfig, componentWrapperDecorator } from "@storybook/angular";
+import { componentWrapperDecorator } from "@storybook/angular";
 import type { Preview } from "@storybook/angular";
 
 import docJson from "../documentation.json";

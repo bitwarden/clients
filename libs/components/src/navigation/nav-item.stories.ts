@@ -16,7 +16,8 @@ export default {
   component: NavItemComponent,
   decorators: [
     positionFixedWrapperDecorator(
-      (story) => `<bit-layout><bit-side-nav>${story}</bit-side-nav></bit-layout>`,
+      (story) =>
+        `<bit-layout><bit-side-nav [isResponsive]="false">${story}</bit-side-nav></bit-layout>`,
     ),
     moduleMetadata({
       declarations: [],
@@ -42,6 +43,7 @@ export default {
       type: "figma",
       url: "https://www.figma.com/design/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=16329-40145&t=b5tDKylm5sWm2yKo-4",
     },
+    chromatic: { delay: 1000 },
   },
 } as Meta;
 

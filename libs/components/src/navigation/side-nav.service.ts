@@ -11,20 +11,31 @@ export class SideNavService {
 
   private isSmallScreen$ = media("(max-width: 768px)");
 
-  isOverlay$ = combineLatest([this.open$, this.isSmallScreen$]).pipe(
-    map(([open, isSmallScreen]) => open && isSmallScreen),
+  private _isResponsive$ = new BehaviorSubject<boolean>(true);
+  isResponsive$ = this._isResponsive$.asObservable();
+
+  isOverlay$ = combineLatest([this.open$, this.isSmallScreen$, this.isResponsive$]).pipe(
+    map(([open, isSmallScreen, isResponsive]) => {
+      return open && isSmallScreen && isResponsive;
+    }),
   );
 
   constructor() {
-    this.isSmallScreen$.pipe(takeUntilDestroyed()).subscribe((isSmallScreen) => {
-      if (isSmallScreen) {
-        this.setClose();
-      }
-    });
+    combineLatest([this.isSmallScreen$, this.isResponsive$])
+      .pipe(takeUntilDestroyed())
+      .subscribe(([isSmallScreen, isResponsive]) => {
+        if (isSmallScreen && isResponsive) {
+          this.setClose();
+        }
+      });
   }
 
   get open() {
     return this._open$.getValue();
+  }
+
+  setIsResponsive(isResponsive: boolean) {
+    this._isResponsive$.next(isResponsive);
   }
 
   setOpen() {
