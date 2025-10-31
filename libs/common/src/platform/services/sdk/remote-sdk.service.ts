@@ -7,5 +7,5 @@ import { Rc } from "../../misc/reference-counting/rc";
 import { Remote } from "./remote";
 
 export abstract class RemoteSdkService {
-  abstract remoteClient$: Observable<Remote<Rc<BitwardenClient>>>;
+  abstract remoteClient$: Observable<Remote<Rc<BitwardenClient> | null>>;
 }

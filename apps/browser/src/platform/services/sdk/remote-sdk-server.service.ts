@@ -4,8 +4,8 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import { Rc } from "@bitwarden/common/platform/misc/reference-counting/rc";
 import { RpcServer } from "@bitwarden/common/platform/services/sdk/rpc/server";
-import { Rc } from "@bitwarden/common/src/platform/misc/reference-counting/rc";
 import { BitwardenClient } from "@bitwarden/sdk-internal";
 
 import { BrowserApi } from "../../browser/browser-api";
