@@ -1,4 +1,4 @@
-import { mockEnc } from "../../../../../spec";
+import { mockContainerService, mockEnc } from "../../../../../spec";
 import { SendTextData } from "../data/send-text.data";
 
 import { SendText } from "./send-text";
@@ -11,6 +11,8 @@ describe("SendText", () => {
       text: "encText",
       hidden: false,
     };
+
+    mockContainerService();
   });
 
   it("Convert from empty", () => {

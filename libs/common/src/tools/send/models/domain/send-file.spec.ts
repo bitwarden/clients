@@ -1,4 +1,4 @@
-import { mockEnc } from "../../../../../spec";
+import { mockContainerService, mockEnc } from "../../../../../spec";
 import { SendFileData } from "../data/send-file.data";
 
 import { SendFile } from "./send-file";
@@ -39,6 +39,7 @@ describe("SendFile", () => {
   });
 
   it("Decrypt", async () => {
+    mockContainerService();
     const sendFile = new SendFile();
     sendFile.id = "id";
     sendFile.size = "1100";

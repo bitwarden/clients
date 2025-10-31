@@ -28,12 +28,12 @@ export class Field extends Domain {
     this.value = conditionalEncString(obj.value);
   }
 
-  decrypt(orgId: string | undefined, encKey?: SymmetricCryptoKey): Promise<FieldView> {
+  decrypt(encKey: SymmetricCryptoKey): Promise<FieldView> {
     return this.decryptObj<Field, FieldView>(
       this,
       new FieldView(this),
       ["name", "value"],
-      orgId ?? null,
+      null,
       encKey,
     );
   }
