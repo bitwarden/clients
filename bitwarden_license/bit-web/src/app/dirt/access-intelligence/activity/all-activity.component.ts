@@ -41,6 +41,7 @@ export class AllActivityComponent implements OnInit {
   newApplicationsCount = 0;
   newApplications: string[] = [];
   passwordChangeMetricHasProgressBar = false;
+  allAppsHaveReviewDate = false;
 
   destroyRef = inject(DestroyRef);
 
@@ -83,7 +84,30 @@ export class AllActivityComponent implements OnInit {
         .subscribe((hasProgressBar) => {
           this.passwordChangeMetricHasProgressBar = hasProgressBar;
         });
+
+      this.dataService.enrichedReportData$
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe((enrichedData) => {
+          if (enrichedData?.applicationData && enrichedData.applicationData.length > 0) {
+            // Check if all apps have a review date (not null and not undefined)
+            this.allAppsHaveReviewDate = enrichedData.applicationData.every(
+              (app) => app.reviewedDate !== null && app.reviewedDate !== undefined,
+            );
+          } else {
+            this.allAppsHaveReviewDate = false;
+          }
+        });
     }
+  }
+
+  /**
+   * Determines if the "All caught up!" state should be displayed.
+   * Shows this state when:
+   * - No new applications need review
+   * - All apps have a review date
+   */
+  get isAllCaughtUp(): boolean {
+    return this.newApplicationsCount === 0 && this.allAppsHaveReviewDate;
   }
 
   /**

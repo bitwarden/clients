@@ -343,6 +343,12 @@
   "reviewNow": {
     "message": "Review now"
   },
+  "allCaughtUp": {
+    "message": "All caught up!"
+  },
+  "noNewApplicationsToReviewAtThisTime": {
+    "message": "No new applications to review at this time"
+  },
   "prioritizeCriticalApplications": {
     "message": "Prioritize critical applications"
   },
