@@ -29,6 +29,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { CipherId, CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
+import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { ViewPasswordHistoryService } from "@bitwarden/common/vault/abstractions/view-password-history.service";
@@ -50,6 +51,7 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import {
+  ArchiveCipherUtilitiesService,
   AttachmentDialogCloseResult,
   AttachmentDialogResult,
   AttachmentsV2Component,
@@ -230,6 +232,16 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     ),
   );
 
+  protected archiveFlagEnabled$ = this.archiveService.hasArchiveFlagEnabled$();
+
+  /**
+   * Flag to indicate if the user can archive items.
+   * @protected
+   */
+  protected userCanArchive$ = this.accountService.activeAccount$.pipe(
+    switchMap((account) => this.archiveService.userCanArchive$(account.id)),
+  );
+
   protected get isTrashFilter() {
     return this.filter?.type === "trash";
   }
@@ -264,13 +276,12 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     return this.showCipherView && !this.isTrashFilter && !this.showRestore;
   }
 
-  protected get showDelete() {
-    // Don't show the delete button when cloning a cipher
-    if (this.params.mode == "form" && this.formConfig.mode === "clone") {
+  protected get showFooterButtons() {
+    // Don't show the footer buttons for new ciphers or when cloning a cipher
+    if (this.cipher == null || (this.params.mode == "form" && this.formConfig.mode === "clone")) {
       return false;
     }
-    // Never show the delete button for new ciphers
-    return this.cipher != null;
+    return true;
   }
 
   protected get showCipherView() {
@@ -314,6 +325,8 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     private apiService: ApiService,
     private eventCollectionService: EventCollectionService,
     private routedVaultFilterService: RoutedVaultFilterService,
+    private archiveService: CipherArchiveService,
+    private archiveCipherUtilsService: ArchiveCipherUtilitiesService,
   ) {
     this.updateTitle();
     this.premiumUpgradeService.upgradeConfirmed$
@@ -326,7 +339,6 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
 
   async ngOnInit() {
     this.cipher = await this.getDecryptedCipherView(this.formConfig);
-
     if (this.cipher) {
       if (this.cipher.decryptionFailure) {
         this.dialogService.open(DecryptionFailureDialogComponent, {
@@ -541,6 +553,43 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
 
     // We're in Form mode, and we have a cipher, switch back to View mode.
     await this.changeMode("view");
+  };
+
+  updateCipherFromArchive = (revisionDate: Date, archivedDate: Date | null) => {
+    this.cipher.archivedDate = archivedDate;
+    this.cipher.revisionDate = revisionDate;
+
+    // If we're in View mode, we don't need to update the form.
+    if (this.params.mode === "view") {
+      return;
+    }
+
+    this.cipherFormComponent.patchCipher((current) => {
+      current.revisionDate = revisionDate;
+      current.archivedDate = archivedDate;
+      return current;
+    });
+  };
+
+  archive = async () => {
+    const cipherResponse = await this.archiveCipherUtilsService.archiveCipher(this.cipher, true);
+
+    if (!cipherResponse) {
+      return;
+    }
+    this.updateCipherFromArchive(
+      new Date(cipherResponse.revisionDate),
+      cipherResponse.archivedDate ? new Date(cipherResponse.archivedDate) : null,
+    );
+  };
+
+  unarchive = async () => {
+    const cipherResponse = await this.archiveCipherUtilsService.unarchiveCipher(this.cipher);
+
+    if (!cipherResponse) {
+      return;
+    }
+    this.updateCipherFromArchive(new Date(cipherResponse.revisionDate), null);
   };
 
   private async getDecryptedCipherView(config: CipherFormConfig) {
