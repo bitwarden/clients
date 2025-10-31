@@ -35,12 +35,10 @@ describe("Batching proxies", () => {
     const reference = { referenceId: 1, objectType: "TestObject" };
     const proxy = RpcObjectReference(channel, reference) as any;
 
-    const someProperty = proxy.someProperty;
+    const result = proxy.someProperty;
 
-    expect(someProperty[ProxyInfo].proxyType).toBe("RpcPendingObjectReference");
-    expect(someProperty[ProxyInfo].commands).toEqual([
-      { method: "get", propertyName: "someProperty" },
-    ]);
+    expect(result[ProxyInfo].proxyType).toBe("RpcPendingObjectReference");
+    expect(result[ProxyInfo].commands).toEqual([{ method: "get", propertyName: "someProperty" }]);
   });
 
   // it("accumulates commands when accessing multiple properties", async () => {
@@ -62,10 +60,10 @@ describe("Batching proxies", () => {
     const proxy = RpcObjectReference(channel, reference) as any;
     const args = [1, 2, 3];
 
-    const someMethod = proxy.someMethod(...args);
+    const result = proxy.someMethod(...args);
 
-    expect(someMethod[ProxyInfo].proxyType).toBe("RpcPendingObjectReference");
-    expect(someMethod[ProxyInfo].commands).toEqual([
+    expect(result[ProxyInfo].proxyType).toBe("RpcPendingObjectReference");
+    expect(result[ProxyInfo].commands).toEqual([
       { method: "get", propertyName: "someMethod" },
       { method: "apply", args },
     ]);
@@ -75,30 +73,30 @@ describe("Batching proxies", () => {
     const reference = { referenceId: 1, objectType: "TestObject" };
     const proxy = RpcObjectReference(channel, reference) as any;
 
-    const someMethod = proxy.await;
+    const result = proxy.await;
 
-    expect(someMethod[ProxyInfo].proxyType).toBe("RpcPendingObjectReference");
-    expect(someMethod[ProxyInfo].commands).toEqual([{ method: "await" }]);
+    expect(result[ProxyInfo].proxyType).toBe("RpcPendingObjectReference");
+    expect(result[ProxyInfo].commands).toEqual([{ method: "await" }]);
   });
 
   it("returns a pending object reference proxy when requesting value", async () => {
     const reference = { referenceId: 1, objectType: "TestObject" };
     const proxy = RpcObjectReference(channel, reference) as any;
 
-    const someMethod = proxy.transfer;
+    const result = proxy.transfer;
 
-    expect(someMethod[ProxyInfo].proxyType).toBe("RpcPendingObjectReference");
-    expect(someMethod[ProxyInfo].commands).toEqual([{ method: "transfer" }]);
+    expect(result[ProxyInfo].proxyType).toBe("RpcPendingObjectReference");
+    expect(result[ProxyInfo].commands).toEqual([{ method: "transfer" }]);
   });
 
   it("returns all commands when accessing multiple props and functions", async () => {
     const reference = { referenceId: 1, objectType: "TestObject" };
     const proxy = RpcObjectReference(channel, reference) as any;
 
-    const someMethod = proxy.propOne.await.functionOne(9001).await.propTwo.await.transfer;
+    const result = proxy.propOne.await.functionOne(9001).await.propTwo.await.transfer;
 
-    expect(someMethod[ProxyInfo].proxyType).toBe("RpcPendingObjectReference");
-    expect(someMethod[ProxyInfo].commands).toEqual([
+    expect(result[ProxyInfo].proxyType).toBe("RpcPendingObjectReference");
+    expect(result[ProxyInfo].commands).toEqual([
       { method: "get", propertyName: "propOne" },
       { method: "await" },
       { method: "get", propertyName: "functionOne" },
@@ -109,27 +107,46 @@ describe("Batching proxies", () => {
       { method: "transfer" },
     ]);
   });
+
+  it("sends batched commands when awaited", async () => {
+    const reference = { referenceId: 1, objectType: "TestObject" };
+    const proxy = RpcObjectReference(channel, reference) as any;
+
+    channel.responses.push({ status: "success", result: { type: "value", value: undefined } });
+    expect(channel.outgoing).toHaveLength(0);
+
+    await proxy.propOne.await.functionOne(9001).await.propTwo.await.transfer;
+
+    expect(channel.outgoing).toHaveLength(1);
+    expect(channel.outgoing[0]).toEqual({
+      method: "batch",
+      referenceId: 1,
+      commands: [
+        { method: "get", propertyName: "propOne" },
+        { method: "await" },
+        { method: "get", propertyName: "functionOne" },
+        { method: "apply", args: [9001] },
+        { method: "await" },
+        { method: "get", propertyName: "propTwo" },
+        { method: "await" },
+        { method: "transfer" },
+      ],
+    } satisfies Command);
+  });
 });
 
 class RpcChannel implements RpcRequestChannel {
   outgoing: Command[] = [];
-  waitingResponses: Array<(response: Response) => void> = [];
+  responses: Response[] = [];
 
   sendCommand(command: Command): Promise<Response> {
-    return new Promise((resolve) => {
-      this.waitingResponses.push(resolve);
-      this.outgoing.push(command);
-    });
+    this.outgoing.push(command);
+    return Promise.resolve(
+      this.responses.shift() ?? { status: "error", error: "No response queued" },
+    );
   }
 
   subscribeToRoot(): Observable<Response> {
     throw new Error("Method not implemented.");
-  }
-
-  respond(response: Response) {
-    const resolver = this.waitingResponses.shift();
-    if (resolver) {
-      resolver(response);
-    }
   }
 }

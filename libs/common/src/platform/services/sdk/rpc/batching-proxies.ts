@@ -66,8 +66,7 @@ function proxyHandler(
       }
 
       if (property === "then") {
-        // Allow awaiting the proxy itself
-        return undefined;
+        return BatchCommandExecutor(channel, reference.referenceId, commands);
       }
 
       if (property === "await") {
@@ -100,6 +99,37 @@ function proxyHandler(
       });
     },
   } satisfies ProxyHandler<any>;
+}
+
+function BatchCommandExecutor(
+  channel: RpcRequestChannel,
+  referenceId: ReferenceId,
+  commands: BatchCommand[],
+): (onFulfilled: (value: any) => void, onRejected: (reason: any) => void) => void {
+  const command = {
+    method: "batch",
+    referenceId,
+    commands,
+  } as const;
+
+  return (onFulfilled, onRejected) => {
+    (async () => {
+      const result = await channel.sendCommand(command);
+
+      if (result.status === "error") {
+        throw result.error;
+      }
+
+      if (result.result.type === "value") {
+        return result.result.value;
+      }
+
+      return RpcObjectReference(channel, {
+        referenceId: result.result.referenceId,
+        objectType: result.result.objectType,
+      });
+    })().then(onFulfilled, onRejected);
+  };
 }
 
 function commandsToString(commands: BatchCommand[]): string {
