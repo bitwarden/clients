@@ -12,7 +12,6 @@ chromium_importer = { path = "../chromium_importer" }
 clap = { version = "=4.5.40", features = ["derive"] }
 scopeguard = { workspace = true }
 sysinfo = { workspace = true }
-verifysign = "=0.2.4"
 windows = { workspace = true, features = [
     "Wdk_System_SystemServices",
     "Win32_Security_Cryptography",

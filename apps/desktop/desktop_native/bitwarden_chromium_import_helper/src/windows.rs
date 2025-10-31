@@ -20,7 +20,6 @@ mod windows_binary {
     use tracing_subscriber::{
         fmt, layer::SubscriberExt as _, util::SubscriberInitExt as _, EnvFilter, Layer as _,
     };
-    use verifysign::CodeSignVerifier;
     use windows::{
         core::BOOL,
         Wdk::System::SystemServices::SE_DEBUG_PRIVILEGE,
@@ -45,7 +44,7 @@ mod windows_binary {
         },
     };
 
-    use chromium_importer::chromium::ADMIN_TO_USER_PIPE_NAME;
+    use chromium_importer::chromium::{verify_signature, ADMIN_TO_USER_PIPE_NAME};
 
     #[derive(Parser)]
     #[command(name = "bitwarden_chromium_import_helper")]
@@ -66,8 +65,6 @@ mod windows_binary {
 
     // This should be enabled for production
     const ENABLE_SERVER_SIGNATURE_VALIDATION: bool = true;
-    const EXPECTED_SERVER_SIGNATURE_SHA256_THUMBPRINT: &str =
-        "9f6680c4720dbf66d1cb8ed6e328f58e42523badc60d138c7a04e63af14ea40d";
 
     // List of SYSTEM process names to try to impersonate
     const SYSTEM_PROCESS_NAMES: [&str; 2] = ["services.exe", "winlogon.exe"];
@@ -383,29 +380,7 @@ mod windows_binary {
 
             dbg_log!("Pipe server executable path: {}", exe_path.display());
 
-            let verifier = CodeSignVerifier::for_file(exe_path.as_path()).map_err(|e| {
-                anyhow!("verifysign init failed for {}: {:?}", exe_path.display(), e)
-            })?;
-
-            let signature = verifier.verify().map_err(|e| {
-                anyhow!(
-                    "verifysign verify failed for {}: {:?}",
-                    exe_path.display(),
-                    e
-                )
-            })?;
-
-            dbg_log!("Pipe server executable path: {}", exe_path.display());
-
-            // Dump signature fields for debugging/inspection
-            dbg_log!("Signature fields:");
-            dbg_log!("  Subject Name: {:?}", signature.subject_name());
-            dbg_log!("  Issuer Name: {:?}", signature.issuer_name());
-            dbg_log!("  SHA1 Thumbprint: {:?}", signature.sha1_thumbprint());
-            dbg_log!("  SHA256 Thumbprint: {:?}", signature.sha256_thumbprint());
-            dbg_log!("  Serial Number: {:?}", signature.serial());
-
-            if signature.sha256_thumbprint() != EXPECTED_SERVER_SIGNATURE_SHA256_THUMBPRINT {
+            if !verify_signature(&exe_path)? {
                 return Err(anyhow!("Pipe server signature is not valid"));
             }
 
