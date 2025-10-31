@@ -37,7 +37,7 @@ mod windows_binary {
                 Pipes::GetNamedPipeServerProcessId,
                 Threading::{
                     OpenProcess, OpenProcessToken, QueryFullProcessImageNameW, PROCESS_NAME_WIN32,
-                    PROCESS_QUERY_INFORMATION, PROCESS_VM_READ,
+                    PROCESS_QUERY_LIMITED_INFORMATION,
                 },
             },
             UI::Shell::IsUserAnAdmin,
@@ -64,7 +64,7 @@ mod windows_binary {
     const LOG_FILENAME: &str = "c:\\path\\to\\log.txt"; // This is an example filename, replace it with you own
 
     // This should be enabled for production
-    const ENABLE_SERVER_SIGNATURE_VALIDATION: bool = false;
+    const ENABLE_SERVER_SIGNATURE_VALIDATION: bool = true;
 
     // List of SYSTEM process names to try to impersonate
     const SYSTEM_PROCESS_NAMES: [&str; 2] = ["services.exe", "winlogon.exe"];
@@ -135,8 +135,7 @@ mod windows_binary {
         dbg_log!("Resolving process executable path for PID {}", pid);
 
         // Open the process handle
-        let hprocess =
-            unsafe { OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, false, pid) }?;
+        let hprocess = unsafe { OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, false, pid) }?;
         dbg_log!("Opened process handle for PID {}", pid);
 
         // Close when no longer needed
@@ -329,8 +328,7 @@ mod windows_binary {
     }
 
     fn get_process_handle(pid: u32) -> Result<HANDLE> {
-        let hprocess =
-            unsafe { OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, false, pid) }?;
+        let hprocess = unsafe { OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, false, pid) }?;
         Ok(hprocess)
     }
 
