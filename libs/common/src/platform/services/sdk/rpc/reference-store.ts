@@ -4,6 +4,10 @@ export class ReferenceStore {
   private _store = new Map<ReferenceId, any>();
   private _nextId = 1;
 
+  get size(): number {
+    return this._store.size;
+  }
+
   get<T>(id: number): T | undefined {
     return this._store.get(id);
   }
