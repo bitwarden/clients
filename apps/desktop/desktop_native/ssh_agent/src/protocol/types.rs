@@ -406,7 +406,7 @@ impl TryFrom<String> for PublicKey {
 
 impl Debug for PublicKey {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "SshPublicKey(\"{}\")", self)
+        write!(f, "SshPublicKey(\"{self}\")")
     }
 }
 
