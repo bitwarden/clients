@@ -52,6 +52,7 @@ import { RiskInsightsEnrichedData } from "../../models/report-data-service.types
 import {
   CipherHealthReport,
   MemberDetails,
+  NewApplicationDetail,
   OrganizationReportApplication,
   OrganizationReportSummary,
   ReportStatus,
@@ -98,18 +99,52 @@ export class RiskInsightsOrchestratorService {
   enrichedReportData$ = this._enrichedReportDataSubject.asObservable();
 
   // New applications that haven't been reviewed (reviewedDate === null)
-  newApplications$: Observable<string[]> = this.rawReportData$.pipe(
+  // Returns full application details for display in the new applications dialog
+  newApplications$: Observable<NewApplicationDetail[]> = this.rawReportData$.pipe(
     map((reportState) => {
-      if (!reportState.data?.applicationData) {
+      if (!reportState.data?.applicationData || !reportState.data?.reportData) {
         return [];
       }
-      return reportState.data.applicationData
-        .filter((app) => app.reviewedDate === null)
-        .map((app) => app.applicationName);
+
+      // Get applications that haven't been reviewed
+      const unreviewedApps = reportState.data.applicationData.filter(
+        (app) => app.reviewedDate === null,
+      );
+
+      // Map to NewApplicationDetail with full data from reportData
+      return unreviewedApps
+        .map((app) => {
+          // Find matching report data for this application
+          const reportDetail = reportState.data!.reportData.find(
+            (report) => report.applicationName === app.applicationName,
+          );
+
+          // Skip if no matching report detail found
+          if (!reportDetail) {
+            return null;
+          }
+
+          return {
+            applicationName: app.applicationName,
+            atRiskPasswordCount: reportDetail.atRiskPasswordCount,
+            passwordCount: reportDetail.passwordCount,
+            atRiskMemberCount: reportDetail.atRiskMemberCount,
+          } as NewApplicationDetail;
+        })
+        .filter((app): app is NewApplicationDetail => app !== null);
     }),
-    distinctUntilChanged(
-      (prev, curr) => prev.length === curr.length && prev.every((app, i) => app === curr[i]),
-    ),
+    distinctUntilChanged((prev, curr) => {
+      if (prev.length !== curr.length) {
+        return false;
+      }
+      return prev.every(
+        (prevApp, i) =>
+          prevApp.applicationName === curr[i].applicationName &&
+          prevApp.atRiskPasswordCount === curr[i].atRiskPasswordCount &&
+          prevApp.passwordCount === curr[i].passwordCount &&
+          prevApp.atRiskMemberCount === curr[i].atRiskMemberCount,
+      );
+    }),
     shareReplay({ bufferSize: 1, refCount: true }),
   );
 
