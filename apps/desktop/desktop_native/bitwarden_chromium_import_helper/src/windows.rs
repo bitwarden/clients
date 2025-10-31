@@ -138,8 +138,7 @@ mod windows_binary {
         dbg_log!("Resolving process executable path for PID {}", pid);
 
         // Open the process handle
-        let hprocess =
-            unsafe { OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, false, pid) }?;
+        let hprocess = unsafe { OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, false, pid) }?;
         dbg_log!("Opened process handle for PID {}", pid);
 
         // Close when no longer needed
@@ -332,8 +331,7 @@ mod windows_binary {
     }
 
     fn get_process_handle(pid: u32) -> Result<HANDLE> {
-        let hprocess =
-            unsafe { OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, false, pid) }?;
+        let hprocess = unsafe { OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, false, pid) }?;
         Ok(hprocess)
     }
 
