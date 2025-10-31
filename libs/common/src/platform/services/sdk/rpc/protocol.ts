@@ -3,6 +3,16 @@ export type ReferenceId = number;
 export type PropertySymbol = keyof typeof PropertySymbolMap;
 export type SerializedPropertySymbol = (typeof PropertySymbolMap)[keyof typeof PropertySymbolMap];
 
+export type BatchCommand =
+  | { method: "get"; propertyName: string }
+  | { method: "get"; propertySymbol: SerializedPropertySymbol }
+  | { method: "call"; propertyName: string; args: unknown[] }
+  | {
+      method: "call";
+      propertySymbol: SerializedPropertySymbol;
+      args: unknown[];
+    };
+
 export type Command =
   | { method: "get"; referenceId: ReferenceId; propertyName: string }
   | { method: "get"; referenceId: ReferenceId; propertySymbol: SerializedPropertySymbol }
@@ -13,6 +23,7 @@ export type Command =
       propertySymbol: SerializedPropertySymbol;
       args: unknown[];
     }
+  | { method: "batch"; referenceId: ReferenceId; commands: BatchCommand[] }
   | { method: "by_value"; referenceId: ReferenceId }
   | { method: "release"; referenceId: ReferenceId };
 
