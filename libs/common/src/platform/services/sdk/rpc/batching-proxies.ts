@@ -65,7 +65,14 @@ function proxyHandler(
         return (target as any)[ProxyInfo];
       }
 
-      if (property === "then") {
+      if (property === "then" && commands.length === 0) {
+        // This means we awaited a RpcObjectReference which resolves to itself
+        // We don't support transfering references to Promises themselves, we'll
+        // automatically await them before returning
+        return undefined;
+      }
+
+      if (property === "then" && commands.length > 0) {
         return BatchCommandExecutor(channel, reference.referenceId, commands);
       }
 

@@ -20,16 +20,17 @@ describe("Batching proxies", () => {
     });
   });
 
-  // Not sure what await itself should do yet
-  // it("should allow awaiting the proxy itself", async () => {
-  //   const reference = {
-  //     referenceId: 2,
-  //     objectType: "AwaitableObject",
-  //   };
-  //   const proxy = RpcObjectReference(channel, reference);
-  //   const awaited = await proxy;
-  //   expect(awaited).toBe(proxy);
-  // });
+  it("awaiting the proxy returns the proxy itself", async () => {
+    const reference = {
+      referenceId: 1,
+      objectType: "TestObject",
+    };
+    const proxy = RpcObjectReference(channel, reference);
+
+    const awaited = await proxy;
+
+    expect(awaited).toBe(proxy);
+  });
 
   it("returns a pending object reference proxy when accesing a property", async () => {
     const reference = { referenceId: 1, objectType: "TestObject" };
@@ -132,6 +133,50 @@ describe("Batching proxies", () => {
         { method: "transfer" },
       ],
     } satisfies Command);
+  });
+
+  it("returns value when receiving a value response", async () => {
+    const reference = { referenceId: 1, objectType: "TestObject" };
+    const proxy = RpcObjectReference(channel, reference) as any;
+
+    channel.responses.push({ status: "success", result: { type: "value", value: 42 } });
+
+    const result = await proxy.prop;
+
+    expect(result).toBe(42);
+  });
+
+  it("returns reference when receiving a reference response", async () => {
+    const reference = { referenceId: 1, objectType: "TestObject" };
+    const proxy = RpcObjectReference(channel, reference) as any;
+
+    channel.responses.push({ status: "success", result: { type: "reference", referenceId: 2 } });
+
+    const result = await proxy.prop;
+
+    expect(result[ProxyInfo].referenceId).toBe(2);
+  });
+
+  it("throws error when receiving an error response", async () => {
+    class TestError extends Error {
+      constructor(
+        message: string,
+        public someProperty: string,
+      ) {
+        super(message);
+      }
+    }
+
+    const reference = { referenceId: 1, objectType: "TestObject" };
+    const proxy = RpcObjectReference(channel, reference) as any;
+    const error = new TestError("Something went wrong", "someValue");
+
+    channel.responses.push({ status: "error", error });
+
+    // Note: We are getting the actual error instance here because our
+    // channel is a local mock. In a real RPC scenario, the error would be
+    // serialized and deserialized, losing its prototype and properties.
+    await expect(proxy.prop).rejects.toThrow(error);
   });
 });
 
