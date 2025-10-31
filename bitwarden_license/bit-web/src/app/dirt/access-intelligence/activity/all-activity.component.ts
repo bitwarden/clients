@@ -5,6 +5,7 @@ import { firstValueFrom } from "rxjs";
 
 import {
   AllActivitiesService,
+  ReportStatus,
   RiskInsightsDataService,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -44,6 +45,8 @@ export class AllActivityComponent implements OnInit {
 
   destroyRef = inject(DestroyRef);
 
+  protected ReportStatusEnum = ReportStatus;
+
   constructor(
     private accountService: AccountService,
     protected activatedRoute: ActivatedRoute,
@@ -69,8 +72,13 @@ export class AllActivityComponent implements OnInit {
           this.totalCriticalAppsAtRiskMemberCount = summary.totalCriticalAtRiskMemberCount;
           this.totalCriticalAppsCount = summary.totalCriticalApplicationCount;
           this.totalCriticalAppsAtRiskCount = summary.totalCriticalAtRiskApplicationCount;
-          this.newApplications = summary.newApplications;
-          this.newApplicationsCount = summary.newApplications.length;
+        });
+
+      this.dataService.newApplications$
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe((newApps) => {
+          this.newApplications = newApps;
+          this.newApplicationsCount = newApps.length;
         });
 
       this.allActivitiesService.passwordChangeProgressMetricHasProgressBar$

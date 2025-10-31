@@ -14,8 +14,6 @@ The Windows **Application Bound Encryption (ABE)** subsystem consists of two mai
 - **client library** — a library that is part of the desktop client application
 - **bitwarden_chromium_import_helper.exe** — a password decryptor running as **ADMINISTRATOR** and later as **SYSTEM**
 
-_(The name of the binary will be changed in the released product.)_
-
 See the last section for a concise summary of the entire process.
 
 ### Goal

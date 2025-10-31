@@ -1215,7 +1215,7 @@ export default class MainBackground {
       logoutCallback,
       this.messagingService,
       this.accountService,
-      new SignalRConnectionService(this.apiService, this.logService),
+      new SignalRConnectionService(this.apiService, this.logService, this.platformUtilsService),
       this.authService,
       this.webPushConnectionService,
       this.authRequestAnsweringService,
