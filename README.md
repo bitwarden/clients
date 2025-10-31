@@ -28,6 +28,8 @@ Please refer to the [Clients section](https://contributing.bitwarden.com/getting
 
 ## test commit
 
+## another one
+
 Interested in contributing in a big way? Consider joining our team! We're hiring for many positions. Please take a look at our [Careers page](https://bitwarden.com/careers/) to see what opportunities are [currently open](https://bitwarden.com/careers/#open-positions) as well as what it's like to work at Bitwarden.
 
 # Contribute
