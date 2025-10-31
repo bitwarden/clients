@@ -57,7 +57,7 @@ impl ConnectionInfo {
         self.host_name.as_ref()
     }
 
-    pub fn set_host_key(&mut self, host_key: PublicKey) {
+    pub fn set_host_key(&mut self, host_key: &PublicKey) {
         self.host_key = Some(host_key.clone());
         // Some systems (flatpak, macos sandbox) may prevent access to the known hosts file.
         if let Ok(hosts) = knownhosts::KnownHostsReader::read_default() {

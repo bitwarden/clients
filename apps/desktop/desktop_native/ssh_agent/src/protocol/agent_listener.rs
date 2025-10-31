@@ -119,7 +119,7 @@ async fn handle_connection(
             }
             Request::SessionBind(request) => {
                 span.in_scope(|| info!("Received SessionBind {:?}", request));
-                connection.set_host_key(request.host_key().clone());
+                connection.set_host_key(request.host_key());
                 info!(
                     "Bound connection {} to host {:?}",
                     connection.id(),
