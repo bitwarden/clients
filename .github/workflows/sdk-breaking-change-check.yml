@@ -22,7 +22,7 @@ jobs:
       _ARTIFACTS_RUN_ID: ${{ github.event.client_payload.artifacts_info.run_id }}
       _ARTIFACT_NAME: ${{ github.event.client_payload.artifacts_info.artifact_name }}
       _CLIENT_LABEL: ${{ github.event.client_payload.client_label }}
-      
+
     steps:
       - name: Log in to Azure
         uses: bitwarden/gh-actions/azure-login@main
@@ -36,7 +36,7 @@ jobs:
         with:
           keyvault: gh-org-bitwarden
           secrets: "BW-GHAPP-ID,BW-GHAPP-KEY"
-      
+
       - name: Generate GH App token
         uses: actions/create-github-app-token@30bf6253fa41bdc8d1501d202ad15287582246b4 # v2.0.3
         id: app-token
@@ -48,27 +48,29 @@ jobs:
       - name: Validate inputs
         run: |
           echo "🔍 Validating required client_payload fields..."
-          
+
           if [ -z "${_SOURCE_REPO}" ] || [ -z "${_SDK_VERSION}" ] || [ -z "${_ARTIFACTS_RUN_ID}" ] || [ -z "${_ARTIFACT_NAME}" ]; then
             echo "::error::Missing required client_payload fields"
             echo "SOURCE_REPO: ${_SOURCE_REPO}"
-            echo "SDK_VERSION: ${_SDK_VERSION}"  
+            echo "SDK_VERSION: ${_SDK_VERSION}"
             echo "ARTIFACTS_RUN_ID: ${_ARTIFACTS_RUN_ID}"
             echo "ARTIFACT_NAME: ${_ARTIFACT_NAME}"
             echo "CLIENT_LABEL: ${_CLIENT_LABEL}"
             exit 1
           fi
-          
+
           echo "✅ All required payload fields are present"
       - name: Check out clients repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
 
       - name: Get Node Version
         id: retrieve-node-version
         run: |
           NODE_NVMRC=$(cat .nvmrc)
           NODE_VERSION=${NODE_NVMRC/v/''}
-          echo "node_version=$NODE_VERSION" >> $GITHUB_OUTPUT
+          echo "node_version=$NODE_VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Set up Node
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
@@ -80,13 +82,13 @@ jobs:
       - name: Install Node dependencies
         run: |
           echo "📦 Installing Node dependencies with retry logic..."
-          
+
           RETRY_COUNT=0
           MAX_RETRIES=3
           while [ ${RETRY_COUNT} -lt ${MAX_RETRIES} ]; do
             RETRY_COUNT=$((RETRY_COUNT + 1))
             echo "🔄 npm ci attempt ${RETRY_COUNT} of ${MAX_RETRIES}..."
-            
+
             if npm ci; then
               echo "✅ npm ci successful"
               break
@@ -95,7 +97,7 @@ jobs:
               [ ${RETRY_COUNT} -lt ${MAX_RETRIES} ] && sleep 5
             fi
           done
-          
+
           if [ ${RETRY_COUNT} -eq ${MAX_RETRIES} ]; then
              echo "::error::npm ci failed after ${MAX_RETRIES} attempts"
              exit 1
@@ -119,10 +121,10 @@ jobs:
           echo "🔧 Setting up SDK override using npm link..."
           echo "📊 SDK Version: ${_SDK_VERSION}"
           echo "📦 Artifact Source: ${_SOURCE_REPO} run ${_ARTIFACTS_RUN_ID}"
-          
+
           echo "📋 SDK package contents:"
           ls -la ./sdk-internal/
-          
+
           echo "🔗 Creating npm link to SDK package..."
           if ! npm link ./sdk-internal; then
             echo "::error::Failed to link SDK package"
@@ -131,32 +133,35 @@ jobs:
 
       - name: Run TypeScript compatibility check
         run: |
-          
+
           echo "🔍 Running TypeScript type checking for ${_CLIENT_LABEL} client with SDK version: ${_SDK_VERSION}"
           echo "🎯 Type checking command: npm run test:types"
-          
+
           # Add GitHub Step Summary output
-          echo "## 📊 TypeScript Compatibility Check (${_CLIENT_LABEL})" >> $GITHUB_STEP_SUMMARY
-          echo "- **Client**: ${_CLIENT_LABEL}" >> $GITHUB_STEP_SUMMARY
-          echo "- **SDK Version**: ${_SDK_VERSION}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Source Repository**: ${_SOURCE_REPO}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Artifacts Run ID**: ${_ARTIFACTS_RUN_ID}" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          
+          {
+            echo "## 📊 TypeScript Compatibility Check (${_CLIENT_LABEL})"
+            echo "- **Client**: ${_CLIENT_LABEL}"
+            echo "- **SDK Version**: ${_SDK_VERSION}"
+            echo "- **Source Repository**: ${_SOURCE_REPO}"
+            echo "- **Artifacts Run ID**: ${_ARTIFACTS_RUN_ID}"
+            echo ""
+          } >> "$GITHUB_STEP_SUMMARY"
+
+
           TYPE_CHECK_START=$(date +%s)
-          
+
           # Run type check with timeout - exit code determines gh run watch result
           if timeout 10m npm run test:types; then
             TYPE_CHECK_END=$(date +%s)
             TYPE_CHECK_DURATION=$((TYPE_CHECK_END - TYPE_CHECK_START))
             echo "✅ TypeScript compilation successful for ${_CLIENT_LABEL} client (${TYPE_CHECK_DURATION}s)"
-            echo "✅ **Result**: TypeScript compilation successful" >> $GITHUB_STEP_SUMMARY
-            echo "No breaking changes detected in ${_CLIENT_LABEL} client for SDK version ${_SDK_VERSION}" >> $GITHUB_STEP_SUMMARY
+            echo "✅ **Result**: TypeScript compilation successful" >> "$GITHUB_STEP_SUMMARY"
+            echo "No breaking changes detected in ${_CLIENT_LABEL} client for SDK version ${_SDK_VERSION}" >> "$GITHUB_STEP_SUMMARY"
           else
             TYPE_CHECK_END=$(date +%s)
             TYPE_CHECK_DURATION=$((TYPE_CHECK_END - TYPE_CHECK_START))
             echo "❌ TypeScript compilation failed for ${_CLIENT_LABEL} client after ${TYPE_CHECK_DURATION}s - breaking changes detected"
-            echo "❌ **Result**: TypeScript compilation failed" >> $GITHUB_STEP_SUMMARY
-            echo "Breaking changes detected in ${_CLIENT_LABEL} client for SDK version ${_SDK_VERSION}" >> $GITHUB_STEP_SUMMARY
+            echo "❌ **Result**: TypeScript compilation failed" >> "$GITHUB_STEP_SUMMARY"
+            echo "Breaking changes detected in ${_CLIENT_LABEL} client for SDK version ${_SDK_VERSION}" >> "$GITHUB_STEP_SUMMARY"
             exit 1
           fi
