@@ -175,7 +175,3 @@ jobs:
             echo "Breaking changes detected in ${CLIENT_LABEL} client for SDK version ${SDK_VERSION}" >> $GITHUB_STEP_SUMMARY
             exit 1
           fi
-          
-          # Cleanup temporary directories
-          echo "🧹 Cleaning up temporary directories..."
-          rm -rf ./temp-sdk-artifacts ./local-sdk-package
