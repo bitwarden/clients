@@ -8,31 +8,31 @@ on:
   pull_request:
     types: [opened, synchronize]
     branches-ignore:
-      - 'l10n_master'
-      - 'cf-pages'
+      - "l10n_master"
+      - "cf-pages"
     paths:
-      - 'apps/cli/**'
-      - 'bitwarden_license/bit-cli/**'
-      - 'bitwarden_license/bit-common/**'
-      - 'libs/**'
-      - '*'
-      - '!*.md'
-      - '!*.txt'
-      - '.github/workflows/build-cli.yml'
+      - "apps/cli/**"
+      - "bitwarden_license/bit-cli/**"
+      - "bitwarden_license/bit-common/**"
+      - "libs/**"
+      - "*"
+      - "!*.md"
+      - "!*.txt"
+      - ".github/workflows/build-cli.yml"
   push:
     branches:
-      - 'main'
-      - 'rc'
-      - 'hotfix-rc-cli'
+      - "main"
+      - "rc"
+      - "hotfix-rc-cli"
     paths:
-      - 'apps/cli/**'
-      - 'bitwarden_license/bit-cli/**'
-      - 'bitwarden_license/bit-common/**'
-      - 'libs/**'
-      - '*'
-      - '!*.md'
-      - '!*.txt'
-      - '.github/workflows/build-cli.yml'
+      - "apps/cli/**"
+      - "bitwarden_license/bit-cli/**"
+      - "bitwarden_license/bit-common/**"
+      - "libs/**"
+      - "*"
+      - "!*.md"
+      - "!*.txt"
+      - ".github/workflows/build-cli.yml"
   workflow_call:
     inputs: {}
   workflow_dispatch:
@@ -45,9 +45,6 @@ on:
 defaults:
   run:
     working-directory: apps/cli
-
-permissions:
-  contents: read
 
 jobs:
   setup:
@@ -84,7 +81,6 @@ jobs:
           has_secrets=${{ secrets.AZURE_CLIENT_ID != '' }}
           echo "has_secrets=$has_secrets" >> "$GITHUB_OUTPUT"
 
-
   cli:
     name: CLI ${{ matrix.os.base }}${{ matrix.os.target_suffix }} - ${{ matrix.license_type.readable }}
     strategy:
@@ -94,12 +90,22 @@ jobs:
             { base: "linux", distro: "ubuntu-22.04", target_suffix: "" },
             { base: "linux", distro: "ubuntu-22.04-arm", target_suffix: "-arm64" },
             { base: "mac", distro: "macos-13", target_suffix: "" },
-            { base: "mac", distro: "macos-14", target_suffix: "-arm64" }
+            { base: "mac", distro: "macos-14", target_suffix: "-arm64" },
           ]
         license_type:
           [
-            { type: "oss", build_prefix: "oss", artifact_prefix: "-oss", readable: "open source license" },
-            { type: "commercial", build_prefix: "bit", artifact_prefix: "", readable: "commercial license" }
+            {
+              type: "oss",
+              build_prefix: "oss",
+              artifact_prefix: "-oss",
+              readable: "open source license",
+            },
+            {
+              type: "commercial",
+              build_prefix: "bit",
+              artifact_prefix: "",
+              readable: "commercial license",
+            },
           ]
     runs-on: ${{ matrix.os.distro }}
     needs: setup
@@ -132,8 +138,8 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
-          cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
+          cache: "npm"
+          cache-dependency-path: "**/package-lock.json"
           node-version: ${{ env._NODE_VERSION }}
 
       - name: Install
@@ -289,15 +295,24 @@ jobs:
       - name: Output help
         run: node ./build/bw.js --help
 
-
   cli-windows:
     name: Windows - ${{ matrix.license_type.readable }}
     strategy:
       matrix:
         license_type:
           [
-            { type: "oss", build_prefix: "oss", artifact_prefix: "-oss", readable: "open source license" },
-            { type: "commercial", build_prefix: "bit", artifact_prefix: "", readable: "commercial license" }
+            {
+              type: "oss",
+              build_prefix: "oss",
+              artifact_prefix: "-oss",
+              readable: "open source license",
+            },
+            {
+              type: "commercial",
+              build_prefix: "bit",
+              artifact_prefix: "",
+              readable: "commercial license",
+            },
           ]
     runs-on: windows-2022
     permissions:
@@ -328,8 +343,8 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
-          cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
+          cache: "npm"
+          cache-dependency-path: "**/package-lock.json"
           node-version: ${{ env._NODE_VERSION }}
 
       - name: Get pkg-fetch
@@ -375,7 +390,6 @@ jobs:
           "@
           $versionInfo | Out-File ./version-info.rc
       # https://github.com/vercel/pkg-fetch/issues/188
-
       - name: Resource Hacker
         shell: cmd
         run: |
@@ -577,7 +591,6 @@ jobs:
           name: bw_${{ env._PACKAGE_VERSION }}_amd64.snap
           path: apps/cli/dist/snap/bw_${{ env._PACKAGE_VERSION }}_amd64.snap
           if-no-files-found: error
-
 
   check-failures:
     name: Check for failures
