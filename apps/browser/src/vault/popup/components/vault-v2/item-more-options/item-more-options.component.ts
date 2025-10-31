@@ -202,12 +202,17 @@ export class ItemMoreOptionsComponent {
   async doAutofill() {
     const cipher = await this.cipherService.getFullCipherView(this.cipher);
 
-    const cipherHasAllExactMatchLoginUris = cipher?.login.uris.every(
-      (u) => u.uri && u.match === UriMatchStrategy.Exact,
-    );
+    const uris = cipher.login?.uris ?? [];
+    const cipherHasAllExactMatchLoginUris =
+      uris.length > 0 && uris.every((u) => u.uri && u.match === UriMatchStrategy.Exact);
 
+    const showAutofillConfirmation = await firstValueFrom(this.showAutofillConfirmation$);
     const uriMatchStrategy = await firstValueFrom(this.uriMatchStrategy$);
-    if (cipherHasAllExactMatchLoginUris || uriMatchStrategy === UriMatchStrategy.Exact) {
+
+    if (
+      showAutofillConfirmation &&
+      (cipherHasAllExactMatchLoginUris || uriMatchStrategy === UriMatchStrategy.Exact)
+    ) {
       await this.dialogService.openSimpleDialog({
         title: { key: "cannotAutofill" },
         content: { key: "cannotAutofillExactMatch" },
@@ -221,8 +226,6 @@ export class ItemMoreOptionsComponent {
     if (!(await this.passwordRepromptService.passwordRepromptCheck(this.cipher))) {
       return;
     }
-
-    const showAutofillConfirmation = await firstValueFrom(this.showAutofillConfirmation$);
 
     if (!showAutofillConfirmation) {
       await this.vaultPopupAutofillService.doAutofill(cipher, true, true);

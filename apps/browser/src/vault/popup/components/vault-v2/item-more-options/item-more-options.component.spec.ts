@@ -181,10 +181,21 @@ describe("ItemMoreOptionsComponent", () => {
       expect(autofillSvc.doAutofillAndSave).not.toHaveBeenCalled();
     });
 
+    it("does not show the exact match dialog when the default match strategy is Exact and autofill confirmation is not to be shown", async () => {
+      // autofill confirmation dialog is not shown when either the feature flag is disabled or search text is not present
+      uriMatchStrategy$.next(UriMatchStrategy.Exact);
+      autofillSvc.currentAutofillTab$.next({ url: "https://page.example.com/path" });
+      await component.doAutofill();
+
+      expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
+    });
+
     describe("autofill confirmation dialog", () => {
       beforeEach(() => {
+        // autofill confirmation dialog is shown when feature flag is enabled and search text is present
         featureFlag$.next(true);
         hasSearchText$.next(true);
+        uriMatchStrategy$.next(UriMatchStrategy.Domain);
         passwordRepromptService.passwordRepromptCheck.mockResolvedValue(true);
       });
 
@@ -343,8 +354,6 @@ describe("ItemMoreOptionsComponent", () => {
       });
 
       it("hides the 'Fill and Save' button when showAutofillConfirmation$ is true", async () => {
-        // Enable both feature flag and search text → makes showAutofillConfirmation$ true
-
         fixture.detectChanges();
         await fixture.whenStable();
 
