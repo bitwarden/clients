@@ -220,13 +220,6 @@ export abstract class KeyService {
     providerOrgs: ProfileProviderOrganizationResponse[],
     userId: UserId,
   ): Promise<void>;
-  /**
-   * Retrieves a stream of the active users organization keys,
-   * will NOT emit any value if there is no active user.
-   *
-   * @deprecated Use {@link orgKeys$} with a required {@link UserId} instead.
-   */
-  abstract activeUserOrgKeys$: Observable<Record<OrganizationId, OrgKey>>;
 
   /**
    * Returns the organization's symmetric key

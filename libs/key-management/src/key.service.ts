@@ -68,7 +68,14 @@ import {
 import { KdfConfig } from "./models/kdf-config";
 
 export class DefaultKeyService implements KeyServiceAbstraction {
-  readonly activeUserOrgKeys$: Observable<Record<OrganizationId, OrgKey>>;
+  /**
+   * Retrieves a stream of the active users organization keys,
+   * will NOT emit any value if there is no active user.
+   *
+   * @deprecated Use {@link orgKeys$} with a required {@link UserId} instead.
+   * TODO to be removed with https://bitwarden.atlassian.net/browse/PM-23623
+   */
+  private readonly activeUserOrgKeys$: Observable<Record<OrganizationId, OrgKey>>;
 
   constructor(
     protected masterPasswordService: InternalMasterPasswordServiceAbstraction,

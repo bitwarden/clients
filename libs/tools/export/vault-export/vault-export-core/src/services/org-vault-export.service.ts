@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import * as papa from "papaparse";
-import { firstValueFrom, map } from "rxjs";
+import { filter, firstValueFrom, map } from "rxjs";
 
 import {
   CollectionService,
@@ -137,6 +137,10 @@ export class OrganizationVaultExportService
     const decCiphers: CipherView[] = [];
     const promises = [];
 
+    const orgKeys = await firstValueFrom(
+      this.keyService.orgKeys$(activeUserId).pipe(filter((orgKeys) => orgKeys != null)),
+    );
+
     const restrictions = await firstValueFrom(this.restrictedItemTypesService.restricted$);
 
     promises.push(
@@ -148,12 +152,11 @@ export class OrganizationVaultExportService
               const collection = Collection.fromCollectionData(
                 new CollectionData(c as CollectionDetailsResponse),
               );
+              const orgKey = orgKeys[organizationId];
               exportPromises.push(
-                firstValueFrom(this.keyService.activeUserOrgKeys$)
-                  .then((keys) => collection.decrypt(keys[organizationId], this.encryptService))
-                  .then((decCol) => {
-                    decCollections.push(decCol);
-                  }),
+                collection.decrypt(orgKey, this.encryptService).then((decCol) => {
+                  decCollections.push(decCol);
+                }),
               );
             });
           }
