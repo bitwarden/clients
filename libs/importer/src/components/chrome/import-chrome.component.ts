@@ -138,6 +138,17 @@ export class ImportChromeComponent implements OnInit, OnDestroy {
           this.getBrowserName(this.format()),
           this.formGroup.controls.profile.value,
         );
+
+        // If any of the login items has a failure return a generic error message
+        // Introduced because we ran into a new type of V3 encryption added on Chrome that we don't yet support
+        if (logins.some((l) => l.failure != null)) {
+          return {
+            errors: {
+              message: this.i18nService.t("errorOccurred"),
+            },
+          };
+        }
+
         if (logins.length === 0) {
           return {
             errors: {
