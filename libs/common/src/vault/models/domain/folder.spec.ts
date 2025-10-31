@@ -42,6 +42,31 @@ describe("Folder", () => {
     });
   });
 
+  describe("constructor", () => {
+    it("initializes properties from FolderData", () => {
+      const revisionDate = new Date("2022-08-04T01:06:40.441Z");
+      const folder = new Folder({
+        id: "id",
+        name: "name",
+        revisionDate: revisionDate.toISOString(),
+      });
+
+      expect(folder.id).toBe("id");
+      expect(folder.revisionDate).toEqual(revisionDate);
+      expect(folder.name).toBeInstanceOf(EncString);
+      expect((folder.name as EncString).encryptedString).toBe("name");
+    });
+
+    it("initializes empty properties when no FolderData is provided", () => {
+      const folder = new Folder();
+
+      expect(folder.id).toBe("");
+      expect(folder.name).toBeInstanceOf(EncString);
+      expect((folder.name as EncString).encryptedString).toBe("");
+      expect(folder.revisionDate).toBeInstanceOf(Date);
+    });
+  });
+
   describe("fromJSON", () => {
     jest.mock("../../../key-management/crypto/models/enc-string");
     jest.spyOn(EncString, "fromJSON").mockImplementation(mockFromJson);

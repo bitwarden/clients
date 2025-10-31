@@ -10,7 +10,7 @@ export class FolderData {
   constructor(response: Partial<FolderResponse>) {
     this.name = response.name ?? "";
     this.id = response.id ?? "";
-    this.revisionDate = response.revisionDate ?? "";
+    this.revisionDate = response.revisionDate ?? new Date().toISOString();
   }
 
   static fromJSON(obj: Jsonify<FolderData | null>) {

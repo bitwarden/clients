@@ -7,12 +7,6 @@ import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-cr
 import { FolderData } from "../data/folder.data";
 import { FolderView } from "../view/folder.view";
 
-export class Test extends Domain {
-  id: string = "";
-  name: EncString = new EncString("");
-  revisionDate: Date = new Date();
-}
-
 export class Folder extends Domain {
   id: string = "";
   name: EncString = new EncString("");

@@ -552,11 +552,7 @@ export class VaultPopupListFiltersService {
 
     // When the organization filter changes and a folder is already selected,
     // reset the folder filter if the folder does not belong to the new organization filter
-    if (
-      currentFilters.folder &&
-      currentFilters.folder.id !== null &&
-      organization.id !== MY_VAULT_ID
-    ) {
+    if (currentFilters.folder && currentFilters.folder.id && organization.id !== MY_VAULT_ID) {
       // Get all ciphers that belong to the new organization
       const orgCiphers = this.cipherViews.filter((c) => c.organizationId === organization.id);
 
