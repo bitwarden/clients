@@ -72,10 +72,18 @@ impl Stream for UnixListenerStream {
                     Ok(peer) => match peer.pid() {
                         Some(pid) => pid,
                         None => {
-                            return Poll::Ready(Some(Ok((stream, PeerInfo::unknown()))));
+                            return Poll::Ready(Some(Ok((
+                                stream,
+                                PeerInfo::unknown(PeerType::UnixSocket),
+                            ))));
                         }
                     },
-                    Err(_) => return Poll::Ready(Some(Ok((stream, PeerInfo::unknown())))),
+                    Err(_) => {
+                        return Poll::Ready(Some(Ok((
+                            stream,
+                            PeerInfo::unknown(PeerType::UnixSocket),
+                        ))))
+                    }
                 };
                 Poll::Ready(Some(Ok((
                     stream,

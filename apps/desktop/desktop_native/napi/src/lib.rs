@@ -1062,12 +1062,15 @@ pub mod sshagent_v2 {
         bindgen_prelude::Promise,
         threadsafe_function::{ErrorStrategy::CalleeHandled, ThreadsafeFunction},
     };
-    use ssh_agent::agent::{ui_requester, PlatformListener};
     use ssh_agent::{
         self,
         agent::{ui_requester::UiRequestMessage, BitwardenDesktopAgent},
         memory::UnlockedSshItem,
         protocol::types::KeyPair,
+    };
+    use ssh_agent::{
+        agent::{ui_requester, PlatformListener},
+        transport::peer_info::ProcessInfo,
     };
     use tokio::{self, sync::Mutex};
     use tracing::{error, info};
@@ -1142,14 +1145,23 @@ pub mod sshagent_v2 {
         callback: ThreadsafeFunction<SshUIRequest, CalleeHandled>,
     ) {
         tokio::spawn(async move {
+            let process_name = match request_message
+                .connection_info()
+                .peer_info()
+                .process_info
+                .clone()
+            {
+                ProcessInfo::Known {
+                    pid: _,
+                    process_name,
+                } => process_name,
+                ProcessInfo::Unknown => "unknown".to_string(),
+            };
+
             let mut ui_request = SshUIRequest {
                 cipher_id: None,
                 is_list: false,
-                process_name: request_message
-                    .connection_info()
-                    .peer_info()
-                    .process_name()
-                    .to_string(),
+                process_name: process_name,
                 is_forwarding: request_message.connection_info().is_forwarding(),
                 namespace: None,
             };
@@ -1177,7 +1189,7 @@ pub mod sshagent_v2 {
                     namespace,
                 } => {
                     ui_request.cipher_id = Some(cipher_id);
-                    ui_request.namespace = Some(namespace);
+                    ui_request.namespace = namespace;
                     ui_request
                 }
             };

@@ -7,10 +7,7 @@ use crate::{
     agent::ui_requester::UiRequester,
     memory::{KeyStore, UnlockedSshItem},
     protocol::{
-        self,
-        agent_listener::serve_listener,
-        key_store::Agent,
-        requests::{ParsedSignRequest, SshSignRequest},
+        self, agent_listener::serve_listener, key_store::Agent, requests::ParsedSignRequest,
         types::PublicKeyWithName,
     },
     transport::peer_info::PeerInfo,
