@@ -1,10 +1,10 @@
 <div [formGroup]="formGroup">
-  <auth-vault-timeout-input
+  <bit-session-timeout-input
     [vaultTimeoutOptions]="availableTimeoutOptions$ | async"
     [formControl]="formGroup.controls.timeout"
     ngDefaultControl
   >
-  </auth-vault-timeout-input>
+  </bit-session-timeout-input>
 
   <bit-form-field [disableMargin]="true">
     <bit-label>{{ "sessionTimeoutSettingsAction" | i18n }}</bit-label>

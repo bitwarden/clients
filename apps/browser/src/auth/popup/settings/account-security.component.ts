@@ -24,7 +24,7 @@ import {
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
 import { SpotlightComponent } from "@bitwarden/angular/vault/components/spotlight/spotlight.component";
-import { FingerprintDialogComponent, VaultTimeoutInputComponent } from "@bitwarden/auth/angular";
+import { FingerprintDialogComponent } from "@bitwarden/auth/angular";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { getFirstPolicy } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
@@ -69,7 +69,10 @@ import {
   BiometricStateService,
   BiometricsStatus,
 } from "@bitwarden/key-management";
-import { SessionTimeoutSettingsComponent } from "@bitwarden/key-management-ui";
+import {
+  SessionTimeoutInputComponent,
+  SessionTimeoutSettingsComponent,
+} from "@bitwarden/key-management-ui";
 
 import { BiometricErrors, BiometricErrorTypes } from "../../../models/biometricErrors";
 import { BrowserApi } from "../../../platform/browser/browser-api";
@@ -106,7 +109,7 @@ import { AwaitDesktopDialogComponent } from "./await-desktop-dialog.component";
     SessionTimeoutSettingsComponent,
     SpotlightComponent,
     TypographyModule,
-    VaultTimeoutInputComponent,
+    SessionTimeoutInputComponent,
   ],
 })
 export class AccountSecurityComponent implements OnInit, OnDestroy {
