@@ -77,110 +77,130 @@ impl Signature {
             .map_err(|e| anyhow::anyhow!("Failed to parse public key: {e}"))?;
 
         match self.0.algorithm() {
-            Algorithm::Ed25519 => {
-                let verifying_key = public_key_parsed
-                    .key_data()
-                    .ed25519()
-                    .ok_or(anyhow::anyhow!("Public key is not Ed25519"))?;
-                let signature = &ed25519_dalek::Signature::from_slice(self.0.as_bytes())?;
-                ed25519_dalek::VerifyingKey::from_bytes(&verifying_key.0)
-                    .map_err(|e| anyhow::anyhow!("Failed to parse Ed25519 key: {e}"))?
-                    .verify_strict(data, signature)?;
-                Ok(true)
-            }
-            Algorithm::Rsa { hash: Some(alg) } => {
-                let verifying_key: Result<rsa::RsaPublicKey, _> = public_key_parsed
-                    .key_data()
-                    .rsa()
-                    .ok_or(anyhow::anyhow!("Public key is not RSA"))?
-                    .try_into();
-                let verifying_key =
-                    verifying_key.map_err(|e| anyhow::anyhow!("Failed to parse RSA key: {e}"))?;
-
-                match alg {
-                    HashAlg::Sha256 => verifying_key.verify(
-                        Pkcs1v15Sign::new::<sha2::Sha256>(),
-                        sha2::Sha256::digest(data).as_slice(),
-                        self.0.as_bytes(),
-                    ),
-                    HashAlg::Sha512 => verifying_key.verify(
-                        Pkcs1v15Sign::new::<sha2::Sha512>(),
-                        sha2::Sha512::digest(data).as_slice(),
-                        self.0.as_bytes(),
-                    ),
-                    _ => return Ok(false),
-                }
-                .map_err(|e| anyhow::anyhow!("RSA signature verification failed: {e}"))?;
-                Ok(true)
-            }
-            Algorithm::Ecdsa { curve } => {
-                let sec1_bytes = public_key_parsed
-                    .key_data()
-                    .ecdsa()
-                    .ok_or(anyhow::anyhow!("Ecdsa key failed to parse"))?
-                    .as_sec1_bytes();
-                match curve {
-                    EcdsaCurve::NistP256 => {
-                        use p256::ecdsa::signature::Verifier;
-                        let mut buf = self.0.as_bytes();
-                        let r = read_bytes(&mut buf)?;
-                        let s = read_bytes(&mut buf)?;
-                        let r = if r.len() == 33 { &r[1..] } else { &r };
-                        p256::ecdsa::VerifyingKey::from_sec1_bytes(sec1_bytes)?
-                            .verify(
-                                data,
-                                &p256::ecdsa::Signature::from_scalars(
-                                    p256::FieldBytes::clone_from_slice(r),
-                                    p256::FieldBytes::clone_from_slice(&s),
-                                )?,
-                            )
-                            .map_err(|e| {
-                                anyhow::anyhow!("ECDSA P-256 signature verification failed: {e}")
-                            })?;
-                        Ok(true)
-                    }
-                    EcdsaCurve::NistP384 => {
-                        use p384::ecdsa::signature::Verifier;
-                        let mut buf = self.0.as_bytes();
-                        let r = read_bytes(&mut buf)?;
-                        let s = read_bytes(&mut buf)?;
-                        let r = if r.len() == 49 { &r[1..] } else { &r };
-                        p384::ecdsa::VerifyingKey::from_sec1_bytes(sec1_bytes)?
-                            .verify(
-                                data,
-                                &p384::ecdsa::Signature::from_scalars(
-                                    p384::FieldBytes::clone_from_slice(r),
-                                    p384::FieldBytes::clone_from_slice(&s),
-                                )?,
-                            )
-                            .map_err(|e| {
-                                anyhow::anyhow!("ECDSA P-384 signature verification failed: {e}")
-                            })?;
-                        Ok(true)
-                    }
-                    EcdsaCurve::NistP521 => {
-                        use p521::ecdsa::signature::Verifier;
-                        let mut buf = self.0.as_bytes();
-                        let r = read_bytes(&mut buf)?;
-                        let s = read_bytes(&mut buf)?;
-                        let r = if r.len() == 67 { &r[1..] } else { &r };
-                        p521::ecdsa::VerifyingKey::from_sec1_bytes(sec1_bytes)?
-                            .verify(
-                                data,
-                                &p521::ecdsa::Signature::from_scalars(
-                                    p521::FieldBytes::clone_from_slice(r),
-                                    p521::FieldBytes::clone_from_slice(&s),
-                                )?,
-                            )
-                            .map_err(|e| {
-                                anyhow::anyhow!("ECDSA P-521 signature verification failed: {e}")
-                            })?;
-                        Ok(true)
-                    }
-                }
-            }
+            Algorithm::Ed25519 => self.verify_ed25519(&public_key_parsed, data),
+            Algorithm::Rsa { hash: Some(alg) } => self.verify_rsa(&public_key_parsed, data, &alg),
+            Algorithm::Ecdsa { curve } => self.verify_ecdsa(&public_key_parsed, data, &curve),
             _ => Ok(false),
         }
+    }
+
+    fn verify_ed25519(
+        &self,
+        public_key_parsed: &ssh_key::PublicKey,
+        data: &[u8],
+    ) -> Result<bool, anyhow::Error> {
+        let verifying_key = public_key_parsed
+            .key_data()
+            .ed25519()
+            .ok_or(anyhow::anyhow!("Public key is not Ed25519"))?;
+        let signature = &ed25519_dalek::Signature::from_slice(self.0.as_bytes())?;
+        ed25519_dalek::VerifyingKey::from_bytes(&verifying_key.0)
+            .map_err(|e| anyhow::anyhow!("Failed to parse Ed25519 key: {e}"))?
+            .verify_strict(data, signature)?;
+        Ok(true)
+    }
+
+    fn verify_rsa(
+        &self,
+        public_key_parsed: &ssh_key::PublicKey,
+        data: &[u8],
+        alg: &HashAlg,
+    ) -> Result<bool, anyhow::Error> {
+        let verifying_key: Result<rsa::RsaPublicKey, _> = public_key_parsed
+            .key_data()
+            .rsa()
+            .ok_or(anyhow::anyhow!("Public key is not RSA"))?
+            .try_into();
+        let verifying_key =
+            verifying_key.map_err(|e| anyhow::anyhow!("Failed to parse RSA key: {e}"))?;
+
+        match alg {
+            HashAlg::Sha256 => verifying_key.verify(
+                Pkcs1v15Sign::new::<sha2::Sha256>(),
+                sha2::Sha256::digest(data).as_slice(),
+                self.0.as_bytes(),
+            ),
+            HashAlg::Sha512 => verifying_key.verify(
+                Pkcs1v15Sign::new::<sha2::Sha512>(),
+                sha2::Sha512::digest(data).as_slice(),
+                self.0.as_bytes(),
+            ),
+            _ => return Ok(false),
+        }
+        .map_err(|e| anyhow::anyhow!("RSA signature verification failed: {e}"))?;
+        Ok(true)
+    }
+
+    fn verify_ecdsa(
+        &self,
+        public_key_parsed: &ssh_key::PublicKey,
+        data: &[u8],
+        curve: &EcdsaCurve,
+    ) -> Result<bool, anyhow::Error> {
+        let sec1_bytes = public_key_parsed
+            .key_data()
+            .ecdsa()
+            .ok_or(anyhow::anyhow!("Ecdsa key failed to parse"))?
+            .as_sec1_bytes();
+        match curve {
+            EcdsaCurve::NistP256 => self.verify_ecdsa_p256(sec1_bytes, data),
+            EcdsaCurve::NistP384 => self.verify_ecdsa_p384(sec1_bytes, data),
+            EcdsaCurve::NistP521 => self.verify_ecdsa_p521(sec1_bytes, data),
+        }
+    }
+
+    fn verify_ecdsa_p256(&self, sec1_bytes: &[u8], data: &[u8]) -> Result<bool, anyhow::Error> {
+        use p256::ecdsa::signature::Verifier;
+        let mut buf = self.0.as_bytes();
+        let r = read_bytes(&mut buf)?;
+        let s = read_bytes(&mut buf)?;
+        let r = if r.len() == 33 { &r[1..] } else { &r };
+        p256::ecdsa::VerifyingKey::from_sec1_bytes(sec1_bytes)?
+            .verify(
+                data,
+                &p256::ecdsa::Signature::from_scalars(
+                    p256::FieldBytes::clone_from_slice(r),
+                    p256::FieldBytes::clone_from_slice(&s),
+                )?,
+            )
+            .map_err(|e| anyhow::anyhow!("ECDSA P-256 signature verification failed: {e}"))?;
+        Ok(true)
+    }
+
+    fn verify_ecdsa_p384(&self, sec1_bytes: &[u8], data: &[u8]) -> Result<bool, anyhow::Error> {
+        use p384::ecdsa::signature::Verifier;
+        let mut buf = self.0.as_bytes();
+        let r = read_bytes(&mut buf)?;
+        let s = read_bytes(&mut buf)?;
+        let r = if r.len() == 49 { &r[1..] } else { &r };
+        p384::ecdsa::VerifyingKey::from_sec1_bytes(sec1_bytes)?
+            .verify(
+                data,
+                &p384::ecdsa::Signature::from_scalars(
+                    p384::FieldBytes::clone_from_slice(r),
+                    p384::FieldBytes::clone_from_slice(&s),
+                )?,
+            )
+            .map_err(|e| anyhow::anyhow!("ECDSA P-384 signature verification failed: {e}"))?;
+        Ok(true)
+    }
+
+    fn verify_ecdsa_p521(&self, sec1_bytes: &[u8], data: &[u8]) -> Result<bool, anyhow::Error> {
+        use p521::ecdsa::signature::Verifier;
+        let mut buf = self.0.as_bytes();
+        let r = read_bytes(&mut buf)?;
+        let s = read_bytes(&mut buf)?;
+        let r = if r.len() == 67 { &r[1..] } else { &r };
+        p521::ecdsa::VerifyingKey::from_sec1_bytes(sec1_bytes)?
+            .verify(
+                data,
+                &p521::ecdsa::Signature::from_scalars(
+                    p521::FieldBytes::clone_from_slice(r),
+                    p521::FieldBytes::clone_from_slice(&s),
+                )?,
+            )
+            .map_err(|e| anyhow::anyhow!("ECDSA P-521 signature verification failed: {e}"))?;
+        Ok(true)
     }
 }
 
