@@ -102,50 +102,35 @@ jobs:
           fi
 
       - name: Download SDK artifacts
-        env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
-        run: |
-          echo "📥 Downloading SDK artifacts for ${CLIENT_LABEL} client from ${SOURCE_REPO} run ${ARTIFACTS_RUN_ID}..."
-          
-          # Download SDK artifacts with error handling
-          if ! gh run download ${ARTIFACTS_RUN_ID} \
-              --repo "${SOURCE_REPO}" \
-              --name "${ARTIFACT_NAME}" \
-              --dir ./temp-sdk-artifacts; then
-            echo "::error::Failed to download SDK artifacts from run ${ARTIFACTS_RUN_ID}"
-            echo "::error::Repository: ${SOURCE_REPO}, Artifact: ${ARTIFACT_NAME}"
-            exit 1
-          fi
-          
-          # Verify critical files exist
-          if [ ! -f "./temp-sdk-artifacts/package.json" ]; then
-            echo "::error::package.json not found in SDK artifacts"
-            exit 1
-          fi
-          
-          if [ ! -f "./temp-sdk-artifacts/bitwarden_wasm_internal.d.ts" ]; then
-            echo "::error::TypeScript definitions not found in SDK artifacts"  
-            exit 1
-          fi
+        uses: bitwarden/gh-actions/download-artifacts@main
+        with:
+          github_token: ${{ steps.app-token.outputs.token }}
+          workflow: build-wasm-internal.yml
+          workflow_conclusion: success
+          run_id: ${{ env.ARTIFACTS_RUN_ID }}
+          artifacts: ${{ env.ARTIFACT_NAME }}
+          repo: ${{ env.SOURCE_REPO }}
+          path: ./sdk-internal
+          if_no_artifact_found: fail
 
-      - name: Install SDK locally and run type check
+      - name: Override SDK using npm link
+        working-directory: ./
         run: |
-          echo "🔧 Installing SDK artifacts locally..."
+          echo "🔧 Setting up SDK override using npm link..."
           echo "📊 SDK Version: ${SDK_VERSION}"
           echo "📦 Artifact Source: ${SOURCE_REPO} run ${ARTIFACTS_RUN_ID}"
           
-          # Create local package and install
-          mkdir -p ./local-sdk-package
-          cp -r ./temp-sdk-artifacts/* ./local-sdk-package/
+          echo "📋 SDK package contents:"
+          ls -la ./sdk-internal/
           
-          echo "📋 Local SDK package contents:"
-          ls -la ./local-sdk-package/
-          
-          echo "🔗 Installing local SDK package..."
-          if ! npm install ./local-sdk-package; then
-            echo "::error::Failed to install SDK package locally"
+          echo "🔗 Creating npm link to SDK package..."
+          if ! npm link ./sdk-internal; then
+            echo "::error::Failed to link SDK package"
             exit 1
           fi
+
+      - name: Run TypeScript compatibility check
+        run: |
           
           echo "🔍 Running TypeScript type checking for ${CLIENT_LABEL} client with SDK version: ${SDK_VERSION}"
           echo "🎯 Type checking command: npm run test:types"
