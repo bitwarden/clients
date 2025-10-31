@@ -70,6 +70,20 @@ function proxyHandler(
         return undefined;
       }
 
+      if (property === "await") {
+        return RpcPendingObjectReference(channel, {
+          reference,
+          commands: [...commands, { method: "await" }],
+        });
+      }
+
+      if (property === "transfer") {
+        return RpcPendingObjectReference(channel, {
+          reference,
+          commands: [...commands, { method: "transfer" }],
+        });
+      }
+
       return RpcPendingObjectReference(channel, {
         reference,
         commands:
@@ -78,7 +92,14 @@ function proxyHandler(
             : [...commands, { method: "get", propertySymbol: serializeSymbol(property) }],
       });
     },
-  };
+
+    apply(_target: any, _thisArg: any, argArray?: any): any {
+      return RpcPendingObjectReference(channel, {
+        reference,
+        commands: [...commands, { method: "apply", args: argArray }],
+      });
+    },
+  } satisfies ProxyHandler<any>;
 }
 
 function commandsToString(commands: BatchCommand[]): string {
@@ -86,10 +107,10 @@ function commandsToString(commands: BatchCommand[]): string {
     .map((cmd) => {
       if (cmd.method === "get") {
         const prop = (cmd as any).propertyName ?? (cmd as any).propertySymbol;
-        return `get(${String(prop)})`;
-      } else if (cmd.method === "call") {
+        return `${String(prop)}`;
+      } else if (cmd.method === "apply") {
         const prop = (cmd as any).propertyName ?? (cmd as any).propertySymbol;
-        return `call(${String(prop)})`;
+        return `${String(prop)}()`;
       }
 
       return "???";

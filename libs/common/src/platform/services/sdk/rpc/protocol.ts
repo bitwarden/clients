@@ -6,12 +6,9 @@ export type SerializedPropertySymbol = (typeof PropertySymbolMap)[keyof typeof P
 export type BatchCommand =
   | { method: "get"; propertyName: string }
   | { method: "get"; propertySymbol: SerializedPropertySymbol }
-  | { method: "call"; propertyName: string; args: unknown[] }
-  | {
-      method: "call";
-      propertySymbol: SerializedPropertySymbol;
-      args: unknown[];
-    };
+  | { method: "apply"; args: unknown[] }
+  | { method: "await" }
+  | { method: "transfer" };
 
 export type Command =
   | { method: "get"; referenceId: ReferenceId; propertyName: string }
