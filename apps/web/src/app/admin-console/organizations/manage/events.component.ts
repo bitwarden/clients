@@ -147,17 +147,19 @@ export class EventsComponent extends BaseEventsComponent implements OnInit, OnDe
               if (canManage) {
                 return this.apiService.getProviderUsers(this.organization.id);
               }
-              return of();
+              return of(null);
             }),
-            map((providerUsersResponse) =>
-              providerUsersResponse.data.forEach((u) => {
-                const name = this.userNamePipe.transform(u);
-                this.orgUsersUserIdMap.set(u.userId, {
-                  name: `${name} (${this.organization.providerName})`,
-                  email: u.email,
+            map((providerUsersResponse) => {
+              if (providerUsersResponse) {
+                providerUsersResponse.data.forEach((u) => {
+                  const name = this.userNamePipe.transform(u);
+                  this.orgUsersUserIdMap.set(u.userId, {
+                    name: `${name} (${this.organization.providerName})`,
+                    email: u.email,
+                  });
                 });
-              }),
-            ),
+              }
+            }),
           ),
         );
       } catch (e) {
