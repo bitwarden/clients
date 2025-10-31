@@ -68,7 +68,6 @@ impl Signature {
         Ok(buffer)
     }
 
-    #[allow(unused)]
     pub(crate) fn verify(
         &self,
         public_key: &PublicKey,
