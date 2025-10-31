@@ -172,8 +172,8 @@
       }
     }
   },
-  "noAppsInOrgTitle": {
-    "message": "$ORG NAME$ netika atrasta neviena lietotne",
+  "noApplicationsInOrgTitle": {
+    "message": "No applications found for $ORG NAME$",
     "placeholders": {
       "org name": {
         "content": "$1",
@@ -181,8 +181,32 @@
       }
     }
   },
-  "noAppsInOrgDescription": {
-    "message": "Tiklīdz lietotāji saglabā pieteikšanās vienumus, šeit parādās lietotnes, norādot uz jebkurām riskam pakļautām parolēm. Atzīmēt kritiskās lietotnēs un apziņot lietotājus, lai atjaunina paroles."
+  "noApplicationsInOrgDescription": {
+    "message": "Import your organization's login data to start monitoring credential security risks. Once imported you get to:"
+  },
+  "benefit1Title": {
+    "message": "Prioritize risks"
+  },
+  "benefit1Description": {
+    "message": "Focus on applications that matter the most"
+  },
+  "benefit2Title": {
+    "message": "Guide remediation"
+  },
+  "benefit2Description": {
+    "message": "Assign at-risk members guided tasks to rotate at-risk credentials"
+  },
+  "benefit3Title": {
+    "message": "Monitor progress"
+  },
+  "benefit3Description": {
+    "message": "Track changes over time to show security improvements"
+  },
+  "noReportRunTitle": {
+    "message": "Run your first report to see applications"
+  },
+  "noReportRunDescription": {
+    "message": "Generate a risk insights report to analyze your organization's applications and identify at-risk passwords that need attention. Running your first report will:"
   },
   "noCriticalApplicationsTitle": {
     "message": "Neviena lietotne nav atzīmēta kā kritiska"
@@ -327,6 +351,27 @@
   },
   "markAsCriticalPlaceholder": {
     "message": "Iespēja atzīmēt kā būtisku tiks ieviesta nākotnes atjauninājumā"
+  },
+  "applicationReviewSaved": {
+    "message": "Application review saved"
+  },
+  "applicationsMarkedAsCritical": {
+    "message": "$COUNT$ applications marked as critical",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "newApplicationsReviewed": {
+    "message": "New applications reviewed"
+  },
+  "errorSavingReviewStatus": {
+    "message": "Error saving review status"
+  },
+  "pleaseTryAgain": {
+    "message": "Please try again"
   },
   "unmarkAsCritical": {
     "message": "Noņemt kritiskuma atzīmi"
@@ -1313,6 +1358,9 @@
   },
   "useSingleSignOn": {
     "message": "Izmantot vienoto pieteikšanos"
+  },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
   },
   "welcomeBack": {
     "message": "Laipni lūdzam atpakaļ"
@@ -4449,8 +4497,8 @@
   "inviteAccepted": {
     "message": "Uzaicinājums pieņemts"
   },
-  "inviteAcceptedDesc": {
-    "message": "Piekļūt apvienībai varēs, kad tās pārvaldnieks apstiprinās dalību. Tiks nosūtīts e-pasta ziņojums, kad tas notiks."
+  "invitationAcceptedDesc": {
+    "message": "Sekmīgi pieņēma Tavu uzaicinājumu."
   },
   "inviteInitAcceptedDesc": {
     "message": "Tagad vari piekļūt šai apvienībai."
@@ -6492,23 +6540,53 @@
   "tdeDisabledMasterPasswordRequired": {
     "message": "Tava apvienība ir atjauninājusi tavas atšifrēšanas iespējas. Lūgums iestatīt galveno paroli, lai piekļūtu savai glabātavai."
   },
-  "maximumVaultTimeout": {
-    "message": "Glabātavas noildze"
+  "sessionTimeoutPolicyTitle": {
+    "message": "Sesijas noildze"
   },
-  "maximumVaultTimeoutDesc": {
-    "message": "Uzstādīt lielāko iespējamo glabātavas noildzi visiem lietotājiem."
+  "sessionTimeoutPolicyDescription": {
+    "message": "Lielākās pieļaujamās sesijas noildzes iestatīšana visiem dalībniekiem, izņemot īpašniekus."
   },
-  "maximumVaultTimeoutLabel": {
-    "message": "Lielākā iespējamā glabātavas noildze"
+  "maximumAllowedTimeout": {
+    "message": "Lielakā atļautā noildze"
   },
-  "invalidMaximumVaultTimeout": {
-    "message": "Nederīga lielākās iespējamās glabātavas noildzes vērtība."
+  "maximumAllowedTimeoutRequired": {
+    "message": "Lielākā atļautā noildze ir nepieciešama."
+  },
+  "sessionTimeoutPolicyInvalidTime": {
+    "message": "Laiks ir nederīgs. Jānomaina vismaz viena vērtība."
+  },
+  "sessionTimeoutAction": {
+    "message": "Sesijas noildzes darbība"
+  },
+  "immediately": {
+    "message": "Nekavējoties"
+  },
+  "onSystemLock": {
+    "message": "Pēc sistēmas aizslēgšanas"
+  },
+  "onAppRestart": {
+    "message": "Pēc lietotnes atkārtotas palaišanas"
   },
   "hours": {
     "message": "Stundas"
   },
   "minutes": {
     "message": "Minūtes"
+  },
+  "sessionTimeoutConfirmationNeverTitle": {
+    "message": "Vai tiešām ļaut lielāko pieļaujamo noildzi “Nekad” visiem dalībniekiem?"
+  },
+  "sessionTimeoutConfirmationNeverDescription": {
+    "message": "Šī iespēja saglabās dalībnieku šifrēšanas atslēgas viņu ierīcēs. Ja izvēlas šo iespēju, jāpārliecinās, ka dalībnieku ierīces ir pienācīgi aizsargātas."
+  },
+  "learnMoreAboutDeviceProtection": {
+    "message": "Uzzināt vairāk par ierīču aizsardzību"
+  },
+  "sessionTimeoutConfirmationOnSystemLockTitle": {
+    "message": "\"Sistēmas aizslēgšana\" attieksies tikai uz pārlūka un darbvirsmas lietotni"
+  },
+  "sessionTimeoutConfirmationOnSystemLockDescription": {
+    "message": "Viedierīču un tīmekļa lietotne izmantos “Pēc lietotnes atkārtotas palaišanas” kā lielāko atļauto noildzi, jo šī iespēja netiek nodrošināta."
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Apvienības nosacījumi ietekmē glabātavas noildzi. Lielākā atļautā glabātavas noildze ir $HOURS$ stunda(s) un $MINUTES$ minūte(s)",
@@ -11936,5 +12014,14 @@
   },
   "encryptionKeySettingsAlgorithmPopoverArgon2Id": {
     "message": "Argon2id sniedz spēcīgāku aizsardzību pret mūsdienu uzbrukumiem. Vislabāk piemērots lietpratējiem ar jaudīgām ierīcēm."
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP / Pasta indekss"
+  },
+  "cardNumberLabel": {
+    "message": "Kartes numurs"
+  },
+  "startFreeFamiliesTrial": {
+    "message": "Uzsākt ģimenes plāna bezmaksas izmēģinājumu"
   }
 }
