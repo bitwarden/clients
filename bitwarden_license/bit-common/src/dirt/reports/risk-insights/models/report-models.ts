@@ -15,7 +15,7 @@ import { ExposedPasswordDetail, WeakPasswordDetail } from "./password-health";
  */
 export type MemberDetails = {
   userGuid: string;
-  userName?: string;
+  userName: string | null;
   email: string;
   cipherId: string;
 };
@@ -55,7 +55,6 @@ export type OrganizationReportSummary = {
   totalCriticalMemberCount: number;
   totalCriticalAtRiskMemberCount: number;
   totalCriticalAtRiskApplicationCount: number;
-  newApplications: string[];
 };
 
 /**
