@@ -284,7 +284,6 @@ describe("ItemMoreOptionsComponent", () => {
             uriMatchStrategy$.next(UriMatchStrategy.Domain);
           });
           it("does not show the exact match dialog", async () => {
-            uriMatchStrategy$.next(UriMatchStrategy.Domain);
             cipherService.getFullCipherView.mockImplementation(async (c) => ({
               ...baseCipher,
               ...c,
@@ -304,7 +303,7 @@ describe("ItemMoreOptionsComponent", () => {
             expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
           });
 
-          it("shows the exact match dialog when the cipher has a uri with a match strategy of Exact", async () => {
+          it("shows the exact match dialog when the cipher has a single uri with a match strategy of Exact", async () => {
             cipherService.getFullCipherView.mockImplementation(async (c) => ({
               ...baseCipher,
               ...c,
@@ -330,9 +329,26 @@ describe("ItemMoreOptionsComponent", () => {
           });
         });
 
+        it("does not show the exact match dialog when the cipher has no uris", async () => {
+          mockConfirmDialogResult(AutofillConfirmationDialogResult.Canceled);
+          cipherService.getFullCipherView.mockImplementation(async (c) => ({
+            ...baseCipher,
+            ...c,
+            login: {
+              ...baseCipher.login,
+              uris: [],
+            },
+          }));
+
+          autofillSvc.currentAutofillTab$.next({ url: "https://no-match.example.com" });
+
+          await component.doAutofill();
+
+          expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
+        });
+
         it("does not show the exact match dialog when the cipher has a uri with a match strategy of Exact and a uri with a match strategy of Domain", async () => {
           mockConfirmDialogResult(AutofillConfirmationDialogResult.Canceled);
-          uriMatchStrategy$.next(UriMatchStrategy.Domain);
           cipherService.getFullCipherView.mockImplementation(async (c) => ({
             ...baseCipher,
             ...c,
