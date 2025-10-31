@@ -38,6 +38,23 @@ import { ImportType } from "../../models";
 
 type ProfileOption = { id: string; name: string };
 
+type Login = {
+  url: string;
+  username: string;
+  password: string;
+  note: string;
+};
+type LoginImportFailure = {
+  url: string;
+  username: string;
+  error: string;
+};
+
+type LoginImportResult = {
+  login?: Login;
+  failure?: LoginImportFailure;
+};
+
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
@@ -82,7 +99,7 @@ export class ImportChromeComponent implements OnInit, OnDestroy {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
-  onImportFromBrowser: (browser: string, profile: string) => Promise<any[]>;
+  onImportFromBrowser: (browser: string, profile: string) => Promise<LoginImportResult[]>;
 
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
