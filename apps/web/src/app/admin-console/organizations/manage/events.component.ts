@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { concatMap, filter, firstValueFrom, lastValueFrom, map, switchMap, takeUntil } from "rxjs";
+import { concatMap, firstValueFrom, lastValueFrom, map, switchMap, takeUntil } from "rxjs";
 
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
@@ -143,7 +143,6 @@ export class EventsComponent extends BaseEventsComponent implements OnInit, OnDe
             getUserId,
             switchMap((userId) => this.providerService.get$(this.organization.providerId, userId)),
             map((provider) => provider != null && provider.canManageUsers),
-            filter((result) => result),
             switchMap(() => this.apiService.getProviderUsers(this.organization.id)),
             map((providerUsersResponse) =>
               providerUsersResponse.data.forEach((u) => {
