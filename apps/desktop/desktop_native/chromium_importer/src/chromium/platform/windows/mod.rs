@@ -62,6 +62,9 @@ pub(crate) fn get_crypto_service(
 
 const ADMIN_EXE_FILENAME: &str = "bitwarden_chromium_import_helper.exe";
 
+// This should be enabled for production
+const ENABLE_SIGNATURE_VALIDATION: bool = true;
+
 //
 // CryptoService
 //
@@ -181,6 +184,13 @@ impl WindowsCryptoService {
         }
 
         let admin_exe_path = get_admin_exe_path()?;
+
+        if ENABLE_SIGNATURE_VALIDATION {
+            if !verify_signature(&admin_exe_path)? {
+                return Err(anyhow!("Helper executable signature is not valid"));
+            }
+        }
+
         let admin_exe_str = admin_exe_path
             .to_str()
             .ok_or_else(|| anyhow!("Failed to convert {} path to string", ADMIN_EXE_FILENAME))?;
