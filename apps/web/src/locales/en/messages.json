@@ -361,6 +361,12 @@
   "atRiskItems": {
     "message": "At-risk items"
   },
+  "totalItems": {
+    "message": "Total items"
+  },
+  "membersAffected": {
+    "message": "Members affected"
+  },
   "markAsCriticalPlaceholder": {
     "message": "Mark as critical functionality will be implemented in a future update"
   },
