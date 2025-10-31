@@ -1,7 +1,6 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, input, inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, input, inject, signal, computed } from "@angular/core";
 import { RouterModule, RouterLinkActive } from "@angular/router";
-import { BehaviorSubject, map } from "rxjs";
 
 import { IconButtonModule } from "../icon-button";
 
@@ -66,18 +65,18 @@ export class NavItemComponent extends NavBaseComponent {
    * (denoted with the data-fvw attribute) matches :focus-visible. We then map that state to some
    * styles, so the entire component can have an outline.
    */
-  protected readonly focusVisibleWithin$ = new BehaviorSubject(false);
-  protected readonly fvwStyles$ = this.focusVisibleWithin$.pipe(
-    map((value) =>
-      value ? "tw-z-10 tw-rounded tw-outline-none tw-ring tw-ring-inset tw-ring-text-alt2" : "",
-    ),
+  protected readonly focusVisibleWithin = signal(false);
+  protected readonly fvwStyles = computed(() =>
+    this.focusVisibleWithin()
+      ? "tw-z-10 tw-rounded tw-outline-none tw-ring tw-ring-inset tw-ring-text-alt2"
+      : "",
   );
 
   protected onFocusIn(target: HTMLElement) {
-    this.focusVisibleWithin$.next(target.matches("[data-fvw]:focus-visible"));
+    this.focusVisibleWithin.set(target.matches("[data-fvw]:focus-visible"));
   }
 
   protected onFocusOut() {
-    this.focusVisibleWithin$.next(false);
+    this.focusVisibleWithin.set(false);
   }
 }
