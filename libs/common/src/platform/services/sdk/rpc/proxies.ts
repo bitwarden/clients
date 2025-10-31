@@ -11,8 +11,8 @@ export class RpcObjectReference {
     channel: RpcRequestChannel,
     referenceId: ReferenceId,
     objectType?: string,
-  ): RpcObjectReference {
-    return ProxiedReference(channel, new RpcObjectReference(referenceId, objectType));
+  ): RpcObjectReference & { by_value(): Promise<any> } {
+    return ProxiedReference(channel, new RpcObjectReference(referenceId, objectType)) as any;
   }
 
   private constructor(
@@ -24,18 +24,33 @@ export class RpcObjectReference {
 function ProxiedReference(
   channel: RpcRequestChannel,
   reference: RpcObjectReference,
-): RpcObjectReference {
-  return new Proxy(reference, {
+): RpcObjectReference & { by_value(): Promise<any> } {
+  return new Proxy(reference as any, {
     get(target, property: string | PropertySymbol) {
       if (property === "then") {
         // Allow awaiting the proxy itself
         return undefined;
       }
 
+      if (property === "by_value") {
+        return async () => {
+          const result = await sendAndUnwrap(channel, {
+            method: "by_value",
+            referenceId: reference.referenceId,
+          } as Command);
+          if (result.type !== "value") {
+            throw new Error(
+              `[RPC] by_value() expected a value but got a reference for ${reference.objectType}`,
+            );
+          }
+          return result.value;
+        };
+      }
+
       // console.log(`Accessing ${reference.objectType}.${String(propertyName)}`);
-      return RpcPropertyReference(channel, { objectReference: target, property });
+      return RpcPropertyReference(channel, { objectReference: target as any, property });
     },
-  });
+  }) as any;
 }
 
 /**
@@ -88,7 +103,7 @@ function RpcPropertyReference(channel: RpcRequestChannel, reference: RpcProperty
       //   `Accessing ${reference.objectReference.objectType}.${reference.propertyName}.${propertyName}`,
       // );
 
-  // Allow Function.prototype.call/apply/bind to be used by TS helpers and wrappers (e.g., disposables, chainable await)
+      // Allow Function.prototype.call/apply/bind to be used by TS helpers and wrappers (e.g., disposables, chainable await)
       if (propertyName === "call") {
         return Function.prototype.call;
       }
@@ -130,7 +145,7 @@ function RpcPropertyReference(channel: RpcRequestChannel, reference: RpcProperty
         };
       }
 
-  return (onFulfilled: (value: any) => void, onRejected: (error: any) => void) => {
+      return (onFulfilled: (value: any) => void, onRejected: (error: any) => void) => {
         (async () => {
           const result = await sendAndUnwrap(channel, buildGetCommand(reference));
           return unwrapResult(channel, result);
@@ -152,7 +167,7 @@ function RpcPropertyReference(channel: RpcRequestChannel, reference: RpcProperty
         }
         return RpcObjectReference.create(channel, result.referenceId, result.objectType);
       })();
-  return chain(p as Promise<any>);
+      return chain(p as Promise<any>);
     },
   });
 }

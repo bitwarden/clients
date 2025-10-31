@@ -13,6 +13,7 @@ export type Command =
       propertySymbol: SerializedPropertySymbol;
       args: unknown[];
     }
+  | { method: "by_value"; referenceId: ReferenceId }
   | { method: "release"; referenceId: ReferenceId };
 
 export type Response = { status: "success"; result: Result } | { status: "error"; error: unknown };

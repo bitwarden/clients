@@ -34,6 +34,17 @@ export function chain<T extends object>(p: Promise<T>): ChainablePromise<T> {
         get(_t, prop: string | symbol) {
           return (...args: any[]) =>
             Promise.resolve(p).then(async (obj) => {
+              // Special-case: allow uniform `.await.by_value()` usage on both references and plain values.
+              if (prop === "by_value") {
+                // If the object has a callable by_value, call it; otherwise return the object as-is.
+                const maybe = (obj as any)[prop];
+                if (typeof maybe === "function") {
+                  const result = await maybe.apply(obj, args);
+                  return wrapIfObject(result);
+                }
+                return obj;
+              }
+
               const member = (obj as any)[prop];
               if (typeof member === "function") {
                 const result = await member.apply(obj, args);

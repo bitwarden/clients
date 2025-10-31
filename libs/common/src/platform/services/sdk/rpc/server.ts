@@ -36,6 +36,25 @@ export class RpcServer<T> {
       }
     }
 
+    if (command.method === "by_value") {
+      const target = this.references.get<any>(command.referenceId);
+      if (!target) {
+        return { status: "error", error: `[RPC] Reference ID ${command.referenceId} not found` };
+      }
+
+      try {
+        if (!isSerializable(target)) {
+          return {
+            status: "error",
+            error: `[RPC] by_value() not supported for non-serializable object of type ${target?.constructor?.name}`,
+          };
+        }
+        return { status: "success", result: { type: "value", value: target } };
+      } catch (error) {
+        return { status: "error", error };
+      }
+    }
+
     if (command.method === "call") {
       const target = this.references.get<any>(command.referenceId);
       if (!target) {
