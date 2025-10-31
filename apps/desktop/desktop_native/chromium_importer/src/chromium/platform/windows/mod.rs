@@ -185,10 +185,8 @@ impl WindowsCryptoService {
 
         let admin_exe_path = get_admin_exe_path()?;
 
-        if ENABLE_SIGNATURE_VALIDATION {
-            if !verify_signature(&admin_exe_path)? {
-                return Err(anyhow!("Helper executable signature is not valid"));
-            }
+        if ENABLE_SIGNATURE_VALIDATION && !verify_signature(&admin_exe_path)? {
+            return Err(anyhow!("Helper executable signature is not valid"));
         }
 
         let admin_exe_str = admin_exe_path
