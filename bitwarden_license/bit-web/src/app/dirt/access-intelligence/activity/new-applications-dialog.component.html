@@ -10,6 +10,19 @@
   <div bitDialogContent>
     <!-- View 1: Select Applications -->
     @if (currentView === DialogView.SelectApplications) {
+      <!-- Instructional text -->
+      <div class="tw-mb-6">
+        <p bitTypography="body1" class="tw-mb-4">
+          {{ "selectCriticalApplicationsDescription" | i18n }}
+        </p>
+        <div class="tw-flex tw-items-center tw-gap-2">
+          <i class="bwi bwi-star tw-text-muted" aria-hidden="true"></i>
+          <span class="tw-text-xs tw-text-muted">
+            {{ "clickIconToMarkCritical" | i18n }}
+          </span>
+        </div>
+      </div>
+
       <div class="tw-overflow-x-auto">
         <table class="tw-w-full tw-border-collapse">
           <thead>

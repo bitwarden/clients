@@ -358,6 +358,12 @@
   "prioritizeCriticalApplications": {
     "message": "Prioritize critical applications"
   },
+  "selectCriticalApplicationsDescription": {
+    "message": "Select which applications are most critical to your organization, then assign security tasks to members to resolve risks."
+  },
+  "clickIconToMarkCritical": {
+    "message": "Click the icon to mark an app as critical"
+  },
   "atRiskItems": {
     "message": "At-risk items"
   },
