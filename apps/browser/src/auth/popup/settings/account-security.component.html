@@ -68,20 +68,24 @@
     </bit-section>
 
     <bit-section>
-      <bit-section-header>
-        <h2 bitTypography="h6">
-          @if (consolidatedSessionTimeoutComponent$ | async) {
+      @if (consolidatedSessionTimeoutComponent$ | async) {
+        <bit-section-header>
+          <h2 bitTypography="h6">
             {{ "sessionTimeoutHeader" | i18n }}
-          } @else {
-            {{ "vaultTimeoutHeader" | i18n }}
-          }
-        </h2>
-      </bit-section-header>
+          </h2>
+        </bit-section-header>
 
-      <bit-card>
-        @if (consolidatedSessionTimeoutComponent$ | async) {
+        <bit-card>
           <bit-session-timeout-settings [refreshTimeoutActionSettings]="refreshTimeoutSettings$" />
-        } @else {
+        </bit-card>
+      } @else {
+        <bit-section-header>
+          <h2 bitTypography="h6">
+            {{ "vaultTimeoutHeader" | i18n }}
+          </h2>
+        </bit-section-header>
+
+        <bit-card>
           <auth-vault-timeout-input
             [vaultTimeoutOptions]="vaultTimeoutOptions"
             [formControl]="form.controls.vaultTimeout"
@@ -108,8 +112,8 @@
           <bit-hint *ngIf="hasVaultTimeoutPolicy" class="tw-mt-4">
             {{ "vaultTimeoutPolicyAffectingOptions" | i18n }}
           </bit-hint>
-        }
-      </bit-card>
+        </bit-card>
+      }
     </bit-section>
 
     <bit-section>
