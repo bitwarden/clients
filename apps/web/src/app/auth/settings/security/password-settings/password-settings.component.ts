@@ -10,6 +10,8 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 import { WebauthnLoginSettingsModule } from "../../webauthn-login-settings";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-password-settings",
   templateUrl: "password-settings.component.html",

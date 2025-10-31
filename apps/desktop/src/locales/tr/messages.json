@@ -771,6 +771,9 @@
   "useSingleSignOn": {
     "message": "Çoklu oturum açma kullan"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Kuruluşunuz çoklu oturum açma gerektiriyor."
+  },
   "submit": {
     "message": "Gönder"
   },
@@ -1851,6 +1854,12 @@
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Yeniden başlatmada ana parola ile kilitle"
+  },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "Uygulama yeniden başlatıldığında ana parola veya PIN iste"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "Uygulama yeniden başlatıldığında ana parola iste"
   },
   "deleteAccount": {
     "message": "Hesabı sil"
@@ -4167,7 +4176,7 @@
   "itemWasSentToArchive": {
     "message": "Kayıt arşive gönderildi"
   },
-  "itemUnarchived": {
+  "itemWasUnarchived": {
     "message": "Kayıt arşivden çıkarıldı"
   },
   "archiveItem": {
@@ -4175,5 +4184,11 @@
   },
   "archiveItemConfirmDesc": {
     "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP / posta kodu"
+  },
+  "cardNumberLabel": {
+    "message": "Kart numarası"
   }
 }

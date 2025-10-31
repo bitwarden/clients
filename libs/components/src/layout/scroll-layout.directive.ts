@@ -17,7 +17,7 @@ import { filter, fromEvent, Observable, switchMap } from "rxjs";
  **/
 @Injectable({ providedIn: "root" })
 export class ScrollLayoutService {
-  scrollableRef = signal<ElementRef<HTMLElement> | null>(null);
+  readonly scrollableRef = signal<ElementRef<HTMLElement> | null>(null);
   scrollableRef$ = toObservable(this.scrollableRef);
 }
 

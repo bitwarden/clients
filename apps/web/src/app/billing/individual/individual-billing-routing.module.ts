@@ -1,8 +1,11 @@
-import { NgModule } from "@angular/core";
+import { inject, NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
+import { map } from "rxjs";
 
-import { featureFlaggedRoute } from "@bitwarden/angular/platform/utils/feature-flagged-route";
+import { componentRouteSwap } from "@bitwarden/angular/utils/component-route-swap";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { AccountPaymentDetailsComponent } from "@bitwarden/web-vault/app/billing/individual/payment-details/account-payment-details.component";
 
 import { BillingHistoryViewComponent } from "./billing-history-view.component";
@@ -23,15 +26,22 @@ const routes: Routes = [
         component: UserSubscriptionComponent,
         data: { titleId: "premiumMembership" },
       },
-      ...featureFlaggedRoute({
-        defaultComponent: PremiumComponent,
-        flaggedComponent: PremiumVNextComponent,
-        featureFlag: FeatureFlag.PM24033PremiumUpgradeNewDesign,
-        routeOptions: {
+      ...componentRouteSwap(
+        PremiumComponent,
+        PremiumVNextComponent,
+        () => {
+          const configService = inject(ConfigService);
+          const platformUtilsService = inject(PlatformUtilsService);
+
+          return configService
+            .getFeatureFlag$(FeatureFlag.PM24033PremiumUpgradeNewDesign)
+            .pipe(map((flagValue) => flagValue === true && !platformUtilsService.isSelfHost()));
+        },
+        {
           data: { titleId: "goPremium" },
           path: "premium",
         },
-      }),
+      ),
       {
         path: "payment-details",
         component: AccountPaymentDetailsComponent,

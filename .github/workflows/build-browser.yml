@@ -55,18 +55,19 @@ jobs:
       has_secrets: ${{ steps.check-secrets.outputs.has_secrets }}
     steps:
       - name: Check out repo
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           ref: ${{  github.event.pull_request.head.sha }}
+          persist-credentials: false
 
       - name: Get Package Version
         id: gen_vars
         run: |
-          repo_url=https://github.com/$GITHUB_REPOSITORY.git
+          repo_url="https://github.com/$GITHUB_REPOSITORY.git"
           adj_build_num=${GITHUB_SHA:0:7}
 
-          echo "repo_url=$repo_url" >> $GITHUB_OUTPUT
-          echo "adj_build_number=$adj_build_num" >> $GITHUB_OUTPUT
+          echo "repo_url=$repo_url" >> "$GITHUB_OUTPUT"
+          echo "adj_build_number=$adj_build_num" >> "$GITHUB_OUTPUT"
 
       - name: Get Node Version
         id: retrieve-node-version
@@ -74,13 +75,13 @@ jobs:
         run: |
           NODE_NVMRC=$(cat .nvmrc)
           NODE_VERSION=${NODE_NVMRC/v/''}
-          echo "node_version=$NODE_VERSION" >> $GITHUB_OUTPUT
+          echo "node_version=$NODE_VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Check secrets
         id: check-secrets
         run: |
           has_secrets=${{ secrets.AZURE_CLIENT_ID != '' }}
-          echo "has_secrets=$has_secrets" >> $GITHUB_OUTPUT
+          echo "has_secrets=$has_secrets" >> "$GITHUB_OUTPUT"
 
 
   locales-test:
@@ -93,9 +94,10 @@ jobs:
         working-directory: apps/browser
     steps:
       - name: Check out repo
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           ref: ${{  github.event.pull_request.head.sha }}
+          persist-credentials: false
 
       - name: Testing locales - extName length
         run: |
@@ -105,12 +107,14 @@ jobs:
          echo "============"
          echo "extName string must be 40 characters or less"
          echo
-         for locale in $(ls src/_locales/); do
-           string_length=$(jq '.extName.message | length' src/_locales/$locale/messages.json)
-           if [[ $string_length -gt 40 ]]; then
-             echo "$locale: $string_length"
-             found_error=true
-           fi
+
+         for locale_path in src/_locales/*/messages.json; do
+          locale=$(basename "$(dirname "$locale_path")")
+          string_length=$(jq '.extName.message | length' "$locale_path")
+          if [ "$string_length" -gt 40 ]; then
+            echo "$locale: $string_length"
+            found_error=true
+          fi
          done
 
          if $found_error; then
@@ -142,9 +146,10 @@ jobs:
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
     steps:
       - name: Check out repo
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
 
       - name: Set up Node
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
@@ -214,12 +219,14 @@ jobs:
             archive_name_prefix: ""
             npm_command_prefix: "dist:"
             readable: "open source license"
+            type: "oss"
           - build_prefix: "bit-"
             artifact_prefix: "bit-"
             source_archive_name_prefix: "bit-"
             archive_name_prefix: "bit-"
             npm_command_prefix: "dist:bit:"
             readable: "commercial license"
+            type: "commercial"
         browser:
           - name: "chrome"
             npm_command_suffix: "chrome"
@@ -243,9 +250,10 @@ jobs:
             artifact_name: "dist-opera-MV3"
     steps:
       - name: Check out repo
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           ref: ${{  github.event.pull_request.head.sha }}
+          persist-credentials: false
 
       - name: Set up Node
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
@@ -271,6 +279,11 @@ jobs:
 
       - name: NPM setup
         run: npm ci
+        working-directory: browser-source/
+
+      - name: Remove commercial packages
+        if: ${{ matrix.license_type.type == 'oss' }}
+        run: rm -rf node_modules/@bitwarden/commercial-sdk-internal
         working-directory: browser-source/
 
       - name: Download SDK artifacts
@@ -301,13 +314,13 @@ jobs:
           TARGET_DIR='./browser-source/apps/browser'
           while IFS=' ' read -r RESULT; do
               FILES+=("$RESULT")
-          done < <(find $TARGET_DIR -size +5M)
+          done < <(find "$TARGET_DIR" -size +5M)
 
           # Validate results and provide messaging
           if [[ ${#FILES[@]} -ne 0 ]]; then
               echo "File(s) exceeds size limit: 5MB"
-              for FILE in ${FILES[@]}; do
-                  echo "- $(du --si $FILE)"
+              for FILE in "${FILES[@]}"; do
+                  echo "- $(du --si "$FILE")"
               done
               echo "ERROR Firefox rejects extension uploads that contain files larger than 5MB"
               # Invoke failure
@@ -344,19 +357,22 @@ jobs:
             archive_name_prefix: ""
             npm_command_prefix: "dist:"
             readable: "open source license"
+            type: "oss"
           - build_prefix: "bit-"
             artifact_prefix: "bit-"
             archive_name_prefix: "bit-"
             npm_command_prefix: "dist:bit:"
             readable: "commercial license"
+            type: "commercial"
     env:
       _BUILD_NUMBER: ${{ needs.setup.outputs.adj_build_number }}
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
     steps:
       - name: Check out repo
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           ref: ${{  github.event.pull_request.head.sha }}
+          persist-credentials: false
 
       - name: Set up Node
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
@@ -389,34 +405,34 @@ jobs:
           ACCOUNT_NAME: bitwardenci
           CONTAINER_NAME: profiles
         run: |
-          mkdir -p $HOME/secrets
+          mkdir -p "$HOME/secrets"
 
-          az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME \
+          az storage blob download --account-name "$ACCOUNT_NAME" --container-name "$CONTAINER_NAME" \
             --name bitwarden_desktop_appstore.provisionprofile \
-            --file $HOME/secrets/bitwarden_desktop_appstore.provisionprofile \
+            --file "$HOME/secrets/bitwarden_desktop_appstore.provisionprofile" \
             --output none
 
       - name: Get certificates
         run: |
-          mkdir -p $HOME/certificates
+          mkdir -p "$HOME/certificates"
 
           az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/bitwarden-desktop-key |
-            jq -r .value | base64 -d > $HOME/certificates/bitwarden-desktop-key.p12
+            jq -r .value | base64 -d > "$HOME/certificates/bitwarden-desktop-key.p12"
 
           az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/appstore-app-cert |
-            jq -r .value | base64 -d > $HOME/certificates/appstore-app-cert.p12
+            jq -r .value | base64 -d > "$HOME/certificates/appstore-app-cert.p12"
 
           az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/appstore-installer-cert |
-            jq -r .value | base64 -d > $HOME/certificates/appstore-installer-cert.p12
+            jq -r .value | base64 -d > "$HOME/certificates/appstore-installer-cert.p12"
 
           az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/devid-app-cert |
-            jq -r .value | base64 -d > $HOME/certificates/devid-app-cert.p12
+            jq -r .value | base64 -d > "$HOME/certificates/devid-app-cert.p12"
 
           az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/devid-installer-cert |
-            jq -r .value | base64 -d > $HOME/certificates/devid-installer-cert.p12
+            jq -r .value | base64 -d > "$HOME/certificates/devid-installer-cert.p12"
 
           az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/macdev-cert |
-            jq -r .value | base64 -d > $HOME/certificates/macdev-cert.p12
+            jq -r .value | base64 -d > "$HOME/certificates/macdev-cert.p12"
 
       - name: Log out from Azure
         uses: bitwarden/gh-actions/azure-logout@main
@@ -425,9 +441,9 @@ jobs:
         env:
           KEYCHAIN_PASSWORD: ${{ steps.get-kv-secrets.outputs.KEYCHAIN-PASSWORD }}
         run: |
-          security create-keychain -p $KEYCHAIN_PASSWORD build.keychain
+          security create-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
           security default-keychain -s build.keychain
-          security unlock-keychain -p $KEYCHAIN_PASSWORD build.keychain
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
           security set-keychain-settings -lut 1200 build.keychain
 
           security import "$HOME/certificates/bitwarden-desktop-key.p12" -k build.keychain -P "" \
@@ -448,10 +464,15 @@ jobs:
           security import "$HOME/certificates/macdev-cert.p12" -k build.keychain -P "" \
             -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
 
-          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $KEYCHAIN_PASSWORD build.keychain
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" build.keychain
 
       - name: NPM setup
         run: npm ci
+        working-directory: ./
+
+      - name: Remove commercial packages
+        if: ${{ matrix.license_type.type == 'oss' }}
+        run: rm -rf node_modules/@bitwarden/commercial-sdk-internal
         working-directory: ./
 
       - name: Download SDK Artifacts
@@ -504,9 +525,10 @@ jobs:
       - build-safari
     steps:
       - name: Check out repo
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           ref: ${{  github.event.pull_request.head.sha }}
+          persist-credentials: false
 
       - name: Log in to Azure
         uses: bitwarden/gh-actions/azure-login@main
