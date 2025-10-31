@@ -8,6 +8,7 @@ import {
   ReportState,
   DrawerDetails,
   DrawerType,
+  NewApplicationDetail,
   RiskInsightsEnrichedData,
   ReportStatus,
 } from "../../models";
@@ -38,7 +39,7 @@ export class RiskInsightsDataService {
   readonly hasCiphers$: Observable<boolean | null> = of(null);
 
   // New applications that need review (reviewedDate === null)
-  readonly newApplications$: Observable<string[]> = of([]);
+  readonly newApplications$: Observable<NewApplicationDetail[]> = of([]);
 
   // ------------------------- Drawer Variables ---------------------
   // Drawer variables unified into a single BehaviorSubject

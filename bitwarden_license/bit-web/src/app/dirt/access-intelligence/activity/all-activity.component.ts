@@ -5,6 +5,7 @@ import { firstValueFrom } from "rxjs";
 
 import {
   AllActivitiesService,
+  NewApplicationDetail,
   ReportStatus,
   RiskInsightsDataService,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights";
@@ -40,7 +41,7 @@ export class AllActivityComponent implements OnInit {
   totalCriticalAppsCount = 0;
   totalCriticalAppsAtRiskCount = 0;
   newApplicationsCount = 0;
-  newApplications: string[] = [];
+  newApplications: NewApplicationDetail[] = [];
   passwordChangeMetricHasProgressBar = false;
 
   destroyRef = inject(DestroyRef);
