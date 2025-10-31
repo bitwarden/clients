@@ -121,8 +121,12 @@ jobs:
       - name: Install cargo-deny
         uses: taiki-e/install-action@v2
         with:
-          tool: cargo-deny
+          tool: cargo-deny,cargo-machete
 
       - name: Run cargo deny
         working-directory: ./apps/desktop/desktop_native
         run: cargo deny --log-level error --all-features check all
+
+      - name: Run cargo machete
+        working-directory: ./apps/desktop/desktop_native
+        run: cargo machete
