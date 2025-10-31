@@ -31,6 +31,9 @@
   "useSingleSignOn": {
     "message": "Izmantot vienoto pieteikšanos"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Tava apvienība pieprasa vienoto pieteikšanos."
+  },
   "welcomeBack": {
     "message": "Laipni lūdzam atpakaļ"
   },
@@ -588,6 +591,9 @@
   "view": {
     "message": "Skatīt"
   },
+  "viewAll": {
+    "message": "Apskatīt visu"
+  },
   "viewLogin": {
     "message": "Apskatīt pieteikšanās vienumu"
   },
@@ -1027,6 +1033,18 @@
   },
   "editedItem": {
     "message": "Vienums labots"
+  },
+  "savedWebsite": {
+    "message": "Saglabāta tīmekļvietne"
+  },
+  "savedWebsites": {
+    "message": "Saglabātas tīmekļvietnes ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "deleteItemConfirmation": {
     "message": "Vai tiešām pārvietot uz atkritni?"
@@ -1676,8 +1694,29 @@
   "turnOffAutofill": {
     "message": "Izslēgt automātisko aizpildi"
   },
+  "confirmAutofill": {
+    "message": "Apstiprināt automātisko aizpildi"
+  },
+  "confirmAutofillDesc": {
+    "message": "Šī vietne neatbilst saglabātā pieteikšanās vienumam. Pirms pieteikšanās datu aizpildīšanas jāpārliecinās, ka tā ir uzticama."
+  },
   "showInlineMenuLabel": {
     "message": "Rādīt automātiskās aizpildes ieteikumuis veidlapu laukos"
+  },
+  "howDoesBitwardenProtectFromPhishing": {
+    "message": "Kā Bitwarden aizsargā datus no pikšķerēšanas?"
+  },
+  "currentWebsite": {
+    "message": "Pašreizējā tīmekļvietne"
+  },
+  "autofillAndAddWebsite": {
+    "message": "Automātiski aizpildīt un pievienot šo tīmekļvietni"
+  },
+  "autofillWithoutAdding": {
+    "message": "Automātiski aizpildīt bez pievienošanas"
+  },
+  "doNotAutofill": {
+    "message": "Neaizpildīt automātiski"
   },
   "showInlineMenuIdentitiesLabel": {
     "message": "Attēlot identitātes kā ieteikumus"
@@ -3217,7 +3256,7 @@
     }
   },
   "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
-    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "message": "Tiks izgūta tikai apvienības glabātava, kas ir saistīta ar $ORGANIZATION$.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3226,7 +3265,7 @@
     }
   },
   "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
-    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "message": "Tiks izgūta tikai apvienības glabātava, kas ir saistīta ar $ORGANIZATION$. Mani vienumu krājumi netiks iekļauti.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3239,6 +3278,9 @@
   },
   "decryptionError": {
     "message": "Atšifrēšanas kļūda"
+  },
+  "errorGettingAutoFillData": {
+    "message": "Kļūda automātiskās aizpildes datu iegūšanā"
   },
   "couldNotDecryptVaultItemsBelow": {
     "message": "Bitwarden nevarēja atšifrēt zemāk uzskaitītos glabātavas vienumus."
@@ -4010,6 +4052,15 @@
   "autofillOnPageLoadSetToDefault": {
     "message": "Automātiskā aizpilde lapas ielādes brīdī iestatīta izmantot noklusējuma iestatījumu.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
+  },
+  "cannotAutofill": {
+    "message": "Nevar automātiski aizpildīt"
+  },
+  "cannotAutofillExactMatch": {
+    "message": "Noklusējuma atbilstības noteikšana ir iestatīta uz “Pilnīga atbilstība”. Pašreizējā tīmekļvietne pilnībā neabilst saglabātajai pieteikšanās informācijai šajā vienumā."
+  },
+  "okay": {
+    "message": "Labi"
   },
   "toggleSideNavigation": {
     "message": "Pārslēgt sānu pārvietošanās joslu"
@@ -5721,5 +5772,11 @@
   "settingDisabledByPolicy": {
     "message": "Šis iestatījums ir atspējots apvienības pamatnostādnēs.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP / Pasta indekss"
+  },
+  "cardNumberLabel": {
+    "message": "Kartes numurs"
   }
 }

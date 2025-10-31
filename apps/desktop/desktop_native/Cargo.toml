@@ -2,6 +2,7 @@
 resolver = "2"
 members = [
     "autotype",
+    "bitwarden_chromium_import_helper",
     "chromium_importer",
     "core",
     "macos_provider",
@@ -68,7 +69,11 @@ tokio = "=1.45.0"
 tokio-stream = "=0.1.15"
 tokio-util = "=0.7.13"
 tracing = "=0.1.41"
-tracing-subscriber = { version = "=0.3.20", features = ["fmt", "env-filter", "tracing-log"] }
+tracing-subscriber = { version = "=0.3.20", features = [
+    "fmt",
+    "env-filter",
+    "tracing-log",
+] }
 typenum = "=1.18.0"
 uniffi = "=0.28.3"
 widestring = "=1.2.0"

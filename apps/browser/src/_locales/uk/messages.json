@@ -31,6 +31,9 @@
   "useSingleSignOn": {
     "message": "Використати єдиний вхід"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
+  },
   "welcomeBack": {
     "message": "З поверненням"
   },
@@ -551,15 +554,15 @@
     "message": "Скинути пошук"
   },
   "archiveNoun": {
-    "message": "Archive",
+    "message": "Архів",
     "description": "Noun"
   },
   "archiveVerb": {
-    "message": "Archive",
+    "message": "Архівувати",
     "description": "Verb"
   },
   "unArchive": {
-    "message": "Unarchive"
+    "message": "Видобути"
   },
   "itemsInArchive": {
     "message": "Записи в архіві"
@@ -571,10 +574,10 @@
     "message": "Архівовані записи з'являтимуться тут і будуть виключені з результатів звичайного пошуку та пропозицій автозаповнення."
   },
   "itemWasSentToArchive": {
-    "message": "Item was sent to archive"
+    "message": "Запис архівовано"
   },
   "itemUnarchived": {
-    "message": "Item was unarchived"
+    "message": "Запис розархівовано"
   },
   "archiveItem": {
     "message": "Архівувати запис"
@@ -587,6 +590,9 @@
   },
   "view": {
     "message": "Переглянути"
+  },
+  "viewAll": {
+    "message": "View all"
   },
   "viewLogin": {
     "message": "Переглянути запис"
@@ -734,7 +740,7 @@
     "message": "Неправильний головний пароль"
   },
   "invalidMasterPasswordConfirmEmailAndHost": {
-    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "message": "Неправильний головний пароль. Перевірте правильність адреси електронної пошти та розміщення облікового запису на $HOST$.",
     "placeholders": {
       "host": {
         "content": "$1",
@@ -1027,6 +1033,18 @@
   },
   "editedItem": {
     "message": "Запис збережено"
+  },
+  "savedWebsite": {
+    "message": "Saved website"
+  },
+  "savedWebsites": {
+    "message": "Saved websites ( $COUNT$ )",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "deleteItemConfirmation": {
     "message": "Ви дійсно хочете перенести до смітника?"
@@ -1549,13 +1567,13 @@
     "message": "Зчитати ключ безпеки"
   },
   "readingPasskeyLoading": {
-    "message": "Reading passkey..."
+    "message": "Читання ключа доступу..."
   },
   "passkeyAuthenticationFailed": {
-    "message": "Passkey authentication failed"
+    "message": "Збій автентифікації ключа доступу"
   },
   "useADifferentLogInMethod": {
-    "message": "Use a different log in method"
+    "message": "Використати інший спосіб входу"
   },
   "awaitingSecurityKeyInteraction": {
     "message": "Очікується взаємодія з ключем безпеки..."
@@ -1676,8 +1694,29 @@
   "turnOffAutofill": {
     "message": "Вимкніть автозаповнення"
   },
+  "confirmAutofill": {
+    "message": "Confirm autofill"
+  },
+  "confirmAutofillDesc": {
+    "message": "This site doesn't match your saved login details. Before you fill in your login credentials, make sure it's a trusted site."
+  },
   "showInlineMenuLabel": {
     "message": "Пропозиції автозаповнення на полях форм"
+  },
+  "howDoesBitwardenProtectFromPhishing": {
+    "message": "How does Bitwarden protect your data from phishing?"
+  },
+  "currentWebsite": {
+    "message": "Current website"
+  },
+  "autofillAndAddWebsite": {
+    "message": "Autofill and add this website"
+  },
+  "autofillWithoutAdding": {
+    "message": "Autofill without adding"
+  },
+  "doNotAutofill": {
+    "message": "Do not autofill"
   },
   "showInlineMenuIdentitiesLabel": {
     "message": "Показувати посвідчення як пропозиції"
@@ -3217,7 +3256,7 @@
     }
   },
   "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
-    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "message": "Буде експортовано лише сховище організації, пов'язане з $ORGANIZATION$.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3226,7 +3265,7 @@
     }
   },
   "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
-    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "message": "Буде експортовано лише сховище організації, пов'язане з $ORGANIZATION$. Записи моїх збірок не будуть включені.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3239,6 +3278,9 @@
   },
   "decryptionError": {
     "message": "Помилка розшифрування"
+  },
+  "errorGettingAutoFillData": {
+    "message": "Error getting autofill data"
   },
   "couldNotDecryptVaultItemsBelow": {
     "message": "Bitwarden не зміг розшифрувати вказані нижче елементи сховища."
@@ -4010,6 +4052,15 @@
   "autofillOnPageLoadSetToDefault": {
     "message": "Автозаповнення на сторінці налаштовано з типовими параметрами.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
+  },
+  "cannotAutofill": {
+    "message": "Cannot autofill"
+  },
+  "cannotAutofillExactMatch": {
+    "message": "Default matching is set to 'Exact Match'. The current website does not exactly match the saved login details for this item."
+  },
+  "okay": {
+    "message": "Okay"
   },
   "toggleSideNavigation": {
     "message": "Перемкнути бічну навігацію"
@@ -5580,30 +5631,30 @@
     "message": "Вітаємо у вашому сховищі!"
   },
   "phishingPageTitleV2": {
-    "message": "Phishing attempt detected"
+    "message": "Виявлено спробу шахрайства"
   },
   "phishingPageSummary": {
-    "message": "The site you are attempting to visit is a known malicious site and a security risk."
+    "message": "Ви намагаєтеся відвідати відомий зловмисний вебсайт, який має ризики безпеки."
   },
   "phishingPageCloseTabV2": {
-    "message": "Close this tab"
+    "message": "Закрити цю вкладку"
   },
   "phishingPageContinueV2": {
-    "message": "Continue to this site (not recommended)"
+    "message": "Перейти на цей сайт (не рекомендується)"
   },
   "phishingPageExplanation1": {
-    "message": "This site was found in ",
+    "message": "Цей сайт знайдено в ",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name follows this."
   },
   "phishingPageExplanation2": {
-    "message": ", an open-source list of known phishing sites used for stealing personal and sensitive information.",
+    "message": "– відкритий список відомих шахрайських сайтів, що використовуються для викрадення особистої та конфіденційної інформації.",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name precedes this."
   },
   "phishingPageLearnMore": {
-    "message": "Learn more about phishing detection"
+    "message": "Докладніше про виявлення шахрайства"
   },
   "protectedBy": {
-    "message": "Protected by $PRODUCT$",
+    "message": "Захищено $PRODUCT$",
     "placeholders": {
       "product": {
         "content": "$1",
@@ -5716,10 +5767,16 @@
     "message": "Підтвердити домен Key Connector"
   },
   "atRiskLoginsSecured": {
-    "message": "Great job securing your at-risk logins!"
+    "message": "Ви чудово впоралися із захистом своїх ризикованих записів!"
   },
   "settingDisabledByPolicy": {
-    "message": "This setting is disabled by your organization's policy.",
+    "message": "Цей параметр вимкнено політикою вашої організації.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP / Postal code"
+  },
+  "cardNumberLabel": {
+    "message": "Card number"
   }
 }

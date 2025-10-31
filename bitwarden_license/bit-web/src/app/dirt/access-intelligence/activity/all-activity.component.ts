@@ -5,6 +5,7 @@ import { firstValueFrom } from "rxjs";
 
 import {
   AllActivitiesService,
+  ReportStatus,
   RiskInsightsDataService,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -15,7 +16,6 @@ import { getById } from "@bitwarden/common/platform/misc";
 import { DialogService } from "@bitwarden/components";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
-import { RiskInsightsTabType } from "../models/risk-insights.models";
 import { ApplicationsLoadingComponent } from "../shared/risk-insights-loading.component";
 
 import { ActivityCardComponent } from "./activity-card.component";
@@ -42,8 +42,13 @@ export class AllActivityComponent implements OnInit {
   newApplicationsCount = 0;
   newApplications: string[] = [];
   passwordChangeMetricHasProgressBar = false;
+  allAppsHaveReviewDate = false;
+  isAllCaughtUp = false;
+  hasLoadedApplicationData = false;
 
   destroyRef = inject(DestroyRef);
+
+  protected ReportStatusEnum = ReportStatus;
 
   constructor(
     private accountService: AccountService,
@@ -70,8 +75,14 @@ export class AllActivityComponent implements OnInit {
           this.totalCriticalAppsAtRiskMemberCount = summary.totalCriticalAtRiskMemberCount;
           this.totalCriticalAppsCount = summary.totalCriticalApplicationCount;
           this.totalCriticalAppsAtRiskCount = summary.totalCriticalAtRiskApplicationCount;
-          this.newApplications = summary.newApplications;
-          this.newApplicationsCount = summary.newApplications.length;
+        });
+
+      this.dataService.newApplications$
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe((newApps) => {
+          this.newApplications = newApps;
+          this.newApplicationsCount = newApps.length;
+          this.updateIsAllCaughtUp();
         });
 
       this.allActivitiesService.passwordChangeProgressMetricHasProgressBar$
@@ -79,16 +90,37 @@ export class AllActivityComponent implements OnInit {
         .subscribe((hasProgressBar) => {
           this.passwordChangeMetricHasProgressBar = hasProgressBar;
         });
+
+      this.dataService.enrichedReportData$
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe((enrichedData) => {
+          if (enrichedData?.applicationData && enrichedData.applicationData.length > 0) {
+            this.hasLoadedApplicationData = true;
+            // Check if all apps have a review date (not null and not undefined)
+            this.allAppsHaveReviewDate = enrichedData.applicationData.every(
+              (app) => app.reviewedDate !== null && app.reviewedDate !== undefined,
+            );
+          } else {
+            this.hasLoadedApplicationData = enrichedData !== null;
+            this.allAppsHaveReviewDate = false;
+          }
+          this.updateIsAllCaughtUp();
+        });
     }
   }
 
-  get RiskInsightsTabType() {
-    return RiskInsightsTabType;
-  }
-
-  getLinkForRiskInsightsTab(tabIndex: RiskInsightsTabType): string {
-    const organizationId = this.activatedRoute.snapshot.paramMap.get("organizationId");
-    return `/organizations/${organizationId}/access-intelligence/risk-insights?tabIndex=${tabIndex}`;
+  /**
+   * Updates the isAllCaughtUp flag based on current state.
+   * Only shows "All caught up!" when:
+   * - Data has been loaded (hasLoadedApplicationData is true)
+   * - No new applications need review
+   * - All apps have a review date
+   */
+  private updateIsAllCaughtUp(): void {
+    this.isAllCaughtUp =
+      this.hasLoadedApplicationData &&
+      this.newApplicationsCount === 0 &&
+      this.allAppsHaveReviewDate;
   }
 
   /**
@@ -101,5 +133,21 @@ export class AllActivityComponent implements OnInit {
     });
 
     await firstValueFrom(dialogRef.closed);
+  };
+
+  /**
+   * Handles the "View at-risk members" link click.
+   * Opens the at-risk members drawer for critical applications only.
+   */
+  onViewAtRiskMembers = async () => {
+    await this.dataService.setDrawerForCriticalAtRiskMembers("activityTabAtRiskMembers");
+  };
+
+  /**
+   * Handles the "View at-risk applications" link click.
+   * Opens the at-risk applications drawer for critical applications only.
+   */
+  onViewAtRiskApplications = async () => {
+    await this.dataService.setDrawerForCriticalAtRiskApps("activityTabAtRiskApplications");
   };
 }
