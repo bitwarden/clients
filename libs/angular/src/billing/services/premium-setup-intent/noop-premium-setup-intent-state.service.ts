@@ -2,10 +2,10 @@ import { Injectable } from "@angular/core";
 
 import { UserId } from "@bitwarden/user-core";
 
-import { PremiumSetupIntentService } from "./premium-setup-intent-state.service.abstraction";
+import { PremiumSetupIntentStateService } from "./premium-setup-intent-state.service.abstraction";
 
 @Injectable()
-export class NoopPremiumSetupIntentService implements PremiumSetupIntentService {
+export class NoopPremiumSetupIntentStateService implements PremiumSetupIntentStateService {
   async getPremiumSetupIntent(userId: UserId): Promise<boolean | null> {
     return null;
   } // no-op

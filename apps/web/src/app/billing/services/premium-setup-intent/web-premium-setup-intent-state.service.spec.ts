@@ -10,11 +10,11 @@ import { UserId } from "@bitwarden/user-core";
 
 import {
   PREMIUM_SETUP_INTENT_KEY,
-  WebPremiumSetupIntentService,
+  WebPremiumSetupIntentStateService,
 } from "./web-premium-setup-intent-state.service";
 
-describe("WebPremiumSetupIntentService", () => {
-  let service: WebPremiumSetupIntentService;
+describe("WebPremiumSetupIntentStateService", () => {
+  let service: WebPremiumSetupIntentStateService;
   let stateProvider: FakeStateProvider;
   let accountService: FakeAccountService;
 
@@ -24,7 +24,7 @@ describe("WebPremiumSetupIntentService", () => {
   beforeEach(() => {
     accountService = mockAccountServiceWith(mockUserId, { email: mockUserEmail });
     stateProvider = new FakeStateProvider(accountService);
-    service = new WebPremiumSetupIntentService(stateProvider);
+    service = new WebPremiumSetupIntentStateService(stateProvider);
   });
 
   afterEach(() => {

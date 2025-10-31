@@ -14,7 +14,7 @@ import { DefaultDeviceManagementComponentService } from "@bitwarden/angular/auth
 import { DeviceManagementComponentServiceAbstraction } from "@bitwarden/angular/auth/device-management/device-management-component.service.abstraction";
 import { ChangePasswordService } from "@bitwarden/angular/auth/password-management/change-password";
 import { SetInitialPasswordService } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.service.abstraction";
-import { PremiumSetupIntentService } from "@bitwarden/angular/billing/services/premium-setup-intent/premium-setup-intent-state.service.abstraction";
+import { PremiumSetupIntentStateService } from "@bitwarden/angular/billing/services/premium-setup-intent/premium-setup-intent-state.service.abstraction";
 import { SafeProvider, safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
 import {
   CLIENT_TYPE,
@@ -128,7 +128,7 @@ import {
   WebSetInitialPasswordService,
 } from "../auth";
 import { WebSsoComponentService } from "../auth/core/services/login/web-sso-component.service";
-import { WebPremiumSetupIntentService } from "../billing/services/premium-setup-intent/web-premium-setup-intent-state.service";
+import { WebPremiumSetupIntentStateService } from "../billing/services/premium-setup-intent/web-premium-setup-intent-state.service";
 import { HtmlStorageService } from "../core/html-storage.service";
 import { I18nService } from "../core/i18n.service";
 import { WebFileDownloadService } from "../core/web-file-download.service";
@@ -413,8 +413,8 @@ const safeProviders: SafeProvider[] = [
     deps: [DialogService, Router],
   }),
   safeProvider({
-    provide: PremiumSetupIntentService,
-    useClass: WebPremiumSetupIntentService,
+    provide: PremiumSetupIntentStateService,
+    useClass: WebPremiumSetupIntentStateService,
     deps: [StateProvider],
   }),
 ];

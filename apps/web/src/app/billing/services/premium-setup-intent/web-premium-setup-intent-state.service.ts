@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
-import { PremiumSetupIntentService } from "@bitwarden/angular/billing/services/premium-setup-intent/premium-setup-intent-state.service.abstraction";
+import { PremiumSetupIntentStateService } from "@bitwarden/angular/billing/services/premium-setup-intent/premium-setup-intent-state.service.abstraction";
 import { BILLING_MEMORY, StateProvider, UserKeyDefinition } from "@bitwarden/state";
 import { UserId } from "@bitwarden/user-core";
 
@@ -15,7 +15,7 @@ export const PREMIUM_SETUP_INTENT_KEY = new UserKeyDefinition<boolean>(
 );
 
 @Injectable()
-export class WebPremiumSetupIntentService implements PremiumSetupIntentService {
+export class WebPremiumSetupIntentStateService implements PremiumSetupIntentStateService {
   constructor(private stateProvider: StateProvider) {}
 
   async getPremiumSetupIntent(userId: UserId): Promise<boolean | null> {
