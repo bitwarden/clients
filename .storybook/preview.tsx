@@ -25,9 +25,6 @@ const preview: Preview = {
       defaultTheme: "light",
     }),
     wrapperDecorator,
-    applicationConfig({
-      providers: [provideNoopAnimations()],
-    }),
   ],
   parameters: {
     a11y: {
