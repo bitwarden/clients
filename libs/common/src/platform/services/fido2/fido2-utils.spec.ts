@@ -1,3 +1,9 @@
+import { mock } from "jest-mock-extended";
+
+import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { Fido2CredentialView } from "@bitwarden/common/vault/models/view/fido2-credential.view";
+
 import { Fido2Utils } from "./fido2-utils";
 
 describe("Fido2 Utils", () => {
@@ -65,6 +71,64 @@ describe("Fido2 Utils", () => {
     it("should return null when given null input", () => {
       const expectedArray = Fido2Utils.fromB64ToArray(null);
       expect(expectedArray).toBeNull();
+    });
+  });
+
+  describe("cipherHasNoOtherPasskeys(...)", () => {
+    const emptyPasskeyCipher = mock<CipherView>({
+      id: "id-5",
+      localData: { lastUsedDate: 222 },
+      name: "name-5",
+      type: CipherType.Login,
+      login: {
+        username: "username-5",
+        password: "password",
+        uri: "https://example.com",
+        fido2Credentials: [],
+      },
+    });
+
+    const passkeyCipher = mock<CipherView>({
+      id: "id-5",
+      localData: { lastUsedDate: 222 },
+      name: "name-5",
+      type: CipherType.Login,
+      login: {
+        username: "username-5",
+        password: "password",
+        uri: "https://example.com",
+        fido2Credentials: [
+          mock<Fido2CredentialView>({
+            credentialId: "credential-id",
+            rpName: "credential-name",
+            userHandle: "user-handle-1",
+            userName: "credential-username",
+            rpId: "jest-testing-website.com",
+          }),
+          mock<Fido2CredentialView>({
+            credentialId: "credential-id",
+            rpName: "credential-name",
+            userHandle: "user-handle-2",
+            userName: "credential-username",
+            rpId: "jest-testing-website.com",
+          }),
+        ],
+      },
+    });
+
+    it("should return true when there is no userHandle", () => {
+      const userHandle = "user-handle-1";
+      expect(Fido2Utils.cipherHasNoOtherPasskeys(emptyPasskeyCipher, userHandle)).toBeTruthy();
+    });
+
+    it("should return true when userHandle matches", () => {
+      const userHandle = "user-handle-1";
+      expect(Fido2Utils.cipherHasNoOtherPasskeys(passkeyCipher, userHandle)).toBeTruthy();
+    });
+
+    it("should return false when userHandle doesn't match", () => {
+      const userHandle = "testing";
+      expect(Fido2Utils.cipherHasNoOtherPasskeys(passkeyCipher, userHandle)).toBeFalsy();
     });
   });
 });
