@@ -4,7 +4,8 @@ use tokio::sync::Mutex;
 
 use crate::protocol::connection::ConnectionInfo;
 
-const TIMEOUT: std::time::Duration = std::time::Duration::from_secs(60);
+/// Determines how long to wait for a UI response before timing out.
+const SSH_UI_REQUEST_TIMEOUT: std::time::Duration = std::time::Duration::from_secs(60);
 
 static REQUEST_ID_COUNTER: AtomicU32 = AtomicU32::new(0);
 
@@ -59,7 +60,7 @@ impl UiRequester {
         &self,
         connection_info: &ConnectionInfo,
         cipher_id: String,
-        namespace: String,
+        namespace: Option<String>,
     ) -> bool {
         let request_id = REQUEST_ID_COUNTER.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
         self.request(UiRequestMessage::SignRequest {
@@ -78,7 +79,7 @@ impl UiRequester {
             .await
             .expect("Should send request to ui");
 
-        tokio::time::timeout(TIMEOUT, async move {
+        tokio::time::timeout(SSH_UI_REQUEST_TIMEOUT, async move {
             while let Ok((id, response)) = rx_channel.recv().await {
                 if id == request.id() {
                     return response;
@@ -106,16 +107,30 @@ pub enum UiRequestMessage {
         request_id: u32,
         connection_info: ConnectionInfo,
         cipher_id: String,
-        namespace: String,
+        namespace: Option<String>,
     },
 }
 
 impl UiRequestMessage {
+    pub fn connection_info(&self) -> &ConnectionInfo {
+        match self {
+            UiRequestMessage::ListRequest {
+                connection_info, ..
+            }
+            | UiRequestMessage::AuthRequest {
+                connection_info, ..
+            }
+            | UiRequestMessage::SignRequest {
+                connection_info, ..
+            } => connection_info,
+        }
+    }
+
     pub fn id(&self) -> u32 {
         match self {
-            UiRequestMessage::ListRequest { request_id, .. } => *request_id,
-            UiRequestMessage::AuthRequest { request_id, .. } => *request_id,
-            UiRequestMessage::SignRequest { request_id, .. } => *request_id,
+            UiRequestMessage::ListRequest { request_id, .. }
+            | UiRequestMessage::AuthRequest { request_id, .. }
+            | UiRequestMessage::SignRequest { request_id, .. } => *request_id,
         }
     }
 }

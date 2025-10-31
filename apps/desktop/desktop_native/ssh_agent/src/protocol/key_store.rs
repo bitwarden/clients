@@ -2,6 +2,7 @@ use crate::{
     memory::UnlockedSshItem,
     protocol::{
         connection::ConnectionInfo,
+        requests::ParsedSignRequest,
         types::{PublicKey, PublicKeyWithName},
     },
 };
@@ -16,6 +17,7 @@ pub(crate) trait Agent: Send + Sync {
         &self,
         public_key: &PublicKey,
         connection_info: &ConnectionInfo,
+        parsed_sign_request: &ParsedSignRequest,
     ) -> Result<bool, anyhow::Error>;
     async fn find_ssh_item(
         &self,

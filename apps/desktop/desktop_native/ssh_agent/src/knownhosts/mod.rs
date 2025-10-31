@@ -1,7 +1,7 @@
 use std::fs;
 use std::path::Path;
 
-use tracing::info;
+use tracing::warn;
 
 use crate::protocol::types::PublicKey;
 
@@ -75,7 +75,7 @@ impl KnownHostsReader {
             // Split by the first space
             let first_space_index = line.find(' ');
             let Some(first_space_index) = first_space_index else {
-                info!("Invalid known_hosts line (no spaces): {}", line);
+                warn!("Invalid known_hosts line (no spaces): {}", line);
                 continue;
             };
             let (hostnames, rest) = line.split_at(first_space_index);

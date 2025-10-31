@@ -1072,6 +1072,8 @@ pub mod sshagent_v2 {
     use tokio::{self, sync::Mutex};
     use tracing::{error, info};
 
+    /// Wrapper struct to hold the SSH agent state. This is exposed via NAPI for which the
+    /// macro generates all the necessary boilerplate.
     #[napi]
     pub struct SshAgentState {
         agent: BitwardenDesktopAgent,
@@ -1100,103 +1102,116 @@ pub mod sshagent_v2 {
         pub namespace: Option<String>,
     }
 
-    #[allow(clippy::unused_async)] // FIXME: Remove unused async!
     #[napi]
-    pub async fn serve(
+    pub fn serve(
         callback: ThreadsafeFunction<SshUIRequest, CalleeHandled>,
     ) -> napi::Result<SshAgentState> {
-        let (auth_request_tx, mut auth_request_rx) =
-            tokio::sync::mpsc::channel::<ssh_agent::agent::ui_requester::UiRequestMessage>(32);
+        // The size is arbitrary, as the channel responses are expected to be read immediately,
+        // a smaller or larger buffer would also work.
+        const BUFFER_SIZE: usize = 32;
+
+        let (auth_request_tx, mut auth_request_rx) = tokio::sync::mpsc::channel::<
+            ssh_agent::agent::ui_requester::UiRequestMessage,
+        >(BUFFER_SIZE);
         let (auth_response_tx, auth_response_rx) =
-            tokio::sync::broadcast::channel::<(u32, bool)>(32);
+            tokio::sync::broadcast::channel::<(u32, bool)>(BUFFER_SIZE);
         let auth_response_tx_arc = Arc::new(Mutex::new(auth_response_tx));
         let ui_requester =
             ui_requester::UiRequester::new(auth_request_tx, Arc::new(Mutex::new(auth_response_rx)));
 
         tokio::spawn(async move {
-            let _ = ui_requester;
-
             while let Some(request) = auth_request_rx.recv().await {
-                let cloned_response_tx_arc = auth_response_tx_arc.clone();
-                let cloned_callback = callback.clone();
-                tokio::spawn(async move {
-                    let auth_response_tx_arc = cloned_response_tx_arc;
-                    let callback = cloned_callback;
-
-                    let js_request = match request.clone() {
-                        UiRequestMessage::ListRequest {
-                            request_id: _,
-                            connection_info,
-                        } => SshUIRequest {
-                            cipher_id: None,
-                            is_list: true,
-                            process_name: connection_info.peer_info().process_name().to_string(),
-                            is_forwarding: connection_info.is_forwarding(),
-                            namespace: None,
-                        },
-                        UiRequestMessage::AuthRequest {
-                            request_id: _,
-                            connection_info,
-                            cipher_id,
-                        } => SshUIRequest {
-                            cipher_id: Some(cipher_id),
-                            is_list: false,
-                            process_name: connection_info.peer_info().process_name().to_string(),
-                            is_forwarding: connection_info.is_forwarding(),
-                            namespace: None,
-                        },
-                        UiRequestMessage::SignRequest {
-                            request_id: _,
-                            connection_info,
-                            cipher_id,
-                            namespace,
-                        } => SshUIRequest {
-                            cipher_id: Some(cipher_id),
-                            is_list: false,
-                            process_name: connection_info.peer_info().process_name().to_string(),
-                            is_forwarding: connection_info.is_forwarding(),
-                            namespace: Some(namespace),
-                        },
-                    };
-
-                    let promise_result: Result<Promise<bool>, napi::Error> =
-                        callback.call_async(Ok(js_request)).await;
-                    match promise_result {
-                        Ok(promise_result) => match promise_result.await {
-                            Ok(result) => {
-                                let _ = auth_response_tx_arc
-                                    .lock()
-                                    .await
-                                    .send((request.id(), result))
-                                    .expect("should be able to send auth response to agent");
-                            }
-                            Err(e) => {
-                                error!(error = %e, "Calling UI callback promise was rejected");
-                                let _ = auth_response_tx_arc
-                                    .lock()
-                                    .await
-                                    .send((request.id(), false))
-                                    .expect("should be able to send auth response to agent");
-                            }
-                        },
-                        Err(e) => {
-                            error!(error = %e, "Calling UI callback could not create promise");
-                            let _ = auth_response_tx_arc
-                                .lock()
-                                .await
-                                .send((request.id(), false))
-                                .expect("should be able to send auth response to agent");
-                        }
-                    }
-                });
+                handle_ui_request(request, auth_response_tx_arc.clone(), callback.clone());
             }
         });
 
         let agent = BitwardenDesktopAgent::new(ui_requester);
         let agent_copy = agent.clone();
-        PlatformListener::spawn_listeners(agent_copy);
+        if let Err(e) = PlatformListener::spawn_listeners(agent_copy) {
+            return Err(napi::Error::from_reason(format!(
+                "Failed to start SSH Agent platform listeners - Error: {e} - {e:?}"
+            )));
+        }
 
         Ok(SshAgentState { agent })
+    }
+
+    fn handle_ui_request(
+        request_message: UiRequestMessage,
+        auth_response_tx_arc: Arc<Mutex<tokio::sync::broadcast::Sender<(u32, bool)>>>,
+        callback: ThreadsafeFunction<SshUIRequest, CalleeHandled>,
+    ) {
+        tokio::spawn(async move {
+            let mut ui_request = SshUIRequest {
+                cipher_id: None,
+                is_list: false,
+                process_name: request_message
+                    .connection_info()
+                    .peer_info()
+                    .process_name()
+                    .to_string(),
+                is_forwarding: request_message.connection_info().is_forwarding(),
+                namespace: None,
+            };
+
+            let js_request = match request_message.clone() {
+                UiRequestMessage::ListRequest {
+                    request_id: _,
+                    connection_info: _,
+                } => {
+                    ui_request.is_list = true;
+                    ui_request
+                }
+                UiRequestMessage::AuthRequest {
+                    request_id: _,
+                    connection_info: _,
+                    cipher_id,
+                } => {
+                    ui_request.cipher_id = Some(cipher_id);
+                    ui_request
+                }
+                UiRequestMessage::SignRequest {
+                    request_id: _,
+                    connection_info: _,
+                    cipher_id,
+                    namespace,
+                } => {
+                    ui_request.cipher_id = Some(cipher_id);
+                    ui_request.namespace = Some(namespace);
+                    ui_request
+                }
+            };
+
+            let promise_result: Result<Promise<bool>, napi::Error> =
+                callback.call_async(Ok(js_request)).await;
+            match promise_result {
+                Ok(promise_result) => match promise_result.await {
+                    Ok(result) => {
+                        let _ = auth_response_tx_arc
+                            .lock()
+                            .await
+                            .send((request_message.id(), result))
+                            .expect("should be able to send auth response to agent");
+                    }
+                    Err(e) => {
+                        error!(error = %e, "Calling UI callback promise was rejected");
+                        let _ = auth_response_tx_arc
+                            .lock()
+                            .await
+                            .send((request_message.id(), false))
+                            .expect("should be able to send auth response to agent");
+                    }
+                },
+                Err(e) => {
+                    error!(error = %e, "Calling UI callback could not create promise");
+                    let _ = auth_response_tx_arc
+                        .lock()
+                        .await
+                        .send((request_message.id(), false))
+                        .expect("should be able to send auth response to agent");
+                }
+            }
+        });
     }
 
     #[napi]

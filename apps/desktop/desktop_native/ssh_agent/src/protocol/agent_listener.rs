@@ -24,8 +24,7 @@ pub async fn serve_listener<PeerStream, Listener>(
     mut listener: Listener,
     cancellation_token: CancellationToken,
     agent: impl Agent,
-) -> Result<(), anyhow::Error>
-where
+) where
     PeerStream: AsyncRead + AsyncWrite + Send + Sync + Unpin + 'static,
     Listener: Stream<Item = tokio::io::Result<(PeerStream, PeerInfo)>> + Unpin,
 {
@@ -44,7 +43,6 @@ where
             }
         }
     }
-    Ok(())
 }
 
 async fn handle_connection(
@@ -90,7 +88,11 @@ async fn handle_connection(
                 span.in_scope(|| info!("Received SignRequest {:?}", sign_request));
 
                 let Ok(true) = agent
-                    .request_can_sign(sign_request.public_key(), connection)
+                    .request_can_sign(
+                        sign_request.public_key(),
+                        connection,
+                        sign_request.parsed_payload(),
+                    )
                     .await
                 else {
                     span.in_scope(|| error!("Sign request denied by UI"));

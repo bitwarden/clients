@@ -22,7 +22,7 @@ pub enum ReplyType {
     /// `https://www.ietf.org/archive/id/draft-miller-ssh-agent-11.html#name-requesting-a-list-of-keys`
     /// Response to `RequestType::SSH_AGENTC_REQUEST_IDENTITIES`
     SSH_AGENT_IDENTITIES_ANSWER = 12,
-    /// `https://www.ietf.org/archive/id/draft-miller-ssh-agent-11.html#name-private-key-operations``
+    /// `https://www.ietf.org/archive/id/draft-miller-ssh-agent-11.html#name-private-key-operations`
     /// Response to `RequestType::SSH_AGENTC_SIGN_REQUEST`
     SSH_AGENT_SIGN_RESPONSE = 14,
     /// Invalid reply type
@@ -39,12 +39,12 @@ pub struct ReplyFrame {
 }
 
 impl ReplyFrame {
-    pub fn new(reply: ReplyType, payload: Vec<u8>) -> Self {
+    pub fn new(reply: ReplyType, payload: &[u8]) -> Self {
         let mut raw_frame = Vec::new();
         Into::<u8>::into(reply)
             .encode(&mut raw_frame)
             .expect("Encoding into Vec cannot fail");
-        raw_frame.extend_from_slice(&payload);
+        raw_frame.extend_from_slice(payload);
         Self { raw_frame }
     }
 }
@@ -75,14 +75,15 @@ impl IdentitiesReply {
     ///   ... (nkeys times)
     /// ]
     pub fn encode(&self) -> Result<ReplyFrame, ssh_encoding::Error> {
+        let mut reply_message = Vec::new();
         Ok(ReplyFrame::new(ReplyType::SSH_AGENT_IDENTITIES_ANSWER, {
-            let mut reply_message = Vec::new();
+            reply_message.clear();
             (self.keys.len() as u32).encode(&mut reply_message)?;
             for key in &self.keys {
                 key.key.encode(&mut reply_message)?;
                 key.name.encode(&mut reply_message)?;
             }
-            reply_message
+            &reply_message
         }))
     }
 }
@@ -107,10 +108,10 @@ impl SshSignReply {
     /// byte SSH_AGENT_SIGN_RESPONSE
     /// string signature blob
     pub fn encode(&self) -> Result<ReplyFrame, ssh_encoding::Error> {
+        let mut reply_payload = Vec::new();
         Ok(ReplyFrame::new(ReplyType::SSH_AGENT_SIGN_RESPONSE, {
-            let mut reply_payload = Vec::new();
             self.0.encode()?.encode(&mut reply_payload)?;
-            reply_payload
+            &reply_payload
         }))
     }
 }
@@ -124,7 +125,7 @@ impl AgentExtensionFailure {
 
 impl From<AgentExtensionFailure> for ReplyFrame {
     fn from(_value: AgentExtensionFailure) -> Self {
-        ReplyFrame::new(ReplyType::SSH_AGENT_EXTENSION_FAILURE, Vec::new())
+        ReplyFrame::new(ReplyType::SSH_AGENT_EXTENSION_FAILURE, &[])
     }
 }
 
@@ -137,7 +138,7 @@ impl AgentFailure {
 
 impl From<AgentFailure> for ReplyFrame {
     fn from(_value: AgentFailure) -> Self {
-        ReplyFrame::new(ReplyType::SSH_AGENT_FAILURE, Vec::new())
+        ReplyFrame::new(ReplyType::SSH_AGENT_FAILURE, &[])
     }
 }
 
@@ -150,6 +151,6 @@ impl AgentSuccess {
 
 impl From<AgentSuccess> for ReplyFrame {
     fn from(_value: AgentSuccess) -> Self {
-        ReplyFrame::new(ReplyType::SSH_AGENT_SUCCESS, Vec::new())
+        ReplyFrame::new(ReplyType::SSH_AGENT_SUCCESS, &[])
     }
 }

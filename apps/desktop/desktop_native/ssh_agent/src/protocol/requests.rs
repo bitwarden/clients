@@ -135,7 +135,6 @@ impl SshSignRequest {
         &self.payload_to_sign
     }
 
-    #[allow(unused)]
     pub fn parsed_payload(&self) -> &ParsedSignRequest {
         &self.parsed_sign_request
     }
@@ -154,7 +153,7 @@ impl TryFrom<&[u8]> for SshSignRequest {
     ///
     /// In this case, the message already has the leading byte stripped off by the previous parsing code.
     fn try_from(mut message: &[u8]) -> Result<Self, Self::Error> {
-        let public_key_blob = read_bytes(&mut message)?.to_vec();
+        let public_key_blob = read_bytes(&mut message)?.clone();
         let data = read_bytes(&mut message)?;
         let flags = message
             .read_u32::<byteorder::BigEndian>()
@@ -170,11 +169,8 @@ impl TryFrom<&[u8]> for SshSignRequest {
 }
 
 #[derive(Debug)]
-pub(crate) enum ParsedSignRequest {
-    #[allow(unused)]
-    SshSigRequest {
-        namespace: String,
-    },
+pub enum ParsedSignRequest {
+    SshSigRequest { namespace: String },
     SignRequest {},
 }
 

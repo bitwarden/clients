@@ -38,6 +38,13 @@ import { ApproveSshRequestComponent } from "../../platform/components/approve-ss
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
 import { SshAgentPromptType } from "../models/ssh-agent-setting";
 
+// Note: There are two implementations of the SSH agent, for a 
+// transition phase, V1, and V2. The version is selected
+// via a feature flag when the agent is initialized. Once the feature
+// flag is rolled out, V1 can be removed.
+const SSH_AGENT_MODULE_VERSION_V1 = 1;
+const SSH_AGENT_MODULE_VERSION_V2 = 2;
+
 @Injectable({
   providedIn: "root",
 })
@@ -63,7 +70,7 @@ export class SshAgentService implements OnDestroy {
     private desktopSettingsService: DesktopSettingsService,
     private accountService: AccountService,
     private configService: ConfigService,
-  ) {}
+  ) { }
 
   async init() {
     this.desktopSettingsService.sshAgentEnabled$
@@ -73,7 +80,7 @@ export class SshAgentService implements OnDestroy {
             const isV2FeatureFlagEnabled = await this.configService.getFeatureFlag(
               FeatureFlag.SshAgentV2,
             );
-            await ipc.platform.sshAgent.init(isV2FeatureFlagEnabled ? 2 : 1);
+            await ipc.platform.sshAgent.init(isV2FeatureFlagEnabled ? SSH_AGENT_MODULE_VERSION_V2 : SSH_AGENT_MODULE_VERSION_V1);
           }
 
           if (!enabled) {
