@@ -1,13 +1,14 @@
 <ng-container>
   @let status = dataService.reportStatus$ | async;
-  @if (status == ReportStatusEnum.Initializing) {
+  @let hasCiphers = dataService.hasCiphers$ | async;
+  @if (status == ReportStatusEnum.Initializing || hasCiphers === null) {
     <!-- Show loading state when initializing risk insights -->
     <dirt-risk-insights-loading></dirt-risk-insights-loading>
   } @else {
     <!-- Check final states after initial calls have been completed -->
     @if (!(dataService.hasReportData$ | async)) {
       <div class="tw-flex tw-justify-center tw-items-center tw-min-h-[70vh] tw-w-full">
-        @if (!(dataService.hasCiphers$ | async)) {
+        @if (!hasCiphers) {
           <!-- Show Empty state when there are no applications (no ciphers to make reports on) -->
           <empty-state-card
             [videoSrc]="emptyStateVideoSrc"
