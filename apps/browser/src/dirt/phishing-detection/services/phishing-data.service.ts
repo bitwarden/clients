@@ -35,7 +35,8 @@ export const PHISHING_DOMAINS_KEY = new KeyDefinition<PhishingData>(
   PHISHING_DETECTION_DISK,
   "phishingDomains",
   {
-    deserializer: (value: PhishingData) => value ?? { domains: [], timestamp: 0, checksum: "" },
+    deserializer: (value: PhishingData) =>
+      value ?? { dommains: [], timestamp: 0, checksum: "", applicationVersion: "" },
   },
 );
 
