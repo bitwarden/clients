@@ -42,6 +42,8 @@ export class AllActivityComponent implements OnInit {
   newApplications: string[] = [];
   passwordChangeMetricHasProgressBar = false;
   allAppsHaveReviewDate = false;
+  isAllCaughtUp = false;
+  hasLoadedApplicationData = false;
 
   destroyRef = inject(DestroyRef);
 
@@ -77,6 +79,7 @@ export class AllActivityComponent implements OnInit {
         .subscribe((newApps) => {
           this.newApplications = newApps;
           this.newApplicationsCount = newApps.length;
+          this.updateIsAllCaughtUp();
         });
 
       this.allActivitiesService.passwordChangeProgressMetricHasProgressBar$
@@ -89,25 +92,32 @@ export class AllActivityComponent implements OnInit {
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe((enrichedData) => {
           if (enrichedData?.applicationData && enrichedData.applicationData.length > 0) {
+            this.hasLoadedApplicationData = true;
             // Check if all apps have a review date (not null and not undefined)
             this.allAppsHaveReviewDate = enrichedData.applicationData.every(
               (app) => app.reviewedDate !== null && app.reviewedDate !== undefined,
             );
           } else {
+            this.hasLoadedApplicationData = enrichedData !== null;
             this.allAppsHaveReviewDate = false;
           }
+          this.updateIsAllCaughtUp();
         });
     }
   }
 
   /**
-   * Determines if the "All caught up!" state should be displayed.
-   * Shows this state when:
+   * Updates the isAllCaughtUp flag based on current state.
+   * Only shows "All caught up!" when:
+   * - Data has been loaded (hasLoadedApplicationData is true)
    * - No new applications need review
    * - All apps have a review date
    */
-  get isAllCaughtUp(): boolean {
-    return this.newApplicationsCount === 0 && this.allAppsHaveReviewDate;
+  private updateIsAllCaughtUp(): void {
+    this.isAllCaughtUp =
+      this.hasLoadedApplicationData &&
+      this.newApplicationsCount === 0 &&
+      this.allAppsHaveReviewDate;
   }
 
   /**
