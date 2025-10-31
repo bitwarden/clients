@@ -390,7 +390,7 @@ export class VaultPopupListFiltersService {
             FolderView[],
             PopupCipherViewLike[],
           ] => {
-            if (folders.length === 1 && folders[0].id === null) {
+            if (folders.length === 1 && folders[0].id) {
               // Do not display folder selections when only the "no folder" option is available.
               return [filters as PopupListFilter, [], cipherViews];
             }
@@ -399,7 +399,7 @@ export class VaultPopupListFiltersService {
             folders.sort(Utils.getSortFunction(this.i18nService, "name"));
             let arrangedFolders = folders;
 
-            const noFolder = folders.find((f) => f.id === null);
+            const noFolder = folders.find((f) => !f.id);
 
             if (noFolder) {
               // Update `name` of the "no folder" option to "Items with no folder"
@@ -409,7 +409,7 @@ export class VaultPopupListFiltersService {
               };
 
               // Move the "no folder" option to the end of the list
-              arrangedFolders = [...folders.filter((f) => f.id !== null), updatedNoFolder];
+              arrangedFolders = [...folders.filter((f) => !f.id), updatedNoFolder];
             }
             return [filters as PopupListFilter, arrangedFolders, cipherViews];
           },
